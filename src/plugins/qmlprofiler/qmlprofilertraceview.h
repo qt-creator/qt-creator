@@ -119,6 +119,7 @@ protected:
 
 signals:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columNumber);
+    void eventSelectedByHash(const QString &hash);
     void resized();
 
 private:

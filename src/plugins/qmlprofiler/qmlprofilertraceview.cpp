@@ -262,20 +262,34 @@ void QmlProfilerTraceView::clear()
 void QmlProfilerTraceView::selectByHash(const QString &hash)
 {
     QQuickItem *rootObject = d->m_mainView->rootObject();
+    if (!rootObject)
+        return;
 
-    if (rootObject)
-        QMetaObject::invokeMethod(rootObject, "selectById",
-                Q_ARG(QVariant,QVariant(d->m_modelProxy->getEventIdForHash(hash))));
+    for (int modelIndex = 0; modelIndex < d->m_modelProxy->modelCount(); ++modelIndex) {
+        int eventId = d->m_modelProxy->getEventIdForHash(modelIndex, hash);
+        if (eventId != -1) {
+            QMetaObject::invokeMethod(rootObject, "selectById",
+                                      Q_ARG(QVariant,QVariant(modelIndex)),
+                                      Q_ARG(QVariant,QVariant(eventId)));
+            return;
+        }
+    }
 }
 
 void QmlProfilerTraceView::selectBySourceLocation(const QString &filename, int line, int column)
 {
-    int eventId = d->m_modelProxy->getEventIdForLocation(filename, line, column);
+    QQuickItem *rootObject = d->m_mainView->rootObject();
+    if (!rootObject)
+        return;
 
-    if (eventId != -1) {
-        QQuickItem *rootObject = d->m_mainView->rootObject();
-        if (rootObject)
-            QMetaObject::invokeMethod(rootObject, "selectById", Q_ARG(QVariant,QVariant(eventId)));
+    for (int modelIndex = 0; modelIndex < d->m_modelProxy->modelCount(); ++modelIndex) {
+        int eventId = d->m_modelProxy->getEventIdForLocation(modelIndex, filename, line, column);
+        if (eventId != -1) {
+            QMetaObject::invokeMethod(rootObject, "selectById",
+                                      Q_ARG(QVariant,QVariant(modelIndex)),
+                                      Q_ARG(QVariant,QVariant(eventId)));
+            return;
+        }
     }
 }
 

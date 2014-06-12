@@ -63,8 +63,6 @@ public:
 
     bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const;
 
-    Q_INVOKABLE int basicModelIndex() const;
-
     Q_INVOKABLE qint64 lastTimeMark() const;
 
     Q_INVOKABLE bool expanded(int modelIndex, int category) const;
@@ -94,8 +92,9 @@ public:
     Q_INVOKABLE const QVariantList getEventDetails(int modelIndex, int index) const;
     Q_INVOKABLE const QVariantMap getEventLocation(int modelIndex, int index) const;
 
-    Q_INVOKABLE int getEventIdForHash(const QString &hash) const;
-    Q_INVOKABLE int getEventIdForLocation(const QString &filename, int line, int column) const;
+    Q_INVOKABLE int getEventIdForHash(int modelIndex, const QString &hash) const;
+    Q_INVOKABLE int getEventIdForLocation(int modelIndex, const QString &filename, int line,
+                                          int column) const;
 
     Q_INVOKABLE int modelIndexForCategory(int absoluteCategoryIndex) const;
     Q_INVOKABLE int correctedCategoryIndexForModel(int modelIndex, int absoluteCategoryIndex) const;

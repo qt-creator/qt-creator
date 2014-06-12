@@ -158,17 +158,16 @@ Rectangle {
         rangeDetails.isBindingLoop = false;
     }
 
-    function selectById(eventId)
+    function selectById(modelIndex, eventId)
     {
-        if (eventId === -1 ||
-                eventId === qmlProfilerModelProxy.getEventId(view.selectedModel, view.selectedItem))
+        if (eventId === -1 || (modelIndex === view.selectedModel &&
+                eventId === qmlProfilerModelProxy.getEventId(modelIndex, view.selectedItem)))
             return;
 
         // this is a slot responding to events from the other pane
         // which tracks only events from the basic model
         if (!lockItemSelection) {
             lockItemSelection = true;
-            var modelIndex = qmlProfilerModelProxy.basicModelIndex();
             var itemIndex = view.nextItemFromId(modelIndex, eventId);
             // select an item, lock to it, and recenter if necessary
             view.selectFromId(modelIndex, itemIndex); // triggers recentering

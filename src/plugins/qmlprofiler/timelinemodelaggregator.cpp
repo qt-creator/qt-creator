@@ -47,7 +47,6 @@ public:
 
     TimelineModelAggregator *q;
 
-    int basicModelIndex;
     QList <AbstractTimelineModel *> modelList;
     QmlProfilerModelManager *modelManager;
 };
@@ -81,9 +80,6 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
     BasicTimelineModel *basicTimelineModel = new BasicTimelineModel(this);
     basicTimelineModel->setModelManager(modelManager);
     addModel(basicTimelineModel);
-    // the basic model is the last one here
-    d->basicModelIndex = d->modelList.count() - 1;
-
 }
 
 void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
@@ -147,11 +143,6 @@ bool TimelineModelAggregator::eventAccepted(const QmlProfilerDataModel::QmlEvent
 {
     // accept all events
     return true;
-}
-
-int TimelineModelAggregator::basicModelIndex() const
-{
-    return d->basicModelIndex;
 }
 
 qint64 TimelineModelAggregator::lastTimeMark() const
@@ -297,24 +288,15 @@ const QVariantMap TimelineModelAggregator::getEventLocation(int modelIndex, int 
     return d->modelList[modelIndex]->getEventLocation(index);
 }
 
-int TimelineModelAggregator::getEventIdForHash(const QString &hash) const
+int TimelineModelAggregator::getEventIdForHash(int modelIndex, const QString &hash) const
 {
-    foreach (const AbstractTimelineModel *model, d->modelList) {
-        int eventId = model->getEventIdForHash(hash);
-        if (eventId != -1)
-            return eventId;
-    }
-    return -1;
+    return d->modelList[modelIndex]->getEventIdForHash(hash);
 }
 
-int TimelineModelAggregator::getEventIdForLocation(const QString &filename, int line, int column) const
+int TimelineModelAggregator::getEventIdForLocation(int modelIndex, const QString &filename,
+                                                   int line, int column) const
 {
-    foreach (const AbstractTimelineModel *model, d->modelList) {
-        int eventId = model->getEventIdForLocation(filename, line, column);
-        if (eventId != -1)
-            return eventId;
-    }
-    return -1;
+    return d->modelList[modelIndex]->getEventIdForLocation(filename, line, column);
 }
 
 void TimelineModelAggregator::dataChanged()
