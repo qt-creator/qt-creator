@@ -100,7 +100,6 @@ using namespace Help::Internal;
 const char SB_INDEX[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Index");
 const char SB_CONTENTS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Contents");
 const char SB_BOOKMARKS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Bookmarks");
-const char SB_SEARCH[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Search");
 
 const char SB_OPENPAGES[] = "OpenPages";
 
@@ -438,17 +437,15 @@ void HelpPlugin::setupUi()
     connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
     shortcutMap.insert(QLatin1String(SB_CONTENTS), cmd);
 
-    SearchWidget *searchWidget = new SearchWidget();
-    searchWidget->setWindowTitle(tr(SB_SEARCH));
-    m_searchItem = new SideBarItem(searchWidget, QLatin1String(SB_SEARCH));
-    connect(searchWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
+    m_searchItem = new SearchSideBarItem;
+    connect(m_searchItem, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSourceFromSearch(QUrl)));
 
      action = new QAction(tr("Activate Search in Help mode"), m_splitter);
      cmd = ActionManager::registerAction(action, "Help.SearchShortcut", modecontext);
      cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+/") : tr("Ctrl+Shift+/")));
      connect(action, SIGNAL(triggered()), this, SLOT(activateSearch()));
-     shortcutMap.insert(QLatin1String(SB_SEARCH), cmd);
+     shortcutMap.insert(m_searchItem->id(), cmd);
 
     BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
     BookmarkWidget *bookmarkWidget = new BookmarkWidget(manager, 0, false);

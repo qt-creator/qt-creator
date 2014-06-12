@@ -30,9 +30,10 @@
 #ifndef SEARCHWIDGET_H
 #define SEARCHWIDGET_H
 
+#include <coreplugin/sidebar.h>
+
 #include <QFutureInterface>
 #include <QFutureWatcher>
-
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -44,6 +45,19 @@ QT_END_NAMESPACE
 
 namespace Help {
 namespace Internal {
+
+class SearchSideBarItem : public Core::SideBarItem
+{
+    Q_OBJECT
+
+public:
+    SearchSideBarItem();
+
+    QList<QToolButton *> createToolBarWidgets();
+
+signals:
+    void linkActivated(const QUrl &url);
+};
 
 class SearchWidget : public QWidget
 {

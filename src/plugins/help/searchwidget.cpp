@@ -31,25 +31,27 @@
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/styledbar.h>
 
-#include <QMap>
-#include <QString>
-#include <QStringList>
-
-#include <QMenu>
-#include <QLayout>
-#include <QKeyEvent>
-#include <QClipboard>
 #include <QApplication>
-#include <QTextBrowser>
-
+#include <QClipboard>
 #include <QHelpEngine>
 #include <QHelpSearchEngine>
 #include <QHelpSearchQueryWidget>
 #include <QHelpSearchResultWidget>
+#include <QKeyEvent>
+#include <QLayout>
+#include <QMap>
+#include <QMenu>
+#include <QString>
+#include <QStringList>
+#include <QTextBrowser>
+#include <QToolButton>
+
+static const char SB_SEARCH[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Search");
 
 using namespace Help::Internal;
 
@@ -264,4 +266,23 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
         OpenPagesManager::instance().createPageFromSearch(link);
     else if (usedAction == copyAnchorAction)
         QApplication::clipboard()->setText(link.toString());
+}
+
+// #pragma mark -- SearchSideBarItem
+
+SearchSideBarItem::SearchSideBarItem()
+    : SideBarItem(new SearchWidget, QLatin1String(SB_SEARCH))
+{
+    widget()->setWindowTitle(tr(SB_SEARCH));
+    connect(widget(), SIGNAL(linkActivated(QUrl)), this, SIGNAL(linkActivated(QUrl)));
+}
+
+QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()
+{
+    QToolButton *reindexButton = new QToolButton;
+    reindexButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RELOAD_GRAY)));
+    reindexButton->setToolTip(tr("Regenerate Index"));
+    connect(reindexButton, SIGNAL(clicked()),
+            LocalHelpManager::helpEngine().searchEngine(), SLOT(reindexDocumentation()));
+    return QList<QToolButton *>() << reindexButton;
 }
