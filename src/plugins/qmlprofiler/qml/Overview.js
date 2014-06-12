@@ -85,7 +85,7 @@ function drawData(canvas, ctxt)
     ctxt.lineWidth = 2;
     var radius = 1;
     modelRowStart = 0;
-    for (modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); modelIndex += 10) {
+    for (modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
         for (ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
              ii += canvas.increment) {
             if (qmlProfilerModelProxy.getBindingLoopDest(modelIndex,ii) >= 0) {
