@@ -120,8 +120,6 @@ public:
     /// This function needs to be called, only if the pages that support a project changed.
     void requestProjectModeUpdate(ProjectExplorer::Project *p);
 
-    QList<RunControl *> runControls() const;
-
     void initiateInlineRenaming();
 
     static QString displayNameForStepId(Core::Id stepId);

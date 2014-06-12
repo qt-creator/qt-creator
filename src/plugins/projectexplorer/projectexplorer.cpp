@@ -1733,11 +1733,6 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, RunMode runM
     emit updateRunActions();
 }
 
-QList<RunControl *> ProjectExplorerPlugin::runControls() const
-{
-    return d->m_outputPane->runControls();
-}
-
 void ProjectExplorerPlugin::initiateInlineRenaming()
 {
     renameFile();

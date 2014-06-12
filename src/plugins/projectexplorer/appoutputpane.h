@@ -91,8 +91,6 @@ public:
     bool aboutToClose() const;
     bool closeTabs(CloseTabMode mode);
 
-    QList<RunControl *> runControls() const;
-
 signals:
      void allRunControlsFinished();
      void runControlStarted(ProjectExplorer::RunControl *rc);
