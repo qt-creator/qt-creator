@@ -1,3 +1,4 @@
+QT += quickwidgets
 CONFIG += exceptions
 
 INCLUDEPATH += $$PWD
