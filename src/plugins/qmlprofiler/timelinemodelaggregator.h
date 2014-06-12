@@ -71,7 +71,6 @@ public:
     int findFirstIndexNoParents(int modelIndex, qint64 startTime) const;
     int findLastIndex(int modelIndex, qint64 endTime) const;
 
-    int getEventType(int modelIndex, int index) const;
     int getEventRow(int modelIndex, int index) const;
     Q_INVOKABLE qint64 getDuration(int modelIndex, int index) const;
     Q_INVOKABLE qint64 getStartTime(int modelIndex, int index) const;

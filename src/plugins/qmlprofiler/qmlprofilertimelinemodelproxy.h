@@ -81,7 +81,6 @@ public:
     Q_INVOKABLE int rowCount() const;
     static QString categoryLabel(int categoryIndex);
 
-    int getEventType(int index) const;
     int getEventRow(int index) const;
     Q_INVOKABLE int getEventId(int index) const;
     int getBindingLoopDest(int index) const;

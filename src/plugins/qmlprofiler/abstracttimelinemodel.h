@@ -76,7 +76,6 @@ public:
     Q_INVOKABLE virtual QColor getColor(int index) const = 0;
     virtual const QVariantList getLabels() const = 0;
     Q_INVOKABLE virtual const QVariantList getEventDetails(int index) const = 0;
-    virtual int getEventType(int index) const = 0;
     virtual int getEventRow(int index) const = 0;
     virtual void loadData() = 0;
     virtual void clear() = 0;

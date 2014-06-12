@@ -73,11 +73,4 @@ const QString SingleCategoryTimelineModel::title() const
     return d->title;
 }
 
-int SingleCategoryTimelineModel::getEventType(int index) const
-{
-    Q_D(const SingleCategoryTimelineModel);
-    Q_UNUSED(index);
-    return (d->message << 8) + d->rangeType;
-}
-
 }

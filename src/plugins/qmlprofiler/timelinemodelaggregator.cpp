@@ -175,11 +175,6 @@ int TimelineModelAggregator::findLastIndex(int modelIndex, qint64 endTime) const
     return d->modelList[modelIndex]->findLastIndex(endTime);
 }
 
-int TimelineModelAggregator::getEventType(int modelIndex, int index) const
-{
-    return d->modelList[modelIndex]->getEventType(index);
-}
-
 int TimelineModelAggregator::getEventRow(int modelIndex, int index) const
 {
     return d->modelList[modelIndex]->getEventRow(index);

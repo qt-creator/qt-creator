@@ -159,42 +159,31 @@ void RangeTimelineModel::loadData()
 
 void RangeTimelineModel::RangeTimelineModelPrivate::computeNestingContracted()
 {
-    Q_Q(RangeTimelineModel);
     int i;
     int eventCount = count();
 
-    QList<int> nestingLevels;
-    QList< QHash<int, qint64> > endtimesPerNestingLevel;
-
-    for (i = 0; i < QmlDebug::MaximumRangeType; i++) {
-        nestingLevels << QmlDebug::Constants::QML_MIN_LEVEL;
-        QHash<int, qint64> dummyHash;
-        dummyHash[QmlDebug::Constants::QML_MIN_LEVEL] = 0;
-        endtimesPerNestingLevel << dummyHash;
-    }
+    int nestingLevels = QmlDebug::Constants::QML_MIN_LEVEL;
+    contractedRows = nestingLevels + 1;
+    QVector<qint64> nestingEndTimes;
+    nestingEndTimes.fill(0, nestingLevels + 1);
 
     for (i = 0; i < eventCount; i++) {
         qint64 st = ranges[i].start;
-        int type = q->getEventType(i);
 
         // per type
-        if (endtimesPerNestingLevel[type][nestingLevels[type]] > st) {
-            nestingLevels[type]++;
+        if (nestingEndTimes[nestingLevels] > st) {
+            if (++nestingLevels == nestingEndTimes.length())
+                nestingEndTimes << 0;
+            if (nestingLevels == contractedRows)
+                ++contractedRows;
         } else {
-            while (nestingLevels[type] > QmlDebug::Constants::QML_MIN_LEVEL &&
-                   endtimesPerNestingLevel[type][nestingLevels[type]-1] <= st)
-                nestingLevels[type]--;
+            while (nestingLevels > QmlDebug::Constants::QML_MIN_LEVEL &&
+                   nestingEndTimes[nestingLevels-1] <= st)
+                nestingLevels--;
         }
-        endtimesPerNestingLevel[type][nestingLevels[type]] =
-                st + ranges[i].duration;
+        nestingEndTimes[nestingLevels] = st + ranges[i].duration;
 
-        ranges[i].displayRowCollapsed = nestingLevels[type];
-    }
-
-    // nestingdepth
-    for (i = 0; i < eventCount; i++) {
-        if (contractedRows <= ranges[i].displayRowCollapsed)
-            contractedRows = ranges[i].displayRowCollapsed + 1;
+        ranges[i].displayRowCollapsed = nestingLevels;
     }
 }
 
@@ -273,13 +262,6 @@ QString RangeTimelineModel::categoryLabel(int categoryIndex)
     case 5: return QCoreApplication::translate("MainView", "JavaScript"); break;
     default: return QString();
     }
-}
-
-int RangeTimelineModel::getEventType(int index) const
-{
-    Q_D(const RangeTimelineModel);
-    Q_UNUSED(index);
-    return d->rangeType;
 }
 
 int RangeTimelineModel::getEventRow(int index) const
