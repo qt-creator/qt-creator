@@ -513,3 +513,10 @@ QString ResourceFileNode::qrcPath() const
 {
     return m_qrcPath;
 }
+
+QList<ProjectExplorer::ProjectAction> ResourceFileNode::supportedActions(ProjectExplorer::Node *node) const
+{
+    QList<ProjectExplorer::ProjectAction> actions = parentFolderNode()->supportedActions(node);
+    actions.removeOne(ProjectExplorer::HidePathActions);
+    return actions;
+}
