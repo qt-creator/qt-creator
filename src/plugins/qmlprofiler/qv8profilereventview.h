@@ -69,7 +69,6 @@ public:
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void showEventInTimeline(int eventId);
     void resized();
 
 public slots:
