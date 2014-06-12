@@ -247,7 +247,7 @@ static inline QVariant convertDynamicPropertyValueToVariant(const QString &astVa
 
 static bool isComponentType(const QmlDesigner::TypeName &type)
 {
-    return  type == "Component" || type == "Qt.Component" || type == "QtQuick.Component";
+    return  type == "Component" || type == "Qt.Component" || type == "QtQuick.Component" || type == "<cpp>.QQmlComponent";
 }
 
 static bool isCustomParserType(const QString &type)
