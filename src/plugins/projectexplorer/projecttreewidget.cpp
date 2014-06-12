@@ -132,7 +132,8 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     initView();
 
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(Core::TreeViewFind::createSearchableWrapper(m_view));
+    layout->addWidget(Core::TreeViewFind::createSearchableWrapper(
+                          m_view, TreeViewFind::FetchMoreWhileSearching));
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
