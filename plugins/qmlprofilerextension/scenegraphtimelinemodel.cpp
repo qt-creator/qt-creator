@@ -69,9 +69,8 @@ SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
 {
 }
 
-int SceneGraphTimelineModel::categoryDepth(int categoryIndex) const
+int SceneGraphTimelineModel::rowCount() const
 {
-    Q_UNUSED(categoryIndex);
     if (isEmpty())
         return 1;
     return 3;
@@ -117,10 +116,9 @@ QString labelForSGType(int t)
     }
 }
 
-const QVariantList SceneGraphTimelineModel::getLabelsForCategory(int category) const
+const QVariantList SceneGraphTimelineModel::getLabels() const
 {
     Q_D(const SceneGraphTimelineModel);
-    Q_UNUSED(category);
     QVariantList result;
 
     if (d->expanded && !isEmpty()) {

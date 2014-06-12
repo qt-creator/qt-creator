@@ -93,10 +93,9 @@ PixmapCacheModel::PixmapCacheModel(QObject *parent)
     d->maxCacheSize = 1;
 }
 
-int PixmapCacheModel::categoryDepth(int categoryIndex) const
+int PixmapCacheModel::rowCount() const
 {
     Q_D(const PixmapCacheModel);
-    Q_UNUSED(categoryIndex);
     if (isEmpty())
         return 1;
     if (d->expanded)
@@ -145,10 +144,9 @@ QString getFilenameOnly(QString absUrl)
     return absUrl;
 }
 
-const QVariantList PixmapCacheModel::getLabelsForCategory(int category) const
+const QVariantList PixmapCacheModel::getLabels() const
 {
     Q_D(const PixmapCacheModel);
-    Q_UNUSED(category);
     QVariantList result;
 
     if (d->expanded && !isEmpty()) {

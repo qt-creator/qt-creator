@@ -55,14 +55,14 @@ public:
 
     PixmapCacheModel(QObject *parent = 0);
 
-    Q_INVOKABLE int categoryDepth(int categoryIndex) const;
+    int rowCount() const;
 
     int getEventRow(int index) const;
     Q_INVOKABLE int getEventId(int index) const;
     Q_INVOKABLE QColor getColor(int index) const;
     Q_INVOKABLE float getHeight(int index) const;
 
-    Q_INVOKABLE const QVariantList getLabelsForCategory(int category) const;
+    const QVariantList getLabels() const;
 
     Q_INVOKABLE const QVariantList getEventDetails(int index) const;
 
