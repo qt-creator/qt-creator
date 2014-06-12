@@ -157,10 +157,14 @@ IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
         *wrapped = false;
     if (searchTxt.isEmpty())
         return IFindSupport::NotFound;
+    if (d->m_view->model()->rowCount() <= 0) // empty model
+        return IFindSupport::NotFound;
 
+    QModelIndex currentIndex = d->m_view->currentIndex();
+    if (!currentIndex.isValid()) // nothing selected, start from top
+        currentIndex = d->m_view->model()->index(0, 0);
     QTextDocument::FindFlags flags = textDocumentFlagsForFindFlags(findFlags);
     QModelIndex resultIndex;
-    QModelIndex currentIndex = d->m_view->currentIndex();
     QModelIndex index = currentIndex;
     int currentRow = currentIndex.row();
 
