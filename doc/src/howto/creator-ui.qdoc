@@ -199,6 +199,11 @@
 
     \endlist
 
+    You can make additional files known to \QC, so that they become visible in
+    the \gui Projects view and known to the locator and search, but do not
+    affect the build system. Add the paths to the files to the \c OTHER_FILES
+    variable in the .pro file.
+
     \section2 Viewing the File System
 
     If you cannot see a file in the \gui Projects view, switch to the
