@@ -159,6 +159,15 @@ int parseArguments(const QStringList &args, Settings *s, const QList<Operation *
 
 int main(int argc, char *argv[])
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
+    // Since 5.3, Qt by default aborts if the effective user id is different than the
+    // real user id. However, in IFW on Mac we use setuid to 'elevate'
+    // permissions if needed. This is considered safe because the user has to provide
+    // the credentials manually - an attack would require at least access to the
+    // user's environment.
+    QCoreApplication::setSetuidAllowed(true);
+#endif
+
     QCoreApplication a(argc, argv);
 
     Settings settings;
