@@ -20,7 +20,7 @@
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
 #include "qmlprofiler/sortedtimelinemodel.h"
-#include "qmlprofiler/singlecategorytimelinemodel_p.h"
+#include "qmlprofiler/abstracttimelinemodel_p.h"
 
 #include <QDebug>
 #include <QSize>
@@ -64,7 +64,7 @@ struct Pixmap {
 
 class PixmapCacheModel::PixmapCacheModelPrivate :
         public SortedTimelineModel<PixmapCacheEvent,
-                                   SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
+                                   AbstractTimelineModel::AbstractTimelineModelPrivate>
 {
 public:
     void computeMaxCacheSize();
@@ -83,7 +83,7 @@ private:
 };
 
 PixmapCacheModel::PixmapCacheModel(QObject *parent)
-    : SingleCategoryTimelineModel(new PixmapCacheModelPrivate(),
+    : AbstractTimelineModel(new PixmapCacheModelPrivate(),
                                   QLatin1String("PixmapCacheTimeLineModel"),
                                   QLatin1String("Pixmap Cache"), QmlDebug::PixmapCacheEvent,
                                   QmlDebug::MaximumRangeType, parent)

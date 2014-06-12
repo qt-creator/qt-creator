@@ -19,7 +19,7 @@
 #ifndef SCENEGRAPHTIMELINEMODEL_H
 #define SCENEGRAPHTIMELINEMODEL_H
 
-#include "qmlprofiler/singlecategorytimelinemodel.h"
+#include "qmlprofiler/abstracttimelinemodel.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
 #include "qmlprofiler/qmlprofilerdatamodel.h"
 
@@ -31,7 +31,7 @@ namespace Internal {
 
 #define timingFieldCount 16
 
-class SceneGraphTimelineModel : public QmlProfiler::SingleCategoryTimelineModel
+class SceneGraphTimelineModel : public QmlProfiler::AbstractTimelineModel
 {
     Q_OBJECT
 public:

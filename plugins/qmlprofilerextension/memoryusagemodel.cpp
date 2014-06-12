@@ -20,7 +20,7 @@
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
 #include "qmlprofiler/sortedtimelinemodel.h"
-#include "qmlprofiler/singlecategorytimelinemodel_p.h"
+#include "qmlprofiler/abstracttimelinemodel_p.h"
 
 #include <QDebug>
 
@@ -31,7 +31,7 @@ using namespace QmlProfiler;
 
 class MemoryUsageModel::MemoryUsageModelPrivate :
         public SortedTimelineModel<MemoryAllocation,
-                                   SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
+                                   AbstractTimelineModel::AbstractTimelineModelPrivate>
 {
 public:
     static QString memoryTypeName(int type);
@@ -42,7 +42,7 @@ private:
 };
 
 MemoryUsageModel::MemoryUsageModel(QObject *parent)
-    : SingleCategoryTimelineModel(new MemoryUsageModelPrivate(),
+    : AbstractTimelineModel(new MemoryUsageModelPrivate(),
                                   QLatin1String("MemoryUsageTimelineModel"),
                                   QLatin1String("Memory Usage"), QmlDebug::MemoryAllocation,
                                   QmlDebug::MaximumRangeType, parent)

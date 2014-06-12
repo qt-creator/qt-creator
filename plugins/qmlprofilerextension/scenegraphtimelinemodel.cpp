@@ -20,7 +20,7 @@
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
 #include "qmlprofiler/sortedtimelinemodel.h"
-#include "qmlprofiler/singlecategorytimelinemodel_p.h"
+#include "qmlprofiler/abstracttimelinemodel_p.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -54,7 +54,7 @@ enum SceneGraphCategoryType {
 
 class SceneGraphTimelineModel::SceneGraphTimelineModelPrivate :
         public SortedTimelineModel<SceneGraphTimelineModel::SceneGraphEvent,
-                                   SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
+                                   AbstractTimelineModel::AbstractTimelineModelPrivate>
 {
 public:
     void addVP(QVariantList &l, QString label, qint64 time) const;
@@ -63,7 +63,7 @@ private:
 };
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
-    : SingleCategoryTimelineModel(new SceneGraphTimelineModelPrivate,
+    : AbstractTimelineModel(new SceneGraphTimelineModelPrivate,
                                   QLatin1String("SceneGraphTimeLineModel"), tr("Scene Graph"),
                                   QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
 {
@@ -150,7 +150,7 @@ const QVariantList SceneGraphTimelineModel::getEventDetails(int index) const
     Q_D(const SceneGraphTimelineModel);
     QVariantList result;
     const SortedTimelineModel<SceneGraphEvent,
-            SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>::Range *ev =
+            AbstractTimelineModel::AbstractTimelineModelPrivate>::Range *ev =
             &d->range(index);
 
     {

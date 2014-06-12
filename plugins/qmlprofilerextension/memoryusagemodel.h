@@ -20,7 +20,7 @@
 #define MEMORYUSAGEMODEL_H
 
 #include "qmlprofiler/qmlprofilertimelinemodelproxy.h"
-#include "qmlprofiler/singlecategorytimelinemodel.h"
+#include "qmlprofiler/abstracttimelinemodel.h"
 #include "qmlprofiler/qmlprofilerdatamodel.h"
 
 #include <QStringList>
@@ -29,7 +29,7 @@
 namespace QmlProfilerExtension {
 namespace Internal {
 
-class MemoryUsageModel : public QmlProfiler::SingleCategoryTimelineModel
+class MemoryUsageModel : public QmlProfiler::AbstractTimelineModel
 {
     Q_OBJECT
 public:
