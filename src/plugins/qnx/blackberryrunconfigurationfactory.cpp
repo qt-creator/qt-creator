@@ -37,6 +37,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -51,19 +52,21 @@ BlackBerryRunConfigurationFactory::BlackBerryRunConfigurationFactory(QObject *pa
 {
 }
 
-QList<Core::Id> BlackBerryRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> BlackBerryRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const
 {
-    QList<Core::Id> ids;
+    using QmakeProjectManager::QmakeProject;
     if (!canHandle(parent))
-        return ids;
+        return QList<Core::Id>();
 
-    QmakeProjectManager::QmakeProject *qt4Project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
+    QmakeProject *qt4Project = qobject_cast<QmakeProject *>(parent->project());
     if (!qt4Project)
-        return ids;
+        return QList<Core::Id>();
 
-    QList<QmakeProjectManager::QmakeProFileNode *> nodes = qt4Project->applicationProFiles();
-    return QmakeProjectManager::QmakeProject::idsForNodes(Core::Id(Constants::QNX_BB_RUNCONFIGURATION_PREFIX),
-                                                          nodes);
+    QList<QmakeProjectManager::QmakeProFileNode *>  nodes = qt4Project->applicationProFiles();
+    if (mode == AutoCreate)
+        nodes = QmakeProject::nodesWithQtcRunnable(nodes);
+    return QmakeProject::idsForNodes(Core::Id(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX),
+                                     nodes);
 }
 
 QString BlackBerryRunConfigurationFactory::displayNameForId(const Core::Id id) const

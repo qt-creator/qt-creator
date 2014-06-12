@@ -43,7 +43,7 @@ class WinRtRunConfigurationFactory  : public ProjectExplorer::IRunConfigurationF
 public:
     WinRtRunConfigurationFactory();
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
     QString displayNameForId(const Core::Id id) const;
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;

@@ -43,7 +43,7 @@ public:
     ~RemoteLinuxRunConfigurationFactory();
 
     QString displayNameForId(const Core::Id id) const;
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
 

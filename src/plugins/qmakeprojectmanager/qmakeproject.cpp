@@ -1103,6 +1103,17 @@ bool QmakeProject::hasApplicationProFile(const QString &path) const
     return false;
 }
 
+QList<QmakeProFileNode *> QmakeProject::nodesWithQtcRunnable(QList<QmakeProFileNode *> nodes)
+{
+    std::function<bool (QmakeProFileNode *)> hasQtcRunnable = [](QmakeProFileNode *node) {
+        return node->isQtcRunnable();
+    };
+
+    if (anyOf(nodes, hasQtcRunnable))
+        erase(nodes, std::not1(hasQtcRunnable));
+    return nodes;
+}
+
 QList<Core::Id> QmakeProject::idsForNodes(const Core::Id base, const QList<QmakeProFileNode *> &nodes)
 {
     return Utils::transform(nodes, [&base](QmakeProFileNode *node) {

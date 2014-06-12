@@ -51,7 +51,7 @@ public:
     explicit IosRunConfigurationFactory(QObject *parent = 0);
 
     QString displayNameForId(const Core::Id id) const QTC_OVERRIDE;
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const QTC_OVERRIDE;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const QTC_OVERRIDE;
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const QTC_OVERRIDE;
 

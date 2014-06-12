@@ -410,6 +410,7 @@ public:
 
     bool showInSimpleTree(QmakeProjectType projectType) const;
     bool isDebugAndRelease() const;
+    bool isQtcRunnable() const;
 
     void setParseInProgress(bool b);
     void setParseInProgressRecursive(bool b);

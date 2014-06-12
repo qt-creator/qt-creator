@@ -59,7 +59,11 @@ namespace Internal {
 
 static QString pathFromId(const Core::Id id)
 {
-    return id.suffixAfter(IOS_RC_ID_PREFIX);
+    QString pathStr = id.toString();
+    const QString prefix = QLatin1String(IOS_RC_ID_PREFIX);
+    if (!pathStr.startsWith(prefix))
+        return QString();
+    return pathStr.mid(prefix.size());
 }
 
 IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
@@ -88,19 +92,19 @@ bool IosRunConfigurationFactory::canClone(Target *parent, RunConfiguration *sour
     return canCreate(parent, source->id());
 }
 
-QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
 {
-    QList<Core::Id> ids;
     if (!IosManager::supportsIos(parent))
-        return ids;
-    Core::Id baseId(IOS_RC_ID_PREFIX);
+        return QList<Core::Id>();
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
 
     QList<QmakeProFileNode *> nodes = project->allProFiles(QList<QmakeProjectType>()
                                                            << ApplicationTemplate
                                                            << LibraryTemplate
                                                            << AuxTemplate);
-
+    if (mode == AutoCreate)
+        nodes = QmakeProject::nodesWithQtcRunnable(nodes);
+    Core::Id baseId(IOS_RC_ID_PREFIX);
     return QmakeProject::idsForNodes(baseId, nodes);
 }
 

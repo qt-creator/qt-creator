@@ -51,7 +51,7 @@ public:
     explicit AndroidRunConfigurationFactory(QObject *parent = 0);
 
     QString displayNameForId(const Core::Id id) const;
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const;
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
 

@@ -84,8 +84,9 @@ bool BareMetalRunConfigurationFactory::canClone(Target *parent, RunConfiguration
     return bmrc && canCreate(parent, source->id());
 }
 
-QList<Core::Id> BareMetalRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> BareMetalRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
 {
+    Q_UNUSED(mode)
     QList<Core::Id> result;
     if (!canHandle(parent))
         return result;

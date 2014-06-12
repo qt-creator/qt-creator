@@ -667,14 +667,15 @@ RunConfiguration *DesktopQmakeRunConfigurationFactory::clone(Target *parent, Run
     return new DesktopQmakeRunConfiguration(parent, old);
 }
 
-QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
 {
-    QList<Core::Id> result;
     if (!canHandle(parent))
-        return result;
+        return QList<Core::Id>();
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     QList<QmakeProFileNode *> nodes = project->applicationProFiles();
+    if (mode == AutoCreate)
+        nodes = QmakeProject::nodesWithQtcRunnable(nodes);
     return QmakeProject::idsForNodes(Core::Id(QMAKE_RC_PREFIX), nodes);
 }
 

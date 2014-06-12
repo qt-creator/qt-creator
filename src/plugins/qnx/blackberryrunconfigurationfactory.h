@@ -34,6 +34,8 @@
 
 #include <projectexplorer/runconfiguration.h>
 
+namespace QmakeProjectManager { class QmakeProFileNode; }
+
 namespace Qnx {
 namespace Internal {
 
@@ -43,7 +45,7 @@ class BlackBerryRunConfigurationFactory : public ProjectExplorer::IRunConfigurat
 public:
     explicit BlackBerryRunConfigurationFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
     QString displayNameForId(const Core::Id id) const;
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;

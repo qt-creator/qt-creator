@@ -37,6 +37,25 @@
 namespace Utils
 {
 
+template<typename T, typename F>
+bool anyOf(const T &container, F predicate)
+{
+    return std::any_of(container.begin(), container.end(), predicate);
+}
+
+template<typename T, typename F>
+bool allOf(const T &container, F predicate)
+{
+    return std::all_of(container.begin(), container.end(), predicate);
+}
+
+template<typename T, typename F>
+void erase(QList<T> &container, F predicate)
+{
+    container.erase(std::remove_if(container.begin(), container.end(), predicate),
+                    container.end());
+}
+
 // Note: add overloads for other container types as needed
 template<typename T, typename F>
 Q_REQUIRED_RESULT

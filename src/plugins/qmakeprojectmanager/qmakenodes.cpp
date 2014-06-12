@@ -1591,6 +1591,12 @@ bool QmakeProFileNode::isDebugAndRelease() const
     return configValues.contains(QLatin1String("debug_and_release"));
 }
 
+bool QmakeProFileNode::isQtcRunnable() const
+{
+    const QStringList configValues = m_varValues.value(ConfigVar);
+    return configValues.contains(QLatin1String("qtc_runnable"));
+}
+
 QmakeProjectType QmakeProFileNode::projectType() const
 {
     return m_projectType;

@@ -49,7 +49,10 @@ namespace Internal {
 namespace {
 QString pathFromId(Core::Id id)
 {
-    return id.suffixAfter(RemoteLinuxRunConfiguration::IdPrefix);
+    QByteArray idStr = id.name();
+    if (!idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix))
+        return QString();
+    return QString::fromUtf8(idStr.mid(strlen(RemoteLinuxRunConfiguration::IdPrefix)));
 }
 
 } // namespace
@@ -88,8 +91,9 @@ bool RemoteLinuxRunConfigurationFactory::canClone(Target *parent, RunConfigurati
     return rlrc && canCreate(parent, source->id());
 }
 
-QList<Core::Id> RemoteLinuxRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> RemoteLinuxRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
 {
+    Q_UNUSED(mode)
     QList<Core::Id> result;
     if (!canHandle(parent))
         return result;

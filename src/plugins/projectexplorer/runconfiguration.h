@@ -217,7 +217,8 @@ public:
     explicit IRunConfigurationFactory(QObject *parent = 0);
     virtual ~IRunConfigurationFactory();
 
-    virtual QList<Core::Id> availableCreationIds(Target *parent) const = 0;
+    enum CreationMode {UserCreate, AutoCreate};
+    virtual QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode = UserCreate) const = 0;
     virtual QString displayNameForId(const Core::Id id) const = 0;
 
     virtual bool canCreate(Target *parent, const Core::Id id) const = 0;

@@ -138,7 +138,7 @@ public:
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const;
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
     QString displayNameForId(const Core::Id id) const;
 
     static Core::Id idFromBuildTarget(const QString &target);

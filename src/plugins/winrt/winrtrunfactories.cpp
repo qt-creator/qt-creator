@@ -72,8 +72,9 @@ WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
 {
 }
 
-QList<Core::Id> WinRtRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> WinRtRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
 {
+    Q_UNUSED(mode)
     QList<Core::Id> result;
     if (isKitCompatible(parent->kit()))
         result.append(Core::Id(winrtConfigurationIdC));

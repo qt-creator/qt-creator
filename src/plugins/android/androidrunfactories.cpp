@@ -85,17 +85,20 @@ bool AndroidRunConfigurationFactory::canClone(Target *parent, RunConfiguration *
     return canCreate(parent, source->id());
 }
 
-QList<Core::Id> AndroidRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> AndroidRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
 {
-    QList<Core::Id> ids;
     if (!AndroidManager::supportsAndroid(parent))
-        return ids;
+        return QList<Core::Id>();
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
 
     QList<QmakeProFileNode *> nodes = project->allProFiles(QList<QmakeProjectType>()
                                                            << ApplicationTemplate
                                                            << LibraryTemplate);
+
+    if (mode == AutoCreate)
+        nodes = QmakeProject::nodesWithQtcRunnable(nodes);
+
     const Core::Id base = Core::Id(ANDROID_RC_ID_PREFIX);
     return QmakeProject::idsForNodes(base, nodes);
 }

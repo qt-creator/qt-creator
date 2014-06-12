@@ -550,8 +550,9 @@ RunConfiguration *QbsRunConfigurationFactory::clone(Target *parent, RunConfigura
     return new QbsRunConfiguration(parent, old);
 }
 
-QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
 {
+    Q_UNUSED(mode)
     QList<Core::Id> result;
     if (!canHandle(parent))
         return result;

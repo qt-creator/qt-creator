@@ -599,26 +599,31 @@ void Target::updateDefaultRunConfigurations()
     int configuredCount = existingConfigured.count();
 
     // find all RC ids that can get created:
-    QList<Core::Id> factoryIds;
+    QList<Core::Id> availableFactoryIds;
     foreach (IRunConfigurationFactory *rcFactory, rcFactories)
-        factoryIds.append(rcFactory->availableCreationIds(this));
+        availableFactoryIds.append(rcFactory->availableCreationIds(this));
+
+    QList<Core::Id> autoCreateFactoryIds;
+    foreach (IRunConfigurationFactory *rcFactory, rcFactories)
+        autoCreateFactoryIds.append(rcFactory->availableCreationIds(this,
+                                                                    IRunConfigurationFactory::AutoCreate));
 
     // Put outdated RCs into toRemove, do not bother with factories
     // that produce already existing RCs
     QList<RunConfiguration *> toRemove;
     QList<Core::Id> toIgnore;
     foreach (RunConfiguration *rc, existingConfigured) {
-        if (factoryIds.contains(rc->id()))
+        if (availableFactoryIds.contains(rc->id()))
             toIgnore.append(rc->id()); // Already there
         else
             toRemove << rc;
     }
     foreach (Core::Id i, toIgnore)
-        factoryIds.removeAll(i);
+        autoCreateFactoryIds.removeAll(i);
     configuredCount -= toRemove.count();
 
     // Create new RCs and put them into newConfigured/newUnconfigured
-    foreach (Core::Id id, factoryIds) {
+    foreach (Core::Id id, autoCreateFactoryIds) {
         IRunConfigurationFactory *factory = 0;
         foreach (IRunConfigurationFactory *i, rcFactories) {
             if (i->canCreate(this, id)) {

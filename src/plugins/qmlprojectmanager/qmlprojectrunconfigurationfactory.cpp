@@ -50,8 +50,9 @@ QmlProjectRunConfigurationFactory::~QmlProjectRunConfigurationFactory()
 {
 }
 
-QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const
 {
+    Q_UNUSED(mode)
     if (!canHandle(parent))
         return QList<Core::Id>();
 

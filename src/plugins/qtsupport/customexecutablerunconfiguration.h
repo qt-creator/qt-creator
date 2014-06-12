@@ -112,7 +112,7 @@ public:
     explicit CustomExecutableRunConfigurationFactory(QObject *parent = 0);
     ~CustomExecutableRunConfigurationFactory();
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
     QString displayNameForId(const Core::Id id) const;
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
