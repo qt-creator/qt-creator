@@ -164,6 +164,26 @@ IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
     QModelIndex index = currentIndex;
     int currentRow = currentIndex.row();
 
+    bool sensitive = (findFlags & FindCaseSensitively);
+    QRegExp searchExpr;
+    if (findFlags & FindRegularExpression) {
+        searchExpr = QRegExp(searchTxt,
+                             (sensitive ? Qt::CaseSensitive :
+                                          Qt::CaseInsensitive));
+    } else if (findFlags & FindWholeWords) {
+        const QString escapedSearchText = QRegExp::escape(searchTxt);
+        const QString wordBoundary = QLatin1String("\b");
+        searchExpr = QRegExp(wordBoundary + escapedSearchText + wordBoundary,
+                             (sensitive ? Qt::CaseSensitive :
+                                          Qt::CaseInsensitive));
+    } else {
+        searchExpr = QRegExp(searchTxt,
+                             (sensitive ? Qt::CaseSensitive :
+                                          Qt::CaseInsensitive),
+                             QRegExp::FixedString);
+    }
+
+
     bool backward = (flags & QTextDocument::FindBackward);
     if (wrapped)
         *wrapped = false;
@@ -178,23 +198,10 @@ IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
         if (index.isValid()) {
             const QString &text = d->m_view->model()->data(
                         index, d->m_role).toString();
-            if (findFlags & FindRegularExpression) {
-                bool sensitive = (findFlags & FindCaseSensitively);
-                QRegExp searchExpr = QRegExp(searchTxt,
-                                             (sensitive ? Qt::CaseSensitive :
-                                                          Qt::CaseInsensitive));
-                if (searchExpr.indexIn(text) != -1
-                        && d->m_view->model()->flags(index) & Qt::ItemIsSelectable
-                        && (index.row() != currentRow || index.parent() != currentIndex.parent()))
-                    resultIndex = index;
-            } else {
-                QTextDocument doc(text);
-                if (!doc.find(searchTxt, 0,
-                              flags & (FindCaseSensitively | FindWholeWords)).isNull()
-                        && d->m_view->model()->flags(index) & Qt::ItemIsSelectable
-                        && (index.row() != currentRow || index.parent() != currentIndex.parent()))
-                    resultIndex = index;
-            }
+            if (d->m_view->model()->flags(index) & Qt::ItemIsSelectable
+                    && (index.row() != currentRow || index.parent() != currentIndex.parent())
+                    && searchExpr.indexIn(text) != -1)
+                resultIndex = index;
         }
         index = followingIndex(index, backward, &stepWrapped);
     } while (!resultIndex.isValid() && index.isValid() && index != currentIndex);
