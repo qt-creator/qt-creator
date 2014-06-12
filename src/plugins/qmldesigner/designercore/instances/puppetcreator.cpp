@@ -291,18 +291,15 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     process.setWorkingDirectory(buildDirectoryPath);
     process.start(command, processArguments);
     process.waitForStarted();
-    while (true) {
-        if (process.waitForReadyRead(100)) {
-            QByteArray newOutput = process.readAllStandardOutput();
-            if (progressDialog)
-                progressDialog->newBuildOutput(newOutput);
+    while (process.waitForReadyRead(-1)) {
+        QByteArray newOutput = process.readAllStandardOutput();
+        if (progressDialog)
+            progressDialog->newBuildOutput(newOutput);
 
-            m_compileLog.append(newOutput);
-        }
-
-        if (process.state() == QProcess::NotRunning)
-            break;
+        m_compileLog.append(newOutput);
     }
+
+    process.waitForFinished(1000);
 
     if (process.exitStatus() == QProcess::NormalExit || process.exitCode() == 0)
         return true;
