@@ -34,14 +34,16 @@
 #include "cppelementevaluator.h"
 #include "cppeditorplugin.h"
 
+#include <coreplugin/find/treeviewfind.h>
 #include <utils/navigationtreeview.h>
 #include <utils/annotateditemdelegate.h>
 
+#include <QLabel>
 #include <QLatin1String>
 #include <QModelIndex>
-#include <QVBoxLayout>
+#include <QStackedLayout>
 #include <QStandardItemModel>
-#include <QLabel>
+#include <QVBoxLayout>
 
 using namespace CppEditor;
 using namespace Internal;
@@ -146,14 +148,19 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     m_noTypeHierarchyAvailableLabel->setAutoFillBackground(true);
     m_noTypeHierarchyAvailableLabel->setBackgroundRole(QPalette::Base);
 
+    m_hierarchyWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_inspectedClass);
-    layout->addWidget(m_treeView);
-    layout->addWidget(m_noTypeHierarchyAvailableLabel);
+    layout->addWidget(Core::TreeViewFind::createSearchableWrapper(m_treeView));
+    m_hierarchyWidget->setLayout(layout);
 
-    setLayout(layout);
+    m_stackLayout = new QStackedLayout;
+    m_stackLayout->addWidget(m_hierarchyWidget);
+    m_stackLayout->addWidget(m_noTypeHierarchyAvailableLabel);
+    m_stackLayout->setCurrentWidget(m_noTypeHierarchyAvailableLabel);
+    setLayout(m_stackLayout);
 
     connect(CppEditorPlugin::instance(), SIGNAL(typeHierarchyRequested()), SLOT(perform()));
 }
@@ -211,16 +218,12 @@ void CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, QStandardI
 
 void CppTypeHierarchyWidget::showNoTypeHierarchyLabel()
 {
-    m_inspectedClass->hide();
-    m_treeView->hide();
-    m_noTypeHierarchyAvailableLabel->show();
+    m_stackLayout->setCurrentWidget(m_noTypeHierarchyAvailableLabel);
 }
 
 void CppTypeHierarchyWidget::showTypeHierarchy()
 {
-    m_inspectedClass->show();
-    m_treeView->show();
-    m_noTypeHierarchyAvailableLabel->hide();
+    m_stackLayout->setCurrentWidget(m_hierarchyWidget);
 }
 
 void CppTypeHierarchyWidget::clearTypeHierarchy()

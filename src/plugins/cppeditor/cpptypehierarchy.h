@@ -37,10 +37,11 @@
 #include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
-class QStandardItemModel;
-class QStandardItem;
-class QModelIndex;
 class QLabel;
+class QModelIndex;
+class QStackedLayout;
+class QStandardItem;
+class QStandardItemModel;
 template <class> class QVector;
 template <class> class QList;
 QT_END_NAMESPACE
@@ -82,6 +83,8 @@ private:
 
     CPPEditorWidget *m_cppEditor;
     Utils::NavigationTreeView *m_treeView;
+    QWidget *m_hierarchyWidget;
+    QStackedLayout *m_stackLayout;
     QStandardItemModel *m_model;
     Utils::AnnotatedItemDelegate *m_delegate;
     CppClassLabel *m_inspectedClass;
