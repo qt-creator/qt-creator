@@ -43,6 +43,7 @@ class QLoggingCategory
 public:
     explicit QLoggingCategory(const char *category) : name(category) {}
     ~QLoggingCategory();
+    static void setFilterRules(const QString &) {}
 
     bool isDebugEnabled() const { return false; }
     bool isWarningEnabled() const { return true; }

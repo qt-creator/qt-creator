@@ -36,6 +36,7 @@
 #include <extensionsystem/pluginspec.h>
 #include <qtsingleapplication.h>
 #include <utils/hostosinfo.h>
+#include <utils/logging.h>
 
 #include <QDebug>
 #include <QDir>
@@ -286,6 +287,7 @@ static inline QSettings *userSettings()
 
 int main(int argc, char **argv)
 {
+    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
 #ifdef Q_OS_MAC
     // increase the number of file that can be opened in Qt Creator.
     struct rlimit rl;
