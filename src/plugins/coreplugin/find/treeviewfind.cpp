@@ -42,10 +42,11 @@ namespace Core {
 class ItemModelFindPrivate
 {
 public:
-    explicit ItemModelFindPrivate(QTreeView *view, int role)
-        : m_view(view)
-        , m_incrementalWrappedState(false),
-          m_role(role)
+    explicit ItemModelFindPrivate(QTreeView *view, int role, TreeViewFind::FetchOption option)
+        : m_view(view),
+          m_incrementalWrappedState(false),
+          m_role(role),
+          m_option(option)
     {
     }
 
@@ -53,10 +54,11 @@ public:
     QModelIndex m_incrementalFindStart;
     bool m_incrementalWrappedState;
     int m_role;
+    TreeViewFind::FetchOption m_option;
 };
 
-TreeViewFind::TreeViewFind(QTreeView *view, int role)
-    : d(new ItemModelFindPrivate(view, role))
+TreeViewFind::TreeViewFind(QTreeView *view, int role, FetchOption option)
+    : d(new ItemModelFindPrivate(view, role, option))
 {
 }
 
@@ -130,7 +132,7 @@ IFindSupport::Result TreeViewFind::findStep(const QString &txt, FindFlags findFl
     return result;
 }
 
-QWidget *TreeViewFind::createSearchableWrapper(QTreeView *treeView)
+QWidget *TreeViewFind::createSearchableWrapper(QTreeView *treeView, FetchOption option)
 {
     QWidget *widget = new QWidget;
     QVBoxLayout *vbox = new QVBoxLayout(widget);
@@ -141,7 +143,7 @@ QWidget *TreeViewFind::createSearchableWrapper(QTreeView *treeView)
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(treeView);
-    agg->add(new TreeViewFind(treeView));
+    agg->add(new TreeViewFind(treeView, Qt::DisplayRole, option));
 
     return widget;
 }
@@ -227,6 +229,8 @@ QModelIndex TreeViewFind::nextIndex(const QModelIndex &idx, bool *wrapped) const
     QModelIndex current = model->index(idx.row(), 0, idx.parent());
 
     // check for children
+    if (d->m_option == FetchMoreWhileSearching && model->canFetchMore(current))
+        model->fetchMore(current);
     if (model->rowCount(current) > 0)
         return current.child(0, 0);
 
@@ -236,6 +240,8 @@ QModelIndex TreeViewFind::nextIndex(const QModelIndex &idx, bool *wrapped) const
         int row = current.row();
         current = current.parent();
 
+        if (d->m_option == FetchMoreWhileSearching && model->canFetchMore(current))
+            model->fetchMore(current);
         if (row + 1 < model->rowCount(current)) {
             // Same parent has another child
             nextIndex = model->index(row + 1, 0, current);
@@ -278,6 +284,8 @@ QModelIndex TreeViewFind::prevIndex(const QModelIndex &idx, bool *wrapped) const
     }
     if (checkForChildren) {
         // traverse down the hierarchy
+        if (d->m_option == FetchMoreWhileSearching && model->canFetchMore(current))
+            model->fetchMore(current);
         while (int rc = model->rowCount(current)) {
             current = model->index(rc - 1, 0, current);
         }

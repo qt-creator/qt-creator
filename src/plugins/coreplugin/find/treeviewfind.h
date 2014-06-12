@@ -44,7 +44,13 @@ class CORE_EXPORT TreeViewFind : public IFindSupport
 {
     Q_OBJECT
 public:
-    explicit TreeViewFind(QTreeView *view, int role = Qt::DisplayRole);
+    enum FetchOption {
+        DoNotFetchMoreWhileSearching,
+        FetchMoreWhileSearching
+    };
+
+    explicit TreeViewFind(QTreeView *view, int role = Qt::DisplayRole,
+            FetchOption option = DoNotFetchMoreWhileSearching);
     virtual ~TreeViewFind();
 
     bool supportsReplace() const;
@@ -58,7 +64,8 @@ public:
     Result findIncremental(const QString &txt, FindFlags findFlags);
     Result findStep(const QString &txt, FindFlags findFlags);
 
-    static QWidget *createSearchableWrapper(QTreeView *treeView);
+    static QWidget *createSearchableWrapper(QTreeView *treeView,
+            FetchOption option = DoNotFetchMoreWhileSearching);
 
 private:
     Result find(const QString &txt, FindFlags findFlags,
