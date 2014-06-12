@@ -32,6 +32,7 @@
 #include "qmljseditoreditable.h"
 #include "qmljsoutlinetreeview.h"
 
+#include <coreplugin/find/treeviewfind.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -109,7 +110,7 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
 
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addWidget(m_treeView);
+    layout->addWidget(Core::TreeViewFind::createSearchableWrapper(m_treeView));
 
     m_showBindingsAction = new QAction(this);
     m_showBindingsAction->setText(tr("Show All Bindings"));

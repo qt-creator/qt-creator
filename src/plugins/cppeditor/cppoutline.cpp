@@ -31,6 +31,7 @@
 
 #include <cplusplus/OverviewModel.h>
 
+#include <coreplugin/find/treeviewfind.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -99,7 +100,7 @@ CppOutlineWidget::CppOutlineWidget(CPPEditorWidget *editor) :
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addWidget(m_treeView);
+    layout->addWidget(Core::TreeViewFind::createSearchableWrapper(m_treeView));
     setLayout(layout);
 
     m_treeView->setModel(m_proxyModel);
