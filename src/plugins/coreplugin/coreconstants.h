@@ -195,6 +195,7 @@ const char ICON_DIR[]                = ":/core/images/dir.png";
 const char ICON_CLEAN_PANE[]         = ":/core/images/clean_pane_small.png";
 const char ICON_CLEAR[]              = ":/core/images/clear.png";
 const char ICON_RESET[]              = ":/core/images/reset.png";
+const char ICON_RELOAD_GRAY[]        = ":/core/images/reload_gray.png";
 const char ICON_MAGNIFIER[]          = ":/core/images/magnifier.png";
 const char ICON_TOGGLE_SIDEBAR[]     = ":/core/images/sidebaricon.png";
 const char ICON_CLOSE_DOCUMENT[]     = ":/core/images/button_close.png";

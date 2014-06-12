@@ -42,7 +42,6 @@ const char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Options";
 
 const char ICON_SIDE_BY_SIDE_DIFF[]  = ":/diffeditor/images/sidebysidediff.png";
 const char ICON_UNIFIED_DIFF[]       = ":/diffeditor/images/unifieddiff.png";
-const char ICON_RELOAD[]             = ":/diffeditor/images/reload.png";
 const char ICON_TOP_BAR[]            = ":/diffeditor/images/topbar.png";
 
 } // namespace Constants

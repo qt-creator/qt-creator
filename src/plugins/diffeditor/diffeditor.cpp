@@ -333,7 +333,7 @@ QWidget *DiffEditor::toolBar()
     slotDescriptionVisibilityChanged();
 
     QToolButton *reloadButton = new QToolButton(m_toolBar);
-    reloadButton->setIcon(QIcon(QLatin1String(Constants::ICON_RELOAD)));
+    reloadButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RELOAD_GRAY)));
     reloadButton->setToolTip(tr("Reload Editor"));
     m_toolBar->addWidget(reloadButton);
 

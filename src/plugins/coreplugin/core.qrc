@@ -89,5 +89,7 @@
         <file>images/splitbutton_vertical@2x.png</file>
         <file>images/panel_manage_button.png</file>
         <file>images/pause.png</file>
+        <file>images/reload_gray.png</file>
+        <file>images/reload_gray@2x.png</file>
     </qresource>
 </RCC>
