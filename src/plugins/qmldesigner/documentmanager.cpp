@@ -118,10 +118,33 @@ static inline void openFileForComponent(const ModelNode &node)
     //rootModelNode.setAuxiliaryData("height", height);
 }
 
-static inline void openInlineComponent(const ModelNode &node)
+
+static void handleComponent(const ModelNode &modelNode)
+{
+    if (modelNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
+        currentDesignDocument()->changeToSubComponent(modelNode);
+}
+
+static void handleDelegate(const ModelNode &modelNode)
+{
+    if (modelNode.metaInfo().isView()
+            && modelNode.hasNodeProperty("delegate")
+            && modelNode.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
+        currentDesignDocument()->changeToSubComponent(modelNode.nodeProperty("delegate").modelNode());
+}
+
+static void handleTabComponent(const ModelNode &modelNode)
+{
+    if (modelNode.hasNodeProperty("component")
+            && modelNode.nodeProperty("component").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource) {
+        currentDesignDocument()->changeToSubComponent(modelNode.nodeProperty("component").modelNode());
+    }
+}
+
+static inline void openInlineComponent(const ModelNode &modelNode)
 {
 
-    if (!node.isValid() || !node.metaInfo().isValid())
+    if (!modelNode.isValid() || !modelNode.metaInfo().isValid())
         return;
 
     if (!currentDesignDocument())
@@ -129,22 +152,14 @@ static inline void openInlineComponent(const ModelNode &node)
 
     QHash<PropertyName, QVariant> propertyHash;
 
-    if (node.nodeSourceType() == ModelNode::NodeWithComponentSource) {
-        //getWidthHeight(node, width, height);
-        getProperties(node, propertyHash);
-        currentDesignDocument()->changeToSubComponent(node);
-    } else if (node.metaInfo().isView()
-               && node.hasNodeProperty("delegate")
-               && node.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource) {
-        //getWidthHeight(node, width, height);
-        getProperties(node, propertyHash);
-        currentDesignDocument()->changeToSubComponent(node.nodeProperty("delegate").modelNode());
-    }
+    getProperties(modelNode, propertyHash);
+
+    handleComponent(modelNode);
+    handleDelegate(modelNode);
+    handleTabComponent(modelNode);
 
     ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
     applyProperties(rootModelNode, propertyHash);
-    //rootModelNode.setAuxiliaryData("width", width);
-    //rootModelNode.setAuxiliaryData("height", height);
 }
 
 static inline bool isFileComponent(const ModelNode &node)
