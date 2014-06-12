@@ -225,7 +225,6 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
 {
     if (m_stackedWidget->currentIndex() == 0) {
         m_itemLibraryModel->setSearchText(searchFilter);
-        emit resetItemsView();
         m_itemsView->update();
     } else {
         QStringList nameFilterList;
@@ -303,9 +302,6 @@ void ItemLibraryWidget::reloadQmlSource()
     QQuickItem *rootItem = qobject_cast<QQuickItem*>(m_itemsView->rootObject());
     connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
     connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDropDelayed(int)));
-    connect(this, SIGNAL(scrollItemsView(QVariant)), rootItem, SLOT(scrollView(QVariant)));
-    connect(this, SIGNAL(resetItemsView()), rootItem, SLOT(resetView()));
-
 }
 
 void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)

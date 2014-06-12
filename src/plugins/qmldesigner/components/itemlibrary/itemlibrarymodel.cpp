@@ -269,7 +269,6 @@ int ItemLibraryModel::visibleSectionCount() const
         if (sectionModel->isVisible())
             ++visibleCount;
         ++sectionIterator;
-        qDebug() << __FUNCTION__ << visibleCount;
     }
 
     return visibleCount;

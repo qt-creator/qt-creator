@@ -60,23 +60,9 @@ pixmap itemPixmap
 Rectangle {
     id: itemsView
 
-    // public
-
-    function scrollView(delta) {
-        scrollbar.scroll(-delta / style.scrollbarWheelDeltaFactor)
-    }
-
-    function resetView() {
-        scrollbar.reset()
-    }
-
     signal itemSelected(int itemLibId)
     signal itemDragged(int itemLibId)
-
     signal stopDragAndDrop
-
-    // internal
-
     signal expandAllEntries
 
     ItemsViewStyle { id: style }

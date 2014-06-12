@@ -114,8 +114,6 @@ protected:
 
 signals:
     void itemActivated(const QString& itemName);
-    void scrollItemsView(QVariant delta);
-    void resetItemsView();
     void qtBasicOnlyChecked(bool b);
     void meegoChecked(bool b);
 
