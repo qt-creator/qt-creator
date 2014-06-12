@@ -178,14 +178,6 @@ QString QnxUtils::envFilePath(const QString &ndkPath, const QString &targetVersi
     return envFile;
 }
 
-Utils::FileName QnxUtils::executableWithExtension(const Utils::FileName &fileName)
-{
-    Utils::FileName result = fileName;
-    if (Utils::HostOsInfo::isWindowsHost())
-        result.appendString(QLatin1String(".exe"));
-    return result;
-}
-
 QString QnxUtils::bbDataDirPath()
 {
     const QString homeDir = QDir::homePath();
@@ -272,11 +264,7 @@ QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &config
 
 QString QnxUtils::sdkInstallerPath(const QString &ndkPath)
 {
-    QString sdkinstallPath;
-    if (Utils::HostOsInfo::isWindowsHost())
-        sdkinstallPath = ndkPath + QLatin1String("/qde.exe");
-    else
-        sdkinstallPath = ndkPath + QLatin1String("/qde");
+    QString sdkinstallPath = Utils::HostOsInfo::withExecutableSuffix(ndkPath + QLatin1String("/qde"));
 
     if (QFileInfo(sdkinstallPath).exists())
         return sdkinstallPath;

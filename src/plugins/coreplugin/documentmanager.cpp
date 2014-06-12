@@ -478,7 +478,7 @@ QString DocumentManager::fixFileName(const QString &fileName, FixMode fixmode)
         s = QDir::cleanPath(s);
     }
     s = QDir::toNativeSeparators(s);
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         s = s.toLower();
     return s;
 }

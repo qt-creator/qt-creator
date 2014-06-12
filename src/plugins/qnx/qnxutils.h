@@ -69,7 +69,6 @@ public:
     static QList<Utils::EnvironmentItem> qnxEnvironmentFromEnvFile(const QString &fileName);
     static bool isValidNdkPath(const QString & ndkPath);
     static QString envFilePath(const QString & ndkPath, const QString& targetVersion = QString());
-    static Utils::FileName executableWithExtension(const Utils::FileName &fileName);
     static QString bbDataDirPath();
     static QString bbqConfigPath();
     static QString defaultTargetVersion(const QString& ndkPath);

@@ -715,37 +715,26 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
 
     QStringList possibleCommands;
     switch (binary) {
-    case QmlScene: {
-        if (HostOsInfo::isWindowsHost())
-            possibleCommands << QLatin1String("qmlscene.exe");
-        else
-            possibleCommands << QLatin1String("qmlscene");
-    }
+    case QmlScene:
+        possibleCommands << HostOsInfo::withExecutableSuffix(QLatin1String("qmlscene"));
         break;
     case QmlViewer: {
-        if (HostOsInfo::isWindowsHost())
-            possibleCommands << QLatin1String("qmlviewer.exe");
-        else if (HostOsInfo::isMacHost())
+        if (HostOsInfo::isMacHost())
             possibleCommands << QLatin1String("QMLViewer.app/Contents/MacOS/QMLViewer");
         else
-            possibleCommands << QLatin1String("qmlviewer");
+            possibleCommands << HostOsInfo::withExecutableSuffix(QLatin1String("qmlviewer"));
     }
         break;
     case Designer:
-        if (HostOsInfo::isWindowsHost())
-            possibleCommands << QLatin1String("designer.exe");
-        else if (HostOsInfo::isMacHost())
+        if (HostOsInfo::isMacHost())
             possibleCommands << QLatin1String("Designer.app/Contents/MacOS/Designer");
         else
-            possibleCommands << QLatin1String("designer");
+            possibleCommands << HostOsInfo::withExecutableSuffix(QLatin1String("designer"));
         break;
     case Linguist:
-        if (HostOsInfo::isWindowsHost())
-            possibleCommands << QLatin1String("linguist.exe");
-        else if (HostOsInfo::isMacHost())
+        if (HostOsInfo::isMacHost())
             possibleCommands << QLatin1String("Linguist.app/Contents/MacOS/Linguist");
-        else
-            possibleCommands << QLatin1String("linguist");
+            possibleCommands << HostOsInfo::withExecutableSuffix(QLatin1String("linguist"));
         break;
     case Uic:
         if (HostOsInfo::isWindowsHost()) {

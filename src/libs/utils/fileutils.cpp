@@ -684,7 +684,7 @@ FileName &FileName::appendString(QChar str)
 QT_BEGIN_NAMESPACE
 uint qHash(const Utils::FileName &a)
 {
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         return qHash(a.toString().toUpper());
     return qHash(a.toString());
 }

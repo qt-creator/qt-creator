@@ -224,9 +224,7 @@ bool AndroidDeployQtStep::init()
     QString command = version->qmakeProperty("QT_HOST_BINS");
     if (!command.endsWith(QLatin1Char('/')))
         command += QLatin1Char('/');
-    command += QLatin1String("androiddeployqt");
-    if (Utils::HostOsInfo::isWindowsHost())
-        command += QLatin1String(".exe");
+    command += Utils::HostOsInfo::withExecutableSuffix(QLatin1String("androiddeployqt"));
 
     QString deploymentMethod;
     if (m_deployAction == MinistroDeployment)

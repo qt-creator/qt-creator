@@ -181,7 +181,7 @@ QIcon BreakHandler::emptyIcon()
 
 static inline bool fileNameMatch(const QString &f1, const QString &f2)
 {
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         return f1.compare(f2, Qt::CaseInsensitive) == 0;
     return f1 == f2;
 }

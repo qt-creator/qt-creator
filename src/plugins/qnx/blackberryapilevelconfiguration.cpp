@@ -127,8 +127,8 @@ BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const QVariantM
 void BlackBerryApiLevelConfiguration::ctor()
 {
     QString host = qnxHost().toString();
-    FileName qmake4Path = QnxUtils::executableWithExtension(FileName::fromString(host + QLatin1String("/usr/bin/qmake")));
-    FileName qmake5Path = QnxUtils::executableWithExtension(FileName::fromString(host + QLatin1String("/usr/bin/qt5/qmake")));
+    FileName qmake4Path = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(host + QLatin1String("/usr/bin/qmake")));
+    FileName qmake5Path = FileName::fromString(Utils::HostOsInfo::withExecutableSuffix(host + QLatin1String("/usr/bin/qt5/qmake")));
     if (qmake4Path.toFileInfo().exists())
         m_qmake4BinaryFile = qmake4Path;
 

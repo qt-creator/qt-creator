@@ -632,9 +632,9 @@ FileName QtVersionManager::findQMakeBinaryFromMakefile(const QString &makefile)
                     qDebug()<<"#~~ QMAKE is:"<<r1.cap(1).trimmed();
                 QFileInfo qmake(r1.cap(1).trimmed());
                 QString qmakePath = qmake.filePath();
-                if (HostOsInfo::isWindowsHost()
-                        && !qmakePath.endsWith(QLatin1String(".exe"))) {
-                    qmakePath.append(QLatin1String(".exe"));
+                if (!QString::fromLatin1(QTC_HOST_EXE_SUFFIX).isEmpty()
+                        && !qmakePath.endsWith(QLatin1String(QTC_HOST_EXE_SUFFIX))) {
+                    qmakePath.append(QLatin1String(QTC_HOST_EXE_SUFFIX));
                 }
                 // Is qmake still installed?
                 QFileInfo fi(qmakePath);
