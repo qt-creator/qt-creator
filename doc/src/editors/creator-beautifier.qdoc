@@ -93,7 +93,7 @@
                     in the user's home directory as the configuration file for
                     the selected tool.
 
-                \li Select the \gui {Use self-defined style} option, and then
+                \li Select the \gui {Use customized style} option, and then
                     \gui Add to define your own style.
 
                     Define code formatting in the \gui {Edit Configuration}
