@@ -68,7 +68,7 @@ signals:
     void traceFinished( qint64 time );
     void traceStarted( qint64 time );
     void rangedEvent(QmlDebug::Message, QmlDebug::RangeType, int detailType, qint64 startTime,
-                     qint64 length, const QStringList &data,
+                     qint64 length, const QString &data,
                      const QmlDebug::QmlEventLocation &location, qint64 param1, qint64 param2,
                      qint64 param3, qint64 param4, qint64 param5);
     void recordingChanged(bool arg);

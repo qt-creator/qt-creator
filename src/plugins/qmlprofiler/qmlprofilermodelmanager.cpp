@@ -254,7 +254,7 @@ void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
                                           int detailType,
                                           qint64 startTime,
                                           qint64 length,
-                                          const QStringList &data,
+                                          const QString &data,
                                           const QmlDebug::QmlEventLocation &location,
                                           qint64 ndata1,
                                           qint64 ndata2,
@@ -356,10 +356,10 @@ void QmlProfilerModelManager::load()
     QmlProfilerFileReader reader;
     connect(&reader, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
     connect(&reader, SIGNAL(rangedEvent(QmlDebug::Message,QmlDebug::RangeType,int,qint64,qint64,
-                                        QStringList,QmlDebug::QmlEventLocation,
+                                        QString,QmlDebug::QmlEventLocation,
                                         qint64, qint64, qint64, qint64, qint64)),
             this, SLOT(addQmlEvent(QmlDebug::Message,QmlDebug::RangeType,int,qint64,qint64,
-                                   QStringList,QmlDebug::QmlEventLocation,
+                                   QString,QmlDebug::QmlEventLocation,
                                    qint64, qint64, qint64, qint64, qint64)));
     connect(&reader, SIGNAL(traceStartTime(qint64)), traceTime(), SLOT(setStartTime(qint64)));
     connect(&reader, SIGNAL(traceEndTime(qint64)), traceTime(), SLOT(setEndTime(qint64)));

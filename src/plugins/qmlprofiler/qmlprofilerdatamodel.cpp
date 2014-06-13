@@ -88,7 +88,8 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event)
     if (event.data.isEmpty())
         details = QmlProfilerDataModel::tr("Source code not available.");
     else {
-        details = event.data.join(QLatin1String(" ")).replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
+        details = event.data;
+        details.replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         if (details.isEmpty()) {
             details = QmlProfilerDataModel::tr("anonymous function");
         } else {
@@ -163,7 +164,7 @@ void QmlProfilerDataModel::complete()
         QmlEventData *event = &d->eventList[i];
         event->location = getLocation(*event);
         event->displayName = getDisplayName(*event);
-        event->data = QStringList() << getInitialDetails(*event);
+        event->data = getInitialDetails(*event);
 
         //
         // request further details from files
@@ -191,7 +192,7 @@ void QmlProfilerDataModel::complete()
 
 void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType,
                                             int detailType, qint64 startTime,
-                                            qint64 duration, const QStringList &data,
+                                            qint64 duration, const QString &data,
                                             const QmlDebug::QmlEventLocation &location,
                                             qint64 ndata1, qint64 ndata2, qint64 ndata3,
                                             qint64 ndata4, qint64 ndata5)
@@ -239,7 +240,7 @@ void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newStrin
     QTC_ASSERT(requestId < d->eventList.count(), return);
 
     QmlEventData *event = &d->eventList[requestId];
-    event->data = QStringList(newString);
+    event->data = newString;
 }
 
 }

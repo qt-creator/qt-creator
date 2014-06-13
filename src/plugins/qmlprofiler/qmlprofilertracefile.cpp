@@ -388,7 +388,7 @@ void QmlProfilerFileReader::processQmlEvents()
         QmlEvent &event = m_qmlEvents[eventIndex];
 
         emit rangedEvent(event.message, event.rangeType, event.detailType, range.startTime,
-                         range.duration, QStringList(event.details),
+                         range.duration, event.details,
                          QmlEventLocation(event.filename, event.line, event.column),
                          range.numericData1,range.numericData2, range.numericData3,
                          range.numericData4, range.numericData5);
@@ -428,7 +428,7 @@ void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerDataModel::Qml
             QmlEvent e = {
                 event.displayName,
                 event.location.filename,
-                event.data.join(_("")),
+                event.data,
                 event.message,
                 event.rangeType,
                 event.detailType,

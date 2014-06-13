@@ -46,7 +46,7 @@ public:
         int detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
         qint64 startTime;
         qint64 duration;
-        QStringList data;
+        QString data;
         QmlDebug::QmlEventLocation location;
         qint64 numericData1;
         qint64 numericData2;
@@ -63,7 +63,7 @@ public:
     virtual bool isEmpty() const;
     virtual void complete();
     void addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType, int bindingType,
-                     qint64 startTime, qint64 duration, const QStringList &data,
+                     qint64 startTime, qint64 duration, const QString &data,
                      const QmlDebug::QmlEventLocation &location, qint64 ndata1, qint64 ndata2,
                      qint64 ndata3, qint64 ndata4, qint64 ndata5);
     static QString getHashString(const QmlProfilerDataModel::QmlEventData &event);

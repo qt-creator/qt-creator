@@ -159,7 +159,7 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
             QmlEventStats stats = {
                 event->displayName,
                 hash,
-                event->data.join(QLatin1String(" ")),
+                event->data,
                 event->location,
                 event->message,
                 event->rangeType,
@@ -354,7 +354,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
         0,
         0,
         0,
-        QStringList() << tr("Main Program"),
+        tr("Main Program"),
         QmlDebug::QmlEventLocation(rootEventName, 0, 0),
         0,0,0,0,0 // numericData fields
     };
@@ -413,7 +413,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
             parent->rangeType = parentEvent->rangeType;
             parent->duration = event.duration;
             parent->calls = 1;
-            parent->details = parentEvent->data.join(QLatin1String(""));
+            parent->details = parentEvent->data;
             parent->isBindingLoop = eventsInBindingLoop.contains(parentHash);
         }
 
@@ -486,7 +486,7 @@ void QmlProfilerEventChildrenModelProxy::loadData()
             child->rangeType = event.rangeType;
             child->duration = event.duration;
             child->calls = 1;
-            child->details = event.data.join(QLatin1String(""));
+            child->details = event.data;
             child->isBindingLoop = eventsInBindingLoop.contains(parentHash);
         }
 

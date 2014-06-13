@@ -117,7 +117,7 @@ void RangeTimelineModel::loadData()
         if (i == eventIdsByHash.cend()) {
             QmlRangeEventData rangeEventData = {
                 event.displayName,
-                event.data.join(QLatin1String(" ")),
+                event.data,
                 event.location,
                 lastEventId++ // event id
             };

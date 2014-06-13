@@ -140,7 +140,7 @@ public slots:
 
     void prepareForWriting();
     void addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType, int bindingType,
-                     qint64 startTime, qint64 length, const QStringList &data,
+                     qint64 startTime, qint64 length, const QString &data,
                      const QmlDebug::QmlEventLocation &location,
                      qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
     void addV8Event(int depth, const QString &function,const QString &filename, int lineNumber,
