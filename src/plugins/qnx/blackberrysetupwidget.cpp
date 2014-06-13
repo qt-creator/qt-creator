@@ -38,6 +38,7 @@
 #include "blackberrycertificate.h"
 #include "qnxconstants.h"
 
+#include <coreplugin/coreconstants.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 
 #include <QFileInfo>
@@ -94,13 +95,13 @@ void SetupItem::set(Status status, const QString &message, const QString &fixTex
         icon = Qnx::Constants::QNX_OK_ICON;
         break;
     case Info:
-        icon = Qnx::Constants::QNX_INFO_ICON;
+        icon = Core::Constants::ICON_INFO;
         break;
     case Warning:
-        icon = Qnx::Constants::QNX_WARNING_ICON;
+        icon = Core::Constants::ICON_WARNING;
         break;
     case Error:
-        icon = Qnx::Constants::QNX_ERROR_ICON;
+        icon = Core::Constants::ICON_ERROR;
         break;
     }
     m_icon->setPixmap(QPixmap(QLatin1String(icon)));

@@ -30,6 +30,8 @@
 #include "qmlconsoleitemdelegate.h"
 #include "qmlconsoleedit.h"
 
+#include <coreplugin/coreconstants.h>
+
 #include <QPainter>
 #include <QTreeView>
 #include <QScrollBar>
@@ -68,9 +70,9 @@ namespace Internal {
 
 QmlConsoleItemDelegate::QmlConsoleItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent),
-    m_logIcon(QLatin1String(":/qmljstools/images/log.png")),
-    m_warningIcon(QLatin1String(":/qmljstools/images/warning.png")),
-    m_errorIcon(QLatin1String(":/qmljstools/images/error.png")),
+    m_logIcon(QLatin1String(Core::Constants::ICON_INFO)),
+    m_warningIcon(QLatin1String(Core::Constants::ICON_WARNING)),
+    m_errorIcon(QLatin1String(Core::Constants::ICON_ERROR)),
     m_expandIcon(QLatin1String(":/qmljstools/images/expand.png")),
     m_collapseIcon(QLatin1String(":/qmljstools/images/collapse.png")),
     m_prompt(QLatin1String(":/qmljstools/images/prompt.png")),

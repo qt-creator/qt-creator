@@ -162,8 +162,6 @@ const char ICON_DEBUG_SMALL[]     = ":/projectexplorer/images/debugger_start_sma
 const char ICON_STOP[]            = ":/projectexplorer/images/stop.png";
 const char ICON_STOP_SMALL[]      = ":/projectexplorer/images/stop_small.png";
 const char ICON_WINDOW[]          = ":/projectexplorer/images/window.png";
-const char ICON_WARNING[]         = ":/projectexplorer/images/compile_warning.png";
-const char ICON_ERROR[]           = ":/projectexplorer/images/compile_error.png";
 
 // Mime types
 const char C_SOURCE_MIMETYPE[]    = "text/x-csrc";

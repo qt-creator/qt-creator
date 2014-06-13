@@ -39,6 +39,7 @@
 #include "qmldumptool.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/hostosinfo.h>
@@ -107,8 +108,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_debuggingHelperUi(new Internal::Ui::DebuggingHelper())
     , m_infoBrowser(new QTextBrowser)
-    , m_invalidVersionIcon(QLatin1String(ProjectExplorer::Constants::ICON_ERROR))
-    , m_warningVersionIcon(QLatin1String(ProjectExplorer::Constants::ICON_WARNING))
+    , m_invalidVersionIcon(QLatin1String(Core::Constants::ICON_ERROR))
+    , m_warningVersionIcon(QLatin1String(Core::Constants::ICON_WARNING))
     , m_configurationWidget(0)
     , m_autoItem(0)
     , m_manualItem(0)

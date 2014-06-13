@@ -108,7 +108,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>:/projectexplorer/images/compile_warning.png</pixmap>
+        <pixmap>:/coreplugin/images/warning.png</pixmap>
        </property>
       </widget>
      </item>

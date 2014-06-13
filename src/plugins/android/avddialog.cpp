@@ -29,7 +29,7 @@
 
 #include "avddialog.h"
 #include "androidconfigurations.h"
-#include <projectexplorer/projectexplorerconstants.h>
+#include <coreplugin/coreconstants.h>
 
 #include <QMessageBox>
 
@@ -53,7 +53,7 @@ AvdDialog::AvdDialog(int minApiLevel, const QString &targetArch, const AndroidCo
     QRegExp rx(QLatin1String("\\S+"));
     QRegExpValidator v(rx, 0);
     m_avdDialog.nameLineEdit->setValidator(&v);
-    m_avdDialog.warningIcon->setPixmap(QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_WARNING)));
+    m_avdDialog.warningIcon->setPixmap(QPixmap(QLatin1String(Core::Constants::ICON_WARNING)));
 
     updateApiLevelComboBox();
 

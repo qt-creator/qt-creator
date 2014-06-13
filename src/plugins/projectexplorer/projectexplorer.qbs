@@ -227,8 +227,6 @@ QtcPlugin {
             "clean.png",
             "clean_small.png",
             "closetab.png",
-            "compile_error.png",
-            "compile_warning.png",
             "debugger_start.png",
             "debugger_start_small.png",
             "findallprojects.png",

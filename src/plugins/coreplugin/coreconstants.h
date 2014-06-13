@@ -213,6 +213,9 @@ const char ICON_PAUSE[]              = ":/core/images/pause.png";
 const char ICON_QTLOGO_32[]          = ":/core/images/logo/32/QtProject-qtcreator.png";
 const char ICON_QTLOGO_64[]          = ":/core/images/logo/64/QtProject-qtcreator.png";
 const char ICON_QTLOGO_128[]         = ":/core/images/logo/128/QtProject-qtcreator.png";
+const char ICON_WARNING[]            = ":/core/images/warning.png";
+const char ICON_ERROR[]              = ":/core/images/error.png";
+const char ICON_INFO[]               = ":/core/images/info.png";
 
 const char WIZARD_CATEGORY_QT[] = "R.Qt";
 const char WIZARD_TR_CATEGORY_QT[] = QT_TRANSLATE_NOOP("Core", "Qt");

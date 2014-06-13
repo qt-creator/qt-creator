@@ -33,6 +33,7 @@
 #include "androidmanifestdocument.h"
 #include "androidmanager.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -165,7 +166,7 @@ void AndroidManifestEditorWidget::initializePage()
         m_packageNameWarning->setVisible(false);
 
         m_packageNameWarningIcon = new QLabel;
-        m_packageNameWarningIcon->setPixmap(QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_WARNING)));
+        m_packageNameWarningIcon->setPixmap(QPixmap(QLatin1String(Core::Constants::ICON_WARNING)));
         m_packageNameWarningIcon->setVisible(false);
         m_packageNameWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 

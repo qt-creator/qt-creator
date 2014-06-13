@@ -30,6 +30,7 @@
 #include "buildprogress.h"
 #include "projectexplorerconstants.h"
 
+#include <coreplugin/coreconstants.h>
 #include <utils/stylehelper.h>
 
 #include <QVBoxLayout>
@@ -85,8 +86,8 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation
 
     m_errorIcon->setAlignment(Qt::AlignRight);
     m_warningIcon->setAlignment(Qt::AlignRight);
-    m_errorIcon->setPixmap(QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_ERROR)));
-    m_warningIcon->setPixmap(QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_WARNING)));
+    m_errorIcon->setPixmap(QPixmap(QLatin1String(Core::Constants::ICON_ERROR)));
+    m_warningIcon->setPixmap(QPixmap(QLatin1String(Core::Constants::ICON_WARNING)));
 
     m_contentWidget->hide();
 

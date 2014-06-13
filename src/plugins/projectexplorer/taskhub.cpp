@@ -29,8 +29,8 @@
 
 #include "taskhub.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/ioutputpane.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -85,8 +85,8 @@ void TaskMark::clicked()
 }
 
 TaskHub::TaskHub()
-    : m_errorIcon(QLatin1String(ProjectExplorer::Constants::ICON_ERROR)),
-      m_warningIcon(QLatin1String(ProjectExplorer::Constants::ICON_WARNING))
+    : m_errorIcon(QLatin1String(Core::Constants::ICON_ERROR)),
+      m_warningIcon(QLatin1String(Core::Constants::ICON_WARNING))
 {
     m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");

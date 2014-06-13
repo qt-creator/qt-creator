@@ -262,7 +262,7 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     d->m_filterWarningsButton = createFilterButton(
-                QIcon(QLatin1String(Constants::ICON_WARNING)),
+                QIcon(QLatin1String(Core::Constants::ICON_WARNING)),
                 tr("Show Warnings"), this, SLOT(setShowWarnings(bool)));
 
     d->m_categoriesButton = new QToolButton;

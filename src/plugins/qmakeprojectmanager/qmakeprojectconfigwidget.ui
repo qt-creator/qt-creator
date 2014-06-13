@@ -60,7 +60,7 @@
      <item>
       <widget class="QLabel" name="warningLabel">
        <property name="pixmap">
-        <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+        <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
        </property>
       </widget>
      </item>

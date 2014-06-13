@@ -126,9 +126,6 @@ const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
 const char QNX_BLACKBERRY_DEFAULT_DEPLOY_QT_BASEPATH[] = "/accounts/devuser/";
 
 const char QNX_OK_ICON[] = ":/qnx/images/ok.png";
-const char QNX_INFO_ICON[] = ":/qnx/images/info.png";
-const char QNX_WARNING_ICON[] = ":/qnx/images/warning.png";
-const char QNX_ERROR_ICON[] = ":/qnx/images/error.png";
 
 const char QNX_BLACKBERRY_SETUP_URL[] = "http://qt-project.org/wiki/Qt-Creator-with-BlackBerry-10";
 const char QNX_LEGACY_KEYS_URL[] = "https://developer.blackberry.com/native/documentation/core"

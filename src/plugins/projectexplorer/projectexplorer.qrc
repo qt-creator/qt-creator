@@ -25,8 +25,6 @@
         <file>images/leftselection.png</file>
         <file>images/rightselection.png</file>
         <file>images/midselection.png</file>
-        <file>images/compile_error.png</file>
-        <file>images/compile_warning.png</file>
         <file>images/BuildSettings.png</file>
         <file>images/CodeStyleSettings.png</file>
         <file>images/RunSettings.png</file>

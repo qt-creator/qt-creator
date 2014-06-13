@@ -43,12 +43,6 @@ const char COLOR_FIXME_BG[] = "#ffcccc";
 const char COLOR_BUG_BG[] = "#ffcccc";
 const char COLOR_NOTE_BG[] = "#e0ebff";
 
-// Todo item icons
-
-// http://en.wikipedia.org/wiki/File:Information_icon_with_gradient_background.svg,
-// public domain, tuned a bit
-const char ICON_INFO[] = ":/todoplugin/images/info.png";
-
 // Dummy, needs to be changed
 const char ICON_TODO[] = ":/todoplugin/images/todo.png";
 

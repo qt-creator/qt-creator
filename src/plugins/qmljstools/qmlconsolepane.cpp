@@ -32,6 +32,7 @@
 #include "qmlconsoleproxymodel.h"
 #include "qmlconsoleitemdelegate.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/findplaceholder.h>
 #include <utils/savedaction.h>
@@ -108,7 +109,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showDebugButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_LOG));
     m_showDebugButtonAction->setToolTip(tr("Show debug, log, and info messages."));
     m_showDebugButtonAction->setCheckable(true);
-    m_showDebugButtonAction->setIcon(QIcon(QLatin1String(":/qmljstools/images/log.png")));
+    m_showDebugButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_INFO)));
     connect(m_showDebugButtonAction, SIGNAL(toggled(bool)), m_proxyModel, SLOT(setShowLogs(bool)));
     m_showDebugButton->setDefaultAction(m_showDebugButtonAction);
 
@@ -120,7 +121,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showWarningButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_WARNING));
     m_showWarningButtonAction->setToolTip(tr("Show debug, log, and info messages."));
     m_showWarningButtonAction->setCheckable(true);
-    m_showWarningButtonAction->setIcon(QIcon(QLatin1String(":/qmljstools/images/warning.png")));
+    m_showWarningButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_WARNING)));
     connect(m_showWarningButtonAction, SIGNAL(toggled(bool)), m_proxyModel,
             SLOT(setShowWarnings(bool)));
     m_showWarningButton->setDefaultAction(m_showWarningButtonAction);
@@ -133,7 +134,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
     m_showErrorButtonAction->setSettingsKey(QLatin1String(CONSOLE), QLatin1String(SHOW_ERROR));
     m_showErrorButtonAction->setToolTip(tr("Show debug, log, and info messages."));
     m_showErrorButtonAction->setCheckable(true);
-    m_showErrorButtonAction->setIcon(QIcon(QLatin1String(":/qmljstools/images/error.png")));
+    m_showErrorButtonAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_ERROR)));
     connect(m_showErrorButtonAction, SIGNAL(toggled(bool)), m_proxyModel,
             SLOT(setShowErrors(bool)));
     m_showErrorButton->setDefaultAction(m_showErrorButtonAction);

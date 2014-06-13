@@ -32,7 +32,6 @@
 #include <projectexplorer/target.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <proparser/prowriter.h>
 #include <QComboBox>
 #include <QFormLayout>
@@ -40,6 +39,7 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <qtsupport/qtkitinformation.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 using namespace Android;
@@ -111,7 +111,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_sourceDirectoryWarning->setWordWrap(true);
     m_warningIcon = new QLabel(this);
     m_warningIcon->setVisible(false);
-    m_warningIcon->setPixmap(QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_ERROR)));
+    m_warningIcon->setPixmap(QPixmap(QLatin1String(Core::Constants::ICON_ERROR)));
     m_warningIcon->setWordWrap(true);
     m_warningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
