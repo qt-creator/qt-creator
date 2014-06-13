@@ -2052,6 +2052,7 @@ bool BaseTextEditorWidget::event(QEvent *e)
             return true;
         }
         e->ignore(); // we are a really nice citizen
+        d->m_maybeFakeTooltipEvent = false;
         return true;
         break;
     default:
