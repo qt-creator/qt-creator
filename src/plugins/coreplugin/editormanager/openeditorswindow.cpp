@@ -236,7 +236,7 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
 
 void OpenEditorsWindow::addRestoredItems()
 {
-    foreach (DocumentModel::Entry *entry, DocumentModel::documents()) {
+    foreach (DocumentModel::Entry *entry, DocumentModel::entries()) {
         if (entry->document)
             continue;
         QTreeWidgetItem *item = new QTreeWidgetItem();

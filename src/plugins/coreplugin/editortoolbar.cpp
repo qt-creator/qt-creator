@@ -308,12 +308,12 @@ void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
 
 void EditorToolBar::changeActiveEditor(int row)
 {
-    EditorManager::activateEditorForEntry(DocumentModel::documentAtRow(row));
+    EditorManager::activateEditorForEntry(DocumentModel::entryAtRow(row));
 }
 
 void EditorToolBar::listContextMenu(QPoint pos)
 {
-    DocumentModel::Entry *entry = DocumentModel::documentAtRow(
+    DocumentModel::Entry *entry = DocumentModel::entryAtRow(
                 d->m_editorList->currentIndex());
     QString fileName = entry ? entry->fileName() : QString();
     QString shortFileName = entry ? QFileInfo(fileName).fileName() : QString();
@@ -361,7 +361,7 @@ void EditorToolBar::checkDocumentStatus()
 {
     IDocument *document = qobject_cast<IDocument *>(sender());
     QTC_ASSERT(document, return);
-    DocumentModel::Entry *entry = DocumentModel::documentAtRow(
+    DocumentModel::Entry *entry = DocumentModel::entryAtRow(
                 d->m_editorList->currentIndex());
 
     if (entry && entry->document && entry->document == document)

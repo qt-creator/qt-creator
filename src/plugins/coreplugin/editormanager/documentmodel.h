@@ -64,11 +64,11 @@ public:
         Id m_id;
     };
 
-    static Entry *documentAtRow(int row);
+    static Entry *entryAtRow(int row);
     static int rowOfDocument(IDocument *document);
 
-    static int documentCount();
-    static QList<Entry *> documents();
+    static int entryCount();
+    static QList<Entry *> entries();
     static int indexOfDocument(IDocument *document);
     static int indexOfFilePath(const QString &filePath);
     static Entry *entryForDocument(IDocument *document);
@@ -77,18 +77,18 @@ public:
     static IDocument *documentForFilePath(const QString &filePath);
     static QList<IEditor *> editorsForFilePath(const QString &filePath);
     static QList<IEditor *> editorsForDocument(IDocument *document);
-    static QList<IEditor *> editorsForDocuments(const QList<IDocument *> &documents);
+    static QList<IEditor *> editorsForDocuments(const QList<IDocument *> &entries);
     static QList<IEditor *> oneEditorForEachOpenedDocument();
     static QList<IEditor *> editorsForOpenedDocuments();
 
     // editor manager related functions, nobody else should call it
     static void addEditor(IEditor *editor, bool *isNewDocument);
     static void addRestoredDocument(const QString &fileName, const QString &displayName, const Id &id);
-    static Entry *firstRestoredDocument();
+    static Entry *firstRestoredEntry();
     static void removeEditor(IEditor *editor, bool *lastOneForDocument);
     static void removeDocument(const QString &fileName);
     static void removeEntry(Entry *entry);
-    static void removeAllRestoredDocuments();
+    static void removeAllRestoredEntries();
 
 private:
     DocumentModel();

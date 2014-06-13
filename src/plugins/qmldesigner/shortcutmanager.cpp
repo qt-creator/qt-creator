@@ -171,7 +171,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
 void ShortCutManager::updateActions(Core::IEditor* currentEditor)
 {
-    int openedCount = Core::DocumentModel::documentCount();
+    int openedCount = Core::DocumentModel::entryCount();
 
     Core::IDocument *document = 0;
     if (currentEditor)

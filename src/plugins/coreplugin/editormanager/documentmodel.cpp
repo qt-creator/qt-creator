@@ -67,7 +67,7 @@ private:
     const QIcon m_lockedIcon;
     const QIcon m_unlockedIcon;
 
-    QList<DocumentModel::Entry *> m_documents;
+    QList<DocumentModel::Entry *> m_entries;
     QMap<IDocument *, QList<IEditor *> > m_editors;
 };
 
@@ -79,7 +79,7 @@ DocumentModelPrivate::DocumentModelPrivate() :
 
 DocumentModelPrivate::~DocumentModelPrivate()
 {
-    qDeleteAll(m_documents);
+    qDeleteAll(m_entries);
 }
 
 static DocumentModelPrivate *d;
@@ -143,7 +143,7 @@ int DocumentModelPrivate::columnCount(const QModelIndex &parent) const
 int DocumentModelPrivate::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return m_documents.count() + 1/*<no document>*/;
+        return m_entries.count() + 1/*<no document>*/;
     return 0;
 }
 
@@ -184,11 +184,11 @@ void DocumentModel::addRestoredDocument(const QString &fileName, const QString &
     d->addEntry(entry);
 }
 
-DocumentModel::Entry *DocumentModel::firstRestoredDocument()
+DocumentModel::Entry *DocumentModel::firstRestoredEntry()
 {
-    for (int i = 0; i < d->m_documents.count(); ++i)
-        if (!d->m_documents.at(i)->document)
-            return d->m_documents.at(i);
+    for (int i = 0; i < d->m_entries.count(); ++i)
+        if (!d->m_entries.at(i)->document)
+            return d->m_entries.at(i);
     return 0;
 }
 
@@ -199,9 +199,9 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     // replace a non-loaded entry (aka 'restored') if possible
     int previousIndex = indexOfFilePath(fileName);
     if (previousIndex >= 0) {
-        if (entry->document && m_documents.at(previousIndex)->document == 0) {
-            DocumentModel::Entry *previousEntry = m_documents.at(previousIndex);
-            m_documents[previousIndex] = entry;
+        if (entry->document && m_entries.at(previousIndex)->document == 0) {
+            DocumentModel::Entry *previousEntry = m_entries.at(previousIndex);
+            m_entries[previousIndex] = entry;
             delete previousEntry;
             connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
         } else {
@@ -212,13 +212,13 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
 
     int index;
     QString displayName = entry->displayName();
-    for (index = 0; index < m_documents.count(); ++index) {
-        if (displayName < m_documents.at(index)->displayName())
+    for (index = 0; index < m_entries.count(); ++index) {
+        if (displayName < m_entries.at(index)->displayName())
             break;
     }
     int row = index + 1/*<no document>*/;
     beginInsertRows(QModelIndex(), row, row);
-    m_documents.insert(index, entry);
+    m_entries.insert(index, entry);
     if (entry->document)
         connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
     endInsertRows();
@@ -234,8 +234,8 @@ int DocumentModelPrivate::indexOfFilePath(const QString &filePath) const
     if (filePath.isEmpty())
         return -1;
     const QString fixedPath = DocumentManager::fixFileName(filePath, DocumentManager::KeepLinks);
-    for (int i = 0; i < d->m_documents.count(); ++i) {
-        if (DocumentManager::fixFileName(d->m_documents.at(i)->fileName(), DocumentManager::KeepLinks) == fixedPath)
+    for (int i = 0; i < d->m_entries.count(); ++i) {
+        if (DocumentManager::fixFileName(d->m_entries.at(i)->fileName(), DocumentManager::KeepLinks) == fixedPath)
             return i;
     }
     return -1;
@@ -244,7 +244,7 @@ int DocumentModelPrivate::indexOfFilePath(const QString &filePath) const
 void DocumentModel::removeEntry(DocumentModel::Entry *entry)
 {
     QTC_ASSERT(!entry->document, return); // we wouldn't know what to do with the associated editors
-    int index = d->m_documents.indexOf(entry);
+    int index = d->m_entries.indexOf(entry);
     d->removeDocument(index);
 }
 
@@ -267,7 +267,7 @@ void DocumentModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
 void DocumentModel::removeDocument(const QString &fileName)
 {
     int index = indexOfFilePath(fileName);
-    QTC_ASSERT(!d->m_documents.at(index)->document, return); // we wouldn't know what to do with the associated editors
+    QTC_ASSERT(!d->m_entries.at(index)->document, return); // we wouldn't know what to do with the associated editors
     d->removeDocument(index);
 }
 
@@ -275,23 +275,23 @@ void DocumentModelPrivate::removeDocument(int idx)
 {
     if (idx < 0)
         return;
-    QTC_ASSERT(idx < d->m_documents.size(), return);
-    IDocument *document = d->m_documents.at(idx)->document;
+    QTC_ASSERT(idx < d->m_entries.size(), return);
+    IDocument *document = d->m_entries.at(idx)->document;
     int row = idx + 1/*<no document>*/;
     beginRemoveRows(QModelIndex(), row, row);
-    delete d->m_documents.takeAt(idx);
+    delete d->m_entries.takeAt(idx);
     endRemoveRows();
     if (document)
         disconnect(document, SIGNAL(changed()), this, SLOT(itemChanged()));
 }
 
-void DocumentModel::removeAllRestoredDocuments()
+void DocumentModel::removeAllRestoredEntries()
 {
-    for (int i = d->m_documents.count()-1; i >= 0; --i) {
-        if (!d->m_documents.at(i)->document) {
+    for (int i = d->m_entries.count()-1; i >= 0; --i) {
+        if (!d->m_entries.at(i)->document) {
             int row = i + 1/*<no document>*/;
             d->beginRemoveRows(QModelIndex(), row, row);
-            delete d->m_documents.takeAt(i);
+            delete d->m_entries.takeAt(i);
             d->endRemoveRows();
         }
     }
@@ -322,8 +322,8 @@ int DocumentModel::indexOfDocument(IDocument *document)
 
 int DocumentModelPrivate::indexOfDocument(IDocument *document) const
 {
-    for (int i = 0; i < m_documents.count(); ++i)
-        if (m_documents.at(i)->document == document)
+    for (int i = 0; i < m_entries.count(); ++i)
+        if (m_entries.at(i)->document == document)
             return i;
     return -1;
 }
@@ -333,7 +333,7 @@ DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document)
     int index = indexOfDocument(document);
     if (index < 0)
         return 0;
-    return d->m_documents.at(index);
+    return d->m_entries.at(index);
 }
 
 QList<IDocument *> DocumentModel::openedDocuments()
@@ -346,7 +346,7 @@ IDocument *DocumentModel::documentForFilePath(const QString &filePath)
     int index = indexOfFilePath(filePath);
     if (index < 0)
         return 0;
-    return d->m_documents.at(index)->document;
+    return d->m_entries.at(index)->document;
 }
 
 QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath)
@@ -360,22 +360,22 @@ QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath)
 QModelIndex DocumentModelPrivate::index(int row, int column, const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    if (column < 0 || column > 1 || row < 0 || row >= m_documents.count() + 1/*<no document>*/)
+    if (column < 0 || column > 1 || row < 0 || row >= m_entries.count() + 1/*<no document>*/)
         return QModelIndex();
     return createIndex(row, column);
 }
 
-DocumentModel::Entry *DocumentModel::documentAtRow(int row)
+DocumentModel::Entry *DocumentModel::entryAtRow(int row)
 {
     int entryIndex = row - 1/*<no document>*/;
     if (entryIndex < 0)
         return 0;
-    return d->m_documents[entryIndex];
+    return d->m_entries[entryIndex];
 }
 
-int DocumentModel::documentCount()
+int DocumentModel::entryCount()
 {
-    return d->m_documents.count();
+    return d->m_entries.count();
 }
 
 QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
@@ -394,7 +394,7 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     }
-    const DocumentModel::Entry *e = m_documents.at(entryIndex);
+    const DocumentModel::Entry *e = m_entries.at(entryIndex);
     switch (role) {
     case Qt::DisplayRole:
         return (e->document && e->document->isModified())
@@ -440,9 +440,9 @@ void DocumentModelPrivate::itemChanged()
     emit dataChanged(mindex, mindex);
 }
 
-QList<DocumentModel::Entry *> DocumentModel::documents()
+QList<DocumentModel::Entry *> DocumentModel::entries()
 {
-    return d->m_documents;
+    return d->m_entries;
 }
 
 } // namespace Core

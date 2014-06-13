@@ -2154,12 +2154,12 @@ int FakeVimPluginPrivate::currentFile() const
 
 void FakeVimPluginPrivate::switchToFile(int n)
 {
-    int size = DocumentModel::documentCount();
+    int size = DocumentModel::entryCount();
     QTC_ASSERT(size, return);
     n = n % size;
     if (n < 0)
         n += size;
-    EditorManager::activateEditorForEntry(DocumentModel::documents().at(n));
+    EditorManager::activateEditorForEntry(DocumentModel::entries().at(n));
 }
 
 ExCommandMap &FakeVimExCommandsPage::exCommandMap()
