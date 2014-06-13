@@ -28,7 +28,7 @@ QtcPlugin {
             "localqmlprofilerrunner.cpp", "localqmlprofilerrunner.h",
             "qmlprofiler_global.h",
             "qmlprofilerattachdialog.cpp", "qmlprofilerattachdialog.h",
-            "qmlprofilerbasemodel.cpp", "qmlprofilerbasemodel.h",
+            "qmlprofilerbasemodel.cpp", "qmlprofilerbasemodel.h", "qmlprofilerbasemodel_p.h",
             "qmlprofilerclientmanager.cpp", "qmlprofilerclientmanager.h",
             "qmlprofilerconstants.h",
             "qmlprofilerdatamodel.cpp", "qmlprofilerdatamodel.h",
