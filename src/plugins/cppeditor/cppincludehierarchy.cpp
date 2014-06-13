@@ -37,6 +37,7 @@
 #include "cppincludehierarchytreeview.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/treeviewfind.h>
 #include <cplusplus/CppDocument.h>
 
 #include <utils/annotateditemdelegate.h>
@@ -114,7 +115,8 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget() :
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_inspectedFile);
-    layout->addWidget(m_treeView);
+    layout->addWidget(Core::TreeViewFind::createSearchableWrapper(
+                          m_treeView, Core::TreeViewFind::FetchMoreWhileSearching));
     layout->addWidget(m_includeHierarchyInfoLabel);
     setLayout(layout);
 
