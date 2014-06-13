@@ -216,8 +216,6 @@ DocumentManager::DocumentManager(QObject *parent)
 {
     d = new DocumentManagerPrivate;
     m_instance = this;
-    connect(ICore::instance(), SIGNAL(contextChanged(QList<Core::IContext*>,Core::Context)),
-        this, SLOT(syncWithEditor(QList<Core::IContext*>)));
     qApp->installEventFilter(this);
 
     readSettings();
@@ -1127,22 +1125,6 @@ void DocumentManager::checkForReload()
     d->m_blockActivated = false;
 
 //    dump();
-}
-
-void DocumentManager::syncWithEditor(const QList<Core::IContext *> &context)
-{
-    if (context.isEmpty())
-        return;
-
-    Core::IEditor *editor = Core::EditorManager::currentEditor();
-    if (!editor || editor->document()->isTemporary())
-        return;
-    foreach (IContext *c, context) {
-        if (editor->widget() == c->widget()) {
-            setCurrentFile(editor->document()->filePath());
-            break;
-        }
-    }
 }
 
 /*!

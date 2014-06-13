@@ -2263,6 +2263,9 @@
 
     \endlist
 
+    If locator does not find some files, you can add them to the \c OTHER_FILES
+    variable in the .pro file to make them known to \QC.
+
     \section1 Configuring Locator Filters
 
     If the default filters do not match your use case, you can check whether you

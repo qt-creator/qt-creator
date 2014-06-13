@@ -84,8 +84,7 @@ def waitForCompile(timeout=60000):
 
 def dumpBuildIssues(listModel):
     issueDump = []
-    for row in range(listModel.rowCount()):
-        index = listModel.index(row, 0)
+    for index in dumpIndices(listModel):
         issueDump.extend([map(lambda role: index.data(role).toString(),
                               range(Qt.UserRole, Qt.UserRole + 6))])
     return issueDump
@@ -165,8 +164,8 @@ def iterateBuildConfigs(kitCount, filter = ""):
 def selectBuildConfig(targetCount, currentTarget, configName, afterSwitchTo=ViewConstants.EDIT):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
-    selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName)
-    progressBarWait(30000)
+    if selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName) or targetCount > 1:
+        progressBarWait(30000)
     return getQtInformationForBuildSettings(targetCount, True, afterSwitchTo)
 
 # This will not trigger a rebuild. If needed, caller has to do this.

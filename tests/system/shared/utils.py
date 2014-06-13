@@ -603,7 +603,12 @@ def readFile(filename):
     return content
 
 def simpleFileName(navigatorFileName):
-    return ".".join(navigatorFileName.split(".")[-2:]).replace("\\","")
+    # try to find the last part of the given name, assume it's inside a (folder) structure
+    search = re.search(".*[^\\\\]\.(.*)$", navigatorFileName)
+    if search:
+        return search.group(1).replace("\\", "")
+    # it's just the filename
+    return navigatorFileName.replace("\\", "")
 
 def clickOnTab(tabBarStr, tabText, timeout=5000):
     if not waitFor("object.exists(tabBarStr)", timeout):

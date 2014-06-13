@@ -163,7 +163,6 @@ private slots:
     void checkForNewFileName();
     void checkForReload();
     void changedFile(const QString &file);
-    void syncWithEditor(const QList<Core::IContext *> &context);
 
 private:
     explicit DocumentManager(QObject *parent);

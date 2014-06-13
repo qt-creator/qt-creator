@@ -58,6 +58,7 @@
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/uicodemodelsupport.h>
+#include <resourceeditor/resourcenode.h>
 
 #include <QDebug>
 #include <QDir>
@@ -255,6 +256,9 @@ void ProjectFilesVisitor::visitProjectNode(ProjectNode *projectNode)
 
 void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 {
+    if (qobject_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
+        m_files->files[ResourceType].push_back(folderNode->path());
+
     foreach (FileNode *fileNode, folderNode->fileNodes()) {
         const QString path = fileNode->path();
         const int type = fileNode->fileType();

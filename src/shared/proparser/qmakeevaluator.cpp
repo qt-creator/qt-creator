@@ -914,8 +914,11 @@ void QMakeEvaluator::visitProVariable(
         m_featureRoots = 0;
     else if (varName == statics.strQMAKESPEC) {
         if (!values(varName).isEmpty()) {
-            m_qmakespec = values(varName).first().toQString();
-            m_featureRoots = 0;
+            QString spec = values(varName).first().toQString();
+            if (IoUtils::isAbsolutePath(spec)) {
+                m_qmakespec = spec;
+                m_featureRoots = 0;
+            }
         }
     }
 #ifdef PROEVALUATOR_FULL
@@ -1129,8 +1132,11 @@ bool QMakeEvaluator::loadSpecInternal()
     // the source of the qmake.conf at the end of the default/qmake.conf in
     // the QMAKESPEC_ORIGINAL variable.
     const ProString &orig_spec = first(ProKey("QMAKESPEC_ORIGINAL"));
-    if (!orig_spec.isEmpty())
-        m_qmakespec = orig_spec.toQString();
+    if (!orig_spec.isEmpty()) {
+        QString spec = orig_spec.toQString();
+        if (IoUtils::isAbsolutePath(spec))
+            m_qmakespec = spec;
+    }
 #  endif
 #endif
     valuesRef(ProKey("QMAKESPEC")) = ProString(m_qmakespec);

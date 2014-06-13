@@ -1070,7 +1070,7 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
 ProjectExplorer::FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
-    return ProjectExplorer::FolderNode::AddNewInformation(QFileInfo(path()).fileName(), context == this ? 120 : 90);
+    return ProjectExplorer::FolderNode::AddNewInformation(QFileInfo(path()).fileName(), context && context->projectNode() == this ? 120 : 90);
 }
 
 bool QmakePriFileNode::priFileWritable(const QString &path)
@@ -1577,7 +1577,7 @@ bool QmakeProFileNode::showInSimpleTree() const
 ProjectExplorer::FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
-    return AddNewInformation(QFileInfo(path()).fileName(), context == this ? 120 : 100);
+    return AddNewInformation(QFileInfo(path()).fileName(), context && context->projectNode() == this ? 120 : 100);
 }
 
 bool QmakeProFileNode::showInSimpleTree(QmakeProjectType projectType) const

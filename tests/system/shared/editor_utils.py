@@ -255,7 +255,7 @@ def verifyProperties(properties, expectedProps):
             result[key] = None
     return result
 
-def getEditorForFileSuffix(curFile):
+def getEditorForFileSuffix(curFile, treeViewSyntax=False):
     cppEditorSuffixes = ["cpp", "cc", "CC", "h", "H", "cp", "cxx", "C", "c++", "inl", "moc", "qdoc",
                          "tcc", "tpp", "t++", "c", "cu", "m", "mm", "hh", "hxx", "h++", "hpp", "hp"]
     qmlEditorSuffixes = ["qml", "qmlproject", "js", "qs", "qtt"]
@@ -263,6 +263,13 @@ def getEditorForFileSuffix(curFile):
     glslEditorSuffixes= ["frag", "vert", "fsh", "vsh", "glsl", "shader", "gsh"]
     pytEditorSuffixes = ["py", "pyw", "wsgi"]
     suffix = __getFileSuffix__(curFile)
+    expected = os.path.basename(curFile)
+    if treeViewSyntax:
+        expected = simpleFileName(curFile)
+    mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
+    if not waitFor("expected in str(mainWindow.windowTitle)", 5000):
+        test.fatal("Window title (%s) did not switch to expected file (%s)."
+                   % (str(mainWindow.windowTitle), expected))
     try:
         if suffix in cppEditorSuffixes:
             editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")

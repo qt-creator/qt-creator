@@ -31,6 +31,7 @@
 #include "protocol.h"
 
 #include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
 #include <QPushButton>
 #include <QSettings>
@@ -112,6 +113,7 @@ void PasteView::contentChanged()
 
 void PasteView::protocolChanged(int p)
 {
+    QTC_ASSERT(p >= 0 && p < m_protocols.size(), return);
     const unsigned caps = m_protocols.at(p)->capabilities();
     m_ui.uiDescription->setEnabled(caps & Protocol::PostDescriptionCapability);
     m_ui.uiUsername->setEnabled(caps & Protocol::PostUserNameCapability);
@@ -215,6 +217,8 @@ void PasteView::accept()
 void PasteView::setProtocol(const QString &protocol)
 {
      const int index = m_ui.protocolBox->findText(protocol);
+     if (index < 0)
+         return;
      m_ui.protocolBox->setCurrentIndex(index);
      if (index == m_ui.protocolBox->currentIndex())
          protocolChanged(index); // Force enabling
