@@ -85,13 +85,12 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event)
 {
     QString details;
     // generate details string
-    if (event.data.isEmpty())
-        details = QmlProfilerDataModel::tr("Source code not available.");
-    else {
+    if (!event.data.isEmpty()) {
         details = event.data;
         details.replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         if (details.isEmpty()) {
-            details = QmlProfilerDataModel::tr("anonymous function");
+            if (event.rangeType == QmlDebug::Javascript)
+                details = QmlProfilerDataModel::tr("anonymous function");
         } else {
             QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
             bool match = rewrite.exactMatch(details);

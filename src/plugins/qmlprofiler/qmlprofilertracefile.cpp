@@ -451,7 +451,10 @@ void QmlProfilerFileWriter::save(QIODevice *device)
             stream.writeTextElement(_("line"), QString::number(event.location.line));
             stream.writeTextElement(_("column"), QString::number(event.location.column));
         }
-        stream.writeTextElement(_("details"), event.data);
+
+        if (!event.data.isEmpty())
+            stream.writeTextElement(_("details"), event.data);
+
         if (event.rangeType == Binding)
             stream.writeTextElement(_("bindingType"), QString::number(event.detailType));
         if (event.message == Event && event.detailType == AnimationFrame)
