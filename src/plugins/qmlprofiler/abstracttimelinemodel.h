@@ -66,7 +66,7 @@ public:
     int findFirstIndexNoParents(qint64 startTime) const;
     int findLastIndex(qint64 endTime) const;
     int count() const;
-    bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const;
+    bool eventAccepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     bool expanded() const;
     void setExpanded(bool expanded);
     const QString title() const;
@@ -84,7 +84,7 @@ public:
     // Methods which can optionally be implemented by child models.
     // returned map should contain "file", "line", "column" properties, or be empty
     Q_INVOKABLE virtual const QVariantMap getEventLocation(int index) const;
-    Q_INVOKABLE virtual int getEventIdForHash(const QString &eventHash) const;
+    Q_INVOKABLE virtual int getEventIdForTypeIndex(int typeIndex) const;
     Q_INVOKABLE virtual int getEventIdForLocation(const QString &filename, int line, int column) const;
     Q_INVOKABLE virtual int getBindingLoopDest(int index) const;
     Q_INVOKABLE virtual float getHeight(int index) const;

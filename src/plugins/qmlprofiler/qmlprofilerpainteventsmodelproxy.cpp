@@ -81,7 +81,7 @@ void PaintEventsModelProxy::clear()
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 
-bool PaintEventsModelProxy::eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const
+bool PaintEventsModelProxy::eventAccepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
 {
     return AbstractTimelineModel::eventAccepted(event) &&
             event.detailType== QmlDebug::AnimationFrame;
@@ -96,14 +96,16 @@ void PaintEventsModelProxy::loadData()
         return;
 
     // collect events
-    const QVector<QmlProfilerDataModel::QmlEventData> referenceList = simpleModel->getEvents();
+    const QVector<QmlProfilerDataModel::QmlEventData> &referenceList = simpleModel->getEvents();
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList = simpleModel->getEventTypes();
 
     QmlPaintEventData lastEvent;
     qint64 minNextStartTimes[] = {0, 0};
 
     foreach (const QmlProfilerDataModel::QmlEventData &event, referenceList) {
-        if (!eventAccepted(event)) {
-            if (event.rangeType == QmlDebug::Painting)
+        const QmlProfilerDataModel::QmlEventTypeData &type = typeList[event.typeIndex];
+        if (!eventAccepted(type)) {
+            if (type.rangeType == QmlDebug::Painting)
                 d->seenForeignPaintEvent = true;
             continue;
         }

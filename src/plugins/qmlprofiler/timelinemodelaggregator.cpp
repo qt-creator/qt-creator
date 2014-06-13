@@ -230,9 +230,9 @@ const QVariantMap TimelineModelAggregator::getEventLocation(int modelIndex, int 
     return d->modelList[modelIndex]->getEventLocation(index);
 }
 
-int TimelineModelAggregator::getEventIdForHash(int modelIndex, const QString &hash) const
+int TimelineModelAggregator::getEventIdForTypeIndex(int modelIndex, int typeIndex) const
 {
-    return d->modelList[modelIndex]->getEventIdForHash(hash);
+    return d->modelList[modelIndex]->getEventIdForTypeIndex(typeIndex);
 }
 
 int TimelineModelAggregator::getEventIdForLocation(int modelIndex, const QString &filename,

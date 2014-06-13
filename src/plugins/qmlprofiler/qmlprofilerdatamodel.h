@@ -39,15 +39,19 @@ class QMLPROFILER_EXPORT QmlProfilerDataModel : public QmlProfilerBaseModel
 {
     Q_OBJECT
 public:
-    struct QmlEventData {
+    struct QmlEventTypeData {
         QString displayName;
+        QmlDebug::QmlEventLocation location;
         QmlDebug::Message message;
         QmlDebug::RangeType rangeType;
         int detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
+        QString data;
+    };
+
+    struct QmlEventData {
+        int typeIndex;
         qint64 startTime;
         qint64 duration;
-        QString data;
-        QmlDebug::QmlEventLocation location;
         qint64 numericData1;
         qint64 numericData2;
         qint64 numericData3;
@@ -58,6 +62,7 @@ public:
     explicit QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent = 0);
 
     const QVector<QmlEventData> &getEvents() const;
+    const QVector<QmlEventTypeData> &getEventTypes() const;
     int count() const;
     virtual void clear();
     virtual bool isEmpty() const;
@@ -66,7 +71,6 @@ public:
                      qint64 startTime, qint64 duration, const QString &data,
                      const QmlDebug::QmlEventLocation &location, qint64 ndata1, qint64 ndata2,
                      qint64 ndata3, qint64 ndata4, qint64 ndata5);
-    static QString getHashString(const QmlProfilerDataModel::QmlEventData &event);
     qint64 lastTimeMark() const;
 
 protected slots:

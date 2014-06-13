@@ -48,7 +48,7 @@ class QmlProfilerEventChildrenView;
 class QmlProfilerEventRelativesView;
 
 enum ItemRole {
-    EventHashStrRole = Qt::UserRole+1,
+    EventTypeIndexRole = Qt::UserRole+1,
     FilenameRole = Qt::UserRole+2,
     LineRole = Qt::UserRole+3,
     ColumnRole = Qt::UserRole+4,
@@ -85,11 +85,11 @@ public:
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void eventSelectedByHash(const QString &eventHash);
+    void eventSelectedByTypeIndex(int typeIndex);
     void resized();
 
 public slots:
-    void updateSelectedEvent(const QString &eventHash) const;
+    void updateSelectedEvent(int typeIndex) const;
     void selectBySourceLocation(const QString &filename, int line, int column);
 
 private slots:
@@ -122,7 +122,7 @@ public:
     static QString nameForType(QmlDebug::RangeType typeNumber);
 
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
-    QString selectedEventHash() const;
+    int selectedTypeIndex() const;
 
     void setShowExtendedStatistics(bool);
     bool showExtendedStatistics() const;
@@ -130,12 +130,12 @@ public:
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void eventSelected(const QString &eventHash);
+    void eventSelected(int typeIndex);
 
 public slots:
     void clear();
     void jumpToItem(const QModelIndex &index);
-    void selectEvent(const QString &eventHash);
+    void selectEvent(int typeIndex);
     void selectEventByLocation(const QString &filename, int line, int column);
     void buildModel();
 
@@ -163,15 +163,15 @@ public:
     ~QmlProfilerEventRelativesView();
 
 signals:
-    void eventClicked(const QString &eventHash);
+    void eventClicked(int typeIndex);
 
 public slots:
-    void displayEvent(const QString &eventHash);
+    void displayEvent(int typeIndex);
     void jumpToItem(const QModelIndex &);
     void clear();
 
 private:
-    void rebuildTree(QmlProfilerEventParentsModelProxy::QmlEventRelativesMap eventMap);
+    void rebuildTree(const QmlProfilerEventParentsModelProxy::QmlEventRelativesMap &eventMap);
     void updateHeader();
     QStandardItemModel *treeModel();
 

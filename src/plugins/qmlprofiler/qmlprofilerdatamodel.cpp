@@ -43,16 +43,16 @@ class QmlProfilerDataModel::QmlProfilerDataModelPrivate :
 {
 public:
     QmlProfilerDataModelPrivate(QmlProfilerDataModel *qq) : QmlProfilerBaseModelPrivate(qq) {}
+    QVector<QmlEventTypeData> eventTypes;
     QVector<QmlEventData> eventList;
+    QHash<QmlEventTypeData, int> eventTypeIds;
 private:
     Q_DECLARE_PUBLIC(QmlProfilerDataModel)
 };
 
-QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventData &event);
-QString getDisplayName(const QmlProfilerDataModel::QmlEventData &event);
-QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event);
+QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event);
 
-QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventData &event)
+QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventTypeData &event)
 {
     QmlDebug::QmlEventLocation eventLocation = event.location;
     if ((event.rangeType == QmlDebug::Creating || event.rangeType == QmlDebug::Compiling)
@@ -64,7 +64,7 @@ QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventData 
     return eventLocation;
 }
 
-QString getDisplayName(const QmlProfilerDataModel::QmlEventData &event)
+QString getDisplayName(const QmlProfilerDataModel::QmlEventTypeData &event)
 {
     const QmlDebug::QmlEventLocation eventLocation = getLocation(event);
     QString displayName;
@@ -81,7 +81,7 @@ QString getDisplayName(const QmlProfilerDataModel::QmlEventData &event)
     return displayName;
 }
 
-QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event)
+QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event)
 {
     QString details;
     // generate details string
@@ -124,6 +124,12 @@ const QVector<QmlProfilerDataModel::QmlEventData> &QmlProfilerDataModel::getEven
     return d->eventList;
 }
 
+const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerDataModel::getEventTypes() const
+{
+    Q_D(const QmlProfilerDataModel);
+    return d->eventTypes;
+}
+
 int QmlProfilerDataModel::count() const
 {
     Q_D(const QmlProfilerDataModel);
@@ -134,6 +140,8 @@ void QmlProfilerDataModel::clear()
 {
     Q_D(QmlProfilerDataModel);
     d->eventList.clear();
+    d->eventTypes.clear();
+    d->eventTypeIds.clear();
     // This call emits changed(). Don't emit it again here.
     QmlProfilerBaseModel::clear();
 }
@@ -150,6 +158,26 @@ inline static bool operator<(const QmlProfilerDataModel::QmlEventData &t1,
     return t1.startTime < t2.startTime;
 }
 
+inline static uint qHash(const QmlProfilerDataModel::QmlEventTypeData &type)
+{
+    return qHash(type.location.filename) ^
+            ((type.location.line & 0xfff) |             // 12 bits of line number
+            ((type.message << 12) & 0xf000) |           // 4 bits of message
+            ((type.location.column << 16) & 0xff0000) | // 8 bits of column
+            ((type.rangeType << 24) & 0xf000000) |      // 4 bits of rangeType
+            ((type.detailType << 28) & 0xf0000000));    // 4 bits of detailType
+}
+
+inline static bool operator==(const QmlProfilerDataModel::QmlEventTypeData &type1,
+                              const QmlProfilerDataModel::QmlEventTypeData &type2)
+{
+    return type1.message == type2.message && type1.rangeType == type2.rangeType &&
+            type1.detailType == type2.detailType && type1.location.line == type2.location.line &&
+            type1.location.column == type2.location.column &&
+            // compare filename last as it's expensive.
+            type1.location.filename == type2.location.filename;
+}
+
 void QmlProfilerDataModel::complete()
 {
     Q_D(QmlProfilerDataModel);
@@ -159,9 +187,9 @@ void QmlProfilerDataModel::complete()
     std::sort(d->eventList.begin(), d->eventList.end());
 
     // rewrite strings
-    int n = d->eventList.count();
+    int n = d->eventTypes.count();
     for (int i = 0; i < n; i++) {
-        QmlEventData *event = &d->eventList[i];
+        QmlEventTypeData *event = &d->eventTypes[i];
         event->location = getLocation(*event);
         event->displayName = getDisplayName(*event);
         event->data = getInitialDetails(*event);
@@ -207,22 +235,22 @@ void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::Rang
                 QString::number(location.line));
     }
 
-    QmlEventData eventData = {displayName, message, rangeType, detailType, startTime, duration,
-                              data, location, ndata1, ndata2, ndata3, ndata4, ndata5};
+    QmlEventTypeData typeData = {displayName, location, message, rangeType, detailType, data};
+    QmlEventData eventData = {-1, startTime, duration, ndata1, ndata2, ndata3, ndata4, ndata5};
+
+    QHash<QmlEventTypeData, int>::Iterator it = d->eventTypeIds.find(typeData);
+    if (it != d->eventTypeIds.end()) {
+        eventData.typeIndex = it.value();
+    } else {
+        eventData.typeIndex = d->eventTypes.size();
+        d->eventTypeIds[typeData] = eventData.typeIndex;
+        d->eventTypes.append(typeData);
+    }
+
     d->eventList.append(eventData);
 
     d->modelManager->modelProxyCountUpdated(d->modelId, startTime,
                                             d->modelManager->estimatedProfilingTime() * 2);
-}
-
-QString QmlProfilerDataModel::getHashString(const QmlProfilerDataModel::QmlEventData &event)
-{
-    return QString::fromLatin1("%1:%2:%3:%4:%5").arg(
-                event.location.filename,
-                QString::number(event.location.line),
-                QString::number(event.location.column),
-                QString::number((event.message << 8) | event.rangeType),
-                QString::number(event.detailType));
 }
 
 qint64 QmlProfilerDataModel::lastTimeMark() const
@@ -237,9 +265,9 @@ qint64 QmlProfilerDataModel::lastTimeMark() const
 void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newString)
 {
     Q_D(QmlProfilerDataModel);
-    QTC_ASSERT(requestId < d->eventList.count(), return);
+    QTC_ASSERT(requestId < d->eventTypes.count(), return);
 
-    QmlEventData *event = &d->eventList[requestId];
+    QmlEventTypeData *event = &d->eventTypes[requestId];
     event->data = newString;
 }
 

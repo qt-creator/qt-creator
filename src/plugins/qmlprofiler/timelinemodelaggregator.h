@@ -85,7 +85,7 @@ public:
     Q_INVOKABLE const QVariantList getEventDetails(int modelIndex, int index) const;
     Q_INVOKABLE const QVariantMap getEventLocation(int modelIndex, int index) const;
 
-    Q_INVOKABLE int getEventIdForHash(int modelIndex, const QString &hash) const;
+    Q_INVOKABLE int getEventIdForTypeIndex(int modelIndex, int typeIndex) const;
     Q_INVOKABLE int getEventIdForLocation(int modelIndex, const QString &filename, int line,
                                           int column) const;
 

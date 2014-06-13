@@ -47,30 +47,6 @@ QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
 namespace QmlProfiler {
 namespace Internal {
 
-
-struct QmlEvent {
-    QString displayName;
-    QString filename;
-    QString details;
-    QmlDebug::Message message;
-    QmlDebug::RangeType rangeType;
-    int detailType;
-    int line;
-    int column;
-};
-
-struct Range {
-    qint64 startTime;
-    qint64 duration;
-
-    // numeric data used by animations, pixmap cache, scenegraph
-    qint64 numericData1;
-    qint64 numericData2;
-    qint64 numericData3;
-    qint64 numericData4;
-    qint64 numericData5;
-};
-
 class QmlProfilerFileReader : public QObject
 {
     Q_OBJECT
@@ -100,8 +76,8 @@ private:
 
 
     QV8ProfilerDataModel *m_v8Model;
-    QVector<QmlEvent> m_qmlEvents;
-    QVector<QPair<Range, int> > m_ranges;
+    QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
+    QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
 };
 
 
@@ -114,18 +90,19 @@ public:
 
     void setTraceTime(qint64 startTime, qint64 endTime, qint64 measturedTime);
     void setV8DataModel(QV8ProfilerDataModel *dataModel);
-    void setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventData> &events);
+    void setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
+                      const QVector<QmlProfilerDataModel::QmlEventData> &events);
 
     void save(QIODevice *device);
 
 private:
-    void calculateMeasuredTime(const QVector<QmlProfilerDataModel::QmlEventData> &events);
+    void calculateMeasuredTime();
 
 
     qint64 m_startTime, m_endTime, m_measuredTime;
     QV8ProfilerDataModel *m_v8Model;
-    QHash<QString,QmlEvent> m_qmlEvents;
-    QVector<QPair<Range, QString> > m_ranges;
+    QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
+    QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
     QVector<QmlDebug::RangeType> m_acceptedRangeTypes;
     QVector<QmlDebug::Message> m_acceptedMessages;
 };

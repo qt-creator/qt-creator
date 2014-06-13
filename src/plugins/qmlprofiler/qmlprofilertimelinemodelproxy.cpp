@@ -55,9 +55,7 @@ public:
     void computeExpandedLevels();
     void findBindingLoops();
 
-    QVector <RangeTimelineModel::QmlRangeEventData> eventDict;
-    QVector <QString> eventHashes;
-    int expandedRows;
+    QVector<int> expandedRowTypes;
     int contractedRows;
     bool seenPaintEvent;
 private:
@@ -71,7 +69,8 @@ RangeTimelineModel::RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *p
 {
     Q_D(RangeTimelineModel);
     d->seenPaintEvent = false;
-    d->expandedRows = 1;
+    d->expandedRowTypes.clear();
+    d->expandedRowTypes << -1;
     d->contractedRows = 1;
 }
 
@@ -79,9 +78,8 @@ void RangeTimelineModel::clear()
 {
     Q_D(RangeTimelineModel);
     d->clear();
-    d->eventDict.clear();
-    d->eventHashes.clear();
-    d->expandedRows = 1;
+    d->expandedRowTypes.clear();
+    d->expandedRowTypes << -1;
     d->contractedRows = 1;
     d->seenPaintEvent = false;
     d->expanded = false;
@@ -97,40 +95,18 @@ void RangeTimelineModel::loadData()
     if (simpleModel->isEmpty())
         return;
 
-    int lastEventId = 0;
-
-    QMap<QString, int> eventIdsByHash;
-
     // collect events
-    const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
+    const QVector<QmlProfilerDataModel::QmlEventData> &eventList = simpleModel->getEvents();
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
-        if (!eventAccepted(event))
+        const QmlProfilerDataModel::QmlEventTypeData &type = typesList[event.typeIndex];
+        if (!eventAccepted(type))
             continue;
-        if (event.rangeType == QmlDebug::Painting)
+        if (type.rangeType == QmlDebug::Painting)
             d->seenPaintEvent = true;
 
-        QString eventHash = QmlProfilerDataModel::getHashString(event);
-
-        // store in dictionary
-        int eventId;
-        QMap<QString, int>::const_iterator i = eventIdsByHash.constFind(eventHash);
-        if (i == eventIdsByHash.cend()) {
-            QmlRangeEventData rangeEventData = {
-                event.displayName,
-                event.data,
-                event.location,
-                lastEventId++ // event id
-            };
-            d->eventDict << rangeEventData;
-            eventId = d->eventHashes.size();
-            eventIdsByHash.insert(eventHash, eventId);
-            d->eventHashes << eventHash;
-        } else {
-            eventId = i.value();
-        }
-
         // store starttime-based instance
-        d->insert(event.startTime, event.duration, QmlRangeEventStartInstance(eventId));
+        d->insert(event.startTime, event.duration, QmlRangeEventStartInstance(event.typeIndex));
 
         d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), eventList.count() * 6);
     }
@@ -194,7 +170,8 @@ void RangeTimelineModel::RangeTimelineModelPrivate::computeExpandedLevels()
     for (int i = 0; i < eventCount; i++) {
         int eventId = ranges[i].eventId;
         if (!eventRow.contains(eventId)) {
-            eventRow[eventId] = expandedRows++;
+            eventRow[eventId] = expandedRowTypes.length();
+            expandedRowTypes << eventId;
         }
         ranges[i].displayRowExpanded = eventRow[eventId];
     }
@@ -205,13 +182,12 @@ void RangeTimelineModel::RangeTimelineModelPrivate::findBindingLoops()
     if (rangeType != QmlDebug::Binding && rangeType != QmlDebug::HandlingSignal)
         return;
 
-    typedef QPair<QString, int> CallStackEntry;
+    typedef QPair<int, int> CallStackEntry;
     QStack<CallStackEntry> callStack;
 
     for (int i = 0; i < count(); ++i) {
         Range *event = &ranges[i];
 
-        const QString eventHash = eventHashes.at(event->eventId);
         const Range *potentialParent = callStack.isEmpty()
                 ? 0 : &ranges[callStack.top().second];
 
@@ -224,14 +200,14 @@ void RangeTimelineModel::RangeTimelineModelPrivate::findBindingLoops()
 
         // check whether event is already in stack
         for (int ii = 0; ii < callStack.size(); ++ii) {
-            if (callStack.at(ii).first == eventHash) {
+            if (callStack.at(ii).first == event->eventId) {
                 event->bindingLoopHead = callStack.at(ii).second;
                 break;
             }
         }
 
 
-        CallStackEntry newEntry(eventHash, i);
+        CallStackEntry newEntry(event->eventId, i);
         callStack.push(newEntry);
     }
 
@@ -246,7 +222,7 @@ int RangeTimelineModel::rowCount() const
     if (d->rangeType == QmlDebug::Painting && !d->seenPaintEvent)
         return 0;
     if (d->expanded)
-        return d->expandedRows;
+        return d->expandedRowTypes.length();
     else
         return d->contractedRows;
 }
@@ -296,12 +272,15 @@ const QVariantList RangeTimelineModel::getLabels() const
     QVariantList result;
 
     if (d->expanded) {
-        int eventCount = d->eventDict.count();
-        for (int i = 0; i < eventCount; i++) {
+        const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
+                d->modelManager->qmlModel()->getEventTypes();
+        int eventCount = d->expandedRowTypes.count();
+        for (int i = 1; i < eventCount; i++) { // Ignore the -1 for the first row
             QVariantMap element;
-            element.insert(QLatin1String("displayName"), QVariant(d->eventDict[i].displayName));
-            element.insert(QLatin1String("description"), QVariant(d->eventDict[i].details));
-            element.insert(QLatin1String("id"), QVariant(d->eventDict[i].eventId));
+            int typeId = d->expandedRowTypes[i];
+            element.insert(QLatin1String("displayName"), QVariant(types[typeId].displayName));
+            element.insert(QLatin1String("description"), QVariant(types[typeId].data));
+            element.insert(QLatin1String("id"), QVariant(typeId));
             result << element;
         }
     }
@@ -314,6 +293,8 @@ const QVariantList RangeTimelineModel::getEventDetails(int index) const
     Q_D(const RangeTimelineModel);
     QVariantList result;
     int eventId = getEventId(index);
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
+            d->modelManager->qmlModel()->getEventTypes();
 
     static const char trContext[] = "RangeDetails";
     {
@@ -333,17 +314,19 @@ const QVariantList RangeTimelineModel::getEventDetails(int index) const
     // details
     {
         QVariantMap valuePair;
-        QString detailsString = d->eventDict[eventId].details;
+        QString detailsString = types[eventId].data;
         if (detailsString.length() > 40)
             detailsString = detailsString.left(40) + QLatin1String("...");
-        valuePair.insert(QCoreApplication::translate(trContext, "Details:"), QVariant(detailsString));
+        valuePair.insert(QCoreApplication::translate(trContext, "Details:"),
+                         QVariant(detailsString));
         result << valuePair;
     }
 
     // location
     {
         QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Location:"), QVariant(d->eventDict[eventId].displayName));
+        valuePair.insert(QCoreApplication::translate(trContext, "Location:"),
+                         QVariant(types[eventId].displayName));
         result << valuePair;
     }
 
@@ -361,7 +344,7 @@ const QVariantMap RangeTimelineModel::getEventLocation(int index) const
     int eventId = getEventId(index);
 
     QmlDebug::QmlEventLocation location
-            = d->eventDict.at(eventId).location;
+            = d->modelManager->qmlModel()->getEventTypes().at(eventId).location;
 
     result.insert(QLatin1String("file"), location.filename);
     result.insert(QLatin1String("line"), location.line);
@@ -370,21 +353,31 @@ const QVariantMap RangeTimelineModel::getEventLocation(int index) const
     return result;
 }
 
-int RangeTimelineModel::getEventIdForHash(const QString &eventHash) const
+int RangeTimelineModel::getEventIdForTypeIndex(int typeIndex) const
 {
     Q_D(const RangeTimelineModel);
-    return d->eventHashes.indexOf(eventHash);
+    if (typeIndex < 0)
+        return -1;
+    const QmlProfilerDataModel::QmlEventTypeData &type =
+            d->modelManager->qmlModel()->getEventTypes().at(typeIndex);
+    if (type.message != d->message || type.rangeType != d->rangeType)
+        return -1;
+    return typeIndex;
 }
 
 int RangeTimelineModel::getEventIdForLocation(const QString &filename, int line, int column) const
 {
     Q_D(const RangeTimelineModel);
     // if this is called from v8 view, we don't have the column number, it will be -1
-    foreach (const QmlRangeEventData &eventData, d->eventDict) {
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
+            d->modelManager->qmlModel()->getEventTypes();
+    for (int i = 0; i < d->expandedRowTypes.length(); ++i) {
+        int typeId = d->expandedRowTypes[i];
+        const QmlProfilerDataModel::QmlEventTypeData &eventData = types[typeId];
         if (eventData.location.filename == filename &&
                 eventData.location.line == line &&
                 (column == -1 || eventData.location.column == column))
-            return eventData.eventId;
+            return typeId;
     }
     return -1;
 }

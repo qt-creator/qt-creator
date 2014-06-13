@@ -153,9 +153,9 @@ const QVariantMap AbstractTimelineModel::getEventLocation(int index) const
     return map;
 }
 
-int AbstractTimelineModel::getEventIdForHash(const QString &eventHash) const
+int AbstractTimelineModel::getEventIdForTypeIndex(int typeIndex) const
 {
-    Q_UNUSED(eventHash);
+    Q_UNUSED(typeIndex);
     return -1;
 }
 
@@ -199,7 +199,7 @@ void AbstractTimelineModel::dataChanged()
     emit expandedChanged();
 }
 
-bool AbstractTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const
+bool AbstractTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
 {
     Q_D(const AbstractTimelineModel);
     return (event.rangeType == d->rangeType && event.message == d->message);

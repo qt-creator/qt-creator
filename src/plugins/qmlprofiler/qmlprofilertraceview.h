@@ -100,7 +100,7 @@ public:
 
 public slots:
     void clear();
-    void selectByHash(const QString &eventHash);
+    void selectByTypeIndex(int typeIndex);
     void selectBySourceLocation(const QString &filename, int line, int column);
 
 private slots:

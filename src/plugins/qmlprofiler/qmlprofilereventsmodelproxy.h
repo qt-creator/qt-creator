@@ -49,14 +49,8 @@ class QmlProfilerEventsModelProxy : public QObject
     Q_OBJECT
 public:
     struct QmlEventStats {
-        QString displayName;
-        QString eventHashStr;
-        QString details;
-        QmlDebug::QmlEventLocation location;
-        QmlDebug::Message message;
-        QmlDebug::RangeType rangeType;
-        int bindingType;
-
+        QmlEventStats() : duration(0), calls(0), minTime(std::numeric_limits<qint64>::max()),
+            maxTime(0), timePerCall(0), percentOfTime(0), medianTime(0), isBindingLoop(false) {}
         qint64 duration;
         qint64 calls;
         qint64 minTime;
@@ -74,7 +68,8 @@ public:
     void setEventTypeAccepted(QmlDebug::RangeType type, bool accepted);
     bool eventTypeAccepted(QmlDebug::RangeType) const;
 
-    const QList<QmlEventStats> getData() const;
+    const QHash<int, QmlEventStats> &getData() const;
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &getTypes() const;
     int count() const;
     void clear();
 
@@ -86,7 +81,7 @@ signals:
 private:
     void loadData(qint64 rangeStart = -1, qint64 rangeEnd = -1);
 
-    QSet<QString> eventsInBindingLoop() const;
+    const QSet<int> &eventsInBindingLoop() const;
 
 private slots:
     void dataChanged();
@@ -104,14 +99,11 @@ class QmlProfilerEventRelativesModelProxy : public QObject
     Q_OBJECT
 public:
     struct QmlEventRelativesData {
-        QString displayName;
-        QmlDebug::RangeType rangeType;
         qint64 duration;
         qint64 calls;
-        QString details;
         bool isBindingLoop;
     };
-    typedef QHash <QString, QmlEventRelativesData> QmlEventRelativesMap;
+    typedef QHash <int, QmlEventRelativesData> QmlEventRelativesMap;
 
     QmlProfilerEventRelativesModelProxy(QmlProfilerModelManager *modelManager,
                                         QmlProfilerEventsModelProxy *eventsModel,
@@ -122,7 +114,8 @@ public:
     int count() const;
     void clear();
 
-    const QmlEventRelativesMap getData(const QString &hash) const;
+    const QmlEventRelativesMap &getData(int typeId) const;
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &getTypes() const;
 
 protected:
     virtual void loadData() = 0;
@@ -134,7 +127,7 @@ protected slots:
     void dataChanged();
 
 protected:
-    QHash <QString, QmlEventRelativesMap> m_data;
+    QHash <int, QmlEventRelativesMap> m_data;
     QmlProfilerModelManager *m_modelManager;
     QmlProfilerEventsModelProxy *m_eventsModel;
 };

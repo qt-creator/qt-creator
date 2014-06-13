@@ -75,7 +75,7 @@ public:
     Q_INVOKABLE const QVariantList getEventDetails(int index) const;
 
 private slots:
-    bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const;
+    bool eventAccepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
 
 private:
     class PaintEventsModelProxyPrivate;

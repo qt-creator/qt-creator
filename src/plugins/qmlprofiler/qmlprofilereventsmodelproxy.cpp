@@ -51,7 +51,7 @@ public:
     QmlProfilerEventsModelProxyPrivate(QmlProfilerEventsModelProxy *qq) : q(qq) {}
     ~QmlProfilerEventsModelProxyPrivate() {}
 
-    QHash<QString, QmlProfilerEventsModelProxy::QmlEventStats> data;
+    QHash<int, QmlProfilerEventsModelProxy::QmlEventStats> data;
 
     QmlProfilerModelManager *modelManager;
     QmlProfilerEventsModelProxy *q;
@@ -59,7 +59,7 @@ public:
     int modelId;
 
     QList<QmlDebug::RangeType> acceptedTypes;
-    QSet<QString> eventsInBindingLoop;
+    QSet<int> eventsInBindingLoop;
 };
 
 QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager *modelManager, QObject *parent)
@@ -93,9 +93,14 @@ bool QmlProfilerEventsModelProxy::eventTypeAccepted(QmlDebug::RangeType type) co
     return d->acceptedTypes.contains(type);
 }
 
-const QList<QmlProfilerEventsModelProxy::QmlEventStats> QmlProfilerEventsModelProxy::getData() const
+const QHash<int, QmlProfilerEventsModelProxy::QmlEventStats> &QmlProfilerEventsModelProxy::getData() const
 {
-    return d->data.values();
+    return d->data;
+}
+
+const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerEventsModelProxy::getTypes() const
+{
+    return d->modelManager->qmlModel()->getEventTypes();
 }
 
 void QmlProfilerEventsModelProxy::clear()
@@ -118,7 +123,7 @@ void QmlProfilerEventsModelProxy::dataChanged()
         clear();
 }
 
-QSet<QString> QmlProfilerEventsModelProxy::eventsInBindingLoop() const
+const QSet<int> &QmlProfilerEventsModelProxy::eventsInBindingLoop() const
 {
     return d->eventsInBindingLoop;
 }
@@ -129,22 +134,24 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
 
     qint64 qmlTime = 0;
     qint64 lastEndTime = 0;
-    QHash <QString, QVector<qint64> > durations;
+    QHash <int, QVector<qint64> > durations;
 
     const bool checkRanges = (rangeStart != -1) && (rangeEnd != -1);
 
-    const QVector<QmlProfilerDataModel::QmlEventData> eventList
+    const QVector<QmlProfilerDataModel::QmlEventData> &eventList
             = d->modelManager->qmlModel()->getEvents();
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList
+            = d->modelManager->qmlModel()->getEventTypes();
 
     // used by binding loop detection
-    typedef QPair<QString, const QmlProfilerDataModel::QmlEventData*> CallStackEntry;
-    QStack<CallStackEntry> callStack;
-    callStack.push(CallStackEntry(QString(), 0)); // artificial root
+    QStack<const QmlProfilerDataModel::QmlEventData*> callStack;
+    callStack.push(0); // artificial root
 
     for (int i = 0; i < eventList.size(); ++i) {
         const QmlProfilerDataModel::QmlEventData *event = &eventList[i];
+        const QmlProfilerDataModel::QmlEventTypeData *type = &typesList[event->typeIndex];
 
-        if (!d->acceptedTypes.contains(event->rangeType))
+        if (!d->acceptedTypes.contains(type->rangeType))
             continue;
 
         if (checkRanges) {
@@ -153,46 +160,18 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
                 continue;
         }
 
-        // put event in hash
-        QString hash = QmlProfilerDataModel::getHashString(*event);
-        if (!d->data.contains(hash)) {
-            QmlEventStats stats = {
-                event->displayName,
-                hash,
-                event->data,
-                event->location,
-                event->message,
-                event->rangeType,
-                event->detailType,
-                event->duration,
-                1, //calls
-                event->duration, //minTime
-                event->duration, // maxTime
-                0, //timePerCall
-                0, //percentOfTime
-                0, //medianTime
-                false //isBindingLoop
-            };
+        // update stats
+        QmlEventStats *stats = &d->data[event->typeIndex];
 
-            d->data.insert(hash, stats);
+        stats->duration += event->duration;
+        if (event->duration < stats->minTime)
+            stats->minTime = event->duration;
+        if (event->duration > stats->maxTime)
+            stats->maxTime = event->duration;
+        stats->calls++;
 
-            // for median computing
-            durations.insert(hash, QVector<qint64>());
-            durations[hash].append(event->duration);
-        } else {
-            // update stats
-            QmlEventStats *stats = &d->data[hash];
-
-            stats->duration += event->duration;
-            if (event->duration < stats->minTime)
-                stats->minTime = event->duration;
-            if (event->duration > stats->maxTime)
-                stats->maxTime = event->duration;
-            stats->calls++;
-
-            // for median computing
-            durations[hash].append(event->duration);
-        }
+        // for median computing
+        durations[event->typeIndex].append(event->duration);
 
         // qml time computation
         if (event->startTime > lastEndTime) { // assume parent event if starts before last end
@@ -204,25 +183,22 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
         //
         // binding loop detection
         //
-        const QmlProfilerDataModel::QmlEventData *potentialParent = callStack.top().second;
+        const QmlProfilerDataModel::QmlEventData *potentialParent = callStack.top();
         while (potentialParent
                && !(potentialParent->startTime + potentialParent->duration > event->startTime)) {
             callStack.pop();
-            potentialParent = callStack.top().second;
+            potentialParent = callStack.top();
         }
 
         // check whether event is already in stack
-        bool inLoop = false;
         for (int ii = 1; ii < callStack.size(); ++ii) {
-            if (callStack.at(ii).first == hash)
-                inLoop = true;
-            if (inLoop)
-                d->eventsInBindingLoop.insert(hash);
+            if (callStack.at(ii)->typeIndex == event->typeIndex) {
+                d->eventsInBindingLoop.insert(event->typeIndex);
+                break;
+            }
         }
 
-
-        CallStackEntry newEntry(hash, event);
-        callStack.push(newEntry);
+        callStack.push(event);
 
         d->modelManager->modelProxyCountUpdated(d->modelId, i, eventList.count()*2);
     }
@@ -230,12 +206,13 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
     // post-process: calc mean time, median time, percentoftime
     int i = d->data.size();
     int total = i * 2;
-    foreach (const QString &hash, d->data.keys()) {
-        QmlEventStats* stats = &d->data[hash];
+
+    for (QHash<int, QmlEventStats>::iterator it = d->data.begin(); it != d->data.end(); ++it) {
+        QmlEventStats* stats = &it.value();
         if (stats->calls > 0)
             stats->timePerCall = stats->duration / (double)stats->calls;
 
-        QVector<qint64> eventDurations = durations.value(hash);
+        QVector<qint64> eventDurations = durations[it.key()];
         if (!eventDurations.isEmpty()) {
             qSort(eventDurations);
             stats->medianTime = eventDurations.at(eventDurations.count()/2);
@@ -246,32 +223,17 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
     }
 
     // set binding loop flag
-    foreach (const QString &eventHash, d->eventsInBindingLoop)
-        d->data[eventHash].isBindingLoop = true;
-
-    QString rootEventName = tr("<program>");
-    QmlDebug::QmlEventLocation rootEventLocation(rootEventName, 1, 1);
+    foreach (int typeIndex, d->eventsInBindingLoop)
+        d->data[typeIndex].isBindingLoop = true;
 
     // insert root event
-    QmlEventStats rootEvent = {
-        rootEventName, //event.displayName,
-        rootEventName, // hash
-        tr("Main Program"), //event.details,
-        rootEventLocation, // location
-        QmlDebug::MaximumMessage,
-        QmlDebug::Binding, // event type
-        0, // binding type
-        qmlTime + 1,
-        1, //calls
-        qmlTime + 1, //minTime
-        qmlTime + 1, // maxTime
-        qmlTime + 1, //timePerCall
-        100.0, //percentOfTime
-        qmlTime + 1, //medianTime;
-        false
-    };
+    QmlEventStats rootEvent;
+    rootEvent.duration = rootEvent.minTime = rootEvent.maxTime = rootEvent.timePerCall
+                       = rootEvent.medianTime = qmlTime + 1;
+    rootEvent.calls = 1;
+    rootEvent.percentOfTime = 100.0;
 
-    d->data.insert(rootEventName, rootEvent);
+    d->data.insert(-1, rootEvent);
 
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
     emit dataAvailable();
@@ -303,11 +265,20 @@ QmlProfilerEventRelativesModelProxy::~QmlProfilerEventRelativesModelProxy()
 {
 }
 
-const QmlProfilerEventRelativesModelProxy::QmlEventRelativesMap QmlProfilerEventRelativesModelProxy::getData(const QString &hash) const
+const QmlProfilerEventRelativesModelProxy::QmlEventRelativesMap &QmlProfilerEventRelativesModelProxy::getData(int typeId) const
 {
-    if (m_data.contains(hash))
-        return m_data[hash];
-    return QmlEventRelativesMap();
+    QHash <int, QmlEventRelativesMap>::ConstIterator it = m_data.find(typeId);
+    if (it != m_data.end()) {
+        return it.value();
+    } else {
+        static const QmlEventRelativesMap emptyMap;
+        return emptyMap;
+    }
+}
+
+const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerEventRelativesModelProxy::getTypes() const
+{
+    return m_modelManager->qmlModel()->getEventTypes();
 }
 
 int QmlProfilerEventRelativesModelProxy::count() const
@@ -345,35 +316,20 @@ void QmlProfilerEventParentsModelProxy::loadData()
     if (simpleModel->isEmpty())
         return;
 
-    QHash<QString, QmlProfilerDataModel::QmlEventData> cachedEvents;
-    QString rootEventName = tr("<program>");
-    QmlProfilerDataModel::QmlEventData rootEvent = {
-        rootEventName,
-        QmlDebug::MaximumMessage,
-        QmlDebug::Binding,
-        0,
-        0,
-        0,
-        tr("Main Program"),
-        QmlDebug::QmlEventLocation(rootEventName, 0, 0),
-        0,0,0,0,0 // numericData fields
-    };
-    cachedEvents.insert(rootEventName, rootEvent);
-
     // for level computation
     QHash<int, qint64> endtimesPerLevel;
     int level = QmlDebug::Constants::QML_MIN_LEVEL;
     endtimesPerLevel[0] = 0;
 
-    const QSet<QString> eventsInBindingLoop = m_eventsModel->eventsInBindingLoop();
+    const QSet<int> &eventsInBindingLoop = m_eventsModel->eventsInBindingLoop();
 
     // compute parent-child relationship and call count
-    QHash<int, QString> lastParent;
-    //for (int index = fromIndex; index <= toIndex; index++) {
+    QHash<int, int> lastParent;
     const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> typesList = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
-        if (!m_eventsModel->eventTypeAccepted(event.rangeType))
+        if (!m_eventsModel->eventTypeAccepted(typesList[event.typeIndex].rangeType))
             continue;
 
         // level computation
@@ -385,40 +341,26 @@ void QmlProfilerEventParentsModelProxy::loadData()
         }
         endtimesPerLevel[level] = event.startTime + event.duration;
 
-
-        QString parentHash = rootEventName;
-        QString eventHash = QmlProfilerDataModel::getHashString(event);
-
-        // save in cache
-        if (!cachedEvents.contains(eventHash))
-            cachedEvents.insert(eventHash, event);
-
+        int parentTypeIndex = -1;
         if (level > QmlDebug::Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
-            parentHash = lastParent[level-1];
+            parentTypeIndex = lastParent[level-1];
 
-        QmlProfilerDataModel::QmlEventData *parentEvent = &(cachedEvents[parentHash]);
-
-        // generate placeholder if needed
-        if (!m_data.contains(eventHash))
-            m_data.insert(eventHash, QmlEventRelativesMap());
-
-        if (m_data[eventHash].contains(parentHash)) {
-            QmlEventRelativesData *parent = &(m_data[eventHash][parentHash]);
-            parent->calls++;
-            parent->duration += event.duration;
+        QmlEventRelativesMap &relativesMap = m_data[event.typeIndex];
+        QmlEventRelativesMap::Iterator it = relativesMap.find(parentTypeIndex);
+        if (it != relativesMap.end()) {
+            it.value().calls++;
+            it.value().duration += event.duration;
         } else {
-            m_data[eventHash].insert(parentHash, QmlEventRelativesData());
-            QmlEventRelativesData *parent = &(m_data[eventHash][parentHash]);
-            parent->displayName = parentEvent->displayName;
-            parent->rangeType = parentEvent->rangeType;
-            parent->duration = event.duration;
-            parent->calls = 1;
-            parent->details = parentEvent->data;
-            parent->isBindingLoop = eventsInBindingLoop.contains(parentHash);
+            QmlEventRelativesData parent {
+                event.duration,
+                1,
+                eventsInBindingLoop.contains(parentTypeIndex)
+            };
+            relativesMap.insert(parentTypeIndex, parent);
         }
 
-        // now lastparent is a string with the hash
-        lastParent[level] = eventHash;
+        // now lastparent is the new type
+        lastParent[level] = event.typeIndex;
     }
 }
 
@@ -439,21 +381,20 @@ void QmlProfilerEventChildrenModelProxy::loadData()
     if (simpleModel->isEmpty())
         return;
 
-    QString rootEventName = tr("<program>");
-
     // for level computation
     QHash<int, qint64> endtimesPerLevel;
     int level = QmlDebug::Constants::QML_MIN_LEVEL;
     endtimesPerLevel[0] = 0;
 
-    const QSet<QString> eventsInBindingLoop = m_eventsModel->eventsInBindingLoop();
+    const QSet<int> &eventsInBindingLoop = m_eventsModel->eventsInBindingLoop();
 
     // compute parent-child relationship and call count
-    QHash<int, QString> lastParent;
-    const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
+    QHash<int, int> lastParent;
+    const QVector<QmlProfilerDataModel::QmlEventData> &eventList = simpleModel->getEvents();
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
-        if (!m_eventsModel->eventTypeAccepted(event.rangeType))
+        if (!m_eventsModel->eventTypeAccepted(typesList[event.typeIndex].rangeType))
             continue;
 
         // level computation
@@ -465,33 +406,27 @@ void QmlProfilerEventChildrenModelProxy::loadData()
         }
         endtimesPerLevel[level] = event.startTime + event.duration;
 
-        QString parentHash = rootEventName;
-        QString eventHash = QmlProfilerDataModel::getHashString(event);
+        int parentId = -1;
 
         if (level > QmlDebug::Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
-            parentHash = lastParent[level-1];
+            parentId = lastParent[level-1];
 
-        // generate placeholder if needed
-        if (!m_data.contains(parentHash))
-            m_data.insert(parentHash, QmlEventRelativesMap());
-
-        if (m_data[parentHash].contains(eventHash)) {
-            QmlEventRelativesData *child = &(m_data[parentHash][eventHash]);
-            child->calls++;
-            child->duration += event.duration;
+        QmlEventRelativesMap &relativesMap = m_data[parentId];
+        QmlEventRelativesMap::Iterator it = relativesMap.find(event.typeIndex);
+        if (it != relativesMap.end()) {
+            it.value().calls++;
+            it.value().duration += event.duration;
         } else {
-            m_data[parentHash].insert(eventHash, QmlEventRelativesData());
-            QmlEventRelativesData *child = &(m_data[parentHash][eventHash]);
-            child->displayName = event.displayName;
-            child->rangeType = event.rangeType;
-            child->duration = event.duration;
-            child->calls = 1;
-            child->details = event.data;
-            child->isBindingLoop = eventsInBindingLoop.contains(parentHash);
+            QmlEventRelativesData child {
+                event.duration,
+                1,
+                eventsInBindingLoop.contains(parentId)
+            };
+            relativesMap.insert(event.typeIndex, child);
         }
 
-        // now lastparent is a string with the hash
-        lastParent[level] = eventHash;
+        // now lastparent is the new type
+        lastParent[level] = event.typeIndex;
     }
 }
 

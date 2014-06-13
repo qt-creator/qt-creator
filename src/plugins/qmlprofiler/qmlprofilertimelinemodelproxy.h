@@ -47,13 +47,6 @@ class RangeTimelineModel : public AbstractTimelineModel
 {
     Q_OBJECT
 public:
-    struct QmlRangeEventData
-    {
-        QString displayName;
-        QString details;
-        QmlDebug::QmlEventLocation location;
-        int eventId;  // separate
-    };
 
     struct QmlRangeEventStartInstance {
         QmlRangeEventStartInstance(int eventId = -1) :
@@ -90,7 +83,7 @@ public:
     Q_INVOKABLE const QVariantList getEventDetails(int index) const;
     Q_INVOKABLE const QVariantMap getEventLocation(int index) const;
 
-    Q_INVOKABLE int getEventIdForHash(const QString &eventHash) const;
+    Q_INVOKABLE int getEventIdForTypeIndex(int typeIndex) const;
     Q_INVOKABLE int getEventIdForLocation(const QString &filename, int line, int column) const;
 
 private:

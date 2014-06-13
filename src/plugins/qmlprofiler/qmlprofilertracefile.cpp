@@ -193,17 +193,15 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
     QXmlStreamAttributes attributes = stream.attributes();
 
     int eventIndex = -1;
-    QmlEvent event = {
+    QmlProfilerDataModel::QmlEventTypeData event = {
             QString(), // displayname
-            QString(), // filename
-            QString(), // details
+            QmlEventLocation(),
             MaximumMessage,
             Painting, // type
             QmlBinding,  // bindingType, set for backwards compatibility
-            0, // line
-            0 // column
+            QString(), // details
     };
-    const QmlEvent defaultEvent = event;
+    const QmlProfilerDataModel::QmlEventTypeData defaultEvent = event;
 
     while (!stream.atEnd() && !stream.hasError()) {
         QXmlStreamReader::TokenType token = stream.readNext();
@@ -243,22 +241,22 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
             }
 
             if (elementName == _("filename")) {
-                event.filename = readData;
+                event.location.filename = readData;
                 break;
             }
 
             if (elementName == _("line")) {
-                event.line = readData.toInt();
+                event.location.line = readData.toInt();
                 break;
             }
 
             if (elementName == _("column")) {
-                event.column = readData.toInt();
+                event.location.column = readData.toInt();
                 break;
             }
 
             if (elementName == _("details")) {
-                event.details = readData;
+                event.data = readData;
                 break;
             }
 
@@ -316,7 +314,7 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
         switch (token) {
         case QXmlStreamReader::StartElement: {
             if (elementName == _("range")) {
-                Range range = { 0, 0, 0, 0, 0, 0, 0 };
+                QmlProfilerDataModel::QmlEventData range = { -1, 0, 0, 0, 0, 0, 0, 0 };
 
                 const QXmlStreamAttributes attributes = stream.attributes();
                 if (!attributes.hasAttribute(_("startTime"))
@@ -353,11 +351,9 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
                 if (attributes.hasAttribute(_("timing5")))
                     range.numericData5 = attributes.value(_("timing5")).toString().toLongLong();
 
+                range.typeIndex = attributes.value(_("eventIndex")).toString().toInt();
 
-                int eventIndex = attributes.value(_("eventIndex")).toString().toInt();
-
-
-                m_ranges.append(QPair<Range,int>(range, eventIndex));
+                m_ranges.append(range);
             }
             break;
         }
@@ -376,8 +372,8 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
 void QmlProfilerFileReader::processQmlEvents()
 {
     for (int i = 0; i < m_ranges.size(); ++i) {
-        Range range = m_ranges[i].first;
-        int eventIndex = m_ranges[i].second;
+        const QmlProfilerDataModel::QmlEventData &range = m_ranges[i];
+        int eventIndex = range.typeIndex;
 
         if (eventIndex < 0 || eventIndex >= m_qmlEvents.size()) {
             qWarning() << ".qtd file - range index" << eventIndex
@@ -385,11 +381,10 @@ void QmlProfilerFileReader::processQmlEvents()
             continue;
         }
 
-        QmlEvent &event = m_qmlEvents[eventIndex];
+        const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[eventIndex];
 
         emit rangedEvent(event.message, event.rangeType, event.detailType, range.startTime,
-                         range.duration, event.details,
-                         QmlEventLocation(event.filename, event.line, event.column),
+                         range.duration, event.data, event.location,
                          range.numericData1,range.numericData2, range.numericData3,
                          range.numericData4, range.numericData5);
 
@@ -420,29 +415,12 @@ void QmlProfilerFileWriter::setV8DataModel(QV8ProfilerDataModel *dataModel)
     m_v8Model = dataModel;
 }
 
-void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventData> &events)
+void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
+                                         const QVector<QmlProfilerDataModel::QmlEventData> &events)
 {
-    foreach (const QmlProfilerDataModel::QmlEventData &event, events) {
-        const QString hashStr = QmlProfilerDataModel::getHashString(event);
-        if (!m_qmlEvents.contains(hashStr)) {
-            QmlEvent e = {
-                event.displayName,
-                event.location.filename,
-                event.data,
-                event.message,
-                event.rangeType,
-                event.detailType,
-                event.location.line,
-                event.location.column
-            };
-            m_qmlEvents.insert(hashStr, e);
-        }
-
-        Range r = { event.startTime, event.duration, event.numericData1, event.numericData2, event.numericData3, event.numericData4, event.numericData5 };
-        m_ranges.append(QPair<Range, QString>(r, hashStr));
-    }
-
-    calculateMeasuredTime(events);
+    m_qmlEvents = types;
+    m_ranges = events;
+    calculateMeasuredTime();
 }
 
 void QmlProfilerFileWriter::save(QIODevice *device)
@@ -461,25 +439,19 @@ void QmlProfilerFileWriter::save(QIODevice *device)
     stream.writeStartElement(_("eventData"));
     stream.writeAttribute(_("totalTime"), QString::number(m_measuredTime));
 
-    QMap<QString, QString> keys;
-    int i = 0;
-    foreach (const QString &key, m_qmlEvents.keys())
-        keys[key] = QString::number(i++);
-
-    QHash<QString,QmlEvent>::const_iterator eventIter = m_qmlEvents.constBegin();
-    for (; eventIter != m_qmlEvents.constEnd(); ++eventIter) {
-        QmlEvent event = eventIter.value();
+     for (int typeIndex = 0; typeIndex < m_qmlEvents.size(); ++typeIndex) {
+        const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[typeIndex];
 
         stream.writeStartElement(_("event"));
-        stream.writeAttribute(_("index"), keys[eventIter.key()]);
+        stream.writeAttribute(_("index"), QString::number(typeIndex));
         stream.writeTextElement(_("displayname"), event.displayName);
         stream.writeTextElement(_("type"), qmlTypeAsString(event.message, event.rangeType));
-        if (!event.filename.isEmpty()) {
-            stream.writeTextElement(_("filename"), event.filename);
-            stream.writeTextElement(_("line"), QString::number(event.line));
-            stream.writeTextElement(_("column"), QString::number(event.column));
+        if (!event.location.filename.isEmpty()) {
+            stream.writeTextElement(_("filename"), event.location.filename);
+            stream.writeTextElement(_("line"), QString::number(event.location.line));
+            stream.writeTextElement(_("column"), QString::number(event.location.column));
         }
-        stream.writeTextElement(_("details"), event.details);
+        stream.writeTextElement(_("details"), event.data);
         if (event.rangeType == Binding)
             stream.writeTextElement(_("bindingType"), QString::number(event.detailType));
         if (event.message == Event && event.detailType == AnimationFrame)
@@ -494,18 +466,16 @@ void QmlProfilerFileWriter::save(QIODevice *device)
 
     stream.writeStartElement(_("profilerDataModel"));
 
-    QVector<QPair<Range, QString> >::const_iterator rangeIter = m_ranges.constBegin();
-    for (; rangeIter != m_ranges.constEnd(); ++rangeIter) {
-        Range range = rangeIter->first;
-        QString eventHash = rangeIter->second;
+    for (int rangeIndex = 0; rangeIndex < m_ranges.size(); ++rangeIndex) {
+        const QmlProfilerDataModel::QmlEventData &range = m_ranges[rangeIndex];
 
         stream.writeStartElement(_("range"));
         stream.writeAttribute(_("startTime"), QString::number(range.startTime));
         if (range.duration > 0) // no need to store duration of instantaneous events
             stream.writeAttribute(_("duration"), QString::number(range.duration));
-        stream.writeAttribute(_("eventIndex"), keys[eventHash]);
+        stream.writeAttribute(_("eventIndex"), QString::number(range.typeIndex));
 
-        QmlEvent event = m_qmlEvents.value(eventHash);
+        const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[range.typeIndex];
 
         // special: animation event
         if (event.message == QmlDebug::Event && event.detailType == QmlDebug::AnimationFrame) {
@@ -549,7 +519,7 @@ void QmlProfilerFileWriter::save(QIODevice *device)
     stream.writeEndDocument();
 }
 
-void QmlProfilerFileWriter::calculateMeasuredTime(const QVector<QmlProfilerDataModel::QmlEventData> &events)
+void QmlProfilerFileWriter::calculateMeasuredTime()
 {
     // measured time isn't used, but old clients might still need it
     // -> we calculate it explicitly
@@ -560,10 +530,11 @@ void QmlProfilerFileWriter::calculateMeasuredTime(const QVector<QmlProfilerDataM
     int level = QmlDebug::Constants::QML_MIN_LEVEL;
     endtimesPerLevel[0] = 0;
 
-    foreach (const QmlProfilerDataModel::QmlEventData &event, events) {
+    foreach (const QmlProfilerDataModel::QmlEventData &event, m_ranges) {
         // whitelist
-        if (!m_acceptedRangeTypes.contains(event.rangeType) &&
-                !m_acceptedMessages.contains(event.message))
+        const QmlProfilerDataModel::QmlEventTypeData &type = m_qmlEvents[event.typeIndex];
+        if (!m_acceptedRangeTypes.contains(type.rangeType) &&
+                !m_acceptedMessages.contains(type.message))
             continue;
 
         // level computation

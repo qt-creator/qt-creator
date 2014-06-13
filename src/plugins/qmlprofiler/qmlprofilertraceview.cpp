@@ -259,14 +259,14 @@ void QmlProfilerTraceView::clear()
     QMetaObject::invokeMethod(d->m_mainView->rootObject(), "clear");
 }
 
-void QmlProfilerTraceView::selectByHash(const QString &hash)
+void QmlProfilerTraceView::selectByTypeIndex(int typeIndex)
 {
     QQuickItem *rootObject = d->m_mainView->rootObject();
     if (!rootObject)
         return;
 
     for (int modelIndex = 0; modelIndex < d->m_modelProxy->modelCount(); ++modelIndex) {
-        int eventId = d->m_modelProxy->getEventIdForHash(modelIndex, hash);
+        int eventId = d->m_modelProxy->getEventIdForTypeIndex(modelIndex, typeIndex);
         if (eventId != -1) {
             QMetaObject::invokeMethod(rootObject, "selectById",
                                       Q_ARG(QVariant,QVariant(modelIndex)),
