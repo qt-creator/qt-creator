@@ -35,10 +35,10 @@
 #include <QFrame>
 #include <QIcon>
 #include <QList>
+#include <QTreeWidget>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
-class QTreeWidget;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -47,6 +47,13 @@ class IDocument;
 class IEditor;
 
 namespace Internal {
+
+class OpenEditorsTreeWidget : public QTreeWidget {
+public:
+    explicit OpenEditorsTreeWidget(QWidget *parent = 0) : QTreeWidget(parent) {}
+    ~OpenEditorsTreeWidget() {}
+    QSize sizeHint() const;
+};
 
 class EditorHistoryItem;
 
@@ -66,6 +73,7 @@ public:
     void setVisible(bool visible);
     void selectNextEditor();
     void selectPreviousEditor();
+    QSize sizeHint() const;
 
 public slots:
     void selectAndHide();
@@ -83,7 +91,7 @@ private:
     bool isSameFile(IEditor *editorA, IEditor *editorB) const;
 
     const QIcon m_emptyIcon;
-    QTreeWidget *m_editorList;
+    OpenEditorsTreeWidget *m_editorList;
 };
 
 } // namespace Internal

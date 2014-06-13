@@ -2183,9 +2183,13 @@ void EditorManager::showPopupOrSelectDocument()
         QWidget *referenceWidget = activeRoot->isVisible() ? activeRoot : activeRoot->window();
         QTC_CHECK(referenceWidget->isVisible());
         const QPoint p = referenceWidget->mapToGlobal(QPoint(0, 0));
-        windowPopup()->move((referenceWidget->width() - d->m_windowPopup->width()) / 2 + p.x(),
-                            (referenceWidget->height() - d->m_windowPopup->height()) / 2 + p.y());
-        windowPopup()->setVisible(true);
+        OpenEditorsWindow *popup = windowPopup();
+        popup->setMaximumSize(qMax(popup->minimumWidth(), referenceWidget->width() / 2),
+                              qMax(popup->minimumHeight(), referenceWidget->height() / 2));
+        popup->adjustSize();
+        popup->move((referenceWidget->width() - popup->width()) / 2 + p.x(),
+                    (referenceWidget->height() - popup->height()) / 2 + p.y());
+        popup->setVisible(true);
     }
 }
 

@@ -38,8 +38,8 @@
 
 #include <QFocusEvent>
 #include <QHeaderView>
-#include <QTreeWidget>
 #include <QVBoxLayout>
+#include <QScrollBar>
 
 Q_DECLARE_METATYPE(Core::Internal::EditorView*)
 Q_DECLARE_METATYPE(Core::IDocument*)
@@ -47,15 +47,12 @@ Q_DECLARE_METATYPE(Core::IDocument*)
 using namespace Core;
 using namespace Core::Internal;
 
-const int WIDTH = 300;
-const int HEIGHT = 200;
-
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QFrame(parent, Qt::Popup),
     m_emptyIcon(QLatin1String(":/core/images/empty14.png")),
-    m_editorList(new QTreeWidget(this))
+    m_editorList(new OpenEditorsTreeWidget(this))
 {
-    resize(QSize(WIDTH, HEIGHT));
+    setMinimumSize(300, 200);
     m_editorList->setColumnCount(1);
     m_editorList->header()->hide();
     m_editorList->setIndentation(0);
@@ -156,6 +153,17 @@ void OpenEditorsWindow::selectUpDown(bool up)
 void OpenEditorsWindow::selectPreviousEditor()
 {
     selectUpDown(false);
+}
+
+QSize OpenEditorsTreeWidget::sizeHint() const
+{
+    return QSize(sizeHintForColumn(0) + verticalScrollBar()->width() + frameWidth() * 2,
+                 viewportSizeHint().height() + frameWidth() * 2);
+}
+
+QSize OpenEditorsWindow::sizeHint() const
+{
+    return m_editorList->sizeHint() + QSize(frameWidth() * 2, frameWidth() * 2);
 }
 
 void OpenEditorsWindow::selectNextEditor()
