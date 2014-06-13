@@ -216,7 +216,8 @@ class Children:
             self.childType = None
         else:
             self.childType = stripClassTag(str(childType))
-            self.d.put('childtype="%s",' % self.childType)
+            if not self.d.isCli:
+                self.d.put('childtype="%s",' % self.childType)
             if childNumChild is None:
                 pass
                 #if self.d.isSimpleType(childType):
@@ -228,15 +229,7 @@ class Children:
             else:
                 self.d.put('childnumchild="%s",' % childNumChild)
                 self.childNumChild = childNumChild
-        try:
-            if not addrBase is None and not addrStep is None:
-                self.d.put('addrbase="0x%x",' % toInteger(addrBase))
-                self.d.put('addrstep="0x%x",' % toInteger(addrStep))
-                self.printsAddress = False
-        except:
-            warn("ADDRBASE: %s" % addrBase)
-            warn("ADDRSTEP: %s" % addrStep)
-        #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
+        self.printsAddress = not self.d.putAddressRange(addrBase, addrStep)
 
     def __enter__(self):
         self.savedChildType = self.d.currentChildType
@@ -249,7 +242,7 @@ class Children:
         self.d.currentNumChild = self.numChild
         self.d.currentMaxNumChild = self.maxNumChild
         self.d.currentPrintsAddress = self.printsAddress
-        self.d.put("children=[")
+        self.d.put(self.d.childrenPrefix)
 
     def __exit__(self, exType, exValue, exTraceBack):
         if not exType is None:
@@ -265,7 +258,8 @@ class Children:
         self.d.currentNumChild = self.savedNumChild
         self.d.currentMaxNumChild = self.savedMaxNumChild
         self.d.currentPrintsAddress = self.savedPrintsAddress
-        self.d.put('],')
+        self.d.putNewline()
+        self.d.put(self.d.childrenSuffix)
         return True
 
 class PairedChildrenData:
@@ -344,6 +338,7 @@ class DumperBase:
         self.isCdb = False
         self.isGdb = False
         self.isLldb = False
+        self.isCli = False
 
         # Later set, or not set:
         # cachedQtVersion
@@ -366,6 +361,11 @@ class DumperBase:
         # to not be QObject derived, it contains a 0 value.
         self.knownStaticMetaObjects = {}
 
+        self.childrenPrefix = 'children=['
+        self.childrenSuffix = '],'
+
+    def putNewline(self):
+        pass
 
     def stripForFormat(self, typeName):
         if typeName in self.cachedFormats:
@@ -576,6 +576,18 @@ class DumperBase:
     def call(self, value, func, *args):
         return self.callHelper(value, func, args)
 
+    def putAddressRange(self, base, step):
+        try:
+            if not addrBase is None and not step is None:
+                self.put('addrbase="0x%x",' % toInteger(base))
+                self.put('addrstep="0x%x",' % toInteger(step))
+                return True
+        except:
+            warn("ADDRBASE: %s" % base)
+            warn("ADDRSTEP: %s" % step)
+        return False
+
+        #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
     def putMapName(self, value, index = -1):
         ns = self.qtNamespace()
         if str(value.type) == ns + "QString":
@@ -942,8 +954,7 @@ class DumperBase:
                 self.putItem(value.dereference())
                 self.currentChildType = savedCurrentChildType
                 #self.putPointerValue(value)
-                if not value.address is None:
-                    self.put('origaddr="0x%x",' % toInteger(value.address))
+                self.putOriginalAddress(value)
                 return
 
         #warn("GENERIC PLAIN POINTER: %s" % value.type)
@@ -955,6 +966,10 @@ class DumperBase:
             with Children(self):
                 with SubItem(self, "*"):
                     self.putItem(value.dereference())
+
+    def putOriginalAddress(self, value):
+        if not value.address is None:
+            self.put('origaddr="0x%x",' % toInteger(value.address))
 
     def putQObjectNameValue(self, value):
         try:
@@ -1012,7 +1027,7 @@ class DumperBase:
             return True
 
         except:
-            #warn("NO QOBJECT: %s" % value.type)
+        #    warn("NO QOBJECT: %s" % value.type)
             pass
 
 

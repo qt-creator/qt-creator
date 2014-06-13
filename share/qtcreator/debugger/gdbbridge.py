@@ -226,7 +226,8 @@ ScanStackCommand()
 
 
 def bbsetup(args = ''):
-    print(theDumper.bbsetup())
+    theDumper.bbsetup()
+    print(theDumper.reportDumpers())
 
 registerCommand("bbsetup", bbsetup)
 
@@ -339,7 +340,6 @@ def bb(args):
 
 registerCommand("bb", bb)
 
-
 #######################################################################
 #
 # The Dumper Class
@@ -359,7 +359,7 @@ class Dumper(DumperBase):
         self.typesToReport = {}
         self.qtNamespaceToReport = None
 
-    def run(self, args):
+    def prepare(self, args):
         self.output = []
         self.currentIName = ""
         self.currentPrintsAddress = True
@@ -380,21 +380,20 @@ class Dumper(DumperBase):
         # dumpers causing loading of shared objects etc).
         self.currentQtNamespaceGuess = None
 
-        watchers = ""
-        resultVarName = ""
-        options = []
-        varList = []
+        self.watchers = ""
+        self.resultVarName = ""
+        self.varList = []
+        self.options = []
 
-        self.output.append('data=[')
         for arg in args.split(' '):
             pos = arg.find(":") + 1
             if arg.startswith("options:"):
-                options = arg[pos:].split(",")
+                self.options = arg[pos:].split(",")
             elif arg.startswith("vars:"):
                 if len(arg[pos:]) > 0:
-                    varList = arg[pos:].split(",")
+                    self.varList = arg[pos:].split(",")
             elif arg.startswith("resultvarname:"):
-                resultVarName = arg[pos:]
+                self.resultVarName = arg[pos:]
             elif arg.startswith("expanded:"):
                 self.expandedINames = set(arg[pos:].split(","))
             elif arg.startswith("stringcutoff:"):
@@ -413,31 +412,42 @@ class Dumper(DumperBase):
                     if pos != -1:
                         self.formats[f[0:pos]] = int(f[pos+1:])
             elif arg.startswith("watchers:"):
-                watchers = self.hexdecode(arg[pos:])
+                self.watchers = self.hexdecode(arg[pos:])
 
-        self.useDynamicType = "dyntype" in options
-        self.useFancy = "fancy" in options
-        self.forceQtNamespace = "forcens" in options
-        self.passExceptions = "pe" in options
+        self.useDynamicType = "dyntype" in self.options
+        self.useFancy = "fancy" in self.options
+        self.forceQtNamespace = "forcens" in self.options
+        self.passExceptions = "pe" in self.options
         #self.passExceptions = True
-        self.autoDerefPointers = "autoderef" in options
-        self.partialUpdate = "partial" in options
-        self.tooltipOnly = "tooltiponly" in options
+        self.autoDerefPointers = "autoderef" in self.options
+        self.partialUpdate = "partial" in self.options
+        self.tooltipOnly = "tooltiponly" in self.options
         self.fallbackQtVersion = 0x50200
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
-        #warn("VARIABLES: %s" % varList)
+        #warn("VARIABLES: %s" % self.varList)
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
-        #warn("WATCHERS: %s" % watchers)
+        #warn("WATCHERS: %s" % self.watchers)
         #warn("PARTIAL: %s" % self.partialUpdate)
+
+    def handleWatches(self):
+        with OutputSafer(self):
+            if len(self.watchers) > 0:
+                for watcher in self.watchers.split("##"):
+                    (exp, iname) = watcher.split("#")
+                    self.handleWatch(exp, exp, iname)
+
+    def run(self, args):
+        self.prepare(args)
 
         #
         # Locals
         #
+        self.output.append('data=[')
         locals = []
         fullUpdateNeeded = True
-        if self.partialUpdate and len(varList) == 1 and not self.tooltipOnly:
-            #warn("PARTIAL: %s" % varList)
-            parts = varList[0].split('.')
+        if self.partialUpdate and len(self.varList) == 1 and not self.tooltipOnly:
+            #warn("PARTIAL: %s" % self.varList)
+            parts = self.varList[0].split('.')
             #warn("PARTIAL PARTS: %s" % parts)
             name = parts[1]
             #warn("PARTIAL VAR: %s" % name)
@@ -449,22 +459,22 @@ class Dumper(DumperBase):
                 item.name = name
                 item.value = frame.read_var(name)
                 locals = [item]
-                #warn("PARTIAL LOCALS: %s" % locals)
+                warn("PARTIAL LOCALS: %s" % locals)
                 fullUpdateNeeded = False
             except:
                 pass
-            varList = []
+            self.varList = []
 
         if fullUpdateNeeded and not self.tooltipOnly:
-            locals = listOfLocals(varList)
+            locals = listOfLocals(self.varList)
 
         # Take care of the return value of the last function call.
-        if len(resultVarName) > 0:
+        if len(self.resultVarName) > 0:
             try:
                 item = LocalItem()
-                item.name = resultVarName
-                item.iname = "return." + resultVarName
-                item.value = self.parseAndEvaluate(resultVarName)
+                item.name = self.resultVarName
+                item.iname = "return." + self.resultVarName
+                item.value = self.parseAndEvaluate(self.resultVarName)
                 locals.append(item)
             except:
                 # Don't bother. It's only supplementary information anyway.
@@ -484,16 +494,9 @@ class Dumper(DumperBase):
                         self.put('name="%s",' % item.name)
                         self.putItem(value)
 
-        #
-        # Watchers
-        #
-        with OutputSafer(self):
-            if len(watchers) > 0:
-                for watcher in watchers.split("##"):
-                    (exp, iname) = watcher.split("#")
-                    self.handleWatch(exp, exp, iname)
+        self.handleWatches()
 
-        #print('data=[' + locals + sep + watchers + ']\n')
+        #print('data=[' + locals + sep + self.watchers + ']\n')
 
         self.output.append('],typeinfo=[')
         for name in self.typesToReport.keys():
@@ -505,7 +508,7 @@ class Dumper(DumperBase):
         self.output.append(']')
         self.typesToReport = {}
 
-        if "forcens" in options:
+        if "forcens" in self.options:
             self.qtNamepaceToRport = self.qtNamespace()
 
         if self.qtNamespaceToReport:
@@ -880,7 +883,7 @@ class Dumper(DumperBase):
         return self.cachedIsQt3Suport
 
     def putAddress(self, addr):
-        if self.currentPrintsAddress:
+        if self.currentPrintsAddress and not self.isCli:
             try:
                 # addr can be "None", int(None) fails.
                 #self.put('addr="0x%x",' % int(addr))
@@ -903,11 +906,6 @@ class Dumper(DumperBase):
         else:
             self.putValue("0x%x" % value.cast(
                 self.lookupType("unsigned long")), None, -1)
-
-    def isExpandedSubItem(self, component):
-        iname = "%s.%s" % (self.currentIName, component)
-        #warn("IS EXPANDED: %s in %s" % (iname, self.expandedINames))
-        return iname in self.expandedINames
 
     def stripNamespaceFromType(self, typeName):
         type = stripClassTag(typeName)
@@ -1291,8 +1289,7 @@ class Dumper(DumperBase):
                         baseNumber += 1
                         with UnnamedSubItem(self, "@%d" % baseNumber):
                             baseValue = value.cast(field.type)
-                            self.put('iname="%s",' % self.currentIName)
-                            self.put('name="[%s]",' % field.name)
+                            self.putBaseClassName(field.name)
                             self.putAddress(baseValue.address)
                             self.putItem(baseValue, False)
                 elif len(field.name) == 0:
@@ -1309,6 +1306,9 @@ class Dumper(DumperBase):
                         #    self.put("bitsize=\"%s\"" % bitsize)
                         self.putItem(self.downcast(value[field.name]))
 
+    def putBaseClassName(self, name):
+        self.put('iname="%s",' % self.currentIName())
+        self.put('name="[%s]",' % name)
 
     def listAnonymous(self, value, name, type):
         for field in type.fields():
@@ -1372,6 +1372,7 @@ class Dumper(DumperBase):
             for name in dic.keys():
                 self.registerDumper(name, dic[name])
 
+    def reportDumpers(self):
         result = "dumpers=["
         for key, value in self.qqFormats.items():
             if key in self.qqEditable:
@@ -1486,8 +1487,7 @@ class Dumper(DumperBase):
 
     def bbedit(self, args):
         (typeName, expr, data) = args.split(',')
-        d = Dumper()
-        typeName = d.hexdecode(typeName)
+        typeName = self.hexdecode(typeName)
         ns = self.qtNamespace()
         if typeName.startswith(ns):
             typeName = typeName[len(ns):]
@@ -1495,8 +1495,8 @@ class Dumper(DumperBase):
         pos = typeName.find('<')
         if pos != -1:
             typeName = typeName[0:pos]
-        expr = d.hexdecode(expr)
-        data = d.hexdecode(data)
+        expr = self.hexdecode(expr)
+        data = self.hexdecode(data)
         if typeName in self.qqEditable:
             #self.qqEditable[typeName](self, expr, data)
             value = gdb.parse_and_eval(expr)
@@ -1662,9 +1662,125 @@ class Dumper(DumperBase):
         return type
 
 
+class CliDumper(Dumper):
+    def __init__(self):
+        Dumper.__init__(self)
+        self.childrenPrefix = '['
+        self.chidrenSuffix = '] '
+        self.indent = 0
+        self.isCli = True
+
+    def reportDumpers(self):
+        return ""
+
+    def enterSubItem(self, item):
+        if not item.iname:
+            item.iname = "%s.%s" % (self.currentIName, item.name)
+        self.indent += 1
+        self.putNewline()
+        if isinstance(item.name, str):
+            self.output += item.name + ' = '
+        item.savedIName = self.currentIName
+        item.savedValue = self.currentValue
+        item.savedType = self.currentType
+        item.savedCurrentAddress = self.currentAddress
+        self.currentIName = item.iname
+        self.currentValue = ReportItem();
+        self.currentType = ReportItem();
+        self.currentAddress = None
+
+    def exitSubItem(self, item, exType, exValue, exTraceBack):
+        self.indent -= 1
+        #warn("CURRENT VALUE: %s: %s %s" % (self.currentIName, self.currentValue, self.currentType))
+        if not exType is None:
+            if self.passExceptions:
+                showException("SUBITEM", exType, exValue, exTraceBack)
+            self.putNumChild(0)
+            self.putValue("<not accessible>")
+        try:
+            if self.currentType.value:
+                typeName = stripClassTag(self.currentType.value)
+                self.put('<%s> = {' % typeName)
+
+            if  self.currentValue.value is None:
+                self.put('<not accessible>')
+            else:
+                value = self.currentValue.value
+                if self.currentValue.encoding is Hex2EncodedLatin1:
+                    value = self.hexdecode(value)
+                elif self.currentValue.encoding is Hex2EncodedUtf8:
+                    value = self.hexdecode(value)
+                elif self.currentValue.encoding is Hex4EncodedLittleEndian:
+                    b = bytes.fromhex(value)
+                    value = codecs.decode(b, 'utf-16')
+                self.put('"%s"' % value)
+                if self.currentValue.elided:
+                    self.put('...')
+
+            if self.currentType.value:
+                self.put('}')
+        except:
+            pass
+        if not self.currentAddress is None:
+            self.put(self.currentAddress)
+        self.currentIName = item.savedIName
+        self.currentValue = item.savedValue
+        self.currentType = item.savedType
+        self.currentAddress = item.savedCurrentAddress
+        return True
+
+    def putNewline(self):
+        self.output += '\n' + '   ' * self.indent
+
+    def put(self, line):
+        if self.output.endswith('\n'):
+            self.output = self.output[0:-1]
+        self.output += line
+
+    def putNumChild(self, numchild):
+        pass
+
+    def putBaseClassName(self, name):
+        pass
+
+    def putOriginalAddress(self, value):
+        pass
+
+    def putAddressRange(self, base, step):
+        return True
+
+    def run(self, args):
+        arglist = args.split(' ')
+        name = ''
+        if len(arglist) >= 1:
+            name = arglist[0]
+        allexpanded = [name]
+        if len(arglist) >= 2:
+            for sub in arglist[1].split(','):
+                allexpanded.append(name + '.' + sub)
+        self.prepare("options:fancy,pe,autoderef expanded:" + ','.join(allexpanded))
+        self.output = name + ' = '
+        frame = gdb.selected_frame()
+        value = frame.read_var(name)
+        with TopLevelItem(self, name):
+            self.putItem(value)
+        return self.output
+
+
+def pp(args):
+    return theDumper.run(args)
+
+registerCommand("pp", pp)
+
 
 # Global instance.
-theDumper = Dumper()
+if gdb.parameter('height') is None:
+    print("Using MI")
+    theDumper = Dumper()
+else:
+    print("Using CLI")
+    import codecs
+    theDumper = CliDumper()
 
 #######################################################################
 #
@@ -1690,14 +1806,14 @@ def p2(args):
 
 registerCommand("p2", p2)
 
-def profileit(args):
+def p3(args):
     eval(args)
 
-def profile(args):
+def p3(args):
     import timeit
-    return timeit.repeat('profileit("%s")' % args, 'from __main__ import profileit', number=10000)
+    return timeit.repeat('p3("%s")' % args, 'from __main__ import p3', number=10000)
 
-registerCommand("pp", profile)
+registerCommand("p3", p3)
 
 #######################################################################
 #
