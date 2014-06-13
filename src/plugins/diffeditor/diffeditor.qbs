@@ -36,6 +36,8 @@ QtcPlugin {
         "differ.h",
         "diffutils.cpp",
         "diffutils.h",
+        "selectabletexteditorwidget.cpp",
+        "selectabletexteditorwidget.h",
         "sidebysidediffeditorwidget.cpp",
         "sidebysidediffeditorwidget.h",
         "unifieddiffeditorwidget.cpp",
