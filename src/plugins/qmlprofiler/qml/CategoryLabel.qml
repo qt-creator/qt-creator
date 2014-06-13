@@ -53,6 +53,8 @@ Item {
     }
 
     function getDescriptions() {
+        expanded = qmlProfilerModelProxy.expanded(modelIndex);
+        backgroundMarks.requestPaint();
         visible = qmlProfilerModelProxy.rowCount(modelIndex) > 0;
         if (!visible)
             return;
@@ -75,8 +77,6 @@ Item {
     Connections {
         target: qmlProfilerModelProxy
         onExpandedChanged: {
-            expanded = qmlProfilerModelProxy.expanded(modelIndex);
-            backgroundMarks.requestPaint();
             getDescriptions();
         }
 

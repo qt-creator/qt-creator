@@ -192,11 +192,6 @@ void AbstractTimelineModel::dataChanged()
     default:
         break;
     }
-
-    emit stateChanged();
-    emit dataAvailable();
-    emit emptyChanged();
-    emit expandedChanged();
 }
 
 bool AbstractTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlEventTypeData &event) const

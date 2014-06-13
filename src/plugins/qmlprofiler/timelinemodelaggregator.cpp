@@ -82,14 +82,15 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
         rangeModel->setModelManager(modelManager);
         addModel(rangeModel);
     }
+
+    // Connect this last so that it's executed after the models have updated their data.
+    connect(modelManager->qmlModel(),SIGNAL(changed()),this,SIGNAL(stateChanged()));
 }
 
 void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
 {
     d->modelList << m;
-    connect(m,SIGNAL(emptyChanged()),this,SIGNAL(emptyChanged()));
     connect(m,SIGNAL(expandedChanged()),this,SIGNAL(expandedChanged()));
-    connect(m,SIGNAL(stateChanged()),this,SIGNAL(stateChanged()));
 }
 
 QStringList TimelineModelAggregator::categoryTitles() const

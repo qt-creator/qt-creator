@@ -92,7 +92,6 @@ public:
 signals:
     void dataAvailable();
     void stateChanged();
-    void emptyChanged();
     void expandedChanged();
 
 protected slots:

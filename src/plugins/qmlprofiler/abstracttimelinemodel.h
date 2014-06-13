@@ -90,9 +90,6 @@ public:
     Q_INVOKABLE virtual float getHeight(int index) const;
 
 signals:
-    void dataAvailable();
-    void stateChanged();
-    void emptyChanged();
     void expandedChanged();
 
 protected:
