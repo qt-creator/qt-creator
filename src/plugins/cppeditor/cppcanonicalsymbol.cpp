@@ -29,23 +29,22 @@
 
 #include "cppcanonicalsymbol.h"
 
-#include "cppeditor.h"
-
 #include <cpptools/cpptoolsreuse.h>
+#include <texteditor/convenience.h>
+
 #include <cplusplus/ExpressionUnderCursor.h>
 
 #include <QTextCursor>
+#include <QTextDocument>
 
 using namespace CPlusPlus;
 
 namespace CppEditor {
 namespace Internal {
 
-CanonicalSymbol::CanonicalSymbol(CppEditorWidget *editor,
-                                 const Document::Ptr &document,
+CanonicalSymbol::CanonicalSymbol(const Document::Ptr &document,
                                  const Snapshot &snapshot)
-    : m_editorWidget(editor),
-      m_document(document),
+    : m_document(document),
       m_snapshot(snapshot)
 {
     m_typeOfExpression.init(document, snapshot);
@@ -64,11 +63,11 @@ Scope *CanonicalSymbol::getScopeAndExpression(const QTextCursor &cursor, QString
 
     QTextCursor tc = cursor;
     int line, column;
-    m_editorWidget->convertPosition(tc.position(), &line, &column);
+    TextEditor::Convenience::convertPosition(cursor.document(), tc.position(), &line, &column);
     ++column; // 1-based line and 1-based column
 
     int pos = tc.position();
-    QTextDocument *textDocument = m_editorWidget->document();
+    QTextDocument *textDocument = cursor.document();
     if (!CppTools::isValidIdentifierChar(textDocument->characterAt(pos)))
         if (!(pos > 0 && CppTools::isValidIdentifierChar(textDocument->characterAt(pos - 1))))
             return 0;

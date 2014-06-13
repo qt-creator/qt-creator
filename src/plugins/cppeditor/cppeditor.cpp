@@ -309,7 +309,7 @@ void CppEditorWidget::findUsages()
     if (const Macro *macro = CppTools::findCanonicalMacro(textCursor(), info.doc)) {
         d->m_modelManager->findMacroUsages(*macro);
     } else {
-        CanonicalSymbol cs(this, info.doc, info.snapshot);
+        CanonicalSymbol cs(info.doc, info.snapshot);
         Symbol *canonicalSymbol = cs(textCursor());
         if (canonicalSymbol)
             d->m_modelManager->findUsages(canonicalSymbol, cs.context());
@@ -328,7 +328,7 @@ void CppEditorWidget::renameUsages(const QString &replacement)
     if (const Macro *macro = CppTools::findCanonicalMacro(textCursor(), info.doc)) {
         d->m_modelManager->renameMacroUsages(*macro, replacement);
     } else {
-        CanonicalSymbol cs(this, info.doc, info.snapshot);
+        CanonicalSymbol cs(info.doc, info.snapshot);
         if (Symbol *canonicalSymbol = cs(textCursor()))
             if (canonicalSymbol->identifier() != 0)
                 d->m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
@@ -429,7 +429,7 @@ void CppEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
 
         setExtraSelections(CodeSemanticsSelection, selections);
     } else {
-        CanonicalSymbol cs(this, info.doc, info.snapshot);
+        CanonicalSymbol cs(info.doc, info.snapshot);
         QString expression;
         if (Scope *scope = cs.getScopeAndExpression(tc, &expression)) {
             if (d->m_referencesWatcher)

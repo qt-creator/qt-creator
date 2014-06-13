@@ -39,13 +39,10 @@ QT_FORWARD_DECLARE_CLASS(QTextCursor)
 namespace CppEditor {
 namespace Internal {
 
-class CppEditorWidget;
-
 class CanonicalSymbol
 {
 public:
-    CanonicalSymbol(CppEditorWidget *editorWidget,
-                    const CPlusPlus::Document::Ptr &document,
+    CanonicalSymbol(const CPlusPlus::Document::Ptr &document,
                     const CPlusPlus::Snapshot &snapshot);
 
     const CPlusPlus::LookupContext &context() const;
@@ -61,8 +58,6 @@ public:
                                               CPlusPlus::TypeOfExpression &typeOfExpression);
 
 private:
-    CppEditorWidget *m_editorWidget;
-
     CPlusPlus::Document::Ptr m_document;
     CPlusPlus::Snapshot m_snapshot;
     CPlusPlus::TypeOfExpression m_typeOfExpression;
