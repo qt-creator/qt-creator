@@ -342,6 +342,50 @@
          id="rect3206"
          style="fill:none;stroke:none" />
     </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3218">
+      <rect
+         style="fill:none;stroke:none"
+         id="rect3220"
+         width="16"
+         height="16"
+         x="169"
+         y="568" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4031">
+      <rect
+         y="568"
+         x="185"
+         height="16"
+         width="16"
+         id="rect4033"
+         style="fill:none;stroke:none" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3233">
+      <rect
+         y="568"
+         x="201"
+         height="16"
+         width="16"
+         id="rect3235"
+         style="fill:none;stroke:none" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3237">
+      <rect
+         style="fill:none;stroke:none"
+         id="rect3239"
+         width="16"
+         height="16"
+         x="218"
+         y="568" />
+    </clipPath>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -540,6 +584,33 @@
          height="16"
          x="155"
          y="584" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/plugins/coreplugin/images/sidebaricon"
+       clip-path="url(#clipPath3237)"
+       transform="translate(-142,16)">
+      <use
+         height="600"
+         width="800"
+         transform="matrix(0,-1,1,0,-351,785)"
+         id="use3223"
+         xlink:href="#rect3233"
+         y="0"
+         x="0" />
+      <rect
+         style="fill:none;stroke:none"
+         id="rect3216"
+         width="16"
+         height="16"
+         x="218"
+         y="568" />
+      <path
+         id="rect3241-1"
+         style="fill:none;stroke:#292929;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+         d="m 225.5,572.5 4,0 0,7 -4,0 z m -6,-2 12,0 0,11 -12,0 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccc" />
     </g>
   </g>
   <g
@@ -864,7 +935,7 @@
     <g
        style="display:inline"
        id="src/plugins/coreplugin/images/locked"
-       transform="translate(-428,-16)">
+       transform="translate(-300,-16)">
       <rect
          y="584"
          x="597"
@@ -886,7 +957,7 @@
     </g>
     <g
        style="display:inline"
-       transform="translate(-412,-16)"
+       transform="translate(-284,-16)"
        id="src/plugins/coreplugin/images/unlocked">
       <rect
          y="584"
@@ -908,6 +979,63 @@
          id="use3213"
          width="800"
          height="600" />
+    </g>
+    <g
+       id="src/plugins/diffeditor/images/unifieddiff"
+       clip-path="url(#clipPath3218)">
+      <g
+         style="stroke:#dbdbdb;stroke-opacity:1;filter:url(#1_pixel_shadow)"
+         id="g3203">
+        <path
+           id="path3429"
+           style="fill:none;stroke:#dbdbdb;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 178,578.5 4,0 m -7,3 5,-10 m -9,4 5,0 m -2.5,-2.5 0,5 m -4,-6.5 14,0 0,10 -14,0 z"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="ccccccccccccc" />
+        <rect
+           y="568"
+           x="169"
+           height="16"
+           width="16"
+           id="rect3203"
+           style="fill:none;stroke:none" />
+      </g>
+    </g>
+    <g
+       id="src/plugins/diffeditor/images/sidebysidediff"
+       clip-path="url(#clipPath4031)"
+       style="filter:url(#1_pixel_shadow)">
+      <path
+         id="rect4001"
+         style="fill:none;stroke:#dbdbdb;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
+         d="m 185.5,571.5 14,0 0,10 -14,0 z m 9,5 2,0 c 0,0 1,0.5 1,1.5 0,1 -1,1.5 -1,1.5 l -2,0 0,-6 2,0 c 0,0 1,0.5 1,1.5 0,1 -1,1.5 -1,1.5 m -9,1 3,0 m -3,2.5 c 0,-1.83333 0,-4 0,-5.5 0,0 0,-1 1.5,-1 1.5,0 1.5,1 1.5,1 l 0,5.5 0,0 m 2,-8.5 0,10"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccsccccscccccsccccc" />
+      <rect
+         style="fill:none;stroke:none"
+         id="rect4023"
+         width="16"
+         height="16"
+         x="185"
+         y="568" />
+    </g>
+    <g
+       id="src/plugins/diffeditor/images/topbar"
+       style="filter:url(#1_pixel_shadow)"
+       clip-path="url(#clipPath3233)">
+      <path
+         sodipodi:nodetypes="cccccccccc"
+         inkscape:connector-curvature="0"
+         id="rect3233"
+         d="m 204,571 0,11 10,0 0,-11 z m 1,5 8,0 0,5 -8,0 z"
+         style="fill:#dbdbdb;fill-opacity:1;stroke:none" />
+      <rect
+         y="568"
+         x="201"
+         height="16"
+         width="16"
+         id="rect3219"
+         style="fill:none;stroke:none" />
     </g>
   </g>
   <g
