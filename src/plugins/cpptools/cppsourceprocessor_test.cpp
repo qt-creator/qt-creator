@@ -64,17 +64,16 @@ public:
     Document::Ptr run(const QByteArray &source)
     {
         const QString fileName = TestIncludePaths::testFilePath();
-        if (QFileInfo(fileName).exists())
-            return Document::Ptr(); // Test file was not removed.
 
-        TestCase::writeFile(fileName, source);
+        FileWriterAndRemover scopedFile(fileName, source);
+        if (!scopedFile.writtenSuccessfully())
+            return Document::Ptr();
 
         CppSourceProcessor sourceProcessor((QPointer<CppModelManager>(m_cmm)));
         sourceProcessor.setIncludePaths(QStringList(TestIncludePaths::directoryOfTestFile()));
         sourceProcessor.run(fileName);
 
         Document::Ptr document = m_cmm->document(fileName);
-        QFile(fileName).remove();
         return document;
     }
 

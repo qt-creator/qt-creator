@@ -189,5 +189,28 @@ bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
     return true;
 }
 
+FileWriterAndRemover::FileWriterAndRemover(const QString &filePath, const QByteArray &contents)
+    : m_filePath(filePath)
+{
+    if (QFileInfo(filePath).exists()) {
+        const QString warning = QString::fromLatin1(
+            "Will not overwrite existing file: \"%1\"."
+            " If this file is left over due to a(n) abort/crash, please remove manually.")
+                .arg(m_filePath);
+        QWARN(qPrintable(warning));
+        m_writtenSuccessfully = false;
+    } else {
+        m_writtenSuccessfully = TestCase::writeFile(filePath, contents);
+    }
+}
+
+FileWriterAndRemover::~FileWriterAndRemover()
+{
+    if (m_writtenSuccessfully && !QFile::remove(m_filePath)) {
+        const QString warning = QLatin1String("Failed to remove file from disk: ") + m_filePath;
+        QWARN(qPrintable(warning));
+    }
+}
+
 } // namespace Tests
 } // namespace CppTools

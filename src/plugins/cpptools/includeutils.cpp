@@ -509,10 +509,12 @@ using CppTools::Internal::CppToolsPlugin;
 static QList<Include> includesForSource(const QByteArray &source)
 {
     const QString fileName = TestIncludePaths::testFilePath();
-    CppTools::Tests::TestCase::writeFile(fileName, source);
+
+    FileWriterAndRemover scopedFile(fileName, source);
+    if (!scopedFile.writtenSuccessfully())
+        return QList<Include>();
 
     using namespace CppTools::Internal;
-
     CppModelManager *cmm = CppModelManager::instance();
     cmm->GC();
     CppSourceProcessor sourceProcessor((QPointer<CppModelManager>(cmm)));

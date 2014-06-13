@@ -96,6 +96,18 @@ private:
     bool m_runGarbageCollector;
 };
 
+class FileWriterAndRemover
+{
+public:
+    FileWriterAndRemover(const QString &filePath, const QByteArray &contents); // Writes file
+    bool writtenSuccessfully() const { return m_writtenSuccessfully; }
+    ~FileWriterAndRemover(); // Removes file
+
+private:
+    const QString m_filePath;
+    bool m_writtenSuccessfully;
+};
+
 } // namespace Tests
 } // namespace CppTools
 
