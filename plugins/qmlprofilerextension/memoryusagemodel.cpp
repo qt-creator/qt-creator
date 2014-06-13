@@ -159,11 +159,13 @@ void MemoryUsageModel::loadData()
     qint64 currentUsage = 0;
     int currentUsageIndex = -1;
     int currentJSHeapIndex = -1;
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        if (!eventAccepted(event))
+        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
+        if (!eventAccepted(type))
             continue;
 
-        if (event.detailType == QmlDebug::SmallItem || event.detailType == QmlDebug::LargeItem) {
+        if (type.detailType == QmlDebug::SmallItem || type.detailType == QmlDebug::LargeItem) {
             currentUsage += event.numericData1;
             MemoryAllocation allocation = {
                 QmlDebug::SmallItem,
@@ -177,10 +179,10 @@ void MemoryUsageModel::loadData()
             currentUsageIndex = d->insertStart(event.startTime, allocation);
         }
 
-        if (event.detailType == QmlDebug::HeapPage || event.detailType == QmlDebug::LargeItem) {
+        if (type.detailType == QmlDebug::HeapPage || type.detailType == QmlDebug::LargeItem) {
             currentSize += event.numericData1;
             MemoryAllocation allocation = {
-                (QmlDebug::MemoryType)event.detailType,
+                (QmlDebug::MemoryType)type.detailType,
                 currentSize,
                 event.numericData1
             };

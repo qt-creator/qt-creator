@@ -200,11 +200,13 @@ void SceneGraphTimelineModel::loadData()
     int lastRenderEvent = -1;
 
     // combine the data of several eventtypes into two rows
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        if (!eventAccepted(event))
+        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
+        if (!eventAccepted(type))
             continue;
 
-        if (event.detailType == SceneGraphRenderLoopFrame) {
+        if (type.detailType == SceneGraphRenderLoopFrame) {
             SceneGraphEvent newEvent;
             newEvent.sgEventType = SceneGraphRenderThread;
             qint64 duration = event.numericData1 + event.numericData2 + event.numericData3;
@@ -219,7 +221,7 @@ void SceneGraphTimelineModel::loadData()
 
         if (lastRenderEvent >= 0) {
             qint64 *timing = d->data(lastRenderEvent).timing;
-            switch ((SceneGraphEventType)event.detailType) {
+            switch ((SceneGraphEventType)type.detailType) {
             case SceneGraphRendererFrame: {
                 timing[1] = event.numericData1;
                 timing[10] = event.numericData2;

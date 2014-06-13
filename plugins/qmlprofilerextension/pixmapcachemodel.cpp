@@ -272,17 +272,19 @@ void PixmapCacheModel::loadData()
     int lastCacheSizeEvent = -1;
     int cumulatedCount = 0;
 
+    const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
-        if (!eventAccepted(event))
+        const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
+        if (!eventAccepted(type))
             continue;
 
         PixmapCacheEvent newEvent;
-        newEvent.pixmapEventType = event.detailType;
+        newEvent.pixmapEventType = type.detailType;
         qint64 startTime = event.startTime;
 
         newEvent.urlIndex = -1;
         for (QVector<Pixmap>::const_iterator it(d->pixmaps.cend()); it != d->pixmaps.cbegin();) {
-            if ((--it)->url == event.location.filename) {
+            if ((--it)->url == type.location.filename) {
                 newEvent.urlIndex = it - d->pixmaps.cbegin();
                 break;
             }
@@ -291,7 +293,7 @@ void PixmapCacheModel::loadData()
         newEvent.sizeIndex = -1;
         if (newEvent.urlIndex == -1) {
             newEvent.urlIndex = d->pixmaps.count();
-            d->pixmaps << Pixmap(event.location.filename);
+            d->pixmaps << Pixmap(type.location.filename);
         }
 
         Pixmap &pixmap = d->pixmaps[newEvent.urlIndex];
