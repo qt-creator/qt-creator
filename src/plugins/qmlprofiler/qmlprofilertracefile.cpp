@@ -275,7 +275,8 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
 
             if (elementName == _("bindingType") ||
                     elementName == _("cacheEventType") ||
-                    elementName == _("sgEventType")) {
+                    elementName == _("sgEventType") ||
+                    elementName == _("memoryEventType")) {
                 event.detailType = readData.toInt();
                 break;
             }
@@ -340,6 +341,8 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
                     range.numericData2 = attributes.value(_("height")).toString().toLongLong();
                 if (attributes.hasAttribute(_("refCount")))
                     range.numericData3 = attributes.value(_("refCount")).toString().toLongLong();
+                if (attributes.hasAttribute(_("amount")))
+                    range.numericData1 = attributes.value(_("amount")).toString().toLongLong();
                 if (attributes.hasAttribute(_("timing1")))
                     range.numericData1 = attributes.value(_("timing1")).toString().toLongLong();
                 if (attributes.hasAttribute(_("timing2")))
@@ -463,6 +466,8 @@ void QmlProfilerFileWriter::save(QIODevice *device)
             stream.writeTextElement(_("cacheEventType"), QString::number(event.detailType));
         if (event.message == SceneGraphFrame)
             stream.writeTextElement(_("sgEventType"), QString::number(event.detailType));
+        if (event.message == MemoryAllocation)
+            stream.writeTextElement(_("memoryEventType"), QString::number(event.detailType));
         stream.writeEndElement();
     }
     stream.writeEndElement(); // eventData
@@ -512,6 +517,11 @@ void QmlProfilerFileWriter::save(QIODevice *device)
             if (range.numericData5 > 0)
                 stream.writeAttribute(_("timing5"), QString::number(range.numericData5));
         }
+
+        // special: memory allocation event
+        if (event.message == QmlDebug::MemoryAllocation)
+            stream.writeAttribute(_("amount"), QString::number(range.numericData1));
+
         stream.writeEndElement();
     }
     stream.writeEndElement(); // profilerDataModel
