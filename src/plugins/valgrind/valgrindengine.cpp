@@ -91,8 +91,7 @@ bool ValgrindRunControl::startEngine()
 
     ValgrindRunner *run = runner();
     run->setWorkingDirectory(sp.workingDirectory);
-    QString valgrindExe = m_settings->valgrindExecutable();
-    run->setValgrindExecutable(valgrindExe);
+    run->setValgrindExecutable(m_settings->valgrindExecutable());
     run->setValgrindArguments(genericToolArguments() + toolArguments());
     run->setDebuggeeExecutable(sp.debuggee);
     run->setDebuggeeArguments(sp.debuggeeArgs);
