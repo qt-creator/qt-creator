@@ -41,7 +41,9 @@ namespace Valgrind {
 
 ValgrindProcess::ValgrindProcess(bool isLocal, const QSsh::SshConnectionParameters &sshParams,
                                  QSsh::SshConnection *connection, QObject *parent)
-    : QObject(parent), m_isLocal(isLocal)
+    : QObject(parent),
+      m_isLocal(isLocal),
+      m_localRunMode(ProjectExplorer::ApplicationLauncher::Gui)
 {
     m_remote.m_params = sshParams;
     m_remote.m_connection = connection;
