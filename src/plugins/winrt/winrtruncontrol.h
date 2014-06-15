@@ -76,7 +76,6 @@ private:
     QString m_executableFilePath;
     QString m_arguments;
     bool m_uninstallAfterStop;
-    bool m_isWinPhone;
     Utils::QtcProcess *m_process;
     Utils::Environment m_environment;
 };

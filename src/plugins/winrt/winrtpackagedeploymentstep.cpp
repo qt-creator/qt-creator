@@ -71,15 +71,15 @@ bool WinRtPackageDeploymentStep::init()
     if (!qt)
         return false;
 
-    m_isWinPhone = (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT));
-
     QString args = QtcProcess::quoteArg(QDir::toNativeSeparators(targetPath));
     args += QLatin1Char(' ') + m_args;
-    if (m_isWinPhone) {
-        m_manifestFileName = QLatin1String("WMAppManifest");
+
+    m_manifestFileName = QStringLiteral("AppxManifest");
+
+    if (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT)
+            && qt->mkspec().toString().contains(QLatin1String("msvc2012"))) {
         m_createMappingFile = true;
-    } else {
-        m_manifestFileName = QLatin1String("AppxManifest");
+        m_manifestFileName = QStringLiteral("WMAppManifest");
     }
 
     if (m_createMappingFile) {
