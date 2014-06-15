@@ -61,12 +61,11 @@ CallgrindController::~CallgrindController()
 
 QString toOptionString(CallgrindController::Option option)
 {
-    /* Callgrind help from v3.6.0
+    /* callgrind_control help from v3.9.0
 
     Options:
     -h --help        Show this help text
     --version        Show version
-    -l --long        Show more information
     -s --stat        Show statistics
     -b --back        Show stack/back trace
     -e [<A>,...]     Show event counters for <A>,... (default: all)
@@ -74,7 +73,6 @@ QString toOptionString(CallgrindController::Option option)
     -z --zero        Zero all event counters
     -k --kill        Kill
     --instr=<on|off> Switch instrumentation state on/off
-    -w=<dir>         Specify the startup directory of an active Callgrind run
     */
 
     switch (option) {
