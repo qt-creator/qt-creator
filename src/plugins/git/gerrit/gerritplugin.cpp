@@ -326,16 +326,6 @@ void GerritPlugin::push(const QString &topLevel)
     QStringList args;
 
     m_reviewers = dialog.reviewers();
-    const QStringList reviewers = m_reviewers.split(QLatin1Char(','), QString::SkipEmptyParts);
-    if (!reviewers.isEmpty()) {
-        QString reviewersFlag(QLatin1String("--receive-pack=git receive-pack"));
-        foreach (const QString &reviewer, reviewers) {
-            const QString name = reviewer.trimmed();
-            if (!name.isEmpty())
-                reviewersFlag += QString::fromLatin1(" --reviewer=") + name;
-        }
-        args << reviewersFlag;
-    }
 
     args << dialog.selectedRemoteName();
     QString target = dialog.selectedCommit();
@@ -346,6 +336,15 @@ void GerritPlugin::push(const QString &topLevel)
     const QString topic = dialog.selectedTopic();
     if (!topic.isEmpty())
         target += QLatin1Char('/') + topic;
+
+    QStringList options;
+    const QStringList reviewers = m_reviewers.split(QLatin1Char(','), QString::SkipEmptyParts);
+    foreach (const QString &reviewer, reviewers)
+        options << QLatin1String("r=") + reviewer;
+
+    if (!options.isEmpty())
+        target += QLatin1Char('%') + options.join(QLatin1String(","));
+
     args << target;
 
     gitClient()->push(topLevel, args);
