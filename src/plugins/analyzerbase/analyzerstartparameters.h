@@ -60,7 +60,6 @@ public:
 
     QString debuggee;
     QString debuggeeArgs;
-    QString analyzerCmdPrefix;
     QString displayName;
     Utils::Environment environment;
     QString workingDirectory;
