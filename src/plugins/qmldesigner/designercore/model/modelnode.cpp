@@ -1041,12 +1041,14 @@ bool ModelNode::isComponent() const
             return true;
     }
 
-    if (hasNodeProperty("component")
-            && nodeProperty("component").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
-        return true;
+    if (metaInfo().isSubclassOf("QtQuick.Loader", -1 , -1)) {
+        if (hasNodeProperty("component")
+                && nodeProperty("component").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
+            return true;
 
-    if (hasVariantProperty("source"))
-        return true;
+        if (hasVariantProperty("source"))
+            return true;
+    }
 
     return false;
 }
