@@ -899,7 +899,7 @@ void LldbEngine::reloadFullStack()
 void LldbEngine::updateStack()
 {
     Command cmd("reportStack");
-    cmd.arg("stacklimit", 20);
+    cmd.arg("stacklimit", debuggerCore()->action(MaximalStackDepth)->value().toInt());
     runCommand(cmd);
 }
 
