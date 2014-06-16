@@ -583,8 +583,8 @@ class DumperBase:
                 self.put('addrstep="0x%x",' % toInteger(step))
                 return True
         except:
-            warn("ADDRBASE: %s" % base)
-            warn("ADDRSTEP: %s" % step)
+            #warn("ADDRBASE: %s" % base)
+            #warn("ADDRSTEP: %s" % step)
         return False
 
         #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))

@@ -459,7 +459,7 @@ class Dumper(DumperBase):
                 item.name = name
                 item.value = frame.read_var(name)
                 locals = [item]
-                warn("PARTIAL LOCALS: %s" % locals)
+                #warn("PARTIAL LOCALS: %s" % locals)
                 fullUpdateNeeded = False
             except:
                 pass
