@@ -190,4 +190,9 @@
     \key {Ctrl+Shift+F12}.
 
     \QC generates the code model inspection log file in a temporary folder.
+
+    \QC underlines semantic errors in olive in the C++ code editor. To
+    check the correct paths for includes that are not resolved or that are
+    resolved to the wrong file, select \gui {Project Parts} >
+    \gui {Include Paths}.
 */
