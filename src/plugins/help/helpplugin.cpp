@@ -1092,7 +1092,6 @@ void HelpPlugin::addBookmark()
 
 void HelpPlugin::highlightSearchTermsInContextHelp()
 {
-    qDebug() << "highlight" << m_contextHelpHighlightId;
     if (m_contextHelpHighlightId.isEmpty())
         return;
     HelpViewer* viewer = viewerForContextMode();
