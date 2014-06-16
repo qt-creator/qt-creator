@@ -79,12 +79,12 @@ typename T::value_type findOr(const T &container, typename T::value_type other, 
 }
 
 template<typename T, typename F>
-typename T::value_type maxElementOr(const T &container, typename T::value_type other, F function)
+typename T::value_type bestElementOr(const T &container, typename T::value_type other, F function)
 {
     typename T::const_iterator end = container.end();
     typename T::const_iterator begin = container.begin();
 
-    typename T::const_iterator it = std::max_element(begin, end, function);
+    typename T::const_iterator it = std::min_element(begin, end, function);
     if (it == end)
         return other;
     return *it;

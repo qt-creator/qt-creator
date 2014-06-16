@@ -345,7 +345,7 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(Kit *k, const QStri
     QList<IBuildConfigurationFactory *> factories
             = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
 
-    return Utils::maxElementOr(factories, 0,
+    return Utils::bestElementOr(factories, 0,
         [&k, &projectPath](IBuildConfigurationFactory *a, IBuildConfigurationFactory *b) {
             return a->priority(k, projectPath) > b->priority(k, projectPath);
         });
@@ -357,7 +357,7 @@ IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
     QList<IBuildConfigurationFactory *> factories
             = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>();
 
-    return Utils::maxElementOr(factories, 0,
+    return Utils::bestElementOr(factories, 0,
                                [&parent](IBuildConfigurationFactory *a, IBuildConfigurationFactory *b) {
                                    return a->priority(parent) > b->priority(parent);
                                });
