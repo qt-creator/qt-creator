@@ -140,7 +140,7 @@ void QbsRunConfiguration::ctor()
     connect(project, SIGNAL(projectParsingStarted()), this, SIGNAL(enabledChanged()));
     connect(project, SIGNAL(projectParsingDone(bool)), this, SIGNAL(enabledChanged()));
 
-    connect(target(), SIGNAL(activeDeployConfigurationChanged(DeployConfiguration*)),
+    connect(target(), SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
             this, SLOT(installStepChanged()));
     installStepChanged();
 
@@ -495,7 +495,7 @@ void QbsRunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
 void QbsRunConfigurationWidget::runModeChanged(ApplicationLauncher::Mode runMode)
 {
     if (!m_ignoreChange)
-        m_useTerminalCheck->setChecked(runMode == ProjectExplorer::ApplicationLauncher::Console);
+        m_useTerminalCheck->setChecked(runMode == ApplicationLauncher::Console);
 }
 
 // --------------------------------------------------------------------
