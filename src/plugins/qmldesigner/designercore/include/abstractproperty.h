@@ -105,12 +105,13 @@ public:
     bool isDynamic() const;
     TypeName dynamicTypeName() const;
 
+    Model *model() const;
+    AbstractView *view() const;
+
 protected:
     AbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
     AbstractProperty(const Internal::InternalPropertyPointer &property, Model* model, AbstractView *view);
     Internal::InternalNodePointer internalNode() const;
-    Model *model() const;
-    AbstractView *view() const;
 
 private:
     PropertyName m_propertyName;
