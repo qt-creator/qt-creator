@@ -93,29 +93,27 @@ static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QV
     }
 }
 
-static inline void openFileForComponent(const ModelNode &node)
+static void openFileComponent(const ModelNode &modelNode)
 {
     QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
 
     //int width = 0;
     //int height = 0;
     QHash<PropertyName, QVariant> propertyHash;
-    if (node.metaInfo().isFileComponent()) {
-        //getWidthHeight(node, width, height);
-        getProperties(node, propertyHash);
-        Core::EditorManager::openEditor(node.metaInfo().componentFileName(), Core::Id(), Core::EditorManager::DoNotMakeVisible);
-    } else if (node.metaInfo().isView() &&
-               node.hasNodeProperty("delegate") &&
-               node.nodeProperty("delegate").modelNode().metaInfo().isFileComponent()) {
-        //getWidthHeight(node, width, height);
-        getProperties(node, propertyHash);
-        Core::EditorManager::openEditor(node.nodeProperty("delegate").modelNode().metaInfo().componentFileName(),
-                                        Core::Id(), Core::EditorManager::DoNotMakeVisible);
-    }
+
+    //getWidthHeight(node, width, height);
+    getProperties(modelNode, propertyHash);
+    Core::EditorManager::openEditor(modelNode.metaInfo().componentFileName(), Core::Id(), Core::EditorManager::DoNotMakeVisible);
+
     ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
     applyProperties(rootModelNode, propertyHash);
     //rootModelNode.setAuxiliaryData("width", width);
     //rootModelNode.setAuxiliaryData("height", height);
+}
+
+static void openFileComponentForDelegate(const ModelNode &modelNode)
+{
+    openFileComponent(modelNode.nodeProperty("delegate").modelNode());
 }
 
 
@@ -162,19 +160,24 @@ static inline void openInlineComponent(const ModelNode &modelNode)
     applyProperties(rootModelNode, propertyHash);
 }
 
-static inline bool isFileComponent(const ModelNode &node)
+static bool isFileComponent(const ModelNode &node)
 {
-    if (!node.isValid() || !node.metaInfo().isValid())
-        return false;
-
-    if (node.metaInfo().isFileComponent())
+    if (node.isValid()
+            && node.metaInfo().isValid()
+            && node.metaInfo().isFileComponent())
         return true;
 
-    if (node.metaInfo().isView() &&
-        node.hasNodeProperty("delegate")) {
-        if (node.nodeProperty("delegate").modelNode().metaInfo().isFileComponent())
-            return true;
-    }
+    return false;
+}
+
+static bool hasDelegateWithFileComponent(const ModelNode &node)
+{
+    if (node.isValid()
+            && node.metaInfo().isValid()
+            && node.metaInfo().isView()
+            && node.hasNodeProperty("delegate")
+            && node.nodeProperty("delegate").modelNode().metaInfo().isFileComponent())
+        return true;
 
     return false;
 }
@@ -226,7 +229,9 @@ void DocumentManager::goIntoComponent(const ModelNode &modelNode)
     if (modelNode.isValid() && modelNode.isComponent()) {
         QmlDesignerPlugin::instance()->viewManager().setComponentNode(modelNode);
         if (isFileComponent(modelNode))
-            openFileForComponent(modelNode);
+            openFileComponent(modelNode);
+        else if (hasDelegateWithFileComponent(modelNode))
+            openFileComponentForDelegate(modelNode);
         else
             openInlineComponent(modelNode);
     }
