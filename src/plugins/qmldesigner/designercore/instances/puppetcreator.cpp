@@ -246,6 +246,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     m_kit->addToEnvironment(environment);
     environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
     environment.set("QML_USE_MOCKUPS", "true");
+    environment.set("QML_PUPPET_MODE", "true");
 
     return environment.toProcessEnvironment();
 }
