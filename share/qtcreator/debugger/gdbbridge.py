@@ -640,7 +640,8 @@ class Dumper(DumperBase):
 
     def childAt(self, value, index):
         field = value.type.fields()[index]
-        if len(field.name):
+        # GDB 7.7 commit b5b08fb4 started to report None as field names.
+        if field.name:
             try:
                 return value[field.name]
             except:
@@ -1321,7 +1322,7 @@ class Dumper(DumperBase):
     def putFields(self, value, dumpBase = True):
             fields = value.type.fields()
 
-            #warn("TYPE: %s" % type)
+            #warn("TYPE: %s" % value.type)
             #warn("FIELDS: %s" % fields)
             baseNumber = 0
             for field in fields:
@@ -1329,14 +1330,23 @@ class Dumper(DumperBase):
                 #warn("  BITSIZE: %s" % field.bitsize)
                 #warn("  ARTIFICIAL: %s" % field.artificial)
 
+                # Since GDB commit b5b08fb4 anonymous structs get also reported
+                # with a 'None' name.
                 if field.name is None:
-                    type = stripTypedefs(value.type)
-                    innerType = type.target()
-                    p = value.cast(innerType.pointer())
-                    for i in xrange(int(type.sizeof / innerType.sizeof)):
-                        with SubItem(self, i):
-                            self.putItem(p.dereference())
-                        p = p + 1
+                    if value.type.code == ArrayCode:
+                        # An array.
+                        type = stripTypedefs(value.type)
+                        innerType = type.target()
+                        p = value.cast(innerType.pointer())
+                        for i in xrange(int(type.sizeof / innerType.sizeof)):
+                            with SubItem(self, i):
+                                self.putItem(p.dereference())
+                            p = p + 1
+                    else:
+                        # Something without a name.
+                        self.anonNumber += 1
+                        with SubItem(self, str(self.anonNumber)):
+                            self.putItem(value[field])
                     continue
 
                 # Ignore vtable pointers for virtual inheritance.
@@ -1390,7 +1400,7 @@ class Dumper(DumperBase):
     def listAnonymous(self, value, name, type):
         for field in type.fields():
             #warn("FIELD NAME: %s" % field.name)
-            if len(field.name) > 0:
+            if field.name:
                 with SubItem(self, field.name):
                     self.putItem(value[field.name])
             else:

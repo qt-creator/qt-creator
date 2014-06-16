@@ -173,6 +173,54 @@ static void setupCdb(QString *, QProcessEnvironment *) {}
 #endif // Q_CC_MSVC
 
 
+struct VersionBase
+{
+    // Minimum and maximum are inclusive.
+    VersionBase(int minimum = 0, int maximum = INT_MAX)
+    {
+        isRestricted = minimum != 0 || maximum != INT_MAX;
+        max = maximum;
+        min = minimum;
+    }
+
+    bool covers(int what) const
+    {
+        return !isRestricted || (min <= what && what <= max);
+    }
+
+    bool isRestricted;
+    int min;
+    int max;
+};
+
+struct QtVersion : VersionBase
+{
+    QtVersion(int minimum = 0, int maximum = INT_MAX)
+        : VersionBase(minimum, maximum)
+    {}
+};
+
+struct GccVersion : VersionBase
+{
+    GccVersion(int minimum = 0, int maximum = INT_MAX)
+        : VersionBase(minimum, maximum)
+    {}
+};
+
+struct GdbVersion : VersionBase
+{
+    GdbVersion(int minimum = 0, int maximum = INT_MAX)
+        : VersionBase(minimum, maximum)
+    {}
+};
+
+struct LldbVersion : VersionBase
+{
+    LldbVersion(int minimum = 0, int maximum = INT_MAX)
+        : VersionBase(minimum, maximum)
+    {}
+};
+
 static QByteArray noValue = "\001";
 
 static QString toHex(const QString &str)
@@ -398,6 +446,8 @@ struct CheckBase
 {
     CheckBase() : enginesForCheck(AllEngines) {}
     mutable int enginesForCheck;
+    mutable VersionBase debuggerVersionForCheck;
+    mutable QtVersion qtVersionForCheck;
 };
 
 struct Check : CheckBase
@@ -415,14 +465,23 @@ struct Check : CheckBase
           expectedValue(value), expectedType(type)
     {}
 
-    bool matchesEngine(DebuggerEngine engine) const
+    bool matches(DebuggerEngine engine, int debuggerVersion, int qtVersion) const
     {
-        return (engine & enginesForCheck);
+        return (engine & enginesForCheck)
+            && debuggerVersionForCheck.covers(debuggerVersion)
+            && qtVersionForCheck.covers(qtVersion);
     }
 
     const Check &operator%(DebuggerEngine engine)
     {
         enginesForCheck = engine;
+        return *this;
+    }
+
+    const Check &operator%(GdbVersion version)
+    {
+        enginesForCheck = GdbEngine;
+        debuggerVersionForCheck = version;
         return *this;
     }
 
@@ -442,6 +501,28 @@ struct CheckType : public Check
     CheckType(const QByteArray &iname, const Type &type)
         : Check(iname, noValue, type)
     {}
+};
+
+const QtVersion Qt4 = QtVersion(0, 0x4ffff);
+const QtVersion Qt5 = QtVersion(0x50000);
+
+struct Check4 : Check
+{
+    Check4(const QByteArray &iname, const Value &value, const Type &type)
+        : Check(iname, value, type) { qtVersionForCheck = Qt4; }
+
+    Check4(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
+        : Check(iname, name, value, type) { qtVersionForCheck = Qt4; }
+};
+
+struct Check5 : Check
+{
+    Check5(const QByteArray &iname, const Value &value, const Type &type)
+        : Check(iname, value, type) { qtVersionForCheck = Qt5; }
+
+    Check5(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
+        : Check(iname, name, value, type) { qtVersionForCheck = Qt5; }
+
 };
 
 struct Profile
@@ -484,49 +565,6 @@ struct MacLibCppProfile : public Profile
                 "QMAKE_LFLAGS -= -mmacosx-version-min=10.6\n"
                 "QMAKE_LFLAGS += -mmacosx-version-min=10.7\n"
                 "}")
-    {}
-};
-
-struct VersionBase
-{
-    // Minimum and maximum are inclusive.
-    VersionBase(int minimum = 0, int maximum = INT_MAX)
-    {
-        isRestricted = minimum != 0 || maximum != INT_MAX;
-        max = maximum;
-        min = minimum;
-    }
-
-    bool isRestricted;
-    int min;
-    int max;
-};
-
-struct QtVersion : VersionBase
-{
-    QtVersion(int minimum = 0, int maximum = INT_MAX)
-        : VersionBase(minimum, maximum)
-    {}
-};
-
-struct GccVersion : VersionBase
-{
-    GccVersion(int minimum = 0, int maximum = INT_MAX)
-        : VersionBase(minimum, maximum)
-    {}
-};
-
-struct GdbVersion : VersionBase
-{
-    GdbVersion(int minimum = 0, int maximum = INT_MAX)
-        : VersionBase(minimum, maximum)
-    {}
-};
-
-struct LldbVersion : VersionBase
-{
-    LldbVersion(int minimum = 0, int maximum = INT_MAX)
-        : VersionBase(minimum, maximum)
     {}
 };
 
@@ -736,9 +774,8 @@ public:
         t = 0;
         m_keepTemp = true;
         m_forceKeepTemp = false;
-        m_gdbVersion = 0;
+        m_debuggerVersion = 0;
         m_gdbBuildVersion = 0;
-        m_lldbVersion = 0;
         m_qtVersion = 0;
         m_gccVersion = 0;
         m_isMacGdb = false;
@@ -764,9 +801,8 @@ private:
     QString m_makeBinary;
     bool m_keepTemp;
     bool m_forceKeepTemp;
-    int m_gdbVersion; // 7.5.1 -> 70501
+    int m_debuggerVersion; // GDB: 7.5.1 -> 70501
     int m_gdbBuildVersion;
-    int m_lldbVersion;
     int m_qtVersion; // 5.2.0 -> 50200
     int m_gccVersion;
     bool m_isMacGdb;
@@ -828,7 +864,7 @@ void tst_Dumpers::initTestCase()
         QVERIFY(pos2 != -1);
         pos2 -= 4;
         version = version.mid(pos1, pos2 - pos1);
-        extractGdbVersion(version, &m_gdbVersion,
+        extractGdbVersion(version, &m_debuggerVersion,
             &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
         m_env = QProcessEnvironment::systemEnvironment();
         m_makeBinary = QString::fromLocal8Bit(qgetenv("QTC_MAKE_PATH_FOR_TEST"));
@@ -846,7 +882,7 @@ void tst_Dumpers::initTestCase()
             m_makeBinary = QLatin1String("make");
 #endif
         qDebug() << "Make path          : " << m_makeBinary;
-        qDebug() << "Gdb version        : " << m_gdbVersion;
+        qDebug() << "Gdb version        : " << m_debuggerVersion;
     } else if (m_debuggerEngine == CdbEngine) {
         setupCdb(&m_makeBinary, &m_env);
     } else if (m_debuggerEngine == LldbEngine) {
@@ -864,19 +900,19 @@ void tst_Dumpers::initTestCase()
         int pos = ba.indexOf('.');
         if (pos >= 0)
             ba = ba.left(pos);
-        m_lldbVersion = ba.toInt();
-        if (!m_lldbVersion) {
+        m_debuggerVersion = ba.toInt();
+        if (!m_debuggerVersion) {
             if (output.startsWith("lldb version")) {
                 int pos1 = output.indexOf('.', 13);
                 int major = output.mid(13, pos1++ - 13).toInt();
                 int pos2 = output.indexOf(' ', pos1);
                 int minor = output.mid(pos1, pos2++ - pos1).toInt();
-                m_lldbVersion = 100 * major + 10 * minor;
+                m_debuggerVersion = 100 * major + 10 * minor;
             }
         }
 
-        qDebug() << "Lldb version       :" << output << ba << m_lldbVersion;
-        QVERIFY(m_lldbVersion);
+        qDebug() << "Lldb version       :" << output << ba << m_debuggerVersion;
+        QVERIFY(m_debuggerVersion);
 
         m_env = QProcessEnvironment::systemEnvironment();
         m_makeBinary = QLatin1String("make");
@@ -906,19 +942,19 @@ void tst_Dumpers::dumper()
         MSKIP_SINGLE("The test is excluded for this debugger engine.");
 
     if (data.neededGdbVersion.isRestricted && m_debuggerEngine == GdbEngine) {
-        if (data.neededGdbVersion.min > m_gdbVersion)
+        if (data.neededGdbVersion.min > m_debuggerVersion)
             MSKIP_SINGLE("Need minimum GDB version "
                 + QByteArray::number(data.neededGdbVersion.min));
-        if (data.neededGdbVersion.max < m_gdbVersion)
+        if (data.neededGdbVersion.max < m_debuggerVersion)
             MSKIP_SINGLE("Need maximum GDB version "
                 + QByteArray::number(data.neededGdbVersion.max));
     }
 
     if (data.neededLldbVersion.isRestricted && m_debuggerEngine == LldbEngine) {
-        if (data.neededLldbVersion.min > m_lldbVersion)
+        if (data.neededLldbVersion.min > m_debuggerVersion)
             MSKIP_SINGLE("Need minimum LLDB version "
                 + QByteArray::number(data.neededLldbVersion.min));
-        if (data.neededLldbVersion.max < m_lldbVersion)
+        if (data.neededLldbVersion.max < m_debuggerVersion)
             MSKIP_SINGLE("Need maximum LLDB version "
                 + QByteArray::number(data.neededLldbVersion.max));
     }
@@ -1004,7 +1040,7 @@ void tst_Dumpers::dumper()
         proFile.write("CONFIG -= QT\n");
     if (m_useGLibCxxDebug)
         proFile.write("DEFINES += _GLIBCXX_DEBUG\n");
-    if (m_gdbVersion < 70500)
+    if (m_debuggerEngine == GdbEngine && m_debuggerVersion < 70500)
         proFile.write("QMAKE_CXXFLAGS += -gdwarf-3\n");
     proFile.write(data.profileExtra);
     proFile.close();
@@ -1260,7 +1296,7 @@ void tst_Dumpers::dumper()
             //qDebug() << "CHECKS" << i << check.iname;
             if ("local." + check.iname == item.iname) {
                 data.checks.removeAt(i);
-                if (check.matchesEngine(m_debuggerEngine)) {
+                if (check.matches(m_debuggerEngine, m_debuggerVersion, context.qtVersion)) {
                     //qDebug() << "USING MATCHING TEST FOR " << item.iname;
                     if (!check.expectedName.matches(item.name.toLatin1(), context)) {
                         qDebug() << "INAME        : " << item.iname;
@@ -1291,7 +1327,7 @@ void tst_Dumpers::dumper()
     if (!data.checks.isEmpty()) {
         for (int i = data.checks.size(); --i >= 0; ) {
             Check check = data.checks.at(i);
-            if (!check.matchesEngine(m_debuggerEngine))
+            if (!check.matches(m_debuggerEngine, m_debuggerVersion, context.qtVersion))
                 data.checks.removeAt(i);
         }
     }
@@ -4310,6 +4346,7 @@ GdbEngine
 //    }
 
 
+    const FloatValue ff("5.88545355e-44");
     QTest::newRow("AnonymousStruct")
             << Data("union {\n"
                     "     struct { int i; int b; };\n"
@@ -4319,13 +4356,17 @@ GdbEngine
 
                + Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
 
-               + Check("a.b", "43", "int") % GdbEngine
-               + Check("a.i", "42", "int") % GdbEngine
-               + Check("a.f", FloatValue("5.88545355e-44"), "float") % GdbEngine
+               + Check("a.b", "43", "int") % GdbVersion(0, 70699)
+               + Check("a.i", "42", "int") % GdbVersion(0, 70699)
+               + Check("a.f", ff, "float") % GdbVersion(0, 70699)
+
+               + Check("a.0.b", "43", "int") % GdbVersion(70700)
+               + Check("a.0.i", "42", "int") % GdbVersion(70700)
+               + Check("a.1.f", ff, "float") % GdbVersion(70700)
 
                + Check("a.#1.b", "43", "int") % LldbEngine
                + Check("a.#1.i", "42", "int") % LldbEngine
-               + Check("a.#2.f", FloatValue("5.88545355e-44"), "float") % LldbEngine;
+               + Check("a.#2.f", ff, "float") % LldbEngine;
 
 
     QTest::newRow("CharArrays")
@@ -5424,29 +5465,32 @@ GdbEngine
     // on -var-list-children on an anonymous union. mac/MI was fixed in 2006");
     // The proposed fix has been reported to crash gdb steered from eclipse");
     // http://sourceware.org/ml/gdb-patches/2011-12/msg00420.html
-    QTest::newRow("Gdb10586mi")
+    QTest::newRow("Gdb10586")
             << Data("struct Test {\n"
                     "    struct { int a; float b; };\n"
                     "    struct { int c; float d; };\n"
                     "} v = {{1, 2}, {3, 4}};\n"
                     "unused(&v);\n")
-
                + Check("v", "", "Test")
-               + Check("v.a", "1", "int") % GdbEngine
+               + Check("v.a", "1", "int") % GdbVersion(0, 70699)
+               + Check("v.0.a", "1", "int") % GdbVersion(70700)
                + Check("v.#1.a", "1", "int") % LldbEngine;
 
 
     QTest::newRow("Gdb10586eclipse")
-            << Data("struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};\n"
+            << Data("struct { int x; struct { int a; }; struct { int b; }; } "
+                    "   v = {1, {2}, {3}};\n"
                     "struct S { int x, y; } n = {10, 20};\n"
                     "unused(&v, &n);\n")
 
                + Check("v", "", "{...}") % GdbEngine
                + Check("v", "", Pattern("<anonymous .*>")) % LldbEngine
                + Check("n", "", "S")
-               + Check("v.a", "2", "int") % GdbEngine
+               + Check("v.a", "2", "int") % GdbVersion(0, 70699)
+               + Check("v.0.a", "2", "int") % GdbVersion(70700)
                + Check("v.#1.a", "2", "int") % LldbEngine
-               + Check("v.b", "3", "int") % GdbEngine
+               + Check("v.b", "3", "int") % GdbVersion(0, 70699)
+               + Check("v.1.b", "3", "int") % GdbVersion(70700)
                + Check("v.#2.b", "3", "int") % LldbEngine
                + Check("v.x", "1", "int")
                + Check("n.x", "10", "int")
