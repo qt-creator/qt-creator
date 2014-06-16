@@ -29,6 +29,7 @@
 
 #ifdef WITH_TESTS
 
+#include <QClipboard>
 #include <QString>
 #include <QtTest/QtTest>
 
@@ -42,80 +43,99 @@ using namespace TextEditor;
 
 enum TransFormationType { Uppercase, Lowercase };
 
+struct TestBlockSelection
+{
+    int positionBlock;
+    int positionColumn;
+    int anchorBlock;
+    int anchorColumn;
+    TestBlockSelection(int positionBlock, int positionColumn, int anchorBlock, int anchorColumn)
+        : positionBlock(positionBlock), positionColumn(positionColumn)
+        , anchorBlock(anchorBlock), anchorColumn(anchorColumn) {}
+    TestBlockSelection() {}
+};
+
 Q_DECLARE_METATYPE(TransFormationType)
+Q_DECLARE_METATYPE(TestBlockSelection)
 
 void Internal::TextEditorPlugin::testBlockSelectionTransformation_data()
 {
-    QTest::addColumn<QByteArray>("input");
-    QTest::addColumn<QByteArray>("transformedText");
-    QTest::addColumn<int>("position");
-    QTest::addColumn<int>("anchor");
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("transformedText");
+    QTest::addColumn<TestBlockSelection>("selection");
     QTest::addColumn<TransFormationType>("type");
 
     QTest::newRow("uppercase")
-            << QByteArray("aaa\nbbb\nccc\n")
-            << QByteArray("aAa\nbBb\ncCc\n")
-            << 10 << 1 << Uppercase;
+            << QString::fromLatin1("aaa\nbbb\nccc\n")
+            << QString::fromLatin1("aAa\nbBb\ncCc\n")
+            << TestBlockSelection(0, 1, 2, 2)
+            << Uppercase;
     QTest::newRow("lowercase")
-            << QByteArray("AAA\nBBB\nCCC\n")
-            << QByteArray("AaA\nBbB\nCcC\n")
-            << 10 << 1 << Lowercase;
+            << QString::fromLatin1("AAA\nBBB\nCCC\n")
+            << QString::fromLatin1("AaA\nBbB\nCcC\n")
+            << TestBlockSelection(0, 1, 2, 2)
+            << Lowercase;
     QTest::newRow("uppercase_leading_tabs")
-            << QByteArray("\taaa\n\tbbb\n\tccc\n")
-            << QByteArray("\taAa\n\tbBb\n\tcCc\n")
-            << 13 << 2 << Uppercase;
+            << QString::fromLatin1("\taaa\n" "\tbbb\n" "\tccc\n")
+            << QString::fromLatin1("\taAa\n" "\tbBb\n" "\tcCc\n")
+            << TestBlockSelection(0, 9, 2, 10)
+            << Uppercase;
     QTest::newRow("lowercase_leading_tabs")
-            << QByteArray("\tAAA\n\tBBB\n\tCCC\n")
-            << QByteArray("\tAaA\n\tBbB\n\tCcC\n")
-            << 13 << 2 << Lowercase;
+            << QString::fromLatin1("\tAAA\n\tBBB\n\tCCC\n")
+            << QString::fromLatin1("\tAaA\n\tBbB\n\tCcC\n")
+            << TestBlockSelection(0, 9, 2, 10)
+            << Lowercase;
     QTest::newRow("uppercase_mixed_leading_whitespace")
-            << QByteArray("\taaa\n    bbbbb\n    ccccc\n")
-            << QByteArray("\tAaa\n    bbbbB\n    ccccC\n")
-            << 24 << 1 << Uppercase;
+            << QString::fromLatin1("\taaa\n    bbbbb\n    ccccc\n")
+            << QString::fromLatin1("\tAaa\n    bbbbB\n    ccccC\n")
+            << TestBlockSelection(0, 8, 2, 9)
+            << Uppercase;
     QTest::newRow("lowercase_mixed_leading_whitespace")
-            << QByteArray("\tAAA\n    BBBBB\n    CCCCC\n")
-            << QByteArray("\taAA\n    BBBBb\n    CCCCc\n")
-            << 24 << 1 << Lowercase;
+            << QString::fromLatin1("\tAAA\n    BBBBB\n    CCCCC\n")
+            << QString::fromLatin1("\taAA\n    BBBBb\n    CCCCc\n")
+            << TestBlockSelection(0, 8, 2, 9)
+            << Lowercase;
     QTest::newRow("uppercase_mid_tabs1")
-            << QByteArray("a\ta\nbbbbbbbbb\nccccccccc\n")
-            << QByteArray("a\ta\nbBBBBBbbb\ncCCCCCccc\n")
-            << 20 << 1 << Uppercase;
+            << QString::fromLatin1("a\ta\nbbbbbbbbb\nccccccccc\n")
+            << QString::fromLatin1("a\ta\nbBBBBBbbb\ncCCCCCccc\n")
+            << TestBlockSelection(0, 1, 2, 6)
+            << Uppercase;
     QTest::newRow("lowercase_mid_tabs2")
-            << QByteArray("AA\taa\n\t\t\nccccCCCCCC\n")
-            << QByteArray("Aa\taa\n\t\t\ncccccccccC\n")
-            << 18 << 1 << Lowercase;
+            << QString::fromLatin1("AA\taa\n\t\t\nccccCCCCCC\n")
+            << QString::fromLatin1("Aa\taa\n\t\t\ncccccccccC\n")
+            << TestBlockSelection(0, 1, 2, 9)
+            << Lowercase;
     QTest::newRow("uppercase_over_line_ending")
-            << QByteArray("aaaaa\nbbb\nccccc\n")
-            << QByteArray("aAAAa\nbBB\ncCCCc\n")
-            << 14 << 1 << Uppercase;
+            << QString::fromLatin1("aaaaa\nbbb\nccccc\n")
+            << QString::fromLatin1("aAAAa\nbBB\ncCCCc\n")
+            << TestBlockSelection(0, 1, 2, 4)
+            << Uppercase;
     QTest::newRow("lowercase_over_line_ending")
-            << QByteArray("AAAAA\nBBB\nCCCCC\n")
-            << QByteArray("AaaaA\nBbb\nCcccC\n")
-            << 14 << 1 << Lowercase;
+            << QString::fromLatin1("AAAAA\nBBB\nCCCCC\n")
+            << QString::fromLatin1("AaaaA\nBbb\nCcccC\n")
+            << TestBlockSelection(0, 1, 2, 4)
+            << Lowercase;
 }
 
 void Internal::TextEditorPlugin::testBlockSelectionTransformation()
 {
     // fetch test data
-    QFETCH(QByteArray, input);
-    QFETCH(QByteArray, transformedText);
-    QFETCH(int, position);
-    QFETCH(int, anchor);
+    QFETCH(QString, input);
+    QFETCH(QString, transformedText);
+    QFETCH(TestBlockSelection, selection);
     QFETCH(TransFormationType, type);
 
     // open editor
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
-                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, input);
+                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, input.toLatin1());
     QVERIFY(editor);
     if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
-
-        // place cursor and enable block selection
         BaseTextEditorWidget *editorWidget = textEditor->editorWidget();
-        QTextCursor cursor = editorWidget->textCursor();
-        cursor.setPosition(anchor);
-        cursor.setPosition(position, QTextCursor::KeepAnchor);
-        editorWidget->setTextCursor(cursor);
-        editorWidget->setBlockSelection(true);
+        editorWidget->setBlockSelection(selection.positionBlock,
+                                        selection.positionColumn,
+                                        selection.anchorBlock,
+                                        selection.anchorColumn);
+        editorWidget->update();
 
         // transform blockselection
         switch (type) {
@@ -126,9 +146,355 @@ void Internal::TextEditorPlugin::testBlockSelectionTransformation()
             editorWidget->lowercaseSelection();
             break;
         }
-        QCOMPARE(textEditor->baseTextDocument()->plainText().toLatin1(), transformedText);
-    } else {
+        QCOMPARE(textEditor->baseTextDocument()->plainText(), transformedText);
+    }
+    Core::EditorManager::closeEditor(editor, false);
+}
 
+static const char text[] =
+        "first  line\n"
+        "second line\n"
+        "third  line\n"
+        "\n"
+        "longest line in this text\n"
+        "    leading space\n"
+        ""    "\tleading tab\n"
+        "mid\t" "tab\n"
+        "endtab\t\n";
+
+void Internal::TextEditorPlugin::testBlockSelectionInsert_data()
+{
+    QTest::addColumn<QString>("transformedText");
+    QTest::addColumn<TestBlockSelection>("selection");
+    QTest::addColumn<QString>("insertText");
+
+    QTest::newRow("insert")
+            << QString::fromLatin1(".first  line\n"
+                                   ".second line\n"
+                                   ".third  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 0, 2, 0)
+            << QString::fromLatin1(".");
+    QTest::newRow("insert after line end 1")
+            << QString::fromLatin1("first  line\n"
+                                   "second line\n"
+                                   "third.  line\n"
+                                   "     .\n"
+                                   "longe.st line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(2, 5, 4, 5)
+            << QString::fromLatin1(".");
+    QTest::newRow("insert after line end 2")
+            << QString::fromLatin1("first  line                     .\n"
+                                   "second line                     .\n"
+                                   "third  line                     .\n"
+                                   "                                .\n"
+                                   "longest line in this text       .\n"
+                                   "    leading space               .\n"
+                                   ""    "\tleading tab             .\n"
+                                   "mid\t" "tab                     .\n"
+                                   "endtab\t                        .\n")
+            << TestBlockSelection(0, 32, 8, 32)
+            << QString::fromLatin1(".");
+    QTest::newRow("insert in leading tab")
+            << QString::fromLatin1("first  line\n"
+                                   "second line\n"
+                                   "third  line\n"
+                                   "\n"
+                                   "lo.ngest line in this text\n"
+                                   "  .  leading space\n"
+                                   "  .      leading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(4, 2, 6, 2)
+            << QString::fromLatin1(".");
+    QTest::newRow("insert in middle tab")
+            << QString::fromLatin1("first  line\n"
+                                   "second line\n"
+                                   "third  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   "     .   leading tab\n"
+                                   "mid  .   tab\n"
+                                   "endta.b\t\n")
+
+            << TestBlockSelection(6, 5, 8, 5)
+            << QString::fromLatin1(".");
+    QTest::newRow("insert same block count with all blocks same length")
+            << QString::fromLatin1(".first  line\n"
+                                   ".second line\n"
+                                   ".third  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 0, 2, 0)
+            << QString::fromLatin1(".\n.\n.");
+    QTest::newRow("insert same block count with all blocks different length")
+            << QString::fromLatin1(".  first  line\n"
+                                   ".. second line\n"
+                                   "...third  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 0, 2, 0)
+            << QString::fromLatin1(".\n..\n...");
+    QTest::newRow("insert same block count with some blocks containing tabs")
+            << QString::fromLatin1(".        first  line\n"
+                                   ".\t second line\n"
+                                   ".\t.third  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 0, 2, 0)
+            << QString::fromLatin1(".\n.\t\n.\t.");
+    QTest::newRow("insert same block count with some blocks containing tabs in mid line")
+            << QString::fromLatin1("fi.      rst  line\n"
+                                   "se.\t cond line\n"
+                                   "th.\t.ird  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 2, 2, 2)
+            << QString::fromLatin1(".\n.\t\n.\t.");
+    QTest::newRow("insert different block count with all blocks same length")
+            << QString::fromLatin1(".first  line\n"
+                                   ".\n"
+                                   ".second line\n"
+                                   ".\n"
+                                   ".third  line\n"
+                                   ".\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 0, 2, 0)
+            << QString::fromLatin1(".\n.");
+    QTest::newRow("insert different block count with all blocks different length")
+            << QString::fromLatin1(". first  line\n"
+                                   "..\n"
+                                   ". second line\n"
+                                   "..\n"
+                                   ". third  line\n"
+                                   "..\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 0, 2, 0)
+            << QString::fromLatin1(".\n..");
+    QTest::newRow("insert different block count with some blocks containing tabs")
+            << QString::fromLatin1(".        first  line\n"
+                                   ".\t \n"
+                                   ".\t.\n"
+                                   ".        second line\n"
+                                   ".\t \n"
+                                   ".\t.\n"
+                                   "third  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 0, 1, 0)
+            << QString::fromLatin1(".\n.\t\n.\t.");
+    QTest::newRow("insert different block count with some blocks containing tabs in mid line")
+            << QString::fromLatin1("fi.      rst  line\n"
+                                   "  .\t \n"
+                                   "  .\t.\n"
+                                   "se.      cond line\n"
+                                   "  .\t \n"
+                                   "  .\t.\n"
+                                   "third  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 2, 1, 2)
+            << QString::fromLatin1(".\n.\t\n.\t.");
+}
+
+void Internal::TextEditorPlugin::testBlockSelectionInsert()
+{
+    // fetch test data
+    QFETCH(QString, transformedText);
+    QFETCH(TestBlockSelection, selection);
+    QFETCH(QString, insertText);
+
+    // open editor
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, text);
+    QVERIFY(editor);
+    if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
+        BaseTextEditorWidget *editorWidget = textEditor->editorWidget();
+        editorWidget->setBlockSelection(selection.positionBlock,
+                                        selection.positionColumn,
+                                        selection.anchorBlock,
+                                        selection.anchorColumn);
+        editorWidget->update();
+        editorWidget->insertPlainText(insertText);
+
+        QCOMPARE(textEditor->baseTextDocument()->plainText(), transformedText);
+    }
+    Core::EditorManager::closeEditor(editor, false);
+}
+
+
+void Internal::TextEditorPlugin::testBlockSelectionRemove_data()
+{
+    QTest::addColumn<QString>("transformedText");
+    QTest::addColumn<TestBlockSelection>("selection");
+    QTest::newRow("Delete")
+            << QString::fromLatin1("first  ine\n"
+                                   "second ine\n"
+                                   "third  ine\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 7, 2, 8);
+    QTest::newRow("Delete All")
+            << QString::fromLatin1("\n\n\n\n\n\n\n\n\n")
+            << TestBlockSelection(0, 0, 8, 30);
+    QTest::newRow("Delete Inside Tab")
+            << QString::fromLatin1("first  line\n"
+                                   "second line\n"
+                                   "third  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "   leading space\n"
+                                   "       leading tab\n"
+                                   "mi\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(5, 2, 7, 3);
+    QTest::newRow("Delete around Tab")
+            << QString::fromLatin1("first  line\n"
+                                   "second line\n"
+                                   "third  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "  ng space\n"
+                                   "  eading tab\n"
+                                   "miab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(5, 2, 7, 9);
+    QTest::newRow("Delete behind text")
+            << QString::fromLatin1("first  line\n"
+                                   "second line\n"
+                                   "third  line\n"
+                                   "\n"
+                                   "longest line in this text\n"
+                                   "    leading space\n"
+                                   ""    "\tleading tab\n"
+                                   "mid\t" "tab\n"
+                                   "endtab\t\n")
+            << TestBlockSelection(0, 30, 8, 35);
+}
+
+void Internal::TextEditorPlugin::testBlockSelectionRemove()
+{
+    // fetch test data
+    QFETCH(QString, transformedText);
+    QFETCH(TestBlockSelection, selection);
+
+    // open editor
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, text);
+    QVERIFY(editor);
+    if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
+        BaseTextEditorWidget *editorWidget = textEditor->editorWidget();
+        editorWidget->setBlockSelection(selection.positionBlock,
+                                        selection.positionColumn,
+                                        selection.anchorBlock,
+                                        selection.anchorColumn);
+        editorWidget->update();
+        editorWidget->insertPlainText(QString());
+
+        QCOMPARE(textEditor->baseTextDocument()->plainText(), transformedText);
+    }
+    Core::EditorManager::closeEditor(editor, false);
+}
+
+void Internal::TextEditorPlugin::testBlockSelectionCopy_data()
+{
+    QTest::addColumn<QString>("copiedText");
+    QTest::addColumn<TestBlockSelection>("selection");
+    QTest::newRow("copy")
+            << QString::fromLatin1("lin\n"
+                                   "lin\n"
+                                   "lin")
+            << TestBlockSelection(0, 7, 2, 10);
+    QTest::newRow("copy over line end")
+            << QString::fromLatin1("ond line    \n"
+                                   "rd  line    \n"
+                                   "            ")
+            << TestBlockSelection(1, 3, 3, 15);
+    QTest::newRow("copy inside tab")
+            << QString::fromLatin1("ond line    \n"
+                                   "rd  line    \n"
+                                   "            ")
+            << TestBlockSelection(1, 3, 3, 15);
+    QTest::newRow("copy start in tab")
+            << QString::fromLatin1("gest lin\n"
+                                   " leading\n"
+                                   "     lea")
+            << TestBlockSelection(4, 3, 6, 11);
+    QTest::newRow("copy around tab")
+            << QString::fromLatin1("  leadin\n"
+                                   "      le\n"
+                                   "d\tta")
+            << TestBlockSelection(5, 2, 7, 10);
+}
+
+void Internal::TextEditorPlugin::testBlockSelectionCopy()
+{
+    // fetch test data
+    QFETCH(QString, copiedText);
+    QFETCH(TestBlockSelection, selection);
+
+    // open editor
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, text);
+    QVERIFY(editor);
+    if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
+        BaseTextEditorWidget *editorWidget = textEditor->editorWidget();
+        editorWidget->setBlockSelection(selection.positionBlock,
+                                        selection.positionColumn,
+                                        selection.anchorBlock,
+                                        selection.anchorColumn);
+        editorWidget->update();
+        editorWidget->copy();
+
+        QCOMPARE(qApp->clipboard()->text(), copiedText);
     }
     Core::EditorManager::closeEditor(editor, false);
 }

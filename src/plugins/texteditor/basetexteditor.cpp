@@ -69,6 +69,7 @@
 #include <QCoreApplication>
 #include <QTextCodec>
 #include <QDebug>
+#include <QTime>
 #include <QTimer>
 #include <QTimeLine>
 #include <QMimeData>
@@ -195,7 +196,6 @@ QString BaseTextEditorWidget::convertToPlainText(const QString &txt)
 }
 
 static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";
-static const char kVerticalTextBlockMimeType[] = "application/vnd.qtcreator.vblocktext";
 
 BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     : QPlainTextEdit(parent)
@@ -540,6 +540,22 @@ QString BaseTextEditorWidget::msgTextTooLarge(quint64 size)
            arg(size >> 20);
 }
 
+void BaseTextEditorWidget::insertPlainText(const QString &text)
+{
+    if (d->m_inBlockSelectionMode)
+        d->insertIntoBlockSelection(text);
+    else
+        QPlainTextEdit::insertPlainText(text);
+}
+
+QString BaseTextEditorWidget::selectedText() const
+{
+    if (d->m_inBlockSelectionMode)
+        return d->copyBlockSelection();
+    else
+        return textCursor().selectedText();
+}
+
 void BaseTextEditorWidget::updateCannotDecodeInfo()
 {
     setReadOnly(d->m_document->hasDecodingError());
@@ -651,15 +667,8 @@ void BaseTextEditorWidget::editorContentsChange(int position, int charsRemoved, 
 
 void BaseTextEditorWidget::slotSelectionChanged()
 {
-    if (d->m_inBlockSelectionMode && !textCursor().hasSelection()) {
-        d->m_inBlockSelectionMode = false;
-        d->m_blockSelection.clear();
-        viewport()->update();
-    }
-
-    if (!d->m_selectBlockAnchor.isNull() && !textCursor().hasSelection())
+    if (!textCursor().hasSelection() && !d->m_selectBlockAnchor.isNull())
         d->m_selectBlockAnchor = QTextCursor();
-
     // Clear any link which might be showing when the selection changes
     clearLink();
 }
@@ -976,6 +985,8 @@ void BaseTextEditorWidget::insertLineAbove()
 
 void BaseTextEditorWidget::insertLineBelow()
 {
+    if (d->m_inBlockSelectionMode)
+        d->disableBlockSelection(false);
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
@@ -1015,6 +1026,20 @@ void BaseTextEditorWidget::unindent()
     setTextCursor(baseTextDocument()->unindent(textCursor()));
 }
 
+void BaseTextEditorWidget::undo()
+{
+    if (d->m_inBlockSelectionMode)
+        d->disableBlockSelection(false);
+    QPlainTextEdit::undo();
+}
+
+void BaseTextEditorWidget::redo()
+{
+    if (d->m_inBlockSelectionMode)
+        d->disableBlockSelection(false);
+    QPlainTextEdit::redo();
+}
+
 void BaseTextEditorWidget::openLinkUnderCursor()
 {
     const bool openInNextSplit = alwaysOpenLinksInNextSplit();
@@ -1049,6 +1074,8 @@ void BaseTextEditorWidget::moveLineUpDown(bool up)
     bool hasSelection = cursor.hasSelection();
 
     if (hasSelection) {
+        if (d->m_inBlockSelectionMode)
+            d->disableBlockSelection(true);
         move.setPosition(cursor.selectionStart());
         move.movePosition(QTextCursor::StartOfBlock);
         move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
@@ -1565,24 +1592,24 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     bool ro = isReadOnly();
     const bool inOverwriteMode = overwriteMode();
 
-    if (d->m_inBlockSelectionMode) {
+    if (!ro && d->m_inBlockSelectionMode) {
         if (e == QKeySequence::Cut) {
-            if (!ro) {
-                cut();
-                e->accept();
-                return;
-            }
+            cut();
+            e->accept();
+            return;
         } else if (e == QKeySequence::Delete || e->key() == Qt::Key_Backspace) {
-            if (!ro) {
-                d->removeBlockSelection();
-                e->accept();
-                return;
+            if (d->m_blockSelection.positionColumn == d->m_blockSelection.anchorColumn) {
+                if (e == QKeySequence::Delete)
+                    ++d->m_blockSelection.positionColumn;
+                else if (d->m_blockSelection.positionColumn > 0)
+                    --d->m_blockSelection.positionColumn;
             }
+            d->removeBlockSelection();
+            e->accept();
+            return;
         } else if (e == QKeySequence::Paste) {
-            if (!ro) {
-                d->removeBlockSelection();
-                // continue
-            }
+            d->removeBlockSelection();
+            // continue
         }
     }
 
@@ -1590,6 +1617,11 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     if (!ro
         && (e == QKeySequence::InsertParagraphSeparator
             || (!d->m_lineSeparatorsAllowed && e == QKeySequence::InsertLineSeparator))) {
+        if (d->m_inBlockSelectionMode) {
+            d->disableBlockSelection(false);
+            e->accept();
+            return;
+        }
         if (d->m_snippetOverlay->isVisible()) {
             e->accept();
             d->m_snippetOverlay->hide();
@@ -1602,8 +1634,6 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
 
         QTextCursor cursor = textCursor();
-        if (d->m_inBlockSelectionMode)
-            cursor.clearSelection();
         const TabSettings &ts = d->m_document->tabSettings();
         const TypingSettings &tps = d->m_document->typingSettings();
         cursor.beginEditBlock();
@@ -1706,6 +1736,19 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
             c.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
         c.removeSelectedText();
         return;
+    } else if (!ro && (e == QKeySequence::MoveToNextPage || e == QKeySequence::MoveToPreviousPage)
+               && d->m_inBlockSelectionMode) {
+        d->disableBlockSelection(false);
+        QPlainTextEdit::keyPressEvent(e);
+        return;
+    } else if (!ro && (e == QKeySequence::SelectNextPage || e == QKeySequence::SelectPreviousPage)
+               && d->m_inBlockSelectionMode) {
+        QPlainTextEdit::keyPressEvent(e);
+        d->m_blockSelection.positionBlock = QPlainTextEdit::textCursor().blockNumber();
+        setTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
+        viewport()->update();
+        e->accept();
+        return;
     } else switch (e->key()) {
 
 
@@ -1763,26 +1806,34 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
             break;
         if ((e->modifiers()
              & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier)) {
-            int diff_row = 0;
-            int diff_col = 0;
-            if (e->key() == Qt::Key_Up)
-                diff_row = -1;
-            else if (e->key() == Qt::Key_Down)
-                diff_row = 1;
-            else if (e->key() == Qt::Key_Left)
-                diff_col = -1;
-            else if (e->key() == Qt::Key_Right)
-                diff_col = 1;
-            handleBlockSelection(diff_row, diff_col);
+            if (!d->m_inBlockSelectionMode)
+                d->enableBlockSelection(textCursor());
+            switch (e->key()) {
+            case Qt::Key_Up:
+                if (d->m_blockSelection.positionBlock > 0)
+                    --d->m_blockSelection.positionBlock;
+                break;
+            case Qt::Key_Down:
+                if (d->m_blockSelection.positionBlock < document()->blockCount() - 1)
+                    ++d->m_blockSelection.positionBlock;
+                break;
+            case Qt::Key_Left:
+                if (d->m_blockSelection.positionColumn > 0)
+                    --d->m_blockSelection.positionColumn;
+                break;
+            case Qt::Key_Right:
+                ++d->m_blockSelection.positionColumn;
+                break;
+            default:
+                break;
+            }
+            d->resetCursorFlashTimer();
+            setTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
+            viewport()->update();
             e->accept();
             return;
-        } else {
-            // leave block selection mode
-            if (d->m_inBlockSelectionMode) {
-                d->m_inBlockSelectionMode = false;
-                d->m_blockSelection.clear();
-                viewport()->update();
-            }
+        } else if (d->m_inBlockSelectionMode) { // leave block selection mode
+            d->disableBlockSelection();
         }
         break;
     case Qt::Key_Insert:
@@ -1811,8 +1862,8 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
 
     const QString eventText = e->text();
     if (!ro && d->m_inBlockSelectionMode) {
-        if (!isPrintableText(eventText)) {
-            d->removeBlockSelection(eventText);
+        if (isPrintableText(eventText)) {
+            d->insertIntoBlockSelection(eventText);
             goto skip_event;
         }
     }
@@ -1964,15 +2015,22 @@ void BaseTextEditorWidget::universalHelper()
     // give it proper scrutiny before pushing it onto others.
 }
 
-void BaseTextEditorWidget::setTextCursor(const QTextCursor &cursor)
+void BaseTextEditorWidget::setTextCursor(const QTextCursor &cursor, bool keepBlockSelection)
 {
     // workaround for QTextControl bug
     bool selectionChange = cursor.hasSelection() || textCursor().hasSelection();
+    if (!keepBlockSelection && d->m_inBlockSelectionMode)
+        d->disableBlockSelection(false);
     QTextCursor c = cursor;
     c.setVisualNavigation(true);
     QPlainTextEdit::setTextCursor(c);
     if (selectionChange)
         slotSelectionChanged();
+}
+
+void BaseTextEditorWidget::setTextCursor(const QTextCursor &cursor)
+{
+    setTextCursor(cursor, false);
 }
 
 void BaseTextEditorWidget::gotoLine(int line, int column, bool centerLine)
@@ -2060,6 +2118,16 @@ bool BaseTextEditorWidget::event(QEvent *e)
     }
 
     return QPlainTextEdit::event(e);
+}
+
+void BaseTextEditorWidget::inputMethodEvent(QInputMethodEvent *e)
+{
+    if (d->m_inBlockSelectionMode) {
+        if (!e->commitString().isEmpty())
+            d->insertIntoBlockSelection(e->commitString());
+        return;
+    }
+    QPlainTextEdit::inputMethodEvent(e);
 }
 
 void BaseTextEditorWidget::documentAboutToBeReloaded()
@@ -2660,26 +2728,16 @@ void BaseTextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block
     }
 }
 
-void BaseTextEditorWidgetPrivate::clearBlockSelection()
-{
-    if (m_inBlockSelectionMode) {
-        m_inBlockSelectionMode = false;
-        m_blockSelection.clear();
-        QTextCursor cursor = q->textCursor();
-        cursor.clearSelection();
-        q->setTextCursor(cursor);
-    }
-}
-
 QString BaseTextEditorWidgetPrivate::copyBlockSelection()
 {
-    QString selection;
-    QTextCursor cursor = q->textCursor();
     if (!m_inBlockSelectionMode)
-        return selection;
+        return QString();
+    QString selection;
     const TabSettings &ts = m_document->tabSettings();
-    QTextBlock block = m_blockSelection.firstBlock.block();
-    QTextBlock lastBlock = m_blockSelection.lastBlock.block();
+    QTextBlock block =
+            m_document->document()->findBlockByNumber(m_blockSelection.firstBlockNumber());
+    const QTextBlock &lastBlock =
+            m_document->document()->findBlockByNumber(m_blockSelection.lastBlockNumber());
     bool textInserted = false;
     for (;;) {
         if (q->selectionVisible(block.blockNumber())) {
@@ -2689,9 +2747,9 @@ QString BaseTextEditorWidgetPrivate::copyBlockSelection()
 
             QString text = block.text();
             int startOffset = 0;
-            int startPos = ts.positionAtColumn(text, m_blockSelection.firstVisualColumn, &startOffset);
+            int startPos = ts.positionAtColumn(text, m_blockSelection.firstVisualColumn(), &startOffset);
             int endOffset = 0;
-            int endPos = ts.positionAtColumn(text, m_blockSelection.lastVisualColumn, &endOffset);
+            int endPos = ts.positionAtColumn(text, m_blockSelection.lastVisualColumn(), &endOffset);
 
             if (startPos == endPos) {
                 selection += QString(endOffset - startOffset, QLatin1Char(' '));
@@ -2715,45 +2773,202 @@ QString BaseTextEditorWidgetPrivate::copyBlockSelection()
     return selection;
 }
 
-void BaseTextEditorWidgetPrivate::removeBlockSelection(const QString &text)
+void BaseTextEditorWidgetPrivate::setCursorToColumn(QTextCursor &cursor, int column, QTextCursor::MoveMode moveMode)
+{
+    const TabSettings &ts = m_document->tabSettings();
+    int offset = 0;
+    const int cursorPosition = cursor.position();
+    const int pos = ts.positionAtColumn(cursor.block().text(), column, &offset);
+    cursor.setPosition(cursor.block().position() + pos, offset == 0 ? moveMode : QTextCursor::MoveAnchor);
+    if (offset == 0)
+        return;
+    if (offset < 0) {
+        // the column is inside a tab so it is replaced with spaces
+        cursor.setPosition(cursor.block().position() + pos - 1, QTextCursor::KeepAnchor);
+        cursor.insertText(ts.indentationString(
+                              ts.columnAt(cursor.block().text(), pos - 1),
+                              ts.columnAt(cursor.block().text(), pos), cursor.block()));
+    } else {
+        // column is behind the last position
+        cursor.insertText(ts.indentationString(ts.columnAt(cursor.block().text(), pos),
+                                               column, cursor.block()));
+    }
+    if (moveMode == QTextCursor::KeepAnchor)
+        cursor.setPosition(cursorPosition);
+    cursor.setPosition(cursor.block().position() + ts.positionAtColumn(
+                           cursor.block().text(), column), moveMode);
+}
+
+void BaseTextEditorWidgetPrivate::insertIntoBlockSelection(const QString &text)
+{
+    // TODO: add autocompleter support
+    QTextCursor cursor = q->textCursor();
+    cursor.beginEditBlock();
+
+    if (q->overwriteMode() && m_blockSelection.lastVisualColumn() == m_blockSelection.positionColumn)
+        ++m_blockSelection.positionColumn;
+
+    if (m_blockSelection.positionColumn != m_blockSelection.anchorColumn) {
+        removeBlockSelection();
+        if (!m_inBlockSelectionMode) {
+            q->insertPlainText(text);
+            cursor.endEditBlock();
+            return;
+        }
+    }
+
+    if (text.isEmpty()) {
+        cursor.endEditBlock();
+        return;
+    }
+
+    int positionBlock = m_blockSelection.positionBlock;
+    int anchorBlock = m_blockSelection.anchorBlock;
+    int column = m_blockSelection.positionColumn;
+
+    const QTextBlock &firstBlock =
+            m_document->document()->findBlockByNumber(m_blockSelection.firstBlockNumber());
+    QTextBlock block =
+            m_document->document()->findBlockByNumber(m_blockSelection.lastBlockNumber());
+
+    // unify the length of all lines in a multiline text
+    const int selectionLineCount = m_blockSelection.lastBlockNumber()
+            - m_blockSelection.firstBlockNumber();
+    const int textNewLineCount = text.count(QLatin1Char('\n')) ;
+    QStringList textLines = text.split(QLatin1Char('\n'));
+    const TabSettings &ts = m_document->tabSettings();
+    int textLength = 0;
+    const QStringList::const_iterator endLine = textLines.constEnd();
+    for (QStringList::const_iterator textLine = textLines.constBegin(); textLine != endLine; ++textLine)
+        textLength += qMax(0, ts.columnCountForText(*textLine, column) - textLength);
+    for (QStringList::iterator textLine = textLines.begin(); textLine != endLine; ++textLine)
+        textLine->append(QString(qMax(0, textLength - ts.columnCountForText(*textLine, column)), QLatin1Char(' ')));
+
+    // insert Text
+    for (;;) {
+        // If the number of lines to be inserted equals the number of the selected lines the
+        // lines of the copy paste buffer are inserted in the corresponding lines of the selection.
+        // Otherwise the complete buffer is inserted in each of the selected lines.
+        cursor.setPosition(block.position());
+        if (selectionLineCount == textNewLineCount) {
+            setCursorToColumn(cursor, column);
+            cursor.insertText(textLines.at(block.blockNumber()
+                                           - m_blockSelection.firstBlockNumber()));
+        } else {
+            QStringList::const_iterator textLine = textLines.constBegin();
+            while (true) {
+                setCursorToColumn(cursor, column);
+                cursor.insertText(*textLine);
+                ++textLine;
+                if (textLine == endLine)
+                    break;
+                cursor.movePosition(QTextCursor::EndOfBlock);
+                cursor.insertText(QLatin1String("\n"));
+                if (qMax(anchorBlock, positionBlock) == anchorBlock)
+                    ++anchorBlock;
+                else
+                    ++positionBlock;
+            }
+        }
+        if (block == firstBlock)
+            break;
+        block = block.previous();
+    }
+    cursor.endEditBlock();
+
+    column += textLength;
+    m_blockSelection.fromPostition(positionBlock, column, anchorBlock, column);
+    q->setTextCursor(m_blockSelection.selection(m_document.data()), true);
+}
+
+void BaseTextEditorWidgetPrivate::removeBlockSelection()
 {
     QTextCursor cursor = q->textCursor();
     if (!cursor.hasSelection() || !m_inBlockSelectionMode)
         return;
+
+    const int firstColumn = m_blockSelection.firstVisualColumn();
+    const int lastColumn = m_blockSelection.lastVisualColumn();
+    if (firstColumn == lastColumn)
+        return;
+    const int positionBlock = m_blockSelection.positionBlock;
+    const int anchorBlock = m_blockSelection.anchorBlock;
 
     int cursorPosition = cursor.selectionStart();
     cursor.clearSelection();
     cursor.beginEditBlock();
 
     const TabSettings &ts = m_document->tabSettings();
-    QTextBlock block = m_blockSelection.firstBlock.block();
-    QTextBlock lastBlock = m_blockSelection.lastBlock.block();
+    QTextBlock block = m_document->document()->findBlockByNumber(m_blockSelection.firstBlockNumber());
+    const QTextBlock &lastBlock = m_document->document()->findBlockByNumber(m_blockSelection.lastBlockNumber());
     for (;;) {
-        QString text = block.text();
         int startOffset = 0;
-        int startPos = ts.positionAtColumn(text, m_blockSelection.firstVisualColumn, &startOffset);
-        int endOffset = 0;
-        int endPos = ts.positionAtColumn(text, m_blockSelection.lastVisualColumn, &endOffset);
-
-        cursor.setPosition(block.position() + startPos);
-        cursor.setPosition(block.position() + endPos, QTextCursor::KeepAnchor);
-        cursor.removeSelectedText();
-
-        if (startOffset < 0)
-            cursor.insertText(QString(ts.m_tabSize + startOffset, QLatin1Char(' ')));
-        if (endOffset < 0)
-            cursor.insertText(QString(-endOffset, QLatin1Char(' ')));
-
+        const int startPos = ts.positionAtColumn(block.text(), firstColumn, &startOffset);
+        // removing stuff doesn't make sense if the cursor is behind the code
+        if (startPos < block.length() - 1 || startOffset < 0) {
+            cursor.setPosition(block.position());
+            setCursorToColumn(cursor, firstColumn);
+            setCursorToColumn(cursor, lastColumn, QTextCursor::KeepAnchor);
+            cursor.removeSelectedText();
+        }
         if (block == lastBlock)
             break;
         block = block.next();
     }
 
     cursor.setPosition(cursorPosition);
-    if (!text.isEmpty())
-        cursor.insertText(text);
     cursor.endEditBlock();
+    m_blockSelection.fromPostition(positionBlock, firstColumn, anchorBlock, firstColumn);
+    cursor = m_blockSelection.selection(m_document.data());
+    q->setTextCursor(cursor, m_blockSelection.hasSelection());
+}
+
+void BaseTextEditorWidgetPrivate::enableBlockSelection(const QTextCursor &cursor)
+{
+    const TabSettings &ts = m_document->tabSettings();
+    const QTextBlock &positionTextBlock = cursor.block();
+    int positionBlock = positionTextBlock.blockNumber();
+    int positionColumn = ts.columnAt(positionTextBlock.text(),
+                                     cursor.position() - positionTextBlock.position());
+
+    const QTextDocument *document = cursor.document();
+    const QTextBlock &anchorTextBlock = document->findBlock(cursor.anchor());
+    int anchorBlock = anchorTextBlock.blockNumber();
+    int anchorColumn = ts.columnAt(anchorTextBlock.text(),
+                                   cursor.anchor() - anchorTextBlock.position());
+    enableBlockSelection(positionBlock, anchorColumn, anchorBlock, positionColumn);
+}
+
+void BaseTextEditorWidgetPrivate::enableBlockSelection(int positionBlock, int positionColumn,
+                                                       int anchorBlock, int anchorColumn)
+{
+    m_blockSelection.fromPostition(positionBlock, anchorColumn, anchorBlock, positionColumn);
+    resetCursorFlashTimer();
+    m_inBlockSelectionMode = true;
+    q->setTextCursor(m_blockSelection.selection(m_document.data()), true);
+    q->viewport()->update();
+}
+
+void BaseTextEditorWidgetPrivate::disableBlockSelection(bool keepSelection)
+{
+    m_inBlockSelectionMode = false;
+    m_cursorFlashTimer.stop();
+    QTextCursor cursor = m_blockSelection.selection(m_document.data());
+    m_blockSelection.clear();
+    if (!keepSelection)
+        cursor.clearSelection();
     q->setTextCursor(cursor);
+    q->viewport()->update();
+}
+
+void BaseTextEditorWidgetPrivate::resetCursorFlashTimer()
+{
+    m_cursorVisible = true;
+    const int flashTime = qApp->cursorFlashTime();
+    if (flashTime > 0) {
+        m_cursorFlashTimer.stop();
+        m_cursorFlashTimer.start(flashTime / 2, q);
+    }
 }
 
 void BaseTextEditorWidgetPrivate::moveCursorVisible(bool ensureVisible)
@@ -2810,6 +3025,16 @@ static QColor calcBlendColor(const QColor &baseColor, int level, int count)
     const int blendFactor = level * (256 / (count - 2));
 
     return blendColors(color80, color90, blendFactor);
+}
+
+static QTextLayout::FormatRange createBlockCursorCharFormatRange(int pos, const QPalette &palette)
+{
+    QTextLayout::FormatRange o;
+    o.start = pos;
+    o.length = 1;
+    o.format.setForeground(palette.base());
+    o.format.setBackground(palette.text());
+    return o;
 }
 
 void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
@@ -2929,8 +3154,8 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
 
     int blockSelectionIndex = -1;
 
-    if (d->m_inBlockSelectionMode
-        && context.selections.count() && context.selections.last().cursor == textCursor()) {
+    if (d->m_inBlockSelectionMode && context.selections.count()
+            && context.selections.last().cursor == textCursor()) {
         blockSelectionIndex = context.selections.size()-1;
         context.selections[blockSelectionIndex].format.clearBackground();
     }
@@ -3123,8 +3348,8 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                     if (i == blockSelectionIndex) {
                         QString text = block.text();
                         const TabSettings &ts = d->m_document->tabSettings();
-                        o.start = ts.positionAtColumn(text, d->m_blockSelection.firstVisualColumn);
-                        o.length = ts.positionAtColumn(text, d->m_blockSelection.lastVisualColumn) - o.start;
+                        o.start = ts.positionAtColumn(text, d->m_blockSelection.firstVisualColumn());
+                        o.length = ts.positionAtColumn(text, d->m_blockSelection.lastVisualColumn()) - o.start;
                     }
                     if ((hasMainSelection && i == context.selections.size()-1)
                         || (o.format.foreground().style() == Qt::NoBrush
@@ -3171,21 +3396,25 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
 
             QRectF blockSelectionCursorRect;
             if (d->m_inBlockSelectionMode
-                    && block.position() >= d->m_blockSelection.firstBlock.block().position()
-                    && block.position() <= d->m_blockSelection.lastBlock.block().position()) {
+                    && block.blockNumber() >= d->m_blockSelection.firstBlockNumber()
+                    && block.blockNumber() <= d->m_blockSelection.lastBlockNumber()) {
                 QString text = block.text();
                 const TabSettings &ts = d->m_document->tabSettings();
-                qreal spacew = QFontMetricsF(font()).width(QLatin1Char(' '));
+                const qreal spacew = QFontMetricsF(font()).width(QLatin1Char(' '));
+                const int cursorw = overwriteMode() ? QFontMetrics(font()).width(QLatin1Char(' '))
+                                                    : cursorWidth();
 
                 int offset = 0;
-                int relativePos  =  ts.positionAtColumn(text, d->m_blockSelection.firstVisualColumn, &offset);
-                QTextLine line = layout->lineForTextPosition(relativePos);
-                qreal x = line.cursorToX(relativePos) + offset * spacew;
+                int relativePos = ts.positionAtColumn(text, d->m_blockSelection.firstVisualColumn(),
+                                                      &offset);
+                const QTextLine line = layout->lineForTextPosition(relativePos);
+                const qreal x = line.cursorToX(relativePos) + offset * spacew;
 
                 int eoffset = 0;
-                int erelativePos  =  ts.positionAtColumn(text, d->m_blockSelection.lastVisualColumn, &eoffset);
-                QTextLine eline = layout->lineForTextPosition(erelativePos);
-                qreal ex = eline.cursorToX(erelativePos) + eoffset * spacew;
+                int erelativePos = ts.positionAtColumn(text, d->m_blockSelection.lastVisualColumn(),
+                                                       &eoffset);
+                const QTextLine eline = layout->lineForTextPosition(erelativePos);
+                const qreal ex = eline.cursorToX(erelativePos) + eoffset * spacew;
 
                 QRectF rr = line.naturalTextRect();
                 rr.moveTop(rr.top() + r.top());
@@ -3193,13 +3422,18 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 if (line.lineNumber() == eline.lineNumber())
                     rr.setRight(r.left() + ex);
                 painter.fillRect(rr, palette().highlight());
-                if ((d->m_blockSelection.anchor == BaseTextBlockSelection::TopLeft
-                        && block == d->m_blockSelection.firstBlock.block())
-                        || (d->m_blockSelection.anchor == BaseTextBlockSelection::BottomLeft
-                            && block == d->m_blockSelection.lastBlock.block())
-                        ) {
-                    rr.setRight(rr.left()+2);
-                    blockSelectionCursorRect = rr;
+                if (d->m_cursorVisible
+                        && d->m_blockSelection.firstVisualColumn()
+                        == d->m_blockSelection.positionColumn) {
+                    if (overwriteMode() && offset == 0
+                            && relativePos < text.length()
+                            && text.at(relativePos) != QLatin1Char('\t')
+                            && text.at(relativePos) != QLatin1Char('\n')) {
+                        selections.append(createBlockCursorCharFormatRange(relativePos, palette()));
+                    } else {
+                        blockSelectionCursorRect = rr;
+                        blockSelectionCursorRect.setRight(rr.left() + cursorw);
+                    }
                 }
                 for (int i = line.lineNumber() + 1; i < eline.lineNumber(); ++i) {
                     rr = layout->lineAt(i).naturalTextRect();
@@ -3213,12 +3447,19 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 rr.setRight(r.left() + ex);
                 if (line.lineNumber() != eline.lineNumber())
                     painter.fillRect(rr, palette().highlight());
-                if ((d->m_blockSelection.anchor == BaseTextBlockSelection::TopRight
-                     && block == d->m_blockSelection.firstBlock.block())
-                        || (d->m_blockSelection.anchor == BaseTextBlockSelection::BottomRight
-                            && block == d->m_blockSelection.lastBlock.block())) {
-                    rr.setLeft(rr.right()-2);
-                    blockSelectionCursorRect = rr;
+                if (d->m_cursorVisible
+                        && d->m_blockSelection.lastVisualColumn()
+                        == d->m_blockSelection.positionColumn) {
+                    if (overwriteMode() && eoffset == 0
+                            && erelativePos < text.length()
+                            && text.at(erelativePos) != QLatin1Char('\t')
+                            && text.at(erelativePos) != QLatin1Char('\n')) {
+                        selections.append(createBlockCursorCharFormatRange(erelativePos, palette()));
+                    } else {
+                        blockSelectionCursorRect = rr;
+                        blockSelectionCursorRect.setLeft(rr.right());
+                        blockSelectionCursorRect.setRight(rr.right() + cursorw);
+                    }
                 }
             }
 
@@ -3227,7 +3468,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                                && context.cursorPosition >= blpos
                                && context.cursorPosition < blpos + bllen);
 
-            bool drawCursorAsBlock = drawCursor && overwriteMode() ;
+            bool drawCursorAsBlock = drawCursor && overwriteMode() && !d->m_inBlockSelectionMode;
 
             if (drawCursorAsBlock) {
                 int relativePos = context.cursorPosition - blpos;
@@ -3253,14 +3494,8 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 rr.moveLeft(r.left() + x);
                 rr.setWidth(w);
                 painter.fillRect(rr, palette().text());
-                if (doSelection) {
-                    QTextLayout::FormatRange o;
-                    o.start = relativePos;
-                    o.length = 1;
-                    o.format.setForeground(palette().base());
-                    o.format.setBackground(palette().text());
-                    selections.append(o);
-                }
+                if (doSelection)
+                    selections.append(createBlockCursorCharFormatRange(relativePos, palette()));
             }
 
 
@@ -3268,8 +3503,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
             layout->draw(&painter, offset, selections, er);
 
             if ((drawCursor && !drawCursorAsBlock)
-                || (editable && context.cursorPosition < -1
-                    && !layout->preeditAreaText().isEmpty())) {
+                    || (editable && context.cursorPosition < -1 && !layout->preeditAreaText().isEmpty())) {
                 int cpos = context.cursorPosition;
                 if (cpos < -1)
                     cpos = layout->preeditAreaPosition() - (cpos + 2);
@@ -3281,7 +3515,9 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 cursor_pen = painter.pen();
             }
 
-            if (!HostOsInfo::isMacHost() && blockSelectionCursorRect.isValid())
+            if ((!HostOsInfo::isMacHost()
+                 || d->m_blockSelection.positionColumn == d->m_blockSelection.anchorColumn)
+                    && blockSelectionCursorRect.isValid())
                 painter.fillRect(blockSelectionCursorRect, palette().text());
         }
 
@@ -4021,6 +4257,9 @@ void BaseTextEditorWidget::timerEvent(QTimerEvent *e)
         d->suggestedVisibleFoldedBlockNumber = -1;
         d->foldedBlockTimer.stop();
         viewport()->update();
+    } else if (e->timerId() == d->m_cursorFlashTimer.timerId()) {
+        d->m_cursorVisible = !d->m_cursorVisible;
+        viewport()->update();
     }
     QPlainTextEdit::timerEvent(e);
 }
@@ -4067,20 +4306,36 @@ void BaseTextEditorWidget::mouseMoveEvent(QMouseEvent *e)
 
         if (e->modifiers() & Qt::AltModifier) {
             if (!d->m_inBlockSelectionMode) {
-                d->m_blockSelection.fromSelection(d->m_document->tabSettings(), textCursor());
-                d->m_inBlockSelectionMode = true;
+                if (textCursor().hasSelection()) {
+                    d->enableBlockSelection(textCursor());
+                } else {
+                    const QTextCursor &cursor = cursorForPosition(e->pos());
+                    int column = d->m_document->tabSettings().columnAt(
+                                cursor.block().text(), cursor.positionInBlock());
+                    if (cursor.positionInBlock() == cursor.block().length()-1)
+                        column += (e->pos().x() - cursorRect().center().x()) / QFontMetricsF(font()).width(QLatin1Char(' '));
+                    int block = cursor.blockNumber();
+                    if (block == blockCount() - 1)
+                        block += (e->pos().y() - cursorRect().center().y()) / QFontMetricsF(font()).lineSpacing();
+                    d->enableBlockSelection(block, column, block, column);
+                }
             } else {
-                QTextCursor cursor = textCursor();
+                const QTextCursor &cursor = textCursor();
 
                 // get visual column
                 int column = d->m_document->tabSettings().columnAt(
                             cursor.block().text(), cursor.positionInBlock());
                 if (cursor.positionInBlock() == cursor.block().length()-1)
-                    column += (e->pos().x() - cursorRect().center().x())/QFontMetricsF(font()).width(QLatin1Char(' '));
-                d->m_blockSelection.moveAnchor(cursor.blockNumber(), column);
-                setTextCursor(d->m_blockSelection.selection(d->m_document->tabSettings()));
+                    column += (e->pos().x() - cursorRect().center().x()) / QFontMetricsF(font()).width(QLatin1Char(' '));
+
+                d->m_blockSelection.positionBlock = cursor.blockNumber();
+                d->m_blockSelection.positionColumn = column;
+
+                setTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
                 viewport()->update();
             }
+        } else if (d->m_inBlockSelectionMode) {
+            d->disableBlockSelection();
         }
     }
     if (viewport()->cursor().shape() == Qt::BlankCursor)
@@ -4104,22 +4359,43 @@ static bool handleForwardBackwardMouseButtons(QMouseEvent *e)
 void BaseTextEditorWidget::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton) {
-        d->clearBlockSelection(); // just in case, otherwise we might get strange drag and drop
+        if (e->modifiers() == Qt::AltModifier) {
+            const QTextCursor &cursor = cursorForPosition(e->pos());
+            int column = d->m_document->tabSettings().columnAt(
+                        cursor.block().text(), cursor.positionInBlock());
+            if (cursor.positionInBlock() == cursor.block().length()-1)
+                column += (e->pos().x() - cursorRect(cursor).center().x()) / QFontMetricsF(font()).width(QLatin1Char(' '));
+            int block = cursor.blockNumber();
+            if (block == blockCount() - 1)
+                block += (e->pos().y() - cursorRect(cursor).center().y()) / QFontMetricsF(font()).lineSpacing();
+            if (d->m_inBlockSelectionMode) {
+                d->m_blockSelection.positionBlock = block;
+                d->m_blockSelection.positionColumn = column;
 
-        QTextBlock foldedBlock = foldedBlockAt(e->pos());
-        if (foldedBlock.isValid()) {
-            toggleBlockVisible(foldedBlock);
-            viewport()->setCursor(Qt::IBeamCursor);
-        }
-
-        RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(e->pos());
-        if (refactorMarker.isValid()) {
-            emit refactorMarkerClicked(refactorMarker);
+                setTextCursor(d->m_blockSelection.selection(d->m_document.data()), true);
+                viewport()->update();
+            } else {
+                d->enableBlockSelection(block, column, block, column);
+            }
         } else {
-            updateLink(e);
+            if (d->m_inBlockSelectionMode)
+                d->disableBlockSelection(false); // just in case, otherwise we might get strange drag and drop
 
-            if (d->m_currentLink.hasValidLinkText())
-                d->m_linkPressed = true;
+            QTextBlock foldedBlock = foldedBlockAt(e->pos());
+            if (foldedBlock.isValid()) {
+                toggleBlockVisible(foldedBlock);
+                viewport()->setCursor(Qt::IBeamCursor);
+            }
+
+            RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(e->pos());
+            if (refactorMarker.isValid()) {
+                emit refactorMarkerClicked(refactorMarker);
+            } else {
+                updateLink(e);
+
+                if (d->m_currentLink.hasValidLinkText())
+                    d->m_linkPressed = true;
+            }
         }
     } else if (e->button() == Qt::RightButton) {
         int eventCursorPosition = cursorForPosition(e->pos()).position();
@@ -4738,16 +5014,12 @@ void BaseTextEditorWidget::highlightSearchResults(const QString &txt, Core::Find
 
 int BaseTextEditorWidget::verticalBlockSelectionFirstColumn() const
 {
-    if (d->m_inBlockSelectionMode)
-        return d->m_blockSelection.firstVisualColumn;
-    return -1;
+    return d->m_inBlockSelectionMode ? d->m_blockSelection.firstVisualColumn() : -1;
 }
 
 int BaseTextEditorWidget::verticalBlockSelectionLastColumn() const
 {
-    if (d->m_inBlockSelectionMode)
-        return d->m_blockSelection.lastVisualColumn;
-    return -1;
+    return d->m_inBlockSelectionMode ? d->m_blockSelection.lastVisualColumn() : -1;
 }
 
 QRegion BaseTextEditorWidget::translatedLineRegion(int lineStart, int lineEnd) const
@@ -5081,7 +5353,7 @@ void BaseTextEditorWidget::copyLine()
     copy();
     if (!prevCursor.hasSelection())
         prevCursor.movePosition(QTextCursor::StartOfBlock);
-    setTextCursor(prevCursor);
+    setTextCursor(prevCursor, d->m_inBlockSelectionMode);
 }
 
 void BaseTextEditorWidget::deleteLine()
@@ -5579,17 +5851,24 @@ void BaseTextEditorWidget::cut()
 
 void BaseTextEditorWidget::selectAll()
 {
-    d->clearBlockSelection();
+    d->disableBlockSelection();
     QPlainTextEdit::selectAll();
 }
 
 void BaseTextEditorWidget::copy()
 {
-    if (!textCursor().hasSelection())
+    if (!textCursor().hasSelection() || (d->m_inBlockSelectionMode
+            && d->m_blockSelection.anchorColumn == d->m_blockSelection.positionColumn)) {
         return;
+    }
 
     QPlainTextEdit::copy();
     collectToCircularClipboard();
+}
+
+void BaseTextEditorWidget::paste()
+{
+    QPlainTextEdit::paste();
 }
 
 void BaseTextEditorWidget::collectToCircularClipboard()
@@ -5601,13 +5880,6 @@ void BaseTextEditorWidget::collectToCircularClipboard()
     circularClipBoard->collect(BaseTextEditorWidget::duplicateMimeData(mimeData));
     // We want the latest copied content to be the first one to appear on circular paste.
     circularClipBoard->toLastCollect();
-}
-
-void BaseTextEditorWidget::paste()
-{
-    if (d->m_inBlockSelectionMode)
-        d->removeBlockSelection();
-    QPlainTextEdit::paste();
 }
 
 void BaseTextEditorWidget::circularPaste()
@@ -5636,9 +5908,7 @@ QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
 {
     if (d->m_inBlockSelectionMode) {
         QMimeData *mimeData = new QMimeData;
-        QString text = d->copyBlockSelection();
-        mimeData->setData(QLatin1String(kVerticalTextBlockMimeType), text.toUtf8());
-        mimeData->setText(text); // for exchangeability
+        mimeData->setText(d->copyBlockSelection());
         return mimeData;
     } else if (textCursor().hasSelection()) {
         QTextCursor cursor = textCursor();
@@ -5737,60 +6007,17 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
     if (isReadOnly())
         return;
 
-    if (source->hasFormat(QLatin1String(kVerticalTextBlockMimeType))) {
-        QString text = QString::fromUtf8(source->data(QLatin1String(kVerticalTextBlockMimeType)));
-        if (text.isEmpty())
-            return;
-
-        if (d->m_codeAssistant->hasContext())
-            d->m_codeAssistant->destroyContext();
-
-        QStringList lines = text.split(QLatin1Char('\n'));
-        QTextCursor cursor = textCursor();
-        cursor.beginEditBlock();
-        const TabSettings &ts = d->m_document->tabSettings();
-        int initialCursorPosition = cursor.position();
-        int column = ts.columnAt(cursor.block().text(), cursor.positionInBlock());
-        cursor.insertText(lines.first());
-        for (int i = 1; i < lines.count(); ++i) {
-            QTextBlock next = cursor.block().next();
-            if (next.isValid()) {
-                cursor.setPosition(next.position());
-            } else {
-                cursor.movePosition(QTextCursor::EndOfBlock);
-                cursor.insertBlock();
-            }
-            int offset = 0;
-            int position = ts.positionAtColumn(cursor.block().text(), column, &offset);
-            cursor.setPosition(cursor.block().position() + position);
-            if (offset < 0) {
-                cursor.deleteChar();
-                cursor.insertText(QString(-offset, QLatin1Char(' ')));
-            } else {
-                cursor.insertText(QString(offset, QLatin1Char(' ')));
-            }
-            cursor.insertText(lines.at(i));
-        }
-        cursor.setPosition(initialCursorPosition);
-        cursor.endEditBlock();
-        setTextCursor(cursor);
-        ensureCursorVisible();
-
-        if (d->m_snippetOverlay->isVisible() && lines.count() > 1) {
-            d->m_snippetOverlay->hide();
-            d->m_snippetOverlay->mangle();
-            d->m_snippetOverlay->clear();
-        }
-
-        return;
-    }
-
     QString text = source->text();
     if (text.isEmpty())
         return;
 
     if (d->m_codeAssistant->hasContext())
         d->m_codeAssistant->destroyContext();
+
+    if (d->m_inBlockSelectionMode) {
+        d->insertIntoBlockSelection(text);
+        return;
+    }
 
     if (d->m_snippetOverlay->isVisible() && (text.contains(QLatin1Char('\n'))
                                              || text.contains(QLatin1Char('\t')))) {
@@ -5863,10 +6090,7 @@ QMimeData *BaseTextEditorWidget::duplicateMimeData(const QMimeData *source)
     QMimeData *mimeData = new QMimeData;
     mimeData->setText(source->text());
     mimeData->setHtml(source->html());
-    if (source->hasFormat(QLatin1String(kVerticalTextBlockMimeType))) {
-        mimeData->setData(QLatin1String(kVerticalTextBlockMimeType),
-                          source->data(QLatin1String(kVerticalTextBlockMimeType)));
-    } else if (source->hasFormat(QLatin1String(kTextBlockMimeType))) {
+    if (source->hasFormat(QLatin1String(kTextBlockMimeType))) {
         mimeData->setData(QLatin1String(kTextBlockMimeType),
                           source->data(QLatin1String(kTextBlockMimeType)));
     }
@@ -6031,9 +6255,7 @@ QRect BaseTextEditor::cursorRect(int pos) const
 
 QString BaseTextEditor::selectedText() const
 {
-    if (m_editorWidget->textCursor().hasSelection())
-        return m_editorWidget->textCursor().selectedText();
-    return QString();
+    return m_editorWidget->selectedText();
 }
 
 void BaseTextEditor::remove(int length)
@@ -6045,8 +6267,7 @@ void BaseTextEditor::remove(int length)
 
 void BaseTextEditor::insert(const QString &string)
 {
-    QTextCursor tc = m_editorWidget->textCursor();
-    tc.insertText(string);
+    m_editorWidget->insertPlainText(string);
 }
 
 void BaseTextEditor::replace(int length, const QString &string)
@@ -6058,6 +6279,7 @@ void BaseTextEditor::replace(int length, const QString &string)
 
 void BaseTextEditor::setCursorPosition(int pos)
 {
+    m_editorWidget->setBlockSelection(false);
     QTextCursor tc = m_editorWidget->textCursor();
     tc.setPosition(pos);
     m_editorWidget->setTextCursor(tc);
@@ -6065,6 +6287,7 @@ void BaseTextEditor::setCursorPosition(int pos)
 
 void BaseTextEditor::select(int toPos)
 {
+    m_editorWidget->setBlockSelection(false);
     QTextCursor tc = m_editorWidget->textCursor();
     tc.setPosition(toPos, QTextCursor::KeepAnchor);
     m_editorWidget->setTextCursor(tc);
@@ -6150,81 +6373,76 @@ void BaseTextEditorWidget::doFoo() {
 #endif
 }
 
-void BaseTextBlockSelection::moveAnchor(int blockNumber, int visualColumn)
+BaseTextBlockSelection::BaseTextBlockSelection(const BaseTextBlockSelection &other)
 {
-    if (visualColumn >= 0) {
-        if (anchor % 2) {
-            lastVisualColumn = visualColumn;
-            if (lastVisualColumn < firstVisualColumn) {
-                qSwap(firstVisualColumn, lastVisualColumn);
-                anchor = (Anchor) (anchor - 1);
-            }
-        } else {
-            firstVisualColumn = visualColumn;
-            if (firstVisualColumn > lastVisualColumn) {
-                qSwap(firstVisualColumn, lastVisualColumn);
-                anchor = (Anchor) (anchor + 1);
-            }
-        }
-    }
-
-    if (blockNumber >= 0 && blockNumber < firstBlock.document()->blockCount()) {
-        if (anchor <= TopRight) {
-            firstBlock.setPosition(firstBlock.document()->findBlockByNumber(blockNumber).position());
-            if (firstBlock.blockNumber() > lastBlock.blockNumber()) {
-                qSwap(firstBlock, lastBlock);
-                anchor = (Anchor) (anchor + 2);
-            }
-        } else {
-            lastBlock.setPosition(firstBlock.document()->findBlockByNumber(blockNumber).position());
-            if (lastBlock.blockNumber() < firstBlock.blockNumber()) {
-                qSwap(firstBlock, lastBlock);
-                anchor = (Anchor) (anchor - 2);
-            }
-        }
-    }
-    firstBlock.movePosition(QTextCursor::StartOfBlock);
-    lastBlock.movePosition(QTextCursor::EndOfBlock);
+    positionBlock = other.positionBlock;
+    positionColumn = other.positionColumn;
+    anchorBlock = other.anchorBlock;
+    anchorColumn = other.anchorColumn;
 }
 
-int BaseTextBlockSelection::position(const TabSettings &ts) const
+void BaseTextBlockSelection::clear()
 {
-    const QTextBlock &block = anchor <= TopRight ? lastBlock.block() : firstBlock.block();
-    const int column = anchor % 2 ? firstVisualColumn : lastVisualColumn;
-    return block.position() + ts.positionAtColumn(block.text(), column);
+    positionColumn = positionBlock = anchorColumn = anchorBlock = 0;
 }
 
-QTextCursor BaseTextBlockSelection::selection(const TabSettings &ts) const
+// returns a cursor which always has the complete selection
+QTextCursor BaseTextBlockSelection::selection(const BaseTextDocument *baseTextDocument) const
 {
-    QTextCursor cursor = firstBlock;
-    if (anchor <= TopRight) {
-        cursor.setPosition(lastBlock.block().position() + ts.positionAtColumn(lastBlock.block().text(), lastVisualColumn));
-        cursor.setPosition(firstBlock.block().position() + ts.positionAtColumn(firstBlock.block().text(), firstVisualColumn),
-                           QTextCursor::KeepAnchor);
+    return cursor(baseTextDocument, true);
+}
+
+// returns a cursor which always has the correct position and anchor
+QTextCursor BaseTextBlockSelection::cursor(const BaseTextDocument *baseTextDocument) const
+{
+    return cursor(baseTextDocument, false);
+}
+
+QTextCursor BaseTextBlockSelection::cursor(const BaseTextDocument *baseTextDocument,
+                                           bool fullSelection) const
+{
+    if (!baseTextDocument)
+        return QTextCursor();
+    QTextDocument *document = baseTextDocument->document();
+    const TabSettings &ts = baseTextDocument->tabSettings();
+
+    int selectionAnchorColumn;
+    int selectionPositionColumn;
+    if (anchorBlock == positionBlock || !fullSelection) {
+        selectionAnchorColumn = anchorColumn;
+        selectionPositionColumn = positionColumn;
+    } else if (anchorBlock == firstBlockNumber()){
+        selectionAnchorColumn = firstVisualColumn();
+        selectionPositionColumn = lastVisualColumn();
     } else {
-        cursor.setPosition(firstBlock.block().position() + ts.positionAtColumn(firstBlock.block().text(), firstVisualColumn));
-        cursor.setPosition(lastBlock.block().position() + ts.positionAtColumn(lastBlock.block().text(), lastVisualColumn),
-                           QTextCursor::KeepAnchor);
+        selectionAnchorColumn = lastVisualColumn();
+        selectionPositionColumn = firstVisualColumn();
     }
+
+    QTextCursor cursor(document);
+
+    const QTextBlock &anchorTextBlock = document->findBlockByNumber(anchorBlock);
+    const int anchorPosition = anchorTextBlock.position()
+            + ts.positionAtColumn(anchorTextBlock.text(), selectionAnchorColumn);
+
+    const QTextBlock &positionTextBlock = document->findBlockByNumber(positionBlock);
+    const int cursorPosition = positionTextBlock.position()
+            + ts.positionAtColumn(positionTextBlock.text(), selectionPositionColumn);
+
+    cursor.setPosition(anchorPosition);
+    cursor.setPosition(cursorPosition, QTextCursor::KeepAnchor);
     return cursor;
 }
 
-void BaseTextBlockSelection::fromSelection(const TabSettings &ts, const QTextCursor &selection)
+void BaseTextBlockSelection::fromPostition(int positionBlock, int positionColumn,
+                                           int anchorBlock, int anchorColumn)
 {
-    firstBlock = selection;
-    firstBlock.setPosition(selection.selectionStart());
-    firstVisualColumn = ts.columnAt(firstBlock.block().text(), firstBlock.positionInBlock());
-    lastBlock = selection;
-    lastBlock.setPosition(selection.selectionEnd());
-    lastVisualColumn = ts.columnAt(lastBlock.block().text(), lastBlock.positionInBlock());
-    if (selection.anchor() > selection.position())
-        anchor = TopLeft;
-    else
-        anchor = BottomRight;
-
-    firstBlock.movePosition(QTextCursor::StartOfBlock);
-    lastBlock.movePosition(QTextCursor::EndOfBlock);
+    this->positionBlock = positionBlock;
+    this->positionColumn = positionColumn;
+    this->anchorBlock = anchorBlock;
+    this->anchorColumn = anchorColumn;
 }
+
 bool BaseTextEditorWidget::inFindScope(const QTextCursor &cursor)
 {
     if (cursor.isNull())
@@ -6261,38 +6479,31 @@ void BaseTextEditorWidget::setBlockSelection(bool on)
     if (d->m_inBlockSelectionMode == on)
         return;
 
-    d->m_inBlockSelectionMode = on;
     if (on)
-        d->m_blockSelection.fromSelection(d->m_document->tabSettings(), textCursor());
-    viewport()->update();
+        d->enableBlockSelection(textCursor());
+    else
+        d->disableBlockSelection(false);
+}
+
+void BaseTextEditorWidget::setBlockSelection(int positionBlock, int positionColumn,
+                                             int anchhorBlock, int anchorColumn)
+{
+    d->enableBlockSelection(positionBlock, positionColumn, anchhorBlock, anchorColumn);
+}
+
+void BaseTextEditorWidget::setBlockSelection(const QTextCursor &cursor)
+{
+    d->enableBlockSelection(cursor);
+}
+
+QTextCursor BaseTextEditorWidget::blockSelection() const
+{
+    return d->m_blockSelection.cursor(d->m_document.data());
 }
 
 bool BaseTextEditorWidget::hasBlockSelection() const
 {
     return d->m_inBlockSelectionMode;
-}
-
-void BaseTextEditorWidget::handleBlockSelection(int diff_row, int diff_col)
-{
-
-    if (!d->m_inBlockSelectionMode) {
-        d->m_blockSelection.fromSelection(d->m_document->tabSettings(), textCursor());
-        d->m_inBlockSelectionMode = true;
-    }
-
-    d->m_blockSelection.moveAnchor(d->m_blockSelection.anchorBlockNumber() + diff_row,
-                                   d->m_blockSelection.anchorColumnNumber() + diff_col);
-    setTextCursor(d->m_blockSelection.selection(d->m_document->tabSettings()));
-
-    viewport()->update();
-
-// ### TODO ensure horizontal visibility
-//    const bool rtl = q->isRightToLeft();
-//    if (cr.left() < visible.left() || cr.right() > visible.right()) {
-//        int x = cr.center().x() + horizontalOffset() - visible.width()/2;
-//        hbar->setValue(rtl ? hbar->maximum() - x : x);
-//    }
-
 }
 
 void BaseTextEditorWidget::updateTabStops()
@@ -6365,22 +6576,24 @@ void BaseTextEditorWidget::transformBlockSelection(TransformationMethod method)
     const TabSettings &ts = d->m_document->tabSettings();
 
     // saved to restore the blockselection
-    const int selectionPosition = d->m_blockSelection.position(ts);
-    const int anchorColumn = d->m_blockSelection.anchorColumnNumber();
-    const int anchorBlock = d->m_blockSelection.anchorBlockNumber();
-    const BaseTextBlockSelection::Anchor anchor = d->m_blockSelection.anchor;
+    const int positionColumn = d->m_blockSelection.positionColumn;
+    const int positionBlock = d->m_blockSelection.positionBlock;
+    const int anchorColumn = d->m_blockSelection.anchorColumn;
+    const int anchorBlock = d->m_blockSelection.anchorBlock;
 
-    QTextBlock block = d->m_blockSelection.firstBlock.block();
-    const QTextBlock &lastBlock = d->m_blockSelection.lastBlock.block();
+    QTextBlock block = d->m_document->document()->findBlockByNumber(
+                d->m_blockSelection.firstBlockNumber());
+    const QTextBlock &lastBlock = d->m_document->document()->findBlockByNumber(
+                d->m_blockSelection.lastBlockNumber());
 
     cursor.beginEditBlock();
     for (;;) {
         // get position of the selection
         const QString &blockText = block.text();
         const int startPos = block.position()
-                + ts.positionAtColumn(blockText, d->m_blockSelection.firstVisualColumn);
+                + ts.positionAtColumn(blockText, d->m_blockSelection.firstVisualColumn());
         const int endPos = block.position()
-                + ts.positionAtColumn(blockText, d->m_blockSelection.lastVisualColumn);
+                + ts.positionAtColumn(blockText, d->m_blockSelection.lastVisualColumn());
 
         // check if the selection is inside the text block
         if (startPos < endPos) {
@@ -6397,13 +6610,7 @@ void BaseTextEditorWidget::transformBlockSelection(TransformationMethod method)
     cursor.endEditBlock();
 
     // restore former block selection
-    cursor.setPosition(selectionPosition, QTextCursor::MoveAnchor);
-    d->m_inBlockSelectionMode = true;
-    d->m_blockSelection.fromSelection(ts, cursor);
-    d->m_blockSelection.anchor = anchor;
-    d->m_blockSelection.moveAnchor(anchorBlock, anchorColumn);
-    setTextCursor(d->m_blockSelection.selection(d->m_document->tabSettings()));
-    viewport()->update();
+    d->enableBlockSelection(positionBlock, anchorColumn, anchorBlock, positionColumn);
 }
 
 void BaseTextEditorWidget::inSnippetMode(bool *active)

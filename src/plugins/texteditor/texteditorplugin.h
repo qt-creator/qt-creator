@@ -73,14 +73,6 @@ private slots:
     void updateVariable(const QByteArray &variable);
     void updateCurrentSelection(const QString &text);
 
-#ifdef WITH_TESTS
-    void testSnippetParsing_data();
-    void testSnippetParsing();
-
-    void testBlockSelectionTransformation_data();
-    void testBlockSelectionTransformation();
-#endif
-
 private:
     static TextEditorPlugin *m_instance;
     TextEditorSettings *m_settings;
@@ -89,6 +81,23 @@ private:
     Core::SearchResultWindow *m_searchResultWindow;
     OutlineFactory *m_outlineFactory;
     BaseTextMarkRegistry *m_baseTextMarkRegistry;
+
+
+#ifdef WITH_TESTS
+private slots:
+    void testSnippetParsing_data();
+    void testSnippetParsing();
+
+    void testBlockSelectionTransformation_data();
+    void testBlockSelectionTransformation();
+    void testBlockSelectionInsert_data();
+    void testBlockSelectionInsert();
+    void testBlockSelectionRemove_data();
+    void testBlockSelectionRemove();
+    void testBlockSelectionCopy_data();
+    void testBlockSelectionCopy();
+#endif
+
 };
 
 } // namespace Internal

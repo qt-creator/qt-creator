@@ -1018,7 +1018,9 @@ private slots:
     void jumpToGlobalMark(QChar mark, bool backTickMode, const QString &fileName);
     void showSettingsDialog();
     void maybeReadVimRc();
-    void setBlockSelection(bool);
+    void disableBlockSelection();
+    void setBlockSelection(const QTextCursor&);
+    void blockSelection(QTextCursor *);
     void hasBlockSelection(bool*);
     void setShowRelativeLineNumbers(const QVariant &value);
 
@@ -1767,8 +1769,12 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         SLOT(indentRegion(int,int,QChar)));
     connect(handler, SIGNAL(checkForElectricCharacter(bool*,QChar)),
         SLOT(checkForElectricCharacter(bool*,QChar)), Qt::DirectConnection);
-    connect(handler, SIGNAL(requestSetBlockSelection(bool)),
-        SLOT(setBlockSelection(bool)));
+    connect(handler, SIGNAL(requestDisableBlockSelection()),
+        SLOT(disableBlockSelection()));
+    connect(handler, SIGNAL(requestSetBlockSelection(QTextCursor)),
+        SLOT(setBlockSelection(QTextCursor)));
+    connect(handler, SIGNAL(requestBlockSelection(QTextCursor*)),
+        SLOT(blockSelection(QTextCursor*)), Qt::DirectConnection);
     connect(handler, SIGNAL(requestHasBlockSelection(bool*)),
         SLOT(hasBlockSelection(bool*)), Qt::DirectConnection);
     connect(handler, SIGNAL(completionRequested()),
@@ -1864,13 +1870,32 @@ void FakeVimPluginPrivate::triggerSimpleCompletions(const QString &needle, bool 
     m_wordProvider->setActive(needle, forward, qobject_cast<FakeVimHandler *>(sender()));
 }
 
-void FakeVimPluginPrivate::setBlockSelection(bool on)
+void FakeVimPluginPrivate::disableBlockSelection()
 {
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
         return;
     if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
-        bt->setBlockSelection(on);
+        bt->setBlockSelection(false);
+}
+
+void FakeVimPluginPrivate::setBlockSelection(const QTextCursor &cursor)
+{
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+    if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
+        bt->setBlockSelection(cursor);
+}
+
+void FakeVimPluginPrivate::blockSelection(QTextCursor *cursor)
+{
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+    if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
+        if (cursor)
+            *cursor = bt->blockSelection();
 }
 
 void FakeVimPluginPrivate::hasBlockSelection(bool *on)

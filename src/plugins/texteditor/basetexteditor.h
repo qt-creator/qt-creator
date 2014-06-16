@@ -206,11 +206,16 @@ public:
 
     void setReadOnly(bool b);
 
+    void setTextCursor(const QTextCursor &cursor, bool keepBlockSelection);
     void setTextCursor(const QTextCursor &cursor);
 
     void insertCodeSnippet(const QTextCursor &cursor, const QString &snippet);
 
     void setBlockSelection(bool on);
+    void setBlockSelection(int positionBlock, int positionColumn, int anchhorBlock,
+                           int anchorColumn);
+    void setBlockSelection(const QTextCursor &cursor);
+    QTextCursor blockSelection() const;
     bool hasBlockSelection() const;
 
     int verticalBlockSelectionFirstColumn() const;
@@ -230,6 +235,9 @@ public:
     static QMimeData *duplicateMimeData(const QMimeData *source);
 
     static QString msgTextTooLarge(quint64 size);
+
+    void insertPlainText(const QString &text);
+    QString selectedText() const;
 
 public slots:
     virtual void copy();
@@ -310,6 +318,9 @@ public slots:
     void indent();
     void unindent();
 
+    void undo();
+    void redo();
+
     void openLinkUnderCursor();
     void openLinkUnderCursorInNextSplit();
 
@@ -322,6 +333,7 @@ signals:
 
 protected:
     bool event(QEvent *e);
+    void inputMethodEvent(QInputMethodEvent *e);
     void keyPressEvent(QKeyEvent *e);
     void wheelEvent(QWheelEvent *e);
     void changeEvent(QEvent *e);
@@ -549,7 +561,6 @@ private:
     void transformBlockSelection(Internal::TransformationMethod method);
 
 private slots:
-    void handleBlockSelection(int diff_row, int diff_col);
     void updateTabStops();
     void applyFontSettingsDelayed();
 

@@ -59,23 +59,34 @@ class ClipboardAssistProvider;
 class TEXTEDITOR_EXPORT BaseTextBlockSelection
 {
 public:
+    BaseTextBlockSelection()
+        : positionBlock(0), positionColumn(0)
+        , anchorBlock(0) , anchorColumn(0){}
+    BaseTextBlockSelection(const BaseTextBlockSelection &other);
 
-    bool isValid() const{ return !firstBlock.isNull() && !lastBlock.isNull(); }
-    void clear() { firstBlock = lastBlock = QTextCursor(); }
+    void clear();
+    QTextCursor selection(const BaseTextDocument *baseTextDocument) const;
+    QTextCursor cursor(const BaseTextDocument *baseTextDocument) const;
+    void fromPostition(int positionBlock, int positionColumn, int anchorBlock, int anchorColumn);
+    bool hasSelection() { return !(positionBlock == anchorBlock && positionColumn == anchorColumn); }
 
-    QTextCursor firstBlock; // defines the first block
-    QTextCursor lastBlock; // defines the last block
-    int firstVisualColumn; // defines the first visual column of the selection
-    int lastVisualColumn; // defines the last visual column of the selection
-    enum Anchor {TopLeft = 0, TopRight, BottomLeft, BottomRight} anchor;
-    BaseTextBlockSelection():firstVisualColumn(0), lastVisualColumn(0), anchor(BottomRight){}
-    void moveAnchor(int blockNumber, int visualColumn);
-    int position(const TabSettings &ts) const;
-    inline int anchorColumnNumber() const { return (anchor % 2) ? lastVisualColumn : firstVisualColumn; }
-    inline int anchorBlockNumber() const {
-        return (anchor <= TopRight ? firstBlock.blockNumber() : lastBlock.blockNumber()); }
-    QTextCursor selection(const TabSettings &ts) const;
-    void fromSelection(const TabSettings &ts, const QTextCursor &selection);
+    // defines the first block
+    inline int firstBlockNumber() const { return qMin(positionBlock, anchorBlock); }
+     // defines the last block
+    inline int lastBlockNumber() const { return qMax(positionBlock, anchorBlock); }
+    // defines the first visual column of the selection
+    inline int firstVisualColumn() const { return qMin(positionColumn, anchorColumn); }
+    // defines the last visual column of the selection
+    inline int lastVisualColumn() const { return qMax(positionColumn, anchorColumn); }
+
+public:
+    int positionBlock;
+    int positionColumn;
+    int anchorBlock;
+    int anchorColumn;
+
+private:
+    QTextCursor cursor(const BaseTextDocument *baseTextDocument, bool fullSelection) const;
 };
 
 //================BaseTextEditorPrivate==============
@@ -180,9 +191,18 @@ public:
 
     // block selection mode
     bool m_inBlockSelectionMode;
-    void clearBlockSelection();
     QString copyBlockSelection();
-    void removeBlockSelection(const QString &text = QString());
+    void insertIntoBlockSelection(const QString &text = QString());
+    void setCursorToColumn(QTextCursor &cursor, int column,
+                          QTextCursor::MoveMode moveMode = QTextCursor::MoveAnchor);
+    void removeBlockSelection();
+    void enableBlockSelection(const QTextCursor &cursor);
+    void enableBlockSelection(int positionBlock, int positionColumn,
+                              int anchorBlock, int anchorColumn);
+    void disableBlockSelection(bool keepSelection = true);
+    void resetCursorFlashTimer();
+    QBasicTimer m_cursorFlashTimer;
+    bool m_cursorVisible;
     bool m_moveLineUndoHack;
 
     QTextCursor m_findScopeStart;

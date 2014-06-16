@@ -213,6 +213,18 @@ int TabSettings::positionAtColumn(const QString &text, int column, int *offset) 
     return i;
 }
 
+int TabSettings::columnCountForText(const QString &text, int startColumn) const
+{
+    int column = startColumn;
+    for (int i = 0; i < text.size(); ++i) {
+        if (text.at(i) == QLatin1Char('\t'))
+            column = column - (column % m_tabSize) + m_tabSize;
+        else
+            ++column;
+    }
+    return column - startColumn;
+}
+
 int TabSettings::spacesLeftFromPosition(const QString &text, int position)
 {
     int i = position;
