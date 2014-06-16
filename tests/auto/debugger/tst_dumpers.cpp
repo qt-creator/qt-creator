@@ -456,13 +456,13 @@ struct Check : CheckBase
 
     Check(const QByteArray &iname, const Value &value, const Type &type)
         : iname(iname), expectedName(nameFromIName(iname)),
-          expectedValue(value), expectedType(type), qtVersionMajor(0)
+          expectedValue(value), expectedType(type)
     {}
 
     Check(const QByteArray &iname, const Name &name,
          const Value &value, const Type &type)
         : iname(iname), expectedName(name),
-          expectedValue(value), expectedType(type), qtVersionMajor(0)
+          expectedValue(value), expectedType(type)
     {}
 
     bool matches(DebuggerEngine engine, int debuggerVersion, int qtVersion) const
@@ -489,7 +489,6 @@ struct Check : CheckBase
     Name expectedName;
     Value expectedValue;
     Type expectedType;
-    int qtVersionMajor;
 };
 
 struct CheckType : public Check
