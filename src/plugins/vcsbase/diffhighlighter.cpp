@@ -34,7 +34,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QtAlgorithms>
 #include <QRegExp>
 
 /*!
@@ -82,7 +81,7 @@ enum FoldingState {
     Location
 };
 
-}; // namespace Internal;
+} // namespace Internal;
 
 static inline QTextCharFormat invertedColorFormat(const QTextCharFormat &in)
 {

@@ -72,7 +72,6 @@
 #include <QRegExp>
 #include <QTextStream>
 #include <QTimer>
-#include <QtAlgorithms>
 #include <QStack>
 
 #include <QApplication>
@@ -6417,7 +6416,7 @@ void FakeVimHandler::Private::indentText(const Range &range, QChar typedChar)
     int beginBlock = document()->findBlock(range.beginPos).blockNumber();
     int endBlock = document()->findBlock(range.endPos).blockNumber();
     if (beginBlock > endBlock)
-        qSwap(beginBlock, endBlock);
+        std::swap(beginBlock, endBlock);
 
     // Don't remember current indentation in last text insertion.
     const QString lastInsertion = m_buffer->lastInsertion;
@@ -6438,7 +6437,7 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     int endLine = lineForPosition(position());
     int targetPos = anchor();
     if (beginLine > endLine) {
-        qSwap(beginLine, endLine);
+        std::swap(beginLine, endLine);
         targetPos = position();
     }
     if (hasConfig(ConfigStartOfLine))

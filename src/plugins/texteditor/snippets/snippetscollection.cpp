@@ -41,7 +41,6 @@
 #include <QDir>
 #include <QDebug>
 #include <QXmlStreamReader>
-#include <QtAlgorithms>
 
 #include <iterator>
 #include <algorithm>
@@ -51,29 +50,16 @@ using namespace Internal;
 
 namespace {
 
-struct SnippetComp
+static bool snippetComp(const Snippet &a, const Snippet &b)
 {
-    bool operator()(const Snippet &a, const Snippet &b) const
-    {
-        const int comp = a.trigger().toLower().localeAwareCompare(b.trigger().toLower());
-        if (comp < 0)
-            return true;
-        else if (comp == 0 &&
-                 a.complement().toLower().localeAwareCompare(b.complement().toLower()) < 0)
-            return true;
-        return false;
-    }
-};
-SnippetComp snippetComp;
-
-struct RemovedSnippetPred
-{
-    bool operator()(const Snippet &s) const
-    {
-        return s.isRemoved();
-    }
-};
-RemovedSnippetPred removedSnippetPred;
+    const int comp = a.trigger().toLower().localeAwareCompare(b.trigger().toLower());
+    if (comp < 0)
+        return true;
+    else if (comp == 0 &&
+             a.complement().toLower().localeAwareCompare(b.complement().toLower()) < 0)
+        return true;
+    return false;
+}
 
 } // Anonymous
 
@@ -140,8 +126,8 @@ SnippetsCollection::Hint SnippetsCollection::computeInsertionHint(const Snippet 
 {
     const int group = groupIndex(snippet.groupId());
     QList<Snippet> &snippets = m_snippets[group];
-    QList<Snippet>::iterator it = qUpperBound(
-        snippets.begin(), m_activeSnippetsEnd.at(group), snippet, snippetComp);
+    QList<Snippet>::iterator it = std::upper_bound(snippets.begin(), m_activeSnippetsEnd.at(group),
+                                                   snippet, snippetComp);
     return Hint(static_cast<int>(std::distance(snippets.begin(), it)), it);
 }
 
@@ -175,12 +161,12 @@ SnippetsCollection::Hint SnippetsCollection::computeReplacementHint(int index,
 {
     const int group = groupIndex(snippet.groupId());
     QList<Snippet> &snippets = m_snippets[group];
-    QList<Snippet>::iterator it = qLowerBound(
-        snippets.begin(), m_activeSnippetsEnd.at(group), snippet, snippetComp);
+    QList<Snippet>::iterator it = std::lower_bound(snippets.begin(), m_activeSnippetsEnd.at(group),
+                                                    snippet, snippetComp);
     int hintIndex = static_cast<int>(std::distance(snippets.begin(), it));
     if (index < hintIndex - 1)
         return Hint(hintIndex - 1, it);
-    it = qUpperBound(it, m_activeSnippetsEnd.at(group), snippet, snippetComp);
+    it = std::upper_bound(it, m_activeSnippetsEnd.at(group), snippet, snippetComp);
     hintIndex = static_cast<int>(std::distance(snippets.begin(), it));
     if (index > hintIndex)
         return Hint(hintIndex, it);
@@ -249,7 +235,7 @@ void SnippetsCollection::updateActiveSnippetsEnd(int groupIndex)
 {
     m_activeSnippetsEnd[groupIndex] = std::find_if(m_snippets[groupIndex].begin(),
                                                    m_snippets[groupIndex].end(),
-                                                   removedSnippetPred);
+                                                   [](const Snippet &s) { return s.isRemoved(); });
 }
 
 void SnippetsCollection::restoreRemovedSnippets(const QString &groupId)
@@ -258,7 +244,7 @@ void SnippetsCollection::restoreRemovedSnippets(const QString &groupId)
     // Reverting the snippet can still bring it to the original version
     const int group = groupIndex(groupId);
     QVector<Snippet> toRestore(std::distance(m_activeSnippetsEnd[group], m_snippets[group].end()));
-    qCopy(m_activeSnippetsEnd[group], m_snippets[group].end(), toRestore.begin());
+    std::copy(m_activeSnippetsEnd[group], m_snippets[group].end(), toRestore.begin());
     m_snippets[group].erase(m_activeSnippetsEnd[group], m_snippets[group].end());
     foreach (Snippet snippet, toRestore) {
         snippet.setIsRemoved(false);

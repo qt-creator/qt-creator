@@ -30,7 +30,6 @@
 #include "qmljshighlighter.h"
 
 #include <QSet>
-#include <QtAlgorithms>
 
 #include <utils/qtcassert.h>
 

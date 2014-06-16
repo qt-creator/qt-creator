@@ -38,7 +38,7 @@
 #include <QTextStream>
 #include <QVector>
 
-#include <QtAlgorithms>
+#include <algorithm>
 
 namespace Valgrind {
 namespace XmlProtocol {
@@ -95,7 +95,7 @@ Error::Error(const Error &other) :
 
 void Error::swap(Error &other)
 {
-    qSwap(d, other.d);
+    std::swap(d, other.d);
 }
 
 Error &Error::operator=(const Error &other)

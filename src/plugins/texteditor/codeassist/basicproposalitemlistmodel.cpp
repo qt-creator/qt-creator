@@ -280,7 +280,7 @@ bool BasicProposalItemListModel::isSortable(const QString &prefix) const
 
 void BasicProposalItemListModel::sort(const QString &prefix)
 {
-    qStableSort(m_currentItems.begin(), m_currentItems.end(), ContentLessThan(prefix));
+    std::stable_sort(m_currentItems.begin(), m_currentItems.end(), ContentLessThan(prefix));
 }
 
 int BasicProposalItemListModel::persistentId(int index) const

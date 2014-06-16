@@ -46,7 +46,6 @@
 #include <QShortcut>
 #include <QSignalMapper>
 #include <QStringList>
-#include <QtAlgorithms>
 
 using namespace Core;
 

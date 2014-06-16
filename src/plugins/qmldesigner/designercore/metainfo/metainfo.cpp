@@ -40,7 +40,6 @@
 
 #include <QDebug>
 #include <QMessageBox>
-#include <QtAlgorithms>
 
 enum {
     debug = false

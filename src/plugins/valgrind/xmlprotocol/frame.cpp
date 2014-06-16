@@ -31,7 +31,8 @@
 #include "frame.h"
 
 #include <QString>
-#include <QtAlgorithms>
+
+#include <algorithm>
 
 namespace Valgrind {
 namespace XmlProtocol {
@@ -91,7 +92,7 @@ bool Frame::operator!=(const Frame &other) const
 
 void Frame::swap(Frame &other)
 {
-    qSwap(d, other.d);
+    std::swap(d, other.d);
 }
 
 quint64 Frame::instructionPointer() const

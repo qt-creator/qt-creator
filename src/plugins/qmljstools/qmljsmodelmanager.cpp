@@ -60,7 +60,6 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QRegExp>
-#include <QtAlgorithms>
 #include <QLibraryInfo>
 #include <qglobal.h>
 

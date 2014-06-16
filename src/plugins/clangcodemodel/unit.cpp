@@ -36,7 +36,6 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QVector>
 #include <QtCore/QSharedData>
-#include <QtAlgorithms>
 
 #ifdef DEBUG_UNIT_COUNT
 #  include <QAtomicInt>

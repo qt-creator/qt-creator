@@ -53,7 +53,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/editorconfiguration.h>
 
-#include <QtAlgorithms>
 #include <QPointer>
 #include <QDebug>
 #include <QFileInfo>
