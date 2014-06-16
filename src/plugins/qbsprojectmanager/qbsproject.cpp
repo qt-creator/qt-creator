@@ -437,7 +437,7 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
     baseConfig.insert(specialKey, userConfig.take(specialKey));
     params.setBuildConfiguration(baseConfig);
     params.setOverriddenValues(userConfig);
-    qbs::ErrorInfo err = params.expandBuildConfiguration(m_manager->settings());
+    qbs::ErrorInfo err = params.expandBuildConfiguration(QbsManager::settings());
     if (err.hasError()) {
         generateErrors(err);
         return;
@@ -478,7 +478,7 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
     QTC_ASSERT(!m_qbsSetupProjectJob, return);
 
     m_qbsSetupProjectJob
-            = qbs::Project::setupProject(params, m_manager->logSink(), 0);
+            = qbs::Project::setupProject(params, QbsManager::logSink(), 0);
 
     connect(m_qbsSetupProjectJob, SIGNAL(finished(bool,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingDone(bool)));

@@ -59,6 +59,7 @@ static QString qtcProfilePrefix() { return qtcProfileGroup() + sep; }
 namespace QbsProjectManager {
 
 qbs::Settings *QbsManager::m_settings = 0;
+Internal::QbsLogSink *QbsManager::m_logSink = 0;
 
 QbsManager::QbsManager() :
     m_defaultPropertyProvider(new DefaultPropertyProvider)
@@ -118,11 +119,6 @@ QString QbsManager::profileForKit(const ProjectExplorer::Kit *k) const
 void QbsManager::setProfileForKit(const QString &name, const ProjectExplorer::Kit *k)
 {
     m_settings->setValue(qtcProfilePrefix() + k->id().toString(), name);
-}
-
-qbs::Settings *QbsManager::settings()
-{
-    return m_settings;
 }
 
 void QbsManager::addProfile(const QString &name, const QVariantMap &data)
