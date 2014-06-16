@@ -35,6 +35,7 @@
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
 #include <bindingproperty.h>
+#include <variantproperty.h>
 
 namespace QmlDesigner {
 
@@ -116,6 +117,22 @@ static void openFileComponentForDelegate(const ModelNode &modelNode)
     openFileComponent(modelNode.nodeProperty("delegate").modelNode());
 }
 
+static void openSourcePropertyOfLoader(const ModelNode &modelNode)
+{
+    QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
+
+    QHash<PropertyName, QVariant> propertyHash;
+
+    QString componentFileName = modelNode.variantProperty("source").value().toString();
+    QString componentFilePath = modelNode.model()->fileUrl().resolved(QUrl::fromLocalFile(componentFileName)).toLocalFile();
+
+    getProperties(modelNode, propertyHash);
+    Core::EditorManager::openEditor(componentFilePath, Core::Id(), Core::EditorManager::DoNotMakeVisible);
+
+    ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
+    applyProperties(rootModelNode, propertyHash);
+}
+
 
 static void handleComponent(const ModelNode &modelNode)
 {
@@ -182,6 +199,17 @@ static bool hasDelegateWithFileComponent(const ModelNode &node)
     return false;
 }
 
+static bool hasSourceWithFileComponent(const ModelNode &modelNode)
+{
+    if (modelNode.isValid()
+            && modelNode.metaInfo().isValid()
+            && modelNode.metaInfo().isSubclassOf("QtQuick.Loader", -1, -1)
+            && modelNode.hasVariantProperty("source"))
+        return true;
+
+    return false;
+}
+
 DocumentManager::DocumentManager()
     : QObject()
 {
@@ -232,6 +260,8 @@ void DocumentManager::goIntoComponent(const ModelNode &modelNode)
             openFileComponent(modelNode);
         else if (hasDelegateWithFileComponent(modelNode))
             openFileComponentForDelegate(modelNode);
+        else if (hasSourceWithFileComponent(modelNode))
+            openSourcePropertyOfLoader(modelNode);
         else
             openInlineComponent(modelNode);
     }
