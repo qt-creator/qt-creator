@@ -1,0 +1,64 @@
+Qt Creator version 3.2 contains bug fixes and new features.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline origin/3.1..origin/master
+
+General
+   * Added "Get Help Online" context menu item to issues pane that searches for
+     the issue description online in Google
+   * Enabled resizing of the locator field
+   * Added action to file system locator filter ('f') for creating and opening a new file
+   * Improved look and feel on HiDPI by adding more hi-resolution icons
+
+Editing
+
+Managing and Building Projects
+
+QMake Projects
+   * Added context menu item for copying resource path from entries in QRC files in project tree
+     (QTCREATORBUG-11776)
+   * Removed warning about build directory below source directory for kits with Qt 5.2 and later
+     where this is supported (QTCREATORBUG-10024)
+
+Qbs Projects
+
+Generic Projects
+
+Debugging
+   * GDB and LLDB
+      * Added pretty printers for AVX512 registers
+
+QML Profiler
+
+C++ Support
+   * Fixed finding usages of members of typedef'ed anonymous structs
+     (QTCREATORBUG-11859, QTCREATORBUG-11860)
+   * Fixed indentation of concatenated strings
+   * Fixed pointer typedef resolving (QTCREATORBUG-10021)
+
+QML Support
+
+Qt Quick Designer
+
+Diff Viewer
+
+Version Control Systems
+
+FakeVim
+   * Fixed issues with long command output (QTCREATORBUG-11598)
+
+Platform Specific
+
+Windows
+   * Fixed issue with environment variables starting with '=' (QTCREATORBUG-8716)
+   * Fixed detection of MSVC tool chains (QTCREATORBUG-10998)
+
+OS X
+   * Fixed activation of items with Enter in Bookmarks pane
+
+Credits for these changes go to:
+
