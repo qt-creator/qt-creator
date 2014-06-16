@@ -187,26 +187,6 @@ int GerritPatchSet::approvalLevel() const
     return value;
 }
 
-QString GerritChange::toHtml() const
-{
-    // Keep in sync with list model headers.
-    static const QString format = GerritModel::tr(
-       "<html><head/><body><table>"
-       "<tr><td>Subject</td><td>%1</td></tr>"
-       "<tr><td>Number</td><td><a href=\"%11\">%2</a></td></tr>"
-       "<tr><td>Owner</td><td>%3 <a href=\"mailto:%4\">%4</a></td></tr>"
-       "<tr><td>Project</td><td>%5 (%6)</td></tr>"
-       "<tr><td>Status</td><td>%7, %8</td></tr>"
-       "<tr><td>Patch set</td><td>%9</td></tr>"
-       "%10"
-       "<tr><td>URL</td><td><a href=\"%11\">%11</a></td></tr>"
-       "</table></body></html>");
-    return format.arg(title).arg(number).arg(owner, email, project, branch)
-           .arg(status, lastUpdated.toString(Qt::DefaultLocaleShortDate))
-           .arg(currentPatchSet.patchSetNumber)
-           .arg(currentPatchSet.approvalsToHtml(), url);
-}
-
 QString GerritChange::filterString() const
 {
     const QChar blank = QLatin1Char(' ');
@@ -300,7 +280,8 @@ QueryContext::QueryContext(const QStringList &queries,
     m_progress.setProgressRange(0, m_queries.size());
 
     // Determine binary and common command line arguments.
-    m_baseArguments << QLatin1String("query") << QLatin1String("--current-patch-set")
+    m_baseArguments << QLatin1String("query") << QLatin1String("--dependencies")
+                    << QLatin1String("--current-patch-set")
                     << QLatin1String("--format=JSON");
     m_binary = m_baseArguments.front();
     m_baseArguments.pop_front();
@@ -431,20 +412,75 @@ GerritModel::~GerritModel()
 {
 }
 
+static inline GerritChangePtr changeFromItem(const QStandardItem *item)
+{
+    return qvariant_cast<GerritChangePtr>(item->data(GerritModel::GerritChangeRole));
+}
+
 GerritChangePtr GerritModel::change(int row) const
 {
     if (row >= 0 && row < rowCount())
-        return qvariant_cast<GerritChangePtr>(item(row, 0)->data(GerritChangeRole));
+        return changeFromItem(item(row, 0));
     return GerritChangePtr(new GerritChange);
 }
 
-int GerritModel::indexOf(int gerritNumber) const
+QString GerritModel::dependencyHtml(const QString &header, const QString &changeId,
+                                    const QString &serverPrefix) const
+{
+    QString res;
+    if (changeId.isEmpty())
+        return res;
+    QTextStream str(&res);
+    str << "<tr><td>" << header << "</td><td><a href="
+        << serverPrefix << "r/" << changeId << '>' << changeId << "</a>";
+    if (const QStandardItem *item = itemForId(changeId))
+        str << " (" << changeFromItem(item)->title << ')';
+    str << "</td></tr>";
+    return res;
+}
+
+QString GerritModel::toHtml(int row) const
+{
+    static const QString subjectHeader = GerritModel::tr("Subject");
+    static const QString numberHeader = GerritModel::tr("Number");
+    static const QString ownerHeader = GerritModel::tr("Owner");
+    static const QString projectHeader = GerritModel::tr("Project");
+    static const QString statusHeader = GerritModel::tr("Status");
+    static const QString patchSetHeader = GerritModel::tr("Patch set");
+    static const QString urlHeader = GerritModel::tr("URL");
+    static const QString dependsOnHeader = GerritModel::tr("Depends on");
+    static const QString neededByHeader = GerritModel::tr("Needed by");
+
+    if (row < 0 || row >= rowCount())
+        return QString();
+    const GerritChangePtr c = change(row);
+    const QString serverPrefix = c->url.left(c->url.lastIndexOf(QLatin1Char('/')) + 1);
+    QString result;
+    QTextStream str(&result);
+    str << "<html><head/><body><table>"
+        << "<tr><td>" << subjectHeader << "</td><td>" << c->title << "</td></tr>"
+        << "<tr><td>" << numberHeader << "</td><td><a href=\"" << c->url << "\">" << c->number << "</a></td></tr>"
+        << "<tr><td>" << ownerHeader << "</td><td>" << c->owner << ' '
+        << "<a href=\"mailto:" << c->email << "\">" << c->email << "</a></td></tr>"
+        << "<tr><td>" << projectHeader << "</td><td>" << c->project << " (" << c->branch << ")</td></tr>"
+        << dependencyHtml(dependsOnHeader, c->dependsOnId, serverPrefix)
+        << dependencyHtml(neededByHeader, c->neededById, serverPrefix)
+        << "<tr><td>" << statusHeader << "</td><td>" << c->status
+        << ", " << c->lastUpdated.toString(Qt::DefaultLocaleShortDate) << "</td></tr>"
+        << "<tr><td>" << patchSetHeader << "</td><td>" << "</td></tr>" << c->currentPatchSet.patchSetNumber << "</td></tr>"
+        << c->currentPatchSet.approvalsToHtml()
+        << "<tr><td>" << urlHeader << "</td><td><a href=\"" << c->url << "\">" << c->url << "</a></td></tr>"
+        << "</table></body></html>";
+    return result;
+}
+
+QStandardItem *GerritModel::itemForId(const QString &id) const
 {
     const int numRows = rowCount();
     for (int r = 0; r < numRows; ++r)
-        if (change(r)->number == gerritNumber)
-            return r;
-    return -1;
+        if (change(r)->id == id)
+            return item(r, 0);
+    return 0;
 }
 
 void GerritModel::refresh(const QString &query)
@@ -515,6 +551,8 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     // The output consists of separate lines containing a document each
     const QString typeKey = QLatin1String("type");
     const QString idKey = QLatin1String("id");
+    const QString dependsOnKey = QLatin1String("dependsOn");
+    const QString neededByKey = QLatin1String("neededBy");
     const QString branchKey = QLatin1String("branch");
     const QString numberKey = QLatin1String("number");
     const QString ownerKey = QLatin1String("owner");
@@ -601,6 +639,26 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
                                   .arg(QString::fromLocal8Bit(line)));
             res = false;
         }
+        // Read out dependencies
+        const QJsonValue dependsOnValue = object.value(dependsOnKey);
+        if (dependsOnValue.isArray()) {
+            const QJsonArray dependsOnArray = dependsOnValue.toArray();
+            if (!dependsOnArray.isEmpty()) {
+                const QJsonValue first = dependsOnArray.at(0);
+                if (first.isObject())
+                    change->dependsOnId = first.toObject()[idKey].toString();
+            }
+        }
+        // Read out needed by
+        const QJsonValue neededByValue = object.value(neededByKey);
+        if (neededByValue.isArray()) {
+            const QJsonArray neededByArray = neededByValue.toArray();
+            if (!neededByArray.isEmpty()) {
+                const QJsonValue first = neededByArray.at(0);
+                if (first.isObject())
+                    change->neededById = first.toObject()[idKey].toString();
+            }
+        }
     }
     return res;
 }
@@ -641,6 +699,8 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     const QList<QByteArray> lines = output.split('\n');
     const QString typeKey = QLatin1String("type");
     const QString idKey = QLatin1String("id");
+    const QString dependsOnKey = QLatin1String("dependsOn");
+    const QString neededByKey = QLatin1String("neededBy");
     const QString branchKey = QLatin1String("branch");
     const QString numberKey = QLatin1String("number");
     const QString ownerKey = QLatin1String("owner");
@@ -746,6 +806,24 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
             qWarning("%s: Parse error in line '%s'.", Q_FUNC_INFO, line.constData());
             res = false;
         }
+        // Read out dependencies
+        if (Utils::JsonValue *dependsOnValue = object->member(dependsOnKey)) {
+            if (Utils::JsonArrayValue *dependsOnArray = dependsOnValue->toArray()) {
+                if (dependsOnArray->size()) {
+                    if (Utils::JsonObjectValue *dependsOnObject = dependsOnArray->elements().first()->toObject())
+                        change->dependsOnId = jsonStringMember(dependsOnObject, idKey);
+                }
+            }
+        }
+        // Read out needed by
+        if (Utils::JsonValue *neededByValue = object->member(neededByKey)) {
+            if (Utils::JsonArrayValue *neededByArray = neededByValue->toArray()) {
+                if (neededByArray->size()) {
+                    if (Utils::JsonObjectValue *neededByObject = neededByArray->elements().first()->toObject())
+                        change->neededById = jsonStringMember(neededByObject, idKey);
+                }
+            }
+        }
     }
     if (debug) {
         qDebug() << __FUNCTION__;
@@ -771,7 +849,7 @@ void GerritModel::queryFinished(const QByteArray &output)
     foreach (const GerritChangePtr &c, changes) {
         // Avoid duplicate entries for example in the (unlikely)
         // case people do self-reviews.
-        if (indexOf(c->number) == -1) {
+        if (!itemForId(c->id)) {
             // Determine the verbose user name from the owner of the first query.
             // It used for marking the changes pending for review in bold.
             if (m_userName.isEmpty() && !m_query->currentQuery())

@@ -73,13 +73,14 @@ public:
     GerritChange() : number(0) {}
 
     bool isValid() const { return number && !url.isEmpty() && !project.isEmpty(); }
-    QString toHtml() const;
     QString filterString() const;
     QStringList gitFetchArguments(const QSharedPointer<GerritParameters> &p) const;
 
     QString url;
     int number;
     QString id;
+    QString dependsOnId;
+    QString neededById;
     QString title;
     QString owner;
     QString email;
@@ -115,8 +116,9 @@ public:
     ~GerritModel();
 
     GerritChangePtr change(int row) const;
+    QString toHtml(int row) const;
 
-    int indexOf(int gerritNumber) const;
+    QStandardItem *itemForId(const QString &id) const;
 
 public slots:
     void refresh(const QString &query);
@@ -132,6 +134,8 @@ private slots:
 
 private:
     inline bool evaluateQuery(QString *errorMessage);
+    QString dependencyHtml(const QString &header, const QString &changeId,
+                           const QString &serverPrefix) const;
 
     const QSharedPointer<GerritParameters> m_parameters;
     QueryContext *m_query;

@@ -300,7 +300,7 @@ void GerritDialog::slotCurrentChanged()
     const bool valid = current.isValid();
     if (valid) {
         const int row = m_filterModel->mapToSource(current).row();
-        m_detailsBrowser->setText(m_model->change(row)->toHtml());
+        m_detailsBrowser->setText(m_model->toHtml(row));
     } else {
         m_detailsBrowser->setText(QString());
     }
