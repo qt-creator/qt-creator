@@ -1045,6 +1045,9 @@ bool ModelNode::isComponent() const
             && nodeProperty("component").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
         return true;
 
+    if (hasVariantProperty("source"))
+        return true;
+
     return false;
 }
 
