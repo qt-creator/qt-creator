@@ -74,7 +74,7 @@ private:
 enum ExampleRoles
 {
     Name = Qt::UserRole, ProjectPath, Description, ImageUrl,
-    DocUrl, FilesToOpen, Tags, Difficulty, HasSourceCode,
+    DocUrl, FilesToOpen, MainFile, Tags, Difficulty, HasSourceCode,
     Type, Dependencies, IsVideo, VideoUrl, VideoLength, Platforms,
     IsHighlighted
 };
@@ -93,6 +93,7 @@ struct ExampleItem
     QString imageUrl;
     QString docUrl;
     QStringList filesToOpen;
+    QString mainFile; /* file to be visible after opening filesToOpen */
     QStringList tags;
     QStringList dependencies;
     InstructionalType type;

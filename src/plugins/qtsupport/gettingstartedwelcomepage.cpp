@@ -380,14 +380,24 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
 
 }
 
-void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringList &additionalFilesToOpen,
-                                      const QUrl &help, const QStringList &dependencies, const QStringList &)
+void ExamplesWelcomePage::openProject(const QString &projectFile,
+                                      const QStringList &additionalFilesToOpen,
+                                      const QString &mainFile,
+                                      const QUrl &help,
+                                      const QStringList &dependencies,
+                                      const QStringList &)
 {
     QString proFile = projectFile;
     if (proFile.isEmpty())
         return;
 
     QStringList filesToOpen = additionalFilesToOpen;
+    if (!mainFile.isEmpty()) {
+        // ensure that the main file is opened on top (i.e. opened last)
+        filesToOpen.removeAll(mainFile);
+        filesToOpen.append(mainFile);
+    }
+
     QFileInfo proFileInfo(proFile);
     if (!proFileInfo.exists())
         return;

@@ -207,6 +207,7 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
     roleNames[Description] = "description";
     roleNames[DocUrl] = "docUrl";
     roleNames[FilesToOpen] = "filesToOpen";
+    roleNames[MainFile] = "mainFile";
     roleNames[Tags] = "tags";
     roleNames[Difficulty] = "difficulty";
     roleNames[Type] = "type";
@@ -332,8 +333,14 @@ void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
                     item.isHighlighted = attributes.value(QLatin1String("isHighlighted")).toString() == QLatin1String("true");
 
             } else if (reader->name() == QLatin1String("fileToOpen")) {
-                item.filesToOpen.append(relativeOrInstallPath(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement),
-                                                              projectsOffset, examplesInstallPath));
+                const QString mainFileAttribute = reader->attributes().value(
+                            QLatin1String("mainFile")).toString();
+                const QString filePath = relativeOrInstallPath(
+                            reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement),
+                            projectsOffset, examplesInstallPath);
+                item.filesToOpen.append(filePath);
+                if (mainFileAttribute.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0)
+                    item.mainFile = filePath;
             } else if (reader->name() == QLatin1String("description")) {
                 item.description = fixStringForTags(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("dependency")) {
@@ -668,6 +675,8 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
         return item.docUrl;
     case FilesToOpen:
         return item.filesToOpen;
+    case MainFile:
+        return item.mainFile;
     case Tags:
         return item.tags;
     case Difficulty:
