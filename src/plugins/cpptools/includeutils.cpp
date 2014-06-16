@@ -34,6 +34,7 @@
 #include <cplusplus/PreprocessorClient.h>
 #include <cplusplus/PreprocessorEnvironment.h>
 
+#include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
 #include <QDir>
@@ -50,9 +51,6 @@ using namespace CppTools::IncludeUtils;
 using namespace Utils;
 
 namespace {
-
-bool includeLineLessThan(const Include &left, const Include &right)
-{ return left.line() < right.line(); }
 
 bool includeFileNamelessThen(const Include & left, const Include & right)
 { return left.unresolvedFileName() < right.unresolvedFileName(); }
@@ -293,7 +291,9 @@ QList<IncludeGroup> LineForNewIncludeDirective::getGroupsByIncludeType(
 QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByNewLines(QList<Document::Include> &includes)
 {
     // Sort by line
-    qSort(includes.begin(), includes.end(), includeLineLessThan);
+    Utils::sort(includes, [](const Include &left, const Include &right) {
+        return left.line() < right.line();
+    });
 
     // Create groups
     QList<IncludeGroup> result;

@@ -42,13 +42,13 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/basetextdocument.h>
+#include <utils/algorithm.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
 
 #include <QDebug>
 #include <QTextDocument>
-#include <QtAlgorithms>
 #include <QtTest>
 
 #if  QT_VERSION >= 0x050000
@@ -168,7 +168,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
         TestActionsTestCase::allProjectsConfigured = true;
     }
 
-    qSort(filesToOpen);
+    Utils::sort(filesToOpen);
 
     // Process all files from the projects
     foreach (const QString filePath, filesToOpen) {

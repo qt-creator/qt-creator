@@ -32,6 +32,8 @@
 #include "session.h"
 #include "project.h"
 
+#include <utils/algorithm.h>
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -61,7 +63,7 @@ void AllProjectsFilter::updateFiles()
     files().clear();
     foreach (Project *project, SessionManager::projects())
         files().append(project->files(Project::AllFiles));
-    qSort(files());
+    Utils::sort(files());
     generateFileNames();
 }
 

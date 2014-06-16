@@ -241,10 +241,10 @@ void ProjectFilesVisitor::findProjectFiles(QmakeProFileNode *rootNode, QmakeProj
     ProjectFilesVisitor visitor(files);
     rootNode->accept(&visitor);
     for (int i = 0; i < FileTypeSize; ++i) {
-        qSort(files->files[i]);
-        qSort(files->generatedFiles[i]);
+        Utils::sort(files->files[i]);
+        Utils::sort(files->generatedFiles[i]);
     }
-    qSort(files->proFiles);
+    Utils::sort(files->proFiles);
 }
 
 void ProjectFilesVisitor::visitProjectNode(ProjectNode *projectNode)

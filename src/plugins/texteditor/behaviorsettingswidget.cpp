@@ -36,6 +36,7 @@
 #include <texteditor/storagesettings.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
+#include <utils/algorithm.h>
 
 #include <QList>
 #include <QString>
@@ -43,7 +44,6 @@
 #include <QTextCodec>
 #include <QTextStream>
 
-#include <algorithm>
 #include <functional>
 
 namespace TextEditor {
@@ -61,7 +61,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     d->m_ui.setupUi(this);
 
     QList<int> mibs = QTextCodec::availableMibs();
-    qSort(mibs);
+    Utils::sort(mibs);
     QList<int>::iterator firstNonNegative =
         std::find_if(mibs.begin(), mibs.end(), std::bind2nd(std::greater_equal<int>(), 0));
     if (firstNonNegative != mibs.end())

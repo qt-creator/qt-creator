@@ -59,7 +59,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <QtAlgorithms>
 #include <QDirIterator>
 #include <QStringList>
 #include <QIcon>
@@ -1034,7 +1033,7 @@ void QmlJSAssistProposalModel::filter(const QString &prefix)
 
 void QmlJSAssistProposalModel::sort(const QString &prefix)
 {
-    qSort(currentItems().first, currentItems().second, QmlJSLessThan(prefix));
+    std::sort(currentItems().first, currentItems().second, QmlJSLessThan(prefix));
 }
 
 bool QmlJSAssistProposalModel::keepPerfectMatch(TextEditor::AssistReason reason) const

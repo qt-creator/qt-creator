@@ -50,6 +50,7 @@
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <utils/algorithm.h>
 
 #include <QDir>
 #include <QFileSystemWatcher>
@@ -868,7 +869,11 @@ QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies
         }
         qtLibraries.push_back(library);
     }
-    qSort(qtLibraries.begin(), qtLibraries.end(), qtLibrariesLessThan);
+    Utils::sort(qtLibraries, [](const Library &a, const Library &b) -> bool {
+        if (a.level == b.level)
+            return a.name < b.name;
+        return a.level < b.level;
+    });
 
     return qtLibraries;
 
@@ -1169,13 +1174,6 @@ int AndroidManager::setLibraryLevel(const QString &library, LibrariesMap &mapLib
     if (mapLibs[library].level < 0)
         mapLibs[library].level = maxlevel + 1;
     return maxlevel + 1;
-}
-
-bool AndroidManager::qtLibrariesLessThan(const Library &a, const Library &b)
-{
-    if (a.level == b.level)
-        return a.name < b.name;
-    return a.level < b.level;
 }
 
 QString AndroidManager::libGnuStl(const QString &arch, const QString &ndkToolChainVersion)

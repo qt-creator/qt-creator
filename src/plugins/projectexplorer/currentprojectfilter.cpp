@@ -31,6 +31,8 @@
 #include "projectexplorer.h"
 #include "project.h"
 
+#include <utils/algorithm.h>
+
 #include <QDebug>
 
 using namespace Core;
@@ -64,7 +66,7 @@ void CurrentProjectFilter::updateFiles()
     if (!m_project)
         return;
     files() = m_project->files(Project::AllFiles);
-    qSort(files());
+    Utils::sort(files());
     generateFileNames();
 }
 

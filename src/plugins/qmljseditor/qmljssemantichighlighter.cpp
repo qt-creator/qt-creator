@@ -45,6 +45,7 @@
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/fontsettings.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFutureInterface>
@@ -444,7 +445,7 @@ private:
             addMessages(m_semanticInfo.semanticMessages, m_semanticInfo.document);
             addMessages(m_semanticInfo.staticAnalysisMessages, m_semanticInfo.document);
 
-            qSort(m_delayedUses.begin(), m_delayedUses.end(), sortByLinePredicate);
+            Utils::sort(m_delayedUses, sortByLinePredicate);
         }
         m_currentDelayedUse = 0;
 
@@ -513,7 +514,7 @@ private:
         if (m_uses.isEmpty())
             return;
 
-        qSort(m_uses.begin(), m_uses.end(), sortByLinePredicate);
+        Utils::sort(m_uses, sortByLinePredicate);
         reportResults(m_uses);
         m_uses.clear();
         m_uses.reserve(chunkSize);

@@ -37,6 +37,7 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/iwizardfactory.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
@@ -184,11 +185,6 @@ void WelcomeMode::sceneGraphError(QQuickWindow::SceneGraphError, const QString &
 }
 #endif // Qt 5.3
 
-bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
-{
-    return a->priority() < b->priority();
-}
-
 void WelcomeMode::facilitateQml(QQmlEngine * /*engine*/)
 {
 }
@@ -214,7 +210,9 @@ void WelcomeMode::initPlugins()
     ctx->setContextProperty(QLatin1String("welcomeMode"), this);
 
     QList<Utils::IWelcomePage*> duplicatePlugins = PluginManager::getObjects<Utils::IWelcomePage>();
-    qSort(duplicatePlugins.begin(), duplicatePlugins.end(), &sortFunction);
+    Utils::sort(duplicatePlugins, [](const Utils::IWelcomePage *l, const Utils::IWelcomePage *r) {
+        return l->priority() < r->priority();
+    });
 
     QList<Utils::IWelcomePage*> plugins;
     QHash<Utils::IWelcomePage::Id, Utils::IWelcomePage*> pluginHash;

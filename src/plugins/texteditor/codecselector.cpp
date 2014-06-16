@@ -30,6 +30,7 @@
 #include "codecselector.h"
 #include "basetextdocument.h"
 
+#include <utils/algorithm.h>
 #include <utils/itemviews.h>
 
 #include <QDebug>
@@ -84,7 +85,7 @@ CodecSelector::CodecSelector(QWidget *parent, BaseTextDocument *doc)
     QStringList encodings;
 
     QList<int> mibs = QTextCodec::availableMibs();
-    qSort(mibs);
+    Utils::sort(mibs);
     QList<int> sortedMibs;
     foreach (int mib, mibs)
         if (mib >= 0)

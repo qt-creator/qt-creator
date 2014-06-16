@@ -36,6 +36,7 @@
 
 #include <qmldesignerwarning.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>
@@ -50,7 +51,7 @@ enum { debug = false };
 
 QT_BEGIN_NAMESPACE
 
-// Allow usage of QFileInfo in qSort
+// Allow usage of QFileInfo in Utils::sort
 
 static bool operator<(const QFileInfo &file1, const QFileInfo &file2)
 {
@@ -282,8 +283,8 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
         newList << qmlFile;
     }
 
-    qSort(monitoredList);
-    qSort(newList);
+    Utils::sort(monitoredList);
+    Utils::sort(newList);
 
     if (debug)
         qDebug() << "monitored list " << monitoredList.size() << "new list " << newList.size();

@@ -46,6 +46,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/QtConcurrentTools>
 #include <utils/qtcassert.h>
 
@@ -56,17 +57,6 @@
 
 namespace Core {
 namespace Internal {
-
-namespace {
-    static bool filterLessThan(const ILocatorFilter *first, const ILocatorFilter *second)
-    {
-        if (first->priority() < second->priority())
-            return true;
-        if (first->priority() > second->priority())
-            return false;
-        return first->id().alphabeticallyBefore(second->id());
-    }
-}
 
 Locator::Locator()
     : m_settingsInitialized(false)
@@ -151,7 +141,11 @@ void Locator::openLocator()
 void Locator::extensionsInitialized()
 {
     m_filters = ExtensionSystem::PluginManager::getObjects<ILocatorFilter>();
-    qSort(m_filters.begin(), m_filters.end(), filterLessThan);
+    Utils::sort(m_filters, [](const ILocatorFilter *first, const ILocatorFilter *second) -> bool {
+        if (first->priority() != second->priority())
+            return first->priority() < second->priority();
+        return first->id().alphabeticallyBefore(second->id());
+    });
     setFilters(m_filters);
 }
 

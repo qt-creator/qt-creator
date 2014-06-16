@@ -158,7 +158,7 @@ private:
 
     static QStringList dependencies(const Utils::FileName &readelfPath, const QString &lib);
     static int setLibraryLevel(const QString &library, LibrariesMap &mapLibs);
-    static bool qtLibrariesLessThan(const Library &a, const Library &b);
+
 };
 
 } // namespace Internal

@@ -31,6 +31,8 @@
 
 #include "qnxdeviceprocesslist.h"
 
+#include <utils/algorithm.h>
+
 #include <QRegExp>
 #include <QStringList>
 
@@ -75,6 +77,6 @@ QList<ProjectExplorer::DeviceProcessItem> QnxDeviceProcessList::buildProcessList
         }
     }
 
-    qSort(processes);
+    Utils::sort(processes);
     return processes;
 }

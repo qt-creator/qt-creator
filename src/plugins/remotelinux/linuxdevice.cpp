@@ -39,6 +39,7 @@
 #include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
 #include <ssh/sshremoteprocessrunner.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>
@@ -116,7 +117,7 @@ private:
             processes.append(process);
         }
 
-        qSort(processes);
+        Utils::sort(processes);
         return processes;
     }
 };

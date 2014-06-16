@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 #include <cpptools/cppprojectfile.h>
 #include <projectexplorer/project.h>
+#include <utils/algorithm.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Token.h>
@@ -149,7 +150,7 @@ QString Utils::toString(const QList<ProjectFile> &projectFiles)
     QStringList filesList;
     foreach (const ProjectFile &projectFile, projectFiles)
         filesList << QDir::toNativeSeparators(projectFile.path);
-    qSort(filesList);
+    ::Utils::sort(filesList);
     return filesList.join(QLatin1String("\n"));
 }
 

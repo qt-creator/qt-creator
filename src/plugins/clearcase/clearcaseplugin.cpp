@@ -56,6 +56,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/iprojectmanager.h>
+#include <utils/algorithm.h>
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 #include <utils/fileutils.h>
@@ -1906,7 +1907,7 @@ QList<QStringPair> ClearCasePlugin::ccGetActivities() const
                 result.append(QStringPair(actName, act.at(1).trimmed()));
         }
     }
-    qSort(result);
+    Utils::sort(result);
     if (!rebaseAct.first.isEmpty())
         result.append(rebaseAct);
     if (!deliverAct.first.isEmpty())

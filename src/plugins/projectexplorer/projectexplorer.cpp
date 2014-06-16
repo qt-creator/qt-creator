@@ -117,6 +117,7 @@
 #include <coreplugin/fileutils.h>
 #include <coreplugin/removefiledialog.h>
 #include <texteditor/findinfiles.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
@@ -1966,7 +1967,7 @@ QStringList ProjectExplorerPlugin::allFilesWithDependencies(Project *pro)
         p->rootProjectNode()->accept(&filesVisitor);
         filesToSave << filesVisitor.filePaths();
     }
-    qSort(filesToSave);
+    Utils::sort(filesToSave);
     return filesToSave;
 }
 

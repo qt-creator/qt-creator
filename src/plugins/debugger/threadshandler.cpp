@@ -33,6 +33,7 @@
 #include "debuggerprotocol.h"
 #include "watchutils.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -253,30 +254,18 @@ Qt::ItemFlags ThreadsHandler::flags(const QModelIndex &index) const
     return stopped ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
 }
 
-struct Sorter
-{
-    Sorter(int column, Qt::SortOrder order)
-        : m_column(column), m_order(order)
-    {}
-
-    bool operator()(const ThreadData &t1, const ThreadData &t2) const
-    {
-        const QVariant v1 = threadPart(t1, m_column);
-        const QVariant v2 = threadPart(t2, m_column);
-        if (v1 == v2)
-            return false;
-        // FIXME: Use correct toXXX();
-        return (v1.toString() < v2.toString()) ^ (m_order == Qt::DescendingOrder);
-    }
-
-    int m_column;
-    Qt::SortOrder m_order;
-};
-
 void ThreadsHandler::sort(int column, Qt::SortOrder order)
 {
     layoutAboutToBeChanged();
-    qSort(m_threads.begin(), m_threads.end(), Sorter(column, order));
+    Utils::sort(m_threads, [&](const ThreadData &t1, const ThreadData &t2) -> bool {
+        const QVariant v1 = threadPart(t1, column);
+        const QVariant v2 = threadPart(t2, column);
+        if (v1 == v2)
+            return false;
+        // FIXME: Use correct toXXX();
+        return (v1.toString() < v2.toString()) ^ (order == Qt::DescendingOrder);
+    }
+);
     layoutChanged();
 }
 

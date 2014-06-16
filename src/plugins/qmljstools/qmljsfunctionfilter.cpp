@@ -31,6 +31,7 @@
 #include "qmljslocatordata.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/algorithm.h>
 
 #include <QStringMatcher>
 
@@ -101,9 +102,9 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(QFutureInterface<Core
     }
 
     if (goodEntries.size() < 1000)
-        qSort(goodEntries.begin(), goodEntries.end(), compareLexigraphically);
+        Utils::sort(goodEntries, compareLexigraphically);
     if (betterEntries.size() < 1000)
-        qSort(betterEntries.begin(), betterEntries.end(), compareLexigraphically);
+        Utils::sort(betterEntries, compareLexigraphically);
 
     betterEntries += goodEntries;
     return betterEntries;

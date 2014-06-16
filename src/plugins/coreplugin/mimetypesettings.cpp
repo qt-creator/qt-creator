@@ -36,6 +36,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
+#include <utils/algorithm.h>
 #include <utils/headerviewstretcher.h>
 
 #include <QAbstractTableModel>
@@ -47,18 +48,9 @@
 #include <QSet>
 #include <QStringList>
 #include <QSortFilterProxyModel>
-#include <QtAlgorithms>
-
-#include <algorithm>
 
 namespace Core {
 namespace Internal {
-
-struct MimeTypeComp
-{
-    bool operator()(const MimeType &a, const MimeType &b)
-    { return a.type().compare(b.type(), Qt::CaseInsensitive) < 0; }
-};
 
 // MimeTypeSettingsModel
 class MimeTypeSettingsModel : public QAbstractTableModel
@@ -125,7 +117,9 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
 void MimeTypeSettingsModel::load()
 {
     m_mimeTypes = MimeDatabase::mimeTypes();
-    qSort(m_mimeTypes.begin(), m_mimeTypes.end(), MimeTypeComp());
+    Utils::sort(m_mimeTypes, [](const MimeType &a, const MimeType &b) {
+        return a.type().compare(b.type(), Qt::CaseInsensitive) < 0;
+    });
     m_knownPatterns = QSet<QString>::fromList(
         MimeDatabase::fromGlobPatterns(MimeDatabase::globPatterns()));
 
@@ -498,7 +492,7 @@ void MimeTypeSettingsPrivate::updateMimeDatabase()
 
     // For this case it is a better approach to simply use a list and to remove duplicates
     // afterwards than to keep a more complex data structure like a hash table.
-    qSort(m_modifiedMimeTypes.begin(), m_modifiedMimeTypes.end());
+    Utils::sort(m_modifiedMimeTypes);
     m_modifiedMimeTypes.erase(std::unique(m_modifiedMimeTypes.begin(), m_modifiedMimeTypes.end()),
                               m_modifiedMimeTypes.end());
 

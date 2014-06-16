@@ -34,6 +34,7 @@
 
 #include "ui_valgrindconfigwidget.h"
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -216,11 +217,6 @@ void ValgrindConfigWidget::slotSuppressionsAdded(const QStringList &files)
         m_model->appendRow(new QStandardItem(file));
 }
 
-bool sortReverse(int l, int r)
-{
-    return l > r;
-}
-
 void ValgrindConfigWidget::slotRemoveSuppression()
 {
     // remove from end so no rows get invalidated
@@ -232,7 +228,7 @@ void ValgrindConfigWidget::slotRemoveSuppression()
         removed << index.data().toString();
     }
 
-    qSort(rows.begin(), rows.end(), sortReverse);
+    Utils::sort(rows, std::greater<int>());
 
     foreach (int row, rows)
         m_model->removeRow(row);

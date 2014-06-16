@@ -35,6 +35,7 @@
 
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
+#include <utils/algorithm.h>
 
 #include <QDebug>
 
@@ -294,7 +295,7 @@ void ModelToTextMerger::applyChanges()
 void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
 {
     QList<int> offsets = dirtyAreas.keys();
-    qSort(offsets);
+    Utils::sort(offsets);
     TextModifier *textModifier = m_rewriterView->textModifier();
 
     foreach (const int offset, offsets) {

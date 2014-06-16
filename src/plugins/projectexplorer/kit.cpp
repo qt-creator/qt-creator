@@ -33,6 +33,7 @@
 #include "ioutputparser.h"
 #include "osparser.h"
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 #include <QApplication>
@@ -254,7 +255,7 @@ QList<Task> Kit::validate() const
         }
         result.append(tmp);
     }
-    qSort(result);
+    Utils::sort(result);
     d->m_hasValidityInfo = true;
     return result;
 }

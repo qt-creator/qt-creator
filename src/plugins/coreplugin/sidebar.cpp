@@ -31,6 +31,7 @@
 #include "sidebarwidget.h"
 
 #include "actionmanager/command.h"
+#include <utils/algorithm.h>
 
 #include <QSettings>
 #include <QPointer>
@@ -152,7 +153,7 @@ void SideBar::makeItemAvailable(SideBarItem *item)
             d->m_availableItemIds.append(it.key());
             d->m_availableItemTitles.append(it.value().data()->title());
             d->m_unavailableItemIds.removeAll(it.key());
-            qSort(d->m_availableItemTitles);
+            Utils::sort(d->m_availableItemTitles);
             emit availableItemsChanged();
             //updateWidgets();
             break;
@@ -178,7 +179,7 @@ void SideBar::setUnavailableItemIds(const QStringList &itemIds)
         d->m_availableItemIds.removeAll(id);
         d->m_availableItemTitles.removeAll(d->m_itemMap.value(id).data()->title());
     }
-    qSort(d->m_availableItemTitles);
+    Utils::sort(d->m_availableItemTitles);
     updateWidgets();
 }
 

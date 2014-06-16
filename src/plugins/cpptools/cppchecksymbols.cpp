@@ -31,6 +31,7 @@
 
 #include "cpplocalsymbols.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -330,7 +331,7 @@ void CheckSymbols::run()
     _potentialFunctions = collectTypes.functions();
     _potentialStatics = collectTypes.statics();
 
-    qSort(_macroUses.begin(), _macroUses.end(), sortByLinePredicate);
+    Utils::sort(_macroUses, sortByLinePredicate);
     _doc->clearDiagnosticMessages();
 
     if (!isCanceled()) {
@@ -1415,7 +1416,7 @@ void CheckSymbols::flush()
     if (_usages.isEmpty())
         return;
 
-    qSort(_usages.begin(), _usages.end(), sortByLinePredicate);
+    Utils::sort(_usages, sortByLinePredicate);
     reportResults(_usages);
     int cap = _usages.capacity();
     _usages.clear();

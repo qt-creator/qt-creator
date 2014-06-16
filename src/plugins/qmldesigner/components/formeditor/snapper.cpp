@@ -30,12 +30,14 @@
 #include "snapper.h"
 
 #include <QDebug>
-
-#include <limits>
 #include <QLineF>
 #include <QPen>
 #include <QApplication>
+
+#include <limits>
 #include <qmlanchors.h>
+
+#include <utils/algorithm.h>
 
 namespace QmlDesigner {
 
@@ -452,17 +454,6 @@ double Snapper::snappingDistance() const
     return m_snappingDistance;
 }
 
-static bool lineXLessThan(const QLineF &firstLine, const QLineF &secondLine)
-{
-    return firstLine.x1() < secondLine.x2();
-}
-
-static bool lineYLessThan(const QLineF &firstLine, const QLineF &secondLine)
-{
-    return firstLine.y1() < secondLine.y2();
-}
-
-
 static QLineF mergedHorizontalLine(const QList<QLineF> &lineList)
 {
     if (lineList.count() == 1)
@@ -504,7 +495,9 @@ static QList<QLineF> mergedHorizontalLines(const QList<QLineF> &lineList)
     QList<QLineF> mergedLineList;
 
     QList<QLineF> sortedLineList(lineList);
-    qSort(sortedLineList.begin(), sortedLineList.end(), lineYLessThan);
+    Utils::sort(sortedLineList, [](const QLineF &firstLine, const QLineF &secondLine) {
+        return firstLine.y1() < secondLine.y2();
+    });
 
     QList<QLineF> lineWithTheSameY;
     QListIterator<QLineF>  sortedLineListIterator(sortedLineList);
@@ -531,7 +524,9 @@ static QList<QLineF> mergedVerticalLines(const QList<QLineF> &lineList)
     QList<QLineF> mergedLineList;
 
     QList<QLineF> sortedLineList(lineList);
-    qSort(sortedLineList.begin(), sortedLineList.end(), lineXLessThan);
+    Utils::sort(sortedLineList, [](const QLineF &firstLine, const QLineF &secondLine) {
+        return firstLine.x1() < secondLine.x2();
+    });
 
     QList<QLineF> lineWithTheSameX;
     QListIterator<QLineF>  sortedLineListIterator(sortedLineList);

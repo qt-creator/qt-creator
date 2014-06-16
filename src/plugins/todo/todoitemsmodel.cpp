@@ -31,6 +31,8 @@
 #include "todoitemsmodel.h"
 #include "constants.h"
 
+#include <utils/algorithm.h>
+
 #include <QIcon>
 
 namespace Todo {
@@ -135,7 +137,7 @@ void TodoItemsModel::sort(int column, Qt::SortOrder order)
     m_currentSortOrder = order;
 
     TodoItemSortPredicate predicate(m_currentSortColumn, m_currentSortOrder);
-    qSort(m_todoItemsList->begin(), m_todoItemsList->end(), predicate);
+    Utils::sort(*m_todoItemsList, predicate);
     emit layoutChanged();
 }
 

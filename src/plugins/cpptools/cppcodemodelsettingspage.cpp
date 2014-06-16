@@ -32,6 +32,7 @@
 #include "ui_cppcodemodelsettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
 
 #include <QTextStream>
 
@@ -70,7 +71,7 @@ void CppCodeModelSettingsWidget::applyToWidget(QComboBox *chooser, const QString
     chooser->clear();
 
     QStringList names = m_settings->availableModelManagerSupportersByName().keys();
-    qSort(names);
+    Utils::sort(names);
     foreach (const QString &name, names) {
         const QString &id = m_settings->availableModelManagerSupportersByName()[name];
         chooser->addItem(name, id);

@@ -31,6 +31,8 @@
 #include "target.h"
 #include "deployconfiguration.h"
 
+#include <utils/algorithm.h>
+
 using namespace ProjectExplorer;
 
 /*!
@@ -57,7 +59,7 @@ DeployConfigurationModel::DeployConfigurationModel(Target *target, QObject *pare
       m_target(target)
 {
     m_deployConfigurations = m_target->deployConfigurations();
-    qSort(m_deployConfigurations.begin(), m_deployConfigurations.end(), DeployConfigurationComparer());
+    Utils::sort(m_deployConfigurations, DeployConfigurationComparer());
 
     connect(target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
             this, SLOT(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));

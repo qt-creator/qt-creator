@@ -32,6 +32,7 @@
 #include "ui_projectwizardpage.h"
 
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/wizard.h>
 #include <vcsbase/vcsbaseconstants.h>
@@ -162,18 +163,6 @@ void ProjectWizardPage::setVersionControlIndex(int idx)
     m_ui->addToVersionControlComboBox->setCurrentIndex(idx);
 }
 
-// Alphabetically, and files in sub-directories first
-static bool generatedFilePathLessThan(const QString &filePath1, const QString &filePath2)
-{
-    const bool filePath1HasDir = filePath1.contains(QLatin1Char('/'));
-    const bool filePath2HasDir = filePath2.contains(QLatin1Char('/'));
-
-    if (filePath1HasDir == filePath2HasDir)
-        return Utils::FileName::fromString(filePath1) < Utils::FileName::fromString(filePath2);
-    else
-        return filePath1HasDir;
-}
-
 void ProjectWizardPage::setFilesDisplay(const QString &commonPath, const QStringList &files)
 {
     QString fileMessage;
@@ -192,7 +181,16 @@ void ProjectWizardPage::setFilesDisplay(const QString &commonPath, const QString
             foreach (const QString &f, files)
                 formattedFiles.append(f.right(f.size() - prefixSize));
         }
-        qSort(formattedFiles.begin(), formattedFiles.end(), generatedFilePathLessThan);
+        // Alphabetically, and files in sub-directories first
+        Utils::sort(formattedFiles, [](const QString &filePath1, const QString &filePath2) -> bool {
+            const bool filePath1HasDir = filePath1.contains(QLatin1Char('/'));
+            const bool filePath2HasDir = filePath2.contains(QLatin1Char('/'));
+
+            if (filePath1HasDir == filePath2HasDir)
+                return Utils::FileName::fromString(filePath1) < Utils::FileName::fromString(filePath2);
+            return filePath1HasDir;
+        }
+);
 
         foreach (const QString &f, formattedFiles)
             str << QDir::toNativeSeparators(f) << '\n';

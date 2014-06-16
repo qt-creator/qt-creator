@@ -40,13 +40,13 @@
 #include "imageviewer.h"
 #include "watchutils.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
 #include <QDebug>
 #include <QFile>
 #include <QProcess>
-#include <QtAlgorithms>
 #include <QTabWidget>
 #include <QTextEdit>
 
@@ -2120,7 +2120,7 @@ void WatchHandler::editTypeFormats(bool includeLocals, const QByteArray &iname)
 
     //QHashIterator<QString, QStringList> it(m_reportedTypeFormats);
     QList<QString> l = m_model->m_reportedTypeFormats.keys();
-    qSort(l.begin(), l.end());
+    Utils::sort(l);
     foreach (const QString &ba, l) {
         int f = iname.isEmpty() ? AutomaticFormat : format(iname);
         dlg.addTypeFormats(ba, m_model->m_reportedTypeFormats.value(ba), f);

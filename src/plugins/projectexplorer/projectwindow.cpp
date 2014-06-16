@@ -41,6 +41,7 @@
 
 #include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -340,7 +341,7 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
 
     // Add the project specific pages
     QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
-    qSort(factories.begin(), factories.end(), &IPanelFactory::prioritySort);
+    Utils::sort(factories, &IPanelFactory::prioritySort);
     foreach (IProjectPanelFactory *panelFactory, factories) {
         if (panelFactory->supports(project))
             subtabs << panelFactory->displayName();
@@ -405,7 +406,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
     }
 
     QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
-    qSort(factories.begin(), factories.end(), &IPanelFactory::prioritySort);
+    Utils::sort(factories, &IPanelFactory::prioritySort);
     foreach (IProjectPanelFactory *panelFactory, factories) {
         if (panelFactory->supports(project)) {
             if (subIndex == pos) {

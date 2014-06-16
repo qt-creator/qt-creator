@@ -48,6 +48,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 #include <qmakeprojectmanager/qmakeproject.h>
+#include <utils/algorithm.h>
 
 #include <QLineEdit>
 #include <QFileInfo>
@@ -1348,7 +1349,7 @@ void PermissionsModel::setPermissions(const QStringList &permissions)
 {
     beginResetModel();
     m_permissions = permissions;
-    qSort(m_permissions);
+    Utils::sort(m_permissions);
     endResetModel();
 }
 

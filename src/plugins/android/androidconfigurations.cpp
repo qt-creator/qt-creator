@@ -50,6 +50,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/sleep.h>
 
@@ -248,7 +249,7 @@ void AndroidConfig::updateNdkInformation() const
         const QString &fileName = it.next();
         m_availableNdkPlatforms.push_back(fileName.mid(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
     }
-    qSort(m_availableNdkPlatforms.begin(), m_availableNdkPlatforms.end(), qGreater<int>());
+    Utils::sort(m_availableNdkPlatforms, std::greater<int>());
 
     // detect toolchain host
     QStringList hostPatterns;
@@ -494,7 +495,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
         devices.push_back(dev);
     }
 
-    qSort(devices.begin(), devices.end(), androidDevicesLessThan);
+    Utils::sort(devices, androidDevicesLessThan);
     if (devices.isEmpty() && error)
         *error = QApplication::translate("AndroidConfiguration",
                                          "No devices found in output of: %1")
@@ -631,7 +632,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices() const
         dev.type = AndroidDeviceInfo::Emulator;
         devices.push_back(dev);
     }
-    qSort(devices.begin(), devices.end(), androidDevicesLessThan);
+    Utils::sort(devices, androidDevicesLessThan);
 
     return devices;
 }

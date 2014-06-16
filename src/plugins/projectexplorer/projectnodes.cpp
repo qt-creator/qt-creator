@@ -37,6 +37,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -406,7 +407,7 @@ void FolderNode::removeFileNodes(const QList<FileNode *> &files)
         return;
 
     QList<FileNode*> toRemove = files;
-    qSort(toRemove.begin(), toRemove.end());
+    Utils::sort(toRemove);
 
     foreach (NodesWatcher *watcher, pn->watchers())
         emit watcher->filesAboutToBeRemoved(this, toRemove);
@@ -486,7 +487,7 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
         return;
 
     QList<FolderNode*> toRemove = subFolders;
-    qSort(toRemove.begin(), toRemove.end());
+    Utils::sort(toRemove);
 
     foreach (NodesWatcher *watcher, pn->watchers())
         emit watcher->foldersAboutToBeRemoved(this, toRemove);
@@ -690,8 +691,8 @@ void ProjectNode::addProjectNodes(const QList<ProjectNode*> &subProjects)
             m_subFolderNodes.append(project);
             m_subProjectNodes.append(project);
         }
-        qSort(m_subFolderNodes.begin(), m_subFolderNodes.end());
-        qSort(m_subProjectNodes.begin(), m_subProjectNodes.end());
+        Utils::sort(m_subFolderNodes);
+        Utils::sort(m_subProjectNodes);
 
         foreach (NodesWatcher *watcher, m_watchers)
             emit watcher->foldersAdded();
@@ -711,7 +712,7 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
         QList<FolderNode*> toRemove;
         foreach (ProjectNode *projectNode, subProjects)
             toRemove << projectNode;
-        qSort(toRemove.begin(), toRemove.end());
+        Utils::sort(toRemove);
 
         foreach (NodesWatcher *watcher, m_watchers)
             emit watcher->foldersAboutToBeRemoved(this, toRemove);
@@ -835,8 +836,8 @@ void SessionNode::addProjectNodes(const QList<ProjectNode*> &projectNodes)
             m_projectNodes.append(project);
         }
 
-        qSort(m_subFolderNodes);
-        qSort(m_projectNodes);
+        Utils::sort(m_subFolderNodes);
+        Utils::sort(m_projectNodes);
 
         foreach (NodesWatcher *watcher, m_watchers)
             emit watcher->foldersAdded();
@@ -850,7 +851,7 @@ void SessionNode::removeProjectNodes(const QList<ProjectNode*> &projectNodes)
         foreach (ProjectNode *projectNode, projectNodes)
             toRemove << projectNode;
 
-        qSort(toRemove);
+        Utils::sort(toRemove);
 
         foreach (NodesWatcher *watcher, m_watchers)
             emit watcher->foldersAboutToBeRemoved(this, toRemove);

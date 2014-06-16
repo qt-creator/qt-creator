@@ -30,6 +30,7 @@
 #include "helpmanager.h"
 
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 
 #include <QDateTime>
@@ -263,7 +264,7 @@ QStringList HelpManager::findKeywords(const QString &key, Qt::CaseSensitivity ca
     }
 
     QStringList keywordsSorted = keywordsToSort.toList();
-    qSort(keywordsSorted.begin(), keywordsSorted.end());
+    Utils::sort(keywordsSorted);
     return keywordsSorted + keywords.toList();
 }
 

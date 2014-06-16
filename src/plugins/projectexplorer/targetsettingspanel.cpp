@@ -49,6 +49,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/runconfiguration.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFileDialog>
@@ -539,13 +540,6 @@ void TargetSettingsPanelWidget::activeTargetChanged(ProjectExplorer::Target *tar
     m_selector->setCurrentIndex(index);
 }
 
-namespace {
-bool diplayNameSorter(Kit *a, Kit *b)
-{
-    return a->displayName() < b->displayName();
-}
-}
-
 void TargetSettingsPanelWidget::createAction(Kit *k, QMenu *menu)
 {
     QAction *action = new QAction(k->displayName(), menu);
@@ -598,7 +592,9 @@ void TargetSettingsPanelWidget::updateTargetButtons()
     connect(removeAction, SIGNAL(triggered()), this, SLOT(removeTarget()));
 
     QList<Kit *> kits = KitManager::kits();
-    qSort(kits.begin(), kits.end(), diplayNameSorter);
+    Utils::sort(kits, [](const Kit *a, const Kit *b) {
+        return a->displayName() < b->displayName();
+    });
     foreach (Kit *k, kits) {
         if (m_project->target(k))
             continue;

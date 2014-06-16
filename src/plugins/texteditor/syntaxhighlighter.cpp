@@ -33,6 +33,7 @@
 #include "texteditorsettings.h"
 #include "fontsettings.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <qtimer.h>
@@ -659,7 +660,7 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
     if (block.layout() == 0 || blockLength == 0)
         return;
 
-    qSort(formats.begin(), formats.end(), byStartOfRange);
+    Utils::sort(formats, byStartOfRange);
 
     const QList<QTextLayout::FormatRange> all = block.layout()->additionalFormats();
     QList<QTextLayout::FormatRange> previousSemanticFormats;
@@ -678,7 +679,7 @@ void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
     }
 
     if (formats.size() == previousSemanticFormats.size()) {
-        qSort(previousSemanticFormats.begin(), previousSemanticFormats.end(), byStartOfRange);
+        Utils::sort(previousSemanticFormats, byStartOfRange);
 
         int index = 0;
         for (; index != formats.size(); ++index) {

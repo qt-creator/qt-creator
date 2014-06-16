@@ -29,6 +29,8 @@
 
 #include "onedimensionalcluster.h"
 
+#include <utils/algorithm.h>
+
 #include <QDebug>
 
 namespace QmlDesigner {
@@ -92,7 +94,7 @@ QList<OneDimensionalCluster> OneDimensionalCluster::reduceOneDimensionalClusterL
     QList<OneDimensionalCluster> reducedList;
     while (true)
     {
-        qSort(workingList);
+        Utils::sort(workingList);
         reducedList.clear();
         bool clusterMerged = false;
         QListIterator<OneDimensionalCluster> clusterIterator(workingList);

@@ -37,6 +37,7 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 
 using namespace QmakeProjectManager;
@@ -248,7 +249,7 @@ void QmakeProjectConfigWidget::updateProblemLabel()
             buildDirectory = m_buildConfiguration->buildDirectory().toString();
         QList<ProjectExplorer::Task> issues;
         issues = version->reportIssues(proFileName, buildDirectory);
-        qSort(issues);
+        Utils::sort(issues);
 
         if (!issues.isEmpty() || !shadowBuildWarning.isEmpty()) {
             QString text = QLatin1String("<nobr>") + shadowBuildWarning;

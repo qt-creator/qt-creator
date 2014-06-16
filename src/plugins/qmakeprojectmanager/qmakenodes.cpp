@@ -56,11 +56,11 @@
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/stringutils.h>
 #include <proparser/prowriter.h>
 #include <proparser/qmakevfs.h>
-#include <algorithm>
 
 #include <QDebug>
 #include <QDir>
@@ -501,8 +501,8 @@ struct InternalNode
         QStringList filesToAdd;
 
         SortByPath sortByPath;
-        qSort(files.begin(), files.end(), sortByPath);
-        qSort(existingFileNodes.begin(), existingFileNodes.end(), sortByPath);
+        Utils::sort(files, sortByPath);
+        Utils::sort(existingFileNodes, sortByPath);
 
         ProjectExplorer::compareSortedLists(existingFileNodes, files, filesToRemove, filesToAdd, sortByPath);
 
@@ -527,8 +527,8 @@ struct InternalNode
         QStringList resourcesToAdd;
 
         SortByPath sortByPath;
-        qSort(files.begin(), files.end(), sortByPath);
-        qSort(existingResourceNodes.begin(), existingResourceNodes.end(), sortByPath);
+        Utils::sort(files, sortByPath);
+        Utils::sort(existingResourceNodes, sortByPath);
 
         ProjectExplorer::compareSortedLists(existingResourceNodes, files, resourcesToRemove, resourcesToAdd, sortByPath);
 
@@ -1854,10 +1854,9 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     }
 
     SortByPath sortByPath;
-    qSort(existingProjectNodes.begin(), existingProjectNodes.end(),
-          sortByPath);
-    qSort(newProjectFilesExact.begin(), newProjectFilesExact.end(), sortByPath);
-    qSort(newProjectFilesCumlative.begin(), newProjectFilesCumlative.end(), sortByPath);
+    Utils::sort(existingProjectNodes, sortByPath);
+    Utils::sort(newProjectFilesExact, sortByPath);
+    Utils::sort(newProjectFilesCumlative, sortByPath);
 
     QList<ProjectNode*> toAdd;
     QList<ProjectNode*> toRemove;

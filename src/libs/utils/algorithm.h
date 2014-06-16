@@ -113,6 +113,18 @@ auto transform(const QList<T> &container, F function) -> QList<decltype(function
     return result;
 }
 
+template <typename Container>
+inline void sort(Container &c)
+{
+    std::sort(c.begin(), c.end());
+}
+
+template <typename Container, typename Predicate>
+inline void sort(Container &c, Predicate p)
+{
+    std::sort(c.begin(), c.end(), p);
+}
+
 }
 
 #endif // ALGORITHM_H

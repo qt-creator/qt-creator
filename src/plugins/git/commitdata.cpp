@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "commitdata.h"
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -166,7 +167,7 @@ bool CommitData::checkLine(const QString &stateInfo, const QString &file)
             files.append(qMakePair(yState, newFile));
         }
     }
-    qSort(files);
+    Utils::sort(files);
     return true;
 }
 

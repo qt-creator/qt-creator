@@ -44,6 +44,7 @@
 #include <qtsupport/debugginghelperbuildtask.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -1180,7 +1181,7 @@ QList<Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QStrin
 QList<Task> BaseQtVersion::reportIssues(const QString &proFile, const QString &buildDir) const
 {
     QList<Task> results = reportIssuesImpl(proFile, buildDir);
-    qSort(results);
+    Utils::sort(results);
     return results;
 }
 

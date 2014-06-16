@@ -34,6 +34,7 @@
 #include "projectexplorer.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <utils/algorithm.h>
 
 #include <QDebug>
 #include <QFileInfo>
@@ -444,7 +445,7 @@ QList<Node*> FlatModel::childNodes(FolderNode *parentNode, const QSet<Node*> &bl
         recursiveAddFolderNodes(parentNode, &nodeList, blackList);
         recursiveAddFileNodes(parentNode, &nodeList, blackList + nodeList.toSet());
     }
-    qSort(nodeList.begin(), nodeList.end(), sortNodes);
+    Utils::sort(nodeList, sortNodes);
     return nodeList;
 }
 

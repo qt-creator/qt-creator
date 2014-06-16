@@ -42,6 +42,7 @@
 
 #include <projectexplorer/toolchainmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/hostosinfo.h>
@@ -505,7 +506,7 @@ QList<BaseQtVersion *> QtVersionManager::versions()
     QTC_ASSERT(isLoaded(), return versions);
     foreach (BaseQtVersion *version, m_versions)
         versions << version;
-    qSort(versions.begin(), versions.end(), &qtVersionNumberCompare);
+    Utils::sort(versions, qtVersionNumberCompare);
     return versions;
 }
 
@@ -517,7 +518,7 @@ QList<BaseQtVersion *> QtVersionManager::validVersions()
         if (v->isValid())
             results.append(v);
     }
-    qSort(results.begin(), results.end(), &qtVersionNumberCompare);
+    Utils::sort(results, qtVersionNumberCompare);
     return results;
 }
 
@@ -536,15 +537,6 @@ BaseQtVersion *QtVersionManager::version(int id)
     return it.value();
 }
 
-class SortByUniqueId
-{
-public:
-    bool operator()(BaseQtVersion *a, BaseQtVersion *b)
-    {
-        return a->uniqueId() < b->uniqueId();
-    }
-};
-
 // This function is really simplistic...
 static bool equals(BaseQtVersion *a, BaseQtVersion *b)
 {
@@ -556,8 +548,9 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
     // We want to preserve the same order as in the settings dialog
     // so we sort a copy
     QList<BaseQtVersion *> sortedNewVersions = newVersions;
-    SortByUniqueId sortByUniqueId;
-    qSort(sortedNewVersions.begin(), sortedNewVersions.end(), sortByUniqueId);
+    Utils::sort(sortedNewVersions, [](const BaseQtVersion *l, const BaseQtVersion *r) {
+        return l->uniqueId() < r->uniqueId();
+    });
 
     QList<int> addedVersions;
     QList<int> removedVersions;

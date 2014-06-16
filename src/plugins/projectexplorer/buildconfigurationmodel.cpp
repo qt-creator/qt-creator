@@ -31,6 +31,8 @@
 #include "target.h"
 #include "buildconfiguration.h"
 
+#include <utils/algorithm.h>
+
 using namespace ProjectExplorer;
 
 /*!
@@ -59,7 +61,7 @@ BuildConfigurationModel::BuildConfigurationModel(Target *target, QObject *parent
       m_target(target)
 {
     m_buildConfigurations = m_target->buildConfigurations();
-    qSort(m_buildConfigurations.begin(), m_buildConfigurations.end(), BuildConfigurationComparer());
+    Utils::sort(m_buildConfigurations, BuildConfigurationComparer());
 
     connect(target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));

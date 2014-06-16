@@ -43,6 +43,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
@@ -74,11 +75,6 @@ static char outputPaneVisibleKeyC[] = "visible";
 ////
 
 static OutputPaneManager *m_instance = 0;
-
-bool comparePanes(IOutputPane *p1, IOutputPane *p2)
-{
-    return p1->priorityInStatusBar() > p2->priorityInStatusBar();
-}
 
 void OutputPaneManager::create()
 {
@@ -239,7 +235,9 @@ void OutputPaneManager::init()
     int minTitleWidth = 0;
 
     m_panes = ExtensionSystem::PluginManager::getObjects<IOutputPane>();
-    qSort(m_panes.begin(), m_panes.end(), &comparePanes);
+    Utils::sort(m_panes, [](IOutputPane *p1, IOutputPane *p2) {
+        return p1->priorityInStatusBar() > p2->priorityInStatusBar();
+    });
     const int n = m_panes.size();
 
     int shortcutNumber = 1;

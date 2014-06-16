@@ -40,6 +40,7 @@
 
 #include <coreplugin/icore.h>
 #include <qmljs/qmljssimplereader.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 #include <QApplication>
@@ -342,7 +343,7 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
     qmlTemplate += QStringLiteral("SectionLayout {\n");
 
     QList<PropertyName> orderedList = type.propertyNames();
-    qSort(orderedList);
+    Utils::sort(orderedList);
 
     bool emptyTemplate = true;
 

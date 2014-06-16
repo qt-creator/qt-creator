@@ -31,6 +31,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QVector>
@@ -214,7 +215,7 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
 
         QVector<qint64> eventDurations = durations[it.key()];
         if (!eventDurations.isEmpty()) {
-            qSort(eventDurations);
+            Utils::sort(eventDurations);
             stats->medianTime = eventDurations.at(eventDurations.count()/2);
         }
 

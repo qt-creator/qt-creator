@@ -33,6 +33,7 @@
 #include "gitutils.h"
 #include "ui_stashdialog.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -367,7 +368,7 @@ QList<int> StashDialog::selectedRows() const
         if (index.isValid())
             rc.push_back(index.row());
     }
-    qSort(rc);
+    Utils::sort(rc);
     return rc;
 }
 

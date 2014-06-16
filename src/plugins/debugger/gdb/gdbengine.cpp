@@ -68,6 +68,7 @@
 #include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/itexteditor.h>
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -1000,7 +1001,7 @@ int GdbEngine::commandTimeoutTime() const
 void GdbEngine::commandTimeout()
 {
     QList<int> keys = m_cookieForToken.keys();
-    qSort(keys);
+    Utils::sort(keys);
     bool killIt = false;
     foreach (int key, keys) {
         const GdbCommand &cmd = m_cookieForToken.value(key);

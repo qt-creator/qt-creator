@@ -34,6 +34,7 @@
 #include <proparser/qmakevfs.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 
 using namespace QtSupport;
@@ -42,17 +43,10 @@ using namespace QtSupport::Internal;
 QtVersionFactory::QtVersionFactory(QObject *parent) :
     QObject(parent)
 {
-
 }
 
 QtVersionFactory::~QtVersionFactory()
 {
-
-}
-
-bool sortByPriority(QtVersionFactory *a, QtVersionFactory *b)
-{
-    return a->priority() > b->priority();
 }
 
 BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
@@ -73,7 +67,9 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     evaluator.loadNamedSpec(mkspec.toString(), false);
 
     QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
-    qSort(factories.begin(), factories.end(), &sortByPriority);
+    Utils::sort(factories, [](const QtVersionFactory *l, const QtVersionFactory *r) {
+        return l->priority() > r->priority();
+    });
 
     foreach (QtVersionFactory *factory, factories) {
         BaseQtVersion *ver = factory->create(qmakePath, &evaluator, isAutoDetected, autoDetectionSource);

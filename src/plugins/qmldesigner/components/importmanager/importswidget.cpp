@@ -31,6 +31,8 @@
 #include "importlabel.h"
 #include "importmanagercombobox.h"
 
+#include <utils/algorithm.h>
+
 #include <QVBoxLayout>
 #include <QComboBox>
 
@@ -118,7 +120,7 @@ void ImportsWidget::setImports(const QList<Import> &imports)
 
     QList<Import> sortedImports = imports;
 
-    qSort(sortedImports.begin(), sortedImports.end(), importLess);
+    Utils::sort(sortedImports, importLess);
 
     foreach (const Import &import, sortedImports) {
         ImportLabel *importLabel = new ImportLabel(this);

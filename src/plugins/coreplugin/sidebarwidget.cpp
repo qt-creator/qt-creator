@@ -32,6 +32,7 @@
 #include "navigationsubwidget.h"
 
 #include <coreplugin/coreconstants.h>
+#include <utils/algorithm.h>
 
 #include <QToolBar>
 #include <QToolButton>
@@ -91,7 +92,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     lay->addWidget(m_toolbar);
 
     QStringList titleList = m_sideBar->availableItemTitles();
-    qSort(titleList);
+    Utils::sort(titleList);
     QString t = id;
     if (titleList.count()) {
         foreach (const QString &itemTitle, titleList)
@@ -158,7 +159,7 @@ void SideBarWidget::updateAvailableItems()
     QStringList titleList = m_sideBar->availableItemTitles();
     if (!currentTitle.isEmpty() && !titleList.contains(currentTitle))
         titleList.append(currentTitle);
-    qSort(titleList);
+    Utils::sort(titleList);
 
     foreach (const QString &itemTitle, titleList)
         m_comboBox->addItem(itemTitle, m_sideBar->idForTitle(itemTitle));

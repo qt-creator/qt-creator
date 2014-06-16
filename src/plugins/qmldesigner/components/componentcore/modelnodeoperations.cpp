@@ -31,7 +31,6 @@
 #include "modelnodecontextmenu_helper.h"
 
 #include <cmath>
-#include <QByteArray>
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
 #include <modelnode.h>
@@ -42,6 +41,10 @@
 #include <documentmanager.h>
 #include <qmlanchors.h>
 #include <limits>
+
+#include <utils/algorithm.h>
+
+#include <QByteArray>
 
 namespace QmlDesigner {
 
@@ -479,7 +482,7 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
                 RewriterTransaction transaction(selectionContext.view(), QByteArrayLiteral("DesignerActionManager|layoutHelperFunction2"));
 
                 QList<ModelNode> sortedSelectedNodes =  selectionContext.selectedModelNodes();
-                qSort(sortedSelectedNodes.begin(), sortedSelectedNodes.end(), lessThan);
+                Utils::sort(sortedSelectedNodes, lessThan);
 
                 setUpperLeftPostionToNode(layoutNode, sortedSelectedNodes);
                 reparentToNodeAndRemovePositionForModelNodes(layoutNode, sortedSelectedNodes);

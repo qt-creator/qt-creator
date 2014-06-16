@@ -55,6 +55,7 @@
 #include <qtsupport/uicodemodelsupport.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/hostosinfo.h>
@@ -432,8 +433,8 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
     // Gather old list
     QList<ProjectExplorer::FileNode *> oldList;
     gatherFileNodes(rootNode, oldList);
-    qSort(oldList.begin(), oldList.end(), sortNodesByPath);
-    qSort(newList.begin(), newList.end(), sortNodesByPath);
+    Utils::sort(oldList, sortNodesByPath);
+    Utils::sort(newList, sortNodesByPath);
 
     QList<ProjectExplorer::FileNode *> added;
     QList<ProjectExplorer::FileNode *> deleted;

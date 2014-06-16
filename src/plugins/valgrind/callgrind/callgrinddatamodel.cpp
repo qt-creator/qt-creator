@@ -33,6 +33,7 @@
 #include "callgrindfunction.h"
 #include "callgrindcostitem.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QChar>
@@ -68,23 +69,13 @@ public:
     QVector<const Function *> m_functions;
 };
 
-struct SortFunctions {
-    SortFunctions(int event)
-    : m_event(event)
-    {
-    }
-    bool operator()(const Function *left, const Function *right)
-    {
-        return left->inclusiveCost(m_event) > right->inclusiveCost(m_event);
-    }
-    int m_event;
-};
-
 void DataModel::Private::updateFunctions()
 {
     if (m_data) {
         m_functions = m_data->functions(m_cycleDetection);
-        qSort(m_functions.begin(), m_functions.end(), SortFunctions(m_event));
+        Utils::sort(m_functions, [this](const Function *l, const Function *r) {
+            return l->inclusiveCost(m_event) > r->inclusiveCost(m_event);
+        });
     } else {
         m_functions.clear();
     }

@@ -40,6 +40,7 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -221,11 +222,6 @@ void VcsManager::extensionsInitialized()
     }
 }
 
-static bool longerThanPath(QPair<QString, IVersionControl *> &pair1, QPair<QString, IVersionControl *> &pair2)
-{
-    return pair1.first.size() > pair2.first.size();
-}
-
 void VcsManager::resetVersionControlForDirectory(const QString &inputDirectory)
 {
     if (inputDirectory.isEmpty())
@@ -273,7 +269,10 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
 
     // To properly find a nested repository (say, git checkout inside SVN),
     // we need to select the version control with the longest toplevel pathname.
-    qSort(allThatCanManage.begin(), allThatCanManage.end(), longerThanPath);
+    Utils::sort(allThatCanManage, [](const StringVersionControlPair &l,
+                                     const StringVersionControlPair &r) {
+        return l.first.size() > r.first.size();
+    });
 
     if (allThatCanManage.isEmpty()) {
         d->cache(0, QString(), directory); // register that nothing was found!

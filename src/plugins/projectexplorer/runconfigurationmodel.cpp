@@ -31,6 +31,8 @@
 #include "target.h"
 #include "runconfiguration.h"
 
+#include <utils/algorithm.h>
+
 using namespace ProjectExplorer;
 
 /*!
@@ -57,7 +59,7 @@ RunConfigurationModel::RunConfigurationModel(Target *target, QObject *parent)
       m_target(target)
 {
     m_runConfigurations = m_target->runConfigurations();
-    qSort(m_runConfigurations.begin(), m_runConfigurations.end(), RunConfigurationComparer());
+    Utils::sort(m_runConfigurations, RunConfigurationComparer());
 
     connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
             this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));

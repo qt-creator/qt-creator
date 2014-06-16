@@ -31,6 +31,7 @@
 #include "debuggercore.h"
 #include "debuggerrunconfigurationaspect.h"
 
+#include <utils/algorithm.h>
 #include <utils/appmainwindow.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
@@ -440,14 +441,11 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
     return dockWidget;
 }
 
-static bool sortCommands(Command *cmd1, Command *cmd2)
-{
-    return cmd1->action()->text() < cmd2->action()->text();
-}
-
 void DebuggerMainWindow::addStagedMenuEntries()
 {
-    qSort(d->m_menuCommandsToAdd.begin(), d->m_menuCommandsToAdd.end(), &sortCommands);
+    Utils::sort(d->m_menuCommandsToAdd, [](Command *cmd1, Command *cmd2) {
+        return cmd1->action()->text() < cmd2->action()->text();
+    });
     foreach (Command *cmd, d->m_menuCommandsToAdd)
         d->m_viewsMenu->addAction(cmd);
     d->m_menuCommandsToAdd.clear();

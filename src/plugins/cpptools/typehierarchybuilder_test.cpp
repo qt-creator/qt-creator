@@ -35,6 +35,7 @@
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/SymbolVisitor.h>
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
@@ -48,12 +49,6 @@ Q_DECLARE_METATYPE(QList<Tests::TestDocument>)
 
 namespace {
 
-bool hierarchySorter(const TypeHierarchy &h1, const TypeHierarchy &h2)
-{
-    Overview oo;
-    return oo.prettyName(h1.symbol()->name()) < oo.prettyName(h2.symbol()->name());
-}
-
 QString toString(const TypeHierarchy &hierarchy, int indent = 0)
 {
     Symbol *symbol = hierarchy.symbol();
@@ -61,7 +56,10 @@ QString toString(const TypeHierarchy &hierarchy, int indent = 0)
         + Overview().prettyName(symbol->name()) + QLatin1Char('\n');
 
     QList<TypeHierarchy> sortedHierarchy = hierarchy.hierarchy();
-    qSort(sortedHierarchy.begin(), sortedHierarchy.end(), hierarchySorter);
+    Overview oo;
+    Utils::sort(sortedHierarchy, [&oo](const TypeHierarchy &h1, const TypeHierarchy &h2) -> bool {
+        return oo.prettyName(h1.symbol()->name()) < oo.prettyName(h2.symbol()->name());
+    });
     foreach (TypeHierarchy childHierarchy, sortedHierarchy)
         result += toString(childHierarchy, indent + 2);
     return result;

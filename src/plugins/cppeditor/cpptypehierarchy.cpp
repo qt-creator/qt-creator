@@ -35,6 +35,7 @@
 #include "cppeditorplugin.h"
 
 #include <coreplugin/find/treeviewfind.h>
+#include <utils/algorithm.h>
 #include <utils/navigationtreeview.h>
 #include <utils/annotateditemdelegate.h>
 
@@ -69,17 +70,14 @@ QStandardItem *itemForClass(const CppClass &cppClass)
     return item;
 }
 
-bool compareCppClassNames(const CppClass &c1, const CppClass &c2)
-{
-    const QString key1 = c1.name + QLatin1String("::") + c1.qualifiedName;
-    const QString key2 = c2.name + QLatin1String("::") + c2.qualifiedName;
-    return key1 < key2;
-}
-
 QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
 {
     QList<CppClass> sorted = cppClasses;
-    qSort(sorted.begin(), sorted.end(), compareCppClassNames);
+    Utils::sort(sorted, [](const CppClass &c1, const CppClass &c2) {
+        const QString key1 = c1.name + QLatin1String("::") + c1.qualifiedName;
+        const QString key2 = c2.name + QLatin1String("::") + c2.qualifiedName;
+        return key1 < key2;
+    });
     return sorted;
 }
 

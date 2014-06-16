@@ -43,6 +43,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 
+#include <utils/algorithm.h>
 #include <utils/pathchooser.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -114,11 +115,6 @@ static bool equalSuppression(const Error &error, const Error &suppressed)
             return false;
 
     return true;
-}
-
-bool sortIndizesReverse(const QModelIndex &l, const QModelIndex &r)
-{
-    return l.row() > r.row();
 }
 
 SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error> &errors)
@@ -224,7 +220,9 @@ void SuppressionDialog::accept()
     m_settings->addSuppressionFiles(QStringList(path));
 
     QModelIndexList indices = m_view->selectionModel()->selectedRows();
-    qSort(indices.begin(), indices.end(), sortIndizesReverse);
+    Utils::sort(indices, [](const QModelIndex &l, const QModelIndex &r) {
+        return l.row() > r.row();
+    });
     QAbstractItemModel *model = m_view->model();
     foreach (const QModelIndex &index, indices) {
         bool removed = model->removeRow(index.row());

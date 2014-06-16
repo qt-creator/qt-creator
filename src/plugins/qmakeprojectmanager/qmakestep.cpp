@@ -48,6 +48,7 @@
 #include <qtsupport/debugginghelperbuildtask.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
@@ -275,7 +276,7 @@ bool QMakeStep::init()
     QString proFile = node->path();
 
     QList<ProjectExplorer::Task> tasks = qtVersion->reportIssues(proFile, workingDirectory);
-    qSort(tasks);
+    Utils::sort(tasks);
 
     if (!tasks.isEmpty()) {
         bool canContinue = true;

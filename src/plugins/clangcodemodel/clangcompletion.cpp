@@ -173,7 +173,7 @@ static QList<CodeCompletionResult> unfilteredCompletion(const ClangCompletionAss
     }
 
     QList<CodeCompletionResult> result = wrapper->codeCompleteAt(line, column + 1, unsavedFiles);
-    qSort(result);
+    std::sort(result);
 
     if (DebugTiming)
         qDebug() << "... Completion done in" << t.elapsed() << "ms, with" << result.count() << "items.";

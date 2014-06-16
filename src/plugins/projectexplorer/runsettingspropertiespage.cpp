@@ -40,6 +40,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QVariant>
@@ -274,11 +275,6 @@ RunSettingsWidget::~RunSettingsWidget()
 {
 }
 
-static bool actionLessThan(const QAction *action1, const QAction *action2)
-{
-    return action1->text() < action2->text();
-}
-
 void RunSettingsWidget::aboutToShowAddMenu()
 {
     m_addRunMenu->clear();
@@ -306,7 +302,9 @@ void RunSettingsWidget::aboutToShowAddMenu()
         }
     }
 
-    qSort(menuActions.begin(), menuActions.end(), actionLessThan);
+    Utils::sort(menuActions, [](const QAction *l, const QAction *r) {
+        return l->text() < r->text();
+    });
     foreach (QAction *action, menuActions)
         m_addRunMenu->addAction(action);
 }

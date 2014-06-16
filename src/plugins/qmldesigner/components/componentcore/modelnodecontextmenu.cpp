@@ -34,6 +34,8 @@
 
 #include <modelnode.h>
 
+#include <utils/algorithm.h>
+
 #include <QSet>
 
 namespace QmlDesigner {
@@ -41,11 +43,6 @@ namespace QmlDesigner {
 ModelNodeContextMenu::ModelNodeContextMenu(AbstractView *view) :
     m_selectionContext(view)
 {
-}
-
-static bool sortFunction(AbstractDesignerAction * abstractDesignerAction01, AbstractDesignerAction *abstractDesignerAction02)
-{
-    return abstractDesignerAction01->priority() > abstractDesignerAction02->priority();
 }
 
 static QSet<AbstractDesignerAction* > findMembers(QSet<AbstractDesignerAction* > designerActionSet,
@@ -71,7 +68,9 @@ void populateMenu(QSet<AbstractDesignerAction* > &abstractDesignerActions,
     abstractDesignerActions.subtract(matchingFactories);
 
     QList<AbstractDesignerAction* > matchingFactoriesList = matchingFactories.toList();
-    qSort(matchingFactoriesList.begin(), matchingFactoriesList.end(), &sortFunction);
+    Utils::sort(matchingFactoriesList, [](AbstractDesignerAction *l, AbstractDesignerAction *r) {
+        return l->priority() > r->priority();
+    });
 
     foreach (AbstractDesignerAction* designerAction, matchingFactoriesList) {
        if (designerAction->type() == AbstractDesignerAction::Menu) {

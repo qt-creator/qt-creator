@@ -33,6 +33,7 @@
 #include "kitmanager.h"
 #include "target.h"
 
+#include <utils/algorithm.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 
@@ -731,23 +732,6 @@ bool MiniProjectTargetSelector::event(QEvent *event)
 
 }
 
-class IndexSorter
-{
-public:
-    enum SortOrder { Less = 0, Greater = 1};
-
-    IndexSorter(QVector<int> result, SortOrder order)
-        : m_result(result), m_order(order)
-    { }
-
-    bool operator()(int i, int j)
-    { return (m_result[i] < m_result[j]) ^ bool(m_order); }
-
-private:
-    QVector<int> m_result;
-    SortOrder m_order;
-};
-
 // does some fancy calculations to ensure proper widths for the list widgets
 QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSize)
 {
@@ -796,8 +780,9 @@ QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSiz
         if (result[i] != -1)
             indexes.append(i);
 
-    IndexSorter indexSorter(result, tooSmall ? IndexSorter::Less : IndexSorter::Greater);
-    qSort(indexes.begin(), indexes.end(), indexSorter);
+    Utils::sort(indexes, [&](int i, int j) -> bool {
+        return (result[i] > result[j]) ^ tooSmall;
+    });
 
     int i = 0;
     int first = result[indexes.first()]; // biggest or smallest

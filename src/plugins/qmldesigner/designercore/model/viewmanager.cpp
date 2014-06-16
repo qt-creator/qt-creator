@@ -17,6 +17,7 @@
 #include "crumblebar.h"
 
 #include <qmldesigner/qmldesignerplugin.h>
+#include <utils/algorithm.h>
 
 
 namespace QmlDesigner {
@@ -198,11 +199,6 @@ void ViewManager::setNodeInstanceViewKit(ProjectExplorer::Kit *kit)
     d->nodeInstanceView.setKit(kit);
 }
 
-static bool widgetInfoLessThan(const WidgetInfo &firstWidgetInfo, const WidgetInfo &secondWidgetInfo)
-{
-    return firstWidgetInfo.placementPriority < secondWidgetInfo.placementPriority;
-}
-
 QList<WidgetInfo> ViewManager::widgetInfos()
 {
     QList<WidgetInfo> widgetInfoList;
@@ -220,7 +216,9 @@ QList<WidgetInfo> ViewManager::widgetInfos()
             widgetInfoList.append(abstractView->widgetInfo());
     }
 
-    qSort(widgetInfoList.begin(), widgetInfoList.end(), widgetInfoLessThan);
+    Utils::sort(widgetInfoList, [](const WidgetInfo &firstWidgetInfo, const WidgetInfo &secondWidgetInfo) {
+        return firstWidgetInfo.placementPriority < secondWidgetInfo.placementPriority;
+    });
 
     return widgetInfoList;
 }

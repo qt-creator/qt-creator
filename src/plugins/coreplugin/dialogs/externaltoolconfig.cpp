@@ -30,6 +30,7 @@
 #include "externaltoolconfig.h"
 #include "ui_externaltoolconfig.h"
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -257,7 +258,7 @@ bool ExternalToolModel::setData(const QModelIndex &modelIndex, const QVariant &v
             int previousIndex = categories.indexOf(category);
             categories.removeAt(previousIndex);
             categories.append(string);
-            qSort(categories);
+            Utils::sort(categories);
             int newIndex = categories.indexOf(string);
             if (newIndex != previousIndex) {
                 // we have same parent so we have to do special stuff for beginMoveRows...
@@ -327,7 +328,7 @@ QModelIndex ExternalToolModel::addCategory()
     }
     QList<QString> categories = m_tools.keys();
     categories.append(category);
-    qSort(categories);
+    Utils::sort(categories);
     int pos = categories.indexOf(category);
 
     beginInsertRows(QModelIndex(), pos, pos);

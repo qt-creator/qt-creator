@@ -38,6 +38,8 @@
 
 #include <QHashIterator>
 
+#include <utils/algorithm.h>
+
 #include "abstractview.h"
 #include "nodeinstanceview.h"
 #include "metainfo.h"
@@ -1302,7 +1304,7 @@ void ModelPrivate::setSelectedNodes(const QList<InternalNode::Pointer> &selected
     }
 
     sortedSelectedList = sortedSelectedList.toSet().toList();
-    qSort(sortedSelectedList);
+    Utils::sort(sortedSelectedList);
 
     if (sortedSelectedList == m_selectedInternalNodeList)
         return;

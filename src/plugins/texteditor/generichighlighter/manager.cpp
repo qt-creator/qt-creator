@@ -40,10 +40,10 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/algorithm.h>
 #include <utils/QtConcurrentTools>
 #include <utils/networkaccessmanager.h>
 
-#include <QtAlgorithms>
 #include <QString>
 #include <QLatin1Char>
 #include <QLatin1String>
@@ -174,12 +174,6 @@ public:
     static const int kMaxProgress;
 };
 
-bool priorityComp(const QSharedPointer<HighlightDefinitionMetaData> &a,
-                  const QSharedPointer<HighlightDefinitionMetaData> &b)
-{
-    return a->priority > b->priority;
-}
-
 const int ManagerProcessor::kMaxProgress = 200;
 
 ManagerProcessor::ManagerProcessor()
@@ -231,7 +225,10 @@ void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
         }
 
         // Consider definitions with higher priority first.
-        qSort(allMetaData.begin(), allMetaData.end(), &priorityComp);
+        Utils::sort(allMetaData, [](const QSharedPointer<HighlightDefinitionMetaData> &l,
+                                    const QSharedPointer<HighlightDefinitionMetaData> &r) {
+            return l->priority > r->priority;
+        });
 
         foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
             if (future.isCanceled())
