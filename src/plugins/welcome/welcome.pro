@@ -1,4 +1,10 @@
+
 QT += quick
+
+!isEmpty(USE_QUICK_WIDGET) {
+    QT +=  quickwidgets
+    DEFINES += USE_QUICK_WIDGET
+}
 
 include(../../qtcreatorplugin.pri)
 

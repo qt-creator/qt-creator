@@ -47,7 +47,13 @@
 
 #include <QDir>
 
-#include <QtQuick/QQuickView>
+#ifdef USE_QUICK_WIDGET
+    #include <QtQuickWidgets/QQuickWidget>
+    typedef QQuickWidget QuickContainer;
+#else
+    #include <QtQuick/QQuickView>
+    typedef QQuickView QuickContainer;
+#endif
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
 
@@ -104,7 +110,7 @@ private:
     void facilitateQml(QQmlEngine *engine);
 
     QWidget *m_modeWidget;
-    QQuickView *m_welcomePage;
+    QuickContainer *m_welcomePage;
     QList<QObject*> m_pluginList;
     int m_activePlugin;
 };
@@ -124,45 +130,39 @@ WelcomeMode::WelcomeMode() :
     setContextHelpId(QLatin1String("Qt Creator Manual"));
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
-    m_welcomePage = new QQuickView;
+    m_modeWidget = new QWidget;
+    m_modeWidget->setObjectName(QLatin1String("WelcomePageModeWidget"));
+    QVBoxLayout *layout = new QVBoxLayout(m_modeWidget);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+
+    m_welcomePage = new QuickContainer();
+    m_welcomePage->setResizeMode(QuickContainer::SizeRootObjectToView);
+
+    m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
+
 #if QT_VERSION >= 0x050300
     connect(m_welcomePage, SIGNAL(sceneGraphError(QQuickWindow::SceneGraphError,QString)),
             this, SLOT(sceneGraphError(QQuickWindow::SceneGraphError,QString)));
 #endif // Qt 5.3
-    m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
-    m_welcomePage->setResizeMode(QQuickView::SizeRootObjectToView);
-
-//  filter to forward dragEnter events
-//    m_welcomePage->installEventFilter(this);
-//    m_welcomePage->viewport()->installEventFilter(this);
-
-    m_modeWidget = new QWidget;
-    m_modeWidget->setObjectName(QLatin1String("WelcomePageModeWidget"));
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->setSpacing(0);
 
     Utils::StyledBar* styledBar = new Utils::StyledBar(m_modeWidget);
     styledBar->setObjectName(QLatin1String("WelcomePageStyledBar"));
     layout->addWidget(styledBar);
 
+#ifdef USE_QUICK_WIDGET
+    m_welcomePage->setParent(m_modeWidget);
+    layout->addWidget(m_welcomePage);
+#else
     QWidget *container = QWidget::createWindowContainer(m_welcomePage, m_modeWidget);
     m_modeWidget->setLayout(layout);
     layout->addWidget(container);
+#endif // USE_QUICK_WIDGET
 
     connect(PluginManager::instance(), SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
 
     setWidget(m_modeWidget);
 }
-
-//bool WelcomeMode::eventFilter(QObject *, QEvent *e)
-//{
-//    if (e->type() == QEvent::DragEnter) {
-//        e->ignore();
-//        return true;
-//    }
-//    return false;
-//}
 
 WelcomeMode::~WelcomeMode()
 {
