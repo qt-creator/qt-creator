@@ -59,11 +59,7 @@ namespace Internal {
 
 static QString pathFromId(const Core::Id id)
 {
-    QString pathStr = id.toString();
-    const QString prefix = QLatin1String(IOS_RC_ID_PREFIX);
-    if (!pathStr.startsWith(prefix))
-        return QString();
-    return pathStr.mid(prefix.size());
+    return id.suffixAfter(IOS_RC_ID_PREFIX);
 }
 
 IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)

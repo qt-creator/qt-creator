@@ -49,10 +49,7 @@ namespace Internal {
 namespace {
 QString pathFromId(Core::Id id)
 {
-    QByteArray idStr = id.name();
-    if (!idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix))
-        return QString();
-    return QString::fromUtf8(idStr.mid(strlen(RemoteLinuxRunConfiguration::IdPrefix)));
+    return id.suffixAfter(RemoteLinuxRunConfiguration::IdPrefix);
 }
 
 } // namespace
