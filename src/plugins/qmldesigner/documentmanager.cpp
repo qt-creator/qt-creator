@@ -98,18 +98,13 @@ static void openFileComponent(const ModelNode &modelNode)
 {
     QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
 
-    //int width = 0;
-    //int height = 0;
     QHash<PropertyName, QVariant> propertyHash;
 
-    //getWidthHeight(node, width, height);
     getProperties(modelNode, propertyHash);
     Core::EditorManager::openEditor(modelNode.metaInfo().componentFileName(), Core::Id(), Core::EditorManager::DoNotMakeVisible);
 
     ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
     applyProperties(rootModelNode, propertyHash);
-    //rootModelNode.setAuxiliaryData("width", width);
-    //rootModelNode.setAuxiliaryData("height", height);
 }
 
 static void openFileComponentForDelegate(const ModelNode &modelNode)
