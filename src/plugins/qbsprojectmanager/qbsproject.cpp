@@ -32,6 +32,7 @@
 #include "qbsbuildconfiguration.h"
 #include "qbslogsink.h"
 #include "qbsprojectfile.h"
+#include "qbsprojectparser.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsnodes.h"
 
@@ -39,7 +40,6 @@
 #include <utils/qtcassert.h>
 
 #include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/id.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
@@ -98,9 +98,8 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_projectName(QFileInfo(fileName).completeBaseName()),
     m_fileName(fileName),
     m_rootProjectNode(0),
-    m_qbsSetupProjectJob(0),
+    m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
-    m_currentProgressBase(0),
     m_forceParsing(false),
     m_currentBc(0)
 {
@@ -127,11 +126,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
 QbsProject::~QbsProject()
 {
     m_codeModelFuture.cancel();
-    if (m_qbsSetupProjectJob) {
-        m_qbsSetupProjectJob->disconnect(this);
-        m_qbsSetupProjectJob->cancel();
-        delete m_qbsSetupProjectJob;
-    }
+    delete m_qbsProjectParser;
 
     // Deleting the root node triggers a few things, make sure rootProjectNode
     // returns 0 already
@@ -279,22 +274,22 @@ bool QbsProject::needsSpecialDeployment() const
 
 void QbsProject::handleQbsParsingDone(bool success)
 {
-    QTC_ASSERT(m_qbsSetupProjectJob, return);
-    QTC_ASSERT(m_qbsUpdateFutureInterface, return);
+    QTC_ASSERT(m_qbsProjectParser, return);
 
     qbs::Project project;
-    if (success) {
-        project = m_qbsSetupProjectJob->project();
-    } else {
-        generateErrors(m_qbsSetupProjectJob->error());
-        m_qbsUpdateFutureInterface->reportCanceled();
-    }
-    m_qbsSetupProjectJob->deleteLater();
-    m_qbsSetupProjectJob = 0;
+    if (success)
+        project = m_qbsProjectParser->qbsProject();
 
-    m_qbsUpdateFutureInterface->reportFinished();
-    delete m_qbsUpdateFutureInterface;
-    m_qbsUpdateFutureInterface = 0;
+    generateErrors(m_qbsProjectParser->error());
+
+    m_qbsProjectParser->deleteLater();
+    m_qbsProjectParser = 0;
+
+    if (m_qbsUpdateFutureInterface) {
+        m_qbsUpdateFutureInterface->reportFinished();
+        delete m_qbsUpdateFutureInterface;
+        m_qbsUpdateFutureInterface = 0;
+    }
 
     if (project.isValid()) {
         // Do not throw away data when parsing errors were introduced. That frightens users:-)
@@ -313,21 +308,6 @@ void QbsProject::handleQbsParsingDone(bool success)
         emit fileListChanged();
     }
     emit projectParsingDone(success);
-}
-
-void QbsProject::handleQbsParsingProgress(int progress)
-{
-    if (m_qbsUpdateFutureInterface)
-        m_qbsUpdateFutureInterface->setProgressValue(m_currentProgressBase + progress);
-}
-
-void QbsProject::handleQbsParsingTaskSetup(const QString &description, int maximumProgressValue)
-{
-    Q_UNUSED(description);
-    if (m_qbsUpdateFutureInterface) {
-        m_currentProgressBase = m_qbsUpdateFutureInterface->progressValue();
-        m_qbsUpdateFutureInterface->setProgressRange(0, m_currentProgressBase + maximumProgressValue);
-    }
 }
 
 void QbsProject::targetWasAdded(Target *t)
@@ -383,8 +363,6 @@ void QbsProject::delayForcedParsing()
 
 void QbsProject::parseCurrentBuildConfiguration(bool force)
 {
-    m_parsingDelay.stop();
-
     if (!m_forceParsing)
         m_forceParsing = force;
 
@@ -394,6 +372,25 @@ void QbsProject::parseCurrentBuildConfiguration(bool force)
     if (!bc)
         return;
     parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory().toString());
+}
+
+void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
+{
+    m_parsingDelay.stop();
+
+    if (m_qbsProjectParser) {
+        m_qbsProjectParser->disconnect(this);
+        m_qbsProjectParser->deleteLater();
+    }
+
+    m_qbsProjectParser = p;
+
+    if (p) {
+        p->setForced(m_forceParsing);
+        connect(m_qbsProjectParser, SIGNAL(done(bool)), this, SLOT(handleQbsParsingDone(bool)));
+    }
+
+    m_forceParsing = false;
 }
 
 bool QbsProject::fromMap(const QVariantMap &map)
@@ -425,75 +422,17 @@ void QbsProject::generateErrors(const qbs::ErrorInfo &e)
 
 void QbsProject::parse(const QVariantMap &config, const Environment &env, const QString &dir)
 {
-    QTC_ASSERT(!dir.isNull(), return);
-
-    qbs::SetupProjectParameters params;
-    QVariantMap baseConfig;
-    QVariantMap userConfig = config;
-    QString specialKey = QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY);
-    const QString profileName = userConfig.take(specialKey).toString();
-    baseConfig.insert(specialKey, profileName);
-    specialKey = QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY);
-    baseConfig.insert(specialKey, userConfig.take(specialKey));
-    params.setBuildConfiguration(baseConfig);
-    params.setOverriddenValues(userConfig);
-    qbs::ErrorInfo err = params.expandBuildConfiguration(QbsManager::settings());
-    if (err.hasError()) {
-        generateErrors(err);
-        return;
-    }
-
-    // Avoid useless reparsing:
-    const qbs::Project &currentProject = qbsProject();
-    if (!m_forceParsing
-            && currentProject.isValid()
-            && currentProject.projectConfiguration() == params.finalBuildConfigurationTree()) {
-        QHash<QString, QString> usedEnv = currentProject.usedEnvironment();
-        bool canSkip = true;
-        for (QHash<QString, QString>::const_iterator i = usedEnv.constBegin();
-             i != usedEnv.constEnd(); ++i) {
-            if (env.value(i.key()) != i.value()) {
-                canSkip = false;
-                break;
-            }
-        }
-        if (canSkip)
-            return;
-    }
-
-    // Some people don't like it when files are created as a side effect of opening a project,
-    // so do not store the build graph if the build directory does not exist yet.
-    params.setDryRun(!QFileInfo(dir).exists());
-
-    params.setBuildRoot(dir);
-    params.setProjectFilePath(m_fileName);
-    params.setIgnoreDifferentProjectFilePath(false);
-    params.setEnvironment(env.toProcessEnvironment());
-    const qbs::Preferences prefs(QbsManager::settings(), profileName);
-    params.setSearchPaths(prefs.searchPaths(resourcesBaseDirectory()));
-    params.setPluginPaths(prefs.pluginPaths(pluginsBaseDirectory()));
-
-    // Do the parsing:
     prepareForParsing();
-    QTC_ASSERT(!m_qbsSetupProjectJob, return);
+    QTC_ASSERT(!m_qbsProjectParser, return);
 
-    m_qbsSetupProjectJob
-            = qbs::Project::setupProject(params, QbsManager::logSink(), 0);
+    registerQbsProjectParser(new QbsProjectParser(this, m_qbsUpdateFutureInterface));
 
-    connect(m_qbsSetupProjectJob, SIGNAL(finished(bool,qbs::AbstractJob*)),
-            this, SLOT(handleQbsParsingDone(bool)));
-    connect(m_qbsSetupProjectJob, SIGNAL(taskStarted(QString,int,qbs::AbstractJob*)),
-            this, SLOT(handleQbsParsingTaskSetup(QString,int)));
-    connect(m_qbsSetupProjectJob, SIGNAL(taskProgress(int,qbs::AbstractJob*)),
-            this, SLOT(handleQbsParsingProgress(int)));
-
-    emit projectParsingStarted();
+    if (m_qbsProjectParser->parse(config, env, dir))
+        emit projectParsingStarted();
 }
 
 void QbsProject::prepareForParsing()
 {
-    m_forceParsing = false;
-
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     if (m_qbsUpdateFutureInterface) {
         m_qbsUpdateFutureInterface->reportCanceled();
@@ -502,15 +441,7 @@ void QbsProject::prepareForParsing()
     delete m_qbsUpdateFutureInterface;
     m_qbsUpdateFutureInterface = 0;
 
-    if (m_qbsSetupProjectJob) {
-        m_qbsSetupProjectJob->disconnect(this);
-        m_qbsSetupProjectJob->cancel();
-        m_qbsSetupProjectJob->deleteLater();
-        m_qbsSetupProjectJob = 0;
-    }
-
-    m_currentProgressBase = 0;
-    m_qbsUpdateFutureInterface = new QFutureInterface<void>();
+    m_qbsUpdateFutureInterface = new QFutureInterface<bool>();
     m_qbsUpdateFutureInterface->setProgressRange(0, 0);
     ProgressManager::addTask(m_qbsUpdateFutureInterface->future(),
         tr("Reading Project \"%1\"").arg(displayName()), "Qbs.QbsEvaluate");
@@ -710,27 +641,6 @@ void QbsProject::updateDeploymentInfo(const qbs::Project &project)
         }
     }
     activeTarget()->setDeploymentData(deploymentData);
-}
-
-QString QbsProject::resourcesBaseDirectory() const
-{
-    const QString qbsInstallDir = QLatin1String(QBS_INSTALL_DIR);
-    if (!qbsInstallDir.isEmpty())
-        return qbsInstallDir;
-    return ICore::resourcePath() + QLatin1String("/qbs");
-}
-
-QString QbsProject::pluginsBaseDirectory() const
-{
-    const QString qbsInstallDir = QLatin1String(QBS_INSTALL_DIR);
-    if (!qbsInstallDir.isEmpty())
-        return qbsInstallDir + QLatin1String("/lib/");
-    if (Utils::HostOsInfo::isMacHost())
-        return QDir::cleanPath(QCoreApplication::applicationDirPath()
-                               + QLatin1String("/../PlugIns"));
-    else
-        return QDir::cleanPath(QCoreApplication::applicationDirPath()
-                               + QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator"));
 }
 
 } // namespace Internal

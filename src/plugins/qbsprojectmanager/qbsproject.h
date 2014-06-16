@@ -47,7 +47,6 @@ class BuildJob;
 class CleanJob;
 class Error;
 class ProjectData;
-class SetupProjectJob;
 class CleanOptions;
 class InstallJob;
 class InstallOptions;
@@ -63,6 +62,7 @@ namespace QbsProjectManager {
 namespace Internal {
 
 class QbsProjectNode;
+class QbsProjectParser;
 class QbsBuildConfiguration;
 
 class QbsProject : public ProjectExplorer::Project
@@ -92,6 +92,8 @@ public:
     bool hasParseResult() const;
     void parseCurrentBuildConfiguration(bool force);
 
+    void registerQbsProjectParser(QbsProjectParser *p);
+
     static Utils::FileName defaultBuildDirectory(const QString &projectFilePath,
                                                  const ProjectExplorer::Kit *k,
                                                  const QString &bcName);
@@ -100,6 +102,7 @@ public:
     const qbs::ProjectData qbsProjectData() const;
 
     bool needsSpecialDeployment() const;
+    void generateErrors(const qbs::ErrorInfo &e);
 
 public slots:
     void invalidate();
@@ -112,8 +115,6 @@ signals:
 
 private slots:
     void handleQbsParsingDone(bool success);
-    void handleQbsParsingProgress(int progress);
-    void handleQbsParsingTaskSetup(const QString &description, int maximumProgressValue);
 
     void targetWasAdded(ProjectExplorer::Target *t);
     void changeActiveTarget(ProjectExplorer::Target *t);
@@ -125,15 +126,12 @@ private:
 
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
 
-    void generateErrors(const qbs::ErrorInfo &e);
     void prepareForParsing();
     void updateDocuments(const QSet<QString> &files);
     void updateCppCodeModel(const qbs::ProjectData &prj);
     void updateQmlJsCodeModel(const qbs::ProjectData &prj);
     void updateApplicationTargets(const qbs::ProjectData &projectData);
     void updateDeploymentInfo(const qbs::Project &project);
-    QString resourcesBaseDirectory() const;
-    QString pluginsBaseDirectory() const;
 
     QbsManager *const m_manager;
     const QString m_projectName;
@@ -141,10 +139,9 @@ private:
     QSet<Core::IDocument *> m_qbsDocuments;
     QbsProjectNode *m_rootProjectNode;
 
-    qbs::SetupProjectJob *m_qbsSetupProjectJob;
+    QbsProjectParser *m_qbsProjectParser;
 
-    QFutureInterface<void> *m_qbsUpdateFutureInterface;
-    int m_currentProgressBase;
+    QFutureInterface<bool> *m_qbsUpdateFutureInterface;
     bool m_forceParsing;
 
     QFuture<void> m_codeModelFuture;
