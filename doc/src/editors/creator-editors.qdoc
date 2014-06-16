@@ -2198,31 +2198,31 @@
 
     \list
 
-        \li Locating any open document
+        \li Locating any open document (o)
 
-        \li Locating files anywhere on your file system
+        \li Locating files anywhere on your file system (f)
 
-        \li Locating files belonging to your project, such as source, header
-            resource, and .ui files
+        \li Locating files belonging to your project (p), such as source, header
+            resource, and .ui files, or to any project (a)
 
-        \li Locating class, enum, and function definitions in your project or anywhere
-            referenced from your project
+        \li Locating class (c), enum, and function (m) definitions in your
+            project or anywhere referenced from your project (:)
 
-        \li Locating symbols in the current document
+        \li Locating symbols in the current document (.)
 
         \li Locating a specific line and column in the document displayed in
-            your editor
+            your editor (l)
 
-        \li Opening help topics, including Qt documentation
+        \li Opening help topics, including Qt documentation (?)
 
-        \li Performing web searches
+        \li Performing web searches (r)
 
-        \li Running text editing macros that you record and save. For more
+        \li Running text editing macros that you record and save (rm). For more
             information, see \l{Using Text Editing Macros}
 
-        \li Executing shell commands
+        \li Executing shell commands (!)
 
-        \li Executing version control system commands. For more information, see
+        \li Executing version control system commands (git). For more information, see
             \l{Using Version Control Systems}
 
     \endlist
@@ -2249,6 +2249,10 @@
     Filters locating files also accept paths, such as \c {tools/*main.cpp}.
     Filters locating class and function definitions also accept namespaces,
     such as \c {Utils::*View}.
+
+    For example, to create a new file and open it in the editor, type \c f
+    followed by \key Space, followed by path and file name, and then press
+    \key Enter.
 
     By default, the following filters are enabled and you do not need to use
     their prefixes explicitly:
