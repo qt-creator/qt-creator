@@ -125,6 +125,7 @@ public:
     NodeProperty nodeProperty(const PropertyName &name) const;
     NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
     NodeAbstractProperty defaultNodeAbstractProperty() const;
+    NodeListProperty defaultNodeListProperty() const;
 
     void removeProperty(const PropertyName &name); //### also implement in AbstractProperty
     QList<AbstractProperty> properties() const;
@@ -141,6 +142,7 @@ public:
     bool hasBindingProperty(const PropertyName &name) const;
     bool hasNodeAbstracProperty(const PropertyName &name) const;
     bool hasDefaultNodeAbstracProperty() const;
+    bool hasDefaultNodeListProperty() const;
     bool hasNodeProperty(const PropertyName &name) const;
     bool hasNodeListProperty(const PropertyName &name) const;
 
