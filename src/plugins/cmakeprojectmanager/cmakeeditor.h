@@ -55,6 +55,8 @@ public:
     Core::IEditor *duplicate();
     TextEditor::CompletionAssistProvider *completionAssistProvider();
 
+    QString contextHelpId() const;
+
 private slots:
     void markAsChanged();
     void build();
