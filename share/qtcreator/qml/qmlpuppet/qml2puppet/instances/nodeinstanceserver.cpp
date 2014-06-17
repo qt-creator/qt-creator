@@ -145,7 +145,7 @@ bool NodeInstanceServer::hasInstanceForId(qint32 id) const
     if (id < 0)
         return false;
 
-    return m_idInstanceHash.contains(id);
+    return m_idInstanceHash.contains(id) && m_idInstanceHash.value(id).isValid();
 }
 
 ServerNodeInstance NodeInstanceServer::instanceForObject(QObject *object) const
@@ -159,7 +159,7 @@ bool NodeInstanceServer::hasInstanceForObject(QObject *object) const
     if (object == 0)
         return false;
 
-    return m_objectInstanceHash.contains(object);
+    return m_objectInstanceHash.contains(object) && m_objectInstanceHash.value(object).isValid();
 }
 
 void NodeInstanceServer::setRenderTimerInterval(int timerInterval)
