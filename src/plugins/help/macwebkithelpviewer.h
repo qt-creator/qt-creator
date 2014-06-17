@@ -87,10 +87,6 @@ public:
     QFont viewerFont() const;
     void setViewerFont(const QFont &font);
 
-    void scaleUp();
-    void scaleDown();
-    void resetScale();
-
     qreal scale() const;
 
     QString title() const;
@@ -115,6 +111,9 @@ public:
     MacWebKitHelpWidget *widget() const { return m_widget; }
 
 public slots:
+    void scaleUp();
+    void scaleDown();
+    void resetScale();
     void copy();
     void stop();
     void forward();

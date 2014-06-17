@@ -38,7 +38,8 @@ HEADERS += \
     externalhelpwindow.h \
     searchtaskhandler.h \
     qtwebkithelpviewer.h \
-    textbrowserhelpviewer.h
+    textbrowserhelpviewer.h \
+    helpwidget.h
 
 SOURCES += \
     centralwidget.cpp \
@@ -61,7 +62,8 @@ SOURCES += \
     externalhelpwindow.cpp \
     searchtaskhandler.cpp \
     qtwebkithelpviewer.cpp \
-    textbrowserhelpviewer.cpp
+    textbrowserhelpviewer.cpp \
+    helpwidget.cpp
 
 FORMS += docsettingspage.ui \
     filtersettingspage.ui \

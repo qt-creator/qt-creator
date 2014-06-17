@@ -52,10 +52,6 @@ public:
     QFont viewerFont() const;
     void setViewerFont(const QFont &font);
 
-    void scaleUp();
-    void scaleDown();
-
-    void resetScale();
     qreal scale() const;
 
     QString title() const;
@@ -77,6 +73,9 @@ public:
                   bool incremental, bool fromSearch, bool *wrapped = 0);
 
 public slots:
+    void scaleUp();
+    void scaleDown();
+    void resetScale();
     void copy();
     void stop();
     void forward();

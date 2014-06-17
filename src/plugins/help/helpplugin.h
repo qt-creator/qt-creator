@@ -59,6 +59,7 @@ class ExternalHelpWindow;
 class FilterSettingsPage;
 class GeneralSettingsPage;
 class HelpMode;
+class HelpWidget;
 class HelpViewer;
 class LocalHelpManager;
 class OpenPagesManager;
@@ -97,7 +98,6 @@ private slots:
     void updateFilterComboBox();
     void filterDocumentation(const QString &customFilter);
 
-    void switchToHelpMode();
     void switchToHelpMode(const QUrl &source);
     void slotHideRightPane();
     void showHideSidebar();
@@ -121,10 +121,6 @@ private slots:
 
     void onSideBarVisibilityChanged();
 
-    void scaleRightPaneUp();
-    void scaleRightPaneDown();
-    void resetRightPaneScale();
-
 private:
     void setupUi();
     void resetFilter();
@@ -142,8 +138,7 @@ private:
 private:
     HelpMode *m_mode;
     CentralWidget *m_centralWidget;
-    QWidget *m_rightPaneSideBarWidget;
-    HelpViewer *m_helpViewerForSideBar;
+    HelpWidget *m_rightPaneSideBarWidget;
 
     Core::SideBarItem *m_contentItem;
     Core::SideBarItem *m_indexItem;

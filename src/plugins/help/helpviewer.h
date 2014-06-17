@@ -53,10 +53,6 @@ public:
     virtual QFont viewerFont() const = 0;
     virtual void setViewerFont(const QFont &font) = 0;
 
-    virtual void scaleUp() = 0;
-    virtual void scaleDown() = 0;
-    virtual void resetScale() = 0;
-
     virtual qreal scale() const = 0;
 
     virtual QString title() const = 0;
@@ -88,6 +84,9 @@ public:
 public slots:
     void home();
 
+    virtual void scaleUp() = 0;
+    virtual void scaleDown() = 0;
+    virtual void resetScale() = 0;
     virtual void copy() = 0;
     virtual void stop() = 0;
     virtual void forward() = 0;

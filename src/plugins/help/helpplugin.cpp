@@ -39,6 +39,7 @@
 #include "helpindexfilter.h"
 #include "helpmode.h"
 #include "helpviewer.h"
+#include "helpwidget.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 #include "openpagesmodel.h"
@@ -119,7 +120,6 @@ HelpPlugin::HelpPlugin()
     : m_mode(0),
     m_centralWidget(0),
     m_rightPaneSideBarWidget(0),
-    m_helpViewerForSideBar(0),
     m_contentItem(0),
     m_indexItem(0),
     m_searchItem(0),
@@ -529,108 +529,18 @@ void HelpPlugin::createRightPaneContextViewer()
     if (m_rightPaneSideBarWidget)
         return;
 
-    Utils::StyledBar *toolBar = new Utils::StyledBar();
+    m_rightPaneSideBarWidget = new HelpWidget(Core::Context(Constants::C_HELP_SIDEBAR));
 
-    QAction *switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
-    connect(switchToHelp, SIGNAL(triggered()), this, SLOT(switchToHelpMode()));
-    QAction *back = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
-        tr("Previous"), toolBar);
-    QAction *next = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")),
-        tr("Next"), toolBar);
-    QAction *close = new QAction(QIcon(QLatin1String(Core::Constants::ICON_CLOSE_DOCUMENT)),
-        QLatin1String(""), toolBar);
-    connect(close, SIGNAL(triggered()), this, SLOT(slotHideRightPane()));
-
-    setupNavigationMenus(back, next, toolBar);
-
-    QHBoxLayout *layout = new QHBoxLayout(toolBar);
-    layout->setSpacing(0);
-    layout->setMargin(0);
-
-    layout->addWidget(toolButton(switchToHelp));
-    layout->addWidget(toolButton(back));
-    layout->addWidget(toolButton(next));
-    layout->addStretch();
-    layout->addWidget(toolButton(close));
-
-    m_rightPaneSideBarWidget = new QWidget;
-    m_helpViewerForSideBar = createHelpViewer(qreal(0.0));
-    m_helpViewerForSideBar->setOpenInNewWindowActionVisible(false);
-
-    QVBoxLayout *rightPaneLayout = new QVBoxLayout(m_rightPaneSideBarWidget);
-    rightPaneLayout->setMargin(0);
-    rightPaneLayout->setSpacing(0);
-    rightPaneLayout->addWidget(toolBar);
-    rightPaneLayout->addWidget(m_helpViewerForSideBar);
-    FindToolBarPlaceHolder *fth = new FindToolBarPlaceHolder(m_rightPaneSideBarWidget);
-    fth->setObjectName(QLatin1String("HelpRightPaneFindToolBarPlaceHolder"));
-    rightPaneLayout->addWidget(fth);
-    m_rightPaneSideBarWidget->setFocusProxy(m_helpViewerForSideBar);
-
-    Context context(Constants::C_HELP_SIDEBAR);
-    IContext *icontext = new IContext(this);
-    icontext->setContext(context);
-    icontext->setWidget(m_helpViewerForSideBar);
-    ICore::addContextObject(icontext);
-
-    QAction *copy = new QAction(this);
-    Command *cmd = ActionManager::registerAction(copy, Core::Constants::COPY, context);
-    copy->setText(cmd->action()->text());
-    copy->setIcon(cmd->action()->icon());
-    connect(copy, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(copy()));
-
-    next->setEnabled(m_helpViewerForSideBar->isForwardAvailable());
-    connect(next, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(forward()));
-    connect(m_helpViewerForSideBar, SIGNAL(forwardAvailable(bool)), next,
-        SLOT(setEnabled(bool)));
-
-    back->setEnabled(m_helpViewerForSideBar->isBackwardAvailable());
-    connect(back, SIGNAL(triggered()), m_helpViewerForSideBar, SLOT(backward()));
-    connect(m_helpViewerForSideBar, SIGNAL(backwardAvailable(bool)), back,
-        SLOT(setEnabled(bool)));
-
-    if (ActionContainer *advancedMenu = ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED)) {
-        // reuse TextEditor constants to avoid a second pair of menu actions
-        QAction *action = new QAction(tr("Increase Font Size"), this);
-        cmd = ActionManager::registerAction(action, TextEditor::Constants::INCREASE_FONT_SIZE, context);
-        connect(action, SIGNAL(triggered()), this, SLOT(scaleRightPaneUp()));
-        advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
-
-        action = new QAction(tr("Decrease Font Size"), this);
-        cmd = ActionManager::registerAction(action, TextEditor::Constants::DECREASE_FONT_SIZE, context);
-        connect(action, SIGNAL(triggered()), this, SLOT(scaleRightPaneDown()));
-        advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
-
-        action = new QAction(tr("Reset Font Size"), this);
-        cmd = ActionManager::registerAction(action, TextEditor::Constants::RESET_FONT_SIZE, context);
-        connect(action, SIGNAL(triggered()), this, SLOT(resetRightPaneScale()));
-        advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
-    }
-
-    connect(m_helpViewerForSideBar, SIGNAL(loadFinished()),
+    connect(m_rightPaneSideBarWidget->currentViewer(), SIGNAL(loadFinished()),
             this, SLOT(highlightSearchTermsInContextHelp()));
+    connect(m_rightPaneSideBarWidget, SIGNAL(openHelpMode(QUrl)),
+            this, SLOT(switchToHelpMode(QUrl)));
+    connect(m_rightPaneSideBarWidget, SIGNAL(close()),
+            this, SLOT(slotHideRightPane()));
 
     // force setup, as we might have never switched to full help mode
     // thus the help engine might still run without collection file setup
     m_helpManager->setupGuiHelpEngine();
-}
-
-void HelpPlugin::scaleRightPaneUp()
-{
-    if (m_helpViewerForSideBar)
-        m_helpViewerForSideBar->scaleUp();
-}
-
-void HelpPlugin::scaleRightPaneDown()
-{
-    if (m_helpViewerForSideBar)
-        m_helpViewerForSideBar->scaleDown();
-}
-
-void HelpPlugin::resetRightPaneScale()
-{
-    if (m_helpViewerForSideBar)
-        m_helpViewerForSideBar->resetScale();
 }
 
 HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
@@ -670,11 +580,6 @@ void HelpPlugin::activateHelpMode()
         ModeManager::activateMode(Id(Constants::ID_MODE_HELP));
     else
         showExternalWindow();
-}
-
-void HelpPlugin::switchToHelpMode()
-{
-    switchToHelpMode(m_helpViewerForSideBar->source());
 }
 
 void HelpPlugin::switchToHelpMode(const QUrl &source)
@@ -728,8 +633,8 @@ void HelpPlugin::updateSideBarSource()
 
 void HelpPlugin::updateSideBarSource(const QUrl &newUrl)
 {
-    if (m_helpViewerForSideBar)
-        m_helpViewerForSideBar->setSource(newUrl);
+    if (m_rightPaneSideBarWidget)
+        m_rightPaneSideBarWidget->currentViewer()->setSource(newUrl);
 }
 
 void HelpPlugin::updateCloseButton()
@@ -742,14 +647,14 @@ void HelpPlugin::updateCloseButton()
 
 void HelpPlugin::fontChanged()
 {
-    if (!m_helpViewerForSideBar)
+    if (!m_rightPaneSideBarWidget)
         createRightPaneContextViewer();
 
     QVariant fontSetting = LocalHelpManager::engineFontSettings();
     QFont font = fontSetting.isValid() ? fontSetting.value<QFont>()
-                                       : m_helpViewerForSideBar->viewerFont();
+                                       : m_rightPaneSideBarWidget->currentViewer()->viewerFont();
 
-    m_helpViewerForSideBar->setViewerFont(font);
+    m_rightPaneSideBarWidget->currentViewer()->setViewerFont(font);
     const int count = OpenPagesManager::instance().pageCount();
     for (int i = 0; i < count; ++i) {
         if (HelpViewer *viewer = CentralWidget::instance()->viewerAt(i))
@@ -859,7 +764,7 @@ HelpViewer *HelpPlugin::viewerForContextMode()
         createRightPaneContextViewer();
         RightPaneWidget::instance()->setWidget(m_rightPaneSideBarWidget);
         RightPaneWidget::instance()->setShown(true);
-        return m_helpViewerForSideBar;
+        return m_rightPaneSideBarWidget->currentViewer();
     }
 
     activateHelpMode(); // should trigger an createPage...
@@ -903,8 +808,8 @@ void HelpPlugin::activateContext()
 
     RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
     if (placeHolder && qApp->focusWidget()
-            && qApp->focusWidget() == m_helpViewerForSideBar->focusWidget()) {
-        switchToHelpMode();
+            && qApp->focusWidget() == m_rightPaneSideBarWidget->currentViewer()->focusWidget()) {
+        switchToHelpMode(m_rightPaneSideBarWidget->currentViewer()->source());
         return;
     }
     if (ModeManager::currentMode() == m_mode)

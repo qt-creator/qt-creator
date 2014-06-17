@@ -53,9 +53,6 @@ public:
     QFont viewerFont() const;
     void setViewerFont(const QFont &font);
 
-    void scaleUp();
-    void scaleDown();
-    void resetScale();
     qreal scale() const;
 
     QString title() const;
@@ -80,6 +77,9 @@ public:
     HelpPage *page() const;
 
 public slots:
+    void scaleUp();
+    void scaleDown();
+    void resetScale();
     void copy();
     void stop();
     void forward();

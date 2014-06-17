@@ -52,6 +52,7 @@ QtcPlugin {
             "helpmode.cpp", "helpmode.h",
             "helpplugin.cpp", "helpplugin.h",
             "helpviewer.cpp", "helpviewer.h",
+            "helpwidget.cpp", "helpwidget.h",
             "localhelpmanager.cpp", "localhelpmanager.h",
             "openpagesmanager.cpp", "openpagesmanager.h",
             "openpagesmodel.cpp", "openpagesmodel.h",
