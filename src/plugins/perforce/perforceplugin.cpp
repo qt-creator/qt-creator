@@ -1182,10 +1182,7 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
         qDebug() << "PerforcePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor
-            = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8(),
-                                                          (Core::EditorManager::OpenInOtherSplit
-                                                           | Core::EditorManager::NoNewSplits));
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(vcsAnnotate(QString,QString,QString,int)));
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());

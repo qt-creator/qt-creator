@@ -100,9 +100,7 @@ DiffEditorDocument *DiffEditorManager::findOrCreate(const QString &documentId, c
     const QString msgWait = tr("Waiting for data...");
     DiffEditor *diffEditor = qobject_cast<DiffEditor *>(
                 Core::EditorManager::openEditorWithContents(Constants::DIFF_EDITOR_ID,
-                                                            0, msgWait.toUtf8(),
-                                                            (Core::EditorManager::OpenInOtherSplit
-                                                             | Core::EditorManager::NoNewSplits)));
+                                                            0, msgWait.toUtf8()));
     QTC_ASSERT(diffEditor, return 0);
 
     document = qobject_cast<DiffEditorDocument *>(diffEditor->document());
