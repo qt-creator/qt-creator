@@ -35,59 +35,6 @@
 using namespace Core;
 using namespace Help::Internal;
 
-HelpFindSupport::HelpFindSupport(CentralWidget *centralWidget)
-    : m_centralWidget(centralWidget)
-{
-}
-
-HelpFindSupport::~HelpFindSupport()
-{
-}
-
-Core::FindFlags HelpFindSupport::supportedFindFlags() const
-{
-    return FindBackward | FindCaseSensitively;
-}
-
-QString HelpFindSupport::currentFindString() const
-{
-    QTC_ASSERT(m_centralWidget, return QString());
-    HelpViewer *viewer = m_centralWidget->currentHelpViewer();
-    if (!viewer)
-        return QString();
-    return viewer->selectedText();
-}
-
-QString HelpFindSupport::completedFindString() const
-{
-    return QString();
-}
-
-Core::IFindSupport::Result HelpFindSupport::findIncremental(const QString &txt,
-    Core::FindFlags findFlags)
-{
-    findFlags &= ~FindBackward;
-    return find(txt, findFlags, true) ? Found : NotFound;
-}
-
-Core::IFindSupport::Result HelpFindSupport::findStep(const QString &txt,
-    Core::FindFlags findFlags)
-{
-    return find(txt, findFlags, false) ? Found : NotFound;
-}
-
-bool HelpFindSupport::find(const QString &txt, Core::FindFlags findFlags, bool incremental)
-{
-    QTC_ASSERT(m_centralWidget, return false);
-    bool wrapped = false;
-    bool found = m_centralWidget->find(txt, findFlags, incremental, &wrapped);
-    if (wrapped)
-        showWrapIndicator(m_centralWidget);
-    return found;
-}
-
-// -- HelpViewerFindSupport
-
 HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
     : m_viewer(viewer)
 {

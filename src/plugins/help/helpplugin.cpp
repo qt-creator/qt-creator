@@ -303,10 +303,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
             SLOT(gotoNextPage()));
     }
 
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
-    agg->add(m_centralWidget);
-    agg->add(new HelpFindSupport(m_centralWidget));
-
     QWidget *toolBarWidget = new QWidget;
     QHBoxLayout *toolBarLayout = new QHBoxLayout(toolBarWidget);
     toolBarLayout->setMargin(0);
@@ -571,10 +567,6 @@ void HelpPlugin::createRightPaneContextViewer()
     rightPaneLayout->addWidget(fth);
     m_rightPaneSideBarWidget->setFocusProxy(m_helpViewerForSideBar);
 
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate();
-    agg->add(m_helpViewerForSideBar);
-    agg->add(new HelpViewerFindSupport(m_helpViewerForSideBar));
-
     Context context(Constants::C_HELP_SIDEBAR);
     IContext *icontext = new IContext(this);
     icontext->setContext(context);
@@ -663,6 +655,12 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
     QVariant fontSetting = LocalHelpManager::engineFontSettings();
     if (fontSetting.isValid())
         viewer->setViewerFont(fontSetting.value<QFont>());
+
+    // add find support
+    Aggregation::Aggregate *agg = new Aggregation::Aggregate();
+    agg->add(viewer);
+    agg->add(new HelpViewerFindSupport(viewer));
+
     return viewer;
 }
 

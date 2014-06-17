@@ -39,31 +39,6 @@ namespace Internal {
 
 class HelpViewer;
 
-class HelpFindSupport : public Core::IFindSupport
-{
-    Q_OBJECT
-
-public:
-    HelpFindSupport(CentralWidget *centralWidget);
-    ~HelpFindSupport();
-
-    bool supportsReplace() const { return false; }
-    Core::FindFlags supportedFindFlags() const;
-
-    void resetIncrementalSearch() {}
-    void clearResults() {}
-    QString currentFindString() const;
-    QString completedFindString() const;
-
-    Result findIncremental(const QString &txt, Core::FindFlags findFlags);
-    Result findStep(const QString &txt, Core::FindFlags findFlags);
-
-private:
-    bool find(const QString &ttf, Core::FindFlags findFlags, bool incremental);
-
-    CentralWidget *m_centralWidget;
-};
-
 class HelpViewerFindSupport : public Core::IFindSupport
 {
     Q_OBJECT
