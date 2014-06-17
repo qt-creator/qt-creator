@@ -2653,10 +2653,13 @@ bool Parser::parseBraceOrEqualInitializer0x(ExpressionAST *&node)
 
 bool Parser::parseInitializerClause0x(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() == T_LBRACE)
         return parseBracedInitList0x(node);
 
-    return parseAssignmentExpression(node);
+    if (parseAssignmentExpression(node))
+        return true;
+    return parseDesignatedInitializer(node);
 }
 
 bool Parser::parseInitializerList0x(ExpressionListAST *&node)
@@ -2664,7 +2667,7 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
     ExpressionListAST **expression_list_ptr = &node;
     ExpressionAST *expression = 0;
 
-    if (parseDesignatedInitializer(expression)) {
+    if (parseInitializerClause0x(expression)) {
         *expression_list_ptr = new (_pool) ExpressionListAST;
         (*expression_list_ptr)->value = expression;
         expression_list_ptr = &(*expression_list_ptr)->next;
@@ -2675,7 +2678,7 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
         while (LA() == T_COMMA && LA(2) != T_RBRACE) {
             consumeToken(); // consume T_COMMA
 
-            if (parseDesignatedInitializer(expression)) {
+            if (parseInitializerClause0x(expression)) {
                 *expression_list_ptr = new (_pool) ExpressionListAST;
                 (*expression_list_ptr)->value = expression;
 
@@ -2692,6 +2695,7 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
 
 bool Parser::parseBracedInitList0x(ExpressionAST *&node)
 {
+    DEBUG_THIS_RULE();
     if (LA() != T_LBRACE)
         return false;
 
@@ -5490,20 +5494,30 @@ bool Parser::parseDesignatedInitializer(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
     if (!_languageFeatures.c99Enabled || (LA() != T_DOT && LA() != T_LBRACKET))
-        return parseInitializerClause0x(node);
+        return false;
 
     DesignatedInitializerAST *ast = new (_pool) DesignatedInitializerAST;
     DesignatorListAST **designator_list_ptr = &ast->designator_list;
     DesignatorAST *designator = 0;
+    const unsigned start = cursor();
     while (parseDesignator(designator)) {
         *designator_list_ptr = new (_pool) DesignatorListAST;
         (*designator_list_ptr)->value = designator;
         designator_list_ptr = &(*designator_list_ptr)->next;
     }
-    match(T_EQUAL, &ast->equal_token);
-    parseInitializerClause0x(ast->initializer);
-    node = ast;
-    return true;
+    if (start == cursor())
+        return false;
+
+    if (LA() == T_EQUAL) {
+        ast->equal_token = consumeToken();
+        if (parseAssignmentExpression(ast->initializer)) {
+            node = ast;
+            return true;
+        }
+    }
+
+    rewind(start);
+    return false;
 }
 
 // designator ::= T_DOT T_IDENTIFIER
@@ -5511,21 +5525,28 @@ bool Parser::parseDesignatedInitializer(ExpressionAST *&node)
 //
 bool Parser::parseDesignator(DesignatorAST *&node)
 {
-    DesignatorAST *ast = new (_pool) DesignatorAST;
+    DEBUG_THIS_RULE();
+    const unsigned start = cursor();
     if (LA() == T_DOT) {
+        DesignatorAST *ast = new (_pool) DesignatorAST;
         ast->type = DesignatorAST::Dot;
         ast->u.dot.dot_token = consumeToken();
         match(T_IDENTIFIER, &ast->u.dot.identifier_token);
+        node = ast;
+        return true;
     } else if (LA() == T_LBRACKET) {
+        DesignatorAST *ast = new (_pool) DesignatorAST;
         ast->type = DesignatorAST::Bracket;
         ast->u.bracket.lbracket_token = consumeToken();
-        parseConstantExpression(ast->u.bracket.expression);
-        match(T_RBRACKET, &ast->u.bracket.rbracket_token);
-    } else {
-        return false;
+        if (parseConditionalExpression(ast->u.bracket.expression)) {
+            match(T_RBRACKET, &ast->u.bracket.rbracket_token);
+            node = ast;
+            return true;
+        }
     }
-    node = ast;
-    return true;
+
+    rewind(start);
+    return false;
 }
 
 // objc-class-declaraton ::= T_AT_CLASS (T_IDENTIFIER @ T_COMMA) T_SEMICOLON

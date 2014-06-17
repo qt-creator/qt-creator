@@ -98,13 +98,14 @@ class tst_cxx11: public QObject
         }
     };
 
-    Document::Ptr document(const QString &fileName, QByteArray *errors = 0)
+    Document::Ptr document(const QString &fileName, QByteArray *errors = 0, bool c99Enabled = false)
     {
         Document::Ptr doc = Document::create(fileName);
         QFile file(testdata(fileName));
         if (file.open(QFile::ReadOnly)) {
             LanguageFeatures features;
             features.cxx11Enabled = true;
+            features.c99Enabled = c99Enabled;
             Client client(errors);
             doc->control()->setDiagnosticClient(&client);
             doc->setUtf8Source(QTextStream(&file).readAll().toUtf8());
@@ -123,6 +124,9 @@ private Q_SLOTS:
     //
     void parse_data();
     void parse();
+
+    void parseWithC99Enabled_data();
+    void parseWithC99Enabled();
 
     //
     // checks for the semantic
@@ -162,6 +166,29 @@ void tst_cxx11::parse()
 
     QByteArray errors;
     Document::Ptr doc = document(file, &errors);
+
+    if (! qgetenv("DEBUG").isNull())
+        printf("%s\n", errors.constData());
+
+    VERIFY_ERRORS();
+}
+
+void tst_cxx11::parseWithC99Enabled_data()
+{
+    QTest::addColumn<QString>("file");
+    QTest::addColumn<QString>("errorFile");
+
+    QTest::newRow("lambda.1") << "lambda.1.cpp" << "";
+}
+
+void tst_cxx11::parseWithC99Enabled()
+{
+    QFETCH(QString, file);
+    QFETCH(QString, errorFile);
+
+    const bool c99Enabled = true;
+    QByteArray errors;
+    Document::Ptr doc = document(file, &errors, c99Enabled);
 
     if (! qgetenv("DEBUG").isNull())
         printf("%s\n", errors.constData());
