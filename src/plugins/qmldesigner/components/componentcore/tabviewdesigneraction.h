@@ -49,9 +49,6 @@ protected:
     bool isVisible(const SelectionContext &selectionContext) const;
     bool isEnabled(const SelectionContext &selectionContext) const;
 
-    bool createFile(const QString &filePath);
-    void addNewFileToVersionControl(const QString &directoryPath, const QString &newFileName);
-
 private slots:
     void addNewTab();
 };

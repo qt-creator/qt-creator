@@ -28,24 +28,19 @@
 ****************************************************************************/
 
 #include "tabviewdesigneraction.h"
+#include "addtabtotabviewdialog.h"
 
 #include <QCoreApplication>
+#include <QMessageBox>
 #include <QUrl>
 #include <QFileInfo>
-#include <QMessageBox>
-
-#include <utils/textfileformat.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/vcsmanager.h>
 #include <coreplugin/icore.h>
 
+#include <documentmanager.h>
 #include <nodemetainfo.h>
 #include <modelnode.h>
 #include <nodeabstractproperty.h>
-#include "addtabtotabviewdialog.h"
-
-
+#include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 
@@ -102,35 +97,6 @@ bool TabViewDesignerAction::isEnabled(const SelectionContext &selectionContext) 
     return isVisible(selectionContext);
 }
 
-bool TabViewDesignerAction::createFile(const QString &filePath)
-{
-    Utils::TextFileFormat textFileFormat;
-    textFileFormat.codec = Core::EditorManager::defaultTextCodec();
-    QString errorMessage;
-
-    const QString componentString("import QtQuick 2.1\nimport QtQuick.Controls 1.0\n\nItem {\n\n}");
-
-    return textFileFormat.writeFile(filePath, componentString, &errorMessage);
-
-}
-
-void TabViewDesignerAction::addNewFileToVersionControl(const QString &directoryPath, const QString &newFilePath)
-{
-    Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(directoryPath);
-    if (versionControl && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
-        const QMessageBox::StandardButton button =
-                QMessageBox::question(Core::ICore::mainWindow(),
-                                      Core::VcsManager::msgAddToVcsTitle(),
-                                      Core::VcsManager::msgPromptToAddToVcs(QStringList(newFilePath), versionControl),
-                                      QMessageBox::Yes | QMessageBox::No);
-        if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFilePath)) {
-            QMessageBox::warning(Core::ICore::mainWindow(),
-                                 Core::VcsManager::msgAddToVcsFailedTitle(),
-                                 Core::VcsManager::msgToAddToVcsFailed(QStringList(newFilePath), versionControl));
-        }
-    }
-}
-
 static ModelNode findTabViewModelNode(const ModelNode &currentModelNode)
 {
     if (currentModelNode.metaInfo().isSubclassOf("QtQuick.Controls.TabView", -1, -1))
@@ -150,10 +116,10 @@ void TabViewDesignerAction::addNewTab()
         if (QFileInfo(newFilePath).exists()) {
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Naming Error"), tr("Component already exists."));
         } else {
-            bool fileCreated = createFile(newFilePath);
+            bool fileCreated = DocumentManager::createFile(newFilePath, QStringLiteral("import QtQuick 2.1\nimport QtQuick.Controls 1.0\n\nItem {\n\n}"));
 
             if (fileCreated) {
-                addNewFileToVersionControl(directoryPath, newFilePath);
+                DocumentManager::addFileToVersionControl(directoryPath, newFilePath);
 
                 ModelNode tabViewModelNode = findTabViewModelNode(selectionContext().currentSingleSelectedNode());
 
