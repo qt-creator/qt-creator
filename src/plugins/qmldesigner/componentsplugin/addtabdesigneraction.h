@@ -34,11 +34,11 @@
 
 namespace QmlDesigner {
 
-class TabViewDesignerAction : public QObject, public DefaultDesignerAction
+class AddTabDesignerAction : public QObject, public DefaultDesignerAction
 {
     Q_OBJECT
 public:
-    TabViewDesignerAction();
+    AddTabDesignerAction();
 
     QByteArray category() const;
     QByteArray menuId() const;

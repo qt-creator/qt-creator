@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "tabviewdesigneraction.h"
+#include "addtabdesigneraction.h"
 #include "addtabtotabviewdialog.h"
 
 #include <QCoreApplication>
@@ -56,33 +56,33 @@ bool isTabAndParentIsTabView(const ModelNode &modelNode)
             && modelNode.parentProperty().parentModelNode().metaInfo().isSubclassOf("QtQuick.Controls.TabView", -1, -1);
 }
 
-TabViewDesignerAction::TabViewDesignerAction()
+AddTabDesignerAction::AddTabDesignerAction()
     : DefaultDesignerAction(QCoreApplication::translate("TabViewToolAction","Add Tab..."))
 {
     connect(action(), SIGNAL(triggered()), this, SLOT(addNewTab()));
 }
 
-QByteArray TabViewDesignerAction::category() const
+QByteArray AddTabDesignerAction::category() const
 {
     return QByteArray();
 }
 
-QByteArray TabViewDesignerAction::menuId() const
+QByteArray AddTabDesignerAction::menuId() const
 {
     return "TabViewAction";
 }
 
-int TabViewDesignerAction::priority() const
+int AddTabDesignerAction::priority() const
 {
     return CustomActionsPriority;
 }
 
-AbstractDesignerAction::Type TabViewDesignerAction::type() const
+AbstractDesignerAction::Type AddTabDesignerAction::type() const
 {
     return Action;
 }
 
-bool TabViewDesignerAction::isVisible(const SelectionContext &selectionContext) const
+bool AddTabDesignerAction::isVisible(const SelectionContext &selectionContext) const
 {
     if (selectionContext.singleNodeIsSelected()) {
         ModelNode selectedModelNode = selectionContext.currentSingleSelectedNode();
@@ -92,7 +92,7 @@ bool TabViewDesignerAction::isVisible(const SelectionContext &selectionContext) 
     return false;
 }
 
-bool TabViewDesignerAction::isEnabled(const SelectionContext &selectionContext) const
+bool AddTabDesignerAction::isEnabled(const SelectionContext &selectionContext) const
 {
     return isVisible(selectionContext);
 }
@@ -105,7 +105,7 @@ static ModelNode findTabViewModelNode(const ModelNode &currentModelNode)
         return findTabViewModelNode(currentModelNode.parentProperty().parentModelNode());
 }
 
-void TabViewDesignerAction::addNewTab()
+void AddTabDesignerAction::addNewTab()
 {
     QString tabName = AddTabToTabViewDialog::create(QStringLiteral("Tab"), Core::ICore::mainWindow());
 

@@ -9,6 +9,8 @@ include (../qmldesigner_dependencies.pri)
 
 LIBS += -L$$IDE_PLUGIN_PATH
 LIBS += -l$$qtLibraryName(QmlDesigner)
+LIBS += -l$$qtLibraryName(Core)
+LIBS += -l$$qtLibraryName(utils)
 
 DEFINES += COMPONENTS_LIBRARY
 
@@ -17,11 +19,18 @@ RESOURCES += $$PWD/componentsplugin.qrc
 HEADERS += \
     $$PWD/tabviewindexmodel.h \
     $$PWD/componentsplugin.h \
-    $$PWD/../designercore/include/iwidgetplugin.h
+    $$PWD/../designercore/include/iwidgetplugin.h \
+    $$PWD/addtabdesigneraction.h \
+    $$PWD/addtabtotabviewdialog.h
 
 SOURCES += \
     $$PWD/componentsplugin.cpp \
-    $$PWD/tabviewindexmodel.cpp
+    $$PWD/tabviewindexmodel.cpp \
+    $$PWD/addtabdesigneraction.cpp \
+    $$PWD/addtabtotabviewdialog.cpp
+
+FORMS += \
+    $$PWD/addtabtotabviewdialog.ui
 
 
 OTHER_FILES += $$PWD/components.metainfo

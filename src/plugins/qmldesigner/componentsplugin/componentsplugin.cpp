@@ -30,6 +30,11 @@
 #include "componentsplugin.h"
 
 #include "tabviewindexmodel.h"
+#include "addtabdesigneraction.h"
+
+#include <viewmanager.h>
+#include <qmldesignerplugin.h>
+
 #include <QtPlugin>
 
 namespace QmlDesigner {
@@ -38,6 +43,7 @@ namespace QmlDesigner {
 ComponentsPlugin::ComponentsPlugin()
 {
     TabViewIndexModel::registerDeclarativeType();
+    QmlDesignerPlugin::instance()->viewManager().designerActionManager().addDesignerAction(new AddTabDesignerAction);
 }
 
 QString ComponentsPlugin::pluginName() const
