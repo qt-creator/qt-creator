@@ -429,8 +429,7 @@ QString AbstractView::contextHelpId() const
     QString helpId;
 
     if (hasSelectedModelNodes()) {
-        helpId = firstSelectedModelNode().type();
-        helpId.replace(QStringLiteral("QtQuick"), QStringLiteral("QML"));
+        helpId = QStringLiteral("QML.") + firstSelectedModelNode().simplifiedTypeName();
     }
 
     return helpId;
