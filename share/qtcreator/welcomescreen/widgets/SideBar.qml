@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import QtQuick.Window 2.1
 import QtQuick.Layouts 1.0
 
 ColumnLayout {
@@ -37,13 +38,13 @@ ColumnLayout {
 
     property alias model: tabs.model
 
-    property int __width: tabs.width + 16 * 2
     id: root
 
     Item {
         z: 1
-        width: __width
+        width: tabs.width + 16 * 2
         height: tabs.height + 51 * 2
+        Layout.fillWidth: true
 
         Image {
             fillMode: Image.Tile
@@ -87,13 +88,14 @@ ColumnLayout {
 
     Rectangle {
         color: "#ebebeb"
-        width: root.__width
+        Layout.fillWidth: true
         Layout.minimumHeight: 320
         Layout.fillHeight: true
+        Layout.minimumWidth: innerColumn.width
 
-        Column {
+        ColumnLayout {
+            id: innerColumn
             spacing: 14
-            width: parent.width - 16 * 2
             x: 12
 
             Item {
@@ -111,7 +113,7 @@ ColumnLayout {
                 text: qsTr("Learn how to develop your own applications and explore Qt Creator.")
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
-                width: parent.width
+                Layout.maximumWidth: Screen.pixelDensity * 60
             }
 
             Item {
@@ -119,9 +121,14 @@ ColumnLayout {
                 width: parent.width
             }
 
-            Button {
-                text: qsTr("Get Started Now")
-                onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/index.html")
+            Item {
+                width: gettingStartedButton.width + 24
+                Button {
+                    x: 4
+                    id: gettingStartedButton
+                    text: qsTr("Get Started Now")
+                    onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/index.html")
+                }
             }
 
             Item {
@@ -129,7 +136,7 @@ ColumnLayout {
                 width: parent.width
             }
 
-            Column {
+            ColumnLayout {
                 x: 14
                 spacing: 16
                 IconAndLink {

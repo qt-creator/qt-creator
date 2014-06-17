@@ -38,7 +38,10 @@ Button {
     Component {
         id: touchStyle
         ButtonStyle {
+            padding.left: button.iconSource != "" ? 38 : 14
+            padding.right: 14
             background: Item {
+                anchors.fill: parent
 
                 Image {
                     id: icon
@@ -51,8 +54,8 @@ Button {
                     visible: button.iconSource != ""
                 }
 
-                implicitHeight: 30
                 implicitWidth: 160
+                implicitHeight: 30
 
                 Rectangle {
                     anchors.fill: parent
@@ -117,7 +120,6 @@ Button {
             }
 
             label: Text {
-                    x: button.iconSource != "" ? 38 : 14
                     renderType: Text.NativeRendering
                     verticalAlignment: Text.AlignVCenter
                     text: button.text
