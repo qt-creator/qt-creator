@@ -27,32 +27,40 @@
 **
 ****************************************************************************/
 
-#include "componentsplugin.h"
+#ifndef TABVIEWINDEXMODEL_H
+#define TABVIEWINDEXMODEL_H
 
-#include "tabviewindexmodel.h"
-#include <QtPlugin>
+#include <qmlitemnode.h>
 
-namespace QmlDesigner {
+#include <QObject>
+#include <QtQml>
 
-
-ComponentsPlugin::ComponentsPlugin()
+class TabViewIndexModel : public QObject
 {
-    TabViewIndexModel::registerDeclarativeType();
-}
+    Q_OBJECT
+    Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
+    Q_PROPERTY(QStringList tabViewIndexModel READ tabViewIndexModel NOTIFY modelNodeBackendChanged)
 
-QString ComponentsPlugin::pluginName() const
-{
-    return ("ComponentsPlugin");
-}
+public:
+    explicit TabViewIndexModel(QObject *parent = 0);
 
-QString ComponentsPlugin::metaInfo() const
-{
-    return QString(":/componentsplugin/components.metainfo");
-}
+    void setModelNodeBackend(const QVariant &modelNodeBackend);
+    QStringList tabViewIndexModel() const;
+    void setupModel();
 
-}
+    static void registerDeclarativeType();
 
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN(QmlDesigner::ComponentsPlugin)
-#endif
+signals:
+    void modelNodeBackendChanged();
 
+private:
+    QVariant modelNodeBackend() const;
+
+    QmlDesigner::ModelNode m_modelNode;
+    QStringList m_tabViewIndexModel;
+
+};
+
+QML_DECLARE_TYPE(TabViewIndexModel)
+
+#endif // TABVIEWINDEXMODEL_H
