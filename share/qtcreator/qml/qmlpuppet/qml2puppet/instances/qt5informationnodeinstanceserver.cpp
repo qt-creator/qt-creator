@@ -241,14 +241,16 @@ void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<Se
     QList<ServerNodeInstance> noParentList;
 
     foreach (const ServerNodeInstance &child, childList) {
-        if (!child.hasParent()) {
-            noParentList.append(child);
-        } else {
-            ServerNodeInstance parent = child.parent();
-            if (parent.isValid()) {
-                parentSet.insert(parent);
-            } else {
+        if (child.isValid()) {
+            if (!child.hasParent()) {
                 noParentList.append(child);
+            } else {
+                ServerNodeInstance parent = child.parent();
+                if (parent.isValid()) {
+                    parentSet.insert(parent);
+                } else {
+                    noParentList.append(child);
+                }
             }
         }
     }

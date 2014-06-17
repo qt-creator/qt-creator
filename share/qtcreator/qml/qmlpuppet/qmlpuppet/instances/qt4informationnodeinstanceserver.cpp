@@ -240,10 +240,12 @@ void Qt4InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<Se
     QList<ServerNodeInstance> noParentList;
 
     foreach (const ServerNodeInstance &child, childList) {
-        if (!child.hasParent())
-            noParentList.append(child);
-        else
-            parentSet.insert(child.parent());
+        if (child.isValid()) {
+            if (!child.hasParent())
+                noParentList.append(child);
+            else
+                parentSet.insert(child.parent());
+        }
     }
 
 

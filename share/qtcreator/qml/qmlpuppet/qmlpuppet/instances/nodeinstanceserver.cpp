@@ -877,71 +877,72 @@ static QVector<InformationContainer> createInformationVector(const QList<ServerN
     QVector<InformationContainer> informationVector;
 
     foreach (const ServerNodeInstance &instance, instanceList) {
-        informationVector.append(InformationContainer(instance.instanceId(), Position, instance.position()));
-        informationVector.append(InformationContainer(instance.instanceId(), Transform, instance.transform()));
-        informationVector.append(InformationContainer(instance.instanceId(), SceneTransform, instance.sceneTransform()));
-        informationVector.append(InformationContainer(instance.instanceId(), Size, instance.size()));
-        informationVector.append(InformationContainer(instance.instanceId(), BoundingRect, instance.boundingRect()));
-        informationVector.append(InformationContainer(instance.instanceId(), Transform, instance.transform()));
-        informationVector.append(InformationContainer(instance.instanceId(), HasContent, instance.hasContent()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsMovable, instance.isMovable()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsResizable, instance.isResizable()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsInLayoutable, instance.isInLayoutable()));
-        informationVector.append(InformationContainer(instance.instanceId(), PenWidth, instance.penWidth()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredByChildren, instance.isAnchoredByChildren()));
-        informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredBySibling, instance.isAnchoredBySibling()));
+        if (instance.isValid()) {
+            informationVector.append(InformationContainer(instance.instanceId(), Position, instance.position()));
+            informationVector.append(InformationContainer(instance.instanceId(), Transform, instance.transform()));
+            informationVector.append(InformationContainer(instance.instanceId(), SceneTransform, instance.sceneTransform()));
+            informationVector.append(InformationContainer(instance.instanceId(), Size, instance.size()));
+            informationVector.append(InformationContainer(instance.instanceId(), BoundingRect, instance.boundingRect()));
+            informationVector.append(InformationContainer(instance.instanceId(), Transform, instance.transform()));
+            informationVector.append(InformationContainer(instance.instanceId(), HasContent, instance.hasContent()));
+            informationVector.append(InformationContainer(instance.instanceId(), IsMovable, instance.isMovable()));
+            informationVector.append(InformationContainer(instance.instanceId(), IsResizable, instance.isResizable()));
+            informationVector.append(InformationContainer(instance.instanceId(), IsInLayoutable, instance.isInLayoutable()));
+            informationVector.append(InformationContainer(instance.instanceId(), PenWidth, instance.penWidth()));
+            informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredByChildren, instance.isAnchoredByChildren()));
+            informationVector.append(InformationContainer(instance.instanceId(), IsAnchoredBySibling, instance.isAnchoredBySibling()));
 
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.fill"), instance.hasAnchor("anchors.fill")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.centerIn"), instance.hasAnchor("anchors.centerIn")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.right"), instance.hasAnchor("anchors.right")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.top"), instance.hasAnchor("anchors.top")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.left"), instance.hasAnchor("anchors.left")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.bottom"), instance.hasAnchor("anchors.bottom")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.horizontalCenter"), instance.hasAnchor("anchors.horizontalCenter")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.verticalCenter"), instance.hasAnchor("anchors.verticalCenter")));
-        informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.baseline"), instance.hasAnchor("anchors.baseline")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.fill"), instance.hasAnchor("anchors.fill")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.centerIn"), instance.hasAnchor("anchors.centerIn")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.right"), instance.hasAnchor("anchors.right")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.top"), instance.hasAnchor("anchors.top")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.left"), instance.hasAnchor("anchors.left")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.bottom"), instance.hasAnchor("anchors.bottom")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.horizontalCenter"), instance.hasAnchor("anchors.horizontalCenter")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.verticalCenter"), instance.hasAnchor("anchors.verticalCenter")));
+            informationVector.append(InformationContainer(instance.instanceId(), HasAnchor, PropertyName("anchors.baseline"), instance.hasAnchor("anchors.baseline")));
 
-        QPair<PropertyName, ServerNodeInstance> anchorPair = instance.anchor("anchors.fill");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.fill"), anchorPair.first, anchorPair.second.instanceId()));
+            QPair<PropertyName, ServerNodeInstance> anchorPair = instance.anchor("anchors.fill");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.fill"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.centerIn");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.centerIn"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.centerIn");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.centerIn"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.right");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.right"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.right");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.right"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.top");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.top"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.top");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.top"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.left");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.left"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.left");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.left"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.bottom");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.bottom"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.bottom");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.bottom"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.horizontalCenter");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.horizontalCenter"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.horizontalCenter");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.horizontalCenter"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.verticalCenter");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.verticalCenter"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.verticalCenter");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.verticalCenter"), anchorPair.first, anchorPair.second.instanceId()));
 
-        anchorPair = instance.anchor("anchors.baseline");
-        informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.baseline"), anchorPair.first, anchorPair.second.instanceId()));
+            anchorPair = instance.anchor("anchors.baseline");
+            informationVector.append(InformationContainer(instance.instanceId(), Anchor, PropertyName("anchors.baseline"), anchorPair.first, anchorPair.second.instanceId()));
 
-        PropertyNameList propertyNames = instance.propertyNames();
+            PropertyNameList propertyNames = instance.propertyNames();
 
-        if (initial) {
-            foreach (const PropertyName &propertyName, propertyNames)
-                informationVector.append(InformationContainer(instance.instanceId(), InstanceTypeForProperty, propertyName, instance.instanceType(propertyName)));
+            if (initial) {
+                foreach (const PropertyName &propertyName, propertyNames)
+                    informationVector.append(InformationContainer(instance.instanceId(), InstanceTypeForProperty, propertyName, instance.instanceType(propertyName)));
+            }
+
+            foreach (const PropertyName &propertyName, instance.propertyNames()) {
+                bool hasChanged = false;
+                bool hasBinding = instance.hasBindingForProperty(propertyName, &hasChanged);
+                if (hasChanged)
+                    informationVector.append(InformationContainer(instance.instanceId(), HasBindingForProperty, propertyName, hasBinding));
+            }
         }
-
-        foreach (const PropertyName &propertyName, instance.propertyNames()) {
-            bool hasChanged = false;
-            bool hasBinding = instance.hasBindingForProperty(propertyName, &hasChanged);
-            if (hasChanged)
-                informationVector.append(InformationContainer(instance.instanceId(), HasBindingForProperty, propertyName, hasBinding));
-        }
-
     }
 
     return informationVector;
