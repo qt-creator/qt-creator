@@ -37,6 +37,7 @@ Thumbs.db
 
 # qtcreator generated files
 *.pro.user*
+*.creator.user*
 *.qbs.user*
 *.qmlproject.user*
 *.pluginspec

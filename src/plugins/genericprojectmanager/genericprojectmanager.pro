@@ -23,3 +23,9 @@ SOURCES = genericproject.cpp \
     filesselectionwizardpage.cpp
 RESOURCES += genericproject.qrc
 FORMS += genericmakestep.ui
+
+equals(TEST, 1) {
+    SOURCES += genericprojectplugin_test.cpp cppmodelmanagerhelper.cpp
+    HEADERS += cppmodelmanagerhelper.h
+    DEFINES += SRCDIR=\\\"$$PWD\\\"
+}

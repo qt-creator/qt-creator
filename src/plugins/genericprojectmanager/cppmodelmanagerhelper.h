@@ -27,52 +27,38 @@
 **
 ****************************************************************************/
 
-#ifndef GENERICPROJECTPLUGIN_H
-#define GENERICPROJECTPLUGIN_H
+#ifndef CPPMODELMANAGERHELPER_H
+#define CPPMODELMANAGERHELPER_H
 
-#include <extensionsystem/iplugin.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QObject>
-#include <QAction>
-
-namespace ProjectExplorer {
-class Project;
-class Node;
-}
 
 namespace GenericProjectManager {
 namespace Internal {
+namespace Tests {
 
-class ProjectFilesFactory;
-
-class GenericProjectPlugin : public ExtensionSystem::IPlugin
+class CppModelManagerHelper : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GenericProjectManager.json")
-
 public:
-    GenericProjectPlugin();
-    ~GenericProjectPlugin();
+    explicit CppModelManagerHelper(QObject *parent = 0);
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
+    static CppTools::CppModelManagerInterface *cppModelManager();
+
+    enum { defaultTimeOut = 30 * 1000 }; // 30 secs
+    void waitForSourceFilesRefreshed(const QString &file = QString(), int timeOut = defaultTimeOut);
+    void waitForSourceFilesRefreshed(const QStringList &files, int timeOut = defaultTimeOut);
 
 private slots:
-    void updateContextMenu(ProjectExplorer::Project *, ProjectExplorer::Node *);
-    void editFiles();
-
-#ifdef WITH_TESTS
-private slots:
-    void test_simple();
-#endif // WITH_TESTS
+    void onSourceFilesRefreshed(const QStringList &files);
 
 private:
-    ProjectFilesFactory *m_projectFilesEditorFactory;
-    QAction *m_editFilesAction;
-    ProjectExplorer::Project *m_contextMenuProject;
+    QStringList m_refreshedSourceFiles;
 };
 
-} // namespace Internal
-} // namespace GenericProject
+} // Tests namespace
+} // Internal namespace
+} // GenericProjectManager namespace
 
-#endif // GENERICPROJECTPLUGIN_H
+#endif // CPPMODELMANAGERHELPER_H
