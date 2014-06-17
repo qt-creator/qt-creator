@@ -1307,7 +1307,7 @@ class Dumper(DumperBase):
                         self.putItem(self.downcast(value[field.name]))
 
     def putBaseClassName(self, name):
-        self.put('iname="%s",' % self.currentIName())
+        self.put('iname="%s",' % self.currentIName)
         self.put('name="[%s]",' % name)
 
     def listAnonymous(self, value, name, type):
