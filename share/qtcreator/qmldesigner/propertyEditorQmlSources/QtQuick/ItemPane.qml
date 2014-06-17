@@ -161,11 +161,13 @@ Rectangle {
                 id: tabView
                 height: Math.max(layoutSectionHeight, specficsHeight)
 
-                property int layoutSectionHeight
+                property int layoutSectionHeight: 400
                 property int specficsOneHeight: 0
                 property int specficsTwoHeight: 0
 
                 property int specficsHeight: Math.max(specficsOneHeight, specficsTwoHeight)
+
+                property int extraHeight: 40
 
                 Tab {
                     title: backendValues.className.value
@@ -189,7 +191,7 @@ Rectangle {
                             }
 
                             onLoaded: {
-                                tabView.specficsTwoHeight = specificsTwo.item.height + 40
+                                tabView.specficsTwoHeight = specificsTwo.item.height + tabView.extraHeight
                             }
                         }
 
@@ -201,7 +203,7 @@ Rectangle {
                             source: specificsUrl;
 
                             onLoaded: {
-                                tabView.specficsOneHeight = specificsOne.item.height + 40
+                                tabView.specficsOneHeight = specificsOne.item.height + tabView.extraHeight
                             }
                         }
                     }
@@ -214,9 +216,9 @@ Rectangle {
                         anchors.right: parent.right
 
                         LayoutSection {
-
-                            Component.onCompleted: {
-                                tabView.layoutSectionHeight = childrenRect.height
+                            property int childRectHeight: childrenRect.height
+                            onChildRectHeightChanged: {
+                                tabView.layoutSectionHeight = childRectHeight + tabView.extraHeight
                             }
                         }
                     }
