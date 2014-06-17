@@ -89,9 +89,6 @@ AbstractDesignerAction::Type TabViewDesignerAction::type() const
 
 bool TabViewDesignerAction::isVisible(const SelectionContext &selectionContext) const
 {
-    if (selectionContext.scenePosition().isNull())
-        return false;
-
     if (selectionContext.singleNodeIsSelected()) {
         ModelNode selectedModelNode = selectionContext.currentSingleSelectedNode();
         return isTabView(selectedModelNode) || isTabAndParentIsTabView(selectedModelNode);
