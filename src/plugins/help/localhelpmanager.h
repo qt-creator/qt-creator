@@ -32,20 +32,26 @@
 
 #include <QMutex>
 #include <QObject>
+#include <QUrl>
 
 QT_FORWARD_DECLARE_CLASS(QHelpEngine)
-QT_FORWARD_DECLARE_CLASS(QUrl)
 
 class BookmarkManager;
 
 namespace Help {
-    namespace Internal {
+namespace Internal {
 
 class LocalHelpManager : public QObject
 {
     Q_OBJECT
 
 public:
+    struct HelpData {
+        QUrl resolvedUrl;
+        QByteArray data;
+        QString mimeType;
+    };
+
     LocalHelpManager(QObject *parent = 0);
     ~LocalHelpManager();
 
@@ -60,7 +66,8 @@ public:
     static QVariant engineFontSettings();
     static bool isValidUrl(const QString &link);
 
-    Q_INVOKABLE QByteArray helpData(const QUrl &url);
+    static QByteArray loadErrorMessage(const QUrl &url, const QString &errorString);
+    Q_INVOKABLE static Help::Internal::LocalHelpManager::HelpData helpData(const QUrl &url);
 
 private:
     bool m_guiNeedsSetup;
@@ -72,7 +79,10 @@ private:
     static QMutex m_bkmarkMutex;
     static BookmarkManager *m_bookmarkManager;
 };
-    }   // Internal
+
+}   // Internal
 }   // Help
+
+Q_DECLARE_METATYPE(Help::Internal::LocalHelpManager::HelpData)
 
 #endif  // LOCALHELPMANAGER_H

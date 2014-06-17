@@ -163,22 +163,19 @@ AutoreleasePool::~AutoreleasePool()
 - (void)startLoading
 {
     const QUrl &url = QUrl::fromNSURL(self.request.URL);
-    QByteArray data;
+    Help::Internal::LocalHelpManager::HelpData data;
     Help::Internal::LocalHelpManager *helpManager = Help::Internal::LocalHelpManager::instance();
 
     QMetaObject::invokeMethod(helpManager, "helpData", Qt::BlockingQueuedConnection,
-                              Q_RETURN_ARG(QByteArray, data), Q_ARG(QUrl, url));
+                              Q_RETURN_ARG(Help::Internal::LocalHelpManager::HelpData, data),
+                              Q_ARG(QUrl, url));
 
-    QString mtString = Help::Internal::HelpViewer::mimeFromUrl(url);
-    if (mtString.isEmpty())
-        mtString = QLatin1String("application/octet-stream");
-    NSString *mimeType = mtString.toNSString();
-
-    NSData *nsdata = QtMac::toNSData(data); // Qt 5.3 has this in QByteArray
-
-    NSURLResponse *response = [[NSURLResponse alloc] initWithURL:self.request.URL
+    NSURL *resolvedURL = data.resolvedUrl.toNSURL();
+    NSString *mimeType = data.mimeType.toNSString();
+    NSData *nsdata = QtMac::toNSData(data.data); // Qt 5.3 has this in QByteArray
+    NSURLResponse *response = [[NSURLResponse alloc] initWithURL:resolvedURL
                                                         MIMEType:mimeType
-                                           expectedContentLength:data.length()
+                                           expectedContentLength:data.data.length()
                                                 textEncodingName:@"UTF8"];
     [self.client URLProtocol:self didReceiveResponse:response
                                   cacheStoragePolicy:NSURLCacheStorageNotAllowed];

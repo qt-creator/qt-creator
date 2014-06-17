@@ -122,36 +122,11 @@ QUrl TextBrowserHelpViewer::source() const
 
 void TextBrowserHelpViewer::setSource(const QUrl &url)
 {
-    const QString &string = url.toString();
-    if (url.isValid() && string != QLatin1String("help")) {
-        if (launchWithExternalApp(url))
-            return;
+    if (launchWithExternalApp(url))
+        return;
 
-        QUrl resolvedUrl;
-        if (url.scheme() == QLatin1String("http"))
-            resolvedUrl = url;
-
-        if (!resolvedUrl.isValid()) {
-            const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-            resolvedUrl = engine.findFile(url);
-        }
-
-        if (resolvedUrl.isValid()) {
-            m_textBrowser->setSource(resolvedUrl);
-            slotLoadFinished();
-            return;
-        }
-    }
-
+    slotLoadStarted();
     m_textBrowser->setSource(url);
-    m_textBrowser->setHtml(string == Help::Constants::AboutBlank
-        ? HelpViewer::tr("<title>about:blank</title>")
-        : HelpViewer::tr("<html><head><meta http-equiv=\""
-            "content-type\" content=\"text/html; charset=UTF-8\"><title>Error 404...</title>"
-            "</head><body><div align=\"center\"><br/><br/><h1>The page could not be found</h1>"
-            "<br/><h3>\"%1\"</h3></div></body></html>")
-          .arg(url.toString()));
-
     slotLoadFinished();
 }
 
@@ -321,18 +296,9 @@ TextBrowserHelpWidget::TextBrowserHelpWidget(int zoom, TextBrowserHelpViewer *pa
 
 QVariant TextBrowserHelpWidget::loadResource(int type, const QUrl &name)
 {
-    QByteArray ba;
-    if (type < 4) {
-        const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-        ba = engine.fileData(name);
-        if (name.toString().endsWith(QLatin1String(".svg"), Qt::CaseInsensitive)) {
-            QImage image;
-            image.loadFromData(ba, "svg");
-            if (!image.isNull())
-                return image;
-        }
-    }
-    return ba;
+    if (type < 4)
+        return LocalHelpManager::helpData(name).data;
+    return QByteArray();
 }
 
 bool TextBrowserHelpWidget::hasAnchorAt(const QPoint &pos)
