@@ -4556,7 +4556,6 @@ public:
 
 public:
     DesignatorAST()
-        : type(Invalid)
     {}
 
     virtual DesignatorAST *asDesignator() { return this; }
