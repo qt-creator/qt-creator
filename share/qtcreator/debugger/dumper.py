@@ -585,6 +585,7 @@ class DumperBase:
         except:
             #warn("ADDRBASE: %s" % base)
             #warn("ADDRSTEP: %s" % step)
+            pass
         return False
 
         #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
