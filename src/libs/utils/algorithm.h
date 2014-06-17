@@ -32,7 +32,17 @@
 
 #include <algorithm>
 
-#include <qcompilerdetection.h> // for Q_REQUIRE_RESULT
+#if QT_VERSION < 0x050000
+    #ifndef Q_REQUIRED_RESULT
+    # if defined(Q_CC_GNU)
+    #   define Q_REQUIRED_RESULT __attribute__ ((warn_unused_result))
+    # else
+    #   define Q_REQUIRED_RESULT
+    # endif
+    #endif
+#else
+    #include <qcompilerdetection.h> // for Q_REQUIRED_RESULT
+#endif
 
 namespace Utils
 {
