@@ -280,12 +280,13 @@ void NodeInstanceServer::removeProperties(const RemovePropertiesCommand &command
 void NodeInstanceServer::reparentInstances(const QVector<ReparentContainer> &containerVector)
 {
     foreach (const ReparentContainer &container, containerVector) {
-        ServerNodeInstance instance = instanceForId(container.instanceId());
-        if (instance.isValid()) {
-            instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(), instanceForId(container.newParentInstanceId()), container.newParentProperty());
+        if (hasInstanceForId(container.instanceId())) {
+            ServerNodeInstance instance = instanceForId(container.instanceId());
+            if (instance.isValid()) {
+                instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(), instanceForId(container.newParentInstanceId()), container.newParentProperty());
+            }
         }
     }
-
 }
 
 void NodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
