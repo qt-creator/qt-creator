@@ -450,6 +450,10 @@ NodeListProperty ModelNode::defaultNodeListProperty() const
     return nodeListProperty(metaInfo().defaultPropertyName());
 }
 
+NodeProperty ModelNode::defaultNodeProperty() const
+{
+    return nodeProperty(metaInfo().defaultPropertyName());
+}
 
 /*!
   \brief Returns a VariantProperty
@@ -848,6 +852,11 @@ bool ModelNode::hasDefaultNodeAbstracProperty() const
 bool ModelNode::hasDefaultNodeListProperty() const
 {
     return hasProperty(metaInfo().defaultPropertyName()) && internalNode()->property(metaInfo().defaultPropertyName())->isNodeListProperty();
+}
+
+bool ModelNode::hasDefaultNodeProperty() const
+{
+    return hasProperty(metaInfo().defaultPropertyName()) && internalNode()->property(metaInfo().defaultPropertyName())->isNodeProperty();
 }
 
 bool ModelNode::hasNodeProperty(const PropertyName &name) const
