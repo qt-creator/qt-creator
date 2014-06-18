@@ -47,6 +47,7 @@ public:
     virtual int findFirstIndexNoParents(qint64 startTime) const = 0;
     virtual int findLastIndex(qint64 endTime) const = 0;
 
+    QVector<int> rowOffsets;
     QString name;
     QmlProfilerModelManager *modelManager;
     int modelId;

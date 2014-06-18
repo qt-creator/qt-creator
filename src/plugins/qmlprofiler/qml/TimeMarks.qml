@@ -102,21 +102,30 @@ Canvas {
     function drawBackgroundBars( context, region ) {
         var colorIndex = true;
 
-        // row background
-        var backgroundOffset = y < 0 ? -y : -(y % (2 * root.singleRowHeight));
-        for (var currentY= backgroundOffset; currentY < Math.min(height, labels.height - y); currentY += root.singleRowHeight) {
-            context.fillStyle = colorIndex ? "#f0f0f0" : "white";
-            context.strokeStyle = colorIndex ? "#f0f0f0" : "white";
-            context.fillRect(0, currentY, width, root.singleRowHeight);
-            colorIndex = !colorIndex;
-        }
-
         // separators
-        var cumulatedHeight = 0;
-        for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount() && cumulatedHeight < y + height; modelIndex++) {
-            cumulatedHeight += root.singleRowHeight * qmlProfilerModelProxy.rowCount(modelIndex);
-            if (cumulatedHeight < y)
+        var cumulatedHeight = y < 0 ? -y : 0;
+        for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
+            var modelHeight = qmlProfilerModelProxy.height(modelIndex);
+            if (cumulatedHeight + modelHeight < y) {
+                cumulatedHeight += modelHeight;
+                if (qmlProfilerModelProxy.rowCount(modelIndex) % 2 !== 0)
+                    colorIndex = !colorIndex;
                 continue;
+            }
+
+            for (var row = 0; row < qmlProfilerModelProxy.rowCount(modelIndex); ++row) {
+                // row background
+                var rowHeight = qmlProfilerModelProxy.rowHeight(modelIndex, row)
+                cumulatedHeight += rowHeight;
+                colorIndex = !colorIndex;
+                if (cumulatedHeight < y - rowHeight)
+                    continue;
+                context.strokeStyle = context.fillStyle = colorIndex ? "#f0f0f0" : "white";
+                context.fillRect(0, cumulatedHeight - rowHeight - y, width, rowHeight);
+
+                if (cumulatedHeight > y + height)
+                    return;
+            }
 
             context.strokeStyle = "#B0B0B0";
             context.beginPath();

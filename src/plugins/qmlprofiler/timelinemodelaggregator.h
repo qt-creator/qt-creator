@@ -62,6 +62,10 @@ public:
 
     Q_INVOKABLE qint64 lastTimeMark() const;
 
+    Q_INVOKABLE int height(int modelIndex) const;
+    Q_INVOKABLE int rowHeight(int modelIndex, int row) const;
+    Q_INVOKABLE void setRowHeight(int modelIndex, int row, int height);
+    Q_INVOKABLE int rowOffset(int modelIndex, int row) const;
     Q_INVOKABLE bool expanded(int modelIndex) const;
     Q_INVOKABLE void setExpanded(int modelIndex, bool expanded);
     Q_INVOKABLE int rowCount(int modelIndex) const;
@@ -93,6 +97,7 @@ signals:
     void dataAvailable();
     void stateChanged();
     void expandedChanged();
+    void rowHeightChanged();
 
 protected slots:
     void dataChanged();

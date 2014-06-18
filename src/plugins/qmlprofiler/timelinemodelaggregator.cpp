@@ -91,6 +91,7 @@ void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
 {
     d->modelList << m;
     connect(m,SIGNAL(expandedChanged()),this,SIGNAL(expandedChanged()));
+    connect(m,SIGNAL(rowHeightChanged()),this,SIGNAL(rowHeightChanged()));
 }
 
 QStringList TimelineModelAggregator::categoryTitles() const
@@ -139,6 +140,26 @@ qint64 TimelineModelAggregator::lastTimeMark() const
         }
     }
     return mark;
+}
+
+int TimelineModelAggregator::height(int modelIndex) const
+{
+    return d->modelList[modelIndex]->height();
+}
+
+int TimelineModelAggregator::rowHeight(int modelIndex, int row) const
+{
+    return d->modelList[modelIndex]->rowHeight(row);
+}
+
+int TimelineModelAggregator::rowOffset(int modelIndex, int row) const
+{
+    return d->modelList[modelIndex]->rowOffset(row);
+}
+
+void TimelineModelAggregator::setRowHeight(int modelIndex, int row, int height)
+{
+    d->modelList[modelIndex]->setRowHeight(row, height);
 }
 
 bool TimelineModelAggregator::expanded(int modelIndex) const

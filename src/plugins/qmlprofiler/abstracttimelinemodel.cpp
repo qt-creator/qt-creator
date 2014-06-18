@@ -32,6 +32,7 @@
 
 namespace QmlProfiler {
 
+static const int DefaultRowHeight = 30;
 
 AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
         const QString &name, const QString &label, QmlDebug::Message message,
@@ -122,6 +123,63 @@ bool AbstractTimelineModel::isEmpty() const
     return count() == 0;
 }
 
+int AbstractTimelineModel::rowHeight(int rowNumber) const
+{
+    Q_D(const AbstractTimelineModel);
+    if (!expanded())
+        return DefaultRowHeight;
+
+    if (d->rowOffsets.length() > rowNumber)
+        return d->rowOffsets[rowNumber] - (rowNumber > 0 ? d->rowOffsets[rowNumber - 1] : 0);
+    return DefaultRowHeight;
+}
+
+int AbstractTimelineModel::rowOffset(int rowNumber) const
+{
+    Q_D(const AbstractTimelineModel);
+    if (rowNumber == 0)
+        return 0;
+    if (!expanded())
+        return DefaultRowHeight * rowNumber;
+
+    if (d->rowOffsets.length() >= rowNumber)
+        return d->rowOffsets[rowNumber - 1];
+    if (!d->rowOffsets.empty())
+        return d->rowOffsets.last() + (rowNumber - 1 - d->rowOffsets.length()) * DefaultRowHeight;
+    return rowNumber * DefaultRowHeight;
+}
+
+void AbstractTimelineModel::setRowHeight(int rowNumber, int height)
+{
+    Q_D(AbstractTimelineModel);
+    if (!expanded())
+        return;
+    if (height < DefaultRowHeight)
+        height = DefaultRowHeight;
+
+    int nextOffset = d->rowOffsets.empty() ? 0 : d->rowOffsets.last();
+    while (d->rowOffsets.length() <= rowNumber)
+        d->rowOffsets << (nextOffset += DefaultRowHeight);
+    int difference = height - d->rowOffsets[rowNumber] +
+            (rowNumber > 0 ? d->rowOffsets[rowNumber - 1] : 0);
+    if (difference != 0) {
+        for (; rowNumber < d->rowOffsets.length(); ++rowNumber) {
+            d->rowOffsets[rowNumber] += difference;
+        }
+        emit rowHeightChanged();
+    }
+}
+
+int AbstractTimelineModel::height() const
+{
+    Q_D(const AbstractTimelineModel);
+    int depth = rowCount();
+    if (!expanded() || d->rowOffsets.empty())
+        return depth * DefaultRowHeight;
+
+    return d->rowOffsets.last() + (depth - d->rowOffsets.length()) * DefaultRowHeight;
+}
+
 qint64 AbstractTimelineModel::traceStartTime() const
 {
     Q_D(const AbstractTimelineModel);
@@ -192,6 +250,8 @@ void AbstractTimelineModel::dataChanged()
     default:
         break;
     }
+
+    d->rowOffsets.clear();
 }
 
 bool AbstractTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlEventTypeData &event) const

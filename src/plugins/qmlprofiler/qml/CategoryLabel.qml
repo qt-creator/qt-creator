@@ -32,30 +32,25 @@ import QtQuick 2.1
 Item {
     id: labelContainer
     property string text: qmlProfilerModelProxy.title(modelIndex)
-    property bool expanded: false
-    property int modelIndex: index;
-
+    property bool expanded: trigger(qmlProfilerModelProxy.expanded(modelIndex))
+    property int modelIndex: index
+    property int bindingTrigger: 1
     property var descriptions: []
     property var extdescriptions: []
     property var eventIds: []
 
-    visible: qmlProfilerModelProxy.rowCount(modelIndex) > 0;
+    function trigger(i) {
+        return i * bindingTrigger * bindingTrigger;
+    }
 
-    height: root.singleRowHeight
+    visible: trigger(qmlProfilerModelProxy.rowCount(modelIndex)) > 0
+
+    height: trigger(qmlProfilerModelProxy.height(modelIndex))
     width: 150
 
-    Component.onCompleted: {
-        updateHeight();
-    }
-
-    function updateHeight() {
-        height = root.singleRowHeight * qmlProfilerModelProxy.rowCount(modelIndex);
-    }
-
     function getDescriptions() {
-        expanded = qmlProfilerModelProxy.expanded(modelIndex);
+        bindingTrigger = -bindingTrigger;
         backgroundMarks.requestPaint();
-        visible = qmlProfilerModelProxy.rowCount(modelIndex) > 0;
         if (!visible)
             return;
 
@@ -71,18 +66,13 @@ Item {
         descriptions = desc;
         eventIds = ids;
         extdescriptions = extdesc;
-        updateHeight();
     }
 
     Connections {
         target: qmlProfilerModelProxy
-        onExpandedChanged: {
-            getDescriptions();
-        }
-
-        onStateChanged: {
-            getDescriptions();
-        }
+        onExpandedChanged: getDescriptions();
+        onStateChanged: getDescriptions()
+        onRowHeightChanged: getDescriptions()
     }
 
     Text {
@@ -91,7 +81,7 @@ Item {
         font.pixelSize: 12
         text: labelContainer.text
         color: "#232323"
-        height: root.singleRowHeight
+        height: trigger(qmlProfilerModelProxy.rowHeight(modelIndex, 0))
         width: 140
         verticalAlignment: Text.AlignVCenter
     }
@@ -105,20 +95,21 @@ Item {
     }
 
     Column {
-        y: root.singleRowHeight
+        anchors.top: txt.bottom
         visible: expanded
         Repeater {
             model: descriptions.length
             Rectangle {
                 width: labelContainer.width
-                height: root.singleRowHeight
+                height: trigger(qmlProfilerModelProxy.rowHeight(modelIndex, index + 1))
                 color: "#eaeaea"
                 border.width: 1
                 border.color:"#c8c8c8"
                 Text {
-                    height: root.singleRowHeight
-                    x: 5
-                    width: 140
+                    anchors.fill: parent
+                    anchors.leftMargin: 5
+                    anchors.rightMargin: 5
+
                     text: descriptions[index]
                     textFormat: Text.PlainText
                     elide: Text.ElideRight
@@ -143,7 +134,7 @@ Item {
     Image {
         source: expanded ? "arrow_down.png" : "arrow_right.png"
         x: parent.width - 12
-        y: Math.floor((root.singleRowHeight - height) / 2)
+        y: 9
         smooth: false
         MouseArea {
             anchors.fill: parent
