@@ -296,7 +296,7 @@ void MercurialPlugin::revertCurrentFile()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
 
-    RevertDialog reverter;
+    RevertDialog reverter(Core::ICore::dialogParent());
     if (reverter.exec() != QDialog::Accepted)
         return;
     m_client->revertFile(state.currentFileTopLevel(), state.relativeCurrentFile(), reverter.revision());
@@ -362,7 +362,7 @@ void MercurialPlugin::revertMulti()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    RevertDialog reverter;
+    RevertDialog reverter(Core::ICore::dialogParent());
     if (reverter.exec() != QDialog::Accepted)
         return;
     m_client->revertAll(state.topLevel(), reverter.revision());
@@ -439,7 +439,7 @@ void MercurialPlugin::pull()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    SrcDestDialog dialog(SrcDestDialog::incoming);
+    SrcDestDialog dialog(SrcDestDialog::incoming, Core::ICore::dialogParent());
     dialog.setWindowTitle(tr("Pull Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
@@ -451,7 +451,7 @@ void MercurialPlugin::push()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    SrcDestDialog dialog(SrcDestDialog::outgoing);
+    SrcDestDialog dialog(SrcDestDialog::outgoing, Core::ICore::dialogParent());
     dialog.setWindowTitle(tr("Push Destination"));
     if (dialog.exec() != QDialog::Accepted)
         return;
@@ -463,7 +463,7 @@ void MercurialPlugin::update()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    RevertDialog updateDialog;
+    RevertDialog updateDialog(Core::ICore::dialogParent());
     updateDialog.setWindowTitle(tr("Update"));
     if (updateDialog.exec() != QDialog::Accepted)
         return;
@@ -475,7 +475,7 @@ void MercurialPlugin::import()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QFileDialog importDialog;
+    QFileDialog importDialog(Core::ICore::dialogParent());
     importDialog.setFileMode(QFileDialog::ExistingFiles);
     importDialog.setViewMode(QFileDialog::Detail);
 
@@ -491,7 +491,7 @@ void MercurialPlugin::incoming()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    SrcDestDialog dialog(SrcDestDialog::incoming);
+    SrcDestDialog dialog(SrcDestDialog::incoming, Core::ICore::dialogParent());
     dialog.setWindowTitle(tr("Incoming Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
