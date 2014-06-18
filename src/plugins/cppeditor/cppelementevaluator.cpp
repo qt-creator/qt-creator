@@ -44,7 +44,7 @@
 #include <QQueue>
 
 using namespace CppEditor;
-using namespace Internal;
+using namespace CppEditor::Internal;
 using namespace CPlusPlus;
 
 namespace {
