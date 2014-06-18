@@ -45,6 +45,7 @@ public:
     explicit TabViewIndexModel(QObject *parent = 0);
 
     void setModelNodeBackend(const QVariant &modelNodeBackend);
+    void setModelNode(const QmlDesigner::ModelNode &modelNode);
     QStringList tabViewIndexModel() const;
     void setupModel();
 

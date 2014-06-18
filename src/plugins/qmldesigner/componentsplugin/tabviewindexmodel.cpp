@@ -43,10 +43,15 @@ void TabViewIndexModel::setModelNodeBackend(const QVariant &modelNodeBackend)
     QObject* modelNodeBackendObject = modelNodeBackend.value<QObject*>();
 
     if (modelNodeBackendObject)
-        m_modelNode = modelNodeBackendObject->property("modelNode").value<QmlDesigner::ModelNode>();
+        setModelNode(modelNodeBackendObject->property("modelNode").value<QmlDesigner::ModelNode>());
 
     setupModel();
     emit modelNodeBackendChanged();
+}
+
+void TabViewIndexModel::setModelNode(const QmlDesigner::ModelNode &modelNode)
+{
+    m_modelNode = modelNode;
 }
 
 QStringList TabViewIndexModel::tabViewIndexModel() const
