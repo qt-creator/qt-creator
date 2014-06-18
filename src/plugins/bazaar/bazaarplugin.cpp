@@ -299,7 +299,7 @@ void BazaarPlugin::revertCurrentFile()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
 
-    QDialog dialog;
+    QDialog dialog(Core::ICore::dialogParent());
     Ui::RevertDialog revertUi;
     revertUi.setupUi(&dialog);
     if (dialog.exec() != QDialog::Accepted)
@@ -372,7 +372,7 @@ void BazaarPlugin::revertAll()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QDialog dialog;
+    QDialog dialog(Core::ICore::dialogParent());
     Ui::RevertDialog revertUi;
     revertUi.setupUi(&dialog);
     if (dialog.exec() != QDialog::Accepted)
@@ -439,7 +439,7 @@ void BazaarPlugin::pull()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    PullOrPushDialog dialog(PullOrPushDialog::PullMode);
+    PullOrPushDialog dialog(PullOrPushDialog::PullMode, Core::ICore::dialogParent());
     if (dialog.exec() != QDialog::Accepted)
         return;
     QStringList extraOptions;
@@ -459,7 +459,7 @@ void BazaarPlugin::push()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    PullOrPushDialog dialog(PullOrPushDialog::PushMode);
+    PullOrPushDialog dialog(PullOrPushDialog::PushMode, Core::ICore::dialogParent());
     if (dialog.exec() != QDialog::Accepted)
         return;
     QStringList extraOptions;
@@ -481,7 +481,7 @@ void BazaarPlugin::update()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QDialog dialog;
+    QDialog dialog(Core::ICore::dialogParent());
     Ui::RevertDialog revertUi;
     revertUi.setupUi(&dialog);
     dialog.setWindowTitle(tr("Update"));
@@ -652,7 +652,7 @@ void BazaarPlugin::uncommit()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    UnCommitDialog dialog;
+    UnCommitDialog dialog(Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted)
         m_client->synchronousUncommit(state.topLevel(), dialog.revision(), dialog.extraOptions());
 }
