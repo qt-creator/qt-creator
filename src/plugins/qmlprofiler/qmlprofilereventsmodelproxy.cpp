@@ -351,7 +351,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
             it.value().calls++;
             it.value().duration += event.duration;
         } else {
-            QmlEventRelativesData parent {
+            QmlEventRelativesData parent = {
                 event.duration,
                 1,
                 eventsInBindingLoop.contains(parentTypeIndex)
@@ -417,7 +417,7 @@ void QmlProfilerEventChildrenModelProxy::loadData()
             it.value().calls++;
             it.value().duration += event.duration;
         } else {
-            QmlEventRelativesData child {
+            QmlEventRelativesData child = {
                 event.duration,
                 1,
                 eventsInBindingLoop.contains(parentId)
