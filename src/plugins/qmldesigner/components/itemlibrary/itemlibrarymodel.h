@@ -77,7 +77,6 @@ public:
 
 public slots:
     void setSearchText(const QString &searchText);
-    void setItemIconSize(const QSize &itemIconSize);
 
     int getSectionLibId(int itemLibId);
     void setExpanded(bool, const QString &section);

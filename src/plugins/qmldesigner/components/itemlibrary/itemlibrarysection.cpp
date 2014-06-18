@@ -106,12 +106,6 @@ bool ItemLibrarySection::updateSectionVisibility(const QString &searchText, bool
 }
 
 
-void ItemLibrarySection::updateItemIconSize(const QSize &itemIconSize)
-{
-    foreach (ItemLibraryItem* itemLibraryItemModel, m_sectionEntries.items())
-        itemLibraryItemModel->setItemIconSize(itemIconSize);
-}
-
 bool ItemLibrarySection::setVisible(bool isVisible)
 {
     if (isVisible != m_isVisible) {

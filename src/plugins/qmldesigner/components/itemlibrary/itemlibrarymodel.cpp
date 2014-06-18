@@ -64,7 +64,6 @@ void ItemLibraryModel::setExpanded(bool expanded, const QString &section)
 
 ItemLibraryModel::ItemLibraryModel(QObject *parent)
     : QAbstractListModel(parent),
-      m_itemIconSize(64, 64),
       m_nextLibId(0)
 {
     addRoleNames();
@@ -120,16 +119,6 @@ void ItemLibraryModel::setSearchText(const QString &searchText)
         emit searchTextChanged();
 
         updateVisibility();
-    }
-}
-
-
-void ItemLibraryModel::setItemIconSize(const QSize &itemIconSize)
-{
-    m_itemIconSize = itemIconSize;
-
-    foreach (ItemLibrarySection* itemLibrarySectionModel, sections()) {
-        itemLibrarySectionModel->updateItemIconSize(itemIconSize);
     }
 }
 
@@ -190,10 +179,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
             m_itemInfos.insert(itemId, entry);
 
-            itemModel = new ItemLibraryItem(itemId, entry.name(), sectionModel);
-
-            itemModel->setItemIconPath(entry.libraryEntryIconPath());
-            itemModel->setItemIconSize(m_itemIconSize);
+            itemModel = new ItemLibraryItem(itemId, sectionModel);
             itemModel->setItemLibraryEntry(entry);
             sectionModel->addSectionEntry(itemModel);
             m_sections.insert(itemId, sectionId);

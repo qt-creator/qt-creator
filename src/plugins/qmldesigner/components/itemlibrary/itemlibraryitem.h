@@ -50,16 +50,13 @@ class ItemLibraryItem: public QObject {
     Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
 
 public:
-    ItemLibraryItem(int itemLibId, const QString &itemName, QObject *parent);
+    ItemLibraryItem(int itemLibId, QObject *parent);
     ~ItemLibraryItem();
 
     int itemLibId() const;
     QString itemName() const;
     QString itemLibraryIconPath() const;
     QVariant sortingRole() const;
-
-    void setItemIconPath(const QString &iconPath);
-    void setItemIconSize(const QSize &itemIconSize);
 
     bool setVisible(bool isVisible);
     bool isVisible() const;
@@ -71,9 +68,6 @@ private:
     ItemLibraryEntry m_itemLibraryEntry;
     int m_libId;
     bool m_isVisible;
-    QString m_name;
-    QString m_iconPath;
-    QSize m_iconSize;
 };
 
 } // namespace QmlDesigner

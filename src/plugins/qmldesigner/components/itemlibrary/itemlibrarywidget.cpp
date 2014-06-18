@@ -74,7 +74,6 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     /* create Items view and its model */
     m_itemsView->setResizeMode(QQuickView::SizeRootObjectToView);
     m_itemLibraryModel = new ItemLibraryModel(this);
-    m_itemLibraryModel->setItemIconSize(m_itemIconSize);
 
     QQmlContext *rootContext = m_itemsView->rootContext();
     rootContext->setContextProperty(QStringLiteral("itemLibraryModel"), m_itemLibraryModel.data());

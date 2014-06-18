@@ -55,7 +55,6 @@ public:
     QObject *sectionEntries();
 
     bool updateSectionVisibility(const QString &searchText, bool *changed);
-    void updateItemIconSize(const QSize &itemIconSize);
 
     bool setVisible(bool isVisible);
     bool isVisible() const;

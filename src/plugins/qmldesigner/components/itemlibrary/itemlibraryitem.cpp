@@ -31,11 +31,9 @@
 
 namespace QmlDesigner {
 
-ItemLibraryItem::ItemLibraryItem(int itemLibId, const QString &itemName, QObject *parent)
+ItemLibraryItem::ItemLibraryItem(int itemLibId, QObject *parent)
     : QObject(parent),
-      m_libId(itemLibId),
-      m_name(itemName),
-      m_iconSize(64, 64)
+      m_libId(itemLibId)
 {
 }
 
@@ -51,29 +49,18 @@ int ItemLibraryItem::itemLibId() const
 
 QString ItemLibraryItem::itemName() const
 {
-    return m_name;
+    return m_itemLibraryEntry.name();
 }
 
 QString ItemLibraryItem::itemLibraryIconPath() const
 {
     //Prepend image provider prefix
-    return QStringLiteral("image://qmldesigner_itemlibrary/") + m_iconPath;
+    return QStringLiteral("image://qmldesigner_itemlibrary/") + m_itemLibraryEntry.libraryEntryIconPath();
 }
 
 QVariant ItemLibraryItem::sortingRole() const
 {
     return itemName();
-}
-
-void ItemLibraryItem::setItemIconPath(const QString &iconPath)
-{
-    m_iconPath = iconPath;
-}
-
-void ItemLibraryItem::setItemIconSize(const QSize &itemIconSize)
-{
-    m_iconSize = itemIconSize;
-    setItemIconPath(m_iconPath);
 }
 
 bool ItemLibraryItem::setVisible(bool isVisible)
