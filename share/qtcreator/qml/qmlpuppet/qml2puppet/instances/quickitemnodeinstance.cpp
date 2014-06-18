@@ -219,26 +219,28 @@ void QuickItemNodeInstance::doComponentComplete()
     quickItem()->update();
 }
 
-static QList<QQuickItem *> allItems(QQuickItem *parentItem)
+static QList<QQuickItem *> allChildItemsRecursive(QQuickItem *parentItem)
 {
      QList<QQuickItem *> itemList;
 
-     itemList.append(parentItem);
      itemList.append(parentItem->childItems());
 
-     foreach (QQuickItem *childItem, parentItem->childItems()) {
-         itemList.append(allItems(childItem));
-     }
+     foreach (QQuickItem *childItem, parentItem->childItems())
+         itemList.append(allChildItemsRecursive(childItem));
 
      return itemList;
 }
 
 QList<QQuickItem *> QuickItemNodeInstance::allItemsRecursive() const
 {
-    if (quickItem())
-        return allItems(quickItem());
+    QList<QQuickItem *> itemList;
 
-    return QList<QQuickItem *>();
+    if (quickItem()) {
+        itemList.append(quickItem());
+        itemList.append(allChildItemsRecursive(quickItem()));
+    }
+
+    return itemList;
 }
 
 QRectF QuickItemNodeInstance::contentItemBoundingBox() const
