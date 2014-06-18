@@ -50,6 +50,7 @@ Section {
     property bool showIsWrapping: false
     property bool showVerticalAlignment: false
     property bool useLineEdit: true
+    property bool showFormatProperty: false
 
     SectionLayout {
         columns: 2
@@ -91,6 +92,18 @@ Section {
 
         AligmentVerticalButtons {
             visible: showVerticalAlignment
+        }
+
+
+        Label {
+            visible: showFormatProperty
+            text: qsTr("Format")
+        }
+        ComboBox {
+            visible: showFormatProperty
+            model:  ["PlainText", "RichText", "AutoText"]
+            backendValue: backendValues.textFormat
+            Layout.fillWidth: true
         }
     }
 }
