@@ -634,12 +634,19 @@ class Dumper(DumperBase):
 
     def childAt(self, value, index):
         field = value.type.fields()[index]
-        # GDB 7.7 commit b5b08fb4 started to report None as field names.
-        if field.name:
-            try:
-                return value[field.name]
-            except:
-                return value.cast(field.type)
+        try:
+            # Official access in GDB 7.6 or later.
+            return value[field]
+        except:
+            pass
+
+        try:
+            # Won't work with anon entities, tradionally with empty
+            # field name, but starting with GDB 7.7 commit b5b08fb4
+            # with None field name.
+            return value[field.name]
+        except:
+            pass
 
         # FIXME: Cheat. There seems to be no official way to access
         # the real item, so we pass back the value. That at least
