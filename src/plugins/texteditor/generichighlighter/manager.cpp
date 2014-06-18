@@ -309,9 +309,6 @@ void Manager::registerMimeTypes()
             QtConcurrent::run(&ManagerProcessor::process, processor);
         connect(&m_registeringWatcher, SIGNAL(finished()), processor, SLOT(deleteLater()));
         m_registeringWatcher.setFuture(future);
-
-        ProgressManager::addTask(future, tr("Registering Highlighting Definitions"),
-                                 "TextEditor.Task.Register");
     } else {
         m_hasQueuedRegistration = true;
         m_registeringWatcher.cancel();
