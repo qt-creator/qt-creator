@@ -90,4 +90,14 @@ bool ItemLibraryItem::isVisible() const
 {
     return m_isVisible;
 }
+
+void ItemLibraryItem::setItemLibraryEntry(const ItemLibraryEntry &itemLibraryEntry)
+{
+    m_itemLibraryEntry = itemLibraryEntry;
+}
+
+ItemLibraryEntry ItemLibraryItem::itemLibraryEntry() const
+{
+    return m_itemLibraryEntry;
+}
 } // namespace QmlDesigner

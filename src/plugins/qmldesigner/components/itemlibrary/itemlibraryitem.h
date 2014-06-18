@@ -35,6 +35,8 @@
 #include <QSize>
 #include <QVariant>
 
+#include "itemlibraryinfo.h"
+
 namespace QmlDesigner {
 
 class ItemLibraryItem: public QObject {
@@ -42,6 +44,7 @@ class ItemLibraryItem: public QObject {
     Q_OBJECT
 
     Q_PROPERTY(int itemLibId READ itemLibId FINAL)
+    Q_PROPERTY(ItemLibraryEntry itemLibraryEntry READ itemLibraryEntry FINAL)
     Q_PROPERTY(QString itemName READ itemName FINAL)
     Q_PROPERTY(QString itemLibraryIconPath READ itemLibraryIconPath FINAL)
     Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
@@ -61,7 +64,11 @@ public:
     bool setVisible(bool isVisible);
     bool isVisible() const;
 
+    void setItemLibraryEntry(const ItemLibraryEntry &itemLibraryEntry);
+    ItemLibraryEntry itemLibraryEntry() const;
+
 private:
+    ItemLibraryEntry m_itemLibraryEntry;
     int m_libId;
     bool m_isVisible;
     QString m_name;

@@ -194,6 +194,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
             itemModel->setItemIconPath(entry.libraryEntryIconPath());
             itemModel->setItemIconSize(m_itemIconSize);
+            itemModel->setItemLibraryEntry(entry);
             sectionModel->addSectionEntry(itemModel);
             m_sections.insert(itemId, sectionId);
         }
