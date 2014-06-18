@@ -263,7 +263,7 @@ int ItemLibraryModel::visibleSectionCount() const
 {
     int visibleCount = 0;
 
-    QMap<int, ItemLibrarySection*>::const_iterator sectionIterator = m_sectionModels.constBegin();
+    auto sectionIterator = m_sectionModels.constBegin();
     while (sectionIterator != m_sectionModels.constEnd()) {
         ItemLibrarySection *sectionModel = sectionIterator.value();
         if (sectionModel->isVisible())
@@ -278,7 +278,7 @@ QList<ItemLibrarySection *> ItemLibraryModel::visibleSections() const
 {
     QList<ItemLibrarySection *> visibleSectionList;
 
-    QMap<int, ItemLibrarySection*>::const_iterator sectionIterator = m_sectionModels.constBegin();
+    auto sectionIterator = m_sectionModels.constBegin();
     while (sectionIterator != m_sectionModels.constEnd()) {
         ItemLibrarySection *sectionModel = sectionIterator.value();
         if (sectionModel->isVisible())
@@ -295,7 +295,7 @@ void ItemLibraryModel::updateVisibility()
     endResetModel();
     bool changed = false;
 
-    QMap<int, ItemLibrarySection*>::const_iterator sectionIterator = m_sectionModels.constBegin();
+    auto sectionIterator = m_sectionModels.constBegin();
     while (sectionIterator != m_sectionModels.constEnd()) {
         ItemLibrarySection *sectionModel = sectionIterator.value();
 
