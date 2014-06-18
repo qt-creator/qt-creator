@@ -11,12 +11,6 @@
    </rect>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <property name="horizontalSpacing">
-    <number>0</number>
-   </property>
-   <property name="verticalSpacing">
-    <number>0</number>
-   </property>
    <property name="leftMargin">
     <number>0</number>
    </property>
