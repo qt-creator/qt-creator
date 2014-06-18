@@ -39,6 +39,8 @@ Item {
     property var extdescriptions: []
     property var eventIds: []
 
+    readonly property int dragHeight: 5
+
     function trigger(i) {
         return i * bindingTrigger * bindingTrigger;
     }
@@ -116,15 +118,27 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                 }
                 MouseArea {
+                    property bool resizing: false
                     anchors.fill: parent
                     hoverEnabled: true
+                    cursorShape: (resizing || height - mouseY < dragHeight) ? Qt.SizeVerCursor :
+                                                                              Qt.ArrowCursor;
                     onEntered: changeToolTip(extdescriptions[index]);
                     onExited: changeToolTip("");
+                    onPressed: resizing = (height - mouseY < dragHeight);
+
+                    onReleased: resizing = false;
+
                     onClicked: {
                         if (mouse.modifiers & Qt.ShiftModifier)
                             view.selectPrevFromId(modelIndex,eventIds[index]);
                         else
                             view.selectNextFromId(modelIndex,eventIds[index]);
+                    }
+
+                    onMouseYChanged: {
+                        if (resizing)
+                            qmlProfilerModelProxy.setRowHeight(modelIndex, index + 1, mouseY);
                     }
                 }
             }
