@@ -34,7 +34,7 @@
 
 #include "propertycontainer.h"
 #include <QPointer>
-
+#include <qqml.h>
 
 namespace QmlDesigner {
 
@@ -124,4 +124,5 @@ private: // variables
 
 } // namespace QmlDesigner
 
+QML_DECLARE_TYPE(QmlDesigner::ItemLibraryEntry)
 #endif // ITEMLIBRARYINFO_H
