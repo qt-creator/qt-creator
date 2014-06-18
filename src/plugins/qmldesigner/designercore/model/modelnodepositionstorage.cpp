@@ -53,7 +53,7 @@ void ModelNodePositionStorage::cleanupInvalidOffsets()
 
 int ModelNodePositionStorage::nodeOffset(const ModelNode &modelNode)
 {
-    QHash<ModelNode, RewriterData>::const_iterator iter = m_rewriterData.find(modelNode);
+    auto iter = m_rewriterData.find(modelNode);
     if (iter == m_rewriterData.end())
         return INVALID_LOCATION;
     else

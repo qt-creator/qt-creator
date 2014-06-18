@@ -113,8 +113,8 @@ QStringList PluginPath::libraryFilePaths(const QDir &dir)
       // Load symbolic links but make sure all file names are unique as not
     // to fall for something like 'libplugin.so.1 -> libplugin.so'
     QStringList result;
-    const QFileInfoList::const_iterator icend = infoList.constEnd();
-    for (QFileInfoList::const_iterator it = infoList.constBegin(); it != icend; ++it) {
+    const auto icend = infoList.constEnd();
+    for (auto it = infoList.constBegin(); it != icend; ++it) {
         QString fileName;
         if (it->isSymLink()) {
             const QFileInfo linkTarget = QFileInfo(it->symLinkTarget());
@@ -156,8 +156,8 @@ void PluginPath::getInstances(PluginManager::IPluginList *list)
     // Compile list of instances
     if (m_plugins.empty())
         return;
-    const PluginDataList::iterator end = m_plugins.end();
-    for (PluginDataList::iterator it = m_plugins.begin(); it != end; ++it)
+    const auto end = m_plugins.end();
+    for (auto it = m_plugins.begin(); it != end; ++it)
         if (IPlugin *i = instance(*it))
             list->push_back(i);
 }
@@ -170,8 +170,8 @@ QStandardItem *PluginPath::createModelItem()
     // category at the end
     QStandardItem *pathItem = new QStandardItem(m_path.absolutePath());
     QStandardItem *failedCategory = 0;
-    const PluginDataList::iterator end = m_plugins.end();
-    for (PluginDataList::iterator it = m_plugins.begin(); it != end; ++it) {
+    const auto end = m_plugins.end();
+    for (auto it = m_plugins.begin(); it != end; ++it) {
         QStandardItem *pluginItem = new QStandardItem(QFileInfo(it->path).fileName());
         if (instance(*it)) {
             pluginItem->appendRow(new QStandardItem(QString::fromUtf8(it->instanceGuard->metaObject()->className())));

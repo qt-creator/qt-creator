@@ -288,8 +288,8 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
 
     if (debug)
         qDebug() << "monitored list " << monitoredList.size() << "new list " << newList.size();
-    QList<QFileInfo>::const_iterator oldIter = monitoredList.constBegin();
-    QList<QFileInfo>::const_iterator newIter = newList.constBegin();
+    auto oldIter = monitoredList.constBegin();
+    auto newIter = newList.constBegin();
 
     while (oldIter != monitoredList.constEnd() && newIter != newList.constEnd()) {
         const QFileInfo oldFileInfo = *oldIter;

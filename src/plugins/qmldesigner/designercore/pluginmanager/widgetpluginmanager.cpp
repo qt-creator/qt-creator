@@ -48,8 +48,8 @@ WidgetPluginManager::WidgetPluginManager()
 WidgetPluginManager::IWidgetPluginList WidgetPluginManager::instances()
 {
     IWidgetPluginList rc;
-    const PluginPathList::iterator end = m_paths.end();
-    for (PluginPathList::iterator it = m_paths.begin(); it != end; ++it)
+    const auto end = m_paths.end();
+    for (auto it = m_paths.begin(); it != end; ++it)
         it->getInstances(&rc);
     if (debug)
         qDebug() << '<' << Q_FUNC_INFO << rc.size();
@@ -68,8 +68,8 @@ bool WidgetPluginManager::addPath(const QString &path)
 QAbstractItemModel *WidgetPluginManager::createModel(QObject *parent)
 {
     QStandardItemModel *model = new QStandardItemModel(parent);
-    const PluginPathList::iterator end = m_paths.end();
-    for (PluginPathList::iterator it = m_paths.begin(); it != end; ++it)
+    const auto end = m_paths.end();
+    for (auto it = m_paths.begin(); it != end; ++it)
         model->appendRow(it->createModelItem());
     return model;
 }
