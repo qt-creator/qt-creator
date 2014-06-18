@@ -31,11 +31,7 @@
 
 #include <cplusplus/pp-engine.h>
 
-#include <projectexplorer/headerpath.h>
-#include <projectexplorer/toolchain.h>
-
 using namespace CppTools;
-using namespace ProjectExplorer;
 
 /*!
     \enum CppTools::CppModelManagerInterface::ProgressNotificationMode

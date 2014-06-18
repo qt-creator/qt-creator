@@ -30,11 +30,17 @@
 #include "cppprojects.h"
 
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 
 #include <QSet>
 #include <QTextStream>
 
-namespace CppTools {
+using namespace CppTools;
+using namespace ProjectExplorer;
 
 ProjectPart::ProjectPart()
     : project(0)
@@ -44,7 +50,6 @@ ProjectPart::ProjectPart()
     , qtVersion(UnknownQt)
     , cWarningFlags(ProjectExplorer::ToolChain::WarningsDefault)
     , cxxWarningFlags(ProjectExplorer::ToolChain::WarningsDefault)
-
 {
 }
 
@@ -101,6 +106,11 @@ void ProjectPart::evaluateToolchain(const ProjectExplorer::ToolChain *tc,
     }
 
     toolchainDefines = tc->predefinedMacros(cxxflags);
+}
+
+ProjectPart::Ptr ProjectPart::copy() const
+{
+    return Ptr(new ProjectPart(*this));
 }
 
 QByteArray ProjectPart::readProjectConfigFile(const ProjectPart::Ptr &part)
@@ -208,4 +218,222 @@ const QByteArray ProjectInfo::defines() const
     return m_defines;
 }
 
-} // namespace CppTools
+namespace {
+class ProjectFileCategorizer
+{
+public:
+    ProjectFileCategorizer(const QString &partName, const QStringList &files)
+        : m_partName(partName)
+    {
+        using CppTools::ProjectFile;
+
+        QStringList cHeaders, cxxHeaders;
+
+        foreach (const QString &file, files) {
+            switch (ProjectFile::classify(file)) {
+            case ProjectFile::CSource: m_cSources += file; break;
+            case ProjectFile::CHeader: cHeaders += file; break;
+            case ProjectFile::CXXSource: m_cxxSources += file; break;
+            case ProjectFile::CXXHeader: cxxHeaders += file; break;
+            case ProjectFile::ObjCSource: m_objcSources += file; break;
+            case ProjectFile::ObjCXXSource: m_objcxxSources += file; break;
+            default:
+                continue;
+            }
+        }
+
+        const bool hasC = !m_cSources.isEmpty();
+        const bool hasCxx = !m_cxxSources.isEmpty();
+        const bool hasObjc = !m_objcSources.isEmpty();
+        const bool hasObjcxx = !m_objcxxSources.isEmpty();
+
+        if (hasObjcxx)
+            m_objcxxSources += cxxHeaders + cHeaders;
+        if (hasCxx)
+            m_cxxSources += cxxHeaders + cHeaders;
+        else if (!hasObjcxx)
+            m_cxxSources += cxxHeaders;
+        if (hasObjc)
+            m_objcSources += cHeaders;
+        if (hasC || (!hasObjc && !hasObjcxx && !hasCxx))
+            m_cSources += cHeaders;
+
+        m_partCount =
+                (m_cSources.isEmpty() ? 0 : 1) +
+                (m_cxxSources.isEmpty() ? 0 : 1) +
+                (m_objcSources.isEmpty() ? 0 : 1) +
+                (m_objcxxSources.isEmpty() ? 0 : 1);
+    }
+
+    bool hasCSources() const { return !m_cSources.isEmpty(); }
+    bool hasCxxSources() const { return !m_cxxSources.isEmpty(); }
+    bool hasObjcSources() const { return !m_objcSources.isEmpty(); }
+    bool hasObjcxxSources() const { return !m_objcxxSources.isEmpty(); }
+
+    QStringList cSources() const { return m_cSources; }
+    QStringList cxxSources() const { return m_cxxSources; }
+    QStringList objcSources() const { return m_objcSources; }
+    QStringList objcxxSources() const { return m_objcxxSources; }
+
+    bool hasMultipleParts() const { return m_partCount > 1; }
+    bool hasNoParts() const { return m_partCount == 0; }
+
+    QString partName(const QString &languageName) const
+    {
+        if (hasMultipleParts())
+            return QString::fromLatin1("%1 (%2)").arg(m_partName).arg(languageName);
+
+        return m_partName;
+    }
+
+private:
+    QString m_partName;
+    QStringList m_cSources, m_cxxSources, m_objcSources, m_objcxxSources;
+    int m_partCount;
+};
+} // anonymous namespace
+
+ProjectPartBuilder::ProjectPartBuilder(ProjectInfo &pInfo)
+    : m_templatePart(new ProjectPart)
+    , m_pInfo(pInfo)
+{
+    m_templatePart->project = pInfo.project();
+    m_templatePart->displayName = pInfo.project()->displayName();
+    m_templatePart->projectFile = pInfo.project()->projectFilePath().toString();
+}
+
+void ProjectPartBuilder::setQtVersion(ProjectPart::QtVersion qtVersion)
+{
+    m_templatePart->qtVersion = qtVersion;
+}
+
+void ProjectPartBuilder::setCFlags(const QStringList &flags)
+{
+    m_cFlags = flags;
+}
+
+void ProjectPartBuilder::setCxxFlags(const QStringList &flags)
+{
+    m_cxxFlags = flags;
+}
+
+void ProjectPartBuilder::setDefines(const QByteArray &defines)
+{
+    m_templatePart->projectDefines = defines;
+}
+
+void ProjectPartBuilder::setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)
+{
+    m_templatePart->headerPaths = headerPaths;
+}
+
+void ProjectPartBuilder::setIncludePaths(const QStringList &includePaths)
+{
+    m_templatePart->headerPaths.clear();
+
+    foreach (const QString &includeFile, includePaths) {
+        ProjectPart::HeaderPath hp(includeFile, ProjectPart::HeaderPath::IncludePath);
+
+        // The simple project managers are utterly ignorant of frameworks on OSX, and won't report
+        // framework paths. The work-around is to check if the include path ends in ".framework",
+        // and if so, add the parent directory as framework path.
+        if (includeFile.endsWith(QLatin1String(".framework"))) {
+            const int slashIdx = includeFile.lastIndexOf(QLatin1Char('/'));
+            if (slashIdx != -1) {
+                hp = ProjectPart::HeaderPath(includeFile.left(slashIdx),
+                                             ProjectPart::HeaderPath::FrameworkPath);
+                continue;
+            }
+        }
+
+        m_templatePart->headerPaths += hp;
+    }
+}
+
+void ProjectPartBuilder::setPreCompiledHeaders(const QStringList &pchs)
+{
+    m_templatePart->precompiledHeaders = pchs;
+}
+
+void ProjectPartBuilder::setProjectFile(const QString &projectFile)
+{
+    m_templatePart->projectFile = projectFile;
+}
+
+void ProjectPartBuilder::setDisplayName(const QString &displayName)
+{
+    m_templatePart->displayName = displayName;
+}
+
+void ProjectPartBuilder::setConfigFileName(const QString &configFileName)
+{
+    m_templatePart->projectConfigFile = configFileName;
+}
+
+QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList &files)
+{
+    QList<Core::Id> languages;
+
+    ProjectFileCategorizer cat(m_templatePart->displayName, files);
+    if (cat.hasNoParts())
+        return languages;
+
+    using CppTools::ProjectFile;
+    using CppTools::ProjectPart;
+
+    if (cat.hasCSources()) {
+        createProjectPart(cat.cSources(),
+                          cat.partName(QCoreApplication::translate("CppTools", "C11")),
+                          ProjectPart::C11,
+                          ProjectPart::CXX11);
+        // TODO: there is no C...
+//        languages += ProjectExplorer::Constants::LANG_C;
+    }
+    if (cat.hasObjcSources()) {
+        createProjectPart(cat.objcSources(),
+                          cat.partName(QCoreApplication::translate("CppTools", "Obj-C11")),
+                          ProjectPart::C11,
+                          ProjectPart::CXX11);
+        // TODO: there is no Ojective-C...
+//        languages += ProjectExplorer::Constants::LANG_OBJC;
+    }
+    if (cat.hasCxxSources()) {
+        createProjectPart(cat.cxxSources(),
+                          cat.partName(QCoreApplication::translate("CppTools", "C++11")),
+                          ProjectPart::C11,
+                          ProjectPart::CXX11);
+        languages += ProjectExplorer::Constants::LANG_CXX;
+    }
+    if (cat.hasObjcxxSources()) {
+        createProjectPart(cat.objcxxSources(),
+                          cat.partName(QCoreApplication::translate("CppTools", "Obj-C++11")),
+                          ProjectPart::C11,
+                          ProjectPart::CXX11);
+        // TODO: there is no Objective-C++...
+        languages += ProjectExplorer::Constants::LANG_CXX;
+    }
+
+    return languages;
+}
+
+void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
+                                           const QString &partName,
+                                           ProjectPart::CVersion cVersion,
+                                           ProjectPart::CXXVersion cxxVersion)
+{
+    CppTools::ProjectPart::Ptr part(m_templatePart->copy());
+    part->displayName = partName;
+
+    Kit *k = part->project->activeTarget()->kit();
+    if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
+        part->evaluateToolchain(tc, m_cFlags, m_cxxFlags, SysRootKitInformation::sysRoot(k));
+
+    part->cVersion = cVersion;
+    part->cxxVersion = cxxVersion;
+
+    CppTools::ProjectFileAdder adder(part->files);
+    foreach (const QString &file, theSources)
+        adder.maybeAdd(file);
+
+    m_pInfo.appendProjectPart(part);
+}

@@ -43,18 +43,7 @@ namespace CppTools {
 
 class CPPTOOLS_EXPORT ProjectPart
 {
-public:
-    typedef QSharedPointer<ProjectPart> Ptr;
-
-public:
-    ProjectPart();
-
-    void evaluateToolchain(const ProjectExplorer::ToolChain *tc,
-                           const QStringList &cxxflags,
-                           const QStringList &cflags,
-                           const Utils::FileName &sysRoot);
-
-public:
+public: // Types
     enum CVersion {
         C89,
         C99,
@@ -84,11 +73,12 @@ public:
         Qt5 = 2
     };
 
-    class HeaderPath
-    {
-    public:
+    typedef QSharedPointer<ProjectPart> Ptr;
+
+    struct HeaderPath {
         enum Type { InvalidPath, IncludePath, FrameworkPath };
 
+    public:
         QString path;
         Type type;
 
@@ -106,10 +96,19 @@ public:
     };
     typedef QList<HeaderPath> HeaderPaths;
 
-public:
+public: // methods
+    ProjectPart();
+
+    void evaluateToolchain(const ProjectExplorer::ToolChain *tc,
+                           const QStringList &cxxflags,
+                           const QStringList &cflags,
+                           const Utils::FileName &sysRoot);
+
+    Ptr copy() const;
+
     static QByteArray readProjectConfigFile(const ProjectPart::Ptr &part);
 
-public:
+public: // fields
     QString displayName;
     QString projectFile;
     ProjectExplorer::Project *project;
@@ -157,6 +156,34 @@ private:
     ProjectPart::HeaderPaths m_headerPaths;
     QStringList m_sourceFiles;
     QByteArray m_defines;
+};
+
+class CPPTOOLS_EXPORT ProjectPartBuilder
+{
+public:
+    ProjectPartBuilder(ProjectInfo &m_pInfo);
+
+    void setQtVersion(ProjectPart::QtVersion qtVersion);
+    void setCFlags(const QStringList &flags);
+    void setCxxFlags(const QStringList &flags);
+    void setDefines(const QByteArray &defines);
+    void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
+    void setIncludePaths(const QStringList &includePaths);
+    void setPreCompiledHeaders(const QStringList &pchs);
+    void setProjectFile(const QString &projectFile);
+    void setDisplayName(const QString &displayName);
+    void setConfigFileName(const QString &configFileName);
+
+    QList<Core::Id> createProjectPartsForFiles(const QStringList &files);
+
+private:
+    void createProjectPart(const QStringList &theSources, const QString &partName,
+                           ProjectPart::CVersion cVersion, ProjectPart::CXXVersion cxxVersion);
+
+private:
+    ProjectPart::Ptr m_templatePart;
+    ProjectInfo &m_pInfo;
+    QStringList m_cFlags, m_cxxFlags;
 };
 
 } // namespace CppTools

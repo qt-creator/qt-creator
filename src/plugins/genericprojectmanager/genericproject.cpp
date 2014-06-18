@@ -266,47 +266,7 @@ void GenericProject::refresh(RefreshOptions options)
     if (options & Files)
         m_rootNode->refresh(oldFileList);
 
-    CppTools::CppModelManagerInterface *modelManager =
-        CppTools::CppModelManagerInterface::instance();
-
-    if (modelManager) {
-        CppTools::ProjectInfo pinfo = modelManager->projectInfo(this);
-        pinfo.clearProjectParts();
-        CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
-        part->project = this;
-        part->displayName = displayName();
-        part->projectFile = projectFilePath().toString();
-
-        foreach (const QString &inc, projectIncludePaths())
-            part->headerPaths += CppTools::ProjectPart::HeaderPath(
-                        inc, CppTools::ProjectPart::HeaderPath::IncludePath);
-
-        Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::defaultKit();
-        if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
-            QStringList cflags;
-            QStringList cxxflags;
-            cxxflags << QLatin1String("-std=c++11");
-
-            part->evaluateToolchain(tc, cxxflags, cflags,
-                                    SysRootKitInformation::sysRoot(k));
-        }
-
-        part->projectConfigFile = configFileName();
-
-        // ### add _defines.
-
-        // Add any C/C++ files to be parsed
-        CppTools::ProjectFileAdder adder(part->files);
-        foreach (const QString &file, files())
-            adder.maybeAdd(file);
-
-        m_codeModelFuture.cancel();
-
-        pinfo.appendProjectPart(part);
-        setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
-
-        m_codeModelFuture = modelManager->updateProjectInfo(pinfo);
-    }
+    refreshCppCodeModel();
 }
 
 /**
@@ -362,6 +322,31 @@ QStringList GenericProject::processEntries(const QStringList &paths,
     }
     absolutePaths.removeDuplicates();
     return absolutePaths;
+}
+
+void GenericProject::refreshCppCodeModel()
+{
+    CppTools::CppModelManagerInterface *modelManager =
+            CppTools::CppModelManagerInterface::instance();
+
+    if (!modelManager)
+        return;
+
+    m_codeModelFuture.cancel();
+
+    CppTools::ProjectInfo pInfo = modelManager->projectInfo(this);
+    pInfo.clearProjectParts();
+
+    CppTools::ProjectPartBuilder ppBuilder(pInfo);
+    ppBuilder.setIncludePaths(projectIncludePaths());
+    ppBuilder.setConfigFileName(configFileName());
+    ppBuilder.setCxxFlags(QStringList() << QLatin1String("-std=c++11"));
+
+    const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(files());
+    foreach (Core::Id language, languages)
+        setProjectLanguage(language, true);
+
+    m_codeModelFuture = modelManager->updateProjectInfo(pInfo);
 }
 
 QStringList GenericProject::projectIncludePaths() const

@@ -1,0 +1,4 @@
+void impl()
+{
+    abort();
+}

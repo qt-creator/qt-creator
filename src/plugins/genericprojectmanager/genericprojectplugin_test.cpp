@@ -85,26 +85,124 @@ private:
 };
 } // anonymous namespace
 
-void GenericProjectPlugin::test_simple()
+static ProjectInfo setupProject(const QByteArray &projectFile, const QByteArray &mainFile,
+                                ProjectExplorerHelper &pHelper)
 {
     CppModelManagerHelper cppHelper;
+    Project *project = pHelper.openProject(projectFilePath(_(projectFile)));
+    if (!project)
+        return ProjectInfo();
 
-    QString projectFile = _("testdata_simpleproject/simpleproject.creator");
-    ProjectExplorerHelper pHelper;
-    Project *project = pHelper.openProject(projectFilePath(projectFile));
-    QVERIFY(project);
-
-    QString mainFile = projectFilePath(_("testdata_simpleproject/main.cpp"));
-    cppHelper.waitForSourceFilesRefreshed(mainFile);
+    // Wait only for a single file: we don't really care if the file is refreshed or not, but at
+    // this point we know that the C++ model manager got notified of all project parts and we can
+    // retrieve them for inspection.
+    cppHelper.waitForSourceFilesRefreshed(projectFilePath(_(mainFile)));
 
     CppModelManagerInterface *mm = cppHelper.cppModelManager();
-    ProjectInfo pInfo = mm->projectInfo(project);
+    return mm->projectInfo(project);
+}
 
+void GenericProjectPlugin::test_simple()
+{
+    ProjectExplorerHelper pHelper;
+
+    const QByteArray mainFile("testdata_simpleproject/main.cpp");
+    ProjectInfo pInfo(
+                setupProject("testdata_simpleproject/simpleproject.creator", mainFile, pHelper));
+    QVERIFY(pInfo);
     QCOMPARE(pInfo.projectParts().size(), 1);
 
     ProjectPart::Ptr pPart = pInfo.projectParts().first();
     QVERIFY(pPart);
     QCOMPARE(pPart->files.size(), 1);
-    QCOMPARE(pPart->files.first().path, mainFile);
+    QCOMPARE(pPart->files.first().path, projectFilePath(_(mainFile)));
     QCOMPARE(pPart->files.first().kind, ProjectFile::CXXSource);
+}
+
+static QStringList simplify(const QList<CppTools::ProjectFile> &files, const QString &prefix)
+{
+    QStringList result;
+
+    foreach (const CppTools::ProjectFile &file, files) {
+        if (file.path.startsWith(prefix))
+            result.append(file.path.mid(prefix.size()));
+        else
+            result.append(file.path);
+    }
+
+    return result;
+}
+
+void GenericProjectPlugin::test_mixed1()
+{
+    ProjectExplorerHelper pHelper;
+    ProjectInfo pInfo(
+                setupProject("testdata_mixedproject1/mixedproject1.creator",
+                             "testdata_mixedproject1/main.cpp",
+                             pHelper));
+    QVERIFY(pInfo);
+    QCOMPARE(pInfo.projectParts().size(), 3);
+
+    QList<ProjectPart::Ptr> parts = pInfo.projectParts();
+    std::sort(parts.begin(), parts.end(), [](const ProjectPart::Ptr &p1,
+                                             const ProjectPart::Ptr &p2) {
+        return p1->displayName < p2->displayName;
+    });
+
+    QStringList part0files = simplify(parts[0]->files,projectFilePath(_("testdata_mixedproject1/")));
+    QStringList part1files = simplify(parts[1]->files,projectFilePath(_("testdata_mixedproject1/")));
+    QStringList part2files = simplify(parts[2]->files,projectFilePath(_("testdata_mixedproject1/")));
+
+    QCOMPARE(parts[0]->displayName, _("mixedproject1 (C++11)"));
+    QCOMPARE(parts[0]->files.size(), 4);
+    QVERIFY(part0files.contains(_("main.cpp")));
+    QVERIFY(part0files.contains(_("header.h")));
+    QVERIFY(part0files.contains(_("MyViewController.h")));
+    QVERIFY(part0files.contains(_("Glue.h")));
+
+    QCOMPARE(parts[1]->displayName, _("mixedproject1 (Obj-C++11)"));
+    QCOMPARE(parts[1]->files.size(), 4);
+    QVERIFY(part1files.contains(_("Glue.mm")));
+    QVERIFY(part1files.contains(_("header.h")));
+    QVERIFY(part1files.contains(_("MyViewController.h")));
+    QVERIFY(part1files.contains(_("Glue.h")));
+
+    QCOMPARE(parts[2]->displayName, _("mixedproject1 (Obj-C11)"));
+    QCOMPARE(parts[2]->files.size(), 1);
+    QVERIFY(part2files.contains(_("MyViewController.m")));
+    // No .h files here, because the mime-type for .h files is.....
+    //
+    // wait for it...
+    //
+    // C++!
+    // (See 1c7da3d83c9bb35064ae6b9052cbf1c6bff1395e.)
+}
+
+void GenericProjectPlugin::test_mixed2()
+{
+    ProjectExplorerHelper pHelper;
+    ProjectInfo pInfo(
+                setupProject("testdata_mixedproject2/mixedproject2.creator",
+                             "testdata_mixedproject2/main.cpp",
+                             pHelper));
+    QVERIFY(pInfo);
+    QCOMPARE(pInfo.projectParts().size(), 2);
+
+    QList<ProjectPart::Ptr> parts = pInfo.projectParts();
+    std::sort(parts.begin(), parts.end(), [](const ProjectPart::Ptr &p1,
+                                             const ProjectPart::Ptr &p2) {
+        return p1->displayName < p2->displayName;
+    });
+
+    QStringList part0files = simplify(parts[0]->files,projectFilePath(_("testdata_mixedproject2/")));
+    QStringList part1files = simplify(parts[1]->files,projectFilePath(_("testdata_mixedproject2/")));
+
+    QCOMPARE(parts[0]->displayName, _("mixedproject2 (C++11)"));
+    QCOMPARE(parts[0]->files.size(), 2);
+    QVERIFY(part0files.contains(_("main.cpp")));
+    QVERIFY(part0files.contains(_("header.hpp")));
+
+    QCOMPARE(parts[1]->displayName, _("mixedproject2 (C11)"));
+    QCOMPARE(parts[1]->files.size(), 1);
+    QVERIFY(part1files.contains(_("impl.c")));
 }

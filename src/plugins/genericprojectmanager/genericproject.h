@@ -94,6 +94,8 @@ private:
     QStringList processEntries(const QStringList &paths,
                                QHash<QString, QString> *map = 0) const;
 
+    void refreshCppCodeModel();
+
     Manager *m_manager;
     QString m_fileName;
     QString m_filesFileName;
