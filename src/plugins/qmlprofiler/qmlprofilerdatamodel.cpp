@@ -87,7 +87,7 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event)
     // generate details string
     if (!event.data.isEmpty()) {
         details = event.data;
-        details.replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
+        details = details.replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         if (details.isEmpty()) {
             if (event.rangeType == QmlDebug::Javascript)
                 details = QmlProfilerDataModel::tr("anonymous function");
