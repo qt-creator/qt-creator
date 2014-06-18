@@ -42,7 +42,7 @@
 #include <QCoreApplication>
 
 using namespace CppEditor;
-using namespace Internal;
+using namespace CppEditor::Internal;
 
 CppSnippetProvider::CppSnippetProvider() :
     TextEditor::ISnippetProvider()
