@@ -240,6 +240,20 @@ void QmakeProjectImporter::cleanupKit(ProjectExplorer::Kit *k)
         QtSupport::QtVersionManager::removeVersion(version);
 }
 
+void QmakeProjectImporter::makePermanent(ProjectExplorer::Kit *k)
+{
+    int tempId = k->value(QT_IS_TEMPORARY, -1).toInt();
+    int qtId = QtSupport::QtKitInformation::qtVersionId(k);
+    if (tempId != qtId) {
+        QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::version(tempId);
+        if (version)
+            QtSupport::QtVersionManager::removeVersion(version);
+    }
+
+    k->removeKey(QT_IS_TEMPORARY);
+    ProjectImporter::makePermanent(k);
+}
+
 ProjectExplorer::Kit *QmakeProjectImporter::createTemporaryKit(QtSupport::BaseQtVersion *version,
                                                                bool temporaryVersion,
                                                                const Utils::FileName &parsedSpec)

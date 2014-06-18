@@ -52,6 +52,8 @@ public:
 
     void cleanupKit(ProjectExplorer::Kit *k);
 
+    void makePermanent(ProjectExplorer::Kit *k);
+
 private:
     ProjectExplorer::Kit *createTemporaryKit(QtSupport::BaseQtVersion *version,
                                              bool temporaryVersion,
