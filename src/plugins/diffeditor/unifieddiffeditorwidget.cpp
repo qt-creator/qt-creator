@@ -758,7 +758,9 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QString &fileName,
 
     const QDir dir(m_controller->workingDirectory());
     const QString absoluteFileName = dir.absoluteFilePath(fileName);
-    Core::EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
+    QFileInfo fi(absoluteFileName);
+    if (fi.exists() && !fi.isDir())
+        Core::EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
 }
 
 void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
