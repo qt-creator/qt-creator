@@ -33,6 +33,7 @@
 #include <QMutex>
 #include <QObject>
 #include <QUrl>
+#include <QMetaType>
 
 QT_FORWARD_DECLARE_CLASS(QHelpEngine)
 
