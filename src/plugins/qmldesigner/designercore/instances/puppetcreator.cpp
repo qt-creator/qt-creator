@@ -300,7 +300,7 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
         m_compileLog.append(newOutput);
     }
 
-    process.waitForFinished(1000);
+    process.waitForFinished();
 
     if (process.exitStatus() == QProcess::NormalExit || process.exitCode() == 0)
         return true;
