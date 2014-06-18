@@ -55,7 +55,6 @@ signals:
     void fontChanged();
     void startOptionChanged();
     void returnOnCloseChanged();
-    void contextHelpOptionChanged();
 
 private slots:
     void setCurrentPage();

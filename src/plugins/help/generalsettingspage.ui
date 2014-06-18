@@ -196,7 +196,7 @@
           </item>
           <item>
            <property name="text">
-            <string>Always Show Help in External Window</string>
+            <string>Always Show in External Window</string>
            </property>
           </item>
          </widget>

@@ -185,8 +185,6 @@ void GeneralSettingsPage::apply()
         settings->beginGroup(QLatin1String(Help::Constants::ID_MODE_HELP));
         settings->setValue(QLatin1String("ContextHelpOption"), helpOption);
         settings->endGroup();
-
-        emit contextHelpOptionChanged();
     }
 
     const bool close = m_ui->m_returnOnClose->isChecked();

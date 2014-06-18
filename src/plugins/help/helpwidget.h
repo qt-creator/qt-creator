@@ -36,6 +36,7 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
+class QAction;
 class QMenu;
 QT_END_NAMESPACE
 
@@ -48,22 +49,38 @@ class HelpWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit HelpWidget(const Core::Context &context, QWidget *parent = 0);
+    enum WidgetStyle {
+        SideBarWidget,
+        ExternalWindow
+    };
+
+    HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent = 0);
+    ~HelpWidget();
 
     HelpViewer *currentViewer() const;
 
+protected:
+    void closeEvent(QCloseEvent *);
+
 signals:
     void openHelpMode(const QUrl &url);
-    void close();
+    void closeButtonClicked();
+    void aboutToClose();
 
 private slots:
     void updateBackMenu();
     void updateForwardMenu();
+    void updateWindowTitle();
     void emitOpenHelpMode();
 
 private:
     QMenu *m_backMenu;
     QMenu *m_forwardMenu;
+    QAction *m_openHelpMode;
+    QAction *m_scaleUp;
+    QAction *m_scaleDown;
+    QAction *m_resetScale;
+    QAction *m_copy;
 
     HelpViewer *m_viewer;
 };

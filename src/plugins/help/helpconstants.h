@@ -64,6 +64,9 @@ const char HELP_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Help", "Help");
 
 const char C_MODE_HELP   [] = "Help Mode";
 const char C_HELP_SIDEBAR[] = "Help Sidebar";
+const char C_HELP_EXTERNAL[] = "Help.ExternalWindow";
+
+const char CONTEXT_HELP[] = "Help.Context";
 
 } // Constants
 } // Help

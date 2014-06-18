@@ -35,7 +35,6 @@ HEADERS += \
     remotehelpfilter.h \
     searchwidget.h \
     xbelsupport.h \
-    externalhelpwindow.h \
     searchtaskhandler.h \
     qtwebkithelpviewer.h \
     textbrowserhelpviewer.h \
@@ -59,7 +58,6 @@ SOURCES += \
     remotehelpfilter.cpp \
     searchwidget.cpp \
     xbelsupport.cpp \
-    externalhelpwindow.cpp \
     searchtaskhandler.cpp \
     qtwebkithelpviewer.cpp \
     textbrowserhelpviewer.cpp \

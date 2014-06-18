@@ -42,7 +42,6 @@ QtcPlugin {
         files: [
             "centralwidget.cpp", "centralwidget.h",
             "docsettingspage.cpp", "docsettingspage.h", "docsettingspage.ui",
-            "externalhelpwindow.cpp", "externalhelpwindow.h",
             "filtersettingspage.cpp", "filtersettingspage.h", "filtersettingspage.ui",
             "generalsettingspage.cpp", "generalsettingspage.h", "generalsettingspage.ui",
             "help.qrc",

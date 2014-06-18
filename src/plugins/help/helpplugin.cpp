@@ -31,7 +31,6 @@
 
 #include "centralwidget.h"
 #include "docsettingspage.h"
-#include "externalhelpwindow.h"
 #include "filtersettingspage.h"
 #include "generalsettingspage.h"
 #include "helpconstants.h"
@@ -39,7 +38,6 @@
 #include "helpindexfilter.h"
 #include "helpmode.h"
 #include "helpviewer.h"
-#include "helpwidget.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 #include "openpagesmodel.h"
@@ -104,6 +102,8 @@ const char SB_BOOKMARKS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Boo
 
 const char SB_OPENPAGES[] = "OpenPages";
 
+static const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
+
 #define IMAGEPATH ":/help/images/"
 
 using namespace Core;
@@ -128,9 +128,6 @@ HelpPlugin::HelpPlugin()
     m_firstModeChange(true),
     m_helpManager(0),
     m_openPagesManager(0),
-    m_oldMode(0),
-    m_connectWindow(true),
-    m_externalWindow(0),
     m_backMenu(0),
     m_nextMenu(0),
     m_isSidebarVisible(true)
@@ -177,8 +174,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     connect(m_generalSettingsPage, SIGNAL(fontChanged()), this,
         SLOT(fontChanged()));
-    connect(m_generalSettingsPage, SIGNAL(contextHelpOptionChanged()), this,
-        SLOT(contextHelpOptionChanged()));
     connect(m_generalSettingsPage, SIGNAL(returnOnCloseChanged()), this,
         SLOT(updateCloseButton()));
     connect(HelpManager::instance(), SIGNAL(helpRequested(QUrl)), this,
@@ -241,7 +236,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
 
     action = new QAction(tr("Context Help"), this);
-    cmd = ActionManager::registerAction(action, "Help.Context", globalcontext);
+    cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP, globalcontext);
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
     connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
@@ -340,18 +335,9 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
             this, SLOT(modeChanged(Core::IMode*,Core::IMode*)));
 
-    m_externalWindow = new ExternalHelpWindow;
     m_mode = new HelpMode;
-    if (contextHelpOption() == Help::Constants::ExternalHelpAlways) {
-        m_mode->setWidget(new QWidget);
-        m_mode->setEnabled(false);
-        m_externalHelpBar->setVisible(true);
-        m_externalWindow->setCentralWidget(m_splitter);
-        QTimer::singleShot(0, this, SLOT(showExternalWindow()));
-    } else {
-        m_mode->setWidget(m_splitter);
-        m_internalHelpBar->setVisible(true);
-    }
+    m_mode->setWidget(m_splitter);
+    m_internalHelpBar->setVisible(true);
     addAutoReleasedObject(m_mode);
 
     return true;
@@ -373,12 +359,6 @@ ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
         // keep a boolean value to avoid to modify the sidebar class, at least some qml stuff
         // depends on the always visible property of the sidebar...
         settings->setValue(QLatin1String("HelpSideBar/") + QLatin1String("Visible"), m_isSidebarVisible);
-    }
-
-    if (m_externalWindow) {
-        delete m_externalWindow;
-        m_centralWidget = 0; // Running the external window will take down the central widget as well, cause
-            // calling m_externalWindow->setCentralWidget(m_centralWidget) will pass ownership to the window.
     }
 
     return SynchronousShutdown;
@@ -524,23 +504,58 @@ void HelpPlugin::resetFilter()
     connect(engine, SIGNAL(setupFinished()), this, SLOT(updateFilterComboBox()));
 }
 
-void HelpPlugin::createRightPaneContextViewer()
+void HelpPlugin::saveExternalWindowSettings()
 {
-    if (m_rightPaneSideBarWidget)
+    if (!m_externalWindow)
         return;
+    m_externalWindowState = m_externalWindow->geometry();
+    QSettings *settings = Core::ICore::settings();
+    settings->setValue(QLatin1String(kExternalWindowStateKey),
+                       qVariantFromValue(m_externalWindowState));
+}
 
-    m_rightPaneSideBarWidget = new HelpWidget(Core::Context(Constants::C_HELP_SIDEBAR));
+HelpWidget *HelpPlugin::createHelpWidget(const Context &context, HelpWidget::WidgetStyle style)
+{
+    HelpWidget *widget = new HelpWidget(context, style);
 
-    connect(m_rightPaneSideBarWidget->currentViewer(), SIGNAL(loadFinished()),
+    connect(widget->currentViewer(), SIGNAL(loadFinished()),
             this, SLOT(highlightSearchTermsInContextHelp()));
-    connect(m_rightPaneSideBarWidget, SIGNAL(openHelpMode(QUrl)),
+    connect(widget, SIGNAL(openHelpMode(QUrl)),
             this, SLOT(switchToHelpMode(QUrl)));
-    connect(m_rightPaneSideBarWidget, SIGNAL(close()),
+    connect(widget, SIGNAL(closeButtonClicked()),
             this, SLOT(slotHideRightPane()));
+    connect(widget, SIGNAL(aboutToClose()),
+            this, SLOT(saveExternalWindowSettings()));
 
     // force setup, as we might have never switched to full help mode
     // thus the help engine might still run without collection file setup
     m_helpManager->setupGuiHelpEngine();
+
+    return widget;
+}
+
+void HelpPlugin::createRightPaneContextViewer()
+{
+    if (m_rightPaneSideBarWidget)
+        return;
+    m_rightPaneSideBarWidget = createHelpWidget(Core::Context(Constants::C_HELP_SIDEBAR),
+                                                HelpWidget::SideBarWidget);
+}
+
+HelpViewer *HelpPlugin::externalHelpViewer()
+{
+    if (m_externalWindow)
+        return m_externalWindow->currentViewer();
+    m_externalWindow = createHelpWidget(Core::Context(Constants::C_HELP_EXTERNAL),
+                                        HelpWidget::ExternalWindow);
+    if (m_externalWindowState.isNull()) {
+        QSettings *settings = Core::ICore::settings();
+        m_externalWindowState = settings->value(QLatin1String(kExternalWindowStateKey)).toRect();
+    }
+    if (!m_externalWindowState.isNull())
+        m_externalWindow->setGeometry(m_externalWindowState);
+    m_externalWindow->show();
+    return m_externalWindow->currentViewer();
 }
 
 HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
@@ -576,15 +591,13 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
 
 void HelpPlugin::activateHelpMode()
 {
-    if (contextHelpOption() != Help::Constants::ExternalHelpAlways)
-        ModeManager::activateMode(Id(Constants::ID_MODE_HELP));
-    else
-        showExternalWindow();
+    ModeManager::activateMode(Id(Constants::ID_MODE_HELP));
 }
 
 void HelpPlugin::switchToHelpMode(const QUrl &source)
 {
     activateHelpMode();
+    Core::ICore::raiseWindow(m_mode->widget());
     m_centralWidget->setSource(source);
     m_centralWidget->setFocus();
 }
@@ -600,22 +613,10 @@ void HelpPlugin::showHideSidebar()
     onSideBarVisibilityChanged();
 }
 
-void HelpPlugin::showExternalWindow()
-{
-    bool firstTime = m_firstModeChange;
-    doSetupIfNeeded();
-    m_externalWindow->show();
-    connectExternalHelpWindow();
-    if (firstTime)
-        ICore::raiseWindow(ICore::mainWindow());
-    else
-        ICore::raiseWindow(m_externalWindow);
-}
-
 void HelpPlugin::modeChanged(IMode *mode, IMode *old)
 {
+    Q_UNUSED(old)
     if (mode == m_mode) {
-        m_oldMode = old;
         qApp->setOverrideCursor(Qt::WaitCursor);
         doSetupIfNeeded();
         qApp->restoreOverrideCursor();
@@ -673,55 +674,6 @@ QStackedLayout * layoutForWidget(QWidget *parent, QWidget *widget)
     return 0;
 }
 
-void HelpPlugin::contextHelpOptionChanged()
-{
-    doSetupIfNeeded();
-    QWidget *modeWidget = m_mode->widget();
-    if (modeWidget == m_splitter
-        && contextHelpOption() == Help::Constants::ExternalHelpAlways) {
-        if (QWidget *widget = m_splitter->parentWidget()) {
-            if (QStackedLayout *layout = layoutForWidget(widget, m_splitter)) {
-                const int index = layout->indexOf(m_splitter);
-                layout->removeWidget(m_splitter);
-                m_mode->setWidget(new QWidget);
-                layout->insertWidget(index, m_mode->widget());
-                m_externalWindow->setCentralWidget(m_splitter);
-                m_splitter->show();
-
-                slotHideRightPane();
-                m_mode->setEnabled(false);
-                m_externalHelpBar->setVisible(true);
-                m_internalHelpBar->setVisible(false);
-                m_externalWindow->show();
-                connectExternalHelpWindow();
-
-                if (m_oldMode && m_mode == ModeManager::currentMode())
-                    ModeManager::activateMode(m_oldMode->id());
-            }
-        }
-    } else if (modeWidget != m_splitter
-        && contextHelpOption() != Help::Constants::ExternalHelpAlways) {
-        QStackedLayout *wLayout = layoutForWidget(modeWidget->parentWidget(),
-            modeWidget);
-        if (wLayout && m_splitter->parentWidget()->layout()) {
-            const int index = wLayout->indexOf(modeWidget);
-            QWidget *tmp = wLayout->widget(index);
-            wLayout->removeWidget(modeWidget);
-            delete tmp;
-
-            m_splitter->parentWidget()->layout()->removeWidget(m_splitter);
-            m_mode->setWidget(m_splitter);
-            wLayout->insertWidget(index, m_splitter);
-
-            m_mode->setEnabled(true);
-            m_externalWindow->close();
-            m_sideBar->setVisible(true);
-            m_internalHelpBar->setVisible(true);
-            m_externalHelpBar->setVisible(false);
-        }
-    }
-}
-
 void HelpPlugin::setupHelpEngineIfNeeded()
 {
     m_helpManager->setEngineNeedsUpdate();
@@ -732,6 +684,7 @@ void HelpPlugin::setupHelpEngineIfNeeded()
 
 HelpViewer *HelpPlugin::viewerForContextMode()
 {
+    // TODO this is a hack for opening examples
     if (ModeManager::currentMode()->id() == Core::Constants::MODE_WELCOME)
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
 
@@ -755,7 +708,8 @@ HelpViewer *HelpPlugin::viewerForContextMode()
             // side by side
             showSideBySide = true;
         }   break;
-
+        case Help::Constants::ExternalHelpAlways:
+            return externalHelpViewer();
         default: // help mode
             break;
     }
@@ -804,14 +758,6 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
 
 void HelpPlugin::activateContext()
 {
-    createRightPaneContextViewer();
-
-    RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
-    if (placeHolder && qApp->focusWidget()
-            && qApp->focusWidget() == m_rightPaneSideBarWidget->currentViewer()->focusWidget()) {
-        switchToHelpMode(m_rightPaneSideBarWidget->currentViewer()->source());
-        return;
-    }
     if (ModeManager::currentMode() == m_mode)
         return;
 
@@ -843,6 +789,7 @@ void HelpPlugin::activateContext()
                 viewer->scrollToAnchor(source.fragment());
             }
             viewer->setFocus();
+            Core::ICore::raiseWindow(viewer);
         }
     }
 }
@@ -1081,29 +1028,6 @@ int HelpPlugin::contextHelpOption() const
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     return engine.customValue(QLatin1String("ContextHelpOption"),
         Help::Constants::SideBySideIfPossible).toInt();
-}
-
-void HelpPlugin::connectExternalHelpWindow()
-{
-    if (m_connectWindow) {
-        m_connectWindow = false;
-        connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
-            m_externalWindow, SLOT(close()));
-        connect(m_externalWindow, SIGNAL(activateIndex()), this,
-            SLOT(activateIndex()));
-        connect(m_externalWindow, SIGNAL(activateContents()), this,
-            SLOT(activateContents()));
-        connect(m_externalWindow, SIGNAL(activateSearch()), this,
-            SLOT(activateSearch()));
-        connect(m_externalWindow, SIGNAL(activateBookmarks()), this,
-            SLOT(activateBookmarks()));
-        connect(m_externalWindow, SIGNAL(activateOpenPages()), this,
-            SLOT(activateOpenPages()));
-        connect(m_externalWindow, SIGNAL(addBookmark()), this,
-            SLOT(addBookmark()));
-        connect(m_externalWindow, SIGNAL(showHideSidebar()), this,
-            SLOT(showHideSidebar()));
-    }
 }
 
 void HelpPlugin::setupNavigationMenus(QAction *back, QAction *next, QWidget *parent)

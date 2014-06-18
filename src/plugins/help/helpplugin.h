@@ -30,7 +30,11 @@
 #ifndef HELPPLUGIN_H
 #define HELPPLUGIN_H
 
+#include "helpwidget.h"
+
+#include <coreplugin/icontext.h>
 #include <extensionsystem/iplugin.h>
+
 #include <QMap>
 #include <QStringList>
 
@@ -55,11 +59,9 @@ namespace Help {
 namespace Internal {
 class CentralWidget;
 class DocSettingsPage;
-class ExternalHelpWindow;
 class FilterSettingsPage;
 class GeneralSettingsPage;
 class HelpMode;
-class HelpWidget;
 class HelpViewer;
 class LocalHelpManager;
 class OpenPagesManager;
@@ -84,7 +86,6 @@ public:
 private slots:
     void unregisterOldQtCreatorDocumentation();
 
-    void showExternalWindow();
     void modeChanged(Core::IMode *mode, Core::IMode *old);
 
     void activateContext();
@@ -98,6 +99,7 @@ private slots:
     void updateFilterComboBox();
     void filterDocumentation(const QString &customFilter);
 
+    void saveExternalWindowSettings();
     void switchToHelpMode(const QUrl &source);
     void slotHideRightPane();
     void showHideSidebar();
@@ -106,7 +108,6 @@ private slots:
     void updateSideBarSource(const QUrl &newUrl);
 
     void fontChanged();
-    void contextHelpOptionChanged();
 
     void updateCloseButton();
     void setupHelpEngineIfNeeded();
@@ -128,11 +129,12 @@ private:
     Utils::StyledBar *createWidgetToolBar();
     Utils::StyledBar *createIconToolBar(bool external);
     HelpViewer* viewerForContextMode();
+    HelpWidget *createHelpWidget(const Core::Context &context, HelpWidget::WidgetStyle style);
     void createRightPaneContextViewer();
+    HelpViewer *externalHelpViewer();
 
     void doSetupIfNeeded();
     int contextHelpOption() const;
-    void connectExternalHelpWindow();
     void setupNavigationMenus(QAction *back, QAction *next, QWidget *parent);
 
 private:
@@ -163,9 +165,8 @@ private:
 
     QString m_contextHelpHighlightId;
 
-    Core::IMode* m_oldMode;
-    bool m_connectWindow;
-    ExternalHelpWindow *m_externalWindow;
+    QPointer<HelpWidget> m_externalWindow;
+    QRect m_externalWindowState;
 
     QMenu *m_backMenu;
     QMenu *m_nextMenu;
