@@ -30,6 +30,8 @@
 #include "qtquickappwizardpages.h"
 
 #include <utils/wizard.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <QComboBox>
 #include <QLabel>
@@ -55,8 +57,24 @@ QtQuickComponentSetPage::QtQuickComponentSetPage(QWidget *parent)
 
     QLabel *label = new QLabel(tr("Qt Quick component set:"), this);
     d->m_versionComboBox = new QComboBox(this);
-    foreach (const TemplateInfo &templateInfo, QtQuickApp::templateInfos())
-        d->m_versionComboBox->addItem(templateInfo.displayName);
+
+    QSet<QString> availablePlugins;
+    foreach (ExtensionSystem::PluginSpec *s, ExtensionSystem::PluginManager::plugins()) {
+        if (s->state() == ExtensionSystem::PluginSpec::Running && !s->hasError())
+              availablePlugins += s->name();
+    }
+
+    foreach (const TemplateInfo &templateInfo, QtQuickApp::templateInfos()) {
+        bool ok = true;
+        foreach (const QString &neededPlugin, templateInfo.requiredPlugins) {
+            if (!availablePlugins.contains(neededPlugin)) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok)
+            d->m_versionComboBox->addItem(templateInfo.displayName);
+    }
 
     l->addWidget(label);
     l->addWidget(d->m_versionComboBox);

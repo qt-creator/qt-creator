@@ -119,6 +119,7 @@ static bool parseTemplateXml(QXmlStreamReader &reader, TemplateInfo *info)
     static const QLatin1String attribute_viewerclassname("viewerclassname");
     static const QLatin1String attribute_qrcdeployment("qrcdeployment");
     static const QLatin1String attribute_stubversionminor("stubversionminor");
+    static const QLatin1String attribute_requiredPlugins("requiredPlugins");
 
     while (!reader.atEnd() && !reader.hasError()) {
         reader.readNext();
@@ -144,6 +145,12 @@ static bool parseTemplateXml(QXmlStreamReader &reader, TemplateInfo *info)
 
             if (reader.attributes().hasAttribute(attribute_stubversionminor))
                 info->stubVersionMinor = reader.attributes().value(attribute_stubversionminor).toString().toInt();
+
+            // This attribute is currently used in enterprise addons to filter out templates when the enterprise
+            // addon is not installed. This applies to the Boot To Qt addon for example.
+            if (reader.attributes().hasAttribute(attribute_requiredPlugins))
+                info->requiredPlugins = reader.attributes().value(attribute_requiredPlugins).toString()
+                    .split(QLatin1Char(','), QString::SkipEmptyParts);
 
         } else if (reader.name() == tag_displayName) {
             if (!assignLanguageElementText(reader, locale, &info->displayName))

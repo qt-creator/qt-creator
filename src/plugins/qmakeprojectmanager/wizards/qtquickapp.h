@@ -63,6 +63,7 @@ public:
     QString viewerClassName;
     QString viewerDir;
     QString qrcDeployment;
+    QStringList requiredPlugins;
     int stubVersionMinor;
 };
 
