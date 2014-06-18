@@ -301,7 +301,8 @@ void Project::saveSettings()
     emit aboutToSaveSettings();
     if (!d->m_accessor)
         d->m_accessor = new Internal::UserFileAccessor(this);
-    d->m_accessor->saveSettings(toMap(), Core::ICore::mainWindow());
+    if (!targets().isEmpty())
+        d->m_accessor->saveSettings(toMap(), Core::ICore::mainWindow());
 }
 
 bool Project::restoreSettings()
