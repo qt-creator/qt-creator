@@ -10,7 +10,7 @@ include (../qmldesigner_dependencies.pri)
 LIBS += -L$$IDE_PLUGIN_PATH
 LIBS += -l$$qtLibraryName(QmlDesigner)
 LIBS += -l$$qtLibraryName(Core)
-LIBS += -l$$qtLibraryName(utils)
+LIBS += -l$$qtLibraryName(Utils)
 
 DEFINES += COMPONENTS_LIBRARY
 
