@@ -62,6 +62,7 @@
 #include "removesharedmemorycommand.h"
 #include "endpuppetcommand.h"
 #include "debugoutputcommand.h"
+#include "puppetalivecommand.h"
 
 #include <enumeration.h>
 
@@ -186,6 +187,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<Enumeration>("Enumeration");
     qRegisterMetaTypeStreamOperators<Enumeration>("Enumeration");
+
+    qRegisterMetaType<PuppetAliveCommand>("PuppetAliveCommand");
+    qRegisterMetaTypeStreamOperators<PuppetAliveCommand>("PuppetAliveCommand");
 }
 
 }

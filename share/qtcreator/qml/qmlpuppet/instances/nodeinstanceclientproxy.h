@@ -36,6 +36,7 @@
 #include <QHash>
 #include <QWeakPointer>
 #include <QFile>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QLocalSocket;
@@ -77,6 +78,7 @@ public:
     void componentCompleted(const ComponentCompletedCommand &command);
     void token(const TokenCommand &command);
     void debugOutput(const DebugOutputCommand &command);
+    void puppetAlive(const PuppetAliveCommand &command);
 
     void flush();
     void synchronizeWithClientProcess();
@@ -111,9 +113,11 @@ protected:
 
 protected slots:
     void readDataStream();
+    void sendPuppetAliveCommand();
 
 private:
     QFile m_controlStream;
+    QTimer m_puppetAliveTimer;
     QIODevice *m_inputIoDevice;
     QIODevice *m_outputIoDevice;
     NodeInstanceServerInterface *m_nodeInstanceServer;

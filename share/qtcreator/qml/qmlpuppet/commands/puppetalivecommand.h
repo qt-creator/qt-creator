@@ -27,41 +27,30 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCECLIENTINTERFACE_H
-#define NODEINSTANCECLIENTINTERFACE_H
+#ifndef PUPPETALIVECOMMAND_H
+#define PUPPETALIVECOMMAND_H
 
-#include <QtGlobal>
+#include <QMetaType>
+#include <QDebug>
 
 namespace QmlDesigner {
 
-class ValuesChangedCommand;
-class PixmapChangedCommand;
-class InformationChangedCommand;
-class ChildrenChangedCommand;
-class StatePreviewImageChangedCommand;
-class ComponentCompletedCommand;
-class TokenCommand;
-class RemoveSharedMemoryCommand;
-class DebugOutputCommand;
-class PuppetAliveCommand;
-
-class NodeInstanceClientInterface
+class PuppetAliveCommand
 {
-public:
-    virtual void informationChanged(const InformationChangedCommand &command) = 0;
-    virtual void valuesChanged(const ValuesChangedCommand &command) = 0;
-    virtual void pixmapChanged(const PixmapChangedCommand &command) = 0;
-    virtual void childrenChanged(const ChildrenChangedCommand &command) = 0;
-    virtual void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command) = 0;
-    virtual void componentCompleted(const ComponentCompletedCommand &command) = 0;
-    virtual void token(const TokenCommand &command) = 0;
-    virtual void debugOutput(const DebugOutputCommand &command) = 0;
+    friend QDataStream &operator>>(QDataStream &in, PuppetAliveCommand &command);
+    friend QDebug operator <<(QDebug debug, const PuppetAliveCommand &command);
 
-    virtual void flush() {};
-    virtual void synchronizeWithClientProcess() {}
-    virtual qint64 bytesToWrite() const {return 0;}
+public:
+    PuppetAliveCommand();
 };
 
-}
+QDataStream &operator<<(QDataStream &out, const PuppetAliveCommand &command);
+QDataStream &operator>>(QDataStream &in, PuppetAliveCommand &command);
 
-#endif // NODEINSTANCECLIENTINTERFACE_H
+QDebug operator <<(QDebug debug, const PuppetAliveCommand &command);
+
+} // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::PuppetAliveCommand)
+
+#endif // PUPPETALIVECOMMAND_H

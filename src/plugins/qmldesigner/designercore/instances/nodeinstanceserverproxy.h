@@ -35,6 +35,7 @@
 #include <QPointer>
 #include <QProcess>
 #include <QFile>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QLocalServer;
@@ -55,7 +56,14 @@ class NodeInstanceClientProxy;
 class NodeInstanceServerProxy : public NodeInstanceServerInterface
 {
     Q_OBJECT
+
 public:
+    enum PuppetStreamType {
+        FirstPuppetStream,
+        SecondPuppetStream,
+        ThirdPuppetStream,
+    };
+
     explicit NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus = NormalModus, ProjectExplorer::Kit *kit = 0);
     ~NodeInstanceServerProxy();
     void createInstances(const CreateInstancesCommand &command);
@@ -77,13 +85,15 @@ public:
 
 protected:
     void writeCommand(const QVariant &command);
-    void dispatchCommand(const QVariant &command);
+    void dispatchCommand(const QVariant &command, PuppetStreamType puppetStreamType);
     NodeInstanceClientInterface *nodeInstanceClient() const;
+    void puppetAlive(PuppetStreamType puppetStreamType);
 
 signals:
     void processCrashed();
 
 private slots:
+    void processFinished();
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void readFirstDataStream();
     void readSecondDataStream();
@@ -94,6 +104,9 @@ private slots:
     void printRenderProcessOutput();
 private:
     QFile m_captureFileForTest;
+    QTimer m_firstTimer;
+    QTimer m_secondTimer;
+    QTimer m_thirdTimer;
     QPointer<QLocalServer> m_localServer;
     QPointer<QLocalSocket> m_firstSocket;
     QPointer<QLocalSocket> m_secondSocket;

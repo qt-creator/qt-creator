@@ -191,6 +191,14 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        bool isOpen = m_captureFileForTest.open(QIODevice::WriteOnly);
        qDebug() << "file is open: " << isOpen;
    }
+
+   m_firstTimer.setInterval(3000);
+   m_secondTimer.setInterval(3000);
+   m_thirdTimer.setInterval(3000);
+
+   connect(&m_firstTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
+   connect(&m_secondTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
+   connect(&m_thirdTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
 }
 
 NodeInstanceServerProxy::~NodeInstanceServerProxy()
@@ -230,7 +238,7 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
     }
 }
 
-void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
+void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStreamType puppetStreamType)
 {
     static const int informationChangedCommandType = QMetaType::type("InformationChangedCommand");
     static const int valuesChangedCommandType = QMetaType::type("ValuesChangedCommand");
@@ -241,6 +249,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
+    static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
 
     if (command.userType() ==  informationChangedCommandType) {
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
@@ -258,6 +267,8 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
         nodeInstanceClient()->token(command.value<TokenCommand>());
     } else if (command.userType() == debugOutputCommandType) {
         nodeInstanceClient()->debugOutput(command.value<DebugOutputCommand>());
+    } else if (command.userType() == puppetAliveCommandType) {
+        puppetAlive(puppetStreamType);
     } else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();
@@ -268,6 +279,31 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
 NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
 {
     return m_nodeInstanceView.data();
+}
+
+void NodeInstanceServerProxy::puppetAlive(NodeInstanceServerProxy::PuppetStreamType puppetStreamType)
+{
+    switch (puppetStreamType) {
+    case FirstPuppetStream:
+        m_firstTimer.stop();
+        m_firstTimer.start();
+        break;
+    case SecondPuppetStream:
+        m_secondTimer.stop();
+        m_secondTimer.start();
+        break;
+    case ThirdPuppetStream:
+        m_thirdTimer.stop();
+        m_thirdTimer.start();
+        break;
+    default:
+        break;
+    }
+}
+
+void NodeInstanceServerProxy::processFinished()
+{
+    processFinished(-1, QProcess::CrashExit);
 }
 
 static void writeCommandToIODecive(const QVariant &command, QIODevice *ioDevice, unsigned int commandCounter)
@@ -383,7 +419,7 @@ void NodeInstanceServerProxy::readFirstDataStream()
     }
 
     foreach (const QVariant &command, commandList) {
-        dispatchCommand(command);
+        dispatchCommand(command, FirstPuppetStream);
     }
 }
 
@@ -420,7 +456,7 @@ void NodeInstanceServerProxy::readSecondDataStream()
     }
 
     foreach (const QVariant &command, commandList) {
-        dispatchCommand(command);
+        dispatchCommand(command, SecondPuppetStream);
     }
 }
 
@@ -457,7 +493,7 @@ void NodeInstanceServerProxy::readThirdDataStream()
     }
 
     foreach (const QVariant &command, commandList) {
-        dispatchCommand(command);
+        dispatchCommand(command, ThirdPuppetStream);
     }
 }
 

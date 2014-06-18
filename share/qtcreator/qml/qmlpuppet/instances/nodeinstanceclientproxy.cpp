@@ -70,6 +70,7 @@
 #include "changenodesourcecommand.h"
 #include "endpuppetcommand.h"
 #include "debugoutputcommand.h"
+#include "puppetalivecommand.h"
 
 namespace QmlDesigner {
 
@@ -81,6 +82,9 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
       m_writeCommandCounter(0),
       m_synchronizeId(-1)
 {
+    connect(&m_puppetAliveTimer, SIGNAL(timeout()), this, SLOT(sendPuppetAliveCommand()));
+    m_puppetAliveTimer.setInterval(300);
+    m_puppetAliveTimer.start();
 }
 
 void NodeInstanceClientProxy::initializeSocket()
@@ -227,6 +231,11 @@ void NodeInstanceClientProxy::debugOutput(const DebugOutputCommand &command)
     writeCommand(QVariant::fromValue(command));
 }
 
+void NodeInstanceClientProxy::puppetAlive(const PuppetAliveCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
 void NodeInstanceClientProxy::flush()
 {
 }
@@ -300,6 +309,11 @@ void NodeInstanceClientProxy::readDataStream()
     foreach (const QVariant &command, commandList) {
         dispatchCommand(command);
     }
+}
+
+void NodeInstanceClientProxy::sendPuppetAliveCommand()
+{
+    puppetAlive(PuppetAliveCommand());
 }
 
 NodeInstanceServerInterface *NodeInstanceClientProxy::nodeInstanceServer() const

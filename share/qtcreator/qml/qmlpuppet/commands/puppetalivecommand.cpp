@@ -27,41 +27,27 @@
 **
 ****************************************************************************/
 
-#ifndef NODEINSTANCECLIENTINTERFACE_H
-#define NODEINSTANCECLIENTINTERFACE_H
-
-#include <QtGlobal>
+#include "puppetalivecommand.h"
 
 namespace QmlDesigner {
 
-class ValuesChangedCommand;
-class PixmapChangedCommand;
-class InformationChangedCommand;
-class ChildrenChangedCommand;
-class StatePreviewImageChangedCommand;
-class ComponentCompletedCommand;
-class TokenCommand;
-class RemoveSharedMemoryCommand;
-class DebugOutputCommand;
-class PuppetAliveCommand;
-
-class NodeInstanceClientInterface
+PuppetAliveCommand::PuppetAliveCommand()
 {
-public:
-    virtual void informationChanged(const InformationChangedCommand &command) = 0;
-    virtual void valuesChanged(const ValuesChangedCommand &command) = 0;
-    virtual void pixmapChanged(const PixmapChangedCommand &command) = 0;
-    virtual void childrenChanged(const ChildrenChangedCommand &command) = 0;
-    virtual void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command) = 0;
-    virtual void componentCompleted(const ComponentCompletedCommand &command) = 0;
-    virtual void token(const TokenCommand &command) = 0;
-    virtual void debugOutput(const DebugOutputCommand &command) = 0;
-
-    virtual void flush() {};
-    virtual void synchronizeWithClientProcess() {}
-    virtual qint64 bytesToWrite() const {return 0;}
-};
-
 }
 
-#endif // NODEINSTANCECLIENTINTERFACE_H
+QDataStream &operator<<(QDataStream &out, const PuppetAliveCommand &command)
+{
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, PuppetAliveCommand &command)
+{
+    return in;
+}
+
+QDebug operator <<(QDebug debug, const PuppetAliveCommand &command)
+{
+    return debug.nospace() << "PuppetAliveCommand()";
+}
+
+} // namespace QmlDesigner
