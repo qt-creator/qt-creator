@@ -34,11 +34,11 @@
 
 namespace QmlDesigner {
 
-class TabViewDesignerAction : public QObject, public DefaultDesignerAction
+class AddTabDesignerAction : public QObject, public DefaultDesignerAction
 {
     Q_OBJECT
 public:
-    TabViewDesignerAction();
+    AddTabDesignerAction();
 
     QByteArray category() const;
     QByteArray menuId() const;
@@ -48,9 +48,6 @@ public:
 protected:
     bool isVisible(const SelectionContext &selectionContext) const;
     bool isEnabled(const SelectionContext &selectionContext) const;
-
-    bool createFile(const QString &filePath);
-    void addNewFileToVersionControl(const QString &directoryPath, const QString &newFileName);
 
 private slots:
     void addNewTab();

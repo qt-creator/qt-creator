@@ -37,6 +37,14 @@
 #include <bindingproperty.h>
 #include <variantproperty.h>
 
+#include <utils/textfileformat.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
+#include <coreplugin/icore.h>
+
+#include <QMessageBox>
+
 namespace QmlDesigner {
 
 static inline DesignDocument* currentDesignDocument()
@@ -259,6 +267,32 @@ void DocumentManager::goIntoComponent(const ModelNode &modelNode)
             openSourcePropertyOfLoader(modelNode);
         else
             openInlineComponent(modelNode);
+    }
+}
+
+bool DocumentManager::createFile(const QString &filePath, const QString &contents)
+{
+    Utils::TextFileFormat textFileFormat;
+    textFileFormat.codec = Core::EditorManager::defaultTextCodec();
+    QString errorMessage;
+
+    return textFileFormat.writeFile(filePath, contents, &errorMessage);
+}
+
+void DocumentManager::addFileToVersionControl(const QString &directoryPath, const QString &newFilePath)
+{
+    Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(directoryPath);
+    if (versionControl && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
+        const QMessageBox::StandardButton button =
+                QMessageBox::question(Core::ICore::mainWindow(),
+                                      Core::VcsManager::msgAddToVcsTitle(),
+                                      Core::VcsManager::msgPromptToAddToVcs(QStringList(newFilePath), versionControl),
+                                      QMessageBox::Yes | QMessageBox::No);
+        if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFilePath)) {
+            QMessageBox::warning(Core::ICore::mainWindow(),
+                                 Core::VcsManager::msgAddToVcsFailedTitle(),
+                                 Core::VcsManager::msgToAddToVcsFailed(QStringList(newFilePath), versionControl));
+        }
     }
 }
 

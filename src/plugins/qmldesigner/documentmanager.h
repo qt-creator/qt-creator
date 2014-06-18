@@ -55,6 +55,9 @@ public:
 
     static void goIntoComponent(const ModelNode &modelNode);
 
+    static bool createFile(const QString &filePath, const QString &contents);
+    static void addFileToVersionControl(const QString &directoryPath, const QString &newFilePath);
+
 private:
     QHash<Core::IEditor *,QPointer<DesignDocument> > m_designDocumentHash;
     QPointer<DesignDocument> m_currentDesignDocument;
