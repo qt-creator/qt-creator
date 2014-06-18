@@ -44,7 +44,7 @@ class CppFunctionsFilter : public CppLocatorFilter
 
 public:
     CppFunctionsFilter(CppLocatorData *locatorData);
-    ~CppFunctionsFilter() QTC_OVERRIDE;
+    ~CppFunctionsFilter();
 
 protected:
     IndexItem::ItemType matchTypes() const QTC_OVERRIDE { return IndexItem::Function; }

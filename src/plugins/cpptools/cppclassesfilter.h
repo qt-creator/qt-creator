@@ -45,7 +45,7 @@ class CPPTOOLS_EXPORT CppClassesFilter : public Internal::CppLocatorFilter
 
 public:
     CppClassesFilter(CppLocatorData *locatorData);
-    ~CppClassesFilter() QTC_OVERRIDE;
+    ~CppClassesFilter();
 
 protected:
     IndexItem::ItemType matchTypes() const QTC_OVERRIDE { return IndexItem::Class; }
