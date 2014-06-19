@@ -36,6 +36,8 @@ ScrollViewStyle {
     property color scrollbarBorderColor: "#333333"
     property color scrollBarHandleColor: "#656565"
 
+    padding {left: 0; top: 0; right: 0; bottom: 0}
+
     scrollBarBackground: Rectangle {
         height: 10
         width: 10
