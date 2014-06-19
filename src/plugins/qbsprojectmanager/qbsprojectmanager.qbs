@@ -14,15 +14,13 @@ QtcPlugin {
         var libs = []
         if (!project.useExternalQbs)
             return libs;
+        var suffix = "";
         if (qbs.targetOS.contains("windows")) {
             libs.push("shell32")
             if (qbs.enableDebugCode)
-                libs.push("qbscored")
-            else
-                libs.push("qbscore")
-        } else {
-            libs.push("qbscore")
+                suffix = "d";
         }
+        libs.push("qbscore" + suffix, "qbsqtprofilesetup" + suffix);
         return libs
     }
 
