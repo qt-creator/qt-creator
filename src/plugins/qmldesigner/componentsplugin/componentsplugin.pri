@@ -21,13 +21,15 @@ HEADERS += \
     $$PWD/componentsplugin.h \
     $$PWD/../designercore/include/iwidgetplugin.h \
     $$PWD/addtabdesigneraction.h \
-    $$PWD/addtabtotabviewdialog.h
+    $$PWD/addtabtotabviewdialog.h \
+    $$PWD/entertabdesigneraction.h
 
 SOURCES += \
     $$PWD/componentsplugin.cpp \
     $$PWD/tabviewindexmodel.cpp \
     $$PWD/addtabdesigneraction.cpp \
-    $$PWD/addtabtotabviewdialog.cpp
+    $$PWD/addtabtotabviewdialog.cpp \
+    $$PWD/entertabdesigneraction.cpp
 
 FORMS += \
     $$PWD/addtabtotabviewdialog.ui

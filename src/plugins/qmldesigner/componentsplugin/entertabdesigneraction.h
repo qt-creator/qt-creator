@@ -27,41 +27,31 @@
 **
 ****************************************************************************/
 
-#include "componentsplugin.h"
+#ifndef ENTERTABDESIGNERACTION_H
+#define ENTERTABDESIGNERACTION_H
 
-#include "tabviewindexmodel.h"
-#include "addtabdesigneraction.h"
-#include "entertabdesigneraction.h"
-
-#include <viewmanager.h>
-#include <qmldesignerplugin.h>
-
-#include <QtPlugin>
+#include <abstractactiongroup.h>
 
 namespace QmlDesigner {
 
-
-ComponentsPlugin::ComponentsPlugin()
+class EnterTabDesignerAction : public AbstractActionGroup
 {
-    TabViewIndexModel::registerDeclarativeType();
-    DesignerActionManager *actionManager = &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
-    actionManager->addDesignerAction(new AddTabDesignerAction);
-    actionManager->addDesignerAction(new EnterTabDesignerAction);
-}
+public:
+    EnterTabDesignerAction();
 
-QString ComponentsPlugin::pluginName() const
-{
-    return ("ComponentsPlugin");
-}
+    QByteArray category() const QTC_OVERRIDE;
+    QByteArray menuId() const QTC_OVERRIDE;
+    int priority() const QTC_OVERRIDE;
+    void updateContext() QTC_OVERRIDE;
 
-QString ComponentsPlugin::metaInfo() const
-{
-    return QString(":/componentsplugin/components.metainfo");
-}
+protected:
+    bool isVisible(const SelectionContext &selectionContext) const;
+    bool isEnabled(const SelectionContext &selectionContext) const;
 
-}
+private:
+    void createActionForTab(const ModelNode &modelNode);
+};
 
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN(QmlDesigner::ComponentsPlugin)
-#endif
+} // namespace QmlDesigner
 
+#endif // ENTERTABDESIGNERACTION_H
