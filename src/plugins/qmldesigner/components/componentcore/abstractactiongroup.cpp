@@ -56,6 +56,11 @@ QMenu *AbstractActionGroup::menu() const
     return m_menu.data();
 }
 
+SelectionContext AbstractActionGroup::selectionContext() const
+{
+    return m_selectionContext;
+}
+
 void AbstractActionGroup::currentContextChanged(const SelectionContext &selectionContext)
 {
     m_selectionContext = selectionContext;

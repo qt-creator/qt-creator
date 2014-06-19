@@ -48,11 +48,12 @@ public:
     AbstractDesignerAction::Type type() const QTC_OVERRIDE;
     QAction *action() const QTC_OVERRIDE;
     QMenu *menu() const;
+    SelectionContext selectionContext() const;
 
     virtual void currentContextChanged(const SelectionContext &selectionContext) QTC_OVERRIDE;
     virtual void updateContext();
 
-protected:
+private:
     const QString m_displayName;
     SelectionContext m_selectionContext;
     QScopedPointer<QMenu> m_menu;

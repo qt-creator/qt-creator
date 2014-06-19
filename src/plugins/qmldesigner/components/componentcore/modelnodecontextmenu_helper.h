@@ -134,9 +134,8 @@ public:
     QByteArray menuId() const { return m_menuId; }
     int priority() const { return m_priority; }
     AbstractDesignerAction::Type type() const { return AbstractDesignerAction::Menu; }
-    QAction *action() const { return m_action; }
 
-protected:
+private:
     const QByteArray m_menuId;
     const int m_priority;
     SelectionContextFunction m_enabled;

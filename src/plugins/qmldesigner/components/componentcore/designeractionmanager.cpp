@@ -150,41 +150,41 @@ public:
 
     virtual void updateContext()
     {
-        m_menu->clear();
-        if (m_selectionContext.isValid()) {
-            m_action->setEnabled(isEnabled(m_selectionContext));
-            m_action->setVisible(isVisible(m_selectionContext));
+        menu()->clear();
+        if (selectionContext().isValid()) {
+            action()->setEnabled(isEnabled(selectionContext()));
+            action()->setVisible(isVisible(selectionContext()));
         } else {
             return;
         }
-        if (m_action->isEnabled()) {
+        if (action()->isEnabled()) {
             ModelNode parentNode;
-            if (m_selectionContext.singleNodeIsSelected()
-                    && !m_selectionContext.currentSingleSelectedNode().isRootNode()
-                    && m_selectionContext.currentSingleSelectedNode().hasParentProperty()) {
+            if (selectionContext().singleNodeIsSelected()
+                    && !selectionContext().currentSingleSelectedNode().isRootNode()
+                    && selectionContext().currentSingleSelectedNode().hasParentProperty()) {
 
                 ActionTemplate *selectionAction = new ActionTemplate(QString(), &ModelNodeOperations::select);
-                selectionAction->setParent(m_menu.data());
+                selectionAction->setParent(menu());
 
-                parentNode = m_selectionContext.currentSingleSelectedNode().parentProperty().parentModelNode();
-                m_selectionContext.setTargetNode(parentNode);
+                parentNode = selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode();
+                selectionContext().setTargetNode(parentNode);
                 selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select parent: %1")).arg(
                                              captionForModelNode(parentNode)));
-                selectionAction->setSelectionContext(m_selectionContext);
+                selectionAction->setSelectionContext(selectionContext());
 
-                m_menu->addAction(selectionAction);
+                menu()->addAction(selectionAction);
             }
-            foreach (const ModelNode &node, m_selectionContext.view()->allModelNodes()) {
-                if (node != m_selectionContext.currentSingleSelectedNode()
+            foreach (const ModelNode &node, selectionContext().view()->allModelNodes()) {
+                if (node != selectionContext().currentSingleSelectedNode()
                         && node != parentNode
-                        && contains(node, m_selectionContext.scenePosition())
+                        && contains(node, selectionContext().scenePosition())
                         && !node.isRootNode()) {
-                    m_selectionContext.setTargetNode(node);
+                    selectionContext().setTargetNode(node);
                     QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
                     ActionTemplate *selectionAction = new ActionTemplate(what, &ModelNodeOperations::select);
-                    selectionAction->setSelectionContext(m_selectionContext);
+                    selectionAction->setSelectionContext(selectionContext());
 
-                    m_menu->addAction(selectionAction);
+                    menu()->addAction(selectionAction);
                 }
             }
         }
