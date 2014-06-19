@@ -344,23 +344,33 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(Kit *k, const QStri
 {
     QList<IBuildConfigurationFactory *> factories
             = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
-
-    return Utils::bestElementOr(factories, 0,
-        [&k, &projectPath](IBuildConfigurationFactory *a, IBuildConfigurationFactory *b) {
-            return a->priority(k, projectPath) > b->priority(k, projectPath);
-        });
+    IBuildConfigurationFactory *factory = 0;
+    int priority = -1;
+    foreach (IBuildConfigurationFactory *i, factories) {
+        int iPriority = i->priority(k, projectPath);
+        if (iPriority > priority) {
+            factory = i;
+            priority = iPriority;
+        }
+    }
+    return factory;
 }
 
 // create
 IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 {
     QList<IBuildConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>();
-
-    return Utils::bestElementOr(factories, 0,
-                               [&parent](IBuildConfigurationFactory *a, IBuildConfigurationFactory *b) {
-                                   return a->priority(parent) > b->priority(parent);
-                               });
+            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
+    IBuildConfigurationFactory *factory = 0;
+    int priority = -1;
+    foreach (IBuildConfigurationFactory *i, factories) {
+        int iPriority = i->priority(parent);
+        if (iPriority > priority) {
+            factory = i;
+            priority = iPriority;
+        }
+    }
+    return factory;
 }
 
 // clone
