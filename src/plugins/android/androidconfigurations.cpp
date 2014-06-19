@@ -67,6 +67,8 @@
 #include <QStringListModel>
 #include <QMessageBox>
 
+#include <functional>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 

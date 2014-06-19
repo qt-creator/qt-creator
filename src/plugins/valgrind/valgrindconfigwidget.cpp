@@ -43,6 +43,8 @@
 #include <QStandardItemModel>
 #include <QFileDialog>
 
+#include <functional>
+
 namespace Valgrind {
 namespace Internal {
 
