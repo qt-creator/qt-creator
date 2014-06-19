@@ -45,7 +45,7 @@ enum {
 enum {
     SideBySideIfPossible = 0,
     SideBySideAlways = 1,
-    FullHelpAlways = 2,
+    HelpModeAlways = 2,
     ExternalHelpAlways = 3
 };
 

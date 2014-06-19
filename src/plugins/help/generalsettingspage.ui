@@ -191,7 +191,7 @@
           </item>
           <item>
            <property name="text">
-            <string>Always Start Full Help</string>
+            <string>Always Show in Help Mode</string>
            </property>
           </item>
           <item>
