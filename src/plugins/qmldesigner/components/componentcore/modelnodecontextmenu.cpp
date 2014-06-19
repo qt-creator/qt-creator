@@ -45,12 +45,12 @@ ModelNodeContextMenu::ModelNodeContextMenu(AbstractView *view) :
 {
 }
 
-static QSet<AbstractDesignerAction* > findMembers(QSet<AbstractDesignerAction* > designerActionSet,
+static QSet<ActionInterface* > findMembers(QSet<ActionInterface* > actionInterface,
                                                           const QString &category)
 {
-    QSet<AbstractDesignerAction* > ret;
+    QSet<ActionInterface* > ret;
 
-     foreach (AbstractDesignerAction* factory, designerActionSet) {
+     foreach (ActionInterface* factory, actionInterface) {
          if (factory->category() == category)
              ret.insert(factory);
      }
@@ -58,32 +58,32 @@ static QSet<AbstractDesignerAction* > findMembers(QSet<AbstractDesignerAction* >
 }
 
 
-void populateMenu(QSet<AbstractDesignerAction* > &abstractDesignerActions,
+void populateMenu(QSet<ActionInterface* > &actionInterfaces,
                   const QString &category,
                   QMenu* menu,
                   const SelectionContext &selectionContext)
 {
-    QSet<AbstractDesignerAction* > matchingFactories = findMembers(abstractDesignerActions, category);
+    QSet<ActionInterface* > matchingFactories = findMembers(actionInterfaces, category);
 
-    abstractDesignerActions.subtract(matchingFactories);
+    actionInterfaces.subtract(matchingFactories);
 
-    QList<AbstractDesignerAction* > matchingFactoriesList = matchingFactories.toList();
-    Utils::sort(matchingFactoriesList, [](AbstractDesignerAction *l, AbstractDesignerAction *r) {
+    QList<ActionInterface* > matchingFactoriesList = matchingFactories.toList();
+    Utils::sort(matchingFactoriesList, [](ActionInterface *l, ActionInterface *r) {
         return l->priority() > r->priority();
     });
 
-    foreach (AbstractDesignerAction* designerAction, matchingFactoriesList) {
-       if (designerAction->type() == AbstractDesignerAction::Menu) {
-           designerAction->currentContextChanged(selectionContext);
-           QMenu *newMenu = designerAction->action()->menu();
+    foreach (ActionInterface* actionInterface, matchingFactoriesList) {
+       if (actionInterface->type() == ActionInterface::Menu) {
+           actionInterface->currentContextChanged(selectionContext);
+           QMenu *newMenu = actionInterface->action()->menu();
            menu->addMenu(newMenu);
 
            //recurse
 
-           populateMenu(abstractDesignerActions, designerAction->menuId(), newMenu, selectionContext);
-       } else if (designerAction->type() == AbstractDesignerAction::Action) {
-           QAction* action = designerAction->action();
-           designerAction->currentContextChanged(selectionContext);
+           populateMenu(actionInterfaces, actionInterface->menuId(), newMenu, selectionContext);
+       } else if (actionInterface->type() == ActionInterface::Action) {
+           QAction* action = actionInterface->action();
+           actionInterface->currentContextChanged(selectionContext);
            menu->addAction(action);
        }
     }
@@ -97,8 +97,8 @@ void ModelNodeContextMenu::execute(const QPoint &position, bool selectionMenuBoo
     m_selectionContext.setScenePosition(m_scenePos);
 
 
-     QSet<AbstractDesignerAction* > factories =
-             QSet<AbstractDesignerAction* >::fromList(QmlDesignerPlugin::instance()->designerActionManager().designerActions());
+     QSet<ActionInterface* > factories =
+             QSet<ActionInterface* >::fromList(QmlDesignerPlugin::instance()->designerActionManager().designerActions());
 
      populateMenu(factories, QString(""), mainMenu, m_selectionContext);
 

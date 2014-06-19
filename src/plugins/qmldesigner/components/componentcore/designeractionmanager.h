@@ -31,7 +31,7 @@
 #define DESIGNERACTIONMANAGER_H
 
 #include <qmldesignercorelib_global.h>
-#include "abstractdesigneraction.h"
+#include "actioninterface.h"
 #include "abstractview.h"
 
 namespace QmlDesigner {
@@ -43,14 +43,14 @@ public:
     DesignerActionManager(DesignerActionManagerView *designerActionManagerView);
     ~DesignerActionManager();
 
-    void addDesignerAction(AbstractDesignerAction *newAction);
-    QList<AbstractDesignerAction* > designerActions() const;
+    void addDesignerAction(ActionInterface *newAction);
+    QList<ActionInterface* > designerActions() const;
 
     void createDefaultDesignerActions();
     AbstractView *view();
 
 private:
-    QList<QSharedPointer<AbstractDesignerAction> > m_designerActions;
+    QList<QSharedPointer<ActionInterface> > m_designerActions;
     DesignerActionManagerView *m_designerActionManagerView;
 };
 

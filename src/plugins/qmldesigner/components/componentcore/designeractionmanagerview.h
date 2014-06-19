@@ -36,7 +36,7 @@
 
 namespace QmlDesigner {
 
-class AbstractDesignerAction;
+class ActionInterface;
 
 class DesignerActionManagerView : public AbstractView
 {
@@ -78,7 +78,7 @@ public:
     void nodeOrderChanged(const NodeListProperty &, const ModelNode &, int );
     void importsChanged(const QList<Import> &, const QList<Import> &);
     void scriptFunctionsChanged(const ModelNode &, const QStringList &);
-    void setDesignerActionList(const QList<AbstractDesignerAction* > &designerActionList);
+    void setDesignerActionList(const QList<ActionInterface* > &designerActionList);
     void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/);
 
     DesignerActionManager &designerActionManager();
@@ -89,7 +89,7 @@ protected:
 
 private:
     DesignerActionManager m_designerActionManager;
-    QList<AbstractDesignerAction* > m_designerActionList;
+    QList<ActionInterface* > m_designerActionList;
     bool m_isInRewriterTransaction;
     bool m_setupContextDirty;
 };

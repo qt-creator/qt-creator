@@ -431,16 +431,16 @@ void DesignerActionManager::createDefaultDesignerActions()
 
 }
 
-void DesignerActionManager::addDesignerAction(AbstractDesignerAction *newAction)
+void DesignerActionManager::addDesignerAction(ActionInterface *newAction)
 {
-    m_designerActions.append(QSharedPointer<AbstractDesignerAction>(newAction));
+    m_designerActions.append(QSharedPointer<ActionInterface>(newAction));
     m_designerActionManagerView->setDesignerActionList(designerActions());
 }
 
-QList<AbstractDesignerAction* > DesignerActionManager::designerActions() const
+QList<ActionInterface* > DesignerActionManager::designerActions() const
 {
-    QList<AbstractDesignerAction* > list;
-    foreach (const QSharedPointer<AbstractDesignerAction> &pointer, m_designerActions) {
+    QList<ActionInterface* > list;
+    foreach (const QSharedPointer<ActionInterface> &pointer, m_designerActions) {
         list.append(pointer.data());
     }
 

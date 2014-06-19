@@ -133,7 +133,7 @@ public:
     QByteArray category() const { return QByteArray(); }
     QByteArray menuId() const { return m_menuId; }
     int priority() const { return m_priority; }
-    AbstractDesignerAction::Type type() const { return AbstractDesignerAction::Menu; }
+    Type type() const { return Menu; }
 
 private:
     const QByteArray m_menuId;

@@ -77,7 +77,7 @@ int AddTabDesignerAction::priority() const
     return CustomActionsPriority;
 }
 
-AbstractDesignerAction::Type AddTabDesignerAction::type() const
+ActionInterface::Type AddTabDesignerAction::type() const
 {
     return Action;
 }

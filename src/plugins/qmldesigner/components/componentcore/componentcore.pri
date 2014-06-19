@@ -19,6 +19,6 @@ HEADERS += selectioncontext.h
 HEADERS += componentcore_constants.h
 HEADERS += designeractionmanager.h
 HEADERS += modelnodeoperations.h
-HEADERS += abstractdesigneraction.h
+HEADERS += actioninterface.h
 HEADERS += crumblebar.h
 

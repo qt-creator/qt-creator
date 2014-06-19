@@ -30,7 +30,7 @@
 #ifndef MENUDESIGNERACTION_H
 #define MENUDESIGNERACTION_H
 
-#include "abstractdesigneraction.h"
+#include "actioninterface.h"
 
 #include <QAction>
 #include <QMenu>
@@ -38,14 +38,14 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT AbstractActionGroup : public AbstractDesignerAction
+class QMLDESIGNERCORE_EXPORT AbstractActionGroup : public ActionInterface
 {
 public:
     AbstractActionGroup(const QString &displayName);
 
     virtual bool isVisible(const SelectionContext &m_selectionState) const = 0;
     virtual bool isEnabled(const SelectionContext &m_selectionState) const = 0;
-    AbstractDesignerAction::Type type() const QTC_OVERRIDE;
+    ActionInterface::Type type() const QTC_OVERRIDE;
     QAction *action() const QTC_OVERRIDE;
     QMenu *menu() const;
     SelectionContext selectionContext() const;

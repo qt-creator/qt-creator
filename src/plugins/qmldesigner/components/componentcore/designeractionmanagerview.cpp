@@ -30,7 +30,7 @@
 #include "designeractionmanagerview.h"
 
 #include <selectioncontext.h>
-#include <abstractdesigneraction.h>
+#include <actioninterface.h>
 
 namespace QmlDesigner {
 
@@ -160,7 +160,7 @@ void DesignerActionManagerView::importsChanged(const QList<Import> &, const QLis
 void DesignerActionManagerView::scriptFunctionsChanged(const ModelNode &, const QStringList &)
 {}
 
-void DesignerActionManagerView::setDesignerActionList(const QList<AbstractDesignerAction *> &designerActionList)
+void DesignerActionManagerView::setDesignerActionList(const QList<ActionInterface *> &designerActionList)
 {
     m_designerActionList = designerActionList;
 }
@@ -187,7 +187,7 @@ void DesignerActionManagerView::setupContext()
         return;
     }
     SelectionContext selectionContext(this);
-    foreach (AbstractDesignerAction* action, m_designerActionList) {
+    foreach (ActionInterface* action, m_designerActionList) {
         action->currentContextChanged(selectionContext);
     }
     m_setupContextDirty = false;

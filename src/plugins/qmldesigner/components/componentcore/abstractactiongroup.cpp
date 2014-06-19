@@ -41,9 +41,9 @@ AbstractActionGroup::AbstractActionGroup(const QString &displayName) :
     m_action = m_menu->menuAction();
 }
 
-AbstractDesignerAction::Type AbstractActionGroup::type() const
+ActionInterface::Type AbstractActionGroup::type() const
 {
-    return AbstractDesignerAction::Menu;
+    return ActionInterface::Menu;
 }
 
 QAction *AbstractActionGroup::action() const

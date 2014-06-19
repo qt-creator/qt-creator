@@ -31,7 +31,7 @@
 #ifndef QMLDESIGNER_DEFAULTDESIGNERACTION_H
 #define QMLDESIGNER_DEFAULTDESIGNERACTION_H
 
-#include "abstractdesigneraction.h"
+#include "actioninterface.h"
 
 #include <QAction>
 #include <QScopedPointer>
@@ -56,7 +56,7 @@ protected:
     SelectionContext m_selectionContext;
 };
 
-class QMLDESIGNERCORE_EXPORT DefaultDesignerAction : public AbstractDesignerAction
+class QMLDESIGNERCORE_EXPORT DefaultDesignerAction : public ActionInterface
 {
 public:
     DefaultDesignerAction(const QString &description = QString());

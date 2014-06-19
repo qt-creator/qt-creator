@@ -39,7 +39,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT AbstractDesignerAction
+class QMLDESIGNERCORE_EXPORT ActionInterface
 {
 public:
     enum Type {
@@ -54,7 +54,7 @@ public:
         LowestPriority = ComponentCoreConstants::priorityLast
     };
 
-    virtual ~AbstractDesignerAction() {}
+    virtual ~ActionInterface() {}
 
     virtual QAction *action() const = 0;
     virtual QByteArray category() const = 0;
