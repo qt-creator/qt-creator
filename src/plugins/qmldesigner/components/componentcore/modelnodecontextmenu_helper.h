@@ -31,7 +31,7 @@
 #define MODELNODECONTEXTMENU_HELPER_H
 
 #include "modelnodeoperations.h"
-#include "defaultdesigneraction.h"
+#include "abstractaction.h"
 #include "abstractactiongroup.h"
 #include "qmlitemnode.h"
 
@@ -142,7 +142,7 @@ private:
     SelectionContextFunction m_visibility;
 };
 
-class SeperatorDesignerAction : public DefaultDesignerAction
+class SeperatorDesignerAction : public AbstractAction
 {
 public:
     SeperatorDesignerAction(const QByteArray &category, int priority) :
@@ -165,14 +165,14 @@ private:
     SelectionContextFunction m_visibility;
 };
 
-class ModelNodeAction : public DefaultDesignerAction
+class ModelNodeAction : public AbstractAction
 {
 public:
     ModelNodeAction(const QString &description,  const QByteArray &category, int priority,
             ModelNodeOperations::SelectionAction selectionAction,
             SelectionContextFunction enabled = &SelectionContextFunctors::always,
             SelectionContextFunction visibility = &SelectionContextFunctors::always) :
-        DefaultDesignerAction(new ActionTemplate(description, selectionAction)),
+        AbstractAction(new ActionTemplate(description, selectionAction)),
         m_category(category),
         m_priority(priority),
         m_enabled(enabled),

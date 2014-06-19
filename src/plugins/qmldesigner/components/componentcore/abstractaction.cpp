@@ -28,56 +28,64 @@
 ****************************************************************************/
 
 
-#ifndef QMLDESIGNER_DEFAULTDESIGNERACTION_H
-#define QMLDESIGNER_DEFAULTDESIGNERACTION_H
-
-#include "actioninterface.h"
-
-#include <QAction>
-#include <QScopedPointer>
+#include "abstractaction.h"
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT DefaultAction : public QAction
+AbstractAction::AbstractAction(const QString &description)
+    : m_defaultAction(new DefaultAction(description))
 {
-    Q_OBJECT
+}
 
-public:
-    DefaultAction(const QString &description);
-
-signals:
-    void triggered(bool checked, const SelectionContext &selectionContext);
-
-public slots: //virtual function instead of slot
-    virtual void actionTriggered(bool enable);
-    void setSelectionContext(const SelectionContext &selectionContext);
-
-protected:
-    SelectionContext m_selectionContext;
-};
-
-class QMLDESIGNERCORE_EXPORT DefaultDesignerAction : public ActionInterface
+AbstractAction::AbstractAction(DefaultAction *action)
+    : m_defaultAction(action)
 {
-public:
-    DefaultDesignerAction(const QString &description = QString());
-    DefaultDesignerAction(DefaultAction *action);
+}
 
-    QAction *action() const;
-    DefaultAction *defaultAction() const;
+QAction *AbstractAction::action() const
+{
+    return m_defaultAction.data();
+}
 
-    void currentContextChanged(const SelectionContext &selectionContext);
+void AbstractAction::currentContextChanged(const SelectionContext &selectionContext)
+{
+    m_selectionContext = selectionContext;
+    updateContext();
+}
 
-protected:
-    virtual void updateContext();
-    virtual bool isVisible(const SelectionContext &selectionContext) const = 0;
-    virtual bool isEnabled(const SelectionContext &selectionContext) const = 0;
-    SelectionContext selectionContext() const;
+void AbstractAction::updateContext()
+{
+    m_defaultAction->setSelectionContext(m_selectionContext);
+    if (m_selectionContext.isValid()) {
+        m_defaultAction->setEnabled(isEnabled(m_selectionContext));
+        m_defaultAction->setVisible(isVisible(m_selectionContext));
+    }
+}
 
-private:
-    QScopedPointer<DefaultAction> m_defaultAction;
-    SelectionContext m_selectionContext;
-};
+DefaultAction *AbstractAction::defaultAction() const
+{
+    return m_defaultAction.data();
+}
+
+SelectionContext AbstractAction::selectionContext() const
+{
+    return m_selectionContext;
+}
+
+DefaultAction::DefaultAction(const QString &description)
+    : QAction(description, 0)
+{
+    connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
+}
+
+void DefaultAction::actionTriggered(bool enable)
+{
+    emit triggered(enable, m_selectionContext);
+}
+
+void DefaultAction::setSelectionContext(const SelectionContext &selectionContext)
+{
+    m_selectionContext = selectionContext;
+}
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_DEFAULTDESIGNERACTION_H

@@ -57,7 +57,7 @@ bool isTabAndParentIsTabView(const ModelNode &modelNode)
 }
 
 AddTabDesignerAction::AddTabDesignerAction()
-    : DefaultDesignerAction(QCoreApplication::translate("TabViewToolAction","Add Tab..."))
+    : AbstractAction(QCoreApplication::translate("TabViewToolAction","Add Tab..."))
 {
     connect(action(), SIGNAL(triggered()), this, SLOT(addNewTab()));
 }

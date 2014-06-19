@@ -30,11 +30,11 @@
 #ifndef QMLDESIGNER_TABVIEWDESIGNERACTION_H
 #define QMLDESIGNER_TABVIEWDESIGNERACTION_H
 
-#include "defaultdesigneraction.h"
+#include "abstractaction.h"
 
 namespace QmlDesigner {
 
-class AddTabDesignerAction : public QObject, public DefaultDesignerAction
+class AddTabDesignerAction : public QObject, public AbstractAction
 {
     Q_OBJECT
 public:
