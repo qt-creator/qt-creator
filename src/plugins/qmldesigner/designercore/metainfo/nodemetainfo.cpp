@@ -1370,4 +1370,9 @@ bool NodeMetaInfo::isView() const
              isSubclassOf("QtQuick.PathView", -1, -1));
 }
 
+bool NodeMetaInfo::isTabView() const
+{
+    return isSubclassOf("QtQuick.Controls.TabView", -1, -1);
+}
+
 } // namespace QmlDesigner

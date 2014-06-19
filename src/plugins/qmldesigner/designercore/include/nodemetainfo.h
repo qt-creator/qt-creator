@@ -105,6 +105,7 @@ public:
     bool isGraphicalItem() const;
     bool isLayoutable() const;
     bool isView() const;
+    bool isTabView() const;
 
     QString importDirectoryPath() const;
 
