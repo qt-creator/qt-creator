@@ -529,7 +529,7 @@ protected slots:
 EmailTextCursorHandler::EmailTextCursorHandler(VcsBaseEditorWidget *editorWidget)
     : UrlTextCursorHandler(editorWidget)
 {
-    setUrlPattern(QLatin1String("[a-zA-Z0-9_\\.]+@[a-zA-Z0-9_\\.]+"));
+    setUrlPattern(QLatin1String("[a-zA-Z0-9_\\.-]+@[^@ ]+\\.[a-zA-Z]+"));
 }
 
 void EmailTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) const
