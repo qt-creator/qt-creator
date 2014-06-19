@@ -90,7 +90,7 @@ QtcPlugin {
             "tabpositionindicator.cpp", "tabpositionindicator.h",
             "textdocument.cpp", "textdocument.h",
             "toolsettings.cpp", "toolsettings.h",
-            "variablechooser.cpp", "variablechooser.h", "variablechooser.ui",
+            "variablechooser.cpp", "variablechooser.h",
             "variablemanager.cpp", "variablemanager.h",
             "vcsmanager.cpp", "vcsmanager.h",
             "versiondialog.cpp", "versiondialog.h",
