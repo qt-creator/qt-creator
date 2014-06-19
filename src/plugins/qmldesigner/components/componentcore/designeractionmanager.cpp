@@ -139,11 +139,11 @@ public:
     }
 };
 
-class SelectionModelNodeAction : public MenuDesignerAction
+class SelectionModelNodeAction : public ActionGroup
 {
 public:
     SelectionModelNodeAction(const QString &displayName, const QByteArray &menuId, int priority) :
-        MenuDesignerAction(displayName, menuId, priority,
+        ActionGroup(displayName, menuId, priority,
                            &SelectionContextFunctors::always, &SelectionContextFunctors::selectionEnabled)
 
     {}
@@ -321,7 +321,7 @@ void DesignerActionManager::createDefaultDesignerActions()
 
     addDesignerAction(new SelectionModelNodeAction(selectionCategoryDisplayName, selectionCategory, prioritySelectionCategory));
 
-    addDesignerAction(new MenuDesignerAction(stackCategoryDisplayName, stackCategory, priorityStackCategory, &selectionNotEmpty));
+    addDesignerAction(new ActionGroup(stackCategoryDisplayName, stackCategory, priorityStackCategory, &selectionNotEmpty));
         addDesignerAction(new ModelNodeAction
                    (toFrontDisplayName, stackCategory, 200, &toFront, &singleSelection));
         addDesignerAction(new ModelNodeAction
@@ -334,7 +334,7 @@ void DesignerActionManager::createDefaultDesignerActions()
         addDesignerAction(new ModelNodeAction
                    (resetZDisplayName, stackCategory, 100, &resetZ, &selectionNotEmptyAndHasZProperty));
 
-    addDesignerAction(new MenuDesignerAction(editCategoryDisplayName, editCategory, priorityEditCategory, &selectionNotEmpty));
+    addDesignerAction(new ActionGroup(editCategoryDisplayName, editCategory, priorityEditCategory, &selectionNotEmpty));
         addDesignerAction(new ModelNodeAction
                    (resetPositionDisplayName, editCategory, 200, &resetPosition, &selectionNotEmptyAndHasXorYProperty));
         addDesignerAction(new ModelNodeAction
@@ -342,14 +342,14 @@ void DesignerActionManager::createDefaultDesignerActions()
         addDesignerAction(new VisiblityModelNodeAction
                    (visibilityDisplayName, editCategory, 160, &setVisible, &singleSelectedItem));
 
-    addDesignerAction(new MenuDesignerAction(anchorsCategoryDisplayName, anchorsCategory,
+    addDesignerAction(new ActionGroup(anchorsCategoryDisplayName, anchorsCategory,
                     priorityAnchorsCategory, &singleSelectionAndInBaseState));
         addDesignerAction(new ModelNodeAction
                    (anchorsFillDisplayName, anchorsCategory, 200, &anchorsFill, &singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot));
         addDesignerAction(new ModelNodeAction
                    (anchorsResetDisplayName, anchorsCategory, 180, &anchorsReset, &singleSelectionItemIsAnchored));
 
-    addDesignerAction(new MenuDesignerAction(layoutCategoryDisplayName, layoutCategory,
+    addDesignerAction(new ActionGroup(layoutCategoryDisplayName, layoutCategory,
                     priorityLayoutCategory, &layoutOptionVisible));
         addDesignerAction(new ModelNodeAction
                    (layoutRowPositionerDisplayName,

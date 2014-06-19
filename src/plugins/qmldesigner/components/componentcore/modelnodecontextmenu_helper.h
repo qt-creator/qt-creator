@@ -32,6 +32,7 @@
 
 #include "modelnodeoperations.h"
 #include "defaultdesigneraction.h"
+#include "abstractactiongroup.h"
 #include "qmlitemnode.h"
 
 #include <QAction>
@@ -39,7 +40,7 @@
 
 namespace QmlDesigner {
 
-typedef  bool (*SelectionContextFunction)(const SelectionContext &);
+typedef bool (*SelectionContextFunction)(const SelectionContext &);
 
 namespace SelectionContextFunctors {
 
@@ -113,21 +114,18 @@ public /*slots*/:
     ModelNodeOperations::SelectionAction m_action;
 };
 
-class MenuDesignerAction : public AbstractDesignerAction
+class ActionGroup : public AbstractActionGroup
 {
 public:
-    MenuDesignerAction(const QString &displayName, const QByteArray &menuId, int priority,
+    ActionGroup(const QString &displayName, const QByteArray &menuId, int priority,
             SelectionContextFunction enabled = &SelectionContextFunctors::always,
             SelectionContextFunction visibility = &SelectionContextFunctors::always) :
-        m_displayName(displayName),
+        AbstractActionGroup(displayName),
         m_menuId(menuId),
         m_priority(priority),
-        m_menu(new QMenu),
         m_enabled(enabled),
         m_visibility(visibility)
     {
-        m_menu->setTitle(displayName);
-        m_action = m_menu->menuAction();
     }
 
     bool isVisible(const SelectionContext &m_selectionState) const { return m_visibility(m_selectionState); }
@@ -138,27 +136,9 @@ public:
     AbstractDesignerAction::Type type() const { return AbstractDesignerAction::Menu; }
     QAction *action() const { return m_action; }
 
-    virtual void currentContextChanged(const SelectionContext &selectionContext)
-    {
-        m_selectionContext = selectionContext;
-        updateContext();
-    }
-
-    virtual void updateContext()
-    {
-        if (m_selectionContext.isValid()) {
-            m_action->setEnabled(isEnabled(m_selectionContext));
-            m_action->setVisible(isVisible(m_selectionContext));
-        }
-    }
-
 protected:
-    const QString m_displayName;
     const QByteArray m_menuId;
     const int m_priority;
-    SelectionContext m_selectionContext;
-    QScopedPointer<QMenu> m_menu;
-    QAction *m_action;
     SelectionContextFunction m_enabled;
     SelectionContextFunction m_visibility;
 };

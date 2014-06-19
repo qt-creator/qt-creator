@@ -1,6 +1,7 @@
 VPATH += $$PWD
 
 SOURCES += modelnodecontextmenu.cpp
+SOURCES += abstractactiongroup.cpp
 SOURCES += designeractionmanagerview.cpp
 SOURCES += defaultdesigneraction.cpp
 SOURCES += modelnodecontextmenu_helper.cpp
@@ -10,6 +11,7 @@ SOURCES += modelnodeoperations.cpp
 SOURCES += crumblebar.cpp
 
 HEADERS += modelnodecontextmenu.h
+HEADERS += abstractactiongroup.h
 HEADERS += designeractionmanagerview.h
 HEADERS += defaultdesigneraction.h
 HEADERS += modelnodecontextmenu_helper.h
