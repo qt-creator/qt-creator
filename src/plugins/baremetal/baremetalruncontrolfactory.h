@@ -42,6 +42,7 @@ namespace Internal {
 class BareMetalRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
+
 public:
     explicit BareMetalRunControlFactory(QObject *parent = 0);
     ~BareMetalRunControlFactory();

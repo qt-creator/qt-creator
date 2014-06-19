@@ -32,25 +32,22 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace Utils { class PortList; }
-
 namespace BareMetal {
-class BareMetalRunConfigurationWidget;
 namespace Internal {
-class BareMetalRunConfigurationPrivate;
-class BareMetalRunConfigurationFactory;
-} // namespace Internal
+
+class BareMetalRunConfigurationWidget;
+
 class BareMetalRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
     Q_DISABLE_COPY(BareMetalRunConfiguration)
-    friend class Internal::BareMetalRunConfigurationFactory;
+
+    friend class BareMetalRunConfigurationFactory;
     friend class BareMetalRunConfigurationWidget;
 
 public:
     explicit BareMetalRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
                                        const QString &projectFilePath);
-    ~BareMetalRunConfiguration();
 
     bool isEnabled() const;
     QString disabledReason() const;
@@ -68,6 +65,7 @@ public:
     QString projectFilePath() const;
 
     static const char *IdPrefix;
+
 signals:
     void deploySpecsChanged();
     void targetInformationChanged() const;
@@ -87,8 +85,14 @@ private slots:
 private:
     void init();
 
-    Internal::BareMetalRunConfigurationPrivate * const d;
+    QString m_projectFilePath;
+    QString m_gdbPath;
+    QString m_arguments;
+    mutable QString m_disabledReason;
+    QString m_workingDirectory;
 };
 
+} // namespace Internal
 } // namespace BareMetal
+
 #endif // BAREMETALRUNCONFIGURATION_H

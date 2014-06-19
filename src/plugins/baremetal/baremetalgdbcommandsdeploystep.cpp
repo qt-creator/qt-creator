@@ -29,6 +29,8 @@
 
 #include "baremetalgdbcommandsdeploystep.h"
 
+#include <QFormLayout>
+
 using namespace ProjectExplorer;
 
 namespace BareMetal {
@@ -61,8 +63,6 @@ QString BareMetalGdbCommandsDeployStepWidget::summaryText() const
 {
     return displayName();
 }
-
-} // namespace Internal
 
 BareMetalGdbCommandsDeployStep::BareMetalGdbCommandsDeployStep(BuildStepList *bsl,
                                                                const Core::Id id)
@@ -97,20 +97,20 @@ bool BareMetalGdbCommandsDeployStep::fromMap(const QVariantMap &map)
 {
     if (!BuildStep::fromMap(map))
         return false;
-    m_gdbCommands = map.value(QLatin1String(Internal::GdbCommandsKey)).toString();
+    m_gdbCommands = map.value(QLatin1String(GdbCommandsKey)).toString();
     return true;
 }
 
 QVariantMap BareMetalGdbCommandsDeployStep::toMap() const
 {
     QVariantMap map = BuildStep::toMap();
-    map.insert(QLatin1String(Internal::GdbCommandsKey),m_gdbCommands);
+    map.insert(QLatin1String(GdbCommandsKey),m_gdbCommands);
     return map;
 }
 
 ProjectExplorer::BuildStepConfigWidget *BareMetalGdbCommandsDeployStep::createConfigWidget()
 {
-    return new Internal::BareMetalGdbCommandsDeployStepWidget(*this);
+    return new BareMetalGdbCommandsDeployStepWidget(*this);
 }
 
 Core::Id BareMetalGdbCommandsDeployStep::stepId()
@@ -138,4 +138,5 @@ bool BareMetalGdbCommandsDeployStep::init()
     return true;
 }
 
+} // namespace Internal
 } // namespace BareMetal

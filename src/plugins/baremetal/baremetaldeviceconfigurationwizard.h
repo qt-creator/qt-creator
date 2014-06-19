@@ -34,22 +34,24 @@
 #include <utils/wizard.h>
 
 namespace BareMetal {
-namespace Internal { class BareMetalDeviceConfigrationWizardPrivate; }
+namespace Internal {
+
+class BareMetalDeviceConfigurationWizardSetupPage;
 
 class BareMetalDeviceConfigurationWizard : public Utils::Wizard
 {
     Q_OBJECT
+
 public:
     BareMetalDeviceConfigurationWizard(QWidget *parent = 0);
-    ~BareMetalDeviceConfigurationWizard();
 
     ProjectExplorer::IDevice::Ptr device() const;
 
 private:
-    Internal::BareMetalDeviceConfigrationWizardPrivate * const d;
-
+    BareMetalDeviceConfigurationWizardSetupPage *m_setupPage;
 };
 
-} //namespace BareMetal
+} // namespace Internal
+} // namespace BareMetal
 
 #endif // BAREMETALDEVICECONFIGURATIONWIZARD_H

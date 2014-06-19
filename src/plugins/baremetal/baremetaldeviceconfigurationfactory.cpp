@@ -38,6 +38,7 @@
 using namespace ProjectExplorer;
 
 namespace BareMetal {
+namespace Internal {
 
 BareMetalDeviceConfigurationFactory::BareMetalDeviceConfigurationFactory(QObject *parent)
     : IDeviceFactory(parent)
@@ -72,9 +73,10 @@ bool BareMetalDeviceConfigurationFactory::canRestore(const QVariantMap &map) con
 IDevice::Ptr BareMetalDeviceConfigurationFactory::restore(const QVariantMap &map) const
 {
     QTC_ASSERT(canRestore(map), return IDevice::Ptr());
-    const IDevice::Ptr device = Internal::BareMetalDevice::create();
+    const IDevice::Ptr device = BareMetalDevice::create();
     device->fromMap(map);
     return device;
 }
 
+} // namespace Internal
 } // namespace BareMetal

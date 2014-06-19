@@ -38,13 +38,15 @@ class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace BareMetal {
-class BareMetalRunConfiguration;
+namespace Internal {
 
-namespace Internal { class BareMetalRunConfigurationWidgetPrivate; }
+class BareMetalRunConfiguration;
+class BareMetalRunConfigurationWidgetPrivate;
 
 class BareMetalRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration,
                                              QWidget *parent = 0);
@@ -62,8 +64,10 @@ private:
     void addGenericWidgets(QVBoxLayout *mainLayout);
     void setLabelText(QLabel &label, const QString &regularText, const QString &errorText);
 
-    Internal::BareMetalRunConfigurationWidgetPrivate * const d;
+    BareMetalRunConfigurationWidgetPrivate * const d;
 };
 
+} // namespace Internal
 } // namespace BareMetal
+
 #endif // BAREMETALRUNCONFIGURATIONWIDGET_H

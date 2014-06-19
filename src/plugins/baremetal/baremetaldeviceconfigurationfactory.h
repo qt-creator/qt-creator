@@ -33,6 +33,7 @@
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
 namespace BareMetal {
+namespace Internal {
 
 class BareMetalDeviceConfigurationFactory
       : public ProjectExplorer::IDeviceFactory
@@ -50,5 +51,7 @@ public:
    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const;
 };
 
+} // namespace Internal
 } // namespace BareMetal
+
 #endif // BAREMETALDEVICECONFIGURATIONFACTORY_H

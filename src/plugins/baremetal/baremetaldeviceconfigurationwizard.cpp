@@ -37,50 +37,32 @@ using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
-namespace {
+
 enum PageId { SetupPageId };
-} // anonymous namespace
-
-
-class BareMetalDeviceConfigrationWizardPrivate
-{
-public:
-    BareMetalDeviceConfigrationWizardPrivate(QWidget *parent):
-        m_setupPage(parent)
-    { }
-
-    BareMetalDeviceConfigurationWizardSetupPage m_setupPage;
-};
-
-} //namespace Internal
 
 BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *parent) :
    Utils::Wizard(parent),
-   d(new Internal::BareMetalDeviceConfigrationWizardPrivate(this))
+   m_setupPage(new BareMetalDeviceConfigurationWizardSetupPage(this))
 {
     setWindowTitle(tr("New Bare Metal Device Configuration Setup"));
-    setPage(Internal::SetupPageId, &d->m_setupPage);
-    d->m_setupPage.setCommitPage(true);
-}
-
-BareMetalDeviceConfigurationWizard::~BareMetalDeviceConfigurationWizard()
-{
-    delete d;
+    setPage(SetupPageId, m_setupPage);
+    m_setupPage->setCommitPage(true);
 }
 
 IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
 {
     //sshParams is not really used as ssh parameters but as debugger parameters
     QSsh::SshConnectionParameters sshParams;
-    sshParams.host = d->m_setupPage.gdbHostname();
-    sshParams.port = d->m_setupPage.gdbPort();
-    Internal::BareMetalDevice::Ptr device = Internal::BareMetalDevice::create(d->m_setupPage.configurationName(),
-                                                  Core::Id(Constants::BareMetalOsType),
-                                                  IDevice::Hardware);
+    sshParams.host = m_setupPage->gdbHostname();
+    sshParams.port = m_setupPage->gdbPort();
+    BareMetalDevice::Ptr device = BareMetalDevice::create(m_setupPage->configurationName(),
+                                                          Constants::BareMetalOsType,
+                                                          IDevice::Hardware);
     device->setSshParameters(sshParams);
-    device->setGdbResetCommands(d->m_setupPage.gdbResetCommands());
-    device->setGdbInitCommands(d->m_setupPage.gdbInitCommands());
+    device->setGdbResetCommands(m_setupPage->gdbResetCommands());
+    device->setGdbInitCommands(m_setupPage->gdbInitCommands());
     return device;
 }
 
-} //namespace BareMetal
+} // namespace Internal
+} // namespace BareMetal

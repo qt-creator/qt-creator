@@ -33,10 +33,10 @@
 #include <projectexplorer/buildstep.h>
 
 #include <QVariantMap>
-#include <QFormLayout>
 #include <QPlainTextEdit>
 
 namespace BareMetal {
+namespace Internal {
 
 class BareMetalGdbCommandsDeployStep : public ProjectExplorer::BuildStep
 {
@@ -68,21 +68,23 @@ private:
     QString m_gdbCommands;
 };
 
-namespace Internal {
-
 const char GdbCommandsKey[] = "BareMetal.GdbCommandsStep.Commands";
 
 class BareMetalGdbCommandsDeployStepWidget: public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
+
 public:
-    explicit BareMetalGdbCommandsDeployStepWidget(BareMetal::BareMetalGdbCommandsDeployStep &step);
+    explicit BareMetalGdbCommandsDeployStepWidget(BareMetalGdbCommandsDeployStep &step);
+
 public slots:
     void update();
+
 private:
     QString displayName() const;
     QString summaryText() const;
-    BareMetal::BareMetalGdbCommandsDeployStep &m_step;
+
+    BareMetalGdbCommandsDeployStep &m_step;
     QPlainTextEdit *m_commands;
 };
 

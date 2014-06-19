@@ -48,36 +48,13 @@ const char ArgumentsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.Arguments";
 const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
 const char WorkingDirectoryKey[] = "BareMetal.RunConfig.WorkingDirectory";
 
-class BareMetalRunConfigurationPrivate
-{
-public:
-    BareMetalRunConfigurationPrivate(const QString &projectFilePath)
-        : projectFilePath(projectFilePath)
-    {
-    }
 
-    BareMetalRunConfigurationPrivate(const BareMetalRunConfigurationPrivate *other)
-        : projectFilePath(other->projectFilePath),
-          gdbPath(other->gdbPath),
-          arguments(other->arguments),
-          workingDirectory(other->workingDirectory)
-    {
-    }
-
-    QString projectFilePath;
-    QString gdbPath;
-    QString arguments;
-    QString disabledReason;
-    QString workingDirectory;
-};
-
-} // namespace Internal
-
-using namespace Internal;
-
-BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent, BareMetalRunConfiguration *source)
-    : RunConfiguration(parent, source),
-      d(new BareMetalRunConfigurationPrivate(source->d))
+BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent, BareMetalRunConfiguration *other)
+    : RunConfiguration(parent, other),
+      m_projectFilePath(other->m_projectFilePath),
+      m_gdbPath(other->m_gdbPath),
+      m_arguments(other->m_arguments),
+      m_workingDirectory(other->m_workingDirectory)
 {
     init();
 }
@@ -85,15 +62,10 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent, BareMetalRu
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent,
                                                      const Core::Id id,
                                                      const QString &projectFilePath)
-    : RunConfiguration(parent,id),
-      d(new BareMetalRunConfigurationPrivate(projectFilePath))
+    : RunConfiguration(parent, id),
+      m_projectFilePath(projectFilePath)
 {
     init();
-}
-
-BareMetalRunConfiguration::~BareMetalRunConfiguration()
-{
-    delete d;
 }
 
 void BareMetalRunConfiguration::init()
@@ -108,13 +80,13 @@ void BareMetalRunConfiguration::init()
 
 bool BareMetalRunConfiguration::isEnabled() const
 {
-    d->disabledReason.clear();
+    m_disabledReason.clear(); // FIXME: Check this makes sense.
     return true;
 }
 
 QString BareMetalRunConfiguration::disabledReason() const
 {
-    return d->disabledReason;
+    return m_disabledReason;
 }
 
 QWidget *BareMetalRunConfiguration::createConfigurationWidget()
@@ -130,10 +102,10 @@ OutputFormatter *BareMetalRunConfiguration::createOutputFormatter() const
 QVariantMap BareMetalRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
-    map.insert(QLatin1String(ArgumentsKey), d->arguments);
+    map.insert(QLatin1String(ArgumentsKey), m_arguments);
     const QDir dir = QDir(target()->project()->projectDirectory().toString());
-    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(d->projectFilePath));
-    map.insert(QLatin1String(WorkingDirectoryKey), d->workingDirectory);
+    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(m_projectFilePath));
+    map.insert(QLatin1String(WorkingDirectoryKey), m_workingDirectory);
     return map;
 }
 
@@ -142,11 +114,11 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    d->arguments = map.value(QLatin1String(ArgumentsKey)).toString();
+    m_arguments = map.value(QLatin1String(ArgumentsKey)).toString();
     const QDir dir = QDir(target()->project()->projectDirectory().toString());
-    d->projectFilePath
+    m_projectFilePath
             = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
-    d->workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
+    m_workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
 
     setDefaultDisplayName(defaultDisplayName());
 
@@ -155,9 +127,9 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
 
 QString BareMetalRunConfiguration::defaultDisplayName()
 {
-    if (!d->projectFilePath.isEmpty())
+    if (!m_projectFilePath.isEmpty())
         //: %1 is the name of the project run via hardware debugger
-        return tr("%1 (via GDB server or hardware debugger)").arg(QFileInfo(d->projectFilePath).completeBaseName());
+        return tr("%1 (via GDB server or hardware debugger)").arg(QFileInfo(m_projectFilePath).completeBaseName());
     //: Bare Metal run configuration default run name
     return tr("Run on GDB server or hardware debugger");
 }
@@ -165,37 +137,37 @@ QString BareMetalRunConfiguration::defaultDisplayName()
 QString BareMetalRunConfiguration::localExecutableFilePath() const
 {
     return target()->applicationTargets()
-            .targetForProject(Utils::FileName::fromString(d->projectFilePath)).toString();
+            .targetForProject(Utils::FileName::fromString(m_projectFilePath)).toString();
 }
 
 QString BareMetalRunConfiguration::arguments() const
 {
-    return d->arguments;
+    return m_arguments;
 }
 
 void BareMetalRunConfiguration::setArguments(const QString &args)
 {
-    d->arguments = args;
+    m_arguments = args;
 }
 
 QString BareMetalRunConfiguration::workingDirectory() const
 {
-    return d->workingDirectory;
+    return m_workingDirectory;
 }
 
 void BareMetalRunConfiguration::setWorkingDirectory(const QString &wd)
 {
-    d->workingDirectory = wd;
+    m_workingDirectory = wd;
 }
 
 QString BareMetalRunConfiguration::projectFilePath() const
 {
-    return d->projectFilePath;
+    return m_projectFilePath;
 }
 
 void BareMetalRunConfiguration::setDisabledReason(const QString &reason) const
 {
-    d->disabledReason = reason;
+    m_disabledReason = reason;
 }
 
 void BareMetalRunConfiguration::handleBuildSystemDataUpdated()
@@ -206,5 +178,6 @@ void BareMetalRunConfiguration::handleBuildSystemDataUpdated()
 
 const char *BareMetalRunConfiguration::IdPrefix = "BareMetalRunConfiguration";
 
+} // namespace Internal
 } // namespace BareMetal
 
