@@ -95,6 +95,7 @@ signals:
     void environmentChanged();
     void buildDirectoryChanged();
     void enabledChanged();
+    void buildTypeChanged();
 
 protected:
     BuildConfiguration(Target *target, Core::Id id);

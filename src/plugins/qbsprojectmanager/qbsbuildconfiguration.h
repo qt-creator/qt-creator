@@ -76,6 +76,8 @@ public:
     void setProducts(const QStringList &products);
     QStringList products() const;
 
+    void emitBuildTypeChanged();
+
 signals:
     void qbsConfigurationChanged();
 

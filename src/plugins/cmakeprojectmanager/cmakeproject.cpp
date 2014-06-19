@@ -386,6 +386,8 @@ bool CMakeProject::parseCMakeLists()
     emit buildTargetsChanged();
     emit fileListChanged();
 
+    emit activeBC->emitBuildTypeChanged();
+
     return true;
 }
 

@@ -198,6 +198,11 @@ QStringList QbsBuildConfiguration::products() const
     return m_products;
 }
 
+void QbsBuildConfiguration::emitBuildTypeChanged()
+{
+    emit buildTypeChanged();
+}
+
 QbsBuildConfiguration *QbsBuildConfiguration::setup(ProjectExplorer::Target *t,
                                                     const QString &defaultDisplayName,
                                                     const QString &displayName,

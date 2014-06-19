@@ -276,6 +276,7 @@ void QmakeBuildConfiguration::setQMakeBuildConfiguration(BaseQtVersion::QmakeBui
 
     emit qmakeBuildConfigurationChanged();
     emitProFileEvaluateNeeded();
+    emit buildTypeChanged();
 }
 
 void QmakeBuildConfiguration::emitProFileEvaluateNeeded()
