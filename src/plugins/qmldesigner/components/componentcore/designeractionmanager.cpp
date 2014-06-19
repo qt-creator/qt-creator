@@ -167,10 +167,13 @@ public:
                 selectionAction->setParent(menu());
 
                 parentNode = selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode();
-                selectionContext().setTargetNode(parentNode);
+
                 selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select parent: %1")).arg(
                                              captionForModelNode(parentNode)));
-                selectionAction->setSelectionContext(selectionContext());
+
+                SelectionContext nodeSelectionContext = selectionContext();
+                nodeSelectionContext.setTargetNode(parentNode);
+                selectionAction->setSelectionContext(nodeSelectionContext);
 
                 menu()->addAction(selectionAction);
             }
@@ -182,7 +185,10 @@ public:
                     selectionContext().setTargetNode(node);
                     QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
                     ActionTemplate *selectionAction = new ActionTemplate(what, &ModelNodeOperations::select);
-                    selectionAction->setSelectionContext(selectionContext());
+
+                    SelectionContext nodeSelectionContext = selectionContext();
+                    nodeSelectionContext.setTargetNode(node);
+                    selectionAction->setSelectionContext(nodeSelectionContext);
 
                     menu()->addAction(selectionAction);
                 }
