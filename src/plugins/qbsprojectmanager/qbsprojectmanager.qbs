@@ -9,9 +9,7 @@ QtcPlugin {
     property var externalQbsIncludes: project.useExternalQbs
             ? [project.qbs_install_dir + "/include/qbs"] : []
     property var externalQbsLibraryPaths: project.useExternalQbs
-            ? [project.qbs_install_dir + "/lib"] : []
-    property var externalQbsRPaths: project.useExternalQbs
-            ? [project.qbs_install_dir + "/lib"] : []
+            ? [project.qbs_install_dir + '/' + project.libDirName] : []
     property var externalQbsDynamicLibraries: {
         var libs = []
         if (!project.useExternalQbs)
@@ -61,7 +59,7 @@ QtcPlugin {
     ])
     cpp.includePaths: base.concat(externalQbsIncludes)
     cpp.libraryPaths: base.concat(externalQbsLibraryPaths)
-    cpp.rpaths: base.concat(externalQbsRPaths)
+    cpp.rpaths: base.concat(externalQbsLibraryPaths)
     cpp.dynamicLibraries: base.concat(externalQbsDynamicLibraries)
 
     files: [
