@@ -408,7 +408,7 @@ private:
     };
 
     UrlData m_urlData;
-    QString m_urlPattern;
+    QRegExp m_pattern;
 };
 
 UrlTextCursorHandler::UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget)
@@ -429,12 +429,11 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
     if (cursorForUrl.hasSelection()) {
         const QString line = cursorForUrl.selectedText();
         const int cursorCol = cursor.columnNumber();
-        QRegExp urlRx(m_urlPattern);
         int urlMatchIndex = -1;
         do {
-            urlMatchIndex = urlRx.indexIn(line, urlMatchIndex + 1);
+            urlMatchIndex = m_pattern.indexIn(line, urlMatchIndex + 1);
             if (urlMatchIndex != -1) {
-                const QString url = urlRx.cap(0);
+                const QString url = m_pattern.cap(0);
                 if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.length()) {
                     m_urlData.startColumn = urlMatchIndex;
                     m_urlData.url = url;
@@ -481,7 +480,8 @@ QString UrlTextCursorHandler::currentContents() const
 
 void UrlTextCursorHandler::setUrlPattern(const QString &pattern)
 {
-    m_urlPattern = pattern;
+    m_pattern = QRegExp(pattern);
+    QTC_ASSERT(m_pattern.isValid(), return);
 }
 
 void UrlTextCursorHandler::slotCopyUrl()
