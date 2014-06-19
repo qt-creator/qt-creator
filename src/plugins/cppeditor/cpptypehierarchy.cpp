@@ -73,7 +73,7 @@ QStandardItem *itemForClass(const CppClass &cppClass)
 QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
 {
     QList<CppClass> sorted = cppClasses;
-    Utils::sort(sorted, [](const CppClass &c1, const CppClass &c2) {
+    Utils::sort(sorted, [](const CppClass &c1, const CppClass &c2) -> bool {
         const QString key1 = c1.name + QLatin1String("::") + c1.qualifiedName;
         const QString key2 = c2.name + QLatin1String("::") + c2.qualifiedName;
         return key1 < key2;
