@@ -234,7 +234,7 @@ void TextEditorActionHandler::createActions()
             G_EDIT_FORMAT, advancedEditMenu);
     m_visualizeWhitespaceAction->setCheckable(true);
     m_cleanWhitespaceAction = registerAction(CLEAN_WHITESPACE,
-            SLOT(setTextWrapping(bool)), true, tr("Clean Whitespace"),
+            SLOT(cleanWhitespace()), true, tr("Clean Whitespace"),
             QKeySequence(),
             G_EDIT_FORMAT, advancedEditMenu);
     m_textWrappingAction = registerAction(TEXT_WRAPPING,
