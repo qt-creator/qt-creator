@@ -52,6 +52,7 @@ Rectangle {
 
     Text {
         id: text
+        font.pixelSize: 11
         elide: Text.ElideMiddle
         wrapMode: Text.WordWrap
         anchors.top: itemIcon.bottom

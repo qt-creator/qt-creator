@@ -71,10 +71,10 @@ ScrollView {
         property color backgroundColor: "#4f4f4f"
         property color lighterBackgroundColor: "#5f5f5f"
 
-        property int textWidth: 95
-        property int textHeight: 15
+        property int textWidth: 55
+        property int textHeight: 30
 
-        property int cellHorizontalMargin: 0
+        property int cellHorizontalMargin: 5
         property int cellVerticalSpacing: 3
         property int cellVerticalMargin: 3
 
