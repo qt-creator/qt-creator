@@ -245,6 +245,9 @@ ProjectExplorer::Kit *QmakeProjectImporter::createTemporaryKit(QtSupport::BaseQt
                                                                const Utils::FileName &parsedSpec)
 {
     ProjectExplorer::Kit *k = new ProjectExplorer::Kit;
+
+    ProjectExplorer::KitGuard guard(k);
+
     QtSupport::QtKitInformation::setQtVersion(k, version);
     ProjectExplorer::ToolChainKitInformation::setToolChain(k, version->preferredToolChain(parsedSpec));
     QmakeKitInformation::setMkspec(k, parsedSpec);
@@ -253,7 +256,16 @@ ProjectExplorer::Kit *QmakeProjectImporter::createTemporaryKit(QtSupport::BaseQt
     if (temporaryVersion)
         k->setValue(QT_IS_TEMPORARY, version->uniqueId());
 
+    // Set up other values:
+    foreach (ProjectExplorer::KitInformation *ki, ProjectExplorer::KitManager::kitInformation()) {
+        if (ki->id() == ProjectExplorer::ToolChainKitInformation::id()
+                || ki->id() == QtSupport::QtKitInformation::id())
+            continue;
+        ki->setup(k);
+    }
+
     k->setDisplayName(version->displayName());
+
     setIsUpdating(true);
     ProjectExplorer::KitManager::registerKit(k);
     setIsUpdating(false);
