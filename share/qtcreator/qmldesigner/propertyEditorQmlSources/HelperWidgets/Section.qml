@@ -36,8 +36,6 @@ Item {
     id: section
     property alias caption: label.text
 
-    anchors.left: parent.left
-    anchors.right: parent.right
     clip: true
 
     Rectangle {
