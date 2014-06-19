@@ -28,69 +28,21 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-// view displaying an item library grid item
+import QtQuick.Controls 1.1
+import QtQuick.Controls.Styles 1.0
 
-Item {
-    id: itemView
+Rectangle {
+    color: styleConstants.lighterBackgroundColor
 
-    // public
+    border.color: styleConstants.backgroundColor
+    border.width: 1
 
-    signal itemPressed()
-    signal itemDragged()
-
-    // internal
-
-    ItemsViewStyle { id: style }
-
-    // frame
-    Rectangle {
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        height: 1
-        color: style.gridLineLighter
-    }
-    Rectangle {
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        height: 1
-        color: style.gridLineDarker
-    }
-    Rectangle {
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        width: 1
-        color: style.gridLineLighter
-    }
-    Rectangle {
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        width: 1
-        color: style.gridLineDarker
-    }
-    Rectangle {
-        anchors.top:parent.top
-        anchors.right:parent.right
-        width:1
-        height:1
-        color: style.backgroundColor
-    }
-    Rectangle {
-        anchors.bottom:parent.bottom
-        anchors.left:parent.left
-        width:1
-        height:1
-        color: style.backgroundColor
-    }
 
     Image {
-        id: itemIcon
+        id: itemIcon // to be set by model
 
         anchors.top: parent.top
-        anchors.topMargin: style.cellVerticalMargin
+        anchors.topMargin: styleConstants.cellVerticalMargin
         anchors.horizontalCenter: parent.horizontalCenter
 
         width: itemLibraryIconWidth  // to be set in Qml context
@@ -101,19 +53,18 @@ Item {
     Text {
         id: text
         elide: Text.ElideMiddle
+        wrapMode: Text.WordWrap
         anchors.top: itemIcon.bottom
-        anchors.topMargin: style.cellVerticalSpacing
+        anchors.topMargin: styleConstants.cellVerticalSpacing
         anchors.left: parent.left
-        anchors.leftMargin: style.cellHorizontalMargin
+        anchors.leftMargin: styleConstants.cellHorizontalMargin
         anchors.right: parent.right
-        anchors.rightMargin: style.cellHorizontalMargin
-        width: style.textWidth
-        height: style.textHeight
+        anchors.rightMargin: styleConstants.cellHorizontalMargin
 
         verticalAlignment: "AlignVCenter"
         horizontalAlignment: "AlignHCenter"
         text: itemName  // to be set by model
-        color: style.itemNameTextColor
+        color: "#FFFFFF"
         renderType: Text.NativeRendering
     }
 
@@ -126,20 +77,7 @@ Item {
         property int pressedY
 
         onPressed: {
-            reallyPressed = true
-            pressedX = mouse.x
-            pressedY = mouse.y
-            itemPressed()
+            rootView.startDragAndDropDelayed(itemLibraryEntry)
         }
-        onPositionChanged: {
-            if (reallyPressed &&
-                (Math.abs(mouse.x - pressedX) +
-                 Math.abs(mouse.y - pressedY)) > 3) {
-                itemDragged()
-                reallyPressed = false
-            }
-        }
-        onReleased: reallyPressed = false
     }
 }
-

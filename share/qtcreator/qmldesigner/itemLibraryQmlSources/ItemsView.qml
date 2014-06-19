@@ -29,7 +29,12 @@
 
 import QtQuick 2.1
 import QtQuick.Controls 1.1
-import  QtQuick.Controls.Styles 1.0
+import QtQuick.Controls.Styles 1.0
+import "../common"
+
+import QtQuick.Layouts 1.0
+import "../propertyEditorQmlSources/HelperWidgets"
+
 
 /* The view displaying the item grid.
 
@@ -57,188 +62,70 @@ pixmap itemPixmap
 }
 */
 
-Rectangle {
+
+ScrollView {
     id: itemsView
 
-    signal itemSelected(int itemLibId)
-    signal itemDragged(int itemLibId)
-    signal stopDragAndDrop
-    signal expandAllEntries
-
-    ItemsViewStyle { id: style }
-
-    color: style.backgroundColor
-
-    /* workaround: without this, a completed drag and drop operation would
-result in the drag being continued when QmlView re-gains
-focus */
-    MouseArea {
-        anchors.fill: parent
-        hoverEnabled: true
-        onEntered: {
-            if (!pressed)
-                stopDragAndDrop()
-        }
-    }
-
-    signal selectionUpdated(int itemSectionIndex)
-
-    property int selectedItemLibId: -1
-    property int selectionSectionLibId: -1
-
-    function setSelection(itemLibId) {
-        selectedItemLibId = itemLibId
-        selectionSectionLibId = itemLibraryModel.getSectionLibId(itemLibId)
-        selectionUpdated(itemLibraryModel.getItemSectionIndex(itemLibId))
-    }
-
-    function unsetSelection() {
-        selectedItemLibId = -1
-        selectionSectionLibId = -1
-        selectionUpdated(-1)
-    }
-
-    Connections {
-        target: itemLibraryModel
-        onVisibilityChanged: {
-            if (itemLibraryModel.isItemVisible(selectedItemLibId))
-                setSelection(selectedItemLibId)
-            else
-                unsetSelection()
-        }
-    }
-
-    /* the following 3 properties are calculated here for performance
-       reasons and then passed to the section views */
-    property int entriesPerRow: Math.max(1, Math.floor((itemsFlickable.width - 2) / style.cellWidth))
-
-    property int cellWidth: Math.floor((itemsFlickable.width - 2) / entriesPerRow)
-    property int cellHeight: style.cellHeight
-
-    Component {
-        id: sectionDelegate
-
-        SectionView {
-            id: section
-
-            entriesPerRow: itemsView.entriesPerRow
-            cellWidth: itemsView.cellWidth
-            cellHeight: itemsView.cellHeight
-
-            width: itemsFlickable.width
-            itemHighlight: selector
-
-            property bool containsSelection: (selectionSectionLibId == sectionLibId)
-
-            onItemSelected: {
-                itemsView.setSelection(itemLibId)
-                itemsView.itemSelected(itemLibId)
-            }
-            onItemDragged: {
-                section.itemSelected(itemLibId)
-                itemsView.itemDragged(itemLibId)
-            }
-
-            Connections {
-                target: itemsView
-                onExpandAllEntries: section.expand()
-                onSelectionUpdated: {
-                    if (containsSelection) {
-                        section.setSelection(itemSectionIndex)
-                        section.focusSelection(itemsFlickable)
-                    } else
-                        section.unsetSelection()
-                }
-            }
-
-            Component {
-                id: selector
-
-                Selector {
-                    x: containsSelection? section.currentItem.x:0
-                    y: containsSelection? section.currentItem.y:0
-                    width: itemsView.cellWidth
-                    height: itemsView.cellHeight
-
-                    visible: containsSelection
-                }
-            }
-        }
-    }
-
-    ScrollView {
-        anchors.top: parent.top
-        anchors.topMargin: 3
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        style: ScrollViewStyle {
-            scrollBarBackground: Rectangle {
-                width: 10
-                color: style.scrollbarColor
-                border.width: 1
-                border.color: style.scrollbarBorderColor
-
-            }
-
-            handle: Item {
-                implicitWidth: 10
-                implicitHeight: 8
-                Rectangle {
-                    border.color: style.scrollbarBorderColor
-                    border.width: 1
-                    anchors.fill: parent
-                    color: style.sectionTitleBackgroundColor
-                }
-            }
-
-            decrementControl: Item {}
-            incrementControl: Item {}
-        }
-
-        Flickable {
-            id: itemsFlickable
-
-            boundsBehavior: Flickable.DragOverBounds
-
-            //interactive: false
-            contentHeight: col.height
-
-            /* Limit the content position. Without this, resizing would get the
-content position out of scope regarding the scrollbar. */
-            function limitContentPos() {
-                if (contentY < 0) {
-                    contentY = 0;
-                } else {
-                    var maxContentY = Math.max(0, contentHeight - height)
-                    if (contentY > maxContentY)
-                        contentY = maxContentY;
-                }
-            }
-            onHeightChanged: limitContentPos()
-            onContentHeightChanged: limitContentPos()
-
-            Column {
-                id: col
-
-                Repeater {
-                    model: itemLibraryModel  // to be set in Qml context
-                    delegate: sectionDelegate
-                }
-            }
-        }
-    }
-
     Item {
-        id: scrollbarFrame
+        id: styleConstants
+        property color backgroundColor: "#4f4f4f"
+        property color lighterBackgroundColor: "#5f5f5f"
 
-        anchors.top: parent.top
-        anchors.topMargin: 2
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 1
-        anchors.right: parent.right
-        anchors.rightMargin: 2
-        width: (itemsFlickable.contentHeight > itemsFlickable.height)? 11:0
+        property int textWidth: 95
+        property int textHeight: 15
+
+        property int cellHorizontalMargin: 0
+        property int cellVerticalSpacing: 3
+        property int cellVerticalMargin: 3
+
+        // the following depend on the actual shape of the item delegate
+        property int cellWidth: textWidth + 2 * cellHorizontalMargin
+        property int cellHeight: itemLibraryIconHeight + textHeight +
+        2 * cellVerticalMargin + cellVerticalSpacing
+    }
+
+    Rectangle {
+        id: background
+        anchors.fill: parent
+        color: styleConstants.backgroundColor
+    }
+
+    style: DesignerScrollViewStyle {
+
+    }
+
+    Flickable {
+        contentHeight: column.height
+        Column {
+            id: column
+            Repeater {
+                model: itemLibraryModel  // to be set in Qml context
+                delegate: Section {
+                    width: itemsView.viewport.width
+                    caption: sectionName // to be set by model
+                    Grid {
+                        id: itemGrid
+
+                        columns: parent.width / styleConstants.cellWidth
+                        property int flexibleWidth: (parent.width - styleConstants.cellWidth * columns) / columns
+
+                        Repeater {
+                            model: sectionEntries
+                            delegate: ItemDelegate {
+                                width: styleConstants.cellWidth + itemGrid.flexibleWidth
+                                height: styleConstants.cellHeight
+                            }
+                        }
+                        move: Transition {
+                            NumberAnimation {
+                                properties: "x, y";
+                                easing.type: Easing.OutQuart
+                                duration: 80
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
