@@ -1072,4 +1072,12 @@ bool ModelNode::isComponent() const
     return false;
 }
 
+bool ModelNode::isSubclassOf(const TypeName &typeName, int majorVersion, int minorVersion) const
+{
+    if (metaInfo().isValid())
+        return metaInfo().isSubclassOf(typeName, majorVersion, minorVersion);
+
+    return false;
+}
+
 }

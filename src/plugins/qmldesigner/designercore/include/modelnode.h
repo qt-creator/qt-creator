@@ -193,6 +193,7 @@ public:
     NodeSourceType nodeSourceType() const;
 
     bool isComponent() const;
+    bool isSubclassOf(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
 
 private: // functions
     Internal::InternalNodePointer internalNode() const;
