@@ -196,13 +196,13 @@ QString ItemLibraryModel::getTypeName(int libId)
 }
 
 
-QMimeData *ItemLibraryModel::getMimeData(int libId)
+QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntry)
 {
     QMimeData *mimeData = new QMimeData();
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << m_itemInfos.value(libId);
+    stream << itemLibraryEntry;
     mimeData->setData(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"), data);
 
     mimeData->removeFormat(QStringLiteral("text/plain"));

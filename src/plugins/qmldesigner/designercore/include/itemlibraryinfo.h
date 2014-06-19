@@ -124,5 +124,6 @@ private: // variables
 
 } // namespace QmlDesigner
 
-QML_DECLARE_TYPE(QmlDesigner::ItemLibraryEntry)
+Q_DECLARE_METATYPE(QmlDesigner::ItemLibraryEntry)
+
 #endif // ITEMLIBRARYINFO_H

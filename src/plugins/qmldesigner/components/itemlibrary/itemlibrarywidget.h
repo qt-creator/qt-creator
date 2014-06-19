@@ -96,9 +96,8 @@ public slots:
 
     void setResourcePath(const QString &resourcePath);
 
-    void startDragAndDropDelayed(int itemLibId);
+    void startDragAndDropDelayed(QVariant itemLibId);
     void startDragAndDrop();
-    void showItemInfo(int itemLibId);
 
     void setModel(Model *model);
 
@@ -140,7 +139,7 @@ private:
 
     QPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;
-    int m_itemLibraryId;
+    ItemLibraryEntry m_currentitemLibraryEntry;
 };
 
 }

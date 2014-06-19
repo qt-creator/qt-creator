@@ -83,8 +83,8 @@ void ItemLibraryItem::setItemLibraryEntry(const ItemLibraryEntry &itemLibraryEnt
     m_itemLibraryEntry = itemLibraryEntry;
 }
 
-ItemLibraryEntry ItemLibraryItem::itemLibraryEntry() const
+QVariant ItemLibraryItem::itemLibraryEntry() const
 {
-    return m_itemLibraryEntry;
+    return QVariant::fromValue(m_itemLibraryEntry);
 }
 } // namespace QmlDesigner

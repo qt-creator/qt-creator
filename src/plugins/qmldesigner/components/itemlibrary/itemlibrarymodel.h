@@ -61,7 +61,7 @@ public:
     void update(ItemLibraryInfo *itemLibraryInfo, Model *model);
 
     QString getTypeName(int libId);
-    QMimeData *getMimeData(int libId);
+    QMimeData *getMimeData(const ItemLibraryEntry &itemLibraryEntry);
     QPixmap getLibraryEntryIcon(int libId);
 
     ItemLibrarySection* section(int libraryId);

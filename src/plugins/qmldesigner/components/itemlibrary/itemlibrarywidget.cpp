@@ -64,8 +64,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_iconProvider(m_resIconSize),
     m_itemsView(new QQuickView()),
     m_resourcesView(new ItemLibraryTreeView(this)),
-    m_filterFlag(QtBasic),
-    m_itemLibraryId(-1)
+    m_filterFlag(QtBasic)
 {
     ItemLibraryModel::registerQmlTypes();
 
@@ -79,6 +78,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     rootContext->setContextProperty(QStringLiteral("itemLibraryModel"), m_itemLibraryModel.data());
     rootContext->setContextProperty(QStringLiteral("itemLibraryIconWidth"), m_itemIconSize.width());
     rootContext->setContextProperty(QStringLiteral("itemLibraryIconHeight"), m_itemIconSize.height());
+    rootContext->setContextProperty(QStringLiteral("rootView"), this);
 
     m_itemsView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
@@ -297,10 +297,6 @@ void ItemLibraryWidget::reloadQmlSource()
     QTC_ASSERT(QFileInfo::exists(itemLibraryQmlFilePath), return);
     m_itemsView->engine()->clearComponentCache();
     m_itemsView->setSource(QUrl::fromLocalFile(itemLibraryQmlFilePath));
-
-    QQuickItem *rootItem = qobject_cast<QQuickItem*>(m_itemsView->rootObject());
-    connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
-    connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDropDelayed(int)));
 }
 
 void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
@@ -373,26 +369,21 @@ void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
     updateSearch();
 }
 
-void ItemLibraryWidget::startDragAndDropDelayed(int itemLibraryId)
+void ItemLibraryWidget::startDragAndDropDelayed(QVariant itemLibraryId)
 {
-    m_itemLibraryId = itemLibraryId;
+    m_currentitemLibraryEntry = itemLibraryId.value<ItemLibraryEntry>();
     QTimer::singleShot(0, this, SLOT(startDragAndDrop()));
 }
 
 void ItemLibraryWidget::startDragAndDrop()
 {
-    QMimeData *mimeData = m_itemLibraryModel->getMimeData(m_itemLibraryId);
+    QMimeData *mimeData = m_itemLibraryModel->getMimeData(m_currentitemLibraryEntry);
     QDrag *drag = new QDrag(this);
 
-    drag->setPixmap(m_itemLibraryModel->getLibraryEntryIcon(m_itemLibraryId));
+    drag->setPixmap(m_currentitemLibraryEntry.libraryEntryIconPath());
     drag->setMimeData(mimeData);
 
     drag->exec();
-}
-
-void ItemLibraryWidget::showItemInfo(int /*itemLibId*/)
-{
-//    qDebug() << "showing item info about id" << itemLibId;
 }
 
 void ItemLibraryWidget::removeImport(const QString &name)
