@@ -1,5 +1,6 @@
 import qbs
 import qbs.File
+import qbs.FileInfo
 
 Project {
     name: "Sources"
@@ -29,6 +30,9 @@ Project {
         property string resourcesInstallDir: project.ide_data_path + "/qbs"
         property string pluginsInstallDir: project.libDirName + "/qtcreator"
         property string appInstallDir: project.ide_libexec_path
+        property string relativePluginsPath: FileInfo.relativePath(appInstallDir, pluginsInstallDir)
+        property string relativeSearchPath: FileInfo.relativePath(appInstallDir,
+                                                                  resourcesInstallDir)
 
         references: [
             qbsBaseDir + "/src/lib/libs.qbs",

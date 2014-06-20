@@ -54,6 +54,8 @@ exists(src/shared/qbs/qbs.pro) {
     system("echo QBS_LIBRARY_DIRNAME = $${IDE_LIBRARY_BASENAME} >> $$qmake_cache")
     system("echo QBS_APPS_DESTDIR = $${maybe_backslash}\"$${IDE_BIN_PATH}$${maybe_backslash}\">> $$qmake_cache")
     system("echo QBS_APPS_INSTALL_DIR = $${QTC_PREFIX}/bin >> $$qmake_cache")
+    system("echo QBS_RELATIVE_PLUGINS_PATH = $${maybe_backslash}\$$${maybe_backslash}\$relative_path$${maybe_backslash}\($${maybe_backslash}\$$${maybe_backslash}\$QBS_PLUGINS_BUILD_DIR, $${maybe_backslash}\$$${maybe_backslash}\$QBS_APPS_DESTDIR$${maybe_backslash}\)" >> $$qmake_cache)
+    system("echo QBS_RELATIVE_SEARCH_PATH = $${maybe_backslash}\$$${maybe_backslash}\$relative_path$${maybe_backslash}\($${maybe_backslash}\$$${maybe_backslash}\$QBS_RESOURCES_BUILD_DIR, $${maybe_backslash}\$$${maybe_backslash}\$QBS_APPS_DESTDIR$${maybe_backslash}\)" >> $$qmake_cache)
     system("echo CONFIG += qbs_no_dev_install >> $$qmake_cache")
 }
 
