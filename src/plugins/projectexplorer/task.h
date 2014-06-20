@@ -57,6 +57,9 @@ public:
          const Utils::FileName &file, int line, Core::Id category,
          const Utils::FileName &iconName = Utils::FileName());
 
+    static Task compilerMissingTask();
+    static Task buildConfigurationMissingTask();
+
     bool isNull() const;
     void clear();
 
@@ -79,6 +82,7 @@ public:
     // doesn't work if you split it up, nor are our parsers
     // anywhere near being that good
     QList<QTextLayout::FormatRange> formats;
+
 private:
     QSharedPointer<TextEditor::BaseTextMark> m_mark;
     static unsigned int s_nextId;

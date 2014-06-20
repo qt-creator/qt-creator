@@ -177,21 +177,15 @@ bool MakeStep::init()
     if (!bc)
         bc = targetsActiveBuildConfiguration();
 
-    if (!bc) {
-        emit addTask(Task(Task::Error, tr("Qt Creator needs a build configuration set up to build. Configure a build configuration in the project settings."),
-                          Utils::FileName(), -1,
-                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-    }
+    if (!bc)
+        emit addTask(Task::buildConfigurationMissingTask());
 
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
-    if (!tc) {
-        emit addTask(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the kit options."),
-                          Utils::FileName(), -1,
-                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-    }
+    if (!tc)
+        emit addTask(Task::compilerMissingTask());
 
     if (!bc || !tc) {
-        emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
+        emitFaultyConfigurationMessage();
         return false;
     }
 

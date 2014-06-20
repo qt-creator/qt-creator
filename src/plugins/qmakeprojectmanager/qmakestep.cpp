@@ -286,7 +286,7 @@ bool QMakeStep::init()
                 canContinue = false;
         }
         if (!canContinue) {
-            emit addOutput(tr("Configuration is faulty, please check the Issues view for details."), BuildStep::MessageOutput);
+            emitFaultyConfigurationMessage();
             return false;
         }
     }

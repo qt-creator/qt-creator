@@ -103,13 +103,15 @@ bool GenericMakeStep::init()
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
         bc = target()->activeBuildConfiguration();
+    if (!bc)
+        emit addTask(Task::buildConfigurationMissingTask());
 
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
-    if (!tc) {
-        emit addTask(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the kit options."),
-                            Utils::FileName(), -1,
-                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-        emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
+    if (!tc)
+        emit addTask(Task::compilerMissingTask());
+
+    if (!bc || !tc) {
+        emitFaultyConfigurationMessage();
         return false;
     }
 

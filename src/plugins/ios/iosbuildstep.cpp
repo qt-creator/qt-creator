@@ -110,17 +110,18 @@ bool IosBuildStep::init()
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
         bc = target()->activeBuildConfiguration();
+    if (!bc)
+        emit addTask(Task::buildConfigurationMissingTask());
 
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
-    if (!tc) {
-        Task t = Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the kit preferences."),
-                      Utils::FileName(), -1,
-                      Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        emit addTask(t);
-        emit addOutput(tr("Configuration is faulty. Check the Issues output pane for details."),
-                       BuildStep::MessageOutput);
+    if (!tc)
+        emit addTask(Task::compilerMissingTask());
+
+    if (!bc || !tc) {
+        emitFaultyConfigurationMessage();
         return false;
     }
+
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory().toString());

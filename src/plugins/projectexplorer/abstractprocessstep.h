@@ -65,6 +65,9 @@ public:
     void setOutputParser(ProjectExplorer::IOutputParser *parser);
     void appendOutputParser(ProjectExplorer::IOutputParser *parser);
     ProjectExplorer::IOutputParser *outputParser() const;
+
+    void emitFaultyConfigurationMessage();
+
 protected:
     AbstractProcessStep(BuildStepList *bsl, const Core::Id id);
     AbstractProcessStep(BuildStepList *bsl, AbstractProcessStep *bs);

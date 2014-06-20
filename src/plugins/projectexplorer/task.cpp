@@ -32,6 +32,8 @@
 #include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 
+#include "projectexplorerconstants.h"
+
 namespace ProjectExplorer
 {
 
@@ -67,6 +69,26 @@ Task::Task(TaskType type_, const QString &description_,
     icon(iconFile.isEmpty() ? taskTypeIcon(type_) : iconFile.toString())
 {
     ++s_nextId;
+}
+
+Task Task::compilerMissingTask()
+{
+    return Task(Task::Error,
+                QCoreApplication::translate("ProjectExplorer::Task",
+                                            "Qt Creator needs a compiler set up to build. "
+                                            "Configure a compiler in the kit options."),
+                Utils::FileName(), -1,
+                ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+}
+
+Task Task::buildConfigurationMissingTask()
+{
+    return Task(Task::Error,
+                QCoreApplication::translate("ProjectExplorer::Task",
+                                            "Qt Creator needs a build configuration set up to build. "
+                                            "Configure a build configuration in the project settings."),
+                Utils::FileName(), -1,
+                ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
 
 void Task::addMark(TextEditor::BaseTextMark *mark)

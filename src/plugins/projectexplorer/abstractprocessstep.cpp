@@ -149,6 +149,12 @@ ProjectExplorer::IOutputParser *AbstractProcessStep::outputParser() const
     return m_outputParserChain;
 }
 
+void AbstractProcessStep::emitFaultyConfigurationMessage()
+{
+    emit addOutput(tr("Configuration is faulty. Check the Issues view for details."),
+                   BuildStep::MessageOutput);
+}
+
 bool AbstractProcessStep::ignoreReturnValue()
 {
     return m_ignoreReturnValue;
