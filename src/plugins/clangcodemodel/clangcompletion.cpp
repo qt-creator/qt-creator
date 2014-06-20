@@ -55,6 +55,8 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
+#include <utils/algorithm.h>
+
 #include <QCoreApplication>
 #include <QDirIterator>
 #include <QTextCursor>
@@ -173,7 +175,7 @@ static QList<CodeCompletionResult> unfilteredCompletion(const ClangCompletionAss
     }
 
     QList<CodeCompletionResult> result = wrapper->codeCompleteAt(line, column + 1, unsavedFiles);
-    std::sort(result);
+    Utils::sort(result);
 
     if (DebugTiming)
         qDebug() << "... Completion done in" << t.elapsed() << "ms, with" << result.count() << "items.";
