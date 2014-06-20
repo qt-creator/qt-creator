@@ -84,16 +84,15 @@ bool QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     m_currentProgressBase = 0;
 
     qbs::SetupProjectParameters params;
-    QVariantMap baseConfig;
     QVariantMap userConfig = config;
     QString specialKey = QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY);
     const QString profileName = userConfig.take(specialKey).toString();
-    baseConfig.insert(specialKey, profileName);
+    params.setTopLevelProfile(profileName);
     specialKey = QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY);
-    baseConfig.insert(specialKey, userConfig.take(specialKey));
-    params.setBuildConfiguration(baseConfig);
+    params.setBuildVariant(userConfig.take(specialKey).toString());
+    params.setSettingsDirectory(QbsManager::settings()->baseDirectoy());
     params.setOverriddenValues(userConfig);
-    m_error = params.expandBuildConfiguration(QbsManager::settings());
+    m_error = params.expandBuildConfiguration();
     if (m_error.hasError()) {
         emit done(false);
         return false;
