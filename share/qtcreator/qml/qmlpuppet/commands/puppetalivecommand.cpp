@@ -35,17 +35,17 @@ PuppetAliveCommand::PuppetAliveCommand()
 {
 }
 
-QDataStream &operator<<(QDataStream &out, const PuppetAliveCommand &command)
+QDataStream &operator<<(QDataStream &out, const PuppetAliveCommand &/*command*/)
 {
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, PuppetAliveCommand &command)
+QDataStream &operator>>(QDataStream &in, PuppetAliveCommand &/*command*/)
 {
     return in;
 }
 
-QDebug operator <<(QDebug debug, const PuppetAliveCommand &command)
+QDebug operator <<(QDebug debug, const PuppetAliveCommand &/*command*/)
 {
     return debug.nospace() << "PuppetAliveCommand()";
 }
