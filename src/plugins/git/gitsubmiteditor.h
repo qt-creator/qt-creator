@@ -43,6 +43,7 @@ namespace Internal {
 
 class GitSubmitEditorWidget;
 class CommitData;
+class CommitDataFetcher;
 struct GitSubmitEditorPanelData;
 
 class GitSubmitEditor : public VcsBase::VcsBaseSubmitEditor
@@ -50,6 +51,7 @@ class GitSubmitEditor : public VcsBase::VcsBaseSubmitEditor
     Q_OBJECT
 public:
     explicit GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent);
+    ~GitSubmitEditor();
 
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
@@ -68,10 +70,12 @@ protected:
 private slots:
     void slotDiffSelected(const QList<int> &rows);
     void showCommit(const QString &commit);
+    void commitDataRetrieved(bool success);
 
 private:
     inline GitSubmitEditorWidget *submitEditorWidget();
     inline const GitSubmitEditorWidget *submitEditorWidget() const;
+    void resetCommitDataFetcher();
 
     VcsBase::SubmitFileModel *m_model;
     QTextCodec *m_commitEncoding;
@@ -79,6 +83,7 @@ private:
     QString m_amendSHA1;
     QString m_workingDirectory;
     bool m_firstUpdate;
+    CommitDataFetcher *m_commitDataFetcher;
 };
 
 } // namespace Internal

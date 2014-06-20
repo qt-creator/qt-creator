@@ -34,6 +34,7 @@
 #include "gitsubmiteditorwidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
@@ -41,6 +42,9 @@
 #include <QDebug>
 #include <QStringList>
 #include <QTextCodec>
+#include <QtConcurrentRun>
+
+static const char TASK_UPDATE_COMMIT[] = "Git.UpdateCommit";
 
 namespace Git {
 namespace Internal {
@@ -80,6 +84,38 @@ private:
     }
 };
 
+class CommitDataFetcher : public QObject
+{
+    Q_OBJECT
+
+public:
+    CommitDataFetcher(CommitType commitType, const QString &workingDirectory) :
+        m_commitData(commitType),
+        m_workingDirectory(workingDirectory)
+    {
+    }
+
+    void start()
+    {
+        GitClient *client = GitPlugin::instance()->gitClient();
+        QString commitTemplate;
+        bool success = client->getCommitData(m_workingDirectory, &commitTemplate,
+                                             m_commitData, &m_errorMessage);
+        emit finished(success);
+    }
+
+    const CommitData &commitData() const { return m_commitData; }
+    const QString &errorMessage() const { return m_errorMessage; }
+
+signals:
+    void finished(bool result);
+
+private:
+    CommitData m_commitData;
+    QString m_workingDirectory;
+    QString m_errorMessage;
+};
+
 /* The problem with git is that no diff can be obtained to for a random
  * multiselection of staged/unstaged files; it requires the --cached
  * option for staged files. So, we sort apart the diff file lists
@@ -90,10 +126,16 @@ GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *p
     m_model(0),
     m_commitEncoding(0),
     m_commitType(SimpleCommit),
-    m_firstUpdate(true)
+    m_firstUpdate(true),
+    m_commitDataFetcher(0)
 {
     connect(this, SIGNAL(diffSelectedFiles(QList<int>)), this, SLOT(slotDiffSelected(QList<int>)));
     connect(submitEditorWidget(), SIGNAL(show(QString)), this, SLOT(showCommit(QString)));
+}
+
+GitSubmitEditor::~GitSubmitEditor()
+{
+    resetCommitDataFetcher();
 }
 
 GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
@@ -104,6 +146,14 @@ GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget()
 const GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget() const
 {
     return static_cast<GitSubmitEditorWidget *>(widget());
+}
+
+void GitSubmitEditor::resetCommitDataFetcher()
+{
+    if (!m_commitDataFetcher)
+        return;
+    disconnect(m_commitDataFetcher, SIGNAL(finished(bool)), this, SLOT(commitDataRetrieved(bool)));
+    connect(m_commitDataFetcher, SIGNAL(finished(bool)), m_commitDataFetcher, SLOT(deleteLater()));
 }
 
 void GitSubmitEditor::setCommitData(const CommitData &d)
@@ -181,19 +231,32 @@ void GitSubmitEditor::updateFileModel()
     }
     if (m_workingDirectory.isEmpty())
         return;
-    GitClient *client = GitPlugin::instance()->gitClient();
-    QString errorMessage, commitTemplate;
-    CommitData data(m_commitType);
-    if (client->getCommitData(m_workingDirectory, &commitTemplate, data, &errorMessage)) {
-        setCommitData(data);
+    submitEditorWidget()->setUpdateInProgress(true);
+    resetCommitDataFetcher();
+    m_commitDataFetcher = new CommitDataFetcher(m_commitType, m_workingDirectory);
+    connect(m_commitDataFetcher, SIGNAL(finished(bool)), this, SLOT(commitDataRetrieved(bool)));
+    QFuture<void> future = QtConcurrent::run(m_commitDataFetcher, &CommitDataFetcher::start);
+    Core::ProgressManager::addTask(future, tr("Refreshing Commit Data"), TASK_UPDATE_COMMIT);
+
+    GitPlugin::instance()->gitClient()->addFuture(future);
+}
+
+void GitSubmitEditor::commitDataRetrieved(bool success)
+{
+    GitSubmitEditorWidget *w = submitEditorWidget();
+    w->setUpdateInProgress(false);
+    if (success) {
+        setCommitData(m_commitDataFetcher->commitData());
         submitEditorWidget()->refreshLog(m_workingDirectory);
-        widget()->setEnabled(true);
+        w->setEnabled(true);
     } else {
         // Nothing to commit left!
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(m_commitDataFetcher->errorMessage());
         m_model->clear();
-        widget()->setEnabled(false);
+        w->setEnabled(false);
     }
+    m_commitDataFetcher->deleteLater();
+    m_commitDataFetcher = 0;
 }
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const
@@ -222,3 +285,5 @@ QByteArray GitSubmitEditor::fileContents() const
 
 } // namespace Internal
 } // namespace Git
+
+#include "gitsubmiteditor.moc"

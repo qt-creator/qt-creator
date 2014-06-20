@@ -35,6 +35,7 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <QFutureSynchronizer>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -329,6 +330,7 @@ public:
     void endStashScope(const QString &workingDirectory);
     bool isValidRevision(const QString &revision) const;
     void handleMergeConflicts(const QString &workingDir, const QString &commit, const QStringList &files, const QString &abortCommand);
+    void addFuture(const QFuture<void> &future);
 
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
@@ -433,6 +435,7 @@ private:
     int m_contextDiffFileIndex;
     int m_contextChunkIndex;
     QPointer<DiffEditor::DiffEditorController> m_contextDocument;
+    QFutureSynchronizer<void> m_synchronizer; // for commit updates
 };
 
 } // namespace Internal

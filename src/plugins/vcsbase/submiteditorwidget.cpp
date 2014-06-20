@@ -156,6 +156,7 @@ struct SubmitEditorWidgetPrivate
     bool m_commitEnabled;
     bool m_ignoreChange;
     bool m_descriptionMandatory;
+    bool m_updateInProgress;
 
     QActionPushButton *m_submitButton;
 };
@@ -170,6 +171,7 @@ SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_commitEnabled(false),
     m_ignoreChange(false),
     m_descriptionMandatory(true),
+    m_updateInProgress(false),
     m_submitButton(0)
 {
 }
@@ -567,10 +569,18 @@ void SubmitEditorWidget::descriptionTextChanged()
 
 bool SubmitEditorWidget::canSubmit() const
 {
+    if (d->m_updateInProgress)
+        return false;
     if (isDescriptionMandatory() && cleanupDescription(descriptionText()).trimmed().isEmpty())
         return false;
     const unsigned checkedCount = checkedFilesCount();
     return d->m_emptyFileListEnabled || checkedCount > 0;
+}
+
+void SubmitEditorWidget::setUpdateInProgress(bool value)
+{
+    d->m_updateInProgress = value;
+    updateSubmitAction();
 }
 
 QString SubmitEditorWidget::commitName() const

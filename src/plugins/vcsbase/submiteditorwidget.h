@@ -104,6 +104,7 @@ public:
     QList<SubmitFieldWidget *> submitFieldWidgets() const;
 
     virtual bool canSubmit() const;
+    void setUpdateInProgress(bool value);
 
 signals:
     void diffSelected(const QList<int> &);
@@ -126,6 +127,8 @@ protected:
 
 protected slots:
     void descriptionTextChanged();
+
+public slots:
     void updateSubmitAction();
 
 private slots:
