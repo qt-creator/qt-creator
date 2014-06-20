@@ -59,7 +59,8 @@ DebuggerKitInformation::DebuggerKitInformation()
 QVariant DebuggerKitInformation::defaultValue(Kit *k) const
 {
     ToolChain *tc = ToolChainKitInformation::toolChain(k);
-    QTC_ASSERT(tc, return QVariant());
+    if (!tc)
+        return QVariant();
 
     const Abi toolChainAbi = tc->targetAbi();
     foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
