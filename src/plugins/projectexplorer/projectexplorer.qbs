@@ -49,6 +49,7 @@ QtcPlugin {
             "clangparser.cpp", "clangparser.h",
             "codestylesettingspropertiespage.cpp", "codestylesettingspropertiespage.h", "codestylesettingspropertiespage.ui",
             "compileoutputwindow.cpp", "compileoutputwindow.h",
+            "configtaskhandler.cpp", "configtaskhandler.h",
             "copytaskhandler.cpp", "copytaskhandler.h",
             "corelistenercheckingforrunningbuild.cpp", "corelistenercheckingforrunningbuild.h",
             "currentprojectfilter.cpp", "currentprojectfilter.h",

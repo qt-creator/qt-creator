@@ -8,6 +8,7 @@ HEADERS += projectexplorer.h \
     ansifilterparser.h \
     buildinfo.h \
     clangparser.h \
+    configtaskhandler.h \
     environmentaspect.h \
     environmentaspectwidget.h \
     gcctoolchain.h \
@@ -154,6 +155,7 @@ SOURCES += projectexplorer.cpp \
     abiwidget.cpp \
     ansifilterparser.cpp \
     clangparser.cpp \
+    configtaskhandler.cpp \
     environmentaspect.cpp \
     environmentaspectwidget.cpp \
     gcctoolchain.cpp \

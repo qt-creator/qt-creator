@@ -30,6 +30,7 @@
 #include "projectexplorer.h"
 
 #include "buildsteplist.h"
+#include "configtaskhandler.h"
 #include "customwizard/customwizard.h"
 #include "deployablefile.h"
 #include "deployconfiguration.h"
@@ -418,6 +419,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new ShowInEditorTaskHandler);
     addAutoReleasedObject(new VcsAnnotateTaskHandler);
     addAutoReleasedObject(new RemoveTaskHandler);
+    addAutoReleasedObject(new ConfigTaskHandler(Task::compilerMissingTask(),
+                                                Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+                                                Constants::KITS_SETTINGS_PAGE_ID));
     addAutoReleasedObject(new CoreListener);
 
     d->m_outputPane = new AppOutputPane;
