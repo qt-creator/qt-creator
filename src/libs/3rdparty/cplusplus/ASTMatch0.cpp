@@ -1192,9 +1192,17 @@ bool BracedInitializerAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
-bool DesignatorAST::match0(AST *pattern, ASTMatcher *matcher)
+bool DotDesignatorAST::match0(AST *pattern, ASTMatcher *matcher)
 {
-    if (DesignatorAST *_other = pattern->asDesignator())
+    if (DotDesignatorAST *_other = pattern->asDotDesignator())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool BracketDesignatorAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (BracketDesignatorAST *_other = pattern->asBracketDesignator())
         return matcher->match(this, _other);
 
     return false;

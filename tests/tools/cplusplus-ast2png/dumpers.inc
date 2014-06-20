@@ -1698,8 +1698,22 @@ virtual bool visit(BracedInitializerAST *ast)
     return false;
 }
 
-virtual bool visit(DesignatorAST *ast)
+virtual bool visit(DotDesignatorAST *ast)
 {
+    if (ast->dot_token)
+        terminal(ast->dot_token, ast);
+    if (ast->identifier_token)
+        terminal(ast->identifier_token, ast);
+    return false;
+}
+
+virtual bool visit(BracketDesignatorAST *ast)
+{
+    if (ast->lbracket_token)
+        terminal(ast->lbracket_token, ast);
+    nonterminal(ast->expression);
+    if (ast->rbracket_token)
+        terminal(ast->rbracket_token, ast);
     return false;
 }
 

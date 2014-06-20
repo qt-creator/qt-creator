@@ -1279,9 +1279,17 @@ void BracedInitializerAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void DesignatorAST::accept0(ASTVisitor *visitor)
+void DotDesignatorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
+void BracketDesignatorAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(expression, visitor);
     }
     visitor->endVisit(this);
 }

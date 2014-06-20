@@ -1762,9 +1762,21 @@ BracedInitializerAST *BracedInitializerAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-DesignatorAST *DesignatorAST::clone(MemoryPool *pool) const
+DotDesignatorAST *DotDesignatorAST::clone(MemoryPool *pool) const
 {
-    DesignatorAST *ast = new (pool) DesignatorAST;
+    DotDesignatorAST *ast = new (pool) DotDesignatorAST;
+    ast->dot_token = dot_token;
+    ast->identifier_token = identifier_token;
+    return ast;
+}
+
+BracketDesignatorAST *BracketDesignatorAST::clone(MemoryPool *pool) const
+{
+    BracketDesignatorAST *ast = new (pool) BracketDesignatorAST;
+    ast->lbracket_token = lbracket_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
+    ast->rbracket_token = rbracket_token;
     return ast;
 }
 

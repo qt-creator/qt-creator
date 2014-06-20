@@ -4478,41 +4478,49 @@ unsigned DesignatedInitializerAST::lastToken() const
     return 1;
 }
 
-unsigned DesignatorAST::firstToken() const
+/** \generated */
+unsigned BracketDesignatorAST::firstToken() const
 {
-    if (type == DesignatorAST::Dot) {
-        if (u.dot.dot_token)
-            return u.dot.dot_token;
-        if (u.dot.identifier_token)
-            return u.dot.identifier_token;
-    } else if (type == DesignatorAST::Bracket) {
-        if (u.bracket.lbracket_token)
-            return u.bracket.lbracket_token;
-        if (u.bracket.expression)
-            if (unsigned candidate = u.bracket.expression->firstToken())
-                return candidate;
-        if (u.bracket.rbracket_token)
-            return u.bracket.rbracket_token;
-    }
+    if (lbracket_token)
+        return lbracket_token;
+    if (expression)
+        if (unsigned candidate = expression->firstToken())
+            return candidate;
+    if (rbracket_token)
+        return rbracket_token;
     return 0;
 }
 
-unsigned DesignatorAST::lastToken() const
+/** \generated */
+unsigned BracketDesignatorAST::lastToken() const
 {
-    if (type == DesignatorAST::Dot) {
-        if (u.dot.identifier_token)
-            return u.dot.identifier_token + 1;
-        if (u.dot.dot_token)
-            return u.dot.dot_token + 1;
-    } else if (type == DesignatorAST::Bracket) {
-        if (u.bracket.rbracket_token)
-            return u.bracket.rbracket_token + 1;
-        if (u.bracket.expression)
-            if (unsigned candidate = u.bracket.expression->lastToken())
-                return candidate;
-        if (u.bracket.lbracket_token)
-            return u.bracket.lbracket_token + 1;
-    }
+    if (rbracket_token)
+        return rbracket_token + 1;
+    if (expression)
+        if (unsigned candidate = expression->lastToken())
+            return candidate;
+    if (lbracket_token)
+        return lbracket_token + 1;
+    return 1;
+}
+
+/** \generated */
+unsigned DotDesignatorAST::firstToken() const
+{
+    if (dot_token)
+        return dot_token;
+    if (identifier_token)
+        return identifier_token;
+    return 0;
+}
+
+/** \generated */
+unsigned DotDesignatorAST::lastToken() const
+{
+    if (identifier_token)
+        return identifier_token + 1;
+    if (dot_token)
+        return dot_token + 1;
     return 1;
 }
 

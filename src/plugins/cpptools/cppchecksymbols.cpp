@@ -496,10 +496,9 @@ bool CheckSymbols::visit(EnumeratorAST *ast)
     return true;
 }
 
-bool CheckSymbols::visit(DesignatorAST *ast)
+bool CheckSymbols::visit(DotDesignatorAST *ast)
 {
-    if (ast->type == DesignatorAST::Dot)
-        addUse(ast->u.dot.identifier_token, CppHighlightingSupport::FieldUse);
+    addUse(ast->identifier_token, CppHighlightingSupport::FieldUse);
     return true;
 }
 

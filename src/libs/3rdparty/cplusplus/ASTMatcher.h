@@ -45,6 +45,7 @@ public:
     virtual bool match(BinaryExpressionAST *node, BinaryExpressionAST *pattern);
     virtual bool match(BoolLiteralAST *node, BoolLiteralAST *pattern);
     virtual bool match(BracedInitializerAST *node, BracedInitializerAST *pattern);
+    virtual bool match(BracketDesignatorAST *node, BracketDesignatorAST *pattern);
     virtual bool match(BreakStatementAST *node, BreakStatementAST *pattern);
     virtual bool match(CallAST *node, CallAST *pattern);
     virtual bool match(CaptureAST *node, CaptureAST *pattern);
@@ -67,9 +68,9 @@ public:
     virtual bool match(DecltypeSpecifierAST *node, DecltypeSpecifierAST *pattern);
     virtual bool match(DeleteExpressionAST *node, DeleteExpressionAST *pattern);
     virtual bool match(DesignatedInitializerAST *node, DesignatedInitializerAST *pattern);
-    virtual bool match(DesignatorAST *node, DesignatorAST *pattern);
     virtual bool match(DestructorNameAST *node, DestructorNameAST *pattern);
     virtual bool match(DoStatementAST *node, DoStatementAST *pattern);
+    virtual bool match(DotDesignatorAST *node, DotDesignatorAST *pattern);
     virtual bool match(DynamicExceptionSpecificationAST *node, DynamicExceptionSpecificationAST *pattern);
     virtual bool match(ElaboratedTypeSpecifierAST *node, ElaboratedTypeSpecifierAST *pattern);
     virtual bool match(EmptyDeclarationAST *node, EmptyDeclarationAST *pattern);

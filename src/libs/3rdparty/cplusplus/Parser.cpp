@@ -5528,18 +5528,16 @@ bool Parser::parseDesignator(DesignatorAST *&node)
     DEBUG_THIS_RULE();
     const unsigned start = cursor();
     if (LA() == T_DOT) {
-        DesignatorAST *ast = new (_pool) DesignatorAST;
-        ast->type = DesignatorAST::Dot;
-        ast->u.dot.dot_token = consumeToken();
-        match(T_IDENTIFIER, &ast->u.dot.identifier_token);
+        DotDesignatorAST *ast = new (_pool) DotDesignatorAST;
+        ast->dot_token = consumeToken();
+        match(T_IDENTIFIER, &ast->identifier_token);
         node = ast;
         return true;
     } else if (LA() == T_LBRACKET) {
-        DesignatorAST *ast = new (_pool) DesignatorAST;
-        ast->type = DesignatorAST::Bracket;
-        ast->u.bracket.lbracket_token = consumeToken();
-        if (parseConditionalExpression(ast->u.bracket.expression)) {
-            match(T_RBRACKET, &ast->u.bracket.rbracket_token);
+        BracketDesignatorAST *ast = new (_pool) BracketDesignatorAST;
+        ast->lbracket_token = consumeToken();
+        if (parseConditionalExpression(ast->expression)) {
+            match(T_RBRACKET, &ast->rbracket_token);
             node = ast;
             return true;
         }

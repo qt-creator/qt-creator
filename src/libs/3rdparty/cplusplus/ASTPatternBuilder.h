@@ -1147,9 +1147,16 @@ public:
         return __ast;
     }
 
-    DesignatorAST *Designator()
+    DotDesignatorAST *DotDesignator()
     {
-        DesignatorAST *__ast = new (&pool) DesignatorAST;
+        DotDesignatorAST *__ast = new (&pool) DotDesignatorAST;
+        return __ast;
+    }
+
+    BracketDesignatorAST *BracketDesignator(ExpressionAST *expression = 0)
+    {
+        BracketDesignatorAST *__ast = new (&pool) BracketDesignatorAST;
+        __ast->expression = expression;
         return __ast;
     }
 

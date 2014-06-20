@@ -138,6 +138,7 @@ public:
     virtual BinaryExpressionAST *asBinaryExpression() { return 0; }
     virtual BoolLiteralAST *asBoolLiteral() { return 0; }
     virtual BracedInitializerAST *asBracedInitializer() { return 0; }
+    virtual BracketDesignatorAST *asBracketDesignator() { return 0; }
     virtual BreakStatementAST *asBreakStatement() { return 0; }
     virtual CallAST *asCall() { return 0; }
     virtual CaptureAST *asCapture() { return 0; }
@@ -165,6 +166,7 @@ public:
     virtual DesignatorAST *asDesignator() { return 0; }
     virtual DestructorNameAST *asDestructorName() { return 0; }
     virtual DoStatementAST *asDoStatement() { return 0; }
+    virtual DotDesignatorAST *asDotDesignator() { return 0; }
     virtual DynamicExceptionSpecificationAST *asDynamicExceptionSpecification() { return 0; }
     virtual ElaboratedTypeSpecifierAST *asElaboratedTypeSpecifier() { return 0; }
     virtual EmptyDeclarationAST *asEmptyDeclaration() { return 0; }
@@ -4532,37 +4534,53 @@ protected:
 class DesignatorAST: public AST
 {
 public:
-    enum Type
-    {
-        Invalid,
-        Dot,
-        Bracket
-    };
-    Type type;
-    union Designator
-    {
-        struct DotDesignator
-        {
-            unsigned dot_token;
-            unsigned identifier_token;
-        } dot;
-        struct BracketDesignator
-        {
-            unsigned lbracket_token;
-            ExpressionAST *expression;
-            unsigned rbracket_token;
-        } bracket;
-    } u;
-
-public:
     DesignatorAST()
     {}
 
     virtual DesignatorAST *asDesignator() { return this; }
+    virtual DesignatorAST *clone(MemoryPool *pool) const = 0;
+};
+
+class DotDesignatorAST: public DesignatorAST
+{
+public:
+    unsigned dot_token;
+    unsigned identifier_token;
+public:
+    DotDesignatorAST()
+        : dot_token(0)
+        , identifier_token(0)
+    {}
+
+    virtual DotDesignatorAST *asDotDesignator() { return this; }
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual DesignatorAST *clone(MemoryPool *pool) const;
+    virtual DotDesignatorAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class BracketDesignatorAST: public DesignatorAST
+{
+public:
+    unsigned lbracket_token;
+    ExpressionAST *expression;
+    unsigned rbracket_token;
+public:
+    BracketDesignatorAST()
+        : lbracket_token(0)
+        , expression(0)
+        , rbracket_token(0)
+    {}
+
+    virtual BracketDesignatorAST *asBracketDesignator() { return this; }
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual BracketDesignatorAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

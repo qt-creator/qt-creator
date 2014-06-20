@@ -87,6 +87,7 @@ public:
     virtual bool visit(BinaryExpressionAST *) { return true; }
     virtual bool visit(BoolLiteralAST *) { return true; }
     virtual bool visit(BracedInitializerAST *) { return true; }
+    virtual bool visit(BracketDesignatorAST *) { return true; }
     virtual bool visit(BreakStatementAST *) { return true; }
     virtual bool visit(CallAST *) { return true; }
     virtual bool visit(CaptureAST *) { return true; }
@@ -109,9 +110,9 @@ public:
     virtual bool visit(DecltypeSpecifierAST *) { return true; }
     virtual bool visit(DeleteExpressionAST *) { return true; }
     virtual bool visit(DesignatedInitializerAST *) { return true; }
-    virtual bool visit(DesignatorAST *) { return true; }
     virtual bool visit(DestructorNameAST *) { return true; }
     virtual bool visit(DoStatementAST *) { return true; }
+    virtual bool visit(DotDesignatorAST *) { return true; }
     virtual bool visit(DynamicExceptionSpecificationAST *) { return true; }
     virtual bool visit(ElaboratedTypeSpecifierAST *) { return true; }
     virtual bool visit(EmptyDeclarationAST *) { return true; }
@@ -235,6 +236,7 @@ public:
     virtual void endVisit(BinaryExpressionAST *) {}
     virtual void endVisit(BoolLiteralAST *) {}
     virtual void endVisit(BracedInitializerAST *) {}
+    virtual void endVisit(BracketDesignatorAST *) {}
     virtual void endVisit(BreakStatementAST *) {}
     virtual void endVisit(CallAST *) {}
     virtual void endVisit(CaptureAST *) {}
@@ -257,9 +259,9 @@ public:
     virtual void endVisit(DecltypeSpecifierAST *) {}
     virtual void endVisit(DeleteExpressionAST *) {}
     virtual void endVisit(DesignatedInitializerAST *) {}
-    virtual void endVisit(DesignatorAST *) {}
     virtual void endVisit(DestructorNameAST *) {}
     virtual void endVisit(DoStatementAST *) {}
+    virtual void endVisit(DotDesignatorAST *) {}
     virtual void endVisit(DynamicExceptionSpecificationAST *) {}
     virtual void endVisit(ElaboratedTypeSpecifierAST *) {}
     virtual void endVisit(EmptyDeclarationAST *) {}

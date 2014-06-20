@@ -2999,10 +2999,31 @@ bool ASTMatcher::match(BracedInitializerAST *node, BracedInitializerAST *pattern
     return true;
 }
 
-bool ASTMatcher::match(DesignatorAST *node, DesignatorAST *pattern)
+bool ASTMatcher::match(DotDesignatorAST *node, DotDesignatorAST *pattern)
 {
     (void) node;
     (void) pattern;
+
+    pattern->dot_token = node->dot_token;
+
+    pattern->identifier_token = node->identifier_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(BracketDesignatorAST *node, BracketDesignatorAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->lbracket_token = node->lbracket_token;
+
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
+        return false;
+
+    pattern->rbracket_token = node->rbracket_token;
 
     return true;
 }
