@@ -65,7 +65,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/helpmanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
@@ -176,8 +175,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         SLOT(fontChanged()));
     connect(m_generalSettingsPage, SIGNAL(returnOnCloseChanged()), this,
         SLOT(updateCloseButton()));
-    connect(HelpManager::instance(), SIGNAL(helpRequested(QUrl)), this,
-        SLOT(handleHelpRequest(QUrl)));
+    connect(HelpManager::instance(), SIGNAL(helpRequested(QUrl,Core::HelpManager::HelpViewerLocation)),
+            this, SLOT(handleHelpRequest(QUrl,Core::HelpManager::HelpViewerLocation)));
     connect(m_searchTaskHandler, SIGNAL(search(QUrl)), this,
             SLOT(switchToHelpMode(QUrl)));
 
@@ -678,50 +677,58 @@ void HelpPlugin::setupHelpEngineIfNeeded()
 {
     m_helpManager->setEngineNeedsUpdate();
     if (ModeManager::currentMode() == m_mode
-        || contextHelpOption() == Help::Constants::ExternalHelpAlways)
+        || contextHelpOption() == Core::HelpManager::ExternalHelpAlways)
         m_helpManager->setupGuiHelpEngine();
 }
 
-HelpViewer *HelpPlugin::viewerForContextMode()
+bool HelpPlugin::canShowHelpSideBySide() const
 {
-    bool showSideBySide = false;
     RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
-    switch (contextHelpOption()) {
-        case Help::Constants::SideBySideIfPossible: {
-            // side by side if possible
-            if (IEditor *editor = EditorManager::currentEditor()) {
-                if (!placeHolder || !placeHolder->isVisible()) {
-                    if (!editor->widget())
-                        break;
-                    if (!editor->widget()->isVisible())
-                        break;
-                    if (editor->widget()->width() < 800)
-                        break;
-                }
-            }
-        }   // fall through
-        case Help::Constants::SideBySideAlways: {
-            // side by side
-            showSideBySide = true;
-        }   break;
-        case Help::Constants::ExternalHelpAlways:
-            return externalHelpViewer();
-        default: // help mode
-            break;
-    }
+    if (!placeHolder)
+        return false;
+    if (placeHolder->isVisible())
+        return true;
 
-    if (placeHolder && showSideBySide) {
+    IEditor *editor = EditorManager::currentEditor();
+    if (!editor)
+        return true;
+    QTC_ASSERT(editor->widget(), return true);
+    if (!editor->widget()->isVisible())
+        return true;
+    if (editor->widget()->width() < 800)
+        return false;
+    return true;
+}
+
+HelpViewer *HelpPlugin::viewerForHelpViewerLocation(Core::HelpManager::HelpViewerLocation location)
+{
+    Core::HelpManager::HelpViewerLocation actualLocation = location;
+    if (location == Core::HelpManager::SideBySideIfPossible)
+        actualLocation = canShowHelpSideBySide() ? Core::HelpManager::SideBySideAlways
+                                                 : Core::HelpManager::HelpModeAlways;
+
+    if (actualLocation == Core::HelpManager::ExternalHelpAlways)
+        return externalHelpViewer();
+
+    if (actualLocation == Core::HelpManager::SideBySideAlways) {
         createRightPaneContextViewer();
         RightPaneWidget::instance()->setWidget(m_rightPaneSideBarWidget);
         RightPaneWidget::instance()->setShown(true);
         return m_rightPaneSideBarWidget->currentViewer();
     }
 
+    QTC_CHECK(actualLocation == Core::HelpManager::HelpModeAlways);
+
     activateHelpMode(); // should trigger an createPage...
     HelpViewer *viewer = m_centralWidget->currentHelpViewer();
     if (!viewer)
         viewer = OpenPagesManager::instance().createPage();
     return viewer;
+}
+
+HelpViewer *HelpPlugin::viewerForContextHelp()
+{
+    return viewerForHelpViewerLocation(contextHelpOption());
 }
 
 static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
@@ -768,7 +775,7 @@ void HelpPlugin::activateContext()
             links.insert(idFromContext, idFromContext);
     }
 
-    if (HelpViewer* viewer = viewerForContextMode()) {
+    if (HelpViewer *viewer = viewerForContextHelp()) {
         QUrl source = findBestLink(links, &m_contextHelpHighlightId);
         if (!source.isValid()) {
             // No link found or no context object
@@ -937,13 +944,13 @@ void HelpPlugin::highlightSearchTermsInContextHelp()
 {
     if (m_contextHelpHighlightId.isEmpty())
         return;
-    HelpViewer* viewer = viewerForContextMode();
+    HelpViewer *viewer = viewerForContextHelp();
     QTC_ASSERT(viewer, return);
     viewer->highlightId(m_contextHelpHighlightId);
     m_contextHelpHighlightId.clear();
 }
 
-void HelpPlugin::handleHelpRequest(const QUrl &url)
+void HelpPlugin::handleHelpRequest(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
 {
     if (HelpViewer::launchWithExternalApp(url))
         return;
@@ -964,12 +971,10 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
     }
 
     const QUrl newUrl(address);
-    if (newUrl.queryItemValue(QLatin1String("view")) == QLatin1String("split")) {
-        if (HelpViewer* viewer = viewerForContextMode())
-            viewer->setSource(newUrl);
-    } else {
-        switchToHelpMode(newUrl);
-    }
+    HelpViewer *viewer = viewerForHelpViewerLocation(location);
+    QTC_ASSERT(viewer, return);
+    viewer->setSource(newUrl);
+    Core::ICore::raiseWindow(viewer);
 }
 
 void HelpPlugin::slotAboutToShowBackMenu()
@@ -1014,16 +1019,17 @@ void HelpPlugin::doSetupIfNeeded()
     }
 }
 
-int HelpPlugin::contextHelpOption() const
+Core::HelpManager::HelpViewerLocation HelpPlugin::contextHelpOption() const
 {
     QSettings *settings = Core::ICore::settings();
     const QString key = QLatin1String(Help::Constants::ID_MODE_HELP) + QLatin1String("/ContextHelpOption");
     if (settings->contains(key))
-        return settings->value(key, Help::Constants::SideBySideIfPossible).toInt();
+        return Core::HelpManager::HelpViewerLocation(
+                    settings->value(key, Core::HelpManager::SideBySideIfPossible).toInt());
 
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    return engine.customValue(QLatin1String("ContextHelpOption"),
-        Help::Constants::SideBySideIfPossible).toInt();
+    return Core::HelpManager::HelpViewerLocation(engine.customValue(QLatin1String("ContextHelpOption"),
+        Core::HelpManager::SideBySideIfPossible).toInt());
 }
 
 void HelpPlugin::setupNavigationMenus(QAction *back, QAction *next, QWidget *parent)

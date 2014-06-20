@@ -103,7 +103,7 @@ QWidget *GeneralSettingsPage::widget()
         m_ui->helpStartComboBox->setCurrentIndex(m_startOption);
 
         m_contextOption = HelpManager::customValue(QLatin1String("ContextHelpOption"),
-                                                   Help::Constants::SideBySideIfPossible).toInt();
+                                                   Core::HelpManager::SideBySideIfPossible).toInt();
         m_ui->contextHelpComboBox->setCurrentIndex(m_contextOption);
 
         connect(m_ui->currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));

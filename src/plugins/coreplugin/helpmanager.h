@@ -53,6 +53,13 @@ class CORE_EXPORT HelpManager : public QObject
     Q_OBJECT
 
 public:
+    enum HelpViewerLocation {
+        SideBySideIfPossible = 0,
+        SideBySideAlways = 1,
+        HelpModeAlways = 2,
+        ExternalHelpAlways = 3
+    };
+
     typedef QHash<QString, QStringList> Filters;
 
     static QObject *instance();
@@ -85,13 +92,16 @@ public:
     static void addUserDefinedFilter(const QString &filter, const QStringList &attr);
 
 public slots:
-    static void handleHelpRequest(const QString &url);
+    static void handleHelpRequest(const QUrl &url,
+                                  Core::HelpManager::HelpViewerLocation location = HelpModeAlways);
+    static void handleHelpRequest(const QString &url,
+                                  Core::HelpManager::HelpViewerLocation location = HelpModeAlways);
 
 signals:
     void setupFinished();
     void documentationChanged();
     void collectionFileChanged();
-    void helpRequested(const QUrl &url);
+    void helpRequested(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
 
 private:
     explicit HelpManager(QObject *parent = 0);

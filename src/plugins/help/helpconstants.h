@@ -42,13 +42,6 @@ enum {
     ShowLastPages = 2
 };
 
-enum {
-    SideBySideIfPossible = 0,
-    SideBySideAlways = 1,
-    HelpModeAlways = 2,
-    ExternalHelpAlways = 3
-};
-
 static const QLatin1String ListSeparator("|");
 static const QLatin1String DefaultZoomFactor("0.0");
 static const QLatin1String AboutBlank("about:blank");

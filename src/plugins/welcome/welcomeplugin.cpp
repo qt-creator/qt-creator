@@ -156,6 +156,7 @@ WelcomeMode::WelcomeMode() :
     layout->addWidget(m_welcomePage);
 #else
     QWidget *container = QWidget::createWindowContainer(m_welcomePage, m_modeWidget);
+    container->setProperty("nativeAncestors", true);
     m_modeWidget->setLayout(layout);
     layout->addWidget(container);
 #endif // USE_QUICK_WIDGET

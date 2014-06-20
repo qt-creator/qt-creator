@@ -228,7 +228,7 @@ Rectangle {
                                            model.dependencies,
                                            model.platforms)
             else
-                gettingStarted.openSplitHelp(model.docUrl);
+                gettingStarted.openHelpInExtraWindow(model.docUrl);
         }
 
     }

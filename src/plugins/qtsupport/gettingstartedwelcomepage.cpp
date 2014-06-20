@@ -279,14 +279,14 @@ ExamplesWelcomePage::Id ExamplesWelcomePage::id() const
     return m_showExamples ? Examples : Tutorials;
 }
 
-void ExamplesWelcomePage::openSplitHelp(const QUrl &help)
+void ExamplesWelcomePage::openHelpInExtraWindow(const QUrl &help)
 {
-    Core::HelpManager::handleHelpRequest(help.toString()+QLatin1String("?view=split"));
+    Core::HelpManager::handleHelpRequest(help, Core::HelpManager::ExternalHelpAlways);
 }
 
 void ExamplesWelcomePage::openHelp(const QUrl &help)
 {
-    Core::HelpManager::handleHelpRequest(help.toString());
+    Core::HelpManager::handleHelpRequest(help, Core::HelpManager::HelpModeAlways);
 }
 
 void ExamplesWelcomePage::openUrl(const QUrl &url)
@@ -414,7 +414,7 @@ void ExamplesWelcomePage::openProject(const QString &projectFile,
         Core::ICore::openFiles(filesToOpen);
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         if (help.isValid())
-            Core::HelpManager::handleHelpRequest(help.toString() + QLatin1String("?view=split"));
+            openHelpInExtraWindow(help.toString());
         Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
     }
     if (!errorMessage.isEmpty())

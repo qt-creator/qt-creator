@@ -32,6 +32,7 @@
 
 #include "helpwidget.h"
 
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icontext.h>
 #include <extensionsystem/iplugin.h>
 
@@ -113,7 +114,7 @@ private slots:
     void setupHelpEngineIfNeeded();
 
     void highlightSearchTermsInContextHelp();
-    void handleHelpRequest(const QUrl &url);
+    void handleHelpRequest(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
 
     void slotAboutToShowBackMenu();
     void slotAboutToShowNextMenu();
@@ -128,13 +129,15 @@ private:
     void activateHelpMode();
     Utils::StyledBar *createWidgetToolBar();
     Utils::StyledBar *createIconToolBar(bool external);
-    HelpViewer* viewerForContextMode();
+    bool canShowHelpSideBySide() const;
+    HelpViewer *viewerForHelpViewerLocation(Core::HelpManager::HelpViewerLocation location);
+    HelpViewer *viewerForContextHelp();
     HelpWidget *createHelpWidget(const Core::Context &context, HelpWidget::WidgetStyle style);
     void createRightPaneContextViewer();
     HelpViewer *externalHelpViewer();
 
     void doSetupIfNeeded();
-    int contextHelpOption() const;
+    Core::HelpManager::HelpViewerLocation contextHelpOption() const;
     void setupNavigationMenus(QAction *back, QAction *next, QWidget *parent);
 
 private:

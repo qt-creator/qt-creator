@@ -282,9 +282,14 @@ QByteArray HelpManager::fileData(const QUrl &url)
     return d->m_helpEngine->fileData(url);
 }
 
-void HelpManager::handleHelpRequest(const QString &url)
+void HelpManager::handleHelpRequest(const QUrl &url, HelpManager::HelpViewerLocation location)
 {
-    emit m_instance->helpRequested(QUrl(url));
+    emit m_instance->helpRequested(url, location);
+}
+
+void HelpManager::handleHelpRequest(const QString &url, HelpViewerLocation location)
+{
+    handleHelpRequest(QUrl(url), location);
 }
 
 QStringList HelpManager::registeredNamespaces()
