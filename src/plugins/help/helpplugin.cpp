@@ -684,10 +684,6 @@ void HelpPlugin::setupHelpEngineIfNeeded()
 
 HelpViewer *HelpPlugin::viewerForContextMode()
 {
-    // TODO this is a hack for opening examples
-    if (ModeManager::currentMode()->id() == Core::Constants::MODE_WELCOME)
-        ModeManager::activateMode(Core::Constants::MODE_EDIT);
-
     bool showSideBySide = false;
     RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
     switch (contextHelpOption()) {
