@@ -115,8 +115,8 @@ public:
     GerritModel(const QSharedPointer<GerritParameters> &, QObject *parent = 0);
     ~GerritModel();
 
-    GerritChangePtr change(int row) const;
-    QString toHtml(int row) const;
+    GerritChangePtr change(const QModelIndex &index) const;
+    QString toHtml(const QModelIndex &index) const;
 
     QStandardItem *itemForId(const QString &id) const;
 
@@ -133,9 +133,9 @@ private slots:
     void clearData();
 
 private:
-    inline bool evaluateQuery(QString *errorMessage);
     QString dependencyHtml(const QString &header, const QString &changeId,
                            const QString &serverPrefix) const;
+    QList<QStandardItem *> changeToRow(const GerritChangePtr &c) const;
 
     const QSharedPointer<GerritParameters> m_parameters;
     QueryContext *m_query;

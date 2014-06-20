@@ -103,8 +103,7 @@ private slots:
     void slotRefresh();
 
 private:
-    const QStandardItem *itemAt(const QModelIndex &i, int column = 0) const;
-    const QStandardItem *currentItem(int column = 0) const;
+    QModelIndex currentIndex() const;
     QPushButton *addActionButton(const QString &text, const char *buttonSlot);
     void updateCompletions(const QString &query);
     void updateButtons();

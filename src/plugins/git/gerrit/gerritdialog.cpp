@@ -228,8 +228,9 @@ GerritDialog::~GerritDialog()
 
 void GerritDialog::slotActivated(const QModelIndex &i)
 {
-    if (const QStandardItem *item = itemAt(i))
-        QDesktopServices::openUrl(QUrl(m_model->change(item->row())->url));
+    const QModelIndex source = m_filterModel->mapToSource(i);
+    if (source.isValid())
+        QDesktopServices::openUrl(QUrl(m_model->change(source)->url));
 }
 
 void GerritDialog::slotRefreshStateChanged(bool v)
@@ -244,20 +245,23 @@ void GerritDialog::slotRefreshStateChanged(bool v)
 
 void GerritDialog::slotFetchDisplay()
 {
-    if (const QStandardItem *item = currentItem())
-        emit fetchDisplay(m_model->change(item->row()));
+    const QModelIndex index = currentIndex();
+    if (index.isValid())
+        emit fetchDisplay(m_model->change(index));
 }
 
 void GerritDialog::slotFetchCherryPick()
 {
-    if (const QStandardItem *item = currentItem())
-        emit fetchCherryPick(m_model->change(item->row()));
+    const QModelIndex index = currentIndex();
+    if (index.isValid())
+        emit fetchCherryPick(m_model->change(index));
 }
 
 void GerritDialog::slotFetchCheckout()
 {
-    if (const QStandardItem *item = currentItem())
-        emit fetchCheckout(m_model->change(item->row()));
+    const QModelIndex index = currentIndex();
+    if (index.isValid())
+        emit fetchCheckout(m_model->change(index));
 }
 
 void GerritDialog::slotRefresh()
@@ -268,22 +272,10 @@ void GerritDialog::slotRefresh()
     m_treeView->sortByColumn(-1);
 }
 
-const QStandardItem *GerritDialog::itemAt(const QModelIndex &i, int column) const
-{
-    if (i.isValid()) {
-        const QModelIndex source = m_filterModel->mapToSource(i);
-        if (source.isValid())
-            return m_model->item(source.row(), column);
-    }
-    return 0;
-}
-
-const QStandardItem *GerritDialog::currentItem(int column) const
+QModelIndex GerritDialog::currentIndex() const
 {
     const QModelIndex index = m_treeView->selectionModel()->currentIndex();
-    if (index.isValid())
-        return itemAt(index, column);
-    return 0;
+    return index.isValid() ? m_filterModel->mapToSource(index) : QModelIndex();
 }
 
 void GerritDialog::updateButtons()
@@ -296,14 +288,8 @@ void GerritDialog::updateButtons()
 
 void GerritDialog::slotCurrentChanged()
 {
-    const QModelIndex current = m_treeView->selectionModel()->currentIndex();
-    const bool valid = current.isValid();
-    if (valid) {
-        const int row = m_filterModel->mapToSource(current).row();
-        m_detailsBrowser->setText(m_model->toHtml(row));
-    } else {
-        m_detailsBrowser->setText(QString());
-    }
+    const QModelIndex current = currentIndex();
+    m_detailsBrowser->setText(current.isValid() ? m_model->toHtml(current) : QString());
     updateButtons();
 }
 

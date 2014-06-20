@@ -417,10 +417,10 @@ static inline GerritChangePtr changeFromItem(const QStandardItem *item)
     return qvariant_cast<GerritChangePtr>(item->data(GerritModel::GerritChangeRole));
 }
 
-GerritChangePtr GerritModel::change(int row) const
+GerritChangePtr GerritModel::change(const QModelIndex &index) const
 {
-    if (row >= 0 && row < rowCount())
-        return changeFromItem(item(row, 0));
+    if (index.isValid())
+        return changeFromItem(itemFromIndex(index));
     return GerritChangePtr(new GerritChange);
 }
 
@@ -439,7 +439,7 @@ QString GerritModel::dependencyHtml(const QString &header, const QString &change
     return res;
 }
 
-QString GerritModel::toHtml(int row) const
+QString GerritModel::toHtml(const QModelIndex& index) const
 {
     static const QString subjectHeader = GerritModel::tr("Subject");
     static const QString numberHeader = GerritModel::tr("Number");
@@ -451,9 +451,9 @@ QString GerritModel::toHtml(int row) const
     static const QString dependsOnHeader = GerritModel::tr("Depends on");
     static const QString neededByHeader = GerritModel::tr("Needed by");
 
-    if (row < 0 || row >= rowCount())
+    if (!index.isValid())
         return QString();
-    const GerritChangePtr c = change(row);
+    const GerritChangePtr c = change(index);
     const QString serverPrefix = c->url.left(c->url.lastIndexOf(QLatin1Char('/')) + 1);
     QString result;
     QTextStream str(&result);
@@ -474,12 +474,27 @@ QString GerritModel::toHtml(int row) const
     return result;
 }
 
+static QStandardItem *idSearchRecursion(QStandardItem *item, const QString &id)
+{
+    if (changeFromItem(item)->id == id)
+        return item;
+    const int rowCount = item->rowCount();
+    for (int r = 0; r < rowCount; ++r) {
+        if (QStandardItem *i = idSearchRecursion(item->child(r, 0), id))
+            return i;
+    }
+    return 0;
+}
+
 QStandardItem *GerritModel::itemForId(const QString &id) const
 {
+    if (id.isEmpty())
+        return 0;
     const int numRows = rowCount();
-    for (int r = 0; r < numRows; ++r)
-        if (change(r)->id == id)
-            return item(r, 0);
+    for (int r = 0; r < numRows; ++r) {
+        if (QStandardItem *i = idSearchRecursion(item(r, 0), id))
+            return i;
+    }
     return 0;
 }
 
@@ -839,9 +854,52 @@ bool changeDateLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
     return c1->lastUpdated < c2->lastUpdated;
 }
 
+QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
+{
+    QList<QStandardItem *> row;
+    const QVariant filterV = QVariant(c->filterString());
+    const QVariant changeV = qVariantFromValue(c);
+    for (int i = 0; i < GerritModel::ColumnCount; ++i) {
+        QStandardItem *item = new QStandardItem;
+        item->setData(changeV, GerritModel::GerritChangeRole);
+        item->setData(filterV, GerritModel::FilterRole);
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        row.append(item);
+    }
+    row[NumberColumn]->setText(QString::number(c->number));
+    row[TitleColumn]->setText(c->title);
+    row[OwnerColumn]->setText(c->owner);
+    // Shorten columns: Display time if it is today, else date
+    const QString dateString = c->lastUpdated.date() == QDate::currentDate() ?
+                c->lastUpdated.time().toString(Qt::SystemLocaleShortDate) :
+                c->lastUpdated.date().toString(Qt::SystemLocaleShortDate);
+    row[DateColumn]->setText(dateString);
+
+    QString project = c->project;
+    if (c->branch != QLatin1String("master"))
+        project += QLatin1String(" (") + c->branch  + QLatin1Char(')');
+    row[ProjectColumn]->setText(project);
+    row[StatusColumn]->setText(c->status);
+    row[ApprovalsColumn]->setText(c->currentPatchSet.approvalsColumn());
+    // Mark changes awaiting action using a bold font.
+    bool bold = false;
+    if (c->owner == m_userName) { // Owned changes: Review != 0,1. Submit or amend.
+        const int level = c->currentPatchSet.approvalLevel();
+        bold = level != 0 && level != 1;
+    } else if (m_query->currentQuery() == 1) { // Changes pending for review: No review yet.
+        bold = !m_userName.isEmpty() && !c->currentPatchSet.hasApproval(m_userName);
+    }
+    if (bold) {
+        QFont font = row.first()->font();
+        font.setBold(true);
+        for (int i = 0; i < GerritModel::ColumnCount; ++i)
+            row[i]->setFont(font);
+    }
+    return row;
+}
+
 void GerritModel::queryFinished(const QByteArray &output)
 {
-    const QDate today = QDate::currentDate();
     QList<GerritChangePtr> changes;
     if (!parseOutput(m_parameters, output, changes))
         emit queryError();
@@ -854,46 +912,7 @@ void GerritModel::queryFinished(const QByteArray &output)
             // It used for marking the changes pending for review in bold.
             if (m_userName.isEmpty() && !m_query->currentQuery())
                 m_userName = c->owner;
-            const QVariant filterV = QVariant(c->filterString());
-            const QVariant changeV = qVariantFromValue(c);
-            QList<QStandardItem *> row;
-            for (int i = 0; i < GerritModel::ColumnCount; ++i) {
-                QStandardItem *item = new QStandardItem;
-                item->setData(changeV, GerritModel::GerritChangeRole);
-                item->setData(filterV, GerritModel::FilterRole);
-                item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-                row.append(item);
-            }
-            row[NumberColumn]->setText(QString::number(c->number));
-            row[TitleColumn]->setText(c->title);
-            row[OwnerColumn]->setText(c->owner);
-            // Shorten columns: Display time if it is today, else date
-            const QString dateString = c->lastUpdated.date() == today ?
-                c->lastUpdated.time().toString(Qt::SystemLocaleShortDate) :
-                c->lastUpdated.date().toString(Qt::SystemLocaleShortDate);
-            row[DateColumn]->setText(dateString);
-
-            QString project = c->project;
-            if (c->branch != QLatin1String("master"))
-                project += QLatin1String(" (") + c->branch  + QLatin1Char(')');
-            row[ProjectColumn]->setText(project);
-            row[StatusColumn]->setText(c->status);
-            row[ApprovalsColumn]->setText(c->currentPatchSet.approvalsColumn());
-            // Mark changes awaiting action using a bold font.
-            bool bold = false;
-            if (c->owner == m_userName) { // Owned changes: Review != 0,1. Submit or amend.
-                const int level = c->currentPatchSet.approvalLevel();
-                bold = level != 0 && level != 1;
-            } else if (m_query->currentQuery() == 1) { // Changes pending for review: No review yet.
-                bold = !m_userName.isEmpty() && !c->currentPatchSet.hasApproval(m_userName);
-            }
-            if (bold) {
-                QFont font = row.first()->font();
-                font.setBold(true);
-                for (int i = 0; i < GerritModel::ColumnCount; ++i)
-                    row[i]->setFont(font);
-            }
-            appendRow(row);
+            appendRow(changeToRow(c));
         }
     }
 }
