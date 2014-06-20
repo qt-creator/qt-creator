@@ -129,9 +129,9 @@ bool QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     connect(m_qbsSetupProjectJob, SIGNAL(finished(bool,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingDone(bool)));
     connect(m_qbsSetupProjectJob, SIGNAL(taskStarted(QString,int,qbs::AbstractJob*)),
-            this, SIGNAL(taskChanged(QString,int)));
+            this, SLOT(handleQbsParsingTaskSetup(QString,int)));
     connect(m_qbsSetupProjectJob, SIGNAL(taskProgress(int,qbs::AbstractJob*)),
-            this, SIGNAL(progress(int)));
+            this, SLOT(handleQbsParsingProgress(int)));
 
     return true;
 }
