@@ -62,6 +62,7 @@ const char *nameForStyle(TextStyle style)
     case C_VIRTUAL_METHOD:      return "VirtualMethod";
     case C_FUNCTION:            return "Function";
     case C_KEYWORD:             return "Keyword";
+    case C_PRIMITIVE_TYPE:      return "PrimitiveType";
     case C_OPERATOR:            return "Operator";
     case C_PREPROCESSOR:        return "Preprocessor";
     case C_LABEL:               return "Label";

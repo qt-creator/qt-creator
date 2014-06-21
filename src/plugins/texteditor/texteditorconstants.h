@@ -59,6 +59,7 @@ enum TextStyle {
     C_VIRTUAL_METHOD,
     C_FUNCTION,
     C_KEYWORD,
+    C_PRIMITIVE_TYPE,
     C_OPERATOR,
     C_PREPROCESSOR,
     C_LABEL,

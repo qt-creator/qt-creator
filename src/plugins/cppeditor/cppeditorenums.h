@@ -43,6 +43,7 @@ enum CppFormats {
     CppStringFormat,
     CppTypeFormat,
     CppKeywordFormat,
+    CppPrimitiveTypeFormat,
     CppOperatorFormat,
     CppPreprocessorFormat,
     CppLabelFormat,

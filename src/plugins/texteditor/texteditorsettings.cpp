@@ -139,6 +139,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                          Qt::darkBlue));
     formatDescr.append(FormatDescription(C_STRING, tr("String"),
                                          tr("Character and string literals."), Qt::darkGreen));
+    formatDescr.append(FormatDescription(C_PRIMITIVE_TYPE, tr("Primitive Type"),
+                                         tr("Primitive data types"), Qt::darkYellow));
     formatDescr.append(FormatDescription(C_TYPE, tr("Type"), tr("Name of a type."),
                                          Qt::darkMagenta));
     formatDescr.append(FormatDescription(C_LOCAL, tr("Local"), tr("Local variables.")));
@@ -204,8 +206,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                          jsGlobalFormat));
 
     formatDescr.append(FormatDescription(C_KEYWORD, tr("Keyword"),
-                                         tr("Reserved keywords of the programming language."),
-                                         Qt::darkYellow));
+                                         tr("Reserved keywords of the programming language except "
+                                            "keywords denoting primitive types."), Qt::darkYellow));
     formatDescr.append(FormatDescription(C_OPERATOR, tr("Operator"),
                                          tr("Operators (for example operator++ or operator-=).")));
     formatDescr.append(FormatDescription(C_PREPROCESSOR, tr("Preprocessor"),

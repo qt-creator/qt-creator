@@ -119,13 +119,9 @@ enum Kind {
     T_ALIGNOF,
     T_ASM,
     T_AUTO,
-    T_BOOL,
     T_BREAK,
     T_CASE,
     T_CATCH,
-    T_CHAR,
-    T_CHAR16_T,
-    T_CHAR32_T,
     T_CLASS,
     T_CONST,
     T_CONST_CAST,
@@ -135,7 +131,6 @@ enum Kind {
     T_DEFAULT,
     T_DELETE,
     T_DO,
-    T_DOUBLE,
     T_DYNAMIC_CAST,
     T_ELSE,
     T_ENUM,
@@ -143,14 +138,11 @@ enum Kind {
     T_EXPORT,
     T_EXTERN,
     T_FALSE,
-    T_FLOAT,
     T_FOR,
     T_FRIEND,
     T_GOTO,
     T_IF,
     T_INLINE,
-    T_INT,
-    T_LONG,
     T_MUTABLE,
     T_NAMESPACE,
     T_NEW,
@@ -163,8 +155,6 @@ enum Kind {
     T_REGISTER,
     T_REINTERPRET_CAST,
     T_RETURN,
-    T_SHORT,
-    T_SIGNED,
     T_SIZEOF,
     T_STATIC,
     T_STATIC_ASSERT,
@@ -181,12 +171,9 @@ enum Kind {
     T_TYPEID,
     T_TYPENAME,
     T_UNION,
-    T_UNSIGNED,
     T_USING,
     T_VIRTUAL,
-    T_VOID,
     T_VOLATILE,
-    T_WCHAR_T,
     T_WHILE,
 
     T___ATTRIBUTE__,
@@ -223,6 +210,23 @@ enum Kind {
 
     T_LAST_OBJC_AT_KEYWORD = T_AT_TRY,
 
+    // Primitive types
+    T_FIRST_PRIMITIVE,
+    T_BOOL = T_FIRST_PRIMITIVE,
+    T_CHAR,
+    T_CHAR16_T,
+    T_CHAR32_T,
+    T_DOUBLE,
+    T_FLOAT,
+    T_INT,
+    T_LONG,
+    T_SHORT,
+    T_SIGNED,
+    T_UNSIGNED,
+    T_VOID,
+    T_WCHAR_T,
+    T_LAST_PRIMITIVE = T_WCHAR_T,
+
     T_FIRST_QT_KEYWORD,
 
     // Qt keywords
@@ -247,6 +251,7 @@ enum Kind {
     T_Q_DECLARE_INTERFACE,
     T_Q_OBJECT,
     T_Q_GADGET,
+
     T_LAST_KEYWORD = T_Q_GADGET,
 
     // aliases
@@ -320,7 +325,10 @@ public:
     { return f.kind >= T_FIRST_OPERATOR && f.kind <= T_LAST_OPERATOR; }
 
     inline bool isKeyword() const
-    { return f.kind >= T_FIRST_KEYWORD && f.kind < T_FIRST_QT_KEYWORD; }
+    { return f.kind >= T_FIRST_KEYWORD && f.kind < T_FIRST_PRIMITIVE; }
+
+    inline bool isPrimitiveType() const
+    { return f.kind >= T_FIRST_PRIMITIVE && f.kind <= T_LAST_PRIMITIVE; }
 
     inline bool isComment() const
     { return f.kind == T_COMMENT || f.kind == T_DOXY_COMMENT ||

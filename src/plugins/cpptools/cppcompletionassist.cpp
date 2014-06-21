@@ -1727,6 +1727,10 @@ void CppCompletionAssistProcessor::addKeywords()
     // keyword completion items.
     for (int i = T_FIRST_KEYWORD; i < keywordLimit; ++i)
         addCompletionItem(QLatin1String(Token::name(i)), m_icons.keywordIcon(), KeywordsOrder);
+
+    // primitive type completion items.
+    for (int i = T_FIRST_PRIMITIVE; i <= T_LAST_PRIMITIVE; ++i)
+        addCompletionItem(QLatin1String(Token::name(i)), m_icons.keywordIcon(), KeywordsOrder);
 }
 
 void CppCompletionAssistProcessor::addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot)

@@ -21,6 +21,7 @@
   <style name="Field" bold="true"/>
   <style name="Function"/>
   <style name="Keyword" foreground="#808bed"/>
+  <style name="PrimitiveType" foreground="#808bed"/>
   <style name="Label" foreground="#e76000"/>
   <style name="LineNumber" foreground="#8b8bcd" background="#2e2e2e"/>
   <style name="Link" foreground="#409090"/>

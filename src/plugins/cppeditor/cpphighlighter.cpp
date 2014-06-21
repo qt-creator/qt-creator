@@ -52,6 +52,7 @@ CppHighlighter::CppHighlighter(QTextDocument *document) :
                    << TextEditor::C_STRING
                    << TextEditor::C_TYPE
                    << TextEditor::C_KEYWORD
+                   << TextEditor::C_PRIMITIVE_TYPE
                    << TextEditor::C_OPERATOR
                    << TextEditor::C_PREPROCESSOR
                    << TextEditor::C_LABEL
@@ -220,6 +221,9 @@ void CppHighlighter::highlightBlock(const QString &text)
                    || CppTools::isQtKeyword(text.midRef(tk.utf16charsBegin(), tk.utf16chars()))
                    || tk.isObjCAtKeyword()) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(CppKeywordFormat));
+        } else if (tk.isPrimitiveType()) {
+            setFormat(tk.utf16charsBegin(), tk.utf16chars(),
+                      formatForCategory(CppPrimitiveTypeFormat));
         } else if (tk.isOperator()) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(CppOperatorFormat));
         } else if (i == 0 && tokens.size() > 1 && tk.is(T_IDENTIFIER) && tokens.at(1).is(T_COLON)) {
