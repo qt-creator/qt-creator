@@ -547,6 +547,9 @@ VcsBaseSubmitEditor::PromptSubmitResult
 
     Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
 
+    if (!submitWidget->isEnabled())
+        return SubmitDiscarded;
+
     QString errorMessage;
     QMessageBox::StandardButton answer = QMessageBox::Yes;
 

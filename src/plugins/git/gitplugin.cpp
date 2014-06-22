@@ -1077,16 +1077,12 @@ bool GitPlugin::submitEditorAboutToClose()
         return true;
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    VcsBase::VcsBaseSubmitEditor::PromptSubmitResult answer;
-    if (editor->forceClose()) {
-        answer = VcsBase::VcsBaseSubmitEditor::SubmitDiscarded;
-    } else {
-        bool promptData = false;
-        answer = editor->promptSubmit(tr("Closing Git Editor"),
-                     tr("Do you want to commit the change?"),
-                     tr("Git will not accept this commit. Do you want to continue to edit it?"),
-                     &promptData, !m_submitActionTriggered, false);
-    }
+    bool promptData = false;
+    const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult answer
+            = editor->promptSubmit(tr("Closing Git Editor"),
+                 tr("Do you want to commit the change?"),
+                 tr("Git will not accept this commit. Do you want to continue to edit it?"),
+                 &promptData, !m_submitActionTriggered, false);
     m_submitActionTriggered = false;
     switch (answer) {
     case VcsBase::VcsBaseSubmitEditor::SubmitCanceled:

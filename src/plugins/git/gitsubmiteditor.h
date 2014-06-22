@@ -53,7 +53,6 @@ public:
 
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
-    bool forceClose() { updateFileModel(); return m_forceClose; }
     CommitType commitType() const { return m_commitType; }
     QString amendSHA1() const;
 
@@ -78,7 +77,6 @@ private:
     QTextCodec *m_commitEncoding;
     CommitType m_commitType;
     QString m_amendSHA1;
-    bool m_forceClose;
     QString m_workingDirectory;
     bool m_firstUpdate;
 };

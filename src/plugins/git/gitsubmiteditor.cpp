@@ -90,7 +90,6 @@ GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *p
     m_model(0),
     m_commitEncoding(0),
     m_commitType(SimpleCommit),
-    m_forceClose(false),
     m_firstUpdate(true)
 {
     connect(this, SIGNAL(diffSelectedFiles(QList<int>)), this, SLOT(slotDiffSelected(QList<int>)));
@@ -186,14 +185,12 @@ void GitSubmitEditor::updateFileModel()
     QString errorMessage, commitTemplate;
     CommitData data(m_commitType);
     if (client->getCommitData(m_workingDirectory, &commitTemplate, data, &errorMessage)) {
-        m_forceClose = false;
         setCommitData(data);
         submitEditorWidget()->refreshLog(m_workingDirectory);
         widget()->setEnabled(true);
     } else {
         // Nothing to commit left!
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
-        m_forceClose = true;
         m_model->clear();
         widget()->setEnabled(false);
     }
