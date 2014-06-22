@@ -29,6 +29,8 @@
 
 #include "stringtable.h"
 
+#include <utils/qtcassert.h>
+
 #include <QDebug>
 #include <QThreadPool>
 #include <QTime>
@@ -58,6 +60,9 @@ QString StringTable::insert(const QString &string)
     if (string.isEmpty())
         return string;
 
+#if QT_VERSION >= 0x050000 && QT_SUPPORTS(UNSHARABLE_CONTAINERS)
+    QTC_ASSERT(const_cast<QString&>(string).data_ptr()->ref.isSharable(), return string);
+#endif
 
     m_stopGCRequested.fetchAndStoreAcquire(true);
 
@@ -83,12 +88,13 @@ enum {
     DebugStringTable = 0
 };
 
-static inline int qstringRefCount(const QString &string)
+static inline bool isQStringInUse(const QString &string)
 {
 #if QT_VERSION >= 0x050000
-    return const_cast<QString&>(string).data_ptr()->ref.atomic.load();
+    QArrayData *data_ptr = const_cast<QString&>(string).data_ptr();
+    return data_ptr->ref.isShared() || data_ptr->ref.isStatic();
 #else
-    return const_cast<QString&>(string).data_ptr()->ref;
+    return const_cast<QString&>(string).data_ptr()->ref != 1;
 #endif
 }
 
@@ -108,7 +114,7 @@ void StringTable::GC()
         if (m_stopGCRequested.testAndSetRelease(true, false))
             return;
 
-        if (qstringRefCount(*i) == 1)
+        if (!isQStringInUse(*i))
             i = m_strings.erase(i);
         else
             ++i;
