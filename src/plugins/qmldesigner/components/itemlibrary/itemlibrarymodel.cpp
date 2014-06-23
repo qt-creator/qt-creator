@@ -162,24 +162,17 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                  && (entry.requiredImport().isEmpty()
                      || model->hasImport(entryToImport(entry), true, true))) {
             QString itemSectionName = entry.category();
-            ItemLibrarySection *sectionModel;
+            ItemLibrarySection *sectionModel = sectionByName(itemSectionName);
             ItemLibraryItem *itemModel;
-            int itemId = m_nextLibId++, sectionId;
 
-            if (sections.contains(itemSectionName)) {
-                sectionId = sections.value(itemSectionName);
-                sectionModel = section(sectionId);
-            } else {
-                sectionId = m_nextLibId++;
-                sectionModel = new ItemLibrarySection(sectionId, itemSectionName, this);
-                addSection(sectionModel, sectionId);
-                sections.insert(itemSectionName, sectionId);
+            if (sectionModel == 0) {
+                sectionModel = new ItemLibrarySection(itemSectionName, this);
+                m_sectionModels.append(sectionModel);
             }
 
             itemModel = new ItemLibraryItem(sectionModel);
             itemModel->setItemLibraryEntry(entry);
             sectionModel->addSectionEntry(itemModel);
-            m_sections.insert(itemId, sectionId);
         }
     }
 
@@ -200,20 +193,9 @@ QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntr
     return mimeData;
 }
 
-ItemLibrarySection *ItemLibraryModel::section(int libraryId)
-{
-    return m_sectionModels.value(libraryId);
-}
-
 QList<ItemLibrarySection *> ItemLibraryModel::sections() const
 {
-    return m_sectionModels.values();
-}
-
-void ItemLibraryModel::addSection(ItemLibrarySection *sectionModel, int sectionId)
-{
-    m_sectionModels.insert(sectionId, sectionModel);
-    sectionModel->setVisible(true);
+    return m_sectionModels;
 }
 
 void ItemLibraryModel::clearSections()
@@ -234,12 +216,9 @@ int ItemLibraryModel::visibleSectionCount() const
 {
     int visibleCount = 0;
 
-    auto sectionIterator = m_sectionModels.constBegin();
-    while (sectionIterator != m_sectionModels.constEnd()) {
-        ItemLibrarySection *sectionModel = sectionIterator.value();
-        if (sectionModel->isVisible())
+    foreach (ItemLibrarySection *section, m_sectionModels) {
+        if (section->isVisible())
             ++visibleCount;
-        ++sectionIterator;
     }
 
     return visibleCount;
@@ -249,15 +228,22 @@ QList<ItemLibrarySection *> ItemLibraryModel::visibleSections() const
 {
     QList<ItemLibrarySection *> visibleSectionList;
 
-    auto sectionIterator = m_sectionModels.constBegin();
-    while (sectionIterator != m_sectionModels.constEnd()) {
-        ItemLibrarySection *sectionModel = sectionIterator.value();
-        if (sectionModel->isVisible())
-            visibleSectionList.append(sectionModel);
-        ++sectionIterator;
+    foreach (ItemLibrarySection *section, m_sectionModels) {
+        if (section->isVisible())
+            visibleSectionList.append(section);
     }
 
     return visibleSectionList;
+}
+
+ItemLibrarySection *ItemLibraryModel::sectionByName(const QString &sectionName)
+{
+    foreach (ItemLibrarySection *itemLibrarySection, m_sectionModels) {
+        if (itemLibrarySection->sectionName() == sectionName)
+            return itemLibrarySection;
+    }
+
+    return 0;
 }
 
 void ItemLibraryModel::updateVisibility()
@@ -266,26 +252,19 @@ void ItemLibraryModel::updateVisibility()
     endResetModel();
     bool changed = false;
 
-    auto sectionIterator = m_sectionModels.constBegin();
-    while (sectionIterator != m_sectionModels.constEnd()) {
-        ItemLibrarySection *sectionModel = sectionIterator.value();
-
+    foreach (ItemLibrarySection *itemLibrarySection, m_sectionModels) {
         QString sectionSearchText = m_searchText;
 
-        if (sectionModel->sectionName().toLower().contains(m_searchText))
+        if (itemLibrarySection->sectionName().toLower().contains(m_searchText))
             sectionSearchText.clear();
 
         bool sectionChanged = false,
-            sectionVisibility = sectionModel->updateSectionVisibility(sectionSearchText,
+            sectionVisibility = itemLibrarySection->updateSectionVisibility(sectionSearchText,
                                                                       &sectionChanged);
-        if (sectionChanged) {
+        if (sectionChanged)
             changed = true;
-            if (sectionVisibility)
-                emit sectionVisibilityChanged(sectionIterator.key());
-        }
 
-        changed |= sectionModel->setVisible(sectionVisibility);
-        ++sectionIterator;
+        changed |= itemLibrarySection->setVisible(sectionVisibility);
     }
 
     if (changed)

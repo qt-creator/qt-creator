@@ -44,10 +44,9 @@ class ItemLibrarySection: public QObject {
     Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
 
 public:
-    ItemLibrarySection(int sectionLibraryId, const QString &sectionName, QObject *parent = 0);
+    ItemLibrarySection(const QString &sectionName, QObject *parent = 0);
 
     QString sectionName() const;
-    int sectionLibraryId() const;
     bool sectionExpanded() const;
     QVariant sortingRole() const;
 
@@ -65,7 +64,6 @@ signals:
 private:
     ItemLibrarySectionModel m_sectionEntries;
     QString m_name;
-    int m_sectionLibraryId;
     bool m_sectionExpanded;
     bool m_isVisible;
 };

@@ -33,13 +33,12 @@
 
 namespace QmlDesigner {
 
-ItemLibrarySection::ItemLibrarySection(int sectionLibId, const QString &sectionName, QObject *parent)
+ItemLibrarySection::ItemLibrarySection(const QString &sectionName, QObject *parent)
     : QObject(parent),
       m_sectionEntries(parent),
       m_name(sectionName),
-      m_sectionLibraryId(sectionLibId),
       m_sectionExpanded(true),
-      m_isVisible(false)
+      m_isVisible(true)
 {
 //    if (collapsedStateHash.contains(sectionName))
 //        m_sectionExpanded=  collapsedStateHash.value(sectionName);
@@ -49,11 +48,6 @@ ItemLibrarySection::ItemLibrarySection(int sectionLibId, const QString &sectionN
 QString ItemLibrarySection::sectionName() const
 {
     return m_name;
-}
-
-int ItemLibrarySection::sectionLibraryId() const
-{
-    return m_sectionLibraryId;
 }
 
 bool ItemLibrarySection::sectionExpanded() const

@@ -62,9 +62,7 @@ public:
 
     QMimeData *getMimeData(const ItemLibraryEntry &itemLibraryEntry);
 
-    ItemLibrarySection* section(int libraryId);
     QList<ItemLibrarySection*> sections() const;
-    void addSection(ItemLibrarySection *sectionModel, int sectionId);
 
     void clearSections();
 
@@ -72,6 +70,8 @@ public:
 
     int visibleSectionCount() const;
     QList<ItemLibrarySection*> visibleSections() const;
+
+    ItemLibrarySection *sectionByName(const QString &sectionName);
 
 public slots:
     void setSearchText(const QString &searchText);
@@ -93,7 +93,7 @@ private: // functions
     int getHeight(const ItemLibraryEntry &entry);
 
 private: // variables
-    QMap<int, ItemLibrarySection*> m_sectionModels;
+    QList<ItemLibrarySection*> m_sectionModels;
     QMap<int, int> m_sections;
     QHash<int, QByteArray> m_roleNames;
 
