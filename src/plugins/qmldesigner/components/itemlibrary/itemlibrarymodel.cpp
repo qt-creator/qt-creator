@@ -258,9 +258,6 @@ void ItemLibraryModel::updateVisibility()
 
         changed |= itemLibrarySection->setVisible(sectionVisibility);
     }
-
-    if (changed)
-        emit visibilityChanged();
 }
 
 void ItemLibraryModel::addRoleNames()

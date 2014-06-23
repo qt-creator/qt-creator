@@ -81,7 +81,6 @@ public slots:
 signals:
     void qmlModelChanged();
     void searchTextChanged();
-    void visibilityChanged();
 
 private: // functions
     void updateVisibility();
