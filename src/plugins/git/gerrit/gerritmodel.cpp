@@ -849,11 +849,6 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
 }
 #endif // QT_VERSION < 0x050000
 
-bool changeDateLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
-{
-    return c1->lastUpdated < c2->lastUpdated;
-}
-
 QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
 {
     QList<QStandardItem *> row;
@@ -898,12 +893,53 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     return row;
 }
 
+bool gerritChangeLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
+{
+    if (c1->depth != c2->depth)
+        return c1->depth < c2->depth;
+    return c1->lastUpdated < c2->lastUpdated;
+}
+
 void GerritModel::queryFinished(const QByteArray &output)
 {
     QList<GerritChangePtr> changes;
     if (!parseOutput(m_parameters, output, changes))
         emit queryError();
-    qStableSort(changes.begin(), changes.end(), changeDateLessThan);
+    // Populate a hash with indices for faster access.
+    QHash<QString, int> idIndexHash;
+    const int count = changes.size();
+    for (int i = 0; i < count; ++i)
+        idIndexHash.insert(changes.at(i)->id, i);
+    // Mark root nodes: Changes that do not have a dependency, depend on a change
+    // not in the list or on a change that is not "NEW".
+    for (int i = 0; i < count; ++i) {
+        if (changes.at(i)->dependsOnId.isEmpty()) {
+            changes.at(i)->depth = 0;
+        } else {
+            const int dependsOnIndex = idIndexHash.value(changes.at(i)->dependsOnId, -1);
+            if (dependsOnIndex < 0 || changes.at(dependsOnIndex)->status != QLatin1String("NEW"))
+                changes.at(i)->depth = 0;
+        }
+    }
+    // Indicate depth of dependent changes by using that of the parent + 1 until no more
+    // changes occur.
+    for (bool changed = true; changed; ) {
+        changed = false;
+        for (int i = 0; i < count; ++i) {
+            if (changes.at(i)->depth < 0) {
+                const int dependsIndex = idIndexHash.value(changes.at(i)->dependsOnId);
+                const int dependsOnDepth = changes.at(dependsIndex)->depth;
+                if (dependsOnDepth >= 0) {
+                    changes.at(i)->depth = dependsOnDepth + 1;
+                    changed = true;
+                }
+            }
+        }
+    }
+    // Sort by depth (root nodes first) and by date.
+    qStableSort(changes.begin(), changes.end(), gerritChangeLessThan);
+    idIndexHash.clear();
+
     foreach (const GerritChangePtr &c, changes) {
         // Avoid duplicate entries for example in the (unlikely)
         // case people do self-reviews.
@@ -912,7 +948,20 @@ void GerritModel::queryFinished(const QByteArray &output)
             // It used for marking the changes pending for review in bold.
             if (m_userName.isEmpty() && !m_query->currentQuery())
                 m_userName = c->owner;
-            appendRow(changeToRow(c));
+            const QList<QStandardItem *> newRow = changeToRow(c);
+            if (c->depth) {
+                QStandardItem *parent = itemForId(c->dependsOnId);
+                // Append changes with depth > 1 to the parent with depth=1 to avoid
+                // too-deeply nested items.
+                for (; changeFromItem(parent)->depth >= 1; parent = parent->parent()) {}
+                parent->appendRow(newRow);
+                QString parentFilterString = parent->data(FilterRole).toString();
+                parentFilterString += QLatin1Char(' ');
+                parentFilterString += newRow.first()->data(FilterRole).toString();
+                parent->setData(QVariant(parentFilterString), FilterRole);
+            } else {
+                appendRow(newRow);
+            }
         }
     }
 }

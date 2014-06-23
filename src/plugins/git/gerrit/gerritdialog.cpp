@@ -138,6 +138,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
 
     m_filterModel->setSourceModel(m_model);
     m_filterModel->setFilterRole(GerritModel::FilterRole);
+    m_treeView->setRootIsDecorated(true);
     m_treeView->setModel(m_filterModel);
     m_treeView->setMinimumWidth(600);
     m_treeView->setUniformRowHeights(true);
@@ -236,6 +237,7 @@ void GerritDialog::slotActivated(const QModelIndex &i)
 void GerritDialog::slotRefreshStateChanged(bool v)
 {
     if (!v && m_model->rowCount()) {
+        m_treeView->expandAll();
         for (int c = 0; c < GerritModel::ColumnCount; ++c)
             m_treeView->resizeColumnToContents(c);
         if (m_treeView->columnWidth(GerritModel::TitleColumn) > maxTitleWidth)
