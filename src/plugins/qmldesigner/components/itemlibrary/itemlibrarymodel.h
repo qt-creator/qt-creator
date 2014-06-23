@@ -87,16 +87,12 @@ private: // functions
     void addRoleNames();
     void resetModel();
 
-    int getWidth(const ItemLibraryEntry &entry);
-    int getHeight(const ItemLibraryEntry &entry);
 
 private: // variables
-    QList<ItemLibrarySection*> m_sectionModels;
+    QList<ItemLibrarySection*> m_sections;
     QHash<int, QByteArray> m_roleNames;
 
     QString m_searchText;
-    QSize m_itemIconSize;
-    int m_nextLibId;
 };
 
 } // namespace QmlDesigner

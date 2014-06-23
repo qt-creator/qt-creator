@@ -59,8 +59,6 @@ public:
 
 private: // functions
     void addRoleNames();
-    int visibleItemCount() const;
-    const QList<ItemLibraryItem *> visibleItems() const;
 
 private: // variables
     QList<ItemLibraryItem*> m_itemList;

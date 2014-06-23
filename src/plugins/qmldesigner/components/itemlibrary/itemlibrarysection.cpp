@@ -40,8 +40,6 @@ ItemLibrarySection::ItemLibrarySection(const QString &sectionName, QObject *pare
       m_sectionExpanded(true),
       m_isVisible(true)
 {
-//    if (collapsedStateHash.contains(sectionName))
-//        m_sectionExpanded=  collapsedStateHash.value(sectionName);
 }
 
 

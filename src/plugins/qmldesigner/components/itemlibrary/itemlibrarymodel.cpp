@@ -63,8 +63,7 @@ void ItemLibraryModel::setExpanded(bool expanded, const QString &section)
 }
 
 ItemLibraryModel::ItemLibraryModel(QObject *parent)
-    : QAbstractListModel(parent),
-      m_nextLibId(0)
+    : QAbstractListModel(parent)
 {
     addRoleNames();
 }
@@ -76,17 +75,17 @@ ItemLibraryModel::~ItemLibraryModel()
 
 int ItemLibraryModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return m_sectionModels.count();
+    return m_sections.count();
 }
 
 QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() +1 > m_sectionModels.count())
+    if (!index.isValid() || index.row() +1 > m_sections.count())
         return QVariant();
 
 
     if (m_roleNames.contains(role)) {
-        QVariant value = m_sectionModels.at(index.row())->property(m_roleNames.value(role));
+        QVariant value = m_sections.at(index.row())->property(m_roleNames.value(role));
 
         ItemLibrarySectionModel* model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>());
         if (model)
@@ -140,7 +139,6 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     QMap<QString, int> sections;
 
     clearSections();
-    m_nextLibId = 0;
 
     QStringList imports;
     foreach (const Import &import, model->imports())
@@ -161,7 +159,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
             if (sectionModel == 0) {
                 sectionModel = new ItemLibrarySection(itemSectionName, this);
-                m_sectionModels.append(sectionModel);
+                m_sections.append(sectionModel);
             }
 
             itemModel = new ItemLibraryItem(sectionModel);
@@ -190,14 +188,14 @@ QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntr
 
 QList<ItemLibrarySection *> ItemLibraryModel::sections() const
 {
-    return m_sectionModels;
+    return m_sections;
 }
 
 void ItemLibraryModel::clearSections()
 {
     beginResetModel();
-    qDeleteAll(m_sectionModels);
-    m_sectionModels.clear();
+    qDeleteAll(m_sections);
+    m_sections.clear();
     endResetModel();
 }
 
@@ -207,33 +205,9 @@ void ItemLibraryModel::registerQmlTypes()
     qmlRegisterType<QmlDesigner::ItemLibraryModel>();
 }
 
-int ItemLibraryModel::visibleSectionCount() const
-{
-    int visibleCount = 0;
-
-    foreach (ItemLibrarySection *section, m_sectionModels) {
-        if (section->isVisible())
-            ++visibleCount;
-    }
-
-    return visibleCount;
-}
-
-QList<ItemLibrarySection *> ItemLibraryModel::visibleSections() const
-{
-    QList<ItemLibrarySection *> visibleSectionList;
-
-    foreach (ItemLibrarySection *section, m_sectionModels) {
-        if (section->isVisible())
-            visibleSectionList.append(section);
-    }
-
-    return visibleSectionList;
-}
-
 ItemLibrarySection *ItemLibraryModel::sectionByName(const QString &sectionName)
 {
-    foreach (ItemLibrarySection *itemLibrarySection, m_sectionModels) {
+    foreach (ItemLibrarySection *itemLibrarySection, m_sections) {
         if (itemLibrarySection->sectionName() == sectionName)
             return itemLibrarySection;
     }
@@ -245,7 +219,7 @@ void ItemLibraryModel::updateVisibility()
 {
     bool changed = false;
 
-    foreach (ItemLibrarySection *itemLibrarySection, m_sectionModels) {
+    foreach (ItemLibrarySection *itemLibrarySection, m_sections) {
         QString sectionSearchText = m_searchText;
 
         if (itemLibrarySection->sectionName().toLower().contains(m_searchText))
@@ -278,28 +252,6 @@ void ItemLibraryModel::resetModel()
 {
     beginResetModel();
     endResetModel();
-}
-
-int ItemLibraryModel::getWidth(const ItemLibraryEntry &itemLibraryEntry)
-{
-    foreach (const ItemLibraryEntry::Property &property, itemLibraryEntry.properties())
-    {
-        if (property.name() == "width")
-            return property.value().toInt();
-    }
-
-    return 64;
-}
-
-int ItemLibraryModel::getHeight(const ItemLibraryEntry &itemLibraryEntry)
-{
-    foreach (const ItemLibraryEntry::Property &property, itemLibraryEntry.properties())
-    {
-        if (property.name() == "height")
-            return property.value().toInt();
-    }
-
-    return 64;
 }
 
 void registerQmlTypes()

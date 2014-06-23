@@ -92,7 +92,6 @@ void ItemLibrarySectionModel::resetModel()
 {
     beginResetModel();
     endResetModel();
-    emit dataChanged(QModelIndex(), QModelIndex());
 }
 
 void ItemLibrarySectionModel::addRoleNames()
@@ -105,30 +104,6 @@ void ItemLibrarySectionModel::addRoleNames()
     }
 
     setRoleNames(m_roleNames);
-}
-
-int ItemLibrarySectionModel::visibleItemCount() const
-{
-    int visibleItemCount = 0;
-
-    foreach (ItemLibraryItem *itemLibraryItem, m_itemList) {
-        if (itemLibraryItem->isVisible())
-            visibleItemCount += 1;
-    }
-
-    return visibleItemCount;
-}
-
-const QList<ItemLibraryItem *> ItemLibrarySectionModel::visibleItems() const
-{
-    QList<ItemLibraryItem *> visibleItemList;
-
-    foreach (ItemLibraryItem *itemLibraryItem, m_itemList) {
-        if (itemLibraryItem->isVisible())
-            visibleItemList.append(itemLibraryItem);
-    }
-
-    return visibleItemList;
 }
 
 } // namespace QmlDesigner
