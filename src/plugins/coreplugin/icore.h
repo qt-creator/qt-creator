@@ -74,6 +74,7 @@ public:
 
     static bool showOptionsDialog(Id group, Id page, QWidget *parent = 0);
     static QString msgShowOptionsDialog();
+    static QString msgShowOptionsDialogToolTip();
 
     static bool showWarningWithOptions(const QString &title, const QString &text,
                                        const QString &details = QString(),

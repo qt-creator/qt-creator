@@ -344,6 +344,16 @@ QString ICore::msgShowOptionsDialog()
     return QCoreApplication::translate("Core", "Configure...", "msgShowOptionsDialog");
 }
 
+QString ICore::msgShowOptionsDialogToolTip()
+{
+    if (Utils::HostOsInfo::isMacHost())
+        return QCoreApplication::translate("Core", "Open Preferences dialog.",
+                                           "msgShowOptionsDialogToolTip (mac version)");
+    else
+        return QCoreApplication::translate("Core", "Open Options dialog.",
+                                           "msgShowOptionsDialogToolTip (non-mac version)");
+}
+
 bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details,
                                    Id settingsCategory,
