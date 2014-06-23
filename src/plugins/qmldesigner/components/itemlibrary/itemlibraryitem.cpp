@@ -32,7 +32,8 @@
 namespace QmlDesigner {
 
 ItemLibraryItem::ItemLibraryItem(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      m_isVisible(true)
 {
 }
 
