@@ -82,7 +82,6 @@ signals:
     void qmlModelChanged();
     void searchTextChanged();
     void visibilityChanged();
-    void sectionVisibilityChanged(int changedSectionLibId);
 
 private: // functions
     void updateVisibility();
