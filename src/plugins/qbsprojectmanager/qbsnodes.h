@@ -107,6 +107,7 @@ public:
     bool isEnabled() const;
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
     void updateQbsGroupData(const qbs::GroupData *grp, const QString &productPath,
                             bool productWasEnabled, bool productIsEnabled);
 
@@ -141,6 +142,7 @@ public:
     bool showInSimpleTree() const;
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
 
     void setQbsProductData(const qbs::ProductData prd);
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }
