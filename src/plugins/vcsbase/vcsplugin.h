@@ -72,7 +72,6 @@ signals:
 
 private slots:
     void slotSettingsChanged();
-    void updateVariable(const QByteArray &variable);
 
 private:
     void populateNickNameModel();

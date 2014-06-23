@@ -46,6 +46,9 @@
 #include <QtPlugin>
 #include <QDebug>
 
+using namespace Core;
+using namespace ProjectExplorer;
+
 namespace VcsBase {
 namespace Internal {
 
@@ -83,15 +86,33 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             this, SLOT(slotSettingsChanged()));
     slotSettingsChanged();
 
-    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
-            this, SLOT(updateVariable(QByteArray)));
+    VariableManager::registerVariable(Constants::VAR_VCS_NAME,
+        tr("Name of the version control system in use by the current project."),
+        []() -> QString {
+            IVersionControl *vc = 0;
+            if (Project *project = ProjectExplorerPlugin::currentProject())
+                vc = VcsManager::findVersionControlForDirectory(project->projectDirectory().toString());
+            return vc ? vc->displayName() : QString();
+        });
 
-    Core::VariableManager::registerVariable(Constants::VAR_VCS_NAME,
-        tr("Name of the version control system in use by the current project."));
-    Core::VariableManager::registerVariable(Constants::VAR_VCS_TOPIC,
-        tr("The current version control topic (branch or tag) identification of the current project."));
-    Core::VariableManager::registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
-        tr("The top level path to the repository the current project is in."));
+    VariableManager::registerVariable(Constants::VAR_VCS_TOPIC,
+        tr("The current version control topic (branch or tag) identification of the current project."),
+        []() -> QString {
+            IVersionControl *vc = 0;
+            QString topLevel;
+            if (Project *project = ProjectExplorerPlugin::currentProject())
+                vc = VcsManager::findVersionControlForDirectory(project->projectDirectory().toString(), &topLevel);
+            return vc ? vc->vcsTopic(topLevel) : QString();
+        });
+
+    VariableManager::registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
+        tr("The top level path to the repository the current project is in."),
+        []() -> QString {
+            QString topLevel;
+            if (Project *project = ProjectExplorerPlugin::currentProject())
+                VcsManager::findVersionControlForDirectory(project->projectDirectory().toString(), &topLevel);
+            return topLevel;
+        });
 
     return true;
 }
@@ -139,42 +160,6 @@ void VcsPlugin::slotSettingsChanged()
 {
     if (m_nickNameModel)
         populateNickNameModel();
-}
-
-void VcsPlugin::updateVariable(const QByteArray &variable)
-{
-    static ProjectExplorer::Project *cachedProject = 0;
-    static Core::IVersionControl *cachedVc = 0;
-    static QString cachedTopLevel;
-
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    if (cachedProject != project) {
-        if (project) {
-            cachedVc = Core::VcsManager::findVersionControlForDirectory(project->projectDirectory().toString(),
-                                                                        &cachedTopLevel);
-        } else {
-            cachedVc = 0;
-            cachedTopLevel.clear();
-        }
-        cachedProject = project;
-    }
-
-    if (variable == Constants::VAR_VCS_NAME) {
-        if (cachedVc)
-            Core::VariableManager::insert(variable, cachedVc->displayName());
-        else
-            Core::VariableManager::remove(variable);
-    } else if (variable == Constants::VAR_VCS_TOPIC) {
-        if (cachedVc)
-            Core::VariableManager::insert(variable, cachedVc->vcsTopic(cachedTopLevel));
-        else
-            Core::VariableManager::remove(variable);
-    } else if (variable == Constants::VAR_VCS_TOPLEVELPATH) {
-        if (cachedVc)
-            Core::VariableManager::insert(variable, cachedTopLevel);
-        else
-            Core::VariableManager::remove(variable);
-    }
 }
 
 } // namespace Internal

@@ -226,7 +226,6 @@ private slots:
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
     void updateActions();
     void loadCustomWizards();
-    void updateVariable(const QByteArray &variable);
     void updateRunWithoutDeployMenu();
 
     void updateWelcomePage();

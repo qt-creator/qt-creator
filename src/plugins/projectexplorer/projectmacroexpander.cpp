@@ -51,14 +51,6 @@ bool ProjectMacroExpander::resolveProjectMacro(const QString &name, QString *ret
             result = m_projectName;
             found = true;
         }
-    } else if (Core::VariableManager::isFileVariable(
-                   name.toUtf8(), ProjectExplorer::Constants::VAR_CURRENTPROJECT_PREFIX)) {
-        if (!m_projectFile.filePath().isEmpty()) {
-            result = Core::VariableManager::fileVariableValue(name.toUtf8(),
-                                              ProjectExplorer::Constants::VAR_CURRENTPROJECT_PREFIX,
-                                              m_projectFile);
-            found = true;
-        }
     } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_NAME)) {
         result = m_kit->displayName();
         found = true;
@@ -101,6 +93,7 @@ bool ProjectMacroExpander::resolveProjectMacro(const QString &name, QString *ret
     return found;
 }
 
+// Try to resolve using local information, otherwise fall back to global variables.
 bool ProjectMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
     bool found = resolveProjectMacro(name, ret);

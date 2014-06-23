@@ -31,6 +31,7 @@
 
 #include <utils/stringutils.h>
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QMap>
 #include <QDebug>
@@ -56,7 +57,7 @@ public:
 class VariableManagerPrivate
 {
 public:
-    QHash<QByteArray, QString> m_map;
+    QHash<QByteArray, VariableManager::StringFunction> m_map;
     VMMapExpander m_macroExpander;
     QMap<QByteArray, QString> m_descriptions;
 };
@@ -88,43 +89,31 @@ public:
 
     Plugins can register variables together with a description through registerVariable(),
     and then need to connect to the variableUpdateRequested() signal to actually give
-    the variable its value when requested. A typical setup is to
+    the variable its value when requested. A typical setup is to register
+    variables in the Plugin::initialize() function.
 
-    \list 1
-    \li Register the variables in ExtensionSystem::IPlugin::initialize():
-        \code
-        static const char kMyVariable[] = "MyVariable";
-
-        bool MyPlugin::initialize(const QStringList &arguments, QString *errorString)
-        {
+    \code
+    bool MyPlugin::initialize(const QStringList &arguments, QString *errorString)
+    {
         [...]
-        VariableManager::registerVariable(kMyVariable, tr("The current value of whatever I want."));
-        connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
-                this, SLOT(updateVariable(QByteArray)));
-        [...]
-        }
-        \endcode
-
-    \li Set the variable value when requested:
-        \code
-        void MyPlugin::updateVariable(const QByteArray &variable)
-        {
-            if (variable == kMyVariable) {
+        VariableManager::registerVariable(
+            "MyVariable",
+            tr("The current value of whatever I want."));
+            []() -> QString {
                 QString value;
                 // do whatever is necessary to retrieve the value
                 [...]
-                VariableManager::insert(variable, value);
+                return value;
             }
-        }
-        \endcode
-    \endlist
+        );
+        [...]
+    }
+    \endcode
 
-    If there are conditions where your variable is not valid, you should call
-    VariableManager::remove(kMyVariable) in updateVariable().
 
-    For variables that refer to a file, you should use the convenience functions
-    VariableManager::registerFileVariables(), VariableManager::fileVariableValue() and
-    VariableManager::isFileVariable(). The functions take a variable prefix, like \c MyFileVariable,
+    For variables that refer to a file, you should use the convenience function
+    VariableManager::registerFileVariables().
+    The functions take a variable prefix, like \c MyFileVariable,
     and automatically handle standardized postfixes like \c{:FilePath},
     \c{:Path} and \c{:FileBaseName}, resulting in the combined variables, such as
     \c{MyFileVariable:FilePath}.
@@ -205,46 +194,15 @@ VariableManager::~VariableManager()
 }
 
 /*!
- * Used to set the \a value of a \a variable. Most of the time this is only done when
- * requested by VariableManager::variableUpdateRequested(). If the value of the variable
- * does not change, or changes very seldom, you can also keep the value up to date by calling
- * this function whenever the value changes.
- *
- * As long as insert() was never called for a variable, it will not have a value, not even
- * an empty string, meaning that the variable will not be expanded when expanding strings.
- *
- * \sa remove()
- */
-void VariableManager::insert(const QByteArray &variable, const QString &value)
-{
-    d->m_map.insert(variable, value);
-}
-
-/*!
- * Removes any previous value for the given \a variable. This means that the variable
- * will not be expanded at all when expanding strings, not even to an empty string.
- *
- * Returns true if the variable value could be removed, false if the variable value
- * was not set when remove() was called.
- *
- * \sa insert()
- */
-bool VariableManager::remove(const QByteArray &variable)
-{
-    return d->m_map.remove(variable) > 0;
-}
-
-/*!
- * Returns the value of the given \a variable. This will request an
- * update of the variable's value first, by sending the variableUpdateRequested() signal.
- * If \a found is given, it is set to true if the variable has a value at all, false if not.
+ * Returns the value of the given \a variable. If \a found is given, it is
+ * set to true if the variable has a value at all, false if not.
  */
 QString VariableManager::value(const QByteArray &variable, bool *found)
 {
-    variableManagerInstance->variableUpdateRequested(variable);
     if (found)
         *found = d->m_map.contains(variable);
-    return d->m_map.value(variable);
+    StringFunction f = d->m_map.value(variable);
+    return f ? f() : QString();
 }
 
 /*!
@@ -273,24 +231,29 @@ Utils::AbstractMacroExpander *VariableManager::macroExpander()
 }
 
 /*!
- * Returns the variable manager instance, for connecting to signals. All other functions are static
- * and should be called as class functions, not through the instance.
+ * Makes the given string-valued \a variable known to the variable manager,
+ * together with a localized \a description.
+ *
+ * \sa registerFileVariables(), registerIntVariable()
  */
-QObject *VariableManager::instance()
+void VariableManager::registerVariable(const QByteArray &variable,
+    const QString &description, const StringFunction &value)
 {
-    return variableManagerInstance;
+    d->m_descriptions.insert(variable, description);
+    d->m_map.insert(variable, value);
 }
 
 /*!
- * Makes the given \a variable known to the variable manager, together with a localized
- * \a description. It is not strictly necessary to register variables, but highly recommended,
- * because this information is used and presented to the user by the VariableChooser.
+ * Makes the given integral-valued \a variable known to the variable manager,
+ * together with a localized \a description.
  *
- * \sa registerFileVariables()
+ * \sa registerVariable(), registerFileVariables()
  */
-void VariableManager::registerVariable(const QByteArray &variable, const QString &description)
+void VariableManager::registerIntVariable(const QByteArray &variable,
+    const QString &description, const VariableManager::IntFunction &value)
 {
-    d->m_descriptions.insert(variable, description);
+    registerVariable(variable, description,
+        [=]() -> QString { return QString::number(value ? value() : 0); });
 }
 
 /*!
@@ -300,71 +263,25 @@ void VariableManager::registerVariable(const QByteArray &variable, const QString
  * For example \c{registerFileVariables("CurrentDocument", tr("Current Document"))} registers
  * variables such as \c{CurrentDocument:FilePath} with description
  * "Current Document: Full path including file name."
- *
- * \sa isFileVariable()
- * \sa fileVariableValue()
  */
-void VariableManager::registerFileVariables(const QByteArray &prefix, const QString &heading)
+void VariableManager::registerFileVariables(const QByteArray &prefix,
+    const QString &heading, const StringFunction &base)
 {
-    registerVariable(prefix + kFilePathPostfix, tr("%1: Full path including file name.").arg(heading));
-    registerVariable(prefix + kPathPostfix, tr("%1: Full path excluding file name.").arg(heading));
-    registerVariable(prefix + kFileNamePostfix, tr("%1: File name without path.").arg(heading));
-    registerVariable(prefix + kFileBaseNamePostfix, tr("%1: File base name without path and suffix.").arg(heading));
-}
+    registerVariable(prefix + kFilePathPostfix,
+         QCoreApplication::translate("Core::VariableManager", "%1: Full path including file name.").arg(heading),
+         [=]() -> QString { return QFileInfo(base()).filePath(); });
 
-/*!
- * Returns whether the \a variable is a file kind of variable with the given \a prefix. For example
- * \c{MyVariable:FilePath} is a file variable with prefix \c{MyVariable}.
- *
- * \sa registerFileVariables()
- * \sa fileVariableValue()
- */
-bool VariableManager::isFileVariable(const QByteArray &variable, const QByteArray &prefix)
-{
-    return variable == prefix + kFilePathPostfix
-            || variable == prefix + kPathPostfix
-            || variable == prefix + kFileNamePostfix
-            || variable == prefix + kFileBaseNamePostfix;
-}
+    registerVariable(prefix + kPathPostfix,
+         QCoreApplication::translate("Core::VariableManager", "%1: Full path excluding file name.").arg(heading),
+         [=]() -> QString { return QFileInfo(base()).path(); });
 
-/*!
- * Checks if the \a variable is a variable of the file type with the given \a prefix, and returns
- * the value of the variable by extracting the wanted information from the given absolute
- * \a fileName.
- * Returns an empty string if the variable does not have the prefix, or does not have a
- * postfix that is used for file variables, or if the file name is empty.
- *
- * \sa registerFileVariables()
- * \sa isFileVariable()
- */
-QString VariableManager::fileVariableValue(const QByteArray &variable, const QByteArray &prefix,
-                                           const QString &fileName)
-{
-    return fileVariableValue(variable, prefix, QFileInfo(fileName));
-}
+    registerVariable(prefix + kFileNamePostfix,
+         QCoreApplication::translate("Core::VariableManager", "%1: File name without path.").arg(heading),
+         [=]() -> QString { return QFileInfo(base()).fileName(); });
 
-/*!
- * Checks if the \a variable is a variable of the file type with the given \a prefix, and returns
- * the value of the variable by extracting the wanted information from the given
- * \a fileInfo.
- * Returns an empty string if the variable does not have the prefix, or does not have a
- * postfix that is used for file variables, or if the file name is empty.
- *
- * \sa registerFileVariables()
- * \sa isFileVariable()
- */
-QString VariableManager::fileVariableValue(const QByteArray &variable, const QByteArray &prefix,
-                                           const QFileInfo &fileInfo)
-{
-    if (variable == prefix + kFilePathPostfix)
-        return fileInfo.filePath();
-    else if (variable == prefix + kPathPostfix)
-        return fileInfo.path();
-    else if (variable == prefix + kFileNamePostfix)
-        return fileInfo.fileName();
-    else if (variable == prefix + kFileBaseNamePostfix)
-        return fileInfo.baseName();
-    return QString();
+    registerVariable(prefix + kFileBaseNamePostfix,
+         QCoreApplication::translate("Core::VariableManager", "%1: File base name without path and suffix.").arg(heading),
+         [=]() -> QString { return QFileInfo(base()).baseName(); });
 }
 
 /*!

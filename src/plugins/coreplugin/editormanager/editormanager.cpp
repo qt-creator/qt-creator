@@ -477,13 +477,25 @@ void EditorManager::init()
     d->m_openEditorsFactory = new OpenEditorsViewFactory();
     ExtensionSystem::PluginManager::addObject(d->m_openEditorsFactory);
 
-    VariableManager::registerFileVariables(kCurrentDocumentPrefix, tr("Current document"));
-    VariableManager::registerVariable(kCurrentDocumentXPos,
-        tr("X-coordinate of the current editor's upper left corner, relative to screen."));
-    VariableManager::registerVariable(kCurrentDocumentYPos,
-        tr("Y-coordinate of the current editor's upper left corner, relative to screen."));
-    connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
-            m_instance, SLOT(updateVariable(QByteArray)));
+    VariableManager::registerFileVariables(kCurrentDocumentPrefix, tr("Current document"),
+        []() -> QString {
+            IDocument *document = currentDocument();
+            return document ? document->filePath() : QString();
+        });
+
+    VariableManager::registerIntVariable(kCurrentDocumentXPos,
+        tr("X-coordinate of the current editor's upper left corner, relative to screen."),
+        []() -> int {
+            IEditor *editor = currentEditor();
+            return editor ? editor->widget()->mapToGlobal(QPoint(0, 0)).x() : 0;
+        });
+
+    VariableManager::registerIntVariable(kCurrentDocumentYPos,
+        tr("Y-coordinate of the current editor's upper left corner, relative to screen."),
+        []() -> int {
+            IEditor *editor = currentEditor();
+            return editor ? editor->widget()->mapToGlobal(QPoint(0, 0)).y() : 0;
+        });
 }
 
 void EditorManager::updateAutoSave()
@@ -2578,31 +2590,4 @@ void EditorManager::setWindowTitleVcsTopic(const QString &topic)
 QString EditorManager::windowTitleVcsTopic()
 {
     return d->m_titleVcsTopic;
-}
-
-void EditorManager::updateVariable(const QByteArray &variable)
-{
-    if (VariableManager::isFileVariable(variable, kCurrentDocumentPrefix)) {
-        QString value;
-        IDocument *document = currentDocument();
-        if (document) {
-            QString fileName = document->filePath();
-            if (!fileName.isEmpty())
-                value = VariableManager::fileVariableValue(variable, kCurrentDocumentPrefix,
-                                                                       fileName);
-        }
-        VariableManager::insert(variable, value);
-    } else if (variable == kCurrentDocumentXPos) {
-        QString value;
-        IEditor *curEditor = currentEditor();
-        if (curEditor)
-            value = QString::number(curEditor->widget()->mapToGlobal(QPoint(0,0)).x());
-        VariableManager::insert(variable, value);
-    } else if (variable == kCurrentDocumentYPos) {
-        QString value;
-        IEditor *curEditor = currentEditor();
-        if (curEditor)
-            value = QString::number(curEditor->widget()->mapToGlobal(QPoint(0,0)).y());
-        VariableManager::insert(variable, value);
-    }
 }

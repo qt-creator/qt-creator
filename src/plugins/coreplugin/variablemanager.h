@@ -32,10 +32,10 @@
 
 #include "core_global.h"
 
-#include <QObject>
-#include <QString>
+#include <functional>
 
-QT_FORWARD_DECLARE_CLASS(QFileInfo)
+#include <QFileInfo>
+#include <QString>
 
 namespace Utils { class AbstractMacroExpander; }
 
@@ -43,36 +43,29 @@ namespace Core {
 
 namespace Internal { class MainWindow; }
 
-class CORE_EXPORT VariableManager : public QObject
+class CORE_EXPORT VariableManager
 {
-    Q_OBJECT
-
 public:
-    static QObject *instance();
-
-    static void insert(const QByteArray &variable, const QString &value);
-    static bool remove(const QByteArray &variable);
     static QString value(const QByteArray &variable, bool *found = 0);
 
     static QString expandedString(const QString &stringWithVariables);
     static Utils::AbstractMacroExpander *macroExpander();
 
+
+    typedef std::function<QString()> StringFunction;
+    typedef std::function<int()> IntFunction;
+
     static void registerVariable(const QByteArray &variable,
-                          const QString &description);
+        const QString &description, const StringFunction &value);
+
+    static void registerIntVariable(const QByteArray &variable,
+        const QString &description, const IntFunction &value);
 
     static void registerFileVariables(const QByteArray &prefix,
-                              const QString &heading);
-    static bool isFileVariable(const QByteArray &variable, const QByteArray &prefix);
-    static QString fileVariableValue(const QByteArray &variable, const QByteArray &prefix,
-                              const QString &fileName);
-    static QString fileVariableValue(const QByteArray &variable, const QByteArray &prefix,
-                              const QFileInfo &fileInfo);
+        const QString &heading, const StringFunction &value);
 
     static QList<QByteArray> variables();
     static QString variableDescription(const QByteArray &variable);
-
-signals:
-    void variableUpdateRequested(const QByteArray &variable);
 
 private:
     VariableManager();

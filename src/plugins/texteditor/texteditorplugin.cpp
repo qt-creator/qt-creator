@@ -200,6 +200,11 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     return true;
 }
 
+static ITextEditor *currentTextEditor()
+{
+    return qobject_cast<ITextEditor *>(Core::EditorManager::currentEditor());
+}
+
 void TextEditorPlugin::extensionsInitialized()
 {
     m_searchResultWindow = Core::SearchResultWindow::instance();
@@ -216,19 +221,52 @@ void TextEditorPlugin::extensionsInitialized()
     addAutoReleasedObject(new FindInOpenFiles);
 
     Core::VariableManager::registerVariable(kCurrentDocumentSelection,
-        tr("Selected text within the current document."));
-    Core::VariableManager::registerVariable(kCurrentDocumentRow,
-        tr("Line number of the text cursor position in current document (starts with 1)."));
-    Core::VariableManager::registerVariable(kCurrentDocumentColumn,
-        tr("Column number of the text cursor position in current document (starts with 0)."));
-    Core::VariableManager::registerVariable(kCurrentDocumentRowCount,
-        tr("Number of lines visible in current document."));
-    Core::VariableManager::registerVariable(kCurrentDocumentColumnCount,
-        tr("Number of columns visible in current document."));
-    Core::VariableManager::registerVariable(kCurrentDocumentFontSize,
-        tr("Current document's font size in points."));
-    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
-            this, SLOT(updateVariable(QByteArray)));
+        tr("Selected text within the current document."),
+        []() -> QString {
+            QString value;
+            if (ITextEditor *editor = currentTextEditor()) {
+                value = editor->selectedText();
+                value.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
+            }
+            return value;
+        });
+
+    Core::VariableManager::registerIntVariable(kCurrentDocumentRow,
+        tr("Line number of the text cursor position in current document (starts with 1)."),
+        []() -> int {
+            ITextEditor *editor = currentTextEditor();
+            return editor ? editor->currentLine() : 0;
+        });
+
+    Core::VariableManager::registerIntVariable(kCurrentDocumentColumn,
+        tr("Column number of the text cursor position in current document (starts with 0)."),
+        []() -> int {
+            ITextEditor *editor = currentTextEditor();
+            return editor ? editor->currentColumn() : 0;
+        });
+
+    Core::VariableManager::registerIntVariable(kCurrentDocumentRowCount,
+        tr("Number of lines visible in current document."),
+        []() -> int {
+            ITextEditor *editor = currentTextEditor();
+            return editor ? editor->rowCount() : 0;
+        });
+
+    Core::VariableManager::registerIntVariable(kCurrentDocumentColumnCount,
+        tr("Number of columns visible in current document."),
+        []() -> int {
+            ITextEditor *editor = currentTextEditor();
+            return editor ? editor->columnCount() : 0;
+        });
+
+    Core::VariableManager::registerIntVariable(kCurrentDocumentFontSize,
+        tr("Current document's font size in points."),
+        []() -> int {
+            ITextEditor *editor = currentTextEditor();
+            return editor ? editor->widget()->font().pointSize() : 0;
+        });
+
+
     connect(Core::ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
             this, SLOT(updateCurrentSelection(QString)));
 }
@@ -256,39 +294,6 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
                                                 settings.formatFor(TextEditor::C_TEXT).background(),
                                                 settings.formatFor(TextEditor::C_SEARCH_RESULT).foreground(),
                                                 settings.formatFor(TextEditor::C_SEARCH_RESULT).background());
-    }
-}
-
-void TextEditorPlugin::updateVariable(const QByteArray &variable)
-{
-    static QSet<QByteArray> variables = QSet<QByteArray>()
-            << kCurrentDocumentSelection
-            << kCurrentDocumentRow
-            << kCurrentDocumentColumn
-            << kCurrentDocumentRowCount
-            << kCurrentDocumentColumnCount
-            << kCurrentDocumentFontSize;
-    if (variables.contains(variable)) {
-        QString value;
-        Core::IEditor *iface = Core::EditorManager::currentEditor();
-        ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
-        if (editor) {
-            if (variable == kCurrentDocumentSelection) {
-                value = editor->selectedText();
-                value.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
-            } else if (variable == kCurrentDocumentRow) {
-                value = QString::number(editor->currentLine());
-            } else if (variable == kCurrentDocumentColumn) {
-                value = QString::number(editor->currentColumn());
-            } else if (variable == kCurrentDocumentRowCount) {
-                value = QString::number(editor->rowCount());
-            } else if (variable == kCurrentDocumentColumnCount) {
-                value = QString::number(editor->columnCount());
-            } else if (variable == kCurrentDocumentFontSize) {
-                value = QString::number(editor->widget()->font().pointSize());
-            }
-        }
-        Core::VariableManager::insert(variable, value);
     }
 }
 

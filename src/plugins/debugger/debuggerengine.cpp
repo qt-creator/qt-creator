@@ -175,10 +175,10 @@ public:
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
         connect(debuggerCore()->action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
                 SLOT(reloadDisassembly()));
+
         VariableManager::registerFileVariables(PrefixDebugExecutable,
-                                               tr("Debugged executable"));
-        connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
-                SLOT(updateVariable(QByteArray)));
+            tr("Debugged executable"),
+            [&]() { return this->m_startParameters.executable; });
     }
 
 public slots:
@@ -189,13 +189,6 @@ public slots:
     void doShutdownInferior();
     void doInterruptInferior();
     void doFinishDebugger();
-
-    void updateVariable(const QByteArray &variable)
-    {
-        if (VariableManager::isFileVariable(variable, PrefixDebugExecutable))
-            VariableManager::insert(variable,
-                VariableManager::fileVariableValue(variable, PrefixDebugExecutable, m_startParameters.executable));
-    }
 
     void reloadDisassembly()
     {

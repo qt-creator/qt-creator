@@ -164,6 +164,18 @@ using namespace Core;
 
 namespace ProjectExplorer {
 
+static Target *activeTarget()
+{
+    Project *project = ProjectExplorerPlugin::currentProject();
+    return project ? project->activeTarget() : 0;
+}
+
+static BuildConfiguration *activeBuildConfiguration()
+{
+    Target *target = activeTarget();
+    return target ? target->activeBuildConfiguration() : 0;
+}
+
 struct ProjectExplorerPluginPrivate {
     ProjectExplorerPluginPrivate();
 
@@ -321,6 +333,25 @@ bool ProjectExplorerPlugin::parseArguments(const QStringList &arguments, QString
 {
     CustomWizard::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
     return true;
+}
+
+static QString variableValue(const char *variable)
+{
+    QString projectName;
+    QString projectFilePath;
+    Kit *kit = 0;
+    QString buildConfigurationName;
+    if (Project *project = ProjectExplorerPlugin::currentProject()) {
+        projectName = project->displayName();
+        if (IDocument *doc = project->document())
+            projectFilePath = doc->filePath();
+        if (BuildConfiguration *buildConfiguration = activeBuildConfiguration())
+            buildConfigurationName = buildConfiguration->displayName();
+    }
+    ProjectMacroExpander expander(projectFilePath, projectName, kit, buildConfigurationName);
+    QString result;
+    expander.resolveProjectMacro(QString::fromUtf8(variable), &result);
+    return result;
 }
 
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
@@ -1016,30 +1047,80 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     updateWelcomePage();
 
-    VariableManager::registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX, tr("Current project's main file"));
-    VariableManager::registerVariable(Constants::VAR_CURRENTPROJECT_BUILDPATH,
-        tr("Full build path of the current project's active build configuration."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTPROJECT_NAME, tr("The current project's name."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTKIT_NAME, tr("The currently active kit's name."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
-                         tr("The currently active kit's name in a filesystem friendly version."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTKIT_ID, tr("The currently active kit's id."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_HOSTADDRESS,
-            tr("The host address of the device in the currently active kit."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_SSHPORT,
-            tr("The SSH port of the device in the currently active kit."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_USERNAME,
-            tr("The user name with which to log into the device in the currently active kit."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE,
-            tr("The private key file with which to authenticate when logging into the device "
-               "in the currently active kit."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_NAME, tr("The currently active build configuration's name."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_TYPE, tr("The currently active build configuration's type."));
-    VariableManager::registerFileVariables(Constants::VAR_CURRENTSESSION_PREFIX, tr("File where current session is saved."));
-    VariableManager::registerVariable(Constants::VAR_CURRENTSESSION_NAME, tr("Name of current session."));
+    VariableManager::registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
+        tr("Current project's main file"),
+        []() {
+            QString projectFilePath;
+            if (Project *project = ProjectExplorerPlugin::currentProject())
+                if (IDocument *doc = project->document())
+                    projectFilePath = doc->filePath();
+            return projectFilePath;
+        });
 
-    connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
-            this, SLOT(updateVariable(QByteArray)));
+    VariableManager::registerVariable(Constants::VAR_CURRENTPROJECT_BUILDPATH,
+        tr("Full build path of the current project's active build configuration."),
+        []() -> QString {
+            BuildConfiguration *bc = activeBuildConfiguration();
+            return bc ? bc->buildDirectory().toUserOutput() : QString();
+        });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
+        tr("The current project's name."),
+        []() -> QString { return variableValue(Constants::VAR_CURRENTPROJECT_NAME); });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTKIT_NAME,
+        tr("The currently active kit's name."),
+        []() -> QString { return variableValue(Constants::VAR_CURRENTKIT_NAME); });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
+        tr("The currently active kit's name in a filesystem friendly version."),
+        []() -> QString { return variableValue(Constants::VAR_CURRENTKIT_FILESYSTEMNAME); });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTKIT_ID,
+        tr("The currently active kit's id."),
+        []() -> QString { return variableValue(Constants::VAR_CURRENTKIT_ID); });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_HOSTADDRESS,
+        tr("The host address of the device in the currently active kit."),
+        []() -> QString { return variableValue(Constants::VAR_CURRENTDEVICE_HOSTADDRESS); });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_SSHPORT,
+        tr("The SSH port of the device in the currently active kit."),
+        []() -> QString { return variableValue(Constants::VAR_CURRENTDEVICE_SSHPORT); });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_USERNAME,
+        tr("The user name with which to log into the device in the currently active kit."),
+        []() -> QString { return variableValue(Constants::VAR_CURRENTDEVICE_USERNAME); });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE,
+        tr("The private key file with which to authenticate when logging into the device "
+           "in the currently active kit."),
+        []() -> QString { return variableValue(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE); });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_NAME,
+        tr("The currently active build configuration's name."),
+        []() -> QString { return variableValue(Constants::VAR_CURRENTBUILD_NAME); });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
+        tr("The currently active build configuration's type."),
+        []() -> QString {
+            if (BuildConfiguration *bc = activeBuildConfiguration()) {
+                BuildConfiguration::BuildType type = bc->buildType();
+                if (type == BuildConfiguration::Debug)
+                    return tr("debug");
+                if (type == BuildConfiguration::Release)
+                    return tr("release");
+            }
+            return tr("unknown");
+        });
+
+    VariableManager::registerFileVariables(Constants::VAR_CURRENTSESSION_PREFIX,
+        tr("File where current session is saved."),
+        []() -> QString { return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString(); });
+
+    VariableManager::registerVariable(Constants::VAR_CURRENTSESSION_NAME,
+        tr("Name of current session."),
+        []() -> QString { return SessionManager::activeSession(); });
 
     return true;
 }
@@ -1151,67 +1232,6 @@ void ProjectExplorerPlugin::loadCustomWizards()
         firstTime = false;
         foreach (IWizardFactory *cpw, ProjectExplorer::CustomWizard::createWizards())
             addAutoReleasedObject(cpw);
-    }
-}
-
-void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
-{
-    if (variable == Constants::VAR_CURRENTPROJECT_BUILDPATH) {
-        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
-            VariableManager::insert(variable,
-                                          currentProject()->activeTarget()->activeBuildConfiguration()->buildDirectory().toUserOutput());
-        } else {
-            VariableManager::remove(variable);
-        }
-    } else if (variable == Constants::VAR_CURRENTBUILD_TYPE) {
-        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
-            BuildConfiguration::BuildType type = currentProject()->activeTarget()->activeBuildConfiguration()->buildType();
-            QString typeString;
-            if (type == BuildConfiguration::Debug)
-                typeString = tr("debug");
-            else if (type == BuildConfiguration::Release)
-                typeString = tr("release");
-            else
-                typeString = tr("unknown");
-            VariableManager::insert(variable, typeString);
-        } else {
-            VariableManager::remove(variable);
-        }
-    } else if (variable == Constants::VAR_CURRENTSESSION_NAME) {
-        if (!SessionManager::activeSession().isEmpty())
-            VariableManager::insert(variable, SessionManager::activeSession());
-        else
-            VariableManager::remove(variable);
-    } else if (Core::VariableManager::isFileVariable(
-                   variable, ProjectExplorer::Constants::VAR_CURRENTSESSION_PREFIX)) {
-        if (!SessionManager::activeSession().isEmpty()) {
-            VariableManager::insert(variable, Core::VariableManager::fileVariableValue(variable,
-                 ProjectExplorer::Constants::VAR_CURRENTSESSION_PREFIX,
-                 SessionManager::sessionNameToFileName(SessionManager::activeSession()).toFileInfo()));
-        } else {
-            VariableManager::remove(variable);
-        }
-    } else {
-        QString projectName;
-        QString projectFilePath;
-        Kit *kit = 0;
-        QString buildConfigurationName;
-        if (Project *project = currentProject()) {
-            projectName = project->displayName();
-            if (IDocument *doc = project->document())
-                projectFilePath = doc->filePath();
-            if (Target *target = project->activeTarget()) {
-                kit = target->kit();
-                if (BuildConfiguration *buildConfiguration = target->activeBuildConfiguration())
-                    buildConfigurationName = buildConfiguration->displayName();
-            }
-        }
-        ProjectMacroExpander expander(projectFilePath, projectName, kit, buildConfigurationName);
-        QString result;
-        if (expander.resolveProjectMacro(QString::fromUtf8(variable), &result))
-            VariableManager::insert(variable, result);
-        else
-            VariableManager::remove(variable);
     }
 }
 

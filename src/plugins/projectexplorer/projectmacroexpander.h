@@ -50,6 +50,7 @@ private:
     const Kit *m_kit;
     QString m_bcName;
 };
-} // namespace
+
+} // namespace ProjectExplorer
 
 #endif // PROJECTMACROEXPANDER_H

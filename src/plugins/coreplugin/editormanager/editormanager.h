@@ -218,7 +218,6 @@ private slots:
     static void vcsOpenCurrentEditor();
     static void updateWindowTitle();
     void handleDocumentStateChange();
-    static void updateVariable(const QByteArray &variable);
     static void autoSave();
 
     static void saveDocumentFromContextMenu();

@@ -101,41 +101,33 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     return true;
 }
 
+static QString qmakeProperty(const char *propertyName)
+{
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    if (!project || !project->activeTarget())
+        return QString();
+
+    const BaseQtVersion *qtVersion = QtKitInformation::qtVersion(project->activeTarget()->kit());
+    if (!qtVersion)
+        return QString();
+    return qtVersion->qmakeProperty(propertyName);
+}
+
 void QtSupportPlugin::extensionsInitialized()
 {
     VariableManager::registerVariable(kHostBins,
-        tr("Full path to the host bin directory of the current project's Qt version."));
+        tr("Full path to the host bin directory of the current project's Qt version."),
+        []() -> QString { return qmakeProperty("QT_HOST_BINS"); });
+
     VariableManager::registerVariable(kInstallBins,
         tr("Full path to the target bin directory of the current project's Qt version."
-           " You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)));
-    connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
-            this, SLOT(updateVariable(QByteArray)));
+           " You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)),
+        []() -> QString { return qmakeProperty("QT_INSTALL_BINS"); });
 }
 
 bool QtSupportPlugin::delayedInitialize()
 {
     return QtVersionManager::delayedInitialize();
-}
-
-void QtSupportPlugin::updateVariable(const QByteArray &variable)
-{
-    if (variable != kHostBins && variable != kInstallBins)
-        return;
-
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    if (!project || !project->activeTarget()) {
-        VariableManager::remove(variable);
-        return;
-    }
-
-    const BaseQtVersion *qtVersion = QtKitInformation::qtVersion(project->activeTarget()->kit());
-    if (!qtVersion) {
-        VariableManager::remove(variable);
-        return;
-    }
-
-    QString value = qtVersion->qmakeProperty(variable == kHostBins ? "QT_HOST_BINS" : "QT_INSTALL_BINS");
-    VariableManager::insert(variable, value);
 }
 
 Q_EXPORT_PLUGIN(QtSupportPlugin)

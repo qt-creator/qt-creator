@@ -47,10 +47,8 @@ public:
     void extensionsInitialized();
     bool delayedInitialize();
 
-private slots:
-    void updateVariable(const QByteArray &variable);
-
 #ifdef WITH_TESTS
+private slots:
     void testQtOutputParser_data();
     void testQtOutputParser();
     void testQtOutputFormatter_data();
