@@ -103,6 +103,7 @@ ScrollView {
                 delegate: Section {
                     width: itemsView.viewport.width
                     caption: sectionName // to be set by model
+                    visible: sectionVisible
                     Grid {
                         id: itemGrid
 

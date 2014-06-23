@@ -76,17 +76,17 @@ ItemLibraryModel::~ItemLibraryModel()
 
 int ItemLibraryModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return visibleSectionCount();
+    return m_sectionModels.count();
 }
 
 QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() +1 > visibleSectionCount())
+    if (!index.isValid() || index.row() +1 > m_sectionModels.count())
         return QVariant();
 
 
     if (m_roleNames.contains(role)) {
-        QVariant value = visibleSections().at(index.row())->property(m_roleNames.value(role));
+        QVariant value = m_sectionModels.at(index.row())->property(m_roleNames.value(role));
 
         ItemLibrarySectionModel* model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>());
         if (model)
@@ -170,6 +170,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
         }
     }
 
+    resetModel();
     updateVisibility();
 }
 
@@ -250,14 +251,15 @@ void ItemLibraryModel::updateVisibility()
         if (itemLibrarySection->sectionName().toLower().contains(m_searchText))
             sectionSearchText.clear();
 
-        bool sectionChanged = false,
-            sectionVisibility = itemLibrarySection->updateSectionVisibility(sectionSearchText,
-                                                                      &sectionChanged);
-        if (sectionChanged)
-            changed = true;
-
+        bool sectionChanged = false;
+        bool sectionVisibility = itemLibrarySection->updateSectionVisibility(sectionSearchText,
+                                                                             &sectionChanged);
+        changed |= sectionChanged;
         changed |= itemLibrarySection->setVisible(sectionVisibility);
     }
+
+    if (changed)
+        resetModel();
 }
 
 void ItemLibraryModel::addRoleNames()
@@ -270,6 +272,12 @@ void ItemLibraryModel::addRoleNames()
     }
 
     setRoleNames(m_roleNames);
+}
+
+void ItemLibraryModel::resetModel()
+{
+    beginResetModel();
+    endResetModel();
 }
 
 int ItemLibraryModel::getWidth(const ItemLibraryEntry &itemLibraryEntry)

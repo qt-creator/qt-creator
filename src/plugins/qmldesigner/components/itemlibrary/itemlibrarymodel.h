@@ -85,6 +85,7 @@ signals:
 private: // functions
     void updateVisibility();
     void addRoleNames();
+    void resetModel();
 
     int getWidth(const ItemLibraryEntry &entry);
     int getHeight(const ItemLibraryEntry &entry);

@@ -83,18 +83,16 @@ bool ItemLibrarySection::updateSectionVisibility(const QString &searchText, bool
     foreach(ItemLibraryItem *itemLibraryItem, m_sectionEntries.items()) {
         bool itemVisible = itemLibraryItem->itemName().toLower().contains(searchText);
 
-        bool itemChanged = false;
-        itemChanged = itemLibraryItem->setVisible(itemVisible);
+        bool itemChanged = itemLibraryItem->setVisible(itemVisible);
 
         *changed |= itemChanged;
 
         if (itemVisible)
             haveVisibleItems = true;
     }
+
     if (changed)
         m_sectionEntries.resetModel();
-
-    emit sectionEntriesChanged();
 
     return haveVisibleItems;
 }
