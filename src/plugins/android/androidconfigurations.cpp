@@ -460,7 +460,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
     QVector<AndroidDeviceInfo> devices;
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), QStringList() << QLatin1String("devices"));
-    if (!adbProc.waitForFinished(5000)) {
+    if (!adbProc.waitForFinished(10000)) {
         adbProc.kill();
         if (error)
             *error = QApplication::translate("AndroidConfiguration",
@@ -729,7 +729,7 @@ bool AndroidConfig::isBootToQt(const QString &device) const
 
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), arguments);
-    if (!adbProc.waitForFinished(5000)) {
+    if (!adbProc.waitForFinished(10000)) {
         adbProc.kill();
         return false;
     }
@@ -745,7 +745,7 @@ int AndroidConfig::getSDKVersion(const QString &device) const
 
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), arguments);
-    if (!adbProc.waitForFinished(5000)) {
+    if (!adbProc.waitForFinished(10000)) {
         adbProc.kill();
         return -1;
     }
@@ -768,7 +768,7 @@ QString AndroidConfig::getProductModel(const QString &device) const
 
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), arguments);
-    if (!adbProc.waitForFinished(5000)) {
+    if (!adbProc.waitForFinished(10000)) {
         adbProc.kill();
         return device;
     }
@@ -788,7 +788,7 @@ bool AndroidConfig::hasFinishedBooting(const QString &device) const
 
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), arguments);
-    if (!adbProc.waitForFinished(5000)) {
+    if (!adbProc.waitForFinished(10000)) {
         adbProc.kill();
         return false;
     }
@@ -811,7 +811,7 @@ QStringList AndroidConfig::getAbis(const QString &device) const
 
         QProcess adbProc;
         adbProc.start(adbToolPath().toString(), arguments);
-        if (!adbProc.waitForFinished(5000)) {
+        if (!adbProc.waitForFinished(10000)) {
             adbProc.kill();
             return result;
         }
