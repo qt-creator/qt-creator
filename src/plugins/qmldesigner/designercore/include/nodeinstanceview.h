@@ -136,6 +136,7 @@ public:
 
     NodeInstance activeStateInstance() const;
 
+    void updatePosition(const QList<VariantProperty>& propertyList);
 
     void valuesChanged(const ValuesChangedCommand &command);
     void pixmapChanged(const PixmapChangedCommand &command);

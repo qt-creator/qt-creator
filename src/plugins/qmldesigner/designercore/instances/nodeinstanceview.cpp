@@ -370,6 +370,7 @@ void NodeInstanceView::signalHandlerPropertiesChanged(const QVector<SignalHandle
 
 void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
+    updatePosition(propertyList);
     nodeInstanceServer()->changePropertyValues(createChangeValueCommand(propertyList));
 }
 /*!
@@ -671,6 +672,26 @@ void NodeInstanceView::clearStateInstance()
 NodeInstance NodeInstanceView::activeStateInstance() const
 {
     return m_activeStateInstance;
+}
+
+void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList)
+{
+    QMultiHash<ModelNode, InformationName> informationChangeHash;
+
+    foreach (const VariantProperty &variantProperty, propertyList) {
+        if (variantProperty.name() == "x") {
+            NodeInstance instance = instanceForModelNode(variantProperty.parentModelNode());
+            instance.setX(variantProperty.value().toDouble());
+            informationChangeHash.insert(variantProperty.parentModelNode(), Transform);
+        } else if (variantProperty.name() == "y") {
+            NodeInstance instance = instanceForModelNode(variantProperty.parentModelNode());
+            instance.setY(variantProperty.value().toDouble());
+            informationChangeHash.insert(variantProperty.parentModelNode(), Transform);
+        }
+    }
+
+    if (!informationChangeHash.isEmpty())
+        emitInstanceInformationsChange(informationChangeHash);
 }
 
 NodeInstanceServerInterface *NodeInstanceView::nodeInstanceServer() const

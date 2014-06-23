@@ -122,6 +122,14 @@ bool MoveManipulator::itemsCanReparented() const
     return true;
 }
 
+void MoveManipulator::setDirectUpdateInNodeInstances(bool directUpdate)
+{
+    foreach (FormEditorItem* item, m_itemList) {
+        if (item && item->qmlItemNode().isValid())
+            item->qmlItemNode().nodeInstance().setUpdateTransform(!directUpdate);
+    }
+}
+
 void MoveManipulator::begin(const QPointF &beginPoint)
 {
     m_isActive = true;
@@ -158,6 +166,8 @@ void MoveManipulator::begin(const QPointF &beginPoint)
     m_beginPoint = beginPoint;
 
 //    setOpacityForAllElements(0.62);
+
+    setDirectUpdateInNodeInstances(true);
 
     m_rewriterTransaction = m_view->beginRewriterTransaction(QByteArrayLiteral("MoveManipulator::begin"));
 }
@@ -371,6 +381,7 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
 
 void MoveManipulator::end()
 {
+    setDirectUpdateInNodeInstances(false);
     m_isActive = false;
     deleteSnapLines();
     clear();

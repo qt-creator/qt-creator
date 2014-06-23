@@ -51,7 +51,8 @@ public:
           hasContent(false),
           isMovable(false),
           isResizable(false),
-          isInLayoutable(false)
+          isInLayoutable(false),
+          updateTransform(true)
     {}
 
     qint32 parentInstanceId;
@@ -71,6 +72,7 @@ public:
     bool isMovable;
     bool isResizable;
     bool isInLayoutable;
+    bool updateTransform;
 
 
     QHash<PropertyName, QVariant> propertyValues;
@@ -131,6 +133,36 @@ qint32 NodeInstance::instanceId() const
         return d->modelNode.internalId();
     else
         return -1;
+}
+
+void NodeInstance::setUpdateTransform(bool updateTransform)
+{
+    if (d)
+        d->updateTransform = updateTransform;
+}
+
+bool NodeInstance::updateTransform() const
+{
+    if (d)
+        d->updateTransform || d->transform.isRotating() || d->transform.isScaling();
+    else
+        return true;
+}
+
+void NodeInstance::setX(double x)
+{
+    if(d && !updateTransform()) {
+        double dx = x - d->transform.dx();
+        d->transform.translate(dx, 0.0);
+    }
+}
+
+void NodeInstance::setY(double y)
+{
+    if(d && !updateTransform()) {
+        double dy = y - d->transform.dy();
+        d->transform.translate(0.0, dy);
+    }
 }
 
 bool NodeInstance::isValid() const
@@ -375,7 +407,7 @@ InformationName NodeInstance::setInformationContentItemBoundingRect(const QRectF
 
 InformationName NodeInstance::setInformationTransform(const QTransform &transform)
 {
-    if (d->transform != transform) {
+    if (updateTransform() && d->transform != transform) {
         d->transform = transform;
         return Transform;
     }

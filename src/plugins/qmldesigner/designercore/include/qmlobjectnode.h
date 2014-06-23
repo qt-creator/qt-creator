@@ -41,9 +41,12 @@ namespace QmlDesigner {
 
 class QmlItemNode;
 class QmlPropertyChanges;
+class MoveManipulator;
 
 class QMLDESIGNERCORE_EXPORT QmlObjectNode : public QmlModelNodeFacade
 {
+    friend class QmlItemNode;
+    friend class MoveManipulator;
 public:
     QmlObjectNode();
     QmlObjectNode(const ModelNode &modelNode);

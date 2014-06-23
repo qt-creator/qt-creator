@@ -97,6 +97,8 @@ protected:
 
     void adjustAnchoringOfItem(FormEditorItem *item);
 
+    void setDirectUpdateInNodeInstances(bool directUpdate);
+
 private:
     Snapper m_snapper;
     QPointer<LayerItem> m_layerItem;

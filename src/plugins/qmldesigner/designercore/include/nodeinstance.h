@@ -86,6 +86,10 @@ public:
     qint32 parentId() const;
     qint32 instanceId() const;
 
+    void setUpdateTransform(bool updateTransform);
+    bool updateTransform() const;
+    void setX(double x);
+    void setY(double y);
 
 protected:
     void setProperty(const PropertyName &name, const QVariant &value);
