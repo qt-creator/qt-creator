@@ -66,16 +66,13 @@ QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventTypeD
 
 QString getDisplayName(const QmlProfilerDataModel::QmlEventTypeData &event)
 {
-    const QmlDebug::QmlEventLocation eventLocation = getLocation(event);
-    QString displayName;
-
-    if (!eventLocation.filename.isEmpty()) {
-        const QString filePath = QUrl(eventLocation.filename).path();
-        displayName = filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +
-                QString::number(eventLocation.line);
+    if (event.location.filename.isEmpty()) {
+        return QmlProfilerDataModel::tr("<bytecode>");
+    } else {
+        const QString filePath = QUrl(event.location.filename).path();
+        return filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +
+                QString::number(event.location.line);
     }
-
-    return displayName;
 }
 
 QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event)
@@ -97,6 +94,9 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventTypeData &event)
                     details.startsWith(QLatin1String("qrc:/")))
                 details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
         }
+    } else if (event.rangeType == QmlDebug::Painting) {
+        // QtQuick1 animations always run in GUI thread.
+        details = QmlProfilerDataModel::tr("GUI Thread");
     }
 
     return details;
@@ -223,13 +223,6 @@ void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::Rang
 {
     Q_D(QmlProfilerDataModel);
     QString displayName;
-    if (message == QmlDebug::Event && detailType == QmlDebug::AnimationFrame) {
-        displayName = tr("Animations");
-    } else {
-        displayName = QString::fromLatin1("%1:%2").arg(
-                location.filename,
-                QString::number(location.line));
-    }
 
     QmlEventTypeData typeData = {displayName, location, message, rangeType, detailType, data};
     QmlEventData eventData = {-1, startTime, duration, ndata1, ndata2, ndata3, ndata4, ndata5};
