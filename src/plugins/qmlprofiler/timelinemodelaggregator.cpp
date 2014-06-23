@@ -182,6 +182,16 @@ const QString TimelineModelAggregator::title(int modelIndex) const
     return d->modelList[modelIndex]->title();
 }
 
+int TimelineModelAggregator::rowMinValue(int modelIndex, int row) const
+{
+    return d->modelList[modelIndex]->rowMinValue(row);
+}
+
+int TimelineModelAggregator::rowMaxValue(int modelIndex, int row) const
+{
+    return d->modelList[modelIndex]->rowMaxValue(row);
+}
+
 int TimelineModelAggregator::findFirstIndex(int modelIndex, qint64 startTime) const
 {
     return d->modelList[modelIndex]->findFirstIndex(startTime);

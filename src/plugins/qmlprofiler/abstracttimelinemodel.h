@@ -93,6 +93,8 @@ public:
     Q_INVOKABLE virtual int getEventIdForLocation(const QString &filename, int line, int column) const;
     Q_INVOKABLE virtual int getBindingLoopDest(int index) const;
     Q_INVOKABLE virtual float getHeight(int index) const;
+    virtual int rowMinValue(int rowNumber) const;
+    virtual int rowMaxValue(int rowNumber) const;
 
 signals:
     void expandedChanged();

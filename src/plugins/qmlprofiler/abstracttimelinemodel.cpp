@@ -237,6 +237,18 @@ float AbstractTimelineModel::getHeight(int index) const
     return 1.0f;
 }
 
+int AbstractTimelineModel::rowMinValue(int rowNumber) const
+{
+    Q_UNUSED(rowNumber);
+    return 0;
+}
+
+int AbstractTimelineModel::rowMaxValue(int rowNumber) const
+{
+    Q_UNUSED(rowNumber);
+    return 0;
+}
+
 void AbstractTimelineModel::dataChanged()
 {
     Q_D(AbstractTimelineModel);

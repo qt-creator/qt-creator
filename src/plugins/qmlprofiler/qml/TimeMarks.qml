@@ -35,6 +35,10 @@ Canvas {
     objectName: "TimeMarks"
     contextType: "2d"
 
+    readonly property int scaleMinHeight: 60
+    readonly property int scaleStepping: 30
+    readonly property string units: " kMGT"
+
     property real startTime
     property real endTime
     property real timePerPixel
@@ -70,8 +74,6 @@ Canvas {
         var lineStart = y < 0 ? -y : 0;
         var lineEnd = Math.min(height, labels.height - y);
 
-        context.fillStyle = "#000000";
-        context.font = "8px sans-serif";
         for (var ii = 0; ii < blockCount+1; ii++) {
             var x = Math.floor(ii*pixelsPerBlock - realStartPos);
             context.strokeStyle = "#B0B0B0";
@@ -99,8 +101,26 @@ Canvas {
         }
     }
 
+    function prettyPrintScale(amount) {
+        var unitOffset = 0;
+        for (unitOffset = 0; amount > (1 << ((unitOffset + 1) * 10)); ++unitOffset) {}
+        var result = (amount >> (unitOffset * 10));
+        if (result < 100) {
+            var comma = Math.round(((amount >> ((unitOffset - 1) * 10)) & 1023) *
+                                   (result < 10 ? 100 : 10) / 1024);
+            if (comma < 10 && result < 10)
+                return result + ".0" + comma + units[unitOffset];
+            else
+                return result + "." + comma + units[unitOffset];
+        } else {
+            return result + units[unitOffset];
+        }
+    }
+
     function drawBackgroundBars( context, region ) {
         var colorIndex = true;
+
+        context.font = "8px sans-serif";
 
         // separators
         var cumulatedHeight = y < 0 ? -y : 0;
@@ -122,6 +142,40 @@ Canvas {
                     continue;
                 context.strokeStyle = context.fillStyle = colorIndex ? "#f0f0f0" : "white";
                 context.fillRect(0, cumulatedHeight - rowHeight - y, width, rowHeight);
+
+                if (rowHeight >= scaleMinHeight) {
+                    var minVal = qmlProfilerModelProxy.rowMinValue(modelIndex, row);
+                    var maxVal = qmlProfilerModelProxy.rowMaxValue(modelIndex, row);
+                    if (minVal !== maxVal) {
+                        context.strokeStyle = context.fillStyle = "#B0B0B0";
+
+                        var stepValUgly = Math.ceil((maxVal - minVal) /
+                                                Math.floor(rowHeight / scaleStepping));
+
+                        // align to clean 2**x
+                        var stepVal = 1;
+                        while (stepValUgly >>= 1)
+                            stepVal <<= 1;
+
+                        var stepHeight = rowHeight / (maxVal - minVal);
+
+                        for (var step = minVal; step <= maxVal - stepVal; step += stepVal) {
+                            var offset = cumulatedHeight - step * stepHeight - y;
+                            context.beginPath();
+                            context.moveTo(0, offset);
+                            context.lineTo(width, offset);
+                            context.stroke();
+                            context.fillText(prettyPrintScale(step), 5, offset - 2);
+                        }
+                        context.beginPath();
+                        context.moveTo(0, cumulatedHeight - rowHeight - y);
+                        context.lineTo(width, cumulatedHeight - rowHeight - y);
+                        context.stroke();
+                        context.fillText(prettyPrintScale(maxVal), 5,
+                                         cumulatedHeight - rowHeight - y + 8);
+
+                    }
+                }
 
                 if (cumulatedHeight > y + height)
                     return;
