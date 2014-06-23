@@ -61,6 +61,7 @@ bool ItemLibraryItem::setVisible(bool isVisible)
 {
     if (isVisible != m_isVisible) {
         m_isVisible = isVisible;
+        emit visibilityChanged();
         return true;
     }
 

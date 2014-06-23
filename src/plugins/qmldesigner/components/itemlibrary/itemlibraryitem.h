@@ -47,6 +47,7 @@ class ItemLibraryItem: public QObject {
     Q_PROPERTY(QString itemName READ itemName FINAL)
     Q_PROPERTY(QString itemLibraryIconPath READ itemLibraryIconPath FINAL)
     Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
+    Q_PROPERTY(QVariant visible READ isVisible NOTIFY visibilityChanged FINAL)
 
 public:
     ItemLibraryItem(QObject *parent);
@@ -61,6 +62,9 @@ public:
 
     void setItemLibraryEntry(const ItemLibraryEntry &itemLibraryEntry);
     QVariant itemLibraryEntry() const;
+
+signals:
+    void visibilityChanged();
 
 private:
     ItemLibraryEntry m_itemLibraryEntry;
