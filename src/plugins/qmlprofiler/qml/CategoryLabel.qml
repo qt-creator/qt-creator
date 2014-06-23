@@ -56,7 +56,6 @@ Item {
 
     function getDescriptions() {
         bindingTrigger = -bindingTrigger;
-        backgroundMarks.requestPaint();
         if (!visible)
             return;
 

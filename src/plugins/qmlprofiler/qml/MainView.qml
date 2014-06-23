@@ -80,6 +80,7 @@ Rectangle {
             // Clear if model is empty.
             if (qmlProfilerModelProxy.getState() === 0)
                 root.clear();
+            backgroundMarks.requestPaint()
         }
         onDataAvailable: {
             view.clearData();
@@ -88,6 +89,8 @@ Rectangle {
                                  qmlProfilerModelProxy.traceDuration()/10);
             view.requestPaint();
         }
+        onExpandedChanged: backgroundMarks.requestPaint()
+        onRowHeightChanged: backgroundMarks.requestPaint()
     }
 
 
