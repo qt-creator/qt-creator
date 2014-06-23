@@ -242,8 +242,6 @@ ItemLibrarySection *ItemLibraryModel::sectionByName(const QString &sectionName)
 
 void ItemLibraryModel::updateVisibility()
 {
-    beginResetModel();
-    endResetModel();
     bool changed = false;
 
     foreach (ItemLibrarySection *itemLibrarySection, m_sectionModels) {
