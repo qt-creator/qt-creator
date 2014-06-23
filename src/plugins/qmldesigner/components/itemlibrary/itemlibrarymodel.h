@@ -76,7 +76,6 @@ public:
 public slots:
     void setSearchText(const QString &searchText);
 
-    int getSectionLibId(int itemLibId);
     void setExpanded(bool, const QString &section);
 
 signals:
@@ -94,7 +93,6 @@ private: // functions
 
 private: // variables
     QList<ItemLibrarySection*> m_sectionModels;
-    QMap<int, int> m_sections;
     QHash<int, QByteArray> m_roleNames;
 
     QString m_searchText;

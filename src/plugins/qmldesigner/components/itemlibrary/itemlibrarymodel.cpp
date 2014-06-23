@@ -122,11 +122,6 @@ void ItemLibraryModel::setSearchText(const QString &searchText)
     }
 }
 
-int ItemLibraryModel::getSectionLibId(int itemLibId)
-{
-    return m_sections.value(itemLibId);
-}
-
 Import entryToImport(const ItemLibraryEntry &entry)
 {
     if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
@@ -145,7 +140,6 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     QMap<QString, int> sections;
 
     clearSections();
-    m_sections.clear();
     m_nextLibId = 0;
 
     QStringList imports;
