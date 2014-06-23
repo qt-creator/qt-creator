@@ -38,7 +38,7 @@
 #include <QFrame>
 #include <QToolButton>
 #include <QFileIconProvider>
-#include <QQuickView>
+#include <QQuickWidget>
 
 QT_BEGIN_NAMESPACE
 class QFileSystemModel;
@@ -133,7 +133,7 @@ private:
     QPointer<QStackedWidget> m_stackedWidget;
 
     QPointer<Utils::FancyLineEdit> m_filterLineEdit;
-    QScopedPointer<QQuickView> m_itemsView;
+    QScopedPointer<QQuickWidget> m_itemViewQuickWidget;
     QScopedPointer<ItemLibraryTreeView> m_resourcesView;
     QShortcut *m_qmlSourceUpdateShortcut;
 
