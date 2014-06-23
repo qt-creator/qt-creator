@@ -41,6 +41,7 @@
 #include <QDebug>
 #include <QFormLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QSpinBox>
 #include <QTextEdit>
 
@@ -63,7 +64,6 @@ public:
     explicit GdbOptionsPageWidget(QWidget *parent = 0);
 
     QGroupBox *groupBoxGeneral;
-    QLabel *labelGdbWatchdogTimeout;
     QSpinBox *spinBoxGdbWatchdogTimeout;
     QCheckBox *checkBoxSkipKnownFrames;
     QCheckBox *checkBoxUseMessageBoxForSignals;
@@ -80,6 +80,7 @@ public:
     QTextEdit *textEditPostAttachCommands;
     QGroupBox *groupBoxCustomDumperCommands;
     QTextEdit *textEditCustomDumperCommands;
+    QLineEdit *extraDumperFile;
 
     //QGroupBox *groupBoxPluginDebugging;
     //QRadioButton *radioButtonAllPluginBreakpoints;
@@ -99,7 +100,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     groupBoxGeneral = new QGroupBox(this);
     groupBoxGeneral->setTitle(GdbOptionsPage::tr("General"));
 
-    labelGdbWatchdogTimeout = new QLabel(groupBoxGeneral);
+    QLabel *labelGdbWatchdogTimeout = new QLabel(groupBoxGeneral);
     labelGdbWatchdogTimeout->setText(GdbOptionsPage::tr("GDB timeout:"));
     labelGdbWatchdogTimeout->setToolTip(GdbOptionsPage::tr(
         "The number of seconds Qt Creator will wait before it terminates\n"
@@ -221,6 +222,10 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     textEditCustomDumperCommands->setAcceptRichText(false);
     textEditCustomDumperCommands->setToolTip(groupBoxCustomDumperCommands->toolTip());
 
+    extraDumperFile = new QLineEdit(groupBoxCustomDumperCommands);
+    extraDumperFile->setToolTip(GdbOptionsPage::tr(
+        "Path to a Python file containing additional data dumpers."));
+
     /*
     groupBoxPluginDebugging = new QGroupBox(q);
     groupBoxPluginDebugging->setTitle(GdbOptionsPage::tr(
@@ -250,6 +255,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     VariableChooser::addVariableSupport(textEditCustomDumperCommands);
     VariableChooser::addVariableSupport(textEditPostAttachCommands);
     VariableChooser::addVariableSupport(textEditStartupCommands);
+    VariableChooser::addVariableSupport(extraDumperFile);
 
     QFormLayout *formLayout = new QFormLayout(groupBoxGeneral);
     formLayout->addRow(labelGdbWatchdogTimeout, spinBoxGdbWatchdogTimeout);
@@ -268,8 +274,9 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     QGridLayout *postAttachLayout = new QGridLayout(groupBoxPostAttachCommands);
     postAttachLayout->addWidget(textEditPostAttachCommands, 0, 0, 1, 1);
 
-    QGridLayout *customDumperLayout = new QGridLayout(groupBoxCustomDumperCommands);
-    customDumperLayout->addWidget(textEditCustomDumperCommands, 0, 0, 1, 1);
+    QFormLayout *customDumperLayout = new QFormLayout(groupBoxCustomDumperCommands);
+    customDumperLayout->addRow(GdbOptionsPage::tr("Additional file:"), extraDumperFile);
+    customDumperLayout->addRow(textEditCustomDumperCommands);
 
     //QHBoxLayout *horizontalLayout = new QHBoxLayout();
     //horizontalLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Preferred, QSizePolicy::Minimum));
@@ -292,7 +299,8 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
 
     DebuggerCore *dc = debuggerCore();
     group.insert(dc->action(GdbStartupCommands), textEditStartupCommands);
-    group.insert(dc->action(GdbCustomDumperCommands), textEditCustomDumperCommands);
+    group.insert(dc->action(ExtraDumperFile), extraDumperFile);
+    group.insert(dc->action(ExtraDumperCommands), textEditCustomDumperCommands);
     group.insert(dc->action(GdbPostAttachCommands), textEditPostAttachCommands);
     group.insert(dc->action(LoadGdbInit), checkBoxLoadGdbInit);
     group.insert(dc->action(LoadGdbDumpers), checkBoxLoadGdbDumpers);

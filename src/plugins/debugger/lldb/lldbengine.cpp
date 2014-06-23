@@ -275,6 +275,26 @@ void LldbEngine::setupInferior()
 {
     const DebuggerStartParameters &sp = startParameters();
 
+    const QString path = debuggerCore()->stringSetting(ExtraDumperFile);
+    if (!path.isEmpty()) {
+        QFileInfo fi(path);
+
+        Command cmd1("executeDebuggerCommand");
+        cmd1.arg("command", "python sys.path.insert(1, '" + fi.absolutePath().toUtf8() + "')");
+        runCommand(cmd1);
+
+        Command cmd2("executeDebuggerCommand");
+        cmd2.arg("python from " + fi.baseName().toUtf8() + " import *");
+        runCommand(cmd2);
+    }
+
+    const QString commands = debuggerCore()->stringSetting(ExtraDumperCommands);
+    if (!commands.isEmpty()) {
+        Command cmd("executeDebuggerCommand");
+        cmd.arg(commands.toUtf8());
+        runCommand(cmd);
+    }
+
     QString executable;
     Utils::QtcProcess::Arguments args;
     Utils::QtcProcess::prepareCommand(QFileInfo(sp.executable).absoluteFilePath(),

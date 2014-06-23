@@ -110,6 +110,8 @@ enum DebuggerActionCode
     RegisterForPostMortem,
     AlwaysAdjustColumnWidths,
 
+    ExtraDumperFile,     // For loading a file. Recommended.
+    ExtraDumperCommands, // To modify an existing setup.
 
     // Cdb
     CdbAdditionalArguments,
@@ -126,7 +128,6 @@ enum DebuggerActionCode
     LoadGdbDumpers,
     AttemptQuickStart,
     GdbStartupCommands,
-    GdbCustomDumperCommands,
     GdbPostAttachCommands,
     GdbWatchdogTimeout,
     AutoEnrichParameters,

@@ -1735,11 +1735,24 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        const QString commands = debuggerCore()->stringSetting(GdbCustomDumperCommands);
+        bool needSetup = false;
+
+        const QString path = debuggerCore()->stringSetting(ExtraDumperFile);
+        if (!path.isEmpty()) {
+            QFileInfo fi(path);
+            postCommand("python sys.path.insert(1, '" + fi.absolutePath().toUtf8() + "')");
+            postCommand("python from " + fi.baseName().toUtf8() + " import *");
+            needSetup = true;
+        }
+
+        const QString commands = debuggerCore()->stringSetting(ExtraDumperCommands);
         if (!commands.isEmpty()) {
             postCommand(commands.toLocal8Bit());
-            postCommand("bbsetup");
+            needSetup = true;
         }
+
+        if (needSetup)
+            postCommand("bbsetup");
 
         GdbMi data;
         data.fromStringMultiple(response.consoleStreamOutput);

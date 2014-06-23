@@ -404,7 +404,13 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("GdbCustomDumperCommands"));
     item->setDefaultValue(QString());
-    insertItem(GdbCustomDumperCommands, item);
+    insertItem(ExtraDumperCommands, item);
+    item = new SavedAction(this);
+
+    item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ExtraDumperFile"));
+    item->setDefaultValue(QString());
+    insertItem(ExtraDumperFile, item);
     item = new SavedAction(this);
 
     item->setSettingsKey(debugModeGroup, QLatin1String("GdbPostAttachCommands"));
