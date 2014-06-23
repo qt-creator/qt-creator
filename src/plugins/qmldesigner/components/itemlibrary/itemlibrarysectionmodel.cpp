@@ -46,24 +46,23 @@ ItemLibrarySectionModel::~ItemLibrarySectionModel()
 
 int ItemLibrarySectionModel::rowCount(const QModelIndex &) const
 {
-    return visibleItemCount();
+    return m_itemList.count();
 }
 
 QVariant ItemLibrarySectionModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() + 1 > visibleItemCount()) {
+    if (!index.isValid() || index.row() + 1 > m_itemList.count()) {
         qDebug() << Q_FUNC_INFO << "invalid index requested";
         return QVariant();
     }
 
     if (m_roleNames.contains(role)) {
-        QList<ItemLibraryItem *> visibleItemList = visibleItems();
-        QVariant value = visibleItemList.at(index.row())->property(m_roleNames.value(role));
+        QVariant value = m_itemList.at(index.row())->property(m_roleNames.value(role));
 
         if (ItemLibrarySectionModel* model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>()))
             return QVariant::fromValue(model);
 
-        return visibleItemList.at(index.row())->property(m_roleNames.value(role));
+        return m_itemList.at(index.row())->property(m_roleNames.value(role));
     }
 
     qWarning() << Q_FUNC_INFO << "invalid role requested";
