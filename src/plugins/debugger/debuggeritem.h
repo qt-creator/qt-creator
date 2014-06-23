@@ -81,6 +81,9 @@ public:
     bool isAutoDetected() const { return m_isAutoDetected; }
     void setAutoDetected(bool isAutoDetected);
 
+    QString version() const;
+    void setVersion(const QString &version);
+
     QString autoDetectionSource() const { return m_autoDetectionSource; }
     void setAutoDetectionSource(const QString &autoDetectionSource);
 
@@ -105,6 +108,7 @@ private:
     Utils::FileName m_command;
     bool m_isAutoDetected;
     QString m_autoDetectionSource;
+    QString m_version;
     QList<ProjectExplorer::Abi> m_abis;
 
     friend class Internal::DebuggerItemConfigWidget;

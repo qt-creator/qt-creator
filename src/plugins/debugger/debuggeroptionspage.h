@@ -82,6 +82,7 @@ private:
 
     QLineEdit *m_displayNameLineEdit;
     QLabel *m_cdbLabel;
+    QLineEdit *m_versionLabel;
     Utils::PathChooser *m_binaryChooser;
     QLineEdit *m_abis;
     DebuggerItemModel *m_model;

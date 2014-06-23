@@ -31,6 +31,7 @@
 #include "debuggerkitinformation.h"
 #include "debuggerkitconfigwidget.h"
 #include "debuggeroptionspage.h"
+#include "debuggerprotocol.h"
 
 #include <projectexplorer/abi.h>
 #include <utils/fileutils.h>
@@ -50,6 +51,7 @@ static const char DEBUGGER_INFORMATION_ID[] = "Id";
 static const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
 static const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
 static const char DEBUGGER_INFORMATION_AUTODETECTION_SOURCE[] = "AutoDetectionSource";
+static const char DEBUGGER_INFORMATION_VERSION[] = "Version";
 static const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
 
 namespace Debugger {
@@ -78,6 +80,7 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
     m_displayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
     m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), false).toBool();
     m_autoDetectionSource = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE)).toString();
+    m_version = data.value(QLatin1String(DEBUGGER_INFORMATION_VERSION)).toString();
     m_engineType = DebuggerEngineType(data.value(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE),
                                                  static_cast<int>(NoEngineType)).toInt());
 
@@ -122,6 +125,16 @@ void DebuggerItem::reinitializeFromFile()
             // Fallback.
             m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
         }
+
+        // Version
+        QString all = QString::fromUtf8(ba);
+        bool isMacGdb, isQnxGdb;
+        int version = 0, buildVersion = 0;
+        Debugger::Internal::extractGdbVersion(all,
+            &version, &buildVersion, &isMacGdb, &isQnxGdb);
+        if (version)
+            m_version = QString::fromLatin1("%1.%2.%3")
+                .arg(version / 10000).arg((version / 100) % 100).arg(version % 100);
         return;
     }
     if (ba.contains("lldb") || ba.startsWith("LLDB")) {
@@ -190,6 +203,7 @@ QVariantMap DebuggerItem::toMap() const
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE), int(m_engineType));
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), m_isAutoDetected);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE), m_autoDetectionSource);
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_VERSION), m_version);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ABIS), abiNames());
     return data;
 }
@@ -212,6 +226,16 @@ void DebuggerItem::setCommand(const Utils::FileName &command)
 void DebuggerItem::setAutoDetected(bool isAutoDetected)
 {
     m_isAutoDetected = isAutoDetected;
+}
+
+QString DebuggerItem::version() const
+{
+    return m_version;
+}
+
+void DebuggerItem::setVersion(const QString &version)
+{
+    m_version = version;
 }
 
 void DebuggerItem::setAutoDetectionSource(const QString &autoDetectionSource)

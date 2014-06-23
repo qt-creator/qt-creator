@@ -77,6 +77,10 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
     m_cdbLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     m_cdbLabel->setOpenExternalLinks(true);
 
+    m_versionLabel = new QLineEdit(this);
+    m_versionLabel->setPlaceholderText(tr("Unknown"));
+    m_versionLabel->setEnabled(false);
+
     m_abis = new QLineEdit(this);
     m_abis->setEnabled(false);
 
@@ -87,6 +91,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
     formLayout->addRow(m_cdbLabel);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
     formLayout->addRow(new QLabel(tr("ABIs:")), m_abis);
+    formLayout->addRow(new QLabel(tr("Version:")), m_versionLabel);
 
     connect(m_binaryChooser, SIGNAL(changed(QString)), this, SLOT(binaryPathHasChanged()));
 }
@@ -102,12 +107,12 @@ DebuggerItem DebuggerItemConfigWidget::item() const
     item.setAutoDetected(m_autodetected);
     QList<ProjectExplorer::Abi> abiList;
     foreach (const QString &a, m_abis->text().split(QRegExp(QLatin1String("[^A-Za-z0-9-_]+")))) {
-        ProjectExplorer::Abi abi(a);
         if (a.isNull())
             continue;
         abiList << a;
     }
     item.setAbis(abiList);
+    item.setVersion(m_versionLabel->text());
     item.setEngineType(m_engineType);
     return item;
 }
@@ -132,6 +137,7 @@ void DebuggerItemConfigWidget::handleCommandChange()
             = DebuggerItemManager::findByCommand(m_binaryChooser->fileName());
     if (existing) {
         setAbis(existing->abiNames());
+        m_versionLabel->setText(existing->version());
         m_engineType = existing->engineType();
     } else {
         QFileInfo fi = QFileInfo(m_binaryChooser->path());
@@ -139,9 +145,11 @@ void DebuggerItemConfigWidget::handleCommandChange()
             DebuggerItem tmp = item();
             tmp.reinitializeFromFile();
             setAbis(tmp.abiNames());
+            m_versionLabel->setText(tmp.version());
             m_engineType = tmp.engineType();
         } else {
             setAbis(QStringList());
+            m_versionLabel->setText(QString());
             m_engineType = NoEngineType;
         }
     }
@@ -181,7 +189,7 @@ void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
     m_cdbLabel->setText(text);
     m_cdbLabel->setVisible(!text.isEmpty());
     m_binaryChooser->setCommandVersionArguments(QStringList(versionCommand));
-
+    m_versionLabel->setText(item.version());
     setAbis(item.abiNames());
     m_engineType = item.engineType();
     m_id = item.id();
