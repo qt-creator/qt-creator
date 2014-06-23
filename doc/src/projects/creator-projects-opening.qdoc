@@ -43,7 +43,7 @@
     configured in \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits.
     Select the kits that you want to build and run the project with.
 
-    \image qtcreator-open-project-targets.png "Configure Project tab"
+    \image qtcreator-open-project-kits.png "Configure Project tab"
 
     Even if you do not intend to build the project, the C++ and QML code models
     need a Qt version and compiler to offer code completion. To specify them,

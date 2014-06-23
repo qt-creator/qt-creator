@@ -65,7 +65,7 @@
         \li Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits
             > \gui Add.
 
-            \image qtcreator-targets.png
+            \image qtcreator-kits.png
 
             To clone the selected kit, select \gui Clone.
 

@@ -43,7 +43,7 @@
 
     \section1 Selecting Kits
 
-    \image qtcreator-project-targets.png
+    \image qtcreator-project-kits.png
 
     To add kits for the project, select \gui {Add Kit}. The list displays kits
     that are configured in \gui Tools > \gui Options > \gui {Build & Run} >
