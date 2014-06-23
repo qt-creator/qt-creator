@@ -43,5 +43,8 @@
         <file>Controls/ComboBoxSpecifics.qml</file>
         <file>Controls/CheckBoxSpecifics.qml</file>
         <file>Controls/RadioButtonSpecifics.qml</file>
+        <file>Controls/TabViewSpecifics.qml</file>
+        <file>Controls/TabPositionComboBox.qml</file>
+        <file>Controls/CurrentIndexComboBox.qml</file>
     </qresource>
 </RCC>
