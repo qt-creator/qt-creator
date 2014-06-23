@@ -145,7 +145,8 @@ void VariableChooser::updateDescription(const QString &variable)
     if (variable.isNull())
         ui->variableDescription->setText(m_defaultDescription);
     else
-        ui->variableDescription->setText(VariableManager::variableDescription(variable.toUtf8()));
+        ui->variableDescription->setText(VariableManager::variableDescription(variable.toUtf8())
+            + QLatin1String("<p>") + tr("Current Value: %1").arg(VariableManager::value(variable.toUtf8())));
 }
 
 /*!
