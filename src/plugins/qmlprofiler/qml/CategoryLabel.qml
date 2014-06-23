@@ -28,6 +28,8 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import QtQuick.Controls 1.2
+import QtQuick.Controls.Styles 1.2
 
 Item {
     id: labelContainer
@@ -44,6 +46,8 @@ Item {
     function trigger(i) {
         return i * bindingTrigger * bindingTrigger;
     }
+
+    property bool reverseSelect: false
 
     visible: trigger(qmlProfilerModelProxy.rowCount(modelIndex)) > 0
 
@@ -63,7 +67,9 @@ Item {
         for (var i = 0; i < labelList.length; i++ ) {
             desc[i] = labelList[i].description;
             ids[i] = labelList[i].id;
-            extdesc[i] = labelList[i].displayName + ":" + labelList[i].description;
+            extdesc[i] = labelList[i].description;
+            if (labelList[i].displayName !== undefined)
+                extdesc[i] += " (" + labelList[i].displayName + ")";
         }
         descriptions = desc;
         eventIds = ids;
@@ -101,44 +107,49 @@ Item {
         visible: expanded
         Repeater {
             model: descriptions.length
-            Rectangle {
+            Button {
                 width: labelContainer.width
                 height: trigger(qmlProfilerModelProxy.rowHeight(modelIndex, index + 1))
-                color: "#eaeaea"
-                border.width: 1
-                border.color:"#c8c8c8"
-                Text {
-                    anchors.fill: parent
-                    anchors.leftMargin: 5
-                    anchors.rightMargin: 5
-
-                    text: descriptions[index]
-                    textFormat: Text.PlainText
-                    elide: Text.ElideRight
-                    verticalAlignment: Text.AlignVCenter
-                }
-                MouseArea {
-                    property bool resizing: false
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: (resizing || height - mouseY < dragHeight) ? Qt.SizeVerCursor :
-                                                                              Qt.ArrowCursor;
-                    onEntered: changeToolTip(extdescriptions[index]);
-                    onExited: changeToolTip("");
-                    onPressed: resizing = (height - mouseY < dragHeight);
-
-                    onReleased: resizing = false;
-
-                    onClicked: {
-                        if (mouse.modifiers & Qt.ShiftModifier)
+                action: Action {
+                    onTriggered: {
+                        if (reverseSelect)
                             view.selectPrevFromId(modelIndex,eventIds[index]);
                         else
                             view.selectNextFromId(modelIndex,eventIds[index]);
                     }
 
+                    tooltip: extdescriptions[index]
+                }
+
+                style: ButtonStyle {
+                    background: Rectangle {
+                        border.width: 1
+                        border.color: "#c8c8c8"
+                        color: "#eaeaea"
+                    }
+                    label: Text {
+                        text: descriptions[index]
+                        textFormat: Text.PlainText
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignLeft
+                        elide: Text.ElideRight
+                    }
+                }
+                MouseArea {
+                    hoverEnabled: true
+                    property bool resizing: false
+                    onPressed: resizing = true
+                    onReleased: resizing = false
+
+                    height: dragHeight
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    cursorShape: Qt.SizeVerCursor
+
                     onMouseYChanged: {
                         if (resizing)
-                            qmlProfilerModelProxy.setRowHeight(modelIndex, index + 1, mouseY);
+                            qmlProfilerModelProxy.setRowHeight(modelIndex, index + 1, y + mouseY);
                     }
                 }
             }

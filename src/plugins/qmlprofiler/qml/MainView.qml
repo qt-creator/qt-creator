@@ -52,8 +52,6 @@ Rectangle {
     property real selectionRangeStart: selectionRange.startTime
     property real selectionRangeEnd: selectionRange.startTime + selectionRange.duration
 
-    signal changeToolTip(string text)
-
     color: "#dcdcdc"
 
     // ***** connections with external objects
@@ -186,6 +184,11 @@ Rectangle {
         buttonsBar.updateLockButton(selectionLocked);
     }
 
+    focus: true
+    property bool shiftPressed: false;
+    Keys.onPressed: shiftPressed = (event.key === Qt.Key_Shift);
+    Keys.onReleased: shiftPressed = false;
+
     Flickable {
         id: labelsflick
         flickableDirection: Flickable.VerticalFlick
@@ -212,7 +215,9 @@ Rectangle {
                 id: col
                 Repeater {
                     model: labels.rowCount
-                    delegate: CategoryLabel { }
+                    delegate: CategoryLabel {
+                        reverseSelect: root.shiftPressed
+                    }
                 }
             }
         }

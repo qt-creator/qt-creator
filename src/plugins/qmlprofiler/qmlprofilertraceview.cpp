@@ -220,7 +220,6 @@ void QmlProfilerTraceView::reset()
 
     QQuickItem *rootObject = d->m_mainView->rootObject();
     connect(rootObject, SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
-    connect(rootObject, SIGNAL(changeToolTip(QString)), this, SLOT(updateToolTip(QString)));
 }
 
 /////////////////////////////////////////////////////////
@@ -318,11 +317,6 @@ void QmlProfilerTraceView::updateRange()
 }
 
 ////////////////////////////////////////////////////////
-void QmlProfilerTraceView::updateToolTip(const QString &text)
-{
-    setToolTip(text);
-}
-
 void QmlProfilerTraceView::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);

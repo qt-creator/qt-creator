@@ -108,7 +108,6 @@ private slots:
 
     void updateRange();
 
-    void updateToolTip(const QString &text);
     void profilerDataModelStateChanged();
 
 protected:
