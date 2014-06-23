@@ -43,17 +43,15 @@ class ItemLibraryItem: public QObject {
 
     Q_OBJECT
 
-    Q_PROPERTY(int itemLibId READ itemLibId FINAL)
     Q_PROPERTY(QVariant itemLibraryEntry READ itemLibraryEntry FINAL)
     Q_PROPERTY(QString itemName READ itemName FINAL)
     Q_PROPERTY(QString itemLibraryIconPath READ itemLibraryIconPath FINAL)
     Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
 
 public:
-    ItemLibraryItem(int itemLibId, QObject *parent);
+    ItemLibraryItem(QObject *parent);
     ~ItemLibraryItem();
 
-    int itemLibId() const;
     QString itemName() const;
     QString itemLibraryIconPath() const;
     QVariant sortingRole() const;
@@ -66,7 +64,6 @@ public:
 
 private:
     ItemLibraryEntry m_itemLibraryEntry;
-    int m_libId;
     bool m_isVisible;
 };
 

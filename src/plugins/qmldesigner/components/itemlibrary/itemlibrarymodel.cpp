@@ -179,7 +179,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
             m_itemInfos.insert(itemId, entry);
 
-            itemModel = new ItemLibraryItem(itemId, sectionModel);
+            itemModel = new ItemLibraryItem(sectionModel);
             itemModel->setItemLibraryEntry(entry);
             sectionModel->addSectionEntry(itemModel);
             m_sections.insert(itemId, sectionId);

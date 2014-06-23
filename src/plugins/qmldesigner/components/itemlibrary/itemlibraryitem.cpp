@@ -31,21 +31,14 @@
 
 namespace QmlDesigner {
 
-ItemLibraryItem::ItemLibraryItem(int itemLibId, QObject *parent)
-    : QObject(parent),
-      m_libId(itemLibId)
+ItemLibraryItem::ItemLibraryItem(QObject *parent)
+    : QObject(parent)
 {
 }
 
 ItemLibraryItem::~ItemLibraryItem()
 {
 }
-
-int ItemLibraryItem::itemLibId() const
-{
-    return m_libId;
-}
-
 
 QString ItemLibraryItem::itemName() const
 {
