@@ -574,14 +574,19 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
 
     const QString trackedBranch = fullName(startPoint);
     const QString fullTrackedBranch = fullName(startPoint, true);
+    QString startSha;
     QString output;
     QString errorMessage;
 
     QStringList args;
     args << (track ? QLatin1String("--track") : QLatin1String("--no-track"));
     args << name;
-    if (!fullTrackedBranch.isEmpty())
+    if (!fullTrackedBranch.isEmpty()) {
         args << fullTrackedBranch;
+        startSha = sha(startPoint);
+    } else {
+        startSha = m_client->synchronousTopRevision(m_workingDirectory);
+    }
 
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
@@ -606,7 +611,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
         local = child;
     }
     int pos = positionForName(local, leafName);
-    BranchNode *newNode = new BranchNode(leafName, sha(startPoint), track ? trackedBranch : QString());
+    BranchNode *newNode = new BranchNode(leafName, startSha, track ? trackedBranch : QString());
     if (!added)
         beginInsertRows(nodeToIndex(local), pos, pos);
     newNode->parent = local;
