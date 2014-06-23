@@ -60,9 +60,7 @@ public:
 
     void update(ItemLibraryInfo *itemLibraryInfo, Model *model);
 
-    QString getTypeName(int libId);
     QMimeData *getMimeData(const ItemLibraryEntry &itemLibraryEntry);
-    QPixmap getLibraryEntryIcon(int libId);
 
     ItemLibrarySection* section(int libraryId);
     QList<ItemLibrarySection*> sections() const;
@@ -96,7 +94,6 @@ private: // functions
 
 private: // variables
     QMap<int, ItemLibrarySection*> m_sectionModels;
-    QMap<int, ItemLibraryEntry> m_itemInfos;
     QMap<int, int> m_sections;
     QHash<int, QByteArray> m_roleNames;
 

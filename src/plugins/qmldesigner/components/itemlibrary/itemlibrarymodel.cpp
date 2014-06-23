@@ -145,7 +145,6 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     QMap<QString, int> sections;
 
     clearSections();
-    m_itemInfos.clear();
     m_sections.clear();
     m_nextLibId = 0;
 
@@ -177,8 +176,6 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                 sections.insert(itemSectionName, sectionId);
             }
 
-            m_itemInfos.insert(itemId, entry);
-
             itemModel = new ItemLibraryItem(sectionModel);
             itemModel->setItemLibraryEntry(entry);
             sectionModel->addSectionEntry(itemModel);
@@ -188,13 +185,6 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
     updateVisibility();
 }
-
-
-QString ItemLibraryModel::getTypeName(int libId)
-{
-    return m_itemInfos.value(libId).typeName();
-}
-
 
 QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntry)
 {
@@ -208,12 +198,6 @@ QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntr
     mimeData->removeFormat(QStringLiteral("text/plain"));
 
     return mimeData;
-}
-
-
-QPixmap ItemLibraryModel::getLibraryEntryIcon(int libId)
-{
-    return QPixmap(m_itemInfos.value(libId).libraryEntryIconPath());
 }
 
 ItemLibrarySection *ItemLibraryModel::section(int libraryId)
