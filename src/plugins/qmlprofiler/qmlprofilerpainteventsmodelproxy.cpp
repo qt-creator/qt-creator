@@ -167,6 +167,20 @@ int PaintEventsModelProxy::getEventRow(int index) const
     return (threadId == QmlDebug::GuiThread || d->maxGuiThreadAnimations == 0) ? 1 : 2;
 }
 
+int PaintEventsModelProxy::rowMaxValue(int rowNumber) const
+{
+    Q_D(const PaintEventsModelProxy);
+    switch (rowNumber) {
+    case 1:
+        return d->maxGuiThreadAnimations > 0 ? d->maxGuiThreadAnimations :
+                                               d->maxRenderThreadAnimations;
+    case 2:
+        return d->maxRenderThreadAnimations;
+    default:
+        return AbstractTimelineModel::rowMaxValue(rowNumber);
+    }
+}
+
 int PaintEventsModelProxy::getEventId(int index) const
 {
     Q_D(const PaintEventsModelProxy);
@@ -189,7 +203,7 @@ float PaintEventsModelProxy::getHeight(int index) const
     Q_D(const PaintEventsModelProxy);
     const PaintEventsModelProxyPrivate::Range &range = d->range(index);
     return (float)range.animationcount / (float)(range.threadId == QmlDebug::GuiThread ?
-            d->maxGuiThreadAnimations : d->maxRenderThreadAnimations) * 0.85f + 0.15f;
+            d->maxGuiThreadAnimations : d->maxRenderThreadAnimations);
 }
 
 const QVariantList PaintEventsModelProxy::getLabels() const

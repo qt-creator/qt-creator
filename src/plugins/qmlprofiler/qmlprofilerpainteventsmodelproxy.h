@@ -64,6 +64,8 @@ public:
     void loadData();
     void clear();
 
+    int rowMaxValue(int rowNumber) const;
+
     Q_INVOKABLE int rowCount() const;
     Q_INVOKABLE int getEventId(int index) const;
     int getEventRow(int index) const;
