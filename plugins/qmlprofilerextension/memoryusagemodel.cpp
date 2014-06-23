@@ -89,7 +89,6 @@ const QVariantList MemoryUsageModel::getLabels() const
     if (d->expanded && !isEmpty()) {
         {
             QVariantMap element;
-            element.insert(QLatin1String("displayName"), QVariant(tr("Memory Allocation")));
             element.insert(QLatin1String("description"), QVariant(tr("Memory Allocation")));
 
             element.insert(QLatin1String("id"), QVariant(QmlDebug::HeapPage));
@@ -98,7 +97,6 @@ const QVariantList MemoryUsageModel::getLabels() const
 
         {
             QVariantMap element;
-            element.insert(QLatin1String("displayName"), QVariant(tr("Memory Usage")));
             element.insert(QLatin1String("description"), QVariant(tr("Memory Usage")));
 
             element.insert(QLatin1String("id"), QVariant(QmlDebug::SmallItem));

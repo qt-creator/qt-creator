@@ -153,7 +153,6 @@ const QVariantList PixmapCacheModel::getLabels() const
         {
             // Cache Size
             QVariantMap element;
-            element.insert(QLatin1String("displayName"), QVariant(QLatin1String("Cache Size")));
             element.insert(QLatin1String("description"), QVariant(QLatin1String("Cache Size")));
 
             element.insert(QLatin1String("id"), QVariant(0));
@@ -163,8 +162,6 @@ const QVariantList PixmapCacheModel::getLabels() const
         for (int i=0; i < d->pixmaps.count(); i++) {
             // Loading
             QVariantMap element;
-            element.insert(QLatin1String("displayName"),
-                           QVariant(getFilenameOnly(d->pixmaps[i].url)));
             element.insert(QLatin1String("description"),
                            QVariant(getFilenameOnly(d->pixmaps[i].url)));
 

@@ -131,14 +131,12 @@ const QVariantList SceneGraphTimelineModel::getLabels() const
     if (d->expanded && !isEmpty()) {
         {
             QVariantMap element;
-            element.insert(QLatin1String("displayName"), guiThreadLabel);
             element.insert(QLatin1String("description"), guiThreadLabel);
             element.insert(QLatin1String("id"), SceneGraphGUIThread);
             result << element;
         }
         if (d->seenPolishAndSync) {
             QVariantMap element;
-            element.insert(QLatin1String("displayName"), renderThreadLabel);
             element.insert(QLatin1String("description"), renderThreadLabel);
             element.insert(QLatin1String("id"), SceneGraphRenderThread);
             result << element;
