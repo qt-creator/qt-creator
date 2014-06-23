@@ -61,12 +61,13 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     QWidget(parent),
     m_scaleUp(0),
     m_scaleDown(0),
-    m_resetScale(0)
+    m_resetScale(0),
+    m_style(style)
 {
     Utils::StyledBar *toolBar = new Utils::StyledBar();
 
     QAction *switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
-    connect(switchToHelp, SIGNAL(triggered()), this, SLOT(emitOpenHelpMode()));
+    connect(switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
 
     QAction *back = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
         tr("Back"), toolBar);
@@ -123,7 +124,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     cmd = Core::ActionManager::registerAction(m_openHelpMode,
                                               Help::Constants::CONTEXT_HELP,
                                               context);
-    connect(m_openHelpMode, SIGNAL(triggered()), this, SLOT(emitOpenHelpMode()));
+    connect(m_openHelpMode, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
 
     Core::ActionContainer *advancedMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
     QTC_CHECK(advancedMenu);
@@ -206,9 +207,11 @@ void HelpWidget::updateWindowTitle()
         setWindowTitle(tr("Help - %1").arg(pageTitle));
 }
 
-void HelpWidget::emitOpenHelpMode()
+void HelpWidget::helpModeButtonClicked()
 {
     emit openHelpMode(m_viewer->source());
+    if (m_style == ExternalWindow)
+        close();
 }
 
 } // Internal
