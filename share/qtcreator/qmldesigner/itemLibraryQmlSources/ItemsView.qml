@@ -112,6 +112,7 @@ ScrollView {
                         Repeater {
                             model: sectionEntries
                             delegate: ItemDelegate {
+                                visible: itemVisible
                                 width: styleConstants.cellWidth + itemGrid.flexibleWidth
                                 height: styleConstants.cellHeight
                             }

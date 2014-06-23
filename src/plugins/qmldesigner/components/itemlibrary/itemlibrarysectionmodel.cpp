@@ -90,8 +90,7 @@ const QList<ItemLibraryItem *> &ItemLibrarySectionModel::items() const
 
 void ItemLibrarySectionModel::resetModel()
 {
-    beginResetModel();
-    endResetModel();
+    emit dataChanged(QModelIndex(), QModelIndex());
 }
 
 void ItemLibrarySectionModel::addRoleNames()
