@@ -103,8 +103,6 @@ private:
     QV8ProfilerDataModel *m_v8Model;
     QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
     QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
-    QVector<QmlDebug::RangeType> m_acceptedRangeTypes;
-    QVector<QmlDebug::Message> m_acceptedMessages;
 };
 
 
