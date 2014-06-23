@@ -38,6 +38,7 @@
 
 #include <utils/qtcassert.h>
 
+using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 ConfigTaskHandler::ConfigTaskHandler(const Task &pattern, Core::Id group, Core::Id page) :
