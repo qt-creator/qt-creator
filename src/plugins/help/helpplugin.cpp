@@ -466,7 +466,8 @@ void HelpPlugin::setupUi()
     m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_TOGGLE_SIDEBAR)),
         tr("Show Sidebar"), this);
     m_toggleSideBarAction->setCheckable(true);
-    connect(m_toggleSideBarAction, SIGNAL(triggered(bool)), this, SLOT(showHideSidebar()));
+    m_toggleSideBarAction->setChecked(m_isSidebarVisible);
+    connect(m_toggleSideBarAction, SIGNAL(triggered(bool)), this, SLOT(setSideBarVisible(bool)));
     cmd = ActionManager::registerAction(m_toggleSideBarAction, Core::Constants::TOGGLE_SIDEBAR, modecontext);
 }
 
@@ -606,9 +607,11 @@ void HelpPlugin::slotHideRightPane()
     RightPaneWidget::instance()->setShown(false);
 }
 
-void HelpPlugin::showHideSidebar()
+void HelpPlugin::setSideBarVisible(bool visible)
 {
-    m_sideBar->setVisible(!m_sideBar->isVisible());
+    if (visible == m_sideBar->isVisible())
+        return;
+    m_sideBar->setVisible(visible);
     onSideBarVisibilityChanged();
 }
 
@@ -1004,6 +1007,7 @@ void HelpPlugin::slotReportBug()
 void  HelpPlugin::onSideBarVisibilityChanged()
 {
     m_isSidebarVisible = m_sideBar->isVisible();
+    m_toggleSideBarAction->setChecked(m_isSidebarVisible);
     m_toggleSideBarAction->setToolTip(m_isSidebarVisible ? tr("Hide Sidebar") : tr("Show Sidebar"));
 }
 
