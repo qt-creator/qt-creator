@@ -55,7 +55,7 @@ public:
 public slots:
     void updateMessages();
     void updateSemanticMessagesNow();
-    void documentsRemoved(const QStringList path);
+    void documentsRemoved(const QStringList &path);
 
 private slots:
     void displayResults(int begin, int end);

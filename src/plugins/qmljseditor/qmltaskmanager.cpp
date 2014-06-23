@@ -165,7 +165,7 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
     m_messageCollector.setFuture(future);
 }
 
-void QmlTaskManager::documentsRemoved(const QStringList path)
+void QmlTaskManager::documentsRemoved(const QStringList &path)
 {
     foreach (const QString &item, path)
         removeTasksForFile(item);
