@@ -40,6 +40,7 @@ class ItemLibrarySection: public QObject {
 
     Q_PROPERTY(QObject* sectionEntries READ sectionEntries NOTIFY sectionEntriesChanged FINAL)
     Q_PROPERTY(QString sectionName READ sectionName FINAL)
+    Q_PROPERTY(QString visible READ isVisible NOTIFY visibilityChanged FINAL)
     Q_PROPERTY(bool sectionExpanded READ sectionExpanded FINAL)
     Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
 
@@ -60,6 +61,7 @@ public:
 
 signals:
     void sectionEntriesChanged();
+    void visibilityChanged();
 
 private:
     ItemLibrarySectionModel m_sectionEntries;
