@@ -40,27 +40,7 @@ class NavigationWidgetFactory : public Core::INavigationWidgetFactory
     Q_OBJECT
 
 public:
-    //! Constructor
     NavigationWidgetFactory();
-
-    //! Destructor
-    ~NavigationWidgetFactory();
-
-    //! Access to static instance
-    static NavigationWidgetFactory *instance();
-
-    // Core::INavigationWidgetFactory
-    //! \implements Core::INavigationWidgetFactory::displayName
-    QString displayName() const;
-
-    //! \implements Core::INavigationWidgetFactory::priority
-    int priority() const;
-
-    //! \implements Core::INavigationWidgetFactory::id
-    Core::Id id() const;
-
-    //! \implements Core::INavigationWidgetFactory::activationSequence
-    QKeySequence activationSequence() const;
 
     //! \implements Core::INavigationWidgetFactory::createWidget
     Core::NavigationView createWidget();
@@ -70,9 +50,6 @@ public:
 
     //! \implements Core::INavigationWidgetFactory::restoreSettings
     void restoreSettings(int position, QWidget *widget);
-
-signals:
-    void widgetIsCreated();
 };
 
 } // namespace Internal

@@ -107,11 +107,7 @@ class ProjectTreeWidgetFactory : public Core::INavigationWidgetFactory
     Q_OBJECT
 public:
     ProjectTreeWidgetFactory();
-    ~ProjectTreeWidgetFactory();
-    QString displayName() const;
-    int priority() const;
-    Core::Id id() const;
-    QKeySequence activationSequence() const;
+
     Core::NavigationView createWidget();
     void restoreSettings(int position, QWidget *widget);
     void saveSettings(int position, QWidget *widget);

@@ -109,13 +109,10 @@ private:
 class OpenEditorsViewFactory : public Core::INavigationWidgetFactory
 {
     Q_OBJECT
+
 public:
     OpenEditorsViewFactory();
-    ~OpenEditorsViewFactory();
-    QString displayName() const;
-    int priority() const;
-    Id id() const;
-    QKeySequence activationSequence() const;
+
     Core::NavigationView createWidget();
 };
 

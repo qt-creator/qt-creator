@@ -207,30 +207,9 @@ CppIncludeHierarchyStackedWidget::~CppIncludeHierarchyStackedWidget()
 // CppIncludeHierarchyFactory
 CppIncludeHierarchyFactory::CppIncludeHierarchyFactory()
 {
-}
-
-CppIncludeHierarchyFactory::~CppIncludeHierarchyFactory()
-{
-}
-
-QString CppIncludeHierarchyFactory::displayName() const
-{
-    return tr("Include Hierarchy");
-}
-
-int CppIncludeHierarchyFactory::priority() const
-{
-    return Constants::INCLUDE_HIERARCHY_PRIORITY;
-}
-
-Core::Id CppIncludeHierarchyFactory::id() const
-{
-    return Core::Id(Constants::INCLUDE_HIERARCHY_ID);
-}
-
-QKeySequence CppIncludeHierarchyFactory::activationSequence() const
-{
-    return QKeySequence();
+    setDisplayName(tr("Include Hierarchy"));
+    setPriority(800);
+    setId(Constants::INCLUDE_HIERARCHY_ID);
 }
 
 Core::NavigationView CppIncludeHierarchyFactory::createWidget()

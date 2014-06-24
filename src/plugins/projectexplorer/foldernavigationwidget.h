@@ -99,12 +99,7 @@ class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
     Q_OBJECT
 public:
     FolderNavigationWidgetFactory();
-    ~FolderNavigationWidgetFactory();
 
-    QString displayName() const;
-    int priority() const;
-    Core::Id id() const;
-    QKeySequence activationSequence() const;
     Core::NavigationView createWidget();
     void saveSettings(int position, QWidget *widget);
     void restoreSettings(int position, QWidget *widget);

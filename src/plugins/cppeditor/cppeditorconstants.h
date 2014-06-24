@@ -46,11 +46,9 @@ const char M_REFACTORING_MENU_INSERTION_POINT[] = "CppEditor.RefactorGroup";
 const char UPDATE_CODEMODEL[] = "CppEditor.UpdateCodeModel";
 const char INSPECT_CPP_CODEMODEL[] = "CppEditor.InspectCppCodeModel";
 
-const int TYPE_HIERARCHY_PRIORITY = 700;
 const char TYPE_HIERARCHY_ID[] = "CppEditor.TypeHierarchy";
 const char OPEN_TYPE_HIERARCHY[] = "CppEditor.OpenTypeHierarchy";
 
-const int INCLUDE_HIERARCHY_PRIORITY = 800;
 const char INCLUDE_HIERARCHY_ID[] = "CppEditor.IncludeHierarchy";
 const char OPEN_INCLUDE_HIERARCHY[] = "CppEditor.OpenIncludeHierarchy";
 

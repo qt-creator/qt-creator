@@ -87,7 +87,6 @@ public slots:
     void setFlatMode(bool flat);
 
 protected slots:
-    void onWidgetIsCreated();
     void onWidgetVisibilityIsChanged(bool visibility);
     void onStateChanged(bool state);
     void onProjectListChanged();

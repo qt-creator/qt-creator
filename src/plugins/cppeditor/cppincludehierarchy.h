@@ -106,12 +106,7 @@ class CppIncludeHierarchyFactory : public Core::INavigationWidgetFactory
     Q_OBJECT
 public:
     CppIncludeHierarchyFactory();
-    virtual ~CppIncludeHierarchyFactory();
 
-    QString displayName() const;
-    int priority() const;
-    Core::Id id() const;
-    QKeySequence activationSequence() const;
     Core::NavigationView createWidget();
 };
 

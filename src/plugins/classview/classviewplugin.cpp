@@ -51,11 +51,8 @@ bool Plugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    // create a navigation widget factory
-    (void) new NavigationWidgetFactory;
-
     // add to ExtensionSystem
-    addAutoReleasedObject(NavigationWidgetFactory::instance());
+    addAutoReleasedObject(new NavigationWidgetFactory);
 
     // create manager
     (void) new Manager(this);

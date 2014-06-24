@@ -224,10 +224,6 @@ void Manager::initialize()
 {
     // use Qt::QueuedConnection everywhere
 
-    // widget factory signals
-    connect(NavigationWidgetFactory::instance(), SIGNAL(widgetIsCreated()),
-            SLOT(onWidgetIsCreated()), Qt::QueuedConnection);
-
     // internal manager state is changed
     connect(this, SIGNAL(stateChanged(bool)), SLOT(onStateChanged(bool)), Qt::QueuedConnection);
 
@@ -316,17 +312,6 @@ void Manager::setState(bool state)
     d->state = state;
 
     emit stateChanged(d->state);
-}
-
-/*!
-    Reacts to the widget factory creating a widget.
-
-    \sa setState, state
-*/
-
-void Manager::onWidgetIsCreated()
-{
-    // do nothing - continue to sleep
 }
 
 /*!

@@ -109,12 +109,7 @@ class CppTypeHierarchyFactory : public Core::INavigationWidgetFactory
     Q_OBJECT
 public:
     CppTypeHierarchyFactory();
-    virtual ~CppTypeHierarchyFactory();
 
-    virtual QString displayName() const;
-    virtual int priority() const;
-    virtual Core::Id id() const;
-    virtual QKeySequence activationSequence() const;
     virtual Core::NavigationView createWidget();
 };
 

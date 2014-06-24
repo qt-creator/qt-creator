@@ -78,16 +78,12 @@ class OutlineFactory : public Core::INavigationWidgetFactory
 {
     Q_OBJECT
 public:
-    OutlineFactory() {}
+    OutlineFactory();
 
     QList<IOutlineWidgetFactory*> widgetFactories() const;
     void setWidgetFactories(QList<IOutlineWidgetFactory*> factories);
 
     // from INavigationWidgetFactory
-    virtual QString displayName() const;
-    virtual int priority() const;
-    virtual Core::Id id() const;
-    virtual QKeySequence activationSequence() const;
     virtual Core::NavigationView createWidget();
     virtual void saveSettings(int position, QWidget *widget);
     virtual void restoreSettings(int position, QWidget *widget);

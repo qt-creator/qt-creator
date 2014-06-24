@@ -256,38 +256,17 @@ CppTypeHierarchyStackedWidget::~CppTypeHierarchyStackedWidget()
 
 // CppTypeHierarchyFactory
 CppTypeHierarchyFactory::CppTypeHierarchyFactory()
-{}
-
-CppTypeHierarchyFactory::~CppTypeHierarchyFactory()
-{}
-
-QString CppTypeHierarchyFactory::displayName() const
 {
-    return tr("Type Hierarchy");
-}
-
-int CppTypeHierarchyFactory::priority() const
-{
-    return Constants::TYPE_HIERARCHY_PRIORITY;
-}
-
-Core::Id CppTypeHierarchyFactory::id() const
-{
-    return Core::Id(Constants::TYPE_HIERARCHY_ID);
-}
-
-QKeySequence CppTypeHierarchyFactory::activationSequence() const
-{
-    return QKeySequence();
+    setDisplayName(tr("Type Hierarchy"));
+    setPriority(700);
+    setId(Constants::TYPE_HIERARCHY_ID);
 }
 
 Core::NavigationView CppTypeHierarchyFactory::createWidget()
 {
     CppTypeHierarchyStackedWidget *w = new CppTypeHierarchyStackedWidget;
     static_cast<CppTypeHierarchyWidget *>(w->currentWidget())->perform();
-    Core::NavigationView navigationView;
-    navigationView.widget = w;
-    return navigationView;
+    return Core::NavigationView(w);
 }
 
 } // namespace Internal

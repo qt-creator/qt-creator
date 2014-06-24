@@ -832,34 +832,15 @@ void BookmarkManager::handleBookmarkTooltipRequest(ITextEditor *textEditor, cons
 BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
     : m_manager(bm)
 {
+    setDisplayName(BookmarkView::tr("Bookmarks"));
+    setPriority(300);
+    setId("Bookmarks");
+    setActivationSequence(QKeySequence(Core::UseMacShortcuts ? tr("Alt+Meta+M") : tr("Alt+M")));
 }
 
-QString BookmarkViewFactory::displayName() const
+NavigationView BookmarkViewFactory::createWidget()
 {
-    return BookmarkView::tr("Bookmarks");
-}
-
-int BookmarkViewFactory::priority() const
-{
-    return 300;
-}
-
-Id BookmarkViewFactory::id() const
-{
-    return "Bookmarks";
-}
-
-QKeySequence BookmarkViewFactory::activationSequence() const
-{
-    return QKeySequence(Core::UseMacShortcuts ? tr("Alt+Meta+M") : tr("Alt+M"));
-}
-
-Core::NavigationView BookmarkViewFactory::createWidget()
-{
-    BookmarkView *bookmarkView = new BookmarkView(m_manager);
-    Core::NavigationView view;
-    view.widget = bookmarkView;
-    return view;
+    return NavigationView(new BookmarkView(m_manager));
 }
 
 } // namespace Internal

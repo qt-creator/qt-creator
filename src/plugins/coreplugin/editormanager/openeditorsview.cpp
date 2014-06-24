@@ -216,41 +216,18 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
 // OpenEditorsViewFactory
 ///
 
-NavigationView OpenEditorsViewFactory::createWidget()
-{
-    NavigationView n;
-    n.widget = new OpenEditorsWidget();
-    return n;
-}
-
-QString OpenEditorsViewFactory::displayName() const
-{
-    return OpenEditorsWidget::tr("Open Documents");
-}
-
-int OpenEditorsViewFactory::priority() const
-{
-    return 200;
-}
-
-Id OpenEditorsViewFactory::id() const
-{
-    return "Open Documents";
-}
-
-QKeySequence OpenEditorsViewFactory::activationSequence() const
-{
-    return QKeySequence(Core::UseMacShortcuts ? tr("Meta+O") : tr("Alt+O"));
-}
-
 OpenEditorsViewFactory::OpenEditorsViewFactory()
 {
+    setId("Open Documents");
+    setDisplayName(OpenEditorsWidget::tr("Open Documents"));
+    setActivationSequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+O") : tr("Alt+O")));
+    setPriority(200);
 }
 
-OpenEditorsViewFactory::~OpenEditorsViewFactory()
+NavigationView OpenEditorsViewFactory::createWidget()
 {
+    return NavigationView(new OpenEditorsWidget());
 }
-
 
 ProxyModel::ProxyModel(QObject *parent) : QAbstractProxyModel(parent)
 {

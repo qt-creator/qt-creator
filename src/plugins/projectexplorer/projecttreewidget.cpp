@@ -406,30 +406,10 @@ bool ProjectTreeWidget::projectFilter()
 
 ProjectTreeWidgetFactory::ProjectTreeWidgetFactory()
 {
-}
-
-ProjectTreeWidgetFactory::~ProjectTreeWidgetFactory()
-{
-}
-
-QString ProjectTreeWidgetFactory::displayName() const
-{
-    return tr("Projects");
-}
-
-int ProjectTreeWidgetFactory::priority() const
-{
-    return 100;
-}
-
-Id ProjectTreeWidgetFactory::id() const
-{
-    return "Projects";
-}
-
-QKeySequence ProjectTreeWidgetFactory::activationSequence() const
-{
-    return QKeySequence(UseMacShortcuts ? tr("Meta+X") : tr("Alt+X"));
+    setDisplayName(tr("Projects"));
+    setPriority(100);
+    setId("Projects");
+    setActivationSequence(QKeySequence(UseMacShortcuts ? tr("Meta+X") : tr("Alt+X")));
 }
 
 NavigationView ProjectTreeWidgetFactory::createWidget()

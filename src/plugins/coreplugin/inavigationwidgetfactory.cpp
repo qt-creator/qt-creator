@@ -90,11 +90,59 @@
 using namespace Core;
 
 /*!
+    Creates a \l{Core::NavigationViewFactory}.
+*/
+INavigationWidgetFactory::INavigationWidgetFactory()
+    : m_priority(0)
+{
+}
+
+/*!
+    Sets the display name for the factory.
+
+    \sa displayName()
+*/
+void INavigationWidgetFactory::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
+}
+
+/*!
+    Sets the priority for the factory.
+
+    \sa priority()
+*/
+void INavigationWidgetFactory::setPriority(int priority)
+{
+    m_priority = priority;
+}
+
+/*!
+    Sets the id for the factory.
+
+    \sa id()
+*/
+void INavigationWidgetFactory::setId(Id id)
+{
+    m_id = id;
+}
+
+/*!
+    Sets the keyboard activation sequence for the factory.
+
+    \sa activationSequence()
+*/
+void INavigationWidgetFactory::setActivationSequence(const QKeySequence &keys)
+{
+    m_activationSequence = keys;
+}
+
+/*!
     Returns the keyboard shortcut to activate an instance of a navigation widget.
 */
 QKeySequence INavigationWidgetFactory::activationSequence() const
 {
-    return QKeySequence();
+    return m_activationSequence;
 }
 
 /*!

@@ -415,30 +415,10 @@ void FolderNavigationWidget::ensureCurrentIndex()
 // --------------------FolderNavigationWidgetFactory
 FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
 {
-}
-
-FolderNavigationWidgetFactory::~FolderNavigationWidgetFactory()
-{
-}
-
-QString FolderNavigationWidgetFactory::displayName() const
-{
-    return tr("File System");
-}
-
-int FolderNavigationWidgetFactory::priority() const
-{
-    return 400;
-}
-
-Core::Id FolderNavigationWidgetFactory::id() const
-{
-    return "File System";
-}
-
-QKeySequence FolderNavigationWidgetFactory::activationSequence() const
-{
-    return QKeySequence(Core::UseMacShortcuts ? tr("Meta+Y") : tr("Alt+Y"));
+    setDisplayName(tr("File System"));
+    setPriority(400);
+    setId("File System");
+    setActivationSequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Y") : tr("Alt+Y")));
 }
 
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()

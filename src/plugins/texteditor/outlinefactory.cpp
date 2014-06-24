@@ -175,6 +175,13 @@ void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
     }
 }
 
+OutlineFactory::OutlineFactory()
+{
+    setDisplayName(tr("Outline"));
+    setId("Outline");
+    setPriority(600);
+}
+
 QList<IOutlineWidgetFactory*> OutlineFactory::widgetFactories() const
 {
     return m_factories;
@@ -183,26 +190,6 @@ QList<IOutlineWidgetFactory*> OutlineFactory::widgetFactories() const
 void OutlineFactory::setWidgetFactories(QList<IOutlineWidgetFactory*> factories)
 {
     m_factories = factories;
-}
-
-QString OutlineFactory::displayName() const
-{
-    return tr("Outline");
-}
-
-int OutlineFactory::priority() const
-{
-    return 600;
-}
-
-Core::Id OutlineFactory::id() const
-{
-    return "Outline";
-}
-
-QKeySequence OutlineFactory::activationSequence() const
-{
-    return QKeySequence();
 }
 
 Core::NavigationView OutlineFactory::createWidget()

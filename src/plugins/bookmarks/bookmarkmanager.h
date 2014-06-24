@@ -170,10 +170,6 @@ public:
     BookmarkViewFactory(BookmarkManager *bm);
 
 private:
-    QString displayName() const;
-    int priority() const;
-    Core::Id id() const;
-    QKeySequence activationSequence() const;
     Core::NavigationView createWidget();
 
     BookmarkManager *m_manager;

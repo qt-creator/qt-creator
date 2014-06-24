@@ -41,8 +41,6 @@
 namespace ClassView {
 namespace Internal {
 
-static NavigationWidgetFactory *factoryInstance;
-
 ///////////////////////////////// NavigationWidgetFactory //////////////////////////////////
 
 /*!
@@ -52,49 +50,13 @@ static NavigationWidgetFactory *factoryInstance;
 
     Supports the \c setState public slot for adding the widget factory to or
     removing it from \c ExtensionSystem::PluginManager.
-
-    Also supports the \c widgetIsCreated and \c stateChanged signals.
-*/
-
-/*!
-    \fn void NavigationWidgetFactory::widgetIsCreated()
-
-    Informs that the widget factory created a widget.
 */
 
 NavigationWidgetFactory::NavigationWidgetFactory()
 {
-    factoryInstance = this;
-}
-
-NavigationWidgetFactory::~NavigationWidgetFactory()
-{
-    factoryInstance = 0;
-}
-
-NavigationWidgetFactory *NavigationWidgetFactory::instance()
-{
-    return factoryInstance;
-}
-
-QString NavigationWidgetFactory::displayName() const
-{
-    return tr("Class View");
-}
-
-int NavigationWidgetFactory::priority() const
-{
-    return 500;
-}
-
-Core::Id NavigationWidgetFactory::id() const
-{
-    return "Class View";
-}
-
-QKeySequence NavigationWidgetFactory::activationSequence() const
-{
-    return QKeySequence();
+    setDisplayName(tr("Class View"));
+    setPriority(500);
+    setId("Class View");
 }
 
 Core::NavigationView NavigationWidgetFactory::createWidget()
@@ -103,7 +65,6 @@ Core::NavigationView NavigationWidgetFactory::createWidget()
     NavigationWidget *widget = new NavigationWidget();
     navigationView.widget = widget;
     navigationView.dockToolBarWidgets = widget->createToolButtons();
-    emit widgetIsCreated();
     return navigationView;
 }
 
