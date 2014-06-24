@@ -28,10 +28,11 @@
 ****************************************************************************/
 
 #include "itexteditor.h"
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QTextCodec>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 /*!
     \class TextEditor::ITextEditorDocument
@@ -85,3 +86,11 @@ ITextEditorDocument *ITextEditor::textDocument()
 {
     return qobject_cast<ITextEditorDocument *>(document());
 }
+
+
+ITextEditor *ITextEditor::currentTextEditor()
+{
+    return qobject_cast<ITextEditor *>(Core::EditorManager::currentEditor());
+}
+
+} // namespace TextEditor

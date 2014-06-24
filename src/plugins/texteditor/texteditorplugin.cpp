@@ -200,11 +200,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     return true;
 }
 
-static ITextEditor *currentTextEditor()
-{
-    return qobject_cast<ITextEditor *>(Core::EditorManager::currentEditor());
-}
-
 void TextEditorPlugin::extensionsInitialized()
 {
     m_searchResultWindow = Core::SearchResultWindow::instance();
@@ -224,7 +219,7 @@ void TextEditorPlugin::extensionsInitialized()
         tr("Selected text within the current document."),
         []() -> QString {
             QString value;
-            if (ITextEditor *editor = currentTextEditor()) {
+            if (ITextEditor *editor = ITextEditor::currentTextEditor()) {
                 value = editor->selectedText();
                 value.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
             }
@@ -234,35 +229,35 @@ void TextEditorPlugin::extensionsInitialized()
     Core::VariableManager::registerIntVariable(kCurrentDocumentRow,
         tr("Line number of the text cursor position in current document (starts with 1)."),
         []() -> int {
-            ITextEditor *editor = currentTextEditor();
+            ITextEditor *editor = ITextEditor::currentTextEditor();
             return editor ? editor->currentLine() : 0;
         });
 
     Core::VariableManager::registerIntVariable(kCurrentDocumentColumn,
         tr("Column number of the text cursor position in current document (starts with 0)."),
         []() -> int {
-            ITextEditor *editor = currentTextEditor();
+            ITextEditor *editor = ITextEditor::currentTextEditor();
             return editor ? editor->currentColumn() : 0;
         });
 
     Core::VariableManager::registerIntVariable(kCurrentDocumentRowCount,
         tr("Number of lines visible in current document."),
         []() -> int {
-            ITextEditor *editor = currentTextEditor();
+            ITextEditor *editor = ITextEditor::currentTextEditor();
             return editor ? editor->rowCount() : 0;
         });
 
     Core::VariableManager::registerIntVariable(kCurrentDocumentColumnCount,
         tr("Number of columns visible in current document."),
         []() -> int {
-            ITextEditor *editor = currentTextEditor();
+            ITextEditor *editor = ITextEditor::currentTextEditor();
             return editor ? editor->columnCount() : 0;
         });
 
     Core::VariableManager::registerIntVariable(kCurrentDocumentFontSize,
         tr("Current document's font size in points."),
         []() -> int {
-            ITextEditor *editor = currentTextEditor();
+            ITextEditor *editor = ITextEditor::currentTextEditor();
             return editor ? editor->widget()->font().pointSize() : 0;
         });
 

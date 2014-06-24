@@ -140,6 +140,8 @@ public:
         TaskMarkRequest
     };
 
+    static ITextEditor *currentTextEditor();
+
 signals:
     void markRequested(TextEditor::ITextEditor *editor, int line, TextEditor::ITextEditor::MarkRequestKind kind);
     void markContextMenuRequested(TextEditor::ITextEditor *editor, int line, QMenu *menu);

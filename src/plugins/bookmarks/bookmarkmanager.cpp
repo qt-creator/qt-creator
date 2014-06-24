@@ -57,11 +57,13 @@
 
 Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)
 
-using namespace Bookmarks;
-using namespace Bookmarks::Internal;
 using namespace ProjectExplorer;
+using namespace TextEditor;
 using namespace Core;
 using namespace Utils;
+
+namespace Bookmarks {
+namespace Internal {
 
 BookmarkDelegate::BookmarkDelegate(QObject *parent)
     : QStyledItemDelegate(parent), m_normalPixmap(0), m_selectedPixmap(0)
@@ -428,7 +430,7 @@ QVariant BookmarkManager::data(const QModelIndex &index, int role) const
 
 void BookmarkManager::toggleBookmark()
 {
-    TextEditor::ITextEditor *editor = currentTextEditor();
+    ITextEditor *editor = ITextEditor::currentTextEditor();
     if (!editor)
         return;
 
@@ -529,7 +531,6 @@ Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index)
 
 bool BookmarkManager::gotoBookmark(Bookmark *bookmark)
 {
-    using namespace TextEditor;
     if (ITextEditor *editor = qobject_cast<ITextEditor *>(EditorManager::openEditorAt(bookmark->filePath(),
                                                                                       bookmark->lineNumber()))) {
         return (editor->currentLine() == bookmark->lineNumber());
@@ -549,7 +550,7 @@ void BookmarkManager::prevInDocument()
 
 void BookmarkManager::documentPrevNext(bool next)
 {
-    TextEditor::ITextEditor *editor = currentTextEditor();
+    ITextEditor *editor = ITextEditor::currentTextEditor();
     int editorLine = editor->currentLine();
     QFileInfo fi(editor->document()->filePath());
     if (!m_bookmarksMap.contains(fi.path()))
@@ -633,18 +634,12 @@ void BookmarkManager::prev()
     }
 }
 
-TextEditor::ITextEditor *BookmarkManager::currentTextEditor() const
-{
-    Core::IEditor *currEditor = EditorManager::currentEditor();
-    return qobject_cast<TextEditor::ITextEditor *>(currEditor);
-}
-
 BookmarkManager::State BookmarkManager::state() const
 {
     if (m_bookmarksMap.empty())
         return NoBookMarks;
 
-    TextEditor::ITextEditor *editor = currentTextEditor();
+    ITextEditor *editor = ITextEditor::currentTextEditor();
     if (!editor)
         return HasBookMarks;
 
@@ -892,3 +887,6 @@ Core::NavigationView BookmarkViewFactory::createWidget()
     view.widget = bookmarkView;
     return view;
 }
+
+} // namespace Internal
+} // namespace Bookmarks

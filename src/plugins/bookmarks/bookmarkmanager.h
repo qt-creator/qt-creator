@@ -116,8 +116,6 @@ private slots:
                                       int line);
 
 private:
-    TextEditor::ITextEditor *currentTextEditor() const;
-
     void documentPrevNext(bool next);
 
     Bookmark* findBookmark(const QString &path, const QString &fileName, int lineNumber);

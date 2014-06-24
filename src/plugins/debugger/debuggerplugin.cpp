@@ -695,14 +695,9 @@ bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorM
     return true;
 }
 
-static TextEditor::ITextEditor *currentTextEditor()
-{
-    return qobject_cast<TextEditor::ITextEditor *>(EditorManager::currentEditor());
-}
-
 static bool currentTextEditorPosition(ContextData *data)
 {
-    TextEditor::ITextEditor *textEditor = currentTextEditor();
+    ITextEditor *textEditor = ITextEditor::currentTextEditor();
     if (!textEditor)
         return false;
     const IDocument *document = textEditor->document();
@@ -1069,7 +1064,7 @@ public slots:
 
     void handleExecRunToSelectedFunction()
     {
-        ITextEditor *textEditor = currentTextEditor();
+        ITextEditor *textEditor = ITextEditor::currentTextEditor();
         QTC_ASSERT(textEditor, return);
         QPlainTextEdit *ed = qobject_cast<QPlainTextEdit*>(textEditor->widget());
         if (!ed)
@@ -2047,7 +2042,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
 
 void DebuggerPluginPrivate::toggleBreakpoint()
 {
-    ITextEditor *textEditor = currentTextEditor();
+    ITextEditor *textEditor = ITextEditor::currentTextEditor();
     QTC_ASSERT(textEditor, return);
     const int lineNumber = textEditor->currentLine();
     if (textEditor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
