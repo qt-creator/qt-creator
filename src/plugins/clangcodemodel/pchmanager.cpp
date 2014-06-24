@@ -184,7 +184,7 @@ void PchManager::updatePchInfo(ClangProjectSettings *cps,
     QFuture<void> future = QtConcurrent::run(updateFunction,
                                              UpdateParams(customPchFile, projectParts));
     m_pchGenerationWatcher.setFuture(future);
-    Core::ProgressManager::addTask(future, tr("Precompiling..."), "Key.Tmp.Precompiling");
+    Core::ProgressManager::addTask(future, tr("Precompiling"), "Key.Tmp.Precompiling");
 }
 
 namespace {

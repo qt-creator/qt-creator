@@ -207,8 +207,9 @@ void UpdateInfoPlugin::parseUpdates()
         return;
 
     // add the finished task to the progress manager
-    d->updateInfoProgress = ProgressManager::addTask(d->lastCheckUpdateInfoTask, tr("Updates "
-        "available"), "Update.GetInfo", ProgressManager::KeepOnFinish);
+    d->updateInfoProgress
+            = ProgressManager::addTask(d->lastCheckUpdateInfoTask, tr("Updates Available"),
+                                       "Update.GetInfo", ProgressManager::KeepOnFinish);
     d->updateInfoProgress->setKeepOnFinish(FutureProgress::KeepOnFinish);
 
     d->progressUpdateInfoButton = new UpdateInfoButton();
