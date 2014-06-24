@@ -2651,6 +2651,25 @@ bool Parser::parseBraceOrEqualInitializer0x(ExpressionAST *&node)
     return false;
 }
 
+/*
+    initializer-clause:
+        assignment-expression
+        braced-init-list
+        designated-initializer
+
+    If the next token is a T_LBRACKET, it could be the begin of either
+
+        * a C++11 lambda-introducer (parsed by parseAssignmentExpression)
+        * or a C99 designator (parsed by parseDesignatedInitializer).
+
+    Because currently C99 and C++11 Support is activated at the same time,
+    first try to parse the assignment-expression. If this fails, try to
+    parse a designated-initializer.
+
+    TODO:
+        As soon as there will be only "one active language", parse either
+        the assignment-expression or the designated-initializer, not both.
+ */
 bool Parser::parseInitializerClause0x(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
