@@ -81,6 +81,9 @@ public:
     When the variable manager is requested to replace variables in a string, it looks for
     variable names enclosed in %{ and }, like %{CurrentDocument:FilePath}.
 
+    Environment variables are accessible using the %{Env:...} notation.
+    For example, to access the SHELL environment variable, use %{Env:SHELL}.
+
     \note The names of the variables are stored as QByteArray. They are typically
     7-bit-clean. In cases where this is not possible, UTF-8 encoding is
     assumed.
@@ -191,6 +194,12 @@ VariableManager::~VariableManager()
  */
 QString VariableManager::value(const QByteArray &variable, bool *found)
 {
+    if (variable.startsWith("Env:")) {
+        QByteArray ba = qgetenv(variable.data() + 4);
+        if (found)
+            *found = !ba.isNull();
+        return QString::fromLocal8Bit(ba);
+    }
     if (found)
         *found = d->m_map.contains(variable);
     StringFunction f = d->m_map.value(variable);
