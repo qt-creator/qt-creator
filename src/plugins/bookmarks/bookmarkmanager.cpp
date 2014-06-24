@@ -66,14 +66,8 @@ namespace Bookmarks {
 namespace Internal {
 
 BookmarkDelegate::BookmarkDelegate(QObject *parent)
-    : QStyledItemDelegate(parent), m_normalPixmap(0), m_selectedPixmap(0)
+    : QStyledItemDelegate(parent)
 {
-}
-
-BookmarkDelegate::~BookmarkDelegate()
-{
-    delete m_normalPixmap;
-    delete m_selectedPixmap;
 }
 
 QSize BookmarkDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -90,14 +84,13 @@ QSize BookmarkDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
 
 void BookmarkDelegate::generateGradientPixmap(int width, int height, const QColor &color, bool selected) const
 {
-
     QColor c = color;
     c.setAlpha(0);
 
-    QPixmap *pixmap = new QPixmap(width+1, height);
-    pixmap->fill(c);
+    QPixmap pixmap(width+1, height);
+    pixmap.fill(c);
 
-    QPainter painter(pixmap);
+    QPainter painter(&pixmap);
     painter.setPen(Qt::NoPen);
 
     QLinearGradient lg;
@@ -107,7 +100,7 @@ void BookmarkDelegate::generateGradientPixmap(int width, int height, const QColo
     lg.setColorAt(0, c);
     lg.setColorAt(0.4, color);
 
-        painter.setBrush(lg);
+    painter.setBrush(lg);
     painter.drawRect(0, 0, width+1, height);
 
     if (selected)
@@ -154,7 +147,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
 
     // TopLeft
-    QString topLeft = index.data(BookmarkManager::Filename ).toString();
+    QString topLeft = index.data(BookmarkManager::Filename).toString();
     painter->drawText(6, 2 + opt.rect.top() + fm.ascent(), topLeft);
 
     QString topRight = index.data(BookmarkManager::LineNumber).toString();
@@ -162,7 +155,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     int fwidth = fm.width(topLeft);
     if (fwidth + lwidth > opt.rect.width()) {
         int left = opt.rect.right() - lwidth;
-        painter->drawPixmap(left, opt.rect.top(), selected? *m_selectedPixmap : *m_normalPixmap);
+        painter->drawPixmap(left, opt.rect.top(), selected ? m_selectedPixmap : m_normalPixmap);
     }
     // topRight
     painter->drawText(opt.rect.right() - fm.width(topRight) - 6 , 2 + opt.rect.top() + fm.ascent(), topRight);
@@ -213,24 +206,31 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->restore();
 }
 
-BookmarkView::BookmarkView(QWidget *parent)  :
-    Utils::ListView(parent),
-    m_bookmarkContext(new BookmarkContext(this)),
-    m_manager(0)
+BookmarkView::BookmarkView(BookmarkManager *manager)  :
+    m_bookmarkContext(new Core::IContext(this)),
+    m_manager(manager)
 {
     setWindowTitle(tr("Bookmarks"));
 
-    connect(this, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(gotoBookmark(QModelIndex)));
-    connect(this, SIGNAL(activated(QModelIndex)),
-            this, SLOT(gotoBookmark(QModelIndex)));
+    m_bookmarkContext->setWidget(this);
+    m_bookmarkContext->setContext(Core::Context(Constants::BOOKMARKS_CONTEXT));
 
     ICore::addContextObject(m_bookmarkContext);
+
+    Utils::ListView::setModel(manager);
 
     setItemDelegate(new BookmarkDelegate(this));
     setFrameStyle(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFocusPolicy(Qt::NoFocus);
+    setSelectionModel(manager->selectionModel());
+    setSelectionMode(QAbstractItemView::SingleSelection);
+    setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    connect(this, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(gotoBookmark(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)),
+            this, SLOT(gotoBookmark(QModelIndex)));
 }
 
 BookmarkView::~BookmarkView()
@@ -311,33 +311,11 @@ void BookmarkView::removeAll()
     }
 }
 
-void BookmarkView::setModel(QAbstractItemModel *model)
-{
-    BookmarkManager *manager = qobject_cast<BookmarkManager *>(model);
-    QTC_ASSERT(manager, return);
-    m_manager = manager;
-    Utils::ListView::setModel(model);
-    setSelectionModel(manager->selectionModel());
-    setSelectionMode(QAbstractItemView::SingleSelection);
-    setSelectionBehavior(QAbstractItemView::SelectRows);
-}
-
 void BookmarkView::gotoBookmark(const QModelIndex &index)
 {
     Bookmark *bk = m_manager->bookmarkForIndex(index);
     if (!m_manager->gotoBookmark(bk))
         m_manager->removeBookmark(bk);
-}
-
-////
-// BookmarkContext
-////
-
-BookmarkContext::BookmarkContext(QWidget *widget)
-    : Core::IContext(widget)
-{
-      setWidget(widget);
-      setContext(Core::Context(Constants::BOOKMARKS_CONTEXT));
 }
 
 ////
@@ -414,15 +392,15 @@ QVariant BookmarkManager::data(const QModelIndex &index, int role) const
 
     if (role == BookmarkManager::Filename)
         return m_bookmarksList.at(index.row())->fileName();
-    else if (role == BookmarkManager::LineNumber)
+    if (role == BookmarkManager::LineNumber)
         return m_bookmarksList.at(index.row())->lineNumber();
-    else if (role == BookmarkManager::Directory)
+    if (role == BookmarkManager::Directory)
         return m_bookmarksList.at(index.row())->path();
-    else if (role == BookmarkManager::LineText)
+    if (role == BookmarkManager::LineText)
         return m_bookmarksList.at(index.row())->lineText();
-    else if (role == BookmarkManager::Note)
+    if (role == BookmarkManager::Note)
         return m_bookmarksList.at(index.row())->note();
-    else if (role == Qt::ToolTipRole)
+    if (role == Qt::ToolTipRole)
         return QDir::toNativeSeparators(m_bookmarksList.at(index.row())->filePath());
 
     return QVariant();
@@ -521,20 +499,17 @@ void BookmarkManager::removeBookmark(Bookmark *bookmark)
     saveBookmarks();
 }
 
-Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index)
+Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= m_bookmarksList.size())
         return 0;
     return m_bookmarksList.at(index.row());
 }
 
-
 bool BookmarkManager::gotoBookmark(Bookmark *bookmark)
 {
-    if (ITextEditor *editor = qobject_cast<ITextEditor *>(EditorManager::openEditorAt(bookmark->filePath(),
-                                                                                      bookmark->lineNumber()))) {
-        return (editor->currentLine() == bookmark->lineNumber());
-    }
+    if (IEditor *editor = EditorManager::openEditorAt(bookmark->filePath(), bookmark->lineNumber()))
+        return editor->currentLine() == bookmark->lineNumber();
     return false;
 }
 
@@ -807,12 +782,12 @@ void BookmarkManager::saveBookmarks()
 {
     QStringList list;
     foreach (const Bookmark *bookmark, m_bookmarksList)
-            list << bookmarkToString(bookmark);
+        list << bookmarkToString(bookmark);
 
     SessionManager::setValue(QLatin1String("Bookmarks"), list);
 }
 
-void BookmarkManager::operateTooltip(TextEditor::ITextEditor *textEditor, const QPoint &pos, Bookmark *mark)
+void BookmarkManager::operateTooltip(ITextEditor *textEditor, const QPoint &pos, Bookmark *mark)
 {
     if (!mark)
         return;
@@ -834,15 +809,15 @@ void BookmarkManager::loadBookmarks()
     updateActionStatus();
 }
 
-void BookmarkManager::handleBookmarkRequest(TextEditor::ITextEditor *textEditor,
+void BookmarkManager::handleBookmarkRequest(ITextEditor *textEditor,
                                             int line,
-                                            TextEditor::ITextEditor::MarkRequestKind kind)
+                                            ITextEditor::MarkRequestKind kind)
 {
-    if (kind == TextEditor::ITextEditor::BookmarkRequest && textEditor->document())
+    if (kind == ITextEditor::BookmarkRequest && textEditor->document())
         toggleBookmark(textEditor->document()->filePath(), line);
 }
 
-void BookmarkManager::handleBookmarkTooltipRequest(TextEditor::ITextEditor *textEditor, const QPoint &pos,
+void BookmarkManager::handleBookmarkTooltipRequest(ITextEditor *textEditor, const QPoint &pos,
                                             int line)
 {
     if (textEditor->document()) {
@@ -881,8 +856,7 @@ QKeySequence BookmarkViewFactory::activationSequence() const
 
 Core::NavigationView BookmarkViewFactory::createWidget()
 {
-    BookmarkView *bookmarkView = new BookmarkView();
-    bookmarkView->setModel(m_manager);
+    BookmarkView *bookmarkView = new BookmarkView(m_manager);
     Core::NavigationView view;
     view.widget = bookmarkView;
     return view;
