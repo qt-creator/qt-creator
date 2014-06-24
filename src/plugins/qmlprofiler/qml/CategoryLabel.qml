@@ -91,6 +91,7 @@ Item {
         height: trigger(qmlProfilerModelProxy.rowHeight(modelIndex, 0))
         width: 140
         verticalAlignment: Text.AlignVCenter
+        renderType: Text.NativeRendering
     }
 
     Rectangle {
@@ -132,6 +133,7 @@ Item {
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignLeft
                         elide: Text.ElideRight
+                        renderType: Text.NativeRendering
                     }
                 }
                 MouseArea {

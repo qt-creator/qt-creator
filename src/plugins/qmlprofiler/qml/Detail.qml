@@ -33,4 +33,5 @@ Text {
     font.pixelSize: 12
     font.bold: index % 2 === 0
     textFormat: Text.PlainText
+    renderType: Text.NativeRendering
 }

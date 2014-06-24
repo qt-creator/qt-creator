@@ -152,6 +152,7 @@ Item {
         verticalAlignment: Text.AlignVCenter
         width: parent.width
         color: "white"
+        renderType: Text.NativeRendering
     }
 
     // Details area
@@ -216,6 +217,7 @@ Item {
         y: 4
         text:"X"
         color: "white"
+        renderType: Text.NativeRendering
         MouseArea {
             anchors.fill: parent
             onClicked: {
