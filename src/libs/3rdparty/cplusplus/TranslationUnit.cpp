@@ -164,7 +164,7 @@ void TranslationUnit::tokenize()
 
         _Lrecognize:
         if (tk.is(T_POUND) && tk.newline()) {
-            unsigned offset = tk.byteOffset;
+            const unsigned utf16CharOffset = tk.utf16charOffset;
             lex(&tk);
 
             if (! tk.newline() && tk.is(T_IDENTIFIER) && tk.identifier == expansionId) {
@@ -237,7 +237,7 @@ void TranslationUnit::tokenize()
                     if (! tk.newline() && tk.is(T_STRING_LITERAL)) {
                         const StringLiteral *fileName =
                                 control()->stringLiteral(tk.string->chars(), tk.string->size());
-                        pushPreprocessorLine(offset, line, fileName);
+                        pushPreprocessorLine(utf16CharOffset, line, fileName);
                         lex(&tk);
                     }
                 }
@@ -343,10 +343,10 @@ bool TranslationUnit::parse(ParseMode mode)
 void TranslationUnit::pushLineOffset(unsigned offset)
 { _lineOffsets.push_back(offset); }
 
-void TranslationUnit::pushPreprocessorLine(unsigned offset,
+void TranslationUnit::pushPreprocessorLine(unsigned utf16charOffset,
                                            unsigned line,
                                            const StringLiteral *fileName)
-{ _ppLines.push_back(PPLine(offset, line, fileName)); }
+{ _ppLines.push_back(PPLine(utf16charOffset, line, fileName)); }
 
 unsigned TranslationUnit::findLineNumber(unsigned utf16charOffset) const
 {
@@ -359,10 +359,10 @@ unsigned TranslationUnit::findLineNumber(unsigned utf16charOffset) const
     return it - _lineOffsets.begin();
 }
 
-TranslationUnit::PPLine TranslationUnit::findPreprocessorLine(unsigned offset) const
+TranslationUnit::PPLine TranslationUnit::findPreprocessorLine(unsigned utf16charOffset) const
 {
     std::vector<PPLine>::const_iterator it =
-        std::lower_bound(_ppLines.begin(), _ppLines.end(), PPLine(offset));
+        std::lower_bound(_ppLines.begin(), _ppLines.end(), PPLine(utf16charOffset));
 
     if (it != _ppLines.begin())
         --it;
@@ -419,7 +419,7 @@ void TranslationUnit::getPosition(unsigned utf16charOffset,
 
         // Adjust the line in regards to the preprocessing markers.
         const PPLine ppLine = findPreprocessorLine(utf16charOffset);
-        lineNumber -= findLineNumber(ppLine.offset) + 1;
+        lineNumber -= findLineNumber(ppLine.utf16charOffset) + 1;
         lineNumber += ppLine.line;
 
         file = ppLine.fileName;

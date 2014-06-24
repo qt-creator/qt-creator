@@ -138,7 +138,7 @@ public:
                           const StringLiteral **fileName = 0) const;
 
     void pushLineOffset(unsigned offset);
-    void pushPreprocessorLine(unsigned offset,
+    void pushPreprocessorLine(unsigned utf16charOffset,
                               unsigned line,
                               const StringLiteral *fileName);
 
@@ -151,30 +151,30 @@ public:
 
 private:
     struct PPLine {
-        unsigned offset;
+        unsigned utf16charOffset;
         unsigned line;
         const StringLiteral *fileName;
 
-        PPLine(unsigned offset = 0,
+        PPLine(unsigned utf16charOffset = 0,
                unsigned line = 0,
                const StringLiteral *fileName = 0)
-            : offset(offset), line(line), fileName(fileName)
+            : utf16charOffset(utf16charOffset), line(line), fileName(fileName)
         { }
 
         bool operator == (const PPLine &other) const
-        { return offset == other.offset; }
+        { return utf16charOffset == other.utf16charOffset; }
 
         bool operator != (const PPLine &other) const
-        { return offset != other.offset; }
+        { return utf16charOffset != other.utf16charOffset; }
 
         bool operator < (const PPLine &other) const
-        { return offset < other.offset; }
+        { return utf16charOffset < other.utf16charOffset; }
     };
 
     void releaseTokensAndComments();
     unsigned findLineNumber(unsigned utf16charOffset) const;
     unsigned findColumnNumber(unsigned utf16CharOffset, unsigned lineNumber) const;
-    PPLine findPreprocessorLine(unsigned offset) const;
+    PPLine findPreprocessorLine(unsigned utf16charOffset) const;
     void showErrorLine(unsigned index, unsigned column, FILE *out);
 
     static const Token nullToken;
