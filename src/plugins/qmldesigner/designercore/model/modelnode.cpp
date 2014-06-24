@@ -839,12 +839,12 @@ bool ModelNode::hasBindingProperty(const PropertyName &name) const
     return hasProperty(name) && internalNode()->property(name)->isBindingProperty();
 }
 
-bool ModelNode::hasNodeAbstracProperty(const PropertyName &name) const
+bool ModelNode::hasNodeAbstractProperty(const PropertyName &name) const
 {
     return hasProperty(name) && internalNode()->property(name)->isNodeAbstractProperty();
 }
 
-bool ModelNode::hasDefaultNodeAbstracProperty() const
+bool ModelNode::hasDefaultNodeAbstractProperty() const
 {
     return hasProperty(metaInfo().defaultPropertyName()) && internalNode()->property(metaInfo().defaultPropertyName())->isNodeAbstractProperty();
 }

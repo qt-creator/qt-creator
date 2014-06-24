@@ -141,8 +141,8 @@ public:
     bool hasProperty(const PropertyName &name) const;
     bool hasVariantProperty(const PropertyName &name) const;
     bool hasBindingProperty(const PropertyName &name) const;
-    bool hasNodeAbstracProperty(const PropertyName &name) const;
-    bool hasDefaultNodeAbstracProperty() const;
+    bool hasNodeAbstractProperty(const PropertyName &name) const;
+    bool hasDefaultNodeAbstractProperty() const;
     bool hasDefaultNodeListProperty() const;
     bool hasDefaultNodeProperty() const;
     bool hasNodeProperty(const PropertyName &name) const;
