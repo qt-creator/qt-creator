@@ -87,10 +87,8 @@ public:
 
     \section1 Providing Variable Values
 
-    Plugins can register variables together with a description through registerVariable(),
-    and then need to connect to the variableUpdateRequested() signal to actually give
-    the variable its value when requested. A typical setup is to register
-    variables in the Plugin::initialize() function.
+    Plugins can register variables together with a description through registerVariable().
+    A typical setup is to register variables in the Plugin::initialize() function.
 
     \code
     bool MyPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -165,12 +163,6 @@ public:
     \endlist
 
 */
-
-/*!
- * \fn void VariableManager::variableUpdateRequested(const QByteArray &variable)
- * Signals that the value of the \a variable should be updated because someone requests its value.
- * Handlers of this signal should call insert() and return as fast as possible.
- */
 
 static VariableManager *variableManagerInstance = 0;
 static VariableManagerPrivate *d;
