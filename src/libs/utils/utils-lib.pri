@@ -182,7 +182,8 @@ HEADERS += \
     $$PWD/itemviews.h \
     $$PWD/treeviewcombobox.h \
     $$PWD/scopedswap.h \
-    $$PWD/algorithm.h
+    $$PWD/algorithm.h \
+    $$PWD/QtConcurrentTools
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

@@ -24,6 +24,7 @@ QtcLibrary {
     Depends { name: "app_version_header" }
 
     files: [
+        "QtConcurrentTools",
         "annotateditemdelegate.cpp",
         "annotateditemdelegate.h",
         "ansiescapecodehandler.cpp",
