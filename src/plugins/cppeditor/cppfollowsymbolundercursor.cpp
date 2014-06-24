@@ -581,7 +581,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
             }
         }
 
-        if (tk.isNot(T_IDENTIFIER) && tk.kind() < T_FIRST_QT_KEYWORD && tk.kind() > T_LAST_KEYWORD)
+        if (tk.isNot(T_IDENTIFIER) && !tk.isQtKeyword())
             return link;
 
         tc.setPosition(endOfToken);

@@ -227,9 +227,8 @@ enum Kind {
     T_WCHAR_T,
     T_LAST_PRIMITIVE = T_WCHAR_T,
 
-    T_FIRST_QT_KEYWORD,
-
     // Qt keywords
+    T_FIRST_QT_KEYWORD,
     T_EMIT = T_FIRST_QT_KEYWORD,
     T_SIGNAL,
     T_SLOT,
@@ -251,8 +250,8 @@ enum Kind {
     T_Q_DECLARE_INTERFACE,
     T_Q_OBJECT,
     T_Q_GADGET,
-
-    T_LAST_KEYWORD = T_Q_GADGET,
+    T_LAST_QT_KEYWORD = T_Q_GADGET,
+    T_LAST_KEYWORD = T_LAST_QT_KEYWORD,
 
     // aliases
     T_OR = T_PIPE_PIPE,
@@ -329,6 +328,9 @@ public:
 
     inline bool isPrimitiveType() const
     { return f.kind >= T_FIRST_PRIMITIVE && f.kind <= T_LAST_PRIMITIVE; }
+
+    inline bool isQtKeyword() const
+    { return f.kind >= T_FIRST_QT_KEYWORD && f.kind <= T_LAST_QT_KEYWORD; }
 
     inline bool isComment() const
     { return f.kind == T_COMMENT || f.kind == T_DOXY_COMMENT ||
