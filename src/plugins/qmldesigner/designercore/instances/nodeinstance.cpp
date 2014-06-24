@@ -144,7 +144,7 @@ void NodeInstance::setUpdateTransform(bool updateTransform)
 bool NodeInstance::updateTransform() const
 {
     if (d)
-        d->updateTransform || d->transform.isRotating() || d->transform.isScaling();
+        return d->updateTransform || d->transform.isRotating() || d->transform.isScaling();
     else
         return true;
 }
