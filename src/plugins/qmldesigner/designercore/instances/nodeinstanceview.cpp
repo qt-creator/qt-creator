@@ -43,6 +43,8 @@
 #include "bindingproperty.h"
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
+#include "nodeproperty.h"
+#include "qmlchangeset.h"
 
 #include "createscenecommand.h"
 #include "createinstancescommand.h"
@@ -674,19 +676,48 @@ NodeInstance NodeInstanceView::activeStateInstance() const
     return m_activeStateInstance;
 }
 
+void setXValue(NodeInstance &instance, const VariantProperty &variantProperty, QMultiHash<ModelNode, InformationName> &informationChangeHash)
+{
+    instance.setX(variantProperty.value().toDouble());
+    informationChangeHash.insert(variantProperty.parentModelNode(), Transform);
+}
+
+void setYValue(NodeInstance &instance, const VariantProperty &variantProperty, QMultiHash<ModelNode, InformationName> &informationChangeHash)
+{
+    instance.setY(variantProperty.value().toDouble());
+    informationChangeHash.insert(variantProperty.parentModelNode(), Transform);
+}
+
+
 void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList)
 {
     QMultiHash<ModelNode, InformationName> informationChangeHash;
 
     foreach (const VariantProperty &variantProperty, propertyList) {
         if (variantProperty.name() == "x") {
-            NodeInstance instance = instanceForModelNode(variantProperty.parentModelNode());
-            instance.setX(variantProperty.value().toDouble());
-            informationChangeHash.insert(variantProperty.parentModelNode(), Transform);
+            const ModelNode modelNode = variantProperty.parentModelNode();
+            if (QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
+                ModelNode targetModelNode = QmlPropertyChanges(modelNode).target();
+                if (targetModelNode.isValid()) {
+                    NodeInstance instance = instanceForModelNode(targetModelNode);
+                    setXValue(instance, variantProperty, informationChangeHash);
+                }
+            } else {
+                NodeInstance instance = instanceForModelNode(modelNode);
+                setXValue(instance, variantProperty, informationChangeHash);
+            }
         } else if (variantProperty.name() == "y") {
-            NodeInstance instance = instanceForModelNode(variantProperty.parentModelNode());
-            instance.setY(variantProperty.value().toDouble());
-            informationChangeHash.insert(variantProperty.parentModelNode(), Transform);
+            const ModelNode modelNode = variantProperty.parentModelNode();
+            if (QmlPropertyChanges::isValidQmlPropertyChanges(modelNode)) {
+                ModelNode targetModelNode = QmlPropertyChanges(modelNode).target();
+                if (targetModelNode.isValid()) {
+                    NodeInstance instance = instanceForModelNode(targetModelNode);
+                    setYValue(instance, variantProperty, informationChangeHash);
+                }
+            } else {
+                NodeInstance instance = instanceForModelNode(modelNode);
+                setYValue(instance, variantProperty, informationChangeHash);
+            }
         }
     }
 
