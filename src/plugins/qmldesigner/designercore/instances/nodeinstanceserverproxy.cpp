@@ -125,7 +125,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
                                                                 "editormode",
                                                               socketToken,
                                                               this,
-                                                              SLOT(printPreviewProcessOutput()),
+                                                              SLOT(printEditorProcessOutput()),
                                                               SLOT(processFinished(int,QProcess::ExitStatus)));
 
    if (runModus == NormalModus) {
@@ -133,7 +133,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
                                                                     "rendermode",
                                                                     socketToken,
                                                                     this,
-                                                                    SLOT(printPreviewProcessOutput()),
+                                                                    SLOT(printRenderProcessOutput()),
                                                                     SLOT(processFinished(int,QProcess::ExitStatus)));
        m_qmlPuppetPreviewProcess = puppetCreator.createPuppetProcess(puppetVersion,
                                                                      "previewmode",
