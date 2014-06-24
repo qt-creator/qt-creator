@@ -129,7 +129,7 @@ int AbstractTimelineModel::rowHeight(int rowNumber) const
     if (!expanded())
         return DefaultRowHeight;
 
-    if (d->rowOffsets.length() > rowNumber)
+    if (d->rowOffsets.size() > rowNumber)
         return d->rowOffsets[rowNumber] - (rowNumber > 0 ? d->rowOffsets[rowNumber - 1] : 0);
     return DefaultRowHeight;
 }
@@ -142,10 +142,10 @@ int AbstractTimelineModel::rowOffset(int rowNumber) const
     if (!expanded())
         return DefaultRowHeight * rowNumber;
 
-    if (d->rowOffsets.length() >= rowNumber)
+    if (d->rowOffsets.size() >= rowNumber)
         return d->rowOffsets[rowNumber - 1];
     if (!d->rowOffsets.empty())
-        return d->rowOffsets.last() + (rowNumber - 1 - d->rowOffsets.length()) * DefaultRowHeight;
+        return d->rowOffsets.last() + (rowNumber - 1 - d->rowOffsets.size()) * DefaultRowHeight;
     return rowNumber * DefaultRowHeight;
 }
 
@@ -158,12 +158,12 @@ void AbstractTimelineModel::setRowHeight(int rowNumber, int height)
         height = DefaultRowHeight;
 
     int nextOffset = d->rowOffsets.empty() ? 0 : d->rowOffsets.last();
-    while (d->rowOffsets.length() <= rowNumber)
+    while (d->rowOffsets.size() <= rowNumber)
         d->rowOffsets << (nextOffset += DefaultRowHeight);
     int difference = height - d->rowOffsets[rowNumber] +
             (rowNumber > 0 ? d->rowOffsets[rowNumber - 1] : 0);
     if (difference != 0) {
-        for (; rowNumber < d->rowOffsets.length(); ++rowNumber) {
+        for (; rowNumber < d->rowOffsets.size(); ++rowNumber) {
             d->rowOffsets[rowNumber] += difference;
         }
         emit rowHeightChanged();
@@ -177,7 +177,7 @@ int AbstractTimelineModel::height() const
     if (!expanded() || d->rowOffsets.empty())
         return depth * DefaultRowHeight;
 
-    return d->rowOffsets.last() + (depth - d->rowOffsets.length()) * DefaultRowHeight;
+    return d->rowOffsets.last() + (depth - d->rowOffsets.size()) * DefaultRowHeight;
 }
 
 qint64 AbstractTimelineModel::traceStartTime() const
