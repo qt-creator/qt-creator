@@ -102,6 +102,8 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                 m_dirtyInstanceSet.clear();
             }
 
+            resetAllItems();
+
             slowDownRenderTimer();
             nodeInstanceClient()->flush();
             nodeInstanceClient()->synchronizeWithClientProcess();
