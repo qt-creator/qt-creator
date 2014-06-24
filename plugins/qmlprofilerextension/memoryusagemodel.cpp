@@ -54,6 +54,13 @@ int MemoryUsageModel::rowCount() const
     return isEmpty() ? 1 : 3;
 }
 
+int MemoryUsageModel::rowMaxValue(int rowNumber) const
+{
+    Q_D(const MemoryUsageModel);
+    Q_UNUSED(rowNumber);
+    return d->maxSize;
+}
+
 int MemoryUsageModel::getEventRow(int index) const
 {
     Q_D(const MemoryUsageModel);
@@ -78,7 +85,7 @@ QColor MemoryUsageModel::getColor(int index) const
 float MemoryUsageModel::getHeight(int index) const
 {
     Q_D(const MemoryUsageModel);
-    return qMin(1.0f, (float)d->range(index).size / (float)d->maxSize * 0.85f + 0.15f);
+    return qMin(1.0f, (float)d->range(index).size / (float)d->maxSize);
 }
 
 const QVariantList MemoryUsageModel::getLabels() const

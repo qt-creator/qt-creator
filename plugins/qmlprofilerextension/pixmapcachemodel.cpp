@@ -103,6 +103,16 @@ int PixmapCacheModel::rowCount() const
     return d->collapsedRowCount;
 }
 
+int PixmapCacheModel::rowMaxValue(int rowNumber) const
+{
+    Q_D(const PixmapCacheModel);
+    if (rowNumber == 1) {
+        return d->maxCacheSize;
+    } else {
+        return AbstractTimelineModel::rowMaxValue(rowNumber);
+    }
+}
+
 int PixmapCacheModel::getEventRow(int index) const
 {
     Q_D(const PixmapCacheModel);
@@ -131,7 +141,7 @@ float PixmapCacheModel::getHeight(int index) const
 {
     Q_D(const PixmapCacheModel);
     if (d->range(index).pixmapEventType == PixmapCacheCountChanged)
-        return 0.15 + (float)d->range(index).cacheSize * 0.85 / (float)d->maxCacheSize;
+        return (float)d->range(index).cacheSize / (float)d->maxCacheSize;
     else
         return 1.0f;
 }

@@ -56,6 +56,7 @@ public:
     PixmapCacheModel(QObject *parent = 0);
 
     int rowCount() const;
+    int rowMaxValue(int rowNumber) const;
 
     int getEventRow(int index) const;
     Q_INVOKABLE int getEventId(int index) const;
