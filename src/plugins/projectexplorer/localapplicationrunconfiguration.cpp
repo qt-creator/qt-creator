@@ -41,7 +41,9 @@
 namespace ProjectExplorer {
 
 namespace Internal {
-class FallBackMacroExpander : public Utils::AbstractQtcMacroExpander {
+
+class FallBackMacroExpander : public Utils::AbstractMacroExpander
+{
 public:
     explicit FallBackMacroExpander(const Target *target) : m_target(target) {}
     virtual bool resolveMacro(const QString &name, QString *ret);

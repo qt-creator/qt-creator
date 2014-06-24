@@ -55,7 +55,8 @@ QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files);
 // If path is not sub of home path, or when running on Windows, returns the input
 QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path);
 
-class QTCREATOR_UTILS_EXPORT AbstractMacroExpander {
+class QTCREATOR_UTILS_EXPORT AbstractMacroExpander
+{
 public:
     virtual ~AbstractMacroExpander() {}
     // Not const, as it may change the state of the expander.
@@ -64,11 +65,6 @@ public:
     //! \param pos Position to start scan on input, found position on output
     //! \param ret Replacement string on output
     //! \return Length of string part to replace, zero if no (further) matches found
-    virtual int findMacro(const QString &str, int *pos, QString *ret) = 0;
-};
-
-class QTCREATOR_UTILS_EXPORT AbstractQtcMacroExpander : public AbstractMacroExpander {
-public:
     virtual int findMacro(const QString &str, int *pos, QString *ret);
     //! Provide a replacement string for an expando
     //! \param name The name of the expando

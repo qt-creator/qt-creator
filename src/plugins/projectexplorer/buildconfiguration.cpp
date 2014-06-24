@@ -55,7 +55,8 @@ static const char BUILDDIRECTORY_KEY[] = "ProjectExplorer.BuildConfiguration.Bui
 namespace ProjectExplorer {
 namespace Internal {
 
-class BuildConfigMacroExpander : public Utils::AbstractQtcMacroExpander {
+class BuildConfigMacroExpander : public Utils::AbstractMacroExpander
+{
 public:
     explicit BuildConfigMacroExpander(const BuildConfiguration *bc) : m_bc(bc) {}
     virtual bool resolveMacro(const QString &name, QString *ret);

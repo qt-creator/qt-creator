@@ -43,7 +43,7 @@ static const char kFileBaseNamePostfix[] = ":FileBaseName";
 
 namespace Core {
 
-class VMMapExpander : public Utils::AbstractQtcMacroExpander
+class VMMapExpander : public Utils::AbstractMacroExpander
 {
 public:
     virtual bool resolveMacro(const QString &name, QString *ret)

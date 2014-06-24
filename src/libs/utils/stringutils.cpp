@@ -115,7 +115,7 @@ QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
     return outPath;
 }
 
-int AbstractQtcMacroExpander::findMacro(const QString &str, int *pos, QString *ret)
+int AbstractMacroExpander::findMacro(const QString &str, int *pos, QString *ret)
 {
     forever {
         int openPos = str.indexOf(QLatin1String("%{"), *pos);
