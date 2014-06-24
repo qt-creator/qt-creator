@@ -1305,9 +1305,8 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
     return proc.exitCode() == 0;
 }
 
-bool AndroidManager::checkForQt51Files(const QString &projectDirectory)
+bool AndroidManager::checkForQt51Files(Utils::FileName fileName)
 {
-    Utils::FileName fileName = Utils::FileName::fromString(projectDirectory);
     fileName.appendPath(QLatin1String("android")).appendPath(QLatin1String("version.xml"));
     if (!fileName.toFileInfo().exists())
         return false;

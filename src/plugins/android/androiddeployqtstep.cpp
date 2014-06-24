@@ -170,7 +170,7 @@ void AndroidDeployQtStep::ctor()
 
 bool AndroidDeployQtStep::init()
 {
-    if (AndroidManager::checkForQt51Files(project()->projectDirectory().toString()))
+    if (AndroidManager::checkForQt51Files(project()->projectDirectory()))
         emit addOutput(tr("Found old folder \"android\" in source directory. Qt 5.2 does not use that folder by default."), ErrorOutput);
 
     m_targetArch = AndroidManager::targetArch(target());

@@ -135,7 +135,7 @@ public:
 
     static bool checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd);
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
-    static bool checkForQt51Files(const QString &projectDirectory);
+    static bool checkForQt51Files(Utils::FileName fileName);
 private:
     static void raiseError(const QString &reason);
     static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);

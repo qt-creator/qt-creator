@@ -98,7 +98,7 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
     m_ui->verboseOutputCheckBox->setChecked(m_step->verboseOutput());
     m_ui->openPackageLocationCheckBox->setChecked(m_step->openPackageLocation());
 
-    bool oldFiles = AndroidManager::checkForQt51Files(m_step->project()->projectDirectory().toString());
+    bool oldFiles = AndroidManager::checkForQt51Files(m_step->project()->projectDirectory());
     m_ui->oldFilesWarningIcon->setVisible(oldFiles);
     m_ui->oldFilesWarningLabel->setVisible(oldFiles);
 
