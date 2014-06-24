@@ -45,6 +45,9 @@ import QtQuick.Layouts 1.0
 Section {
     caption: qsTr("Geometry")
 
+    anchors.left: parent.left
+    anchors.right: parent.right
+
     SectionLayout {
         rowSpacing: 4
         rows: 2
