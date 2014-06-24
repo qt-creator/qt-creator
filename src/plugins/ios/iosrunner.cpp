@@ -217,11 +217,11 @@ void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
         TaskHub::addTask(Task::Warning,
                          tr("Run failed. The settings in the Organizer window of Xcode might be incorrect."),
                          ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
-    } else if (msg.contains(lockedErr)) {
+    } else if (res.contains(lockedErr)) {
         QString message = tr("The device is locked, please unlock.");
         TaskHub::addTask(Task::Error, message,
                          ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
-        res.replace(lockedErr, msg);
+        res.replace(lockedErr, message);
     }
     QRegExp qmlPortRe(QLatin1String("QML Debugger: Waiting for connection on port ([0-9]+)..."));
     int index = qmlPortRe.indexIn(msg);

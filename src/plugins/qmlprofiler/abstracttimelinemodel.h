@@ -54,6 +54,11 @@ public:
     bool isEmpty() const;
 
     // Methods are directly passed on to the private model and relying on its virtual methods.
+    int rowHeight(int rowNumber) const;
+    int rowOffset(int rowNumber) const;
+    void setRowHeight(int rowNumber, int height);
+    int height() const;
+
     Q_INVOKABLE qint64 lastTimeMark() const;
     Q_INVOKABLE qint64 traceStartTime() const;
     Q_INVOKABLE qint64 traceEndTime() const;
@@ -88,9 +93,12 @@ public:
     Q_INVOKABLE virtual int getEventIdForLocation(const QString &filename, int line, int column) const;
     Q_INVOKABLE virtual int getBindingLoopDest(int index) const;
     Q_INVOKABLE virtual float getHeight(int index) const;
+    virtual int rowMinValue(int rowNumber) const;
+    virtual int rowMaxValue(int rowNumber) const;
 
 signals:
     void expandedChanged();
+    void rowHeightChanged();
 
 protected:
     enum BoxColorProperties {

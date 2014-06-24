@@ -41,8 +41,6 @@
 
 using namespace QmlProfiler::Internal;
 
-const int DefaultRowHeight = 30;
-
 TimelineRenderer::TimelineRenderer(QQuickPaintedItem *parent) :
     QQuickPaintedItem(parent), m_startTime(0), m_endTime(0), m_spacing(0), m_spacedDuration(0),
     m_lastStartTime(0), m_lastEndTime(0)
@@ -55,12 +53,16 @@ TimelineRenderer::TimelineRenderer(QQuickPaintedItem *parent) :
 
 void TimelineRenderer::setProfilerModelProxy(QObject *profilerModelProxy)
 {
-    if (m_profilerModelProxy)
+    if (m_profilerModelProxy) {
         disconnect(m_profilerModelProxy, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
+        disconnect(m_profilerModelProxy, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
+    }
     m_profilerModelProxy = qobject_cast<TimelineModelAggregator *>(profilerModelProxy);
 
-    if (m_profilerModelProxy)
+    if (m_profilerModelProxy) {
         connect(m_profilerModelProxy, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
+        connect(m_profilerModelProxy, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
+    }
     emit profilerModelProxyChanged(m_profilerModelProxy);
 }
 
@@ -130,18 +132,20 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
     p->setPen(Qt::transparent);
     int modelRowStart = 0;
     for (int mi = 0; mi < modelIndex; mi++)
-        modelRowStart += m_profilerModelProxy->rowCount(mi);
+        modelRowStart += m_profilerModelProxy->height(mi);
 
     for (int i = fromIndex; i <= toIndex; i++) {
         int currentX, currentY, itemWidth, itemHeight;
 
         int rowNumber = m_profilerModelProxy->getEventRow(modelIndex, i);
-        currentY = (modelRowStart + rowNumber) * DefaultRowHeight - y();
+        currentY = modelRowStart + m_profilerModelProxy->rowOffset(modelIndex, rowNumber) - y();
         if (currentY >= height())
             continue;
 
-        itemHeight = DefaultRowHeight * m_profilerModelProxy->getHeight(modelIndex, i);
-        currentY += DefaultRowHeight - itemHeight;
+        itemHeight = m_profilerModelProxy->rowHeight(modelIndex, rowNumber) *
+                m_profilerModelProxy->getHeight(modelIndex, i);
+
+        currentY += m_profilerModelProxy->rowHeight(modelIndex, rowNumber) - itemHeight;
         if (currentY + itemHeight < 0)
             continue;
 
@@ -164,7 +168,7 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
 
     int modelRowStart = 0;
     for (int mi = 0; mi < modelIndex; mi++)
-        modelRowStart += m_profilerModelProxy->rowCount(mi);
+        modelRowStart += m_profilerModelProxy->height(mi);
 
     p->save();
 
@@ -183,16 +187,19 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
         if (m_profilerModelProxy->getEventId(modelIndex, i) != id)
             continue;
 
-        currentY = (modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i)) * DefaultRowHeight - y();
-        if (currentY + DefaultRowHeight < 0 || height() < currentY)
+        int row = m_profilerModelProxy->getEventRow(modelIndex, i);
+        int rowHeight = m_profilerModelProxy->rowHeight(modelIndex, row);
+
+        currentY = modelRowStart + m_profilerModelProxy->rowOffset(modelIndex, row) - y();
+        if (currentY + rowHeight < 0 || height() < currentY)
             continue;
 
         getItemXExtent(modelIndex, i, currentX, itemWidth);
 
         if (i == m_selectedItem)
-            selectedItemRect = QRect(currentX, currentY - 1, itemWidth, DefaultRowHeight + 1);
+            selectedItemRect = QRect(currentX, currentY - 1, itemWidth, rowHeight + 1);
         else
-            p->drawRect(currentX, currentY, itemWidth, DefaultRowHeight);
+            p->drawRect(currentX, currentY, itemWidth, rowHeight);
     }
 
     // draw the selected item rectangle the last, so that it's overlayed
@@ -209,7 +216,7 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
     int destindex;
     int xfrom, xto, width;
     int yfrom, yto;
-    int radius = DefaultRowHeight / 3;
+    int radius = 10;
     QPen shadowPen = QPen(QColor("grey"),2);
     QPen markerPen = QPen(QColor("orange"),2);
     QBrush shadowBrush = QBrush(QColor("grey"));
@@ -222,12 +229,14 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
             // to
             getItemXExtent(modelIndex, destindex, xto, width);
             xto += width / 2;
-            yto = getYPosition(modelIndex, destindex) + DefaultRowHeight / 2 - y();
+            yto = getYPosition(modelIndex, destindex) +
+                    m_profilerModelProxy->rowHeight(modelIndex, destindex) / 2 - y();
 
             // from
             getItemXExtent(modelIndex, i, xfrom, width);
             xfrom += width / 2;
-            yfrom = getYPosition(modelIndex, i) + DefaultRowHeight / 2 - y();
+            yfrom = getYPosition(modelIndex, i) +
+                    m_profilerModelProxy->rowHeight(modelIndex, i) / 2 - y();
 
             // radius (derived from width of origin event)
             radius = 5;
@@ -260,11 +269,29 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
     p->restore();
 }
 
+int TimelineRenderer::rowFromPosition(int y)
+{
+    int ret = 0;
+    for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
+        int modelHeight = m_profilerModelProxy->height(modelIndex);
+        if (y < modelHeight) {
+            for (int row = 0; row < m_profilerModelProxy->rowCount(modelIndex); ++row) {
+                y -= m_profilerModelProxy->rowHeight(modelIndex, row);
+                if (y < 0) return ret;
+                ++ret;
+            }
+        } else {
+            y -= modelHeight;
+            ret += m_profilerModelProxy->rowCount(modelIndex);
+        }
+    }
+    return ret;
+}
+
 int TimelineRenderer::modelFromPosition(int y)
 {
-    y = y / DefaultRowHeight;
     for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
-        y -= m_profilerModelProxy->rowCount(modelIndex);
+        y -= m_profilerModelProxy->height(modelIndex);
         if (y < 0)
             return modelIndex;
     }
@@ -328,7 +355,7 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
     // Make the "selected" area 3 pixels wide by adding/subtracting 1 to catch very narrow events.
     qint64 startTime = (mouseX - 1) * (m_endTime - m_startTime) / width() + m_startTime;
     qint64 endTime = (mouseX + 1) * (m_endTime - m_startTime) / width() + m_startTime;
-    int row = (mouseY + y()) / DefaultRowHeight;
+    int row = rowFromPosition(mouseY + y());
     int modelIndex = modelFromPosition(mouseY + y());
 
     // already covered? nothing to do
@@ -404,10 +431,10 @@ int TimelineRenderer::getYPosition(int modelIndex, int index) const
 
     int modelRowStart = 0;
     for (int mi = 0; mi < modelIndex; mi++)
-        modelRowStart += m_profilerModelProxy->rowCount(mi);
+        modelRowStart += m_profilerModelProxy->height(mi);
 
-    int y = DefaultRowHeight * (modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, index));
-    return y;
+    return modelRowStart + m_profilerModelProxy->rowOffset(modelIndex,
+            m_profilerModelProxy->getEventRow(modelIndex, index));
 }
 
 void TimelineRenderer::selectNext()

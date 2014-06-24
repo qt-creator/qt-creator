@@ -36,8 +36,6 @@ Rectangle {
 
     // ***** properties
 
-    property int singleRowHeight: 30
-
     property alias selectionLocked : view.selectionLocked
     property bool lockItemSelection : false
 

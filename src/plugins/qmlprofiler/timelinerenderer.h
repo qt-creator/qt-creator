@@ -172,6 +172,7 @@ private:
     void drawSelectionBoxes(QPainter *p, int modelIndex, int fromIndex, int toIndex);
     void drawBindingLoopMarkers(QPainter *p, int modelIndex, int fromIndex, int toIndex);
     int modelFromPosition(int y);
+    int rowFromPosition(int y);
 
     void manageClicked();
     void manageHovered(int mouseX, int mouseY);
