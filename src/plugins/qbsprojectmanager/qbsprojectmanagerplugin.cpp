@@ -333,6 +333,8 @@ void QbsProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *projec
     if (project == m_selectedProject)
         updateContextActions();
 
+    m_editorNode = currentEditorNode();
+    m_editorProject = currentEditorProject();
     if (project == m_editorProject)
         updateBuildActions();
 }
