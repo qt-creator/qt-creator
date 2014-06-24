@@ -70,7 +70,7 @@ Rectangle {
                     SecondColumnLayout {
                         LineEdit {
                             id: lineEdit
-                            enabled: isBaseState
+
                             backendValue: backendValues.id
                             placeholderText: qsTr("id")
                             text: backendValues.id.value
