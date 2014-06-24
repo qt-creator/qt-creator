@@ -386,7 +386,7 @@ ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget(
 void AndroidDeployQtStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
     AbstractProcessStep::processFinished(exitCode, status);
-    if (m_openPackageLocationForRun)
+    if (m_openPackageLocationForRun && status == QProcess::NormalExit && exitCode == 0)
         QMetaObject::invokeMethod(this, "showInGraphicalShell", Qt::QueuedConnection);
 }
 
