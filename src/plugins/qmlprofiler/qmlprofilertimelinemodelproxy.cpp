@@ -343,12 +343,12 @@ const QVariantMap RangeTimelineModel::getEventLocation(int index) const
     QVariantMap result;
     int eventId = getEventId(index);
 
-    QmlDebug::QmlEventLocation location
+    const QmlDebug::QmlEventLocation &location
             = d->modelManager->qmlModel()->getEventTypes().at(eventId).location;
 
-    result.insert(QLatin1String("file"), location.filename);
-    result.insert(QLatin1String("line"), location.line);
-    result.insert(QLatin1String("column"), location.column);
+    result.insert(QStringLiteral("file"), location.filename);
+    result.insert(QStringLiteral("line"), location.line);
+    result.insert(QStringLiteral("column"), location.column);
 
     return result;
 }
