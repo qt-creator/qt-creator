@@ -83,9 +83,9 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         if (quickView() && nodeInstanceClient()->bytesToWrite() < 10000) {
             foreach (QQuickItem *item, allItems()) {
                 if (item) {
-                    if (hasInstanceForObject(item)
-                            && DesignerSupport::isDirty(item, DesignerSupport::ContentUpdateMask)) {
-                        m_dirtyInstanceSet.insert(instanceForObject(item));
+                    if (hasInstanceForObject(item)) {
+                            if (DesignerSupport::isDirty(item, DesignerSupport::ContentUpdateMask))
+                                m_dirtyInstanceSet.insert(instanceForObject(item));
                     } else if (DesignerSupport::isDirty(item, DesignerSupport::AllMask)) {
                         ServerNodeInstance ancestorInstance = findNodeInstanceForItem(item->parentItem());
                         if (ancestorInstance.isValid())
