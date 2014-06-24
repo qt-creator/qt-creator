@@ -20,6 +20,7 @@ QtcPlugin {
     pluginspecreplacements: ({"ANDROID_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
     files: [
+        "android_global.h",
         "addnewavddialog.ui",
         "android.qrc",
         "androidanalyzesupport.cpp",
@@ -71,6 +72,7 @@ QtcPlugin {
         "androidplugin.h",
         "androidpotentialkit.cpp",
         "androidpotentialkit.h",
+        "androidqtsupport.h",
         "androidqtversion.cpp",
         "androidqtversion.h",
         "androidqtversionfactory.cpp",
@@ -114,5 +116,7 @@ QtcPlugin {
         "javaindenter.h",
         "javaparser.cpp",
         "javaparser.h",
+        "qmakeandroidsupport.cpp",
+        "qmakeandroidsupport.h",
     ]
 }

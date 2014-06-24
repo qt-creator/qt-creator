@@ -6,6 +6,7 @@ else:ANDROID_EXPERIMENTAL_STR="false"
 QT += xml network
 
 HEADERS += \
+    androidqtsupport.h \
     androidconstants.h \
     androidconfigurations.h \
     androidmanager.h \
@@ -50,7 +51,9 @@ HEADERS += \
     javaautocompleter.h \
     javacompletionassistprovider.h \
     javafilewizard.h \
-    avddialog.h
+    avddialog.h \
+    android_global.h \
+    qmakeandroidsupport.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -95,7 +98,8 @@ SOURCES += \
     javaautocompleter.cpp \
     javacompletionassistprovider.cpp \
     javafilewizard.cpp \
-    avddialog.cpp
+    avddialog.cpp \
+    qmakeandroidsupport.cpp
 
 FORMS += \
     androidsettingswidget.ui \

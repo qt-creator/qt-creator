@@ -34,10 +34,14 @@
 #include "androidglobal.h"
 #include "androidtoolchain.h"
 #include "androiddeployqtstep.h"
+#include "androidqtsupport.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/icore.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -672,6 +676,16 @@ bool AndroidManager::checkForQt51Files(Utils::FileName fileName)
     if (!AndroidManager::openXmlFile(dstVersionDoc, fileName))
         return false;
     return dstVersionDoc.documentElement().attribute(QLatin1String("value")).toDouble() < 5.2;
+}
+
+AndroidQtSupport *AndroidManager::androidQtSupport(ProjectExplorer::Target *target)
+{
+    QList<AndroidQtSupport *> providerList = ExtensionSystem::PluginManager::getObjects<AndroidQtSupport>();
+    foreach (AndroidQtSupport *provider, providerList) {
+        if (provider->canHandle(target))
+            return provider;
+    }
+    return 0;
 }
 
 } // namespace Internal

@@ -40,6 +40,7 @@
 namespace ProjectExplorer { class Target; }
 
 namespace Android {
+class AndroidQtSupport;
 namespace Internal {
 
 class AndroidManager : public QObject
@@ -106,6 +107,8 @@ public:
     static bool checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd);
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
     static bool checkForQt51Files(Utils::FileName fileName);
+    static AndroidQtSupport *androidQtSupport(ProjectExplorer::Target *target);
+
 private:
     static void raiseError(const QString &reason);
     static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);

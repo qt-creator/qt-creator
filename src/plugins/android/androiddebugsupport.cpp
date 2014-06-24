@@ -32,6 +32,7 @@
 #include "androidglobal.h"
 #include "androidrunner.h"
 #include "androidmanager.h"
+#include "androidqtsupport.h"
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
@@ -40,19 +41,18 @@
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerstartparameters.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
+
 #include <qtsupport/qtkitinformation.h>
 
-#include <QDir>
+#include <QDirIterator>
 #include <QTcpServer>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 namespace Android {
 namespace Internal {
@@ -85,7 +85,6 @@ static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
 RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig, QString *errorMessage)
 {
     Target *target = runConfig->target();
-    QmakeProject *project = static_cast<QmakeProject *>(target->project());
 
     DebuggerStartParameters params;
     params.startMode = AttachToRemoteServer;
@@ -101,12 +100,9 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
             params.toolChainAbi = tc->targetAbi();
-        params.executable = project->rootQmakeProjectNode()->buildDir() + QLatin1String("/app_process");
+        params.executable = target->activeBuildConfiguration()->buildDirectory().toString() + QLatin1String("/app_process");
         params.remoteChannel = runConfig->remoteChannel();
-        params.solibSearchPath.clear();
-        QList<QmakeProFileNode *> nodes = project->allProFiles();
-        foreach (QmakeProFileNode *node, nodes)
-            params.solibSearchPath.append(node->targetInformation().buildDir);
+        params.solibSearchPath = AndroidManager::androidQtSupport(target)->soLibSearchPath(target);
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         params.solibSearchPath.append(qtSoPaths(version));
     }
@@ -118,9 +114,9 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.qmlServerAddress = server.serverAddress().toString();
         params.remoteSetupNeeded = true;
         //TODO: Not sure if these are the right paths.
-        params.projectSourceDirectory = project->projectDirectory().toString();
-        params.projectSourceFiles = project->files(QmakeProject::ExcludeGeneratedFiles);
-        params.projectBuildDirectory = project->rootQmakeProjectNode()->buildDir();
+        params.projectSourceDirectory = target->project()->projectDirectory().toString();
+        params.projectSourceFiles = target->project()->files(Project::ExcludeGeneratedFiles);
+        params.projectBuildDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
     }
 
     DebuggerRunControl * const debuggerRunControl
