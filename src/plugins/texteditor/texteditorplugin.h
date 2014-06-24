@@ -56,15 +56,13 @@ public:
     TextEditorPlugin();
     virtual ~TextEditorPlugin();
 
-    static TextEditorPlugin *instance();
-
     // ExtensionSystem::PluginInterface
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
-    PlainTextEditorFactory *editorFactory() { return m_editorFactory; }
-    LineNumberFilter *lineNumberFilter() { return m_lineNumberFilter; }
-    BaseTextMarkRegistry *baseTextMarkRegistry() { return m_baseTextMarkRegistry; }
+    static PlainTextEditorFactory *editorFactory();
+    static LineNumberFilter *lineNumberFilter();
+    static BaseTextMarkRegistry *baseTextMarkRegistry();
 
 private slots:
     void invokeCompletion();
@@ -73,7 +71,6 @@ private slots:
     void updateCurrentSelection(const QString &text);
 
 private:
-    static TextEditorPlugin *m_instance;
     TextEditorSettings *m_settings;
     PlainTextEditorFactory *m_editorFactory;
     LineNumberFilter *m_lineNumberFilter;
