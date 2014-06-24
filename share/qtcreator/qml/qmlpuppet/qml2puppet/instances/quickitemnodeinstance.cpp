@@ -235,7 +235,11 @@ QList<QQuickItem *> QuickItemNodeInstance::allItemsRecursive() const
 {
     QList<QQuickItem *> itemList;
 
+
     if (quickItem()) {
+        if (quickItem()->parentItem())
+           itemList.append(quickItem()->parentItem());
+
         itemList.append(quickItem());
         itemList.append(allChildItemsRecursive(quickItem()));
     }
