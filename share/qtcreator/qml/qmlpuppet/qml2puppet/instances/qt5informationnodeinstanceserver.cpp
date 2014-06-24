@@ -116,8 +116,8 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForParentInstances(QQuick
     QQuickItem *parentItem = item->parentItem();
 
     if (parentItem) {
-        if (hasInstanceForObject(parentItem) && DesignerSupport::isDirty(parentItem,  DesignerSupport::TransformUpdateMask))
-                return true;
+        if (hasInstanceForObject(parentItem))
+            return false;
 
         return isDirtyRecursiveForParentInstances(parentItem);
 
