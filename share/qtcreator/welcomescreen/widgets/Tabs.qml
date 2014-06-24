@@ -29,8 +29,9 @@
 
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as QQControls
+import QtQuick.Layouts 1.1
 
-Column {
+ColumnLayout {
     id: customTab
     property alias model: repeater.model
     spacing: 16
@@ -48,6 +49,7 @@ Column {
         id: repeater
 
         Button {
+            Layout.fillWidth: true
             text: title
             checkable: true
             exclusiveGroup: group

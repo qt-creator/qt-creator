@@ -53,9 +53,9 @@ ColumnLayout {
         }
 
         Tabs {
-            anchors.centerIn: parent
+            anchors.verticalCenter: parent.verticalCenter
+            x: 16
             id: tabs
-
         }
 
         Rectangle {
@@ -109,20 +109,26 @@ ColumnLayout {
                 font.bold: false
             }
 
-            NativeText {
-                text: qsTr("Learn how to develop your own applications and explore Qt Creator.")
-                font.pixelSize: 12
-                wrapMode: Text.WordWrap
-                Layout.maximumWidth: Screen.pixelDensity * 60
+            Item {
+                NativeText {
+                    id: gettingStartedText
+                    anchors.fill: parent
+                    anchors.rightMargin: 24
+                    text: qsTr("Learn how to develop your own applications and explore Qt Creator.")
+                    font.pixelSize: 12
+                    wrapMode: Text.WordWrap
+                }
+                height: gettingStartedText.implicitHeight
+                implicitWidth: parent.width
             }
 
             Item {
-                height: 8
+                height: 24
                 width: parent.width
             }
 
             Item {
-                width: gettingStartedButton.width + 24
+                width: gettingStartedButton.width + 28
                 Button {
                     x: 4
                     id: gettingStartedButton
@@ -137,7 +143,6 @@ ColumnLayout {
             }
 
             ColumnLayout {
-                x: 14
                 spacing: 16
                 IconAndLink {
                     iconSource: "images/icons/qt_account.png"
