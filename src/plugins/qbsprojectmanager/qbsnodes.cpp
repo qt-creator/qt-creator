@@ -834,7 +834,10 @@ const qbs::Project QbsProjectNode::qbsProject() const
 
 const qbs::ProjectData QbsProjectNode::qbsProjectData() const
 {
-    return m_qbsProject.projectData();
+    if (m_qbsProject.isValid())
+        return m_qbsProject.projectData();
+    else
+        return qbs::ProjectData();
 }
 
 bool QbsProjectNode::showInSimpleTree() const
