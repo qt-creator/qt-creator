@@ -187,16 +187,6 @@ void GitEditor::setPlainTextFiltered(const QString &text)
             modText = removeAnnotationDate(text);
         break;
     }
-    case VcsBase::DiffOutput: {
-        if (modText.isEmpty()) {
-            modText = QLatin1String("No difference to HEAD");
-        } else {
-            const QFileInfo fi(source());
-            const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-            modText = plugin->gitClient()->extendedShowDescription(workingDirectory, modText);
-        }
-        break;
-    }
     default:
         break;
     }
