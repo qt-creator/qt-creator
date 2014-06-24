@@ -27,9 +27,12 @@
 **
 ****************************************************************************/
 
+#include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
 
 #include <coreplugin/icore.h>
+
+#include <QStringList>
 
 static const char settingsGroupC[] = "DiffEditor";
 static const char contextLineNumbersKeyC[] = "ContextLineNumbers";
@@ -148,7 +151,11 @@ void DiffEditorController::setDescription(const QString &description)
         return;
 
     m_description = description;
-    emit descriptionChanged(description);
+    // Empty line before headers and commit message
+    const int emptyLine = m_description.indexOf(QLatin1String("\n\n"));
+    if (emptyLine != -1)
+        m_description.insert(emptyLine, QLatin1Char('\n') + QLatin1String(Constants::EXPAND_BRANCHES));
+    emit descriptionChanged(m_description);
 }
 
 void DiffEditorController::setDescriptionEnabled(bool on)
@@ -158,6 +165,44 @@ void DiffEditorController::setDescriptionEnabled(bool on)
 
     m_descriptionEnabled = on;
     emit descriptionEnablementChanged(on);
+}
+
+void DiffEditorController::branchesForCommitReceived(const QString &output)
+{
+    const QString branches = prepareBranchesForCommit(output);
+
+    m_description.replace(QLatin1String(Constants::EXPAND_BRANCHES), branches);
+    emit descriptionChanged(m_description);
+}
+
+void DiffEditorController::expandBranchesRequested()
+{
+    emit expandBranchesRequested(m_description.mid(7, 8));
+}
+
+QString DiffEditorController::prepareBranchesForCommit(const QString &output)
+{
+    QString moreBranches;
+    QString branches;
+    QStringList res;
+    foreach (const QString &branch, output.split(QLatin1Char('\n'))) {
+        const QString b = branch.mid(2).trimmed();
+        if (!b.isEmpty())
+            res << b;
+    }
+    const int branchCount = res.count();
+    // If there are more than 20 branches, list first 10 followed by a hint
+    if (branchCount > 20) {
+        const int leave = 10;
+        //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'"
+        //  in git show.
+        moreBranches = QLatin1Char(' ') + tr("and %n more", 0, branchCount - leave);
+        res.erase(res.begin() + leave, res.end());
+    }
+    if (!res.isEmpty())
+        branches = (QLatin1String("Branches: ") + res.join(QLatin1String(", ")) + moreBranches);
+
+    return branches;
 }
 
 void DiffEditorController::setContextLinesNumber(int lines)

@@ -68,6 +68,8 @@ public slots:
     void requestChunkActions(QMenu *menu,
                              int diffFileIndex,
                              int chunkIndex);
+    void branchesForCommitReceived(const QString &output);
+    void expandBranchesRequested();
 
 signals:
     void cleared(const QString &message);
@@ -81,9 +83,10 @@ signals:
     void chunkActionsRequested(QMenu *menu,
                                int diffFileIndex,
                                int chunkIndex);
-
+    void expandBranchesRequested(const QString &revision);
 
 private:
+    QString prepareBranchesForCommit(const QString &output);
     QString m_clearMessage;
 
     QList<FileData> m_diffFiles;

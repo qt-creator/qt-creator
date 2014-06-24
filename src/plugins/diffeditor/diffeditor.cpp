@@ -52,6 +52,7 @@
 #include <QComboBox>
 #include <QFileInfo>
 #include <QTextCodec>
+#include <QTextBlock>
 
 static const char settingsGroupC[] = "DiffEditor";
 static const char diffEditorTypeKeyC[] = "DiffEditorType";
@@ -74,6 +75,9 @@ public:
     DescriptionEditorWidget(QWidget *parent = 0);
     virtual QSize sizeHint() const;
 
+signals:
+    void expandBranchesRequested();
+
 public slots:
     void setDisplaySettings(const DisplaySettings &ds);
 
@@ -84,6 +88,15 @@ protected:
         editor->document()->setId("DiffEditor.DescriptionEditor");
         return editor;
     }
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+
+    bool findContentsUnderCursor(const QTextCursor &cursor);
+    void highlightCurrentContents();
+    void handleCurrentContents();
+
+private:
+    QTextCursor m_currentCursor;
 };
 
 DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
@@ -116,6 +129,67 @@ void DescriptionEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     DisplaySettings settings = displaySettings();
     settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
     BaseTextEditorWidget::setDisplaySettings(settings);
+}
+
+void DescriptionEditorWidget::mouseMoveEvent(QMouseEvent *e)
+{
+    if (e->buttons()) {
+        TextEditor::BaseTextEditorWidget::mouseMoveEvent(e);
+        return;
+    }
+
+    Qt::CursorShape cursorShape;
+
+    const QTextCursor cursor = cursorForPosition(e->pos());
+    if (findContentsUnderCursor(cursor)) {
+        highlightCurrentContents();
+        cursorShape = Qt::PointingHandCursor;
+    } else {
+        setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>());
+        cursorShape = Qt::IBeamCursor;
+    }
+
+    TextEditor::BaseTextEditorWidget::mouseMoveEvent(e);
+    viewport()->setCursor(cursorShape);
+}
+
+void DescriptionEditorWidget::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (e->button() == Qt::LeftButton && !(e->modifiers() & Qt::ShiftModifier)) {
+        const QTextCursor cursor = cursorForPosition(e->pos());
+        if (findContentsUnderCursor(cursor)) {
+            handleCurrentContents();
+            e->accept();
+            return;
+        }
+    }
+
+    TextEditor::BaseTextEditorWidget::mouseReleaseEvent(e);
+}
+
+bool DescriptionEditorWidget::findContentsUnderCursor(const QTextCursor &cursor)
+{
+    m_currentCursor = cursor;
+    return cursor.block().text() == QLatin1String(Constants::EXPAND_BRANCHES);
+}
+
+void DescriptionEditorWidget::highlightCurrentContents()
+{
+    QTextEdit::ExtraSelection sel;
+    sel.cursor = m_currentCursor;
+    sel.cursor.select(QTextCursor::LineUnderCursor);
+    sel.format.setFontUnderline(true);
+    setExtraSelections(BaseTextEditorWidget::OtherSelection,
+                       QList<QTextEdit::ExtraSelection>() << sel);
+
+}
+
+void DescriptionEditorWidget::handleCurrentContents()
+{
+    m_currentCursor.select(QTextCursor::LineUnderCursor);
+    m_currentCursor.removeSelectedText();
+    m_currentCursor.insertText(QLatin1String("Branches: Expanding..."));
+    emit expandBranchesRequested();
 }
 
 } // namespace Internal
@@ -179,6 +253,8 @@ void DiffEditor::ctor()
 
     setWidget(splitter);
 
+    connect(m_descriptionWidget, SIGNAL(expandBranchesRequested()),
+            m_document->controller(), SLOT(expandBranchesRequested()));
     connect(TextEditorSettings::instance(),
             SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             m_descriptionWidget,

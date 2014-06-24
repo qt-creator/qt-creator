@@ -241,8 +241,6 @@ public:
     QString synchronousTopRevision(const QString &workingDirectory, QString *errorMessage = 0);
     void synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,
                                   QString &precedes, QString &follows);
-    QStringList synchronousBranchesForCommit(const QString &workingDirectory,
-                                             const QString &revision);
     bool isRemoteCommit(const QString &workingDirectory, const QString &commit);
     bool isFastForwardMerge(const QString &workingDirectory, const QString &branch);
 
@@ -349,6 +347,7 @@ private slots:
     void slotChunkActionsRequested(QMenu *menu, int diffFileIndex, int chunkIndex);
     void slotStageChunk();
     void slotUnstageChunk();
+    void branchesForCommit(const QString &revision);
 
 private:
     QString makePatch(int diffFileIndex, int chunkIndex, bool revert) const;

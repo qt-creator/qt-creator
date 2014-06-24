@@ -44,6 +44,8 @@ const char ICON_SIDE_BY_SIDE_DIFF[]  = ":/diffeditor/images/sidebysidediff.png";
 const char ICON_UNIFIED_DIFF[]       = ":/diffeditor/images/unifieddiff.png";
 const char ICON_TOP_BAR[]            = ":/diffeditor/images/topbar.png";
 
+const char EXPAND_BRANCHES[] = "Branches: <Expand>";
+
 } // namespace Constants
 } // namespace DiffEditor
 

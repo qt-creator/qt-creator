@@ -1139,6 +1139,10 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
             DiffEditor::DiffEditorManager::find(documentId);
     if (!diffEditorDocument) {
         diffEditorDocument = createDiffEditor(documentId, source, title);
+
+        connect(diffEditorDocument->controller(), SIGNAL(expandBranchesRequested(QString)),
+                this, SLOT(branchesForCommit(QString)));
+
         diffEditorDocument->controller()->setDescriptionEnabled(true);
 
         GitDiffEditorReloader *reloader =
@@ -1738,23 +1742,25 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
     }
 }
 
-QStringList GitClient::synchronousBranchesForCommit(const QString &workingDirectory, const QString &revision)
+void GitClient::branchesForCommit(const QString &revision)
 {
-    QByteArray outputData;
-    QString output;
     QStringList arguments;
     arguments << QLatin1String("branch") << QLatin1String(noColorOption)
               << QLatin1String("-a") << QLatin1String("--contains") << revision;
-    fullySynchronousGit(workingDirectory, arguments, &outputData, 0,
-                        VcsBasePlugin::SuppressCommandLogging);
-    output = commandOutputFromLocal8Bit(outputData);
-    QStringList res;
-    foreach (const QString &branch, output.split(QLatin1Char('\n'))) {
-        const QString b = branch.mid(2).trimmed();
-        if (!b.isEmpty())
-            res << b;
-    }
-    return res;
+
+    DiffEditor::DiffEditorController *editorController
+            = qobject_cast<DiffEditor::DiffEditorController *>(sender());
+    QString workingDirectory = editorController->workingDirectory();
+    VcsBase::Command *command = new VcsBase::Command(gitBinaryPath(), workingDirectory,
+                                                     processEnvironment());
+    command->setCodec(getSourceCodec(currentDocumentPath()));
+
+    connect(command, SIGNAL(output(QString)), editorController,
+            SLOT(branchesForCommitReceived(QString)));
+
+    command->addJob(arguments, -1);
+    command->execute();
+    command->setCookie(workingDirectory);
 }
 
 bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &commit)
