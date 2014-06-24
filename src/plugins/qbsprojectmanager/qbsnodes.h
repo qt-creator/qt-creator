@@ -171,8 +171,9 @@ public:
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
 
-    void update(const qbs::Project &prj);
-    void update(const qbs::ProjectData &prjData);
+    void setProject(const qbs::Project &prj); // This does *not* update the node tree!
+
+    void update();
 
     QbsProject *project() const;
     const qbs::Project qbsProject() const;
@@ -182,13 +183,14 @@ public:
 private:
     void ctor();
 
+    void update(const qbs::ProjectData &prjData);
+
     QbsProductNode *findProductNode(const QString &name);
     QbsProjectNode *findProjectNode(const QString &name);
 
     QbsProject *m_project;
 
     qbs::Project m_qbsProject;
-    qbs::ProjectData m_qbsProjectData;
     static QIcon m_projectIcon;
 };
 } // namespace Internal

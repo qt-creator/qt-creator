@@ -768,10 +768,17 @@ bool QbsProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdde
     return prd ? prd->addFiles(filePaths, notAdded) : false;
 }
 
-void QbsProjectNode::update(const qbs::Project &prj)
+void QbsProjectNode::setProject(const qbs::Project &prj)
 {
-    update(prj.isValid() ? prj.projectData() : qbs::ProjectData());
     m_qbsProject = prj;
+}
+
+void QbsProjectNode::update()
+{
+    if (m_qbsProject.isValid())
+        update(m_qbsProject.projectData());
+    else
+        update(qbs::ProjectData());
 }
 
 void QbsProjectNode::update(const qbs::ProjectData &prjData)
@@ -808,8 +815,6 @@ void QbsProjectNode::update(const qbs::ProjectData &prjData)
 
     removeProjectNodes(toRemove);
     addProjectNodes(toAdd);
-
-    m_qbsProjectData = prjData;
 }
 
 QbsProject *QbsProjectNode::project() const
@@ -829,7 +834,7 @@ const qbs::Project QbsProjectNode::qbsProject() const
 
 const qbs::ProjectData QbsProjectNode::qbsProjectData() const
 {
-    return m_qbsProjectData;
+    return m_qbsProject.projectData();
 }
 
 bool QbsProjectNode::showInSimpleTree() const

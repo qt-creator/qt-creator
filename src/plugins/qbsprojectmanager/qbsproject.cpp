@@ -291,22 +291,11 @@ void QbsProject::handleQbsParsingDone(bool success)
         m_qbsUpdateFutureInterface = 0;
     }
 
-    if (project.isValid()) {
-        // Do not throw away data when parsing errors were introduced. That frightens users:-)
-        m_rootProjectNode->update(project);
+    if (project.isValid())
+        m_rootProjectNode->setProject(project);
 
-        updateDocuments(project.isValid() ? project.buildSystemFiles() : QSet<QString>() << m_fileName);
+    readQbsData();
 
-        updateCppCodeModel(m_rootProjectNode->qbsProjectData());
-        updateQmlJsCodeModel(m_rootProjectNode->qbsProjectData());
-        updateApplicationTargets(m_rootProjectNode->qbsProjectData());
-        updateDeploymentInfo(m_rootProjectNode->qbsProject());
-
-        foreach (Target *t, targets())
-            t->updateDefaultRunConfigurations();
-
-        emit fileListChanged();
-    }
     emit projectParsingDone(success);
 }
 
@@ -359,6 +348,28 @@ void QbsProject::delayForcedParsing()
 {
     m_forceParsing = true;
     delayParsing();
+}
+
+// Qbs may change its data
+void QbsProject::readQbsData()
+{
+    QTC_ASSERT(m_rootProjectNode, return);
+
+    m_rootProjectNode->update();
+
+    qbs::Project project = m_rootProjectNode->qbsProject();
+    updateDocuments(project.isValid() ? project.buildSystemFiles() : QSet<QString>() << m_fileName);
+
+    qbs::ProjectData data = m_rootProjectNode->qbsProjectData();
+    updateCppCodeModel(data);
+    updateQmlJsCodeModel(data);
+    updateApplicationTargets(data);
+    updateDeploymentInfo(project);
+
+    foreach (Target *t, targets())
+        t->updateDefaultRunConfigurations();
+
+    emit fileListChanged();
 }
 
 void QbsProject::parseCurrentBuildConfiguration(bool force)
