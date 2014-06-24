@@ -189,17 +189,19 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
 
         int row = m_profilerModelProxy->getEventRow(modelIndex, i);
         int rowHeight = m_profilerModelProxy->rowHeight(modelIndex, row);
+        int itemHeight = rowHeight * m_profilerModelProxy->getHeight(modelIndex, i);
 
-        currentY = modelRowStart + m_profilerModelProxy->rowOffset(modelIndex, row) - y();
-        if (currentY + rowHeight < 0 || height() < currentY)
+        currentY = modelRowStart + m_profilerModelProxy->rowOffset(modelIndex, row) + rowHeight -
+                itemHeight - y();
+        if (currentY + itemHeight < 0 || height() < currentY)
             continue;
 
         getItemXExtent(modelIndex, i, currentX, itemWidth);
 
         if (i == m_selectedItem)
-            selectedItemRect = QRect(currentX, currentY - 1, itemWidth, rowHeight + 1);
+            selectedItemRect = QRect(currentX, currentY - 1, itemWidth, itemHeight + 1);
         else
-            p->drawRect(currentX, currentY, itemWidth, rowHeight);
+            p->drawRect(currentX, currentY, itemWidth, itemHeight);
     }
 
     // draw the selected item rectangle the last, so that it's overlayed
