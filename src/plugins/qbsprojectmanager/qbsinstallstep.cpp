@@ -308,9 +308,7 @@ void QbsInstallStepConfigWidget::updateState()
         m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
     }
 
-    const qbs::ProjectData data = static_cast<QbsProject *>(m_step->project())->qbsProjectData();
-    if (data.isValid())
-        m_ui->installRootChooser->setBaseDirectory(data.buildDirectory());
+    m_ui->installRootChooser->setBaseFileName(m_step->target()->activeBuildConfiguration()->buildDirectory());
 
     QString command = QLatin1String("qbs install ");
     command += QString::fromLatin1("--settings-dir ")
