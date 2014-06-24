@@ -633,8 +633,6 @@ void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const Q
 
     ObjectNodeInstance::setPropertyVariant(name, value);
 
-    quickItem()->update();
-
     refresh();
 
     if (isInLayoutable())
@@ -653,8 +651,6 @@ void QuickItemNodeInstance::setPropertyBinding(const PropertyName &name, const Q
         return;
 
     ObjectNodeInstance::setPropertyBinding(name, expression);
-
-    quickItem()->update();
 
     refresh();
 
@@ -719,8 +715,6 @@ void QuickItemNodeInstance::resetProperty(const PropertyName &name)
     }
 
     ObjectNodeInstance::resetProperty(name);
-
-    quickItem()->update();
 
     if (isInLayoutable())
         parentInstance()->refreshLayoutable();
