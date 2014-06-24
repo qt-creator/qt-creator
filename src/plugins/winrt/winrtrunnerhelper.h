@@ -89,7 +89,6 @@ private:
     QString m_debuggerArguments;
     QString m_arguments;
     bool m_uninstallAfterStop;
-    bool m_isWinPhone;
     Utils::QtcProcess *m_process;
 };
 

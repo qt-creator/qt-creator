@@ -61,7 +61,6 @@ private:
     QString m_executablePathInManifest;
     QString m_mappingFileContent;
     QString m_manifestFileName;
-    bool m_isWinPhone;
     bool m_createMappingFile;
 };
 

@@ -83,7 +83,6 @@ bool WinRtRunnerHelper::init(WinRtRunConfiguration *runConfiguration, QString *e
         return false;
     }
 
-    m_isWinPhone = (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT));
     m_runnerFilePath = qt->binPath().toString() + QStringLiteral("/winrtrunner.exe");
     if (!QFile::exists(m_runnerFilePath)) {
         *errorMessage = tr("Cannot find winrtrunner.exe in \"%1\".").arg(
@@ -181,8 +180,6 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
 {
     using namespace Utils;
     QString runnerArgs;
-    QtcProcess::addArg(&runnerArgs, QStringLiteral("--profile"));
-    QtcProcess::addArg(&runnerArgs, m_isWinPhone ? QStringLiteral("xap") : QStringLiteral("appx"));
     if (m_device) {
         QtcProcess::addArg(&runnerArgs, QStringLiteral("--device"));
         QtcProcess::addArg(&runnerArgs, QString::number(m_device->deviceId()));

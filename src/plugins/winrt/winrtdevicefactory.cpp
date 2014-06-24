@@ -197,7 +197,7 @@ static int extractDeviceId(QByteArray *line)
 
 static IDevice::MachineType machineTypeFromLine(const QByteArray &line)
 {
-    return line.startsWith("Emulator ") ? IDevice::Emulator : IDevice::Hardware;
+    return line.contains("Emulator ") ? IDevice::Emulator : IDevice::Hardware;
 }
 
 /*
@@ -206,6 +206,19 @@ static IDevice::MachineType machineTypeFromLine(const QByteArray &line)
  * Available devices:
  * Appx:
  *   0 local
+ * Phone:
+ *   0 Device
+ *   1 Emulator 8.1 WVGA 4 inch 512MB
+ *   2 Emulator 8.1 WVGA 4 inch
+ *   3 Emulator 8.1 WXGA 4 inch
+ *   4 Emulator 8.1 720P 4.7 inch
+ *   5 Emulator 8.1 1080P 5.5 inch
+ *   6 Emulator 8.1 1080P 6 inch
+ *   7 WE8.1H Emulator WVGA 512MB
+ *   8 WE8.1H Emulator WVGA
+ *   9 WE8.1H Emulator WXGA
+ *   10 WE8.1H Emulator 720P
+ *   11 WE8.1H Emulator 1080P
  * Xap:
  *   0 Device
  *   1 Emulator WVGA 512MB
@@ -216,7 +229,7 @@ static IDevice::MachineType machineTypeFromLine(const QByteArray &line)
 void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
 {
     ProjectExplorer::DeviceManager *deviceManager = ProjectExplorer::DeviceManager::instance();
-    enum State { StartState, AppxState, XapState };
+    enum State { StartState, AppxState, PhoneState, XapState };
     State state = StartState;
     int numFound = 0;
     int numSkipped = 0;
@@ -224,6 +237,8 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
         line = line.trimmed();
         if (line == "Appx:") {
             state = AppxState;
+        } else if (line == "Phone:") {
+            state = PhoneState;
         } else if (line == "Xap:") {
             state = XapState;
         } else {
@@ -239,6 +254,13 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
                 internalName += QStringLiteral("appx.");
                 deviceType = Constants::WINRT_DEVICE_TYPE_LOCAL;
                 name = tr("Windows Runtime local UI");
+            } else if (state == PhoneState) {
+                internalName += QStringLiteral("phone.");
+                name = QString::fromLocal8Bit(line);
+                if (machineType == IDevice::Emulator)
+                    deviceType = Constants::WINRT_DEVICE_TYPE_EMULATOR;
+                else
+                    deviceType = Constants::WINRT_DEVICE_TYPE_PHONE;
             } else if (state == XapState) {
                 internalName += QStringLiteral("xap.");
                 name = QString::fromLocal8Bit(line);

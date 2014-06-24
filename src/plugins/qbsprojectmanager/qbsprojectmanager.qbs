@@ -9,22 +9,18 @@ QtcPlugin {
     property var externalQbsIncludes: project.useExternalQbs
             ? [project.qbs_install_dir + "/include/qbs"] : []
     property var externalQbsLibraryPaths: project.useExternalQbs
-            ? [project.qbs_install_dir + "/lib"] : []
-    property var externalQbsRPaths: project.useExternalQbs
-            ? [project.qbs_install_dir + "/lib"] : []
+            ? [project.qbs_install_dir + '/' + project.libDirName] : []
     property var externalQbsDynamicLibraries: {
         var libs = []
         if (!project.useExternalQbs)
             return libs;
+        var suffix = "";
         if (qbs.targetOS.contains("windows")) {
             libs.push("shell32")
             if (qbs.enableDebugCode)
-                libs.push("qbscored")
-            else
-                libs.push("qbscore")
-        } else {
-            libs.push("qbscore")
+                suffix = "d";
         }
+        libs.push("qbscore" + suffix, "qbsqtprofilesetup" + suffix);
         return libs
     }
 
@@ -61,7 +57,7 @@ QtcPlugin {
     ])
     cpp.includePaths: base.concat(externalQbsIncludes)
     cpp.libraryPaths: base.concat(externalQbsLibraryPaths)
-    cpp.rpaths: base.concat(externalQbsRPaths)
+    cpp.rpaths: base.concat(externalQbsLibraryPaths)
     cpp.dynamicLibraries: base.concat(externalQbsDynamicLibraries)
 
     files: [
