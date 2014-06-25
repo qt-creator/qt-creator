@@ -28,19 +28,18 @@
 ****************************************************************************/
 
 #include "androidpackageinstallationfactory.h"
-
 #include "androidpackageinstallationstep.h"
-#include "androidmanager.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <android/androidmanager.h>
 
 using namespace ProjectExplorer;
 
-namespace Android {
+namespace QmakeProjectManager {
 namespace Internal {
 
 AndroidPackageInstallationFactory::AndroidPackageInstallationFactory(QObject *parent)
@@ -77,9 +76,9 @@ BuildStep *AndroidPackageInstallationFactory::create(BuildStepList *parent, Core
 
 bool AndroidPackageInstallationFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
         return false;
-    if (!AndroidManager::supportsAndroid(parent->target()))
+    if (!Android::AndroidManager::supportsAndroid(parent->target()))
         return false;
     if (parent->contains(AndroidPackageInstallationStep::Id))
         return false;
@@ -89,7 +88,7 @@ bool AndroidPackageInstallationFactory::canRestore(BuildStepList *parent, const 
 BuildStep *AndroidPackageInstallationFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
     Q_ASSERT(canRestore(parent, map));
-    AndroidPackageInstallationStep * const step = new AndroidPackageInstallationStep(AndroidPackageInstallationStep::ProjectDirectory, parent);
+    AndroidPackageInstallationStep * const step = new AndroidPackageInstallationStep(parent);
     if (!step->fromMap(map)) {
         delete step;
         return 0;

@@ -38,12 +38,10 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class AndroidDeployQtWidget; }
 QT_END_NAMESPACE
 
-namespace QmakeProjectManager { class QmakeBuildConfiguration; }
-
 namespace Android {
 namespace Internal {
 class AndroidDeployQtStep;
-class AndroidExtraLibraryListModel;
+
 class AndroidDeployQtWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
@@ -53,39 +51,16 @@ public:
     ~AndroidDeployQtWidget();
 
 private slots:
-    void setTargetSdk(const QString &sdk);
-    void setMinistro();
-    void setDeployLocalQtLibs();
-    void setBundleQtLibs();
     void installMinistro();
     void cleanLibsOnDevice();
     void resetDefaultDevices();
-    void createKeyStore();
-    void certificatesAliasComboBoxCurrentIndexChanged(const QString &alias);
-    void certificatesAliasComboBoxActivated(const QString &alias);
-    void activeBuildConfigurationChanged();
-    void updateSigningWarning();
-    void openPackageLocationCheckBoxToggled(bool checked);
-    void verboseOutputCheckBoxToggled(bool checked);
-    void updateKeyStorePath(const QString &path);
-    void signPackageCheckBoxToggled(bool checked);
-    void updateInputFileUi();
-    void inputFileComboBoxIndexChanged();
-    void createManifestButton();
-    void addAndroidExtraLib();
-    void removeAndroidExtraLib();
-    void checkEnableRemoveButton();
 
 private:
     virtual QString summaryText() const;
     virtual QString displayName() const;
-    void setCertificates();
 
     Ui::AndroidDeployQtWidget *m_ui;
     AndroidDeployQtStep *m_step;
-    AndroidExtraLibraryListModel *m_extraLibraryListModel;
-    QmakeProjectManager::QmakeBuildConfiguration *m_currentBuildConfiguration;
-    bool m_ignoreChange;
 };
 
 }

@@ -52,6 +52,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
 #include <QDebug>
+#include <android/androidmanager.h>
 
 #include <QInputDialog>
 

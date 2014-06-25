@@ -29,21 +29,31 @@
 
 #include "createandroidmanifestwizard.h"
 
+#include <android/androidmanager.h>
+#include <android/androidqtsupport.h>
+
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/coreconstants.h>
+
 #include <projectexplorer/target.h>
+
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
+
 #include <proparser/prowriter.h>
+
+#include <qtsupport/qtkitinformation.h>
+
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QVBoxLayout>
-#include <qtsupport/qtkitinformation.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
 
 using namespace Android;
-using namespace Android::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
+
 using QmakeProjectManager::QmakeProject;
 using QmakeProjectManager::QmakeProFileNode;
 

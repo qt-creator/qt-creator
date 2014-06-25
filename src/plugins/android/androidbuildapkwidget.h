@@ -28,50 +28,55 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDEXTRALIBRARYLISTMODEL_H
-#define ANDROIDEXTRALIBRARYLISTMODEL_H
+#ifndef ANDROIDBUILDAPKWIDGET_H
+#define ANDROIDBUILDAPKWIDGET_H
 
-#include <QAbstractItemModel>
-#include <QStringList>
+#include "android_global.h"
 
-namespace QmakeProjectManager {
-class QmakeProject;
-class QmakeProFileNode;
-}
+#include <projectexplorer/buildstep.h>
+
+#include <QWidget>
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class AndroidBuildApkWidget; }
+QT_END_NAMESPACE
+
+namespace QmakeProjectManager { class QmakeBuildConfiguration; }
 
 namespace Android {
-namespace Internal {
-class AndroidExtraLibraryListModel : public QAbstractItemModel
+class AndroidBuildApkStep;
+
+class ANDROID_EXPORT AndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
+
 public:
-    explicit AndroidExtraLibraryListModel(QmakeProjectManager::QmakeProject *project,
-                                          QObject *parent = 0);
-
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-
-    void removeEntries(QModelIndexList list);
-    void addEntries(const QStringList &list);
-
-    bool isEnabled() const;
-
-signals:
-    void enabledChanged(bool);
+    AndroidBuildApkWidget(AndroidBuildApkStep *step);
+    ~AndroidBuildApkWidget();
 
 private slots:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool success, bool parseInProgress);
+    void setTargetSdk(const QString &sdk);
+    void setMinistro();
+    void setDeployLocalQtLibs();
+    void setBundleQtLibs();
+    void createKeyStore();
+    void certificatesAliasComboBoxCurrentIndexChanged(const QString &alias);
+    void certificatesAliasComboBoxActivated(const QString &alias);
+    void updateSigningWarning();
+    void openPackageLocationCheckBoxToggled(bool checked);
+    void verboseOutputCheckBoxToggled(bool checked);
+    void updateKeyStorePath(const QString &path);
+    void signPackageCheckBoxToggled(bool checked);
 
 private:
-    QmakeProjectManager::QmakeProject *m_project;
-    QStringList m_entries;
-    QString m_scope;
+    virtual QString summaryText() const;
+    virtual QString displayName() const;
+    void setCertificates();
+
+    Ui::AndroidBuildApkWidget *m_ui;
+    AndroidBuildApkStep *m_step;
 };
 
-} // namespace Internal
-} // namespace Android
+}
 
-#endif // ANDROIDEXTRALIBRARYLISTMODEL_H
+#endif // ANDROIDBUILDAPKWIDGET_H

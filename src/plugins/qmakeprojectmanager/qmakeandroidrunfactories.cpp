@@ -45,9 +45,8 @@
 
 using namespace Android;
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
-namespace Android {
+namespace QmakeProjectManager {
 namespace Internal {
 
 static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";

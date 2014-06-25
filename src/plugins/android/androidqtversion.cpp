@@ -35,22 +35,19 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <proparser/profileevaluator.h>
 
 using namespace Android::Internal;
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 AndroidQtVersion::AndroidQtVersion()
     : QtSupport::BaseQtVersion()
@@ -109,12 +106,12 @@ void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::En
     env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::currentConfig().toolchainHost());
     env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::currentConfig().ndkLocation().toUserOutput());
 
-    QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(ProjectExplorerPlugin::instance()->currentProject());
-    if (!qmakeProject || !qmakeProject->activeTarget()
+    Project *project = ProjectExplorerPlugin::instance()->currentProject();
+    if (!project || !project->activeTarget()
             || QtSupport::QtKitInformation::qtVersion(k)->type() != QLatin1String(Constants::ANDROIDQT))
         return;
 
-    Target *target = qmakeProject->activeTarget();
+    Target *target = project->activeTarget();
     if (DeviceTypeKitInformation::deviceTypeId(target->kit()) != Constants::ANDROID_DEVICE_TYPE)
         return;
     if (AndroidConfigurations::currentConfig().ndkLocation().isEmpty()

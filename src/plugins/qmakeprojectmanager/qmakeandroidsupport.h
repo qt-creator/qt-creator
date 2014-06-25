@@ -27,56 +27,27 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDGLOBAL_H
-#define ANDROIDGLOBAL_H
+#ifndef QMAKEANDROIDSUPPORT_H
+#define QMAKEANDROIDSUPPORT_H
 
-#include <utils/environment.h>
+#include <android/androidqtsupport.h>
 
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildsteplist.h>
-
-#define ASSERT_STATE_GENERIC(State, expected, actual)                         \
-    AndroidGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
-
-namespace Android {
+namespace QmakeProjectManager {
 namespace Internal {
 
-class AndroidGlobal
+class QmakeAndroidSupport : public Android::AndroidQtSupport
 {
+    Q_OBJECT
 public:
+    bool canHandle(const ProjectExplorer::Target *target) const;
+    QStringList soLibSearchPath(const ProjectExplorer::Target *target) const;
+    QStringList projectTargetApplications(const ProjectExplorer::Target *target) const;
+    Utils::FileName apkPath(ProjectExplorer::Target *target, BuildType buildType) const;
 
-    template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *dc)
-    {
-        for (const Core::Id &id : dc->knownStepLists()) {
-            ProjectExplorer::BuildStepList *bsl = dc->stepList(id);
-            if (!bsl)
-                return 0;
-            const QList<ProjectExplorer::BuildStep *> &buildSteps = bsl->steps();
-            for (int i = buildSteps.count() - 1; i >= 0; --i) {
-                if (T * const step = qobject_cast<T *>(buildSteps.at(i)))
-                    return step;
-            }
-        }
-        return 0;
-    }
-
-    template<typename State> static void assertState(State expected,
-        State actual, const char *func)
-    {
-        assertState(QList<State>() << expected, actual, func);
-    }
-
-    template<typename State> static void assertState(const QList<State> &expected,
-        State actual, const char *func)
-    {
-        if (!expected.contains(actual)) {
-            qWarning("Warning: Unexpected state %d in function %s.",
-                actual, func);
-        }
-    }
+    void resetBuild(const ProjectExplorer::Target *target);
 };
 
 } // namespace Internal
-} // namespace Android
+} // namespace QmakeProjectManager
 
-#endif // ANDROIDGLOBAL_H
+#endif // QMAKEANDROIDSUPPORT_H

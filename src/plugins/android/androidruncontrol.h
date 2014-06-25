@@ -36,7 +36,6 @@ namespace Android {
 class AndroidRunConfiguration;
 
 namespace Internal {
-
 class AndroidRunner;
 
 class AndroidRunControl : public ProjectExplorer::RunControl

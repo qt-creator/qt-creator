@@ -5,19 +5,15 @@ import QtcPlugin
 QtcPlugin {
     name: "Android"
 
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
+    Depends { name: "AnalyzerBase" }
     Depends { name: "Core" }
-    Depends { name: "ProjectExplorer" }
-    Depends { name: "QmakeProjectManager" }
     Depends { name: "Debugger" }
+    Depends { name: "ProjectExplorer" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
-    Depends { name: "AnalyzerBase" }
     Depends { name: "Utils" }
-    Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
-
-    property bool enable: false
-    pluginspecreplacements: ({"ANDROID_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
     files: [
         "android_global.h",
@@ -31,6 +27,11 @@ QtcPlugin {
         "androidcreatekeystorecertificate.cpp",
         "androidcreatekeystorecertificate.h",
         "androidcreatekeystorecertificate.ui",
+        "androidbuildapkstep.cpp",
+        "androidbuildapkstep.h",
+        "androidbuildapkwidget.cpp",
+        "androidbuildapkwidget.h",
+        "androidbuildapkwidget.ui",
         "androiddeployqtstep.cpp",
         "androiddeployqtstep.h",
         "androiddebugsupport.cpp",
@@ -49,8 +50,6 @@ QtcPlugin {
         "androiddevicefactory.h",
         "androiderrormessage.h",
         "androiderrormessage.cpp",
-        "androidextralibrarylistmodel.cpp",
-        "androidextralibrarylistmodel.h",
         "androidgdbserverkitinformation.cpp",
         "androidgdbserverkitinformation.h",
         "androidglobal.h",
@@ -64,10 +63,6 @@ QtcPlugin {
         "androidmanifesteditorfactory.h",
         "androidmanifesteditorwidget.cpp",
         "androidmanifesteditorwidget.h",
-        "androidpackageinstallationfactory.cpp",
-        "androidpackageinstallationfactory.h",
-        "androidpackageinstallationstep.cpp",
-        "androidpackageinstallationstep.h",
         "androidplugin.cpp",
         "androidplugin.h",
         "androidpotentialkit.cpp",
@@ -100,8 +95,6 @@ QtcPlugin {
         "avddialog.h",
         "certificatesmodel.cpp",
         "certificatesmodel.h",
-        "createandroidmanifestwizard.cpp",
-        "createandroidmanifestwizard.h",
         "javaautocompleter.cpp",
         "javaautocompleter.h",
         "javacompletionassistprovider.cpp",
@@ -116,12 +109,5 @@ QtcPlugin {
         "javaindenter.h",
         "javaparser.cpp",
         "javaparser.h",
-        "qmakeandroidrunconfiguration.cpp",
-        "qmakeandroidrunconfiguration.h",
-        "qmakeandroidrunfactories.cpp",
-        "qmakeandroidrunfactories.h",
-        "qmakeandroidsupport.cpp",
-        "qmakeandroidsupport.h",
-
     ]
 }

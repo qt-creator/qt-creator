@@ -27,49 +27,37 @@
 **
 ****************************************************************************/
 
-#include "qmakeandroidsupport.h"
+#ifndef ANDROIDPACKAGEINSTALLATIONFACTORY_H
+#define ANDROIDPACKAGEINSTALLATIONFACTORY_H
 
-#include "androidconstants.h"
-#include "androidpackageinstallationstep.h"
+#include <projectexplorer/buildstep.h>
 
-#include <projectexplorer/buildmanager.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
-#include <qtsupport/qtkitinformation.h>
-
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakestep.h>
-
-using namespace QmakeProjectManager; // The class will eventually be moved there anyway
-
-namespace Android {
+namespace QmakeProjectManager {
 namespace Internal {
 
-bool QmakeAndroidSupport::canHandle(const ProjectExplorer::Target *target) const
+class AndroidPackageInstallationFactory: public ProjectExplorer::IBuildStepFactory
 {
-    return qobject_cast<QmakeProject*>(target->project());
-}
+    Q_OBJECT
+public:
+    explicit AndroidPackageInstallationFactory(QObject *parent = 0);
 
-QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *target) const
-{
-    QStringList res;
-    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration*>(target->activeBuildConfiguration());
-    QmakeProject *project = qobject_cast<QmakeProject*>(target->project());
-    Q_ASSERT(project);
-    if (!project)
-        return res;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
+    QString displayNameForId(Core::Id id) const;
 
-    foreach (QmakeProFileNode *node, project->allProFiles()) {
-        res  << node->buildDir(bc);
-    }
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
 
-    return res;
-}
+    bool canRestore(ProjectExplorer::BuildStepList *parent,
+                    const QVariantMap &map) const;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
+
+    bool canClone(ProjectExplorer::BuildStepList *parent,
+                  ProjectExplorer::BuildStep *product) const;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
+                                      ProjectExplorer::BuildStep *product);
+};
 
 } // namespace Internal
 } // namespace Android
+
+#endif // ANDROIDPACKAGEINSTALLATIONFACTORY_H

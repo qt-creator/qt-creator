@@ -1,6 +1,7 @@
 /**************************************************************************
 **
 ** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,56 +28,48 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDGLOBAL_H
-#define ANDROIDGLOBAL_H
+#ifndef ANDROIDEXTRALIBRARYLISTMODEL_H
+#define ANDROIDEXTRALIBRARYLISTMODEL_H
 
-#include <utils/environment.h>
+#include <QAbstractItemModel>
+#include <QStringList>
 
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildsteplist.h>
+namespace QmakeProjectManager {
+class QmakeProject;
+class QmakeProFileNode;
 
-#define ASSERT_STATE_GENERIC(State, expected, actual)                         \
-    AndroidGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
-
-namespace Android {
 namespace Internal {
-
-class AndroidGlobal
+class AndroidExtraLibraryListModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
+    explicit AndroidExtraLibraryListModel(QmakeProjectManager::QmakeProject *project,
+                                          QObject *parent = 0);
 
-    template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *dc)
-    {
-        for (const Core::Id &id : dc->knownStepLists()) {
-            ProjectExplorer::BuildStepList *bsl = dc->stepList(id);
-            if (!bsl)
-                return 0;
-            const QList<ProjectExplorer::BuildStep *> &buildSteps = bsl->steps();
-            for (int i = buildSteps.count() - 1; i >= 0; --i) {
-                if (T * const step = qobject_cast<T *>(buildSteps.at(i)))
-                    return step;
-            }
-        }
-        return 0;
-    }
+    QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
 
-    template<typename State> static void assertState(State expected,
-        State actual, const char *func)
-    {
-        assertState(QList<State>() << expected, actual, func);
-    }
+    void removeEntries(QModelIndexList list);
+    void addEntries(const QStringList &list);
 
-    template<typename State> static void assertState(const QList<State> &expected,
-        State actual, const char *func)
-    {
-        if (!expected.contains(actual)) {
-            qWarning("Warning: Unexpected state %d in function %s.",
-                actual, func);
-        }
-    }
+    bool isEnabled() const;
+
+signals:
+    void enabledChanged(bool);
+
+private slots:
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool success, bool parseInProgress);
+
+private:
+    QmakeProjectManager::QmakeProject *m_project;
+    QStringList m_entries;
+    QString m_scope;
 };
 
 } // namespace Internal
-} // namespace Android
+} // namespace QmakeProjectManager
 
-#endif // ANDROIDGLOBAL_H
+#endif // ANDROIDEXTRALIBRARYLISTMODEL_H

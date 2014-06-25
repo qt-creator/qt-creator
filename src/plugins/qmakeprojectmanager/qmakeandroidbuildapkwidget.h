@@ -27,56 +27,59 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDGLOBAL_H
-#define ANDROIDGLOBAL_H
+#ifndef QMAKEANDROIDBUILDAPKWIDGET_H
+#define QMAKEANDROIDBUILDAPKWIDGET_H
 
-#include <utils/environment.h>
+#include "androidextralibrarylistmodel.h"
 
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildsteplist.h>
+#include <QWidget>
 
-#define ASSERT_STATE_GENERIC(State, expected, actual)                         \
-    AndroidGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
+#include <projectexplorer/buildstep.h>
 
-namespace Android {
+QT_BEGIN_NAMESPACE
+class QLabel;
+QT_END_NAMESPACE
+
+namespace QmakeProjectManager {
+class QmakeBuildConfiguration;
+
 namespace Internal {
 
-class AndroidGlobal
+namespace Ui {
+class QmakeAndroidBuildApkWidget;
+}
+
+class QmakeAndroidBuildApkStep;
+
+class QmakeAndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
 {
+    Q_OBJECT
+
 public:
+    explicit QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep *step);
+    ~QmakeAndroidBuildApkWidget();
 
-    template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *dc)
-    {
-        for (const Core::Id &id : dc->knownStepLists()) {
-            ProjectExplorer::BuildStepList *bsl = dc->stepList(id);
-            if (!bsl)
-                return 0;
-            const QList<ProjectExplorer::BuildStep *> &buildSteps = bsl->steps();
-            for (int i = buildSteps.count() - 1; i >= 0; --i) {
-                if (T * const step = qobject_cast<T *>(buildSteps.at(i)))
-                    return step;
-            }
-        }
-        return 0;
-    }
+private slots:
+    void updateInputFileUi();
+    void inputFileComboBoxIndexChanged();
+    void createManifestButton();
+    void addAndroidExtraLib();
+    void removeAndroidExtraLib();
+    void checkEnableRemoveButton();
 
-    template<typename State> static void assertState(State expected,
-        State actual, const char *func)
-    {
-        assertState(QList<State>() << expected, actual, func);
-    }
+private:
+    Ui::QmakeAndroidBuildApkWidget *m_ui;
+    QmakeAndroidBuildApkStep *m_step;
+    AndroidExtraLibraryListModel *m_extraLibraryListModel;
+    bool m_ignoreChange;
 
-    template<typename State> static void assertState(const QList<State> &expected,
-        State actual, const char *func)
-    {
-        if (!expected.contains(actual)) {
-            qWarning("Warning: Unexpected state %d in function %s.",
-                actual, func);
-        }
-    }
+    // BuildStepConfigWidget interface
+public:
+    QString summaryText() const;
+    QString displayName() const;
 };
 
 } // namespace Internal
-} // namespace Android
+} // namespace QmakeProjectManager
 
-#endif // ANDROIDGLOBAL_H
+#endif // QMAKEANDROIDBUILDAPKWIDGET_H

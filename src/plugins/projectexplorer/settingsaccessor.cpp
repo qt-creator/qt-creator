@@ -321,6 +321,37 @@ public:
     QString backupExtension() const { return QLatin1String("3.2-pre1"); }
     QVariantMap upgrade(const QVariantMap &map);
 };
+
+// Version 16 Changed android deployment
+class UserFileVersion16Upgrader : public VersionUpgrader
+{
+public:
+    int version() const { return 16; }
+    QString backupExtension() const { return QLatin1String("3.3-pre1"); }
+    QVariantMap upgrade(const QVariantMap &data);
+private:
+    class OldStepMaps
+    {
+    public:
+        QString defaultDisplayName;
+        QString displayName;
+        QVariantMap androidPackageInstall;
+        QVariantMap androidDeployQt;
+        bool isEmpty()
+        {
+            return androidPackageInstall.isEmpty() || androidDeployQt.isEmpty();
+        }
+    };
+
+
+    QVariantMap removeAndroidPackageStep(QVariantMap deployMap);
+    OldStepMaps extractStepMaps(const QVariantMap &deployMap);
+    enum NamePolicy { KeepName, RenameBuildConfiguration };
+    QVariantMap insertSteps(QVariantMap buildConfigurationMap,
+                            const OldStepMaps &oldStepMap,
+                            NamePolicy policy);
+};
+
 } // namespace
 
 //
@@ -403,6 +434,7 @@ UserFileAccessor::UserFileAccessor(Project *project)
     addVersionUpgrader(new UserFileVersion13Upgrader);
     addVersionUpgrader(new UserFileVersion14Upgrader);
     addVersionUpgrader(new UserFileVersion15Upgrader);
+    addVersionUpgrader(new UserFileVersion16Upgrader);
 }
 
 QVariantMap UserFileAccessor::prepareSettings(const QVariantMap &data) const
@@ -2400,4 +2432,222 @@ QVariantMap UserFileVersion15Upgrader::upgrade(const QVariantMap &map)
                              QLatin1String("UserStickyKeys")));
 
     return renameKeys(changes, QVariantMap(map));
+}
+
+// --------------------------------------------------------------------
+// UserFileVersion16Upgrader:
+// --------------------------------------------------------------------
+
+UserFileVersion16Upgrader::OldStepMaps UserFileVersion16Upgrader::extractStepMaps(const QVariantMap &deployMap)
+{
+    OldStepMaps result;
+    result.defaultDisplayName = deployMap.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DefaultDisplayName")).toString();
+    result.displayName = deployMap.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName")).toString();
+    const QString stepListKey = QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepList.0");
+    QVariantMap stepListMap = deployMap.value(stepListKey).toMap();
+    int stepCount = stepListMap.value(QLatin1String("ProjectExplorer.BuildStepList.StepsCount"), 0).toInt();
+    QString stepKey = QLatin1String("ProjectExplorer.BuildStepList.Step.");
+    for (int i = 0; i < stepCount; ++i) {
+        QVariantMap stepMap = stepListMap.value(stepKey + QString::number(i)).toMap();
+        const QString id = stepMap.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
+        if (id == QLatin1String("Qt4ProjectManager.AndroidDeployQtStep"))
+            result.androidDeployQt = stepMap;
+        else if (id == QLatin1String("Qt4ProjectManager.AndroidPackageInstallationStep"))
+            result.androidPackageInstall = stepMap;
+        if (!result.isEmpty())
+            return result;
+
+    }
+    return result;
+}
+
+QVariantMap UserFileVersion16Upgrader::removeAndroidPackageStep(QVariantMap deployMap)
+{
+    const QString stepListKey = QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepList.0");
+    QVariantMap stepListMap = deployMap.value(stepListKey).toMap();
+    const QString stepCountKey = QLatin1String("ProjectExplorer.BuildStepList.StepsCount");
+    int stepCount = stepListMap.value(stepCountKey, 0).toInt();
+    QString stepKey = QLatin1String("ProjectExplorer.BuildStepList.Step.");
+    int targetPosition = 0;
+    for (int sourcePosition = 0; sourcePosition < stepCount; ++sourcePosition) {
+        QVariantMap stepMap = stepListMap.value(stepKey + QString::number(sourcePosition)).toMap();
+        if (stepMap.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString()
+                != QLatin1String("Qt4ProjectManager.AndroidPackageInstallationStep")) {
+            stepListMap.insert(stepKey + QString::number(targetPosition), stepMap);
+            ++targetPosition;
+        }
+    }
+
+    stepListMap.insert(stepCountKey, targetPosition);
+
+    for (int i = targetPosition; i < stepCount; ++i)
+        stepListMap.remove(stepKey + QString::number(i));
+
+    deployMap.insert(stepListKey, stepListMap);
+    return deployMap;
+}
+
+QVariantMap UserFileVersion16Upgrader::insertSteps(QVariantMap buildConfigurationMap,
+                                                   const OldStepMaps &oldStepMap,
+                                                   NamePolicy policy)
+{
+    const QString bslCountKey = QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepListCount");
+    int stepListCount = buildConfigurationMap.value(bslCountKey).toInt();
+
+    const QString bslKey = QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepList.");
+    const QString bslTypeKey = QLatin1String("ProjectExplorer.ProjectConfiguration.Id");
+    for (int bslNumber = 0; bslNumber < stepListCount; ++bslNumber) {
+        QVariantMap buildStepListMap = buildConfigurationMap.value(bslKey + QString::number(bslNumber)).toMap();
+        if (buildStepListMap.value(bslTypeKey) != QLatin1String("ProjectExplorer.BuildSteps.Build"))
+            continue;
+
+        const QString bslStepCountKey = QLatin1String("ProjectExplorer.BuildStepList.StepsCount");
+
+        int stepCount = buildStepListMap.value(bslStepCountKey).toInt();
+        buildStepListMap.insert(bslStepCountKey, stepCount + 2);
+
+        QVariantMap androidPackageInstallStep;
+        QVariantMap androidBuildApkStep;
+
+        // common settings of all buildsteps
+        const QString enabledKey = QLatin1String("ProjectExplorer.BuildStep.Enabled");
+        const QString idKey = QLatin1String("ProjectExplorer.ProjectConfiguration.Id");
+        const QString displayNameKey = QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName");
+        const QString defaultDisplayNameKey = QLatin1String("ProjectExplorer.ProjectConfiguration.DefaultDisplayName");
+
+        QString displayName = oldStepMap.androidPackageInstall.value(displayNameKey).toString();
+        QString defaultDisplayName = oldStepMap.androidPackageInstall.value(defaultDisplayNameKey).toString();
+        bool enabled = oldStepMap.androidPackageInstall.value(enabledKey).toBool();
+
+        androidPackageInstallStep.insert(idKey, Core::Id("Qt4ProjectManager.AndroidPackageInstallationStep").toSetting());
+        androidPackageInstallStep.insert(displayNameKey, displayName);
+        androidPackageInstallStep.insert(defaultDisplayNameKey, defaultDisplayName);
+        androidPackageInstallStep.insert(enabledKey, enabled);
+
+        displayName = oldStepMap.androidDeployQt.value(displayName).toString();
+        defaultDisplayName = oldStepMap.androidDeployQt.value(defaultDisplayNameKey).toString();
+        enabled = oldStepMap.androidDeployQt.value(enabledKey).toBool();
+
+        androidBuildApkStep.insert(idKey, Core::Id("QmakeProjectManager.AndroidBuildApkStep").toSetting());
+        androidBuildApkStep.insert(displayNameKey, displayName);
+        androidBuildApkStep.insert(defaultDisplayNameKey, defaultDisplayName);
+        androidBuildApkStep.insert(enabledKey, enabled);
+
+        // settings transferred from AndroidDeployQtStep to QmakeBuildApkStep
+        const QString ProFilePathForInputFile = QLatin1String("ProFilePathForInputFile");
+        const QString DeployActionKey = QLatin1String("Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction");
+        const QString KeystoreLocationKey = QLatin1String("KeystoreLocation");
+        const QString BuildTargetSdkKey = QLatin1String("BuildTargetSdk");
+        const QString VerboseOutputKey = QLatin1String("VerboseOutput");
+
+        QString inputFile = oldStepMap.androidDeployQt.value(ProFilePathForInputFile).toString();
+        int oldDeployAction = oldStepMap.androidDeployQt.value(DeployActionKey).toInt();
+        QString keyStorePath = oldStepMap.androidDeployQt.value(KeystoreLocationKey).toString();
+        QString buildTargetSdk = oldStepMap.androidDeployQt.value(BuildTargetSdkKey).toString();
+        bool verbose = oldStepMap.androidDeployQt.value(VerboseOutputKey).toBool();
+        androidBuildApkStep.insert(ProFilePathForInputFile, inputFile);
+        androidBuildApkStep.insert(DeployActionKey, oldDeployAction);
+        androidBuildApkStep.insert(KeystoreLocationKey, keyStorePath);
+        androidBuildApkStep.insert(BuildTargetSdkKey, buildTargetSdk);
+        androidBuildApkStep.insert(VerboseOutputKey, verbose);
+
+        const QString buildStepKey = QLatin1String("ProjectExplorer.BuildStepList.Step.");
+        buildStepListMap.insert(buildStepKey + QString::number(stepCount), androidPackageInstallStep);
+        buildStepListMap.insert(buildStepKey + QString::number(stepCount + 1), androidBuildApkStep);
+
+        buildConfigurationMap.insert(bslKey + QString::number(bslNumber), buildStepListMap);
+    }
+
+    if (policy == RenameBuildConfiguration) {
+        const QString displayNameKey = QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName");
+        const QString defaultDisplayNameKey = QLatin1String("ProjectExplorer.ProjectConfiguration.DefaultDisplayName");
+
+        QString defaultDisplayName = buildConfigurationMap.value(defaultDisplayNameKey).toString();
+        QString displayName = buildConfigurationMap.value(displayNameKey).toString();
+        if (displayName.isEmpty())
+            displayName = defaultDisplayName;
+        QString oldDisplayname = oldStepMap.displayName;
+        if (oldDisplayname.isEmpty())
+            oldDisplayname = oldStepMap.defaultDisplayName;
+
+        displayName.append(QLatin1String(" - "));
+        displayName.append(oldDisplayname);
+        buildConfigurationMap.insert(displayNameKey, displayName);
+
+        defaultDisplayName.append(QLatin1String(" - "));
+        defaultDisplayName.append(oldStepMap.defaultDisplayName);
+        buildConfigurationMap.insert(defaultDisplayNameKey, defaultDisplayName);
+    }
+
+    return buildConfigurationMap;
+}
+
+QVariantMap UserFileVersion16Upgrader::upgrade(const QVariantMap &data)
+{
+    int targetCount = data.value(QLatin1String("ProjectExplorer.Project.TargetCount"), 0).toInt();
+    if (!targetCount)
+        return data;
+
+    QVariantMap result = data;
+
+    for (int i = 0; i < targetCount; ++i) {
+        QString targetKey = QLatin1String("ProjectExplorer.Project.Target.") + QString::number(i);
+        QVariantMap targetMap = data.value(targetKey).toMap();
+
+        const QString dcCountKey = QLatin1String("ProjectExplorer.Target.DeployConfigurationCount");
+        int deployconfigurationCount = targetMap.value(dcCountKey).toInt();
+        if (!deployconfigurationCount) // should never happen
+            continue;
+
+        QList<OldStepMaps> oldSteps;
+        QList<QVariantMap> oldBuildConfigurations;
+
+        QString deployKey = QLatin1String("ProjectExplorer.Target.DeployConfiguration.");
+        for (int j = 0; j < deployconfigurationCount; ++j) {
+            QVariantMap deployConfigurationMap
+                    = targetMap.value(deployKey + QString::number(j)).toMap();
+            OldStepMaps oldStep = extractStepMaps(deployConfigurationMap);
+            if (!oldStep.isEmpty()) {
+                oldSteps.append(oldStep);
+                deployConfigurationMap = removeAndroidPackageStep(deployConfigurationMap);
+                targetMap.insert(deployKey + QString::number(j), deployConfigurationMap);
+            }
+        }
+
+        if (oldSteps.isEmpty()) // no android target?
+            continue;
+
+        const QString bcCountKey = QLatin1String("ProjectExplorer.Target.BuildConfigurationCount");
+        int buildConfigurationCount
+                = targetMap.value(bcCountKey).toInt();
+
+        if (!buildConfigurationCount) // should never happen
+            continue;
+
+        QString bcKey = QLatin1String("ProjectExplorer.Target.BuildConfiguration.");
+        for (int j = 0; j < buildConfigurationCount; ++j) {
+            QVariantMap oldBuildConfigurationMap = targetMap.value(bcKey + QString::number(j)).toMap();
+            oldBuildConfigurations.append(oldBuildConfigurationMap);
+        }
+
+        QList<QVariantMap> newBuildConfigurations;
+
+        NamePolicy policy = oldSteps.size() > 1 ? RenameBuildConfiguration : KeepName;
+
+        foreach (const QVariantMap &oldBuildConfiguration, oldBuildConfigurations) {
+            foreach (const OldStepMaps &oldStep, oldSteps) {
+                QVariantMap newBuildConfiguration = insertSteps(oldBuildConfiguration, oldStep, policy);
+                if (!newBuildConfiguration.isEmpty())
+                    newBuildConfigurations.append(newBuildConfiguration);
+            }
+        }
+
+        targetMap.insert(bcCountKey, newBuildConfigurations.size());
+
+        for (int j = 0; j < newBuildConfigurations.size(); ++j)
+            targetMap.insert(bcKey + QString::number(j), newBuildConfigurations.at(j));
+        result.insert(targetKey, targetMap);
+    }
+
+    return result;
 }

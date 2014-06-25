@@ -30,11 +30,11 @@
 #ifndef QMAKE_ANDROIDRUNCONFIGURATION_H
 #define QMAKE_ANDROIDRUNCONFIGURATION_H
 
-#include "androidrunconfiguration.h"
+#include <android/androidrunconfiguration.h>
 
-namespace QmakeProjectManager { class QmakeProFileNode; }
+namespace QmakeProjectManager {
+class QmakeProFileNode;
 
-namespace Android {
 namespace Internal {
 
 class QmakeAndroidRunConfiguration : public Android::AndroidRunConfiguration

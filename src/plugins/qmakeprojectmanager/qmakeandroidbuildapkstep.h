@@ -1,6 +1,7 @@
 /**************************************************************************
 **
 ** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,37 +28,74 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDPACKAGEINSTALLATIONFACTORY_H
-#define ANDROIDPACKAGEINSTALLATIONFACTORY_H
+#ifndef QMAKEANDROIDBUILDAPKSTEP_H
+#define QMAKEANDROIDBUILDAPKSTEP_H
 
-#include <projectexplorer/buildstep.h>
+#include <android/androidbuildapkstep.h>
 
-namespace Android {
+namespace QmakeProjectManager {
 namespace Internal {
 
-class AndroidPackageInstallationFactory: public ProjectExplorer::IBuildStepFactory
+
+class QmakeAndroidBuildApkStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
 public:
-    explicit AndroidPackageInstallationFactory(QObject *parent = 0);
+    explicit QmakeAndroidBuildApkStepFactory(QObject *parent = 0);
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    QString displayNameForId(Core::Id id) const;
+    QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent,
+                   const Core::Id id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
 
-    bool canRestore(ProjectExplorer::BuildStepList *parent,
-                    const QVariantMap &map) const;
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
     ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
 
     bool canClone(ProjectExplorer::BuildStepList *parent,
                   ProjectExplorer::BuildStep *product) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
                                       ProjectExplorer::BuildStep *product);
+private:
+    bool canHandle(ProjectExplorer::Target *t) const;
+
+};
+
+class QmakeAndroidBuildApkStep : public Android::AndroidBuildApkStep
+{
+    Q_OBJECT
+public:
+    QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc);
+    QString proFilePathForInputFile() const;
+    void setProFilePathForInputFile(const QString &path);
+
+protected:
+    friend class QmakeAndroidBuildApkStepFactory;
+    QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc,
+        QmakeAndroidBuildApkStep *other);
+
+    Utils::FileName androidPackageSourceDir() const;
+
+protected:
+    void ctor();
+    bool init();
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
+
+signals:
+    // also on purpose emitted if the possible values of this changed
+    void inputFileChanged();
+
+private slots:
+    void updateInputFile();
+
+private:
+    QString m_proFilePathForInputFile;
 };
 
 } // namespace Internal
-} // namespace Android
+} // namespace QmakeProjectManager
 
-#endif // ANDROIDPACKAGEINSTALLATIONFACTORY_H
+#endif // QMAKEANDROIDBUILDAPKSTEP_H

@@ -73,7 +73,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Android {
-namespace Internal {
+using namespace Internal;
 
 namespace {
     const QLatin1String SettingsGroup("AndroidConfigurations");
@@ -341,6 +341,11 @@ QStringList AndroidConfig::apiLevelNamesFor(const QList<SdkPlatform> &platforms)
     foreach (const SdkPlatform &platform, platforms)
         results << QLatin1String("android-") + QString::number(platform.apiLevel);
     return results;
+}
+
+QString AndroidConfig::apiLevelNameFor(const SdkPlatform &platform)
+{
+    return QLatin1String("android-") + QString::number(platform.apiLevel);
 }
 
 QList<SdkPlatform> AndroidConfig::sdkTargets(int minApiLevel) const
@@ -1294,5 +1299,4 @@ void AndroidConfigurations::updateAndroidDevice()
 
 AndroidConfigurations *AndroidConfigurations::m_instance = 0;
 
-} // namespace Internal
 } // namespace Android

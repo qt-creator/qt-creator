@@ -34,8 +34,9 @@
 #include <QDialog>
 
 namespace Android {
-namespace Internal {
 class AndroidConfig;
+
+namespace Internal {
 
 class AvdDialog : public QDialog
 {

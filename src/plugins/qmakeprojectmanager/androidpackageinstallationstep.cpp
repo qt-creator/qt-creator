@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "androidpackageinstallationstep.h"
-#include "androidmanager.h"
-#include "androidconstants.h"
+
+#include <android/androidconstants.h>
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
@@ -38,19 +38,19 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <utils/hostosinfo.h>
-#include <qmakeprojectmanager/qmakeparser.h>
 
 #include <QDir>
 
-using namespace Android::Internal;
+using namespace Android;
+using namespace QmakeProjectManager::Internal;
 
 const Core::Id AndroidPackageInstallationStep::Id = Core::Id("Qt4ProjectManager.AndroidPackageInstallationStep");
 namespace {
 const char ANDROIDDIRECTORY[] = "Android.AndroidPackageInstallationStep.AndroidDirectory";
 }
 
-AndroidPackageInstallationStep::AndroidPackageInstallationStep(AndroidDirectory mode,ProjectExplorer::BuildStepList *bsl)
-    : AbstractProcessStep(bsl, Id), m_androidDirectory(mode)
+AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl)
+    : AbstractProcessStep(bsl, Id)
 {
     const QString name = tr("Copy application data");
     setDefaultDisplayName(name);
@@ -64,13 +64,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::
 bool AndroidPackageInstallationStep::init()
 {
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    if (!bc)
-        bc = target()->activeBuildConfiguration();
-    QString dirPath;
-    if (m_androidDirectory == ProjectDirectory)
-        dirPath = AndroidManager::dirPath(target()).toString();
-    else
-        dirPath = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
+    QString dirPath = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
     if (Utils::HostOsInfo::isWindowsHost())
         if (bc->environment().searchInPath(QLatin1String("sh.exe")).isEmpty())
             dirPath = QDir::toNativeSeparators(dirPath);
@@ -95,17 +89,9 @@ bool AndroidPackageInstallationStep::init()
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    m_androidDirToClean = m_androidDirectory == BuildDirectory ? dirPath : QString();
+    m_androidDirToClean = dirPath;
 
     return AbstractProcessStep::init();
-}
-
-bool AndroidPackageInstallationStep::fromMap(const QVariantMap &map)
-{
-    if (!AbstractProcessStep::fromMap(map))
-        return false;
-    m_androidDirectory = AndroidDirectory(map.value(QLatin1String(ANDROIDDIRECTORY)).toInt());
-    return true;
 }
 
 void AndroidPackageInstallationStep::run(QFutureInterface<bool> &fi)
@@ -122,13 +108,6 @@ void AndroidPackageInstallationStep::run(QFutureInterface<bool> &fi)
         }
     }
     AbstractProcessStep::run(fi);
-}
-
-QVariantMap AndroidPackageInstallationStep::toMap() const
-{
-    QVariantMap map = AbstractProcessStep::toMap();
-    map.insert(QLatin1String(ANDROIDDIRECTORY), m_androidDirectory);
-    return map;
 }
 
 ProjectExplorer::BuildStepConfigWidget *AndroidPackageInstallationStep::createConfigWidget()

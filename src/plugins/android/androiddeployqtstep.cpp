@@ -30,38 +30,43 @@
 
 #include "androiddeployqtstep.h"
 #include "androiddeployqtwidget.h"
+#include "androidqtsupport.h"
 #include "certificatesmodel.h"
 
 #include "javaparser.h"
 #include "androidmanager.h"
 #include "androidconstants.h"
 
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+
 #include <qtsupport/qtkitinformation.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakenodes.h>
+
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+
 #include <QInputDialog>
 #include <QMessageBox>
+
 
 using namespace Android;
 using namespace Android::Internal;
 
-const QLatin1String DeployActionKey("Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction");
+const QLatin1String UninstallPreviousPackageKey("UninstallPreviousPackage");
 const QLatin1String KeystoreLocationKey("KeystoreLocation");
 const QLatin1String SignPackageKey("SignPackage");
 const QLatin1String BuildTargetSdkKey("BuildTargetSdk");
 const QLatin1String VerboseOutputKey("VerboseOutput");
 const QLatin1String InputFile("InputFile");
 const QLatin1String ProFilePathForInputFile("ProFilePathForInputFile");
+const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES");
 const Core::Id AndroidDeployQtStep::Id("Qt4ProjectManager.AndroidDeployQtStep");
 
 //////////////////
@@ -149,20 +154,12 @@ AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent,
 
 void AndroidDeployQtStep::ctor()
 {
+    m_uninstallPreviousPackage = false;
+    m_uninstallPreviousPackageTemp = false;
+    m_uninstallPreviousPackageRun = false;
+
     //: AndroidDeployQtStep default display name
     setDefaultDisplayName(tr("Deploy to Android device"));
-    m_deployAction = BundleLibrariesDeployment;
-    m_signPackage = false;
-    m_openPackageLocation = false;
-    m_verbose = false;
-
-    // will be overwriten by settings if the user choose something different
-    SdkPlatform sdk = AndroidConfigurations::currentConfig().highestAndroidSdk();
-    if (sdk.apiLevel > 0)
-        m_buildTargetSdk = QLatin1String("android-") + QString::number(sdk.apiLevel);
-
-    connect(project(), SIGNAL(proFilesEvaluated()),
-           this, SLOT(updateInputFile()));
 }
 
 bool AndroidDeployQtStep::init()
@@ -188,109 +185,34 @@ bool AndroidDeployQtStep::init()
         m_avdName.clear();
         m_serialNumber = info.serialNumber;
     }
+    AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
 
-    QmakeProjectManager::QmakeBuildConfiguration *bc
-            = static_cast<QmakeProjectManager::QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
-
-    if (m_signPackage) {
-        // check keystore and certificate passwords
-        while (!AndroidManager::checkKeystorePassword(m_keystorePath.toString(), m_keystorePasswd)) {
-            if (!keystorePassword())
-                return false; // user canceled
-        }
-
-        while (!AndroidManager::checkCertificatePassword(m_keystorePath.toString(), m_keystorePasswd, m_certificateAlias, m_certificatePasswd)) {
-            if (!certificatePassword())
-                return false; // user canceled
-        }
-
-
-        if ((bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild))
-            emit addOutput(tr("Warning: Signing a debug package."), BuildStep::ErrorMessageOutput);
-    }
+    ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!version)
         return false;
 
-    QmakeProjectManager::QmakeProject *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
-    JavaParser *parser = new JavaParser;
-    parser->setProjectFileList(pro->files(ProjectExplorer::Project::AllFiles));
-    setOutputParser(parser);
-
-    QString command = version->qmakeProperty("QT_HOST_BINS");
-    if (!command.endsWith(QLatin1Char('/')))
-        command += QLatin1Char('/');
-    command += Utils::HostOsInfo::withExecutableSuffix(QLatin1String("androiddeployqt"));
-
-    QString deploymentMethod;
-    if (m_deployAction == MinistroDeployment)
-        deploymentMethod = QLatin1String("ministro");
-    else if (m_deployAction == DebugDeployment)
-        deploymentMethod = QLatin1String("debug");
-    else if (m_deployAction == BundleLibrariesDeployment)
-        deploymentMethod = QLatin1String("bundled");
-
-    QString outputDir = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
-    const QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePathForInputFile);
-    if (!node) { // should never happen
-        emit addOutput(tr("Internal Error: Could not find .pro file."), BuildStep::ErrorMessageOutput);
-        return false;
-    }
-
-    QString inputFile = node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
-    if (inputFile.isEmpty()) { // should never happen
-        emit addOutput(tr("Internal Error: Unknown Android deployment JSON file location."), BuildStep::ErrorMessageOutput);
-        return false;
-    }
-
-    QStringList arguments;
-    arguments << QLatin1String("--input")
-              << inputFile
-              << QLatin1String("--output")
-              << outputDir
-              << QLatin1String("--deployment")
-              << deploymentMethod
-              << QLatin1String("--install")
-              << QLatin1String("--ant")
-              << AndroidConfigurations::currentConfig().antToolPath().toString()
-              << QLatin1String("--android-platform")
-              << m_buildTargetSdk
-              << QLatin1String("--jdk")
-              << AndroidConfigurations::currentConfig().openJDKLocation().toString();
-
-    parser->setSourceDirectory(Utils::FileName::fromString(node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir)));
-    parser->setBuildDirectory(Utils::FileName::fromString(outputDir));
-
-    if (m_verbose)
-        arguments << QLatin1String("--verbose");
-    if (m_avdName.isEmpty())
-        arguments  << QLatin1String("--device")
-                   << info.serialNumber;
-
-    if (m_signPackage) {
-        arguments << QLatin1String("--sign")
-                  << m_keystorePath.toString()
-                  << m_certificateAlias
-                  << QLatin1String("--storepass")
-                  << m_keystorePasswd;
-        if (!m_certificatePasswd.isEmpty())
-            arguments << QLatin1String("--keypass")
-                      << m_certificatePasswd;
+    m_uninstallPreviousPackageRun = m_uninstallPreviousPackage || m_uninstallPreviousPackageTemp;
+    m_uninstallPreviousPackageTemp = false;
+    if (m_uninstallPreviousPackageRun) {
+        m_packageName = AndroidManager::packageName(target());
+        if (m_packageName.isEmpty()){
+            emit addOutput(tr("Cannot find the package name."), ErrorOutput);
+            return false;
+        }
     }
 
     ProjectExplorer::ProcessParameters *pp = processParameters();
+    pp->setCommand(AndroidConfigurations::currentConfig().adbToolPath().toString());
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory().toString());
     Utils::Environment env = bc->environment();
     pp->setEnvironment(env);
-    pp->setCommand(command);
-    pp->setArguments(Utils::QtcProcess::joinArgs(arguments));
-    pp->resolveAll();
+    m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target(), AndroidManager::signPackage(target())
+                                                                    ? AndroidQtSupport::ReleaseBuildSigned
+                                                                    : AndroidQtSupport::DebugBuild).toString();
 
-    m_openPackageLocationForRun = m_openPackageLocation;
-    m_apkPath = AndroidManager::apkPath(target(), m_signPackage ? AndroidManager::ReleaseBuildSigned
-                                                                : AndroidManager::DebugBuild).toString();
     m_buildDirectory = bc->buildDirectory().toString();
 
     bool result = AbstractProcessStep::init();
@@ -304,6 +226,7 @@ bool AndroidDeployQtStep::init()
 
 void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 {
+    m_installOk = true;
     if (!m_avdName.isEmpty()) {
         QString serialNumber = AndroidConfigurations::currentConfig().waitForAvd(m_deviceAPILevel, m_targetArch, fi);
         if (serialNumber.isEmpty()) {
@@ -312,11 +235,26 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
             return;
         }
         m_serialNumber = serialNumber;
-        QString args = processParameters()->arguments();
-        Utils::QtcProcess::addArg(&args, QLatin1String("--device"));
-        Utils::QtcProcess::addArg(&args, serialNumber);
-        processParameters()->setArguments(args);
+        AndroidManager::setDeviceSerialNumber(target(), serialNumber);
     }
+
+    if (m_uninstallPreviousPackageRun) {
+        emit addOutput(tr("Uninstall previous package %1.").arg(m_packageName), MessageOutput);
+        runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
+                   AndroidDeviceInfo::adbSelector(m_serialNumber)
+                   << QLatin1String("uninstall") << m_packageName);
+    }
+
+    ProjectExplorer::ProcessParameters *pp = processParameters();
+    QString args;
+    for (const QString arg : AndroidDeviceInfo::adbSelector(m_serialNumber))
+        Utils::QtcProcess::addArg(&args, arg);
+
+    Utils::QtcProcess::addArg(&args, QLatin1String("install"));
+    Utils::QtcProcess::addArg(&args, QLatin1String("-r"));
+    Utils::QtcProcess::addArg(&args, m_apkPath);
+    pp->setArguments(args);
+    pp->resolveAll();
 
     AbstractProcessStep::run(fi);
 
@@ -334,17 +272,17 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &arguments)
 {
     QProcess buildProc;
-    emit addOutput(tr("Package deploy: Running command '%1 %2'.").arg(program).arg(arguments.join(QLatin1String(" "))), BuildStep::MessageOutput);
+    emit addOutput(tr("Package deploy: Running command \"%1 %2\".").arg(program).arg(arguments.join(QLatin1String(" "))), BuildStep::MessageOutput);
     buildProc.start(program, arguments);
     if (!buildProc.waitForStarted()) {
-        emit addOutput(tr("Packaging error: Could not start command '%1 %2'. Reason: %3")
+        emit addOutput(tr("Packaging error: Could not start command \"%1 %2\". Reason: %3")
             .arg(program).arg(arguments.join(QLatin1String(" "))).arg(buildProc.errorString()), BuildStep::ErrorMessageOutput);
         return;
     }
     if (!buildProc.waitForFinished(2 * 60 * 1000)
             || buildProc.error() != QProcess::UnknownError
             || buildProc.exitCode() != 0) {
-        QString mainMessage = tr("Packaging Error: Command '%1 %2' failed.")
+        QString mainMessage = tr("Packaging Error: Command \"%1 %2\" failed.")
                 .arg(program).arg(arguments.join(QLatin1String(" ")));
         if (buildProc.error() != QProcess::UnknownError)
             mainMessage += QLatin1Char(' ') + tr("Reason: %1").arg(buildProc.errorString());
@@ -354,148 +292,55 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
     }
 }
 
-void AndroidDeployQtStep::updateInputFile()
-{
-    QmakeProjectManager::QmakeProject *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
-    QList<QmakeProjectManager::QmakeProFileNode *> nodes = pro->applicationProFiles();
-
-    const QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePathForInputFile);
-    if (!nodes.contains(const_cast<QmakeProjectManager::QmakeProFileNode *>(node))) {
-        if (!nodes.isEmpty())
-            m_proFilePathForInputFile = nodes.first()->path();
-        else
-            m_proFilePathForInputFile.clear();
-    }
-
-    emit inputFileChanged();
-}
-
-void AndroidDeployQtStep::showInGraphicalShell()
-{
-    Core::FileUtils::showInGraphicalShell(Core::ICore::instance()->mainWindow(), m_apkPath);
-}
-
 ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()
 {
     return new AndroidDeployQtWidget(this);
 }
 
-void AndroidDeployQtStep::processFinished(int exitCode, QProcess::ExitStatus status)
+void AndroidDeployQtStep::stdOutput(const QString &line)
 {
-    AbstractProcessStep::processFinished(exitCode, status);
-    if (m_openPackageLocationForRun && status == QProcess::NormalExit && exitCode == 0)
-        QMetaObject::invokeMethod(this, "showInGraphicalShell", Qt::QueuedConnection);
+    if (line.contains(InstallFailedInconsistentCertificatesString))
+        m_installOk = false;
+    AbstractProcessStep::stdOutput(line);
+}
+
+void AndroidDeployQtStep::stdError(const QString &line)
+{
+    if (line.contains(InstallFailedInconsistentCertificatesString))
+        m_installOk = false;
+    AbstractProcessStep::stdError(line);
+}
+
+bool AndroidDeployQtStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
+{
+    if (!m_installOk && !m_uninstallPreviousPackageRun &&
+            QMessageBox::critical(0, tr("Install failed"),
+                                  tr("Another application with the same package id but signed with "
+                                     "different ceritificate already exists.\n"
+                                     "Do you want to install the existing package next time?"),
+                                  QMessageBox::Yes, QMessageBox::No)
+            == QMessageBox::Yes)  {
+        m_uninstallPreviousPackageTemp = true;
+    }
+    return m_installOk && AbstractProcessStep::processSucceeded(exitCode, status);
 }
 
 bool AndroidDeployQtStep::fromMap(const QVariantMap &map)
 {
-    m_deployAction = AndroidDeployQtAction(map.value(QLatin1String(DeployActionKey),
-                                                     BundleLibrariesDeployment).toInt());
-    m_keystorePath = Utils::FileName::fromString(map.value(KeystoreLocationKey).toString());
-    m_signPackage = false; // don't restore this
-    m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();
-    m_verbose = map.value(VerboseOutputKey).toBool();
-    m_proFilePathForInputFile = map.value(ProFilePathForInputFile).toString();
+    m_uninstallPreviousPackage = map.value(UninstallPreviousPackageKey, false).toBool();
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
 QVariantMap AndroidDeployQtStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::BuildStep::toMap();
-    map.insert(QLatin1String(DeployActionKey), m_deployAction);
-    map.insert(KeystoreLocationKey, m_keystorePath.toString());
-    map.insert(SignPackageKey, m_signPackage);
-    map.insert(BuildTargetSdkKey, m_buildTargetSdk);
-    map.insert(VerboseOutputKey, m_verbose);
-    map.insert(ProFilePathForInputFile, m_proFilePathForInputFile);
+    map.insert(UninstallPreviousPackageKey, m_uninstallPreviousPackage);
     return map;
 }
 
-void AndroidDeployQtStep::setBuildTargetSdk(const QString &sdk)
+void AndroidDeployQtStep::setUninstallPreviousPackage(bool uninstall)
 {
-    m_buildTargetSdk = sdk;
-}
-
-QString AndroidDeployQtStep::buildTargetSdk() const
-{
-    return m_buildTargetSdk;
-}
-
-Utils::FileName AndroidDeployQtStep::keystorePath()
-{
-    return m_keystorePath;
-}
-
-AndroidDeployQtStep::AndroidDeployQtAction AndroidDeployQtStep::deployAction() const
-{
-    return m_deployAction;
-}
-
-void AndroidDeployQtStep::setDeployAction(AndroidDeployQtStep::AndroidDeployQtAction deploy)
-{
-    m_deployAction = deploy;
-}
-
-void AndroidDeployQtStep::setKeystorePath(const Utils::FileName &path)
-{
-    m_keystorePath = path;
-    m_certificatePasswd.clear();
-    m_keystorePasswd.clear();
-}
-
-void AndroidDeployQtStep::setKeystorePassword(const QString &pwd)
-{
-    m_keystorePasswd = pwd;
-}
-
-void AndroidDeployQtStep::setCertificateAlias(const QString &alias)
-{
-    m_certificateAlias = alias;
-}
-
-void AndroidDeployQtStep::setCertificatePassword(const QString &pwd)
-{
-    m_certificatePasswd = pwd;
-}
-
-bool AndroidDeployQtStep::signPackage() const
-{
-    return m_signPackage;
-}
-
-void AndroidDeployQtStep::setSignPackage(bool b)
-{
-    m_signPackage = b;
-}
-
-QString AndroidDeployQtStep::deviceSerialNumber()
-{
-    return m_serialNumber;
-}
-
-bool AndroidDeployQtStep::openPackageLocation() const
-{
-    return m_openPackageLocation;
-}
-
-void AndroidDeployQtStep::setOpenPackageLocation(bool open)
-{
-    m_openPackageLocation = open;
-}
-
-void AndroidDeployQtStep::setVerboseOutput(bool verbose)
-{
-    m_verbose = verbose;
-}
-
-QString AndroidDeployQtStep::proFilePathForInputFile() const
-{
-    return m_proFilePathForInputFile;
-}
-
-void AndroidDeployQtStep::setProFilePathForInputFile(const QString &path)
-{
-    m_proFilePathForInputFile = path;
+    m_uninstallPreviousPackage = uninstall;
 }
 
 bool AndroidDeployQtStep::runInGuiThread() const
@@ -503,69 +348,7 @@ bool AndroidDeployQtStep::runInGuiThread() const
     return true;
 }
 
-bool AndroidDeployQtStep::verboseOutput() const
+bool AndroidDeployQtStep::uninstallPreviousPackage()
 {
-    return m_verbose;
-}
-
-// Note this functions is duplicated between AndroidDeployStep and AndroidDeployQtStep
-// since it does modify the stored password in AndroidDeployQtStep it's not easily
-// extractable. The situation will clean itself up once AndroidDeployStep is no longer
-// necessary
-QAbstractItemModel *AndroidDeployQtStep::keystoreCertificates()
-{
-    QString rawCerts;
-    QProcess keytoolProc;
-    while (!rawCerts.length() || !m_keystorePasswd.length()) {
-        QStringList params;
-        params << QLatin1String("-list") << QLatin1String("-v") << QLatin1String("-keystore") << m_keystorePath.toUserOutput() << QLatin1String("-storepass");
-        if (!m_keystorePasswd.length())
-            keystorePassword();
-        if (!m_keystorePasswd.length())
-            return 0;
-        params << m_keystorePasswd;
-        params << QLatin1String("-J-Duser.language=en");
-        keytoolProc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), params);
-        if (!keytoolProc.waitForStarted() || !keytoolProc.waitForFinished()) {
-            QMessageBox::critical(0, tr("Error"),
-                                  tr("Failed to run keytool."));
-            return 0;
-        }
-
-        if (keytoolProc.exitCode()) {
-            QMessageBox::critical(0, tr("Error"),
-                                  tr("Invalid password."));
-            m_keystorePasswd.clear();
-        }
-        rawCerts = QString::fromLatin1(keytoolProc.readAllStandardOutput());
-    }
-    return new CertificatesModel(rawCerts, this);
-}
-
-bool AndroidDeployQtStep::keystorePassword()
-{
-    m_keystorePasswd.clear();
-    bool ok;
-    QString text = QInputDialog::getText(0, tr("Keystore"),
-                                         tr("Keystore password:"), QLineEdit::Password,
-                                         QString(), &ok);
-    if (ok && !text.isEmpty()) {
-        m_keystorePasswd = text;
-        return true;
-    }
-    return false;
-}
-
-bool AndroidDeployQtStep::certificatePassword()
-{
-    m_certificatePasswd.clear();
-    bool ok;
-    QString text = QInputDialog::getText(0, tr("Certificate"),
-                                         tr("Certificate password (%1):").arg(m_certificateAlias), QLineEdit::Password,
-                                         QString(), &ok);
-    if (ok && !text.isEmpty()) {
-        m_certificatePasswd = text;
-        return true;
-    }
-    return false;
+    return m_uninstallPreviousPackage;
 }

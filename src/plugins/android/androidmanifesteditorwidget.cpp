@@ -32,12 +32,13 @@
 #include "androidconstants.h"
 #include "androidmanifestdocument.h"
 #include "androidmanager.h"
+#include "androidqtsupport.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <texteditor/plaintexteditor.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectwindow.h>
 #include <projectexplorer/iprojectproperties.h>
@@ -45,9 +46,10 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitinformation.h>
+
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
-#include <qmakeprojectmanager/qmakeproject.h>
+#include <texteditor/plaintexteditor.h>
 #include <utils/algorithm.h>
 
 #include <QLineEdit>
@@ -476,7 +478,7 @@ void AndroidManifestEditorWidget::updateTargetComboBox()
     if (project) {
         ProjectExplorer::Kit *kit = project->activeTarget()->kit();
         if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE)
-            items = AndroidManager::availableTargetApplications(project->activeTarget());
+            items = AndroidManager::androidQtSupport(project->activeTarget())->projectTargetApplications(project->activeTarget());
     }
 
     // QComboBox randomly resets what the user has entered

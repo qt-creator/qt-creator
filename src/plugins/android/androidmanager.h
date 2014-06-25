@@ -30,45 +30,47 @@
 #ifndef ANDROIDMANAGER_H
 #define ANDROIDMANAGER_H
 
+#include "android_global.h"
 #include <utils/fileutils.h>
 
-#include <QDomDocument>
 #include <QPair>
 #include <QObject>
 #include <QStringList>
 
-namespace ProjectExplorer { class Target; }
+class QDomDocument;
+
+namespace ProjectExplorer {
+class Kit;
+class Target;
+}
 
 namespace Android {
-class AndroidQtSupport;
-namespace Internal {
 
-class AndroidManager : public QObject
+class AndroidQtSupport;
+
+class ANDROID_EXPORT AndroidManager : public QObject
 {
     Q_OBJECT
 
 public:
-    enum BuildType
-    {
-        DebugBuild,
-        ReleaseBuildUnsigned,
-        ReleaseBuildSigned
-    };
 
-    static bool supportsAndroid(ProjectExplorer::Target *target);
+    static bool supportsAndroid(const ProjectExplorer::Kit *kit);
+    static bool supportsAndroid(const ProjectExplorer::Target *target);
 
     static QString packageName(ProjectExplorer::Target *target);
 
     static QString intentName(ProjectExplorer::Target *target);
     static QString activityName(ProjectExplorer::Target *target);
 
-    static QStringList availableTargetApplications(ProjectExplorer::Target *target);
-
     static bool bundleQt(ProjectExplorer::Target *target);
     static bool useLocalLibs(ProjectExplorer::Target *target);
     static QString deviceSerialNumber(ProjectExplorer::Target *target);
+    static void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
 
     static QString buildTargetSDK(ProjectExplorer::Target *target);
+
+    static bool signPackage(ProjectExplorer::Target *target);
+
     static int minimumSDK(ProjectExplorer::Target *target);
 
     static QString targetArch(ProjectExplorer::Target *target);
@@ -77,7 +79,6 @@ public:
     static Utils::FileName manifestPath(ProjectExplorer::Target *target);
     static Utils::FileName libsPath(ProjectExplorer::Target *target);
     static Utils::FileName defaultPropertiesPath(ProjectExplorer::Target *target);
-    static Utils::FileName apkPath(ProjectExplorer::Target *target, BuildType buildType);
 
     static Utils::FileName localLibsRulesFilePath(ProjectExplorer::Target *target);
     static QString loadLocalLibs(ProjectExplorer::Target *target, int apiLevel = -1);
@@ -134,7 +135,6 @@ private:
 
 };
 
-} // namespace Internal
 } // namespace Android
 
 #endif // ANDROIDMANAGER_H

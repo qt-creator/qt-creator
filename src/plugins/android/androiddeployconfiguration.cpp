@@ -29,15 +29,15 @@
 
 #include "androiddeployconfiguration.h"
 #include "androidconstants.h"
-#include "androidpackageinstallationstep.h"
 #include "androiddeployqtstep.h"
 #include "androidmanager.h"
+#include "androidqtsupport.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -73,9 +73,7 @@ bool AndroidDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) c
 DeployConfiguration *AndroidDeployConfigurationFactory::create(Target *parent, Core::Id id)
 {
     AndroidDeployConfiguration *dc = new AndroidDeployConfiguration(parent, id);
-
-    dc->stepList()->insertStep(0, new AndroidPackageInstallationStep(AndroidPackageInstallationStep::BuildDirectory, dc->stepList()));
-    dc->stepList()->insertStep(1, new AndroidDeployQtStep(dc->stepList()));
+    dc->stepList()->insertStep(0, new AndroidDeployQtStep(dc->stepList()));
     return dc;
 }
 
@@ -114,9 +112,6 @@ DeployConfiguration *AndroidDeployConfigurationFactory::clone(Target *parent, De
 QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> ids;
-    if (!qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project()))
-        return ids;
-
     if (!parent->project()->supportsKit(parent->kit()))
         return ids;
 

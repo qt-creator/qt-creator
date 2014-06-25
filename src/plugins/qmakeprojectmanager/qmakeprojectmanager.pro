@@ -5,6 +5,10 @@ DEFINES += \
     QMAKEPROJECTMANAGER_LIBRARY
 
 HEADERS += \
+    androidextralibrarylistmodel.h \
+    androidpackageinstallationfactory.h \
+    androidpackageinstallationstep.h \
+    createandroidmanifestwizard.h \
     qmakebuildinfo.h \
     qmakekitinformation.h \
     qmakekitconfigwidget.h \
@@ -54,9 +58,19 @@ HEADERS += \
     findqmakeprofiles.h \
     qmakeprojectmanager_global.h \
     desktopqmakerunconfiguration.h \
-    profilecompletionassist.h
+    profilecompletionassist.h \
+    qmakeandroidsupport.h \
+    qmakeandroidrunconfiguration.h \
+    qmakeandroidrunfactories.h \
+    qmakeandroidbuildapkstep.h \
+    qmakeandroidbuildapkwidget.h \
+    androidqmakebuildconfigurationfactory.h
 
 SOURCES += \
+    androidextralibrarylistmodel.cpp \
+    androidpackageinstallationfactory.cpp \
+    androidpackageinstallationstep.cpp \
+    createandroidmanifestwizard.cpp \
     qmakekitconfigwidget.cpp \
     qmakekitinformation.cpp \
     qmakeprojectimporter.cpp \
@@ -103,13 +117,20 @@ SOURCES += \
     librarydetailscontroller.cpp \
     findqmakeprofiles.cpp \
     desktopqmakerunconfiguration.cpp \
-    profilecompletionassist.cpp
+    profilecompletionassist.cpp \
+    qmakeandroidsupport.cpp \
+    qmakeandroidrunconfiguration.cpp \
+    qmakeandroidrunfactories.cpp \
+    qmakeandroidbuildapkstep.cpp \
+    qmakeandroidbuildapkwidget.cpp \
+    androidqmakebuildconfigurationfactory.cpp
 
 FORMS += makestep.ui \
     qmakestep.ui \
     qmakeprojectconfigwidget.ui \
     librarydetailswidget.ui \
-    wizards/testwizardpage.ui
+    wizards/testwizardpage.ui \
+    qmakeandroidbuildapkwidget.ui
 
 RESOURCES += qmakeprojectmanager.qrc \
     wizards/wizards.qrc

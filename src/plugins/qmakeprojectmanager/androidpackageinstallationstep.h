@@ -33,7 +33,7 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/abstractprocessstep.h>
 
-namespace Android {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class AndroidPackageInstallationStep : public ProjectExplorer::AbstractProcessStep
@@ -42,12 +42,8 @@ class AndroidPackageInstallationStep : public ProjectExplorer::AbstractProcessSt
     friend class AndroidPackageInstallationFactory;
 
 public:
-    enum AndroidDirectory { ProjectDirectory, BuildDirectory };
-    explicit AndroidPackageInstallationStep(AndroidDirectory mode, ProjectExplorer::BuildStepList *bsl);
+    explicit AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl);
     bool init();
-
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     bool immutable() const;
@@ -56,7 +52,6 @@ public:
 private:
     AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc,
         AndroidPackageInstallationStep *other);
-    AndroidDirectory m_androidDirectory;
     QString m_androidDirToClean;
     static const Core::Id Id;
 };

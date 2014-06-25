@@ -40,7 +40,6 @@ namespace Android {
 class AndroidRunConfiguration;
 
 namespace Internal {
-
 class AndroidRunner;
 
 class AndroidAnalyzeSupport : public AndroidRunSupport

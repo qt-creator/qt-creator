@@ -30,6 +30,8 @@
 #ifndef ANDROIDCONFIGURATIONS_H
 #define ANDROIDCONFIGURATIONS_H
 
+#include "android_global.h"
+
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -37,7 +39,9 @@
 #include <QHash>
 #include <QMap>
 #include <QFutureInterface>
+
 #include <projectexplorer/abi.h>
+
 #include <utils/fileutils.h>
 #include <utils/environment.h>
 
@@ -49,7 +53,6 @@ namespace ProjectExplorer { class Project; }
 
 namespace Android {
 class AndroidPlugin;
-namespace Internal {
 
 struct AndroidDeviceInfo
 {
@@ -76,7 +79,7 @@ public:
     QStringList abis;
 };
 
-class AndroidConfig
+class ANDROID_EXPORT AndroidConfig
 {
 public:
     AndroidConfig();
@@ -85,6 +88,7 @@ public:
     void save(QSettings &settings) const;
 
     static QStringList apiLevelNamesFor(const QList<SdkPlatform> &platforms);
+    static QString apiLevelNameFor(const SdkPlatform &platform);
     QList<SdkPlatform> sdkTargets(int minApiLevel = 0) const;
 
     Utils::FileName sdkLocation() const;
@@ -192,7 +196,7 @@ private:
     mutable QHash<QString, QString> m_serialNumberToDeviceName;
 };
 
-class AndroidConfigurations : public QObject
+class ANDROID_EXPORT AndroidConfigurations : public QObject
 {
     friend class Android::AndroidPlugin;
     Q_OBJECT
@@ -225,7 +229,6 @@ private:
     QMap<ProjectExplorer::Project *, QMap<QString, QString> > m_defaultDeviceForAbi;
 };
 
-} // namespace Internal
 } // namespace Android
 
 #endif // ANDROIDCONFIGURATIONS_H

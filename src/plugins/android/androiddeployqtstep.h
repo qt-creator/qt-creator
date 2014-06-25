@@ -71,91 +71,46 @@ class AndroidDeployQtStep : public ProjectExplorer::AbstractProcessStep
 public:
     AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc);
 
-    enum AndroidDeployQtAction
-    {
-        MinistroDeployment, // use ministro
-        DebugDeployment,
-        BundleLibrariesDeployment
-    };
-
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
-    AndroidDeployQtStep::AndroidDeployQtAction deployAction() const;
-    QString deviceSerialNumber();
-
-    void setBuildTargetSdk(const QString &sdk);
-    QString buildTargetSdk() const;
-
-    // signing
-    Utils::FileName keystorePath();
-    void setKeystorePath(const Utils::FileName &path);
-    void setKeystorePassword(const QString &pwd);
-    void setCertificateAlias(const QString &alias);
-    void setCertificatePassword(const QString &pwd);
-
-    QAbstractItemModel *keystoreCertificates();
-    bool signPackage() const;
-    void setSignPackage(bool b);
-
-    bool openPackageLocation() const;
-    void setOpenPackageLocation(bool open);
-    bool verboseOutput() const;
-    void setVerboseOutput(bool verbose);
-
-    QString proFilePathForInputFile() const;
-    void setProFilePathForInputFile(const QString &path);
-
     bool runInGuiThread() const;
 
-signals:
-    // also on purpose emitted if the possible values of this changed
-    void inputFileChanged();
+    bool uninstallPreviousPackage();
 
 public slots:
-    void setDeployAction(AndroidDeployQtAction deploy); // slot?
+    void setUninstallPreviousPackage(bool uninstall);
 
-private slots:
-    void showInGraphicalShell();
-
-    void updateInputFile();
 private:
     AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc,
         AndroidDeployQtStep *other);
     void ctor();
-    bool keystorePassword();
-    bool certificatePassword();
     void runCommand(const QString &program, const QStringList &arguments);
 
     bool init();
     void run(QFutureInterface<bool> &fi);
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     bool immutable() const { return true; }
-    void processFinished(int exitCode, QProcess::ExitStatus status);
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
+    virtual bool processSucceeded(int exitCode, QProcess::ExitStatus status);
 
-    QString m_buildTargetSdk;
+    QString m_packageName;
     QString m_serialNumber;
-    AndroidDeployQtAction m_deployAction;
-    bool m_signPackage;
-    bool m_verbose;
-    bool m_openPackageLocation;
-    bool m_openPackageLocationForRun;
     QString m_buildDirectory;
-
-    Utils::FileName m_keystorePath;
-    QString m_keystorePasswd;
-    QString m_certificateAlias;
-    QString m_certificatePasswd;
     QString m_avdName;
     QString m_apkPath;
-    QString m_targetArch;
-    QString m_proFilePathForInputFile;
-    int m_deviceAPILevel;
 
+    QString m_targetArch;
+    int m_deviceAPILevel;
+    bool m_uninstallPreviousPackage;
+    bool m_uninstallPreviousPackageTemp;
+    bool m_uninstallPreviousPackageRun;
     static const Core::Id Id;
+    bool m_installOk;
 };
 
 }
-}
+} // namespace Android
 
 #endif // ANDROIDDEPLOYQTSTEP_H

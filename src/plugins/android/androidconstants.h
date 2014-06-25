@@ -73,6 +73,11 @@ const char JAVA_MIMETYPE[] = "text/x-java";
 const char WIZARD_JAVA[] = "Wizard.Java";
 const char JAVA_WIZARD_CATEGORY[] = "U.Java";
 const char JAVA_DISPLAY_CATEGORY[] = "Java";
+const char ANDROID_ARCHITECTURE[] = "Android.Architecture";
+const char ANDROID_DEPLOY_SETTINGS_FILE[] = "AndroidDeploySettingsFile";
+const char ANDROID_PACKAGE_SOURCE_DIR[] = "AndroidPackageSourceDir";
+const char ANDROID_EXTRA_LIBS[] = "AndroidExtraLibs";
+
 } // namespace Constants;
 } // namespace Android
 

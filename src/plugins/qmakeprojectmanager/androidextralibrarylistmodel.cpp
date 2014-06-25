@@ -33,7 +33,7 @@
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <proparser/prowriter.h>
 
-using namespace Android;
+using namespace QmakeProjectManager;
 using namespace Internal;
 
 AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(QmakeProjectManager::QmakeProject *project,

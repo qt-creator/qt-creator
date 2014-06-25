@@ -35,6 +35,8 @@
 #include "androidtoolchain.h"
 #include "androiddeployqtstep.h"
 #include "androidqtsupport.h"
+#include "androidqtversion.h"
+#include "androidbuildapkstep.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
@@ -42,13 +44,12 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
+
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -66,19 +67,24 @@ namespace {
     const QLatin1String AndroidDirName("android");
     const QLatin1String AndroidManifestName("AndroidManifest.xml");
     const QLatin1String AndroidLibsFileName("/res/values/libs.xml");
-    const QLatin1String AndroidStringsFileName("/res/values/strings.xml");
     const QLatin1String AndroidDefaultPropertiesName("project.properties");
+    const QLatin1String AndroidDeviceSn("AndroidDeviceSerialNumber");
+
 } // anonymous namespace
 
 namespace Android {
-namespace Internal {
 
-bool AndroidManager::supportsAndroid(ProjectExplorer::Target *target)
+using namespace Internal;
+
+bool AndroidManager::supportsAndroid(const ProjectExplorer::Kit *kit)
 {
-    if (!qobject_cast<QmakeProjectManager::QmakeProject *>(target->project()))
-        return false;
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
     return version && version->platformName() == QLatin1String(QtSupport::Constants::ANDROID_PLATFORM);
+}
+
+bool AndroidManager::supportsAndroid(const ProjectExplorer::Target *target)
+{
+    return supportsAndroid(target->kit());
 }
 
 QString AndroidManager::packageName(ProjectExplorer::Target *target)
@@ -124,23 +130,28 @@ int AndroidManager::minimumSDK(ProjectExplorer::Target *target)
 
 QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
 {
-    if (!target->activeDeployConfiguration())
-        return QLatin1String("android-9");
-    AndroidDeployQtStep *step = AndroidGlobal::buildStep<AndroidDeployQtStep>(target->activeDeployConfiguration());
-    if (step)
-        return step->buildTargetSdk();
-    return QLatin1String("android-9");
+    AndroidBuildApkStep *androidBuildApkStep
+            = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
+    if (androidBuildApkStep)
+        return androidBuildApkStep->buildTargetSdk();
+
+    QString fallback = AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk());
+    return fallback;
+}
+
+bool AndroidManager::signPackage(ProjectExplorer::Target *target)
+{
+    AndroidBuildApkStep *androidBuildApkStep
+            = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
+    if (androidBuildApkStep)
+        return androidBuildApkStep->signPackage();
+    return false;
 }
 
 QString AndroidManager::targetArch(ProjectExplorer::Target *target)
 {
-    QmakeProjectManager::QmakeProject *pro = qobject_cast<QmakeProjectManager::QmakeProject *>(target->project());
-    if (!pro)
-        return QString();
-    QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode();
-    if (!node)
-        return QString();
-    return node->singleVariableValue(QmakeProjectManager::AndroidArchVar);
+    AndroidQtVersion *qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitInformation::qtVersion(target->kit()));
+    return qt->targetArch();
 }
 
 Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
@@ -163,60 +174,23 @@ Utils::FileName AndroidManager::defaultPropertiesPath(ProjectExplorer::Target *t
     return dirPath(target).appendPath(AndroidDefaultPropertiesName);
 }
 
-Utils::FileName AndroidManager::apkPath(ProjectExplorer::Target *target, BuildType buildType)
-{
-    QString packageName = QLatin1String("QtApp");
-    QString buildTypeName;
-    if (buildType == DebugBuild)
-        buildTypeName = QLatin1String("debug");
-    else if (buildType == ReleaseBuildUnsigned)
-        buildTypeName =QLatin1String("release-unsigned");
-    else
-        buildTypeName = QLatin1String("release");
-
-    return dirPath(target)
-            .appendPath(QLatin1String("bin"))
-            .appendPath(QString::fromLatin1("%1-%2.apk")
-                        .arg(packageName)
-                        .arg(buildTypeName));
-}
-
-QStringList AndroidManager::availableTargetApplications(ProjectExplorer::Target *target)
-{
-    QStringList apps;
-    QmakeProjectManager::QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(target->project());
-    if (!qmakeProject)
-        return apps;
-    foreach (QmakeProjectManager::QmakeProFileNode *proFile, qmakeProject->applicationProFiles()) {
-        if (proFile->projectType() == QmakeProjectManager::ApplicationTemplate) {
-            if (proFile->targetInformation().target.startsWith(QLatin1String("lib"))
-                    && proFile->targetInformation().target.endsWith(QLatin1String(".so")))
-                apps << proFile->targetInformation().target.mid(3, proFile->targetInformation().target.lastIndexOf(QLatin1Char('.')) - 3);
-            else
-                apps << proFile->targetInformation().target;
-        }
-    }
-    apps.sort();
-    return apps;
-}
-
 bool AndroidManager::bundleQt(ProjectExplorer::Target *target)
 {
-    AndroidDeployQtStep *androidDeployQtStep
-            = AndroidGlobal::buildStep<AndroidDeployQtStep>(target->activeDeployConfiguration());
-    if (androidDeployQtStep)
-        return androidDeployQtStep->deployAction() == AndroidDeployQtStep::BundleLibrariesDeployment;
+    AndroidBuildApkStep *androidBuildApkStep
+            = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
+    if (androidBuildApkStep)
+        return androidBuildApkStep->deployAction() == AndroidBuildApkStep::BundleLibrariesDeployment;
 
     return false;
 }
 
 bool AndroidManager::useLocalLibs(ProjectExplorer::Target *target)
 {
-    AndroidDeployQtStep *androidDeployQtStep
-            = AndroidGlobal::buildStep<AndroidDeployQtStep>(target->activeDeployConfiguration());
-    if (androidDeployQtStep) {
-        return androidDeployQtStep->deployAction() == AndroidDeployQtStep::DebugDeployment
-                || androidDeployQtStep->deployAction() == AndroidDeployQtStep::BundleLibrariesDeployment;
+    AndroidBuildApkStep *androidBuildApkStep
+            = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
+    if (androidBuildApkStep) {
+        return androidBuildApkStep->deployAction() == AndroidBuildApkStep::DebugDeployment
+                || androidBuildApkStep->deployAction() == AndroidBuildApkStep::BundleLibrariesDeployment;
     }
 
     return false;
@@ -224,11 +198,12 @@ bool AndroidManager::useLocalLibs(ProjectExplorer::Target *target)
 
 QString AndroidManager::deviceSerialNumber(ProjectExplorer::Target *target)
 {
-    AndroidDeployQtStep *androidDeployQtStep
-            = AndroidGlobal::buildStep<AndroidDeployQtStep>(target->activeDeployConfiguration());
-    if (androidDeployQtStep)
-        return androidDeployQtStep->deviceSerialNumber();
-    return QString();
+    return target->namedSettings(AndroidDeviceSn).toString();
+}
+
+void AndroidManager::setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber)
+{
+    target->setNamedSettings(AndroidDeviceSn, deviceSerialNumber);
 }
 
 Utils::FileName AndroidManager::localLibsRulesFilePath(ProjectExplorer::Target *target)
@@ -688,5 +663,4 @@ AndroidQtSupport *AndroidManager::androidQtSupport(ProjectExplorer::Target *targ
     return 0;
 }
 
-} // namespace Internal
 } // namespace Android

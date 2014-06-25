@@ -33,8 +33,9 @@
 #include <projectexplorer/devicesupport/idevice.h>
 
 namespace Android {
-namespace Internal {
 class AndroidConfigurations; // needed for friend declaration
+
+namespace Internal {
 
 class AndroidDevice : public ProjectExplorer::IDevice
 {
@@ -54,7 +55,7 @@ public:
 
 protected:
     friend class AndroidDeviceFactory;
-    friend class AndroidConfigurations;
+    friend class Android::AndroidConfigurations;
     AndroidDevice();
     AndroidDevice(const AndroidDevice &other);
 };

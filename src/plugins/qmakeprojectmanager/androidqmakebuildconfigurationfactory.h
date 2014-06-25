@@ -1,6 +1,6 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,23 +27,33 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEANDROIDSUPPORT_H
-#define QMAKEANDROIDSUPPORT_H
+#ifndef ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H
+#define ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H
 
-#include "androidqtsupport.h"
+#include "qmakebuildconfiguration.h"
 
-namespace Android {
+namespace QmakeProjectManager {
 namespace Internal {
 
-class QmakeAndroidSupport : public Android::AndroidQtSupport
+
+class AndroidQmakeBuildConfigurationFactory : public QmakeBuildConfigurationFactory
 {
-    Q_OBJECT
 public:
-    bool canHandle(const ProjectExplorer::Target *target) const;
-    QStringList soLibSearchPath(const ProjectExplorer::Target *target) const;
+    explicit AndroidQmakeBuildConfigurationFactory(QObject *parent = 0)
+        : QmakeBuildConfigurationFactory(parent)
+    { }
+
+    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const;
+    int priority(const ProjectExplorer::Target *parent) const;
+
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
+                                                const ProjectExplorer::BuildInfo *info) const;
+    // The clone and restore from QmakeBuildConfigurationFactory
+    // work for us too.
 };
 
 } // namespace Internal
-} // namespace Android
+} // namespace QmakeProjectManager
 
-#endif // QMAKEANDROIDSUPPORT_H
+
+#endif // ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H

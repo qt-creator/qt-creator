@@ -17,6 +17,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "QmlJSTools" }
     Depends { name: "ResourceEditor" }
+    Depends { name: "Android" }
 
     pluginRecommends: [
         "Designer"
@@ -26,6 +27,11 @@ QtcPlugin {
         name: "General"
         files: [
             "addlibrarywizard.cpp", "addlibrarywizard.h",
+            "androidextralibrarylistmodel.cpp", "androidextralibrarylistmodel.h",
+            "androidpackageinstallationfactory.cpp", "androidpackageinstallationfactory.h",
+            "androidpackageinstallationstep.cpp", "androidpackageinstallationstep.h",
+            "androidqmakebuildconfigurationfactory.cpp", "androidqmakebuildconfigurationfactory.h",
+            "createandroidmanifestwizard.cpp", "createandroidmanifestwizard.h",
             "desktopqmakerunconfiguration.cpp", "desktopqmakerunconfiguration.h",
             "externaleditors.cpp", "externaleditors.h",
             "findqmakeprofiles.cpp", "findqmakeprofiles.h",
@@ -37,6 +43,11 @@ QtcPlugin {
             "profileeditorfactory.cpp", "profileeditorfactory.h",
             "profilehighlighter.cpp", "profilehighlighter.h",
             "profilehoverhandler.cpp", "profilehoverhandler.h",
+            "qmakeandroidrunconfiguration.cpp", "qmakeandroidrunconfiguration.h",
+            "qmakeandroidrunfactories.cpp", "qmakeandroidrunfactories.h",
+            "qmakeandroidbuildapkstep.cpp", "qmakeandroidbuildapkstep.h",
+            "qmakeandroidbuildapkwidget.cpp", "qmakeandroidbuildapkwidget.h", "qmakeandroidbuildapkwidget.ui",
+            "qmakeandroidsupport.cpp", "qmakeandroidsupport.h",
             "qmakebuildinfo.h",
             "qmakekitconfigwidget.cpp", "qmakekitconfigwidget.h",
             "qmakekitinformation.cpp", "qmakekitinformation.h",

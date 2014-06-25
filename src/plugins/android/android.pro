@@ -16,8 +16,6 @@ HEADERS += \
     androidsettingspage.h \
     androidsettingswidget.h \
     androidtoolchain.h \
-    androidpackageinstallationstep.h \
-    androidpackageinstallationfactory.h \
     androiderrormessage.h \
     androidglobal.h \
     androidrunner.h \
@@ -41,9 +39,7 @@ HEADERS += \
     androiddeployqtstep.h \
     certificatesmodel.h \
     androiddeployqtwidget.h \
-    createandroidmanifestwizard.h \
     androidpotentialkit.h \
-    androidextralibrarylistmodel.h \
     androidsignaloperation.h \
     javaeditor.h \
     javaeditorfactory.h \
@@ -53,9 +49,8 @@ HEADERS += \
     javafilewizard.h \
     avddialog.h \
     android_global.h \
-    qmakeandroidsupport.h \
-    qmakeandroidrunfactories.h \
-    qmakeandroidrunconfiguration.h
+    androidbuildapkstep.h \
+    androidbuildapkwidget.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -66,8 +61,6 @@ SOURCES += \
     androidsettingspage.cpp \
     androidsettingswidget.cpp \
     androidtoolchain.cpp \
-    androidpackageinstallationstep.cpp \
-    androidpackageinstallationfactory.cpp \
     androiderrormessage.cpp \
     androidrunner.cpp \
     androiddebugsupport.cpp \
@@ -90,9 +83,7 @@ SOURCES += \
     androiddeployqtstep.cpp \
     certificatesmodel.cpp \
     androiddeployqtwidget.cpp \
-    createandroidmanifestwizard.cpp \
     androidpotentialkit.cpp \
-    androidextralibrarylistmodel.cpp \
     androidsignaloperation.cpp \
     javaeditor.cpp \
     javaeditorfactory.cpp \
@@ -101,16 +92,17 @@ SOURCES += \
     javacompletionassistprovider.cpp \
     javafilewizard.cpp \
     avddialog.cpp \
-    qmakeandroidsupport.cpp \
-    qmakeandroidrunfactories.cpp \
-    qmakeandroidrunconfiguration.cpp
+    androidbuildapkstep.cpp \
+    androidbuildapkwidget.cpp
 
 FORMS += \
     androidsettingswidget.ui \
     addnewavddialog.ui \
     androidcreatekeystorecertificate.ui \
     androiddevicedialog.ui \
-    androiddeployqtwidget.ui
+    androiddeployqtwidget.ui \
+    androidbuildapkwidget.ui
 
 RESOURCES = android.qrc
+
 DEFINES += ANDROID_LIBRARY

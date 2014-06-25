@@ -11,6 +11,8 @@ QTC_PLUGIN_DEPENDS += \
     texteditor \
     cpptools \
     qmljstools \
-    resourceeditor
+    resourceeditor \
+    android
+
 QTC_PLUGIN_RECOMMENDS += \
     designer

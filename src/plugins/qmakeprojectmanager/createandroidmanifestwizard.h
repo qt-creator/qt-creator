@@ -40,7 +40,7 @@ QT_END_NAMESPACE
 namespace ProjectExplorer { class Target; }
 namespace QmakeProjectManager { class QmakeProFileNode; }
 
-namespace Android {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class CreateAndroidManifestWizard;
@@ -104,7 +104,8 @@ private:
     QmakeProjectManager::QmakeProFileNode *m_node;
     QString m_directory;
 };
-}
-}
+
+} //namespace QmakeProjectManager
+} //namespace Internal
 
 #endif // CREATEANDROIDMANIFESTWIZARD_H
