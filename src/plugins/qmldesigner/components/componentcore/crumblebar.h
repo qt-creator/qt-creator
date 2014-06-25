@@ -54,6 +54,7 @@ private slots:
 
 private:
     void updateVisibility();
+    void showSaveDialog();
 
 private:
     bool m_isInternalCalled;

@@ -33,6 +33,8 @@
 
 #include <nodeabstractproperty.h>
 
+#include <coreplugin/documentmanager.h>
+
 #include <QVariant>
 #include <QtDebug>
 
@@ -129,6 +131,27 @@ Utils::CrumblePath *CrumbleBar::crumblePath()
     return m_crumblePath;
 }
 
+void CrumbleBar::showSaveDialog()
+{
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+
+    if (settings.alwaysSaveInCrumbleBar) {
+        Core::DocumentManager::saveModifiedDocumentSilently(currentDesignDocument()->editor()->document());
+    } else {
+        bool alwaysSave;
+        bool canceled;
+
+        Core::DocumentManager::saveModifiedDocument(currentDesignDocument()->editor()->document(),
+                                                    tr("Save the changes to preview them correctly."),
+                                                    &canceled,
+                                                    tr("Always save when leaving subcomponent"),
+                                                    &alwaysSave);
+
+        settings.alwaysSaveInCrumbleBar = alwaysSave;
+        QmlDesignerPlugin::instance()->setSettings(settings);
+    }
+}
+
 void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
 {
     CrumbleBarInfo clickedCrumbleBarInfo = data.value<CrumbleBarInfo>();
@@ -149,6 +172,7 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
         currentDesignDocument()->changeToDocumentModel();
         QmlDesignerPlugin::instance()->viewManager().setComponentViewToMaster();
     } else {
+        showSaveDialog();
         crumblePath()->popElement();
         nextFileIsCalledInternally();
         Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName, Core::Id(),
