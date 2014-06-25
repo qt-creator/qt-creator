@@ -178,7 +178,7 @@ public:
 
         VariableManager::registerFileVariables(PrefixDebugExecutable,
             tr("Debugged executable"),
-            [&]() { return this->m_startParameters.executable; });
+            [this]() { return m_startParameters.executable; });
     }
 
 public slots:

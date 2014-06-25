@@ -117,12 +117,12 @@ void QtSupportPlugin::extensionsInitialized()
 {
     VariableManager::registerVariable(kHostBins,
         tr("Full path to the host bin directory of the current project's Qt version."),
-        []() -> QString { return qmakeProperty("QT_HOST_BINS"); });
+        []() { return qmakeProperty("QT_HOST_BINS"); });
 
     VariableManager::registerVariable(kInstallBins,
         tr("Full path to the target bin directory of the current project's Qt version."
            " You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)),
-        []() -> QString { return qmakeProperty("QT_INSTALL_BINS"); });
+        []() { return qmakeProperty("QT_INSTALL_BINS"); });
 }
 
 bool QtSupportPlugin::delayedInitialize()

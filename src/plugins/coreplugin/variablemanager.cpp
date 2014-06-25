@@ -254,7 +254,7 @@ void VariableManager::registerIntVariable(const QByteArray &variable,
     const QString &description, const VariableManager::IntFunction &value)
 {
     registerVariable(variable, description,
-        [=]() -> QString { return QString::number(value ? value() : 0); });
+        [value]() { return QString::number(value ? value() : 0); });
 }
 
 /*!
@@ -270,19 +270,19 @@ void VariableManager::registerFileVariables(const QByteArray &prefix,
 {
     registerVariable(prefix + kFilePathPostfix,
          QCoreApplication::translate("Core::VariableManager", "%1: Full path including file name.").arg(heading),
-         [=]() -> QString { return QFileInfo(base()).filePath(); });
+         [base]() { return QFileInfo(base()).filePath(); });
 
     registerVariable(prefix + kPathPostfix,
          QCoreApplication::translate("Core::VariableManager", "%1: Full path excluding file name.").arg(heading),
-         [=]() -> QString { return QFileInfo(base()).path(); });
+         [base]() { return QFileInfo(base()).path(); });
 
     registerVariable(prefix + kFileNamePostfix,
          QCoreApplication::translate("Core::VariableManager", "%1: File name without path.").arg(heading),
-         [=]() -> QString { return QFileInfo(base()).fileName(); });
+         [base]() { return QFileInfo(base()).fileName(); });
 
     registerVariable(prefix + kFileBaseNamePostfix,
          QCoreApplication::translate("Core::VariableManager", "%1: File base name without path and suffix.").arg(heading),
-         [=]() -> QString { return QFileInfo(base()).baseName(); });
+         [base]() { return QFileInfo(base()).baseName(); });
 }
 
 /*!

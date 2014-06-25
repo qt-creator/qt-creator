@@ -26,10 +26,11 @@ Project {
         property bool installApiHeaders: false
         property string libInstallDir: project.ide_library_path
         property stringList libRPaths:  qbs.targetOS.contains("osx")
-            ? ["@loader_path/.."] : ["$ORIGIN/..", "$ORIGIN/../" + project.ide_library_path]
+            ? ["@loader_path/" + FileInfo.relativePath(appInstallDir, libInstallDir)]
+            : ["$ORIGIN/..", "$ORIGIN/../" + project.ide_library_path]
         property string resourcesInstallDir: project.ide_data_path + "/qbs"
         property string pluginsInstallDir: project.libDirName + "/qtcreator"
-        property string appInstallDir: project.ide_libexec_path
+        property string appInstallDir: project.ide_bin_path
         property string relativePluginsPath: FileInfo.relativePath(appInstallDir, pluginsInstallDir)
         property string relativeSearchPath: FileInfo.relativePath(appInstallDir,
                                                                   resourcesInstallDir)
