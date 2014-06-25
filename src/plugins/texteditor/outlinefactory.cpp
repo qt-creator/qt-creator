@@ -138,7 +138,7 @@ void OutlineWidgetStack::updateFilterMenu()
             m_filterMenu->addAction(filterAction);
         }
     }
-    m_filterButton->setEnabled(!m_filterMenu->actions().isEmpty());
+    m_filterButton->setVisible(!m_filterMenu->actions().isEmpty());
 }
 
 void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
