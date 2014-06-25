@@ -249,12 +249,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Controls.Frame"
-        icon: ":/desktopplugin//images/window16.png"
+        icon: ":/componentsplugin//images/window16.png"
 
         ItemLibraryEntry {
             name: "Frame"
             category: "Qt Quick - Controls"
-            libraryIcon: ":/desktopplugin/images/window.png"
+            libraryIcon: ":/componentsplugin/images/window.png"
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
@@ -265,12 +265,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Controls.ToolButton"
-        icon: ":/desktopplugin/images/button16.png"
+        icon: ":/componentsplugin/images/button16.png"
 
         ItemLibraryEntry {
             name: "Tool Button"
             category: "Qt Quick - Controls"
-            libraryIcon: ":/desktopplugin/images/button.png"
+            libraryIcon: ":/componentsplugin/images/button.png"
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
@@ -281,12 +281,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Controls.ToolBar"
-        icon: ":/desktopplugin/images/toolbar16.png"
+        icon: ":/componentsplugin/images/toolbar16.png"
 
         ItemLibraryEntry {
             name: "Tool Bar"
             category: "Qt Quick - Controls"
-            libraryIcon: ":/desktopplugin/images/toolbar.png"
+            libraryIcon: ":/componentsplugin/images/toolbar.png"
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
@@ -297,12 +297,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Controls.StatusBar"
-        icon: ":/desktopplugin/images/toolbar16.png"
+        icon: ":/componentsplugin/images/toolbar16.png"
 
         ItemLibraryEntry {
             name: "Status Bar"
             category: "Qt Quick - Controls"
-            libraryIcon: ":/desktopplugin/images/toolbar.png"
+            libraryIcon: ":/componentsplugin/images/toolbar.png"
             version: "1.0"
             requiredImport: "QtQuick.Controls"
         }
@@ -310,12 +310,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.Controls.Dial"
-        //icon: ":/desktopplugin/images/progressbar16.png"
+        //icon: ":/componentsplugin/images/progressbar16.png"
 
         ItemLibraryEntry {
             name: "Dial"
             category: "Qt Quick - Controls"
-            //libraryIcon: ":/desktopplugin/images/progressbar.png"
+            //libraryIcon: ":/componentsplugin/images/progressbar.png"
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
