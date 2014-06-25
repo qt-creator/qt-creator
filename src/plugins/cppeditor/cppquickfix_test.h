@@ -76,7 +76,8 @@ public:
                      CppQuickFixFactory *factory,
                      const CppTools::ProjectPart::HeaderPaths &includePaths =
                             CppTools::ProjectPart::HeaderPaths(),
-                     int resultIndex = 0);
+                     int resultIndex = 0,
+                     const QByteArray &expectedFailMessage = QByteArray());
     ~QuickFixTestCase();
 
     static void run(const QList<QuickFixTestDocument::Ptr> &theTestFiles,

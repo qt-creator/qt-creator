@@ -124,7 +124,8 @@ static QString &removeTrailingWhitespace(QString &input)
 QuickFixTestCase::QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
                                    CppQuickFixFactory *factory,
                                    const ProjectPart::HeaderPaths &headerPaths,
-                                   int resultIndex)
+                                   int resultIndex,
+                                   const QByteArray &expectedFailMessage)
     : m_testFiles(theTestFiles)
     , m_cppCodeStylePreferences(0)
     , m_restoreHeaderPaths(false)
@@ -196,6 +197,8 @@ QuickFixTestCase::QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTe
         // Check
         QString result = testFile->m_editorWidget->document()->toPlainText();
         removeTrailingWhitespace(result);
+        if (!expectedFailMessage.isEmpty())
+            QEXPECT_FAIL("", expectedFailMessage.data(), Continue);
         QCOMPARE(result, testFile->m_expectedSource);
 
         // Undo the change
@@ -3007,6 +3010,39 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2
     QuickFixTestCase(singleDocument(original, expected), &factory);
 }
 
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_macroUses()
+{
+    QByteArray original =
+        "#define CONST const\n"
+        "#define VOLATILE volatile\n"
+        "class Foo\n"
+        "{\n"
+        "    int fu@nc(int a, int b) CONST VOLATILE\n"
+        "    {\n"
+        "        return 42;\n"
+        "    }\n"
+        "};\n";
+    QByteArray expected =
+        "#define CONST const\n"
+        "#define VOLATILE volatile\n"
+        "class Foo\n"
+        "{\n"
+        "    int func(int a, int b) CONST VOLATILE;\n"
+        "};\n"
+        "\n"
+        "\n"
+        // const volatile become lowercase: QTCREATORBUG-12620
+        "int Foo::func(int a, int b) const volatile\n"
+        "{\n"
+        "    return 42;\n"
+        "}\n"
+       ;
+
+    MoveFuncDefOutside factory;
+    QuickFixTestCase(singleDocument(original, expected), &factory,
+                     ProjectPart::HeaderPaths(), 0, "QTCREATORBUG-12314");
+}
+
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
 void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
 {
@@ -3308,6 +3344,37 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable
 
     MoveFuncDefToDecl factory;
     QuickFixTestCase(singleDocument(original, expected), &factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_macroUses()
+{
+    QByteArray original =
+        "#define CONST const\n"
+        "#define VOLATILE volatile\n"
+        "class Foo\n"
+        "{\n"
+        "    int func(int a, int b) CONST VOLATILE;\n"
+        "};\n"
+        "\n"
+        "\n"
+        "int Foo::fu@nc(int a, int b) CONST VOLATILE"
+        "{\n"
+        "    return 42;\n"
+        "}\n";
+    QByteArray expected =
+        "#define CONST const\n"
+        "#define VOLATILE volatile\n"
+        "class Foo\n"
+        "{\n"
+        "    int func(int a, int b) CONST VOLATILE\n"
+        "    {\n"
+        "        return 42;\n"
+        "    }\n"
+        "};\n\n\n\n";
+
+    MoveFuncDefToDecl factory;
+    QuickFixTestCase(singleDocument(original, expected), &factory,
+                     ProjectPart::HeaderPaths(), 0, "QTCREATORBUG-12314");
 }
 
 void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
