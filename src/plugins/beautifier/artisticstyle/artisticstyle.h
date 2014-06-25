@@ -38,6 +38,9 @@ QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Beautifier {
 namespace Internal {
+
+class BeautifierPlugin;
+
 namespace ArtisticStyle {
 
 class ArtisticStyleSettings;
@@ -47,7 +50,7 @@ class ArtisticStyle : public BeautifierAbstractTool
     Q_OBJECT
 
 public:
-    explicit ArtisticStyle(QObject *parent = 0);
+    explicit ArtisticStyle(BeautifierPlugin *parent = 0);
     virtual ~ArtisticStyle();
     bool initialize() QTC_OVERRIDE;
     void updateActions(Core::IEditor *editor) QTC_OVERRIDE;
@@ -57,6 +60,7 @@ private slots:
     void formatFile();
 
 private:
+    BeautifierPlugin *m_beautifierPlugin;
     QAction *m_formatFile;
     ArtisticStyleSettings *m_settings;
 };

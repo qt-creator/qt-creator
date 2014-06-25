@@ -56,8 +56,9 @@ namespace Beautifier {
 namespace Internal {
 namespace ClangFormat {
 
-ClangFormat::ClangFormat(QObject *parent) :
+ClangFormat::ClangFormat(BeautifierPlugin *parent) :
     BeautifierAbstractTool(parent),
+    m_beautifierPlugin(parent),
     m_settings(new ClangFormatSettings)
 {
 }
@@ -107,7 +108,7 @@ QList<QObject *> ClangFormat::autoReleaseObjects()
 
 void ClangFormat::formatFile()
 {
-    BeautifierPlugin::formatCurrentFile(command());
+    m_beautifierPlugin->formatCurrentFile(command());
 }
 
 void ClangFormat::formatSelectedText()
@@ -121,7 +122,7 @@ void ClangFormat::formatSelectedText()
     if (tc.hasSelection()) {
         const int offset = tc.selectionStart();
         const int length = tc.selectionEnd() - offset;
-        BeautifierPlugin::formatCurrentFile(command(offset, length));
+        m_beautifierPlugin->formatCurrentFile(command(offset, length));
     } else if (m_settings->formatEntireFileFallback()) {
         formatFile();
     }

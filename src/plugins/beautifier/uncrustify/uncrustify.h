@@ -38,6 +38,9 @@ QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Beautifier {
 namespace Internal {
+
+class BeautifierPlugin;
+
 namespace Uncrustify {
 
 class UncrustifySettings;
@@ -47,7 +50,7 @@ class Uncrustify : public BeautifierAbstractTool
     Q_OBJECT
 
 public:
-    explicit Uncrustify(QObject *parent = 0);
+    explicit Uncrustify(BeautifierPlugin *parent = 0);
     virtual ~Uncrustify();
     bool initialize() QTC_OVERRIDE;
     void updateActions(Core::IEditor *editor) QTC_OVERRIDE;
@@ -57,6 +60,7 @@ private slots:
     void formatFile();
 
 private:
+    BeautifierPlugin *m_beautifierPlugin;
     QAction *m_formatFile;
     UncrustifySettings *m_settings;
 };

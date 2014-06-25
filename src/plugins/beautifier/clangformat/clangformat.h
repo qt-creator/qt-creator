@@ -39,6 +39,9 @@ QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Beautifier {
 namespace Internal {
+
+class BeautifierPlugin;
+
 namespace ClangFormat {
 
 class ClangFormatSettings;
@@ -48,7 +51,7 @@ class ClangFormat : public BeautifierAbstractTool
     Q_OBJECT
 
 public:
-    explicit ClangFormat(QObject *parent = 0);
+    explicit ClangFormat(BeautifierPlugin *parent = 0);
     virtual ~ClangFormat();
     bool initialize() QTC_OVERRIDE;
     void updateActions(Core::IEditor *editor) QTC_OVERRIDE;
@@ -59,6 +62,7 @@ private slots:
     void formatSelectedText();
 
 private:
+    BeautifierPlugin *m_beautifierPlugin;
     QAction *m_formatFile;
     QAction *m_formatRange;
     ClangFormatSettings *m_settings;

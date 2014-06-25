@@ -59,8 +59,9 @@ namespace Beautifier {
 namespace Internal {
 namespace Uncrustify {
 
-Uncrustify::Uncrustify(QObject *parent) :
+Uncrustify::Uncrustify(BeautifierPlugin *parent) :
     BeautifierAbstractTool(parent),
+    m_beautifierPlugin(parent),
     m_settings(new UncrustifySettings)
 {
 }
@@ -142,7 +143,7 @@ void Uncrustify::formatFile()
         command.addOption(QLatin1String("1-2"));
         command.addOption(QLatin1String("-c"));
         command.addOption(cfgFileName);
-        BeautifierPlugin::formatCurrentFile(command);
+        m_beautifierPlugin->formatCurrentFile(command);
     }
 }
 
