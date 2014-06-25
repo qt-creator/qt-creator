@@ -64,8 +64,8 @@
 #include <utils/tooltip/tipcontents.h>
 #include <utils/tooltip/tooltip.h>
 
-static const int FILE_LEVEL = 1;
-static const int CHUNK_LEVEL = 2;
+//static const int FILE_LEVEL = 1;
+//static const int CHUNK_LEVEL = 2;
 
 using namespace Core;
 using namespace TextEditor;
