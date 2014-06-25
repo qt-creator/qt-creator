@@ -144,6 +144,7 @@ tmp/
 /tests/auto/cplusplus/checksymbols/tst_checksymbols
 /tests/auto/cplusplus/codegen/tst_codegen
 /tests/auto/cplusplus/cxx11/tst_cxx11
+/tests/auto/cplusplus/cxx11/tst_c99
 /tests/auto/cplusplus/lexer/tst_lexer
 /tests/auto/cplusplus/misc/tst_misc
 /tests/auto/cplusplus/simplifytypes/tst_simplifytypes
