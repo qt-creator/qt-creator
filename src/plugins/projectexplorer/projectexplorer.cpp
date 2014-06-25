@@ -1049,7 +1049,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     VariableManager::registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
         tr("Current project's main file"),
-        []() -> QString {
+        [&]() -> QString {
             QString projectFilePath;
             if (Project *project = ProjectExplorerPlugin::currentProject())
                 if (IDocument *doc = project->document())
@@ -1103,7 +1103,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
         tr("The currently active build configuration's type."),
-        []() -> QString {
+        [&]() -> QString {
             if (BuildConfiguration *bc = activeBuildConfiguration()) {
                 BuildConfiguration::BuildType type = bc->buildType();
                 if (type == BuildConfiguration::Debug)
