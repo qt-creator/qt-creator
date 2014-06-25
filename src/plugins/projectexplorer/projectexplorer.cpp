@@ -1049,7 +1049,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     VariableManager::registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
         tr("Current project's main file"),
-        [&]() -> QString {
+        [this]() -> QString {
             QString projectFilePath;
             if (Project *project = ProjectExplorerPlugin::currentProject())
                 if (IDocument *doc = project->document())

@@ -71,7 +71,7 @@ private slots:
     void updateBackMenu();
     void updateForwardMenu();
     void updateWindowTitle();
-    void emitOpenHelpMode();
+    void helpModeButtonClicked();
 
 private:
     QMenu *m_backMenu;
@@ -83,6 +83,7 @@ private:
     QAction *m_copy;
 
     HelpViewer *m_viewer;
+    WidgetStyle m_style;
 };
 
 } // Internal

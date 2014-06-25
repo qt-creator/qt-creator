@@ -68,11 +68,6 @@ static const char currentPageSettingsKeyC[] = "WelcomeTab";
 namespace Welcome {
 namespace Internal {
 
-struct WelcomeModePrivate
-{
-
-};
-
 class WelcomeMode : public Core::IMode
 {
     Q_OBJECT
