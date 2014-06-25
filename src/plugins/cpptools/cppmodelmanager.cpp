@@ -172,7 +172,7 @@ QStringList CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr> &
 CppSourceProcessor *CppModelManager::createSourceProcessor()
 {
     CppModelManager *that = instance();
-    return new CppSourceProcessor(that->snapshot(), [=](const Document::Ptr &doc) {
+    return new CppSourceProcessor(that->snapshot(), [that](const Document::Ptr &doc) {
         that->emitDocumentUpdated(doc);
         doc->releaseSourceAndAST();
     });
