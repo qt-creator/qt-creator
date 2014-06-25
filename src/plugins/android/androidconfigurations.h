@@ -147,7 +147,7 @@ public:
     bool startAVDAsync(const QString &avdName) const;
     QString findAvd(int apiLevel, const QString &cpuAbi) const;
     QString waitForAvd(int apiLevel, const QString &cpuAbi, const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
-    QString bestNdkPlatformMatch(const QString &targetAPI) const;
+    QString bestNdkPlatformMatch(int target) const;
 
     static ProjectExplorer::Abi::Architecture architectureForToolChainPrefix(const QString &toolchainprefix);
     static QLatin1String toolchainPrefix(ProjectExplorer::Abi::Architecture architecture);

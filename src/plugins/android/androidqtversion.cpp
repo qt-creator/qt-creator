@@ -122,7 +122,7 @@ void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::En
         return;
 
     env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
-            AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::buildTargetSDK(target)));
+            AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target)));
 }
 
 Utils::Environment AndroidQtVersion::qmakeRunEnvironment() const
