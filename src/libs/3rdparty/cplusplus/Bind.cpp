@@ -1108,7 +1108,7 @@ void Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
         type = this->specifier(it->value, type);
     }
     // unsigned mutable_token = ast->mutable_token;
-    type = this->exceptionSpecification(ast->exception_specification, type);
+    _type = this->exceptionSpecification(ast->exception_specification, type);
 }
 
 bool Bind::visit(TrailingReturnTypeAST *ast)
