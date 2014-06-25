@@ -338,27 +338,32 @@ bool CMakeProject::parseCMakeLists()
         CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
         pinfo.clearProjectParts();
 
-        CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
+        typedef CppTools::ProjectPart ProjectPart;
+        ProjectPart::Ptr part(new ProjectPart);
         part->project = this;
         part->displayName = displayName();
         part->projectFile = projectFilePath().toString();
 
         // This explicitly adds -I. to the include paths
-        part->includePaths += projectDirectory().toString();
+        part->headerPaths += ProjectPart::HeaderPath(projectDirectory().toString(),
+                                                     ProjectPart::HeaderPath::IncludePath);
 
         foreach (const QString &includeFile, cbpparser.includeFiles()) {
+            ProjectPart::HeaderPath hp(includeFile, ProjectPart::HeaderPath::IncludePath);
+
             // CodeBlocks is utterly ignorant of frameworks on Mac, and won't report framework
             // paths. The work-around is to check if the include path ends in ".framework", and
             // if so, add the parent directory as framework path.
             if (includeFile.endsWith(QLatin1String(".framework"))) {
                 const int slashIdx = includeFile.lastIndexOf(QLatin1Char('/'));
                 if (slashIdx != -1) {
-                    part->frameworkPaths += includeFile.left(slashIdx);
+                    hp = ProjectPart::HeaderPath(includeFile.left(slashIdx),
+                                                 ProjectPart::HeaderPath::FrameworkPath);
                     continue;
                 }
             }
 
-            part->includePaths += includeFile;
+            part->headerPaths += hp;
         }
 
         part->projectDefines += cbpparser.defines();

@@ -40,8 +40,7 @@ public:
 
     void setRevision(unsigned revision);
     void setWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy);
-    void setIncludePaths(const QStringList &includePaths);
-    void setFrameworkPaths(const QStringList &frameworkPaths);
+    void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
     void setTodo(const QStringList &files);
 
     void run(const QString &fileName);
@@ -54,7 +53,7 @@ public:
     void setGlobalSnapshot(const CPlusPlus::Snapshot &snapshot) { m_globalSnapshot = snapshot; }
 
 private:
-    void addFrameworkPath(const QString &frameworkPath);
+    void addFrameworkPath(const ProjectPart::HeaderPath &frameworkPath);
 
     CPlusPlus::Document::Ptr switchCurrentDocument(CPlusPlus::Document::Ptr doc);
 
@@ -90,9 +89,8 @@ private:
     bool m_dumpFileNameWhileParsing;
     CPlusPlus::Environment m_env;
     CPlusPlus::Preprocessor m_preprocess;
-    QStringList m_includePaths;
+    ProjectPart::HeaderPaths m_headerPaths;
     CppTools::CppModelManagerInterface::WorkingCopy m_workingCopy;
-    QStringList m_frameworkPaths;
     QSet<QString> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;
     QSet<QString> m_todo;

@@ -413,6 +413,18 @@ QString Utils::pathListToString(const QStringList &pathList)
     return result.join(QLatin1String("\n"));
 }
 
+QString Utils::pathListToString(const ProjectPart::HeaderPaths &pathList)
+{
+    QStringList result;
+    foreach (const ProjectPart::HeaderPath &path, pathList) {
+        result << QString(QLatin1String("%1 (%2 path)")).arg(
+                      QDir::toNativeSeparators(path.path),
+                      path.isFrameworkPath() ? QLatin1String("framework") : QLatin1String("include")
+                      );
+    }
+    return result.join(QLatin1String("\n"));
+}
+
 QList<CPlusPlus::Document::Ptr> Utils::snapshotToList(const CPlusPlus::Snapshot &snapshot)
 {
     QList<CPlusPlus::Document::Ptr> documents;
@@ -511,16 +523,14 @@ void Dumper::dumpProjectInfos( const QList<CppModelManagerInterface::ProjectInfo
                     m_out << i4 << defineLine << "\n";
             }
 
-            if (!part->includePaths.isEmpty()) {
-                m_out << i3 << "Include Paths:{{{4\n";
-                foreach (const QString &includePath, part->includePaths)
-                    m_out << i4 << includePath << "\n";
-            }
-
-            if (!part->frameworkPaths.isEmpty()) {
-                m_out << i3 << "Framework Paths:{{{4\n";
-                foreach (const QString &frameworkPath, part->frameworkPaths)
-                    m_out << i4 << frameworkPath << "\n";
+            if (!part->headerPaths.isEmpty()) {
+                m_out << i3 << "Header Paths:{{{4\n";
+                foreach (const ProjectPart::HeaderPath &headerPath, part->headerPaths)
+                    m_out << i4 << headerPath.path
+                          << (headerPath.type == ProjectPart::HeaderPath::IncludePath
+                              ? "(include path)"
+                              : "(framework path)")
+                          << "\n";
             }
 
             if (!part->precompiledHeaders.isEmpty()) {
@@ -582,18 +592,18 @@ void Dumper::dumpWorkingCopy(const CppModelManagerInterface::WorkingCopy &workin
     }
 }
 
-void Dumper::dumpMergedEntities(const QStringList &mergedIncludePaths,
-                                const QStringList &mergedFrameworkPaths,
+void Dumper::dumpMergedEntities(const ProjectPart::HeaderPaths &mergedHeaderPaths,
                                 const QByteArray &mergedMacros)
 {
     m_out << "Merged Entities{{{1\n";
     const QByteArray i2 = indent(2);
     const QByteArray i3 = indent(3);
 
-    m_out << i2 << "Merged Include Paths{{{2\n";
-    dumpStringList(mergedIncludePaths, i3);
-    m_out << i2 << "Merged Framework Paths{{{2\n";
-    dumpStringList(mergedFrameworkPaths, i3);
+    m_out << i2 << "Merged Header Paths{{{2\n";
+    foreach (const ProjectPart::HeaderPath &hp, mergedHeaderPaths)
+        m_out << i3 << hp.path
+              << (hp.isFrameworkPath() ? " (framework path)" : " (include path)")
+              << "\n";
     m_out << i2 << "Merged Defines{{{2\n";
     m_out << mergedMacros;
 }

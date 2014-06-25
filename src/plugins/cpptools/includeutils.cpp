@@ -518,7 +518,10 @@ static QList<Include> includesForSource(const QByteArray &source)
     CppModelManager *cmm = CppModelManager::instance();
     cmm->GC();
     QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
-    sourceProcessor->setIncludePaths(QStringList(TestIncludePaths::globalIncludePath()));
+    sourceProcessor->setHeaderPaths(ProjectPart::HeaderPaths()
+                                    << ProjectPart::HeaderPath(
+                                        TestIncludePaths::globalIncludePath(),
+                                        ProjectPart::HeaderPath::IncludePath));
     sourceProcessor->run(fileName);
 
     Document::Ptr document = cmm->document(fileName);

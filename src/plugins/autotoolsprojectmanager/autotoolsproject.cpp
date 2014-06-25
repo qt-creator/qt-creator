@@ -427,7 +427,10 @@ void AutotoolsProject::updateCppCodeModel()
     foreach (const QString &file, m_files)
         part->files << CppTools::ProjectFile(file, CppTools::ProjectFile::CXXSource);
 
-    part->includePaths += m_makefileParserThread->includePaths();
+    foreach (const QString &inc, m_makefileParserThread->includePaths()) {
+        part->headerPaths += CppTools::ProjectPart::HeaderPath(
+                    inc, CppTools::ProjectPart::HeaderPath::IncludePath);
+    }
     part->projectDefines += m_makefileParserThread->defines();
     pinfo.appendProjectPart(part);
 

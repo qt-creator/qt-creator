@@ -520,22 +520,27 @@ void QmakeProject::updateCppCodeModel()
         // part->defines
         part->projectDefines += pro->cxxDefines();
 
-        // part->includePaths, part->frameworkPaths
-        part->includePaths.append(pro->variableValue(IncludePathVar));
+        // part->headerPaths
+        foreach (const QString &inc, pro->variableValue(IncludePathVar))
+            part->headerPaths += ProjectPart::HeaderPath(inc, ProjectPart::HeaderPath::IncludePath);
 
         if (qtVersion) {
             foreach (const HeaderPath &header, qtVersion->systemHeaderPathes(k)) {
+                ProjectPart::HeaderPath::Type type = ProjectPart::HeaderPath::IncludePath;
                 if (header.kind() == HeaderPath::FrameworkHeaderPath)
-                    part->frameworkPaths.append(header.path());
-                else
-                    part->includePaths.append(header.path());
+                    type = ProjectPart::HeaderPath::FrameworkPath;
+                part->headerPaths += ProjectPart::HeaderPath(header.path(), type);
             }
-            if (!qtVersion->frameworkInstallPath().isEmpty())
-                part->frameworkPaths.append(qtVersion->frameworkInstallPath());
+            if (!qtVersion->frameworkInstallPath().isEmpty()) {
+                part->headerPaths += ProjectPart::HeaderPath(
+                            qtVersion->frameworkInstallPath(),
+                            ProjectPart::HeaderPath::FrameworkPath);
+            }
         }
 
         if (QmakeProFileNode *node = rootQmakeProjectNode())
-            part->includePaths.append(node->resolvedMkspecPath());
+            part->headerPaths += ProjectPart::HeaderPath(node->resolvedMkspecPath(),
+                                                         ProjectPart::HeaderPath::IncludePath);
 
         // part->precompiledHeaders
         part->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));

@@ -6,6 +6,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
 
 #include <QCoreApplication>
@@ -98,36 +99,18 @@ void CppSourceProcessor::setRevision(unsigned revision)
 void CppSourceProcessor::setWorkingCopy(const CppModelManagerInterface::WorkingCopy &workingCopy)
 { m_workingCopy = workingCopy; }
 
-void CppSourceProcessor::setIncludePaths(const QStringList &includePaths)
+void CppSourceProcessor::setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)
 {
-    m_includePaths.clear();
+    m_headerPaths.clear();
 
-    for (int i = 0; i < includePaths.size(); ++i) {
-        const QString &path = includePaths.at(i);
+    for (int i = 0, ei = headerPaths.size(); i < ei; ++i) {
+        const ProjectPart::HeaderPath &path = headerPaths.at(i);
 
-        if (Utils::HostOsInfo::isMacHost()) {
-            if (i + 1 < includePaths.size() && path.endsWith(QLatin1String(".framework/Headers"))) {
-                const QFileInfo pathInfo(path);
-                const QFileInfo frameworkFileInfo(pathInfo.path());
-                const QString frameworkName = frameworkFileInfo.baseName();
-
-                const QFileInfo nextIncludePath = includePaths.at(i + 1);
-                if (nextIncludePath.fileName() == frameworkName) {
-                    // We got a QtXXX.framework/Headers followed by $QTDIR/include/QtXXX.
-                    // In this case we prefer to include files from $QTDIR/include/QtXXX.
-                    continue;
-                }
-            }
-        }
-        m_includePaths.append(cleanPath(path));
+        if (path.type == ProjectPart::HeaderPath::IncludePath)
+            m_headerPaths.append(ProjectPart::HeaderPath(cleanPath(path.path), path.type));
+        else
+            addFrameworkPath(path);
     }
-}
-
-void CppSourceProcessor::setFrameworkPaths(const QStringList &frameworkPaths)
-{
-    m_frameworkPaths.clear();
-    foreach (const QString &frameworkPath, frameworkPaths)
-        addFrameworkPath(frameworkPath);
 }
 
 // Add the given framework path, and expand private frameworks.
@@ -137,16 +120,19 @@ void CppSourceProcessor::setFrameworkPaths(const QStringList &frameworkPaths)
 // has private frameworks in:
 //  <framework-path>/ApplicationServices.framework/Frameworks
 // if the "Frameworks" folder exists inside the top level framework.
-void CppSourceProcessor::addFrameworkPath(const QString &frameworkPath)
+void CppSourceProcessor::addFrameworkPath(const ProjectPart::HeaderPath &frameworkPath)
 {
+    QTC_ASSERT(frameworkPath.isFrameworkPath(), return);
+
     // The algorithm below is a bit too eager, but that's because we're not getting
     // in the frameworks we're linking against. If we would have that, then we could
     // add only those private frameworks.
-    const QString cleanFrameworkPath = cleanPath(frameworkPath);
-    if (!m_frameworkPaths.contains(cleanFrameworkPath))
-        m_frameworkPaths.append(cleanFrameworkPath);
+    const ProjectPart::HeaderPath cleanFrameworkPath(cleanPath(frameworkPath.path),
+                                                     frameworkPath.type);
+    if (!m_headerPaths.contains(cleanFrameworkPath))
+        m_headerPaths.append(cleanFrameworkPath);
 
-    const QDir frameworkDir(cleanFrameworkPath);
+    const QDir frameworkDir(cleanFrameworkPath.path);
     const QStringList filter = QStringList() << QLatin1String("*.framework");
     foreach (const QFileInfo &framework, frameworkDir.entryInfoList(filter)) {
         if (!framework.isDir())
@@ -154,7 +140,8 @@ void CppSourceProcessor::addFrameworkPath(const QString &frameworkPath)
         const QFileInfo privateFrameworks(framework.absoluteFilePath(),
                                           QLatin1String("Frameworks"));
         if (privateFrameworks.exists() && privateFrameworks.isDir())
-            addFrameworkPath(privateFrameworks.absoluteFilePath());
+            addFrameworkPath(ProjectPart::HeaderPath(privateFrameworks.absoluteFilePath(),
+                                                     frameworkPath.type));
     }
 }
 
@@ -259,8 +246,10 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName, IncludeT
         // searching as if this would be a global include.
     }
 
-    foreach (const QString &includePath, m_includePaths) {
-        const QString path = includePath + fileName;
+    foreach (const ProjectPart::HeaderPath &headerPath, m_headerPaths) {
+        if (headerPath.isFrameworkPath())
+            continue;
+        const QString path = headerPath.path + fileName;
         if (m_workingCopy.contains(path) || checkFile(path))
             return path;
     }
@@ -271,8 +260,10 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName, IncludeT
         const QString name = frameworkName + QLatin1String(".framework/Headers/")
             + fileName.mid(index + 1);
 
-        foreach (const QString &frameworkPath, m_frameworkPaths) {
-            const QString path = frameworkPath + name;
+        foreach (const ProjectPart::HeaderPath &headerPath, m_headerPaths) {
+            if (!headerPath.isFrameworkPath())
+                continue;
+            const QString path = headerPath.path + name;
             if (checkFile(path))
                 return path;
         }

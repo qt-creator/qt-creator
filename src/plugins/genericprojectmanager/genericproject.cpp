@@ -246,7 +246,9 @@ void GenericProject::refresh(RefreshOptions options)
         part->displayName = displayName();
         part->projectFile = projectFilePath().toString();
 
-        part->includePaths += projectIncludePaths();
+        foreach (const QString &inc, projectIncludePaths())
+            part->headerPaths += CppTools::ProjectPart::HeaderPath(
+                        inc, CppTools::ProjectPart::HeaderPath::IncludePath);
 
         Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::defaultKit();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {

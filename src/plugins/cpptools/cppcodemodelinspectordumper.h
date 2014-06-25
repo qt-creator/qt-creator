@@ -58,6 +58,7 @@ struct CPPTOOLS_EXPORT Utils
     static QString partsForFile(const QString &fileName);
     static QString unresolvedFileNameWithDelimiters(const CPlusPlus::Document::Include &include);
     static QString pathListToString(const QStringList &pathList);
+    static QString pathListToString(const ProjectPart::HeaderPaths &pathList);
     static QList<CPlusPlus::Document::Ptr> snapshotToList(const CPlusPlus::Snapshot &snapshot);
 };
 
@@ -73,8 +74,7 @@ public:
                       const QString &title,
                       bool isGlobalSnapshot = false);
     void dumpWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy);
-    void dumpMergedEntities(const QStringList &mergedIncludePaths,
-                            const QStringList &mergedFrameworkPaths,
+    void dumpMergedEntities(const ProjectPart::HeaderPaths &mergedHeaderPaths,
                             const QByteArray &mergedMacros);
 
 private:

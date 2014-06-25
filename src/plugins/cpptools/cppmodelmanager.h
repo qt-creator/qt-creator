@@ -128,22 +128,16 @@ public:
         return m_projectFiles;
     }
 
-    QStringList includePaths()
+    ProjectPart::HeaderPaths headerPaths()
     {
         ensureUpdated();
-        return m_includePaths;
+        return m_headerPaths;
     }
 
     // Use this *only* for auto tests
-    void setIncludePaths(const QStringList &includePaths)
+    void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)
     {
-        m_includePaths = includePaths;
-    }
-
-    QStringList frameworkPaths()
-    {
-        ensureUpdated();
-        return m_frameworkPaths;
+        m_headerPaths = headerPaths;
     }
 
     QByteArray definedMacros()
@@ -187,8 +181,7 @@ private:
 
     void ensureUpdated();
     QStringList internalProjectFiles() const;
-    QStringList internalIncludePaths() const;
-    QStringList internalFrameworkPaths() const;
+    ProjectPart::HeaderPaths internalHeaderPaths() const;
     QByteArray internalDefinedMacros() const;
 
     void dumpModelManagerConfiguration(const QString &logFileId);
@@ -210,8 +203,7 @@ private:
     // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
     QStringList m_projectFiles;
-    QStringList m_includePaths;
-    QStringList m_frameworkPaths;
+    ProjectPart::HeaderPaths m_headerPaths;
     QByteArray m_definedMacros;
 
     // Editor integration

@@ -209,11 +209,20 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
     result << buildDefines(pPart->toolchainDefines, false);
     result << buildDefines(pPart->projectDefines, false);
 
-    foreach (const QString &frameworkPath, pPart->frameworkPaths)
-        result.append(QLatin1String("-F") + frameworkPath);
-    foreach (const QString &inc, pPart->includePaths)
-        if (!inc.isEmpty() && !isBlacklisted(inc))
-            result << (QLatin1String("-I") + inc);
+    typedef ProjectPart::HeaderPath HeaderPath;
+    foreach (const HeaderPath &headerPath , pPart->headerPaths) {
+        if (headerPath.path.isEmpty() || isBlacklisted(headerPath.path))
+            continue;
+
+        QString prefix;
+        switch (headerPath.type) {
+        case HeaderPath::IncludePath: prefix = QLatin1String("-I"); break;
+        case HeaderPath::FrameworkPath: prefix = QLatin1String("-F"); break;
+        default: Q_UNREACHABLE(); break;
+        }
+
+        result.append(prefix + headerPath.path);
+    }
 
 #if 0
     qDebug() << "--- m_args:";

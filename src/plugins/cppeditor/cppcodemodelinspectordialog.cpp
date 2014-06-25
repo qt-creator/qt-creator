@@ -1446,7 +1446,7 @@ void CppCodeModelInspectorDialog::refresh()
     }
 
     // Merged entities
-    dumper.dumpMergedEntities(cmmi->includePaths(), cmmi->frameworkPaths(), cmmi->definedMacros());
+    dumper.dumpMergedEntities(cmmi->headerPaths(), cmmi->definedMacros());
 }
 
 enum DocumentTabs {
@@ -1559,8 +1559,7 @@ enum ProjectPartTabs {
     ProjectPartGeneralTab,
     ProjectPartFilesTab,
     ProjectPartDefinesTab,
-    ProjectPartIncludePathsTab,
-    ProjectPartFrameworkPathsTab,
+    ProjectPartHeaderPathsTab,
     ProjectPartPrecompiledHeadersTab
 };
 
@@ -1570,8 +1569,7 @@ static QString partTabName(int tabIndex, int numberOfEntries = -1)
         "&General",
         "Project &Files",
         "&Defines",
-        "&Include Paths",
-        "F&ramework Paths",
+        "&Header Paths",
         "Pre&compiled Headers"
     };
     QString result = QLatin1String(names[tabIndex]);
@@ -1591,13 +1589,9 @@ void CppCodeModelInspectorDialog::clearProjectPartData()
     m_ui->partProjectDefinesEdit->setPlainText(QString());
     m_ui->projectPartTab->setTabText(ProjectPartDefinesTab, partTabName(ProjectPartDefinesTab));
 
-    m_ui->partIncludePathsEdit->setPlainText(QString());
-    m_ui->projectPartTab->setTabText(ProjectPartIncludePathsTab,
-                                     partTabName(ProjectPartIncludePathsTab));
-
-    m_ui->partFrameworkPathsEdit->setPlainText(QString());
-    m_ui->projectPartTab->setTabText(ProjectPartFrameworkPathsTab,
-                                     partTabName(ProjectPartFrameworkPathsTab));
+    m_ui->partHeaderPathsEdit->setPlainText(QString());
+    m_ui->projectPartTab->setTabText(ProjectPartHeaderPathsTab,
+                                     partTabName(ProjectPartHeaderPathsTab));
 
     m_ui->partPrecompiledHeadersEdit->setPlainText(QString());
     m_ui->projectPartTab->setTabText(ProjectPartPrecompiledHeadersTab,
@@ -1654,15 +1648,10 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
     m_ui->projectPartTab->setTabText(ProjectPartDefinesTab,
         partTabName(ProjectPartDefinesTab, numberOfDefines));
 
-    // Include Paths
-    m_ui->partIncludePathsEdit->setPlainText(CMI::Utils::pathListToString(part->includePaths));
-    m_ui->projectPartTab->setTabText(ProjectPartIncludePathsTab,
-        partTabName(ProjectPartIncludePathsTab, part->includePaths.size()));
-
-    // Framework Paths
-    m_ui->partFrameworkPathsEdit->setPlainText(CMI::Utils::pathListToString(part->frameworkPaths));
-    m_ui->projectPartTab->setTabText(ProjectPartFrameworkPathsTab,
-        partTabName(ProjectPartFrameworkPathsTab, part->frameworkPaths.size()));
+    // Header Paths
+    m_ui->partHeaderPathsEdit->setPlainText(CMI::Utils::pathListToString(part->headerPaths));
+    m_ui->projectPartTab->setTabText(ProjectPartHeaderPathsTab,
+        partTabName(ProjectPartHeaderPathsTab, part->headerPaths.size()));
 
     // Precompiled Headers
     m_ui->partPrecompiledHeadersEdit->setPlainText(

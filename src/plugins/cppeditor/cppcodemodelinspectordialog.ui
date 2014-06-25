@@ -261,25 +261,11 @@
           </widget>
           <widget class="QWidget" name="tab_15">
            <attribute name="title">
-            <string notr="true">&amp;Include Paths</string>
+            <string notr="true">&amp;Header Paths</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_16">
             <item>
-             <widget class="QPlainTextEdit" name="partIncludePathsEdit">
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="definesTab_2">
-           <attribute name="title">
-            <string notr="true">F&amp;ramework Paths</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_17">
-            <item>
-             <widget class="QPlainTextEdit" name="partFrameworkPathsEdit">
+             <widget class="QPlainTextEdit" name="partHeaderPathsEdit">
               <property name="readOnly">
                <bool>true</bool>
               </property>

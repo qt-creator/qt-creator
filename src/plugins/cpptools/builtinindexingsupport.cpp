@@ -51,7 +51,7 @@ static void parse(QFutureInterface<void> &future,
     bool processingHeaders = false;
 
     CppModelManager *cmm = CppModelManager::instance();
-    const QStringList fallbackIncludePaths = cmm->includePaths();
+    const ProjectPart::HeaderPaths fallbackHeaderPaths = cmm->headerPaths();
     for (int i = 0; i < files.size(); ++i) {
         if (future.isPaused())
             future.waitForResume();
@@ -71,10 +71,10 @@ static void parse(QFutureInterface<void> &future,
         }
 
         QList<ProjectPart::Ptr> parts = cmm->projectPart(fileName);
-        QStringList includePaths = parts.isEmpty()
-                ? fallbackIncludePaths
-                : parts.first()->includePaths;
-        sourceProcessor->setIncludePaths(includePaths);
+        ProjectPart::HeaderPaths headerPaths = parts.isEmpty()
+                ? fallbackHeaderPaths
+                : parts.first()->headerPaths;
+        sourceProcessor->setHeaderPaths(headerPaths);
         sourceProcessor->run(fileName);
 
         future.setProgressValue(files.size() - sourceProcessor->todo().size());
@@ -190,8 +190,7 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
     CppSourceProcessor *preproc = CppModelManager::createSourceProcessor();
     preproc->setDumpFileNameWhileParsing(m_dumpFileNameWhileParsing);
     preproc->setRevision(++m_revision);
-    preproc->setIncludePaths(mgr->includePaths());
-    preproc->setFrameworkPaths(mgr->frameworkPaths());
+    preproc->setHeaderPaths(mgr->headerPaths());
     preproc->setWorkingCopy(workingCopy);
 
     QFuture<void> result = QtConcurrent::run(&parse, preproc, sourceFiles);

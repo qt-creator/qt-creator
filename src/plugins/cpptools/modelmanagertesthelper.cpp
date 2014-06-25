@@ -87,8 +87,7 @@ void ModelManagerTestHelper::verifyClean()
     assert(mm);
 
     QVERIFY(mm->projectInfos().isEmpty());
-    QVERIFY(mm->includePaths().isEmpty());
-    QVERIFY(mm->frameworkPaths().isEmpty());
+    QVERIFY(mm->headerPaths().isEmpty());
     QVERIFY(mm->definedMacros().isEmpty());
     QVERIFY(mm->projectFiles().isEmpty());
     QVERIFY(mm->snapshot().isEmpty());

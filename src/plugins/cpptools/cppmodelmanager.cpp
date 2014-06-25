@@ -298,8 +298,7 @@ void CppModelManager::ensureUpdated()
         return;
 
     m_projectFiles = internalProjectFiles();
-    m_includePaths = internalIncludePaths();
-    m_frameworkPaths = internalFrameworkPaths();
+    m_headerPaths = internalHeaderPaths();
     m_definedMacros = internalDefinedMacros();
     m_dirty = false;
 }
@@ -320,34 +319,23 @@ QStringList CppModelManager::internalProjectFiles() const
     return files;
 }
 
-QStringList CppModelManager::internalIncludePaths() const
+ProjectPart::HeaderPaths CppModelManager::internalHeaderPaths() const
 {
-    QStringList includePaths;
+    ProjectPart::HeaderPaths headerPaths;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projectToProjectsInfo);
     while (it.hasNext()) {
         it.next();
         const ProjectInfo pinfo = it.value();
-        foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
-            foreach (const QString &path, part->includePaths)
-                includePaths.append(CppSourceProcessor::cleanPath(path));
+        foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
+            foreach (const ProjectPart::HeaderPath &path, part->headerPaths) {
+                const ProjectPart::HeaderPath hp(CppSourceProcessor::cleanPath(path.path),
+                                                 path.type);
+                if (!headerPaths.contains(hp))
+                    headerPaths += hp;
+            }
+        }
     }
-    includePaths.removeDuplicates();
-    return includePaths;
-}
-
-QStringList CppModelManager::internalFrameworkPaths() const
-{
-    QStringList frameworkPaths;
-    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(m_projectToProjectsInfo);
-    while (it.hasNext()) {
-        it.next();
-        const ProjectInfo pinfo = it.value();
-        foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
-            foreach (const QString &path, part->frameworkPaths)
-                frameworkPaths.append(CppSourceProcessor::cleanPath(path));
-    }
-    frameworkPaths.removeDuplicates();
-    return frameworkPaths;
+    return headerPaths;
 }
 
 static void addUnique(const QList<QByteArray> &defs, QByteArray *macros, QSet<QByteArray> *alreadyIn)
@@ -396,7 +384,7 @@ void CppModelManager::dumpModelManagerConfiguration(const QString &logFileId)
     dumper.dumpSnapshot(globalSnapshot, globalSnapshotTitle, /*isGlobalSnapshot=*/ true);
     dumper.dumpWorkingCopy(workingCopy());
     ensureUpdated();
-    dumper.dumpMergedEntities(m_includePaths, m_frameworkPaths, m_definedMacros);
+    dumper.dumpMergedEntities(m_headerPaths, m_definedMacros);
 }
 
 void CppModelManager::addExtraEditorSupport(AbstractEditorSupport *editorSupport)
@@ -595,8 +583,7 @@ public:
     bool configurationChanged() const
     {
         return definesChanged()
-            || m_new.includePaths() != m_old.includePaths()
-            || m_new.frameworkPaths() != m_old.frameworkPaths();
+            || m_new.headerPaths() != m_old.headerPaths();
     }
 
     bool nothingChanged() const
@@ -761,8 +748,7 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart() const
     ProjectPart::Ptr part(new ProjectPart);
 
     part->projectDefines = m_definedMacros;
-    part->includePaths = m_includePaths;
-    part->frameworkPaths = m_frameworkPaths;
+    part->headerPaths = m_headerPaths;
     part->cVersion = ProjectPart::C11;
     part->cxxVersion = ProjectPart::CXX11;
     part->cxxExtensions = ProjectPart::AllExtensions;

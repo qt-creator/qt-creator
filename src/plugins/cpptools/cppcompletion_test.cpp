@@ -105,7 +105,7 @@ public:
             = new CppCompletionAssistInterface(m_editorWidget->document(), m_position,
                                                m_editorWidget->baseTextDocument()->filePath(),
                                                ExplicitlyInvoked, m_snapshot,
-                                               QStringList(), QStringList());
+                                               ProjectPart::HeaderPaths());
         CppCompletionAssistProcessor processor;
         IAssistProposal *proposal = processor.perform(ai);
         if (!proposal)

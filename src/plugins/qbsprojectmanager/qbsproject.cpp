@@ -546,19 +546,18 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_INCLUDEPATHS));
-            QStringList grpIncludePaths;
-            foreach (const QString &p, list) {
-                const QString cp = FileName::fromUserInput(p).toString();
-                grpIncludePaths.append(cp);
-            }
+            CppTools::ProjectPart::HeaderPaths grpHeaderPaths;
+            foreach (const QString &p, list)
+                grpHeaderPaths += CppTools::ProjectPart::HeaderPath(
+                            FileName::fromUserInput(p).toString(),
+                            CppTools::ProjectPart::HeaderPath::IncludePath);
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_FRAMEWORKPATHS));
-            QStringList grpFrameworkPaths;
-            foreach (const QString &p, list) {
-                const QString cp = FileName::fromUserInput(p).toString();
-                grpFrameworkPaths.append(cp);
-            }
+            foreach (const QString &p, list)
+                grpHeaderPaths += CppTools::ProjectPart::HeaderPath(
+                            FileName::fromUserInput(p).toString(),
+                            CppTools::ProjectPart::HeaderPath::FrameworkPath);
 
             const QString pch = props.getModuleProperty(QLatin1String(CONFIG_CPP_MODULE),
                     QLatin1String(CONFIG_PRECOMPILEDHEADER)).toString();
@@ -590,8 +589,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
                                                   CppTools::ProjectFile::CXXHeader);
 
             part->qtVersion = qtVersionForPart;
-            part->includePaths += grpIncludePaths;
-            part->frameworkPaths += grpFrameworkPaths;
+            part->headerPaths += grpHeaderPaths;
             part->precompiledHeaders = QStringList(pch);
             part->projectDefines += grpDefines;
             pinfo.appendProjectPart(part);

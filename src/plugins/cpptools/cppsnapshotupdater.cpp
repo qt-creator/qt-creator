@@ -57,8 +57,7 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
     CppModelManager *modelManager
         = dynamic_cast<CppModelManager *>(CppModelManagerInterface::instance());
     QByteArray configFile = modelManager->codeModelConfiguration();
-    QStringList includePaths;
-    QStringList frameworkPaths;
+    ProjectPart::HeaderPaths headerPaths;
     QStringList precompiledHeaders;
     QString projectConfigFile;
 
@@ -72,8 +71,7 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
     if (m_projectPart) {
         configFile += m_projectPart->toolchainDefines;
         configFile += m_projectPart->projectDefines;
-        includePaths = m_projectPart->includePaths;
-        frameworkPaths = m_projectPart->frameworkPaths;
+        headerPaths = m_projectPart->headerPaths;
         projectConfigFile = m_projectPart->projectConfigFile;
         if (m_usePrecompiledHeaders)
             precompiledHeaders = m_projectPart->precompiledHeaders;
@@ -91,13 +89,8 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         m_editorDefinesChangedSinceLastUpdate = false;
     }
 
-    if (includePaths != m_includePaths) {
-        m_includePaths = includePaths;
-        invalidateSnapshot = true;
-    }
-
-    if (frameworkPaths != m_frameworkPaths) {
-        m_frameworkPaths = frameworkPaths;
+    if (headerPaths != m_headerPaths) {
+        m_headerPaths = headerPaths;
         invalidateSnapshot = true;
     }
 
@@ -174,8 +167,7 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         globalSnapshot.remove(fileInEditor());
         sourceProcessor.setGlobalSnapshot(globalSnapshot);
         sourceProcessor.setWorkingCopy(workingCopy);
-        sourceProcessor.setIncludePaths(m_includePaths);
-        sourceProcessor.setFrameworkPaths(m_frameworkPaths);
+        sourceProcessor.setHeaderPaths(m_headerPaths);
         sourceProcessor.run(configurationFileName);
         if (!m_projectConfigFile.isEmpty())
             sourceProcessor.run(m_projectConfigFile);
@@ -218,16 +210,10 @@ Snapshot SnapshotUpdater::snapshot() const
     return m_snapshot;
 }
 
-QStringList SnapshotUpdater::includePaths() const
+ProjectPart::HeaderPaths SnapshotUpdater::headerPaths() const
 {
     QMutexLocker locker(&m_mutex);
-    return m_includePaths;
-}
-
-QStringList SnapshotUpdater::frameworkPaths() const
-{
-    QMutexLocker locker(&m_mutex);
-    return m_frameworkPaths;
+    return m_headerPaths;
 }
 
 ProjectPart::Ptr SnapshotUpdater::currentProjectPart() const

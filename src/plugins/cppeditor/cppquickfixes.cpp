@@ -1896,7 +1896,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
         return;
 
     // find the include paths
-    QStringList includePaths;
+    ProjectPart::HeaderPaths headerPaths;
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
     QList<CppModelManagerInterface::ProjectInfo> projectInfos = modelManager->projectInfos();
     bool inProject = false;
@@ -1905,14 +1905,14 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
             foreach (const ProjectFile &file, part->files) {
                 if (file.path == doc->fileName()) {
                     inProject = true;
-                    includePaths += part->includePaths;
+                    headerPaths += part->headerPaths;
                 }
             }
         }
     }
     if (!inProject) {
         // better use all include paths than none
-        includePaths = modelManager->includePaths();
+        headerPaths = modelManager->headerPaths();
     }
 
     // find a include file through the locator
@@ -1933,10 +1933,10 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
         if (fileInfo.path() == QFileInfo(doc->fileName()).path()) {
             shortestInclude = QLatin1Char('"') + fileInfo.fileName() + QLatin1Char('"');
         } else {
-            foreach (const QString &includePath, includePaths) {
-                if (!fileName.startsWith(includePath))
+            foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+                if (!fileName.startsWith(headerPath.path))
                     continue;
-                QString relativePath = fileName.mid(includePath.size());
+                QString relativePath = fileName.mid(headerPath.path.size());
                 if (!relativePath.isEmpty() && relativePath.at(0) == QLatin1Char('/'))
                     relativePath = relativePath.mid(1);
                 if (shortestInclude.isEmpty() || relativePath.size() + 2 < shortestInclude.size())
@@ -1965,11 +1965,11 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
 
     // otherwise, check for a header file with the same name in the Qt include paths
     } else {
-        foreach (const QString &includePath, includePaths) {
-            if (!includePath.contains(QLatin1String("/Qt"))) // "QtCore", "QtGui" etc...
+        foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+            if (!headerPath.path.contains(QLatin1String("/Qt"))) // "QtCore", "QtGui" etc...
                 continue;
 
-            const QString headerPathCandidate = includePath + QLatin1Char('/') + className;
+            const QString headerPathCandidate = headerPath.path + QLatin1Char('/') + className;
             const QFileInfo fileInfo(headerPathCandidate);
             if (fileInfo.exists() && fileInfo.isFile()) {
                 const QString include = QLatin1Char('<') + className + QLatin1Char('>');
