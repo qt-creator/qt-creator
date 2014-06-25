@@ -34,7 +34,7 @@
 #include "glslfilewizard.h"
 #include "glslhoverhandler.h"
 #include "glslcompletionassist.h"
-#include "glslhighlighterfactory.h"
+#include "glslhighlighter.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -47,6 +47,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/taskhub.h>
 #include <extensionsystem/pluginmanager.h>
+#include <texteditor/highlighterfactory.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/textfilewizard.h>
 #include <utils/qtcassert.h>
@@ -219,7 +220,15 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     wizard->setId(QLatin1String("K.GLSL"));
     addAutoReleasedObject(wizard);
 
-    addAutoReleasedObject(new GLSLHighlighterFactory);
+    auto hf = new TextEditor::HighlighterFactory;
+    hf->setProductType<Highlighter>();
+    hf->setId(GLSLEditor::Constants::C_GLSLEDITOR_ID);
+    hf->addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE);
+    hf->addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_VERT);
+    hf->addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG);
+    hf->addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES);
+    hf->addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES);
+    addAutoReleasedObject(hf);
 
     return true;
 }

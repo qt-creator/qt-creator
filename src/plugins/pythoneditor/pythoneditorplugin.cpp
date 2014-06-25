@@ -33,7 +33,7 @@
 #include "wizard/pythonclasswizard.h"
 #include "pythoneditorwidget.h"
 #include "pythoneditorfactory.h"
-#include "tools/pythonhighlighterfactory.h"
+#include "tools/pythonhighlighter.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -43,6 +43,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/highlighterfactory.h>
 
 #include <QtPlugin>
 #include <QCoreApplication>
@@ -229,7 +230,12 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     // Add Python files and classes creation dialogs
     addAutoReleasedObject(new FileWizard);
     addAutoReleasedObject(new ClassWizard);
-    addAutoReleasedObject(new Internal::PythonHighlighterFactory);
+
+    auto hf = new TextEditor::HighlighterFactory;
+    hf->setId(Constants::C_PYTHONEDITOR_ID);
+    hf->setProductType<PythonHighlighter>();
+    hf->addMimeType(QLatin1String(Constants::C_PY_MIMETYPE));
+    addAutoReleasedObject(hf);
 
     return true;
 }

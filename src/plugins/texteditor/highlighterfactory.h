@@ -27,25 +27,45 @@
 **
 ****************************************************************************/
 
-#include "qmljshighlighterfactory.h"
-#include "qmljseditorconstants.h"
-#include "qmljshighlighter.h"
-#include <qmljstools/qmljstoolsconstants.h>
+#ifndef HIGHLIGHTERFACTORY_H
+#define HIGHLIGHTERFACTORY_H
 
-using namespace QmlJSEditor::Internal;
+#include <texteditor/texteditor_global.h>
+#include <coreplugin/id.h>
 
-QmlJSHighlighterFactory::QmlJSHighlighterFactory()
+#include <QObject>
+#include <QStringList>
+
+#include <functional>
+
+namespace TextEditor {
+
+class SyntaxHighlighter;
+
+class TEXTEDITOR_EXPORT HighlighterFactory : public QObject
 {
-    setId(Constants::C_QMLJSEDITOR_ID);
-    addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::QBS_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::JSON_MIMETYPE);
-}
+    Q_OBJECT
 
-TextEditor::SyntaxHighlighter *QmlJSHighlighterFactory::createHighlighter() const
-{
-    return new Highlighter;
-}
+public:
+    typedef std::function<SyntaxHighlighter *()> Creator;
+    TextEditor::SyntaxHighlighter *createHighlighter() const { return m_creator(); }
+
+    template <class T> void setProductType() { m_creator = []() { return new T; }; }
+    Core::Id id() const { return m_id; }
+    QStringList mimeTypes() const { return m_mimeTypes; }
+
+    void setId(Core::Id id) { m_id = id; }
+    void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
+    void addMimeType(const char *mimeType) { m_mimeTypes.append(QLatin1String(mimeType)); }
+    void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
+
+private:
+    Core::Id m_id;
+    QStringList m_mimeTypes;
+    Creator m_creator;
+};
+
+} // TextEditor
+
+#endif // HIGHLIGHTERFACTORY_H
+

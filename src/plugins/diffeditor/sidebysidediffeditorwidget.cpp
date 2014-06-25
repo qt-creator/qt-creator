@@ -46,7 +46,7 @@
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextdocumentlayout.h>
-#include <texteditor/ihighlighterfactory.h>
+#include <texteditor/highlighterfactory.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorsettings.h>
@@ -110,7 +110,7 @@ protected:
 
 private:
     SideDiffEditorWidget *m_editor;
-    QMap<QString, IHighlighterFactory *> m_mimeTypeToHighlighterFactory;
+    QMap<QString, HighlighterFactory *> m_mimeTypeToHighlighterFactory;
     QList<SyntaxHighlighter *> m_highlighters;
     QList<QTextDocument *> m_documents;
 };
@@ -235,9 +235,9 @@ MultiHighlighter::MultiHighlighter(SideDiffEditorWidget *editor, QTextDocument *
     : SyntaxHighlighter(document),
       m_editor(editor)
 {
-    const QList<IHighlighterFactory *> &factories =
-        ExtensionSystem::PluginManager::getObjects<TextEditor::IHighlighterFactory>();
-    foreach (IHighlighterFactory *factory, factories) {
+    const QList<HighlighterFactory *> &factories =
+        ExtensionSystem::PluginManager::getObjects<TextEditor::HighlighterFactory>();
+    foreach (HighlighterFactory *factory, factories) {
         QStringList mimeTypes = factory->mimeTypes();
         foreach (const QString &mimeType, mimeTypes)
             m_mimeTypeToHighlighterFactory.insert(mimeType, factory);
@@ -274,7 +274,7 @@ void MultiHighlighter::setDocuments(const QList<QPair<DiffFileInfo, QString> > &
         QTextDocument *document = new QTextDocument(contents);
         const MimeType mimeType = MimeDatabase::findByFile(QFileInfo(fileInfo.fileName));
         SyntaxHighlighter *highlighter = 0;
-        if (const IHighlighterFactory *factory = m_mimeTypeToHighlighterFactory.value(mimeType.type())) {
+        if (const HighlighterFactory *factory = m_mimeTypeToHighlighterFactory.value(mimeType.type())) {
             highlighter = factory->createHighlighter();
             if (highlighter)
                 highlighter->setDocument(document);

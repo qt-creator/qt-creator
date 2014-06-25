@@ -37,7 +37,6 @@ QtcPlugin {
         "cppfollowsymbolundercursor.cpp", "cppfollowsymbolundercursor.h",
         "cppfunctiondecldeflink.cpp", "cppfunctiondecldeflink.h",
         "cpphighlighter.cpp", "cpphighlighter.h",
-        "cpphighlighterfactory.cpp", "cpphighlighterfactory.h",
         "cpphoverhandler.cpp", "cpphoverhandler.h",
         "cppincludehierarchy.cpp", "cppincludehierarchy.h",
         "cppincludehierarchyitem.cpp", "cppincludehierarchyitem.h",

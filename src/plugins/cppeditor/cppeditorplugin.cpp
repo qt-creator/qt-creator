@@ -35,7 +35,7 @@
 #include "cppeditor.h"
 #include "cppeditoroutline.h"
 #include "cppfilewizard.h"
-#include "cpphighlighterfactory.h"
+#include "cpphighlighter.h"
 #include "cpphoverhandler.h"
 #include "cppincludehierarchy.h"
 #include "cppoutline.h"
@@ -55,6 +55,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/highlighterfactory.h>
 
 #include <utils/hostosinfo.h>
 
@@ -165,7 +166,15 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addAutoReleasedObject(new CppTypeHierarchyFactory);
     addAutoReleasedObject(new CppIncludeHierarchyFactory);
     addAutoReleasedObject(new CppSnippetProvider);
-    addAutoReleasedObject(new CppHighlighterFactory);
+
+    auto hf = new TextEditor::HighlighterFactory;
+    hf->setProductType<CppHighlighter>();
+    hf->setId(CppEditor::Constants::CPPEDITOR_ID);
+    hf->addMimeType(CppEditor::Constants::C_SOURCE_MIMETYPE);
+    hf->addMimeType(CppEditor::Constants::C_HEADER_MIMETYPE);
+    hf->addMimeType(CppEditor::Constants::CPP_SOURCE_MIMETYPE);
+    hf->addMimeType(CppEditor::Constants::CPP_HEADER_MIMETYPE);
+    addAutoReleasedObject(hf);
 
     m_quickFixProvider = new CppQuickFixAssistProvider;
     addAutoReleasedObject(m_quickFixProvider);

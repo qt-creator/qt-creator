@@ -19,7 +19,6 @@ HEADERS += \
     cppfollowsymbolundercursor.h \
     cppfunctiondecldeflink.h \
     cpphighlighter.h \
-    cpphighlighterfactory.h \
     cpphoverhandler.h \
     cppincludehierarchy.h \
     cppincludehierarchyitem.h \
@@ -52,7 +51,6 @@ SOURCES += \
     cppfollowsymbolundercursor.cpp \
     cppfunctiondecldeflink.cpp \
     cpphighlighter.cpp \
-    cpphighlighterfactory.cpp \
     cpphoverhandler.cpp \
     cppincludehierarchy.cpp \
     cppincludehierarchyitem.cpp \
