@@ -76,13 +76,18 @@ isEmpty(IDE_PACKAGE_MODE) {
         updateinfo
 }
 
+minQtVersion(5, 3, 1) {
+    SUBDIRS += qmldesigner
+} else {
+     warning("QmlDesigner plugin has been disabled.")
+     warning("This plugin requires Qt 5.3.1 or newer.")
+}
+
 minQtVersion(5, 2, 0) {
     SUBDIRS += \
-        qmldesigner \
         qmlprofiler \
         welcome
 } else {
-     warning("QmlDesigner plugin has been disabled.")
      warning("QmlProfiler plugin has been disabled.")
      warning("Welcome plugin has been disabled.")
      warning("These plugins need at least Qt 5.2.")
