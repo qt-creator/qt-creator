@@ -33,7 +33,7 @@
 
 //TESTED_COMPONENT=src/libs/utils
 
-class TestMacroExpander : public Utils::AbstractQtcMacroExpander
+class TestMacroExpander : public Utils::AbstractMacroExpander
 {
 public:
     virtual bool resolveMacro(const QString &name, QString *ret)

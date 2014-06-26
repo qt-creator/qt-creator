@@ -36,7 +36,7 @@
 
 using namespace Utils;
 
-class MacroMapExpander : public AbstractQtcMacroExpander {
+class MacroMapExpander : public AbstractMacroExpander {
 public:
     virtual bool resolveMacro(const QString &name, QString *ret)
     {
