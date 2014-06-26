@@ -42,6 +42,7 @@ ImageViewerFile::ImageViewerFile(ImageViewer *parent)
 {
     setId(Constants::IMAGEVIEWER_ID);
     m_editor = parent;
+    connect(this, SIGNAL(mimeTypeChanged()), this, SIGNAL(changed()));
 }
 
 Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -90,11 +91,6 @@ QString ImageViewerFile::suggestedFileName() const
     return QString();
 }
 
-QString ImageViewerFile::mimeType() const
-{
-    return m_mimeType;
-}
-
 bool ImageViewerFile::isModified() const
 {
     return false;
@@ -103,12 +99,6 @@ bool ImageViewerFile::isModified() const
 bool ImageViewerFile::isSaveAsAllowed() const
 {
     return false;
-}
-
-void ImageViewerFile::setMimetype(const QString &mimetype)
-{
-    m_mimeType = mimetype;
-    emit changed();
 }
 
 } // namespace Internal

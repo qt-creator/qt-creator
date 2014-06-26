@@ -51,7 +51,6 @@ public:
     QString suggestedFileName() const { return QString(); }
 
     bool isModified() const { return m_modified; }
-    QString mimeType() const;
     bool isSaveAsAllowed() const { return false; }
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
@@ -60,7 +59,6 @@ public:
     void setModified(bool modified = true);
 
 private:
-    const QString m_mimeType;
     bool m_modified;
     VcsBaseSubmitEditor *m_editor;
 };

@@ -94,7 +94,9 @@ public:
 
     virtual QString defaultPath() const = 0;
     virtual QString suggestedFileName() const = 0;
-    virtual QString mimeType() const = 0;
+
+    QString mimeType() const { return m_mimeType; }
+    void setMimeType(const QString &mimeType);
 
     virtual bool shouldAutoSave() const;
     virtual bool isModified() const = 0;
@@ -116,6 +118,7 @@ public:
 
 signals:
     void changed();
+    void mimeTypeChanged();
 
     void aboutToReload();
     void reloadFinished(bool success);
@@ -124,6 +127,7 @@ signals:
 
 private:
     Id m_id;
+    QString m_mimeType;
     QString m_filePath;
     QString m_displayName;
     bool m_temporary;

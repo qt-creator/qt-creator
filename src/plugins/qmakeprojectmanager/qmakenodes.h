@@ -242,7 +242,6 @@ public:
 
     virtual QString defaultPath() const;
     virtual QString suggestedFileName() const;
-    virtual QString mimeType() const;
 
     virtual bool isModified() const;
     virtual bool isSaveAsAllowed() const;

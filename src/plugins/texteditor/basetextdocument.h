@@ -92,8 +92,6 @@ public:
     bool isSaveAsAllowed() const;
     void checkPermissions();
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-    QString mimeType() const;
-    void setMimeType(const QString &mt);
     void setFilePath(const QString &newName);
 
     QString defaultPath() const;

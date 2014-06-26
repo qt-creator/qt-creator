@@ -64,11 +64,6 @@ QString TaskFile::suggestedFileName() const
     return QString();
 }
 
-QString TaskFile::mimeType() const
-{
-    return QString();
-}
-
 bool TaskFile::isModified() const
 {
     return false;

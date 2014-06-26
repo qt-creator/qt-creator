@@ -128,16 +128,12 @@ public:
 
     QString defaultPath() const;
     QString suggestedFileName() const;
-    virtual QString mimeType() const;
 
     bool isModified() const;
     bool isSaveAsAllowed() const;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
-
-private:
-    const QString m_mimeType;
 };
 
 /// Watches folders for QmakePriFile nodes
@@ -274,10 +270,10 @@ void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 // ----------- QmakeProjectFile
 namespace Internal {
 QmakeProjectFile::QmakeProjectFile(const QString &filePath, QObject *parent)
-    : Core::IDocument(parent),
-      m_mimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE))
+    : Core::IDocument(parent)
 {
     setId("Qmake.ProFile");
+    setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
     setFilePath(filePath);
 }
 
@@ -295,11 +291,6 @@ QString QmakeProjectFile::defaultPath() const
 QString QmakeProjectFile::suggestedFileName() const
 {
     return QString();
-}
-
-QString QmakeProjectFile::mimeType() const
-{
-    return m_mimeType;
 }
 
 bool QmakeProjectFile::isModified() const

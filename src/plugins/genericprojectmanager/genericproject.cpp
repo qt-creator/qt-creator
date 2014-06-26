@@ -409,6 +409,7 @@ GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName,
       m_options(options)
 {
     setId("Generic.ProjectFile");
+    setMimeType(QLatin1String(Constants::GENERICMIMETYPE));
     setFilePath(fileName);
 }
 
@@ -425,11 +426,6 @@ QString GenericProjectFile::defaultPath() const
 QString GenericProjectFile::suggestedFileName() const
 {
     return QString();
-}
-
-QString GenericProjectFile::mimeType() const
-{
-    return QLatin1String(Constants::GENERICMIMETYPE);
 }
 
 bool GenericProjectFile::isModified() const

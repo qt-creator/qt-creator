@@ -62,21 +62,15 @@ enum { debugResourceEditorW = 0 };
 
 ResourceEditorDocument::ResourceEditorDocument(ResourceEditorW *parent) :
     IDocument(parent),
-    m_mimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE)),
     m_blockDirtyChanged(false),
     m_parent(parent)
 {
     setId(ResourceEditor::Constants::RESOURCEEDITOR_ID);
+    setMimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE));
     setFilePath(parent->m_resourceEditor->fileName());
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorFile::ResourceEditorFile()";
 }
-
-QString ResourceEditorDocument::mimeType() const
-{
-    return m_mimeType;
-}
-
 
 ResourceEditorW::ResourceEditorW(const Core::Context &context,
                                ResourceEditorPlugin *plugin,

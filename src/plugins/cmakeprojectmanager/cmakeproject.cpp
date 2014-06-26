@@ -767,6 +767,7 @@ CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
     : Core::IDocument(parent), m_project(parent)
 {
     setId("Cmake.ProjectFile");
+    setMimeType(QLatin1String(Constants::CMAKEMIMETYPE));
     setFilePath(fileName);
 }
 
@@ -789,12 +790,6 @@ QString CMakeFile::suggestedFileName() const
 {
     return QString();
 }
-
-QString CMakeFile::mimeType() const
-{
-    return QLatin1String(Constants::CMAKEMIMETYPE);
-}
-
 
 bool CMakeFile::isModified() const
 {

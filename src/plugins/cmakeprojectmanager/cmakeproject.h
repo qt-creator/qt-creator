@@ -194,7 +194,6 @@ public:
 
     QString defaultPath() const;
     QString suggestedFileName() const;
-    QString mimeType() const;
 
     bool isModified() const;
     bool isSaveAsAllowed() const;

@@ -52,11 +52,11 @@ namespace Designer {
 namespace Internal {
 
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
-  : m_mimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE)),
-    m_shouldAutoSave(false),
+  : m_shouldAutoSave(false),
     m_formWindow(form),
     m_isModified(false)
 {
+    setMimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE));
     setParent(parent);
     setId(Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     // Designer needs UTF-8 regardless of settings.
@@ -208,11 +208,6 @@ void FormWindowFile::setSuggestedFileName(const QString &fn)
 QString FormWindowFile::suggestedFileName() const
 {
     return m_suggestedName;
-}
-
-QString FormWindowFile::mimeType() const
-{
-    return m_mimeType;
 }
 
 bool FormWindowFile::writeFile(const QString &fn, QString *errorString) const

@@ -441,6 +441,7 @@ ResourceFileWatcher::ResourceFileWatcher(ResourceTopLevelNode *node)
     : IDocument(node), m_node(node)
 {
     setId("ResourceNodeWatcher");
+    setMimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE));
     setFilePath(node->path());
 }
 
@@ -460,11 +461,6 @@ QString ResourceFileWatcher::defaultPath() const
 QString ResourceFileWatcher::suggestedFileName() const
 {
     return QString();
-}
-
-QString ResourceFileWatcher::mimeType() const
-{
-    return QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE);
 }
 
 bool ResourceFileWatcher::isModified() const

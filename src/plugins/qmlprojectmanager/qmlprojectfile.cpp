@@ -42,6 +42,7 @@ QmlProjectFile::QmlProjectFile(QmlProject *parent, QString fileName)
     QTC_CHECK(m_project);
     QTC_CHECK(!fileName.isEmpty());
     setId("Qml.ProjectFile");
+    setMimeType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
     setFilePath(fileName);
 }
 
@@ -62,11 +63,6 @@ QString QmlProjectFile::defaultPath() const
 QString QmlProjectFile::suggestedFileName() const
 {
     return QString();
-}
-
-QString QmlProjectFile::mimeType() const
-{
-    return QLatin1String(Constants::QMLPROJECT_MIMETYPE);
 }
 
 bool QmlProjectFile::isModified() const
