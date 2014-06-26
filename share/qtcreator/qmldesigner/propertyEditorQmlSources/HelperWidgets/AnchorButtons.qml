@@ -94,7 +94,7 @@ ButtonRow {
 
         onClicked: {
             if (checked) {
-                anchorBackend.verticalCentered = false;
+                anchorBackend.horizontalCentered = false;
                 anchorBackend.leftAnchored = true;
             } else {
                 anchorBackend.leftAnchored = false;
@@ -112,7 +112,7 @@ ButtonRow {
 
         onClicked: {
             if (checked) {
-                anchorBackend.verticalCentered = false;
+                anchorBackend.horizontalCentered = false;
                 anchorBackend.rightAnchored = true;
             } else {
                 anchorBackend.rightAnchored = false;
