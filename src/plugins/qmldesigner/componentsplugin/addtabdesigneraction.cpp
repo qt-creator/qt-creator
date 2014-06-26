@@ -116,7 +116,8 @@ void AddTabDesignerAction::addNewTab()
         if (QFileInfo(newFilePath).exists()) {
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Naming Error"), tr("Component already exists."));
         } else {
-            bool fileCreated = DocumentManager::createFile(newFilePath, QStringLiteral("import QtQuick 2.1\nimport QtQuick.Controls 1.0\n\nItem {\n\n}"));
+            const QString sourceString = QStringLiteral("import QtQuick 2.1\nimport QtQuick.Controls 1.0\n\nItem {\n    anchors.fill: parent\n}");
+            bool fileCreated = DocumentManager::createFile(newFilePath, sourceString);
 
             if (fileCreated) {
                 DocumentManager::addFileToVersionControl(directoryPath, newFilePath);
