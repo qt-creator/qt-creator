@@ -1,5 +1,5 @@
 "0"	"1"	"4"	"9"
-"<program>"	"Binding"	"1"	"Main Program"
+"<program>"	""	"1"	"Main Program"
 "main.qml:1"	"Create"	"1"	"main.qml"
 "main.qml:12"	"Signal"	"2"	"triggered(): { runCount += 1; var i; for (i = 1; i < 2500; ++i) { var j = i * i; console.log(j); } }"
 "main.qml:1"	"Compile"	"1"	"main.qml"
