@@ -175,8 +175,6 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
                                                                      "So now the fallback version will be used "
                                                                      "which is not supporting all features."
                                                                      ));
-        } else {
-            buildSucceeded = true;
         }
     } else {
         QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "Qt Version is not supported"),
