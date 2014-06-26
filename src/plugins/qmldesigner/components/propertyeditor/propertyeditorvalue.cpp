@@ -117,9 +117,20 @@ static void fixUrl(const QmlDesigner::ModelNode &modelNode, const QmlDesigner::P
     }
 }
 
+static bool compareVariants(const QVariant &value1, const QVariant &value2)
+/* The comparison of variants is not symmetric because of implicit conversion.
+ * QVariant(string) == QVariant(QColor) does for example ignore the alpha channel,
+ * because the color is converted to a string ignoring the alpha channel.
+ * By comparing the variants in both directions we gain a symmetric comparison.
+ */
+{
+    return (value1 == value2)
+            && (value2 == value1);
+}
+
 void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 {
-    if (m_value != value || isBound()) {
+    if (!compareVariants(value, m_value ) || isBound()) {
         QVariant newValue = value;
         if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
             if (modelNode().metaInfo().propertyTypeName(name()) == "QUrl")
@@ -129,6 +140,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
             return;
         if (cleverColorCompare(newValue, m_value))
             return;
+
         setValue(newValue);
         m_isBound = false;
         emit valueChanged(name(), value);
@@ -139,7 +151,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 
 void PropertyEditorValue::setValue(const QVariant &value)
 {
-    if ((m_value != value) &&
+    if (!compareVariants(m_value, value) &&
         !cleverDoubleCompare(value, m_value) &&
         !cleverColorCompare(value, m_value))
 
