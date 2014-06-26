@@ -270,14 +270,14 @@ void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
 {
     // visual editor -> text editor
     ModelNode selectedNode;
-    if (!currentDesignDocument()->rewriterView()->selectedModelNodes().isEmpty())
-        selectedNode = currentDesignDocument()->rewriterView()->selectedModelNodes().first();
+    if (!rewriterView()->selectedModelNodes().isEmpty())
+        selectedNode = rewriterView()->selectedModelNodes().first();
 
     if (selectedNode.isValid()) {
-        const int nodeOffset = currentDesignDocument()->rewriterView()->nodeOffset(selectedNode);
+        const int nodeOffset = rewriterView()->nodeOffset(selectedNode);
         if (nodeOffset > 0) {
             const ModelNode currentSelectedNode
-                    = currentDesignDocument()->rewriterView()->nodeAtTextCursorPosition(currentDesignDocument()->plainTextEdit()->textCursor().position());
+                    = rewriterView()->nodeAtTextCursorPosition(currentDesignDocument()->plainTextEdit()->textCursor().position());
             if (currentSelectedNode != selectedNode) {
                 int line, column;
                 currentDesignDocument()->textEditor()->convertPosition(nodeOffset, &line, &column);
@@ -290,9 +290,9 @@ void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
 void QmlDesignerPlugin::selectModelNodeUnderTextCursor()
 {
     const int cursorPosition = currentDesignDocument()->plainTextEdit()->textCursor().position();
-    ModelNode modelNode = currentDesignDocument()->rewriterView()->nodeAtTextCursorPosition(cursorPosition);
+    ModelNode modelNode = rewriterView()->nodeAtTextCursorPosition(cursorPosition);
     if (modelNode.isValid())
-        currentDesignDocument()->rewriterView()->setSelectedModelNode(modelNode);
+        rewriterView()->setSelectedModelNode(modelNode);
 }
 
 void QmlDesignerPlugin::activateAutoSynchronization()
@@ -321,7 +321,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
 
     currentDesignDocument()->updateSubcomponentManager();
 
-    connect(currentDesignDocument()->rewriterView(),
+    connect(rewriterView(),
             SIGNAL(errorsChanged(QList<RewriterView::Error>)),
             data->mainWidget,
             SLOT(updateErrorStatus(QList<RewriterView::Error>)));
@@ -334,7 +334,7 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
     viewManager().detachRewriterView();
     documentManager().currentDesignDocument()->resetToDocumentModel();
 
-    disconnect(currentDesignDocument()->rewriterView(),
+    disconnect(rewriterView(),
                SIGNAL(errorsChanged(QList<RewriterView::Error>)),
                data->mainWidget,
                SLOT(updateErrorStatus(QList<RewriterView::Error>)));
@@ -343,8 +343,13 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
 
 void QmlDesignerPlugin::resetModelSelection()
 {
-    if (currentDesignDocument()->rewriterView() && currentDesignDocument()->currentModel())
-        currentDesignDocument()->rewriterView()->setSelectedModelNodes(QList<ModelNode>());
+    if (rewriterView() && currentDesignDocument()->currentModel())
+        rewriterView()->setSelectedModelNodes(QList<ModelNode>());
+}
+
+RewriterView *QmlDesignerPlugin::rewriterView() const
+{
+    return currentDesignDocument()->rewriterView();
 }
 
 static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
