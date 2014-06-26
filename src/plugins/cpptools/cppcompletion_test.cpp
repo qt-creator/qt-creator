@@ -2263,6 +2263,11 @@ void CppToolsPlugin::test_completion_data()
         ) << _("n2.n1.t.") << (QStringList()
             << QLatin1String("foo")
             << QLatin1String("Foo"));
+
+    QTest::newRow("lambda_parameter") << _(
+            "auto func = [](int arg1) { return @; };\n"
+        ) << _("ar") << (QStringList()
+            << QLatin1String("arg1"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()

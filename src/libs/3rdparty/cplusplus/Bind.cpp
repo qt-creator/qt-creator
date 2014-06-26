@@ -1087,11 +1087,10 @@ bool Bind::visit(LambdaDeclaratorAST *ast)
     return false;
 }
 
-void Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
+Function *Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
 {
     if (! ast)
-        return;
-
+        return 0;
 
     Function *fun = control()->newFunction(0, 0);
     fun->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
@@ -1109,6 +1108,7 @@ void Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
     }
     // unsigned mutable_token = ast->mutable_token;
     _type = this->exceptionSpecification(ast->exception_specification, type);
+    return fun;
 }
 
 bool Bind::visit(TrailingReturnTypeAST *ast)
@@ -1780,8 +1780,15 @@ bool Bind::visit(ObjCSelectorExpressionAST *ast)
 bool Bind::visit(LambdaExpressionAST *ast)
 {
     this->lambdaIntroducer(ast->lambda_introducer);
-    this->lambdaDeclarator(ast->lambda_declarator);
-    this->statement(ast->statement);
+    if (Function *function = this->lambdaDeclarator(ast->lambda_declarator)) {
+        _scope->addMember(function);
+        Scope *previousScope = switchScope(function);
+        this->statement(ast->statement);
+        (void) switchScope(previousScope);
+    } else {
+        this->statement(ast->statement);
+    }
+
     return false;
 }
 
