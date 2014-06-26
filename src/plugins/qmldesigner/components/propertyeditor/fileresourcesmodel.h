@@ -45,7 +45,7 @@ class FileResourcesModel : public QObject
     Q_PROPERTY(QString filter READ filter WRITE setFilter)
     Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
     Q_PROPERTY(QUrl path READ path WRITE setPath)
-    Q_PROPERTY(QStringList fileModel READ fileModel NOTIFY modelNodeBackendChanged)
+    Q_PROPERTY(QStringList fileModel READ fileModel NOTIFY fileModelChanged)
 
 public:
     explicit FileResourcesModel(QObject *parent = 0);
@@ -68,6 +68,7 @@ public:
 signals:
     void fileNameChanged(const QUrl &fileName);
     void modelNodeBackendChanged();
+    void fileModelChanged();
 
 public slots:
 
