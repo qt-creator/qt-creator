@@ -34,8 +34,6 @@
 
 #include "itemviews.h"
 
-#include <QTimer>
-
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT BaseTreeView : public Utils::TreeView
@@ -53,24 +51,16 @@ public:
     void mousePressEvent(QMouseEvent *ev);
 
 public slots:
-    void reset();
-
     void resizeColumns();
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
-    void setAlwaysAdjustColumns(bool on);
 
 private slots:
-    void resizeColumnsFinish();
     void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
     void rowClickedHelper(const QModelIndex &index) { rowClicked(index); }
     void toggleColumnWidth(int logicalIndex);
 
 private:
-    void connectColumnAdjustment();
-    void disconnectColumnAdjustment();
-
-    bool m_alwaysAdjustColumns;
-    QTimer m_layoutTimer;
+    int suggestedColumnSize(int column) const;
 };
 
 } // namespace Utils

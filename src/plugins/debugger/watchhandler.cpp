@@ -242,6 +242,7 @@ public:
 signals:
     void currentIndexRequested(const QModelIndex &idx);
     void itemIsExpanded(const QModelIndex &idx);
+    void columnAdjustmentRequested();
 
 private:
     QVariant data(const QModelIndex &idx, int role) const;
@@ -1248,6 +1249,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
             } else {
                 m_expandedINames.remove(data.iname);
             }
+            emit columnAdjustmentRequested();
             break;
 
         case LocalsTypeFormatRole:
@@ -1566,6 +1568,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
         insertDataItem(list.at(i), false);
 #endif
     CHECK(checkTree());
+    emit columnAdjustmentRequested();
 }
 
 static void debugRecursion(QDebug &d, const WatchItem *item, int depth)
