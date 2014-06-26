@@ -64,6 +64,10 @@ bool IoUtils::isRelativePath(const QString &path)
 {
     if (path.startsWith(QLatin1Char('/')))
         return false;
+#ifdef QMAKE_BUILTIN_PRFS
+    if (path.startsWith(QLatin1String(":/")))
+        return false;
+#endif
 #ifdef Q_OS_WIN
     if (path.startsWith(QLatin1Char('\\')))
         return false;
