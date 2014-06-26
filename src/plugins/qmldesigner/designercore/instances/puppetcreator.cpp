@@ -34,6 +34,7 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
+#include <QMessageBox>
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/toolchain.h>
@@ -42,6 +43,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <coreplugin/icore.h>
 
 #include "puppetbuildprogressdialog.h"
 
@@ -129,6 +131,11 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
     }
     puppetProcess->start(puppetPath, QStringList() << socketToken << puppetMode << "-graphicssystem raster");
+
+    if (!qgetenv("DEBUG_QML_PUPPET").isEmpty())
+        QMessageBox::information(Core::ICore::dialogParent(),
+                                 QStringLiteral("Puppet is starting ..."),
+                                 QStringLiteral("You can now attach your debugger to the puppet."));
 
     return puppetProcess;
 }
