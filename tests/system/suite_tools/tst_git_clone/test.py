@@ -60,7 +60,7 @@ def verifyCloneLog(targetDir, canceled):
         if canceled:
             test.warning("Could not find resultLabel",
                          "Cloning might have failed before clicking 'Cancel'")
-            return object.exists(":Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog")
+            return object.exists(":Git Repository Clone_Git::Internal::CloneWizard")
         else:
             test.fail("Could not find resultLabel")
     return True
