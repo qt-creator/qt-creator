@@ -162,6 +162,9 @@ private slots:
     void test_typehierarchy_data();
     void test_typehierarchy();
 
+    void test_cpplocalsymbols_data();
+    void test_cpplocalsymbols();
+
     void test_includeGroups_detectIncludeGroupsByNewLines();
     void test_includeGroups_detectIncludeGroupsByIncludeDir();
     void test_includeGroups_detectIncludeGroupsByIncludeType();

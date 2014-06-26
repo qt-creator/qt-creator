@@ -128,6 +128,7 @@ equals(TEST, 1) {
         cppcodegen_test.cpp \
         cppcompletion_test.cpp \
         cppheadersource_test.cpp \
+        cpplocalsymbols_test.cpp \
         cpplocatorfilter_test.cpp \
         cppmodelmanager_test.cpp \
         cpppointerdeclarationformatter_test.cpp \
