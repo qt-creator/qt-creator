@@ -45,9 +45,9 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/icore.h>
 
+#include <qmldesignerwarning.h>
 #include "puppetbuildprogressdialog.h"
 
-#include <QtDebug>
 
 namespace QmlDesigner {
 
@@ -167,9 +167,24 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
                 buildSucceeded = startBuildProcess(buildDirectory.path(), buildCommand(), QStringList(), &progressDialog);
                 progressDialog.hide();
             }
+
+            if (!buildSucceeded)
+                QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "Emulation layer building was unsuccessful"),
+                                         QCoreApplication::translate("PuppetCreator",
+                                                                     "The emulation layer(Qml Puppet) cannot was built. "
+                                                                     "So now the fallback version will be used "
+                                                                     "which is not supporting all features."
+                                                                     ));
         } else {
             buildSucceeded = true;
         }
+    } else {
+        QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "Qt Version is not supported"),
+                                 QCoreApplication::translate("PuppetCreator",
+                                                             "The emulation layer(Qml Puppet) cannot be built because the Qt version is to old "
+                                                             "or it can not run native on your computer. So now the fallback version will be used "
+                                                             "which is not supporting all features."
+                                                             ));
     }
 
     return buildSucceeded;
