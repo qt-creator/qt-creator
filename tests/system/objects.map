@@ -103,9 +103,9 @@
 :JavaScript.QmlProfilerEventsTable_QmlProfiler::Internal::QV8ProfilerEventsMainView	{container=':*Qt Creator.JavaScript_QDockWidget' name='QmlProfilerEventsTable' type='QmlProfiler::Internal::QV8ProfilerEventsMainView' visible='1'}
 :Kits_QtVersion_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' occurrence='5' type='QComboBox' unnamed='1' visible='1'}
 :Locals and Expressions_Debugger::Internal::WatchTreeView	{container=':DebugModeWidget.Locals and Expressions_QDockWidget' name='WatchWindow' type='Debugger::Internal::WatchTreeView' visible='1' windowTitle='Locals and Expressions'}
-:New Text File.Add to project:_QLabel	{name='projectLabel' text='Add to project:' type='QLabel' visible='1' window=':New Text File_Utils::FileWizardDialog'}
-:New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit	{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1' window=':New Text File_Utils::FileWizardDialog'}
-:New Text File_Utils::FileWizardDialog	{type='Utils::FileWizardDialog' unnamed='1' visible='1' windowTitle='New Text File'}
+:New Text File.Add to project:_QLabel	{name='projectLabel' text='Add to project:' type='QLabel' visible='1' window=':New Text File_Core::BaseFileWizard'}
+:New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit	{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1' window=':New Text File_Core::BaseFileWizard'}
+:New Text File_Core::BaseFileWizard	{type='Core::BaseFileWizard' unnamed='1' visible='1' windowTitle='New Text File'}
 :New.comboBox_QComboBox	{name='comboBox' type='QComboBox' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
