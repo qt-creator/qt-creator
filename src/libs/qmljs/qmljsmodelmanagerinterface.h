@@ -199,6 +199,9 @@ public:
 
     // Blocks until all parsing threads are done. Used for testing.
     void joinAllThreads();
+
+    QmlJS::Document::Ptr ensuredGetDocumentForPath(const QString &filePath);
+
 public slots:
     virtual void resetCodeModel();
     void removeProjectInfo(ProjectExplorer::Project *project);

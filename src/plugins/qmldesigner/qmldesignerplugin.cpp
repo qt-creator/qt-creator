@@ -347,22 +347,12 @@ void QmlDesignerPlugin::resetModelSelection()
         currentDesignDocument()->rewriterView()->setSelectedModelNodes(QList<ModelNode>());
 }
 
-static  QmlJS::Document::Ptr documentForFilePath(const QString &filePath)
-{
-    QmlJS::Document::Ptr document = QmlJS::ModelManagerInterface::instance()->snapshot().document(filePath);
-    if (!document) {
-        document = QmlJS::Document::create(filePath, QmlJS::Language::Qml);
-        QmlJS::ModelManagerInterface::instance()->snapshot().insert(document);
-    }
-
-    return document;
-}
-
 static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
 {
     if (editor)
     if (editor && editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        QmlJS::Document::Ptr document = documentForFilePath(editor->document()->filePath());
+        QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+        QmlJS::Document::Ptr document = modelManager->ensuredGetDocumentForPath(editor->document()->filePath());
         if (!document.isNull())
             return document->language() == QmlJS::Language::QmlQtQuick1
                     || document->language() == QmlJS::Language::QmlQtQuick2

@@ -1379,6 +1379,19 @@ void ModelManagerInterface::joinAllThreads()
         future.waitForFinished();
 }
 
+Document::Ptr ModelManagerInterface::ensuredGetDocumentForPath(const QString &filePath)
+{
+    QmlJS::Document::Ptr document = newestSnapshot().document(filePath);
+    if (!document) {
+        document = QmlJS::Document::create(filePath, QmlJS::Language::Qml);
+        QMutexLocker lock(&m_mutex);
+
+        m_newestSnapshot.insert(document);
+    }
+
+    return document;
+}
+
 void ModelManagerInterface::resetCodeModel()
 {
     QStringList documents;
