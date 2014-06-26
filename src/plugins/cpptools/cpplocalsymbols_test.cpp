@@ -157,6 +157,18 @@ void CppToolsPlugin::test_cpplocalsymbols_data()
             << Result(_("local"), 3, 8, 5)
             << Result(_("local"), 4, 12, 5)
             << Result(_("arg"), 4, 20, 3));
+
+    QTest::newRow("lambda")
+        << _("void f()\n"
+             "{\n"
+             "    auto func = [](int arg) { return arg; };\n"
+             "    func(1);\n"
+             "}\n")
+        << (QList<Result>()
+            << Result(_("func"), 2, 10, 4)
+            << Result(_("arg"), 2, 24, 3)
+            << Result(_("arg"), 2, 38, 3)
+            << Result(_("func"), 3, 5, 4));
 }
 
 void CppToolsPlugin::test_cpplocalsymbols()

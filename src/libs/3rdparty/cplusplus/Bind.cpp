@@ -1098,6 +1098,7 @@ Function *Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
     if (ast->trailing_return_type)
         _type = this->trailingReturnType(ast->trailing_return_type, _type);
     fun->setReturnType(_type);
+    ast->symbol = fun;
 
     // unsigned lparen_token = ast->lparen_token;
     FullySpecifiedType type;

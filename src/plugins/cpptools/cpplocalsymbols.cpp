@@ -175,6 +175,19 @@ protected:
             _scopeStack.removeLast();
     }
 
+    virtual bool visit(LambdaExpressionAST *ast)
+    {
+        if (ast->lambda_declarator && ast->lambda_declarator->symbol)
+            enterScope(ast->lambda_declarator->symbol);
+        return true;
+    }
+
+    virtual void endVisit(LambdaExpressionAST *ast)
+    {
+        if (ast->lambda_declarator && ast->lambda_declarator->symbol)
+            _scopeStack.removeLast();
+    }
+
     virtual bool visit(CompoundStatementAST *ast)
     {
         if (ast->symbol)
