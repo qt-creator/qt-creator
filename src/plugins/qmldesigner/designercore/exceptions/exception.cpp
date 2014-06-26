@@ -34,18 +34,10 @@
 #include <cxxabi.h>
 #endif
 
-#include <coreplugin/icore.h>
-
 #include <QCoreApplication>
 #include <QMessageBox>
 
-static void showAsyncWarning(const QString &title, const QString &desciption)
-{
-    QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning, title, desciption, QMessageBox::Ok, Core::ICore::dialogParent());
-    messageBox->setAttribute(Qt::WA_DeleteOnClose);
-    messageBox->setModal(true);
-    messageBox->show();
-}
+#include <qmldesignerwarning.h>
 
 /*!
 \defgroup CoreExceptions
@@ -163,7 +155,7 @@ QString Exception::description() const
 void Exception::showException(const QString &title) const
 {
     QString composedTitle = title.isEmpty() ? QCoreApplication::translate("QmlDesigner", "Error") : title;
-    showAsyncWarning(composedTitle, description());
+    QmlDesignerWarning::show(composedTitle, description());
 }
 
 /*!
