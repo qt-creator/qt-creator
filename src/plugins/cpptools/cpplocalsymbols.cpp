@@ -39,12 +39,9 @@ namespace {
 
 class FindLocalSymbols: protected ASTVisitor
 {
-    Scope *_functionScope;
-    Document::Ptr _doc;
-
 public:
     FindLocalSymbols(Document::Ptr doc)
-        : ASTVisitor(doc->translationUnit()), _doc(doc)
+        : ASTVisitor(doc->translationUnit())
     { }
 
     // local and external uses.
@@ -59,12 +56,10 @@ public:
 
         if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
             if (def->symbol) {
-                _functionScope = def->symbol;
                 accept(ast);
             }
         } else if (ObjCMethodDeclarationAST *decl = ast->asObjCMethodDeclaration()) {
             if (decl->method_prototype->symbol) {
-                _functionScope = decl->method_prototype->symbol;
                 accept(ast);
             }
         }
