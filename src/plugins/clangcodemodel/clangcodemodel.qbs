@@ -1,5 +1,7 @@
 import qbs
 import qbs.File
+import qbs.Process
+import QtcProcessOutputReader
 
 QtcPlugin {
     name: "ClangCodeModel"
@@ -11,14 +13,12 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
-    property string llvmInstallDir: qbs.getEnv("LLVM_INSTALL_DIR")
-    condition: llvmInstallDir && !llvmInstallDir.isEmpty
+    property string llvmInstallDirFromEnv: qbs.getEnv("LLVM_INSTALL_DIR")
 
     property bool clangCompletion: true
     property bool clangHighlighting: true
     property bool clangIndexing: false
 
-    // Not used atm; we just rely on the LLVM_INSTALL_DIR environment variable.
     property string llvmConfig: {
         var llvmConfigVariants = [
             "llvm-config", "llvm-config-3.2", "llvm-config-3.3", "llvm-config-3.4",
@@ -26,10 +26,12 @@ QtcPlugin {
         ];
 
         // Prefer llvm-config* from LLVM_INSTALL_DIR
-        for (var i = 0; i < llvmConfigVariants.length; ++i) {
-            var variant = llvmInstallDir + "/bin/" + llvmConfigVariants[i];
-            if (File.exists(variant))
-                return variant;
+        if (llvmInstallDirFromEnv) {
+            for (var i = 0; i < llvmConfigVariants.length; ++i) {
+                var variant = llvmInstallDirFromEnv + "/bin/" + llvmConfigVariants[i];
+                if (File.exists(variant))
+                    return variant;
+            }
         }
 
         // Find llvm-config* in PATH
@@ -44,26 +46,36 @@ QtcPlugin {
             }
         }
 
-        // Fallback
-        return "llvm-config";
+        return undefined;
     }
+    condition: llvmConfig
 
-    property string llvmIncludeDir: llvmInstallDir + "/include"
+    property string llvmIncludeDir: QtcProcessOutputReader.readOutput(llvmConfig, ["--includedir"])
+    property string llvmLibDir: QtcProcessOutputReader.readOutput(llvmConfig, ["--libdir"])
+    property string llvmVersion: QtcProcessOutputReader.readOutput(llvmConfig, ["--version"])
+        .replace(/(\d+\.\d+).*/, "$1")
+
     cpp.includePaths: base.concat(llvmIncludeDir)
-
-    property stringList llvmLibDirs: {
-        var list = [llvmInstallDir + "/lib"];
-        if (qbs.targetOS.contains("windows"))
-            list.push(llvmInstallDir + "/bin");
-        return list;
-    }
-    cpp.libraryPaths: base.concat(llvmLibDirs)
+    cpp.libraryPaths: base.concat(llvmLibDir)
     cpp.rpaths: cpp.libraryPaths
 
     property string llvmLib: "clang"
     property stringList additionalLibraries: qbs.targetOS.contains("windows")
                                              ? ["advapi32", "shell32"] : []
     cpp.dynamicLibraries: base.concat(llvmLib).concat(additionalLibraries)
+
+    cpp.defines: {
+        var defines = base;
+        defines.push('CLANG_VERSION="' + llvmVersion + '"');
+        defines.push('CLANG_RESOURCE_DIR="' + llvmLibDir + '/clang/' + llvmVersion + '/include"');
+        if (clangCompletion)
+            defines.push("CLANG_COMPLETION");
+        if (clangHighlighting)
+            defines.push("CLANG_HIGHLIGHTING");
+        if (clangIndexing)
+            defines.push("CLANG_INDEXING");
+        return defines;
+    }
 
     Group {
         name: "Completion support"
