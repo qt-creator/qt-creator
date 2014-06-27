@@ -30,11 +30,13 @@
 #ifndef TASKLISTPLUGIN_H
 #define TASKLISTPLUGIN_H
 
+#include <coreplugin/idocumentfactory.h>
 #include <extensionsystem/iplugin.h>
 
-namespace ProjectExplorer { class Project; }
-
 namespace TaskList {
+namespace Internal {
+
+class TaskFile;
 
 class TaskListPlugin : public ExtensionSystem::IPlugin
 {
@@ -42,6 +44,8 @@ class TaskListPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "TaskList.json")
 
 public:
+    TaskListPlugin();
+
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized() {}
 
@@ -50,10 +54,17 @@ public:
     static void stopMonitoring();
     static void clearTasks();
 
+    Core::IDocument *openTasks(const QString &base, const QString &fileName);
+
 public slots:
     void loadDataFromSession();
+
+private:
+    Core::IDocumentFactory *m_fileFactory;
+    QList<TaskFile *> m_openFiles;
 };
 
+} // namespace Internal
 } // namespace TaskList
 
 #endif // TASKLISTPLUGIN_H

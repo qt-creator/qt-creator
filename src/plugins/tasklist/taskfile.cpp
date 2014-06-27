@@ -97,7 +97,7 @@ bool TaskFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 bool TaskFile::open(QString *errorString, const QString &fileName)
 {
     setFilePath(fileName);
-    return TaskList::TaskListPlugin::loadFile(errorString, m_baseDir, fileName);
+    return TaskListPlugin::loadFile(errorString, m_baseDir, fileName);
 }
 
 QString TaskFile::baseDir() const
