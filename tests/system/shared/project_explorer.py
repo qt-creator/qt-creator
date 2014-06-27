@@ -149,7 +149,7 @@ def getQtInformationForBuildSettings(kitCount, alreadyOnProjectsBuildSettings=Fa
         switchViewTo(ViewConstants.PROJECTS)
         switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.BUILD)
     clickButton(waitForObject(":Qt Creator_SystemSettings.Details_Utils::DetailsButton"))
-    model = waitForObject(":scrollArea_QTableView").model()
+    model = waitForObject(":scrollArea.environment_QTreeView").model()
     qtDir = None
     for row in range(model.rowCount()):
         index = model.index(row, 0)
