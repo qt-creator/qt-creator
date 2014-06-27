@@ -54,7 +54,7 @@ QtcPlugin {
             "icorelistener.cpp", "icorelistener.h",
             "id.cpp", "id.h",
             "idocument.cpp", "idocument.h",
-            "idocumentfactory.h",
+            "idocumentfactory.cpp", "idocumentfactory.h",
             "ifilewizardextension.h",
             "imode.cpp", "imode.h",
             "inavigationwidgetfactory.cpp", "inavigationwidgetfactory.h",

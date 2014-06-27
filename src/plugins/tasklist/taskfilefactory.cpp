@@ -50,12 +50,10 @@ TaskFileFactory::TaskFileFactory(QObject * parent) :
     setId("ProjectExplorer.TaskFileFactory");
     setDisplayName(tr("Task file reader"));
     addMimeType(QLatin1String("text/x-tasklist"));
-}
-
-Core::IDocument *TaskFileFactory::open(const QString &fileName)
-{
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    return open(project ? project->projectDirectory().toString() : QString(), fileName);
+    setOpener([this](const QString &fileName) -> Core::IDocument * {
+        ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+        return this->open(project ? project->projectDirectory().toString() : QString(), fileName);
+    });
 }
 
 Core::IDocument *TaskFileFactory::open(const QString &base, const QString &fileName)

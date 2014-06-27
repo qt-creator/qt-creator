@@ -106,7 +106,6 @@ QtcPlugin {
             "namedwidget.cpp", "namedwidget.h",
             "nodesvisitor.cpp", "nodesvisitor.h",
             "osparser.cpp", "osparser.h",
-            "pluginfilefactory.cpp", "pluginfilefactory.h",
             "processparameters.cpp", "processparameters.h",
             "processstep.cpp", "processstep.h", "processstep.ui",
             "project.cpp", "project.h",

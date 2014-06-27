@@ -27,18 +27,16 @@
 **
 ****************************************************************************/
 
-#include "ieditorfactory.h"
+#include "idocumentfactory.h"
 
 #include <utils/qtcassert.h>
 
-Core::IEditorFactory::IEditorFactory(QObject *parent)
-    : IDocumentFactory(parent)
+namespace Core {
+
+IDocument *IDocumentFactory::open(const QString &filename)
 {
-    setOpener([](const QString &) -> Core::IDocument * {
-        qWarning("This should never be called, use IEditorFactor::createEditor, "
-                 "or EditorManager::openEditor instead!");
-        QTC_CHECK(false);
-        return 0;
-    });
+    QTC_ASSERT(m_opener, return 0);
+    return m_opener(filename);
 }
 
+} // namespace Core

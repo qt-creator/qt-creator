@@ -35,6 +35,8 @@
 #include <QObject>
 #include <QStringList>
 
+#include <functional>
+
 namespace Core {
 
 class IDocument;
@@ -46,14 +48,15 @@ class CORE_EXPORT IDocumentFactory : public QObject
 public:
     IDocumentFactory(QObject *parent = 0) : QObject(parent) {}
 
-    virtual IDocument *open(const QString &fileName) = 0;
+    typedef std::function<IDocument *(const QString &fileName)> Opener;
+    IDocument *open(const QString &filename);
 
     Id id() const { return m_id; }
     QStringList mimeTypes() const { return m_mimeTypes; }
     QString displayName() const { return m_displayName; }
 
-protected:
     void setId(Id id) { m_id = id; }
+    void setOpener(const Opener &opener) { m_opener = opener; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
     void addMimeType(const char *mimeType) { m_mimeTypes.append(QLatin1String(mimeType)); }
@@ -61,6 +64,7 @@ protected:
 
 private:
     Id m_id;
+    Opener m_opener;
     QStringList m_mimeTypes;
     QString m_displayName;
 };
