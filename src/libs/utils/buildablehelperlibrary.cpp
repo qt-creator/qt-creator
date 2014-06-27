@@ -85,15 +85,6 @@ Utils::FileName BuildableHelperLibrary::findSystemQt(const Utils::Environment &e
     return Utils::FileName();
 }
 
-QString BuildableHelperLibrary::qtInstallDataDir(const Utils::FileName &qmakePath)
-{
-    QProcess proc;
-    proc.start(qmakePath.toString(), QStringList() << QLatin1String("-query") << QLatin1String("QT_INSTALL_DATA"));
-    if (proc.waitForFinished())
-        return QString::fromLocal8Bit(proc.readAll()).trimmed();
-    return QString();
-}
-
 QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 {
     bool qmakeIsExecutable;
