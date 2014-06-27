@@ -76,6 +76,7 @@
 #include <coreplugin/settingsdatabase.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/stringutils.h>
 #include <extensionsystem/pluginmanager.h>
@@ -246,6 +247,11 @@ void MainWindow::setIsFullScreen(bool fullScreen)
         m_toggleFullScreenAction->setText(tr("Exit Full Screen"));
     else
         m_toggleFullScreenAction->setText(tr("Enter Full Screen"));
+}
+
+bool MainWindow::isNewItemDialogRunning() const
+{
+    return !m_newDialog.isNull();
 }
 
 MainWindow::~MainWindow()
@@ -869,46 +875,14 @@ void MainWindow::showNewItemDialog(const QString &title,
                                           const QString &defaultLocation,
                                           const QVariantMap &extraVariables)
 {
-    // Scan for wizards matching the filter and pick one. Don't show
-    // dialog if there is only one.
-    IWizardFactory *wizard = 0;
-    QString selectedPlatform;
-    switch (factories.size()) {
-    case 0:
-        break;
-    case 1:
-        wizard = factories.front();
-        break;
-    default: {
-        NewDialog dlg(this);
-        dlg.setWizardFactories(factories);
-        dlg.setWindowTitle(title);
-        wizard = dlg.showDialog();
-        selectedPlatform = dlg.selectedPlatform();
-    }
-        break;
-    }
-
-    if (!wizard)
-        return;
-
-    QString path = defaultLocation;
-    if (path.isEmpty()) {
-        switch (wizard->kind()) {
-        case IWizardFactory::ProjectWizard:
-            // Project wizards: Check for projects directory or
-            // use last visited directory of file dialog. Never start
-            // at current.
-            path = DocumentManager::useProjectsDirectory() ?
-                       DocumentManager::projectsDirectory() :
-                       DocumentManager::fileDialogLastVisitedDirectory();
-            break;
-        default:
-            path = DocumentManager::fileDialogInitialDirectory();
-            break;
-        }
-    }
-    wizard->runWizard(path, this, selectedPlatform, extraVariables);
+    QTC_ASSERT(!m_newDialog, return);
+    m_newAction->setEnabled(false);
+    m_newDialog = new NewDialog(this);
+    connect(m_newDialog.data(), SIGNAL(destroyed()), this, SLOT(newItemDialogFinished()));
+    m_newDialog->setWizardFactories(factories, defaultLocation, extraVariables);
+    m_newDialog->setWindowTitle(title);
+    m_newDialog->showDialog();
+    emit newItemDialogRunningChanged();
 }
 
 bool MainWindow::showOptionsDialog(Id category, Id page, QWidget *parent)
@@ -1261,6 +1235,13 @@ void MainWindow::restoreWindowState()
     settings->endGroup();
     show();
     m_statusBarManager->restoreSettings();
+}
+
+void MainWindow::newItemDialogFinished()
+{
+    m_newAction->setEnabled(true);
+    // fire signal when the dialog is actually destroyed
+    QTimer::singleShot(0, this, SIGNAL(newItemDialogRunningChanged()));
 }
 
 } // namespace Internal

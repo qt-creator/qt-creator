@@ -1044,6 +1044,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(ICore::instance(), SIGNAL(coreAboutToOpen()),
             this, SLOT(determineSessionToRestoreAtStartup()));
     connect(ICore::instance(), SIGNAL(coreOpened()), this, SLOT(restoreSession()));
+    connect(ICore::instance(), SIGNAL(newItemDialogRunningChanged()),
+            this, SLOT(updateActions()));
 
     updateWelcomePage();
 
@@ -1933,6 +1935,8 @@ void ProjectExplorerPlugin::updateActions()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::updateActions";
 
+    d->m_newAction->setEnabled(!ICore::isNewItemDialogRunning());
+
     Project *project = SessionManager::startupProject();
 
     QPair<bool, QString> buildActionState = buildSettingsEnabled(project);
@@ -2780,9 +2784,11 @@ void ProjectExplorerPlugin::updateContextMenuActions()
         }
         if (qobject_cast<FolderNode*>(d->m_currentNode)) {
             // Also handles ProjectNode
-            d->m_addNewFileAction->setEnabled(actions.contains(ProjectExplorer::AddNewFile));
+            d->m_addNewFileAction->setEnabled(actions.contains(ProjectExplorer::AddNewFile)
+                                              && !ICore::isNewItemDialogRunning());
             d->m_addNewSubprojectAction->setEnabled(d->m_currentNode->nodeType() == ProjectNodeType
-                                                    && actions.contains(ProjectExplorer::AddSubProject));
+                                                    && actions.contains(ProjectExplorer::AddSubProject)
+                                                    && !ICore::isNewItemDialogRunning());
             d->m_addExistingFilesAction->setEnabled(actions.contains(ProjectExplorer::AddExistingFile));
             d->m_addExistingDirectoryAction->setEnabled(actions.contains(ProjectExplorer::AddExistingDirectory));
             d->m_renameFileAction->setEnabled(actions.contains(ProjectExplorer::Rename));

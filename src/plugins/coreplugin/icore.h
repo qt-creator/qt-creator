@@ -67,6 +67,7 @@ public:
     // it returns a ICore.
     static ICore *instance();
 
+    static bool isNewItemDialogRunning();
     static void showNewItemDialog(const QString &title,
                                   const QList<IWizardFactory *> &factories,
                                   const QString &defaultLocation = QString(),
@@ -126,6 +127,7 @@ signals:
     void coreAboutToOpen();
     void coreOpened();
     void newItemsDialogRequested();
+    void newItemDialogRunningChanged();
     void saveSettingsRequested();
     void optionsDialogRequested();
     void coreAboutToClose();
