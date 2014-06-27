@@ -34,7 +34,6 @@
 
 #include "propertycontainer.h"
 #include <QPointer>
-#include <qqml.h>
 
 namespace QmlDesigner {
 
