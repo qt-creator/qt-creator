@@ -112,7 +112,7 @@ RowLayout {
 
             ButtonRow {
                 id: buttonRow
-                opacity: anchorRow.showAlternativeTargets ? 1 : 0
+                opacity: 0
 
                 property variant relativeTarget: anchorBackend.relativeAnchorTargetTop
 
