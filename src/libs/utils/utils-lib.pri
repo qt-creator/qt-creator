@@ -82,7 +82,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/tooltip/tips.cpp \
     $$PWD/tooltip/tipcontents.cpp \
     $$PWD/unixutils.cpp \
-    $$PWD/function.cpp \
     $$PWD/ansiescapecodehandler.cpp \
     $$PWD/execmenu.cpp \
     $$PWD/completinglineedit.cpp \
@@ -173,7 +172,6 @@ HEADERS += \
     $$PWD/tooltip/effects.h \
     $$PWD/unixutils.h \
     $$PWD/qtcoverride.h \
-    $$PWD/function.h \
     $$PWD/ansiescapecodehandler.h \
     $$PWD/execmenu.h \
     $$PWD/completinglineedit.h \

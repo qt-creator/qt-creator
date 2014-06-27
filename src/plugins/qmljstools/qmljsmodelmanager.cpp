@@ -49,7 +49,6 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <texteditor/basetextdocument.h>
-#include <utils/function.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>

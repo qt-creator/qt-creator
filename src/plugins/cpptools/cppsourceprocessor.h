@@ -5,13 +5,14 @@
 
 #include <cplusplus/PreprocessorEnvironment.h>
 #include <cplusplus/pp-engine.h>
-#include <utils/function.h>
 #include <utils/qtcoverride.h>
 
 #include <QHash>
 #include <QPointer>
 #include <QSet>
 #include <QStringList>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QTextCodec;

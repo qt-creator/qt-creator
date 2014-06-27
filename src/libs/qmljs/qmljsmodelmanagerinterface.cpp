@@ -36,7 +36,6 @@
 #include "qmljstypedescriptionreader.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
-#include <utils/function.h>
 #include <utils/hostosinfo.h>
 #include <utils/runextensions.h>
 
@@ -815,7 +814,7 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
                              ModelManagerInterface *modelManager,
                              Language::Enum mainLanguage,
                              bool emitDocChangedOnDisk,
-                             Utils::function<bool(qreal)> reportProgress)
+                             std::function<bool(qreal)> reportProgress)
 {
     for (int i = 0; i < files.size(); ++i) {
         if (!reportProgress(qreal(i) / files.size()))

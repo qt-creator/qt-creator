@@ -34,7 +34,6 @@
 
 #include <languageutils/componentversion.h>
 #include <utils/qtcoverride.h>
-#include <utils/function.h>
 
 #include <QObject>
 #include <QString>
@@ -43,6 +42,8 @@
 #include <QMap>
 #include <QSet>
 #include <QSharedPointer>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QCryptographicHash;
@@ -192,7 +193,7 @@ public:
 
     CoreImport coreImport(const QString &importId) const;
     void iterateOnCandidateImports(const ImportKey &key, const ViewerContext &vContext,
-                                   Utils::function<bool(const ImportMatchStrength &,
+                                   std::function<bool(const ImportMatchStrength &,
                                                         const Export &,
                                                         const CoreImport &)> const &iterF) const;
     ImportElements candidateImports(const ImportKey &key, const ViewerContext &vContext) const;
@@ -209,13 +210,13 @@ public:
                       const QString &requiredPath);
 
     void iterateOnCoreImports(const ViewerContext &vContext,
-                              Utils::function<bool(const CoreImport &)> const &iterF) const;
+                              std::function<bool(const CoreImport &)> const &iterF) const;
     void iterateOnLibraryImports(const ViewerContext &vContext,
-                                 Utils::function<bool(const ImportMatchStrength &,
+                                 std::function<bool(const ImportMatchStrength &,
                                                       const Export &,
                                                       const CoreImport &)> const &iterF) const;
     void iterateOnSubImports(const ImportKey &baseKey, const ViewerContext &vContext,
-                             Utils::function<bool(const ImportMatchStrength &,
+                             std::function<bool(const ImportMatchStrength &,
                                                   const Export &,
                                                   const CoreImport &)> const &iterF) const;
 
