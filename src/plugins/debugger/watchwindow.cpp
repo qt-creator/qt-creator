@@ -754,6 +754,8 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction actSetWatchpointAtObjectAddress(0);
     QAction actSetWatchpointAtPointerAddress(0);
+    actSetWatchpointAtPointerAddress.setText(tr("Add Data Breakpoint at Pointer's Address"));
+    actSetWatchpointAtPointerAddress.setEnabled(false);
     const bool canSetWatchpoint = engine->hasCapability(WatchpointByAddressCapability);
     if (canSetWatchpoint && address) {
         actSetWatchpointAtObjectAddress
@@ -764,9 +766,9 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
             actSetWatchpointAtPointerAddress
                 .setText(tr("Add Data Breakpoint at Pointer's Address (0x%1)")
                     .arg(pointerAddress, 0, 16));
-            actSetWatchpointAtPointerAddress.setCheckable(true);
             actSetWatchpointAtPointerAddress
                 .setChecked(mi0.data(LocalsIsWatchpointAtPointerAddressRole).toBool());
+            actSetWatchpointAtPointerAddress.setEnabled(true);
         }
     } else {
         actSetWatchpointAtObjectAddress.setText(tr("Add Data Breakpoint"));
@@ -873,8 +875,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QMenu breakpointMenu;
     breakpointMenu.setTitle(tr("Add Data Breakpoint..."));
     breakpointMenu.addAction(&actSetWatchpointAtObjectAddress);
-    if (canSetWatchpoint && address)
-        breakpointMenu.addAction(&actSetWatchpointAtPointerAddress);
+    breakpointMenu.addAction(&actSetWatchpointAtPointerAddress);
     breakpointMenu.addAction(&actSetWatchpointAtExpression);
 
     QAction actCopy(tr("Copy View Contents to Clipboard"), 0);
