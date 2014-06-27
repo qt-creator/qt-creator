@@ -45,17 +45,6 @@ CppTodoItemsScanner::CppTodoItemsScanner(const KeywordList &keywordList, QObject
         SLOT(documentUpdated(CPlusPlus::Document::Ptr)), Qt::DirectConnection);
 }
 
-bool CppTodoItemsScanner::shouldProcessFile(const QString &fileName)
-{
-    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
-
-    foreach (const CppTools::CppModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
-        if (info.project().data()->files(ProjectExplorer::Project::ExcludeGeneratedFiles).contains(fileName))
-            return true;
-
-    return false;
-}
-
 void CppTodoItemsScanner::keywordListChanged()
 {
     // We need to rescan everything known to the code model
@@ -72,7 +61,8 @@ void CppTodoItemsScanner::keywordListChanged()
 
 void CppTodoItemsScanner::documentUpdated(CPlusPlus::Document::Ptr doc)
 {
-    if (shouldProcessFile(doc->fileName()))
+    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
+    if (!modelManager->projectPart(doc->fileName()).isEmpty())
         processDocument(doc);
 }
 
