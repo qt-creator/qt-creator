@@ -59,7 +59,7 @@ Row {
 
     property variant backendValue: backendValues.verticalAlignment;
 
-    property variant value: backendValue.value
+    property variant value: backendValue.enumeration
 
     property bool baseStateFlag: isBaseState;
 
