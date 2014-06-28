@@ -129,7 +129,7 @@ const char QNX_OK_ICON[] = ":/qnx/images/ok.png";
 
 const char QNX_BLACKBERRY_SETUP_URL[] = "http://qt-project.org/wiki/Qt-Creator-with-BlackBerry-10";
 const char QNX_LEGACY_KEYS_URL[] = "https://developer.blackberry.com/native/documentation/core"
-        "/com.qnx.doc.native_sdk.devguide/topic/bbid_to_sa.html";
+        "/com.qnx.doc.ide.userguide/topic/signing_and_publishing.html";
 const char QNX_REGISTER_KEYS_URL[] = "https://www.blackberry.com/SignedKeys/codesigning.html";
 
 const char QNX_BB_KEY_CONFIGURATION_TYPE[] = "BBConfigurationType";
