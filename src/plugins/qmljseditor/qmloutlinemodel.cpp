@@ -298,9 +298,9 @@ private:
     int indent;
 };
 
-QmlOutlineModel::QmlOutlineModel(QmlJSEditorDocument *editor) :
-    QStandardItemModel(editor),
-    m_editorDocument(editor)
+QmlOutlineModel::QmlOutlineModel(QmlJSEditorDocument *document) :
+    QStandardItemModel(document),
+    m_editorDocument(document)
 {
     m_icons = Icons::instance();
     const QString resourcePath = Core::ICore::resourcePath();
