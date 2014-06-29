@@ -750,6 +750,7 @@ static const char SOURCE_PROPERTY[] = "qtcreator_source";
 void VcsBasePlugin::setSource(Core::IDocument *document, const QString &source)
 {
     document->setProperty(SOURCE_PROPERTY, source);
+    VcsBasePluginPrivate::m_listener->slotStateChanged();
 }
 
 QString VcsBasePlugin::source(Core::IDocument *document)
