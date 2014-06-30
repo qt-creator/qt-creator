@@ -961,6 +961,23 @@ int SettingsAccessor::firstSupportedVersion() const
     return d->firstVersion();
 }
 
+Utils::FileName SettingsAccessor::backupName(const QVariantMap &data) const
+{
+    QString backupName = defaultFileName(m_userSuffix);
+    const QByteArray oldEnvironmentId = environmentIdFromMap(data);
+    if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != creatorId())
+        backupName += QLatin1String(".") + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
+    const int oldVersion = versionFromMap(data);
+    if (oldVersion != currentVersion()) {
+        VersionUpgrader *upgrader = d->upgrader(oldVersion);
+        if (upgrader)
+            backupName += QLatin1String(".") + upgrader->backupExtension();
+        else
+            backupName += QLatin1String(".") + QString::number(oldVersion);
+    }
+    return Utils::FileName::fromString(backupName);
+}
+
 void SettingsAccessor::backupUserFile() const
 {
     SettingsAccessorPrivate::Settings oldSettings;
@@ -971,20 +988,9 @@ void SettingsAccessor::backupUserFile() const
 
     // Do we need to do a backup?
     const QString origName = oldSettings.path.toString();
-    QString backupName = origName;
-    const QByteArray oldEnvironmentId = environmentIdFromMap(oldSettings.map);
-    if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != creatorId())
-        backupName += QLatin1String(".") + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
-    const int oldVersion = versionFromMap(oldSettings.map);
-    if (oldVersion != currentVersion()) {
-        VersionUpgrader *upgrader = d->upgrader(oldVersion);
-        if (upgrader)
-            backupName += QLatin1String(".") + upgrader->backupExtension();
-        else
-            backupName += QLatin1String(".") + QString::number(oldVersion);
-    }
-    if (backupName != origName)
-        QFile::copy(origName, backupName);
+    QString backupFileName = backupName(oldSettings.map).toString();
+    if (backupFileName != origName)
+        QFile::copy(origName, backupFileName);
 }
 
 QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const

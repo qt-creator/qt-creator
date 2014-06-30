@@ -114,6 +114,8 @@ protected:
 
     virtual bool isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const;
 
+    virtual Utils::FileName backupName(const QVariantMap &data) const;
+
     virtual IssueInfo findIssues(const QVariantMap &data, const Utils::FileName &path) const;
 
 private:
