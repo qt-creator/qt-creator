@@ -44,7 +44,6 @@ namespace QmlDesigner {
 ComponentsPlugin::ComponentsPlugin()
 {
     TabViewIndexModel::registerDeclarativeType();
-    DesignerActionManager *actionManager = &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
 }
 
 QString ComponentsPlugin::pluginName() const
