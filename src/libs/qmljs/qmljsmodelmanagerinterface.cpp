@@ -749,6 +749,8 @@ static bool findNewQmlLibraryInPath(const QString &path,
     const QString libraryPath = QFileInfo(qmldirFile).absolutePath();
     newLibraries->insert(libraryPath);
     modelManager->updateLibraryInfo(libraryPath, LibraryInfo(qmldirParser));
+    modelManager->loadPluginTypes(QFileInfo(libraryPath).canonicalFilePath(), libraryPath,
+                QString(), QString());
 
     // scan the qml files in the library
     foreach (const QmlDirParser::Component &component, qmldirParser.components()) {
