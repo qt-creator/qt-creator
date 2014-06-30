@@ -369,14 +369,10 @@ void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
     updateSearch();
 }
 
-void ItemLibraryWidget::startDragAndDropDelayed(QVariant itemLibraryId)
+void ItemLibraryWidget::startDragAndDrop(QVariant itemLibraryId)
 {
     m_currentitemLibraryEntry = itemLibraryId.value<ItemLibraryEntry>();
-    QTimer::singleShot(0, this, SLOT(startDragAndDrop()));
-}
 
-void ItemLibraryWidget::startDragAndDrop()
-{
     QMimeData *mimeData = m_itemLibraryModel->getMimeData(m_currentitemLibraryEntry);
     QDrag *drag = new QDrag(this);
 
