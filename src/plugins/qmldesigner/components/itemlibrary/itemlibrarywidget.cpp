@@ -55,6 +55,10 @@
 #include <QShortcut>
 #include <QQuickItem>
 
+#include <private/qquickwidget_p.h> // mouse ungrabbing workaround on quickitems
+#include <private/qquickwindow_p.h> // mouse ungrabbing workaround on quickitems
+
+
 namespace QmlDesigner {
 
 ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
@@ -369,6 +373,13 @@ void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
     updateSearch();
 }
 
+static void ungrabMouseOnQMLWorldWorkAround(QQuickWidget *quickWidget)
+{
+    const QQuickWidgetPrivate *widgetPrivate = QQuickWidgetPrivate::get(quickWidget);
+    if (widgetPrivate && widgetPrivate->offscreenWindow && widgetPrivate->offscreenWindow->mouseGrabberItem())
+        widgetPrivate->offscreenWindow->mouseGrabberItem()->ungrabMouse();
+}
+
 void ItemLibraryWidget::startDragAndDrop(QVariant itemLibraryId)
 {
     m_currentitemLibraryEntry = itemLibraryId.value<ItemLibraryEntry>();
@@ -380,6 +391,8 @@ void ItemLibraryWidget::startDragAndDrop(QVariant itemLibraryId)
     drag->setMimeData(mimeData);
 
     drag->exec();
+
+    ungrabMouseOnQMLWorldWorkAround(m_itemViewQuickWidget.data());
 }
 
 void ItemLibraryWidget::removeImport(const QString &name)
