@@ -503,7 +503,7 @@ void QuickItemNodeInstance::resetVertical()
     if (m_height > 0.0) {
         setPropertyVariant("height", m_height);
     } else {
-        setPropertyVariant("height", quickItem()->implicitWidth());
+        setPropertyVariant("height", quickItem()->implicitHeight());
     }
 }
 

@@ -184,7 +184,7 @@ void QmlGraphicsItemNodeInstance::resetVertical()
     if (m_height > 0.0) {
         setPropertyVariant("height", m_height);
     } else {
-        setPropertyVariant("height", qmlGraphicsItem()->implicitWidth());
+        setPropertyVariant("height", qmlGraphicsItem()->implicitHeight());
     }
 }
 
