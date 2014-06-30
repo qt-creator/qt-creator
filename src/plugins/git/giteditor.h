@@ -77,6 +77,7 @@ private:
     QString revisionSubject(const QTextBlock &inBlock) const;
     bool supportChangeLinks() const;
     QString fileNameForLine(int line) const;
+    QString sourceWorkingDirectory() const;
 
     mutable QRegExp m_changeNumberPattern;
     QString m_currentChange;

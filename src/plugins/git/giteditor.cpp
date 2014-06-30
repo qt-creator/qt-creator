@@ -206,15 +206,13 @@ void GitEditor::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v
 
 void GitEditor::checkoutChange()
 {
-    const QFileInfo fi(source());
-    const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-    GitPlugin::instance()->gitClient()->stashAndCheckout(workingDirectory, m_currentChange);
+    GitPlugin::instance()->gitClient()->stashAndCheckout(
+                sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditor::resetChange()
 {
-    const QFileInfo fi(source());
-    const QString workingDir = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+    const QString workingDir = sourceWorkingDirectory();
 
     GitClient *client = GitPlugin::instance()->gitClient();
     if (client->gitStatus(workingDir, StatusMode(NoUntracked | NoSubmodules))
@@ -232,16 +230,14 @@ void GitEditor::resetChange()
 
 void GitEditor::cherryPickChange()
 {
-    const QFileInfo fi(source());
-    const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-    GitPlugin::instance()->gitClient()->synchronousCherryPick(workingDirectory, m_currentChange);
+    GitPlugin::instance()->gitClient()->synchronousCherryPick(
+                sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditor::revertChange()
 {
-    const QFileInfo fi(source());
-    const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-    GitPlugin::instance()->gitClient()->synchronousRevert(workingDirectory, m_currentChange);
+    GitPlugin::instance()->gitClient()->synchronousRevert(
+                sourceWorkingDirectory(), m_currentChange);
 }
 
 void GitEditor::stageDiffChunk()
@@ -400,6 +396,12 @@ QString GitEditor::fileNameForLine(int line) const
             return fileName;
     }
     return source();
+}
+
+QString GitEditor::sourceWorkingDirectory() const
+{
+    const QFileInfo fi(source());
+    return fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
 }
 
 } // namespace Internal
