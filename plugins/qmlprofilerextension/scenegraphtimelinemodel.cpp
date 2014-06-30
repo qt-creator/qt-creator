@@ -285,11 +285,11 @@ void SceneGraphTimelineModel::loadData()
                 break;
             }
             case SceneGraphWindowsAnimations: {
-                timing[14] = event.numericData1;
+                timing[15] = event.numericData1;
                 break;
             }
             case SceneGraphWindowsPolishFrame: {
-                timing[15] = event.numericData1;
+                timing[14] = event.numericData1;
                 break;
             }
             default: break;
