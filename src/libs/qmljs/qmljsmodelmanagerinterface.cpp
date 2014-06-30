@@ -95,6 +95,7 @@ static QStringList environmentImportPaths()
 ModelManagerInterface::ModelManagerInterface(QObject *parent)
     : QObject(parent),
       m_shouldScanImports(false),
+      m_defaultProject(0),
       m_pluginDumper(new PluginDumper(this))
 {
     m_synchronizer.setCancelOnWait(true);
@@ -111,6 +112,11 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 
     qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
     qRegisterMetaType<QmlJS::LibraryInfo>("QmlJS::LibraryInfo");
+
+    m_defaultProjectInfo.qtImportsPath = QLibraryInfo::location(QLibraryInfo::ImportsPath);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    m_defaultProjectInfo.qtQmlPath = QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath);
+#endif
 
     m_defaultImportPaths << environmentImportPaths();
     updateImportPaths();
@@ -253,7 +259,13 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
         writeMessageInternal(warning);
 }
 
-
+void ModelManagerInterface::setDefaultProject(const ModelManagerInterface::ProjectInfo &pInfo,
+                                              ProjectExplorer::Project *p)
+{
+    QMutexLocker l(mutex());
+    m_defaultProject = p;
+    m_defaultProjectInfo = pInfo;
+}
 
 Snapshot ModelManagerInterface::snapshot() const
 {
@@ -477,11 +489,13 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::projectInfos() 
     return m_projects.values();
 }
 
-ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfo(ProjectExplorer::Project *project) const
+ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfo(
+        ProjectExplorer::Project *project,
+        const ModelManagerInterface::ProjectInfo &defaultValue) const
 {
     QMutexLocker locker(&m_mutex);
 
-    return m_projects.value(project, ProjectInfo());
+    return m_projects.value(project, defaultValue);
 }
 
 void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectExplorer::Project *p)
@@ -495,6 +509,8 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
         QMutexLocker locker(&m_mutex);
         oldInfo = m_projects.value(p);
         m_projects.insert(p, pinfo);
+        if (p == m_defaultProject)
+            m_defaultProjectInfo = pinfo;
         snapshot = m_validSnapshot;
     }
 
@@ -1190,6 +1206,11 @@ void ModelManagerInterface::startCppQmlTypeUpdate()
     m_queuedCppDocuments.clear();
 }
 
+QMutex *ModelManagerInterface::mutex() const
+{
+    return &m_mutex;
+}
+
 void ModelManagerInterface::asyncReset()
 {
     m_asyncResetTimer->start();
@@ -1358,12 +1379,8 @@ ViewerContext ModelManagerInterface::defaultVContext(Language::Enum language,
 
 ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() const
 {
-    ProjectInfo res;
-    res.qtImportsPath = QLibraryInfo::location(QLibraryInfo::ImportsPath);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    res.qtQmlPath = QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath);
-#endif
-    return res;
+    QMutexLocker l(mutex());
+    return m_defaultProjectInfo;
 }
 
 void ModelManagerInterface::setDefaultVContext(const ViewerContext &vContext)

@@ -70,9 +70,10 @@ public:
 protected:
     QHash<QString, QmlJS::Language::Enum> languageForSuffix() const QTC_OVERRIDE;
     void writeMessageInternal(const QString &msg) const QTC_OVERRIDE;
-    ModelManagerInterface::ProjectInfo defaultProjectInfo() const QTC_OVERRIDE;
     WorkingCopy workingCopyInternal() const QTC_OVERRIDE;
     void addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const QTC_OVERRIDE;
+private slots:
+    void updateDefaultProjectInfo();
 private:
     void loadDefaultQmlTypeDescriptions();
     static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);

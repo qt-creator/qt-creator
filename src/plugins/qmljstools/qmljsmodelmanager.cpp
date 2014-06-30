@@ -222,6 +222,8 @@ void ModelManager::delayedInitialization()
 
     connect(ProjectExplorer::SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(removeProjectInfo(ProjectExplorer::Project*)));
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
+            SLOT(updateDefaultProjectInfo()));
 
     QmlJS::ViewerContext qbsVContext;
     qbsVContext.language = Language::QmlQbs;
@@ -257,12 +259,14 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
     return workingCopy;
 }
 
-ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfo() const
+void ModelManager::updateDefaultProjectInfo()
 {
-    // needs to be performed in the ui therad (change?)
+    // needs to be performed in the ui therad
     ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    return defaultProjectInfoForProject(currentProject);
+    ProjectInfo newDefaultProjectInfo = defaultProjectInfoForProject(currentProject);
+    setDefaultProject(projectInfo(currentProject,newDefaultProjectInfo), currentProject);
 }
+
 
 // Check whether fileMimeType is the same or extends knownMimeType
 bool ModelManager::matchesMimeType(const MimeType &fileMimeType, const MimeType &knownMimeType)
