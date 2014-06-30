@@ -51,9 +51,6 @@ public:
     // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
     static QStringList possibleQMakeCommands();
 
-    static QString qtInstallHeadersDir(const QString &qmakePath);
-    static QString qtInstallDataDir(const FileName &qmakePath);
-
     static QString byInstallDataHelper(const QString &sourcePath,
                                        const QStringList &sourceFileNames,
                                        const QStringList &installDirectories,

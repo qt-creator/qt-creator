@@ -91,7 +91,10 @@ QUrl FileResourcesModel::path() const
 
 void FileResourcesModel::setFilter(const QString &filter)
 {
-    m_filter = filter;
+    if (m_filter != filter) {
+        m_filter = filter;
+        setupModel();
+    }
 }
 
 QString FileResourcesModel::filter() const
@@ -173,4 +176,6 @@ void FileResourcesModel::setupModel()
     }
 
     m_lock = false;
+
+    emit fileModelChanged();
 }

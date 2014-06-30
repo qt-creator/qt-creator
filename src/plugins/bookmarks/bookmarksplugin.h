@@ -58,8 +58,6 @@ public:
     BookmarksPlugin();
     ~BookmarksPlugin();
 
-    static BookmarksPlugin *instance() { return m_instance; }
-
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 

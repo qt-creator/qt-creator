@@ -34,6 +34,7 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
+#include <QMessageBox>
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/toolchain.h>
@@ -42,10 +43,11 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <coreplugin/icore.h>
 
+#include <qmldesignerwarning.h>
 #include "puppetbuildprogressdialog.h"
 
-#include <QtDebug>
 
 namespace QmlDesigner {
 
@@ -130,6 +132,11 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     }
     puppetProcess->start(puppetPath, QStringList() << socketToken << puppetMode << "-graphicssystem raster");
 
+    if (!qgetenv("DEBUG_QML_PUPPET").isEmpty())
+        QMessageBox::information(Core::ICore::dialogParent(),
+                                 QStringLiteral("Puppet is starting ..."),
+                                 QStringLiteral("You can now attach your debugger to the puppet."));
+
     return puppetProcess;
 }
 
@@ -160,9 +167,22 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
                 buildSucceeded = startBuildProcess(buildDirectory.path(), buildCommand(), QStringList(), &progressDialog);
                 progressDialog.hide();
             }
-        } else {
-            buildSucceeded = true;
+
+            if (!buildSucceeded)
+                QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "Emulation layer building was unsuccessful"),
+                                         QCoreApplication::translate("PuppetCreator",
+                                                                     "The emulation layer(Qml Puppet) cannot was built. "
+                                                                     "So now the fallback version will be used "
+                                                                     "which is not supporting all features."
+                                                                     ));
         }
+    } else {
+        QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "Qt Version is not supported"),
+                                 QCoreApplication::translate("PuppetCreator",
+                                                             "The emulation layer(Qml Puppet) cannot be built because the Qt version is to old "
+                                                             "or it can not run native on your computer. So now the fallback version will be used "
+                                                             "which is not supporting all features."
+                                                             ));
     }
 
     return buildSucceeded;
@@ -302,7 +322,7 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
 
     process.waitForFinished();
 
-    if (process.exitStatus() == QProcess::NormalExit || process.exitCode() == 0)
+    if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0)
         return true;
     else
         return false;

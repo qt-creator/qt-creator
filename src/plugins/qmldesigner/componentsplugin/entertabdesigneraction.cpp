@@ -56,7 +56,7 @@ public /*slots*/:
 };
 
 EnterTabDesignerAction::EnterTabDesignerAction()
- : AbstractActionGroup(QCoreApplication::translate("TabViewToolAction", "Edit Tab"))
+ : AbstractActionGroup(QCoreApplication::translate("TabViewToolAction", "Step into Tab"))
 {
 }
 
@@ -126,7 +126,7 @@ void EnterTabDesignerAction::createActionForTab(const ModelNode &modelNode)
         QmlDesigner::QmlItemNode itemNode(modelNode);
 
         if (itemNode.isValid()) {
-            QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit: %1")).
+            QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Step into: %1")).
                     arg(itemNode.instanceValue("title").toString());
             EnterTabAction *selectionAction = new EnterTabAction(what);
 

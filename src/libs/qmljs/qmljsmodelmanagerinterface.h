@@ -199,6 +199,9 @@ public:
 
     // Blocks until all parsing threads are done. Used for testing.
     void joinAllThreads();
+
+    QmlJS::Document::Ptr ensuredGetDocumentForPath(const QString &filePath);
+
 public slots:
     virtual void resetCodeModel();
     void removeProjectInfo(ProjectExplorer::Project *project);
@@ -226,7 +229,7 @@ protected:
     static void parseLoop(QSet<QString> &scannedPaths, QSet<QString> &newLibraries,
                           WorkingCopy workingCopyInternal, QStringList files, ModelManagerInterface *modelManager,
                           QmlJS::Language::Enum mainLanguage, bool emitDocChangedOnDisk,
-                          Utils::function<bool (qreal)> reportProgress);
+                          std::function<bool (qreal)> reportProgress);
     static void parse(QFutureInterface<void> &future,
                       WorkingCopy workingCopyInternal,
                       QStringList files,

@@ -100,6 +100,7 @@ Section {
             text: qsTr("Format")
         }
         ComboBox {
+            scope: "Text"
             visible: showFormatProperty
             model:  ["PlainText", "RichText", "AutoText"]
             backendValue: backendValues.textFormat

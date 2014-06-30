@@ -55,6 +55,7 @@ public:
     bool designerWarningsInEditor;
     bool showDebugView;
     bool enableDebugView;
+    bool alwaysSaveInCrumbleBar;
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)

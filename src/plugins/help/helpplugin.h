@@ -103,7 +103,7 @@ private slots:
     void saveExternalWindowSettings();
     void switchToHelpMode(const QUrl &source);
     void slotHideRightPane();
-    void showHideSidebar();
+    void setSideBarVisible(bool visible);
 
     void updateSideBarSource();
     void updateSideBarSource(const QUrl &newUrl);

@@ -146,7 +146,7 @@ HEADERS += texteditorplugin.h \
     normalindenter.h \
     indenter.h \
     quickfix.h \
-    ihighlighterfactory.h \
+    highlighterfactory.h \
     syntaxhighlighter.h \
     highlighterutils.h \
     generichighlighter/reuse.h \

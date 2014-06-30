@@ -32,21 +32,11 @@
 
 #include "core_global.h"
 
-#include <QPointer>
 #include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QLineEdit;
-class QTextEdit;
-class QPlainTextEdit;
-class QListWidgetItem;
-QT_END_NAMESPACE
-
-namespace Utils { class IconButton; }
 
 namespace Core {
 
-namespace Internal { namespace Ui { class VariableChooser; } }
+namespace Internal { class VariableChooserPrivate; }
 
 class CORE_EXPORT VariableChooser : public QWidget
 {
@@ -63,23 +53,8 @@ protected:
     void keyPressEvent(QKeyEvent *ke);
     bool eventFilter(QObject *, QEvent *event);
 
-private slots:
-    void updateDescription(const QString &variable);
-    void updateCurrentEditor(QWidget *old, QWidget *widget);
-    void handleItemActivated(QListWidgetItem *item);
-    void insertVariable(const QString &variable);
-    void updatePositionAndShow();
-
 private:
-    QWidget *currentWidget();
-    void createIconButton();
-
-    Internal::Ui::VariableChooser *ui;
-    QString m_defaultDescription;
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<QTextEdit> m_textEdit;
-    QPointer<QPlainTextEdit> m_plainTextEdit;
-    QPointer<Utils::IconButton> m_iconButton;
+    Internal::VariableChooserPrivate *d;
 };
 
 } // namespace Core

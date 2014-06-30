@@ -88,13 +88,13 @@
 :FormEditorStack_qdesigner_internal::FormWindow	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' type='qdesigner_internal::FormWindow' unnamed='1' visible='1'}
 :FormEditorStack_qdesigner_internal::PropertyLineEdit	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' type='qdesigner_internal::PropertyLineEdit' unnamed='1' visible='1'}
 :Generator:_QComboBox	{buddy=':CMake Wizard.Generator:_QLabel' type='QComboBox' unnamed='1' visible='1'}
-:Git Repository Clone.Cancel_QPushButton	{text='Cancel' type='QPushButton' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
-:Git Repository Clone.Finish_QPushButton	{text~='(Finish|Done)' type='QPushButton' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
-:Git Repository Clone.Repository_QGroupBox	{name='repositoryGroupBox' title='Repository' type='QGroupBox' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
-:Git Repository Clone.Result._QLabel	{type='QLabel' unnamed='1' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
-:Git Repository Clone.Working Copy_QGroupBox	{name='localGroupBox' title='Working Copy' type='QGroupBox' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
-:Git Repository Clone.logPlainTextEdit_QPlainTextEdit	{type='QPlainTextEdit' unnamed='1' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
-:Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog	{type='VcsBase::Internal::CheckoutWizardDialog' unnamed='1' visible='1' windowTitle='Git Repository Clone'}
+:Git Repository Clone.Cancel_QPushButton	{text='Cancel' type='QPushButton' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
+:Git Repository Clone.Finish_QPushButton	{text~='(Finish|Done)' type='QPushButton' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
+:Git Repository Clone.Repository_QGroupBox	{name='repositoryGroupBox' title='Repository' type='QGroupBox' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
+:Git Repository Clone.Result._QLabel	{type='QLabel' unnamed='1' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
+:Git Repository Clone.Working Copy_QGroupBox	{name='localGroupBox' title='Working Copy' type='QGroupBox' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
+:Git Repository Clone.logPlainTextEdit_QPlainTextEdit	{type='QPlainTextEdit' unnamed='1' visible='1' window=':Git Repository Clone_Git::Internal::CloneWizard'}
+:Git Repository Clone_Git::Internal::CloneWizard	{type='Git::Internal::CloneWizard' unnamed='1' visible='1' windowTitle='Git Repository Clone'}
 :Go to slot.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Go to slot_QDialog'}
 :Go to slot.Select signal_QGroupBox	{name='groupBox' title='Select signal' type='QGroupBox' visible='1' window=':Go to slot_QDialog'}
 :Go to slot_QDialog	{name='SelectSignalDialog' type='QDialog' visible='1' windowTitle='Go to slot'}
@@ -103,9 +103,9 @@
 :JavaScript.QmlProfilerEventsTable_QmlProfiler::Internal::QV8ProfilerEventsMainView	{container=':*Qt Creator.JavaScript_QDockWidget' name='QmlProfilerEventsTable' type='QmlProfiler::Internal::QV8ProfilerEventsMainView' visible='1'}
 :Kits_QtVersion_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' occurrence='5' type='QComboBox' unnamed='1' visible='1'}
 :Locals and Expressions_Debugger::Internal::WatchTreeView	{container=':DebugModeWidget.Locals and Expressions_QDockWidget' name='WatchWindow' type='Debugger::Internal::WatchTreeView' visible='1' windowTitle='Locals and Expressions'}
-:New Text File.Add to project:_QLabel	{name='projectLabel' text='Add to project:' type='QLabel' visible='1' window=':New Text File_Utils::FileWizardDialog'}
-:New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit	{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1' window=':New Text File_Utils::FileWizardDialog'}
-:New Text File_Utils::FileWizardDialog	{type='Utils::FileWizardDialog' unnamed='1' visible='1' windowTitle='New Text File'}
+:New Text File.Add to project:_QLabel	{name='projectLabel' text='Add to project:' type='QLabel' visible='1' window=':New Text File_Core::BaseFileWizard'}
+:New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit	{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1' window=':New Text File_Core::BaseFileWizard'}
+:New Text File_Core::BaseFileWizard	{type='Core::BaseFileWizard' unnamed='1' visible='1' windowTitle='New Text File'}
 :New.comboBox_QComboBox	{name='comboBox' type='QComboBox' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
@@ -221,13 +221,14 @@
 :qt_tabwidget_stackedwidget.Form_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='Help__Internal__GeneralSettingsPage' type='QWidget' visible='1' windowTitle='Form'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='QtSupport__Internal__QtVersionManager' type='QtSupport::Internal::QtOptionsPageWidget' visible='1'}
 :qt_tabwidget_stackedwidget_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QWidget' unnamed='1' visible='1'}
+:scrollArea.Clear system environment_QCheckBox	{container=':Qt Creator.scrollArea_QScrollArea' text='Clear system environment' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Details_Utils::DetailsButton	{text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :scrollArea.Edit build configuration:_QComboBox	{leftWidget=':scrollArea.Edit build configuration:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Edit build configuration:_QLabel	{text='Edit build configuration:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Executable:_QLabel	{container=':Qt Creator.scrollArea_QScrollArea' text='Executable:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Library not available_QLabel	{name='qmlDebuggingWarningText' text?='Library not available*' type='QLabel' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:scrollArea.environment_QTreeView	{aboveWidget=':scrollArea.Clear system environment_QCheckBox' container=':Qt Creator.scrollArea_QScrollArea' type='QTreeView' unnamed='1' visible='1'}
 :scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox	{name='qmlDebuggingLibraryCheckBox' type='QCheckBox' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:scrollArea_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :sourceFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Source file:_QLabel' name='sourceFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :splitter.Commit File(s)_VcsBase::QActionPushButton	{container=':Qt Creator.splitter_QSplitter' text~='(Commit .+/.+ File.*)' type='VcsBase::QActionPushButton' unnamed='1' visible='1'}
 :splitter.Description_QGroupBox	{container=':Qt Creator.splitter_QSplitter' name='descriptionBox' title='Description' type='QGroupBox' visible='1'}

@@ -42,7 +42,8 @@ DesignerSettings::DesignerSettings()
     warningsInDesigner(true),
     designerWarningsInEditor(false),
     showDebugView(false),
-    enableDebugView(false)
+    enableDebugView(false),
+    alwaysSaveInCrumbleBar(false)
 {}
 
 void DesignerSettings::fromSettings(QSettings *settings)
@@ -63,6 +64,8 @@ void DesignerSettings::fromSettings(QSettings *settings)
             QLatin1String(QmlDesigner::Constants::QML_SHOW_DEBUGVIEW), QVariant(false)).toBool();
     enableDebugView = settings->value(
             QLatin1String(QmlDesigner::Constants::QML_ENABLE_DEBUGVIEW), QVariant(false)).toBool();
+    alwaysSaveInCrumbleBar = settings->value(
+                QLatin1String(QmlDesigner::Constants::QML_ALWAYS_SAFE_IN_CRUMBLEBAR), QVariant(false)).toBool();
 
     settings->endGroup();
     settings->endGroup();
@@ -80,6 +83,7 @@ void DesignerSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY), designerWarningsInEditor);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_SHOW_DEBUGVIEW), showDebugView);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ENABLE_DEBUGVIEW), enableDebugView);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ALWAYS_SAFE_IN_CRUMBLEBAR), alwaysSaveInCrumbleBar);
 
     settings->endGroup();
     settings->endGroup();
@@ -93,5 +97,6 @@ bool DesignerSettings::equals(const DesignerSettings &other) const
             && warningsInDesigner == other.warningsInDesigner
             && designerWarningsInEditor == other.designerWarningsInEditor
             && showDebugView == other.showDebugView
-            && enableDebugView == other.enableDebugView;
+            && enableDebugView == other.enableDebugView
+            && alwaysSaveInCrumbleBar == other.alwaysSaveInCrumbleBar;
 }

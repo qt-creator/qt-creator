@@ -32,8 +32,6 @@
 
 #include "cpptools_global.h"
 
-#include <utils/function.h>
-
 #include <QIcon>
 #include <QSharedPointer>
 #include <QMetaType>

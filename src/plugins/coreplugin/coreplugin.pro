@@ -206,7 +206,6 @@ FORMS += dialogs/newdialog.ui \
     dialogs/openwithdialog.ui \
     generalsettings.ui \
     dialogs/externaltoolconfig.ui \
-    variablechooser.ui \
     mimetypesettingspage.ui \
     mimetypemagicdialog.ui \
     removefiledialog.ui \

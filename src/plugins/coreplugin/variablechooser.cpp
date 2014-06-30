@@ -28,20 +28,101 @@
 ****************************************************************************/
 
 #include "variablechooser.h"
-#include "ui_variablechooser.h"
 #include "variablemanager.h"
 #include "coreconstants.h"
 
 #include <utils/fancylineedit.h> // IconButton
 #include <utils/qtcassert.h>
 
-#include <QTimer>
+#include <QApplication>
+#include <QLabel>
 #include <QLineEdit>
-#include <QTextEdit>
-#include <QPlainTextEdit>
+#include <QListWidget>
 #include <QListWidgetItem>
+#include <QPlainTextEdit>
+#include <QPointer>
+#include <QTextEdit>
+#include <QTimer>
+#include <QVBoxLayout>
 
-using namespace Core;
+namespace Core {
+namespace Internal {
+
+/*!
+ * \internal
+ */
+class VariableChooserPrivate : public QObject
+{
+    Q_OBJECT
+
+public:
+    VariableChooserPrivate(VariableChooser *parent)
+      : q(parent),
+        m_defaultDescription(tr("Select a variable to insert.")),
+        m_lineEdit(0),
+        m_textEdit(0),
+        m_plainTextEdit(0)
+    {
+        m_variableList = new QListWidget(q);
+        m_variableList->setAttribute(Qt::WA_MacSmallSize);
+        m_variableList->setAttribute(Qt::WA_MacShowFocusRect, false);
+        foreach (const QByteArray &variable, VariableManager::variables())
+            m_variableList->addItem(QString::fromLatin1(variable));
+
+        m_variableDescription = new QLabel(q);
+        m_variableDescription->setText(m_defaultDescription);
+        m_variableDescription->setMinimumSize(QSize(0, 60));
+        m_variableDescription->setAlignment(Qt::AlignLeft|Qt::AlignTop);
+        m_variableDescription->setWordWrap(true);
+        m_variableDescription->setAttribute(Qt::WA_MacSmallSize);
+
+        QVBoxLayout *verticalLayout = new QVBoxLayout(q);
+        verticalLayout->setContentsMargins(3, 3, 3, 12);
+        verticalLayout->addWidget(m_variableList);
+        verticalLayout->addWidget(m_variableDescription);
+
+        connect(m_variableList, SIGNAL(currentTextChanged(QString)),
+            this, SLOT(updateDescription(QString)));
+        connect(m_variableList, SIGNAL(itemActivated(QListWidgetItem*)),
+            this, SLOT(handleItemActivated(QListWidgetItem*)));
+        connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)),
+            this, SLOT(updateCurrentEditor(QWidget*,QWidget*)));
+        updateCurrentEditor(0, qApp->focusWidget());
+    }
+
+    void createIconButton()
+    {
+        m_iconButton = new Utils::IconButton;
+        m_iconButton->setPixmap(QPixmap(QLatin1String(":/core/images/replace.png")));
+        m_iconButton->setToolTip(tr("Insert variable"));
+        m_iconButton->hide();
+        connect(m_iconButton, SIGNAL(clicked()), this, SLOT(updatePositionAndShow()));
+    }
+
+public slots:
+    void updateDescription(const QString &variable);
+    void updateCurrentEditor(QWidget *old, QWidget *widget);
+    void handleItemActivated(QListWidgetItem *item);
+    void insertVariable(const QString &variable);
+    void updatePositionAndShow();
+
+public:
+    QWidget *currentWidget();
+
+    VariableChooser *q;
+    QString m_defaultDescription;
+    QPointer<QLineEdit> m_lineEdit;
+    QPointer<QTextEdit> m_textEdit;
+    QPointer<QPlainTextEdit> m_plainTextEdit;
+    QPointer<Utils::IconButton> m_iconButton;
+
+    QListWidget *m_variableList;
+    QLabel *m_variableDescription;
+};
+
+} // namespace Internal
+
+using namespace Internal;
 
 /*!
  * \class Core::VariableChooser
@@ -92,30 +173,12 @@ const char VariableChooser::kVariableSupportProperty[] = "QtCreator.VariableSupp
  */
 VariableChooser::VariableChooser(QWidget *parent) :
     QWidget(parent),
-    ui(new Internal::Ui::VariableChooser),
-    m_lineEdit(0),
-    m_textEdit(0),
-    m_plainTextEdit(0)
+    d(new VariableChooserPrivate(this))
 {
-    ui->setupUi(this);
-    m_defaultDescription = ui->variableDescription->text();
-    ui->variableList->setAttribute(Qt::WA_MacSmallSize);
-    ui->variableList->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->variableDescription->setAttribute(Qt::WA_MacSmallSize);
+    setWindowTitle(tr("Variables"));
     setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
     setFocusPolicy(Qt::StrongFocus);
-    setFocusProxy(ui->variableList);
-
-    foreach (const QByteArray &variable, VariableManager::variables())
-        ui->variableList->addItem(QString::fromLatin1(variable));
-
-    connect(ui->variableList, SIGNAL(currentTextChanged(QString)),
-            this, SLOT(updateDescription(QString)));
-    connect(ui->variableList, SIGNAL(itemActivated(QListWidgetItem*)),
-            this, SLOT(handleItemActivated(QListWidgetItem*)));
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)),
-            this, SLOT(updateCurrentEditor(QWidget*,QWidget*)));
-    updateCurrentEditor(0, qApp->focusWidget());
+    setFocusProxy(d->m_variableList);
 }
 
 /*!
@@ -123,8 +186,8 @@ VariableChooser::VariableChooser(QWidget *parent) :
  */
 VariableChooser::~VariableChooser()
 {
-    delete m_iconButton;
-    delete ui;
+    delete d->m_iconButton;
+    delete d;
 }
 
 /*!
@@ -140,19 +203,19 @@ void VariableChooser::addVariableSupport(QWidget *textcontrol)
 /*!
  * \internal
  */
-void VariableChooser::updateDescription(const QString &variable)
+void VariableChooserPrivate::updateDescription(const QString &variable)
 {
     if (variable.isNull())
-        ui->variableDescription->setText(m_defaultDescription);
+        m_variableDescription->setText(m_defaultDescription);
     else
-        ui->variableDescription->setText(VariableManager::variableDescription(variable.toUtf8())
+        m_variableDescription->setText(VariableManager::variableDescription(variable.toUtf8())
             + QLatin1String("<p>") + tr("Current Value: %1").arg(VariableManager::value(variable.toUtf8())));
 }
 
 /*!
  * \internal
  */
-void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
+void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
 {
     if (old)
         old->removeEventFilter(this);
@@ -162,9 +225,9 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
     bool handle = false;
     QWidget *parent = widget;
     while (parent) {
-        if (parent == this)
+        if (parent == q)
             return;
-        if (parent == this->parentWidget()) {
+        if (parent == q->parentWidget()) {
             handle = true;
             break;
         }
@@ -178,7 +241,7 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
     m_lineEdit = 0;
     m_textEdit = 0;
     m_plainTextEdit = 0;
-    QVariant variablesSupportProperty = widget->property(kVariableSupportProperty);
+    QVariant variablesSupportProperty = widget->property(VariableChooser::kVariableSupportProperty);
     bool supportsVariables = (variablesSupportProperty.isValid()
                               ? variablesSupportProperty.toBool() : false);
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget))
@@ -188,7 +251,7 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
     else if (QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
         m_plainTextEdit = (supportsVariables ? plainTextEdit : 0);
     if (!(m_lineEdit || m_textEdit || m_plainTextEdit))
-        hide();
+        q->hide();
 
     QWidget *current = currentWidget();
     if (current != previousWidget) {
@@ -202,7 +265,7 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
             if (!m_iconButton)
                 createIconButton();
             int margin = m_iconButton->pixmap().width() + 8;
-            if (style()->inherits("OxygenStyle"))
+            if (q->style()->inherits("OxygenStyle"))
                 margin = qMax(24, margin);
             if (m_lineEdit)
                 m_lineEdit->setTextMargins(0, 0, margin, 0);
@@ -215,36 +278,25 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
     }
 }
 
-/*!
- * \internal
- */
-void VariableChooser::createIconButton()
-{
-    m_iconButton = new Utils::IconButton;
-    m_iconButton->setPixmap(QPixmap(QLatin1String(":/core/images/replace.png")));
-    m_iconButton->setToolTip(tr("Insert variable"));
-    m_iconButton->hide();
-    connect(m_iconButton, SIGNAL(clicked()), this, SLOT(updatePositionAndShow()));
-}
 
 /*!
  * \internal
  */
-void VariableChooser::updatePositionAndShow()
+void VariableChooserPrivate::updatePositionAndShow()
 {
-    if (parentWidget()) {
-        QPoint parentCenter = parentWidget()->mapToGlobal(parentWidget()->geometry().center());
-        move(parentCenter.x() - width()/2, parentCenter.y() - height()/2);
+    if (QWidget *w = q->parentWidget()) {
+        QPoint parentCenter = w->mapToGlobal(w->geometry().center());
+        q->move(parentCenter.x() - q->width()/2, parentCenter.y() - q->height()/2);
     }
-    show();
-    raise();
-    activateWindow();
+    q->show();
+    q->raise();
+    q->activateWindow();
 }
 
 /*!
  * \internal
  */
-QWidget *VariableChooser::currentWidget()
+QWidget *VariableChooserPrivate::currentWidget()
 {
     if (m_lineEdit)
         return m_lineEdit;
@@ -256,7 +308,7 @@ QWidget *VariableChooser::currentWidget()
 /*!
  * \internal
  */
-void VariableChooser::handleItemActivated(QListWidgetItem *item)
+void VariableChooserPrivate::handleItemActivated(QListWidgetItem *item)
 {
     if (item)
         insertVariable(item->text());
@@ -265,7 +317,7 @@ void VariableChooser::handleItemActivated(QListWidgetItem *item)
 /*!
  * \internal
  */
-void VariableChooser::insertVariable(const QString &variable)
+void VariableChooserPrivate::insertVariable(const QString &variable)
 {
     const QString &text = QLatin1String("%{") + variable + QLatin1String("}");
     if (m_lineEdit) {
@@ -312,3 +364,7 @@ bool VariableChooser::eventFilter(QObject *, QEvent *event)
     }
     return false;
 }
+
+} // namespace Internal
+
+#include "variablechooser.moc"

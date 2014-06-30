@@ -747,14 +747,15 @@ bool VcsBasePlugin::isSshPromptConfigured()
 
 static const char SOURCE_PROPERTY[] = "qtcreator_source";
 
-void VcsBasePlugin::setSource(Core::IDocument *editor, const QString &source)
+void VcsBasePlugin::setSource(Core::IDocument *document, const QString &source)
 {
-    editor->setProperty(SOURCE_PROPERTY, source);
+    document->setProperty(SOURCE_PROPERTY, source);
+    VcsBasePluginPrivate::m_listener->slotStateChanged();
 }
 
-QString VcsBasePlugin::source(Core::IDocument *editor)
+QString VcsBasePlugin::source(Core::IDocument *document)
 {
-    return editor->property(SOURCE_PROPERTY).toString();
+    return document->property(SOURCE_PROPERTY).toString();
 }
 
 void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,

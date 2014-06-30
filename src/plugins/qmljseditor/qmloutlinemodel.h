@@ -81,7 +81,7 @@ public:
         NonElementBindingType // can be filtered out
     };
 
-    QmlOutlineModel(QmlJSEditorDocument *editor);
+    QmlOutlineModel(QmlJSEditorDocument *document);
 
     // QStandardItemModel
     QStringList mimeTypes() const;

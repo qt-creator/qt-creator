@@ -369,11 +369,8 @@ GitDiffEditorReloader::GitDiffEditorReloader(QObject *parent)
 
 void GitDiffEditorReloader::reload()
 {
-    const QString workingDirectory = m_diffType == DiffShow
-            ? m_gitClient->findRepositoryForDirectory(m_workingDirectory)
-            : m_workingDirectory;
     GitDiffHandler *handler = new GitDiffHandler(diffEditorController(),
-                                                 workingDirectory);
+                                                 m_workingDirectory);
     connect(handler, SIGNAL(destroyed()), this, SLOT(reloadFinished()));
 
     switch (m_diffType) {

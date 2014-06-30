@@ -281,7 +281,7 @@ unsigned int AndroidDeployStep::remoteModificationTime(const QString &fullDestin
     QStringList arguments = AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
     arguments << QLatin1String("ls") << destination;
     process.start(AndroidConfigurations::currentConfig().adbToolPath().toString(), arguments);
-    if (!process.waitForFinished(5000)
+    if (!process.waitForFinished(10000)
             || process.exitCode() != 0)
         return 0;
     QByteArray output = process.readAll();

@@ -753,13 +753,19 @@ class DumperBase:
         self.putType(type)
         self.putNumChild(1)
         format = self.currentItemFormat()
-        isDefault = format == None and str(innerType.unqualified()) == "char"
-        if isDefault or format == 0 or format == 1 or format == 2:
+        isDefault1 = format == None and str(innerType.unqualified()) == "char"
+        isDefault2 = format == None and str(innerType.unqualified()) == "wchar_t"
+        if isDefault1 or isDefault2 or format == 0 or format == 1 or format == 2:
             blob = self.readMemory(self.addressOf(value), type.sizeof)
 
-        if isDefault:
+        if isDefault1:
             # Use Latin1 as default for char [].
             self.putValue(blob, Hex2EncodedLatin1)
+        elif isDefault2:
+            if type.sizeof == 2:
+                self.putValue(blob, Hex4EncodedLittleEndian)
+            else:
+                self.putValue(blob, Hex8EncodedLittleEndian)
         elif format == 0:
             # Explicitly requested Latin1 formatting.
             self.putValue(blob, Hex2EncodedLatin1)

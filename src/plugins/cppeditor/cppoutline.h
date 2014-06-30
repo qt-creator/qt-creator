@@ -77,9 +77,8 @@ public:
 private slots:
     void modelUpdated();
     void updateSelectionInTree(const QModelIndex &index);
-    void updateSelectionInText(const QItemSelection &selection);
     void updateTextCursor(const QModelIndex &index);
-    void focusEditor();
+    void onItemActivated(const QModelIndex &index);
 
 private:
     bool syncCursor();

@@ -315,11 +315,11 @@ void DragTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
        event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
         event->accept();
-        if (m_dragNode.isValid())
-            m_dragNode.destroy();
 
         m_moveManipulator.end();
         clear();
+        if (m_dragNode.isValid())
+            m_dragNode.destroy();
 
         commitTransaction();
 

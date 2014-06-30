@@ -262,7 +262,7 @@ void FormEditorW::fullInit()
     m_formeditor->setIntegration(m_integration);
     // Connect Qt Designer help request to HelpManager.
     connect(m_integration, SIGNAL(creatorHelpRequested(QUrl)),
-        HelpManager::instance(), SIGNAL(helpRequested(QUrl)));
+        HelpManager::instance(), SLOT(handleHelpRequest(QUrl)));
 
     /**
      * This will initialize our TabOrder, Signals and slots and Buddy editors.

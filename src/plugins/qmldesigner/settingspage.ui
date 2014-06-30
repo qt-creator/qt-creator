@@ -6,80 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>684</width>
-    <height>607</height>
+    <width>726</width>
+    <height>774</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="0">
-    <widget class="QGroupBox" name="groupBox_4">
-     <property name="title">
-      <string>Debugging</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QFormLayout" name="formLayout_4">
-        <item row="0" column="1">
-         <widget class="QCheckBox" name="designerShowDebuggerCheckBox">
-          <property name="text">
-           <string>Show the debugging view</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QCheckBox" name="designerEnableDebuggerCheckBox">
-          <property name="text">
-           <string>Enable the debugging view</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>Warnings</string>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <layout class="QFormLayout" name="formLayout_3">
-        <item row="0" column="1">
-         <widget class="QCheckBox" name="designerWarningsCheckBox">
-          <property name="toolTip">
-           <string>Warns about QML features which are not properly supported by the Qt Quick Designer.</string>
-          </property>
-          <property name="text">
-           <string>Warn about unsupported features in the Qt Quick Designer</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QCheckBox" name="designerWarningsInEditorCheckBox">
-          <property name="toolTip">
-           <string>Also warns in the code editor about QML features which are not properly supported by the Qt Quick Designer.</string>
-          </property>
-          <property name="text">
-           <string>Warn about unsupported features of Qt Quick Designer in the code editor</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
@@ -199,6 +133,72 @@
     </widget>
    </item>
    <item row="4" column="0">
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="title">
+      <string>Debugging</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QFormLayout" name="formLayout_4">
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="designerShowDebuggerCheckBox">
+          <property name="text">
+           <string>Show the debugging view</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="designerEnableDebuggerCheckBox">
+          <property name="text">
+           <string>Enable the debugging view</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Warnings</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <layout class="QFormLayout" name="formLayout_3">
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="designerWarningsCheckBox">
+          <property name="toolTip">
+           <string>Warns about QML features which are not properly supported by the Qt Quick Designer.</string>
+          </property>
+          <property name="text">
+           <string>Warn about unsupported features in the Qt Quick Designer</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="designerWarningsInEditorCheckBox">
+          <property name="toolTip">
+           <string>Also warns in the code editor about QML features which are not properly supported by the Qt Quick Designer.</string>
+          </property>
+          <property name="text">
+           <string>Warn about unsupported features of Qt Quick Designer in the code editor</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="5" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -210,6 +210,28 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBox_5">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>Subcomponents</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="checkBox">
+        <property name="text">
+         <string>Always save when leaving subcomponent in bread crumb</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>

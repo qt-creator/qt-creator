@@ -29,6 +29,8 @@
 
 #include "basetreeview.h"
 
+#include <QDebug>
+#include <QFontMetrics>
 #include <QHeaderView>
 #include <QItemDelegate>
 #include <QLabel>
@@ -75,36 +77,21 @@ BaseTreeView::BaseTreeView(QWidget *parent)
         SLOT(rowClickedHelper(QModelIndex)));
     connect(header(), SIGNAL(sectionClicked(int)),
         SLOT(toggleColumnWidth(int)));
-
-    m_alwaysAdjustColumns = false;
-
-    m_layoutTimer.setSingleShot(true);
-    m_layoutTimer.setInterval(20);
-    connect(&m_layoutTimer, SIGNAL(timeout()), this, SLOT(resizeColumnsFinish()));
 }
 
-void BaseTreeView::setModel(QAbstractItemModel *model)
+void BaseTreeView::setModel(QAbstractItemModel *m)
 {
-    disconnectColumnAdjustment();
-    Utils::TreeView::setModel(model);
-    connectColumnAdjustment();
-}
-
-void BaseTreeView::connectColumnAdjustment()
-{
-    if (m_alwaysAdjustColumns && model()) {
-        connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeColumns()));
-        connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeColumns()));
-        connect(model(), SIGNAL(layoutChanged()), this, SLOT(resizeColumns()));
+    const char *sig = "columnAdjustmentRequested()";
+    if (model()) {
+        int index = model()->metaObject()->indexOfSignal(sig);
+        if (index != -1)
+            disconnect(model(), SIGNAL(columnAdjustmentRequested()), this, SLOT(resizeColumns()));
     }
-}
-
-void BaseTreeView::disconnectColumnAdjustment()
-{
-    if (m_alwaysAdjustColumns && model()) {
-        disconnect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeColumns()));
-        disconnect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeColumns()));
-        disconnect(model(), SIGNAL(layoutChanged()), this, SLOT(resizeColumns()));
+    Utils::TreeView::setModel(m);
+    if (m) {
+        int index = m->metaObject()->indexOfSignal(sig);
+        if (index != -1)
+            connect(m, SIGNAL(columnAdjustmentRequested()), this, SLOT(resizeColumns()));
     }
 }
 
@@ -121,59 +108,52 @@ void BaseTreeView::resizeColumns()
     QHeaderView *h = header();
     if (!h)
         return;
-    const int n = h->count();
-    if (n) {
-        for (int i = 0; i != n; ++i)
-            h->setResizeMode(i, QHeaderView::ResizeToContents);
-        m_layoutTimer.start();
+
+    for (int i = 0, n = h->count(); i != n; ++i) {
+        int targetSize = suggestedColumnSize(i);
+        if (targetSize > 0)
+            h->resizeSection(i, targetSize);
     }
 }
 
-void BaseTreeView::resizeColumnsFinish()
+int BaseTreeView::suggestedColumnSize(int column) const
 {
     QHeaderView *h = header();
     if (!h)
-        return;
+        return -1;
 
+    QModelIndex a = indexAt(QPoint(1, 1));
+    a = a.sibling(a.row(), column);
     QFontMetrics fm(font());
-    for (int i = 0, n = h->count(); i != n; ++i) {
-        int headerSize = fm.width(model()->headerData(i, Qt::Horizontal).toString());
-        int targetSize = qMax(sizeHintForColumn(i), headerSize);
-        if (targetSize > 0) {
-            h->setResizeMode(i, QHeaderView::Interactive);
-            h->resizeSection(i, targetSize);
+    int m = fm.width(model()->headerData(column, Qt::Horizontal).toString());
+    const int ind = indentation();
+    for (int i = 0; i < 100 && a.isValid(); ++i) {
+        const QString s = model()->data(a).toString();
+        int w = fm.width(s) + 10;
+        if (column == 0) {
+            for (QModelIndex b = a.parent(); b.isValid(); b = b.parent())
+                w += ind;
         }
+        if (w > m)
+            m = w;
+        a = indexBelow(a);
     }
+    return m;
 }
 
 void BaseTreeView::toggleColumnWidth(int logicalIndex)
 {
     QHeaderView *h = header();
     const int currentSize = h->sectionSize(logicalIndex);
-    if (currentSize == sizeHintForColumn(logicalIndex)) {
+    const int suggestedSize = suggestedColumnSize(logicalIndex);
+    if (currentSize == suggestedSize) {
         QFontMetrics fm(font());
         int headerSize = fm.width(model()->headerData(logicalIndex, Qt::Horizontal).toString());
         int minSize = 10 * fm.width(QLatin1Char('x'));
         h->resizeSection(logicalIndex, qMax(minSize, headerSize));
     } else {
-        resizeColumnToContents(logicalIndex);
+        h->resizeSection(logicalIndex, suggestedSize);
     }
-}
-
-void BaseTreeView::reset()
-{
-    Utils::TreeView::reset();
-    if (m_alwaysAdjustColumns)
-        resizeColumns();
-}
-
-void BaseTreeView::setAlwaysAdjustColumns(bool on)
-{
-    if (on == m_alwaysAdjustColumns)
-        return;
-    disconnectColumnAdjustment();
-    m_alwaysAdjustColumns = on;
-    connectColumnAdjustment();
 }
 
 QModelIndexList BaseTreeView::activeRows() const

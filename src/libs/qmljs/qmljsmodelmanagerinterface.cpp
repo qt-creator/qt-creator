@@ -36,7 +36,6 @@
 #include "qmljstypedescriptionreader.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
-#include <utils/function.h>
 #include <utils/hostosinfo.h>
 #include <utils/runextensions.h>
 
@@ -815,7 +814,7 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
                              ModelManagerInterface *modelManager,
                              Language::Enum mainLanguage,
                              bool emitDocChangedOnDisk,
-                             Utils::function<bool(qreal)> reportProgress)
+                             std::function<bool(qreal)> reportProgress)
 {
     for (int i = 0; i < files.size(); ++i) {
         if (!reportProgress(qreal(i) / files.size()))
@@ -1377,6 +1376,19 @@ void ModelManagerInterface::joinAllThreads()
 {
     foreach (QFuture<void> future, m_synchronizer.futures())
         future.waitForFinished();
+}
+
+Document::Ptr ModelManagerInterface::ensuredGetDocumentForPath(const QString &filePath)
+{
+    QmlJS::Document::Ptr document = newestSnapshot().document(filePath);
+    if (!document) {
+        document = QmlJS::Document::create(filePath, QmlJS::Language::Qml);
+        QMutexLocker lock(&m_mutex);
+
+        m_newestSnapshot.insert(document);
+    }
+
+    return document;
 }
 
 void ModelManagerInterface::resetCodeModel()

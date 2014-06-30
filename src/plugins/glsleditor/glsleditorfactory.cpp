@@ -69,7 +69,3 @@ Core::IEditor *GLSLEditorFactory::createEditor()
     TextEditor::TextEditorSettings::initializeEditor(rc);
     return rc->editor();
 }
-
-void GLSLEditorFactory::updateEditorInfoBar(Core::IEditor *)
-{
-}

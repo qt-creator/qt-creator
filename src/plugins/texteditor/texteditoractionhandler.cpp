@@ -442,7 +442,7 @@ void TextEditorActionHandler::updateCopyAction()
 
 void TextEditorActionHandler::gotoAction()
 {
-    QString locatorString = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
+    QString locatorString = TextEditorPlugin::lineNumberFilter()->shortcutString();
     locatorString += QLatin1Char(' ');
     const int selectionStart = locatorString.size();
     locatorString += tr("<line>:<column>");

@@ -5352,7 +5352,11 @@ namespace basic {
         // Locals and Expressions view. It is only support on gdb with Python.
 
         const char *s = "aöa";
+        const char cs[] = "aöa";
+        char cc[] = "aöa";
         const wchar_t *w = L"aöa";
+        const wchar_t cw[] = L"aöa";
+        wchar_t ww[] = L"aöa";
         QString u;
         BREAK_HERE;
         // Expand s.
@@ -5372,7 +5376,7 @@ namespace basic {
             u = QString::fromUtf16((ushort *)w);
 
         // Make sure to undo "Change Format".
-        dummyStatement(s, w);
+        dummyStatement(s, w, &ww, &cw, &cc, &cs);
     }
 
     typedef void *VoidPtr;

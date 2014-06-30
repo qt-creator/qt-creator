@@ -27,43 +27,45 @@
 **
 ****************************************************************************/
 
-#include "function.h"
+#ifndef HIGHLIGHTERFACTORY_H
+#define HIGHLIGHTERFACTORY_H
 
-namespace {
-// just compilation tests
+#include <texteditor/texteditor_global.h>
+#include <coreplugin/id.h>
 
-void test();
+#include <QObject>
+#include <QStringList>
 
-void functionUser(Utils::function<int()> generator, Utils::function<void(int)> consumer)
+#include <functional>
+
+namespace TextEditor {
+
+class SyntaxHighlighter;
+
+class TEXTEDITOR_EXPORT HighlighterFactory : public QObject
 {
-    consumer(generator());
-}
+    Q_OBJECT
 
-struct GenFunctor
-{
-    int operator()() { return 29; }
+public:
+    typedef std::function<SyntaxHighlighter *()> Creator;
+    TextEditor::SyntaxHighlighter *createHighlighter() const { return m_creator(); }
+
+    template <class T> void setProductType() { m_creator = []() { return new T; }; }
+    Core::Id id() const { return m_id; }
+    QStringList mimeTypes() const { return m_mimeTypes; }
+
+    void setId(Core::Id id) { m_id = id; }
+    void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
+    void addMimeType(const char *mimeType) { m_mimeTypes.append(QLatin1String(mimeType)); }
+    void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
+
+private:
+    Core::Id m_id;
+    QStringList m_mimeTypes;
+    Creator m_creator;
 };
 
-struct ConsumerFunctor
-{
-    void operator()(int) {}
-};
+} // TextEditor
 
-int generatorF()
-{
-    return 42;
-}
+#endif // HIGHLIGHTERFACTORY_H
 
-void consumerF(int i)
-{
-    if (i < 0)
-        test();
-}
-
-void test()
-{
-    functionUser(GenFunctor(), ConsumerFunctor());
-    functionUser(&generatorF, &consumerF);
-}
-
-} // end namespace

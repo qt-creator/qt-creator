@@ -39,6 +39,7 @@ Column {
         useLineEdit: true
         showIsWrapping: true
         showVerticalAlignment: true
+        showFormatProperty: true
     }
 
     Section {

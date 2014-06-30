@@ -32,8 +32,6 @@ QtcPlugin {
         "cmakefilecompletionassist.h",
         "cmakehighlighter.cpp",
         "cmakehighlighter.h",
-        "cmakehighlighterfactory.cpp",
-        "cmakehighlighterfactory.h",
         "cmakelocatorfilter.cpp",
         "cmakelocatorfilter.h",
         "cmakeopenprojectwizard.cpp",

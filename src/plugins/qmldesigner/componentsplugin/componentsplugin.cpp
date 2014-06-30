@@ -45,8 +45,6 @@ ComponentsPlugin::ComponentsPlugin()
 {
     TabViewIndexModel::registerDeclarativeType();
     DesignerActionManager *actionManager = &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
-    actionManager->addDesignerAction(new AddTabDesignerAction);
-    actionManager->addDesignerAction(new EnterTabDesignerAction);
 }
 
 QString ComponentsPlugin::pluginName() const

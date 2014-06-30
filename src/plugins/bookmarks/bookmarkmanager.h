@@ -63,7 +63,7 @@ public:
     void updateBookmark(Bookmark *bookmark);
     void removeBookmark(Bookmark *bookmark); // Does not remove the mark
     void removeAllBookmarks();
-    Bookmark *bookmarkForIndex(const QModelIndex &index);
+    Bookmark *bookmarkForIndex(const QModelIndex &index) const;
 
     enum State { NoBookMarks, HasBookMarks, HasBookmarksInDocument };
     State state() const;
@@ -118,7 +118,7 @@ private slots:
 private:
     void documentPrevNext(bool next);
 
-    Bookmark* findBookmark(const QString &path, const QString &fileName, int lineNumber);
+    Bookmark *findBookmark(const QString &path, const QString &fileName, int lineNumber);
     void addBookmark(Bookmark *bookmark, bool userset = true);
     void addBookmark(const QString &s);
     static QString bookmarkToString(const Bookmark *b);
@@ -139,58 +139,60 @@ private:
 class BookmarkView : public Utils::ListView
 {
     Q_OBJECT
+
 public:
-    BookmarkView(QWidget *parent = 0);
+    explicit BookmarkView(BookmarkManager *manager);
     ~BookmarkView();
-    void setModel(QAbstractItemModel *model);
+
 public slots:
     void gotoBookmark(const QModelIndex &index);
+
 protected slots:
     void removeFromContextMenu();
     void removeAll();
+
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
     void removeBookmark(const QModelIndex &index);
     void keyPressEvent(QKeyEvent *event);
+
 private:
-    BookmarkContext *m_bookmarkContext;
+    Core::IContext *m_bookmarkContext;
     QModelIndex m_contextMenuIndex;
     BookmarkManager *m_manager;
-};
-
-class BookmarkContext : public Core::IContext
-{
-public:
-    BookmarkContext(QWidget *widget);
 };
 
 class BookmarkViewFactory : public Core::INavigationWidgetFactory
 {
     Q_OBJECT
+
 public:
     BookmarkViewFactory(BookmarkManager *bm);
+
+private:
     QString displayName() const;
     int priority() const;
     Core::Id id() const;
     QKeySequence activationSequence() const;
     Core::NavigationView createWidget();
-private:
+
     BookmarkManager *m_manager;
 };
 
 class BookmarkDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
+
 public:
-    BookmarkDelegate(QObject * parent = 0);
-    ~BookmarkDelegate();
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    BookmarkDelegate(QObject *parent = 0);
 
 private:
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void generateGradientPixmap(int width, int height, const QColor &color, bool selected) const;
-    mutable QPixmap *m_normalPixmap;
-    mutable QPixmap *m_selectedPixmap;
+
+    mutable QPixmap m_normalPixmap;
+    mutable QPixmap m_selectedPixmap;
 };
 
 } // namespace Internal

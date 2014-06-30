@@ -66,7 +66,7 @@ static const char kCurrentDocumentRowCount[] = "CurrentDocument:RowCount";
 static const char kCurrentDocumentColumnCount[] = "CurrentDocument:ColumnCount";
 static const char kCurrentDocumentFontSize[] = "CurrentDocument:FontSize";
 
-TextEditorPlugin *TextEditorPlugin::m_instance = 0;
+static TextEditorPlugin *m_instance = 0;
 
 TextEditorPlugin::TextEditorPlugin()
   : m_settings(0),
@@ -81,11 +81,6 @@ TextEditorPlugin::TextEditorPlugin()
 TextEditorPlugin::~TextEditorPlugin()
 {
     m_instance = 0;
-}
-
-TextEditorPlugin *TextEditorPlugin::instance()
-{
-    return m_instance;
 }
 
 static const char wizardCategoryC[] = "U.General";
@@ -264,6 +259,21 @@ void TextEditorPlugin::extensionsInitialized()
 
     connect(Core::ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
             this, SLOT(updateCurrentSelection(QString)));
+}
+
+PlainTextEditorFactory *TextEditorPlugin::editorFactory()
+{
+    return m_instance->m_editorFactory;
+}
+
+LineNumberFilter *TextEditorPlugin::lineNumberFilter()
+{
+    return m_instance->m_lineNumberFilter;
+}
+
+BaseTextMarkRegistry *TextEditorPlugin::baseTextMarkRegistry()
+{
+    return m_instance->m_baseTextMarkRegistry;
 }
 
 void TextEditorPlugin::invokeCompletion()

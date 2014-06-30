@@ -64,6 +64,7 @@ const char QML_WARNIN_FOR_FEATURES_IN_DESIGNER_KEY[] = "WarnAboutQtQuickFeatures
 const char QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY[] = "WarnAboutQtQuickDesignerFeaturesInCodeEditor";
 const char QML_SHOW_DEBUGVIEW[] = "ShowQtQuickDesignerDebugView";
 const char QML_ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
+const char QML_ALWAYS_SAFE_IN_CRUMBLEBAR[] = "AlwaysSafeInCrumbleBar";
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 

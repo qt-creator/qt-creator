@@ -32,7 +32,6 @@
 #include "qmljsqrcparser.h"
 
 #include <utils/qtcassert.h>
-#include <utils/function.h>
 
 #include <QCryptographicHash>
 
@@ -616,7 +615,7 @@ CoreImport ImportDependencies::coreImport(const QString &importId) const
 
 void ImportDependencies::iterateOnCandidateImports(
         const ImportKey &key, const ViewerContext &vContext,
-        Utils::function<bool (const ImportMatchStrength &,const Export &,const CoreImport &)>
+        std::function<bool (const ImportMatchStrength &,const Export &,const CoreImport &)>
         const &iterF) const
 {
     switch (key.type) {
@@ -817,7 +816,7 @@ void ImportDependencies::removeExport(const QString &importId, const ImportKey &
 
 void ImportDependencies::iterateOnCoreImports(
         const ViewerContext &vContext,
-        Utils::function<bool (const CoreImport &)> const &iterF) const
+        std::function<bool (const CoreImport &)> const &iterF) const
 {
     QMapIterator<QString, CoreImport> i(m_coreImports);
     while (i.hasNext()) {
@@ -829,9 +828,9 @@ void ImportDependencies::iterateOnCoreImports(
 
 void ImportDependencies::iterateOnLibraryImports(
         const ViewerContext &vContext,
-        Utils::function<bool (const ImportMatchStrength &,
-                              const Export &,
-                              const CoreImport &)> const &iterF) const
+        std::function<bool (const ImportMatchStrength &,
+                            const Export &,
+                            const CoreImport &)> const &iterF) const
 {
     typedef QMap<ImportKey, QStringList>::const_iterator iter_t;
     ImportKey firstLib;
@@ -865,9 +864,9 @@ void ImportDependencies::iterateOnLibraryImports(
 void ImportDependencies::iterateOnSubImports(
         const ImportKey &baseKey,
         const ViewerContext &vContext,
-        Utils::function<bool (const ImportMatchStrength &,
-                              const Export &,
-                              const CoreImport &)> const &iterF) const
+        std::function<bool (const ImportMatchStrength &,
+                            const Export &,
+                            const CoreImport &)> const &iterF) const
 {
     typedef QMap<ImportKey, QStringList>::const_iterator iter_t;
     iter_t i = m_importCache.lowerBound(baseKey);

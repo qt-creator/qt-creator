@@ -45,7 +45,7 @@
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextdocumentlayout.h>
-#include <texteditor/ihighlighterfactory.h>
+#include <texteditor/highlighterfactory.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorsettings.h>
@@ -63,8 +63,8 @@
 #include <utils/tooltip/tipcontents.h>
 #include <utils/tooltip/tooltip.h>
 
-static const int FILE_LEVEL = 1;
-static const int CHUNK_LEVEL = 2;
+//static const int FILE_LEVEL = 1;
+//static const int CHUNK_LEVEL = 2;
 
 using namespace Core;
 using namespace TextEditor;

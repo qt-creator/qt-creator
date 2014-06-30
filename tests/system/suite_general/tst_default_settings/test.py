@@ -230,9 +230,13 @@ def __getCDB__():
     possibleLocations = ["C:\\Program Files\\Debugging Tools for Windows (x64)",
                          "C:\\Program Files (x86)\\Debugging Tools for Windows (x86)",
                          "C:\\Program Files (x86)\\Windows Kits\\8.0\\Debuggers\\x86",
+                         "C:\\Program Files (x86)\\Windows Kits\\8.0\\Debuggers\\x64",
                          "C:\\Program Files\\Windows Kits\\8.0\\Debuggers\\x86",
+                         "C:\\Program Files\\Windows Kits\\8.0\\Debuggers\\x64",
                          "C:\\Program Files (x86)\\Windows Kits\\8.1\\Debuggers\\x86",
-                         "C:\\Program Files\\Windows Kits\\8.1\\Debuggers\\x86"]
+                         "C:\\Program Files (x86)\\Windows Kits\\8.1\\Debuggers\\x64",
+                         "C:\\Program Files\\Windows Kits\\8.1\\Debuggers\\x86",
+                         "C:\\Program Files\\Windows Kits\\8.1\\Debuggers\\x64"]
     for cdbPath in possibleLocations:
         cdb = os.path.join(cdbPath, "cdb.exe")
         if os.path.exists(cdb):

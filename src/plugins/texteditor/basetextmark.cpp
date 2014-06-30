@@ -135,13 +135,13 @@ BaseTextMark::BaseTextMark(const QString &fileName, int lineNumber)
 // which might be set in the derived constructor
 void BaseTextMark::init()
 {
-    Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->add(this);
+    Internal::TextEditorPlugin::baseTextMarkRegistry()->add(this);
 }
 
 BaseTextMark::~BaseTextMark()
 {
     // oha we are deleted
-    bool b = Internal::TextEditorPlugin::instance()->baseTextMarkRegistry()->remove(this);
+    bool b = Internal::TextEditorPlugin::baseTextMarkRegistry()->remove(this);
     // If you get a assertion in this line, init() was never called
     QTC_CHECK(b);
 }

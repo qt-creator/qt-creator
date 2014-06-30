@@ -240,7 +240,7 @@ void AndroidRunner::asyncStart()
             emit remoteProcessFinished(tr("Failed to forward C++ debugging ports. Reason: %1.").arg(adb.errorString()));
             return;
         }
-        if (!adb.waitForFinished(5000)) {
+        if (!adb.waitForFinished(10000)) {
             emit remoteProcessFinished(tr("Failed to forward C++ debugging ports."));
             return;
         }
@@ -283,7 +283,7 @@ void AndroidRunner::asyncStart()
         emit remoteProcessFinished(tr("Failed to start the activity. Reason: %1.").arg(adb.errorString()));
         return;
     }
-    if (!adb.waitForFinished(5000)) {
+    if (!adb.waitForFinished(10000)) {
         adb.terminate();
         emit remoteProcessFinished(tr("Unable to start \"%1\".").arg(m_packageName));
         return;

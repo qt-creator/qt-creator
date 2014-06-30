@@ -53,7 +53,7 @@ namespace Internal {
 */
 
 MemoryView::MemoryView(QWidget *binEditor, QWidget *parent) :
-    QWidget(parent, Qt::Tool|Qt::WindowStaysOnTopHint), m_binEditor(binEditor)
+    QWidget(parent, Qt::Tool), m_binEditor(binEditor)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     QVBoxLayout *layout = new QVBoxLayout(this);

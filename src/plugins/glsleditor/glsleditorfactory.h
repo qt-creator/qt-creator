@@ -43,9 +43,6 @@ public:
     GLSLEditorFactory(QObject *parent);
 
     Core::IEditor *createEditor();
-
-private slots:
-    void updateEditorInfoBar(Core::IEditor *editor);
 };
 
 } // namespace Internal

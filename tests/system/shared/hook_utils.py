@@ -47,7 +47,7 @@ def modifyRunSettingsForHookInto(projectName, kitCount, port):
     result = __configureCustomExecutable__(projectName, port, mkspec, qtVersion)
     if result:
         ensureChecked(":RunSettingsEnvironmentDetails_Utils::DetailsButton")
-        envVarsTableView = waitForObject("{type='QTableView' visible='1' unnamed='1'}")
+        envVarsTableView = waitForObject("{type='QTreeView' visible='1' unnamed='1'}")
         model = envVarsTableView.model()
         changingVars = []
         for index in dumpIndices(model):

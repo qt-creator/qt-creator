@@ -34,12 +34,12 @@ def createFile(folder, filename):
     replaceEditorContent(waitForObject("{name='nameLineEdit' visible='1' "
                                        "type='Utils::FileNameValidatingLineEdit'}"), filename)
     replaceEditorContent(waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
-                                       "window=':New Text File_Utils::FileWizardDialog'}"), folder)
+                                       "window=':New Text File_Core::BaseFileWizard'}"), folder)
     clickButton(waitForObject(":Next_QPushButton"))
     __createProjectHandleLastPage__()
 
 def clickTableGetPatternLineEdit(table, row):
-    clickItem(table, "%d/0" % row, 5, 5, 0, Qt.LeftButton)
+    clickItem(table, row, 5, 5, 0, Qt.LeftButton)
     return waitForObject("{name='patternsLineEdit' type='QLineEdit' visible='1'}")
 
 def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
@@ -54,11 +54,11 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "MIME Types")
     replaceEditorContent(waitForObject("{name='filterLineEdit' type='QLineEdit' visible='1'}"),
                          filter)
-    mimeTypeTable = waitForObject("{name='mimeTypesTableView' type='QTableView' visible='1'}")
+    mimeTypeTable = waitForObject("{name='mimeTypesTreeView' type='QTreeView' visible='1'}")
     model = mimeTypeTable.model()
     if filter == '':
-        for row in range(model.rowCount()):
-            if str(model.data(model.index(row, 0)).toString()) == mimeType:
+        for row in dumpItems(model):
+            if row == mimeType:
                 result = toSuffixArray(str(clickTableGetPatternLineEdit(mimeTypeTable, row).text))
                 break
         clickButton(":Options.Cancel_QPushButton")
@@ -67,7 +67,7 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
         return result
     waitFor('model.rowCount() == 1', 2000)
     if model.rowCount() == 1:
-        patternsLineEd = clickTableGetPatternLineEdit(mimeTypeTable, 0)
+        patternsLineEd = clickTableGetPatternLineEdit(mimeTypeTable, dumpItems(model)[0])
         patterns = str(patternsLineEd.text)
         if toBePresent:
             actualSuffixes = toSuffixArray(patterns)

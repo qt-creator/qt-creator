@@ -321,7 +321,7 @@ void Manager::registerMimeTypesFinished()
         const QPair<RegisterData, QList<MimeType> > &result = m_registeringWatcher.result();
         m_register = result.first;
 
-        PlainTextEditorFactory *factory = TextEditorPlugin::instance()->editorFactory();
+        PlainTextEditorFactory *factory = TextEditorPlugin::editorFactory();
         const QSet<QString> &inFactory = factory->mimeTypes().toSet();
         foreach (const MimeType &mimeType, result.second) {
             MimeDatabase::addMimeType(mimeType);

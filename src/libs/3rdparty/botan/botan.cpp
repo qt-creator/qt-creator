@@ -37528,6 +37528,7 @@ Power_Mod::Power_Mod(const BigInt& n, Usage_Hints hints)
 */
 Power_Mod::Power_Mod(const Power_Mod& other)
    {
+   Q_UNUSED(hints);
    core = 0;
    if(other.core)
       core = other.core->copy();
@@ -46650,6 +46651,8 @@ bool has_mlock()
 */
 bool lock_mem(void* ptr, size_t bytes)
    {
+   Q_UNUSED(ptr);
+   Q_UNUSED(bytes);
 #if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
    return (::mlock(static_cast<char*>(ptr), bytes) == 0);
 #elif defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)
@@ -46664,6 +46667,8 @@ bool lock_mem(void* ptr, size_t bytes)
 */
 void unlock_mem(void* ptr, size_t bytes)
    {
+    Q_UNUSED(ptr);
+    Q_UNUSED(bytes);
 #if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
    ::munlock(static_cast<char*>(ptr), bytes);
 #elif defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)

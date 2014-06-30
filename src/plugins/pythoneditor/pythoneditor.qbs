@@ -33,7 +33,6 @@ QtcPlugin {
             "lexical/pythonscanner.h", "lexical/pythonscanner.cpp",
             "lexical/sourcecodestream.h",
             "pythonhighlighter.h", "pythonhighlighter.cpp",
-            "pythonhighlighterfactory.h", "pythonhighlighterfactory.cpp",
             "pythonindenter.cpp", "pythonindenter.h"
         ]
     }

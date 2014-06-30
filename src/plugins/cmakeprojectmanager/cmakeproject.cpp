@@ -737,9 +737,11 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
     QString absoluteSourcePath = sourceDir.absolutePath();
     if (!absoluteSourcePath.endsWith(QLatin1Char('/')))
         absoluteSourcePath.append(QLatin1Char('/'));
-    while (!deploymentStream.atEnd()) {
-        QStringList file = deploymentStream.readLine().split(QLatin1Char(':'));
-        deploymentData.addFile(absoluteSourcePath + file.at(0), deploymentPrefix + file.at(1));
+    if (deploymentStream.device()) {
+        while (!deploymentStream.atEnd()) {
+            QStringList file = deploymentStream.readLine().split(QLatin1Char(':'));
+            deploymentData.addFile(absoluteSourcePath + file.at(0), deploymentPrefix + file.at(1));
+        }
     }
 
     t->setApplicationTargets(appTargetList);

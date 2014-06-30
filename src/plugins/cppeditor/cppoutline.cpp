@@ -113,10 +113,8 @@ CppOutlineWidget::CppOutlineWidget(CPPEditorWidget *editor) :
 
     connect(m_editor->outline(), SIGNAL(modelIndexChanged(QModelIndex)),
             this, SLOT(updateSelectionInTree(QModelIndex)));
-    connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(updateSelectionInText(QItemSelection)));
     connect(m_treeView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(focusEditor()));
+            this, SLOT(onItemActivated(QModelIndex)));
 }
 
 QList<QAction*> CppOutlineWidget::filterMenuActions() const
@@ -152,17 +150,6 @@ void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
     m_blockCursorSync = false;
 }
 
-void CppOutlineWidget::updateSelectionInText(const QItemSelection &selection)
-{
-    if (!syncCursor())
-        return;
-
-    if (!selection.indexes().isEmpty()) {
-        QModelIndex proxyIndex = selection.indexes().first();
-        updateTextCursor(proxyIndex);
-    }
-}
-
 void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 {
     QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
@@ -182,8 +169,12 @@ void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
     }
 }
 
-void CppOutlineWidget::focusEditor()
+void CppOutlineWidget::onItemActivated(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
+
+    updateTextCursor(index);
     m_editor->setFocus();
 }
 
