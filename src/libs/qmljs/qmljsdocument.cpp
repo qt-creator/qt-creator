@@ -578,6 +578,32 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
             cImport.possibleExports << Export(importKey, requiredPath, true);
         }
     }
+    if (cImport.possibleExports.isEmpty()) {
+        QRegExp vNr(QLatin1String("^(.+)\\.([0-9]+)(?:\\.([0-9]+))?$"));
+        QRegExp safeName(QLatin1String("^[a-zA-Z_][[a-zA-Z0-9_]*$"));
+        int majorVersion = LanguageUtils::ComponentVersion::NoVersion;
+        int minorVersion = LanguageUtils::ComponentVersion::NoVersion;
+        if (vNr.indexIn(splitPath.last()) == 0) {
+            splitPath.last() = vNr.cap(1);
+            bool ok;
+            majorVersion = vNr.cap(2).toInt(&ok);
+            if (!ok)
+                majorVersion = LanguageUtils::ComponentVersion::NoVersion;
+            minorVersion = vNr.cap(3).toInt(&ok);
+            if (vNr.cap(3).isEmpty() || !ok)
+                minorVersion = LanguageUtils::ComponentVersion::NoVersion;
+        }
+
+        for (int iPath = splitPath.size(); iPath != 0; ) {
+            --iPath;
+            if (safeName.indexIn(splitPath.at(iPath)) != 0)
+                break;
+            ImportKey iKey(ImportType::Library, QStringList(splitPath.mid(iPath)).join(QLatin1Char('.')),
+                           majorVersion, minorVersion);
+            cImport.possibleExports.append(Export(iKey, QStringList(splitPath.mid(0, iPath))
+                                                  .join(QLatin1Char('/')), true));
+        }
+    }
     foreach (const QmlDirParser::Component &component, info.components()) {
         foreach (const Export &e, cImport.possibleExports)
             // renaming of type name not really represented here... fix?
