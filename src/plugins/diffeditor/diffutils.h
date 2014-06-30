@@ -129,9 +129,12 @@ public:
                                  bool lastChunk,
                                  bool lastLine);
     static QString makePatch(const ChunkData &chunkData,
+                             bool lastChunk = false);
+    static QString makePatch(const ChunkData &chunkData,
                              const QString &leftFileName,
                              const QString &rightFileName,
                              bool lastChunk = false);
+    static QString makePatch(const QList<FileData> &fileDataList);
     static QList<FileData> readPatch(const QString &patch,
                                      bool ignoreWhitespace,
                                      bool *ok = 0);

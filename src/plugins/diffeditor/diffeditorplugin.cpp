@@ -61,8 +61,6 @@ protected:
     void reload();
 
 private:
-    QString getFileContents(const QString &fileName) const;
-
     QString m_leftFileName;
     QString m_rightFileName;
 };
@@ -78,8 +76,27 @@ SimpleDiffEditorReloader::SimpleDiffEditorReloader(QObject *parent,
 
 void SimpleDiffEditorReloader::reload()
 {
-    const QString leftText = getFileContents(m_leftFileName);
-    const QString rightText = getFileContents(m_rightFileName);
+    QString errorString;
+    Utils::TextFileFormat format;
+    format.codec = Core::EditorManager::defaultTextCodec();
+
+    QString leftText;
+    if (Utils::TextFileFormat::readFile(m_leftFileName,
+                                    format.codec,
+                                    &leftText, &format, &errorString)
+            != Utils::TextFileFormat::ReadSuccess) {
+
+        return;
+    }
+
+    QString rightText;
+    if (Utils::TextFileFormat::readFile(m_rightFileName,
+                                    format.codec,
+                                    &rightText, &format, &errorString)
+            != Utils::TextFileFormat::ReadSuccess) {
+
+        return;
+    }
 
     Differ differ;
     QList<Diff> diffList = differ.cleanupSemantics(
@@ -118,14 +135,6 @@ void SimpleDiffEditorReloader::reload()
     diffEditorController()->setDiffFiles(fileDataList);
 
     reloadFinished();
-}
-
-QString SimpleDiffEditorReloader::getFileContents(const QString &fileName) const
-{
-    QFile file(fileName);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return Core::EditorManager::defaultTextCodec()->toUnicode(file.readAll());
-    return QString();
 }
 
 /////////////////

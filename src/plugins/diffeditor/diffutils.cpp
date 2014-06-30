@@ -346,9 +346,7 @@ QString DiffUtils::makePatchLine(const QChar &startLineCharacter,
 }
 
 QString DiffUtils::makePatch(const ChunkData &chunkData,
-                  const QString &leftFileName,
-                  const QString &rightFileName,
-                  bool lastChunk)
+                             bool lastChunk)
 {
     QString diffText;
     int leftLineCount = 0;
@@ -425,12 +423,55 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
 
     diffText.prepend(chunkLine);
 
+    return diffText;
+}
+
+QString DiffUtils::makePatch(const ChunkData &chunkData,
+                             const QString &leftFileName,
+                             const QString &rightFileName,
+                             bool lastChunk)
+{
+    QString diffText = makePatch(chunkData, lastChunk);
+
     const QString rightFileInfo = QLatin1String("+++ ") + rightFileName + QLatin1Char('\n');
     const QString leftFileInfo = QLatin1String("--- ") + leftFileName + QLatin1Char('\n');
 
     diffText.prepend(rightFileInfo);
     diffText.prepend(leftFileInfo);
 
+    return diffText;
+}
+
+QString DiffUtils::makePatch(const QList<FileData> &fileDataList)
+{
+    QString diffText;
+
+    for (int i = 0; i < fileDataList.count(); i++) {
+        const FileData &fileData = fileDataList.at(i);
+
+        if (fileData.binaryFiles) {
+            const QString binaryLine = QLatin1String("Binary files ")
+                    + fileData.leftFileInfo.fileName
+                    + QLatin1String(" and ")
+                    + fileData.rightFileInfo.fileName
+                    + QLatin1String(" differ\n");
+            diffText += binaryLine;
+        } else {
+            const QString leftFileInfo = QLatin1String("--- ")
+                    + fileData.leftFileInfo.fileName + QLatin1Char('\n');
+            const QString rightFileInfo = QLatin1String("+++ ")
+                    + fileData.rightFileInfo.fileName + QLatin1Char('\n');
+
+            diffText += leftFileInfo;
+            diffText += rightFileInfo;
+
+            for (int j = 0; j < fileData.chunks.count(); j++) {
+                diffText += makePatch(fileData.chunks.at(j),
+                                      (j == fileData.chunks.count() - 1)
+                                      && fileData.lastChunkAtTheEndOfFile);
+            }
+        }
+    }
     return diffText;
 }
 

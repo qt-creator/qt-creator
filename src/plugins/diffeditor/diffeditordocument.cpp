@@ -30,17 +30,22 @@
 #include "diffeditordocument.h"
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
+#include "diffutils.h"
+
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QCoreApplication>
+#include <QFile>
+#include <QDir>
+#include <QTextCodec>
 
 namespace DiffEditor {
 
 DiffEditorDocument::DiffEditorDocument() :
-    Core::IDocument(),
+    Core::TextDocument(),
     m_diffEditorController(new DiffEditorController(this))
 {
     setId(Constants::DIFF_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME));
     setTemporary(true);
 }
 
@@ -59,12 +64,33 @@ bool DiffEditorDocument::setContents(const QByteArray &contents)
     return true;
 }
 
+QString DiffEditorDocument::defaultPath() const
+{
+    if (!m_diffEditorController)
+        return QString();
+
+    return m_diffEditorController->workingDirectory();
+}
+
 bool DiffEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     Q_UNUSED(errorString)
-    Q_UNUSED(fileName)
     Q_UNUSED(autoSave)
-    return false;
+
+    if (!m_diffEditorController)
+        return false;
+
+    const QString contents = DiffUtils::makePatch(m_diffEditorController->diffFiles());
+
+    const bool ok = write(fileName, format(), contents, errorString);
+
+    if (!ok)
+        return false;
+
+    const QFileInfo fi(fileName);
+    setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
+    setDisplayName(QString());
+    return true;
 }
 
 Core::IDocument::ReloadBehavior DiffEditorDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const

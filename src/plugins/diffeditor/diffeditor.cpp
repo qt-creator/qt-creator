@@ -51,6 +51,7 @@
 #include <QToolBar>
 #include <QComboBox>
 #include <QFileInfo>
+#include <QDir>
 #include <QTextCodec>
 #include <QTextBlock>
 
@@ -316,13 +317,9 @@ bool DiffEditor::open(QString *errorString,
     if (!m_controller)
         return false;
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        *errorString = tr("Could not open patch file \"%1\".").arg(fileName);
+    QString patch;
+    if (m_document->read(fileName, &patch, errorString) != Utils::TextFileFormat::ReadSuccess)
         return false;
-    }
-
-    const QString patch = Core::EditorManager::defaultTextCodec()->toUnicode(file.readAll());
 
     bool ok = false;
     QList<FileData> fileDataList
@@ -336,7 +333,9 @@ bool DiffEditor::open(QString *errorString,
         return false;
     }
 
-    m_controller->setDiffFiles(fileDataList, QFileInfo(fileName).absolutePath());
+    const QFileInfo fi(fileName);
+    m_document->setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
+    m_controller->setDiffFiles(fileDataList, fi.absolutePath());
     return true;
 }
 
