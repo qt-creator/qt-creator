@@ -30,19 +30,30 @@ namespace Internal {
 
 using namespace QmlProfiler;
 
-enum SceneGraphEventType {
-    SceneGraphRendererFrame,
-    SceneGraphAdaptationLayerFrame,
-    SceneGraphContextFrame,
-    SceneGraphRenderLoopFrame,
-    SceneGraphTexturePrepare,
-    SceneGraphTextureDeletion,
-    SceneGraphPolishAndSync,
-    SceneGraphWindowsRenderShow,
-    SceneGraphWindowsAnimations,
-    SceneGraphWindowsPolishFrame,
+static const char *ThreadLabels[] = {
+    "GUI Thread",
+    "Render Thread"
+};
 
-    MaximumSceneGraphFrameType
+static const char *StageLabels[] = {
+    "Polish",
+    "Wait",
+    "Sync",
+    "Animations",
+    "Sync",
+    "Swap",
+    "Material Compile",
+    "Render Preprocess",
+    "Render Update",
+    "Render Bind",
+    "Render",
+    "Glyph Render",
+    "Glyph Upload",
+    "Texture Bind",
+    "Texture Convert",
+    "Texture Swizzle",
+    "Texture Upload",
+    "Texture Mipmap"
 };
 
 enum SceneGraphCategoryType {
@@ -52,23 +63,63 @@ enum SceneGraphCategoryType {
     MaximumSceneGraphCategoryType
 };
 
+enum SceneGraphStage {
+    Polish = 0,
+    Wait,
+    GUIThreadSync,
+    Animations,
+    MaximumGUIThreadStage,
+
+    RenderThreadSync = MaximumGUIThreadStage,
+    Swap,
+    Material,
+    MaximumRenderThreadStage,
+
+    RenderPreprocess = MaximumRenderThreadStage,
+    RenderUpdate,
+    RenderBind,
+    RenderRender,
+    MaximumRenderStage,
+
+    GlyphRender = MaximumRenderStage,
+    GlyphStore,
+    MaximumGlyphStage,
+
+    TextureBind = MaximumGlyphStage,
+    TextureConvert,
+    TextureSwizzle,
+    TextureUpload,
+    TextureMipmap,
+    MaximumTextureStage,
+
+    MaximumSceneGraphStage = MaximumTextureStage
+};
+
+
+Q_STATIC_ASSERT(sizeof(StageLabels) == MaximumSceneGraphStage * sizeof(const char *));
+
 class SceneGraphTimelineModel::SceneGraphTimelineModelPrivate :
         public SortedTimelineModel<SceneGraphTimelineModel::SceneGraphEvent,
                                    AbstractTimelineModel::AbstractTimelineModelPrivate>
 {
 public:
-    void addVP(QVariantMap &result, QString label, qint64 time) const;
+    SceneGraphTimelineModelPrivate();
+    int collapsedRowCount;
+    void flattenLoads();
+
 private:
-    bool seenPolishAndSync;
     Q_DECLARE_PUBLIC(SceneGraphTimelineModel)
 };
+
+SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::SceneGraphTimelineModelPrivate() :
+    collapsedRowCount(1)
+{
+}
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
     : AbstractTimelineModel(new SceneGraphTimelineModelPrivate, tr("Scene Graph"),
                             QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
 {
-    Q_D(SceneGraphTimelineModel);
-    d->seenPolishAndSync = false;
 }
 
 int SceneGraphTimelineModel::rowCount() const
@@ -76,47 +127,24 @@ int SceneGraphTimelineModel::rowCount() const
     Q_D(const SceneGraphTimelineModel);
     if (isEmpty())
         return 1;
-    return d->seenPolishAndSync ? 3 : 2;
+    return expanded() ? (MaximumSceneGraphStage + 1) : d->collapsedRowCount;
 }
 
 int SceneGraphTimelineModel::row(int index) const
 {
     Q_D(const SceneGraphTimelineModel);
-    return d->seenPolishAndSync ? d->range(index).sgEventType + 1 : 1;
+    return expanded() ? (d->range(index).stage + 1) : d->range(index).rowNumberCollapsed;
 }
 
 int SceneGraphTimelineModel::eventId(int index) const
 {
     Q_D(const SceneGraphTimelineModel);
-    return d->seenPolishAndSync ? d->range(index).sgEventType : SceneGraphGUIThread;
+    return d->range(index).stage;
 }
 
 QColor SceneGraphTimelineModel::color(int index) const
 {
-    // get duration in seconds
-    double eventDuration = duration(index) / 1e9;
-
-    // supposedly never above 60 frames per second
-    // limit it in that case
-    if (eventDuration < 1/60.0)
-        eventDuration = 1/60.0;
-
-    // generate hue based on fraction of the 60fps
-    double fpsFraction = 1 / (eventDuration * 60.0);
-    if (fpsFraction > 1.0)
-        fpsFraction = 1.0;
-    return colorByFraction(fpsFraction);
-}
-
-QString labelForSGType(int t)
-{
-    switch ((SceneGraphCategoryType)t) {
-    case SceneGraphRenderThread:
-        return QCoreApplication::translate("SceneGraphTimelineModel", "Render Thread");
-    case SceneGraphGUIThread:
-        return QCoreApplication::translate("SceneGraphTimelineModel", "GUI Thread");
-    default: return QString();
-    }
+    return colorByEventId(eventId(index));
 }
 
 QVariantList SceneGraphTimelineModel::labels() const
@@ -124,35 +152,19 @@ QVariantList SceneGraphTimelineModel::labels() const
     Q_D(const SceneGraphTimelineModel);
     QVariantList result;
 
-    static QVariant renderThreadLabel(labelForSGType(SceneGraphRenderThread));
-    static QVariant guiThreadLabel(labelForSGType(SceneGraphGUIThread));
-
     if (d->expanded && !isEmpty()) {
-        {
+        for (int i = 0; i < MaximumSceneGraphStage; ++i) {
             QVariantMap element;
-            element.insert(QLatin1String("description"), guiThreadLabel);
-            element.insert(QLatin1String("id"), SceneGraphGUIThread);
-            result << element;
-        }
-        if (d->seenPolishAndSync) {
-            QVariantMap element;
-            element.insert(QLatin1String("description"), renderThreadLabel);
-            element.insert(QLatin1String("id"), SceneGraphRenderThread);
+            element.insert(QLatin1String("displayName"), tr(ThreadLabels[i < MaximumGUIThreadStage ?
+                    SceneGraphGUIThread : SceneGraphRenderThread]));
+            element.insert(QLatin1String("description"), tr(StageLabels[i]));
+            element.insert(QLatin1String("id"), i);
             result << element;
         }
     }
 
     return result;
 }
-
-void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::addVP(QVariantMap &result,
-                                                                    QString label,
-                                                                    qint64 time) const
-{
-    if (time > 0)
-        result.insert(label, QmlProfilerBaseModel::formatTime(time));
-}
-
 
 QVariantMap SceneGraphTimelineModel::details(int index) const
 {
@@ -162,34 +174,12 @@ QVariantMap SceneGraphTimelineModel::details(int index) const
             AbstractTimelineModel::AbstractTimelineModelPrivate>::Range *ev =
             &d->range(index);
 
-    result.insert(QLatin1String("displayName"), labelForSGType(
-                                    d->seenPolishAndSync ? ev->sgEventType : SceneGraphGUIThread));
-    d->addVP(result, tr("Duration"), ev->duration );
-
-    if (ev->sgEventType == SceneGraphRenderThread) {
-        d->addVP(result, tr("Polish"), ev->timing[14]);
-        d->addVP(result, tr("Sync"), ev->timing[0]);
-        d->addVP(result, tr("Preprocess"), ev->timing[1]);
-        d->addVP(result, tr("Upload"), ev->timing[2]);
-        d->addVP(result, tr("Swizzle"), ev->timing[3]);
-        d->addVP(result, tr("Convert"), ev->timing[4]);
-        d->addVP(result, tr("Mipmap"), ev->timing[5]);
-        d->addVP(result, tr("Bind"), ev->timing[6]);
-        d->addVP(result, tr("Material"), ev->timing[7]);
-        d->addVP(result, tr("Glyph Render"), ev->timing[8]);
-        d->addVP(result, tr("Glyph Store"), ev->timing[9]);
-        d->addVP(result, tr("Update"), ev->timing[10]);
-        d->addVP(result, tr("Binding"), ev->timing[11]);
-        d->addVP(result, tr("Render"), ev->timing[12]);
-        d->addVP(result, tr("Swap"), ev->timing[13]);
-        d->addVP(result, tr("Animations"), ev->timing[15]);
-    }
-    if (ev->sgEventType == SceneGraphGUIThread) {
-        d->addVP(result, tr("Polish"), ev->timing[0]);
-        d->addVP(result, tr("Wait"), ev->timing[1]);
-        d->addVP(result, tr("Sync"), ev->timing[2]);
-        d->addVP(result, tr("Animations"), ev->timing[3]);
-    }
+    result.insert(QLatin1String("displayName"), tr(ThreadLabels[ev->stage < MaximumGUIThreadStage ?
+                        SceneGraphGUIThread : SceneGraphRenderThread]));
+    result.insert(tr("Stage"), tr(StageLabels[ev->stage]));
+    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(ev->duration));
+    if (ev->glyphCount >= 0)
+        result.insert(tr("Glyph Count"), QString::number(ev->glyphCount));
 
     return result;
 }
@@ -202,8 +192,6 @@ void SceneGraphTimelineModel::loadData()
     if (simpleModel->isEmpty())
         return;
 
-    int lastRenderEvent = -1;
-
     // combine the data of several eventtypes into two rows
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
@@ -211,98 +199,144 @@ void SceneGraphTimelineModel::loadData()
         if (!accepted(type))
             continue;
 
-        if (type.detailType == SceneGraphRenderLoopFrame) {
-            SceneGraphEvent newEvent;
-            newEvent.sgEventType = SceneGraphRenderThread;
-            qint64 duration = event.numericData1 + event.numericData2 + event.numericData3;
-            qint64 startTime = event.startTime - duration;
-            for (int i=0; i < timingFieldCount; i++)
-                newEvent.timing[i] = 0;
-
-            // Filter out events with incorrect timings due to interrupted thread on server side
-            if (duration > 0 && startTime > 0)
-                lastRenderEvent = d->insert(startTime, duration, newEvent);
+        switch ((QmlDebug::SceneGraphFrameType)type.detailType) {
+        case QmlDebug::SceneGraphRendererFrame: {
+            qint64 startTime = event.startTime - event.numericData1 - event.numericData2 -
+                    event.numericData3 - event.numericData4;
+            d->insert(startTime, event.numericData1, SceneGraphEvent(RenderPreprocess));
+            startTime += event.numericData1;
+            d->insert(startTime, event.numericData2, SceneGraphEvent(RenderUpdate));
+            startTime += event.numericData2;
+            d->insert(startTime, event.numericData3, SceneGraphEvent(RenderBind));
+            startTime += event.numericData3;
+            d->insert(startTime, event.numericData4, SceneGraphEvent(RenderRender));
+            break;
         }
+        case QmlDebug::SceneGraphAdaptationLayerFrame: {
+            qint64 startTime = event.startTime - event.numericData2 - event.numericData3;
+            d->insert(startTime, event.numericData2,
+                      SceneGraphEvent(GlyphRender, event.numericData1));
+            startTime += event.numericData2;
+            d->insert(startTime, event.numericData3,
+                      SceneGraphEvent(GlyphStore, event.numericData1));
+            break;
+        }
+        case QmlDebug::SceneGraphContextFrame: {
+            d->insert(event.startTime - event.numericData1, event.numericData1,
+                      SceneGraphEvent(Material));
+            break;
+        }
+        case QmlDebug::SceneGraphRenderLoopFrame: {
+            qint64 startTime = event.startTime - event.numericData1 - event.numericData2 -
+                    event.numericData3;
+            d->insert(startTime, event.numericData1, SceneGraphEvent(RenderThreadSync));
+            startTime += event.numericData1 + event.numericData2;
+            // Skip actual rendering. We get a SceneGraphRendererFrame for that
+            d->insert(startTime, event.numericData3, SceneGraphEvent(Swap));
+            break;
+        }
+        case QmlDebug::SceneGraphTexturePrepare: {
+            qint64 startTime = event.startTime - event.numericData1 - event.numericData2 -
+                    event.numericData3 - event.numericData4 - event.numericData5;
 
-        if (lastRenderEvent >= 0) {
-            qint64 *timing = d->data(lastRenderEvent).timing;
-            switch ((SceneGraphEventType)type.detailType) {
-            case SceneGraphRendererFrame: {
-                timing[1] = event.numericData1;
-                timing[10] = event.numericData2;
-                timing[11] = event.numericData3;
-                timing[12] = event.numericData4;
-                break;
-            }
-            case SceneGraphAdaptationLayerFrame: {
-                timing[8] = event.numericData2;
-                timing[9] = event.numericData3;
-                break;
-            }
-            case SceneGraphContextFrame: {
-                timing[7] = event.numericData1;
-                break;
-            }
-            case SceneGraphRenderLoopFrame: {
-                timing[0] = event.numericData1;
-                timing[13] = event.numericData3;
-                break;
-            }
-            case SceneGraphTexturePrepare: {
-                timing[2] = event.numericData4;
-                timing[3] = event.numericData3;
-                timing[4] = event.numericData2;
-                timing[5] = event.numericData5;
-                timing[6] = event.numericData1;
-                break;
-            }
-            case SceneGraphPolishAndSync: {
-                d->seenPolishAndSync = true;
-                // GUI thread
-                SceneGraphEvent newEvent;
-                newEvent.sgEventType = SceneGraphGUIThread;
-                qint64 duration = event.numericData1 + event.numericData2 + event.numericData3 + event.numericData4;
-                qint64 startTime = event.startTime - duration;
-                for (int i=0; i < timingFieldCount; i++)
-                    newEvent.timing[i] = 0;
+            d->insert(startTime, event.numericData1, SceneGraphEvent(TextureBind));
+            startTime += event.numericData1;
+            d->insert(startTime, event.numericData2, SceneGraphEvent(TextureConvert));
+            startTime += event.numericData2;
+            d->insert(startTime, event.numericData3, SceneGraphEvent(TextureSwizzle));
+            startTime += event.numericData3;
+            d->insert(startTime, event.numericData4, SceneGraphEvent(TextureUpload));
+            startTime += event.numericData4;
+            d->insert(startTime, event.numericData4, SceneGraphEvent(TextureMipmap));
+            break;
+        }
+        case QmlDebug::SceneGraphPolishAndSync: {
+            qint64 startTime = event.startTime - event.numericData1 - event.numericData2 -
+                    event.numericData3 - event.numericData4;
 
-                newEvent.timing[0] = event.numericData1;
-                newEvent.timing[1] = event.numericData2;
-                newEvent.timing[2] = event.numericData3;
-                newEvent.timing[3] = event.numericData4;
-
-                // Filter out events with incorrect timings due to interrupted thread on server side
-                if (duration > 0 && startTime > 0)
-                    d->insert(startTime, duration, newEvent);
-
-                break;
-            }
-            case SceneGraphWindowsAnimations: {
-                timing[15] = event.numericData1;
-                break;
-            }
-            case SceneGraphWindowsPolishFrame: {
-                timing[14] = event.numericData1;
-                break;
-            }
-            default: break;
-            }
+            d->insert(startTime, event.numericData1, SceneGraphEvent(Polish));
+            startTime += event.numericData1;
+            d->insert(startTime, event.numericData2, SceneGraphEvent(Wait));
+            startTime += event.numericData2;
+            d->insert(startTime, event.numericData3, SceneGraphEvent(GUIThreadSync));
+            startTime += event.numericData3;
+            d->insert(startTime, event.numericData4, SceneGraphEvent(Animations));
+            break;
+        }
+        case QmlDebug::SceneGraphWindowsAnimations: {
+            // GUI thread, separate animations stage
+            d->insert(event.startTime - event.numericData1, event.numericData1,
+                      SceneGraphEvent(Animations));
+            break;
+        }
+        case QmlDebug::SceneGraphPolishFrame: {
+            // GUI thread, separate polish stage
+            d->insert(event.startTime - event.numericData1, event.numericData1,
+                      SceneGraphEvent(Polish));
+            break;
+        }
+        default: break;
         }
 
         d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), simpleModel->getEvents().count());
     }
 
     d->computeNesting();
+    d->flattenLoads();
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
+}
+
+void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::flattenLoads()
+{
+    collapsedRowCount = 0;
+
+    // computes "compressed row"
+    QVector <qint64> eventEndTimes;
+
+    for (int i = 0; i < count(); i++) {
+        SceneGraphEvent &event = data(i);
+        const Range &start = range(i);
+        // Don't try to put render thread events in GUI row and vice versa.
+        // Rows below those are free for all.
+        event.rowNumberCollapsed = (event.stage < MaximumGUIThreadStage ? SceneGraphGUIThread :
+                                                                          SceneGraphRenderThread);
+        while (eventEndTimes.count() > event.rowNumberCollapsed &&
+               eventEndTimes[event.rowNumberCollapsed] > start.start) {
+            ++event.rowNumberCollapsed;
+            if (event.stage < MaximumGUIThreadStage) {
+                if (event.rowNumberCollapsed == SceneGraphRenderThread)
+                    ++event.rowNumberCollapsed;
+            } else if (event.rowNumberCollapsed == SceneGraphGUIThread) {
+                ++event.rowNumberCollapsed;
+            }
+        }
+
+        while (eventEndTimes.count() <= event.rowNumberCollapsed)
+            eventEndTimes << 0; // increase stack length, proper value added below
+        eventEndTimes[event.rowNumberCollapsed] = start.start + start.duration;
+
+        // readjust to account for category empty row
+        event.rowNumberCollapsed++;
+        if (event.rowNumberCollapsed > collapsedRowCount)
+            collapsedRowCount = event.rowNumberCollapsed;
+    }
+
+    // Starting from 0, count is maxIndex+1
+    collapsedRowCount++;
 }
 
 void SceneGraphTimelineModel::clear()
 {
     Q_D(SceneGraphTimelineModel);
     d->clear();
-    d->seenPolishAndSync = false;
     d->expanded = false;
+    d->collapsedRowCount = 1;
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
+}
+
+SceneGraphTimelineModel::SceneGraphEvent::SceneGraphEvent(int stage, int glyphCount) :
+    stage(stage), rowNumberCollapsed(-1), glyphCount(glyphCount)
+{
 }
 
 } // namespace Internal

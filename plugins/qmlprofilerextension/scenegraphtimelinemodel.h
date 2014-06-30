@@ -29,16 +29,16 @@
 namespace QmlProfilerExtension {
 namespace Internal {
 
-#define timingFieldCount 16
-
 class SceneGraphTimelineModel : public QmlProfiler::AbstractTimelineModel
 {
     Q_OBJECT
 public:
 
     struct SceneGraphEvent {
-        int sgEventType;
-        qint64 timing[timingFieldCount];
+        SceneGraphEvent(int stage = -1, int glyphCount = -1);
+        int stage;
+        int rowNumberCollapsed;
+        int glyphCount; // only used for one event type
     };
 
     SceneGraphTimelineModel(QObject *parent = 0);
