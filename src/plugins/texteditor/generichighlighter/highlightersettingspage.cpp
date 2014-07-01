@@ -187,9 +187,9 @@ void HighlighterSettingsPage::requestAvailableDefinitionsMetaData()
     setDownloadDefinitionsState(false);
 
     connect(Manager::instance(),
-            SIGNAL(definitionsMetaDataReady(QList<Internal::HighlightDefinitionMetaData>)),
+            SIGNAL(definitionsMetaDataReady(QList<Internal::DefinitionMetaDataPtr>)),
             this,
-            SLOT(manageDefinitions(QList<Internal::HighlightDefinitionMetaData>)),
+            SLOT(manageDefinitions(QList<Internal::DefinitionMetaDataPtr>)),
             Qt::UniqueConnection);
     connect(Manager::instance(), SIGNAL(errorDownloadingDefinitionsMetaData()),
             this, SLOT(showError()), Qt::UniqueConnection);
@@ -199,14 +199,14 @@ void HighlighterSettingsPage::requestAvailableDefinitionsMetaData()
 void HighlighterSettingsPage::ignoreDownloadReply()
 {
     disconnect(Manager::instance(),
-               SIGNAL(definitionsMetaDataReady(QList<Internal::HighlightDefinitionMetaData>)),
+               SIGNAL(definitionsMetaDataReady(QList<Internal::DefinitionMetaDataPtr>)),
                this,
-               SLOT(manageDefinitions(QList<Internal::HighlightDefinitionMetaData>)));
+               SLOT(manageDefinitions(QList<Internal::DefinitionMetaDataPtr>)));
     disconnect(Manager::instance(), SIGNAL(errorDownloadingDefinitionsMetaData()),
                this, SLOT(showError()));
 }
 
-void HighlighterSettingsPage::manageDefinitions(const QList<HighlightDefinitionMetaData> &metaData)
+void HighlighterSettingsPage::manageDefinitions(const QList<DefinitionMetaDataPtr> &metaData)
 {
     ManageDefinitionsDialog dialog(metaData,
                                    m_d->m_page->definitionFilesPath->path() + QLatin1Char('/'),

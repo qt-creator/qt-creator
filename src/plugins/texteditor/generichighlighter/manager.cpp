@@ -380,26 +380,26 @@ DefinitionMetaDataPtr Manager::parseMetadata(const QFileInfo &fileInfo)
     return metaData;
 }
 
-QList<HighlightDefinitionMetaData> Manager::parseAvailableDefinitionsList(QIODevice *device) const
+QList<DefinitionMetaDataPtr> Manager::parseAvailableDefinitionsList(QIODevice *device) const
 {
     static const QLatin1Char kSlash('/');
     static const QLatin1String kDefinition("Definition");
 
-    QList<HighlightDefinitionMetaData> metaDataList;
+    QList<DefinitionMetaDataPtr> metaDataList;
     QXmlStreamReader reader(device);
     while (!reader.atEnd() && !reader.hasError()) {
         if (reader.readNext() == QXmlStreamReader::StartElement &&
             reader.name() == kDefinition) {
             const QXmlStreamAttributes &atts = reader.attributes();
 
-            HighlightDefinitionMetaData metaData;
-            metaData.name = atts.value(QLatin1String(kName)).toString();
-            metaData.version = atts.value(QLatin1String(kVersion)).toString();
+            DefinitionMetaDataPtr metaData(new HighlightDefinitionMetaData);
+            metaData->name = atts.value(QLatin1String(kName)).toString();
+            metaData->version = atts.value(QLatin1String(kVersion)).toString();
             QString url = atts.value(QLatin1String(kUrl)).toString();
-            metaData.url = QUrl(url);
+            metaData->url = QUrl(url);
             const int slash = url.lastIndexOf(kSlash);
             if (slash != -1)
-                metaData.fileName = url.right(url.length() - slash - 1);
+                metaData->fileName = url.right(url.length() - slash - 1);
 
             metaDataList.append(metaData);
         }

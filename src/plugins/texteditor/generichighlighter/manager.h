@@ -99,7 +99,7 @@ private:
     bool m_isDownloadingDefinitionsSpec;
     QList<DefinitionDownloader *> m_downloaders;
     QFutureWatcher<void> m_downloadWatcher;
-    QList<HighlightDefinitionMetaData> parseAvailableDefinitionsList(QIODevice *device) const;
+    QList<DefinitionMetaDataPtr> parseAvailableDefinitionsList(QIODevice *device) const;
 
     QSet<QString> m_isBuildingDefinition;
     QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
@@ -116,7 +116,7 @@ private:
     friend class ManagerProcessor;
 
 signals:
-    void definitionsMetaDataReady(const QList<Internal::HighlightDefinitionMetaData>&);
+    void definitionsMetaDataReady(const QList<Internal::DefinitionMetaDataPtr>&);
     void errorDownloadingDefinitionsMetaData();
 };
 
