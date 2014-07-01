@@ -65,7 +65,7 @@ public:
     void clearParams() { m_params = Parameters(); }
 
     bool isAsynchronous() const QTC_OVERRIDE;
-    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const QTC_OVERRIDE;
     TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
 private:

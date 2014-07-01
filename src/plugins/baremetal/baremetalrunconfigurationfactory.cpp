@@ -63,7 +63,7 @@ BareMetalRunConfigurationFactory::~BareMetalRunConfigurationFactory()
 {
 }
 
-bool BareMetalRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool BareMetalRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -97,13 +97,13 @@ QList<Core::Id> BareMetalRunConfigurationFactory::availableCreationIds(Target *p
     return result;
 }
 
-QString BareMetalRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString BareMetalRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return tr("%1 (on GDB server or hardware debugger)")
         .arg(QFileInfo(pathFromId(id)).completeBaseName());
 }
 
-RunConfiguration *BareMetalRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
+RunConfiguration *BareMetalRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     Q_UNUSED(id);
     return new BareMetalRunConfiguration(parent, id, pathFromId(id));

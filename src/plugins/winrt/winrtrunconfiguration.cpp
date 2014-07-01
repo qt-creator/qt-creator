@@ -40,7 +40,7 @@ namespace Internal {
 static const char argumentsIdC[] = "WinRtRunConfigurationArgumentsId";
 static const char uninstallAfterStopIdC[] = "WinRtRunConfigurationUninstallAfterStopId";
 
-WinRtRunConfiguration::WinRtRunConfiguration(ProjectExplorer::Target *parent, const Core::Id &id)
+WinRtRunConfiguration::WinRtRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
     : RunConfiguration(parent, id)
     , m_uninstallAfterStop(false)
 {

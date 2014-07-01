@@ -328,7 +328,7 @@ void EmacsKeysPlugin::insertLineAndIndent()
     m_currentState->endOwnAction(KeysActionOther);
 }
 
-QAction *EmacsKeysPlugin::registerAction(const Core::Id &id, const char *slot,
+QAction *EmacsKeysPlugin::registerAction(Core::Id id, const char *slot,
     const QString &title)
 {
     QAction *result = new QAction(title, this);

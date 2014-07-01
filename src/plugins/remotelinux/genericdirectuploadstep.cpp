@@ -95,7 +95,7 @@ public:
 
 } // namespace Internal
 
-GenericDirectUploadStep::GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id)
+GenericDirectUploadStep::GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, Core::Id id)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     ctor();

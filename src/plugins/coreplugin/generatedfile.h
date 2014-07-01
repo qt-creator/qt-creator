@@ -77,7 +77,7 @@ public:
 
     // Id of editor to open the file with
     Id editorId() const;
-    void setEditorId(const Id &id);
+    void setEditorId(Id id);
 
     bool write(QString *errorMessage) const;
 

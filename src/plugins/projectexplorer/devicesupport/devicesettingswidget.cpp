@@ -300,7 +300,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
         m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
     }
 
-    foreach (const Core::Id actionId, device->actionIds()) {
+    foreach (Core::Id actionId, device->actionIds()) {
         QPushButton * const button = new QPushButton(device->displayNameForActionId(actionId));
         m_additionalActionButtons << button;
         connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));

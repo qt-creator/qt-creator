@@ -68,19 +68,19 @@ QList<Core::Id> AutoreconfStepFactory::availableCreationIds(BuildStepList *paren
     return QList<Core::Id>() << Core::Id(AUTORECONF_STEP_ID);
 }
 
-QString AutoreconfStepFactory::displayNameForId(const Core::Id id) const
+QString AutoreconfStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == AUTORECONF_STEP_ID)
         return tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id.");
     return QString();
 }
 
-bool AutoreconfStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool AutoreconfStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     return canHandle(parent) && Core::Id(AUTORECONF_STEP_ID) == id;
 }
 
-BuildStep *AutoreconfStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *AutoreconfStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -132,7 +132,7 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl) :
     ctor();
 }
 
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl, const Core::Id id) :
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Core::Id id) :
     AbstractProcessStep(bsl, id)
 {
     ctor();

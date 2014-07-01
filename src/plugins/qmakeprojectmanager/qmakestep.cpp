@@ -78,7 +78,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl) :
     ctor();
 }
 
-QMakeStep::QMakeStep(BuildStepList *bsl, const Core::Id id) :
+QMakeStep::QMakeStep(BuildStepList *bsl, Core::Id id) :
     AbstractProcessStep(bsl, id),
     m_forced(false),
     m_linkQmlDebuggingLibrary(DebugLink)
@@ -661,7 +661,7 @@ QMakeStepFactory::~QMakeStepFactory()
 {
 }
 
-bool QMakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool QMakeStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
         return false;
@@ -670,7 +670,7 @@ bool QMakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
     return id == QMAKE_BS_ID;
 }
 
-ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildStepList *parent, const Core::Id id)
+ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -714,7 +714,7 @@ QList<Core::Id> QMakeStepFactory::availableCreationIds(ProjectExplorer::BuildSte
     return QList<Core::Id>();
 }
 
-QString QMakeStepFactory::displayNameForId(const Core::Id id) const
+QString QMakeStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == QMAKE_BS_ID)
         return tr("qmake");

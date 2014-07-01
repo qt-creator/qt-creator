@@ -94,7 +94,7 @@ private slots:
     void scrollHalfUp();          // M-v
 
 private:
-    QAction *registerAction(const Core::Id &id, const char *slot,
+    QAction *registerAction(Core::Id id, const char *slot,
         const QString &title);
     void genericGoto(QTextCursor::MoveOperation op, bool abortAssist = true);
     void genericVScroll(int direction);

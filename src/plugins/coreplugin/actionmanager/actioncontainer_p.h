@@ -40,7 +40,7 @@ namespace Internal {
 
 struct Group
 {
-    Group(const Id &id) : id(id) {}
+    Group(Id id) : id(id) {}
     Id id;
     QList<QObject *> items; // Command * or ActionContainer *
 };

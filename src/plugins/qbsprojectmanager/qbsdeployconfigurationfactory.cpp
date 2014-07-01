@@ -66,7 +66,7 @@ QbsInstallStep *QbsDeployConfiguration::qbsInstallStep() const
     return 0;
 }
 
-QbsDeployConfiguration::QbsDeployConfiguration(ProjectExplorer::Target *target, const Core::Id id) :
+QbsDeployConfiguration::QbsDeployConfiguration(ProjectExplorer::Target *target, Core::Id id) :
     ProjectExplorer::DeployConfiguration(target, id)
 { }
 
@@ -98,7 +98,7 @@ QList<Core::Id> QbsDeployConfigurationFactory::availableCreationIds(ProjectExplo
     return ids;
 }
 
-QString QbsDeployConfigurationFactory::displayNameForId(const Core::Id id) const
+QString QbsDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == genericQbsDeployConfigurationId())
         return genericQbsDisplayName();
@@ -112,7 +112,7 @@ bool QbsDeployConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
 }
 
 ProjectExplorer::DeployConfiguration
-*QbsDeployConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
+*QbsDeployConfigurationFactory::create(ProjectExplorer::Target *parent, Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
 

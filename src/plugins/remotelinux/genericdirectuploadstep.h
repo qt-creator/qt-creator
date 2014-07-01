@@ -41,7 +41,7 @@ class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDep
     Q_OBJECT
 
 public:
-    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
+    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, GenericDirectUploadStep *other);
     ~GenericDirectUploadStep();
 

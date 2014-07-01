@@ -41,7 +41,7 @@ class ClipboardAssistProvider: public IAssistProvider
 {
 public:
     bool isAsynchronous() const;
-    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const QTC_OVERRIDE;
     IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 };
 

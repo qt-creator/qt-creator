@@ -454,7 +454,7 @@ protected:
 
     void dragEnterEvent(QDragEnterEvent *e);
 
-    void showDefaultContextMenu(QContextMenuEvent *e, const Core::Id menuContextId);
+    void showDefaultContextMenu(QContextMenuEvent *e, Core::Id menuContextId);
 
 public:
     struct Link

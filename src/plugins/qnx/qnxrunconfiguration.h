@@ -43,7 +43,7 @@ class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
 {
     Q_OBJECT
 public:
-    QnxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
+    QnxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
             const QString &projectFilePath);
 
     Utils::Environment environment() const;

@@ -260,7 +260,7 @@ void NavigationWidget::activateSubWidget()
     activateSubWidget(id);
 }
 
-void NavigationWidget::activateSubWidget(const Id &factoryId)
+void NavigationWidget::activateSubWidget(Id factoryId)
 {
     setShown(true);
     foreach (Internal::NavigationSubWidget *subWidget, d->m_subWidgets) {
@@ -413,7 +413,7 @@ void NavigationWidget::setSuppressed(bool b)
         NavigationWidgetPlaceHolder::m_current->setVisible(d->m_shown && !d->m_suppressed);
 }
 
-int NavigationWidget::factoryIndex(const Id &id)
+int NavigationWidget::factoryIndex(Id id)
 {
     for (int row = 0; row < d->m_factoryModel->rowCount(); ++row) {
         if (d->m_factoryModel->data(d->m_factoryModel->index(row, 0), FactoryIdRole).value<Core::Id>() == id)

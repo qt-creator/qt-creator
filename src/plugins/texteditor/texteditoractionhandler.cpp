@@ -382,7 +382,7 @@ void TextEditorActionHandler::createActions()
     m_unfoldAllAction->setEnabled(m_optionalActions & UnCollapseAll);
 }
 
-QAction *TextEditorActionHandler::registerAction(const Core::Id &id,
+QAction *TextEditorActionHandler::registerAction(Core::Id id,
                                                  const char *slot,
                                                  bool scriptable,
                                                  const QString &title,

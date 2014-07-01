@@ -40,7 +40,7 @@ class WinRtRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    explicit WinRtRunConfiguration(ProjectExplorer::Target *parent, const Core::Id &id);
+    explicit WinRtRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     QWidget *createConfigurationWidget();
     bool isEnabled() const { return true; } // Always enabled like DLL run control

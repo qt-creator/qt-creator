@@ -299,7 +299,7 @@ void QmlJSEditorPlugin::showContextPane()
 }
 
 Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a,
-                                          Core::Context &context, const Core::Id &id,
+                                          Core::Context &context, Core::Id id,
                                           Core::ActionContainer *c1, const QString &keySequence)
 {
     Core::Command *command = Core::ActionManager::registerAction(a, id, context);

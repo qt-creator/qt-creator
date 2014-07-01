@@ -55,13 +55,13 @@ public:
     Task task(const QModelIndex &index) const;
 
     QList<Core::Id> categoryIds() const;
-    QString categoryDisplayName(const Core::Id &categoryId) const;
-    void addCategory(const Core::Id &categoryId, const QString &categoryName);
+    QString categoryDisplayName(Core::Id categoryId) const;
+    void addCategory(Core::Id categoryId, const QString &categoryName);
 
-    QList<Task> tasks(const Core::Id &categoryId = Core::Id()) const;
+    QList<Task> tasks(Core::Id categoryId = Core::Id()) const;
     void addTask(const Task &task);
     void removeTask(const Task &task);
-    void clearTasks(const Core::Id &categoryId = Core::Id());
+    void clearTasks(Core::Id categoryId = Core::Id());
     void updateTaskFileName(unsigned int id, const QString &fileName);
     void updateTaskLineNumber(unsigned int id, int line);
 
@@ -71,10 +71,10 @@ public:
 
     enum Roles { File = Qt::UserRole, Line, MovedLine, Description, FileNotFound, Type, Category, Icon, Task_t };
 
-    int taskCount(const Core::Id &categoryId);
-    int errorTaskCount(const Core::Id &categoryId);
-    int warningTaskCount(const Core::Id &categoryId);
-    int unknownTaskCount(const Core::Id &categoryId);
+    int taskCount(Core::Id categoryId);
+    int errorTaskCount(Core::Id categoryId);
+    int warningTaskCount(Core::Id categoryId);
+    int unknownTaskCount(Core::Id categoryId);
 
     bool hasFile(const QModelIndex &index) const;
 

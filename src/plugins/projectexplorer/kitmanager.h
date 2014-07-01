@@ -117,7 +117,7 @@ public:
 
     static QList<Kit *> kits();
     static QList<Kit *> matchingKits(const KitMatcher &matcher);
-    static Kit *find(const Core::Id &id);
+    static Kit *find(Core::Id id);
     static Kit *find(const KitMatcher &matcher);
     static Kit *defaultKit();
 

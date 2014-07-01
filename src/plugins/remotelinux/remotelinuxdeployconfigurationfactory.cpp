@@ -70,14 +70,14 @@ QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Targ
     return ids;
 }
 
-QString RemoteLinuxDeployConfigurationFactory::displayNameForId(const Core::Id id) const
+QString RemoteLinuxDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == genericDeployConfigurationId())
         return genericLinuxDisplayName();
     return QString();
 }
 
-bool RemoteLinuxDeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool RemoteLinuxDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }

@@ -80,7 +80,7 @@ class QmlJSCompletionAssistProvider : public TextEditor::CompletionAssistProvide
     Q_OBJECT
 
 public:
-    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const QTC_OVERRIDE;
     TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
     int activationCharSequenceLength() const QTC_OVERRIDE;

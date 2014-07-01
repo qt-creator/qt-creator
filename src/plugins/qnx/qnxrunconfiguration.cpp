@@ -45,7 +45,7 @@ namespace {
 const char QtLibPathKey[] = "Qt4ProjectManager.QnxRunConfiguration.QtLibPath";
 }
 
-QnxRunConfiguration::QnxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id, const QString &proFilePath)
+QnxRunConfiguration::QnxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &proFilePath)
     : RemoteLinux::RemoteLinuxRunConfiguration(parent, id, proFilePath)
 {
 }

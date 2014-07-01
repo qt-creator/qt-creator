@@ -119,7 +119,7 @@ void ImageViewerActionHandler::createActions()
     and keyboard shortcut \a key, and registers it in the action manager.
 */
 
-void ImageViewerActionHandler::registerNewAction(int actionId, const Core::Id &id,
+void ImageViewerActionHandler::registerNewAction(int actionId, Core::Id id,
     const QString &title, const QKeySequence &key)
 {
     Core::Context context(Constants::IMAGEVIEWER_ID);

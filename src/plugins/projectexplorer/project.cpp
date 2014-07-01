@@ -225,7 +225,7 @@ void Project::setActiveTarget(Target *target)
     }
 }
 
-Target *Project::target(const Core::Id id) const
+Target *Project::target(Core::Id id) const
 {
     return Utils::findOr(d->m_targets, 0, [&id](Target *target) {
         return target->id() == id;

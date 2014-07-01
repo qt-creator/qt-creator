@@ -71,7 +71,7 @@ public:
 
 protected:
     GenericMakeStep(ProjectExplorer::BuildStepList *parent, GenericMakeStep *bs);
-    GenericMakeStep(ProjectExplorer::BuildStepList *parent, const Core::Id id);
+    GenericMakeStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
     bool fromMap(const QVariantMap &map);
 
 private:
@@ -113,8 +113,8 @@ class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit GenericMakeStepFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
     bool canClone(ProjectExplorer::BuildStepList *parent,
                   ProjectExplorer::BuildStep *source) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
@@ -124,7 +124,7 @@ public:
                                         const QVariantMap &map);
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const;
-    QString displayNameForId(const Core::Id id) const;
+    QString displayNameForId(Core::Id id) const;
 };
 
 } // namespace Internal

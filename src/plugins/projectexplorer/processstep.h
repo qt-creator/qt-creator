@@ -46,10 +46,10 @@ public:
     ~ProcessStepFactory();
 
     virtual QList<Core::Id> availableCreationIds(BuildStepList *parent) const;
-    virtual QString displayNameForId(const Core::Id id) const;
+    virtual QString displayNameForId(Core::Id id) const;
 
-    virtual bool canCreate(BuildStepList *parent, const Core::Id id) const;
-    virtual BuildStep *create(BuildStepList *parent, const Core::Id id);
+    virtual bool canCreate(BuildStepList *parent, Core::Id id) const;
+    virtual BuildStep *create(BuildStepList *parent, Core::Id id);
     virtual bool canRestore(BuildStepList *parent, const QVariantMap &map) const;
     virtual BuildStep *restore(BuildStepList *parent, const QVariantMap &map);
     virtual bool canClone(BuildStepList *parent, BuildStep *product) const;

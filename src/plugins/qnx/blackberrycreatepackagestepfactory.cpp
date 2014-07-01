@@ -65,7 +65,7 @@ QList<Core::Id> BlackBerryCreatePackageStepFactory::availableCreationIds(
     return QList<Core::Id>() << Core::Id(Constants::QNX_CREATE_PACKAGE_BS_ID);
 }
 
-QString BlackBerryCreatePackageStepFactory::displayNameForId(const Core::Id id) const
+QString BlackBerryCreatePackageStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == Constants::QNX_CREATE_PACKAGE_BS_ID)
         return tr("Create BAR Packages");
@@ -78,7 +78,7 @@ bool BlackBerryCreatePackageStepFactory::canCreate(ProjectExplorer::BuildStepLis
     return availableCreationIds(parent).contains(id);
 }
 
-ProjectExplorer::BuildStep *BlackBerryCreatePackageStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
+ProjectExplorer::BuildStep *BlackBerryCreatePackageStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

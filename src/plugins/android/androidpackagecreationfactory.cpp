@@ -62,19 +62,19 @@ QList<Core::Id> AndroidPackageCreationFactory::availableCreationIds(BuildStepLis
     return QList<Core::Id>() << AndroidPackageCreationStep::CreatePackageId;
 }
 
-QString AndroidPackageCreationFactory::displayNameForId(const Core::Id id) const
+QString AndroidPackageCreationFactory::displayNameForId(Core::Id id) const
 {
     if (id == AndroidPackageCreationStep::CreatePackageId)
         return tr("Create Android (.apk) Package");
     return QString();
 }
 
-bool AndroidPackageCreationFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool AndroidPackageCreationFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-BuildStep *AndroidPackageCreationFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *AndroidPackageCreationFactory::create(BuildStepList *parent, Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
     Q_UNUSED(id);

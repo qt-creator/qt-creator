@@ -43,7 +43,7 @@ class REMOTELINUX_EXPORT AbstractPackagingStep : public ProjectExplorer::BuildSt
     Q_OBJECT
 
 public:
-    AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
+    AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, AbstractPackagingStep *other);
     ~AbstractPackagingStep();
 

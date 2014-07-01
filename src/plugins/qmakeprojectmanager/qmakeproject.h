@@ -93,7 +93,7 @@ public:
     bool hasApplicationProFile(const QString &path) const;
 
     static QList<QmakeProFileNode *> nodesWithQtcRunnable(QList<QmakeProFileNode *> nodes);
-    static QList<Core::Id> idsForNodes(const Core::Id base, const QList<QmakeProFileNode *> &nodes);
+    static QList<Core::Id> idsForNodes(Core::Id base, const QList<QmakeProFileNode *> &nodes);
 
     void notifyChanged(const QString &name);
 

@@ -831,7 +831,7 @@ void FakeVimUserCommandsPage::apply()
 class FakeVimCompletionAssistProvider : public CompletionAssistProvider
 {
 public:
-    bool supportsEditor(const Id &) const
+    bool supportsEditor(Id ) const
     {
         return false;
     }
@@ -1058,8 +1058,8 @@ private:
     FakeVimUserCommandsPage *m_fakeVimUserCommandsPage;
     QHash<IEditor *, FakeVimHandler *> m_editorToHandler;
 
-    void triggerAction(const Id &id);
-    void setActionChecked(const Id &id, bool check);
+    void triggerAction(Id id);
+    void setActionChecked(Id id, bool check);
 
     typedef int (*DistFunction)(const QRect &cursor, const QRect &other);
     void moveSomewhere(DistFunction f, int count);
@@ -1386,7 +1386,7 @@ void FakeVimPluginPrivate::showSettingsDialog()
     ICore::showOptionsDialog(SETTINGS_CATEGORY, SETTINGS_ID);
 }
 
-void FakeVimPluginPrivate::triggerAction(const Id &id)
+void FakeVimPluginPrivate::triggerAction(Id id)
 {
     Core::Command *cmd = ActionManager::command(id);
     QTC_ASSERT(cmd, qDebug() << "UNKNOWN CODE: " << id.name(); return);
@@ -1395,7 +1395,7 @@ void FakeVimPluginPrivate::triggerAction(const Id &id)
     action->trigger();
 }
 
-void FakeVimPluginPrivate::setActionChecked(const Id &id, bool check)
+void FakeVimPluginPrivate::setActionChecked(Id id, bool check)
 {
     Core::Command *cmd = ActionManager::command(id);
     QTC_ASSERT(cmd, return);

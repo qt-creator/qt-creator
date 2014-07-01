@@ -361,7 +361,7 @@ QWidget *TaskWindow::outputWidget(QWidget *)
     return d->m_listview;
 }
 
-void TaskWindow::clearTasks(const Core::Id &categoryId)
+void TaskWindow::clearTasks(Core::Id categoryId)
 {
     if (categoryId.uniqueIdentifier() != 0 && !d->m_filter->filteredCategories().contains(categoryId)) {
         if (d->m_filter->filterIncludesErrors())
@@ -383,7 +383,7 @@ void TaskWindow::clearTasks(const Core::Id &categoryId)
     setBadgeNumber(d->m_badgeCount);
 }
 
-void TaskWindow::setCategoryVisibility(const Core::Id &categoryId, bool visible)
+void TaskWindow::setCategoryVisibility(Core::Id categoryId, bool visible)
 {
     if (categoryId.uniqueIdentifier() == 0)
         return;
@@ -424,7 +424,7 @@ void TaskWindow::visibilityChanged(bool visible)
         delayedInitialization();
 }
 
-void TaskWindow::addCategory(const Core::Id &categoryId, const QString &displayName, bool visible)
+void TaskWindow::addCategory(Core::Id categoryId, const QString &displayName, bool visible)
 {
     d->m_model->addCategory(categoryId, displayName);
     if (!visible) {
@@ -557,7 +557,7 @@ void TaskWindow::updateCategoriesMenu()
     const QList<Core::Id> filteredCategories = d->m_filter->filteredCategories();
 
     QMap<QString, Core::Id> nameToIds;
-    foreach (const Core::Id &categoryId, d->m_model->categoryIds())
+    foreach (Core::Id categoryId, d->m_model->categoryIds())
         nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId);
 
     const NameToIdsConstIt cend = nameToIds.constEnd();
@@ -581,17 +581,17 @@ void TaskWindow::filterCategoryTriggered(QAction *action)
     setCategoryVisibility(categoryId, action->isChecked());
 }
 
-int TaskWindow::taskCount(const Core::Id &category) const
+int TaskWindow::taskCount(Core::Id category) const
 {
     return d->m_model->taskCount(category);
 }
 
-int TaskWindow::errorTaskCount(const Core::Id &category) const
+int TaskWindow::errorTaskCount(Core::Id category) const
 {
     return d->m_model->errorTaskCount(category);
 }
 
-int TaskWindow::warningTaskCount(const Core::Id &category) const
+int TaskWindow::warningTaskCount(Core::Id category) const
 {
     return d->m_model->warningTaskCount(category);
 }

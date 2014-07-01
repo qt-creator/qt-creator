@@ -104,7 +104,7 @@ void JavaCompletionAssistProvider::init() const
         m_keywords.append(QLatin1String(keywords[i]));
 }
 
-bool JavaCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
+bool JavaCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == Constants::JAVA_EDITOR_ID;
 }

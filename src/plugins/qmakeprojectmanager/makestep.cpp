@@ -77,7 +77,7 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
     ctor();
 }
 
-MakeStep::MakeStep(BuildStepList *bsl, const Core::Id id) :
+MakeStep::MakeStep(BuildStepList *bsl, Core::Id id) :
     AbstractProcessStep(bsl, id),
     m_clean(false)
 {
@@ -483,14 +483,14 @@ MakeStepFactory::~MakeStepFactory()
 {
 }
 
-bool MakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool MakeStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     if (parent->target()->project()->id() == Constants::QMAKEPROJECT_ID)
         return id == MAKESTEP_BS_ID;
     return false;
 }
 
-BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -537,7 +537,7 @@ QList<Core::Id> MakeStepFactory::availableCreationIds(BuildStepList *parent) con
     return QList<Core::Id>();
 }
 
-QString MakeStepFactory::displayNameForId(const Core::Id id) const
+QString MakeStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == MAKESTEP_BS_ID)
         return tr("Make");

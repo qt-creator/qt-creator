@@ -96,7 +96,7 @@ private Q_SLOTS:
     void checkCurrentEditorSemanticInfoUpToDate();
 
 private:
-    Core::Command *addToolAction(QAction *a, Core::Context &context, const Core::Id &id,
+    Core::Command *addToolAction(QAction *a, Core::Context &context, Core::Id id,
                                  Core::ActionContainer *c1, const QString &keySequence);
 
     static QmlJSEditorPlugin *m_instance;

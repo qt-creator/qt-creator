@@ -365,7 +365,7 @@ QList<Core::Id> CMakeRunConfigurationFactory::availableCreationIds(Target *paren
 }
 
 // used to translate the ids to names to display to the user
-QString CMakeRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString CMakeRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return buildTargetFromId(id);
 }
@@ -377,7 +377,7 @@ bool CMakeRunConfigurationFactory::canHandle(Target *parent) const
     return qobject_cast<CMakeProject *>(parent->project());
 }
 
-bool CMakeRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool CMakeRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -385,7 +385,7 @@ bool CMakeRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) 
     return project->hasBuildTarget(buildTargetFromId(id));
 }
 
-RunConfiguration *CMakeRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
+RunConfiguration *CMakeRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     const QString title(buildTargetFromId(id));

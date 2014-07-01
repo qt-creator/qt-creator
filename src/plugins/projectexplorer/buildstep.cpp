@@ -113,7 +113,7 @@ static const char buildStepEnabledKey[] = "ProjectExplorer.BuildStep.Enabled";
 
 using namespace ProjectExplorer;
 
-BuildStep::BuildStep(BuildStepList *bsl, const Core::Id id) :
+BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
     ProjectConfiguration(bsl, id), m_enabled(true)
 {
     Q_ASSERT(bsl);

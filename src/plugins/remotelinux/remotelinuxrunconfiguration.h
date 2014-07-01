@@ -59,7 +59,7 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public AbstractRemoteLinu
     friend class RemoteLinuxRunConfigurationWidget;
 
 public:
-    RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
+    RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
         const QString &projectFilePath);
     ~RemoteLinuxRunConfiguration();
 

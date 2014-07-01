@@ -61,7 +61,7 @@ QList<Core::Id> QnxDeployStepFactory::availableCreationIds(ProjectExplorer::Buil
                              << ProjectExplorer::DeviceCheckBuildStep::stepId();
 }
 
-QString QnxDeployStepFactory::displayNameForId(const Core::Id id) const
+QString QnxDeployStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == RemoteLinux::GenericDirectUploadStep::stepId())
         return RemoteLinux::GenericDirectUploadStep::displayName();
@@ -71,12 +71,12 @@ QString QnxDeployStepFactory::displayNameForId(const Core::Id id) const
     return QString();
 }
 
-bool QnxDeployStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
+bool QnxDeployStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-ProjectExplorer::BuildStep *QnxDeployStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
+ProjectExplorer::BuildStep *QnxDeployStepFactory::create(ProjectExplorer::BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

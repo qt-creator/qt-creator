@@ -175,7 +175,7 @@ void DocumentModel::addEditor(IEditor *editor, bool *isNewDocument)
     }
 }
 
-void DocumentModel::addRestoredDocument(const QString &fileName, const QString &displayName, const Id &id)
+void DocumentModel::addRestoredDocument(const QString &fileName, const QString &displayName, Id id)
 {
     Entry *entry = new Entry;
     entry->m_fileName = fileName;

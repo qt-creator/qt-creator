@@ -72,7 +72,7 @@ QList<Core::Id> BlackBerryDeployConfigurationFactory::availableCreationIds(Proje
     return result;
 }
 
-QString BlackBerryDeployConfigurationFactory::displayNameForId(const Core::Id id) const
+QString BlackBerryDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == Constants::QNX_BB_DEPLOYCONFIGURATION_ID)
         return tr("Deploy to BlackBerry Device");

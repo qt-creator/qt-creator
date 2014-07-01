@@ -54,21 +54,21 @@ QList<Core::Id> AndroidPackageInstallationFactory::availableCreationIds(BuildSte
     return QList<Core::Id>();
 }
 
-QString AndroidPackageInstallationFactory::displayNameForId(const Core::Id id) const
+QString AndroidPackageInstallationFactory::displayNameForId(Core::Id id) const
 {
     if (id == AndroidPackageInstallationStep::Id)
         return tr("Deploy to device");
     return QString();
 }
 
-bool AndroidPackageInstallationFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool AndroidPackageInstallationFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     Q_UNUSED(parent);
     Q_UNUSED(id);
     return false;
 }
 
-BuildStep *AndroidPackageInstallationFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *AndroidPackageInstallationFactory::create(BuildStepList *parent, Core::Id id)
 {
     Q_UNUSED(parent);
     Q_UNUSED(id);

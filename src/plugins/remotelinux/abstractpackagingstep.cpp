@@ -55,7 +55,7 @@ public:
 
 } // namespace Internal
 
-AbstractPackagingStep::AbstractPackagingStep(BuildStepList *bsl, const Core::Id id)
+AbstractPackagingStep::AbstractPackagingStep(BuildStepList *bsl, Core::Id id)
     : BuildStep(bsl, id)
 {
     ctor();

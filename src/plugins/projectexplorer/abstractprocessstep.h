@@ -69,7 +69,7 @@ public:
     void emitFaultyConfigurationMessage();
 
 protected:
-    AbstractProcessStep(BuildStepList *bsl, const Core::Id id);
+    AbstractProcessStep(BuildStepList *bsl, Core::Id id);
     AbstractProcessStep(BuildStepList *bsl, AbstractProcessStep *bs);
 
     virtual void processStarted();

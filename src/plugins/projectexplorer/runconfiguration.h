@@ -196,7 +196,7 @@ signals:
     void requestRunActionsUpdate();
 
 protected:
-    RunConfiguration(Target *parent, const Core::Id id);
+    RunConfiguration(Target *parent, Core::Id id);
     RunConfiguration(Target *parent, RunConfiguration *source);
 
     /// convenience function to get current build configuration.
@@ -219,10 +219,10 @@ public:
 
     enum CreationMode {UserCreate, AutoCreate};
     virtual QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode = UserCreate) const = 0;
-    virtual QString displayNameForId(const Core::Id id) const = 0;
+    virtual QString displayNameForId(Core::Id id) const = 0;
 
-    virtual bool canCreate(Target *parent, const Core::Id id) const = 0;
-    RunConfiguration *create(Target *parent, const Core::Id id);
+    virtual bool canCreate(Target *parent, Core::Id id) const = 0;
+    RunConfiguration *create(Target *parent, Core::Id id);
     virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
     RunConfiguration *restore(Target *parent, const QVariantMap &map);
     virtual bool canClone(Target *parent, RunConfiguration *product) const = 0;
@@ -236,7 +236,7 @@ signals:
     void availableCreationIdsChanged();
 
 private:
-    virtual RunConfiguration *doCreate(Target *parent, const Core::Id id) = 0;
+    virtual RunConfiguration *doCreate(Target *parent, Core::Id id) = 0;
     virtual RunConfiguration *doRestore(Target *parent, const QVariantMap &map) = 0;
 };
 

@@ -117,13 +117,13 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn QAction *ActionContainer::insertLocation(const Id &group) const
+    \fn QAction *ActionContainer::insertLocation(Id group) const
     Returns an action representing the \a group,
     that could be used with \c{QWidget::insertAction}.
 */
 
 /*!
-    \fn void ActionContainer::appendGroup(const Id &group)
+    \fn void ActionContainer::appendGroup(Id group)
     Adds a group with the given \a identifier to the action container. Using groups
     you can segment your action container into logical parts and add actions and
     menus directly to these parts.
@@ -132,7 +132,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void ActionContainer::addAction(Command *action, const Id &group = Id())
+    \fn void ActionContainer::addAction(Command *action, Id group = Id())
     Add the \a action as a menu item to this action container. The action is added as the
     last item of the specified \a group.
     \sa appendGroup()
@@ -140,7 +140,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void ActionContainer::addMenu(ActionContainer *menu, const Id &group = Id())
+    \fn void ActionContainer::addMenu(ActionContainer *menu, Id group = Id())
     Add the \a menu as a submenu to this action container. The menu is added as the
     last item of the specified \a group.
     \sa appendGroup()

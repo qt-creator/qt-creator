@@ -63,7 +63,7 @@ bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret)
 
 /// LocalApplicationRunConfiguration
 
-LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, const Core::Id id) :
+LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, Core::Id id) :
     RunConfiguration(target, id), m_macroExpander(0)
 { }
 

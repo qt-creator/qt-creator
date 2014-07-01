@@ -67,7 +67,7 @@ RemoteLinuxRunConfigurationFactory::~RemoteLinuxRunConfigurationFactory()
 {
 }
 
-bool RemoteLinuxRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool RemoteLinuxRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -105,7 +105,7 @@ QList<Core::Id> RemoteLinuxRunConfigurationFactory::availableCreationIds(Target 
     return result;
 }
 
-QString RemoteLinuxRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString RemoteLinuxRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == RemoteLinuxCustomRunConfiguration::runConfigId())
         return RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName();
@@ -113,7 +113,7 @@ QString RemoteLinuxRunConfigurationFactory::displayNameForId(const Core::Id id) 
         + QLatin1Char(' ') + tr("(on Remote Generic Linux Host)");
 }
 
-RunConfiguration *RemoteLinuxRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
+RunConfiguration *RemoteLinuxRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     if (id == RemoteLinuxCustomRunConfiguration::runConfigId())
         return new RemoteLinuxCustomRunConfiguration(parent);

@@ -46,7 +46,7 @@ class BareMetalRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class BareMetalRunConfigurationWidget;
 
 public:
-    explicit BareMetalRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
+    explicit BareMetalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
                                        const QString &projectFilePath);
 
     bool isEnabled() const;

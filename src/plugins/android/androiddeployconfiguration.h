@@ -62,8 +62,8 @@ class AndroidDeployConfigurationFactory : public ProjectExplorer::DeployConfigur
 public:
     explicit AndroidDeployConfigurationFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id);
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *source) const;
@@ -71,7 +71,7 @@ public:
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
     // used to translate the ids to names to display to the user
-    QString displayNameForId(const Core::Id id) const;
+    QString displayNameForId(Core::Id id) const;
 
 private:
     bool canHandle(ProjectExplorer::Target *parent) const;

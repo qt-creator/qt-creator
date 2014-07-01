@@ -109,16 +109,16 @@ public:
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 
     static QString splitLineNumber(QString *fileName);
-    static IEditor *openEditor(const QString &fileName, const Id &editorId = Id(),
+    static IEditor *openEditor(const QString &fileName, Id editorId = Id(),
         OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
     static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
-                                 const Id &editorId = Id(), OpenEditorFlags flags = NoFlags,
+                                 Id editorId = Id(), OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = 0);
-    static IEditor *openEditorWithContents(const Id &editorId, QString *titlePattern = 0,
+    static IEditor *openEditorWithContents(Id editorId, QString *titlePattern = 0,
                                            const QByteArray &contents = QByteArray(),
                                            OpenEditorFlags flags = NoFlags);
 
-    static bool openExternalEditor(const QString &fileName, const Id &editorId);
+    static bool openExternalEditor(const QString &fileName, Id editorId);
 
     static QStringList getOpenFileNames();
     static Id getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = 0);
@@ -252,7 +252,7 @@ private:
     ~EditorManager();
     static void init();
 
-    static IEditor *createEditor(const Id &id = Id(), const QString &fileName = QString());
+    static IEditor *createEditor(Id id = Id(), const QString &fileName = QString());
     static void addEditor(IEditor *editor);
     static void removeEditor(IEditor *editor);
 
@@ -265,7 +265,7 @@ private:
                                        OpenEditorFlags flags = NoFlags);
     static void activateView(Internal::EditorView *view);
     static IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
-        const Id &id = Id(), OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
+        Id id = Id(), OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
     static int visibleDocumentsCount();
 
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);

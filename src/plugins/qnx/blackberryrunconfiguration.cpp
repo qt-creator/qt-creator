@@ -45,7 +45,7 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 using namespace ProjectExplorer;
 
-BlackBerryRunConfiguration::BlackBerryRunConfiguration(Target *parent, const Core::Id id, const QString &path)
+BlackBerryRunConfiguration::BlackBerryRunConfiguration(Target *parent, Core::Id id, const QString &path)
     : RunConfiguration(parent, id)
     , m_proFilePath(path)
 {

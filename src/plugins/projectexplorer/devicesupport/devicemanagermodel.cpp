@@ -68,7 +68,7 @@ void DeviceManagerModel::setFilter(const QList<Core::Id> &filter)
     handleDeviceListChanged();
 }
 
-void DeviceManagerModel::setTypeFilter(const Core::Id &type)
+void DeviceManagerModel::setTypeFilter(Core::Id type)
 {
     if (d->typeToKeep == type)
         return;

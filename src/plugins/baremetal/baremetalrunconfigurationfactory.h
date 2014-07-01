@@ -43,10 +43,10 @@ public:
     explicit BareMetalRunConfigurationFactory(QObject *parent = 0);
     ~BareMetalRunConfigurationFactory();
 
-    QString displayNameForId(const Core::Id id) const;
+    QString displayNameForId(Core::Id id) const;
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
 
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
 
@@ -56,7 +56,7 @@ public:
 private:
     bool canHandle(const ProjectExplorer::Target *target) const;
 
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id);
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
                                                  const QVariantMap &map);
 };

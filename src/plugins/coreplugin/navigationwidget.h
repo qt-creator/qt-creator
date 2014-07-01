@@ -87,7 +87,7 @@ public:
     void saveSettings(QSettings *settings);
     void restoreSettings(QSettings *settings);
 
-    void activateSubWidget(const Id &factoryId);
+    void activateSubWidget(Id factoryId);
     void closeSubWidgets();
 
     bool isShown() const;
@@ -117,7 +117,7 @@ private slots:
 private:
     void updateToggleText();
     Internal::NavigationSubWidget *insertSubItem(int position, int index);
-    int factoryIndex(const Id &id);
+    int factoryIndex(Id id);
 
     NavigationWidgetPrivate *d;
 };

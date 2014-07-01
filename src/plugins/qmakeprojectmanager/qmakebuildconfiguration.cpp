@@ -93,7 +93,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target) :
     ctor();
 }
 
-QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, const Core::Id id) :
+QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id) :
     BuildConfiguration(target, id),
     m_shadowBuild(true),
     m_isEnabled(false),

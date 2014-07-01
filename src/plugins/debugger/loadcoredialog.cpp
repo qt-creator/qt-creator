@@ -396,7 +396,7 @@ QString AttachCoreDialog::remoteCoreFile() const
     return d->remoteCoreFileName->text();
 }
 
-void AttachCoreDialog::setKitId(const Core::Id &id)
+void AttachCoreDialog::setKitId(Core::Id id)
 {
     d->kitChooser->setCurrentKitId(id);
 }

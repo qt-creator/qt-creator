@@ -207,7 +207,7 @@ void IRunConfigurationAspect::resetProjectToGlobalSettings()
     for a target, but still be runnable via the output tab.
 */
 
-RunConfiguration::RunConfiguration(Target *target, const Core::Id id) :
+RunConfiguration::RunConfiguration(Target *target, Core::Id id) :
     ProjectConfiguration(target, id),
     m_aspectsInitialized(false)
 {
@@ -391,7 +391,7 @@ Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
 */
 
 /*!
-    \fn QString ProjectExplorer::IRunConfigurationFactory::displayNameForId(const Core::Id id) const
+    \fn QString ProjectExplorer::IRunConfigurationFactory::displayNameForId(Core::Id id) const
     Translates the types to names to display to the user.
 */
 
@@ -404,7 +404,7 @@ IRunConfigurationFactory::~IRunConfigurationFactory()
 {
 }
 
-RunConfiguration *IRunConfigurationFactory::create(Target *parent, const Core::Id id)
+RunConfiguration *IRunConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

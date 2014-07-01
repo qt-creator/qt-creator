@@ -70,7 +70,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(ProjectExplorer::Target *target) :
     connect(bsl, SIGNAL(stepInserted(int)), this, SLOT(buildStepInserted(int)));
 }
 
-QbsBuildConfiguration::QbsBuildConfiguration(ProjectExplorer::Target *target, const Core::Id id) :
+QbsBuildConfiguration::QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id) :
     BuildConfiguration(target, id)
 { }
 

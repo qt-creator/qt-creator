@@ -48,7 +48,7 @@ public:
     QbsInstallStep *qbsInstallStep() const;
 
 private:
-    QbsDeployConfiguration(ProjectExplorer::Target *target, const Core::Id id);
+    QbsDeployConfiguration(ProjectExplorer::Target *target, Core::Id id);
     QbsDeployConfiguration(ProjectExplorer::Target *target,
                            ProjectExplorer::DeployConfiguration *source);
 
@@ -63,9 +63,9 @@ public:
     explicit QbsDeployConfigurationFactory(QObject *parent = 0);
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const Core::Id id) const;
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
+    QString displayNameForId(Core::Id id) const;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id);
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,

@@ -511,7 +511,7 @@ QbsRunConfigurationFactory::QbsRunConfigurationFactory(QObject *parent) :
 QbsRunConfigurationFactory::~QbsRunConfigurationFactory()
 { }
 
-bool QbsRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool QbsRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -520,7 +520,7 @@ bool QbsRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) co
     return findProduct(project->qbsProjectData(), productFromId(id)).isValid();
 }
 
-RunConfiguration *QbsRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
+RunConfiguration *QbsRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     return new QbsRunConfiguration(parent, id);
 }
@@ -569,7 +569,7 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(Target *parent,
     return result;
 }
 
-QString QbsRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString QbsRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return productFromId(id);
 }

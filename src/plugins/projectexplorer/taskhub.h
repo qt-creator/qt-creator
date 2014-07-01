@@ -62,7 +62,7 @@ public:
     static void updateTaskLineNumber(unsigned int id, int line);
     static void taskMarkClicked(unsigned int id);
     static void showTaskInEditor(unsigned int id);
-    static void setCategoryVisibility(const Core::Id &categoryId, bool visible);
+    static void setCategoryVisibility(Core::Id categoryId, bool visible);
 
     static void requestPopup();
 
@@ -73,7 +73,7 @@ signals:
     void tasksCleared(Core::Id categoryId);
     void taskFileNameUpdated(unsigned int id, const QString &fileName);
     void taskLineNumberUpdated(unsigned int id, int line);
-    void categoryVisibilityChanged(const Core::Id &categoryId, bool visible);
+    void categoryVisibilityChanged(Core::Id categoryId, bool visible);
     void popupRequested(int);
     void showTask(unsigned int id);
     void openTask(unsigned int id);

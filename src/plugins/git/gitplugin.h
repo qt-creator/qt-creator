@@ -158,35 +158,35 @@ private:
     inline ParameterActionCommandPair
             createParameterAction(Core::ActionContainer *ac,
                                   const QString &defaultText, const QString &parameterText,
-                                  const Core::Id &id, const Core::Context &context, bool addToLocator);
+                                  Core::Id id, const Core::Context &context, bool addToLocator);
 
     inline ParameterActionCommandPair
             createFileAction(Core::ActionContainer *ac,
                              const QString &defaultText, const QString &parameterText,
-                             const Core::Id &id, const Core::Context &context, bool addToLocator,
+                             Core::Id id, const Core::Context &context, bool addToLocator,
                              const char *pluginSlot);
 
     inline ParameterActionCommandPair
             createProjectAction(Core::ActionContainer *ac,
                                 const QString &defaultText, const QString &parameterText,
-                                const Core::Id &id, const Core::Context &context, bool addToLocator);
+                                Core::Id id, const Core::Context &context, bool addToLocator);
 
     inline ParameterActionCommandPair
                 createProjectAction(Core::ActionContainer *ac,
                                     const QString &defaultText, const QString &parameterText,
-                                    const Core::Id &id, const Core::Context &context, bool addToLocator,
+                                    Core::Id id, const Core::Context &context, bool addToLocator,
                                     const char *pluginSlot);
 
 
     inline ActionCommandPair createRepositoryAction(Core::ActionContainer *ac,
-                                           const QString &text, const Core::Id &id,
+                                           const QString &text, Core::Id id,
                                            const Core::Context &context, bool addToLocator);
     inline ActionCommandPair createRepositoryAction(Core::ActionContainer *ac,
-                                           const QString &text, const Core::Id &id,
+                                           const QString &text, Core::Id id,
                                            const Core::Context &context,
                                            bool addToLocator, const char *pluginSlot);
     inline ActionCommandPair createRepositoryAction(Core::ActionContainer *ac,
-                                           const QString &text, const Core::Id &id,
+                                           const QString &text, Core::Id id,
                                            const Core::Context &context,
                                            bool addToLocator, GitClientMemberFunc);
 

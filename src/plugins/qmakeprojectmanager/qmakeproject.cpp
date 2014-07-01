@@ -1105,7 +1105,7 @@ QList<QmakeProFileNode *> QmakeProject::nodesWithQtcRunnable(QList<QmakeProFileN
     return nodes;
 }
 
-QList<Core::Id> QmakeProject::idsForNodes(const Core::Id base, const QList<QmakeProFileNode *> &nodes)
+QList<Core::Id> QmakeProject::idsForNodes(Core::Id base, const QList<QmakeProFileNode *> &nodes)
 {
     return Utils::transform(nodes, [&base](QmakeProFileNode *node) {
         return base.withSuffix(node->path());

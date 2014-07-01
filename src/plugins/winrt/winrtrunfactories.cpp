@@ -81,18 +81,18 @@ QList<Core::Id> WinRtRunConfigurationFactory::availableCreationIds(Target *paren
     return result;
 }
 
-QString WinRtRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString WinRtRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     Q_UNUSED(id);
     return tr("Run App Package");
 }
 
-bool WinRtRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool WinRtRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     return id == winrtConfigurationIdC && isKitCompatible(parent->kit());
 }
 
-RunConfiguration *WinRtRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
+RunConfiguration *WinRtRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     return new WinRtRunConfiguration(parent, id);
 }

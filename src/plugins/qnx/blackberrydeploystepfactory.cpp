@@ -58,14 +58,14 @@ QList<Core::Id> BlackBerryDeployStepFactory::availableCreationIds(ProjectExplore
     return QList<Core::Id>() << Core::Id(Constants::QNX_DEPLOY_PACKAGE_BS_ID);
 }
 
-QString BlackBerryDeployStepFactory::displayNameForId(const Core::Id id) const
+QString BlackBerryDeployStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == Constants::QNX_DEPLOY_PACKAGE_BS_ID)
         return tr("Deploy Package");
     return QString();
 }
 
-bool BlackBerryDeployStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
+bool BlackBerryDeployStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
