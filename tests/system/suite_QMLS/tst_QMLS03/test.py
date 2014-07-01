@@ -36,7 +36,7 @@ class ExpectedResult:
         self.lineContent = lineContent
 
 # check if usage in code (expectedText) is found in resultsView
-def checkUsages(resultsView, expectedResults):
+def checkUsages(resultsView, expectedResults, directory):
     # wait for results
     resultsModel = resultsView.model()
     waitFor("resultsModel.rowCount() > 0", 5000)
@@ -45,7 +45,11 @@ def checkUsages(resultsView, expectedResults):
         # enum Roles { ResultItemRole = Qt::UserRole, ResultLineRole, ResultLineNumberRole, ResultIconRole,
         # SearchTermStartRole, SearchTermLengthRole, IsGeneratedRole };
         # get only filename not full path
-        resultFile = str(index.data(Qt.UserRole + 1).toString()).replace("\\", "/").split('/')[-1]
+        fullPath = str(index.data(Qt.UserRole + 1).toString())
+        if not fullPath.startswith(directory):
+            test.warning("Skipping '%s' due to known issue (QTCREATORBUG-11984)" % fullPath)
+            continue
+        resultFile = fullPath.replace("\\", "/").split('/')[-1]
         for chIndex in dumpIndices(resultsModel, index):
             resultLine = str(chIndex.data(Qt.UserRole + 1).toString()).strip()
             resultLineNumber = chIndex.data(Qt.UserRole + 2).toInt()
@@ -97,7 +101,8 @@ def main():
                        ExpectedResult("property-animation.qml", 48, "Rectangle {"),
                        ExpectedResult("property-animation.qml", 57, "Rectangle {")]
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
-    test.verify(checkUsages(resultsView, expectedResults), "Verifying if usages were properly found using context menu.")
+    test.verify(checkUsages(resultsView, expectedResults, templateDir),
+                "Verifying if usages were properly found using context menu.")
     # clear previous results & prepare for next search
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     mouseClick(editorArea, 5, 5, 0, Qt.LeftButton)
@@ -115,7 +120,8 @@ def main():
                        ExpectedResult("property-animation.qml", 49, "anchors { left: parent.left; top: parent.top; right: parent.right; bottom: parent.verticalCenter }"),
                        ExpectedResult("property-animation.qml", 58, "anchors { left: parent.left; top: parent.verticalCenter; right: parent.right; bottom: parent.bottom }")]
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
-    test.verify(checkUsages(resultsView, expectedResults), "Verifying if usages were properly found using main menu.")
+    test.verify(checkUsages(resultsView, expectedResults, templateDir),
+                "Verifying if usages were properly found using main menu.")
     # clear previous results & prepare for next search
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     mouseClick(editorArea, 5, 5, 0, Qt.LeftButton)
@@ -130,7 +136,8 @@ def main():
     # check if usage was properly found
     expectedResults = [ExpectedResult("color-animation.qml", 87, "SequentialAnimation on opacity {")]
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
-    test.verify(checkUsages(resultsView, expectedResults), "Verifying if usages were properly found using shortcut.")
+    test.verify(checkUsages(resultsView, expectedResults, templateDir),
+                "Verifying if usages were properly found using shortcut.")
     #save and exit
     invokeMenuItem("File", "Exit")
 
