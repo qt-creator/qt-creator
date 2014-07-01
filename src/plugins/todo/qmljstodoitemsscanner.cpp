@@ -62,7 +62,7 @@ void QmlJsTodoItemsScanner::keywordListChanged()
 
     QStringList filesToBeUpdated;
     foreach (const QmlJS::ModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
-        filesToBeUpdated << info.project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+        filesToBeUpdated << info.sourceFiles;
 
     modelManager->updateSourceFiles(filesToBeUpdated, false);
 }
