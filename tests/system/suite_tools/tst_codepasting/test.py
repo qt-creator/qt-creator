@@ -40,7 +40,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    protocolsToTest = ["Paste.KDE.Org", "Pastebin.Ca"]
+    protocolsToTest = ["Paste.KDE.Org"]#, "Pastebin.Ca"]
     # Be careful with Pastebin.Com, there are only 10 pastes per 24h
     # for all machines using the same IP-address like you.
     # protocolsToTest += ["Pastebin.Com"]
