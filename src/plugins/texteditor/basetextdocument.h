@@ -118,7 +118,6 @@ public slots:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
 signals:
-    void mimeTypeChanged();
     void tabSettingsChanged();
     void fontSettingsChanged();
 
