@@ -511,7 +511,7 @@ public:
     DebugMode()
     {
         setObjectName(QLatin1String("DebugMode"));
-        setContext(Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE));
+        setContext(Context(C_DEBUGMODE, CC::C_NAVIGATION_PANE));
         setDisplayName(DebuggerPlugin::tr("Debug"));
         setIcon(QIcon(QLatin1String(":/debugger/images/mode_debug.png")));
         setPriority(85);
@@ -3272,6 +3272,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // Debug mode setup
     DebugMode *debugMode = new DebugMode;
     QWidget *widget = m_mainWindow->createContents(debugMode);
+    Core::IContext *modeContextObject = new Core::IContext(this);
+    modeContextObject->setContext(Core::Context(CC::C_EDITORMANAGER));
+    modeContextObject->setWidget(widget);
+    Core::ICore::addContextObject(modeContextObject);
     widget->setFocusProxy(EditorManager::instance());
     debugMode->setWidget(widget);
 

@@ -98,7 +98,7 @@ public:
     AnalyzerMode(QObject *parent = 0)
         : IMode(parent)
     {
-        setContext(Context(C_EDITORMANAGER, C_ANALYZEMODE, C_NAVIGATION_PANE));
+        setContext(Context(C_ANALYZEMODE, C_NAVIGATION_PANE));
         setDisplayName(tr("Analyze"));
         setIcon(QIcon(QLatin1String(":/images/analyzer_mode.png")));
         setPriority(P_MODE_ANALYZE);
@@ -279,6 +279,10 @@ void AnalyzerManagerPrivate::delayedInit()
     splitter->addWidget(mainWindowSplitter);
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
+    Core::IContext *modeContextObject = new Core::IContext(this);
+    modeContextObject->setContext(Core::Context(Core::Constants::C_EDITORMANAGER));
+    modeContextObject->setWidget(splitter);
+    Core::ICore::addContextObject(modeContextObject);
     m_mode->setWidget(splitter);
 
     AnalyzerPlugin::instance()->addAutoReleasedObject(m_mode);
