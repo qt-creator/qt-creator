@@ -136,6 +136,7 @@ public:
 
     NodeInstance activeStateInstance() const;
 
+    void updateChildren(const NodeAbstractProperty &newPropertyParent);
     void updatePosition(const QList<VariantProperty>& propertyList);
 
     void valuesChanged(const ValuesChangedCommand &command);

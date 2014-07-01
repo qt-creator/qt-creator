@@ -99,9 +99,6 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
             }
         }
     }
-
-    if (!parentNode.metaInfo().isLayoutable())
-        update(m_lastPosition, Snapper::NoSnapping, UseBaseState);
 }
 
 void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
