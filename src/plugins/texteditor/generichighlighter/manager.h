@@ -95,7 +95,6 @@ private:
     Manager();
 
     void clear();
-    int foo();
 
     bool m_isDownloadingDefinitionsSpec;
     QList<DefinitionDownloader *> m_downloaders;
