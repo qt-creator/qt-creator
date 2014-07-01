@@ -79,8 +79,10 @@ void FormEditorScene::setupScene()
 
 void FormEditorScene::resetScene()
 {
-    foreach (QGraphicsItem *item, m_manipulatorLayerItem->childItems())
+    foreach (QGraphicsItem *item, m_manipulatorLayerItem->childItems()) {
        removeItem(item);
+       delete item;
+    }
 
     setSceneRect(-canvasWidth()/2., -canvasHeight()/2., canvasWidth(), canvasHeight());
 }
