@@ -187,23 +187,38 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
     return buildSucceeded;
 }
 
+static void warnAboutInvalidKit()
+{
+    QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "Kit is invalid"),
+                             QCoreApplication::translate("PuppetCreator",
+                                                         "The emulation layer (Qml Puppet) cannot be built because the kit is not configured correctly. "
+                                                         "For example the compiler can be misconfigured. "
+                                                         "Fix the kit configuration and restart Qt Creator. "
+                                                         "Otherwise, the fallback emulation layer, which does not support all features, will be used."
+                                                         ));
+}
+
 void PuppetCreator::createQml1PuppetExecutableIfMissing()
 {
     if (!m_useOnlyFallbackPuppet && m_kit) {
-        if (m_qml1PuppetForKitPuppetHash.contains(m_kit->id())) {
-            m_availablePuppetType = m_qml1PuppetForKitPuppetHash.value(m_kit->id());
-        } else if (checkQmlpuppetIsReady()) {
-            m_availablePuppetType = UserSpacePuppet;
-        } else {
-            bool buildSucceeded = build(qmlpuppetProjectFile());
-            if (buildSucceeded)
+            if (m_qml1PuppetForKitPuppetHash.contains(m_kit->id())) {
+                m_availablePuppetType = m_qml1PuppetForKitPuppetHash.value(m_kit->id());
+            } else if (checkQmlpuppetIsReady()) {
                 m_availablePuppetType = UserSpacePuppet;
-            else
-                m_availablePuppetType = FallbackPuppet;
-        }
+            } else {
+                if (m_kit->isValid()) {
 
-        m_qml1PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
-
+                    bool buildSucceeded = build(qmlpuppetProjectFile());
+                    if (buildSucceeded)
+                        m_availablePuppetType = UserSpacePuppet;
+                    else
+                        m_availablePuppetType = FallbackPuppet;
+                } else {
+                    warnAboutInvalidKit();
+                    m_availablePuppetType = FallbackPuppet;
+                }
+                m_qml1PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
+            }
     } else {
         m_availablePuppetType = FallbackPuppet;
     }
@@ -212,20 +227,24 @@ void PuppetCreator::createQml1PuppetExecutableIfMissing()
 void PuppetCreator::createQml2PuppetExecutableIfMissing()
 {
     if (!m_useOnlyFallbackPuppet && m_kit) {
+
         if (m_qml2PuppetForKitPuppetHash.contains(m_kit->id())) {
             m_availablePuppetType = m_qml2PuppetForKitPuppetHash.value(m_kit->id());
         } else if (checkQml2puppetIsReady()) {
             m_availablePuppetType = UserSpacePuppet;
         } else {
-            bool buildSucceeded = build(qml2puppetProjectFile());
-            if (buildSucceeded)
-                m_availablePuppetType = UserSpacePuppet;
-            else
+            if (m_kit->isValid()) {
+                bool buildSucceeded = build(qml2puppetProjectFile());
+                if (buildSucceeded)
+                    m_availablePuppetType = UserSpacePuppet;
+                else
+                    m_availablePuppetType = FallbackPuppet;
+            } else {
+                warnAboutInvalidKit();
                 m_availablePuppetType = FallbackPuppet;
+            }
+            m_qml2PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
         }
-
-        m_qml2PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
-
     } else {
         m_availablePuppetType = FallbackPuppet;
     }
