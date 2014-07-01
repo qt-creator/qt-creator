@@ -123,7 +123,7 @@ void MoveManipulator::setDirectUpdateInNodeInstances(bool directUpdate)
 {
     foreach (FormEditorItem* item, m_itemList) {
         if (item && item->qmlItemNode().isValid())
-            item->qmlItemNode().nodeInstance().setUpdateTransform(!directUpdate);
+            item->qmlItemNode().nodeInstance().setDirectUpdate(directUpdate);
     }
 }
 

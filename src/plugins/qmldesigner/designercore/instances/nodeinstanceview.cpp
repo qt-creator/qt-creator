@@ -688,7 +688,7 @@ void NodeInstanceView::updateChildren(const NodeAbstractProperty &newPropertyPar
         qint32 instanceId = childNode.internalId();
         if (hasInstanceForId(instanceId)) {
             NodeInstance instance = instanceForId(instanceId);
-            if (!instance.updateTransform())
+            if (instance.directUpdates())
                 instance.setParentId(parentInstanceId);
         }
     }
@@ -1245,7 +1245,7 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
     foreach (qint32 instanceId, command.childrenInstances()) {
         if (hasInstanceForId(instanceId)) {
             NodeInstance instance = instanceForId(instanceId);
-            if (instance.updateTransform()) {
+            if (!instance.directUpdates()) {
                 instance.setParentId(command.parentInstanceId());
                 childNodeVector.append(instance.modelNode());
             }
