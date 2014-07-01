@@ -1285,8 +1285,11 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
 {
     ViewerContext res = vCtx;
 
-    if (vCtx.language == Language::Qml && !doc.isNull() &&
-            (doc->language() == Language::QmlQtQuick1 || doc->language() == Language::QmlQtQuick2))
+    if (!doc.isNull()
+            && ((vCtx.language == Language::AnyLanguage && doc->language() != Language::NoLanguage)
+                || (vCtx.language == Language::Qml
+                    && (doc->language() == Language::QmlQtQuick1
+                        || doc->language() == Language::QmlQtQuick2))))
         res.language = doc->language();
     ProjectInfo info;
     if (!doc.isNull())
@@ -1364,7 +1367,7 @@ ViewerContext ModelManagerInterface::defaultVContext(Language::Enum language,
                                                      bool autoComplete) const
 {
     if (!doc.isNull()) {
-        if (language == Language::AnyLanguage)
+        if (language == Language::AnyLanguage && doc->language() != Language::NoLanguage)
             language = doc->language();
         else if (language == Language::Qml &&
                  (doc->language() == Language::QmlQtQuick1 || doc->language() == Language::QmlQtQuick2))
@@ -1375,6 +1378,7 @@ ViewerContext ModelManagerInterface::defaultVContext(Language::Enum language,
         QMutexLocker locker(&m_mutex);
         defaultCtx = m_defaultVContexts.value(language);
     }
+    defaultCtx.language = language;
     if (autoComplete)
         return completeVContext(defaultCtx, doc);
     else
