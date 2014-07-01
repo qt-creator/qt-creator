@@ -58,6 +58,9 @@ public:
     void run();
     Status status() const;
 
+signals:
+    void foundReferencedDefinition(const QString &name);
+
 private:
     QNetworkReply *getData(QNetworkAccessManager *manager) const;
     void saveData(QNetworkReply *reply);

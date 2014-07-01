@@ -56,6 +56,7 @@ namespace Internal {
 class HighlightDefinition;
 class DefinitionDownloader;
 class ManagerProcessor;
+class MultiDefinitionDownloader;
 
 // This is the generic highlighter manager. It is not thread-safe.
 
@@ -69,6 +70,7 @@ public:
     QString definitionIdByName(const QString &name) const;
     QString definitionIdByMimeType(const QString &mimeType) const;
     QString definitionIdByAnyMimeType(const QStringList &mimeTypes) const;
+    DefinitionMetaDataPtr availableDefinitionByName(const QString &name) const;
 
     bool isBuildingDefinition(const QString &id) const;
     QSharedPointer<HighlightDefinition> definition(const QString &id);
@@ -96,13 +98,12 @@ private:
 
     void clear();
 
-    bool m_isDownloadingDefinitionsSpec;
-    QList<DefinitionDownloader *> m_downloaders;
-    QFutureWatcher<void> m_downloadWatcher;
-    QList<DefinitionMetaDataPtr> parseAvailableDefinitionsList(QIODevice *device) const;
+    MultiDefinitionDownloader *m_multiDownloader;
+    QList<DefinitionMetaDataPtr> parseAvailableDefinitionsList(QIODevice *device);
 
     QSet<QString> m_isBuildingDefinition;
     QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
+    QHash<QString, DefinitionMetaDataPtr> m_availableDefinitions;
 
     struct RegisterData
     {
