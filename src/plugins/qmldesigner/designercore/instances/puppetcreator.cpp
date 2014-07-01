@@ -171,17 +171,16 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             if (!buildSucceeded)
                 QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "Emulation layer building was unsuccessful"),
                                          QCoreApplication::translate("PuppetCreator",
-                                                                     "The emulation layer(Qml Puppet) cannot was built. "
-                                                                     "So now the fallback version will be used "
-                                                                     "which is not supporting all features."
+                                                                     "The emulation layer (Qml Puppet) cannot be built. "
+                                                                     "The fallback emulation layer, which does not support all features, will be used."
                                                                      ));
         }
     } else {
         QmlDesignerWarning::show(QCoreApplication::translate("PuppetCreator", "Qt Version is not supported"),
                                  QCoreApplication::translate("PuppetCreator",
-                                                             "The emulation layer(Qml Puppet) cannot be built because the Qt version is to old "
-                                                             "or it can not run native on your computer. So now the fallback version will be used "
-                                                             "which is not supporting all features."
+                                                             "The emulation layer (Qml Puppet) cannot be built because the Qt version is too old "
+                                                             "or it cannot run natively on your computer. "
+                                                             "The fallback emulation layer, which does not support all features, will be used."
                                                              ));
     }
 
