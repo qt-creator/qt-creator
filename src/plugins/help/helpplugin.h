@@ -89,7 +89,7 @@ private slots:
 
     void modeChanged(Core::IMode *mode, Core::IMode *old);
 
-    void activateContext();
+    void showContextHelp();
     void activateIndex();
     void activateContents();
     void activateSearch();

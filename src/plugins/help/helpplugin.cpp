@@ -238,7 +238,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP, globalcontext);
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
-    connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
+    connect(action, SIGNAL(triggered()), this, SLOT(showContextHelp()));
 
     action = new QAction(tr("Technical Support"), this);
     cmd = ActionManager::registerAction(action, "Help.TechSupport", globalcontext);
@@ -762,7 +762,7 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
     return source;
 }
 
-void HelpPlugin::activateContext()
+void HelpPlugin::showContextHelp()
 {
     if (ModeManager::currentMode() == m_mode)
         return;
