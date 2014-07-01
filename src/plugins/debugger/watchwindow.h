@@ -69,6 +69,7 @@ private slots:
     void resetHelper();
     void expandNode(const QModelIndex &idx);
     void collapseNode(const QModelIndex &idx);
+    void adjustSlider();
 
     void onClearIndividualFormat();
     void onClearTypeFormat();
@@ -78,6 +79,7 @@ private slots:
     void onIndividualFormatChange();
 
 private:
+    void doItemsLayout();
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void dragEnterEvent(QDragEnterEvent *ev);
@@ -95,6 +97,7 @@ private:
 
     WatchType m_type;
     bool m_grabbing;
+    int m_sliderPosition;
 };
 
 } // namespace Internal
