@@ -96,6 +96,9 @@ private slots:
     void openOptions();
     void import(const Utils::FileName &path);
 
+    void kitSelectionChanged();
+    void changeAllKitsSelections();
+
 private:
     bool isUpdating() const;
     void selectAtLeastOneKit();

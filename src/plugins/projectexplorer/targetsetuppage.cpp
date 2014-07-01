@@ -50,6 +50,7 @@
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QVBoxLayout>
+#include <QCheckBox>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -64,6 +65,7 @@ public:
     QLabel *descriptionLabel;
     QLabel *noValidKitLabel;
     QLabel *optionHintLabel;
+    QCheckBox *allKitsCheckBox;
 
     void setupUi(QWidget *q)
     {
@@ -88,6 +90,10 @@ public:
                                      "or via the maintenance tool of the SDK."));
         optionHintLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
         optionHintLabel->setVisible(false);
+
+        allKitsCheckBox = new QCheckBox(setupTargetPage);
+        allKitsCheckBox->setTristate(true);
+        allKitsCheckBox->setText(TargetSetupPage::tr("Select all kits"));
 
         centralWidget = new QWidget(setupTargetPage);
         QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -115,6 +121,7 @@ public:
         verticalLayout_2->addWidget(noValidKitLabel);
         verticalLayout_2->addWidget(descriptionLabel);
         verticalLayout_2->addWidget(optionHintLabel);
+        verticalLayout_2->addWidget(allKitsCheckBox);
         verticalLayout_2->addWidget(centralWidget);
         verticalLayout_2->addWidget(scrollAreaWidget);
 
@@ -124,6 +131,9 @@ public:
 
         QObject::connect(optionHintLabel, SIGNAL(linkActivated(QString)),
                          q, SLOT(openOptions()));
+
+        QObject::connect(allKitsCheckBox, SIGNAL(clicked()),
+                         q, SLOT(changeAllKitsSelections()));
     }
 };
 
@@ -243,8 +253,10 @@ bool TargetSetupPage::isKitSelected(Core::Id id) const
 void TargetSetupPage::setKitSelected(Core::Id id, bool selected)
 {
     TargetSetupWidget *widget = m_widgets.value(id);
-    if (widget)
+    if (widget) {
         widget->setKitSelected(selected);
+        kitSelectionChanged();
+    }
 }
 
 bool TargetSetupPage::isComplete() const
@@ -289,6 +301,8 @@ void TargetSetupPage::reset()
 
     m_widgets.clear();
     m_firstWidget = 0;
+
+    m_ui->allKitsCheckBox->setChecked(false);
 }
 
 void TargetSetupPage::setProjectPath(const QString &path)
@@ -401,8 +415,10 @@ void TargetSetupPage::selectAtLeastOneKit()
         Kit *defaultKit = KitManager::defaultKit();
         if (defaultKit)
             widget = m_widgets.value(defaultKit->id(), m_firstWidget);
-        if (widget)
+        if (widget) {
             widget->setKitSelected(true);
+            kitSelectionChanged();
+        }
         m_firstWidget = 0;
     }
     emit completeChanged(); // Is this necessary?
@@ -417,6 +433,7 @@ void TargetSetupPage::updateVisibility()
     bool hasKits = !m_widgets.isEmpty();
     m_ui->noValidKitLabel->setVisible(!hasKits);
     m_ui->optionHintLabel->setVisible(m_forceOptionHint || !hasKits);
+    m_ui->allKitsCheckBox->setVisible(hasKits);
 
     emit completeChanged();
 }
@@ -431,6 +448,34 @@ void TargetSetupPage::openOptions()
 void TargetSetupPage::import(const Utils::FileName &path)
 {
     import(path, false);
+}
+
+void TargetSetupPage::kitSelectionChanged()
+{
+    int selected = 0;
+    int deselected = 0;
+    foreach (TargetSetupWidget *widget, m_widgets) {
+        if (widget->isKitSelected())
+            ++selected;
+        else
+            ++deselected;
+    }
+    if (selected > 0 && deselected > 0)
+        m_ui->allKitsCheckBox->setCheckState(Qt::PartiallyChecked);
+    else if (selected > 0 && deselected == 0)
+        m_ui->allKitsCheckBox->setCheckState(Qt::Checked);
+    else
+        m_ui->allKitsCheckBox->setCheckState(Qt::Unchecked);
+}
+
+void TargetSetupPage::changeAllKitsSelections()
+{
+    if (m_ui->allKitsCheckBox->checkState() == Qt::PartiallyChecked)
+        m_ui->allKitsCheckBox->setCheckState(Qt::Checked);
+    bool checked = m_ui->allKitsCheckBox->isChecked();
+    foreach (TargetSetupWidget *widget, m_widgets)
+        widget->setKitSelected(checked);
+    emit completeChanged();
 }
 
 bool TargetSetupPage::isUpdating() const
@@ -462,6 +507,7 @@ void TargetSetupPage::import(const Utils::FileName &path, bool silent)
         widget->addBuildInfo(info, true);
         widget->setKitSelected(true);
         widget->expandWidget();
+        kitSelectionChanged();
     }
     emit completeChanged();
 }
@@ -475,6 +521,7 @@ void TargetSetupPage::removeWidget(Kit *k)
         m_firstWidget = 0;
     widget->deleteLater();
     m_widgets.remove(k->id());
+    kitSelectionChanged();
 }
 
 TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
@@ -499,6 +546,8 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 
     widget->setKitSelected(m_preferredMatcher && m_preferredMatcher->matches(k));
     m_widgets.insert(k->id(), widget);
+    connect(widget, SIGNAL(selectedToggled()),
+            this, SLOT(kitSelectionChanged()));
     m_baseLayout->addWidget(widget);
 
     m_baseLayout->addWidget(m_importWidget);
@@ -511,6 +560,8 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 
     if (!m_firstWidget)
         m_firstWidget = widget;
+
+    kitSelectionChanged();
 
     return widget;
 }
