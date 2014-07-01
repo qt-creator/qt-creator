@@ -480,7 +480,7 @@ InformationName NodeInstance::setInformationIsInLayoutable(bool isInLayoutable)
 
 InformationName NodeInstance::setInformationSceneTransform(const QTransform &sceneTransform)
 {
-    if (d->sceneTransform != sceneTransform) {
+    if (!directUpdates() && d->sceneTransform != sceneTransform) {
         d->sceneTransform = sceneTransform;
         return SceneTransform;
     }
