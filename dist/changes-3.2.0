@@ -10,9 +10,11 @@ git log --cherry-pick --pretty=oneline origin/3.1..origin/master
 General
    * Added "Get Help Online" context menu item to issues pane that searches for
      the issue description online in Google
-   * Enabled resizing of the locator field
    * Added action to file system locator filter ('f') for creating and opening a new file
+   * Added search capability to general messages and most navigation panes
+   * Enabled resizing of the locator field
    * Improved look and feel on HiDPI by adding more hi-resolution icons
+   * Made keyboard and mouse activation of navigation panes and other trees more consistent
 
 Editing
 
@@ -21,14 +23,21 @@ Managing and Building Projects
 QMake Projects
    * Added context menu item for copying resource path from entries in QRC files in project tree
      (QTCREATORBUG-11776)
+   * Added deployment support to plain C and C++ application wizards
    * Removed warning about build directory below source directory for kits with Qt 5.2 and later
      where this is supported (QTCREATORBUG-10024)
+   * Fixed that adding files to .pri file was missing $$PWD
 
 Qbs Projects
+   * Fixed that run configurations were created for products that are not runnable
+     (QTCREATORBUG-12152)
+   * Fixed that run configurations were created for disabled products (QBS-560)
+   * Fixed that default build directory was ignored
 
 Generic Projects
 
 Debugging
+   * Added option to disable automatic centering on currently debugged line in editor
    * GDB and LLDB
       * Added pretty printers for AVX512 registers
 
@@ -39,6 +48,7 @@ C++ Support
      (QTCREATORBUG-11859, QTCREATORBUG-11860)
    * Fixed indentation of concatenated strings
    * Fixed pointer typedef resolving (QTCREATORBUG-10021)
+   * Fixed scroll wheel behavior in editor's symbols dropdown
 
 QML Support
 
@@ -49,7 +59,10 @@ Diff Viewer
 Version Control Systems
 
 FakeVim
+   * Added support for unicode input with 'C-v' in insert mode
    * Fixed issues with long command output (QTCREATORBUG-11598)
+   * Fixed 'gv' after yanking text in visual mode (QTCREATORBUG-12112)
+   * Fixed 'v', 'V' and 'C-v' while in visual mode (QTCREATORBUG-12113)
 
 Platform Specific
 
@@ -59,6 +72,12 @@ Windows
 
 OS X
    * Fixed activation of items with Enter in Bookmarks pane
+
+Android
+   * Fixed that UI was unresponsive while creating AVD (QTCREATORBUG-10601)
+Remote Linux
+   * Added custom remote executable run configuration type (QTCREATORBUG-12168)
+   * Fixed issue with environment variables that contain spaces
 
 Credits for these changes go to:
 
