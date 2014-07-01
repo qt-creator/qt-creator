@@ -66,8 +66,9 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 {
     Utils::StyledBar *toolBar = new Utils::StyledBar();
 
-    QAction *switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
-    connect(switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
+    m_switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
+    connect(m_switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
+    updateHelpModeButtonToolTip();
 
     QAction *back = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
         tr("Back"), toolBar);
@@ -84,7 +85,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     layout->setSpacing(0);
     layout->setMargin(0);
 
-    layout->addWidget(toolButton(switchToHelp));
+    layout->addWidget(toolButton(m_switchToHelp));
     layout->addWidget(toolButton(back));
     layout->addWidget(toolButton(forward));
     layout->addStretch();
@@ -124,6 +125,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     cmd = Core::ActionManager::registerAction(m_openHelpMode,
                                               Help::Constants::CONTEXT_HELP,
                                               context);
+    connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateHelpModeButtonToolTip()));
     connect(m_openHelpMode, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
 
     Core::ActionContainer *advancedMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
@@ -212,6 +214,13 @@ void HelpWidget::helpModeButtonClicked()
     emit openHelpMode(m_viewer->source());
     if (m_style == ExternalWindow)
         close();
+}
+
+void HelpWidget::updateHelpModeButtonToolTip()
+{
+    Core::Command *cmd = Core::ActionManager::command(Constants::CONTEXT_HELP);
+    QTC_ASSERT(cmd, return);
+    m_switchToHelp->setToolTip(cmd->stringWithAppendedShortcut(m_switchToHelp->text()));
 }
 
 } // Internal

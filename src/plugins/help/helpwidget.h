@@ -72,8 +72,10 @@ private slots:
     void updateForwardMenu();
     void updateWindowTitle();
     void helpModeButtonClicked();
+    void updateHelpModeButtonToolTip();
 
 private:
+    QAction *m_switchToHelp;
     QMenu *m_backMenu;
     QMenu *m_forwardMenu;
     QAction *m_openHelpMode;
