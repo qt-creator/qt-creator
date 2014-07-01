@@ -428,8 +428,8 @@ void DesignModeWidget::setup()
     viewManager().enableWidgets();
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
-    m_leftSideBar->setCloseWhenEmpty(true);
-    m_rightSideBar->setCloseWhenEmpty(true);
+    m_leftSideBar->setCloseWhenEmpty(false);
+    m_rightSideBar->setCloseWhenEmpty(false);
 
     readSettings();
 
