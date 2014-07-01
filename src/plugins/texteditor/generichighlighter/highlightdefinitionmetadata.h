@@ -30,6 +30,7 @@
 #ifndef HIGHLIGHTDEFINITIONMETADATA_H
 #define HIGHLIGHTDEFINITIONMETADATA_H
 
+#include <QSharedPointer>
 #include <QStringList>
 #include <QUrl>
 
@@ -51,6 +52,8 @@ public:
     QStringList mimeTypes;
     QUrl url;
 };
+
+typedef QSharedPointer<HighlightDefinitionMetaData> DefinitionMetaDataPtr;
 
 } // namespace Internal
 } // namespace TextEditor

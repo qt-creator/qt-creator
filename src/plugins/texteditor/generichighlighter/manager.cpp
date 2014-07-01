@@ -149,7 +149,7 @@ QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
     return m_definitions.value(id);
 }
 
-QSharedPointer<HighlightDefinitionMetaData> Manager::definitionMetaData(const QString &id) const
+DefinitionMetaDataPtr Manager::definitionMetaData(const QString &id) const
 {
     return m_register.m_definitionsMetaData.value(id);
 }
@@ -216,21 +216,21 @@ void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
         QDir definitionsDir(path);
         QStringList filter(QLatin1String("*.xml"));
         definitionsDir.setNameFilters(filter);
-        QList<QSharedPointer<HighlightDefinitionMetaData> > allMetaData;
+        QList<DefinitionMetaDataPtr> allMetaData;
         foreach (const QFileInfo &fileInfo, definitionsDir.entryInfoList()) {
-            const QSharedPointer<HighlightDefinitionMetaData> &metaData =
+            const DefinitionMetaDataPtr &metaData =
                     Manager::parseMetadata(fileInfo);
             if (!metaData.isNull())
                 allMetaData.append(metaData);
         }
 
         // Consider definitions with higher priority first.
-        Utils::sort(allMetaData, [](const QSharedPointer<HighlightDefinitionMetaData> &l,
-                                    const QSharedPointer<HighlightDefinitionMetaData> &r) {
+        Utils::sort(allMetaData, [](const DefinitionMetaDataPtr &l,
+                                    const DefinitionMetaDataPtr &r) {
             return l->priority > r->priority;
         });
 
-        foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
+        foreach (const DefinitionMetaDataPtr &metaData, allMetaData) {
             if (future.isCanceled())
                 return;
             if (future.progressValue() < kMaxProgress - 1)
@@ -333,7 +333,7 @@ void Manager::registerMimeTypesFinished()
     }
 }
 
-QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileInfo &fileInfo)
+DefinitionMetaDataPtr Manager::parseMetadata(const QFileInfo &fileInfo)
 {
     static const QLatin1Char kSemiColon(';');
     static const QLatin1Char kSpace(' ');
@@ -343,9 +343,9 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
 
     QFile definitionFile(fileInfo.absoluteFilePath());
     if (!definitionFile.open(QIODevice::ReadOnly | QIODevice::Text))
-        return QSharedPointer<HighlightDefinitionMetaData>();
+        return DefinitionMetaDataPtr();
 
-    QSharedPointer<HighlightDefinitionMetaData> metaData(new HighlightDefinitionMetaData);
+    DefinitionMetaDataPtr metaData(new HighlightDefinitionMetaData);
 
     QXmlStreamReader reader(&definitionFile);
     while (!reader.atEnd() && !reader.hasError()) {

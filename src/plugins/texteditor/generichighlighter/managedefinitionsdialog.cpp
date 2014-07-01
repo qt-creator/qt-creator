@@ -77,7 +77,7 @@ void ManageDefinitionsDialog::populateDefinitionsWidget()
         QFileInfo fi(m_path + downloadData.fileName);
         QFile definitionFile(fi.absoluteFilePath());
         if (definitionFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            const QSharedPointer<HighlightDefinitionMetaData> &data = Manager::parseMetadata(fi);
+            const DefinitionMetaDataPtr data = Manager::parseMetadata(fi);
             if (!data.isNull())
                 dirVersion = data->version;
         }

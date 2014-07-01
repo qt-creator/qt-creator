@@ -72,13 +72,13 @@ public:
 
     bool isBuildingDefinition(const QString &id) const;
     QSharedPointer<HighlightDefinition> definition(const QString &id);
-    QSharedPointer<HighlightDefinitionMetaData> definitionMetaData(const QString &id) const;
+    DefinitionMetaDataPtr definitionMetaData(const QString &id) const;
 
     void downloadAvailableDefinitionsMetaData();
     void downloadDefinitions(const QList<QUrl> &urls, const QString &savePath);
     bool isDownloadingDefinitions() const;
 
-    static QSharedPointer<HighlightDefinitionMetaData> parseMetadata(const QFileInfo &fileInfo);
+    static DefinitionMetaDataPtr parseMetadata(const QFileInfo &fileInfo);
 
 public slots:
     void registerMimeTypes();
@@ -108,7 +108,7 @@ private:
     {
         QHash<QString, QString> m_idByName;
         QHash<QString, QString> m_idByMimeType;
-        QHash<QString, QSharedPointer<HighlightDefinitionMetaData> > m_definitionsMetaData;
+        QHash<QString, DefinitionMetaDataPtr> m_definitionsMetaData;
     };
     RegisterData m_register;
     bool m_hasQueuedRegistration;
