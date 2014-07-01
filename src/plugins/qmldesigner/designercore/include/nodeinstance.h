@@ -91,6 +91,8 @@ public:
     void setX(double x);
     void setY(double y);
 
+    bool hasAnchors() const;
+
 protected:
     void setProperty(const PropertyName &name, const QVariant &value);
     InformationName setInformation(InformationName name,

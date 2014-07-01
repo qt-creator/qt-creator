@@ -144,7 +144,7 @@ void NodeInstance::setDirectUpdate(bool directUpdates)
 bool NodeInstance::directUpdates() const
 {
     if (d)
-        return d->directUpdates && !(d->transform.isRotating() || d->transform.isScaling());
+        return d->directUpdates && !(d->transform.isRotating() || d->transform.isScaling() || hasAnchors());
     else
         return true;
 }
@@ -163,6 +163,19 @@ void NodeInstance::setY(double y)
         double dy = y - d->transform.dy();
         d->transform.translate(0.0, dy);
     }
+}
+
+bool NodeInstance::hasAnchors() const
+{
+    return  hasAnchor("anchors.fill")
+            || hasAnchor("anchors.centerIn")
+            || hasAnchor("anchors.top")
+            || hasAnchor("anchors.left")
+            || hasAnchor("anchors.right")
+            || hasAnchor("anchors.bottom")
+            || hasAnchor("anchors.horizontalCenter")
+            || hasAnchor("anchors.verticalCenter")
+            || hasAnchor("anchors.baseline");
 }
 
 bool NodeInstance::isValid() const
