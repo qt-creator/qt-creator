@@ -84,7 +84,7 @@ bool RmQtOperation::setArguments(const QStringList &args)
 
 int RmQtOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("qtversion"));
+    QVariantMap map = load(QLatin1String("QtVersions"));
     if (map.isEmpty())
         return 0;
 
@@ -92,7 +92,7 @@ int RmQtOperation::execute() const
     if (result == map)
         return 2;
 
-    return save(result, QLatin1String("qtversion")) ? 0 : 3;
+    return save(result, QLatin1String("QtVersions")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS

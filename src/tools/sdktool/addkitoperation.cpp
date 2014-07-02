@@ -242,7 +242,7 @@ bool AddKitOperation::setArguments(const QStringList &args)
 
 int AddKitOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("profiles"));
+    QVariantMap map = load(QLatin1String("Profiles"));
     if (map.isEmpty())
         map = initializeKits();
 
@@ -253,7 +253,7 @@ int AddKitOperation::execute() const
     if (result.isEmpty() || map == result)
         return 2;
 
-    return save(result, QLatin1String("profiles")) ? 0 : 3;
+    return save(result, QLatin1String("Profiles")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS
@@ -510,9 +510,9 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map,
                                     const QString &sysRoot, const QString &tc, const QString &qt,
                                     const QString &mkspec, const KeyValuePairList &extra)
 {
-    QVariantMap tcMap = load(QLatin1String("toolchains"));
-    QVariantMap qtMap = load(QLatin1String("qtversions"));
-    QVariantMap devMap = load(QLatin1String("devices"));
+    QVariantMap tcMap = load(QLatin1String("ToolChains"));
+    QVariantMap qtMap = load(QLatin1String("QtVersions"));
+    QVariantMap devMap = load(QLatin1String("Devices"));
 
     return addKit(map, tcMap, qtMap, devMap, id, displayName, icon, debuggerId, debuggerType,
                   debugger, deviceType, device, sysRoot, tc, qt, mkspec, extra);

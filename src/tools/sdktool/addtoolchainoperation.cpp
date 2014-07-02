@@ -145,7 +145,7 @@ bool AddToolChainOperation::setArguments(const QStringList &args)
 
 int AddToolChainOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("toolchains"));
+    QVariantMap map = load(QLatin1String("ToolChains"));
     if (map.isEmpty())
         map = initializeToolChains();
 
@@ -153,7 +153,7 @@ int AddToolChainOperation::execute() const
     if (result.isEmpty() || map == result)
         return 2;
 
-    return save(result, QLatin1String("toolchains")) ? 0 : 3;
+    return save(result, QLatin1String("ToolChains")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS
@@ -291,6 +291,6 @@ bool AddToolChainOperation::exists(const QVariantMap &map, const QString &id)
 
 bool AddToolChainOperation::exists(const QString &id)
 {
-    QVariantMap map = Operation::load(QLatin1String("toolchains"));
+    QVariantMap map = Operation::load(QLatin1String("ToolChains"));
     return exists(map, id);
 }

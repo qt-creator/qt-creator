@@ -128,8 +128,8 @@ bool Operation::save(const QVariantMap &map, const QString &file) const
         return false;
     }
 
-
-    Utils::PersistentSettingsWriter writer(path, QLatin1String("unknown"));
+    Utils::PersistentSettingsWriter writer(path, QLatin1String("QtCreator")
+                                           + file[0].toUpper() + file.mid(1));
     return writer.save(map, 0)
             && QFile::setPermissions(path.toString(),
                                      QFile::ReadOwner | QFile::WriteOwner

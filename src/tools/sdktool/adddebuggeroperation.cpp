@@ -139,7 +139,7 @@ bool AddDebuggerOperation::setArguments(const QStringList &args)
 
 int AddDebuggerOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("debuggers"));
+    QVariantMap map = load(QLatin1String("Debuggers"));
     if (map.isEmpty())
         map = initializeDebuggers();
 
@@ -149,7 +149,7 @@ int AddDebuggerOperation::execute() const
     if (result.isEmpty() || map == result)
         return 2;
 
-    return save(result, QLatin1String("debuggers")) ? 0 : 3;
+    return save(result, QLatin1String("Debuggers")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS

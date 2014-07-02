@@ -61,18 +61,20 @@ Settings::Settings() :
 Utils::FileName Settings::getPath(const QString &file)
 {
     Utils::FileName result = sdkPath;
-    if (file == QLatin1String("profiles") || file == QLatin1String("kits"))
+    const QString lowerFile = file.toLower();
+    const QStringList identical = QStringList()
+            << QLatin1String("profiles")
+            << QLatin1String("qtversion")
+            << QLatin1String("toolchains")
+            << QLatin1String("devices")
+            << QLatin1String("android")
+            << QLatin1String("debuggers");
+    if (lowerFile == QLatin1String("kits"))
         result.appendPath(QLatin1String("profiles"));
-    else if (file == QLatin1String("qtversions") || file == QLatin1String("qtversion"))
+    else if (lowerFile == QLatin1String("qtversions"))
         result.appendPath(QLatin1String("qtversion"));
-    else if (file == QLatin1String("toolchains") || file == QLatin1String("toolChains"))
-        result.appendPath(QLatin1String("toolchains"));
-    else if (file == QLatin1String("devices"))
-        result.appendPath(QLatin1String("devices"));
-    else if (file == QLatin1String("android"))
-        result.appendPath(QLatin1String("android"));
-    else if (file == QLatin1String("debuggers"))
-        result.appendPath(QLatin1String("debuggers"));
+    else if (identical.contains(lowerFile))
+        result.appendPath(lowerFile);
     else
         return Utils::FileName();
     result.appendString(QLatin1String(".xml"));

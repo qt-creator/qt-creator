@@ -257,7 +257,7 @@ bool AddDeviceOperation::setArguments(const QStringList &args)
 
 int AddDeviceOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("devices"));
+    QVariantMap map = load(QLatin1String("Devices"));
     if (map.isEmpty())
         map = initializeDevices();
 
@@ -269,7 +269,7 @@ int AddDeviceOperation::execute() const
     if (result.isEmpty() || map == result)
         return 2;
 
-    return save(result, QLatin1String("devices")) ? 0 : 3;
+    return save(result, QLatin1String("Devices")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS
@@ -373,7 +373,7 @@ QVariantMap AddDeviceOperation::initializeDevices()
 
 bool AddDeviceOperation::exists(const QString &id)
 {
-    QVariantMap map = load(QLatin1String("device"));
+    QVariantMap map = load(QLatin1String("Devices"));
     return exists(map, id);
 }
 
