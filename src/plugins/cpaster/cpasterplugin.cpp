@@ -205,15 +205,17 @@ ExtensionSystem::IPlugin::ShutdownFlag CodepasterPlugin::aboutToShutdown()
 
 void CodepasterPlugin::postEditor()
 {
+    IEditor *editor = EditorManager::currentEditor();
+    if (!editor)
+        return;
+    const IDocument *document = editor->document();
+    const QString mimeType = document->mimeType();
     QString data;
-    QString mimeType;
-    if (IEditor *editor = EditorManager::currentEditor()) {
-        if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
-            data = textEditor->selectedText();
-            if (data.isEmpty())
-                data = textEditor->textDocument()->plainText();
-            mimeType = textEditor->document()->mimeType();
-        }
+    if (const ITextEditor *textEditor = qobject_cast<const ITextEditor *>(editor))
+        data = textEditor->selectedText();
+    if (data.isEmpty()) {
+        if (const ITextEditorDocument *textDocument = qobject_cast<const ITextEditorDocument *>(document))
+            data = textDocument->plainText();
     }
     post(data, mimeType);
 }
