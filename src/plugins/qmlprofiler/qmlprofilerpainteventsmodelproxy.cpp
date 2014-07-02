@@ -55,6 +55,7 @@ public:
     int maxGuiThreadAnimations;
     int maxRenderThreadAnimations;
     bool seenForeignPaintEvent;
+    int rowFromThreadId(QmlDebug::AnimationThread threadId) const;
 
 private:
     Q_DECLARE_PUBLIC(PaintEventsModelProxy)
@@ -160,11 +161,16 @@ int PaintEventsModelProxy::rowCount() const
         return (d->maxGuiThreadAnimations == 0 || d->maxRenderThreadAnimations == 0) ? 2 : 3;
 }
 
+int PaintEventsModelProxy::PaintEventsModelProxyPrivate::rowFromThreadId(
+        QmlDebug::AnimationThread threadId) const
+{
+    return (threadId == QmlDebug::GuiThread || maxGuiThreadAnimations == 0) ? 1 : 2;
+}
+
 int PaintEventsModelProxy::getEventRow(int index) const
 {
     Q_D(const PaintEventsModelProxy);
-    QmlDebug::AnimationThread threadId = d->range(index).threadId;
-    return (threadId == QmlDebug::GuiThread || d->maxGuiThreadAnimations == 0) ? 1 : 2;
+    return d->rowFromThreadId(d->range(index).threadId);
 }
 
 int PaintEventsModelProxy::rowMaxValue(int rowNumber) const
@@ -202,8 +208,15 @@ float PaintEventsModelProxy::getHeight(int index) const
 {
     Q_D(const PaintEventsModelProxy);
     const PaintEventsModelProxyPrivate::Range &range = d->range(index);
-    return (float)range.animationcount / (float)(range.threadId == QmlDebug::GuiThread ?
-            d->maxGuiThreadAnimations : d->maxRenderThreadAnimations);
+
+    // Add some height to the events if we're far from the scale threshold of 2 * DefaultRowHeight.
+    // Like that you can see the smaller events more easily.
+    int scaleThreshold = 2 * DefaultRowHeight - rowHeight(d->rowFromThreadId(range.threadId));
+    float boost = scaleThreshold > 0 ? (0.15 * scaleThreshold / DefaultRowHeight) : 0;
+
+    return boost + (1.0 - boost) * (float)range.animationcount /
+            (float)(range.threadId == QmlDebug::GuiThread ? d->maxGuiThreadAnimations :
+                                                            d->maxRenderThreadAnimations);
 }
 
 const QVariantList PaintEventsModelProxy::getLabels() const

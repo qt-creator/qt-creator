@@ -101,6 +101,8 @@ signals:
     void rowHeightChanged();
 
 protected:
+    static const int DefaultRowHeight = 30;
+
     enum BoxColorProperties {
         EventHueMultiplier = 25,
         FractionHueMultiplier = 96,
