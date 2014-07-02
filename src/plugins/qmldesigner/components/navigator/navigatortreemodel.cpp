@@ -623,7 +623,7 @@ static bool isInLayoutable(NodeAbstractProperty &parentProperty)
 
 static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty, const ModelNode &modelNode)
 {
-    if (parentProperty != modelNode.parentProperty()) {
+    if (!modelNode.hasParentProperty() || parentProperty != modelNode.parentProperty()) {
         if (isInLayoutable(parentProperty)) {
             removePosition(modelNode);
             parentProperty.reparentHere(modelNode);
