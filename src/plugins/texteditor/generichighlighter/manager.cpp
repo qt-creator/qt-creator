@@ -82,8 +82,8 @@ class MultiDefinitionDownloader : public QObject
 
 public:
     MultiDefinitionDownloader(const QString &savePath, const QList<QString> &installedDefinitions) :
-        m_downloadPath(savePath),
-        m_installedDefinitions(installedDefinitions)
+        m_installedDefinitions(installedDefinitions),
+        m_downloadPath(savePath)
     {
         connect(&m_downloadWatcher, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
     }
