@@ -124,3 +124,19 @@ def qdump__boost__posix_time__time_duration(d, value):
     d.putNumChild(0)
 
 
+def qdump__boost__unordered__unordered_set(d, value):
+    base = d.addressOf(value)
+    ptrSize = d.ptrSize()
+    size = d.extractInt(base + 2 * ptrSize)
+    d.putItemCount(size)
+    if d.isExpanded():
+        innerType = d.templateArgument(value.type, 0)
+        bucketCount = d.extractInt(base + ptrSize)
+        offset = ((innerType.sizeof + ptrSize - 1) / ptrSize) * ptrSize
+        with Children(d, size, maxNumChild=10000):
+            afterBuckets = d.extractPointer(base + 5 * ptrSize)
+            afterBuckets += bucketCount * ptrSize
+            item = d.extractPointer(afterBuckets)
+            for j in d.childRange():
+                d.putSubItem(j, d.createValue(item - offset, innerType))
+                item = d.extractPointer(item)

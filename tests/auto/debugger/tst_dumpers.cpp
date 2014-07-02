@@ -5042,6 +5042,29 @@ GdbEngine
              + Check("l.2.second", "65", "double");
 
 
+    QTest::newRow("BoostUnorderedSet")
+            << Data("#include <boost/unordered_set.hpp>\n"
+                    "#include <string>\n",
+
+                    "boost::unordered_set<int> s1;\n"
+                    "s1.insert(11);\n"
+                    "s1.insert(22);\n\n"
+
+                    "boost::unordered_set<std::string> s2;\n"
+                    "s2.insert(\"abc\");\n"
+                    "s2.insert(\"def\");\n")
+
+               + BoostProfile()
+
+               + Check("s1", "<2 items>", "boost::unordered::unordered_set<int>")
+               + Check("s1.0", "[0]", "22", "int")
+               + Check("s1.1", "[1]", "11", "int")
+
+               + Check("s2", "<2 items>", "boost::unordered::unordered_set<std::string>")
+               + Check("s2.0", "[0]", "\"def\"", "std::string")
+               + Check("s2.1", "[1]", "\"abc\"", "std::string");
+
+
 //    // This tests qdump__KRBase in share/qtcreator/debugger/qttypes.py which uses
 //    // a static typeflag to dispatch to subclasses");
 

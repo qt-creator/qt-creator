@@ -38,6 +38,8 @@
 #include <private/qfileinfo_p.h>
 #include <private/qobject_p.h>
 
+#include <boost/unordered/unordered_set.hpp>
+
 class tst_offsets : public QObject
 {
     Q_OBJECT
@@ -187,6 +189,16 @@ void tst_offsets::offsets_data()
 #endif
     }
 
+    {
+        boost::unordered::unordered_set<int> *p = 0;
+
+        QTest::newRow("boost::unordered::unordered_set::size")
+            << int((char *)&p->table_.size_ - (char *)p) << 8 << 16;
+        QTest::newRow("boost::unordered::unordered_set::bucket_count")
+            << int((char *)&p->table_.bucket_count_ - (char *)p) << 4 << 8;
+        QTest::newRow("boost::unordered::unordered_set::buckets_")
+            << int((char *)&p->table_.buckets_ - (char *)p) << 20 << 40;
+    }
 }
 
 

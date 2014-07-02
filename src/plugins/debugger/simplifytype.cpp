@@ -218,6 +218,14 @@ QString simplifyType(const QString &typeIn)
             if (unorderedSetRE.indexIn(type) != -1)
                 type.replace(unorderedSetRE.cap(0), QString::fromLatin1("unordered_set<%1>").arg(inner));
 
+            // boost::unordered_set
+            QRegExp boostUnorderedSetRE(QString::fromLatin1("unordered_set<%1, ?boost::hash<%2>, ?std::equal_to<%3>, ?%4\\s*>")
+                    .arg(innerEsc, innerEsc, innerEsc, allocEsc));
+            boostUnorderedSetRE.setMinimal(true);
+            QTC_ASSERT(boostUnorderedSetRE.isValid(), return typeIn);
+            if (boostUnorderedSetRE.indexIn(type) != -1)
+                type.replace(boostUnorderedSetRE.cap(0), QString::fromLatin1("unordered_set<%1>").arg(inner));
+
             // std::map
             if (inner.startsWith(QLatin1String("std::pair<"))) {
                 // search for outermost ',', split key and value

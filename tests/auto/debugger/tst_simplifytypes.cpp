@@ -61,8 +61,10 @@ const char *description[] =
     "msvc_stringvector",
     "msvc_wstringvector",
 
-    "boost_shared_ptr",
     "std_shared_ptr",
+
+    "boost_shared_ptr",
+    "boost_unordered_set",
 };
 
 const char *input[] =
@@ -96,10 +98,11 @@ const char *input[] =
 "class std::set<std::basic_string<char,std::char_traits<char>,std::allocator<char> >,std::less<std::basic_string<char,std::char_traits<char>,std::allocator<char> > >,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char> > > >",
 "class std::vector<std::basic_string<char,std::char_traits<char>,std::allocator<char> >,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char> > > >",
 "class std::vector<std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >,std::allocator<std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> > > >",
-// boost
-"boost::shared_ptr<int>::element_type",
 // std
 "std::shared_ptr<int>::element_type",
+// boost
+"boost::shared_ptr<int>::element_type",
+"boost::unordered_set<int, boost::hash<int>, std::equal_to<int>, std::allocator<int> >",
 };
 
 const char *output[] =
@@ -128,10 +131,11 @@ const char *output[] =
     "std::set<std::string>",
     "std::vector<std::string>",
     "std::vector<std::wstring>",
-    // boost
-    "int",
     // std
     "int",
+    // boost
+    "int",
+    "boost::unordered_set<int>",
 };
 
 class SimplifyTypesTest : public QObject
