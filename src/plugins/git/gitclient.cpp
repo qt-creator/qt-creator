@@ -86,6 +86,8 @@ static const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
 static const char noColorOption[] = "--no-color";
 static const char decorateOption[] = "--decorate";
 
+using namespace Core;
+
 namespace Git {
 namespace Internal {
 
@@ -265,7 +267,7 @@ void GitDiffHandler::postCollectDiffOutput(const QList<QStringList> &argumentsLi
     VcsBase::Command *command = new VcsBase::Command(gitPath(),
                                                      m_workingDirectory,
                                                      processEnvironment());
-    command->setCodec(Core::EditorManager::defaultTextCodec());
+    command->setCodec(EditorManager::defaultTextCodec());
     connect(command, SIGNAL(output(QString)),
             this, SLOT(slotDiffOutputReceived(QString)));
     command->addFlags(diffExecutionFlags());
@@ -610,11 +612,11 @@ private:
 
 
 
-Core::IEditor *locateEditor(const char *property, const QString &entry)
+IEditor *locateEditor(const char *property, const QString &entry)
 {
-    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
+    foreach (IDocument *document, DocumentModel::openedDocuments())
         if (document->property(property).toString() == entry)
-            return Core::DocumentModel::editorsForDocument(document).first();
+            return DocumentModel::editorsForDocument(document).first();
     return 0;
 }
 
@@ -658,7 +660,7 @@ static inline QString msgCannotLaunch(const QString &binary)
 
 static inline QString currentDocumentPath()
 {
-    if (Core::IDocument *document= Core::EditorManager::currentDocument())
+    if (IDocument *document= EditorManager::currentDocument())
         return QFileInfo(document->filePath()).path();
     return QString();
 }
@@ -701,7 +703,7 @@ GitClient::GitClient(GitSettings *settings) :
     m_contextChunkIndex(-1)
 {
     QTC_CHECK(settings);
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
             .arg(QCoreApplication::applicationFilePath())
             .arg(QCoreApplication::applicationPid());
@@ -760,12 +762,12 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
                                                                const QString &dynamicPropertyValue) const
 {
     VcsBase::VcsBaseEditorWidget *rc = 0;
-    Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
+    IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
     if (!outputEditor)
         return 0;
 
     // Exists already
-    Core::EditorManager::activateEditor(outputEditor);
+    EditorManager::activateEditor(outputEditor);
     outputEditor->document()->setContents(m_msgWait.toUtf8());
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
 
@@ -869,7 +871,7 @@ void GitClient::stage(const QString &patch, bool revert)
         return;
 
     const QString baseDir = m_contextDocument->workingDirectory();
-    QTextCodec *codec = Core::EditorManager::defaultTextCodec();
+    QTextCodec *codec = EditorManager::defaultTextCodec();
     const QByteArray patchData = codec
             ? codec->fromUnicode(patch) : patch.toLocal8Bit();
     patchFile.write(patchData);
@@ -900,7 +902,7 @@ void GitClient::stage(const QString &patch, bool revert)
  * existing instance and to reuse it (in case, say, 'git diff foo' is
  * already open). */
 VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
-        Core::Id id,
+        Id id,
         QString title,
         const QString &source, // Source file or directory
         CodecType codecType,
@@ -912,7 +914,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
     QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
 
     // Create new, set wait message, set up with source and codec
-    Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(id, &title,
+    IEditor *outputEditor = EditorManager::openEditorWithContents(id, &title,
                                                                               m_msgWait.toUtf8());
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
@@ -975,7 +977,7 @@ void GitClient::diff(const QString &workingDirectory,
 
     diffEditorDocument->controller()->requestReload();
 
-    Core::EditorManager::activateEditorForDocument(diffEditorDocument);
+    EditorManager::activateEditorForDocument(diffEditorDocument);
 }
 
 void GitClient::diff(const QString &workingDirectory, const QString &fileName)
@@ -1000,7 +1002,7 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
 
     diffEditorDocument->controller()->requestReload();
 
-    Core::EditorManager::activateEditorForDocument(diffEditorDocument);
+    EditorManager::activateEditorForDocument(diffEditorDocument);
 }
 
 void GitClient::diffBranch(const QString &workingDirectory,
@@ -1024,7 +1026,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
 
     diffEditorDocument->controller()->requestReload();
 
-    Core::EditorManager::activateEditorForDocument(diffEditorDocument);
+    EditorManager::activateEditorForDocument(diffEditorDocument);
 }
 
 void GitClient::merge(const QString &workingDirectory,
@@ -1051,7 +1053,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
 {
     const QString msgArg = fileName.isEmpty() ? workingDirectory : fileName;
     const QString title = tr("Git Log \"%1\"").arg(msgArg);
-    const Core::Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
+    const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
     if (!editor)
@@ -1086,7 +1088,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
 void GitClient::reflog(const QString &workingDirectory)
 {
     const QString title = tr("Git Reflog \"%1\"").arg(workingDirectory);
-    const Core::Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
+    const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("reflogRepository", workingDirectory);
     if (!editor) {
         editor = createVcsEditor(editorId, title, workingDirectory, CodecLogOutput,
@@ -1157,12 +1159,12 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
 
     diffEditorDocument->controller()->requestReload();
 
-    Core::EditorManager::activateEditorForDocument(diffEditorDocument);
+    EditorManager::activateEditorForDocument(diffEditorDocument);
 }
 
 void GitClient::saveSettings()
 {
-    settings()->writeSettings(Core::ICore::settings());
+    settings()->writeSettings(ICore::settings());
 }
 
 void GitClient::slotBlameRevisionRequested(const QString &workingDirectory, const QString &file,
@@ -1188,7 +1190,7 @@ void GitClient::blame(const QString &workingDirectory,
                       const QString &revision,
                       int lineNumber)
 {
-    const Core::Id editorId = Git::Constants::GIT_BLAME_EDITOR_ID;
+    const Id editorId = Git::Constants::GIT_BLAME_EDITOR_ID;
     const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDirectory, QStringList(fileName), revision);
     const QString title = tr("Git Blame \"%1\"").arg(id);
     const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
@@ -1242,7 +1244,7 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
     if (localBranches.contains(ref))
         return arguments;
 
-    if (QMessageBox::question(Core::ICore::mainWindow(), tr("Create Local Branch"),
+    if (QMessageBox::question(ICore::mainWindow(), tr("Create Local Branch"),
                               tr("Would you like to create a local branch?"),
                               QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
         return arguments;
@@ -1275,7 +1277,7 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
         }
     }
 
-    BranchAddDialog branchAddDialog(localBranches, true, Core::ICore::mainWindow());
+    BranchAddDialog branchAddDialog(localBranches, true, ICore::mainWindow());
     branchAddDialog.setTrackedBranchName(remoteBranch, true);
 
     if (branchAddDialog.exec() != QDialog::Accepted)
@@ -1434,7 +1436,7 @@ bool GitClient::synchronousInit(const QString &workingDirectory)
         outputWindow()->appendError(commandOutputFromLocal8Bit(errorText));
     } else {
         // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
-        Core::VcsManager::resetVersionControlForDirectory(workingDirectory);
+        VcsManager::resetVersionControlForDirectory(workingDirectory);
     }
     return rc;
 }
@@ -1842,7 +1844,7 @@ QString GitClient::synchronousStash(const QString &workingDirectory, const QStri
         message = creatorStashMessage(messageKeyword);
         do {
             if ((flags & StashPromptDescription)) {
-                if (!inputText(Core::ICore::mainWindow(),
+                if (!inputText(ICore::mainWindow(),
                                tr("Stash Description"), tr("Description:"), &message))
                     break;
             }
@@ -2287,7 +2289,7 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
     if (!updateNeeded)
         return;
 
-    if (prompt && QMessageBox::question(Core::ICore::mainWindow(), tr("Submodules Found"),
+    if (prompt && QMessageBox::question(ICore::mainWindow(), tr("Submodules Found"),
             tr("Would you like to update submodules?"),
             QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
         return;
@@ -2466,7 +2468,7 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
     }
 
     QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText,
-                       QMessageBox::NoButton, Core::ICore::mainWindow());
+                       QMessageBox::NoButton, ICore::mainWindow());
     if (hasChanges || isRebase)
         msgBox.addButton(hasChanges ? buttonName : tr("Skip"), QMessageBox::AcceptRole);
     msgBox.addButton(QMessageBox::Abort);
@@ -2995,7 +2997,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
 
     // Ask to revert (to do: Handle lists with a selection dialog)
     const QMessageBox::StandardButton answer
-        = QMessageBox::question(Core::ICore::mainWindow(),
+        = QMessageBox::question(ICore::mainWindow(),
                                 tr("Revert"),
                                 tr("The file has been changed. Do you want to revert it?"),
                                 QMessageBox::Yes | QMessageBox::No,
@@ -3150,7 +3152,7 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
     else
         message = tr("Conflicts detected.");
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message,
-                             QMessageBox::NoButton, Core::ICore::mainWindow());
+                             QMessageBox::NoButton, ICore::mainWindow());
     QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),
                                                           QMessageBox::AcceptRole);
     mergeOrAbort.addButton(QMessageBox::Ignore);
@@ -3201,7 +3203,7 @@ void GitClient::subversionLog(const QString &workingDirectory)
 
     // Create a command editor, no highlighting or interaction.
     const QString title = tr("Git SVN Log");
-    const Core::Id editorId = Git::Constants::C_GIT_COMMAND_LOG_EDITOR;
+    const Id editorId = Git::Constants::C_GIT_COMMAND_LOG_EDITOR;
     const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, QStringList());
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("svnLog", sourceFile);
     if (!editor)
@@ -3476,7 +3478,7 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
         const Utils::SynchronousProcessResponse resp =
                 synchronousGit(workingDirectory.path(), arguments, flags);
         // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
-        Core::VcsManager::resetVersionControlForDirectory(workingDirectory.absolutePath());
+        VcsManager::resetVersionControlForDirectory(workingDirectory.absolutePath());
         return (resp.result == Utils::SynchronousProcessResponse::Finished);
     }
 }
@@ -3585,7 +3587,7 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
                        tr("What would you like to do with local changes in:")
                        + QLatin1String("\n\n\"")
                        + QDir::toNativeSeparators(m_workingDir) + QLatin1Char('\"'),
-                       QMessageBox::NoButton, Core::ICore::mainWindow());
+                       QMessageBox::NoButton, ICore::mainWindow());
 
     msgBox.setDetailedText(statusOutput);
 
