@@ -34,6 +34,8 @@
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
 
+#include <QDebug>
+
 //
 // Qt < 5.2 didn't feature categorized logging:
 // Just enable qCWarning, qCCritical, but disable qCDebug

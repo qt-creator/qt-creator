@@ -36,6 +36,7 @@
 #include <QScopedPointer>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QRegExp>
 
 #include <utils/networkaccessmanager.h>
 
