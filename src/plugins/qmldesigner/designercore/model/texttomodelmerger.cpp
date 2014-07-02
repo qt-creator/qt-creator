@@ -851,7 +851,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         if (view()->checkSemanticErrors()) {
             Check check(doc, m_scopeChain->context());
-            check.disableMessage(StaticAnalysis::ErrUnknownComponent);
             check.disableMessage(StaticAnalysis::ErrPrototypeCycle);
             check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototype);
             check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototypeOf);
@@ -872,8 +871,12 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
 
             foreach (const StaticAnalysis::Message &message, check()) {
-                if (message.severity == Severity::Error)
-                    errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                if (message.severity == Severity::Error) {
+                    if (message.type == StaticAnalysis::ErrUnknownComponent)
+                        warnings.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                    else
+                        errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                }
                 if (message.severity == Severity::Warning) {
                     if (message.type == StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2) {
                         errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
