@@ -37,6 +37,7 @@
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/dialogs/saveitemsdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/editorview.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
@@ -1414,19 +1415,42 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
     const QVariant data = action->data();
     OpenWithEntry entry = qvariant_cast<OpenWithEntry>(data);
     if (entry.editorFactory) {
-        // close any open editors that have this file open, but have a different type.
+        // close any open editors that have this file open
+        // remember the views to open new editors in there
+        QList<Internal::EditorView *> views;
         QList<IEditor *> editorsOpenForFile
                 = DocumentModel::editorsForFilePath(entry.fileName);
-        if (!editorsOpenForFile.isEmpty()) {
-            foreach (IEditor *openEditor, editorsOpenForFile) {
-                if (entry.editorFactory->id() == openEditor->document()->id())
-                    editorsOpenForFile.removeAll(openEditor);
-            }
-            if (!EditorManager::closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
-                return;
+        foreach (IEditor *openEditor, editorsOpenForFile) {
+            Internal::EditorView *view = EditorManager::viewForEditor(openEditor);
+            if (view && view->currentEditor() == openEditor) // visible
+                views.append(view);
         }
+        if (!EditorManager::closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
+            return;
 
-        EditorManager::openEditor(entry.fileName, entry.editorFactory->id());
+        if (views.isEmpty()) {
+            EditorManager::openEditor(entry.fileName, entry.editorFactory->id());
+        } else {
+            if (Internal::EditorView *currentView = EditorManager::currentEditorView()) {
+                if (views.removeOne(currentView))
+                    views.prepend(currentView); // open editor in current view first
+            }
+            EditorManager::OpenEditorFlags flags;
+            foreach (Internal::EditorView *view, views) {
+                IEditor *editor =
+                        EditorManager::openEditor(view, entry.fileName, entry.editorFactory->id(),
+                                                  flags);
+                // Do not change the current editor after opening the first one. That
+                // * prevents multiple updates of focus etc which are not necessary
+                // * lets us control which editor is made current by putting the current editor view
+                //   to the front (if that was in the list in the first place
+                flags |= EditorManager::DoNotChangeCurrentEditor;
+                // do not try to open more editors if this one failed, or editor type does not
+                // support duplication anyhow
+                if (!editor || !editor->duplicateSupported())
+                    break;
+            }
+        }
         return;
     }
     if (entry.externalEditor)
