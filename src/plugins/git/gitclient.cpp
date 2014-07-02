@@ -1129,8 +1129,11 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
 
     const QString title = tr("Git Show \"%1\"").arg(name.isEmpty() ? id : name);
     const QFileInfo sourceFi(source);
-    const QString workingDirectory = sourceFi.isDir()
+    QString workingDirectory = sourceFi.isDir()
             ? sourceFi.absoluteFilePath() : sourceFi.absolutePath();
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
+    if (!repoDirectory.isEmpty())
+        workingDirectory = repoDirectory;
     const QString documentId = QLatin1String("Show:") + id;
     DiffEditor::DiffEditorDocument *diffEditorDocument =
             DiffEditor::DiffEditorManager::find(documentId);
