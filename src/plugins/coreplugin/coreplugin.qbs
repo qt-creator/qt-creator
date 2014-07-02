@@ -11,6 +11,12 @@ QtcPlugin {
             "widgets", "xml", "network", "script", "sql", "help", "printsupport"
         ]
     }
+
+    Depends {
+        name: "Qt.gui-private"
+        condition: qbs.targetOS.contains("windows") && Qt.core.versionMajor >= 5
+    }
+
     Depends { name: "Utils" }
     Depends { name: "Aggregation" }
 
