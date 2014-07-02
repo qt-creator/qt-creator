@@ -53,7 +53,7 @@ public:
     bool supportsReplace() const;
     FindFlags supportedFindFlags() const;
     void resetIncrementalSearch();
-    void clearResults();
+    void clearHighlights();
     QString currentFindString() const;
     QString completedFindString() const;
 

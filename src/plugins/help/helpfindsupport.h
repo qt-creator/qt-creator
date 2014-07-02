@@ -48,7 +48,7 @@ public:
     bool supportsReplace() const { return false; }
     Core::FindFlags supportedFindFlags() const;
     void resetIncrementalSearch() {}
-    void clearResults() {}
+    void clearHighlights() {}
     QString currentFindString() const;
     QString completedFindString() const { return QString(); }
 

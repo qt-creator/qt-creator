@@ -97,7 +97,7 @@ public:
         m_widget->highlightSearchResults(txt.toLatin1(), textDocumentFlagsForFindFlags(findFlags));
     }
 
-    void clearResults()
+    void clearHighlights()
     {
         m_widget->highlightSearchResults(QByteArray());
     }

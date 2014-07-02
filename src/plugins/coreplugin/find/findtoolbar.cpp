@@ -406,7 +406,7 @@ void FindToolBar::invokeReplaceEnter()
 void FindToolBar::invokeClearResults()
 {
     if (m_currentDocumentFind->isEnabled())
-        m_currentDocumentFind->clearResults();
+        m_currentDocumentFind->clearHighlights();
 }
 
 
@@ -471,7 +471,7 @@ void FindToolBar::invokeFindIncremental()
         if (result == IFindSupport::NotYetFound)
             m_findIncrementalTimer.start(50);
         if (text.isEmpty())
-            m_currentDocumentFind->clearResults();
+            m_currentDocumentFind->clearHighlights();
     }
 }
 
