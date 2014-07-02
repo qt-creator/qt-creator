@@ -54,7 +54,7 @@ const char DEFAULT[] = "Profile.Default";
 const char ID[] = "PE.Profile.Id";
 const char DISPLAYNAME[] = "PE.Profile.Name";
 const char ICON[] = "PE.Profile.Icon";
-const char AUTODETECTED[] = "PE.Profile.Autodetected";
+const char AUTODETECTED[] = "PE.Profile.AutoDetected";
 const char SDK[] = "PE.Profile.SDK";
 const char DATA[] = "PE.Profile.Data";
 
