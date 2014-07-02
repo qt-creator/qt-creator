@@ -38,16 +38,20 @@ public:
         QmlDebug::MemoryType type;
         qint64 size;
         qint64 delta;
+        int originTypeIndex;
     };
 
     MemoryUsageModel(QObject *parent = 0);
 
     int rowCount() const;
+    int rowMaxValue(int rowNumber) const;
 
     int getEventRow(int index) const;
     int getEventId(int index) const;
     QColor getColor(int index) const;
     float getHeight(int index) const;
+
+    const QVariantMap getEventLocation(int index) const;
 
     const QVariantList getLabels() const;
     const QVariantList getEventDetails(int index) const;

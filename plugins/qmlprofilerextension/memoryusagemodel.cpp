@@ -22,7 +22,7 @@
 #include "qmlprofiler/sortedtimelinemodel.h"
 #include "qmlprofiler/abstracttimelinemodel_p.h"
 
-#include <QDebug>
+#include <QStack>
 
 namespace QmlProfilerExtension {
 namespace Internal {
@@ -54,6 +54,13 @@ int MemoryUsageModel::rowCount() const
     return isEmpty() ? 1 : 3;
 }
 
+int MemoryUsageModel::rowMaxValue(int rowNumber) const
+{
+    Q_D(const MemoryUsageModel);
+    Q_UNUSED(rowNumber);
+    return d->maxSize;
+}
+
 int MemoryUsageModel::getEventRow(int index) const
 {
     Q_D(const MemoryUsageModel);
@@ -78,7 +85,29 @@ QColor MemoryUsageModel::getColor(int index) const
 float MemoryUsageModel::getHeight(int index) const
 {
     Q_D(const MemoryUsageModel);
-    return qMin(1.0f, (float)d->range(index).size / (float)d->maxSize * 0.85f + 0.15f);
+    return qMin(1.0f, (float)d->range(index).size / (float)d->maxSize);
+}
+
+const QVariantMap MemoryUsageModel::getEventLocation(int index) const
+{
+    static const QLatin1String file("file");
+    static const QLatin1String line("line");
+    static const QLatin1String column("column");
+
+    Q_D(const MemoryUsageModel);
+    QVariantMap result;
+
+    int originType = d->range(index).originTypeIndex;
+    if (originType > -1) {
+        const QmlDebug::QmlEventLocation &location =
+                d->modelManager->qmlModel()->getEventTypes().at(originType).location;
+
+        result.insert(file, location.filename);
+        result.insert(line, location.line);
+        result.insert(column, location.column);
+    }
+
+    return result;
 }
 
 const QVariantList MemoryUsageModel::getLabels() const
@@ -89,7 +118,6 @@ const QVariantList MemoryUsageModel::getLabels() const
     if (d->expanded && !isEmpty()) {
         {
             QVariantMap element;
-            element.insert(QLatin1String("displayName"), QVariant(tr("Memory Allocation")));
             element.insert(QLatin1String("description"), QVariant(tr("Memory Allocation")));
 
             element.insert(QLatin1String("id"), QVariant(QmlDebug::HeapPage));
@@ -98,7 +126,6 @@ const QVariantList MemoryUsageModel::getLabels() const
 
         {
             QVariantMap element;
-            element.insert(QLatin1String("displayName"), QVariant(tr("Memory Usage")));
             element.insert(QLatin1String("description"), QVariant(tr("Memory Usage")));
 
             element.insert(QLatin1String("id"), QVariant(QmlDebug::SmallItem));
@@ -144,8 +171,24 @@ const QVariantList MemoryUsageModel::getEventDetails(int index) const
         result << res;
     }
 
+    if (ev->originTypeIndex != -1) {
+        QVariantMap valuePair;
+        valuePair.insert(tr("Location"),
+                d->modelManager->qmlModel()->getEventTypes().at(ev->originTypeIndex).displayName);
+        result << valuePair;
+    }
+
     return result;
 }
+
+struct RangeStackFrame {
+    RangeStackFrame() : originTypeIndex(-1), startTime(-1), endTime(-1) {}
+    RangeStackFrame(int originTypeIndex, qint64 startTime, qint64 endTime) :
+        originTypeIndex(originTypeIndex), startTime(startTime), endTime(endTime) {}
+    int originTypeIndex;
+    qint64 startTime;
+    qint64 endTime;
+};
 
 void MemoryUsageModel::loadData()
 {
@@ -159,40 +202,67 @@ void MemoryUsageModel::loadData()
     qint64 currentUsage = 0;
     int currentUsageIndex = -1;
     int currentJSHeapIndex = -1;
+
+    QStack<RangeStackFrame> rangeStack;
+    MemoryAllocation dummy = {
+        QmlDebug::MaximumMemoryType, -1, -1 , -1
+    };
+
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
         const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
-        if (!eventAccepted(type))
+        while (!rangeStack.empty() && rangeStack.top().endTime < event.startTime)
+            rangeStack.pop();
+        if (!eventAccepted(type)) {
+            if (type.rangeType != QmlDebug::MaximumRangeType) {
+                rangeStack.push(RangeStackFrame(event.typeIndex, event.startTime,
+                                                event.startTime + event.duration));
+            }
             continue;
+        }
 
         if (type.detailType == QmlDebug::SmallItem || type.detailType == QmlDebug::LargeItem) {
             currentUsage += event.numericData1;
-            MemoryAllocation allocation = {
-                QmlDebug::SmallItem,
-                currentUsage,
-                event.numericData1
-            };
-            if (currentUsageIndex != -1) {
-                d->insertEnd(currentUsageIndex,
-                             event.startTime - d->range(currentUsageIndex).start - 1);
+            MemoryAllocation &last = currentUsageIndex > -1 ? d->data(currentUsageIndex) : dummy;
+            if (!rangeStack.empty() && last.originTypeIndex == rangeStack.top().originTypeIndex) {
+                last.size = currentUsage;
+                last.delta += event.numericData1;
+            } else {
+                MemoryAllocation allocation = {
+                    QmlDebug::SmallItem,
+                    currentUsage,
+                    event.numericData1,
+                    rangeStack.empty() ? -1 : rangeStack.top().originTypeIndex
+                };
+                if (currentUsageIndex != -1) {
+                    d->insertEnd(currentUsageIndex,
+                                 event.startTime - d->range(currentUsageIndex).start - 1);
+                }
+                currentUsageIndex = d->insertStart(event.startTime, allocation);
             }
-            currentUsageIndex = d->insertStart(event.startTime, allocation);
         }
 
         if (type.detailType == QmlDebug::HeapPage || type.detailType == QmlDebug::LargeItem) {
             currentSize += event.numericData1;
-            MemoryAllocation allocation = {
-                (QmlDebug::MemoryType)type.detailType,
-                currentSize,
-                event.numericData1
-            };
+            MemoryAllocation &last = currentJSHeapIndex > -1 ? d->data(currentJSHeapIndex) : dummy;
+            if (!rangeStack.empty() && last.originTypeIndex == rangeStack.top().originTypeIndex) {
+                last.size = currentSize;
+                last.delta += event.numericData1;
+            } else {
+                MemoryAllocation allocation = {
+                    (QmlDebug::MemoryType)type.detailType,
+                    currentSize,
+                    event.numericData1,
+                    rangeStack.empty() ? -1 : rangeStack.top().originTypeIndex
+                };
 
-            if (currentSize > d->maxSize)
-                d->maxSize = currentSize;
-            if (currentJSHeapIndex != -1)
-                d->insertEnd(currentJSHeapIndex,
-                             event.startTime - d->range(currentJSHeapIndex).start - 1);
-            currentJSHeapIndex = d->insertStart(event.startTime, allocation);
+                if (currentSize > d->maxSize)
+                    d->maxSize = currentSize;
+                if (currentJSHeapIndex != -1)
+                    d->insertEnd(currentJSHeapIndex,
+                                 event.startTime - d->range(currentJSHeapIndex).start - 1);
+                currentJSHeapIndex = d->insertStart(event.startTime, allocation);
+            }
         }
 
         d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), simpleModel->getEvents().count());

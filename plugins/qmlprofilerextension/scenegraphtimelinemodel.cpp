@@ -46,8 +46,8 @@ enum SceneGraphEventType {
 };
 
 enum SceneGraphCategoryType {
-    SceneGraphRenderThread,
     SceneGraphGUIThread,
+    SceneGraphRenderThread,
 
     MaximumSceneGraphCategoryType
 };
@@ -59,6 +59,7 @@ class SceneGraphTimelineModel::SceneGraphTimelineModelPrivate :
 public:
     void addVP(QVariantList &l, QString label, qint64 time) const;
 private:
+    bool seenPolishAndSync;
     Q_DECLARE_PUBLIC(SceneGraphTimelineModel)
 };
 
@@ -67,25 +68,28 @@ SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
                                   QLatin1String("SceneGraphTimeLineModel"), tr("Scene Graph"),
                                   QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
 {
+    Q_D(SceneGraphTimelineModel);
+    d->seenPolishAndSync = false;
 }
 
 int SceneGraphTimelineModel::rowCount() const
 {
+    Q_D(const SceneGraphTimelineModel);
     if (isEmpty())
         return 1;
-    return 3;
+    return d->seenPolishAndSync ? 3 : 2;
 }
 
 int SceneGraphTimelineModel::getEventRow(int index) const
 {
     Q_D(const SceneGraphTimelineModel);
-    return d->range(index).sgEventType + 1;
+    return d->seenPolishAndSync ? d->range(index).sgEventType + 1 : 1;
 }
 
 int SceneGraphTimelineModel::getEventId(int index) const
 {
     Q_D(const SceneGraphTimelineModel);
-    return d->range(index).sgEventType;
+    return d->seenPolishAndSync ? d->range(index).sgEventType : SceneGraphGUIThread;
 }
 
 QColor SceneGraphTimelineModel::getColor(int index) const
@@ -121,13 +125,20 @@ const QVariantList SceneGraphTimelineModel::getLabels() const
     Q_D(const SceneGraphTimelineModel);
     QVariantList result;
 
-    if (d->expanded && !isEmpty()) {
-        for (int i = 0; i < MaximumSceneGraphCategoryType; i++) {
-            QVariantMap element;
+    static QVariant renderThreadLabel(labelForSGType(SceneGraphRenderThread));
+    static QVariant guiThreadLabel(labelForSGType(SceneGraphGUIThread));
 
-            element.insert(QLatin1String("displayName"), QVariant(labelForSGType(i)));
-            element.insert(QLatin1String("description"), QVariant(labelForSGType(i)));
-            element.insert(QLatin1String("id"), QVariant(i));
+    if (d->expanded && !isEmpty()) {
+        {
+            QVariantMap element;
+            element.insert(QLatin1String("description"), guiThreadLabel);
+            element.insert(QLatin1String("id"), SceneGraphGUIThread);
+            result << element;
+        }
+        if (d->seenPolishAndSync) {
+            QVariantMap element;
+            element.insert(QLatin1String("description"), renderThreadLabel);
+            element.insert(QLatin1String("id"), SceneGraphRenderThread);
             result << element;
         }
     }
@@ -155,7 +166,8 @@ const QVariantList SceneGraphTimelineModel::getEventDetails(int index) const
 
     {
         QVariantMap res;
-        res.insert(QLatin1String("title"), QVariant(labelForSGType(ev->sgEventType)));
+        res.insert(QLatin1String("title"), QVariant(labelForSGType(
+                                    d->seenPolishAndSync ? ev->sgEventType : SceneGraphGUIThread)));
         result << res;
     }
 
@@ -252,6 +264,7 @@ void SceneGraphTimelineModel::loadData()
                 break;
             }
             case SceneGraphPolishAndSync: {
+                d->seenPolishAndSync = true;
                 // GUI thread
                 SceneGraphEvent newEvent;
                 newEvent.sgEventType = SceneGraphGUIThread;
@@ -272,11 +285,11 @@ void SceneGraphTimelineModel::loadData()
                 break;
             }
             case SceneGraphWindowsAnimations: {
-                timing[14] = event.numericData1;
+                timing[15] = event.numericData1;
                 break;
             }
             case SceneGraphWindowsPolishFrame: {
-                timing[15] = event.numericData1;
+                timing[14] = event.numericData1;
                 break;
             }
             default: break;
@@ -294,6 +307,7 @@ void SceneGraphTimelineModel::clear()
 {
     Q_D(SceneGraphTimelineModel);
     d->clear();
+    d->seenPolishAndSync = false;
     d->expanded = false;
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }

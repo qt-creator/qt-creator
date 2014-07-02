@@ -103,6 +103,16 @@ int PixmapCacheModel::rowCount() const
     return d->collapsedRowCount;
 }
 
+int PixmapCacheModel::rowMaxValue(int rowNumber) const
+{
+    Q_D(const PixmapCacheModel);
+    if (rowNumber == 1) {
+        return d->maxCacheSize;
+    } else {
+        return AbstractTimelineModel::rowMaxValue(rowNumber);
+    }
+}
+
 int PixmapCacheModel::getEventRow(int index) const
 {
     Q_D(const PixmapCacheModel);
@@ -131,7 +141,7 @@ float PixmapCacheModel::getHeight(int index) const
 {
     Q_D(const PixmapCacheModel);
     if (d->range(index).pixmapEventType == PixmapCacheCountChanged)
-        return 0.15 + (float)d->range(index).cacheSize * 0.85 / (float)d->maxCacheSize;
+        return (float)d->range(index).cacheSize / (float)d->maxCacheSize;
     else
         return 1.0f;
 }
@@ -153,7 +163,6 @@ const QVariantList PixmapCacheModel::getLabels() const
         {
             // Cache Size
             QVariantMap element;
-            element.insert(QLatin1String("displayName"), QVariant(QLatin1String("Cache Size")));
             element.insert(QLatin1String("description"), QVariant(QLatin1String("Cache Size")));
 
             element.insert(QLatin1String("id"), QVariant(0));
@@ -163,8 +172,6 @@ const QVariantList PixmapCacheModel::getLabels() const
         for (int i=0; i < d->pixmaps.count(); i++) {
             // Loading
             QVariantMap element;
-            element.insert(QLatin1String("displayName"),
-                           QVariant(getFilenameOnly(d->pixmaps[i].url)));
             element.insert(QLatin1String("description"),
                            QVariant(getFilenameOnly(d->pixmaps[i].url)));
 
