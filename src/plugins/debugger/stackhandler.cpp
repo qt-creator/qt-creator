@@ -31,6 +31,7 @@
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "simplifytype.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -103,7 +104,7 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         case 0: // Stack frame level
             return QString::number(frame.level);
         case 1: // Function name
-            return frame.function;
+            return simplifyType(frame.function);
         case 2: // File name
             return frame.file.isEmpty() ? frame.from : QFileInfo(frame.file).fileName();
         case 3: // Line number

@@ -34,6 +34,7 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerstringutils.h"
+#include "simplifytype.h"
 
 #include <extensionsystem/invoker.h>
 #include <utils/hostosinfo.h>
@@ -593,7 +594,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 1:
             if (role == Qt::DisplayRole) {
                 if (!response.functionName.isEmpty())
-                    return response.functionName;
+                    return simplifyType(response.functionName);
                 if (!data.functionName.isEmpty())
                     return data.functionName;
                 if (data.type == BreakpointAtMain
