@@ -1091,7 +1091,7 @@ static QObject *createDummyWindow(QQmlContext *context, const QUrl &sourceUrl)
     QQmlComponent component(context->engine());
     QByteArray dummyWindow;
     dummyWindow.append("import QtQuick 2.0\n");
-    dummyWindow.append("Item {\n");
+    dummyWindow.append("Rectangle {\n");
     dummyWindow.append("property string title\n");
     dummyWindow.append("}\n");
 
