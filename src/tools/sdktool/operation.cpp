@@ -122,7 +122,7 @@ bool Operation::save(const QVariantMap &map, const QString &file) const
 
     Utils::FileName dirName = path.parentDir();
     QDir dir(dirName.toString());
-    if (!dir.exists() && !dir.mkpath(dirName.toString())) {
+    if (!dir.exists() && !dir.mkpath(QLatin1String("."))) {
         std::cerr << "Error: Could not create directory " << qPrintable(dirName.toString())
                   << "." << std::endl;
         return false;
