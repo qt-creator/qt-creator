@@ -467,27 +467,27 @@
 
   </contexts>
     <itemDatas>
-      <itemData name="Normal Text"  defStyleNum="dsNormal" />
-      <itemData name="Tags"         defStyleNum="dsKeyword" color="#ca60ca" bold="1" italic="0" />
-      <itemData name="Custom Tags"   defStyleNum="dsNormal"  color="#458C61" bold="1" italic="0" />
-      <itemData name="Word"         defStyleNum="dsKeyword" color="#0095ff" bold="1" italic="0" />
-      <itemData name="HTML Tag"     defStyleNum="dsKeyword" color="#000000" bold="1" italic="0" />
-      <itemData name="Entities"     defStyleNum="dsOthers" color="#4086C0" bold="1" italic="1" />
-      <itemData name="Description"  defStyleNum="dsString"  color="#ff0000" />
-      <itemData name="Comment"      defStyleNum="dsComment" />
-      <itemData name="Region"       defStyleNum="dsRegionMarker" />
-      <itemData name="Identifier"   defStyleNum="dsOthers" />
-      <itemData name="HTML Comment" defStyleNum="dsComment" />
-      <itemData name="Types"        defStyleNum="dsDataType" />
-      <itemData name="Code"         defStyleNum="dsComment" />
-      <itemData name="Dot Graph"    defStyleNum="dsComment" color="#00A000" selColor="#ffffff" italic="1" />
-      <itemData name="Formulas"     defStyleNum="dsComment" color="#00A000" selColor="#ffffff" italic="1" />
-      <itemData name="Message Sequence Chart" defStyleNum="dsComment" color="#00A000" selColor="#ffffff" italic="1" />
-      <itemData name="Verbatim"     defStyleNum="dsComment" />
-      <itemData name="Note"         defStyleNum="dsKeyword" color="#81ca2d" selColor="#81ca2d" bold="1" italic="0" />
-      <itemData name="Warning"      defStyleNum="dsKeyword" color="#ca9219" selColor="#ca9219" bold="1" italic="0" />
-      <itemData name="Attention"    defStyleNum="dsKeyword" color="#e85848" selColor="#e85848" bold="1" italic="0" />
-      <itemData name="Todo"         defStyleNum="dsKeyword" color="#ca60ca" selColor="#ffffff" bold="1" italic="0" />
+      <itemData name="Normal Text"              defStyleNum="dsNormal" />
+      <itemData name="Tags"                     defStyleNum="dsKeyword" />
+      <itemData name="Custom Tags"              defStyleNum="dsKeyword" />
+      <itemData name="Word"                     defStyleNum="dsIdentifier" />
+      <itemData name="HTML Tag"                 defStyleNum="dsKeyword" />
+      <itemData name="Entities"                 defStyleNum="dsOthers" />
+      <itemData name="Description"              defStyleNum="dsString" />
+      <itemData name="Comment"                  defStyleNum="dsComment" />
+      <itemData name="Region"                   defStyleNum="dsRegionMarker" />
+      <itemData name="Identifier"               defStyleNum="dsIdentifier" />
+      <itemData name="HTML Comment"             defStyleNum="dsComment" />
+      <itemData name="Types"                    defStyleNum="dsDataType" />
+      <itemData name="Code"                     defStyleNum="dsComment" />
+      <itemData name="Dot Graph"                defStyleNum="dsComment" />
+      <itemData name="Formulas"                 defStyleNum="dsComment" />
+      <itemData name="Message Sequence Chart"   defStyleNum="dsComment" />
+      <itemData name="Verbatim"                 defStyleNum="dsComment" />
+      <itemData name="Note"                     defStyleNum="dsKeyword" />
+      <itemData name="Warning"                  defStyleNum="dsKeyword" />
+      <itemData name="Attention"                defStyleNum="dsKeyword" />
+      <itemData name="Todo"                     defStyleNum="dsKeyword" />
     </itemDatas>
   </highlighting>
   <general>
