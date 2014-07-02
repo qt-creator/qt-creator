@@ -57,7 +57,7 @@ public:
     };
     Q_DECLARE_FLAGS(WizardFlags, WizardFlag)
 
-    IWizardFactory() { }
+    IWizardFactory() : m_kind(FileWizard) { }
 
     QString id() const { return m_id; }
     WizardKind kind() const { return m_kind; }
