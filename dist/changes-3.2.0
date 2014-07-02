@@ -19,6 +19,7 @@ General
    * Removed unhelpful Generic Highlighter loading progress bar
 
 Editing
+   * Fixed support for mixed languages in the generic highlighter
 
 Managing and Building Projects
 
@@ -75,8 +76,12 @@ Debugging
    * Added raw opcode bytes to Disassembler view
    * Changed Disassembler view to order lines by increasing address
    * Made more dumpers work in release builds
+   * Fixed debugging applications that are run in a terminal on Linux (QTCREATORBUG-3509)
 
 QML Profiler
+
+Analyzer
+   * Added support for Run in Terminal (QTCREATORBUG-7311)
 
 C++ Support
    * Fixed finding usages of members of typedef'ed anonymous structs
@@ -92,6 +97,15 @@ Qt Quick Designer
 Diff Viewer
 
 Version Control Systems
+   * Git
+      * Fixed replies to prompts (QTCREATORBUG-12335)
+      * Fixed that original author was not preserved during Cherry-Pick
+      * Reintroduced the expanded branch list in Show (QTCREATORBUG-11293)
+      * Fixed that switching to the commit editor was unresponsive (QTCREATORBUG-12449)
+      * Fixed showing commits by clicking their hashes in the interactive rebase editor
+      * Improved display in the Gerrit dialog to visualize dependencies
+      * Added support for choosing reviewer in Push to Gerrit dialog
+        over HTTP
 
 FakeVim
    * Added support for unicode input with 'C-v' in insert mode
