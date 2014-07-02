@@ -165,7 +165,7 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             if (buildSucceeded) {
                 progressDialog.show();
                 buildSucceeded = startBuildProcess(buildDirectory.path(), buildCommand(), QStringList(), &progressDialog);
-                progressDialog.hide();
+                progressDialog.close();
             }
 
             if (!buildSucceeded)
