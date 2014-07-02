@@ -191,7 +191,7 @@ public:
     static QString windowTitleVcsTopic();
 
     static void addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
-    static void addNativeDirActions(QMenu *contextMenu, DocumentModel::Entry *entry);
+    static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
 
 signals:
     void currentEditorChanged(Core::IEditor *editor);
