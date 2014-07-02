@@ -663,7 +663,7 @@ def getChildByClass(parent, classToSearchFor, occurrence=1):
 
 def getHelpViewer():
     try:
-        return waitForObject(":Qt Creator_Help::Internal::HelpViewer", 1000)
+        return waitForObject(":Qt Creator_Help::Internal::HelpViewer", 3000)
     except:
         return waitForObject("{type='Help::Internal::TextBrowserHelpWidget' unnamed='1' "
                              "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 1000)
