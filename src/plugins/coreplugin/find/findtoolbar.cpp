@@ -325,8 +325,11 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
 void FindToolBar::adaptToCandidate()
 {
     updateFindAction();
-    if (findToolBarPlaceHolder() == Core::FindToolBarPlaceHolder::getCurrent())
+    if (findToolBarPlaceHolder() == Core::FindToolBarPlaceHolder::getCurrent()) {
         m_currentDocumentFind->acceptCandidate();
+        if (isVisible())
+            m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
+    }
 }
 
 void FindToolBar::updateFindAction()
