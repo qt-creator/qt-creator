@@ -2215,7 +2215,7 @@ QProcessEnvironment GitClient::processEnvironment() const
 bool GitClient::beginStashScope(const QString &workingDirectory, const QString &command,
                                 StashFlag flag, PushAction pushAction)
 {
-    const QString repoDirectory = findRepositoryForDirectory(workingDirectory);
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     QTC_ASSERT(!repoDirectory.isEmpty(), return false);
     StashInfo &stashInfo = m_stashInfo[repoDirectory];
     return stashInfo.init(repoDirectory, command, flag, pushAction);
@@ -2223,14 +2223,14 @@ bool GitClient::beginStashScope(const QString &workingDirectory, const QString &
 
 GitClient::StashInfo &GitClient::stashInfo(const QString &workingDirectory)
 {
-    const QString repoDirectory = findRepositoryForDirectory(workingDirectory);
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     QTC_CHECK(m_stashInfo.contains(repoDirectory));
     return m_stashInfo[repoDirectory];
 }
 
 void GitClient::endStashScope(const QString &workingDirectory)
 {
-    const QString repoDirectory = findRepositoryForDirectory(workingDirectory);
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     QTC_ASSERT(m_stashInfo.contains(repoDirectory), return);
     m_stashInfo[repoDirectory].end();
 }
@@ -2694,7 +2694,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     commitData.clear();
 
     // Find repo
-    const QString repoDirectory = GitClient::findRepositoryForDirectory(workingDirectory);
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (repoDirectory.isEmpty()) {
         *errorMessage = msgRepositoryNotFound(workingDirectory);
         return false;
@@ -2949,7 +2949,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
         *ptrToIsDirectory = isDirectory;
     const QString workingDirectory = isDirectory ? firstFile.absoluteFilePath() : firstFile.absolutePath();
 
-    const QString repoDirectory = GitClient::findRepositoryForDirectory(workingDirectory);
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (repoDirectory.isEmpty()) {
         *errorMessage = msgRepositoryNotFound(workingDirectory);
         return RevertFailed;
@@ -3090,7 +3090,8 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
     // Abort to clean if something goes wrong
     if (abortCommand.isEmpty()) {
         // no abort command - checkout index to clean working copy.
-        synchronousCheckoutFiles(findRepositoryForDirectory(workingDir), QStringList(), QString(), 0, false);
+        synchronousCheckoutFiles(VcsManager::findTopLevelForDirectory(workingDir),
+                                 QStringList(), QString(), 0, false);
         return;
     }
     VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();

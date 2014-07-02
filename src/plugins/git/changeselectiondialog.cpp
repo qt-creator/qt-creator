@@ -33,6 +33,8 @@
 #include "gitclient.h"
 #include "ui_changeselectiondialog.h"
 
+#include <coreplugin/vcsmanager.h>
+
 #include <QProcess>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -142,7 +144,7 @@ QString ChangeSelectionDialog::workingDirectory() const
     if (workingDir.isEmpty() || !QDir(workingDir).exists())
         return QString();
 
-    return GitPlugin::instance()->gitClient()->findRepositoryForDirectory(workingDir);
+    return Core::VcsManager::findTopLevelForDirectory(workingDir);
 }
 
 ChangeCommand ChangeSelectionDialog::command() const
