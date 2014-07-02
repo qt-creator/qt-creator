@@ -64,11 +64,11 @@ QmlStateNodeInstance::Pointer
 
 void QmlStateNodeInstance::activateState()
 {
-    if (stateGroup()) {
-        if (!isStateActive()) {
-            nodeInstanceServer()->setStateInstance(nodeInstanceServer()->instanceForObject(object()));
-            stateGroup()->setState(property("name").toString());
-        }
+    if (stateGroup()
+            && !isStateActive()
+            && nodeInstanceServer()->hasInstanceForObject(object())) {
+        nodeInstanceServer()->setStateInstance(nodeInstanceServer()->instanceForObject(object()));
+        stateGroup()->setState(property("name").toString());
     }
 }
 

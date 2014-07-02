@@ -198,9 +198,11 @@ void Qt4InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 void Qt4InformationNodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
 {
     foreach(const ReparentContainer &container, command.reparentInstances()) {
-        ServerNodeInstance instance = instanceForId(container.instanceId());
-        if (instance.isValid()) {
-            m_parentChangedSet.insert(instance);
+        if (hasInstanceForId(container.instanceId())) {
+            ServerNodeInstance instance = instanceForId(container.instanceId());
+            if (instance.isValid()) {
+                m_parentChangedSet.insert(instance);
+            }
         }
     }
 
@@ -221,9 +223,11 @@ void Qt4InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
 
     QList<ServerNodeInstance> instanceList;
     foreach(const InstanceContainer &container, command.instances()) {
-        ServerNodeInstance instance = instanceForId(container.instanceId());
-        if (instance.isValid()) {
-            instanceList.append(instance);
+        if (hasInstanceForId(container.instanceId())) {
+            ServerNodeInstance instance = instanceForId(container.instanceId());
+            if (instance.isValid()) {
+                instanceList.append(instance);
+            }
         }
     }
 
@@ -263,9 +267,11 @@ void Qt4InformationNodeInstanceServer::completeComponent(const CompleteComponent
 
     QList<ServerNodeInstance> instanceList;
     foreach(qint32 instanceId, command.instances()) {
-        ServerNodeInstance instance = instanceForId(instanceId);
-        if (instance.isValid()) {
-            instanceList.append(instance);
+        if (hasInstanceForId(instanceId)) {
+            ServerNodeInstance instance = instanceForId(instanceId);
+            if (instance.isValid()) {
+                instanceList.append(instance);
+            }
         }
     }
 

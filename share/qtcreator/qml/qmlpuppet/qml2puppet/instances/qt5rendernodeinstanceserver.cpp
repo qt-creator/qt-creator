@@ -132,9 +132,11 @@ void Qt5RenderNodeInstanceServer::createScene(const CreateSceneCommand &command)
 
     QList<ServerNodeInstance> instanceList;
     foreach (const InstanceContainer &container, command.instances()) {
-        ServerNodeInstance instance = instanceForId(container.instanceId());
-        if (instance.isValid()) {
-            instanceList.append(instance);
+        if (hasInstanceForId(container.instanceId())) {
+            ServerNodeInstance instance = instanceForId(container.instanceId());
+            if (instance.isValid()) {
+                instanceList.append(instance);
+            }
         }
     }
 
@@ -154,10 +156,12 @@ void Qt5RenderNodeInstanceServer::completeComponent(const CompleteComponentComma
 
     QList<ServerNodeInstance> instanceList;
     foreach (qint32 instanceId, command.instances()) {
-        ServerNodeInstance instance = instanceForId(instanceId);
-        if (instance.isValid()) {
-            instanceList.append(instance);
-            m_dirtyInstanceSet.insert(instance);
+        if (hasInstanceForId(instanceId)) {
+            ServerNodeInstance instance = instanceForId(instanceId);
+            if (instance.isValid()) {
+                instanceList.append(instance);
+                m_dirtyInstanceSet.insert(instance);
+            }
         }
     }
 

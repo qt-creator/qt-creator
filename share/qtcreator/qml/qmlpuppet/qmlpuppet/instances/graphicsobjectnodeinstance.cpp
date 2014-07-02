@@ -140,16 +140,18 @@ QTransform GraphicsObjectNodeInstance::transform() const
     if (!nodeInstanceServer()->hasInstanceForObject(object()))
         return sceneTransform();
 
-    ServerNodeInstance nodeInstanceParent = nodeInstanceServer()->instanceForObject(object()).parent();
+    if (nodeInstanceServer()->hasInstanceForObject(object())) {
+        ServerNodeInstance nodeInstanceParent = nodeInstanceServer()->instanceForObject(object()).parent();
 
-    if (!nodeInstanceParent.isValid())
-        return sceneTransform();
+        if (!nodeInstanceParent.isValid())
+            return sceneTransform();
 
-    QGraphicsObject *graphicsObjectParent = qobject_cast<QGraphicsObject*>(nodeInstanceParent.internalObject());
-    if (graphicsObjectParent)
-        return graphicsObject()->itemTransform(graphicsObjectParent);
-    else
-        return sceneTransform();
+        QGraphicsObject *graphicsObjectParent = qobject_cast<QGraphicsObject*>(nodeInstanceParent.internalObject());
+        if (graphicsObjectParent)
+            return graphicsObject()->itemTransform(graphicsObjectParent);
+    }
+
+    return sceneTransform();
 }
 
 QTransform GraphicsObjectNodeInstance::customTransform() const
