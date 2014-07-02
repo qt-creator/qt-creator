@@ -50,6 +50,7 @@ protected:
 
 private slots:
     void markFilesAsOutOfDate();
+    void updateFilesImpl();
 
 private:
     bool m_filesUpToDate;
