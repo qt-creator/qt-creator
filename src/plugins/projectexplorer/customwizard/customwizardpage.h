@@ -52,56 +52,6 @@ class CustomWizardParameters;
 class CustomWizardContext;
 
 // Documentation inside.
-class TextFieldComboBox : public QComboBox {
-    Q_PROPERTY(QString text READ text WRITE setText)
-    Q_OBJECT
-public:
-    explicit TextFieldComboBox(QWidget *parent = 0);
-
-    QString text() const;
-    void setText(const QString &s);
-
-    void setItems(const QStringList &displayTexts, const QStringList &values);
-
-signals:
-    void text4Changed(const QString &); // Do not conflict with Qt 3 compat signal.
-
-private slots:
-    void slotCurrentIndexChanged(int);
-
-private:
-    inline QString valueAt(int) const;
-};
-
-// Documentation inside.
-class TextFieldCheckBox : public QCheckBox {
-    Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(QString trueText READ trueText WRITE setTrueText)
-    Q_PROPERTY(QString falseText READ falseText WRITE setFalseText)
-    Q_OBJECT
-public:
-    explicit TextFieldCheckBox(const QString &text, QWidget *parent = 0);
-
-    QString text() const;
-    void setText(const QString &s);
-
-    void setTrueText(const QString &t)  { m_trueText = t;    }
-    QString trueText() const            { return m_trueText; }
-    void setFalseText(const QString &t) { m_falseText = t; }
-    QString falseText() const              { return m_falseText; }
-
-signals:
-    void textChanged(const QString &);
-
-private slots:
-    void slotStateChanged(int);
-
-private:
-    QString m_trueText;
-    QString m_falseText;
-};
-
-// Documentation inside.
 class CustomWizardFieldPage : public QWizardPage {
     Q_OBJECT
 public:

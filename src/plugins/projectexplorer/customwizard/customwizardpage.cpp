@@ -32,6 +32,8 @@
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/textfieldcheckbox.h>
+#include <utils/textfieldcombobox.h>
 
 #include <QRegExp>
 #include <QDebug>
@@ -51,96 +53,10 @@
 
 enum { debug = 0 };
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
-
-// ----------- TextFieldComboBox
-
-/*!
-    \class ProjectExplorer::Internal::TextFieldComboBox
-    \brief The TextFieldComboBox class is a non-editable combo box for text
-    editing purposes that plays with \c QWizard::registerField (providing a
-    settable 'text' property).
-
-    Allows for a separation of values to be used for wizard fields replacement
-    and display texts.
-
-    \sa ProjectExplorer::Internal::CustomWizardFieldPage, ProjectExplorer::CustomWizard
-*/
-
-TextFieldComboBox::TextFieldComboBox(QWidget *parent) :
-    QComboBox(parent)
-{
-    setEditable(false);
-    connect(this, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(slotCurrentIndexChanged(int)));
-}
-
-QString TextFieldComboBox::text() const
-{
-    return valueAt(currentIndex());
-}
-
-void TextFieldComboBox::setText(const QString &s)
-{
-    const int index = findData(QVariant(s), Qt::UserRole);
-    if (index != -1 && index != currentIndex())
-        setCurrentIndex(index);
-}
-
-void TextFieldComboBox::slotCurrentIndexChanged(int i)
-{
-    emit text4Changed(valueAt(i));
-}
-
-void TextFieldComboBox::setItems(const QStringList &displayTexts,
-                                 const QStringList &values)
-{
-    QTC_ASSERT(displayTexts.size() == values.size(), return);
-    clear();
-    addItems(displayTexts);
-    const int count = values.count();
-    for (int i = 0; i < count; i++)
-        setItemData(i, QVariant(values.at(i)), Qt::UserRole);
-}
-
-QString TextFieldComboBox::valueAt(int i) const
-{
-    return i >= 0 && i < count() ? itemData(i, Qt::UserRole).toString() : QString();
-}
-
-/*!
-    \class ProjectExplorer::Internal::TextFieldCheckBox
-    \brief The TextFieldCheckBox class is a aheckbox that plays with
-    \c QWizard::registerField.
-
-    Provides a settable 'text' property containing predefined strings for
-    \c true and \c false.
-
-    \sa ProjectExplorer::Internal::CustomWizardFieldPage, ProjectExplorer::CustomWizard
-*/
-
-TextFieldCheckBox::TextFieldCheckBox(const QString &text, QWidget *parent) :
-        QCheckBox(text, parent),
-        m_trueText(QLatin1String("true")), m_falseText(QLatin1String("false"))
-{
-    connect(this, SIGNAL(stateChanged(int)), this, SLOT(slotStateChanged(int)));
-}
-
-QString TextFieldCheckBox::text() const
-{
-    return isChecked() ? m_trueText : m_falseText;
-}
-
-void TextFieldCheckBox::setText(const QString &s)
-{
-    setChecked(s == m_trueText);
-}
-
-void TextFieldCheckBox::slotStateChanged(int cs)
-{
-    emit textChanged(cs == Qt::Checked ? m_trueText : m_falseText);
-}
 
 /*!
     \class ProjectExplorer::Internal::CustomWizardFieldPage
@@ -167,7 +83,7 @@ CustomWizardFieldPage::TextEditData::TextEditData(QTextEdit* le, const QString &
 {
 }
 
-CustomWizardFieldPage::PathChooserData::PathChooserData(Utils::PathChooser* pe, const QString &defText) :
+CustomWizardFieldPage::PathChooserData::PathChooserData(PathChooser* pe, const QString &defText) :
     pathChooser(pe), defaultText(defText)
 {
 }
@@ -324,20 +240,20 @@ QWidget *CustomWizardFieldPage::registerTextEdit(const QString &fieldName,
 QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
                                                  const CustomWizardField &field)
 {
-    Utils::PathChooser *pathChooser = new Utils::PathChooser;
+    PathChooser *pathChooser = new PathChooser;
     const QString expectedKind = field.controlAttributes.value(QLatin1String("expectedkind")).toLower();
     if (expectedKind == QLatin1String("existingdirectory"))
-        pathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+        pathChooser->setExpectedKind(PathChooser::ExistingDirectory);
     else if (expectedKind == QLatin1String("directory"))
-        pathChooser->setExpectedKind(Utils::PathChooser::Directory);
+        pathChooser->setExpectedKind(PathChooser::Directory);
     else if (expectedKind == QLatin1String("file"))
-        pathChooser->setExpectedKind(Utils::PathChooser::File);
+        pathChooser->setExpectedKind(PathChooser::File);
     else if (expectedKind == QLatin1String("existingcommand"))
-        pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        pathChooser->setExpectedKind(PathChooser::ExistingCommand);
     else if (expectedKind == QLatin1String("command"))
-        pathChooser->setExpectedKind(Utils::PathChooser::Command);
+        pathChooser->setExpectedKind(PathChooser::Command);
     else if (expectedKind == QLatin1String("any"))
-        pathChooser->setExpectedKind(Utils::PathChooser::Any);
+        pathChooser->setExpectedKind(PathChooser::Any);
     pathChooser->setHistoryCompleter(QString::fromLatin1("PE.Custom.") + m_parameters->id + QLatin1Char('.') + field.name);
 
     registerField(fieldName, pathChooser, "path", SIGNAL(changed(QString)));
@@ -518,7 +434,7 @@ CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ct
                                    const QSharedPointer<CustomWizardParameters> &parameters,
                                    QWidget *parent) :
     CustomWizardFieldPage(ctx, parameters, parent),
-    m_pathChooser(new Utils::PathChooser)
+    m_pathChooser(new PathChooser)
 {
     m_pathChooser->setHistoryCompleter(QLatin1String("PE.ProjectDir.History"));
     addRow(tr("Path:"), m_pathChooser);

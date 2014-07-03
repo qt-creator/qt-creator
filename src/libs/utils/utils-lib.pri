@@ -19,6 +19,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/reloadpromptutils.cpp \
     $$PWD/settingsselector.cpp \
     $$PWD/stringutils.cpp \
+    $$PWD/textfieldcheckbox.cpp \
+    $$PWD/textfieldcombobox.cpp \
     $$PWD/filesearch.cpp \
     $$PWD/pathchooser.cpp \
     $$PWD/pathlisteditor.cpp \
@@ -100,6 +102,8 @@ HEADERS += \
     $$PWD/reloadpromptutils.h \
     $$PWD/settingsselector.h \
     $$PWD/stringutils.h \
+    $$PWD/textfieldcheckbox.h \
+    $$PWD/textfieldcombobox.h \
     $$PWD/filesearch.h \
     $$PWD/listutils.h \
     $$PWD/pathchooser.h \
