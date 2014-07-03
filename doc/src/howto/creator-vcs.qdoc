@@ -39,11 +39,11 @@
         \row
             \li Bazaar
             \li \l{http://bazaar.canonical.com/}
-            \li \QC 2.2 and later
+            \li
         \row
             \li ClearCase
             \li \l{http://www-01.ibm.com/software/awdtools/clearcase/}
-            \li  \QC 2.6 and later
+            \li
         \row
             \li CVS
             \li \l{http://www.cvshome.org}
@@ -52,10 +52,12 @@
             \li Git
             \li \l{http://git-scm.com/}
             \li Git version 1.7.2, or later
+
+                Gerrit version 2.6, or later
         \row
             \li Mercurial
             \li \l{http://mercurial.selenic.com/}
-            \li \QC 2.0 and later
+            \li
         \row
             \li Perforce
             \li \l{http://www.perforce.com}
@@ -399,8 +401,7 @@
     for Windows, Linux and Mac.
 
     You can use the \l{http://code.google.com/p/gerrit/}{Gerrit} code review
-    tool for projects that use Git. You can apply and check out changes from
-    Gerrit in \QC 2.6 and later.
+    tool for projects that use Git.
 
     \section3 Working with the Current File
 
