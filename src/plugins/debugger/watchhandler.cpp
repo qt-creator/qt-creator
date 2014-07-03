@@ -1076,7 +1076,7 @@ QString WatchModel::displayName(const WatchItem *item) const
     if (result.startsWith(QLatin1Char('['))) {
         result = simplifyType(result);
         if (result.size() > 30)
-            result = result.leftRef(27) + QLatin1String("...]");
+            result = result.left(27) + QLatin1String("...]");
     }
 
     return result;
