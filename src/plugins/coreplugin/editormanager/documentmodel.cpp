@@ -213,7 +213,7 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     int index;
     QString displayName = entry->displayName();
     for (index = 0; index < m_entries.count(); ++index) {
-        if (displayName < m_entries.at(index)->displayName())
+        if (displayName.localeAwareCompare(m_entries.at(index)->displayName()) < 0)
             break;
     }
     int row = index + 1/*<no document>*/;
