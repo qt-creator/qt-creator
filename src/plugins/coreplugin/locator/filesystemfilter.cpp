@@ -89,7 +89,9 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Core::Lo
         dirFilter |= QDir::Hidden;
         fileFilter |= QDir::Hidden;
     }
-    const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entry);
+    // use only 'name' for case sensitivity decision, because we need to make the path
+    // match the case on the file system for case-sensitive file systems
+    const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(name);
     QStringList dirs = dirInfo.entryList(dirFilter,
                                       QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     QStringList files = dirInfo.entryList(fileFilter,
