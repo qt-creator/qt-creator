@@ -63,9 +63,29 @@ FocusScope {
         anchors.fill: parent
         color: "#4f4f4f"
     }
+
     MouseArea {
         anchors.fill: parent
-        onClicked: focus = true
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+        onClicked: {
+            if (mouse.button === Qt.LeftButton)
+                focus = true
+            else if (mouse.button === Qt.RightButton)
+                contextMenu.popup()
+        }
+
+        Menu {
+            id: contextMenu
+
+            MenuItem {
+                text: root.expanded ? qsTr("Collapse") : qsTr("Expand")
+                onTriggered: {
+                    root.expanded = !root.expanded
+                }
+
+            }
+        }
     }
 
     Item {

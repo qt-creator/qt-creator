@@ -50,27 +50,10 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
 
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-
+        acceptedButtons: Qt.LeftButton
         onClicked: {
-            if (mouse.button === Qt.LeftButton) {
-                focus = true
-                root.currentStateInternalId = internalNodeId
-            } else if (mouse.button === Qt.RightButton) {
-                contextMenu.popup()
-            }
-        }
-
-        Menu {
-            id: contextMenu
-
-            MenuItem {
-                text: root.expanded ? qsTr("Collapse") : qsTr("Expand")
-                onTriggered: {
-                    root.expanded = ! root.expanded
-                }
-
-            }
+            focus = true
+            root.currentStateInternalId = internalNodeId
         }
     }
 
