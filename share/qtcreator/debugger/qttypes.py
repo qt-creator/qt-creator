@@ -638,6 +638,9 @@ def qdump__QHash(d, value):
                         d.putItem(it)
 
 
+def qform__QHashNode():
+    return mapForms()
+
 def qdump__QHashNode(d, value):
     key = value["key"]
     if not key:
@@ -645,12 +648,17 @@ def qdump__QHashNode(d, value):
         # for Qt4 optimized int keytype
         key = value[1]["key"]
     val = value["value"]
-    d.putEmptyValue()
-    d.putNumChild(2)
-    if d.isExpanded():
-        with Children(d):
-            d.putSubItem("key", key)
-            d.putSubItem("value", val)
+    if d.isMapCompact(key.type, val.type):
+        d.putMapName(key)
+        d.putItem(val)
+        d.putType(value.type)
+    else:
+        d.putEmptyValue()
+        d.putNumChild(2)
+        if d.isExpanded():
+            with Children(d):
+                d.putSubItem("key", key)
+                d.putSubItem("value", val)
 
 
 def qHashIteratorHelper(d, value):

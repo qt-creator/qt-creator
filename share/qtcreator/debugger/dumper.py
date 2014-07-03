@@ -600,9 +600,11 @@ class DumperBase:
         else:
             val = str(value.GetValue()) if self.isLldb else str(value)
             if index == -1:
-                self.put('name="%s",' % val)
+                key = 'key="%s",' % val
             else:
-                self.put('key="[%d] %s",' % (index, val))
+                key = 'key="[%d] %s",' % (index, val)
+            self.put('key="%s",' % self.hexencode(key))
+            self.put('keyencoded="%s",' % Hex2EncodedLatin1)
 
     def putPair(self, pair, index = -1):
         if self.pairData.useKeyAndValue:
