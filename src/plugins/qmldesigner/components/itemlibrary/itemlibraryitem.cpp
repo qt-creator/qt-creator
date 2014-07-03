@@ -52,11 +52,6 @@ QString ItemLibraryItem::itemLibraryIconPath() const
     return QStringLiteral("image://qmldesigner_itemlibrary/") + m_itemLibraryEntry.libraryEntryIconPath();
 }
 
-QVariant ItemLibraryItem::sortingRole() const
-{
-    return itemName();
-}
-
 bool ItemLibraryItem::setVisible(bool isVisible)
 {
     if (isVisible != m_isVisible) {

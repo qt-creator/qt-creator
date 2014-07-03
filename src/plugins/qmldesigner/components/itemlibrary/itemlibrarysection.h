@@ -42,14 +42,13 @@ class ItemLibrarySection: public QObject {
     Q_PROPERTY(QString sectionName READ sectionName FINAL)
     Q_PROPERTY(bool sectionVisible READ isVisible NOTIFY visibilityChanged FINAL)
     Q_PROPERTY(bool sectionExpanded READ sectionExpanded FINAL)
-    Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
 
 public:
     ItemLibrarySection(const QString &sectionName, QObject *parent = 0);
 
     QString sectionName() const;
     bool sectionExpanded() const;
-    QVariant sortingRole() const;
+    QString sortingName() const;
 
     void addSectionEntry(ItemLibraryItem *sectionEntry);
     QObject *sectionEntries();
@@ -58,6 +57,8 @@ public:
 
     bool setVisible(bool isVisible);
     bool isVisible() const;
+
+    void sortItems();
 
 signals:
     void sectionEntriesChanged();

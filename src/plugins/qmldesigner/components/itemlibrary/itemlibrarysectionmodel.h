@@ -55,6 +55,7 @@ public:
 
     const QList<ItemLibraryItem *> &items() const;
 
+    void sortItems();
     void resetModel();
 
 private: // functions
