@@ -297,6 +297,8 @@ void DebuggerItemManager::readLegacyDebuggers(const FileName &file)
         if (fn == QLatin1String("auto"))
             continue;
         FileName command = FileName::fromUserInput(fn);
+        if (!command.toFileInfo().exists())
+            continue;
         if (findByCommand(command))
             continue;
         DebuggerItem item;
