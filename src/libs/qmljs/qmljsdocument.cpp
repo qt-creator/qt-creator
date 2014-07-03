@@ -554,10 +554,29 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
     }
 
     QStringList splitPath = path.split(QLatin1Char('/'));
+    QRegExp vNr(QLatin1String("^(.+)\\.([0-9]+)(?:\\.([0-9]+))?$"));
+    QRegExp safeName(QLatin1String("^[a-zA-Z_][[a-zA-Z0-9_]*$"));
     foreach (const ImportKey &importKey, packages) {
-        QString requiredPath = QStringList(splitPath.mid(0, splitPath.size() - importKey.splitPath.size()))
-                .join(QLatin1String("/"));
-        cImport.possibleExports << Export(importKey, requiredPath, true);
+        if (importKey.splitPath.size() == 1 && importKey.splitPath.at(0).isEmpty()) {
+            // relocatable
+            QStringList myPath = splitPath;
+            if (vNr.indexIn(myPath.last()) == 0) {
+                myPath.last() = vNr.cap(1);
+            }
+            for (int iPath = myPath.size(); iPath != 0; ) {
+                --iPath;
+                if (safeName.indexIn(myPath.at(iPath)) != 0)
+                    break;
+                ImportKey iKey(ImportType::Library, QStringList(myPath.mid(iPath)).join(QLatin1Char('.')),
+                               importKey.majorVersion, importKey.minorVersion);
+                cImport.possibleExports.append(Export(iKey, QStringList(myPath.mid(0, iPath))
+                                                      .join(QLatin1Char('/')), true));
+            }
+        } else {
+            QString requiredPath = QStringList(splitPath.mid(0, splitPath.size() - importKey.splitPath.size()))
+                    .join(QLatin1String("/"));
+            cImport.possibleExports << Export(importKey, requiredPath, true);
+        }
     }
     foreach (const QmlDirParser::Component &component, info.components()) {
         foreach (const Export &e, cImport.possibleExports)
