@@ -234,14 +234,18 @@ int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &gr
             ++checkedCount;
         }
 
-        if (!m_whitelist.contains(spec->name())) {
+        if (!spec->isAvailableForHostPlatform()) {
+            pluginItem->setData(C_LOAD, Qt::CheckStateRole, Qt::Unchecked);
+            pluginItem->setFlags(Qt::ItemIsSelectable);
+            pluginItem->setToolTip(C_LOAD, tr("Plugin is not vailable for this platform."));
+        } else if (!m_whitelist.contains(spec->name())) {
             pluginItem->setData(C_LOAD, Qt::CheckStateRole, state);
+            pluginItem->setToolTip(C_LOAD, tr("Load on startup"));
         } else {
             pluginItem->setData(C_LOAD, Qt::CheckStateRole, Qt::Checked);
             pluginItem->setFlags(Qt::ItemIsSelectable);
+            pluginItem->setToolTip(C_LOAD, tr("Plugin is required."));
         }
-
-        pluginItem->setToolTip(C_LOAD, tr("Load on Startup"));
 
         m_specToItem.insert(spec, pluginItem);
 
@@ -336,7 +340,10 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
             PluginSpec *spec = collection->plugins().at(i);
             QTreeWidgetItem *child = m_specToItem.value(spec);
 
-            if (!m_whitelist.contains(spec->name())) {
+            if (!spec->isAvailableForHostPlatform()) {
+                child->setData(C_LOAD, Qt::CheckStateRole, Qt::Unchecked);
+                child->setFlags(Qt::ItemIsSelectable);
+            } else if (!m_whitelist.contains(spec->name())) {
                 spec->setEnabled(loadOnStartup);
                 Qt::CheckState state = (loadOnStartup ? Qt::Checked : Qt::Unchecked);
                 child->setData(C_LOAD, Qt::CheckStateRole, state);
@@ -372,7 +379,7 @@ void PluginView::updatePluginDependencies()
             }
         }
         QTreeWidgetItem *childItem = m_specToItem.value(spec);
-        childItem->setDisabled(disableIndirectly);
+        childItem->setDisabled(disableIndirectly || !spec->isAvailableForHostPlatform());
 
         if (disableIndirectly == spec->isDisabledIndirectly())
             continue;

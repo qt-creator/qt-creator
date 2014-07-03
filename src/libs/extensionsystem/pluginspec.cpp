@@ -265,6 +265,11 @@ QRegExp PluginSpec::platformSpecification() const
     return d->platformSpecification;
 }
 
+bool PluginSpec::isAvailableForHostPlatform() const
+{
+    return d->platformSpecification.isEmpty() || d->platformSpecification.exactMatch(PluginManager::platformName());
+}
+
 /*!
     Returns whether the plugin has its experimental flag set.
 */
@@ -307,7 +312,7 @@ bool PluginSpec::isEffectivelyEnabled() const
         || d->forceDisabled) {
         return false;
     }
-    return d->platformSpecification.isEmpty() || d->platformSpecification.exactMatch(PluginManager::platformName());
+    return isAvailableForHostPlatform();
 }
 
 /*!
