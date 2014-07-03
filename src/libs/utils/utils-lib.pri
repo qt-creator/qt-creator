@@ -87,7 +87,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/completinglineedit.cpp \
     $$PWD/winutils.cpp \
     $$PWD/itemviews.cpp \
-    $$PWD/treeviewcombobox.cpp
+    $$PWD/treeviewcombobox.cpp \
+    $$PWD/proxycredentialsdialog.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -181,10 +182,12 @@ HEADERS += \
     $$PWD/treeviewcombobox.h \
     $$PWD/scopedswap.h \
     $$PWD/algorithm.h \
-    $$PWD/QtConcurrentTools
+    $$PWD/QtConcurrentTools \
+    $$PWD/proxycredentialsdialog.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
-    $$PWD/newclasswidget.ui
+    $$PWD/newclasswidget.ui \
+    $$PWD/proxycredentialsdialog.ui
 
 RESOURCES += $$PWD/utils.qrc
