@@ -4,5 +4,5 @@
 "main.qml:1"	"Create"	"1"	"main.qml"
 "main.qml:1"	"Compile"	"1"	"main.qml"
 "main.qml:31"	"Binding"	"1"	"text: qsTr(""Hello World"")"
-"<bytecode>"	"Binding"	"2"	""
+"<bytecode>"	"Binding"	"2"	"Source code not available"
 "main.qml:11"	"Binding"	"3"	"running: runCount < 2"
