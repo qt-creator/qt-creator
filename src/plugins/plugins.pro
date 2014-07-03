@@ -4,7 +4,6 @@ TEMPLATE  = subdirs
 
 SUBDIRS   = \
     coreplugin \
-    find \
     texteditor \
     cppeditor \
     bineditor \
@@ -20,7 +19,6 @@ SUBDIRS   = \
     cpptools \
     qtsupport \
     qmakeprojectmanager \
-    locator \
     debugger \
     help \
     cpaster \
