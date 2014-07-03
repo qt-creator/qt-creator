@@ -67,8 +67,6 @@ Utils::FileName Settings::getPath(const QString &file)
         result.appendPath(QLatin1String("qtversion"));
     else if (file == QLatin1String("toolchains") || file == QLatin1String("toolChains"))
         result.appendPath(QLatin1String("toolchains"));
-    else if (file == QLatin1String("toolchains") || file == QLatin1String("toolChains"))
-        result.appendPath(QLatin1String("toolchains"));
     else if (file == QLatin1String("devices"))
         result.appendPath(QLatin1String("devices"));
     else if (file == QLatin1String("android"))
