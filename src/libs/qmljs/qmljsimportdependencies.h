@@ -128,10 +128,13 @@ bool operator <(const ImportKey &i1, const ImportKey &i2);
 class QMLJS_EXPORT Export
 {
 public:
+    static const QString LibraryTypeName;
     Export();
-    Export(ImportKey exportName, QString pathRequired, bool intrinsic = false);
+    Export(ImportKey exportName, QString pathRequired, bool intrinsic = false,
+           const QString &typeName = LibraryTypeName);
     ImportKey exportName;
     QString pathRequired;
+    QString typeName;
     bool intrinsic;
     bool visibleInVContext(const ViewerContext &vContext) const;
 };
@@ -205,9 +208,9 @@ public:
     void removeCoreImport(const QString &importId);
 
     void addExport(const QString &importId, const ImportKey &importKey,
-                     const QString &requiredPath);
+                     const QString &requiredPath, const QString &typeName = Export::LibraryTypeName);
     void removeExport(const QString &importId, const ImportKey &importKey,
-                      const QString &requiredPath);
+                      const QString &requiredPath, const QString &typeName = Export::LibraryTypeName);
 
     void iterateOnCoreImports(const ViewerContext &vContext,
                               std::function<bool(const CoreImport &)> const &iterF) const;

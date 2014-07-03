@@ -471,12 +471,14 @@ bool operator <(const ImportKey &i1, const ImportKey &i2)
     return i1.compare(i2) < 0;
 }
 
+const QString Export::LibraryTypeName = QLatin1String("%Library%");
+
 Export::Export()
     : intrinsic(false)
 { }
 
-Export::Export(ImportKey exportName, QString pathRequired, bool intrinsic)
-    : exportName(exportName), pathRequired(pathRequired), intrinsic(intrinsic)
+Export::Export(ImportKey exportName, QString pathRequired, bool intrinsic, const QString &typeName)
+    : exportName(exportName), pathRequired(pathRequired), typeName(typeName), intrinsic(intrinsic)
 { }
 
 bool Export::visibleInVContext(const ViewerContext &vContext) const
@@ -488,7 +490,8 @@ bool operator ==(const Export &i1, const Export &i2)
 {
     return i1.exportName == i2.exportName
             && i1.pathRequired == i2.pathRequired
-            && i1.intrinsic == i2.intrinsic;
+            && i1.intrinsic == i2.intrinsic
+            && i1.typeName == i2.typeName;
 }
 
 bool operator !=(const Export &i1, const Export &i2)
@@ -770,32 +773,32 @@ void ImportDependencies::removeImportCacheEntry(const ImportKey &importKey, cons
 }
 
 void ImportDependencies::addExport(const QString &importId, const ImportKey &importKey,
-                                   const QString &requiredPath)
+                                   const QString &requiredPath, const QString &typeName)
 {
     if (!m_coreImports.contains(importId)) {
         CoreImport newImport(importId);
         newImport.language = Language::AnyLanguage;
-        newImport.possibleExports.append(Export(importKey, requiredPath, false));
+        newImport.possibleExports.append(Export(importKey, requiredPath, false, typeName));
         m_coreImports.insert(newImport.importId, newImport);
         m_importCache[importKey].append(importId);
         return;
     }
     CoreImport &importValue = m_coreImports[importId];
-    importValue.possibleExports.append(Export(importKey, requiredPath, false));
+    importValue.possibleExports.append(Export(importKey, requiredPath, false, typeName));
     m_importCache[importKey].append(importId);
     qCDebug(importsLog) << "added export "<< importKey.toString() << " for id " <<importId
                         << " (" << requiredPath << ")";
 }
 
 void ImportDependencies::removeExport(const QString &importId, const ImportKey &importKey,
-                                      const QString &requiredPath)
+                                      const QString &requiredPath, const QString &typeName)
 {
     if (!m_coreImports.contains(importId)) {
         qCWarning(importsLog) << "non existing core import for removeExport(" << importId << ", "
                               << importKey.toString() << ")";
     } else {
         CoreImport &importValue = m_coreImports[importId];
-        if (!importValue.possibleExports.removeOne(Export(importKey, requiredPath, false))) {
+        if (!importValue.possibleExports.removeOne(Export(importKey, requiredPath, false, typeName))) {
             qCWarning(importsLog) << "non existing export for removeExport(" << importId << ", "
                                   << importKey.toString() << ")";
         }

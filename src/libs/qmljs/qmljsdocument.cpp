@@ -38,6 +38,7 @@
 
 #include <QCryptographicHash>
 #include <QDir>
+#include <QFileInfo>
 
 #include <algorithm>
 
@@ -525,7 +526,7 @@ void Snapshot::insert(const Document::Ptr &document, bool allowInvalid)
         cImport.importId = document->importId();
         cImport.language = document->language();
         cImport.possibleExports << Export(ImportKey(ImportType::File, fileName),
-                                          QString(), true);
+                                          QString(), true, QFileInfo(fileName).baseName());
         cImport.fingerprint = document->fingerprint();
         _dependencies.addCoreImport(cImport);
     }
@@ -606,8 +607,7 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
     }
     foreach (const QmlDirParser::Component &component, info.components()) {
         foreach (const Export &e, cImport.possibleExports)
-            // renaming of type name not really represented here... fix?
-            _dependencies.addExport(component.fileName, e.exportName, e.pathRequired);
+            _dependencies.addExport(component.fileName, e.exportName, e.pathRequired, e.typeName);
     }
     cImport.fingerprint = info.fingerprint();
     _dependencies.addCoreImport(cImport);
