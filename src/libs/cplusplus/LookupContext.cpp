@@ -1082,9 +1082,9 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             const unsigned argumentCountOfSpecialization
                     = templateSpecialization->templateParameterCount();
 
+            Subst subst(_control.data());
             if (_factory->expandTemplates()) {
                 Clone cloner(_control.data());
-                Subst subst(_control.data());
                 for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
                     const TypenameArgument *tParam
                             = templateSpecialization->templateParameterAt(i)->asTypenameArgument();
@@ -1147,6 +1147,13 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                                 if (NamedType *namedType = fullType.type()->asNamedType())
                                     baseBinding = lookupType(namedType->name());
                             }
+                        }
+                    }
+                    if (!baseBinding && subst.contains(baseName)) {
+                        const FullySpecifiedType &fullType = subst[baseName];
+                        if (fullType.isValid()) {
+                            if (NamedType *namedType = fullType.type()->asNamedType())
+                                baseBinding = lookupType(namedType->name());
                         }
                     }
                 } else {
