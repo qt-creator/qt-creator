@@ -82,7 +82,7 @@ QString AddDeviceOperation::argumentsHelpText() const
 bool AddDeviceOperation::setArguments(const QStringList &args)
 {
     m_authentication = -1;
-    m_origin = -1;
+    m_origin = 1;
     m_sshPort = 0;
     m_timeout = 5;
     m_type = -1;
