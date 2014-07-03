@@ -919,7 +919,7 @@ bool GccToolChainConfigWidget::isDirtyImpl() const
 
 void GccToolChainConfigWidget::makeReadOnlyImpl()
 {
-    m_compilerCommand->setEnabled(false);
+    m_compilerCommand->setReadOnly(true);
     m_abiWidget->setEnabled(false);
     m_platformCodeGenFlagsLineEdit->setEnabled(false);
     m_platformLinkerFlagsLineEdit->setEnabled(false);

@@ -159,7 +159,7 @@ void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
     m_displayNameLineEdit->setEnabled(!item.isAutoDetected());
     m_displayNameLineEdit->setText(item.displayName());
 
-    m_binaryChooser->setEnabled(!item.isAutoDetected());
+    m_binaryChooser->setReadOnly(item.isAutoDetected());
     m_binaryChooser->setFileName(item.command());
 
     QString text;
