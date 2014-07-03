@@ -63,8 +63,7 @@ def buildTreeFromOutline():
     global outline
     model = waitForObject(outline).model()
     waitFor("model.rowCount() > 0")
-    if platform.system() == 'Darwin':
-        snooze(1) # if model updates delayed processChildren() results in AUT crash
+    snooze(1) # if model updates delayed processChildren() results in AUT crash
     return processChildren(model, QModelIndex(), 0)
 
 def processChildren(model, startIndex, level):
