@@ -1158,11 +1158,13 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     }
                 } else {
                     SubstitutionMap map;
-                    for (unsigned i = 0;
-                         i < argumentCountOfSpecialization && i < argumentCountOfInitialization;
-                         ++i) {
-                        map.bind(templateSpecialization->templateParameterAt(i)->name(),
-                                 templId->templateArgumentAt(i));
+                    for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
+                        const Name *name = templateSpecialization->templateParameterAt(i)->name();
+                        FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
+                                    templId->templateArgumentAt(i):
+                                    templateSpecialization->templateParameterAt(i)->type();
+
+                        map.bind(name, ty);
                     }
                     SubstitutionEnvironment env;
                     env.enter(&map);
