@@ -45,6 +45,8 @@ const char DEVICE_LIST_ID[] = "DeviceList";
 
 const char DEVICE_ID_ID[] = "InternalId";
 
+static const char INTERNAL_DSEKTOP_DEVICE_ID[] = "Desktop Device";
+
 AddDeviceOperation::AddDeviceOperation()
 { }
 
@@ -377,6 +379,8 @@ bool AddDeviceOperation::exists(const QString &id)
 
 bool AddDeviceOperation::exists(const QVariantMap &map, const QString &id)
 {
+    if (id == QLatin1String(INTERNAL_DSEKTOP_DEVICE_ID))
+        return true;
     QVariantMap dmMap = map.value(QLatin1String(DEVICEMANAGER_ID)).toMap();
     QVariantList devList = dmMap.value(QLatin1String(DEVICE_LIST_ID)).toList();
     foreach (const QVariant &dev, devList) {
