@@ -1886,7 +1886,7 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
     if (node)
         filePath = pathFor(node);
     else
-        node = SessionManager::nodeForFile(filePath, project);
+        node = ProjectTreeWidget::nodeForFile(filePath, project);
 
     bool projectChanged = false;
     if (d->m_currentProject != project) {

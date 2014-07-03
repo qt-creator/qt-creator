@@ -45,6 +45,7 @@
 #include <texteditor/itexteditor.h>
 
 #include <utils/stylehelper.h>
+#include <utils/algorithm.h>
 
 #include <QDebug>
 #include <QDir>
@@ -518,23 +519,30 @@ Project *SessionManager::projectForNode(Node *node)
     return 0;
 }
 
-Node *SessionManager::nodeForFile(const QString &fileName, Project *project)
+QList<Node *> SessionManager::nodesForFile(const QString &fileName, Project *project)
 {
-    Node *node = 0;
     if (!project)
         project = projectForFile(fileName);
 
     if (project) {
         FindNodesForFileVisitor findNodes(fileName);
         project->rootProjectNode()->accept(&findNodes);
-
-        foreach (Node *n, findNodes.nodes()) {
-            // prefer file nodes
-            if (!node || (node->nodeType() != FileNodeType && n->nodeType() == FileNodeType))
-                node = n;
-        }
+        return findNodes.nodes();
     }
 
+    return QList<Node *>();
+}
+
+// node for file returns a randomly selected node if there are multiple
+// prefer to use nodesForFile and figure out which node you want
+Node *SessionManager::nodeForFile(const QString &fileName, Project *project)
+{
+    Node *node = 0;
+    foreach (Node *n, nodesForFile(fileName, project)) {
+        // prefer file nodes
+        if (!node || (node->nodeType() != FileNodeType && n->nodeType() == FileNodeType))
+            node = n;
+    }
     return node;
 }
 

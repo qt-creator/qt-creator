@@ -43,6 +43,7 @@
 #include <coreplugin/find/treeviewfind.h>
 
 #include <utils/navigationtreeview.h>
+#include <utils/algorithm.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -56,6 +57,8 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
+
+QList<ProjectTreeWidget *> ProjectTreeWidget::m_projectTreeWidgets;
 
 namespace {
 
@@ -178,6 +181,59 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleAutoSynchronization()));
 
     setAutoSynchronization(true);
+
+    m_projectTreeWidgets << this;
+}
+
+ProjectTreeWidget::~ProjectTreeWidget()
+{
+    m_projectTreeWidgets.removeOne(this);
+}
+
+// returns how many nodes need to be expanded to make node visible
+int ProjectTreeWidget::expandedCount(Node *node)
+{
+    if (m_projectTreeWidgets.isEmpty())
+        return 0;
+    FlatModel *model = m_projectTreeWidgets.first()->m_model;
+    QModelIndex index = model->indexForNode(node);
+    if (!index.isValid())
+        return 0;
+
+    int count = 0;
+    foreach (ProjectTreeWidget *tree, m_projectTreeWidgets) {
+        QModelIndex idx = index;
+        while (idx.isValid() && idx != tree->m_view->rootIndex()) {
+            if (!tree->m_view->isExpanded(idx))
+                ++count;
+            idx = model->parent(idx);
+        }
+    }
+    return count;
+}
+
+Node *ProjectTreeWidget::nodeForFile(const QString &fileName, Project *project)
+{
+    Node *bestNode = 0;
+    int bestNodeExpandCount = INT_MAX;
+
+    foreach (Node *node, SessionManager::nodesForFile(fileName, project)) {
+        if (!bestNode) {
+            bestNode = node;
+            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node->parentFolderNode());
+        } else if (node->nodeType() < bestNode->nodeType()) {
+            bestNode = node;
+            bestNodeExpandCount = ProjectTreeWidget::expandedCount(node->parentFolderNode());
+        } else if (node->nodeType() == bestNode->nodeType()) {
+            int nodeExpandCount = ProjectTreeWidget::expandedCount(node->parentFolderNode());
+            if (nodeExpandCount < bestNodeExpandCount) {
+                bestNode = node;
+                bestNodeExpandCount = ProjectTreeWidget::expandedCount(node->parentFolderNode());
+            }
+        }
+    }
+
+    return bestNode;
 }
 
 void ProjectTreeWidget::disableAutoExpand()

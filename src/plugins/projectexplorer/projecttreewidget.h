@@ -54,12 +54,15 @@ class ProjectTreeWidget : public QWidget
     Q_OBJECT
 public:
     explicit ProjectTreeWidget(QWidget *parent = 0);
+    ~ProjectTreeWidget();
 
     bool autoSynchronization() const;
     void setAutoSynchronization(bool sync, bool syncNow = true);
     bool projectFilter();
     bool generatedFilesFilter();
     QToolButton *toggleSync();
+
+    static Node *nodeForFile(const QString &fileName, Project *project);
 
 public slots:
     void toggleAutoSynchronization();
@@ -88,6 +91,7 @@ private slots:
 private:
     void recursiveLoadExpandData(const QModelIndex &index, const QSet<QString> &data);
     void recursiveSaveExpandData(const QModelIndex &index, QStringList *data);
+    static int expandedCount(Node *node);
     ProjectExplorerPlugin *m_explorer;
     QTreeView *m_view;
     FlatModel *m_model;
@@ -99,6 +103,8 @@ private:
     QString m_modelId;
     bool m_autoSync;
     bool m_autoExpand;
+
+    static QList<ProjectTreeWidget *> m_projectTreeWidgets;
     friend class ProjectTreeWidgetFactory;
 };
 
