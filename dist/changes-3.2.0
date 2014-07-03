@@ -15,17 +15,19 @@ General
    * Enabled resizing of the locator field
    * Improved look and feel on HiDPI by adding more hi-resolution icons
    * Made keyboard and mouse activation of navigation panes and other trees more consistent
+   * Added display of current variable values in variable chooser dialog
+   * Removed unhelpful Generic Highlighter loading progress bar
 
 Editing
 
 Managing and Building Projects
 
 QMake Projects
-   * Added context menu item for copying resource path from entries in QRC files in project tree
-     (QTCREATORBUG-11776)
+   * Added context menu item for copying resource path from entries in QRC
+     files in project tree (QTCREATORBUG-11776)
    * Added deployment support to plain C and C++ application wizards
-   * Removed warning about build directory below source directory for kits with Qt 5.2 and later
-     where this is supported (QTCREATORBUG-10024)
+   * Removed warning about build directory below source directory for kits
+     with Qt 5.2 and later where this is supported (QTCREATORBUG-10024)
    * Fixed that adding files to .pri file was missing $$PWD
 
 Qbs Projects
@@ -37,9 +39,42 @@ Qbs Projects
 Generic Projects
 
 Debugging
-   * Added option to disable automatic centering on currently debugged line in editor
-   * GDB and LLDB
-      * Added pretty printers for AVX512 registers
+   * Changed default of "Load system GDB pretty printer" option back to "off"
+   * Added option to disable automatic centering on currently debugged
+     line in editor
+   * Made environment variables accessible in startup command settings
+     using a %{Env:SOME_NAME} syntax
+   * Changed single click on column view headers to cycle through
+     a "small widget" and a "width according to contents"
+   * Removed the "Always adjust to content size options" and
+     made this the default behavior
+   * Added pretty printers for AVX512 registers
+   * Fixed display of fixed-size wchar_t arrays
+   * Added personaltypes.py as default location for user created dumpers
+   * Added file setting to point to user created file of dumpers
+     (QTCREATORBUG-12492)
+   * Added button to restart current debugging session
+     without quitting the debugger process
+   * Made our dumpers also accessible from command line GDB
+   * Made LLDB engine honor the max stack depth setting
+     (QTCREATORBUG-12416)
+   * Added dumpers for QStringData, QHashedString and QQmlRefCount
+   * Fixed CDB engine to reset Locals and Expressions when
+     switching frames
+   * Made LLDB engine recover more gracefully from unexpected
+     situations
+   * Improved handling of the tabbed extra views for displayed
+     items
+   * Fixed regression in process snapshot creation
+   * Fixed crash in CDB extension related to verbose logs
+   * Introduced option to limit retrieval of string-like values
+   * Introduced [a..b] and [a.(s).b] syntax for more flexibility
+     in "ranged" expressions in Locals and Expression view
+   * Added several convienience functions to Python dumper interface
+   * Fixed CDB detection for Windows SDK 8.1
+   * Added raw opcode bytes to Disassembler view
+   * Changed Disassembler view to order lines by increasing address
+   * Made more dumpers work in release builds
 
 QML Profiler
 
@@ -63,6 +98,8 @@ FakeVim
    * Fixed issues with long command output (QTCREATORBUG-11598)
    * Fixed 'gv' after yanking text in visual mode (QTCREATORBUG-12112)
    * Fixed 'v', 'V' and 'C-v' while in visual mode (QTCREATORBUG-12113)
+   * Improved sharing of navigation data between editors of the
+     same document
 
 Platform Specific
 
@@ -75,9 +112,18 @@ OS X
 
 Android
    * Fixed that UI was unresponsive while creating AVD (QTCREATORBUG-10601)
+
 Remote Linux
    * Added custom remote executable run configuration type (QTCREATORBUG-12168)
    * Fixed issue with environment variables that contain spaces
+
+BareMetal:
+   * Added openocd pipelining support
+   * Added variable support for device specific GDB commands
+
+Valgrind:
+   * Fixed passing of multiple arguments to application
+
 
 Credits for these changes go to:
 
