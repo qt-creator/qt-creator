@@ -31,8 +31,8 @@
     \section2 Main Tag
 
     The root tag is \c plugin. It has the mandatory attributes \c name
-    and \c version, and the optional attributes \c compatVersion, \c experimental
-    and \c disabledByDefault.
+    and \c version, and the optional attributes \c compatVersion, \c experimental,
+    \c disabledByDefault and \c required.
     \table
         \header
             \li Tag
@@ -79,6 +79,12 @@
                 If set, the respective plugin is not loaded by default but must be explicitly
                 enabled by the user. This should be done for plugins which are not expected
                 to be used by so many people as to justify the additional resource consumption.
+
+        \row
+            \li required
+            \li Optional. Can be \c true or \c false, defaults to \c false.
+                Is used as a hint for the \gui{About Plugins...} dialog, that the user may not
+                manually disable this plugin. Only used for the Core plugin.
     \endtable
 
     \section2 Plugin-describing Tags

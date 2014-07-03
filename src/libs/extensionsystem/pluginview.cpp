@@ -108,10 +108,6 @@ PluginView::PluginView(QWidget *parent)
     m_errorIcon = QIcon(QLatin1String(":/extensionsystem/images/error.png"));
     m_notLoadedIcon = QIcon(QLatin1String(":/extensionsystem/images/notloaded.png"));
 
-    // cannot disable these
-    m_whitelist << QString::fromLatin1("Core") << QString::fromLatin1("Locator")
-                << QString::fromLatin1("Find") << QString::fromLatin1("TextEditor");
-
     connect(PluginManager::instance(), SIGNAL(pluginsChanged()), this, SLOT(updateList()));
     connect(m_categoryWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
             this, SLOT(selectPlugin(QTreeWidgetItem*)));
@@ -238,13 +234,13 @@ int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &gr
             pluginItem->setData(C_LOAD, Qt::CheckStateRole, Qt::Unchecked);
             pluginItem->setFlags(Qt::ItemIsSelectable);
             pluginItem->setToolTip(C_LOAD, tr("Plugin is not vailable for this platform."));
-        } else if (!m_whitelist.contains(spec->name())) {
-            pluginItem->setData(C_LOAD, Qt::CheckStateRole, state);
-            pluginItem->setToolTip(C_LOAD, tr("Load on startup"));
-        } else {
+        } else if (spec->isRequired()){
             pluginItem->setData(C_LOAD, Qt::CheckStateRole, Qt::Checked);
             pluginItem->setFlags(Qt::ItemIsSelectable);
             pluginItem->setToolTip(C_LOAD, tr("Plugin is required."));
+        } else {
+            pluginItem->setData(C_LOAD, Qt::CheckStateRole, state);
+            pluginItem->setToolTip(C_LOAD, tr("Load on startup"));
         }
 
         m_specToItem.insert(spec, pluginItem);
@@ -340,16 +336,10 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
             PluginSpec *spec = collection->plugins().at(i);
             QTreeWidgetItem *child = m_specToItem.value(spec);
 
-            if (!spec->isAvailableForHostPlatform()) {
-                child->setData(C_LOAD, Qt::CheckStateRole, Qt::Unchecked);
-                child->setFlags(Qt::ItemIsSelectable);
-            } else if (!m_whitelist.contains(spec->name())) {
+            if (spec->isAvailableForHostPlatform() && !spec->isRequired()) {
                 spec->setEnabled(loadOnStartup);
                 Qt::CheckState state = (loadOnStartup ? Qt::Checked : Qt::Unchecked);
                 child->setData(C_LOAD, Qt::CheckStateRole, state);
-            } else {
-                child->setData(C_LOAD, Qt::CheckStateRole, Qt::Checked);
-                child->setFlags(Qt::ItemIsSelectable);
             }
         }
         updatePluginDependencies();
@@ -364,7 +354,7 @@ void PluginView::updatePluginDependencies()
 {
     foreach (PluginSpec *spec, PluginManager::loadQueue()) {
         bool disableIndirectly = false;
-        if (m_whitelist.contains(spec->name()))
+        if (spec->isRequired())
             continue;
 
         QHashIterator<PluginDependency, PluginSpec *> it(spec->dependencySpecs());

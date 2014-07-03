@@ -79,7 +79,6 @@ private:
     QList<QTreeWidgetItem*> m_items;
     QHash<PluginSpec*, QTreeWidgetItem*> m_specToItem;
 
-    QStringList m_whitelist;
     QIcon m_okIcon;
     QIcon m_errorIcon;
     QIcon m_notLoadedIcon;

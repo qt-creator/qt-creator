@@ -1,4 +1,4 @@
-<plugin name=\"Core\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_COMPAT_VERSION\">
+<plugin name=\"Core\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_COMPAT_VERSION\" required=\"true\">
     <vendor>Digia Plc</vendor>
     <copyright>(C) 2014 Digia Plc</copyright>
     <license>

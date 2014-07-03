@@ -270,6 +270,11 @@ bool PluginSpec::isAvailableForHostPlatform() const
     return d->platformSpecification.isEmpty() || d->platformSpecification.exactMatch(PluginManager::platformName());
 }
 
+bool PluginSpec::isRequired() const
+{
+    return d->required;
+}
+
 /*!
     Returns whether the plugin has its experimental flag set.
 */
@@ -465,6 +470,7 @@ namespace {
     const char PLUGIN_NAME[] = "name";
     const char PLUGIN_VERSION[] = "version";
     const char PLUGIN_COMPATVERSION[] = "compatVersion";
+    const char PLUGIN_REQUIRED[] = "required";
     const char PLUGIN_EXPERIMENTAL[] = "experimental";
     const char PLUGIN_DISABLED_BY_DEFAULT[] = "disabledByDefault";
     const char VENDOR[] = "vendor";
@@ -490,17 +496,17 @@ namespace {
     \internal
 */
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
-    :
-    experimental(false),
-    disabledByDefault(false),
-    enabledInSettings(true),
-    disabledIndirectly(false),
-    forceEnabled(false),
-    forceDisabled(false),
-    plugin(0),
-    state(PluginSpec::Invalid),
-    hasError(false),
-    q(spec)
+    : required(false),
+      experimental(false),
+      disabledByDefault(false),
+      enabledInSettings(true),
+      disabledIndirectly(false),
+      forceEnabled(false),
+      forceDisabled(false),
+      plugin(0),
+      state(PluginSpec::Invalid),
+      hasError(false),
+      q(spec)
 {
 }
 
@@ -647,8 +653,9 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
     } else if (compatVersion.isEmpty()) {
         compatVersion = version;
     }
-    disabledByDefault = readBooleanValue(reader, PLUGIN_DISABLED_BY_DEFAULT);
+    required = readBooleanValue(reader, PLUGIN_REQUIRED);
     experimental = readBooleanValue(reader, PLUGIN_EXPERIMENTAL);
+    disabledByDefault = readBooleanValue(reader, PLUGIN_DISABLED_BY_DEFAULT);
     if (reader.hasError())
         return;
     if (experimental)

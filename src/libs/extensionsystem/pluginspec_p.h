@@ -65,6 +65,7 @@ public:
     QString name;
     QString version;
     QString compatVersion;
+    bool required;
     bool experimental;
     bool disabledByDefault;
     QString vendor;
