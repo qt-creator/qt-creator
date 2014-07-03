@@ -371,7 +371,7 @@ int RangeTimelineModel::getEventIdForLocation(const QString &filename, int line,
     // if this is called from v8 view, we don't have the column number, it will be -1
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
             d->modelManager->qmlModel()->getEventTypes();
-    for (int i = 0; i < d->expandedRowTypes.size(); ++i) {
+    for (int i = 1; i < d->expandedRowTypes.size(); ++i) {
         int typeId = d->expandedRowTypes[i];
         const QmlProfilerDataModel::QmlEventTypeData &eventData = types[typeId];
         if (eventData.location.filename == filename &&
