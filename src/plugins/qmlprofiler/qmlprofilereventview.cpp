@@ -92,18 +92,25 @@ public:
 
     virtual bool operator<(const QStandardItem &other) const
     {
-        if (data().type() == QVariant::String) {
-            // first column
-            if (column() == 0) {
-                return data(FilenameRole).toString() == other.data(FilenameRole).toString() ?
-                            data(LineRole).toInt() < other.data(LineRole).toInt() :
-                            data(FilenameRole).toString() < other.data(FilenameRole).toString();
-            } else {
-                return data().toString().toLower() < other.data().toString().toLower();
-            }
-        }
+        if (column() == 0) {
+            // first column is special
+            int filenameDiff = QUrl(data(FilenameRole).toString()).fileName().compare(
+                        QUrl(other.data(FilenameRole).toString()).fileName(), Qt::CaseInsensitive);
+            if (filenameDiff != 0)
+                return filenameDiff < 0;
 
-        return data().toDouble() < other.data().toDouble();
+            return data(LineRole).toInt() == other.data(LineRole).toInt() ?
+                data(ColumnRole).toInt() < other.data(ColumnRole).toInt() :
+                data(LineRole).toInt() < other.data(LineRole).toInt();
+
+        } else if (data(SortRole).type() == QVariant::String) {
+            // Strings should be case-insensitive compared
+            return data(SortRole).toString().compare(other.data(SortRole).toString(),
+                                                      Qt::CaseInsensitive) < 0;
+        } else {
+            // For everything else the standard comparison should be OK
+            return QStandardItem::operator<(other);
+        }
     }
 };
 
@@ -395,6 +402,7 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
     setSortingEnabled(false);
 
     d->m_model = new QStandardItemModel(this);
+    d->m_model->setSortRole(SortRole);
     setModel(d->m_model);
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(jumpToItem(QModelIndex)));
 
@@ -851,7 +859,9 @@ QmlProfilerEventRelativesView::QmlProfilerEventRelativesView(QmlProfilerModelMan
     Q_UNUSED(modelManager);
     setSortingEnabled(false);
     d->modelProxy = modelProxy;
-    setModel(new QStandardItemModel(this));
+    QStandardItemModel *model = new QStandardItemModel(this);
+    model->setSortRole(SortRole);
+    setModel(model);
     setRootIsDecorated(false);
     updateHeader();
 
@@ -905,8 +915,13 @@ void QmlProfilerEventRelativesView::rebuildTree(
                                                            type.data);
 
         newRow.at(0)->setData(QVariant(typeIndex), EventTypeIndexRole);
+        newRow.at(0)->setData(QVariant(type.location.filename),FilenameRole);
+        newRow.at(0)->setData(QVariant(type.location.line),LineRole);
+        newRow.at(0)->setData(QVariant(type.location.column),ColumnRole);
+        newRow.at(1)->setData(QVariant(QmlProfilerEventsMainView::nameForType(type.rangeType)));
         newRow.at(2)->setData(QVariant(event.duration));
         newRow.at(3)->setData(QVariant(event.calls));
+        newRow.at(4)->setData(QVariant(type.data));
 
         if (event.isBindingLoop) {
             foreach (QStandardItem *item, newRow) {

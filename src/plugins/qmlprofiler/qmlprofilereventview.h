@@ -48,11 +48,12 @@ class QmlProfilerEventChildrenView;
 class QmlProfilerEventRelativesView;
 
 enum ItemRole {
-    EventTypeIndexRole = Qt::UserRole+1,
-    FilenameRole = Qt::UserRole+2,
-    LineRole = Qt::UserRole+3,
-    ColumnRole = Qt::UserRole+4,
-    EventIdRole = Qt::UserRole+5
+    SortRole = Qt::UserRole + 1, // Sort by data, not by displayed string
+    EventTypeIndexRole,
+    FilenameRole,
+    LineRole,
+    ColumnRole,
+    EventIdRole
 };
 
 class QmlProfilerEventsWidget : public QWidget
