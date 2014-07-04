@@ -59,6 +59,7 @@ private Q_SLOTS:
 
 private:
     const QString red;
+    const QString mustard;
     const QString bold;
     const QString normal;
     const QString normal1;
@@ -66,6 +67,7 @@ private:
 
 tst_AnsiEscapeCodeHandler::tst_AnsiEscapeCodeHandler() :
     red(ansiEscape("31m")),
+    mustard(ansiEscape("38;5;220m")),
     bold(ansiEscape("1m")),
     normal(ansiEscape("0m")),
     normal1(ansiEscape("m"))
@@ -109,6 +111,18 @@ void tst_AnsiEscapeCodeHandler::testSimpleFormat_data()
                             << FormattedText("This is ", defaultFormat)
                             << FormattedText("red", redFormat)
                             << FormattedText(" text", defaultFormat));
+
+    // Test 256-color text-color change
+    {
+        QTextCharFormat mustardFormat;
+        mustardFormat.setForeground(QColor(255, 204, 0));
+        const QString text = "This is " + mustard + "mustard" + normal + " text";
+        QTest::newRow("Text-color change (ANSI 256 color)") << text << QTextCharFormat()
+                           << (FormattedTextList()
+                                << FormattedText("This is ", defaultFormat)
+                                << FormattedText("mustard", mustardFormat)
+                                << FormattedText(" text", defaultFormat));
+    }
 
     // Test text format change to bold
     QTextCharFormat boldFormat;

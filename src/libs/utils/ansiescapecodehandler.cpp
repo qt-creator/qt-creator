@@ -168,9 +168,11 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                         break;
                     case RgbTextColor:
                     case RgbBackgroundColor:
+                        // See http://en.wikipedia.org/wiki/ANSI_escape_code#Colors
                         if (++i >= numbers.size())
                             break;
-                        if (numbers.at(i).toInt() == 2) {
+                        switch (numbers.at(i).toInt()) {
+                        case 2:
                             // RGB set with format: 38;2;<r>;<g>;<b>
                             if ((i + 3) < numbers.size()) {
                                 (code == RgbTextColor) ?
@@ -183,10 +185,36 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                                 setFormatScope(charFormat);
                             }
                             i += 3;
-                        } else if (numbers.at(i).toInt() == 5) {
-                            // rgb set with format: 38;5;<i>
-                            // unsupported because of unclear documentation, so we just skip <i>
+                            break;
+                        case 5:
+                            // 256 color mode with format: 38;5;<i>
+                            uint index = numbers.at(i + 1).toInt();
+
+                            QColor color;
+                            if (index < 8) {
+                                // The first 8 colors are standard low-intensity ANSI colors.
+                                color = ansiColor(index);
+                            } else if (index < 16) {
+                                // The next 8 colors are standard high-intensity ANSI colors.
+                                color = ansiColor(index - 8).lighter(150);
+                            } else if (index < 232) {
+                                // The next 216 colors are a 6x6x6 RGB cube.
+                                uint o = index - 16;
+                                color = QColor((o / 36) * 51, ((o / 6) % 6) * 51, (o % 6) * 51);
+                            } else {
+                                // The last 24 colors are a greyscale gradient.
+                                uint grey = (index - 232) * 11;
+                                color = QColor(grey, grey, grey);
+                            }
+
+                            if (code == RgbTextColor)
+                                charFormat.setForeground(color);
+                            else
+                                charFormat.setBackground(color);
+
+                            setFormatScope(charFormat);
                             ++i;
+                            break;
                         }
                         break;
                     default:
