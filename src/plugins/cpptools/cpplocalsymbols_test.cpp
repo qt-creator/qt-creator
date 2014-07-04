@@ -121,6 +121,7 @@ struct Result
 Q_DECLARE_METATYPE(Result)
 Q_DECLARE_METATYPE(QList<Result>)
 
+QT_BEGIN_NAMESPACE
 namespace QTest {
     template<>
     char *toString(const Result &result)
@@ -133,6 +134,7 @@ namespace QTest {
         return qstrdup(ba.data());
     }
 }
+QT_END_NAMESPACE
 
 namespace CppTools {
 namespace Internal {
