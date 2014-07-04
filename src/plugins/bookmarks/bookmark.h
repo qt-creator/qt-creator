@@ -33,8 +33,6 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetextmark.h>
 
-#include <QFileInfo>
-
 namespace Bookmarks {
 namespace Internal {
 
@@ -52,17 +50,11 @@ public:
     void updateNote(const QString &note);
     void removedFromEditor();
 
-    QString filePath() const;
-    QString fileName() const;
-    QString path() const;
     QString lineText() const;
     QString note() const;
 
 private:
     BookmarkManager *m_manager;
-    QString m_fileName;
-    QString m_onlyFile;
-    QString m_path;
     QString m_lineText;
     QString m_note;
 };

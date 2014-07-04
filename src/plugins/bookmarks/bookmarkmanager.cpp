@@ -353,8 +353,7 @@ QItemSelectionModel *BookmarkManager::selectionModel() const
 
 bool BookmarkManager::hasBookmarkInPosition(const QString &fileName, int lineNumber)
 {
-    QFileInfo fi(fileName);
-    return findBookmark(fi.path(), fi.fileName(), lineNumber);
+    return findBookmark(fileName, lineNumber);
 }
 
 QModelIndex BookmarkManager::index(int row, int column, const QModelIndex &parent) const
@@ -390,19 +389,19 @@ QVariant BookmarkManager::data(const QModelIndex &index, int role) const
     if (!index.isValid() || index.column() !=0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
         return QVariant();
 
+    Bookmark *bookMark = m_bookmarksList.at(index.row());
     if (role == BookmarkManager::Filename)
-        return m_bookmarksList.at(index.row())->fileName();
+        return QFileInfo(bookMark->fileName()).fileName();
     if (role == BookmarkManager::LineNumber)
-        return m_bookmarksList.at(index.row())->lineNumber();
+        return bookMark->lineNumber();
     if (role == BookmarkManager::Directory)
-        return m_bookmarksList.at(index.row())->path();
+        return QFileInfo(bookMark->fileName()).path();
     if (role == BookmarkManager::LineText)
-        return m_bookmarksList.at(index.row())->lineText();
+        return bookMark->lineText();
     if (role == BookmarkManager::Note)
-        return m_bookmarksList.at(index.row())->note();
+        return bookMark->note();
     if (role == Qt::ToolTipRole)
-        return QDir::toNativeSeparators(m_bookmarksList.at(index.row())->filePath());
-
+        return QDir::toNativeSeparators(bookMark->fileName());
     return QVariant();
 }
 
@@ -417,18 +416,17 @@ void BookmarkManager::toggleBookmark()
 
 void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
 {
-    const QFileInfo fi(fileName);
     const int editorLine = lineNumber;
 
     // Remove any existing bookmark on this line
-    if (Bookmark *mark = findBookmark(fi.path(), fi.fileName(), lineNumber)) {
+    if (Bookmark *mark = findBookmark(fileName, lineNumber)) {
         // TODO check if the bookmark is really on the same markable Interface
         removeBookmark(mark);
         return;
     }
 
     // Add a new bookmark if no bookmark existed on this line
-    Bookmark *bookmark = new Bookmark(fi.filePath(), editorLine, this);
+    Bookmark *bookmark = new Bookmark(fileName, editorLine, this);
     bookmark->init();
     addBookmark(bookmark);
 }
@@ -471,7 +469,7 @@ void BookmarkManager::removeBookmark(Bookmark *bookmark)
     int idx = m_bookmarksList.indexOf(bookmark);
     beginRemoveRows(QModelIndex(), idx, idx);
 
-    const QFileInfo fi(bookmark->filePath() );
+    const QFileInfo fi(bookmark->fileName());
     FileNameBookmarksMap *files = m_bookmarksMap.value(fi.path());
 
     FileNameBookmarksMap::iterator i = files->begin();
@@ -508,7 +506,7 @@ Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index) const
 
 bool BookmarkManager::gotoBookmark(Bookmark *bookmark)
 {
-    if (IEditor *editor = EditorManager::openEditorAt(bookmark->filePath(), bookmark->lineNumber()))
+    if (IEditor *editor = EditorManager::openEditorAt(bookmark->fileName(), bookmark->lineNumber()))
         return editor->currentLine() == bookmark->lineNumber();
     return false;
 }
@@ -677,8 +675,7 @@ void BookmarkManager::moveDown()
 
 void BookmarkManager::editNote(const QString &fileName, int lineNumber)
 {
-    QFileInfo fi(fileName);
-    Bookmark *b = findBookmark(fi.path(), fi.fileName(), lineNumber);
+    Bookmark *b = findBookmark(fileName, lineNumber);
     QModelIndex current = selectionModel()->currentIndex();
     selectionModel()->setCurrentIndex(current.sibling(m_bookmarksList.indexOf(b), 0),
                                       QItemSelectionModel::Select | QItemSelectionModel::Clear);
@@ -703,10 +700,12 @@ void BookmarkManager::editNote()
 }
 
 /* Returns the bookmark at the given file and line number, or 0 if no such bookmark exists. */
-Bookmark *BookmarkManager::findBookmark(const QString &path, const QString &fileName, int lineNumber)
+Bookmark *BookmarkManager::findBookmark(const QString &filePath, int lineNumber)
 {
+    QFileInfo fi(filePath);
+    QString path = fi.path();
     if (m_bookmarksMap.contains(path)) {
-        foreach (Bookmark *bookmark, m_bookmarksMap.value(path)->values(fileName)) {
+        foreach (Bookmark *bookmark, m_bookmarksMap.value(path)->values(fi.fileName())) {
             if (bookmark->lineNumber() == lineNumber)
                 return bookmark;
         }
@@ -721,7 +720,7 @@ Bookmark *BookmarkManager::findBookmark(const QString &path, const QString &file
 void BookmarkManager::addBookmark(Bookmark *bookmark, bool userset)
 {
     beginInsertRows(QModelIndex(), m_bookmarksList.size(), m_bookmarksList.size());
-    const QFileInfo fi(bookmark->filePath());
+    const QFileInfo fi(bookmark->fileName());
     const QString &path = fi.path();
 
     if (!m_bookmarksMap.contains(path))
@@ -752,9 +751,7 @@ void BookmarkManager::addBookmark(const QString &s)
         const QString &filePath = s.mid(index1+1, index2-index1-1);
         const QString &note = s.mid(index3 + 1);
         const int lineNumber = s.mid(index2 + 1, index3 - index2 - 1).toInt();
-        const QFileInfo fi(filePath);
-
-        if (!filePath.isEmpty() && !findBookmark(fi.path(), fi.fileName(), lineNumber)) {
+        if (!filePath.isEmpty() && !findBookmark(filePath, lineNumber)) {
             Bookmark *b = new Bookmark(filePath, lineNumber, this);
             b->setNote(note);
             b->init();
@@ -771,8 +768,7 @@ QString BookmarkManager::bookmarkToString(const Bookmark *b)
     const QLatin1Char colon(':');
     // Using \t as delimiter because any another symbol can be a part of note.
     const QLatin1Char noteDelimiter('\t');
-    // Empty string was the name of the bookmark, which now is always ""
-    return QLatin1String("") + colon + b->filePath() +
+    return colon + b->fileName() +
             colon + QString::number(b->lineNumber()) +
             noteDelimiter + b->note();
 }
@@ -821,8 +817,7 @@ void BookmarkManager::handleBookmarkTooltipRequest(ITextEditor *textEditor, cons
                                             int line)
 {
     if (textEditor->document()) {
-        const QFileInfo fi(textEditor->document()->filePath());
-        Bookmark *mark = findBookmark(fi.path(), fi.fileName(), line);
+        Bookmark *mark = findBookmark(textEditor->document()->filePath(), line);
         operateTooltip(textEditor, pos, mark);
     }
 }

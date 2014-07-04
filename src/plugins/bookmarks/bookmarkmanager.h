@@ -118,7 +118,7 @@ private slots:
 private:
     void documentPrevNext(bool next);
 
-    Bookmark *findBookmark(const QString &path, const QString &fileName, int lineNumber);
+    Bookmark *findBookmark(const QString &filePath, int lineNumber);
     void addBookmark(Bookmark *bookmark, bool userset = true);
     void addBookmark(const QString &s);
     static QString bookmarkToString(const Bookmark *b);
