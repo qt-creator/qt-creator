@@ -209,6 +209,11 @@ const QVariantList PixmapCacheModel::getEventDetails(int index) const
 
     if (ev->pixmapEventType != PixmapCacheCountChanged) {
         d->addVP(result, tr("Duration"), ev->duration );
+    } else {
+        QVariantMap res;
+        res.insert(tr("Cache Size"), QVariant(QString::fromLatin1("%1 px")
+                .arg(ev->cacheSize)));
+        result << res;
     }
 
     {
