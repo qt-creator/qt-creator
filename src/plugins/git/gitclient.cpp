@@ -963,9 +963,9 @@ void GitClient::diff(const QString &workingDirectory,
     if (!diffEditorDocument) {
         diffEditorDocument = createDiffEditor(documentId, workingDirectory, title);
 
-        GitDiffEditorReloader *reloader =
-                new GitDiffEditorReloader(diffEditorDocument->controller());
-        reloader->setDiffEditorController(diffEditorDocument->controller());
+        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
+        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
+        controller->setReloader(reloader);
 
         reloader->setWorkingDirectory(workingDirectory);
         reloader->setDiffType(diffType);
@@ -991,9 +991,9 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
     if (!diffEditorDocument) {
         diffEditorDocument = createDiffEditor(documentId, sourceFile, title);
 
-        GitDiffEditorReloader *reloader =
-                new GitDiffEditorReloader(diffEditorDocument->controller());
-        reloader->setDiffEditorController(diffEditorDocument->controller());
+        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
+        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
+        controller->setReloader(reloader);
 
         reloader->setWorkingDirectory(workingDirectory);
         reloader->setDiffType(GitDiffEditorReloader::DiffFile);
@@ -1015,9 +1015,9 @@ void GitClient::diffBranch(const QString &workingDirectory,
     if (!diffEditorDocument) {
         diffEditorDocument = createDiffEditor(documentId, workingDirectory, title);
 
-        GitDiffEditorReloader *reloader =
-                new GitDiffEditorReloader(diffEditorDocument->controller());
-        reloader->setDiffEditorController(diffEditorDocument->controller());
+        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
+        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
+        controller->setReloader(reloader);
 
         reloader->setWorkingDirectory(workingDirectory);
         reloader->setDiffType(GitDiffEditorReloader::DiffBranch);
@@ -1147,9 +1147,9 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
 
         diffEditorDocument->controller()->setDescriptionEnabled(true);
 
-        GitDiffEditorReloader *reloader =
-                new GitDiffEditorReloader(diffEditorDocument->controller());
-        reloader->setDiffEditorController(diffEditorDocument->controller());
+        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
+        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
+        controller->setReloader(reloader);
 
         reloader->setWorkingDirectory(workingDirectory);
         reloader->setDiffType(GitDiffEditorReloader::DiffShow);

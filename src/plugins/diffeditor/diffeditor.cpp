@@ -210,6 +210,7 @@ DiffEditor::DiffEditor()
     , m_toolBar(0)
     , m_entriesComboBox(0)
     , m_toggleDescriptionAction(0)
+    , m_reloadAction(0)
     , m_diffEditorSwitcher(0)
 {
     ctor();
@@ -228,6 +229,7 @@ DiffEditor::DiffEditor(DiffEditor *other)
     , m_toolBar(0)
     , m_entriesComboBox(0)
     , m_toggleDescriptionAction(0)
+    , m_reloadAction(0)
     , m_diffEditorSwitcher(0)
 {
     ctor();
@@ -392,13 +394,6 @@ QWidget *DiffEditor::toolBar()
                                   QSizePolicy::Expanding); // Mac Qt5
     m_toolBar->addWidget(contextSpinBox);
 
-    QToolButton *toggleSync = new QToolButton(m_toolBar);
-    toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
-    toggleSync->setCheckable(true);
-    toggleSync->setChecked(m_guiController->horizontalScrollBarSynchronization());
-    toggleSync->setToolTip(tr("Synchronize Horizontal Scroll Bars"));
-    m_toolBar->addWidget(toggleSync);
-
     QToolButton *toggleDescription = new QToolButton(m_toolBar);
     toggleDescription->setIcon(
                 QIcon(QLatin1String(Constants::ICON_TOP_BAR)));
@@ -410,7 +405,15 @@ QWidget *DiffEditor::toolBar()
     QToolButton *reloadButton = new QToolButton(m_toolBar);
     reloadButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RELOAD_GRAY)));
     reloadButton->setToolTip(tr("Reload Editor"));
-    m_toolBar->addWidget(reloadButton);
+    m_reloadAction = m_toolBar->addWidget(reloadButton);
+    slotReloaderChanged(m_controller->reloader());
+
+    QToolButton *toggleSync = new QToolButton(m_toolBar);
+    toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
+    toggleSync->setCheckable(true);
+    toggleSync->setChecked(m_guiController->horizontalScrollBarSynchronization());
+    toggleSync->setToolTip(tr("Synchronize Horizontal Scroll Bars"));
+    m_toolBar->addWidget(toggleSync);
 
     m_diffEditorSwitcher = new QToolButton(m_toolBar);
     m_toolBar->addWidget(m_diffEditorSwitcher);
@@ -432,6 +435,8 @@ QWidget *DiffEditor::toolBar()
             this, SLOT(slotDiffEditorSwitched()));
     connect(reloadButton, SIGNAL(clicked()),
             m_controller, SLOT(requestReload()));
+    connect(m_controller, SIGNAL(reloaderChanged(DiffEditorReloader*)),
+            this, SLOT(slotReloaderChanged(DiffEditorReloader*)));
 
     return m_toolBar;
 }
@@ -545,6 +550,11 @@ void DiffEditor::slotDescriptionVisibilityChanged()
         toggle->setToolTip(tr("Show Change Description"));
 
     m_toggleDescriptionAction->setVisible(enabled);
+}
+
+void DiffEditor::slotReloaderChanged(DiffEditorReloader *reloader)
+{
+    m_reloadAction->setVisible(reloader);
 }
 
 void DiffEditor::slotDiffEditorSwitched()

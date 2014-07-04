@@ -83,6 +83,7 @@ private slots:
     void entryActivated(int index);
     void slotDescriptionChanged(const QString &description);
     void slotDescriptionVisibilityChanged();
+    void slotReloaderChanged(DiffEditorReloader *reloader);
     void slotDiffEditorSwitched();
 
 private:
@@ -105,6 +106,7 @@ private:
     QToolBar *m_toolBar;
     QComboBox *m_entriesComboBox;
     QAction *m_toggleDescriptionAction;
+    QAction *m_reloadAction;
     QToolButton *m_diffEditorSwitcher;
 };
 

@@ -195,16 +195,16 @@ void DiffEditorPlugin::diff()
     const QString documentId = QLatin1String("Diff ") + fileName1
             + QLatin1String(", ") + fileName2;
     DiffEditorDocument *document = DiffEditorManager::find(documentId);
-    if (!document) {
-        QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1).arg(fileName2);
-        document = DiffEditorManager::findOrCreate(documentId, title);
-        if (!document)
-            return;
+    QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1).arg(fileName2);
+    document = DiffEditorManager::findOrCreate(documentId, title);
+    if (!document)
+        return;
 
-        DiffEditorController *controller = document->controller();
+    DiffEditorController *controller = document->controller();
+    if (!controller->reloader()) {
         SimpleDiffEditorReloader *reloader =
                 new SimpleDiffEditorReloader(controller, fileName1, fileName2);
-        reloader->setDiffEditorController(controller);
+        controller->setReloader(reloader);
     }
 
     Core::EditorManager::activateEditorForDocument(document);
