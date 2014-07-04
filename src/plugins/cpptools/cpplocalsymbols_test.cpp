@@ -107,7 +107,7 @@ struct Result
                 result << fromHighlightingResult(symbol, use);
         }
 
-        Utils::sort(result, [](const Result &r1, const Result &r2) {
+        Utils::sort(result, [](const Result &r1, const Result &r2) -> bool {
             if (r1.line == r2.line)
                 return r1.column < r2.column;
             return r1.line < r2.line;
