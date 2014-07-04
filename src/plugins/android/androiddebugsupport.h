@@ -39,9 +39,10 @@ class DebuggerRunControl;
 namespace ProjectExplorer { class RunControl; }
 
 namespace Android {
+class AndroidRunConfiguration;
+
 namespace Internal {
 
-class AndroidRunConfiguration;
 class AndroidRunner;
 
 class AndroidDebugSupport : public AndroidRunSupport

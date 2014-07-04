@@ -48,6 +48,7 @@
 #include "javacompletionassistprovider.h"
 #include "javafilewizard.h"
 #include "qmakeandroidsupport.h"
+#include "qmakeandroidrunfactories.h"
 #ifdef HAVE_QBS
 #  include "androidqbspropertyprovider.h"
 #endif
@@ -74,7 +75,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     new Internal::AndroidConfigurations(this);
 
     addAutoReleasedObject(new Internal::AndroidRunControlFactory);
-    addAutoReleasedObject(new Internal::AndroidRunConfigurationFactory);
+    addAutoReleasedObject(new Internal::QmakeAndroidRunConfigurationFactory);
     addAutoReleasedObject(new Internal::AndroidPackageInstallationFactory);
     addAutoReleasedObject(new Internal::AndroidDeployQtStepFactory);
     addAutoReleasedObject(new Internal::AndroidSettingsPage);

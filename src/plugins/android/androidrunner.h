@@ -41,9 +41,10 @@
 #include <QMutex>
 
 namespace Android {
+class AndroidRunConfiguration;
+
 namespace Internal {
 
-class AndroidRunConfiguration;
 
 class AndroidRunner : public QThread
 {

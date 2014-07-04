@@ -53,7 +53,9 @@ HEADERS += \
     javafilewizard.h \
     avddialog.h \
     android_global.h \
-    qmakeandroidsupport.h
+    qmakeandroidsupport.h \
+    qmakeandroidrunfactories.h \
+    qmakeandroidrunconfiguration.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -99,7 +101,9 @@ SOURCES += \
     javacompletionassistprovider.cpp \
     javafilewizard.cpp \
     avddialog.cpp \
-    qmakeandroidsupport.cpp
+    qmakeandroidsupport.cpp \
+    qmakeandroidrunfactories.cpp \
+    qmakeandroidrunconfiguration.cpp
 
 FORMS += \
     androidsettingswidget.ui \

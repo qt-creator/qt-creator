@@ -30,54 +30,32 @@
 #ifndef ANDROIDRUNCONFIGURATION_H
 #define ANDROIDRUNCONFIGURATION_H
 
+#include "android_global.h"
 #include "androidconstants.h"
 #include "androidconfigurations.h"
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace QmakeProjectManager { class QmakeProFileNode; }
-
 namespace Android {
-namespace Internal {
 
-class AndroidDeployStep;
-class AndroidRunConfigurationFactory;
-
-class AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
+class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class AndroidRunConfigurationFactory;
-
 public:
-    AndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path);
+    AndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
-
-    void setArguments(const QString &args);
-    QString proFilePath() const;
-
     const QString remoteChannel() const;
 
-    bool isEnabled() const;
-    QString disabledReason() const;
 protected:
     AndroidRunConfiguration(ProjectExplorer::Target *parent, AndroidRunConfiguration *source);
     QString defaultDisplayName();
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
-private slots:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
 private:
     void init();
-
-    QString m_proFilePath;
-    bool m_parseSuccess;
-    bool m_parseInProgress;
 };
 
-} // namespace Internal
 } // namespace Android
 
 #endif // ANDROIDRUNCONFIGURATION_H

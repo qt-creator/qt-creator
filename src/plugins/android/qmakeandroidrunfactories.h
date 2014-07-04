@@ -27,43 +27,52 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDRUNCONTROL_H
-#define ANDROIDRUNCONTROL_H
+#ifndef QMAKE_ANDROIDRUNFACTORIES_H
+#define QMAKE_ANDROIDRUNFACTORIES_H
 
+#include <android/androidrunfactories.h>
 #include <projectexplorer/runconfiguration.h>
+#include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
+
+namespace ProjectExplorer {
+class RunControl;
+class RunConfigWidget;
+class Target;
+class Node;
+} // namespace ProjectExplorer
 
 namespace Android {
-class AndroidRunConfiguration;
-
 namespace Internal {
 
-class AndroidRunner;
-
-class AndroidRunControl : public ProjectExplorer::RunControl
+class QmakeAndroidRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit AndroidRunControl(AndroidRunConfiguration *runConfig);
-    ~AndroidRunControl();
+    explicit QmakeAndroidRunConfigurationFactory(QObject *parent = 0);
 
-    void start();
-    StopResult stop();
-    bool isRunning() const;
-    QString displayName() const;
+    QString displayNameForId(const Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const;
 
-private slots:
-    void handleRemoteProcessFinished(const QString &error);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
+
+    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
+                                                                        ProjectExplorer::Node *n);
 
 private:
+    bool canHandle(ProjectExplorer::Target *t) const;
 
-    AndroidRunner * const m_runner;
-    bool m_running;
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
+    ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
+                                                 const QVariantMap &map);
 };
 
 } // namespace Internal
 } // namespace Android
 
-#endif // ANDROIDRUNCONTROL_H
+#endif  // ANDROIDRUNFACTORIES_H

@@ -116,7 +116,12 @@ QtcPlugin {
         "javaindenter.h",
         "javaparser.cpp",
         "javaparser.h",
+        "qmakeandroidrunconfiguration.cpp",
+        "qmakeandroidrunconfiguration.h",
+        "qmakeandroidrunfactories.cpp",
+        "qmakeandroidrunfactories.h",
         "qmakeandroidsupport.cpp",
         "qmakeandroidsupport.h",
+
     ]
 }
