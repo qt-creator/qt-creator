@@ -84,7 +84,7 @@ bool ValgrindRunControl::startEngine()
 
     const AnalyzerStartParameters &sp = startParameters();
 #if VALGRIND_DEBUG_OUTPUT
-    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(QLatin1Char(' '))), DebugFormat);
+    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(QLatin1String(" "))), DebugFormat);
     emit outputReceived(tr("Working directory: %1").arg(sp.workingDirectory), DebugFormat);
     emit outputReceived(tr("Command line arguments: %1").arg(sp.debuggeeArgs), DebugFormat);
 #endif

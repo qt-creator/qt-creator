@@ -568,10 +568,10 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
                 --iPath;
                 if (safeName.indexIn(myPath.at(iPath)) != 0)
                     break;
-                ImportKey iKey(ImportType::Library, QStringList(myPath.mid(iPath)).join(QLatin1Char('.')),
+                ImportKey iKey(ImportType::Library, QStringList(myPath.mid(iPath)).join(QLatin1String(".")),
                                importKey.majorVersion, importKey.minorVersion);
                 cImport.possibleExports.append(Export(iKey, QStringList(myPath.mid(0, iPath))
-                                                      .join(QLatin1Char('/')), true));
+                                                      .join(QLatin1String("/")), true));
             }
         } else {
             QString requiredPath = QStringList(splitPath.mid(0, splitPath.size() - importKey.splitPath.size()))
@@ -599,10 +599,10 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
             --iPath;
             if (safeName.indexIn(splitPath.at(iPath)) != 0)
                 break;
-            ImportKey iKey(ImportType::Library, QStringList(splitPath.mid(iPath)).join(QLatin1Char('.')),
+            ImportKey iKey(ImportType::Library, QStringList(splitPath.mid(iPath)).join(QLatin1String(".")),
                            majorVersion, minorVersion);
             cImport.possibleExports.append(Export(iKey, QStringList(splitPath.mid(0, iPath))
-                                                  .join(QLatin1Char('/')), true));
+                                                  .join(QLatin1String("/")), true));
         }
     }
     foreach (const QmlDirParser::Component &component, info.components()) {
