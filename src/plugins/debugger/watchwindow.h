@@ -89,6 +89,7 @@ private:
     bool event(QEvent *ev);
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
+    void inputNewExpression();
     void editItem(const QModelIndex &idx);
     void resetHelper(const QModelIndex &idx);
 

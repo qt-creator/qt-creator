@@ -1502,20 +1502,15 @@ class DumperBase:
             self.put('iname="%s",' % iname)
             self.put('name="%s",' % exp)
             self.put('wname="%s",' % escapedExp)
-            if len(exp) == 0: # The <Edit> case
-                self.putValue(" ")
-                self.putNoType()
+            try:
+                value = self.parseAndEvaluate(exp)
+                self.putItem(value)
+            except RuntimeError:
+                self.currentType.value = " "
+                self.currentValue.value = "<no such value>"
+                self.currentChildNumChild = -1
+                self.currentNumChild = 0
                 self.putNumChild(0)
-            else:
-                try:
-                    value = self.parseAndEvaluate(exp)
-                    self.putItem(value)
-                except RuntimeError:
-                    self.currentType.value = " "
-                    self.currentValue.value = "<no such value>"
-                    self.currentChildNumChild = -1
-                    self.currentNumChild = 0
-                    self.putNumChild(0)
 
 
 # Some "Enums"

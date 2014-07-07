@@ -684,8 +684,6 @@ static QString quoteUnprintable(const QString &str)
 static QString translate(const QString &str)
 {
     if (str.startsWith(QLatin1Char('<'))) {
-        if (str == QLatin1String("<Edit>"))
-            return WatchHandler::tr("<Edit>");
         if (str == QLatin1String("<empty>"))
             return WatchHandler::tr("<empty>");
         if (str == QLatin1String("<uninitialized>"))
@@ -1063,9 +1061,7 @@ static QString expression(const WatchItem *item)
 QString WatchModel::displayName(const WatchItem *item) const
 {
     QString result;
-    if (item->parent == m_watchRoot && item->name.isEmpty())
-        result = tr("<Edit>");
-    else if (item->parent == m_returnRoot)
+    if (item->parent == m_returnRoot)
         result = tr("returned value");
     else if (item->name == QLatin1String("*"))
         result = QLatin1Char('*') + item->parent->name;

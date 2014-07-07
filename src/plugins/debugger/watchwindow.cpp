@@ -554,8 +554,7 @@ void WatchTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     const QModelIndex idx = indexAt(ev->pos());
     if (!idx.isValid()) {
-        // The "<Edit>" case.
-        watchExpression(QString());
+        inputNewExpression();
         return;
     }
     BaseTreeView::mouseDoubleClickEvent(ev);
@@ -921,12 +920,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     if (!act) {
         ;
     } else if (act == &actInsertNewWatchItem) {
-        bool ok;
-        QString newExp = QInputDialog::getText(this, tr("Enter Expression for Evaluator"),
-                                   tr("Expression:"), QLineEdit::Normal,
-                                   QString(), &ok);
-        if (ok && !newExp.isEmpty())
-            watchExpression(newExp);
+        inputNewExpression();
     } else if (act == &actOpenMemoryEditAtObjectAddress) {
         addVariableMemoryView(currentEngine(), false, mi0, false, ev->globalPos(), this);
     } else if (act == &actOpenMemoryEditAtPointerAddress) {
@@ -1088,6 +1082,16 @@ void WatchTreeView::setModelData
 {
     QTC_ASSERT(model(), return);
     model()->setData(index, value, role);
+}
+
+void WatchTreeView::inputNewExpression()
+{
+    bool ok;
+    QString exp = QInputDialog::getText(this, tr("Enter Expression for Evaluator"),
+                                        tr("Expression:"), QLineEdit::Normal,
+                                        QString(), &ok);
+    if (ok && !exp.isEmpty())
+        watchExpression(exp, exp);
 }
 
 } // namespace Internal
