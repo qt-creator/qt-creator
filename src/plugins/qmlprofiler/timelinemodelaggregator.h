@@ -82,7 +82,7 @@ public:
 
     Q_INVOKABLE QVariantList labels(int modelIndex) const;
 
-    Q_INVOKABLE QVariantList details(int modelIndex, int index) const;
+    Q_INVOKABLE QVariantMap details(int modelIndex, int index) const;
     Q_INVOKABLE QVariantMap location(int modelIndex, int index) const;
 
     Q_INVOKABLE int eventIdForTypeIndex(int modelIndex, int typeIndex) const;

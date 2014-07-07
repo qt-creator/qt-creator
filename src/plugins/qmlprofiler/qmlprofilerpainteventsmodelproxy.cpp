@@ -236,49 +236,17 @@ QVariantList PaintEventsModelProxy::labels() const
     return result;
 }
 
-QVariantList PaintEventsModelProxy::details(int index) const
+QVariantMap PaintEventsModelProxy::details(int index) const
 {
     Q_D(const PaintEventsModelProxy);
-    QVariantList result;
+    QVariantMap result;
 
-    static const char trContext[] = "RangeDetails";
-    {
-        QVariantMap valuePair;
-        valuePair.insert(QLatin1String("displayName"), QVariant(displayName()));
-        result << valuePair;
-    }
-
-    // duration
-    {
-        QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"),
-                         QVariant(QmlProfilerBaseModel::formatTime(d->range(index).duration)));
-        result << valuePair;
-    }
-
-    // duration
-    {
-        QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Framerate:"), QVariant(QString::fromLatin1("%1 FPS").arg(d->range(index).framerate)));
-        result << valuePair;
-    }
-
-    // duration
-    {
-        QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Animations:"), QVariant(QString::fromLatin1("%1").arg(d->range(index).animationcount)));
-        result << valuePair;
-    }
-
-    {
-        QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Context:"),
-                         QCoreApplication::translate(trContext,
-                                d->range(index).threadId == QmlDebug::GuiThread ?
-                                "GUI Thread" : "Render Thread"));
-        result << valuePair;
-    }
-
+    result.insert(QStringLiteral("displayName"), displayName());
+    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(d->range(index).duration));
+    result.insert(tr("Framerate"), QString::fromLatin1("%1 FPS").arg(d->range(index).framerate));
+    result.insert(tr("Animations"), QString::fromLatin1("%1").arg(d->range(index).animationcount));
+    result.insert(tr("Context"), tr(d->range(index).threadId == QmlDebug::GuiThread ?
+                                    "GUI Thread" : "Render Thread"));
     return result;
 }
 

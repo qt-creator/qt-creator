@@ -74,7 +74,7 @@ public:
     float height(int index) const;
 
     QVariantList labels() const;
-    QVariantList details(int index) const;
+    QVariantMap details(int index) const;
 
 private slots:
     bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;

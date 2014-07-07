@@ -225,7 +225,7 @@ QVariantList TimelineModelAggregator::labels(int modelIndex) const
     return d->modelList[modelIndex]->labels();
 }
 
-QVariantList TimelineModelAggregator::details(int modelIndex, int index) const
+QVariantMap TimelineModelAggregator::details(int modelIndex, int index) const
 {
     return d->modelList[modelIndex]->details(index);
 }

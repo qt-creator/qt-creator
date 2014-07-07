@@ -80,7 +80,7 @@ public:
     QColor color(int index) const;
 
     QVariantList labels() const;
-    QVariantList details(int index) const;
+    QVariantMap details(int index) const;
     QVariantMap location(int index) const;
 
     int eventIdForTypeIndex(int typeIndex) const;

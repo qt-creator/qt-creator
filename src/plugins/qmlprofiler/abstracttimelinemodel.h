@@ -78,7 +78,7 @@ public:
     virtual int eventId(int index) const = 0;
     virtual QColor color(int index) const = 0;
     virtual QVariantList labels() const = 0;
-    virtual QVariantList details(int index) const = 0;
+    virtual QVariantMap details(int index) const = 0;
     virtual int row(int index) const = 0;
     virtual void loadData() = 0;
     virtual void clear() = 0;

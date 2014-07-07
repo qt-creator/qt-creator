@@ -287,51 +287,22 @@ QVariantList RangeTimelineModel::labels() const
     return result;
 }
 
-QVariantList RangeTimelineModel::details(int index) const
+QVariantMap RangeTimelineModel::details(int index) const
 {
     Q_D(const RangeTimelineModel);
-    QVariantList result;
+    QVariantMap result;
     int id = eventId(index);
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
             d->modelManager->qmlModel()->getEventTypes();
 
-    static const char trContext[] = "RangeDetails";
-    {
-        QVariantMap valuePair;
-        valuePair.insert(QLatin1String("displayName"), QVariant(categoryLabel(d->rangeType)));
-        result << valuePair;
-    }
+    result.insert(QStringLiteral("displayName"), categoryLabel(d->rangeType));
+    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(d->range(index).duration));
 
-    // duration
-    {
-        QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"),
-                         QVariant(QmlProfilerBaseModel::formatTime(d->range(index).duration)));
-        result << valuePair;
-    }
-
-    // details
-    {
-        QVariantMap valuePair;
-        QString detailsString = types[id].data;
-        if (detailsString.length() > 40)
-            detailsString = detailsString.left(40) + QLatin1String("...");
-        valuePair.insert(QCoreApplication::translate(trContext, "Details:"),
-                         QVariant(detailsString));
-        result << valuePair;
-    }
-
-    // location
-    {
-        QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Location:"),
-                         QVariant(types[id].displayName));
-        result << valuePair;
-    }
-
-    // isbindingloop
-    {}
-
+    QString detailsString = types[id].data;
+    if (detailsString.length() > 40)
+        detailsString = detailsString.left(40) + QLatin1String("...");
+    result.insert(tr("Details"), detailsString);
+    result.insert(tr("Location"), types[id].displayName);
     return result;
 }
 
