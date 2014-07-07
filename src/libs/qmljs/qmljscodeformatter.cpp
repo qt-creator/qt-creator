@@ -35,9 +35,11 @@
 #include <QTextDocument>
 #include <QTextBlock>
 
-namespace QmlJS {
-
+namespace {
 Q_LOGGING_CATEGORY(formatterLog, "qtc.qmljs.formatter")
+}
+
+namespace QmlJS {
 
 CodeFormatter::BlockData::BlockData()
     : m_indentDepth(0)

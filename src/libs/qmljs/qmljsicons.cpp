@@ -43,9 +43,11 @@ enum {
     debug = false
 };
 
-namespace QmlJS {
-
+namespace {
 Q_LOGGING_CATEGORY(iconsLog, "qtc.qmljs.icons")
+}
+
+namespace QmlJS {
 
 Icons *Icons::m_instance = 0;
 

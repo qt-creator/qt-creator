@@ -38,9 +38,11 @@
 
 #include <algorithm>
 
-namespace QmlJS {
-
+namespace {
 Q_LOGGING_CATEGORY(importsLog, "qtc.qmljs.imports")
+}
+
+namespace QmlJS {
 
 ImportKind::Enum toImportKind(ImportType::Enum type)
 {
