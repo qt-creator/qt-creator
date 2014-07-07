@@ -59,18 +59,36 @@ private Q_SLOTS:
 
 private:
     const QString red;
-    const QString mustard;
+    const QString redBackground;
+    const QString red256;
+    const QString redBackground256;
+    const QString mustard256;
+    const QString mustardBackground256;
+    const QString gray256;
+    const QString grayBackground256;
+    const QString mustardRgb;
+    const QString mustardBackgroundRgb;
     const QString bold;
     const QString normal;
     const QString normal1;
+    const QString eraseToEol;
 };
 
 tst_AnsiEscapeCodeHandler::tst_AnsiEscapeCodeHandler() :
     red(ansiEscape("31m")),
-    mustard(ansiEscape("38;5;220m")),
+    redBackground(ansiEscape("41m")),
+    red256(ansiEscape("38;5;1m")),
+    redBackground256(ansiEscape("48;5;1m")),
+    mustard256(ansiEscape("38;5;220m")),
+    mustardBackground256(ansiEscape("48;5;220m")),
+    gray256(ansiEscape("38;5;250m")),
+    grayBackground256(ansiEscape("48;5;250m")),
+    mustardRgb(ansiEscape("38;2;255;204;0m")),
+    mustardBackgroundRgb(ansiEscape("48;2;255;204;0m")),
     bold(ansiEscape("1m")),
     normal(ansiEscape("0m")),
-    normal1(ansiEscape("m"))
+    normal1(ansiEscape("m")),
+    eraseToEol(ansiEscape("K"))
 {
 }
 
@@ -102,45 +120,110 @@ void tst_AnsiEscapeCodeHandler::testSimpleFormat_data()
     QTest::newRow("Pass-through") << "Hello World" << defaultFormat
                        << (FormattedTextList() << FormattedText("Hello World", defaultFormat));
 
-    // Test text-color change
     QTextCharFormat redFormat;
     redFormat.setForeground(QColor(170, 0, 0));
-    const QString text2 = "This is " + red + "red" + normal + " text";
-    QTest::newRow("Text-color change") << text2 << QTextCharFormat()
-                       << (FormattedTextList()
-                            << FormattedText("This is ", defaultFormat)
-                            << FormattedText("red", redFormat)
-                            << FormattedText(" text", defaultFormat));
+    QTest::newRow("Text-color change (8 color)")
+            << QString("This is " + red + "red" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("This is ", defaultFormat)
+                << FormattedText("red", redFormat)
+                << FormattedText(" text", defaultFormat));
 
-    // Test 256-color text-color change
-    {
-        QTextCharFormat mustardFormat;
-        mustardFormat.setForeground(QColor(255, 204, 0));
-        const QString text = "This is " + mustard + "mustard" + normal + " text";
-        QTest::newRow("Text-color change (ANSI 256 color)") << text << QTextCharFormat()
-                           << (FormattedTextList()
-                                << FormattedText("This is ", defaultFormat)
-                                << FormattedText("mustard", mustardFormat)
-                                << FormattedText(" text", defaultFormat));
-    }
+    QTextCharFormat redBackgroundFormat;
+    redBackgroundFormat.setBackground(QColor(170, 0, 0));
+    QTest::newRow("Background-color change (8 color)")
+            << QString("This is " + redBackground + "red" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("This is ", defaultFormat)
+                << FormattedText("red", redBackgroundFormat)
+                << FormattedText(" text", defaultFormat));
 
-    // Test text format change to bold
+    QTest::newRow("Text-color change (256 color mode / 8 foreground colors)")
+            << QString("This is " + red256 + "red" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("This is ", defaultFormat)
+                << FormattedText("red", redFormat)
+                << FormattedText(" text", defaultFormat));
+
+    QTest::newRow("Background-color change (256 color mode / 8 background colors)")
+            << QString("This is " + redBackground256 + "red" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("This is ", defaultFormat)
+                << FormattedText("red", redBackgroundFormat)
+                << FormattedText(" text", defaultFormat));
+
+    QTextCharFormat mustardFormat;
+    mustardFormat.setForeground(QColor(255, 204, 0));
+    QTest::newRow("Text-color change (256 color mode / 216 colors)")
+            << QString("This is " + mustard256 + "mustard" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("This is ", defaultFormat)
+                << FormattedText("mustard", mustardFormat)
+                << FormattedText(" text", defaultFormat));
+
+    QTextCharFormat mustardBackgroundFormat;
+    mustardBackgroundFormat.setBackground(QColor(255, 204, 0));
+    QTest::newRow("Background-color change (256 color mode / 216 colors)")
+            << QString("This is " + mustardBackground256 + "mustard" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("This is ", defaultFormat)
+                << FormattedText("mustard", mustardBackgroundFormat)
+                << FormattedText(" text", defaultFormat));
+
+    uint gray = (250 - 232) * 11;
+    QTextCharFormat grayFormat;
+    grayFormat.setForeground(QColor(gray, gray, gray));
+    QTest::newRow("Text-color change (256 color mode / 24 grayscale)")
+            << QString("This is " + gray256 + "gray" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("This is ", defaultFormat)
+                << FormattedText("gray", grayFormat)
+                << FormattedText(" text", defaultFormat));
+
+    QTextCharFormat grayBackgroundFormat;
+    grayBackgroundFormat.setBackground(QColor(gray, gray, gray));
+    QTest::newRow("Background-color change (256 color mode / 24 grayscale)")
+            << QString("This is " + grayBackground256 + "gray" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("This is ", defaultFormat)
+                << FormattedText("gray", grayBackgroundFormat)
+                << FormattedText(" text", defaultFormat));
+
+    QTest::newRow("Text-color change (RGB color mode)")
+            << QString("This is " + mustardRgb + "mustard" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("This is ", defaultFormat)
+                << FormattedText("mustard", mustardFormat)
+                << FormattedText(" text", defaultFormat));
+
+    QTest::newRow("Background-color change (RGB color mode)")
+            << QString("This is " + mustardBackgroundRgb + "mustard" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("This is ", defaultFormat)
+                << FormattedText("mustard", mustardBackgroundFormat)
+                << FormattedText(" text", defaultFormat));
+
     QTextCharFormat boldFormat;
     boldFormat.setFontWeight(QFont::Bold);
-    const QString text3 = "A line of " + bold + "bold" + normal + " text";
-    QTest::newRow("Text-format change") << text3 << QTextCharFormat()
-                       << (FormattedTextList()
-                            << FormattedText("A line of ", defaultFormat)
-                            << FormattedText("bold", boldFormat)
-                            << FormattedText(" text", defaultFormat));
+    QTest::newRow("Text-format change")
+            << QString("A line of " + bold + "bold" + normal + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("A line of ", defaultFormat)
+                << FormattedText("bold", boldFormat)
+                << FormattedText(" text", defaultFormat));
 
-    // Test resetting format to normal with other reset pattern
-    const QString text4 = "A line of " + bold + "bold" + normal1 + " text";
-    QTest::newRow("Alternative reset pattern (QTCREATORBUG-10132)") << text4 << QTextCharFormat()
-                       << (FormattedTextList()
-                            << FormattedText("A line of ", defaultFormat)
-                            << FormattedText("bold", boldFormat)
-                            << FormattedText(" text", defaultFormat));
+    QTest::newRow("Alternative reset pattern (QTCREATORBUG-10132)")
+            << QString("A line of " + bold + "bold" + normal1 + " text") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("A line of ", defaultFormat)
+                << FormattedText("bold", boldFormat)
+                << FormattedText(" text", defaultFormat));
+
+    QTest::newRow("Erase to EOL is unsupported and stripped")
+            << QString("All text after this is " + eraseToEol + "not deleted") << QTextCharFormat()
+            << (FormattedTextList()
+                << FormattedText("All text after this is ", defaultFormat)
+                << FormattedText("not deleted", defaultFormat));
 }
 
 void tst_AnsiEscapeCodeHandler::testLineOverlappingFormat()
