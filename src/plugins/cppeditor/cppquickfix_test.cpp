@@ -1194,6 +1194,39 @@ void CppEditorPlugin::test_quickfix_data()
         << CppQuickFixFactoryPtr(new OptimizeForLoop)
         << _("void foo() {fo@r (int i = 0; i < -3; ++i) {}}\n")
         << _();
+
+    QTest::newRow("InsertQtPropertyMembers")
+            << CppQuickFixFactoryPtr(new InsertQtPropertyMembers)
+            << _("struct XmarksTheSpot {\n"
+                 "    @Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
+                 "};\n"
+                 )
+            << _("struct XmarksTheSpot {\n"
+                 "    Q_PROPERTY(int it READ getIt WRITE setIt NOTIFY itChanged)\n"
+                 "\n"
+                 "public:\n"
+                 "    int getIt() const\n"
+                 "    {\n"
+                 "        return m_it;\n"
+                 "    }\n"
+                 "\n"
+                 "public slots:\n"
+                 "    void setIt(int arg)\n"
+                 "    {\n"
+                 "        if (m_it == arg)\n"
+                 "            return;\n"
+                 "\n"
+                 "        m_it = arg;\n"
+                 "        emit itChanged(arg);\n"
+                 "    }\n"
+                 "\n"
+                 "signals:\n"
+                 "    void itChanged(int arg);\n"
+                 "\n"
+                 "private:\n"
+                 "    int m_it;\n"
+                 "};\n"
+                 );
 }
 
 void CppEditorPlugin::test_quickfix()
