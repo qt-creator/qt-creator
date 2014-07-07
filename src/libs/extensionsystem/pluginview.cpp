@@ -233,7 +233,7 @@ int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &gr
         if (!spec->isAvailableForHostPlatform()) {
             pluginItem->setData(C_LOAD, Qt::CheckStateRole, Qt::Unchecked);
             pluginItem->setFlags(Qt::ItemIsSelectable);
-            pluginItem->setToolTip(C_LOAD, tr("Plugin is not vailable for this platform."));
+            pluginItem->setToolTip(C_LOAD, tr("Plugin is not available on this platform."));
         } else if (spec->isRequired()){
             pluginItem->setData(C_LOAD, Qt::CheckStateRole, Qt::Checked);
             pluginItem->setFlags(Qt::ItemIsSelectable);
