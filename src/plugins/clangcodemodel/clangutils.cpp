@@ -216,9 +216,14 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
 
         QString prefix;
         switch (headerPath.type) {
-        case HeaderPath::IncludePath: prefix = QLatin1String("-I"); break;
-        case HeaderPath::FrameworkPath: prefix = QLatin1String("-F"); break;
-        default: Q_UNREACHABLE(); break;
+        case HeaderPath::FrameworkPath:
+            prefix = QLatin1String("-F");
+            break;
+        default: // This shouldn't happen, but let's be nice..:
+            // intentional fall-through:
+        case HeaderPath::IncludePath:
+            prefix = QLatin1String("-I");
+            break;
         }
 
         result.append(prefix + headerPath.path);
