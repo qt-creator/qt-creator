@@ -34,12 +34,73 @@
 #include "gradientmodel.h"
 #include "qmlanchorbindingproxy.h"
 
+#include <QVBoxLayout>
+
 namespace QmlDesigner {
 
-Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
-    QQuickWidget(parent)
+void Quick2PropertyEditorView::execute()
 {
-    setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_view.setSource(m_source);
+
+    if (!m_source.isEmpty()) {
+        m_view.setSource(m_source);
+        connect(&m_view, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(continueExecute()));
+    }
+}
+
+Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
+    QWidget(parent)
+{
+    m_containerWidget = createWindowContainer(&m_view);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    setLayout(layout);
+    layout->addWidget(m_containerWidget);
+    layout->setMargin(0);
+    m_view.setResizeMode(QQuickView::SizeRootObjectToView);
+}
+
+QUrl Quick2PropertyEditorView::source() const
+{
+    return m_source;
+}
+
+void Quick2PropertyEditorView::setSource(const QUrl& url)
+{
+    m_source = url;
+    execute();
+}
+
+QQmlEngine* Quick2PropertyEditorView::engine()
+{
+   return m_view.engine();
+}
+
+QQmlContext* Quick2PropertyEditorView::rootContext()
+{
+   return engine()->rootContext();
+}
+
+Quick2PropertyEditorView::Status Quick2PropertyEditorView::status() const
+{
+    return Quick2PropertyEditorView::Status(m_view.status());
+}
+
+
+void Quick2PropertyEditorView::continueExecute()
+{
+    disconnect(&m_view, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(continueExecute()));
+
+    if (!m_view.errors().isEmpty()) {
+        QList<QQmlError> errorList = m_view.errors();
+        foreach (const QQmlError &error, errorList) {
+            qWarning() << error;
+        }
+        emit statusChanged(status());
+        return;
+    }
+
+    emit statusChanged(status());
 }
 
 void Quick2PropertyEditorView::registerQmlTypes()
