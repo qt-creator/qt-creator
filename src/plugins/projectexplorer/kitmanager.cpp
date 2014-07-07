@@ -41,6 +41,7 @@
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
+#include <utils/algorithm.h>
 
 #include <QSettings>
 
@@ -249,11 +250,19 @@ void KitManager::restoreKits()
         defaultKit->setup();
 
         addKit(defaultKit);
+        setDefaultKit(defaultKit);
     }
 
     Kit *k = find(userKits.defaultKit);
-    if (k)
+    if (k) {
         setDefaultKit(k);
+    } else if (!defaultKit()) {
+        k = Utils::findOr(kitsToRegister, 0, [](Kit *k) {
+                              return k->isValid();
+                          });
+        if (k)
+            setDefaultKit(k);
+    }
 
     d->m_writer = new Utils::PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles"));
     d->m_initialized = true;
@@ -509,6 +518,11 @@ bool KitManager::registerKit(ProjectExplorer::Kit *k)
 
     // make sure we have all the information in our kits:
     m_instance->addKit(k);
+
+    if (!d->m_defaultKit ||
+            (!d->m_defaultKit->isValid() && k->isValid()))
+        setDefaultKit(k);
+
     emit m_instance->kitAdded(k);
     return true;
 }
@@ -559,12 +573,7 @@ void KitManager::addKit(Kit *k)
     }
 
     d->insertKit(k);
-
-    if (!d->m_defaultKit ||
-            (!d->m_defaultKit->isValid() && k->isValid()))
-        setDefaultKit(k);
 }
-
 
 void KitInformation::addToEnvironment(const Kit *k, Utils::Environment &env) const
 {
