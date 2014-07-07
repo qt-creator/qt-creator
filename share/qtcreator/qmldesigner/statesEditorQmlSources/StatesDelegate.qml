@@ -41,10 +41,10 @@ Rectangle {
     property int delegateStateImageSize
 
     gradient: Gradient {
-        GradientStop { position: 0.0; color: Qt.lighter(gradiantBaseColor, 1.1) }
-        GradientStop { position: 0.2; color: Qt.lighter(gradiantBaseColor, 1.2) }
-        GradientStop { position: 0.3; color: Qt.lighter(gradiantBaseColor, 1.1) }
-        GradientStop { position: 1.0; color: gradiantBaseColor }
+        GradientStop { position: 0.0; color: Qt.lighter(gradiantBaseColor, 1.5) }
+        GradientStop { position: 0.1; color: Qt.lighter(gradiantBaseColor, 1) }
+        GradientStop { position: 0.8; color: gradiantBaseColor }
+        GradientStop { position: 1.0; color: Qt.darker(gradiantBaseColor) }
     }
 
     MouseArea {
