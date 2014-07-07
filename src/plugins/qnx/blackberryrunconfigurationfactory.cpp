@@ -65,7 +65,7 @@ QList<Core::Id> BlackBerryRunConfigurationFactory::availableCreationIds(ProjectE
     QList<QmakeProjectManager::QmakeProFileNode *>  nodes = qt4Project->applicationProFiles();
     if (mode == AutoCreate)
         nodes = QmakeProject::nodesWithQtcRunnable(nodes);
-    return QmakeProject::idsForNodes(Core::Id(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX),
+    return QmakeProject::idsForNodes(Core::Id(Constants::QNX_BB_RUNCONFIGURATION_PREFIX),
                                      nodes);
 }
 
