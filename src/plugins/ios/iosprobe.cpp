@@ -29,14 +29,16 @@
 
 #include "iosprobe.h"
 
-#include <QDebug>
+#include <utils/logging.h>
+
 #include <QFileInfo>
 #include <QProcess>
 #include <QDir>
 #include <QFileInfoList>
 
-static const bool debugProbe = false;
-
+namespace {
+Q_LOGGING_CATEGORY(probeLog, "qtc.ios.probe")
+}
 namespace Ios {
 
 static QString qsystem(const QString &exe, const QStringList &args = QStringList())
@@ -66,7 +68,7 @@ static int compareVersions(const QString &v1, const QString &v2)
         int n1 = v1L.value(i).toInt(&n1Ok);
         int n2 = v2L.value(i).toInt(&n2Ok);
         if (!(n1Ok && n2Ok)) {
-            qDebug() << QString::fromLatin1("Failed to compare version %1 and %2").arg(v1, v2);
+            qCWarning(probeLog) << QString::fromLatin1("Failed to compare version %1 and %2").arg(v1, v2);
             return 0;
         }
         if (n1 > n2)
@@ -92,8 +94,7 @@ void IosProbe::addDeveloperPath(const QString &path)
     if (m_developerPaths.contains(path))
         return;
     m_developerPaths.append(path);
-    if (debugProbe)
-        qDebug() << QString::fromLatin1("Added developer path %1").arg(path);
+    qCDebug(probeLog) << QString::fromLatin1("Added developer path %1").arg(path);
 }
 
 void IosProbe::detectDeveloperPaths()
@@ -103,7 +104,7 @@ void IosProbe::detectDeveloperPaths()
     QStringList arguments(QLatin1String("--print-path"));
     selectedXcode.start(program, arguments, QProcess::ReadOnly);
     if (!selectedXcode.waitForFinished() || selectedXcode.exitCode()) {
-        qDebug() << QString::fromLatin1("Could not detect selected xcode with /usr/bin/xcode-select");
+        qCWarning(probeLog) << QString::fromLatin1("Could not detect selected xcode with /usr/bin/xcode-select");
     } else {
         QString path = QString::fromLocal8Bit(selectedXcode.readAllStandardOutput());
         path.chop(1);
@@ -114,8 +115,7 @@ void IosProbe::detectDeveloperPaths()
 
 void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xcodeName)
 {
-    if (debugProbe)
-        qDebug() << QString::fromLatin1("Setting up platform \"%1\".").arg(xcodeName);
+    qCDebug(probeLog) << QString::fromLatin1("Setting up platform \"%1\".").arg(xcodeName);
     QString indent = QLatin1String("  ");
 
     // detect clang (default toolchain)
@@ -124,20 +124,19 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                             + QLatin1String("/clang++"));
     bool hasClang = clangFileInfo.exists();
     if (!hasClang)
-        qDebug() << indent << QString::fromLatin1("Default toolchain %1 not found.")
-                     .arg(clangFileInfo.canonicalFilePath());
+        qCWarning(probeLog) << indent << QString::fromLatin1("Default toolchain %1 not found.")
+                                .arg(clangFileInfo.canonicalFilePath());
     // Platforms
     QDir platformsDir(devPath + QLatin1String("/Platforms"));
     QFileInfoList platforms = platformsDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     foreach (const QFileInfo &fInfo, platforms) {
         if (fInfo.isDir() && fInfo.suffix() == QLatin1String("platform")) {
-            if (debugProbe)
-                qDebug() << indent << QString::fromLatin1("Setting up %1").arg(fInfo.fileName());
+            qCDebug(probeLog) << indent << QString::fromLatin1("Setting up %1").arg(fInfo.fileName());
             QSettingsPtr infoSettings(new QSettings(
                                    fInfo.absoluteFilePath() + QLatin1String("/Info.plist"),
                                    QSettings::NativeFormat));
             if (!infoSettings->contains(QLatin1String("Name"))) {
-                qDebug() << indent << QString::fromLatin1("Missing platform name in Info.plist of %1")
+                qCWarning(probeLog) << indent << QString::fromLatin1("Missing platform name in Info.plist of %1")
                              .arg(fInfo.absoluteFilePath());
                 continue;
             }
@@ -145,7 +144,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
             if (name != QLatin1String("macosx") && name != QLatin1String("iphoneos")
                     && name != QLatin1String("iphonesimulator"))
             {
-                qDebug() << indent << QString::fromLatin1("Skipping unknown platform %1").arg(name);
+                qCWarning(probeLog) << indent << QString::fromLatin1("Skipping unknown platform %1").arg(name);
                 continue;
             }
 
@@ -174,7 +173,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
             if (defaultProp.contains(QLatin1String("NATIVE_ARCH"))) {
                 QString arch = defaultProp.value(QLatin1String("NATIVE_ARCH")).toString();
                 if (!arch.startsWith(QLatin1String("arm")))
-                    qDebug() << indent << QString::fromLatin1("Expected arm architecture, not %1").arg(arch);
+                    qCWarning(probeLog) << indent << QString::fromLatin1("Expected arm architecture, not %1").arg(arch);
                 extraFlags << QLatin1String("-arch") << arch;
             } else if (name == QLatin1String("iphonesimulator")) {
                 // don't generate a toolchain for 64 bit (to fix when we support that)
@@ -195,8 +194,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 QStringList compilerTripletl = compilerTriplet.split(QLatin1Char('-'));
                 clangProfile.architecture = compilerTripletl.value(0);
                 clangProfile.backendFlags = extraFlags;
-                if (debugProbe)
-                    qDebug() << indent << QString::fromLatin1("* adding profile %1").arg(clangProfile.name);
+                qCDebug(probeLog) << indent << QString::fromLatin1("* adding profile %1").arg(clangProfile.name);
                 m_platforms[clangProfile.name] = clangProfile;
                 clangProfile.platformKind |= Platform::Cxx11Support;
                 clangProfile.backendFlags.append(QLatin1String("-std=c++11"));
@@ -220,8 +218,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 QStringList compilerTripletl = compilerTriplet.split(QLatin1Char('-'));
                 gccProfile.architecture = compilerTripletl.value(0);
                 gccProfile.backendFlags = extraFlags;
-                if (debugProbe)
-                    qDebug() << indent << QString::fromLatin1("* adding profile %1").arg(gccProfile.name);
+                qCDebug(probeLog) << indent << QString::fromLatin1("* adding profile %1").arg(gccProfile.name);
                 m_platforms[gccProfile.name] = gccProfile;
             }
 
@@ -246,9 +243,8 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                     bool isBaseSdk = sdkInfo->value((QLatin1String("isBaseSDK"))).toString()
                             .toLower() != QLatin1String("no");
                     if (!isBaseSdk) {
-                        if (debugProbe)
-                            qDebug() << indent << QString::fromLatin1("Skipping non base Sdk %1")
-                                        .arg(currentSdkName.toString());
+                        qCDebug(probeLog) << indent << QString::fromLatin1("Skipping non base Sdk %1")
+                                                .arg(currentSdkName.toString());
                         continue;
                     }
                     if (sdkName.isEmpty()) {
@@ -265,7 +261,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 if (!sdkPath.isEmpty())
                     sysRoot = sdkPath;
                 else if (!sdkName.isEmpty())
-                    qDebug() << indent << QString::fromLatin1("Failed to find sysroot %1").arg(sdkName);
+                    qCDebug(probeLog) << indent << QString::fromLatin1("Failed to find sysroot %1").arg(sdkName);
             }
             if (hasClang && !sysRoot.isEmpty()) {
                 m_platforms[clangFullName].platformKind |= Platform::BasePlatform;

@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "iosrunconfiguration.h"
+#include "iosconstants.h"
 #include "iosmanager.h"
 #include "iosdeploystep.h"
 #include "ui_iosrunconfiguration.h"
@@ -212,7 +213,7 @@ Utils::FileName IosRunConfiguration::bundleDirectory() const
     Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target()->kit());
     bool isDevice = (devType == Constants::IOS_DEVICE_TYPE);
     if (!isDevice && devType != Constants::IOS_SIMULATOR_TYPE) {
-        qDebug() << "unexpected device type in bundleDirForTarget: " << devType.toString();
+        qCWarning(iosLog) << "unexpected device type in bundleDirForTarget: " << devType.toString();
         return res;
     }
     QmakeBuildConfiguration *bc =
@@ -246,7 +247,7 @@ Utils::FileName IosRunConfiguration::bundleDirectory() const
                 res.appendPath(QLatin1String("Release-iphonesimulator"));
             break;
         default:
-            qDebug() << "IosBuildStep had an unknown buildType "
+            qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
                      << target()->activeBuildConfiguration()->buildType();
         }
     }
@@ -413,7 +414,7 @@ QStringList IosRunConfigurationWidget::stringToArgList(const QString &args) cons
             res = QtcProcess::splitArgs(args + QLatin1Char('\"'), OsTypeMac, false, &err);
         break;
     case QtcProcess::FoundMeta:
-        qDebug() << "IosRunConfigurationWidget FoundMeta (should not happen)";
+        qCWarning(iosLog) << "IosRunConfigurationWidget FoundMeta (should not happen)";
         break;
     }
     return res;

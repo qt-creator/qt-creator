@@ -52,6 +52,9 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 
 namespace Ios {
+namespace Internal {
+Q_LOGGING_CATEGORY(iosLog, "qtc.ios.common")
+}
 
 IosPlugin::IosPlugin()
 {
