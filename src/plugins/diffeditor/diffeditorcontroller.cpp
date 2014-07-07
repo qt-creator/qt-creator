@@ -137,12 +137,12 @@ void DiffEditorController::setReloader(DiffEditorReloader *reloader)
         return; // nothing changes
 
     if (m_reloader)
-        m_reloader->setDiffEditorController(0);
+        m_reloader->setController(0);
 
     m_reloader = reloader;
 
     if (m_reloader)
-        m_reloader->setDiffEditorController(this);
+        m_reloader->setController(this);
 
     reloaderChanged(m_reloader);
 }

@@ -108,7 +108,7 @@ void SimpleDiffEditorReloader::reload()
     QList<Diff> outputLeftDiffList;
     QList<Diff> outputRightDiffList;
 
-    if (diffEditorController()->isIgnoreWhitespace()) {
+    if (controller()->isIgnoreWhitespace()) {
         const QList<Diff> leftIntermediate =
                 Differ::moveWhitespaceIntoEqualities(leftDiffList);
         const QList<Diff> rightIntermediate =
@@ -125,14 +125,14 @@ void SimpleDiffEditorReloader::reload()
     const ChunkData chunkData = DiffUtils::calculateOriginalData(
                 outputLeftDiffList, outputRightDiffList);
     FileData fileData = DiffUtils::calculateContextData(
-                chunkData, diffEditorController()->contextLinesNumber(), 0);
+                chunkData, controller()->contextLinesNumber(), 0);
     fileData.leftFileInfo.fileName = m_leftFileName;
     fileData.rightFileInfo.fileName = m_rightFileName;
 
     QList<FileData> fileDataList;
     fileDataList << fileData;
 
-    diffEditorController()->setDiffFiles(fileDataList);
+    controller()->setDiffFiles(fileDataList);
 
     reloadFinished();
 }

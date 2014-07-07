@@ -44,12 +44,12 @@ DiffEditorReloader::~DiffEditorReloader()
 
 }
 
-DiffEditorController *DiffEditorReloader::diffEditorController() const
+DiffEditorController *DiffEditorReloader::controller() const
 {
     return m_controller;
 }
 
-void DiffEditorReloader::setDiffEditorController(DiffEditorController *controller)
+void DiffEditorReloader::setController(DiffEditorController *controller)
 {
     if (m_controller == controller)
         return; // nothing changes

@@ -43,7 +43,7 @@ namespace DiffEditor {
 
 DiffEditorDocument::DiffEditorDocument() :
     Core::TextDocument(),
-    m_diffEditorController(new DiffEditorController(this))
+    m_controller(new DiffEditorController(this))
 {
     setId(Constants::DIFF_EDITOR_ID);
     setTemporary(true);
@@ -55,7 +55,7 @@ DiffEditorDocument::~DiffEditorDocument()
 
 DiffEditorController *DiffEditorDocument::controller() const
 {
-    return m_diffEditorController;
+    return m_controller;
 }
 
 bool DiffEditorDocument::setContents(const QByteArray &contents)
@@ -66,10 +66,10 @@ bool DiffEditorDocument::setContents(const QByteArray &contents)
 
 QString DiffEditorDocument::defaultPath() const
 {
-    if (!m_diffEditorController)
+    if (!m_controller)
         return QString();
 
-    return m_diffEditorController->workingDirectory();
+    return m_controller->workingDirectory();
 }
 
 bool DiffEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
@@ -77,10 +77,10 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
 
-    if (!m_diffEditorController)
+    if (!m_controller)
         return false;
 
-    const QString contents = DiffUtils::makePatch(m_diffEditorController->diffFiles());
+    const QString contents = DiffUtils::makePatch(m_controller->diffFiles());
 
     const bool ok = write(fileName, format(), contents, errorString);
 

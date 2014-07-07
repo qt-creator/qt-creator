@@ -58,7 +58,7 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
 private:
-    DiffEditorController *m_diffEditorController;
+    DiffEditorController *m_controller;
 };
 
 } // namespace DiffEditor

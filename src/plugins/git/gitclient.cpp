@@ -104,7 +104,7 @@ class GitDiffHandler : public QObject
     Q_OBJECT
 
 public:
-    GitDiffHandler(DiffEditor::DiffEditorController *editorController,
+    GitDiffHandler(DiffEditor::DiffEditorController *controller,
                    const QString &workingDirectory);
 
     // index -> working tree
@@ -135,7 +135,7 @@ private:
     QProcessEnvironment processEnvironment() const;
     QString gitPath() const;
 
-    QPointer<DiffEditor::DiffEditorController> m_editorController;
+    QPointer<DiffEditor::DiffEditorController> m_controller;
     const QString m_workingDirectory;
     GitClient *m_gitClient;
     const QString m_waitMessage;
@@ -143,9 +143,9 @@ private:
     QString m_id;
 };
 
-GitDiffHandler::GitDiffHandler(DiffEditor::DiffEditorController *editorController,
+GitDiffHandler::GitDiffHandler(DiffEditor::DiffEditorController *controller,
                const QString &workingDirectory)
-    : m_editorController(editorController),
+    : m_controller(controller),
       m_workingDirectory(workingDirectory),
       m_gitClient(GitPlugin::instance()->gitClient()),
       m_waitMessage(tr("Waiting for data..."))
@@ -201,12 +201,12 @@ void GitDiffHandler::show(const QString &id)
 
 void GitDiffHandler::postCollectShowDescription(const QString &id)
 {
-    if (m_editorController.isNull()) {
+    if (m_controller.isNull()) {
         deleteLater();
         return;
     }
 
-    m_editorController->clear(m_waitMessage);
+    m_controller->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(gitPath(),
                                                      m_workingDirectory,
                                                      processEnvironment());
@@ -226,7 +226,7 @@ void GitDiffHandler::postCollectShowDescription(const QString &id)
 
 void GitDiffHandler::slotShowDescriptionReceived(const QString &description)
 {
-    if (m_editorController.isNull()) {
+    if (m_controller.isNull()) {
         deleteLater();
         return;
     }
@@ -234,7 +234,7 @@ void GitDiffHandler::slotShowDescriptionReceived(const QString &description)
     postCollectDiffOutput(QStringList() << m_id + QLatin1Char('^') << m_id);
 
     // need to be called after postCollectDiffOutput(), since it clears the description
-    m_editorController->setDescription(
+    m_controller->setDescription(
                 m_gitClient->extendedShowDescription(m_workingDirectory,
                                                      description));
 }
@@ -243,10 +243,10 @@ void GitDiffHandler::addJob(VcsBase::Command *command, const QStringList &argume
 {
     QStringList args;
     args << QLatin1String("diff");
-    if (m_editorController->isIgnoreWhitespace())
+    if (m_controller->isIgnoreWhitespace())
         args << QLatin1String("--ignore-space-change");
     args << QLatin1String("--unified=") + QString::number(
-                m_editorController->contextLinesNumber());
+                m_controller->contextLinesNumber());
     args << arguments;
     command->addJob(args, timeout());
 }
@@ -258,12 +258,12 @@ void GitDiffHandler::postCollectDiffOutput(const QStringList &arguments)
 
 void GitDiffHandler::postCollectDiffOutput(const QList<QStringList> &argumentsList)
 {
-    if (m_editorController.isNull()) {
+    if (m_controller.isNull()) {
         deleteLater();
         return;
     }
 
-    m_editorController->clear(m_waitMessage);
+    m_controller->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(gitPath(),
                                                      m_workingDirectory,
                                                      processEnvironment());
@@ -280,7 +280,7 @@ void GitDiffHandler::postCollectDiffOutput(const QList<QStringList> &argumentsLi
 
 void GitDiffHandler::slotDiffOutputReceived(const QString &contents)
 {
-    if (m_editorController.isNull()) {
+    if (m_controller.isNull()) {
         deleteLater();
         return;
     }
@@ -288,8 +288,8 @@ void GitDiffHandler::slotDiffOutputReceived(const QString &contents)
     bool ok;
     QList<DiffEditor::FileData> fileDataList
             = DiffEditor::DiffUtils::readPatch(
-                contents, m_editorController->isIgnoreWhitespace(), &ok);
-    m_editorController->setDiffFiles(fileDataList, m_workingDirectory);
+                contents, m_controller->isIgnoreWhitespace(), &ok);
+    m_controller->setDiffFiles(fileDataList, m_workingDirectory);
     deleteLater();
 }
 
@@ -371,7 +371,7 @@ GitDiffEditorReloader::GitDiffEditorReloader(QObject *parent)
 
 void GitDiffEditorReloader::reload()
 {
-    GitDiffHandler *handler = new GitDiffHandler(diffEditorController(),
+    GitDiffHandler *handler = new GitDiffHandler(controller(),
                                                  m_workingDirectory);
     connect(handler, SIGNAL(destroyed()), this, SLOT(reloadFinished()));
 
@@ -798,9 +798,9 @@ void GitClient::slotChunkActionsRequested(QMenu *menu, int diffFileIndex, int ch
 
     m_contextDiffFileIndex = diffFileIndex;
     m_contextChunkIndex = chunkIndex;
-    m_contextDocument = qobject_cast<DiffEditor::DiffEditorController *>(sender());
+    m_contextController = qobject_cast<DiffEditor::DiffEditorController *>(sender());
 
-    if (m_contextDiffFileIndex < 0 || m_contextChunkIndex < 0 || !m_contextDocument) {
+    if (m_contextDiffFileIndex < 0 || m_contextChunkIndex < 0 || !m_contextController) {
         stageChunkAction->setEnabled(false);
         unstageChunkAction->setEnabled(false);
     }
@@ -808,13 +808,13 @@ void GitClient::slotChunkActionsRequested(QMenu *menu, int diffFileIndex, int ch
 
 QString GitClient::makePatch(int diffFileIndex, int chunkIndex, bool revert) const
 {
-    if (m_contextDocument.isNull())
+    if (m_contextController.isNull())
         return QString();
 
     if (diffFileIndex < 0 || chunkIndex < 0)
         return QString();
 
-    QList<DiffEditor::FileData> fileDataList = m_contextDocument->diffFiles();
+    QList<DiffEditor::FileData> fileDataList = m_contextController->diffFiles();
 
     if (diffFileIndex >= fileDataList.count())
         return QString();
@@ -838,7 +838,7 @@ QString GitClient::makePatch(int diffFileIndex, int chunkIndex, bool revert) con
 
 void GitClient::slotStageChunk()
 {
-    if (m_contextDocument.isNull())
+    if (m_contextController.isNull())
         return;
 
     const QString patch = makePatch(m_contextDiffFileIndex,
@@ -851,7 +851,7 @@ void GitClient::slotStageChunk()
 
 void GitClient::slotUnstageChunk()
 {
-    if (m_contextDocument.isNull())
+    if (m_contextController.isNull())
         return;
 
     const QString patch = makePatch(m_contextDiffFileIndex,
@@ -870,7 +870,7 @@ void GitClient::stage(const QString &patch, bool revert)
     if (!patchFile.open())
         return;
 
-    const QString baseDir = m_contextDocument->workingDirectory();
+    const QString baseDir = m_contextController->workingDirectory();
     QTextCodec *codec = EditorManager::defaultTextCodec();
     const QByteArray patchData = codec
             ? codec->fromUnicode(patch) : patch.toLocal8Bit();
@@ -891,7 +891,7 @@ void GitClient::stage(const QString &patch, bool revert)
         } else {
             outwin->append(errorMessage);
         }
-        m_contextDocument->requestReload();
+        m_contextController->requestReload();
     } else {
         outwin->appendError(errorMessage);
     }
@@ -1750,14 +1750,14 @@ void GitClient::branchesForCommit(const QString &revision)
     arguments << QLatin1String("branch") << QLatin1String(noColorOption)
               << QLatin1String("-a") << QLatin1String("--contains") << revision;
 
-    DiffEditor::DiffEditorController *editorController
+    DiffEditor::DiffEditorController *controller
             = qobject_cast<DiffEditor::DiffEditorController *>(sender());
-    QString workingDirectory = editorController->workingDirectory();
+    QString workingDirectory = controller->workingDirectory();
     VcsBase::Command *command = new VcsBase::Command(gitBinaryPath(), workingDirectory,
                                                      processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
 
-    connect(command, SIGNAL(output(QString)), editorController,
+    connect(command, SIGNAL(output(QString)), controller,
             SLOT(branchesForCommitReceived(QString)));
 
     command->addJob(arguments, -1);

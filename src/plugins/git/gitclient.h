@@ -434,7 +434,7 @@ private:
     bool m_disableEditor;
     int m_contextDiffFileIndex;
     int m_contextChunkIndex;
-    QPointer<DiffEditor::DiffEditorController> m_contextDocument;
+    QPointer<DiffEditor::DiffEditorController> m_contextController;
     QFutureSynchronizer<void> m_synchronizer; // for commit updates
 };
 
