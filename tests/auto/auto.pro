@@ -25,6 +25,6 @@ lessThan(QT_MAJOR_VERSION, 5) {
   }
 } else {
   qtHaveModule(declarative) {
-    SUBDIRS += qml
+    SUBDIRS += qml qmlprofiler
   }
 }
