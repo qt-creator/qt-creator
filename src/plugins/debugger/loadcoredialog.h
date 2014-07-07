@@ -64,7 +64,7 @@ public:
     void setLocalCoreFile(const QString &core);
     void setRemoteCoreFile(const QString &core);
     void setOverrideStartScript(const QString &scriptName);
-    void setKitId(const Core::Id &id);
+    void setKitId(Core::Id id);
     void setForceLocalCoreFile(bool on);
 
 private slots:

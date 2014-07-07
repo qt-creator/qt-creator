@@ -120,7 +120,7 @@ private slots:
 
 protected:
     QmakeBuildConfiguration(ProjectExplorer::Target *target, QmakeBuildConfiguration *source);
-    QmakeBuildConfiguration(ProjectExplorer::Target *target, const Core::Id id);
+    QmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
     virtual bool fromMap(const QVariantMap &map);
 
 private:

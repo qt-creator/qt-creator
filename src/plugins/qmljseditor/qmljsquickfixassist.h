@@ -78,7 +78,7 @@ public:
     ~QmlJSQuickFixAssistProvider();
 
     bool isAsynchronous() const QTC_OVERRIDE;
-    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const QTC_OVERRIDE;
     TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
     QList<TextEditor::QuickFixFactory *> quickFixFactories() const QTC_OVERRIDE;

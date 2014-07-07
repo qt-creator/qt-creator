@@ -683,7 +683,7 @@ class Dumper(DumperBase):
             # and later detects that it did stop after all, so it is be
             # better to mirror that and wait for the spontaneous stop.
             self.reportState("enginerunandinferiorrunok")
-        elif self.startMode_ == AttachToRemoteServer:
+        elif self.startMode_ == AttachToRemoteServer or self.startMode_ == AttachToRemoteProcess:
             self.process = self.target.ConnectRemote(
                 self.debugger.GetListener(),
                 self.remoteChannel_, None, error)

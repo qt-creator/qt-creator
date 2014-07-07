@@ -145,7 +145,7 @@ int AbstractTimelineModel::rowOffset(int rowNumber) const
     if (d->rowOffsets.size() >= rowNumber)
         return d->rowOffsets[rowNumber - 1];
     if (!d->rowOffsets.empty())
-        return d->rowOffsets.last() + (rowNumber - 1 - d->rowOffsets.size()) * DefaultRowHeight;
+        return d->rowOffsets.last() + (rowNumber - d->rowOffsets.size()) * DefaultRowHeight;
     return rowNumber * DefaultRowHeight;
 }
 

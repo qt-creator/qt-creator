@@ -31,7 +31,6 @@
 #include "qmljscontext.h"
 #include "qmljsscopechain.h"
 #include "parser/qmljsast_p.h"
-#include <QDebug>
 
 using namespace QmlJS;
 

@@ -279,7 +279,7 @@ ProFileCompletionAssistProvider::~ProFileCompletionAssistProvider()
 {
 }
 
-bool ProFileCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
+bool ProFileCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == QmakeProjectManager::Constants::PROFILE_EDITOR_ID;
 }

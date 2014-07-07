@@ -36,7 +36,6 @@
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <cplusplus/CppDocument.h>
 
-#include <QDebug>
 #include <QList>
 
 //using namespace QmlJS;

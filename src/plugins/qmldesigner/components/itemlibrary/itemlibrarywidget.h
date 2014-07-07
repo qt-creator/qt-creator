@@ -96,8 +96,7 @@ public slots:
 
     void setResourcePath(const QString &resourcePath);
 
-    void startDragAndDropDelayed(QVariant itemLibId);
-    void startDragAndDrop();
+    void startDragAndDrop(QVariant itemLibId);
 
     void setModel(Model *model);
 

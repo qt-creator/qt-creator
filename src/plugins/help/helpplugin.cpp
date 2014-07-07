@@ -95,11 +95,11 @@
 
 using namespace Help::Internal;
 
-const char SB_INDEX[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Index");
-const char SB_CONTENTS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Contents");
-const char SB_BOOKMARKS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Bookmarks");
+static const char SB_INDEX[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Index");
+static const char SB_CONTENTS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Contents");
+static const char SB_BOOKMARKS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Bookmarks");
 
-const char SB_OPENPAGES[] = "OpenPages";
+static const char SB_OPENPAGES[] = "OpenPages";
 
 static const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
 
@@ -238,7 +238,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP, globalcontext);
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
-    connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
+    connect(action, SIGNAL(triggered()), this, SLOT(showContextHelp()));
 
     action = new QAction(tr("Technical Support"), this);
     cmd = ActionManager::registerAction(action, "Help.TechSupport", globalcontext);
@@ -762,7 +762,7 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
     return source;
 }
 
-void HelpPlugin::activateContext()
+void HelpPlugin::showContextHelp()
 {
     if (ModeManager::currentMode() == m_mode)
         return;

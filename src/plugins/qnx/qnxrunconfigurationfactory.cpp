@@ -43,7 +43,7 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-static QString pathFromId(const Core::Id id)
+static QString pathFromId(Core::Id id)
 {
     return id.suffixAfter(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
 }
@@ -71,7 +71,7 @@ QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer
                                      nodes);
 }
 
-QString QnxRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString QnxRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     const QString path = pathFromId(id);
     if (path.isEmpty())
@@ -83,7 +83,7 @@ QString QnxRunConfigurationFactory::displayNameForId(const Core::Id id) const
     return QString();
 }
 
-bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
+bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, Core::Id id) const
 {
     if (!canHandle(parent) || !id.name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX))
         return false;
@@ -95,7 +95,7 @@ bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, cons
     return qt4Project->hasApplicationProFile(pathFromId(id));
 }
 
-ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id)
+ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, Core::Id id)
 {
     return new QnxRunConfiguration(parent, id, pathFromId(id));
 }

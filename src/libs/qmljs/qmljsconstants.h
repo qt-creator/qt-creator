@@ -29,6 +29,9 @@
 
 #ifndef QMLJSCONSTANTS_H
 #define QMLJSCONSTANTS_H
+#include "qmljs_global.h"
+
+#include <utils/logging.h>
 
 namespace QmlJS {
 
@@ -68,7 +71,7 @@ enum Enum
 namespace Language {
 enum Enum
 {
-    Unknown = 0,
+    NoLanguage = 0,
     JavaScript = 1,
     Json = 2,
     Qml = 3,
@@ -76,7 +79,8 @@ enum Enum
     QmlQtQuick2 = 5,
     QmlQbs = 6,
     QmlProject = 7,
-    QmlTypeInfo = 8
+    QmlTypeInfo = 8,
+    AnyLanguage = 9,
 };
 }
 
@@ -86,5 +90,8 @@ const char TASK_INDEX[] = "QmlJSEditor.TaskIndex";
 const char TASK_IMPORT_SCAN[] = "QmlJSEditor.TaskImportScan";
 
 } // namespace Constants
+
+QMLJS_EXPORT Q_DECLARE_LOGGING_CATEGORY(qmljsLog)
+
 } // namespace QmlJS
 #endif // QMLJSCONSTANTS_H

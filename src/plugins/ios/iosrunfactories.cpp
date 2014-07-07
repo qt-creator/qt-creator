@@ -57,7 +57,7 @@ namespace Internal {
 #define IOS_PREFIX "Qt4ProjectManager.IosRunConfiguration"
 #define IOS_RC_ID_PREFIX IOS_PREFIX ":"
 
-static QString pathFromId(const Core::Id id)
+static QString pathFromId(Core::Id id)
 {
     QString pathStr = id.toString();
     const QString prefix = QLatin1String(IOS_RC_ID_PREFIX);
@@ -72,7 +72,7 @@ IosRunConfigurationFactory::IosRunConfigurationFactory(QObject *parent)
     setObjectName(QLatin1String("IosRunConfigurationFactory"));
 }
 
-bool IosRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool IosRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -108,7 +108,7 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent,
     return QmakeProject::idsForNodes(baseId, nodes);
 }
 
-QString IosRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString IosRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return QFileInfo(pathFromId(id)).completeBaseName();
 }
@@ -139,7 +139,7 @@ QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(T
     return result;
 }
 
-RunConfiguration *IosRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
+RunConfiguration *IosRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     return new IosRunConfiguration(parent, id, pathFromId(id));
 }

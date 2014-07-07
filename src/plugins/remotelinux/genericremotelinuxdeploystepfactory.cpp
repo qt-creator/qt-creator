@@ -57,7 +57,7 @@ QList<Core::Id> GenericRemoteLinuxDeployStepFactory::availableCreationIds(BuildS
     return ids;
 }
 
-QString GenericRemoteLinuxDeployStepFactory::displayNameForId(const Core::Id id) const
+QString GenericRemoteLinuxDeployStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == TarPackageCreationStep::stepId())
         return TarPackageCreationStep::displayName();
@@ -72,12 +72,12 @@ QString GenericRemoteLinuxDeployStepFactory::displayNameForId(const Core::Id id)
     return QString();
 }
 
-bool GenericRemoteLinuxDeployStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool GenericRemoteLinuxDeployStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-BuildStep *GenericRemoteLinuxDeployStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *GenericRemoteLinuxDeployStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
 

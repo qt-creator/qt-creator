@@ -59,7 +59,6 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     QString defaultPath() const;
     QString suggestedFileName() const;
-    QString mimeType() const;
 
     // Internal
     void setSuggestedFileName(const QString &fileName);
@@ -83,8 +82,6 @@ private slots:
     void slotFormWindowRemoved(QDesignerFormWindowInterface *w);
 
 private:
-    const QString m_mimeType;
-
     QString m_suggestedName;
     bool m_shouldAutoSave;
     // Might actually go out of scope before the IEditor due

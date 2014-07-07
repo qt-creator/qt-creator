@@ -46,6 +46,7 @@ public:
     void accept(Core::LocatorFilterEntry selection) const;
 
 protected:
+    // runs in non-UI thread
     virtual void updateFiles();
     void generateFileNames();
 

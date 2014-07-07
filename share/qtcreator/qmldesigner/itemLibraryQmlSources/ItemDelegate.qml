@@ -78,7 +78,7 @@ Rectangle {
         property int pressedY
 
         onPressed: {
-            rootView.startDragAndDropDelayed(itemLibraryEntry)
+            rootView.startDragAndDrop(itemLibraryEntry)
         }
     }
 }

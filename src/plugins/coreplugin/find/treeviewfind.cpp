@@ -83,7 +83,7 @@ void TreeViewFind::resetIncrementalSearch()
     d->m_incrementalWrappedState = false;
 }
 
-void TreeViewFind::clearResults()
+void TreeViewFind::clearHighlights()
 {
 }
 

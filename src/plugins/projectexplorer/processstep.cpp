@@ -172,13 +172,13 @@ ProcessStepFactory::~ProcessStepFactory()
 {
 }
 
-bool ProcessStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool ProcessStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     Q_UNUSED(parent);
     return id == PROCESS_STEP_ID;
 }
 
-BuildStep *ProcessStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *ProcessStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -220,7 +220,7 @@ QList<Core::Id> ProcessStepFactory::availableCreationIds(BuildStepList *parent) 
     Q_UNUSED(parent);
     return QList<Core::Id>() << Core::Id(PROCESS_STEP_ID);
 }
-QString ProcessStepFactory::displayNameForId(const Core::Id id) const
+QString ProcessStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == PROCESS_STEP_ID)
         return ProcessStep::tr("Custom Process Step", "item in combobox");

@@ -34,7 +34,7 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-QnxDeployConfiguration::QnxDeployConfiguration(ProjectExplorer::Target *target, const Core::Id id, const QString &defaultDisplayName)
+QnxDeployConfiguration::QnxDeployConfiguration(ProjectExplorer::Target *target, Core::Id id, const QString &defaultDisplayName)
     : RemoteLinux::RemoteLinuxDeployConfiguration(target, id, defaultDisplayName)
 {
 }

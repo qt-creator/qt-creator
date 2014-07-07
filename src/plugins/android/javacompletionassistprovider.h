@@ -46,7 +46,7 @@ public:
 
     void init() const;
 
-    bool supportsEditor(const Core::Id &editorId) const;
+    bool supportsEditor(Core::Id editorId) const;
     TextEditor::IAssistProcessor *createProcessor() const;
 
 private:

@@ -59,7 +59,6 @@ HEADERS += projectexplorer.h \
     projectexplorersettings.h \
     corelistenercheckingforrunningbuild.h \
     project.h \
-    pluginfilefactory.h \
     iprojectmanager.h \
     currentprojectfilter.h \
     allprojectsfind.h \
@@ -203,7 +202,6 @@ SOURCES += projectexplorer.cpp \
     currentprojectfilter.cpp \
     allprojectsfind.cpp \
     project.cpp \
-    pluginfilefactory.cpp \
     buildstep.cpp \
     buildconfiguration.cpp \
     buildsettingspropertiespage.cpp \

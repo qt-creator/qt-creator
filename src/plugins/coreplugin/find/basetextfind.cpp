@@ -133,7 +133,7 @@ void BaseTextFind::resetIncrementalSearch()
     d->m_incrementalWrappedState = false;
 }
 
-void BaseTextFind::clearResults()
+void BaseTextFind::clearHighlights()
 {
     emit highlightAll(QString(), 0);
 }

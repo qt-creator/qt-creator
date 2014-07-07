@@ -4484,7 +4484,7 @@ void BaseTextEditorWidget::dragEnterEvent(QDragEnterEvent *e)
     QPlainTextEdit::dragEnterEvent(e);
 }
 
-static void appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContextId)
+static void appendMenuActionsFromContext(QMenu *menu, Core::Id menuContextId)
 {
     Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(menuContextId);
     QMenu *contextMenu = mcontext->menu();
@@ -4493,7 +4493,7 @@ static void appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContext
         menu->addAction(action);
 }
 
-void BaseTextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, const Core::Id menuContextId)
+void BaseTextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, Core::Id menuContextId)
 {
     QMenu menu;
     appendMenuActionsFromContext(&menu, menuContextId);

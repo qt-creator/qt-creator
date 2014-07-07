@@ -526,7 +526,7 @@ Kit *AttachToQmlPortDialog::kit() const
     return d->kitChooser->currentKit();
 }
 
-void AttachToQmlPortDialog::setKitId(const Id &id)
+void AttachToQmlPortDialog::setKitId(Id id)
 {
     d->kitChooser->setCurrentKitId(id);
 }

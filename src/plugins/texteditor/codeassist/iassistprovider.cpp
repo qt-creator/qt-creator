@@ -56,7 +56,7 @@ using namespace TextEditor;
 */
 
 /*!
-    \fn bool TextEditor::IAssistProvider::supportsEditor(const Core::Id &editorId) const
+    \fn bool TextEditor::IAssistProvider::supportsEditor(Core::Id editorId) const
 
     Returns whether this provider supports the editor which has the \a editorId.
 */

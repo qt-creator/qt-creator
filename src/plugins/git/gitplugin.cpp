@@ -180,7 +180,7 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
 ParameterActionCommandPair
         GitPlugin::createParameterAction(Core::ActionContainer *ac,
                                          const QString &defaultText, const QString &parameterText,
-                                         const Core::Id &id, const Core::Context &context,
+                                         Core::Id id, const Core::Context &context,
                                          bool addToLocator)
 {
     Utils::ParameterAction *action = new Utils::ParameterAction(defaultText, parameterText,
@@ -198,7 +198,7 @@ ParameterActionCommandPair
 ParameterActionCommandPair
         GitPlugin::createFileAction(Core::ActionContainer *ac,
                                     const QString &defaultText, const QString &parameterText,
-                                    const Core::Id &id, const Core::Context &context, bool addToLocator,
+                                    Core::Id id, const Core::Context &context, bool addToLocator,
                                     const char *pluginSlot)
 {
     const ParameterActionCommandPair rc = createParameterAction(ac, defaultText, parameterText, id, context, addToLocator);
@@ -211,7 +211,7 @@ ParameterActionCommandPair
 ParameterActionCommandPair
         GitPlugin::createProjectAction(Core::ActionContainer *ac,
                                        const QString &defaultText, const QString &parameterText,
-                                       const Core::Id &id, const Core::Context &context, bool addToLocator,
+                                       Core::Id id, const Core::Context &context, bool addToLocator,
                                        const char *pluginSlot)
 {
     const ParameterActionCommandPair rc = createParameterAction(ac, defaultText, parameterText, id, context, addToLocator);
@@ -223,7 +223,7 @@ ParameterActionCommandPair
 // Create an action to act on the repository
 ActionCommandPair
         GitPlugin::createRepositoryAction(Core::ActionContainer *ac,
-                                          const QString &text, const Core::Id &id,
+                                          const QString &text, Core::Id id,
                                           const Core::Context &context, bool addToLocator)
 {
     QAction  *action = new QAction(text, this);
@@ -239,7 +239,7 @@ ActionCommandPair
 // Create an action to act on the repository with slot
 ActionCommandPair
         GitPlugin::createRepositoryAction(Core::ActionContainer *ac,
-                                          const QString &text, const Core::Id &id,
+                                          const QString &text, Core::Id id,
                                           const Core::Context &context, bool addToLocator,
                                           const char *pluginSlot)
 {
@@ -253,7 +253,7 @@ ActionCommandPair
 // taking the directory. Store the member function as data on the action.
 ActionCommandPair
         GitPlugin::createRepositoryAction(Core::ActionContainer *ac,
-                                          const QString &text, const Core::Id &id,
+                                          const QString &text, Core::Id id,
                                           const Core::Context &context, bool addToLocator,
                                           GitClientMemberFunc func)
 {

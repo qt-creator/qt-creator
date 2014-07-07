@@ -428,8 +428,8 @@ void DesignModeWidget::setup()
     viewManager().enableWidgets();
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
-    m_leftSideBar->setCloseWhenEmpty(true);
-    m_rightSideBar->setCloseWhenEmpty(true);
+    m_leftSideBar->setCloseWhenEmpty(false);
+    m_rightSideBar->setCloseWhenEmpty(false);
 
     readSettings();
 
@@ -498,8 +498,10 @@ ViewManager &DesignModeWidget::viewManager()
 
 void DesignModeWidget::resizeEvent(QResizeEvent *event)
 {
-    if (m_warningWidget)
-        m_warningWidget->move(QPoint(event->size().width() / 2, event->size().height() / 2));
+    if (m_warningWidget) {
+        QPoint warningWidgetCenterPoint = m_warningWidget->rect().center();
+        m_warningWidget->move(QPoint(event->size().width() / 2, event->size().height() / 2) - warningWidgetCenterPoint);
+    }
     QWidget::resizeEvent(event);
 }
 

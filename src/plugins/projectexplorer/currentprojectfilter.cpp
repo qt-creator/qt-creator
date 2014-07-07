@@ -57,17 +57,22 @@ void CurrentProjectFilter::markFilesAsOutOfDate()
     m_filesUpToDate = false;
 }
 
-void CurrentProjectFilter::updateFiles()
+void CurrentProjectFilter::updateFilesImpl()
 {
     if (m_filesUpToDate)
         return;
-    m_filesUpToDate = true;
     files().clear();
     if (!m_project)
         return;
     files() = m_project->files(Project::AllFiles);
     Utils::sort(files());
     generateFileNames();
+    m_filesUpToDate = true;
+}
+
+void CurrentProjectFilter::updateFiles()
+{
+    QMetaObject::invokeMethod(this, "updateFilesImpl", Qt::BlockingQueuedConnection);
 }
 
 void CurrentProjectFilter::currentProjectChanged(ProjectExplorer::Project *project)

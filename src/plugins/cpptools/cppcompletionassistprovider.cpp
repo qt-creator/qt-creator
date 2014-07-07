@@ -41,7 +41,7 @@ using namespace CppTools;
 // ---------------------------
 // CppCompletionAssistProvider
 // ---------------------------
-bool CppCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
+bool CppCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == CppEditor::Constants::CPPEDITOR_ID;
 }

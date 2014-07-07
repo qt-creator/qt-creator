@@ -311,6 +311,11 @@ ICore *ICore::instance()
     return m_instance;
 }
 
+bool ICore::isNewItemDialogRunning()
+{
+    return m_mainwindow->isNewItemDialogRunning();
+}
+
 ICore::ICore(MainWindow *mainwindow)
 {
     m_instance = this;
@@ -318,6 +323,8 @@ ICore::ICore(MainWindow *mainwindow)
     // Save settings once after all plugins are initialized:
     connect(ExtensionSystem::PluginManager::instance(), SIGNAL(initializationDone()),
             this, SLOT(saveSettings()));
+    connect(m_mainwindow, SIGNAL(newItemDialogRunningChanged()),
+            this, SIGNAL(newItemDialogRunningChanged()));
 }
 
 ICore::~ICore()

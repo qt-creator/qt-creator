@@ -42,7 +42,7 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-static QString pathFromId(const Core::Id id)
+static QString pathFromId(Core::Id id)
 {
     return id.suffixAfter(Constants::QNX_BB_RUNCONFIGURATION_PREFIX);
 }
@@ -69,7 +69,7 @@ QList<Core::Id> BlackBerryRunConfigurationFactory::availableCreationIds(ProjectE
                                      nodes);
 }
 
-QString BlackBerryRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString BlackBerryRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     const QString path = pathFromId(id);
     if (path.isEmpty())
@@ -81,7 +81,7 @@ QString BlackBerryRunConfigurationFactory::displayNameForId(const Core::Id id) c
     return QString();
 }
 
-bool BlackBerryRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
+bool BlackBerryRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;

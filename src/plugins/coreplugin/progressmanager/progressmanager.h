@@ -60,7 +60,7 @@ public:
     static void setApplicationLabel(const QString &text);
 
 public slots:
-    static void cancelTasks(const Core::Id type);
+    static void cancelTasks(Id type);
 
 signals:
     void taskStarted(Core::Id type);

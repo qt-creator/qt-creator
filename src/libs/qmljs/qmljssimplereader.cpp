@@ -33,16 +33,14 @@
 #include "parser/qmljslexer_p.h"
 #include "parser/qmljsengine_p.h"
 
+#include <utils/logging.h>
+
 #include "qmljsutils.h"
 
 #include <QFile>
 
-enum {
-    debug = false
-};
-
-
-using namespace QmlJS;
+namespace QmlJS{
+Q_LOGGING_CATEGORY(simpleReaderLog, "qtc.qmljs.simpleReader")
 
 QVariant SimpleReaderNode::property(const QString &name) const
 {
@@ -304,8 +302,7 @@ SimpleReaderNode::Ptr SimpleReader::readFromSource(const QString &source)
 
 void SimpleReader::elementStart(const QString &name)
 {
-    if (debug)
-        qDebug() << "SimpleReader::elementStart()" << name;
+    qCDebug(simpleReaderLog) << "elementStart()" << name;
 
     SimpleReaderNode::Ptr newNode = SimpleReaderNode::create(name, m_currentNode);
 
@@ -321,8 +318,7 @@ void SimpleReader::elementEnd()
 {
     Q_ASSERT(m_currentNode);
 
-    if (debug)
-        qDebug() << "SimpleReader::elementEnd()" << m_currentNode.data()->name();
+    qCDebug(simpleReaderLog) << "elementEnd()" << m_currentNode.data()->name();
 
     m_currentNode = m_currentNode.data()->parent();
 }
@@ -331,11 +327,12 @@ void SimpleReader::propertyDefinition(const QString &name, const QVariant &value
 {
     Q_ASSERT(m_currentNode);
 
-    if (debug)
-        qDebug() << "SimpleReader::propertyDefinition()" << m_currentNode.data()->name() << name << value;
+    qCDebug(simpleReaderLog) << "propertyDefinition()" << m_currentNode.data()->name() << name << value;
 
     if (m_currentNode.data()->propertyNames().contains(name))
         addError(tr("Property is defined twice."), currentSourceLocation());
 
     m_currentNode.data()->setProperty(name, value);
 }
+
+} // namespace QmlJS

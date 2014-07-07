@@ -31,15 +31,19 @@
 #include "ui_newdialog.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
-#include <QModelIndex>
 #include <QAbstractProxyModel>
-#include <QSortFilterProxyModel>
-#include <QPushButton>
-#include <QStandardItem>
-#include <QItemDelegate>
-#include <QPainter>
 #include <QDebug>
+#include <QItemDelegate>
+#include <QKeyEvent>
+#include <QModelIndex>
+#include <QPainter>
+#include <QPushButton>
+#include <QSortFilterProxyModel>
+#include <QStandardItem>
 
 Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
@@ -183,12 +187,16 @@ Q_DECLARE_METATYPE(WizardFactoryContainer)
 using namespace Core;
 using namespace Core::Internal;
 
+QString NewDialog::m_lastCategory = QString();
+
 NewDialog::NewDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Core::Internal::Ui::NewDialog),
     m_okButton(0)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+    setAttribute(Qt::WA_DeleteOnClose);
     m_ui->setupUi(this);
     QPalette p = m_ui->frame->palette();
     p.setColor(QPalette::Window, p.color(QPalette::Base));
@@ -236,8 +244,12 @@ static bool wizardFactoryLessThan(const IWizardFactory *f1, const IWizardFactory
     return f1->id().compare(f2->id()) < 0;
 }
 
-void NewDialog::setWizardFactories(QList<IWizardFactory*> factories)
+void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
+                                   const QString &defaultLocation,
+                                   const QVariantMap &extraVariables)
 {
+    m_defaultLocation = defaultLocation;
+    m_extraVariables = extraVariables;
     qStableSort(factories.begin(), factories.end(), wizardFactoryLessThan);
 
     m_model->clear();
@@ -287,14 +299,13 @@ void NewDialog::setWizardFactories(QList<IWizardFactory*> factories)
         parentItem->removeRow(0);
 }
 
-Core::IWizardFactory *NewDialog::showDialog()
+void NewDialog::showDialog()
 {
-    static QString lastCategory;
     QModelIndex idx;
 
-    if (!lastCategory.isEmpty())
+    if (!m_lastCategory.isEmpty())
         foreach (QStandardItem* item, m_categoryItems) {
-            if (item->data(Qt::UserRole) == lastCategory)
+            if (item->data(Qt::UserRole) == m_lastCategory)
                 idx = m_twoLevelProxyModel->mapToSource(m_model->indexFromItem(item));
     }
     if (!idx.isValid())
@@ -312,18 +323,7 @@ Core::IWizardFactory *NewDialog::showDialog()
     currentItemChanged(m_ui->templatesView->rootIndex().child(0,0));
 
     updateOkButton();
-
-    const int retVal = exec();
-
-    idx = m_ui->templateCategoryView->currentIndex();
-    QStandardItem *currentItem = m_model->itemFromIndex(m_twoLevelProxyModel->mapToSource(idx));
-    if (currentItem)
-        lastCategory = currentItem->data(Qt::UserRole).toString();
-
-    if (retVal != Accepted)
-        return 0;
-
-    return currentWizardFactory();
+    show();
 }
 
 QString NewDialog::selectedPlatform() const
@@ -331,6 +331,18 @@ QString NewDialog::selectedPlatform() const
     int index = m_ui->comboBox->currentIndex();
 
     return m_ui->comboBox->itemData(index).toString();
+}
+
+bool NewDialog::event(QEvent *event)
+{
+    if (event->type() == QEvent::ShortcutOverride) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+            ke->accept();
+            return true;
+        }
+    }
+    return QDialog::event(event);
 }
 
 NewDialog::~NewDialog()
@@ -422,10 +434,48 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
     updateOkButton();
 }
 
+void NewDialog::saveState()
+{
+    QModelIndex idx = m_ui->templateCategoryView->currentIndex();
+    QStandardItem *currentItem = m_model->itemFromIndex(m_twoLevelProxyModel->mapToSource(idx));
+    if (currentItem)
+        m_lastCategory = currentItem->data(Qt::UserRole).toString();
+}
+
 void NewDialog::okButtonClicked()
 {
-    if (m_ui->templatesView->currentIndex().isValid())
-        accept();
+    if (m_ui->templatesView->currentIndex().isValid()) {
+        hide();
+        saveState();
+
+        IWizardFactory *wizard = currentWizardFactory();
+        QTC_ASSERT(wizard, accept(); return);
+        QString path = m_defaultLocation;
+        if (path.isEmpty()) {
+            switch (wizard->kind()) {
+            case IWizardFactory::ProjectWizard:
+                // Project wizards: Check for projects directory or
+                // use last visited directory of file dialog. Never start
+                // at current.
+                path = DocumentManager::useProjectsDirectory() ?
+                           DocumentManager::projectsDirectory() :
+                           DocumentManager::fileDialogLastVisitedDirectory();
+                break;
+            default:
+                path = DocumentManager::fileDialogInitialDirectory();
+                break;
+            }
+        }
+        wizard->runWizard(path, ICore::dialogParent(), selectedPlatform(), m_extraVariables);
+
+        close();
+    }
+}
+
+void NewDialog::reject()
+{
+    saveState();
+    QDialog::reject();
 }
 
 void NewDialog::updateOkButton()

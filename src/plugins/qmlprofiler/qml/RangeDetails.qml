@@ -68,8 +68,10 @@ Item {
         rangeDetails.dialogTitle = eventData[0]["title"];
         for (var i = 1; i < eventData.length; i++) {
             for (var k in eventData[i]) {
-                eventInfo.append({"content" : k});
-                eventInfo.append({"content" : eventData[i][k]})
+                if (eventData[i][k].length > 0) {
+                    eventInfo.append({"content" : k});
+                    eventInfo.append({"content" : eventData[i][k]});
+                }
             }
         }
         rangeDetails.visible = true;

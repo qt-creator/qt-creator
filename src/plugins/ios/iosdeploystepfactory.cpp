@@ -61,19 +61,19 @@ QList<Core::Id> IosDeployStepFactory::availableCreationIds(BuildStepList *parent
     return QList<Core::Id>() << IosDeployStep::Id;
 }
 
-QString IosDeployStepFactory::displayNameForId(const Core::Id id) const
+QString IosDeployStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == IosDeployStep::Id)
         return tr("Deploy to iOS device or emulator");
     return QString();
 }
 
-bool IosDeployStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool IosDeployStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-BuildStep *IosDeployStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *IosDeployStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
     Q_UNUSED(id);

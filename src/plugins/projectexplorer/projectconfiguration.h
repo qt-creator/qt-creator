@@ -67,7 +67,7 @@ signals:
     void displayNameChanged();
 
 protected:
-    ProjectConfiguration(QObject *parent, const Core::Id &id);
+    ProjectConfiguration(QObject *parent, Core::Id id);
     ProjectConfiguration(QObject *parent, const ProjectConfiguration *source);
 
 private:

@@ -92,6 +92,7 @@ SOURCES += mainwindow.cpp \
     fileutils.cpp \
     featureprovider.cpp \
     idocument.cpp \
+    idocumentfactory.cpp \
     textdocument.cpp \
     documentmanager.cpp \
     removefiledialog.cpp \

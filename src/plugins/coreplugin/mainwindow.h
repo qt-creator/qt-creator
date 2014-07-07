@@ -32,6 +32,7 @@
 
 #include "icontext.h"
 #include "icore.h"
+#include "dialogs/newdialog.h"
 
 #include <utils/appmainwindow.h>
 
@@ -107,8 +108,12 @@ public:
     void setOverrideColor(const QColor &color);
 
     void setIsFullScreen(bool fullScreen);
+
+    bool isNewItemDialogRunning() const;
+
 signals:
     void windowActivated();
+    void newItemDialogRunningChanged();
 
 public slots:
     void newFile();
@@ -148,6 +153,7 @@ private slots:
     void destroyVersionDialog();
     void openDelayedFiles();
     void restoreWindowState();
+    void newItemDialogFinished();
 
 private:
     void updateContextObject(const QList<IContext *> &context);
@@ -179,6 +185,7 @@ private:
     RightPaneWidget *m_rightPaneWidget;
     Core::StatusBarWidget *m_outputView;
     VersionDialog *m_versionDialog;
+    QPointer<NewDialog> m_newDialog;
 
     QList<IContext *> m_activeContext;
 

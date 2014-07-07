@@ -45,7 +45,7 @@ public:
     CMakeFileCompletionAssistProvider(CMakeSettingsPage *settingsPage);
     ~CMakeFileCompletionAssistProvider();
 
-    bool supportsEditor(const Core::Id &editorId) const;
+    bool supportsEditor(Core::Id editorId) const;
     TextEditor::IAssistProcessor *createProcessor() const;
 
 private:

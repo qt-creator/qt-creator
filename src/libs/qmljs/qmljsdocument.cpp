@@ -97,6 +97,7 @@ bool Document::isQmlLikeLanguage(Language::Enum language)
     case Language::QmlQbs:
     case Language::QmlProject:
     case Language::QmlTypeInfo:
+    case Language::AnyLanguage:
         return true;
     default:
         return false;
@@ -112,7 +113,8 @@ bool Document::isFullySupportedLanguage(Language::Enum language)
     case Language::QmlQtQuick1:
     case Language::QmlQtQuick2:
         return true;
-    case Language::Unknown:
+    case Language::NoLanguage:
+    case Language::AnyLanguage:
     case Language::QmlQbs:
     case Language::QmlProject:
     case Language::QmlTypeInfo:
@@ -131,6 +133,7 @@ bool Document::isQmlLikeOrJsLanguage(Language::Enum language)
     case Language::QmlProject:
     case Language::QmlTypeInfo:
     case Language::JavaScript:
+    case Language::AnyLanguage:
         return true;
     default:
         return false;
@@ -157,12 +160,16 @@ QList<Language::Enum> Document::companionLanguages(Language::Enum language)
     case Language::QmlQtQuick2:
         langs << Language::Qml << Language::JavaScript;
         break;
-    case Language::Unknown:
+    case Language::AnyLanguage:
         langs << Language::JavaScript << Language::Json << Language::QmlProject << Language:: QmlQbs
               << Language::QmlTypeInfo << Language::QmlQtQuick1 << Language::QmlQtQuick2
               << Language::Qml;
         break;
+    case Language::NoLanguage:
+        return QList<Language::Enum>(); // return at least itself?
     }
+    if (language != Language::AnyLanguage)
+        langs << Language::AnyLanguage;
     return langs;
 }
 
@@ -531,7 +538,7 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
     if (!info.wasFound()) return;
     CoreImport cImport;
     cImport.importId = path;
-    cImport.language = Language::Unknown;
+    cImport.language = Language::AnyLanguage;
     QSet<ImportKey> packages;
     foreach (const ModuleApiInfo &moduleInfo, info.moduleApis()) {
         ImportKey iKey(ImportType::Library, moduleInfo.uri, moduleInfo.version.majorVersion(),

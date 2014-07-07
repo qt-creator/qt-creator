@@ -45,7 +45,7 @@ public:
     CurrentDocumentFind();
 
     void resetIncrementalSearch();
-    void clearResults();
+    void clearHighlights();
     bool supportsReplace() const;
     FindFlags supportedFindFlags() const;
     QString currentFindString() const;

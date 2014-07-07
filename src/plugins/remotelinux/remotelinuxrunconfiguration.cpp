@@ -81,7 +81,7 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, const Core::Id id,
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, Core::Id id,
         const QString &proFilePath)
     : AbstractRemoteLinuxRunConfiguration(parent, id),
       d(new RemoteLinuxRunConfigurationPrivate(proFilePath))

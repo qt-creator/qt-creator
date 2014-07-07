@@ -52,7 +52,6 @@ public:
     QString suggestedFileName() const { return QString(); }
 
     bool isModified() const { return false; }
-    QString mimeType() const;
     bool isSaveAsAllowed() const { return false; }
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;

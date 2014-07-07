@@ -47,7 +47,7 @@ public:
     IAssistProvider() {}
 
     virtual bool isAsynchronous() const = 0;
-    virtual bool supportsEditor(const Core::Id &editorId) const = 0;
+    virtual bool supportsEditor(Core::Id editorId) const = 0;
     virtual IAssistProcessor *createProcessor() const = 0;
 };
 

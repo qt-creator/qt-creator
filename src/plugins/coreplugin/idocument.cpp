@@ -142,6 +142,14 @@ void IDocument::setTemporary(bool temporary)
     m_temporary = temporary;
 }
 
+void IDocument::setMimeType(const QString &mimeType)
+{
+    if (m_mimeType != mimeType) {
+        m_mimeType = mimeType;
+        emit mimeTypeChanged();
+    }
+}
+
 bool IDocument::autoSave(QString *errorString, const QString &fileName)
 {
     if (!save(errorString, fileName, true))

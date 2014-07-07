@@ -42,11 +42,11 @@ public:
     explicit IosDeployStepFactory(QObject *parent = 0);
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const QTC_OVERRIDE;
-    QString displayNameForId(const Core::Id id) const QTC_OVERRIDE;
+    QString displayNameForId(Core::Id id) const QTC_OVERRIDE;
 
     bool canCreate(ProjectExplorer::BuildStepList *parent,
                    const Core::Id id) const QTC_OVERRIDE;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id) QTC_OVERRIDE;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) QTC_OVERRIDE;
 
     bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const QTC_OVERRIDE;
     ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) QTC_OVERRIDE;

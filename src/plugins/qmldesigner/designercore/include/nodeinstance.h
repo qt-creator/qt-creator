@@ -86,10 +86,12 @@ public:
     qint32 parentId() const;
     qint32 instanceId() const;
 
-    void setUpdateTransform(bool updateTransform);
-    bool updateTransform() const;
+    void setDirectUpdate(bool directUpdates);
+    bool directUpdates() const;
     void setX(double x);
     void setY(double y);
+
+    bool hasAnchors() const;
 
 protected:
     void setProperty(const PropertyName &name, const QVariant &value);

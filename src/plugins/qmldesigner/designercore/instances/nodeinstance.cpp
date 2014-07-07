@@ -52,7 +52,7 @@ public:
           isMovable(false),
           isResizable(false),
           isInLayoutable(false),
-          updateTransform(true)
+          directUpdates(false)
     {}
 
     qint32 parentInstanceId;
@@ -72,7 +72,7 @@ public:
     bool isMovable;
     bool isResizable;
     bool isInLayoutable;
-    bool updateTransform;
+    bool directUpdates;
 
 
     QHash<PropertyName, QVariant> propertyValues;
@@ -135,23 +135,23 @@ qint32 NodeInstance::instanceId() const
         return -1;
 }
 
-void NodeInstance::setUpdateTransform(bool updateTransform)
+void NodeInstance::setDirectUpdate(bool directUpdates)
 {
     if (d)
-        d->updateTransform = updateTransform;
+        d->directUpdates = directUpdates;
 }
 
-bool NodeInstance::updateTransform() const
+bool NodeInstance::directUpdates() const
 {
     if (d)
-        return d->updateTransform || d->transform.isRotating() || d->transform.isScaling();
+        return d->directUpdates && !(d->transform.isRotating() || d->transform.isScaling() || hasAnchors());
     else
         return true;
 }
 
 void NodeInstance::setX(double x)
 {
-    if(d && !updateTransform()) {
+    if (d && directUpdates()) {
         double dx = x - d->transform.dx();
         d->transform.translate(dx, 0.0);
     }
@@ -159,10 +159,23 @@ void NodeInstance::setX(double x)
 
 void NodeInstance::setY(double y)
 {
-    if(d && !updateTransform()) {
+    if (d && directUpdates()) {
         double dy = y - d->transform.dy();
         d->transform.translate(0.0, dy);
     }
+}
+
+bool NodeInstance::hasAnchors() const
+{
+    return  hasAnchor("anchors.fill")
+            || hasAnchor("anchors.centerIn")
+            || hasAnchor("anchors.top")
+            || hasAnchor("anchors.left")
+            || hasAnchor("anchors.right")
+            || hasAnchor("anchors.bottom")
+            || hasAnchor("anchors.horizontalCenter")
+            || hasAnchor("anchors.verticalCenter")
+            || hasAnchor("anchors.baseline");
 }
 
 bool NodeInstance::isValid() const
@@ -407,7 +420,7 @@ InformationName NodeInstance::setInformationContentItemBoundingRect(const QRectF
 
 InformationName NodeInstance::setInformationTransform(const QTransform &transform)
 {
-    if (updateTransform() && d->transform != transform) {
+    if (!directUpdates() && d->transform != transform) {
         d->transform = transform;
         return Transform;
     }
@@ -467,7 +480,7 @@ InformationName NodeInstance::setInformationIsInLayoutable(bool isInLayoutable)
 
 InformationName NodeInstance::setInformationSceneTransform(const QTransform &sceneTransform)
 {
-    if (d->sceneTransform != sceneTransform) {
+    if (!directUpdates() && d->sceneTransform != sceneTransform) {
         d->sceneTransform = sceneTransform;
         return SceneTransform;
     }

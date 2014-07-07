@@ -763,7 +763,7 @@ void ProgressManager::setApplicationLabel(const QString &text)
     m_instance->doSetApplicationLabel(text);
 }
 
-void ProgressManager::cancelTasks(const Id type)
+void ProgressManager::cancelTasks(Id type)
 {
     if (m_instance)
         m_instance->doCancelTasks(type);

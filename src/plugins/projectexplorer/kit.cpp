@@ -459,12 +459,12 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(ICON_KEY), d->m_iconPath.toString());
 
     QStringList mutableInfo;
-    foreach (const Core::Id &id, d->m_mutable)
+    foreach (Core::Id id, d->m_mutable)
         mutableInfo << id.toString();
     data.insert(QLatin1String(MUTABLE_INFO_KEY), mutableInfo);
 
     QStringList stickyInfo;
-    foreach (const Core::Id &id, d->m_sticky)
+    foreach (Core::Id id, d->m_sticky)
         stickyInfo << id.toString();
     data.insert(QLatin1String(STICKY_INFO_KEY), stickyInfo);
 

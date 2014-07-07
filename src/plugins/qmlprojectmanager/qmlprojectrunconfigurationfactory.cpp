@@ -83,7 +83,7 @@ QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectE
     return list;
 }
 
-QString QmlProjectRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString QmlProjectRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == Constants::QML_VIEWER_RC_ID)
         return tr("QML Viewer");
@@ -110,7 +110,7 @@ bool QmlProjectRunConfigurationFactory::canCreate(ProjectExplorer::Target *paren
     return false;
 }
 
-ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id)
+ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, Core::Id id)
 {
     return new QmlProjectRunConfiguration(parent, id);
 }

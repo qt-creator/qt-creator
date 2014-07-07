@@ -41,6 +41,7 @@ AutotoolsProjectFile::AutotoolsProjectFile(AutotoolsProject *project, const QStr
     m_project(project)
 {
     setId("Autotools.ProjectFile");
+    setMimeType(QLatin1String(Constants::MAKEFILE_MIMETYPE));
     setFilePath(fileName);
 }
 
@@ -61,11 +62,6 @@ QString AutotoolsProjectFile::defaultPath() const
 QString AutotoolsProjectFile::suggestedFileName() const
 {
     return QString();
-}
-
-QString AutotoolsProjectFile::mimeType() const
-{
-    return QLatin1String(Constants::MAKEFILE_MIMETYPE);
 }
 
 bool AutotoolsProjectFile::isModified() const

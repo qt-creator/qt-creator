@@ -29,7 +29,6 @@
 
 #include "qmljscompletioncontextfinder.h"
 
-#include <QDebug>
 #include <QTextDocument>
 #include <QStringList>
 
@@ -130,7 +129,7 @@ void CompletionContextFinder::checkBinding()
 {
     YY_SAVE();
 
-    //qDebug() << "Start line:" << *yyLine << m_startTokenIndex;
+    //qCDebug(qmljsLog) << "Start line:" << *yyLine << m_startTokenIndex;
 
     int i = m_startTokenIndex;
     int colonCount = 0;

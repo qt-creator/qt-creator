@@ -76,22 +76,55 @@ const char kMimeType[] = "mimetype";
 const char kVersion[] = "version";
 const char kUrl[] = "url";
 
+class MultiDefinitionDownloader : public QObject
+{
+    Q_OBJECT
+
+public:
+    MultiDefinitionDownloader(const QString &savePath, const QList<QString> &installedDefinitions) :
+        m_installedDefinitions(installedDefinitions),
+        m_downloadPath(savePath)
+    {
+        connect(&m_downloadWatcher, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
+    }
+
+    ~MultiDefinitionDownloader()
+    {
+        if (m_downloadWatcher.isRunning())
+            m_downloadWatcher.cancel();
+    }
+
+    void downloadDefinitions(const QList<QUrl> &urls);
+
+signals:
+    void finished();
+
+private slots:
+    void downloadReferencedDefinition(const QString &name);
+    void downloadDefinitionsFinished();
+
+private:
+    QFutureWatcher<void> m_downloadWatcher;
+    QList<DefinitionDownloader *> m_downloaders;
+    QList<QString> m_installedDefinitions;
+    QSet<QString> m_referencedDefinitions;
+    QString m_downloadPath;
+};
+
 Manager::Manager() :
-    m_isDownloadingDefinitionsSpec(false),
+    m_multiDownloader(0),
     m_hasQueuedRegistration(false)
 {
     connect(&m_registeringWatcher, SIGNAL(finished()), this, SLOT(registerMimeTypesFinished()));
-    connect(&m_downloadWatcher, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
 }
 
 Manager::~Manager()
 {
     disconnect(&m_registeringWatcher);
-    disconnect(&m_downloadWatcher);
+    disconnect(m_multiDownloader);
     if (m_registeringWatcher.isRunning())
         m_registeringWatcher.cancel();
-    if (m_downloadWatcher.isRunning())
-        m_downloadWatcher.cancel();
+    delete m_multiDownloader;
 }
 
 Manager *Manager::instance()
@@ -119,6 +152,11 @@ QString Manager::definitionIdByAnyMimeType(const QStringList &mimeTypes) const
             break;
     }
     return definitionId;
+}
+
+DefinitionMetaDataPtr Manager::availableDefinitionByName(const QString &name) const
+{
+    return m_availableDefinitions.value(name);
 }
 
 QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
@@ -149,7 +187,7 @@ QSharedPointer<HighlightDefinition> Manager::definition(const QString &id)
     return m_definitions.value(id);
 }
 
-QSharedPointer<HighlightDefinitionMetaData> Manager::definitionMetaData(const QString &id) const
+DefinitionMetaDataPtr Manager::definitionMetaData(const QString &id) const
 {
     return m_register.m_definitionsMetaData.value(id);
 }
@@ -216,21 +254,21 @@ void ManagerProcessor::process(QFutureInterface<QPair<Manager::RegisterData,
         QDir definitionsDir(path);
         QStringList filter(QLatin1String("*.xml"));
         definitionsDir.setNameFilters(filter);
-        QList<QSharedPointer<HighlightDefinitionMetaData> > allMetaData;
+        QList<DefinitionMetaDataPtr> allMetaData;
         foreach (const QFileInfo &fileInfo, definitionsDir.entryInfoList()) {
-            const QSharedPointer<HighlightDefinitionMetaData> &metaData =
+            const DefinitionMetaDataPtr &metaData =
                     Manager::parseMetadata(fileInfo);
             if (!metaData.isNull())
                 allMetaData.append(metaData);
         }
 
         // Consider definitions with higher priority first.
-        Utils::sort(allMetaData, [](const QSharedPointer<HighlightDefinitionMetaData> &l,
-                                    const QSharedPointer<HighlightDefinitionMetaData> &r) {
+        Utils::sort(allMetaData, [](const DefinitionMetaDataPtr &l,
+                                    const DefinitionMetaDataPtr &r) {
             return l->priority > r->priority;
         });
 
-        foreach (const QSharedPointer<HighlightDefinitionMetaData> &metaData, allMetaData) {
+        foreach (const DefinitionMetaDataPtr &metaData, allMetaData) {
             if (future.isCanceled())
                 return;
             if (future.progressValue() < kMaxProgress - 1)
@@ -333,7 +371,7 @@ void Manager::registerMimeTypesFinished()
     }
 }
 
-QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileInfo &fileInfo)
+DefinitionMetaDataPtr Manager::parseMetadata(const QFileInfo &fileInfo)
 {
     static const QLatin1Char kSemiColon(';');
     static const QLatin1Char kSpace(' ');
@@ -343,9 +381,9 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
 
     QFile definitionFile(fileInfo.absoluteFilePath());
     if (!definitionFile.open(QIODevice::ReadOnly | QIODevice::Text))
-        return QSharedPointer<HighlightDefinitionMetaData>();
+        return DefinitionMetaDataPtr();
 
-    QSharedPointer<HighlightDefinitionMetaData> metaData(new HighlightDefinitionMetaData);
+    DefinitionMetaDataPtr metaData(new HighlightDefinitionMetaData);
 
     QXmlStreamReader reader(&definitionFile);
     while (!reader.atEnd() && !reader.hasError()) {
@@ -380,33 +418,33 @@ QSharedPointer<HighlightDefinitionMetaData> Manager::parseMetadata(const QFileIn
     return metaData;
 }
 
-QList<HighlightDefinitionMetaData> Manager::parseAvailableDefinitionsList(QIODevice *device) const
+QList<DefinitionMetaDataPtr> Manager::parseAvailableDefinitionsList(QIODevice *device)
 {
     static const QLatin1Char kSlash('/');
     static const QLatin1String kDefinition("Definition");
 
-    QList<HighlightDefinitionMetaData> metaDataList;
+    m_availableDefinitions.clear();
     QXmlStreamReader reader(device);
     while (!reader.atEnd() && !reader.hasError()) {
         if (reader.readNext() == QXmlStreamReader::StartElement &&
             reader.name() == kDefinition) {
             const QXmlStreamAttributes &atts = reader.attributes();
 
-            HighlightDefinitionMetaData metaData;
-            metaData.name = atts.value(QLatin1String(kName)).toString();
-            metaData.version = atts.value(QLatin1String(kVersion)).toString();
+            DefinitionMetaDataPtr metaData(new HighlightDefinitionMetaData);
+            metaData->name = atts.value(QLatin1String(kName)).toString();
+            metaData->version = atts.value(QLatin1String(kVersion)).toString();
             QString url = atts.value(QLatin1String(kUrl)).toString();
-            metaData.url = QUrl(url);
+            metaData->url = QUrl(url);
             const int slash = url.lastIndexOf(kSlash);
             if (slash != -1)
-                metaData.fileName = url.right(url.length() - slash - 1);
+                metaData->fileName = url.right(url.length() - slash - 1);
 
-            metaDataList.append(metaData);
+            m_availableDefinitions.insert(metaData->name, metaData);
         }
     }
     reader.clear();
 
-    return metaDataList;
+    return m_availableDefinitions.values();
 }
 
 void Manager::downloadAvailableDefinitionsMetaData()
@@ -431,18 +469,28 @@ void Manager::downloadAvailableDefinitionsListFinished()
 
 void Manager::downloadDefinitions(const QList<QUrl> &urls, const QString &savePath)
 {
-    m_downloaders.clear();
-    foreach (const QUrl &url, urls)
-        m_downloaders.append(new DefinitionDownloader(url, savePath));
+    m_multiDownloader = new MultiDefinitionDownloader(savePath, m_register.m_idByName.keys());
+    connect(m_multiDownloader, SIGNAL(finished()), this, SLOT(downloadDefinitionsFinished()));
+    m_multiDownloader->downloadDefinitions(urls);
+}
 
-    m_isDownloadingDefinitionsSpec = true;
+void MultiDefinitionDownloader::downloadDefinitions(const QList<QUrl> &urls)
+{
+    m_downloaders.clear();
+    foreach (const QUrl &url, urls) {
+        DefinitionDownloader *downloader = new DefinitionDownloader(url, m_downloadPath);
+        connect(downloader, SIGNAL(foundReferencedDefinition(QString)),
+                this, SLOT(downloadReferencedDefinition(QString)));
+        m_downloaders.append(downloader);
+    }
+
     QFuture<void> future = QtConcurrent::map(m_downloaders, DownloaderStarter());
     m_downloadWatcher.setFuture(future);
     ProgressManager::addTask(future, tr("Downloading Highlighting Definitions"),
                              "TextEditor.Task.Download");
 }
 
-void Manager::downloadDefinitionsFinished()
+void MultiDefinitionDownloader::downloadDefinitionsFinished()
 {
     int errors = 0;
     bool writeError = false;
@@ -467,12 +515,37 @@ void Manager::downloadDefinitionsFinished()
         QMessageBox::critical(0, tr("Download Error"), text);
     }
 
-    m_isDownloadingDefinitionsSpec = false;
+    QList<QUrl> urls;
+    foreach (const QString &definition, m_referencedDefinitions) {
+        if (DefinitionMetaDataPtr metaData =
+                Manager::instance()->availableDefinitionByName(definition)) {
+            urls << metaData->url;
+        }
+    }
+    m_referencedDefinitions.clear();
+    if (urls.isEmpty())
+        emit finished();
+    else
+        downloadDefinitions(urls);
+}
+
+void Manager::downloadDefinitionsFinished()
+{
+    delete m_multiDownloader;
+    m_multiDownloader = 0;
+}
+
+void MultiDefinitionDownloader::downloadReferencedDefinition(const QString &name)
+{
+    if (m_installedDefinitions.contains(name))
+        return;
+    m_referencedDefinitions.insert(name);
+    m_installedDefinitions.append(name);
 }
 
 bool Manager::isDownloadingDefinitions() const
 {
-    return m_isDownloadingDefinitionsSpec;
+    return m_multiDownloader != 0;
 }
 
 void Manager::clear()

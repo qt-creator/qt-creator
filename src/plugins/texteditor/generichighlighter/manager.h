@@ -56,6 +56,7 @@ namespace Internal {
 class HighlightDefinition;
 class DefinitionDownloader;
 class ManagerProcessor;
+class MultiDefinitionDownloader;
 
 // This is the generic highlighter manager. It is not thread-safe.
 
@@ -69,16 +70,17 @@ public:
     QString definitionIdByName(const QString &name) const;
     QString definitionIdByMimeType(const QString &mimeType) const;
     QString definitionIdByAnyMimeType(const QStringList &mimeTypes) const;
+    DefinitionMetaDataPtr availableDefinitionByName(const QString &name) const;
 
     bool isBuildingDefinition(const QString &id) const;
     QSharedPointer<HighlightDefinition> definition(const QString &id);
-    QSharedPointer<HighlightDefinitionMetaData> definitionMetaData(const QString &id) const;
+    DefinitionMetaDataPtr definitionMetaData(const QString &id) const;
 
     void downloadAvailableDefinitionsMetaData();
     void downloadDefinitions(const QList<QUrl> &urls, const QString &savePath);
     bool isDownloadingDefinitions() const;
 
-    static QSharedPointer<HighlightDefinitionMetaData> parseMetadata(const QFileInfo &fileInfo);
+    static DefinitionMetaDataPtr parseMetadata(const QFileInfo &fileInfo);
 
 public slots:
     void registerMimeTypes();
@@ -95,21 +97,19 @@ private:
     Manager();
 
     void clear();
-    int foo();
 
-    bool m_isDownloadingDefinitionsSpec;
-    QList<DefinitionDownloader *> m_downloaders;
-    QFutureWatcher<void> m_downloadWatcher;
-    QList<HighlightDefinitionMetaData> parseAvailableDefinitionsList(QIODevice *device) const;
+    MultiDefinitionDownloader *m_multiDownloader;
+    QList<DefinitionMetaDataPtr> parseAvailableDefinitionsList(QIODevice *device);
 
     QSet<QString> m_isBuildingDefinition;
     QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
+    QHash<QString, DefinitionMetaDataPtr> m_availableDefinitions;
 
     struct RegisterData
     {
         QHash<QString, QString> m_idByName;
         QHash<QString, QString> m_idByMimeType;
-        QHash<QString, QSharedPointer<HighlightDefinitionMetaData> > m_definitionsMetaData;
+        QHash<QString, DefinitionMetaDataPtr> m_definitionsMetaData;
     };
     RegisterData m_register;
     bool m_hasQueuedRegistration;
@@ -117,7 +117,7 @@ private:
     friend class ManagerProcessor;
 
 signals:
-    void definitionsMetaDataReady(const QList<Internal::HighlightDefinitionMetaData>&);
+    void definitionsMetaDataReady(const QList<Internal::DefinitionMetaDataPtr>&);
     void errorDownloadingDefinitionsMetaData();
 };
 

@@ -46,7 +46,7 @@ CMakeFileCompletionAssistProvider::CMakeFileCompletionAssistProvider(CMakeSettin
 CMakeFileCompletionAssistProvider::~CMakeFileCompletionAssistProvider()
 {}
 
-bool CMakeFileCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
+bool CMakeFileCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == CMakeProjectManager::Constants::CMAKE_EDITOR_ID;
 }

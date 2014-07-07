@@ -54,6 +54,7 @@ protected:
 private slots:
     void currentProjectChanged(ProjectExplorer::Project *project);
     void markFilesAsOutOfDate();
+    void updateFilesImpl();
 
 private:
     Project *m_project;

@@ -739,7 +739,10 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
         absoluteSourcePath.append(QLatin1Char('/'));
     if (deploymentStream.device()) {
         while (!deploymentStream.atEnd()) {
-            QStringList file = deploymentStream.readLine().split(QLatin1Char(':'));
+            QString line = deploymentStream.readLine();
+            if (!line.contains(QLatin1Char(':')))
+                continue;
+            QStringList file = line.split(QLatin1Char(':'));
             deploymentData.addFile(absoluteSourcePath + file.at(0), deploymentPrefix + file.at(1));
         }
     }
@@ -767,6 +770,7 @@ CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
     : Core::IDocument(parent), m_project(parent)
 {
     setId("Cmake.ProjectFile");
+    setMimeType(QLatin1String(Constants::CMAKEMIMETYPE));
     setFilePath(fileName);
 }
 
@@ -789,12 +793,6 @@ QString CMakeFile::suggestedFileName() const
 {
     return QString();
 }
-
-QString CMakeFile::mimeType() const
-{
-    return QLatin1String(Constants::CMAKEMIMETYPE);
-}
-
 
 bool CMakeFile::isModified() const
 {

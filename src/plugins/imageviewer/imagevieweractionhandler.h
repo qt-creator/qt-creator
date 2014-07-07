@@ -56,7 +56,7 @@ public slots:
 
 protected:
 
-    void registerNewAction(int actionId, const Core::Id &id, const QString &title,
+    void registerNewAction(int actionId, Core::Id id, const QString &title,
                            const QKeySequence &key);
 
 private:

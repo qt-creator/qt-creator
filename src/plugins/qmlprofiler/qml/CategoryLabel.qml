@@ -64,9 +64,8 @@ Item {
         var extdesc=[];
         var labelList = qmlProfilerModelProxy.getLabels(modelIndex);
         for (var i = 0; i < labelList.length; i++ ) {
-            desc[i] = labelList[i].description;
+            extdesc[i] = desc[i] = (labelList[i].description || qsTr("<bytecode>"));
             ids[i] = labelList[i].id;
-            extdesc[i] = labelList[i].description;
             if (labelList[i].displayName !== undefined)
                 extdesc[i] += " (" + labelList[i].displayName + ")";
         }

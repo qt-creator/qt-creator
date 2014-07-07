@@ -43,7 +43,7 @@ class BareMetalGdbCommandsDeployStep : public ProjectExplorer::BuildStep
     Q_OBJECT
 
 public:
-    BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
+    BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
     BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl,
                                    BareMetalGdbCommandsDeployStep *other);
     ~BareMetalGdbCommandsDeployStep();

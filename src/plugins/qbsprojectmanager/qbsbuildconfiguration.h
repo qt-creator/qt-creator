@@ -81,7 +81,7 @@ signals:
 
 protected:
     QbsBuildConfiguration(ProjectExplorer::Target *target, QbsBuildConfiguration *source);
-    QbsBuildConfiguration(ProjectExplorer::Target *target, const Core::Id id);
+    QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
     bool fromMap(const QVariantMap &map);
 
 private slots:

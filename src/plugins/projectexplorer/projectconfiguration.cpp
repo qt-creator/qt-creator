@@ -35,7 +35,7 @@ const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
 const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
 const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
 
-ProjectConfiguration::ProjectConfiguration(QObject *parent, const Core::Id &id) :
+ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id) :
     QObject(parent),
     m_id(id)
 { setObjectName(id.toString()); }

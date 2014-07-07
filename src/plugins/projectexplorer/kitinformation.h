@@ -162,7 +162,7 @@ public:
 class PROJECTEXPLORER_EXPORT DeviceTypeMatcher : public KitMatcher
 {
 public:
-    DeviceTypeMatcher(const Core::Id t) : m_type(t)
+    DeviceTypeMatcher(Core::Id t) : m_type(t)
     { }
 
     bool matches(const Kit *k) const
@@ -204,11 +204,11 @@ public:
     static IDevice::ConstPtr device(const Kit *k);
     static Core::Id deviceId(const Kit *k);
     static void setDevice(Kit *k, IDevice::ConstPtr dev);
-    static void setDeviceId(Kit *k, const Core::Id dataId);
+    static void setDeviceId(Kit *k, Core::Id dataId);
 
 private slots:
     void kitsWereLoaded();
-    void deviceUpdated(const Core::Id &dataId);
+    void deviceUpdated(Core::Id dataId);
     void devicesChanged();
     void kitUpdated(ProjectExplorer::Kit *k);
 };

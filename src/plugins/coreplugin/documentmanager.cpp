@@ -1133,7 +1133,7 @@ void DocumentManager::checkForReload()
     \a editorId defaults to the empty id, which lets \QC figure out
     the best editor itself.
 */
-void DocumentManager::addToRecentFiles(const QString &fileName, const Id &editorId)
+void DocumentManager::addToRecentFiles(const QString &fileName, Id editorId)
 {
     if (fileName.isEmpty())
         return;

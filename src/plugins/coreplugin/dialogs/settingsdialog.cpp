@@ -34,6 +34,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
 #include <utils/fancylineedit.h>
+#include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QDialogButtonBox>
@@ -353,6 +354,9 @@ void SettingsDialog::showPage(Id categoryId, Id pageId)
         initialPage = Id::fromSetting(settings->value(QLatin1String(pageKeyC)));
     }
 
+    if (!initialCategory.isValid()) // no category given and no old setting
+        return;
+
     int initialCategoryIndex = -1;
     int initialPageIndex = -1;
     const QList<Category*> &categories = m_model->categories();
@@ -360,13 +364,22 @@ void SettingsDialog::showPage(Id categoryId, Id pageId)
         Category *category = categories.at(i);
         if (category->id == initialCategory) {
             initialCategoryIndex = i;
-            for (int j = 0; j < category->pages.size(); ++j) {
-                IOptionsPage *page = category->pages.at(j);
-                if (page->id() == initialPage)
-                    initialPageIndex = j;
+            if (initialPage.isValid()) {
+                for (int j = 0; j < category->pages.size(); ++j) {
+                    IOptionsPage *page = category->pages.at(j);
+                    if (page->id() == initialPage)
+                        initialPageIndex = j;
+                }
             }
+            break;
         }
     }
+
+    QTC_ASSERT(initialCategoryIndex != -1,
+               qDebug("Unknown category: %s", initialCategory.name().constData()); return);
+    QTC_ASSERT(!initialPage.isValid() || initialPageIndex != -1,
+               qDebug("Unknown page: %s", initialPage.name().constData()));
+
     if (initialCategoryIndex != -1) {
         const QModelIndex modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));
         m_categoryList->setCurrentIndex(modelIndex);

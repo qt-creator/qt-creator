@@ -66,7 +66,7 @@ public:
 
     QVariantMap toMap() const QTC_OVERRIDE;
 protected:
-    IosPresetBuildStep(ProjectExplorer::BuildStepList *parent, const Core::Id id);
+    IosPresetBuildStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
     virtual bool completeSetup();
     virtual bool completeSetupWithStep(ProjectExplorer::BuildStep *bs);
     bool fromMap(const QVariantMap &map) QTC_OVERRIDE;
@@ -107,7 +107,7 @@ class IosPresetBuildStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit IosPresetBuildStepFactory(QObject *parent = 0);
 
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id) QTC_OVERRIDE;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) QTC_OVERRIDE;
     bool canClone(ProjectExplorer::BuildStepList *parent,
                   ProjectExplorer::BuildStep *source) const QTC_OVERRIDE;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
@@ -128,16 +128,16 @@ class IosDsymBuildStep : public IosPresetBuildStep
 protected:
     QStringList defaultCleanCmdList() const QTC_OVERRIDE;
     QStringList defaultCmdList() const QTC_OVERRIDE;
-    IosDsymBuildStep(ProjectExplorer::BuildStepList *parent, const Core::Id id);
+    IosDsymBuildStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
 };
 
 class IosDsymBuildStepFactory : public IosPresetBuildStepFactory
 {
     Q_OBJECT
 public:
-    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const QTC_OVERRIDE;
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const QTC_OVERRIDE;
     QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const QTC_OVERRIDE;
-    QString displayNameForId(const Core::Id id) const QTC_OVERRIDE;
+    QString displayNameForId(Core::Id id) const QTC_OVERRIDE;
     IosPresetBuildStep *createPresetStep(ProjectExplorer::BuildStepList *parent,
                                          const Core::Id id) const QTC_OVERRIDE;
 };

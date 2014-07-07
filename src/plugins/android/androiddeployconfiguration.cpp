@@ -67,12 +67,12 @@ AndroidDeployConfigurationFactory::AndroidDeployConfigurationFactory(QObject *pa
     setObjectName(QLatin1String("AndroidDeployConfigurationFactory"));
 }
 
-bool AndroidDeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool AndroidDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-DeployConfiguration *AndroidDeployConfigurationFactory::create(Target *parent, const Core::Id id)
+DeployConfiguration *AndroidDeployConfigurationFactory::create(Target *parent, Core::Id id)
 {
     AndroidDeployConfiguration *dc = new AndroidDeployConfiguration(parent, id);
 
@@ -143,7 +143,7 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *
     return ids;
 }
 
-QString AndroidDeployConfigurationFactory::displayNameForId(const Core::Id id) const
+QString AndroidDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id.name().startsWith(ANDROID_DC_PREFIX)
             || id.name().startsWith(ANDROID_DC2_PREFIX))

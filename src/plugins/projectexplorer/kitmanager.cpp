@@ -395,7 +395,7 @@ QList<Kit *> KitManager::matchingKits(const KitMatcher &matcher)
     return result;
 }
 
-Kit *KitManager::find(const Core::Id &id)
+Kit *KitManager::find(Core::Id id)
 {
     if (!id.isValid())
         return 0;

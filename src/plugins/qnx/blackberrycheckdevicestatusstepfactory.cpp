@@ -61,14 +61,14 @@ QList<Core::Id> BlackBerryCheckDeviceStatusStepFactory::availableCreationIds(
     return QList<Core::Id>() << Core::Id(Constants::QNX_CHECK_DEVICE_STATUS_BS_ID);
 }
 
-QString BlackBerryCheckDeviceStatusStepFactory::displayNameForId(const Core::Id id) const
+QString BlackBerryCheckDeviceStatusStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == Constants::QNX_CHECK_DEVICE_STATUS_BS_ID)
         return tr("Check Device Status");
     return QString();
 }
 
-bool BlackBerryCheckDeviceStatusStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
+bool BlackBerryCheckDeviceStatusStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }

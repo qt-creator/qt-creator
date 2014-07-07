@@ -30,6 +30,7 @@
 #ifndef HIGHLIGHTERSETTINGSPAGE_H
 #define HIGHLIGHTERSETTINGSPAGE_H
 
+#include "highlightdefinitionmetadata.h"
 #include "../texteditoroptionspage.h"
 
 QT_BEGIN_NAMESPACE
@@ -37,8 +38,6 @@ template <class> class QList;
 QT_END_NAMESPACE
 
 namespace TextEditor {
-
-namespace Internal { class HighlightDefinitionMetaData; }
 
 class HighlighterSettings;
 
@@ -59,7 +58,7 @@ public:
 private slots:
     void resetDefinitionsLocation();
     void requestAvailableDefinitionsMetaData();
-    void manageDefinitions(const QList<Internal::HighlightDefinitionMetaData> &metaData);
+    void manageDefinitions(const QList<Internal::DefinitionMetaDataPtr> &metaData);
     void showError();
     void ignoreDownloadReply();
     void setFallbackLocationState(bool checked);

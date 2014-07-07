@@ -139,33 +139,33 @@ NSString* FindDeveloperDir() {
     return output;
 }
 - (void) printUsage {
-  fprintf(stdout, "<msg>Usage: ios-sim <command> <options> [--args ...]\n");
+  fprintf(stdout, "<msg>Usage: ios-sim &lt;command&gt; &lt;options&gt; [--args ...]\n");
   fprintf(stdout, "\n");
   fprintf(stdout, "Commands:\n");
   fprintf(stdout, "  showsdks                        List the available iOS SDK versions\n");
-  fprintf(stdout, "  launch <application path>       Launch the application at the specified path on the iOS Simulator\n");
+  fprintf(stdout, "  launch &lt;application path&gt;       Launch the application at the specified path on the iOS Simulator\n");
   fprintf(stdout, "  start                           Launch iOS Simulator without an app\n");
   fprintf(stdout, "\n");
   fprintf(stdout, "Options:\n");
   fprintf(stdout, "  --version                       Print the version of ios-sim\n");
-  fprintf(stdout, "  --developer-path <developerDir> path to the developer directory (in Xcode)");
+  fprintf(stdout, "  --developer-path &lt;developerDir&gt; path to the developer directory (in Xcode)");
   fprintf(stdout, "  --help                          Show this help text\n");
   fprintf(stdout, "  --verbose                       Set the output level to verbose\n");
   fprintf(stdout, "  --exit                          Exit after startup\n");
   fprintf(stdout, "  --wait-for-debugger             Wait for debugger to attach\n");
   fprintf(stdout, "  --debug                         Attach LLDB to the application on startup\n");
   fprintf(stdout, "  --use-gdb                       Use GDB instead of LLDB. (Requires --debug)\n");
-  fprintf(stdout, "  --sdk <sdkversion>              The iOS SDK version to run the application on (defaults to the latest)\n");
-  fprintf(stdout, "  --family <device family>        The device type that should be simulated (defaults to `iphone')\n");
+  fprintf(stdout, "  --sdk &lt;sdkversion&gt;              The iOS SDK version to run the application on (defaults to the latest)\n");
+  fprintf(stdout, "  --family &lt;device family&gt;        The device type that should be simulated (defaults to `iphone')\n");
   fprintf(stdout, "  --retina                        Start a retina device\n");
   fprintf(stdout, "  --tall                          In combination with --retina flag, start the tall version of the retina device (e.g. iPhone 5 (4-inch))\n");
-  fprintf(stdout, "  --uuid <uuid>                   A UUID identifying the session (is that correct?)\n");
-  fprintf(stdout, "  --env <environment file path>   A plist file containing environment key-value pairs that should be set\n");
+  fprintf(stdout, "  --uuid &lt;uuid&gt;                   A UUID identifying the session (is that correct?)\n");
+  fprintf(stdout, "  --env &lt;environment file path&gt;   A plist file containing environment key-value pairs that should be set\n");
   fprintf(stdout, "  --setenv NAME=VALUE             Set an environment variable\n");
-  fprintf(stdout, "  --stdout <stdout file path>     The path where stdout of the simulator will be redirected to (defaults to stdout of ios-sim)\n");
-  fprintf(stdout, "  --stderr <stderr file path>     The path where stderr of the simulator will be redirected to (defaults to stderr of ios-sim)\n");
-  fprintf(stdout, "  --timeout <seconds>             The timeout time to wait for a response from the Simulator. Default value: 30 seconds\n");
-  fprintf(stdout, "  --args <...>                    All following arguments will be passed on to the application</msg>\n");
+  fprintf(stdout, "  --stdout &lt;stdout file path&gt;     The path where stdout of the simulator will be redirected to (defaults to stdout of ios-sim)\n");
+  fprintf(stdout, "  --stderr &lt;stderr file path&gt;     The path where stderr of the simulator will be redirected to (defaults to stderr of ios-sim)\n");
+  fprintf(stdout, "  --timeout &lt;seconds&gt;             The timeout time to wait for a response from the Simulator. Default value: 30 seconds\n");
+  fprintf(stdout, "  --args &lt;...&gt;                    All following arguments will be passed on to the application</msg>\n");
   fflush(stdout);
 }
 
@@ -190,7 +190,7 @@ NSString* FindDeveloperDir() {
 
 - (void)session:(DTiPhoneSimulatorSession *)session didEndWithError:(NSError *)error {
   if (verbose) {
-    nsprintf(@"<msg>Session did end with error %@</msg>", error);
+    msgprintf(@"Session did end with error %@", error);
   }
 
   if (stderrFileHandle != nil) {
@@ -215,7 +215,7 @@ NSString* FindDeveloperDir() {
   if (startOnly && session) {
       [NSTask launchedTaskWithLaunchPath:@"/usr/bin/osascript"
             arguments:[NSArray arrayWithObjects:@"-e", @"tell application \"iPhone Simulator\"  to activate", nil]];
-      nsprintf(@"<msg>Simulator started (no session)</msg>");
+      msgprintf(@"Simulator started (no session)");
       [self doExit:EXIT_SUCCESS];
       return;
   }
@@ -238,13 +238,13 @@ NSString* FindDeveloperDir() {
         if (child_pid == 0) {
             execvp(args[0], args);
         } else if (child_pid < 0) {
-            nsprintf(@"<msg>Could not start debugger process: %@</msg>", errno);
+            msgprintf(@"Could not start debugger process: %d", errno);
             [self doExit:EXIT_FAILURE];
             return;
         }
       }
     if (verbose) {
-      nsprintf(@"<msg>Session started</msg>");
+      msgprintf(@"Session started");
     }
     nsprintf(@"<inferior_pid>%d</inferior_pid>", pid);
     fflush(stdout);
@@ -253,7 +253,7 @@ NSString* FindDeveloperDir() {
         return;
     }
   } else {
-      nsprintf(@"<msg>Session could not be started: %@</msg>", error);
+      msgprintf(@"Session could not be started: %@", [error localizedDescription]);
       [self doExit:EXIT_FAILURE];
   }
 }
@@ -275,9 +275,9 @@ NSString* FindDeveloperDir() {
     }
   }
   if ([notification object] == stdoutFileHandle) {
-    printf("<app_output>%s</app_output>\n", [str UTF8String]);
+    printf("<app_output>%s</app_output>\n", [escapeString(str) UTF8String]);
   } else {
-    nsprintf(@"<app_output>%@</app_output>", str); // handle stderr differently?
+    nsprintf(@"<app_output>%@</app_output>", escapeString(str)); // handle stderr differently?
   }
   fflush(stdout);
 }
@@ -286,11 +286,11 @@ NSString* FindDeveloperDir() {
 - (void)createStdioFIFO:(NSFileHandle **)fileHandle ofType:(NSString *)type atPath:(NSString **)path {
   *path = [NSString stringWithFormat:@"%@/ios-sim-%@-pipe-%d", NSTemporaryDirectory(), type, (int)time(NULL)];
   if (mkfifo([*path UTF8String], S_IRUSR | S_IWUSR) == -1) {
-    nsprintf(@"<msg>Unable to create %@ named pipe `%@</msg>'", type, *path);
+    msgprintf(@"Unable to create %@ named pipe `%@'", type, *path);
     [self doExit:EXIT_FAILURE];
   } else {
     if (verbose) {
-      nsprintf(@"<msg>Creating named pipe at `%@'</msg>", *path);
+      msgprintf(@"Creating named pipe at `%@'", *path);
     }
     int fd = open([*path UTF8String], O_RDONLY | O_NDELAY);
     *fileHandle = [[[NSFileHandle alloc] initWithFileDescriptor:fd] retain];
@@ -305,12 +305,12 @@ NSString* FindDeveloperDir() {
 
 - (void)removeStdioFIFO:(NSFileHandle *)fileHandle atPath:(NSString *)path {
   if (verbose) {
-    nsprintf(@"<msg>Removing named pipe at `%@'</msg>", path);
+    msgprintf(@"Removing named pipe at `%@'", path);
   }
   [fileHandle closeFile];
   [fileHandle release];
   if (![[NSFileManager defaultManager] removeItemAtPath:path error:NULL]) {
-    nsprintf(@"<msg>Unable to remove named pipe `%@'</msg>", path);
+    msgprintf(@"Unable to remove named pipe `%@'", path);
   }
 }
 
@@ -329,7 +329,7 @@ NSString* FindDeveloperDir() {
 
   NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
   if (!startOnly && ![fileManager fileExistsAtPath:path]) {
-      nsprintf(@"<msg>Application path %@ doesn't exist!</msg>", path);
+      msgprintf(@"Application path %@ doesn't exist!", path);
       return EXIT_FAILURE;
   }
 
@@ -337,11 +337,11 @@ NSString* FindDeveloperDir() {
     appSpec = startOnly ? nil : [[self FindClassByName:@"DTiPhoneSimulatorApplicationSpecifier"] specifierWithApplicationPath:path];
 
   if (verbose) {
-      nsprintf(@"<msg>App Spec: %@</msg>", appSpec);
-    nsprintf(@"<msg>SDK Root: %@</msg>", sdkRoot);
+      msgprintf(@"App Spec: %@", appSpec);
+    msgprintf(@"SDK Root: %@", sdkRoot);
 
     for (id key in environment) {
-      nsprintf(@"<msg>Env: %@ = %@</msg>", key, [environment objectForKey:key]);
+      msgprintf(@"Env: %@ = %@", key, [environment objectForKey:key]);
     }
   }
 
@@ -413,7 +413,7 @@ NSString* FindDeveloperDir() {
   }
 
   if (![session requestStartWithConfig:config timeout:timeout error:&error]) {
-    nsprintf(@"<msg>Could not start simulator session: %@</msg>", error);
+    msgprintf(@"Could not start simulator session: %@", error);
     return EXIT_FAILURE;
   }
 
@@ -424,7 +424,7 @@ NSString* FindDeveloperDir() {
   NSString *devicePropertyValue;
   if (retina) {
     if (verbose) {
-      nsprintf(@"<msg>using retina</msg>");
+      msgprintf(@"using retina");
     }
     if ([family isEqualToString:@"ipad"]) {
       devicePropertyValue = deviceIpadRetina;
@@ -496,7 +496,7 @@ NSString* FindDeveloperDir() {
     exit([self showSDKs]);
   } else if (strcmp(argv[1], "launch") == 0 || startOnly) {
     if (strcmp(argv[1], "launch") == 0 && argc < 3) {
-      nsprintf(@"<msg>Missing application path argument</msg>");
+      msgprintf(@"Missing application path argument");
       [self printUsage];
       exit(EXIT_FAILURE);
     }
@@ -560,7 +560,7 @@ NSString* FindDeveloperDir() {
           }
         }
         if (sdkRoot == nil) {
-          fprintf(stdout,"<msg>Unknown or unsupported SDK version: %s</msg>\n",argv[i]);
+          msgprintf(@"Unknown or unsupported SDK version: %s\n",argv[i]);
           [self showSDKs];
           exit(EXIT_FAILURE);
         }
@@ -579,7 +579,7 @@ NSString* FindDeveloperDir() {
         NSString *envFilePath = [[NSString stringWithUTF8String:argv[i]] expandPath];
         [environment setValuesForKeysWithDictionary:[NSDictionary dictionaryWithContentsOfFile:envFilePath]];
         if (!environment) {
-          fprintf(stdout, "<msg>Could not read environment from file: %s</msg>\n", argv[i]);
+          msgprintf(@"Could not read environment from file: %s", argv[i]);
           [self printUsage];
           exit(EXIT_FAILURE);
         }
@@ -603,7 +603,7 @@ NSString* FindDeveloperDir() {
         i++;
         break;
       } else {
-        fprintf(stdout, "<msg>unrecognized argument:%s</msg>\n", argv[i]);
+        msgprintf(@"unrecognized argument:%s", argv[i]);
         [self printUsage];
         [self doExit:EXIT_FAILURE];
         return;

@@ -1393,7 +1393,7 @@ EditorManager::ExternalEditorList
 /* For something that has a 'QString id' (IEditorFactory
  * or IExternalEditor), find the one matching a id. */
 template <class EditorFactoryLike>
-EditorFactoryLike *findById(const Core::Id &id)
+EditorFactoryLike *findById(Core::Id id)
 {
     return ExtensionSystem::PluginManager::getObject<EditorFactoryLike>(
         [&id](EditorFactoryLike *efl) {
@@ -1401,7 +1401,7 @@ EditorFactoryLike *findById(const Core::Id &id)
         });
 }
 
-IEditor *EditorManager::createEditor(const Id &editorId, const QString &fileName)
+IEditor *EditorManager::createEditor(Id editorId, const QString &fileName)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << editorId.name() << fileName;
@@ -1503,7 +1503,7 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
     return selectedId;
 }
 
-IEditor *EditorManager::openEditor(const QString &fileName, const Id &editorId,
+IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
     if (flags & EditorManager::OpenInOtherSplit) {
@@ -1518,7 +1518,7 @@ IEditor *EditorManager::openEditor(const QString &fileName, const Id &editorId,
 }
 
 IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int column,
-                                     const Id &editorId, OpenEditorFlags flags, bool *newEditor)
+                                     Id editorId, OpenEditorFlags flags, bool *newEditor)
 {
     m_instance->cutForwardNavigationHistory();
     m_instance->addCurrentPositionToNavigationHistory();
@@ -1586,7 +1586,7 @@ bool EditorManager::isAutoSaveFile(const QString &fileName)
 }
 
 IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QString &fileName,
-                        const Id &editorId, OpenEditorFlags flags, bool *newEditor)
+                        Id editorId, OpenEditorFlags flags, bool *newEditor)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << fileName << editorId.name();
@@ -1654,7 +1654,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     return result;
 }
 
-bool EditorManager::openExternalEditor(const QString &fileName, const Core::Id &editorId)
+bool EditorManager::openExternalEditor(const QString &fileName, Core::Id editorId)
 {
     IExternalEditor *ee = findById<IExternalEditor>(editorId);
     if (!ee)
@@ -1676,7 +1676,7 @@ QStringList EditorManager::getOpenFileNames()
 }
 
 
-IEditor *EditorManager::openEditorWithContents(const Id &editorId,
+IEditor *EditorManager::openEditorWithContents(Id editorId,
                                         QString *titlePattern,
                                         const QByteArray &contents,
                                         OpenEditorFlags flags)

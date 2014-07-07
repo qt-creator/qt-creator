@@ -59,7 +59,7 @@ public:
 
 protected:
     GenericBuildConfiguration(ProjectExplorer::Target *parent, GenericBuildConfiguration *source);
-    GenericBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id);
+    GenericBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     friend class GenericBuildSettingsWidget;
 };

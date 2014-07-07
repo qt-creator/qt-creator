@@ -70,7 +70,7 @@ MakeStep::MakeStep(BuildStepList *bsl) :
     ctor();
 }
 
-MakeStep::MakeStep(BuildStepList *bsl, const Core::Id id) :
+MakeStep::MakeStep(BuildStepList *bsl, Core::Id id) :
     AbstractProcessStep(bsl, id), m_clean(false)
 {
     ctor();
@@ -452,14 +452,14 @@ MakeStepFactory::~MakeStepFactory()
 {
 }
 
-bool MakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool MakeStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     if (parent->target()->project()->id() == Constants::CMAKEPROJECT_ID)
         return id == MS_ID;
     return false;
 }
 
-BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *MakeStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -506,7 +506,7 @@ QList<Core::Id> MakeStepFactory::availableCreationIds(ProjectExplorer::BuildStep
     return QList<Core::Id>();
 }
 
-QString MakeStepFactory::displayNameForId(const Core::Id id) const
+QString MakeStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == MS_ID)
         return tr("Make", "Display name for CMakeProjectManager::MakeStep id.");

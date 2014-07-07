@@ -52,22 +52,22 @@ TaskModel::TaskModel(QObject *parent) :
     m_categories.insert(Core::Id(), CategoryData());
 }
 
-int TaskModel::taskCount(const Core::Id &categoryId)
+int TaskModel::taskCount(Core::Id categoryId)
 {
     return m_categories.value(categoryId).count;
 }
 
-int TaskModel::errorTaskCount(const Core::Id &categoryId)
+int TaskModel::errorTaskCount(Core::Id categoryId)
 {
     return m_categories.value(categoryId).errors;
 }
 
-int TaskModel::warningTaskCount(const Core::Id &categoryId)
+int TaskModel::warningTaskCount(Core::Id categoryId)
 {
     return m_categories.value(categoryId).warnings;
 }
 
-int TaskModel::unknownTaskCount(const Core::Id &categoryId)
+int TaskModel::unknownTaskCount(Core::Id categoryId)
 {
     return m_categories.value(categoryId).count
             - m_categories.value(categoryId).errors
@@ -82,7 +82,7 @@ bool TaskModel::hasFile(const QModelIndex &index) const
     return !m_tasks.at(row).file.isEmpty();
 }
 
-void TaskModel::addCategory(const Core::Id &categoryId, const QString &categoryName)
+void TaskModel::addCategory(Core::Id categoryId, const QString &categoryName)
 {
     QTC_ASSERT(categoryId.uniqueIdentifier(), return);
     CategoryData data;
@@ -90,7 +90,7 @@ void TaskModel::addCategory(const Core::Id &categoryId, const QString &categoryN
     m_categories.insert(categoryId, data);
 }
 
-QList<Task> TaskModel::tasks(const Core::Id &categoryId) const
+QList<Task> TaskModel::tasks(Core::Id categoryId) const
 {
     if (categoryId.uniqueIdentifier() == 0)
         return m_tasks;
@@ -165,7 +165,7 @@ void TaskModel::updateTaskLineNumber(unsigned int id, int line)
     }
 }
 
-void TaskModel::clearTasks(const Core::Id &categoryId)
+void TaskModel::clearTasks(Core::Id categoryId)
 {
     typedef QHash<Core::Id,CategoryData>::ConstIterator IdCategoryConstIt;
 
@@ -275,7 +275,7 @@ QList<Core::Id> TaskModel::categoryIds() const
     return categories;
 }
 
-QString TaskModel::categoryDisplayName(const Core::Id &categoryId) const
+QString TaskModel::categoryDisplayName(Core::Id categoryId) const
 {
     return m_categories.value(categoryId).displayName;
 }

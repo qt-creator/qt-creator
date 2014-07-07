@@ -114,6 +114,7 @@ private: // functions
     void deactivateAutoSynchronization();
     void resetModelSelection();
     RewriterView *rewriterView() const;
+    Model *currentModel() const;
 
 private: // variables
     QmlDesignerPluginData *data;

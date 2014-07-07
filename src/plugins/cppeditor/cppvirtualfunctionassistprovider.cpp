@@ -214,7 +214,7 @@ bool VirtualFunctionAssistProvider::isAsynchronous() const
     return true;
 }
 
-bool VirtualFunctionAssistProvider::supportsEditor(const Core::Id &editorId) const
+bool VirtualFunctionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == CppEditor::Constants::CPPEDITOR_ID;
 }

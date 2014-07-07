@@ -80,7 +80,7 @@ bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
 }
 } // namespace Internal
 
-BuildConfiguration::BuildConfiguration(Target *target, const Core::Id id) :
+BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
     ProjectConfiguration(target, id),
     m_clearSystemEnvironment(false),
     m_macroExpander(0)

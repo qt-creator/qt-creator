@@ -48,7 +48,7 @@ static const char appxDeployConfigurationC[] = "WinRTAppxDeployConfiguration";
 static const char phoneDeployConfigurationC[] = "WinRTPhoneDeployConfiguration";
 static const char emulatorDeployConfigurationC[] = "WinRTEmulatorDeployConfiguration";
 
-static QString msgDeployConfigurationDisplayName(const Core::Id &id)
+static QString msgDeployConfigurationDisplayName(Core::Id id)
 {
     if (id == appxDeployConfigurationC) {
         return QCoreApplication::translate("WinRt::Internal::WinRtDeployConfiguration",
@@ -70,7 +70,7 @@ WinRtDeployConfigurationFactory::WinRtDeployConfigurationFactory(QObject *parent
 {
 }
 
-QString WinRtDeployConfigurationFactory::displayNameForId(const Core::Id id) const
+QString WinRtDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return msgDeployConfigurationDisplayName(id);
 }
@@ -96,12 +96,12 @@ QList<Core::Id> WinRtDeployConfigurationFactory::availableCreationIds(Target *pa
     return QList<Core::Id>();
 }
 
-bool WinRtDeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool WinRtDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-DeployConfiguration *WinRtDeployConfigurationFactory::create(Target *parent, const Core::Id id)
+DeployConfiguration *WinRtDeployConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (id == appxDeployConfigurationC
             || id == phoneDeployConfigurationC
@@ -155,7 +155,7 @@ QList<Core::Id> WinRtDeployStepFactory::availableCreationIds(BuildStepList *pare
     return ids;
 }
 
-QString WinRtDeployStepFactory::displayNameForId(const Core::Id id) const
+QString WinRtDeployStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == Constants::WINRT_BUILD_STEP_DEPLOY) {
         return QCoreApplication::translate("WinRt::Internal::WinRtDeployStepFactory",
@@ -164,12 +164,12 @@ QString WinRtDeployStepFactory::displayNameForId(const Core::Id id) const
     return QString();
 }
 
-bool WinRtDeployStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool WinRtDeployStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-BuildStep *WinRtDeployStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *WinRtDeployStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (id == Constants::WINRT_BUILD_STEP_DEPLOY)
         return new WinRtPackageDeploymentStep(parent);

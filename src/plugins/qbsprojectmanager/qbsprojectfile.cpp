@@ -39,6 +39,7 @@ QbsProjectFile::QbsProjectFile(QbsProject *parent, QString fileName) : Core::IDo
     m_project(parent)
 {
     setId("Qbs.ProjectFile");
+    setMimeType(QLatin1String(Constants::MIME_TYPE));
     setFilePath(fileName);
 }
 
@@ -63,11 +64,6 @@ QString QbsProjectFile::defaultPath() const
 QString QbsProjectFile::suggestedFileName() const
 {
     return QString();
-}
-
-QString QbsProjectFile::mimeType() const
-{
-    return QLatin1String(Constants::MIME_TYPE);
 }
 
 bool QbsProjectFile::isModified() const

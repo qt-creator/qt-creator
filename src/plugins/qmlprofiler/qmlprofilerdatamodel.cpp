@@ -69,10 +69,7 @@ QString getDisplayName(const QmlProfilerDataModel::QmlEventTypeData &event)
     const QmlDebug::QmlEventLocation eventLocation = getLocation(event);
     QString displayName;
 
-    // generate hash
-    if (eventLocation.filename.isEmpty()) {
-        displayName = QmlProfilerDataModel::tr("<bytecode>");
-    } else {
+    if (!eventLocation.filename.isEmpty()) {
         const QString filePath = QUrl(eventLocation.filename).path();
         displayName = filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +
                 QString::number(eventLocation.line);

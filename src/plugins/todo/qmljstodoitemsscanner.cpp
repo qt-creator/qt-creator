@@ -47,7 +47,7 @@ bool QmlJsTodoItemsScanner::shouldProcessFile(const QString &fileName)
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     foreach (const QmlJS::ModelManagerInterface::ProjectInfo &info, modelManager->projectInfos())
-        if (info.project->files(ProjectExplorer::Project::ExcludeGeneratedFiles).contains(fileName))
+        if (info.sourceFiles.contains(fileName))
             return true;
 
     return false;

@@ -62,7 +62,6 @@
 #include "iprojectmanager.h"
 #include "nodesvisitor.h"
 #include "appoutputpane.h"
-#include "pluginfilefactory.h"
 #include "processstep.h"
 #include "kitinformation.h"
 #include "projectfilewizardextension.h"
@@ -102,6 +101,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/id.h>
+#include <coreplugin/idocumentfactory.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/imode.h>
@@ -239,7 +239,7 @@ struct ProjectExplorerPluginPrivate {
     Context m_lastProjectContext;
     Node *m_currentNode;
 
-    QList<Internal::ProjectFileFactory*> m_fileFactories;
+    QList<IDocumentFactory *> m_fileFactories;
     QStringList m_profileMimeTypes;
     Internal::AppOutputPane *m_outputPane;
 
@@ -1044,6 +1044,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(ICore::instance(), SIGNAL(coreAboutToOpen()),
             this, SLOT(determineSessionToRestoreAtStartup()));
     connect(ICore::instance(), SIGNAL(coreOpened()), this, SLOT(restoreSession()));
+    connect(ICore::instance(), SIGNAL(newItemDialogRunningChanged()),
+            this, SLOT(updateActions()));
 
     updateWelcomePage();
 
@@ -1210,11 +1212,43 @@ void ProjectExplorerPlugin::closeAllProjects()
 void ProjectExplorerPlugin::extensionsInitialized()
 {
     d->m_proWindow->extensionsInitialized();
-    d->m_fileFactories = ProjectFileFactory::createFactories(&d->m_projectFilterString);
-    foreach (ProjectFileFactory *pf, d->m_fileFactories) {
-        d->m_profileMimeTypes += pf->mimeTypes();
-        addAutoReleasedObject(pf);
+
+    // Register factories for all project managers
+    QList<IProjectManager*> projectManagers =
+        ExtensionSystem::PluginManager::getObjects<IProjectManager>();
+
+    QList<Core::MimeGlobPattern> allGlobPatterns;
+
+    const QString filterSeparator = QLatin1String(";;");
+    QStringList filterStrings;
+    foreach (IProjectManager *manager, projectManagers) {
+        auto factory = new IDocumentFactory;
+        factory->setId(Constants::FILE_FACTORY_ID);
+        factory->setDisplayName(tr("Project File Factory",
+            "ProjectExplorer::ProjectFileFactory display name."));
+        factory->addMimeType(manager->mimeType());
+        factory->setOpener([this](const QString &fileName) -> IDocument* {
+            QString errorMessage;
+            ProjectExplorerPlugin::instance()->openProject(fileName, &errorMessage);
+            if (!errorMessage.isEmpty())
+                QMessageBox::critical(Core::ICore::mainWindow(),
+                    tr("Failed to open project"), errorMessage);
+            return 0;
+        });
+        d->m_fileFactories.push_back(factory);
+        const QString mimeType = manager->mimeType();
+        MimeType mime = MimeDatabase::findByType(mimeType);
+        allGlobPatterns.append(mime.globPatterns());
+        filterStrings.append(mime.filterString());
+
+        d->m_profileMimeTypes += factory->mimeTypes();
+        addAutoReleasedObject(factory);
     }
+
+    filterStrings.prepend(MimeType::formatFilterString(
+       tr("All Projects"), allGlobPatterns));
+    d->m_projectFilterString = filterStrings.join(filterSeparator);
+
     BuildManager::extensionsInitialized();
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
@@ -1900,6 +1934,8 @@ void ProjectExplorerPlugin::updateActions()
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::updateActions";
+
+    d->m_newAction->setEnabled(!ICore::isNewItemDialogRunning());
 
     Project *project = SessionManager::startupProject();
 
@@ -2748,9 +2784,11 @@ void ProjectExplorerPlugin::updateContextMenuActions()
         }
         if (qobject_cast<FolderNode*>(d->m_currentNode)) {
             // Also handles ProjectNode
-            d->m_addNewFileAction->setEnabled(actions.contains(ProjectExplorer::AddNewFile));
+            d->m_addNewFileAction->setEnabled(actions.contains(ProjectExplorer::AddNewFile)
+                                              && !ICore::isNewItemDialogRunning());
             d->m_addNewSubprojectAction->setEnabled(d->m_currentNode->nodeType() == ProjectNodeType
-                                                    && actions.contains(ProjectExplorer::AddSubProject));
+                                                    && actions.contains(ProjectExplorer::AddSubProject)
+                                                    && !ICore::isNewItemDialogRunning());
             d->m_addExistingFilesAction->setEnabled(actions.contains(ProjectExplorer::AddExistingFile));
             d->m_addExistingDirectoryAction->setEnabled(actions.contains(ProjectExplorer::AddExistingDirectory));
             d->m_renameFileAction->setEnabled(actions.contains(ProjectExplorer::Rename));

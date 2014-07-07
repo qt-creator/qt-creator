@@ -56,7 +56,7 @@ public:
     BuildType buildType() const;
 
 protected:
-    AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id);
+    AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, AutotoolsBuildConfiguration *source);
 
     friend class AutotoolsBuildSettingsWidget;

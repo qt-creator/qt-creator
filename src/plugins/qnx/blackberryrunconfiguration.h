@@ -52,7 +52,7 @@ class BlackBerryRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class BlackBerryRunConfigurationFactory;
 
 public:
-    explicit BlackBerryRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id, const QString &path);
+    explicit BlackBerryRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path);
 
     QWidget *createConfigurationWidget();
 

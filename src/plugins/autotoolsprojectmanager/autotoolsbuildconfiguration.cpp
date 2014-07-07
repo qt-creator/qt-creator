@@ -70,7 +70,7 @@ NamedWidget *AutotoolsBuildConfiguration::createConfigWidget()
     return new AutotoolsBuildSettingsWidget(this);
 }
 
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id)
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id)
     : BuildConfiguration(parent, id)
 { }
 

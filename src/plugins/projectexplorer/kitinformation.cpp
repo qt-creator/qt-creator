@@ -410,7 +410,7 @@ void DeviceKitInformation::setDevice(Kit *k, IDevice::ConstPtr dev)
     setDeviceId(k, dev ? dev->id() : Core::Id());
 }
 
-void DeviceKitInformation::setDeviceId(Kit *k, const Core::Id id)
+void DeviceKitInformation::setDeviceId(Kit *k, Core::Id id)
 {
     k->setValue(DeviceKitInformation::id(), id.toSetting());
 }
@@ -432,7 +432,7 @@ void DeviceKitInformation::kitsWereLoaded()
             this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
 }
 
-void DeviceKitInformation::deviceUpdated(const Core::Id &id)
+void DeviceKitInformation::deviceUpdated(Core::Id id)
 {
     foreach (Kit *k, KitManager::kits()) {
         if (deviceId(k) == id)

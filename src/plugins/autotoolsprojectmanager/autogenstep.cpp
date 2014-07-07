@@ -69,19 +69,19 @@ QList<Core::Id> AutogenStepFactory::availableCreationIds(BuildStepList *parent) 
     return QList<Core::Id>() << Core::Id(AUTOGEN_STEP_ID);
 }
 
-QString AutogenStepFactory::displayNameForId(const Core::Id id) const
+QString AutogenStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == AUTOGEN_STEP_ID)
         return tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id.");
     return QString();
 }
 
-bool AutogenStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool AutogenStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     return canHandle(parent) && Core::Id(AUTOGEN_STEP_ID) == id;
 }
 
-BuildStep *AutogenStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *AutogenStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -133,7 +133,7 @@ AutogenStep::AutogenStep(BuildStepList *bsl) :
     ctor();
 }
 
-AutogenStep::AutogenStep(BuildStepList *bsl, const Core::Id id) :
+AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) :
     AbstractProcessStep(bsl, id)
 {
     ctor();

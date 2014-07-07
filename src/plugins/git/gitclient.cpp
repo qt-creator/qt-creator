@@ -900,7 +900,7 @@ void GitClient::stage(const QString &patch, bool revert)
  * existing instance and to reuse it (in case, say, 'git diff foo' is
  * already open). */
 VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
-        const Core::Id &id,
+        Core::Id id,
         QString title,
         const QString &source, // Source file or directory
         CodecType codecType,

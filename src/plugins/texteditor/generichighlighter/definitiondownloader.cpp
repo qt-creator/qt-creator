@@ -36,6 +36,7 @@
 #include <QScopedPointer>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QRegExp>
 
 #include <utils/networkaccessmanager.h>
 
@@ -88,8 +89,18 @@ void DefinitionDownloader::saveData(QNetworkReply *reply)
     const QString &fileName =
         urlPath.right(urlPath.length() - urlPath.lastIndexOf(QLatin1Char('/')) - 1);
     Utils::FileSaver saver(m_localPath + fileName, QIODevice::Text);
-    saver.write(reply->readAll());
+    const QByteArray data = reply->readAll();
+    saver.write(data);
     m_status = saver.finalize() ? Ok: WriteError;
+    QString content = QString::fromUtf8(data);
+    QRegExp reference(QLatin1String("context\\s*=\\s*\"[^\"]*##([^\"]+)\""));
+    int index = -1;
+    forever {
+        index = reference.indexIn(content, index + 1);
+        if (index == -1)
+            break;
+        emit foundReferencedDefinition(reference.cap(1));
+    }
 }
 
 DefinitionDownloader::Status DefinitionDownloader::status() const

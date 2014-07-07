@@ -67,11 +67,6 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     return false;
 }
 
-QString DiffEditorDocument::mimeType() const
-{
-    return QString();
-}
-
 Core::IDocument::ReloadBehavior DiffEditorDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)

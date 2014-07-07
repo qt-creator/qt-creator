@@ -39,7 +39,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/runextensions.h>
 
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -54,6 +53,8 @@
 #include <stdio.h>
 
 namespace QmlJS {
+
+QMLJS_EXPORT Q_LOGGING_CATEGORY(qmljsLog, "qtc.qmljs.common")
 
 /*!
     \class QmlJS::ModelManagerInterface
@@ -95,6 +96,7 @@ static QStringList environmentImportPaths()
 ModelManagerInterface::ModelManagerInterface(QObject *parent)
     : QObject(parent),
       m_shouldScanImports(false),
+      m_defaultProject(0),
       m_pluginDumper(new PluginDumper(this))
 {
     m_synchronizer.setCancelOnWait(true);
@@ -111,6 +113,11 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 
     qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
     qRegisterMetaType<QmlJS::LibraryInfo>("QmlJS::LibraryInfo");
+
+    m_defaultProjectInfo.qtImportsPath = QLibraryInfo::location(QLibraryInfo::ImportsPath);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    m_defaultProjectInfo.qtQmlPath = QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath);
+#endif
 
     m_defaultImportPaths << environmentImportPaths();
     updateImportPaths();
@@ -148,7 +155,7 @@ Language::Enum ModelManagerInterface::guessLanguageOfFile(const QString &fileNam
         lMapping = defaultLanguageMapping();
     const QFileInfo info(fileName);
     const QString fileSuffix = info.suffix();
-    return lMapping.value(fileSuffix, Language::Unknown);
+    return lMapping.value(fileSuffix, Language::NoLanguage);
 }
 
 QStringList ModelManagerInterface::globPatternsForLanguages(const QList<Language::Enum> languages)
@@ -178,7 +185,7 @@ void ModelManagerInterface::writeWarning(const QString &msg)
     if (ModelManagerInterface *i = instance())
         i->writeMessageInternal(msg);
     else
-        qDebug() << msg;
+        qCWarning(qmljsLog) << msg;
 }
 
 ModelManagerInterface::WorkingCopy ModelManagerInterface::workingCopy()
@@ -203,7 +210,7 @@ QHash<QString, Language::Enum> ModelManagerInterface::languageForSuffix() const
 
 void ModelManagerInterface::writeMessageInternal(const QString &msg) const
 {
-    qDebug() << msg;
+    qCWarning(qmljsLog) << msg;
 }
 
 ModelManagerInterface::WorkingCopy ModelManagerInterface::workingCopyInternal() const
@@ -216,7 +223,7 @@ void ModelManagerInterface::addTaskInternal(QFuture<void> result, const QString 
                                             const char *taskId) const
 {
     Q_UNUSED(result);
-    qDebug() << "started " << taskId << " " << msg;
+    qCDebug(qmljsLog) << "started " << taskId << " " << msg;
 }
 
 void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resourcePath)
@@ -253,7 +260,13 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
         writeMessageInternal(warning);
 }
 
-
+void ModelManagerInterface::setDefaultProject(const ModelManagerInterface::ProjectInfo &pInfo,
+                                              ProjectExplorer::Project *p)
+{
+    QMutexLocker l(mutex());
+    m_defaultProject = p;
+    m_defaultProjectInfo = pInfo;
+}
 
 Snapshot ModelManagerInterface::snapshot() const
 {
@@ -321,7 +334,7 @@ void ModelManagerInterface::fileChangedOnDisk(const QString &path)
 {
     QtConcurrent::run(&ModelManagerInterface::parse,
                       workingCopyInternal(), QStringList() << path,
-                      this, Language::Unknown, true);
+                      this, Language::AnyLanguage, true);
 }
 
 void ModelManagerInterface::removeFiles(const QStringList &files)
@@ -477,11 +490,13 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::projectInfos() 
     return m_projects.values();
 }
 
-ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfo(ProjectExplorer::Project *project) const
+ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfo(
+        ProjectExplorer::Project *project,
+        const ModelManagerInterface::ProjectInfo &defaultValue) const
 {
     QMutexLocker locker(&m_mutex);
 
-    return m_projects.value(project, ProjectInfo());
+    return m_projects.value(project, defaultValue);
 }
 
 void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectExplorer::Project *p)
@@ -495,6 +510,8 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
         QMutexLocker locker(&m_mutex);
         oldInfo = m_projects.value(p);
         m_projects.insert(p, pinfo);
+        if (p == m_defaultProject)
+            m_defaultProjectInfo = pinfo;
         snapshot = m_validSnapshot;
     }
 
@@ -614,7 +631,7 @@ void ModelManagerInterface::updateDocument(Document::Ptr doc)
 void ModelManagerInterface::updateLibraryInfo(const QString &path, const LibraryInfo &info)
 {
     if (!info.pluginTypeInfoError().isEmpty())
-        qDebug() << "Dumping errors for " << path << ":" << info.pluginTypeInfoError();
+        qCWarning(qmljsLog) << "Dumping errors for " << path << ":" << info.pluginTypeInfoError();
 
     {
         QMutexLocker locker(&m_mutex);
@@ -740,7 +757,7 @@ static bool findNewQmlLibraryInPath(const QString &path,
             const QString path = QDir::cleanPath(componentFileInfo.absolutePath());
             if (! scannedPaths->contains(path)) {
                 *importedFiles += filesInDirectoryForLanguages(path,
-                                                      Document::companionLanguages(Language::Unknown));
+                                                      Document::companionLanguages(Language::AnyLanguage));
                 scannedPaths->insert(path);
             }
         }
@@ -823,7 +840,7 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
         const QString fileName = files.at(i);
 
         Language::Enum language = guessLanguageOfFile(fileName);
-        if (language == Language::Unknown) {
+        if (language == Language::NoLanguage) {
             if (fileName.endsWith(QLatin1String(".qrc")))
                 modelManager->updateQrcFile(fileName);
             continue;
@@ -1190,6 +1207,11 @@ void ModelManagerInterface::startCppQmlTypeUpdate()
     m_queuedCppDocuments.clear();
 }
 
+QMutex *ModelManagerInterface::mutex() const
+{
+    return &m_mutex;
+}
+
 void ModelManagerInterface::asyncReset()
 {
     m_asyncResetTimer->start();
@@ -1284,7 +1306,7 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         foreach (const QString &path, defaultVCtx.paths)
             res.maybeAddPath(path);
         switch (res.language) {
-        case Language::Unknown:
+        case Language::AnyLanguage:
         case Language::Qml:
             res.maybeAddPath(info.qtQmlPath);
             // fallthrough
@@ -1307,6 +1329,7 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
             }
             break;
         }
+        case Language::NoLanguage:
         case Language::JavaScript:
         case Language::QmlTypeInfo:
         case Language::Json:
@@ -1322,10 +1345,10 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
     case ViewerContext::AddDefaultPaths:
         foreach (const QString &path, defaultVCtx.paths)
             res.maybeAddPath(path);
-        if (res.language == Language::Unknown || res.language == Language::Qml
+        if (res.language == Language::AnyLanguage || res.language == Language::Qml
                 || res.language == Language::QmlQtQuick2)
             res.maybeAddPath(info.qtImportsPath);
-        if (res.language == Language::Unknown || res.language == Language::Qml
+        if (res.language == Language::AnyLanguage || res.language == Language::Qml
                 || res.language == Language::QmlQtQuick1)
             res.maybeAddPath(info.qtQmlPath);
         break;
@@ -1339,7 +1362,7 @@ ViewerContext ModelManagerInterface::defaultVContext(Language::Enum language,
                                                      bool autoComplete) const
 {
     if (!doc.isNull()) {
-        if (language == Language::Unknown)
+        if (language == Language::AnyLanguage)
             language = doc->language();
         else if (language == Language::Qml &&
                  (doc->language() == Language::QmlQtQuick1 || doc->language() == Language::QmlQtQuick2))
@@ -1358,12 +1381,8 @@ ViewerContext ModelManagerInterface::defaultVContext(Language::Enum language,
 
 ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() const
 {
-    ProjectInfo res;
-    res.qtImportsPath = QLibraryInfo::location(QLibraryInfo::ImportsPath);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    res.qtQmlPath = QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath);
-#endif
-    return res;
+    QMutexLocker l(mutex());
+    return m_defaultProjectInfo;
 }
 
 void ModelManagerInterface::setDefaultVContext(const ViewerContext &vContext)

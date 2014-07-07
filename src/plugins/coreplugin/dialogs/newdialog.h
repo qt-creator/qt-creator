@@ -60,21 +60,28 @@ public:
     explicit NewDialog(QWidget *parent);
     virtual ~NewDialog();
 
-    void setWizardFactories(QList<IWizardFactory*> factories);
+    void setWizardFactories(QList<IWizardFactory*> factories, const QString &defaultLocation, const QVariantMap &extraVariables);
 
-    Core::IWizardFactory *showDialog();
+    void showDialog();
     QString selectedPlatform() const;
+
+protected:
+    bool event(QEvent *);
 
 private slots:
     void currentCategoryChanged(const QModelIndex &);
     void currentItemChanged(const QModelIndex &);
     void okButtonClicked();
+    void reject();
     void updateOkButton();
     void setSelectedPlatform(const QString &platform);
 
 private:
     Core::IWizardFactory *currentWizardFactory() const;
     void addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory);
+    void saveState();
+
+    static QString m_lastCategory;
 
     Ui::NewDialog *m_ui;
     QStandardItemModel *m_model;
@@ -83,6 +90,8 @@ private:
     QPushButton *m_okButton;
     QIcon m_dummyIcon;
     QList<QStandardItem*> m_categoryItems;
+    QString m_defaultLocation;
+    QVariantMap m_extraVariables;
 };
 
 } // namespace Internal

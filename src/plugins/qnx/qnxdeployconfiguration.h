@@ -41,7 +41,7 @@ class QnxDeployConfiguration : public RemoteLinux::RemoteLinuxDeployConfiguratio
 {
     Q_OBJECT
 public:
-    QnxDeployConfiguration(ProjectExplorer::Target *target, const Core::Id id,
+    QnxDeployConfiguration(ProjectExplorer::Target *target, Core::Id id,
                            const QString &defaultDisplayName);
 
     QnxDeployConfiguration(ProjectExplorer::Target *target,

@@ -91,7 +91,6 @@ public:
 
     QString defaultPath() const;
     QString suggestedFileName() const;
-    QString mimeType() const;
 
     bool shouldAutoSave() const;
     bool isModified() const;

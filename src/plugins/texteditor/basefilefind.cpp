@@ -316,7 +316,7 @@ void BaseFileFind::openEditor(const Core::SearchResultItem &item)
         openedEditor = EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
     }
     if (d->m_currentFindSupport)
-        d->m_currentFindSupport->clearResults();
+        d->m_currentFindSupport->clearHighlights();
     d->m_currentFindSupport = 0;
     if (!openedEditor)
         return;
@@ -333,7 +333,7 @@ void BaseFileFind::openEditor(const Core::SearchResultItem &item)
 void BaseFileFind::hideHighlightAll(bool visible)
 {
     if (!visible && d->m_currentFindSupport)
-        d->m_currentFindSupport->clearResults();
+        d->m_currentFindSupport->clearHighlights();
 }
 
 void BaseFileFind::searchAgain()

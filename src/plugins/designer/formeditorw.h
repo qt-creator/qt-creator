@@ -143,7 +143,7 @@ private:
     void addDockViewAction(Core::ActionContainer *viewMenu,
                            int index,
                            const Core::Context &context,
-                           const QString &title, const Core::Id &id);
+                           const QString &title, Core::Id id);
 
     Core::ActionContainer *createPreviewStyleMenu(QActionGroup *actionGroup);
 
@@ -153,12 +153,12 @@ private:
                                          const Core::Context &context,
                                          Core::ActionContainer *medit,
                                          const QString &actionName,
-                                         const Core::Id &id,
+                                         Core::Id id,
                                          int toolNumber,
                                          const QString &iconName = QString(),
                                          const QString &keySequence = QString());
     Core::Command *addToolAction(QAction *a,
-                                 const Core::Context &context, const Core::Id &id,
+                                 const Core::Context &context, Core::Id id,
                                  Core::ActionContainer *c1, const QString &keySequence = QString(),
                                  Core::Id groupId = Core::Id());
     QToolBar *createEditorToolBar() const;

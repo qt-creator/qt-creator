@@ -59,7 +59,6 @@ public:
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     QString defaultPath() const;
     QString suggestedFileName() const;
-    QString mimeType() const;
     bool isModified() const;
     bool isSaveAsAllowed() const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);

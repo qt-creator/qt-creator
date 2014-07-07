@@ -42,7 +42,7 @@ using namespace ProjectExplorer;
 const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
 const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
 
-DeployConfiguration::DeployConfiguration(Target *target, const Core::Id id) :
+DeployConfiguration::DeployConfiguration(Target *target, Core::Id id) :
     ProjectConfiguration(target, id),
     m_stepList(0)
 {
@@ -144,7 +144,7 @@ void DeployConfiguration::cloneSteps(DeployConfiguration *source)
 ///
 // DefaultDeployConfiguration
 ///
-DefaultDeployConfiguration::DefaultDeployConfiguration(Target *target, const Core::Id id)
+DefaultDeployConfiguration::DefaultDeployConfiguration(Target *target, Core::Id id)
     : DeployConfiguration(target, id)
 {
 
@@ -174,7 +174,7 @@ QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent)
     return QList<Core::Id>() << Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
 }
 
-QString DeployConfigurationFactory::displayNameForId(const Core::Id id) const
+QString DeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID)
         //: Display name of the default deploy configuration
@@ -182,14 +182,14 @@ QString DeployConfigurationFactory::displayNameForId(const Core::Id id) const
     return QString();
 }
 
-bool DeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool DeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
     return id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID;
 }
 
-DeployConfiguration *DeployConfigurationFactory::create(Target *parent, const Core::Id id)
+DeployConfiguration *DeployConfigurationFactory::create(Target *parent, Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;

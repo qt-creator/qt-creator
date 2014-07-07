@@ -63,7 +63,7 @@ const char STEPS_PREFIX[] = "ProjectExplorer.BuildStepList.Step.";
 
 } // namespace
 
-BuildStepList::BuildStepList(QObject *parent, const Core::Id id) :
+BuildStepList::BuildStepList(QObject *parent, Core::Id id) :
     ProjectConfiguration(parent, id),
     m_isNull(false)
 {
@@ -119,7 +119,7 @@ bool BuildStepList::isEmpty() const
     return m_steps.isEmpty();
 }
 
-bool BuildStepList::contains(const Core::Id id) const
+bool BuildStepList::contains(Core::Id id) const
 {
     foreach (BuildStep *bs, steps()) {
         if (bs->id() == id)

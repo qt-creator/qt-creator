@@ -97,7 +97,7 @@ signals:
     void enabledChanged();
 
 protected:
-    BuildConfiguration(Target *target, const Core::Id id);
+    BuildConfiguration(Target *target, Core::Id id);
     BuildConfiguration(Target *target, BuildConfiguration *source);
 
     virtual void setBuildDirectory(const Utils::FileName &dir);

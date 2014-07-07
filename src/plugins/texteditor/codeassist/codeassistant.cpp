@@ -56,7 +56,7 @@ using namespace Internal;
 namespace {
 
 template <class T>
-void filterEditorSpecificProviders(QList<T *> *providers, const Core::Id &editorId)
+void filterEditorSpecificProviders(QList<T *> *providers, Core::Id editorId)
 {
     typename QList<T *>::iterator it = providers->begin();
     while (it != providers->end()) {

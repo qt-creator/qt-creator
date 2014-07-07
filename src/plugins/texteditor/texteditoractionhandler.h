@@ -72,7 +72,7 @@ protected:
     virtual BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const;
 
 private:
-    QAction *registerAction(const Core::Id &id,
+    QAction *registerAction(Core::Id id,
                             const char *slot,
                             bool scriptable = false,
                             const QString &title = QString(),

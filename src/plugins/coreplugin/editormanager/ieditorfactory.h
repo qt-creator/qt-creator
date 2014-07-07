@@ -41,10 +41,9 @@ class CORE_EXPORT IEditorFactory : public Core::IDocumentFactory
     Q_OBJECT
 
 public:
-    IEditorFactory(QObject *parent = 0) : IDocumentFactory(parent) {}
+    IEditorFactory(QObject *parent = 0);
 
     virtual IEditor *createEditor() = 0;
-    virtual IDocument *open(const QString &);
 };
 
 } // namespace Core

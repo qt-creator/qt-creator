@@ -623,7 +623,7 @@ DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory(QObject
 DesktopQmakeRunConfigurationFactory::~DesktopQmakeRunConfigurationFactory()
 { }
 
-bool DesktopQmakeRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool DesktopQmakeRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -631,7 +631,7 @@ bool DesktopQmakeRunConfigurationFactory::canCreate(Target *parent, const Core::
     return project->hasApplicationProFile(pathFromId(id));
 }
 
-RunConfiguration *DesktopQmakeRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
+RunConfiguration *DesktopQmakeRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     DesktopQmakeRunConfiguration *rc = new DesktopQmakeRunConfiguration(parent, id);
     const QmakeProFileNode *node = static_cast<QmakeProject *>(parent->project())->rootQmakeProjectNode()->findProFileFor(rc->proFilePath());
@@ -679,7 +679,7 @@ QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target
     return QmakeProject::idsForNodes(Core::Id(QMAKE_RC_PREFIX), nodes);
 }
 
-QString DesktopQmakeRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString DesktopQmakeRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return QFileInfo(pathFromId(id)).completeBaseName();
 }

@@ -60,10 +60,10 @@ void CurrentDocumentFind::resetIncrementalSearch()
     m_currentFind->resetIncrementalSearch();
 }
 
-void CurrentDocumentFind::clearResults()
+void CurrentDocumentFind::clearHighlights()
 {
     QTC_ASSERT(m_currentFind, return);
-    m_currentFind->clearResults();
+    m_currentFind->clearHighlights();
 }
 
 bool CurrentDocumentFind::isEnabled() const
@@ -175,7 +175,7 @@ void CurrentDocumentFind::acceptCandidate()
         return;
     removeFindSupportConnections();
     if (m_currentFind)
-        m_currentFind->clearResults();
+        m_currentFind->clearHighlights();
 
     if (m_currentWidget)
         disconnect(Aggregation::Aggregate::parentAggregate(m_currentWidget), SIGNAL(changed()),

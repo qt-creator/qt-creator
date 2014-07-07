@@ -95,7 +95,7 @@ protected:
     void processFinished(int exitCode, QProcess::ExitStatus status);
 
     MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs);
-    MakeStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
+    MakeStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     bool fromMap(const QVariantMap &map);
 
@@ -145,15 +145,15 @@ public:
     explicit MakeStepFactory(QObject *parent = 0);
     virtual ~MakeStepFactory();
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
     bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source);
     bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
     ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const;
-    QString displayNameForId(const Core::Id id) const;
+    QString displayNameForId(Core::Id id) const;
 };
 
 } // namespace Internal

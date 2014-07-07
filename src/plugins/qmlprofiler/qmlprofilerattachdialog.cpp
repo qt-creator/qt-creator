@@ -100,7 +100,7 @@ ProjectExplorer::Kit *QmlProfilerAttachDialog::kit() const
     return d->kitChooser->currentKit();
 }
 
-void QmlProfilerAttachDialog::setKitId(const Core::Id &id)
+void QmlProfilerAttachDialog::setKitId(Core::Id id)
 {
     d->kitChooser->setCurrentKitId(id);
 }

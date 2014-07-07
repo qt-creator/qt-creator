@@ -99,9 +99,6 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
             }
         }
     }
-
-    if (!parentNode.metaInfo().isLayoutable())
-        update(m_lastPosition, Snapper::NoSnapping, UseBaseState);
 }
 
 void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
@@ -126,7 +123,7 @@ void MoveManipulator::setDirectUpdateInNodeInstances(bool directUpdate)
 {
     foreach (FormEditorItem* item, m_itemList) {
         if (item && item->qmlItemNode().isValid())
-            item->qmlItemNode().nodeInstance().setUpdateTransform(!directUpdate);
+            item->qmlItemNode().nodeInstance().setDirectUpdate(directUpdate);
     }
 }
 

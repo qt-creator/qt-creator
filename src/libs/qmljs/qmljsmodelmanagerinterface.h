@@ -171,7 +171,8 @@ public:
                                              QrcResourceSelector resources = AllQrcResources);
 
     QList<ProjectInfo> projectInfos() const;
-    ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
+    ProjectInfo projectInfo(ProjectExplorer::Project *project,
+                            const ModelManagerInterface::ProjectInfo &defaultValue = ProjectInfo()) const;
     void updateProjectInfo(const ProjectInfo &pinfo, ProjectExplorer::Project *p);
 
     void updateDocument(QmlJS::Document::Ptr doc);
@@ -218,6 +219,7 @@ protected slots:
     void asyncReset();
     virtual void startCppQmlTypeUpdate();
 protected:
+    QMutex *mutex() const;
     virtual QHash<QString,Language::Enum> languageForSuffix() const;
     virtual void writeMessageInternal(const QString &msg) const;
     virtual WorkingCopy workingCopyInternal() const;
@@ -250,6 +252,7 @@ protected:
     void maybeScan(const QStringList &importPaths, Language::Enum defaultLanguage);
     void updateImportPaths();
     void loadQmlTypeDescriptionsInternal(const QString &path);
+    void setDefaultProject(const ProjectInfo &pInfo, ProjectExplorer::Project *p);
 
 private:
     mutable QMutex m_mutex;
@@ -274,6 +277,8 @@ private:
 
     // project integration
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
+    ProjectInfo m_defaultProjectInfo;
+    ProjectExplorer::Project *m_defaultProject;
     QMultiHash<QString, ProjectExplorer::Project *> m_fileToProject;
 
     PluginDumper *m_pluginDumper;

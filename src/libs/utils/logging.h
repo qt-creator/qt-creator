@@ -28,10 +28,13 @@
 ****************************************************************************/
 
 #ifndef LOGGING_H
+#define LOGGING_H
 
 #include <qglobal.h>
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
+
+#include <QDebug>
 
 //
 // Qt < 5.2 didn't feature categorized logging:
@@ -42,7 +45,8 @@ class QLoggingCategory
     Q_DISABLE_COPY(QLoggingCategory)
 public:
     explicit QLoggingCategory(const char *category) : name(category) {}
-    ~QLoggingCategory();
+    ~QLoggingCategory() {}
+    static void setFilterRules(const QString &) {}
 
     bool isDebugEnabled() const { return false; }
     bool isWarningEnabled() const { return true; }

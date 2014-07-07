@@ -80,7 +80,6 @@ public slots:
 public:
     QString m_defaultPath;
     QString m_suggestedFileName;
-    QString m_mimeType;
     TypingSettings m_typingSettings;
     StorageSettings m_storageSettings;
     TabSettings m_tabSettings;
@@ -229,19 +228,6 @@ QString BaseTextDocument::textAt(int pos, int length) const
 QChar BaseTextDocument::characterAt(int pos) const
 {
     return document()->characterAt(pos);
-}
-
-QString BaseTextDocument::mimeType() const
-{
-    return d->m_mimeType;
-}
-
-void BaseTextDocument::setMimeType(const QString &mt)
-{
-    if (d->m_mimeType != mt) {
-        d->m_mimeType = mt;
-        emit mimeTypeChanged();
-    }
 }
 
 void BaseTextDocument::setTypingSettings(const TypingSettings &typingSettings)

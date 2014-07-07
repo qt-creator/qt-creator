@@ -171,7 +171,7 @@ void TaskHub::showTaskInEditor(unsigned int id)
     emit m_instance->openTask(id);
 }
 
-void TaskHub::setCategoryVisibility(const Core::Id &categoryId, bool visible)
+void TaskHub::setCategoryVisibility(Core::Id categoryId, bool visible)
 {
     QTC_ASSERT(m_registeredCategories.contains(categoryId), return);
     emit m_instance->categoryVisibilityChanged(categoryId, visible);

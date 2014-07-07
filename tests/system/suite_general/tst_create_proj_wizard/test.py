@@ -77,7 +77,7 @@ def main():
                 __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
                 verifyKitCheckboxes(kits, displayedPlatforms)
                 # FIXME: if QTBUG-35203 is fixed replace by triggering the shortcut for Back
-                clickButton(waitForObject("{type='QPushButton' text='Cancel'}"))
+                clickButton(waitForObject("{type='QPushButton' text='Cancel' visible='1'}"))
                 # are there more Quick combinations - then recreate this project
                 if counter < len(quickCombinations) - 1:
                     displayedPlatforms = __createProject__(category, template)
@@ -88,7 +88,7 @@ def main():
         except LookupError:
             pass
         verifyKitCheckboxes(kits, displayedPlatforms)
-        clickButton(waitForObject("{type='QPushButton' text='Cancel'}"))
+        clickButton(waitForObject("{type='QPushButton' text='Cancel' visible='1'}"))
     invokeMenuItem("File", "Exit")
 
 def verifyKitCheckboxes(kits, displayedPlatforms):

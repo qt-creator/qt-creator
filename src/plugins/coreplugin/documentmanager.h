@@ -74,7 +74,7 @@ public:
     static void unexpectFileChange(const QString &fileName);
 
     // recent files
-    static void addToRecentFiles(const QString &fileName, const Id &editorId = Id());
+    static void addToRecentFiles(const QString &fileName, Id editorId = Id());
     Q_SLOT void clearRecentFiles();
     static QList<RecentFile> recentFiles();
 

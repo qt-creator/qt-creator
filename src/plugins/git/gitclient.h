@@ -360,7 +360,7 @@ private:
                                                         const QString &dynamicPropertyValue) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
-    VcsBase::VcsBaseEditorWidget *createVcsEditor(const Core::Id &kind,
+    VcsBase::VcsBaseEditorWidget *createVcsEditor(Core::Id kind,
                                             QString title,
                                             const QString &source,
                                             CodecType codecType,

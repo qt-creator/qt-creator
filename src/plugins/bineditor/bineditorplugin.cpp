@@ -97,7 +97,7 @@ public:
         m_widget->highlightSearchResults(txt.toLatin1(), textDocumentFlagsForFindFlags(findFlags));
     }
 
-    void clearResults()
+    void clearHighlights()
     {
         m_widget->highlightSearchResults(QByteArray());
     }
@@ -206,16 +206,12 @@ public:
         Core::IDocument(parent)
     {
         setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
+        setMimeType(QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE));
         m_widget = parent;
         connect(m_widget, SIGNAL(dataRequested(quint64)),
             this, SLOT(provideData(quint64)));
         connect(m_widget, SIGNAL(newRangeRequested(quint64)),
             this, SLOT(provideNewRange(quint64)));
-    }
-    ~BinEditorDocument() {}
-
-    QString mimeType() const {
-        return QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE);
     }
 
     bool setContents(const QByteArray &contents)

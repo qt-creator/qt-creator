@@ -54,7 +54,7 @@ public:
     virtual void addToBaseEnvironment(Utils::Environment &env) const;
 
 protected:
-    explicit LocalApplicationRunConfiguration(Target *target, const Core::Id id);
+    explicit LocalApplicationRunConfiguration(Target *target, Core::Id id);
     explicit LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc);
 
     Utils::AbstractMacroExpander *macroExpander() const;

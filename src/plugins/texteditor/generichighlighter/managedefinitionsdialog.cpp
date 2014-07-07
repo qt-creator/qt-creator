@@ -42,7 +42,7 @@ using namespace TextEditor;
 using namespace Internal;
 
 ManageDefinitionsDialog::ManageDefinitionsDialog(
-        const QList<HighlightDefinitionMetaData> &metaDataList,
+        const QList<DefinitionMetaDataPtr> &metaDataList,
         const QString &path,
         QWidget *parent) :
     QDialog(parent),
@@ -69,7 +69,7 @@ void ManageDefinitionsDialog::populateDefinitionsWidget()
     const int size = m_definitionsMetaData.size();
     ui.definitionsTable->setRowCount(size);
     for (int i = 0; i < size; ++i) {
-        const HighlightDefinitionMetaData &downloadData = m_definitionsMetaData.at(i);
+        const HighlightDefinitionMetaData &downloadData = *m_definitionsMetaData.at(i);
 
         // Look for this definition in the current path specified by the user, not the one
         // stored in the settings. So the manager should not be queried for this information.
@@ -77,7 +77,7 @@ void ManageDefinitionsDialog::populateDefinitionsWidget()
         QFileInfo fi(m_path + downloadData.fileName);
         QFile definitionFile(fi.absoluteFilePath());
         if (definitionFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            const QSharedPointer<HighlightDefinitionMetaData> &data = Manager::parseMetadata(fi);
+            const DefinitionMetaDataPtr data = Manager::parseMetadata(fi);
             if (!data.isNull())
                 dirVersion = data->version;
         }
@@ -110,7 +110,7 @@ void ManageDefinitionsDialog::downloadDefinitions()
 
     QList<QUrl> urls;
     foreach (const QModelIndex &index, ui.definitionsTable->selectionModel()->selectedRows())
-        urls.append(m_definitionsMetaData.at(index.row()).url);
+        urls.append(m_definitionsMetaData.at(index.row())->url);
     Manager::instance()->downloadDefinitions(urls, m_path);
     accept();
 }

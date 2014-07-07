@@ -238,17 +238,22 @@ void HighlightDefinitionHandler::contextElementStarted(const QXmlAttributes &att
 void HighlightDefinitionHandler::ruleElementStarted(const QXmlAttributes &atts,
                                                     const QSharedPointer<Rule> &rule)
 {
+    const QString context = atts.value(kContext);
     // The definition of a rule is not necessarily the same of its enclosing context because of
     // externally included rules.
     rule->setDefinition(m_definition);
     rule->setItemData(atts.value(kAttribute));
-    rule->setContext(atts.value(kContext));
+    rule->setContext(context);
     rule->setBeginRegion(atts.value(kBeginRegion));
     rule->setEndRegion(atts.value(kEndRegion));
     rule->setLookAhead(atts.value(kLookAhead));
     rule->setFirstNonSpace(atts.value(kFirstNonSpace));
     rule->setColumn(atts.value(kColumn));
 
+    if (context.contains(kDoubleHash)) {
+        IncludeRulesInstruction includeInstruction(context, m_currentContext->rules().size(), QString());
+        m_currentContext->addIncludeRulesInstruction(includeInstruction);
+    }
     if (m_currentRule.isEmpty())
         m_currentContext->addRule(rule);
     else
@@ -428,13 +433,17 @@ void HighlightDefinitionHandler::processIncludeRules(const QSharedPointer<Contex
 
         QSharedPointer<Context> sourceContext;
         const QString &sourceName = instruction.sourceContext();
-        if (sourceName.startsWith(kDoubleHash)) {
-            // This refers to an external definition. The rules included are the ones from its
+        if (sourceName.contains(kDoubleHash)) {
+            // This refers to an external definition. Context can be specified before the double
+            // hash (e.g. Normal##Javascript). If it isn't, the rules included are the ones from its
             // initial context. Others contexts and rules from the external definition will work
             // transparently to the highlighter. This is because contexts and rules know the
             // definition they are from.
-            QString externalName = QString::fromRawData(sourceName.unicode() + 2,
-                                                        sourceName.length() - 2);
+            const QStringList values = sourceName.split(kDoubleHash);
+            if (values.count() != 2)
+                return;
+            const QString externalContext = values.at(0);
+            const QString externalName = values.at(1);
             const QString &id = Manager::instance()->definitionIdByName(externalName);
 
             // If there is an incorrect circular dependency among definitions this is skipped.
@@ -446,7 +455,10 @@ void HighlightDefinitionHandler::processIncludeRules(const QSharedPointer<Contex
             if (externalDefinition.isNull() || !externalDefinition->isValid())
                 continue;
 
-            sourceContext = externalDefinition->initialContext();
+            if (externalContext.isEmpty())
+                sourceContext = externalDefinition->initialContext();
+            else
+                sourceContext = externalDefinition->context(externalContext);
         } else if (!sourceName.startsWith(kHash)) {
             sourceContext = m_definition->context(sourceName);
 

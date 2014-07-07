@@ -64,19 +64,19 @@ QList<Core::Id> AndroidDeployStepFactory::availableCreationIds(BuildStepList *pa
     return QList<Core::Id>() << AndroidDeployStep::Id;
 }
 
-QString AndroidDeployStepFactory::displayNameForId(const Core::Id id) const
+QString AndroidDeployStepFactory::displayNameForId(Core::Id id) const
 {
     if (id == AndroidDeployStep::Id)
         return tr("Deploy to Android device or emulator");
     return QString();
 }
 
-bool AndroidDeployStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
+bool AndroidDeployStepFactory::canCreate(BuildStepList *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-BuildStep *AndroidDeployStepFactory::create(BuildStepList *parent, const Core::Id id)
+BuildStep *AndroidDeployStepFactory::create(BuildStepList *parent, Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
     Q_UNUSED(id);

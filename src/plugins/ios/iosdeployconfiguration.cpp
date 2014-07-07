@@ -63,12 +63,12 @@ IosDeployConfigurationFactory::IosDeployConfigurationFactory(QObject *parent)
     setObjectName(QLatin1String("IosDeployConfigurationFactory"));
 }
 
-bool IosDeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool IosDeployConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-DeployConfiguration *IosDeployConfigurationFactory::create(Target *parent, const Core::Id id)
+DeployConfiguration *IosDeployConfigurationFactory::create(Target *parent, Core::Id id)
 {
     IosDeployConfiguration *dc = new IosDeployConfiguration(parent, id);
     dc->stepList()->insertStep(0, new IosDeployStep(dc->stepList()));
@@ -120,7 +120,7 @@ QList<Core::Id> IosDeployConfigurationFactory::availableCreationIds(Target *pare
     return ids;
 }
 
-QString IosDeployConfigurationFactory::displayNameForId(const Core::Id id) const
+QString IosDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id.name().startsWith(IOS_DC_PREFIX))
         return tr("Deploy on iOS");

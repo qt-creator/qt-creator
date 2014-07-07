@@ -32,7 +32,7 @@
 
     \section1 General Questions
 
-    \b {\QC only shows a blank window, or crashes on startup. What's going wrong?}
+    \b {\QC only shows a blank window, a dialog complaining about missing OpenGL support, or crashes on startup. What's going wrong?}
 
     Some parts of \QC use Qt Quick 2, which relies on OpenGL API for
     drawing. The most prominent use of Qt Quick 2 is in the Welcome mode, but it's
@@ -55,7 +55,9 @@
 
     \e{Virtual Machines}
 
-    Try to enable \e{3D acceleration} in your virtual machine's settings.
+    Try to enable \e{3D acceleration} in your virtual machine's settings. For VirtualBox,
+    also make sure you have installed the Guest Addons, including experimental
+    \e{Direct3D support}.
 
     \e{Windows}
 
@@ -67,7 +69,8 @@
 
       \li ANGLE backend: This requires a Windows version newer than Windows XP. If you
           have problems, try updating your graphics drivers or update your
-          DirectX version.
+          DirectX version. Run \c dxdiag.exe to check whether \e{Direct3D Acceleration}
+          is indeed enabled.
 
       \li OpenGL backend: Make sure your graphics driver supports OpenGL 2.1 or newer.
           Try to update your graphics driver.

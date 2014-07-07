@@ -58,7 +58,7 @@ GenericBuildConfiguration::GenericBuildConfiguration(Target *parent)
 {
 }
 
-GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, const Core::Id id)
+GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Core::Id id)
     : BuildConfiguration(parent, id)
 {
 }

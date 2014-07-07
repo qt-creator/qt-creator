@@ -1793,10 +1793,8 @@ registerCommand("pp", pp)
 
 # Global instance.
 if gdb.parameter('height') is None:
-    print("Using MI")
     theDumper = Dumper()
 else:
-    print("Using CLI")
     import codecs
     theDumper = CliDumper()
 

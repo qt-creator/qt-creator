@@ -59,11 +59,13 @@ void SelectionRectangle::clear()
 }
 void SelectionRectangle::show()
 {
+    m_controlShape->setParentItem(m_layerItem.data());
     m_controlShape->show();
 }
 
 void SelectionRectangle::hide()
 {
+    m_controlShape->setParentItem(0);
     m_controlShape->hide();
 }
 

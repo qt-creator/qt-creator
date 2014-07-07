@@ -57,9 +57,9 @@ public:
 
     void delayedInitialization();
 
-    int taskCount(const Core::Id &category = Core::Id()) const;
-    int warningTaskCount(const Core::Id &category = Core::Id()) const;
-    int errorTaskCount(const Core::Id &category = Core::Id()) const;
+    int taskCount(Core::Id category = Core::Id()) const;
+    int warningTaskCount(Core::Id category = Core::Id()) const;
+    int errorTaskCount(Core::Id category = Core::Id()) const;
 
     // IOutputPane
     QWidget *outputWidget(QWidget *);
@@ -85,15 +85,15 @@ signals:
     void tasksCleared();
 
 private slots:
-    void addCategory(const Core::Id &categoryId, const QString &displayName, bool visible);
+    void addCategory(Core::Id categoryId, const QString &displayName, bool visible);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
     void updatedTaskFileName(unsigned int id, const QString &fileName);
     void updatedTaskLineNumber(unsigned int id, int line);
     void showTask(unsigned int id);
     void openTask(unsigned int id);
-    void clearTasks(const Core::Id &categoryId);
-    void setCategoryVisibility(const Core::Id &categoryId, bool visible);
+    void clearTasks(Core::Id categoryId);
+    void setCategoryVisibility(Core::Id categoryId, bool visible);
     void currentChanged(const QModelIndex &index);
 
     void triggerDefaultHandler(const QModelIndex &index);

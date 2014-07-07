@@ -200,7 +200,7 @@ FormEditorW::~FormEditorW()
 // Add an actioon to toggle the view state of a dock window
 void FormEditorW::addDockViewAction(ActionContainer *viewMenu,
                                     int index, const Context &context,
-                                    const QString &title, const Id &id)
+                                    const QString &title, Id id)
 {
     if (const QDockWidget *dw = m_editorWidget->designerDockWidgets()[index]) {
         QAction *action = dw->toggleViewAction();
@@ -635,7 +635,7 @@ QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
                                      const Context &context,
                                      ActionContainer *medit,
                                      const QString &actionName,
-                                     const Id &id,
+                                     Id id,
                                      int toolNumber,
                                      const QString &iconName,
                                      const QString &keySequence)
@@ -656,7 +656,7 @@ QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
 }
 
 // Create a tool action
-Command *FormEditorW::addToolAction(QAction *a, const Context &context, const Id &id,
+Command *FormEditorW::addToolAction(QAction *a, const Context &context, Id id,
                                           ActionContainer *c1, const QString &keySequence,
                                     Core::Id groupId)
 {

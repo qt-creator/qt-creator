@@ -318,7 +318,7 @@ CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory
 CustomExecutableRunConfigurationFactory::~CustomExecutableRunConfigurationFactory()
 { }
 
-bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -326,7 +326,7 @@ bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, const Co
 }
 
 RunConfiguration *
-CustomExecutableRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
+CustomExecutableRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     Q_UNUSED(id);
     return new CustomExecutableRunConfiguration(parent);
@@ -375,7 +375,7 @@ QList<Core::Id> CustomExecutableRunConfigurationFactory::availableCreationIds(Ta
     return QList<Core::Id>() << Core::Id(CUSTOM_EXECUTABLE_ID);
 }
 
-QString CustomExecutableRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString CustomExecutableRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == CUSTOM_EXECUTABLE_ID)
         return tr("Custom Executable");

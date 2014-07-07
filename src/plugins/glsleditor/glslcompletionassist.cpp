@@ -120,7 +120,7 @@ bool checkStartOfIdentifier(const QString &word)
 // ----------------------------
 // GLSLCompletionAssistProvider
 // ----------------------------
-bool GLSLCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
+bool GLSLCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == Constants::C_GLSLEDITOR_ID;
 }

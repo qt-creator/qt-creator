@@ -59,10 +59,10 @@ void MacroTextFind::resetIncrementalSearch()
     emit incrementalSearchReseted();
 }
 
-void MacroTextFind::clearResults()
+void MacroTextFind::clearHighlights()
 {
     QTC_ASSERT(m_currentFind, return);
-    m_currentFind->clearResults();
+    m_currentFind->clearHighlights();
 }
 
 QString MacroTextFind::currentFindString() const

@@ -27,12 +27,13 @@
 **
 ****************************************************************************/
 
-#include "editmode.h"
 #include "coreconstants.h"
+#include "editmode.h"
+#include "icore.h"
 #include "modemanager.h"
 #include "minisplitter.h"
-#include "outputpane.h"
 #include "navigationwidget.h"
+#include "outputpane.h"
 #include "rightpane.h"
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -85,9 +86,13 @@ EditMode::EditMode() :
             this, SLOT(grabEditorManager(Core::IMode*)));
     m_splitter->setFocusProxy(EditorManager::instance());
 
+    IContext *modeContextObject = new IContext(this);
+    modeContextObject->setContext(Context(Constants::C_EDITORMANAGER));
+    modeContextObject->setWidget(m_splitter);
+    ICore::addContextObject(modeContextObject);
+
     setWidget(m_splitter);
     setContext(Context(Constants::C_EDIT_MODE,
-                       Constants::C_EDITORMANAGER,
                        Constants::C_NAVIGATION_PANE));
 }
 

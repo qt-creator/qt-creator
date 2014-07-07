@@ -59,8 +59,8 @@ class IosDeployConfigurationFactory : public ProjectExplorer::DeployConfiguratio
 public:
     explicit IosDeployConfigurationFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const QTC_OVERRIDE;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id) QTC_OVERRIDE;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const QTC_OVERRIDE;
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id) QTC_OVERRIDE;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const QTC_OVERRIDE;
     ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent,
                                                   const QVariantMap &map) QTC_OVERRIDE;
@@ -71,7 +71,7 @@ public:
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const QTC_OVERRIDE;
     // used to translate the ids to names to display to the user
-    QString displayNameForId(const Core::Id id) const QTC_OVERRIDE;
+    QString displayNameForId(Core::Id id) const QTC_OVERRIDE;
 
 private:
     bool canHandle(ProjectExplorer::Target *parent) const QTC_OVERRIDE;

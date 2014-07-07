@@ -65,7 +65,7 @@ QmlTaskManager::QmlTaskManager(QObject *parent) :
             SLOT(updateMessagesNow()));
 }
 
-static QList<ProjectExplorer::Task> convertToTasks(const QList<DiagnosticMessage> &messages, const Utils::FileName &fileName, const Core::Id &category)
+static QList<ProjectExplorer::Task> convertToTasks(const QList<DiagnosticMessage> &messages, const Utils::FileName &fileName, Core::Id category)
 {
     QList<ProjectExplorer::Task> result;
     foreach (const DiagnosticMessage &msg, messages) {
@@ -81,7 +81,7 @@ static QList<ProjectExplorer::Task> convertToTasks(const QList<DiagnosticMessage
     return result;
 }
 
-static QList<ProjectExplorer::Task> convertToTasks(const QList<StaticAnalysis::Message> &messages, const Utils::FileName &fileName, const Core::Id &category)
+static QList<ProjectExplorer::Task> convertToTasks(const QList<StaticAnalysis::Message> &messages, const Utils::FileName &fileName, Core::Id category)
 {
     QList<DiagnosticMessage> diagnostics;
     foreach (const StaticAnalysis::Message &msg, messages)
@@ -161,7 +161,7 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
     QFuture<FileErrorMessages> future =
             QtConcurrent::run<FileErrorMessages>(
                 &collectMessages, modelManager->newestSnapshot(), modelManager->projectInfos(),
-                modelManager->defaultVContext(Language::Unknown), updateSemantic);
+                modelManager->defaultVContext(Language::AnyLanguage), updateSemantic);
     m_messageCollector.setFuture(future);
 }
 

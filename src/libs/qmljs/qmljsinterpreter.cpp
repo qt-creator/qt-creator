@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "parser/qmljsast_p.h"
+#include "qmljsconstants.h"
 #include "qmljscontext.h"
 #include "qmljsevaluate.h"
 #include "qmljsinterpreter.h"
@@ -41,7 +42,6 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QString>
@@ -2492,38 +2492,38 @@ public:
 
     virtual bool processProperty(const QString &name, const Value *)
     {
-        qDebug() << "property: " << name;
+        qCDebug(qmljsLog) << "property: " << name;
         return true;
     }
 
     virtual bool processEnumerator(const QString &name, const Value *)
     {
-        qDebug() << "enumerator: " << name;
+        qCDebug(qmljsLog) << "enumerator: " << name;
         return true;
     }
 
     virtual bool processSignal(const QString &name, const Value *)
     {
-        qDebug() << "signal: " << name;
+        qCDebug(qmljsLog) << "signal: " << name;
         return true;
     }
 
     virtual bool processSlot(const QString &name, const Value *)
     {
-        qDebug() << "slot: " << name;
+        qCDebug(qmljsLog) << "slot: " << name;
         return true;
     }
 
     virtual bool processGeneratedSlot(const QString &name, const Value *)
     {
-        qDebug() << "generated slot: " << name;
+        qCDebug(qmljsLog) << "generated slot: " << name;
         return true;
     }
 };
 
 void Imports::dump() const
 {
-    qDebug() << "Imports contents, in search order:";
+    qCDebug(qmljsLog) << "Imports contents, in search order:";
     QListIterator<Import> it(m_imports);
     it.toBack();
     while (it.hasPrevious()) {
@@ -2531,7 +2531,7 @@ void Imports::dump() const
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
-        qDebug() << "  " << info.path() << " " << info.version().toString() << " as " << info.as() << " : " << import;
+        qCDebug(qmljsLog) << "  " << info.path() << " " << info.version().toString() << " as " << info.as() << " : " << import;
         MemberDumper dumper;
         import->processMembers(&dumper);
     }

@@ -141,7 +141,7 @@ Id GeneratedFile::editorId() const
     return m_d->editorId;
 }
 
-void GeneratedFile::setEditorId(const Id &id)
+void GeneratedFile::setEditorId(Id id)
 {
     m_d->editorId = id;
 }

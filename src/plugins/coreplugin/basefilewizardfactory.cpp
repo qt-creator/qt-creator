@@ -122,7 +122,7 @@ WizardEventLoop::WizardResult WizardEventLoop::execWizardPage(QWizard &wizard)
         connect(&wizard, SIGNAL(currentIdChanged(int)), eventLoop, SLOT(pageChanged(int)));
         connect(&wizard, SIGNAL(accepted()), eventLoop, SLOT(accepted()));
         connect(&wizard, SIGNAL(rejected()), eventLoop, SLOT(rejected()));
-        wizard.setAttribute(Qt::WA_ShowModal, true);
+        wizard.setWindowFlags(wizard.windowFlags() | Qt::WindowStaysOnTopHint);
         wizard.show();
     }
     const WizardResult result = eventLoop->execWizardPageI();
@@ -138,7 +138,7 @@ WizardEventLoop::WizardResult WizardEventLoop::execWizardPage(QWizard &wizard)
 WizardEventLoop::WizardResult WizardEventLoop::execWizardPageI()
 {
     m_result = Rejected;
-    exec(QEventLoop::DialogExec);
+    exec();
     return m_result;
 }
 

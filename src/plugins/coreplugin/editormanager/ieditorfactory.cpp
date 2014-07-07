@@ -31,10 +31,14 @@
 
 #include <utils/qtcassert.h>
 
-Core::IDocument *Core::IEditorFactory::open(const QString &)
+Core::IEditorFactory::IEditorFactory(QObject *parent)
+    : IDocumentFactory(parent)
 {
-    qWarning("This should never be called, use IEditorFactor::createEditor, "
-             "or EditorManager::openEditor instead!");
-    QTC_CHECK(false);
-    return 0;
+    setOpener([](const QString &) -> Core::IDocument * {
+        qWarning("This should never be called, use IEditorFactor::createEditor, "
+                 "or EditorManager::openEditor instead!");
+        QTC_CHECK(false);
+        return 0;
+    });
 }
+

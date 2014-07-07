@@ -184,6 +184,7 @@ QmakePriFile::QmakePriFile(QmakeProjectManager::QmakePriFileNode *qmakePriFile)
     : IDocument(qmakePriFile), m_priFile(qmakePriFile)
 {
     setId("Qmake.PriFile");
+    setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
     setFilePath(m_priFile->path());
 }
 
@@ -203,11 +204,6 @@ QString QmakePriFile::defaultPath() const
 QString QmakePriFile::suggestedFileName() const
 {
     return QString();
-}
-
-QString QmakePriFile::mimeType() const
-{
-    return QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 }
 
 bool QmakePriFile::isModified() const

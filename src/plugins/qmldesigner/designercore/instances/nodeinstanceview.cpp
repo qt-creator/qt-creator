@@ -387,8 +387,10 @@ void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& pr
 
 void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-    if (!isSkippedNode(node))
+    if (!isSkippedNode(node)) {
+        updateChildren(newPropertyParent);
         nodeInstanceServer()->reparentInstances(createReparentInstancesCommand(node, newPropertyParent, oldPropertyParent));
+    }
 }
 
 void NodeInstanceView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
@@ -674,6 +676,25 @@ void NodeInstanceView::clearStateInstance()
 NodeInstance NodeInstanceView::activeStateInstance() const
 {
     return m_activeStateInstance;
+}
+
+void NodeInstanceView::updateChildren(const NodeAbstractProperty &newPropertyParent)
+{
+    QVector<ModelNode> childNodeVector = newPropertyParent.directSubNodes().toVector();
+
+    qint32 parentInstanceId = newPropertyParent.parentModelNode().internalId();
+
+    foreach (const ModelNode &childNode, childNodeVector) {
+        qint32 instanceId = childNode.internalId();
+        if (hasInstanceForId(instanceId)) {
+            NodeInstance instance = instanceForId(instanceId);
+            if (instance.directUpdates())
+                instance.setParentId(parentInstanceId);
+        }
+    }
+
+    if (!childNodeVector.isEmpty())
+        emitInstancesChildrenChanged(childNodeVector);
 }
 
 void setXValue(NodeInstance &instance, const VariantProperty &variantProperty, QMultiHash<ModelNode, InformationName> &informationChangeHash)
@@ -1224,8 +1245,10 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
     foreach (qint32 instanceId, command.childrenInstances()) {
         if (hasInstanceForId(instanceId)) {
             NodeInstance instance = instanceForId(instanceId);
-            instance.setParentId(command.parentInstanceId());
-            childNodeVector.append(instance.modelNode());
+            if (!instance.directUpdates()) {
+                instance.setParentId(command.parentInstanceId());
+                childNodeVector.append(instance.modelNode());
+            }
         }
     }
 

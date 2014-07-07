@@ -47,11 +47,11 @@ using namespace VcsBase::Internal;
 
 SubmitEditorFile::SubmitEditorFile(const VcsBaseSubmitEditorParameters *parameters, VcsBaseSubmitEditor *parent) :
     Core::IDocument(parent),
-    m_mimeType(QLatin1String(parameters->mimeType)),
     m_modified(false),
     m_editor(parent)
 {
     setId(parameters->id);
+    setMimeType(QLatin1String(parameters->mimeType));
     setTemporary(true);
 }
 
@@ -84,11 +84,6 @@ bool SubmitEditorFile::save(QString *errorString, const QString &fileName, bool 
         return false;
     emit changed();
     return true;
-}
-
-QString SubmitEditorFile::mimeType() const
-{
-    return m_mimeType;
 }
 
 Core::IDocument::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const

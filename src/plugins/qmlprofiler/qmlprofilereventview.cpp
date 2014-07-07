@@ -580,7 +580,8 @@ void QmlProfilerEventsMainView::parseModelProxy()
         QList<QStandardItem *> newRow;
 
         if (d->m_fieldShown[Name])
-            newRow << new EventsViewItem(event.displayName);
+            newRow << new EventsViewItem(event.displayName.isEmpty() ? tr("<bytecode>") :
+                                                                       event.displayName);
 
         if (d->m_fieldShown[Type]) {
             QString typeString = QmlProfilerEventsMainView::nameForType(event.rangeType);
@@ -637,7 +638,8 @@ void QmlProfilerEventsMainView::parseModelProxy()
         }
 
         if (d->m_fieldShown[Details]) {
-            newRow << new EventsViewItem(event.data);
+            newRow << new EventsViewItem(event.data.isEmpty() ? tr("Source code not available") :
+                                                                event.data);
             newRow.last()->setData(QVariant(event.data));
         }
 
@@ -894,11 +896,13 @@ void QmlProfilerEventRelativesView::rebuildTree(
         // ToDo: here we were going to search for the data in the other modelproxy
         // maybe we should store the data in this proxy and get it here
         // no indirections at this level of abstraction!
-        newRow << new EventsViewItem(type.displayName);
+        newRow << new EventsViewItem(type.displayName.isEmpty() ? tr("<bytecode>") :
+                                                                  type.displayName);
         newRow << new EventsViewItem(QmlProfilerEventsMainView::nameForType(type.rangeType));
         newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(event.duration));
         newRow << new EventsViewItem(QString::number(event.calls));
-        newRow << new EventsViewItem(type.data);
+        newRow << new EventsViewItem(type.data.isEmpty() ? tr("Source code not available") :
+                                                           type.data);
 
         newRow.at(0)->setData(QVariant(typeIndex), EventTypeIndexRole);
         newRow.at(2)->setData(QVariant(event.duration));

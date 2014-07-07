@@ -46,9 +46,9 @@ public:
     explicit QnxRunConfigurationFactory(QObject *parent = 0);
 
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent, CreationMode mode) const;
-    QString displayNameForId(const Core::Id id) const;
+    QString displayNameForId(Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
 
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
 
@@ -59,7 +59,7 @@ public:
 private:
     bool canHandle(ProjectExplorer::Target *t) const;
 
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id);
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
                                                  const QVariantMap &map);
 };

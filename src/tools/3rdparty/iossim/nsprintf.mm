@@ -42,3 +42,34 @@ int nsprintf (NSString *format, ...) {
 
     return retval;
 }
+
+NSString *escapeString(NSString *origString)
+{
+    return [[[[origString stringByReplacingOccurrencesOfString: @"&" withString: @"&amp;"]
+     stringByReplacingOccurrencesOfString: @"\"" withString: @"&quot;"]
+     stringByReplacingOccurrencesOfString: @">" withString: @"&gt;"]
+     stringByReplacingOccurrencesOfString: @"<" withString: @"&lt;"];
+}
+
+int msgvfprintf (FILE *stream, NSString *format, va_list args) {
+    int retval;
+
+    NSString *str = (NSString *) CFStringCreateWithFormatAndArguments(NULL, NULL, (CFStringRef) format, args);
+    retval = fprintf(stream, "<msg>%s</msg>\n", [escapeString(str) UTF8String]);
+    [str release];
+
+    return retval;
+}
+
+int msgprintf(NSString *format, ...) {
+    va_list ap;
+    int retval;
+
+    va_start(ap, format);
+    {
+        retval = msgvfprintf(stdout, format, ap);
+    }
+    va_end(ap);
+
+    return retval;
+}

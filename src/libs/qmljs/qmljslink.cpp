@@ -38,7 +38,6 @@
 #include "qmljsconstants.h"
 
 #include <QDir>
-#include <QDebug>
 
 using namespace LanguageUtils;
 using namespace QmlJS;

@@ -225,7 +225,7 @@ void QmlDesignerPlugin::showDesigner()
 void QmlDesignerPlugin::hideDesigner()
 {
     if (currentDesignDocument()
-            && currentDesignDocument()->currentModel()
+            && currentModel()
             && !currentDesignDocument()->hasQmlSyntaxErrors())
         jumpTextCursorToSelectedModelNode();
 
@@ -343,13 +343,18 @@ void QmlDesignerPlugin::deactivateAutoSynchronization()
 
 void QmlDesignerPlugin::resetModelSelection()
 {
-    if (rewriterView() && currentDesignDocument()->currentModel())
+    if (rewriterView() && currentModel())
         rewriterView()->setSelectedModelNodes(QList<ModelNode>());
 }
 
 RewriterView *QmlDesignerPlugin::rewriterView() const
 {
     return currentDesignDocument()->rewriterView();
+}
+
+Model *QmlDesignerPlugin::currentModel() const
+{
+    return currentDesignDocument()->currentModel();
 }
 
 static bool checkIfEditorIsQtQuick(Core::IEditor *editor)

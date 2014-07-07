@@ -62,7 +62,6 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     QString defaultPath() const;
     QString suggestedFileName() const;
-    QString mimeType() const;
     void setFilePath(const QString &newName);
     void setBlockDirtyChanged(bool value);
 
@@ -70,7 +69,6 @@ public slots:
     void dirtyChanged(bool);
 
 private:
-    const QString m_mimeType;
     bool m_blockDirtyChanged;
     ResourceEditorW *m_parent;
 };
