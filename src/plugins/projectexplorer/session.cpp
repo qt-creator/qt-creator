@@ -44,6 +44,7 @@
 
 #include <texteditor/itexteditor.h>
 
+#include <utils/algorithm.h>
 #include <utils/stylehelper.h>
 #include <utils/algorithm.h>
 
@@ -512,11 +513,9 @@ Project *SessionManager::projectForNode(Node *node)
 
     Q_ASSERT(rootProjectNode);
 
-    foreach (Project *p, d->m_projects)
-        if (p->rootProjectNode() == rootProjectNode)
-            return p;
-
-    return 0;
+    return Utils::findOrDefault(d->m_projects, [rootProjectNode](Project *p) {
+        return p->rootProjectNode() == rootProjectNode;
+    });
 }
 
 QList<Node *> SessionManager::nodesForFile(const QString &fileName, Project *project)

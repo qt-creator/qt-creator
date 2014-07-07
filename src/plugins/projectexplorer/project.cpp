@@ -227,14 +227,14 @@ void Project::setActiveTarget(Target *target)
 
 Target *Project::target(Core::Id id) const
 {
-    return Utils::findOr(d->m_targets, 0, [&id](Target *target) {
+    return Utils::findOrDefault(d->m_targets, [&id](Target *target) {
         return target->id() == id;
     });
 }
 
 Target *Project::target(Kit *k) const
 {
-    return Utils::findOr(d->m_targets, 0, [&k](Target *target) {
+    return Utils::findOrDefault(d->m_targets, [&k](Target *target) {
         return target->kit() == k;
     });
 }
@@ -499,7 +499,7 @@ void Project::setup(QList<const BuildInfo *> infoList)
             continue;
         Target *t = target(k);
         if (!t) {
-            t = Utils::findOr(toRegister, 0, [&k](Target *i){
+            t = Utils::findOrDefault(toRegister, [&k](Target *i){
                 return i->kit() == k;
             });
         }

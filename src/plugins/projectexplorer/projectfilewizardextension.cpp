@@ -33,6 +33,8 @@
 #include "projectnodes.h"
 #include "projectwizardpage.h"
 
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <coreplugin/icore.h>
@@ -128,9 +130,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
     if (debugExtension)
         qDebug() << Q_FUNC_INFO << files.size();
 
-    QStringList fileNames;
-    foreach (const GeneratedFile &f, files)
-        fileNames.push_back(f.path());
+    QStringList fileNames = Utils::transform(files, &GeneratedFile::path);
     m_context->page->setFiles(fileNames);
 
     QStringList filePaths;
@@ -140,8 +140,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
         filePaths << generatedProjectFilePath(files);
     } else {
         projectAction = ProjectExplorer::AddNewFile;
-        foreach (const GeneratedFile &gf, files)
-            filePaths << gf.path();
+        filePaths = Utils::transform(files, &GeneratedFile::path);
     }
 
     Node *contextNode = extraValues.value(QLatin1String(Constants::PREFERRED_PROJECT_NODE)).value<Node *>();
@@ -204,9 +203,7 @@ bool ProjectFileWizardExtension::processProject(
         }
         *removeOpenProjectAttribute = true;
     } else {
-        QStringList filePaths;
-        foreach (const GeneratedFile &generatedFile, files)
-            filePaths << generatedFile.path();
+        QStringList filePaths = Utils::transform(files, &GeneratedFile::path);
         if (!folder->addFiles(filePaths)) {
             *errorMessage = tr("Failed to add one or more files to project\n\"%1\" (%2).").
                     arg(folder->path(), filePaths.join(QString(QLatin1Char(','))));

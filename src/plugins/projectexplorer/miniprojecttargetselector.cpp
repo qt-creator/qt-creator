@@ -864,12 +864,8 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         onlySummary = true;
     } else {
         if (visibleLineCount < 3) {
-            foreach (Project *p, SessionManager::projects()) {
-                if (p->needsConfiguration()) {
-                    visibleLineCount = 3;
-                    break;
-                }
-            }
+            if (Utils::anyOf(SessionManager::projects(), &Project::needsConfiguration))
+                visibleLineCount = 3;
         }
         if (visibleLineCount)
             summaryLabelHeight = visibleLineCount * QFontMetrics(m_summaryLabel->font()).height()

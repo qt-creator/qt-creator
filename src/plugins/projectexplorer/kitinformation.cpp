@@ -39,6 +39,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -130,12 +131,11 @@ QVariant ToolChainKitInformation::defaultValue(Kit *k) const
 
     Abi abi = Abi::hostAbi();
 
-    foreach (ToolChain *tc, tcList) {
-        if (tc->targetAbi() == abi)
-            return tc->id();
-    }
+    ToolChain *tc = Utils::findOr(tcList, tcList.first(), [&abi](ToolChain *tc) {
+        return tc->targetAbi() == abi;
+    });
 
-    return tcList.at(0)->id();
+    return tc->id();
 }
 
 QList<Task> ToolChainKitInformation::validate(const Kit *k) const

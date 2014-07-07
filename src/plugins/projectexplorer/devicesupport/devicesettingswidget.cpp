@@ -119,9 +119,7 @@ void DeviceSettingsWidget::initGui()
     const QList<IDeviceFactory *> &factories
         = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
 
-    bool hasDeviceFactories = Utils::anyOf(factories, [](IDeviceFactory *factory) {
-                                               return factory->canCreate();
-                                           });
+    bool hasDeviceFactories = Utils::anyOf(factories, &IDeviceFactory::canCreate);
 
     m_ui->addConfigButton->setEnabled(hasDeviceFactories);
 

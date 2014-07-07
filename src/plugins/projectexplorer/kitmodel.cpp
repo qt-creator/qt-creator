@@ -34,6 +34,7 @@
 #include "kitmanager.h"
 
 #include <coreplugin/coreconstants.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -253,11 +254,9 @@ KitManagerConfigWidget *KitModel::widget(const QModelIndex &index)
 
 bool KitModel::isDirty() const
 {
-    foreach (KitNode *n, m_manualRoot->childNodes) {
-        if (n->widget->isDirty())
-            return true;
-    }
-    return false;
+    return Utils::anyOf(m_manualRoot->childNodes, [](KitNode *n) {
+        return n->widget->isDirty();
+    });
 }
 
 bool KitModel::isDirty(Kit *k) const
@@ -371,15 +370,12 @@ QModelIndex KitModel::index(KitNode *node, int column) const
 
 KitNode *KitModel::findWorkingCopy(Kit *k) const
 {
-    foreach (KitNode *n, m_autoRoot->childNodes) {
-        if (n->widget->workingCopy() == k)
-            return n;
-    }
-    foreach (KitNode *n, m_manualRoot->childNodes) {
-        if (n->widget->workingCopy() == k)
-            return n;
-    }
-    return 0;
+    auto compareWorkingCopy = [&k](KitNode *n){ return n->widget->workingCopy() == k; };
+
+    KitNode *n = Utils::findOrDefault(m_autoRoot->childNodes, compareWorkingCopy);
+    if (!n)
+        n = Utils::findOrDefault(m_manualRoot->childNodes, compareWorkingCopy);
+    return n;
 }
 
 KitNode *KitModel::createNode(KitNode *parent, Kit *k)

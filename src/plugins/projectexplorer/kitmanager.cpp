@@ -409,19 +409,16 @@ Kit *KitManager::find(Core::Id id)
     if (!id.isValid())
         return 0;
 
-    foreach (Kit *k, kits()) {
-        if (k->id() == id)
-            return k;
-    }
-    return 0;
+    return Utils::findOrDefault(kits(), [id](Kit *k) {
+        return k->id() == id;
+    });
 }
 
 Kit *KitManager::find(const KitMatcher &matcher)
 {
-    foreach (Kit *k, d->m_kitList)
-        if (matcher.matches(k))
-            return k;
-    return 0;
+    return Utils::findOrDefault(d->m_kitList, [&matcher](Kit *k) {
+        return matcher.matches(k);
+    });
 }
 
 Kit *KitManager::defaultKit()
@@ -509,10 +506,8 @@ bool KitManager::registerKit(ProjectExplorer::Kit *k)
 
     QTC_ASSERT(k->id().isValid(), return false);
 
-    foreach (Kit *current, kits()) {
-        if (k == current)
-            return false;
-    }
+    if (kits().contains(k))
+        return false;
 
     k->setDisplayName(uniqueKitName(k, k->displayName(), kits()));
 

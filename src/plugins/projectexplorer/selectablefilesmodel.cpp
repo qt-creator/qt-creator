@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/QtConcurrentTools>
+#include <utils/algorithm.h>
 
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
@@ -111,27 +112,15 @@ bool SelectableFilesModel::filter(Tree *t)
     if (m_files.contains(t->fullPath))
         return false;
 
-    bool showFilterMatch = false;
-
-    //First loop through show file filters and
-    //if any of them match, cotinue checking.
-    foreach (const Glob &g, m_showFilesFilter) {
-        if (g.isMatch(t->name)) {
-            showFilterMatch = true;
-            break;
-        }
-    }
+    auto matchesTreeName = [t](const Glob &g) {
+        return g.isMatch(t->name);
+    };
 
     //If none of the "show file" filters match just return
-    if (!showFilterMatch)
+    if (!Utils::anyOf(m_showFilesFilter, matchesTreeName))
         return true;
 
-    foreach (const Glob &g, m_hideFilesFilter) {
-        if (g.isMatch(t->name))
-            return true;
-    }
-
-    return false;
+    return Utils::anyOf(m_hideFilesFilter, matchesTreeName);
 }
 
 void SelectableFilesModel::buildTree(const QString &baseDir, Tree *tree, QFutureInterface<void> &fi, int symlinkDepth)

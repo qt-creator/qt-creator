@@ -37,6 +37,7 @@
 #include "target.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 
 using namespace ProjectExplorer;
 
@@ -121,11 +122,9 @@ bool BuildStepList::isEmpty() const
 
 bool BuildStepList::contains(Core::Id id) const
 {
-    foreach (BuildStep *bs, steps()) {
-        if (bs->id() == id)
-            return true;
-    }
-    return false;
+    return Utils::anyOf(steps(), [id](BuildStep *bs){
+        return bs->id() == id;
+    });
 }
 
 void BuildStepList::cloneSteps(BuildStepList *source)

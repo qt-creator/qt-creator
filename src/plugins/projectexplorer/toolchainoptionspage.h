@@ -98,6 +98,8 @@ private slots:
 private:
     QModelIndex index(ToolChainNode *, int column = 0) const;
     ToolChainNode *createNode(ToolChainNode *parent, ToolChain *tc, bool changed);
+    static ToolChainNode *findToolChain(const QList<ToolChainNode *> &container, ToolChain *tc);
+
 
     ToolChainNode *m_root;
     ToolChainNode *m_autoRoot;

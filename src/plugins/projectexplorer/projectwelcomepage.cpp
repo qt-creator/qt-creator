@@ -42,6 +42,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
+#include <utils/algorithm.h>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -67,20 +68,18 @@ int SessionModel::rowCount(const QModelIndex &) const
 
 QStringList pathsToBaseNames(const QStringList &paths)
 {
-    QStringList stringList;
-    foreach (const QString &path, paths)
-        stringList.append(QFileInfo(path).completeBaseName());
-    return stringList;
+    return Utils::transform(paths, [](const QString &path) {
+        return QFileInfo(path).completeBaseName();
+    });
 }
 
 
 
 QStringList pathsWithTildeHomePath(const QStringList &paths)
 {
-    QStringList stringList;
-    foreach (const QString &path, paths)
-        stringList.append(Utils::withTildeHomePath(QDir::toNativeSeparators(path)));
-    return stringList;
+    return Utils::transform(paths, [](const QString &path) {
+        return Utils::withTildeHomePath(QDir::toNativeSeparators(path));
+    });
 }
 
 QVariant SessionModel::data(const QModelIndex &index, int role) const

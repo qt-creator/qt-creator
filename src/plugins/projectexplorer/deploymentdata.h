@@ -32,6 +32,8 @@
 #include "deployablefile.h"
 #include "projectexplorer_export.h"
 
+#include <utils/algorithm.h>
+
 #include <QList>
 #include <QSet>
 
@@ -60,11 +62,9 @@ public:
 
     DeployableFile deployableForLocalFile(const QString &localFilePath) const
     {
-        foreach (const DeployableFile &d, m_files) {
-            if (d.localFilePath().toString() == localFilePath)
-                return d;
-        }
-        return DeployableFile();
+        return Utils::findOrDefault(m_files, [&localFilePath](const DeployableFile &d) {
+                                                return d.localFilePath().toString() == localFilePath;
+                                             });
     }
 
     bool operator==(const DeploymentData &other) const

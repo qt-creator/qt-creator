@@ -40,6 +40,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFile>
@@ -333,11 +334,9 @@ UiCodeModelManager::~UiCodeModelManager()
 
 static UiCodeModelSupport *findUiFile(const QList<UiCodeModelSupport *> &range, const QString &uiFile)
 {
-    foreach (UiCodeModelSupport *support, range) {
-        if (support->uiFileName() == uiFile)
-            return support;
-    }
-    return 0;
+    return Utils::findOrDefault(range, [uiFile](UiCodeModelSupport *support) {
+        return support->uiFileName() == uiFile;
+    });
 }
 
 void UiCodeModelManager::update(ProjectExplorer::Project *project, QHash<QString, QString> uiHeaders)

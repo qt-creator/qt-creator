@@ -156,17 +156,14 @@ Utils::AbstractMacroExpander *BuildConfiguration::macroExpander()
 
 QList<Core::Id> BuildConfiguration::knownStepLists() const
 {
-    return Utils::transform(m_stepLists, [](BuildStepList *list) {
-       return list->id();
-    });
+    return Utils::transform(m_stepLists, &BuildStepList::id);
 }
 
 BuildStepList *BuildConfiguration::stepList(Core::Id id) const
 {
-    foreach (BuildStepList *list, m_stepLists)
-        if (id == list->id())
-            return list;
-    return 0;
+    return Utils::findOrDefault(m_stepLists, [id](BuildStepList *list) {
+        return id == list->id();
+    });
 }
 
 QVariantMap BuildConfiguration::toMap() const

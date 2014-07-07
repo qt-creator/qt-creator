@@ -1490,13 +1490,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
     }
     updateActions();
 
-    bool switchToProjectsMode = false;
-    foreach (Project *p, openedPro) {
-        if (p->needsConfiguration()) {
-            switchToProjectsMode = true;
-            break;
-        }
-    }
+    bool switchToProjectsMode = Utils::anyOf(openedPro, &Project::needsConfiguration);
 
     if (!openedPro.isEmpty()) {
         if (switchToProjectsMode)
@@ -2260,12 +2254,11 @@ void ProjectExplorerPlugin::runProjectContextMenu()
 
 bool ProjectExplorerPlugin::hasBuildSettings(Project *pro)
 {
-    foreach (Project *project, SessionManager::projectOrder(pro))
-        if (project
+    return Utils::anyOf(SessionManager::projectOrder(pro), [](Project *project) {
+        return project
                 && project->activeTarget()
-                && project->activeTarget()->activeBuildConfiguration())
-            return true;
-    return false;
+                && project->activeTarget()->activeBuildConfiguration();
+    });
 }
 
 QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabled(Project *pro)
@@ -2352,12 +2345,11 @@ bool ProjectExplorerPlugin::coreAboutToClose()
 
 bool ProjectExplorerPlugin::hasDeploySettings(Project *pro)
 {
-    foreach (Project *project, SessionManager::projectOrder(pro))
-        if (project->activeTarget()
+    return Utils::anyOf(SessionManager::projectOrder(pro), [](Project *project) {
+        return project->activeTarget()
                 && project->activeTarget()->activeDeployConfiguration()
-                && !project->activeTarget()->activeDeployConfiguration()->stepList()->isEmpty())
-            return true;
-    return false;
+                && !project->activeTarget()->activeDeployConfiguration()->stepList()->isEmpty();
+    });
 }
 
 void ProjectExplorerPlugin::runProject(Project *pro, RunMode mode, const bool forceSkipDeploy)
@@ -2539,15 +2531,14 @@ void ProjectExplorerPlugin::updateDeployActions()
 
     bool enableDeploySessionAction = true;
     if (d->m_projectExplorerSettings.buildBeforeDeploy) {
-        foreach (Project *project, SessionManager::projectOrder(0)) {
-            if (project
-                    && project->activeTarget()
+        auto hasDisabledBuildConfiguration = [](Project *project) {
+            return project && project->activeTarget()
                     && project->activeTarget()->activeBuildConfiguration()
-                    && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
-                enableDeploySessionAction = false;
-                break;
-            }
-        }
+                    && !project->activeTarget()->activeBuildConfiguration()->isEnabled();
+        };
+
+        if (Utils::anyOf(SessionManager::projectOrder(0), hasDisabledBuildConfiguration))
+            enableDeploySessionAction = false;
     }
     if (!hasProjects || !hasDeploySettings(0) || BuildManager::isBuilding())
         enableDeploySessionAction = false;
@@ -2885,9 +2876,7 @@ void ProjectExplorerPlugin::addNewFile()
     QVariantMap map;
     map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(d->m_currentNode));
     if (d->m_currentProject) {
-        QList<Id> profileIds;
-        foreach (Target *target, d->m_currentProject->targets())
-            profileIds << target->id();
+        QList<Id> profileIds = Utils::transform(d->m_currentProject->targets(), &Target::id);
         map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
     }
     ICore::showNewItemDialog(tr("New File", "Title of dialog"),
@@ -2907,9 +2896,7 @@ void ProjectExplorerPlugin::addNewSubproject()
         QVariantMap map;
         map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(d->m_currentNode));
         if (d->m_currentProject) {
-            QList<Id> profileIds;
-            foreach (Target *target, d->m_currentProject->targets())
-                profileIds << target->id();
+            QList<Id> profileIds = Utils::transform(d->m_currentProject->targets(), &Target::id);
             map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
         }
 

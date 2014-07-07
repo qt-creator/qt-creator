@@ -39,6 +39,7 @@
 
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QAction>
 #include <QApplication>
@@ -245,20 +246,18 @@ ToolChainConfigWidget *ToolChainModel::widget(const QModelIndex &index)
 
 bool ToolChainModel::isDirty() const
 {
-    foreach (ToolChainNode *n, m_manualRoot->childNodes) {
-        if (n->changed)
-            return true;
-    }
-    return false;
+    return Utils::anyOf(m_manualRoot->childNodes,
+                        [](ToolChainNode *n) {
+                            return n->changed;
+                        });
 }
 
 bool ToolChainModel::isDirty(ToolChain *tc) const
 {
-    foreach (ToolChainNode *n, m_manualRoot->childNodes) {
-        if (n->toolChain == tc && n->changed)
-            return true;
-    }
-    return false;
+    return Utils::anyOf(m_manualRoot->childNodes,
+                        [tc](ToolChainNode *n) {
+                            return n->toolChain == tc && n->changed;
+                        });
 }
 
 void ToolChainModel::setDirty()
@@ -328,13 +327,7 @@ void ToolChainModel::apply()
 
 void ToolChainModel::markForRemoval(ToolChain *tc)
 {
-    ToolChainNode *node = 0;
-    foreach (ToolChainNode *n, m_manualRoot->childNodes) {
-        if (n->toolChain == tc) {
-            node = n;
-            break;
-        }
-    }
+    ToolChainNode *node = findToolChain(m_manualRoot->childNodes, tc);
     if (node) {
         emit beginRemoveRows(index(m_manualRoot), m_manualRoot->childNodes.indexOf(node), m_manualRoot->childNodes.indexOf(node));
         m_manualRoot->childNodes.removeOne(node);
@@ -380,16 +373,22 @@ ToolChainNode *ToolChainModel::createNode(ToolChainNode *parent, ToolChain *tc, 
     return node;
 }
 
+ToolChainNode *ToolChainModel::findToolChain(const QList<ToolChainNode *> &container, ToolChain *tc)
+{
+    return Utils::findOrDefault(container, [tc] (ToolChainNode *n) {
+                            return n->toolChain == tc;
+                         });
+}
+
 void ToolChainModel::addToolChain(ToolChain *tc)
 {
-    QList<ToolChainNode *> nodes = m_toAddList;
-    foreach (ToolChainNode *n, nodes) {
-        if (n->toolChain == tc) {
-            m_toAddList.removeOne(n);
-            // do not delete n: Still used elsewhere!
-            return;
-        }
+    ToolChainNode *n = findToolChain(m_toAddList, tc);
+    if (n) {
+        m_toAddList.removeOne(n);
+        // do not delete n: Still used elsewhere!
+        return;
     }
+
 
     ToolChainNode *parent = m_manualRoot;
     if (tc->isAutoDetected())
@@ -405,13 +404,11 @@ void ToolChainModel::addToolChain(ToolChain *tc)
 
 void ToolChainModel::removeToolChain(ToolChain *tc)
 {
-    QList<ToolChainNode *> nodes = m_toRemoveList;
-    foreach (ToolChainNode *n, nodes) {
-        if (n->toolChain == tc) {
-            m_toRemoveList.removeOne(n);
-            delete n;
-            return;
-        }
+    ToolChainNode *n = findToolChain(m_toRemoveList, tc);
+    if (n) {
+        m_toRemoveList.removeOne(n);
+        delete n;
+        return;
     }
 
     ToolChainNode *parent = m_manualRoot;

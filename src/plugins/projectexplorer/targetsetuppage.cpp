@@ -44,6 +44,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/wizard.h>
+#include <utils/algorithm.h>
 
 #include <QFileInfo>
 #include <QLabel>
@@ -261,10 +262,7 @@ void TargetSetupPage::setKitSelected(Core::Id id, bool selected)
 
 bool TargetSetupPage::isComplete() const
 {
-    foreach (TargetSetupWidget *widget, m_widgets)
-        if (widget->isKitSelected())
-            return true;
-    return false;
+    return Utils::anyOf(m_widgets, &TargetSetupWidget::isKitSelected);
 }
 
 void TargetSetupPage::setupWidgets()

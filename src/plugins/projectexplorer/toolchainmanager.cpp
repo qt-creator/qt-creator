@@ -40,6 +40,7 @@
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QDir>
 #include <QSettings>
@@ -313,11 +314,9 @@ ToolChain *ToolChainManager::findToolChain(const QString &id)
     if (id.isEmpty())
         return 0;
 
-    foreach (ToolChain *tc, d->m_toolChains) {
-        if (tc->id() == id)
-            return tc;
-    }
-    return 0;
+    return Utils::findOrDefault(d->m_toolChains, [&id](ToolChain *tc) {
+        return tc->id() == id;
+    });
 }
 
 FileName ToolChainManager::defaultDebugger(const Abi &abi)

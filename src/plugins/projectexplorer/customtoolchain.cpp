@@ -38,6 +38,7 @@
 #include "projectexplorerconstants.h"
 #include "toolchainmanager.h"
 
+#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
@@ -218,17 +219,14 @@ IOutputParser *CustomToolChain::outputParser() const
 
 QStringList CustomToolChain::headerPathsList() const
 {
-    QStringList list;
-    foreach (const HeaderPath &headerPath, m_systemHeaderPaths)
-        list << headerPath.path();
-    return list;
+    return Utils::transform(m_systemHeaderPaths, &HeaderPath::path);
 }
 
 void CustomToolChain::setHeaderPaths(const QStringList &list)
 {
-    m_systemHeaderPaths.clear();
-    foreach (const QString &headerPath, list)
-        m_systemHeaderPaths << HeaderPath(headerPath.trimmed(), HeaderPath::GlobalHeaderPath);
+    m_systemHeaderPaths = Utils::transform(list, [](const QString &headerPath) {
+        return HeaderPath(headerPath.trimmed(), HeaderPath::GlobalHeaderPath);
+    });
 }
 
 void CustomToolChain::setCompilerCommand(const FileName &path)
@@ -272,9 +270,7 @@ const QStringList &CustomToolChain::cxx11Flags() const
 
 void CustomToolChain::setMkspecs(const QString &specs)
 {
-    m_mkspecs.clear();
-    foreach (const QString &spec, specs.split(QLatin1Char(',')))
-        m_mkspecs << FileName::fromString(spec);
+    m_mkspecs = Utils::transform(specs.split(QLatin1Char(',')), &FileName::fromString);
 }
 
 QString CustomToolChain::mkspecs() const

@@ -37,6 +37,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QComboBox>
 #include <QPushButton>
@@ -50,9 +51,7 @@ QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplo
     m_combo = new QComboBox;
     m_combo->addItem(tr("None"), -1);
 
-    QList<int> versionIds;
-    foreach (BaseQtVersion *v, QtVersionManager::versions())
-        versionIds.append(v->uniqueId());
+    QList<int> versionIds = Utils::transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
     versionsChanged(versionIds, QList<int>(), QList<int>());
 
     m_manageButton = new QPushButton(KitConfigWidget::msgManage());

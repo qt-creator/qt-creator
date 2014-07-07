@@ -804,6 +804,7 @@ bool QmakePriFileNode::deploysFolder(const QString &folder) const
     const QChar slash = QLatin1Char('/');
     if (!f.endsWith(slash))
         f.append(slash);
+
     foreach (const QString &wf, m_watchedFolders) {
         if (f.startsWith(wf)
             && (wf.endsWith(slash)
@@ -955,9 +956,7 @@ bool QmakePriFileNode::removeSubProjects(const QStringList &proFilePaths)
     QStringList failedOriginalFiles;
     changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), proFilePaths, &failedOriginalFiles, RemoveFromProFile);
 
-    QStringList simplifiedProFiles;
-    foreach (const QString &proFile, failedOriginalFiles)
-        simplifiedProFiles.append(simplifyProFilePath(proFile));
+    QStringList simplifiedProFiles = Utils::transform(failedOriginalFiles, &simplifyProFilePath);
 
     QStringList failedSimplifiedFiles;
     changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), simplifiedProFiles, &failedSimplifiedFiles, RemoveFromProFile);

@@ -39,6 +39,7 @@
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/portlist.h>
+#include <utils/algorithm.h>
 
 #include <QFileInfo>
 #include <QHash>
@@ -368,11 +369,9 @@ IDevice::Ptr DeviceManager::mutableDevice(Core::Id id) const
 
 bool DeviceManager::hasDevice(const QString &name) const
 {
-    foreach (const IDevice::Ptr &device, d->devices) {
-        if (device->displayName() == name)
-            return true;
-    }
-    return false;
+    return Utils::anyOf(d->devices, [&name](const IDevice::Ptr &device) {
+        return device->displayName() == name;
+    });
 }
 
 IDevice::ConstPtr DeviceManager::find(Core::Id id) const

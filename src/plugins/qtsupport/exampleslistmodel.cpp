@@ -264,9 +264,7 @@ static QString fixStringForTags(const QString &string)
 
 static QStringList trimStringList(const QStringList &stringlist)
 {
-    return Utils::transform(stringlist, [](const QString &string) {
-        return string.trimmed();
-    });
+    return Utils::transform(stringlist, &QString::trimmed);
 }
 
 static QString relativeOrInstallPath(const QString &path, const QString &manifestPath,
@@ -782,10 +780,9 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
     const QStringList tags = sourceModel()->index(sourceRow, 0, sourceParent).data(Tags).toStringList();
 
     if (!m_filterTags.isEmpty()) {
-        foreach (const QString &tag, m_filterTags)
-            if (!tags.contains(tag, Qt::CaseInsensitive))
-                return false;
-        return true;
+        return Utils::allOf(m_filterTags, [tags](const QString &filterTag) {
+            return tags.contains(filterTag);
+        });
     }
 
     if (!m_searchString.isEmpty()) {

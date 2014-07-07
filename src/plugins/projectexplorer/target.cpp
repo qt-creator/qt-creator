@@ -47,6 +47,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QDebug>
 #include <QIcon>
@@ -218,9 +219,7 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
 
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = configuration->displayName();
-    QStringList displayNames;
-    foreach (const BuildConfiguration *bc, d->m_buildConfigurations)
-        displayNames << bc->displayName();
+    QStringList displayNames = Utils::transform(d->m_buildConfigurations, &BuildConfiguration::displayName);
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     if (configurationDisplayName != configuration->displayName()) {
         if (configuration->usesDefaultDisplayName())
@@ -302,9 +301,7 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
 
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = dc->displayName();
-    QStringList displayNames;
-    foreach (const DeployConfiguration *current, d->m_deployConfigurations)
-        displayNames << current->displayName();
+    QStringList displayNames = Utils::transform(d->m_deployConfigurations, &DeployConfiguration::displayName);
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     dc->setDisplayName(configurationDisplayName);
 
@@ -405,9 +402,7 @@ void Target::addRunConfiguration(RunConfiguration* runConfiguration)
 
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = runConfiguration->displayName();
-    QStringList displayNames;
-    foreach (const RunConfiguration *rc, d->m_runConfigurations)
-        displayNames << rc->displayName();
+    QStringList displayNames = Utils::transform(d->m_runConfigurations, &RunConfiguration::displayName);
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     runConfiguration->setDisplayName(configurationDisplayName);
 
@@ -624,13 +619,10 @@ void Target::updateDefaultRunConfigurations()
 
     // Create new RCs and put them into newConfigured/newUnconfigured
     foreach (Core::Id id, autoCreateFactoryIds) {
-        IRunConfigurationFactory *factory = 0;
-        foreach (IRunConfigurationFactory *i, rcFactories) {
-            if (i->canCreate(this, id)) {
-                factory = i;
-                break;
-            }
-        }
+        IRunConfigurationFactory *factory = Utils::findOrDefault(rcFactories,
+                                                          [this, id] (IRunConfigurationFactory *i) {
+                                                                return i->canCreate(this, id);
+                                                          });
         if (!factory)
             continue;
 
@@ -687,12 +679,10 @@ void Target::updateDefaultRunConfigurations()
             RunConfiguration *selected = newConfigured.at(0);
             // Try to find a runconfiguration that matches the project name. That is a good
             // candidate for something to run initially.
-            foreach (RunConfiguration *rc, newConfigured) {
-                if (rc->displayName() == project()->displayName()) {
-                    selected = rc;
-                    break;
-                }
-            }
+            selected = Utils::findOr(newConfigured, selected,
+                                     [this] (RunConfiguration *rc) {
+                                         return rc->displayName() == project()->displayName();
+                                     });
             setActiveRunConfiguration(selected);
         } else if (!newUnconfigured.isEmpty()){
             setActiveRunConfiguration(newUnconfigured.at(0));

@@ -35,6 +35,7 @@
 #include "projectexplorerconstants.h"
 #include "toolchainmanager.h"
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
@@ -682,9 +683,7 @@ QVariantMap GccToolChain::toMap() const
     data.insert(QLatin1String(compilerPlatformCodeGenFlagsKeyC), m_platformCodeGenFlags);
     data.insert(QLatin1String(compilerPlatformLinkerFlagsKeyC), m_platformLinkerFlags);
     data.insert(QLatin1String(targetAbiKeyC), m_targetAbi.toString());
-    QStringList abiList;
-    foreach (const Abi &a, m_supportedAbis)
-        abiList.append(a.toString());
+    QStringList abiList = Utils::transform(m_supportedAbis, &Abi::toString);
     data.insert(QLatin1String(supportedAbisKeyC), abiList);
     return data;
 }

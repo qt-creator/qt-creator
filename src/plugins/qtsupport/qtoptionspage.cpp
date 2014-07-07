@@ -151,9 +151,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_manualItem->setFirstColumnSpanned(true);
     m_manualItem->setFlags(Qt::ItemIsEnabled);
 
-    QList<int> additions;
-    foreach (BaseQtVersion *v, QtVersionManager::versions())
-        additions.append(v->uniqueId());
+    QList<int> additions = transform(QtVersionManager::versions(), &BaseQtVersion::uniqueId);
 
     updateQtVersions(additions, QList<int>(), QList<int>());
 

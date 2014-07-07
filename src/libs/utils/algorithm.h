@@ -31,6 +31,7 @@
 #define ALGORITHM_H
 
 #include <algorithm>
+#include <functional>
 
 #if QT_VERSION < 0x050000
     #ifndef Q_REQUIRED_RESULT
@@ -46,6 +47,20 @@
 
 namespace Utils
 {
+//////////////////
+// anyOf
+/////////////////
+
+// anyOf taking a member function pointer
+template<typename T, typename R, typename S>
+bool anyOf(const T &container, R (S::*predicate)() const)
+{
+    static_assert(std::is_convertible<typename T::iterator::value_type, S *>::value
+                  || std::is_convertible<typename T::iterator::value_type, S>::value,
+                  "elements of the container must be convertible to the member function pointer's class.");
+    static_assert(std::is_convertible<R, bool>::value, "return type of predicate needs to be convertible to bool");
+    return std::any_of(container.begin(), container.end(), std::mem_fn(predicate));
+}
 
 template<typename T, typename F>
 bool anyOf(const T &container, F predicate)
@@ -53,12 +68,18 @@ bool anyOf(const T &container, F predicate)
     return std::any_of(container.begin(), container.end(), predicate);
 }
 
+//////////////////
+// allOf
+/////////////////
 template<typename T, typename F>
 bool allOf(const T &container, F predicate)
 {
     return std::all_of(container.begin(), container.end(), predicate);
 }
 
+//////////////////
+// erase
+/////////////////
 template<typename T, typename F>
 void erase(QList<T> &container, F predicate)
 {
@@ -66,6 +87,9 @@ void erase(QList<T> &container, F predicate)
                     container.end());
 }
 
+//////////////////
+// contains
+/////////////////
 template<typename T, typename F>
 bool contains(const T &container, F function)
 {
@@ -76,6 +100,9 @@ bool contains(const T &container, F function)
     return it != end;
 }
 
+//////////////////
+// findOr
+/////////////////
 template<typename T, typename F>
 typename T::value_type findOr(const T &container, typename T::value_type other, F function)
 {
@@ -89,23 +116,45 @@ typename T::value_type findOr(const T &container, typename T::value_type other, 
 }
 
 template<typename T, typename F>
-typename T::value_type bestElementOr(const T &container, typename T::value_type other, F function)
+typename T::value_type findOrDefault(const T &container, F function)
 {
-    typename T::const_iterator end = container.end();
-    typename T::const_iterator begin = container.begin();
+    return findOr(container, typename T::value_type(), function);
+}
 
-    typename T::const_iterator it = std::min_element(begin, end, function);
-    if (it == end)
-        return other;
-    return *it;
+//////////////////
+// transform
+/////////////////
+
+// transform taking a member function pointer
+template<typename T, typename R, typename S>
+Q_REQUIRED_RESULT
+auto transform(const QList<T> &container, R (S::*p)() const) -> QList<R>
+{
+    static_assert(std::is_convertible<T, S *>::value
+                  || std::is_convertible<T, S>::value,
+                  "elements of container must be convertible to S");
+    QList<R> result;
+    result.reserve(container.size());
+    std::transform(container.begin(), container.end(),
+                   std::back_inserter(result),
+                   std::mem_fn(p));
+    return result;
+}
+
+namespace {
+// needed for msvc 2010, that doesn't have a declval
+// can be removed once we stop supporting it
+template<typename T>
+T &&declval();
 }
 
 // Note: add overloads for other container types as needed
 template<typename T, typename F>
 Q_REQUIRED_RESULT
-auto transform(const QList<T> &container, F function) -> QList<decltype(function(T()))>
+auto transform(const QList<T> &container, F function)
+     -> QList<typename std::remove_reference<decltype(function(declval<T>()))>::type>
 {
-    QList<decltype(function(T()))> result;
+    QList<typename std::remove_reference<decltype(function(declval<T>()))>::type> result;
     result.reserve(container.size());
     std::transform(container.begin(), container.end(),
                    std::back_inserter(result),
@@ -113,6 +162,9 @@ auto transform(const QList<T> &container, F function) -> QList<decltype(function
     return result;
 }
 
+//////////////////
+// sort
+/////////////////
 template <typename Container>
 inline void sort(Container &c)
 {
