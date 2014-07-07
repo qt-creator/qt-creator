@@ -134,39 +134,33 @@ QVariantList MemoryUsageModel::labels() const
     return result;
 }
 
-QVariantList MemoryUsageModel::details(int index) const
+QVariantMap MemoryUsageModel::details(int index) const
 {
     Q_D(const MemoryUsageModel);
 
-    QVariantList result;
+    QVariantMap result;
     const MemoryUsageModelPrivate::Range *ev = &d->range(index);
 
-    QVariantMap res;
     if (ev->allocated >= -ev->deallocated)
-        res.insert(QLatin1String("displayName"), tr("Memory Allocated"));
+        result.insert(QLatin1String("displayName"), tr("Memory Allocated"));
     else
-        res.insert(QLatin1String("displayName"), tr("Memory Freed"));
-    result << res;
-    res.clear();
+        result.insert(QLatin1String("displayName"), tr("Memory Freed"));
 
-    res.insert(tr("Total"), QVariant(QString::fromLatin1("%1 bytes").arg(ev->size)));
-    result << res;
-    res.clear();
-
+    result.insert(tr("Total"), QString::fromLatin1("%1 bytes").arg(ev->size));
     if (ev->allocations > 0) {
-        res.insert(tr("Allocated"), QString::fromLatin1("%1 bytes").arg(ev->allocated));
-        res.insert(tr("Allocations"), QString::number(ev->allocations));
+        result.insert(tr("Allocated"), QString::fromLatin1("%1 bytes").arg(ev->allocated));
+        result.insert(tr("Allocations"), QString::number(ev->allocations));
     }
     if (ev->deallocations > 0) {
-        res.insert(tr("Deallocated"), QString::fromLatin1("%1 bytes").arg(-ev->deallocated));
-        res.insert(tr("Deallocations"), QString::number(ev->deallocations));
+        result.insert(tr("Deallocated"), QString::fromLatin1("%1 bytes").arg(-ev->deallocated));
+        result.insert(tr("Deallocations"), QString::number(ev->deallocations));
     }
-    res.insert(tr("Type"), QVariant(MemoryUsageModelPrivate::memoryTypeName(ev->type)));
+    result.insert(tr("Type"), QVariant(MemoryUsageModelPrivate::memoryTypeName(ev->type)));
+
     if (ev->originTypeIndex != -1) {
-        res.insert(tr("Location"),
+        result.insert(tr("Location"),
                 d->modelManager->qmlModel()->getEventTypes().at(ev->originTypeIndex).displayName);
     }
-    result << res;
     return result;
 }
 

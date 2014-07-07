@@ -57,7 +57,7 @@ class SceneGraphTimelineModel::SceneGraphTimelineModelPrivate :
                                    AbstractTimelineModel::AbstractTimelineModelPrivate>
 {
 public:
-    void addVP(QVariantList &l, QString label, qint64 time) const;
+    void addVP(QVariantMap &result, QString label, qint64 time) const;
 private:
     bool seenPolishAndSync;
     Q_DECLARE_PUBLIC(SceneGraphTimelineModel)
@@ -145,30 +145,25 @@ QVariantList SceneGraphTimelineModel::labels() const
     return result;
 }
 
-void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::addVP(QVariantList &l, QString label, qint64 time) const
+void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::addVP(QVariantMap &result,
+                                                                    QString label,
+                                                                    qint64 time) const
 {
-    if (time > 0) {
-        QVariantMap res;
-        res.insert(label, QVariant(QmlProfilerBaseModel::formatTime(time)));
-        l << res;
-    }
+    if (time > 0)
+        result.insert(label, QmlProfilerBaseModel::formatTime(time));
 }
 
-QVariantList SceneGraphTimelineModel::details(int index) const
+
+QVariantMap SceneGraphTimelineModel::details(int index) const
 {
     Q_D(const SceneGraphTimelineModel);
-    QVariantList result;
+    QVariantMap result;
     const SortedTimelineModel<SceneGraphEvent,
             AbstractTimelineModel::AbstractTimelineModelPrivate>::Range *ev =
             &d->range(index);
 
-    {
-        QVariantMap res;
-        res.insert(QLatin1String("displayName"), QVariant(labelForSGType(
-                                    d->seenPolishAndSync ? ev->sgEventType : SceneGraphGUIThread)));
-        result << res;
-    }
-
+    result.insert(QLatin1String("displayName"), labelForSGType(
+                                    d->seenPolishAndSync ? ev->sgEventType : SceneGraphGUIThread));
     d->addVP(result, tr("Duration"), ev->duration );
 
     if (ev->sgEventType == SceneGraphRenderThread) {

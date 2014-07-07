@@ -190,54 +190,29 @@ void PixmapCacheModel::PixmapCacheModelPrivate::addVP(QVariantList &l, QString l
     }
 }
 
-QVariantList PixmapCacheModel::details(int index) const
+QVariantMap PixmapCacheModel::details(int index) const
 {
     Q_D(const PixmapCacheModel);
-    QVariantList result;
+    QVariantMap result;
     const PixmapCacheModelPrivate::Range *ev = &d->range(index);
 
-    {
-        QVariantMap res;
-        if (ev->pixmapEventType == PixmapCacheCountChanged)
-            res.insert(QLatin1String("displayName"), QVariant(QLatin1String("Image Cached")));
-        else if (ev->pixmapEventType == PixmapLoadingStarted)
-            res.insert(QLatin1String("displayName"), QVariant(QLatin1String("Image Loaded")));
-        result << res;
-    }
-
-    if (ev->pixmapEventType != PixmapCacheCountChanged) {
-        d->addVP(result, tr("Duration"), ev->duration );
+    if (ev->pixmapEventType == PixmapCacheCountChanged) {
+        result.insert(QLatin1String("displayName"), tr("Image Cached"));
     } else {
-        QVariantMap res;
-        res.insert(tr("Cache Size"), QVariant(QString::fromLatin1("%1 px")
-                .arg(ev->cacheSize)));
-        result << res;
+        if (ev->pixmapEventType == PixmapLoadingStarted) {
+            result.insert(QLatin1String("displayName"), tr("Image Loaded"));
+            if (d->pixmaps[ev->urlIndex].sizes[ev->sizeIndex].loadState != Finished)
+                result.insert(tr("Result"), tr("Load Error"));
+        }
+        result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(ev->duration));
     }
 
-    {
-        QVariantMap res;
-        res.insert(tr("File"), QVariant(getFilenameOnly(d->pixmaps[ev->urlIndex].url)));
-        result << res;
-    }
-
-    {
-        QVariantMap res;
-        res.insert(tr("Width"), QVariant(QString::fromLatin1("%1 px")
-                .arg(d->pixmaps[ev->urlIndex].sizes[ev->sizeIndex].size.width())));
-        result << res;
-        res.clear();
-        res.insert(tr("Height"), QVariant(QString::fromLatin1("%1 px")
-                .arg(d->pixmaps[ev->urlIndex].sizes[ev->sizeIndex].size.height())));
-        result << res;
-    }
-
-    if (ev->pixmapEventType == PixmapLoadingStarted &&
-            d->pixmaps[ev->urlIndex].sizes[ev->sizeIndex].loadState != Finished) {
-        QVariantMap res;
-        res.insert(tr("Result"), QVariant(QLatin1String("Load Error")));
-        result << res;
-    }
-
+    result.insert(tr("Cache Size"), QString::fromLatin1("%1 px").arg(ev->cacheSize));
+    result.insert(tr("File"), getFilenameOnly(d->pixmaps[ev->urlIndex].url));
+    result.insert(tr("Width"), QString::fromLatin1("%1 px")
+                  .arg(d->pixmaps[ev->urlIndex].sizes[ev->sizeIndex].size.width()));
+    result.insert(tr("Height"), QString::fromLatin1("%1 px")
+                  .arg(d->pixmaps[ev->urlIndex].sizes[ev->sizeIndex].size.height()));
     return result;
 }
 

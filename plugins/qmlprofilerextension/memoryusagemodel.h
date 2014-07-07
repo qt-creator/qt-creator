@@ -61,7 +61,7 @@ public:
     QVariantMap location(int index) const;
 
     QVariantList labels() const;
-    QVariantList details(int index) const;
+    QVariantMap details(int index) const;
 
     void loadData();
     void clear();
