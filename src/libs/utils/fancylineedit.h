@@ -162,6 +162,7 @@ signals:
 private slots:
     void iconClicked();
     void onTextChanged(const QString &);
+    void onEditingFinished();
 
 protected:
     void resizeEvent(QResizeEvent *e);

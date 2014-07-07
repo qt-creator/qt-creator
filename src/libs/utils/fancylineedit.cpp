@@ -299,8 +299,20 @@ bool FancyLineEdit::hasAutoHideButton(Side side) const
 void FancyLineEdit::setHistoryCompleter(const QString &historyKey)
 {
     QTC_ASSERT(!d->m_historyCompleter, return);
-    d->m_historyCompleter = new HistoryCompleter(this, historyKey, this);
+    d->m_historyCompleter = new HistoryCompleter(historyKey, this);
     QLineEdit::setCompleter(d->m_historyCompleter);
+
+    // Hitting <Return> in the popup first causes editingFinished()
+    // being emitted and more updates finally calling setText() (again).
+    // To make sure we report the "final" content delay the addEntry()
+    // "a bit".
+    connect(this, SIGNAL(editingFinished()),
+            this, SLOT(onEditingFinished()), Qt::QueuedConnection);
+}
+
+void FancyLineEdit::onEditingFinished()
+{
+    d->m_historyCompleter->addEntry(text());
 }
 
 void FancyLineEdit::setSpecialCompleter(QCompleter *completer)

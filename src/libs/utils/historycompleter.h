@@ -40,7 +40,6 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class FancyLineEdit;
 namespace Internal { class HistoryCompleterPrivate; }
 
 class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
@@ -49,7 +48,7 @@ class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
 
 public:
     static void setSettings(QSettings *settings);
-    HistoryCompleter(FancyLineEdit *lineEdit, const QString &historyKey, QObject *parent = 0);
+    HistoryCompleter(const QString &historyKey, QObject *parent = 0);
     bool removeHistoryItem(int index);
 
 private:
@@ -60,7 +59,7 @@ private:
 
 public Q_SLOTS:
     void clearHistory();
-    void saveHistory();
+    void addEntry(const QString &str);
 
 private:
     Internal::HistoryCompleterPrivate *d;
