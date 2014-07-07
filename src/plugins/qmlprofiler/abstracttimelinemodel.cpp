@@ -74,12 +74,6 @@ int AbstractTimelineModel::count() const
     return d->count();
 }
 
-qint64 AbstractTimelineModel::lastTimeMark() const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->lastEndTime();
-}
-
 int AbstractTimelineModel::findFirstIndex(qint64 startTime) const
 {
     Q_D(const AbstractTimelineModel);

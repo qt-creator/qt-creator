@@ -59,7 +59,6 @@ public:
     void setRowHeight(int rowNumber, int height);
     int height() const;
 
-    Q_INVOKABLE qint64 lastTimeMark() const;
     Q_INVOKABLE qint64 traceStartTime() const;
     Q_INVOKABLE qint64 traceEndTime() const;
     Q_INVOKABLE qint64 traceDuration() const;

@@ -129,19 +129,6 @@ bool TimelineModelAggregator::eventAccepted(const QmlProfilerDataModel::QmlEvent
     return true;
 }
 
-qint64 TimelineModelAggregator::lastTimeMark() const
-{
-    qint64 mark = -1;
-    foreach (const AbstractTimelineModel *modelProxy, d->modelList) {
-        if (!modelProxy->isEmpty()) {
-            qint64 mk = modelProxy->lastTimeMark();
-            if (mark > mk)
-                mark = mk;
-        }
-    }
-    return mark;
-}
-
 int TimelineModelAggregator::height(int modelIndex) const
 {
     return d->modelList[modelIndex]->height();
