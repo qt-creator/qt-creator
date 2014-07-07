@@ -136,14 +136,15 @@ Item {
 
             Repeater {
                 model: [
-                    qsTr("Start"),
+                    qsTr("Start") + ":",
                     startTime,
-                    showDuration ? qsTr("End") : "",
+                    showDuration ? (qsTr("End") + ":") : "",
                     showDuration ? endTime : "",
-                    showDuration ? qsTr("Duration") : "",
+                    showDuration ? (qsTr("Duration") + ":") : "",
                     showDuration ? duration : ""
                 ]
                 Detail {
+                    isLabel: index % 2 === 0
                     text: modelData
                 }
             }

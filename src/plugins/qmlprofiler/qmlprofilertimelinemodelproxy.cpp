@@ -294,10 +294,7 @@ QVariantMap RangeTimelineModel::details(int index) const
     result.insert(QStringLiteral("displayName"), categoryLabel(d->rangeType));
     result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(range(index).duration));
 
-    QString detailsString = types[id].data;
-    if (detailsString.length() > 40)
-        detailsString = detailsString.left(40) + QLatin1String("...");
-    result.insert(tr("Details"), detailsString);
+    result.insert(tr("Details"), types[id].data);
     result.insert(tr("Location"), types[id].displayName);
     return result;
 }

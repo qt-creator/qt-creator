@@ -152,6 +152,7 @@ Item {
         width: parent.width
         color: "white"
         renderType: Text.NativeRendering
+        elide: Text.ElideRight
     }
 
     // Details area
@@ -174,7 +175,8 @@ Item {
             Repeater {
                 model: eventInfo
                 Detail {
-                    text: content
+                    isLabel: index % 2 === 0
+                    text: (content === undefined) ? "" : (isLabel ? (content + ":") : content)
                 }
             }
         }

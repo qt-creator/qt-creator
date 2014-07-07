@@ -30,8 +30,11 @@
 import QtQuick 2.1
 
 Text {
+    property bool isLabel: false
     font.pixelSize: 12
-    font.bold: index % 2 === 0
+    font.bold: isLabel
     textFormat: Text.PlainText
     renderType: Text.NativeRendering
+    elide: Text.ElideRight
+    width: text === "" ? 0 : (isLabel ? 85 : 170)
 }
