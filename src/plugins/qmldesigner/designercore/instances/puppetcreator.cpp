@@ -35,6 +35,7 @@
 #include <QCryptographicHash>
 #include <QDateTime>
 #include <QMessageBox>
+#include <QThread>
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/toolchain.h>
@@ -140,6 +141,14 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     return puppetProcess;
 }
 
+static QString idealProcessCount()
+{
+    int processCount = QThread::idealThreadCount() + 1;
+    if (processCount < 1)
+        processCount = 4;
+
+    return QString::number(processCount);
+}
 
 bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
 {
@@ -164,7 +173,13 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             buildSucceeded = startBuildProcess(buildDirectory.path(), qmakeCommand(), qmakeArguments);
             if (buildSucceeded) {
                 progressDialog.show();
-                buildSucceeded = startBuildProcess(buildDirectory.path(), buildCommand(), QStringList(), &progressDialog);
+                QString buildingCommand = buildCommand();
+                QStringList buildArguments;
+                if (buildingCommand.contains("make")) {
+                    buildArguments.append(QStringLiteral("-j"));
+                    buildArguments.append(idealProcessCount());
+                }
+                buildSucceeded = startBuildProcess(buildDirectory.path(), buildingCommand, buildArguments, &progressDialog);
                 progressDialog.close();
             }
 
