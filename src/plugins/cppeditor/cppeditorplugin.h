@@ -118,6 +118,8 @@ private slots:
 
     void test_doxygen_comments_data();
     void test_doxygen_comments();
+    void test_doxygen_comments_no_leading_asterisks_data();
+    void test_doxygen_comments_no_leading_asterisks();
 
     void test_quickfix_data();
     void test_quickfix();

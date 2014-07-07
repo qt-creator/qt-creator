@@ -182,44 +182,53 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
     if (enableDoxygen && !cursor.atEnd() && isCursorAfterCppComment(cursor, doc))
         return handleDoxygenCppStyleContinuation(cursor, e);
 
-    if (!leadingAsterisks)
-        return false;
-
     // We continue the comment if the cursor is after a comment's line asterisk and if
     // there's no asterisk immediately after the cursor (that would already be considered
     // a leading asterisk).
     int offset = 0;
     const int blockPos = cursor.positionInBlock();
-    const QString &text = cursor.block().text();
+    const QString &currentLine = cursor.block().text();
     for (; offset < blockPos; ++offset) {
-        if (!text.at(offset).isSpace())
+        if (!currentLine.at(offset).isSpace())
             break;
     }
 
+    // In case we don't need to insert leading asteriskses, this code will be run once (right after
+    // hitting enter on the line containing '/*'). It will insert a continuation without an
+    // asterisk, but with an extra space. After that, the normal indenting will take over and do the
+    // Right Thing <TM>.
     if (offset < blockPos
-            && (text.at(offset) == QLatin1Char('*')
+            && (currentLine.at(offset) == QLatin1Char('*')
                 || (offset < blockPos - 1
-                    && text.at(offset) == QLatin1Char('/')
-                    && text.at(offset + 1) == QLatin1Char('*')))) {
+                    && currentLine.at(offset) == QLatin1Char('/')
+                    && currentLine.at(offset + 1) == QLatin1Char('*')))) {
+        // Ok, so the line started with an '*' or '/*'
         int followinPos = blockPos;
-        for (; followinPos < text.length(); ++followinPos) {
-            if (!text.at(followinPos).isSpace())
+        // Now search for the first non-whitespace character to align to:
+        for (; followinPos < currentLine.length(); ++followinPos) {
+            if (!currentLine.at(followinPos).isSpace())
                 break;
         }
-        if (followinPos == text.length()
-                || text.at(followinPos) != QLatin1Char('*')) {
+        if (followinPos == currentLine.length() // a)
+                || currentLine.at(followinPos) != QLatin1Char('*')) { // b)
+            // So either a) the line ended after a '*' and we need to insert a continuation, or
+            // b) we found the start of some text and we want to align the continuation to that.
             QString newLine(QLatin1Char('\n'));
             QTextCursor c(cursor);
             c.movePosition(QTextCursor::StartOfBlock);
             c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, offset);
             newLine.append(c.selectedText());
-            if (text.at(offset) == QLatin1Char('/')) {
-                newLine.append(QLatin1String(" * "));
+            if (currentLine.at(offset) == QLatin1Char('/')) {
+                if (leadingAsterisks)
+                    newLine.append(QLatin1String(" * "));
+                else
+                    newLine.append(QLatin1String("   "));
             } else {
                 int start = offset;
-                while (offset < blockPos && text.at(offset) == QLatin1Char('*'))
+                while (offset < blockPos && currentLine.at(offset) == QLatin1Char('*'))
                     ++offset;
-                newLine.append(QString(offset - start, QLatin1Char('*')));
+                const QChar ch = leadingAsterisks ? QLatin1Char('*') : QLatin1Char(' ');
+                newLine.append(QString(offset - start, ch));
                 newLine.append(QLatin1Char(' '));
             }
             cursor.insertText(newLine);
