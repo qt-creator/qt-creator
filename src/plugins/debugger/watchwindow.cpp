@@ -60,6 +60,13 @@
 #include <QScrollBar>
 #include <QTimer>
 
+// For InputDialog, move to Utils?
+#include <coreplugin/helpmanager.h>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QButtonGroup>
+#include <QDialogButtonBox>
+
 //#define USE_WATCH_MODEL_TEST 1
 
 #if USE_WATCH_MODEL_TEST
@@ -1084,14 +1091,77 @@ void WatchTreeView::setModelData
     model()->setData(index, value, role);
 }
 
+
+// FIXME: Move to Utils?
+class InputDialog : public QDialog
+{
+public:
+    InputDialog()
+    {
+        m_label = new QLabel(this);
+        m_hint = new QLabel(this);
+        m_lineEdit = new Utils::FancyLineEdit(this);
+        m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel,
+            Qt::Horizontal, this);
+
+        auto layout = new QVBoxLayout(this);
+        layout->addWidget(m_label, Qt::AlignLeft);
+        layout->addWidget(m_hint, Qt::AlignLeft);
+        layout->addWidget(m_lineEdit);
+        layout->addSpacing(10);
+        layout->addWidget(m_buttons);
+        setLayout(layout);
+
+        connect(m_buttons, SIGNAL(accepted()), m_lineEdit, SLOT(onEditingFinished()));
+        connect(m_buttons, SIGNAL(accepted()), SLOT(accept()));
+        connect(m_buttons, SIGNAL(rejected()), SLOT(reject()));
+        connect(m_hint, SIGNAL(linkActivated(QString)),
+            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
+    }
+
+    void setLabelText(const QString &text)
+    {
+        m_label->setText(text);
+    }
+
+    void setHintText(const QString &text)
+    {
+        m_hint->setText(QString::fromLatin1("<html>%1</html>").arg(text));
+    }
+
+    void setHistoryCompleter(const QString &key)
+    {
+        m_lineEdit->setHistoryCompleter(key);
+        m_lineEdit->setText(QString()); // Undo "convenient" population with history item.
+    }
+
+    QString text() const
+    {
+        return m_lineEdit->text();
+    }
+
+public:
+    QLabel *m_label;
+    QLabel *m_hint;
+    Utils::FancyLineEdit *m_lineEdit;
+    QDialogButtonBox *m_buttons;
+};
+
 void WatchTreeView::inputNewExpression()
 {
-    bool ok;
-    QString exp = QInputDialog::getText(this, tr("Enter Expression for Evaluator"),
-                                        tr("Expression:"), QLineEdit::Normal,
-                                        QString(), &ok);
-    if (ok && !exp.isEmpty())
-        watchExpression(exp, exp);
+    InputDialog dlg;
+    dlg.setWindowTitle(tr("New Evaluated Expression"));
+    dlg.setLabelText(tr("Enter an expression to evaluate."));
+    dlg.setHintText(tr("Note: Evaluators will be re-evaluated after each step. "
+       "For details check the <a href=\""
+        "qthelp://org.qt-project.qtcreator/doc/creator-debug-mode.html#locals-and-expressions"
+        "\">documentation</a>."));
+    dlg.setHistoryCompleter(QLatin1String("WatchItems"));
+    if (dlg.exec() == QDialog::Accepted) {
+        QString exp = dlg.text();
+        if (!exp.isEmpty())
+            watchExpression(exp, exp);
+    }
 }
 
 } // namespace Internal
