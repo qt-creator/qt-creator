@@ -325,7 +325,7 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
         return false;
 
     QProcess process;
-    process.setProcessChannelMode(QProcess::MergedChannels);
+    process.setProcessChannelMode(QProcess::SeparateChannels);
     process.setProcessEnvironment(processEnvironment());
     process.setWorkingDirectory(buildDirectoryPath);
     process.start(command, processArguments);
