@@ -564,7 +564,7 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
             if (vNr.indexIn(myPath.last()) == 0) {
                 myPath.last() = vNr.cap(1);
             }
-            for (int iPath = myPath.size(); iPath != 0; ) {
+            for (int iPath = myPath.size(); iPath != 1; ) {
                 --iPath;
                 if (safeName.indexIn(myPath.at(iPath)) != 0)
                     break;
@@ -595,7 +595,7 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
                 minorVersion = LanguageUtils::ComponentVersion::NoVersion;
         }
 
-        for (int iPath = splitPath.size(); iPath != 0; ) {
+        for (int iPath = splitPath.size(); iPath != 1; ) {
             --iPath;
             if (safeName.indexIn(splitPath.at(iPath)) != 0)
                 break;
