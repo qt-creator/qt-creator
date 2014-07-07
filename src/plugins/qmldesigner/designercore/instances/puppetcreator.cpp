@@ -175,7 +175,7 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
                 progressDialog.show();
                 QString buildingCommand = buildCommand();
                 QStringList buildArguments;
-                if (buildingCommand.contains("make")) {
+                if (buildingCommand == QStringLiteral("make")) {
                     buildArguments.append(QStringLiteral("-j"));
                     buildArguments.append(idealProcessCount());
                 }
