@@ -42,6 +42,8 @@ namespace QmlDesigner {
 Qt5PreviewNodeInstanceServer::Qt5PreviewNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt5NodeInstanceServer(nodeInstanceClient)
 {
+    setSlowRenderTimerInterval(100000000);
+    setRenderTimerInterval(100);
 }
 
 void Qt5PreviewNodeInstanceServer::createScene(const CreateSceneCommand &command)
