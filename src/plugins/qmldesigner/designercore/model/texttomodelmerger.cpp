@@ -758,7 +758,9 @@ void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, co
 
     foreach (const ImportKey &importKey, filteredPossibleImportKeys) {
         QString libraryName = importKey.splitPath.join(QLatin1Char('.'));
-        QString version = QString(QStringLiteral("%1.%2").arg(importKey.majorVersion).arg(importKey.minorVersion));
+        QString version = QString(QStringLiteral("%1.%2")
+            .arg((importKey.majorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 1 : importKey.majorVersion)
+            .arg((importKey.minorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 0 : importKey.minorVersion));
         possibleImports.append(Import::createLibraryImport(libraryName, version));
     }
 
