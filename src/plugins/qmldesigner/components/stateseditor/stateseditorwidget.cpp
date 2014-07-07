@@ -45,6 +45,7 @@
 #include <QBoxLayout>
 #include <QKeySequence>
 
+#include <QQuickView>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
@@ -57,15 +58,15 @@ namespace QmlDesigner {
 
 int StatesEditorWidget::currentStateInternalId() const
 {
-    Q_ASSERT(rootObject());
-    Q_ASSERT(rootObject()->property("currentStateInternalId").isValid());
+    Q_ASSERT(m_quickView->rootObject());
+    Q_ASSERT(m_quickView->rootObject()->property("currentStateInternalId").isValid());
 
-    return rootObject()->property("currentStateInternalId").toInt();
+    return m_quickView->rootObject()->property("currentStateInternalId").toInt();
 }
 
 void StatesEditorWidget::setCurrentStateInternalId(int internalId)
 {
-    rootObject()->setProperty("currentStateInternalId", internalId);
+    m_quickView->rootObject()->setProperty("currentStateInternalId", internalId);
 }
 
 void StatesEditorWidget::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
@@ -75,11 +76,12 @@ void StatesEditorWidget::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
 
 void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
 {
-    rootContext()->setContextProperty("canAddNewStates", showAddNewStatesButton);
+    m_quickView->rootContext()->setContextProperty("canAddNewStates", showAddNewStatesButton);
 }
 
 StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel)
-    : QQuickWidget(),
+    : QWidget(),
+      m_quickView(new QQuickView()),
       m_statesEditorView(statesEditorView),
       m_imageProvider(0),
       m_qmlSourceUpdateShortcut(0)
@@ -87,20 +89,25 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     m_imageProvider = new Internal::StatesEditorImageProvider;
     m_imageProvider->setNodeInstanceView(statesEditorView->nodeInstanceView());
 
-    engine()->addImageProvider(QStringLiteral("qmldesigner_stateseditor"), m_imageProvider);
-    engine()->addImportPath(qmlSourcesPath());
+    m_quickView->engine()->addImageProvider(QStringLiteral("qmldesigner_stateseditor"), m_imageProvider);
+    m_quickView->engine()->addImportPath(qmlSourcesPath());
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
     connect(m_qmlSourceUpdateShortcut, SIGNAL(activated()), this, SLOT(reloadQmlSource()));
 
-    setResizeMode(QQuickWidget::SizeRootObjectToView);
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    QWidget *container = createWindowContainer(m_quickView.data());
+    layout->addWidget(container);
+    m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
+    container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    rootContext()->setContextProperty(QStringLiteral("statesEditorModel"), statesEditorModel);
-    rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
+    m_quickView->rootContext()->setContextProperty(QStringLiteral("statesEditorModel"), statesEditorModel);
+    m_quickView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
 
-    rootContext()->setContextProperty("canAddNewStates", true);
+    m_quickView->rootContext()->setContextProperty("canAddNewStates", true);
 
     setWindowTitle(tr("States", "Title of Editor widget"));
 
@@ -120,21 +127,21 @@ void StatesEditorWidget::reloadQmlSource()
 {
     QString statesListQmlFilePath = qmlSourcesPath() + QStringLiteral("/StatesList.qml");
     QTC_ASSERT(QFileInfo::exists(statesListQmlFilePath), return);
-    engine()->clearComponentCache();
-    setSource(QUrl::fromLocalFile(statesListQmlFilePath));
+    m_quickView->engine()->clearComponentCache();
+    m_quickView->setSource(QUrl::fromLocalFile(statesListQmlFilePath));
 
-    QTC_ASSERT(rootObject(), return);
-    connect(rootObject(), SIGNAL(currentStateInternalIdChanged()), m_statesEditorView.data(), SLOT(synchonizeCurrentStateFromWidget()));
-    connect(rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
-    connect(rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
+    QTC_ASSERT(m_quickView->rootObject(), return);
+    connect(m_quickView->rootObject(), SIGNAL(currentStateInternalIdChanged()), m_statesEditorView.data(), SLOT(synchonizeCurrentStateFromWidget()));
+    connect(m_quickView->rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
+    connect(m_quickView->rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
     m_statesEditorView.data()->synchonizeCurrentStateFromWidget();
-    setFixedHeight(initialSize().height());
+    setFixedHeight(m_quickView->initialSize().height());
 
-    connect(rootObject(), SIGNAL(expandedChanged()), this, SLOT(changeHeight()));
+    connect(m_quickView->rootObject(), SIGNAL(expandedChanged()), this, SLOT(changeHeight()));
 }
 
 void StatesEditorWidget::changeHeight()
 {
-    setFixedHeight(rootObject()->height());
+    setFixedHeight(m_quickView->rootObject()->height());
 }
 }
