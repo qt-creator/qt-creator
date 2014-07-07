@@ -44,19 +44,20 @@ DiffEditorReloader::~DiffEditorReloader()
 
 }
 
-DiffEditorController *DiffEditorReloader::diffEditorController() const
+DiffEditorController *DiffEditorReloader::controller() const
 {
     return m_controller;
 }
 
-void DiffEditorReloader::setDiffEditorController(DiffEditorController *controller)
+void DiffEditorReloader::setController(DiffEditorController *controller)
 {
+    if (m_controller == controller)
+        return; // nothing changes
+
     if (m_controller) {
         disconnect(m_controller, SIGNAL(ignoreWhitespaceChanged(bool)),
                    this, SLOT(requestReload()));
         disconnect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
-                   this, SLOT(requestReload()));
-        disconnect(m_controller, SIGNAL(reloadRequested()),
                    this, SLOT(requestReload()));
     }
 
@@ -66,8 +67,6 @@ void DiffEditorReloader::setDiffEditorController(DiffEditorController *controlle
         connect(m_controller, SIGNAL(ignoreWhitespaceChanged(bool)),
                 this, SLOT(requestReload()));
         connect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
-                this, SLOT(requestReload()));
-        connect(m_controller, SIGNAL(reloadRequested()),
                 this, SLOT(requestReload()));
     }
 }

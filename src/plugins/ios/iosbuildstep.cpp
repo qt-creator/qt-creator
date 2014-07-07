@@ -198,8 +198,8 @@ QStringList IosBuildStep::defaultArguments() const
     case BuildConfiguration::Unknown :
         break;
     default:
-        qDebug() << "IosBuildStep had an unknown buildType "
-                 << target()->activeBuildConfiguration()->buildType();
+        qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
+                          << target()->activeBuildConfiguration()->buildType();
     }
     if (tc->type() == QLatin1String("gcc") || tc->type() == QLatin1String("clang")) {
         GccToolChain *gtc = static_cast<GccToolChain *>(tc);

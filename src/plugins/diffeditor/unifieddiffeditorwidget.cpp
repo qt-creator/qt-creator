@@ -730,21 +730,46 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
         return;
 
     const int blockNumber = cursor.blockNumber();
+    const int fileIndex = fileIndexForBlockNumber(blockNumber);
+    if (fileIndex < 0)
+        return;
+
+    const FileData fileData = m_contextFileData.at(fileIndex);
+    const QString leftFileName = fileData.leftFileInfo.fileName;
+    const QString rightFileName = fileData.rightFileInfo.fileName;
+
     const int columnNumber = cursor.positionInBlock() - 1; // -1 for the first character in line
 
     const int rightLineNumber = m_rightLineNumbers.value(blockNumber, -1);
     if (rightLineNumber >= 0) {
-        jumpToOriginalFile(m_contextFileData.at(
-                               fileIndexForBlockNumber(blockNumber)).rightFileInfo.fileName,
-                           rightLineNumber, columnNumber);
+        jumpToOriginalFile(rightFileName, rightLineNumber, columnNumber);
         return;
     }
 
     const int leftLineNumber = m_leftLineNumbers.value(blockNumber, -1);
     if (leftLineNumber >= 0) {
-        jumpToOriginalFile(m_contextFileData.at(
-                               fileIndexForBlockNumber(blockNumber)).leftFileInfo.fileName,
-                           leftLineNumber, columnNumber);
+        if (leftFileName == rightFileName) {
+            for (int i = 0; i < fileData.chunks.count(); i++) {
+                const ChunkData chunkData = fileData.chunks.at(i);
+
+                int newLeftLineNumber = chunkData.leftStartingLineNumber;
+                int newRightLineNumber = chunkData.rightStartingLineNumber;
+
+                for (int j = 0; j < chunkData.rows.count(); j++) {
+                    const RowData rowData = chunkData.rows.at(j);
+                    if (rowData.leftLine.textLineType == TextLineData::TextLine)
+                        newLeftLineNumber++;
+                    if (rowData.rightLine.textLineType == TextLineData::TextLine)
+                        newRightLineNumber++;
+                    if (newLeftLineNumber == leftLineNumber) {
+                        jumpToOriginalFile(leftFileName, newRightLineNumber, 0);
+                        return;
+                    }
+                }
+            }
+        } else {
+            jumpToOriginalFile(leftFileName, leftLineNumber, columnNumber);
+        }
         return;
     }
 }

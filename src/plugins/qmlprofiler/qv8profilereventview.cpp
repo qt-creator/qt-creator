@@ -58,11 +58,10 @@ namespace QmlProfiler {
 namespace Internal {
 
 enum ItemRole {
-    EventHashStrRole = Qt::UserRole+1,
-    FilenameRole = Qt::UserRole+2,
-    LineRole = Qt::UserRole+3,
-    ColumnRole = Qt::UserRole+4,
-    EventIdRole = Qt::UserRole+5
+    SortRole = Qt::UserRole + 1, // Sort by data, not by displayed text
+    FilenameRole,
+    LineRole,
+    EventIdRole
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -70,25 +69,27 @@ enum ItemRole {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-class EventsViewItem : public QStandardItem
+class V8ViewItem : public QStandardItem
 {
 public:
-    EventsViewItem(const QString &text) : QStandardItem(text) {}
+    V8ViewItem(const QString &text) : QStandardItem(text) {}
 
     virtual bool operator<(const QStandardItem &other) const
     {
-        if (data().type() == QVariant::String) {
-            // first column
-            if (column() == 0) {
-                return data(FilenameRole).toString() == other.data(FilenameRole).toString() ?
-                            data(LineRole).toInt() < other.data(LineRole).toInt() :
-                            data(FilenameRole).toString() < other.data(FilenameRole).toString();
-            } else {
-                return data().toString().toLower() < other.data().toString().toLower();
-            }
+        // first column is special
+        if (column() == 0) {
+            int filenameDiff = QUrl(data(FilenameRole).toString()).fileName().compare(
+                    QUrl(other.data(FilenameRole).toString()).fileName(), Qt::CaseInsensitive);
+            return filenameDiff != 0 ? filenameDiff < 0 :
+                                       data(LineRole).toInt() < other.data(LineRole).toInt();
+        } else if (data(SortRole).type() == QVariant::String) {
+            // Strings should be case-insensitive compared
+            return data(SortRole).toString().compare(other.data(SortRole).toString(),
+                                                         Qt::CaseInsensitive) < 0;
+        } else {
+            // For everything else the standard comparison should be OK
+            return QStandardItem::operator<(other);
         }
-
-        return data().toDouble() < other.data().toDouble();
     }
 };
 
@@ -290,6 +291,7 @@ QV8ProfilerEventsMainView::QV8ProfilerEventsMainView(QWidget *parent,
     setSortingEnabled(false);
 
     d->m_model = new QStandardItemModel(this);
+    d->m_model->setSortRole(SortRole);
     setModel(d->m_model);
     connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(jumpToItem(QModelIndex)));
 
@@ -436,30 +438,30 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
         QList<QStandardItem *> newRow;
 
         if (m_fieldShown[Name])
-            newRow << new EventsViewItem(v8event->displayName);
+            newRow << new V8ViewItem(v8event->displayName);
 
         if (m_fieldShown[TimeInPercent]) {
-            newRow << new EventsViewItem(QString::number(v8event->totalPercent,'f',2)+QLatin1String(" %"));
+            newRow << new V8ViewItem(QString::number(v8event->totalPercent,'f',2)+QLatin1String(" %"));
             newRow.last()->setData(QVariant(v8event->totalPercent));
         }
 
         if (m_fieldShown[TotalTime]) {
-            newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(v8event->totalTime));
+            newRow << new V8ViewItem(QmlProfilerBaseModel::formatTime(v8event->totalTime));
             newRow.last()->setData(QVariant(v8event->totalTime));
         }
 
         if (m_fieldShown[SelfTimeInPercent]) {
-            newRow << new EventsViewItem(QString::number(v8event->SelfTimeInPercent,'f',2)+QLatin1String(" %"));
+            newRow << new V8ViewItem(QString::number(v8event->SelfTimeInPercent,'f',2)+QLatin1String(" %"));
             newRow.last()->setData(QVariant(v8event->SelfTimeInPercent));
         }
 
         if (m_fieldShown[SelfTime]) {
-            newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(v8event->selfTime));
+            newRow << new V8ViewItem(QmlProfilerBaseModel::formatTime(v8event->selfTime));
             newRow.last()->setData(QVariant(v8event->selfTime));
         }
 
         if (m_fieldShown[Details]) {
-            newRow << new EventsViewItem(v8event->functionName);
+            newRow << new V8ViewItem(v8event->functionName);
             newRow.last()->setData(QVariant(v8event->functionName));
         }
 
@@ -470,10 +472,8 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
 
             // metadata
             QStandardItem *firstItem = newRow.at(0);
-            firstItem->setData(QString::fromLatin1("%1:%2").arg(v8event->filename, QString::number(v8event->line)), EventHashStrRole);
             firstItem->setData(QVariant(v8event->filename), FilenameRole);
             firstItem->setData(QVariant(v8event->line), LineRole);
-            firstItem->setData(QVariant(-1),ColumnRole); // v8 events have no column info
             firstItem->setData(QVariant(v8event->eventId), EventIdRole);
 
             // append
@@ -506,10 +506,9 @@ void QV8ProfilerEventsMainView::jumpToItem(const QModelIndex &index)
 
     // show in editor
     int line = infoItem->data(LineRole).toInt();
-    int column = infoItem->data(ColumnRole).toInt();
     QString fileName = infoItem->data(FilenameRole).toString();
     if (line!=-1 && !fileName.isEmpty())
-        emit gotoSourceLocation(fileName, line, column);
+        emit gotoSourceLocation(fileName, line, -1);
 
     // show in callers/callees subwindow
     emit eventSelected(infoItem->data(EventIdRole).toInt());
@@ -627,6 +626,7 @@ QV8ProfilerEventRelativesView::QV8ProfilerEventRelativesView(QV8ProfilerDataMode
     , m_v8Model(model)
     , m_model(new QStandardItemModel(this))
 {
+    m_model->setSortRole(SortRole);
     setModel(m_model);
 
     updateHeader();
@@ -666,11 +666,15 @@ void QV8ProfilerEventRelativesView::rebuildTree(QList<QV8ProfilerDataModel::QV8E
 
     foreach (QV8ProfilerDataModel::QV8EventSub *event, events) {
         QList<QStandardItem *> newRow;
-        newRow << new EventsViewItem(event->reference->displayName);
-        newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(event->totalTime));
-        newRow << new EventsViewItem(event->reference->functionName);
+        newRow << new V8ViewItem(event->reference->displayName);
+        newRow << new V8ViewItem(QmlProfilerBaseModel::formatTime(event->totalTime));
+        newRow << new V8ViewItem(event->reference->functionName);
+
         newRow.at(0)->setData(QVariant(event->reference->eventId), EventIdRole);
+        newRow.at(0)->setData(QVariant(event->reference->filename), FilenameRole);
+        newRow.at(0)->setData(QVariant(event->reference->line), LineRole);
         newRow.at(1)->setData(QVariant(event->totalTime));
+        newRow.at(2)->setData(QVariant(event->reference->functionName));
 
         foreach (QStandardItem *item, newRow)
             item->setEditable(false);

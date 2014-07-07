@@ -94,39 +94,10 @@
 
     \section1 Analyzing Collected Data
 
-    The \gui Timeline view displays graphical representations of:
+    The \gui Timeline view displays graphical representations of QML and
+    JavaScript execution and a condensed view of all recorded events.
 
-    \list
-    \if defined(enterprise)
-        \li Pixmap loading times and cache sizes
-
-        \li Scene graph events
-    \endif
-
-        \li Painting operations
-
-        \li Compiling the QML sources
-
-        \li Creating items using QML types
-
-        \li Binding evaluations
-
-        \li Signal handling
-
-        \li Executing JavaScript behind bindings and signal handlers
-
-        \li Summary of the recorded period
-
-    \endlist
-
-    \if defined(enterprise)
-    Information about the pixmap cache and scene graph events are only available
-    from Qt 5.1 onwards.
-
-    \image qtcreator-qml-performance-monitor-enterprise.png "QML Profiler"
-    \else
     \image qtcreator-qml-performance-monitor.png "QML Profiler"
-    \endif
 
     Each row in the timeline (6) describes a type of QML events that were
     recorded. Move the cursor on an event on a row to see how long it takes and
@@ -162,28 +133,132 @@
 
     To remove an event range, close the \gui Selection dialog.
 
-    \section2 Evaluating Bindings
+    \section2 Understanding the Data
 
-    On the \gui Binding row, you can see when a binding is evaluated and how
-    long the evaluation takes. Move the mouse over the binding for details
-    about the binding: location in the source code, duration, and source
-    code.
+    Generally, events in the timeline view indicate how long QML or JavaScript
+    execution took. Move the mouse over them to see details. For most events,
+    they include location in source code, duration and some relevant parts of
+    the source code itself.
 
-    Click the binding to move the cursor in the code editor to the part of the
-    code where the binding is called.
+    You can click on an event to move the cursor in the code editor to the part
+    of the code the event is associated with.
 
-    \section2 Evaluating JavaScript Events
+    The following types of events are displayed in the timeline view on one or
+    several rows. The availability of event types depends on the version of Qt
+    the application was compiled with, the version of Qt Quick it is using, and
+    whether \QC or \QCE is used to profile it.
 
-    On the \gui JavaScript row, you can see the time spent executing the actual
-    JavaScript behind bindings and signal handlers. It lists all the JavaScript
-    functions you may be using to evaluate bindings or handle signals.
+    \table
 
-    This information is displayed for applications that use the V4 engine and
-    are built with Qt 5.3, or later.
+    \header
+        \li Event Type
+        \li Description
+        \li Minimum Qt Version
+        \li Qt Quick Version
+        \li Enterprise Feature
 
-    For applications that use the V8 engine and are built with Qt 5.0 or 5.1,
-    you can view information about JavaScript events in the \gui JavaScript
-    view.
+    \row
+        \li \gui {Pixmap Cache}
+        \li Displays the general amount of pixmap data cached, in pixels. In
+            addition, displays a separate event for each picture being loaded,
+            with specifics about its file name and size.
+        \li Qt 5.1
+        \li Qt Quick 2
+        \li Yes
+
+    \row
+        \li \gui {Scene Graph}
+        \li Displays the time when scene graph frames are rendered and some
+            additional timing information for the various stages executed to do
+            so.
+        \li Qt 5.1
+        \li Qt Quick 2
+        \li Yes
+    \row
+        \li \gui {Memory Usage}
+        \li Displays block allocations of the JavaScript memory manager.
+            Generally, the memory manager will reserve larger blocks of memory
+            in one piece and later hand them out to the application in smaller
+            bits. If the application requests single blocks of memory
+            surpassing a certain size, the memory manager will allocate those
+            separately. Those two modes of operation are shown as events of
+            different colors.
+
+            The second row displays the actual usage of the allocated memory.
+            This is the amount of JavaScript heap the application has actually
+            requested.
+        \li Qt 5.4
+        \li Qt Quick 2
+        \li Yes
+
+    \row
+        \li \gui Painting
+        \li Displays the time spent painting the scene for each frame.
+        \li Qt 4.7.4
+        \li Qt Quick 1
+        \li No
+
+    \row
+        \li \gui Animations
+        \li Displays the amount of animations that are active and the frame
+            rate that they are running at.
+
+            Information about render thread animations is displayed for
+            applications that are built with Qt 5.3 or later. Render thread
+            animations are shown in a separate row then.
+        \li Qt 5.0 (Qt 5.3)
+        \li Qt Quick 2
+        \li No
+
+    \row
+        \li \gui Compiling
+        \li Displays the time spent compiling the QML files.
+        \li Qt 4.7.4
+        \li Qt Quick 1 or Qt Quick 2
+        \li No
+
+    \row
+        \li \gui Creating
+        \li Displays the time spent creating the elements in the scene. In Qt
+            Quick 2, creation of elements takes place in two stages. The first
+            stage is for the creation of the data structures, including child
+            elements. The second stage represents the completion callbacks. Not
+            all elements trigger completion callbacks, though. The stages are
+            shown as separate events in the timeline.
+
+            For Qt Quick 2 applications compiled with versions of Qt before
+            5.2.1 only the creation of top-level elements is shown, as single
+            events.
+        \li Qt 4.7.4 (Qt 5.2.1)
+        \li Qt Quick 1 or Qt Quick 2
+        \li No
+
+    \row
+        \li \gui Binding
+        \li Displays the time when a binding is evaluated and how long the
+            evaluation takes.
+        \li Qt 4.7.4
+        \li Qt Quick 1 or Qt Quick 2
+        \li No
+
+    \row
+        \li \gui {Handling Signal}
+        \li Displays the time when a signal is handled and how long the
+            handling takes.
+        \li Qt 4.7.4
+        \li Qt Quick 1 or Qt Quick 2
+        \li No
+
+    \row
+        \li \gui JavaScript
+        \li Displays the time spent executing the actual JavaScript behind
+            bindings and signal handlers. It lists all the JavaScript functions
+            you may be using to evaluate bindings or handle signals.
+        \li Qt 5.3
+        \li Qt Quick 2
+        \li No
+
+    \endtable
 
     \section1 Viewing Events
 
@@ -221,16 +296,21 @@
     To copy the contents of one view or row to the clipboard, select
     \gui {Copy Table} or \gui {Copy Row} in the context menu.
 
+    JavaScript events are shown in the \gui Events view only for applications
+    that use Qt Quick 2 and are compiled with Qt 5.3 or later. For applications
+    that use Qt Quick 2 and are built with Qt 5.0 or 5.1, you can view
+    information about JavaScript events in the separate \gui JavaScript view.
+
     \section2 Viewing More Data
 
     The QML JavaScript engine optimizes trivial bindings. The QML Profiler
-    does not receive information about optimized bindings, and
-    therefore, it displays the text \gui {<bytecode>} and the message
+    may not receive all information about optimized bindings, and therefore,
+    it may display the text \gui {<bytecode>} and the message
     \gui {Source code not available} in the \gui Callers and \gui {Callees}
     panes.
 
-    To inspect the optimized bindings, turn off the QML optimizer by setting the
-    environment variable QML_DISABLE_OPTIMIZER to 1. To set the environment
+    To inspect the optimized bindings, turn off the QML optimizer by setting
+    the environment variable QML_DISABLE_OPTIMIZER to 1. To set the environment
     variable for the current project in the project settings:
 
     \list 1

@@ -1191,11 +1191,12 @@ void SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested(
         // The same file (e.g. in git diff), jump to the line number taken from the right editor.
         // Warning: git show SHA^ vs SHA or git diff HEAD vs Index
         // (when Working tree has changed in meantime) will not work properly.
-        int leftLineNumber = 0;
-        int rightLineNumber = 0;
-
         for (int i = 0; i < fileData.chunks.count(); i++) {
             const ChunkData chunkData = fileData.chunks.at(i);
+
+            int leftLineNumber = chunkData.leftStartingLineNumber;
+            int rightLineNumber = chunkData.rightStartingLineNumber;
+
             for (int j = 0; j < chunkData.rows.count(); j++) {
                 const RowData rowData = chunkData.rows.at(j);
                 if (rowData.leftLine.textLineType == TextLineData::TextLine)

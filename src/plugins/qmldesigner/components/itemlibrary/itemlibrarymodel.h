@@ -86,6 +86,7 @@ private: // functions
     void updateVisibility();
     void addRoleNames();
     void resetModel();
+    void sortSections();
 
 
 private: // variables

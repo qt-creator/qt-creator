@@ -86,6 +86,8 @@ static const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
 static const char noColorOption[] = "--no-color";
 static const char decorateOption[] = "--decorate";
 
+using namespace Core;
+
 namespace Git {
 namespace Internal {
 
@@ -102,7 +104,7 @@ class GitDiffHandler : public QObject
     Q_OBJECT
 
 public:
-    GitDiffHandler(DiffEditor::DiffEditorController *editorController,
+    GitDiffHandler(DiffEditor::DiffEditorController *controller,
                    const QString &workingDirectory);
 
     // index -> working tree
@@ -133,7 +135,7 @@ private:
     QProcessEnvironment processEnvironment() const;
     QString gitPath() const;
 
-    QPointer<DiffEditor::DiffEditorController> m_editorController;
+    QPointer<DiffEditor::DiffEditorController> m_controller;
     const QString m_workingDirectory;
     GitClient *m_gitClient;
     const QString m_waitMessage;
@@ -141,9 +143,9 @@ private:
     QString m_id;
 };
 
-GitDiffHandler::GitDiffHandler(DiffEditor::DiffEditorController *editorController,
+GitDiffHandler::GitDiffHandler(DiffEditor::DiffEditorController *controller,
                const QString &workingDirectory)
-    : m_editorController(editorController),
+    : m_controller(controller),
       m_workingDirectory(workingDirectory),
       m_gitClient(GitPlugin::instance()->gitClient()),
       m_waitMessage(tr("Waiting for data..."))
@@ -199,12 +201,12 @@ void GitDiffHandler::show(const QString &id)
 
 void GitDiffHandler::postCollectShowDescription(const QString &id)
 {
-    if (m_editorController.isNull()) {
+    if (m_controller.isNull()) {
         deleteLater();
         return;
     }
 
-    m_editorController->clear(m_waitMessage);
+    m_controller->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(gitPath(),
                                                      m_workingDirectory,
                                                      processEnvironment());
@@ -224,7 +226,7 @@ void GitDiffHandler::postCollectShowDescription(const QString &id)
 
 void GitDiffHandler::slotShowDescriptionReceived(const QString &description)
 {
-    if (m_editorController.isNull()) {
+    if (m_controller.isNull()) {
         deleteLater();
         return;
     }
@@ -232,7 +234,7 @@ void GitDiffHandler::slotShowDescriptionReceived(const QString &description)
     postCollectDiffOutput(QStringList() << m_id + QLatin1Char('^') << m_id);
 
     // need to be called after postCollectDiffOutput(), since it clears the description
-    m_editorController->setDescription(
+    m_controller->setDescription(
                 m_gitClient->extendedShowDescription(m_workingDirectory,
                                                      description));
 }
@@ -241,10 +243,10 @@ void GitDiffHandler::addJob(VcsBase::Command *command, const QStringList &argume
 {
     QStringList args;
     args << QLatin1String("diff");
-    if (m_editorController->isIgnoreWhitespace())
+    if (m_controller->isIgnoreWhitespace())
         args << QLatin1String("--ignore-space-change");
     args << QLatin1String("--unified=") + QString::number(
-                m_editorController->contextLinesNumber());
+                m_controller->contextLinesNumber());
     args << arguments;
     command->addJob(args, timeout());
 }
@@ -256,16 +258,16 @@ void GitDiffHandler::postCollectDiffOutput(const QStringList &arguments)
 
 void GitDiffHandler::postCollectDiffOutput(const QList<QStringList> &argumentsList)
 {
-    if (m_editorController.isNull()) {
+    if (m_controller.isNull()) {
         deleteLater();
         return;
     }
 
-    m_editorController->clear(m_waitMessage);
+    m_controller->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(gitPath(),
                                                      m_workingDirectory,
                                                      processEnvironment());
-    command->setCodec(Core::EditorManager::defaultTextCodec());
+    command->setCodec(EditorManager::defaultTextCodec());
     connect(command, SIGNAL(output(QString)),
             this, SLOT(slotDiffOutputReceived(QString)));
     command->addFlags(diffExecutionFlags());
@@ -278,7 +280,7 @@ void GitDiffHandler::postCollectDiffOutput(const QList<QStringList> &argumentsLi
 
 void GitDiffHandler::slotDiffOutputReceived(const QString &contents)
 {
-    if (m_editorController.isNull()) {
+    if (m_controller.isNull()) {
         deleteLater();
         return;
     }
@@ -286,8 +288,8 @@ void GitDiffHandler::slotDiffOutputReceived(const QString &contents)
     bool ok;
     QList<DiffEditor::FileData> fileDataList
             = DiffEditor::DiffUtils::readPatch(
-                contents, m_editorController->isIgnoreWhitespace(), &ok);
-    m_editorController->setDiffFiles(fileDataList, m_workingDirectory);
+                contents, m_controller->isIgnoreWhitespace(), &ok);
+    m_controller->setDiffFiles(fileDataList, m_workingDirectory);
     deleteLater();
 }
 
@@ -369,7 +371,7 @@ GitDiffEditorReloader::GitDiffEditorReloader(QObject *parent)
 
 void GitDiffEditorReloader::reload()
 {
-    GitDiffHandler *handler = new GitDiffHandler(diffEditorController(),
+    GitDiffHandler *handler = new GitDiffHandler(controller(),
                                                  m_workingDirectory);
     connect(handler, SIGNAL(destroyed()), this, SLOT(reloadFinished()));
 
@@ -610,11 +612,11 @@ private:
 
 
 
-Core::IEditor *locateEditor(const char *property, const QString &entry)
+IEditor *locateEditor(const char *property, const QString &entry)
 {
-    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
+    foreach (IDocument *document, DocumentModel::openedDocuments())
         if (document->property(property).toString() == entry)
-            return Core::DocumentModel::editorsForDocument(document).first();
+            return DocumentModel::editorsForDocument(document).first();
     return 0;
 }
 
@@ -658,7 +660,7 @@ static inline QString msgCannotLaunch(const QString &binary)
 
 static inline QString currentDocumentPath()
 {
-    if (Core::IDocument *document= Core::EditorManager::currentDocument())
+    if (IDocument *document= EditorManager::currentDocument())
         return QFileInfo(document->filePath()).path();
     return QString();
 }
@@ -701,7 +703,7 @@ GitClient::GitClient(GitSettings *settings) :
     m_contextChunkIndex(-1)
 {
     QTC_CHECK(settings);
-    connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
             .arg(QCoreApplication::applicationFilePath())
             .arg(QCoreApplication::applicationPid());
@@ -760,12 +762,12 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
                                                                const QString &dynamicPropertyValue) const
 {
     VcsBase::VcsBaseEditorWidget *rc = 0;
-    Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
+    IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
     if (!outputEditor)
         return 0;
 
     // Exists already
-    Core::EditorManager::activateEditor(outputEditor);
+    EditorManager::activateEditor(outputEditor);
     outputEditor->document()->setContents(m_msgWait.toUtf8());
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
 
@@ -796,9 +798,9 @@ void GitClient::slotChunkActionsRequested(QMenu *menu, int diffFileIndex, int ch
 
     m_contextDiffFileIndex = diffFileIndex;
     m_contextChunkIndex = chunkIndex;
-    m_contextDocument = qobject_cast<DiffEditor::DiffEditorController *>(sender());
+    m_contextController = qobject_cast<DiffEditor::DiffEditorController *>(sender());
 
-    if (m_contextDiffFileIndex < 0 || m_contextChunkIndex < 0 || !m_contextDocument) {
+    if (m_contextDiffFileIndex < 0 || m_contextChunkIndex < 0 || !m_contextController) {
         stageChunkAction->setEnabled(false);
         unstageChunkAction->setEnabled(false);
     }
@@ -806,13 +808,13 @@ void GitClient::slotChunkActionsRequested(QMenu *menu, int diffFileIndex, int ch
 
 QString GitClient::makePatch(int diffFileIndex, int chunkIndex, bool revert) const
 {
-    if (m_contextDocument.isNull())
+    if (m_contextController.isNull())
         return QString();
 
     if (diffFileIndex < 0 || chunkIndex < 0)
         return QString();
 
-    QList<DiffEditor::FileData> fileDataList = m_contextDocument->diffFiles();
+    QList<DiffEditor::FileData> fileDataList = m_contextController->diffFiles();
 
     if (diffFileIndex >= fileDataList.count())
         return QString();
@@ -836,7 +838,7 @@ QString GitClient::makePatch(int diffFileIndex, int chunkIndex, bool revert) con
 
 void GitClient::slotStageChunk()
 {
-    if (m_contextDocument.isNull())
+    if (m_contextController.isNull())
         return;
 
     const QString patch = makePatch(m_contextDiffFileIndex,
@@ -849,7 +851,7 @@ void GitClient::slotStageChunk()
 
 void GitClient::slotUnstageChunk()
 {
-    if (m_contextDocument.isNull())
+    if (m_contextController.isNull())
         return;
 
     const QString patch = makePatch(m_contextDiffFileIndex,
@@ -868,8 +870,8 @@ void GitClient::stage(const QString &patch, bool revert)
     if (!patchFile.open())
         return;
 
-    const QString baseDir = m_contextDocument->workingDirectory();
-    QTextCodec *codec = Core::EditorManager::defaultTextCodec();
+    const QString baseDir = m_contextController->workingDirectory();
+    QTextCodec *codec = EditorManager::defaultTextCodec();
     const QByteArray patchData = codec
             ? codec->fromUnicode(patch) : patch.toLocal8Bit();
     patchFile.write(patchData);
@@ -889,7 +891,7 @@ void GitClient::stage(const QString &patch, bool revert)
         } else {
             outwin->append(errorMessage);
         }
-        m_contextDocument->requestReload();
+        m_contextController->requestReload();
     } else {
         outwin->appendError(errorMessage);
     }
@@ -900,7 +902,7 @@ void GitClient::stage(const QString &patch, bool revert)
  * existing instance and to reuse it (in case, say, 'git diff foo' is
  * already open). */
 VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
-        Core::Id id,
+        Id id,
         QString title,
         const QString &source, // Source file or directory
         CodecType codecType,
@@ -912,7 +914,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
     QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
 
     // Create new, set wait message, set up with source and codec
-    Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(id, &title,
+    IEditor *outputEditor = EditorManager::openEditorWithContents(id, &title,
                                                                               m_msgWait.toUtf8());
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
@@ -961,9 +963,9 @@ void GitClient::diff(const QString &workingDirectory,
     if (!diffEditorDocument) {
         diffEditorDocument = createDiffEditor(documentId, workingDirectory, title);
 
-        GitDiffEditorReloader *reloader =
-                new GitDiffEditorReloader(diffEditorDocument->controller());
-        reloader->setDiffEditorController(diffEditorDocument->controller());
+        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
+        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
+        controller->setReloader(reloader);
 
         reloader->setWorkingDirectory(workingDirectory);
         reloader->setDiffType(diffType);
@@ -975,7 +977,7 @@ void GitClient::diff(const QString &workingDirectory,
 
     diffEditorDocument->controller()->requestReload();
 
-    Core::EditorManager::activateEditorForDocument(diffEditorDocument);
+    EditorManager::activateEditorForDocument(diffEditorDocument);
 }
 
 void GitClient::diff(const QString &workingDirectory, const QString &fileName)
@@ -989,9 +991,9 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
     if (!diffEditorDocument) {
         diffEditorDocument = createDiffEditor(documentId, sourceFile, title);
 
-        GitDiffEditorReloader *reloader =
-                new GitDiffEditorReloader(diffEditorDocument->controller());
-        reloader->setDiffEditorController(diffEditorDocument->controller());
+        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
+        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
+        controller->setReloader(reloader);
 
         reloader->setWorkingDirectory(workingDirectory);
         reloader->setDiffType(GitDiffEditorReloader::DiffFile);
@@ -1000,7 +1002,7 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
 
     diffEditorDocument->controller()->requestReload();
 
-    Core::EditorManager::activateEditorForDocument(diffEditorDocument);
+    EditorManager::activateEditorForDocument(diffEditorDocument);
 }
 
 void GitClient::diffBranch(const QString &workingDirectory,
@@ -1013,9 +1015,9 @@ void GitClient::diffBranch(const QString &workingDirectory,
     if (!diffEditorDocument) {
         diffEditorDocument = createDiffEditor(documentId, workingDirectory, title);
 
-        GitDiffEditorReloader *reloader =
-                new GitDiffEditorReloader(diffEditorDocument->controller());
-        reloader->setDiffEditorController(diffEditorDocument->controller());
+        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
+        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
+        controller->setReloader(reloader);
 
         reloader->setWorkingDirectory(workingDirectory);
         reloader->setDiffType(GitDiffEditorReloader::DiffBranch);
@@ -1024,7 +1026,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
 
     diffEditorDocument->controller()->requestReload();
 
-    Core::EditorManager::activateEditorForDocument(diffEditorDocument);
+    EditorManager::activateEditorForDocument(diffEditorDocument);
 }
 
 void GitClient::merge(const QString &workingDirectory,
@@ -1051,7 +1053,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
 {
     const QString msgArg = fileName.isEmpty() ? workingDirectory : fileName;
     const QString title = tr("Git Log \"%1\"").arg(msgArg);
-    const Core::Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
+    const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
     if (!editor)
@@ -1086,7 +1088,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
 void GitClient::reflog(const QString &workingDirectory)
 {
     const QString title = tr("Git Reflog \"%1\"").arg(workingDirectory);
-    const Core::Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
+    const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("reflogRepository", workingDirectory);
     if (!editor) {
         editor = createVcsEditor(editorId, title, workingDirectory, CodecLogOutput,
@@ -1129,8 +1131,11 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
 
     const QString title = tr("Git Show \"%1\"").arg(name.isEmpty() ? id : name);
     const QFileInfo sourceFi(source);
-    const QString workingDirectory = sourceFi.isDir()
+    QString workingDirectory = sourceFi.isDir()
             ? sourceFi.absoluteFilePath() : sourceFi.absolutePath();
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
+    if (!repoDirectory.isEmpty())
+        workingDirectory = repoDirectory;
     const QString documentId = QLatin1String("Show:") + id;
     DiffEditor::DiffEditorDocument *diffEditorDocument =
             DiffEditor::DiffEditorManager::find(documentId);
@@ -1142,9 +1147,9 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
 
         diffEditorDocument->controller()->setDescriptionEnabled(true);
 
-        GitDiffEditorReloader *reloader =
-                new GitDiffEditorReloader(diffEditorDocument->controller());
-        reloader->setDiffEditorController(diffEditorDocument->controller());
+        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
+        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
+        controller->setReloader(reloader);
 
         reloader->setWorkingDirectory(workingDirectory);
         reloader->setDiffType(GitDiffEditorReloader::DiffShow);
@@ -1154,12 +1159,12 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
 
     diffEditorDocument->controller()->requestReload();
 
-    Core::EditorManager::activateEditorForDocument(diffEditorDocument);
+    EditorManager::activateEditorForDocument(diffEditorDocument);
 }
 
 void GitClient::saveSettings()
 {
-    settings()->writeSettings(Core::ICore::settings());
+    settings()->writeSettings(ICore::settings());
 }
 
 void GitClient::slotBlameRevisionRequested(const QString &workingDirectory, const QString &file,
@@ -1185,7 +1190,7 @@ void GitClient::blame(const QString &workingDirectory,
                       const QString &revision,
                       int lineNumber)
 {
-    const Core::Id editorId = Git::Constants::GIT_BLAME_EDITOR_ID;
+    const Id editorId = Git::Constants::GIT_BLAME_EDITOR_ID;
     const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDirectory, QStringList(fileName), revision);
     const QString title = tr("Git Blame \"%1\"").arg(id);
     const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
@@ -1239,7 +1244,7 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
     if (localBranches.contains(ref))
         return arguments;
 
-    if (QMessageBox::question(Core::ICore::mainWindow(), tr("Create Local Branch"),
+    if (QMessageBox::question(ICore::mainWindow(), tr("Create Local Branch"),
                               tr("Would you like to create a local branch?"),
                               QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
         return arguments;
@@ -1272,7 +1277,7 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
         }
     }
 
-    BranchAddDialog branchAddDialog(localBranches, true, Core::ICore::mainWindow());
+    BranchAddDialog branchAddDialog(localBranches, true, ICore::mainWindow());
     branchAddDialog.setTrackedBranchName(remoteBranch, true);
 
     if (branchAddDialog.exec() != QDialog::Accepted)
@@ -1431,7 +1436,7 @@ bool GitClient::synchronousInit(const QString &workingDirectory)
         outputWindow()->appendError(commandOutputFromLocal8Bit(errorText));
     } else {
         // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
-        Core::VcsManager::resetVersionControlForDirectory(workingDirectory);
+        VcsManager::resetVersionControlForDirectory(workingDirectory);
     }
     return rc;
 }
@@ -1745,14 +1750,14 @@ void GitClient::branchesForCommit(const QString &revision)
     arguments << QLatin1String("branch") << QLatin1String(noColorOption)
               << QLatin1String("-a") << QLatin1String("--contains") << revision;
 
-    DiffEditor::DiffEditorController *editorController
+    DiffEditor::DiffEditorController *controller
             = qobject_cast<DiffEditor::DiffEditorController *>(sender());
-    QString workingDirectory = editorController->workingDirectory();
+    QString workingDirectory = controller->workingDirectory();
     VcsBase::Command *command = new VcsBase::Command(gitBinaryPath(), workingDirectory,
                                                      processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
 
-    connect(command, SIGNAL(output(QString)), editorController,
+    connect(command, SIGNAL(output(QString)), controller,
             SLOT(branchesForCommitReceived(QString)));
 
     command->addJob(arguments, -1);
@@ -1839,7 +1844,7 @@ QString GitClient::synchronousStash(const QString &workingDirectory, const QStri
         message = creatorStashMessage(messageKeyword);
         do {
             if ((flags & StashPromptDescription)) {
-                if (!inputText(Core::ICore::mainWindow(),
+                if (!inputText(ICore::mainWindow(),
                                tr("Stash Description"), tr("Description:"), &message))
                     break;
             }
@@ -2210,7 +2215,7 @@ QProcessEnvironment GitClient::processEnvironment() const
 bool GitClient::beginStashScope(const QString &workingDirectory, const QString &command,
                                 StashFlag flag, PushAction pushAction)
 {
-    const QString repoDirectory = findRepositoryForDirectory(workingDirectory);
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     QTC_ASSERT(!repoDirectory.isEmpty(), return false);
     StashInfo &stashInfo = m_stashInfo[repoDirectory];
     return stashInfo.init(repoDirectory, command, flag, pushAction);
@@ -2218,14 +2223,14 @@ bool GitClient::beginStashScope(const QString &workingDirectory, const QString &
 
 GitClient::StashInfo &GitClient::stashInfo(const QString &workingDirectory)
 {
-    const QString repoDirectory = findRepositoryForDirectory(workingDirectory);
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     QTC_CHECK(m_stashInfo.contains(repoDirectory));
     return m_stashInfo[repoDirectory];
 }
 
 void GitClient::endStashScope(const QString &workingDirectory)
 {
-    const QString repoDirectory = findRepositoryForDirectory(workingDirectory);
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     QTC_ASSERT(m_stashInfo.contains(repoDirectory), return);
     m_stashInfo[repoDirectory].end();
 }
@@ -2284,7 +2289,7 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
     if (!updateNeeded)
         return;
 
-    if (prompt && QMessageBox::question(Core::ICore::mainWindow(), tr("Submodules Found"),
+    if (prompt && QMessageBox::question(ICore::mainWindow(), tr("Submodules Found"),
             tr("Would you like to update submodules?"),
             QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
         return;
@@ -2463,7 +2468,7 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
     }
 
     QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText,
-                       QMessageBox::NoButton, Core::ICore::mainWindow());
+                       QMessageBox::NoButton, ICore::mainWindow());
     if (hasChanges || isRebase)
         msgBox.addButton(hasChanges ? buttonName : tr("Skip"), QMessageBox::AcceptRole);
     msgBox.addButton(QMessageBox::Abort);
@@ -2689,7 +2694,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     commitData.clear();
 
     // Find repo
-    const QString repoDirectory = GitClient::findRepositoryForDirectory(workingDirectory);
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (repoDirectory.isEmpty()) {
         *errorMessage = msgRepositoryNotFound(workingDirectory);
         return false;
@@ -2944,7 +2949,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
         *ptrToIsDirectory = isDirectory;
     const QString workingDirectory = isDirectory ? firstFile.absoluteFilePath() : firstFile.absolutePath();
 
-    const QString repoDirectory = GitClient::findRepositoryForDirectory(workingDirectory);
+    const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (repoDirectory.isEmpty()) {
         *errorMessage = msgRepositoryNotFound(workingDirectory);
         return RevertFailed;
@@ -2992,7 +2997,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
 
     // Ask to revert (to do: Handle lists with a selection dialog)
     const QMessageBox::StandardButton answer
-        = QMessageBox::question(Core::ICore::mainWindow(),
+        = QMessageBox::question(ICore::mainWindow(),
                                 tr("Revert"),
                                 tr("The file has been changed. Do you want to revert it?"),
                                 QMessageBox::Yes | QMessageBox::No,
@@ -3085,7 +3090,8 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
     // Abort to clean if something goes wrong
     if (abortCommand.isEmpty()) {
         // no abort command - checkout index to clean working copy.
-        synchronousCheckoutFiles(findRepositoryForDirectory(workingDir), QStringList(), QString(), 0, false);
+        synchronousCheckoutFiles(VcsManager::findTopLevelForDirectory(workingDir),
+                                 QStringList(), QString(), 0, false);
         return;
     }
     VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
@@ -3147,7 +3153,7 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
     else
         message = tr("Conflicts detected.");
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message,
-                             QMessageBox::NoButton, Core::ICore::mainWindow());
+                             QMessageBox::NoButton, ICore::mainWindow());
     QPushButton *mergeToolButton = mergeOrAbort.addButton(tr("Run &Merge Tool"),
                                                           QMessageBox::AcceptRole);
     mergeOrAbort.addButton(QMessageBox::Ignore);
@@ -3198,7 +3204,7 @@ void GitClient::subversionLog(const QString &workingDirectory)
 
     // Create a command editor, no highlighting or interaction.
     const QString title = tr("Git SVN Log");
-    const Core::Id editorId = Git::Constants::C_GIT_COMMAND_LOG_EDITOR;
+    const Id editorId = Git::Constants::C_GIT_COMMAND_LOG_EDITOR;
     const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, QStringList());
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("svnLog", sourceFile);
     if (!editor)
@@ -3473,7 +3479,7 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
         const Utils::SynchronousProcessResponse resp =
                 synchronousGit(workingDirectory.path(), arguments, flags);
         // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
-        Core::VcsManager::resetVersionControlForDirectory(workingDirectory.absolutePath());
+        VcsManager::resetVersionControlForDirectory(workingDirectory.absolutePath());
         return (resp.result == Utils::SynchronousProcessResponse::Finished);
     }
 }
@@ -3582,7 +3588,7 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
                        tr("What would you like to do with local changes in:")
                        + QLatin1String("\n\n\"")
                        + QDir::toNativeSeparators(m_workingDir) + QLatin1Char('\"'),
-                       QMessageBox::NoButton, Core::ICore::mainWindow());
+                       QMessageBox::NoButton, ICore::mainWindow());
 
     msgBox.setDetailedText(statusOutput);
 

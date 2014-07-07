@@ -32,8 +32,6 @@
 
 namespace QmlProfiler {
 
-static const int DefaultRowHeight = 30;
-
 AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
         const QString &name, const QString &label, QmlDebug::Message message,
         QmlDebug::RangeType rangeType, QObject *parent) :

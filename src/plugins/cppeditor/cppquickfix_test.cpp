@@ -123,11 +123,12 @@ static QString &removeTrailingWhitespace(QString &input)
 /// Exactly one TestFile must contain the cursor position marker '@' in the originalSource.
 QuickFixTestCase::QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
                                    CppQuickFixFactory *factory,
-                                   const QStringList &includePaths,
-                                   int resultIndex)
+                                   const ProjectPart::HeaderPaths &headerPaths,
+                                   int resultIndex,
+                                   const QByteArray &expectedFailMessage)
     : m_testFiles(theTestFiles)
     , m_cppCodeStylePreferences(0)
-    , m_restoreIncludePaths(false)
+    , m_restoreHeaderPaths(false)
 {
     QVERIFY(succeededSoFar());
 
@@ -144,10 +145,10 @@ QuickFixTestCase::QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTe
         testFile->writeToDisk();
 
     // Set appropriate include paths
-    if (!includePaths.isEmpty()) {
-        m_restoreIncludePaths = true;
-        m_includePathsToRestore = m_modelManager->includePaths();
-        m_modelManager->setIncludePaths(includePaths);
+    if (!headerPaths.isEmpty()) {
+        m_restoreHeaderPaths = true;
+        m_headerPathsToRestore = m_modelManager->headerPaths();
+        m_modelManager->setHeaderPaths(headerPaths);
     }
 
     // Update Code Model
@@ -196,6 +197,8 @@ QuickFixTestCase::QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTe
         // Check
         QString result = testFile->m_editorWidget->document()->toPlainText();
         removeTrailingWhitespace(result);
+        if (!expectedFailMessage.isEmpty())
+            QEXPECT_FAIL("", expectedFailMessage.data(), Continue);
         QCOMPARE(result, testFile->m_expectedSource);
 
         // Undo the change
@@ -213,12 +216,20 @@ QuickFixTestCase::~QuickFixTestCase()
         m_cppCodeStylePreferences->setCurrentDelegate(m_cppCodeStylePreferencesOriginalDelegateId);
 
     // Restore include paths
-    if (m_restoreIncludePaths)
-        m_modelManager->setIncludePaths(m_includePathsToRestore);
+    if (m_restoreHeaderPaths)
+        m_modelManager->setHeaderPaths(m_headerPathsToRestore);
 
     // Remove created files from file system
     foreach (const QuickFixTestDocument::Ptr &testDocument, m_testFiles)
         QVERIFY(QFile::remove(testDocument->filePath()));
+}
+
+void QuickFixTestCase::run(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
+                           CppQuickFixFactory *factory, const QString &incPath)
+{
+    ProjectPart::HeaderPaths hps;
+    hps += ProjectPart::HeaderPath(incPath, ProjectPart::HeaderPath::IncludePath);
+    QuickFixTestCase(theTestFiles, factory, hps);
 }
 
 /// Delegates directly to AddIncludeForUndefinedIdentifierOp for easier testing.
@@ -1289,7 +1300,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
     testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
-    QuickFixTestCase(testFiles, &factory, QStringList(), 1);
+    QuickFixTestCase(testFiles, &factory, ProjectPart::HeaderPaths(), 1);
 }
 
 /// Check from header file: If there is a source file, insert the definition in the source file.
@@ -1478,7 +1489,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_insideClass()
         "};";
 
     InsertDefFromDecl factory;
-    QuickFixTestCase(singleDocument(original, expected), &factory, QStringList(), 1);
+    QuickFixTestCase(singleDocument(original, expected), &factory, ProjectPart::HeaderPaths(), 1);
 }
 
 /// Check not triggering when definition exists
@@ -1492,7 +1503,8 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitio
     const QByteArray expected = original;
 
     InsertDefFromDecl factory;
-    QuickFixTestCase test(singleDocument(original, expected), &factory, QStringList(), 1);
+    QuickFixTestCase test(singleDocument(original, expected), &factory, ProjectPart::HeaderPaths(),
+                          1);
 }
 
 /// Find right implementation file.
@@ -1910,7 +1922,7 @@ void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
     testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
 
     InsertDeclFromDef factory;
-    QuickFixTestCase(testFiles, &factory, QStringList(), sectionIndex);
+    QuickFixTestCase(testFiles, &factory, ProjectPart::HeaderPaths(), sectionIndex);
 }
 
 /// Check from source file: Insert in header file.
@@ -1961,7 +1973,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
 
     // Do not use the test factory, at least once we want to go through the "full stack".
     AddIncludeForUndefinedIdentifier factory;
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Ignore *.moc includes
@@ -1986,7 +1998,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc()
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Insert include at top for a sorted group
@@ -2012,7 +2024,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop(
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Insert include in the middle for a sorted group
@@ -2038,7 +2050,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingMidd
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Insert include at bottom for a sorted group
@@ -2064,7 +2076,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingBott
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: For an unsorted group the new include is appended
@@ -2090,7 +2102,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_appendToUns
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Insert a local include at front if there are only global includes
@@ -2117,7 +2129,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_firstLocalI
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Insert a global include at back if there are only local includes
@@ -2146,7 +2158,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_firstGlobal
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<file.h>"));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Prefer group with longest matching prefix
@@ -2176,7 +2188,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_preferGroup
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"prefixc.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Create a new include group if there are only include groups with a different include dir
@@ -2203,7 +2215,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_newGroupIfO
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Include group with mixed include dirs, sorted --> insert properly
@@ -2231,7 +2243,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsSo
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<firstlib/file.h>"));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Include group with mixed include dirs, unsorted --> append
@@ -2259,7 +2271,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsUn
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<lastlib/file.h>"));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Include group with mixed include types
@@ -2285,7 +2297,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"z.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Include group with mixed include types
@@ -2311,7 +2323,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"a.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Include group with mixed include types
@@ -2337,7 +2349,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"lib/file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Include group with mixed include types
@@ -2363,7 +2375,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<lib/file.h>"));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Insert very first include
@@ -2386,7 +2398,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noinclude()
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Insert very first include if there is a c++ style comment on top
@@ -2415,7 +2427,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIn
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Insert very first include if there is a c style comment on top
@@ -2448,7 +2460,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIn
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
-    QuickFixTestCase(testFiles, &factory, QStringList(TestIncludePaths::globalIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: If a "Qt Class" was not found by the locator, check the header files in the Qt
@@ -2472,8 +2484,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_checkQSomet
                                       + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifier factory;
-    QuickFixTestCase(testFiles,&factory,
-                     QStringList(CppTools::Tests::TestIncludePaths::globalQtCoreIncludePath()));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalQtCoreIncludePath());
+
 }
 
 /// Check: Move definition from header to cpp.
@@ -2638,7 +2650,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside2()
     testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
-    QuickFixTestCase(testFiles, &factory, QStringList(), 1);
+    QuickFixTestCase(testFiles, &factory, ProjectPart::HeaderPaths(), 1);
 }
 
 /// Check: Move definition from header to cpp (with namespace).
@@ -2951,7 +2963,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_afterClass()
     testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
-    QuickFixTestCase(testFiles, &factory, QStringList(), 1);
+    QuickFixTestCase(testFiles, &factory, ProjectPart::HeaderPaths(), 1);
 }
 
 /// Check if whitespace is respected for operator functions
@@ -2996,6 +3008,39 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2
 
     MoveFuncDefOutside factory;
     QuickFixTestCase(singleDocument(original, expected), &factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_macroUses()
+{
+    QByteArray original =
+        "#define CONST const\n"
+        "#define VOLATILE volatile\n"
+        "class Foo\n"
+        "{\n"
+        "    int fu@nc(int a, int b) CONST VOLATILE\n"
+        "    {\n"
+        "        return 42;\n"
+        "    }\n"
+        "};\n";
+    QByteArray expected =
+        "#define CONST const\n"
+        "#define VOLATILE volatile\n"
+        "class Foo\n"
+        "{\n"
+        "    int func(int a, int b) CONST VOLATILE;\n"
+        "};\n"
+        "\n"
+        "\n"
+        // const volatile become lowercase: QTCREATORBUG-12620
+        "int Foo::func(int a, int b) const volatile\n"
+        "{\n"
+        "    return 42;\n"
+        "}\n"
+       ;
+
+    MoveFuncDefOutside factory;
+    QuickFixTestCase(singleDocument(original, expected), &factory,
+                     ProjectPart::HeaderPaths(), 0, "QTCREATORBUG-12314");
 }
 
 /// Check: revert test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
@@ -3299,6 +3344,37 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable
 
     MoveFuncDefToDecl factory;
     QuickFixTestCase(singleDocument(original, expected), &factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_macroUses()
+{
+    QByteArray original =
+        "#define CONST const\n"
+        "#define VOLATILE volatile\n"
+        "class Foo\n"
+        "{\n"
+        "    int func(int a, int b) CONST VOLATILE;\n"
+        "};\n"
+        "\n"
+        "\n"
+        "int Foo::fu@nc(int a, int b) CONST VOLATILE"
+        "{\n"
+        "    return 42;\n"
+        "}\n";
+    QByteArray expected =
+        "#define CONST const\n"
+        "#define VOLATILE volatile\n"
+        "class Foo\n"
+        "{\n"
+        "    int func(int a, int b) CONST VOLATILE\n"
+        "    {\n"
+        "        return 42;\n"
+        "    }\n"
+        "};\n\n\n\n";
+
+    MoveFuncDefToDecl factory;
+    QuickFixTestCase(singleDocument(original, expected), &factory,
+                     ProjectPart::HeaderPaths(), 0, "QTCREATORBUG-12314");
 }
 
 void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()

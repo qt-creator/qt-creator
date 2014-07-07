@@ -155,19 +155,20 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                      || model->hasImport(entryToImport(entry), true, true))) {
             QString itemSectionName = entry.category();
             ItemLibrarySection *sectionModel = sectionByName(itemSectionName);
-            ItemLibraryItem *itemModel;
+            ItemLibraryItem *item;
 
             if (sectionModel == 0) {
                 sectionModel = new ItemLibrarySection(itemSectionName, this);
                 m_sections.append(sectionModel);
             }
 
-            itemModel = new ItemLibraryItem(sectionModel);
-            itemModel->setItemLibraryEntry(entry);
-            sectionModel->addSectionEntry(itemModel);
+            item = new ItemLibraryItem(sectionModel);
+            item->setItemLibraryEntry(entry);
+            sectionModel->addSectionEntry(item);
         }
     }
 
+    sortSections();
     resetModel();
     updateVisibility();
 }
@@ -252,6 +253,18 @@ void ItemLibraryModel::resetModel()
 {
     beginResetModel();
     endResetModel();
+}
+
+void ItemLibraryModel::sortSections()
+{
+    auto sectionSort = [](ItemLibrarySection *first, ItemLibrarySection *second) {
+        return QString::localeAwareCompare(first->sortingName(), second->sortingName()) < 1;
+    };
+
+    std::sort(m_sections.begin(), m_sections.end(), sectionSort);
+
+    foreach (ItemLibrarySection *itemLibrarySection, m_sections)
+        itemLibrarySection->sortItems();
 }
 
 void registerQmlTypes()

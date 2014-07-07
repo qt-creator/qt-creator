@@ -117,7 +117,7 @@ DebuggerItemManager::DebuggerItemManager(QObject *parent)
     : QObject(parent)
 {
     m_instance = this;
-    m_writer = new PersistentSettingsWriter(userSettingsFileName(), QLatin1String("QtCreatorDebugger"));
+    m_writer = new PersistentSettingsWriter(userSettingsFileName(), QLatin1String("QtCreatorDebuggers"));
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
             this, SLOT(saveDebuggers()));
 }
@@ -297,6 +297,8 @@ void DebuggerItemManager::readLegacyDebuggers(const FileName &file)
         if (fn == QLatin1String("auto"))
             continue;
         FileName command = FileName::fromUserInput(fn);
+        if (!command.toFileInfo().exists())
+            continue;
         if (findByCommand(command))
             continue;
         DebuggerItem item;

@@ -71,7 +71,9 @@ public:
 
         QScopedPointer<CppSourceProcessor> sourceProcessor(
                     CppModelManager::createSourceProcessor());
-        sourceProcessor->setIncludePaths(QStringList(TestIncludePaths::directoryOfTestFile()));
+        const ProjectPart::HeaderPath hp(TestIncludePaths::directoryOfTestFile(),
+                                         ProjectPart::HeaderPath::IncludePath);
+        sourceProcessor->setHeaderPaths(ProjectPart::HeaderPaths() << hp);
         sourceProcessor->run(fileName);
 
         Document::Ptr document = m_cmm->document(fileName);

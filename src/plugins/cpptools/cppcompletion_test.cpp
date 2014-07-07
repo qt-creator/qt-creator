@@ -105,7 +105,7 @@ public:
             = new CppCompletionAssistInterface(m_editorWidget->document(), m_position,
                                                m_editorWidget->baseTextDocument()->filePath(),
                                                ExplicitlyInvoked, m_snapshot,
-                                               QStringList(), QStringList());
+                                               ProjectPart::HeaderPaths());
         CppCompletionAssistProcessor processor;
         IAssistProposal *proposal = processor.perform(ai);
         if (!proposal)
@@ -2261,6 +2261,24 @@ void CppToolsPlugin::test_completion_data()
             "   @\n"
             "}\n"
         ) << _("n2.n1.t.") << (QStringList()
+            << QLatin1String("foo")
+            << QLatin1String("Foo"));
+
+    QTest::newRow("lambda_parameter") << _(
+            "auto func = [](int arg1) { return @; };\n"
+        ) << _("ar") << (QStringList()
+            << QLatin1String("arg1"));
+
+    QTest::newRow("default_arguments_for_class_templates_and_base_class_QTCREATORBUG-12605") << _(
+            "struct Foo { int foo; };\n"
+            "template <typename T = Foo>\n"
+            "struct Derived : T {};\n"
+            "void fun() {\n"
+            "   Derived<> derived;\n"
+            "   @\n"
+            "}\n"
+        ) << _("derived.") << (QStringList()
+            << QLatin1String("Derived")
             << QLatin1String("foo")
             << QLatin1String("Foo"));
 }

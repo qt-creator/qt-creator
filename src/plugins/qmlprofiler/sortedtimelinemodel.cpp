@@ -31,8 +31,14 @@
     \class QmlProfiler::SortedTimelineModel
     \brief Sorted model for timeline data
 
-    The SortedTimelineModel lets you keep any kind of range data sorted by
-    both start and end times, so that visible ranges can easily be computed.
+    The SortedTimelineModel lets you keep range data sorted by both start and end times, so that
+    visible ranges can easily be computed. The only precondition for that to work is that the ranges
+    must be perfectly nested. A "parent" range of a range R is defined as a range for which the
+    start time is smaller than R's start time and the end time is greater than R's end time. A set
+    of ranges is perfectly nested if all parent ranges of any given range have a common parent
+    range. Mind that you can always make that happen by defining a range that spans the whole
+    available time span. That, however, will make any code that uses firstStartTime() and
+    lastEndTime() for selecting subsets of the model always select all of it.
 */
 
 /*!

@@ -61,9 +61,11 @@ Rectangle {
         anchors.leftMargin: styleConstants.cellHorizontalMargin
         anchors.right: parent.right
         anchors.rightMargin: styleConstants.cellHorizontalMargin
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: styleConstants.cellHorizontalMargin
 
-        verticalAlignment: "AlignVCenter"
-        horizontalAlignment: "AlignHCenter"
+        verticalAlignment: Qt.AlignVCenter
+        horizontalAlignment: Qt.AlignHCenter
         text: itemName  // to be set by model
         color: "#FFFFFF"
         renderType: Text.NativeRendering

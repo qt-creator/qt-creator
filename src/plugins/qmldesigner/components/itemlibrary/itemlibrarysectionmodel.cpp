@@ -88,6 +88,15 @@ const QList<ItemLibraryItem *> &ItemLibrarySectionModel::items() const
     return m_itemList;
 }
 
+void ItemLibrarySectionModel::sortItems()
+{
+    auto itemSort = [](ItemLibraryItem *first, ItemLibraryItem *second) {
+        return QString::localeAwareCompare(first->itemName(), second->itemName()) < 1;
+    };
+
+    std::sort(m_itemList.begin(), m_itemList.end(), itemSort);
+}
+
 void ItemLibrarySectionModel::resetModel()
 {
     beginResetModel();

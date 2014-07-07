@@ -37,6 +37,8 @@
 
 namespace DiffEditor {
 
+class DiffEditorReloader;
+
 class DIFFEDITOR_EXPORT DiffEditorController : public QObject
 {
     Q_OBJECT
@@ -54,6 +56,9 @@ public:
     bool isIgnoreWhitespace() const;
 
     QString makePatch(int diffFileIndex, int chunkIndex, bool revert) const;
+
+    DiffEditorReloader *reloader() const;
+    void setReloader(DiffEditorReloader *reloader);
 
 public slots:
     void clear();
@@ -79,11 +84,11 @@ signals:
     void descriptionEnablementChanged(bool on);
     void contextLinesNumberChanged(int lines);
     void ignoreWhitespaceChanged(bool ignore);
-    void reloadRequested();
     void chunkActionsRequested(QMenu *menu,
                                int diffFileIndex,
                                int chunkIndex);
     void expandBranchesRequested(const QString &revision);
+    void reloaderChanged(DiffEditorReloader *reloader);
 
 private:
     QString prepareBranchesForCommit(const QString &output);
@@ -95,6 +100,7 @@ private:
     bool m_descriptionEnabled;
     int m_contextLinesNumber;
     bool m_ignoreWhitespace;
+    DiffEditorReloader *m_reloader;
 };
 
 } // namespace DiffEditor

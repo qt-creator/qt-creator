@@ -68,7 +68,7 @@ public:
                                                                         ) QTC_OVERRIDE;
 private:
     ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent,
-                                                const Core::Id id) QTC_OVERRIDE;
+                                                Core::Id id) QTC_OVERRIDE;
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
                                                  const QVariantMap &map) QTC_OVERRIDE;
 };

@@ -72,11 +72,11 @@ ScrollView {
         property color lighterBackgroundColor: "#5f5f5f"
 
         property int textWidth: 55
-        property int textHeight: 30
+        property int textHeight: 26
 
         property int cellHorizontalMargin: 5
         property int cellVerticalSpacing: 3
-        property int cellVerticalMargin: 3
+        property int cellVerticalMargin: 7
 
         // the following depend on the actual shape of the item delegate
         property int cellWidth: textWidth + 2 * cellHorizontalMargin
@@ -104,6 +104,9 @@ ScrollView {
                     width: itemsView.viewport.width
                     caption: sectionName // to be set by model
                     visible: sectionVisible
+                    topPadding: 2
+                    leftPadding: 2
+                    rightPadding: 1
                     Grid {
                         id: itemGrid
 

@@ -34,11 +34,11 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
+#include <utils/logging.h>
 
 #include <QProcess>
 #include <QXmlStreamReader>
 #include <QSocketNotifier>
-#include <QDebug>
 #include <QCoreApplication>
 #include <QList>
 #include <QScopedArrayPointer>
@@ -49,7 +49,9 @@
 #include <string.h>
 #include <errno.h>
 
-static const bool debugToolHandler = false;
+namespace {
+Q_LOGGING_CATEGORY(toolHandlerLog, "qtc.ios.toolhandler")
+}
 
 namespace Ios {
 
@@ -220,8 +222,7 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(IosDeviceType::Enum devType,
     frameworkPaths << QLatin1String("/System/Library/Frameworks")
                    << QLatin1String("/System/Library/PrivateFrameworks");
     env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"), frameworkPaths.join(QLatin1String(":")));
-    if (debugToolHandler)
-        qDebug() << "IosToolHandler runEnv:" << env.toStringList();
+    qCDebug(toolHandlerLog) << "IosToolHandler runEnv:" << env.toStringList();
     process.setProcessEnvironment(env);
     QObject::connect(&process, SIGNAL(readyReadStandardOutput()), q, SLOT(subprocessHasData()));
     QObject::connect(&process, SIGNAL(finished(int,QProcess::ExitStatus)),
@@ -241,26 +242,24 @@ void IosToolHandlerPrivate::start(const QString &exe, const QStringList &args)
 {
     QTC_CHECK(state == NonStarted);
     state = Starting;
-    if (debugToolHandler)
-        qDebug() << "running " << exe << args;
+    qCDebug(toolHandlerLog) << "running " << exe << args;
     process.start(exe, args);
     state = StartedInferior;
 }
 
 void IosToolHandlerPrivate::stop(int errorCode)
 {
-    if (debugToolHandler)
-        qDebug() << "IosToolHandlerPrivate::stop";
+    qCDebug(toolHandlerLog) << "IosToolHandlerPrivate::stop";
     State oldState = state;
     state = Stopped;
     switch (oldState) {
     case NonStarted:
-        qDebug() << "IosToolHandler::stop() when state was NonStarted";
+        qCWarning(toolHandlerLog) << "IosToolHandler::stop() when state was NonStarted";
         // pass
     case Starting:
         switch (op){
         case OpNone:
-            qDebug() << "IosToolHandler::stop() when op was OpNone";
+            qCWarning(toolHandlerLog) << "IosToolHandler::stop() when op was OpNone";
             break;
         case OpAppTransfer:
             didTransferApp(bundlePath, deviceId, IosToolHandler::Failure);
@@ -343,8 +342,7 @@ void IosToolHandlerPrivate::subprocessError(QProcess::ProcessError error)
         errorMsg(IosToolHandler::tr("iOS tool Error %1").arg(error));
     stop(-1);
     if (error == QProcess::FailedToStart) {
-        if (debugToolHandler)
-            qDebug() << "IosToolHandler::finished(" << this << ")";
+        qCDebug(toolHandlerLog) << "IosToolHandler::finished(" << this << ")";
         emit q->finished(q);
     }
 }
@@ -352,8 +350,7 @@ void IosToolHandlerPrivate::subprocessError(QProcess::ProcessError error)
 void IosToolHandlerPrivate::subprocessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     stop((exitStatus == QProcess::NormalExit) ? exitCode : -1 );
-    if (debugToolHandler)
-        qDebug() << "IosToolHandler::finished(" << this << ")";
+    qCDebug(toolHandlerLog) << "IosToolHandler::finished(" << this << ")";
     killTimer.stop();
     emit q->finished(q);
 }
@@ -362,7 +359,7 @@ void IosToolHandlerPrivate::processXml()
 {
     while (!outputParser.atEnd()) {
         QXmlStreamReader::TokenType tt = outputParser.readNext();
-        //qDebug() << "processXml, tt=" << tt;
+        //qCDebug(toolHandlerLog) << "processXml, tt=" << tt;
         switch (tt) {
         case QXmlStreamReader::NoToken:
             // The reader has not yet read anything.
@@ -449,7 +446,7 @@ void IosToolHandlerPrivate::processXml()
                 int qmlServerPort = attributes.value(QLatin1String("qml_server")).toString().toInt();
                 gotServerPorts(bundlePath, deviceId, gdbServerPort, qmlServerPort);
             } else {
-                qDebug() << "unexpected element " << elName;
+                qCWarning(toolHandlerLog) << "unexpected element " << elName;
             }
             break;
         }
@@ -533,19 +530,18 @@ void IosToolHandlerPrivate::processXml()
     }
     if (outputParser.hasError()
             && outputParser.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
-        qDebug() << "error parsing iosTool output:" << outputParser.errorString();
+        qCWarning(toolHandlerLog) << "error parsing iosTool output:" << outputParser.errorString();
         stop(-1);
     }
 }
 
 void IosToolHandlerPrivate::subprocessHasData()
 {
-    if (debugToolHandler)
-        qDebug() << "subprocessHasData, state:" << state;
+    qCDebug(toolHandlerLog) << "subprocessHasData, state:" << state;
     while (true) {
         switch (state) {
         case NonStarted:
-            qDebug() << "IosToolHandler unexpected state in subprocessHasData: NonStarted";
+            qCWarning(toolHandlerLog) << "IosToolHandler unexpected state in subprocessHasData: NonStarted";
             // pass
         case Starting:
         case StartedInferior:
@@ -560,8 +556,7 @@ void IosToolHandlerPrivate::subprocessHasData()
                 }
                 if (rRead == 0)
                     return;
-                if (debugToolHandler)
-                    qDebug() << "subprocessHasData read " << QByteArray(buf, rRead);
+                qCDebug(toolHandlerLog) << "subprocessHasData read " << QByteArray(buf, rRead);
                 outputParser.addData(QByteArray(buf, rRead));
                 processXml();
             }
@@ -697,7 +692,7 @@ void IosSimulatorToolHandlerPrivate::addDeviceArguments(QStringList &args) const
 {
     switch (devType) {
     case IosDeviceType::IosDevice:
-        qDebug() << "IosSimulatorToolHandlerPrivate has device type IosDeviceType";
+        qCWarning(toolHandlerLog) << "IosSimulatorToolHandlerPrivate has device type IosDeviceType";
         break;
     case IosDeviceType::SimulatedIphone:
         args << QLatin1String("--family") << QLatin1String("iphone");

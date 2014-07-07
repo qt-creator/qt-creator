@@ -137,21 +137,28 @@ bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitSt
 
         // if there are no INSTALLS set we just deploy the files from windeployqt, the manifest
         // and the icons referenced in there and the actual build target
+        QString baseDir;
         if (targetInstallationPath.isEmpty()) {
             targetPath += QLatin1String(".exe");
             m_mappingFileContent
                     += QLatin1Char('"') + QDir::toNativeSeparators(targetPath) + QLatin1String("\" \"")
                     + QDir::toNativeSeparators(m_executablePathInManifest) + QLatin1String("\"\n");
+            baseDir = targetDir;
         } else {
-            targetInstallationPath = targetInstallationPath.left(targetInstallationPath.lastIndexOf(QLatin1Char('/')) + 1);
-            for (int i = 0; i < installableFilesList.length(); ++i) {
-                QPair<QString, QString> pair = installableFilesList.at(i);
-                // For the mapping file we need the remote paths relative to the application's executable
-                const QString relativeRemotePath = QDir(targetInstallationPath).relativeFilePath(pair.second);
-                m_mappingFileContent += QLatin1Char('"') + QDir::toNativeSeparators(pair.first)
-                        + QLatin1String("\" \"") + QDir::toNativeSeparators(relativeRemotePath)
-                        + QLatin1String("\"\n");
-            }
+            baseDir = targetInstallationPath.left(targetInstallationPath.lastIndexOf(QLatin1Char('/')) + 1);
+        }
+
+        typedef QPair<QString, QString> QStringPair;
+        foreach (const QStringPair &pair, installableFilesList) {
+            // For the mapping file we need the remote paths relative to the application's executable
+            QString relativeRemotePath;
+            if (QDir(pair.second).isRelative())
+                relativeRemotePath = pair.second;
+            else
+                relativeRemotePath = QDir(baseDir).relativeFilePath(pair.second);
+            m_mappingFileContent += QLatin1Char('"') + QDir::toNativeSeparators(pair.first)
+                    + QLatin1String("\" \"") + QDir::toNativeSeparators(relativeRemotePath)
+                    + QLatin1String("\"\n");
         }
 
         const QString mappingFilePath = targetDir + m_manifestFileName + QLatin1String(".map");

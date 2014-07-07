@@ -155,7 +155,7 @@ void CallgrindController::processFinished(int rc, QProcess::ExitStatus status)
     QTC_ASSERT(m_process, return);
     const QString error = m_process->errorString();
 
-    delete m_process;
+    m_process->deleteLater(); // Called directly from finished() signal in m_process
     m_process = 0;
 
     if (rc != 0 || status != QProcess::NormalExit) {

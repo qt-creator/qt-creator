@@ -32,13 +32,13 @@
 
 #include "diffeditor_global.h"
 
-#include <coreplugin/idocument.h>
+#include <coreplugin/textdocument.h>
 
 namespace DiffEditor {
 
 class DiffEditorController;
 
-class DIFFEDITOR_EXPORT DiffEditorDocument : public Core::IDocument
+class DIFFEDITOR_EXPORT DiffEditorDocument : public Core::TextDocument
 {
     Q_OBJECT
 public:
@@ -48,17 +48,17 @@ public:
     DiffEditorController *controller() const;
 
     bool setContents(const QByteArray &contents);
-    QString defaultPath() const { return QString(); }
+    QString defaultPath() const;
     QString suggestedFileName() const { return QString(); }
 
     bool isModified() const { return false; }
-    bool isSaveAsAllowed() const { return false; }
+    bool isSaveAsAllowed() const { return true; }
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
 private:
-    DiffEditorController *m_diffEditorController;
+    DiffEditorController *m_controller;
 };
 
 } // namespace DiffEditor

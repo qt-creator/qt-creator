@@ -184,7 +184,7 @@ QVariantMap DebuggerItem::toMap() const
     QVariantMap data;
     data.insert(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME), m_displayName);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ID), m_id);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_COMMAND), m_command.toUserOutput());
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_COMMAND), m_command.toString());
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE), int(m_engineType));
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), m_isAutoDetected);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE), m_autoDetectionSource);

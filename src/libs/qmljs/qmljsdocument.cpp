@@ -38,6 +38,7 @@
 
 #include <QCryptographicHash>
 #include <QDir>
+#include <QFileInfo>
 
 #include <algorithm>
 
@@ -525,7 +526,7 @@ void Snapshot::insert(const Document::Ptr &document, bool allowInvalid)
         cImport.importId = document->importId();
         cImport.language = document->language();
         cImport.possibleExports << Export(ImportKey(ImportType::File, fileName),
-                                          QString(), true);
+                                          QString(), true, QFileInfo(fileName).baseName());
         cImport.fingerprint = document->fingerprint();
         _dependencies.addCoreImport(cImport);
     }
@@ -554,15 +555,59 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
     }
 
     QStringList splitPath = path.split(QLatin1Char('/'));
+    QRegExp vNr(QLatin1String("^(.+)\\.([0-9]+)(?:\\.([0-9]+))?$"));
+    QRegExp safeName(QLatin1String("^[a-zA-Z_][[a-zA-Z0-9_]*$"));
     foreach (const ImportKey &importKey, packages) {
-        QString requiredPath = QStringList(splitPath.mid(0, splitPath.size() - importKey.splitPath.size()))
-                .join(QLatin1String("/"));
-        cImport.possibleExports << Export(importKey, requiredPath, true);
+        if (importKey.splitPath.size() == 1 && importKey.splitPath.at(0).isEmpty()) {
+            // relocatable
+            QStringList myPath = splitPath;
+            if (vNr.indexIn(myPath.last()) == 0) {
+                myPath.last() = vNr.cap(1);
+            }
+            for (int iPath = myPath.size(); iPath != 0; ) {
+                --iPath;
+                if (safeName.indexIn(myPath.at(iPath)) != 0)
+                    break;
+                ImportKey iKey(ImportType::Library, QStringList(myPath.mid(iPath)).join(QLatin1String(".")),
+                               importKey.majorVersion, importKey.minorVersion);
+                cImport.possibleExports.append(Export(iKey, QStringList(myPath.mid(0, iPath))
+                                                      .join(QLatin1String("/")), true));
+            }
+        } else {
+            QString requiredPath = QStringList(splitPath.mid(0, splitPath.size() - importKey.splitPath.size()))
+                    .join(QLatin1String("/"));
+            cImport.possibleExports << Export(importKey, requiredPath, true);
+        }
+    }
+    if (cImport.possibleExports.isEmpty()) {
+        QRegExp vNr(QLatin1String("^(.+)\\.([0-9]+)(?:\\.([0-9]+))?$"));
+        QRegExp safeName(QLatin1String("^[a-zA-Z_][[a-zA-Z0-9_]*$"));
+        int majorVersion = LanguageUtils::ComponentVersion::NoVersion;
+        int minorVersion = LanguageUtils::ComponentVersion::NoVersion;
+        if (vNr.indexIn(splitPath.last()) == 0) {
+            splitPath.last() = vNr.cap(1);
+            bool ok;
+            majorVersion = vNr.cap(2).toInt(&ok);
+            if (!ok)
+                majorVersion = LanguageUtils::ComponentVersion::NoVersion;
+            minorVersion = vNr.cap(3).toInt(&ok);
+            if (vNr.cap(3).isEmpty() || !ok)
+                minorVersion = LanguageUtils::ComponentVersion::NoVersion;
+        }
+
+        for (int iPath = splitPath.size(); iPath != 0; ) {
+            --iPath;
+            if (safeName.indexIn(splitPath.at(iPath)) != 0)
+                break;
+            ImportKey iKey(ImportType::Library, QStringList(splitPath.mid(iPath)).join(QLatin1String(".")),
+                           majorVersion, minorVersion);
+            cImport.possibleExports.append(Export(iKey, QStringList(splitPath.mid(0, iPath))
+                                                  .join(QLatin1String("/")), true));
+        }
     }
     foreach (const QmlDirParser::Component &component, info.components()) {
         foreach (const Export &e, cImport.possibleExports)
-            // renaming of type name not really represented here... fix?
-            _dependencies.addExport(component.fileName, e.exportName, e.pathRequired);
+            _dependencies.addExport(component.fileName, e.exportName, e.pathRequired, e.typeName);
     }
     cImport.fingerprint = info.fingerprint();
     _dependencies.addCoreImport(cImport);

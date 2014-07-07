@@ -74,6 +74,7 @@ void tst_PluginSpec::read()
     QCOMPARE(spec.name, QString("test"));
     QCOMPARE(spec.version, QString("1.0.1"));
     QCOMPARE(spec.compatVersion, QString("1.0.0"));
+    QCOMPARE(spec.required, false);
     QCOMPARE(spec.experimental, false);
     QCOMPARE(spec.enabledInSettings, true);
     QCOMPARE(spec.vendor, QString("Digia Plc"));
@@ -90,9 +91,11 @@ void tst_PluginSpec::read()
     QCOMPARE(spec.dependencies, QList<PluginDependency>() << dep1 << dep2);
 
     // test missing compatVersion behavior
+    // and 'required' attribute
     QVERIFY(spec.read("testspecs/spec2.xml"));
     QCOMPARE(spec.version, QString("3.1.4_10"));
     QCOMPARE(spec.compatVersion, QString("3.1.4_10"));
+    QCOMPARE(spec.required, true);
 }
 
 void tst_PluginSpec::readError()

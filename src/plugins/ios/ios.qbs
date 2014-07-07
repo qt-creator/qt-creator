@@ -4,7 +4,6 @@ import QtcPlugin
 
 QtcPlugin {
     name: "Ios"
-    condition: qbs.targetOS.contains("osx")
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
@@ -16,7 +15,7 @@ QtcPlugin {
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     cpp.includePaths: base.concat("../../shared")
-    cpp.frameworks: base.concat(["CoreFoundation", "IOKit"])
+    cpp.frameworks: base.concat(qbs.targetOS.contains("osx") ? ["CoreFoundation", "IOKit"] : [])
 
     files: [
         "ios.qrc",

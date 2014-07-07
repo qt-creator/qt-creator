@@ -54,9 +54,10 @@ void Bookmark::removedFromEditor()
 
 void Bookmark::updateLineNumber(int line)
 {
-    if (line != lineNumber())
+    if (line != lineNumber()) {
+        BaseTextMark::updateLineNumber(line);
         m_manager->updateBookmark(this);
-    BaseTextMark::updateLineNumber(line);
+    }
 }
 
 void Bookmark::updateBlock(const QTextBlock &block)

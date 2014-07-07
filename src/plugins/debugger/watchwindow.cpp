@@ -47,17 +47,18 @@
 #include <utils/savedaction.h>
 #include <utils/fancylineedit.h>
 
-#include <QDebug>
-#include <QMetaProperty>
-#include <QMimeData>
-
 #include <QApplication>
 #include <QClipboard>
+#include <QDebug>
 #include <QHeaderView>
+#include <QInputDialog>
 #include <QItemDelegate>
 #include <QMenu>
-#include <QInputDialog>
 #include <QMessageBox>
+#include <QMetaProperty>
+#include <QMimeData>
+#include <QScrollBar>
+#include <QTimer>
 
 //#define USE_WATCH_MODEL_TEST 1
 
@@ -1053,6 +1054,23 @@ void WatchTreeView::reset()
     BaseTreeView::reset();
     setRootIndex(model()->index(m_type, 0));
     resetHelper();
+}
+
+void WatchTreeView::doItemsLayout()
+{
+    if (m_sliderPosition == 0)
+        m_sliderPosition = verticalScrollBar()->sliderPosition();
+    Utils::BaseTreeView::doItemsLayout();
+    if (m_sliderPosition)
+        QTimer::singleShot(0, this, SLOT(adjustSlider()));
+}
+
+void WatchTreeView::adjustSlider()
+{
+    if (m_sliderPosition) {
+        verticalScrollBar()->setSliderPosition(m_sliderPosition);
+        m_sliderPosition = 0;
+    }
 }
 
 void WatchTreeView::watchExpression(const QString &exp)

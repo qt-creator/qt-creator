@@ -89,7 +89,7 @@ private slots:
     void handleKitChanges();
     void showProperties(int index, int subIndex);
     void registerProject(ProjectExplorer::Project*);
-    void deregisterProject(ProjectExplorer::Project*);
+    bool deregisterProject(ProjectExplorer::Project*);
     void startupProjectChanged(ProjectExplorer::Project *);
     void removedTarget(ProjectExplorer::Target*);
 

@@ -30,10 +30,11 @@
 #define IOSCONSTANTS_H
 
 #include <QtGlobal>
+#include <utils/logging.h>
 
 namespace Ios {
 namespace Internal {
-
+Q_DECLARE_LOGGING_CATEGORY(iosLog)
 } // namespace Internal
 
 namespace IosDeviceType {

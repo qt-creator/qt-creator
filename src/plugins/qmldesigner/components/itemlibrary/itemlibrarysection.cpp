@@ -53,11 +53,11 @@ bool ItemLibrarySection::sectionExpanded() const
     return m_sectionExpanded;
 }
 
-QVariant ItemLibrarySection::sortingRole() const
+QString ItemLibrarySection::sortingName() const
 {
 
     if (sectionName() == QStringLiteral("QML Components")) //Qml Components always come first
-        return QVariant(QStringLiteral("AA.this_comes_first"));
+        return QStringLiteral("aaaa");
 
     return sectionName();
 }
@@ -109,6 +109,11 @@ bool ItemLibrarySection::setVisible(bool isVisible)
 bool ItemLibrarySection::isVisible() const
 {
     return m_isVisible;
+}
+
+void ItemLibrarySection::sortItems()
+{
+    m_sectionEntries.sortItems();
 }
 
 } // namespace QmlDesigner

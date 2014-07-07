@@ -74,10 +74,14 @@ class QuickFixTestCase : public TestCase
 public:
     QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
                      CppQuickFixFactory *factory,
-                     const QStringList &includePaths = QStringList(),
-                     int resultIndex = 0);
+                     const CppTools::ProjectPart::HeaderPaths &includePaths =
+                            CppTools::ProjectPart::HeaderPaths(),
+                     int resultIndex = 0,
+                     const QByteArray &expectedFailMessage = QByteArray());
     ~QuickFixTestCase();
 
+    static void run(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
+                    CppQuickFixFactory *factory, const QString &incPath);
 private:
     QSharedPointer<TextEditor::QuickFixOperation> getFix(CppQuickFixFactory *factory,
                                                          CPPEditorWidget *editorWidget,
@@ -89,8 +93,8 @@ private:
     CppTools::CppCodeStylePreferences *m_cppCodeStylePreferences;
     QByteArray m_cppCodeStylePreferencesOriginalDelegateId;
 
-    QStringList m_includePathsToRestore;
-    bool m_restoreIncludePaths;
+    CppTools::ProjectPart::HeaderPaths m_headerPathsToRestore;
+    bool m_restoreHeaderPaths;
 };
 
 QList<QuickFixTestDocument::Ptr> singleDocument(const QByteArray &original,

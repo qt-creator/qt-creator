@@ -35,6 +35,7 @@
 #include <cplusplus/Icons.h>
 
 #include <cpptools/cppcompletionassistprovider.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
 #include <texteditor/codeassist/basicproposalitem.h>
 #include <texteditor/codeassist/completionassistprovider.h>
@@ -76,8 +77,7 @@ public:
                                    const QString &fileName,
                                    TextEditor::AssistReason reason,
                                    const QStringList &options,
-                                   const QStringList &includePaths,
-                                   const QStringList &frameworkPaths,
+                                   const QList<CppTools::ProjectPart::HeaderPath> &headerPaths,
                                    const Internal::PchInfo::Ptr &pchInfo);
 
     ClangCodeModel::ClangCompleter::Ptr clangWrapper() const
@@ -91,16 +91,14 @@ public:
     const QStringList &options() const
     { return m_options; }
 
-    const QStringList &includePaths() const
-    { return m_includePaths; }
-
-    const QStringList &frameworkPaths() const
-    { return m_frameworkPaths; }
+    const QList<CppTools::ProjectPart::HeaderPath> &headerPaths() const
+    { return m_headerPaths; }
 
 private:
     ClangCodeModel::ClangCompleter::Ptr m_clangWrapper;
     ClangCodeModel::Internal::UnsavedFiles m_unsavedFiles;
-    QStringList m_options, m_includePaths, m_frameworkPaths;
+    QStringList m_options;
+    QList<CppTools::ProjectPart::HeaderPath> m_headerPaths;
     Internal::PchInfo::Ptr m_savedPchPointer;
 };
 

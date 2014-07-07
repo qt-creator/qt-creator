@@ -758,7 +758,9 @@ void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, co
 
     foreach (const ImportKey &importKey, filteredPossibleImportKeys) {
         QString libraryName = importKey.splitPath.join(QLatin1Char('.'));
-        QString version = QString(QStringLiteral("%1.%2").arg(importKey.majorVersion).arg(importKey.minorVersion));
+        QString version = QString(QStringLiteral("%1.%2")
+            .arg((importKey.majorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 1 : importKey.majorVersion)
+            .arg((importKey.minorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 0 : importKey.minorVersion));
         possibleImports.append(Import::createLibraryImport(libraryName, version));
     }
 
@@ -851,7 +853,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         if (view()->checkSemanticErrors()) {
             Check check(doc, m_scopeChain->context());
-            check.disableMessage(StaticAnalysis::ErrUnknownComponent);
             check.disableMessage(StaticAnalysis::ErrPrototypeCycle);
             check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototype);
             check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototypeOf);
@@ -872,8 +873,12 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
 
             foreach (const StaticAnalysis::Message &message, check()) {
-                if (message.severity == Severity::Error)
-                    errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                if (message.severity == Severity::Error) {
+                    if (message.type == StaticAnalysis::ErrUnknownComponent)
+                        warnings.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                    else
+                        errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                }
                 if (message.severity == Severity::Warning) {
                     if (message.type == StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2) {
                         errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));

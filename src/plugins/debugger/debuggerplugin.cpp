@@ -2322,12 +2322,15 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_hiddenStopAction->setAction(m_interruptAction);
         m_localsAndExpressionsWindow->setShowLocals(false);
     } else if (state == DebuggerFinished) {
+        ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+        Project *project = SessionManager::startupProject();
+        const bool canRun = pe->canRun(project, DebugRunMode);
         // We don't want to do anything anymore.
         m_interruptAction->setEnabled(false);
         m_continueAction->setEnabled(false);
         m_exitAction->setEnabled(false);
-        m_startAction->setEnabled(true);
-        m_debugWithoutDeployAction->setEnabled(true);
+        m_startAction->setEnabled(canRun);
+        m_debugWithoutDeployAction->setEnabled(canRun);
         setProxyAction(m_visibleStartAction, Core::Id(Constants::DEBUG));
         m_hiddenStopAction->setAction(m_undisturbableAction);
         m_codeModelSnapshot = CPlusPlus::Snapshot();

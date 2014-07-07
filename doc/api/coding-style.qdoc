@@ -692,6 +692,139 @@
     \note As an exception, imported third party code as well as code
     interfacing the native APIs (src/support/os_*) can use NULL.
 
+    \section2 C++11 Features
+
+    Code should compile with Microsoft Visual Studio 2010, g++ 4.5, and Clang 3.1.
+
+    \section3 Lambdas
+
+    You can use lambdas with the following restrictions:
+
+    \list
+        \li You have to explicitly specify the return type, if the lambda contains more than a
+            single expression. Otherwise it does not compile with VS2010.
+            \code
+            []() -> QString {
+                Foo *foo = activeFoo();
+                return foo ? foo->displayName() : QString();
+            });
+
+            -NOT-
+
+            []() {
+                Foo *foo = activeFoo();
+                return foo ? foo->displayName() : QString();
+            });
+            \endcode
+
+        \li If you use static functions from the class that the lambda is located in, you have to
+            explicitly capture \c this. Otherwise it does not compile with g++ 4.7 and earlier.
+            \code
+            void Foo::something()
+            {
+                ...
+                [this]() { Foo::someStaticFunction(); }
+                ...
+            }
+
+            -NOT-
+
+            void Foo::something()
+            {
+                ...
+                []() { Foo::someStaticFunction(); }
+                ...
+            }
+            \endcode
+    \endlist
+
+    Format the lambda according to the following rules:
+
+    \list
+        \li Always write parentheses for the parameter list, even if the function does not take
+            parameters.
+            \code
+            []() { doSomething(); }
+
+            -NOT
+
+            [] { doSomething(); }
+            \endcode
+
+        \li Place the capture-list, parameter list, return type, and opening brace on the first line,
+            the body indented on the following lines, and the closing brace on a new line.
+            \code
+            []() -> bool {
+                something();
+                return isSomethingElse();
+            }
+
+            -NOT-
+
+            []() -> bool { something();
+            somethingElse(); }
+            \endcode
+
+        \li Place a closing parenthesis and semicolon of an enclosing function call on the same line
+            as the closing brace of the lambda.
+            \code
+            foo([]() {
+                something();
+            });
+            \endcode
+
+        \li If you are using a lambda in an 'if' statement, start the lambda on a new line, to
+            avoid confusion between the opening brace for the lambda and the opening brace for the
+            'if' statement.
+            \code
+            if (anyOf(fooList,
+                    [](Foo foo) {
+                        return foo.isGreat();
+                    }) {
+                return;
+            }
+
+            -NOT-
+
+            if (anyOf(fooList, [](Foo foo) {
+                        return foo.isGreat();
+                    }) {
+                return;
+            }
+            \endcode
+
+        \li Optionally, place the lambda completely on one line if it fits.
+            \code
+            foo([]() { return true; });
+
+            if (foo([]() { return true; })) {
+                ...
+            }
+            \endcode
+
+    \endlist
+
+    \section3 \c auto Keyword
+
+    Optionally, you can use the \c auto keyword in the following cases. If in doubt,
+    for example if using \c auto could make the code less readable, do not use \c auto.
+    Keep in mind that code is read much more often than written.
+
+    \list
+        \li When it avoids repetition of a type in the same statement.
+            \code
+            auto something = new MyCustomType;
+            auto keyEvent = static_cast<QKeyEvent *>(event);
+            auto myList = QStringList() << QLatin1String(“FooThing”) << QLatin1String(“BarThing”);
+            \endcode
+
+        \li When assigning iterator types.
+            \code
+            auto it = myList.const_iterator();
+            \endcode
+
+    \endlist
+
     \section2 Using QObject
 
     \list

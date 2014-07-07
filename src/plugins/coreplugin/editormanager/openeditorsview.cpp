@@ -208,7 +208,7 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
                 m_model->mapToSource(editorIndex).row());
     EditorManager::addSaveAndCloseEditorActions(&contextMenu, entry);
     contextMenu.addSeparator();
-    EditorManager::addNativeDirActions(&contextMenu, entry);
+    EditorManager::addNativeDirAndOpenWithActions(&contextMenu, entry);
     contextMenu.exec(mapToGlobal(pos));
 }
 

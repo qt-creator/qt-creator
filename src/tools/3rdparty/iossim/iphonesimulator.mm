@@ -516,7 +516,7 @@ NSString* FindDeveloperDir() {
     NSString *stdoutPath = nil;
     NSString *stderrPath = nil;
     NSString *xctest = nil;
-    NSTimeInterval timeout = 30;
+    NSTimeInterval timeout = 60;
     NSMutableDictionary *environment = [NSMutableDictionary dictionary];
 
     int i = argOffset;

@@ -191,22 +191,20 @@ public:
                                  const QString &fileName,
                                  TextEditor::AssistReason reason,
                                  const CPlusPlus::Snapshot &snapshot,
-                                 const QStringList &includePaths,
-                                 const QStringList &frameworkPaths)
+                                 const ProjectPart::HeaderPaths &headerPaths)
         : TextEditor::DefaultAssistInterface(textDocument, position, fileName, reason)
         , m_editor(0)
         , m_isObjCEnabled(false)
         , m_gotCppSpecifics(true)
         , m_snapshot(snapshot)
-        , m_includePaths(includePaths)
-        , m_frameworkPaths(frameworkPaths)
+        , m_headerPaths(headerPaths)
     {}
 
     bool isObjCEnabled() const { return m_isObjCEnabled; }
 
     const CPlusPlus::Snapshot &snapshot() const { getCppSpecifics(); return m_snapshot; }
-    const QStringList &includePaths() const { getCppSpecifics(); return m_includePaths; }
-    const QStringList &frameworkPaths() const { getCppSpecifics(); return m_frameworkPaths; }
+    const ProjectPart::HeaderPaths &headerPaths() const
+    { getCppSpecifics(); return m_headerPaths; }
 
 private:
     void getCppSpecifics() const;
@@ -216,8 +214,7 @@ private:
     mutable bool m_gotCppSpecifics;
     CppModelManagerInterface::WorkingCopy m_workingCopy;
     mutable CPlusPlus::Snapshot m_snapshot;
-    mutable QStringList m_includePaths;
-    mutable QStringList m_frameworkPaths;
+    mutable ProjectPart::HeaderPaths m_headerPaths;
 };
 
 } // Internal

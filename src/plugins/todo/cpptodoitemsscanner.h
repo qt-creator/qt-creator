@@ -46,7 +46,6 @@ public:
     explicit CppTodoItemsScanner(const KeywordList &keywordList, QObject *parent = 0);
 
 protected:
-    bool shouldProcessFile(const QString &fileName);
     void keywordListChanged();
 
 private slots:

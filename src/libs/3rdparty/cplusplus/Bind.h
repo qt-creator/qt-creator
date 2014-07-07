@@ -103,7 +103,7 @@ protected:
     void lambdaIntroducer(LambdaIntroducerAST *ast);
     void lambdaCapture(LambdaCaptureAST *ast);
     void capture(CaptureAST *ast);
-    void lambdaDeclarator(LambdaDeclaratorAST *ast);
+    Function *lambdaDeclarator(LambdaDeclaratorAST *ast);
     FullySpecifiedType trailingReturnType(TrailingReturnTypeAST *ast, const FullySpecifiedType &init);
     const StringLiteral *asStringLiteral(unsigned firstToken, unsigned lastToken);
 

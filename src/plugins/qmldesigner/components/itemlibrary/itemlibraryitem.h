@@ -46,7 +46,6 @@ class ItemLibraryItem: public QObject {
     Q_PROPERTY(QVariant itemLibraryEntry READ itemLibraryEntry FINAL)
     Q_PROPERTY(QString itemName READ itemName FINAL)
     Q_PROPERTY(QString itemLibraryIconPath READ itemLibraryIconPath FINAL)
-    Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
     Q_PROPERTY(bool itemVisible READ isVisible NOTIFY visibilityChanged FINAL)
 
 public:
@@ -55,7 +54,6 @@ public:
 
     QString itemName() const;
     QString itemLibraryIconPath() const;
-    QVariant sortingRole() const;
 
     bool setVisible(bool isVisible);
     bool isVisible() const;

@@ -1,5 +1,6 @@
 project     = "QtCreator"
 description = "Qt Creator Manual"
+url         = http://qt-project.org/doc/qtcreator
 
 headerdirs =
 sourcedirs = $SRCDIR/src

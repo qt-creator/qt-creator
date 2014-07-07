@@ -51,7 +51,9 @@
 
 using namespace ProjectExplorer;
 
-static bool debugDeviceDetection = false;
+namespace {
+Q_LOGGING_CATEGORY(detectLog, "qtc.ios.deviceDetect")
+}
 
 #ifdef Q_OS_MAC
 static QString CFStringRef2QString(CFStringRef s)
@@ -247,13 +249,11 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
         IosDevice *newDev = new IosDevice(uid);
         if (!name.isNull())
             newDev->setDisplayName(name);
-        if (debugDeviceDetection)
-            qDebug() << "adding ios device " << uid;
+        qCDebug(detectLog) << "adding ios device " << uid;
         devManager->addDevice(IDevice::ConstPtr(newDev));
     } else if (dev->deviceState() != IDevice::DeviceConnected &&
                dev->deviceState() != IDevice::DeviceReadyToUse) {
-        if (debugDeviceDetection)
-            qDebug() << "updating ios device " << uid;
+        qCDebug(detectLog) << "updating ios device " << uid;
         IosDevice *newDev = 0;
         if (dev->type() == devType) {
             const IosDevice *iosDev = static_cast<const IosDevice *>(dev.data());
@@ -268,23 +268,21 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
 
 void IosDeviceManager::deviceDisconnected(const QString &uid)
 {
-    if (debugDeviceDetection)
-        qDebug() << "detected disconnection of ios device " << uid;
+    qCDebug(detectLog) << "detected disconnection of ios device " << uid;
     DeviceManager *devManager = DeviceManager::instance();
     Core::Id baseDevId(Constants::IOS_DEVICE_ID);
     Core::Id devType(Constants::IOS_DEVICE_TYPE);
     Core::Id devId = baseDevId.withSuffix(uid);
     IDevice::ConstPtr dev = devManager->find(devId);
     if (dev.isNull() || dev->type() != devType) {
-        qDebug() << "ignoring disconnection of ios device " << uid; // should neve happen
+        qCWarning(detectLog) << "ignoring disconnection of ios device " << uid; // should neve happen
     } else {
         const IosDevice *iosDev = static_cast<const IosDevice *>(dev.data());
         if (iosDev->m_extraInfo.isEmpty()
                 || iosDev->m_extraInfo.value(QLatin1String("deviceName")) == QLatin1String("*unknown*")) {
             devManager->removeDevice(iosDev->id());
         } else if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
-            if (debugDeviceDetection)
-                qDebug() << "disconnecting device " << iosDev->uniqueDeviceID();
+            qCDebug(detectLog) << "disconnecting device " << iosDev->uniqueDeviceID();
             devManager->setDeviceState(iosDev->id(), IDevice::DeviceDisconnected);
         }
     }
@@ -326,8 +324,7 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
         if (info.contains(devNameKey))
             newDev->setDisplayName(info.value(devNameKey));
         newDev->m_extraInfo = info;
-        if (debugDeviceDetection)
-            qDebug() << "updated info of ios device " << uid;
+        qCDebug(detectLog) << "updated info of ios device " << uid;
         dev = IDevice::ConstPtr(newDev);
         devManager->addDevice(dev);
     }
@@ -397,8 +394,7 @@ void deviceConnectedCallback(void *refCon, io_iterator_t iterator)
             QString name;
             if (KERN_SUCCESS == kr)
                 name = QString::fromLocal8Bit(deviceName);
-            if (debugDeviceDetection)
-                qDebug() << "ios device " << name << " in deviceAddedCallback";
+            qCDebug(detectLog) << "ios device " << name << " in deviceAddedCallback";
 
             CFStringRef cfUid = static_cast<CFStringRef>(IORegistryEntryCreateCFProperty(
                                                              usbDevice,
@@ -413,10 +409,10 @@ void deviceConnectedCallback(void *refCon, io_iterator_t iterator)
         }
     }
     catch (std::exception &e) {
-        qDebug() << "Exception " << e.what() << " in iosdevice.cpp deviceConnectedCallback";
+        qCWarning(detectLog) << "Exception " << e.what() << " in iosdevice.cpp deviceConnectedCallback";
     }
     catch (...) {
-        qDebug() << "Exception in iosdevice.cpp deviceConnectedCallback";
+        qCWarning(detectLog) << "Exception in iosdevice.cpp deviceConnectedCallback";
         throw;
     }
 }
@@ -435,8 +431,7 @@ void deviceDisconnectedCallback(void *refCon, io_iterator_t iterator)
             kr = IORegistryEntryGetName(usbDevice, deviceName);
             if (KERN_SUCCESS != kr)
                 deviceName[0] = '\0';
-            if (debugDeviceDetection)
-                qDebug() << "ios device " << deviceName << " in deviceDisconnectedCallback";
+            qCDebug(detectLog) << "ios device " << deviceName << " in deviceDisconnectedCallback";
 
             {
                 CFStringRef cfUid = static_cast<CFStringRef>(IORegistryEntryCreateCFProperty(
@@ -453,10 +448,10 @@ void deviceDisconnectedCallback(void *refCon, io_iterator_t iterator)
         }
     }
     catch (std::exception &e) {
-        qDebug() << "Exception " << e.what() << " in iosdevice.cpp deviceDisconnectedCallback";
+        qCWarning(detectLog) << "Exception " << e.what() << " in iosdevice.cpp deviceDisconnectedCallback";
     }
     catch (...) {
-        qDebug() << "Exception in iosdevice.cpp deviceDisconnectedCallback";
+        qCWarning(detectLog) << "Exception in iosdevice.cpp deviceDisconnectedCallback";
         throw;
     }
 }
@@ -557,8 +552,7 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
         if (devices.contains(iosDev->uniqueDeviceID()))
             continue;
         if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
-            if (debugDeviceDetection)
-                qDebug() << "disconnecting device " << iosDev->uniqueDeviceID();
+            qCDebug(detectLog) << "disconnecting device " << iosDev->uniqueDeviceID();
             devManager->setDeviceState(iosDev->id(), IDevice::DeviceDisconnected);
         }
     }

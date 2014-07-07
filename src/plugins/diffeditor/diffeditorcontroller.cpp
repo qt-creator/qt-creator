@@ -29,6 +29,7 @@
 
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
+#include "diffeditorreloader.h"
 
 #include <coreplugin/icore.h>
 
@@ -44,7 +45,8 @@ DiffEditorController::DiffEditorController(QObject *parent)
     : QObject(parent),
       m_descriptionEnabled(false),
       m_contextLinesNumber(3),
-      m_ignoreWhitespace(true)
+      m_ignoreWhitespace(true),
+      m_reloader(0)
 {
     QSettings *s = Core::ICore::settings();
     s->beginGroup(QLatin1String(settingsGroupC));
@@ -122,6 +124,27 @@ QString DiffEditorController::makePatch(int diffFileIndex,
                                 fileName,
                                 fileName,
                                 lastChunk && fileData.lastChunkAtTheEndOfFile);
+}
+
+DiffEditorReloader *DiffEditorController::reloader() const
+{
+    return m_reloader;
+}
+
+void DiffEditorController::setReloader(DiffEditorReloader *reloader)
+{
+    if (m_reloader == reloader)
+        return; // nothing changes
+
+    if (m_reloader)
+        m_reloader->setController(0);
+
+    m_reloader = reloader;
+
+    if (m_reloader)
+        m_reloader->setController(this);
+
+    reloaderChanged(m_reloader);
 }
 
 void DiffEditorController::clear()
@@ -238,7 +261,8 @@ void DiffEditorController::setIgnoreWhitespace(bool ignore)
 
 void DiffEditorController::requestReload()
 {
-    emit reloadRequested();
+    if (m_reloader)
+        m_reloader->requestReload();
 }
 
 void DiffEditorController::requestChunkActions(QMenu *menu,

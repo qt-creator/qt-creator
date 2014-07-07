@@ -35,7 +35,6 @@
 #include <proparser/profileevaluator.h>
 
 #include <QFileInfo>
-#include <QDebug>
 
 namespace Ios {
 namespace Internal {

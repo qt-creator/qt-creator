@@ -325,7 +325,7 @@ void EditorToolBar::listContextMenu(QPoint pos)
     menu.addSeparator();
     EditorManager::addSaveAndCloseEditorActions(&menu, entry);
     menu.addSeparator();
-    EditorManager::addNativeDirActions(&menu, entry);
+    EditorManager::addNativeDirAndOpenWithActions(&menu, entry);
     QAction *result = menu.exec(d->m_editorList->mapToGlobal(pos));
     if (result == copyPath)
         QApplication::clipboard()->setText(QDir::toNativeSeparators(fileName));

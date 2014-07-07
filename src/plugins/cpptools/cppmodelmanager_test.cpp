@@ -220,23 +220,24 @@ void CppToolsPlugin::test_modelmanager_paths_are_clean()
     ProjectInfo pi = mm->projectInfo(project);
     QCOMPARE(pi.project().data(), project);
 
+    typedef ProjectPart::HeaderPath HeaderPath;
+
     ProjectPart::Ptr part(new ProjectPart);
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->projectDefines = QByteArray("#define OH_BEHAVE -1\n");
-    part->includePaths = QStringList() << testDataDir.includeDir(false);
-    part->frameworkPaths = QStringList() << testDataDir.frameworksDir(false);
+    part->headerPaths = QList<HeaderPath>()
+            << HeaderPath(testDataDir.includeDir(false), HeaderPath::IncludePath)
+            << HeaderPath(testDataDir.frameworksDir(false), HeaderPath::FrameworkPath);
     pi.appendProjectPart(part);
 
     mm->updateProjectInfo(pi);
 
-    QStringList includePaths = mm->includePaths();
-    QCOMPARE(includePaths.size(), 1);
-    QVERIFY(includePaths.contains(testDataDir.includeDir()));
-
-    QStringList frameworkPaths = mm->frameworkPaths();
-    QCOMPARE(frameworkPaths.size(), 1);
-    QVERIFY(frameworkPaths.contains(testDataDir.frameworksDir()));
+    QList<HeaderPath> headerPaths = mm->headerPaths();
+    QCOMPARE(headerPaths.size(), 2);
+    QVERIFY(headerPaths.contains(HeaderPath(testDataDir.includeDir(), HeaderPath::IncludePath)));
+    QVERIFY(headerPaths.contains(HeaderPath(testDataDir.frameworksDir(),
+                                            HeaderPath::FrameworkPath)));
 }
 
 /// Check: Frameworks headers are resolved.
@@ -254,12 +255,15 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     ProjectInfo pi = mm->projectInfo(project);
     QCOMPARE(pi.project().data(), project);
 
+    typedef ProjectPart::HeaderPath HeaderPath;
+
     ProjectPart::Ptr part(new ProjectPart);
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->projectDefines = QByteArray("#define OH_BEHAVE -1\n");
-    part->includePaths << testDataDir.includeDir();
-    part->frameworkPaths << testDataDir.frameworksDir();
+    part->headerPaths = QList<HeaderPath>()
+            << HeaderPath(testDataDir.includeDir(false), HeaderPath::IncludePath)
+            << HeaderPath(testDataDir.frameworksDir(false), HeaderPath::FrameworkPath);
     const QString &source = testDataDir.fileFromSourcesDir(
         _("test_modelmanager_framework_headers.cpp"));
     part->files << ProjectFile(source, ProjectFile::CXXSource);
@@ -303,11 +307,14 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     ProjectInfo pi = mm->projectInfo(project);
     QCOMPARE(pi.project().data(), project);
 
+    typedef ProjectPart::HeaderPath HeaderPath;
+
     ProjectPart::Ptr part(new ProjectPart);
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
     part->projectDefines = QByteArray("#define OH_BEHAVE -1\n");
-    part->includePaths = QStringList() << testDataDir.includeDir(false);
+    part->headerPaths = QList<HeaderPath>()
+            << HeaderPath(testDataDir.includeDir(false), HeaderPath::IncludePath);
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
 
@@ -806,6 +813,8 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
 
     Project *project = helper.createProject(_("test_modelmanager_defines_per_project"));
 
+    typedef ProjectPart::HeaderPath HeaderPath;
+
     ProjectPart::Ptr part1(new ProjectPart);
     part1->projectFile = QLatin1String("project1.projectfile");
     part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
@@ -813,7 +822,8 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     part1->cxxVersion = ProjectPart::CXX11;
     part1->qtVersion = ProjectPart::NoQt;
     part1->projectDefines = QByteArray("#define SUB1\n");
-    part1->includePaths = QStringList() << testDataDirectory.includeDir(false);
+    part1->headerPaths = QList<HeaderPath>()
+            << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);
 
     ProjectPart::Ptr part2(new ProjectPart);
     part2->projectFile = QLatin1String("project1.projectfile");
@@ -822,7 +832,8 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     part2->cxxVersion = ProjectPart::CXX11;
     part2->qtVersion = ProjectPart::NoQt;
     part2->projectDefines = QByteArray("#define SUB2\n");
-    part2->includePaths = QStringList() << testDataDirectory.includeDir(false);
+    part2->headerPaths = QList<HeaderPath>()
+            << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);
 
     ProjectInfo pi = mm->projectInfo(project);
     pi.appendProjectPart(part1);
@@ -877,6 +888,8 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
 
     Project *project = helper.createProject(_("test_modelmanager_defines_per_project_pch"));
 
+    typedef ProjectPart::HeaderPath HeaderPath;
+
     ProjectPart::Ptr part1(new ProjectPart);
     part1->projectFile = QLatin1String("project1.projectfile");
     part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
@@ -884,7 +897,8 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
     part1->cxxVersion = ProjectPart::CXX11;
     part1->qtVersion = ProjectPart::NoQt;
     part1->precompiledHeaders.append(pch1File);
-    part1->includePaths = QStringList() << testDataDirectory.includeDir(false);
+    part1->headerPaths = QList<HeaderPath>()
+            << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);
 
     ProjectPart::Ptr part2(new ProjectPart);
     part2->projectFile = QLatin1String("project2.projectfile");
@@ -893,7 +907,8 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
     part2->cxxVersion = ProjectPart::CXX11;
     part2->qtVersion = ProjectPart::NoQt;
     part2->precompiledHeaders.append(pch2File);
-    part2->includePaths = QStringList() << testDataDirectory.includeDir(false);
+    part2->headerPaths = QList<HeaderPath>()
+            << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);
 
     ProjectInfo pi = mm->projectInfo(project);
     pi.appendProjectPart(part1);
@@ -949,19 +964,23 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
 
     Project *project = helper.createProject(_("test_modelmanager_defines_per_editor"));
 
+    typedef ProjectPart::HeaderPath HeaderPath;
+
     ProjectPart::Ptr part1(new ProjectPart);
     part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
     part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part1->cxxVersion = ProjectPart::CXX11;
     part1->qtVersion = ProjectPart::NoQt;
-    part1->includePaths = QStringList() << testDataDirectory.includeDir(false);
+    part1->headerPaths = QList<HeaderPath>()
+            << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);
 
     ProjectPart::Ptr part2(new ProjectPart);
     part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
     part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part2->cxxVersion = ProjectPart::CXX11;
     part2->qtVersion = ProjectPart::NoQt;
-    part2->includePaths = QStringList() << testDataDirectory.includeDir(false);
+    part2->headerPaths = QList<HeaderPath>()
+            << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);
 
     ProjectInfo pi = mm->projectInfo(project);
     pi.appendProjectPart(part1);

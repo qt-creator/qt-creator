@@ -30,19 +30,54 @@
 #ifndef QUICK2PROERTYEDITORVIEW_H
 #define QUICK2PROERTYEDITORVIEW_H
 
-#include <QQuickWidget>
+#include <QWidget>
+#include <QUrl>
+#include <QQuickView>
+#include <QQmlEngine>
+#include <QQmlContext>
+#include <QPointer>
 
+QT_BEGIN_NAMESPACE
+class QQmlError;
+class QQmlComponent;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class Quick2PropertyEditorView : public QQuickWidget
+class Quick2PropertyEditorView : public QWidget
 {
     Q_OBJECT
 
+    Q_PROPERTY(QUrl source READ source WRITE setSource DESIGNABLE true)
 public:
     explicit Quick2PropertyEditorView(QWidget *parent = 0);
 
+    QUrl source() const;
+    void setSource(const QUrl&);
+
+    QQmlEngine* engine();
+    QQmlContext* rootContext();
+
+    enum Status { Null, Ready, Loading, Error };
+    Status status() const;
+
     static void registerQmlTypes();
+
+signals:
+    void statusChanged(Quick2PropertyEditorView::Status);
+
+protected:
+    void execute();
+
+private Q_SLOTS:
+    void continueExecute();
+
+private:
+     QWidget *m_containerWidget;
+     QUrl m_source;
+     QQuickView m_view;
+     QPointer<QQmlComponent> m_component;
+
 };
 
 } //QmlDesigner

@@ -39,8 +39,11 @@
 
 #include <QFile>
 
-namespace QmlJS{
+namespace {
 Q_LOGGING_CATEGORY(simpleReaderLog, "qtc.qmljs.simpleReader")
+}
+
+namespace QmlJS{
 
 QVariant SimpleReaderNode::property(const QString &name) const
 {

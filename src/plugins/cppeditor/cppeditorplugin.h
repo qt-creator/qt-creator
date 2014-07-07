@@ -182,6 +182,7 @@ private slots:
     void test_quickfix_MoveFuncDefOutside_afterClass();
     void test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames1();
     void test_quickfix_MoveFuncDefOutside_respectWsInOperatorNames2();
+    void test_quickfix_MoveFuncDefOutside_macroUses();
 
     void test_quickfix_MoveFuncDefToDecl_MemberFunc();
     void test_quickfix_MoveFuncDefToDecl_MemberFuncOutside();
@@ -192,6 +193,7 @@ private slots:
     void test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS();
     void test_quickfix_MoveFuncDefToDecl_CtorWithInitialization();
     void test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable();
+    void test_quickfix_MoveFuncDefToDecl_macroUses();
 
     void test_quickfix_AssignToLocalVariable_templates();
 

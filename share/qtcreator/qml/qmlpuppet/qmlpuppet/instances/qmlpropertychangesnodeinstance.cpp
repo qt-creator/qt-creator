@@ -71,8 +71,10 @@ void QmlPropertyChangesNodeInstance::setPropertyVariant(const PropertyName &name
         changesObject()->changeValue(name, value);
         QObject *targetObject = changesObject()->object();
         if (targetObject && nodeInstanceServer()->activeStateInstance().isWrappingThisObject(changesObject()->state())) {
-            ServerNodeInstance targetInstance = nodeInstanceServer()->instanceForObject(targetObject);
-            targetInstance.setPropertyVariant(name, value);
+            if (nodeInstanceServer()->hasInstanceForObject(targetObject)) {
+                ServerNodeInstance targetInstance = nodeInstanceServer()->instanceForObject(targetObject);
+                targetInstance.setPropertyVariant(name, value);
+            }
         }
     }
 }

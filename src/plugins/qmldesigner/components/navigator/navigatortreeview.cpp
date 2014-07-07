@@ -48,23 +48,7 @@
 
 namespace QmlDesigner {
 
-void drawSelectionBackground(QPainter *painter, const QStyleOption &option)
-{
-    painter->save();
-    QLinearGradient gradient;
-
-    QColor highlightColor = Utils::StyleHelper::notTooBrightHighlightColor();
-    gradient.setColorAt(0, highlightColor.lighter(130));
-    gradient.setColorAt(1, highlightColor.darker(130));
-    gradient.setStart(option.rect.topLeft());
-    gradient.setFinalStop(option.rect.bottomLeft());
-    painter->fillRect(option.rect, gradient);
-    painter->setPen(highlightColor.lighter());
-    painter->drawLine(option.rect.topLeft(),option.rect.topRight());
-    painter->setPen(highlightColor.darker());
-    painter->drawLine(option.rect.bottomLeft(),option.rect.bottomRight());
-    painter->restore();
-}
+namespace {
 
 // This style basically allows us to span the entire row
 // including the arrow indicators which would otherwise not be
@@ -76,7 +60,7 @@ public:
     {
         if (element == QStyle::PE_PanelItemViewRow) {
             if (option->state & QStyle::State_Selected) {
-                drawSelectionBackground(painter, *option);
+                NavigatorTreeView::drawSelectionBackground(painter, *option);
             } else {
 //                // 3D shadows
 //                painter->save();
@@ -118,6 +102,8 @@ public:
     }
 };
 
+}
+
 NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     : QTreeView(parent)
 {
@@ -125,5 +111,24 @@ NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     setStyle(style);
     style->setParent(this);
 }
+
+void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleOption &option)
+{
+    painter->save();
+    QLinearGradient gradient;
+
+    QColor highlightColor = Utils::StyleHelper::notTooBrightHighlightColor();
+    gradient.setColorAt(0, highlightColor.lighter(130));
+    gradient.setColorAt(1, highlightColor.darker(130));
+    gradient.setStart(option.rect.topLeft());
+    gradient.setFinalStop(option.rect.bottomLeft());
+    painter->fillRect(option.rect, gradient);
+    painter->setPen(highlightColor.lighter());
+    painter->drawLine(option.rect.topLeft(),option.rect.topRight());
+    painter->setPen(highlightColor.darker());
+    painter->drawLine(option.rect.bottomLeft(),option.rect.bottomRight());
+    painter->restore();
+}
+
 
 }

@@ -4455,6 +4455,9 @@ public:
     ExceptionSpecificationAST *exception_specification;
     TrailingReturnTypeAST *trailing_return_type;
 
+public: // annotations
+    Function *symbol;
+
 public:
     LambdaDeclaratorAST()
         : lparen_token(0)

@@ -1139,30 +1139,23 @@ bool CppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     }
 
     // Make completion for all relevant includes
-    QStringList includePaths = m_interface->includePaths();
-    const QString &currentFilePath = QFileInfo(m_interface->fileName()).path();
-    if (!includePaths.contains(currentFilePath))
-        includePaths.append(currentFilePath);
+    ProjectPart::HeaderPaths headerPaths = m_interface->headerPaths();
+    const ProjectPart::HeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
+                                                   ProjectPart::HeaderPath::IncludePath);
+    if (!headerPaths.contains(currentFilePath))
+        headerPaths.append(currentFilePath);
 
     const Core::MimeType mimeType =
             Core::MimeDatabase::findByType(QLatin1String("text/x-c++hdr"));
     const QStringList suffixes = mimeType.suffixes();
 
-    foreach (const QString &includePath, includePaths) {
-        QString realPath = includePath;
+    foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+        QString realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');
             realPath += directoryPrefix;
-        }
-        completeInclude(realPath, suffixes);
-    }
-
-    foreach (const QString &frameworkPath, m_interface->frameworkPaths()) {
-        QString realPath = frameworkPath;
-        if (!directoryPrefix.isEmpty()) {
-            realPath += QLatin1Char('/');
-            realPath += directoryPrefix;
-            realPath += QLatin1String(".framework/Headers");
+            if (headerPath.isFrameworkPath())
+                realPath += QLatin1String(".framework/Headers");
         }
         completeInclude(realPath, suffixes);
     }
@@ -1969,8 +1962,7 @@ void CppCompletionAssistInterface::getCppSpecifics() const
         if (QSharedPointer<SnapshotUpdater> updater = supp->snapshotUpdater()) {
             updater->update(m_workingCopy);
             m_snapshot = updater->snapshot();
-            m_includePaths = updater->includePaths();
-            m_frameworkPaths = updater->frameworkPaths();
+            m_headerPaths = updater->headerPaths();
         }
     }
 }

@@ -56,8 +56,7 @@ public:
 
     CPlusPlus::Document::Ptr document() const;
     CPlusPlus::Snapshot snapshot() const;
-    QStringList includePaths() const;
-    QStringList frameworkPaths() const;
+    ProjectPart::HeaderPaths headerPaths() const;
 
     ProjectPart::Ptr currentProjectPart() const;
     void setProjectPart(ProjectPart::Ptr projectPart);
@@ -76,8 +75,7 @@ private:
     QByteArray m_configFile;
     bool m_editorDefinesChangedSinceLastUpdate;
     QByteArray m_editorDefines;
-    QStringList m_includePaths;
-    QStringList m_frameworkPaths;
+    ProjectPart::HeaderPaths m_headerPaths;
     QString m_projectConfigFile;
     QStringList m_precompiledHeaders;
     CPlusPlus::Snapshot m_snapshot;

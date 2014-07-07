@@ -125,6 +125,7 @@ public:
         // Preprocess source
         Environment env;
         Preprocessor preprocess(0, &env);
+        preprocess.setKeepComments(true);
         const QByteArray preprocessedSource = preprocess.run(filePath, source);
 
         document->setUtf8Source(preprocessedSource);
@@ -1687,6 +1688,26 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(9, 1, 5, Highlighting::TypeUse)
             << Use(9, 1, 5, Highlighting::TypeUse)
             << Use(9, 9, 5, Highlighting::TypeUse));
+
+#define UC_U10302_4TIMES UC_U10302 UC_U10302 UC_U10302 UC_U10302
+#define UC_U10302_12TIMES UC_U10302_4TIMES UC_U10302_4TIMES UC_U10302_4TIMES
+    QTest::newRow("unicodeComments1")
+        << _("#define NULL 0\n"
+             "\n"
+             "// " UC_U10302_12TIMES "\n"
+             "// " UC_U10302_12TIMES "\n"
+             "\n"
+             "class Foo {\n"
+                 "double f(bool b = NULL);\n"
+                 "Foo *x;\n"
+             "};\n")
+        << (UseList()
+            << Use(6, 7, 3, CppHighlightingSupport::TypeUse)
+            << Use(7, 8, 1, CppHighlightingSupport::FunctionUse)
+            << Use(8, 1, 3, CppHighlightingSupport::TypeUse)
+            << Use(8, 6, 1, CppHighlightingSupport::FieldUse));
+#undef UC_U10302_12TIMES
+#undef UC_U10302_4TIMES
 }
 
 void tst_CheckSymbols::test_checksymbols_macroUses()

@@ -41,6 +41,7 @@
 #include "watchutils.h"
 
 #include <utils/algorithm.h>
+#include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
@@ -1070,6 +1071,14 @@ QString WatchModel::displayName(const WatchItem *item) const
         result = QLatin1Char('*') + item->parent->name;
     else
         result = removeNamespaces(item->name);
+
+    // Simplyfy names that refer to base classes.
+    if (result.startsWith(QLatin1Char('['))) {
+        result = simplifyType(result);
+        if (result.size() > 30)
+            result = result.left(27) + QLatin1String("...]");
+    }
+
     return result;
 }
 

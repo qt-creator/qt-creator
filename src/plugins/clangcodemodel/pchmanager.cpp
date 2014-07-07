@@ -249,7 +249,8 @@ void PchManager::doPchInfoUpdateNone(QFutureInterface<void> &future,
 void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
                                       const PchManager::UpdateParams params)
 {
-    QHash<QString, QSet<QString> > includes, frameworks;
+    typedef ProjectPart::HeaderPath HeaderPath;
+    QHash<QString, QSet<HeaderPath>> headers;
     QHash<QString, QSet<QByteArray> > definesPerPCH;
     QHash<QString, bool> objc;
     QHash<QString, bool> cplusplus;
@@ -266,8 +267,7 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
             continue;
         inputToParts[pch].append(projectPart);
 
-        includes[pch].unite(QSet<QString>::fromList(projectPart->includePaths));
-        frameworks[pch].unite(QSet<QString>::fromList(projectPart->frameworkPaths));
+        headers[pch].unite(QSet<HeaderPath>::fromList(projectPart->headerPaths));
         cVersions[pch] = std::max(cVersions.value(pch, ProjectPart::C89), projectPart->cVersion);
         cxxVersions[pch] = std::max(cxxVersions.value(pch, ProjectPart::CXX98), projectPart->cxxVersion);
         cxxExtensionsMap[pch] = cxxExtensionsMap[pch] | projectPart->cxxExtensions;
@@ -306,8 +306,7 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
         projectPart->cVersion = cVersions[pch];
         projectPart->cxxVersion = cxxVersions[pch];
         projectPart->cxxExtensions = cxxExtensionsMap[pch];
-        projectPart->includePaths = includes[pch].toList();
-        projectPart->frameworkPaths = frameworks[pch].toList();
+        projectPart->headerPaths = headers[pch].toList();
 
         QList<QByteArray> defines = definesPerPCH[pch].toList();
         if (!defines.isEmpty()) {
@@ -378,22 +377,20 @@ void PchManager::doPchInfoUpdateCustom(QFutureInterface<void> &future,
     future.setProgressRange(0, 1);
     future.setProgressValue(0);
 
-    QSet<QString> includes, frameworks;
+    ProjectPart::HeaderPaths headers;
     bool objc = false;
     bool cplusplus = false;
     ProjectPart::Ptr united(new ProjectPart());
     united->cxxVersion = ProjectPart::CXX98;
     foreach (const ProjectPart::Ptr &projectPart, params.projectParts) {
-        includes.unite(QSet<QString>::fromList(projectPart->includePaths));
-        frameworks.unite(QSet<QString>::fromList(projectPart->frameworkPaths));
+        headers += projectPart->headerPaths;
         united->cVersion = std::max(united->cVersion, projectPart->cVersion);
         united->cxxVersion = std::max(united->cxxVersion, projectPart->cxxVersion);
         united->qtVersion = std::max(united->qtVersion, projectPart->qtVersion);
         objc |= hasObjCFiles(projectPart);
         cplusplus |= hasCppFiles(projectPart);
     }
-    united->frameworkPaths = frameworks.toList();
-    united->includePaths = includes.toList();
+    united->headerPaths = headers;
     QStringList opts = Utils::createClangOptions(
                 united, getPrefixFileKind(objc, cplusplus));
     united.clear();

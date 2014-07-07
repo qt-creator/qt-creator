@@ -196,9 +196,11 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_secondTimer.setInterval(3000);
    m_thirdTimer.setInterval(3000);
 
-   connect(&m_firstTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
-   connect(&m_secondTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
-   connect(&m_thirdTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
+   if (qgetenv("DEBUG_QML_PUPPET").isEmpty()) {
+       connect(&m_firstTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
+       connect(&m_secondTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
+       connect(&m_thirdTimer, SIGNAL(timeout()), this, SLOT(processFinished()));
+   }
 }
 
 NodeInstanceServerProxy::~NodeInstanceServerProxy()

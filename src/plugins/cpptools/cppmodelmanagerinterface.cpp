@@ -154,12 +154,12 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
     cWarningFlags = tc->warningFlags(cflags);
     cxxWarningFlags = tc->warningFlags(cxxflags);
 
-    const QList<HeaderPath> headers = tc->systemHeaderPaths(cxxflags, sysRoot);
-    foreach (const HeaderPath &header, headers)
-        if (header.kind() == HeaderPath::FrameworkHeaderPath)
-            frameworkPaths << header.path();
-        else
-            includePaths << header.path();
+    const QList<ProjectExplorer::HeaderPath> headers = tc->systemHeaderPaths(cxxflags, sysRoot);
+    foreach (const ProjectExplorer::HeaderPath &header, headers) {
+        headerPaths << HeaderPath(header.path(),
+                                  header.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath
+                                  ? HeaderPath::FrameworkPath : HeaderPath::IncludePath);
+    }
 
     toolchainDefines = tc->predefinedMacros(cxxflags);
 }
@@ -187,8 +187,7 @@ CppModelManagerInterface *CppModelManagerInterface::instance()
 void CppModelManagerInterface::ProjectInfo::clearProjectParts()
 {
     m_projectParts.clear();
-    m_includePaths.clear();
-    m_frameworkPaths.clear();
+    m_headerPaths.clear();
     m_sourceFiles.clear();
     m_defines.clear();
 }
@@ -200,17 +199,16 @@ void CppModelManagerInterface::ProjectInfo::appendProjectPart(const ProjectPart:
 
     m_projectParts.append(part);
 
-    // Update include paths
-    QSet<QString> incs = QSet<QString>::fromList(m_includePaths);
-    foreach (const QString &ins, part->includePaths)
-        incs.insert(ins);
-    m_includePaths = incs.toList();
+    typedef ProjectPart::HeaderPath HeaderPath;
 
-    // Update framework paths
-    QSet<QString> frms = QSet<QString>::fromList(m_frameworkPaths);
-    foreach (const QString &frm, part->frameworkPaths)
-        frms.insert(frm);
-    m_frameworkPaths = frms.toList();
+    // Update header paths
+    QSet<HeaderPath> incs = QSet<HeaderPath>::fromList(m_headerPaths);
+    foreach (const HeaderPath &hp, part->headerPaths) {
+        if (!incs.contains(hp)) {
+            incs.insert(hp);
+            m_headerPaths += hp;
+        }
+    }
 
     // Update source files
     QSet<QString> srcs = QSet<QString>::fromList(m_sourceFiles);

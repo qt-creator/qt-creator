@@ -425,7 +425,7 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
     NSString *uuid = nil;
     NSString *stdoutPath = nil;
     NSString *stderrPath = nil;
-    NSTimeInterval timeout = 30;
+    NSTimeInterval timeout = 60;
     NSMutableDictionary *environment = [NSMutableDictionary dictionary];
 
     int i = argOffset;

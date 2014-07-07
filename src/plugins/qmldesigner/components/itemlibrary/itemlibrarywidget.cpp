@@ -66,7 +66,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_itemIconSize(24, 24),
     m_resIconSize(24, 24),
     m_iconProvider(m_resIconSize),
-    m_itemViewQuickWidget(new QQuickWidget),
+    m_itemsView(new QQuickView()),
     m_resourcesView(new ItemLibraryTreeView(this)),
     m_filterFlag(QtBasic)
 {
@@ -75,16 +75,16 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     setWindowTitle(tr("Library", "Title of library view"));
 
     /* create Items view and its model */
-    m_itemViewQuickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_itemsView->setResizeMode(QQuickView::SizeRootObjectToView);
     m_itemLibraryModel = new ItemLibraryModel(this);
 
-    QQmlContext *rootContext = m_itemViewQuickWidget->rootContext();
+    QQmlContext *rootContext = m_itemsView->rootContext();
     rootContext->setContextProperty(QStringLiteral("itemLibraryModel"), m_itemLibraryModel.data());
     rootContext->setContextProperty(QStringLiteral("itemLibraryIconWidth"), m_itemIconSize.width());
     rootContext->setContextProperty(QStringLiteral("itemLibraryIconHeight"), m_itemIconSize.height());
     rootContext->setContextProperty(QStringLiteral("rootView"), this);
 
-    m_itemViewQuickWidget->rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
+    m_itemsView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
     /* create Resources view and its model */
     m_resourcesFileSystemModel = new QFileSystemModel(this);
@@ -93,7 +93,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_resourcesView->setIconSize(m_resIconSize);
 
     /* create image provider for loading item icons */
-    m_itemViewQuickWidget->engine()->addImageProvider(QStringLiteral("qmldesigner_itemlibrary"), new Internal::ItemLibraryImageProvider);
+    m_itemsView->engine()->addImageProvider(QStringLiteral("qmldesigner_itemlibrary"), new Internal::ItemLibraryImageProvider);
 
     /* other widgets */
     QTabBar *tabBar = new QTabBar(this);
@@ -122,9 +122,9 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 2);
     connect(m_filterLineEdit.data(), SIGNAL(filterChanged(QString)), this, SLOT(setSearchFilter(QString)));
 
-
+    QWidget *container = createWindowContainer(m_itemsView.data());
     m_stackedWidget = new QStackedWidget(this);
-    m_stackedWidget->addWidget(m_itemViewQuickWidget.data());
+    m_stackedWidget->addWidget(container);
     m_stackedWidget->addWidget(m_resourcesView.data());
 
     QWidget *spacer = new QWidget(this);
@@ -228,7 +228,7 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
 {
     if (m_stackedWidget->currentIndex() == 0) {
         m_itemLibraryModel->setSearchText(searchFilter);
-        m_itemViewQuickWidget->update();
+        m_itemsView->update();
     } else {
         QStringList nameFilterList;
         if (searchFilter.contains('.')) {
@@ -299,8 +299,8 @@ void ItemLibraryWidget::reloadQmlSource()
 {
     QString itemLibraryQmlFilePath = qmlSourcesPath() + QStringLiteral("/ItemsView.qml");
     QTC_ASSERT(QFileInfo::exists(itemLibraryQmlFilePath), return);
-    m_itemViewQuickWidget->engine()->clearComponentCache();
-    m_itemViewQuickWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlFilePath));
+    m_itemsView->engine()->clearComponentCache();
+    m_itemsView->setSource(QUrl::fromLocalFile(itemLibraryQmlFilePath));
 }
 
 void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
@@ -373,11 +373,10 @@ void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
     updateSearch();
 }
 
-static void ungrabMouseOnQMLWorldWorkAround(QQuickWidget *quickWidget)
+static void ungrabMouseOnQMLWorldWorkAround(QQuickView *quickView)
 {
-    const QQuickWidgetPrivate *widgetPrivate = QQuickWidgetPrivate::get(quickWidget);
-    if (widgetPrivate && widgetPrivate->offscreenWindow && widgetPrivate->offscreenWindow->mouseGrabberItem())
-        widgetPrivate->offscreenWindow->mouseGrabberItem()->ungrabMouse();
+    if (quickView->mouseGrabberItem())
+        quickView->mouseGrabberItem()->ungrabMouse();
 }
 
 void ItemLibraryWidget::startDragAndDrop(QVariant itemLibraryId)
@@ -392,7 +391,7 @@ void ItemLibraryWidget::startDragAndDrop(QVariant itemLibraryId)
 
     drag->exec();
 
-    ungrabMouseOnQMLWorldWorkAround(m_itemViewQuickWidget.data());
+    ungrabMouseOnQMLWorldWorkAround(m_itemsView.data());
 }
 
 void ItemLibraryWidget::removeImport(const QString &name)

@@ -108,10 +108,9 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     VariableManager::registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
         tr("The top level path to the repository the current project is in."),
         []() -> QString {
-            QString topLevel;
             if (Project *project = ProjectExplorerPlugin::currentProject())
-                VcsManager::findVersionControlForDirectory(project->projectDirectory().toString(), &topLevel);
-            return topLevel;
+                return VcsManager::findTopLevelForDirectory(project->projectDirectory().toString());
+            return QString();
         });
 
     return true;

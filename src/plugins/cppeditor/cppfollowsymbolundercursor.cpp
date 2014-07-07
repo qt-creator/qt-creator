@@ -310,9 +310,10 @@ CPPEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor,
     CPPEditorWidget *, CPlusPlus::Snapshot snapshot, const CPlusPlus::Document::Ptr &document,
     SymbolFinder *symbolFinder)
 {
-    snapshot.insert(document);
-
     Link result;
+    QTC_ASSERT(document, return result);
+
+    snapshot.insert(document);
 
     QList<AST *> path = ASTPath(document)(cursor);
 
@@ -518,7 +519,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     }
 
     // Check if we're on an operator declaration or definition.
-    if (!recognizedQtMethod) {
+    if (!recognizedQtMethod && documentFromSemanticInfo) {
         bool cursorRegionReached = false;
         for (int i = 0; i < tokens.size(); ++i) {
             const Token &tk = tokens.at(i);

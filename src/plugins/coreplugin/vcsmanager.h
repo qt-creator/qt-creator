@@ -65,6 +65,7 @@ public:
     static void resetVersionControlForDirectory(const QString &inputDirectory);
     static IVersionControl *findVersionControlForDirectory(const QString &directory,
                                                            QString *topLevelDirectory = 0);
+    static QString findTopLevelForDirectory(const QString &directory);
 
     static QStringList repositories(const IVersionControl *);
 

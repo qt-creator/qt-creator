@@ -107,7 +107,7 @@
 
     \l{Positioning with Bindings}
     {Property binding} is a declarative way of specifying the value of a property.
-    Binding allows a property value to be expressed as an JavaScript expression
+    Binding allows a property value to be expressed as a JavaScript expression
     that defines the value relative to other property values or data accessible
     in the application. The property value is automatically kept up to date if
     the other properties or data values change.
@@ -126,7 +126,6 @@
 
     \QMLD cannot show bindings and using them might have a negative impact on
     performance, so consider setting anchors and margins for items, instead.
-
     For example, instead of setting \c {parent.width} for an item, you could
     anchor the item to its sibling items on the left and the right.
 

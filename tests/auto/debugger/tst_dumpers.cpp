@@ -1198,7 +1198,7 @@ void tst_Dumpers::dumper()
              << QString::fromUtf8(m_debuggerBinary)
              << t->buildPath + QLatin1String("/doit")
              << QString::fromUtf8(expanded);
-        //qDebug() << exe.constData() << ' ' << qPrintable(args.join(QLatin1Char(' ')));
+        //qDebug() << exe.constData() << ' ' << qPrintable(args.join(QLatin1String(" ")));
     }
 
     t->input = cmds;

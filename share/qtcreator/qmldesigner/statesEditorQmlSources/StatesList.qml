@@ -35,7 +35,7 @@ import "../common"
 FocusScope {
     id: root
 
-    height: expanded ? 132 : 32
+    height: expanded ? 136 : 32
     signal createNewState
     signal deleteState(int internalNodeId)
     signal duplicateCurrentState
@@ -44,7 +44,7 @@ FocusScope {
     property int delegateWidth: stateImageSize + 10
     property int padding: 2
     property int delegateHeight: root.height - padding * 2
-    property int innerSpacing: 2
+    property int innerSpacing: -1
     property int currentStateInternalId : 0
 
     property bool expanded: true
@@ -63,31 +63,41 @@ FocusScope {
         anchors.fill: parent
         color: "#4f4f4f"
     }
+
     MouseArea {
         anchors.fill: parent
-        onClicked: focus = true
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+        onClicked: {
+            if (mouse.button === Qt.LeftButton)
+                focus = true
+            else if (mouse.button === Qt.RightButton)
+                contextMenu.popup()
+        }
+
+        Menu {
+            id: contextMenu
+
+            MenuItem {
+                text: root.expanded ? qsTr("Collapse") : qsTr("Expand")
+                onTriggered: {
+                    root.expanded = !root.expanded
+                }
+
+            }
+        }
     }
 
     Item {
         id: addStateItem
 
-        property int buttonLeftSpacing: innerSpacing
+        property int buttonLeftSpacing: 0
 
         anchors.right: parent.right
         width: delegateHeight / 2 + buttonLeftSpacing
         height: delegateHeight
 
         Button {
-            style: ButtonStyle {
-                background: Rectangle {
-                    implicitWidth: 100
-                    implicitHeight: 25
-                    color: control.hovered ? "#6f6f6f" : "#4f4f4f"
-
-                    border.color: "black"
-                }
-            }
-
             id: addStateButton
             visible: canAddNewStates
 
@@ -129,16 +139,6 @@ FocusScope {
                 delegateStateName: stateName
                 delegateStateImageSource: stateImageSource
                 delegateStateImageSize: stateImageSize
-            }
-            Rectangle {
-                /* Rectangle at the bottom using the highlight color */
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.leftMargin: 1
-                anchors.rightMargin: 1
-                height: 4
-                color: Qt.darker(highlightColor, 1.2)
             }
         }
     }

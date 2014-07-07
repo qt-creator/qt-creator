@@ -820,7 +820,7 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
     contextMenu->addAction(d->m_closeAllEditorsExceptVisibleContextAction);
 }
 
-void EditorManager::addNativeDirActions(QMenu *contextMenu, DocumentModel::Entry *entry)
+void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry)
 {
     QTC_ASSERT(contextMenu, return);
     bool enabled = entry && !entry->fileName().isEmpty();
@@ -830,6 +830,12 @@ void EditorManager::addNativeDirActions(QMenu *contextMenu, DocumentModel::Entry
     contextMenu->addAction(d->m_openGraphicalShellAction);
     contextMenu->addAction(d->m_openTerminalAction);
     contextMenu->addAction(d->m_findInDirectoryAction);
+    QMenu *openWith = contextMenu->addMenu(tr("Open with"));
+    connect(openWith, SIGNAL(triggered(QAction*)),
+            DocumentManager::instance(), SLOT(executeOpenWithMenuAction(QAction*)));
+    openWith->setEnabled(enabled);
+    if (enabled)
+        DocumentManager::populateOpenWithMenu(openWith, entry->fileName());
 }
 
 static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)

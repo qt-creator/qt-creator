@@ -61,6 +61,7 @@ void ItemLibraryTreeView::drawSelectionBackground(QPainter *painter, const QStyl
     painter->restore();
 }
 
+namespace {
 // This style basically allows us to span the entire row
 // including the arrow indicators which would otherwise not be
 // drawn by the delegate
@@ -82,6 +83,7 @@ public:
     }
 };
 
+}
 ItemLibraryTreeView::ItemLibraryTreeView(QWidget *parent) :
         QTreeView(parent)
 {

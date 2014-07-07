@@ -213,7 +213,8 @@ IAssistInterface *ClangCompletionAssistProvider::createAssistInterface(
     QList<ProjectPart::Ptr> parts = modelManager->projectPart(fileName);
     if (parts.isEmpty())
         parts += modelManager->fallbackProjectPart();
-    QStringList includePaths, frameworkPaths, options;
+    ProjectPart::HeaderPaths headerPaths;
+    QStringList options;
     PchInfo::Ptr pchInfo;
     foreach (ProjectPart::Ptr part, parts) {
         if (part.isNull())
@@ -222,15 +223,14 @@ IAssistInterface *ClangCompletionAssistProvider::createAssistInterface(
         pchInfo = PchManager::instance()->pchInfo(part);
         if (!pchInfo.isNull())
             options.append(ClangCodeModel::Utils::createPCHInclusionOptions(pchInfo->fileName()));
-        includePaths = part->includePaths;
-        frameworkPaths = part->frameworkPaths;
+        headerPaths = part->headerPaths;
         break;
     }
 
     return new ClangCodeModel::ClangCompletionAssistInterface(
                 m_clangCompletionWrapper,
                 document, position, fileName, reason,
-                options, includePaths, frameworkPaths, pchInfo);
+                options, headerPaths, pchInfo);
 }
 
 // ------------------------
@@ -550,14 +550,12 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(ClangCompleter::P
         const QString &fileName,
         AssistReason reason,
         const QStringList &options,
-        const QStringList &includePaths,
-        const QStringList &frameworkPaths,
+        const QList<CppTools::ProjectPart::HeaderPath> &headerPaths,
         const PchInfo::Ptr &pchInfo)
     : DefaultAssistInterface(document, position, fileName, reason)
     , m_clangWrapper(clangWrapper)
     , m_options(options)
-    , m_includePaths(includePaths)
-    , m_frameworkPaths(frameworkPaths)
+    , m_headerPaths(headerPaths)
     , m_savedPchPointer(pchInfo)
 {
     Q_ASSERT(!clangWrapper.isNull());
@@ -1138,29 +1136,22 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     }
 
     // Make completion for all relevant includes
-    QStringList includePaths = m_interface->includePaths();
-    const QString &currentFilePath = QFileInfo(m_interface->fileName()).path();
-    if (!includePaths.contains(currentFilePath))
-        includePaths.append(currentFilePath);
+    ProjectPart::HeaderPaths headerPaths = m_interface->headerPaths();
+    const ProjectPart::HeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
+                                                  ProjectPart::HeaderPath::IncludePath);
+    if (!headerPaths.contains(currentFilePath))
+        headerPaths.append(currentFilePath);
 
     const Core::MimeType mimeType = Core::MimeDatabase::findByType(QLatin1String("text/x-c++hdr"));
     const QStringList suffixes = mimeType.suffixes();
 
-    foreach (const QString &includePath, includePaths) {
-        QString realPath = includePath;
+    foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+        QString realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');
             realPath += directoryPrefix;
-        }
-        completeIncludePath(realPath, suffixes);
-    }
-
-    foreach (const QString &frameworkPath, m_interface->frameworkPaths()) {
-        QString realPath = frameworkPath;
-        if (!directoryPrefix.isEmpty()) {
-            realPath += QLatin1Char('/');
-            realPath += directoryPrefix;
-            realPath += QLatin1String(".framework/Headers");
+            if (headerPath.isFrameworkPath())
+                realPath += QLatin1String(".framework/Headers");
         }
         completeIncludePath(realPath, suffixes);
     }

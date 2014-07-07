@@ -339,6 +339,13 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     return versionControl;
 }
 
+QString VcsManager::findTopLevelForDirectory(const QString &directory)
+{
+    QString result;
+    findVersionControlForDirectory(directory, &result);
+    return result;
+}
+
 QStringList VcsManager::repositories(const IVersionControl *vc)
 {
     QStringList result;

@@ -1571,6 +1571,7 @@ void BinEditorWidget::updateContents()
     m_oldData = m_data;
     m_data.clear();
     setSizes(baseAddress() + cursorPosition(), m_size, m_blockSize);
+    viewport()->update();
 }
 
 QPoint BinEditorWidget::offsetToPos(int offset) const

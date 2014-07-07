@@ -35,6 +35,9 @@ Item {
 
     id: section
     property alias caption: label.text
+    property int leftPadding: 8
+    property int topPadding: 4
+    property int rightPadding: 0
 
     clip: true
 
@@ -93,16 +96,19 @@ Item {
         }
     }
 
-    default property alias __content: row.data
+    default property alias __content: row.children
 
     readonly property alias contentItem: row
 
     implicitHeight: Math.round(row.height + header.height + 8)
 
     Row {
-        width: parent.width
-        x: 8
-        y: header.height + 4
+        anchors.left: parent.left
+        anchors.leftMargin: leftPadding
+        anchors.right: parent.right
+        anchors.rightMargin: rightPadding
+        anchors.top: header.bottom
+        anchors.topMargin: topPadding
         id: row
         Behavior on opacity { NumberAnimation{easing.type: Easing.Linear ; duration: 80} }
     }

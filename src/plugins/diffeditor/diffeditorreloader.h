@@ -45,26 +45,27 @@ public:
     DiffEditorReloader(QObject *parent = 0);
     ~DiffEditorReloader();
 
-    DiffEditorController *diffEditorController() const;
-    void setDiffEditorController(DiffEditorController *controller);
-
     bool isReloading() const;
+
+public slots:
+    void requestReload();
 
 protected:
     // reloadFinished() should be called
     // inside reload() (for synchronous reload)
     // or later (for asynchronous reload)
     virtual void reload() = 0;
+    DiffEditorController *controller() const;
+    void setController(DiffEditorController *controller);
 
 protected slots:
     void reloadFinished();
 
-private slots:
-    void requestReload();
-
 private:
     DiffEditorController *m_controller;
     bool m_reloading;
+
+    friend class DiffEditorController;
 };
 
 } // namespace DiffEditor

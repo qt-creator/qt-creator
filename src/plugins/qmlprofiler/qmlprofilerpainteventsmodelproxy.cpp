@@ -54,7 +54,7 @@ public:
 
     int maxGuiThreadAnimations;
     int maxRenderThreadAnimations;
-    bool seenForeignPaintEvent;
+    int rowFromThreadId(QmlDebug::AnimationThread threadId) const;
 
 private:
     Q_DECLARE_PUBLIC(PaintEventsModelProxy)
@@ -62,11 +62,10 @@ private:
 
 PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
     : AbstractTimelineModel(new PaintEventsModelProxyPrivate,
-                                  QLatin1String("PaintEventsModelProxy"), tr("Painting"),
+                                  QLatin1String("PaintEventsModelProxy"), tr("Animations"),
                                   QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
 {
     Q_D(PaintEventsModelProxy);
-    d->seenForeignPaintEvent = false;
     d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;
 }
 
@@ -77,7 +76,6 @@ void PaintEventsModelProxy::clear()
     d->clear();
     d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;
     d->expanded = false;
-    d->seenForeignPaintEvent = false;
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 
@@ -104,11 +102,8 @@ void PaintEventsModelProxy::loadData()
 
     foreach (const QmlProfilerDataModel::QmlEventData &event, referenceList) {
         const QmlProfilerDataModel::QmlEventTypeData &type = typeList[event.typeIndex];
-        if (!eventAccepted(type)) {
-            if (type.rangeType == QmlDebug::Painting)
-                d->seenForeignPaintEvent = true;
+        if (!eventAccepted(type))
             continue;
-        }
 
         lastEvent.threadId = (QmlDebug::AnimationThread)event.numericData3;
 
@@ -155,16 +150,21 @@ int PaintEventsModelProxy::rowCount() const
 {
     Q_D(const PaintEventsModelProxy);
     if (isEmpty())
-        return d->seenForeignPaintEvent ? 0 : 1;
+        return 1;
     else
         return (d->maxGuiThreadAnimations == 0 || d->maxRenderThreadAnimations == 0) ? 2 : 3;
+}
+
+int PaintEventsModelProxy::PaintEventsModelProxyPrivate::rowFromThreadId(
+        QmlDebug::AnimationThread threadId) const
+{
+    return (threadId == QmlDebug::GuiThread || maxGuiThreadAnimations == 0) ? 1 : 2;
 }
 
 int PaintEventsModelProxy::getEventRow(int index) const
 {
     Q_D(const PaintEventsModelProxy);
-    QmlDebug::AnimationThread threadId = d->range(index).threadId;
-    return (threadId == QmlDebug::GuiThread || d->maxGuiThreadAnimations == 0) ? 1 : 2;
+    return d->rowFromThreadId(d->range(index).threadId);
 }
 
 int PaintEventsModelProxy::rowMaxValue(int rowNumber) const
@@ -202,8 +202,15 @@ float PaintEventsModelProxy::getHeight(int index) const
 {
     Q_D(const PaintEventsModelProxy);
     const PaintEventsModelProxyPrivate::Range &range = d->range(index);
-    return (float)range.animationcount / (float)(range.threadId == QmlDebug::GuiThread ?
-            d->maxGuiThreadAnimations : d->maxRenderThreadAnimations);
+
+    // Add some height to the events if we're far from the scale threshold of 2 * DefaultRowHeight.
+    // Like that you can see the smaller events more easily.
+    int scaleThreshold = 2 * DefaultRowHeight - rowHeight(d->rowFromThreadId(range.threadId));
+    float boost = scaleThreshold > 0 ? (0.15 * scaleThreshold / DefaultRowHeight) : 0;
+
+    return boost + (1.0 - boost) * (float)range.animationcount /
+            (float)(range.threadId == QmlDebug::GuiThread ? d->maxGuiThreadAnimations :
+                                                            d->maxRenderThreadAnimations);
 }
 
 const QVariantList PaintEventsModelProxy::getLabels() const

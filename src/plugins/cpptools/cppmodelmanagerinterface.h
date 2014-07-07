@@ -101,6 +101,27 @@ public:
 
     typedef QSharedPointer<ProjectPart> Ptr;
 
+    struct HeaderPath {
+        enum Type { InvalidPath, IncludePath, FrameworkPath };
+
+    public:
+        QString path;
+        Type type;
+
+        HeaderPath(): type(InvalidPath) {}
+        HeaderPath(const QString &path, Type type): path(path), type(type) {}
+
+        bool isValid() const { return type != InvalidPath; }
+        bool isFrameworkPath() const { return type == FrameworkPath; }
+
+        bool operator==(const HeaderPath &other) const
+        { return path == other.path && type == other.type; }
+
+        bool operator!=(const HeaderPath &other) const
+        { return !(*this == other); }
+    };
+    typedef QList<HeaderPath> HeaderPaths;
+
 public:
     QString displayName;
     QString projectFile;
@@ -109,8 +130,7 @@ public:
     QString projectConfigFile; // currently only used by the Generic Project Manager
     QByteArray projectDefines;
     QByteArray toolchainDefines;
-    QStringList includePaths;
-    QStringList frameworkPaths;
+    QList<HeaderPath> headerPaths;
     QStringList precompiledHeaders;
     CVersion cVersion;
     CXXVersion cxxVersion;
@@ -119,6 +139,9 @@ public:
     ProjectExplorer::ToolChain::WarningFlags cWarningFlags;
     ProjectExplorer::ToolChain::WarningFlags cxxWarningFlags;
 };
+
+inline uint qHash(const ProjectPart::HeaderPath &key, uint seed = 0)
+{ return ((qHash(key.path) << 2) | key.type) ^ seed; }
 
 class CPPTOOLS_EXPORT CppModelManagerInterface : public CPlusPlus::CppModelManagerBase
 {
@@ -159,11 +182,8 @@ public:
         void clearProjectParts();
         void appendProjectPart(const ProjectPart::Ptr &part);
 
-        const QStringList includePaths() const
-        { return m_includePaths; }
-
-        const QStringList frameworkPaths() const
-        { return m_frameworkPaths; }
+        const ProjectPart::HeaderPaths headerPaths() const
+        { return m_headerPaths; }
 
         const QStringList sourceFiles() const
         { return m_sourceFiles; }
@@ -175,8 +195,7 @@ public:
         QPointer<ProjectExplorer::Project> m_project;
         QList<ProjectPart::Ptr> m_projectParts;
         // The members below are (re)calculated from the project parts once a part is appended.
-        QStringList m_includePaths;
-        QStringList m_frameworkPaths;
+        ProjectPart::HeaderPaths m_headerPaths;
         QStringList m_sourceFiles;
         QByteArray m_defines;
     };
@@ -266,11 +285,10 @@ public:
     virtual void setIndexingSupport(CppTools::CppIndexingSupport *indexingSupport) = 0;
     virtual CppIndexingSupport *indexingSupport() = 0;
 
-    virtual void setIncludePaths(const QStringList &includePaths) = 0;
+    virtual void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths) = 0;
     virtual void enableGarbageCollector(bool enable) = 0;
 
-    virtual QStringList includePaths() = 0;
-    virtual QStringList frameworkPaths() = 0;
+    virtual ProjectPart::HeaderPaths headerPaths() = 0;
     virtual QByteArray definedMacros() = 0;
 
 signals:

@@ -290,8 +290,8 @@ void ProjectWindow::projectUpdated(Project *p)
 {
     // Called after a project was configured
     int index = m_tabWidget->currentIndex();
-    deregisterProject(p);
-    registerProject(p);
+    if (deregisterProject(p)) // might return false if the project is unloading
+        registerProject(p);
     m_tabWidget->setCurrentIndex(index);
 }
 
@@ -303,8 +303,8 @@ void ProjectWindow::handleKitChanges()
     foreach (ProjectExplorer::Project *project, projects) {
         if (m_hasTarget.value(project) != hasTarget(project)) {
             changed = true;
-            deregisterProject(project);
-            registerProject(project);
+            if (deregisterProject(project))
+                registerProject(project);
         }
     }
     if (changed)
@@ -354,16 +354,17 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
             this, SLOT(removedTarget(ProjectExplorer::Target*)));
 }
 
-void ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
+bool ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
 {
     int index = m_tabIndexToProject.indexOf(project);
     if (index < 0)
-        return;
+        return false;
 
     m_tabIndexToProject.removeAt(index);
     m_tabWidget->removeTab(index);
     disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
             this, SLOT(removedTarget(ProjectExplorer::Target*)));
+    return true;
 }
 
 void ProjectWindow::startupProjectChanged(ProjectExplorer::Project *p)

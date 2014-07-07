@@ -117,6 +117,8 @@ public:
     static IEditor *openEditorWithContents(Id editorId, QString *titlePattern = 0,
                                            const QByteArray &contents = QByteArray(),
                                            OpenEditorFlags flags = NoFlags);
+    static IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
+        Id id = Id(), OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
 
     static bool openExternalEditor(const QString &fileName, Id editorId);
 
@@ -125,6 +127,7 @@ public:
 
     static IDocument *currentDocument();
     static IEditor *currentEditor();
+    static Internal::EditorView *currentEditorView();
     static QList<IEditor *> visibleEditors();
 
     static void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
@@ -135,6 +138,8 @@ public:
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
     static void closeEditor(DocumentModel::Entry *entry);
     static void closeOtherEditors(IDocument *document);
+
+    static Internal::EditorView *viewForEditor(IEditor *editor);
 
     static void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
     static void cutForwardNavigationHistory();
@@ -186,7 +191,7 @@ public:
     static QString windowTitleVcsTopic();
 
     static void addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
-    static void addNativeDirActions(QMenu *contextMenu, DocumentModel::Entry *entry);
+    static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
 
 signals:
     void currentEditorChanged(Core::IEditor *editor);
@@ -264,14 +269,10 @@ private:
     static void activateEditorForEntry(Internal::EditorView *view, DocumentModel::Entry *entry,
                                        OpenEditorFlags flags = NoFlags);
     static void activateView(Internal::EditorView *view);
-    static IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
-        Id id = Id(), OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
     static int visibleDocumentsCount();
 
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     static void setCurrentView(Internal::EditorView *view);
-    static Internal::EditorView *currentEditorView();
-    static Internal::EditorView *viewForEditor(IEditor *editor);
     static Internal::SplitterOrView *findRoot(const Internal::EditorView *view, int *rootIndex = 0);
 
     static void closeView(Internal::EditorView *view);
