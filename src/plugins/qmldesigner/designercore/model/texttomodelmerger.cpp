@@ -730,39 +730,66 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
         differenceHandler.importAbsentInQMl(import);
 }
 
-void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext)
+static bool isLatestImportVersion(const ImportKey &importKey, const QHash<QString, ImportKey> &filteredPossibleImportKeys)
 {
-    QList<Import> possibleImports;
+    return !filteredPossibleImportKeys.contains(importKey.path())
+            || filteredPossibleImportKeys.value(importKey.path()).majorVersion < importKey.majorVersion
+            || (filteredPossibleImportKeys.value(importKey.path()).majorVersion == importKey.majorVersion
+                && filteredPossibleImportKeys.value(importKey.path()).minorVersion < importKey.minorVersion);
+}
 
-    QSet<ImportKey> possibleImportKeys = snapshot.importDependencies()->libraryImports(viewContext);
+static bool isBlacklistImport(const ImportKey &importKey)
+{
+    QString importPathFirst = importKey.splitPath.first();
+    QString importPathLast = importKey.splitPath.last();
+    return importPathFirst == QStringLiteral("<cpp>")
+            || importPathFirst == QStringLiteral("QML")
+            || importPathFirst == QStringLiteral("QtQml")
+            || (importPathFirst == QStringLiteral("QtQuick") && importPathLast == QStringLiteral("PrivateWidgets"))
+            || importPathLast == QStringLiteral("Private");
+}
 
+static QHash<QString, ImportKey> filterPossibleImportKeys(const QSet<ImportKey> &possibleImportKeys)
+{
     QHash<QString, ImportKey> filteredPossibleImportKeys;
     foreach (const ImportKey &importKey, possibleImportKeys) {
-        if (!filteredPossibleImportKeys.contains(importKey.path())
-                || filteredPossibleImportKeys.value(importKey.path()).majorVersion < importKey.majorVersion
-                || (filteredPossibleImportKeys.value(importKey.path()).majorVersion == importKey.majorVersion
-                    && filteredPossibleImportKeys.value(importKey.path()).minorVersion < importKey.minorVersion))
-        filteredPossibleImportKeys.insert(importKey.path(), importKey);
+        if (isLatestImportVersion(importKey, filteredPossibleImportKeys) && !isBlacklistImport(importKey))
+            filteredPossibleImportKeys.insert(importKey.path(), importKey);
     }
 
-    filteredPossibleImportKeys.remove(QStringLiteral("<cpp>"));
-    filteredPossibleImportKeys.remove(QStringLiteral("QML"));
-    filteredPossibleImportKeys.remove(QStringLiteral("QtQml"));
-    filteredPossibleImportKeys.remove(QStringLiteral("QtQuick/PrivateWidgets"));
+    return filteredPossibleImportKeys;
+}
 
-    QList<QmlJS::Import> allImports = m_scopeChain->context()->imports(m_document.data())->all();
-
-    foreach (const QmlJS::Import &import, allImports) {
+static void removeUsedImports(QHash<QString, ImportKey> &filteredPossibleImportKeys, const QList<QmlJS::Import> &usedImports)
+{
+    foreach (const QmlJS::Import &import, usedImports)
         filteredPossibleImportKeys.remove(import.info.path());
-    }
+}
+
+static QList<QmlDesigner::Import> generatePossibleImports(const QHash<QString, ImportKey> &filteredPossibleImportKeys)
+{
+    QList<QmlDesigner::Import> possibleImports;
 
     foreach (const ImportKey &importKey, filteredPossibleImportKeys) {
         QString libraryName = importKey.splitPath.join(QLatin1Char('.'));
-        QString version = QString(QStringLiteral("%1.%2")
-            .arg((importKey.majorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 1 : importKey.majorVersion)
-            .arg((importKey.minorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 0 : importKey.minorVersion));
-        possibleImports.append(Import::createLibraryImport(libraryName, version));
+        int majorVersion = importKey.majorVersion;
+        if (majorVersion >= 0) {
+            int minorVersion = (importKey.minorVersion == LanguageUtils::ComponentVersion::NoVersion) ? 0 : importKey.minorVersion;
+            QString version = QStringLiteral("%1.%2").arg(majorVersion).arg(minorVersion);
+            possibleImports.append(QmlDesigner::Import::createLibraryImport(libraryName, version));
+        }
     }
+
+    return possibleImports;
+}
+
+void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext)
+{
+    QHash<QString, ImportKey> filteredPossibleImportKeys = filterPossibleImportKeys(snapshot.importDependencies()->libraryImports(viewContext));
+
+    removeUsedImports(filteredPossibleImportKeys, m_scopeChain->context()->imports(m_document.data())->all());
+
+    QList<QmlDesigner::Import> possibleImports = generatePossibleImports(filteredPossibleImportKeys);
 
     if ( m_rewriterView->isAttached())
         m_rewriterView->model()->setPossibleImports(possibleImports);
