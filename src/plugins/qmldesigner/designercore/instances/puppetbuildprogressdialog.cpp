@@ -45,7 +45,7 @@ PuppetBuildProgressDialog::PuppetBuildProgressDialog() :
 {
     setWindowFlags(Qt::SplashScreen);
     ui->setupUi(this);
-    ui->buildProgressBar->setMaximum(86);
+    ui->buildProgressBar->setMaximum(85);
 }
 
 PuppetBuildProgressDialog::~PuppetBuildProgressDialog()
