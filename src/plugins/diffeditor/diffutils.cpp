@@ -859,11 +859,11 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
     QString rightFileName = QLatin1String("b/") + fileName;
 
     if (newFileMode.indexIn(patch, 0) == 0) {
-        fileData.leftFileInfo.devNull = true;
+        fileData.fileOperation = FileData::NewFile;
         leftFileName = devNull;
         patch = patch.mid(newFileMode.capturedTexts().at(1).count());
     } else if (deletedFileMode.indexIn(patch, 0) == 0) {
-        fileData.rightFileInfo.devNull = true;
+        fileData.fileOperation = FileData::DeleteFile;
         rightFileName = devNull;
         patch = patch.mid(deletedFileMode.capturedTexts().at(1).count());
     }
@@ -889,7 +889,8 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
                                    + QLatin1String(" differ$)"));
 
         // empty or followed either by leftFileRegExp or by binaryRegExp
-        if (patch.isEmpty() && (fileData.leftFileInfo.devNull || fileData.rightFileInfo.devNull)) {
+        if (patch.isEmpty() && (fileData.fileOperation == FileData::NewFile
+                             || fileData.fileOperation == FileData::DeleteFile)) {
             readOk = true;
         } else if (leftFileRegExp.indexIn(patch, 0) == 0) {
             patch = patch.mid(leftFileRegExp.capturedTexts().at(1).count());
@@ -918,51 +919,193 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
     return fileData;
 }
 
+static FileData readCopyRenameChunks(const QString &copyRenameChunks,
+                                     FileData::FileOperation fileOperation,
+                                     const QString &leftFileName,
+                                     const QString &rightFileName,
+                                     bool ignoreWhitespace,
+                                     bool *ok)
+{
+    FileData fileData;
+    fileData.fileOperation = fileOperation;
+    fileData.leftFileInfo.fileName = leftFileName;
+    fileData.rightFileInfo.fileName = rightFileName;
+
+    QString patch = copyRenameChunks;
+    bool readOk = false;
+
+    const QRegExp indexRegExp(QLatin1String("(^index (\\w+)\\.{2}(\\w+)(?: \\d+)?(\\n|$))")); // index cap2..cap3(optionally: octal)
+
+    QString leftGitFileName = QLatin1String("a/") + leftFileName;
+    QString rightGitFileName = QLatin1String("b/") + rightFileName;
+
+    if (fileOperation == FileData::CopyFile || fileOperation == FileData::RenameFile) {
+        if (indexRegExp.indexIn(patch, 0) == 0) {
+            const QStringList capturedTexts = indexRegExp.capturedTexts();
+            const QString captured = capturedTexts.at(1);
+            fileData.leftFileInfo.typeInfo = capturedTexts.at(2);
+            fileData.rightFileInfo.typeInfo = capturedTexts.at(3);
+
+            patch = patch.mid(captured.count());
+
+            const QRegExp leftFileRegExp(QLatin1String("(^-{3} ")                 // "--- "
+                                         + leftGitFileName                           // "a/fileName" or "/dev/null"
+                                         + QLatin1String("(?:\\t[^\\n]*)*\\n)")); // optionally followed by: \t anything \t anything ...)
+            const QRegExp rightFileRegExp(QLatin1String("(^\\+{3} ")               // "+++ "
+                                          + rightGitFileName                          // "b/fileName" or "/dev/null"
+                                          + QLatin1String("(?:\\t[^\\n]*)*\\n)")); // optionally followed by: \t anything \t anything ...)
+
+            // followed by leftFileRegExp
+            if (leftFileRegExp.indexIn(patch, 0) == 0) {
+                patch = patch.mid(leftFileRegExp.capturedTexts().at(1).count());
+
+                // followed by rightFileRegExp
+                if (rightFileRegExp.indexIn(patch, 0) == 0) {
+                    patch = patch.mid(rightFileRegExp.capturedTexts().at(1).count());
+
+                    fileData.chunks = readChunks(patch,
+                                                 ignoreWhitespace,
+                                                 &fileData.lastChunkAtTheEndOfFile,
+                                                 &readOk);
+                }
+            }
+        } else if (copyRenameChunks.isEmpty()) {
+            readOk = true;
+        }
+    }
+
+    if (ok)
+        *ok = readOk;
+
+    if (!readOk)
+        return FileData();
+
+    return fileData;
+}
+
 static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace, bool *ok)
 {
-    const QRegExp gitRegExp(QLatin1String("((?:\\n|^)diff --git a/([^\\n]+) b/\\2\\n)")); // diff --git a/cap2 b/cap2
+    const QRegExp simpleGitRegExp(QLatin1String("((?:\\n|^)diff --git a/([^\\n]+) b/\\2\\n)")); // diff --git a/cap2 b/cap2
+
+    const QRegExp similarityRegExp(QLatin1String(
+                  "((?:\\n|^)diff --git a/([^\\n]+) b/([^\\n]+)\\n" // diff --git a/cap2 b/cap3
+                  "(?:dis)?similarity index \\d{1,3}%\\n"           // similarity / dissimilarity index xxx% (100% max)
+                  "(copy|rename) from \\2\\n"                       // copy / rename from cap2
+                  "\\4 to \\3\\n)"));                               // copy / rename (cap4) to cap3
 
     bool readOk = false;
 
     QList<FileData> fileDataList;
 
-    int pos = gitRegExp.indexIn(patch, 0);
+    const int simpleGitPos = simpleGitRegExp.indexIn(patch, 0);
+    const int similarityPos = similarityRegExp.indexIn(patch, 0);
+
+    bool simpleGitMatched = false;
+    int pos = -1;
+    if (simpleGitPos < 0) {
+        pos = similarityPos;
+    } else if (similarityPos < 0) {
+        pos = simpleGitPos;
+        simpleGitMatched = true;
+    } else {
+        pos = qMin(simpleGitPos, similarityPos);
+        simpleGitMatched = (pos == simpleGitPos);
+    }
+
     if (pos == 0) { // git style patch
         readOk = true;
         int endOfLastHeader = 0;
-        QString lastFileName;
+        QString lastLeftFileName;
+        QString lastRightFileName;
+        FileData::FileOperation lastOperation = FileData::ChangeFile;
         do {
-            const QStringList capturedTexts = gitRegExp.capturedTexts();
-            const QString captured = capturedTexts.at(1);
-            const QString fileName = capturedTexts.at(2);
             if (endOfLastHeader > 0) {
                 const QString headerAndChunks = patch.mid(endOfLastHeader,
                                                           pos - endOfLastHeader);
 
-                const FileData fileData = readGitHeaderAndChunks(headerAndChunks,
-                                                                 lastFileName,
-                                                                 ignoreWhitespace,
-                                                                 &readOk);
+                FileData fileData;
+                if (lastOperation == FileData::ChangeFile) {
 
+                    fileData = readGitHeaderAndChunks(headerAndChunks,
+                                                      lastLeftFileName,
+                                                      ignoreWhitespace,
+                                                      &readOk);
+                } else {
+                    fileData = readCopyRenameChunks(headerAndChunks,
+                                                    lastOperation,
+                                                    lastLeftFileName,
+                                                    lastRightFileName,
+                                                    ignoreWhitespace,
+                                                    &readOk);
+                }
                 if (!readOk)
                     break;
 
                 fileDataList.append(fileData);
             }
-            pos += captured.count();
-            endOfLastHeader = pos;
-            lastFileName = fileName;
-        } while ((pos = gitRegExp.indexIn(patch, pos)) != -1);
+
+            if (simpleGitMatched) {
+                const QStringList capturedTexts = simpleGitRegExp.capturedTexts();
+                const QString captured = capturedTexts.at(1);
+                const QString fileName = capturedTexts.at(2);
+                pos += captured.count();
+                endOfLastHeader = pos;
+                lastLeftFileName = fileName;
+                lastRightFileName = fileName;
+                lastOperation = FileData::ChangeFile;
+            } else {
+                const QStringList capturedTexts = similarityRegExp.capturedTexts();
+                const QString captured = capturedTexts.at(1);
+                const QString leftFileName = capturedTexts.at(2);
+                const QString rightFileName = capturedTexts.at(3);
+                const QString operation = capturedTexts.at(4);
+                pos += captured.count();
+                endOfLastHeader = pos;
+                lastLeftFileName = leftFileName;
+                lastRightFileName = rightFileName;
+                if (operation == QLatin1String("copy"))
+                    lastOperation = FileData::CopyFile;
+                else if (operation == QLatin1String("rename"))
+                    lastOperation = FileData::RenameFile;
+                else
+                    break; // either copy or rename, otherwise broken
+            }
+
+            const int simpleGitPos = simpleGitRegExp.indexIn(patch, pos);
+            const int similarityPos = similarityRegExp.indexIn(patch, pos);
+
+            simpleGitMatched = false;
+            pos = -1;
+            if (simpleGitPos < 0) {
+                pos = similarityPos;
+            } else if (similarityPos < 0) {
+                pos = simpleGitPos;
+                simpleGitMatched = true;
+            } else {
+                pos = qMin(simpleGitPos, similarityPos);
+                simpleGitMatched = (pos == simpleGitPos);
+            }
+        } while (pos != -1);
 
         if (endOfLastHeader > 0 && readOk) {
             const QString headerAndChunks = patch.mid(endOfLastHeader,
                                                       patch.count() - endOfLastHeader - 1);
 
-            const FileData fileData = readGitHeaderAndChunks(headerAndChunks,
-                                                             lastFileName,
-                                                             ignoreWhitespace,
-                                                             &readOk);
+            FileData fileData;
+            if (lastOperation == FileData::ChangeFile) {
 
+                fileData = readGitHeaderAndChunks(headerAndChunks,
+                                                  lastLeftFileName,
+                                                  ignoreWhitespace,
+                                                  &readOk);
+            } else {
+                fileData = readCopyRenameChunks(headerAndChunks,
+                                                lastOperation,
+                                                lastLeftFileName,
+                                                lastRightFileName,
+                                                ignoreWhitespace,
+                                                &readOk);
+            }
             if (readOk)
                 fileDataList.append(fileData);
         }

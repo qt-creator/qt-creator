@@ -46,13 +46,12 @@ class Diff;
 
 class DIFFEDITOR_EXPORT DiffFileInfo {
 public:
-    DiffFileInfo() : devNull(false) {}
-    DiffFileInfo(const QString &file) : fileName(file), devNull(false) {}
+    DiffFileInfo() {}
+    DiffFileInfo(const QString &file) : fileName(file) {}
     DiffFileInfo(const QString &file, const QString &type)
-        : fileName(file), typeInfo(type), devNull(false) {}
+        : fileName(file), typeInfo(type) {}
     QString fileName;
     QString typeInfo;
-    bool devNull;
 };
 
 class DIFFEDITOR_EXPORT TextLineData {
@@ -100,17 +99,28 @@ public:
 
 class DIFFEDITOR_EXPORT FileData {
 public:
+    enum FileOperation {
+        ChangeFile,
+        NewFile,
+        DeleteFile,
+        CopyFile,
+        RenameFile
+    };
+
     FileData()
-        : binaryFiles(false),
+        : fileOperation(ChangeFile),
+          binaryFiles(false),
           lastChunkAtTheEndOfFile(false),
           contextChunksIncluded(false) {}
     FileData(const ChunkData &chunkData)
-        : binaryFiles(false),
+        : fileOperation(ChangeFile),
+          binaryFiles(false),
           lastChunkAtTheEndOfFile(false),
           contextChunksIncluded(false) { chunks.append(chunkData); }
     QList<ChunkData> chunks;
     DiffFileInfo leftFileInfo;
     DiffFileInfo rightFileInfo;
+    FileOperation fileOperation;
     bool binaryFiles;
     bool lastChunkAtTheEndOfFile;
     bool contextChunksIncluded;

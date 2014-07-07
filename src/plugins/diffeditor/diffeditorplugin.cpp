@@ -483,7 +483,23 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
                                 "diff --git a/empty b/empty\n"
                                 "deleted file mode 100644\n"
                                 "index e69de29..0000000\n"
-                                  );
+                                "diff --git a/file a.txt b/file b.txt\n"
+                                "similarity index 99%\n"
+                                "copy from file a.txt\n"
+                                "copy to file b.txt\n"
+                                "index 1234567..9876543\n"
+                                "--- a/file a.txt\n"
+                                "+++ b/file b.txt\n"
+                                "@@ -20,3 +20,3 @@\n"
+                                " A\n"
+                                "-B\n"
+                                "+C\n"
+                                " D\n"
+                                "diff --git a/file a.txt b/file b.txt\n"
+                                "similarity index 99%\n"
+                                "rename from file a.txt\n"
+                                "rename to file b.txt\n"
+                                );
 
     FileData fileData1;
     fileData1.leftFileInfo = DiffFileInfo(QLatin1String("src/plugins/diffeditor/diffeditor.cpp"),
@@ -543,6 +559,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     FileData fileData3;
     fileData3.leftFileInfo = DiffFileInfo(QLatin1String("new"), QLatin1String("0000000"));
     fileData3.rightFileInfo = DiffFileInfo(QLatin1String("new"), QLatin1String("257cc56"));
+    fileData3.fileOperation = FileData::NewFile;
     ChunkData chunkData3;
     chunkData3.leftStartingLineNumber = -1;
     chunkData3.rightStartingLineNumber = 0;
@@ -556,6 +573,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     FileData fileData4;
     fileData4.leftFileInfo = DiffFileInfo(QLatin1String("deleted"), QLatin1String("257cc56"));
     fileData4.rightFileInfo = DiffFileInfo(QLatin1String("deleted"), QLatin1String("0000000"));
+    fileData4.fileOperation = FileData::DeleteFile;
     ChunkData chunkData4;
     chunkData4.leftStartingLineNumber = 0;
     chunkData4.rightStartingLineNumber = -1;
@@ -569,13 +587,35 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     FileData fileData5;
     fileData5.leftFileInfo = DiffFileInfo(QLatin1String("empty"), QLatin1String("0000000"));
     fileData5.rightFileInfo = DiffFileInfo(QLatin1String("empty"), QLatin1String("e69de29"));
+    fileData5.fileOperation = FileData::NewFile;
 
     FileData fileData6;
     fileData6.leftFileInfo = DiffFileInfo(QLatin1String("empty"), QLatin1String("e69de29"));
     fileData6.rightFileInfo = DiffFileInfo(QLatin1String("empty"), QLatin1String("0000000"));
+    fileData6.fileOperation = FileData::DeleteFile;
+
+    FileData fileData7;
+    fileData7.leftFileInfo = DiffFileInfo(QLatin1String("file a.txt"), QLatin1String("1234567"));
+    fileData7.rightFileInfo = DiffFileInfo(QLatin1String("file b.txt"), QLatin1String("9876543"));
+    fileData7.fileOperation = FileData::CopyFile;
+    ChunkData chunkData7;
+    chunkData7.leftStartingLineNumber = 19;
+    chunkData7.rightStartingLineNumber = 19;
+    QList<RowData> rows7;
+    rows7.append(RowData(TextLineData(QLatin1String("A"))));
+    rows7.append(RowData(TextLineData(QLatin1String("B")),
+                         TextLineData(QLatin1String("C"))));
+    rows7.append(RowData(TextLineData(QLatin1String("D"))));
+    chunkData7.rows = rows7;
+    fileData7.chunks.append(chunkData7);
+
+    FileData fileData8;
+    fileData8.leftFileInfo = DiffFileInfo(QLatin1String("file a.txt"));
+    fileData8.rightFileInfo = DiffFileInfo(QLatin1String("file b.txt"));
+    fileData8.fileOperation = FileData::RenameFile;
 
     QList<FileData> fileDataList;
-    fileDataList << fileData1 << fileData2 << fileData3 << fileData4 << fileData5 << fileData6;
+    fileDataList << fileData1 << fileData2 << fileData3 << fileData4 << fileData5 << fileData6 << fileData7 << fileData8;
 
     QTest::newRow("Git patch") << patch
                                << fileDataList;
@@ -599,6 +639,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
         QCOMPARE(resultFileData.rightFileInfo.fileName, origFileData.rightFileInfo.fileName);
         QCOMPARE(resultFileData.rightFileInfo.typeInfo, origFileData.rightFileInfo.typeInfo);
         QCOMPARE(resultFileData.chunks.count(), origFileData.chunks.count());
+        QCOMPARE(resultFileData.fileOperation, origFileData.fileOperation);
         for (int j = 0; j < origFileData.chunks.count(); j++) {
             const ChunkData &origChunkData = origFileData.chunks.at(j);
             const ChunkData &resultChunkData = resultFileData.chunks.at(j);
