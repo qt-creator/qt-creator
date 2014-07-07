@@ -810,11 +810,6 @@ void TextToModelMerger::setupUsedImports()
             }
          }
      }
-     // even if not explicitly used we probably want to keep QtQuick imports
-     usedImports.append(Import::createLibraryImport("QtQuick", "1.0"));
-     usedImports.append(Import::createLibraryImport("QtQuick", "1.1"));
-     usedImports.append(Import::createLibraryImport("QtQuick", "2.0"));
-     usedImports.append(Import::createLibraryImport("QtQuick", "2.1"));
 
     if (m_rewriterView->isAttached())
         m_rewriterView->model()->setUsedImports(usedImports);
