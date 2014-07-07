@@ -82,7 +82,7 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     if (indexIsHolingModelNode(modelIndex)) {
         painter->save();
         if (styleOption.state & QStyle::State_Selected)
-            drawSelectionBackground(painter, styleOption);
+            NavigatorTreeView::drawSelectionBackground(painter, styleOption);
 
         if (!m_navigatorTreeModel->nodeForIndex(modelIndex).isRootNode()) {
 

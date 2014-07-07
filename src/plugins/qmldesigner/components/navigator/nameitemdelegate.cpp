@@ -224,7 +224,7 @@ void NameItemDelegate::paint(QPainter *painter,
     painter->save();
 
     if (styleOption.state & QStyle::State_Selected)
-        drawSelectionBackground(painter, styleOption);
+        NavigatorTreeView::drawSelectionBackground(painter, styleOption);
 
     int iconOffset = drawTypeIcon(painter, styleOption, modelIndex, m_navigatorTreeModel);
 
