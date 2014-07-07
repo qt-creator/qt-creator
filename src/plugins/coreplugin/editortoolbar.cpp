@@ -129,6 +129,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_closeEditorButton->setAutoRaise(true);
     d->m_closeEditorButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_DOCUMENT)));
     d->m_closeEditorButton->setEnabled(false);
+    d->m_closeEditorButton->setProperty("showborder", true);
 
     d->m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
@@ -164,10 +165,10 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     toplayout->addWidget(d->m_forwardButton);
     toplayout->addWidget(d->m_lockButton);
     toplayout->addWidget(d->m_editorList);
+    toplayout->addWidget(d->m_closeEditorButton);
     toplayout->addWidget(d->m_toolBarPlaceholder, 1); // Custom toolbar stretches
     toplayout->addWidget(d->m_splitButton);
     toplayout->addWidget(d->m_closeSplitButton);
-    toplayout->addWidget(d->m_closeEditorButton);
 
     setLayout(toplayout);
 
