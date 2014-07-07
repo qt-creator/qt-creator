@@ -137,8 +137,6 @@ public slots:
 protected:
     virtual void changeEvent(QEvent *e);
     virtual void closeEvent(QCloseEvent *event);
-    virtual void dragEnterEvent(QDragEnterEvent *event);
-    virtual void dropEvent(QDropEvent *event);
 
 private slots:
     void openFile();
@@ -151,7 +149,7 @@ private slots:
     void updateFocusWidget(QWidget *old, QWidget *now);
     void setSidebarVisible(bool visible);
     void destroyVersionDialog();
-    void openDelayedFiles();
+    void openDroppedFiles(const QStringList &files);
     void restoreWindowState();
     void newItemDialogFinished();
 
@@ -213,8 +211,6 @@ private:
 
     QToolButton *m_toggleSideBarButton;
     QColor m_overrideColor;
-
-    QStringList m_filesToOpenDelayed;
 };
 
 } // namespace Internal

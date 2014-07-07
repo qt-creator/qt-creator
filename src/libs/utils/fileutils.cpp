@@ -36,7 +36,11 @@
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QMessageBox>
+#include <QMimeData>
+#include <QTimer>
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
@@ -677,6 +681,72 @@ FileName &FileName::appendString(QChar str)
 {
     QString::append(str);
     return *this;
+}
+
+static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
+{
+    if (files)
+        files->clear();
+    // Extract dropped files from Mime data.
+    if (!d->hasUrls())
+        return false;
+    const QList<QUrl> urls = d->urls();
+    if (urls.empty())
+        return false;
+    // Try to find local files
+    bool hasFiles = false;
+    const QList<QUrl>::const_iterator cend = urls.constEnd();
+    for (QList<QUrl>::const_iterator it = urls.constBegin(); it != cend; ++it) {
+        const QString fileName = it->toLocalFile();
+        if (!fileName.isEmpty()) {
+            hasFiles = true;
+            if (files)
+                files->push_back(fileName);
+            else
+                break; // No result list, sufficient for checking
+        }
+    }
+    return hasFiles;
+}
+
+FileDropSupport::FileDropSupport(QWidget *parentWidget)
+    : QObject(parentWidget)
+{
+    QTC_ASSERT(parentWidget, return);
+    parentWidget->setAcceptDrops(true);
+    parentWidget->installEventFilter(this);
+}
+
+bool FileDropSupport::eventFilter(QObject *obj, QEvent *event)
+{
+    Q_UNUSED(obj)
+    if (event->type() == QEvent::DragEnter) {
+        auto dee = static_cast<QDragEnterEvent *>(event);
+        if (isDesktopFileManagerDrop(dee->mimeData()))
+            event->accept();
+        else
+            event->ignore();
+    } else if (event->type() == QEvent::Drop) {
+        auto de = static_cast<QDropEvent *>(event);
+        QStringList tempFiles;
+        if (isDesktopFileManagerDrop(de->mimeData(), &tempFiles)) {
+            event->accept();
+            bool needToScheduleEmit = m_files.isEmpty();
+            m_files.append(tempFiles);
+            if (needToScheduleEmit) // otherwise we already have a timer pending
+                QTimer::singleShot(0, this, SLOT(emitFilesDropped()));
+        } else {
+            event->ignore();
+        }
+    }
+    return false;
+}
+
+void FileDropSupport::emitFilesDropped()
+{
+    QTC_ASSERT(!m_files.isEmpty(), return);
+    emit filesDropped(m_files);
+    m_files.clear();
 }
 
 } // namespace Utils

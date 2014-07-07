@@ -35,6 +35,7 @@
 #include <QCoreApplication>
 #include <QXmlStreamWriter> // Mac.
 #include <QMetaType>
+#include <QStringList>
 
 namespace Utils {class FileName; }
 
@@ -190,6 +191,26 @@ public:
 
 private:
     bool m_autoRemove;
+};
+
+class QTCREATOR_UTILS_EXPORT FileDropSupport : public QObject
+{
+    Q_OBJECT
+public:
+    FileDropSupport(QWidget *parentWidget);
+
+signals:
+    void filesDropped(const QStringList &files);
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
+private slots:
+    void emitFilesDropped();
+
+private:
+    QStringList m_files;
+
 };
 
 } // namespace Utils

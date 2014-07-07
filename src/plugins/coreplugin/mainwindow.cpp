@@ -74,6 +74,7 @@
 #include <coreplugin/progressmanager/progressmanager_p.h>
 #include <coreplugin/progressmanager/progressview.h>
 #include <coreplugin/settingsdatabase.h>
+#include <utils/fileutils.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -87,7 +88,6 @@
 #include <QTimer>
 #include <QUrl>
 #include <QDir>
-#include <QMimeData>
 
 #include <QApplication>
 #include <QCloseEvent>
@@ -211,7 +211,10 @@ MainWindow::MainWindow() :
         //signal(SIGINT, handleSigInt);
 
     statusBar()->setProperty("p_styled", true);
-    setAcceptDrops(true);
+
+    auto dropSupport = new Utils::FileDropSupport(this);
+    connect(dropSupport, SIGNAL(filesDropped(QStringList)),
+            this, SLOT(openDroppedFiles(QStringList)));
 
 #if defined(Q_OS_MAC)
     MacFullScreen::addFullScreen(this);
@@ -386,61 +389,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-// Check for desktop file manager file drop events
-
-static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
+void MainWindow::openDroppedFiles(const QStringList &files)
 {
-    if (files)
-        files->clear();
-    // Extract dropped files from Mime data.
-    if (!d->hasUrls())
-        return false;
-    const QList<QUrl> urls = d->urls();
-    if (urls.empty())
-        return false;
-    // Try to find local files
-    bool hasFiles = false;
-    const QList<QUrl>::const_iterator cend = urls.constEnd();
-    for (QList<QUrl>::const_iterator it = urls.constBegin(); it != cend; ++it) {
-        const QString fileName = it->toLocalFile();
-        if (!fileName.isEmpty()) {
-            hasFiles = true;
-            if (files)
-                files->push_back(fileName);
-            else
-                break; // No result list, sufficient for checking
-        }
-    }
-    return hasFiles;
-}
-
-void MainWindow::dragEnterEvent(QDragEnterEvent *event)
-{
-    if (isDesktopFileManagerDrop(event->mimeData()) && m_filesToOpenDelayed.isEmpty())
-        event->accept();
-    else
-        event->ignore();
-}
-
-void MainWindow::dropEvent(QDropEvent *event)
-{
-    QStringList files;
-    if (isDesktopFileManagerDrop(event->mimeData(), &files)) {
-        event->accept();
-        m_filesToOpenDelayed.append(files);
-        QTimer::singleShot(50, this, SLOT(openDelayedFiles()));
-    } else {
-        event->ignore();
-    }
-}
-
-void MainWindow::openDelayedFiles()
-{
-    if (m_filesToOpenDelayed.isEmpty())
-        return;
     raiseWindow();
-    openFiles(m_filesToOpenDelayed, ICore::SwitchMode);
-    m_filesToOpenDelayed.clear();
+    openFiles(files, ICore::SwitchMode);
 }
 
 IContext *MainWindow::currentContextObject() const
