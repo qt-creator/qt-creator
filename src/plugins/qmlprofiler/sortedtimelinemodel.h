@@ -143,18 +143,38 @@ public:
         QLinkedList<int> parents;
         for (int range = 0; range != count(); ++range) {
             Range &current = ranges[range];
-            for (QLinkedList<int>::iterator parent = parents.begin(); parent != parents.end();) {
-                qint64 parentEnd = ranges[*parent].start + ranges[*parent].duration;
+            for (QLinkedList<int>::iterator parentIt = parents.begin();;) {
+                Range &parent = ranges[*parentIt];
+                qint64 parentEnd = parent.start + parent.duration;
                 if (parentEnd < current.start) {
-                    parent = parents.erase(parent);
+                    if (parent.start == current.start) {
+                        if (parent.parent == -1) {
+                            parent.parent = range;
+                        } else {
+                            Range &ancestor = ranges[parent.parent];
+                            if (ancestor.start == current.start &&
+                                    ancestor.duration < current.duration)
+                                parent.parent = range;
+                        }
+                        // Just switch the old parent range for the new, larger one
+                        *parentIt = range;
+                        break;
+                    } else {
+                        parentIt = parents.erase(parentIt);
+                    }
                 } else if (parentEnd >= current.start + current.duration) {
-                    current.parent = *parent;
+                    // no need to insert
+                    current.parent = *parentIt;
                     break;
                 } else {
-                    ++parent;
+                    ++parentIt;
+                }
+
+                if (parentIt == parents.end()) {
+                    parents.append(range);
+                    break;
                 }
             }
-            parents.append(range);
         }
     }
 
