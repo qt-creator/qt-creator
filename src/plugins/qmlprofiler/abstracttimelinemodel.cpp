@@ -33,13 +33,12 @@
 namespace QmlProfiler {
 
 AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
-        const QString &name, const QString &label, QmlDebug::Message message,
-        QmlDebug::RangeType rangeType, QObject *parent) :
+        const QString &label, QmlDebug::Message message, QmlDebug::RangeType rangeType,
+        QObject *parent) :
     QObject(parent), d_ptr(dd)
 {
     Q_D(AbstractTimelineModel);
     d->q_ptr = this;
-    d->name = name;
     d->modelId = 0;
     d->modelManager = 0;
     d->expanded = false;
@@ -60,12 +59,6 @@ void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManage
     d->modelManager = modelManager;
     connect(d->modelManager->qmlModel(),SIGNAL(changed()),this,SLOT(dataChanged()));
     d->modelId = d->modelManager->registerModelProxy();
-}
-
-QString AbstractTimelineModel::name() const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->name;
 }
 
 int AbstractTimelineModel::count() const

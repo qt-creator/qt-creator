@@ -61,9 +61,8 @@ private:
 };
 
 PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
-    : AbstractTimelineModel(new PaintEventsModelProxyPrivate,
-                                  QLatin1String("PaintEventsModelProxy"), tr("Animations"),
-                                  QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
+    : AbstractTimelineModel(new PaintEventsModelProxyPrivate, tr("Animations"), QmlDebug::Event,
+                            QmlDebug::MaximumRangeType, parent)
 {
     Q_D(PaintEventsModelProxy);
     d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;

@@ -50,7 +50,6 @@ public:
 
     // Trivial methods implemented by the abstract model itself
     void setModelManager(QmlProfilerModelManager *modelManager);
-    QString name() const;
     bool isEmpty() const;
 
     // Methods are directly passed on to the private model and relying on its virtual methods.
@@ -124,9 +123,9 @@ protected:
         return QColor::fromHsl(hue % 360, Saturation, Lightness);
     }
 
-    explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &name,
-                                   const QString &label, QmlDebug::Message message,
-                                   QmlDebug::RangeType rangeType, QObject *parent);
+    explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &label,
+                                   QmlDebug::Message message, QmlDebug::RangeType rangeType,
+                                   QObject *parent);
     AbstractTimelineModelPrivate *d_ptr;
 
 protected slots:

@@ -48,7 +48,6 @@ public:
     virtual int findLastIndex(qint64 endTime) const = 0;
 
     QVector<int> rowOffsets;
-    QString name;
     QmlProfilerModelManager *modelManager;
     int modelId;
     bool expanded;

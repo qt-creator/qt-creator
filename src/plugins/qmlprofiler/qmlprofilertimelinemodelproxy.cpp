@@ -63,9 +63,8 @@ private:
 };
 
 RangeTimelineModel::RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *parent)
-    : AbstractTimelineModel(new RangeTimelineModelPrivate,
-                                  QLatin1String("RangeTimelineModel"), categoryLabel(rangeType),
-                                  QmlDebug::MaximumMessage, rangeType, parent)
+    : AbstractTimelineModel(new RangeTimelineModelPrivate, categoryLabel(rangeType),
+                            QmlDebug::MaximumMessage, rangeType, parent)
 {
     Q_D(RangeTimelineModel);
     d->seenPaintEvent = false;
