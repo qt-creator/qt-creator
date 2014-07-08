@@ -376,8 +376,8 @@ Rectangle {
             }
 
          // hack to pass mouse events to the other mousearea if enabled
-            startDragArea: selectionRange.ready ? selectionRange.getLeft() : -x
-            endDragArea: selectionRange.ready ? selectionRange.getRight() : -x - 1
+            startDragArea: selectionRange.ready ? selectionRange.rangeLeft : -x
+            endDragArea: selectionRange.ready ? selectionRange.rangeRight : -x - 1
         }
         MouseArea {
             id: selectionRangeControl
@@ -419,7 +419,7 @@ Rectangle {
         startTime: selectionRange.startTimeString
         duration: selectionRange.durationString
         endTime: selectionRange.endTimeString
-        showDuration: selectionRange.getWidth() > 1
+        showDuration: selectionRange.rangeWidth > 1
     }
 
     RangeDetails {

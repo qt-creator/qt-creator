@@ -33,7 +33,6 @@ Rectangle {
     id: rangeMover
     anchors.fill: parent
     color: "transparent"
-    signal rangeChanged()
     signal rangeDoubleClicked()
 
     property color handleColor: "#869cd1"
@@ -43,13 +42,9 @@ Rectangle {
     property color dragMarkerColor: "#4a64b8"
     property color singleLineColor: "#4a64b8"
 
-    function setLeft(left) { leftRange.x = left }
-    function getLeft() { return leftRange.x }
-
-    function setRight(right) { rightRange.x = right }
-    function getRight() { return rightRange.x }
-
-    function getWidth() { return rightRange.x - leftRange.x }
+    property alias rangeLeft: leftRange.x
+    property alias rangeRight: rightRange.x
+    readonly property alias rangeWidth: selectedRange.width
 
     Rectangle {
         id: selectedRange
@@ -59,9 +54,6 @@ Rectangle {
         height: parent.height
 
         color: width > 1 ? (dragArea.pressed ? dragColor : rangeColor) : singleLineColor
-
-        onXChanged: parent.rangeChanged()
-        onWidthChanged: parent.rangeChanged()
     }
 
     Rectangle {

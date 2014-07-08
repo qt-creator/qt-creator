@@ -38,8 +38,8 @@ RangeMover {
     property string endTimeString: detailedPrintTime(startTime+duration)
     property string durationString: detailedPrintTime(duration)
 
-    property double startTime: getLeft() * viewTimePerPixel + zoomControl.windowStart()
-    property double duration: Math.max(getWidth() * viewTimePerPixel, 500)
+    property double startTime: rangeLeft * viewTimePerPixel + zoomControl.windowStart()
+    property double duration: Math.max(rangeWidth * viewTimePerPixel, 500)
     property double viewTimePerPixel: 1
     property double creationReference : 0
     property int creationState : 0
@@ -50,9 +50,9 @@ RangeMover {
             var oldTimePerPixel = selectionRange.viewTimePerPixel;
             selectionRange.viewTimePerPixel = Math.abs(zoomControl.endTime() - zoomControl.startTime()) / view.intWidth;
             if (creationState === 3 && oldTimePerPixel != selectionRange.viewTimePerPixel) {
-                var newWidth = getWidth() * oldTimePerPixel / viewTimePerPixel;
-                setLeft(getLeft() * oldTimePerPixel / viewTimePerPixel);
-                setRight(getLeft() + newWidth);
+                var newWidth = rangeWidth * oldTimePerPixel / viewTimePerPixel;
+                rangeLeft = rangeLeft * oldTimePerPixel / viewTimePerPixel;
+                rangeRight = rangeLeft + newWidth;
             }
         }
     }
@@ -63,7 +63,7 @@ RangeMover {
     }
 
     function reset() {
-        setRight(getLeft() + 1);
+        rangeRight = rangeLeft + 1;
         creationState = 0;
         creationReference = 0;
     }
@@ -77,16 +77,16 @@ RangeMover {
         switch (creationState) {
         case 1:
             creationReference = pos;
-            setLeft(pos);
-            setRight(pos + 1);
+            rangeLeft = pos;
+            rangeRight = pos + 1;
             break;
         case 2:
             if (pos > creationReference) {
-                setLeft(creationReference);
-                setRight(pos);
+                rangeLeft = creationReference;
+                rangeRight = pos;
             } else if (pos < creationReference) {
-                setLeft(pos);
-                setRight(creationReference);
+                rangeLeft = pos;
+                rangeRight = creationReference;
             }
             break;
         }

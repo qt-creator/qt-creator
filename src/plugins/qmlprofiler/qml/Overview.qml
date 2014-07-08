@@ -61,8 +61,8 @@ Canvas {
     function updateRange() {
         if (recursionGuard)
             return;
-        var newStartTime = Math.round(rangeMover.getLeft() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
-        var newEndTime = Math.round(rangeMover.getRight() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
+        var newStartTime = Math.round(rangeMover.rangeLeft * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
+        var newEndTime = Math.round(rangeMover.rangeRight * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
         if (startTime !== newStartTime || endTime !== newEndTime)
             zoomControl.setRange(newStartTime, Math.max(newEndTime, newStartTime + 500));
     }
@@ -81,13 +81,13 @@ Canvas {
                 endTime = clamp(zoomControl.endTime(), startTime, qmlProfilerModelProxy.traceEndTime());
                 var newRangeX = (startTime - qmlProfilerModelProxy.traceStartTime()) * width / qmlProfilerModelProxy.traceDuration();
                 var newWidth = (endTime - startTime) * width / qmlProfilerModelProxy.traceDuration();
-                var widthChanged = Math.abs(newWidth - rangeMover.getWidth()) > 1;
-                var leftChanged = Math.abs(newRangeX - rangeMover.getLeft()) > 1;
+                var widthChanged = Math.abs(newWidth - rangeMover.rangeWidth) > 1;
+                var leftChanged = Math.abs(newRangeX - rangeMover.rangeLeft) > 1;
                 if (leftChanged)
-                    rangeMover.setLeft(newRangeX);
+                    rangeMover.rangeLeft = newRangeX;
 
                 if (leftChanged || widthChanged)
-                    rangeMover.setRight(newRangeX + newWidth);
+                    rangeMover.rangeRight = newRangeX + newWidth;
                 recursionGuard = false;
             }
         }
@@ -137,19 +137,18 @@ Canvas {
     MouseArea {
         anchors.fill: canvas
         function jumpTo(posX) {
-            var rangeWidth = rangeMover.getWidth();
-            var newX = posX - rangeWidth / 2;
+            var newX = posX - rangeMover.rangeWidth / 2;
             if (newX < 0)
                 newX = 0;
-            if (newX + rangeWidth > canvas.width)
-                newX = canvas.width - rangeWidth;
+            if (newX + rangeMover.rangeWidth > canvas.width)
+                newX = canvas.width - rangeMover.rangeWidth;
 
-            if (newX < rangeMover.getLeft()) {
-                rangeMover.setLeft(newX);
-                rangeMover.setRight(newX + rangeWidth);
-            } else if (newX > rangeMover.getLeft()) {
-                rangeMover.setRight(newX + rangeWidth);
-                rangeMover.setLeft(newX);
+            if (newX < rangeMover.rangeLeft) {
+                rangeMover.rangeLeft = newX;
+                rangeMover.rangeRight = newX + rangeMover.rangeWidth;
+            } else if (newX > rangeMover.rangeLeft) {
+                rangeMover.rangeRight = newX + rangeMover.rangeWidth;
+                rangeMover.rangeLeft = newX;
             }
         }
 
@@ -164,7 +163,8 @@ Canvas {
     RangeMover {
         id: rangeMover
         visible: dataReady
-        onRangeChanged: canvas.updateRange()
+        onRangeLeftChanged: canvas.updateRange()
+        onRangeRightChanged: canvas.updateRange()
     }
 
     Rectangle {
