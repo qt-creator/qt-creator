@@ -36,7 +36,6 @@
 #include <QMessageBox>
 
 using namespace Core;
-using namespace Core;
 using namespace Core::Internal;
 
 ExecuteFilter::ExecuteFilter()
