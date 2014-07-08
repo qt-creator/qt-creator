@@ -834,10 +834,7 @@ void LldbEngine::showToolTip()
         return;
     }
 
-    DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
-    tw->setContext(*m_toolTipContext);
-    tw->acquireEngine(this);
-    DebuggerToolTipManager::showToolTip(m_toolTipContext->mousePosition, tw);
+    DebuggerToolTipManager::showToolTip(*m_toolTipContext, this);
     // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
     m_toolTipContext.reset();
 }
@@ -848,8 +845,7 @@ void LldbEngine::resetLocation()
     DebuggerEngine::resetLocation();
 }
 
-bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
-    TextEditor::ITextEditor *editor, const DebuggerToolTipContext &contextIn)
+bool LldbEngine::setToolTipExpression(TextEditor::ITextEditor *editor, const DebuggerToolTipContext &contextIn)
 {
     if (state() != InferiorStopOk || !isCppEditor(editor)) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
@@ -881,7 +877,6 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
     }
 
     m_toolTipContext.reset(new DebuggerToolTipContext(context));
-    m_toolTipContext->mousePosition = mousePos;
     m_toolTipContext->expression = exp;
     m_toolTipContext->iname = iname;
     // Local variable: Display synchronously.

@@ -107,8 +107,8 @@ private:
     void abortDebugger();
     void resetLocation();
 
-    bool setToolTipExpression(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, const DebuggerToolTipContext &);
+    bool setToolTipExpression(TextEditor::ITextEditor *editor,
+        const DebuggerToolTipContext &);
 
     void continueInferior();
     void interruptInferior();

@@ -958,7 +958,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == &actRemoveWatchExpression) {
         handler->removeData(p.data(LocalsINameRole).toByteArray());
     } else if (act == &actCopy) {
-        copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
+        copyToClipboard(DebuggerToolTipManager::treeModelClipboardContents(model()));
     } else if (act == &actCopyValue) {
         copyToClipboard(mi1.data().toString());
     } else if (act == &actShowInEditor) {

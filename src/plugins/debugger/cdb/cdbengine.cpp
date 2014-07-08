@@ -447,8 +447,7 @@ void CdbEngine::syncVerboseLog(bool verboseLog)
     postCommand(m_verboseLog ? QByteArray("!sym noisy") : QByteArray("!sym quiet"), 0);
 }
 
-bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
-                                     TextEditor::ITextEditor *editor,
+bool CdbEngine::setToolTipExpression(TextEditor::ITextEditor *editor,
                                      const DebuggerToolTipContext &contextIn)
 {
     if (debug)
@@ -469,10 +468,7 @@ bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
     if (!localVariable)
         return false;
     context.iname = localVariable->iname;
-    DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
-    tw->setContext(context);
-    tw->acquireEngine(this);
-    DebuggerToolTipManager::showToolTip(mousePos, tw);
+    DebuggerToolTipManager::showToolTip(context, this);
     return true;
 }
 

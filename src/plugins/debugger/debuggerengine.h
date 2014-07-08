@@ -143,8 +143,8 @@ public:
     const DebuggerStartParameters &startParameters() const;
     DebuggerStartParameters &startParameters();
 
-    virtual bool setToolTipExpression(const QPoint & mousePos,
-        TextEditor::ITextEditor *editor, const Internal::DebuggerToolTipContext &);
+    virtual bool setToolTipExpression(TextEditor::ITextEditor *editor,
+        const Internal::DebuggerToolTipContext &);
 
     virtual void updateWatchData(const Internal::WatchData &data,
         const Internal::WatchUpdateFlags & flags = Internal::WatchUpdateFlags());
