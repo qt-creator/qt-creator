@@ -57,8 +57,6 @@ public:
 
     bool isEmpty() const;
 
-    bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const;
-
     Q_INVOKABLE int height(int modelIndex) const;
     Q_INVOKABLE int rowHeight(int modelIndex, int row) const;
     Q_INVOKABLE void setRowHeight(int modelIndex, int row, int height);

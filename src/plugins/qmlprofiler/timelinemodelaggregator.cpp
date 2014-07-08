@@ -123,12 +123,6 @@ bool TimelineModelAggregator::isEmpty() const
     return true;
 }
 
-bool TimelineModelAggregator::eventAccepted(const QmlProfilerDataModel::QmlEventData &/*event*/) const
-{
-    // accept all events
-    return true;
-}
-
 int TimelineModelAggregator::height(int modelIndex) const
 {
     return d->modelList[modelIndex]->height();
