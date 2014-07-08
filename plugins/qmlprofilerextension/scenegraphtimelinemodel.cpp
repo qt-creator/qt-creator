@@ -79,22 +79,22 @@ int SceneGraphTimelineModel::rowCount() const
     return d->seenPolishAndSync ? 3 : 2;
 }
 
-int SceneGraphTimelineModel::getEventRow(int index) const
+int SceneGraphTimelineModel::row(int index) const
 {
     Q_D(const SceneGraphTimelineModel);
     return d->seenPolishAndSync ? d->range(index).sgEventType + 1 : 1;
 }
 
-int SceneGraphTimelineModel::getEventId(int index) const
+int SceneGraphTimelineModel::eventId(int index) const
 {
     Q_D(const SceneGraphTimelineModel);
     return d->seenPolishAndSync ? d->range(index).sgEventType : SceneGraphGUIThread;
 }
 
-QColor SceneGraphTimelineModel::getColor(int index) const
+QColor SceneGraphTimelineModel::color(int index) const
 {
     // get duration in seconds
-    double eventDuration = getDuration(index) / 1e9;
+    double eventDuration = duration(index) / 1e9;
 
     // supposedly never above 60 frames per second
     // limit it in that case
@@ -105,7 +105,7 @@ QColor SceneGraphTimelineModel::getColor(int index) const
     double fpsFraction = 1 / (eventDuration * 60.0);
     if (fpsFraction > 1.0)
         fpsFraction = 1.0;
-    return getFractionColor(fpsFraction);
+    return colorByFraction(fpsFraction);
 }
 
 QString labelForSGType(int t)
@@ -119,7 +119,7 @@ QString labelForSGType(int t)
     }
 }
 
-const QVariantList SceneGraphTimelineModel::getLabels() const
+QVariantList SceneGraphTimelineModel::labels() const
 {
     Q_D(const SceneGraphTimelineModel);
     QVariantList result;
@@ -154,8 +154,7 @@ void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::addVP(QVariantList
     }
 }
 
-
-const QVariantList SceneGraphTimelineModel::getEventDetails(int index) const
+QVariantList SceneGraphTimelineModel::details(int index) const
 {
     Q_D(const SceneGraphTimelineModel);
     QVariantList result;
@@ -214,7 +213,7 @@ void SceneGraphTimelineModel::loadData()
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
         const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
-        if (!eventAccepted(type))
+        if (!accepted(type))
             continue;
 
         if (type.detailType == SceneGraphRenderLoopFrame) {

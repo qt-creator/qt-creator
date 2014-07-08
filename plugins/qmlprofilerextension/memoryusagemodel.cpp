@@ -59,7 +59,7 @@ int MemoryUsageModel::rowMaxValue(int rowNumber) const
     return d->maxSize;
 }
 
-int MemoryUsageModel::getEventRow(int index) const
+int MemoryUsageModel::row(int index) const
 {
     Q_D(const MemoryUsageModel);
     QmlDebug::MemoryType type = d->range(index).type;
@@ -69,24 +69,24 @@ int MemoryUsageModel::getEventRow(int index) const
         return 2;
 }
 
-int MemoryUsageModel::getEventId(int index) const
+int MemoryUsageModel::eventId(int index) const
 {
     Q_D(const MemoryUsageModel);
     return d->range(index).type;
 }
 
-QColor MemoryUsageModel::getColor(int index) const
+QColor MemoryUsageModel::color(int index) const
 {
-    return getEventColor(index);
+    return colorByEventId(index);
 }
 
-float MemoryUsageModel::getHeight(int index) const
+float MemoryUsageModel::height(int index) const
 {
     Q_D(const MemoryUsageModel);
     return qMin(1.0f, (float)d->range(index).size / (float)d->maxSize);
 }
 
-const QVariantMap MemoryUsageModel::getEventLocation(int index) const
+QVariantMap MemoryUsageModel::location(int index) const
 {
     static const QLatin1String file("file");
     static const QLatin1String line("line");
@@ -108,7 +108,7 @@ const QVariantMap MemoryUsageModel::getEventLocation(int index) const
     return result;
 }
 
-const QVariantList MemoryUsageModel::getLabels() const
+QVariantList MemoryUsageModel::labels() const
 {
     Q_D(const MemoryUsageModel);
     QVariantList result;
@@ -134,7 +134,7 @@ const QVariantList MemoryUsageModel::getLabels() const
     return result;
 }
 
-const QVariantList MemoryUsageModel::getEventDetails(int index) const
+QVariantList MemoryUsageModel::details(int index) const
 {
     Q_D(const MemoryUsageModel);
 
@@ -200,7 +200,7 @@ void MemoryUsageModel::loadData()
         const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
         while (!rangeStack.empty() && rangeStack.top().endTime < event.startTime)
             rangeStack.pop();
-        if (!eventAccepted(type)) {
+        if (!accepted(type)) {
             if (type.rangeType != QmlDebug::MaximumRangeType) {
                 rangeStack.push(RangeStackFrame(event.typeIndex, event.startTime,
                                                 event.startTime + event.duration));

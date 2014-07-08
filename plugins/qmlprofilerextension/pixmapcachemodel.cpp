@@ -111,31 +111,31 @@ int PixmapCacheModel::rowMaxValue(int rowNumber) const
     }
 }
 
-int PixmapCacheModel::getEventRow(int index) const
+int PixmapCacheModel::row(int index) const
 {
     Q_D(const PixmapCacheModel);
     if (d->expanded)
-        return getEventId(index) + 1;
+        return eventId(index) + 1;
     return d->range(index).rowNumberCollapsed;
 }
 
-int PixmapCacheModel::getEventId(int index) const
+int PixmapCacheModel::eventId(int index) const
 {
     Q_D(const PixmapCacheModel);
     return d->range(index).pixmapEventType == PixmapCacheCountChanged ?
                 0 : d->range(index).urlIndex + 1;
 }
 
-QColor PixmapCacheModel::getColor(int index) const
+QColor PixmapCacheModel::color(int index) const
 {
     Q_D(const PixmapCacheModel);
     if (d->range(index).pixmapEventType == PixmapCacheCountChanged)
-        return getColorByHue(PixmapCacheCountHue);
+        return colorByHue(PixmapCacheCountHue);
 
-    return getEventColor(index);
+    return colorByEventId(index);
 }
 
-float PixmapCacheModel::getHeight(int index) const
+float PixmapCacheModel::height(int index) const
 {
     Q_D(const PixmapCacheModel);
     if (d->range(index).pixmapEventType == PixmapCacheCountChanged)
@@ -152,7 +152,7 @@ QString getFilenameOnly(QString absUrl)
     return absUrl;
 }
 
-const QVariantList PixmapCacheModel::getLabels() const
+QVariantList PixmapCacheModel::labels() const
 {
     Q_D(const PixmapCacheModel);
     QVariantList result;
@@ -190,7 +190,7 @@ void PixmapCacheModel::PixmapCacheModelPrivate::addVP(QVariantList &l, QString l
     }
 }
 
-const QVariantList PixmapCacheModel::getEventDetails(int index) const
+QVariantList PixmapCacheModel::details(int index) const
 {
     Q_D(const PixmapCacheModel);
     QVariantList result;
@@ -285,7 +285,7 @@ void PixmapCacheModel::loadData()
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
         const QmlProfilerDataModel::QmlEventTypeData &type = types[event.typeIndex];
-        if (!eventAccepted(type))
+        if (!accepted(type))
             continue;
 
         PixmapCacheEvent newEvent;

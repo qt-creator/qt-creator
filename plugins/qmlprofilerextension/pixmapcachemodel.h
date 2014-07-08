@@ -58,14 +58,14 @@ public:
     int rowCount() const;
     int rowMaxValue(int rowNumber) const;
 
-    int getEventRow(int index) const;
-    Q_INVOKABLE int getEventId(int index) const;
-    Q_INVOKABLE QColor getColor(int index) const;
-    Q_INVOKABLE float getHeight(int index) const;
+    int row(int index) const;
+    int eventId(int index) const;
+    QColor color(int index) const;
+    float height(int index) const;
 
-    const QVariantList getLabels() const;
+    QVariantList labels() const;
 
-    Q_INVOKABLE const QVariantList getEventDetails(int index) const;
+    QVariantList details(int index) const;
 
     void loadData();
     void clear();

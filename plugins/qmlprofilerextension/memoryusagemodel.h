@@ -53,15 +53,15 @@ public:
     int rowCount() const;
     int rowMaxValue(int rowNumber) const;
 
-    int getEventRow(int index) const;
-    int getEventId(int index) const;
-    QColor getColor(int index) const;
-    float getHeight(int index) const;
+    int row(int index) const;
+    int eventId(int index) const;
+    QColor color(int index) const;
+    float height(int index) const;
 
-    const QVariantMap getEventLocation(int index) const;
+    QVariantMap location(int index) const;
 
-    const QVariantList getLabels() const;
-    const QVariantList getEventDetails(int index) const;
+    QVariantList labels() const;
+    QVariantList details(int index) const;
 
     void loadData();
     void clear();
