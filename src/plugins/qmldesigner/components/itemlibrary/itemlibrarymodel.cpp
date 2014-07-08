@@ -223,9 +223,6 @@ void ItemLibraryModel::updateVisibility()
     foreach (ItemLibrarySection *itemLibrarySection, m_sections) {
         QString sectionSearchText = m_searchText;
 
-        if (itemLibrarySection->sectionName().toLower().contains(m_searchText))
-            sectionSearchText.clear();
-
         bool sectionChanged = false;
         bool sectionVisibility = itemLibrarySection->updateSectionVisibility(sectionSearchText,
                                                                              &sectionChanged);
