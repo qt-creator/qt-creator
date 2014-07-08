@@ -27,6 +27,9 @@
 **
 ****************************************************************************/
 
+#include "sortedtimelinemodel.h"
+namespace QmlProfiler {
+
 /*!
     \class QmlProfiler::SortedTimelineModel
     \brief The SortedTimelineModel class provides a sorted model for timeline data.
@@ -49,6 +52,11 @@
     \fn SortedTimelineModel::clear()
     Clears the ranges and their end times.
 */
+void SortedTimelineModel::clear()
+{
+    ranges.clear();
+    endTimes.clear();
+}
 
 /*!
     \fn int SortedTimelineModel::count() const
@@ -66,18 +74,13 @@
 */
 
 /*!
-    \fn const SortedTimelineModel<Data>::Range &SortedTimelineModel::range(int index) const
+    \fn const SortedTimelineModel::Range &SortedTimelineModel::range(int index) const
     Returns the range data at the specified index.
 */
 
 /*!
-    \fn Data &SortedTimelineModel::data(int index)
-    Returns modifiable user data for the range at the specified index.
-*/
-
-/*!
-    \fn int SortedTimelineModel::insert(qint64 startTime, qint64 duration, const Data &item)
-    Inserts the given data at the given time position and returns its index.
+    \fn int SortedTimelineModel::insert(qint64 startTime, qint64 duration)
+    Inserts a range at the given time position and returns its index.
 */
 
 /*!
@@ -114,7 +117,48 @@
 */
 
 /*!
-    \fn void computeNesting()
+    \fn void SortedTimelineModel::computeNesting()
     Compute all ranges' parents.
     \sa findFirstIndex
 */
+void SortedTimelineModel::computeNesting()
+{
+    QLinkedList<int> parents;
+    for (int range = 0; range != count(); ++range) {
+        Range &current = ranges[range];
+        for (QLinkedList<int>::iterator parentIt = parents.begin();;) {
+            Range &parent = ranges[*parentIt];
+            qint64 parentEnd = parent.start + parent.duration;
+            if (parentEnd < current.start) {
+                if (parent.start == current.start) {
+                    if (parent.parent == -1) {
+                        parent.parent = range;
+                    } else {
+                        Range &ancestor = ranges[parent.parent];
+                        if (ancestor.start == current.start &&
+                                ancestor.duration < current.duration)
+                            parent.parent = range;
+                    }
+                    // Just switch the old parent range for the new, larger one
+                    *parentIt = range;
+                    break;
+                } else {
+                    parentIt = parents.erase(parentIt);
+                }
+            } else if (parentEnd >= current.start + current.duration) {
+                // no need to insert
+                current.parent = *parentIt;
+                break;
+            } else {
+                ++parentIt;
+            }
+
+            if (parentIt == parents.end()) {
+                parents.append(range);
+                break;
+            }
+        }
+    }
+}
+
+}

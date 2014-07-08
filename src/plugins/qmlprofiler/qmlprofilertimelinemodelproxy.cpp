@@ -30,7 +30,6 @@
 #include "qmlprofilertimelinemodelproxy.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
-#include "sortedtimelinemodel.h"
 #include "abstracttimelinemodel_p.h"
 
 #include <QCoreApplication>
@@ -45,9 +44,7 @@
 namespace QmlProfiler {
 namespace Internal {
 
-class RangeTimelineModel::RangeTimelineModelPrivate :
-        public SortedTimelineModel<RangeTimelineModel::QmlRangeEventStartInstance,
-                                   AbstractTimelineModel::AbstractTimelineModelPrivate>
+class RangeTimelineModel::RangeTimelineModelPrivate : public AbstractTimelineModelPrivate
 {
 public:
     // convenience functions
@@ -55,6 +52,7 @@ public:
     void computeExpandedLevels();
     void findBindingLoops();
 
+    QVector<QmlRangeEventStartInstance> data;
     QVector<int> expandedRowTypes;
     int contractedRows;
     bool seenPaintEvent;
@@ -68,7 +66,6 @@ RangeTimelineModel::RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *p
 {
     Q_D(RangeTimelineModel);
     d->seenPaintEvent = false;
-    d->expandedRowTypes.clear();
     d->expandedRowTypes << -1;
     d->contractedRows = 1;
 }
@@ -76,14 +73,12 @@ RangeTimelineModel::RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *p
 void RangeTimelineModel::clear()
 {
     Q_D(RangeTimelineModel);
-    d->clear();
     d->expandedRowTypes.clear();
     d->expandedRowTypes << -1;
     d->contractedRows = 1;
     d->seenPaintEvent = false;
-    d->expanded = false;
-
-    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
+    d->data.clear();
+    AbstractTimelineModel::clear();
 }
 
 void RangeTimelineModel::loadData()
@@ -105,15 +100,15 @@ void RangeTimelineModel::loadData()
             d->seenPaintEvent = true;
 
         // store starttime-based instance
-        d->insert(event.startTime, event.duration, QmlRangeEventStartInstance(event.typeIndex));
-
-        d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), eventList.count() * 6);
+        d->data.insert(insert(event.startTime, event.duration),
+                       QmlRangeEventStartInstance(event.typeIndex));
+        d->modelManager->modelProxyCountUpdated(d->modelId, count(), eventList.count() * 6);
     }
 
     d->modelManager->modelProxyCountUpdated(d->modelId, 2, 6);
 
     // compute range nesting
-    d->computeNesting();
+    computeNesting();
 
     // compute nestingLevel - nonexpanded
     d->computeNestingContracted();
@@ -134,8 +129,9 @@ void RangeTimelineModel::loadData()
 
 void RangeTimelineModel::RangeTimelineModelPrivate::computeNestingContracted()
 {
+    Q_Q(RangeTimelineModel);
     int i;
-    int eventCount = count();
+    int eventCount = q->count();
 
     int nestingLevels = QmlDebug::Constants::QML_MIN_LEVEL;
     contractedRows = nestingLevels + 1;
@@ -143,7 +139,7 @@ void RangeTimelineModel::RangeTimelineModelPrivate::computeNestingContracted()
     nestingEndTimes.fill(0, nestingLevels + 1);
 
     for (i = 0; i < eventCount; i++) {
-        qint64 st = ranges[i].start;
+        qint64 st = q->ranges[i].start;
 
         // per type
         if (nestingEndTimes[nestingLevels] > st) {
@@ -156,57 +152,57 @@ void RangeTimelineModel::RangeTimelineModelPrivate::computeNestingContracted()
                    nestingEndTimes[nestingLevels-1] <= st)
                 nestingLevels--;
         }
-        nestingEndTimes[nestingLevels] = st + ranges[i].duration;
+        nestingEndTimes[nestingLevels] = st + q->ranges[i].duration;
 
-        ranges[i].displayRowCollapsed = nestingLevels;
+        data[i].displayRowCollapsed = nestingLevels;
     }
 }
 
 void RangeTimelineModel::RangeTimelineModelPrivate::computeExpandedLevels()
 {
+    Q_Q(RangeTimelineModel);
     QHash<int, int> eventRow;
-    int eventCount = count();
+    int eventCount = q->count();
     for (int i = 0; i < eventCount; i++) {
-        int eventId = ranges[i].eventId;
+        int eventId = data[i].eventId;
         if (!eventRow.contains(eventId)) {
             eventRow[eventId] = expandedRowTypes.size();
             expandedRowTypes << eventId;
         }
-        ranges[i].displayRowExpanded = eventRow[eventId];
+        data[i].displayRowExpanded = eventRow[eventId];
     }
 }
 
 void RangeTimelineModel::RangeTimelineModelPrivate::findBindingLoops()
 {
+    Q_Q(RangeTimelineModel);
     if (rangeType != QmlDebug::Binding && rangeType != QmlDebug::HandlingSignal)
         return;
 
     typedef QPair<int, int> CallStackEntry;
     QStack<CallStackEntry> callStack;
 
-    for (int i = 0; i < count(); ++i) {
-        Range *event = &ranges[i];
-
+    for (int i = 0; i < q->count(); ++i) {
         const Range *potentialParent = callStack.isEmpty()
-                ? 0 : &ranges[callStack.top().second];
+                ? 0 : &q->ranges[callStack.top().second];
 
         while (potentialParent
-               && !(potentialParent->start + potentialParent->duration > event->start)) {
+               && !(potentialParent->start + potentialParent->duration > q->ranges[i].start)) {
             callStack.pop();
             potentialParent = callStack.isEmpty() ? 0
-                                                  : &ranges[callStack.top().second];
+                                                  : &q->ranges[callStack.top().second];
         }
 
         // check whether event is already in stack
         for (int ii = 0; ii < callStack.size(); ++ii) {
-            if (callStack.at(ii).first == event->eventId) {
-                event->bindingLoopHead = callStack.at(ii).second;
+            if (callStack.at(ii).first == data[i].eventId) {
+                data[i].bindingLoopHead = callStack.at(ii).second;
                 break;
             }
         }
 
 
-        CallStackEntry newEntry(event->eventId, i);
+        CallStackEntry newEntry(data[i].eventId, i);
         callStack.push(newEntry);
     }
 
@@ -243,21 +239,21 @@ int RangeTimelineModel::row(int index) const
 {
     Q_D(const RangeTimelineModel);
     if (d->expanded)
-        return d->range(index).displayRowExpanded;
+        return d->data[index].displayRowExpanded;
     else
-        return d->range(index).displayRowCollapsed;
+        return d->data[index].displayRowCollapsed;
 }
 
 int RangeTimelineModel::eventId(int index) const
 {
     Q_D(const RangeTimelineModel);
-    return d->range(index).eventId;
+    return d->data[index].eventId;
 }
 
 int RangeTimelineModel::bindingLoopDest(int index) const
 {
     Q_D(const RangeTimelineModel);
-    return d->range(index).bindingLoopHead;
+    return d->data[index].bindingLoopHead;
 }
 
 QColor RangeTimelineModel::color(int index) const
@@ -296,7 +292,7 @@ QVariantMap RangeTimelineModel::details(int index) const
             d->modelManager->qmlModel()->getEventTypes();
 
     result.insert(QStringLiteral("displayName"), categoryLabel(d->rangeType));
-    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(d->range(index).duration));
+    result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(range(index).duration));
 
     QString detailsString = types[id].data;
     if (detailsString.length() > 40)

@@ -34,13 +34,13 @@
 #include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
-#include <QObject>
+#include "sortedtimelinemodel.h"
 #include <QVariant>
 #include <QColor>
 
 namespace QmlProfiler {
 
-class QMLPROFILER_EXPORT AbstractTimelineModel : public QObject
+class QMLPROFILER_EXPORT AbstractTimelineModel : public SortedTimelineModel
 {
     Q_OBJECT
 
@@ -61,13 +61,6 @@ public:
     qint64 traceStartTime() const;
     qint64 traceEndTime() const;
     qint64 traceDuration() const;
-    qint64 duration(int index) const;
-    qint64 startTime(int index) const;
-    qint64 endTime(int index) const;
-    int firstIndex(qint64 startTime) const;
-    int firstIndexNoParents(qint64 startTime) const;
-    int lastIndex(qint64 endTime) const;
-    int count() const;
     bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     bool expanded() const;
     void setExpanded(bool expanded);
@@ -81,7 +74,6 @@ public:
     virtual QVariantMap details(int index) const = 0;
     virtual int row(int index) const = 0;
     virtual void loadData() = 0;
-    virtual void clear() = 0;
 
     // Methods which can optionally be implemented by child models.
     // returned map should contain "file", "line", "column" properties, or be empty
@@ -92,6 +84,7 @@ public:
     virtual float height(int index) const;
     virtual int rowMinValue(int rowNumber) const;
     virtual int rowMaxValue(int rowNumber) const;
+    virtual void clear();
 
 signals:
     void expandedChanged();

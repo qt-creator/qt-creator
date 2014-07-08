@@ -35,7 +35,7 @@ namespace QmlProfiler {
 AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
         const QString &displayName, QmlDebug::Message message, QmlDebug::RangeType rangeType,
         QObject *parent) :
-    QObject(parent), d_ptr(dd)
+    SortedTimelineModel(parent), d_ptr(dd)
 {
     Q_D(AbstractTimelineModel);
     d->q_ptr = this;
@@ -59,48 +59,6 @@ void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManage
     d->modelManager = modelManager;
     connect(d->modelManager->qmlModel(),SIGNAL(changed()),this,SLOT(dataChanged()));
     d->modelId = d->modelManager->registerModelProxy();
-}
-
-int AbstractTimelineModel::count() const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->count();
-}
-
-int AbstractTimelineModel::firstIndex(qint64 startTime) const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->firstIndex(startTime);
-}
-
-int AbstractTimelineModel::firstIndexNoParents(qint64 startTime) const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->firstIndexNoParents(startTime);
-}
-
-int AbstractTimelineModel::lastIndex(qint64 endTime) const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->lastIndex(endTime);
-}
-
-qint64 AbstractTimelineModel::duration(int index) const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->duration(index);
-}
-
-qint64 AbstractTimelineModel::startTime(int index) const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->startTime(index);
-}
-
-qint64 AbstractTimelineModel::endTime(int index) const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->startTime(index) + d->duration(index);
 }
 
 bool AbstractTimelineModel::isEmpty() const
@@ -241,8 +199,6 @@ void AbstractTimelineModel::dataChanged()
     default:
         break;
     }
-
-    d->rowOffsets.clear();
 }
 
 bool AbstractTimelineModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
@@ -270,6 +226,21 @@ QString AbstractTimelineModel::displayName() const
 {
     Q_D(const AbstractTimelineModel);
     return d->displayName;
+}
+
+void AbstractTimelineModel::clear()
+{
+    Q_D(AbstractTimelineModel);
+    bool wasExpanded = d->expanded;
+    bool hadRowHeights = !d->rowOffsets.empty();
+    d->rowOffsets.clear();
+    d->expanded = false;
+    SortedTimelineModel::clear();
+    if (hadRowHeights)
+        emit rowHeightChanged();
+    if (wasExpanded)
+        emit expandedChanged();
+    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 
 }

@@ -30,22 +30,21 @@
 #ifndef SORTEDTIMELINEMODEL_H
 #define SORTEDTIMELINEMODEL_H
 
-#include "abstracttimelinemodel_p.h"
+#include "qmlprofiler_global.h"
+#include <QObject>
 #include <QVector>
 #include <QLinkedList>
 
 namespace QmlProfiler {
 
-// The template has to be inserted into the hierarchy of public/private classes when Data is known.
-// Otherwise we'd have to add implementation details to the public headers. This is why the class to
-// be derived from is given as template parameter.
-template<class Data, class Base = AbstractTimelineModel::AbstractTimelineModelPrivate>
-class SortedTimelineModel : public Base {
+class QMLPROFILER_EXPORT SortedTimelineModel : public QObject {
+    Q_OBJECT
+
 public:
-    struct Range : public Data {
-        Range() : Data(), start(-1), duration(-1), parent(-1) {}
-        Range(qint64 start, qint64 duration, const Data &item) :
-            Data(item), start(start), duration(duration), parent(-1) {}
+    struct Range {
+        Range() : start(-1), duration(-1), parent(-1) {}
+        Range(qint64 start, qint64 duration) :
+            start(start), duration(duration), parent(-1) {}
         qint64 start;
         qint64 duration;
         int parent;
@@ -61,37 +60,35 @@ public:
         inline qint64 timestamp() const {return end;}
     };
 
-    void clear()
-    {
-        ranges.clear();
-        endTimes.clear();
-    }
+    SortedTimelineModel(QObject *parent = 0) : QObject(parent) {}
+
+    void clear();
 
     inline int count() const { return ranges.count(); }
 
-    qint64 duration(int index) const { return range(index).duration; }
-    qint64 startTime(int index) const { return range(index).start; }
+    qint64 duration(int index) const { return ranges[index].duration; }
+    qint64 startTime(int index) const { return ranges[index].start; }
+    qint64 endTime(int index) const { return ranges[index].start + ranges[index].duration; }
 
     inline qint64 lastEndTime() const { return endTimes.last().end; }
     inline qint64 firstStartTime() const { return ranges.first().start; }
 
     inline const Range &range(int index) const { return ranges[index]; }
-    inline Data &data(int index) { return ranges[index]; }
 
-    inline int insert(qint64 startTime, qint64 duration, const Data &item)
+    inline int insert(qint64 startTime, qint64 duration)
     {
         /* Doing insert-sort here is preferable as most of the time the times will actually be
          * presorted in the right way. So usually this will just result in appending. */
-        int index = insertSorted(ranges, Range(startTime, duration, item));
+        int index = insertSorted(ranges, Range(startTime, duration));
         if (index < ranges.size() - 1)
             incrementStartIndices(index);
         insertSorted(endTimes, RangeEnd(index, startTime + duration));
         return index;
     }
 
-    inline int insertStart(qint64 startTime, const Data &item)
+    inline int insertStart(qint64 startTime)
     {
-        int index = insertSorted(ranges, Range(startTime, 0, item));
+        int index = insertSorted(ranges, Range(startTime, 0));
         if (index < ranges.size() - 1)
             incrementStartIndices(index);
         return index;
@@ -138,47 +135,9 @@ public:
         return lowerBound(ranges, endTime);
     }
 
-    inline void computeNesting()
-    {
-        QLinkedList<int> parents;
-        for (int range = 0; range != count(); ++range) {
-            Range &current = ranges[range];
-            for (QLinkedList<int>::iterator parentIt = parents.begin();;) {
-                Range &parent = ranges[*parentIt];
-                qint64 parentEnd = parent.start + parent.duration;
-                if (parentEnd < current.start) {
-                    if (parent.start == current.start) {
-                        if (parent.parent == -1) {
-                            parent.parent = range;
-                        } else {
-                            Range &ancestor = ranges[parent.parent];
-                            if (ancestor.start == current.start &&
-                                    ancestor.duration < current.duration)
-                                parent.parent = range;
-                        }
-                        // Just switch the old parent range for the new, larger one
-                        *parentIt = range;
-                        break;
-                    } else {
-                        parentIt = parents.erase(parentIt);
-                    }
-                } else if (parentEnd >= current.start + current.duration) {
-                    // no need to insert
-                    current.parent = *parentIt;
-                    break;
-                } else {
-                    ++parentIt;
-                }
-
-                if (parentIt == parents.end()) {
-                    parents.append(range);
-                    break;
-                }
-            }
-        }
-    }
-
 protected:
+    void computeNesting();
+
     void incrementStartIndices(int index)
     {
         for (int i = 0; i < endTimes.size(); ++i) {
