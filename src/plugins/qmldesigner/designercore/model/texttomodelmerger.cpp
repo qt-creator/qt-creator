@@ -746,7 +746,8 @@ static bool isBlacklistImport(const ImportKey &importKey)
             || importPathFirst == QStringLiteral("QML")
             || importPathFirst == QStringLiteral("QtQml")
             || (importPathFirst == QStringLiteral("QtQuick") && importPathLast == QStringLiteral("PrivateWidgets"))
-            || importPathLast == QStringLiteral("Private");
+            || importPathLast == QStringLiteral("Private")
+            || (importKey.splitPath.count() == 1 && importPathFirst == QStringLiteral("QtQuick")); // Don't show Quick X.X imports
 }
 
 static QHash<QString, ImportKey> filterPossibleImportKeys(const QSet<ImportKey> &possibleImportKeys)
