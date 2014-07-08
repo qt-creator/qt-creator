@@ -1035,7 +1035,7 @@ void WatchTreeView::resetHelper()
 void WatchTreeView::resetHelper(const QModelIndex &idx)
 {
     if (idx.data(LocalsExpandedRole).toBool()) {
-        //qDebug() << "EXPANDING " << model()->data(idx, INameRole);
+        //qDebug() << "EXPANDING " << model()->data(idx, LocalsINameRole);
         if (!isExpanded(idx)) {
             expand(idx);
             for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
@@ -1044,7 +1044,7 @@ void WatchTreeView::resetHelper(const QModelIndex &idx)
             }
         }
     } else {
-        //qDebug() << "COLLAPSING " << model()->data(idx, INameRole);
+        //qDebug() << "COLLAPSING " << model()->data(idx, LocalsINameRole);
         if (isExpanded(idx))
             collapse(idx);
     }

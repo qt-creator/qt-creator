@@ -172,6 +172,9 @@ public:
 
 public slots:
     void computeSize();
+    void expandNode(const QModelIndex &idx);
+    void collapseNode(const QModelIndex &idx);
+    void handleItemIsExpanded(const QModelIndex &sourceIdx);
 
 private:
     void init(QAbstractItemModel *model);
