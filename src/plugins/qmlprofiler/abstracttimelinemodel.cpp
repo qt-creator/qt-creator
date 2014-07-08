@@ -33,7 +33,7 @@
 namespace QmlProfiler {
 
 AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
-        const QString &label, QmlDebug::Message message, QmlDebug::RangeType rangeType,
+        const QString &displayName, QmlDebug::Message message, QmlDebug::RangeType rangeType,
         QObject *parent) :
     QObject(parent), d_ptr(dd)
 {
@@ -42,7 +42,7 @@ AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
     d->modelId = 0;
     d->modelManager = 0;
     d->expanded = false;
-    d->title = label;
+    d->displayName = displayName;
     d->message = message;
     d->rangeType = rangeType;
 }
@@ -266,10 +266,10 @@ void AbstractTimelineModel::setExpanded(bool expanded)
     }
 }
 
-const QString AbstractTimelineModel::title() const
+QString AbstractTimelineModel::displayName() const
 {
     Q_D(const AbstractTimelineModel);
-    return d->title;
+    return d->displayName;
 }
 
 }

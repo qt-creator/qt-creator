@@ -33,7 +33,7 @@ import QtQuick.Controls.Styles 1.2
 
 Item {
     id: labelContainer
-    property string text: qmlProfilerModelProxy.title(modelIndex)
+    property string text: qmlProfilerModelProxy.displayName(modelIndex)
     property bool expanded: trigger(qmlProfilerModelProxy.expanded(modelIndex))
     property int modelIndex: index
     property int bindingTrigger: 1

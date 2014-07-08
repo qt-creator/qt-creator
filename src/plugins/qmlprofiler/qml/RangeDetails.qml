@@ -65,7 +65,7 @@ Item {
 
     function showInfo(eventData) {
         eventInfo.clear();
-        rangeDetails.dialogTitle = eventData[0]["title"];
+        rangeDetails.dialogTitle = eventData[0].displayName;
         for (var i = 1; i < eventData.length; i++) {
             for (var k in eventData[i]) {
                 if (eventData[i][k].length > 0) {

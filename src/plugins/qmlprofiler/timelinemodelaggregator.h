@@ -46,7 +46,6 @@ public:
     void setModelManager(QmlProfilerModelManager *modelManager);
     void addModel(AbstractTimelineModel *m);
 
-    Q_INVOKABLE QStringList categoryTitles() const;
     Q_INVOKABLE int count(int modelIndex = -1) const;
     void clear();
     Q_INVOKABLE int modelCount() const;
@@ -64,7 +63,7 @@ public:
     Q_INVOKABLE bool expanded(int modelIndex) const;
     Q_INVOKABLE void setExpanded(int modelIndex, bool expanded);
     Q_INVOKABLE int rowCount(int modelIndex) const;
-    Q_INVOKABLE const QString title(int modelIndex) const;
+    Q_INVOKABLE QString displayName(int modelIndex) const;
     Q_INVOKABLE int rowMinValue(int modelIndex, int row) const;
     Q_INVOKABLE int rowMaxValue(int modelIndex, int row) const;
 

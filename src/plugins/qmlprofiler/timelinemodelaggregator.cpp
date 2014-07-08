@@ -94,14 +94,6 @@ void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
     connect(m,SIGNAL(rowHeightChanged()),this,SIGNAL(rowHeightChanged()));
 }
 
-QStringList TimelineModelAggregator::categoryTitles() const
-{
-    QStringList retString;
-    foreach (const AbstractTimelineModel *modelProxy, d->modelList)
-        retString << modelProxy->title();
-    return retString;
-}
-
 int TimelineModelAggregator::count(int modelIndex) const
 {
     if (modelIndex == -1) {
@@ -158,9 +150,9 @@ int TimelineModelAggregator::rowCount(int modelIndex) const
     return d->modelList[modelIndex]->rowCount();
 }
 
-const QString TimelineModelAggregator::title(int modelIndex) const
+QString TimelineModelAggregator::displayName(int modelIndex) const
 {
-    return d->modelList[modelIndex]->title();
+    return d->modelList[modelIndex]->displayName();
 }
 
 int TimelineModelAggregator::rowMinValue(int modelIndex, int row) const

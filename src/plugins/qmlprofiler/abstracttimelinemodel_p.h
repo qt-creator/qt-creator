@@ -51,7 +51,7 @@ public:
     QmlProfilerModelManager *modelManager;
     int modelId;
     bool expanded;
-    QString title;
+    QString displayName;
     QmlDebug::Message message;
     QmlDebug::RangeType rangeType;
 

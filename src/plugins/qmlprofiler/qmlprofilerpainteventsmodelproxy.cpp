@@ -244,7 +244,7 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
     static const char trContext[] = "RangeDetails";
     {
         QVariantMap valuePair;
-        valuePair.insert(QLatin1String("title"), QVariant(title()));
+        valuePair.insert(QLatin1String("displayName"), QVariant(displayName()));
         result << valuePair;
     }
 

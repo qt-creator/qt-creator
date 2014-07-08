@@ -298,7 +298,7 @@ const QVariantList RangeTimelineModel::getEventDetails(int index) const
     static const char trContext[] = "RangeDetails";
     {
         QVariantMap valuePair;
-        valuePair.insert(QLatin1String("title"), QVariant(categoryLabel(d->rangeType)));
+        valuePair.insert(QLatin1String("displayName"), QVariant(categoryLabel(d->rangeType)));
         result << valuePair;
     }
 

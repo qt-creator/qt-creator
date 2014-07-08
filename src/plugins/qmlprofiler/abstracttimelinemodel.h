@@ -71,7 +71,7 @@ public:
     bool eventAccepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     bool expanded() const;
     void setExpanded(bool expanded);
-    const QString title() const;
+    QString displayName() const;
 
     // Methods that have to be implemented by child models
     virtual int rowCount() const = 0;
@@ -123,7 +123,7 @@ protected:
         return QColor::fromHsl(hue % 360, Saturation, Lightness);
     }
 
-    explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &label,
+    explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &displayName,
                                    QmlDebug::Message message, QmlDebug::RangeType rangeType,
                                    QObject *parent);
     AbstractTimelineModelPrivate *d_ptr;
