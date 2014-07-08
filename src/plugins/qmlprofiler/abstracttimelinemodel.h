@@ -62,7 +62,6 @@ public:
     Q_INVOKABLE qint64 traceStartTime() const;
     Q_INVOKABLE qint64 traceEndTime() const;
     Q_INVOKABLE qint64 traceDuration() const;
-    Q_INVOKABLE int getState() const;
     Q_INVOKABLE qint64 getDuration(int index) const;
     Q_INVOKABLE qint64 getStartTime(int index) const;
     Q_INVOKABLE qint64 getEndTime(int index) const;

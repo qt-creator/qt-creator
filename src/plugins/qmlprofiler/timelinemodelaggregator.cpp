@@ -286,11 +286,5 @@ qint64 TimelineModelAggregator::traceDuration() const
     return d->modelManager->traceTime()->duration();
 }
 
-int TimelineModelAggregator::getState() const
-{
-    return (int)d->modelManager->state();
-}
-
-
 } // namespace Internal
 } // namespace QmlProfiler

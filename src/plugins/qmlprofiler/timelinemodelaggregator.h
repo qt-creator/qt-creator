@@ -54,7 +54,6 @@ public:
     Q_INVOKABLE qint64 traceStartTime() const;
     Q_INVOKABLE qint64 traceEndTime() const;
     Q_INVOKABLE qint64 traceDuration() const;
-    Q_INVOKABLE int getState() const;
 
     bool isEmpty() const;
 

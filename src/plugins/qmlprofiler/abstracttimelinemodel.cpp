@@ -190,12 +190,6 @@ qint64 AbstractTimelineModel::traceDuration() const
     return d->modelManager->traceTime()->duration();
 }
 
-int AbstractTimelineModel::getState() const
-{
-    Q_D(const AbstractTimelineModel);
-    return (int)d->modelManager->state();
-}
-
 const QVariantMap AbstractTimelineModel::getEventLocation(int index) const
 {
     Q_UNUSED(index);

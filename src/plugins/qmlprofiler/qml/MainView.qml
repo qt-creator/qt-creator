@@ -76,12 +76,6 @@ Rectangle {
 
     Connections {
         target: qmlProfilerModelProxy
-        onStateChanged: {
-            // Clear if model is empty.
-            if (qmlProfilerModelProxy.getState() === 0)
-                root.clear();
-            backgroundMarks.requestPaint()
-        }
         onDataAvailable: {
             view.clearData();
             zoomControl.setRange(qmlProfilerModelProxy.traceStartTime(),
@@ -89,6 +83,7 @@ Rectangle {
                                  qmlProfilerModelProxy.traceDuration()/10);
             view.requestPaint();
         }
+        onStateChanged: backgroundMarks.requestPaint()
         onExpandedChanged: backgroundMarks.requestPaint()
         onRowHeightChanged: backgroundMarks.requestPaint()
     }
