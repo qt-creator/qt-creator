@@ -118,8 +118,13 @@ QmlJS::Snapshot BaseTextEditModifier::getSnapshot() const
 QStringList BaseTextEditModifier::importPaths() const
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    if (modelManager)
-        return modelManager->importPaths();
-    else
-        return QStringList();
+    if (modelManager && textDocument()) {
+        QString documentFilePath = textDocument()->baseUrl().toLocalFile();
+        if (!documentFilePath.isEmpty()) {
+            QmlJS::Document::Ptr qmljsDocument = modelManager->snapshot().document(documentFilePath);
+            return modelManager->defaultVContext(QmlJS::Language::Qml, qmljsDocument, true).paths;
+        }
+    }
+
+    return QStringList();
 }
