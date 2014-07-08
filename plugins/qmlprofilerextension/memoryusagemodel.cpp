@@ -269,10 +269,10 @@ void MemoryUsageModel::loadData()
     }
 
     if (currentJSHeapIndex != -1)
-        d->insertEnd(currentJSHeapIndex, simpleModel->lastTimeMark() -
+        d->insertEnd(currentJSHeapIndex, traceEndTime() -
                      d->range(currentJSHeapIndex).start - 1);
     if (currentUsageIndex != -1)
-        d->insertEnd(currentUsageIndex, simpleModel->lastTimeMark() -
+        d->insertEnd(currentUsageIndex, traceEndTime() -
                      d->range(currentUsageIndex).start - 1);
 
 
