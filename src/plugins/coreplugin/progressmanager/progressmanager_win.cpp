@@ -126,9 +126,9 @@ void Core::Internal::ProgressManagerPrivate::doSetApplicationLabel(const QString
         QPainter p(&pix);
         p.setPen(Qt::white);
         QFont font = p.font();
-        font.setPointSize(font.pointSize()-2);
+        font.setPixelSize(pix.height() * 0.5);
         p.setFont(font);
-        p.drawText(QRect(QPoint(0,0), pix.size()), Qt::AlignHCenter|Qt::AlignCenter, text);
+        p.drawText(pix.rect(), Qt::AlignCenter, text);
 #if QT_VERSION >= 0x050000
         const HICON icon = qt_pixmapToWinHICON(pix);
 #else
