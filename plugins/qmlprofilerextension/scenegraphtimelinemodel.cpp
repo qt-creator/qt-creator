@@ -64,9 +64,8 @@ private:
 };
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
-    : AbstractTimelineModel(new SceneGraphTimelineModelPrivate,
-                                  QLatin1String("SceneGraphTimeLineModel"), tr("Scene Graph"),
-                                  QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
+    : AbstractTimelineModel(new SceneGraphTimelineModelPrivate, tr("Scene Graph"),
+                            QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
 {
     Q_D(SceneGraphTimelineModel);
     d->seenPolishAndSync = false;

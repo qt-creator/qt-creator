@@ -83,10 +83,8 @@ private:
 };
 
 PixmapCacheModel::PixmapCacheModel(QObject *parent)
-    : AbstractTimelineModel(new PixmapCacheModelPrivate(),
-                                  QLatin1String("PixmapCacheTimeLineModel"),
-                                  QLatin1String("Pixmap Cache"), QmlDebug::PixmapCacheEvent,
-                                  QmlDebug::MaximumRangeType, parent)
+    : AbstractTimelineModel(new PixmapCacheModelPrivate(), QLatin1String("Pixmap Cache"),
+                            QmlDebug::PixmapCacheEvent, QmlDebug::MaximumRangeType, parent)
 {
     Q_D(PixmapCacheModel);
     d->collapsedRowCount = 1;

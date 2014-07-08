@@ -42,10 +42,8 @@ private:
 };
 
 MemoryUsageModel::MemoryUsageModel(QObject *parent)
-    : AbstractTimelineModel(new MemoryUsageModelPrivate(),
-                                  QLatin1String("MemoryUsageTimelineModel"),
-                                  QLatin1String("Memory Usage"), QmlDebug::MemoryAllocation,
-                                  QmlDebug::MaximumRangeType, parent)
+    : AbstractTimelineModel(new MemoryUsageModelPrivate(), QLatin1String("Memory Usage"),
+                            QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, parent)
 {
 }
 
