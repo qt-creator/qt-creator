@@ -135,13 +135,27 @@ C++ Support
    * Fixed indentation of concatenated strings
    * Fixed pointer typedef resolving (QTCREATORBUG-10021)
    * Fixed scroll wheel behavior in editor's symbols dropdown
-   * Fixed encoding issues (QTCREATORBUG-7356)
    * Fixed that some wizards were ignoring configured file extensions
      (QTCREATORBUG-12309)
    * Fixed parsing of trailing type-specifier
    * Fixed parsing of expressions like vector<int>{1}
    * Fixed generating getters and setters for variables with
      'm' and 'm_' prefixes
+   * Fixed that "using namespace" did not highlight class in including files (QTCREATORBUG-12357)
+   * Fixed include paths handling (QTCREATORBUG-11599)
+   * Fixed corner cases for "Create Getter and Setter Member Functions" refactoring action
+     (QTCREATORBUG-12244)
+   * Fixed parsing of expressions like vector<int>{1}
+   * Fixed completion for template with default argument
+     (QTCREATORBUG-12606, QTCREATORBUG-12605)
+   * Improved lambda support
+     * Fixed local uses, completion and find usages for parameters
+     * Fixed "duplicate data type in declaration" warning (QTCREATORBUG-12521)
+   * Improved infrastructure for Clang integration
+      * Reworked indexing data structure
+      * Started to clean up C++ editor
+   * Added support for UTF-8 in the lexer (QTCREATORBUG-7356)
+   * Added support for C99 designated initializers
 
 QML Support
    * Fixed handling of properties that start with underscore (QTCREATORBUG-12214)
