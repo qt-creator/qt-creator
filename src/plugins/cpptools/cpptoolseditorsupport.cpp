@@ -526,7 +526,8 @@ SemanticInfo CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::So
         const QSharedPointer<SnapshotUpdater> snapshotUpdater = snapshotUpdater_internal();
         QTC_ASSERT(snapshotUpdater, return newSemanticInfo);
         newSemanticInfo.snapshot = snapshotUpdater->snapshot();
-        QTC_ASSERT(newSemanticInfo.snapshot.contains(source.fileName), return newSemanticInfo);
+        if (!newSemanticInfo.snapshot.contains(source.fileName))
+            return newSemanticInfo; // SnapshotUpdater::update() not yet started.
         Document::Ptr doc = newSemanticInfo.snapshot.preprocessedDocument(source.code,
                                                                           source.fileName);
         if (processor)

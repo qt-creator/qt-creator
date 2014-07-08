@@ -155,7 +155,7 @@ bool AddQtOperation::setArguments(const QStringList &args)
 
 int AddQtOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("qtversions"));
+    QVariantMap map = load(QLatin1String("QtVersions"));
     if (map.isEmpty())
         map = initializeQtVersions();
 
@@ -164,7 +164,7 @@ int AddQtOperation::execute() const
     if (result.isEmpty() || result == map)
         return 2;
 
-    return save(result, QLatin1String("qtversions")) ? 0 : 3;
+    return save(result, QLatin1String("QtVersions")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS
@@ -315,7 +315,7 @@ QVariantMap AddQtOperation::initializeQtVersions()
 
 bool AddQtOperation::exists(const QString &id)
 {
-    QVariantMap map = load(QLatin1String("qtversion"));
+    QVariantMap map = load(QLatin1String("QtVersions"));
     return exists(map, id);
 }
 

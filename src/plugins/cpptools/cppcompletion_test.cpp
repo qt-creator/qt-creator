@@ -2281,6 +2281,20 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("Derived")
             << QLatin1String("foo")
             << QLatin1String("Foo"));
+
+    QTest::newRow("default_arguments_for_class_templates_and_template_base_class_QTCREATORBUG-12606") << _(
+            "struct Foo { int foo; };\n"
+            "template <typename T>\n"
+            "struct Base { T t; };\n"
+            "template <typename T = Foo>\n"
+            "struct Derived : Base<T> {};\n"
+            "void fun() {\n"
+            "   Derived<> derived;\n"
+            "   @\n"
+            "}\n"
+        ) << _("derived.t.") << (QStringList()
+            << QLatin1String("foo")
+            << QLatin1String("Foo"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()

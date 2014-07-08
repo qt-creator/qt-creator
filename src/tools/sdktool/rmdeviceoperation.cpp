@@ -68,7 +68,7 @@ bool RmDeviceOperation::setArguments(const QStringList &args)
 
 int RmDeviceOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("devices"));
+    QVariantMap map = load(QLatin1String("Devices"));
     if (map.isEmpty())
         map = AddDeviceOperation::initializeDevices();
 
@@ -77,7 +77,7 @@ int RmDeviceOperation::execute() const
     if (result == map)
         return 2;
 
-    return save(result, QLatin1String("devices")) ? 0 : 3;
+    return save(result, QLatin1String("Devices")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS

@@ -54,7 +54,7 @@ void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)
 {
     QTC_ASSERT(canHandle(task), return);
     Q_UNUSED(task);
-    TaskList::TaskListPlugin::stopMonitoring();
+    TaskListPlugin::stopMonitoring();
 }
 
 QAction *StopMonitoringHandler::createAction(QObject *parent) const

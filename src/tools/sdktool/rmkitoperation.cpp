@@ -86,7 +86,7 @@ bool RmKitOperation::setArguments(const QStringList &args)
 
 int RmKitOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("profiles"));
+    QVariantMap map = load(QLatin1String("Profiles"));
     if (map.isEmpty())
         map = AddKitOperation::initializeKits();
 
@@ -95,7 +95,7 @@ int RmKitOperation::execute() const
     if (result == map)
         return 2;
 
-    return save(result, QLatin1String("profiles")) ? 0 : 3;
+    return save(result, QLatin1String("Profiles")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS

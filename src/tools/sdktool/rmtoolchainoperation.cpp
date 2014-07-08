@@ -85,7 +85,7 @@ bool RmToolChainOperation::setArguments(const QStringList &args)
 
 int RmToolChainOperation::execute() const
 {
-    QVariantMap map = load(QLatin1String("toolchains"));
+    QVariantMap map = load(QLatin1String("ToolChains"));
     if (map.isEmpty())
         return 0;
 
@@ -93,7 +93,7 @@ int RmToolChainOperation::execute() const
     if (result == map)
         return 2;
 
-    return save(result, QLatin1String("toolchains")) ? 0 : 3;
+    return save(result, QLatin1String("ToolChains")) ? 0 : 3;
 }
 
 #ifdef WITH_TESTS

@@ -47,19 +47,18 @@ static QSettings *theSettings = 0;
 class HistoryCompleterPrivate : public QAbstractListModel
 {
 public:
-    HistoryCompleterPrivate() : maxLines(30), lineEdit(0) {}
+    HistoryCompleterPrivate() : maxLines(30) {}
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
     void clearHistory();
-    void saveEntry(const QString &str);
+    void addEntry(const QString &str);
 
     QStringList list;
     QString historyKey;
     int maxLines;
-    FancyLineEdit *lineEdit;
 };
 
 class HistoryLineDelegate : public QItemDelegate
@@ -146,38 +145,33 @@ void HistoryCompleterPrivate::clearHistory()
     endResetModel();
 }
 
-void HistoryCompleterPrivate::saveEntry(const QString &str)
+void HistoryCompleterPrivate::addEntry(const QString &str)
 {
-    QTC_ASSERT(theSettings, return);
-    const QString &entry = str.trimmed();
+    const QString entry = str.trimmed();
+    if (entry.isEmpty())
+        return;
     int removeIndex = list.indexOf(entry);
+    beginResetModel();
     if (removeIndex != -1)
-        removeRow(removeIndex);
-    beginInsertRows (QModelIndex(), list.count(), list.count());
+        list.removeAt(removeIndex);
     list.prepend(entry);
-    list = list.mid(0, maxLines);
-    endInsertRows();
+    list = list.mid(0, maxLines - 1);
+    endResetModel();
     theSettings->setValue(historyKey, list);
 }
 
-HistoryCompleter::HistoryCompleter(FancyLineEdit *lineEdit, const QString &historyKey, QObject *parent)
+HistoryCompleter::HistoryCompleter(const QString &historyKey, QObject *parent)
     : QCompleter(parent),
       d(new HistoryCompleterPrivate)
 {
-    QTC_ASSERT(lineEdit, return);
     QTC_ASSERT(!historyKey.isEmpty(), return);
     QTC_ASSERT(theSettings, return);
 
     d->historyKey = QLatin1String("CompleterHistory/") + historyKey;
     d->list = theSettings->value(d->historyKey).toStringList();
-    d->lineEdit = lineEdit;
-    if (d->list.count() && lineEdit->text().isEmpty())
-        lineEdit->setText(d->list.at(0));
 
     setModel(d);
     setPopup(new HistoryLineView(d));
-
-    connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(saveHistory()));
 }
 
 bool HistoryCompleter::removeHistoryItem(int index)
@@ -210,9 +204,9 @@ void HistoryCompleter::clearHistory()
     d->clearHistory();
 }
 
-void HistoryCompleter::saveHistory()
+void HistoryCompleter::addEntry(const QString &str)
 {
-    d->saveEntry(d->lineEdit->text());
+    d->addEntry(str);
 }
 
 void HistoryCompleter::setSettings(QSettings *settings)

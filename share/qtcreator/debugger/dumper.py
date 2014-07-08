@@ -600,9 +600,11 @@ class DumperBase:
         else:
             val = str(value.GetValue()) if self.isLldb else str(value)
             if index == -1:
-                self.put('name="%s",' % val)
+                key = 'key="%s",' % val
             else:
-                self.put('key="[%d] %s",' % (index, val))
+                key = 'key="[%d] %s",' % (index, val)
+            self.put('key="%s",' % self.hexencode(key))
+            self.put('keyencoded="%s",' % Hex2EncodedLatin1)
 
     def putPair(self, pair, index = -1):
         if self.pairData.useKeyAndValue:
@@ -1500,20 +1502,15 @@ class DumperBase:
             self.put('iname="%s",' % iname)
             self.put('name="%s",' % exp)
             self.put('wname="%s",' % escapedExp)
-            if len(exp) == 0: # The <Edit> case
-                self.putValue(" ")
-                self.putNoType()
+            try:
+                value = self.parseAndEvaluate(exp)
+                self.putItem(value)
+            except RuntimeError:
+                self.currentType.value = " "
+                self.currentValue.value = "<no such value>"
+                self.currentChildNumChild = -1
+                self.currentNumChild = 0
                 self.putNumChild(0)
-            else:
-                try:
-                    value = self.parseAndEvaluate(exp)
-                    self.putItem(value)
-                except RuntimeError:
-                    self.currentType.value = " "
-                    self.currentValue.value = "<no such value>"
-                    self.currentChildNumChild = -1
-                    self.currentNumChild = 0
-                    self.putNumChild(0)
 
 
 # Some "Enums"
