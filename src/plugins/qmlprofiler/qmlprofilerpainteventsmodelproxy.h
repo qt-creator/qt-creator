@@ -66,18 +66,18 @@ public:
 
     int rowMaxValue(int rowNumber) const;
 
-    Q_INVOKABLE int rowCount() const;
-    Q_INVOKABLE int getEventId(int index) const;
-    int getEventRow(int index) const;
+    int rowCount() const;
+    int eventId(int index) const;
+    int row(int index) const;
 
-    Q_INVOKABLE QColor getColor(int index) const;
-    Q_INVOKABLE float getHeight(int index) const;
+    QColor color(int index) const;
+    float height(int index) const;
 
-    Q_INVOKABLE const QVariantList getLabels() const;
-    Q_INVOKABLE const QVariantList getEventDetails(int index) const;
+    QVariantList labels() const;
+    QVariantList details(int index) const;
 
 private slots:
-    bool eventAccepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
+    bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
 
 private:
     class PaintEventsModelProxyPrivate;

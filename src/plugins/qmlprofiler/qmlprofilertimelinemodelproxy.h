@@ -71,20 +71,20 @@ public:
 
 // QML interface
 
-    Q_INVOKABLE int rowCount() const;
+    int rowCount() const;
     static QString categoryLabel(int categoryIndex);
 
-    int getEventRow(int index) const;
-    Q_INVOKABLE int getEventId(int index) const;
-    int getBindingLoopDest(int index) const;
-    Q_INVOKABLE QColor getColor(int index) const;
+    int row(int index) const;
+    int eventId(int index) const;
+    int bindingLoopDest(int index) const;
+    QColor color(int index) const;
 
-    Q_INVOKABLE const QVariantList getLabels() const;
-    Q_INVOKABLE const QVariantList getEventDetails(int index) const;
-    Q_INVOKABLE const QVariantMap getEventLocation(int index) const;
+    QVariantList labels() const;
+    QVariantList details(int index) const;
+    QVariantMap location(int index) const;
 
-    Q_INVOKABLE int getEventIdForTypeIndex(int typeIndex) const;
-    Q_INVOKABLE int getEventIdForLocation(const QString &filename, int line, int column) const;
+    int eventIdForTypeIndex(int typeIndex) const;
+    int eventIdForLocation(const QString &filename, int line, int column) const;
 
 private:
     class RangeTimelineModelPrivate;

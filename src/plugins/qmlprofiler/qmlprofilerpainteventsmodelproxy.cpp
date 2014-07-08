@@ -78,9 +78,9 @@ void PaintEventsModelProxy::clear()
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 
-bool PaintEventsModelProxy::eventAccepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
+bool PaintEventsModelProxy::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
 {
-    return AbstractTimelineModel::eventAccepted(event) &&
+    return AbstractTimelineModel::accepted(event) &&
             event.detailType== QmlDebug::AnimationFrame;
 }
 
@@ -101,7 +101,7 @@ void PaintEventsModelProxy::loadData()
 
     foreach (const QmlProfilerDataModel::QmlEventData &event, referenceList) {
         const QmlProfilerDataModel::QmlEventTypeData &type = typeList[event.typeIndex];
-        if (!eventAccepted(type))
+        if (!accepted(type))
             continue;
 
         lastEvent.threadId = (QmlDebug::AnimationThread)event.numericData3;
@@ -160,7 +160,7 @@ int PaintEventsModelProxy::PaintEventsModelProxyPrivate::rowFromThreadId(
     return (threadId == QmlDebug::GuiThread || maxGuiThreadAnimations == 0) ? 1 : 2;
 }
 
-int PaintEventsModelProxy::getEventRow(int index) const
+int PaintEventsModelProxy::row(int index) const
 {
     Q_D(const PaintEventsModelProxy);
     return d->rowFromThreadId(d->range(index).threadId);
@@ -180,13 +180,13 @@ int PaintEventsModelProxy::rowMaxValue(int rowNumber) const
     }
 }
 
-int PaintEventsModelProxy::getEventId(int index) const
+int PaintEventsModelProxy::eventId(int index) const
 {
     Q_D(const PaintEventsModelProxy);
     return d->range(index).threadId;
 }
 
-QColor PaintEventsModelProxy::getColor(int index) const
+QColor PaintEventsModelProxy::color(int index) const
 {
     Q_D(const PaintEventsModelProxy);
     double fpsFraction = d->range(index).framerate / 60.0;
@@ -194,10 +194,10 @@ QColor PaintEventsModelProxy::getColor(int index) const
         fpsFraction = 1.0;
     if (fpsFraction < 0.0)
         fpsFraction = 0.0;
-    return getFractionColor(fpsFraction);
+    return colorByFraction(fpsFraction);
 }
 
-float PaintEventsModelProxy::getHeight(int index) const
+float PaintEventsModelProxy::height(int index) const
 {
     Q_D(const PaintEventsModelProxy);
     const PaintEventsModelProxyPrivate::Range &range = d->range(index);
@@ -212,7 +212,7 @@ float PaintEventsModelProxy::getHeight(int index) const
                                                             d->maxRenderThreadAnimations);
 }
 
-const QVariantList PaintEventsModelProxy::getLabels() const
+QVariantList PaintEventsModelProxy::labels() const
 {
     Q_D(const PaintEventsModelProxy);
     QVariantList result;
@@ -236,7 +236,7 @@ const QVariantList PaintEventsModelProxy::getLabels() const
     return result;
 }
 
-const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
+QVariantList PaintEventsModelProxy::details(int index) const
 {
     Q_D(const PaintEventsModelProxy);
     QVariantList result;

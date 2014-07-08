@@ -67,37 +67,37 @@ int AbstractTimelineModel::count() const
     return d->count();
 }
 
-int AbstractTimelineModel::findFirstIndex(qint64 startTime) const
+int AbstractTimelineModel::firstIndex(qint64 startTime) const
 {
     Q_D(const AbstractTimelineModel);
-    return d->findFirstIndex(startTime);
+    return d->firstIndex(startTime);
 }
 
-int AbstractTimelineModel::findFirstIndexNoParents(qint64 startTime) const
+int AbstractTimelineModel::firstIndexNoParents(qint64 startTime) const
 {
     Q_D(const AbstractTimelineModel);
-    return d->findFirstIndexNoParents(startTime);
+    return d->firstIndexNoParents(startTime);
 }
 
-int AbstractTimelineModel::findLastIndex(qint64 endTime) const
+int AbstractTimelineModel::lastIndex(qint64 endTime) const
 {
     Q_D(const AbstractTimelineModel);
-    return d->findLastIndex(endTime);
+    return d->lastIndex(endTime);
 }
 
-qint64 AbstractTimelineModel::getDuration(int index) const
+qint64 AbstractTimelineModel::duration(int index) const
 {
     Q_D(const AbstractTimelineModel);
     return d->duration(index);
 }
 
-qint64 AbstractTimelineModel::getStartTime(int index) const
+qint64 AbstractTimelineModel::startTime(int index) const
 {
     Q_D(const AbstractTimelineModel);
     return d->startTime(index);
 }
 
-qint64 AbstractTimelineModel::getEndTime(int index) const
+qint64 AbstractTimelineModel::endTime(int index) const
 {
     Q_D(const AbstractTimelineModel);
     return d->startTime(index) + d->duration(index);
@@ -183,20 +183,20 @@ qint64 AbstractTimelineModel::traceDuration() const
     return d->modelManager->traceTime()->duration();
 }
 
-const QVariantMap AbstractTimelineModel::getEventLocation(int index) const
+QVariantMap AbstractTimelineModel::location(int index) const
 {
     Q_UNUSED(index);
     QVariantMap map;
     return map;
 }
 
-int AbstractTimelineModel::getEventIdForTypeIndex(int typeIndex) const
+int AbstractTimelineModel::eventIdForTypeIndex(int typeIndex) const
 {
     Q_UNUSED(typeIndex);
     return -1;
 }
 
-int AbstractTimelineModel::getEventIdForLocation(const QString &filename, int line, int column) const
+int AbstractTimelineModel::eventIdForLocation(const QString &filename, int line, int column) const
 {
     Q_UNUSED(filename);
     Q_UNUSED(line);
@@ -204,13 +204,13 @@ int AbstractTimelineModel::getEventIdForLocation(const QString &filename, int li
     return -1;
 }
 
-int AbstractTimelineModel::getBindingLoopDest(int index) const
+int AbstractTimelineModel::bindingLoopDest(int index) const
 {
     Q_UNUSED(index);
     return -1;
 }
 
-float AbstractTimelineModel::getHeight(int index) const
+float AbstractTimelineModel::height(int index) const
 {
     Q_UNUSED(index);
     return 1.0f;
@@ -245,7 +245,7 @@ void AbstractTimelineModel::dataChanged()
     d->rowOffsets.clear();
 }
 
-bool AbstractTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
+bool AbstractTimelineModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
 {
     Q_D(const AbstractTimelineModel);
     return (event.rangeType == d->rangeType && event.message == d->message);

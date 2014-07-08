@@ -165,85 +165,85 @@ int TimelineModelAggregator::rowMaxValue(int modelIndex, int row) const
     return d->modelList[modelIndex]->rowMaxValue(row);
 }
 
-int TimelineModelAggregator::findFirstIndex(int modelIndex, qint64 startTime) const
+int TimelineModelAggregator::firstIndex(int modelIndex, qint64 startTime) const
 {
-    return d->modelList[modelIndex]->findFirstIndex(startTime);
+    return d->modelList[modelIndex]->firstIndex(startTime);
 }
 
-int TimelineModelAggregator::findFirstIndexNoParents(int modelIndex, qint64 startTime) const
+int TimelineModelAggregator::firstIndexNoParents(int modelIndex, qint64 startTime) const
 {
-    return d->modelList[modelIndex]->findFirstIndexNoParents(startTime);
+    return d->modelList[modelIndex]->firstIndexNoParents(startTime);
 }
 
-int TimelineModelAggregator::findLastIndex(int modelIndex, qint64 endTime) const
+int TimelineModelAggregator::lastIndex(int modelIndex, qint64 endTime) const
 {
-    return d->modelList[modelIndex]->findLastIndex(endTime);
+    return d->modelList[modelIndex]->lastIndex(endTime);
 }
 
-int TimelineModelAggregator::getEventRow(int modelIndex, int index) const
+int TimelineModelAggregator::row(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->getEventRow(index);
+    return d->modelList[modelIndex]->row(index);
 }
 
-qint64 TimelineModelAggregator::getDuration(int modelIndex, int index) const
+qint64 TimelineModelAggregator::duration(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->getDuration(index);
+    return d->modelList[modelIndex]->duration(index);
 }
 
-qint64 TimelineModelAggregator::getStartTime(int modelIndex, int index) const
+qint64 TimelineModelAggregator::startTime(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->getStartTime(index);
+    return d->modelList[modelIndex]->startTime(index);
 }
 
-qint64 TimelineModelAggregator::getEndTime(int modelIndex, int index) const
+qint64 TimelineModelAggregator::endTime(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->getEndTime(index);
+    return d->modelList[modelIndex]->endTime(index);
 }
 
-int TimelineModelAggregator::getEventId(int modelIndex, int index) const
+int TimelineModelAggregator::eventId(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->getEventId(index);
+    return d->modelList[modelIndex]->eventId(index);
 }
 
-int TimelineModelAggregator::getBindingLoopDest(int modelIndex,int index) const
+int TimelineModelAggregator::bindingLoopDest(int modelIndex,int index) const
 {
-    return d->modelList[modelIndex]->getBindingLoopDest(index);
+    return d->modelList[modelIndex]->bindingLoopDest(index);
 }
 
-QColor TimelineModelAggregator::getColor(int modelIndex, int index) const
+QColor TimelineModelAggregator::color(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->getColor(index);
+    return d->modelList[modelIndex]->color(index);
 }
 
-float TimelineModelAggregator::getHeight(int modelIndex, int index) const
+float TimelineModelAggregator::height(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->getHeight(index);
+    return d->modelList[modelIndex]->height(index);
 }
 
-const QVariantList TimelineModelAggregator::getLabels(int modelIndex) const
+QVariantList TimelineModelAggregator::labels(int modelIndex) const
 {
-    return d->modelList[modelIndex]->getLabels();
+    return d->modelList[modelIndex]->labels();
 }
 
-const QVariantList TimelineModelAggregator::getEventDetails(int modelIndex, int index) const
+QVariantList TimelineModelAggregator::details(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->getEventDetails(index);
+    return d->modelList[modelIndex]->details(index);
 }
 
-const QVariantMap TimelineModelAggregator::getEventLocation(int modelIndex, int index) const
+QVariantMap TimelineModelAggregator::location(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->getEventLocation(index);
+    return d->modelList[modelIndex]->location(index);
 }
 
-int TimelineModelAggregator::getEventIdForTypeIndex(int modelIndex, int typeIndex) const
+int TimelineModelAggregator::eventIdForTypeIndex(int modelIndex, int typeIndex) const
 {
-    return d->modelList[modelIndex]->getEventIdForTypeIndex(typeIndex);
+    return d->modelList[modelIndex]->eventIdForTypeIndex(typeIndex);
 }
 
-int TimelineModelAggregator::getEventIdForLocation(int modelIndex, const QString &filename,
+int TimelineModelAggregator::eventIdForLocation(int modelIndex, const QString &filename,
                                                    int line, int column) const
 {
-    return d->modelList[modelIndex]->getEventIdForLocation(filename, line, column);
+    return d->modelList[modelIndex]->eventIdForLocation(filename, line, column);
 }
 
 void TimelineModelAggregator::dataChanged()

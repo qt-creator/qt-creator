@@ -43,9 +43,9 @@ public:
     virtual qint64 startTime(int index) const = 0;
     virtual qint64 lastEndTime() const = 0;
     virtual qint64 firstStartTime() const = 0;
-    virtual int findFirstIndex(qint64 startTime) const = 0;
-    virtual int findFirstIndexNoParents(qint64 startTime) const = 0;
-    virtual int findLastIndex(qint64 endTime) const = 0;
+    virtual int firstIndex(qint64 startTime) const = 0;
+    virtual int firstIndexNoParents(qint64 startTime) const = 0;
+    virtual int lastIndex(qint64 endTime) const = 0;
 
     QVector<int> rowOffsets;
     QmlProfilerModelManager *modelManager;

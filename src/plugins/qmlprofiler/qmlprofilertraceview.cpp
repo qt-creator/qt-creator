@@ -265,7 +265,7 @@ void QmlProfilerTraceView::selectByTypeIndex(int typeIndex)
         return;
 
     for (int modelIndex = 0; modelIndex < d->m_modelProxy->modelCount(); ++modelIndex) {
-        int eventId = d->m_modelProxy->getEventIdForTypeIndex(modelIndex, typeIndex);
+        int eventId = d->m_modelProxy->eventIdForTypeIndex(modelIndex, typeIndex);
         if (eventId != -1) {
             QMetaObject::invokeMethod(rootObject, "selectById",
                                       Q_ARG(QVariant,QVariant(modelIndex)),
@@ -282,7 +282,7 @@ void QmlProfilerTraceView::selectBySourceLocation(const QString &filename, int l
         return;
 
     for (int modelIndex = 0; modelIndex < d->m_modelProxy->modelCount(); ++modelIndex) {
-        int eventId = d->m_modelProxy->getEventIdForLocation(modelIndex, filename, line, column);
+        int eventId = d->m_modelProxy->eventIdForLocation(modelIndex, filename, line, column);
         if (eventId != -1) {
             QMetaObject::invokeMethod(rootObject, "selectById",
                                       Q_ARG(QVariant,QVariant(modelIndex)),

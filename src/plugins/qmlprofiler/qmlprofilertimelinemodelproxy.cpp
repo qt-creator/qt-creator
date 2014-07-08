@@ -99,7 +99,7 @@ void RangeTimelineModel::loadData()
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &typesList = simpleModel->getEventTypes();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         const QmlProfilerDataModel::QmlEventTypeData &type = typesList[event.typeIndex];
-        if (!eventAccepted(type))
+        if (!accepted(type))
             continue;
         if (type.rangeType == QmlDebug::Painting)
             d->seenPaintEvent = true;
@@ -239,7 +239,7 @@ QString RangeTimelineModel::categoryLabel(int categoryIndex)
     }
 }
 
-int RangeTimelineModel::getEventRow(int index) const
+int RangeTimelineModel::row(int index) const
 {
     Q_D(const RangeTimelineModel);
     if (d->expanded)
@@ -248,24 +248,24 @@ int RangeTimelineModel::getEventRow(int index) const
         return d->range(index).displayRowCollapsed;
 }
 
-int RangeTimelineModel::getEventId(int index) const
+int RangeTimelineModel::eventId(int index) const
 {
     Q_D(const RangeTimelineModel);
     return d->range(index).eventId;
 }
 
-int RangeTimelineModel::getBindingLoopDest(int index) const
+int RangeTimelineModel::bindingLoopDest(int index) const
 {
     Q_D(const RangeTimelineModel);
     return d->range(index).bindingLoopHead;
 }
 
-QColor RangeTimelineModel::getColor(int index) const
+QColor RangeTimelineModel::color(int index) const
 {
-    return getEventColor(index);
+    return colorByEventId(index);
 }
 
-const QVariantList RangeTimelineModel::getLabels() const
+QVariantList RangeTimelineModel::labels() const
 {
     Q_D(const RangeTimelineModel);
     QVariantList result;
@@ -287,11 +287,11 @@ const QVariantList RangeTimelineModel::getLabels() const
     return result;
 }
 
-const QVariantList RangeTimelineModel::getEventDetails(int index) const
+QVariantList RangeTimelineModel::details(int index) const
 {
     Q_D(const RangeTimelineModel);
     QVariantList result;
-    int eventId = getEventId(index);
+    int id = eventId(index);
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
             d->modelManager->qmlModel()->getEventTypes();
 
@@ -313,7 +313,7 @@ const QVariantList RangeTimelineModel::getEventDetails(int index) const
     // details
     {
         QVariantMap valuePair;
-        QString detailsString = types[eventId].data;
+        QString detailsString = types[id].data;
         if (detailsString.length() > 40)
             detailsString = detailsString.left(40) + QLatin1String("...");
         valuePair.insert(QCoreApplication::translate(trContext, "Details:"),
@@ -325,25 +325,24 @@ const QVariantList RangeTimelineModel::getEventDetails(int index) const
     {
         QVariantMap valuePair;
         valuePair.insert(QCoreApplication::translate(trContext, "Location:"),
-                         QVariant(types[eventId].displayName));
+                         QVariant(types[id].displayName));
         result << valuePair;
     }
 
     // isbindingloop
     {}
 
-
     return result;
 }
 
-const QVariantMap RangeTimelineModel::getEventLocation(int index) const
+QVariantMap RangeTimelineModel::location(int index) const
 {
     Q_D(const RangeTimelineModel);
     QVariantMap result;
-    int eventId = getEventId(index);
+    int id = eventId(index);
 
     const QmlDebug::QmlEventLocation &location
-            = d->modelManager->qmlModel()->getEventTypes().at(eventId).location;
+            = d->modelManager->qmlModel()->getEventTypes().at(id).location;
 
     result.insert(QStringLiteral("file"), location.filename);
     result.insert(QStringLiteral("line"), location.line);
@@ -352,7 +351,7 @@ const QVariantMap RangeTimelineModel::getEventLocation(int index) const
     return result;
 }
 
-int RangeTimelineModel::getEventIdForTypeIndex(int typeIndex) const
+int RangeTimelineModel::eventIdForTypeIndex(int typeIndex) const
 {
     Q_D(const RangeTimelineModel);
     if (typeIndex < 0)
@@ -364,7 +363,7 @@ int RangeTimelineModel::getEventIdForTypeIndex(int typeIndex) const
     return typeIndex;
 }
 
-int RangeTimelineModel::getEventIdForLocation(const QString &filename, int line, int column) const
+int RangeTimelineModel::eventIdForLocation(const QString &filename, int line, int column) const
 {
     Q_D(const RangeTimelineModel);
     // if this is called from v8 view, we don't have the column number, it will be -1

@@ -92,13 +92,13 @@
 */
 
 /*!
-    \fn int SortedTimelineModel::findFirstIndexNoParents(qint64 startTime) const
+    \fn int SortedTimelineModel::firstIndexNoParents(qint64 startTime) const
     Looks up the first range with an end time greater than the given time and
     returns its index. If no such range is found, it returns -1.
 */
 
 /*!
-    \fn int SortedTimelineModel::findFirstIndex(qint64 startTime) const
+    \fn int SortedTimelineModel::firstIndex(qint64 startTime) const
     Looks up the first range with an end time greater than the given time and
     returns its parent's index. If no such range is found, it returns -1. If there
     is no parent, it returns the found range's index. The parent of a range is the
@@ -108,7 +108,7 @@
 */
 
 /*!
-    \fn int SortedTimelineModel::findLastIndex(qint64 endTime) const
+    \fn int SortedTimelineModel::lastIndex(qint64 endTime) const
     Looks up the last range with a start time smaller than the given time and
     returns its index. If no such range is found, it returns -1.
 */

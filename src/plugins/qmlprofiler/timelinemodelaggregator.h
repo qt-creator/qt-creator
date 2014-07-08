@@ -67,27 +67,27 @@ public:
     Q_INVOKABLE int rowMinValue(int modelIndex, int row) const;
     Q_INVOKABLE int rowMaxValue(int modelIndex, int row) const;
 
-    int findFirstIndex(int modelIndex, qint64 startTime) const;
-    int findFirstIndexNoParents(int modelIndex, qint64 startTime) const;
-    int findLastIndex(int modelIndex, qint64 endTime) const;
+    Q_INVOKABLE int firstIndex(int modelIndex, qint64 startTime) const;
+    Q_INVOKABLE int firstIndexNoParents(int modelIndex, qint64 startTime) const;
+    Q_INVOKABLE int lastIndex(int modelIndex, qint64 endTime) const;
 
-    int getEventRow(int modelIndex, int index) const;
-    Q_INVOKABLE qint64 getDuration(int modelIndex, int index) const;
-    Q_INVOKABLE qint64 getStartTime(int modelIndex, int index) const;
-    Q_INVOKABLE qint64 getEndTime(int modelIndex, int index) const;
-    Q_INVOKABLE int getEventId(int modelIndex, int index) const;
-    Q_INVOKABLE int getBindingLoopDest(int modelIndex, int index) const;
-    Q_INVOKABLE QColor getColor(int modelIndex, int index) const;
-    Q_INVOKABLE float getHeight(int modelIndex, int index) const;
+    Q_INVOKABLE int row(int modelIndex, int index) const;
+    Q_INVOKABLE qint64 duration(int modelIndex, int index) const;
+    Q_INVOKABLE qint64 startTime(int modelIndex, int index) const;
+    Q_INVOKABLE qint64 endTime(int modelIndex, int index) const;
+    Q_INVOKABLE int eventId(int modelIndex, int index) const;
+    Q_INVOKABLE int bindingLoopDest(int modelIndex, int index) const;
+    Q_INVOKABLE QColor color(int modelIndex, int index) const;
+    Q_INVOKABLE float height(int modelIndex, int index) const;
 
-    Q_INVOKABLE const QVariantList getLabels(int modelIndex) const;
+    Q_INVOKABLE QVariantList labels(int modelIndex) const;
 
-    Q_INVOKABLE const QVariantList getEventDetails(int modelIndex, int index) const;
-    Q_INVOKABLE const QVariantMap getEventLocation(int modelIndex, int index) const;
+    Q_INVOKABLE QVariantList details(int modelIndex, int index) const;
+    Q_INVOKABLE QVariantMap location(int modelIndex, int index) const;
 
-    Q_INVOKABLE int getEventIdForTypeIndex(int modelIndex, int typeIndex) const;
-    Q_INVOKABLE int getEventIdForLocation(int modelIndex, const QString &filename, int line,
-                                          int column) const;
+    Q_INVOKABLE int eventIdForTypeIndex(int modelIndex, int typeIndex) const;
+    Q_INVOKABLE int eventIdForLocation(int modelIndex, const QString &filename, int line,
+                                       int column) const;
 
 signals:
     void dataAvailable();

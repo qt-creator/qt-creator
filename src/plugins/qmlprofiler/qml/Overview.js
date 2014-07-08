@@ -56,20 +56,20 @@ function drawData(canvas, ctxt)
         for (var ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
              ii += canvas.increment) {
 
-            var xx = (qmlProfilerModelProxy.getStartTime(modelIndex,ii) -
+            var xx = (qmlProfilerModelProxy.startTime(modelIndex,ii) -
                       qmlProfilerModelProxy.traceStartTime()) * spacing;
 
-            var eventWidth = qmlProfilerModelProxy.getDuration(modelIndex,ii) * spacing;
+            var eventWidth = qmlProfilerModelProxy.duration(modelIndex,ii) * spacing;
 
             if (eventWidth < 1)
                 eventWidth = 1;
 
             xx = Math.round(xx);
 
-            var itemHeight = qmlProfilerModelProxy.getHeight(modelIndex,ii) * blockHeight;
+            var itemHeight = qmlProfilerModelProxy.height(modelIndex,ii) * blockHeight;
             var yy = (modelIndex + 1) * blockHeight - itemHeight ;
 
-            ctxt.fillStyle = qmlProfilerModelProxy.getColor(modelIndex, ii);
+            ctxt.fillStyle = qmlProfilerModelProxy.color(modelIndex, ii);
             ctxt.fillRect(xx, bump + yy, eventWidth, itemHeight);
         }
     }
@@ -81,9 +81,9 @@ function drawData(canvas, ctxt)
     for (modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
         for (ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
              ii += canvas.increment) {
-            if (qmlProfilerModelProxy.getBindingLoopDest(modelIndex,ii) >= 0) {
-                var xcenter = Math.round(qmlProfilerModelProxy.getStartTime(modelIndex,ii) +
-                                         qmlProfilerModelProxy.getDuration(modelIndex,ii) -
+            if (qmlProfilerModelProxy.bindingLoopDest(modelIndex,ii) >= 0) {
+                var xcenter = Math.round(qmlProfilerModelProxy.startTime(modelIndex,ii) +
+                                         qmlProfilerModelProxy.duration(modelIndex,ii) -
                                          qmlProfilerModelProxy.traceStartTime()) * spacing;
                 var ycenter = Math.round(bump + blockHeight * modelIndex + blockHeight / 2);
                 ctxt.beginPath();

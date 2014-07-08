@@ -103,16 +103,16 @@ public:
         insertSorted(endTimes, RangeEnd(index, ranges[index].start + duration));
     }
 
-    inline int findFirstIndex(qint64 startTime) const
+    inline int firstIndex(qint64 startTime) const
     {
-        int index = findFirstIndexNoParents(startTime);
+        int index = firstIndexNoParents(startTime);
         if (index == -1)
             return -1;
         int parent = ranges[index].parent;
         return parent == -1 ? index : parent;
     }
 
-    inline int findFirstIndexNoParents(qint64 startTime) const
+    inline int firstIndexNoParents(qint64 startTime) const
     {
         // in the "endtime" list, find the first event that ends after startTime
         if (endTimes.isEmpty())
@@ -125,7 +125,7 @@ public:
         return endTimes[lowerBound(endTimes, startTime) + 1].startIndex;
     }
 
-    inline int findLastIndex(qint64 endTime) const
+    inline int lastIndex(qint64 endTime) const
     {
         // in the "starttime" list, find the last event that starts before endtime
         if (ranges.isEmpty() || ranges.first().start >= endTime)

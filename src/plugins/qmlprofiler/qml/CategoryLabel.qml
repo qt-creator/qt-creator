@@ -54,7 +54,7 @@ Item {
     height: trigger(qmlProfilerModelProxy.height(modelIndex))
     width: 150
 
-    function getDescriptions() {
+    function updateDescriptions() {
         bindingTrigger = -bindingTrigger;
         if (!visible)
             return;
@@ -62,7 +62,7 @@ Item {
         var desc=[];
         var ids=[];
         var extdesc=[];
-        var labelList = qmlProfilerModelProxy.getLabels(modelIndex);
+        var labelList = qmlProfilerModelProxy.labels(modelIndex);
         for (var i = 0; i < labelList.length; i++ ) {
             extdesc[i] = desc[i] = (labelList[i].description || qsTr("<bytecode>"));
             ids[i] = labelList[i].id;
@@ -76,9 +76,9 @@ Item {
 
     Connections {
         target: qmlProfilerModelProxy
-        onExpandedChanged: getDescriptions();
-        onStateChanged: getDescriptions()
-        onRowHeightChanged: getDescriptions()
+        onExpandedChanged: updateDescriptions();
+        onStateChanged: updateDescriptions()
+        onRowHeightChanged: updateDescriptions()
     }
 
     Text {
