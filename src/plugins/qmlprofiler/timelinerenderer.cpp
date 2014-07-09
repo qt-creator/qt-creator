@@ -502,7 +502,7 @@ void TimelineRenderer::selectPrev()
 
     qint64 searchTime = m_endTime;
     if (m_selectedItem != -1)
-        searchTime = m_profilerModelProxy->getEndTime(m_selectedModel, m_selectedItem);
+        searchTime = m_profilerModelProxy->getStartTime(m_selectedModel, m_selectedItem);
 
     QVarLengthArray<int> itemIndexes(m_profilerModelProxy->modelCount());
     for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {

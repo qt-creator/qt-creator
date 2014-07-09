@@ -30,7 +30,6 @@
 #include "beautifierplugin.h"
 
 #include "beautifierconstants.h"
-#include "command.h"
 
 #include "artisticstyle/artisticstyle.h"
 #include "clangformat/clangformat.h"
@@ -51,10 +50,12 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/fileutils.h>
+#include <utils/QtConcurrentTools>
 
 #include <QAction>
 #include <QDir>
 #include <QFileInfo>
+#include <QFutureWatcher>
 #include <QPlainTextEdit>
 #include <QProcess>
 #include <QScrollBar>
@@ -65,12 +66,17 @@
 namespace Beautifier {
 namespace Internal {
 
-BeautifierPlugin::BeautifierPlugin()
+BeautifierPlugin::BeautifierPlugin() :
+    m_asyncFormatMapper(new QSignalMapper)
 {
+    connect(m_asyncFormatMapper, SIGNAL(mapped(QObject *)),
+            this, SLOT(formatCurrentFileContinue(QObject*)));
+    connect(this, SIGNAL(pipeError(QString)), this, SLOT(showError(QString)));
 }
 
 BeautifierPlugin::~BeautifierPlugin()
 {
+    m_asyncFormatMapper->deleteLater();
 }
 
 bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -119,7 +125,9 @@ void BeautifierPlugin::updateActions(Core::IEditor *editor)
         m_tools.at(i)->updateActions(editor);
 }
 
-QString BeautifierPlugin::format(const QString &text, const Command &command, const QString &fileName)
+// Use pipeError() instead of calling showError() because this function may run in another thread.
+QString BeautifierPlugin::format(const QString &text, const Command &command,
+                                 const QString &fileName, bool *timeout)
 {
     const QString executable = command.executable();
     if (executable.isEmpty())
@@ -134,8 +142,8 @@ QString BeautifierPlugin::format(const QString &text, const Command &command, co
         sourceFile.setAutoRemove(true);
         sourceFile.write(text.toUtf8());
         if (!sourceFile.finalize()) {
-            showError(tr("Cannot create temporary file \"%1\": %2.")
-                      .arg(sourceFile.fileName()).arg(sourceFile.errorString()));
+            emit pipeError(tr("Cannot create temporary file \"%1\": %2.")
+                           .arg(sourceFile.fileName()).arg(sourceFile.errorString()));
             return QString();
         }
 
@@ -144,19 +152,22 @@ QString BeautifierPlugin::format(const QString &text, const Command &command, co
         QStringList options = command.options();
         options.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
         process.start(executable, options);
-        if (!process.waitForFinished()) {
-            showError(tr("Cannot call %1 or some other error occurred.").arg(executable));
+        if (!process.waitForFinished(5000)) {
+            if (timeout)
+                *timeout = true;
+            process.kill();
+            emit pipeError(tr("Cannot call %1 or some other error occurred.").arg(executable));
             return QString();
         }
         const QByteArray output = process.readAllStandardError();
         if (!output.isEmpty())
-            showError(executable + QLatin1String(": ") + QString::fromUtf8(output));
+            emit pipeError(executable + QLatin1String(": ") + QString::fromUtf8(output));
 
         // Read text back
         Utils::FileReader reader;
         if (!reader.fetch(sourceFile.fileName(), QIODevice::Text)) {
-            showError(tr("Cannot read file \"%1\": %2.")
-                      .arg(sourceFile.fileName()).arg(reader.errorString()));
+            emit pipeError(tr("Cannot read file \"%1\": %2.")
+                           .arg(sourceFile.fileName()).arg(reader.errorString()));
             return QString();
         }
         return QString::fromUtf8(reader.data());
@@ -167,19 +178,23 @@ QString BeautifierPlugin::format(const QString &text, const Command &command, co
         QStringList options = command.options();
         options.replaceInStrings(QLatin1String("%file"), fileName);
         process.start(executable, options);
-        if (!process.waitForStarted()) {
-            showError(tr("Cannot call %1 or some other error occurred.").arg(executable));
+        if (!process.waitForStarted(3000)) {
+            emit pipeError(tr("Cannot call %1 or some other error occurred.").arg(executable));
             return QString();
         }
         process.write(text.toUtf8());
         process.closeWriteChannel();
-        if (!process.waitForFinished()) {
-            showError(tr("Cannot call %1 or some other error occurred.").arg(executable));
+        if (!process.waitForFinished(5000)) {
+            if (timeout)
+                *timeout = true;
+            process.kill();
+            emit pipeError(tr("Cannot call %1 or some other error occurred.").arg(executable));
             return QString();
         }
-        const QByteArray error = process.readAllStandardError();
-        if (!error.isEmpty()) {
-            showError(executable + QLatin1String(": ") + QString::fromUtf8(error));
+        const QByteArray errorText = process.readAllStandardError();
+        if (!errorText.isEmpty()) {
+            emit pipeError(QString::fromLatin1("%1: %2").arg(executable)
+                           .arg(QString::fromUtf8(errorText)));
             return QString();
         }
 
@@ -198,9 +213,12 @@ QString BeautifierPlugin::format(const QString &text, const Command &command, co
 void BeautifierPlugin::formatCurrentFile(const Command &command)
 {
     QPlainTextEdit *textEditor = 0;
+    QString filePath;
     if (TextEditor::BaseTextEditor *editor
-            = qobject_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::currentEditor()))
+            = qobject_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::currentEditor())) {
         textEditor = qobject_cast<QPlainTextEdit *>(editor->editorWidget());
+        filePath = editor->document()->filePath();
+    }
     if (!textEditor)
         return;
 
@@ -208,8 +226,51 @@ void BeautifierPlugin::formatCurrentFile(const Command &command)
     if (sourceData.isEmpty())
         return;
 
-    const QString formattedData = format(sourceData, command,
-                                         Core::EditorManager::currentDocument()->filePath());
+    QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
+    connect(textEditor->document(), SIGNAL(contentsChanged()), watcher, SLOT(cancel()));
+    connect(watcher, SIGNAL(finished()), m_asyncFormatMapper, SLOT(map()));
+    m_asyncFormatMapper->setMapping(watcher, watcher);
+    watcher->setFuture(QtConcurrent::run(&BeautifierPlugin::formatAsync, this,
+                                         FormatTask(textEditor, filePath, sourceData, command)));
+}
+
+void BeautifierPlugin::formatAsync(QFutureInterface<FormatTask> &future, FormatTask task)
+{
+    task.formattedData = format(task.sourceData, task.command, task.filePath, &task.timeout);
+    future.reportResult(task);
+}
+
+void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
+{
+    QFutureWatcher<FormatTask> *futureWatcher = static_cast<QFutureWatcher<FormatTask>*>(watcher);
+    if (!futureWatcher) {
+        if (watcher)
+            watcher->deleteLater();
+        return;
+    }
+
+    if (futureWatcher->isCanceled()) {
+        showError(tr("File was modified."));
+        futureWatcher->deleteLater();
+        return;
+    }
+
+    const FormatTask task = futureWatcher->result();
+    futureWatcher->deleteLater();
+
+    if (task.timeout) {
+        showError(tr("Time out reached while formatting file %1.").arg(task.filePath));
+        return;
+    }
+
+    QPlainTextEdit *textEditor = task.editor;
+    if (!textEditor) {
+        showError(tr("File %1 was closed.").arg(task.filePath));
+        return;
+    }
+
+    const QString sourceData = textEditor->toPlainText();
+    const QString formattedData = task.formattedData;
     if ((sourceData == formattedData) || formattedData.isEmpty())
         return;
 

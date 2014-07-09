@@ -30,8 +30,14 @@
 #ifndef BEAUTIFIER_BEAUTIFIER_H
 #define BEAUTIFIER_BEAUTIFIER_H
 
+#include "command.h"
+
 #include <extensionsystem/iplugin.h>
 #include <utils/qtcoverride.h>
+
+#include <QFutureInterface>
+#include <QPlainTextEdit>
+#include <QSignalMapper>
 
 namespace Core { class IEditor; }
 
@@ -39,7 +45,24 @@ namespace Beautifier {
 namespace Internal {
 
 class BeautifierAbstractTool;
-class Command;
+
+struct FormatTask
+{
+    FormatTask(QPlainTextEdit *_editor, const QString &_filePath, const QString &_sourceData,
+               const Command &_command) :
+        editor(_editor),
+        filePath(_filePath),
+        sourceData(_sourceData),
+        command(_command),
+        timeout(false) {}
+
+    QPointer<QPlainTextEdit> editor;
+    QString filePath;
+    QString sourceData;
+    Command command;
+    QString formattedData;
+    bool timeout;
+};
 
 class BeautifierPlugin : public ExtensionSystem::IPlugin
 {
@@ -53,20 +76,29 @@ public:
     void extensionsInitialized() QTC_OVERRIDE;
     ShutdownFlag aboutToShutdown() QTC_OVERRIDE;
 
-    static QString format(const QString &text, const Command &command, const QString &fileName);
-    static void formatCurrentFile(const Command &command);
-    static void showError(const QString &error);
+    QString format(const QString &text, const Command &command, const QString &fileName,
+                   bool *timeout = 0);
+    void formatCurrentFile(const Command &command);
+    void formatAsync(QFutureInterface<FormatTask> &future, FormatTask task);
 
     static QString msgCannotGetConfigurationFile(const QString &command);
     static QString msgFormatCurrentFile();
     static QString msgFormatSelectedText();
     static QString msgCommandPromptDialogTitle(const QString &command);
 
+public slots:
+    static void showError(const QString &error);
+
 private slots:
     void updateActions(Core::IEditor *editor = 0);
+    void formatCurrentFileContinue(QObject *watcher = 0);
+
+signals:
+    void pipeError(QString);
 
 private:
     QList<BeautifierAbstractTool *> m_tools;
+    QSignalMapper *m_asyncFormatMapper;
 };
 
 } // namespace Internal

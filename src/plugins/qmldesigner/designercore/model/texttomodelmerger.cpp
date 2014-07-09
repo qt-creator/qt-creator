@@ -841,10 +841,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             return false;
         }
         snapshot.insert(doc);
-        QmlJS::ViewerContext vContext;
-        vContext.language = QmlJS::Language::Qml;
-        vContext.paths = importPaths;
-        vContext.flags = QmlJS::ViewerContext::Complete;
+        QmlJS::ViewerContext vContext = QmlJS::ModelManagerInterface::instance()->defaultVContext(Language::Qml, doc, true);
         ReadingContext ctxt(snapshot, doc, vContext);
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));

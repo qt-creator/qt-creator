@@ -83,13 +83,18 @@ public:
         /* Doing insert-sort here is preferable as most of the time the times will actually be
          * presorted in the right way. So usually this will just result in appending. */
         int index = insertSorted(ranges, Range(startTime, duration, item));
+        if (index < ranges.size() - 1)
+            incrementStartIndices(index);
         insertSorted(endTimes, RangeEnd(index, startTime + duration));
         return index;
     }
 
     inline int insertStart(qint64 startTime, const Data &item)
     {
-        return insertSorted(ranges, Range(startTime, 0, item));
+        int index = insertSorted(ranges, Range(startTime, 0, item));
+        if (index < ranges.size() - 1)
+            incrementStartIndices(index);
+        return index;
     }
 
     inline void insertEnd(int index, qint64 duration)
@@ -154,6 +159,14 @@ public:
     }
 
 protected:
+    void incrementStartIndices(int index)
+    {
+        for (int i = 0; i < endTimes.size(); ++i) {
+            if (endTimes[i].startIndex >= index)
+                endTimes[i].startIndex++;
+        }
+    }
+
     template<typename RangeDelimiter>
     static inline int insertSorted(QVector<RangeDelimiter> &container, const RangeDelimiter &item)
     {

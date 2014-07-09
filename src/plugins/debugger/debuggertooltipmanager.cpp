@@ -860,6 +860,29 @@ DebuggerToolTipTreeView::DebuggerToolTipTreeView(QWidget *parent) :
         Qt::QueuedConnection);
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(computeSize()),
         Qt::QueuedConnection);
+
+    connect(this, SIGNAL(expanded(QModelIndex)),
+        SLOT(expandNode(QModelIndex)));
+    connect(this, SIGNAL(collapsed(QModelIndex)),
+        SLOT(collapseNode(QModelIndex)));
+}
+
+void DebuggerToolTipTreeView::expandNode(const QModelIndex &idx)
+{
+    model()->setData(idx, true, LocalsExpandedRole);
+}
+
+void DebuggerToolTipTreeView::collapseNode(const QModelIndex &idx)
+{
+    model()->setData(idx, false, LocalsExpandedRole);
+}
+
+void DebuggerToolTipTreeView::handleItemIsExpanded(const QModelIndex &sourceIdx)
+{
+    QSortFilterProxyModel *filterModel = qobject_cast<QSortFilterProxyModel*>(model());
+    QModelIndex mappedIdx = filterModel ? filterModel->mapFromSource(sourceIdx) : sourceIdx;
+    if (!isExpanded(mappedIdx))
+        expand(mappedIdx);
 }
 
 QAbstractItemModel *DebuggerToolTipTreeView::swapModel(QAbstractItemModel *newModel)
@@ -869,10 +892,12 @@ QAbstractItemModel *DebuggerToolTipTreeView::swapModel(QAbstractItemModel *newMo
         if (previousModel)
             previousModel->disconnect(SIGNAL(rowsInserted(QModelIndex,int,int)), this);
         setModel(newModel);
-        //setRootIndex(newModel->index(0, 0));
         connect(newModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                this, SLOT(computeSize()), Qt::QueuedConnection);
-        computeSize();
+               SLOT(computeSize()), Qt::QueuedConnection);
+        if (QSortFilterProxyModel *filterModel = qobject_cast<QSortFilterProxyModel*>(newModel)) {
+            connect(filterModel->sourceModel(), SIGNAL(itemIsExpanded(QModelIndex)),
+                SLOT(handleItemIsExpanded(QModelIndex)));
+        }
     }
     return previousModel;
 }

@@ -40,6 +40,7 @@
 
 #include <QCheckBox>
 #include <QCoreApplication>
+#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSpinBox>
@@ -74,8 +75,6 @@ private:
     QCheckBox *checkBoxWarnOnReleaseBuilds;
     QCheckBox *checkBoxKeepEditorStationaryWhileStepping;
     QLabel *labelMaximalStackDepth;
-    QLabel *labelDisplayStringLimit;
-    QLabel *labelMaximalStringLength;
     QSpinBox *spinBoxMaximalStackDepth;
     QSpinBox *spinBoxMaximalStringLength;
     QSpinBox *spinBoxDisplayStringLimit;
@@ -150,38 +149,12 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     spinBoxMaximalStackDepth->setSingleStep(5);
     spinBoxMaximalStackDepth->setValue(10);
 
-    labelMaximalStringLength = new QLabel(tr("Maximum string length:"), behaviorBox);
-
-    spinBoxMaximalStringLength = new QSpinBox(behaviorBox);
-    spinBoxMaximalStringLength->setSpecialValueText(tr("<unlimited>"));
-    spinBoxMaximalStringLength->setMaximum(10000000);
-    spinBoxMaximalStringLength->setSingleStep(1000);
-    spinBoxMaximalStringLength->setValue(10000);
-
-    labelDisplayStringLimit = new QLabel(tr("Display string limit:"), behaviorBox);
-
-    spinBoxDisplayStringLimit = new QSpinBox(behaviorBox);
-    spinBoxDisplayStringLimit->setSpecialValueText(tr("<unlimited>"));
-    spinBoxDisplayStringLimit->setMaximum(10000);
-    spinBoxDisplayStringLimit->setSingleStep(10);
-    spinBoxDisplayStringLimit->setValue(100);
-
     sourcesMappingWidget = new DebuggerSourcePathMappingWidget(this);
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     horizontalLayout->addWidget(labelMaximalStackDepth);
     horizontalLayout->addWidget(spinBoxMaximalStackDepth);
     horizontalLayout->addStretch();
-
-    QHBoxLayout *horizontalLayout1 = new QHBoxLayout();
-    horizontalLayout1->addWidget(labelDisplayStringLimit);
-    horizontalLayout1->addWidget(spinBoxDisplayStringLimit);
-    horizontalLayout1->addStretch();
-
-    QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
-    horizontalLayout2->addWidget(labelMaximalStringLength);
-    horizontalLayout2->addWidget(spinBoxMaximalStringLength);
-    horizontalLayout2->addStretch();
 
     QGridLayout *gridLayout = new QGridLayout(behaviorBox);
     gridLayout->addWidget(checkBoxUseAlternatingRowColors, 0, 0, 1, 1);
@@ -198,8 +171,6 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     gridLayout->addWidget(checkBoxShowQmlObjectTree, 3, 1, 1, 1);
     gridLayout->addWidget(checkBoxKeepEditorStationaryWhileStepping, 4, 1, 1, 1);
     gridLayout->addWidget(checkBoxRegisterForPostMortem, 5, 1, 1, 1);
-    gridLayout->addLayout(horizontalLayout1, 6, 1, 1, 2);
-    gridLayout->addLayout(horizontalLayout2, 7, 1, 1, 2);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(behaviorBox);
@@ -239,8 +210,6 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     m_group->insert(dc->action(UseAddressInBreakpointsView), 0);
     m_group->insert(dc->action(UseAddressInStackView), 0);
     m_group->insert(dc->action(MaximalStackDepth), spinBoxMaximalStackDepth);
-    m_group->insert(dc->action(DisplayStringLimit), spinBoxDisplayStringLimit);
-    m_group->insert(dc->action(MaximalStringLength), spinBoxMaximalStringLength);
     m_group->insert(dc->action(ShowStdNamespace), 0);
     m_group->insert(dc->action(ShowQtNamespace), 0);
     m_group->insert(dc->action(SortStructMembers), 0);
@@ -375,48 +344,70 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         m_widget = new QWidget;
         DebuggerCore *dc = debuggerCore();
 
-        QGroupBox *debuggingHelperGroupBox = new QGroupBox(m_widget);
+        auto debuggingHelperGroupBox = new QGroupBox(m_widget);
         debuggingHelperGroupBox->setTitle(tr("Use Debugging Helper"));
         debuggingHelperGroupBox->setCheckable(true);
 
-        QLabel *label = new QLabel(debuggingHelperGroupBox);
+        auto label = new QLabel(debuggingHelperGroupBox);
         label->setTextFormat(Qt::AutoText);
         label->setWordWrap(true);
         label->setText(QLatin1String("<html><head/><body>\n<p>")
-           + tr("The debugging helper is only used to produce a nice "
+           + tr("The debugging helpers are used to produce a nice "
                 "display of objects of certain types like QString or "
-                "std::map in the &quot;Locals and Expressions&quot; view. "
-                "It is not strictly necessary for debugging with Qt Creator.")
+                "std::map in the &quot;Locals and Expressions&quot; view. ")
             + QLatin1String("</p></body></html>"));
 
-        QCheckBox *checkBoxUseCodeModel = new QCheckBox(debuggingHelperGroupBox);
+        auto checkBoxUseCodeModel = new QCheckBox(debuggingHelperGroupBox);
         checkBoxUseCodeModel->setText(tr("Use code model"));
         checkBoxUseCodeModel->setToolTip(dc->action(UseCodeModel)->toolTip());
         checkBoxUseCodeModel->setToolTip(tr("Makes use of Qt Creator's code model "
             "to find out if a variable has already been assigned a "
             "value at the point the debugger interrupts."));
 
-        QCheckBox *checkBoxShowThreadNames = new QCheckBox(debuggingHelperGroupBox);
+        auto checkBoxShowThreadNames = new QCheckBox(debuggingHelperGroupBox);
         checkBoxShowThreadNames->setToolTip(tr("Displays names of QThread based threads."));
         checkBoxShowThreadNames->setText(tr("Display thread names"));
 
-        QCheckBox *checkBoxShowStdNamespace  = new QCheckBox(m_widget);
-        checkBoxShowStdNamespace->setToolTip(tr("Shows 'std::' prefix for types from the standard library."));
+        auto checkBoxShowStdNamespace  = new QCheckBox(m_widget);
+        checkBoxShowStdNamespace->setToolTip(tr("Shows \"std::\" prefix for types from the standard library."));
         checkBoxShowStdNamespace->setText(tr("Show \"std::\" namespace for types"));
 
-        QCheckBox *checkBoxShowQtNamespace = new QCheckBox(m_widget);
+        auto checkBoxShowQtNamespace = new QCheckBox(m_widget);
         checkBoxShowQtNamespace->setToolTip(tr("Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with '-qtnamespace'."));
         checkBoxShowQtNamespace->setText(tr("Qt's namespace for types"));
 
-        QVBoxLayout *verticalLayout = new QVBoxLayout(debuggingHelperGroupBox);
+        auto spinBoxMaximalStringLength = new QSpinBox(m_widget);
+        spinBoxMaximalStringLength->setSpecialValueText(tr("<unlimited>"));
+        spinBoxMaximalStringLength->setMaximum(10000000);
+        spinBoxMaximalStringLength->setSingleStep(1000);
+        spinBoxMaximalStringLength->setValue(10000);
+
+        auto spinBoxDisplayStringLimit = new QSpinBox(m_widget);
+        spinBoxDisplayStringLimit->setSpecialValueText(tr("<unlimited>"));
+        spinBoxDisplayStringLimit->setMaximum(10000);
+        spinBoxDisplayStringLimit->setSingleStep(10);
+        spinBoxDisplayStringLimit->setValue(100);
+
+        auto verticalLayout = new QVBoxLayout(debuggingHelperGroupBox);
         verticalLayout->addWidget(label);
         verticalLayout->addWidget(checkBoxUseCodeModel);
         verticalLayout->addWidget(checkBoxShowThreadNames);
 
-        QVBoxLayout *layout = new QVBoxLayout(m_widget);
+        auto layout1 = new QFormLayout;
+        layout1->addItem(new QSpacerItem(10, 10));
+        layout1->addRow(checkBoxShowStdNamespace);
+        layout1->addRow(checkBoxShowQtNamespace);
+        layout1->addItem(new QSpacerItem(10, 10));
+        layout1->addRow(tr("Maximum string length:"), spinBoxMaximalStringLength);
+        layout1->addRow(tr("Displayh string length:"), spinBoxDisplayStringLimit);
+
+        auto lowerLayout = new QHBoxLayout;
+        lowerLayout->addLayout(layout1);
+        lowerLayout->addStretch();
+
+        auto layout = new QVBoxLayout(m_widget);
         layout->addWidget(debuggingHelperGroupBox);
-        layout->addWidget(checkBoxShowStdNamespace);
-        layout->addWidget(checkBoxShowQtNamespace);
+        layout->addLayout(lowerLayout);
         layout->addStretch();
 
         m_group.clear();
@@ -425,6 +416,8 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         m_group.insert(dc->action(ShowThreadNames), checkBoxShowThreadNames);
         m_group.insert(dc->action(ShowStdNamespace), checkBoxShowStdNamespace);
         m_group.insert(dc->action(ShowQtNamespace), checkBoxShowQtNamespace);
+        m_group.insert(dc->action(DisplayStringLimit), spinBoxDisplayStringLimit);
+        m_group.insert(dc->action(MaximalStringLength), spinBoxMaximalStringLength);
 
 #ifndef QT_DEBUG
 #if 0

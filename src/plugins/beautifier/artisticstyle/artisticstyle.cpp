@@ -59,8 +59,9 @@ namespace Beautifier {
 namespace Internal {
 namespace ArtisticStyle {
 
-ArtisticStyle::ArtisticStyle(QObject *parent) :
+ArtisticStyle::ArtisticStyle(BeautifierPlugin *parent) :
     BeautifierAbstractTool(parent),
+    m_beautifierPlugin(parent),
     m_settings(new ArtisticStyleSettings)
 {
 }
@@ -151,7 +152,7 @@ void ArtisticStyle::formatFile()
             command.addOption(QLatin1String("%file"));
         }
 
-        BeautifierPlugin::formatCurrentFile(command);
+        m_beautifierPlugin->formatCurrentFile(command);
     }
 }
 

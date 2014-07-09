@@ -401,9 +401,6 @@ QmlProfilerFileWriter::QmlProfilerFileWriter(QObject *parent) :
     m_measuredTime(0),
     m_v8Model(0)
 {
-    m_acceptedRangeTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding
-                         << QmlDebug::HandlingSignal << QmlDebug::Javascript;
-    m_acceptedMessages << QmlDebug::SceneGraphFrame << QmlDebug::PixmapCacheEvent;
 }
 
 void QmlProfilerFileWriter::setTraceTime(qint64 startTime, qint64 endTime, qint64 measuredTime)
@@ -423,7 +420,6 @@ void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerDataModel::Qml
 {
     m_qmlEvents = types;
     m_ranges = events;
-    calculateMeasuredTime();
 }
 
 void QmlProfilerFileWriter::save(QIODevice *device)
@@ -530,39 +526,6 @@ void QmlProfilerFileWriter::save(QIODevice *device)
 
     stream.writeEndElement(); // trace
     stream.writeEndDocument();
-}
-
-void QmlProfilerFileWriter::calculateMeasuredTime()
-{
-    // measured time isn't used, but old clients might still need it
-    // -> we calculate it explicitly
-
-    qint64 duration = 0;
-
-    QHash<int, qint64> endtimesPerLevel;
-    int level = QmlDebug::Constants::QML_MIN_LEVEL;
-    endtimesPerLevel[0] = 0;
-
-    foreach (const QmlProfilerDataModel::QmlEventData &event, m_ranges) {
-        // whitelist
-        const QmlProfilerDataModel::QmlEventTypeData &type = m_qmlEvents[event.typeIndex];
-        if (!m_acceptedRangeTypes.contains(type.rangeType) &&
-                !m_acceptedMessages.contains(type.message))
-            continue;
-
-        // level computation
-        if (endtimesPerLevel[level] > event.startTime) {
-            level++;
-        } else {
-            while (level > QmlDebug::Constants::QML_MIN_LEVEL && endtimesPerLevel[level-1] <= event.startTime)
-                level--;
-        }
-        endtimesPerLevel[level] = event.startTime + event.duration;
-        if (level == QmlDebug::Constants::QML_MIN_LEVEL)
-            duration += event.duration;
-    }
-
-    m_measuredTime = duration;
 }
 
 

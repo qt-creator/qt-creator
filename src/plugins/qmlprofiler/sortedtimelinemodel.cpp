@@ -39,6 +39,10 @@
     range. Mind that you can always make that happen by defining a range that spans the whole
     available time span. That, however, will make any code that uses firstStartTime() and
     lastEndTime() for selecting subsets of the model always select all of it.
+
+    \note Indices returned from the various methods are only valid until a new range is inserted
+          before them. Inserting a new range before a given index moves the range pointed to by the
+          index by one. Incrementing the index by one will make it point to the item again.
 */
 
 /*!
