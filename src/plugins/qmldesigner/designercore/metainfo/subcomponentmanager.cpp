@@ -399,27 +399,10 @@ Model *SubComponentManager::model() const
     return m_model.data();
 }
 
-QString SubComponentManager::documentFilePath() const
-{
-    if (model())
-        return model()->fileUrl().toLocalFile();
-
-    return QString();
-}
-
-
 QStringList SubComponentManager::importPaths() const
 {
-    QStringList importPathList;
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    QString documentFilePath = SubComponentManager::documentFilePath();
-
-    importPathList.append(QFileInfo(documentFilePath).absolutePath());
-
-    if (modelManager && !documentFilePath.isEmpty()) {
-            QmlJS::Document::Ptr qmljsDocument = modelManager->snapshot().document(documentFilePath);
-            importPathList.append(modelManager->defaultVContext(QmlJS::Language::Qml, qmljsDocument, true).paths);
-    }
+    if (model())
+        return model()->importPaths();
 
     return QStringList();
 }

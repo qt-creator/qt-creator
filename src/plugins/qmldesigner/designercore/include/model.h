@@ -101,6 +101,7 @@ public:
     void setUsedImports(const QList<Import> &usedImports);
     bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false);
     QString pathForImport(const Import &import);
+    QStringList importPaths() const;
 
     RewriterView *rewriterView() const;
     void setRewriterView(RewriterView *rewriterView);

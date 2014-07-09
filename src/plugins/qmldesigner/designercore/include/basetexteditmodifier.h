@@ -54,7 +54,6 @@ public:
     virtual bool renameId(const QString &oldId, const QString &newId);
 
     virtual QmlJS::Snapshot getSnapshot() const;
-    virtual QStringList importPaths() const;
 };
 
 } // namespace QmlDesigner

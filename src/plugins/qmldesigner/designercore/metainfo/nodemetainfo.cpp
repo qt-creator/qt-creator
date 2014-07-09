@@ -959,7 +959,7 @@ QString NodeMetaInfoPrivate::importDirectoryPath() const
             return importInfo.path();
         } else if (importInfo.type() == ImportType::Library) {
             if (modelManager) {
-                foreach (const QString &importPath, modelManager->importPaths()) {
+                foreach (const QString &importPath, model()->importPaths()) {
                     const QString targetPath = QDir(importPath).filePath(importInfo.path());
                     if (QDir(targetPath).exists())
                         return targetPath;

@@ -197,6 +197,20 @@ void PlainTextEditModifier::reactivateChangeSignals()
     }
 }
 
+QStringList PlainTextEditModifier::importPaths() const
+{
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    if (modelManager && textDocument()) {
+        QString documentFilePath = textDocument()->baseUrl().toLocalFile();
+        if (!documentFilePath.isEmpty()) {
+            QmlJS::Document::Ptr qmljsDocument = modelManager->snapshot().document(documentFilePath);
+            return modelManager->defaultVContext(QmlJS::Language::Qml, qmljsDocument, true).paths;
+        }
+    }
+
+    return QStringList();
+}
+
 QmlJS::Snapshot NotIndentingTextEditModifier::getSnapshot() const
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
@@ -204,14 +218,4 @@ QmlJS::Snapshot NotIndentingTextEditModifier::getSnapshot() const
         return modelManager->snapshot();
     else
         return QmlJS::Snapshot();
-}
-
-
-QStringList NotIndentingTextEditModifier::importPaths() const
-{
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    if (modelManager)
-        return modelManager->importPaths();
-    else
-        return QStringList();
 }

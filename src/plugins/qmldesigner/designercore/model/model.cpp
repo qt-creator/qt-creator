@@ -35,7 +35,7 @@
 #include "invalidargumentexception.h"
 
 #include <QPointer>
-
+#include <QFileInfo>
 #include <QHashIterator>
 
 #include <utils/algorithm.h>
@@ -1818,7 +1818,23 @@ QString Model::pathForImport(const Import &import)
     if (!rewriterView())
         return QString();
 
-   return  rewriterView()->pathForImport(import);
+    return  rewriterView()->pathForImport(import);
+}
+
+QStringList Model::importPaths() const
+{
+    QStringList importPathList;
+
+    QString documentDirectoryPath = QFileInfo(fileUrl().toLocalFile()).absolutePath();
+
+    if (!documentDirectoryPath.isEmpty())
+        importPathList.append(documentDirectoryPath);
+
+    if (textModifier()) {
+        importPathList.append(textModifier()->importPaths());
+    }
+
+    return importPathList;
 }
 
 RewriterView *Model::rewriterView() const
