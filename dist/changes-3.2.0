@@ -80,6 +80,7 @@ Qbs Projects
 Generic Projects
 
 Debugging
+   * Fixed tooltip expansion behavior (QTCREATORBUG-11404)
    * Changed default of "Load system GDB pretty printer" option back to "off"
    * Added option to disable automatic centering on currently debugged
      line in editor
