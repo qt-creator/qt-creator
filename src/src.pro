@@ -13,9 +13,9 @@ minQtVersion(5, 0, 0) {
 
     qbscorelib.subdir = shared/qbs/src/lib/corelib
     qbsqtprofilesetup.subdir = shared/qbs/src/lib/qtprofilesetup
-    qbsqtprofilesetup.depends = corelib
+    qbsqtprofilesetup.depends = qbscorelib
     qbsapps.subdir = shared/qbs/src/app
-    qbsapps.depends = qtprofilesetup
+    qbsapps.depends = qbsqtprofilesetup
     qbsplugins.subdir = shared/qbs/src/plugins
     qbsstatic.file = shared/qbs/static.pro
 
