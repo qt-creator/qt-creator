@@ -28,43 +28,46 @@ OTHER_FILES += dist/copyright_template.txt \
     $$files(scripts/*.sh) \
     $$files(scripts/*.pl)
 
-qmake_cache = $$targetPath($$IDE_BUILD_TREE/.qmake.cache)
-!equals(QMAKE_HOST.os, Windows) {
-    maybe_quote = "\""
-    maybe_backslash = "\\"
-}
-system("echo $${maybe_quote}$${LITERAL_HASH} config for qmake$${maybe_quote} > $$qmake_cache")
-# Make sure the qbs dll ends up alongside the Creator executable.
-exists(src/shared/qbs/qbs.pro) {
-    system("echo QBS_DLLDESTDIR = $${IDE_BUILD_TREE}/bin >> $$qmake_cache")
-    system("echo QBS_DESTDIR = $${maybe_backslash}\"$${IDE_LIBRARY_PATH}$${maybe_backslash}\" >> $$qmake_cache")
-    system("echo QBSLIBDIR = $${maybe_backslash}\"$${IDE_LIBRARY_PATH}$${maybe_backslash}\" >> $$qmake_cache")
-    system("echo QBS_INSTALL_PREFIX = $${QTC_PREFIX} >> $$qmake_cache")
-    system("echo QBS_LIB_INSTALL_DIR = $${QTC_PREFIX}/$${IDE_LIBRARY_BASENAME}/qtcreator >> $$qmake_cache")
+minQtVersion(5, 0, 0):exists(src/shared/qbs/qbs.pro) {
+    # Make sure the qbs dll ends up alongside the Creator executable.
+    QBS_DLLDESTDIR = $${IDE_BUILD_TREE}/bin
+    cache(QBS_DLLDESTDIR)
+    QBS_DESTDIR = $${IDE_LIBRARY_PATH}
+    cache(QBS_DESTDIR)
+    QBSLIBDIR = $${IDE_LIBRARY_PATH}
+    cache(QBSLIBDIR)
+    QBS_INSTALL_PREFIX = $${QTC_PREFIX}
+    cache(QBS_INSTALL_PREFIX)
+    QBS_LIB_INSTALL_DIR = $${QTC_PREFIX}/$${IDE_LIBRARY_BASENAME}/qtcreator
+    cache(QBS_LIB_INSTALL_DIR)
     QBS_RESOURCES_BUILD_DIR = $${IDE_DATA_PATH}/qbs
-    system("echo QBS_RESOURCES_BUILD_DIR = $${maybe_backslash}\"$${QBS_RESOURCES_BUILD_DIR}$${maybe_backslash}\" >> $$qmake_cache")
-    system("echo QBS_RESOURCES_INSTALL_DIR = $${QTC_PREFIX}/share/qtcreator/qbs >> $$qmake_cache")
+    cache(QBS_RESOURCES_BUILD_DIR)
+    QBS_RESOURCES_INSTALL_DIR = $${QTC_PREFIX}/share/qtcreator/qbs
+    cache(QBS_RESOURCES_INSTALL_DIR)
     macx {
         QBS_PLUGINS_BUILD_DIR = $${IDE_LIBRARY_PATH}
-        system("echo QBS_APPS_RPATH_DIR = @loader_path/../PlugIns >> $$qmake_cache")
+        QBS_APPS_RPATH_DIR = @loader_path/../PlugIns
     } else {
         QBS_PLUGINS_BUILD_DIR = $${IDE_BUILD_TREE}/$${IDE_LIBRARY_BASENAME}/qtcreator
-        system("echo QBS_APPS_RPATH_DIR = '\\\$\\\$ORIGIN/../'/lib/qtcreator >> $$qmake_cache")
+        QBS_APPS_RPATH_DIR = \\\$\\\$ORIGIN/../$$IDE_LIBRARY_BASENAME/qtcreator
     }
-    system("echo QBS_PLUGINS_BUILD_DIR = $${maybe_backslash}\"$${QBS_PLUGINS_BUILD_DIR}$${maybe_backslash}\" >> $$qmake_cache")
-    system("echo QBS_PLUGINS_INSTALL_DIR = $${QTC_PREFIX}/$${IDE_LIBRARY_BASENAME}/qtcreator >> $$qmake_cache")
-    system("echo QBS_LIBRARY_DIRNAME = $${IDE_LIBRARY_BASENAME} >> $$qmake_cache")
+    cache(QBS_PLUGINS_BUILD_DIR)
+    cache(QBS_APPS_RPATH_DIR)
+    QBS_PLUGINS_INSTALL_DIR = $${QTC_PREFIX}/$${IDE_LIBRARY_BASENAME}/qtcreator
+    cache(QBS_PLUGINS_INSTALL_DIR)
+    QBS_LIBRARY_DIRNAME = $${IDE_LIBRARY_BASENAME}
+    cache(QBS_LIBRARY_DIRNAME)
     QBS_APPS_DESTDIR = $${IDE_BIN_PATH}
-    system("echo QBS_APPS_DESTDIR = $${maybe_backslash}\"$${QBS_APPS_DESTDIR}$${maybe_backslash}\">> $$qmake_cache")
-    system("echo QBS_APPS_INSTALL_DIR = $${QTC_PREFIX}/bin >> $$qmake_cache")
+    cache(QBS_APPS_DESTDIR)
+    QBS_APPS_INSTALL_DIR = $${QTC_PREFIX}/bin
+    cache(QBS_APPS_INSTALL_DIR)
     QBS_RELATIVE_PLUGINS_PATH = $$relative_path($$QBS_PLUGINS_BUILD_DIR, $$QBS_APPS_DESTDIR$$)
-    system("echo QBS_RELATIVE_PLUGINS_PATH = $${QBS_RELATIVE_PLUGINS_PATH}" >> $$qmake_cache)
+    cache(QBS_RELATIVE_PLUGINS_PATH)
     QBS_RELATIVE_SEARCH_PATH = $$relative_path($$QBS_RESOURCES_BUILD_DIR, $$QBS_APPS_DESTDIR)
-    system("echo QBS_RELATIVE_SEARCH_PATH = $${QBS_RELATIVE_SEARCH_PATH}" >> $$qmake_cache)
-    system("echo CONFIG += qbs_no_dev_install >> $$qmake_cache")
+    cache(QBS_RELATIVE_SEARCH_PATH)
+    QBS_CONFIG_ADDITION = qbs_no_dev_install
+    cache(CONFIG, add, QBS_CONFIG_ADDITION)
 }
-
-_QMAKE_CACHE_ = $$qmake_cache # Qt 4 support prevents us from using cache(), so tell Qt 5 about the cache
 
 contains(QT_ARCH, i386): ARCHITECTURE = x86
 else: ARCHITECTURE = $$QT_ARCH
