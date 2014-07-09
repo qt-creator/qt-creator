@@ -210,12 +210,3 @@ QStringList PlainTextEditModifier::importPaths() const
 
     return QStringList();
 }
-
-QmlJS::Snapshot NotIndentingTextEditModifier::getSnapshot() const
-{
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    if (modelManager)
-        return modelManager->snapshot();
-    else
-        return QmlJS::Snapshot();
-}

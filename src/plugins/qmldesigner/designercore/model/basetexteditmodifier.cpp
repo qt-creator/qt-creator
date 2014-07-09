@@ -105,12 +105,3 @@ bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
     }
     return false;
 }
-
-QmlJS::Snapshot BaseTextEditModifier::getSnapshot() const
-{
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    if (modelManager)
-        return modelManager->snapshot();
-    else
-        return QmlJS::Snapshot();
-}

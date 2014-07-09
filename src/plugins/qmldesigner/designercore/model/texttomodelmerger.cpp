@@ -826,7 +826,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
 
     try {
-        Snapshot snapshot = m_rewriterView->textModifier()->getSnapshot();
+        Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
         const QString fileName = url.toLocalFile();
         Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QStringLiteral("<internal>") : fileName, Language::Qml);
         doc->setSource(data);
