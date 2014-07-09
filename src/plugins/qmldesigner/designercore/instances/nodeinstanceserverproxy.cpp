@@ -201,7 +201,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
    } else {
        QmlDesignerWarning::show(tr("Cannot Start QML Puppet Executable"),
-                            tr("The executable of the QML Puppet process cannot be started or is hanging."));
+                            tr("The executable of the QML Puppet process cannot be started or does not respond."));
 
        QmlDesignerPlugin::instance()->switchToTextModeDeferred();
    }
