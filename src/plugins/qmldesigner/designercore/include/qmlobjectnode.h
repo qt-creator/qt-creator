@@ -73,6 +73,7 @@ public:
     NodeProperty nodeProperty(const PropertyName &name) const;
     NodeListProperty nodeListProperty(const PropertyName &name) const;
 
+    bool instanceHasValue(const PropertyName &name) const;
     QVariant instanceValue(const PropertyName &name) const;
     TypeName instanceType(const PropertyName &name) const;
 

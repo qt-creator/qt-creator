@@ -78,6 +78,7 @@ public:
     QPixmap blurredRenderPixmap() const;
 
     QVariant property(const PropertyName &name) const;
+    bool hasProperty(const PropertyName &name) const;
     bool hasBindingForProperty(const PropertyName &name) const;
     QPair<PropertyName, qint32> anchor(const PropertyName &name) const;
     bool hasAnchor(const PropertyName &name) const;

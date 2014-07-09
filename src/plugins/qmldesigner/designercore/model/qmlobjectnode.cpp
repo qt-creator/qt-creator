@@ -147,6 +147,11 @@ NodeListProperty QmlObjectNode::nodeListProperty(const PropertyName &name) const
     return modelNode().nodeListProperty(name);
 }
 
+bool QmlObjectNode::instanceHasValue(const PropertyName &name) const
+{
+    return nodeInstance().hasProperty(name);
+}
+
 bool QmlObjectNode::propertyAffectedByCurrentState(const PropertyName &name) const
 {
     if (!isValid())
