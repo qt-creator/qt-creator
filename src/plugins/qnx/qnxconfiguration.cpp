@@ -228,7 +228,7 @@ ProjectExplorer::Kit *QnxConfiguration::createKit(QnxArchitecture arch,
     DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_QNX_OS_TYPE);
     // TODO: Add sysroot?
 
-    kit->setDisplayName(displayName);
+    kit->setUnexpandedDisplayName(displayName);
     kit->setIconPath(FileName::fromString(QLatin1String(Constants::QNX_CATEGORY_ICON)));
 
     kit->setAutoDetected(true);

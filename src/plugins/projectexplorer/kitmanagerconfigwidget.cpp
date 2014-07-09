@@ -35,6 +35,7 @@
 
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QAction>
 #include <QRegExp>
@@ -129,7 +130,7 @@ KitManagerConfigWidget::~KitManagerConfigWidget()
 
 QString KitManagerConfigWidget::displayName() const
 {
-    return m_nameEdit->text();
+    return m_modifiedKit->displayName();
 }
 
 void KitManagerConfigWidget::apply()
@@ -162,7 +163,7 @@ void KitManagerConfigWidget::discard()
         m_isDefaultKit = false;
     }
     m_iconButton->setIcon(m_modifiedKit->icon());
-    m_nameEdit->setText(m_modifiedKit->displayName());
+    m_nameEdit->setText(m_modifiedKit->unexpandedDisplayName());
     m_fileSystemFriendlyNameLineEdit->setText(m_modifiedKit->customFileSystemFriendlyName());
     emit dirty();
 }
@@ -292,7 +293,7 @@ void KitManagerConfigWidget::setIcon()
 void KitManagerConfigWidget::setDisplayName()
 {
     int pos = m_nameEdit->cursorPosition();
-    m_modifiedKit->setDisplayName(m_nameEdit->text());
+    m_modifiedKit->setUnexpandedDisplayName(m_nameEdit->text());
     m_nameEdit->setCursorPosition(pos);
 }
 
@@ -314,7 +315,10 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
 
     foreach (KitConfigWidget *w, m_widgets)
         w->refresh();
-    m_nameEdit->setText(k->displayName());
+
+    if (k->unexpandedDisplayName() != m_nameEdit->text())
+        m_nameEdit->setText(k->unexpandedDisplayName());
+
     m_fileSystemFriendlyNameLineEdit->setText(k->customFileSystemFriendlyName());
     m_iconButton->setIcon(k->icon());
     updateVisibility();

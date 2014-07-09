@@ -38,7 +38,10 @@
 #include <QSet>
 #include <QVariant>
 
-namespace Utils { class Environment; }
+namespace Utils {
+class AbstractMacroExpander;
+class Environment;
+} // namespace Utils
 
 namespace ProjectExplorer {
 class IOutputParser;
@@ -71,8 +74,9 @@ public:
                 // Fix will not look at other information in the kit!
     void setup(); // Apply advanced magic(TM). Used only once on each kit during initial setup.
 
+    QString unexpandedDisplayName() const;
     QString displayName() const;
-    void setDisplayName(const QString &name);
+    void setUnexpandedDisplayName(const QString &name);
 
     QStringList candidateNameList(const QString &base) const;
 
@@ -121,6 +125,8 @@ public:
     QString displayNameForPlatform(const QString &platform) const;
     Core::FeatureSet availableFeatures() const;
     bool hasFeatures(const Core::FeatureSet &features) const;
+
+    Utils::AbstractMacroExpander *macroExpander() const;
 
 private:
     void setSdkProvided(bool sdkProvided);

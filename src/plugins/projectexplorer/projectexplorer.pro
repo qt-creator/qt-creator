@@ -29,6 +29,7 @@ HEADERS += projectexplorer.h \
     kitinformation.h \
     kitinformationconfigwidget.h \
     kitfeatureprovider.h \
+    kitinformationmacroexpander.h \
     kitmanager.h \
     kitmanagerconfigwidget.h \
     kitmodel.h \
@@ -176,6 +177,7 @@ SOURCES += projectexplorer.cpp \
     kitconfigwidget.cpp \
     kitinformation.cpp \
     kitinformationconfigwidget.cpp \
+    kitinformationmacroexpander.cpp \
     kitmanager.cpp \
     kitmanagerconfigwidget.cpp \
     kitmodel.cpp \

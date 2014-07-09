@@ -1147,7 +1147,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     foreach (Kit *kit, newKits) {
         AndroidToolChain *tc = static_cast<AndroidToolChain *>(ToolChainKitInformation::toolChain(kit));
         AndroidQtVersion *qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitInformation::qtVersion(kit));
-        kit->setDisplayName(tr("Android for %1 (GCC %2, Qt %3)")
+        kit->setUnexpandedDisplayName(tr("Android for %1 (GCC %2, Qt %3)")
                             .arg(qt->targetArch())
                             .arg(tc->ndkToolChainVersion())
                             .arg(qt->qtVersionString()));

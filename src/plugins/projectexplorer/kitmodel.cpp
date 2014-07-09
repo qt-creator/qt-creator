@@ -339,7 +339,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
         k->copyFrom(baseKit);
         k->setAutoDetected(false); // Make sure we have a manual kit!
         k->setSdkProvided(false);
-        k->setDisplayName(tr("Clone of %1").arg(k->displayName()));
+        k->setUnexpandedDisplayName(tr("Clone of %1").arg(k->unexpandedDisplayName()));
     } else {
         k->setup();
     }
@@ -352,10 +352,10 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     return k;
 }
 
-QString KitModel::findNameFor(Kit *k, const QString &baseName)
+QString KitModel::findNameFor(Kit *k)
 {
     QList<Kit *> kits = kitList(m_root);
-    return KitManager::uniqueKitName(k, baseName, kits);
+    return KitManager::uniqueKitName(k, kits);
 }
 
 QModelIndex KitModel::index(KitNode *node, int column) const
@@ -470,7 +470,7 @@ void KitModel::removeKit(Kit *k)
 void KitModel::updateKit(Kit *k)
 {
     if (m_keepUnique)
-        k->setDisplayName(findNameFor(k, k->displayName()));
+        k->setUnexpandedDisplayName(findNameFor(k));
 }
 
 void KitModel::changeDefaultKit()

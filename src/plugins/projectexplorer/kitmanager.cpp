@@ -41,6 +41,7 @@
 
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/environment.h>
 #include <utils/algorithm.h>
 
@@ -243,7 +244,7 @@ void KitManager::restoreKits()
 
     if (kits().isEmpty()) {
         Kit *defaultKit = new Kit; // One kit using default values
-        defaultKit->setDisplayName(tr("Desktop"));
+        defaultKit->setUnexpandedDisplayName(tr("Desktop"));
         defaultKit->setSdkProvided(false);
         defaultKit->setAutoDetected(false);
         defaultKit->setIconPath(Utils::FileName::fromLatin1(":///DESKTOP///"));
@@ -476,7 +477,7 @@ void KitManager::deleteKit(Kit *k)
     delete k;
 }
 
-QString KitManager::uniqueKitName(const Kit *k, const QString &name, const QList<Kit *> &allKits)
+QString KitManager::uniqueKitName(const Kit *k, const QList<Kit *> &allKits)
 {
     QStringList nameList;
     nameList << QString(); // Disallow empty kit names!
@@ -486,20 +487,21 @@ QString KitManager::uniqueKitName(const Kit *k, const QString &name, const QList
         nameList.append(tmp->candidateNameList(tmp->displayName()));
     }
 
-    QStringList candidateNames = k->candidateNameList(name);
+    const QString dn = k->displayName();
+    const QString udn = k->unexpandedDisplayName();
 
-    QString uniqueName = Project::makeUnique(name, nameList);
-    if (uniqueName != name) {
-        foreach (const QString &candidate, candidateNames) {
-            const QString tmp = Project::makeUnique(candidate, nameList);
-            if (tmp == candidate) {
-                uniqueName = tmp;
-                break;
-            }
-        }
+    QString uniqueName = Project::makeUnique(dn, nameList);
+    if (uniqueName == dn)
+        return udn;
+
+    QStringList candidateNames = k->candidateNameList(udn);
+    foreach (const QString &candidate, candidateNames) {
+        QString expandedCandidate = Utils::expandMacros(candidate, k->macroExpander());
+        if (!nameList.contains(expandedCandidate))
+            return candidate;
     }
 
-    return uniqueName;
+    return udn + uniqueName.mid(dn.count());
 }
 
 void KitManager::notifyAboutDisplayNameChange(Kit *k)
@@ -507,7 +509,7 @@ void KitManager::notifyAboutDisplayNameChange(Kit *k)
     if (!k)
         return;
     if (d->m_kitList.contains(k) && d->m_keepDisplayNameUnique)
-        k->setDisplayName(uniqueKitName(k, k->displayName(), kits()));
+        k->setUnexpandedDisplayName(uniqueKitName(k, kits()));
     int pos = d->m_kitList.indexOf(k);
     if (pos >= 0 && d->m_initialized)
         d->moveKit(pos);
@@ -537,7 +539,7 @@ bool KitManager::registerKit(ProjectExplorer::Kit *k)
     if (kits().contains(k))
         return false;
 
-    k->setDisplayName(uniqueKitName(k, k->displayName(), kits()));
+    k->setUnexpandedDisplayName(uniqueKitName(k, kits()));
 
     // make sure we have all the information in our kits:
     m_instance->addKit(k);

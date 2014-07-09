@@ -60,7 +60,7 @@ void ProjectImporter::markTemporary(Kit *k)
     setIsUpdating(true);
 
     const QString name = k->displayName();
-    k->setDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter",
+    k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter",
                                                   "%1 - temporary").arg(name));
 
     k->setValue(KIT_TEMPORARY_NAME, k->displayName());
@@ -81,7 +81,7 @@ void ProjectImporter::makePermanent(Kit *k)
     k->removeKey(TEMPORARY_OF_PROJECTS);
     const QString tempName = k->value(KIT_TEMPORARY_NAME).toString();
     if (!tempName.isNull() && k->displayName() == tempName)
-        k->setDisplayName(k->value(KIT_FINAL_NAME).toString());
+        k->setUnexpandedDisplayName(k->value(KIT_FINAL_NAME).toString());
     k->removeKey(KIT_TEMPORARY_NAME);
     k->removeKey(KIT_FINAL_NAME);
 

@@ -41,6 +41,7 @@
 #include <functional>
 
 namespace Utils {
+class AbstractMacroExpander;
 class FileName;
 class Environment;
 }
@@ -97,6 +98,9 @@ public:
     virtual QString displayNameForPlatform(const ProjectExplorer::Kit *k, const QString &platform) const;
     virtual Core::FeatureSet availableFeatures(const Kit *k) const;
 
+    virtual Utils::AbstractMacroExpander *createMacroExpander(const Kit *k) const
+    { Q_UNUSED(k); return 0; }
+
 protected:
     void setId(Core::Id id) { m_id = id; }
     void setPriority(int priority) { m_priority = priority; }
@@ -140,7 +144,7 @@ public:
 
     static void deleteKit(Kit *k);
 
-    static QString uniqueKitName(const Kit *k, const QString &name, const QList<Kit *> &allKits);
+    static QString uniqueKitName(const Kit *k, const QList<Kit *> &allKits);
 
     static bool registerKit(ProjectExplorer::Kit *k);
     static void deregisterKit(ProjectExplorer::Kit *k);

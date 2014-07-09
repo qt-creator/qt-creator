@@ -35,6 +35,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QApplication>
 #include <QFileInfo>
@@ -62,6 +64,33 @@ const char STICKY_INFO_KEY[] = "PE.Profile.StickyInfo";
 
 namespace ProjectExplorer {
 
+// --------------------------------------------------------------------
+// KitMacroExpander:
+// --------------------------------------------------------------------
+
+class KitMacroExpander : public Utils::AbstractMacroExpander
+{
+public:
+    KitMacroExpander(const QList<Utils::AbstractMacroExpander *> &children) :
+        m_childExpanders(children)
+    { }
+    ~KitMacroExpander() { qDeleteAll(m_childExpanders); }
+
+    bool resolveMacro(const QString &name, QString *ret);
+
+private:
+    QList<Utils::AbstractMacroExpander *> m_childExpanders;
+};
+
+bool KitMacroExpander::resolveMacro(const QString &name, QString *ret)
+{
+    foreach (Utils::AbstractMacroExpander *expander, m_childExpanders) {
+        if (expander->resolveMacro(name, ret))
+            return true;
+    }
+    return false;
+}
+
 // -------------------------------------------------------------------------
 // KitPrivate
 // -------------------------------------------------------------------------
@@ -71,7 +100,7 @@ namespace Internal {
 class KitPrivate
 {
 public:
-    KitPrivate(Id id) :
+    KitPrivate(Id id, Kit *k) :
         m_id(id),
         m_nestedBlockingLevel(0),
         m_autodetected(false),
@@ -81,16 +110,37 @@ public:
         m_hasWarning(false),
         m_hasValidityInfo(false),
         m_mustNotify(false),
-        m_mustNotifyAboutDisplayName(false)
+        m_mustNotifyAboutDisplayName(false),
+        m_macroExpander(0)
     {
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
 
         m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
+        m_previousDisplayName = m_displayName;
         m_iconPath = Utils::FileName::fromLatin1(":///DESKTOP///");
+
+        QList<Utils::AbstractMacroExpander *> expanders;
+        foreach (const KitInformation *ki, KitManager::kitInformation()) {
+            Utils::AbstractMacroExpander *tmp = ki->createMacroExpander(k);
+            if (tmp)
+                expanders.append(tmp);
+        }
+
+        m_macroExpander = new KitMacroExpander(expanders);
+    }
+
+    ~KitPrivate()
+    { delete m_macroExpander; }
+
+    void updatePreviousDisplayName()
+    {
+        QTC_ASSERT(m_macroExpander, return);
+        m_previousDisplayName = Utils::expandMacros(m_displayName, m_macroExpander);
     }
 
     QString m_displayName;
+    QString m_previousDisplayName;
     QString m_fileSystemFriendlyName;
     Id m_id;
     int m_nestedBlockingLevel;
@@ -108,6 +158,7 @@ public:
     QHash<Core::Id, QVariant> m_data;
     QSet<Core::Id> m_sticky;
     QSet<Core::Id> m_mutable;
+    Utils::AbstractMacroExpander *m_macroExpander;
 };
 
 } // namespace Internal
@@ -117,16 +168,17 @@ public:
 // -------------------------------------------------------------------------
 
 Kit::Kit(Core::Id id) :
-    d(new Internal::KitPrivate(id))
+    d(new Internal::KitPrivate(id, this))
 {
     foreach (KitInformation *sti, KitManager::kitInformation())
         d->m_data.insert(sti->id(), sti->defaultValue(this));
 
     d->m_icon = icon(d->m_iconPath);
+    d->updatePreviousDisplayName();
 }
 
 Kit::Kit(const QVariantMap &data) :
-    d(new Internal::KitPrivate(Core::Id()))
+    d(new Internal::KitPrivate(Core::Id(), this))
 {
     d->m_id = Id::fromSetting(data.value(QLatin1String(ID_KEY)));
 
@@ -160,6 +212,8 @@ Kit::Kit(const QVariantMap &data) :
     QStringList stickyInfoList = data.value(QLatin1String(STICKY_INFO_KEY)).toStringList();
     foreach (const QString &stickyInfo, stickyInfoList)
         d->m_sticky.insert(Core::Id::fromString(stickyInfo));
+
+    d->updatePreviousDisplayName();
 }
 
 Kit::~Kit()
@@ -201,6 +255,7 @@ Kit *Kit::clone(bool keepName) const
     k->d->m_iconPath = d->m_iconPath;
     k->d->m_sticky = d->m_sticky;
     k->d->m_mutable = d->m_mutable;
+    k->d->updatePreviousDisplayName();
     return k;
 }
 
@@ -215,9 +270,10 @@ void Kit::copyFrom(const Kit *k)
     d->m_displayName = k->d->m_displayName;
     d->m_fileSystemFriendlyName = k->d->m_fileSystemFriendlyName;
     d->m_mustNotify = true;
-    d->m_mustNotifyAboutDisplayName = true;
+    d->m_mustNotifyAboutDisplayName = false;
     d->m_sticky = k->d->m_sticky;
     d->m_mutable = k->d->m_mutable;
+    d->updatePreviousDisplayName();
 }
 
 bool Kit::isValid() const
@@ -277,9 +333,14 @@ void Kit::setup()
         info.at(i)->setup(this);
 }
 
-QString Kit::displayName() const
+QString Kit::unexpandedDisplayName() const
 {
     return d->m_displayName;
+}
+
+QString Kit::displayName() const
+{
+    return Utils::expandMacros(unexpandedDisplayName(), macroExpander());
 }
 
 static QString candidateName(const QString &name, const QString &postfix)
@@ -293,11 +354,13 @@ static QString candidateName(const QString &name, const QString &postfix)
     return candidate;
 }
 
-void Kit::setDisplayName(const QString &name)
+void Kit::setUnexpandedDisplayName(const QString &name)
 {
     if (d->m_displayName == name)
         return;
+
     d->m_displayName = name;
+    d->updatePreviousDisplayName();
     kitDisplayNameChanged();
 }
 
@@ -310,7 +373,7 @@ QStringList Kit::candidateNameList(const QString &base) const
         if (!postfix.isEmpty()) {
             QString tmp = candidateName(base, postfix);
             if (!tmp.isEmpty())
-                result << candidateName(base, postfix);
+                result << tmp;
         }
     }
     return result;
@@ -621,14 +684,26 @@ bool Kit::hasFeatures(const FeatureSet &features) const
     return availableFeatures().contains(features);
 }
 
+Utils::AbstractMacroExpander *Kit::macroExpander() const
+{
+    QTC_CHECK(d->m_macroExpander);
+    return d->m_macroExpander;
+}
+
 void Kit::kitUpdated()
 {
-    if (d->m_nestedBlockingLevel > 0 && !d->m_mustNotifyAboutDisplayName) {
-        d->m_mustNotify = true;
+    if (d->m_nestedBlockingLevel > 0) {
+        if (!d->m_mustNotifyAboutDisplayName)
+            d->m_mustNotify = true;
         return;
     }
     d->m_hasValidityInfo = false;
-    KitManager::notifyAboutUpdate(this);
+    if (displayName() != d->m_previousDisplayName) {
+        d->updatePreviousDisplayName();
+        KitManager::notifyAboutDisplayNameChange(this);
+    } else {
+        KitManager::notifyAboutUpdate(this);
+    }
 }
 
 void Kit::kitDisplayNameChanged()

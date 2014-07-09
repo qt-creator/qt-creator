@@ -250,7 +250,7 @@ Kit *BlackBerryApiLevelConfiguration::createKit(
     DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
     SysRootKitInformation::setSysRoot(kit, m_sysRoot);
 
-    kit->setDisplayName(version->displayName());
+    kit->setUnexpandedDisplayName(version->displayName());
     kit->setIconPath(FileName::fromString(QLatin1String(Constants::QNX_BB_CATEGORY_ICON)));
 
     kit->setAutoDetected(true);

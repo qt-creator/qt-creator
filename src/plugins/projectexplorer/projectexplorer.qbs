@@ -92,6 +92,7 @@ QtcPlugin {
             "kitfeatureprovider.h",
             "kitinformation.cpp", "kitinformation.h",
             "kitinformationconfigwidget.cpp", "kitinformationconfigwidget.h",
+            "kitinformationmacroexpander.cpp", "kitinformationmacroexpander.h",
             "kitmanager.cpp", "kitmanager.h",
             "kitmanagerconfigwidget.cpp", "kitmanagerconfigwidget.h",
             "kitmodel.cpp", "kitmodel.h",

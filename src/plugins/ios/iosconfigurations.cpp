@@ -308,7 +308,7 @@ void IosConfigurations::updateAutomaticKitList()
                         if (unique) break;
                         displayName = baseDisplayName + QLatin1String("-") + QString::number(iVers);
                     }
-                    kitAtt->setDisplayName(displayName);
+                    kitAtt->setUnexpandedDisplayName(displayName);
                 }
                 kitAtt->setIconPath(Utils::FileName::fromString(
                                         QLatin1String(Constants::IOS_SETTINGS_CATEGORY_ICON)));

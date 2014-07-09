@@ -2127,7 +2127,7 @@ QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)
                 tmpKit->setValue("PE.Profile.Device", devId);
 
                 // Set display name last:
-                tmpKit->setDisplayName(extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName")).toString());
+                tmpKit->setUnexpandedDisplayName(extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName")).toString());
 
                 Kit *k = uniqueKit(tmpKit);
 

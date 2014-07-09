@@ -278,7 +278,7 @@ ProjectExplorer::Kit *QmakeProjectImporter::createTemporaryKit(QtSupport::BaseQt
         ki->setup(k);
     }
 
-    k->setDisplayName(version->displayName());
+    k->setUnexpandedDisplayName(version->displayName());
 
     setIsUpdating(true);
     ProjectExplorer::KitManager::registerKit(k);

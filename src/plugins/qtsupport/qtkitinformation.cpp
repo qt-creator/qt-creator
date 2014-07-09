@@ -34,12 +34,49 @@
 #include "qtversionmanager.h"
 #include "qtparser.h"
 
+#include <projectexplorer/kitinformationmacroexpander.h>
+
 #include <utils/buildablehelperlibrary.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 
 namespace QtSupport {
+
+namespace Internal {
+
+class QtKitInformationMacroExpander : public ProjectExplorer::KitInformationMacroExpander
+{
+public:
+    QtKitInformationMacroExpander(const ProjectExplorer::Kit *k) :
+        ProjectExplorer::KitInformationMacroExpander(k)
+    { }
+
+    bool resolveMacro(const QString &name, QString *ret);
+};
+
+bool QtKitInformationMacroExpander::resolveMacro(const QString &name, QString *ret)
+{
+    BaseQtVersion *version = QtKitInformation::qtVersion(kit());
+    const QString noInfo = QCoreApplication::translate("QtSupport::QtKitInformation", "none");
+
+    if (name == QLatin1String("Qt:version")) {
+        *ret = version ? version->qtVersionString() : noInfo;
+        return true;
+    } else if (name == QLatin1String("Qt:name")) {
+        *ret = version ? version->displayName()  : noInfo;
+        return true;
+    } else if (name == QLatin1String("Qt:type")) {
+        *ret = version ? version->type() : noInfo;
+        return true;
+    } else if (name == QLatin1String("Qt:mkspec")) {
+        *ret = version ? version->mkspec().toUserOutput() : noInfo;
+        return true;
+    }
+    return false;
+}
+
+} // namespace Internal
 
 QtKitInformation::QtKitInformation()
 {
@@ -125,6 +162,11 @@ ProjectExplorer::IOutputParser *QtKitInformation::createOutputParser(const Proje
     if (qtVersion(k))
         return new QtParser;
     return 0;
+}
+
+Utils::AbstractMacroExpander *QtKitInformation::createMacroExpander(const ProjectExplorer::Kit *k) const
+{
+    return new Internal::QtKitInformationMacroExpander(k);
 }
 
 Core::Id QtKitInformation::id()
