@@ -2295,6 +2295,35 @@ void CppToolsPlugin::test_completion_data()
         ) << _("derived.t.") << (QStringList()
             << QLatin1String("foo")
             << QLatin1String("Foo"));
+
+    QTest::newRow("template_specialization_and_initialization_with_pointer1") << _(
+            "template <typename T>\n"
+            "struct S {};\n"
+            "template <typename T>\n"
+            "struct S<T*> { T *t; };\n"
+            "struct Foo { int foo; };\n"
+            "void fun() {\n"
+            "   S<Foo*> s;\n"
+            "   @\n"
+            "}\n"
+        ) << _("s.t->") << (QStringList()
+            << QLatin1String("foo")
+            << QLatin1String("Foo"));
+
+    // this is not a valid code(is not compile) but it caused a crash
+    QTest::newRow("template_specialization_and_initialization_with_pointer2") << _(
+            "template <typename T1, typename T2 = int>\n"
+            "struct S {};\n"
+            "template <typename T1, typename T2>\n"
+            "struct S<T1*> { T1 *t; };\n"
+            "struct Foo { int foo; };\n"
+            "void fun() {\n"
+            "   S<Foo*> s;\n"
+            "   @\n"
+            "}\n"
+        ) << _("s.t->") << (QStringList()
+            << QLatin1String("foo")
+            << QLatin1String("Foo"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()

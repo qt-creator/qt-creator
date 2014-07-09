@@ -1084,6 +1084,10 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
 
             Subst subst(_control.data());
             if (_factory->expandTemplates()) {
+                const TemplateNameId *templSpecId
+                        = templateSpecialization->name()->asTemplateNameId();
+                const unsigned templSpecArgumentCount = templSpecId ?
+                            templSpecId->templateArgumentCount() : 0;
                 Clone cloner(_control.data());
                 for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
                     const TypenameArgument *tParam
@@ -1097,6 +1101,12 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
                                 templId->templateArgumentAt(i):
                                 cloner.type(tParam->type(), &subst);
+
+                    if (i < templSpecArgumentCount
+                            && templSpecId->templateArgumentAt(i)->isPointerType()) {
+                        if (PointerType *pointerType = ty->asPointerType())
+                            ty = pointerType->elementType();
+                    }
 
                     subst.bind(cloner.name(name, &subst), ty);
                 }
