@@ -35,6 +35,7 @@ namespace Internal {
 Command::Command()
     : m_processing(FileProcessing)
     , m_pipeAddsNewline(false)
+    , m_returnsCRLF(false)
 {
 }
 
@@ -77,6 +78,17 @@ void Command::setPipeAddsNewline(bool pipeAddsNewline)
 {
     m_pipeAddsNewline = pipeAddsNewline;
 }
+
+bool Command::returnsCRLF() const
+{
+    return m_returnsCRLF;
+}
+
+void Command::setReturnsCRLF(bool returnsCRLF)
+{
+    m_returnsCRLF = returnsCRLF;
+}
+
 
 } // namespace Internal
 } // namespace Beautifier

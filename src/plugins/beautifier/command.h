@@ -58,11 +58,15 @@ public:
     bool pipeAddsNewline() const;
     void setPipeAddsNewline(bool pipeAddsNewline);
 
+    bool returnsCRLF() const;
+    void setReturnsCRLF(bool returnsCRLF);
+
 private:
     QString m_executable;
     QStringList m_options;
     Processing m_processing;
     bool m_pipeAddsNewline;
+    bool m_returnsCRLF;
 };
 
 } // namespace Internal

@@ -51,6 +51,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 
 #include <QAction>
 #include <QMenu>
@@ -148,6 +149,7 @@ void ArtisticStyle::formatFile()
         if (m_settings->version() > ArtisticStyleSettings::Version_2_03) {
             command.setProcessing(Command::PipeProcessing);
             command.setPipeAddsNewline(true);
+            command.setReturnsCRLF(Utils::HostOsInfo::isWindowsHost());
         } else {
             command.addOption(QLatin1String("%file"));
         }
