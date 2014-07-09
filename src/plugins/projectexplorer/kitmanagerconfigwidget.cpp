@@ -140,7 +140,7 @@ void KitManagerConfigWidget::apply()
         mustRegister = true;
         m_kit = new Kit;
     }
-    m_kit->copyFrom(m_modifiedKit);//m_isDefaultKit is reset in discard() here.
+    m_kit->copyFrom(m_modifiedKit); //m_isDefaultKit is reset in discard() here.
     if (mustRegister)
         KitManager::registerKit(m_kit);
 
