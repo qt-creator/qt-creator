@@ -803,7 +803,7 @@ void TextToModelMerger::setupUsedImports()
      QList<Import> usedImports;
 
      foreach (const QmlJS::Import &import, allImports) {
-         if (import.used) {
+         if (import.used && !import.info.name().isEmpty()) {
             if (import.info.type() == ImportType::Library) {
                 usedImports.append(Import::createLibraryImport(import.info.name(), import.info.version().toString(), import.info.as()));
             } else if (import.info.type() == ImportType::Directory || import.info.type() == ImportType::File) {
