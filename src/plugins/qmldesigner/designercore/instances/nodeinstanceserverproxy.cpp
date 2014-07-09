@@ -98,6 +98,16 @@ static bool hasQtQuick1(NodeInstanceView *nodeInstanceView)
     return false;
 }
 
+static void showCannotConnectToPuppetWarningAndSwitchToEditMode()
+{
+    QmlDesignerWarning::show(QCoreApplication::translate("NodeInstanceServerProxy", "Cannot Connect to Qml Emulation Layer (Qml Puppet)"),
+                             QCoreApplication::translate("NodeInstanceServerProxy", "The executable of the emulation layer process is maybe hanging. "
+                                                                                    "Switching to an other kit maybe helps."));
+
+    QmlDesignerPlugin::instance()->switchToTextModeDeferred();
+
+}
+
 NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus, ProjectExplorer::Kit *kit)
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
@@ -155,24 +165,38 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int)), m_qmlPuppetRenderProcess.data(),SLOT(deleteLater()));
        }
 
+       bool connectedToPuppet = true;
+
        if (!m_localServer->hasPendingConnections())
-           m_localServer->waitForNewConnection(10000);
+           connectedToPuppet = m_localServer->waitForNewConnection(3000);
 
-       m_firstSocket = m_localServer->nextPendingConnection();
-       connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
+       if (connectedToPuppet) {
+           m_firstSocket = m_localServer->nextPendingConnection();
+           connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
 
-       if (runModus == NormalModus) {
-           if (!m_localServer->hasPendingConnections())
-               m_localServer->waitForNewConnection(10000);
+           if (runModus == NormalModus) {
+               if (!m_localServer->hasPendingConnections())
+                   connectedToPuppet = m_localServer->waitForNewConnection(3000);
 
-           m_secondSocket = m_localServer->nextPendingConnection();
-           connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+               if (connectedToPuppet) {
+                   m_secondSocket = m_localServer->nextPendingConnection();
+                   connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
 
-           if (!m_localServer->hasPendingConnections())
-               m_localServer->waitForNewConnection(10000);
+                   if (!m_localServer->hasPendingConnections())
+                        connectedToPuppet = m_localServer->waitForNewConnection(3000);
 
-           m_thirdSocket = m_localServer->nextPendingConnection();
-           connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+                   if (connectedToPuppet) {
+                       m_thirdSocket = m_localServer->nextPendingConnection();
+                       connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+                   } else {
+                       showCannotConnectToPuppetWarningAndSwitchToEditMode();
+                   }
+               } else {
+                   showCannotConnectToPuppetWarningAndSwitchToEditMode();
+               }
+           }
+       } else {
+           showCannotConnectToPuppetWarningAndSwitchToEditMode();
        }
 
    } else {
