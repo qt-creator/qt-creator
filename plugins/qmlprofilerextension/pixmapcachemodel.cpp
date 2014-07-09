@@ -456,6 +456,21 @@ void PixmapCacheModel::loadData()
             if (state.loadState == Initial) {
                 newEvent.pixmapEventType = PixmapLoadingStarted;
                 state.started = d->insert(traceStartTime(), startTime - traceStartTime(), newEvent);
+
+                // All other indices are wrong now as we've prepended. Fix them ...
+                if (lastCacheSizeEvent >= state.started)
+                    ++lastCacheSizeEvent;
+
+                for (int pixmapIndex = 0; pixmapIndex < d->pixmaps.count(); ++pixmapIndex) {
+                    Pixmap &brokenPixmap = d->pixmaps[pixmapIndex];
+                    for (int sizeIndex = 0; sizeIndex < brokenPixmap.sizes.count(); ++sizeIndex) {
+                        PixmapState &brokenSize = brokenPixmap.sizes[sizeIndex];
+                        if ((pixmapIndex != newEvent.urlIndex || sizeIndex != newEvent.sizeIndex) &&
+                                brokenSize.started >= state.started) {
+                            ++brokenSize.started;
+                        }
+                    }
+                }
             }
 
             d->insertEnd(state.started, startTime - d->range(state.started).start);
