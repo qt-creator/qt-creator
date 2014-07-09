@@ -61,20 +61,6 @@ static bool operator<(const QFileInfo &file1, const QFileInfo &file2)
 
 QT_END_NAMESPACE
 
-static inline QStringList importPaths() {
-    QStringList paths;
-
-    // env import paths
-    QByteArray envImportPath = qgetenv("QML_IMPORT_PATH");
-    if (!envImportPath.isEmpty()) {
-        paths = QString::fromUtf8(envImportPath)
-                .split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
-    }
-
-    paths.append(QmlJS::ModelManagerInterface::instance()->importPaths());
-
-    return paths;
-}
 
 static inline bool checkIfDerivedFromItem(const QString &fileName)
 {
@@ -411,6 +397,31 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
 Model *SubComponentManager::model() const
 {
     return m_model.data();
+}
+
+QString SubComponentManager::documentFilePath() const
+{
+    if (model())
+        return model()->fileUrl().toLocalFile();
+
+    return QString();
+}
+
+
+QStringList SubComponentManager::importPaths() const
+{
+    QStringList importPathList;
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    QString documentFilePath = SubComponentManager::documentFilePath();
+
+    importPathList.append(QFileInfo(documentFilePath).absolutePath());
+
+    if (modelManager && !documentFilePath.isEmpty()) {
+            QmlJS::Document::Ptr qmljsDocument = modelManager->snapshot().document(documentFilePath);
+            importPathList.append(modelManager->defaultVContext(QmlJS::Language::Qml, qmljsDocument, true).paths);
+    }
+
+    return QStringList();
 }
 
 

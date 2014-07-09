@@ -69,6 +69,8 @@ private: // functions
     void unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier);
     void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, bool addToLibrary);
     Model *model() const;
+    QString documentFilePath() const;
+    QStringList importPaths() const;
 
 private: // variables
     QFileSystemWatcher m_watcher;
