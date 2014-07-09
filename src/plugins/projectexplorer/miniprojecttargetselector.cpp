@@ -780,9 +780,15 @@ QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSiz
         if (result[i] != -1)
             indexes.append(i);
 
-    Utils::sort(indexes, [&](int i, int j) -> bool {
-        return (result[i] > result[j]) ^ tooSmall;
-    });
+    if (tooSmall) {
+        Utils::sort(indexes, [&result](int i, int j) {
+            return result[i] < result[j];
+        });
+    } else {
+        Utils::sort(indexes, [&result](int i, int j) {
+            return result[i] > result[j];
+        });
+    }
 
     int i = 0;
     int first = result[indexes.first()]; // biggest or smallest
