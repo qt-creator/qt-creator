@@ -100,8 +100,8 @@ static bool hasQtQuick1(NodeInstanceView *nodeInstanceView)
 
 static void showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {
-    QmlDesignerWarning::show(QCoreApplication::translate("NodeInstanceServerProxy", "Cannot Connect to Qml Emulation Layer (Qml Puppet)"),
-                             QCoreApplication::translate("NodeInstanceServerProxy", "The executable of the emulation layer process is maybe hanging. "
+    QmlDesignerWarning::show(QCoreApplication::translate("NodeInstanceServerProxy", "Cannot Connect to QML Emulation Layer (QML Puppet)"),
+                             QCoreApplication::translate("NodeInstanceServerProxy", "The executable of the QML emulation layer (QML Puppet) process is maybe hanging. "
                                                                                     "Switching to an other kit maybe helps."));
 
     QmlDesignerPlugin::instance()->switchToTextModeDeferred();
@@ -200,8 +200,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        }
 
    } else {
-       QmlDesignerWarning::show(tr("Cannot Start QML Puppet Executable"),
-                            tr("The executable of the QML Puppet process cannot be started or does not respond."));
+       QmlDesignerWarning::show(tr("Cannot Start QML Emulation Layer (QML Puppet)"),
+                            tr("The executable of the QML emulation layer (QML Puppet) process cannot be started or is hanging."));
 
        QmlDesignerPlugin::instance()->switchToTextModeDeferred();
    }
@@ -384,8 +384,8 @@ void NodeInstanceServerProxy::processFinished(int exitCode, QProcess::ExitStatus
     if (m_captureFileForTest.isOpen()) {
         m_captureFileForTest.close();
         m_captureFileForTest.remove();
-        QMessageBox::warning(Core::ICore::dialogParent(), tr("QML Puppet Crashed"),
-                             tr("You are recording a puppet stream and the puppet crashed. "
+        QMessageBox::warning(Core::ICore::dialogParent(), tr("QML Emulation Layer (QML Puppet) Crashed"),
+                             tr("You are recording a puppet stream and the emulations layer crashed. "
                                 "It is recommended to reopen the Qt Quick Designer and start again."));
     }
 
