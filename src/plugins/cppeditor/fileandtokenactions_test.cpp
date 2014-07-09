@@ -47,6 +47,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
 
+#include <QApplication>
 #include <QDebug>
 #include <QTextDocument>
 #include <QtTest>
@@ -54,6 +55,7 @@
 #if  QT_VERSION >= 0x050000
 #define MSKIP_SINGLE(x) QSKIP(x)
 #else
+#include <QtTest/qtestkeyboard.h>
 #define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
 #endif
 

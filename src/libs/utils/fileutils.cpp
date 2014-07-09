@@ -41,6 +41,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QTimer>
+#include <QUrl>
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>

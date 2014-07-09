@@ -29,6 +29,7 @@
 
 #ifdef WITH_TESTS
 
+#include <QApplication>
 #include <QClipboard>
 #include <QString>
 #include <QtTest/QtTest>
