@@ -73,7 +73,6 @@ public:
     QVector<PixmapCacheEvent> data;
     QVector<Pixmap> pixmaps;
     int collapsedRowCount;
-    void addVP(QVariantList &l, QString label, qint64 time) const;
 
     qint64 maxCacheSize;
 private:
@@ -177,15 +176,6 @@ QVariantList PixmapCacheModel::labels() const
     }
 
     return result;
-}
-
-void PixmapCacheModel::PixmapCacheModelPrivate::addVP(QVariantList &l, QString label, qint64 time) const
-{
-    if (time > 0) {
-        QVariantMap res;
-        res.insert(label, QVariant(QmlProfilerBaseModel::formatTime(time)));
-        l << res;
-    }
 }
 
 QVariantMap PixmapCacheModel::details(int index) const
