@@ -144,7 +144,7 @@ const QVariantList MemoryUsageModel::getEventDetails(int index) const
 
     {
         QVariantMap res;
-        if (ev->size > 0)
+        if (ev->delta > 0)
             res.insert(QLatin1String("title"), QVariant(QLatin1String("Memory Allocated")));
         else
             res.insert(QLatin1String("title"), QVariant(QLatin1String("Memory Freed")));
