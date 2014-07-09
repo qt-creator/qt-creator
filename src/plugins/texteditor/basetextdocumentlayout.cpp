@@ -50,6 +50,7 @@ public:
     TextMarks marksAt(int line) const;
     void removeMark(ITextMark *mark);
     void updateMark(ITextMark *mark);
+    void moveMark(ITextMark *mark, int previousLine);
 
     void removeMarkFromMarksCache(TextEditor::ITextMark *mark);
 private:
@@ -175,6 +176,18 @@ void DocumentMarker::updateMark(ITextMark *mark)
         qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
     QTC_ASSERT(documentLayout, return);
     documentLayout->requestUpdate();
+}
+
+void DocumentMarker::moveMark(ITextMark *mark, int previousLine)
+{
+    QTextBlock block = document->findBlockByNumber(previousLine - 1);
+    if (TextBlockUserData *data = BaseTextDocumentLayout::testUserData(block)) {
+        if (!data->removeMark(mark))
+            qDebug() << "Could not find mark" << mark << "on line" << previousLine;
+    }
+    removeMarkFromMarksCache(mark);
+    mark->setMarkableInterface(0);
+    addMark(mark);
 }
 
 } // namespace Internal

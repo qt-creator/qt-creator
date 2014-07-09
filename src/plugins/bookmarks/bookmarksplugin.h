@@ -70,7 +70,7 @@ private slots:
     void requestContextMenu(TextEditor::ITextEditor *editor,
         int lineNumber, QMenu *menu);
     void bookmarkMarginActionTriggered();
-    void bookmarkEditNoteActionTriggered();
+    void editBookmarkActionTriggered();
 
 private:
     static BookmarksPlugin *m_instance;
@@ -81,7 +81,7 @@ private:
     QAction *m_nextAction;
     QAction *m_docPrevAction;
     QAction *m_docNextAction;
-    QAction *m_editNoteAction;
+    QAction *m_editBookmarkAction;
 
     QAction *m_bookmarkMarginAction;
     int m_bookmarkMarginActionLineNumber;
