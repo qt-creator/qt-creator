@@ -51,6 +51,9 @@ ProFileEditorFactory::ProFileEditorFactory(QmakeManager *manager) :
     addMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
     addMimeType(QmakeProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
     addMimeType(QmakeProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROCONFIGURATIONFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROCACHEFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROSTASHFILE_MIMETYPE);
     new TextEditor::TextEditorActionHandler(this, Constants::C_PROFILEEDITOR,
                   TextEditor::TextEditorActionHandler::UnCommentSelection
                   | TextEditor::TextEditorActionHandler::JumpToFileUnderCursor);
