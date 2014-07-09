@@ -478,13 +478,24 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
 
     (*selections)[*blockNumber].append(DiffSelection(&m_chunkLineFormat));
 
+    int lastEqualRow = -1;
+    if (lastChunk) {
+        for (int i = chunkData.rows.count(); i > 0; i--) {
+            if (chunkData.rows.at(i - 1).equal) {
+                if (i != chunkData.rows.count())
+                    lastEqualRow = i - 1;
+                break;
+            }
+        }
+    }
+
     for (int i = 0; i <= chunkData.rows.count(); i++) {
         const RowData &rowData = i < chunkData.rows.count()
                 ? chunkData.rows.at(i)
                 : RowData(TextLineData(TextLineData::Separator)); // dummy,
                                        // ensure we process buffers to the end.
                                        // rowData will be equal
-        if (rowData.equal) {
+        if (rowData.equal && i != lastEqualRow) {
             if (leftBuffer.count()) {
                 for (int j = 0; j < leftBuffer.count(); j++) {
                     const TextLineData &lineData = leftBuffer.at(j);

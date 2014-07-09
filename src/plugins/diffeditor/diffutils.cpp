@@ -131,15 +131,23 @@ ChunkData DiffUtils::calculateOriginalData(const QList<Diff> &leftDiffList,
                 : Diff(Diff::Equal);
 
         if (leftDiff.command == Diff::Delete) {
+            if (j == rightDiffList.count() && lastLineEqual && leftDiff.text.startsWith(QLatin1Char('\n')))
+                equalLines.insert(leftLineNumber, rightLineNumber);
             // process delete
             handleDifference(leftDiff.text, &leftLines, &leftLineNumber);
             lastLineEqual = lastLinesEqual(leftLines, rightLines);
+            if (j == rightDiffList.count())
+                lastLineEqual = false;
             i++;
         }
         if (rightDiff.command == Diff::Insert) {
+            if (i == leftDiffList.count() && lastLineEqual && rightDiff.text.startsWith(QLatin1Char('\n')))
+                equalLines.insert(leftLineNumber, rightLineNumber);
             // process insert
             handleDifference(rightDiff.text, &rightLines, &rightLineNumber);
             lastLineEqual = lastLinesEqual(leftLines, rightLines);
+            if (i == leftDiffList.count())
+                lastLineEqual = false;
             j++;
         }
         if (leftDiff.command == Diff::Equal && rightDiff.command == Diff::Equal) {
@@ -262,6 +270,7 @@ FileData DiffUtils::calculateContextData(const ChunkData &originalData,
 
     FileData fileData;
     fileData.contextChunksIncluded = true;
+    fileData.lastChunkAtTheEndOfFile = true;
 
     QMap<int, bool> hiddenRows;
     int i = 0;
@@ -353,13 +362,24 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
     int rightLineCount = 0;
     QList<TextLineData> leftBuffer, rightBuffer;
 
+    int lastEqualRow = -1;
+    if (lastChunk) {
+        for (int i = chunkData.rows.count(); i > 0; i--) {
+            if (chunkData.rows.at(i - 1).equal) {
+                if (i != chunkData.rows.count())
+                    lastEqualRow = i - 1;
+                break;
+            }
+        }
+    }
+
     for (int i = 0; i <= chunkData.rows.count(); i++) {
         const RowData &rowData = i < chunkData.rows.count()
                 ? chunkData.rows.at(i)
                 : RowData(TextLineData(TextLineData::Separator)); // dummy,
                                         // ensure we process buffers to the end.
                                         // rowData will be equal
-        if (rowData.equal) {
+        if (rowData.equal && i != lastEqualRow) {
             if (leftBuffer.count()) {
                 for (int j = 0; j < leftBuffer.count(); j++) {
                     const QString line = makePatchLine(QLatin1Char('-'),
@@ -554,11 +574,15 @@ static QList<RowData> readLines(const QString &patch,
         }
     }
 
-    if (i < lines.count()
+    if (i < lines.count() // we broke before
+            // or we have noNewLine in some equal line and in either delete or insert line
             || (noNewLineInEqual >= 0 && (noNewLineInDelete >= 0 || noNewLineInInsert >= 0))
+            // or we have noNewLine in not the last equal line
             || (noNewLineInEqual >= 0 && noNewLineInEqual != lastEqual)
-            || (noNewLineInDelete >= 0 && noNewLineInDelete != lastDelete)
-            || (noNewLineInInsert >= 0 && noNewLineInInsert != lastInsert)) {
+            // or we have noNewLine in not the last delete line or there is a equal line after the noNewLine for delete
+            || (noNewLineInDelete >= 0 && (noNewLineInDelete != lastDelete || lastEqual > lastDelete))
+            // or we have noNewLine in not the last insert line or there is a equal line after the noNewLine for insert
+            || (noNewLineInInsert >= 0 && (noNewLineInInsert != lastInsert || lastEqual > lastInsert))) {
         if (ok)
             *ok = false;
         return QList<RowData>();
@@ -577,25 +601,34 @@ static QList<RowData> readLines(const QString &patch,
             removeNewLineFromLastDelete = true;
         if (noNewLineInInsert >= 0)
             removeNewLineFromLastInsert = true;
-    } else if (lastEqual > lastDelete && lastEqual > lastInsert) {
-        removeNewLineFromLastEqual = true;
-    } else if (lastDelete > lastEqual && lastDelete > lastInsert) {
-        if (lastInsert > lastEqual) {
-            removeNewLineFromLastDelete = true;
-            removeNewLineFromLastInsert = true;
-        } else if (lastEqual > lastInsert) {
+    } else {
+        if (noNewLineInEqual >= 0) {
             removeNewLineFromLastEqual = true;
-            prependNewLineAfterLastEqual = true;
-        }
-    } else if (lastInsert > lastEqual && lastInsert > lastDelete) {
-        if (lastDelete > lastEqual) {
-            removeNewLineFromLastDelete = true;
-            removeNewLineFromLastInsert = true;
-        } else if (lastEqual > lastDelete) {
-            removeNewLineFromLastEqual = true;
-            prependNewLineAfterLastEqual = true;
+        } else if (lastChunk) {
+            if (lastEqual > lastDelete && lastEqual > lastInsert) {
+                removeNewLineFromLastEqual = true;
+            } else if (lastDelete > lastEqual && lastDelete > lastInsert) {
+                if (lastInsert > lastEqual) {
+                    removeNewLineFromLastDelete = true;
+                    removeNewLineFromLastInsert = true;
+                } else if (lastEqual > lastInsert) {
+                    removeNewLineFromLastEqual = true;
+                    removeNewLineFromLastDelete = true;
+                    prependNewLineAfterLastEqual = true;
+                }
+            } else if (lastInsert > lastEqual && lastInsert > lastDelete) {
+                if (lastDelete > lastEqual) {
+                    removeNewLineFromLastDelete = true;
+                    removeNewLineFromLastInsert = true;
+                } else if (lastEqual > lastDelete) {
+                    removeNewLineFromLastEqual = true;
+                    removeNewLineFromLastInsert = true;
+                    prependNewLineAfterLastEqual = true;
+                }
+            }
         }
     }
+
 
     if (removeNewLineFromLastEqual) {
         Diff &diff = diffList[lastEqual];
