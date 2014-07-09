@@ -93,6 +93,8 @@ public:
     static void tintImage(QImage &img, const QColor &tintColor);
     static QLinearGradient statusBarGradient(const QRect &statusBarRect);
 
+    static QPixmap dpiSpecificPixmap(const QString &fileName);
+
 private:
     static QColor m_baseColor;
     static QColor m_requestedBaseColor;
