@@ -1095,20 +1095,24 @@ Function *Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
     Function *fun = control()->newFunction(0, 0);
     fun->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
     fun->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
+
+    FullySpecifiedType type;
     if (ast->trailing_return_type)
-        _type = this->trailingReturnType(ast->trailing_return_type, _type);
-    fun->setReturnType(_type);
+        type = this->trailingReturnType(ast->trailing_return_type, type);
     ast->symbol = fun;
 
     // unsigned lparen_token = ast->lparen_token;
-    FullySpecifiedType type;
     this->parameterDeclarationClause(ast->parameter_declaration_clause, ast->lparen_token, fun);
     // unsigned rparen_token = ast->rparen_token;
     for (SpecifierListAST *it = ast->attributes; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
     // unsigned mutable_token = ast->mutable_token;
-    _type = this->exceptionSpecification(ast->exception_specification, type);
+    type = this->exceptionSpecification(ast->exception_specification, type);
+
+    if (!type.isValid())
+        type.setType(control()->voidType());
+    fun->setReturnType(type);
     return fun;
 }
 
