@@ -93,8 +93,12 @@ inline void TimelineRenderer::getItemXExtent(int modelIndex, int i, int &current
                                     m_spacing, m_spacedDuration)));
     } else {
         currentX = -OutOfScreenMargin;
-        itemWidth = qMax(1.0, (qMin((m_profilerModelProxy->getDuration(modelIndex, i) + start) *
-                                    m_spacing + OutOfScreenMargin, m_spacedDuration)));
+        // Explicitly round the "start" part down, away from 0, to match the implicit rounding of
+        // currentX in the > 0 case. If we don't do that we get glitches where a pixel is added if
+        // the element starts outside the screen and subtracted if it starts inside the screen.
+        itemWidth = qMax(1.0, (qMin(m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing +
+                                    floor(start * m_spacing) + OutOfScreenMargin,
+                                    m_spacedDuration)));
     }
 }
 
