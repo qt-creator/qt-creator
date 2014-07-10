@@ -464,44 +464,62 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
     p->drawPixmap(targetRect, cache);
 }
 
+// Qt version migration wrapper for QImage::devicePixelRatioF
+static qreal imageDevicePixelRatio(const QImage &image)
+{
+#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
+    return image.devicePixelRatio();
+#else // QT_VERSION < Qt 5.4.0
+    return image.devicePixelRatioF();
+#endif // QT_VERSION < Qt 5.4.0
+}
+
 // Draws a CSS-like border image where the defined borders are not stretched
+// Unit for rect, left, top, right and bottom is user pixels
 void StyleHelper::drawCornerImage(const QImage &img, QPainter *painter, const QRect &rect,
                                   int left, int top, int right, int bottom)
 {
-    QSize size = img.size();
+    // source rect for drawImage() calls needs to be specified in DIP unit of the image
+    const qreal imagePixelRatio = imageDevicePixelRatio(img);
+    const qreal leftDIP = left * imagePixelRatio;
+    const qreal topDIP = top * imagePixelRatio;
+    const qreal rightDIP = right * imagePixelRatio;
+    const qreal bottomDIP = bottom * imagePixelRatio;
+
+    const QSize size = img.size();
     if (top > 0) { //top
-        painter->drawImage(QRect(rect.left() + left, rect.top(), rect.width() -right - left, top), img,
-                           QRect(left, 0, size.width() -right - left, top));
+        painter->drawImage(QRectF(rect.left() + left, rect.top(), rect.width() -right - left, top), img,
+                           QRectF(leftDIP, 0, size.width() - rightDIP - leftDIP, topDIP));
         if (left > 0) //top-left
-            painter->drawImage(QRect(rect.left(), rect.top(), left, top), img,
-                               QRect(0, 0, left, top));
+            painter->drawImage(QRectF(rect.left(), rect.top(), left, top), img,
+                               QRectF(0, 0, leftDIP, topDIP));
         if (right > 0) //top-right
-            painter->drawImage(QRect(rect.left() + rect.width() - right, rect.top(), right, top), img,
-                               QRect(size.width() - right, 0, right, top));
+            painter->drawImage(QRectF(rect.left() + rect.width() - right, rect.top(), right, top), img,
+                               QRectF(size.width() - rightDIP, 0, rightDIP, topDIP));
     }
     //left
     if (left > 0)
-        painter->drawImage(QRect(rect.left(), rect.top()+top, left, rect.height() - top - bottom), img,
-                           QRect(0, top, left, size.height() - bottom - top));
+        painter->drawImage(QRectF(rect.left(), rect.top()+top, left, rect.height() - top - bottom), img,
+                           QRectF(0, topDIP, leftDIP, size.height() - bottomDIP - topDIP));
     //center
-    painter->drawImage(QRect(rect.left() + left, rect.top()+top, rect.width() -right - left,
-                             rect.height() - bottom - top), img,
-                       QRect(left, top, size.width() -right -left,
-                             size.height() - bottom - top));
+    painter->drawImage(QRectF(rect.left() + left, rect.top()+top, rect.width() -right - left,
+                              rect.height() - bottom - top), img,
+                       QRectF(leftDIP, topDIP, size.width() - rightDIP - leftDIP,
+                              size.height() - bottomDIP - topDIP));
     if (right > 0) //right
-        painter->drawImage(QRect(rect.left() +rect.width() - right, rect.top()+top, right, rect.height() - top - bottom), img,
-                           QRect(size.width() - right, top, right, size.height() - bottom - top));
+        painter->drawImage(QRectF(rect.left() +rect.width() - right, rect.top()+top, right, rect.height() - top - bottom), img,
+                           QRectF(size.width() - rightDIP, topDIP, rightDIP, size.height() - bottomDIP - topDIP));
     if (bottom > 0) { //bottom
-        painter->drawImage(QRect(rect.left() +left, rect.top() + rect.height() - bottom,
-                                 rect.width() - right - left, bottom), img,
-                           QRect(left, size.height() - bottom,
-                                 size.width() - right - left, bottom));
-    if (left > 0) //bottom-left
-        painter->drawImage(QRect(rect.left(), rect.top() + rect.height() - bottom, left, bottom), img,
-                           QRect(0, size.height() - bottom, left, bottom));
-    if (right > 0) //bottom-right
-        painter->drawImage(QRect(rect.left() + rect.width() - right, rect.top() + rect.height() - bottom, right, bottom), img,
-                           QRect(size.width() - right, size.height() - bottom, right, bottom));
+        painter->drawImage(QRectF(rect.left() +left, rect.top() + rect.height() - bottom,
+                                  rect.width() - right - left, bottom), img,
+                           QRectF(leftDIP, size.height() - bottomDIP,
+                                  size.width() - rightDIP - leftDIP, bottomDIP));
+        if (left > 0) //bottom-left
+            painter->drawImage(QRectF(rect.left(), rect.top() + rect.height() - bottom, left, bottom), img,
+                               QRectF(0, size.height() - bottomDIP, leftDIP, bottomDIP));
+        if (right > 0) //bottom-right
+            painter->drawImage(QRectF(rect.left() + rect.width() - right, rect.top() + rect.height() - bottom, right, bottom), img,
+                               QRectF(size.width() - rightDIP, size.height() - bottomDIP, rightDIP, bottomDIP));
     }
 }
 
