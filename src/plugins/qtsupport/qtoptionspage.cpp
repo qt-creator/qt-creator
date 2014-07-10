@@ -609,11 +609,8 @@ void QtOptionsPageWidget::addQtDir()
     if (BuildableHelperLibrary::isQtChooser(fi))
         qtVersion = FileName::fromString(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
 
-    BaseQtVersion *version = Utils::findOr(m_versions,
-                                           0,
-                                           [&qtVersion](BaseQtVersion *v) {
-                                                return v->qmakeCommand() == qtVersion;
-                                           });
+    BaseQtVersion *version = Utils::findOrDefault(m_versions,
+                                                  Utils::equal(&BaseQtVersion::qmakeCommand, qtVersion));
     if (version) {
         // Already exist
         QMessageBox::warning(this, tr("Qt Version Already Known"),

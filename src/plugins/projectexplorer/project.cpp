@@ -227,16 +227,12 @@ void Project::setActiveTarget(Target *target)
 
 Target *Project::target(Core::Id id) const
 {
-    return Utils::findOrDefault(d->m_targets, [&id](Target *target) {
-        return target->id() == id;
-    });
+    return Utils::findOrDefault(d->m_targets, Utils::equal(&Target::id, id));
 }
 
 Target *Project::target(Kit *k) const
 {
-    return Utils::findOrDefault(d->m_targets, [&k](Target *target) {
-        return target->kit() == k;
-    });
+    return Utils::findOrDefault(d->m_targets, Utils::equal(&Target::kit, k));
 }
 
 bool Project::supportsKit(Kit *k, QString *errorMessage) const
@@ -499,9 +495,7 @@ void Project::setup(QList<const BuildInfo *> infoList)
             continue;
         Target *t = target(k);
         if (!t) {
-            t = Utils::findOrDefault(toRegister, [&k](Target *i){
-                return i->kit() == k;
-            });
+            t = Utils::findOrDefault(toRegister, Utils::equal(&Target::kit, k));
         }
         if (!t) {
             t = new Target(this, k);

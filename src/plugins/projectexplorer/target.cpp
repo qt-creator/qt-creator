@@ -680,9 +680,7 @@ void Target::updateDefaultRunConfigurations()
             // Try to find a runconfiguration that matches the project name. That is a good
             // candidate for something to run initially.
             selected = Utils::findOr(newConfigured, selected,
-                                     [this] (RunConfiguration *rc) {
-                                         return rc->displayName() == project()->displayName();
-                                     });
+                                     Utils::equal(&RunConfiguration::displayName, project()->displayName()));
             setActiveRunConfiguration(selected);
         } else if (!newUnconfigured.isEmpty()){
             setActiveRunConfiguration(newUnconfigured.at(0));

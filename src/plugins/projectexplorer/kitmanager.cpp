@@ -409,9 +409,7 @@ Kit *KitManager::find(Core::Id id)
     if (!id.isValid())
         return 0;
 
-    return Utils::findOrDefault(kits(), [id](Kit *k) {
-        return k->id() == id;
-    });
+    return Utils::findOrDefault(kits(), Utils::equal(&Kit::id, id));
 }
 
 Kit *KitManager::find(const KitMatcher &matcher)

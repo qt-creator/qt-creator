@@ -131,9 +131,8 @@ QVariant ToolChainKitInformation::defaultValue(Kit *k) const
 
     Abi abi = Abi::hostAbi();
 
-    ToolChain *tc = Utils::findOr(tcList, tcList.first(), [&abi](ToolChain *tc) {
-        return tc->targetAbi() == abi;
-    });
+    ToolChain *tc = Utils::findOr(tcList, tcList.first(),
+                                  Utils::equal(&ToolChain::targetAbi, abi));
 
     return tc->id();
 }

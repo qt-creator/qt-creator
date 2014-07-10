@@ -314,9 +314,7 @@ ToolChain *ToolChainManager::findToolChain(const QString &id)
     if (id.isEmpty())
         return 0;
 
-    return Utils::findOrDefault(d->m_toolChains, [&id](ToolChain *tc) {
-        return tc->id() == id;
-    });
+    return Utils::findOrDefault(d->m_toolChains, Utils::equal(&ToolChain::id, id));
 }
 
 FileName ToolChainManager::defaultDebugger(const Abi &abi)

@@ -161,9 +161,7 @@ QList<Core::Id> BuildConfiguration::knownStepLists() const
 
 BuildStepList *BuildConfiguration::stepList(Core::Id id) const
 {
-    return Utils::findOrDefault(m_stepLists, [id](BuildStepList *list) {
-        return id == list->id();
-    });
+    return Utils::findOrDefault(m_stepLists, Utils::equal(&BuildStepList::id, id));
 }
 
 QVariantMap BuildConfiguration::toMap() const

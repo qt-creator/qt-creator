@@ -544,11 +544,8 @@ void ExamplesListModel::updateQtVersions()
         // try to select the previously selected Qt version, or
         // select examples corresponding to 'highest' Qt version
         int currentQtId = m_exampleSetModel->getQtId(currentIndex);
-        BaseQtVersion *newQtVersion = Utils::findOr(m_qtVersions,
-                                                    0,
-                                                    [&currentQtId](BaseQtVersion *version) {
-                                                        return version->uniqueId() == currentQtId;
-                                                    });
+        BaseQtVersion *newQtVersion = Utils::findOrDefault(m_qtVersions,
+                                                    Utils::equal(&BaseQtVersion::uniqueId, currentQtId));
 
         if (!newQtVersion)
             newQtVersion = findHighestQtVersion();

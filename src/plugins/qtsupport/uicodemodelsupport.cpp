@@ -334,9 +334,7 @@ UiCodeModelManager::~UiCodeModelManager()
 
 static UiCodeModelSupport *findUiFile(const QList<UiCodeModelSupport *> &range, const QString &uiFile)
 {
-    return Utils::findOrDefault(range, [uiFile](UiCodeModelSupport *support) {
-        return support->uiFileName() == uiFile;
-    });
+    return Utils::findOrDefault(range, Utils::equal(&UiCodeModelSupport::uiFileName, uiFile));
 }
 
 void UiCodeModelManager::update(ProjectExplorer::Project *project, QHash<QString, QString> uiHeaders)

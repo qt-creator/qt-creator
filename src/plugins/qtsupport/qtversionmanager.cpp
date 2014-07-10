@@ -641,9 +641,7 @@ FileName QtVersionManager::findQMakeBinaryFromMakefile(const QString &makefile)
 
 BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const FileName &qmakePath)
 {
-    return Utils::findOrDefault(versions(), [&qmakePath](BaseQtVersion *v) {
-        return v->qmakeCommand() == qmakePath;
-    });
+    return Utils::findOrDefault(versions(), Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
 }
 
 void dumpQMakeAssignments(const QList<QMakeAssignment> &list)

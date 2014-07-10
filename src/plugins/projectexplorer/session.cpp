@@ -513,9 +513,7 @@ Project *SessionManager::projectForNode(Node *node)
 
     Q_ASSERT(rootProjectNode);
 
-    return Utils::findOrDefault(d->m_projects, [rootProjectNode](Project *p) {
-        return p->rootProjectNode() == rootProjectNode;
-    });
+    return Utils::findOrDefault(d->m_projects, Utils::equal(&Project::rootProjectNode, rootProjectNode));
 }
 
 QList<Node *> SessionManager::nodesForFile(const QString &fileName, Project *project)

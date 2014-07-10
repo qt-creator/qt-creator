@@ -375,9 +375,7 @@ ToolChainNode *ToolChainModel::createNode(ToolChainNode *parent, ToolChain *tc, 
 
 ToolChainNode *ToolChainModel::findToolChain(const QList<ToolChainNode *> &container, ToolChain *tc)
 {
-    return Utils::findOrDefault(container, [tc] (ToolChainNode *n) {
-                            return n->toolChain == tc;
-                         });
+    return Utils::findOrDefault(container, Utils::equal(&ToolChainNode::toolChain, tc));
 }
 
 void ToolChainModel::addToolChain(ToolChain *tc)
