@@ -77,7 +77,7 @@
 :File has been removed.Close_QPushButton	{text='Close' type='QPushButton' unnamed='1' visible='1' window=':File has been removed_QMessageBox'}
 :File has been removed.Save_QPushButton	{text='Save' type='QPushButton' unnamed='1' visible='1' window=':File has been removed_QMessageBox'}
 :File has been removed_QMessageBox	{text?='The file * removed*. Do you want to save it under a different name, or close the editor?' type='QMessageBox' unnamed='1' visible='1'}
-:Files.Check all_QCheckBox	{container=':splitter.Files_QGroupBox' name='checkAllCheckBox' text='Check all' type='QCheckBox' visible='1'}
+:Files.Check all_QCheckBox	{container=':splitter.Files_QGroupBox' name='checkAllCheckBox' text='Select all' type='QCheckBox' visible='1'}
 :Form.Startup_QGroupBox	{container=':qt_tabwidget_stackedwidget.Form_QWidget' name='startupGroupBox' title='Startup' type='QGroupBox' visible='1'}
 :FormEditorStack.CheckBox_QCheckBox	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='checkBox' text='CheckBox' type='QCheckBox' visible='1'}
 :FormEditorStack.PushButton_QPushButton	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='pushButton' text='PushButton' type='QPushButton' visible='1'}
