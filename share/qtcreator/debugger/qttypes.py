@@ -2218,6 +2218,26 @@ def qdump__QXmlAttributes(d, value):
     qdump__QList(d, value["attList"])
 
 
+def qdump__QXmlStreamStringRef(d, value):
+    s = value["m_string"]
+    data, size, alloc = d.stringData(s)
+    data += 2 * int(value["m_position"])
+    size = int(value["m_size"])
+    s = d.readMemory(data, 2 * size)
+    d.putValue(s, Hex4EncodedLittleEndian)
+    d.putPlainChildren(value)
+
+
+def qdump__QXmlStreamAttribute(d, value):
+    s = value["m_name"]["m_string"]
+    data, size, alloc = d.stringData(s)
+    data += 2 * int(value["m_name"]["m_position"])
+    size = int(value["m_name"]["m_size"])
+    s = d.readMemory(data, 2 * size)
+    d.putValue(s, Hex4EncodedLittleEndian)
+    d.putPlainChildren(value)
+
+
 #######################################################################
 #
 # V4
