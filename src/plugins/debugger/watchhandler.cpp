@@ -500,7 +500,11 @@ WatchItem *WatchModel::findItem(const QByteArray &iname) const
 
 void WatchModel::checkIndex(const QModelIndex &index) const
 {
-    QTC_CHECK(index.isValid() ? index.model() == this : index.model() == 0);
+    if (index.isValid()) {
+        QTC_CHECK(index.model() == this);
+    } else {
+        QTC_CHECK(index.model() == 0);
+    }
 }
 
 WatchItem *WatchModel::createItem(const WatchData &data)

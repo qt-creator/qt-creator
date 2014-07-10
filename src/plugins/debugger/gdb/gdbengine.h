@@ -34,6 +34,7 @@
 
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
+#include <debugger/debuggertooltipmanager.h>
 
 #include <coreplugin/id.h>
 
@@ -467,8 +468,7 @@ protected:
     void showExecutionError(const QString &message);
 
     static QByteArray tooltipIName(const QString &exp);
-    QString tooltipExpression() const;
-    QScopedPointer<DebuggerToolTipContext> m_toolTipContext;
+    DebuggerToolTipContext m_toolTipContext;
 
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded;

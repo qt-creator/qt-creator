@@ -1968,8 +1968,10 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
             foreach (const WatchData &wd, watchData)
                 nsp << wd.toString() <<'\n';
         }
-        if (flags & LocalsUpdateForNewFrame)
+        if (flags & LocalsUpdateForNewFrame) {
             emit stackFrameCompleted();
+            DebuggerToolTipManager::updateEngine(this);
+        }
     } else {
         showMessage(QString::fromLatin1(reply->errorMessage), LogWarning);
     }

@@ -38,7 +38,6 @@
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
-#include "debuggertooltipmanager.h"
 #include "breakhandler.h"
 #include "shared/peutils.h"
 
@@ -136,9 +135,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
     QString errorMessage;
     d->m_engine = DebuggerRunControlFactory::createEngine(sp.masterEngineType, sp, &errorMessage);
 
-    if (d->m_engine) {
-        DebuggerToolTipManager::registerEngine(d->m_engine);
-    } else {
+    if (!d->m_engine) {
         debuggingFinished();
         Core::ICore::showWarningWithOptions(DebuggerRunControl::tr("Debugger"), errorMessage);
     }

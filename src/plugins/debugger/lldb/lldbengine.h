@@ -34,6 +34,7 @@
 #include <debugger/disassembleragent.h>
 #include <debugger/memoryagent.h>
 #include <debugger/watchhandler.h>
+#include <debugger/debuggertooltipmanager.h>
 
 #include <utils/consoleprocess.h>
 
@@ -217,7 +218,7 @@ private:
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
     QMap<QPointer<MemoryAgent>, int> m_memoryAgents;
     QHash<int, QPointer<QObject> > m_memoryAgentTokens;
-    QScopedPointer<DebuggerToolTipContext> m_toolTipContext;
+    DebuggerToolTipContext m_toolTipContext;
 
     void showToolTip();
 

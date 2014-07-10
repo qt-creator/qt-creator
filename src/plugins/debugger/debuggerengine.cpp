@@ -35,6 +35,7 @@
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
+#include "debuggertooltipmanager.h"
 
 #include "breakhandler.h"
 #include "disassembleragent.h"
@@ -1176,11 +1177,16 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     if (!forced && !isAllowedTransition(oldState, state))
         qDebug() << "*** UNEXPECTED STATE TRANSITION: " << this << msg;
 
+    if (state == EngineRunRequested) {
+        DebuggerToolTipManager::registerEngine(this);
+    }
+
     if (state == DebuggerFinished) {
         // Give up ownership on claimed breakpoints.
         BreakHandler *handler = breakHandler();
         foreach (BreakpointModelId id, handler->engineBreakpointIds(this))
             handler->notifyBreakpointReleased(id);
+        DebuggerToolTipManager::deregisterEngine(this);
     }
 
     showMessage(msg, LogDebug);

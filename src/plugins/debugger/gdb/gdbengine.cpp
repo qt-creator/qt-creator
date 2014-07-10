@@ -3629,39 +3629,30 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::showToolTip()
-{
-    if (m_toolTipContext.isNull())
-        return;
-    const QString expression = m_toolTipContext->expression;
-    if (DebuggerToolTipManager::debug())
-        qDebug() << "GdbEngine::showToolTip " << expression << m_toolTipContext->iname << (*m_toolTipContext);
+//void GdbEngine::showToolTip()
+//{
+//    const QString expression = m_toolTipContext.expression;
+//    if (DebuggerToolTipManager::debug())
+//        qDebug() << "GdbEngine::showToolTip " << expression << m_toolTipContext.iname << m_toolTipContext;
 
-    if (m_toolTipContext->iname.startsWith("tooltip")
-        && (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)
-            || !watchHandler()->isValidToolTip(m_toolTipContext->iname))) {
-        watchHandler()->removeData(m_toolTipContext->iname);
-        return;
-    }
+//    if (m_toolTipContext.iname.startsWith("tooltip")
+//        && (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)
+//            || !watchHandler()->isValidToolTip(m_toolTipContext.iname))) {
+//        watchHandler()->removeData(m_toolTipContext.iname);
+//        return;
+//    }
 
-    DebuggerToolTipManager::showToolTip(*m_toolTipContext, this);
-    // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
-    m_toolTipContext.reset();
-}
-
-QString GdbEngine::tooltipExpression() const
-{
-    return m_toolTipContext.isNull() ? QString() : m_toolTipContext->expression;
-}
+//    DebuggerToolTipManager::showToolTip(m_toolTipContext, this);
+//}
 
 void GdbEngine::resetLocation()
 {
-    m_toolTipContext.reset();
+    m_toolTipContext.expression.clear();
     DebuggerEngine::resetLocation();
 }
 
 bool GdbEngine::setToolTipExpression(TextEditor::ITextEditor *editor,
-    const DebuggerToolTipContext &contextIn)
+    const DebuggerToolTipContext &context)
 {
     if (state() != InferiorStopOk || !isCppEditor(editor)) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
@@ -3669,45 +3660,13 @@ bool GdbEngine::setToolTipExpression(TextEditor::ITextEditor *editor,
         return false;
     }
 
-    DebuggerToolTipContext context = contextIn;
-    int line, column;
-    QString exp = fixCppExpression(cppExpressionAt(editor, context.position, &line, &column, &context.function));
-    if (exp.isEmpty())
-        return false;
-    // Prefer a filter on an existing local variable if it can be found.
-    QByteArray iname;
-    if (const WatchData *localVariable = watchHandler()->findCppLocalVariable(exp)) {
-        exp = QLatin1String(localVariable->exp);
-        iname = localVariable->iname;
-    } else {
-        iname = tooltipIName(exp);
-    }
-
-    if (DebuggerToolTipManager::debug())
-        qDebug() << "GdbEngine::setToolTipExpression1 " << exp << iname << context;
-
-    // Same expression: Display synchronously.
-    if (!m_toolTipContext.isNull() && m_toolTipContext->expression == exp) {
-        showToolTip();
-        return true;
-    }
-
-    m_toolTipContext.reset(new DebuggerToolTipContext(context));
-    m_toolTipContext->expression = exp;
-    m_toolTipContext->iname = iname;
-    // Local variable: Display synchronously.
-    if (iname.startsWith("local")) {
-        showToolTip();
-        return true;
-    }
-
-    if (DebuggerToolTipManager::debug())
-        qDebug() << "GdbEngine::setToolTipExpression2 " << exp << (*m_toolTipContext);
+    m_toolTipContext = context;
+    //  qDebug() << "GdbEngine::setToolTipExpression2 " << exp << m_toolTipContext;
 
     UpdateParameters params;
     params.tryPartial = true;
     params.tooltipOnly = true;
-    params.varList = iname;
+    params.varList = context.iname;
     updateLocalsPython(params);
     return true;
 }
@@ -3773,7 +3732,12 @@ void GdbEngine::rebuildWatchModel()
         showMessage(LogWindow::logTimeStamp(), LogMiscInput);
     showMessage(_("<Rebuild Watchmodel %1>").arg(count), LogMiscInput);
     showStatusMessage(tr("Finished retrieving data"), 400);
-    showToolTip();
+
+    if (m_toolTipContext.isValid()) {
+        DebuggerToolTipManager::showToolTip(m_toolTipContext, this);
+        m_toolTipContext = DebuggerToolTipContext();
+    }
+    DebuggerToolTipManager::updateEngine(this);
 }
 
 void GdbEngine::handleVarAssign(const GdbResponse &)
@@ -4875,9 +4839,9 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
         // Re-create tooltip items that are not filters on existing local variables in
         // the tooltip model.
         DebuggerToolTipContexts toolTips =
-            DebuggerToolTipManager::treeWidgetExpressions(fileName, objectName(), function);
+            DebuggerToolTipManager::treeWidgetExpressions(this, fileName, function);
 
-        const QString currentExpression = tooltipExpression();
+        const QString currentExpression = m_toolTipContext.expression;
         if (!currentExpression.isEmpty()) {
             int currentIndex = -1;
             for (int i = 0; i < toolTips.size(); ++i) {
@@ -5015,8 +4979,10 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
             //PENDING_DEBUG("\n\n ....  AND TRIGGERS MODEL UPDATE\n");
             rebuildWatchModel();
         //}
-        if (!partial)
+        if (!partial) {
             emit stackFrameCompleted();
+            DebuggerToolTipManager::updateEngine(this);
+        }
     } else {
         showMessage(_("DUMPER FAILED: " + response.toString()));
     }

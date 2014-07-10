@@ -52,14 +52,17 @@ class DebuggerToolTipContext
 {
 public:
     DebuggerToolTipContext();
-    static DebuggerToolTipContext fromEditor(Core::IEditor *ed, int pos);
-    bool isValid() const { return !fileName.isEmpty(); }
+    bool isValid() const { return !expression.isEmpty(); }
+    bool matchesFrame(const QString &frameFile, const QString &frameFunction) const;
+    bool isSame(const DebuggerToolTipContext &other) const;
 
     QString fileName;
     int position;
     int line;
     int column;
     QString function; //!< Optional function. This must be set by the engine as it is language-specific.
+    QString engineType;
+    QDate creationDate;
 
     QPoint mousePosition;
     QString expression;
@@ -85,7 +88,6 @@ private slots:
     void computeSize();
     void expandNode(const QModelIndex &idx);
     void collapseNode(const QModelIndex &idx);
-    void handleItemIsExpanded(const QModelIndex &sourceIdx);
 
 private:
     int computeHeight(const QModelIndex &index) const;
@@ -102,37 +104,40 @@ public:
     ~DebuggerToolTipManager();
 
     static void registerEngine(DebuggerEngine *engine);
+    static void deregisterEngine(DebuggerEngine *engine);
+    static void updateEngine(DebuggerEngine *engine);
     static bool hasToolTips();
 
     // Collect all expressions of DebuggerTreeViewToolTipWidget
-    static DebuggerToolTipContexts treeWidgetExpressions(const QString &fileName,
-                                               const QString &engineType = QString(),
-                                               const QString &function= QString());
+    static DebuggerToolTipContexts treeWidgetExpressions(DebuggerEngine *engine,
+        const QString &fileName, const QString &function = QString());
 
     static void showToolTip(const DebuggerToolTipContext &context,
                             DebuggerEngine *engine);
 
     virtual bool eventFilter(QObject *, QEvent *);
 
-    static bool debug();
-    static QString treeModelClipboardContents(const QAbstractItemModel *m);
+    static QString treeModelClipboardContents(const QAbstractItemModel *model);
 
 public slots:
     void debugModeEntered();
     void leavingDebugMode();
     void sessionAboutToChange();
-    void loadSessionData();
-    void saveSessionData();
+    static void loadSessionData();
+    static void saveSessionData();
     static void closeAllToolTips();
-    void hide();
+    static void hide();
 
 private slots:
-    void slotUpdateVisibleToolTips();
+    static void slotUpdateVisibleToolTips();
     void slotDebuggerStateChanged(Debugger::DebuggerState);
-    void slotStackFrameCompleted();
     void slotEditorOpened(Core::IEditor *);
     void slotTooltipOverrideRequested(TextEditor::ITextEditor *editor,
             const QPoint &point, int pos, bool *handled);
+
+private:
+    bool tryHandleToolTipOverride(TextEditor::ITextEditor *editor,
+            const QPoint &point, int pos);
 };
 
 } // namespace Internal
