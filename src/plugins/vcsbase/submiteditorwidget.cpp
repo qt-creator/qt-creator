@@ -657,9 +657,9 @@ void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint & pos)
     // Execute menu offering to check/uncheck all
     QMenu menu;
     //: Check all for submit
-    QAction *checkAllAction = menu.addAction(tr("Check All"));
+    QAction *checkAllAction = menu.addAction(tr("Select All"));
     //: Uncheck all for submit
-    QAction *uncheckAllAction = menu.addAction(tr("Uncheck All"));
+    QAction *uncheckAllAction = menu.addAction(tr("Unselect All"));
     QAction *action = menu.exec(d->m_ui.fileView->mapToGlobal(pos));
     if (action == checkAllAction) {
         checkAll();
