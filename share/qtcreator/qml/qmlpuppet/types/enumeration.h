@@ -55,7 +55,7 @@ public:
     EnumerationName name() const;
     EnumerationName toEnumerationName() const;
     QString toString() const;
-    QString nameToString();
+    QString nameToString() const;
 
 private:
     EnumerationName m_enumerationName;
