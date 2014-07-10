@@ -36,8 +36,6 @@
 
 #include <QIcon>
 
-namespace qbs { class Project; }
-
 namespace QbsProjectManager {
 namespace Internal {
 
@@ -165,34 +163,46 @@ class QbsProjectNode : public QbsBaseProjectNode
     Q_OBJECT
 
 public:
-    explicit QbsProjectNode(QbsProject *project);
     explicit QbsProjectNode(const QString &path);
     ~QbsProjectNode();
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
 
-    void setProject(const qbs::Project &prj); // This does *not* update the node tree!
-
-    void update();
-
-    QbsProject *project() const;
+    virtual QbsProject *project() const;
     const qbs::Project qbsProject() const;
     const qbs::ProjectData qbsProjectData() const;
 
     bool showInSimpleTree() const;
+
+protected:
+    void update(const qbs::ProjectData &prjData);
+
 private:
     void ctor();
-
-    void update(const qbs::ProjectData &prjData);
 
     QbsProductNode *findProductNode(const QString &name);
     QbsProjectNode *findProjectNode(const QString &name);
 
-    QbsProject *m_project;
-
-    qbs::Project m_qbsProject;
     static QIcon m_projectIcon;
 };
+
+class QbsRootProjectNode : public QbsProjectNode
+{
+    Q_OBJECT
+
+public:
+    explicit QbsRootProjectNode(QbsProject *project);
+
+    using QbsProjectNode::update;
+    void update();
+
+    QbsProject *project() const { return m_project; }
+
+private:
+    QbsProject * const m_project;
+};
+
+
 } // namespace Internal
 } // namespace QbsProjectManager
 
