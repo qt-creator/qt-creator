@@ -548,7 +548,7 @@ QPixmap StyleHelper::dpiSpecificPixmap(const QString &fileName)
         const QFileInfo fi(fileName);
         const QString at2xfileName = fi.path() + QLatin1Char('/')
                 + fi.completeBaseName() + QStringLiteral("@2x.") + fi.suffix();
-        if (QFileInfo::exists(at2xfileName)) {
+        if (QFile::exists(at2xfileName)) {
             pixmapFileName = at2xfileName;
             pixmapDevicePixelRatio = 2.0;
         }
