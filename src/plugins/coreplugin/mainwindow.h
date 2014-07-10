@@ -107,7 +107,7 @@ public:
 
     void setOverrideColor(const QColor &color);
 
-    void setIsFullScreen(bool fullScreen);
+    void updateFullScreenAction();
 
     bool isNewItemDialogRunning() const;
 
@@ -119,7 +119,7 @@ public slots:
     void newFile();
     void openFileWith();
     void exit();
-    void setFullScreen(bool on);
+    void toggleFullScreen();
 
     void showNewItemDialog(const QString &title,
                            const QList<IWizardFactory *> &factories,
