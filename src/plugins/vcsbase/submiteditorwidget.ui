@@ -6,92 +6,86 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>582</width>
-    <height>502</height>
+    <width>720</width>
+    <height>485</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Subversion Submit</string>
   </property>
-  <layout class="QVBoxLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="childrenCollapsible">
-      <bool>false</bool>
-     </property>
-     <widget class="QGroupBox" name="descriptionBox">
-      <property name="title">
-       <string>Descriptio&amp;n</string>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-      <layout class="QVBoxLayout" name="descriptionLayout">
-       <item>
-        <widget class="Utils::CompletingTextEdit" name="description">
-         <property name="acceptRichText">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="verticalLayoutWidget">
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <property name="topMargin">
-        <number>0</number>
-       </property>
+      <layout class="QVBoxLayout" name="vboxLayout">
        <item>
-        <widget class="QGroupBox" name="groupBox">
+        <widget class="QGroupBox" name="descriptionBox">
          <property name="title">
-          <string>F&amp;iles</string>
+          <string>Descriptio&amp;n</string>
          </property>
          <property name="flat">
           <bool>true</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <layout class="QVBoxLayout" name="descriptionLayout">
           <item>
-           <widget class="QCheckBox" name="checkAllCheckBox">
-            <property name="text">
-             <string>Select a&amp;ll</string>
-            </property>
-            <property name="tristate">
+           <widget class="Utils::CompletingTextEdit" name="description">
+            <property name="acceptRichText">
              <bool>false</bool>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QTreeView" name="fileView"/>
-          </item>
          </layout>
         </widget>
        </item>
+      </layout>
+     </widget>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>F&amp;iles</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <layout class="QHBoxLayout" name="buttonLayout">
-         <property name="leftMargin">
-          <number>0</number>
+        <widget class="QCheckBox" name="checkAllCheckBox">
+         <property name="text">
+          <string>Select a&amp;ll</string>
          </property>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeView" name="fileView"/>
        </item>
       </layout>
      </widget>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonLayout">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
