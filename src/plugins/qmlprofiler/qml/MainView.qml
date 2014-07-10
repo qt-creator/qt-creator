@@ -273,7 +273,6 @@ Rectangle {
         onInteractiveChanged: interactive = stayInteractive
         onStayInteractiveChanged: interactive = stayInteractive
 
-        onContentXChanged: view.updateZoomControl()
         onWidthChanged: {
             var duration = Math.abs(zoomControl.endTime() - zoomControl.startTime());
             if (duration > 0)
@@ -312,19 +311,20 @@ Rectangle {
             onHeightChanged: requestPaint()
             property bool recursionGuard: false
 
-            function updateZoomControl() {
+            property int intX: x
+            property int intWidth: width
+            onIntXChanged: {
                 // Don't updateZoomControl if we're just updating the flick range, _from_
                 // zoomControl. The other way round is OK. We _want_ the flick range to be updated
                 // on external changes to zoomControl.
                 if (recursionGuard)
                     return;
 
-                var newStartTime = Math.round(flick.contentX * (endTime - startTime) / flick.width) +
-                                   zoomControl.windowStart();
-                if (Math.abs(newStartTime - startTime) > 1) {
-                    var newEndTime = Math.round((flick.contentX + flick.width) *
-                                                (endTime - startTime) /
-                                                flick.width) + zoomControl.windowStart();
+                var newStartTime = intX * (endTime - startTime) / intWidth +
+                        zoomControl.windowStart();
+                if (Math.abs(newStartTime - startTime) >= 1) {
+                    var newEndTime = (intX + intWidth) * (endTime - startTime) / intWidth +
+                            zoomControl.windowStart();
                     zoomControl.setRange(newStartTime, newEndTime);
                 }
             }
@@ -339,12 +339,12 @@ Rectangle {
                 if (!flick.movingHorizontally) {
                     // This triggers an unwanted automatic change in contentX. We ignore that by
                     // checking recursionGuard in this function and in updateZoomControl.
-                    flick.contentWidth = zoomControl.windowLength() * flick.width / duration;
+                    flick.contentWidth = zoomControl.windowLength() * intWidth / duration;
 
-                    var newStartX = (startTime - zoomControl.windowStart()) * flick.width /
+                    var newStartX = (startTime - zoomControl.windowStart()) * intWidth /
                             duration;
 
-                    if (isFinite(newStartX) && Math.abs(newStartX - flick.contentX) >= 1)
+                    if (isFinite(newStartX) && Math.abs(newStartX - intX) >= 1)
                         flick.contentX = newStartX;
                 }
                 recursionGuard = false;
@@ -379,8 +379,8 @@ Rectangle {
             }
 
          // hack to pass mouse events to the other mousearea if enabled
-            startDragArea: selectionRange.ready ? selectionRange.getLeft() : -flick.contentX
-            endDragArea: selectionRange.ready ? selectionRange.getRight() : -flick.contentX-1
+            startDragArea: selectionRange.ready ? selectionRange.getLeft() : -x
+            endDragArea: selectionRange.ready ? selectionRange.getRight() : -x - 1
         }
         MouseArea {
             id: selectionRangeControl
