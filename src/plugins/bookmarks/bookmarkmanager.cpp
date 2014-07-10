@@ -698,7 +698,7 @@ void BookmarkManager::edit()
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonBox, SIGNAL(accepted()), &dlg, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), &dlg, SLOT(reject()));
-    lineNumberEdit->setValidator(new QIntValidator(0, INT_MAX));
+    lineNumberEdit->setValidator(new QIntValidator(1, INT_MAX));
     layout->addRow(tr("Note text:"), noteEdit);
     layout->addRow(tr("Line number:"), lineNumberEdit);
     layout->addWidget(buttonBox);
