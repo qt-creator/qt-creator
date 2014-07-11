@@ -699,6 +699,7 @@ void BookmarkManager::edit()
     auto lineNumberSpinbox = new QSpinBox;
     lineNumberSpinbox->setRange(1, INT_MAX);
     lineNumberSpinbox->setValue(b->lineNumber());
+    lineNumberSpinbox->setMaximumWidth(100);
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonBox, SIGNAL(accepted()), &dlg, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), &dlg, SLOT(reject()));
