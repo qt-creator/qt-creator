@@ -52,8 +52,7 @@ public:
     QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
     QString displayNameForId(Core::Id id) const;
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent,
-                   const Core::Id id) const;
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const;
     ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id);
 
     bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
