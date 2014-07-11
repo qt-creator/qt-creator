@@ -56,6 +56,7 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QPainter>
+#include <QSpinBox>
 
 Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)
 
@@ -695,16 +696,17 @@ void BookmarkManager::edit()
     auto layout = new QFormLayout(&dlg);
     auto noteEdit = new QLineEdit(b->note());
     noteEdit->setMinimumWidth(300);
-    auto lineNumberEdit = new QLineEdit(QString::number(b->lineNumber()));
+    auto lineNumberSpinbox = new QSpinBox;
+    lineNumberSpinbox->setRange(1, INT_MAX);
+    lineNumberSpinbox->setValue(b->lineNumber());
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonBox, SIGNAL(accepted()), &dlg, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), &dlg, SLOT(reject()));
-    lineNumberEdit->setValidator(new QIntValidator(1, INT_MAX));
     layout->addRow(tr("Note text:"), noteEdit);
-    layout->addRow(tr("Line number:"), lineNumberEdit);
+    layout->addRow(tr("Line number:"), lineNumberSpinbox);
     layout->addWidget(buttonBox);
     if (dlg.exec() == QDialog::Accepted) {
-        b->move(lineNumberEdit->text().toInt());
+        b->move(lineNumberSpinbox->value());
         b->updateNote(noteEdit->text().replace(QLatin1Char('\t'), QLatin1Char(' ')));
         emit dataChanged(current, current);
         saveBookmarks();
