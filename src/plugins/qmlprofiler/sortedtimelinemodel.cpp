@@ -29,7 +29,7 @@
 
 /*!
     \class QmlProfiler::SortedTimelineModel
-    \brief Sorted model for timeline data
+    \brief The SortedTimelineModel class provides a sorted model for timeline data.
 
     The SortedTimelineModel lets you keep range data sorted by both start and end times, so that
     visible ranges can easily be computed. The only precondition for that to work is that the ranges
@@ -83,7 +83,7 @@
 /*!
     \fn int SortedTimelineModel::insertStart(qint64 startTime, const Data &item)
     Inserts the given data as range start at the given time position and
-    returns its index. The range end isn't set.
+    returns its index. The range end is not set.
 */
 
 /*!
@@ -94,14 +94,14 @@
 /*!
     \fn int SortedTimelineModel::findFirstIndexNoParents(qint64 startTime) const
     Looks up the first range with an end time greater than the given time and
-    returns its index. If no such range is found it returns -1.
+    returns its index. If no such range is found, it returns -1.
 */
 
 /*!
     \fn int SortedTimelineModel::findFirstIndex(qint64 startTime) const
     Looks up the first range with an end time greater than the given time and
-    returns its parent's index. If no such range is found it returns -1. If there
-    is no parent it returns the found range's index. The parent of a range is the
+    returns its parent's index. If no such range is found, it returns -1. If there
+    is no parent, it returns the found range's index. The parent of a range is the
     range with the lowest start time that completely covers the child range.
     "Completely covers" means:
     parent.startTime <= child.startTime && parent.endTime >= child.endTime
@@ -110,7 +110,7 @@
 /*!
     \fn int SortedTimelineModel::findLastIndex(qint64 endTime) const
     Looks up the last range with a start time smaller than the given time and
-    returns its index. If no such range is found it returns -1.
+    returns its index. If no such range is found, it returns -1.
 */
 
 /*!
