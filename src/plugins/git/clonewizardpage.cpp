@@ -154,3 +154,16 @@ QStringList CloneWizardPage::branches(const QString &repository, int *current)
 }
 
 } // namespace Git
+
+#ifdef WITH_TESTS
+#include <QTest>
+
+void Git::CloneWizardPage::testDirectoryFromRepository()
+{
+    QFETCH(QString, repository);
+    QFETCH(QString, localDirectory);
+
+    QEXPECT_FAIL("ssh with port", "QTCREATORBUG-12651", Abort);
+    QCOMPARE(directoryFromRepository(repository), localDirectory);
+}
+#endif

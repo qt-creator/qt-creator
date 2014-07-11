@@ -149,6 +149,8 @@ private slots:
     void testDiffFileResolving_data();
     void testDiffFileResolving();
     void testLogResolving();
+    void testCloneWizard_directoryFromRepository();
+    void testCloneWizard_directoryFromRepository_data();
 #endif
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);

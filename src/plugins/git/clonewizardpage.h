@@ -54,6 +54,11 @@ protected:
     QString directoryFromRepository(const QString &r) const;
     QStringList branches(const QString &repository, int *current);
 
+#ifdef WITH_TESTS
+public:
+    void testDirectoryFromRepository();
+#endif
+
 private:
     CloneWizardPagePrivate *d;
 };
