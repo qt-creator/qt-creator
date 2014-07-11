@@ -43,7 +43,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/iprojectproperties.h>
-#include <projectexplorer/projectwindow.h>
+#include <projectexplorer/panelswidget.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/plaintexteditor.h>

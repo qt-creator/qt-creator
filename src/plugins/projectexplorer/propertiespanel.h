@@ -26,61 +26,35 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-
-#ifndef PROJECTWINDOW_H
-#define PROJECTWINDOW_H
+#ifndef PROPERTIESPANEL_H
+#define PROPERTIESPANEL_H
 
 #include "projectexplorer_export.h"
 
-#include <QMap>
+#include <QIcon>
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QStackedWidget;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
-class Project;
-class Target;
-
-namespace Internal {
-
-class DoubleTabWidget;
-
-class ProjectWindow : public QWidget
+class PROJECTEXPLORER_EXPORT PropertiesPanel
 {
-    Q_OBJECT
+    Q_DISABLE_COPY(PropertiesPanel)
 
 public:
-    explicit ProjectWindow(QWidget *parent = 0);
-    ~ProjectWindow();
+    PropertiesPanel() {}
+    ~PropertiesPanel() { delete m_widget; }
 
-    void aboutToShutdown();
-    void extensionsInitialized();
+    QString displayName() const { return m_displayName; }
+    QIcon icon() const { return m_icon; }
+    QWidget *widget() const { return m_widget; }
 
-public slots:
-    void projectUpdated(ProjectExplorer::Project *p);
-
-private slots:
-    void handleKitChanges();
-    void showProperties(int index, int subIndex);
-    void registerProject(ProjectExplorer::Project*);
-    bool deregisterProject(ProjectExplorer::Project*);
-    void startupProjectChanged(ProjectExplorer::Project *);
-    void removedTarget(ProjectExplorer::Target*);
+    void setDisplayName(const QString &name) { m_displayName = name; }
+    void setIcon(const QIcon &icon) { m_icon = icon; }
+    void setWidget(QWidget *widget) { m_widget = widget; }
 
 private:
-    bool hasTarget(ProjectExplorer::Project *project);
-    void removeCurrentWidget();
-
-    DoubleTabWidget *m_tabWidget;
-    QStackedWidget *m_centralWidget;
-    QWidget *m_currentWidget;
-    QList<ProjectExplorer::Project *> m_tabIndexToProject;
-    QMap<ProjectExplorer::Project *, bool> m_hasTarget;
+    QString m_displayName;
+    QWidget *m_widget;
+    QIcon m_icon;
 };
-
-} // namespace Internal
-} // namespace ProjectExplorer
-
-#endif // PROJECTWINDOW_H
+}
+#endif // PROPERTIESPANEL_H

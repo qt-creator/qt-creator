@@ -106,6 +106,7 @@ QtcPlugin {
             "namedwidget.cpp", "namedwidget.h",
             "nodesvisitor.cpp", "nodesvisitor.h",
             "osparser.cpp", "osparser.h",
+            "panelswidget.cpp", "panelswidget.h"
             "processparameters.cpp", "processparameters.h",
             "processstep.cpp", "processstep.h", "processstep.ui",
             "project.cpp", "project.h",
@@ -124,6 +125,7 @@ QtcPlugin {
             "projecttreewidget.cpp", "projecttreewidget.h",
             "projectwindow.cpp", "projectwindow.h",
             "projectwizardpage.cpp", "projectwizardpage.h", "projectwizardpage.ui",
+            "propertiespanel.cpp", "propertiespanel.h"
             "removetaskhandler.cpp", "removetaskhandler.h",
             "runconfiguration.cpp", "runconfiguration.h",
             "runconfigurationmodel.cpp", "runconfigurationmodel.h",

@@ -26,61 +26,36 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-
-#ifndef PROJECTWINDOW_H
-#define PROJECTWINDOW_H
+#ifndef PANELSWIDGET_H
+#define PANELSWIDGET_H
 
 #include "projectexplorer_export.h"
 
-#include <QMap>
-#include <QWidget>
+#include <QScrollArea>
 
 QT_BEGIN_NAMESPACE
-class QStackedWidget;
+class QGridLayout;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class Project;
-class Target;
+class PropertiesPanel;
 
-namespace Internal {
-
-class DoubleTabWidget;
-
-class ProjectWindow : public QWidget
+class PROJECTEXPLORER_EXPORT PanelsWidget : public QScrollArea
 {
     Q_OBJECT
-
 public:
-    explicit ProjectWindow(QWidget *parent = 0);
-    ~ProjectWindow();
-
-    void aboutToShutdown();
-    void extensionsInitialized();
-
-public slots:
-    void projectUpdated(ProjectExplorer::Project *p);
-
-private slots:
-    void handleKitChanges();
-    void showProperties(int index, int subIndex);
-    void registerProject(ProjectExplorer::Project*);
-    bool deregisterProject(ProjectExplorer::Project*);
-    void startupProjectChanged(ProjectExplorer::Project *);
-    void removedTarget(ProjectExplorer::Target*);
+    explicit PanelsWidget(QWidget *parent = 0);
+    ~PanelsWidget();
+    // Adds a widget
+    void addPropertiesPanel(PropertiesPanel *panel);
 
 private:
-    bool hasTarget(ProjectExplorer::Project *project);
-    void removeCurrentWidget();
+    void addPanelWidget(PropertiesPanel *panel, int row);
 
-    DoubleTabWidget *m_tabWidget;
-    QStackedWidget *m_centralWidget;
-    QWidget *m_currentWidget;
-    QList<ProjectExplorer::Project *> m_tabIndexToProject;
-    QMap<ProjectExplorer::Project *, bool> m_hasTarget;
+    QList<PropertiesPanel *> m_panels;
+    QGridLayout *m_layout;
+    QWidget *m_root;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
-
-#endif // PROJECTWINDOW_H
+} // end namespace
+#endif // PANELSWIDGET_H

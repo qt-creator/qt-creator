@@ -147,7 +147,9 @@ HEADERS += projectexplorer.h \
     ipotentialkit.h \
     selectablefilesmodel.h \
     addnewmodel.h \
-    xcodebuildparser.h
+    xcodebuildparser.h \
+    propertiespanel.h \
+    panelswidget.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -282,7 +284,9 @@ SOURCES += projectexplorer.cpp \
     selectablefilesmodel.cpp \
     addnewmodel.cpp \
     xcodebuildparser.cpp \
-    iprojectproperties.cpp
+    iprojectproperties.cpp \
+    propertiespanel.cpp \
+    panelswidget.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

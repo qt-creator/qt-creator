@@ -31,6 +31,8 @@
 #define IPROJECTPROPERTIES_H
 
 #include "projectexplorer_export.h"
+#include "propertiespanel.h"
+#include "panelswidget.h"
 
 #include <QObject>
 #include <QIcon>
@@ -39,32 +41,6 @@
 namespace ProjectExplorer {
 class Project;
 class Target;
-
-namespace Constants {
-    const int PANEL_LEFT_MARGIN = 70;
-}
-
-class PROJECTEXPLORER_EXPORT PropertiesPanel
-{
-    Q_DISABLE_COPY(PropertiesPanel)
-
-public:
-    PropertiesPanel() {}
-    ~PropertiesPanel() { delete m_widget; }
-
-    QString displayName() const { return m_displayName; }
-    QIcon icon() const { return m_icon; }
-    QWidget *widget() const { return m_widget; }
-
-    void setDisplayName(const QString &name) { m_displayName = name; }
-    void setIcon(const QIcon &icon) { m_icon = icon; }
-    void setWidget(QWidget *widget) { m_widget = widget; }
-
-private:
-    QString m_displayName;
-    QWidget *m_widget;
-    QIcon m_icon;
-};
 
 class PROJECTEXPLORER_EXPORT IProjectPanelFactory : public QObject
 {

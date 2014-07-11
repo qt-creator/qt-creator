@@ -33,6 +33,7 @@
 #include "buildsettingspropertiespage.h"
 #include "ipotentialkit.h"
 #include "kitoptionspage.h"
+#include "panelswidget.h"
 #include "project.h"
 #include "projectimporter.h"
 #include "projectwindow.h"
