@@ -30,6 +30,7 @@
 #include <cplusplus/CPlusPlus.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
+#include <cplusplus/Overview.h>
 
 #include <QtTest>
 #include <QObject>
@@ -49,6 +50,7 @@ using namespace CPlusPlus;
       QCOMPARE(QString::fromLatin1(errors), QString::fromLatin1(expectedErrors)); \
     } while (0)
 
+inline QString _(const QByteArray &ba) { return QString::fromUtf8(ba, ba.size()); }
 
 class tst_cxx11: public QObject
 {
@@ -98,6 +100,44 @@ class tst_cxx11: public QObject
         }
     };
 
+    class FindLambdaFunction : public SymbolVisitor
+    {
+    public:
+        FindLambdaFunction() : m_function(0) {}
+
+        Function *operator()(const CPlusPlus::Document::Ptr &document)
+        {
+            accept(document->globalNamespace());
+            return m_function;
+        }
+
+    private:
+        bool preVisit(Symbol *) { return !m_function; }
+
+        bool visit(Function *function)
+        {
+            if (function->name())
+                return true;
+
+            m_function = function;
+            return false;
+        }
+
+    private:
+        Function *m_function;
+    };
+
+    static void processDocument(const Document::Ptr doc, QByteArray source,
+                                LanguageFeatures languageFeatures, QByteArray *errors)
+    {
+        Client client(errors);
+        doc->control()->setDiagnosticClient(&client);
+        doc->setUtf8Source(source);
+        doc->translationUnit()->setLanguageFeatures(languageFeatures);
+        doc->check();
+        doc->control()->setDiagnosticClient(0);
+    }
+
     Document::Ptr document(const QString &fileName, QByteArray *errors = 0, bool c99Enabled = false)
     {
         Document::Ptr doc = Document::create(fileName);
@@ -106,12 +146,7 @@ class tst_cxx11: public QObject
             LanguageFeatures features;
             features.cxx11Enabled = true;
             features.c99Enabled = c99Enabled;
-            Client client(errors);
-            doc->control()->setDiagnosticClient(&client);
-            doc->setUtf8Source(QTextStream(&file).readAll().toUtf8());
-            doc->translationUnit()->setLanguageFeatures(features);
-            doc->check();
-            doc->control()->setDiagnosticClient(0);
+            processDocument(doc, QTextStream(&file).readAll().toUtf8(), features, errors);
         } else {
             qWarning() << "could not read file" << fileName;
         }
@@ -132,6 +167,9 @@ private Q_SLOTS:
     // checks for the semantic
     //
     void inlineNamespaceLookup();
+
+    void lambdaType_data();
+    void lambdaType();
 };
 
 
@@ -211,6 +249,69 @@ void tst_cxx11::inlineNamespaceLookup()
 
     QList<LookupItem> results = context.lookup(control->identifier("foo"), doc->globalNamespace());
     QCOMPARE(results.size(), 1); // the symbol is visible from the global scope
+}
+
+void tst_cxx11::lambdaType_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<QString>("expectedType");
+
+    QTest::newRow("basic1")
+        << _("void f()\n"
+             "{\n"
+             "    [](){};\n"
+             "}\n")
+        << _("void ()");
+
+    QTest::newRow("basic2")
+        << _("class C {\n"
+             "    void f()\n"
+             "    {\n"
+             "        [](){};\n"
+             "    }\n"
+             "};\n")
+        << _("void ()");
+
+    QTest::newRow("trailing return type")
+        << _("void f()\n"
+             "{\n"
+             "    []() -> int { return 0; };\n"
+             "}\n")
+        << _("int ()");
+
+    QTest::newRow("return expression")
+        << _("void f()\n"
+             "{\n"
+             "    []() { return true; };\n"
+             "}\n")
+        << _("bool ()");
+}
+
+void tst_cxx11::lambdaType()
+{
+    QFETCH(QString, source);
+    QFETCH(QString, expectedType);
+
+    LanguageFeatures features;
+    features.cxx11Enabled = true;
+
+    QByteArray errors;
+    Document::Ptr doc = Document::create(QLatin1String("testFile"));
+    processDocument(doc, source.toUtf8(), features, &errors);
+
+    const bool hasErrors = !errors.isEmpty();
+    if (hasErrors)
+        qDebug() << errors;
+    QVERIFY(!hasErrors);
+
+    Function *function = FindLambdaFunction()(doc);
+    QVERIFY(function);
+
+    Overview oo;
+    oo.showReturnTypes = true;
+
+    QEXPECT_FAIL("return expression", "Not implemented", Abort);
+    QCOMPARE(oo.prettyType(function->type()), expectedType);
 }
 
 QTEST_APPLESS_MAIN(tst_cxx11)

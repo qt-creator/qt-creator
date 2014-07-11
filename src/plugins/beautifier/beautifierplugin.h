@@ -37,6 +37,7 @@
 
 #include <QFutureInterface>
 #include <QPlainTextEdit>
+#include <QPointer>
 #include <QSignalMapper>
 
 namespace Core { class IEditor; }

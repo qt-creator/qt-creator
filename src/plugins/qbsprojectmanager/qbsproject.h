@@ -38,6 +38,8 @@
 
 #include <utils/environment.h>
 
+#include <qbs.h>
+
 #include <QFuture>
 #include <QTimer>
 #include <QVariantMap>
@@ -62,6 +64,7 @@ namespace QbsProjectManager {
 namespace Internal {
 
 class QbsProjectNode;
+class QbsRootProjectNode;
 class QbsProjectParser;
 class QbsBuildConfiguration;
 
@@ -91,6 +94,9 @@ public:
     bool isParsing() const;
     bool hasParseResult() const;
     void parseCurrentBuildConfiguration(bool force);
+    void scheduleParsing() { m_parsingScheduled = true; }
+    bool parsingScheduled() const { return m_parsingScheduled; }
+    void updateAfterBuild();
 
     void registerQbsProjectParser(QbsProjectParser *p);
 
@@ -133,17 +139,20 @@ private:
     void updateQmlJsCodeModel(const qbs::ProjectData &prj);
     void updateApplicationTargets(const qbs::ProjectData &projectData);
     void updateDeploymentInfo(const qbs::Project &project);
+    void updateBuildTargetData();
 
     QbsManager *const m_manager;
     const QString m_projectName;
     const QString m_fileName;
+    qbs::Project m_qbsProject;
     QSet<Core::IDocument *> m_qbsDocuments;
-    QbsProjectNode *m_rootProjectNode;
+    QbsRootProjectNode *m_rootProjectNode;
 
     QbsProjectParser *m_qbsProjectParser;
 
     QFutureInterface<bool> *m_qbsUpdateFutureInterface;
     bool m_forceParsing;
+    bool m_parsingScheduled;
 
     QFuture<void> m_codeModelFuture;
 

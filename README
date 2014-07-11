@@ -20,9 +20,10 @@ Prerequisites:
    * Qt 5.3.1 or later (with restrictions also Qt 4.8.x)
    * On Windows:
      -  ActiveState Active Perl
-     -  MinGW or Visual Studio 2010 or later
+     -  MinGW with g++ 4.5 or Visual Studio 2010 or later
      -  jom
    * On Mac OS X: latest Xcode
+   * On Linux: g++ 4.5 or later
 
 The installed toolchains have to match the one Qt was compiled with.
 

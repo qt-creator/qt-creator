@@ -35,13 +35,12 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-
-#include <qbs.h>
 
 #include <QDir>
 #include <QStyle>
@@ -125,6 +124,7 @@ static bool addQbsFiles(QbsBaseProjectNode *node, const QStringList &filePaths, 
     foreach (const QString &path, filePaths) {
         qbs::ErrorInfo err = prj.addFiles(productData, groupData, QStringList() << path);
         if (err.hasError()) {
+            Core::MessageManager::write(err.toString());
             *notAdded += path;
         } else {
             allPaths += path;
@@ -144,6 +144,7 @@ static bool removeQbsFiles(QbsBaseProjectNode *node, const QStringList &filePath
     foreach (const QString &path, filePaths) {
         qbs::ErrorInfo err = prj.removeFiles(productData, groupData, QStringList() << path);
         if (err.hasError()) {
+            Core::MessageManager::write(err.toString());
             *notRemoved += path;
         } else {
             allPaths.removeOne(path);
@@ -743,16 +744,8 @@ QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
 // QbsProjectNode:
 // --------------------------------------------------------------------
 
-QbsProjectNode::QbsProjectNode(QbsProject *project) :
-    QbsBaseProjectNode(project->projectFilePath().toString()),
-    m_project(project)
-{
-    ctor();
-}
-
 QbsProjectNode::QbsProjectNode(const QString &path) :
-    QbsBaseProjectNode(path),
-    m_project(0)
+    QbsBaseProjectNode(path)
 {
     ctor();
 }
@@ -766,19 +759,6 @@ bool QbsProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdde
 {
     QbsProductNode *prd = findProductNode(displayName());
     return prd ? prd->addFiles(filePaths, notAdded) : false;
-}
-
-void QbsProjectNode::setProject(const qbs::Project &prj)
-{
-    m_qbsProject = prj;
-}
-
-void QbsProjectNode::update()
-{
-    if (m_qbsProject.isValid())
-        update(m_qbsProject.projectData());
-    else
-        update(qbs::ProjectData());
 }
 
 void QbsProjectNode::update(const qbs::ProjectData &prjData)
@@ -811,7 +791,7 @@ void QbsProjectNode::update(const qbs::ProjectData &prjData)
     if (!prjData.name().isEmpty())
         setDisplayName(prjData.name());
     else
-        setDisplayName(m_project->displayName());
+        setDisplayName(project()->displayName());
 
     removeProjectNodes(toRemove);
     addProjectNodes(toAdd);
@@ -819,25 +799,17 @@ void QbsProjectNode::update(const qbs::ProjectData &prjData)
 
 QbsProject *QbsProjectNode::project() const
 {
-    if (!m_project && projectNode())
-        return static_cast<QbsProjectNode *>(projectNode())->project();
-    return m_project;
+    return static_cast<QbsProjectNode *>(parentFolderNode())->project();
 }
 
 const qbs::Project QbsProjectNode::qbsProject() const
 {
-    QbsProjectNode *parent = qobject_cast<QbsProjectNode *>(projectNode());
-    if (!m_qbsProject.isValid() && parent != this)
-        return parent->qbsProject();
-    return m_qbsProject;
+    return project()->qbsProject();
 }
 
 const qbs::ProjectData QbsProjectNode::qbsProjectData() const
 {
-    if (m_qbsProject.isValid())
-        return m_qbsProject.projectData();
-    else
-        return qbs::ProjectData();
+    return project()->qbsProjectData();
 }
 
 bool QbsProjectNode::showInSimpleTree() const
@@ -873,6 +845,18 @@ QbsProjectNode *QbsProjectNode::findProjectNode(const QString &name)
             return qn;
     }
     return 0;
+}
+
+
+QbsRootProjectNode::QbsRootProjectNode(QbsProject *project) :
+    QbsProjectNode(project->projectFilePath().toString()),
+    m_project(project)
+{
+}
+
+void QbsRootProjectNode::update()
+{
+    update(m_project->qbsProjectData());
 }
 
 } // namespace Internal

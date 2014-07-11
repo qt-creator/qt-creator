@@ -821,35 +821,23 @@ static QHash<QString, WatchData> m_toolTipCache;
 
 void LldbEngine::showToolTip()
 {
-    if (m_toolTipContext.isNull())
+    if (m_toolTipContext.expression.isEmpty())
         return;
-    const QString expression = m_toolTipContext->expression;
-    if (DebuggerToolTipManager::debug())
-        qDebug() << "LldbEngine::showToolTip " << expression << m_toolTipContext->iname << (*m_toolTipContext);
+    //const QString expression = m_toolTipContext->expression;
+    // qDebug() << "LldbEngine::showToolTip " << expression << m_toolTipContext->iname << (*m_toolTipContext);
 
-    if (m_toolTipContext->iname.startsWith("tooltip")
-        && (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)
-            || !watchHandler()->isValidToolTip(m_toolTipContext->iname))) {
-        watchHandler()->removeData(m_toolTipContext->iname);
-        return;
-    }
-
-    DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
-    tw->setContext(*m_toolTipContext);
-    tw->acquireEngine(this);
-    DebuggerToolTipManager::showToolTip(m_toolTipContext->mousePosition, tw);
+    DebuggerToolTipManager::showToolTip(m_toolTipContext, this);
     // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
-    m_toolTipContext.reset();
+    m_toolTipContext.expression.clear();
 }
 
 void LldbEngine::resetLocation()
 {
-    m_toolTipContext.reset();
+    m_toolTipContext.expression.clear();
     DebuggerEngine::resetLocation();
 }
 
-bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
-    TextEditor::ITextEditor *editor, const DebuggerToolTipContext &contextIn)
+bool LldbEngine::setToolTipExpression(TextEditor::ITextEditor *editor, const DebuggerToolTipContext &context)
 {
     if (state() != InferiorStopOk || !isCppEditor(editor)) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
@@ -857,46 +845,12 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
         return false;
     }
 
-    DebuggerToolTipContext context = contextIn;
-    int line, column;
-    QString exp = fixCppExpression(cppExpressionAt(editor, context.position, &line, &column, &context.function));
-    if (exp.isEmpty())
-        return false;
-    // Prefer a filter on an existing local variable if it can be found.
-    QByteArray iname;
-    if (const WatchData *localVariable = watchHandler()->findCppLocalVariable(exp)) {
-        exp = QLatin1String(localVariable->exp);
-        iname = localVariable->iname;
-    } else {
-        iname = tooltipIName(exp);
-    }
-
-    if (DebuggerToolTipManager::debug())
-        qDebug() << "GdbEngine::setToolTipExpression1 " << exp << iname << context;
-
-    // Same expression: Display synchronously.
-    if (!m_toolTipContext.isNull() && m_toolTipContext->expression == exp) {
-        showToolTip();
-        return true;
-    }
-
-    m_toolTipContext.reset(new DebuggerToolTipContext(context));
-    m_toolTipContext->mousePosition = mousePos;
-    m_toolTipContext->expression = exp;
-    m_toolTipContext->iname = iname;
-    // Local variable: Display synchronously.
-    if (iname.startsWith("local")) {
-        showToolTip();
-        return true;
-    }
-
-    if (DebuggerToolTipManager::debug())
-        qDebug() << "GdbEngine::setToolTipExpression2 " << exp << (*m_toolTipContext);
+    m_toolTipContext = context;
 
     UpdateParameters params;
     params.tryPartial = true;
     params.tooltipOnly = true;
-    params.varList = iname;
+    params.varList = context.iname;
     doUpdateLocals(params);
 
     return true;
@@ -985,10 +939,9 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
         // Re-create tooltip items that are not filters on existing local variables in
         // the tooltip model.
         DebuggerToolTipContexts toolTips =
-            DebuggerToolTipManager::treeWidgetExpressions(frame.file, objectName(), frame.function);
+            DebuggerToolTipManager::treeWidgetExpressions(this, frame.file, frame.function);
 
-        const QString currentExpression =
-             m_toolTipContext.isNull() ? QString() : m_toolTipContext->expression;
+        const QString currentExpression = m_toolTipContext.expression;
         if (!currentExpression.isEmpty()) {
             int currentIndex = -1;
             for (int i = 0; i < toolTips.size(); ++i) {

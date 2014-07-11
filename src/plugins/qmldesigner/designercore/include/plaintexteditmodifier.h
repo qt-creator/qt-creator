@@ -73,8 +73,7 @@ public:
     virtual void deactivateChangeSignals();
     virtual void reactivateChangeSignals();
 
-    virtual QmlJS::Snapshot getSnapshot() const = 0;
-    virtual QStringList importPaths() const = 0;
+    virtual QStringList importPaths() const;
 
     virtual bool renameId(const QString & /* oldId */, const QString & /* newId */) { return false; }
 
@@ -108,10 +107,6 @@ public:
 
     virtual int indentDepth() const
     { return 0; }
-
-    virtual QmlJS::Snapshot getSnapshot() const;
-
-    virtual QStringList importPaths() const;
 };
 
 }

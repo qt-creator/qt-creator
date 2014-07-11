@@ -105,26 +105,3 @@ bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
     }
     return false;
 }
-
-QmlJS::Snapshot BaseTextEditModifier::getSnapshot() const
-{
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    if (modelManager)
-        return modelManager->snapshot();
-    else
-        return QmlJS::Snapshot();
-}
-
-QStringList BaseTextEditModifier::importPaths() const
-{
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    if (modelManager && textDocument()) {
-        QString documentFilePath = textDocument()->baseUrl().toLocalFile();
-        if (!documentFilePath.isEmpty()) {
-            QmlJS::Document::Ptr qmljsDocument = modelManager->snapshot().document(documentFilePath);
-            return modelManager->defaultVContext(QmlJS::Language::Qml, qmljsDocument, true).paths;
-        }
-    }
-
-    return QStringList();
-}

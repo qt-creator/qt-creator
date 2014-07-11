@@ -83,7 +83,7 @@ public:
     virtual void deactivateChangeSignals() = 0;
     virtual void reactivateChangeSignals() = 0;
 
-    virtual QmlJS::Snapshot getSnapshot() const = 0;
+    static QmlJS::Snapshot qmljsSnapshot();
     virtual QStringList importPaths() const = 0;
 
     virtual bool renameId(const QString &oldId, const QString &newId) = 0;

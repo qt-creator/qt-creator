@@ -97,8 +97,8 @@ public slots:
     void prev();
     void moveUp();
     void moveDown();
-    void editNote();
-    void editNote(const QString &fileName, int lineNumber);
+    void edit();
+    void edit(const QString &fileName, int lineNumber);
     bool gotoBookmark(Bookmark *bookmark);
 
 signals:

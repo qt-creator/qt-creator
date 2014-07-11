@@ -555,6 +555,7 @@ HelpViewer *HelpPlugin::externalHelpViewer()
     if (!m_externalWindowState.isNull())
         m_externalWindow->setGeometry(m_externalWindowState);
     m_externalWindow->show();
+    m_externalWindow->setFocus();
     return m_externalWindow->currentViewer();
 }
 

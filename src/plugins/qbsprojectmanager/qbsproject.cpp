@@ -101,6 +101,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
     m_forceParsing(false),
+    m_parsingScheduled(false),
     m_currentBc(0)
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
@@ -120,7 +121,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     updateDocuments(QSet<QString>() << fileName);
 
     // NOTE: QbsProjectNode does not use this as a parent!
-    m_rootProjectNode = new QbsProjectNode(this); // needs documents to be initialized!
+    m_rootProjectNode = new QbsRootProjectNode(this); // needs documents to be initialized!
 }
 
 QbsProject::~QbsProject()
@@ -255,16 +256,14 @@ Utils::FileName QbsProject::defaultBuildDirectory(const QString &projectFilePath
 
 qbs::Project QbsProject::qbsProject() const
 {
-    if (!m_rootProjectNode)
-        return qbs::Project();
-    return m_rootProjectNode->qbsProject();
+    return m_qbsProject;
 }
 
 const qbs::ProjectData QbsProject::qbsProjectData() const
 {
-    if (!m_rootProjectNode)
-        return qbs::ProjectData();
-    return m_rootProjectNode->qbsProjectData();
+    if (m_qbsProject.isValid())
+        return m_qbsProject.projectData();
+    return qbs::ProjectData();
 }
 
 bool QbsProject::needsSpecialDeployment() const
@@ -276,11 +275,13 @@ void QbsProject::handleQbsParsingDone(bool success)
 {
     QTC_ASSERT(m_qbsProjectParser, return);
 
-    qbs::Project project;
-    if (success)
-        project = m_qbsProjectParser->qbsProject();
-
     generateErrors(m_qbsProjectParser->error());
+
+    if (success) {
+        m_qbsProject = m_qbsProjectParser->qbsProject();
+        QTC_CHECK(m_qbsProject.isValid());
+        readQbsData();
+    }
 
     m_qbsProjectParser->deleteLater();
     m_qbsProjectParser = 0;
@@ -290,11 +291,6 @@ void QbsProject::handleQbsParsingDone(bool success)
         delete m_qbsUpdateFutureInterface;
         m_qbsUpdateFutureInterface = 0;
     }
-
-    if (project.isValid())
-        m_rootProjectNode->setProject(project);
-
-    readQbsData();
 
     emit projectParsingDone(success);
 }
@@ -363,17 +359,14 @@ void QbsProject::readQbsData()
     qbs::ProjectData data = m_rootProjectNode->qbsProjectData();
     updateCppCodeModel(data);
     updateQmlJsCodeModel(data);
-    updateApplicationTargets(data);
-    updateDeploymentInfo(project);
-
-    foreach (Target *t, targets())
-        t->updateDefaultRunConfigurations();
+    updateBuildTargetData();
 
     emit fileListChanged();
 }
 
 void QbsProject::parseCurrentBuildConfiguration(bool force)
 {
+    m_parsingScheduled = false;
     if (!m_forceParsing)
         m_forceParsing = force;
 
@@ -383,6 +376,11 @@ void QbsProject::parseCurrentBuildConfiguration(bool force)
     if (!bc)
         return;
     parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory().toString());
+}
+
+void QbsProject::updateAfterBuild()
+{
+    updateBuildTargetData();
 }
 
 void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
@@ -650,6 +648,14 @@ void QbsProject::updateDeploymentInfo(const qbs::Project &project)
         }
     }
     activeTarget()->setDeploymentData(deploymentData);
+}
+
+void QbsProject::updateBuildTargetData()
+{
+    updateApplicationTargets(m_qbsProject.projectData());
+    updateDeploymentInfo(m_qbsProject);
+    foreach (Target *t, targets())
+        t->updateDefaultRunConfigurations();
 }
 
 } // namespace Internal

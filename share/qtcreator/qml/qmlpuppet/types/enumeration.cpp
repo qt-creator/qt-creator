@@ -76,7 +76,7 @@ QString Enumeration::toString() const
     return QString::fromUtf8(m_enumerationName);
 }
 
-QString Enumeration::nameToString()
+QString Enumeration::nameToString() const
 {
     return QString::fromUtf8(name());
 }

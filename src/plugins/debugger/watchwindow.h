@@ -56,6 +56,7 @@ public:
     void reset();
 
     void fillFormatMenu(QMenu *, const QModelIndex &mi);
+    static void reexpand(QTreeView *view, const QModelIndex &idx);
 
 public slots:
     void watchExpression(const QString &exp);
@@ -91,7 +92,6 @@ private:
 
     void inputNewExpression();
     void editItem(const QModelIndex &idx);
-    void resetHelper(const QModelIndex &idx);
 
     void setModelData(int role, const QVariant &value = QVariant(),
         const QModelIndex &index = QModelIndex());

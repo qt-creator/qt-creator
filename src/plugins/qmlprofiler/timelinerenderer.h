@@ -198,6 +198,7 @@ private:
 private:
     static const int OutOfScreenMargin = 3; // margin to make sure the rectangles stay invisible
     inline void getItemXExtent(int modelIndex, int i, int &currentX, int &itemWidth);
+    void resetCurrentSelection();
 
     qint64 m_startTime;
     qint64 m_endTime;

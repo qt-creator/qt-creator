@@ -55,10 +55,6 @@
 #include "externaltoolmanager.h"
 #include "editormanager/systemeditor.h"
 
-#if defined(Q_OS_MAC)
-#include "macfullscreen.h"
-#endif
-
 #include <app/app_version.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -74,6 +70,7 @@
 #include <coreplugin/progressmanager/progressmanager_p.h>
 #include <coreplugin/progressmanager/progressview.h>
 #include <coreplugin/settingsdatabase.h>
+#include <utils/fileutils.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -87,7 +84,6 @@
 #include <QTimer>
 #include <QUrl>
 #include <QDir>
-#include <QMimeData>
 
 #include <QApplication>
 #include <QCloseEvent>
@@ -211,11 +207,10 @@ MainWindow::MainWindow() :
         //signal(SIGINT, handleSigInt);
 
     statusBar()->setProperty("p_styled", true);
-    setAcceptDrops(true);
 
-#if defined(Q_OS_MAC)
-    MacFullScreen::addFullScreen(this);
-#endif
+    auto dropSupport = new Utils::FileDropSupport(this);
+    connect(dropSupport, SIGNAL(filesDropped(QStringList)),
+            this, SLOT(openDroppedFiles(QStringList)));
 }
 
 void MainWindow::setSidebarVisible(bool visible)
@@ -241,12 +236,19 @@ void MainWindow::setOverrideColor(const QColor &color)
     m_overrideColor = color;
 }
 
-void MainWindow::setIsFullScreen(bool fullScreen)
+void MainWindow::updateFullScreenAction()
 {
-    if (fullScreen)
-        m_toggleFullScreenAction->setText(tr("Exit Full Screen"));
-    else
-        m_toggleFullScreenAction->setText(tr("Enter Full Screen"));
+    if (isFullScreen()) {
+        if (Utils::HostOsInfo::isMacHost())
+            m_toggleFullScreenAction->setText(tr("Exit Full Screen"));
+        else
+            m_toggleFullScreenAction->setChecked(true);
+    } else {
+        if (Utils::HostOsInfo::isMacHost())
+            m_toggleFullScreenAction->setText(tr("Enter Full Screen"));
+        else
+            m_toggleFullScreenAction->setChecked(false);
+    }
 }
 
 bool MainWindow::isNewItemDialogRunning() const
@@ -386,61 +388,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-// Check for desktop file manager file drop events
-
-static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
+void MainWindow::openDroppedFiles(const QStringList &files)
 {
-    if (files)
-        files->clear();
-    // Extract dropped files from Mime data.
-    if (!d->hasUrls())
-        return false;
-    const QList<QUrl> urls = d->urls();
-    if (urls.empty())
-        return false;
-    // Try to find local files
-    bool hasFiles = false;
-    const QList<QUrl>::const_iterator cend = urls.constEnd();
-    for (QList<QUrl>::const_iterator it = urls.constBegin(); it != cend; ++it) {
-        const QString fileName = it->toLocalFile();
-        if (!fileName.isEmpty()) {
-            hasFiles = true;
-            if (files)
-                files->push_back(fileName);
-            else
-                break; // No result list, sufficient for checking
-        }
-    }
-    return hasFiles;
-}
-
-void MainWindow::dragEnterEvent(QDragEnterEvent *event)
-{
-    if (isDesktopFileManagerDrop(event->mimeData()) && m_filesToOpenDelayed.isEmpty())
-        event->accept();
-    else
-        event->ignore();
-}
-
-void MainWindow::dropEvent(QDropEvent *event)
-{
-    QStringList files;
-    if (isDesktopFileManagerDrop(event->mimeData(), &files)) {
-        event->accept();
-        m_filesToOpenDelayed.append(files);
-        QTimer::singleShot(50, this, SLOT(openDelayedFiles()));
-    } else {
-        event->ignore();
-    }
-}
-
-void MainWindow::openDelayedFiles()
-{
-    if (m_filesToOpenDelayed.isEmpty())
-        return;
     raiseWindow();
-    openFiles(m_filesToOpenDelayed, ICore::SwitchMode);
-    m_filesToOpenDelayed.clear();
+    openFiles(files, ICore::SwitchMode);
 }
 
 IContext *MainWindow::currentContextObject() const
@@ -700,10 +651,22 @@ void MainWindow::registerDefaultActions()
         cmd = ActionManager::registerAction(m_zoomAction, Constants::ZOOM_WINDOW, globalContext);
         mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
         connect(m_zoomAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
-
-        // Window separator
-        mwindow->addSeparator(globalContext, Constants::G_WINDOW_SIZE);
     }
+
+    // Full Screen Action
+    m_toggleFullScreenAction = new QAction(this);
+    m_toggleFullScreenAction->setMenuRole(QAction::NoRole);
+    m_toggleFullScreenAction->setCheckable(!Utils::HostOsInfo::isMacHost());
+    updateFullScreenAction();
+    cmd = ActionManager::registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, globalContext);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Meta+F") : tr("Ctrl+Shift+F11")));
+    if (Utils::HostOsInfo::isMacHost())
+        cmd->setAttribute(Command::CA_UpdateText);
+    mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+    connect(m_toggleFullScreenAction, SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
+
+    if (UseMacShortcuts)
+        mwindow->addSeparator(globalContext, Constants::G_WINDOW_SIZE);
 
     // Show Sidebar Action
     m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Constants::ICON_TOGGLE_SIDEBAR)),
@@ -723,25 +686,6 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(m_toggleModeSelectorAction, Constants::TOGGLE_MODE_SELECTOR, globalContext);
     connect(m_toggleModeSelectorAction, SIGNAL(triggered(bool)), ModeManager::instance(), SLOT(setModeSelectorVisible(bool)));
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
-
-#if defined(Q_OS_MAC)
-    const QString fullScreenActionText(tr("Enter Full Screen"));
-    bool supportsFullScreen = MacFullScreen::supportsFullScreen();
-#else
-    const QString fullScreenActionText(tr("Full Screen"));
-    bool supportsFullScreen = true;
-#endif
-    if (supportsFullScreen) {
-        // Full Screen Action
-        m_toggleFullScreenAction = new QAction(fullScreenActionText, this);
-        m_toggleFullScreenAction->setMenuRole(QAction::NoRole);
-        m_toggleFullScreenAction->setCheckable(!Utils::HostOsInfo::isMacHost());
-        cmd = ActionManager::registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, globalContext);
-        cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Meta+F") : tr("Ctrl+Shift+F11")));
-        cmd->setAttribute(Command::CA_UpdateText); /* for Mac */
-        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
-        connect(m_toggleFullScreenAction, SIGNAL(triggered(bool)), this, SLOT(setFullScreen(bool)));
-    }
 
     // Window->Views
     ActionContainer *mviews = ActionManager::createMenu(Constants::M_WINDOW_VIEWS);
@@ -969,10 +913,8 @@ void MainWindow::changeEvent(QEvent *e)
                 qDebug() << "main window state changed to minimized=" << minimized;
             m_minimizeAction->setEnabled(!minimized);
             m_zoomAction->setEnabled(!minimized);
-        } else {
-            bool isFullScreen = (windowState() & Qt::WindowFullScreen) != 0;
-            m_toggleFullScreenAction->setChecked(isFullScreen);
         }
+        updateFullScreenAction();
     }
 }
 
@@ -1179,25 +1121,13 @@ QPrinter *MainWindow::printer() const
     return m_printer;
 }
 
-void MainWindow::setFullScreen(bool on)
+void MainWindow::toggleFullScreen()
 {
-#if defined(Q_OS_MAC)
-    Q_UNUSED(on)
-    MacFullScreen::toggleFullScreen(this);
-#else
-    if (bool(windowState() & Qt::WindowFullScreen) == on)
-        return;
-
-    if (on) {
-        setWindowState(windowState() | Qt::WindowFullScreen);
-        //statusBar()->hide();
-        //menuBar()->hide();
-    } else {
+    if (isFullScreen()) {
         setWindowState(windowState() & ~Qt::WindowFullScreen);
-        //menuBar()->show();
-        //statusBar()->show();
+    } else {
+        setWindowState(windowState() | Qt::WindowFullScreen);
     }
-#endif
 }
 
 // Display a warning with an additional button to open

@@ -37,8 +37,8 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/editormanager/ieditor.h>
-
 #include <coreplugin/findplaceholder.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -117,6 +117,10 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     QWidget *empty = new QWidget;
     m_container->addWidget(empty);
     m_widgetEditorMap.insert(empty, 0);
+
+    auto dropSupport = new Utils::FileDropSupport(this);
+    connect(dropSupport, SIGNAL(filesDropped(QStringList)),
+            this, SLOT(openDroppedFiles(QStringList)));
 
     updateNavigatorActions();
 }
@@ -328,6 +332,17 @@ void EditorView::closeSplit()
 {
     EditorManager::closeView(this);
     EditorManager::updateActions();
+}
+
+void EditorView::openDroppedFiles(const QStringList &files)
+{
+    const int count = files.size();
+    for (int i = 0; i < count; ++i) {
+        EditorManager::openEditor(this, files.at(i), Id(),
+                                  i < count - 1 ? EditorManager::DoNotChangeCurrentEditor
+                                                  | EditorManager::DoNotMakeVisible
+                                                : EditorManager::NoFlags);
+    }
 }
 
 void EditorView::setParentSplitterOrView(SplitterOrView *splitterOrView)

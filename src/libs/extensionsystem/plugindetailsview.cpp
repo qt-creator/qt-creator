@@ -29,6 +29,8 @@
 
 #include "plugindetailsview.h"
 #include "ui_plugindetailsview.h"
+
+#include "pluginmanager.h"
 #include "pluginspec.h"
 
 #include <QDir>
@@ -86,7 +88,10 @@ void PluginDetailsView::update(PluginSpec *spec)
     m_ui->copyright->setText(spec->copyright());
     m_ui->license->setText(spec->license());
     const QRegExp platforms = spec->platformSpecification();
-    m_ui->platforms->setText(platforms.isEmpty() ? tr("All") : platforms.pattern());
+    const QString pluginPlatformString = platforms.isEmpty() ? tr("All") : platforms.pattern();
+    const QString platformString = tr("%1 (current: \"%2\")").arg(pluginPlatformString,
+                                                                  PluginManager::platformName());
+    m_ui->platforms->setText(platformString);
     QStringList depStrings;
     foreach (const PluginDependency &dep, spec->dependencies()) {
         QString depString = dep.name;

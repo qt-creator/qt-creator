@@ -43,10 +43,10 @@ using namespace QmlProfiler::Internal;
 
 TimelineRenderer::TimelineRenderer(QQuickPaintedItem *parent) :
     QQuickPaintedItem(parent), m_startTime(0), m_endTime(0), m_spacing(0), m_spacedDuration(0),
-    m_lastStartTime(0), m_lastEndTime(0)
-  , m_profilerModelProxy(0)
+    m_lastStartTime(0), m_lastEndTime(0), m_profilerModelProxy(0), m_selectedItem(-1),
+    m_selectedModel(-1), m_selectionLocked(true), m_startDragArea(-1), m_endDragArea(-1)
 {
-    clearData();
+    resetCurrentSelection();
     setAcceptedMouseButtons(Qt::LeftButton);
     setAcceptHoverEvents(true);
 }
@@ -93,9 +93,22 @@ inline void TimelineRenderer::getItemXExtent(int modelIndex, int i, int &current
                                     m_spacing, m_spacedDuration)));
     } else {
         currentX = -OutOfScreenMargin;
-        itemWidth = qMax(1.0, (qMin((m_profilerModelProxy->getDuration(modelIndex, i) + start) *
-                                    m_spacing + OutOfScreenMargin, m_spacedDuration)));
+        // Explicitly round the "start" part down, away from 0, to match the implicit rounding of
+        // currentX in the > 0 case. If we don't do that we get glitches where a pixel is added if
+        // the element starts outside the screen and subtracted if it starts inside the screen.
+        itemWidth = qMax(1.0, (qMin(m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing +
+                                    floor(start * m_spacing) + OutOfScreenMargin,
+                                    m_spacedDuration)));
     }
+}
+
+void TimelineRenderer::resetCurrentSelection()
+{
+    m_currentSelection.startTime = -1;
+    m_currentSelection.endTime = -1;
+    m_currentSelection.row = -1;
+    m_currentSelection.eventIndex = -1;
+    m_currentSelection.modelIndex = -1;
 }
 
 void TimelineRenderer::paint(QPainter *p)
@@ -314,7 +327,8 @@ void TimelineRenderer::mousePressEvent(QMouseEvent *event)
 void TimelineRenderer::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
-    manageClicked();
+    if (!m_profilerModelProxy->isEmpty())
+        manageClicked();
 }
 
 void TimelineRenderer::mouseMoveEvent(QMouseEvent *event)
@@ -411,18 +425,18 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
 
 void TimelineRenderer::clearData()
 {
-    m_startTime = 0;
-    m_endTime = 0;
     m_lastStartTime = 0;
     m_lastEndTime = 0;
-    m_currentSelection.startTime = -1;
-    m_currentSelection.endTime = -1;
-    m_currentSelection.row = -1;
-    m_currentSelection.eventIndex = -1;
-    m_currentSelection.modelIndex = -1;
-    m_selectedItem = -1;
-    m_selectedModel = -1;
-    m_selectionLocked = true;
+    m_spacing = 0;
+    m_spacedDuration = 0;
+    resetCurrentSelection();
+    setStartTime(0);
+    setEndTime(0);
+    setSelectedItem(-1);
+    setSelectedModel(-1);
+    setSelectionLocked(true);
+    setStartDragArea(-1);
+    setEndDragArea(-1);
 }
 
 int TimelineRenderer::getYPosition(int modelIndex, int index) const

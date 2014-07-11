@@ -3953,8 +3953,8 @@ public:
             if (m_signalName.isEmpty()) {
                 setter << m_storageName <<  " = arg;\n}\n";
             } else {
-                setter << "if (" << m_storageName << " != arg) {\n" << m_storageName
-                       << " = arg;\nemit " << m_signalName << "(arg);\n}\n}\n";
+                setter << "if (" << m_storageName << " == arg)\nreturn;\n\n"
+                       << m_storageName << " = arg;\nemit " << m_signalName << "(arg);\n}\n";
             }
             InsertionLocation setterLoc = locator.methodDeclarationInClass(file->fileName(), m_class, InsertionPointLocator::PublicSlot);
             QTC_ASSERT(setterLoc.isValid(), return);

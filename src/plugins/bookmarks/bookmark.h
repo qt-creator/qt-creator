@@ -44,6 +44,7 @@ public:
     Bookmark(const QString &fileName, int lineNumber, BookmarkManager *manager);
 
     void updateLineNumber(int lineNumber);
+    void move(int line);
     void updateBlock(const QTextBlock &block);
     void updateFileName(const QString &fileName);
     void setNote(const QString &note);

@@ -34,6 +34,7 @@
 
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
+#include <debugger/debuggertooltipmanager.h>
 
 #include <coreplugin/id.h>
 
@@ -406,8 +407,8 @@ protected:
     //
     // Watch specific stuff
     //
-    virtual bool setToolTipExpression(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, const DebuggerToolTipContext &);
+    virtual bool setToolTipExpression(TextEditor::ITextEditor *editor,
+        const DebuggerToolTipContext &);
     virtual void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);
 
@@ -467,8 +468,7 @@ protected:
     void showExecutionError(const QString &message);
 
     static QByteArray tooltipIName(const QString &exp);
-    QString tooltipExpression() const;
-    QScopedPointer<DebuggerToolTipContext> m_toolTipContext;
+    DebuggerToolTipContext m_toolTipContext;
 
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded;

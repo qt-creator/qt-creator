@@ -38,7 +38,6 @@ QtcPlugin {
             "profilehighlighter.cpp", "profilehighlighter.h",
             "profilehoverhandler.cpp", "profilehoverhandler.h",
             "qmakebuildinfo.h",
-            "qmakeparser.cpp", "qmakeparser.h",
             "qmakekitconfigwidget.cpp", "qmakekitconfigwidget.h",
             "qmakekitinformation.cpp", "qmakekitinformation.h",
             "qmakeparser.cpp", "qmakeparser.h",

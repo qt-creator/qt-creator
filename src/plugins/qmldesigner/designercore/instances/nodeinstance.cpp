@@ -315,6 +315,14 @@ QVariant NodeInstance::property(const PropertyName &name) const
     return QVariant();
 }
 
+bool NodeInstance::hasProperty(const PropertyName &name) const
+{
+    if (isValid())
+        return d->propertyValues.contains(name);
+
+    return false;
+}
+
 bool NodeInstance::hasBindingForProperty(const PropertyName &name) const
 {
     if (isValid())

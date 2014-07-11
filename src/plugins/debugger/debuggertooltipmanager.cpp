@@ -33,6 +33,9 @@
 #include "debuggeractions.h"
 #include "stackhandler.h"
 #include "debuggercore.h"
+#include "watchhandler.h"
+#include "watchwindow.h"
+#include "sourceutils.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -43,25 +46,23 @@
 #include <utils/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>
 
-#include <QToolButton>
-#include <QToolBar>
-#include <QVBoxLayout>
 #include <QApplication>
+#include <QClipboard>
+#include <QDebug>
 #include <QDesktopWidget>
+#include <QLabel>
 #include <QScrollBar>
 #include <QSortFilterProxyModel>
-#include <QStandardItemModel>
-#include <QLabel>
-#include <QClipboard>
-
 #include <QStack>
-#include <QDebug>
+#include <QStandardItemModel>
+#include <QToolBar>
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 using namespace Core;
 using namespace TextEditor;
-
-enum { debugToolTips = 0 };
-enum { debugToolTipPositioning = 0 };
 
 // Expire tooltips after n days on (no longer load them) in order
 // to avoid them piling up.
@@ -93,9 +94,6 @@ static const char modelItemElementC[] = "item";
 // next start element of a desired type.
 static bool readStartElement(QXmlStreamReader &r, const char *name)
 {
-    if (debugToolTips > 1)
-        qDebug("readStartElement: looking for '%s', currently at: %s/%s",
-               name, qPrintable(r.tokenString()), qPrintable(r.name().toString()));
     while (r.tokenType() != QXmlStreamReader::StartElement
             || r.name() != QLatin1String(name))
         switch (r.readNext()) {
@@ -126,38 +124,29 @@ static void debugMode(const QAbstractItemModel *model)
 namespace Debugger {
 namespace Internal {
 
-/* A Label that emits a signal when the user drags for moving the parent
- * widget around. */
+// A label that can be dragged to drag something else.
+
 class DraggableLabel : public QLabel
 {
-    Q_OBJECT
 public:
-    explicit DraggableLabel(QWidget *parent = 0);
+    explicit DraggableLabel(QWidget *target)
+        : m_target(target), m_moveStartPos(-1, -1), active(false)
+    {}
 
-    bool isActive() const { return m_active; }
-    void setActive(bool v) { m_active = v; }
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 
-signals:
-    void dragged(const QPoint &d);
-
-protected:
-    virtual void mousePressEvent(QMouseEvent * event);
-    virtual void mouseReleaseEvent(QMouseEvent * event);
-    virtual void mouseMoveEvent(QMouseEvent * event);
-
-private:
+public:
+    QWidget *m_target;
     QPoint m_moveStartPos;
-    bool m_active;
+    QPoint m_offset;
+    bool active;
 };
-
-DraggableLabel::DraggableLabel(QWidget *parent) :
-    QLabel(parent), m_moveStartPos(-1, -1), m_active(false)
-{
-}
 
 void DraggableLabel::mousePressEvent(QMouseEvent * event)
 {
-    if (m_active && event->button() ==  Qt::LeftButton) {
+    if (active && event->button() == Qt::LeftButton) {
         m_moveStartPos = event->globalPos();
         event->accept();
     }
@@ -166,17 +155,21 @@ void DraggableLabel::mousePressEvent(QMouseEvent * event)
 
 void DraggableLabel::mouseReleaseEvent(QMouseEvent * event)
 {
-    if (m_active && event->button() ==  Qt::LeftButton)
+    if (active && event->button() == Qt::LeftButton)
         m_moveStartPos = QPoint(-1, -1);
     QLabel::mouseReleaseEvent(event);
 }
 
 void DraggableLabel::mouseMoveEvent(QMouseEvent * event)
 {
-    if (m_active && (event->buttons() & Qt::LeftButton)) {
+    if (active && (event->buttons() & Qt::LeftButton)) {
         if (m_moveStartPos != QPoint(-1, -1)) {
             const QPoint newPos = event->globalPos();
-            emit dragged(event->globalPos() - m_moveStartPos);
+            const QPoint offset = newPos - m_moveStartPos;
+
+            m_target->move(m_target->pos() + offset);
+            m_offset += offset;
+
             m_moveStartPos = newPos;
         }
         event->accept();
@@ -190,7 +183,7 @@ void DraggableLabel::mouseMoveEvent(QMouseEvent * event)
 class DebuggerToolTipEditor
 {
 public:
-    explicit DebuggerToolTipEditor(IEditor *ie = 0);
+    explicit DebuggerToolTipEditor(IEditor *ie);
     bool isValid() const { return editor; }
     QString fileName() const { return editor->document() ? editor->document()->filePath() : QString(); }
 
@@ -273,8 +266,8 @@ void StandardItemTreeModelBuilder::endRow()
     m_rowParents.pop();
 }
 
-/* Helper visitor base class for recursing over a tree model
- * (see StandardItemTreeModelBuilder for the scheme). */
+// Helper visitor base class for recursing over a tree model
+// (see StandardItemTreeModelBuilder for the scheme).
 class TreeModelVisitor
 {
 public:
@@ -430,9 +423,6 @@ void DumpTreeModelVisitor::rowEnded()
     m_level--;
 }
 
-} // namespace Internal
-} // namespace Debugger
-
 /*
 static QDebug operator<<(QDebug d, const QAbstractItemModel &model)
 {
@@ -445,10 +435,51 @@ static QDebug operator<<(QDebug d, const QAbstractItemModel &model)
 }
 */
 
-namespace Debugger {
-namespace Internal {
+/*!
+    \class Debugger::Internal::TooltipFilterModel
 
-// Visitor building a QStandardItem from a tree model (copy).
+    \brief The TooltipFilterModel class is a model for tooltips filtering an
+    item on the watchhandler matching its tree on the iname.
+
+    In addition, suppress the model's tooltip data to avoid a tooltip on a tooltip.
+*/
+
+class TooltipFilterModel : public QSortFilterProxyModel
+{
+public:
+    TooltipFilterModel() {}
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
+    {
+        return role == Qt::ToolTipRole
+            ? QVariant() : QSortFilterProxyModel::data(index, role);
+    }
+
+    static bool isSubIname(const QByteArray &haystack, const QByteArray &needle)
+    {
+        return haystack.size() > needle.size()
+           && haystack.startsWith(needle)
+           && haystack.at(needle.size()) == '.';
+    }
+
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+    {
+        const QModelIndex nameIndex = sourceModel()->index(sourceRow, 0, sourceParent);
+        const QByteArray iname = nameIndex.data(LocalsINameRole).toByteArray();
+//        qDebug() << "ACCEPTING FILTER" << iname
+//                 << (iname == m_iname || isSubIname(iname, m_iname) || isSubIname(m_iname, iname));
+        return iname == m_iname || isSubIname(iname, m_iname) || isSubIname(m_iname, iname);
+    }
+
+    QByteArray m_iname;
+};
+
+/////////////////////////////////////////////////////////////////////////
+//
+// TreeModelCopyVisitor builds a QStandardItem from a tree model (copy).
+//
+/////////////////////////////////////////////////////////////////////////
+
 class TreeModelCopyVisitor : public TreeModelVisitor
 {
 public:
@@ -465,6 +496,82 @@ private:
     StandardItemTreeModelBuilder m_builder;
 };
 
+class DebuggerToolTipWidget;
+class DebuggerToolTipManagerData
+{
+public:
+    DebuggerToolTipManagerData()
+        : m_debugModeActive(false), m_lastToolTipPoint(-1, -1), m_lastToolTipEditor(0)
+    {}
+
+    void purgeClosedToolTips()
+    {
+        for (int i = m_tooltips.size(); --i >= 0; )
+            if (!m_tooltips.at(i))
+                m_tooltips.removeAt(i);
+    }
+
+    QList<QPointer<DebuggerToolTipWidget> > m_tooltips;
+    bool m_debugModeActive;
+    QPoint m_lastToolTipPoint;
+    Core::IEditor *m_lastToolTipEditor;
+};
+
+static DebuggerToolTipManagerData *d = 0;
+
+
+/////////////////////////////////////////////////////////////////////////
+//
+// DebuggerToolTipWidget
+//
+/////////////////////////////////////////////////////////////////////////
+
+class DebuggerToolTipWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    DebuggerToolTipWidget(const DebuggerToolTipContext &context);
+
+    bool isPinned() const  { return m_isPinned; }
+    QString fileName() const { return m_context.fileName; }
+    QString function() const { return m_context.function; }
+    int position() const { return m_context.position; }
+
+    const DebuggerToolTipContext &context() const { return m_context; }
+
+    void acquireEngine();
+    void releaseEngine();
+
+    void saveSessionData(QXmlStreamWriter &w) const;
+    void setWatchModel(QAbstractItemModel *watchModel);
+    void handleStackFrameCompleted(const QString &frameFile, const QString &frameFunction);
+
+public slots:
+    void handleItemIsExpanded(const QModelIndex &sourceIdx)
+    {
+        QTC_ASSERT(m_filterModel.sourceModel() == sourceIdx.model(), return);
+        QModelIndex mappedIdx = m_filterModel.mapFromSource(sourceIdx);
+        if (!m_treeView->isExpanded(mappedIdx))
+            m_treeView->expand(mappedIdx);
+    }
+
+    void copy();
+    void positionShow(const DebuggerToolTipEditor &pe);
+    void pin();
+    void toolButtonClicked();
+
+private:
+public:
+    bool m_isPinned;
+    QToolButton *m_toolButton;
+    DraggableLabel *m_titleLabel;
+    QDate m_creationDate;
+    DebuggerToolTipTreeView *m_treeView; //!< Pointing to either m_defaultModel oder m_filterModel
+    DebuggerToolTipContext m_context;
+    TooltipFilterModel m_filterModel; //!< Pointing to a valid watchModel
+    QStandardItemModel m_defaultModel;
+};
 
 void DebuggerToolTipWidget::pin()
 {
@@ -481,7 +588,7 @@ void DebuggerToolTipWidget::pin()
         // We have just be restored from session data.
         setWindowFlags(Qt::ToolTip);
     }
-    m_titleLabel->setActive(true); // User can now drag
+    m_titleLabel->active = true; // User can now drag
 }
 
 void DebuggerToolTipWidget::toolButtonClicked()
@@ -503,27 +610,28 @@ void DebuggerToolTipWidget::toolButtonClicked()
     on restoring.
 */
 
-DebuggerToolTipContext::DebuggerToolTipContext() : position(0), line(0), column(0)
+DebuggerToolTipContext::DebuggerToolTipContext()
+    : position(0), line(0), column(0)
 {
 }
 
-DebuggerToolTipContext DebuggerToolTipContext::fromEditor(IEditor *ie, int pos)
+bool DebuggerToolTipContext::matchesFrame(const QString &frameFile, const QString &frameFunction) const
 {
-    DebuggerToolTipContext rc;
-    if (const IDocument *document = ie->document()) {
-        if (const ITextEditor *te = qobject_cast<const ITextEditor *>(ie)) {
-            rc.fileName = document->filePath();
-            rc.position = pos;
-            te->convertPosition(pos, &rc.line, &rc.column);
-        }
-    }
-    return rc;
+    return (fileName.isEmpty() || frameFile.isEmpty() || fileName == frameFile)
+            && (function.isEmpty() || frameFunction.isEmpty() || function == frameFunction);
+}
+
+bool DebuggerToolTipContext::isSame(const DebuggerToolTipContext &other) const
+{
+    return fileName == other.fileName
+            && function == other.function
+            && iname == other.iname;
 }
 
 QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
 {
     QDebug nsp = d.nospace();
-    nsp << c.fileName << '@' << c.line << ',' << c.column << " (" << c.position << ')';
+    nsp << c.fileName << '@' << c.line << ',' << c.column << " (" << c.position << ')' << "INAME: " << c.iname << " EXP: " << c.expression;
     if (!c.function.isEmpty())
         nsp << ' ' << c.function << "()";
     return d;
@@ -570,141 +678,189 @@ QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
 
 static QString msgReleasedText() { return DebuggerToolTipWidget::tr("Previous"); }
 
-DebuggerToolTipWidget::DebuggerToolTipWidget(QWidget *parent) :
-    QWidget(parent),
-    m_isPinned(false),
-    m_toolButton(new QToolButton),
-    m_titleLabel(new DraggableLabel),
-    m_engineAcquired(false),
-    m_creationDate(QDate::currentDate()),
-    m_treeView(new DebuggerToolTipTreeView(this)),
-    m_defaultModel(new QStandardItemModel(this))
+DebuggerToolTipWidget::DebuggerToolTipWidget(const DebuggerToolTipContext &context)
 {
+    setFocusPolicy(Qt::NoFocus);
+
+    m_isPinned = false;
+    m_context = context;
+    m_filterModel.m_iname = context.iname;
+
     const QIcon pinIcon(QLatin1String(":/debugger/images/pin.xpm"));
-    const QList<QSize> pinIconSizes = pinIcon.availableSizes();
 
+    m_toolButton = new QToolButton;
     m_toolButton->setIcon(pinIcon);
-    connect(m_toolButton, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
 
-    QToolButton *copyButton = new QToolButton;
+    auto copyButton = new QToolButton;
     copyButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
-    connect(copyButton, SIGNAL(clicked()), this, SLOT(copy()));
 
+    m_titleLabel = new DraggableLabel(this);
     m_titleLabel->setText(msgReleasedText());
     m_titleLabel->setMinimumWidth(40); // Ensure a draggable area even if text is empty.
-    connect(m_titleLabel, SIGNAL(dragged(QPoint)), this, SLOT(slotDragged(QPoint)));
 
-    QToolBar *toolBar = new QToolBar(this);
+    auto toolBar = new QToolBar(this);
     toolBar->setProperty("_q_custom_style_disabled", QVariant(true));
+    const QList<QSize> pinIconSizes = pinIcon.availableSizes();
     if (!pinIconSizes.isEmpty())
         toolBar->setIconSize(pinIconSizes.front());
     toolBar->addWidget(m_toolButton);
     toolBar->addWidget(m_titleLabel);
     toolBar->addWidget(copyButton);
 
+    m_treeView = new DebuggerToolTipTreeView(this);
     m_treeView->setFocusPolicy(Qt::NoFocus);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    auto mainLayout = new QVBoxLayout(this);
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(toolBar);
     mainLayout->addWidget(m_treeView);
+
+    connect(m_toolButton, SIGNAL(clicked()), this, SLOT(toolButtonClicked()));
+    connect(copyButton, SIGNAL(clicked()), this, SLOT(copy()));
 }
 
-bool DebuggerToolTipWidget::matches(const QString &fileName,
-                                            const QString &engineType,
-                                            const QString &function) const
+void DebuggerToolTipWidget::setWatchModel(QAbstractItemModel *watchModel)
 {
-    if (fileName.isEmpty() || m_context.fileName != fileName)
-        return false;
-    // Optional.
-    if (!engineType.isEmpty() && engineType != m_engineType)
-        return false;
-    if (function.isEmpty() || m_context.function.isEmpty())
-        return true;
-    return function == m_context.function;
+    QTC_ASSERT(watchModel, return);
+    m_filterModel.setSourceModel(watchModel);
+    connect(watchModel, SIGNAL(itemIsExpanded(QModelIndex)),
+            this, SLOT(handleItemIsExpanded(QModelIndex)), Qt::UniqueConnection);
+    connect(watchModel, SIGNAL(columnAdjustmentRequested()),
+            m_treeView, SLOT(computeSize()), Qt::UniqueConnection);
 }
 
-void DebuggerToolTipWidget::acquireEngine(DebuggerEngine *engine)
+void DebuggerToolTipWidget::handleStackFrameCompleted(const QString &frameFile, const QString &frameFunction)
 {
-    QTC_ASSERT(engine, return);
+    const bool sameFrame = m_context.matchesFrame(frameFile, frameFunction);
+    const bool isAcquired = m_treeView->model() == &m_filterModel;
+    if (isAcquired && !sameFrame)
+       releaseEngine();
+    else if (!isAcquired && sameFrame)
+       acquireEngine();
 
-    if (debugToolTips)
-        qDebug() << this << " acquiring" << engine << m_engineAcquired;
-    if (m_engineAcquired)
-        return;
-    doAcquireEngine(engine);
-    m_engineType = engine->objectName();
-    m_engineAcquired = true;
-    m_titleLabel->setText(QString());
+    if (isAcquired) {
+        m_treeView->expand(m_filterModel.index(0, 0));
+        WatchTreeView::reexpand(m_treeView, m_filterModel.index(0, 0));
+    }
+}
+
+void DebuggerToolTipWidget::acquireEngine()
+{
+    m_titleLabel->setText(m_context.expression);
+    m_treeView->setModel(&m_filterModel);
+    m_treeView->setRootIndex(m_filterModel.index(0, 0));
+    m_treeView->expand(m_filterModel.index(0, 0));
+    WatchTreeView::reexpand(m_treeView, m_filterModel.index(0, 0));
 }
 
 void DebuggerToolTipWidget::releaseEngine()
 {
-    // Release engine of same type
-    if (!m_engineAcquired)
-        return;
-    if (debugToolTips)
-        qDebug() << "releaseEngine" << this;
-    doReleaseEngine();
+    // Save data to stream and restore to the backup m_defaultModel.
+    m_defaultModel.removeRows(0, m_defaultModel.rowCount());
+    TreeModelCopyVisitor v(&m_filterModel, &m_defaultModel);
+    v.run();
+
     m_titleLabel->setText(msgReleasedText());
-    m_engineAcquired = false;
+    m_treeView->setModel(&m_defaultModel);
+    m_treeView->setRootIndex(m_defaultModel.index(0, 0));
+    m_treeView->expandAll();
 }
 
 void DebuggerToolTipWidget::copy()
 {
-    const QString clipboardText = clipboardContents();
+    QString clipboardText = DebuggerToolTipManager::treeModelClipboardContents(m_treeView->model());
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(clipboardText, QClipboard::Selection);
     clipboard->setText(clipboardText, QClipboard::Clipboard);
 }
 
-void DebuggerToolTipWidget::slotDragged(const QPoint &p)
-{
-    move(pos() + p);
-    m_offset += p;
-}
-
-bool DebuggerToolTipWidget::positionShow(const DebuggerToolTipEditor &te)
+void DebuggerToolTipWidget::positionShow(const DebuggerToolTipEditor &te)
 {
     // Figure out new position of tooltip using the text edit.
     // If the line changed too much, close this tip.
-    QTC_ASSERT(te.isValid(), return false);
+    QTC_ASSERT(te.isValid(), return);
     QTextCursor cursor(te.widget->document());
     cursor.setPosition(m_context.position);
     const int line = cursor.blockNumber();
     if (qAbs(m_context.line - line) > 2) {
-        if (debugToolTips)
-            qDebug() << "Closing " << this << " in positionShow() lines "
-                     << line << m_context.line;
         close();
-        return false;
+        return ;
     }
-    if (debugToolTipPositioning)
-        qDebug() << "positionShow" << this << line << cursor.columnNumber();
 
-    const QPoint screenPos = te.widget->toolTipPosition(cursor) + m_offset;
+    const QPoint screenPos = te.widget->toolTipPosition(cursor) + m_titleLabel->m_offset;
     const QRect toolTipArea = QRect(screenPos, QSize(sizeHint()));
     const QRect plainTextArea = QRect(te.widget->mapToGlobal(QPoint(0, 0)), te.widget->size());
-    const bool visible = plainTextArea.contains(toolTipArea);
-    if (debugToolTips)
-        qDebug() << "DebuggerToolTipWidget::positionShow() " << this << m_context
-                 << " line: " << line << " plainTextPos " << toolTipArea
-                 << " offset: " << m_offset
-                 << " Area: " << plainTextArea << " Screen pos: "
-                 << screenPos << te.widget << " visible=" << visible;
+    const bool visible = plainTextArea.intersects(toolTipArea);
+    //    qDebug() << "DebuggerToolTipWidget::positionShow() " << this << m_context
+    //             << " line: " << line << " plainTextPos " << toolTipArea
+    //             << " offset: " << m_titleLabel->m_offset
+    //             << " Area: " << plainTextArea << " Screen pos: "
+    //             << screenPos << te.widget << " visible=" << visible;
 
     if (!visible) {
         hide();
-        return false;
+        return;
     }
 
     move(screenPos);
     show();
-    return true;
 }
 
- // Parse a 'yyyyMMdd' date
+static DebuggerToolTipWidget *findOrCreateWidget(const DebuggerToolTipContext &context)
+{
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
+        if (tw && tw->m_context.isSame(context))
+            return tw;
+
+    auto tw = new DebuggerToolTipWidget(context);
+    tw->setAttribute(Qt::WA_DeleteOnClose);
+    tw->setObjectName(QLatin1String("DebuggerTreeViewToolTipWidget: ") + QLatin1String(context.iname));
+    tw->m_context.creationDate = QDate::currentDate();
+
+    d->m_tooltips.push_back(tw);
+
+    return tw;
+}
+
+static void restoreTreeModel(QXmlStreamReader &r, QStandardItemModel *m)
+{
+    StandardItemTreeModelBuilder builder(m);
+    int columnCount = 1;
+    bool withinModel = true;
+    while (withinModel && !r.atEnd()) {
+        const QXmlStreamReader::TokenType token = r.readNext();
+        switch (token) {
+        case QXmlStreamReader::StartElement: {
+            const QStringRef element = r.name();
+            // Root model element with column count.
+            if (element == QLatin1String(modelElementC)) {
+                if (const int cc = r.attributes().value(QLatin1String(modelColumnCountAttributeC)).toString().toInt())
+                    columnCount = cc;
+                m->setColumnCount(columnCount);
+            } else if (element == QLatin1String(modelRowElementC)) {
+                builder.startRow();
+            } else if (element == QLatin1String(modelItemElementC)) {
+                builder.addItem(r.readElementText());
+            }
+        }
+            break; // StartElement
+        case QXmlStreamReader::EndElement: {
+            const QStringRef element = r.name();
+            // Row closing: pop off parent.
+            if (element == QLatin1String(modelRowElementC))
+                builder.endRow();
+            else if (element == QLatin1String(modelElementC))
+                withinModel = false;
+        }
+            break; // EndElement
+        default:
+            break;
+        } // switch
+    } // while
+}
+
+// Parse a 'yyyyMMdd' date
 static QDate dateFromString(const QString &date)
 {
     return date.size() == 8 ?
@@ -712,20 +868,10 @@ static QDate dateFromString(const QString &date)
         QDate();
 }
 
-DebuggerToolTipWidget *DebuggerToolTipWidget::loadSessionData(QXmlStreamReader &r)
-{
-    if (debugToolTips)
-        qDebug() << ">DebuggerToolTipWidget::loadSessionData" << r.tokenString() << r.name();
-    DebuggerToolTipWidget *rc = DebuggerToolTipWidget::loadSessionDataI(r);
-    if (debugToolTips)
-        qDebug() << "<DebuggerToolTipWidget::loadSessionData" << r.tokenString() << r.name() << " returns  " << rc;
-    return rc;
-}
-
-DebuggerToolTipWidget *DebuggerToolTipWidget::loadSessionDataI(QXmlStreamReader &r)
+static void loadSessionDataI(QXmlStreamReader &r)
 {
     if (!readStartElement(r, toolTipElementC))
-        return 0;
+        return;
     const QXmlStreamAttributes attributes = r.attributes();
     DebuggerToolTipContext context;
     context.fileName = attributes.value(QLatin1String(fileNameAttributeC)).toString();
@@ -742,32 +888,35 @@ DebuggerToolTipWidget *DebuggerToolTipWidget::loadSessionDataI(QXmlStreamReader 
         offset.setY(attributes.value(offsetYAttribute).toString().toInt());
     context.mousePosition = offset;
 
+    context.iname = attributes.value(QLatin1String(treeInameAttributeC)).toString().toLatin1();
+    context.expression = attributes.value(QLatin1String(treeExpressionAttributeC)).toString();
+
     const QStringRef className = attributes.value(QLatin1String(toolTipClassAttributeC));
-    const QString engineType = attributes.value(QLatin1String(engineTypeAttributeC)).toString();
-    const QDate creationDate = dateFromString(attributes.value(QLatin1String(dateAttributeC)).toString());
-    if (!creationDate.isValid() || creationDate.daysTo(QDate::currentDate()) >  toolTipsExpiryDays) {
-        if (debugToolTips)
-            qDebug() << "Expiring tooltip " << context.fileName << '@' << context.position << " from " << creationDate;
-        r.readElementText(QXmlStreamReader::SkipChildElements); // Skip
-        return 0;
-    }
-    if (debugToolTips)
-        qDebug() << "Creating tooltip " << context <<  " from " << creationDate << offset;
-    DebuggerToolTipWidget *rc = 0;
-    if (className == QLatin1String("Debugger::Internal::DebuggerToolTipWidget"))
-        rc = new DebuggerToolTipWidget;
-    if (rc) {
-        rc->setContext(context);
-        rc->setAttribute(Qt::WA_DeleteOnClose);
-        rc->setEngineType(engineType);
-        rc->doLoadSessionData(r);
-        rc->setCreationDate(creationDate);
-        rc->pin();
-    } else {
+    context.engineType = attributes.value(QLatin1String(engineTypeAttributeC)).toString();
+    context.creationDate = dateFromString(attributes.value(QLatin1String(dateAttributeC)).toString());
+    bool readTree = context.isValid();
+    if (!context.creationDate.isValid() || context.creationDate.daysTo(QDate::currentDate()) > toolTipsExpiryDays) {
+        // qDebug() << "Expiring tooltip " << context.fileName << '@' << context.position << " from " << creationDate;
+        //readTree = false;
+    } else if (className != QLatin1String("Debugger::Internal::DebuggerToolTipWidget")) {
         qWarning("Unable to create debugger tool tip widget of class %s", qPrintable(className.toString()));
+        readTree = false;
+    }
+
+    if (readTree) {
+        DebuggerToolTipWidget *tw = findOrCreateWidget(context);
+        restoreTreeModel(r, &tw->m_defaultModel);
+        tw->pin();
+        tw->acquireEngine();
+        tw->m_titleLabel->setText(DebuggerToolTipManager::tr("Restored"));
+        tw->m_treeView->setModel(&tw->m_defaultModel);
+        tw->m_treeView->setRootIndex(tw->m_defaultModel.index(0, 0));
+        tw->m_treeView->expandAll();
+    } else {
         r.readElementText(QXmlStreamReader::SkipChildElements); // Skip
     }
-    return rc;
+
+    r.readNext(); // Skip </tree>
 }
 
 void DebuggerToolTipWidget::saveSessionData(QXmlStreamWriter &w) const
@@ -782,59 +931,21 @@ void DebuggerToolTipWidget::saveSessionData(QXmlStreamWriter &w) const
     attributes.append(QLatin1String(textLineAttributeC), QString::number(m_context.line));
     attributes.append(QLatin1String(textColumnAttributeC), QString::number(m_context.column));
     attributes.append(QLatin1String(dateAttributeC), m_creationDate.toString(QLatin1String("yyyyMMdd")));
-    if (m_offset.x())
-        attributes.append(QLatin1String(offsetXAttributeC), QString::number(m_offset.x()));
-    if (m_offset.y())
-        attributes.append(QLatin1String(offsetYAttributeC), QString::number(m_offset.y()));
-    if (!m_engineType.isEmpty())
-        attributes.append(QLatin1String(engineTypeAttributeC), m_engineType);
+    if (m_titleLabel->m_offset.x())
+        attributes.append(QLatin1String(offsetXAttributeC), QString::number(m_titleLabel->m_offset.x()));
+    if (m_titleLabel->m_offset.y())
+        attributes.append(QLatin1String(offsetYAttributeC), QString::number(m_titleLabel->m_offset.y()));
+    attributes.append(QLatin1String(engineTypeAttributeC), m_context.engineType);
+    attributes.append(QLatin1String(treeExpressionAttributeC), m_context.expression);
+    attributes.append(QLatin1String(treeInameAttributeC), QLatin1String(m_context.iname));
     w.writeAttributes(attributes);
-    doSaveSessionData(w);
+
+        w.writeStartElement(QLatin1String(treeElementC));
+        XmlWriterTreeModelVisitor v(&m_filterModel, w);
+        v.run();
+        w.writeEndElement();
+
     w.writeEndElement();
-}
-
-/*!
-    \class Debugger::Internal::TooltipFilterModel
-
-    \brief The TooltipFilterModel class is a model for tooltips filtering an
-    item on the watchhandler matching its tree on the iname.
-
-    In addition, suppress the model's tooltip data to avoid a tooltip on a tooltip.
-*/
-
-class TooltipFilterModel : public QSortFilterProxyModel
-{
-public:
-    TooltipFilterModel(QAbstractItemModel *model, const QByteArray &iname)
-        : m_iname(iname)
-    {
-        setSourceModel(model);
-    }
-
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
-    {
-        return role == Qt::ToolTipRole
-            ? QVariant() : QSortFilterProxyModel::data(index, role);
-    }
-
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
-
-private:
-    const QByteArray m_iname;
-};
-
-static bool isSubIname(const QByteArray &haystack, const QByteArray &needle)
-{
-    return haystack.size() > needle.size()
-           && haystack.startsWith(needle)
-           && haystack.at(needle.size()) == '.';
-}
-
-bool TooltipFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
-{
-    const QModelIndex nameIndex = sourceModel()->index(sourceRow, 0, sourceParent);
-    const QByteArray iname = nameIndex.data(LocalsINameRole).toByteArray();
-    return iname == m_iname || isSubIname(iname, m_iname) || isSubIname(m_iname, iname);
 }
 
 /*!
@@ -877,31 +988,6 @@ void DebuggerToolTipTreeView::collapseNode(const QModelIndex &idx)
     model()->setData(idx, false, LocalsExpandedRole);
 }
 
-void DebuggerToolTipTreeView::handleItemIsExpanded(const QModelIndex &sourceIdx)
-{
-    QSortFilterProxyModel *filterModel = qobject_cast<QSortFilterProxyModel*>(model());
-    QModelIndex mappedIdx = filterModel ? filterModel->mapFromSource(sourceIdx) : sourceIdx;
-    if (!isExpanded(mappedIdx))
-        expand(mappedIdx);
-}
-
-QAbstractItemModel *DebuggerToolTipTreeView::swapModel(QAbstractItemModel *newModel)
-{
-    QAbstractItemModel *previousModel = model();
-    if (previousModel != newModel) {
-        if (previousModel)
-            previousModel->disconnect(SIGNAL(rowsInserted(QModelIndex,int,int)), this);
-        setModel(newModel);
-        connect(newModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
-               SLOT(computeSize()), Qt::QueuedConnection);
-        if (QSortFilterProxyModel *filterModel = qobject_cast<QSortFilterProxyModel*>(newModel)) {
-            connect(filterModel->sourceModel(), SIGNAL(itemIsExpanded(QModelIndex)),
-                SLOT(handleItemIsExpanded(QModelIndex)));
-        }
-    }
-    return previousModel;
-}
-
 int DebuggerToolTipTreeView::computeHeight(const QModelIndex &index) const
 {
     int s = rowHeight(index);
@@ -913,6 +999,7 @@ int DebuggerToolTipTreeView::computeHeight(const QModelIndex &index) const
 
 void DebuggerToolTipTreeView::computeSize()
 {
+    WatchTreeView::reexpand(this, model()->index(0, 0));
     int columns = 30; // Decoration
     int rows = 0;
     bool rootDecorated = false;
@@ -960,129 +1047,16 @@ void DebuggerToolTipTreeView::computeSize()
     setMinimumSize(m_size);
     setMaximumSize(m_size);
     setRootIsDecorated(rootDecorated);
-
-    // This pretty much feels like a hack.
-    // But it "solves" QTCREATORBUG-9852
-    QApplication::processEvents();
-    viewport()->update();
 }
 
-void DebuggerToolTipWidget::doAcquireEngine(DebuggerEngine *engine)
-{
-    // Create a filter model on the debugger's model and switch to it.
-    QAbstractItemModel *model = engine->watchModel();
-    TooltipFilterModel *filterModel =
-            new TooltipFilterModel(model, m_context.iname);
-    swapModel(filterModel);
-}
-
-QAbstractItemModel *DebuggerToolTipWidget::swapModel(QAbstractItemModel *newModel)
-{
-    QAbstractItemModel *oldModel = m_treeView->swapModel(newModel);
-    // When looking at some 'this.m_foo.x', expand all items
-    if (newModel) {
-        if (const int level = m_context.iname.count('.')) {
-            QModelIndex index = newModel->index(0, 0);
-            for (int i = 0; i < level && index.isValid(); i++, index = index.child(0, 0))
-                m_treeView->setExpanded(index, true);
-        }
-    }
-    return oldModel;
-}
-
-void DebuggerToolTipWidget::doReleaseEngine()
-{
-    // Save data to stream and restore to the  m_defaultModel (QStandardItemModel)
-    m_defaultModel->removeRows(0, m_defaultModel->rowCount());
-    if (const QAbstractItemModel *model = m_treeView->model()) {
-        TreeModelCopyVisitor v(model, m_defaultModel);
-        v.run();
-    }
-    delete swapModel(m_defaultModel);
-}
-
-void DebuggerToolTipWidget::restoreTreeModel(QXmlStreamReader &r, QStandardItemModel *m)
-{
-    StandardItemTreeModelBuilder builder(m);
-    int columnCount = 1;
-    bool withinModel = true;
-    while (withinModel && !r.atEnd()) {
-        const QXmlStreamReader::TokenType token = r.readNext();
-        switch (token) {
-        case QXmlStreamReader::StartElement: {
-            const QStringRef element = r.name();
-            // Root model element with column count.
-            if (element == QLatin1String(modelElementC)) {
-                if (const int cc = r.attributes().value(QLatin1String(modelColumnCountAttributeC)).toString().toInt())
-                    columnCount = cc;
-                m->setColumnCount(columnCount);
-            } else if (element == QLatin1String(modelRowElementC)) {
-                builder.startRow();
-            } else if (element == QLatin1String(modelItemElementC)) {
-                builder.addItem(r.readElementText());
-            }
-        }
-            break; // StartElement
-        case QXmlStreamReader::EndElement: {
-            const QStringRef element = r.name();
-            // Row closing: pop off parent.
-            if (element == QLatin1String(modelRowElementC))
-                builder.endRow();
-            else if (element == QLatin1String(modelElementC))
-                withinModel = false;
-        }
-            break; // EndElement
-        default:
-            break;
-        } // switch
-    } // while
-}
-
-void DebuggerToolTipWidget::doSaveSessionData(QXmlStreamWriter &w) const
-{
-    w.writeStartElement(QLatin1String(treeElementC));
-    QXmlStreamAttributes attributes;
-    if (!m_context.expression.isEmpty())
-        attributes.append(QLatin1String(treeExpressionAttributeC), m_context.expression);
-    attributes.append(QLatin1String(treeInameAttributeC), QLatin1String(m_context.iname));
-    w.writeAttributes(attributes);
-    if (QAbstractItemModel *model = m_treeView->model()) {
-        XmlWriterTreeModelVisitor v(model, w);
-        v.run();
-    }
-    w.writeEndElement();
-}
-
-void DebuggerToolTipWidget::doLoadSessionData(QXmlStreamReader &r)
-{
-    if (!readStartElement(r, treeElementC))
-        return;
-    // Restore data to default model and show that.
-    const QXmlStreamAttributes attributes = r.attributes();
-    m_context.iname = attributes.value(QLatin1String(treeInameAttributeC)).toString().toLatin1();
-    m_context.expression = attributes.value(QLatin1String(treeExpressionAttributeC)).toString();
-    if (debugToolTips)
-        qDebug() << "DebuggerTreeViewToolTipWidget::doLoadSessionData() " << m_debuggerModel << m_context.iname;
-    setObjectName(QLatin1String("DebuggerTreeViewToolTipWidget: ") + QLatin1String(m_context.iname));
-    restoreTreeModel(r, m_defaultModel);
-    r.readNext(); // Skip </tree>
-    m_treeView->swapModel(m_defaultModel);
-}
-
-QString DebuggerToolTipWidget::treeModelClipboardContents(const QAbstractItemModel *m)
+QString DebuggerToolTipManager::treeModelClipboardContents(const QAbstractItemModel *model)
 {
     QString rc;
+    QTC_ASSERT(model, return rc);
     QTextStream str(&rc);
-    DumpTreeModelVisitor v(m, DumpTreeModelVisitor::ClipboardMode, str);
+    DumpTreeModelVisitor v(model, DumpTreeModelVisitor::ClipboardMode, str);
     v.run();
     return rc;
-}
-
-QString DebuggerToolTipWidget::clipboardContents() const
-{
-    if (const QAbstractItemModel *model = m_treeView->model())
-        return DebuggerToolTipWidget::treeModelClipboardContents(model);
-    return QString();
 }
 
 /*!
@@ -1100,27 +1074,6 @@ QString DebuggerToolTipWidget::clipboardContents() const
     (by file name and function) acquire the engine, others release.
 */
 
-typedef QList<QPointer<DebuggerToolTipWidget> > DebuggerToolTipWidgetList;
-class DebuggerToolTipManagerData
-{
-public:
-    DebuggerToolTipManagerData()
-        : m_debugModeActive(false), m_lastToolTipPoint(-1, -1), m_lastToolTipEditor(0)
-    {}
-
-    void registerToolTip(DebuggerToolTipWidget *toolTipWidget);
-    void moveToolTipsBy(const QPoint &distance);
-    // Purge out closed (null) tooltips and return list for convenience
-    void purgeClosedToolTips();
-
-    DebuggerToolTipWidgetList m_tooltips;
-
-    bool m_debugModeActive;
-    QPoint m_lastToolTipPoint;
-    Core::IEditor *m_lastToolTipEditor;
-};
-
-static DebuggerToolTipManagerData *d = 0;
 static DebuggerToolTipManager *m_instance = 0;
 
 DebuggerToolTipManager::DebuggerToolTipManager(QObject *parent) :
@@ -1136,12 +1089,42 @@ DebuggerToolTipManager::~DebuggerToolTipManager()
     m_instance = 0;
 }
 
-void DebuggerToolTipManager::registerEngine(DebuggerEngine *engine)
+void DebuggerToolTipManager::registerEngine(DebuggerEngine *)
 {
-    connect(engine, SIGNAL(stateChanged(Debugger::DebuggerState)),
-            m_instance, SLOT(slotDebuggerStateChanged(Debugger::DebuggerState)));
-    connect(engine, SIGNAL(stackFrameCompleted()),
-            m_instance, SLOT(slotStackFrameCompleted()));
+    loadSessionData();
+}
+
+void DebuggerToolTipManager::updateEngine(DebuggerEngine *engine)
+{
+    QTC_ASSERT(engine, return);
+    d->purgeClosedToolTips();
+    if (d->m_tooltips.isEmpty())
+        return;
+
+    // Stack frame changed: All tooltips of that file acquire the engine,
+    // all others release (arguable, this could be more precise?)
+    QString fileName;
+    QString function;
+    const int index = engine->stackHandler()->currentIndex();
+    if (index >= 0) {
+        const StackFrame frame = engine->stackHandler()->currentFrame();
+        if (frame.usable) {
+            fileName = frame.file;
+            function = frame.function;
+        }
+    }
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
+        tw->handleStackFrameCompleted(fileName, function);
+    slotUpdateVisibleToolTips(); // Move out when stepping in same file.
+}
+
+void DebuggerToolTipManager::deregisterEngine(DebuggerEngine *engine)
+{
+    QTC_ASSERT(engine, return);
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
+        if (tw && tw->m_context.engineType == engine->objectName())
+            tw->releaseEngine();
+    saveSessionData();
 }
 
 bool DebuggerToolTipManager::hasToolTips()
@@ -1149,37 +1132,18 @@ bool DebuggerToolTipManager::hasToolTips()
     return !d->m_tooltips.isEmpty();
 }
 
-void DebuggerToolTipManager::showToolTip(const QPoint &p, DebuggerToolTipWidget *toolTipWidget)
+void DebuggerToolTipManager::showToolTip
+    (const DebuggerToolTipContext &context, DebuggerEngine *engine)
 {
-    if (debugToolTipPositioning)
-        qDebug() << "DebuggerToolTipManager::showToolTip" << p << " Mouse at " << QCursor::pos();
-    const Utils::WidgetContent widgetContent(toolTipWidget, true);
-    Utils::ToolTip::show(p, widgetContent, debuggerCore()->mainWindow());
-    d->registerToolTip(toolTipWidget);
-}
+    QTC_ASSERT(engine, return);
+    QTC_ASSERT(!context.expression.isEmpty(), qDebug(" BUT EMPTY"); return);
 
-void DebuggerToolTipManagerData::registerToolTip(DebuggerToolTipWidget *toolTipWidget)
-{
-    QTC_ASSERT(toolTipWidget->context().isValid(), return);
-    m_tooltips.push_back(toolTipWidget);
-}
+    DebuggerToolTipWidget *tw = findOrCreateWidget(context);
+    tw->setWatchModel(engine->watchHandler()->model());
+    tw->acquireEngine();
 
-void DebuggerToolTipManagerData::purgeClosedToolTips()
-{
-    for (DebuggerToolTipWidgetList::iterator it = m_tooltips.begin(); it != m_tooltips.end() ; ) {
-        if (it->isNull())
-            it = m_tooltips.erase(it);
-        else
-            ++it;
-    }
-}
-
-void DebuggerToolTipManagerData::moveToolTipsBy(const QPoint &distance)
-{
-    purgeClosedToolTips();
-    foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips)
-        if (tw->isVisible())
-            tw->move(tw->pos() + distance);
+    const Utils::WidgetContent widgetContent(tw, true);
+    Utils::ToolTip::show(context.mousePosition, widgetContent, debuggerCore()->mainWindow());
 }
 
 bool DebuggerToolTipManager::eventFilter(QObject *o, QEvent *e)
@@ -1189,8 +1153,12 @@ bool DebuggerToolTipManager::eventFilter(QObject *o, QEvent *e)
     switch (e->type()) {
     case QEvent::Move: { // Move along with parent (toplevel)
         const QMoveEvent *me = static_cast<const QMoveEvent *>(e);
-        d->moveToolTipsBy(me->pos() - me->oldPos());
-    }
+        const QPoint dist = me->pos() - me->oldPos();
+        d->purgeClosedToolTips();
+        foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
+            if (tw->isVisible())
+                tw->move(tw->pos() + dist);
+        }
         break;
     case QEvent::WindowStateChange: { // Hide/Show along with parent (toplevel)
         const QWindowStateChangeEvent *se = static_cast<const QWindowStateChangeEvent *>(e);
@@ -1217,46 +1185,32 @@ void DebuggerToolTipManager::sessionAboutToChange()
 void DebuggerToolTipManager::loadSessionData()
 {
     const QString data = DebuggerCore::sessionValue(sessionSettingsKeyC).toString();
-    if (data.isEmpty())
-        return;
     QXmlStreamReader r(data);
     r.readNextStartElement();
-    if (r.tokenType() != QXmlStreamReader::StartElement || r.name() != QLatin1String(sessionDocumentC))
-        return;
-    const double version = r.attributes().value(QLatin1String(sessionVersionAttributeC)).toString().toDouble();
-    while (!r.atEnd())
-        if (DebuggerToolTipWidget *tw = DebuggerToolTipWidget::loadSessionData(r))
-            d->registerToolTip(tw);
-
-    if (debugToolTips)
-        qDebug() << "DebuggerToolTipManager::loadSessionData version " << version << " restored " << d->m_tooltips.size();
-    slotUpdateVisibleToolTips();
+    if (r.tokenType() == QXmlStreamReader::StartElement && r.name() == QLatin1String(sessionDocumentC))
+        while (!r.atEnd())
+            loadSessionDataI(r);
 }
 
 void DebuggerToolTipManager::saveSessionData()
 {
     QString data;
     d->purgeClosedToolTips();
-    if (!d->m_tooltips.isEmpty()) {
-        QXmlStreamWriter w(&data);
-        w.writeStartDocument();
-        w.writeStartElement(QLatin1String(sessionDocumentC));
-        w.writeAttribute(QLatin1String(sessionVersionAttributeC), QLatin1String("1.0"));
-        foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
-            if (tw->isPinned())
-                tw->saveSessionData(w);
-        w.writeEndDocument();
-    }
-    if (debugToolTips)
-        qDebug() << "DebuggerToolTipManager::saveSessionData" << d->m_tooltips.size() << data ;
+
+    QXmlStreamWriter w(&data);
+    w.writeStartDocument();
+    w.writeStartElement(QLatin1String(sessionDocumentC));
+    w.writeAttribute(QLatin1String(sessionVersionAttributeC), QLatin1String("1.0"));
+    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
+        if (tw->isPinned())
+            tw->saveSessionData(w);
+    w.writeEndDocument();
+
     DebuggerCore::setSessionValue(sessionSettingsKeyC, QVariant(data));
 }
 
 void DebuggerToolTipManager::closeAllToolTips()
 {
-    if (debugToolTips)
-        qDebug() << "DebuggerToolTipManager::closeAllToolTips";
-
     d->purgeClosedToolTips();
     foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
         tw->close();
@@ -1280,9 +1234,6 @@ void DebuggerToolTipManager::slotUpdateVisibleToolTips()
         return;
     }
 
-    if (debugToolTips)
-        qDebug() << "DebuggerToolTipManager::slotUpdateVisibleToolTips() " << sender();
-
     DebuggerToolTipEditor toolTipEditor = DebuggerToolTipEditor(EditorManager::currentEditor());
     if (!toolTipEditor.isValid() || toolTipEditor.fileName().isEmpty()) {
         hide();
@@ -1304,76 +1255,17 @@ void DebuggerToolTipManager::slotDebuggerStateChanged(DebuggerState state)
     const QObject *engine = sender();
     QTC_ASSERT(engine, return);
 
-    const QString name = engine->objectName();
-    if (debugToolTips)
-        qDebug() << "DebuggerToolTipWidget::debuggerStateChanged"
-                 << engine << DebuggerEngine::stateName(state);
-
     // Release at earliest possible convenience.
     switch (state) {
-    case InferiorRunRequested:
-    case DebuggerNotReady:
     case InferiorShutdownRequested:
     case EngineShutdownRequested:
     case DebuggerFinished:
     case EngineShutdownOk: {
-        d->purgeClosedToolTips();
-        foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips)
-            if (tw->engineType() == name)
-                tw->releaseEngine();
         break;
     }
     default:
         break;
     }
-}
-
-void DebuggerToolTipManager::slotStackFrameCompleted()
-{
-    d->purgeClosedToolTips();
-    if (d->m_tooltips.isEmpty())
-        return;
-    DebuggerEngine *engine = qobject_cast<DebuggerEngine *>(sender());
-    QTC_ASSERT(engine, return);
-
-    // Stack frame changed: All tooltips of that file acquire the engine,
-    // all others release (arguable, this could be more precise?)
-    QString fileName;
-    int lineNumber = 0;
-    // Get the current frame.
-    const QString engineName = engine->objectName();
-    QString function;
-    const int index = engine->stackHandler()->currentIndex();
-    if (index >= 0) {
-        const StackFrame frame = engine->stackHandler()->currentFrame();
-        if (frame.usable) {
-            fileName = frame.file;
-            lineNumber = frame.line;
-            function = frame.function;
-        }
-    }
-    if (debugToolTips)
-        qDebug("DebuggerToolTipWidget::slotStackFrameCompleted(%s, %s@%d, %s())",
-               qPrintable(engineName), qPrintable(fileName), lineNumber,
-               qPrintable(function));
-    unsigned acquiredCount = 0;
-    foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips) {
-        if (tw->matches(fileName, engineName, function)) {
-            tw->acquireEngine(engine);
-            acquiredCount++;
-        } else {
-            tw->releaseEngine();
-        }
-    }
-    slotUpdateVisibleToolTips(); // Move out when stepping in same file.
-    if (debugToolTips)
-        qDebug() << "DebuggerToolTipWidget::slotStackFrameCompleted()"
-                 << engineName << fileName << lineNumber << " acquired " << acquiredCount;
-}
-
-bool DebuggerToolTipManager::debug()
-{
-    return debugToolTips;
 }
 
 void DebuggerToolTipManager::slotEditorOpened(IEditor *e)
@@ -1391,9 +1283,6 @@ void DebuggerToolTipManager::slotEditorOpened(IEditor *e)
 
 void DebuggerToolTipManager::debugModeEntered()
 {
-    if (debugToolTips)
-        qDebug("DebuggerToolTipManager::debugModeEntered");
-
     // Hook up all signals in debug mode.
     if (!d->m_debugModeActive) {
         d->m_debugModeActive = true;
@@ -1414,9 +1303,6 @@ void DebuggerToolTipManager::debugModeEntered()
 
 void DebuggerToolTipManager::leavingDebugMode()
 {
-    if (debugToolTips)
-            qDebug("DebuggerToolTipManager::leavingDebugMode");
-
     // Remove all signals in debug mode.
     if (d->m_debugModeActive) {
         d->m_debugModeActive = false;
@@ -1436,67 +1322,81 @@ void DebuggerToolTipManager::leavingDebugMode()
     }
 }
 
-void DebuggerToolTipManager::slotTooltipOverrideRequested(ITextEditor *editor,
-                                                          const QPoint &point,
-                                                          int pos, bool *handled)
+void DebuggerToolTipManager::slotTooltipOverrideRequested
+    (ITextEditor *editor, const QPoint &point, int pos, bool *handled)
 {
     QTC_ASSERT(handled, return);
+    QTC_ASSERT(editor, return);
+    QTC_ASSERT(editor->document(), return);
 
     const int movedDistance = (point - d->m_lastToolTipPoint).manhattanLength();
-    const bool samePosition = d->m_lastToolTipEditor == editor && movedDistance < 25;
-    if (debugToolTipPositioning)
-        qDebug() << ">slotTooltipOverrideRequested() " << editor << point
-                 << "from " << d->m_lastToolTipPoint << ") pos: "
-                 << pos << *handled
-                 << " Same position=" << samePosition << " d=" << movedDistance;
+    if (d->m_lastToolTipEditor == editor && movedDistance < 25) {
+        *handled = true;
+        return;
+    }
 
-    DebuggerEngine *currentEngine = 0;
-    do {
-        if (samePosition)
-            *handled = true;
+    *handled = tryHandleToolTipOverride(editor, point, pos);
 
-        if (*handled)
-            break; // Avoid flicker.
-
-        DebuggerCore  *core = debuggerCore();
-        if (!core->boolSetting(UseToolTipsInMainEditor))
-            break;
-
-        currentEngine = core->currentEngine();
-        if (!currentEngine || !currentEngine->canDisplayTooltip())
-            break;
-
-        const DebuggerToolTipContext context = DebuggerToolTipContext::fromEditor(editor, pos);
-        if (context.isValid() && currentEngine->setToolTipExpression(point, editor, context)) {
-            *handled = true;
-            d->m_lastToolTipEditor = editor;
-            d->m_lastToolTipPoint = point;
-        }
-
-    } while (false);
-
-    // Other tooltip, close all in case mouse never entered the tooltip
-    // and no leave was triggered.
-    if (!*handled) {
+    if (*handled) {
+        d->m_lastToolTipEditor = editor;
+        d->m_lastToolTipPoint = point;
+    } else {
         d->m_lastToolTipEditor = 0;
         d->m_lastToolTipPoint = QPoint(-1, -1);
     }
-    if (debugToolTipPositioning)
-        qDebug() << "<slotTooltipOverrideRequested() " << currentEngine << *handled;
+}
+
+bool DebuggerToolTipManager::tryHandleToolTipOverride(ITextEditor *editor, const QPoint &point, int pos)
+{
+    DebuggerCore *core = debuggerCore();
+    if (!core->boolSetting(UseToolTipsInMainEditor))
+        return false;
+
+    DebuggerEngine *currentEngine = core->currentEngine();
+    if (!currentEngine || !currentEngine->canDisplayTooltip())
+        return false;
+
+    DebuggerToolTipContext context;
+    context.engineType = currentEngine->objectName();
+    context.fileName = editor->document()->filePath();
+    context.position = pos;
+    context.mousePosition = point;
+    editor->convertPosition(pos, &context.line, &context.column);
+    QString raw = cppExpressionAt(editor, context.position, &context.line, &context.column, &context.function);
+    context.expression = fixCppExpression(raw);
+
+    if (context.expression.isEmpty())
+        return false;
+
+    // Prefer a filter on an existing local variable if it can be found.
+    if (const WatchData *localVariable = currentEngine->watchHandler()->findCppLocalVariable(context.expression)) {
+        context.expression = QLatin1String(localVariable->exp);
+        if (context.expression.isEmpty())
+            context.expression = localVariable->name;
+        context.iname = localVariable->iname;
+        showToolTip(context, currentEngine);
+        return true;
+    }
+
+    context.iname = "tooltip." + context.expression.toLatin1().toHex();
+
+    if (currentEngine->setToolTipExpression(editor, context))
+        return true;
+
+    // Other tooltip, close all in case mouse never entered the tooltip
+    // and no leave was triggered.
+    return false;
 }
 
 
 DebuggerToolTipContexts DebuggerToolTipManager::treeWidgetExpressions
-    (const QString &fileName, const QString &engineType, const QString &function)
+    (DebuggerEngine *, const QString &fileName, const QString &function)
 {
     DebuggerToolTipContexts rc;
     foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips) {
-        if (!tw.isNull() && tw->matches(fileName, engineType, function))
+        if (tw && tw->context().matchesFrame(fileName, function))
             rc.push_back(tw->context());
     }
-    if (debugToolTips)
-        qDebug() << "DebuggerToolTipManager::treeWidgetExpressions"
-                 << fileName << engineType << function << rc;
     return rc;
 }
 

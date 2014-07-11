@@ -72,6 +72,7 @@ public:
     virtual void paint(QPainter *painter, const QRect &rect) const;
     virtual void updateLineNumber(int lineNumber);
     virtual void updateBlock(const QTextBlock &block);
+    virtual void move(int line);
     virtual void removedFromEditor();
     virtual bool isClickable() const;
     virtual void clicked();
@@ -114,6 +115,7 @@ public:
     virtual TextMarks marksAt(int line) const = 0;
     virtual void removeMark(ITextMark *mark) = 0;
     virtual void updateMark(ITextMark *mark) = 0;
+    virtual void moveMark(ITextMark *mark, int previousLine) = 0;
 };
 
 } // namespace TextEditor

@@ -115,6 +115,7 @@ private slots:
     void splitVertically();
     void splitNewWindow();
     void closeSplit();
+    void openDroppedFiles(const QStringList &files);
 
 private:
     friend class SplitterOrView; // for setParentSplitterOrView

@@ -958,7 +958,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == &actRemoveWatchExpression) {
         handler->removeData(p.data(LocalsINameRole).toByteArray());
     } else if (act == &actCopy) {
-        copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
+        copyToClipboard(DebuggerToolTipManager::treeModelClipboardContents(model()));
     } else if (act == &actCopyValue) {
         copyToClipboard(mi1.data().toString());
     } else if (act == &actShowInEditor) {
@@ -1025,29 +1025,29 @@ void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)
         expand(idx);
 }
 
-void WatchTreeView::resetHelper()
-{
-    QModelIndex idx = model()->index(m_type, 0);
-    resetHelper(idx);
-    expand(idx);
-}
-
-void WatchTreeView::resetHelper(const QModelIndex &idx)
+void WatchTreeView::reexpand(QTreeView *view, const QModelIndex &idx)
 {
     if (idx.data(LocalsExpandedRole).toBool()) {
-        //qDebug() << "EXPANDING " << model()->data(idx, LocalsINameRole);
-        if (!isExpanded(idx)) {
-            expand(idx);
-            for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
-                QModelIndex idx1 = model()->index(i, 0, idx);
-                resetHelper(idx1);
+        //qDebug() << "EXPANDING " << view->model()->data(idx, LocalsINameRole);
+        if (!view->isExpanded(idx)) {
+            view->expand(idx);
+            for (int i = 0, n = view->model()->rowCount(idx); i != n; ++i) {
+                QModelIndex idx1 = view->model()->index(i, 0, idx);
+                reexpand(view, idx1);
             }
         }
     } else {
-        //qDebug() << "COLLAPSING " << model()->data(idx, LocalsINameRole);
-        if (isExpanded(idx))
-            collapse(idx);
+        //qDebug() << "COLLAPSING " << view->model()->data(idx, LocalsINameRole);
+        if (view->isExpanded(idx))
+            view->collapse(idx);
     }
+}
+
+void WatchTreeView::resetHelper()
+{
+    QModelIndex idx = model()->index(m_type, 0);
+    reexpand(this, idx);
+    expand(idx);
 }
 
 void WatchTreeView::reset()

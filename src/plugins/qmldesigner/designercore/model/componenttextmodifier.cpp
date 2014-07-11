@@ -129,8 +129,5 @@ void ComponentTextModifier::contentsChange(int /*position*/, int /*charsRemoved*
 {
 }
 
-QmlJS::Snapshot ComponentTextModifier::getSnapshot() const
-{ return m_originalModifier->getSnapshot(); }
-
 QStringList ComponentTextModifier::importPaths() const
 { return m_originalModifier->importPaths(); }

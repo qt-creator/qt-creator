@@ -45,15 +45,18 @@
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
 
-#include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-
 #include <QAction>
 #include <QContextMenuEvent>
+#include <QDebug>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QDir>
+#include <QFileInfo>
+#include <QFormLayout>
+#include <QLineEdit>
 #include <QMenu>
 #include <QPainter>
-#include <QInputDialog>
+#include <QSpinBox>
 
 Q_DECLARE_METATYPE(Bookmarks::Internal::Bookmark*)
 
@@ -243,7 +246,7 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
     QMenu menu;
     QAction *moveUp = menu.addAction(tr("Move Up"));
     QAction *moveDown = menu.addAction(tr("Move Down"));
-    QAction *editNote = menu.addAction(tr("Edit Note"));
+    QAction *edit = menu.addAction(tr("&Edit"));
     menu.addSeparator();
     QAction *remove = menu.addAction(tr("&Remove"));
     menu.addSeparator();
@@ -254,7 +257,7 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
         moveUp->setEnabled(false);
         moveDown->setEnabled(false);
         remove->setEnabled(false);
-        editNote->setEnabled(false);
+        edit->setEnabled(false);
     }
 
     if (model()->rowCount() == 0)
@@ -268,8 +271,8 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
             this, SLOT(removeFromContextMenu()));
     connect(removeAll, SIGNAL(triggered()),
             this, SLOT(removeAll()));
-    connect(editNote, SIGNAL(triggered()),
-            m_manager, SLOT(editNote()));
+    connect(edit, SIGNAL(triggered()),
+            m_manager, SLOT(edit()));
 
     menu.exec(mapToGlobal(event->pos()));
 }
@@ -673,27 +676,39 @@ void BookmarkManager::moveDown()
     saveBookmarks();
 }
 
-void BookmarkManager::editNote(const QString &fileName, int lineNumber)
+void BookmarkManager::edit(const QString &fileName, int lineNumber)
 {
     Bookmark *b = findBookmark(fileName, lineNumber);
     QModelIndex current = selectionModel()->currentIndex();
     selectionModel()->setCurrentIndex(current.sibling(m_bookmarksList.indexOf(b), 0),
                                       QItemSelectionModel::Select | QItemSelectionModel::Clear);
 
-    editNote();
+    edit();
 }
 
-void BookmarkManager::editNote()
+void BookmarkManager::edit()
 {
     QModelIndex current = selectionModel()->currentIndex();
     Bookmark *b = m_bookmarksList.at(current.row());
 
-    bool inputOk = false;
-    QString noteText = QInputDialog::getText(0, tr("Edit Note"),
-                                             tr("Note text:"), QLineEdit::Normal,
-                                             b->note(), &inputOk);
-    if (inputOk) {
-        b->updateNote(noteText.replace(QLatin1Char('\t'), QLatin1Char(' ')));
+    QDialog dlg;
+    dlg.setWindowTitle(tr("Edit Bookmark"));
+    auto layout = new QFormLayout(&dlg);
+    auto noteEdit = new QLineEdit(b->note());
+    noteEdit->setMinimumWidth(300);
+    auto lineNumberSpinbox = new QSpinBox;
+    lineNumberSpinbox->setRange(1, INT_MAX);
+    lineNumberSpinbox->setValue(b->lineNumber());
+    lineNumberSpinbox->setMaximumWidth(100);
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttonBox, SIGNAL(accepted()), &dlg, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), &dlg, SLOT(reject()));
+    layout->addRow(tr("Note text:"), noteEdit);
+    layout->addRow(tr("Line number:"), lineNumberSpinbox);
+    layout->addWidget(buttonBox);
+    if (dlg.exec() == QDialog::Accepted) {
+        b->move(lineNumberSpinbox->value());
+        b->updateNote(noteEdit->text().replace(QLatin1Char('\t'), QLatin1Char(' ')));
         emit dataChanged(current, current);
         saveBookmarks();
     }

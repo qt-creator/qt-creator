@@ -50,8 +50,7 @@ public:
     QString displayNameForId(Core::Id id) const;
 
     bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent,
-                                                 const Core::Id id);
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id);
 
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent,

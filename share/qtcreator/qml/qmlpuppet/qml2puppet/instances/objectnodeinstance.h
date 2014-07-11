@@ -38,6 +38,8 @@
 #include <QSharedPointer>
 #include <QWeakPointer>
 
+#include "enumeration.h"
+
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 class QQmlContext;
@@ -200,6 +202,7 @@ protected:
     QVariant convertSpecialCharacter(const QVariant& value) const;
     static QObject *parentObject(QObject *object);
     static void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer);
+    static QVariant enumationValue(const Enumeration &enumeration);
 
 private:
     QHash<PropertyName, QVariant> m_resetValueHash;
@@ -217,6 +220,7 @@ private:
     qint32 m_instanceId;
     bool m_deleteHeldInstance;
     bool m_isInLayoutable;
+    static QHash<EnumerationName, int> m_enumationValueHash;
 };
 
 } // namespace Internal

@@ -58,7 +58,11 @@ class TreeViewStyle : public QProxyStyle
 public:
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const
     {
+        static QRect mouseOverStateSavedFrameRectangle;
         if (element == QStyle::PE_PanelItemViewRow) {
+            if (option->state & QStyle::State_MouseOver)
+                mouseOverStateSavedFrameRectangle = option->rect;
+
             if (option->state & QStyle::State_Selected) {
                 NavigatorTreeView::drawSelectionBackground(painter, *option);
             } else {
@@ -71,22 +75,26 @@ public:
 //                painter->restore();
             }
         } else if (element == PE_IndicatorItemViewItemDrop) {
-            painter->save();
-            QRect rect = option->rect;
-            rect.setLeft(0);
-            rect.setWidth(widget->rect().width());
-            QColor highlight = option->palette.text().color();
-            highlight.setAlphaF(0.7);
-            painter->setPen(QPen(highlight.lighter(), 1));
-            if (option->rect.height() == 0) {
-                if (option->rect.top()>0)
-                    painter->drawLine(rect.topLeft(), rect.topRight());
-            } else {
-                highlight.setAlphaF(0.2);
-                painter->setBrush(highlight);
-                painter->drawRect(rect.adjusted(0, 0, -1, -1));
+            // between elements and on elements we have a width
+            if (option->rect.width() > 0) {
+                m_currentTextColor = option->palette.text().color();
+                QRect frameRectangle = adjustedRectangleToWidgetWidth(option->rect, widget);
+                painter->save();
+
+                if (option->rect.height() == 0) {
+                    bool isNotRootItem = option->rect.top() > 10 && mouseOverStateSavedFrameRectangle.top() > 10;
+                    if (isNotRootItem) {
+                        drawIndicatorLine(frameRectangle.topLeft(), frameRectangle.topRight(), painter);
+                        //  there is only a line in the styleoption object at this moment
+                        //  so we need to use the last saved rect from the mouse over state
+                        frameRectangle = adjustedRectangleToWidgetWidth(mouseOverStateSavedFrameRectangle, widget);
+                        drawBackgroundFrame(frameRectangle, painter);
+                    }
+                } else {
+                    drawHighlightFrame(frameRectangle, painter);
+                }
+                painter->restore();
             }
-            painter->restore();
         } else if (element == PE_FrameFocusRect) {
             // don't draw
         } else {
@@ -100,6 +108,56 @@ public:
         else
             return QProxyStyle::styleHint(hint, option, widget, returnData);
     }
+
+private: // functions
+    QColor highlightBrushColor() const
+    {
+        QColor highlightBrushColor = m_currentTextColor;
+        highlightBrushColor.setAlphaF(0.7);
+        return highlightBrushColor;
+    }
+    QColor highlightLineColor() const
+    {
+        return highlightBrushColor().lighter();
+    }
+    QColor backgroundBrushColor() const
+    {
+        QColor backgroundBrushColor = highlightBrushColor();
+        backgroundBrushColor.setAlphaF(0.2);
+        return backgroundBrushColor;
+    }
+    QColor backgroundLineColor() const
+    {
+        return backgroundBrushColor().lighter();
+    }
+
+    void drawHighlightFrame(const QRect &frameRectangle, QPainter *painter) const
+    {
+        painter->setPen(QPen(highlightLineColor(), 2));
+        painter->setBrush(highlightBrushColor());
+        painter->drawRect(frameRectangle);
+    }
+    void drawBackgroundFrame(const QRect &frameRectangle, QPainter *painter) const
+    {
+        painter->setPen(QPen(backgroundLineColor(), 2));
+        painter->setBrush(backgroundBrushColor());
+        painter->drawRect(frameRectangle);
+    }
+    void drawIndicatorLine(const QPoint &leftPoint, const QPoint &rightPoint, QPainter *painter) const
+    {
+        painter->setPen(QPen(highlightLineColor(), 3));
+        painter->drawLine(leftPoint, rightPoint);
+    }
+
+    QRect adjustedRectangleToWidgetWidth(const QRect &originalRectangle, const QWidget *widget) const
+    {
+        QRect adjustesRectangle = originalRectangle;
+        adjustesRectangle.setLeft(0);
+        adjustesRectangle.setWidth(widget->rect().width());
+        return adjustesRectangle.adjusted(0, 0, -1, -1);
+    }
+private: // variables
+    mutable QColor m_currentTextColor;
 };
 
 }

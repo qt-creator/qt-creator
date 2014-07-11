@@ -243,24 +243,25 @@ void QbsBuildStep::buildingDone(bool success)
                             item.codeLocation().fileName(), item.codeLocation().line());
 
     QbsProject *pro = static_cast<QbsProject *>(project());
-    connect(pro, SIGNAL(projectParsingDone(bool)), this, SLOT(reparsingDone()));
 
     // Building can uncover additional target artifacts.
-    // Wait for reparsing to finish, since before that our run configurations may not be valid.
-    pro->parseCurrentBuildConfiguration(true);
+    pro->updateAfterBuild();
+
+    // The reparsing, if it is necessary, has to be done before finished() is emitted, as
+    // otherwise a potential additional build step could conflict with the parsing step.
+    if (pro->parsingScheduled()) {
+        connect(pro, SIGNAL(projectParsingDone(bool)), this, SLOT(reparsingDone()));
+        pro->parseCurrentBuildConfiguration(true);
+    } else {
+        finish();
+    }
 }
 
 void QbsBuildStep::reparsingDone()
 {
     disconnect(static_cast<QbsProject *>(project()), SIGNAL(projectParsingDone(bool)),
                this, SLOT(reparsingDone()));
-    QTC_ASSERT(m_fi, return);
-    m_fi->reportResult(m_lastWasSuccess);
-    m_fi = 0; // do not delete, it is not ours
-    m_job->deleteLater();
-    m_job = 0;
-
-    emit finished();
+    finish();
 }
 
 void QbsBuildStep::handleTaskStarted(const QString &desciption, int max)
@@ -372,6 +373,17 @@ void QbsBuildStep::setMaxJobs(int jobcount)
         return;
     m_qbsBuildOptions.setMaxJobCount(jobcount);
     emit qbsBuildOptionsChanged();
+}
+
+void QbsBuildStep::finish()
+{
+    QTC_ASSERT(m_fi, return);
+    m_fi->reportResult(m_lastWasSuccess);
+    m_fi = 0; // do not delete, it is not ours
+    m_job->deleteLater();
+    m_job = 0;
+
+    emit finished();
 }
 
 // --------------------------------------------------------------------

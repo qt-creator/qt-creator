@@ -53,6 +53,16 @@ void ITextMark::updateLineNumber(int lineNumber)
     m_lineNumber = lineNumber;
 }
 
+void ITextMark::move(int line)
+{
+    if (line == m_lineNumber)
+        return;
+    const int previousLine = m_lineNumber;
+    m_lineNumber = line;
+    if (m_markableInterface)
+        m_markableInterface->moveMark(this, previousLine);
+}
+
 void ITextMark::updateBlock(const QTextBlock &)
 {}
 

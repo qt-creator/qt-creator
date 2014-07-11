@@ -105,7 +105,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     cmd = Core::ActionManager::registerAction(m_docNextAction, BOOKMARKS_NEXTDOC_ACTION, globalcontext);
     mbm->addAction(cmd);
 
-    m_editNoteAction = new QAction(tr("Edit Bookmark Note"), this);
+    m_editBookmarkAction = new QAction(tr("Edit Bookmark"), this);
 
     m_bookmarkManager = new BookmarkManager;
 
@@ -114,7 +114,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     connect(m_nextAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(next()));
     connect(m_docPrevAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(prevInDocument()));
     connect(m_docNextAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(nextInDocument()));
-    connect(m_editNoteAction, SIGNAL(triggered()), this, SLOT(bookmarkEditNoteActionTriggered()));
+    connect(m_editBookmarkAction, SIGNAL(triggered()), this, SLOT(editBookmarkActionTriggered()));
     connect(m_bookmarkManager, SIGNAL(updateActions(int)), this, SLOT(updateActions(int)));
     updateActions(m_bookmarkManager->state());
     addAutoReleasedObject(new BookmarkViewFactory(m_bookmarkManager));
@@ -189,7 +189,7 @@ void BookmarksPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
 
     menu->addAction(m_bookmarkMarginAction);
     if (m_bookmarkManager->hasBookmarkInPosition(m_bookmarkMarginActionFileName, m_bookmarkMarginActionLineNumber))
-        menu->addAction(m_editNoteAction);
+        menu->addAction(m_editBookmarkAction);
 }
 
 void BookmarksPlugin::bookmarkMarginActionTriggered()
@@ -198,9 +198,9 @@ void BookmarksPlugin::bookmarkMarginActionTriggered()
                                       m_bookmarkMarginActionLineNumber);
 }
 
-void BookmarksPlugin::bookmarkEditNoteActionTriggered()
+void BookmarksPlugin::editBookmarkActionTriggered()
 {
-    m_bookmarkManager->editNote(m_bookmarkMarginActionFileName, m_bookmarkMarginActionLineNumber);
+    m_bookmarkManager->edit(m_bookmarkMarginActionFileName, m_bookmarkMarginActionLineNumber);
 }
 
 Q_EXPORT_PLUGIN(BookmarksPlugin)

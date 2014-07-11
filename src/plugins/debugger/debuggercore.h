@@ -60,7 +60,6 @@ class BreakHandler;
 class SnapshotHandler;
 class Symbol;
 class Section;
-class DebuggerToolTipManager;
 class GlobalDebuggerOptions;
 
 enum TestCases
@@ -120,7 +119,6 @@ public:
     virtual QStringList stringListSetting(int code) const = 0;
     virtual void setThreads(const QStringList &list, int index) = 0;
 
-    virtual DebuggerToolTipManager *toolTipManager() const = 0;
     virtual QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const = 0;
 
     static QTreeView *inspectorView();

@@ -36,6 +36,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
 
+#include <utils/fancylineedit.h>
+#include <utils/pathchooser.h>
+
 #include <QCheckBox>
 #include <QCoreApplication>
 #include <QDebug>
@@ -62,33 +65,6 @@ class GdbOptionsPageWidget : public QWidget
 {
 public:
     explicit GdbOptionsPageWidget(QWidget *parent = 0);
-
-    QGroupBox *groupBoxGeneral;
-    QSpinBox *spinBoxGdbWatchdogTimeout;
-    QCheckBox *checkBoxSkipKnownFrames;
-    QCheckBox *checkBoxUseMessageBoxForSignals;
-    QCheckBox *checkBoxAdjustBreakpointLocations;
-    QCheckBox *checkBoxUseDynamicType;
-    QCheckBox *checkBoxLoadGdbInit;
-    QCheckBox *checkBoxLoadGdbDumpers;
-    QCheckBox *checkBoxIntelFlavor;
-    QCheckBox *checkBoxIdentifyDebugInfoPackages;
-
-    QGroupBox *groupBoxStartupCommands;
-    QTextEdit *textEditStartupCommands;
-    QGroupBox *groupBoxPostAttachCommands;
-    QTextEdit *textEditPostAttachCommands;
-    QGroupBox *groupBoxCustomDumperCommands;
-    QTextEdit *textEditCustomDumperCommands;
-    QLineEdit *extraDumperFile;
-
-    //QGroupBox *groupBoxPluginDebugging;
-    //QRadioButton *radioButtonAllPluginBreakpoints;
-    //QRadioButton *radioButtonSelectedPluginBreakpoints;
-    //QRadioButton *radioButtonNoPluginBreakpoints;
-    //QLabel *labelSelectedPluginBreakpoints;
-    //QLineEdit *lineEditSelectedPluginBreakpointsPattern;
-
     Utils::SavedActionSet group;
 };
 
@@ -97,10 +73,10 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
 {
     (void) new VariableChooser(this);
 
-    groupBoxGeneral = new QGroupBox(this);
+    auto groupBoxGeneral = new QGroupBox(this);
     groupBoxGeneral->setTitle(GdbOptionsPage::tr("General"));
 
-    QLabel *labelGdbWatchdogTimeout = new QLabel(groupBoxGeneral);
+    auto labelGdbWatchdogTimeout = new QLabel(groupBoxGeneral);
     labelGdbWatchdogTimeout->setText(GdbOptionsPage::tr("GDB timeout:"));
     labelGdbWatchdogTimeout->setToolTip(GdbOptionsPage::tr(
         "The number of seconds Qt Creator will wait before it terminates\n"
@@ -109,7 +85,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "loading big libraries or listing source files takes much longer than\n"
         "that on slow machines. In this case, the value should be increased."));
 
-    spinBoxGdbWatchdogTimeout = new QSpinBox(groupBoxGeneral);
+    auto spinBoxGdbWatchdogTimeout = new QSpinBox(groupBoxGeneral);
     spinBoxGdbWatchdogTimeout->setToolTip(labelGdbWatchdogTimeout->toolTip());
     spinBoxGdbWatchdogTimeout->setSuffix(GdbOptionsPage::tr("sec"));
     spinBoxGdbWatchdogTimeout->setLayoutDirection(Qt::LeftToRight);
@@ -118,7 +94,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     spinBoxGdbWatchdogTimeout->setSingleStep(20);
     spinBoxGdbWatchdogTimeout->setValue(20);
 
-    checkBoxSkipKnownFrames = new QCheckBox(groupBoxGeneral);
+    auto checkBoxSkipKnownFrames = new QCheckBox(groupBoxGeneral);
     checkBoxSkipKnownFrames->setText(GdbOptionsPage::tr("Skip known frames when stepping"));
     checkBoxSkipKnownFrames->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body><p>"
@@ -127,14 +103,14 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "counting code is skipped, and a single <i>Step Into</i> for a signal\n"
         "emission ends up directly in the slot connected to it."));
 
-    checkBoxUseMessageBoxForSignals = new QCheckBox(groupBoxGeneral);
+    auto checkBoxUseMessageBoxForSignals = new QCheckBox(groupBoxGeneral);
     checkBoxUseMessageBoxForSignals->setText(GdbOptionsPage::tr(
         "Show a message box when receiving a signal"));
     checkBoxUseMessageBoxForSignals->setToolTip(GdbOptionsPage::tr(
         "Displays a message box as soon as your application\n"
         "receives a signal like SIGSEGV during debugging."));
 
-    checkBoxAdjustBreakpointLocations = new QCheckBox(groupBoxGeneral);
+    auto checkBoxAdjustBreakpointLocations = new QCheckBox(groupBoxGeneral);
     checkBoxAdjustBreakpointLocations->setText(GdbOptionsPage::tr(
         "Adjust breakpoint locations"));
     checkBoxAdjustBreakpointLocations->setToolTip(GdbOptionsPage::tr(
@@ -144,32 +120,32 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "This option reflects such temporary change by moving the breakpoint\n"
         "markers in the source code editor."));
 
-    checkBoxUseDynamicType = new QCheckBox(groupBoxGeneral);
+    auto checkBoxUseDynamicType = new QCheckBox(groupBoxGeneral);
     checkBoxUseDynamicType->setText(GdbOptionsPage::tr(
         "Use dynamic object type for display"));
     checkBoxUseDynamicType->setToolTip(GdbOptionsPage::tr(
         "Specifies whether the dynamic or the static type of objects will be "
         "displayed. Choosing the dynamic type might be slower."));
 
-    checkBoxLoadGdbInit = new QCheckBox(groupBoxGeneral);
+    auto checkBoxLoadGdbInit = new QCheckBox(groupBoxGeneral);
     checkBoxLoadGdbInit->setText(GdbOptionsPage::tr("Load .gdbinit file on startup"));
     checkBoxLoadGdbInit->setToolTip(GdbOptionsPage::tr(
         "Allows or inhibits reading the user's default\n"
         ".gdbinit file on debugger startup."));
 
-    checkBoxLoadGdbDumpers = new QCheckBox(groupBoxGeneral);
+    auto checkBoxLoadGdbDumpers = new QCheckBox(groupBoxGeneral);
     checkBoxLoadGdbDumpers->setText(GdbOptionsPage::tr("Load system GDB pretty printers"));
     checkBoxLoadGdbDumpers->setToolTip(GdbOptionsPage::tr(
         "Uses the default GDB pretty printers installed in your "
         "system or linked to the libraries your application uses."));
 
-    checkBoxIntelFlavor = new QCheckBox(groupBoxGeneral);
+    auto checkBoxIntelFlavor = new QCheckBox(groupBoxGeneral);
     checkBoxIntelFlavor->setText(GdbOptionsPage::tr("Use Intel style disassembly"));
     checkBoxIntelFlavor->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body>GDB shows by default AT&&T style disassembly."
         "</body></html>"));
 
-    checkBoxIdentifyDebugInfoPackages = new QCheckBox(groupBoxGeneral);
+    auto checkBoxIdentifyDebugInfoPackages = new QCheckBox(groupBoxGeneral);
     checkBoxIdentifyDebugInfoPackages->setText(GdbOptionsPage::tr("Create tasks from missing packages"));
     checkBoxIdentifyDebugInfoPackages->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body><p>Attempts to identify missing debug info packages "
@@ -185,7 +161,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "<p>To execute arbitrary Python scripts, "
         "use <i>python execfile('/path/to/script.py')</i>.</p>");
 
-    groupBoxStartupCommands = new QGroupBox(this);
+    auto groupBoxStartupCommands = new QGroupBox(this);
     groupBoxStartupCommands->setTitle(GdbOptionsPage::tr("Additional Startup Commands"));
     groupBoxStartupCommands->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body><p>GDB commands entered here will be executed after "
@@ -193,11 +169,11 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "attached, and before the debugging helpers are initialized.</p>%1"
         "</body></html>").arg(howToUsePython));
 
-    textEditStartupCommands = new QTextEdit(groupBoxStartupCommands);
+    auto textEditStartupCommands = new QTextEdit(groupBoxStartupCommands);
     textEditStartupCommands->setAcceptRichText(false);
     textEditStartupCommands->setToolTip(groupBoxStartupCommands->toolTip());
 
-    groupBoxPostAttachCommands = new QGroupBox(this);
+    auto groupBoxPostAttachCommands = new QGroupBox(this);
     groupBoxPostAttachCommands->setTitle(GdbOptionsPage::tr("Additional Attach Commands"));
     groupBoxPostAttachCommands->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body><p>GDB commands entered here will be executed after "
@@ -206,11 +182,11 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "such as \"monitor reset\" or \"load\"."
         "</body></html>"));
 
-    textEditPostAttachCommands = new QTextEdit(groupBoxPostAttachCommands);
+    auto textEditPostAttachCommands = new QTextEdit(groupBoxPostAttachCommands);
     textEditPostAttachCommands->setAcceptRichText(false);
     textEditPostAttachCommands->setToolTip(groupBoxPostAttachCommands->toolTip());
 
-    groupBoxCustomDumperCommands = new QGroupBox(this);
+    auto groupBoxCustomDumperCommands = new QGroupBox(this);
     groupBoxCustomDumperCommands->setTitle(GdbOptionsPage::tr("Debugging Helper Customization"));
     groupBoxCustomDumperCommands->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body><p>GDB commands entered here will be executed after "
@@ -218,13 +194,17 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "You can load additional debugging helpers or modify existing ones here.</p>"
         "%1</body></html>").arg(howToUsePython));
 
-    textEditCustomDumperCommands = new QTextEdit(groupBoxCustomDumperCommands);
+    auto textEditCustomDumperCommands = new QTextEdit(groupBoxCustomDumperCommands);
     textEditCustomDumperCommands->setAcceptRichText(false);
     textEditCustomDumperCommands->setToolTip(groupBoxCustomDumperCommands->toolTip());
 
-    extraDumperFile = new QLineEdit(groupBoxCustomDumperCommands);
-    extraDumperFile->setToolTip(GdbOptionsPage::tr(
+    auto groupBoxExtraDumperFile = new QGroupBox(this);
+    groupBoxExtraDumperFile->setTitle(GdbOptionsPage::tr("Extra Debugging Helpers"));
+    groupBoxExtraDumperFile->setToolTip(GdbOptionsPage::tr(
         "Path to a Python file containing additional data dumpers."));
+
+    auto pathChooserExtraDumperFile = new Utils::PathChooser(groupBoxExtraDumperFile);
+    pathChooserExtraDumperFile->setExpectedKind(Utils::PathChooser::File);
 
     /*
     groupBoxPluginDebugging = new QGroupBox(q);
@@ -255,9 +235,9 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     VariableChooser::addVariableSupport(textEditCustomDumperCommands);
     VariableChooser::addVariableSupport(textEditPostAttachCommands);
     VariableChooser::addVariableSupport(textEditStartupCommands);
-    VariableChooser::addVariableSupport(extraDumperFile);
+    VariableChooser::addVariableSupport(pathChooserExtraDumperFile->lineEdit());
 
-    QFormLayout *formLayout = new QFormLayout(groupBoxGeneral);
+    auto formLayout = new QFormLayout(groupBoxGeneral);
     formLayout->addRow(labelGdbWatchdogTimeout, spinBoxGdbWatchdogTimeout);
     formLayout->addRow(checkBoxSkipKnownFrames);
     formLayout->addRow(checkBoxUseMessageBoxForSignals);
@@ -268,38 +248,29 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     formLayout->addRow(checkBoxIntelFlavor);
     formLayout->addRow(checkBoxIdentifyDebugInfoPackages);
 
-    QGridLayout *startLayout = new QGridLayout(groupBoxStartupCommands);
+    auto startLayout = new QGridLayout(groupBoxStartupCommands);
     startLayout->addWidget(textEditStartupCommands, 0, 0, 1, 1);
 
-    QGridLayout *postAttachLayout = new QGridLayout(groupBoxPostAttachCommands);
+    auto postAttachLayout = new QGridLayout(groupBoxPostAttachCommands);
     postAttachLayout->addWidget(textEditPostAttachCommands, 0, 0, 1, 1);
 
-    QFormLayout *customDumperLayout = new QFormLayout(groupBoxCustomDumperCommands);
-    customDumperLayout->addRow(GdbOptionsPage::tr("Additional file:"), extraDumperFile);
-    customDumperLayout->addRow(textEditCustomDumperCommands);
+    auto customDumperLayout = new QGridLayout(groupBoxCustomDumperCommands);
+    customDumperLayout->addWidget(textEditCustomDumperCommands, 0, 0, 1, 1);
 
-    //QHBoxLayout *horizontalLayout = new QHBoxLayout();
-    //horizontalLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Preferred, QSizePolicy::Minimum));
-    //horizontalLayout->addWidget(labelSelectedPluginBreakpoints);
-    //horizontalLayout->addWidget(lineEditSelectedPluginBreakpointsPattern);
+    auto extraDumperLayout = new QGridLayout(groupBoxExtraDumperFile);
+    extraDumperLayout->addWidget(pathChooserExtraDumperFile, 0, 0, 1, 1);
 
-    QGridLayout *gridLayout = new QGridLayout(this);
-    gridLayout->addWidget(groupBoxGeneral, 0, 0, 2, 1);
-    gridLayout->addWidget(groupBoxStartupCommands, 0, 1, 1, 1);
-    gridLayout->addWidget(groupBoxPostAttachCommands, 1, 1, 1, 1);
-    gridLayout->addWidget(groupBoxCustomDumperCommands, 2, 1, 1, 1);
+    auto gridLayout = new QGridLayout(this);
+    gridLayout->addWidget(groupBoxGeneral, 0, 0, 5, 1);
+    gridLayout->addWidget(groupBoxExtraDumperFile, 5, 0, 1, 1);
 
-    //gridLayout->addWidget(groupBoxStartupCommands, 0, 1, 1, 1);
-    //gridLayout->addWidget(radioButtonAllPluginBreakpoints, 0, 0, 1, 1);
-    //gridLayout->addWidget(radioButtonSelectedPluginBreakpoints, 1, 0, 1, 1);
-
-    //gridLayout->addLayout(horizontalLayout, 2, 0, 1, 1);
-    //gridLayout->addWidget(radioButtonNoPluginBreakpoints, 3, 0, 1, 1);
-    //gridLayout->addWidget(groupBoxPluginDebugging, 1, 0, 1, 2);
+    gridLayout->addWidget(groupBoxStartupCommands, 0, 1, 2, 1);
+    gridLayout->addWidget(groupBoxPostAttachCommands, 2, 1, 2, 1);
+    gridLayout->addWidget(groupBoxCustomDumperCommands, 4, 1, 2, 1);
 
     DebuggerCore *dc = debuggerCore();
     group.insert(dc->action(GdbStartupCommands), textEditStartupCommands);
-    group.insert(dc->action(ExtraDumperFile), extraDumperFile);
+    group.insert(dc->action(ExtraDumperFile), pathChooserExtraDumperFile);
     group.insert(dc->action(ExtraDumperCommands), textEditCustomDumperCommands);
     group.insert(dc->action(GdbPostAttachCommands), textEditPostAttachCommands);
     group.insert(dc->action(LoadGdbInit), checkBoxLoadGdbInit);

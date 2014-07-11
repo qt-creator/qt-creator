@@ -57,6 +57,14 @@ void Bookmark::updateLineNumber(int line)
     }
 }
 
+void Bookmark::move(int line)
+{
+    if (line != lineNumber()) {
+        BaseTextMark::move(line);
+        m_manager->updateBookmark(this);
+    }
+}
+
 void Bookmark::updateBlock(const QTextBlock &block)
 {
     if (m_lineText != block.text()) {

@@ -1202,7 +1202,6 @@ public slots:
     bool parseArguments(const QStringList &args, QString *errorMessage);
     void parseCommandLineArguments();
 
-    DebuggerToolTipManager *toolTipManager() const { return m_toolTipManager; }
     QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const { return m_globalDebuggerOptions; }
 
     void updateQmlActions() {
@@ -2526,7 +2525,7 @@ void DebuggerPluginPrivate::sessionLoaded()
 {
     m_breakHandler->loadSessionData();
     dummyEngine()->watchHandler()->loadSessionData();
-    m_toolTipManager->loadSessionData();
+    DebuggerToolTipManager::loadSessionData();
 }
 
 void DebuggerPluginPrivate::aboutToUnloadSession()
@@ -2537,8 +2536,8 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
 void DebuggerPluginPrivate::aboutToSaveSession()
 {
     dummyEngine()->watchHandler()->saveSessionData();
-    m_toolTipManager->saveSessionData();
     m_breakHandler->saveSessionData();
+    DebuggerToolTipManager::saveSessionData();
 }
 
 void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)

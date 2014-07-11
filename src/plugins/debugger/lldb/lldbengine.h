@@ -34,6 +34,7 @@
 #include <debugger/disassembleragent.h>
 #include <debugger/memoryagent.h>
 #include <debugger/watchhandler.h>
+#include <debugger/debuggertooltipmanager.h>
 
 #include <utils/consoleprocess.h>
 
@@ -107,8 +108,8 @@ private:
     void abortDebugger();
     void resetLocation();
 
-    bool setToolTipExpression(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, const DebuggerToolTipContext &);
+    bool setToolTipExpression(TextEditor::ITextEditor *editor,
+        const DebuggerToolTipContext &);
 
     void continueInferior();
     void interruptInferior();
@@ -217,7 +218,7 @@ private:
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
     QMap<QPointer<MemoryAgent>, int> m_memoryAgents;
     QHash<int, QPointer<QObject> > m_memoryAgentTokens;
-    QScopedPointer<DebuggerToolTipContext> m_toolTipContext;
+    DebuggerToolTipContext m_toolTipContext;
 
     void showToolTip();
 

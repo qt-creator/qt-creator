@@ -198,9 +198,14 @@ QString BeautifierPlugin::format(const QString &text, const Command &command,
             return QString();
         }
 
-        if (command.pipeAddsNewline()) {
+        const bool addsNewline = command.pipeAddsNewline();
+        const bool returnsCRLF = command.returnsCRLF();
+        if (addsNewline || returnsCRLF) {
             QString formatted = QString::fromUtf8(process.readAllStandardOutput());
-            formatted.remove(QRegExp(QLatin1String("(\\r\\n|\\n)$")));
+            if (addsNewline)
+                formatted.remove(QRegExp(QLatin1String("(\\r\\n|\\n)$")));
+            if (returnsCRLF)
+                formatted.replace(QLatin1String("\r\n"), QLatin1String("\n"));
             return formatted;
         }
         return QString::fromUtf8(process.readAllStandardOutput());

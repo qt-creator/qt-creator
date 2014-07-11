@@ -1,6 +1,6 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (c) 2014 Lorenz Haas
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,49 +27,37 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_COMMAND_H
-#define BEAUTIFIER_COMMAND_H
+#ifndef PROXYCREDENTIALSDIALOG_H
+#define PROXYCREDENTIALSDIALOG_H
 
-#include <QString>
-#include <QStringList>
+#include "utils_global.h"
+#include <QDialog>
 
-namespace Beautifier {
-namespace Internal {
+QT_FORWARD_DECLARE_CLASS(QNetworkProxy)
 
-class Command
+namespace Utils {
+
+namespace Ui {
+class ProxyCredentialsDialog;
+}
+
+class QTCREATOR_UTILS_EXPORT ProxyCredentialsDialog : public QDialog
 {
+    Q_OBJECT
+
 public:
-    enum Processing {
-        FileProcessing,
-        PipeProcessing
-    };
+    explicit ProxyCredentialsDialog(const QNetworkProxy &proxy, QWidget *parent = 0);
+    ~ProxyCredentialsDialog();
 
-    Command();
-
-    QString executable() const;
-    void setExecutable(const QString &executable);
-
-    QStringList options() const;
-    void addOption(const QString &option);
-
-    Processing processing() const;
-    void setProcessing(const Processing &processing);
-
-    bool pipeAddsNewline() const;
-    void setPipeAddsNewline(bool pipeAddsNewline);
-
-    bool returnsCRLF() const;
-    void setReturnsCRLF(bool returnsCRLF);
+    QString userName() const;
+    void setUserName(const QString &username);
+    QString password() const;
+    void setPassword(const QString &passwd);
 
 private:
-    QString m_executable;
-    QStringList m_options;
-    Processing m_processing;
-    bool m_pipeAddsNewline;
-    bool m_returnsCRLF;
+    Ui::ProxyCredentialsDialog *ui;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // namespace Utils
 
-#endif // BEAUTIFIER_COMMAND_H
+#endif // PROXYCREDENTIALSDIALOG_H

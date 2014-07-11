@@ -29,8 +29,19 @@
 
 #include "textmodifier.h"
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 using namespace QmlDesigner;
 
 TextModifier::~TextModifier()
 {
+}
+
+QmlJS::Snapshot TextModifier::qmljsSnapshot()
+{
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    if (modelManager)
+        return modelManager->snapshot();
+    else
+        return QmlJS::Snapshot();
 }

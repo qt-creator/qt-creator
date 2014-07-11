@@ -27,22 +27,55 @@
 **
 ****************************************************************************/
 
-#ifndef MACFULLSCREEN_H
-#define MACFULLSCREEN_H
+#include "proxycredentialsdialog.h"
+#include "ui_proxycredentialsdialog.h"
 
-#include "mainwindow.h"
+#include <utils/networkaccessmanager.h>
+#include <QNetworkProxy>
 
-namespace Core {
-namespace Internal {
-namespace MacFullScreen {
+using namespace Utils;
 
-bool supportsFullScreen();
-// adds fullscreen button to window for lion
-void addFullScreen(Core::Internal::MainWindow *window);
-void toggleFullScreen(Core::Internal::MainWindow *window);
+/*!
+    \class Utils::ProxyCredentialsDialog
 
-} // MacFullScreen
-} // Internal
-} // Core
+    Dialog for asking the user about proxy credentials (username, password).
+*/
 
-#endif // MACFULLSCREEN_H
+ProxyCredentialsDialog::ProxyCredentialsDialog(const QNetworkProxy &proxy, QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::ProxyCredentialsDialog)
+{
+    ui->setupUi(this);
+
+    setUserName(proxy.user());
+    setPassword(proxy.password());
+
+    const QString proxyString = QString::fromLatin1("%1:%2").arg(proxy.hostName()).arg(proxy.port());
+    ui->infotext->setText(ui->infotext->text().arg(proxyString));
+}
+
+ProxyCredentialsDialog::~ProxyCredentialsDialog()
+{
+    delete ui;
+}
+
+QString ProxyCredentialsDialog::userName() const
+{
+    return ui->usernameLineEdit->text();
+}
+
+void ProxyCredentialsDialog::setUserName(const QString &username)
+{
+    ui->usernameLineEdit->setText(username);
+}
+
+QString ProxyCredentialsDialog::password() const
+{
+    return ui->passwordLineEdit->text();
+}
+
+void ProxyCredentialsDialog::setPassword(const QString &passwd)
+{
+    ui->passwordLineEdit->setText(passwd);
+}
+
