@@ -70,7 +70,6 @@ public:
     static int entryCount();
     static QList<Entry *> entries();
     static int indexOfDocument(IDocument *document);
-    static int indexOfFilePath(const QString &filePath);
     static Entry *entryForDocument(IDocument *document);
     static QList<IDocument *> openedDocuments();
 
@@ -78,7 +77,6 @@ public:
     static QList<IEditor *> editorsForFilePath(const QString &filePath);
     static QList<IEditor *> editorsForDocument(IDocument *document);
     static QList<IEditor *> editorsForDocuments(const QList<IDocument *> &entries);
-    static QList<IEditor *> oneEditorForEachOpenedDocument();
     static QList<IEditor *> editorsForOpenedDocuments();
 
     // editor manager related functions, nobody else should call it
