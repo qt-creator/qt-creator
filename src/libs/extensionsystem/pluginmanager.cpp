@@ -1382,6 +1382,12 @@ static inline QString getPlatformName()
         result += QLatin1String(" 10.") + QString::number(QSysInfo::MacintoshVersion - QSysInfo::MV_10_0);
     return result;
 #elif defined(Q_OS_UNIX)
+    QString base;
+#  ifdef Q_OS_LINUX
+    base = QLatin1String("Linux");
+#  else
+    base = QLatin1String("Unix");
+#  endif // Q_OS_LINUX
     QFile osReleaseFile(QLatin1String("/etc/os-release")); // Newer Linuxes
     if (osReleaseFile.open(QIODevice::ReadOnly)) {
         QString name;
@@ -1398,22 +1404,10 @@ static inline QString getPlatformName()
         if (!name.isEmpty()) {
             if (!version.isEmpty())
                 name += QLatin1Char(' ') + version;
-            return name;
+            return base + QLatin1String(" (") + name + QLatin1Char(')');
         }
     }
-    QFile issueFile(QLatin1String("/etc/issue")); // Older Linuxes
-    if (issueFile.open(QIODevice::ReadOnly)) {
-        QByteArray issue = issueFile.readAll();
-        const int end = issue.lastIndexOf(" \\n");
-        if (end >= 0)
-            issue.truncate(end);
-        return QString::fromLatin1(issue).trimmed();
-    }
-#  ifdef Q_OS_LINUX
-    return QLatin1String("Linux");
-#  else
-    return QLatin1String("Unix");
-#  endif // Q_OS_LINUX
+    return base;
 #elif defined(Q_OS_WIN)
     QString result = QLatin1String("Windows");
     switch (QSysInfo::WindowsVersion) {
