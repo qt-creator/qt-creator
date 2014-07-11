@@ -19,7 +19,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
-        "QmlJSTools.mimetypes.xml",
         "qmljsbundleprovider.cpp",
         "qmljsbundleprovider.h",
         "qmljscodestylepreferencesfactory.cpp",
