@@ -694,6 +694,7 @@ void BookmarkManager::edit()
     dlg.setWindowTitle(tr("Edit Bookmark"));
     auto layout = new QFormLayout(&dlg);
     auto noteEdit = new QLineEdit(b->note());
+    noteEdit->setMinimumWidth(300);
     auto lineNumberEdit = new QLineEdit(QString::number(b->lineNumber()));
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonBox, SIGNAL(accepted()), &dlg, SLOT(accept()));
