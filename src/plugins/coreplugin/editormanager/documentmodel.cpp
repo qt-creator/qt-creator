@@ -177,10 +177,7 @@ void DocumentModel::addRestoredDocument(const QString &fileName, const QString &
 
 DocumentModel::Entry *DocumentModel::firstRestoredEntry()
 {
-    for (int i = 0; i < d->m_entries.count(); ++i)
-        if (!d->m_entries.at(i)->document)
-            return d->m_entries.at(i);
-    return 0;
+    return Utils::findOrDefault(d->m_entries, [](Entry *entry) { return !entry->document; });
 }
 
 void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
@@ -220,11 +217,10 @@ int DocumentModelPrivate::indexOfFilePath(const QString &filePath) const
     if (filePath.isEmpty())
         return -1;
     const QString fixedPath = DocumentManager::fixFileName(filePath, DocumentManager::KeepLinks);
-    for (int i = 0; i < d->m_entries.count(); ++i) {
-        if (DocumentManager::fixFileName(d->m_entries.at(i)->fileName(), DocumentManager::KeepLinks) == fixedPath)
-            return i;
-    }
-    return -1;
+    return Utils::indexOf(m_entries, [&fixedPath](DocumentModel::Entry *entry) {
+        return DocumentManager::fixFileName(entry->fileName(),
+                                            DocumentManager::KeepLinks) == fixedPath;
+    });
 }
 
 void DocumentModel::removeEntry(DocumentModel::Entry *entry)
@@ -308,18 +304,15 @@ int DocumentModel::indexOfDocument(IDocument *document)
 
 int DocumentModelPrivate::indexOfDocument(IDocument *document) const
 {
-    for (int i = 0; i < m_entries.count(); ++i)
-        if (m_entries.at(i)->document == document)
-            return i;
-    return -1;
+    return Utils::indexOf(m_entries, [&document](DocumentModel::Entry *entry) {
+        return entry->document == document;
+    });
 }
 
 DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document)
 {
-    int index = indexOfDocument(document);
-    if (index < 0)
-        return 0;
-    return d->m_entries.at(index);
+    return Utils::findOrDefault(d->m_entries,
+                                [&document](Entry *entry) { return entry->document == document; });
 }
 
 QList<IDocument *> DocumentModel::openedDocuments()
@@ -329,10 +322,8 @@ QList<IDocument *> DocumentModel::openedDocuments()
 
 IDocument *DocumentModel::documentForFilePath(const QString &filePath)
 {
-    int index = d->indexOfFilePath(filePath);
-    if (index < 0)
-        return 0;
-    return d->m_entries.at(index)->document;
+    Entry *e = Utils::findOrDefault(d->m_entries, Utils::equal(&Entry::fileName, filePath));
+    return e ? e->document : 0;
 }
 
 QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath)
