@@ -226,8 +226,7 @@ void PanelsWidget::addPanelWidget(PropertiesPanel *panel, int row)
 
 ProjectWindow::ProjectWindow(QWidget *parent)
     : QWidget(parent),
-      m_currentWidget(0),
-      m_previousTargetSubIndex(-1)
+      m_currentWidget(0)
 {
     // Setup overall layout:
     QVBoxLayout *viewLayout = new QVBoxLayout(this);
@@ -386,19 +385,12 @@ void ProjectWindow::showProperties(int index, int subIndex)
     // Set up custom panels again:
     int pos = 0;
     IProjectPanelFactory *fac = 0;
-    // remember previous sub index state of target settings page
-    if (TargetSettingsPanelWidget *previousPanelWidget
-            = qobject_cast<TargetSettingsPanelWidget*>(m_currentWidget)) {
-        m_previousTargetSubIndex = previousPanelWidget->currentSubIndex();
-    }
 
     if (m_hasTarget.value(project) || project->requiresTargetPanel()) {
         if (subIndex == 0) {
             // Targets page
             removeCurrentWidget();
             TargetSettingsPanelWidget *panelWidget = new TargetSettingsPanelWidget(project);
-            if (m_previousTargetSubIndex >= 0)
-                panelWidget->setCurrentSubIndex(m_previousTargetSubIndex);
             m_currentWidget = panelWidget;
             m_centralWidget->addWidget(m_currentWidget);
             m_centralWidget->setCurrentWidget(m_currentWidget);

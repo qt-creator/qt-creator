@@ -103,6 +103,7 @@ private:
     QAction *m_lastAction;
     QAction *m_importAction;
     int m_menuTargetIndex;
+    static int s_targetSubIndex;
 };
 
 } // namespace Internal

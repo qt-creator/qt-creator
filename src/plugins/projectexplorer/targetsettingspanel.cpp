@@ -67,6 +67,8 @@ using namespace Core;
 namespace ProjectExplorer {
 namespace Internal {
 
+int TargetSettingsPanelWidget::s_targetSubIndex = -1;
+
 ///
 // TargetSettingsWidget
 ///
@@ -194,6 +196,7 @@ void TargetSettingsPanelWidget::setupUi()
     // Now set the correct target
     int index = m_targets.indexOf(m_project->activeTarget());
     m_selector->setCurrentIndex(index);
+    m_selector->setCurrentSubIndex(s_targetSubIndex);
     currentTargetChanged(index, m_selector->currentSubIndex());
 
     connect(m_selector, SIGNAL(currentChanged(int,int)),
@@ -230,6 +233,8 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
         m_centralWidget->setCurrentWidget(m_noTargetLabel);
         return;
     }
+
+    s_targetSubIndex = subIndex;
 
     Target *target = m_targets.at(targetIndex);
 

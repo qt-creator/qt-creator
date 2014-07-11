@@ -102,7 +102,6 @@ private:
     QWidget *m_currentWidget;
     QList<ProjectExplorer::Project *> m_tabIndexToProject;
     QMap<ProjectExplorer::Project *, bool> m_hasTarget;
-    int m_previousTargetSubIndex;
 };
 
 } // namespace Internal
