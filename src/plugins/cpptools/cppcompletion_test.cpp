@@ -2328,6 +2328,34 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("foo")
             << QLatin1String("Foo"));
 
+    QTest::newRow("resolving_template_argument1") << _(
+            "template <typename T>\n"
+            "struct Base { T t; };\n"
+            "struct Foo { int foo; };\n"
+            "void fun() {\n"
+            "   typedef Foo TypedefedFoo;\n"
+            "   Base<TypedefedFoo> baseFoo;\n"
+            "   @\n"
+            "}\n"
+        ) << _("baseFoo.t.") << (QStringList()
+            << QLatin1String("foo")
+            << QLatin1String("Foo"));
+
+    QTest::newRow("resolving_template_argument2") << _(
+            "namespace NS {\n"
+            "template <typename T>\n"
+            "struct Base { T t; };\n"
+            "}\n"
+            "struct Foo { int foo; };\n"
+            "void fun() {\n"
+            "   typedef Foo TypedefedFoo;\n"
+            "   NS::Base<TypedefedFoo> baseFoo;\n"
+            "   @\n"
+            "}\n"
+        ) << _("baseFoo.t.") << (QStringList()
+            << QLatin1String("foo")
+            << QLatin1String("Foo"));
+
     // this is not a valid code(is not compile) but it caused a crash
     QTest::newRow("template_specialization_and_initialization_with_pointer2") << _(
             "template <typename T1, typename T2 = int>\n"
