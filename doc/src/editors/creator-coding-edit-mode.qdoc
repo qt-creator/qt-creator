@@ -132,7 +132,7 @@
     \image qtcreator-togglebookmark.png
 
     To add a note to a bookmark, right-click the bookmark and select
-    \gui{Edit Bookmark Note}. To view the note, move the mouse pointer over the
+    \gui{Edit Bookmark}. To view the note, move the mouse pointer over the
     bookmark.
 
     To go to previous bookmark in the current session, press \key{Ctrl+,}.
