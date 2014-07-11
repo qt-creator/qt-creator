@@ -1377,10 +1377,13 @@ void PluginManagerPrivate::profilingSummary() const
 static inline QString getPlatformName()
 {
 #if defined(Q_OS_MAC)
-    QString result = QLatin1String("Mac OS");
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_0)
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_0) {
+        QString result = QLatin1String("OS X");
         result += QLatin1String(" 10.") + QString::number(QSysInfo::MacintoshVersion - QSysInfo::MV_10_0);
-    return result;
+        return result;
+    } else {
+        return QLatin1String("Mac OS");
+    }
 #elif defined(Q_OS_UNIX)
     QString base;
 #  ifdef Q_OS_LINUX
