@@ -154,6 +154,8 @@ public:
 
 public slots:
     void setDisplaySettings(const DisplaySettings &ds);
+    void saveStateRequested();
+    void restoreStateRequested();
 
 signals:
     void jumpToOriginalFileRequested(int diffFileIndex,
@@ -205,6 +207,7 @@ private:
     QColor m_fileLineForeground;
     QColor m_chunkLineForeground;
     QColor m_textForeground;
+    QByteArray m_state;
 //    MultiHighlighter *m_highlighter;
 };
 
@@ -336,6 +339,23 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
 
 //    m_highlighter = new MultiHighlighter(this, baseTextDocument()->document());
 //    baseTextDocument()->setSyntaxHighlighter(m_highlighter);
+}
+
+void SideDiffEditorWidget::saveStateRequested()
+{
+    if (!m_state.isNull())
+        return;
+
+    m_state = saveState();
+}
+
+void SideDiffEditorWidget::restoreStateRequested()
+{
+    if (m_state.isNull())
+        return;
+
+    restoreState(m_state);
+    m_state.clear();
 }
 
 void SideDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
@@ -857,6 +877,14 @@ void SideBySideDiffEditorWidget::setDiffEditorGuiController(
                    this, SLOT(clearAll(QString)));
         disconnect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
                    this, SLOT(setDiff(QList<FileData>,QString)));
+        disconnect(m_controller, SIGNAL(saveStateRequested()),
+                m_leftEditor, SLOT(saveStateRequested()));
+        disconnect(m_controller, SIGNAL(saveStateRequested()),
+                m_rightEditor, SLOT(saveStateRequested()));
+        disconnect(m_controller, SIGNAL(restoreStateRequested()),
+                m_leftEditor, SLOT(restoreStateRequested()));
+        disconnect(m_controller, SIGNAL(restoreStateRequested()),
+                m_rightEditor, SLOT(restoreStateRequested()));
 
         disconnect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
                    this, SLOT(setCurrentDiffFileIndex(int)));
@@ -872,6 +900,14 @@ void SideBySideDiffEditorWidget::setDiffEditorGuiController(
                 this, SLOT(clearAll(QString)));
         connect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
                 this, SLOT(setDiff(QList<FileData>,QString)));
+        connect(m_controller, SIGNAL(saveStateRequested()),
+                m_leftEditor, SLOT(saveStateRequested()));
+        connect(m_controller, SIGNAL(saveStateRequested()),
+                m_rightEditor, SLOT(saveStateRequested()));
+        connect(m_controller, SIGNAL(restoreStateRequested()),
+                m_leftEditor, SLOT(restoreStateRequested()));
+        connect(m_controller, SIGNAL(restoreStateRequested()),
+                m_rightEditor, SLOT(restoreStateRequested()));
 
         connect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
                 this, SLOT(setCurrentDiffFileIndex(int)));
@@ -937,11 +973,6 @@ void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
 
 void SideBySideDiffEditorWidget::showDiff()
 {
-    // TODO: remember the line number of the line in the middle
-    const int verticalValue = m_leftEditor->verticalScrollBar()->value();
-    const int leftHorizontalValue = m_leftEditor->horizontalScrollBar()->value();
-    const int rightHorizontalValue = m_rightEditor->horizontalScrollBar()->value();
-
     clear(tr("No difference"));
 
     QMap<int, QList<DiffSelection> > leftFormats;
@@ -1152,11 +1183,6 @@ void SideBySideDiffEditorWidget::showDiff()
     }
     m_foldingBlocker = false;
 */
-    m_leftEditor->verticalScrollBar()->setValue(verticalValue);
-    m_rightEditor->verticalScrollBar()->setValue(verticalValue);
-    m_leftEditor->horizontalScrollBar()->setValue(leftHorizontalValue);
-    m_rightEditor->horizontalScrollBar()->setValue(rightHorizontalValue);
-
 //    m_leftEditor->updateFoldingHighlight(QPoint(-1, -1));
 //    m_rightEditor->updateFoldingHighlight(QPoint(-1, -1));
 }

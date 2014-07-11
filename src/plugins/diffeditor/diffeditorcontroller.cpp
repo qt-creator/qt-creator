@@ -272,4 +272,14 @@ void DiffEditorController::requestChunkActions(QMenu *menu,
     emit chunkActionsRequested(menu, diffFileIndex, chunkIndex);
 }
 
+void DiffEditorController::requestSaveState()
+{
+    emit saveStateRequested();
+}
+
+void DiffEditorController::requestRestoreState()
+{
+    emit restoreStateRequested();
+}
+
 } // namespace DiffEditor

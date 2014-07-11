@@ -132,7 +132,9 @@ void SimpleDiffEditorReloader::reload()
     QList<FileData> fileDataList;
     fileDataList << fileData;
 
+    controller()->requestSaveState();
     controller()->setDiffFiles(fileDataList);
+    controller()->requestRestoreState();
 
     reloadFinished();
 }
