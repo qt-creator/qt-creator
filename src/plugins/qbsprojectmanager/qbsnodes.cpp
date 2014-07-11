@@ -35,6 +35,7 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -125,6 +126,7 @@ static bool addQbsFiles(QbsBaseProjectNode *node, const QStringList &filePaths, 
     foreach (const QString &path, filePaths) {
         qbs::ErrorInfo err = prj.addFiles(productData, groupData, QStringList() << path);
         if (err.hasError()) {
+            Core::MessageManager::write(err.toString());
             *notAdded += path;
         } else {
             allPaths += path;
@@ -144,6 +146,7 @@ static bool removeQbsFiles(QbsBaseProjectNode *node, const QStringList &filePath
     foreach (const QString &path, filePaths) {
         qbs::ErrorInfo err = prj.removeFiles(productData, groupData, QStringList() << path);
         if (err.hasError()) {
+            Core::MessageManager::write(err.toString());
             *notRemoved += path;
         } else {
             allPaths.removeOne(path);
