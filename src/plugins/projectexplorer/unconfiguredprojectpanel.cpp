@@ -48,36 +48,6 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-UnconfiguredProjectPanel::UnconfiguredProjectPanel()
-{
-}
-
-QString UnconfiguredProjectPanel::displayName() const
-{
-    return tr("Configure Project");
-}
-
-int UnconfiguredProjectPanel::priority() const
-{
-    return -10;
-}
-
-bool UnconfiguredProjectPanel::supports(Project *project)
-{
-    return project->targets().isEmpty() && !project->requiresTargetPanel();
-}
-
-PropertiesPanel *UnconfiguredProjectPanel::createPanel(Project *project)
-{
-    PropertiesPanel *panel = new PropertiesPanel;
-    panel->setDisplayName(displayName());
-    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/unconfigured.png")));
-
-    TargetSetupPageWrapper *w = new TargetSetupPageWrapper(project);
-    panel->setWidget(w);
-    return panel;
-}
-
 /////////
 /// TargetSetupPageWrapper
 ////////

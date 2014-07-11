@@ -37,31 +37,6 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-QString EditorSettingsPanelFactory::displayName() const
-{
-    return QCoreApplication::translate("EditorSettingsPanelFactory", "Editor");
-}
-
-int EditorSettingsPanelFactory::priority() const
-{
-    return 30;
-}
-
-bool EditorSettingsPanelFactory::supports(Project *project)
-{
-    Q_UNUSED(project);
-    return true;
-}
-
-PropertiesPanel *EditorSettingsPanelFactory::createPanel(Project *project)
-{
-    PropertiesPanel *panel = new PropertiesPanel;
-    panel->setDisplayName(QCoreApplication::translate("EditorSettingsPanel", "Editor"));
-    panel->setWidget(new EditorSettingsWidget(project)),
-    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/EditorSettings.png")));
-    return panel;
-}
-
 EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_project(project)
 {
     m_ui.setupUi(this);

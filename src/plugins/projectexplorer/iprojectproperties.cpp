@@ -27,44 +27,58 @@
 **
 ****************************************************************************/
 
-#ifndef UNCONFIGUREDPROJECTPANEL_H
-#define UNCONFIGUREDPROJECTPANEL_H
-
 #include "iprojectproperties.h"
 
-#include <QString>
+using namespace ProjectExplorer;
 
-QT_FORWARD_DECLARE_CLASS(QPushButton)
 
-namespace ProjectExplorer {
-class Kit;
-class TargetSetupPage;
+IProjectPanelFactory::IProjectPanelFactory()
+    : m_priority(0),
+      m_supportsFunction(&supportsAllProjects)
+{}
 
-namespace Internal {
-
-class TargetSetupPageWrapper : public QWidget
+int IProjectPanelFactory::priority() const
 {
-    Q_OBJECT
-public:
-    TargetSetupPageWrapper(Project *project);
-protected:
-    void keyReleaseEvent(QKeyEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-private slots:
-    void done();
-    void cancel();
-    void kitUpdated(ProjectExplorer::Kit *k);
-    void updateNoteText();
-    void completeChanged();
+    return m_priority;
+}
 
-private:
-    Project *m_project;
-    TargetSetupPage *m_targetSetupPage;
-    QPushButton *m_configureButton;
-    QPushButton *m_cancelButton;
-};
+void IProjectPanelFactory::setPriority(int priority)
+{
+    m_priority = priority;
+}
 
-} // namespace Internal
-} // namespace ProjectExplorer
+QString IProjectPanelFactory::displayName() const
+{
+    return m_displayName;
+}
 
-#endif // UNCONFIGUREDPROJECTPANEL_H
+void IProjectPanelFactory::setDisplayName(const QString &name)
+{
+    m_displayName = name;
+}
+
+bool IProjectPanelFactory::prioritySort(IProjectPanelFactory *a, IProjectPanelFactory *b)
+{
+    return (a->priority() == b->priority() && a < b)
+            || a->priority() < b->priority();
+}
+
+bool IProjectPanelFactory::supportsAllProjects(Project *)
+{
+    return true;
+}
+
+bool IProjectPanelFactory::supports(Project *project)
+{
+    return m_supportsFunction(project);
+}
+
+void IProjectPanelFactory::setSupportsFunction(std::function<bool (Project *)> function)
+{
+    m_supportsFunction = function;
+}
+
+PropertiesPanel *IProjectPanelFactory::createPanel(Project *project)
+{
+    return m_createPanelFunction(project);
+}

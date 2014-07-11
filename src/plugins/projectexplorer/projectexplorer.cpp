@@ -469,12 +469,43 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new BuildSettingsPanelFactory);
     addAutoReleasedObject(new RunSettingsPanelFactory);
-    addAutoReleasedObject(new EditorSettingsPanelFactory);
-    addAutoReleasedObject(new CodeStyleSettingsPanelFactory);
-    addAutoReleasedObject(new DependenciesPanelFactory);
+
+    // ProjectPanelFactories
+    auto editorSettingsPanelFactory = new IProjectPanelFactory;
+    editorSettingsPanelFactory->setPriority(30);
+    QString displayName = QCoreApplication::translate("EditorSettingsPanelFactory", "Editor");
+    editorSettingsPanelFactory->setDisplayName(displayName);
+    QIcon icon = QIcon(QLatin1String(":/projectexplorer/images/EditorSettings.png"));
+    editorSettingsPanelFactory->setSimpleCreatePanelFunction<EditorSettingsWidget>(icon);
+    addAutoReleasedObject(editorSettingsPanelFactory);
+
+    auto codeStyleSettingsPanelFactory = new IProjectPanelFactory;
+    codeStyleSettingsPanelFactory->setPriority(40);
+    displayName = QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style");
+    codeStyleSettingsPanelFactory->setDisplayName(displayName);
+    icon = QIcon(QLatin1String(":/projectexplorer/images/CodeStyleSettings.png"));
+    codeStyleSettingsPanelFactory->setSimpleCreatePanelFunction<CodeStyleSettingsWidget>(icon);
+    addAutoReleasedObject(codeStyleSettingsPanelFactory);
+
+    auto dependenciesPanelFactory = new IProjectPanelFactory;
+    dependenciesPanelFactory->setPriority(50);
+    displayName = QCoreApplication::translate("DependenciesPanelFactory", "Dependencies");
+    dependenciesPanelFactory->setDisplayName(displayName);
+    icon = QIcon(QLatin1String(":/projectexplorer/images/ProjectDependencies.png"));
+    dependenciesPanelFactory->setSimpleCreatePanelFunction<DependenciesWidget>(icon);
+    addAutoReleasedObject(dependenciesPanelFactory);
+
+    auto unconfiguredProjectPanel = new IProjectPanelFactory;
+    unconfiguredProjectPanel->setPriority(-10);
+    unconfiguredProjectPanel->setDisplayName(tr("Configure Project"));
+    unconfiguredProjectPanel->setSupportsFunction([](Project *project){
+        return project->targets().isEmpty() && !project->requiresTargetPanel();
+    });
+    icon = QIcon(QLatin1String(":/projectexplorer/images/unconfigured.png"));
+    unconfiguredProjectPanel->setSimpleCreatePanelFunction<TargetSetupPageWrapper>(icon);
+    addAutoReleasedObject(unconfiguredProjectPanel);
 
     addAutoReleasedObject(new ProcessStepFactory);
-    addAutoReleasedObject(new UnconfiguredProjectPanel);
 
     addAutoReleasedObject(new AllProjectsFind);
     addAutoReleasedObject(new CurrentProjectFind);

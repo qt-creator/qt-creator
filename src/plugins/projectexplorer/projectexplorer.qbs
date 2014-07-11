@@ -85,7 +85,7 @@ QtcPlugin {
             "ipotentialkit.cpp",
             "ipotentialkit.h",
             "iprojectmanager.h",
-            "iprojectproperties.h",
+            "iprojectproperties.cpp", "iprojectproperties.h",
             "itaskhandler.h",
             "kit.cpp", "kit.h",
             "kitchooser.cpp", "kitchooser.h",

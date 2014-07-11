@@ -70,14 +70,49 @@ class PROJECTEXPLORER_EXPORT IProjectPanelFactory : public QObject
 {
     Q_OBJECT
 public:
-    virtual bool supports(Project *project) = 0;
-    virtual PropertiesPanel *createPanel(Project *project) = 0;
+    IProjectPanelFactory();
+    // simple properties
+    QString displayName() const;
+    void setDisplayName(const QString &name);
+    int priority() const;
+    void setPriority(int priority);
 
-    virtual QString displayName() const = 0;
-    virtual int priority() const = 0;
-    static bool prioritySort(IProjectPanelFactory *a, IProjectPanelFactory *b)
-    { return (a->priority() == b->priority() && a < b)
-                || a->priority() < b->priority(); }
+    // helper to sort by priority
+    static bool prioritySort(IProjectPanelFactory *a, IProjectPanelFactory *b);
+
+    // interface for users of IProjectPanelFactory
+    bool supports(Project *project);
+    ProjectExplorer::PropertiesPanel *createPanel(ProjectExplorer::Project *project);
+
+    // interface for "implementations" of IProjectPanelFactory
+    // by default all projects are supported, only set a custom supports function
+    // if you need something different
+    void setSupportsFunction(std::function<bool (Project *)> function);
+
+    // the simpleCreatePanelFunction creates new instance of T
+    // wraps that into a PropertiesPanel
+    // sets the passed in icon on it
+    // and uses displayName() for the displayname
+    // Note: call setDisplayName before calling this
+    template<typename T>
+    void setSimpleCreatePanelFunction(const QIcon &icon)
+    {
+        m_createPanelFunction = [icon, this](Project *project) -> PropertiesPanel * {
+            PropertiesPanel *panel = new PropertiesPanel;
+            panel->setDisplayName(this->displayName());
+            panel->setWidget(new T(project)),
+            panel->setIcon(icon);
+            return panel;
+        };
+    }
+
+    static bool supportsAllProjects(Project *);
+
+private:
+    int m_priority;
+    QString m_displayName;
+    std::function<bool (Project *)> m_supportsFunction;
+    std::function<ProjectExplorer::PropertiesPanel *(Project *)> m_createPanelFunction;
 };
 
 class PROJECTEXPLORER_EXPORT ITargetPanelFactory : public QObject

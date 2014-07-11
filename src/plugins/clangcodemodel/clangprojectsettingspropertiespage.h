@@ -39,15 +39,6 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-class ClangProjectSettingsPanelFactory: public ProjectExplorer::IProjectPanelFactory
-{
-public:
-    QString displayName() const;
-    int priority() const;
-    bool supports(ProjectExplorer::Project *project);
-    ProjectExplorer::PropertiesPanel *createPanel(ProjectExplorer::Project *project);
-};
-
 class ClangProjectSettingsWidget: public QWidget
 {
     Q_OBJECT

@@ -231,34 +231,5 @@ DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent)
     layout->addSpacerItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed));
 }
 
-//
-// DependenciesPanelFactory
-//
-
-QString DependenciesPanelFactory::displayName() const
-{
-    return QCoreApplication::translate("DependenciesPanelFactory", "Dependencies");
-}
-
-int DependenciesPanelFactory::priority() const
-{
-    return 50;
-}
-
-bool DependenciesPanelFactory::supports(Project *project)
-{
-    Q_UNUSED(project);
-    return true;
-}
-
-PropertiesPanel *DependenciesPanelFactory::createPanel(Project *project)
-{
-    PropertiesPanel *panel = new PropertiesPanel;
-    panel->setWidget(new DependenciesWidget(project));
-    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/ProjectDependencies.png")));
-    panel->setDisplayName(QCoreApplication::translate("DependenciesPanel", "Dependencies"));
-    return panel;
-}
-
 } // namespace Internal
 } // namespace ProjectExplorer

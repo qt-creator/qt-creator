@@ -54,7 +54,12 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    addAutoReleasedObject(new ClangProjectSettingsPanelFactory);
+    auto panelFactory = new ProjectExplorer::IProjectPanelFactory();
+    panelFactory->setPriority(60);
+    panelFactory->setDisplayName(ClangProjectSettingsWidget::tr("Clang Settings"));
+    panelFactory->setSimpleCreatePanelFunction<ClangProjectSettingsWidget>(QIcon());
+
+    addAutoReleasedObject(panelFactory);
 
     ClangCodeModel::Internal::initializeClang();
 

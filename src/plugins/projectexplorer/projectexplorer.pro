@@ -281,7 +281,8 @@ SOURCES += projectexplorer.cpp \
     ipotentialkit.cpp \
     selectablefilesmodel.cpp \
     addnewmodel.cpp \
-    xcodebuildparser.cpp
+    xcodebuildparser.cpp \
+    iprojectproperties.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

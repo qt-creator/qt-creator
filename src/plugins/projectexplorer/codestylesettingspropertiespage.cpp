@@ -38,31 +38,6 @@ using namespace TextEditor;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-QString CodeStyleSettingsPanelFactory::displayName() const
-{
-    return QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style");
-}
-
-int CodeStyleSettingsPanelFactory::priority() const
-{
-    return 40;
-}
-
-bool CodeStyleSettingsPanelFactory::supports(Project *project)
-{
-    Q_UNUSED(project);
-    return true;
-}
-
-PropertiesPanel *CodeStyleSettingsPanelFactory::createPanel(Project *project)
-{
-    PropertiesPanel *panel = new PropertiesPanel;
-    panel->setWidget(new CodeStyleSettingsWidget(project));
-    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/CodeStyleSettings.png")));
-    panel->setDisplayName(QCoreApplication::translate("CodeStyleSettingsPanel", "Code Style"));
-    return panel;
-}
-
 CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : QWidget(), m_project(project)
 {
     m_ui.setupUi(this);

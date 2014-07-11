@@ -44,18 +44,6 @@ class Project;
 
 namespace Internal {
 
-class DependenciesPanelFactory : public IProjectPanelFactory
-{
-public:
-    DependenciesPanelFactory() {}
-
-    QString displayName() const;
-    int priority() const;
-    bool supports(Project *project);
-    PropertiesPanel *createPanel(Project *project);
-};
-
-
 //
 // DependenciesModel
 //

@@ -38,31 +38,6 @@
 using namespace ProjectExplorer;
 using namespace ClangCodeModel::Internal;
 
-QString ClangProjectSettingsPanelFactory::displayName() const
-{
-    return ClangProjectSettingsWidget::tr("Clang Settings");
-}
-
-int ClangProjectSettingsPanelFactory::priority() const
-{
-    return 60;
-}
-
-bool ClangProjectSettingsPanelFactory::supports(Project *project)
-{
-    Q_UNUSED(project);
-
-    return true;
-}
-
-PropertiesPanel *ClangProjectSettingsPanelFactory::createPanel(Project *project)
-{
-    PropertiesPanel *panel = new PropertiesPanel;
-    panel->setDisplayName(ClangProjectSettingsWidget::tr("Clang Settings"));
-    panel->setWidget(new ClangProjectSettingsWidget(project));
-    return panel;
-}
-
 ClangProjectSettingsWidget::ClangProjectSettingsWidget(Project *project)
     : m_project(project)
 {

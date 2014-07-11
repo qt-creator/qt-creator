@@ -39,17 +39,6 @@ class EditorConfiguration;
 
 namespace Internal {
 
-class CodeStyleSettingsPanelFactory : public IProjectPanelFactory
-{
-public:
-    QString displayName() const;
-    int priority() const;
-    PropertiesPanel *createPanel(Project *project);
-    bool supports(Project *project);
-};
-
-class CodeStyleSettingsWidget;
-
 class CodeStyleSettingsWidget : public QWidget
 {
     Q_OBJECT
