@@ -101,6 +101,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
     m_forceParsing(false),
+    m_parsingScheduled(false),
     m_currentBc(0)
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
@@ -358,17 +359,14 @@ void QbsProject::readQbsData()
     qbs::ProjectData data = m_rootProjectNode->qbsProjectData();
     updateCppCodeModel(data);
     updateQmlJsCodeModel(data);
-    updateApplicationTargets(data);
-    updateDeploymentInfo(project);
-
-    foreach (Target *t, targets())
-        t->updateDefaultRunConfigurations();
+    updateBuildTargetData();
 
     emit fileListChanged();
 }
 
 void QbsProject::parseCurrentBuildConfiguration(bool force)
 {
+    m_parsingScheduled = false;
     if (!m_forceParsing)
         m_forceParsing = force;
 
@@ -378,6 +376,11 @@ void QbsProject::parseCurrentBuildConfiguration(bool force)
     if (!bc)
         return;
     parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory().toString());
+}
+
+void QbsProject::updateAfterBuild()
+{
+    updateBuildTargetData();
 }
 
 void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
@@ -645,6 +648,14 @@ void QbsProject::updateDeploymentInfo(const qbs::Project &project)
         }
     }
     activeTarget()->setDeploymentData(deploymentData);
+}
+
+void QbsProject::updateBuildTargetData()
+{
+    updateApplicationTargets(m_qbsProject.projectData());
+    updateDeploymentInfo(m_qbsProject);
+    foreach (Target *t, targets())
+        t->updateDefaultRunConfigurations();
 }
 
 } // namespace Internal

@@ -514,14 +514,15 @@ void QbsProjectManagerPlugin::reparseCurrentProject()
 
 void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
 {
-    if (!project || BuildManager::isBuilding(project)) {
-        // Qbs does update the build graph during the build. So we cannot
-        // start to parse while a build is running or we will lose information.
-        // Just return since the qbsbuildstep will trigger a reparse after the build.
+    if (!project)
         return;
-    }
 
-    project->parseCurrentBuildConfiguration(true);
+    // Qbs does update the build graph during the build. So we cannot
+    // start to parse while a build is running or we will lose information.
+    if (BuildManager::isBuilding(project))
+        project->scheduleParsing();
+    else
+        project->parseCurrentBuildConfiguration(true);
 }
 
 } // namespace Internal

@@ -98,6 +98,8 @@ private:
     void setCheckTimestamps(bool ts);
     void setMaxJobs(int jobcount);
 
+    void finish();
+
     QVariantMap m_qbsConfiguration;
     qbs::BuildOptions m_qbsBuildOptions;
 

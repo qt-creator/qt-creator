@@ -94,6 +94,9 @@ public:
     bool isParsing() const;
     bool hasParseResult() const;
     void parseCurrentBuildConfiguration(bool force);
+    void scheduleParsing() { m_parsingScheduled = true; }
+    bool parsingScheduled() const { return m_parsingScheduled; }
+    void updateAfterBuild();
 
     void registerQbsProjectParser(QbsProjectParser *p);
 
@@ -136,6 +139,7 @@ private:
     void updateQmlJsCodeModel(const qbs::ProjectData &prj);
     void updateApplicationTargets(const qbs::ProjectData &projectData);
     void updateDeploymentInfo(const qbs::Project &project);
+    void updateBuildTargetData();
 
     QbsManager *const m_manager;
     const QString m_projectName;
@@ -148,6 +152,7 @@ private:
 
     QFutureInterface<bool> *m_qbsUpdateFutureInterface;
     bool m_forceParsing;
+    bool m_parsingScheduled;
 
     QFuture<void> m_codeModelFuture;
 
