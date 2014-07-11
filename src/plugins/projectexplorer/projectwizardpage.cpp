@@ -32,8 +32,13 @@
 #include "ui_projectwizardpage.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/wizard.h>
 #include <vcsbase/vcsbaseconstants.h>
 
@@ -50,13 +55,16 @@
     \sa ProjectExplorer::Internal::ProjectFileWizardExtension
 */
 
-using namespace ProjectExplorer;
-using namespace Internal;
+using namespace Core;
+
+namespace ProjectExplorer {
+namespace Internal {
 
 ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     QWizardPage(parent),
     m_ui(new Ui::WizardPage),
-    m_model(0)
+    m_model(0),
+    m_repositoryExists(false)
 {
     m_ui->setupUi(this);
     m_ui->vcsManageButton->setText(Core::ICore::msgShowOptionsDialog());
@@ -64,6 +72,9 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
             this, SLOT(slotProjectChanged(int)));
     connect(m_ui->vcsManageButton, SIGNAL(clicked()), this, SLOT(slotManageVcs()));
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Summary"));
+
+    connect(Core::VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
+            this, SLOT(initializeVersionControls()));
 }
 
 ProjectWizardPage::~ProjectWizardPage()
@@ -136,6 +147,81 @@ void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
                                   : tr("Add to &project:"));
 }
 
+void ProjectWizardPage::initializeVersionControls()
+{
+    // Figure out version control situation:
+    // 1) Directory is managed and VCS supports "Add" -> List it
+    // 2) Directory is managed and VCS does not support "Add" -> None available
+    // 3) Directory is not managed -> Offer all VCS that support "CreateRepository"
+
+    IVersionControl *currentSelection = 0;
+    int currentIdx = versionControlIndex() - 1;
+    if (currentIdx >= 0 && currentIdx <= m_activeVersionControls.size() - 1)
+        currentSelection = m_activeVersionControls.at(currentIdx);
+
+    m_activeVersionControls.clear();
+
+    QStringList versionControlChoices = QStringList(tr("<None>"));
+    if (!m_commonDirectory.isEmpty()) {
+        IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(m_commonDirectory);
+        if (managingControl) {
+            // Under VCS
+            if (managingControl->supportsOperation(IVersionControl::AddOperation)) {
+                versionControlChoices.append(managingControl->displayName());
+                m_activeVersionControls.push_back(managingControl);
+                m_repositoryExists = true;
+            }
+        } else {
+            // Create
+            foreach (IVersionControl *vc, ExtensionSystem::PluginManager::getObjects<IVersionControl>()) {
+                if (vc->supportsOperation(IVersionControl::CreateRepositoryOperation)) {
+                    versionControlChoices.append(vc->displayName());
+                    m_activeVersionControls.append(vc);
+                }
+            }
+            m_repositoryExists = false;
+        }
+    } // has a common root.
+
+    setVersionControls(versionControlChoices);
+    // Enable adding to version control by default.
+    if (m_repositoryExists && versionControlChoices.size() >= 2)
+        setVersionControlIndex(1);
+    if (!m_repositoryExists) {
+        int newIdx = m_activeVersionControls.indexOf(currentSelection) + 1;
+        setVersionControlIndex(newIdx);
+    }
+}
+
+bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QString *errorMessage)
+{
+    // Add files to  version control (Entry at 0 is 'None').
+    const int vcsIndex = versionControlIndex() - 1;
+    if (vcsIndex < 0 || vcsIndex >= m_activeVersionControls.size())
+        return true;
+    QTC_ASSERT(!m_commonDirectory.isEmpty(), return false);
+
+    IVersionControl *versionControl = m_activeVersionControls.at(vcsIndex);
+    // Create repository?
+    if (!m_repositoryExists) {
+        QTC_ASSERT(versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return false);
+        if (!versionControl->vcsCreateRepository(m_commonDirectory)) {
+            *errorMessage = tr("A version control system repository could not be created in \"%1\".").arg(m_commonDirectory);
+            return false;
+        }
+    }
+    // Add files if supported.
+    if (versionControl->supportsOperation(IVersionControl::AddOperation)) {
+        foreach (const GeneratedFile &generatedFile, files) {
+            if (!versionControl->vcsAdd(generatedFile.path())) {
+                *errorMessage = tr("Failed to add \"%1\" to the version control system.").arg(generatedFile.path());
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void ProjectWizardPage::setNoneLabel(const QString &label)
 {
     m_ui->projectComboBox->setItemText(0, label);
@@ -163,23 +249,24 @@ void ProjectWizardPage::setVersionControlIndex(int idx)
     m_ui->addToVersionControlComboBox->setCurrentIndex(idx);
 }
 
-void ProjectWizardPage::setFilesDisplay(const QString &commonPath, const QStringList &files)
+void ProjectWizardPage::setFiles(const QStringList &fileNames)
 {
+    m_commonDirectory = Utils::commonPath(fileNames);
     QString fileMessage;
     {
         QTextStream str(&fileMessage);
         str << "<qt>"
-            << (commonPath.isEmpty() ? tr("Files to be added:") : tr("Files to be added in"))
+            << (m_commonDirectory.isEmpty() ? tr("Files to be added:") : tr("Files to be added in"))
             << "<pre>";
 
         QStringList formattedFiles;
-        if (commonPath.isEmpty()) {
-            formattedFiles = files;
+        if (m_commonDirectory.isEmpty()) {
+            formattedFiles = fileNames;
         } else {
-            str << QDir::toNativeSeparators(commonPath) << ":\n\n";
-            const int prefixSize = commonPath.size() + 1;
-            foreach (const QString &f, files)
-                formattedFiles.append(f.right(f.size() - prefixSize));
+            str << QDir::toNativeSeparators(m_commonDirectory) << ":\n\n";
+            const int prefixSize = m_commonDirectory.size() + 1;
+            formattedFiles = Utils::transform(fileNames, [prefixSize](const QString &f)
+                                                         { return f.mid(prefixSize); });
         }
         // Alphabetically, and files in sub-directories first
         Utils::sort(formattedFiles, [](const QString &filePath1, const QString &filePath2) -> bool {
@@ -217,3 +304,6 @@ void ProjectWizardPage::slotManageVcs()
     Core::ICore::showOptionsDialog(VcsBase::Constants::VCS_SETTINGS_CATEGORY,
                                    VcsBase::Constants::VCS_COMMON_SETTINGS_ID);
 }
+
+} // namespace Internal
+} // namespace ProjectExplorer

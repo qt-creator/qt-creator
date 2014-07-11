@@ -254,27 +254,19 @@ public:
     ProjectWizardContext();
     void clear();
 
-    QList<IVersionControl*> versionControls;
-    QList<IVersionControl*> activeVersionControls;
     QPointer<ProjectWizardPage> page; // this is managed by the wizard!
-    bool repositoryExists; // Is VCS 'add' sufficient, or should a repository be created?
-    QString commonDirectory;
     const IWizardFactory *wizard;
 };
 
 ProjectWizardContext::ProjectWizardContext() :
     page(0),
-    repositoryExists(false),
     wizard(0)
 {
 }
 
 void ProjectWizardContext::clear()
 {
-    activeVersionControls.clear();
-    commonDirectory.clear();
     page = 0;
-    repositoryExists = false;
     wizard = 0;
 }
 
@@ -307,8 +299,8 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
     QStringList fileNames;
     foreach (const GeneratedFile &f, files)
         fileNames.push_back(f.path());
-    m_context->commonDirectory = Utils::commonPath(fileNames);
-    m_context->page->setFilesDisplay(m_context->commonDirectory, fileNames);
+    QString commonDirectory = Utils::commonPath(fileNames);
+    m_context->page->setFiles(fileNames);
 
     QStringList filePaths;
     ProjectExplorer::ProjectAction projectAction;
@@ -323,7 +315,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 
 
     Node *contextNode = extraValues.value(QLatin1String(Constants::PREFERRED_PROJECT_NODE)).value<Node *>();
-    BestNodeSelector selector(m_context->commonDirectory, filePaths);
+    BestNodeSelector selector(commonDirectory, filePaths);
     AddNewTree *tree = getChoices(filePaths, m_context->wizard->kind(), contextNode, &selector);
 
     m_context->page->setAdditionalInfo(selector.deployingProjects());
@@ -333,63 +325,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
     m_context->page->setBestNode(selector.bestChoice());
     m_context->page->setAddingSubProject(projectAction == ProjectExplorer::AddSubProject);
 
-    // Store all version controls for later use:
-    if (m_context->versionControls.isEmpty()) {
-        foreach (IVersionControl *vc, ExtensionSystem::PluginManager::getObjects<IVersionControl>()) {
-            m_context->versionControls.append(vc);
-            connect(vc, SIGNAL(configurationChanged()), this, SLOT(initializeVersionControlChoices()));
-        }
-    }
-
-    initializeVersionControlChoices();
-}
-
-void ProjectFileWizardExtension::initializeVersionControlChoices()
-{
-    if (m_context->page.isNull())
-        return;
-
-    // Figure out version control situation:
-    // 1) Directory is managed and VCS supports "Add" -> List it
-    // 2) Directory is managed and VCS does not support "Add" -> None available
-    // 3) Directory is not managed -> Offer all VCS that support "CreateRepository"
-
-    IVersionControl *currentSelection = 0;
-    int currentIdx = m_context->page->versionControlIndex() - 1;
-    if (currentIdx >= 0 && currentIdx <= m_context->activeVersionControls.size() - 1)
-        currentSelection = m_context->activeVersionControls.at(currentIdx);
-
-    m_context->activeVersionControls.clear();
-
-    QStringList versionControlChoices = QStringList(tr("<None>"));
-    if (!m_context->commonDirectory.isEmpty()) {
-        IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(m_context->commonDirectory);
-        if (managingControl) {
-            // Under VCS
-            if (managingControl->supportsOperation(IVersionControl::AddOperation)) {
-                versionControlChoices.append(managingControl->displayName());
-                m_context->activeVersionControls.push_back(managingControl);
-                m_context->repositoryExists = true;
-            }
-        } else {
-            // Create
-            foreach (IVersionControl *vc, m_context->versionControls)
-                if (vc->supportsOperation(IVersionControl::CreateRepositoryOperation)) {
-                    versionControlChoices.append(vc->displayName());
-                    m_context->activeVersionControls.append(vc);
-                }
-            m_context->repositoryExists = false;
-        }
-    } // has a common root.
-
-    m_context->page->setVersionControls(versionControlChoices);
-    // Enable adding to version control by default.
-    if (m_context->repositoryExists && versionControlChoices.size() >= 2)
-        m_context->page->setVersionControlIndex(1);
-    if (!m_context->repositoryExists) {
-        int newIdx = m_context->activeVersionControls.indexOf(currentSelection) + 1;
-        m_context->page->setVersionControlIndex(newIdx);
-    }
+    m_context->page->initializeVersionControls();
 }
 
 QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const IWizardFactory *wizard)
@@ -410,7 +346,7 @@ bool ProjectFileWizardExtension::processFiles(
 {
     if (!processProject(files, removeOpenProjectAttribute, errorMessage))
         return false;
-    if (!processVersionControl(files, errorMessage)) {
+    if (!m_context->page->runVersionControl(files, errorMessage)) {
         QString message;
         if (errorMessage) {
             message = *errorMessage;
@@ -452,34 +388,6 @@ bool ProjectFileWizardExtension::processProject(
             *errorMessage = tr("Failed to add one or more files to project\n\"%1\" (%2).").
                     arg(folder->path(), filePaths.join(QString(QLatin1Char(','))));
             return false;
-        }
-    }
-    return true;
-}
-
-bool ProjectFileWizardExtension::processVersionControl(const QList<GeneratedFile> &files, QString *errorMessage)
-{
-    // Add files to  version control (Entry at 0 is 'None').
-    const int vcsIndex = m_context->page->versionControlIndex() - 1;
-    if (vcsIndex < 0 || vcsIndex >= m_context->activeVersionControls.size())
-        return true;
-    QTC_ASSERT(!m_context->commonDirectory.isEmpty(), return false);
-    IVersionControl *versionControl = m_context->activeVersionControls.at(vcsIndex);
-    // Create repository?
-    if (!m_context->repositoryExists) {
-        QTC_ASSERT(versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return false);
-        if (!versionControl->vcsCreateRepository(m_context->commonDirectory)) {
-            *errorMessage = tr("A version control system repository could not be created in \"%1\".").arg(m_context->commonDirectory);
-            return false;
-        }
-    }
-    // Add files if supported.
-    if (versionControl->supportsOperation(IVersionControl::AddOperation)) {
-        foreach (const GeneratedFile &generatedFile, files) {
-            if (!versionControl->vcsAdd(generatedFile.path())) {
-                *errorMessage = tr("Failed to add \"%1\" to the version control system.").arg(generatedFile.path());
-                return false;
-            }
         }
     }
     return true;

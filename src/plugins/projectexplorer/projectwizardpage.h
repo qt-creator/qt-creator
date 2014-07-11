@@ -30,12 +30,16 @@
 #ifndef PROJECTWIZARDPAGE_H
 #define PROJECTWIZARDPAGE_H
 
+#include <coreplugin/generatedfile.h>
+
 #include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
 class QTreeView;
 class QModelIndex;
 QT_END_NAMESPACE
+
+namespace Core { class IVersionControl; }
 
 namespace ProjectExplorer {
 class FolderNode;
@@ -61,27 +65,36 @@ public:
     void setNoneLabel(const QString &label);
     void setAdditionalInfo(const QString &text);
 
-    void setVersionControls(const QStringList &);
 
     int versionControlIndex() const;
     void setVersionControlIndex(int);
 
     // Returns the common path
-    void setFilesDisplay(const QString &commonPath, const QStringList &files);
+    void setFiles(const QStringList &files);
 
     void setAddingSubProject(bool addingSubProject);
+
+    bool runVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage);
+
+public slots:
+    void initializeVersionControls();
 
 private slots:
     void slotProjectChanged(int);
     void slotManageVcs();
 
 private:
+    void setVersionControls(const QStringList &);
     void setProjectToolTip(const QString &);
     bool expandTree(const QModelIndex &root);
 
     Ui::WizardPage *m_ui;
     QStringList m_projectToolTips;
     AddNewModel *m_model;
+
+    QList<Core::IVersionControl*> m_activeVersionControls;
+    QString m_commonDirectory;
+    bool m_repositoryExists;
 };
 
 } // namespace Internal

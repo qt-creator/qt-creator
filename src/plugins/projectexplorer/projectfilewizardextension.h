@@ -55,12 +55,10 @@ public:
 
 public slots:
     void firstExtensionPageShown(const QList<Core::GeneratedFile> &files, const QVariantMap &extraValues);
-    void initializeVersionControlChoices();
 
 private:
     bool processProject(const QList<Core::GeneratedFile> &files,
                         bool *removeOpenProjectAttribute, QString *errorMessage);
-    bool processVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage);
 
     ProjectWizardContext *m_context;
 };
