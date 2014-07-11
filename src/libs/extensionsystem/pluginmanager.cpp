@@ -691,6 +691,13 @@ void PluginManager::formatPluginVersions(QTextStream &str)
 
 void PluginManager::startTests()
 {
+    if (PluginManager::hasError()) {
+        qWarning("Errors occurred while loading plugins, skipping test run. "
+                 "For details, start without \"-test\" option.");
+        QTimer::singleShot(1, QCoreApplication::instance(), SLOT(quit()));
+        return;
+    }
+
 #ifdef WITH_TESTS
     foreach (const PluginManagerPrivate::TestSpec &testSpec, d->testSpecs) {
         const PluginSpec * const pluginSpec = testSpec.pluginSpec;
