@@ -31,7 +31,6 @@
 
 using namespace ProjectExplorer;
 
-
 IProjectPanelFactory::IProjectPanelFactory()
     : m_priority(0),
       m_supportsFunction(&supportsAllProjects)
@@ -78,7 +77,7 @@ void IProjectPanelFactory::setSupportsFunction(std::function<bool (Project *)> f
     m_supportsFunction = function;
 }
 
-PropertiesPanel *IProjectPanelFactory::createPanel(Project *project)
+QWidget *IProjectPanelFactory::createWidget(Project *project)
 {
-    return m_createPanelFunction(project);
+    return m_createWidgetFunction(project);
 }

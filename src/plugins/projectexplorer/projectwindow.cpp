@@ -243,12 +243,10 @@ void ProjectWindow::showProperties(int index, int subIndex)
     if (fac) {
         removeCurrentWidget();
 
-        PropertiesPanel *panel = fac->createPanel(project);
-        Q_ASSERT(panel);
+        QWidget *widget = fac->createWidget(project);
+        Q_ASSERT(widget);
 
-        PanelsWidget *panelsWidget = new PanelsWidget(m_centralWidget);
-        panelsWidget->addPropertiesPanel(panel);
-        m_currentWidget = panelsWidget;
+        m_currentWidget = widget;
         m_centralWidget->addWidget(m_currentWidget);
         m_centralWidget->setCurrentWidget(m_currentWidget);
 

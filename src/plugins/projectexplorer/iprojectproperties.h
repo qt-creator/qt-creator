@@ -58,7 +58,7 @@ public:
 
     // interface for users of IProjectPanelFactory
     bool supports(Project *project);
-    ProjectExplorer::PropertiesPanel *createPanel(ProjectExplorer::Project *project);
+    QWidget *createWidget(ProjectExplorer::Project *project);
 
     // interface for "implementations" of IProjectPanelFactory
     // by default all projects are supported, only set a custom supports function
@@ -71,14 +71,16 @@ public:
     // and uses displayName() for the displayname
     // Note: call setDisplayName before calling this
     template<typename T>
-    void setSimpleCreatePanelFunction(const QIcon &icon)
+    void setSimpleCreateWidgetFunction(const QIcon &icon)
     {
-        m_createPanelFunction = [icon, this](Project *project) -> PropertiesPanel * {
+        m_createWidgetFunction = [icon, this](Project *project) -> QWidget * {
             PropertiesPanel *panel = new PropertiesPanel;
             panel->setDisplayName(this->displayName());
             panel->setWidget(new T(project)),
             panel->setIcon(icon);
-            return panel;
+            PanelsWidget *panelsWidget = new PanelsWidget();
+            panelsWidget->addPropertiesPanel(panel);
+            return panelsWidget;
         };
     }
 
@@ -88,7 +90,7 @@ private:
     int m_priority;
     QString m_displayName;
     std::function<bool (Project *)> m_supportsFunction;
-    std::function<ProjectExplorer::PropertiesPanel *(Project *)> m_createPanelFunction;
+    std::function<QWidget *(Project *)> m_createWidgetFunction;
 };
 
 class PROJECTEXPLORER_EXPORT ITargetPanelFactory : public QObject

@@ -476,7 +476,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QString displayName = QCoreApplication::translate("EditorSettingsPanelFactory", "Editor");
     editorSettingsPanelFactory->setDisplayName(displayName);
     QIcon icon = QIcon(QLatin1String(":/projectexplorer/images/EditorSettings.png"));
-    editorSettingsPanelFactory->setSimpleCreatePanelFunction<EditorSettingsWidget>(icon);
+    editorSettingsPanelFactory->setSimpleCreateWidgetFunction<EditorSettingsWidget>(icon);
     addAutoReleasedObject(editorSettingsPanelFactory);
 
     auto codeStyleSettingsPanelFactory = new IProjectPanelFactory;
@@ -484,7 +484,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     displayName = QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style");
     codeStyleSettingsPanelFactory->setDisplayName(displayName);
     icon = QIcon(QLatin1String(":/projectexplorer/images/CodeStyleSettings.png"));
-    codeStyleSettingsPanelFactory->setSimpleCreatePanelFunction<CodeStyleSettingsWidget>(icon);
+    codeStyleSettingsPanelFactory->setSimpleCreateWidgetFunction<CodeStyleSettingsWidget>(icon);
     addAutoReleasedObject(codeStyleSettingsPanelFactory);
 
     auto dependenciesPanelFactory = new IProjectPanelFactory;
@@ -492,7 +492,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     displayName = QCoreApplication::translate("DependenciesPanelFactory", "Dependencies");
     dependenciesPanelFactory->setDisplayName(displayName);
     icon = QIcon(QLatin1String(":/projectexplorer/images/ProjectDependencies.png"));
-    dependenciesPanelFactory->setSimpleCreatePanelFunction<DependenciesWidget>(icon);
+    dependenciesPanelFactory->setSimpleCreateWidgetFunction<DependenciesWidget>(icon);
     addAutoReleasedObject(dependenciesPanelFactory);
 
     auto unconfiguredProjectPanel = new IProjectPanelFactory;
@@ -502,7 +502,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         return project->targets().isEmpty() && !project->requiresTargetPanel();
     });
     icon = QIcon(QLatin1String(":/projectexplorer/images/unconfigured.png"));
-    unconfiguredProjectPanel->setSimpleCreatePanelFunction<TargetSetupPageWrapper>(icon);
+    unconfiguredProjectPanel->setSimpleCreateWidgetFunction<TargetSetupPageWrapper>(icon);
     addAutoReleasedObject(unconfiguredProjectPanel);
 
     addAutoReleasedObject(new ProcessStepFactory);
