@@ -128,7 +128,7 @@ public:
     virtual bool needsConfiguration() const;
     virtual void configureAsExampleProject(const QStringList &platforms);
 
-    virtual bool supportsNoTargetPanel() const;
+    virtual bool requiresTargetPanel() const;
     virtual ProjectImporter *createProjectImporter() const;
     virtual KitMatcher *createRequiredKitMatcher() const { return 0; }
     virtual KitMatcher *createPreferredKitMatcher() const { return 0; }

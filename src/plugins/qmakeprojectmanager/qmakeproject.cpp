@@ -1398,9 +1398,9 @@ void QmakeProject::configureAsExampleProject(const QStringList &platforms)
     ProjectExplorerPlugin::instance()->requestProjectModeUpdate(this);
 }
 
-bool QmakeProject::supportsNoTargetPanel() const
+bool QmakeProject::requiresTargetPanel() const
 {
-    return true;
+    return false;
 }
 
 // All the Qmake run configurations should share code.

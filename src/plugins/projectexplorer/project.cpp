@@ -476,9 +476,9 @@ void Project::configureAsExampleProject(const QStringList &platforms)
     Q_UNUSED(platforms);
 }
 
-bool Project::supportsNoTargetPanel() const
+bool Project::requiresTargetPanel() const
 {
-    return false;
+    return true;
 }
 
 bool Project::needsSpecialDeployment() const

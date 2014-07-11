@@ -69,7 +69,7 @@ int UnconfiguredProjectPanel::priority() const
 
 bool UnconfiguredProjectPanel::supports(Project *project)
 {
-    return project->targets().isEmpty() && project->supportsNoTargetPanel();
+    return project->targets().isEmpty() && !project->requiresTargetPanel();
 }
 
 PropertiesPanel *UnconfiguredProjectPanel::createPanel(Project *project)
