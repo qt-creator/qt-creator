@@ -139,45 +139,30 @@ const QVariantList MemoryUsageModel::getLabels() const
 const QVariantList MemoryUsageModel::getEventDetails(int index) const
 {
     Q_D(const MemoryUsageModel);
+    static QString title = QStringLiteral("title");
+
     QVariantList result;
     const MemoryUsageModelPrivate::Range *ev = &d->range(index);
 
-    {
-        QVariantMap res;
-        if (ev->delta > 0)
-            res.insert(QLatin1String("title"), QVariant(QLatin1String("Memory Allocated")));
-        else
-            res.insert(QLatin1String("title"), QVariant(QLatin1String("Memory Freed")));
+    QVariantMap res;
+    if (ev->delta > 0)
+        res.insert(title, tr("Memory Allocated"));
+    else
+        res.insert(title, tr("Memory Freed"));
+    result << res;
+    res.clear();
 
-        result << res;
-    }
+    res.insert(tr("Total"), QVariant(QString::fromLatin1("%1 bytes").arg(ev->size)));
+    result << res;
+    res.clear();
 
-    {
-        QVariantMap res;
-        res.insert(tr("Total"), QVariant(QString::fromLatin1("%1 bytes").arg(ev->size)));
-        result << res;
-    }
-
-    {
-        QVariantMap res;
-        res.insert(tr("Allocation"), QVariant(QString::fromLatin1("%1 bytes").arg(ev->delta)));
-        result << res;
-    }
-
-
-    {
-        QVariantMap res;
-        res.insert(tr("Type"), QVariant(MemoryUsageModelPrivate::memoryTypeName(ev->type)));
-        result << res;
-    }
-
+    res.insert(tr("Allocation"), QVariant(QString::fromLatin1("%1 bytes").arg(ev->delta)));
+    res.insert(tr("Type"), QVariant(MemoryUsageModelPrivate::memoryTypeName(ev->type)));
     if (ev->originTypeIndex != -1) {
-        QVariantMap valuePair;
-        valuePair.insert(tr("Location"),
+        res.insert(tr("Location"),
                 d->modelManager->qmlModel()->getEventTypes().at(ev->originTypeIndex).displayName);
-        result << valuePair;
     }
-
+    result << res;
     return result;
 }
 
