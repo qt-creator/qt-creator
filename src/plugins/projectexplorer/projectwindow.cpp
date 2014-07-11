@@ -385,7 +385,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
 
     // Set up custom panels again:
     int pos = 0;
-    IPanelFactory *fac = 0;
+    IProjectPanelFactory *fac = 0;
     // remember previous sub index state of target settings page
     if (TargetSettingsPanelWidget *previousPanelWidget
             = qobject_cast<TargetSettingsPanelWidget*>(m_currentWidget)) {
@@ -421,11 +421,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
     if (fac) {
         removeCurrentWidget();
 
-        PropertiesPanel *panel = 0;
-        if (ITargetPanelFactory *ipf = qobject_cast<ITargetPanelFactory *>(fac))
-            panel = ipf->createPanel(project->activeTarget());
-        else if (IProjectPanelFactory *ipf = qobject_cast<IProjectPanelFactory *>(fac))
-            panel = ipf->createPanel(project);
+        PropertiesPanel *panel = fac->createPanel(project);
         Q_ASSERT(panel);
 
         PanelsWidget *panelsWidget = new PanelsWidget(m_centralWidget);
