@@ -1500,6 +1500,14 @@ class Dumper(DumperBase):
         except:
             pass
 
+        # Seemingly needed with Debian's GDB 7.4.1
+        s = gdb.execute("ptype QByteArray", to_string=True)
+        ns = s[s.find("class")+6:s.find("QByteArray")]
+        if len(ns):
+            self.qtNamespaceToReport = ns
+            self.qtNamespace = lambda: ns
+            return ns
+
         self.currentQtNamespaceGuess = ""
         return ""
 
