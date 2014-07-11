@@ -84,6 +84,11 @@ public:
         };
     }
 
+    void setCreateWidgetFunction(std::function<QWidget *(Project *)> function)
+    {
+        m_createWidgetFunction = function;
+    }
+
     static bool supportsAllProjects(Project *);
 
 private:

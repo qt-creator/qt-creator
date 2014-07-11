@@ -83,6 +83,7 @@
 #include "devicesupport/desktopdevicefactory.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/devicesettingspage.h"
+#include "targetsettingspanel.h"
 
 #ifdef Q_OS_WIN
 #    include "windebuginterface.h"
@@ -504,6 +505,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     icon = QIcon(QLatin1String(":/projectexplorer/images/unconfigured.png"));
     unconfiguredProjectPanel->setSimpleCreateWidgetFunction<TargetSetupPageWrapper>(icon);
     addAutoReleasedObject(unconfiguredProjectPanel);
+
+    auto targetSettingsPanelFactory = new IProjectPanelFactory;
+    targetSettingsPanelFactory->setPriority(-10);
+    displayName = QCoreApplication::translate("TargetSettingsPanelFactory", "Build & Run");
+    targetSettingsPanelFactory->setDisplayName(displayName);
+    targetSettingsPanelFactory->setSupportsFunction([](Project *project) {
+        return !project->targets().isEmpty()
+                || project->requiresTargetPanel();
+    });
+    targetSettingsPanelFactory->setCreateWidgetFunction([](Project *project) {
+        return new TargetSettingsPanelWidget(project);
+    });
+    addAutoReleasedObject(targetSettingsPanelFactory);
 
     addAutoReleasedObject(new ProcessStepFactory);
 

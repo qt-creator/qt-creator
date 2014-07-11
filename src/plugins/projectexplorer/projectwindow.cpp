@@ -37,7 +37,6 @@
 #include "projectexplorer.h"
 #include "session.h"
 #include "iprojectproperties.h"
-#include "targetsettingspanel.h"
 #include "target.h"
 
 #include <coreplugin/idocument.h>
@@ -165,9 +164,6 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
     bool projectHasTarget = hasTarget(project);
     m_hasTarget.insert(project, projectHasTarget);
 
-    if (projectHasTarget || project->requiresTargetPanel()) // Use the Targets page
-        subtabs << QCoreApplication::translate("TargetSettingsPanelFactory", "Build & Run");
-
     // Add the project specific pages
     QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
     Utils::sort(factories, &IProjectPanelFactory::prioritySort);
@@ -215,18 +211,6 @@ void ProjectWindow::showProperties(int index, int subIndex)
     // Set up custom panels again:
     int pos = 0;
     IProjectPanelFactory *fac = 0;
-
-    if (m_hasTarget.value(project) || project->requiresTargetPanel()) {
-        if (subIndex == 0) {
-            // Targets page
-            removeCurrentWidget();
-            TargetSettingsPanelWidget *panelWidget = new TargetSettingsPanelWidget(project);
-            m_currentWidget = panelWidget;
-            m_centralWidget->addWidget(m_currentWidget);
-            m_centralWidget->setCurrentWidget(m_currentWidget);
-        }
-        ++pos;
-    }
 
     QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
     Utils::sort(factories, &IProjectPanelFactory::prioritySort);
