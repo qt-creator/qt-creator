@@ -37,8 +37,15 @@ public:
     struct MemoryAllocation {
         QmlDebug::MemoryType type;
         qint64 size;
-        qint64 delta;
+        qint64 allocated;
+        qint64 deallocated;
+        int allocations;
+        int deallocations;
         int originTypeIndex;
+
+        MemoryAllocation(QmlDebug::MemoryType type = QmlDebug::MaximumMemoryType,
+                         qint64 baseAmount = 0, int originTypeIndex = -1);
+        void update(qint64 amount);
     };
 
     MemoryUsageModel(QObject *parent = 0);
