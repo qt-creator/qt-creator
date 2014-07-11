@@ -336,7 +336,7 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
     bool projectHasTarget = hasTarget(project);
     m_hasTarget.insert(project, projectHasTarget);
 
-    if (projectHasTarget) // Use the Targets page
+    if (projectHasTarget || project->requiresTargetPanel()) // Use the Targets page
         subtabs << QCoreApplication::translate("TargetSettingsPanelFactory", "Build & Run");
 
     // Add the project specific pages
