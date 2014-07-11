@@ -258,9 +258,6 @@ const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; 
 const char SHOW_FILE_FILTER_SETTING[] = "GenericProject/ShowFileFilter";
 const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
 
-// Unconfigured Panel
-const char UNCONFIGURED_PANEL_PAGE_ID[] = "UnconfiguredPanel";
-
 } // namespace Constants
 
 // Run modes

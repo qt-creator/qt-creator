@@ -235,11 +235,6 @@ DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent)
 // DependenciesPanelFactory
 //
 
-QString DependenciesPanelFactory::id() const
-{
-    return QLatin1String("ProjectExplorer.DependenciesPanel");
-}
-
 QString DependenciesPanelFactory::displayName() const
 {
     return QCoreApplication::translate("DependenciesPanelFactory", "Dependencies");

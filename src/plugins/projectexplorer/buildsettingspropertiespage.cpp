@@ -62,16 +62,6 @@ QString BuildSettingsPanelFactory::id() const
     return QLatin1String(BUILDSETTINGS_PANEL_ID);
 }
 
-QString BuildSettingsPanelFactory::displayName() const
-{
-    return QCoreApplication::translate("BuildSettingsPanelFactory", "Build Settings");
-}
-
-int BuildSettingsPanelFactory::priority() const
-{
-    return 10;
-}
-
 bool BuildSettingsPanelFactory::supports(Target *target)
 {
     return IBuildConfigurationFactory::find(target);

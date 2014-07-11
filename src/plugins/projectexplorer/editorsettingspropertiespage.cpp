@@ -37,11 +37,6 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-QString EditorSettingsPanelFactory::id() const
-{
-    return QLatin1String(EDITORSETTINGS_PANEL_ID);
-}
-
 QString EditorSettingsPanelFactory::displayName() const
 {
     return QCoreApplication::translate("EditorSettingsPanelFactory", "Editor");

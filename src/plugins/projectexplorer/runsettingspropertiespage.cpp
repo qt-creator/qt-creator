@@ -91,16 +91,6 @@ QString RunSettingsPanelFactory::id() const
     return QLatin1String(RUNSETTINGS_PANEL_ID);
 }
 
-QString RunSettingsPanelFactory::displayName() const
-{
-    return RunSettingsWidget::tr("Run Settings");
-}
-
-int RunSettingsPanelFactory::priority() const
-{
-    return 20;
-}
-
 bool RunSettingsPanelFactory::supports(Target *target)
 {
     Q_UNUSED(target);

@@ -39,12 +39,9 @@ class EditorConfiguration;
 
 namespace Internal {
 
-const char EDITORSETTINGS_PANEL_ID[] = "ProjectExplorer.EditorSettingsPanel";
-
 class EditorSettingsPanelFactory : public IProjectPanelFactory
 {
 public:
-    QString id() const;
     QString displayName() const;
     int priority() const;
     PropertiesPanel *createPanel(Project *project);

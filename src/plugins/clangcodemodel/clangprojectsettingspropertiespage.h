@@ -42,7 +42,6 @@ namespace Internal {
 class ClangProjectSettingsPanelFactory: public ProjectExplorer::IProjectPanelFactory
 {
 public:
-    QString id() const;
     QString displayName() const;
     int priority() const;
     bool supports(ProjectExplorer::Project *project);

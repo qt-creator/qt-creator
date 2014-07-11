@@ -340,7 +340,7 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
 
     // Add the project specific pages
     QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
-    Utils::sort(factories, &IPanelFactory::prioritySort);
+    Utils::sort(factories, &IProjectPanelFactory::prioritySort);
     foreach (IProjectPanelFactory *panelFactory, factories) {
         if (panelFactory->supports(project))
             subtabs << panelFactory->displayName();
@@ -399,7 +399,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
     }
 
     QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
-    Utils::sort(factories, &IPanelFactory::prioritySort);
+    Utils::sort(factories, &IProjectPanelFactory::prioritySort);
     foreach (IProjectPanelFactory *panelFactory, factories) {
         if (panelFactory->supports(project)) {
             if (subIndex == pos) {

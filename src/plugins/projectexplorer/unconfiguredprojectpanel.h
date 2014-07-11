@@ -47,7 +47,6 @@ class UnconfiguredProjectPanel : public IProjectPanelFactory
     Q_OBJECT
 public:
     UnconfiguredProjectPanel();
-    virtual QString id() const;
     virtual QString displayName() const;
     int priority() const;
     virtual bool supports(Project *project);

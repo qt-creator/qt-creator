@@ -49,7 +49,6 @@ class DependenciesPanelFactory : public IProjectPanelFactory
 public:
     DependenciesPanelFactory() {}
 
-    QString id() const;
     QString displayName() const;
     int priority() const;
     bool supports(Project *project);

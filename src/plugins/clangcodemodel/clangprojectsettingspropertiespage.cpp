@@ -38,14 +38,6 @@
 using namespace ProjectExplorer;
 using namespace ClangCodeModel::Internal;
 
-static const char CLANGPROJECTSETTINGS_PANEL_ID[] = "ClangCodeModel.ProjectPanel";
-
-
-QString ClangProjectSettingsPanelFactory::id() const
-{
-    return QLatin1String(CLANGPROJECTSETTINGS_PANEL_ID);
-}
-
 QString ClangProjectSettingsPanelFactory::displayName() const
 {
     return ClangProjectSettingsWidget::tr("Clang Settings");

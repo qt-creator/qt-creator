@@ -52,11 +52,6 @@ UnconfiguredProjectPanel::UnconfiguredProjectPanel()
 {
 }
 
-QString UnconfiguredProjectPanel::id() const
-{
-    return QLatin1String(Constants::UNCONFIGURED_PANEL_PAGE_ID);
-}
-
 QString UnconfiguredProjectPanel::displayName() const
 {
     return tr("Configure Project");

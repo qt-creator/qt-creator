@@ -66,32 +66,28 @@ private:
     QIcon m_icon;
 };
 
-class PROJECTEXPLORER_EXPORT IPanelFactory : public QObject
-{
-    Q_OBJECT
-public:
-    virtual QString id() const = 0;
-    virtual QString displayName() const = 0;
-    virtual int priority() const = 0;
-    static bool prioritySort(IPanelFactory *a, IPanelFactory *b)
-    { return (a->priority() == b->priority() && a->id() < b->id())
-                || a->priority() < b->priority(); }
-};
-
-class PROJECTEXPLORER_EXPORT IProjectPanelFactory : public IPanelFactory
+class PROJECTEXPLORER_EXPORT IProjectPanelFactory : public QObject
 {
     Q_OBJECT
 public:
     virtual bool supports(Project *project) = 0;
     virtual PropertiesPanel *createPanel(Project *project) = 0;
+
+    virtual QString displayName() const = 0;
+    virtual int priority() const = 0;
+    static bool prioritySort(IProjectPanelFactory *a, IProjectPanelFactory *b)
+    { return (a->priority() == b->priority() && a < b)
+                || a->priority() < b->priority(); }
 };
 
-class PROJECTEXPLORER_EXPORT ITargetPanelFactory : public IPanelFactory
+class PROJECTEXPLORER_EXPORT ITargetPanelFactory : public QObject
 {
     Q_OBJECT
 public:
     virtual bool supports(Target *target) = 0;
     virtual PropertiesPanel *createPanel(Target *target) = 0;
+
+    virtual QString id() const = 0;
 };
 
 } // namespace ProjectExplorer

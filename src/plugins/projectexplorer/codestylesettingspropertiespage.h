@@ -39,12 +39,9 @@ class EditorConfiguration;
 
 namespace Internal {
 
-const char CODESTYLESETTINGS_PANEL_ID[] = "ProjectExplorer.CodeStyleSettingsPanel";
-
 class CodeStyleSettingsPanelFactory : public IProjectPanelFactory
 {
 public:
-    QString id() const;
     QString displayName() const;
     int priority() const;
     PropertiesPanel *createPanel(Project *project);

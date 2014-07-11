@@ -38,11 +38,6 @@ using namespace TextEditor;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-QString CodeStyleSettingsPanelFactory::id() const
-{
-    return QLatin1String(CODESTYLESETTINGS_PANEL_ID);
-}
-
 QString CodeStyleSettingsPanelFactory::displayName() const
 {
     return QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style");
