@@ -1619,9 +1619,13 @@ void GitPlugin::testCloneWizard_directoryFromRepository_data()
     QTest::addColumn<QString>("localDirectory");
 
     QTest::newRow("http") << "http://host/qt/qt.git" << "qt";
-    QTest::newRow("user@host") << "user@host:qt/qt.git" << "qt";
-    QTest::newRow("local repo") << "/home/user/qt-creator.git" << "home-user-qt-creator";
+    QTest::newRow("without slash") << "user@host:qt.git" << "qt";
+    QTest::newRow("mainline.git") << "git://gitorious.org/gitorious/mainline.git" << "gitorious";
+    QTest::newRow("local repo (Unix)") << "/home/user/qt-creator.git" << "qt-creator";
+    QTest::newRow("local repo (Windows)") << "c:\\repos\\qt-creator.git" << "qt-creator";
     QTest::newRow("ssh with port") << "ssh://host:29418/qt/qt.git" << "qt";
+    QTest::newRow("invalid chars removed") << "ssh://host/in%va$lid.git" << "in-va-lid";
+    QTest::newRow("leading dashs removed") << "https://gerrit.local/--leadingDash" << "leadingDash";
 }
 #endif
 

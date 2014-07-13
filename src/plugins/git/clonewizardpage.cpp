@@ -44,14 +44,12 @@ struct CloneWizardPagePrivate {
 
     const QString mainLinePostfix;
     const QString gitPostFix;
-    const QString protocolDelimiter;
     QCheckBox *recursiveCheckBox;
 };
 
 CloneWizardPagePrivate::CloneWizardPagePrivate() :
     mainLinePostfix(QLatin1String("/mainline.git")),
     gitPostFix(QLatin1String(".git")),
-    protocolDelimiter(QLatin1String("://")),
     recursiveCheckBox(0)
 {
 }
@@ -83,33 +81,21 @@ CloneWizardPage::~CloneWizardPage()
 
 QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
 {
-    /* Try to figure out a good directory name from something like:
-     * 'user@host:qt/qt.git', 'http://host/qt/qt.git' 'local repo'
-     * ------> 'qt' .  */
     const QChar slash = QLatin1Char('/');
     QString url = urlIn.trimmed().replace(QLatin1Char('\\'), slash);
 
-    // remove host
-    const int protocolDelimiterPos = url.indexOf(d->protocolDelimiter); // "://"
-    const int startRepoSearchPos = protocolDelimiterPos == -1 ? 0 : protocolDelimiterPos + d->protocolDelimiter.size();
-    int repoPos = url.indexOf(QLatin1Char(':'), startRepoSearchPos);
-    if (repoPos == -1)
-        repoPos = url.indexOf(slash, startRepoSearchPos);
-    if (repoPos != -1)
-        url.remove(0, repoPos + 1);
     // Remove postfixes
-    if (url.endsWith(d->mainLinePostfix)) {
+    if (url.endsWith(d->mainLinePostfix))
         url.truncate(url.size() - d->mainLinePostfix.size());
-    } else {
-        if (url.endsWith(d->gitPostFix))
-            url.truncate(url.size() - d->gitPostFix.size());
-    }
-    // Check for equal parts, something like "qt/qt" -> "qt"
-    const int slashPos = url.indexOf(slash);
-    if (slashPos != -1 && slashPos == (url.size() - 1) / 2) {
-        if (url.leftRef(slashPos) == url.rightRef(slashPos))
-            url.truncate(slashPos);
-    }
+    else if (url.endsWith(d->gitPostFix))
+        url.truncate(url.size() - d->gitPostFix.size());
+
+    // extract repository name (last part of path)
+    int startOfRepoName = url.lastIndexOf(slash);
+    if (startOfRepoName == -1)
+        startOfRepoName = url.lastIndexOf(QLatin1Char(':'));
+    url.remove(0, startOfRepoName);
+
     // fix invalid characters
     const QChar dash = QLatin1Char('-');
     url.replace(QRegExp(QLatin1String("[^0-9a-zA-Z_.-]")), dash);
@@ -163,7 +149,6 @@ void Git::CloneWizardPage::testDirectoryFromRepository()
     QFETCH(QString, repository);
     QFETCH(QString, localDirectory);
 
-    QEXPECT_FAIL("ssh with port", "QTCREATORBUG-12651", Abort);
     QCOMPARE(directoryFromRepository(repository), localDirectory);
 }
 #endif
