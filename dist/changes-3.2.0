@@ -193,6 +193,11 @@ FakeVim
    * Improved sharing of navigation data between editors of the
      same document
 
+Beautifier
+   * Added support for formatting a file asynchronously
+   * Added support for redirecting text to a formatter tool
+     instead of using temporary files
+
 Platform Specific
 
 Windows
