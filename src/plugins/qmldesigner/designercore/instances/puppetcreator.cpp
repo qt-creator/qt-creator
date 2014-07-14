@@ -78,6 +78,31 @@ QDateTime PuppetCreator::qtLastModified() const
     return QDateTime();
 }
 
+QDateTime PuppetCreator::puppetSourceLastModified() const
+{
+    QString basePuppetSourcePath = puppetSourceDirectoryPath();
+    QStringList sourceDirectoryPathes;
+    QDateTime lastModified;
+
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/commands"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/container"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/instances"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/interfaces"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/types"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qmlpuppet"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qmlpuppet/instances"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qml2puppet"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qml2puppet/instances"));
+
+    foreach (const QString directoryPath, sourceDirectoryPathes) {
+        QDateTime directoryPathLastModified = QFileInfo(directoryPath).lastModified();
+        if (lastModified < directoryPathLastModified)
+            lastModified = directoryPathLastModified;
+    }
+
+    return lastModified;
+}
+
 PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion)
     : m_qtCreatorVersion(qtCreatorVersion),
       m_kit(kit),
@@ -379,8 +404,13 @@ QString PuppetCreator::qmlpuppetProjectFile()
 bool PuppetCreator::checkPuppetIsReady(const QString &puppetPath) const
 {
     QFileInfo puppetFileInfo(puppetPath);
+    if (puppetFileInfo.exists()) {
+        QDateTime puppetExecutableLastModified = puppetFileInfo.lastModified();
 
-    return puppetFileInfo.exists() && puppetFileInfo.lastModified() > qtLastModified();
+        return puppetExecutableLastModified > qtLastModified() && puppetExecutableLastModified > puppetSourceLastModified();
+    }
+
+    return false;
 }
 
 bool PuppetCreator::checkQml2puppetIsReady() const

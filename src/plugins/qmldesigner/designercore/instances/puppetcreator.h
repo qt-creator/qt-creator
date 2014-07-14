@@ -107,6 +107,7 @@ protected:
 
     QByteArray qtHash() const;
     QDateTime qtLastModified() const;
+    QDateTime puppetSourceLastModified() const;
 
 private:
     QString m_qtCreatorVersion;
