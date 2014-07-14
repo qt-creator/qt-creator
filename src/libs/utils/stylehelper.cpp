@@ -35,6 +35,7 @@
 #include <QPainter>
 #include <QApplication>
 #include <QFileInfo>
+#include <QCommonStyle>
 #include <QStyleOption>
 #include <qmath.h>
 
@@ -274,74 +275,49 @@ static void menuGradientHelper(QPainter *p, const QRect &spanRect, const QRect &
 
 void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option)
 {
-    // From windowsstyle but modified to enable AA
     if (option->rect.width() <= 1 || option->rect.height() <= 1)
         return;
 
+    const qreal devicePixelRatio = painter->device()->devicePixelRatio();
     QRect r = option->rect;
     int size = qMin(r.height(), r.width());
     QPixmap pixmap;
     QString pixmapName;
-    pixmapName.sprintf("arrow-%s-%d-%d-%d-%lld",
+    pixmapName.sprintf("arrow-%s-%d-%d-%d-%lld-%f",
                        "$qt_ia",
                        uint(option->state), element,
-                       size, option->palette.cacheKey());
+                       size, option->palette.cacheKey(),
+                       devicePixelRatio);
     if (!QPixmapCache::find(pixmapName, pixmap)) {
-        int border = size/5;
-        int sqsize = 2*(size/2);
-        QImage image(sqsize, sqsize, QImage::Format_ARGB32);
+        const QCommonStyle* const style = qobject_cast<QCommonStyle*>(QApplication::style());
+        if (!style)
+            return;
+
+        QImage image(size * devicePixelRatio, size * devicePixelRatio, QImage::Format_ARGB32_Premultiplied);
         image.fill(Qt::transparent);
-        QPainter imagePainter(&image);
-        imagePainter.setRenderHint(QPainter::Antialiasing, true);
-        imagePainter.translate(0.5, 0.5);
-        QPolygon a;
-        switch (element) {
-            case QStyle::PE_IndicatorArrowUp:
-                a.setPoints(3, border, sqsize/2,  sqsize/2, border,  sqsize - border, sqsize/2);
-                break;
-            case QStyle::PE_IndicatorArrowDown:
-                a.setPoints(3, border, sqsize/2,  sqsize/2, sqsize - border,  sqsize - border, sqsize/2);
-                break;
-            case QStyle::PE_IndicatorArrowRight:
-                a.setPoints(3, sqsize - border, sqsize/2,  sqsize/2, border,  sqsize/2, sqsize - border);
-                break;
-            case QStyle::PE_IndicatorArrowLeft:
-                a.setPoints(3, border, sqsize/2,  sqsize/2, border,  sqsize/2, sqsize - border);
-                break;
-            default:
-                break;
-        }
+        QPainter painter(&image);
 
-        int bsx = 0;
-        int bsy = 0;
-
-        if (option->state & QStyle::State_Sunken) {
-            bsx = qApp->style()->pixelMetric(QStyle::PM_ButtonShiftHorizontal);
-            bsy = qApp->style()->pixelMetric(QStyle::PM_ButtonShiftVertical);
-        }
-
-        QRect bounds = a.boundingRect();
-        int sx = sqsize / 2 - bounds.center().x() - 1;
-        int sy = sqsize / 2 - bounds.center().y() - 1;
-        imagePainter.translate(sx + bsx, sy + bsy);
+        QStyleOption tweakedOption(*option);
+        tweakedOption.state = QStyle::State_Enabled;
 
         if (!(option->state & QStyle::State_Enabled)) {
-            imagePainter.setBrush(option->palette.mid().color());
-            imagePainter.setPen(option->palette.mid().color());
+            tweakedOption.palette.setColor(QPalette::ButtonText, option->palette.mid().color());
+            tweakedOption.rect = image.rect();
+            style->QCommonStyle::drawPrimitive(element, &tweakedOption, &painter);
         } else {
-            QColor shadow(0, 0, 0, 100);
-            imagePainter.translate(0, 1);
-            imagePainter.setPen(shadow);
-            imagePainter.setBrush(shadow);
-            QColor foreGround(255, 255, 255, 210);
-            imagePainter.drawPolygon(a);
-            imagePainter.translate(0, -1);
-            imagePainter.setPen(foreGround);
-            imagePainter.setBrush(foreGround);
+            tweakedOption.palette.setColor(QPalette::ButtonText, Qt::black);
+            painter.setOpacity(0.2);
+            tweakedOption.rect = image.rect().adjusted(0, devicePixelRatio, 0, devicePixelRatio);
+            style->QCommonStyle::drawPrimitive(element, &tweakedOption, &painter);
+
+            tweakedOption.palette.setColor(QPalette::ButtonText, QColor(220, 220, 220));
+            painter.setOpacity(1);
+            tweakedOption.rect = image.rect();
+            style->QCommonStyle::drawPrimitive(element, &tweakedOption, &painter);
         }
-        imagePainter.drawPolygon(a);
-        imagePainter.end();
+        painter.end();
         pixmap = QPixmap::fromImage(image);
+        pixmap.setDevicePixelRatio(devicePixelRatio);
         QPixmapCache::insert(pixmapName, pixmap);
     }
     int xOffset = r.x() + (r.width() - size)/2;
