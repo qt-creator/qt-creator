@@ -42,6 +42,10 @@ public:
             *ret = QLatin1String("hi");
             return true;
         }
+        if (name == QLatin1String("foo")) {
+            *ret = QLatin1String("a");
+            return true;
+        }
         return false;
     }
 };
@@ -102,11 +106,17 @@ void tst_StringUtils::testMacroExpander_data()
     } vals[] = {
         { "text", "text" },
         { "%{a}", "hi" },
+        { "%%{a}", "%hi" },
+        { "%%%{a}", "%%hi" },
+        { "%{b}", "%{b}" },
         { "pre%{a}", "prehi" },
         { "%{a}post", "hipost" },
         { "pre%{a}post", "prehipost" },
         { "%{a}%{a}", "hihi" },
         { "%{a}text%{a}", "hitexthi" },
+        { "%{foo}%{a}text%{a}", "ahitexthi" },
+        { "%{}{a}", "%{a}" },
+        { "%{abc", "%{abc" }
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)

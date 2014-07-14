@@ -126,6 +126,11 @@ int AbstractMacroExpander::findMacro(const QString &str, int *pos, QString *ret)
         if (closePos < 0)
             return 0;
         int varLen = closePos - varPos;
+        if (varLen == 0) { // replace "%{}" with "%"
+            *pos = openPos;
+            *ret = QString(QLatin1Char('%'));
+            return 3;
+        }
         if (resolveMacro(str.mid(varPos, varLen), ret)) {
             *pos = openPos;
             return varLen + 3;
