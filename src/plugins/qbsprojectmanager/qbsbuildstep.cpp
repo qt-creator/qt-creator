@@ -67,7 +67,7 @@ namespace Internal {
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
     ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_BUILDSTEP_ID)),
-    m_job(0), m_parser(0)
+    m_job(0), m_parser(0), m_parsingProject(false)
 {
     setDisplayName(tr("Qbs Build"));
     setQbsConfiguration(QVariantMap());
@@ -76,7 +76,7 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other) :
     ProjectExplorer::BuildStep(bsl, Core::Id(Constants::QBS_BUILDSTEP_ID)),
-    m_qbsBuildOptions(other->m_qbsBuildOptions),  m_job(0), m_parser(0)
+    m_qbsBuildOptions(other->m_qbsBuildOptions),  m_job(0), m_parser(0), m_parsingProject(false)
 {
     setQbsConfiguration(other->qbsConfiguration());
 }
@@ -125,30 +125,9 @@ void QbsBuildStep::run(QFutureInterface<bool> &fi)
 {
     m_fi = &fi;
 
-    QbsProject *pro = static_cast<QbsProject *>(project());
-    qbs::BuildOptions options(m_qbsBuildOptions);
-    options.setChangedFiles(m_changedFiles);
-    options.setFilesToConsider(m_changedFiles);
-    options.setActiveFileTags(m_activeFileTags);
-
-    m_job = pro->build(options, m_products);
-
-    if (!m_job) {
-        m_fi->reportResult(false);
-        return;
-    }
-
-    m_progressBase = 0;
-
-    connect(m_job, SIGNAL(finished(bool,qbs::AbstractJob*)), this, SLOT(buildingDone(bool)));
-    connect(m_job, SIGNAL(taskStarted(QString,int,qbs::AbstractJob*)),
-            this, SLOT(handleTaskStarted(QString,int)));
-    connect(m_job, SIGNAL(taskProgress(int,qbs::AbstractJob*)),
-            this, SLOT(handleProgress(int)));
-    connect(m_job, SIGNAL(reportCommandDescription(QString,QString)),
-            this, SLOT(handleCommandDescriptionReport(QString,QString)));
-    connect(m_job, SIGNAL(reportProcessResult(qbs::ProcessResult)),
-            this, SLOT(handleProcessResultReport(qbs::ProcessResult)));
+    // We need a pre-build parsing step in order not to lose project file changes done
+    // right before building (but before the delay has elapsed).
+    parseProject();
 }
 
 ProjectExplorer::BuildStepConfigWidget *QbsBuildStep::createConfigWidget()
@@ -163,7 +142,9 @@ bool QbsBuildStep::runInGuiThread() const
 
 void QbsBuildStep::cancel()
 {
-    if (m_job)
+    if (m_parsingProject)
+        qbsProject()->cancelParsing();
+    else if (m_job)
         m_job->cancel();
 }
 
@@ -249,19 +230,24 @@ void QbsBuildStep::buildingDone(bool success)
 
     // The reparsing, if it is necessary, has to be done before finished() is emitted, as
     // otherwise a potential additional build step could conflict with the parsing step.
-    if (pro->parsingScheduled()) {
-        connect(pro, SIGNAL(projectParsingDone(bool)), this, SLOT(reparsingDone()));
-        pro->parseCurrentBuildConfiguration(true);
-    } else {
+    if (pro->parsingScheduled())
+        parseProject();
+    else
         finish();
-    }
 }
 
-void QbsBuildStep::reparsingDone()
+void QbsBuildStep::reparsingDone(bool success)
 {
-    disconnect(static_cast<QbsProject *>(project()), SIGNAL(projectParsingDone(bool)),
-               this, SLOT(reparsingDone()));
-    finish();
+    disconnect(qbsProject(), SIGNAL(projectParsingDone(bool)), this, SLOT(reparsingDone(bool)));
+    m_parsingProject = false;
+    if (m_job) { // This was a scheduled reparsing after building.
+        finish();
+    } else if (!success) {
+        m_lastWasSuccess = false;
+        finish();
+    } else {
+        build();
+    }
 }
 
 void QbsBuildStep::handleTaskStarted(const QString &desciption, int max)
@@ -375,15 +361,57 @@ void QbsBuildStep::setMaxJobs(int jobcount)
     emit qbsBuildOptionsChanged();
 }
 
+void QbsBuildStep::parseProject()
+{
+    m_parsingProject = true;
+    connect(qbsProject(), SIGNAL(projectParsingDone(bool)), SLOT(reparsingDone(bool)));
+    qbsProject()->parseCurrentBuildConfiguration(true);
+}
+
+void QbsBuildStep::build()
+{
+    qbs::BuildOptions options(m_qbsBuildOptions);
+    options.setChangedFiles(m_changedFiles);
+    options.setFilesToConsider(m_changedFiles);
+    options.setActiveFileTags(m_activeFileTags);
+
+    m_job = qbsProject()->build(options, m_products);
+
+    if (!m_job) {
+        m_fi->reportResult(false);
+        return;
+    }
+
+    m_progressBase = 0;
+
+    connect(m_job, SIGNAL(finished(bool,qbs::AbstractJob*)), this, SLOT(buildingDone(bool)));
+    connect(m_job, SIGNAL(taskStarted(QString,int,qbs::AbstractJob*)),
+            this, SLOT(handleTaskStarted(QString,int)));
+    connect(m_job, SIGNAL(taskProgress(int,qbs::AbstractJob*)),
+            this, SLOT(handleProgress(int)));
+    connect(m_job, SIGNAL(reportCommandDescription(QString,QString)),
+            this, SLOT(handleCommandDescriptionReport(QString,QString)));
+    connect(m_job, SIGNAL(reportProcessResult(qbs::ProcessResult)),
+            this, SLOT(handleProcessResultReport(qbs::ProcessResult)));
+
+}
+
 void QbsBuildStep::finish()
 {
     QTC_ASSERT(m_fi, return);
     m_fi->reportResult(m_lastWasSuccess);
     m_fi = 0; // do not delete, it is not ours
-    m_job->deleteLater();
-    m_job = 0;
+    if (m_job) {
+        m_job->deleteLater();
+        m_job = 0;
+    }
 
     emit finished();
+}
+
+QbsProject *QbsBuildStep::qbsProject() const
+{
+    return static_cast<QbsProject *>(project());
 }
 
 // --------------------------------------------------------------------

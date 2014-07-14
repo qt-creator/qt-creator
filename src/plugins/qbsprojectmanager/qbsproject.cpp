@@ -102,7 +102,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_qbsUpdateFutureInterface(0),
     m_forceParsing(false),
     m_parsingScheduled(false),
-    m_cancelingParsing(false),
+    m_cancelStatus(CancelStatusNone),
     m_currentBc(0)
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
@@ -276,9 +276,11 @@ void QbsProject::handleQbsParsingDone(bool success)
 {
     QTC_ASSERT(m_qbsProjectParser, return);
 
-    // If this parse operation was canceled, start a new one right away, ignoring the old result.
-    if (m_cancelingParsing) {
-        m_cancelingParsing = false;
+    const CancelStatus cancelStatus = m_cancelStatus;
+    m_cancelStatus = CancelStatusNone;
+
+    // Start a new one parse operation right away, ignoring the old result.
+    if (cancelStatus == CancelStatusCancelingForReparse) {
         m_qbsProjectParser->deleteLater();
         m_qbsProjectParser = 0;
         parseCurrentBuildConfiguration(m_forceParsing);
@@ -340,9 +342,10 @@ void QbsProject::startParsing()
 {
     // Qbs does update the build graph during the build. So we cannot
     // start to parse while a build is running or we will lose information.
-    // Just return since the qbsbuildstep will trigger a reparse after the build.
-    if (ProjectExplorer::BuildManager::isBuilding(this))
+    if (ProjectExplorer::BuildManager::isBuilding(this)) {
+        scheduleParsing();
         return;
+    }
 
     parseCurrentBuildConfiguration(false);
 }
@@ -381,8 +384,13 @@ void QbsProject::parseCurrentBuildConfiguration(bool force)
     m_parsingScheduled = false;
     if (!m_forceParsing)
         m_forceParsing = force;
-    if (m_cancelingParsing)
+    if (m_cancelStatus == CancelStatusCancelingForReparse)
         return;
+
+    // The CancelStatusCancelingAltoghether type can only be set by a build job, during
+    // which no other parse requests come through to this point (except by the build job itself,
+    // but of course not while canceling is in progress).
+    QTC_ASSERT(m_cancelStatus == CancelStatusNone, return);
 
     if (!activeTarget())
         return;
@@ -397,12 +405,19 @@ void QbsProject::parseCurrentBuildConfiguration(bool force)
     //       acknowledgment, it might still be doing that when the new one already reads from the
     //       same file.
     if (m_qbsProjectParser) {
-        m_cancelingParsing = true;
+        m_cancelStatus = CancelStatusCancelingForReparse;
         m_qbsProjectParser->cancel();
         return;
     }
 
     parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory().toString());
+}
+
+void QbsProject::cancelParsing()
+{
+    QTC_ASSERT(m_qbsProjectParser, return);
+    m_cancelStatus = CancelStatusCancelingAltoghether;
+    m_qbsProjectParser->cancel();
 }
 
 void QbsProject::updateAfterBuild()
