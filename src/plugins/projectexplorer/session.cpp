@@ -992,11 +992,7 @@ void SessionManager::projectDisplayNameChanged()
         if (ProjectExplorerPlugin::currentProject() == pro)
             currentNode = ProjectExplorerPlugin::instance()->currentNode();
 
-        // Fix node sorting
-        QList<ProjectNode *> nodes;
-        nodes << pro->rootProjectNode();
-        d->m_sessionNode->removeProjectNodes(nodes);
-        d->m_sessionNode->addProjectNodes(nodes);
+        d->m_sessionNode->projectDisplayNameChanged(pro->rootProjectNode());
 
         if (currentNode)
             ProjectExplorerPlugin::instance()->setCurrentNode(currentNode);

@@ -61,6 +61,7 @@ public slots:
     void projectUpdated(ProjectExplorer::Project *p);
 
 private slots:
+    void projectDisplayNameChanged(ProjectExplorer::Project *p);
     void showProperties(int index, int subIndex);
     void registerProject(ProjectExplorer::Project*);
     bool deregisterProject(ProjectExplorer::Project*);
@@ -69,7 +70,10 @@ private slots:
 
 private:
     void removeCurrentWidget();
+    static QStringList tabDisplayNamesFor(Project *project);
+    int insertPosFor(Project *project);
 
+    bool m_ignoreChange;
     DoubleTabWidget *m_tabWidget;
     QStackedWidget *m_centralWidget;
     QWidget *m_currentWidget;

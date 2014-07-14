@@ -54,6 +54,7 @@ using namespace ProjectExplorer::Internal;
 
 ProjectWindow::ProjectWindow(QWidget *parent)
     : QWidget(parent),
+      m_ignoreChange(false),
       m_currentWidget(0)
 {
     // Setup overall layout:
@@ -82,7 +83,7 @@ ProjectWindow::ProjectWindow(QWidget *parent)
             this, SLOT(startupProjectChanged(ProjectExplorer::Project*)));
 
     connect(sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
-            this, SLOT(projectUpdated(ProjectExplorer::Project*)));
+            this, SLOT(projectDisplayNameChanged(ProjectExplorer::Project*)));
 
     // Update properties to empty project for now:
     showProperties(-1, -1);
@@ -117,31 +118,63 @@ void ProjectWindow::projectUpdated(Project *p)
     m_tabWidget->setCurrentIndex(index);
 }
 
+QStringList ProjectWindow::tabDisplayNamesFor(Project *project)
+{
+    QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
+    Utils::sort(factories, &IProjectPanelFactory::prioritySort);
+    QStringList subTabs;
+    foreach (IProjectPanelFactory *panelFactory, factories) {
+        if (panelFactory->supports(project))
+            subTabs << panelFactory->displayName();
+    }
+    return subTabs;
+}
+
+int ProjectWindow::insertPosFor(Project *project)
+{
+    int newIndex = -1;
+    for (int i = 0; i <= m_tabIndexToProject.count(); ++i) {
+        if (i == m_tabIndexToProject.count() ||
+            m_tabIndexToProject.at(i)->displayName() > project->displayName()) {
+            newIndex = i;
+            break;
+        }
+    }
+    return newIndex;
+}
+
+void ProjectWindow::projectDisplayNameChanged(Project *project)
+{
+    int index = m_tabIndexToProject.indexOf(project);
+    if (index < 0)
+        return;
+
+    m_ignoreChange = true;
+    bool isCurrentIndex = m_tabWidget->currentIndex() == index;
+    int subIndex = m_tabWidget->currentSubIndex();
+    QStringList subTabs = m_tabWidget->subTabs(index);
+    m_tabIndexToProject.removeAt(index);
+    m_tabWidget->removeTab(index);
+
+    int newIndex = insertPosFor(project);
+    m_tabIndexToProject.insert(newIndex, project);
+    m_tabWidget->insertTab(newIndex, project->displayName(), project->projectFilePath().toString(), subTabs);
+
+    if (isCurrentIndex)
+        m_tabWidget->setCurrentIndex(newIndex, subIndex);
+    m_ignoreChange = false;
+}
+
 void ProjectWindow::registerProject(ProjectExplorer::Project *project)
 {
     if (!project || m_tabIndexToProject.contains(project))
         return;
 
     // find index to insert:
-    int index = -1;
-    for (int i = 0; i <= m_tabIndexToProject.count(); ++i) {
-        if (i == m_tabIndexToProject.count() ||
-            m_tabIndexToProject.at(i)->displayName() > project->displayName()) {
-            index = i;
-            break;
-        }
-    }
-
-    QStringList subtabs;
+    int index = insertPosFor(project);
 
     // Add the project specific pages
-    QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
-    Utils::sort(factories, &IProjectPanelFactory::prioritySort);
-    foreach (IProjectPanelFactory *panelFactory, factories) {
-        if (panelFactory->supports(project))
-            subtabs << panelFactory->displayName();
-    }
-
+    QStringList subtabs = tabDisplayNamesFor(project);
     m_tabIndexToProject.insert(index, project);
     m_tabWidget->insertTab(index, project->displayName(), project->projectFilePath().toString(), subtabs);
 
@@ -171,6 +204,9 @@ void ProjectWindow::startupProjectChanged(ProjectExplorer::Project *p)
 
 void ProjectWindow::showProperties(int index, int subIndex)
 {
+    if (m_ignoreChange)
+        return;
+
     if (index < 0 || index >= m_tabIndexToProject.count()) {
         removeCurrentWidget();
         return;

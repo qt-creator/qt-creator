@@ -122,6 +122,25 @@ int DoubleTabWidget::currentSubIndex() const
     return -1;
 }
 
+QStringList DoubleTabWidget::subTabs(int index) const
+{
+    if (index >= 0 && index < m_tabs.size())
+        return m_tabs.at(index).subTabs;
+    return QStringList();
+}
+
+void DoubleTabWidget::setCurrentIndex(int index, int subIndex)
+{
+    Q_ASSERT(index < m_tabs.size());
+    if (index == m_currentIndex
+        && m_tabs.at(m_currentIndex).currentSubTab == subIndex)
+        return;
+    m_currentIndex = index;
+    m_tabs[m_currentIndex].currentSubTab = subIndex;
+    emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
+    update();
+}
+
 void DoubleTabWidget::setTitle(const QString &title)
 {
     m_title = title;

@@ -301,6 +301,7 @@ public:
     bool isEnabled() const { return true; }
 
     bool showInSimpleTree() const;
+    void projectDisplayNameChanged(Node *node);
 protected:
     void addProjectNodes(const QList<ProjectNode*> &projectNodes);
     void removeProjectNodes(const QList<ProjectNode*> &projectNodes);

@@ -811,6 +811,14 @@ bool SessionNode::showInSimpleTree() const
     return true;
 }
 
+void SessionNode::projectDisplayNameChanged(Node *node)
+{
+    foreach (NodesWatcher *watcher, m_watchers)
+        emit watcher->nodeSortKeyAboutToChange(node);
+    foreach (NodesWatcher *watcher, m_watchers)
+        emit watcher->nodeSortKeyChanged();
+}
+
 QList<ProjectNode*> SessionNode::projectNodes() const
 {
     return m_projectNodes;

@@ -383,6 +383,7 @@ bool CMakeProject::parseCMakeLists()
 
     }
 
+    emit displayNameChanged();
     emit buildTargetsChanged();
     emit fileListChanged();
 
