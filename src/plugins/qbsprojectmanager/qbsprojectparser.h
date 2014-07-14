@@ -54,6 +54,7 @@ public:
     void setForced(bool);
 
     bool parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
+    void cancel();
 
     qbs::Project qbsProject() const;
     qbs::ErrorInfo error();

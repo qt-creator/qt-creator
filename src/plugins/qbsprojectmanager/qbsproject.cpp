@@ -102,6 +102,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_qbsUpdateFutureInterface(0),
     m_forceParsing(false),
     m_parsingScheduled(false),
+    m_cancelingParsing(false),
     m_currentBc(0)
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
@@ -275,12 +276,23 @@ void QbsProject::handleQbsParsingDone(bool success)
 {
     QTC_ASSERT(m_qbsProjectParser, return);
 
+    // If this parse operation was canceled, start a new one right away, ignoring the old result.
+    if (m_cancelingParsing) {
+        m_cancelingParsing = false;
+        m_qbsProjectParser->deleteLater();
+        m_qbsProjectParser = 0;
+        parseCurrentBuildConfiguration(m_forceParsing);
+        return;
+    }
+
     generateErrors(m_qbsProjectParser->error());
 
     if (success) {
         m_qbsProject = m_qbsProjectParser->qbsProject();
         QTC_CHECK(m_qbsProject.isValid());
         readQbsData();
+    } else {
+        m_qbsUpdateFutureInterface->reportCanceled();
     }
 
     m_qbsProjectParser->deleteLater();
@@ -369,12 +381,27 @@ void QbsProject::parseCurrentBuildConfiguration(bool force)
     m_parsingScheduled = false;
     if (!m_forceParsing)
         m_forceParsing = force;
+    if (m_cancelingParsing)
+        return;
 
     if (!activeTarget())
         return;
     QbsBuildConfiguration *bc = qobject_cast<QbsBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     if (!bc)
         return;
+
+    // New parse requests override old ones.
+    // NOTE: We need to wait for the current operation to finish, since otherwise there could
+    //       be a conflict. Consider the case where the old qbs::ProjectSetupJob is writing
+    //       to the build graph file when the cancel request comes in. If we don't wait for
+    //       acknowledgment, it might still be doing that when the new one already reads from the
+    //       same file.
+    if (m_qbsProjectParser) {
+        m_cancelingParsing = true;
+        m_qbsProjectParser->cancel();
+        return;
+    }
+
     parse(bc->qbsConfiguration(), bc->environment(), bc->buildDirectory().toString());
 }
 

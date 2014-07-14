@@ -136,6 +136,12 @@ bool QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     return true;
 }
 
+void QbsProjectParser::cancel()
+{
+    QTC_ASSERT(m_qbsSetupProjectJob, return);
+    m_qbsSetupProjectJob->cancel();
+}
+
 qbs::Project QbsProjectParser::qbsProject() const
 {
     return m_project;
@@ -153,8 +159,8 @@ void QbsProjectParser::handleQbsParsingDone(bool success)
     m_project = m_qbsSetupProjectJob->project();
     m_error = m_qbsSetupProjectJob->error();
 
-    if (!success)
-        m_fi->reportCanceled();
+    // Do not report the operation as canceled here, as we might want to make overlapping
+    // parses appear atomic to the user.
 
     emit done(success);
 }

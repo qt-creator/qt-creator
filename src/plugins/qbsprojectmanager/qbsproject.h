@@ -153,6 +153,7 @@ private:
     QFutureInterface<bool> *m_qbsUpdateFutureInterface;
     bool m_forceParsing;
     bool m_parsingScheduled;
+    bool m_cancelingParsing;
 
     QFuture<void> m_codeModelFuture;
 
