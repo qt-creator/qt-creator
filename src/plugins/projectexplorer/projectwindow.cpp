@@ -120,10 +120,8 @@ void ProjectWindow::projectUpdated(Project *p)
 
 QStringList ProjectWindow::tabDisplayNamesFor(Project *project)
 {
-    QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
-    Utils::sort(factories, &IProjectPanelFactory::prioritySort);
     QStringList subTabs;
-    foreach (IProjectPanelFactory *panelFactory, factories) {
+    foreach (IProjectPanelFactory *panelFactory, IProjectPanelFactory::factories()) {
         if (panelFactory->supports(project))
             subTabs << panelFactory->displayName();
     }
@@ -218,9 +216,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
     int pos = 0;
     IProjectPanelFactory *fac = 0;
 
-    QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
-    Utils::sort(factories, &IProjectPanelFactory::prioritySort);
-    foreach (IProjectPanelFactory *panelFactory, factories) {
+    foreach (IProjectPanelFactory *panelFactory, IProjectPanelFactory::factories()) {
         if (panelFactory->supports(project)) {
             if (subIndex == pos) {
                 fac = panelFactory;

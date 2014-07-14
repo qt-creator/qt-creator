@@ -31,6 +31,8 @@
 
 using namespace ProjectExplorer;
 
+QList<IProjectPanelFactory *> IProjectPanelFactory::s_factories;
+
 IProjectPanelFactory::IProjectPanelFactory()
     : m_priority(0),
       m_supportsFunction(&supportsAllProjects)
@@ -65,6 +67,17 @@ bool IProjectPanelFactory::prioritySort(IProjectPanelFactory *a, IProjectPanelFa
 bool IProjectPanelFactory::supportsAllProjects(Project *)
 {
     return true;
+}
+
+void IProjectPanelFactory::registerFactory(IProjectPanelFactory *factory)
+{
+    auto it = std::lower_bound(s_factories.begin(), s_factories.end(), factory, &IProjectPanelFactory::prioritySort);
+    s_factories.insert(it, factory);
+}
+
+QList<IProjectPanelFactory *> IProjectPanelFactory::factories()
+{
+    return s_factories;
 }
 
 bool IProjectPanelFactory::supports(Project *project)

@@ -34,7 +34,6 @@
 #include "propertiespanel.h"
 #include "panelswidget.h"
 
-#include <QObject>
 #include <QIcon>
 #include <QWidget>
 
@@ -44,9 +43,8 @@ namespace ProjectExplorer {
 class Project;
 class Target;
 
-class PROJECTEXPLORER_EXPORT IProjectPanelFactory : public QObject
+class PROJECTEXPLORER_EXPORT IProjectPanelFactory
 {
-    Q_OBJECT
 public:
     IProjectPanelFactory();
     // simple properties
@@ -93,11 +91,16 @@ public:
 
     static bool supportsAllProjects(Project *);
 
+    static void registerFactory(IProjectPanelFactory *factory);
+
+    static QList<IProjectPanelFactory *> factories();
+
 private:
     int m_priority;
     QString m_displayName;
     std::function<bool (Project *)> m_supportsFunction;
     std::function<QWidget *(Project *)> m_createWidgetFunction;
+    static QList<IProjectPanelFactory *> s_factories;
 };
 
 } // namespace ProjectExplorer

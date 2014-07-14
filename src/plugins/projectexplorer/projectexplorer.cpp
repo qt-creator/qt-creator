@@ -321,6 +321,7 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     // Force sequence of deletion:
     delete d->m_kitManager; // remove all the profile informations
     delete d->m_toolChainManager;
+    qDeleteAll(IProjectPanelFactory::s_factories);
 
     delete d;
 }
@@ -476,7 +477,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     editorSettingsPanelFactory->setDisplayName(displayName);
     QIcon icon = QIcon(QLatin1String(":/projectexplorer/images/EditorSettings.png"));
     editorSettingsPanelFactory->setSimpleCreateWidgetFunction<EditorSettingsWidget>(icon);
-    addAutoReleasedObject(editorSettingsPanelFactory);
+    IProjectPanelFactory::registerFactory(editorSettingsPanelFactory);
 
     auto codeStyleSettingsPanelFactory = new IProjectPanelFactory;
     codeStyleSettingsPanelFactory->setPriority(40);
@@ -484,7 +485,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     codeStyleSettingsPanelFactory->setDisplayName(displayName);
     icon = QIcon(QLatin1String(":/projectexplorer/images/CodeStyleSettings.png"));
     codeStyleSettingsPanelFactory->setSimpleCreateWidgetFunction<CodeStyleSettingsWidget>(icon);
-    addAutoReleasedObject(codeStyleSettingsPanelFactory);
+    IProjectPanelFactory::registerFactory(codeStyleSettingsPanelFactory);
 
     auto dependenciesPanelFactory = new IProjectPanelFactory;
     dependenciesPanelFactory->setPriority(50);
@@ -492,7 +493,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dependenciesPanelFactory->setDisplayName(displayName);
     icon = QIcon(QLatin1String(":/projectexplorer/images/ProjectDependencies.png"));
     dependenciesPanelFactory->setSimpleCreateWidgetFunction<DependenciesWidget>(icon);
-    addAutoReleasedObject(dependenciesPanelFactory);
+    IProjectPanelFactory::registerFactory(dependenciesPanelFactory);
 
     auto unconfiguredProjectPanel = new IProjectPanelFactory;
     unconfiguredProjectPanel->setPriority(-10);
@@ -502,7 +503,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     });
     icon = QIcon(QLatin1String(":/projectexplorer/images/unconfigured.png"));
     unconfiguredProjectPanel->setSimpleCreateWidgetFunction<TargetSetupPageWrapper>(icon);
-    addAutoReleasedObject(unconfiguredProjectPanel);
+    IProjectPanelFactory::registerFactory(unconfiguredProjectPanel);
 
     auto targetSettingsPanelFactory = new IProjectPanelFactory;
     targetSettingsPanelFactory->setPriority(-10);
@@ -515,7 +516,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     targetSettingsPanelFactory->setCreateWidgetFunction([](Project *project) {
         return new TargetSettingsPanelWidget(project);
     });
-    addAutoReleasedObject(targetSettingsPanelFactory);
+    IProjectPanelFactory::registerFactory(targetSettingsPanelFactory);
 
     addAutoReleasedObject(new ProcessStepFactory);
 
