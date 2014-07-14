@@ -31,19 +31,12 @@
 #include "projectexplorer.h"
 #include "session.h"
 #include "projectnodes.h"
-#include "nodesvisitor.h"
 #include "projectwizardpage.h"
-#include "addnewmodel.h"
 
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <coreplugin/basefilewizardfactory.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/vcsmanager.h>
 #include <coreplugin/mimedatabase.h>
-#include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
@@ -56,8 +49,6 @@
 #include <QPointer>
 #include <QDebug>
 #include <QFileInfo>
-#include <QMultiMap>
-#include <QDir>
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QMessageBox>
@@ -87,167 +78,8 @@ namespace ProjectExplorer {
 
 namespace Internal {
 
-class BestNodeSelector
-{
-public:
-    BestNodeSelector(const QString &commonDirectory, const QStringList &files);
-    void inspect(AddNewTree *tree);
-    AddNewTree *bestChoice() const;
-    QString deployingProjects() const;
-private:
-    QString m_commonDirectory;
-    QStringList m_files;
-    bool m_deploys;
-    QString m_deployText;
-    AddNewTree *m_bestChoice;
-    int m_bestMatchLength;
-    int m_bestMatchPriority;
-};
-
-BestNodeSelector::BestNodeSelector(const QString &commonDirectory, const QStringList &files)
-    : m_commonDirectory(commonDirectory),
-      m_files(files),
-      m_deploys(false),
-      m_deployText(QCoreApplication::translate("ProjectWizard", "The files are implicitly added to the projects:") + QLatin1Char('\n')),
-      m_bestChoice(0),
-      m_bestMatchLength(-1),
-      m_bestMatchPriority(-1)
-{
-
-}
-
-// Find the project the new files should be added
-// If any node deploys the files, then we don't want to add the files.
-// Otherwise consider their common path. Either a direct match on the directory
-// or the directory with the longest matching path (list containing"/project/subproject1"
-// matching common path "/project/subproject1/newuserpath").
-void BestNodeSelector::inspect(AddNewTree *tree)
-{
-    FolderNode *node = tree->node();
-    if (node->nodeType() == ProjectNodeType) {
-        if (static_cast<ProjectNode *>(node)->deploysFolder(m_commonDirectory)) {
-            m_deploys = true;
-            m_deployText += tree->displayName() + QLatin1Char('\n');
-        }
-    }
-    if (m_deploys)
-        return;
-    const QString projectDirectory = ProjectExplorerPlugin::directoryFor(node);
-    const int projectDirectorySize = projectDirectory.size();
-    if (!m_commonDirectory.startsWith(projectDirectory))
-        return;
-    bool betterMatch = projectDirectorySize > m_bestMatchLength
-            || (projectDirectorySize == m_bestMatchLength && tree->priority() > m_bestMatchPriority);
-    if (betterMatch) {
-        m_bestMatchPriority = tree->priority();
-        m_bestMatchLength = projectDirectorySize;
-        m_bestChoice = tree;
-    }
-}
-
-AddNewTree *BestNodeSelector::bestChoice() const
-{
-    if (m_deploys)
-        return 0;
-    return m_bestChoice;
-}
-
-QString BestNodeSelector::deployingProjects() const
-{
-    if (m_deploys)
-        return m_deployText;
-    return QString();
-}
-
-static inline AddNewTree *createNoneNode(BestNodeSelector *selector)
-{
-    QString displayName = QCoreApplication::translate("ProjectWizard", "<Implicitly Add>");
-    if (selector->bestChoice())
-        displayName = QCoreApplication::translate("ProjectWizard", "<None>");
-    return new AddNewTree(displayName);
-}
-
-static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &projectPath, Node *contextNode, BestNodeSelector *selector)
-{
-    QList<AddNewTree *> children;
-    foreach (ProjectNode *pn, root->subProjectNodes()) {
-        AddNewTree *child = buildAddProjectTree(pn, projectPath, contextNode, selector);
-        if (child)
-            children.append(child);
-    }
-
-    const QList<ProjectExplorer::ProjectAction> &list = root->supportedActions(root);
-    if (list.contains(ProjectExplorer::AddSubProject) && !list.contains(ProjectExplorer::InheritedFromParent)) {
-        if (projectPath.isEmpty() || root->canAddSubProject(projectPath)) {
-            FolderNode::AddNewInformation info = root->addNewInformation(QStringList() << projectPath, contextNode);
-            AddNewTree *item = new AddNewTree(root, children, info);
-            selector->inspect(item);
-            return item;
-        }
-    }
-
-    if (children.isEmpty())
-        return 0;
-    return new AddNewTree(root, children, root->displayName());
-}
-
-static inline AddNewTree *buildAddProjectTree(SessionNode *root, const QString &projectPath, Node *contextNode, BestNodeSelector *selector)
-{
-    QList<AddNewTree *> children;
-    foreach (ProjectNode *pn, root->projectNodes()) {
-        AddNewTree *child = buildAddProjectTree(pn, projectPath, contextNode, selector);
-        if (child)
-            children.append(child);
-    }
-    children.prepend(createNoneNode(selector));
-    return new AddNewTree(root, children, root->displayName());
-}
-
-static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList &files, Node *contextNode, BestNodeSelector *selector)
-{
-    QList<AddNewTree *> children;
-    foreach (FolderNode *fn, root->subFolderNodes()) {
-        AddNewTree *child = buildAddFilesTree(fn, files, contextNode, selector);
-        if (child)
-            children.append(child);
-    }
-
-    const QList<ProjectExplorer::ProjectAction> &list = root->supportedActions(root);
-    if (list.contains(ProjectExplorer::AddNewFile) && !list.contains(ProjectExplorer::InheritedFromParent)) {
-        FolderNode::AddNewInformation info = root->addNewInformation(files, contextNode);
-        AddNewTree *item = new AddNewTree(root, children, info);
-        selector->inspect(item);
-        return item;
-    }
-    if (children.isEmpty())
-        return 0;
-    return new AddNewTree(root, children, root->displayName());
-}
-
-static inline AddNewTree *buildAddFilesTree(SessionNode *root, const QStringList &files, Node *contextNode, BestNodeSelector *selector)
-{
-    QList<AddNewTree *> children;
-    foreach (ProjectNode *pn, root->projectNodes()) {
-        AddNewTree *child = buildAddFilesTree(pn, files, contextNode, selector);
-        if (child)
-            children.append(child);
-    }
-    children.prepend(createNoneNode(selector));
-    return new AddNewTree(root, children, root->displayName());
-}
-
-static inline AddNewTree *getChoices(const QStringList &generatedFiles,
-                                     IWizardFactory::WizardKind wizardKind,
-                                     Node *contextNode,
-                                     BestNodeSelector *selector)
-{
-    if (wizardKind == IWizardFactory::ProjectWizard)
-        return buildAddProjectTree(SessionManager::sessionNode(), generatedFiles.first(), contextNode, selector);
-    else
-        return buildAddFilesTree(SessionManager::sessionNode(), generatedFiles, contextNode, selector);
-}
-
 // --------- ProjectWizardContext
+
 class ProjectWizardContext
 {
 public:
@@ -299,7 +131,6 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
     QStringList fileNames;
     foreach (const GeneratedFile &f, files)
         fileNames.push_back(f.path());
-    QString commonDirectory = Utils::commonPath(fileNames);
     m_context->page->setFiles(fileNames);
 
     QStringList filePaths;
@@ -313,18 +144,10 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
             filePaths << gf.path();
     }
 
-
     Node *contextNode = extraValues.value(QLatin1String(Constants::PREFERRED_PROJECT_NODE)).value<Node *>();
-    BestNodeSelector selector(commonDirectory, filePaths);
-    AddNewTree *tree = getChoices(filePaths, m_context->wizard->kind(), contextNode, &selector);
 
-    m_context->page->setAdditionalInfo(selector.deployingProjects());
-
-    AddNewModel *model = new AddNewModel(tree);
-    m_context->page->setModel(model);
-    m_context->page->setBestNode(selector.bestChoice());
-    m_context->page->setAddingSubProject(projectAction == ProjectExplorer::AddSubProject);
-
+    m_context->page->initializeProjectTree(contextNode, filePaths, m_context->wizard->kind(),
+                                           projectAction);
     m_context->page->initializeVersionControls();
 }
 

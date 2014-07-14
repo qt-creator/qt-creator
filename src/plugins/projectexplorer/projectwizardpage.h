@@ -30,7 +30,10 @@
 #ifndef PROJECTWIZARDPAGE_H
 #define PROJECTWIZARDPAGE_H
 
+#include "projectnodes.h"
+
 #include <coreplugin/generatedfile.h>
+#include <coreplugin/iwizardfactory.h>
 
 #include <QWizardPage>
 
@@ -42,7 +45,6 @@ QT_END_NAMESPACE
 namespace Core { class IVersionControl; }
 
 namespace ProjectExplorer {
-class FolderNode;
 namespace Internal {
 class AddNewModel;
 class AddNewTree;
@@ -58,13 +60,9 @@ public:
     explicit ProjectWizardPage(QWidget *parent = 0);
     virtual ~ProjectWizardPage();
 
-    void setModel(AddNewModel *model);
-    void setBestNode(ProjectExplorer::Internal::AddNewTree *tree);
     FolderNode *currentNode() const;
 
     void setNoneLabel(const QString &label);
-    void setAdditionalInfo(const QString &text);
-
 
     int versionControlIndex() const;
     void setVersionControlIndex(int);
@@ -72,9 +70,11 @@ public:
     // Returns the common path
     void setFiles(const QStringList &files);
 
-    void setAddingSubProject(bool addingSubProject);
-
     bool runVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage);
+
+    void initializeProjectTree(ProjectExplorer::Node *context, const QStringList &paths,
+                               Core::IWizardFactory::WizardKind kind,
+                               ProjectExplorer::ProjectAction action);
 
 public slots:
     void initializeVersionControls();
@@ -84,6 +84,10 @@ private slots:
     void slotManageVcs();
 
 private:
+    void setAdditionalInfo(const QString &text);
+    void setAddingSubProject(bool addingSubProject);
+    void setModel(AddNewModel *model);
+    void setBestNode(ProjectExplorer::Internal::AddNewTree *tree);
     void setVersionControls(const QStringList &);
     void setProjectToolTip(const QString &);
     bool expandTree(const QModelIndex &root);
