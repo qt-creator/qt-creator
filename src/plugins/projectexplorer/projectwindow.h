@@ -56,13 +56,11 @@ public:
     ~ProjectWindow();
 
     void aboutToShutdown();
-    void extensionsInitialized();
 
 public slots:
     void projectUpdated(ProjectExplorer::Project *p);
 
 private slots:
-    void handleKitChanges();
     void showProperties(int index, int subIndex);
     void registerProject(ProjectExplorer::Project*);
     bool deregisterProject(ProjectExplorer::Project*);
@@ -70,14 +68,12 @@ private slots:
     void removedTarget(ProjectExplorer::Target*);
 
 private:
-    bool hasTarget(ProjectExplorer::Project *project);
     void removeCurrentWidget();
 
     DoubleTabWidget *m_tabWidget;
     QStackedWidget *m_centralWidget;
     QWidget *m_currentWidget;
     QList<ProjectExplorer::Project *> m_tabIndexToProject;
-    QMap<ProjectExplorer::Project *, bool> m_hasTarget;
 };
 
 } // namespace Internal

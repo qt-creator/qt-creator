@@ -1253,8 +1253,6 @@ void ProjectExplorerPlugin::closeAllProjects()
 
 void ProjectExplorerPlugin::extensionsInitialized()
 {
-    d->m_proWindow->extensionsInitialized();
-
     // Register factories for all project managers
     QList<IProjectManager*> projectManagers =
         ExtensionSystem::PluginManager::getObjects<IProjectManager>();

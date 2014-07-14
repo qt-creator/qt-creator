@@ -92,11 +92,6 @@ ProjectWindow::~ProjectWindow()
 {
 }
 
-void ProjectWindow::extensionsInitialized()
-{
-    connect(KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(handleKitChanges()));
-}
-
 void ProjectWindow::aboutToShutdown()
 {
     showProperties(-1, -1); // that's a bit stupid, but otherwise stuff is still
@@ -122,27 +117,6 @@ void ProjectWindow::projectUpdated(Project *p)
     m_tabWidget->setCurrentIndex(index);
 }
 
-void ProjectWindow::handleKitChanges()
-{
-    bool changed = false;
-    int index = m_tabWidget->currentIndex();
-    QList<Project *> projects = m_tabIndexToProject;
-    foreach (ProjectExplorer::Project *project, projects) {
-        if (m_hasTarget.value(project) != hasTarget(project)) {
-            changed = true;
-            if (deregisterProject(project))
-                registerProject(project);
-        }
-    }
-    if (changed)
-        m_tabWidget->setCurrentIndex(index);
-}
-
-bool ProjectWindow::hasTarget(ProjectExplorer::Project *project)
-{
-    return !project->targets().isEmpty();
-}
-
 void ProjectWindow::registerProject(ProjectExplorer::Project *project)
 {
     if (!project || m_tabIndexToProject.contains(project))
@@ -159,9 +133,6 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
     }
 
     QStringList subtabs;
-
-    bool projectHasTarget = hasTarget(project);
-    m_hasTarget.insert(project, projectHasTarget);
 
     // Add the project specific pages
     QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
