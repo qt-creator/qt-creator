@@ -30,13 +30,14 @@
 #include "wizard.h"
 #include "hostosinfo.h"
 
-#include <QMap>
 #include <QHash>
+#include <QKeyEvent>
+#include <QLabel>
+#include <QMap>
+#include <QStyle>
+#include <QVBoxLayout>
 #include <QVariant>
 
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QStyle>
 
 /*! \class Utils::Wizard
 
@@ -374,6 +375,18 @@ bool Wizard::validateCurrentPage()
 {
     emit nextClicked();
     return QWizard::validateCurrentPage();
+}
+
+bool Wizard::event(QEvent *event)
+{
+    if (event->type() == QEvent::ShortcutOverride) {
+        auto ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+            ke->accept();
+            return true;
+        }
+    }
+    return QWizard::event(event);
 }
 
 void Wizard::_q_currentPageChanged(int pageId)
