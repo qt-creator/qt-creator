@@ -187,9 +187,18 @@ public:
         return true;
     }
 
-    bool processProperty(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processProperty(const QString &name, const Value *value, const PropertyInfo &pInfo) QTC_OVERRIDE
     {
-        return dump(name, value);
+        d.dumpNewline();
+        d.dump(name);
+        d.openContext(":");
+        d.dump("<");
+        d.dump(pInfo.toString());
+        d.dump(">");
+        d.dumpNewline(); // avoid?
+        value->accept(&d);
+        d.closeContext("");
+        return true;
     }
     bool processEnumerator(const QString &name, const Value *value) QTC_OVERRIDE
     {

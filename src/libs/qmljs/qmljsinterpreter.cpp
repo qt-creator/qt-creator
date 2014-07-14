@@ -107,7 +107,7 @@ public:
 
     const Value *value() const { return m_value; }
 
-    virtual bool processProperty(const QString &name, const Value *value)
+    virtual bool processProperty(const QString &name, const Value *value, const PropertyInfo &)
     {
         return process(name, value);
     }
@@ -184,6 +184,45 @@ bool FakeMetaObjectWithOrigin::operator ==(const FakeMetaObjectWithOrigin &o) co
 uint qHash(const FakeMetaObjectWithOrigin &fmoo)
 {
     return qHash(fmoo.fakeMetaObject);
+}
+
+PropertyInfo::PropertyInfo(uint flags)
+    : flags(flags)
+{ }
+
+QString PropertyInfo::toString() const
+{
+    bool join = false;
+    QString res;
+    if (isReadable()) {
+        res += QLatin1String("Readable");
+        join = true;
+    }
+    if (isWriteable()) {
+        if (join)
+            res += QLatin1String("|");
+        res += QLatin1String("Writeable");
+        join = true;
+    }
+    if (isList()) {
+        if (join)
+            res += QLatin1String("|");
+        res += QLatin1String("ListType");
+        join = true;
+    }
+    if (canBePointer()) {
+        if (join)
+            res += QLatin1String("|");
+        res += QLatin1String("Pointer");
+        join = true;
+    }
+    if (canBeValue()) {
+        if (join)
+            res += QLatin1String("|");
+        res += QLatin1String("Value");
+        join = true;
+    }
+    return res;
 }
 
 } // namespace QmlJS
@@ -303,7 +342,17 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
             continue;
 
         const QString propertyName = prop.name();
-        processor->processProperty(propertyName, valueForCppName(prop.typeName()));
+        uint propertyFlags = PropertyInfo::Readable;
+        if (isWritable(propertyName))
+            propertyFlags |= PropertyInfo::Writeable;
+        if (isListProperty(propertyName))
+            propertyFlags |= PropertyInfo::ListType;
+        if (isPointer(propertyName))
+            propertyFlags |= PropertyInfo::PointerType;
+        else
+            propertyFlags |= PropertyInfo::ValueType;
+            processor->processProperty(propertyName, valueForCppName(prop.typeName()),
+                                       PropertyInfo(propertyFlags));
 
         // every property always has a onXyzChanged slot, even if the NOTIFY
         // signal has a different name
@@ -951,7 +1000,7 @@ MemberProcessor::~MemberProcessor()
 {
 }
 
-bool MemberProcessor::processProperty(const QString &, const Value *)
+bool MemberProcessor::processProperty(const QString &, const Value *, const PropertyInfo &)
 {
     return true;
 }
@@ -1024,7 +1073,12 @@ void ObjectValue::setPrototype(const Value *prototype)
 
 void ObjectValue::setMember(const QString &name, const Value *value)
 {
-    m_members[name] = value;
+    m_members[name].value = value;
+}
+
+void ObjectValue::setPropertyInfo(const QString &name, const PropertyInfo &propertyInfo)
+{
+    m_members[name].propertyInfo = propertyInfo;
 }
 
 void ObjectValue::removeMember(const QString &name)
@@ -1063,12 +1117,12 @@ bool ObjectValue::checkPrototype(const ObjectValue *, QSet<const ObjectValue *> 
 
 void ObjectValue::processMembers(MemberProcessor *processor) const
 {
-    QHashIterator<QString, const Value *> it(m_members);
+    QHashIterator<QString, PropertyData> it(m_members);
 
     while (it.hasNext()) {
         it.next();
 
-        if (! processor->processProperty(it.key(), it.value()))
+        if (! processor->processProperty(it.key(), it.value().value, it.value().propertyInfo))
             break;
     }
 }
@@ -1077,7 +1131,7 @@ const Value *ObjectValue::lookupMember(const QString &name, const Context *conte
                                        const ObjectValue **foundInObject,
                                        bool examinePrototypes) const
 {
-    if (const Value *m = m_members.value(name)) {
+    if (const Value *m = m_members.value(name).value) {
         if (foundInObject)
             *foundInObject = this;
         return m;
@@ -1849,7 +1903,10 @@ bool ASTObjectValue::getSourceLocation(QString *fileName, int *line, int *column
 void ASTObjectValue::processMembers(MemberProcessor *processor) const
 {
     foreach (ASTPropertyReference *ref, m_properties) {
-        processor->processProperty(ref->ast()->name.toString(), ref);
+        uint pFlags = PropertyInfo::Readable;
+        if (!ref->ast()->isReadonlyMember)
+            pFlags |= PropertyInfo::Writeable;
+        processor->processProperty(ref->ast()->name.toString(), ref, PropertyInfo(pFlags));
         // ### Should get a different value?
         processor->processGeneratedSlot(ref->onChangedSlotName(), ref);
     }
@@ -2334,7 +2391,7 @@ void TypeScope::processMembers(MemberProcessor *processor) const
             continue;
 
         if (!info.as().isEmpty())
-            processor->processProperty(info.as(), import);
+            processor->processProperty(info.as(), import, PropertyInfo(PropertyInfo::Readable));
         else
             import->processMembers(processor);
     }
@@ -2387,7 +2444,7 @@ void JSImportScope::processMembers(MemberProcessor *processor) const
         const ImportInfo &info = i.info;
 
         if (info.type() == ImportType::File || info.type() == ImportType::QrcFile)
-            processor->processProperty(info.as(), import);
+            processor->processProperty(info.as(), import, PropertyInfo(PropertyInfo::Readable));
     }
 }
 
@@ -2513,9 +2570,9 @@ class MemberDumper: public MemberProcessor
 public:
     MemberDumper() {}
 
-    virtual bool processProperty(const QString &name, const Value *)
+    virtual bool processProperty(const QString &name, const Value *, const PropertyInfo &pInfo)
     {
-        qCDebug(qmljsLog) << "property: " << name;
+        qCDebug(qmljsLog) << "property: " << name << " flags:" << pInfo.toString();
         return true;
     }
 

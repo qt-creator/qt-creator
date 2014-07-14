@@ -245,7 +245,7 @@ private:
         (*_propertyProcessor)(_currentObject, name, value);
     }
 
-    bool processProperty(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processProperty(const QString &name, const Value *value, const PropertyInfo &) QTC_OVERRIDE
     {
         process(name, value);
         return true;

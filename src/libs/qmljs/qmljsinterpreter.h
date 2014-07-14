@@ -388,6 +388,44 @@ public:
     const UrlValue *asUrlValue() const QTC_OVERRIDE;
 };
 
+class PropertyInfo {
+public:
+    enum PropertyFlag {
+        Readable    = 1,
+        Writeable   = 2,
+        ListType    = 4,
+        PointerType= 8,
+        ValueType  = 16,
+        PointerOrValue = PointerType|ValueType,
+        Default     = Readable|Writeable|PointerOrValue
+    };
+
+    PropertyInfo(uint flags = Default);
+    uint flags;
+    bool isPointer() const {
+        return (flags & PointerOrValue) == PointerType;
+    }
+    bool isValue() const {
+        return (flags & PointerOrValue) == ValueType;
+    }
+    bool canBePointer() const {
+        return (flags & PointerType) != 0;
+    }
+    bool canBeValue() const {
+        return (flags & ValueType) != 0;
+    }
+    bool isReadable() const {
+        return (flags & Readable) != 0;
+    }
+    bool isWriteable() const {
+        return (flags & Writeable) != 0;
+    }
+    bool isList() const {
+        return (flags & ListType) != 0;
+    }
+    QString toString() const;
+};
+
 class QMLJS_EXPORT MemberProcessor
 {
     MemberProcessor(const MemberProcessor &other);
@@ -398,7 +436,8 @@ public:
     virtual ~MemberProcessor();
 
     // Returns false to stop the processor.
-    virtual bool processProperty(const QString &name, const Value *value);
+    virtual bool processProperty(const QString &name, const Value *value,
+                                 const PropertyInfo &propertyInfo);
     virtual bool processEnumerator(const QString &name, const Value *value);
     virtual bool processSignal(const QString &name, const Value *value);
     virtual bool processSlot(const QString &name, const Value *value);
@@ -440,6 +479,16 @@ public:
     void accept(ValueVisitor *) const QTC_OVERRIDE;
 };
 
+class QMLJS_EXPORT PropertyData {
+public:
+    const Value *value;
+    PropertyInfo propertyInfo;
+    PropertyData(const Value *value = 0,
+                 PropertyInfo propertyInfo = PropertyInfo(PropertyInfo::Default))
+        : value(value), propertyInfo(propertyInfo)
+    { }
+};
+
 class QMLJS_EXPORT ObjectValue: public Value
 {
 public:
@@ -462,6 +511,7 @@ public:
     virtual void processMembers(MemberProcessor *processor) const;
 
     virtual void setMember(const QString &name, const Value *value);
+    virtual void setPropertyInfo(const QString &name, const PropertyInfo &propertyInfo);
     virtual void removeMember(const QString &name);
 
     virtual const Value *lookupMember(const QString &name, const Context *context,
@@ -484,7 +534,7 @@ private:
 
 private:
     ValueOwner *m_valueOwner;
-    QHash<QString, const Value *> m_members;
+    QHash<QString, PropertyData> m_members;
     QString m_className;
     QString m_originId;
 
