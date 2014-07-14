@@ -343,7 +343,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     actionFind->setEnabled(hasCurrentItem);
     // open with...
     if (hasCurrentItem && !isDirectory) {
-        QMenu *openWith = menu.addMenu(tr("Open with"));
+        QMenu *openWith = menu.addMenu(tr("Open With"));
         Core::DocumentManager::populateOpenWithMenu(openWith,
                                                 m_fileSystemModel->filePath(current));
     }
