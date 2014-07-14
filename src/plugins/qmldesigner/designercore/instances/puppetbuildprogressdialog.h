@@ -49,12 +49,16 @@ public:
     ~PuppetBuildProgressDialog();
 
     void setProgress(int progress);
-
     void newBuildOutput(const QByteArray &standardOutput);
+    bool useFallbackPuppet() const;
+
+private slots:
+    void setUseFallbackPuppet();
 
 private:
     Ui::PuppetBuildProgressDialog *ui;
     int m_lineCount;
+    bool m_useFallbackPuppet;
 };
 
 }

@@ -195,7 +195,7 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             qmakeArguments.append(QStringLiteral("CONFIG+=release"));
 #endif
             qmakeArguments.append(qmlPuppetProjectFilePath);
-            buildSucceeded = startBuildProcess(buildDirectory.path(), qmakeCommand(), qmakeArguments);
+            buildSucceeded = startBuildProcess(buildDirectory.path(), qmakeCommand(), qmakeArguments, &progressDialog);
             if (buildSucceeded) {
                 progressDialog.show();
                 QString buildingCommand = buildCommand();
@@ -370,7 +370,7 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     process.setWorkingDirectory(buildDirectoryPath);
     process.start(command, processArguments);
     process.waitForStarted();
-    while (process.waitForReadyRead(-1)) {
+    while (!progressDialog->useFallbackPuppet() && process.waitForReadyRead(-1)) {
         QByteArray newOutput = process.readAllStandardOutput();
         if (progressDialog)
             progressDialog->newBuildOutput(newOutput);
@@ -380,10 +380,12 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
 
     process.waitForFinished();
 
-    if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0)
+    if (process.exitStatus() == QProcess::NormalExit
+            && process.exitCode() == 0
+            && !progressDialog->useFallbackPuppet())
         return true;
-    else
-        return false;
+
+    return false;
 }
 
 QString PuppetCreator::puppetSourceDirectoryPath()

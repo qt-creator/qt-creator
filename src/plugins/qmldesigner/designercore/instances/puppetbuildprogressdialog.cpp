@@ -41,11 +41,13 @@ namespace  QmlDesigner {
 PuppetBuildProgressDialog::PuppetBuildProgressDialog() :
     QDialog(Core::ICore::dialogParent()),
     ui(new Ui::PuppetBuildProgressDialog),
-    m_lineCount(0)
+    m_lineCount(0),
+    m_useFallbackPuppet(false)
 {
     setWindowFlags(Qt::SplashScreen);
     ui->setupUi(this);
     ui->buildProgressBar->setMaximum(85);
+    connect(ui->useFallbackPuppetPushButton, SIGNAL(clicked()), this, SLOT(setUseFallbackPuppet()));
 }
 
 PuppetBuildProgressDialog::~PuppetBuildProgressDialog()
@@ -56,13 +58,24 @@ PuppetBuildProgressDialog::~PuppetBuildProgressDialog()
 void PuppetBuildProgressDialog::setProgress(int progress)
 {
     ui->buildProgressBar->setValue(progress);
-    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers);
+    QApplication::processEvents(QEventLoop::ExcludeSocketNotifiers);
+}
+
+bool PuppetBuildProgressDialog::useFallbackPuppet() const
+{
+    return m_useFallbackPuppet;
+}
+
+void PuppetBuildProgressDialog::setUseFallbackPuppet()
+{
+    m_useFallbackPuppet = true;
 }
 
 void PuppetBuildProgressDialog::newBuildOutput(const QByteArray &standardOutput)
 {
     m_lineCount += standardOutput.count('\n');
     setProgress(m_lineCount);
+    qDebug() << m_lineCount;
 }
 
 }
