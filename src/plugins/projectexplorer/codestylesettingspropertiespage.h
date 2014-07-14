@@ -30,12 +30,11 @@
 #ifndef CODESTYLESETTINGSPROPERTIESPAGE_H
 #define CODESTYLESETTINGSPROPERTIESPAGE_H
 
-#include "iprojectproperties.h"
 #include "ui_codestylesettingspropertiespage.h"
 
 namespace ProjectExplorer {
-
 class EditorConfiguration;
+class Project;
 
 namespace Internal {
 

@@ -42,8 +42,8 @@
 #include "bardescriptoreditorpermissionswidget.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/iprojectproperties.h>
 #include <projectexplorer/panelswidget.h>
+#include <projectexplorer/propertiespanel.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/plaintexteditor.h>

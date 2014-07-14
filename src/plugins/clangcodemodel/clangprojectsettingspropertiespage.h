@@ -32,8 +32,6 @@
 
 #include "ui_clangprojectsettingspropertiespage.h"
 
-#include <projectexplorer/iprojectproperties.h>
-
 #include <QString>
 
 namespace ClangCodeModel {

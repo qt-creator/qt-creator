@@ -30,8 +30,6 @@
 #ifndef RUNSETTINGSPROPERTIESPAGE_H
 #define RUNSETTINGSPROPERTIESPAGE_H
 
-#include "iprojectproperties.h"
-
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -51,20 +49,13 @@ class NamedWidget;
 class RunConfiguration;
 class RunConfigurationModel;
 class RunConfigWidget;
+class Target;
 
 namespace Internal {
 
 const char RUNSETTINGS_PANEL_ID[] = "ProjectExplorer.RunSettingsPanel";
 
 class BuildStepListWidget;
-
-class RunSettingsPanelFactory : public ITargetPanelFactory
-{
-public:
-    QString id() const;
-    bool supports(Target *target);
-    PropertiesPanel *createPanel(Target *target);
-};
 
 class RunSettingsWidget : public QWidget
 {

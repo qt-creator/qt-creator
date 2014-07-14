@@ -64,7 +64,6 @@ HEADERS += projectexplorer.h \
     allprojectsfind.h \
     buildstep.h \
     buildconfiguration.h \
-    iprojectproperties.h \
     buildsettingspropertiespage.h \
     environmentwidget.h \
     processstep.h \
@@ -149,7 +148,8 @@ HEADERS += projectexplorer.h \
     addnewmodel.h \
     xcodebuildparser.h \
     propertiespanel.h \
-    panelswidget.h
+    panelswidget.h \
+    iprojectpanelfactory.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -284,9 +284,9 @@ SOURCES += projectexplorer.cpp \
     selectablefilesmodel.cpp \
     addnewmodel.cpp \
     xcodebuildparser.cpp \
-    iprojectproperties.cpp \
     propertiespanel.cpp \
-    panelswidget.cpp
+    panelswidget.cpp \
+    iprojectpanelfactory.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

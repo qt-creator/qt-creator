@@ -98,16 +98,6 @@ private:
     std::function<QWidget *(Project *)> m_createWidgetFunction;
 };
 
-class PROJECTEXPLORER_EXPORT ITargetPanelFactory : public QObject
-{
-    Q_OBJECT
-public:
-    virtual bool supports(Target *target) = 0;
-    virtual PropertiesPanel *createPanel(Target *target) = 0;
-
-    virtual QString id() const = 0;
-};
-
 } // namespace ProjectExplorer
 
 #endif // IPROJECTPROPERTIES_H

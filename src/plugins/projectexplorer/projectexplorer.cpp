@@ -84,6 +84,7 @@
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/devicesettingspage.h"
 #include "targetsettingspanel.h"
+#include "iprojectpanelfactory.h"
 
 #ifdef Q_OS_WIN
 #    include "windebuginterface.h"
@@ -467,9 +468,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new AllProjectsFilter);
     addAutoReleasedObject(new CurrentProjectFilter);
-
-    addAutoReleasedObject(new BuildSettingsPanelFactory);
-    addAutoReleasedObject(new RunSettingsPanelFactory);
 
     // ProjectPanelFactories
     auto editorSettingsPanelFactory = new IProjectPanelFactory;

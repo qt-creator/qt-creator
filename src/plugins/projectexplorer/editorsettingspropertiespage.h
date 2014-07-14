@@ -30,12 +30,11 @@
 #ifndef EDITORSETTINGSPROPERTIESPAGE_H
 #define EDITORSETTINGSPROPERTIESPAGE_H
 
-#include "iprojectproperties.h"
 #include "ui_editorsettingspropertiespage.h"
 
 namespace ProjectExplorer {
-
 class EditorConfiguration;
+class Project;
 
 namespace Internal {
 

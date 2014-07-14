@@ -30,14 +30,14 @@
 #ifndef UNCONFIGUREDPROJECTPANEL_H
 #define UNCONFIGUREDPROJECTPANEL_H
 
-#include "iprojectproperties.h"
-
 #include <QString>
+#include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QPushButton)
 
 namespace ProjectExplorer {
 class Kit;
+class Project;
 class TargetSetupPage;
 
 namespace Internal {

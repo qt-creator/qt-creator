@@ -31,12 +31,11 @@
 
 #include "doubletabwidget.h"
 #include "panelswidget.h"
-
 #include "kitmanager.h"
 #include "project.h"
 #include "projectexplorer.h"
+#include "iprojectpanelfactory.h"
 #include "session.h"
-#include "iprojectproperties.h"
 #include "target.h"
 
 #include <coreplugin/idocument.h>

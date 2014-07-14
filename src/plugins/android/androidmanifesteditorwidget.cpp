@@ -41,7 +41,6 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectwindow.h>
-#include <projectexplorer/iprojectproperties.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>

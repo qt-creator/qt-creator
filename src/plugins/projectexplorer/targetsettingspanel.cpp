@@ -37,6 +37,7 @@
 #include "project.h"
 #include "projectimporter.h"
 #include "projectwindow.h"
+#include "propertiespanel.h"
 #include "runsettingspropertiespage.h"
 #include "target.h"
 #include "targetsettingswidget.h"
@@ -251,21 +252,33 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
     // Target has changed:
     m_currentTarget = target;
 
+    auto wrapWidgetInPropertiesPanel
+            = [](QWidget *widget, const QString &displayName, const QIcon &icon) -> PropertiesPanel *{
+                    PropertiesPanel *panel = new PropertiesPanel;
+                    QWidget *w = new QWidget();
+                    QVBoxLayout *l = new QVBoxLayout(w);
+                    l->addWidget(widget);
+                    l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+                    l->setContentsMargins(QMargins());
+                    panel->setWidget(w);
+                    panel->setIcon(icon);
+                    panel->setDisplayName(displayName);
+                    return panel;
+                };
+
+    PropertiesPanel *build = wrapWidgetInPropertiesPanel(new BuildSettingsWidget(target),
+                                                         QCoreApplication::translate("BuildSettingsPanel", "Build Settings"),
+                                                         QIcon(QLatin1String(":/projectexplorer/images/BuildSettings.png")));
+    PropertiesPanel *run= wrapWidgetInPropertiesPanel(new RunSettingsWidget(target),
+                                                      RunSettingsWidget::tr("Run Settings"),
+                                                      QIcon(QLatin1String(":/projectexplorer/images/RunSettings.png")));
+
     PanelsWidget *buildPanel = new PanelsWidget(m_centralWidget);
     PanelsWidget *runPanel = new PanelsWidget(m_centralWidget);
 
-    foreach (ITargetPanelFactory *panelFactory, ExtensionSystem::PluginManager::getObjects<ITargetPanelFactory>()) {
-        if (panelFactory->id() == QLatin1String(BUILDSETTINGS_PANEL_ID)) {
-            PropertiesPanel *panel = panelFactory->createPanel(target);
-            buildPanel->addPropertiesPanel(panel);
-            continue;
-        }
-        if (panelFactory->id() == QLatin1String(RUNSETTINGS_PANEL_ID)) {
-            PropertiesPanel *panel = panelFactory->createPanel(target);
-            runPanel->addPropertiesPanel(panel);
-            continue;
-        }
-    }
+    buildPanel->addPropertiesPanel(build);
+    runPanel->addPropertiesPanel(run);
+
     m_centralWidget->addWidget(buildPanel);
     m_centralWidget->addWidget(runPanel);
 

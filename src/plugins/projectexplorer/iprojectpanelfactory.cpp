@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "iprojectproperties.h"
+#include "iprojectpanelfactory.h"
 
 using namespace ProjectExplorer;
 

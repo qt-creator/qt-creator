@@ -83,36 +83,6 @@ using namespace ProjectExplorer::Internal;
 using ExtensionSystem::PluginManager;
 
 ///
-/// RunSettingsPanelFactory
-///
-
-QString RunSettingsPanelFactory::id() const
-{
-    return QLatin1String(RUNSETTINGS_PANEL_ID);
-}
-
-bool RunSettingsPanelFactory::supports(Target *target)
-{
-    Q_UNUSED(target);
-    return true;
-}
-
-PropertiesPanel *RunSettingsPanelFactory::createPanel(Target *target)
-{
-    PropertiesPanel *panel = new PropertiesPanel;
-    QWidget *w = new QWidget();
-    QVBoxLayout *l = new QVBoxLayout(w);
-    QWidget *b = new RunSettingsWidget(target);
-    l->addWidget(b);
-    l->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    l->setContentsMargins(QMargins());
-    panel->setWidget(w);
-    panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/RunSettings.png")));
-    panel->setDisplayName(RunSettingsWidget::tr("Run Settings"));
-    return panel;
-}
-
-///
 /// RunSettingsWidget
 ///
 

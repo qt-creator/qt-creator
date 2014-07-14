@@ -30,8 +30,6 @@
 #ifndef BUILDSETTINGSPROPERTIESPAGE_H
 #define BUILDSETTINGSPROPERTIESPAGE_H
 
-#include "iprojectproperties.h"
-
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -45,23 +43,10 @@ namespace ProjectExplorer {
 
 class BuildConfiguration;
 class BuildInfo;
-class IBuildStepFactory;
 class NamedWidget;
+class Target;
 
 namespace Internal {
-
-const char BUILDSETTINGS_PANEL_ID[] = "ProjectExplorer.BuildSettingsPanel";
-
-class BuildSettingsPanelFactory : public ITargetPanelFactory
-{
-public:
-    QString id() const;
-
-    bool supports(Target *target);
-    PropertiesPanel *createPanel(Target *target);
-};
-
-class BuildConfigurationsWidget;
 
 class BuildSettingsWidget : public QWidget
 {

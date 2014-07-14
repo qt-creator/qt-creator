@@ -30,8 +30,6 @@
 #ifndef DEPENDENCIESPANEL_H
 #define DEPENDENCIESPANEL_H
 
-#include "iprojectproperties.h"
-
 #include <QAbstractListModel>
 
 #include <QTreeView>
