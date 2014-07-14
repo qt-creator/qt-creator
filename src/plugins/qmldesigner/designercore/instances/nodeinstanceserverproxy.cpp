@@ -525,7 +525,7 @@ void NodeInstanceServerProxy::readThirdDataStream()
 
 void NodeInstanceServerProxy::printEditorProcessOutput()
 {
-    while (m_qmlPuppetEditorProcess->canReadLine()) {
+    while (m_qmlPuppetEditorProcess && m_qmlPuppetEditorProcess->canReadLine()) {
         QByteArray line = m_qmlPuppetEditorProcess->readLine();
         line.chop(1);
         qDebug().nospace() << "Editor Puppet: " << qPrintable(line);
@@ -535,7 +535,7 @@ void NodeInstanceServerProxy::printEditorProcessOutput()
 
 void NodeInstanceServerProxy::printPreviewProcessOutput()
 {
-    while (m_qmlPuppetPreviewProcess->canReadLine()) {
+    while (m_qmlPuppetPreviewProcess && m_qmlPuppetPreviewProcess->canReadLine()) {
         QByteArray line = m_qmlPuppetPreviewProcess->readLine();
         line.chop(1);
         qDebug().nospace() << "Preview Puppet: " << qPrintable(line);
@@ -545,7 +545,7 @@ void NodeInstanceServerProxy::printPreviewProcessOutput()
 
 void NodeInstanceServerProxy::printRenderProcessOutput()
 {
-    while (m_qmlPuppetRenderProcess->canReadLine()) {
+    while (m_qmlPuppetRenderProcess && m_qmlPuppetRenderProcess->canReadLine()) {
         QByteArray line = m_qmlPuppetRenderProcess->readLine();
         line.chop(1);
         qDebug().nospace() << "Render Puppet: " << qPrintable(line);
