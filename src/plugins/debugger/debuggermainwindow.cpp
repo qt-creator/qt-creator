@@ -313,16 +313,8 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
-    cmd = Core::ActionManager::registerAction(q->menuSeparator1(),
-        "Debugger.Views.Separator1", debugcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = Core::ActionManager::registerAction(q->toggleLockedAction(),
-        "Debugger.Views.ToggleLocked", debugcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = Core::ActionManager::registerAction(q->menuSeparator2(),
-        "Debugger.Views.Separator2", debugcontext);
+    cmd = Core::ActionManager::registerAction(q->menuSeparator(),
+        "Debugger.Views.Separator", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = Core::ActionManager::registerAction(q->resetLayoutAction(),
@@ -464,8 +456,6 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
     setDockNestingEnabled(true);
     connect(this, SIGNAL(resetLayout()),
         d, SLOT(resetDebuggerLayout()));
-    connect(toggleLockedAction(), SIGNAL(triggered()),
-        d, SLOT(updateDockWidgetSettings()));
 
     QBoxLayout *editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
