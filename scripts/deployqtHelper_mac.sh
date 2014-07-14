@@ -61,9 +61,9 @@ if [ $LLVM_INSTALL_DIR ]; then
         cp -f "$LLVM_INSTALL_DIR"/lib/libclang.dylib "$1/Contents/PlugIns/" || exit 1
         cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$1/Contents/Resources/cplusplus/" || exit 1
     fi
-    _CLANG_CODEMODEL_LIB="$1/Contents/PlugIns/QtProject/libClangCodeModel_debug.dylib"
+    _CLANG_CODEMODEL_LIB="$1/Contents/PlugIns/libClangCodeModel_debug.dylib"
     if [ ! -f "$_CLANG_CODEMODEL_LIB" ]; then
-        _CLANG_CODEMODEL_LIB="$1/Contents/PlugIns/QtProject/libClangCodeModel.dylib"
+        _CLANG_CODEMODEL_LIB="$1/Contents/PlugIns/libClangCodeModel.dylib"
     fi
     xcrun install_name_tool -rpath "$LLVM_INSTALL_DIR/lib" "@loader_path/.." "$_CLANG_CODEMODEL_LIB" || true
 fi
