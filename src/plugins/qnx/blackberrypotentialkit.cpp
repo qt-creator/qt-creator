@@ -77,10 +77,11 @@ bool BlackBerryPotentialKit::shouldShow()
     return true;
 }
 
-void BlackBerryPotentialKit::openSettings()
+void BlackBerryPotentialKit::openSettings(QWidget *parent)
 {
     Core::ICore::showOptionsDialog(Qnx::Constants::QNX_BB_CATEGORY,
-                                   Qnx::Constants::QNX_BB_SETUP_ID);
+                                   Qnx::Constants::QNX_BB_SETUP_ID,
+                                   parent);
 }
 
 BlackBerryPotentialKitWidget::BlackBerryPotentialKitWidget(QWidget *parent)
@@ -111,7 +112,7 @@ BlackBerryPotentialKitWidget::BlackBerryPotentialKitWidget(QWidget *parent)
 
 void BlackBerryPotentialKitWidget::openOptions()
 {
-    BlackBerryPotentialKit::openSettings();
+    BlackBerryPotentialKit::openSettings(this);
 }
 
 void BlackBerryPotentialKitWidget::recheck()

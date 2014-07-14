@@ -215,5 +215,6 @@ void ProjectWizardPage::slotProjectChanged(int index)
 void ProjectWizardPage::slotManageVcs()
 {
     Core::ICore::showOptionsDialog(VcsBase::Constants::VCS_SETTINGS_CATEGORY,
-                                   VcsBase::Constants::VCS_COMMON_SETTINGS_ID);
+                                   VcsBase::Constants::VCS_COMMON_SETTINGS_ID,
+                                   this);
 }

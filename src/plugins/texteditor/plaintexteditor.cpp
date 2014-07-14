@@ -181,7 +181,8 @@ bool PlainTextEditorWidget::isMissingSyntaxDefinition() const
 void PlainTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
 {
     ICore::showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
-                             Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
+                             Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS,
+                             this);
 }
 
 PlainTextDocument::PlainTextDocument()

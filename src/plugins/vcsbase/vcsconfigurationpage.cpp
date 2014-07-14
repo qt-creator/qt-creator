@@ -83,7 +83,8 @@ bool VcsConfigurationPage::isComplete() const
 void VcsConfigurationPage::openConfiguration()
 {
     Core::ICore::showOptionsDialog(Constants::VCS_SETTINGS_CATEGORY,
-                                   d->m_versionControl->id());
+                                   d->m_versionControl->id(),
+                                   this);
 }
 
 } // namespace VcsBase
