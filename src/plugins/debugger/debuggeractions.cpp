@@ -585,7 +585,7 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("DisplayStringLimit"));
-    item->setToolTip(tr("The maximal length of string entries in the "
+    item->setToolTip(tr("The maximum length of string entries in the "
         "Locals and Expressions pane. Longer than that are cut off "
         "and displayed with an ellipsis attached."));
     item->setDefaultValue(100);
@@ -593,7 +593,7 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("MaximalStringLength"));
-    item->setToolTip(tr("The maximal length for strings in separated windows. "
+    item->setToolTip(tr("The maximum length for strings in separated windows. "
         "Longer strings are cut off and displayed with an ellipsis attached."));
     item->setDefaultValue(10000);
     insertItem(MaximalStringLength, item);
