@@ -66,7 +66,7 @@ CvsSettings SettingsPageWidget::settings() const
 
 void SettingsPageWidget::setSettings(const CvsSettings &s)
 {
-    m_ui.commandPathChooser->setPath(s.binaryPath());
+    m_ui.commandPathChooser->setFileName(s.binaryPath());
     m_ui.rootLineEdit->setText(s.stringValue(CvsSettings::cvsRootKey));
     m_ui.diffOptionsLineEdit->setText(s.stringValue(CvsSettings::diffOptionsKey));
     m_ui.timeOutSpinBox->setValue(s.intValue(CvsSettings::timeoutKey));

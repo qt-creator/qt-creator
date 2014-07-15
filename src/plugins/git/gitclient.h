@@ -134,7 +134,7 @@ public:
     explicit GitClient(GitSettings *settings);
     ~GitClient();
 
-    QString gitBinaryPath(bool *ok = 0, QString *errorMessage = 0) const;
+    Utils::FileName gitBinaryPath(bool *ok = 0, QString *errorMessage = 0) const;
     unsigned gitVersion(QString *errorMessage = 0) const;
 
     QString findRepositoryForDirectory(const QString &dir);
@@ -423,7 +423,7 @@ private:
                                     QString msgBoxText, const QString &buttonName,
                                     const QString &gitCommand, ContinueCommandMode continueMode);
 
-    mutable QString m_gitVersionForBinary;
+    mutable Utils::FileName m_gitVersionForBinary;
     mutable unsigned m_cachedGitVersion;
 
     const QString m_msgWait;

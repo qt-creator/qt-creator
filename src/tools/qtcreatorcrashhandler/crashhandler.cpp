@@ -33,6 +33,7 @@
 #include "utils.h"
 
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -94,7 +95,7 @@ public:
           dialog(crashHandler, signalName) {}
 
     const pid_t pid;
-    const QString creatorInPath; // Backup debugger.
+    const Utils::FileName creatorInPath; // Backup debugger.
 
     BacktraceCollector backtraceCollector;
     CrashHandlerDialog dialog;
@@ -293,7 +294,7 @@ void CrashHandler::debugApplication()
     }
 
     // Prepare command.
-    QString executable = d->creatorInPath;
+    QString executable = d->creatorInPath.toString();
     if (!d->restartAppCommandLine.isEmpty())
         executable = d->restartAppCommandLine.at(0);
     const QStringList commandLine = QStringList()

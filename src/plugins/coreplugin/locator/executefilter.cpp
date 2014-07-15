@@ -155,7 +155,7 @@ void ExecuteFilter::runHeadCommand()
 {
     if (!m_taskQueue.isEmpty()) {
         const ExecuteData &d = m_taskQueue.head();
-        const QString fullPath = Utils::Environment::systemEnvironment().searchInPath(d.executable);
+        const Utils::FileName fullPath = Utils::Environment::systemEnvironment().searchInPath(d.executable);
         if (fullPath.isEmpty()) {
             MessageManager::write(tr("Could not find executable for \"%1\".").arg(d.executable));
             m_taskQueue.dequeue();
@@ -164,7 +164,7 @@ void ExecuteFilter::runHeadCommand()
         }
         MessageManager::write(tr("Starting command \"%1\".").arg(headCommand()));
         m_process->setWorkingDirectory(d.workingDirectory);
-        m_process->setCommand(fullPath, d.arguments);
+        m_process->setCommand(fullPath.toString(), d.arguments);
         m_process->start();
         m_process->closeWriteChannel();
         if (!m_process->waitForStarted(1000)) {

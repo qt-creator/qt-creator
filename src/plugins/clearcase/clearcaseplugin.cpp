@@ -1500,7 +1500,7 @@ ClearCaseResponse
     }
 
     const Utils::SynchronousProcessResponse sp_resp =
-            VcsBase::VcsBasePlugin::runVcs(workingDir, executable,
+            VcsBase::VcsBasePlugin::runVcs(workingDir, Utils::FileName::fromUserInput(executable),
                                            arguments, timeOut,
                                            flags, outputCodec);
 

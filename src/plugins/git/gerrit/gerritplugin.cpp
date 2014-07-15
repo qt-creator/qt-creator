@@ -99,7 +99,7 @@ class FetchContext : public QObject
      Q_OBJECT
 public:
     FetchContext(const QSharedPointer<GerritChange> &change,
-                 const QString &repository, const QString &git,
+                 const QString &repository, const Utils::FileName &git,
                  const QSharedPointer<GerritParameters> &p,
                  FetchMode fm, QObject *parent = 0);
     ~FetchContext();
@@ -129,7 +129,7 @@ private:
     const QSharedPointer<GerritChange> m_change;
     const QString m_repository;
     const FetchMode m_fetchMode;
-    const QString m_git;
+    const Utils::FileName m_git;
     const QSharedPointer<GerritParameters> m_parameters;
     State m_state;
     QProcess m_process;
@@ -137,7 +137,7 @@ private:
 };
 
 FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
-                           const QString &repository, const QString &git,
+                           const QString &repository, const Utils::FileName &git,
                            const QSharedPointer<GerritParameters> &p,
                            FetchMode fm, QObject *parent)
     : QObject(parent)
@@ -179,18 +179,18 @@ void FetchContext::start()
     // Order: initialize future before starting the process in case error handling is invoked.
     const QStringList args = m_change->gitFetchArguments(m_parameters);
     VcsBase::VcsBaseOutputWindow::instance()->appendCommand(m_repository, m_git, args);
-    m_process.start(m_git, args);
+    m_process.start(m_git.toString(), args);
     m_process.closeWriteChannel();
 }
 
 void FetchContext::processFinished(int exitCode, QProcess::ExitStatus es)
 {
     if (es != QProcess::NormalExit) {
-        handleError(tr("%1 crashed.").arg(m_git));
+        handleError(tr("%1 crashed.").arg(m_git.toUserOutput()));
         return;
     }
     if (exitCode) {
-        handleError(tr("%1 returned %2.").arg(m_git).arg(exitCode));
+        handleError(tr("%1 returned %2.").arg(m_git.toUserOutput()).arg(exitCode));
         return;
     }
     if (m_state == FetchState) {
@@ -235,7 +235,7 @@ void FetchContext::handleError(const QString &e)
 
 void FetchContext::processError(QProcess::ProcessError e)
 {
-    const QString msg = tr("Error running %1: %2").arg(m_git, m_process.errorString());
+    const QString msg = tr("Error running %1: %2").arg(m_git.toUserOutput(), m_process.errorString());
     if (e == QProcess::FailedToStart)
         handleError(msg);
     else
@@ -388,13 +388,13 @@ void GerritPlugin::push()
     push(GitPlugin::instance()->currentState().topLevel());
 }
 
-QString GerritPlugin::gitBinary()
+Utils::FileName GerritPlugin::gitBinary()
 {
     bool ok;
-    const QString git = gitClient()->gitBinaryPath(&ok);
+    const Utils::FileName git = gitClient()->gitBinaryPath(&ok);
     if (!ok) {
         VcsBase::VcsBaseOutputWindow::instance()->appendError(tr("Git is not available."));
-        return QString();
+        return Utils::FileName();
     }
     return git;
 }
@@ -423,7 +423,7 @@ void GerritPlugin::fetchCheckout(const QSharedPointer<GerritChange> &change)
 void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
 {
     // Locate git.
-    const QString git = gitBinary();
+    const Utils::FileName git = gitBinary();
     if (git.isEmpty())
         return;
 

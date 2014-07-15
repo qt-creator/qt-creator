@@ -238,27 +238,27 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
     cpp.setEnvironment(env.toStringList());
     cpp.setWorkingDirectory(QDir::tempPath());
     QStringList arguments;
-    const QString binary = env.searchInPath(QLatin1String("cl.exe"));
+    const Utils::FileName binary = env.searchInPath(QLatin1String("cl.exe"));
     if (binary.isEmpty()) {
         qWarning("%s: The compiler binary cl.exe could not be found in the path.", Q_FUNC_INFO);
         return predefinedMacros;
     }
 
     arguments << toProcess << QLatin1String("/EP") << QDir::toNativeSeparators(saver.fileName());
-    cpp.start(binary, arguments);
+    cpp.start(binary.toString(), arguments);
     if (!cpp.waitForStarted()) {
-        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(binary),
+        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(binary.toUserOutput()),
             qPrintable(cpp.errorString()));
         return predefinedMacros;
     }
     cpp.closeWriteChannel();
     if (!cpp.waitForFinished()) {
         Utils::SynchronousProcess::stopProcess(cpp);
-        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(binary));
+        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(binary.toUserOutput()));
         return predefinedMacros;
     }
     if (cpp.exitStatus() != QProcess::NormalExit) {
-        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(binary));
+        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(binary.toUserOutput()));
         return predefinedMacros;
     }
 

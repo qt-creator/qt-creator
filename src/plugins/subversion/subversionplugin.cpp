@@ -1000,7 +1000,7 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
                           const QStringList &arguments, int timeOut,
                           unsigned flags, QTextCodec *outputCodec) const
 {
-    const QString executable = m_settings.binaryPath();
+    const FileName executable = m_settings.binaryPath();
     SubversionResponse response;
     if (executable.isEmpty()) {
         response.error = true;
@@ -1015,7 +1015,7 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
 
     response.error = sp_resp.result != SynchronousProcessResponse::Finished;
     if (response.error)
-        response.message = sp_resp.exitMessage(executable, timeOut);
+        response.message = sp_resp.exitMessage(executable.toString(), timeOut);
     response.stdErr = sp_resp.stdErr;
     response.stdOut = sp_resp.stdOut;
     return response;

@@ -217,16 +217,16 @@ QString AndroidToolChain::makeCommand(const Utils::Environment &env) const
 {
     QStringList extraDirectories = AndroidConfigurations::currentConfig().makeExtraSearchDirectories();
     if (HostOsInfo::isWindowsHost()) {
-        QString tmp = env.searchInPath(QLatin1String("ma-make.exe"), extraDirectories);
+        FileName tmp = env.searchInPath(QLatin1String("ma-make.exe"), extraDirectories);
         if (!tmp.isEmpty())
-            return tmp;
+            return QString();
         tmp = env.searchInPath(QLatin1String("mingw32-make"), extraDirectories);
-        return tmp.isEmpty() ? QLatin1String("mingw32-make") : tmp;
+        return tmp.isEmpty() ? QLatin1String("mingw32-make") : tmp.toString();
     }
 
     QString make = QLatin1String("make");
-    QString tmp = env.searchInPath(make, extraDirectories);
-    return tmp.isEmpty() ? make : tmp;
+    FileName tmp = env.searchInPath(make, extraDirectories);
+    return tmp.isEmpty() ? make : tmp.toString();
 }
 
 QString AndroidToolChain::ndkToolChainVersion() const

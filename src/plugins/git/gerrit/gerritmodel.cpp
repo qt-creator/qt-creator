@@ -314,8 +314,8 @@ void QueryContext::startQuery(const QString &query)
 {
     QStringList arguments = m_baseArguments;
     arguments.push_back(query);
-    VcsBase::VcsBaseOutputWindow::instance()
-        ->appendCommand(m_process.workingDirectory(), m_binary, arguments);
+    VcsBase::VcsBaseOutputWindow::instance()->appendCommand(
+                m_process.workingDirectory(), Utils::FileName::fromString(m_binary), arguments);
     m_timer.start();
     m_process.start(m_binary, arguments);
     m_process.closeWriteChannel();

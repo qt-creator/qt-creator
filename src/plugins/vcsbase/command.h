@@ -32,6 +32,7 @@
 
 #include "vcsbase_global.h"
 
+#include <utils/fileutils.h>
 #include <utils/synchronousprocess.h>
 
 #include <QObject>
@@ -72,7 +73,7 @@ class VCSBASE_EXPORT Command : public QObject
     Q_OBJECT
 
 public:
-    Command(const QString &binary,
+    Command(const Utils::FileName &binary,
             const QString &workingDirectory,
             const QProcessEnvironment &environment);
     ~Command();
@@ -84,7 +85,7 @@ public:
     bool lastExecutionSuccess() const;
     int lastExecutionExitCode() const;
 
-    const QString &binaryPath() const;
+    const Utils::FileName &binaryPath() const;
     const QString &workingDirectory() const;
     const QProcessEnvironment &processEnvironment() const;
 

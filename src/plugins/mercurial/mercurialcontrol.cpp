@@ -94,10 +94,10 @@ bool MercurialControl::managesFile(const QString &workingDirectory, const QStrin
 
 bool MercurialControl::isConfigured() const
 {
-    const QString binary = mercurialClient->settings()->binaryPath();
+    const Utils::FileName binary = mercurialClient->settings()->binaryPath();
     if (binary.isEmpty())
         return false;
-    QFileInfo fi(binary);
+    QFileInfo fi = binary.toFileInfo();
     return fi.exists() && fi.isFile() && fi.isExecutable();
 }
 

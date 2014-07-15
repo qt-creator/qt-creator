@@ -140,7 +140,7 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
             VcsBase::VcsBasePlugin::SshPasswordPrompt
             | VcsBase::VcsBasePlugin::ShowStdOutInLogWindow
             | VcsBase::VcsBasePlugin::ShowSuccessMessage;
-    const QString binary = settings()->binaryPath();
+    const Utils::FileName binary = settings()->binaryPath();
     const int timeoutSec = settings()->value(settings()->timeoutKey).toInt();
 
     // cause mercurial doesn`t understand LANG

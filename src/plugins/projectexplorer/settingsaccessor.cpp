@@ -2068,7 +2068,7 @@ QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)
             if (m_toolChainExtras.contains(origTcId)) {
                 debuggerPath = m_toolChainExtras.value(origTcId).m_debugger;
                 if (!debuggerPath.isEmpty() && !QFileInfo(debuggerPath).isAbsolute())
-                    debuggerPath = Environment::systemEnvironment().searchInPath(debuggerPath);
+                    debuggerPath = Environment::systemEnvironment().searchInPath(debuggerPath).toString();
                 if (debuggerPath.contains(QLatin1String("cdb")))
                     debuggerEngine = 4; // CDB
                 mkspec = m_toolChainExtras.value(origTcId).m_mkspec;

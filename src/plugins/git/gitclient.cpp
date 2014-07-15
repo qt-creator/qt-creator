@@ -133,7 +133,7 @@ private:
     void addJob(VcsBase::Command *command, const QStringList &arguments);
     int timeout() const;
     QProcessEnvironment processEnvironment() const;
-    QString gitPath() const;
+    Utils::FileName gitPath() const;
 
     QPointer<DiffEditor::DiffEditorController> m_controller;
     const QString m_workingDirectory;
@@ -303,7 +303,7 @@ QProcessEnvironment GitDiffHandler::processEnvironment() const
     return m_gitClient->processEnvironment();
 }
 
-QString GitDiffHandler::gitPath() const
+Utils::FileName GitDiffHandler::gitPath() const
 {
     return m_gitClient->gitBinaryPath();
 }
@@ -2185,7 +2185,9 @@ VcsBase::Command *GitClient::executeGit(const QString &workingDirectory,
                                         unsigned additionalFlags,
                                         int editorLineNumber)
 {
-    outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
+    outputWindow()->appendCommand(workingDirectory,
+                                  Utils::FileName::fromUserInput(settings()->stringValue(GitSettings::binaryPathKey)),
+                                  arguments);
     VcsBase::Command *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
     command->addJob(arguments, settings()->intValue(GitSettings::timeoutKey));
     command->addFlags(additionalFlags);
@@ -2543,7 +2545,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
 
 void GitClient::launchGitK(const QString &workingDirectory, const QString &fileName)
 {
-    const QFileInfo binaryInfo(gitBinaryPath());
+    const QFileInfo binaryInfo = gitBinaryPath().toFileInfo();
     QDir foundBinDir(binaryInfo.dir());
     const bool foundBinDirIsCmdDir = foundBinDir.dirName() == QLatin1String("cmd");
     QProcessEnvironment env = processEnvironment();
@@ -2564,10 +2566,10 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
     }
 
     Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
-    const QString exec = sysEnv.searchInPath(QLatin1String("gitk"));
+    const Utils::FileName exec = sysEnv.searchInPath(QLatin1String("gitk"));
 
     if (!exec.isEmpty() && tryLauchingGitK(env, workingDirectory, fileName,
-                                           QFileInfo(exec).absolutePath())) {
+                                           exec.parentDir().toString())) {
         return;
     }
 
@@ -2602,7 +2604,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
         arguments.append(Utils::QtcProcess::splitArgs(gitkOpts, Utils::HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
         arguments << QLatin1String("--") << fileName;
-    outwin->appendCommand(workingDirectory, binary, arguments);
+    outwin->appendCommand(workingDirectory, Utils::FileName::fromString(binary), arguments);
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;
@@ -2625,10 +2627,11 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
 
 bool GitClient::launchGitGui(const QString &workingDirectory) {
     bool success;
-    QString gitBinary = gitBinaryPath(&success);
-    if (success)
-        success = QProcess::startDetached(gitBinary, QStringList(QLatin1String("gui")),
+    Utils::FileName gitBinary = gitBinaryPath(&success);
+    if (success) {
+        success = QProcess::startDetached(gitBinary.toString(), QStringList(QLatin1String("gui")),
                                           workingDirectory);
+    }
 
     if (!success)
         outputWindow()->appendError(msgCannotLaunch(QLatin1String("git gui")));
@@ -2636,7 +2639,7 @@ bool GitClient::launchGitGui(const QString &workingDirectory) {
     return success;
 }
 
-QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
+Utils::FileName GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
 {
     return settings()->gitBinaryPath(ok, errorMessage);
 }
@@ -3269,9 +3272,7 @@ void GitClient::asyncCommand(const QString &workingDirectory, const QStringList 
     // Git might request an editor, so this must be done asynchronously
     // and without timeout
     QString gitCommand = arguments.first();
-    outputWindow()->appendCommand(workingDirectory,
-                                  settings()->stringValue(GitSettings::binaryPathKey),
-                                  arguments);
+    outputWindow()->appendCommand(workingDirectory, settings()->binaryPath(), arguments);
     VcsBase::Command *command = createCommand(workingDirectory, 0, true);
     new ConflictHandler(command, workingDirectory, gitCommand);
     if (hasProgress)
@@ -3317,7 +3318,7 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
     if (fixup)
         arguments << QLatin1String("--autosquash");
     arguments << commit + QLatin1Char('^');
-    outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
+    outputWindow()->appendCommand(workingDirectory, settings()->binaryPath(), arguments);
     if (fixup)
         m_disableEditor = true;
     asyncCommand(workingDirectory, arguments, true);
@@ -3506,7 +3507,7 @@ GitSettings *GitClient::settings() const
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
 unsigned GitClient::gitVersion(QString *errorMessage) const
 {
-    const QString newGitBinary = gitBinaryPath();
+    const Utils::FileName newGitBinary = gitBinaryPath();
     if (m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty()) {
         // Do not execute repeatedly if that fails (due to git
         // not being installed) until settings are changed.

@@ -32,6 +32,8 @@
 
 #include <coreplugin/id.h>
 
+#include <utils/fileutils.h>
+
 #include <QDialog>
 #include <QProcessEnvironment>
 
@@ -87,7 +89,7 @@ private:
     Ui::ChangeSelectionDialog *m_ui;
 
     QProcess *m_process;
-    QString m_gitBinaryPath;
+    Utils::FileName m_gitBinaryPath;
     QProcessEnvironment m_gitEnvironment;
     ChangeCommand m_command;
     QStringListModel *m_changeModel;

@@ -608,9 +608,10 @@ void ExternalToolRunner::run()
     connect(m_process, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
-    m_process->setCommand(m_resolvedExecutable, m_resolvedArguments);
-    MessageManager::write(
-                tr("Starting external tool \"%1\" %2").arg(m_resolvedExecutable, m_resolvedArguments), MessageManager::Silent);
+    m_process->setCommand(m_resolvedExecutable.toString(), m_resolvedArguments);
+    MessageManager::write(tr("Starting external tool \"%1\" %2")
+                          .arg(m_resolvedExecutable.toUserOutput(), m_resolvedArguments),
+                          MessageManager::Silent);
     m_process->start();
 }
 
@@ -630,8 +631,8 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
     }
     if (m_tool->modifiesCurrentDocument())
         DocumentManager::unexpectFileChange(m_expectedFileName);
-    MessageManager::write(
-                tr("\"%1\" finished").arg(m_resolvedExecutable), MessageManager::Silent);
+    MessageManager::write(tr("\"%1\" finished")
+                          .arg(m_resolvedExecutable.toUserOutput()), MessageManager::Silent);
     deleteLater();
 }
 

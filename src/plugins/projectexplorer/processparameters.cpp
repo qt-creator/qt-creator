@@ -128,8 +128,8 @@ QString ProcessParameters::effectiveCommand() const
         QString cmd = m_command;
         if (m_macroExpander)
             Utils::expandMacros(&cmd, m_macroExpander);
-        m_effectiveCommand = QDir::cleanPath(m_environment.searchInPath(
-                    cmd, QStringList() << effectiveWorkingDirectory()));
+        m_effectiveCommand =
+                m_environment.searchInPath(cmd, QStringList(effectiveWorkingDirectory())).toString();
         m_commandMissing = m_effectiveCommand.isEmpty();
         if (m_commandMissing)
             m_effectiveCommand = cmd;

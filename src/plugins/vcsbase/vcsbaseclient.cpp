@@ -283,15 +283,15 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
         vcsProcess.setWorkingDirectory(workingDir);
     vcsProcess.setProcessEnvironment(processEnvironment());
 
-    const QString binary = settings()->binaryPath();
+    const Utils::FileName binary = settings()->binaryPath();
 
     ::vcsOutputWindow()->appendCommand(workingDir, binary, args);
 
-    vcsProcess.start(binary, args);
+    vcsProcess.start(binary.toString(), args);
 
     if (!vcsProcess.waitForStarted()) {
         ::vcsOutputWindow()->appendError(tr("Unable to start process \"%1\": %2")
-                                         .arg(QDir::toNativeSeparators(binary), vcsProcess.errorString()));
+                                         .arg(binary.toUserOutput(), vcsProcess.errorString()));
         return false;
     }
 
@@ -303,7 +303,7 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
                                                         output, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(vcsProcess);
         ::vcsOutputWindow()->appendError(tr("Timed out after %1s waiting for the process %2 to finish.")
-                                         .arg(timeoutSec).arg(binary));
+                                         .arg(timeoutSec).arg(binary.toUserOutput()));
         return false;
     }
     if (!stdErr.isEmpty())
@@ -318,10 +318,10 @@ Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(
         unsigned flags,
         QTextCodec *outputCodec) const
 {
-    const QString binary = settings()->binaryPath();
+    const Utils::FileName binary = settings()->binaryPath();
     const int timeoutSec = settings()->intValue(VcsBaseClientSettings::timeoutKey);
-    return VcsBase::VcsBasePlugin::runVcs(workingDirectory, binary, args, timeoutSec * 1000,
-                                          flags, outputCodec);
+    return VcsBase::VcsBasePlugin::runVcs(workingDirectory, binary, args,
+                                          timeoutSec * 1000, flags, outputCodec);
 }
 
 void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
@@ -555,8 +555,8 @@ VcsBaseEditorParameterWidget *VcsBaseClient::createLogEditor(const QString &work
 
 QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const
 {
-    const QString binary = settings()->binaryPath();
-    return QFileInfo(binary).baseName() +
+    const Utils::FileName binary = settings()->binaryPath();
+    return binary.toFileInfo().baseName() +
             QLatin1Char(' ') + vcsCmd + QLatin1Char(' ') +
             QFileInfo(sourceId).fileName();
 }
@@ -602,8 +602,8 @@ Command *VcsBaseClient::createCommand(const QString &workingDirectory,
                                       VcsBase::VcsBaseEditorWidget *editor,
                                       JobOutputBindMode mode) const
 {
-    Command *cmd = new Command(d->m_clientSettings->binaryPath(),
-                               workingDirectory, processEnvironment());
+    Command *cmd = new Command(d->m_clientSettings->binaryPath(), workingDirectory,
+                               processEnvironment());
     cmd->setDefaultTimeout(d->m_clientSettings->intValue(VcsBaseClientSettings::timeoutKey));
     if (editor)
         d->bindCommandToEditor(cmd, editor);

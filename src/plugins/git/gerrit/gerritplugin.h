@@ -30,6 +30,8 @@
 #ifndef GERRIT_INTERNAL_GERRITPLUGIN_H
 #define GERRIT_INTERNAL_GERRITPLUGIN_H
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
@@ -61,7 +63,7 @@ public:
 
     bool initialize(Core::ActionContainer *ac);
 
-    static QString gitBinary();
+    static Utils::FileName gitBinary();
     static QString branch(const QString &repository);
     void addToLocator(Core::CommandLocator *locator);
     void push(const QString &topLevel);

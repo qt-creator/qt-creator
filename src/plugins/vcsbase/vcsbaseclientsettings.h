@@ -32,6 +32,8 @@
 
 #include "vcsbase_global.h"
 
+#include <utils/fileutils.h>
+
 #include <QStringList>
 #include <QVariant>
 #include <QSharedDataPointer>
@@ -81,7 +83,7 @@ public:
     void setValue(const QString &key, const QVariant &v);
     QVariant::Type valueType(const QString &key) const;
 
-    QString binaryPath() const;
+    Utils::FileName binaryPath() const;
 
     QStringList searchPathList() const;
 

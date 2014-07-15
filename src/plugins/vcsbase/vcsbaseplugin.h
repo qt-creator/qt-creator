@@ -33,6 +33,7 @@
 #include "vcsbase_global.h"
 
 #include <extensionsystem/iplugin.h>
+#include <utils/fileutils.h>
 
 #include <QSharedDataPointer>
 #include <QList>
@@ -180,7 +181,7 @@ public:
     };
 
     static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
-                                                    const QString &binary,
+                                                    const Utils::FileName &binary,
                                                     const QStringList &arguments,
                                                     int timeOutMS,
                                                     unsigned flags = 0,

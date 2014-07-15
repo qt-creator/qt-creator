@@ -30,6 +30,8 @@
 #ifndef EXTERNALTOOL_H
 #define EXTERNALTOOL_H
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 #include <QStringList>
 #include <QProcess>
@@ -139,7 +141,7 @@ private:
     bool resolve();
 
     const ExternalTool *m_tool; // is a copy of the tool that was passed in
-    QString m_resolvedExecutable;
+    Utils::FileName m_resolvedExecutable;
     QString m_resolvedArguments;
     QString m_resolvedInput;
     QString m_resolvedWorkingDirectory;

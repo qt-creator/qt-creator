@@ -80,7 +80,7 @@ VcsBase::Command *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
 
     QTC_ASSERT(cwp, return 0);
     const CvsSettings settings = CvsPlugin::instance()->settings();
-    const QString binary = settings.binaryPath();
+    const Utils::FileName binary = settings.binaryPath();
     QStringList args;
 
     const QString repository = cwp->repository();

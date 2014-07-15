@@ -68,10 +68,10 @@ bool BazaarControl::managesFile(const QString &workingDirectory, const QString &
 
 bool BazaarControl::isConfigured() const
 {
-    const QString binary = m_bazaarClient->settings()->binaryPath();
+    const Utils::FileName binary = m_bazaarClient->settings()->binaryPath();
     if (binary.isEmpty())
         return false;
-    QFileInfo fi(binary);
+    QFileInfo fi = binary.toFileInfo();
     return fi.exists() && fi.isFile() && fi.isExecutable();
 }
 

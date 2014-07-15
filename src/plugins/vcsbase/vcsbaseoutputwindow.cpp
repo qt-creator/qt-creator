@@ -31,6 +31,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 
 #include <QPlainTextEdit>
@@ -453,11 +454,11 @@ static inline QString formatArguments(const QStringList &args)
 }
 
 QString VcsBaseOutputWindow::msgExecutionLogEntry(const QString &workingDir,
-                                                  const QString &executable,
+                                                  const Utils::FileName &executable,
                                                   const QStringList &arguments)
 {
     const QString args = formatArguments(arguments);
-    const QString nativeExecutable = QDir::toNativeSeparators(executable);
+    const QString nativeExecutable = executable.toUserOutput();
     if (workingDir.isEmpty())
         return tr("Executing: %1 %2").arg(nativeExecutable, args) + QLatin1Char('\n');
     return tr("Executing in %1: %2 %3").
@@ -470,7 +471,7 @@ void VcsBaseOutputWindow::appendCommand(const QString &text)
 }
 
 void VcsBaseOutputWindow::appendCommand(const QString &workingDirectory,
-                                        const QString &binary,
+                                        const Utils::FileName &binary,
                                         const QStringList &args)
 {
     appendCommand(msgExecutionLogEntry(workingDirectory, binary, args));

@@ -1188,22 +1188,22 @@ AndroidConfigurations::AndroidConfigurations(QObject *parent)
     m_instance = this;
 }
 
-Utils::FileName javaHomeForJavac(const QString &location)
+static FileName javaHomeForJavac(const FileName &location)
 {
-    QFileInfo fileInfo(location);
+    QFileInfo fileInfo = location.toFileInfo();
     int tries = 5;
     while (tries > 0) {
         QDir dir = fileInfo.dir();
         dir.cdUp();
         if (QFileInfo(dir.filePath(QLatin1String("lib/tools.jar"))).exists())
-            return Utils::FileName::fromString(dir.path());
+            return FileName::fromString(dir.path());
         if (fileInfo.isSymLink())
             fileInfo.setFile(fileInfo.symLinkTarget());
         else
             break;
         --tries;
     }
-    return Utils::FileName();
+    return FileName();
 }
 
 void AndroidConfigurations::load()
@@ -1215,10 +1215,10 @@ void AndroidConfigurations::load()
 
     if (m_config.antLocation().isEmpty()) {
         Environment env = Environment::systemEnvironment();
-        QString location = env.searchInPath(QLatin1String("ant"));
-        QFileInfo fi(location);
+        FileName location = env.searchInPath(QLatin1String("ant"));
+        QFileInfo fi = location.toFileInfo();
         if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
-            m_config.setAntLocation(FileName::fromString(location));
+            m_config.setAntLocation(location);
             saveSettings = true;
         }
     }
@@ -1226,8 +1226,8 @@ void AndroidConfigurations::load()
     if (m_config.openJDKLocation().isEmpty()) {
         if (HostOsInfo::isLinuxHost()) {
             Environment env = Environment::systemEnvironment();
-            QString location = env.searchInPath(QLatin1String("javac"));
-            QFileInfo fi(location);
+            FileName location = env.searchInPath(QLatin1String("javac"));
+            QFileInfo fi = location.toFileInfo();
             if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
                 m_config.setOpenJDKLocation(javaHomeForJavac(location));
                 saveSettings = true;

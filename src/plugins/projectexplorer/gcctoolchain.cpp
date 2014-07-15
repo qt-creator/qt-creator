@@ -596,8 +596,8 @@ QList<FileName> GccToolChain::suggestedMkspecList() const
 QString GccToolChain::makeCommand(const Utils::Environment &environment) const
 {
     QString make = QLatin1String("make");
-    QString tmp = environment.searchInPath(make);
-    return tmp.isEmpty() ? make : tmp;
+    FileName tmp = environment.searchInPath(make);
+    return tmp.isEmpty() ? make : tmp.toString();
 }
 
 IOutputParser *GccToolChain::outputParser() const
@@ -809,7 +809,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
     QList<ToolChain *> result;
 
     Environment systemEnvironment = Environment::systemEnvironment();
-    const FileName compilerPath = FileName::fromString(systemEnvironment.searchInPath(compiler));
+    const FileName compilerPath = systemEnvironment.searchInPath(compiler);
     if (compilerPath.isEmpty())
         return result;
 
@@ -1023,11 +1023,11 @@ QString ClangToolChain::makeCommand(const Utils::Environment &environment) const
         makes << QLatin1String("make");
     }
 
-    QString tmp;
+    FileName tmp;
     foreach (const QString &make, makes) {
         tmp = environment.searchInPath(make);
         if (!tmp.isEmpty())
-            return tmp;
+            return tmp.toString();
     }
     return makes.first();
 }
@@ -1188,11 +1188,11 @@ QString MingwToolChain::makeCommand(const Utils::Environment &environment) const
         makes << QLatin1String("make");
     }
 
-    QString tmp;
+    FileName tmp;
     foreach (const QString &make, makes) {
         tmp = environment.searchInPath(make);
         if (!tmp.isEmpty())
-            return tmp;
+            return tmp.toString();
     }
     return makes.first();
 }

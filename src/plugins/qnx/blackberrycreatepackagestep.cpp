@@ -225,7 +225,8 @@ bool BlackBerryCreatePackageStep::init()
     if (!BlackBerryAbstractDeployStep::init())
         return false;
 
-    const QString packageCmd = target()->activeBuildConfiguration()->environment().searchInPath(QLatin1String(PACKAGER_CMD));
+    const Utils::FileName packageCmd =
+            target()->activeBuildConfiguration()->environment().searchInPath(QLatin1String(PACKAGER_CMD));
     if (packageCmd.isEmpty()) {
         raiseError(tr("Could not find packager command \"%1\" in the build environment.")
                    .arg(QLatin1String(PACKAGER_CMD)));
@@ -296,7 +297,7 @@ bool BlackBerryCreatePackageStep::init()
         args << QLatin1String("-package") << QnxUtils::addQuotes(QDir::toNativeSeparators(info.packagePath()));
         args << QnxUtils::addQuotes(QDir::toNativeSeparators(appDescriptorPath));
 
-        addCommand(packageCmd, args);
+        addCommand(packageCmd.toString(), args);
     }
 
     return true;

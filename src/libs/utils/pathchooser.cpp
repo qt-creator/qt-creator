@@ -211,8 +211,8 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
     switch (m_acceptingKind) {
     case PathChooser::Command:
     case PathChooser::ExistingCommand: {
-        const QString expanded = m_environment.searchInPath(path, QStringList(m_baseDirectory));
-        return expanded.isEmpty() ? path : expanded;
+        const FileName expanded = m_environment.searchInPath(path, QStringList(m_baseDirectory));
+        return expanded.isEmpty() ? path : expanded.toString();
     }
     case PathChooser::Any:
         break;

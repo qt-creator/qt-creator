@@ -33,6 +33,8 @@
 #include "subversionsettings.h"
 #include <vcsbase/vcsbaseclient.h>
 
+#include <utils/fileutils.h>
+
 namespace Subversion {
 namespace Internal {
 
@@ -83,7 +85,7 @@ protected:
                                                             const QStringList &files,
                                                             const QStringList &extraOptions);
 private:
-    QString m_svnVersionBinary;
+    Utils::FileName m_svnVersionBinary;
     QString m_svnVersion;
 };
 

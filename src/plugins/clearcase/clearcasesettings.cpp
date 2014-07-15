@@ -77,7 +77,7 @@ void ClearCaseSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(groupC));
     ccCommand = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
-    ccBinaryPath = Utils::Environment::systemEnvironment().searchInPath(ccCommand);
+    ccBinaryPath = Utils::Environment::systemEnvironment().searchInPath(ccCommand).toString();
     timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     autoCheckOut = settings->value(QLatin1String(autoCheckOutKeyC), false).toBool();
     QString sDiffType = settings->value(QLatin1String(diffTypeKeyC), QLatin1String("Graphical")).toString();

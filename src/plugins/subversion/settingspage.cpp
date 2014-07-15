@@ -71,7 +71,7 @@ SubversionSettings SettingsPageWidget::settings() const
 
 void SettingsPageWidget::setSettings(const SubversionSettings &s)
 {
-    m_ui.pathChooser->setPath(s.binaryPath());
+    m_ui.pathChooser->setFileName(s.binaryPath());
     m_ui.usernameLineEdit->setText(s.stringValue(SubversionSettings::userKey));
     m_ui.passwordLineEdit->setText(s.stringValue(SubversionSettings::passwordKey));
     m_ui.userGroupBox->setChecked(s.boolValue(SubversionSettings::useAuthenticationKey));

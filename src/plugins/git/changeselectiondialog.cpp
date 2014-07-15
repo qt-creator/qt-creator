@@ -257,7 +257,7 @@ void ChangeSelectionDialog::recalculateDetails()
 
     connect(m_process, SIGNAL(finished(int)), this, SLOT(setDetails(int)));
 
-    m_process->start(m_gitBinaryPath, args);
+    m_process->start(m_gitBinaryPath.toString(), args);
     m_process->closeWriteChannel();
     if (!m_process->waitForStarted())
         m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));

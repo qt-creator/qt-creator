@@ -1125,7 +1125,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
                               unsigned flags,
                               QTextCodec *outputCodec) const
 {
-    const QString executable = m_settings.binaryPath();
+    const Utils::FileName executable = m_settings.binaryPath();
     CvsResponse response;
     if (executable.isEmpty()) {
         response.result = CvsResponse::OtherError;
@@ -1154,7 +1154,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
     }
 
     if (response.result != CvsResponse::Ok)
-        response.message = sp_resp.exitMessage(executable, timeOut);
+        response.message = sp_resp.exitMessage(executable.toString(), timeOut);
 
     return response;
 }

@@ -182,13 +182,13 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
 
 // Helper: Run a build process with merged stdout/stderr
 static inline bool runBuildProcessI(QProcess &proc,
-                                    const QString &binary,
+                                    const FileName &binary,
                                     const QStringList &args,
                                     int timeoutMS,
                                     bool ignoreNonNullExitCode,
                                     QString *output, QString *errorMessage)
 {
-    proc.start(binary, args);
+    proc.start(binary.toString(), args);
     if (!proc.waitForStarted()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                                     "Cannot start process: %1").
@@ -223,7 +223,7 @@ static inline bool runBuildProcessI(QProcess &proc,
 
 // Run a build process with merged stdout/stderr and qWarn about errors.
 static bool runBuildProcess(QProcess &proc,
-                            const QString &binary,
+                            const FileName &binary,
                             const QStringList &args,
                             int timeoutMS,
                             bool ignoreNonNullExitCode,
@@ -232,7 +232,7 @@ static bool runBuildProcess(QProcess &proc,
     const bool rc = runBuildProcessI(proc, binary, args, timeoutMS, ignoreNonNullExitCode, output, errorMessage);
     if (!rc) {
         // Fail - reformat error.
-        QString cmd = binary;
+        QString cmd = binary.toString();
         if (!args.isEmpty()) {
             cmd += QLatin1Char(' ');
             cmd += args.join(QString(QLatin1Char(' ')));
@@ -262,7 +262,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
                                                                               arguments.directory));
     log->append(newline);
 
-    const QString makeFullPath = arguments.environment.searchInPath(arguments.makeCommand);
+    const FileName makeFullPath = arguments.environment.searchInPath(arguments.makeCommand);
     if (QFileInfo(arguments.directory + QLatin1String("/Makefile")).exists()) {
         if (makeFullPath.isEmpty()) {
             *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary",
@@ -271,7 +271,8 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
         }
         const QString cleanTarget = QLatin1String("distclean");
         log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                                   "Running %1 %2...\n").arg(makeFullPath, cleanTarget));
+                                                   "Running %1 %2...\n")
+                    .arg(makeFullPath.toUserOutput(), cleanTarget));
         if (!runBuildProcess(proc, makeFullPath, QStringList(cleanTarget), 30000, true, log, errorMessage))
             return false;
     }
@@ -288,7 +289,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
                                             "Running %1 %2 ...\n").arg(arguments.qmakeCommand.toUserOutput(),
                                                                        qmakeArgs.join(QLatin1String(" "))));
 
-    if (!runBuildProcess(proc, arguments.qmakeCommand.toString(), qmakeArgs, 30000, false, log, errorMessage))
+    if (!runBuildProcess(proc, arguments.qmakeCommand, qmakeArgs, 30000, false, log, errorMessage))
         return false;
     log->append(newline);
     if (makeFullPath.isEmpty()) {
@@ -297,7 +298,8 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
         return false;
     }
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                            "Running %1 %2 ...\n").arg(makeFullPath, arguments.makeArguments.join(QLatin1String(" "))));
+                                            "Running %1 %2 ...\n")
+                .arg(makeFullPath.toUserOutput(), arguments.makeArguments.join(QLatin1String(" "))));
     if (!runBuildProcess(proc, makeFullPath, arguments.makeArguments, 120000, false, log, errorMessage))
         return false;
     return true;

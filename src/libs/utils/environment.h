@@ -30,6 +30,7 @@
 #ifndef UTILS_ENVIRONMENT_H
 #define UTILS_ENVIRONMENT_H
 
+#include "fileutils.h"
 #include "hostosinfo.h"
 #include "utils_global.h"
 
@@ -100,8 +101,8 @@ public:
     Environment::const_iterator constEnd() const;
     Environment::const_iterator constFind(const QString &name) const;
 
-    QString searchInPath(const QString &executable,
-                         const QStringList &additionalDirs = QStringList()) const;
+    FileName searchInPath(const QString &executable,
+                          const QStringList &additionalDirs = QStringList()) const;
     QStringList path() const;
 
     QString expandVariables(const QString &input) const;
@@ -111,7 +112,7 @@ public:
     bool operator==(const Environment &other) const;
 
 private:
-    QString searchInDirectory(const QStringList &execs, QString directory) const;
+    FileName searchInDirectory(const QStringList &execs, QString directory) const;
     QMap<QString, QString> m_values;
     OsType m_osType;
 };

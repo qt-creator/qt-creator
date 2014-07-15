@@ -77,7 +77,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
 {
     // Mac, Windows support folder or file.
     if (HostOsInfo::isWindowsHost()) {
-        const QString explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
+        const FileName explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
         if (explorer.isEmpty()) {
             QMessageBox::warning(parent,
                                  QApplication::translate("Core::Internal",
@@ -90,7 +90,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
         if (!QFileInfo(pathIn).isDir())
             param += QLatin1String("/select,");
         param += QDir::toNativeSeparators(pathIn);
-        QProcess::startDetached(explorer, param);
+        QProcess::startDetached(explorer.toString(), param);
     } else if (HostOsInfo::isMacHost()) {
         QStringList scriptArgs;
         scriptArgs << QLatin1String("-e")

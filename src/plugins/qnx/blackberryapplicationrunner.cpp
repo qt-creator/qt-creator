@@ -86,7 +86,7 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(const BlackBerryApplica
     Target *target = runConfiguration->target();
     BuildConfiguration *buildConfig = target->activeBuildConfiguration();
     m_environment = buildConfig->environment();
-    m_deployCmd = m_environment.searchInPath(QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD));
+    m_deployCmd = m_environment.searchInPath(QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD)).toString();
 
     QFileInfo fi(target->kit()->autoDetectionSource());
     m_bbApiLevelVersion = QnxVersionNumber::fromNdkEnvFileName(fi.baseName());
@@ -310,7 +310,7 @@ void BlackBerryApplicationRunner::checkQmlJsDebugArguments()
     }
 
     emit output(tr("Checking qmljsdebugger command line argument."), Utils::StdOutFormat);
-    QString nativePackagerCmd = m_environment.searchInPath(QLatin1String("blackberry-nativepackager"));
+    QString nativePackagerCmd = m_environment.searchInPath(QLatin1String("blackberry-nativepackager")).toString();
     if (nativePackagerCmd.isEmpty()) {
         emit output(tr("Cannot find Native Packager executable."), Utils::StdErrFormat);
         return;

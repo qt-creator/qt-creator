@@ -214,11 +214,11 @@ void Environment::clear()
     m_values.clear();
 }
 
-QString Environment::searchInDirectory(const QStringList &execs, QString directory) const
+FileName Environment::searchInDirectory(const QStringList &execs, QString directory) const
 {
     const QChar slash = QLatin1Char('/');
     if (directory.isEmpty())
-        return QString();
+        return FileName();
     // Avoid turing / into // on windows which triggers windows to check
     // for network drives!
     if (!directory.endsWith(slash))
@@ -227,16 +227,16 @@ QString Environment::searchInDirectory(const QStringList &execs, QString directo
     foreach (const QString &exec, execs) {
         QFileInfo fi(directory + exec);
         if (fi.exists() && fi.isFile() && fi.isExecutable())
-            return fi.absoluteFilePath();
+            return FileName::fromString(fi.absoluteFilePath());
     }
-    return QString();
+    return FileName();
 }
 
-QString Environment::searchInPath(const QString &executable,
-                                  const QStringList &additionalDirs) const
+FileName Environment::searchInPath(const QString &executable,
+                                   const QStringList &additionalDirs) const
 {
     if (executable.isEmpty())
-        return QString();
+        return FileName();
 
     QString exec = QDir::cleanPath(expandVariables(executable));
     QFileInfo fi(exec);
@@ -252,7 +252,7 @@ QString Environment::searchInPath(const QString &executable,
                 QString tmp = executable + ext.toLower();
                 if (fi.isAbsolute()) {
                     if (QFile::exists(tmp))
-                        return tmp;
+                        return FileName::fromString(tmp);
                 } else {
                     execs << tmp;
                 }
@@ -261,30 +261,30 @@ QString Environment::searchInPath(const QString &executable,
     }
 
     if (fi.isAbsolute())
-        return exec;
+        return FileName::fromString(exec);
 
     QSet<QString> alreadyChecked;
     foreach (const QString &dir, additionalDirs) {
         if (alreadyChecked.contains(dir))
             continue;
         alreadyChecked.insert(dir);
-        QString tmp = searchInDirectory(execs, dir);
+        FileName tmp = searchInDirectory(execs, dir);
         if (!tmp.isEmpty())
             return tmp;
     }
 
     if (executable.indexOf(QLatin1Char('/')) != -1)
-        return QString();
+        return FileName();
 
     foreach (const QString &p, path()) {
         if (alreadyChecked.contains(p))
             continue;
         alreadyChecked.insert(p);
-        QString tmp = searchInDirectory(execs, QDir::fromNativeSeparators(p));
+        FileName tmp = searchInDirectory(execs, QDir::fromNativeSeparators(p));
         if (!tmp.isEmpty())
             return tmp;
     }
-    return QString();
+    return FileName();
 }
 
 QStringList Environment::path() const

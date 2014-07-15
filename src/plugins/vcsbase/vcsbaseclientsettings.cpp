@@ -30,6 +30,7 @@
 #include "vcsbaseclientsettings.h"
 
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -177,7 +178,7 @@ public:
     QHash<QString, SettingValue> m_valueHash;
     QVariantHash m_defaultValueHash;
     QString m_settingsGroup;
-    mutable QString m_binaryFullPath;
+    mutable Utils::FileName m_binaryFullPath;
 };
 
 } // namespace Internal
@@ -353,7 +354,7 @@ QVariant::Type VcsBaseClientSettings::valueType(const QString &key) const
     return QVariant::Invalid;
 }
 
-QString VcsBaseClientSettings::binaryPath() const
+Utils::FileName VcsBaseClientSettings::binaryPath() const
 {
     if (d->m_binaryFullPath.isEmpty()) {
         d->m_binaryFullPath = Utils::Environment::systemEnvironment().searchInPath(

@@ -34,6 +34,8 @@
 
 #include  <coreplugin/ioutputpane.h>
 
+#include <utils/fileutils.h>
+
 namespace VcsBase {
 
 class VcsBaseOutputWindowPrivate;
@@ -73,7 +75,7 @@ public:
     // 'Executing <dir>: <cmd> <args>'. Hides well-known password option
     // arguments.
     static QString msgExecutionLogEntry(const QString &workingDir,
-                                        const QString &executable,
+                                        const Utils::FileName &executable,
                                         const QStringList &arguments);
 
     enum MessageStyle {
@@ -112,7 +114,7 @@ public slots:
     // Append a standard-formatted entry for command execution
     // (see msgExecutionLogEntry).
     void appendCommand(const QString &workingDirectory,
-                       const QString &binary,
+                       const Utils::FileName &binary,
                        const QStringList &args);
 
     // Append a blue message text and pop up.

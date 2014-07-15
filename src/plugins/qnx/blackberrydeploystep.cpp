@@ -69,7 +69,9 @@ bool BlackBerryDeployStep::init()
     if (!BlackBerryAbstractDeployStep::init())
         return false;
 
-    QString deployCmd = target()->activeBuildConfiguration()->environment().searchInPath(QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD));
+    Utils::FileName deployCmd =
+            target()->activeBuildConfiguration()->environment().searchInPath(
+                QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD));
     if (deployCmd.isEmpty()) {
         raiseError(tr("Could not find deploy command \"%1\" in the build environment")
                        .arg(QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD)));
@@ -98,7 +100,7 @@ bool BlackBerryDeployStep::init()
             args << QLatin1String("-password") << password();
         args << QnxUtils::addQuotes(QDir::toNativeSeparators(info.packagePath()));
 
-        addCommand(deployCmd, args);
+        addCommand(deployCmd.toString(), args);
     }
 
     return true;

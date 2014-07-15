@@ -372,7 +372,7 @@ QString ConsoleProcess::defaultTerminalEmulator()
     const Environment env = Environment::systemEnvironment();
     const int terminalCount = int(sizeof(knownTerminals) / sizeof(knownTerminals[0]));
     for (int i = 0; i < terminalCount; ++i) {
-        QString result = env.searchInPath(QLatin1String(knownTerminals[i].binary));
+        QString result = env.searchInPath(QLatin1String(knownTerminals[i].binary)).toString();
         if (!result.isEmpty()) {
             result += QLatin1Char(' ');
             result += QLatin1String(knownTerminals[i].options);
@@ -388,7 +388,7 @@ QStringList ConsoleProcess::availableTerminalEmulators()
     const Environment env = Environment::systemEnvironment();
     const int terminalCount = int(sizeof(knownTerminals) / sizeof(knownTerminals[0]));
     for (int i = 0; i < terminalCount; ++i) {
-        QString terminal = env.searchInPath(QLatin1String(knownTerminals[i].binary));
+        QString terminal = env.searchInPath(QLatin1String(knownTerminals[i].binary)).toString();
         if (!terminal.isEmpty()) {
             terminal += QLatin1Char(' ');
             terminal += QLatin1String(knownTerminals[i].options);

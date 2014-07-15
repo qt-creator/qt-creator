@@ -14,7 +14,9 @@ SOURCES += \
     utils.cpp \
     ../../libs/utils/qtcassert.cpp \
     ../../libs/utils/checkablemessagebox.cpp \
-    ../../libs/utils/environment.cpp
+    ../../libs/utils/environment.cpp \
+    ../../libs/utils/fileutils.cpp \
+    ../../libs/utils/savefile.cpp
 
 
 HEADERS += \
@@ -24,7 +26,9 @@ HEADERS += \
     utils.h \
     ../../libs/utils/qtcassert.h \
     ../../libs/utils/checkablemessagebox.h \
-    ../../libs/utils/environment.h
+    ../../libs/utils/environment.h \
+    ../../libs/utils/fileutils.h \
+    ../../libs/utils/savefile.h
 
 FORMS += \
     crashhandlerdialog.ui

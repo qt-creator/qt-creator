@@ -185,17 +185,17 @@ QString AbstractMsvcToolChain::makeCommand(const Utils::Environment &environment
     bool useJom = ProjectExplorerPlugin::projectExplorerSettings().useJom;
     const QString jom = QLatin1String("jom.exe");
     const QString nmake = QLatin1String("nmake.exe");
-    QString tmp;
+    Utils::FileName tmp;
 
     if (useJom) {
         tmp = environment.searchInPath(jom, QStringList()
                                        << QCoreApplication::applicationDirPath());
         if (!tmp.isEmpty())
-            return tmp;
+            return tmp.toString();
     }
     tmp = environment.searchInPath(nmake);
     if (!tmp.isEmpty())
-        return tmp;
+        return tmp.toString();
 
     // Nothing found :(
     return useJom ? jom : nmake;
@@ -205,7 +205,7 @@ Utils::FileName AbstractMsvcToolChain::compilerCommand() const
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
-    return Utils::FileName::fromString(env.searchInPath(QLatin1String("cl.exe")));
+    return env.searchInPath(QLatin1String("cl.exe"));
 }
 
 IOutputParser *AbstractMsvcToolChain::outputParser() const
@@ -273,14 +273,14 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     // if Creator is launched within a session set up by setenv.cmd.
     env.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(env);
-    QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    Utils::FileName cmdPath = Utils::FileName::fromUserInput(QString::fromLocal8Bit(qgetenv("COMSPEC")));
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
     QString cmdArguments = QLatin1String(" /E:ON /V:ON /c \"");
     cmdArguments += QDir::toNativeSeparators(saver.fileName());
     cmdArguments += QLatin1Char('"');
-    run.setCommand(cmdPath, cmdArguments);
+    run.setCommand(cmdPath.toString(), cmdArguments);
     if (debug)
         qDebug() << "readEnvironmentSetting: " << call << cmdPath << cmdArguments
                  << " Env: " << env.size();

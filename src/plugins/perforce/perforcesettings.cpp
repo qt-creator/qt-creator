@@ -109,7 +109,8 @@ void PerforceSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(groupC));
     m_settings.p4Command = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
-    m_settings.p4BinaryPath = Utils::Environment::systemEnvironment().searchInPath(m_settings.p4Command);
+    m_settings.p4BinaryPath =
+            Utils::Environment::systemEnvironment().searchInPath(m_settings.p4Command).toString();
     m_settings.defaultEnv = settings->value(QLatin1String(defaultKeyC), true).toBool();
     m_settings.p4Port = settings->value(QLatin1String(portKeyC), QString()).toString();
     m_settings.p4Client = settings->value(QLatin1String(clientKeyC), QString()).toString();

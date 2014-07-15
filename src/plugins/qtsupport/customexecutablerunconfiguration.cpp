@@ -181,8 +181,8 @@ bool CustomExecutableRunConfiguration::validateExecutable(QString *executable, Q
     EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
     if (aspect)
         env = aspect->environment();
-    const QString exec = env.searchInPath(Utils::expandMacros(m_executable, macroExpander()),
-                                          QStringList(workingDirectory()));
+    const Utils::FileName exec = env.searchInPath(Utils::expandMacros(m_executable, macroExpander()),
+                                                  QStringList(workingDirectory()));
     if (exec.isEmpty()) {
         if (errorMessage)
             *errorMessage = tr("The executable\n%1\ncannot be found in the path.").
@@ -190,7 +190,7 @@ bool CustomExecutableRunConfiguration::validateExecutable(QString *executable, Q
         return false;
     }
     if (executable)
-        *executable = QDir::cleanPath(exec);
+        *executable = exec.toString();
     return true;
 }
 
