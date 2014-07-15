@@ -75,7 +75,6 @@ void PuppetBuildProgressDialog::newBuildOutput(const QByteArray &standardOutput)
 {
     m_lineCount += standardOutput.count('\n');
     setProgress(m_lineCount);
-    qDebug() << m_lineCount;
 }
 
 }
