@@ -154,7 +154,11 @@ QString GitVersionControl::vcsTopic(const QString &directory)
 
 QStringList GitVersionControl::additionalToolsPath() const
 {
-    return m_client->settings()->searchPathList();
+    QStringList res = m_client->settings()->searchPathList();
+    const QString binaryPath = m_client->gitBinDirectory().toString();
+    if (!binaryPath.isEmpty() && !res.contains(binaryPath))
+        res << binaryPath;
+    return res;
 }
 
 bool GitVersionControl::managesDirectory(const QString &directory, QString *topLevel) const
