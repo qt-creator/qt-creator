@@ -42,6 +42,8 @@ class QFileInfo;
 class QDir;
 QT_END_NAMESPACE
 
+namespace Utils { class FileName; }
+
 namespace CppTools {
 
 class CppToolsSettings;
@@ -67,6 +69,8 @@ public:
     static const QStringList &headerPrefixes();
     static const QStringList &sourcePrefixes();
     static void clearHeaderSourceCache();
+    static Utils::FileName licenseTemplatePath();
+    static QString licenseTemplate();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();

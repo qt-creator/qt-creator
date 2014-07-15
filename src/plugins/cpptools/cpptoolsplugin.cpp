@@ -48,6 +48,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/variablemanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 
@@ -94,6 +95,16 @@ CppToolsPlugin *CppToolsPlugin::instance()
 void CppToolsPlugin::clearHeaderSourceCache()
 {
     m_headerSourceMapping.clear();
+}
+
+Utils::FileName CppToolsPlugin::licenseTemplatePath()
+{
+    return Utils::FileName::fromString(m_instance->m_fileSettings->licenseTemplatePath);
+}
+
+QString CppToolsPlugin::licenseTemplate()
+{
+    return m_instance->m_fileSettings->licenseTemplate();
 }
 
 const QStringList &CppToolsPlugin::headerSearchPaths()
@@ -172,6 +183,13 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
                                                 : tr("Ctrl+E, F4")));
     mcpptools->addAction(command);
     connect(openInNextSplitAction, SIGNAL(triggered()), this, SLOT(switchHeaderSourceInNextSplit()));
+
+    Core::VariableManager::registerVariable("Cpp:LicenseTemplate",
+                                            tr("The license template."),
+                                            []() { return CppToolsPlugin::licenseTemplate(); });
+    Core::VariableManager::registerFileVariables("Cpp:LicenseTemplatePath",
+                                                 tr("The configured path to the license template."),
+                                                 []() { return CppToolsPlugin::licenseTemplatePath().toString(); });
 
     return true;
 }
