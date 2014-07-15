@@ -377,9 +377,9 @@ void FancyMainWindow::showEvent(QShowEvent *event)
 
 void FancyMainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
-    QMenu *menu = createPopupMenu();
-    menu->exec(event->globalPos());
-    delete menu;
+    QMenu menu;
+    addDockActionsToMenu(&menu);
+    menu.exec(event->globalPos());
 }
 
 void FancyMainWindow::handleVisibilityChanged(bool visible)
@@ -448,7 +448,7 @@ static bool actionLessThan(const QAction *action1, const QAction *action2)
     return action1->text().toLower() < action2->text().toLower();
 }
 
-QMenu *FancyMainWindow::createPopupMenu()
+void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
 {
     QList<QAction *> actions;
     QList<QDockWidget *> dockwidgets = findChildren<QDockWidget *>();
@@ -460,12 +460,10 @@ QMenu *FancyMainWindow::createPopupMenu()
         }
     }
     qSort(actions.begin(), actions.end(), actionLessThan);
-    QMenu *menu = new QMenu(this);
     foreach (QAction *action, actions)
         menu->addAction(action);
     menu->addAction(&d->m_menuSeparator);
     menu->addAction(&d->m_resetLayoutAction);
-    return menu;
 }
 
 QAction *FancyMainWindow::menuSeparator() const

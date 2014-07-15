@@ -67,7 +67,7 @@ public:
     QAction *resetLayoutAction() const;
 
     // Overwritten to add locked/reset.
-    virtual QMenu *createPopupMenu();
+    void addDockActionsToMenu(QMenu *menu);
 
     QDockWidget *toolBarDockWidget() const;
     void setToolBarDockWidget(QDockWidget *dock);
