@@ -59,7 +59,7 @@ enum OutputColumnIndex {
     OUTPUT_COLUMN_TEXT,
     OUTPUT_COLUMN_FILE,
     OUTPUT_COLUMN_LINE,
-    OUTPUT_COLUMN_LAST
+    OUTPUT_COLUMN_COUNT
 };
 
 const char OUTPUT_COLUMN_TEXT_TITLE[] = QT_TRANSLATE_NOOP("Todo::Internal::TodoItemsModel", "Description");
