@@ -4467,6 +4467,7 @@ public:
         , mutable_token(0)
         , exception_specification(0)
         , trailing_return_type(0)
+        , symbol(0)
     {}
 
     virtual LambdaDeclaratorAST *asLambdaDeclarator() { return this; }
