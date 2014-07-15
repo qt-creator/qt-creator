@@ -33,14 +33,13 @@ public:
 
     virtual bool match(AccessDeclarationAST *node, AccessDeclarationAST *pattern);
     virtual bool match(AliasDeclarationAST *node, AliasDeclarationAST *pattern);
+    virtual bool match(AlignmentSpecifierAST *node, AlignmentSpecifierAST *pattern);
     virtual bool match(AlignofExpressionAST *node, AlignofExpressionAST *pattern);
     virtual bool match(AnonymousNameAST *node, AnonymousNameAST *pattern);
     virtual bool match(ArrayAccessAST *node, ArrayAccessAST *pattern);
     virtual bool match(ArrayDeclaratorAST *node, ArrayDeclaratorAST *pattern);
     virtual bool match(ArrayInitializerAST *node, ArrayInitializerAST *pattern);
     virtual bool match(AsmDefinitionAST *node, AsmDefinitionAST *pattern);
-    virtual bool match(AttributeAST *node, AttributeAST *pattern);
-    virtual bool match(AttributeSpecifierAST *node, AttributeSpecifierAST *pattern);
     virtual bool match(BaseSpecifierAST *node, BaseSpecifierAST *pattern);
     virtual bool match(BinaryExpressionAST *node, BinaryExpressionAST *pattern);
     virtual bool match(BoolLiteralAST *node, BoolLiteralAST *pattern);
@@ -84,6 +83,8 @@ public:
     virtual bool match(ForeachStatementAST *node, ForeachStatementAST *pattern);
     virtual bool match(FunctionDeclaratorAST *node, FunctionDeclaratorAST *pattern);
     virtual bool match(FunctionDefinitionAST *node, FunctionDefinitionAST *pattern);
+    virtual bool match(GnuAttributeAST *node, GnuAttributeAST *pattern);
+    virtual bool match(GnuAttributeSpecifierAST *node, GnuAttributeSpecifierAST *pattern);
     virtual bool match(GotoStatementAST *node, GotoStatementAST *pattern);
     virtual bool match(IdExpressionAST *node, IdExpressionAST *pattern);
     virtual bool match(IfStatementAST *node, IfStatementAST *pattern);

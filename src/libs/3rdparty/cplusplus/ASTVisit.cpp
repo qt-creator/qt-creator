@@ -54,7 +54,15 @@ void SimpleSpecifierAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void AttributeSpecifierAST::accept0(ASTVisitor *visitor)
+void AlignmentSpecifierAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(typeIdExprOrAlignmentExpr, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void GnuAttributeSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(attribute_list, visitor);
@@ -62,7 +70,7 @@ void AttributeSpecifierAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void AttributeAST::accept0(ASTVisitor *visitor)
+void GnuAttributeAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(expression_list, visitor);

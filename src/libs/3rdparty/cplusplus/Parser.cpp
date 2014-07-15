@@ -633,7 +633,7 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
         if (_languageFeatures.objCEnabled && LA() == T___ATTRIBUTE__) {
             const unsigned start = cursor();
             SpecifierListAST *attributes = 0, **attr = &attributes;
-            while (parseAttributeSpecifier(*attr))
+            while (parseGnuAttributeSpecifier(*attr))
                 attr = &(*attr)->next;
             if (LA() == T_AT_INTERFACE)
                 return parseObjCInterface(node, attributes);
@@ -761,11 +761,7 @@ bool Parser::parseNamespace(DeclarationAST *&node)
     ast->namespace_token = namespace_token;
     if (LA() == T_IDENTIFIER)
         ast->identifier_token = consumeToken();
-    SpecifierListAST **attr_ptr = &ast->attribute_list;
-    while (LA() == T___ATTRIBUTE__) {
-        parseAttributeSpecifier(*attr_ptr);
-        attr_ptr = &(*attr_ptr)->next;
-    }
+    parseOptionalAttributeSpecifierSequence(ast->attribute_list);
     if (LA() == T_LBRACE) {
         parseLinkageBody(ast->linkage_body);
     } else { // attempt to do error recovery
@@ -1196,9 +1192,8 @@ bool Parser::parseCvQualifiers(SpecifierListAST *&node)
             spec->specifier_token = consumeToken();
             *ast = new (_pool) SpecifierListAST(spec);
             ast = &(*ast)->next;
-        } else if (LA() == T___ATTRIBUTE__) {
-            parseAttributeSpecifier(*ast);
-            ast = &(*ast)->next;
+        } else if (parseOptionalAttributeSpecifierSequence(*ast)) {
+            continue;
         } else {
             break;
         }
@@ -1398,11 +1393,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
     DEBUG_THIS_RULE();
     unsigned start = cursor();
     SpecifierListAST *attributes = 0;
-    SpecifierListAST **attribute_ptr = &attributes;
-    while (LA() == T___ATTRIBUTE__) {
-        parseAttributeSpecifier(*attribute_ptr);
-        attribute_ptr = &(*attribute_ptr)->next;
-    }
+    parseOptionalAttributeSpecifierSequence(attributes);
 
     PtrOperatorListAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
     while (parsePtrOperator(*ptr_operators_tail))
@@ -1577,12 +1568,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
             consumeToken(); // skip T_RPAREN
     }
 
-    SpecifierListAST **spec_ptr = &node->post_attribute_list;
-    while (LA() == T___ATTRIBUTE__) {
-        parseAttributeSpecifier(*spec_ptr);
-        spec_ptr = &(*spec_ptr)->next;
-    }
-
+    parseOptionalAttributeSpecifierSequence(node->post_attribute_list);
     return true;
 }
 
@@ -1985,11 +1971,8 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
 
     unsigned classkey_token = consumeToken();
 
-    SpecifierListAST *attributes = 0, **attr_ptr = &attributes;
-    while (LA() == T___ATTRIBUTE__) {
-        parseAttributeSpecifier(*attr_ptr);
-        attr_ptr = &(*attr_ptr)->next;
-    }
+    SpecifierListAST *attributes = 0;
+    parseOptionalAttributeSpecifierSequence(attributes);
 
     if (LA(1) == T_IDENTIFIER && LA(2) == T_IDENTIFIER) {
         const Identifier *id = tok(2).identifier;
@@ -2464,12 +2447,8 @@ bool Parser::parseElaboratedTypeSpecifier(SpecifierListAST *&node)
     if (lookAtClassKey() || LA() == T_ENUM || LA() == T_TYPENAME) {
         unsigned classkey_token = consumeToken();
 
-        SpecifierListAST *attributes = 0, **attr_ptr = &attributes;
-        while (LA() == T___ATTRIBUTE__) {
-            parseAttributeSpecifier(*attr_ptr);
-            attr_ptr = &(*attr_ptr)->next;
-        }
-
+        SpecifierListAST *attributes = 0;
+        parseOptionalAttributeSpecifierSequence(attributes);
         NameAST *name = 0;
         if (parseName(name)) {
             ElaboratedTypeSpecifierAST *ast = new (_pool) ElaboratedTypeSpecifierAST;
@@ -3780,39 +3759,83 @@ bool Parser::lookAtClassKey() const
     }
 }
 
-bool Parser::parseAttributeSpecifier(SpecifierListAST *&node)
+bool Parser::parseOptionalAttributeSpecifierSequence(SpecifierListAST *&attribute_list)
+{
+    bool didRead = false;
+    while (parseAttributeSpecifier(attribute_list))
+        didRead = true;
+    return didRead;
+}
+
+bool Parser::parseAttributeSpecifier(SpecifierListAST *&attribute_list)
+{
+    SpecifierListAST **attr_ptr = &attribute_list;
+    switch (LA()) {
+    case T_ALIGNAS: {
+        AlignmentSpecifierAST *ast = new (_pool) AlignmentSpecifierAST;
+        ast->align_token = consumeToken();
+        match(T_LPAREN, &ast->lparen_token);
+
+        const unsigned saved = cursor();
+        if (!parseTypeId(ast->typeIdExprOrAlignmentExpr) ||
+                (LA() != T_RPAREN &&
+                (LA(1) != T_DOT_DOT_DOT || LA(2) != T_RPAREN))) {
+            rewind(saved);
+            parseExpression(ast->typeIdExprOrAlignmentExpr);
+        }
+
+        if (LA() == T_DOT_DOT_DOT)
+            ast->ellipses_token = consumeToken();
+        match(T_RPAREN, &ast->rparen_token);
+        attribute_list = new (_pool) SpecifierListAST(ast);
+        return true;
+    }
+        //### TODO: C++11-style attributes
+//    case T_LBRACKET:
+    case T___ATTRIBUTE__:
+        while (LA() == T___ATTRIBUTE__) {
+            parseGnuAttributeSpecifier(*attr_ptr);
+            attr_ptr = &(*attr_ptr)->next;
+        }
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool Parser::parseGnuAttributeSpecifier(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() != T___ATTRIBUTE__)
         return false;
 
-    AttributeSpecifierAST *ast = new (_pool) AttributeSpecifierAST;
+    GnuAttributeSpecifierAST *ast = new (_pool) GnuAttributeSpecifierAST;
     ast->attribute_token = consumeToken();
     match(T_LPAREN, &ast->first_lparen_token);
     match(T_LPAREN, &ast->second_lparen_token);
-    parseAttributeList(ast->attribute_list);
+    parseGnuAttributeList(ast->attribute_list);
     match(T_RPAREN, &ast->first_rparen_token);
     match(T_RPAREN, &ast->second_rparen_token);
     node = new (_pool) SpecifierListAST(ast);
     return true;
 }
 
-bool Parser::parseAttributeList(AttributeListAST *&node)
+bool Parser::parseGnuAttributeList(GnuAttributeListAST *&node)
 {
     DEBUG_THIS_RULE();
 
-    AttributeListAST **iter = &node;
+    GnuAttributeListAST **iter = &node;
     while (LA() == T_CONST || LA() == T_IDENTIFIER) {
-        *iter = new (_pool) AttributeListAST;
+        *iter = new (_pool) GnuAttributeListAST;
 
         if (LA() == T_CONST) {
-            AttributeAST *attr = new (_pool) AttributeAST;
+            GnuAttributeAST *attr = new (_pool) GnuAttributeAST;
             attr->identifier_token = consumeToken();
 
             (*iter)->value = attr;
             iter = &(*iter)->next;
         } else if (LA() == T_IDENTIFIER) {
-            AttributeAST *attr = new (_pool) AttributeAST;
+            GnuAttributeAST *attr = new (_pool) GnuAttributeAST;
             attr->identifier_token = consumeToken();
             if (LA() == T_LPAREN) {
                 attr->lparen_token = consumeToken();
@@ -3837,7 +3860,7 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T___ATTRIBUTE__) {
-        return parseAttributeSpecifier(node);
+        return parseGnuAttributeSpecifier(node);
     } else if (LA() == T___TYPEOF__) {
         TypeofSpecifierAST *ast = new (_pool) TypeofSpecifierAST;
         ast->typeof_token = consumeToken();
@@ -3893,8 +3916,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
             spec->specifier_token = consumeToken();
             *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(spec);
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
-        } else if (LA() == T___ATTRIBUTE__) {
-            parseAttributeSpecifier(*decl_specifier_seq_ptr);
+        } else if (parseAttributeSpecifier(*decl_specifier_seq_ptr)) {
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
         } else if (! named_type_specifier && ! has_complex_type_specifier && lookAtBuiltinTypeSpecifier()) {
             parseBuiltinTypeSpecifier(*decl_specifier_seq_ptr);
@@ -5609,7 +5631,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
     DEBUG_THIS_RULE();
     if (! attributes && LA() == T___ATTRIBUTE__) {
         SpecifierListAST **attr = &attributes;
-        while (parseAttributeSpecifier(*attr))
+        while (parseGnuAttributeSpecifier(*attr))
             attr = &(*attr)->next;
     }
 
@@ -5698,7 +5720,7 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
     DEBUG_THIS_RULE();
     if (! attributes && LA() == T___ATTRIBUTE__) {
         SpecifierListAST **attr = &attributes;
-        while (parseAttributeSpecifier(*attr))
+        while (parseGnuAttributeSpecifier(*attr))
             attr = &(*attr)->next;
     }
 
@@ -6200,7 +6222,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
     }
 
     SpecifierListAST **attr = &ast->attribute_list;
-    while (parseAttributeSpecifier(*attr))
+    while (parseGnuAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
     node = ast;
@@ -6309,7 +6331,7 @@ bool Parser::parseObjCKeywordDeclaration(ObjCSelectorArgumentAST *&argument, Obj
     parseObjCTypeName(node->type_name);
 
     SpecifierListAST **attr = &node->attribute_list;
-    while (parseAttributeSpecifier(*attr))
+    while (parseGnuAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
     SimpleNameAST *param_name = new (_pool) SimpleNameAST;
@@ -6509,7 +6531,7 @@ bool Parser::parseLambdaDeclarator(LambdaDeclaratorAST *&node)
     match(T_RPAREN, &ast->rparen_token);
 
     SpecifierListAST **attr = &ast->attributes;
-    while (parseAttributeSpecifier(*attr))
+    while (parseGnuAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
     if (LA() == T_MUTABLE)
@@ -6533,7 +6555,7 @@ bool Parser::parseTrailingReturnType(TrailingReturnTypeAST *&node)
     ast->arrow_token = consumeToken();
 
     SpecifierListAST **attr = &ast->attributes;
-    while (parseAttributeSpecifier(*attr))
+    while (parseGnuAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
     parseTrailingTypeSpecifierSeq(ast->type_specifier_list);

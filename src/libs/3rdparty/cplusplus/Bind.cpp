@@ -303,14 +303,14 @@ const Name *Bind::objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasAr
     return identifier(ast->name_token);
 }
 
-bool Bind::visit(AttributeAST *ast)
+bool Bind::visit(GnuAttributeAST *ast)
 {
     (void) ast;
     CPP_CHECK(!"unreachable");
     return false;
 }
 
-void Bind::attribute(AttributeAST *ast)
+void Bind::attribute(GnuAttributeAST *ast)
 {
     if (! ast)
         return;
@@ -2902,12 +2902,20 @@ bool Bind::visit(SimpleSpecifierAST *ast)
     return false;
 }
 
-bool Bind::visit(AttributeSpecifierAST *ast)
+bool Bind::visit(AlignmentSpecifierAST *ast)
+{
+    // Prevent visiting the type-id or alignment expression from changing the currently
+    // calculated type:
+    expression(ast->typeIdExprOrAlignmentExpr);
+    return false;
+}
+
+bool Bind::visit(GnuAttributeSpecifierAST *ast)
 {
     // unsigned attribute_token = ast->attribute_token;
     // unsigned first_lparen_token = ast->first_lparen_token;
     // unsigned second_lparen_token = ast->second_lparen_token;
-    for (AttributeListAST *it = ast->attribute_list; it; it = it->next) {
+    for (GnuAttributeListAST *it = ast->attribute_list; it; it = it->next) {
         this->attribute(it->value);
     }
     // unsigned first_rparen_token = ast->first_rparen_token;

@@ -115,6 +115,8 @@ private Q_SLOTS:
     void usingInDifferentNamespace_QTCREATORBUG7978();
 
     void unicodeIdentifier();
+
+    void inAlignas();
 };
 
 void tst_FindUsages::dump(const QList<Usage> &usages) const
@@ -982,6 +984,37 @@ void tst_FindUsages::unicodeIdentifier()
     QCOMPARE(usages.size(), 2);
     QCOMPARE(usages.at(0).len, 7);
     QCOMPARE(usages.at(1).len, 7);
+}
+
+void tst_FindUsages::inAlignas()
+{
+    const QByteArray src = "\n"
+            "struct One {};\n"
+            "struct alignas(One) Two {};\n"
+            ;
+
+    Document::Ptr doc = Document::create("inAlignas");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 2U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *c = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(c);
+    QCOMPARE(c->name()->identifier()->chars(), "One");
+
+    FindUsages find(src, doc, snapshot);
+    find(c);
+    QCOMPARE(find.usages().size(), 2);
+    QCOMPARE(find.usages()[0].line, 1);
+    QCOMPARE(find.usages()[0].col, 7);
+    QCOMPARE(find.usages()[1].line, 2);
+    QCOMPARE(find.usages()[1].col, 15);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)

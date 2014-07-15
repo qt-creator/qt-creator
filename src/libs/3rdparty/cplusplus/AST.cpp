@@ -68,7 +68,7 @@ bool AST::match(AST *pattern, ASTMatcher *matcher)
     return match0(pattern, matcher);
 }
 
-unsigned AttributeSpecifierAST::firstToken() const
+unsigned GnuAttributeSpecifierAST::firstToken() const
 {
     return attribute_token;
 }
@@ -242,7 +242,7 @@ unsigned AsmDefinitionAST::lastToken() const
 }
 
 /** \generated */
-unsigned AttributeAST::firstToken() const
+unsigned GnuAttributeAST::firstToken() const
 {
     if (identifier_token)
         return identifier_token;
@@ -259,7 +259,7 @@ unsigned AttributeAST::firstToken() const
 }
 
 /** \generated */
-unsigned AttributeAST::lastToken() const
+unsigned GnuAttributeAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
@@ -4194,7 +4194,7 @@ unsigned WhileStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned AttributeSpecifierAST::lastToken() const
+unsigned GnuAttributeSpecifierAST::lastToken() const
 {
     if (second_rparen_token)
         return second_rparen_token + 1;
@@ -4521,6 +4521,40 @@ unsigned DotDesignatorAST::lastToken() const
         return identifier_token + 1;
     if (dot_token)
         return dot_token + 1;
+    return 1;
+}
+
+/** \generated */
+unsigned AlignmentSpecifierAST::firstToken() const
+{
+    if (align_token)
+        return align_token;
+    if (lparen_token)
+        return lparen_token;
+    if (typeIdExprOrAlignmentExpr)
+        if (unsigned candidate = typeIdExprOrAlignmentExpr->firstToken())
+            return candidate;
+    if (ellipses_token)
+        return ellipses_token;
+    if (rparen_token)
+        return rparen_token;
+    return 0;
+}
+
+/** \generated */
+unsigned AlignmentSpecifierAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+    if (ellipses_token)
+        return ellipses_token + 1;
+    if (typeIdExprOrAlignmentExpr)
+        if (unsigned candidate = typeIdExprOrAlignmentExpr->lastToken())
+            return candidate;
+    if (lparen_token)
+        return lparen_token + 1;
+    if (align_token)
+        return align_token + 1;
     return 1;
 }
 

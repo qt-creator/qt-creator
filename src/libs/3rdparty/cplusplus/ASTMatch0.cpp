@@ -56,17 +56,25 @@ bool SimpleSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
-bool AttributeSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
+bool AlignmentSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
 {
-    if (AttributeSpecifierAST *_other = pattern->asAttributeSpecifier())
+    if (AlignmentSpecifierAST *_other = pattern->asAlignmentSpecifier())
         return matcher->match(this, _other);
 
     return false;
 }
 
-bool AttributeAST::match0(AST *pattern, ASTMatcher *matcher)
+bool GnuAttributeSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
 {
-    if (AttributeAST *_other = pattern->asAttribute())
+    if (GnuAttributeSpecifierAST *_other = pattern->asGnuAttributeSpecifier())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool GnuAttributeAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (GnuAttributeAST *_other = pattern->asGnuAttribute())
         return matcher->match(this, _other);
 
     return false;

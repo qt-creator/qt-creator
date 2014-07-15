@@ -126,13 +126,13 @@ public:
 
     virtual AccessDeclarationAST *asAccessDeclaration() { return 0; }
     virtual AliasDeclarationAST *asAliasDeclaration() { return 0; }
+    virtual AlignmentSpecifierAST *asAlignmentSpecifier() { return 0; }
     virtual AlignofExpressionAST *asAlignofExpression() { return 0; }
     virtual AnonymousNameAST *asAnonymousName() { return 0; }
     virtual ArrayAccessAST *asArrayAccess() { return 0; }
     virtual ArrayDeclaratorAST *asArrayDeclarator() { return 0; }
     virtual ArrayInitializerAST *asArrayInitializer() { return 0; }
     virtual AsmDefinitionAST *asAsmDefinition() { return 0; }
-    virtual AttributeAST *asAttribute() { return 0; }
     virtual AttributeSpecifierAST *asAttributeSpecifier() { return 0; }
     virtual BaseSpecifierAST *asBaseSpecifier() { return 0; }
     virtual BinaryExpressionAST *asBinaryExpression() { return 0; }
@@ -182,6 +182,8 @@ public:
     virtual ForeachStatementAST *asForeachStatement() { return 0; }
     virtual FunctionDeclaratorAST *asFunctionDeclarator() { return 0; }
     virtual FunctionDefinitionAST *asFunctionDefinition() { return 0; }
+    virtual GnuAttributeAST *asGnuAttribute() { return 0; }
+    virtual GnuAttributeSpecifierAST *asGnuAttributeSpecifier() { return 0; }
     virtual GotoStatementAST *asGotoStatement() { return 0; }
     virtual IdExpressionAST *asIdExpression() { return 0; }
     virtual IfStatementAST *asIfStatement() { return 0; }
@@ -463,15 +465,57 @@ protected:
 class CPLUSPLUS_EXPORT AttributeSpecifierAST: public SpecifierAST
 {
 public:
+    AttributeSpecifierAST()
+    {}
+
+    virtual AttributeSpecifierAST *asAttributeSpecifier() { return this; }
+
+    virtual AttributeSpecifierAST *clone(MemoryPool *pool) const = 0;
+};
+
+class CPLUSPLUS_EXPORT AlignmentSpecifierAST: public AttributeSpecifierAST
+{
+public:
+    unsigned align_token;
+    unsigned lparen_token;
+    ExpressionAST *typeIdExprOrAlignmentExpr;
+    unsigned ellipses_token;
+    unsigned rparen_token;
+
+public:
+    AlignmentSpecifierAST()
+        : align_token(0)
+        , lparen_token(0)
+        , typeIdExprOrAlignmentExpr(0)
+        , ellipses_token(0)
+        , rparen_token(0)
+    {}
+
+    virtual AlignmentSpecifierAST *asAlignmentSpecifier() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual AlignmentSpecifierAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+
+class CPLUSPLUS_EXPORT GnuAttributeSpecifierAST: public AttributeSpecifierAST
+{
+public:
     unsigned attribute_token;
     unsigned first_lparen_token;
     unsigned second_lparen_token;
-    AttributeListAST *attribute_list;
+    GnuAttributeListAST *attribute_list;
     unsigned first_rparen_token;
     unsigned second_rparen_token;
 
 public:
-    AttributeSpecifierAST()
+    GnuAttributeSpecifierAST()
         : attribute_token(0)
         , first_lparen_token(0)
         , second_lparen_token(0)
@@ -480,19 +524,19 @@ public:
         , second_rparen_token(0)
     {}
 
-    virtual AttributeSpecifierAST *asAttributeSpecifier() { return this; }
+    virtual GnuAttributeSpecifierAST *asGnuAttributeSpecifier() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual AttributeSpecifierAST *clone(MemoryPool *pool) const;
+    virtual GnuAttributeSpecifierAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-class CPLUSPLUS_EXPORT AttributeAST: public AST
+class CPLUSPLUS_EXPORT GnuAttributeAST: public AST
 {
 public:
     unsigned identifier_token;
@@ -502,7 +546,7 @@ public:
     unsigned rparen_token;
 
 public:
-    AttributeAST()
+    GnuAttributeAST()
         : identifier_token(0)
         , lparen_token(0)
         , tag_token(0)
@@ -510,12 +554,12 @@ public:
         , rparen_token(0)
     {}
 
-    virtual AttributeAST *asAttribute() { return this; }
+    virtual GnuAttributeAST *asGnuAttribute() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual AttributeAST *clone(MemoryPool *pool) const;
+    virtual GnuAttributeAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

@@ -73,7 +73,28 @@ bool ASTMatcher::match(SimpleSpecifierAST *node, SimpleSpecifierAST *pattern)
     return true;
 }
 
-bool ASTMatcher::match(AttributeSpecifierAST *node, AttributeSpecifierAST *pattern)
+bool ASTMatcher::match(AlignmentSpecifierAST *node, AlignmentSpecifierAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->align_token = node->align_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->typeIdExprOrAlignmentExpr)
+        pattern->typeIdExprOrAlignmentExpr = node->typeIdExprOrAlignmentExpr;
+    else if (! AST::match(node->typeIdExprOrAlignmentExpr, pattern->typeIdExprOrAlignmentExpr, this))
+        return false;
+
+    pattern->ellipses_token = node->ellipses_token;
+
+    pattern->rparen_token = node->rparen_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(GnuAttributeSpecifierAST *node, GnuAttributeSpecifierAST *pattern)
 {
     (void) node;
     (void) pattern;
@@ -96,7 +117,7 @@ bool ASTMatcher::match(AttributeSpecifierAST *node, AttributeSpecifierAST *patte
     return true;
 }
 
-bool ASTMatcher::match(AttributeAST *node, AttributeAST *pattern)
+bool ASTMatcher::match(GnuAttributeAST *node, GnuAttributeAST *pattern)
 {
     (void) node;
     (void) pattern;

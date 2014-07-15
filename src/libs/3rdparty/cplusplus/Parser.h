@@ -164,8 +164,10 @@ public:
     bool parseTypeParameter(DeclarationAST *&node);
 
     bool parseBuiltinTypeSpecifier(SpecifierListAST *&node);
-    bool parseAttributeSpecifier(SpecifierListAST *&node);
-    bool parseAttributeList(AttributeListAST *&node);
+    bool parseOptionalAttributeSpecifierSequence(SpecifierListAST *&attribute_list);
+    bool parseAttributeSpecifier(SpecifierListAST *&attribute_list);
+    bool parseGnuAttributeSpecifier(SpecifierListAST *&node);
+    bool parseGnuAttributeList(GnuAttributeListAST *&node);
 
     bool parseDeclSpecifierSeq(SpecifierListAST *&node,
                                bool noStorageSpecifiers = false,
