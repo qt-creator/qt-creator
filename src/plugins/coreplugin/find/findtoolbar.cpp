@@ -42,6 +42,7 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -567,12 +568,8 @@ void FindToolBar::updateIcons()
     bool regexp = effectiveFlags & FindRegularExpression;
     bool preserveCase = effectiveFlags & FindPreserveCase;
     if (!casesensitive && !wholewords && !regexp && !preserveCase) {
-        QPixmap pixmap(17, 17);
-        pixmap.fill(Qt::transparent);
-        QPainter painter(&pixmap);
-        const QPixmap mag = QPixmap(QLatin1String(Core::Constants::ICON_MAGNIFIER));
-        painter.drawPixmap(0, (pixmap.height() - mag.height()) / 2, mag);
-        m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left, pixmap);
+        m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left,
+                                       Utils::StyleHelper::dpiSpecificPixmap(QLatin1Literal(Core::Constants::ICON_MAGNIFIER)));
     } else {
         m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left,
                                        IFindFilter::pixmapForFindFlags(effectiveFlags));
