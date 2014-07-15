@@ -411,19 +411,20 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
                                                                   currentProject);
         if (!path.isEmpty())
             return path;
-    }
 
     // Find files in other projects
-    CppModelManager *modelManager = CppModelManager::instance();
-    QList<CppModelManagerInterface::ProjectInfo> projectInfos = modelManager->projectInfos();
-    foreach (const CppModelManagerInterface::ProjectInfo &projectInfo, projectInfos) {
-        const ProjectExplorer::Project *project = projectInfo.project().data();
-        if (project == currentProject)
-            continue; // We have already checked the current project.
+    } else {
+        CppModelManager *modelManager = CppModelManager::instance();
+        QList<CppModelManagerInterface::ProjectInfo> projectInfos = modelManager->projectInfos();
+        foreach (const CppModelManagerInterface::ProjectInfo &projectInfo, projectInfos) {
+            const ProjectExplorer::Project *project = projectInfo.project().data();
+            if (project == currentProject)
+                continue; // We have already checked the current project.
 
-        const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames, project);
-        if (!path.isEmpty())
-            return path;
+            const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames, project);
+            if (!path.isEmpty())
+                return path;
+        }
     }
 
     return QString();
