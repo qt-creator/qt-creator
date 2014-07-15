@@ -370,7 +370,10 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     process.setWorkingDirectory(buildDirectoryPath);
     process.start(command, processArguments);
     process.waitForStarted();
-    while (!progressDialog->useFallbackPuppet() && process.waitForReadyRead(-1)) {
+    while (process.waitForReadyRead(-1)) {
+        if (progressDialog->useFallbackPuppet())
+            return false;
+
         QByteArray newOutput = process.readAllStandardOutput();
         if (progressDialog)
             progressDialog->newBuildOutput(newOutput);
@@ -380,9 +383,7 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
 
     process.waitForFinished();
 
-    if (process.exitStatus() == QProcess::NormalExit
-            && process.exitCode() == 0
-            && !progressDialog->useFallbackPuppet())
+    if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0)
         return true;
 
     return false;
