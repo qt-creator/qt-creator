@@ -464,23 +464,13 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
     p->drawPixmap(targetRect, cache);
 }
 
-// Qt version migration wrapper for QImage::devicePixelRatioF
-static qreal imageDevicePixelRatio(const QImage &image)
-{
-#if QT_VERSION < QT_VERSION_CHECK(5, 4, 0)
-    return image.devicePixelRatio();
-#else // QT_VERSION < Qt 5.4.0
-    return image.devicePixelRatioF();
-#endif // QT_VERSION < Qt 5.4.0
-}
-
 // Draws a CSS-like border image where the defined borders are not stretched
 // Unit for rect, left, top, right and bottom is user pixels
 void StyleHelper::drawCornerImage(const QImage &img, QPainter *painter, const QRect &rect,
                                   int left, int top, int right, int bottom)
 {
     // source rect for drawImage() calls needs to be specified in DIP unit of the image
-    const qreal imagePixelRatio = imageDevicePixelRatio(img);
+    const qreal imagePixelRatio = img.devicePixelRatio();
     const qreal leftDIP = left * imagePixelRatio;
     const qreal topDIP = top * imagePixelRatio;
     const qreal rightDIP = right * imagePixelRatio;
