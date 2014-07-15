@@ -426,13 +426,18 @@ bool PuppetCreator::checkQmlpuppetIsReady() const
     return checkPuppetIsReady(qmlpuppetPath(UserSpacePuppet));
 }
 
+static bool nonEarlyQt5Version(const QtSupport::QtVersionNumber &currentQtVersionNumber)
+{
+    return currentQtVersionNumber >= QtSupport::QtVersionNumber(5, 2, 0) || currentQtVersionNumber < QtSupport::QtVersionNumber(5, 0, 0);
+}
+
 bool PuppetCreator::qtIsSupported() const
 {
     QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
 
     if (currentQtVersion
             && currentQtVersion->isValid()
-            && currentQtVersion->qtVersion() >= QtSupport::QtVersionNumber(5, 2, 0)
+            && nonEarlyQt5Version(currentQtVersion->qtVersion())
             && (currentQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
                 || currentQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
         return true;
