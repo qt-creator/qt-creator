@@ -2636,6 +2636,24 @@ bool GitClient::launchGitGui(const QString &workingDirectory) {
     return success;
 }
 
+Utils::FileName GitClient::gitBinDirectory()
+{
+    const QString git = gitBinaryPath();
+    if (git.isEmpty())
+        return Utils::FileName();
+
+    // Is 'git\cmd' in the path (folder containing .bats)?
+    QString path = QFileInfo(git).absolutePath();
+    // Git for Windows (msysGit) has git and gitk redirect executables in {setup dir}/cmd
+    // and the real binaries are in {setup dir}/bin. If cmd is configured in PATH
+    // or in Git settings, return bin instead.
+    if (Utils::HostOsInfo::isWindowsHost()
+            && path.endsWith(QLatin1String("/cmd"), Utils::HostOsInfo::fileNameCaseSensitivity())) {
+        path.replace(path.size() - 3, 3, QLatin1String("bin"));
+    }
+    return Utils::FileName::fromString(path);
+}
+
 QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
 {
     return settings()->gitBinaryPath(ok, errorMessage);

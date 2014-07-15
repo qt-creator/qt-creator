@@ -35,6 +35,8 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <utils/fileutils.h>
+
 #include <QFutureSynchronizer>
 #include <QObject>
 #include <QString>
@@ -315,6 +317,7 @@ public:
     void launchGitK(const QString &workingDirectory, const QString &fileName);
     void launchGitK(const QString &workingDirectory) { launchGitK(workingDirectory, QString()); }
     bool launchGitGui(const QString &workingDirectory);
+    Utils::FileName gitBinDirectory();
 
     void launchRepositoryBrowser(const QString &workingDirectory);
 
