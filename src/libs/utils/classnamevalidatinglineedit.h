@@ -36,8 +36,7 @@ namespace Utils {
 
 struct ClassNameValidatingLineEditPrivate;
 
-class QTCREATOR_UTILS_EXPORT ClassNameValidatingLineEdit
-  : public Utils::FancyLineEdit
+class QTCREATOR_UTILS_EXPORT ClassNameValidatingLineEdit : public FancyLineEdit
 {
     Q_OBJECT
     Q_PROPERTY(bool namespacesEnabled READ namespacesEnabled WRITE setNamespacesEnabled DESIGNABLE true)

@@ -42,7 +42,7 @@ class QTCREATOR_UTILS_EXPORT BuildableHelperLibrary
 public:
     // returns the full path to the first qmake, qmake-qt4, qmake4 that has
     // at least version 2.0.0 and thus is a qt4 qmake
-    static FileName findSystemQt(const Utils::Environment &env);
+    static FileName findSystemQt(const Environment &env);
     static bool isQtChooser(const QFileInfo &info);
     static QString qtChooserToQmakePath(const QString &path);
     // return true if the qmake at qmakePath is qt4 (used by QtVersion)
@@ -63,11 +63,11 @@ public:
     struct BuildHelperArguments {
         QString helperName;
         QString directory;
-        Utils::Environment environment;
+        Environment environment;
 
-        Utils::FileName qmakeCommand;
+        FileName qmakeCommand;
         QString targetMode;
-        Utils::FileName mkspec;
+        FileName mkspec;
         QString proFilename;
         QStringList qmakeArguments;
 

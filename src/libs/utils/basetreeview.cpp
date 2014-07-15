@@ -59,7 +59,7 @@ public:
 };
 
 BaseTreeView::BaseTreeView(QWidget *parent)
-    : Utils::TreeView(parent)
+    : TreeView(parent)
 {
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
@@ -87,7 +87,7 @@ void BaseTreeView::setModel(QAbstractItemModel *m)
         if (index != -1)
             disconnect(model(), SIGNAL(columnAdjustmentRequested()), this, SLOT(resizeColumns()));
     }
-    Utils::TreeView::setModel(m);
+    TreeView::setModel(m);
     if (m) {
         int index = m->metaObject()->indexOfSignal(sig);
         if (index != -1)
@@ -97,7 +97,7 @@ void BaseTreeView::setModel(QAbstractItemModel *m)
 
 void BaseTreeView::mousePressEvent(QMouseEvent *ev)
 {
-    Utils::TreeView::mousePressEvent(ev);
+    TreeView::mousePressEvent(ev);
     const QModelIndex mi = indexAt(ev->pos());
     if (!mi.isValid())
         toggleColumnWidth(columnAt(ev->x()));

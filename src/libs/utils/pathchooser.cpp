@@ -148,7 +148,7 @@ QString BinaryVersionToolTipEventFilter::toolVersion(const QString &binary, cons
     if (!proc.waitForStarted())
         return QString();
     if (!proc.waitForFinished()) {
-        Utils::SynchronousProcess::stopProcess(proc);
+        SynchronousProcess::stopProcess(proc);
         return QString();
     }
     return QString::fromLocal8Bit(QByteArray(proc.readAllStandardOutput()
@@ -271,7 +271,7 @@ void PathChooser::insertButton(int index, const QString &text, QObject *receiver
     d->m_buttons.insert(index, button);
 }
 
-QString Utils::PathChooser::browseButtonLabel()
+QString PathChooser::browseButtonLabel()
 {
     return HostOsInfo::isMacHost() ? tr("Choose...") : tr("Browse...");
 }
@@ -296,7 +296,7 @@ void PathChooser::setBaseDirectory(const QString &directory)
 
 FileName PathChooser::baseFileName() const
 {
-    return Utils::FileName::fromString(d->m_baseDirectory);
+    return FileName::fromString(d->m_baseDirectory);
 }
 
 void PathChooser::setBaseFileName(const FileName &base)
@@ -305,7 +305,7 @@ void PathChooser::setBaseFileName(const FileName &base)
     triggerChanged();
 }
 
-void PathChooser::setEnvironment(const Utils::Environment &env)
+void PathChooser::setEnvironment(const Environment &env)
 {
     QString oldExpand = path();
     d->m_environment = env;
@@ -327,7 +327,7 @@ QString PathChooser::rawPath() const
 
 FileName PathChooser::fileName() const
 {
-    return Utils::FileName::fromString(path());
+    return FileName::fromString(path());
 }
 
 void PathChooser::setPath(const QString &path)
@@ -335,7 +335,7 @@ void PathChooser::setPath(const QString &path)
     d->m_lineEdit->setText(QDir::toNativeSeparators(path));
 }
 
-void PathChooser::setFileName(const Utils::FileName &fn)
+void PathChooser::setFileName(const FileName &fn)
 {
     d->m_lineEdit->setText(fn.toUserOutput());
 }

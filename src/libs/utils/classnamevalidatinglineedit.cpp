@@ -65,7 +65,7 @@ ClassNameValidatingLineEditPrivate:: ClassNameValidatingLineEditPrivate() :
 
 // --------------------- ClassNameValidatingLineEdit
 ClassNameValidatingLineEdit::ClassNameValidatingLineEdit(QWidget *parent) :
-    Utils::FancyLineEdit(parent),
+    FancyLineEdit(parent),
     d(new ClassNameValidatingLineEditPrivate)
 {
     updateRegExp();

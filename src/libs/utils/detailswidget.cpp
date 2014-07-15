@@ -78,7 +78,7 @@ public:
     QLabel *m_summaryLabel;
     QCheckBox *m_summaryCheckBox;
     QLabel *m_additionalSummaryLabel;
-    Utils::FadingPanel *m_toolWidget;
+    FadingPanel *m_toolWidget;
     QWidget *m_widget;
 
     QPixmap m_collapsedPixmap;
@@ -375,7 +375,7 @@ void DetailsWidget::setWidget(QWidget *widget)
     d->updateControls();
 }
 
-void DetailsWidget::setToolWidget(Utils::FadingPanel *widget)
+void DetailsWidget::setToolWidget(FadingPanel *widget)
 {
     if (d->m_toolWidget == widget)
         return;

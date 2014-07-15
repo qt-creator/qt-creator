@@ -53,16 +53,16 @@ protected:
 public:
     virtual ~QTipLabel();
 
-    void setContent(const Utils::TipContent &content);
-    const Utils::TipContent &content() const;
+    void setContent(const TipContent &content);
+    const TipContent &content() const;
 
     virtual void configure(const QPoint &pos, QWidget *w) = 0;
-    virtual bool canHandleContentReplacement(const Utils::TipContent &content) const = 0;
+    virtual bool canHandleContentReplacement(const TipContent &content) const = 0;
 
     bool isInteractive() const;
 
 private:
-    Utils::TipContent *m_tipContent;
+    TipContent *m_tipContent;
 };
 
 class ColorTip : public QTipLabel

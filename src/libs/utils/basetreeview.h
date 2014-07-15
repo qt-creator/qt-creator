@@ -36,7 +36,7 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT BaseTreeView : public Utils::TreeView
+class QTCREATOR_UTILS_EXPORT BaseTreeView : public TreeView
 {
     Q_OBJECT
 

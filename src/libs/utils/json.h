@@ -398,22 +398,22 @@ public:
     JsonSchemaManager(const QStringList &searchPaths);
     ~JsonSchemaManager();
 
-    Utils::JsonSchema *schemaForFile(const QString &fileName) const;
-    Utils::JsonSchema *schemaByName(const QString &baseName) const;
+    JsonSchema *schemaForFile(const QString &fileName) const;
+    JsonSchema *schemaByName(const QString &baseName) const;
 
 private:
     struct JsonSchemaData
     {
-        JsonSchemaData(const QString &absoluteFileName, Utils::JsonSchema *schema = 0)
+        JsonSchemaData(const QString &absoluteFileName, JsonSchema *schema = 0)
             : m_absoluteFileName(absoluteFileName)
             , m_schema(schema)
         {}
         QString m_absoluteFileName;
-        Utils::JsonSchema *m_schema;
+        JsonSchema *m_schema;
         QDateTime m_lastParseAttempt;
     };
 
-    Utils::JsonSchema *parseSchema(const QString &schemaFileName) const;
+    JsonSchema *parseSchema(const QString &schemaFileName) const;
 
     QStringList m_searchPaths;
     mutable QHash<QString, JsonSchemaData> m_schemas;

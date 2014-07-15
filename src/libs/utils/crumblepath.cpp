@@ -121,18 +121,18 @@ void CrumblePathButton::paintEvent(QPaintEvent *)
 
     if (m_isEnd) {
         if (m_isPressed || m_isSelected)
-            Utils::StyleHelper::drawCornerImage(m_segmentSelectedEnd, &p, geom, 2, 0, 2, 0);
+            StyleHelper::drawCornerImage(m_segmentSelectedEnd, &p, geom, 2, 0, 2, 0);
         else if (m_isHovering)
-            Utils::StyleHelper::drawCornerImage(m_segmentHoverEnd, &p, geom, 2, 0, 2, 0);
+            StyleHelper::drawCornerImage(m_segmentHoverEnd, &p, geom, 2, 0, 2, 0);
         else
-            Utils::StyleHelper::drawCornerImage(m_segmentEnd, &p, geom, 2, 0, 2, 0);
+            StyleHelper::drawCornerImage(m_segmentEnd, &p, geom, 2, 0, 2, 0);
     } else {
         if (m_isPressed || m_isSelected)
-            Utils::StyleHelper::drawCornerImage(m_segmentSelected, &p, geom, 2, 0, 12, 0);
+            StyleHelper::drawCornerImage(m_segmentSelected, &p, geom, 2, 0, 12, 0);
         else if (m_isHovering)
-            Utils::StyleHelper::drawCornerImage(m_segmentHover, &p, geom, 2, 0, 12, 0);
+            StyleHelper::drawCornerImage(m_segmentHover, &p, geom, 2, 0, 12, 0);
         else
-            Utils::StyleHelper::drawCornerImage(m_segment, &p, geom, 2, 0, 12, 0);
+            StyleHelper::drawCornerImage(m_segment, &p, geom, 2, 0, 12, 0);
     }
     if (isEnabled())
         p.setPen(StyleHelper::panelTextColor());

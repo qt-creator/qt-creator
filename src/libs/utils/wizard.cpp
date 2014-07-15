@@ -326,7 +326,7 @@ Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
     setOption(QWizard::NoBackButtonOnStartPage, true);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    if (Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost()) {
         setButtonLayout(QList<QWizard::WizardButton>()
                         << QWizard::CancelButton
                         << QWizard::Stretch

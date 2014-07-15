@@ -72,7 +72,7 @@ QTipLabel::QTipLabel(QWidget *parent) :
 
 QTipLabel::~QTipLabel()
 {
-    Utils::TipContent *tmpTipContent = m_tipContent;
+    TipContent *tmpTipContent = m_tipContent;
     m_tipContent = 0;
     delete tmpTipContent;
 }
@@ -84,7 +84,7 @@ bool QTipLabel::isInteractive() const
 
 void QTipLabel::setContent(const TipContent &content)
 {
-    Utils::TipContent *tmpTipContent = m_tipContent;
+    TipContent *tmpTipContent = m_tipContent;
     m_tipContent = content.clone();
     delete tmpTipContent;
 }

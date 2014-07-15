@@ -34,11 +34,11 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-using namespace Utils;
+namespace Utils {
 
-QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer Utils::reloadPrompt(const QString &fileName,
-                                                                     bool modified,
-                                                                     QWidget *parent)
+QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName,
+                                                       bool modified,
+                                                       QWidget *parent)
 {
 
     const QString title = QCoreApplication::translate("Utils::reloadPrompt", "File Changed");
@@ -56,10 +56,10 @@ QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer Utils::reloadPrompt(const QStri
     return reloadPrompt(title, msg, QDir::toNativeSeparators(fileName), parent);
 }
 
-QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer Utils::reloadPrompt(const QString &title,
-                                                                     const QString &prompt,
-                                                                     const QString &details,
-                                                                     QWidget *parent)
+QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
+                                                       const QString &prompt,
+                                                       const QString &details,
+                                                       QWidget *parent)
 {
     QMessageBox msg(parent);
     msg.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Close
@@ -84,8 +84,8 @@ QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer Utils::reloadPrompt(const QStri
     return ReloadNone;
 }
 
-QTCREATOR_UTILS_EXPORT Utils::FileDeletedPromptAnswer
-        Utils::fileDeletedPrompt(const QString &fileName, bool triggerExternally, QWidget *parent)
+QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer
+        fileDeletedPrompt(const QString &fileName, bool triggerExternally, QWidget *parent)
 {
     const QString title = QCoreApplication::translate("Utils::fileDeletedPrompt",
                                                       "File has been removed");
@@ -127,3 +127,5 @@ QTCREATOR_UTILS_EXPORT Utils::FileDeletedPromptAnswer
         return FileDeletedSave;
     return FileDeletedClose;
 }
+
+} // namespace Utils

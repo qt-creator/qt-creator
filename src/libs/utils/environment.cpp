@@ -373,23 +373,23 @@ QList<EnvironmentItem> Environment::diff(const Environment &other) const
     QList<EnvironmentItem> result;
     while (thisIt != constEnd() || otherIt != other.constEnd()) {
         if (thisIt == constEnd()) {
-            result.append(Utils::EnvironmentItem(otherIt.key(), otherIt.value()));
+            result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
         } else if (otherIt == constEnd()) {
-            Utils::EnvironmentItem item(thisIt.key(), QString());
+            EnvironmentItem item(thisIt.key(), QString());
             item.unset = true;
             result.append(item);
             ++thisIt;
         } else if (thisIt.key() < otherIt.key()) {
-            Utils::EnvironmentItem item(thisIt.key(), QString());
+            EnvironmentItem item(thisIt.key(), QString());
             item.unset = true;
             result.append(item);
             ++thisIt;
         } else if (thisIt.key() > otherIt.key()) {
-            result.append(Utils::EnvironmentItem(otherIt.key(), otherIt.value()));
+            result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
         } else {
-            result.append(Utils::EnvironmentItem(otherIt.key(), otherIt.value()));
+            result.append(EnvironmentItem(otherIt.key(), otherIt.value()));
             ++otherIt;
             ++thisIt;
         }

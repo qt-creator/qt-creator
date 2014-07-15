@@ -90,7 +90,7 @@ bool IpAddressLineEdit::validate(const QString &value, QString *errorMessage) co
 
 void IpAddressLineEdit::handleChanged(const QString &t)
 {
-    Utils::FancyLineEdit::handleChanged(t);
+    FancyLineEdit::handleChanged(t);
     if (isValid())
         emit validAddressChanged(t);
     else
