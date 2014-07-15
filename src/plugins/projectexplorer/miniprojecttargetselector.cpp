@@ -228,7 +228,9 @@ void ListWidget::setOptimalWidth(int width)
 int ListWidget::padding()
 {
     // there needs to be enough extra pixels to show a scrollbar
-    return 30;
+    return 2 * style()->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, this)
+            + style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, this)
+            + 10;
 }
 
 ////////
