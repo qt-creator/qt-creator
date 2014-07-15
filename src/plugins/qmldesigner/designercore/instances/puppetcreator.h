@@ -75,21 +75,21 @@ protected:
     void createQml1PuppetExecutableIfMissing();
     void createQml2PuppetExecutableIfMissing();
 
-    QString qmlpuppetDirectory(PuppetType puppetPathType) const;
-    QString qmlpuppetFallbackDirectory() const;
-    QString qml2puppetPath(PuppetType puppetType) const;
-    QString qmlpuppetPath(PuppetType puppetPathType) const;
+    QString qmlPuppetDirectory(PuppetType puppetPathType) const;
+    QString qmlPuppetFallbackDirectory() const;
+    QString qml2PuppetPath(PuppetType puppetType) const;
+    QString qmlPuppetPath(PuppetType puppetPathType) const;
 
     bool startBuildProcess(const QString &buildDirectoryPath,
                            const QString &command,
                            const QStringList &processArguments = QStringList(),
                            PuppetBuildProgressDialog *progressDialog = 0) const;
     static QString puppetSourceDirectoryPath();
-    static QString qml2puppetProjectFile();
-    static QString qmlpuppetProjectFile();
+    static QString qml2PuppetProjectFile();
+    static QString qmlPuppetProjectFile();
 
     bool checkPuppetIsReady(const QString &puppetPath) const;
-    bool checkQml2puppetIsReady() const;
+    bool checkQml2PuppetIsReady() const;
     bool checkQmlpuppetIsReady() const;
     bool qtIsSupported() const;
     static bool checkPuppetVersion(const QString &qmlPuppetPath);
