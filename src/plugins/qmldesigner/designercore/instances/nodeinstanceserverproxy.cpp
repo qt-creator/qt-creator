@@ -101,8 +101,8 @@ static bool hasQtQuick1(NodeInstanceView *nodeInstanceView)
 static void showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {
     QmlDesignerWarning::show(QCoreApplication::translate("NodeInstanceServerProxy", "Cannot Connect to QML Emulation Layer (QML Puppet)"),
-                             QCoreApplication::translate("NodeInstanceServerProxy", "The executable of the QML emulation layer (QML Puppet) process is maybe hanging. "
-                                                                                    "Switching to an other kit maybe helps."));
+                             QCoreApplication::translate("NodeInstanceServerProxy", "The executable of the QML emulation layer (QML Puppet) may not be responding. "
+                                                                                    "Switching to another kit might help."));
 
     QmlDesignerPlugin::instance()->switchToTextModeDeferred();
 
@@ -201,7 +201,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
    } else {
        QmlDesignerWarning::show(tr("Cannot Start QML Emulation Layer (QML Puppet)"),
-                            tr("The executable of the QML emulation layer (QML Puppet) process cannot be started or is hanging."));
+                            tr("The executable of the QML emulation layer (QML Puppet) process cannot be started or does not respond."));
 
        QmlDesignerPlugin::instance()->switchToTextModeDeferred();
    }
