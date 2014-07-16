@@ -44,7 +44,6 @@ public:
     BreakTreeView();
 
     static void editBreakpoint(BreakpointModelId id, QWidget *parent);
-    void setModel(QAbstractItemModel *model);
 
 private slots:
     void showAddressColumn(bool on);
