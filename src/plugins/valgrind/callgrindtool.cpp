@@ -587,6 +587,8 @@ QWidget *CallgrindToolPrivate::createWidgets()
 {
     QTC_ASSERT(!m_visualisation, return 0);
 
+    QSettings *coreSettings = ICore::settings();
+
     //
     // DockWidgets
     //
@@ -600,6 +602,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     m_callersView = new CostView(mw);
     m_callersView->setObjectName(QLatin1String("Valgrind.CallgrindTool.CallersView"));
+    m_callersView->setSettings(coreSettings, "Valgrind.CallgrindTool.CallersView");
     m_callersView->sortByColumn(CallModel::CostColumn);
     m_callersView->setFrameStyle(QFrame::NoFrame);
     // enable sorting
@@ -612,6 +615,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     m_calleesView = new CostView(mw);
     m_calleesView->setObjectName(QLatin1String("Valgrind.CallgrindTool.CalleesView"));
+    m_calleesView->setSettings(coreSettings, "Valgrind.CallgrindTool.CalleesView");
     m_calleesView->sortByColumn(CallModel::CostColumn);
     m_calleesView->setFrameStyle(QFrame::NoFrame);
     // enable sorting
@@ -624,6 +628,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     m_flatView = new CostView(mw);
     m_flatView->setObjectName(QLatin1String("Valgrind.CallgrindTool.FlatView"));
+    m_flatView->setSettings(coreSettings, "Valgrind.CallgrindTool.FlatView");
     m_flatView->sortByColumn(DataModel::SelfCostColumn);
     m_flatView->setFrameStyle(QFrame::NoFrame);
     m_flatView->setAttribute(Qt::WA_MacShowFocusRect, false);
