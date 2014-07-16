@@ -132,8 +132,8 @@ private:
     QStackedWidget *m_outputWidgetPane;
     QStackedWidget *m_opToolBarWidgets;
     QWidget *m_buttonsWidget;
-    QPixmap m_minimizeIcon;
-    QPixmap m_maximizeIcon;
+    QIcon m_minimizeIcon;
+    QIcon m_maximizeIcon;
     bool m_maximised;
     int m_outputPaneHeight;
 };

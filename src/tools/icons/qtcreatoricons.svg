@@ -416,6 +416,28 @@
          x="211"
          y="584" />
     </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4007">
+      <rect
+         style="fill:none"
+         id="rect4009"
+         width="16"
+         height="16"
+         x="0"
+         y="584" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4026">
+      <rect
+         y="568"
+         x="233"
+         height="16"
+         width="16"
+         id="rect4028"
+         style="fill:none" />
+    </clipPath>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -494,30 +516,6 @@
      inkscape:groupmode="layer"
      id="layer1"
      style="display:inline">
-    <g
-       id="src/plugins/coreplugin/images/arrowdown">
-      <rect
-         y="583.99994"
-         x="0"
-         height="16"
-         width="16"
-         id="rect3817"
-         style="fill:none" />
-      <path
-         style="fill:none;stroke:#bdbdbd;stroke-width:1.42;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         d="M 2.5,588.5 8,594 13.5,588.5"
-         id="path3970"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccc" />
-    </g>
-    <use
-       x="0"
-       y="0"
-       xlink:href="#src/plugins/coreplugin/images/arrowdown"
-       id="src/plugins/coreplugin/images/arrowup"
-       transform="matrix(1,0,0,-1,16,1183.9999)"
-       width="800"
-       height="600" />
     <g
        id="src/plugins/coreplugin/images/clear">
       <rect
@@ -669,12 +667,12 @@
            inkscape:connector-curvature="0"
            id="path3973"
            d="m 35,588 9,9"
-           style="fill:none;stroke:#dbdbdb;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+           style="fill:none;stroke:#dbdbdb;stroke-width:1.2;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none" />
         <path
            inkscape:connector-curvature="0"
            id="path3975"
            d="m 35,597 9,-9"
-           style="fill:none;stroke:#dbdbdb;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+           style="fill:none;stroke:#dbdbdb;stroke-width:1.2;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none" />
       </g>
     </g>
     <g
@@ -1066,6 +1064,46 @@
          width="16"
          id="rect3219"
          style="fill:none;stroke:none" />
+    </g>
+    <g
+       style="display:inline;filter:url(#1_pixel_shadow)"
+       id="src/plugins/coreplugin/images/arrowdown"
+       transform="translate(217,-16)"
+       clip-path="url(#clipPath4007)">
+      <path
+         style="fill:none;stroke:#dbdbdb;stroke-width:1.20000005;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="M 3,590 7.5,594.5 12,590"
+         id="path3970"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccc" />
+      <rect
+         y="584"
+         x="0"
+         height="16"
+         width="16"
+         id="rect3817"
+         style="fill:none" />
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/arrowup"
+       style="filter:url(#1_pixel_shadow)"
+       clip-path="url(#clipPath4026)">
+      <use
+         id="use3994"
+         xlink:href="#path3970"
+         y="0"
+         x="0"
+         width="800"
+         height="600"
+         transform="matrix(1,0,0,-1,233,1169)" />
+      <rect
+         transform="scale(1,-1)"
+         style="fill:none"
+         id="rect4000"
+         width="16"
+         height="16"
+         x="233"
+         y="-584" />
     </g>
   </g>
   <g
