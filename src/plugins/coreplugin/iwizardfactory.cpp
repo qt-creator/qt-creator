@@ -31,7 +31,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/featureprovider.h>
 
+#include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginmanager.h>
+
+#include <utils/algorithm.h>
 
 #include <QStringList>
 
@@ -184,7 +187,22 @@ bool IWizardFactory::isAvailable(const QString &platformName) const
 {
     FeatureSet availableFeatures;
 
-    const QList<Core::IFeatureProvider*> featureManagers = ExtensionSystem::PluginManager::getObjects<Core::IFeatureProvider>();
+    // Implicitly create a feature for each plugin loaded:
+    QList<ExtensionSystem::PluginSpec *> activeSpecs;
+    foreach (ExtensionSystem::PluginSpec *s, ExtensionSystem::PluginManager::plugins()) {
+        if (s->state() == ExtensionSystem::PluginSpec::Running)
+            activeSpecs << s;
+    }
+
+    QStringList plugins = Utils::transform(activeSpecs,
+                                           [](ExtensionSystem::PluginSpec *s) -> QString {
+                                               return QStringLiteral("Plugin.") + s->name();
+                                           });
+    foreach (const QString &n, plugins)
+        availableFeatures |= Feature(Core::Id::fromString(n));
+
+    const QList<Core::IFeatureProvider *> featureManagers
+            = ExtensionSystem::PluginManager::getObjects<Core::IFeatureProvider>();
 
     foreach (const Core::IFeatureProvider *featureManager, featureManagers)
         availableFeatures |= featureManager->availableFeatures(platformName);

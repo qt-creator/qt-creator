@@ -49,16 +49,6 @@
 
 using namespace CMakeProjectManager::Internal;
 
-class CMakeFeatureProvider : public Core::IFeatureProvider
-{
-    Core::FeatureSet availableFeatures(const QString & /* platform */) const {
-        return Core::FeatureSet(Core::Id(CMakeProjectManager::Constants::CMAKE_SUPPORT_FEATURE));
-    }
-
-    QStringList availablePlatforms() const { return QStringList(); }
-    QString displayNameForPlatform(const QString & /* platform */) const { return QString(); }
-};
-
 CMakeProjectPlugin::CMakeProjectPlugin()
 {
 }
@@ -82,7 +72,6 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     addAutoReleasedObject(new CMakeEditorFactory(manager));
     addAutoReleasedObject(new CMakeLocatorFilter);
     addAutoReleasedObject(new CMakeFileCompletionAssistProvider(cmp));
-    addAutoReleasedObject(new CMakeFeatureProvider);
 
     auto hf = new TextEditor::HighlighterFactory;
     hf->setProductType<CMakeHighlighter>();

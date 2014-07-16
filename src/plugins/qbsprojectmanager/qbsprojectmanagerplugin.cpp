@@ -77,17 +77,6 @@ static QbsProject *currentEditorProject()
     return doc ? qobject_cast<QbsProject *>(SessionManager::projectForFile(doc->filePath())) : 0;
 }
 
-class QbsFeatureProvider : public Core::IFeatureProvider
-{
-    Core::FeatureSet availableFeatures(const QString & /* platform */) const {
-        return Core::FeatureSet("Qbs.QbsSupport");
-    }
-
-    QStringList availablePlatforms() const { return QStringList(); }
-    QString displayNameForPlatform(const QString & /* platform */) const { return QString(); }
-};
-
-
 QbsProjectManagerPlugin::QbsProjectManagerPlugin() :
     m_selectedProject(0),
     m_selectedNode(0),
@@ -114,7 +103,6 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new QbsInstallStepFactory);
     addAutoReleasedObject(new QbsDeployConfigurationFactory);
     addAutoReleasedObject(new QbsRunConfigurationFactory);
-    addAutoReleasedObject(new QbsFeatureProvider);
 
     //menus
     // Build Menu:
