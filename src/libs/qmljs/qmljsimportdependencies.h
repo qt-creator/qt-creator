@@ -108,6 +108,7 @@ public:
     int minorVersion;
 
     QString path() const;
+    QString libPath() const;
 
     void addToHash(QCryptographicHash &hash) const;
     ImportKey flatKey() const;
