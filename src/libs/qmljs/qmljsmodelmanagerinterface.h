@@ -142,6 +142,7 @@ public:
     };
 
     typedef QHash<QString, CppData> CppDataHash;
+    typedef QHashIterator<QString, CppData> CppDataHashIterator;
 
 public:
     ModelManagerInterface(QObject *parent = 0);
