@@ -412,10 +412,8 @@
 
     \image qtcreator-debugger-views.png "Debug mode views"
 
-    By default, the views are locked into place in the workspace. Select
-    \gui {Window > Views > Locked} to unlock the views. Drag and drop the
-    views into new positions on the screen. Drag view borders to resize the
-    views. The size and position of views are saved for future sessions. Select
+    You can drag and drop the views in \QD to new positions on the screen.
+    The size and position of views are saved for future sessions. Select
     \gui {Window > Views > Reset to Default Layout} to reset the views to
     their original sizes and positions.
 

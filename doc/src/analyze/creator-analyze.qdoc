@@ -38,10 +38,8 @@
 
     \image qtcreator-analyze-menu.png "Analyze mode menu"
 
-    By default, the views in the \gui Analyze mode are locked into place in the
-    workspace. Select \gui {Window > Views > Locked} to unlock the views. Drag
-    and drop the views into new positions on the screen. Drag view borders to
-    resize the views. The size and position of views are saved for future
+    You can drag and drop the views in the \gui Analyze mode to new positions
+    on the screen. The size and position of views are saved for future
     sessions. Select \gui {Window > Views > Reset to Default Layout} to reset
     the views to their original sizes and positions.
 
