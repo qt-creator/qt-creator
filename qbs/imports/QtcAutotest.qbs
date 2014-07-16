@@ -8,13 +8,13 @@ QtcProduct {
     targetName: "tst_" + name.split(' ').join("")
 
     // This needs to be absolute, because it is passed to one of the source files.
-    destinationDirectory: buildDirectory + '/'
+    destinationDirectory: project.buildDirectory + '/'
                           + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
 
     cpp.rpaths: [
-        buildDirectory + '/' + project.ide_library_path,
-        buildDirectory + '/' + project.ide_library_path + "/..", // OSX
-        buildDirectory + '/' + project.ide_plugin_path
+        project.buildDirectory + '/' + project.ide_library_path,
+        project.buildDirectory + '/' + project.ide_library_path + "/..", // OSX
+        project.buildDirectory + '/' + project.ide_plugin_path
     ]
     cpp.minimumOsxVersion: "10.7"
     cpp.defines: base.filter(function(d) { return d != "QT_NO_CAST_FROM_ASCII"; })
