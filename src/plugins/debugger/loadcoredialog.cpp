@@ -226,36 +226,36 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     setWindowTitle(tr("Load Core File"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
+    d->buttonBox = new QDialogButtonBox(this);
+    d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    d->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+
     d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::RemoteDebugging, this);
     d->kitChooser->populate();
-
-    d->selectRemoteCoreButton = new QPushButton(tr("Browse..."), this);
-    d->remoteCoreFileName = new QLineEdit(this);
 
     d->forceLocalCheckBox = new QCheckBox(this);
     d->forceLocalLabel = new QLabel(this);
     d->forceLocalLabel->setText(tr("Use local core file:"));
     d->forceLocalLabel->setBuddy(d->forceLocalCheckBox);
 
-    d->localExecFileName = new PathChooser(this);
-    d->localExecFileName->setHistoryCompleter(QLatin1String("LocalExecutable"));
-    d->localExecFileName->setExpectedKind(PathChooser::File);
-    d->localExecFileName->setPromptDialogTitle(tr("Select Executable"));
+    d->remoteCoreFileName = new QLineEdit(this);
+    d->selectRemoteCoreButton = new QPushButton(tr("Browse..."), this);
 
     d->localCoreFileName = new PathChooser(this);
     d->localCoreFileName->setHistoryCompleter(QLatin1String("Debugger.CoreFile.History"));
     d->localCoreFileName->setExpectedKind(PathChooser::File);
     d->localCoreFileName->setPromptDialogTitle(tr("Select Core File"));
 
+    d->localExecFileName = new PathChooser(this);
+    d->localExecFileName->setHistoryCompleter(QLatin1String("LocalExecutable"));
+    d->localExecFileName->setExpectedKind(PathChooser::File);
+    d->localExecFileName->setPromptDialogTitle(tr("Select Executable"));
+
     d->overrideStartScriptFileName = new PathChooser(this);
     d->overrideStartScriptFileName->setHistoryCompleter(QLatin1String("Debugger.StartupScript.History"));
     d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
     d->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
-
-    d->buttonBox = new QDialogButtonBox(this);
-    d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-    d->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
     QHBoxLayout *coreLayout = new QHBoxLayout;
     coreLayout->addWidget(d->localCoreFileName);
