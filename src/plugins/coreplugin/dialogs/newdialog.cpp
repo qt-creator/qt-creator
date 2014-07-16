@@ -195,7 +195,7 @@ NewDialog::NewDialog(QWidget *parent) :
     m_okButton(0)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+    setWindowFlags(windowFlags());
     setAttribute(Qt::WA_DeleteOnClose);
     m_ui->setupUi(this);
     QPalette p = m_ui->frame->palette();
