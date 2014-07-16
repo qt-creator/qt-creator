@@ -90,6 +90,8 @@ public:
     // Debuggable languages are registered with this function.
     void addLanguage(DebuggerLanguage language, const Core::Context &context);
 
+    QDockWidget *dockWidget(const QString &objectName) const
+        { return q->findChild<QDockWidget *>(objectName); }
 
 public slots:
     void resetDebuggerLayout();
@@ -389,17 +391,6 @@ void DebuggerMainWindow::setToolBar(DebuggerLanguage language, QWidget *widget)
         d->m_debugToolBarLayout->insertWidget(-1, widget, 10);
 }
 
-QDockWidget *DebuggerMainWindow::dockWidget(const QString &objectName) const
-{
-    return findChild<QDockWidget *>(objectName);
-}
-
-bool DebuggerMainWindow::isDockVisible(const QString &objectName) const
-{
-    QDockWidget *dock = dockWidget(objectName);
-    return dock && dock->toggleViewAction()->isChecked();
-}
-
 /*!
     Keep track of dock widgets so they can be shown/hidden for different languages
 */
@@ -649,16 +640,16 @@ void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()
     }
 
     QDockWidget *toolBarDock = q->toolBarDockWidget();
-    QDockWidget *breakDock = q->dockWidget(QLatin1String(DOCKWIDGET_BREAK));
-    QDockWidget *stackDock = q->dockWidget(QLatin1String(DOCKWIDGET_STACK));
-    QDockWidget *watchDock = q->dockWidget(QLatin1String(DOCKWIDGET_WATCHERS));
-    QDockWidget *snapshotsDock = q->dockWidget(QLatin1String(DOCKWIDGET_SNAPSHOTS));
-    QDockWidget *threadsDock = q->dockWidget(QLatin1String(DOCKWIDGET_THREADS));
-    QDockWidget *outputDock = q->dockWidget(QLatin1String(DOCKWIDGET_OUTPUT));
-    QDockWidget *qmlInspectorDock = q->dockWidget(QLatin1String(DOCKWIDGET_QML_INSPECTOR));
-    QDockWidget *modulesDock = q->dockWidget(QLatin1String(DOCKWIDGET_MODULES));
-    QDockWidget *registerDock = q->dockWidget(QLatin1String(DOCKWIDGET_REGISTER));
-    QDockWidget *sourceFilesDock = q->dockWidget(QLatin1String(DOCKWIDGET_SOURCE_FILES));
+    QDockWidget *breakDock = dockWidget(QLatin1String(DOCKWIDGET_BREAK));
+    QDockWidget *stackDock = dockWidget(QLatin1String(DOCKWIDGET_STACK));
+    QDockWidget *watchDock = dockWidget(QLatin1String(DOCKWIDGET_WATCHERS));
+    QDockWidget *snapshotsDock = dockWidget(QLatin1String(DOCKWIDGET_SNAPSHOTS));
+    QDockWidget *threadsDock = dockWidget(QLatin1String(DOCKWIDGET_THREADS));
+    QDockWidget *outputDock = dockWidget(QLatin1String(DOCKWIDGET_OUTPUT));
+    QDockWidget *qmlInspectorDock = dockWidget(QLatin1String(DOCKWIDGET_QML_INSPECTOR));
+    QDockWidget *modulesDock = dockWidget(QLatin1String(DOCKWIDGET_MODULES));
+    QDockWidget *registerDock = dockWidget(QLatin1String(DOCKWIDGET_REGISTER));
+    QDockWidget *sourceFilesDock = dockWidget(QLatin1String(DOCKWIDGET_SOURCE_FILES));
 
     QTC_ASSERT(breakDock, return);
     QTC_ASSERT(stackDock, return);

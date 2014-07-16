@@ -909,8 +909,12 @@ public slots:
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
 
     DebuggerMainWindow *mainWindow() const { return m_mainWindow; }
+
     bool isDockVisible(const QString &objectName) const
-        { return mainWindow()->isDockVisible(objectName); }
+    {
+        QDockWidget *dock = mainWindow()->findChild<QDockWidget *>(objectName);
+        return dock && dock->toggleViewAction()->isChecked();
+    }
 
     bool hasSnapshots() const { return m_snapshotHandler->size(); }
     void createNewDock(QWidget *widget);
