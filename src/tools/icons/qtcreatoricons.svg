@@ -52,17 +52,6 @@
          id="stop3873" />
     </linearGradient>
     <linearGradient
-       id="linearGradient4880">
-      <stop
-         style="stop-color:#000000;stop-opacity:0.19607843;"
-         offset="0"
-         id="stop4882" />
-      <stop
-         style="stop-color:#000000;stop-opacity:0;"
-         offset="1"
-         id="stop4884" />
-    </linearGradient>
-    <linearGradient
        id="linearGradient4482">
       <stop
          style="stop-color:#fa3e3e;stop-opacity:1;"
@@ -279,15 +268,6 @@
        fx="84"
        fy="592"
        r="6" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4880"
-       id="linearGradient4572"
-       gradientUnits="userSpaceOnUse"
-       x1="212"
-       y1="590"
-       x2="216"
-       y2="590" />
     <radialGradient
        inkscape:collect="always"
        xlink:href="#linearGradient3975"
@@ -385,6 +365,56 @@
          height="16"
          x="218"
          y="568" />
+    </clipPath>
+    <filter
+       id="filter4057"
+       inkscape:label="Inner Shadow"
+       inkscape:menu="Shadows and Glows"
+       inkscape:menu-tooltip="Adds a colorizable drop shadow inside"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         id="feGaussianBlur4059"
+         stdDeviation="1.5"
+         result="result8" />
+      <feOffset
+         id="feOffset4061"
+         dx="0"
+         dy="2"
+         result="result11" />
+      <feComposite
+         id="feComposite4063"
+         in2="result11"
+         result="result6"
+         in="SourceGraphic"
+         operator="in" />
+      <feFlood
+         id="feFlood4065"
+         result="result10"
+         in="result6"
+         flood-opacity="1"
+         flood-color="rgb(0,0,0)" />
+      <feBlend
+         id="feBlend4067"
+         in2="result10"
+         mode="normal"
+         in="result6"
+         result="result12" />
+      <feComposite
+         id="feComposite4069"
+         in2="SourceGraphic"
+         result="result2"
+         operator="atop" />
+    </filter>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3231">
+      <rect
+         style="opacity:0.2;fill:#00ff00;fill-opacity:0.8;stroke:none"
+         id="rect3234"
+         width="16"
+         height="16"
+         x="211"
+         y="584" />
     </clipPath>
   </defs>
   <sodipodi:namedview
@@ -1328,51 +1358,52 @@
      style="display:inline">
     <g
        id="src/plugins/coreplugin/images/inputfield"
-       transform="translate(-211,-80)">
+       transform="translate(-211,-80)"
+       style="opacity:1;stroke:none">
+      <g
+         id="g4594"
+         style="opacity:0.2"
+         clip-path="url(#clipPath3231)">
+        <rect
+           style="fill:#ffffff;fill-opacity:1;stroke:none;filter:url(#filter4057)"
+           id="rect4866"
+           width="14"
+           height="14"
+           x="212"
+           y="585"
+           ry="1.5" />
+      </g>
       <rect
-         ry="0"
-         y="581"
-         x="212"
-         height="18"
-         width="4"
-         id="rect4870"
-         style="fill:url(#linearGradient4572);fill-opacity:1;stroke:none" />
-      <use
-         height="600"
-         width="800"
-         transform="matrix(0,1,-6.1666667,0,3905.8334,369)"
-         id="use4888"
-         xlink:href="#rect4870"
-         y="0"
-         x="0" />
-      <rect
-         ry="2.5"
-         y="580.5"
+         style="fill:none;stroke:#000000;stroke-opacity:0.8"
+         id="rect4581"
+         width="15"
+         height="15"
          x="211.5"
-         height="19"
-         width="112"
-         id="rect4866"
-         style="fill:none;stroke:#3a3a3a;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+         y="584.5"
+         ry="2" />
     </g>
     <g
        id="src/plugins/coreplugin/images/inputfield_disabled"
        transform="translate(-211,-80)">
-      <rect
-         ry="1.25"
-         y="581"
-         x="325"
-         height="18"
-         width="111"
-         id="rect4931"
-         style="opacity:0.4;fill:#999999;stroke:none" />
       <use
          height="600"
          width="800"
-         transform="translate(324,80)"
+         transform="translate(228,80)"
          id="use4910"
          xlink:href="#src/plugins/coreplugin/images/inputfield"
          y="0"
-         x="0" />
+         x="0"
+         style="filter:url(#filter3230)" />
+      <rect
+         clip-path="url(#clipPath3231)"
+         ry="1.5"
+         y="584"
+         x="212"
+         height="15"
+         width="15"
+         id="rect3256"
+         style="fill:#000000;fill-opacity:0.07843138;stroke:none"
+         transform="translate(17,0)" />
     </g>
     <g
        id="src/plugins/coreplugin/images/editclear"

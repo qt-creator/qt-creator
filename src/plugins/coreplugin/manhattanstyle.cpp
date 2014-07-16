@@ -130,8 +130,8 @@ public:
 };
 
 ManhattanStylePrivate::ManhattanStylePrivate() :
-    lineeditImage(QLatin1String(":/core/images/inputfield.png")),
-    lineeditImage_disabled(QLatin1String(":/core/images/inputfield_disabled.png")),
+    lineeditImage(Utils::StyleHelper::dpiSpecificPixmap(QStringLiteral(":/core/images/inputfield.png")).toImage()),
+    lineeditImage_disabled(Utils::StyleHelper::dpiSpecificPixmap(QStringLiteral(":/core/images/inputfield_disabled.png")).toImage()),
     extButtonPixmap(QLatin1String(":/core/images/extension.png")),
     closeButtonPixmap(QLatin1String(Core::Constants::ICON_CLOSE))
 {
@@ -463,7 +463,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                     hover.setAlpha(50);
 
                 painter->setPen(QPen(hover, 1));
-                painter->drawRect(option->rect.adjusted(1, 1, -2 ,-2));
+                painter->drawRect(QRectF(option->rect).adjusted(1.5, 1.5, -1.5, -1.5));
             }
             painter->restore();
         }

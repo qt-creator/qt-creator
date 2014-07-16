@@ -17,7 +17,9 @@
         <file>images/logo/128/QtProject-qtcreator.png</file>
         <file>images/logo/32/QtProject-qtcreator.png</file>
         <file>images/inputfield.png</file>
+        <file>images/inputfield@2x.png</file>
         <file>images/inputfield_disabled.png</file>
+        <file>images/inputfield_disabled@2x.png</file>
         <file>images/linkicon.png</file>
         <file>images/linkicon@2x.png</file>
         <file>images/locked.png</file>
