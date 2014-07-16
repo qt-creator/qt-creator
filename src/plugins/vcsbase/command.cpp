@@ -319,8 +319,8 @@ public:
         connect(this, SIGNAL(append(QString)), outputWindow, SLOT(append(QString)));
         connect(this, SIGNAL(appendSilently(QString)), outputWindow, SLOT(appendSilently(QString)));
         connect(this, SIGNAL(appendError(QString)), outputWindow, SLOT(appendError(QString)));
-        connect(this, SIGNAL(appendCommand(QString,QString,QStringList)),
-                outputWindow, SLOT(appendCommand(QString,QString,QStringList)));
+        connect(this, SIGNAL(appendCommand(QString,Utils::FileName,QStringList)),
+                outputWindow, SLOT(appendCommand(QString,Utils::FileName,QStringList)));
         connect(this, SIGNAL(appendMessage(QString)), outputWindow, SLOT(appendMessage(QString)));
     }
 
@@ -329,7 +329,7 @@ signals:
     void appendSilently(const QString &text);
     void appendError(const QString &text);
     void appendCommand(const QString &workingDirectory,
-                       const QString &binary,
+                       const Utils::FileName &binary,
                        const QStringList &args);
     void appendMessage(const QString &text);
 };
@@ -346,7 +346,7 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
     }
 
     if (!(d->m_flags & VcsBasePlugin::SuppressCommandLogging))
-        emit outputProxy.appendCommand(d->m_workingDirectory, d->m_binaryPath.toString(), arguments);
+        emit outputProxy.appendCommand(d->m_workingDirectory, d->m_binaryPath, arguments);
 
     const bool sshPromptConfigured = !d->m_sshPasswordPrompt.isEmpty();
     if (debugExecution) {
@@ -525,7 +525,7 @@ bool Command::runFullySynchronous(const QStringList &arguments, int timeoutMS,
 
     OutputProxy outputProxy;
     if (!(d->m_flags & VcsBasePlugin::SuppressCommandLogging))
-        emit outputProxy.appendCommand(d->m_workingDirectory, d->m_binaryPath.toUserOutput(), arguments);
+        emit outputProxy.appendCommand(d->m_workingDirectory, d->m_binaryPath, arguments);
 
     // TODO tell the document manager about expected repository changes
     // if (d->m_flags & ExpectRepoChanges)
