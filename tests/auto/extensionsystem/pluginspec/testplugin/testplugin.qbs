@@ -6,7 +6,7 @@ Plugin {
     files: [
         "testplugin.h", "testplugin.cpp",
         "testplugin_global.h"
-    ].concat(filesToCopy)
+    ]
     filesToCopy: "testplugin.xml"
     cpp.defines: base.concat(["MYPLUGIN_LIBRARY"])
 }

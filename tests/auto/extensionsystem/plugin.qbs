@@ -1,6 +1,5 @@
 import qbs
 import qbs.FileInfo
-import "./copytransformer.qbs" as CopyTransformer
 import QtcFunctions
 
 DynamicLibrary {
@@ -8,6 +7,7 @@ DynamicLibrary {
     Depends { name: "ExtensionSystem" }
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
+    Depends { name: "copyable_resource" }
     targetName: QtcFunctions.qtLibraryName(qbs, name.split('_')[1])
     destinationDirectory: project.buildDirectory + '/'
                           + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
@@ -17,8 +17,10 @@ DynamicLibrary {
     ].concat(additionalRPaths)
     property pathList filesToCopy
     property pathList additionalRPaths: []
-    CopyTransformer {
-        sourceFiles: product.filesToCopy
-        targetDirectory: product.destinationDirectory
+    Group {
+        name: "resources"
+        fileTags: "copyable_resource"
+        copyable_resource.targetDirectory: product.destinationDirectory
+        files: product.filesToCopy
     }
 }
