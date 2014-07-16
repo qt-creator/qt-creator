@@ -59,6 +59,7 @@ public:
 
     ValueOwner *valueOwner() const;
     Snapshot snapshot() const;
+    ViewerContext vContext() const;
 
     const Imports *imports(const Document *doc) const;
 

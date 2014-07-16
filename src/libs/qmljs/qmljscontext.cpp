@@ -91,6 +91,11 @@ QmlJS::Snapshot Context::snapshot() const
     return _snapshot;
 }
 
+ViewerContext Context::vContext() const
+{
+    return _vContext;
+}
+
 const Imports *Context::imports(const QmlJS::Document *doc) const
 {
     if (!doc)
