@@ -2567,6 +2567,8 @@ bool Bind::visit(ObjCMethodDeclarationAST *ast)
         this->statement(ast->function_body);
         (void) switchScope(previousScope);
         _scope->addMember(method);
+    } else if (method) {
+        _scope->addMember(method);
     }
 
     return false;

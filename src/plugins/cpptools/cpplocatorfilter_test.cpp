@@ -168,7 +168,9 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
 
     MyTestDataDir testDirectory(QLatin1String("testdata_basic"));
     const QString testFile = testDirectory.file(QLatin1String("file1.cpp"));
+    const QString objTestFile = testDirectory.file(QLatin1String("file1.mm"));
     const QString testFileShort = FileUtils::shortNativePath(FileName::fromString(testFile));
+    const QString objTestFileShort = FileUtils::shortNativePath(FileName::fromString(objTestFile));
 
     QTest::newRow("CppFunctionsFilter")
         << testFile
@@ -246,6 +248,27 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
             << ResultData(_("MyNamespace::MyEnum"), testFileShort)
             << ResultData(_("MyNamespace::myFunction"), _("(bool, int)"))
             << ResultData(_("myFunction"), _("(bool, int)"))
+            );
+
+    QTest::newRow("CppClassesFilter-ObjC")
+            << objTestFile
+            << cppClassesFilter
+            << _("M")
+            << (QList<ResultData>()
+                << ResultData(_("MyClass"), objTestFileShort)
+                << ResultData(_("MyClass"), objTestFileShort)
+                << ResultData(_("MyClass"), objTestFileShort)
+                << ResultData(_("MyProtocol"), objTestFileShort)
+                );
+
+    QTest::newRow("CppFunctionsFilter-ObjC")
+        << objTestFile
+        << cppFunctionsFilter
+        << _("M")
+        << (QList<ResultData>()
+            << ResultData(_("anotherMethod"), _("MyClass"))
+            << ResultData(_("anotherMethod:"), _("MyClass"))
+            << ResultData(_("someMethod"), _("MyClass"))
             );
 }
 

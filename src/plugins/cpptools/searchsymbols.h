@@ -85,12 +85,12 @@ protected:
     // Objective-C
     virtual bool visit(CPlusPlus::ObjCBaseClass *);
     virtual bool visit(CPlusPlus::ObjCBaseProtocol *);
-    virtual bool visit(CPlusPlus::ObjCClass *);
+    virtual bool visit(CPlusPlus::ObjCClass *symbol);
     virtual bool visit(CPlusPlus::ObjCForwardClassDeclaration *);
-    virtual bool visit(CPlusPlus::ObjCProtocol *);
+    virtual bool visit(CPlusPlus::ObjCProtocol *symbol);
     virtual bool visit(CPlusPlus::ObjCForwardProtocolDeclaration *);
-    virtual bool visit(CPlusPlus::ObjCMethod *);
-    virtual bool visit(CPlusPlus::ObjCPropertyDeclaration *);
+    virtual bool visit(CPlusPlus::ObjCMethod *symbol);
+    virtual bool visit(CPlusPlus::ObjCPropertyDeclaration *symbol);
 
     QString scopedSymbolName(const QString &symbolName, const CPlusPlus::Symbol *symbol) const;
     QString scopedSymbolName(const CPlusPlus::Symbol *symbol) const;
@@ -98,6 +98,10 @@ protected:
     IndexItem::Ptr addChildItem(const QString &symbolName, const QString &symbolType,
                                 const QString &symbolScope, IndexItem::ItemType type,
                                 CPlusPlus::Symbol *symbol);
+
+private:
+    template<class T> void processClass(T *clazz);
+    template<class T> void processFunction(T *func);
 
 private:
     QString findOrInsert(const QString &s)
