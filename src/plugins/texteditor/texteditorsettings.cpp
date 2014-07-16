@@ -140,7 +140,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_STRING, tr("String"),
                                          tr("Character and string literals."), Qt::darkGreen));
     formatDescr.append(FormatDescription(C_PRIMITIVE_TYPE, tr("Primitive Type"),
-                                         tr("Primitive data types"), Qt::darkYellow));
+                                         tr("Name of a primitive data type."), Qt::darkYellow));
     formatDescr.append(FormatDescription(C_TYPE, tr("Type"), tr("Name of a type."),
                                          Qt::darkMagenta));
     formatDescr.append(FormatDescription(C_LOCAL, tr("Local"), tr("Local variables.")));
