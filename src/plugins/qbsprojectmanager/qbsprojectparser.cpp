@@ -124,7 +124,7 @@ bool QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     params.setSearchPaths(prefs.searchPaths(resourcesBaseDirectory()));
     params.setPluginPaths(prefs.pluginPaths(pluginsBaseDirectory()));
 
-    m_qbsSetupProjectJob = qbs::Project::setupProject(params, QbsManager::logSink(), 0);
+    m_qbsSetupProjectJob = m_project.setupProject(params, QbsManager::logSink(), 0);
 
     connect(m_qbsSetupProjectJob, SIGNAL(finished(bool,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingDone(bool)));
