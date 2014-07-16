@@ -202,17 +202,17 @@ QList<FormEditorItem *> AbstractFormEditorTool::filterSelectedModelNodes(const Q
     return filteredItemList;
 }
 
-void AbstractFormEditorTool::dropEvent(QGraphicsSceneDragDropEvent * /* event */)
+void AbstractFormEditorTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /* event */)
 {
 }
 
-void AbstractFormEditorTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
+void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
 {
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
         event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
         event->accept();
         view()->changeToDragTool();
-        view()->currentTool()->dragEnterEvent(event);
+        view()->currentTool()->dragEnterEvent(itemList, event);
     } else {
         event->ignore();
     }

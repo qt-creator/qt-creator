@@ -198,12 +198,12 @@ void MoveTool::keyReleaseEvent(QKeyEvent *keyEvent)
     }
 }
 
-void  MoveTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+void  MoveTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
 
 }
 
-void  MoveTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+void  MoveTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
 
 }

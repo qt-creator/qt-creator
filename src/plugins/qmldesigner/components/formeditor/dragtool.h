@@ -64,16 +64,17 @@ public:
     DragTool(FormEditorView* editorView);
     virtual ~DragTool();
 
-    void mousePressEvent(const QList<QGraphicsItem*> &itemList,
-                         QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
-                           QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList,
-                               QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+
+    void hoverMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+
+    void dropEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
+    void dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
+    void dragLeaveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
+    void dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
 
     void keyPressEvent(QKeyEvent *event) QTC_OVERRIDE;
     void keyReleaseEvent(QKeyEvent *keyEvent) QTC_OVERRIDE;
@@ -87,12 +88,6 @@ public:
     void updateMoveManipulator();
 
     void beginWithPoint(const QPointF &beginPoint);
-
-
-    virtual void dropEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
 
     //void beginWithPoint(const QPointF &beginPoint);
 

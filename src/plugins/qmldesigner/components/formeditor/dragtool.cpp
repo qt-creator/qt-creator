@@ -262,7 +262,7 @@ void DragTool::commitTransaction()
     }
 }
 
-void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
+void DragTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * event)
 {
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
        event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
@@ -291,7 +291,7 @@ static ItemLibraryEntry itemLibraryEntryFromData(const QByteArray &data)
     return itemLibraryEntry;
 }
 
-void DragTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
+void DragTool::dragEnterEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * event)
 {
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
         event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
@@ -310,7 +310,7 @@ void DragTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
     }
 }
 
-void DragTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
+void DragTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * event)
 {
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
        event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
@@ -329,7 +329,7 @@ void DragTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
     }
 }
 
-void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
+void DragTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
     if (m_blockMove)
         return;

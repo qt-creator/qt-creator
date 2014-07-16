@@ -98,12 +98,12 @@ void ResizeTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
     }
 }
 
-void ResizeTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+void ResizeTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
 
 }
 
-void ResizeTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+void ResizeTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
 
 }
