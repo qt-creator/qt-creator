@@ -66,9 +66,10 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QByteArray &source)
     return preprocessed;
 }
 
-void FastPreprocessor::sourceNeeded(unsigned line, const QString &fileName,
-                                    IncludeType mode)
+void FastPreprocessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType mode,
+                                    const QStringList &initialIncludes)
 {
+    Q_UNUSED(initialIncludes)
     Q_ASSERT(_currentDoc);
     // CHECKME: Is that cleanName needed?
     QString cleanName = QDir::cleanPath(fileName);

@@ -37,6 +37,8 @@
 #include <coreplugin/testdatadir.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
+#include <cplusplus/LookupContext.h>
 #include <utils/hostosinfo.h>
 
 #include <QDebug>
@@ -873,7 +875,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     }
 }
 
-void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
+void CppToolsPlugin::test_modelmanager_precompiled_headers()
 {
     ModelManagerTestHelper helper;
 
@@ -922,14 +924,16 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
 
     struct Data {
         QString firstDeclarationName;
+        QString firstClassInPchFile;
         QString fileName;
     } d[] = {
-        { _("one"), main1File },
-        { _("two"), main2File }
+        { _("one"), _("ClassInPch1"), main1File },
+        { _("two"), _("ClassInPch2"), main2File }
     };
     const int size = sizeof(d) / sizeof(d[0]);
     for (int i = 0; i < size; ++i) {
         const QString firstDeclarationName = d[i].firstDeclarationName;
+        const QByteArray firstClassInPchFile = d[i].firstClassInPchFile.toUtf8();
         const QString fileName = d[i].fileName;
 
         Core::IEditor *editor = Core::EditorManager::openEditor(fileName);
@@ -943,11 +947,22 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
         while (sup->lastSemanticInfoDocument().isNull())
             QCoreApplication::processEvents();
 
-        sup->snapshotUpdater()->setUsePrecompiledHeaders(true);
-        sup->snapshotUpdater()->update(mm->workingCopy());
+        const QSharedPointer<SnapshotUpdater> updater = sup->snapshotUpdater();
+        updater->setUsePrecompiledHeaders(true);
+        updater->update(mm->workingCopy());
 
-        Document::Ptr doc = mm->document(fileName);
-        QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
+        // Check if defines from pch are considered
+        Document::Ptr document = mm->document(fileName);
+        QCOMPARE(nameOfFirstDeclaration(document), firstDeclarationName);
+
+        // Check if declarations from pch are considered
+        CPlusPlus::LookupContext context(document, updater->snapshot());
+        const CPlusPlus::Identifier *identifier
+            = document->control()->identifier(firstClassInPchFile.data());
+        const QList<CPlusPlus::LookupItem> results = context.lookup(identifier,
+                                                                    document->globalNamespace());
+        QVERIFY(!results.isEmpty());
+        QVERIFY(results.first().declaration()->type()->asClassType());
     }
 }
 

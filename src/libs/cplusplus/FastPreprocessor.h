@@ -57,7 +57,8 @@ public:
     QByteArray run(Document::Ptr newDoc, const QByteArray &source);
 
     // CPlusPlus::Client
-    virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode);
+    virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode,
+                              const QStringList &initialIncludes = QStringList());
 
     virtual void macroAdded(const Macro &);
 
