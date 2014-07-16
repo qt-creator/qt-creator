@@ -337,10 +337,7 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
 
 QStringList AndroidConfig::apiLevelNamesFor(const QList<SdkPlatform> &platforms)
 {
-    QStringList results;
-    foreach (const SdkPlatform &platform, platforms)
-        results << QLatin1String("android-") + QString::number(platform.apiLevel);
-    return results;
+    return Utils::transform(platforms, AndroidConfig::apiLevelNameFor);
 }
 
 QString AndroidConfig::apiLevelNameFor(const SdkPlatform &platform)
