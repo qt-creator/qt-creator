@@ -291,8 +291,12 @@ void QbsProject::handleQbsParsingDone(bool success)
 
     if (success) {
         m_qbsProject = m_qbsProjectParser->qbsProject();
+        const qbs::ProjectData &projectData = m_qbsProject.projectData();
         QTC_CHECK(m_qbsProject.isValid());
-        readQbsData();
+        if (projectData != m_projectData) {
+            m_projectData = projectData;
+            readQbsData();
+        }
     } else {
         m_qbsUpdateFutureInterface->reportCanceled();
     }
