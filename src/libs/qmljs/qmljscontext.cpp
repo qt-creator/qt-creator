@@ -91,7 +91,7 @@ QmlJS::Snapshot Context::snapshot() const
     return _snapshot;
 }
 
-ViewerContext Context::vContext() const
+ViewerContext Context::viewerContext() const
 {
     return _vContext;
 }

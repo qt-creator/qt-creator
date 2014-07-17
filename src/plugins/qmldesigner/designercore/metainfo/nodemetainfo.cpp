@@ -163,10 +163,10 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
                                                 << " vs " << typeName
                                                 << " for " << e.exportName.toString();
                     }
-                    if (packages.isEmpty() || packages.contains(e.exportName.libPath())) {
+                    if (packages.isEmpty() || packages.contains(e.exportName.libraryQualifiedPath())) {
                         if (e.exportName.splitPath.value(0) == QLatin1String("QtQuick"))
                             hasQtQuick = true;
-                        possibleLibraries.append(e.exportName.libPath() + '.' + typeName);
+                        possibleLibraries.append(e.exportName.libraryQualifiedPath() + '.' + typeName);
                     }
                     break;
                 }
@@ -298,7 +298,7 @@ public:
 
             if (const CppComponentValue * cppComponentValue = value_cast<CppComponentValue>(value)) {
                 TypeName qualifiedTypeName = qualifiedTypeNameForContext(cppComponentValue,
-                    m_context->vContext(), *m_context->snapshot().importDependencies()).toUtf8();
+                    m_context->viewerContext(), *m_context->snapshot().importDependencies()).toUtf8();
                 m_properties.append(qMakePair(propertyName, qualifiedTypeName));
             } else {
                 TypeId typeId;
