@@ -88,6 +88,7 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     hf->setProductType<CMakeHighlighter>();
     hf->setId(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
     hf->addMimeType(CMakeProjectManager::Constants::CMAKEMIMETYPE);
+    hf->addMimeType(CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE);
     addAutoReleasedObject(hf);
 
     return true;

@@ -775,7 +775,7 @@ CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
     : Core::IDocument(parent), m_project(parent)
 {
     setId("Cmake.ProjectFile");
-    setMimeType(QLatin1String(Constants::CMAKEMIMETYPE));
+    setMimeType(QLatin1String(Constants::CMAKEPROJECTMIMETYPE));
     setFilePath(fileName);
 }
 
