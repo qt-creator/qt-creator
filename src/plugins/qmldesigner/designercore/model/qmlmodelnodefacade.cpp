@@ -75,6 +75,11 @@ const ModelNode QmlModelNodeFacade::modelNode() const
     return m_modelNode;
 }
 
+bool QmlModelNodeFacade::hasModelNode() const
+{
+    return m_modelNode.isValid();
+}
+
 bool QmlModelNodeFacade::isValid() const
 {
     return isValidQmlModelNodeFacade(m_modelNode);
