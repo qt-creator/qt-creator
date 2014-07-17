@@ -181,9 +181,9 @@ bool FakeMetaObjectWithOrigin::operator ==(const FakeMetaObjectWithOrigin &o) co
     return fakeMetaObject == o.fakeMetaObject;
 }
 
-uint qHash(const FakeMetaObjectWithOrigin &fmoo, int seed)
+uint qHash(const FakeMetaObjectWithOrigin &fmoo)
 {
-    return qHash(fmoo.fakeMetaObject, seed);
+    return qHash(fmoo.fakeMetaObject);
 }
 
 } // namespace QmlJS
