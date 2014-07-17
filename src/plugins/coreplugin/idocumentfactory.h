@@ -51,13 +51,9 @@ public:
     typedef std::function<IDocument *(const QString &fileName)> Opener;
     IDocument *open(const QString &filename);
 
-    Id id() const { return m_id; }
     QStringList mimeTypes() const { return m_mimeTypes; }
-    QString displayName() const { return m_displayName; }
 
-    void setId(Id id) { m_id = id; }
     void setOpener(const Opener &opener) { m_opener = opener; }
-    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
     void addMimeType(const char *mimeType) { m_mimeTypes.append(QLatin1String(mimeType)); }
     void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }

@@ -206,8 +206,6 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
         return false;
 
     m_fileFactory = new IDocumentFactory;
-    m_fileFactory->setId("ProjectExplorer.TaskFileFactory");
-    m_fileFactory->setDisplayName(tr("Task file reader"));
     m_fileFactory->addMimeType(QLatin1String("text/x-tasklist"));
     m_fileFactory->setOpener([this](const QString &fileName) -> IDocument * {
         ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();

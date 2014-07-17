@@ -743,14 +743,6 @@ void MainWindow::openFile()
     openFiles(EditorManager::getOpenFileNames(), ICore::SwitchMode);
 }
 
-static QList<IDocumentFactory*> getNonEditorDocumentFactories()
-{
-    return ExtensionSystem::PluginManager::getObjects<IDocumentFactory>(
-        [](IDocumentFactory *factory) {
-            return !qobject_cast<IEditorFactory *>(factory);
-        });
-}
-
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
                                      const QFileInfo &fi)
 {
@@ -776,13 +768,13 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
  */
 IDocument *MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags)
 {
-    QList<IDocumentFactory*> nonEditorFileFactories = getNonEditorDocumentFactories();
+    QList<IDocumentFactory*> documentFactories = ExtensionSystem::PluginManager::getObjects<IDocumentFactory>();
     IDocument *res = 0;
 
     foreach (const QString &fileName, fileNames) {
         const QFileInfo fi(fileName);
         const QString absoluteFilePath = fi.absoluteFilePath();
-        if (IDocumentFactory *documentFactory = findDocumentFactory(nonEditorFileFactories, fi)) {
+        if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, fi)) {
             IDocument *document = documentFactory->open(absoluteFilePath);
             if (!document) {
                 if (flags & ICore::StopOnLoadFail)

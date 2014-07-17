@@ -1223,9 +1223,6 @@ void ProjectExplorerPlugin::extensionsInitialized()
     QStringList filterStrings;
     foreach (IProjectManager *manager, projectManagers) {
         auto factory = new IDocumentFactory;
-        factory->setId(Constants::FILE_FACTORY_ID);
-        factory->setDisplayName(tr("Project File Factory",
-            "ProjectExplorer::ProjectFileFactory display name."));
         factory->addMimeType(manager->mimeType());
         factory->setOpener([this](const QString &fileName) -> IDocument* {
             QString errorMessage;
