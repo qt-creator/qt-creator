@@ -186,10 +186,10 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     Core::VariableManager::registerVariable("Cpp:LicenseTemplate",
                                             tr("The license template."),
-                                            []() { return CppToolsPlugin::licenseTemplate(); });
+                                            [this]() { return CppToolsPlugin::licenseTemplate(); });
     Core::VariableManager::registerFileVariables("Cpp:LicenseTemplatePath",
                                                  tr("The configured path to the license template."),
-                                                 []() { return CppToolsPlugin::licenseTemplatePath().toString(); });
+                                                 [this]() { return CppToolsPlugin::licenseTemplatePath().toString(); });
 
     return true;
 }
