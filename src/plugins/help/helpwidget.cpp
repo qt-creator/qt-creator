@@ -158,6 +158,9 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         layout->addWidget(toolButton(close));
         m_viewer->setOpenInNewWindowActionVisible(false);
     } else if (style == ExternalWindow) {
+        static int windowId = 0;
+        Core::ICore::registerWindow(this,
+                                    Core::Context(Core::Id("Help.Window.").withSuffix(++windowId)));
         setAttribute(Qt::WA_DeleteOnClose);
         setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
         connect(m_viewer, SIGNAL(titleChanged()), this, SLOT(updateWindowTitle()));
