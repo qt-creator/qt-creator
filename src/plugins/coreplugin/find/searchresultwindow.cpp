@@ -36,15 +36,17 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <utils/qtcassert.h>
+#include <utils/styledbar.h>
 
-#include <QSettings>
+#include <QAction>
+#include <QComboBox>
 #include <QDebug>
 #include <QFont>
-#include <QAction>
-#include <QToolButton>
-#include <QComboBox>
+#include <QLabel>
 #include <QScrollArea>
+#include <QSettings>
 #include <QStackedWidget>
+#include <QToolButton>
 
 static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
 static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
@@ -90,6 +92,8 @@ namespace Internal {
         QAction *m_expandCollapseAction;
         static const bool m_initiallyExpand = false;
         QWidget *m_spacer;
+        QLabel *m_historyLabel;
+        QWidget *m_spacer2;
         QComboBox *m_recentSearchesBox;
         QStackedWidget *m_widget;
         QList<SearchResult *> m_searchResults;
@@ -276,7 +280,11 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
 
     d->m_spacer = new QWidget;
     d->m_spacer->setMinimumWidth(30);
+    d->m_historyLabel = new QLabel(tr("History:"));
+    d->m_spacer2 = new QWidget;
+    d->m_spacer2->setMinimumWidth(5);
     d->m_recentSearchesBox = new QComboBox;
+    d->m_recentSearchesBox->setProperty("drawleftborder", true);
     d->m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     d->m_recentSearchesBox->addItem(tr("New Search"));
     connect(d->m_recentSearchesBox, SIGNAL(activated(int)), d, SLOT(setCurrentIndex(int)));
@@ -347,7 +355,8 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 */
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return QList<QWidget*>() << d->m_expandCollapseButton << d->m_spacer << d->m_recentSearchesBox;
+    return QList<QWidget*>() << d->m_expandCollapseButton << d->m_spacer
+                             << d->m_historyLabel << d->m_spacer2 << d->m_recentSearchesBox;
 }
 
 /*!

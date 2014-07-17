@@ -36,7 +36,7 @@ namespace Utils {
 
 class IpAddressLineEditPrivate;
 
-class QTCREATOR_UTILS_EXPORT IpAddressLineEdit : public Utils::FancyLineEdit
+class QTCREATOR_UTILS_EXPORT IpAddressLineEdit : public FancyLineEdit
 {
     Q_OBJECT
 

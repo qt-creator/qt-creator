@@ -80,10 +80,10 @@ public:
     bool isChildOf(const QDir &dir) const;
     bool endsWith(const QString &s) const;
 
-    Utils::FileName relativeChildPath(const FileName &parent) const;
-    Utils::FileName &appendPath(const QString &s);
-    Utils::FileName &appendString(const QString &str);
-    Utils::FileName &appendString(QChar str);
+    FileName relativeChildPath(const FileName &parent) const;
+    FileName &appendPath(const QString &s);
+    FileName &appendString(const QString &str);
+    FileName &appendString(QChar str);
 
     using QString::size;
     using QString::count;

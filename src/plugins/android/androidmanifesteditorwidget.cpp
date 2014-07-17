@@ -70,6 +70,8 @@
 #include <QTimer>
 #include <QCheckBox>
 
+#include <limits>
+
 using namespace ProjectExplorer;
 using namespace Android;
 using namespace Android::Internal;
@@ -180,7 +182,7 @@ void AndroidManifestEditorWidget::initializePage()
 
 
         m_versionCode = new QSpinBox(packageGroupBox);
-        m_versionCode->setMaximum(99);
+        m_versionCode->setMaximum(std::numeric_limits<int>::max());
         m_versionCode->setValue(1);
         m_versionCode->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         formLayout->addRow(tr("Version code:"), m_versionCode);

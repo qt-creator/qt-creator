@@ -350,13 +350,15 @@ void ResolveExpression::thisObject()
                 FullySpecifiedType ptrTy(control()->pointerType(classTy));
                 addResult(ptrTy, fun->enclosingScope());
                 break;
-            } else if (const QualifiedNameId *q = fun->name()->asQualifiedNameId()) {
-                if (q->base()) {
-                    FullySpecifiedType classTy(control()->namedType(q->base()));
-                    FullySpecifiedType ptrTy(control()->pointerType(classTy));
-                    addResult(ptrTy, fun->enclosingScope());
+            } else if (const Name *name = fun->name()) {
+                if (const QualifiedNameId *q = name->asQualifiedNameId()) {
+                    if (q->base()) {
+                        FullySpecifiedType classTy(control()->namedType(q->base()));
+                        FullySpecifiedType ptrTy(control()->pointerType(classTy));
+                        addResult(ptrTy, fun->enclosingScope());
+                    }
+                    break;
                 }
-                break;
             }
         }
     }

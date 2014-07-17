@@ -237,9 +237,8 @@ void StateListener::slotStateChanged()
         state.currentFile.clear();
     } else {
         state.currentFile = currentDocument->filePath();
-        if (state.currentFile.isEmpty()) {
+        if (state.currentFile.isEmpty() || currentDocument->isTemporary())
             state.currentFile = VcsBasePlugin::source(currentDocument);
-        }
     }
     QScopedPointer<QFileInfo> currentFileInfo; // Instantiate QFileInfo only once if required.
     if (!state.currentFile.isEmpty()) {

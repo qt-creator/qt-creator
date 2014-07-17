@@ -47,7 +47,7 @@ public:
         m_resultEnvironment.modify(m_items);
         // Add removed variables again and mark them as "<UNSET>" so
         // that the user can actually see those removals:
-        foreach (const Utils::EnvironmentItem &item, m_items) {
+        foreach (const EnvironmentItem &item, m_items) {
             if (item.unset)
                 m_resultEnvironment.set(item.name, EnvironmentModel::tr("<UNSET>"));
         }
@@ -63,7 +63,7 @@ public:
 
     int findInResultInsertPosition(const QString &name) const
     {
-        Utils::Environment::const_iterator it;
+        Environment::const_iterator it;
         int i = 0;
         for (it = m_resultEnvironment.constBegin(); it != m_resultEnvironment.constEnd(); ++it, ++i)
             if (m_resultEnvironment.key(it) > name)
@@ -73,7 +73,7 @@ public:
 
     int findInResult(const QString &name) const
     {
-        Utils::Environment::const_iterator it;
+        Environment::const_iterator it;
         int i = 0;
         for (it = m_resultEnvironment.constBegin(); it != m_resultEnvironment.constEnd(); ++it, ++i)
             if (m_resultEnvironment.key(it) == name)
@@ -81,9 +81,9 @@ public:
         return -1;
     }
 
-    Utils::Environment m_baseEnvironment;
-    Utils::Environment m_resultEnvironment;
-    QList<Utils::EnvironmentItem> m_items;
+    Environment m_baseEnvironment;
+    Environment m_resultEnvironment;
+    QList<EnvironmentItem> m_items;
 };
 
 } // namespace Internal
@@ -103,7 +103,7 @@ QString EnvironmentModel::indexToVariable(const QModelIndex &index) const
     return d->m_resultEnvironment.key(d->m_resultEnvironment.constBegin() + index.row());
 }
 
-void EnvironmentModel::setBaseEnvironment(const Utils::Environment &env)
+void EnvironmentModel::setBaseEnvironment(const Environment &env)
 {
     if (d->m_baseEnvironment == env)
         return;
@@ -215,7 +215,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         if (d->m_resultEnvironment.hasKey(newName) || newName.isEmpty())
             return false;
 
-        Utils::EnvironmentItem newVariable(newName, oldValue);
+        EnvironmentItem newVariable(newName, oldValue);
 
         if (changesPos != -1)
             resetVariable(oldName); // restore the original base variable again
@@ -238,7 +238,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
             }
         } else {
             // Add a new change item:
-            d->m_items.append(Utils::EnvironmentItem(oldName, stringValue));
+            d->m_items.append(EnvironmentItem(oldName, stringValue));
         }
         d->updateResultEnvironment();
         emit dataChanged(index, index);
@@ -251,12 +251,12 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 QModelIndex EnvironmentModel::addVariable()
 {
     //: Name when inserting a new variable
-    return addVariable(Utils::EnvironmentItem(tr("<VARIABLE>"),
-                                              //: Value when inserting a new variable
-                                              tr("<VALUE>")));
+    return addVariable(EnvironmentItem(tr("<VARIABLE>"),
+                                       //: Value when inserting a new variable
+                                       tr("<VALUE>")));
 }
 
-QModelIndex EnvironmentModel::addVariable(const Utils::EnvironmentItem &item)
+QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
 {
 
     // Return existing index if the name is already in the result set:
@@ -331,7 +331,7 @@ void EnvironmentModel::unsetVariable(const QString &name)
         emit userChangesChanged();
         return;
     }
-    Utils::EnvironmentItem item(name, QString());
+    EnvironmentItem item(name, QString());
     item.unset = true;
     d->m_items.append(item);
     d->updateResultEnvironment();
@@ -353,12 +353,12 @@ bool EnvironmentModel::canReset(const QString &name)
     return d->m_baseEnvironment.hasKey(name);
 }
 
-QList<Utils::EnvironmentItem> EnvironmentModel::userChanges() const
+QList<EnvironmentItem> EnvironmentModel::userChanges() const
 {
     return d->m_items;
 }
 
-void EnvironmentModel::setUserChanges(QList<Utils::EnvironmentItem> list)
+void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
 {
     // We assume nobody is reordering the items here.
     if (list == d->m_items)

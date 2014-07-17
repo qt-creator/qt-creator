@@ -721,7 +721,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                 continue; // skip using namespace directives
             else if (! id->match(s->identifier()))
                 continue;
-            else if (s->name()->isQualifiedNameId())
+            else if (s->name() && s->name()->isQualifiedNameId())
                 continue; // skip qualified ids.
 
             if (Q_UNLIKELY(debug)) {

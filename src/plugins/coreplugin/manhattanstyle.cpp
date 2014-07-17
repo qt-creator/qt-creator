@@ -923,17 +923,25 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             bool isEmpty = cb->currentText.isEmpty() && cb->currentIcon.isNull();
             bool reverse = option->direction == Qt::RightToLeft;
             bool drawborder = !(widget && widget->property("hideborder").toBool());
+            bool drawleftborder = (widget && widget->property("drawleftborder").toBool());
             bool alignarrow = !(widget && widget->property("alignarrow").toBool());
 
-            if (drawborder)
+            if (drawborder) {
                 drawButtonSeparator(painter, rect, reverse);
+                if (drawleftborder)
+                    drawButtonSeparator(painter, rect.adjusted(0, 0, -rect.width() + 2, 0), reverse);
+            }
 
             QStyleOption toolbutton = *option;
             if (isEmpty)
                 toolbutton.state &= ~(State_Enabled | State_Sunken);
             painter->save();
-            if (drawborder)
-                painter->setClipRect(toolbutton.rect.adjusted(0, 0, -2, 0));
+            if (drawborder) {
+                int leftClipAdjust = 0;
+                if (drawleftborder)
+                    leftClipAdjust = 2;
+                painter->setClipRect(toolbutton.rect.adjusted(leftClipAdjust, 0, -2, 0));
+            }
             drawPrimitive(PE_PanelButtonTool, &toolbutton, painter, widget);
             painter->restore();
             // Draw arrow

@@ -78,6 +78,31 @@ QDateTime PuppetCreator::qtLastModified() const
     return QDateTime();
 }
 
+QDateTime PuppetCreator::puppetSourceLastModified() const
+{
+    QString basePuppetSourcePath = puppetSourceDirectoryPath();
+    QStringList sourceDirectoryPathes;
+    QDateTime lastModified;
+
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/commands"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/container"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/instances"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/interfaces"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/types"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qmlpuppet"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qmlpuppet/instances"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qml2puppet"));
+    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qml2puppet/instances"));
+
+    foreach (const QString directoryPath, sourceDirectoryPathes) {
+        QDateTime directoryPathLastModified = QFileInfo(directoryPath).lastModified();
+        if (lastModified < directoryPathLastModified)
+            lastModified = directoryPathLastModified;
+    }
+
+    return lastModified;
+}
+
 PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion)
     : m_qtCreatorVersion(qtCreatorVersion),
       m_kit(kit),
@@ -101,9 +126,9 @@ QProcess *PuppetCreator::createPuppetProcess(PuppetCreator::QmlPuppetVersion pup
 {
     QString puppetPath;
     if (puppetVersion == Qml1Puppet)
-        puppetPath = qmlpuppetPath(m_availablePuppetType);
+        puppetPath = qmlPuppetPath(m_availablePuppetType);
      else
-        puppetPath = qml2puppetPath(m_availablePuppetType);
+        puppetPath = qml2PuppetPath(m_availablePuppetType);
 
     return puppetProcess(puppetPath,
                          puppetMode,
@@ -165,12 +190,12 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             QStringList qmakeArguments;
             qmakeArguments.append(QStringLiteral("-r"));
             qmakeArguments.append(QStringLiteral("-after"));
-            qmakeArguments.append(QStringLiteral("DESTDIR=") + qmlpuppetDirectory(UserSpacePuppet));
+            qmakeArguments.append(QStringLiteral("DESTDIR=") + qmlPuppetDirectory(UserSpacePuppet));
 #ifndef QT_DEBUG
             qmakeArguments.append(QStringLiteral("CONFIG+=release"));
 #endif
             qmakeArguments.append(qmlPuppetProjectFilePath);
-            buildSucceeded = startBuildProcess(buildDirectory.path(), qmakeCommand(), qmakeArguments);
+            buildSucceeded = startBuildProcess(buildDirectory.path(), qmakeCommand(), qmakeArguments, &progressDialog);
             if (buildSucceeded) {
                 progressDialog.show();
                 QString buildingCommand = buildCommand();
@@ -223,7 +248,7 @@ void PuppetCreator::createQml1PuppetExecutableIfMissing()
             } else {
                 if (m_kit->isValid()) {
 
-                    bool buildSucceeded = build(qmlpuppetProjectFile());
+                    bool buildSucceeded = build(qmlPuppetProjectFile());
                     if (buildSucceeded)
                         m_availablePuppetType = UserSpacePuppet;
                     else
@@ -245,11 +270,11 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
 
         if (m_qml2PuppetForKitPuppetHash.contains(m_kit->id())) {
             m_availablePuppetType = m_qml2PuppetForKitPuppetHash.value(m_kit->id());
-        } else if (checkQml2puppetIsReady()) {
+        } else if (checkQml2PuppetIsReady()) {
             m_availablePuppetType = UserSpacePuppet;
         } else {
             if (m_kit->isValid()) {
-                bool buildSucceeded = build(qml2puppetProjectFile());
+                bool buildSucceeded = build(qml2PuppetProjectFile());
                 if (buildSucceeded)
                     m_availablePuppetType = UserSpacePuppet;
                 else
@@ -265,7 +290,7 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
     }
 }
 
-QString PuppetCreator::qmlpuppetDirectory(PuppetType puppetType) const
+QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
 {
 
     if (puppetType == UserSpacePuppet)
@@ -275,22 +300,22 @@ QString PuppetCreator::qmlpuppetDirectory(PuppetType puppetType) const
                 + qtHash();
 
 
-    return qmlpuppetFallbackDirectory();
+    return qmlPuppetFallbackDirectory();
 }
 
-QString PuppetCreator::qmlpuppetFallbackDirectory() const
+QString PuppetCreator::qmlPuppetFallbackDirectory() const
 {
     return QCoreApplication::applicationDirPath();
 }
 
-QString PuppetCreator::qml2puppetPath(PuppetType puppetType) const
+QString PuppetCreator::qml2PuppetPath(PuppetType puppetType) const
 {
-    return qmlpuppetDirectory(puppetType) + QStringLiteral("/qml2puppet") + QStringLiteral(QTC_HOST_EXE_SUFFIX);
+    return qmlPuppetDirectory(puppetType) + QStringLiteral("/qml2puppet") + QStringLiteral(QTC_HOST_EXE_SUFFIX);
 }
 
-QString PuppetCreator::qmlpuppetPath(PuppetType puppetType) const
+QString PuppetCreator::qmlPuppetPath(PuppetType puppetType) const
 {
-    return qmlpuppetDirectory(puppetType) + QStringLiteral("/qmlpuppet") + QStringLiteral(QTC_HOST_EXE_SUFFIX);
+    return qmlPuppetDirectory(puppetType) + QStringLiteral("/qmlpuppet") + QStringLiteral(QTC_HOST_EXE_SUFFIX);
 }
 
 QProcessEnvironment PuppetCreator::processEnvironment() const
@@ -346,6 +371,9 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     process.start(command, processArguments);
     process.waitForStarted();
     while (process.waitForReadyRead(-1)) {
+        if (progressDialog->useFallbackPuppet())
+            return false;
+
         QByteArray newOutput = process.readAllStandardOutput();
         if (progressDialog)
             progressDialog->newBuildOutput(newOutput);
@@ -357,8 +385,8 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
 
     if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0)
         return true;
-    else
-        return false;
+
+    return false;
 }
 
 QString PuppetCreator::puppetSourceDirectoryPath()
@@ -366,12 +394,12 @@ QString PuppetCreator::puppetSourceDirectoryPath()
     return Core::ICore::resourcePath() + QStringLiteral("/qml/qmlpuppet");
 }
 
-QString PuppetCreator::qml2puppetProjectFile()
+QString PuppetCreator::qml2PuppetProjectFile()
 {
     return puppetSourceDirectoryPath() + QStringLiteral("/qml2puppet/qml2puppet.pro");
 }
 
-QString PuppetCreator::qmlpuppetProjectFile()
+QString PuppetCreator::qmlPuppetProjectFile()
 {
     return puppetSourceDirectoryPath() + QStringLiteral("/qmlpuppet/qmlpuppet.pro");
 }
@@ -379,18 +407,28 @@ QString PuppetCreator::qmlpuppetProjectFile()
 bool PuppetCreator::checkPuppetIsReady(const QString &puppetPath) const
 {
     QFileInfo puppetFileInfo(puppetPath);
+    if (puppetFileInfo.exists()) {
+        QDateTime puppetExecutableLastModified = puppetFileInfo.lastModified();
 
-    return puppetFileInfo.exists() && puppetFileInfo.lastModified() > qtLastModified();
+        return puppetExecutableLastModified > qtLastModified() && puppetExecutableLastModified > puppetSourceLastModified();
+    }
+
+    return false;
 }
 
-bool PuppetCreator::checkQml2puppetIsReady() const
+bool PuppetCreator::checkQml2PuppetIsReady() const
 {
-    return checkPuppetIsReady(qml2puppetPath(UserSpacePuppet));
+    return checkPuppetIsReady(qml2PuppetPath(UserSpacePuppet));
 }
 
 bool PuppetCreator::checkQmlpuppetIsReady() const
 {
-    return checkPuppetIsReady(qmlpuppetPath(UserSpacePuppet));
+    return checkPuppetIsReady(qmlPuppetPath(UserSpacePuppet));
+}
+
+static bool nonEarlyQt5Version(const QtSupport::QtVersionNumber &currentQtVersionNumber)
+{
+    return currentQtVersionNumber >= QtSupport::QtVersionNumber(5, 2, 0) || currentQtVersionNumber < QtSupport::QtVersionNumber(5, 0, 0);
 }
 
 bool PuppetCreator::qtIsSupported() const
@@ -399,7 +437,7 @@ bool PuppetCreator::qtIsSupported() const
 
     if (currentQtVersion
             && currentQtVersion->isValid()
-            && currentQtVersion->qtVersion() >= QtSupport::QtVersionNumber(5, 2, 0)
+            && nonEarlyQt5Version(currentQtVersion->qtVersion())
             && (currentQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
                 || currentQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
         return true;

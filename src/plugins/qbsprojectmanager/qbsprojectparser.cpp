@@ -124,7 +124,7 @@ bool QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     params.setSearchPaths(prefs.searchPaths(resourcesBaseDirectory()));
     params.setPluginPaths(prefs.pluginPaths(pluginsBaseDirectory()));
 
-    m_qbsSetupProjectJob = qbs::Project::setupProject(params, QbsManager::logSink(), 0);
+    m_qbsSetupProjectJob = m_project.setupProject(params, QbsManager::logSink(), 0);
 
     connect(m_qbsSetupProjectJob, SIGNAL(finished(bool,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingDone(bool)));
@@ -134,6 +134,12 @@ bool QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
             this, SLOT(handleQbsParsingProgress(int)));
 
     return true;
+}
+
+void QbsProjectParser::cancel()
+{
+    QTC_ASSERT(m_qbsSetupProjectJob, return);
+    m_qbsSetupProjectJob->cancel();
 }
 
 qbs::Project QbsProjectParser::qbsProject() const
@@ -153,8 +159,8 @@ void QbsProjectParser::handleQbsParsingDone(bool success)
     m_project = m_qbsSetupProjectJob->project();
     m_error = m_qbsSetupProjectJob->error();
 
-    if (!success)
-        m_fi->reportCanceled();
+    // Do not report the operation as canceled here, as we might want to make overlapping
+    // parses appear atomic to the user.
 
     emit done(success);
 }

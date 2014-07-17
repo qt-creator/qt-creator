@@ -443,7 +443,7 @@ public:
 class QMLJS_EXPORT ObjectValue: public Value
 {
 public:
-    ObjectValue(ValueOwner *valueOwner);
+    ObjectValue(ValueOwner *valueOwner, const QString &originId = QString());
     ~ObjectValue();
 
     ValueOwner *valueOwner() const;
@@ -475,6 +475,9 @@ public:
     // Value interface
     const ObjectValue *asObjectValue() const QTC_OVERRIDE;
     void accept(ValueVisitor *visitor) const QTC_OVERRIDE;
+    QString originId() const
+    { return m_originId; }
+
 
 private:
     bool checkPrototype(const ObjectValue *prototype, QSet<const ObjectValue *> *processed) const;
@@ -483,6 +486,7 @@ private:
     ValueOwner *m_valueOwner;
     QHash<QString, const Value *> m_members;
     QString m_className;
+    QString m_originId;
 
 protected:
     const Value *_prototype;
@@ -542,7 +546,7 @@ public:
     CppComponentValue(LanguageUtils::FakeMetaObject::ConstPtr metaObject, const QString &className,
                    const QString &moduleName, const LanguageUtils::ComponentVersion &componentVersion,
                    const LanguageUtils::ComponentVersion &importVersion, int metaObjectRevision,
-                   ValueOwner *valueOwner);
+                   ValueOwner *valueOwner, const QString &originId);
     ~CppComponentValue();
 
     const CppComponentValue *asCppComponentValue() const QTC_OVERRIDE;
@@ -673,6 +677,18 @@ public:
         QList<ModuleApiInfo> *newModuleApis, QString *errorMessage, QString *warningMessage, const QString &fileName);
 };
 
+class QMLJS_EXPORT FakeMetaObjectWithOrigin
+{
+public:
+    LanguageUtils::FakeMetaObject::ConstPtr fakeMetaObject;
+    QString originId;
+    FakeMetaObjectWithOrigin(LanguageUtils::FakeMetaObject::ConstPtr fakeMetaObject,
+                             const QString &originId);
+    bool operator ==(const FakeMetaObjectWithOrigin &o) const;
+};
+
+QMLJS_EXPORT uint qHash(const FakeMetaObjectWithOrigin &fmoo, int seed = 0);
+
 class QMLJS_EXPORT CppQmlTypes
 {
 public:
@@ -684,7 +700,7 @@ public:
     static const QLatin1String cppPackage;
 
     template <typename T>
-    void load(const T &fakeMetaObjects, const QString &overridePackage = QString());
+    void load(const QString &originId, const T &fakeMetaObjects, const QString &overridePackage = QString());
 
     QList<const CppComponentValue *> createObjectsForImport(const QString &package, LanguageUtils::ComponentVersion version);
     bool hasModule(const QString &module) const;
@@ -703,7 +719,7 @@ public:
 private:
     // "Package.CppName ImportVersion" ->  CppComponentValue
     QHash<QString, const CppComponentValue *> m_objectsByQualifiedName;
-    QHash<QString, QSet<LanguageUtils::FakeMetaObject::ConstPtr> > m_fakeMetaObjectsByPackage;
+    QHash<QString, QSet<FakeMetaObjectWithOrigin> > m_fakeMetaObjectsByPackage;
     const ObjectValue *m_cppContextProperties;
     ValueOwner *m_valueOwner;
 };

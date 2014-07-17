@@ -1250,8 +1250,20 @@ void ModelManagerInterface::updateCppQmlTypes(QFutureInterface<void> &interface,
             hasNewInfo = hasNewInfo || newData.remove(fileName) > 0;
         } else {
             CppData &data = newData[fileName];
-            // currently we have no simple way to compare, so we assume the worse
-            hasNewInfo = true;
+            if (!hasNewInfo && (data.exportedTypes.size() != exported.size()
+                                || data.contextProperties != contextProperties))
+                hasNewInfo = true;
+            if (!hasNewInfo) {
+                QHash<QString, QByteArray> newFingerprints;
+                foreach (LanguageUtils::FakeMetaObject::ConstPtr newType, exported)
+                    newFingerprints[newType->className()]=newType->fingerprint();
+                foreach (LanguageUtils::FakeMetaObject::ConstPtr oldType, data.exportedTypes) {
+                    if (newFingerprints.value(oldType->className()) != oldType->fingerprint()) {
+                        hasNewInfo = true;
+                        break;
+                    }
+                }
+            }
             data.exportedTypes = exported;
             data.contextProperties = contextProperties;
         }

@@ -193,7 +193,7 @@ Class *isMemberFunction(const LookupContext &context, Function *function)
 
     const Name *functionName = function->name();
     if (!functionName)
-        return 0; // anonymous function names are not valid c++
+        return 0;
 
     if (!functionName->isQualifiedNameId())
         return 0; // trying to add a declaration for a global function
@@ -225,7 +225,7 @@ Namespace *isNamespaceFunction(const LookupContext &context, Function *function)
 
     const Name *functionName = function->name();
     if (!functionName)
-        return 0; // anonymous function names are not valid c++
+        return 0;
 
     // global namespace
     if (!functionName->isQualifiedNameId()) {
@@ -4148,7 +4148,7 @@ QString definitionSignature(const CppQuickFixAssistInterface *assist,
     oo.showReturnTypes = true;
     oo.showArgumentNames = true;
     const Name *name = func->name();
-    if (nameIncludesOperatorName(name)) {
+    if (name && nameIncludesOperatorName(name)) {
         CoreDeclaratorAST *coreDeclarator = functionDefinitionAST->declarator->core_declarator;
         const QString operatorNameText = baseFile->textOf(coreDeclarator);
         oo.includeWhiteSpaceInOperatorName = operatorNameText.contains(QLatin1Char(' '));

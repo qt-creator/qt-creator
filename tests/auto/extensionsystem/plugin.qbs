@@ -9,10 +9,11 @@ DynamicLibrary {
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
     targetName: QtcFunctions.qtLibraryName(qbs, name.split('_')[1])
-    destinationDirectory: FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
+    destinationDirectory: project.buildDirectory + '/'
+                          + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
     cpp.rpaths: [
-        buildDirectory + "/" + project.libDirName + "/qtcreator",
-        buildDirectory + "/" + project.libDirName + "/qtcreator/plugins"
+        project.buildDirectory + "/" + project.libDirName + "/qtcreator",
+        project.buildDirectory + "/" + project.libDirName + "/qtcreator/plugins"
     ].concat(additionalRPaths)
     property pathList filesToCopy
     property pathList additionalRPaths: []

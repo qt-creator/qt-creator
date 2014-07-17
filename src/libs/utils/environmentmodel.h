@@ -56,7 +56,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
     QModelIndex addVariable();
-    QModelIndex addVariable(const Utils::EnvironmentItem &item);
+    QModelIndex addVariable(const EnvironmentItem &item);
     void resetVariable(const QString &name);
     void unsetVariable(const QString &name);
     bool canUnset(const QString &name);
@@ -64,9 +64,9 @@ public:
     QString indexToVariable(const QModelIndex &index) const;
     QModelIndex variableToIndex(const QString &name) const;
     bool changes(const QString &key) const;
-    void setBaseEnvironment(const Utils::Environment &env);
-    QList<Utils::EnvironmentItem> userChanges() const;
-    void setUserChanges(QList<Utils::EnvironmentItem> list);
+    void setBaseEnvironment(const Environment &env);
+    QList<EnvironmentItem> userChanges() const;
+    void setUserChanges(QList<EnvironmentItem> list);
 
 signals:
     void userChangesChanged();

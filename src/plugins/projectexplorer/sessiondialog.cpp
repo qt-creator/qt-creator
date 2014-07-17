@@ -92,7 +92,7 @@ SessionNameInputDialog::SessionNameInputDialog(const QStringList &sessions, QWid
     m_newSessionLineEdit->setValidator(new SessionValidator(this, sessions));
     hlayout->addWidget(m_newSessionLineEdit);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
-    m_switchToButton = buttons->addButton(tr("Switch to"), QDialogButtonBox::AcceptRole);
+    m_switchToButton = buttons->addButton(tr("Switch To"), QDialogButtonBox::AcceptRole);
     connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
     connect(buttons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(clicked(QAbstractButton*)));
@@ -217,7 +217,7 @@ void SessionDialog::updateActions()
 void SessionDialog::createNew()
 {
     SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), this);
-    newSessionInputDialog.setWindowTitle(tr("New session name"));
+    newSessionInputDialog.setWindowTitle(tr("New Session Name"));
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         QString sessionName = newSessionInputDialog.value();
@@ -233,7 +233,7 @@ void SessionDialog::clone()
 {
     SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), this);
     newSessionInputDialog.setValue(m_ui.sessionList->currentItem()->text());
-    newSessionInputDialog.setWindowTitle(tr("New session name"));
+    newSessionInputDialog.setWindowTitle(tr("New Session Name"));
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         QString newSession = newSessionInputDialog.value();
@@ -258,7 +258,7 @@ void SessionDialog::rename()
 {
     SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), this);
     newSessionInputDialog.setValue(m_ui.sessionList->currentItem()->text());
-    newSessionInputDialog.setWindowTitle(tr("Rename session"));
+    newSessionInputDialog.setWindowTitle(tr("Rename Session"));
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         SessionManager::renameSession(m_ui.sessionList->currentItem()->text(), newSessionInputDialog.value());

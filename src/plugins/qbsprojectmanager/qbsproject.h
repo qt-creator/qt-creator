@@ -96,6 +96,7 @@ public:
     void parseCurrentBuildConfiguration(bool force);
     void scheduleParsing() { m_parsingScheduled = true; }
     bool parsingScheduled() const { return m_parsingScheduled; }
+    void cancelParsing();
     void updateAfterBuild();
 
     void registerQbsProjectParser(QbsProjectParser *p);
@@ -153,6 +154,12 @@ private:
     QFutureInterface<bool> *m_qbsUpdateFutureInterface;
     bool m_forceParsing;
     bool m_parsingScheduled;
+
+    enum CancelStatus {
+        CancelStatusNone,
+        CancelStatusCancelingForReparse,
+        CancelStatusCancelingAltoghether
+    } m_cancelStatus;
 
     QFuture<void> m_codeModelFuture;
 

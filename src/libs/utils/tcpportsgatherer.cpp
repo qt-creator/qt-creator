@@ -270,9 +270,9 @@ void TcpPortsGatherer::update(QAbstractSocket::NetworkLayerProtocol protocol)
     d->protocol = protocol;
     d->usedPorts.clear();
 
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (HostOsInfo::isWindowsHost())
         d->updateWin();
-    else if (Utils::HostOsInfo::isLinuxHost())
+    else if (HostOsInfo::isLinuxHost())
         d->updateLinux();
     else
         d->updateNetstat();

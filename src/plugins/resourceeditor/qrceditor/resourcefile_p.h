@@ -37,6 +37,8 @@
 #include <QStringList>
 #include <QIcon>
 
+#include <utils/textfileformat.h>
+
 namespace ResourceEditor {
 namespace Internal {
 
@@ -177,6 +179,7 @@ private:
     PrefixList m_prefix_list;
     QString m_file_name;
     QString m_error_message;
+    Utils::TextFileFormat m_textFileFormat;
 
 public:
     void * prefixPointer(int prefixIndex) const;

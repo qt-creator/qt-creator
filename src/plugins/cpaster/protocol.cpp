@@ -169,9 +169,11 @@ bool Protocol::showConfigurationError(const Protocol *p,
         settingsButton = mb.addButton(Core::ICore::msgShowOptionsDialog(), QMessageBox::AcceptRole);
     mb.exec();
     bool rc = false;
-    if (mb.clickedButton() == settingsButton)
+    if (mb.clickedButton() == settingsButton) {
         rc = Core::ICore::showOptionsDialog(p->settingsPage()->category(),
-                                            p->settingsPage()->id(), parent);
+                                            p->settingsPage()->id(),
+                                            parent);
+    }
     return rc;
 }
 

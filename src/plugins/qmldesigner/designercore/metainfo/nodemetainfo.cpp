@@ -122,6 +122,157 @@ static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPt
     return type;
 }
 
+static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
+                                           const ViewerContext &vContext,
+                                           const ImportDependencies &dep)
+{
+    QString cppName;
+    QStringList packages;
+    if (const CppComponentValue *cppComponent = value_cast<CppComponentValue>(objectValue)) {
+        QString className = cppComponent->className();
+        foreach (const LanguageUtils::FakeMetaObject::Export &e, cppComponent->metaObject()->exports()) {
+            if (e.type == className)
+                packages << e.package;
+            if (e.package == QmlJS::CppQmlTypes::cppPackage)
+                cppName = e.type;
+        }
+        if (packages.size() == 1 && packages.at(0) == QmlJS::CppQmlTypes::cppPackage)
+            return packages.at(0) + QLatin1Char('.') + className;
+    }
+    // try to recover a "global context name"
+    QStringList possibleLibraries;
+    QStringList possibleQrcFiles;
+    QStringList possibleFiles;
+    bool hasQtQuick = false;
+    do {
+        if (objectValue->originId().isEmpty())
+            break;
+        CoreImport cImport = dep.coreImport(objectValue->originId());
+        if (!cImport.valid())
+            break;
+        foreach (const Export &e, cImport.possibleExports) {
+            if (e.pathRequired.isEmpty() || vContext.paths.contains(e.pathRequired)) {
+                switch (e.exportName.type) {
+                case ImportType::Library:
+                {
+                    QString typeName = objectValue->className();
+                    if (!e.typeName.isEmpty() && e.typeName != Export::LibraryTypeName) {
+                        typeName = e.typeName;
+                        if (typeName != objectValue->className())
+                            qCWarning(qmljsLog) << "Outdated classname " << objectValue->className()
+                                                << " vs " << typeName
+                                                << " for " << e.exportName.toString();
+                    }
+                    if (packages.isEmpty() || packages.contains(e.exportName.libPath())) {
+                        if (e.exportName.splitPath.value(0) == QLatin1String("QtQuick"))
+                            hasQtQuick = true;
+                        possibleLibraries.append(e.exportName.libPath() + '.' + typeName);
+                    }
+                    break;
+                }
+                case ImportType::File:
+                {
+                    // remove the search path prefix.
+                    // this means that the same relative path wrt. different import paths will clash
+                    QString filePath = e.exportName.path();
+                    foreach (const QString &path, vContext.paths) {
+                        if (filePath.startsWith(path) && filePath.size() > path.size()
+                                && filePath.at(path.size()) == QLatin1Char('/'))
+                        {
+                            filePath = filePath.mid(path.size() + 1);
+                            break;
+                        }
+                    }
+
+                    if (filePath.startsWith(QLatin1Char('/')))
+                        filePath = filePath.mid(1);
+                    QFileInfo fileInfo(filePath);
+                    QStringList splitName = fileInfo.path().split(QLatin1Char('/'));
+                    QString typeName = fileInfo.baseName();
+                    if (!e.typeName.isEmpty()) {
+                        if (e.typeName != fileInfo.baseName())
+                            qCWarning(qmljsLog) << "type renaming in file import " << e.typeName
+                                                << " for " << e.exportName.path();
+                        typeName = e.typeName;
+                    }
+                    if (typeName != objectValue->className())
+                        qCWarning(qmljsLog) << "Outdated classname " << objectValue->className()
+                                            << " vs " << typeName
+                                            << " for " << e.exportName.toString();
+                    splitName.append(typeName);
+                    possibleFiles.append(splitName.join(QLatin1Char('.')));
+                    break;
+                }
+                case ImportType::QrcFile:
+                {
+                    QString filePath = e.exportName.path();
+                    if (filePath.startsWith(QLatin1Char('/')))
+                        filePath = filePath.mid(1);
+                    QFileInfo fileInfo(filePath);
+                    QStringList splitName = fileInfo.path().split(QLatin1Char('/'));
+                    QString typeName = fileInfo.baseName();
+                    if (!e.typeName.isEmpty()) {
+                        if (e.typeName != fileInfo.baseName())
+                            qCWarning(qmljsLog) << "type renaming in file import " << e.typeName
+                                                << " for " << e.exportName.path();
+                        typeName = e.typeName;
+                    }
+                    if (typeName != objectValue->className())
+                        qCWarning(qmljsLog) << "Outdated classname " << objectValue->className()
+                                            << " vs " << typeName
+                                            << " for " << e.exportName.toString();
+                    splitName.append(typeName);
+                    possibleQrcFiles.append(splitName.join(QLatin1Char('.')));
+                    break;
+                }
+                case ImportType::Invalid:
+                case ImportType::UnknownFile:
+                    break;
+                case ImportType::Directory:
+                case ImportType::ImplicitDirectory:
+                case ImportType::QrcDirectory:
+                    qCWarning(qmljsLog) << "unexpected import type in export "
+                                        << e.exportName.toString() << " of coreExport "
+                                        << objectValue->originId();
+                    break;
+                }
+            }
+        }
+        auto optimalName = [] (const QStringList &list) -> QString {
+            QString res = list.at(0);
+            for (int i = 1; i < list.size(); ++i) {
+                const QString &nameNow = list.at(i);
+                if (nameNow.size() < res.size()
+                        || (nameNow.size() == res.size() && nameNow < res))
+                    res = nameNow;
+            }
+            return res;
+        };
+        if (!possibleLibraries.isEmpty()) {
+            if (hasQtQuick) {
+                foreach (const QString &libImport, possibleLibraries)
+                    if (!libImport.startsWith(QLatin1String("QtQuick")))
+                        possibleLibraries.removeAll(libImport);
+            }
+            return optimalName(possibleLibraries);
+        }
+        if (!possibleQrcFiles.isEmpty())
+            return optimalName(possibleQrcFiles);
+        if (!possibleFiles.isEmpty())
+            return optimalName(possibleFiles);
+    } while (false);
+    if (!cppName.isEmpty())
+        return QmlJS::CppQmlTypes::cppPackage + QLatin1Char('.') + cppName;
+    if (const CppComponentValue *cppComponent = value_cast<CppComponentValue>(objectValue)) {
+        if (cppComponent->moduleName().isEmpty())
+            return cppComponent->className();
+        else
+            return cppComponent->moduleName() + QLatin1Char('.') + cppComponent->className();
+    } else {
+        return objectValue->className();
+    }
+}
+
 class PropertyMemberProcessor : public MemberProcessor
 {
 public:
@@ -144,8 +295,10 @@ public:
                 }
             }
         } else {
+
             if (const CppComponentValue * cppComponentValue = value_cast<CppComponentValue>(value)) {
-                TypeName qualifiedTypeName = cppComponentValue->moduleName().isEmpty() ? cppComponentValue->className().toUtf8() : cppComponentValue->moduleName().toUtf8() + '.' + cppComponentValue->className().toUtf8();
+                TypeName qualifiedTypeName = qualifiedTypeNameForContext(cppComponentValue,
+                    m_context->vContext(), *m_context->snapshot().importDependencies()).toUtf8();
                 m_properties.append(qMakePair(propertyName, qualifiedTypeName));
             } else {
                 TypeId typeId;
@@ -519,19 +672,19 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                                         m_model(model)
 {
     if (context()) {
-        const CppComponentValue *objectValue = getCppComponentValue();
+        const CppComponentValue *cppObjectValue = getCppComponentValue();
 
-        if (objectValue) {
+        if (cppObjectValue) {
             if (m_majorVersion == -1 && m_minorVersion == -1) {
-                m_majorVersion = objectValue->componentVersion().majorVersion();
-                m_minorVersion = objectValue->componentVersion().minorVersion();
+                m_majorVersion = cppObjectValue->componentVersion().majorVersion();
+                m_minorVersion = cppObjectValue->componentVersion().minorVersion();
             }
-            setupPropertyInfo(getTypes(objectValue, context()));
-            setupLocalPropertyInfo(getTypes(objectValue, context(), true));
-            m_defaultPropertyName = objectValue->defaultPropertyName().toUtf8();
+            setupPropertyInfo(getTypes(cppObjectValue, context()));
+            setupLocalPropertyInfo(getTypes(cppObjectValue, context(), true));
+            m_defaultPropertyName = cppObjectValue->defaultPropertyName().toUtf8();
             m_isValid = true;
             setupPrototypes();
-            m_signals = getSignals(objectValue, context());
+            m_signals = getSignals(cppObjectValue, context());
         } else {
             const ObjectValue *objectValue = getObjectValue();
             if (objectValue) {

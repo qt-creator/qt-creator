@@ -1,5 +1,6 @@
 <RCC>
-    <qresource prefix="/">
-        <file alias="categoryicon">images/beautifier.png</file>
+    <qresource prefix="/beautifier">
+        <file>images/beautifier.png</file>
+        <file>images/beautifier@2x.png</file>
     </qresource>
 </RCC>

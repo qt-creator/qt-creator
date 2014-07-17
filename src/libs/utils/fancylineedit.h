@@ -177,7 +177,7 @@ private:
 
     void updateMargins();
     void updateButtonPositions();
-    friend class Utils::FancyLineEditPrivate;
+    friend class FancyLineEditPrivate;
 
     FancyLineEditPrivate *d;
 };

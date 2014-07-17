@@ -244,8 +244,6 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
 
     updateFileName(QString(), fileName());
 
-    m_subComponentManager->update(QUrl::fromLocalFile(fileName()), currentModel()->imports());
-
     m_documentLoaded = true;
 }
 

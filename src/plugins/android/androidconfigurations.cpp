@@ -620,8 +620,13 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices() const
             line = QLatin1String(avds[i]);
             if (line.contains(QLatin1String("---------")))
                 break;
-            if (line.contains(QLatin1String("Target:")))
-                dev.sdk = line.mid(line.lastIndexOf(QLatin1Char(' '))).remove(QLatin1Char(')')).toInt();
+            if (line.contains(QLatin1String("Target:"))) {
+                QString tmp = line.mid(line.lastIndexOf(QLatin1Char(' '))).remove(QLatin1Char(')')).trimmed();
+                if (tmp == QLatin1String("L")) // HACK for android-L preview
+                    dev.sdk = 20;
+                else
+                    dev.sdk = tmp.toInt();
+            }
             if (line.contains(QLatin1String("Tag/ABI:")))
                 dev.cpuAbi = QStringList() << line.mid(line.lastIndexOf(QLatin1Char('/')) +1);
             else if (line.contains(QLatin1String("ABI:")))

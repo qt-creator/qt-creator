@@ -198,6 +198,14 @@ ImportKey ImportKey::flatKey() const {
     return res;
 }
 
+QString ImportKey::libPath() const
+{
+    QString res = splitPath.join(QString::fromLatin1("."));
+    if (res.isEmpty() && !splitPath.isEmpty())
+        return QLatin1String("");
+    return res;
+}
+
 QString ImportKey::path() const
 {
     QString res = splitPath.join(QString::fromLatin1("/"));

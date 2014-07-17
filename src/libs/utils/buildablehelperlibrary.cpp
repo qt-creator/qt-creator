@@ -64,7 +64,7 @@ QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
     return result;
 }
 
-Utils::FileName BuildableHelperLibrary::findSystemQt(const Utils::Environment &env)
+FileName BuildableHelperLibrary::findSystemQt(const Environment &env)
 {
     QStringList paths = env.path();
     foreach (const QString &path, paths) {
@@ -78,11 +78,11 @@ Utils::FileName BuildableHelperLibrary::findSystemQt(const Utils::Environment &e
                     qmake.setFile(qtChooserToQmakePath(qmake.symLinkTarget()));
 
                 if (!qtVersionForQMake(qmake.absoluteFilePath()).isNull())
-                    return Utils::FileName(qmake);
+                    return FileName(qmake);
             }
         }
     }
-    return Utils::FileName();
+    return FileName();
 }
 
 QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath)
@@ -105,7 +105,7 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool
         return QString();
     }
     if (!qmake.waitForFinished())      {
-        Utils::SynchronousProcess::stopProcess(qmake);
+        SynchronousProcess::stopProcess(qmake);
         qWarning("Timeout running '%s'.", qPrintable(qmakePath));
         return QString();
     }

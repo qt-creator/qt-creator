@@ -120,7 +120,8 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
 void AndroidPotentialKitWidget::openOptions()
 {
     Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_CATEGORY,
-                                   Constants::ANDROID_SETTINGS_ID);
+                                   Constants::ANDROID_SETTINGS_ID,
+                                   this);
 }
 
 void AndroidPotentialKitWidget::recheck()

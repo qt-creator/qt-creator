@@ -70,7 +70,7 @@ int TodoItemsModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
 
-    return Constants::OUTPUT_COLUMN_LAST;
+    return Constants::OUTPUT_COLUMN_COUNT;
 }
 
 QVariant TodoItemsModel::data(const QModelIndex &index, int role) const

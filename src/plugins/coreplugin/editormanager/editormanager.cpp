@@ -830,7 +830,7 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
     contextMenu->addAction(d->m_openGraphicalShellAction);
     contextMenu->addAction(d->m_openTerminalAction);
     contextMenu->addAction(d->m_findInDirectoryAction);
-    QMenu *openWith = contextMenu->addMenu(tr("Open with"));
+    QMenu *openWith = contextMenu->addMenu(tr("Open With"));
     connect(openWith, SIGNAL(triggered(QAction*)),
             DocumentManager::instance(), SLOT(executeOpenWithMenuAction(QAction*)));
     openWith->setEnabled(enabled);

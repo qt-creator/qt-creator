@@ -136,7 +136,8 @@ QWidget *DebuggerKitConfigWidget::mainWidget() const
 void DebuggerKitConfigWidget::manageDebuggers()
 {
     Core::ICore::showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                                   ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
+                                   ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID,
+                                   buttonWidget());
 }
 
 void DebuggerKitConfigWidget::currentDebuggerChanged(int)

@@ -163,7 +163,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         for (int i = 0; i < framesToLookAt; ++i) {
             const Frame &frame = frames.at(i);
             foreach (const QString &folder, validFolders) {
-                if (frame.object().startsWith(folder)) {
+                if (frame.directory().startsWith(folder)) {
                     inProject = true;
                     break;
                 }

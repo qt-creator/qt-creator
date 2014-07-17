@@ -19,6 +19,6 @@ ValgrindAutotest {
     destinationDirectory: project.ide_bin_path
     cpp.defines: base.concat([
         'TESTRUNNER_SRC_DIR="' + path + '/testapps"',
-        'TESTRUNNER_APP_DIR="' + product.buildDirectory + '/' + destinationDirectory + '/testapps"'
+        'TESTRUNNER_APP_DIR="' + project.buildDirectory + '/' + destinationDirectory + '/testapps"'
     ])
 }

@@ -231,8 +231,8 @@ QStandardItemModel *NickNameDialog::createModel(QObject *parent)
 {
     QStandardItemModel *model = new QStandardItemModel(parent);
     QStringList headers;
-    headers << tr("Name") << tr("E-mail")
-            << tr("Alias") << tr("Alias e-mail");
+    headers << tr("Name") << tr("Email")
+            << tr("Alias") << tr("Alias email");
     model->setHorizontalHeaderLabels(headers);
     return model;
 }

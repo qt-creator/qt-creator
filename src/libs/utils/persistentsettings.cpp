@@ -350,7 +350,7 @@ QVariantMap PersistentSettingsReader::restoreValues() const
     return m_valueMap;
 }
 
-bool PersistentSettingsReader::load(const Utils::FileName &fileName)
+bool PersistentSettingsReader::load(const FileName &fileName)
 {
     m_valueMap.clear();
 
@@ -442,7 +442,7 @@ bool PersistentSettingsWriter::write(const QVariantMap &data, QWidget *parent) c
 {
     QDir tmp;
     tmp.mkpath(m_fileName.toFileInfo().path());
-    Utils::FileSaver saver(m_fileName.toString(), QIODevice::Text);
+    FileSaver saver(m_fileName.toString(), QIODevice::Text);
     if (!saver.hasError()) {
         const Context ctx;
         QXmlStreamWriter w(saver.file());

@@ -278,7 +278,7 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
 
     const Name *functionName = functionType->name();
     if (!functionName)
-        return; // anonymous function names are not valid c++
+        return;
 
     ClassOrNamespace *binding = 0;
     const QualifiedNameId *qName = functionName->asQualifiedNameId();

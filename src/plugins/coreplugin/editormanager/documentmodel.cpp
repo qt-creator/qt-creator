@@ -32,6 +32,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/idocument.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -147,16 +148,6 @@ int DocumentModelPrivate::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
-// TODO remove
-QList<IEditor *> DocumentModel::oneEditorForEachOpenedDocument()
-{
-    QList<IEditor *> result;
-    QMapIterator<IDocument *, QList<IEditor *> > it(d->m_editors);
-    while (it.hasNext())
-        result << it.next().value().first();
-    return result;
-}
-
 void DocumentModel::addEditor(IEditor *editor, bool *isNewDocument)
 {
     if (!editor)
@@ -224,11 +215,6 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
     endInsertRows();
 }
 
-int DocumentModel::indexOfFilePath(const QString &filePath)
-{
-    return d->indexOfFilePath(filePath);
-}
-
 int DocumentModelPrivate::indexOfFilePath(const QString &filePath) const
 {
     if (filePath.isEmpty())
@@ -266,7 +252,7 @@ void DocumentModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
 
 void DocumentModel::removeDocument(const QString &fileName)
 {
-    int index = indexOfFilePath(fileName);
+    int index = d->indexOfFilePath(fileName);
     QTC_ASSERT(!d->m_entries.at(index)->document, return); // we wouldn't know what to do with the associated editors
     d->removeDocument(index);
 }
@@ -343,7 +329,7 @@ QList<IDocument *> DocumentModel::openedDocuments()
 
 IDocument *DocumentModel::documentForFilePath(const QString &filePath)
 {
-    int index = indexOfFilePath(filePath);
+    int index = d->indexOfFilePath(filePath);
     if (index < 0)
         return 0;
     return d->m_entries.at(index)->document;

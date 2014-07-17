@@ -51,7 +51,7 @@ inline int screenNumber(const QPoint &pos, QWidget *w)
 
 inline QRect screenGeometry(const QPoint &pos, QWidget *w)
 {
-    if (Utils::HostOsInfo::isMacHost())
+    if (HostOsInfo::isMacHost())
         return QApplication::desktop()->availableGeometry(screenNumber(pos, w));
     return QApplication::desktop()->screenGeometry(screenNumber(pos, w));
 }

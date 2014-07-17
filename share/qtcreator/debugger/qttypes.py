@@ -1732,13 +1732,16 @@ def qform__QString():
 
 def qdump__QString(d, value):
     d.putStringValue(value)
-    d.putNumChild(0)
+    data, size, alloc = d.stringData(value)
+    d.putNumChild(size)
     format = d.currentItemFormat()
     if format == 1:
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayUtf16String)
         d.putField("editvalue", d.encodeString(value, limit=None))
+    if d.isExpanded():
+        d.putArrayData(data, size, d.lookupType(d.qtNamespace() + "QChar"))
 
 def qdump__QStringData(d, value):
     d.putStringValueByAddress(toInteger(value))

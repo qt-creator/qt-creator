@@ -72,6 +72,9 @@ signals:
     void nextClicked(); /* workaround for QWizard behavior where page->initialize is
                          * called before currentIdChanged */
 
+protected:
+    bool event(QEvent *event);
+
 private slots:
     void _q_currentPageChanged(int pageId);
     void _q_pageAdded(int pageId);

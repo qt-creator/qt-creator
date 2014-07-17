@@ -36,7 +36,7 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT NavigationTreeView : public Utils::TreeView
+class QTCREATOR_UTILS_EXPORT NavigationTreeView : public TreeView
 {
     Q_OBJECT
 public:

@@ -170,7 +170,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(completionAction, SIGNAL(triggered()), this, SLOT(invokeCompletion()));
 
     // Add shortcut for invoking quick fix options
-    QAction *quickFixAction = new QAction(tr("Trigger Quick Fix"), this);
+    QAction *quickFixAction = new QAction(tr("Trigger Refactoring Action"), this);
     Core::Command *quickFixCommand = Core::ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
     quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
     connect(quickFixAction, SIGNAL(triggered()), this, SLOT(invokeQuickFix()));

@@ -170,13 +170,29 @@ public:
     }
 };
 } // namespace Internal
+
+FakeMetaObjectWithOrigin::FakeMetaObjectWithOrigin(FakeMetaObject::ConstPtr fakeMetaObject, const QString &originId)
+    : fakeMetaObject(fakeMetaObject)
+    , originId(originId)
+{ }
+
+bool FakeMetaObjectWithOrigin::operator ==(const FakeMetaObjectWithOrigin &o) const
+{
+    return fakeMetaObject == o.fakeMetaObject;
+}
+
+uint qHash(const FakeMetaObjectWithOrigin &fmoo, int seed)
+{
+    return qHash(fmoo.fakeMetaObject, seed);
+}
+
 } // namespace QmlJS
 
 CppComponentValue::CppComponentValue(FakeMetaObject::ConstPtr metaObject, const QString &className,
-                               const QString &packageName, const ComponentVersion &componentVersion,
-                               const ComponentVersion &importVersion, int metaObjectRevision,
-                               ValueOwner *valueOwner)
-    : ObjectValue(valueOwner),
+                                     const QString &packageName, const ComponentVersion &componentVersion,
+                                     const ComponentVersion &importVersion, int metaObjectRevision,
+                                     ValueOwner *valueOwner, const QString &originId)
+    : ObjectValue(valueOwner, originId),
       m_metaObject(metaObject),
       m_moduleName(packageName),
       m_componentVersion(componentVersion),
@@ -960,8 +976,8 @@ bool MemberProcessor::processGeneratedSlot(const QString &, const Value *)
     return true;
 }
 
-ObjectValue::ObjectValue(ValueOwner *valueOwner)
-    : m_valueOwner(valueOwner),
+ObjectValue::ObjectValue(ValueOwner *valueOwner, const QString &originId)
+    : m_valueOwner(valueOwner), m_originId(originId),
       _prototype(0)
 {
     valueOwner->registerValue(this);
@@ -1374,7 +1390,7 @@ const QLatin1String CppQmlTypes::defaultPackage("<default>");
 const QLatin1String CppQmlTypes::cppPackage("<cpp>");
 
 template <typename T>
-void CppQmlTypes::load(const T &fakeMetaObjects, const QString &overridePackage)
+void CppQmlTypes::load(const QString &originId, const T &fakeMetaObjects, const QString &overridePackage)
 {
     QList<CppComponentValue *> newCppTypes;
     foreach (const FakeMetaObject::ConstPtr &fmo, fakeMetaObjects) {
@@ -1382,7 +1398,7 @@ void CppQmlTypes::load(const T &fakeMetaObjects, const QString &overridePackage)
             QString package = exp.package;
             if (package.isEmpty())
                 package = overridePackage;
-            m_fakeMetaObjectsByPackage[package].insert(fmo);
+            m_fakeMetaObjectsByPackage[package].insert(FakeMetaObjectWithOrigin(fmo, originId));
 
             // make versionless cpp types directly
             // needed for access to property types that are not exported, like QDeclarativeAnchors
@@ -1391,7 +1407,7 @@ void CppQmlTypes::load(const T &fakeMetaObjects, const QString &overridePackage)
                 QTC_ASSERT(exp.type == fmo->className(), continue);
                 CppComponentValue *cppValue = new CppComponentValue(
                             fmo, fmo->className(), cppPackage, ComponentVersion(), ComponentVersion(),
-                            ComponentVersion::MaxVersion, m_valueOwner);
+                            ComponentVersion::MaxVersion, m_valueOwner, originId);
                 m_objectsByQualifiedName[qualifiedName(cppPackage, fmo->className(), ComponentVersion())] = cppValue;
                 newCppTypes += cppValue;
             }
@@ -1407,8 +1423,8 @@ void CppQmlTypes::load(const T &fakeMetaObjects, const QString &overridePackage)
     }
 }
 // explicitly instantiate load for list and hash
-template void CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(const QList<FakeMetaObject::ConstPtr> &, const QString &);
-template void CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(const QHash<QString, FakeMetaObject::ConstPtr> &, const QString &);
+template void CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(const QString &, const QList<FakeMetaObject::ConstPtr> &, const QString &);
+template void CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(const QString &, const QHash<QString, FakeMetaObject::ConstPtr> &, const QString &);
 
 QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QString &package, ComponentVersion version)
 {
@@ -1417,7 +1433,8 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
     QList<const CppComponentValue *> newObjects;
 
     // make new exported objects
-    foreach (const FakeMetaObject::ConstPtr &fmo, m_fakeMetaObjectsByPackage.value(package)) {
+    foreach (const FakeMetaObjectWithOrigin &fmoo, m_fakeMetaObjectsByPackage.value(package)) {
+        const FakeMetaObject::ConstPtr &fmo = fmoo.fakeMetaObject;
         // find the highest-version export for each alias
         QHash<QString, FakeMetaObject::Export> bestExports;
         foreach (const FakeMetaObject::Export &exp, fmo->exports()) {
@@ -1449,7 +1466,8 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
 
             CppComponentValue *newComponent = new CppComponentValue(
                         fmo, name, package, bestExport.version, version,
-                        bestExport.metaObjectRevision, m_valueOwner);
+                        bestExport.metaObjectRevision, m_valueOwner,
+                        fmoo.originId);
 
             // use package.cppname importversion as key
             m_objectsByQualifiedName.insert(key, newComponent);
@@ -1463,6 +1481,8 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
     }
 
     // set their prototypes, creating them if necessary
+    // this ensures that the prototypes of C++ objects are resolved correctly and with the correct
+    // revision, and cannot be hidden by other objects.
     foreach (const CppComponentValue *cobject, newObjects) {
         CppComponentValue *object = const_cast<CppComponentValue *>(cobject);
         while (!object->prototype()) {
@@ -1485,8 +1505,10 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
 
             // make a new object
             CppComponentValue *proto = new CppComponentValue(
-                        protoFmo, protoCppName, object->moduleName(), ComponentVersion(),
-                        object->importVersion(), ComponentVersion::MaxVersion, m_valueOwner);
+                        protoFmo, protoCppName, object->moduleName(),
+                        ComponentVersion(),
+                        object->importVersion(), ComponentVersion::MaxVersion, m_valueOwner,
+                        cppProto->originId());
             m_objectsByQualifiedName.insert(key, proto);
             object->setPrototype(proto);
 
@@ -1786,7 +1808,8 @@ ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
                                UiObjectInitializer *initializer,
                                const Document *doc,
                                ValueOwner *valueOwner)
-    : ObjectValue(valueOwner), m_typeName(typeName), m_initializer(initializer), m_doc(doc), m_defaultPropertyRef(0)
+    : ObjectValue(valueOwner, doc->importId()),
+      m_typeName(typeName), m_initializer(initializer), m_doc(doc), m_defaultPropertyRef(0)
 {
     if (m_initializer) {
         for (UiObjectMemberList *it = m_initializer->members; it; it = it->next) {

@@ -40,7 +40,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-struct FancyMainWindowPrivate;
+class FancyMainWindowPrivate;
 
 class QTCREATOR_UTILS_EXPORT FancyMainWindow : public QMainWindow
 {
@@ -56,7 +56,6 @@ public:
     QList<QDockWidget *> dockWidgets() const;
 
     void setTrackingEnabled(bool enabled);
-    bool isLocked() const;
 
     void saveSettings(QSettings *settings) const;
     void restoreSettings(const QSettings *settings);
@@ -64,14 +63,11 @@ public:
     void restoreSettings(const QHash<QString, QVariant> &settings);
 
     // Additional context menu actions
-    QAction *menuSeparator1() const;
-    QAction *toggleLockedAction() const;
-    QAction *menuSeparator2() const;
+    QAction *menuSeparator() const;
     QAction *resetLayoutAction() const;
 
     // Overwritten to add locked/reset.
     virtual QMenu *createPopupMenu();
-
 
     QDockWidget *toolBarDockWidget() const;
     void setToolBarDockWidget(QDockWidget *dock);
@@ -82,20 +78,18 @@ signals:
     void resetLayout();
 
 public slots:
-    void setLocked(bool locked);
     void setDockActionsVisible(bool v);
 
 protected:
     void hideEvent(QHideEvent *event);
     void showEvent(QShowEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
+
 private slots:
     void onDockActionTriggered();
     void onDockVisibilityChange(bool);
-    void onTopLevelChanged();
 
 private:
-    void updateDockWidget(QDockWidget *dockWidget);
     void handleVisibilityChanged(bool visible);
 
     FancyMainWindowPrivate *d;

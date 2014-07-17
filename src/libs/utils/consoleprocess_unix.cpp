@@ -150,7 +150,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     }
 
     QString stubPath = QCoreApplication::applicationDirPath();
-    if (Utils::HostOsInfo::isMacHost())
+    if (HostOsInfo::isMacHost())
         stubPath.append(QLatin1String("/../Resources/qtcreator_process_stub"));
     else
         stubPath.append(QLatin1String("/qtcreator_process_stub"));
@@ -363,7 +363,7 @@ static const Terminal knownTerminals[] =
 
 QString ConsoleProcess::defaultTerminalEmulator()
 {
-    if (Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost()) {
         QString termCmd = QCoreApplication::applicationDirPath() + QLatin1String("/../Resources/scripts/openTerminal.command");
         if (QFile(termCmd).exists())
             return termCmd.replace(QLatin1Char(' '), QLatin1String("\\ "));

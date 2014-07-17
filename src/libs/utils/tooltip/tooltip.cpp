@@ -222,7 +222,7 @@ void ToolTip::placeTip(const QPoint &pos, QWidget *w)
 {
     QRect screen = Internal::screenGeometry(pos, w);
     QPoint p = pos;
-    p += QPoint(2, Utils::HostOsInfo::isWindowsHost() ? 21 : 16);
+    p += QPoint(2, HostOsInfo::isWindowsHost() ? 21 : 16);
     if (p.x() + m_tip->width() > screen.x() + screen.width())
         p.rx() -= 4 + m_tip->width();
     if (p.y() + m_tip->height() > screen.y() + screen.height())

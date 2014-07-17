@@ -230,14 +230,8 @@ void FormEditorW::setupViewActions()
 
     addDockViewAction(viewMenu, ActionEditorSubWindow, m_contexts,
                       tr("Action Editor"), "FormEditor.ActionEditor");
-    // Lock/Reset
-    Command *cmd = addToolAction(m_editorWidget->menuSeparator1(), m_contexts, "FormEditor.SeparatorLock", viewMenu);
-    cmd->setAttribute(Command::CA_Hide);
-
-    cmd = addToolAction(m_editorWidget->toggleLockedAction(), m_contexts, "FormEditor.Locked", viewMenu);
-    cmd->setAttribute(Command::CA_Hide);
-
-    cmd = addToolAction(m_editorWidget->menuSeparator2(), m_contexts, "FormEditor.SeparatorReset", viewMenu);
+    // Reset
+    Command *cmd = addToolAction(m_editorWidget->menuSeparator(), m_contexts, "FormEditor.SeparatorReset", viewMenu);
     cmd->setAttribute(Command::CA_Hide);
 
     cmd = addToolAction(m_editorWidget->resetLayoutAction(), m_contexts, "FormEditor.ResetToDefaultLayout", viewMenu);

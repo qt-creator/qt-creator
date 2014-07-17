@@ -73,14 +73,9 @@ static inline QString detectSsh()
     if (!ssh.isEmpty())
         return ssh;
     if (Utils::HostOsInfo::isWindowsHost()) { // Windows: Use ssh.exe from git if it cannot be found.
-        const Utils::FileName git = GerritPlugin::gitBinary();
-        if (!git.isEmpty()) {
-            // Is 'git\cmd' in the path (folder containing .bats)?
-            QString path = git.parentDir().toString();
-            if (path.endsWith(QLatin1String("cmd"), Qt::CaseInsensitive))
-                path.replace(path.size() - 3, 3, QLatin1String("bin"));
-            ssh = path + QLatin1Char('/') + QLatin1String(defaultSshC);
-        }
+        Utils::FileName path = GerritPlugin::gitBinDirectory();
+        if (!path.isEmpty())
+            ssh = path.appendPath(QLatin1String(defaultSshC)).toString();
     }
     return ssh;
 }

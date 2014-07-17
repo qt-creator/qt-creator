@@ -644,7 +644,7 @@ bool FileName::isChildOf(const FileName &s) const
 /// \overload
 bool FileName::isChildOf(const QDir &dir) const
 {
-    return isChildOf(Utils::FileName::fromString(dir.absolutePath()));
+    return isChildOf(FileName::fromString(dir.absolutePath()));
 }
 
 /// \returns whether FileName endsWith \a s
@@ -659,7 +659,7 @@ bool FileName::endsWith(const QString &s) const
 FileName FileName::relativeChildPath(const FileName &parent) const
 {
     if (!isChildOf(parent))
-        return Utils::FileName();
+        return FileName();
     return FileName(QString::mid(parent.size() + 1, -1));
 }
 

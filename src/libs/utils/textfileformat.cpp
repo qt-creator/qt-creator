@@ -213,7 +213,7 @@ TextFileFormat::ReadResult readTextFile(const QString &fileName, const QTextCode
 
     QByteArray data;
     try {
-        Utils::FileReader reader;
+        FileReader reader;
         if (!reader.fetch(fileName, errorString))
             return TextFileFormat::ReadIOError;
         data = reader.data();
@@ -277,16 +277,16 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const QString &fileName,
 {
     QByteArray data;
     try {
-        Utils::FileReader reader;
+        FileReader reader;
         if (!reader.fetch(fileName, errorString))
-            return Utils::TextFileFormat::ReadIOError;
+            return TextFileFormat::ReadIOError;
         data = reader.data();
     } catch (const std::bad_alloc &) {
         *errorString = QCoreApplication::translate("Utils::TextFileFormat", "Out of memory.");
-        return Utils::TextFileFormat::ReadMemoryAllocationError;
+        return TextFileFormat::ReadMemoryAllocationError;
     }
 
-    Utils::TextFileFormat format = Utils::TextFileFormat::detect(data);
+    TextFileFormat format = TextFileFormat::detect(data);
     if (!format.codec)
         format.codec = defaultCodec ? defaultCodec : QTextCodec::codecForLocale();
     QString target;
@@ -294,10 +294,10 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const QString &fileName,
         if (format.hasUtf8Bom)
             data.remove(0, 3);
         *plainText = data;
-        return Utils::TextFileFormat::ReadSuccess;
+        return TextFileFormat::ReadSuccess;
     }
     *plainText = target.toUtf8();
-    return Utils::TextFileFormat::ReadSuccess;
+    return TextFileFormat::ReadSuccess;
 }
 
 /*!
@@ -318,7 +318,7 @@ bool TextFileFormat::writeFile(const QString &fileName, QString plainText, QStri
             plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
     }
 
-    Utils::FileSaver saver(fileName, fileMode);
+    FileSaver saver(fileName, fileMode);
     if (!saver.hasError()) {
         if (hasUtf8Bom && codec->name() == "UTF-8")
             saver.write("\xef\xbb\xbf", 3);

@@ -321,12 +321,15 @@ bool AttachCoreDialog::useLocalCoreFile() const
 
 void AttachCoreDialog::coreFileChanged(const QString &core)
 {
-    Kit *k = d->kitChooser->currentKit();
-    QTC_ASSERT(k, return);
-    FileName cmd = DebuggerKitInformation::debuggerCommand(k);
-    bool isCore = false;
-    QString exe = readExecutableNameFromCore(cmd.toString(), core, &isCore);
-    d->localExecFileName->setFileName(FileName::fromString(exe));
+    if (!Utils::HostOsInfo::isWindowsHost()) {
+        Kit *k = d->kitChooser->currentKit();
+        QTC_ASSERT(k, return);
+        FileName cmd = DebuggerKitInformation::debuggerCommand(k);
+        bool isCore = false;
+        const QString exe = readExecutableNameFromCore(cmd.toString(), core, &isCore);
+        if (!exe.isEmpty())
+            d->localExecFileName->setFileName(FileName::fromString(exe));
+    }
     changed();
 }
 

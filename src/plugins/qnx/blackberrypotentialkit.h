@@ -44,7 +44,7 @@ public:
     bool isEnabled() const;
 
     static bool shouldShow();
-    static void openSettings();
+    static void openSettings(QWidget *parent = 0);
 };
 
 class BlackBerryPotentialKitWidget : public Utils::DetailsWidget

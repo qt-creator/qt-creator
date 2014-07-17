@@ -41,6 +41,7 @@
 #include <QFile>
 #include <QMimeData>
 #include <QtAlgorithms>
+#include <QTextCodec>
 #include <QTextStream>
 
 #include <QIcon>
@@ -124,6 +125,12 @@ bool ResourceFile::load()
         m_error_message = file.errorString();
         return false;
     }
+    QByteArray data = file.readAll();
+    // Detect line ending style
+    m_textFileFormat = Utils::TextFileFormat::detect(data);
+    // we always write UTF-8 when saving
+    m_textFileFormat.codec = QTextCodec::codecForName("UTF-8");
+    file.close();
 
     clearPrefixList();
 
@@ -131,7 +138,7 @@ bool ResourceFile::load()
 
     QString error_msg;
     int error_line, error_col;
-    if (!doc.setContent(&file, &error_msg, &error_line, &error_col)) {
+    if (!doc.setContent(data, &error_msg, &error_line, &error_col)) {
         m_error_message = tr("XML error on line %1, col %2: %3")
                     .arg(error_line).arg(error_col).arg(error_msg);
         return false;
@@ -184,12 +191,6 @@ bool ResourceFile::save()
         return false;
     }
 
-    QFile file(m_file_name);
-    if (!file.open(QIODevice::WriteOnly)) {
-        m_error_message = file.errorString();
-        return false;
-    }
-
     QDomDocument doc;
     QDomElement root = doc.createElement(QLatin1String("RCC"));
     doc.appendChild(root);
@@ -221,13 +222,9 @@ bool ResourceFile::save()
         }
     }
 
-    QTextStream stream(&file);
-    doc.save(stream, 4);
-    stream.flush();
-    if (stream.status() != QTextStream::Ok) {
-        m_error_message = tr("Cannot write file. Disk full?");
+    QString data = doc.toString(4);
+    if (!m_textFileFormat.writeFile(m_file_name, data, &m_error_message))
         return false;
-    }
     return true;
 }
 

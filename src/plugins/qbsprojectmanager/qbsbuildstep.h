@@ -39,6 +39,7 @@
 
 namespace QbsProjectManager {
 namespace Internal {
+class QbsProject;
 
 class QbsBuildStepConfigWidget;
 
@@ -80,7 +81,7 @@ signals:
 
 private slots:
     void buildingDone(bool success);
-    void reparsingDone();
+    void reparsingDone(bool success);
     void handleTaskStarted(const QString &desciption, int max);
     void handleProgress(int value);
     void handleCommandDescriptionReport(const QString &highlight, const QString &message);
@@ -98,7 +99,11 @@ private:
     void setCheckTimestamps(bool ts);
     void setMaxJobs(int jobcount);
 
+    void parseProject();
+    void build();
     void finish();
+
+    QbsProject *qbsProject() const;
 
     QVariantMap m_qbsConfiguration;
     qbs::BuildOptions m_qbsBuildOptions;
@@ -113,6 +118,7 @@ private:
     int m_progressBase;
     bool m_lastWasSuccess;
     ProjectExplorer::IOutputParser *m_parser;
+    bool m_parsingProject;
 
     friend class QbsBuildStepConfigWidget;
 };

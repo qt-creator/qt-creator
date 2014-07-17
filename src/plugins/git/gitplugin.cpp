@@ -1041,7 +1041,9 @@ Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const Commit
     default:
         title = tr("Git Commit");
     }
-    submitEditor->document()->setDisplayName(title);
+    Core::IDocument *document = submitEditor->document();
+    document->setDisplayName(title);
+    VcsBasePlugin::setSource(document, m_submitRepository);
     connect(submitEditor, SIGNAL(diff(QStringList,QStringList)), this, SLOT(submitEditorDiff(QStringList,QStringList)));
     connect(submitEditor, SIGNAL(merge(QStringList)), this, SLOT(submitEditorMerge(QStringList)));
     connect(submitEditor, SIGNAL(show(QString,QString)), m_gitClient, SLOT(show(QString,QString)));
@@ -1487,6 +1489,8 @@ Gerrit::Internal::GerritPlugin *GitPlugin::gerritPlugin() const
 
 #ifdef WITH_TESTS
 
+#include "clonewizardpage.h"
+
 #include <QTest>
 
 Q_DECLARE_METATYPE(FileStates)
@@ -1601,6 +1605,27 @@ void GitPlugin::testLogResolving()
     editor.testLogResolving(data,
                             "50a6b54c - Merge branch 'for-junio' of git://bogomips.org/git-svn",
                             "3587b513 - Update draft release notes to 1.8.2");
+}
+
+void GitPlugin::testCloneWizard_directoryFromRepository()
+{
+    CloneWizardPage page;
+    page.testDirectoryFromRepository();
+}
+
+void GitPlugin::testCloneWizard_directoryFromRepository_data()
+{
+    QTest::addColumn<QString>("repository");
+    QTest::addColumn<QString>("localDirectory");
+
+    QTest::newRow("http") << "http://host/qt/qt.git" << "qt";
+    QTest::newRow("without slash") << "user@host:qt.git" << "qt";
+    QTest::newRow("mainline.git") << "git://gitorious.org/gitorious/mainline.git" << "gitorious";
+    QTest::newRow("local repo (Unix)") << "/home/user/qt-creator.git" << "qt-creator";
+    QTest::newRow("local repo (Windows)") << "c:\\repos\\qt-creator.git" << "qt-creator";
+    QTest::newRow("ssh with port") << "ssh://host:29418/qt/qt.git" << "qt";
+    QTest::newRow("invalid chars removed") << "ssh://host/in%va$lid.git" << "in-va-lid";
+    QTest::newRow("leading dashs removed") << "https://gerrit.local/--leadingDash" << "leadingDash";
 }
 #endif
 

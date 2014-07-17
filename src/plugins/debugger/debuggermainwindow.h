@@ -80,8 +80,6 @@ public:
     void initialize();
 
     void onModeChanged(Core::IMode *mode);
-    QDockWidget *dockWidget(const QString &objectName) const;
-    bool isDockVisible(const QString &objectName) const;
 
     // Dockwidgets are registered to the main window.
     QDockWidget *createDockWidget(const DebuggerLanguage &language, QWidget *widget);

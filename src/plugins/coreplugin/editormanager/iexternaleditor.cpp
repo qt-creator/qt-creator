@@ -34,7 +34,7 @@
     \mainclass
 
     \brief The IExternalEditor class enables registering an external
-    editor in the \gui{Open with} dialog.
+    editor in the \gui{Open With} dialog.
 */
 
 /*!

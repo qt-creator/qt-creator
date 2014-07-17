@@ -729,15 +729,6 @@ void BreakTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
     BaseTreeView::mouseDoubleClickEvent(ev);
 }
 
-void BreakTreeView::setModel(QAbstractItemModel *model)
-{
-    BaseTreeView::setModel(model);
-    resizeColumnToContents(0); // Number
-    resizeColumnToContents(3); // Line
-    resizeColumnToContents(6); // Ignore count
-    connect(model, SIGNAL(layoutChanged()), this, SLOT(expandAll()));
-}
-
 void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
@@ -782,9 +773,6 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
         deleteByFileAction = new QAction(tr("Delete Breakpoints of File"), &menu);
         deleteByFileAction->setEnabled(false);
     }
-
-    QAction *adjustColumnAction =
-        new QAction(tr("Adjust Column Widths to Contents"), &menu);
 
     QAction *editBreakpointAction =
         new QAction(tr("Edit Breakpoint..."), &menu);
@@ -842,8 +830,6 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
         deleteAllBreakpoints();
     else if (act == deleteByFileAction)
         deleteBreakpoints(breakpointsInFile);
-    else if (act == adjustColumnAction)
-        resizeColumns();
     else if (act == editBreakpointAction)
         editBreakpoints(selectedIds);
     else if (act == associateBreakpointAction)

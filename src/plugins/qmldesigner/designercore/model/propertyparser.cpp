@@ -193,9 +193,11 @@ QVariant read(const QString &typeStr, const QString &str)
 {
     int type = QMetaType::type(typeStr.toUtf8().constData());
     if (type == 0) {
-        qWarning() << "Type " << typeStr
-                << " is unknown to QMetaType system. Cannot create properly typed QVariant for value "
-                << str;
+        if (typeStr != QStringLiteral("binding")) {
+            qWarning() << "Type " << typeStr
+                    << " is unknown to QMetaType system. Cannot create properly typed QVariant for value "
+                    << str;
+        }
         // Fall back to a QVariant of type String
         return QVariant(str);
     }

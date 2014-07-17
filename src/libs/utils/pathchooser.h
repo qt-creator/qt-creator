@@ -94,15 +94,15 @@ public:
 
     QString path() const;
     QString rawPath() const; // The raw unexpanded input.
-    Utils::FileName fileName() const;
+    FileName fileName() const;
 
     QString baseDirectory() const;
     void setBaseDirectory(const QString &directory);
 
-    Utils::FileName baseFileName() const;
-    void setBaseFileName(const Utils::FileName &base);
+    FileName baseFileName() const;
+    void setBaseFileName(const FileName &base);
 
-    void setEnvironment(const Utils::Environment &env);
+    void setEnvironment(const Environment &env);
 
     /** Returns the suggested label title when used in a form layout. */
     static QString label();

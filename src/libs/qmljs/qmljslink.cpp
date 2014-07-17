@@ -147,10 +147,14 @@ Link::Link(const Snapshot &snapshot, const ViewerContext &vContext, const Librar
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
     if (modelManager) {
         ModelManagerInterface::CppDataHash cppDataHash = modelManager->cppData();
-
-        // populate engine with types from C++
-        foreach (const ModelManagerInterface::CppData &cppData, cppDataHash) {
-            d->valueOwner->cppQmlTypes().load(cppData.exportedTypes);
+        {
+            // populate engine with types from C++
+            ModelManagerInterface::CppDataHashIterator cppDataHashIterator(cppDataHash);
+            while (cppDataHashIterator.hasNext()) {
+                cppDataHashIterator.next();
+                d->valueOwner->cppQmlTypes().load(cppDataHashIterator.key(),
+                                                  cppDataHashIterator.value().exportedTypes);
+            }
         }
 
         // build an object with the context properties from C++
@@ -197,13 +201,13 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
     // load builtin objects
     if (builtins.pluginTypeInfoStatus() == LibraryInfo::DumpDone
             || builtins.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileDone) {
-        valueOwner->cppQmlTypes().load(builtins.metaObjects());
+        valueOwner->cppQmlTypes().load(QLatin1String("<builtins>"), builtins.metaObjects());
     } else {
-        valueOwner->cppQmlTypes().load(CppQmlTypesLoader::defaultQtObjects);
+        valueOwner->cppQmlTypes().load(QLatin1String("<defaults>"), CppQmlTypesLoader::defaultQtObjects);
     }
 
     // load library objects shipped with Creator
-    valueOwner->cppQmlTypes().load(CppQmlTypesLoader::defaultLibraryObjects);
+    valueOwner->cppQmlTypes().load(QLatin1String("<defaultQt4>"), CppQmlTypesLoader::defaultLibraryObjects);
 
     if (document) {
         // do it on document first, to make sure import errors are shown
@@ -483,7 +487,7 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
             }
         } else {
             const QString packageName = importInfo.name();
-            valueOwner->cppQmlTypes().load(libraryInfo.metaObjects(), packageName);
+            valueOwner->cppQmlTypes().load(libraryPath, libraryInfo.metaObjects(), packageName);
             foreach (const CppComponentValue *object, valueOwner->cppQmlTypes().createObjectsForImport(packageName, version)) {
                 import->object->setMember(object->className(), object);
             }
@@ -578,7 +582,7 @@ void LinkPrivate::loadImplicitDefaultImports(Imports *imports)
         if (!import.object) {
             import.valid = true;
             import.info = info;
-            import.object = new ObjectValue(valueOwner);
+            import.object = new ObjectValue(valueOwner, QLatin1String("<defaults>"));
             foreach (const CppComponentValue *object,
                      valueOwner->cppQmlTypes().createObjectsForImport(
                          defaultPackage, maxVersion)) {

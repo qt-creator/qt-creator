@@ -399,6 +399,11 @@ Utils::FileName GerritPlugin::gitBinary()
     return git;
 }
 
+Utils::FileName GerritPlugin::gitBinDirectory()
+{
+    return gitClient()->gitBinDirectory();
+}
+
 // Find the branch of a repository.
 QString GerritPlugin::branch(const QString &repository)
 {

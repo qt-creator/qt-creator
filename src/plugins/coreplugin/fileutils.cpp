@@ -69,8 +69,11 @@ static void showGraphicalShellError(QWidget *parent, const QString &app, const Q
     QAbstractButton *settingsButton = mbox.addButton(Core::ICore::msgShowOptionsDialog(),
                                                      QMessageBox::ActionRole);
     mbox.exec();
-    if (mbox.clickedButton() == settingsButton)
-        ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::SETTINGS_ID_ENVIRONMENT);
+    if (mbox.clickedButton() == settingsButton) {
+        ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE,
+                                 Constants::SETTINGS_ID_ENVIRONMENT,
+                                 parent);
+    }
 }
 
 void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)

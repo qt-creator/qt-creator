@@ -73,7 +73,7 @@ public:
     QWidget *widget() const;
     QWidget *takeWidget();
 
-    void setToolWidget(Utils::FadingPanel *widget);
+    void setToolWidget(FadingPanel *widget);
     QWidget *toolWidget() const;
 
     void setSummaryFontBold(bool b);
