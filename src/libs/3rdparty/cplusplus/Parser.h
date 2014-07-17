@@ -325,6 +325,10 @@ private:
     MemoryPool _expressionStatementTempPool;
     std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
 
+    class ASTCache;
+    ASTCache *_astCache;
+    ASTCache *_expressionStatementAstCache;
+
 private:
     Parser(const Parser& source);
     void operator =(const Parser& source);

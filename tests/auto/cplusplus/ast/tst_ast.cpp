@@ -193,6 +193,7 @@ private slots:
     void incomplete_ast();
     void unnamed_class();
     void unnamed_class_data();
+    void expensiveExpression();
 };
 
 void tst_AST::gcc_attributes_1()
@@ -1788,6 +1789,46 @@ void tst_AST::unnamed_class_data()
     QTest::newRow("unnamed-only") << _("class {};");
     QTest::newRow("unnamed-derived") << _("class : B {};");
     QTest::newRow("unnamed-__attribute__") << _("class __attribute__((aligned(8))){};");
+}
+
+void tst_AST::expensiveExpression()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+        "void f()\n"
+        "{\n"
+            "(g1\n"
+            "(g2\n"
+            "(g3\n"
+            "(g4\n"
+            "(g5\n"
+            "(g6\n"
+            "(g7\n"
+            "(g8\n"
+            "(g9\n"
+            "(g10\n"
+            "(g11\n"
+            "(g12\n"
+            "(g13\n"
+            "(g14\n"
+            "(g15\n"
+            "(g16\n"
+            "(g17\n"
+            "(g18\n"
+            "(g19\n"
+            "(g20\n"
+            "(g21\n"
+            "(g22\n"
+            "(g23\n"
+            "(g24\n"
+            "(g25\n"
+            "(g26\n"
+            "(g27\n"
+            "(g28\n"
+            "(g29\n"
+            "(g30\n"
+            "(g31(0))))))))))))))))))))))))))))))));\n"
+        "}\n"));
+    QVERIFY(unit->ast());
 }
 
 void tst_AST::initTestCase()
