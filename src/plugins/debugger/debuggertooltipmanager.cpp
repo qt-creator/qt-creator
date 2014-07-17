@@ -999,14 +999,14 @@ int DebuggerToolTipTreeView::computeHeight(const QModelIndex &index) const
 
 void DebuggerToolTipTreeView::computeSize()
 {
-    WatchTreeView::reexpand(this, model()->index(0, 0));
     int columns = 30; // Decoration
     int rows = 0;
     bool rootDecorated = false;
 
-    if (model()) {
-        const int columnCount = model()->columnCount();
-        rootDecorated = model()->rowCount() > 0;
+    if (QAbstractItemModel *m = model()) {
+        WatchTreeView::reexpand(this, m->index(0, 0));
+        const int columnCount = m->columnCount();
+        rootDecorated = m->rowCount() > 0;
         if (rootDecorated)
         for (int i = 0; i < columnCount; ++i) {
             resizeColumnToContents(i);
@@ -1020,6 +1020,7 @@ void DebuggerToolTipTreeView::computeSize()
         // Add a bit of space to account for tooltip border, and not
         // touch the border of the screen.
         QPoint pos(x(), y());
+        QTC_ASSERT(QApplication::desktop(), return);
         QRect desktopRect = QApplication::desktop()->availableGeometry(pos);
         const int maxWidth = desktopRect.right() - pos.x() - 5 - 5;
         const int maxHeight = desktopRect.bottom() - pos.y() - 5 - 5;
