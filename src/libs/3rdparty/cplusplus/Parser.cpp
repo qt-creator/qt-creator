@@ -175,7 +175,6 @@ Parser::Parser(TranslationUnit *unit)
       _tokenIndex(1),
       _templateArguments(0),
       _inFunctionBody(false),
-      _inObjCImplementationContext(false),
       _inExpressionStatement(false),
       _expressionDepth(0),
       _statementDepth(0)

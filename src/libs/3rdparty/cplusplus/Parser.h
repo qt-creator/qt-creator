@@ -318,16 +318,12 @@ private:
     unsigned _tokenIndex;
     bool _templateArguments: 1;
     bool _inFunctionBody: 1;
-    bool _inObjCImplementationContext: 1;
     bool _inExpressionStatement: 1;
     int _expressionDepth;
     int _statementDepth;
 
     MemoryPool _expressionStatementTempPool;
     std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
-
-    class Rewind;
-    friend class Rewind;
 
 private:
     Parser(const Parser& source);
