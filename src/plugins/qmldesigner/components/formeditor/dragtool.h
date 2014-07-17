@@ -61,7 +61,7 @@ private:
 class DragTool : public AbstractFormEditorTool
 {
 public:
-    DragTool(FormEditorView* editorView);
+    DragTool(FormEditorView *editorView);
     virtual ~DragTool();
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
@@ -71,10 +71,10 @@ public:
 
     void hoverMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
 
-    void dropEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-    void dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-    void dragLeaveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-    void dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
+    void dropEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) QTC_OVERRIDE;
+    void dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) QTC_OVERRIDE;
+    void dragLeaveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) QTC_OVERRIDE;
+    void dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) QTC_OVERRIDE;
 
     void keyPressEvent(QKeyEvent *event) QTC_OVERRIDE;
     void keyReleaseEvent(QKeyEvent *keyEvent) QTC_OVERRIDE;
@@ -101,19 +101,16 @@ public:
 
 protected:
     void abort();
-
-
-private:
-    void commitTransaction();
     void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QmlItemNode &parentNode, const QPointF &scenePos);
     void createQmlItemNodeFromImage(const QString &imageName, const QmlItemNode &parentNode, const QPointF &scenePos);
-    FormEditorItem* calculateContainer(const QPointF &point, FormEditorItem * currentItem = 0);
-
+    FormEditorItem *calculateTargetContainer(const QList<QGraphicsItem*> &itemList, FormEditorItem *urrentItem = 0);
     void begin(QPointF scenePos);
     void end();
     void end(Snapper::Snapping useSnapping);
-    void move(const QPointF &scenePos);
+    void move(const QPointF &scenePos, const QList<QGraphicsItem *> &itemList);
+    void createDragNode(const QMimeData *mimeData, const QPointF &scenePosition, const QList<QGraphicsItem *> &itemList);
 
+private:
     MoveManipulator m_moveManipulator;
     SelectionIndicator m_selectionIndicator;
     QPointer<FormEditorItem> m_movingItem;
@@ -122,7 +119,7 @@ private:
     QScopedPointer<Internal::TimerHandler> m_timerHandler;
     bool m_blockMove;
     QPointF m_startPoint;
-    bool m_Aborted;
+    bool m_isAborted;
 };
 
 

@@ -56,14 +56,13 @@ DragTool::DragTool(FormEditorView *editorView)
     m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
     m_timerHandler(new Internal::TimerHandler(this)),
     m_blockMove(false),
-    m_Aborted(false)
+    m_isAborted(false)
 {
 }
 
 
 DragTool::~DragTool()
 {
-
 }
 
 void DragTool::clear()
@@ -73,22 +72,16 @@ void DragTool::clear()
     m_movingItem.clear();
 }
 
-void DragTool::mousePressEvent(const QList<QGraphicsItem*> &,
-                                            QGraphicsSceneMouseEvent *)
+void DragTool::mousePressEvent(const QList<QGraphicsItem*> &, QGraphicsSceneMouseEvent *)
 {
-
 }
 
-void DragTool::mouseMoveEvent(const QList<QGraphicsItem*> &,
-                                           QGraphicsSceneMouseEvent *)
+void DragTool::mouseMoveEvent(const QList<QGraphicsItem*> &, QGraphicsSceneMouseEvent *)
 {
-
 }
 
-void DragTool::hoverMoveEvent(const QList<QGraphicsItem*> &,
-                        QGraphicsSceneMouseEvent * /*event*/)
+void DragTool::hoverMoveEvent(const QList<QGraphicsItem*> &, QGraphicsSceneMouseEvent * /*event*/)
 {
-
 }
 
 void DragTool::keyPressEvent(QKeyEvent *event)
@@ -96,45 +89,36 @@ void DragTool::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Escape) {
         abort();
         event->accept();
-        commitTransaction();
+        m_rewriterTransaction.commit();
         view()->changeToSelectionTool();
     }
 }
 
 void DragTool::keyReleaseEvent(QKeyEvent *)
 {
-
 }
 
 
-void DragTool::mouseReleaseEvent(const QList<QGraphicsItem*> &/*itemList*/,
-                                 QGraphicsSceneMouseEvent *)
+void DragTool::mouseReleaseEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneMouseEvent *)
 {
-
 }
 
-void DragTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> & /*itemList*/,
-                                              QGraphicsSceneMouseEvent * /*event*/)
+void DragTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> & /*itemList*/, QGraphicsSceneMouseEvent * /*event*/)
 {
-
 }
 
 void DragTool::itemsAboutToRemoved(const QList<FormEditorItem*> & /* removedItemList */)
 {
-
 }
 
 void DragTool::selectedItemsChanged(const QList<FormEditorItem*> &)
 {
-
 }
 
 
 
 void DragTool::updateMoveManipulator()
 {
-    if (m_moveManipulator.isActive())
-        return;
 }
 
 void DragTool::beginWithPoint(const QPointF &beginPoint)
@@ -156,8 +140,6 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
 
     m_dragNode = QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, pos, parentNode);
 
-    Q_ASSERT(m_dragNode.modelNode().isValid());
-
     QList<QmlItemNode> nodeList;
     nodeList.append(m_dragNode);
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
@@ -167,19 +149,18 @@ void DragTool::createQmlItemNodeFromImage(const QString &imageName,
                                           const QmlItemNode &parentNode,
                                           const QPointF &scenePos)
 {
-    if (!parentNode.isValid())
-        return;
+    if (parentNode.isValid()) {
+        MetaInfo metaInfo = MetaInfo::global();
 
-    MetaInfo metaInfo = MetaInfo::global();
+        FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
+        QPointF pos = parentItem->mapFromScene(scenePos);
 
-    FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
-    QPointF pos = parentItem->mapFromScene(scenePos);
+        m_dragNode = QmlItemNode::createQmlItemNodeFromImage(view(), imageName, pos, parentNode);
 
-    m_dragNode = QmlItemNode::createQmlItemNodeFromImage(view(), imageName, pos, parentNode);
-
-    QList<QmlItemNode> nodeList;
-    nodeList.append(m_dragNode);
-    m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
+        QList<QmlItemNode> nodeList;
+        nodeList.append(m_dragNode);
+        m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
+    }
 }
 
 static inline bool isAncestorOf(FormEditorItem *formEditorItem, FormEditorItem *newParentItem)
@@ -189,10 +170,9 @@ static inline bool isAncestorOf(FormEditorItem *formEditorItem, FormEditorItem *
     return false;
 }
 
-FormEditorItem* DragTool::calculateContainer(const QPointF &point, FormEditorItem * currentItem)
+FormEditorItem* DragTool::calculateTargetContainer(const QList<QGraphicsItem*> &itemList, FormEditorItem * currentItem)
 {
-    QList<QGraphicsItem *> list = scene()->items(point);
-    foreach (QGraphicsItem *item, list) {
+    foreach (QGraphicsItem *item, itemList) {
          FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
          if (formEditorItem
                  && formEditorItem != currentItem
@@ -204,6 +184,7 @@ FormEditorItem* DragTool::calculateContainer(const QPointF &point, FormEditorIte
 
     if (scene()->rootFormEditorItem())
         return scene()->rootFormEditorItem();
+
     return 0;
 }
 
@@ -235,54 +216,63 @@ void DragTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName>
 
 void DragTool::clearMoveDelay()
 {
-    if (!m_blockMove)
-        return;
-    m_blockMove = false;
-    if  (m_dragNode.isValid())
-        beginWithPoint(m_startPoint);
+    if (m_blockMove) {
+        m_blockMove = false;
+        if (m_dragNode.isValid())
+            beginWithPoint(m_startPoint);
+    }
 }
 
 void DragTool::abort()
 {
-    if (m_Aborted)
-        return;
+    if (!m_isAborted) {
+        m_isAborted = true;
 
-    m_Aborted = true;
-
-    if (m_dragNode.isValid())
-        m_dragNode.destroy();
-}
-
-void DragTool::commitTransaction()
-{
-    try {
-        m_rewriterTransaction.commit();
-    } catch (RewritingException &e) {
-        e.showException();
+        if (m_dragNode.isValid())
+            m_dragNode.destroy();
     }
 }
 
-void DragTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * event)
+static bool canHandleMimeData(const QMimeData *mimeData)
 {
-    if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
-       event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
+    return mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"))
+          || mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.libraryresource"));
+}
+
+static bool hasItemLibraryInfo(const QMimeData *mimeData)
+{
+    return mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
+}
+
+static bool hasLibraryResources(const QMimeData *mimeData)
+{
+    return mimeData->hasFormat(QStringLiteral("application/vnd.bauhaus.libraryresource"));
+}
+
+void DragTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
+{
+    if (canHandleMimeData(event->mimeData())) {
         event->accept();
         end(generateUseSnapping(event->modifiers()));
 
-        commitTransaction();
+        m_rewriterTransaction.commit();
 
         if (m_dragNode.isValid()) {
             QList<QmlItemNode> nodeList;
             nodeList.append(m_dragNode);
             view()->setSelectedModelNodes(toModelNodeList(nodeList));
         }
-        m_dragNode = ModelNode();
+
+        m_dragNode = QmlItemNode();
+
         view()->changeToSelectionTool();
     }
 }
 
-static ItemLibraryEntry itemLibraryEntryFromData(const QByteArray &data)
+static ItemLibraryEntry itemLibraryEntryFromMimeData(const QMimeData *mimeData)
 {
+    QByteArray data = mimeData->data(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"));
+
     QDataStream stream(data);
 
     ItemLibraryEntry itemLibraryEntry;
@@ -291,16 +281,14 @@ static ItemLibraryEntry itemLibraryEntryFromData(const QByteArray &data)
     return itemLibraryEntry;
 }
 
-void DragTool::dragEnterEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * event)
+void DragTool::dragEnterEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
-    if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
-        event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
+    if (canHandleMimeData(event->mimeData())) {
         QList<Import> importToBeAddedList;
         m_blockMove = false;
-        if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
+        if (hasItemLibraryInfo(event->mimeData())) {
             view()->widgetInfo().widget->setFocus();
-            m_Aborted = false;
-            Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo").isEmpty());
+            m_isAborted = false;
         }
 
         if (!m_rewriterTransaction.isValid()) {
@@ -310,10 +298,9 @@ void DragTool::dragEnterEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphi
     }
 }
 
-void DragTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * event)
+void DragTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
-    if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
-       event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
+    if (canHandleMimeData(event->mimeData())) {
         event->accept();
 
         m_moveManipulator.end();
@@ -321,66 +308,60 @@ void DragTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphi
         if (m_dragNode.isValid())
             m_dragNode.destroy();
 
-        commitTransaction();
+        m_rewriterTransaction.commit();
 
-        QList<QmlItemNode> nodeList;
-        view()->setSelectedModelNodes(toModelNodeList(nodeList));
+        view()->clearSelectedModelNodes();
         view()->changeToSelectionTool();
     }
 }
 
-void DragTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
+static QString libraryResourceImageName(const QMimeData *mimeData)
 {
-    if (m_blockMove)
-        return;
+   return QString::fromUtf8((mimeData->data(QStringLiteral("application/vnd.bauhaus.libraryresource"))));
+}
 
-    if (m_Aborted) {
-        event->ignore();
-        return;
-    }
+void DragTool::createDragNode(const QMimeData *mimeData, const QPointF &scenePosition, const QList<QGraphicsItem*> &itemList)
+{
+    if (!m_dragNode.hasModelNode()) {
+        FormEditorItem *targetContainerFormEditorItem = calculateTargetContainer(itemList);
+        if (targetContainerFormEditorItem) {
+            QmlItemNode targetContainerQmlItemNode;
+            if (targetContainerFormEditorItem)
+                targetContainerQmlItemNode = targetContainerFormEditorItem->qmlItemNode();
 
-    if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
-       event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
-        event->accept();
-        QPointF scenePos = event->scenePos();
-        if  (m_dragNode.isValid()) {
+            if (hasItemLibraryInfo(mimeData))
+                createQmlItemNode(itemLibraryEntryFromMimeData(mimeData), targetContainerQmlItemNode, scenePosition);
+            else if (hasLibraryResources(mimeData))
+                createQmlItemNodeFromImage(libraryResourceImageName(mimeData), targetContainerQmlItemNode, scenePosition);
 
-            FormEditorItem *parentItem = calculateContainer(event->scenePos() + QPoint(2, 2));
-            if (!parentItem) {      //if there is no parent any more - the use left the scene
-                end();
-                m_dragNode.destroy(); //delete the node then
-                return;
-            }
-            //move
-            move(event->scenePos());
-        } else {
-            //create new node  if container
-            if (m_dragNode.modelNode().isValid())
-                return;
-
-            FormEditorItem *parentItem = calculateContainer(scenePos);
-            if (!parentItem)
-                return;
-            QmlItemNode parentNode;
-            if (parentItem)
-                parentNode = parentItem->qmlItemNode();
-
-            if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
-                Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo").isEmpty());
-                ItemLibraryEntry itemLibraryEntry = itemLibraryEntryFromData(event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo"));
-                createQmlItemNode(itemLibraryEntry, parentNode, event->scenePos());
-            } else if (event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
-                Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.libraryresource").isEmpty());
-                QString imageName = QString::fromUtf8((event->mimeData()->data("application/vnd.bauhaus.libraryresource")));
-                createQmlItemNodeFromImage(imageName, parentNode, event->scenePos());
-            } else Q_ASSERT(false);
             m_blockMove = true;
-            m_startPoint = event->scenePos();
+            m_startPoint = scenePosition;
             QTimer::singleShot(10000, m_timerHandler.data(), SLOT(clearMoveDelay()));
         }
     }
+}
 
-    if (event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
+void DragTool::dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
+{
+    if (!m_blockMove) {
+        if (!m_isAborted) {
+            if (canHandleMimeData(event->mimeData())) {
+                event->accept();
+                if (m_dragNode.isValid()) {
+                    FormEditorItem *targetContainerItem = calculateTargetContainer(itemList);
+                    if (targetContainerItem) {
+                        move(event->scenePos(), itemList);
+                    } else {
+                        end();
+                        m_dragNode.destroy();
+                    }
+                } else {
+                    createDragNode(event->mimeData(), event->scenePos(), itemList);
+                }
+            }
+        } else {
+            event->ignore();
+        }
     }
 }
 
@@ -396,25 +377,20 @@ void DragTool::end(Snapper::Snapping useSnapping)
     clear();
 }
 
-void  DragTool::move(const QPointF &scenePos)
+void  DragTool::move(const QPointF &scenePos, const QList<QGraphicsItem*> &itemList)
 {
-    if (!m_movingItem)
-        return;
+    if (m_movingItem) {
+        FormEditorItem *containerItem = calculateTargetContainer(itemList, m_movingItem.data());
+        if (containerItem && m_movingItem->parentItem() &&
+                containerItem != m_movingItem->parentItem()) {
 
-    FormEditorItem *containerItem = calculateContainer(scenePos - QPoint(2, 2), m_movingItem.data());
-    if (containerItem && m_movingItem->parentItem() &&
-       containerItem != m_movingItem->parentItem()) {
+            m_moveManipulator.reparentTo(containerItem);
+        }
 
-        m_moveManipulator.reparentTo(containerItem);
+        Snapper::Snapping useSnapping = Snapper::UseSnapping;
+
+        m_moveManipulator.update(scenePos, useSnapping, MoveManipulator::UseBaseState);
     }
-
-    //MoveManipulator::Snapping useSnapping = MoveManipulator::NoSnapping;
-    Snapper::Snapping useSnapping = Snapper::UseSnapping;
-   /* if (event->modifiers().testFlag(Qt::ControlModifier) != view()->isSnapButtonChecked())
-        useSnapping = MoveManipulator::UseSnapping;*/
-
-    m_moveManipulator.update(scenePos, useSnapping, MoveManipulator::UseBaseState);
 }
-
 
 }
