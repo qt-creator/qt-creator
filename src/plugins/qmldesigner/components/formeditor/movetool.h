@@ -79,8 +79,6 @@ protected:
 
     static QList<FormEditorItem*> movingItems(const QList<FormEditorItem*> &selectedItemList);
 
-    static FormEditorItem* containerFormEditorItem(const QList<QGraphicsItem*> &itemUnderMouseList,
-                                            const QList<FormEditorItem*> &selectedItemList);
 
     static bool isAncestorOfAllItems(FormEditorItem* maybeAncestorItem,
                                     const QList<FormEditorItem*> &itemList);

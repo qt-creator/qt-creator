@@ -264,6 +264,33 @@ Snapper::Snapping AbstractFormEditorTool::generateUseSnapping(Qt::KeyboardModifi
     return useSnapping;
 }
 
+static bool isNotAncestorOfItemInList(FormEditorItem *formEditorItem, const QList<FormEditorItem*> &itemList)
+{
+    foreach (FormEditorItem *item, itemList) {
+        if (item
+            && item->qmlItemNode().isValid()
+            && item->qmlItemNode().isAncestorOf(formEditorItem->qmlItemNode()))
+            return false;
+    }
+
+    return true;
+}
+
+FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGraphicsItem *> &itemUnderMouseList, const QList<FormEditorItem *> &selectedItemList) const
+{
+    foreach (QGraphicsItem* item, itemUnderMouseList) {
+        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
+        if (formEditorItem
+           && !selectedItemList.contains(formEditorItem)
+           && isNotAncestorOfItemInList(formEditorItem, selectedItemList)
+           && formEditorItem->isContainer())
+                return formEditorItem;
+
+    }
+
+    return 0;
+}
+
 void AbstractFormEditorTool::clear()
 {
     m_itemList.clear();

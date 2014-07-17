@@ -99,6 +99,7 @@ protected:
     virtual void selectedItemsChanged(const QList<FormEditorItem*> &itemList) = 0;
     virtual void showContextMenu(QGraphicsSceneMouseEvent *event);
     Snapper::Snapping generateUseSnapping(Qt::KeyboardModifiers keyboardModifier) const;
+    FormEditorItem *containerFormEditorItem(const QList<QGraphicsItem*> &itemUnderMouseList, const QList<FormEditorItem*> &selectedItemList) const;
 
     FormEditorView *view() const;
     void setView(FormEditorView *view);
