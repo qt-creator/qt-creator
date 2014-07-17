@@ -112,7 +112,9 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
         QSharedMemory *sharedMemory = createSharedMemory(keyCounter, outDataStreamByteArray.size());
 
         if (sharedMemory) {
+            sharedMemory->lock();
             std::memcpy(sharedMemory->data(), outDataStreamByteArray.constData(), sharedMemory->size());
+            sharedMemory->unlock();
             out << command.keyNumber();
             return out;
         }
