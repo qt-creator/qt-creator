@@ -162,7 +162,7 @@ static void setupCdb(QString *makeBinary, QProcessEnvironment *environment)
     const QByteArray cdbextPath = CDBEXT_PATH "\\qtcreatorcdbext64";
     QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
     env.set(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"), QString::fromLatin1(cdbextPath));
-    *makeBinary = env.searchInPath(QLatin1String("nmake.exe"));
+    *makeBinary = env.searchInPath(QLatin1String("nmake.exe")).toString();
     *environment = env.toProcessEnvironment();
 }
 

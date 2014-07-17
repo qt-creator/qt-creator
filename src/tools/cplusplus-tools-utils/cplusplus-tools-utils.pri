@@ -18,3 +18,5 @@ SOURCES += \
     $$PWD/../../libs/utils/fileutils.cpp \
     $$PWD/../../libs/utils/qtcassert.cpp \
     $$PWD/../../libs/utils/savefile.cpp
+
+win32:LIBS += -luser32 -lshell32
