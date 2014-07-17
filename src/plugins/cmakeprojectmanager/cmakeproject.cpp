@@ -831,7 +831,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
 
-    QPushButton *runCmakeButton = new QPushButton(tr("Run cmake..."));
+    QPushButton *runCmakeButton = new QPushButton(tr("Run CMake..."));
     connect(runCmakeButton, SIGNAL(clicked()),
             this, SLOT(runCMake()));
     fl->addRow(tr("Reconfigure project:"), runCmakeButton);
