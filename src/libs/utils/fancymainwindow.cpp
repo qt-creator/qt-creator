@@ -31,6 +31,7 @@
 
 #include "qtcassert.h"
 
+#include <QApplication>
 #include <QContextMenuEvent>
 #include <QDebug>
 #include <QDockWidget>
@@ -42,6 +43,7 @@
 #include <QSettings>
 #include <QStyle>
 #include <QStyleOption>
+#include <QTimer>
 #include <QToolButton>
 
 static const char stateKeyC[] = "State";
@@ -131,7 +133,7 @@ public:
 
         const int minWidth = 10;
         const int maxWidth = 10000;
-        const int inactiveHeight = 3;
+        const int inactiveHeight = 0;
         const int activeHeight = m_closeButton->sizeHint().height() + 2;
 
         m_minimumInactiveSize = QSize(minWidth, inactiveHeight);
@@ -148,12 +150,6 @@ public:
         layout->addWidget(m_floatButton);
         layout->addWidget(m_closeButton);
         setLayout(layout);
-    }
-
-    void enterEvent(QEvent *event)
-    {
-        setActive(true);
-        QWidget::enterEvent(event);
     }
 
     void leaveEvent(QEvent *event)
@@ -202,27 +198,84 @@ public:
 
 class DockWidget : public QDockWidget
 {
+    Q_OBJECT
+
 public:
     DockWidget(QWidget *inner, QWidget *parent)
-        : QDockWidget(parent)
+        : QDockWidget(parent), m_inner(inner)
     {
         setWidget(inner);
         setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable);
         setObjectName(inner->objectName() + QLatin1String("DockWidget"));
         setWindowTitle(inner->windowTitle());
+        setMouseTracking(true);
 
         QStyleOptionDockWidget opt;
         initStyleOption(&opt);
-        auto titleBar = new TitleBarWidget(this, opt);
-        titleBar->m_titleLabel->setText(inner->windowTitle());
-        setTitleBarWidget(titleBar);
+        m_titleBar = new TitleBarWidget(this, opt);
+        m_titleBar->m_titleLabel->setText(inner->windowTitle());
+        setTitleBarWidget(m_titleBar);
+
+        m_timer.setSingleShot(true);
+        m_timer.setInterval(500);
+
+        connect(&m_timer, SIGNAL(timeout()), this, SLOT(handleMouseTimeout()));
+
+        connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(handleToplevelChanged(bool)));
 
         auto origFloatButton = findChild<QAbstractButton *>(QLatin1String("qt_dockwidget_floatbutton"));
-        connect(titleBar->m_floatButton, SIGNAL(clicked()), origFloatButton, SIGNAL(clicked()));
+        connect(m_titleBar->m_floatButton, SIGNAL(clicked()), origFloatButton, SIGNAL(clicked()));
 
         auto origCloseButton = findChild<QAbstractButton *>(QLatin1String("qt_dockwidget_closebutton"));
-        connect(titleBar->m_closeButton, SIGNAL(clicked()), origCloseButton, SIGNAL(clicked()));
+        connect(m_titleBar->m_closeButton, SIGNAL(clicked()), origCloseButton, SIGNAL(clicked()));
     }
+
+    bool eventFilter(QObject *, QEvent *event)
+    {
+        if (event->type() == QEvent::MouseMove) {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            int y = me->pos().y();
+            int x = me->pos().x();
+            int h = m_titleBar->m_floatButton->height();
+            if (!isFloating() && 0 <= x && x < m_inner->width() && 0 <= y && y <= h) {
+                m_timer.start();
+                m_startPos = mapToGlobal(me->pos());
+            }
+        }
+        return false;
+    }
+
+    void enterEvent(QEvent *event)
+    {
+        QApplication::instance()->installEventFilter(this);
+        QDockWidget::leaveEvent(event);
+    }
+
+    void leaveEvent(QEvent *event)
+    {
+        QApplication::instance()->removeEventFilter(this);
+        QDockWidget::leaveEvent(event);
+    }
+
+    Q_SLOT void handleMouseTimeout()
+    {
+        QPoint dist = m_startPos - QCursor::pos();
+        if (!isFloating() && dist.manhattanLength() < 4) {
+            m_titleBar->setActive(true);
+        }
+    }
+
+    Q_SLOT void handleToplevelChanged(bool floating)
+    {
+        if (!floating)
+            m_titleBar->setActive(false);
+    }
+
+private:
+    QPoint m_startPos;
+    QWidget *m_inner;
+    TitleBarWidget *m_titleBar;
+    QTimer m_timer;
 };
 
 /*! \class Utils::FancyMainWindow
@@ -444,3 +497,5 @@ void FancyMainWindow::setToolBarDockWidget(QDockWidget *dock)
 }
 
 } // namespace Utils
+
+#include "fancymainwindow.moc"
