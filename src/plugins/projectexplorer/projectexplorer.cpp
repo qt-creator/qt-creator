@@ -239,7 +239,6 @@ struct ProjectExplorerPluginPrivate {
     Context m_lastProjectContext;
     Node *m_currentNode;
 
-    QList<IDocumentFactory *> m_fileFactories;
     QStringList m_profileMimeTypes;
     Internal::AppOutputPane *m_outputPane;
 
@@ -1232,7 +1231,6 @@ void ProjectExplorerPlugin::extensionsInitialized()
                     tr("Failed to open project"), errorMessage);
             return 0;
         });
-        d->m_fileFactories.push_back(factory);
         const QString mimeType = manager->mimeType();
         MimeType mime = MimeDatabase::findByType(mimeType);
         allGlobPatterns.append(mime.globPatterns());
