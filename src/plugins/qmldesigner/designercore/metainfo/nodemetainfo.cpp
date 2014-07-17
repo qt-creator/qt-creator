@@ -672,19 +672,19 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                                         m_model(model)
 {
     if (context()) {
-        const CppComponentValue *objectValue = getCppComponentValue();
+        const CppComponentValue *cppObjectValue = getCppComponentValue();
 
-        if (objectValue) {
+        if (cppObjectValue) {
             if (m_majorVersion == -1 && m_minorVersion == -1) {
-                m_majorVersion = objectValue->componentVersion().majorVersion();
-                m_minorVersion = objectValue->componentVersion().minorVersion();
+                m_majorVersion = cppObjectValue->componentVersion().majorVersion();
+                m_minorVersion = cppObjectValue->componentVersion().minorVersion();
             }
-            setupPropertyInfo(getTypes(objectValue, context()));
-            setupLocalPropertyInfo(getTypes(objectValue, context(), true));
-            m_defaultPropertyName = objectValue->defaultPropertyName().toUtf8();
+            setupPropertyInfo(getTypes(cppObjectValue, context()));
+            setupLocalPropertyInfo(getTypes(cppObjectValue, context(), true));
+            m_defaultPropertyName = cppObjectValue->defaultPropertyName().toUtf8();
             m_isValid = true;
             setupPrototypes();
-            m_signals = getSignals(objectValue, context());
+            m_signals = getSignals(cppObjectValue, context());
         } else {
             const ObjectValue *objectValue = getObjectValue();
             if (objectValue) {
