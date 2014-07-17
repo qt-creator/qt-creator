@@ -392,8 +392,15 @@ QImage QuickItemNodeInstance::renderPreviewImage(const QSize &previewImageSize) 
 {
     QRectF previewItemBoundingRect = boundingRect();
 
-    if (previewItemBoundingRect.isValid() && quickItem())
-        return designerSupport()->renderImageForItem(quickItem(), previewItemBoundingRect, previewImageSize);
+    if (previewItemBoundingRect.isValid() && quickItem()) {
+        if (quickItem()->isVisible()) {
+            return designerSupport()->renderImageForItem(quickItem(), previewItemBoundingRect, previewImageSize);
+        } else {
+            QImage transparentImage(previewImageSize, QImage::Format_ARGB32_Premultiplied);
+            transparentImage.fill(Qt::transparent);
+            return transparentImage;
+        }
+    }
 
     return QImage();
 }
