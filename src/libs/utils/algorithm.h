@@ -127,13 +127,6 @@ auto equal(R (S::*function)() const, T value)
     return std::bind<bool>(std::equal_to<T>(), value, std::bind(function, std::placeholders::_1));
 }
 
-template<typename R, typename S, typename T>
-auto equal(R (S::*member), T value)
-    -> decltype(std::bind<bool>(std::equal_to<T>(), value, std::bind(member, std::placeholders::_1)))
-{
-    return std::bind<bool>(std::equal_to<T>(), value, std::bind(member, std::placeholders::_1));
-}
-
 //////////////////
 // transform
 /////////////////
