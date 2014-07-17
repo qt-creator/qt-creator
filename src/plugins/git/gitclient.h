@@ -136,7 +136,7 @@ public:
     explicit GitClient(GitSettings *settings);
     ~GitClient();
 
-    QString gitBinaryPath(bool *ok = 0, QString *errorMessage = 0) const;
+    QString gitExecutable(bool *ok = 0, QString *errorMessage = 0) const;
     unsigned gitVersion(QString *errorMessage = 0) const;
 
     QString findRepositoryForDirectory(const QString &dir);

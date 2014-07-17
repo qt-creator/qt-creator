@@ -62,7 +62,7 @@ public:
     static const QLatin1String graphLogKey;
     static const QLatin1String lastResetIndexKey;
 
-    QString gitBinaryPath(bool *ok = 0, QString *errorMessage = 0) const;
+    QString gitExecutable(bool *ok = 0, QString *errorMessage = 0) const;
 
     GitSettings &operator = (const GitSettings &s);
 };

@@ -119,7 +119,7 @@ VcsBase::Command *CloneWizardPage::createCheckoutJob(Utils::FileName *checkoutPa
      if (d->recursiveCheckBox->isChecked())
          args << QLatin1String("--recursive");
      args << QLatin1String("--progress") << repository() << checkoutDir;
-     VcsBase::Command *command = new VcsBase::Command(client->gitBinaryPath(), workingDirectory,
+     VcsBase::Command *command = new VcsBase::Command(client->gitExecutable(), workingDirectory,
                                                       client->processEnvironment());
      command->addFlags(VcsBase::VcsBasePlugin::MergeOutputChannels);
      command->addJob(args, -1);
