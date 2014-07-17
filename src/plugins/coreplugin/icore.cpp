@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "icore.h"
+#include "windowsupport.h"
 
 #include <app/app_version.h>
 #include <extensionsystem/pluginmanager.h>
@@ -521,6 +522,11 @@ void ICore::addContextObject(IContext *context)
 void ICore::removeContextObject(IContext *context)
 {
     m_mainwindow->removeContextObject(context);
+}
+
+void ICore::registerWindow(QWidget *window, const Context &context)
+{
+    new WindowSupport(window, context); // deletes itself when widget is destroyed
 }
 
 void ICore::openFiles(const QStringList &arguments, ICore::OpenFilesFlags flags)
