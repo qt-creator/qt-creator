@@ -55,10 +55,6 @@ namespace Utils
 template<typename T, typename R, typename S>
 bool anyOf(const T &container, R (S::*predicate)() const)
 {
-    static_assert(std::is_convertible<typename T::iterator::value_type, S *>::value
-                  || std::is_convertible<typename T::iterator::value_type, S>::value,
-                  "elements of the container must be convertible to the member function pointer's class.");
-    static_assert(std::is_convertible<R, bool>::value, "return type of predicate needs to be convertible to bool");
     return std::any_of(container.begin(), container.end(), std::mem_fn(predicate));
 }
 
@@ -147,9 +143,6 @@ template<typename T, typename R, typename S>
 Q_REQUIRED_RESULT
 auto transform(const QList<T> &container, R (S::*p)() const) -> QList<R>
 {
-    static_assert(std::is_convertible<T, S *>::value
-                  || std::is_convertible<T, S>::value,
-                  "elements of container must be convertible to S");
     QList<R> result;
     result.reserve(container.size());
     std::transform(container.begin(), container.end(),
