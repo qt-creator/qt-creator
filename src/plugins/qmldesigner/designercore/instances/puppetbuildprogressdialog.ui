@@ -49,7 +49,7 @@
      <item>
       <widget class="QPushButton" name="useFallbackPuppetPushButton">
        <property name="text">
-        <string>Use fallback QML emulation layer</string>
+        <string>Use Fallback QML Emulation Layer</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
