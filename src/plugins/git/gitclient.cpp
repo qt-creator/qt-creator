@@ -2641,7 +2641,7 @@ bool GitClient::launchGitGui(const QString &workingDirectory) {
 
 Utils::FileName GitClient::gitBinDirectory()
 {
-    const QString git = gitBinaryPath();
+    const QString git = gitBinaryPath().toString();
     if (git.isEmpty())
         return Utils::FileName();
 
