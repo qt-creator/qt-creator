@@ -654,7 +654,7 @@ void MainWindow::registerDefaultActions()
     }
 
     // Full Screen Action
-    m_toggleFullScreenAction = new QAction(this);
+    m_toggleFullScreenAction = new QAction(tr("Full Screen"), this);
     m_toggleFullScreenAction->setMenuRole(QAction::NoRole);
     m_toggleFullScreenAction->setCheckable(!Utils::HostOsInfo::isMacHost());
     updateFullScreenAction();
