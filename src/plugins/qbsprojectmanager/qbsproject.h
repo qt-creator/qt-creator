@@ -93,7 +93,7 @@ public:
     QString profileForTarget(const ProjectExplorer::Target *t) const;
     bool isParsing() const;
     bool hasParseResult() const;
-    void parseCurrentBuildConfiguration(bool force);
+    void parseCurrentBuildConfiguration();
     void scheduleParsing() { m_parsingScheduled = true; }
     bool parsingScheduled() const { return m_parsingScheduled; }
     void cancelParsing();
@@ -114,7 +114,6 @@ public:
 public slots:
     void invalidate();
     void delayParsing();
-    void delayForcedParsing();
     void readQbsData();
 
 signals:
@@ -153,7 +152,6 @@ private:
     QbsProjectParser *m_qbsProjectParser;
 
     QFutureInterface<bool> *m_qbsUpdateFutureInterface;
-    bool m_forceParsing;
     bool m_parsingScheduled;
 
     enum CancelStatus {

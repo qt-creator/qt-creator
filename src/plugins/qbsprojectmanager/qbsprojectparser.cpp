@@ -71,15 +71,10 @@ QbsProjectParser::~QbsProjectParser()
     m_fi = 0; // we do not own m_fi, do not delete
 }
 
-void QbsProjectParser::setForced(bool f)
+void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, const QString &dir)
 {
-    m_wasForced = f;
-}
-
-bool QbsProjectParser::parse(const QVariantMap &config, const Environment &env, const QString &dir)
-{
-    QTC_ASSERT(!m_qbsSetupProjectJob, return false);
-    QTC_ASSERT(!dir.isNull(), return false);
+    QTC_ASSERT(!m_qbsSetupProjectJob, return);
+    QTC_ASSERT(!dir.isEmpty(), return);
 
     m_currentProgressBase = 0;
 
@@ -92,25 +87,6 @@ bool QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     params.setBuildVariant(userConfig.take(specialKey).toString());
     params.setSettingsDirectory(QbsManager::settings()->baseDirectoy());
     params.setOverriddenValues(userConfig);
-    m_error = params.expandBuildConfiguration();
-    if (m_error.hasError()) {
-        emit done(false);
-        return false;
-    }
-
-    // Avoid useless reparsing:
-    if (!m_wasForced
-            && m_project.isValid()
-            && m_project.projectConfiguration() == params.finalBuildConfigurationTree()) {
-        QHash<QString, QString> usedEnv = m_project.usedEnvironment();
-        for (QHash<QString, QString>::const_iterator i = usedEnv.constBegin();
-             i != usedEnv.constEnd(); ++i) {
-            if (env.value(i.key()) != i.value()) {
-                emit done(true);
-                return true;
-            }
-        }
-    }
 
     // Some people don't like it when files are created as a side effect of opening a project,
     // so do not store the build graph if the build directory does not exist yet.
@@ -132,8 +108,6 @@ bool QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
             this, SLOT(handleQbsParsingTaskSetup(QString,int)));
     connect(m_qbsSetupProjectJob, SIGNAL(taskProgress(int,qbs::AbstractJob*)),
             this, SLOT(handleQbsParsingProgress(int)));
-
-    return true;
 }
 
 void QbsProjectParser::cancel()

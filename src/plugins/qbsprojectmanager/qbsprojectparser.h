@@ -51,9 +51,7 @@ public:
                      QFutureInterface<bool> *fi);
     ~QbsProjectParser();
 
-    void setForced(bool);
-
-    bool parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
+    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
     void cancel();
 
     qbs::Project qbsProject() const;
@@ -71,7 +69,6 @@ private:
     QString pluginsBaseDirectory() const;
     QString resourcesBaseDirectory() const;
 
-    bool m_wasForced;
     QString m_projectFilePath;
     qbs::SetupProjectJob *m_qbsSetupProjectJob;
     qbs::ErrorInfo m_error;
