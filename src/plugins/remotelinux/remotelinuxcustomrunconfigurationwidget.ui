@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="localExeLabel">
      <property name="text">
-      <string>Local Executable:</string>
+      <string>Local executable:</string>
      </property>
     </widget>
    </item>
@@ -27,7 +27,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="remoteExeLabel">
      <property name="text">
-      <string>Remote Executable:</string>
+      <string>Remote executable:</string>
      </property>
     </widget>
    </item>
@@ -47,7 +47,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="workingDirLabel">
      <property name="text">
-      <string>Working Directory:</string>
+      <string>Working directory:</string>
      </property>
     </widget>
    </item>
