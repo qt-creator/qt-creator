@@ -1122,56 +1122,59 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     TranslationUnitAST *xUnit = AST_cpp_document->translationUnit()->ast()->asTranslationUnit();
     for (DeclarationListAST *iter = xUnit->declaration_list; iter; iter = iter->next) {
         if (FunctionDefinitionAST *funDef = iter->value->asFunctionDefinition()) {
-            if (const QualifiedNameId *qName = funDef->symbol->name()->asQualifiedNameId()) {
-                const QString className = oo(qName->base());
-                const QString methodName = oo(qName->name());
+            if (const Name *name = funDef->symbol->name()) {
+                if (const QualifiedNameId *qName = name->asQualifiedNameId()) {
+                    const QString className = oo(qName->base());
+                    const QString methodName = oo(qName->name());
 
-                QTextCursor cursor(&cpp_document);
+                    QTextCursor cursor(&cpp_document);
 
-                unsigned line = 0, column = 0;
-                AST_cpp_document->translationUnit()->getTokenStartPosition(funDef->firstToken(), &line, &column);
-                const int start = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
-                cursor.setPosition(start);
-                int doxyStart = start;
+                    unsigned line = 0, column = 0;
+                    AST_cpp_document->translationUnit()->getTokenStartPosition(funDef->firstToken(), &line, &column);
+                    const int start = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
+                    cursor.setPosition(start);
+                    int doxyStart = start;
 
-                const bool isGenerated = checkGenerated(cursor, &doxyStart);
+                    const bool isGenerated = checkGenerated(cursor, &doxyStart);
 
-                AST_cpp_document->translationUnit()->getTokenEndPosition(funDef->lastToken() - 1, &line, &column);
-                int end = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
-                while (cpp_document.characterAt(end).isSpace())
-                    ++end;
+                    AST_cpp_document->translationUnit()->getTokenEndPosition(funDef->lastToken() - 1, &line, &column);
+                    int end = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
+                    while (cpp_document.characterAt(end).isSpace())
+                        ++end;
 
-                if (methodName == QLatin1String("firstToken")) {
-                    ClassSpecifierAST *classAST = classesNeedingFirstToken.value(className, 0);
-                    GenInfo info;
-                    info.end = end;
-                    if (classAST) {
-                        info.classAST = classAST;
-                        info.firstToken = true;
-                        info.start = start;
-                        classesNeedingFirstToken.remove(className);
-                    } else {
-                        info.start = doxyStart;
-                        info.remove = true;
+                    if (methodName == QLatin1String("firstToken")) {
+                        ClassSpecifierAST *classAST = classesNeedingFirstToken.value(className, 0);
+                        GenInfo info;
+                        info.end = end;
+                        if (classAST) {
+                            info.classAST = classAST;
+                            info.firstToken = true;
+                            info.start = start;
+                            classesNeedingFirstToken.remove(className);
+                        } else {
+                            info.start = doxyStart;
+                            info.remove = true;
+                        }
+                        if (isGenerated)
+                            todo.append(info);
+                    } else if (methodName == QLatin1String("lastToken")) {
+                        ClassSpecifierAST *classAST = classesNeedingLastToken.value(className, 0);
+                        GenInfo info;
+                        info.end = end;
+                        if (classAST) {
+                            info.classAST = classAST;
+                            info.start = start;
+                            info.lastToken = true;
+                            classesNeedingLastToken.remove(className);
+                        } else {
+                            info.start = doxyStart;
+                            info.remove = true;
+                        }
+                        if (isGenerated)
+                            todo.append(info);
                     }
-                    if (isGenerated)
-                        todo.append(info);
-                } else if (methodName == QLatin1String("lastToken")) {
-                    ClassSpecifierAST *classAST = classesNeedingLastToken.value(className, 0);
-                    GenInfo info;
-                    info.end = end;
-                    if (classAST) {
-                        info.classAST = classAST;
-                        info.start = start;
-                        info.lastToken = true;
-                        classesNeedingLastToken.remove(className);
-                    } else {
-                        info.start = doxyStart;
-                        info.remove = true;
-                    }
-                    if (isGenerated)
-                        todo.append(info);
                 }
+
             }
         }
     }
