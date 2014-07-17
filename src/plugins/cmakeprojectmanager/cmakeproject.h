@@ -65,8 +65,16 @@ struct CMakeBuildTarget
     QString executable; // TODO: rename to output?
     bool library;
     QString workingDirectory;
+    QString sourceDirectory;
     QString makeCommand;
     QString makeCleanCommand;
+
+    // code model
+    QStringList includeFiles;
+    QStringList compilerOptions;
+    QByteArray defines;
+    QStringList files;
+
     void clear();
 };
 
@@ -125,6 +133,7 @@ private:
     QString uiHeaderFile(const QString &uiFile);
     void updateRunConfigurations(ProjectExplorer::Target *t);
     void updateApplicationAndDeploymentTargets();
+    QStringList getCXXFlagsFor(const CMakeBuildTarget &buildTarget);
 
     CMakeManager *m_manager;
     ProjectExplorer::Target *m_activeTarget;
@@ -144,12 +153,10 @@ private:
 class CMakeCbpParser : public QXmlStreamReader
 {
 public:
-    bool parseCbpFile(const QString &fileName);
+    bool parseCbpFile(const QString &fileName, const QString &sourceDirectory);
     QList<ProjectExplorer::FileNode *> fileList();
     QList<ProjectExplorer::FileNode *> cmakeFileList();
-    QStringList includeFiles();
     QList<CMakeBuildTarget> buildTargets();
-    QByteArray defines() const;
     QString projectName() const;
     QString compilerName() const;
     bool hasCMakeFiles();
@@ -169,19 +176,19 @@ private:
     void parseUnit();
     void parseUnitOption();
     void parseUnknownElement();
+    void sortFiles();
 
     QList<ProjectExplorer::FileNode *> m_fileList;
     QList<ProjectExplorer::FileNode *> m_cmakeFileList;
     QSet<QString> m_processedUnits;
     bool m_parsingCmakeUnit;
-    QStringList m_includeFiles;
-    QStringList m_compilerOptions;
-    QByteArray m_defines;
 
     CMakeBuildTarget m_buildTarget;
     QList<CMakeBuildTarget> m_buildTargets;
     QString m_projectName;
     QString m_compiler;
+    QString m_sourceDirectory;
+    QString m_buildDirectory;
 };
 
 class CMakeFile : public Core::IDocument

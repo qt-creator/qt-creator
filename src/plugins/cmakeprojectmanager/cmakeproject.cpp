@@ -190,6 +190,55 @@ QString CMakeProject::shadowBuildDirectory(const QString &projectFilePath, const
     return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
 }
 
+QStringList CMakeProject::getCXXFlagsFor(const CMakeBuildTarget &buildTarget)
+{
+    QString makeCommand = QDir::fromNativeSeparators(buildTarget.makeCommand);
+    int startIndex = makeCommand.indexOf(QLatin1Char('\"'));
+    int endIndex = makeCommand.indexOf(QLatin1Char('\"'), startIndex + 1);
+    if (startIndex != -1 && endIndex != -1) {
+        startIndex += 1;
+        QString makefile = makeCommand.mid(startIndex, endIndex - startIndex);
+        int slashIndex = makefile.lastIndexOf(QLatin1Char('/'));
+        makefile.truncate(slashIndex);
+        makefile.append(QLatin1String("/CMakeFiles/") + buildTarget.title + QLatin1String(".dir/flags.make"));
+        QFile file(makefile);
+        if (file.exists()) {
+            file.open(QIODevice::ReadOnly | QIODevice::Text);
+            QTextStream stream(&file);
+            while (!stream.atEnd()) {
+                QString line = stream.readLine().trimmed();
+                if (line.startsWith(QLatin1String("CXX_FLAGS ="))) {
+                    // Skip past =
+                    return line.mid(11).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
+                }
+            }
+        }
+    }
+
+    // Attempt to find build.ninja file and obtain FLAGS (CXX_FLAGS) from there if no suitable flags.make were
+    // found
+    // Get "all" target's working directory
+    QString buildNinjaFile = QDir::fromNativeSeparators(buildTarget.workingDirectory);
+    buildNinjaFile += QLatin1String("/build.ninja");
+    QFile buildNinja(buildNinjaFile);
+    if (buildNinja.exists()) {
+        buildNinja.open(QIODevice::ReadOnly | QIODevice::Text);
+        QTextStream stream(&buildNinja);
+        bool cxxFound = false;
+        while (!stream.atEnd()) {
+            QString line = stream.readLine().trimmed();
+            // Look for a build rule which invokes CXX_COMPILER
+            if (line.startsWith(QLatin1String("build"))) {
+                cxxFound = line.indexOf(QLatin1String("CXX_COMPILER")) != -1;
+            } else if (cxxFound && line.startsWith(QLatin1String("FLAGS ="))) {
+                // Skip past =
+                return line.mid(7).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
+            }
+        }
+    }
+    return QStringList();
+}
+
 bool CMakeProject::parseCMakeLists()
 {
     if (!activeTarget() ||
@@ -215,7 +264,7 @@ bool CMakeProject::parseCMakeLists()
     CMakeCbpParser cbpparser;
     // Parsing
     //qDebug()<<"Parsing file "<<cbpFile;
-    if (!cbpparser.parseCbpFile(cbpFile)) {
+    if (!cbpparser.parseCbpFile(cbpFile, projectDirectory().toString())) {
         // TODO report error
         emit buildTargetsChanged();
         return false;
@@ -277,111 +326,61 @@ bool CMakeProject::parseCMakeLists()
         return true;
     }
 
-    QStringList cxxflags;
-    bool found = false;
-    foreach (const CMakeBuildTarget &buildTarget, m_buildTargets) {
-        QString makeCommand = QDir::fromNativeSeparators(buildTarget.makeCommand);
-        int startIndex = makeCommand.indexOf(QLatin1Char('\"'));
-        int endIndex = makeCommand.indexOf(QLatin1Char('\"'), startIndex + 1);
-        if (startIndex == -1 || endIndex == -1)
-            continue;
-        startIndex += 1;
-        QString makefile = makeCommand.mid(startIndex, endIndex - startIndex);
-        int slashIndex = makefile.lastIndexOf(QLatin1Char('/'));
-        makefile.truncate(slashIndex);
-        makefile.append(QLatin1String("/CMakeFiles/") + buildTarget.title + QLatin1String(".dir/flags.make"));
-        QFile file(makefile);
-        if (file.exists()) {
-            file.open(QIODevice::ReadOnly | QIODevice::Text);
-            QTextStream stream(&file);
-            while (!stream.atEnd()) {
-                QString line = stream.readLine().trimmed();
-                if (line.startsWith(QLatin1String("CXX_FLAGS ="))) {
-                    // Skip past =
-                    cxxflags = line.mid(11).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
-                    found = true;
-                    break;
-                }
-            }
-        }
-        if (found)
-            break;
-    }
-    // Attempt to find build.ninja file and obtain FLAGS (CXX_FLAGS) from there if no suitable flags.make were
-    // found
-    if (!found && !cbpparser.buildTargets().isEmpty()) {
-        // Get "all" target's working directory
-        QString buildNinjaFile = QDir::fromNativeSeparators(cbpparser.buildTargets().at(0).workingDirectory);
-        buildNinjaFile += QLatin1String("/build.ninja");
-        QFile buildNinja(buildNinjaFile);
-        if (buildNinja.exists()) {
-            buildNinja.open(QIODevice::ReadOnly | QIODevice::Text);
-            QTextStream stream(&buildNinja);
-            bool cxxFound = false;
-            while (!stream.atEnd()) {
-                QString line = stream.readLine().trimmed();
-                // Look for a build rule which invokes CXX_COMPILER
-                if (line.startsWith(QLatin1String("build"))) {
-                    cxxFound = line.indexOf(QLatin1String("CXX_COMPILER")) != -1;
-                } else if (cxxFound && line.startsWith(QLatin1String("FLAGS ="))) {
-                    // Skip past =
-                    cxxflags = line.mid(7).trimmed().split(QLatin1Char(' '), QString::SkipEmptyParts);
-                    break;
-                }
-            }
-        }
-    }
-
     CppTools::CppModelManagerInterface *modelmanager =
             CppTools::CppModelManagerInterface::instance();
     if (modelmanager) {
         CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
         pinfo.clearProjectParts();
 
-        typedef CppTools::ProjectPart ProjectPart;
-        ProjectPart::Ptr part(new ProjectPart);
-        part->project = this;
-        part->displayName = displayName();
-        part->projectFile = projectFilePath().toString();
+        foreach (const CMakeBuildTarget &cbt, m_buildTargets) {
+            typedef CppTools::ProjectPart ProjectPart;
+            ProjectPart::Ptr part(new ProjectPart);
+            part->project = this;
+            part->displayName = cbt.title;
+            part->projectFile = projectFilePath().toString();
 
-        // This explicitly adds -I. to the include paths
-        part->headerPaths += ProjectPart::HeaderPath(projectDirectory().toString(),
-                                                     ProjectPart::HeaderPath::IncludePath);
+            // This explicitly adds -I. to the include paths
+            part->headerPaths += ProjectPart::HeaderPath(projectDirectory().toString(),
+                                                         ProjectPart::HeaderPath::IncludePath);
 
-        foreach (const QString &includeFile, cbpparser.includeFiles()) {
-            ProjectPart::HeaderPath hp(includeFile, ProjectPart::HeaderPath::IncludePath);
+            foreach (const QString &includeFile, cbt.includeFiles) {
+                ProjectPart::HeaderPath hp(includeFile, ProjectPart::HeaderPath::IncludePath);
 
-            // CodeBlocks is utterly ignorant of frameworks on Mac, and won't report framework
-            // paths. The work-around is to check if the include path ends in ".framework", and
-            // if so, add the parent directory as framework path.
-            if (includeFile.endsWith(QLatin1String(".framework"))) {
-                const int slashIdx = includeFile.lastIndexOf(QLatin1Char('/'));
-                if (slashIdx != -1) {
-                    hp = ProjectPart::HeaderPath(includeFile.left(slashIdx),
-                                                 ProjectPart::HeaderPath::FrameworkPath);
-                    continue;
+                // CodeBlocks is utterly ignorant of frameworks on Mac, and won't report framework
+                // paths. The work-around is to check if the include path ends in ".framework", and
+                // if so, add the parent directory as framework path.
+                if (includeFile.endsWith(QLatin1String(".framework"))) {
+                    const int slashIdx = includeFile.lastIndexOf(QLatin1Char('/'));
+                    if (slashIdx != -1) {
+                        hp = ProjectPart::HeaderPath(includeFile.left(slashIdx),
+                                                     ProjectPart::HeaderPath::FrameworkPath);
+                        continue;
+                    }
                 }
+
+                part->headerPaths += hp;
             }
 
-            part->headerPaths += hp;
+            part->projectDefines += cbt.defines;
+
+            // TODO rewrite
+            CppTools::ProjectFileAdder adder(part->files);
+            foreach (const QString &file, cbt.files)
+                adder.maybeAdd(file);
+
+            QStringList cxxflags = getCXXFlagsFor(cbt);
+
+            part->evaluateToolchain(tc,
+                                    cxxflags,
+                                    cxxflags,
+                                    SysRootKitInformation::sysRoot(k));
+
+            setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
+            pinfo.appendProjectPart(part);
         }
-
-        part->projectDefines += cbpparser.defines();
-
-        CppTools::ProjectFileAdder adder(part->files);
-        foreach (const QString &file, m_files)
-            adder.maybeAdd(file);
-
-        part->evaluateToolchain(tc,
-                                cxxflags,
-                                cxxflags,
-                                SysRootKitInformation::sysRoot(k));
-
-        pinfo.appendProjectPart(part);
         m_codeModelFuture.cancel();
         m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
 
-        setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
     }
 
     emit buildTargetsChanged();
@@ -890,8 +889,56 @@ void CMakeBuildSettingsWidget::runCMake()
 // CMakeCbpParser
 ////
 
-bool CMakeCbpParser::parseCbpFile(const QString &fileName)
+// called after everything is parsed
+// this function tries to figure out to which CMakeBuildTarget
+// each file belongs, so that it gets the appropriate defines and
+// compiler flags
+void CMakeCbpParser::sortFiles()
 {
+    QList<Utils::FileName> fileNames = Utils::transform(m_fileList, [] (FileNode *node) {
+        return Utils::FileName::fromString(node->path());
+    });
+
+    Utils::sort(fileNames);
+
+
+    CMakeBuildTarget *last = 0;
+    Utils::FileName parentDirectory;
+
+    foreach (const Utils::FileName &fileName, fileNames) {
+        if (fileName.parentDir() == parentDirectory && last) {
+            // easy case, same parent directory as last file
+            last->files.append(fileName.toString());
+        } else {
+            int bestLength = -1;
+            int bestIndex = -1;
+
+            for (int i = 0; i < m_buildTargets.size(); ++i) {
+                const CMakeBuildTarget &target = m_buildTargets.at(i);
+                if (fileName.isChildOf(Utils::FileName::fromString(target.sourceDirectory))
+                                       && target.sourceDirectory.size() > bestLength) {
+                    bestLength = target.sourceDirectory.size();
+                    bestIndex = i;
+                }
+            }
+
+            if (bestIndex == -1 && !m_buildTargets.isEmpty())
+                bestIndex = 0;
+
+            if (bestIndex != -1) {
+                m_buildTargets[bestIndex].files.append(fileName.toString());
+                last = &m_buildTargets[bestIndex];
+                parentDirectory = fileName.parentDir();
+            }
+        }
+    }
+}
+
+bool CMakeCbpParser::parseCbpFile(const QString &fileName, const QString &sourceDirectory)
+{
+    m_buildDirectory = QFileInfo(fileName).absolutePath();
+    m_sourceDirectory = sourceDirectory;
+
     QFile fi(fileName);
     if (fi.exists() && fi.open(QFile::ReadOnly)) {
         setDevice(&fi);
@@ -903,9 +950,10 @@ bool CMakeCbpParser::parseCbpFile(const QString &fileName)
             else if (isStartElement())
                 parseUnknownElement();
         }
+
+        sortFiles();
+
         fi.close();
-        m_includeFiles.sort();
-        m_includeFiles.removeDuplicates();
         return true;
     }
     return false;
@@ -988,6 +1036,10 @@ void CMakeCbpParser::parseBuildTargetOption()
             m_buildTarget.library = true;
     } else if (attributes().hasAttribute(QLatin1String("working_dir"))) {
         m_buildTarget.workingDirectory = attributes().value(QLatin1String("working_dir")).toString();
+        QDir dir(m_buildDirectory);
+        QString relative = dir.relativeFilePath(m_buildTarget.workingDirectory);
+        m_buildTarget.sourceDirectory
+                = Utils::FileName::fromString(m_sourceDirectory).appendPath(relative).toString();
     }
     while (!atEnd()) {
         readNext();
@@ -1082,20 +1134,20 @@ void CMakeCbpParser::parseAdd()
     const QString includeDirectory = addAttributes.value(QLatin1String("directory")).toString();
     // allow adding multiple times because order happens
     if (!includeDirectory.isEmpty())
-        m_includeFiles.append(includeDirectory);
+        m_buildTarget.includeFiles.append(includeDirectory);
 
     QString compilerOption = addAttributes.value(QLatin1String("option")).toString();
     // defining multiple times a macro to the same value makes no sense
-    if (!compilerOption.isEmpty() && !m_compilerOptions.contains(compilerOption)) {
-        m_compilerOptions.append(compilerOption);
+    if (!compilerOption.isEmpty() && !m_buildTarget.compilerOptions.contains(compilerOption)) {
+        m_buildTarget.compilerOptions.append(compilerOption);
         int macroNameIndex = compilerOption.indexOf(QLatin1String("-D")) + 2;
         if (macroNameIndex != 1) {
             int assignIndex = compilerOption.indexOf(QLatin1Char('='), macroNameIndex);
             if (assignIndex != -1)
                 compilerOption[assignIndex] = ' ';
-            m_defines.append("#define ");
-            m_defines.append(compilerOption.mid(macroNameIndex).toUtf8());
-            m_defines.append('\n');
+            m_buildTarget.defines.append("#define ");
+            m_buildTarget.defines.append(compilerOption.mid(macroNameIndex).toUtf8());
+            m_buildTarget.defines.append('\n');
         }
     }
 
@@ -1190,16 +1242,6 @@ bool CMakeCbpParser::hasCMakeFiles()
     return !m_cmakeFileList.isEmpty();
 }
 
-QStringList CMakeCbpParser::includeFiles()
-{
-    return m_includeFiles;
-}
-
-QByteArray CMakeCbpParser::defines() const
-{
-    return m_defines;
-}
-
 QList<CMakeBuildTarget> CMakeCbpParser::buildTargets()
 {
     return m_buildTargets;
@@ -1216,6 +1258,10 @@ void CMakeBuildTarget::clear()
     makeCommand.clear();
     makeCleanCommand.clear();
     workingDirectory.clear();
+    sourceDirectory.clear();
     title.clear();
     library = false;
+    includeFiles.clear();
+    compilerOptions.clear();
+    defines.clear();
 }
