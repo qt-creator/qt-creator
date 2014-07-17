@@ -1220,25 +1220,28 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     const QString filterSeparator = QLatin1String(";;");
     QStringList filterStrings;
+
+    auto factory = new IDocumentFactory;
+    factory->setOpener([this](const QString &fileName) -> IDocument* {
+        QString errorMessage;
+        ProjectExplorerPlugin::instance()->openProject(fileName, &errorMessage);
+        if (!errorMessage.isEmpty())
+            QMessageBox::critical(Core::ICore::mainWindow(),
+                tr("Failed to open project"), errorMessage);
+        return 0;
+    });
+
     foreach (IProjectManager *manager, projectManagers) {
-        auto factory = new IDocumentFactory;
-        factory->addMimeType(manager->mimeType());
-        factory->setOpener([this](const QString &fileName) -> IDocument* {
-            QString errorMessage;
-            ProjectExplorerPlugin::instance()->openProject(fileName, &errorMessage);
-            if (!errorMessage.isEmpty())
-                QMessageBox::critical(Core::ICore::mainWindow(),
-                    tr("Failed to open project"), errorMessage);
-            return 0;
-        });
         const QString mimeType = manager->mimeType();
+        factory->addMimeType(mimeType);
         MimeType mime = MimeDatabase::findByType(mimeType);
         allGlobPatterns.append(mime.globPatterns());
         filterStrings.append(mime.filterString());
 
-        d->m_profileMimeTypes += factory->mimeTypes();
-        addAutoReleasedObject(factory);
+        d->m_profileMimeTypes += mimeType;
     }
+
+    addAutoReleasedObject(factory);
 
     filterStrings.prepend(MimeType::formatFilterString(
        tr("All Projects"), allGlobPatterns));
