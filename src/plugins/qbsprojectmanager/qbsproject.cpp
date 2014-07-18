@@ -37,10 +37,9 @@
 #include "qbsnodes.h"
 
 #include <coreplugin/documentmanager.h>
-#include <utils/qtcassert.h>
-
 #include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -62,6 +61,7 @@
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <qbs.h>
 
@@ -183,6 +183,84 @@ QStringList QbsProject::files(Project::FilesMode fileMode) const
     QSet<QString> result;
     collectFilesForProject(m_rootProjectNode->qbsProjectData(), result);
     return result.toList();
+}
+
+class ChangeExpector
+{
+public:
+    ChangeExpector(const QString &filePath, const QSet<Core::IDocument *> &documents)
+        : m_document(0)
+    {
+        foreach (Core::IDocument * const doc, documents) {
+            if (doc->filePath() == filePath) {
+                m_document = doc;
+                break;
+            }
+        }
+        QTC_ASSERT(m_document, return);
+        Core::DocumentManager::expectFileChange(filePath);
+        m_wasInDocumentManager = Core::DocumentManager::removeDocument(m_document);
+        QTC_CHECK(m_wasInDocumentManager);
+    }
+
+    ~ChangeExpector()
+    {
+        QTC_ASSERT(m_document, return);
+        Core::DocumentManager::addDocument(m_document);
+        Core::DocumentManager::unexpectFileChange(m_document->filePath());
+    }
+
+private:
+    Core::IDocument *m_document;
+    bool m_wasInDocumentManager;
+};
+
+bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
+        const qbs::ProductData &productData, const qbs::GroupData &groupData, QStringList *notAdded)
+{
+    QTC_ASSERT(m_qbsProject.isValid(), return false);
+    QStringList allPaths = groupData.allFilePaths();
+    const QString productFilePath = productData.location().fileName();
+    ChangeExpector expector(productFilePath, m_qbsDocuments);
+    foreach (const QString &path, filePaths) {
+        qbs::ErrorInfo err = m_qbsProject.addFiles(productData, groupData, QStringList() << path);
+        if (err.hasError()) {
+            Core::MessageManager::write(err.toString());
+            *notAdded += path;
+        } else {
+            allPaths += path;
+        }
+    }
+    if (notAdded->count() != filePaths.count()) {
+        m_projectData = m_qbsProject.projectData();
+        QbsGroupNode::setupFiles(node, allPaths, QFileInfo(productFilePath).absolutePath(), true);
+    }
+    return notAdded->isEmpty();
+}
+
+bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
+        const qbs::ProductData &productData, const qbs::GroupData &groupData,
+        QStringList *notRemoved)
+{
+    QTC_ASSERT(m_qbsProject.isValid(), return false);
+    QStringList allPaths = groupData.allFilePaths();
+    const QString productFilePath = productData.location().fileName();
+    ChangeExpector expector(productFilePath, m_qbsDocuments);
+    foreach (const QString &path, filePaths) {
+        qbs::ErrorInfo err
+                = m_qbsProject.removeFiles(productData, groupData, QStringList() << path);
+        if (err.hasError()) {
+            Core::MessageManager::write(err.toString());
+            *notRemoved += path;
+        } else {
+            allPaths.removeOne(path);
+        }
+    }
+    if (notRemoved->count() != filePaths.count()) {
+        m_projectData = m_qbsProject.projectData();
+        QbsGroupNode::setupFiles(node, allPaths, QFileInfo(productFilePath).absolutePath(), true);
+    }
+    return notRemoved->isEmpty();
 }
 
 void QbsProject::invalidate()

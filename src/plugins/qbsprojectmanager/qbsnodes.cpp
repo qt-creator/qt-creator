@@ -35,7 +35,6 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -114,46 +113,6 @@ static qbs::GroupData findMainQbsGroup(const qbs::ProductData &productData)
             return grp;
     }
     return qbs::GroupData();
-}
-
-static bool addQbsFiles(QbsBaseProjectNode *node, const QStringList &filePaths, qbs::Project prj,
-                        const qbs::ProductData &productData, const qbs::GroupData &groupData,
-                        const QString &productPath, QStringList *notAdded)
-{
-    QStringList allPaths = groupData.allFilePaths();
-    foreach (const QString &path, filePaths) {
-        qbs::ErrorInfo err = prj.addFiles(productData, groupData, QStringList() << path);
-        if (err.hasError()) {
-            Core::MessageManager::write(err.toString());
-            *notAdded += path;
-        } else {
-            allPaths += path;
-        }
-    }
-
-    if (notAdded->count() != filePaths.count())
-        QbsGroupNode::setupFiles(node, allPaths, productPath, true);
-    return notAdded->isEmpty();
-}
-
-static bool removeQbsFiles(QbsBaseProjectNode *node, const QStringList &filePaths, qbs::Project prj,
-                           const qbs::ProductData &productData, const qbs::GroupData &groupData,
-                           const QString &productPath, QStringList *notRemoved)
-{
-    QStringList allPaths = groupData.allFilePaths();
-    foreach (const QString &path, filePaths) {
-        qbs::ErrorInfo err = prj.removeFiles(productData, groupData, QStringList() << path);
-        if (err.hasError()) {
-            Core::MessageManager::write(err.toString());
-            *notRemoved += path;
-        } else {
-            allPaths.removeOne(path);
-        }
-    }
-
-    if (notRemoved->count() != filePaths.count())
-        QbsGroupNode::setupFiles(node, allPaths, productPath, true);
-    return notRemoved->isEmpty();
 }
 
 class FileTreeNode {
@@ -428,8 +387,8 @@ bool QbsGroupNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
         return false;
     }
 
-    return addQbsFiles(this, filePaths, prjNode->qbsProject(), prdNode->qbsProductData(),
-                       *m_qbsGroupData, m_productPath, notAdded);
+    return prjNode->project()->addFilesToProduct(this, filePaths, prdNode->qbsProductData(),
+                                                 *m_qbsGroupData, notAdded);
 }
 
 bool QbsGroupNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
@@ -450,8 +409,8 @@ bool QbsGroupNode::removeFiles(const QStringList &filePaths, QStringList *notRem
         return false;
     }
 
-    return removeQbsFiles(this, filePaths, prjNode->qbsProject(), prdNode->qbsProductData(),
-                          *m_qbsGroupData, m_productPath, notRemoved);
+    return prjNode->project()->removeFilesFromProduct(this, filePaths, prdNode->qbsProductData(),
+                                                      *m_qbsGroupData, notRemoved);
 }
 
 void QbsGroupNode::updateQbsGroupData(const qbs::GroupData *grp, const QString &productPath,
@@ -632,8 +591,8 @@ bool QbsProductNode::addFiles(const QStringList &filePaths, QStringList *notAdde
 
     qbs::GroupData grp = findMainQbsGroup(m_qbsProductData);
     if (grp.isValid()) {
-        const QString &productPath = QFileInfo(m_qbsProductData.location().fileName()).absolutePath();
-        return addQbsFiles(this, filePaths, prjNode->qbsProject(), m_qbsProductData, grp, productPath, notAdded);
+        return prjNode->project()->addFilesToProduct(this, filePaths, m_qbsProductData, grp,
+                                                     notAdded);
     }
 
     QTC_ASSERT(false, return false);
@@ -653,8 +612,8 @@ bool QbsProductNode::removeFiles(const QStringList &filePaths, QStringList *notR
 
     qbs::GroupData grp = findMainQbsGroup(m_qbsProductData);
     if (grp.isValid()) {
-        const QString &productPath = QFileInfo(m_qbsProductData.location().fileName()).absolutePath();
-        return removeQbsFiles(this, filePaths, prjNode->qbsProject(), m_qbsProductData, grp, productPath, notRemoved);
+        return prjNode->project()->removeFilesFromProduct(this, filePaths, m_qbsProductData, grp,
+                                                          notRemoved);
     }
 
     QTC_ASSERT(false, return false);
