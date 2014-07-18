@@ -7,5 +7,6 @@ QTC_PLUGIN_DEPENDS += \
     resourceeditor\
     cpptools \
     projectexplorer \
+    qtsupport \
     texteditor \
     coreplugin

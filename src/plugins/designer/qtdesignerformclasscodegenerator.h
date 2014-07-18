@@ -40,35 +40,6 @@ QT_END_NAMESPACE
 
 namespace Designer {
 class FormClassWizardParameters;
-namespace Internal {
-
-// How to embed the Ui::Form class.
-enum UiClassEmbedding
-{
-    PointerAggregatedUiClass, // "Ui::Form *m_ui";
-    AggregatedUiClass,        // "Ui::Form m_ui";
-    InheritedUiClass          // "...private Ui::Form..."
-};
-
-// Parameters influencing the code generation to be used in settings page.
-struct FormClassWizardGenerationParameters
-{
-    FormClassWizardGenerationParameters();
-    bool equals(const FormClassWizardGenerationParameters &rhs) const;
-
-    void fromSettings(const QSettings *);
-    void toSettings(QSettings *) const;
-
-    UiClassEmbedding embedding;
-    bool retranslationSupport; // Add handling for language change events
-    bool includeQtModule; // Include "<QtGui/[Class]>" or just "<[Class]>"
-    bool addQtVersionCheck; // Include #ifdef when using "#include <QtGui/..."
-};
-
-inline bool operator==(const FormClassWizardGenerationParameters &p1, const FormClassWizardGenerationParameters &p2) { return p1.equals(p2); }
-inline bool operator!=(const FormClassWizardGenerationParameters &p1, const FormClassWizardGenerationParameters &p2) { return !p1.equals(p2); }
-
-} // namespace Internal
 
 // Publicly registered service to generate the code for a form class
 // (See PluginManager::Invoke) to be accessed by Qt4ProjectManager.

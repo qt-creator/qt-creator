@@ -34,6 +34,7 @@
 #include <utils/codegeneration.h>
 #include <coreplugin/icore.h>
 #include <cpptools/abstracteditorsupport.h>
+#include <qtsupport/codegensettings.h>
 
 #include <QTextStream>
 #include <QSettings>
@@ -43,69 +44,22 @@
 static const char uiMemberC[] = "ui";
 static const char uiNamespaceC[] = "Ui";
 
-static const char formClassWizardPageGroupC[] = "FormClassWizardPage";
-static const char translationKeyC[] = "RetranslationSupport";
-static const char embeddingModeKeyC[] = "Embedding";
-
-// TODO: These 2 are general coding convention settings and
-// should go to CppTools...
-static const char includeQtModuleKeyC[] = "IncludeQtModule";
-static const char addQtVersionCheckKeyC[] = "AddQtVersionCheck";
-
-static const bool retranslationSupportDefault = false;
-
 namespace Designer {
 namespace Internal {
-
-FormClassWizardGenerationParameters::FormClassWizardGenerationParameters() :
-    embedding(PointerAggregatedUiClass),
-    retranslationSupport(retranslationSupportDefault),
-    includeQtModule(false),
-    addQtVersionCheck(false)
-{
-}
-
-void FormClassWizardGenerationParameters::fromSettings(const QSettings *settings)
-{
-    QString group = QLatin1String(formClassWizardPageGroupC) + QLatin1Char('/');
-
-    retranslationSupport = settings->value(group + QLatin1String(translationKeyC), retranslationSupportDefault).toBool();
-    embedding =  static_cast<UiClassEmbedding>(settings->value(group + QLatin1String(embeddingModeKeyC), int(PointerAggregatedUiClass)).toInt());
-    includeQtModule = settings->value(group + QLatin1String(includeQtModuleKeyC), false).toBool();
-    addQtVersionCheck = settings->value(group + QLatin1String(addQtVersionCheckKeyC), false).toBool();
-}
-
-void FormClassWizardGenerationParameters::toSettings(QSettings *settings) const
-{
-    settings->beginGroup(QLatin1String(formClassWizardPageGroupC));
-    settings->setValue(QLatin1String(translationKeyC), retranslationSupport);
-    settings->setValue(QLatin1String(embeddingModeKeyC), embedding);
-    settings->setValue(QLatin1String(includeQtModuleKeyC), includeQtModule);
-    settings->setValue(QLatin1String(addQtVersionCheckKeyC), addQtVersionCheck);
-    settings->endGroup();
-}
-
-bool FormClassWizardGenerationParameters::equals(const FormClassWizardGenerationParameters &rhs) const
-{
-    return embedding == rhs.embedding
-            && retranslationSupport == rhs.retranslationSupport
-            && includeQtModule == rhs.includeQtModule
-            && addQtVersionCheck == rhs.addQtVersionCheck;
-}
 
 // Generation code
 
 // Write out how to access the Ui class in the source code.
-static inline void writeUiMemberAccess(const FormClassWizardGenerationParameters &fp, QTextStream &str)
+static inline void writeUiMemberAccess(const QtSupport::CodeGenSettings &fp, QTextStream &str)
 {
     switch (fp.embedding) {
-    case PointerAggregatedUiClass:
+    case QtSupport::CodeGenSettings::PointerAggregatedUiClass:
         str << uiMemberC << "->";
         break;
-    case AggregatedUiClass:
+    case QtSupport::CodeGenSettings::AggregatedUiClass:
         str << uiMemberC << '.';
         break;
-    case InheritedUiClass:
+    case QtSupport::CodeGenSettings::InheritedUiClass:
         break;
     }
 }
@@ -115,7 +69,7 @@ static inline void writeUiMemberAccess(const FormClassWizardGenerationParameters
 bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParameters &parameters,
                                                    QString *header, QString *source, int indentation)
 {
-    Internal::FormClassWizardGenerationParameters generationParameters;
+    QtSupport::CodeGenSettings generationParameters;
     generationParameters.fromSettings(Core::ICore::settings());
 
     const QString indent = QString(indentation, QLatin1Char(' '));
@@ -158,7 +112,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
               << "\n#define " <<  guard << '\n' << '\n';
 
     // Include 'ui_'
-    if (generationParameters.embedding != Internal::PointerAggregatedUiClass) {
+    if (generationParameters.embedding != QtSupport::CodeGenSettings::PointerAggregatedUiClass) {
         Utils::writeIncludeFileDirective(uiInclude, false, headerStr);
     } else {
         // Todo: Can we obtain the header from the code model for custom widgets?
@@ -184,7 +138,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
                                                                   headerStr);
 
     // Forward-declare the UI class
-    if (generationParameters.embedding == Internal::PointerAggregatedUiClass) {
+    if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass) {
           headerStr << '\n'
                   << namespaceIndent << "namespace " <<  uiNamespaceC << " {\n"
                   << namespaceIndent << indent << "class " << Internal::FormTemplateWizardPage::stripNamespaces(uiClassName) << ";\n"
@@ -194,22 +148,22 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     // Class declaration
     headerStr << '\n' << namespaceIndent << "class " << unqualifiedClassName
               << " : public " << formBaseClass;
-    if (generationParameters.embedding == Internal::InheritedUiClass)
+    if (generationParameters.embedding == QtSupport::CodeGenSettings::InheritedUiClass)
         headerStr << ", private " << uiClassName;
     headerStr << "\n{\n" << namespaceIndent << indent << "Q_OBJECT\n\n"
               << namespaceIndent << "public:\n"
               << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QWidget *parent = 0);\n";
-    if (generationParameters.embedding == Internal::PointerAggregatedUiClass)
+    if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
         headerStr << namespaceIndent << indent << "~" << unqualifiedClassName << "();\n";
     // retranslation
     if (generationParameters.retranslationSupport)
         headerStr << '\n' << namespaceIndent << "protected:\n"
                   << namespaceIndent << indent << "void changeEvent(QEvent *e);\n";
     // Member variable
-    if (generationParameters.embedding != Internal::InheritedUiClass) {
+    if (generationParameters.embedding != QtSupport::CodeGenSettings::InheritedUiClass) {
         headerStr << '\n' << namespaceIndent << "private:\n"
                   << namespaceIndent << indent << uiClassName << ' ';
-        if (generationParameters.embedding == Internal::PointerAggregatedUiClass)
+        if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
             headerStr << '*';
         headerStr << uiMemberC << ";\n";
     }
@@ -221,20 +175,20 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     QTextStream sourceStr(source);
     sourceStr << sourceLicense;
     Utils::writeIncludeFileDirective(parameters.headerFile, false, sourceStr);
-    if (generationParameters.embedding == Internal::PointerAggregatedUiClass)
+    if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
         Utils::writeIncludeFileDirective(uiInclude, false, sourceStr);
     // NameSpaces(
     Utils::writeOpeningNameSpaces(namespaceList, QString(), sourceStr);
     // Constructor with setupUi
     sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName << "(QWidget *parent) :\n"
                << namespaceIndent << indent << formBaseClass << "(parent)";
-    if (generationParameters.embedding == Internal::PointerAggregatedUiClass)
+    if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
         sourceStr << ",\n"  << namespaceIndent << indent <<  uiMemberC << "(new " << uiClassName << ")";
     sourceStr <<  '\n' << namespaceIndent << "{\n" <<  namespaceIndent << indent;
-    writeUiMemberAccess(generationParameters, sourceStr);
+    Internal::writeUiMemberAccess(generationParameters, sourceStr);
     sourceStr <<  "setupUi(this);\n" << namespaceIndent << "}\n";
     // Deleting destructor for ptr
-    if (generationParameters.embedding == Internal::PointerAggregatedUiClass) {
+    if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass) {
         sourceStr << '\n' <<  namespaceIndent << unqualifiedClassName << "::~" << unqualifiedClassName
                   << "()\n" << namespaceIndent << "{\n"
                   << namespaceIndent << indent << "delete " << uiMemberC << ";\n"
@@ -247,7 +201,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
         << namespaceIndent << indent << formBaseClass << "::changeEvent(e);\n"
         << namespaceIndent << indent << "switch (e->type()) {\n" << namespaceIndent << indent << "case QEvent::LanguageChange:\n"
         << namespaceIndent << indent << indent;
-        writeUiMemberAccess(generationParameters, sourceStr);
+        Internal::writeUiMemberAccess(generationParameters, sourceStr);
         sourceStr << "retranslateUi(this);\n"
                   << namespaceIndent << indent <<  indent << "break;\n"
                   << namespaceIndent << indent << "default:\n"

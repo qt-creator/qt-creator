@@ -15,6 +15,7 @@ QtcPlugin {
     Depends { name: "ResourceEditor" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "QtSupport" }
 
     cpp.defines: base.concat(["CPP_ENABLED"])
     cpp.includePaths: base.concat([
@@ -66,8 +67,6 @@ QtcPlugin {
         name: "cpp"
         prefix: "cpp/"
         files: [
-            "cppsettingspage.cpp", "cppsettingspage.h",
-            "cppsettingspagewidget.ui",
             "formclasswizard.cpp", "formclasswizard.h",
             "formclasswizarddialog.cpp", "formclasswizarddialog.h",
             "formclasswizardpage.cpp", "formclasswizardpage.h", "formclasswizardpage.ui",

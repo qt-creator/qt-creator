@@ -27,50 +27,41 @@
 **
 ****************************************************************************/
 
-#ifndef CPPSETTINGSPAGE_H
-#define CPPSETTINGSPAGE_H
+#ifndef CODEGENSETTINGS_H
+#define CODEGENSETTINGS_H
 
-#include "ui_cppsettingspagewidget.h"
-#include <designer/qtdesignerformclasscodegenerator.h>
+#include "qtsupport_global.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+QT_FORWARD_DECLARE_CLASS(QSettings)
 
-#include <QPointer>
+namespace QtSupport {
 
-namespace Designer {
-namespace Internal {
-
-class CppSettingsPageWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit CppSettingsPageWidget(QWidget *parent = 0);
-
-    FormClassWizardGenerationParameters parameters() const;
-    void setParameters(const FormClassWizardGenerationParameters &p);
-
-private:
-    int uiEmbedding() const;
-    void setUiEmbedding(int);
-
-    Ui::CppSettingsPageWidget m_ui;
-};
-
-class CppSettingsPage : public Core::IOptionsPage
+class QTSUPPORT_EXPORT CodeGenSettings
 {
 public:
-    explicit CppSettingsPage(QObject *parent = 0);
+    // How to embed the Ui::Form class.
+    enum UiClassEmbedding
+    {
+        PointerAggregatedUiClass, // "Ui::Form *m_ui";
+        AggregatedUiClass,        // "Ui::Form m_ui";
+        InheritedUiClass          // "...private Ui::Form..."
+    };
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    CodeGenSettings();
+    bool equals(const CodeGenSettings &rhs) const;
 
-private:
-    QPointer<CppSettingsPageWidget> m_widget;
-    FormClassWizardGenerationParameters m_parameters;
+    void fromSettings(const QSettings *settings);
+    void toSettings(QSettings *settings) const;
+
+    UiClassEmbedding embedding;
+    bool retranslationSupport; // Add handling for language change events
+    bool includeQtModule; // Include "<QtGui/[Class]>" or just "<[Class]>"
+    bool addQtVersionCheck; // Include #ifdef when using "#include <QtGui/..."
 };
 
-} // namespace Internal
-} // namespace Designer
+inline bool operator==(const CodeGenSettings &p1, const CodeGenSettings &p2) { return p1.equals(p2); }
+inline bool operator!=(const CodeGenSettings &p1, const CodeGenSettings &p2) { return !p1.equals(p2); }
 
-#endif // CPPSETTINGSPAGE_H
+} // namespace QtSupport
+
+#endif // CODEGENSETTINGS_H

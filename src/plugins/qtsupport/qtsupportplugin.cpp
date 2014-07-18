@@ -29,6 +29,7 @@
 
 #include "qtsupportplugin.h"
 
+#include "codegensettingspage.h"
 #include "customexecutablerunconfiguration.h"
 #include "desktopqtversionfactory.h"
 #include "qtfeatureprovider.h"
@@ -81,6 +82,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     QtFeatureProvider *featureMgr = new QtFeatureProvider;
     addAutoReleasedObject(featureMgr);
 
+    addAutoReleasedObject(new CodeGenSettingsPage);
     addAutoReleasedObject(new QtOptionsPage);
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))

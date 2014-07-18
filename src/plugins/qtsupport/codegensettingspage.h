@@ -27,55 +27,51 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERCONSTANTS_H
-#define DESIGNERCONSTANTS_H
+#ifndef CODEGENSETTINGSPAGE_H
+#define CODEGENSETTINGSPAGE_H
 
-#include <QtGlobal>
+#include "ui_codegensettingspagewidget.h"
 
-namespace Designer {
-namespace Constants {
+#include "codegensettings.h"
 
-const char INFO_READ_ONLY[] = "DesignerXmlEditor.ReadOnly";
-const char K_DESIGNER_XML_EDITOR_ID[] = "FormEditor.DesignerXmlEditor";
-const char C_DESIGNER_XML_EDITOR[] = "Designer Xml Editor";
-const char C_DESIGNER_XML_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("Designer", "Form Editor");
+#include <coreplugin/dialogs/ioptionspage.h>
 
-const char SETTINGS_CATEGORY[] = "P.Designer";
-const char SETTINGS_CATEGORY_ICON[] = ":/core/images/category_design.png";
-const char SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Designer", "Designer");
+#include <QPointer>
 
-// Context
-const char C_FORMEDITOR[] = "FormEditor.FormEditor";
-const char M_FORMEDITOR[] = "FormEditor.Menu";
-const char M_FORMEDITOR_PREVIEW[] = "FormEditor.Menu.Preview";
-
-// Wizard type
-const char FORM_FILE_TYPE[] = "Qt4FormFiles";
-const char FORM_MIMETYPE[] = "application/x-designer";
-
-enum DesignerSubWindows
-{
-    WidgetBoxSubWindow,
-    ObjectInspectorSubWindow,
-    PropertyEditorSubWindow,
-    SignalSlotEditorSubWindow,
-    ActionEditorSubWindow,
-    DesignerSubWindowCount
-};
-
-enum EditModes
-{
-    EditModeWidgetEditor,
-    EditModeSignalsSlotEditor,
-    EditModeBuddyEditor,
-    EditModeTabOrderEditor,
-    NumEditModes
-};
-
+namespace QtSupport {
 namespace Internal {
-    enum { debug = 0 };
-}
-} // Constants
-} // Designer
 
-#endif //DESIGNERCONSTANTS_H
+class CodeGenSettingsPageWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit CodeGenSettingsPageWidget(QWidget *parent = 0);
+
+    CodeGenSettings parameters() const;
+    void setParameters(const CodeGenSettings &p);
+
+private:
+    int uiEmbedding() const;
+    void setUiEmbedding(int);
+
+    Ui::CodeGenSettingsPageWidget m_ui;
+};
+
+class CodeGenSettingsPage : public Core::IOptionsPage
+{
+public:
+    explicit CodeGenSettingsPage(QObject *parent = 0);
+
+    QWidget *widget();
+    void apply();
+    void finish();
+
+private:
+    QPointer<CodeGenSettingsPageWidget> m_widget;
+    CodeGenSettings m_parameters;
+};
+
+} // namespace Internal
+} // namespace QtSupport
+
+#endif // CODEGENSETTINGSPAGE_H

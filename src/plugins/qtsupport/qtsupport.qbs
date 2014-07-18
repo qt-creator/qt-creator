@@ -60,6 +60,11 @@ QtcPlugin {
     files: [
         "baseqtversion.cpp",
         "baseqtversion.h",
+        "codegensettings.cpp",
+        "codegensettings.h",
+        "codegensettingspage.cpp",
+        "codegensettingspage.h",
+        "codegensettingswidget.ui",
         "qtconfigwidget.cpp",
         "qtconfigwidget.h",
         "qtsupport.qrc",

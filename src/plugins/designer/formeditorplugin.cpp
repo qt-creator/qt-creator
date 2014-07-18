@@ -34,7 +34,6 @@
 
 #ifdef CPP_ENABLED
 #  include "cpp/formclasswizard.h"
-#  include "cpp/cppsettingspage.h"
 #endif
 
 #include "settingspage.h"
@@ -49,6 +48,7 @@
 #include <coreplugin/designmode.h>
 #include <cpptools/cpptoolsconstants.h>
 
+#include <QApplication>
 #include <QDebug>
 #include <QLibraryInfo>
 #include <QTranslator>
@@ -146,8 +146,6 @@ void FormEditorPlugin::initializeTemplates()
     wizard->setDescription(tr("Creates a Qt Designer form along with a matching class (C++ header and source file) "
                                        "for implementation purposes. You can add the form and class to an existing Qt Widget Project."));
     addAutoReleasedObject(wizard);
-
-    addAutoReleasedObject(new CppSettingsPage);
 #endif
 }
 

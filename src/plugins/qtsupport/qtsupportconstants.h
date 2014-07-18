@@ -33,9 +33,12 @@
 namespace QtSupport {
 namespace Constants {
 
-// Qt4 settings pages
+// Qt settings pages
 const char QTVERSION_SETTINGS_PAGE_ID[] = "H.Qt Versions";
 const char QTVERSION_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("QtSupport", "Qt Versions");
+
+const char CODEGEN_SETTINGS_PAGE_ID[] = "Class Generation";
+const char CODEGEN_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("QtSupport", "Qt Class Generation");
 
 // QtVersions
 const char DESKTOPQT[]   = "Qt4ProjectManager.QtVersion.Desktop";

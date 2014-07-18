@@ -7,6 +7,8 @@ DEFINES += QMAKE_LIBRARY
 include(../../shared/proparser/proparser.pri)
 
 HEADERS += \
+    codegensettings.h \
+    codegensettingspage.h \
     qtsupportplugin.h \
     qtsupport_global.h \
     qtkitconfigwidget.h \
@@ -36,6 +38,8 @@ HEADERS += \
     winceqtversion.h
 
 SOURCES += \
+    codegensettings.cpp \
+    codegensettingspage.cpp \
     qtsupportplugin.cpp \
     qtkitconfigwidget.cpp \
     qtkitinformation.cpp \
@@ -68,6 +72,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 FORMS   +=  \
+    codegensettingspagewidget.ui \
     showbuildlog.ui \
     qtversioninfo.ui \
     debugginghelper.ui \

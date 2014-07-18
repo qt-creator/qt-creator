@@ -27,19 +27,22 @@
 **
 ****************************************************************************/
 
-#include "cppsettingspage.h"
-#include <designer/designerconstants.h>
+#include "codegensettingspage.h"
+
+#include "qtsupportconstants.h"
+
+#include <cpptools/cpptoolsconstants.h>
 
 #include <QCoreApplication>
 #include <QTextStream>
 #include <coreplugin/icore.h>
 
-namespace Designer {
+namespace QtSupport {
 namespace Internal {
 
-// ---------- CppSettingsPageWidget
+// ---------- CodeGenSettingsPageWidget
 
-CppSettingsPageWidget::CppSettingsPageWidget(QWidget *parent) :
+CodeGenSettingsPageWidget::CodeGenSettingsPageWidget(QWidget *parent) :
         QWidget(parent)
 {
     m_ui.setupUi(this);
@@ -47,17 +50,17 @@ CppSettingsPageWidget::CppSettingsPageWidget(QWidget *parent) :
             m_ui.addQtVersionCheckBox, SLOT(setEnabled(bool)));
 }
 
-FormClassWizardGenerationParameters CppSettingsPageWidget::parameters() const
+CodeGenSettings CodeGenSettingsPageWidget::parameters() const
 {
-    FormClassWizardGenerationParameters rc;
-    rc.embedding = static_cast<UiClassEmbedding>(uiEmbedding());
+    CodeGenSettings rc;
+    rc.embedding = static_cast<CodeGenSettings::UiClassEmbedding>(uiEmbedding());
     rc.retranslationSupport =m_ui.retranslateCheckBox->isChecked();
     rc.includeQtModule = m_ui.includeQtModuleCheckBox->isChecked();
     rc.addQtVersionCheck = m_ui.addQtVersionCheckBox->isChecked();
     return rc;
 }
 
-void CppSettingsPageWidget::setParameters(const FormClassWizardGenerationParameters &p)
+void CodeGenSettingsPageWidget::setParameters(const CodeGenSettings &p)
 {
     m_ui.retranslateCheckBox->setChecked(p.retranslationSupport);
     m_ui.includeQtModuleCheckBox->setChecked(p.includeQtModule);
@@ -65,54 +68,56 @@ void CppSettingsPageWidget::setParameters(const FormClassWizardGenerationParamet
     setUiEmbedding(p.embedding);
 }
 
-int CppSettingsPageWidget::uiEmbedding() const
+int CodeGenSettingsPageWidget::uiEmbedding() const
 {
     if (m_ui.ptrAggregationRadioButton->isChecked())
-        return PointerAggregatedUiClass;
+        return CodeGenSettings::PointerAggregatedUiClass;
     if (m_ui.aggregationButton->isChecked())
-        return AggregatedUiClass;
-    return InheritedUiClass;
+        return CodeGenSettings::AggregatedUiClass;
+    return CodeGenSettings::InheritedUiClass;
 }
 
-void CppSettingsPageWidget::setUiEmbedding(int v)
+void CodeGenSettingsPageWidget::setUiEmbedding(int v)
 {
     switch (v) {
-    case PointerAggregatedUiClass:
+    case CodeGenSettings::PointerAggregatedUiClass:
         m_ui.ptrAggregationRadioButton->setChecked(true);
         break;
-    case AggregatedUiClass:
+    case CodeGenSettings::AggregatedUiClass:
         m_ui.aggregationButton->setChecked(true);
         break;
-    case InheritedUiClass:
+    case CodeGenSettings::InheritedUiClass:
         m_ui.multipleInheritanceButton->setChecked(true);
         break;
     }
 }
 
-// ---------- CppSettingsPage
-CppSettingsPage::CppSettingsPage(QObject *parent) : Core::IOptionsPage(parent)
+// ---------- CodeGenSettingsPage
+CodeGenSettingsPage::CodeGenSettingsPage(QObject *parent) :
+    Core::IOptionsPage(parent),
+    m_widget(0)
 {
     m_parameters.fromSettings(Core::ICore::settings());
-    setId(Designer::Constants::SETTINGS_CPP_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_CPP_SETTINGS_NAME));
-    setCategory(Designer::Constants::SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
+    setId(Constants::CODEGEN_SETTINGS_PAGE_ID);
+    setDisplayName(QCoreApplication::translate("QtSupport", Constants::CODEGEN_SETTINGS_PAGE_NAME));
+    setCategory(CppTools::Constants::CPP_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("CppTools", CppTools::Constants::CPP_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(CppTools::Constants::SETTINGS_CATEGORY_CPP_ICON));
 }
 
-QWidget *CppSettingsPage::widget()
+QWidget *CodeGenSettingsPage::widget()
 {
     if (!m_widget) {
-        m_widget = new CppSettingsPageWidget;
+        m_widget = new CodeGenSettingsPageWidget;
         m_widget->setParameters(m_parameters);
     }
     return m_widget;
 }
 
-void CppSettingsPage::apply()
+void CodeGenSettingsPage::apply()
 {
     if (m_widget) {
-        const FormClassWizardGenerationParameters newParameters = m_widget->parameters();
+        const CodeGenSettings newParameters = m_widget->parameters();
         if (newParameters != m_parameters) {
             m_parameters = newParameters;
             m_parameters.toSettings(Core::ICore::settings());
@@ -120,10 +125,10 @@ void CppSettingsPage::apply()
     }
 }
 
-void CppSettingsPage::finish()
+void CodeGenSettingsPage::finish()
 {
     delete m_widget;
 }
 
 } // namespace Internal
-} // namespace Designer
+} // namespace QtSupport
