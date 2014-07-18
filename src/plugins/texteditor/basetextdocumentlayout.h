@@ -32,7 +32,7 @@
 
 #include "texteditor_global.h"
 
-#include "itexteditor.h"
+#include "basetexteditor.h"
 
 #include <QTextBlockUserData>
 #include <QPlainTextDocumentLayout>
@@ -81,7 +81,7 @@ public:
     inline TextMarks documentClosing() {
         TextMarks marks = m_marks;
         foreach (ITextMark *mrk, m_marks)
-            mrk->setMarkableInterface(0);
+            mrk->setBaseTextDocument(0);
         m_marks.clear();
         return marks;
     }
@@ -205,21 +205,19 @@ public:
     void requestExtraAreaUpdate();
 
     void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
-    ITextMarkable *markableInterface();
 
     int lastSaveRevision;
     bool hasMarks;
     double maxMarkWidthFactor;
 
     int m_requiredWidth;
-    ITextMarkable *m_documentMarker;
 
     void setRequiredWidth(int width);
 
     QSizeF documentSize() const;
 
     TextMarks documentClosing();
-    void documentReloaded(TextMarks marks);
+    void documentReloaded(TextMarks marks, BaseTextDocument *baseextDocument);
     void updateMarksLineNumber();
     void updateMarksBlock(const QTextBlock &block);
 

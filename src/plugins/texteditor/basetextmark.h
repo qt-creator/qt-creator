@@ -36,8 +36,6 @@
 namespace TextEditor {
 namespace Internal { class BaseTextMarkRegistry; }
 
-class ITextMarkable;
-
 class TEXTEDITOR_EXPORT BaseTextMark : public TextEditor::ITextMark
 {
     friend class Internal::BaseTextMarkRegistry;

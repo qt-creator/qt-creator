@@ -34,6 +34,8 @@
 
 #include "itexteditor.h"
 
+#include <QList>
+
 QT_BEGIN_NAMESPACE
 class QTextCursor;
 class QTextDocument;
@@ -44,12 +46,13 @@ namespace TextEditor {
 class BaseTextDocumentPrivate;
 class ExtraEncodingSettings;
 class FontSettings;
-class ITextMarkable;
 class Indenter;
 class StorageSettings;
 class SyntaxHighlighter;
 class TabSettings;
 class TypingSettings;
+
+typedef QList<ITextMark *> TextMarks;
 
 class TEXTEDITOR_EXPORT BaseTextDocument : public ITextEditorDocument
 {
@@ -81,7 +84,13 @@ public:
     QTextCursor indent(const QTextCursor &cursor);
     QTextCursor unindent(const QTextCursor &cursor);
 
-    ITextMarkable *markableInterface() const;
+    TextMarks marks() const;
+    bool addMark(ITextMark *mark);
+    TextMarks marksAt(int line) const;
+    void removeMark(ITextMark *mark);
+    void updateMark(ITextMark *mark);
+    void moveMark(ITextMark *mark, int previousLine);
+    void removeMarkFromMarksCache(TextEditor::ITextMark *mark);
 
     // IDocument implementation.
     bool save(QString *errorString, const QString &fileName, bool autoSave);

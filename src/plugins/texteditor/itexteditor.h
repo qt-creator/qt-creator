@@ -83,8 +83,6 @@ public:
     virtual QString textAt(int pos, int length) const = 0;
     virtual QChar characterAt(int pos) const = 0;
 
-    virtual ITextMarkable *markableInterface() const = 0;
-
     static QMap<QString, QString> openedTextDocumentContents();
     static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
 

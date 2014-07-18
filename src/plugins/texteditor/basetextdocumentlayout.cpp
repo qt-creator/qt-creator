@@ -33,165 +33,6 @@
 
 using namespace TextEditor;
 
-namespace TextEditor {
-namespace Internal {
-
-class DocumentMarker : public ITextMarkable
-{
-    Q_OBJECT
-public:
-    DocumentMarker(QTextDocument *);
-    ~DocumentMarker();
-
-    TextMarks marks() const { return m_marksCache; }
-
-    // ITextMarkable
-    bool addMark(ITextMark *mark);
-    TextMarks marksAt(int line) const;
-    void removeMark(ITextMark *mark);
-    void updateMark(ITextMark *mark);
-    void moveMark(ITextMark *mark, int previousLine);
-
-    void removeMarkFromMarksCache(TextEditor::ITextMark *mark);
-private:
-    TextMarks m_marksCache; // not owned
-    QTextDocument *document;
-};
-
-DocumentMarker::DocumentMarker(QTextDocument *doc)
-  : ITextMarkable(doc), document(doc)
-{
-}
-
-DocumentMarker::~DocumentMarker()
-{
-
-}
-
-bool DocumentMarker::addMark(TextEditor::ITextMark *mark)
-{
-    if (mark->markableInterface())
-        return false;
-    QTC_ASSERT(mark->lineNumber() >= 1, return false);
-    int blockNumber = mark->lineNumber() - 1;
-    BaseTextDocumentLayout *documentLayout =
-        qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
-    QTC_ASSERT(documentLayout, return false);
-    QTextBlock block = document->findBlockByNumber(blockNumber);
-
-    if (block.isValid()) {
-        TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
-        userData->addMark(mark);
-        m_marksCache.append(mark);
-        mark->updateLineNumber(blockNumber + 1);
-        QTC_CHECK(mark->lineNumber() == blockNumber + 1); // Checks that the base class is called
-        mark->updateBlock(block);
-        mark->setMarkableInterface(this);
-        if (!mark->isVisible())
-            return true;
-        // Update document layout
-        double newMaxWidthFactor = qMax(mark->widthFactor(), documentLayout->maxMarkWidthFactor);
-        bool fullUpdate =  newMaxWidthFactor > documentLayout->maxMarkWidthFactor || !documentLayout->hasMarks;
-        documentLayout->hasMarks = true;
-        documentLayout->maxMarkWidthFactor = newMaxWidthFactor;
-        if (fullUpdate)
-            documentLayout->requestUpdate();
-        else
-            documentLayout->requestExtraAreaUpdate();
-        return true;
-    }
-    return false;
-}
-
-TextEditor::TextMarks DocumentMarker::marksAt(int line) const
-{
-    QTC_ASSERT(line >= 1, return TextMarks());
-    int blockNumber = line - 1;
-    QTextBlock block = document->findBlockByNumber(blockNumber);
-
-    if (block.isValid()) {
-        if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block))
-            return userData->marks();
-    }
-    return TextMarks();
-}
-
-void DocumentMarker::removeMarkFromMarksCache(TextEditor::ITextMark *mark)
-{
-    BaseTextDocumentLayout *documentLayout =
-        qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
-    QTC_ASSERT(documentLayout, return);
-    m_marksCache.removeAll(mark);
-
-    if (m_marksCache.isEmpty()) {
-        documentLayout->hasMarks = false;
-        documentLayout->maxMarkWidthFactor = 1.0;
-        documentLayout->requestUpdate();
-        return;
-    }
-
-    if (!mark->isVisible())
-        return;
-
-    if (documentLayout->maxMarkWidthFactor == 1.0
-            || mark->widthFactor() == 1.0
-            || mark->widthFactor() < documentLayout->maxMarkWidthFactor) {
-        // No change in width possible
-        documentLayout->requestExtraAreaUpdate();
-    } else {
-        double maxWidthFactor = 1.0;
-        foreach (const ITextMark *mark, marks()) {
-            if (!mark->isVisible())
-                continue;
-            maxWidthFactor = qMax(mark->widthFactor(), maxWidthFactor);
-            if (maxWidthFactor == documentLayout->maxMarkWidthFactor)
-                break; // Still a mark with the maxMarkWidthFactor
-        }
-
-        if (maxWidthFactor != documentLayout->maxMarkWidthFactor) {
-            documentLayout->maxMarkWidthFactor = maxWidthFactor;
-            documentLayout->requestUpdate();
-        } else {
-            documentLayout->requestExtraAreaUpdate();
-        }
-    }
-}
-
-void DocumentMarker::removeMark(TextEditor::ITextMark *mark)
-{
-    QTextBlock block = document->findBlockByNumber(mark->lineNumber() - 1);
-    if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
-        if (!data->removeMark(mark))
-            qDebug() << "Could not find mark" << mark << "on line" << mark->lineNumber();
-    }
-
-    removeMarkFromMarksCache(mark);
-    mark->setMarkableInterface(0);
-}
-
-void DocumentMarker::updateMark(ITextMark *mark)
-{
-    Q_UNUSED(mark)
-    BaseTextDocumentLayout *documentLayout =
-        qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
-    QTC_ASSERT(documentLayout, return);
-    documentLayout->requestUpdate();
-}
-
-void DocumentMarker::moveMark(ITextMark *mark, int previousLine)
-{
-    QTextBlock block = document->findBlockByNumber(previousLine - 1);
-    if (TextBlockUserData *data = BaseTextDocumentLayout::testUserData(block)) {
-        if (!data->removeMark(mark))
-            qDebug() << "Could not find mark" << mark << "on line" << previousLine;
-    }
-    removeMarkFromMarksCache(mark);
-    mark->setMarkableInterface(0);
-    addMark(mark);
-}
-
-} // namespace Internal
-} // namespace TextEditor
 
 CodeFormatterData::~CodeFormatterData()
 {
@@ -200,10 +41,8 @@ CodeFormatterData::~CodeFormatterData()
 TextBlockUserData::~TextBlockUserData()
 {
     foreach (ITextMark *mrk, m_marks) {
-        TextEditor::Internal::DocumentMarker *documentMarker
-                = static_cast<TextEditor::Internal::DocumentMarker *>(mrk->markableInterface());
-        documentMarker->removeMarkFromMarksCache(mrk);
-        mrk->setMarkableInterface(0);
+        mrk->baseTextDocument()->removeMarkFromMarksCache(mrk);
+        mrk->setBaseTextDocument(0);
         mrk->removedFromEditor();
     }
 
@@ -553,11 +392,8 @@ BaseTextDocumentLayout::BaseTextDocumentLayout(QTextDocument *doc)
       lastSaveRevision(0),
       hasMarks(false),
       maxMarkWidthFactor(1.0),
-      m_requiredWidth(0),
-      m_documentMarker(new Internal::DocumentMarker(doc))
-{
-
-}
+      m_requiredWidth(0)
+{}
 
 BaseTextDocumentLayout::~BaseTextDocumentLayout()
 {
@@ -702,11 +538,6 @@ void BaseTextDocumentLayout::requestExtraAreaUpdate()
     emit updateExtraArea();
 }
 
-ITextMarkable *BaseTextDocumentLayout::markableInterface()
-{
-    return m_documentMarker;
-}
-
 void BaseTextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold)
 {
     if (!canFold(block))
@@ -760,7 +591,7 @@ TextMarks BaseTextDocumentLayout::documentClosing()
     return marks;
 }
 
-void BaseTextDocumentLayout::documentReloaded(TextMarks marks)
+void BaseTextDocumentLayout::documentReloaded(TextMarks marks, BaseTextDocument *baseTextDocument)
 {
     foreach (ITextMark *mark, marks) {
         int blockNumber = mark->lineNumber() - 1;
@@ -768,14 +599,12 @@ void BaseTextDocumentLayout::documentReloaded(TextMarks marks)
         if (block.isValid()) {
             TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
             userData->addMark(mark);
-            mark->setMarkableInterface(m_documentMarker);
+            mark->setBaseTextDocument(baseTextDocument);
             mark->updateBlock(block);
         } else {
-            TextEditor::Internal::DocumentMarker *documentMarker
-                    = static_cast<TextEditor::Internal::DocumentMarker *>(m_documentMarker);
-            documentMarker->removeMarkFromMarksCache(mark);
+            baseTextDocument->removeMarkFromMarksCache(mark);
             mark->removedFromEditor();
-            mark->setMarkableInterface(0);
+            mark->setBaseTextDocument(0);
         }
     }
     requestUpdate();
@@ -868,5 +697,3 @@ void BaseTextDocumentLayout::FoldValidator::finalize()
         m_layout->emitDocumentSizeChanged();
     }
 }
-
-#include "basetextdocumentlayout.moc"

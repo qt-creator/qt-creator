@@ -59,11 +59,10 @@ BaseTextMarkRegistry::BaseTextMarkRegistry(QObject *parent)
 void BaseTextMarkRegistry::add(BaseTextMark *mark)
 {
     m_marks[FileName::fromString(mark->fileName())].insert(mark);
-    ITextEditorDocument *document
-            = qobject_cast<ITextEditorDocument*>(DocumentModel::documentForFilePath(mark->fileName()));
+    auto document = qobject_cast<BaseTextDocument*>(DocumentModel::documentForFilePath(mark->fileName()));
     if (!document)
         return;
-    document->markableInterface()->addMark(mark);
+    document->addMark(mark);
 }
 
 bool BaseTextMarkRegistry::remove(BaseTextMark *mark)
@@ -73,14 +72,14 @@ bool BaseTextMarkRegistry::remove(BaseTextMark *mark)
 
 void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
 {
-    ITextEditorDocument *document = qobject_cast<ITextEditorDocument *>(editor ? editor->document() : 0);
+    auto document = qobject_cast<BaseTextDocument *>(editor ? editor->document() : 0);
     if (!document)
         return;
     if (!m_marks.contains(FileName::fromString(document->filePath())))
         return;
 
     foreach (BaseTextMark *mark, m_marks.value(FileName::fromString(document->filePath())))
-        document->markableInterface()->addMark(mark);
+        document->addMark(mark);
 }
 
 void BaseTextMarkRegistry::documentRenamed(IDocument *document, const
@@ -96,7 +95,7 @@ void BaseTextMarkRegistry::documentRenamed(IDocument *document, const
         return;
 
     QSet<BaseTextMark *> toBeMoved;
-    foreach (ITextMark *mark, baseTextDocument->markableInterface()->marks())
+    foreach (ITextMark *mark, baseTextDocument->marks())
         if (BaseTextMark *baseTextMark = dynamic_cast<BaseTextMark *>(mark))
             toBeMoved.insert(baseTextMark);
 

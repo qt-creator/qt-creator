@@ -92,6 +92,8 @@ public:
 
     bool m_fileIsReadOnly;
     int m_autoSaveRevision;
+
+    TextMarks m_marksCache; // Marks not owned
 };
 
 BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
@@ -373,14 +375,6 @@ SyntaxHighlighter *BaseTextDocument::syntaxHighlighter() const
     return d->m_highlighter;
 }
 
-ITextMarkable *BaseTextDocument::markableInterface() const
-{
-    BaseTextDocumentLayout *documentLayout =
-        qobject_cast<BaseTextDocumentLayout *>(d->m_document->documentLayout());
-    QTC_ASSERT(documentLayout, return 0);
-    return documentLayout->markableInterface();
-}
-
 /*!
  * Saves the document to the file specified by \a fileName. If errors occur,
  * \a errorString contains their cause.
@@ -583,7 +577,7 @@ bool BaseTextDocument::reload(QString *errorString)
     bool success = open(errorString, filePath(), filePath());
 
     if (documentLayout)
-        documentLayout->documentReloaded(marks); // readds text marks
+        documentLayout->documentReloaded(marks, this); // re-adds text marks
     emit reloadFinished(success);
     return success;
 }
@@ -682,6 +676,130 @@ void BaseTextDocument::ensureFinalNewLine(QTextCursor& cursor)
         cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
         cursor.insertText(QLatin1String("\n"));
     }
+}
+
+TextMarks BaseTextDocument::marks() const
+{
+    return d->m_marksCache;
+}
+
+bool BaseTextDocument::addMark(ITextMark *mark)
+{
+    if (mark->baseTextDocument())
+        return false;
+    QTC_ASSERT(mark->lineNumber() >= 1, return false);
+    int blockNumber = mark->lineNumber() - 1;
+    auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
+    QTC_ASSERT(documentLayout, return false);
+    QTextBlock block = d->m_document->findBlockByNumber(blockNumber);
+
+    if (block.isValid()) {
+        TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
+        userData->addMark(mark);
+        d->m_marksCache.append(mark);
+        mark->updateLineNumber(blockNumber + 1);
+        QTC_CHECK(mark->lineNumber() == blockNumber + 1); // Checks that the base class is called
+        mark->updateBlock(block);
+        mark->setBaseTextDocument(this);
+        if (!mark->isVisible())
+            return true;
+        // Update document layout
+        double newMaxWidthFactor = qMax(mark->widthFactor(), documentLayout->maxMarkWidthFactor);
+        bool fullUpdate =  newMaxWidthFactor > documentLayout->maxMarkWidthFactor || !documentLayout->hasMarks;
+        documentLayout->hasMarks = true;
+        documentLayout->maxMarkWidthFactor = newMaxWidthFactor;
+        if (fullUpdate)
+            documentLayout->requestUpdate();
+        else
+            documentLayout->requestExtraAreaUpdate();
+        return true;
+    }
+    return false;
+}
+
+TextMarks BaseTextDocument::marksAt(int line) const
+{
+    QTC_ASSERT(line >= 1, return TextMarks());
+    int blockNumber = line - 1;
+    QTextBlock block = d->m_document->findBlockByNumber(blockNumber);
+
+    if (block.isValid()) {
+        if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block))
+            return userData->marks();
+    }
+    return TextMarks();
+}
+
+void BaseTextDocument::removeMarkFromMarksCache(ITextMark *mark)
+{
+    auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    d->m_marksCache.removeAll(mark);
+
+    if (d->m_marksCache.isEmpty()) {
+        documentLayout->hasMarks = false;
+        documentLayout->maxMarkWidthFactor = 1.0;
+        documentLayout->requestUpdate();
+        return;
+    }
+
+    if (!mark->isVisible())
+        return;
+
+    if (documentLayout->maxMarkWidthFactor == 1.0
+            || mark->widthFactor() == 1.0
+            || mark->widthFactor() < documentLayout->maxMarkWidthFactor) {
+        // No change in width possible
+        documentLayout->requestExtraAreaUpdate();
+    } else {
+        double maxWidthFactor = 1.0;
+        foreach (const ITextMark *mark, marks()) {
+            if (!mark->isVisible())
+                continue;
+            maxWidthFactor = qMax(mark->widthFactor(), maxWidthFactor);
+            if (maxWidthFactor == documentLayout->maxMarkWidthFactor)
+                break; // Still a mark with the maxMarkWidthFactor
+        }
+
+        if (maxWidthFactor != documentLayout->maxMarkWidthFactor) {
+            documentLayout->maxMarkWidthFactor = maxWidthFactor;
+            documentLayout->requestUpdate();
+        } else {
+            documentLayout->requestExtraAreaUpdate();
+        }
+    }
+}
+
+void BaseTextDocument::removeMark(ITextMark *mark)
+{
+    QTextBlock block = d->m_document->findBlockByNumber(mark->lineNumber() - 1);
+    if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
+        if (!data->removeMark(mark))
+            qDebug() << "Could not find mark" << mark << "on line" << mark->lineNumber();
+    }
+
+    removeMarkFromMarksCache(mark);
+    mark->setBaseTextDocument(0);
+}
+
+void BaseTextDocument::updateMark(ITextMark *mark)
+{
+    Q_UNUSED(mark)
+    auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    documentLayout->requestUpdate();
+}
+
+void BaseTextDocument::moveMark(ITextMark *mark, int previousLine)
+{
+    QTextBlock block = d->m_document->findBlockByNumber(previousLine - 1);
+    if (TextBlockUserData *data = BaseTextDocumentLayout::testUserData(block)) {
+        if (!data->removeMark(mark))
+            qDebug() << "Could not find mark" << mark << "on line" << previousLine;
+    }
+    removeMarkFromMarksCache(mark);
+    mark->setBaseTextDocument(0);
+    addMark(mark);
 }
 
 } // namespace TextEditor

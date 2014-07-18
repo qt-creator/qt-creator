@@ -67,8 +67,6 @@ namespace Internal {
     typedef QString (QString::*TransformationMethod)() const;
 }
 
-class ITextMarkable;
-
 class BaseTextEditor;
 class FontSettings;
 class BehaviorSettings;

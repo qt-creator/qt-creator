@@ -192,7 +192,7 @@ void DisassemblerAgent::resetLocation()
         return;
     if (d->resetLocationScheduled) {
         d->resetLocationScheduled = false;
-        d->document->markableInterface()->removeMark(&d->locationMark);
+        d->document->removeMark(&d->locationMark);
     }
 }
 
@@ -331,9 +331,9 @@ void DisassemblerAgent::updateLocationMarker()
     const DisassemblerLines contents = d->contentsAtCurrentLocation();
     int lineNumber = contents.lineForAddress(d->location.address());
     if (d->location.needsMarker()) {
-        d->document->markableInterface()->removeMark(&d->locationMark);
+        d->document->removeMark(&d->locationMark);
         d->locationMark.updateLineNumber(lineNumber);
-        d->document->markableInterface()->addMark(&d->locationMark);
+        d->document->addMark(&d->locationMark);
     }
 
     // Center cursor.
@@ -354,7 +354,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
 
     const DisassemblerLines contents = d->contentsAtCurrentLocation();
     foreach (TextEditor::ITextMark *marker, d->breakpointMarks)
-        d->document->markableInterface()->removeMark(marker);
+        d->document->removeMark(marker);
     qDeleteAll(d->breakpointMarks);
     d->breakpointMarks.clear();
     foreach (BreakpointModelId id, ids) {
@@ -368,7 +368,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
         marker->setIcon(handler->icon(id));
         marker->setPriority(ITextMark::NormalPriority);
         d->breakpointMarks.append(marker);
-        d->document->markableInterface()->addMark(marker);
+        d->document->addMark(marker);
     }
 }
 

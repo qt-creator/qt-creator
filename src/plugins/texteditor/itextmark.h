@@ -33,11 +33,9 @@
 #include "texteditor_global.h"
 
 #include <QObject>
-#include <QList>
 #include <QIcon>
 
 QT_BEGIN_NAMESPACE
-class QIcon;
 class QPainter;
 class QRect;
 class QTextBlock;
@@ -46,13 +44,13 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class ITextEditor;
-class ITextMarkable;
+class BaseTextDocument;
 
 class TEXTEDITOR_EXPORT ITextMark
 {
 public:
     ITextMark(int line)
-        : m_markableInterface(0),
+        : m_baseTextDocument(0),
           m_lineNumber(line),
           m_priority(NormalPriority),
           m_visible(true),
@@ -89,33 +87,17 @@ public:
     double widthFactor() const;
     void setWidthFactor(double factor);
 
-    ITextMarkable *markableInterface() const;
-    void setMarkableInterface(ITextMarkable *markableInterface);
+    BaseTextDocument *baseTextDocument() const;
+    void setBaseTextDocument(BaseTextDocument *baseTextDocument);
+
 private:
     Q_DISABLE_COPY(ITextMark)
-    ITextMarkable *m_markableInterface;
+    BaseTextDocument *m_baseTextDocument;
     int m_lineNumber;
     Priority m_priority;
     bool m_visible;
     QIcon m_icon;
     double m_widthFactor;
-};
-
-typedef QList<ITextMark *> TextMarks;
-
-
-class TEXTEDITOR_EXPORT ITextMarkable : public QObject
-{
-    Q_OBJECT
-public:
-    ITextMarkable(QObject *parent = 0) : QObject(parent) {}
-
-    virtual TextMarks marks() const = 0;
-    virtual bool addMark(ITextMark *mark) = 0;
-    virtual TextMarks marksAt(int line) const = 0;
-    virtual void removeMark(ITextMark *mark) = 0;
-    virtual void updateMark(ITextMark *mark) = 0;
-    virtual void moveMark(ITextMark *mark, int previousLine) = 0;
 };
 
 } // namespace TextEditor

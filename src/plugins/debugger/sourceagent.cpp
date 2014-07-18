@@ -59,7 +59,7 @@ public:
     ~SourceAgentPrivate();
 
 public:
-    QPointer<TextEditor::ITextEditor> editor;
+    QPointer<TextEditor::BaseTextEditor> editor;
     QPointer<DebuggerEngine> engine;
     TextEditor::ITextMark *locationMark;
     QString path;
@@ -109,23 +109,21 @@ void SourceAgent::setContent(const QString &filePath, const QString &content)
     if (!d->editor) {
         QString titlePattern = d->producer + QLatin1String(": ")
             + QFileInfo(filePath).fileName();
-        d->editor = qobject_cast<ITextEditor *>(
+        d->editor = qobject_cast<BaseTextEditor *>(
             EditorManager::openEditorWithContents(
                 CppEditor::Constants::CPPEDITOR_ID,
                 &titlePattern, content.toUtf8()));
         QTC_ASSERT(d->editor, return);
         d->editor->document()->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
 
-        BaseTextEditorWidget *baseTextEdit =
-                qobject_cast<BaseTextEditorWidget *>(d->editor->widget());
+        BaseTextEditorWidget *baseTextEdit = d->editor->editorWidget();
         if (baseTextEdit)
             baseTextEdit->setRequestMarkEnabled(true);
     } else {
         EditorManager::activateEditor(d->editor);
     }
 
-    QPlainTextEdit *plainTextEdit =
-        qobject_cast<QPlainTextEdit *>(d->editor->widget());
+    QPlainTextEdit *plainTextEdit = d->editor->editorWidget();
     QTC_ASSERT(plainTextEdit, return);
     plainTextEdit->setReadOnly(true);
 
@@ -137,7 +135,7 @@ void SourceAgent::updateLocationMarker()
     QTC_ASSERT(d->editor, return);
 
     if (d->locationMark)
-        d->editor->textDocument()->markableInterface()->removeMark(d->locationMark);
+        d->editor->baseTextDocument()->removeMark(d->locationMark);
     delete d->locationMark;
     d->locationMark = 0;
     if (d->engine->stackHandler()->currentFrame().file == d->path) {
@@ -145,8 +143,8 @@ void SourceAgent::updateLocationMarker()
         d->locationMark = new TextEditor::ITextMark(lineNumber);
         d->locationMark->setIcon(debuggerCore()->locationMarkIcon());
         d->locationMark->setPriority(TextEditor::ITextMark::HighPriority);
-        d->editor->textDocument()->markableInterface()->addMark(d->locationMark);
-        QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget());
+        d->editor->baseTextDocument()->addMark(d->locationMark);
+        QPlainTextEdit *plainTextEdit = d->editor->editorWidget();
         QTC_ASSERT(plainTextEdit, return);
         QTextCursor tc = plainTextEdit->textCursor();
         QTextBlock block = tc.document()->findBlockByNumber(lineNumber - 1);

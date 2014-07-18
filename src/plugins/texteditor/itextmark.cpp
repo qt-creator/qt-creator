@@ -28,14 +28,15 @@
 ****************************************************************************/
 
 #include "itextmark.h"
+#include "basetextdocument.h"
 
 using namespace TextEditor;
 
 ITextMark::~ITextMark()
 {
-    if (m_markableInterface)
-        m_markableInterface->removeMark(this);
-    m_markableInterface = 0;
+    if (m_baseTextDocument)
+        m_baseTextDocument->removeMark(this);
+    m_baseTextDocument = 0;
 }
 
 int ITextMark::lineNumber() const
@@ -59,8 +60,8 @@ void ITextMark::move(int line)
         return;
     const int previousLine = m_lineNumber;
     m_lineNumber = line;
-    if (m_markableInterface)
-        m_markableInterface->moveMark(this, previousLine);
+    if (m_baseTextDocument)
+        m_baseTextDocument->moveMark(this, previousLine);
 }
 
 void ITextMark::updateBlock(const QTextBlock &)
@@ -76,8 +77,8 @@ void ITextMark::setIcon(const QIcon &icon)
 
 void ITextMark::updateMarker()
 {
-    if (m_markableInterface)
-        m_markableInterface->updateMark(this);
+    if (m_baseTextDocument)
+        m_baseTextDocument->updateMark(this);
 }
 
 void ITextMark::setPriority(Priority priority)
@@ -98,8 +99,8 @@ bool ITextMark::isVisible() const
 void ITextMark::setVisible(bool visible)
 {
     m_visible = visible;
-    if (m_markableInterface)
-        m_markableInterface->updateMark(this);
+    if (m_baseTextDocument)
+        m_baseTextDocument->updateMark(this);
 }
 
 double ITextMark::widthFactor() const
@@ -130,13 +131,13 @@ void ITextMark::dragToLine(int lineNumber)
     Q_UNUSED(lineNumber);
 }
 
-ITextMarkable *ITextMark::markableInterface() const
+BaseTextDocument *ITextMark::baseTextDocument() const
 {
-    return m_markableInterface;
+    return m_baseTextDocument;
 }
 
-void ITextMark::setMarkableInterface(ITextMarkable *markableInterface)
+void ITextMark::setBaseTextDocument(BaseTextDocument *baseTextDocument)
 {
-    m_markableInterface = markableInterface;
+    m_baseTextDocument = baseTextDocument;
 }
 
