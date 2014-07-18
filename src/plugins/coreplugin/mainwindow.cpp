@@ -65,6 +65,7 @@
 #include <coreplugin/dialogs/settingsdialog.h>
 #include <coreplugin/dialogs/shortcutsettings.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/inavigationwidgetfactory.h>
@@ -335,7 +336,6 @@ void MainWindow::extensionsInitialized()
 {
     m_windowSupport = new WindowSupport(this, Context("Core.MainWindow"));
     m_windowSupport->setCloseActionEnabled(false);
-    m_editorManager->init();
     m_statusBarManager->extensionsInitalized();
     OutputPaneManager::instance()->init();
     m_vcsManager->extensionsInitialized();
@@ -801,7 +801,7 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesF
 
 void MainWindow::setFocusToEditor()
 {
-    m_editorManager->doEscapeKeyFocusMoveMagic();
+    EditorManagerPrivate::doEscapeKeyFocusMoveMagic();
 }
 
 void MainWindow::showNewItemDialog(const QString &title,
@@ -847,7 +847,7 @@ void MainWindow::openFileWith()
 {
     foreach (const QString &fileName, EditorManager::getOpenFileNames()) {
         bool isExternal;
-        const Id editorId = EditorManager::getOpenWithEditorId(fileName, &isExternal);
+        const Id editorId = EditorManagerPrivate::getOpenWithEditorId(fileName, &isExternal);
         if (!editorId.isValid())
             continue;
         if (isExternal)
@@ -970,7 +970,7 @@ void MainWindow::readSettings()
 
     settings->endGroup();
 
-    m_editorManager->readSettings();
+    EditorManagerPrivate::readSettings();
     m_navigationWidget->restoreSettings(settings);
     m_rightPaneWidget->readSettings(settings);
 }
@@ -991,7 +991,7 @@ void MainWindow::writeSettings()
 
     DocumentManager::saveSettings();
     m_actionManager->saveSettings(settings);
-    m_editorManager->saveSettings();
+    EditorManagerPrivate::saveSettings();
     m_navigationWidget->saveSettings(settings);
 }
 

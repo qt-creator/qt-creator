@@ -33,7 +33,7 @@
 #include "infobar.h"
 #include "patchtool.h"
 #include "vcsmanager.h"
-#include "editormanager/editormanager.h"
+#include "editormanager/editormanager_p.h"
 
 #include <utils/checkablemessagebox.h>
 #include <utils/consoleprocess.h>
@@ -113,7 +113,7 @@ QWidget *GeneralSettings::widget()
         fillLanguageBox();
 
         m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
-        m_page->reloadBehavior->setCurrentIndex(EditorManager::reloadSetting());
+        m_page->reloadBehavior->setCurrentIndex(EditorManagerPrivate::reloadSetting());
         if (HostOsInfo::isAnyUnixHost()) {
             const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
             const QString currentTerminal = ConsoleProcess::terminalEmulator(ICore::settings(), false);
@@ -141,8 +141,8 @@ QWidget *GeneralSettings::widget()
         m_page->patchChooser->setExpectedKind(PathChooser::ExistingCommand);
         m_page->patchChooser->setHistoryCompleter(QLatin1String("General.PatchCommand.History"));
         m_page->patchChooser->setPath(PatchTool::patchCommand());
-        m_page->autoSaveCheckBox->setChecked(EditorManager::autoSaveEnabled());
-        m_page->autoSaveInterval->setValue(EditorManager::autoSaveInterval());
+        m_page->autoSaveCheckBox->setChecked(EditorManagerPrivate::autoSaveEnabled());
+        m_page->autoSaveInterval->setValue(EditorManagerPrivate::autoSaveInterval());
         m_page->resetWarningsButton->setEnabled(InfoBar::anyGloballySuppressed()
                                                 || CheckableMessageBox::hasSuppressedQuestions(ICore::settings()));
 
@@ -175,7 +175,7 @@ void GeneralSettings::apply()
     setLanguage(m_page->languageBox->itemData(currentIndex, Qt::UserRole).toString());
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
-    EditorManager::setReloadSetting(IDocument::ReloadSetting(m_page->reloadBehavior->currentIndex()));
+    EditorManagerPrivate::setReloadSetting(IDocument::ReloadSetting(m_page->reloadBehavior->currentIndex()));
     if (HostOsInfo::isAnyUnixHost()) {
         ConsoleProcess::setTerminalEmulator(ICore::settings(),
                                             m_page->terminalComboBox->lineEdit()->text());
@@ -185,8 +185,8 @@ void GeneralSettings::apply()
         }
     }
     PatchTool::setPatchCommand(m_page->patchChooser->path());
-    EditorManager::setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
-    EditorManager::setAutoSaveInterval(m_page->autoSaveInterval->value());
+    EditorManagerPrivate::setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
+    EditorManagerPrivate::setAutoSaveInterval(m_page->autoSaveInterval->value());
 }
 
 void GeneralSettings::finish()

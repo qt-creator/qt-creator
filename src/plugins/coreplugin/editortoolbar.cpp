@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
@@ -339,7 +340,7 @@ void EditorToolBar::listContextMenu(QPoint pos)
 void EditorToolBar::makeEditorWritable()
 {
     if (IDocument *current = EditorManager::currentDocument())
-        EditorManager::makeFileWritable(current);
+        Internal::EditorManagerPrivate::makeFileWritable(current);
 }
 
 void EditorToolBar::setCanGoBack(bool canGoBack)

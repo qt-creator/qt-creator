@@ -66,6 +66,7 @@ enum MakeWritableResult {
 
 namespace Internal {
 class EditorClosingCoreListener;
+class EditorManagerPrivate;
 class EditorView;
 class MainWindow;
 class OpenEditorsViewFactory;
@@ -115,29 +116,22 @@ public:
     static IEditor *openEditorWithContents(Id editorId, QString *titlePattern = 0,
                                            const QByteArray &contents = QByteArray(),
                                            OpenEditorFlags flags = NoFlags);
-    static IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
-        Id id = Id(), OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
 
     static bool openExternalEditor(const QString &fileName, Id editorId);
 
     static QStringList getOpenFileNames();
-    static Id getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = 0);
 
     static IDocument *currentDocument();
     static IEditor *currentEditor();
-    static Internal::EditorView *currentEditorView();
     static QList<IEditor *> visibleEditors();
 
     static void activateEditor(IEditor *editor, OpenEditorFlags flags = 0);
     static void activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags = 0);
     static IEditor *activateEditorForDocument(IDocument *document, OpenEditorFlags flags = 0);
-    static IEditor *activateEditorForDocument(Internal::EditorView *view, IDocument *document, OpenEditorFlags flags = 0);
 
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
     static void closeEditor(DocumentModel::Entry *entry);
     static void closeOtherEditors(IDocument *document);
-
-    static Internal::EditorView *viewForEditor(IEditor *editor);
 
     static void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
     static void cutForwardNavigationHistory();
@@ -147,35 +141,19 @@ public:
     static bool closeEditors(const QList<IEditor *> &editorsToClose, bool askAboutModifiedEditors = true);
     static void closeEditor(IEditor *editor, bool askAboutModifiedEditors = true);
 
-    static MakeWritableResult makeFileWritable(IDocument *document);
-
     static QByteArray saveState();
     static bool restoreState(const QByteArray &state);
     static bool hasSplitter();
-
-    static void saveSettings();
-    static void readSettings();
-
-    static Internal::OpenEditorsWindow *windowPopup();
-    static void showPopupOrSelectDocument();
 
     static void showEditorStatusBar(const QString &id,
                            const QString &infoText,
                            const QString &buttonText = QString(),
                            QObject *object = 0, const char *member = 0);
-
     static void hideEditorStatusBar(const QString &id);
 
     static EditorFactoryList editorFactories(const MimeType &mimeType, bool bestMatchOnly = true);
     static ExternalEditorList externalEditors(const MimeType &mimeType, bool bestMatchOnly = true);
 
-    static void setReloadSetting(IDocument::ReloadSetting behavior);
-    static IDocument::ReloadSetting reloadSetting();
-
-    static void setAutoSaveEnabled(bool enabled);
-    static bool autoSaveEnabled();
-    static void setAutoSaveInterval(int interval);
-    static int autoSaveInterval();
     static bool isAutoSaveFile(const QString &fileName);
 
     static QTextCodec *defaultTextCodec();
@@ -201,92 +179,22 @@ signals:
     void findOnFileSystemRequest(const QString &path);
 
 public slots:
-    static bool closeAllEditors(bool askAboutModifiedEditors = true);
-    static void closeAllEditorsExceptVisible();
-
-    static bool saveDocument(Core::IDocument *documentParam = 0);
-    static bool saveDocumentAs(Core::IDocument *documentParam = 0);
+    static void saveDocument();
+    static void saveDocumentAs();
     static void revertToSaved();
-    static void revertToSaved(IDocument *document);
+    static bool closeAllEditors(bool askAboutModifiedEditors = true);
     static void closeEditor();
     static void closeOtherEditors();
-    static void doEscapeKeyFocusMoveMagic();
-
-private slots:
-    static void gotoNextDocHistory();
-    static void gotoPreviousDocHistory();
-    static void handleContextChange(const QList<Core::IContext *> &context);
-    static void updateActions();
-    static void makeCurrentEditorWritable();
-    static void vcsOpenCurrentEditor();
-    static void updateWindowTitle();
-    void handleDocumentStateChange();
-    static void autoSave();
-
-    static void saveDocumentFromContextMenu();
-    static void saveDocumentAsFromContextMenu();
-    static void revertToSavedFromContextMenu();
-
-    static void closeEditorFromContextMenu();
-    static void closeOtherEditorsFromContextMenu();
-
-    static void showInGraphicalShell();
-    static void openTerminal();
-    static void findInDirectory();
-
-    static void rootDestroyed(QObject *root);
-    static void setCurrentEditorFromContextChange();
-
-    static void gotoNextSplit();
-
-public slots:
+    static void splitSideBySide();
+    static void gotoOtherSplit();
     static void goBackInNavigationHistory();
     static void goForwardInNavigationHistory();
-    static void split(Qt::Orientation orientation);
-    static void split();
-    static void splitSideBySide();
-    static void splitNewWindow();
-    static void removeCurrentSplit();
-    static void removeAllSplits();
-    static void gotoOtherSplit();
 
 private:
     explicit EditorManager(QObject *parent);
     ~EditorManager();
-    static void init();
-
-    static IEditor *createEditor(Id id = Id(), const QString &fileName = QString());
-    static void addEditor(IEditor *editor);
-    static void removeEditor(IEditor *editor);
-
-    static void restoreEditorState(IEditor *editor);
-
-    static IEditor *placeEditor(Internal::EditorView *view, IEditor *editor);
-    static IEditor *duplicateEditor(IEditor *editor);
-    static IEditor *activateEditor(Internal::EditorView *view, IEditor *editor, OpenEditorFlags flags = NoFlags);
-    static void activateEditorForEntry(Internal::EditorView *view, DocumentModel::Entry *entry,
-                                       OpenEditorFlags flags = NoFlags);
-    static void activateView(Internal::EditorView *view);
-    static int visibleDocumentsCount();
-
-    static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
-    static void setCurrentView(Internal::EditorView *view);
-    static Internal::SplitterOrView *findRoot(const Internal::EditorView *view, int *rootIndex = 0);
-
-    static void closeView(Internal::EditorView *view);
-    static void emptyView(Internal::EditorView *view);
-    static void splitNewWindow(Internal::EditorView *view);
-    static IEditor *pickUnusedEditor(Internal::EditorView **foundView = 0);
-    static void addDocumentToRecentFiles(IDocument *document);
-    static void updateAutoSave();
-    static void setCloseSplitEnabled(Internal::SplitterOrView *splitterOrView, bool enable);
-    static void updateMakeWritableWarning();
-    static void setupSaveActions(IDocument *document, QAction *saveAction, QAction *saveAsAction, QAction *revertToSavedAction);
 
     friend class Core::Internal::MainWindow;
-    friend class Core::Internal::SplitterOrView;
-    friend class Core::Internal::EditorView;
-    friend class Core::EditorToolBar;
 };
 
 } // namespace Core

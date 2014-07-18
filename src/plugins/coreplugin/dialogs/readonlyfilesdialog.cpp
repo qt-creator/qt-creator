@@ -30,7 +30,7 @@
 #include "readonlyfilesdialog.h"
 #include "ui_readonlyfilesdialog.h"
 
-#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -275,7 +275,7 @@ int ReadOnlyFilesDialog::exec()
             }
             break;
         case RO_SaveAs:
-            if (!EditorManager::saveDocumentAs(d->document)) {
+            if (!EditorManagerPrivate::saveDocumentAs(d->document)) {
                 failedToMakeWritable << buttongroup.fileName;
                 continue;
             }

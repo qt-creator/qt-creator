@@ -28,8 +28,10 @@
 ****************************************************************************/
 
 #include "openeditorswindow.h"
+
 #include "documentmodel.h"
 #include "editormanager.h"
+#include "editormanager_p.h"
 #include "editorview.h"
 #include <coreplugin/idocument.h>
 
@@ -196,7 +198,7 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
         return;
     if (IDocument *document = item->data(0, Qt::UserRole).value<IDocument*>()) {
         EditorView *view = item->data(0, Qt::UserRole+1).value<EditorView*>();
-        EditorManager::activateEditorForDocument(view, document);
+        EditorManagerPrivate::activateEditorForDocument(view, document);
     } else {
         if (!EditorManager::openEditor(
                     item->toolTip(0), item->data(0, Qt::UserRole+2).value<Core::Id>())) {

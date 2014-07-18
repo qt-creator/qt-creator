@@ -37,6 +37,7 @@
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/dialogs/saveitemsdialog.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/editormanager/editorview.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -617,7 +618,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
             }
         }
         foreach (IDocument *document, documentsToSave) {
-            if (!EditorManager::saveDocument(document)) {
+            if (!EditorManagerPrivate::saveDocument(document)) {
                 if (cancelled)
                     *cancelled = true;
                 notSaved.append(document);
@@ -913,7 +914,7 @@ void DocumentManager::checkForReload()
 
     d->m_blockActivated = true;
 
-    IDocument::ReloadSetting defaultBehavior = EditorManager::reloadSetting();
+    IDocument::ReloadSetting defaultBehavior = EditorManagerPrivate::reloadSetting();
     Utils::ReloadPromptAnswer previousReloadAnswer = Utils::ReloadCurrent;
     Utils::FileDeletedPromptAnswer previousDeletedAnswer = Utils::FileDeletedSave;
 
@@ -1421,7 +1422,7 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
         QList<IEditor *> editorsOpenForFile
                 = DocumentModel::editorsForFilePath(entry.fileName);
         foreach (IEditor *openEditor, editorsOpenForFile) {
-            Internal::EditorView *view = EditorManager::viewForEditor(openEditor);
+            Internal::EditorView *view = EditorManagerPrivate::viewForEditor(openEditor);
             if (view && view->currentEditor() == openEditor) // visible
                 views.append(view);
         }
@@ -1431,15 +1432,15 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
         if (views.isEmpty()) {
             EditorManager::openEditor(entry.fileName, entry.editorFactory->id());
         } else {
-            if (Internal::EditorView *currentView = EditorManager::currentEditorView()) {
+            if (Internal::EditorView *currentView = EditorManagerPrivate::currentEditorView()) {
                 if (views.removeOne(currentView))
                     views.prepend(currentView); // open editor in current view first
             }
             EditorManager::OpenEditorFlags flags;
             foreach (Internal::EditorView *view, views) {
                 IEditor *editor =
-                        EditorManager::openEditor(view, entry.fileName, entry.editorFactory->id(),
-                                                  flags);
+                        EditorManagerPrivate::openEditor(view, entry.fileName,
+                                                         entry.editorFactory->id(), flags);
                 // Do not change the current editor after opening the first one. That
                 // * prevents multiple updates of focus etc which are not necessary
                 // * lets us control which editor is made current by putting the current editor view
