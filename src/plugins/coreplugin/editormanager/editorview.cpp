@@ -61,7 +61,7 @@ using namespace Core::Internal;
 EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     QWidget(parent),
     m_parentSplitterOrView(parentSplitterOrView),
-    m_toolBar(EditorManager::createToolBar(this)),
+    m_toolBar(new EditorToolBar(this)),
     m_container(new QStackedWidget(this)),
     m_infoBarDisplay(new InfoBarDisplay(this)),
     m_statusHLine(new QFrame(this)),

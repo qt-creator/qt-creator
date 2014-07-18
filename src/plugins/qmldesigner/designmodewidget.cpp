@@ -173,7 +173,7 @@ void DocumentWarningWidget::goToError()
 DesignModeWidget::DesignModeWidget(QWidget *parent) :
     QWidget(parent),
     m_mainSplitter(0),
-    m_toolBar(Core::EditorManager::createToolBar(this)),
+    m_toolBar(new Core::EditorToolBar(this)),
     m_crumbleBar(new CrumbleBar(this)),
     m_isDisabled(false),
     m_showSidebars(true),

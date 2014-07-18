@@ -95,8 +95,6 @@ public:
 
     static EditorManager *instance();
 
-    static EditorToolBar *createToolBar(QWidget *parent = 0);
-
     enum OpenEditorFlag {
         NoFlags = 0,
         DoNotChangeCurrentEditor = 1,

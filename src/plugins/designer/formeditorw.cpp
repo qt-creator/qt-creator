@@ -292,7 +292,7 @@ void FormEditorW::fullInit()
     settings->endGroup();
 
     m_editorToolBar = createEditorToolBar();
-    m_toolBar = EditorManager::createToolBar();
+    m_toolBar = new EditorToolBar;
     m_toolBar->setToolbarCreationFlags(EditorToolBar::FlagsStandalone);
     m_toolBar->setNavigationVisible(false);
     m_toolBar->addCenterToolBar(m_editorToolBar);

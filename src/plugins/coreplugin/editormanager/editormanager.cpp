@@ -507,11 +507,6 @@ void EditorManager::updateAutoSave()
         d->m_autoSaveTimer->stop();
 }
 
-EditorToolBar *EditorManager::createToolBar(QWidget *parent)
-{
-    return new EditorToolBar(parent);
-}
-
 void EditorManager::removeEditor(IEditor *editor)
 {
     bool lastOneForDocument = false;
