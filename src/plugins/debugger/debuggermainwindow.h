@@ -86,7 +86,6 @@ public:
     void addStagedMenuEntries();
 
     QWidget *createContents(Core::IMode *mode);
-    QMenu *createPopupMenu();
 
     void readSettings();
     void writeSettings() const;

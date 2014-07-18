@@ -161,7 +161,8 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     if (!qgetenv("DEBUG_QML_PUPPET").isEmpty())
         QMessageBox::information(Core::ICore::dialogParent(),
                                  QStringLiteral("Puppet is starting ..."),
-                                 QStringLiteral("You can now attach your debugger to the puppet."));
+                                 QStringLiteral("You can now attach your debugger to the %1 puppet with process id: %2.").arg(
+                                     puppetMode, QString::number(puppetProcess->processId())));
 
     return puppetProcess;
 }

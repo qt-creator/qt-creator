@@ -365,7 +365,7 @@ void QbsBuildStep::parseProject()
 {
     m_parsingProject = true;
     connect(qbsProject(), SIGNAL(projectParsingDone(bool)), SLOT(reparsingDone(bool)));
-    qbsProject()->parseCurrentBuildConfiguration(true);
+    qbsProject()->parseCurrentBuildConfiguration();
 }
 
 void QbsBuildStep::build()

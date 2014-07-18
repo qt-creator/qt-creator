@@ -70,7 +70,7 @@ GitSettings::GitSettings()
     declareKey(lastResetIndexKey, 0);
 }
 
-Utils::FileName GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
+Utils::FileName GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
 {
     // Locate binary in path if one is specified, otherwise default
     // to pathless binary

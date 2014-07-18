@@ -100,6 +100,7 @@ QtcPlugin {
             "variablemanager.cpp", "variablemanager.h",
             "vcsmanager.cpp", "vcsmanager.h",
             "versiondialog.cpp", "versiondialog.h",
+            "windowsupport.cpp", "windowsupport.h"
         ]
     }
 

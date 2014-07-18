@@ -58,7 +58,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     , m_command(NoCommand)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    m_gitBinaryPath = GitPlugin::instance()->gitClient()->gitBinaryPath();
+    m_gitExecutable = GitPlugin::instance()->gitClient()->gitExecutable();
     m_ui->setupUi(this);
     m_ui->workingDirectoryEdit->setText(workingDirectory);
     m_gitEnvironment = GitPlugin::instance()->gitClient()->processEnvironment();
@@ -257,7 +257,7 @@ void ChangeSelectionDialog::recalculateDetails()
 
     connect(m_process, SIGNAL(finished(int)), this, SLOT(setDetails(int)));
 
-    m_process->start(m_gitBinaryPath.toString(), args);
+    m_process->start(m_gitExecutable.toString(), args);
     m_process->closeWriteChannel();
     if (!m_process->waitForStarted())
         m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));

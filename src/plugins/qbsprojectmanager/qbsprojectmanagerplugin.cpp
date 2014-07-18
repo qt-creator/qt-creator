@@ -522,7 +522,7 @@ void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
     if (BuildManager::isBuilding(project))
         project->scheduleParsing();
     else
-        project->parseCurrentBuildConfiguration(true);
+        project->parseCurrentBuildConfiguration();
 }
 
 } // namespace Internal

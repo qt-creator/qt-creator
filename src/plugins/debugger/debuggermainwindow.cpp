@@ -128,7 +128,6 @@ public:
     DebuggerLanguages m_engineDebugLanguages;
 
     ActionContainer *m_viewsMenu;
-    QList<Command *> m_menuCommandsToAdd;
 
     Project *m_previousProject;
     Target *m_previousTarget;
@@ -319,10 +318,6 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
         "Debugger.Views.Separator", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = Core::ActionManager::registerAction(q->resetLayoutAction(),
-        "Debugger.Views.ResetSimple", debugcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 }
 
 void DebuggerMainWindowPrivate::addLanguage(DebuggerLanguage languageId,
@@ -410,7 +405,6 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
     Command *cmd = Core::ActionManager::registerAction(toggleViewAction,
              Core::Id("Debugger.").withSuffix(widget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
-    d->m_menuCommandsToAdd.append(cmd);
 
     dockWidget->installEventFilter(&d->m_resizeEventFilter);
 
@@ -426,12 +420,7 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
 
 void DebuggerMainWindow::addStagedMenuEntries()
 {
-    Utils::sort(d->m_menuCommandsToAdd, [](Command *cmd1, Command *cmd2) {
-        return cmd1->action()->text() < cmd2->action()->text();
-    });
-    foreach (Command *cmd, d->m_menuCommandsToAdd)
-        d->m_viewsMenu->addAction(cmd);
-    d->m_menuCommandsToAdd.clear();
+    addDockActionsToMenu(d->m_viewsMenu->menu());
 }
 
 QWidget *DebuggerMainWindow::createContents(IMode *mode)
@@ -543,9 +532,9 @@ void DebuggerMainWindow::writeSettings() const
 
 void DebuggerMainWindow::showViewsMenu()
 {
-    QMenu *menu = createPopupMenu();
-    menu->exec(d->m_viewButton->mapToGlobal(QPoint()));
-    delete menu;
+    QMenu menu;
+    addDockActionsToMenu(&menu);
+    menu.exec(d->m_viewButton->mapToGlobal(QPoint()));
 }
 
 void DebuggerMainWindow::readSettings()
@@ -611,11 +600,6 @@ bool DebuggerMainWindowPrivate::isQmlCppActive() const
 bool DebuggerMainWindowPrivate::isQmlActive() const
 {
     return (m_activeDebugLanguages & QmlLanguage);
-}
-
-QMenu *DebuggerMainWindow::createPopupMenu()
-{
-    return FancyMainWindow::createPopupMenu();
 }
 
 void DebuggerMainWindowPrivate::setSimpleDockWidgetArrangement()

@@ -52,14 +52,14 @@ public:
 
     // Context takes ownership of valueOwner
     static ContextPtr create(const Snapshot &snapshot, ValueOwner *valueOwner,
-                             const ImportsPerDocument &imports, const ViewerContext &vContext);
+                             const ImportsPerDocument &imports, const ViewerContext &viewerContext);
     ~Context();
 
     ContextPtr ptr() const;
 
     ValueOwner *valueOwner() const;
     Snapshot snapshot() const;
-    ViewerContext vContext() const;
+    ViewerContext viewerContext() const;
 
     const Imports *imports(const Document *doc) const;
 
@@ -73,7 +73,7 @@ public:
 private:
     // Context takes ownership of valueOwner
     Context(const Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports,
-            const ViewerContext &vContext);
+            const ViewerContext &viewerContext);
 
     Snapshot _snapshot;
     QSharedPointer<ValueOwner> _valueOwner;

@@ -834,7 +834,6 @@ public slots:
         m_returnView->header()->resizeSection(section, newSize);
     }
 
-
     void sourceFilesDockToggled(bool on)
     {
         if (on && m_currentEngine->state() == InferiorStopOk)
@@ -2762,6 +2761,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
 {
     const QKeySequence debugKey = QKeySequence(UseMacShortcuts ? tr("Ctrl+Y") : tr("F5"));
 
+    QSettings *settings = Core::ICore::settings();
+
     m_debuggerSettings = new DebuggerSettings;
     m_debuggerSettings->readSettings();
 
@@ -2794,39 +2795,48 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_breakHandler = new BreakHandler;
     m_breakView = new BreakTreeView;
+    m_breakView->setSettings(settings, "Debugger.BreakWindow");
     m_breakView->setModel(m_breakHandler->model());
     m_breakWindow = addSearch(m_breakView, tr("Breakpoints"), DOCKWIDGET_BREAK);
 
     m_modulesView = new ModulesTreeView;
+    m_modulesView->setSettings(settings, "Debugger.ModulesView");
     m_modulesWindow = addSearch(m_modulesView, tr("Modules"), DOCKWIDGET_MODULES);
 
     m_registerView = new RegisterTreeView;
+    m_registerView->setSettings(settings, "Debugger.RegisterView");
     m_registerWindow = addSearch(m_registerView, tr("Registers"), DOCKWIDGET_REGISTER);
 
     m_stackView = new StackTreeView;
+    m_stackView->setSettings(settings, "Debugger.StackView");
     m_stackWindow = addSearch(m_stackView, tr("Stack"), DOCKWIDGET_STACK);
 
     m_sourceFilesView = new SourceFilesTreeView;
+    m_sourceFilesView->setSettings(settings, "Debugger.SourceFilesView");
     m_sourceFilesWindow = addSearch(m_sourceFilesView, tr("Source Files"), DOCKWIDGET_SOURCE_FILES);
 
     m_threadsView = new ThreadsTreeView;
+    m_threadsView->setSettings(settings, "Debugger.ThreadsView");
     m_threadsWindow = addSearch(m_threadsView, tr("Threads"), DOCKWIDGET_THREADS);
 
-    m_returnView = new WatchTreeView(ReturnType);
+    m_returnView = new WatchTreeView(ReturnType); // No settings.
     m_returnWindow = addSearch(m_returnView, tr("Locals and Expressions"), "CppDebugReturn");
 
     m_localsView = new WatchTreeView(LocalsType);
+    m_localsView->setSettings(settings, "Debugger.LocalsView");
     m_localsWindow = addSearch(m_localsView, tr("Locals and Expressions"), "CppDebugLocals");
 
-    m_watchersView = new WatchTreeView(WatchersType);
+    m_watchersView = new WatchTreeView(WatchersType); // No settings.
     m_watchersWindow = addSearch(m_watchersView, tr("Locals and Expressions"), "CppDebugWatchers");
 
     m_inspectorView = new WatchTreeView(InspectType);
+    m_inspectorView->setSettings(settings, "Debugger.LocalsView"); // sic! same as locals view.
     m_inspectorWindow = addSearch(m_inspectorView, tr("Locals and Expressions"), "Inspector");
 
     // Snapshot
     m_snapshotHandler = new SnapshotHandler;
     m_snapshotView = new SnapshotTreeView(m_snapshotHandler);
+    m_snapshotView->setSettings(settings, "Debugger.SnapshotView");
     m_snapshotView->setModel(m_snapshotHandler->model());
     m_snapshotWindow = addSearch(m_snapshotView, tr("Snapshots"), DOCKWIDGET_SNAPSHOTS);
 
@@ -3197,13 +3207,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     debugMenu->addSeparator(globalcontext);
 
-    QAction *qmlUpdateOnSaveDummyAction = new QAction(tr("Apply Changes on Save"), this);
-    qmlUpdateOnSaveDummyAction->setCheckable(true);
-    qmlUpdateOnSaveDummyAction->setIcon(QIcon(_(":/debugger/images/qml/apply-on-save.png")));
-    qmlUpdateOnSaveDummyAction->setEnabled(false);
-    cmd = ActionManager::registerAction(qmlUpdateOnSaveDummyAction, Constants::QML_UPDATE_ON_SAVE,
-                                        globalcontext);
-    debugMenu->addAction(cmd);
+    // currently broken
+//    QAction *qmlUpdateOnSaveDummyAction = new QAction(tr("Apply Changes on Save"), this);
+//    qmlUpdateOnSaveDummyAction->setCheckable(true);
+//    qmlUpdateOnSaveDummyAction->setIcon(QIcon(_(":/debugger/images/qml/apply-on-save.png")));
+//    qmlUpdateOnSaveDummyAction->setEnabled(false);
+//    cmd = ActionManager::registerAction(qmlUpdateOnSaveDummyAction, Constants::QML_UPDATE_ON_SAVE,
+//                                        globalcontext);
+//    debugMenu->addAction(cmd);
 
     QAction *qmlShowAppOnTopDummyAction = new QAction(tr("Show Application on Top"), this);
     qmlShowAppOnTopDummyAction->setCheckable(true);
@@ -3358,7 +3369,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox = new QHBoxLayout(qmlToolbar);
     hbox->setMargin(0);
     hbox->setSpacing(0);
-    hbox->addWidget(toolButton(Constants::QML_UPDATE_ON_SAVE));
+    // currently broken
+    //hbox->addWidget(toolButton(Constants::QML_UPDATE_ON_SAVE));
     hbox->addWidget(toolButton(Constants::QML_SHOW_APP_ON_TOP));
     hbox->addWidget(new StyledSeparator);
     hbox->addWidget(toolButton(Constants::QML_SELECTTOOL));

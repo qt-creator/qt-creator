@@ -140,7 +140,7 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableBui
 int CMakeBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
     return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
-            .matchesType(QLatin1String(Constants::CMAKEMIMETYPE))) ? 0 : -1;
+            .matchesType(QLatin1String(Constants::CMAKEPROJECTMIMETYPE))) ? 0 : -1;
 }
 
 QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit *k,

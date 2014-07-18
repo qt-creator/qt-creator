@@ -34,7 +34,13 @@
 
 #include "itemviews.h"
 
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
+
 namespace Utils {
+
+namespace Internal { class BaseTreeViewPrivate; }
 
 class QTCREATOR_UTILS_EXPORT BaseTreeView : public TreeView
 {
@@ -42,7 +48,9 @@ class QTCREATOR_UTILS_EXPORT BaseTreeView : public TreeView
 
 public:
     BaseTreeView(QWidget *parent = 0);
+    ~BaseTreeView();
 
+    void setSettings(QSettings *settings, const QByteArray &key);
     QModelIndexList activeRows() const;
 
     void setModel(QAbstractItemModel *model);
@@ -51,16 +59,10 @@ public:
     void mousePressEvent(QMouseEvent *ev);
 
 public slots:
-    void resizeColumns();
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
-private slots:
-    void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
-    void rowClickedHelper(const QModelIndex &index) { rowClicked(index); }
-    void toggleColumnWidth(int logicalIndex);
-
 private:
-    int suggestedColumnSize(int column) const;
+    Internal::BaseTreeViewPrivate *d;
 };
 
 } // namespace Utils

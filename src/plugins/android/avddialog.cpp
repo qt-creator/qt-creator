@@ -102,12 +102,12 @@ void AvdDialog::updateApiLevelComboBox()
         m_avdDialog.warningIcon->setVisible(true);
         m_avdDialog.warningText->setVisible(true);
         m_avdDialog.warningText->setText(tr("Cannot create a new AVD. No sufficiently recent Android SDK available.\n"
-                                            "Please install an SDK of at least API version %1.")
+                                            "Install an SDK of at least API version %1.")
                                          .arg(m_minApiLevel));
     } else if (filteredList.isEmpty()) {
         m_avdDialog.warningIcon->setVisible(true);
         m_avdDialog.warningText->setVisible(true);
-        m_avdDialog.warningText->setText(tr("Cannot create a AVD for ABI %1. Please install a image for it.")
+        m_avdDialog.warningText->setText(tr("Cannot create a AVD for ABI %1. Install an image for it.")
                                          .arg(abi()));
     } else {
         m_avdDialog.warningIcon->setVisible(false);

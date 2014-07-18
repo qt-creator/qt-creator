@@ -148,7 +148,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     m_ui.advancedButton->setDefaultAction(Core::ActionManager::command(Constants::ADVANCED_FIND)->action());
 
-    m_goToCurrentFindAction = new QAction(tr("Go to Current Document Find"), this);
+    m_goToCurrentFindAction = new QAction(this);
     Core::ActionManager::registerAction(m_goToCurrentFindAction, Constants::S_RETURNTOEDITOR,
                                         Context(Constants::C_FINDTOOLBAR));
     connect(m_goToCurrentFindAction, SIGNAL(triggered()), this, SLOT(setFocusToCurrentFindSupport()));

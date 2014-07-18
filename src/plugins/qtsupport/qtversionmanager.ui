@@ -91,7 +91,7 @@
      <item>
       <widget class="QPushButton" name="cleanUpButton">
        <property name="text">
-        <string>Clean up</string>
+        <string>Clean Up</string>
        </property>
       </widget>
      </item>

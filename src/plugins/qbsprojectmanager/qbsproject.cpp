@@ -100,7 +100,6 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     m_rootProjectNode(0),
     m_qbsProjectParser(0),
     m_qbsUpdateFutureInterface(0),
-    m_forceParsing(false),
     m_parsingScheduled(false),
     m_cancelStatus(CancelStatusNone),
     m_currentBc(0)
@@ -283,7 +282,7 @@ void QbsProject::handleQbsParsingDone(bool success)
     if (cancelStatus == CancelStatusCancelingForReparse) {
         m_qbsProjectParser->deleteLater();
         m_qbsProjectParser = 0;
-        parseCurrentBuildConfiguration(m_forceParsing);
+        parseCurrentBuildConfiguration();
         return;
     }
 
@@ -291,8 +290,12 @@ void QbsProject::handleQbsParsingDone(bool success)
 
     if (success) {
         m_qbsProject = m_qbsProjectParser->qbsProject();
+        const qbs::ProjectData &projectData = m_qbsProject.projectData();
         QTC_CHECK(m_qbsProject.isValid());
-        readQbsData();
+        if (projectData != m_projectData) {
+            m_projectData = projectData;
+            readQbsData();
+        }
     } else {
         m_qbsUpdateFutureInterface->reportCanceled();
     }
@@ -312,8 +315,8 @@ void QbsProject::handleQbsParsingDone(bool success)
 void QbsProject::targetWasAdded(Target *t)
 {
     connect(t, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(delayForcedParsing()));
-    connect(t, SIGNAL(buildDirectoryChanged()), this, SLOT(delayForcedParsing()));
+            this, SLOT(delayParsing()));
+    connect(t, SIGNAL(buildDirectoryChanged()), this, SLOT(delayParsing()));
 }
 
 void QbsProject::changeActiveTarget(Target *t)
@@ -347,18 +350,12 @@ void QbsProject::startParsing()
         return;
     }
 
-    parseCurrentBuildConfiguration(false);
+    parseCurrentBuildConfiguration();
 }
 
 void QbsProject::delayParsing()
 {
     m_parsingDelay.start();
-}
-
-void QbsProject::delayForcedParsing()
-{
-    m_forceParsing = true;
-    delayParsing();
 }
 
 // Qbs may change its data
@@ -379,11 +376,9 @@ void QbsProject::readQbsData()
     emit fileListChanged();
 }
 
-void QbsProject::parseCurrentBuildConfiguration(bool force)
+void QbsProject::parseCurrentBuildConfiguration()
 {
     m_parsingScheduled = false;
-    if (!m_forceParsing)
-        m_forceParsing = force;
     if (m_cancelStatus == CancelStatusCancelingForReparse)
         return;
 
@@ -436,12 +431,8 @@ void QbsProject::registerQbsProjectParser(QbsProjectParser *p)
 
     m_qbsProjectParser = p;
 
-    if (p) {
-        p->setForced(m_forceParsing);
+    if (p)
         connect(m_qbsProjectParser, SIGNAL(done(bool)), this, SLOT(handleQbsParsingDone(bool)));
-    }
-
-    m_forceParsing = false;
 }
 
 bool QbsProject::fromMap(const QVariantMap &map)
@@ -478,8 +469,8 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
 
     registerQbsProjectParser(new QbsProjectParser(this, m_qbsUpdateFutureInterface));
 
-    if (m_qbsProjectParser->parse(config, env, dir))
-        emit projectParsingStarted();
+    m_qbsProjectParser->parse(config, env, dir);
+    emit projectParsingStarted();
 }
 
 void QbsProject::prepareForParsing()

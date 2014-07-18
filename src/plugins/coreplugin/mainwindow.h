@@ -76,6 +76,7 @@ class ToolSettings;
 class MimeTypeSettings;
 class StatusBarManager;
 class VersionDialog;
+class WindowSupport;
 class SystemEditor;
 
 class MainWindow : public Utils::AppMainWindow
@@ -107,8 +108,6 @@ public:
 
     void setOverrideColor(const QColor &color);
 
-    void updateFullScreenAction();
-
     bool isNewItemDialogRunning() const;
 
 signals:
@@ -119,7 +118,6 @@ public slots:
     void newFile();
     void openFileWith();
     void exit();
-    void toggleFullScreen();
 
     void showNewItemDialog(const QString &title,
                            const QList<IWizardFactory *> &factories,
@@ -167,6 +165,7 @@ private:
     Context m_additionalContexts;
     SettingsDatabase *m_settingsDatabase;
     mutable QPrinter *m_printer;
+    WindowSupport *m_windowSupport;
     ActionManager *m_actionManager;
     EditorManager *m_editorManager;
     ExternalToolManager *m_externalToolManager;
@@ -205,9 +204,6 @@ private:
     QAction *m_optionsAction;
     QAction *m_toggleSideBarAction;
     QAction *m_toggleModeSelectorAction;
-    QAction *m_toggleFullScreenAction;
-    QAction *m_minimizeAction;
-    QAction *m_zoomAction;
 
     QToolButton *m_toggleSideBarButton;
     QColor m_overrideColor;

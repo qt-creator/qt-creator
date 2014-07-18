@@ -51,6 +51,7 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
     setId(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
     setDisplayName(tr(CMakeProjectManager::Constants::CMAKE_EDITOR_DISPLAY_NAME));
     addMimeType(CMakeProjectManager::Constants::CMAKEMIMETYPE);
+    addMimeType(CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE);
 
     new TextEditorActionHandler(this, Constants::C_CMAKEEDITOR,
             TextEditorActionHandler::UnCommentSelection

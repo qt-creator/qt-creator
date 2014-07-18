@@ -81,7 +81,7 @@ Core::Id GitVersionControl::id() const
 bool GitVersionControl::isConfigured() const
 {
     bool ok = false;
-    m_client->gitBinaryPath(&ok);
+    m_client->gitExecutable(&ok);
     return ok;
 }
 

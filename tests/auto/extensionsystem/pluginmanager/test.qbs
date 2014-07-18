@@ -1,6 +1,5 @@
 import qbs
 import QtcAutotest
-import "../copytransformer.qbs" as CopyTransformer
 
 QtcAutotest {
     name: "PluginManager autotest"
@@ -15,16 +14,13 @@ QtcAutotest {
     Group {
         id: pluginGroup
         name: "plugins"
+        fileTags: "copyable_resource"
+        copyable_resource.targetDirectory: product.destinationDirectory + "/plugins"
         files: [
             "plugins/otherplugin.xml",
             "plugins/plugin1.xml",
             "plugins/myplug/myplug.xml"
         ]
-    }
-
-    CopyTransformer {
-        sourceFiles: pluginGroup.files
-        targetDirectory: product.destinationDirectory + "/plugins"
     }
 
     files: "tst_pluginmanager.cpp"

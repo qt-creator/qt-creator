@@ -5,6 +5,7 @@ import QtcProduct
 QtcProduct {
     type: "application"
     Depends { name: "Qt.test" }
+    Depends { name: "copyable_resource" }
     targetName: "tst_" + name.split(' ').join("")
 
     // This needs to be absolute, because it is passed to one of the source files.

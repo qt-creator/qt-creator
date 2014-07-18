@@ -135,7 +135,7 @@ ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QSt
 
 QString CMakeManager::mimeType() const
 {
-    return QLatin1String(Constants::CMAKEMIMETYPE);
+    return QLatin1String(Constants::CMAKEPROJECTMIMETYPE);
 }
 
 QString CMakeManager::cmakeExecutable() const

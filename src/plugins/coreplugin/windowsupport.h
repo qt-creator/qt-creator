@@ -27,47 +27,47 @@
 **
 ****************************************************************************/
 
-#ifndef GITSETTINGS_H
-#define GITSETTINGS_H
+#ifndef WINDOWSUPPORT_H
+#define WINDOWSUPPORT_H
 
-#include <vcsbase/vcsbaseclientsettings.h>
+#include "icontext.h"
 
-namespace Git {
+#include <QObject>
+
+QT_BEGIN_NAMESPACE
+class QAction;
+class QWidget;
+QT_END_NAMESPACE
+
+namespace Core {
 namespace Internal {
 
-enum CommitType
+class WindowSupport : public QObject
 {
-    SimpleCommit,
-    AmendCommit,
-    FixupCommit
-};
-
-// Todo: Add user name and password?
-class GitSettings : public VcsBase::VcsBaseClientSettings
-{
+    Q_OBJECT
 public:
-    GitSettings();
+    WindowSupport(QWidget *window, const Context &context);
+    ~WindowSupport();
 
-    static const QLatin1String pullRebaseKey;
-    static const QLatin1String showTagsKey;
-    static const QLatin1String omitAnnotationDateKey;
-    static const QLatin1String ignoreSpaceChangesInDiffKey;
-    static const QLatin1String ignoreSpaceChangesInBlameKey;
-    static const QLatin1String diffPatienceKey;
-    static const QLatin1String winSetHomeEnvironmentKey;
-    static const QLatin1String showPrettyFormatKey;
-    static const QLatin1String gitkOptionsKey;
-    static const QLatin1String logDiffKey;
-    static const QLatin1String repositoryBrowserCmd;
-    static const QLatin1String graphLogKey;
-    static const QLatin1String lastResetIndexKey;
+    void setCloseActionEnabled(bool enabled);
 
-    Utils::FileName gitExecutable(bool *ok = 0, QString *errorMessage = 0) const;
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 
-    GitSettings &operator = (const GitSettings &s);
+private slots:
+    void toggleFullScreen();
+    void updateFullScreenAction();
+
+private:
+    QWidget *m_window;
+    IContext *m_contextObject;
+    QAction *m_minimizeAction;
+    QAction *m_zoomAction;
+    QAction *m_closeAction;
+    QAction *m_toggleFullScreenAction;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Internal
+} // Core
 
-#endif // GITSETTINGS_H
+#endif // WINDOWSUPPORT_H

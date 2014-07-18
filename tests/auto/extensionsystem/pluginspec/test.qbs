@@ -1,7 +1,5 @@
 import qbs
-
 import QtcAutotest
-import "../copytransformer.qbs" as CopyTransformer
 
 QtcAutotest {
     name: "ExtensionSystem pluginspec autotest"
@@ -13,6 +11,8 @@ QtcAutotest {
     Group {
         id: testSpecsGroup
         name: "test specs"
+        fileTags: "copyable_resource"
+        copyable_resource.targetDirectory: product.destinationDirectory + "/testspecs"
         files: [
             "testspecs/simplespec.xml",
             "testspecs/simplespec_experimental.xml",
@@ -28,6 +28,8 @@ QtcAutotest {
     Group {
         id: testDependenciesGroup
         name: "test dependencies"
+        fileTags: "copyable_resource"
+        copyable_resource.targetDirectory: product.destinationDirectory + "/testdependencies"
         files: [
             "testdependencies/spec1.xml",
             "testdependencies/spec2.xml",
@@ -39,21 +41,8 @@ QtcAutotest {
     Group {
         id: specGroup
         name: "spec"
+        fileTags: "copyable_resource"
+        copyable_resource.targetDirectory: product.destinationDirectory + "/testdir"
         files: ["testdir/spec.xml"]
-    }
-
-    CopyTransformer {
-        sourceFiles: testSpecsGroup.files
-        targetDirectory: product.destinationDirectory + "/testspecs"
-    }
-
-    CopyTransformer {
-        sourceFiles: testDependenciesGroup.files
-        targetDirectory: product.destinationDirectory + "/testdependencies"
-    }
-
-    CopyTransformer {
-        sourceFiles: specGroup.files
-        targetDirectory: product.destinationDirectory + "/testdir"
     }
 }

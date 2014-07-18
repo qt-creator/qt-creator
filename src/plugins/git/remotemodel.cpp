@@ -144,7 +144,7 @@ QVariant RemoteModel::headerData(int section, Qt::Orientation orientation, int r
     if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
         return QVariant();
 
-    return (section == 0) ? tr("Name") : tr("Url");
+    return (section == 0) ? tr("Name") : tr("URL");
 }
 
 bool RemoteModel::setData(const QModelIndex &index, const QVariant &value, int role)

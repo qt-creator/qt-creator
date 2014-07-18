@@ -115,7 +115,7 @@ void SettingsPage::apply()
     if (m_widget->isVisible()) {
         bool gitFoundOk;
         QString errorMessage;
-        newSettings.gitBinaryPath(&gitFoundOk, &errorMessage);
+        newSettings.gitExecutable(&gitFoundOk, &errorMessage);
         if (!gitFoundOk)
             QMessageBox::warning(m_widget, tr("Git Settings"), errorMessage);
     }

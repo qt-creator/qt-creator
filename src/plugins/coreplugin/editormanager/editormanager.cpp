@@ -687,9 +687,18 @@ void EditorManager::splitNewWindow(Internal::EditorView *view)
     else
         newEditor = editor; // move to the new view
     splitter = new SplitterOrView;
-    splitter->setAttribute(Qt::WA_DeleteOnClose);
-    splitter->setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
-    splitter->resize(QSize(800, 600));
+    QWidget *win = new QWidget;
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    win->setLayout(layout);
+    layout->addWidget(splitter);
+    win->setFocusProxy(splitter);
+    win->setAttribute(Qt::WA_DeleteOnClose);
+    win->setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
+    win->resize(QSize(800, 600));
+    static int windowId = 0;
+    ICore::registerWindow(win, Context(Id("EditorManager.ExternalWindow.").withSuffix(++windowId)));
     IContext *context = new IContext;
     context->setContext(Context(Constants::C_EDITORMANAGER));
     context->setWidget(splitter);
@@ -697,8 +706,8 @@ void EditorManager::splitNewWindow(Internal::EditorView *view)
     d->m_root.append(splitter);
     d->m_rootContext.append(context);
     connect(splitter, SIGNAL(destroyed(QObject*)), m_instance, SLOT(rootDestroyed(QObject*)));
-    splitter->show();
-    ICore::raiseWindow(splitter);
+    win->show();
+    ICore::raiseWindow(win);
     if (newEditor)
         m_instance->activateEditor(splitter->view(), newEditor, IgnoreNavigationHistory);
     else

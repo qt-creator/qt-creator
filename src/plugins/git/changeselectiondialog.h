@@ -89,7 +89,7 @@ private:
     Ui::ChangeSelectionDialog *m_ui;
 
     QProcess *m_process;
-    Utils::FileName m_gitBinaryPath;
+    Utils::FileName m_gitExecutable;
     QProcessEnvironment m_gitEnvironment;
     ChangeCommand m_command;
     QStringListModel *m_changeModel;

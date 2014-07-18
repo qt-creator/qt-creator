@@ -48,12 +48,12 @@
     <widget class="QComboBox" name="deviceTypeComboBox">
      <item>
       <property name="text">
-       <string>iPhone 3.5-inch Retina display</string>
+       <string>iPhone 3.5-inch Retina Display</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>iPhone 4-inch Retina display</string>
+       <string>iPhone 4-inch Retina Display</string>
       </property>
      </item>
      <item>
@@ -63,7 +63,7 @@
      </item>
      <item>
       <property name="text">
-       <string>iPad Retina display</string>
+       <string>iPad Retina Display</string>
       </property>
      </item>
     </widget>
@@ -71,7 +71,7 @@
    <item row="2" column="0">
     <widget class="QLabel" name="deviceTypeLabel">
      <property name="text">
-      <string>Device Type:</string>
+      <string>Device type:</string>
      </property>
     </widget>
    </item>

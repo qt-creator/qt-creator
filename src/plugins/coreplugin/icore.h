@@ -109,6 +109,9 @@ public:
     static void addContextObject(IContext *context);
     static void removeContextObject(IContext *context);
 
+    // manages the minimize, zoom and fullscreen actions for the window
+    static void registerWindow(QWidget *window, const Context &context);
+
     enum OpenFilesFlags {
         None = 0,
         SwitchMode = 1,
