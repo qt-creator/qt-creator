@@ -189,7 +189,6 @@ MainWindow::MainWindow() :
     m_statusBarManager = new StatusBarManager(this);
     m_messageManager = new MessageManager;
     m_editorManager = new EditorManager(this);
-    m_editorManager->hide();
     m_externalToolManager = new ExternalToolManager();
     setCentralWidget(m_modeStack);
 

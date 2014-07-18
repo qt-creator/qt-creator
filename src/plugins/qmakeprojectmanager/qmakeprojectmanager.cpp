@@ -39,6 +39,7 @@
 #include "addlibrarywizard.h"
 #include "wizards/qtquickapp.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
@@ -146,7 +147,7 @@ void QmakeManager::addLibraryContextMenu()
 
 void QmakeManager::addLibrary(const QString &fileName, ProFileEditor *editor)
 {
-    AddLibraryWizard wizard(fileName, Core::EditorManager::instance());
+    AddLibraryWizard wizard(fileName, Core::ICore::dialogParent());
     if (wizard.exec() != QDialog::Accepted)
         return;
 

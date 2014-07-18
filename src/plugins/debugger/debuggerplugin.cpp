@@ -3292,7 +3292,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     modeContextObject->setContext(Core::Context(CC::C_EDITORMANAGER));
     modeContextObject->setWidget(widget);
     Core::ICore::addContextObject(modeContextObject);
-    widget->setFocusProxy(EditorManager::instance());
     debugMode->setWidget(widget);
 
     m_plugin->addAutoReleasedObject(debugMode);

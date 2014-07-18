@@ -443,7 +443,8 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
 
     QWidget *editorAndFindWidget = new QWidget;
     editorAndFindWidget->setLayout(editorHolderLayout);
-    editorHolderLayout->addWidget(new EditorManagerPlaceHolder(mode));
+    auto editorManagerPlaceHolder = new EditorManagerPlaceHolder(mode);
+    editorHolderLayout->addWidget(editorManagerPlaceHolder);
     editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
 
     MiniSplitter *documentAndRightPane = new MiniSplitter;
@@ -502,6 +503,7 @@ QWidget *DebuggerMainWindow::createContents(IMode *mode)
 
     // Navigation and right-side window.
     MiniSplitter *splitter = new MiniSplitter;
+    splitter->setFocusProxy(editorManagerPlaceHolder);
     splitter->addWidget(new NavigationWidgetPlaceHolder(mode));
     splitter->addWidget(mainWindowSplitter);
     splitter->setStretchFactor(0, 0);

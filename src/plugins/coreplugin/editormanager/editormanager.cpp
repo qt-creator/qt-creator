@@ -28,6 +28,8 @@
 ****************************************************************************/
 
 #include "editormanager.h"
+#include "editormanager_p.h"
+
 #include "editorview.h"
 #include "openeditorswindow.h"
 #include "openeditorsview.h"
@@ -119,6 +121,7 @@ EditorManagerPlaceHolder::EditorManagerPlaceHolder(Core::IMode *mode, QWidget *p
 {
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
+    setFocusProxy(EditorManagerPrivate::rootWidget());
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(currentModeChanged(Core::IMode*)));
 
@@ -128,7 +131,7 @@ EditorManagerPlaceHolder::EditorManagerPlaceHolder(Core::IMode *mode, QWidget *p
 EditorManagerPlaceHolder::~EditorManagerPlaceHolder()
 {
     // EditorManager will be deleted in ~MainWindow()
-    EditorManager *em = EditorManager::instance();
+    QWidget *em = EditorManagerPrivate::rootWidget();
     if (em && em->parent() == this) {
         em->hide();
         em->setParent(0);
@@ -139,10 +142,11 @@ void EditorManagerPlaceHolder::currentModeChanged(Core::IMode *mode)
 {
     if (m_mode == mode) {
         QWidget *previousFocus = 0;
-        if (EditorManager::instance()->focusWidget() && EditorManager::instance()->focusWidget()->hasFocus())
-            previousFocus = EditorManager::instance()->focusWidget();
-        layout()->addWidget(EditorManager::instance());
-        EditorManager::instance()->show();
+        QWidget *em = EditorManagerPrivate::rootWidget();
+        if (em->focusWidget() && em->focusWidget()->hasFocus())
+            previousFocus = em->focusWidget();
+        layout()->addWidget(em);
+        em->show();
         if (previousFocus)
             previousFocus->setFocus();
     }
@@ -150,71 +154,10 @@ void EditorManagerPlaceHolder::currentModeChanged(Core::IMode *mode)
 
 // ---------------- EditorManager
 
-namespace Core {
+static EditorManager *m_instance = 0;
+static EditorManagerPrivate *d;
 
-
-class EditorManagerPrivate
-{
-public:
-    explicit EditorManagerPrivate(QWidget *parent);
-    ~EditorManagerPrivate();
-    QList<EditLocation> m_globalHistory;
-    QList<Internal::SplitterOrView *> m_root;
-    QList<IContext *> m_rootContext;
-    QPointer<IEditor> m_currentEditor;
-    QPointer<IEditor> m_scheduledCurrentEditor;
-    QPointer<EditorView> m_currentView;
-    QTimer *m_autoSaveTimer;
-
-    // actions
-    QAction *m_revertToSavedAction;
-    QAction *m_saveAction;
-    QAction *m_saveAsAction;
-    QAction *m_closeCurrentEditorAction;
-    QAction *m_closeAllEditorsAction;
-    QAction *m_closeOtherEditorsAction;
-    QAction *m_closeAllEditorsExceptVisibleAction;
-    QAction *m_gotoNextDocHistoryAction;
-    QAction *m_gotoPreviousDocHistoryAction;
-    QAction *m_goBackAction;
-    QAction *m_goForwardAction;
-    QAction *m_splitAction;
-    QAction *m_splitSideBySideAction;
-    QAction *m_splitNewWindowAction;
-    QAction *m_removeCurrentSplitAction;
-    QAction *m_removeAllSplitsAction;
-    QAction *m_gotoNextSplitAction;
-
-    QAction *m_saveCurrentEditorContextAction;
-    QAction *m_saveAsCurrentEditorContextAction;
-    QAction *m_revertToSavedCurrentEditorContextAction;
-
-    QAction *m_closeCurrentEditorContextAction;
-    QAction *m_closeAllEditorsContextAction;
-    QAction *m_closeOtherEditorsContextAction;
-    QAction *m_closeAllEditorsExceptVisibleContextAction;
-    QAction *m_openGraphicalShellAction;
-    QAction *m_openTerminalAction;
-    QAction *m_findInDirectoryAction;
-    DocumentModel::Entry *m_contextMenuEntry;
-
-    Internal::OpenEditorsWindow *m_windowPopup;
-    Internal::EditorClosingCoreListener *m_coreListener;
-
-    QMap<QString, QVariant> m_editorStates;
-    Internal::OpenEditorsViewFactory *m_openEditorsFactory;
-
-    IDocument::ReloadSetting m_reloadSetting;
-
-    QString m_titleAddition;
-    QString m_titleVcsTopic;
-
-    bool m_autoSaveEnabled;
-    int m_autoSaveInterval;
-};
-}
-
-EditorManagerPrivate::EditorManagerPrivate(QWidget *parent) :
+EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_autoSaveTimer(0),
     m_revertToSavedAction(new QAction(EditorManager::tr("Revert to Saved"), parent)),
     m_saveAction(new QAction(parent)),
@@ -252,13 +195,15 @@ EditorManagerPrivate::~EditorManagerPrivate()
     DocumentModel::destroy();
 }
 
-static EditorManager *m_instance = 0;
-static EditorManagerPrivate *d;
+QWidget *EditorManagerPrivate::rootWidget()
+{
+    return d->m_root.at(0);
+}
 
 EditorManager *EditorManager::instance() { return m_instance; }
 
-EditorManager::EditorManager(QWidget *parent) :
-    QWidget(parent)
+EditorManager::EditorManager(QObject *parent) :
+    QObject(parent)
 {
     d = new EditorManagerPrivate(parent);
     m_instance = this;
@@ -425,18 +370,16 @@ EditorManager::EditorManager(QWidget *parent) :
 
     // other setup
     SplitterOrView *firstRoot = new SplitterOrView();
+    firstRoot->hide();
+    connect(firstRoot, SIGNAL(destroyed(QObject*)), m_instance, SLOT(rootDestroyed(QObject*)));
     d->m_root.append(firstRoot);
     d->m_rootContext.append(0);
     d->m_currentView = firstRoot->view();
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    layout->addWidget(firstRoot);
-
     updateActions();
 
-    d->m_windowPopup = new OpenEditorsWindow(this);
+    d->m_windowPopup = new OpenEditorsWindow;
+    d->m_windowPopup->hide();
 
     d->m_autoSaveTimer = new QTimer(this);
     connect(d->m_autoSaveTimer, SIGNAL(timeout()), SLOT(autoSave()));
@@ -456,16 +399,19 @@ EditorManager::~EditorManager()
     }
 
     // close all extra windows
-    for (int i = 1; i < d->m_root.size(); ++i) {
+    for (int i = 0; i < d->m_root.size(); ++i) {
         SplitterOrView *root = d->m_root.at(i);
         disconnect(root, SIGNAL(destroyed(QObject*)), this, SLOT(rootDestroyed(QObject*)));
         IContext *rootContext = d->m_rootContext.at(i);
-        ICore::removeContextObject(rootContext);
+        if (rootContext) {
+            ICore::removeContextObject(rootContext);
+            delete rootContext;
+        }
         delete root;
-        delete rootContext;
     }
     d->m_root.clear();
     d->m_rootContext.clear();
+    delete d->m_windowPopup;
 
     delete d;
 }
@@ -2051,10 +1997,10 @@ void EditorManager::updateActions()
 
     if (curDocument) {
         if (HostOsInfo::isMacHost())
-            m_instance->window()->setWindowModified(curDocument->isModified());
+            d->rootWidget()->window()->setWindowModified(curDocument->isModified());
         updateMakeWritableWarning();
     } else /* curEditor */ if (HostOsInfo::isMacHost()) {
-        m_instance->window()->setWindowModified(false);
+        d->rootWidget()->window()->setWindowModified(false);
     }
 
     foreach (SplitterOrView *root, d->m_root)

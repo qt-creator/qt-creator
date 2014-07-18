@@ -118,6 +118,7 @@ HEADERS += mainwindow.h \
     vcsmanager.h \
     statusbarmanager.h \
     editormanager/editormanager.h \
+    editormanager/editormanager_p.h \
     editormanager/editorview.h \
     editormanager/documentmodel.h \
     editormanager/openeditorsview.h \

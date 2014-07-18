@@ -85,7 +85,7 @@ private:
     Core::IMode *m_mode;
 };
 
-class CORE_EXPORT EditorManager : public QWidget
+class CORE_EXPORT EditorManager : public QObject
 {
     Q_OBJECT
 
@@ -251,7 +251,7 @@ public slots:
     static void gotoOtherSplit();
 
 private:
-    explicit EditorManager(QWidget *parent);
+    explicit EditorManager(QObject *parent);
     ~EditorManager();
     static void init();
 
