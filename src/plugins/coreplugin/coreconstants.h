@@ -103,6 +103,7 @@ const char TOGGLE_FULLSCREEN[]     = "QtCreator.ToggleFullScreen";
 
 const char MINIMIZE_WINDOW[]       = "QtCreator.MinimizeWindow";
 const char ZOOM_WINDOW[]           = "QtCreator.ZoomWindow";
+const char CLOSE_WINDOW[]           = "QtCreator.CloseWindow";
 
 const char SPLIT[]                 = "QtCreator.Split";
 const char SPLIT_SIDE_BY_SIDE[]    = "QtCreator.SplitSideBySide";

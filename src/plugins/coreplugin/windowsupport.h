@@ -49,6 +49,8 @@ public:
     WindowSupport(QWidget *window, const Context &context);
     ~WindowSupport();
 
+    void setCloseActionEnabled(bool enabled);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
@@ -61,6 +63,7 @@ private:
     IContext *m_contextObject;
     QAction *m_minimizeAction;
     QAction *m_zoomAction;
+    QAction *m_closeAction;
     QAction *m_toggleFullScreenAction;
 };
 

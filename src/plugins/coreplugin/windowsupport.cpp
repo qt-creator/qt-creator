@@ -61,6 +61,10 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
         m_zoomAction = new QAction(this);
         ActionManager::registerAction(m_zoomAction, Constants::ZOOM_WINDOW, context);
         connect(m_zoomAction, SIGNAL(triggered()), m_window, SLOT(showMaximized()));
+
+        m_closeAction = new QAction(this);
+        ActionManager::registerAction(m_closeAction, Constants::CLOSE_WINDOW, context);
+        connect(m_closeAction, SIGNAL(triggered()), m_window, SLOT(close()), Qt::QueuedConnection);
     }
 
     m_toggleFullScreenAction = new QAction(this);
@@ -72,6 +76,12 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
 WindowSupport::~WindowSupport()
 {
     ICore::removeContextObject(m_contextObject);
+}
+
+void WindowSupport::setCloseActionEnabled(bool enabled)
+{
+    if (UseMacShortcuts)
+        m_closeAction->setEnabled(enabled);
 }
 
 bool WindowSupport::eventFilter(QObject *obj, QEvent *event)

@@ -330,6 +330,7 @@ bool MainWindow::init(QString *errorMessage)
 void MainWindow::extensionsInitialized()
 {
     m_windowSupport = new WindowSupport(this, Context("Core.MainWindow"));
+    m_windowSupport->setCloseActionEnabled(false);
     m_editorManager->init();
     m_statusBarManager->extensionsInitalized();
     OutputPaneManager::instance()->init();
@@ -654,8 +655,17 @@ void MainWindow::registerDefaultActions()
         cmd->setAttribute(Command::CA_UpdateText);
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
 
-    if (UseMacShortcuts)
+    if (UseMacShortcuts) {
         mwindow->addSeparator(globalContext, Constants::G_WINDOW_SIZE);
+
+        QAction *closeAction = new QAction(tr("Close Window"), this);
+        closeAction->setEnabled(false);
+        cmd = ActionManager::registerAction(closeAction, Constants::CLOSE_WINDOW, globalContext);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Meta+W")));
+        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+
+        mwindow->addSeparator(globalContext, Constants::G_WINDOW_SIZE);
+    }
 
     // Show Sidebar Action
     m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Constants::ICON_TOGGLE_SIDEBAR)),
