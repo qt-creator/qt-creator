@@ -96,9 +96,9 @@
     to \c %HOMEDRIVE%%HOMEPATH% when the Git executable is run and authorization
     works as it would with \c {git bash}.
 
-    \section1 Setting Up Common Options
+    \section1 Setting Up General Options
 
-    Select \gui{Tools} > \gui{Options} > \gui{Version Control} > \gui{Common}
+    Select \gui{Tools} > \gui{Options} > \gui{Version Control} > \gui{General}
     to specify settings for submit messages:
 
     \list
@@ -109,33 +109,36 @@
             parameter. If there is an error, the script should output a
             message on standard error and return a non-zero exit code.
 
-        \li \gui{User/alias configuration file} takes a file in mailmap format
-            that lists user names and aliases. For example:
+        \li \gui{User/alias configuration file} is a text file that lists
+            author names in mailmap format. For each author, you must specify a
+            real name and email address and optionally an alias and a second
+            email address. For example:
 
             \code
-            Jon Doe <Jon.Doe@company.com>
+            Jon Doe <Jon.Doe@company.com> jdoe <jdoe@somemail.com>
             Hans Mustermann <Hans.Mustermann@company.com> hm <info@company.com>
             \endcode
 
-            \note The second line above specifies the alias \e{hm} and the
-            corresponding email address for \e{Hans Mustermann}. If the
-            user/alias configuration file is present, the submit editor
-            displays a context menu with \gui{Insert name} that pops up a
-            dialog letting the user select a name.
+            After you specify a file in this field, you can select authors
+            as values of the submit message fields in the \gui Nicknames dialog.
 
         \li \gui{User fields configuration file} is a simple text file
             consisting of lines specifying submit message fields that take
-            user names, for example:
+            authors as values, for example:
 
             \code
-            Reviewed-by:
+            Acked-by:
+            Initial-patch-by:
+            Reported-by:
+            Rubber-stamped-by:
             Signed-off-by:
+            Tested-by:
             \endcode
 
-            The fields above appear below the submit message. They provide
-            completion for the aliases/public user names specified in the
-            \e{User/alias configuration file} as well as a button that opens the
-            aforementioned user name dialog.
+            After you specify a file in this field, you can add authors as
+            values of the submit message fields when submitting changes. If
+            you also specified a \gui{User/alias configuration file}, you can
+            select authors in the \gui Nicknames dialog.
 
         \li \gui{SSH prompt command} specifies an ssh-askpass command that you
             can use (on Linux) to prompt the user for a password when using SSH.
