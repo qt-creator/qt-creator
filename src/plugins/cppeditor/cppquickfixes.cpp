@@ -63,6 +63,7 @@
 #include <QMessageBox>
 #include <QSharedPointer>
 #include <QTextCursor>
+#include <QTextCodec>
 
 #include <cctype>
 
@@ -118,6 +119,8 @@ void CppEditor::Internal::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new InsertVirtualMethods);
 
     plugIn->addAutoReleasedObject(new OptimizeForLoop);
+
+    plugIn->addAutoReleasedObject(new EscapeStringLiteral);
 }
 
 // In the following anonymous namespace all functions are collected, which could be of interest for
@@ -4861,5 +4864,178 @@ void OptimizeForLoop::match(const CppQuickFixInterface &interface, QuickFixOpera
                                                (optimizeCondition) ? conditionExpression : 0,
                                                conditionType);
         result.append(QuickFixOperation::Ptr(op));
+    }
+}
+
+namespace {
+
+class EscapeStringLiteralOperation: public CppQuickFixOperation
+{
+public:
+    EscapeStringLiteralOperation(const CppQuickFixInterface &interface,
+                                 ExpressionAST *literal, bool escape)
+        : CppQuickFixOperation(interface)
+        , m_literal(literal)
+        , m_escape(escape)
+    {
+        if (m_escape) {
+            setDescription(QApplication::translate("CppTools::QuickFix",
+                                                   "Escape String Literal as UTF-8"));
+        } else {
+            setDescription(QApplication::translate("CppTools::QuickFix",
+                                                   "Unescape String Literal as UTF-8"));
+        }
+    }
+
+private:
+    static inline bool isDigit(quint8 ch, int base)
+    {
+        if (base == 8)
+            return ch >= '0' && ch < '8';
+        if (base == 16)
+            return isxdigit(ch);
+        return false;
+    }
+
+    static QByteArray escapeString(const QByteArray &contents)
+    {
+        QByteArray newContents;
+        for (int i = 0; i < contents.length(); ++i) {
+            quint8 c = contents.at(i);
+            if (isascii(c) && isprint(c)) {
+                newContents += c;
+            } else {
+                newContents += QByteArray("\\x") +
+                        QByteArray::number(c, 16).rightJustified(2, '0');
+            }
+        }
+        return newContents;
+    }
+
+    static QByteArray unescapeString(const QByteArray &contents)
+    {
+        QByteArray newContents;
+        const int len = contents.length();
+        for (int i = 0; i < len; ++i) {
+            quint8 c = contents.at(i);
+            if (c == '\\' && i < len - 1) {
+                int idx = i + 1;
+                quint8 ch = contents.at(idx);
+                int base = 0;
+                int maxlen = 0;
+                if (isDigit(ch, 8)) {
+                    base = 8;
+                    maxlen = 3;
+                } else if ((ch == 'x' || ch == 'X') && idx < len - 1) {
+                    base = 16;
+                    maxlen = 2;
+                    ch = contents.at(++idx);
+                }
+                if (base > 0) {
+                    QByteArray buf;
+                    while (isDigit(ch, base) && idx < len && buf.length() < maxlen) {
+                        buf += ch;
+                        ++idx;
+                        if (idx == len)
+                            break;
+                        ch = contents.at(idx);
+                    }
+                    if (!buf.isEmpty()) {
+                        bool ok;
+                        uint value = buf.toUInt(&ok, base);
+                        // Don't unescape isascii() && !isprint()
+                        if (ok && (!isascii(value) || isprint(value))) {
+                            newContents += value;
+                            i = idx - 1;
+                            continue;
+                        }
+                    }
+                }
+                newContents += c;
+                c = contents.at(++i);
+            }
+            newContents += c;
+        }
+        return newContents;
+    }
+
+    // QuickFixOperation interface
+public:
+    void perform()
+    {
+        CppRefactoringChanges refactoring(snapshot());
+        CppRefactoringFilePtr currentFile = refactoring.file(fileName());
+
+        const int startPos = currentFile->startOf(m_literal);
+        const int endPos = currentFile->endOf(m_literal);
+
+        StringLiteralAST *stringLiteral = m_literal->asStringLiteral();
+        QTC_ASSERT(stringLiteral, return);
+        const QByteArray oldContents(currentFile->tokenAt(stringLiteral->literal_token).
+                                     identifier->chars());
+        QByteArray newContents;
+        if (m_escape)
+            newContents = escapeString(oldContents);
+        else
+            newContents = unescapeString(oldContents);
+
+        if (oldContents != newContents) {
+            // Check UTF-8 byte array is correct or not.
+            QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
+            QScopedPointer<QTextDecoder> decoder(utf8codec->makeDecoder());
+            const QString str = decoder->toUnicode(newContents);
+            const QByteArray utf8buf = str.toUtf8();
+            if (utf8codec->canEncode(str) && newContents == utf8buf) {
+                ChangeSet changes;
+                changes.replace(startPos + 1, endPos - 1, str);
+                currentFile->setChangeSet(changes);
+                currentFile->apply();
+            }
+        }
+    }
+
+private:
+    ExpressionAST *m_literal;
+    bool m_escape;
+};
+
+} // anonymous namespace
+
+void EscapeStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    const QList<AST *> &path = interface->path();
+
+    AST * const lastAst = path.last();
+    ExpressionAST *literal = lastAst->asStringLiteral();
+    if (!literal)
+        return;
+
+    StringLiteralAST *stringLiteral = literal->asStringLiteral();
+    CppRefactoringFilePtr file = interface->currentFile();
+    const QByteArray contents(file->tokenAt(stringLiteral->literal_token).identifier->chars());
+
+    bool canEscape = false;
+    bool canUnescape = false;
+    for (int i = 0; i < contents.length(); ++i) {
+        quint8 c = contents.at(i);
+        if (!isascii(c) || !isprint(c)) {
+            canEscape = true;
+        } else if (c == '\\' && i < contents.length() - 1) {
+            c = contents.at(++i);
+            if ((c >= '0' && c < '8') || c == 'x' || c == 'X')
+                canUnescape = true;
+        }
+    }
+
+    if (canEscape) {
+        QuickFixOperation::Ptr op(
+                    new EscapeStringLiteralOperation(interface, literal, true));
+        result.append(op);
+    }
+
+    if (canUnescape) {
+        QuickFixOperation::Ptr op(
+                    new EscapeStringLiteralOperation(interface, literal, false));
+        result.append(op);
     }
 }

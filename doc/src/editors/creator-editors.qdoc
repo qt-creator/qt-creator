@@ -2060,6 +2060,18 @@
     \endcode
             \li for
 
+        \row
+            \li Escape String Literal as UTF-8
+            \li Escapes non-ASCII characters in a string literal to hexadecimal escape sequences.
+            String Literals are handled as UTF-8.
+            \li String literal
+
+        \row
+            \li Unescape String Literal as UTF-8
+            \li Unescapes octal or hexadecimal escape sequences in a string literal.
+            String Literals are handled as UTF-8.
+            \li String literal
+
     \endtable
 
    \section2 Refactoring QML Code

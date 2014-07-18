@@ -524,6 +524,19 @@ public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
 };
 
+/*!
+  Escapes or unescapes a string literal as UTF-8.
+
+  Escapes non-ASCII characters in a string literal to hexadecimal escape sequences.
+  Unescapes octal or hexadecimal escape sequences in a string literal.
+  String literals are handled as UTF-8 even if file's encoding is not UTF-8.
+ */
+class EscapeStringLiteral : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
 } // namespace Internal
 } // namespace CppEditor
 

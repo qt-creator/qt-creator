@@ -1271,6 +1271,43 @@ void CppEditorPlugin::test_quickfix_data()
                  "    int m_it;\n"
                  "};\n"
                  );
+
+    // Escape String Literal as UTF-8 (no-trigger)
+    QTest::newRow("EscapeStringLiteral_notrigger")
+            << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+            << _("const char *notrigger = \"@abcdef \\a\\n\\\\\";\n")
+            << _();
+
+    // Escape String Literal as UTF-8
+    QTest::newRow("EscapeStringLiteral")
+            << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+            << _("const char *utf8 = \"@\xe3\x81\x82\xe3\x81\x84\";\n")
+            << _("const char *utf8 = \"\\xe3\\x81\\x82\\xe3\\x81\\x84\";\n");
+
+    // Unescape String Literal as UTF-8 (from hexdecimal escape sequences)
+    QTest::newRow("UnescapeStringLiteral_hex")
+            << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+            << _("const char *hex_escaped = \"@\\xe3\\x81\\x82\\xe3\\x81\\x84\";\n")
+            << _("const char *hex_escaped = \"\xe3\x81\x82\xe3\x81\x84\";\n");
+
+    // Unescape String Literal as UTF-8 (from octal escape sequences)
+    QTest::newRow("UnescapeStringLiteral_oct")
+            << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+            << _("const char *oct_escaped = \"@\\343\\201\\202\\343\\201\\204\";\n")
+            << _("const char *oct_escaped = \"\xe3\x81\x82\xe3\x81\x84\";\n");
+
+    // Unescape String Literal as UTF-8 (triggered but no change)
+    QTest::newRow("UnescapeStringLiteral_noconv")
+            << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+            << _("const char *escaped_ascii = \"@\\x1b\";\n")
+            << _("const char *escaped_ascii = \"\\x1b\";\n");
+
+    // Unescape String Literal as UTF-8 (no conversion because of invalid utf-8)
+    QTest::newRow("UnescapeStringLiteral_invalid")
+            << CppQuickFixFactoryPtr(new EscapeStringLiteral)
+            << _("const char *escaped = \"@\\xe3\\x81\";\n")
+            << _("const char *escaped = \"\\xe3\\x81\";\n");
+
 }
 
 void CppEditorPlugin::test_quickfix()
