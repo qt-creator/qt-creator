@@ -93,7 +93,7 @@ def switchSession(toSession):
 
 def createAndSwitchToSession(toSession):
     sessionInputDialog = ("{type='ProjectExplorer::Internal::SessionNameInputDialog' unnamed='1' "
-                          "visible='1' windowTitle='New session name'}")
+                          "visible='1' windowTitle='New Session Name'}")
     test.log("Switching to session '%s' after creating it." % toSession)
     invokeMenuItem("File", "Session Manager...")
     clickButton(waitForObject("{name='btCreateNew' text='New' type='QPushButton' visible='1' "
@@ -101,7 +101,7 @@ def createAndSwitchToSession(toSession):
     lineEdit = waitForObject("{type='QLineEdit' unnamed='1' visible='1' window=%s}"
                              % sessionInputDialog)
     replaceEditorContent(lineEdit, toSession)
-    clickButton(waitForObject("{text='Switch to' type='QPushButton' unnamed='1' visible='1' "
+    clickButton(waitForObject("{text='Switch To' type='QPushButton' unnamed='1' visible='1' "
                               "window=%s}" % sessionInputDialog))
 
 def checkWelcomePage(sessionName, isCurrent=False):
