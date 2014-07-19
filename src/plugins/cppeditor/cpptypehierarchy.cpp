@@ -241,19 +241,6 @@ void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
                                           Constants::CPPEDITOR_ID);
 }
 
-// CppTypeHierarchyStackedWidget
-CppTypeHierarchyStackedWidget::CppTypeHierarchyStackedWidget(QWidget *parent) :
-    QStackedWidget(parent),
-    m_typeHiearchyWidgetInstance(new CppTypeHierarchyWidget)
-{
-    addWidget(m_typeHiearchyWidgetInstance);
-}
-
-CppTypeHierarchyStackedWidget::~CppTypeHierarchyStackedWidget()
-{
-    delete m_typeHiearchyWidgetInstance;
-}
-
 // CppTypeHierarchyFactory
 CppTypeHierarchyFactory::CppTypeHierarchyFactory()
 {
@@ -264,8 +251,8 @@ CppTypeHierarchyFactory::CppTypeHierarchyFactory()
 
 Core::NavigationView CppTypeHierarchyFactory::createWidget()
 {
-    CppTypeHierarchyStackedWidget *w = new CppTypeHierarchyStackedWidget;
-    static_cast<CppTypeHierarchyWidget *>(w->currentWidget())->perform();
+    auto w = new CppTypeHierarchyWidget;
+    w->perform();
     return Core::NavigationView(w);
 }
 

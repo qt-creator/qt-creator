@@ -91,22 +91,10 @@ private:
     QLabel *m_noTypeHierarchyAvailableLabel;
 };
 
-// @todo: Pretty much the same design as the OutlineWidgetStack. Maybe we can generalize the
-// outline factory so that it works for different widgets that support the same editor.
-class CppTypeHierarchyStackedWidget : public QStackedWidget
-{
-    Q_OBJECT
-public:
-    CppTypeHierarchyStackedWidget(QWidget *parent = 0);
-    virtual ~CppTypeHierarchyStackedWidget();
-
-private:
-    CppTypeHierarchyWidget *m_typeHiearchyWidgetInstance;
-};
-
 class CppTypeHierarchyFactory : public Core::INavigationWidgetFactory
 {
     Q_OBJECT
+
 public:
     CppTypeHierarchyFactory();
 
