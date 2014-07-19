@@ -192,7 +192,7 @@ def qdump__std__map(d, value):
             for i in d.childRange():
                 with SubItem(d, i):
                     pair = (node + 1).cast(pairPointer).dereference()
-                    d.putPair(pair)
+                    d.putPair(pair, i)
                 if d.isNull(node["_M_right"]):
                     parent = node["_M_parent"]
                     while node == parent["_M_right"]:
@@ -267,8 +267,17 @@ def qdump__std____debug__map(d, value):
 def qdump__std____debug__set(d, value):
     qdump__std__set(d, value)
 
+def qdump__std__multiset(d, value):
+    qdump__std__set(d, value)
+
 def qdump__std____cxx1998__map(d, value):
     qdump__std__map(d, value)
+
+def qform__std__multimap():
+    return mapForms()
+
+def qdump__std__multimap(d, value):
+    return qdump__std__map(d, value)
 
 def stdTreeIteratorHelper(d, value):
     node = value["_M_node"].dereference()

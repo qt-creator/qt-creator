@@ -3262,6 +3262,32 @@ namespace stdmap {
         dummyStatement(&map);
     }
 
+    void testStdMultiMapUIntFloat()
+    {
+        typedef std::pair<uint, float> V;
+        std::multimap<uint, float> map;
+        map.insert(V(11, 11.0));
+        map.insert(V(22, 22.0));
+        map.insert(V(22, 33.0));
+        map.insert(V(22, 34.0));
+        map.insert(V(22, 35.0));
+        map.insert(V(22, 36.0));
+        BREAK_HERE;
+        // Expand map.
+        // Check map <6 items> std:multimap<unsigned int, float>.
+        // Check map.0 11 float.
+        // Check map.5 22 float.
+        // Continue.
+        dummyStatement(&map);
+    }
+
+    void testStdMultiSetInt()
+    {
+        std::multiset<int> set = {1, 1, 2, 3, 3, 3};
+        BREAK_HERE;
+        dummyStatement(&set);
+    }
+
     void testStdMap()
     {
         testStdMapStringFoo();
@@ -3274,6 +3300,8 @@ namespace stdmap {
         testStdMapStringFloat();
         testStdMapIntString();
         testStdMapStringPointer();
+        testStdMultiMapUIntFloat();
+        testStdMultiSetInt();
     }
 
 } // namespace stdmap

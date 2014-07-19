@@ -3728,22 +3728,33 @@ void tst_Dumpers::dumper_data()
                     "Map::iterator it4 = it3; ++it4;\n"
                     "Map::iterator it5 = it4; ++it5;\n"
                     "Map::iterator it6 = it5; ++it6;\n"
-                    "unused(&it6);\n")
+                    "unused(&it6);\n"
+
+                    "std::multimap<unsigned int, float> map4;\n"
+                    "map4.insert(std::pair<unsigned int, float>(11, 11.0));\n"
+                    "map4.insert(std::pair<unsigned int, float>(22, 22.0));\n"
+                    "map4.insert(std::pair<unsigned int, float>(22, 23.0));\n"
+                    "map4.insert(std::pair<unsigned int, float>(22, 24.0));\n"
+                    "map4.insert(std::pair<unsigned int, float>(22, 25.0));\n")
 
                + Check("map1", "<2 items>", "std::map<unsigned int, unsigned int>")
-               + Check("map1.11", "[11]", "1", "unsigned int")
-               + Check("map1.22", "[22]", "2", "unsigned int")
+               + Check("map1.0", "[0] 11", "1", "unsigned int")
+               + Check("map1.1", "[1] 22", "2", "unsigned int")
 
                + Check("map2", "<2 items>", "std::map<unsigned int, float>")
-               + Check("map2.11", "[11]", "11", "float")
-               + Check("map2.22", "[22]", "22", "float")
+               + Check("map2.0", "[0] 11", "11", "float")
+               + Check("map2.1", "[1] 22", "22", "float")
 
                + Check("map3", "<6 items>", "Map")
-               + Check("map3.11", "[11]", "11", "float")
+               + Check("map3.0", "[0] 11", "11", "float")
                + Check("it1.first", "11", "int")
                + Check("it1.second", "11", "float")
                + Check("it6.first", "66", "int")
-               + Check("it6.second", "66", "float");
+               + Check("it6.second", "66", "float")
+
+               + Check("map4", "<5 items>", "std::multimap<unsigned int, float>")
+               + Check("map4.0", "[0] 11", "11", "float")
+               + Check("map4.4", "[4] 22", "25", "float");
 
 
     QTest::newRow("StdMapQt")
@@ -3911,7 +3922,15 @@ void tst_Dumpers::dumper_data()
                     "Set::iterator it1 = s2.begin();\n"
                     "Set::iterator it2 = it1; ++it2;\n"
                     "Set::iterator it3 = it2; ++it3;\n"
-                    "unused(&it3);\n")
+                    "unused(&it3);\n\n"
+
+                    "std::multiset<int> s3;\n"
+                    "s3.insert(1);\n"
+                    "s3.insert(1);\n"
+                    "s3.insert(2);\n"
+                    "s3.insert(3);\n"
+                    "s3.insert(3);\n"
+                    "s3.insert(3);\n")
 
                + Check("s0", "<0 items>", "std::set<double>")
 
@@ -3919,7 +3938,11 @@ void tst_Dumpers::dumper_data()
 
                + Check("s2", "<3 items>", "Set")
                + Check("it1.value", "11", "int")
-               + Check("it3.value", "33", "int");
+               + Check("it3.value", "33", "int")
+
+               + Check("s3", "<6 items>", "std::multiset<int>")
+               + Check("s3.0", "[0]", "1", "int")
+               + Check("s3.5", "[5]", "3", "int");
 
 
     QTest::newRow("StdSetQt")
