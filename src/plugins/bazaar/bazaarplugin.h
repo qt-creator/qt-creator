@@ -26,6 +26,7 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
 #ifndef BAZAARPLUGIN_H
 #define BAZAARPLUGIN_H
 
@@ -40,18 +41,12 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
-class ActionManager;
 class ActionContainer;
 class CommandLocator;
 class Id;
-class IVersionControl;
-class IEditorFactory;
-class IEditor;
 } // namespace Core
 
 namespace Utils { class ParameterAction; }
-
-namespace VcsBase { class VcsBaseSubmitEditor; }
 
 namespace Bazaar {
 namespace Internal {
