@@ -45,7 +45,7 @@ namespace Internal {
 class LineNumberFilter;
 class PlainTextEditorFactory;
 class OutlineFactory;
-class BaseTextMarkRegistry;
+class TextMarkRegistry;
 
 class TextEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -62,7 +62,7 @@ public:
 
     static PlainTextEditorFactory *editorFactory();
     static LineNumberFilter *lineNumberFilter();
-    static BaseTextMarkRegistry *baseTextMarkRegistry();
+    static TextMarkRegistry *baseTextMarkRegistry();
 
 private slots:
     void invokeCompletion();
@@ -76,7 +76,7 @@ private:
     LineNumberFilter *m_lineNumberFilter;
     Core::SearchResultWindow *m_searchResultWindow;
     OutlineFactory *m_outlineFactory;
-    BaseTextMarkRegistry *m_baseTextMarkRegistry;
+    TextMarkRegistry *m_baseTextMarkRegistry;
 
 
 #ifdef WITH_TESTS

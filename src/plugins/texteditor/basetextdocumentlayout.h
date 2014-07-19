@@ -33,6 +33,7 @@
 #include "texteditor_global.h"
 
 #include "basetexteditor.h"
+#include "textmark.h"
 
 #include <QTextBlockUserData>
 #include <QPlainTextDocumentLayout>
@@ -75,12 +76,12 @@ public:
     ~TextBlockUserData();
 
     inline TextMarks marks() const { return m_marks; }
-    void addMark(ITextMark *mark);
-    inline bool removeMark(ITextMark *mark) { return m_marks.removeAll(mark); }
+    void addMark(TextMark *mark);
+    inline bool removeMark(TextMark *mark) { return m_marks.removeAll(mark); }
 
     inline TextMarks documentClosing() {
         TextMarks marks = m_marks;
-        foreach (ITextMark *mrk, m_marks)
+        foreach (TextMark *mrk, m_marks)
             mrk->setBaseTextDocument(0);
         m_marks.clear();
         return marks;

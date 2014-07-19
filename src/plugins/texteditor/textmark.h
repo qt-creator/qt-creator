@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef ITEXTMARK_H
-#define ITEXTMARK_H
+#ifndef TextMark_H
+#define TextMark_H
 
 #include "texteditor_global.h"
 
@@ -46,17 +46,13 @@ namespace TextEditor {
 class ITextEditor;
 class BaseTextDocument;
 
-class TEXTEDITOR_EXPORT ITextMark
+namespace Internal { class TextMarkRegistry; }
+
+class TEXTEDITOR_EXPORT TextMark
 {
 public:
-    ITextMark(int line)
-        : m_baseTextDocument(0),
-          m_lineNumber(line),
-          m_priority(NormalPriority),
-          m_visible(true),
-          m_widthFactor(1.0)
-    {}
-    virtual ~ITextMark();
+    TextMark(const QString &fileName, int lineNumber);
+    virtual ~TextMark();
 
     // determine order on markers on the same line.
     enum Priority
@@ -66,8 +62,12 @@ public:
         HighPriority // shown on top.
     };
 
+    QString fileName() const;
     int lineNumber() const;
+
     virtual void paint(QPainter *painter, const QRect &rect) const;
+    /// called if the filename of the document changed
+    virtual void updateFileName(const QString &fileName);
     virtual void updateLineNumber(int lineNumber);
     virtual void updateBlock(const QTextBlock &block);
     virtual void move(int line);
@@ -91,8 +91,11 @@ public:
     void setBaseTextDocument(BaseTextDocument *baseTextDocument);
 
 private:
-    Q_DISABLE_COPY(ITextMark)
+    Q_DISABLE_COPY(TextMark)
+    friend class Internal::TextMarkRegistry;
+
     BaseTextDocument *m_baseTextDocument;
+    QString m_fileName;
     int m_lineNumber;
     Priority m_priority;
     bool m_visible;
@@ -102,4 +105,4 @@ private:
 
 } // namespace TextEditor
 
-#endif // ITEXTMARK_H
+#endif // TextMark_H

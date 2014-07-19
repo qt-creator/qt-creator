@@ -91,11 +91,11 @@ Task Task::buildConfigurationMissingTask()
                 ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
 
-void Task::addMark(TextEditor::BaseTextMark *mark)
+void Task::addMark(TextEditor::TextMark *mark)
 {
     QTC_ASSERT(m_mark.isNull(), return);
 
-    m_mark = QSharedPointer<TextEditor::BaseTextMark>(mark);
+    m_mark = QSharedPointer<TextEditor::TextMark>(mark);
 }
 
 bool Task::isNull() const

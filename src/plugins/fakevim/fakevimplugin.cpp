@@ -57,7 +57,7 @@
 
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/basetextmark.h>
+#include <texteditor/textmark.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/typingsettings.h>
 #include <texteditor/tabsettings.h>

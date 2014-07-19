@@ -32,17 +32,13 @@
 
 #include "texteditor_global.h"
 
-#include "itextmark.h"
-
 #include <coreplugin/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QMap>
-#include <QIcon>
 
 QT_BEGIN_NAMESPACE
-class QIcon;
 class QMenu;
 class QPainter;
 class QPoint;

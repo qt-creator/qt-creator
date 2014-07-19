@@ -30,15 +30,14 @@
 #ifndef BOOKMARK_H
 #define BOOKMARK_H
 
-#include <texteditor/itexteditor.h>
-#include <texteditor/basetextmark.h>
+#include <texteditor/textmark.h>
 
 namespace Bookmarks {
 namespace Internal {
 
 class BookmarkManager;
 
-class Bookmark : public TextEditor::BaseTextMark
+class Bookmark : public TextEditor::TextMark
 {
 public:
     Bookmark(const QString &fileName, int lineNumber, BookmarkManager *manager);

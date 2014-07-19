@@ -32,13 +32,13 @@
 
 #include "breakpoint.h"
 
-#include <texteditor/basetextmark.h>
+#include <texteditor/textmark.h>
 
 namespace Debugger {
 namespace Internal {
 
 // The red blob on the left side in the cpp editor.
-class BreakpointMarker : public TextEditor::BaseTextMark
+class BreakpointMarker : public TextEditor::TextMark
 {
 public:
     BreakpointMarker(BreakpointModelId id, const QString &fileName, int lineNumber);

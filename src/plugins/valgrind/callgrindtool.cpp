@@ -1014,9 +1014,7 @@ void CallgrindToolPrivate::createTextMarks()
             continue;
         locations << location;
 
-        CallgrindTextMark *mark = new CallgrindTextMark(index, fileName, lineNumber);
-        mark->init();
-        m_textMarks.append(mark);
+        m_textMarks.append(new CallgrindTextMark(index, fileName, lineNumber));
     }
 }
 

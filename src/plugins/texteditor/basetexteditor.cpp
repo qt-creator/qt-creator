@@ -3933,7 +3933,7 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                     }
                     TextMarks::const_iterator end = marks.constEnd();
                     for ( ; it != end; ++it) {
-                        ITextMark *mark = *it;
+                        TextMark *mark = *it;
                         if (!mark->isVisible())
                             continue;
                         const int height = fmLineSpacing - 1;
@@ -4605,7 +4605,7 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
                 if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
                     TextMarks marks = data->marks();
                     for (int i = marks.size(); --i >= 0; ) {
-                        ITextMark *mark = marks.at(i);
+                        TextMark *mark = marks.at(i);
                         if (mark->isDraggable()) {
                             d->m_markDragStart = e->pos();
                             break;
@@ -4653,7 +4653,7 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
                 TextMarks marks = data->marks();
                 for (int i = marks.size(); --i >= 0; ) {
-                    ITextMark *mark = marks.at(i);
+                    TextMark *mark = marks.at(i);
                     if (sameLine) {
                         if (mark->isClickable()) {
                             mark->clicked();

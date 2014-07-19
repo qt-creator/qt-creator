@@ -429,9 +429,7 @@ void BookmarkManager::toggleBookmark(const QString &fileName, int lineNumber)
     }
 
     // Add a new bookmark if no bookmark existed on this line
-    Bookmark *bookmark = new Bookmark(fileName, editorLine, this);
-    bookmark->init();
-    addBookmark(bookmark);
+    addBookmark(new Bookmark(fileName, editorLine, this));
 }
 
 void BookmarkManager::updateBookmark(Bookmark *bookmark)
@@ -769,7 +767,6 @@ void BookmarkManager::addBookmark(const QString &s)
         if (!filePath.isEmpty() && !findBookmark(filePath, lineNumber)) {
             Bookmark *b = new Bookmark(filePath, lineNumber, this);
             b->setNote(note);
-            b->init();
             addBookmark(b, false);
         }
     } else {

@@ -40,7 +40,7 @@ CodeFormatterData::~CodeFormatterData()
 
 TextBlockUserData::~TextBlockUserData()
 {
-    foreach (ITextMark *mrk, m_marks) {
+    foreach (TextMark *mrk, m_marks) {
         mrk->baseTextDocument()->removeMarkFromMarksCache(mrk);
         mrk->setBaseTextDocument(0);
         mrk->removedFromEditor();
@@ -376,7 +376,7 @@ void TextBlockUserData::setCodeFormatterData(CodeFormatterData *data)
     m_codeFormatterData = data;
 }
 
-void TextBlockUserData::addMark(ITextMark *mark)
+void TextBlockUserData::addMark(TextMark *mark)
 {
     int i = 0;
     for ( ; i < m_marks.size(); ++i) {
@@ -593,7 +593,7 @@ TextMarks BaseTextDocumentLayout::documentClosing()
 
 void BaseTextDocumentLayout::documentReloaded(TextMarks marks, BaseTextDocument *baseTextDocument)
 {
-    foreach (ITextMark *mark, marks) {
+    foreach (TextMark *mark, marks) {
         int blockNumber = mark->lineNumber() - 1;
         QTextBlock block = document()->findBlockByNumber(blockNumber);
         if (block.isValid()) {
@@ -618,7 +618,7 @@ void BaseTextDocumentLayout::updateMarksLineNumber()
     int blockNumber = 0;
     while (block.isValid()) {
         if (const TextBlockUserData *userData = testUserData(block))
-            foreach (ITextMark *mrk, userData->marks())
+            foreach (TextMark *mrk, userData->marks())
                 mrk->updateLineNumber(blockNumber + 1);
         block = block.next();
         ++blockNumber;
@@ -628,7 +628,7 @@ void BaseTextDocumentLayout::updateMarksLineNumber()
 void BaseTextDocumentLayout::updateMarksBlock(const QTextBlock &block)
 {
     if (const TextBlockUserData *userData = testUserData(block))
-        foreach (ITextMark *mrk, userData->marks())
+        foreach (TextMark *mrk, userData->marks())
             mrk->updateBlock(block);
 }
 

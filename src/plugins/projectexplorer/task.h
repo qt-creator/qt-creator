@@ -33,11 +33,11 @@
 #include "projectexplorer_export.h"
 
 #include <coreplugin/id.h>
-#include <texteditor/basetextmark.h>
+#include <texteditor/textmark.h>
 #include <utils/fileutils.h>
 
+#include <QIcon>
 #include <QMetaType>
-
 #include <QTextLayout>
 
 namespace ProjectExplorer {
@@ -71,7 +71,7 @@ public:
     int movedLine; // contains a line number if the line was moved in the editor
     Core::Id category;
     QIcon icon;
-    void addMark(TextEditor::BaseTextMark *mark);
+    void addMark(TextEditor::TextMark *mark);
 
     // Having a QList<QTextLayout::FormatRange> in Task isn't that great
     // It would be cleaner to split up the text into
@@ -84,7 +84,7 @@ public:
     QList<QTextLayout::FormatRange> formats;
 
 private:
-    QSharedPointer<TextEditor::BaseTextMark> m_mark;
+    QSharedPointer<TextEditor::TextMark> m_mark;
     static unsigned int s_nextId;
 };
 

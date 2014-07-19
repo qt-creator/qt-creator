@@ -683,7 +683,7 @@ TextMarks BaseTextDocument::marks() const
     return d->m_marksCache;
 }
 
-bool BaseTextDocument::addMark(ITextMark *mark)
+bool BaseTextDocument::addMark(TextMark *mark)
 {
     if (mark->baseTextDocument())
         return false;
@@ -730,7 +730,7 @@ TextMarks BaseTextDocument::marksAt(int line) const
     return TextMarks();
 }
 
-void BaseTextDocument::removeMarkFromMarksCache(ITextMark *mark)
+void BaseTextDocument::removeMarkFromMarksCache(TextMark *mark)
 {
     auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
     QTC_ASSERT(documentLayout, return);
@@ -753,7 +753,7 @@ void BaseTextDocument::removeMarkFromMarksCache(ITextMark *mark)
         documentLayout->requestExtraAreaUpdate();
     } else {
         double maxWidthFactor = 1.0;
-        foreach (const ITextMark *mark, marks()) {
+        foreach (const TextMark *mark, marks()) {
             if (!mark->isVisible())
                 continue;
             maxWidthFactor = qMax(mark->widthFactor(), maxWidthFactor);
@@ -770,7 +770,7 @@ void BaseTextDocument::removeMarkFromMarksCache(ITextMark *mark)
     }
 }
 
-void BaseTextDocument::removeMark(ITextMark *mark)
+void BaseTextDocument::removeMark(TextMark *mark)
 {
     QTextBlock block = d->m_document->findBlockByNumber(mark->lineNumber() - 1);
     if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
@@ -782,7 +782,7 @@ void BaseTextDocument::removeMark(ITextMark *mark)
     mark->setBaseTextDocument(0);
 }
 
-void BaseTextDocument::updateMark(ITextMark *mark)
+void BaseTextDocument::updateMark(TextMark *mark)
 {
     Q_UNUSED(mark)
     auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
@@ -790,7 +790,7 @@ void BaseTextDocument::updateMark(ITextMark *mark)
     documentLayout->requestUpdate();
 }
 
-void BaseTextDocument::moveMark(ITextMark *mark, int previousLine)
+void BaseTextDocument::moveMark(TextMark *mark, int previousLine)
 {
     QTextBlock block = d->m_document->findBlockByNumber(previousLine - 1);
     if (TextBlockUserData *data = BaseTextDocumentLayout::testUserData(block)) {

@@ -44,9 +44,9 @@ using namespace Valgrind::Callgrind;
 
 CallgrindTextMark::CallgrindTextMark(const QPersistentModelIndex &index,
                                      const QString &fileName, int lineNumber)
-    : TextEditor::BaseTextMark(fileName, lineNumber), m_modelIndex(index)
+    : TextEditor::TextMark(fileName, lineNumber), m_modelIndex(index)
 {
-    setPriority(TextEditor::ITextMark::HighPriority);
+    setPriority(TextEditor::TextMark::HighPriority);
     setWidthFactor(4.0);
 }
 

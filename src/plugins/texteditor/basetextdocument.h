@@ -33,6 +33,7 @@
 #include "texteditor_global.h"
 
 #include "itexteditor.h"
+#include "itexteditor.h"
 
 #include <QList>
 
@@ -50,9 +51,10 @@ class Indenter;
 class StorageSettings;
 class SyntaxHighlighter;
 class TabSettings;
+class TextMark;
 class TypingSettings;
 
-typedef QList<ITextMark *> TextMarks;
+typedef QList<TextMark *> TextMarks;
 
 class TEXTEDITOR_EXPORT BaseTextDocument : public ITextEditorDocument
 {
@@ -85,12 +87,12 @@ public:
     QTextCursor unindent(const QTextCursor &cursor);
 
     TextMarks marks() const;
-    bool addMark(ITextMark *mark);
+    bool addMark(TextMark *mark);
     TextMarks marksAt(int line) const;
-    void removeMark(ITextMark *mark);
-    void updateMark(ITextMark *mark);
-    void moveMark(ITextMark *mark, int previousLine);
-    void removeMarkFromMarksCache(TextEditor::ITextMark *mark);
+    void removeMark(TextMark *mark);
+    void updateMark(TextMark *mark);
+    void moveMark(TextMark *mark, int previousLine);
+    void removeMarkFromMarksCache(TextEditor::TextMark *mark);
 
     // IDocument implementation.
     bool save(QString *errorString, const QString &fileName, bool autoSave);

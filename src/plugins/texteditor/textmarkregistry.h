@@ -42,23 +42,23 @@ class IDocument;
 }
 
 namespace TextEditor {
-class BaseTextMark;
+class TextMark;
 namespace Internal {
 
-class BaseTextMarkRegistry : public QObject
+class TextMarkRegistry : public QObject
 {
     Q_OBJECT
 public:
-    BaseTextMarkRegistry(QObject *parent);
+    TextMarkRegistry(QObject *parent);
 
-    void add(BaseTextMark *mark);
-    bool remove(BaseTextMark *mark);
+    void add(TextMark *mark);
+    bool remove(TextMark *mark);
 private slots:
     void editorOpened(Core::IEditor *editor);
     void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
     void allDocumentsRenamed(const QString &oldName, const QString &newName);
 private:
-    QHash<Utils::FileName, QSet<BaseTextMark *> > m_marks;
+    QHash<Utils::FileName, QSet<TextMark *> > m_marks;
 };
 
 } // namespace Internal

@@ -21,7 +21,6 @@ SOURCES += texteditorplugin.cpp \
     displaysettingspage.cpp \
     fontsettings.cpp \
     linenumberfilter.cpp \
-    basetextmark.cpp \
     findinfiles.cpp \
     basefilefind.cpp \
     texteditorsettings.cpp \
@@ -106,7 +105,7 @@ SOURCES += texteditorplugin.cpp \
     codestyleeditor.cpp \
     circularclipboard.cpp \
     circularclipboardassist.cpp \
-    itextmark.cpp \
+    textmark.cpp \
     codeassist/keywordscompletionassist.cpp \
     marginsettings.cpp
 
@@ -130,7 +129,6 @@ HEADERS += texteditorplugin.h \
     itexteditor.h \
     linenumberfilter.h \
     texteditor_global.h \
-    basetextmark.h \
     findinfiles.h \
     basefilefind.h \
     texteditorsettings.h \
@@ -223,9 +221,9 @@ HEADERS += texteditorplugin.h \
     basefilefind_p.h \
     circularclipboard.h \
     circularclipboardassist.h \
-    itextmark.h \
+    textmark.h \
     codeassist/keywordscompletionassist.h \
-    basetextmarkregistry.h \
+    textmarkregistry.h \
     marginsettings.h
 
 FORMS += \

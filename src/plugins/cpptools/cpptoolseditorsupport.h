@@ -51,7 +51,7 @@ class DeclarationAST;
 
 namespace TextEditor {
 class BaseTextEditor;
-class ITextMark;
+class TextMark;
 } // namespace TextEditor
 
 namespace CppTools {

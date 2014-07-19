@@ -38,11 +38,11 @@ using namespace ProjectExplorer;
 TaskHub *m_instance = 0;
 QSet<Core::Id> TaskHub::m_registeredCategories;
 
-class TaskMark : public TextEditor::BaseTextMark
+class TaskMark : public TextEditor::TextMark
 {
 public:
     TaskMark(unsigned int id, const QString &fileName, int lineNumber, bool visible)
-        : BaseTextMark(fileName, lineNumber), m_id(id)
+        : TextMark(fileName, lineNumber), m_id(id)
     {
         setVisible(visible);
     }
@@ -60,13 +60,13 @@ private:
 void TaskMark::updateLineNumber(int lineNumber)
 {
     TaskHub::updateTaskLineNumber(m_id, lineNumber);
-    BaseTextMark::updateLineNumber(lineNumber);
+    TextMark::updateLineNumber(lineNumber);
 }
 
 void TaskMark::updateFileName(const QString &fileName)
 {
     TaskHub::updateTaskFileName(m_id, fileName);
-    BaseTextMark::updateFileName(fileName);
+    TextMark::updateFileName(fileName);
 }
 
 void TaskMark::removedFromEditor()
@@ -131,13 +131,10 @@ void TaskHub::addTask(Task task)
     if (task.line != -1 && !task.file.isEmpty()) {
         TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line, !task.icon.isNull());
         mark->setIcon(task.icon);
-        mark->setPriority(TextEditor::ITextMark::LowPriority);
+        mark->setPriority(TextEditor::TextMark::LowPriority);
         task.addMark(mark);
-        emit m_instance->taskAdded(task);
-        mark->init();
-    } else {
-        emit m_instance->taskAdded(task);
     }
+    emit m_instance->taskAdded(task);
 }
 
 void TaskHub::clearTasks(Core::Id categoryId)

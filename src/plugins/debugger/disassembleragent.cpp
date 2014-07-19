@@ -103,8 +103,8 @@ public:
     QPointer<BaseTextDocument> document;
     Location location;
     QPointer<DebuggerEngine> engine;
-    ITextMark locationMark;
-    QList<ITextMark *> breakpointMarks;
+    TextMark locationMark;
+    QList<TextMark *> breakpointMarks;
     QList<CacheEntry> cache;
     QString mimeType;
     bool tryMixedInitialized;
@@ -114,14 +114,14 @@ public:
 
 DisassemblerAgentPrivate::DisassemblerAgentPrivate()
   : document(0),
-    locationMark(0),
+    locationMark(QString(), 0),
     mimeType(_("text/x-qtcreator-generic-asm")),
     tryMixedInitialized(false),
     tryMixed(true),
     resetLocationScheduled(false)
 {
     locationMark.setIcon(debuggerCore()->locationMarkIcon());
-    locationMark.setPriority(TextEditor::ITextMark::HighPriority);
+    locationMark.setPriority(TextEditor::TextMark::HighPriority);
 }
 
 DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
@@ -353,7 +353,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
         return;
 
     const DisassemblerLines contents = d->contentsAtCurrentLocation();
-    foreach (TextEditor::ITextMark *marker, d->breakpointMarks)
+    foreach (TextEditor::TextMark *marker, d->breakpointMarks)
         d->document->removeMark(marker);
     qDeleteAll(d->breakpointMarks);
     d->breakpointMarks.clear();
@@ -364,9 +364,9 @@ void DisassemblerAgent::updateBreakpointMarkers()
         const int lineNumber = contents.lineForAddress(address);
         if (!lineNumber)
             continue;
-        ITextMark *marker = new ITextMark(lineNumber);
+        TextMark *marker = new TextMark(QString(), lineNumber);
         marker->setIcon(handler->icon(id));
-        marker->setPriority(ITextMark::NormalPriority);
+        marker->setPriority(TextMark::NormalPriority);
         d->breakpointMarks.append(marker);
         d->document->addMark(marker);
     }

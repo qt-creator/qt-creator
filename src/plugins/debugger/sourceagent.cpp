@@ -35,6 +35,7 @@
 #include "stackhandler.h"
 
 #include <texteditor/basetexteditor.h>
+#include <texteditor/textmark.h>
 
 #include <cppeditor/cppeditorconstants.h>
 
@@ -61,7 +62,7 @@ public:
 public:
     QPointer<TextEditor::BaseTextEditor> editor;
     QPointer<DebuggerEngine> engine;
-    TextEditor::ITextMark *locationMark;
+    TextEditor::TextMark *locationMark;
     QString path;
     QString producer;
 };
@@ -140,9 +141,9 @@ void SourceAgent::updateLocationMarker()
     d->locationMark = 0;
     if (d->engine->stackHandler()->currentFrame().file == d->path) {
         int lineNumber = d->engine->stackHandler()->currentFrame().line;
-        d->locationMark = new TextEditor::ITextMark(lineNumber);
+        d->locationMark = new TextEditor::TextMark(QString(), lineNumber);
         d->locationMark->setIcon(debuggerCore()->locationMarkIcon());
-        d->locationMark->setPriority(TextEditor::ITextMark::HighPriority);
+        d->locationMark->setPriority(TextEditor::TextMark::HighPriority);
         d->editor->baseTextDocument()->addMark(d->locationMark);
         QPlainTextEdit *plainTextEdit = d->editor->editorWidget();
         QTC_ASSERT(plainTextEdit, return);

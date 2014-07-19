@@ -307,7 +307,7 @@ public:
 
     DisassemblerAgent m_disassemblerAgent;
     MemoryAgent m_memoryAgent;
-    QScopedPointer<TextEditor::BaseTextMark> m_locationMark;
+    QScopedPointer<TextEditor::TextMark> m_locationMark;
     QTimer m_locationTimer;
 
     bool m_isStateDebugging;
@@ -565,10 +565,9 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
 
     if (loc.needsMarker()) {
-        d->m_locationMark.reset(new TextEditor::BaseTextMark(file, line));
+        d->m_locationMark.reset(new TextEditor::TextMark(file, line));
         d->m_locationMark->setIcon(debuggerCore()->locationMarkIcon());
-        d->m_locationMark->setPriority(TextEditor::ITextMark::HighPriority);
-        d->m_locationMark->init();
+        d->m_locationMark->setPriority(TextEditor::TextMark::HighPriority);
     }
 
     //qDebug() << "MEMORY: " << d->m_memoryAgent.hasVisibleEditor();

@@ -43,10 +43,10 @@ namespace Internal {
 
 BreakpointMarker::BreakpointMarker(BreakpointModelId id,
         const QString &fileName, int lineNumber)
-    : BaseTextMark(fileName, lineNumber), m_id(id)
+    : TextMark(fileName, lineNumber), m_id(id)
 {
     setIcon(breakHandler()->icon(m_id));
-    setPriority(TextEditor::ITextMark::NormalPriority);
+    setPriority(TextEditor::TextMark::NormalPriority);
     //qDebug() << "CREATE MARKER " << fileName << lineNumber;
 }
 
@@ -62,7 +62,7 @@ void BreakpointMarker::removedFromEditor()
 
 void BreakpointMarker::updateLineNumber(int lineNumber)
 {
-    BaseTextMark::updateLineNumber(lineNumber);
+    TextMark::updateLineNumber(lineNumber);
     breakHandler()->updateLineNumberFromMarker(m_id, lineNumber);
 }
 
@@ -78,7 +78,7 @@ void BreakpointMarker::clicked()
 
 void BreakpointMarker::updateFileName(const QString &fileName)
 {
-    BaseTextMark::updateFileName(fileName);
+    TextMark::updateFileName(fileName);
     breakHandler()->updateFileNameFromMarker(m_id, fileName);
 }
 

@@ -37,10 +37,10 @@
 using namespace Bookmarks::Internal;
 
 Bookmark::Bookmark(const QString& fileName, int lineNumber, BookmarkManager *manager) :
-    BaseTextMark(fileName, lineNumber),
+    TextMark(fileName, lineNumber),
     m_manager(manager)
 {
-    setPriority(TextEditor::ITextMark::NormalPriority);
+    setPriority(TextEditor::TextMark::NormalPriority);
     setIcon(m_manager->bookmarkIcon());
 }
 
@@ -52,7 +52,7 @@ void Bookmark::removedFromEditor()
 void Bookmark::updateLineNumber(int line)
 {
     if (line != lineNumber()) {
-        BaseTextMark::updateLineNumber(line);
+        TextMark::updateLineNumber(line);
         m_manager->updateBookmark(this);
     }
 }
@@ -60,7 +60,7 @@ void Bookmark::updateLineNumber(int line)
 void Bookmark::move(int line)
 {
     if (line != lineNumber()) {
-        BaseTextMark::move(line);
+        TextMark::move(line);
         m_manager->updateBookmark(this);
     }
 }
@@ -75,7 +75,7 @@ void Bookmark::updateBlock(const QTextBlock &block)
 
 void Bookmark::updateFileName(const QString &fileName)
 {
-    BaseTextMark::updateFileName(fileName);
+    TextMark::updateFileName(fileName);
     m_manager->updateBookmark(this);
 }
 

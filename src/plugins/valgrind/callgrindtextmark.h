@@ -30,7 +30,7 @@
 #ifndef CALLGRINDTEXTMARK_H
 #define CALLGRINDTEXTMARK_H
 
-#include <texteditor/basetextmark.h>
+#include <texteditor/textmark.h>
 
 #include <QPersistentModelIndex>
 
@@ -40,7 +40,7 @@ namespace Callgrind { class Function; }
 
 namespace Internal {
 
-class CallgrindTextMark : public TextEditor::BaseTextMark
+class CallgrindTextMark : public TextEditor::TextMark
 {
 public:
     /**

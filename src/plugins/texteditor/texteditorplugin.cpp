@@ -40,7 +40,7 @@
 #include "plaintexteditor.h"
 #include "outlinefactory.h"
 #include "snippets/plaintextsnippetprovider.h"
-#include "basetextmarkregistry.h"
+#include "textmarkregistry.h"
 #include <texteditor/generichighlighter/manager.h>
 
 #include <coreplugin/icore.h>
@@ -190,7 +190,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_outlineFactory = new OutlineFactory;
     addAutoReleasedObject(m_outlineFactory);
 
-    m_baseTextMarkRegistry = new BaseTextMarkRegistry(this);
+    m_baseTextMarkRegistry = new TextMarkRegistry(this);
 
     return true;
 }
@@ -271,7 +271,7 @@ LineNumberFilter *TextEditorPlugin::lineNumberFilter()
     return m_instance->m_lineNumberFilter;
 }
 
-BaseTextMarkRegistry *TextEditorPlugin::baseTextMarkRegistry()
+TextMarkRegistry *TextEditorPlugin::baseTextMarkRegistry()
 {
     return m_instance->m_baseTextMarkRegistry;
 }
