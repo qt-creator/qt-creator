@@ -47,11 +47,9 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IEditor;
-class IEditorFactory;
 class Command;
 class CommandLocator;
 class Context;
-class ActionManager;
 class ActionContainer;
 }
 namespace Utils { class ParameterAction; }

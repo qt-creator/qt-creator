@@ -43,7 +43,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 class CommandLocator;
-class IEditorFactory;
 class IVersionControl;
 }
 
