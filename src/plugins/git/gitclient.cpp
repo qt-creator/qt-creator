@@ -2231,7 +2231,8 @@ GitClient::StashInfo &GitClient::stashInfo(const QString &workingDirectory)
 void GitClient::endStashScope(const QString &workingDirectory)
 {
     const QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
-    QTC_ASSERT(m_stashInfo.contains(repoDirectory), return);
+    if (!m_stashInfo.contains(repoDirectory))
+        return;
     m_stashInfo[repoDirectory].end();
 }
 
