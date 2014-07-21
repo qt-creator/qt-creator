@@ -47,11 +47,7 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 
-#ifdef USE_XSLT
-#    include <QXmlQuery>
-#else
-#    include <QDomDocument>
-#endif
+#include <QDomDocument>
 
 namespace Designer {
 namespace Internal {
@@ -132,83 +128,6 @@ bool FormTemplateWizardPage::getUIXmlData(const QString &uiXml,
     }
     return false;
 }
-
-#ifdef USE_XSLT
-
-// Change the UI class name in UI xml: This occurs several times, as contents
-// of the <class> element, as name of the first <widget> element, and possibly
-// in the signal/slot connections
-
-static const char *classNameChangingSheetFormatC =
-"<?xml version=\"1.0\"?>\n"
-"<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"2.0\">\n"
-"<xsl:output method=\"xml\" indent=\"yes\" encoding=\"UTF-8\" />\n"
-"\n"
-"<!-- Grab old class name to be replaced by evaluating <ui><class> -->\n"
-"<xsl:param name=\"oldClassName\"><xsl:value-of select=\"/ui/class\"/></xsl:param>\n"
-"\n"
-"<!-- heavy wizardry to copy nodes and attributes (emulating the default  rules) -->\n"
-"<xsl:template match=\"@*|node()\">\n"
-"   <xsl:copy>\n"
-"        <xsl:apply-templates select=\"@*|node()\"/>\n"
-"   </xsl:copy>\n"
-"</xsl:template>\n"
-"\n"
-"<!-- Change <ui><class> tag -->\n"
-"<xsl:template match=\"class\">\n"
-"    <xsl:element name=\"class\">\n"
-"    <xsl:text>%1</xsl:text>\n"
-"    </xsl:element>\n"
-"</xsl:template>\n"
-"\n"
-"<!-- Change first <widget> tag -->\n"
-"<xsl:template match=\"/ui/widget/@name\">\n"
-"<xsl:attribute name=\"name\">\n"
-"<xsl:text>%1</xsl:text>\n"
-"</xsl:attribute>\n"
-"</xsl:template>\n"
-"\n"
-"<!-- Change <sender>/<receiver> elements (for pre-wired QDialog signals) -->\n"
-"<xsl:template match=\"receiver[.='Dialog']\">\n"
-"    <xsl:element name=\"receiver\">\n"
-"        <xsl:text>%1</xsl:text>\n"
-"    </xsl:element>\n"
-"</xsl:template>\n"
-"<xsl:template match=\"sender[.='Dialog']\">\n"
-"    <xsl:element name=\"sender\">\n"
-"        <xsl:text>%1</xsl:text>\n"
-"    </xsl:element>\n"
-"</xsl:template>\n"
-"</xsl:stylesheet>\n";
-
-QString FormTemplateWizardPage::changeUiClassName(const QString &uiXml, const QString &newUiClassName)
-{
-    // Prepare I/O: Sheet
-    const QString xsltSheet = QString::fromLatin1(classNameChangingSheetFormatC).arg(newUiClassName);
-    QByteArray xsltSheetBA = xsltSheet.toUtf8();
-    QBuffer xsltSheetBuffer(&xsltSheetBA);
-    xsltSheetBuffer.open(QIODevice::ReadOnly);
-    // Prepare I/O: Xml
-    QByteArray xmlBA = uiXml.toUtf8();
-    QBuffer  xmlBuffer(&xmlBA);
-    xmlBuffer.open(QIODevice::ReadOnly);
-    // Prepare I/O: output
-    QBuffer outputBuffer;
-    outputBuffer.open(QIODevice::WriteOnly);
-
-    // Run query
-    QXmlQuery query(QXmlQuery::XSLT20);
-    query.setFocus(&xmlBuffer);
-    query.setQuery(&xsltSheetBuffer);
-    if (!query.evaluateTo(&outputBuffer)) {
-        qWarning("Unable to change the ui class name in a form template.\n%s\nUsing:\n%s\n",
-                 xmlBA.constData(), xsltSheetBA.constData());
-        return uiXml;
-    }
-    outputBuffer.close();
-    return QString::fromUtf8(outputBuffer.data());
-}
-#else
 
 // Change the contents of a DOM element to a new value if it matches
 // a predicate
@@ -332,7 +251,6 @@ QString FormTemplateWizardPage::changeUiClassName(const QString &uiXml, const QS
         qDebug() << '<' << Q_FUNC_INFO << newUiClassName << rc;
     return rc;
 }
-#endif // USE_XSLT
 
 } // namespace Internal
 } // namespace Designer
