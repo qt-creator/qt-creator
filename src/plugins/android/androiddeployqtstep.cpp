@@ -317,7 +317,7 @@ bool AndroidDeployQtStep::processSucceeded(int exitCode, QProcess::ExitStatus st
             QMessageBox::critical(0, tr("Install failed"),
                                   tr("Another application with the same package id but signed with "
                                      "different ceritificate already exists.\n"
-                                     "Do you want to install the existing package next time?"),
+                                     "Do you want to uninstall the existing package next time?"),
                                   QMessageBox::Yes, QMessageBox::No)
             == QMessageBox::Yes)  {
         m_uninstallPreviousPackageTemp = true;
