@@ -37,6 +37,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
 
+#include <tools/hostosinfo.h>
+
 #include <QFileInfo>
 
 namespace QbsProjectManager {
@@ -65,10 +67,29 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
     if (tc) {
         // FIXME/CLARIFY: How to pass the sysroot?
         ProjectExplorer::Abi targetAbi = tc->targetAbi();
-        QString architecture = ProjectExplorer::Abi::toString(targetAbi.architecture());
-        if (targetAbi.wordWidth() == 64)
-            architecture.append(QLatin1String("_64"));
-        data.insert(QLatin1String(QBS_ARCHITECTURE), architecture);
+        if (targetAbi.architecture() != ProjectExplorer::Abi::UnknownArchitecture) {
+            QString architecture = ProjectExplorer::Abi::toString(targetAbi.architecture());
+
+            // We have to be conservative tacking on suffixes to arch names because an arch that is
+            // already 64-bit may get an incorrect name as a result (i.e. Itanium)
+            if (targetAbi.wordWidth() == 64) {
+                switch (targetAbi.architecture()) {
+                case ProjectExplorer::Abi::X86Architecture:
+                    architecture.append(QLatin1String("_"));
+                    // fall through
+                case ProjectExplorer::Abi::ArmArchitecture:
+                case ProjectExplorer::Abi::MipsArchitecture:
+                case ProjectExplorer::Abi::PowerPCArchitecture:
+                    architecture.append(QString::number(targetAbi.wordWidth()));
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            data.insert(QLatin1String(QBS_ARCHITECTURE),
+                        qbs::Internal::HostOsInfo::canonicalArchitecture(architecture));
+        }
 
         if (targetAbi.endianness() == ProjectExplorer::Abi::BigEndian)
             data.insert(QLatin1String(QBS_ENDIANNESS), QLatin1String("big"));
