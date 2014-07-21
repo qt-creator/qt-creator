@@ -128,9 +128,9 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
     MetaInfo metaInfo = MetaInfo::global();
 
     FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
-    QPointF pos = parentItem->mapFromScene(scenePosition);
+    QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform().inverted().map(scenePosition);
 
-    m_dragNode = QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, pos, parentNode);
+    m_dragNode = QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, positonInItemSpace, parentNode);
 
     QList<QmlItemNode> nodeList;
     nodeList.append(m_dragNode);
@@ -145,7 +145,7 @@ void DragTool::createQmlItemNodeFromImage(const QString &imageName,
         MetaInfo metaInfo = MetaInfo::global();
 
         FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
-        QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneTransform().inverted().map(scenePosition);
+        QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform().inverted().map(scenePosition);
 
         m_dragNode = QmlItemNode::createQmlItemNodeFromImage(view(), imageName, positonInItemSpace, parentNode);
 
