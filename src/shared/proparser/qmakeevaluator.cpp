@@ -55,6 +55,9 @@
 #ifdef Q_OS_UNIX
 #include <unistd.h>
 #include <sys/utsname.h>
+#  ifdef Q_OS_BSD4
+#    include <sys/sysctl.h>
+#  endif
 #else
 #include <windows.h>
 #endif
@@ -66,6 +69,39 @@ using namespace QMakeInternal;
 QT_BEGIN_NAMESPACE
 
 #define fL1S(s) QString::fromLatin1(s)
+
+// we can't use QThread in qmake
+// this function is a merger of QThread::idealThreadCount from qthread_win.cpp and qthread_unix.cpp
+static int idealThreadCount()
+{
+#ifdef PROEVALUATOR_THREAD_SAFE
+    return QThread::idealThreadCount();
+#elif defined(Q_OS_WIN)
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    return sysinfo.dwNumberOfProcessors;
+#else
+    // there are a couple more definitions in the Unix QThread::idealThreadCount, but
+    // we don't need them all here
+    int cores = 1;
+#  if defined(Q_OS_BSD4)
+    // FreeBSD, OpenBSD, NetBSD, BSD/OS, Mac OS X
+    size_t len = sizeof(cores);
+    int mib[2];
+    mib[0] = CTL_HW;
+    mib[1] = HW_NCPU;
+    if (sysctl(mib, 2, &cores, &len, NULL, 0) != 0) {
+        perror("sysctl");
+    }
+#  elif defined(_SC_NPROCESSORS_ONLN)
+    // the rest: Linux, Solaris, AIX, Tru64
+    cores = (int)sysconf(_SC_NPROCESSORS_ONLN);
+    if (cores == -1)
+        return 1;
+#  endif
+    return cores;
+#endif
+}
 
 
 QMakeBaseKey::QMakeBaseKey(const QString &_root, const QString &_stash, bool _hostBuild)
@@ -960,6 +996,7 @@ void QMakeEvaluator::loadDefaults()
         vars[ProKey("QMAKE_QMAKE")] << ProString(m_option->qmake_abslocation);
     if (!m_option->qmake_args.isEmpty())
         vars[ProKey("QMAKE_ARGS")] = ProStringList(m_option->qmake_args);
+    vars[ProKey("QMAKE_HOST.cpu_count")] = ProString(QString::number(idealThreadCount()));
 #if defined(Q_OS_WIN32)
     vars[ProKey("QMAKE_HOST.os")] << ProString("Windows");
 
