@@ -882,7 +882,6 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     addErrorLabel();
 
     setFromToolchain();
-    handleCompilerCommandChange();
 
     connect(m_compilerCommand, SIGNAL(changed(QString)), this, SLOT(handleCompilerCommandChange()));
     connect(m_platformCodeGenFlagsLineEdit, SIGNAL(editingFinished()), this, SLOT(handlePlatformCodeGenFlagsChange()));
