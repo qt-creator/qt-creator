@@ -41,11 +41,8 @@
 
         \row
             \li Learn more about Qt
-            \li \l{http://qt.digia.com/product/learning/}{Learning}
-                from Digia
-
-                \l{http://qt-project.org/wiki/developer-guides}
-                {Qt Developer Guides} from Qt Project
+            \li \l{http://qt-project.org/wiki/developer-guides}
+                {Qt Developer Guides}
 
         \row
             \li Develop Qt applications for desktop and mobile devices
