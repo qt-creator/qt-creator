@@ -234,7 +234,7 @@
         \li \c %MONTH%: Month
         \li \c %DAY%: Day of the month
         \li \c %DATE%: Date
-        \li \c %USER%: User name
+        \li \c %USER%: Username
         \li \c %FILENAME%: File name
         \li \c %CLASS%: Class name (if applicable)
         \li \c %$VARIABLE%: Contents of environment variable \c{VARIABLE}.
