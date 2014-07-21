@@ -213,14 +213,21 @@ void CreateAndroidManifestWizard::setDirectory(const QString &directory)
     m_directory = directory;
 }
 
-QString CreateAndroidManifestWizard::sourceFileName() const
+QString CreateAndroidManifestWizard::sourceFolder() const
 {
-    QString result;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_target->kit());
     if (!version)
-        return result;
+        return QString();
+    return version->qmakeProperty("QT_INSTALL_PREFIX");
+}
+
+QString CreateAndroidManifestWizard::sourceFileName() const
+{
+    QString srcFolder = sourceFolder();
+    if (srcFolder.isEmpty())
+        return srcFolder;
     Utils::FileName srcPath
-            = Utils::FileName::fromString(version->qmakeProperty("QT_INSTALL_PREFIX"))
+            = Utils::FileName::fromString(srcFolder)
             .appendPath(QLatin1String("src/android/java"));
     srcPath.appendPath(QLatin1String("AndroidManifest.xml"));
     return srcPath.toString();
@@ -250,9 +257,20 @@ void CreateAndroidManifestWizard::createAndroidManifestFile()
         }
     }
 
-    if (!QFile::copy(sourceFileName(), fileName)) {
+    QString srcFileName = sourceFileName();
+
+    if (!QFileInfo(srcFileName).exists()) {
         QMessageBox::warning(this, tr("File Creation Error"),
-                             tr("Could not create file %1.").arg(fileName));
+                             tr("\"%1\" is missing.\n"
+                                "Check your Qt installation here:\n"
+                                "\"%2\"").arg(fileName).arg(sourceFolder()));
+        return;
+    }
+
+    if (!QFile::copy(srcFileName, fileName)) {
+        QMessageBox::warning(this, tr("File Creation Error"),
+                             tr("Could not create file %1.\n"
+                                "Verify that you have writing rights in your project directory.").arg(fileName));
         return;
     }
 

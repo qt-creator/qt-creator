@@ -92,6 +92,7 @@ public:
     QmakeProjectManager::QmakeProFileNode *node() const;
     void setNode(QmakeProjectManager::QmakeProFileNode *node);
 
+    QString sourceFolder() const;
     QString sourceFileName() const;
 
     void accept();
