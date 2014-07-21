@@ -123,12 +123,12 @@ void DragTool::beginWithPoint(const QPointF &beginPoint)
 
 void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
                                  const QmlItemNode &parentNode,
-                                 const QPointF &scenePos)
+                                 const QPointF &scenePosition)
 {
     MetaInfo metaInfo = MetaInfo::global();
 
     FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
-    QPointF pos = parentItem->mapFromScene(scenePos);
+    QPointF pos = parentItem->mapFromScene(scenePosition);
 
     m_dragNode = QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, pos, parentNode);
 
@@ -139,15 +139,15 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
 
 void DragTool::createQmlItemNodeFromImage(const QString &imageName,
                                           const QmlItemNode &parentNode,
-                                          const QPointF &scenePos)
+                                          const QPointF &scenePosition)
 {
     if (parentNode.isValid()) {
         MetaInfo metaInfo = MetaInfo::global();
 
         FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
-        QPointF pos = parentItem->mapFromScene(scenePos);
+        QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneTransform().inverted().map(scenePosition);
 
-        m_dragNode = QmlItemNode::createQmlItemNodeFromImage(view(), imageName, pos, parentNode);
+        m_dragNode = QmlItemNode::createQmlItemNodeFromImage(view(), imageName, positonInItemSpace, parentNode);
 
         QList<QmlItemNode> nodeList;
         nodeList.append(m_dragNode);
@@ -355,7 +355,7 @@ void DragTool::end(Snapper::Snapping useSnapping)
     clear();
 }
 
-void  DragTool::move(const QPointF &scenePos, const QList<QGraphicsItem*> &itemList)
+void  DragTool::move(const QPointF &scenePosition, const QList<QGraphicsItem*> &itemList)
 {
     if (m_movingItem) {
         FormEditorItem *containerItem = targetContainerOrRootItem(itemList, m_movingItem.data());
@@ -367,7 +367,7 @@ void  DragTool::move(const QPointF &scenePos, const QList<QGraphicsItem*> &itemL
 
         Snapper::Snapping useSnapping = Snapper::UseSnapping;
 
-        m_moveManipulator.update(scenePos, useSnapping, MoveManipulator::UseBaseState);
+        m_moveManipulator.update(scenePosition, useSnapping, MoveManipulator::UseBaseState);
     }
 }
 

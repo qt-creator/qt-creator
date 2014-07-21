@@ -73,8 +73,6 @@ public:
 
     void beginWithPoint(const QPointF &beginPoint);
 
-    //void beginWithPoint(const QPointF &beginPoint);
-
     void clear() QTC_OVERRIDE;
 
     void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) QTC_OVERRIDE;
