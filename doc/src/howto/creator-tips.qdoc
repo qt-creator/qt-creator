@@ -152,8 +152,8 @@
 
     Press \key Ctrl (\key Cmd on OS X) and click a symbol to move directly to
     the definition or the declaration of the symbol. You can also move the
-    on the symbol and press \key {F2}. For more information, see
-    cursor \l{Moving to Symbol Definition or Declaration}.
+    cursor on the symbol and press \key {F2}. For more information, see
+    \l{Moving to Symbol Definition or Declaration}.
 
     \section1 Displaying Signals and Slots
 
