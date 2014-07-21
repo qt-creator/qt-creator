@@ -160,7 +160,8 @@
     If an instance of a class is derived from QObject, and you would like to
     find all other objects connected to one of your object's slots using
     Qt's signals and slots mechanism, select \gui Tools > \gui Options
-    > \gui{Debugger} > \gui{Debugging Helper} > \gui{Use Debugging Helper}.
+    > \gui{Debugger} > \gui{Locals and Expressions} >
+    \gui{Use Debugging Helper}.
 
     In the \gui{Locals and Expressions} view, expand the object's entry and open
     the slot in the \e slots subitem. The objects connected to this slot are
@@ -179,7 +180,7 @@
     \list 1
 
         \li Select \gui Tools > \gui Options > \gui Debugger >
-            \gui{Debugging Helper}.
+            \gui{Locals and Expressions}.
 
         \li Uncheck the \gui{Use Debugging Helper} checkbox.
 
