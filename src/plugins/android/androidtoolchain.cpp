@@ -386,7 +386,7 @@ QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::
             continue;
         AndroidToolChain *tc = new AndroidToolChain(arch, version, ToolChain::AutoDetection);
         FileName compilerPath = AndroidConfigurations::currentConfig().gccPath(arch, version);
-        tc->setCompilerCommand(compilerPath);
+        tc->resetToolChain(compilerPath);
         result.append(tc);
 
         QMap<Abi::Architecture, AndroidToolChain *>::const_iterator it

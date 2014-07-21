@@ -187,7 +187,7 @@ QnxToolChain *QnxBaseConfiguration::createToolChain(QnxArchitecture arch,
                                                     const QString &ndkPath)
 {
     QnxToolChain *toolChain = new QnxToolChain(ProjectExplorer::ToolChain::AutoDetection);
-    toolChain->setCompilerCommand(m_qccCompiler);
+    toolChain->resetToolChain(m_qccCompiler);
     toolChain->setTargetAbi(Abi((arch == Qnx::ArmLeV7) ? Abi::ArmArchitecture : Abi::X86Architecture,
                                 Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
     toolChain->setDisplayName(displayName);

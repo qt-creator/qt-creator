@@ -83,7 +83,7 @@ public:
 
     bool operator ==(const ToolChain &) const;
 
-    void setCompilerCommand(const Utils::FileName &);
+    void resetToolChain(const Utils::FileName &);
     Utils::FileName compilerCommand() const;
     void setPlatformCodeGenFlags(const QStringList &);
     QStringList platformCodeGenFlags() const;
@@ -101,6 +101,8 @@ protected:
 
     typedef QPair<QStringList, QByteArray> CacheItem;
 
+    void setCompilerCommand(const Utils::FileName &path);
+    void setSupportedAbis(const QList<Abi> &m_abis);
     void setMacroCache(const QStringList &allCxxflags, const QByteArray &macroCache) const;
     QByteArray macroCache(const QStringList &allCxxflags) const;
 

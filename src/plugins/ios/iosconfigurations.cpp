@@ -170,7 +170,7 @@ void IosConfigurations::updateAutomaticKitList()
             toolchain->setDisplayName(displayName);
             toolchain->setPlatformCodeGenFlags(p.backendFlags);
             toolchain->setPlatformLinkerFlags(p.backendFlags);
-            toolchain->setCompilerCommand(p.compilerPath);
+            toolchain->resetToolChain(p.compilerPath);
             if (p.architecture == QLatin1String("i386")) {
                 qCDebug(kitSetupLog) << "setting toolchain Abi for " << toolchain->displayName();
                 toolchain->setTargetAbi(Abi(Abi::X86Architecture,Abi::MacOS, Abi::GenericMacFlavor,

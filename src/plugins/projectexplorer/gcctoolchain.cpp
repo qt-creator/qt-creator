@@ -259,6 +259,19 @@ GccToolChain::GccToolChain(const GccToolChain &tc) :
     m_version(tc.m_version)
 { }
 
+void GccToolChain::setCompilerCommand(const FileName &path)
+{
+    if (path == m_compilerCommand)
+        return;
+
+    m_compilerCommand = path;
+}
+
+void GccToolChain::setSupportedAbis(const QList<Abi> &m_abis)
+{
+    m_supportedAbis = m_abis;
+}
+
 void GccToolChain::setMacroCache(const QStringList &allCxxflags, const QByteArray &macros) const
 {
     if (macros.isNull())
@@ -606,14 +619,14 @@ IOutputParser *GccToolChain::outputParser() const
     return new GccParser;
 }
 
-void GccToolChain::setCompilerCommand(const FileName &path)
+void GccToolChain::resetToolChain(const FileName &path)
 {
     if (path == m_compilerCommand)
         return;
 
     bool resetDisplayName = displayName() == defaultDisplayName();
 
-    m_compilerCommand = path;
+    setCompilerCommand(path);
 
     Abi currentAbi = m_targetAbi;
     m_supportedAbis = detectSupportedAbis();
@@ -830,6 +843,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
             return result;
 
         tc->setCompilerCommand(compilerPath);
+        tc->setSupportedAbis(abiList);
         tc->setTargetAbi(abi);
         tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
 
@@ -885,6 +899,7 @@ void GccToolChainConfigWidget::applyImpl()
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->fileName());
+    tc->setSupportedAbis(m_abiWidget->supportedAbis());
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName); // reset display name
     tc->setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));

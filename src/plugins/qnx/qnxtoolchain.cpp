@@ -242,7 +242,7 @@ void QnxToolChainConfigWidget::applyImpl()
     QnxToolChain *tc = static_cast<QnxToolChain *>(toolChain());
     Q_ASSERT(tc);
     QString displayName = tc->displayName();
-    tc->setCompilerCommand(m_compilerCommand->fileName());
+    tc->resetToolChain(m_compilerCommand->fileName());
     tc->setDisplayName(displayName); // reset display name
     tc->setNdkPath(m_ndkPath->fileName().toString());
     tc->setTargetAbi(m_abiWidget->currentAbi());
