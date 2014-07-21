@@ -2342,6 +2342,17 @@ void CppToolsPlugin::test_completion_data()
         ) << _("s.t->") << (QStringList()
             << QLatin1String("foo")
             << QLatin1String("Foo"));
+
+    QTest::newRow("typedef_of_pointer_of_array_QTCREATORBUG-12703") << _(
+            "struct Foo { int foo; };\n"
+            "typedef Foo *FooArr[10];\n"
+            "void fun() {\n"
+            "   FooArr arr;\n"
+            "   @\n"
+            "}\n"
+        ) << _("arr[0]->") << (QStringList()
+            << QLatin1String("foo")
+            << QLatin1String("Foo"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()
