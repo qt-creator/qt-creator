@@ -791,13 +791,13 @@ public:
 
 private:
     FakeVimPluginPrivate *m_q;
-    QPointer<QGroupBox> m_widget;
+    QPointer<QWidget> m_widget;
 };
 
 QWidget *FakeVimUserCommandsPage::widget()
 {
     if (!m_widget) {
-        m_widget = new QGroupBox;
+        m_widget = new QWidget;
 
         FakeVimUserCommandsModel *model = new FakeVimUserCommandsModel(m_q);
         QTreeView *widget = new QTreeView;
