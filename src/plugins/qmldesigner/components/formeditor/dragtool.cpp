@@ -334,25 +334,21 @@ void DragTool::createDragNode(const QMimeData *mimeData, const QPointF &scenePos
 
 void DragTool::dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
 {
-    if (!m_blockMove) {
-        if (!m_isAborted) {
-            if (canHandleMimeData(event->mimeData())) {
-                event->accept();
-                if (m_dragNode.isValid()) {
-                    FormEditorItem *targetContainerItem = targetContainerOrRootItem(itemList);
-                    if (targetContainerItem) {
-                        move(event->scenePos(), itemList);
-                    } else {
-                        end();
-                        m_dragNode.destroy();
-                    }
-                } else {
-                    createDragNode(event->mimeData(), event->scenePos(), itemList);
-                }
+    if (!m_blockMove && !m_isAborted && canHandleMimeData(event->mimeData())) {
+        event->accept();
+        if (m_dragNode.isValid()) {
+            FormEditorItem *targetContainerItem = targetContainerOrRootItem(itemList);
+            if (targetContainerItem) {
+                move(event->scenePos(), itemList);
+            } else {
+                end();
+                m_dragNode.destroy();
             }
         } else {
-            event->ignore();
+            createDragNode(event->mimeData(), event->scenePos(), itemList);
         }
+    } else{
+        event->ignore();
     }
 }
 
