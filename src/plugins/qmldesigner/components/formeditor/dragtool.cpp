@@ -276,7 +276,6 @@ static ItemLibraryEntry itemLibraryEntryFromMimeData(const QMimeData *mimeData)
 void DragTool::dragEnterEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
     if (canHandleMimeData(event->mimeData())) {
-        QList<Import> importToBeAddedList;
         m_blockMove = false;
         if (hasItemLibraryInfo(event->mimeData())) {
             view()->widgetInfo().widget->setFocus();
