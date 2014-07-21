@@ -145,9 +145,9 @@
 
     \list
 
-        \li  \QMLD uses external processes (QML Puppet) to render and preview
+        \li  \QMLD uses a QML emulation layer (QML Puppet) to render and preview
             images and to collect data. Executing C++ code might cause the QML
-            Puppet to crash. If it crashes, an error message is displayed and
+            emulation layer to crash. If it crashes, an error message is displayed and
             you can continue editing the QML file in the code editor.
 
     \endlist
