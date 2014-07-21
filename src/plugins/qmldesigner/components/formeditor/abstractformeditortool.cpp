@@ -281,11 +281,10 @@ FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGra
     foreach (QGraphicsItem* item, itemUnderMouseList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem
-           && !selectedItemList.contains(formEditorItem)
-           && isNotAncestorOfItemInList(formEditorItem, selectedItemList)
-           && formEditorItem->isContainer())
-                return formEditorItem;
-
+                && !selectedItemList.contains(formEditorItem)
+                && isNotAncestorOfItemInList(formEditorItem, selectedItemList)
+                && formEditorItem->isContainer())
+            return formEditorItem;
     }
 
     return 0;

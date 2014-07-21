@@ -103,7 +103,7 @@ protected:
     void abort();
     void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QmlItemNode &parentNode, const QPointF &scenePos);
     void createQmlItemNodeFromImage(const QString &imageName, const QmlItemNode &parentNode, const QPointF &scenePos);
-    FormEditorItem *calculateTargetContainer(const QList<QGraphicsItem*> &itemList, FormEditorItem *urrentItem = 0);
+    FormEditorItem *targetContainerOrRootItem(const QList<QGraphicsItem*> &itemList, FormEditorItem *urrentItem = 0);
     void begin(QPointF scenePos);
     void end();
     void end(Snapper::Snapping useSnapping);

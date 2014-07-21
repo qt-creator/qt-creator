@@ -426,7 +426,7 @@ bool FormEditorItem::isContainer() const
     NodeMetaInfo nodeMetaInfo = qmlItemNode().modelNode().metaInfo();
 
     if (nodeMetaInfo.isValid())
-        return !nodeMetaInfo.defaultPropertyIsComponent();
+        return !nodeMetaInfo.defaultPropertyIsComponent() && !nodeMetaInfo.isLayoutable();
 
     return true;
 }

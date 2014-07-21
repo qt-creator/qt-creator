@@ -170,22 +170,14 @@ static inline bool isAncestorOf(FormEditorItem *formEditorItem, FormEditorItem *
     return false;
 }
 
-FormEditorItem* DragTool::calculateTargetContainer(const QList<QGraphicsItem*> &itemList, FormEditorItem * currentItem)
+FormEditorItem* DragTool::targetContainerOrRootItem(const QList<QGraphicsItem*> &itemList, FormEditorItem * currentItem)
 {
-    foreach (QGraphicsItem *item, itemList) {
-         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-         if (formEditorItem
-                 && formEditorItem != currentItem
-                 && formEditorItem->isContainer()
-                 && !formEditorItem->qmlItemNode().modelNode().metaInfo().isLayoutable()
-                 && !isAncestorOf(currentItem, formEditorItem))
-             return formEditorItem;
-    }
+    FormEditorItem *formEditorItem = containerFormEditorItem(itemList, QList<FormEditorItem*>() << currentItem);
 
-    if (scene()->rootFormEditorItem())
-        return scene()->rootFormEditorItem();
+    if (!formEditorItem)
+        formEditorItem = scene()->rootFormEditorItem();
 
-    return 0;
+    return formEditorItem;
 }
 
 void DragTool::formEditorItemsChanged(const QList<FormEditorItem*> & itemList)
@@ -323,7 +315,7 @@ static QString libraryResourceImageName(const QMimeData *mimeData)
 void DragTool::createDragNode(const QMimeData *mimeData, const QPointF &scenePosition, const QList<QGraphicsItem*> &itemList)
 {
     if (!m_dragNode.hasModelNode()) {
-        FormEditorItem *targetContainerFormEditorItem = calculateTargetContainer(itemList);
+        FormEditorItem *targetContainerFormEditorItem = targetContainerOrRootItem(itemList);
         if (targetContainerFormEditorItem) {
             QmlItemNode targetContainerQmlItemNode;
             if (targetContainerFormEditorItem)
@@ -348,7 +340,7 @@ void DragTool::dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSce
             if (canHandleMimeData(event->mimeData())) {
                 event->accept();
                 if (m_dragNode.isValid()) {
-                    FormEditorItem *targetContainerItem = calculateTargetContainer(itemList);
+                    FormEditorItem *targetContainerItem = targetContainerOrRootItem(itemList);
                     if (targetContainerItem) {
                         move(event->scenePos(), itemList);
                     } else {
@@ -380,7 +372,7 @@ void DragTool::end(Snapper::Snapping useSnapping)
 void  DragTool::move(const QPointF &scenePos, const QList<QGraphicsItem*> &itemList)
 {
     if (m_movingItem) {
-        FormEditorItem *containerItem = calculateTargetContainer(itemList, m_movingItem.data());
+        FormEditorItem *containerItem = targetContainerOrRootItem(itemList, m_movingItem.data());
         if (containerItem && m_movingItem->parentItem() &&
                 containerItem != m_movingItem->parentItem()) {
 
