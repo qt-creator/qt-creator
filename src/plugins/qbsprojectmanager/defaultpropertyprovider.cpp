@@ -83,19 +83,21 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
                                    : QStringList() << QLatin1String("msvc"));
         } else if (targetAbi.os() == ProjectExplorer::Abi::MacOS) {
             const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // from Ios::Constants (include header?)
+            const char IOS_SIMULATOR_TYPE[] = "Ios.Simulator.Type";
+
             const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitInformation::qtVersion(k);
+            QStringList targetOS;
+            targetOS << QLatin1String("darwin") << QLatin1String("bsd4")
+                     << QLatin1String("bsd") << QLatin1String("unix");
             if (qt && qt->type() == QLatin1String(IOSQT)) {
-                QStringList targetOS;
-                if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture)
-                    targetOS << QLatin1String("ios-simulator");
-                targetOS << QLatin1String("ios") << QLatin1String("darwin")
-                         << QLatin1String("bsd4") << QLatin1String("bsd") << QLatin1String("unix");
-                data.insert(QLatin1String(QBS_TARGETOS), targetOS);
+                targetOS.insert(0, QLatin1String("ios"));
+                if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k) == IOS_SIMULATOR_TYPE)
+                    targetOS.insert(0, QLatin1String("ios-simulator"));
             } else {
-                data.insert(QLatin1String(QBS_TARGETOS), QStringList() << QLatin1String("osx")
-                            << QLatin1String("darwin") << QLatin1String("bsd4")
-                            << QLatin1String("bsd") << QLatin1String("unix"));
+                targetOS.insert(0, QLatin1String("osx"));
             }
+            data.insert(QLatin1String(QBS_TARGETOS), targetOS);
+
             if (tc->type() != QLatin1String("clang")) {
                 data.insert(QLatin1String(QBS_TOOLCHAIN), QLatin1String("gcc"));
             } else {
