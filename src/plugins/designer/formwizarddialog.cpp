@@ -31,6 +31,7 @@
 #include "formtemplatewizardpage.h"
 
 #include <coreplugin/basefilewizardfactory.h>
+#include <qtsupport/codegenerator.h>
 
 #include <utils/filewizardpage.h>
 
@@ -107,7 +108,7 @@ void FormFileWizardDialog::slotCurrentIdChanged(int id)
         // the ui class
         QString formBaseClass;
         QString uiClassName;
-        if (FormTemplateWizardPage::getUIXmlData(templateContents(), &formBaseClass, &uiClassName)) {
+        if (QtSupport::CodeGenerator::uiData(templateContents(), &formBaseClass, &uiClassName)) {
             QString fileName = FormTemplateWizardPage::stripNamespaces(uiClassName).toLower();
             fileName += QLatin1String(".ui");
             m_filePage->setFileName(fileName);

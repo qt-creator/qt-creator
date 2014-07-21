@@ -7,6 +7,7 @@ DEFINES += QMAKE_LIBRARY
 include(../../shared/proparser/proparser.pri)
 
 HEADERS += \
+    codegenerator.h \
     codegensettings.h \
     codegensettingspage.h \
     gettingstartedwelcomepage.h \
@@ -38,6 +39,7 @@ HEADERS += \
     winceqtversion.h
 
 SOURCES += \
+    codegenerator.cpp \
     codegensettings.cpp \
     codegensettingspage.cpp \
     gettingstartedwelcomepage.cpp \

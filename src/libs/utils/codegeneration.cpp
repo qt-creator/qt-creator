@@ -29,7 +29,10 @@
 
 #include "codegeneration.h"
 
+#include "algorithm.h"
+
 #include <QTextStream>
+#include <QSet>
 #include <QStringList>
 #include <QFileInfo>
 
@@ -81,6 +84,51 @@ void writeIncludeFileDirective(const QString &file, bool globalInclude,
 QTCREATOR_UTILS_EXPORT void writeBeginQtVersionCheck(QTextStream &str)
 {
     str << QLatin1String("#if QT_VERSION >= 0x050000\n");
+}
+
+static void qtSection(const QStringList &qtIncludes, QTextStream &str)
+{
+    QStringList sorted = qtIncludes;
+    Utils::sort(sorted);
+    foreach (const QString &inc, sorted) {
+        if (!inc.isEmpty())
+            str << QStringLiteral("#include <%1>\n").arg(inc);
+    }
+}
+
+QTCREATOR_UTILS_EXPORT
+void writeQtIncludeSection(const QStringList &qt4,
+                           const QStringList &qt5,
+                           bool addQtVersionCheck,
+                           bool includeQtModule,
+                           QTextStream &str)
+{
+    std::function<QString(const QString &)> trans;
+    if (includeQtModule)
+        trans = [](const QString &i) { return i; };
+    else
+        trans = [](const QString &i) { return i.mid(i.indexOf(QLatin1Char('/')) + 1); };
+
+    QSet<QString> qt4Only = QSet<QString>::fromList(Utils::transform(qt4, trans));
+    QSet<QString> qt5Only = QSet<QString>::fromList(Utils::transform(qt5, trans));
+    QSet<QString> common = qt4Only;
+
+    common.intersect(qt5Only);
+    qt4Only.subtract(common);
+    qt5Only.subtract(common);
+
+    qtSection(common.toList(), str);
+
+    if (!qt4Only.isEmpty() || !qt5Only.isEmpty()) {
+        if (addQtVersionCheck)
+            writeBeginQtVersionCheck(str);
+        qtSection(qt5Only.toList(), str);
+        if (addQtVersionCheck)
+            str << QLatin1String("#else\n");
+        qtSection(qt4Only.toList(), str);
+        if (addQtVersionCheck)
+            str << QLatin1String("#endif\n");
+    }
 }
 
 QTCREATOR_UTILS_EXPORT

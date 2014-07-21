@@ -29,6 +29,7 @@
 
 #include "qtsupportplugin.h"
 
+#include "codegenerator.h"
 #include "codegensettingspage.h"
 #include "customexecutablerunconfiguration.h"
 #include "desktopqtversionfactory.h"
@@ -45,6 +46,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/variablemanager.h>
+#include <coreplugin/jsexpander.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
@@ -69,6 +71,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     if (!MimeDatabase::addMimeTypes(QLatin1String(":qtsupport/QtSupport.mimetypes.xml"), errorMessage))
         return false;
+
+    JsExpander::registerQObjectForJs(QLatin1String("QtSupport"), new CodeGenerator(this));
 
     addAutoReleasedObject(new QtVersionManager);
     addAutoReleasedObject(new DesktopQtVersionFactory);

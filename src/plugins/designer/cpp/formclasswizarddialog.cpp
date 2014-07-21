@@ -31,6 +31,7 @@
 #include "formclasswizardpage.h"
 #include "formclasswizardparameters.h"
 #include <designer/formtemplatewizardpage.h>
+#include <qtsupport/codegenerator.h>
 
 #include <coreplugin/basefilewizardfactory.h>
 
@@ -83,7 +84,7 @@ void FormClassWizardDialog::initializePage(int id)
         m_rawFormTemplate = m_formPage->templateContents();
         // Strip namespaces from the ui class and suggest it as a new class
         // name
-        if (FormTemplateWizardPage::getUIXmlData(m_rawFormTemplate, &formBaseClass, &uiClassName))
+        if (QtSupport::CodeGenerator::uiData(m_rawFormTemplate, &formBaseClass, &uiClassName))
             m_classPage->setClassName(FormTemplateWizardPage::stripNamespaces(uiClassName));
     }
 }
@@ -93,7 +94,7 @@ FormClassWizardParameters FormClassWizardDialog::parameters() const
     FormClassWizardParameters rc;
     m_classPage->getParameters(&rc);
     // Name the ui class in the Ui namespace after the class specified
-    rc.uiTemplate = FormTemplateWizardPage::changeUiClassName(m_rawFormTemplate, rc.className);
+    rc.uiTemplate = QtSupport::CodeGenerator::changeUiClassName(m_rawFormTemplate, rc.className);
     return rc;
 }
 

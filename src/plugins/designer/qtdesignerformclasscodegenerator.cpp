@@ -34,6 +34,7 @@
 #include <utils/codegeneration.h>
 #include <coreplugin/icore.h>
 #include <cpptools/abstracteditorsupport.h>
+#include <qtsupport/codegenerator.h>
 #include <qtsupport/codegensettings.h>
 
 #include <QTextStream>
@@ -76,7 +77,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     QString formBaseClass;
     QString uiClassName;
 
-    if (!Internal::FormTemplateWizardPage::getUIXmlData(parameters.uiTemplate, &formBaseClass, &uiClassName)) {
+    if (!QtSupport::CodeGenerator::uiData(parameters.uiTemplate, &formBaseClass, &uiClassName)) {
         qWarning("Unable to determine the form base class from %s.", qPrintable(parameters.uiTemplate));
         return false;
     }

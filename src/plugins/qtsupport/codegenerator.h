@@ -27,48 +27,31 @@
 **
 ****************************************************************************/
 
-#ifndef FORMTEMPLATEWIZARDPAGE_H
-#define FORMTEMPLATEWIZARDPAGE_H
+#ifndef CODEGENERATOR_H
+#define CODEGENERATOR_H
 
-#include <QWizardPage>
+#include "qtsupport_global.h"
 
-QT_BEGIN_NAMESPACE
-class QDesignerNewFormWidgetInterface;
-QT_END_NAMESPACE
+#include <QStringList>
 
-namespace Designer {
-namespace Internal {
+namespace QtSupport {
 
-// A wizard page embedding Qt Designer's QDesignerNewFormWidgetInterface
-// widget.
-
-class FormTemplateWizardPage : public QWizardPage
+class QTSUPPORT_EXPORT CodeGenerator : public QObject
 {
-    Q_OBJECT
-
 public:
-    explicit FormTemplateWizardPage(QWidget * parent = 0);
+    CodeGenerator(QObject *parent = 0) : QObject(parent) { }
 
-    virtual bool isComplete () const;
-    virtual bool validatePage();
+    // Ui file related:
+    // Change the class name in a UI XML form
+    Q_INVOKABLE static QString changeUiClassName(const QString &uiXml, const QString &newUiClassName);
 
-    QString templateContents() const { return  m_templateContents; }
+    // Low level method to get everything at the same time:
+    static bool uiData(const QString &uiXml, QString *formBaseClass, QString *uiClassName);
 
-    static QString stripNamespaces(const QString &className);
-
-signals:
-    void templateActivated();
-
-private slots:
-    void slotCurrentTemplateChanged(bool);
-
-private:
-    QString m_templateContents;
-    QDesignerNewFormWidgetInterface *m_newFormWidget;
-    bool m_templateSelected;
+    // Generic Qt:
+    Q_INVOKABLE static QString qtIncludes(const QStringList &qt4, const QStringList &qt5);
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace QtSupport
 
-#endif // FORMTEMPLATEWIZARDPAGE_H
+#endif // CODEGENERATOR_H
