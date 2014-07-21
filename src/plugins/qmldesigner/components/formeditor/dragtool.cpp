@@ -42,19 +42,11 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-void TimerHandler::clearMoveDelay()
-{
-    m_dragTool->clearMoveDelay();
-}
-
-}
 
 DragTool::DragTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView),
     m_moveManipulator(editorView->scene()->manipulatorLayerItem(), editorView),
     m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_timerHandler(new Internal::TimerHandler(this)),
     m_blockMove(false),
     m_isAborted(false)
 {
@@ -327,7 +319,6 @@ void DragTool::createDragNode(const QMimeData *mimeData, const QPointF &scenePos
 
             m_blockMove = true;
             m_startPoint = scenePosition;
-            QTimer::singleShot(10000, m_timerHandler.data(), SLOT(clearMoveDelay()));
         }
     }
 }

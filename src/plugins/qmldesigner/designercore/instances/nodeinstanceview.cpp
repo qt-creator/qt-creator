@@ -188,6 +188,8 @@ void NodeInstanceView::handleChrash()
         restartProcess();
     else
         emit  qmlPuppetCrashed();
+
+    emitCustomNotification(QStringLiteral("puppet crashed"));
 }
 
 

@@ -42,22 +42,6 @@ namespace QmlDesigner {
 
 class DragTool;
 
-namespace Internal {
-
-class TimerHandler : public QObject
-{
-    Q_OBJECT
-
-public:
-    TimerHandler(DragTool *tool) : QObject(), m_dragTool(tool) {}
-public slots:
-    void clearMoveDelay();
-
-private:
-    DragTool *m_dragTool;
-};
-}
-
 class DragTool : public AbstractFormEditorTool
 {
 public:
@@ -116,7 +100,6 @@ private:
     QPointer<FormEditorItem> m_movingItem;
     RewriterTransaction m_rewriterTransaction;
     QmlItemNode m_dragNode;
-    QScopedPointer<Internal::TimerHandler> m_timerHandler;
     bool m_blockMove;
     QPointF m_startPoint;
     bool m_isAborted;
