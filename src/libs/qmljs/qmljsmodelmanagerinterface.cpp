@@ -210,7 +210,7 @@ QHash<QString, Language::Enum> ModelManagerInterface::languageForSuffix() const
 
 void ModelManagerInterface::writeMessageInternal(const QString &msg) const
 {
-    qCWarning(qmljsLog) << msg;
+    qCDebug(qmljsLog) << msg;
 }
 
 ModelManagerInterface::WorkingCopy ModelManagerInterface::workingCopyInternal() const
@@ -631,7 +631,7 @@ void ModelManagerInterface::updateDocument(Document::Ptr doc)
 void ModelManagerInterface::updateLibraryInfo(const QString &path, const LibraryInfo &info)
 {
     if (!info.pluginTypeInfoError().isEmpty())
-        qCWarning(qmljsLog) << "Dumping errors for " << path << ":" << info.pluginTypeInfoError();
+        qCDebug(qmljsLog) << "Dumping errors for " << path << ":" << info.pluginTypeInfoError();
 
     {
         QMutexLocker locker(&m_mutex);
