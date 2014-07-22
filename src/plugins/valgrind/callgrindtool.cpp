@@ -498,6 +498,8 @@ CallgrindTool::CallgrindTool(QObject *parent)
 {
     d = new CallgrindToolPrivate(this);
     setObjectName(QLatin1String("CallgrindTool"));
+    setRunMode(CallgrindRunMode);
+    setToolMode(ReleaseMode);
 
     connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
         d, SLOT(editorOpened(Core::IEditor*)));
@@ -506,16 +508,6 @@ CallgrindTool::CallgrindTool(QObject *parent)
 CallgrindTool::~CallgrindTool()
 {
     delete d;
-}
-
-RunMode CallgrindTool::runMode() const
-{
-    return CallgrindRunMode;
-}
-
-IAnalyzerTool::ToolMode CallgrindTool::toolMode() const
-{
-    return ReleaseMode;
 }
 
 AnalyzerRunControl *CallgrindTool::createRunControl(const AnalyzerStartParameters &sp,

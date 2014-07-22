@@ -112,6 +112,8 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate)
 {
     setObjectName(QLatin1String("QmlProfilerTool"));
+    setRunMode(QmlProfilerRunMode);
+    setToolMode(AnyMode);
 
     d->m_profilerState = 0;
     d->m_viewContainer = 0;
@@ -159,16 +161,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 QmlProfilerTool::~QmlProfilerTool()
 {
     delete d;
-}
-
-RunMode QmlProfilerTool::runMode() const
-{
-    return QmlProfilerRunMode;
-}
-
-IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
-{
-    return AnyMode;
 }
 
 AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParameters &sp,

@@ -45,9 +45,6 @@ public:
     CallgrindTool(QObject *parent);
     ~CallgrindTool();
 
-    ProjectExplorer::RunMode runMode() const;
-    ToolMode toolMode() const;
-
     Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
     QWidget *createWidgets();

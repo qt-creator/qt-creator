@@ -81,8 +81,6 @@ class MemcheckTool : public ValgrindTool
 public:
     MemcheckTool(QObject *parent);
 
-    ProjectExplorer::RunMode runMode() const;
-
 private slots:
     void settingsDestroyed(QObject *settings);
     void maybeActiveRunConfigurationChanged();
@@ -99,7 +97,6 @@ private slots:
     void loadExternalXmlLogFile();
 
 private:
-    ToolMode toolMode() const;
     QWidget *createWidgets();
     void setBusyCursor(bool busy);
 

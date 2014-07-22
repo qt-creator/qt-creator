@@ -48,9 +48,6 @@ public:
     explicit QmlProfilerTool(QObject *parent);
     ~QmlProfilerTool();
 
-    ProjectExplorer::RunMode runMode() const;
-    ToolMode toolMode() const;
-
     Analyzer::AnalyzerRunControl *createRunControl(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
 

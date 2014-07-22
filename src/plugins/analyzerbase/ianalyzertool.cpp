@@ -36,6 +36,27 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
+ /// Returns the run mode for this tool.
+ProjectExplorer::RunMode IAnalyzerTool::runMode() const
+{
+    return m_runMode;
+}
+
+void IAnalyzerTool::setRunMode(ProjectExplorer::RunMode mode)
+{
+    m_runMode = mode;
+}
+
+IAnalyzerTool::ToolMode IAnalyzerTool::toolMode() const
+{
+    return m_toolMode;
+}
+
+void IAnalyzerTool::setToolMode(IAnalyzerTool::ToolMode mode)
+{
+    m_toolMode = mode;
+}
+
 AnalyzerAction::AnalyzerAction(QObject *parent)
     : QAction(parent)
 {}

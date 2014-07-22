@@ -67,8 +67,8 @@ class ANALYZER_EXPORT IAnalyzerTool : public QObject
 public:
     explicit IAnalyzerTool(QObject *parent = 0);
 
-    /// Returns the run mode for this tool.
-    virtual ProjectExplorer::RunMode runMode() const = 0;
+    ProjectExplorer::RunMode runMode() const;
+    void setRunMode(ProjectExplorer::RunMode mode);
 
     /**
      * The mode in which this tool should preferably be run
@@ -82,7 +82,8 @@ public:
         ReleaseMode,
         AnyMode
     };
-    virtual ToolMode toolMode() const = 0;
+    ToolMode toolMode() const;
+    void setToolMode(ToolMode mode);
 
     /// Creates all widgets used by the tool.
     /// Returns a control widget which will be shown in the status bar when
@@ -95,6 +96,10 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration) = 0;
 
     virtual void startTool(StartMode mode) = 0;
+
+private:
+    ProjectExplorer::RunMode m_runMode;
+    ToolMode m_toolMode;
 };
 
 /**

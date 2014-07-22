@@ -193,7 +193,10 @@ MemcheckTool::MemcheckTool(QObject *parent)
     m_errorProxyModel = 0;
     m_errorView = 0;
     m_filterMenu = 0;
+
     setObjectName(QLatin1String("MemcheckTool"));
+    setRunMode(MemcheckRunMode);
+    setToolMode(DebugMode);
 
     m_filterProjectAction = new QAction(tr("External Errors"), this);
     m_filterProjectAction->setToolTip(
@@ -282,16 +285,6 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     connect(m_settings, SIGNAL(destroyed(QObject*)), SLOT(settingsDestroyed(QObject*)));
 
     updateFromSettings();
-}
-
-RunMode MemcheckTool::runMode() const
-{
-    return MemcheckRunMode;
-}
-
-IAnalyzerTool::ToolMode MemcheckTool::toolMode() const
-{
-    return DebugMode;
 }
 
 class FrameFinder : public ErrorListModel::RelevantFrameFinder
