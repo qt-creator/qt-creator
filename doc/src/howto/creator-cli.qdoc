@@ -60,6 +60,15 @@
 
     \c {qtcreator .}
 
+    \note To run a self-built \QC from the command line on Windows, make sure
+    that the Qt installation directory is included in the PATH environment
+    variable. You can enter the following command on the command line to add Qt
+    to the path:
+
+    \code
+    set PATH=<Qt_installation_directory>\mingw\bin;c:<Qt_installation_directory>\bin;%PATH%
+    \endcode
+
     The following table summarizes the available options:
 
     \table

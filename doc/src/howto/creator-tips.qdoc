@@ -124,11 +124,7 @@
     For example, running \tt{qtcreator somesession}, launches \QC and
     loads session somesession.
 
-    \note Make sure \QC is included in the PATH environment variable.
-    This can be done by typing the following in the command line:
-    \code
-    set PATH=c:\qtsdk\mingw\bin;c:\qtsdk\qt\bin;%PATH%
-    \endcode
+    For more information, see \l{Using Command Line Options}.
 
     \section1 Showing and Hiding the Sidebar
 
