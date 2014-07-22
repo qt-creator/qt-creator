@@ -40,11 +40,11 @@ namespace QmlJS {
     Screen information will also most likely need to be added here.
 */
 ViewerContext::ViewerContext()
-    : language(Language::Qml), flags(AddAllPaths)
+    : language(Dialect::Qml), flags(AddAllPaths)
 { }
 
 ViewerContext::ViewerContext(QStringList selectors, QStringList paths,
-                                    QmlJS::Language::Enum language,
+                                    QmlJS::Dialect language,
                                     QmlJS::ViewerContext::Flags flags)
     : selectors(selectors), paths(paths), language(language),
       flags(flags)
@@ -54,27 +54,27 @@ ViewerContext::ViewerContext(QStringList selectors, QStringList paths,
 /*
  which languages might be imported in this context
  */
-bool ViewerContext::languageIsCompatible(Language::Enum l) const
+bool ViewerContext::languageIsCompatible(Dialect l) const
 {
-    if (l == Language::AnyLanguage && language != Language::NoLanguage)
+    if (l == Dialect::AnyLanguage && language != Dialect::NoLanguage)
         return true;
-    switch (language) {
-    case Language::JavaScript:
-    case Language::Json:
-    case Language::QmlProject:
-    case Language::QmlQbs:
-    case Language::QmlTypeInfo:
+    switch (language.dialect()) {
+    case Dialect::JavaScript:
+    case Dialect::Json:
+    case Dialect::QmlProject:
+    case Dialect::QmlQbs:
+    case Dialect::QmlTypeInfo:
         return language == l;
-    case Language::Qml:
-        return l == Language::Qml || l == Language::QmlQtQuick1 || l == Language::QmlQtQuick2
-                || l == Language::JavaScript;
-    case Language::QmlQtQuick1:
-        return l == Language::Qml || l == Language::QmlQtQuick1 || l == Language::JavaScript;
-    case Language::QmlQtQuick2:
-        return l == Language::Qml || l == Language::QmlQtQuick2 || l == Language::JavaScript;
-    case Language::AnyLanguage:
+    case Dialect::Qml:
+        return l == Dialect::Qml || l == Dialect::QmlQtQuick1 || l == Dialect::QmlQtQuick2
+                || l == Dialect::JavaScript;
+    case Dialect::QmlQtQuick1:
+        return l == Dialect::Qml || l == Dialect::QmlQtQuick1 || l == Dialect::JavaScript;
+    case Dialect::QmlQtQuick2:
+        return l == Dialect::Qml || l == Dialect::QmlQtQuick2 || l == Dialect::JavaScript;
+    case Dialect::AnyLanguage:
         return true;
-    case Language::NoLanguage:
+    case Dialect::NoLanguage:
         break;
     }
     return false;

@@ -232,7 +232,7 @@ void QmlJSTextEditorWidget::updateCodeWarnings(QmlJS::Document::Ptr doc)
 {
     if (doc->ast()) {
         setExtraSelections(CodeWarningsSelection, QList<QTextEdit::ExtraSelection>());
-    } else if (Document::isFullySupportedLanguage(doc->language())) {
+    } else if (doc->language().isFullySupportedLanguage()) {
         // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
         appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());

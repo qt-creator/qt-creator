@@ -31,6 +31,7 @@
 #define QMLJSIMPORTCACHE_H
 
 #include "qmljsviewercontext.h"
+#include "qmljsdialect.h"
 
 #include <languageutils/componentversion.h>
 #include <utils/qtcoverride.h>
@@ -147,10 +148,10 @@ class QMLJS_EXPORT CoreImport
 public:
     CoreImport();
     CoreImport(const QString &importId, const QList<Export> &possibleExports = QList<Export>(),
-               Language::Enum language = Language::Qml, const QByteArray &fingerprint = QByteArray());
+               Dialect language = Dialect::Qml, const QByteArray &fingerprint = QByteArray());
     QString importId;
     QList<Export> possibleExports;
-    Language::Enum language;
+    Dialect language;
     QByteArray fingerprint;
     bool valid();
 };

@@ -364,9 +364,9 @@ static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
         QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
         QmlJS::Document::Ptr document = modelManager->ensuredGetDocumentForPath(editor->document()->filePath());
         if (!document.isNull())
-            return document->language() == QmlJS::Language::QmlQtQuick1
-                    || document->language() == QmlJS::Language::QmlQtQuick2
-                    || document->language() == QmlJS::Language::Qml;
+            return document->language() == QmlJS::Dialect::QmlQtQuick1
+                    || document->language() == QmlJS::Dialect::QmlQtQuick2
+                    || document->language() == QmlJS::Dialect::Qml;
     }
 
     return false;

@@ -201,7 +201,9 @@ void QmlProject::refresh(RefreshOptions options)
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
             modelManager()->defaultProjectInfoForProject(this);
-    projectInfo.importPaths = customImportPaths();
+    foreach (const QString &searchPath, customImportPaths())
+        projectInfo.importPaths.maybeInsert(Utils::FileName::fromString(searchPath),
+                                            QmlJS::Dialect::Qml);
 
     modelManager()->updateProjectInfo(projectInfo, this);
 }

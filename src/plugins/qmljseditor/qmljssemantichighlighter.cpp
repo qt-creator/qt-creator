@@ -434,7 +434,7 @@ private:
     void run()
     {
         int nMessages = 0;
-        if (Document::isFullySupportedLanguage(m_scopeChain.document()->language())) {
+        if (m_scopeChain.document()->language().isFullySupportedLanguage()) {
             nMessages = m_scopeChain.document()->diagnosticMessages().size()
                     + m_semanticInfo.semanticMessages.size()
                     + m_semanticInfo.staticAnalysisMessages.size();

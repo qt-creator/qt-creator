@@ -509,10 +509,10 @@ bool operator !=(const Export &i1, const Export &i2)
     return !(i1 == i2);
 }
 
-CoreImport::CoreImport() : language(Language::Qml) { }
+CoreImport::CoreImport() : language(Dialect::Qml) { }
 
 CoreImport::CoreImport(const QString &importId, const QList<Export> &possibleExports,
-                       Language::Enum language, const QByteArray &fingerprint)
+                       Dialect language, const QByteArray &fingerprint)
     : importId(importId), possibleExports(possibleExports), language(language),
       fingerprint(fingerprint)
 { }
@@ -787,7 +787,7 @@ void ImportDependencies::addExport(const QString &importId, const ImportKey &imp
 {
     if (!m_coreImports.contains(importId)) {
         CoreImport newImport(importId);
-        newImport.language = Language::AnyLanguage;
+        newImport.language = Dialect::AnyLanguage;
         newImport.possibleExports.append(Export(importKey, requiredPath, false, typeName));
         m_coreImports.insert(newImport.importId, newImport);
         m_importCache[importKey].append(importId);

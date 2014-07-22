@@ -174,26 +174,26 @@ void QmlJSTools::setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &
     }
 }
 
-QHash<QString,QmlJS::Language::Enum> ModelManager::languageForSuffix() const
+QHash<QString,QmlJS::Dialect> ModelManager::languageForSuffix() const
 {
-    QHash<QString,QmlJS::Language::Enum> res = ModelManagerInterface::languageForSuffix();
+    QHash<QString,QmlJS::Dialect> res = ModelManagerInterface::languageForSuffix();
 
     if (ICore::instance()) {
         MimeType jsSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JS_MIMETYPE));
         foreach (const QString &suffix, jsSourceTy.suffixes())
-            res[suffix] = Language::JavaScript;
+            res[suffix] = Dialect::JavaScript;
         MimeType qmlSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QML_MIMETYPE));
         foreach (const QString &suffix, qmlSourceTy.suffixes())
-            res[suffix] = Language::Qml;
+            res[suffix] = Dialect::Qml;
         MimeType qbsSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QBS_MIMETYPE));
         foreach (const QString &suffix, qbsSourceTy.suffixes())
-            res[suffix] = Language::QmlQbs;
+            res[suffix] = Dialect::QmlQbs;
         MimeType qmlProjectSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
         foreach (const QString &suffix, qmlProjectSourceTy.suffixes())
-            res[suffix] = Language::QmlProject;
+            res[suffix] = Dialect::QmlProject;
         MimeType jsonSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JSON_MIMETYPE));
         foreach (const QString &suffix, jsonSourceTy.suffixes())
-            res[suffix] = Language::Json;
+            res[suffix] = Dialect::Json;
     }
     return res;
 }
@@ -226,7 +226,7 @@ void ModelManager::delayedInitialization()
             SLOT(updateDefaultProjectInfo()));
 
     QmlJS::ViewerContext qbsVContext;
-    qbsVContext.language = Language::QmlQbs;
+    qbsVContext.language = Dialect::QmlQbs;
     qbsVContext.maybeAddPath(ICore::resourcePath() + QLatin1String("/qbs"));
     setDefaultVContext(qbsVContext);
 }

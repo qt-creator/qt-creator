@@ -828,7 +828,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
         const QString fileName = url.toLocalFile();
-        Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QStringLiteral("<internal>") : fileName, Language::Qml);
+        Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QStringLiteral("<internal>") : fileName, Dialect::Qml);
         doc->setSource(data);
         doc->parseQml();
 
@@ -841,7 +841,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             return false;
         }
         snapshot.insert(doc);
-        QmlJS::ViewerContext vContext = QmlJS::ModelManagerInterface::instance()->defaultVContext(Language::Qml, doc, true);
+        QmlJS::ViewerContext vContext = QmlJS::ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, doc, true);
         ReadingContext ctxt(snapshot, doc, vContext);
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));

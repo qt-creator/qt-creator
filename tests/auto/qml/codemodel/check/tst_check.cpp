@@ -111,7 +111,7 @@ void tst_Check::test()
     QFETCH(QString, path);
 
     Snapshot snapshot;
-    Document::MutablePtr doc = Document::create(path, Language::Qml);
+    Document::MutablePtr doc = Document::create(path, Dialect::Qml);
     QFile file(doc->fileName());
     file.open(QFile::ReadOnly | QFile::Text);
     doc->setSource(file.readAll());

@@ -68,7 +68,7 @@ public:
 
     void delayedInitialization();
 protected:
-    QHash<QString, QmlJS::Language::Enum> languageForSuffix() const QTC_OVERRIDE;
+    QHash<QString, QmlJS::Dialect> languageForSuffix() const QTC_OVERRIDE;
     void writeMessageInternal(const QString &msg) const QTC_OVERRIDE;
     WorkingCopy workingCopyInternal() const QTC_OVERRIDE;
     void addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const QTC_OVERRIDE;

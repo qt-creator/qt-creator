@@ -109,7 +109,7 @@ void QmlTaskManager::collectMessages(
 
             FileErrorMessages result;
             result.fileName = fileName;
-            if (Document::isFullySupportedLanguage(document->language())) {
+            if (document->language().isFullySupportedLanguage()) {
                 result.tasks = convertToTasks(document->diagnosticMessages(),
                                               Utils::FileName::fromString(fileName),
                                               Core::Id(Constants::TASK_CATEGORY_QML));
@@ -161,7 +161,7 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
     QFuture<FileErrorMessages> future =
             QtConcurrent::run<FileErrorMessages>(
                 &collectMessages, modelManager->newestSnapshot(), modelManager->projectInfos(),
-                modelManager->defaultVContext(Language::AnyLanguage), updateSemantic);
+                modelManager->defaultVContext(Dialect::AnyLanguage), updateSemantic);
     m_messageCollector.setFuture(future);
 }
 

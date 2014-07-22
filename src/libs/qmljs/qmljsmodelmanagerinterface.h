@@ -36,9 +36,11 @@
 #include "qmljsdocument.h"
 #include "qmljsqrcparser.h"
 #include "qmljsviewercontext.h"
+#include "qmljsdialect.h"
 
 #include <cplusplus/CppDocument.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QFuture>
 #include <QFutureSynchronizer>
@@ -93,7 +95,7 @@ public:
     public: // attributes
         QPointer<ProjectExplorer::Project> project;
         QStringList sourceFiles;
-        QStringList importPaths;
+        PathsAndLanguages importPaths;
         QStringList activeResourceFiles;
         QStringList allResourceFiles;
 
@@ -148,8 +150,8 @@ public:
     ModelManagerInterface(QObject *parent = 0);
     virtual ~ModelManagerInterface();
 
-    static Language::Enum guessLanguageOfFile(const QString &fileName);
-    static QStringList globPatternsForLanguages(const QList<Language::Enum> languages);
+    static Dialect guessLanguageOfFile(const QString &fileName);
+    static QStringList globPatternsForLanguages(const QList<Dialect> languages);
     static ModelManagerInterface *instance();
     static void writeWarning(const QString &msg);
     static WorkingCopy workingCopy();
@@ -182,7 +184,7 @@ public:
     void updateQrcFile(const QString &path);
     ProjectInfo projectInfoForPath(QString path) const;
 
-    QStringList importPaths() const;
+    PathsAndLanguages importPaths() const;
     QmlJS::QmlLanguageBundles activeBundles() const;
     QmlJS::QmlLanguageBundles extendedBundles() const;
 
@@ -193,7 +195,7 @@ public:
     LibraryInfo builtins(const Document::Ptr &doc) const;
     ViewerContext completeVContext(const ViewerContext &vCtx,
                                    const Document::Ptr &doc = Document::Ptr(0)) const;
-    ViewerContext defaultVContext(Language::Enum language = Language::Qml,
+    ViewerContext defaultVContext(Dialect language = Dialect::Qml,
                                   const Document::Ptr &doc = Document::Ptr(0),
                                   bool autoComplete = true) const;
     void setDefaultVContext(const ViewerContext &vContext);
@@ -223,7 +225,7 @@ protected slots:
     virtual void startCppQmlTypeUpdate();
 protected:
     QMutex *mutex() const;
-    virtual QHash<QString,Language::Enum> languageForSuffix() const;
+    virtual QHash<QString,Dialect> languageForSuffix() const;
     virtual void writeMessageInternal(const QString &msg) const;
     virtual WorkingCopy workingCopyInternal() const;
     virtual void addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const;
@@ -233,26 +235,25 @@ protected:
 
     static void parseLoop(QSet<QString> &scannedPaths, QSet<QString> &newLibraries,
                           WorkingCopy workingCopyInternal, QStringList files, ModelManagerInterface *modelManager,
-                          QmlJS::Language::Enum mainLanguage, bool emitDocChangedOnDisk,
+                          QmlJS::Dialect mainLanguage, bool emitDocChangedOnDisk,
                           std::function<bool (qreal)> reportProgress);
     static void parse(QFutureInterface<void> &future,
                       WorkingCopy workingCopyInternal,
                       QStringList files,
                       ModelManagerInterface *modelManager,
-                      QmlJS::Language::Enum mainLanguage,
+                      QmlJS::Dialect mainLanguage,
                       bool emitDocChangedOnDisk);
     static void importScan(QFutureInterface<void> &future,
                     WorkingCopy workingCopyInternal,
-                    QStringList paths,
+                    PathsAndLanguages paths,
                     ModelManagerInterface *modelManager,
-                    QmlJS::Language::Enum mainLanguage,
                     bool emitDocChangedOnDisk);
     static void updateCppQmlTypes(QFutureInterface<void> &interface,
                                   ModelManagerInterface *qmlModelManager,
                                   CPlusPlus::Snapshot snapshot,
                                   QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents);
 
-    void maybeScan(const QStringList &importPaths, Language::Enum defaultLanguage);
+    void maybeScan(const PathsAndLanguages &importPaths);
     void updateImportPaths();
     void loadQmlTypeDescriptionsInternal(const QString &path);
     void setDefaultProject(const ProjectInfo &pInfo, ProjectExplorer::Project *p);
@@ -261,11 +262,11 @@ private:
     mutable QMutex m_mutex;
     QmlJS::Snapshot m_validSnapshot;
     QmlJS::Snapshot m_newestSnapshot;
-    QStringList m_allImportPaths;
+    PathsAndLanguages m_allImportPaths;
     QStringList m_defaultImportPaths;
     QmlJS::QmlLanguageBundles m_activeBundles;
     QmlJS::QmlLanguageBundles m_extendedBundles;
-    QHash<Language::Enum, QmlJS::ViewerContext> m_defaultVContexts;
+    QHash<Dialect, QmlJS::ViewerContext> m_defaultVContexts;
     bool m_shouldScanImports;
     QSet<QString> m_scannedPaths;
 

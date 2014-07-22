@@ -36,7 +36,7 @@ using namespace QmlDesigner;
 using namespace QmlJS::AST;
 
 ASTObjectTextExtractor::ASTObjectTextExtractor(const QString &text):
-        m_document(Document::create("<ASTObjectTextExtractor>", Language::Qml))
+        m_document(Document::create("<ASTObjectTextExtractor>", Dialect::Qml))
 {
     m_document->setSource(text);
     m_document->parseQml();

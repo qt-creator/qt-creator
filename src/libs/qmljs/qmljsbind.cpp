@@ -202,18 +202,18 @@ bool Bind::visit(UiImport *ast)
         const QString importId = ast->importId.toString();
         ImportInfo import = ImportInfo::moduleImport(toString(ast->importUri), version,
                                                      importId, ast);
-        if (_doc->language() == Language::Qml) {
+        if (_doc->language() == Dialect::Qml) {
             const QString importStr = import.name() + importId;
             if (ModelManagerInterface::instance()) {
                 QmlLanguageBundles langBundles = ModelManagerInterface::instance()->extendedBundles();
-                QmlBundle qq1 = langBundles.bundleForLanguage(Language::QmlQtQuick1);
-                QmlBundle qq2 = langBundles.bundleForLanguage(Language::QmlQtQuick2);
+                QmlBundle qq1 = langBundles.bundleForLanguage(Dialect::QmlQtQuick1);
+                QmlBundle qq2 = langBundles.bundleForLanguage(Dialect::QmlQtQuick2);
                 bool isQQ1 = qq1.supportedImports().contains(importStr);
                 bool isQQ2 = qq2.supportedImports().contains(importStr);
                 if (isQQ1 && ! isQQ2)
-                    _doc->setLanguage(Language::QmlQtQuick1);
+                    _doc->setLanguage(Dialect::QmlQtQuick1);
                 if (isQQ2 && ! isQQ1)
-                    _doc->setLanguage(Language::QmlQtQuick2);
+                    _doc->setLanguage(Dialect::QmlQtQuick2);
             }
         }
         _imports += import;

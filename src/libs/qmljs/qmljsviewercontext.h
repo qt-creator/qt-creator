@@ -32,6 +32,7 @@
 
 #include "qmljs_global.h"
 #include "qmljsconstants.h"
+#include "qmljsdialect.h"
 
 #include <QStringList>
 
@@ -50,15 +51,15 @@ public:
 
     ViewerContext();
     ViewerContext(QStringList selectors, QStringList paths,
-                  Language::Enum language = Language::Qml,
+                  Dialect language = Dialect::Qml,
                   Flags flags = AddAllPaths);
 
-    bool languageIsCompatible(Language::Enum l) const;
+    bool languageIsCompatible(Dialect l) const;
     void maybeAddPath(const QString &path);
 
     QStringList selectors;
     QStringList paths;
-    Language::Enum language;
+    Dialect language;
     Flags flags;
 };
 

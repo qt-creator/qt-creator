@@ -812,14 +812,14 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         if (oldDoc && oldDoc->editorRevision() == it.value().second)
             continue;
 
-        Language::Enum language;
+        Dialect language;
         if (oldDoc)
             language = oldDoc->language();
         else
             language = ModelManagerInterface::guessLanguageOfFile(fileName);
-        if (language == Language::NoLanguage) {
+        if (language == Dialect::NoLanguage) {
             qCDebug(qmljsLog) << "NoLanguage in qmljsfindreferences.cpp find_helper for " << fileName;
-            language = Language::AnyLanguage;
+            language = Dialect::AnyLanguage;
         }
 
         Document::MutablePtr newDoc = snapshot.documentFromSource(

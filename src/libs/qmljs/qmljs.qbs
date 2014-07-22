@@ -41,6 +41,7 @@ QtcLibrary {
             "qmljsimportdependencies.cpp", "qmljsimportdependencies.h",
             "qmljsindenter.cpp", "qmljsindenter.h",
             "qmljsinterpreter.cpp", "qmljsinterpreter.h",
+            "qmljsdialect.cpp", "qmljsdialect.h",
             "qmljslineinfo.cpp", "qmljslineinfo.h",
             "qmljslink.cpp", "qmljslink.h",
             "qmljsmodelmanagerinterface.cpp", "qmljsmodelmanagerinterface.h",

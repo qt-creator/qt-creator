@@ -134,7 +134,7 @@ QmlJS::AST::ExpressionNode *QmlExpressionUnderCursor::operator()(const QTextCurs
     _text = expressionUnderCursor(cursor);
 
     Document::MutablePtr newDoc = Document::create(
-                QLatin1String("<expression>"), Language::JavaScript);
+                QLatin1String("<expression>"), Dialect::JavaScript);
     newDoc->setSource(_text);
     newDoc->parseExpression();
     exprDoc = newDoc;

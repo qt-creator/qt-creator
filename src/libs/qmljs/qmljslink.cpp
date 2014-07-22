@@ -333,7 +333,7 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
                                                ->filesInQrcPath(path));
         while (iter.hasNext()) {
             iter.next();
-            if (Document::isQmlLikeLanguage(ModelManagerInterface::guessLanguageOfFile(iter.key()))) {
+            if (ModelManagerInterface::guessLanguageOfFile(iter.key()).isQmlLikeLanguage()) {
                 Document::Ptr importedDoc = snapshot.document(iter.value().at(0));
                 if (importedDoc && importedDoc->bind()->rootObjectValue()) {
                     const QString targetName = QFileInfo(iter.key()).baseName();

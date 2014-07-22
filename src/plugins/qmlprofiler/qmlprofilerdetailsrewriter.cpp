@@ -136,7 +136,7 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
     QFileInfo fileInfo(localFile);
     if (!fileInfo.exists() || !fileInfo.isReadable())
         return;
-    if (!QmlJS::Document::isQmlLikeLanguage(QmlJS::ModelManagerInterface::guessLanguageOfFile(localFile)))
+    if (!QmlJS::ModelManagerInterface::guessLanguageOfFile(localFile).isQmlLikeLanguage())
         return;
 
     PendingEvent ev = {location, localFile, requestId};

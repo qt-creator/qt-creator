@@ -128,7 +128,7 @@ QmlJSTools::SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const QmlJS::D
     ScopeChain *scopeChain = new ScopeChain(doc, semanticInfo.context);
     semanticInfo.setRootScopeChain(QSharedPointer<const ScopeChain>(scopeChain));
 
-    if (doc->language() == Language::Json) {
+    if (doc->language() == Dialect::Json) {
         Utils::JsonSchema *schema =
                 QmlJSEditorPlugin::instance()->jsonManager()->schemaForFile(doc->fileName());
         if (schema) {

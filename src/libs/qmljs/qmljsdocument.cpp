@@ -88,93 +88,7 @@ using namespace QmlJS::AST;
     threads finish and new information becomes available.
 */
 
-
-bool Document::isQmlLikeLanguage(Language::Enum language)
-{
-    switch (language) {
-    case Language::Qml:
-    case Language::QmlQtQuick1:
-    case Language::QmlQtQuick2:
-    case Language::QmlQbs:
-    case Language::QmlProject:
-    case Language::QmlTypeInfo:
-    case Language::AnyLanguage:
-        return true;
-    default:
-        return false;
-    }
-}
-
-bool Document::isFullySupportedLanguage(Language::Enum language)
-{
-    switch (language) {
-    case Language::JavaScript:
-    case Language::Json:
-    case Language::Qml:
-    case Language::QmlQtQuick1:
-    case Language::QmlQtQuick2:
-        return true;
-    case Language::NoLanguage:
-    case Language::AnyLanguage:
-    case Language::QmlQbs:
-    case Language::QmlProject:
-    case Language::QmlTypeInfo:
-        break;
-    }
-    return false;
-}
-
-bool Document::isQmlLikeOrJsLanguage(Language::Enum language)
-{
-    switch (language) {
-    case Language::Qml:
-    case Language::QmlQtQuick1:
-    case Language::QmlQtQuick2:
-    case Language::QmlQbs:
-    case Language::QmlProject:
-    case Language::QmlTypeInfo:
-    case Language::JavaScript:
-    case Language::AnyLanguage:
-        return true;
-    default:
-        return false;
-    }
-}
-
-QList<Language::Enum> Document::companionLanguages(Language::Enum language)
-{
-    QList<Language::Enum> langs;
-    langs << language;
-    switch (language) {
-    case Language::JavaScript:
-    case Language::Json:
-    case Language::QmlProject:
-    case Language::QmlTypeInfo:
-        break;
-    case Language::QmlQbs:
-        langs << Language::JavaScript;
-        break;
-    case Language::Qml:
-        langs << Language::QmlQtQuick1 << Language::QmlQtQuick2 << Language::JavaScript;
-        break;
-    case Language::QmlQtQuick1:
-    case Language::QmlQtQuick2:
-        langs << Language::Qml << Language::JavaScript;
-        break;
-    case Language::AnyLanguage:
-        langs << Language::JavaScript << Language::Json << Language::QmlProject << Language:: QmlQbs
-              << Language::QmlTypeInfo << Language::QmlQtQuick1 << Language::QmlQtQuick2
-              << Language::Qml;
-        break;
-    case Language::NoLanguage:
-        return QList<Language::Enum>(); // return at least itself?
-    }
-    if (language != Language::AnyLanguage)
-        langs << Language::AnyLanguage;
-    return langs;
-}
-
-Document::Document(const QString &fileName, Language::Enum language)
+Document::Document(const QString &fileName, Dialect language)
     : _engine(0)
     , _ast(0)
     , _bind(0)
@@ -186,7 +100,7 @@ Document::Document(const QString &fileName, Language::Enum language)
     QFileInfo fileInfo(fileName);
     _path = QDir::cleanPath(fileInfo.absolutePath());
 
-    if (isQmlLikeLanguage(language)) {
+    if (language.isQmlLikeLanguage()) {
         _componentName = fileInfo.baseName();
 
         if (! _componentName.isEmpty()) {
@@ -207,7 +121,7 @@ Document::~Document()
         delete _engine;
 }
 
-Document::MutablePtr Document::create(const QString &fileName, Language::Enum language)
+Document::MutablePtr Document::create(const QString &fileName, Dialect language)
 {
     Document::MutablePtr doc(new Document(fileName, language));
     doc->_ptr = doc;
@@ -221,15 +135,15 @@ Document::Ptr Document::ptr() const
 
 bool Document::isQmlDocument() const
 {
-    return isQmlLikeLanguage(_language);
+    return _language.isQmlLikeLanguage();
 }
 
-Language::Enum Document::language() const
+Dialect Document::language() const
 {
     return _language;
 }
 
-void Document::setLanguage(Language::Enum l)
+void Document::setLanguage(Dialect l)
 {
     _language = l;
 }
@@ -357,7 +271,7 @@ bool Document::parse_helper(int startToken)
     Parser parser(_engine);
 
     QString source = _source;
-    lexer.setCode(source, /*line = */ 1, /*qmlMode = */isQmlLikeLanguage(_language));
+    lexer.setCode(source, /*line = */ 1, /*qmlMode = */_language.isQmlLikeLanguage());
 
     CollectDirectives collectDirectives(path());
     _engine->setDirectives(&collectDirectives);
@@ -539,7 +453,7 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
     if (!info.wasFound()) return;
     CoreImport cImport;
     cImport.importId = path;
-    cImport.language = Language::AnyLanguage;
+    cImport.language = Dialect::AnyLanguage;
     QSet<ImportKey> packages;
     foreach (const ModuleApiInfo &moduleInfo, info.moduleApis()) {
         ImportKey iKey(ImportType::Library, moduleInfo.uri, moduleInfo.version.majorVersion(),
@@ -638,7 +552,7 @@ QmlJS::ImportDependencies *Snapshot::importDependencies()
 
 Document::MutablePtr Snapshot::documentFromSource(
         const QString &code, const QString &fileName,
-        Language::Enum language) const
+        Dialect language) const
 {
     Document::MutablePtr newDoc = Document::create(fileName, language);
 

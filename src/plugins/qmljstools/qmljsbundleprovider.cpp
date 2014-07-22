@@ -112,21 +112,21 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
 {
     QHash<QString,QString> myReplacements = replacements;
 
-    bundles.mergeBundleForLanguage(Language::QmlQbs, defaultQbsBundle());
-    bundles.mergeBundleForLanguage(Language::QmlTypeInfo, defaultQmltypesBundle());
-    bundles.mergeBundleForLanguage(Language::QmlProject, defaultQmlprojectBundle());
+    bundles.mergeBundleForLanguage(Dialect::QmlQbs, defaultQbsBundle());
+    bundles.mergeBundleForLanguage(Dialect::QmlTypeInfo, defaultQmltypesBundle());
+    bundles.mergeBundleForLanguage(Dialect::QmlProject, defaultQmlprojectBundle());
 
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit);
     if (!qtVersion) {
         QmlBundle b1(defaultQt4QtQuick1Bundle());
-        bundles.mergeBundleForLanguage(Language::Qml, b1);
-        bundles.mergeBundleForLanguage(Language::QmlQtQuick1, b1);
+        bundles.mergeBundleForLanguage(Dialect::Qml, b1);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick1, b1);
         QmlBundle b11(defaultQt5QtQuick1Bundle());
-        bundles.mergeBundleForLanguage(Language::Qml, b11);
-        bundles.mergeBundleForLanguage(Language::QmlQtQuick1, b11);
+        bundles.mergeBundleForLanguage(Dialect::Qml, b11);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick1, b11);
         QmlBundle b2(defaultQt5QtQuick2Bundle());
-        bundles.mergeBundleForLanguage(Language::Qml, b2);
-        bundles.mergeBundleForLanguage(Language::QmlQtQuick2, b2);
+        bundles.mergeBundleForLanguage(Dialect::Qml, b2);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2, b2);
         return;
     }
     QString qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
@@ -157,8 +157,8 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
                 qtQuick1Bundle.merge(defaultQt5QtQuick1Bundle());
         }
         qtQuick1Bundle.replaceVars(myReplacements);
-        bundles.mergeBundleForLanguage(Language::Qml, qtQuick1Bundle);
-        bundles.mergeBundleForLanguage(Language::QmlQtQuick1, qtQuick1Bundle);
+        bundles.mergeBundleForLanguage(Dialect::Qml, qtQuick1Bundle);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick1, qtQuick1Bundle);
     }
     if (features.contains(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2))) {
         myReplacements.insert(QLatin1String("$(CURRENT_DIRECTORY)"), qtQmlPath);
@@ -179,8 +179,8 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
             qtQuick2Bundle.merge(defaultQt5QtQuick2Bundle());
         }
         qtQuick2Bundle.replaceVars(myReplacements);
-        bundles.mergeBundleForLanguage(Language::Qml, qtQuick2Bundle);
-        bundles.mergeBundleForLanguage(Language::QmlQtQuick2, qtQuick2Bundle);
+        bundles.mergeBundleForLanguage(Dialect::Qml, qtQuick2Bundle);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2, qtQuick2Bundle);
     }
 }
 

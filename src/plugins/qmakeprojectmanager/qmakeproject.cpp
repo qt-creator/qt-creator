@@ -610,7 +610,9 @@ void QmakeProject::updateQmlJSCodeModel()
 
     bool hasQmlLib = false;
     foreach (QmakeProFileNode *node, proFiles) {
-        projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
+        foreach (const QString &path, node->variableValue(QmlImportPathVar))
+            projectInfo.importPaths.maybeInsert(Utils::FileName::fromString(path),
+                                                QmlJS::Dialect::Qml);
         projectInfo.activeResourceFiles.append(node->variableValue(ExactResourceVar));
         projectInfo.allResourceFiles.append(node->variableValue(ResourceVar));
         if (!hasQmlLib) {
@@ -630,7 +632,6 @@ void QmakeProject::updateQmlJSCodeModel()
         pl.add(ProjectExplorer::Constants::LANG_QMLJS);
     setProjectLanguages(pl);
 
-    projectInfo.importPaths.removeDuplicates();
     projectInfo.activeResourceFiles.removeDuplicates();
     projectInfo.allResourceFiles.removeDuplicates();
 

@@ -124,7 +124,7 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(const QString &fileName, const QShare
     : RefactoringFile(fileName, data)
 {
     // the RefactoringFile is invalid if its not for a file with qml or js code
-    if (ModelManagerInterface::guessLanguageOfFile(fileName) == Language::NoLanguage)
+    if (ModelManagerInterface::guessLanguageOfFile(fileName) == Dialect::NoLanguage)
         m_fileName.clear();
 }
 

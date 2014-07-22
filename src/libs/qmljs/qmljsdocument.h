@@ -35,6 +35,7 @@
 
 #include <languageutils/fakemetaobject.h>
 
+#include "qmljsdialect.h"
 #include "parser/qmldirparser_p.h"
 #include "parser/qmljsengine_p.h"
 #include "qmljs_global.h"
@@ -52,24 +53,19 @@ class QMLJS_EXPORT Document
 public:
     typedef QSharedPointer<const Document> Ptr;
     typedef QSharedPointer<Document> MutablePtr;
-
-    static bool isQmlLikeLanguage(Language::Enum languge);
-    static bool isFullySupportedLanguage(Language::Enum language);
-    static bool isQmlLikeOrJsLanguage(Language::Enum language);
-    static QList<Language::Enum> companionLanguages(Language::Enum language);
 protected:
-    Document(const QString &fileName, Language::Enum language);
+    Document(const QString &fileName, Dialect language);
 
 public:
     ~Document();
 
-    static MutablePtr create(const QString &fileName, Language::Enum language);
+    static MutablePtr create(const QString &fileName, Dialect language);
 
     Document::Ptr ptr() const;
 
     bool isQmlDocument() const;
-    Language::Enum language() const;
-    void setLanguage(Language::Enum l);
+    Dialect language() const;
+    void setLanguage(Dialect l);
 
     QString importId() const;
     QByteArray fingerprint() const;
@@ -117,7 +113,7 @@ private:
     QWeakPointer<Document> _ptr;
     QByteArray _fingerprint;
     int _editorRevision;
-    Language::Enum _language;
+    Dialect _language;
     bool _parsedCorrectly;
 
     // for documentFromSource
@@ -246,7 +242,7 @@ public:
 
     Document::MutablePtr documentFromSource(const QString &code,
                                      const QString &fileName,
-                                     Language::Enum language) const;
+                                     Dialect language) const;
 };
 
 } // namespace QmlJS

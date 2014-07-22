@@ -100,12 +100,12 @@ private:
 class QMLJS_EXPORT QmlLanguageBundles
 {
 public:
-    QmlBundle bundleForLanguage(Language::Enum l) const;
-    void mergeBundleForLanguage(Language::Enum l, const QmlBundle &bundle);
-    QList<Language::Enum> languages() const;
+    QmlBundle bundleForLanguage(Dialect l) const;
+    void mergeBundleForLanguage(Dialect l, const QmlBundle &bundle);
+    QList<Dialect> languages() const;
     void mergeLanguageBundles(const QmlLanguageBundles &);
 private:
-    QHash<Language::Enum,QmlBundle> m_bundles;
+    QHash<Dialect,QmlBundle> m_bundles;
 };
 } // namespace QmlJS
 

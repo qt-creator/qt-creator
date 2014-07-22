@@ -204,7 +204,7 @@ QStringList PlainTextEditModifier::importPaths() const
         QString documentFilePath = textDocument()->baseUrl().toLocalFile();
         if (!documentFilePath.isEmpty()) {
             QmlJS::Document::Ptr qmljsDocument = modelManager->snapshot().document(documentFilePath);
-            return modelManager->defaultVContext(QmlJS::Language::Qml, qmljsDocument, true).paths;
+            return modelManager->defaultVContext(QmlJS::Dialect::Qml, qmljsDocument, true).paths;
         }
     }
 
