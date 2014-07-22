@@ -88,6 +88,10 @@ def checkIfObjectItemExists(object, item, timeout = 3000):
 def getQmlItem(type, container, clip, text=""):
     if (container.startswith(":")):
         container = "'%s'" % container
-    clip = ("%s" % __builtin__.bool(clip)).lower()
-    return ("{clip='%s' container=%s enabled='true' %s type='%s' unnamed='1' visible='true'}"
-            % (clip, container, text, type))
+    if clip != None:
+        clip = ("%s" % __builtin__.bool(clip)).lower()
+        return ("{clip='%s' container=%s enabled='true' %s type='%s' unnamed='1' visible='true'}"
+                % (clip, container, text, type))
+    else:
+        return ("{container=%s enabled='true' %s type='%s' unnamed='1' visible='true'}"
+                % (container, text, type))

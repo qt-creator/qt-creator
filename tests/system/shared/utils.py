@@ -540,7 +540,7 @@ def setAlwaysStartFullHelp():
     waitForObjectItem(":Options_QListView", "Help")
     clickItem(":Options_QListView", "Help", 5, 5, 0, Qt.LeftButton)
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "General")
-    selectFromCombo(":Startup.contextHelpComboBox_QComboBox", "Always Start Full Help")
+    selectFromCombo(":Startup.contextHelpComboBox_QComboBox", "Always Show in Help Mode")
     clickButton(waitForObject(":Options.OK_QPushButton"))
 
 def removePackagingDirectory(projectPath):
@@ -674,3 +674,7 @@ def getHelpTitle():
         return str(hv.title)
     except:
         return str(hv.documentTitle)
+
+def canTestEmbeddedQtQuick():
+    return (squishinfo.major * 0x10000 + squishinfo.minor * 0x100
+            + squishinfo.patch) > 0x050100
