@@ -593,7 +593,7 @@ InformationName NodeInstance::setInformation(InformationName name, const QVarian
     switch (name) {
     case Size: return setInformationSize(information.toSizeF());
     case BoundingRect: return setInformationBoundingRect(information.toRectF());
-    case ContentItemBoundingRect: setInformationContentItemBoundingRect(information.toRectF());
+    case ContentItemBoundingRect: return setInformationContentItemBoundingRect(information.toRectF());
     case Transform: return setInformationTransform(information.value<QTransform>());
     case ContentTransform: return setInformationContentTransform(information.value<QTransform>());
     case ContentItemTransform: return setInformationContentItemTransform(information.value<QTransform>());
