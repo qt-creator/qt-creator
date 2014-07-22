@@ -111,7 +111,7 @@ public:
 
     QString productPath() const;
 
-    static void setupFiles(QbsBaseProjectNode *root, const QStringList &files,
+    static void setupFiles(FolderNode *root, const QStringList &files,
                            const QString &productPath, bool updateExisting);
 
 private:
@@ -184,6 +184,10 @@ private:
     static QIcon m_projectIcon;
 };
 
+// --------------------------------------------------------------------
+// QbsRootProjectNode:
+// --------------------------------------------------------------------
+
 class QbsRootProjectNode : public QbsProjectNode
 {
     Q_OBJECT
@@ -197,7 +201,10 @@ public:
     QbsProject *project() const { return m_project; }
 
 private:
+    QStringList unreferencedBuildSystemFiles(const qbs::Project &p) const;
+
     QbsProject * const m_project;
+    ProjectExplorer::FolderNode *m_buildSystemFiles;
 };
 
 

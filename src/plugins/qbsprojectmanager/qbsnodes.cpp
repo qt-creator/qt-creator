@@ -437,7 +437,7 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData *grp, const QString &
         emitNodeUpdated();
 }
 
-void QbsGroupNode::setupFiles(QbsBaseProjectNode *root, const QStringList &files,
+void QbsGroupNode::setupFiles(ProjectExplorer::FolderNode *root, const QStringList &files,
                               const QString &productPath, bool updateExisting)
 {
     // Build up a tree of nodes:
@@ -797,16 +797,52 @@ QbsProjectNode *QbsProjectNode::findProjectNode(const QString &name)
     return 0;
 }
 
+// --------------------------------------------------------------------
+// QbsRootProjectNode:
+// --------------------------------------------------------------------
 
 QbsRootProjectNode::QbsRootProjectNode(QbsProject *project) :
     QbsProjectNode(project->projectFilePath().toString()),
-    m_project(project)
+    m_project(project),
+    m_buildSystemFiles(new ProjectExplorer::FolderNode(project->projectDirectory().toString()))
 {
+    m_buildSystemFiles->setDisplayName(tr("Qbs files"));
+    addFolderNodes(QList<FolderNode *>() << m_buildSystemFiles);
 }
 
 void QbsRootProjectNode::update()
 {
+    QStringList buildSystemFiles = unreferencedBuildSystemFiles(m_project->qbsProject());
+
+    QStringList projectBuildSystemFiles;
+    Utils::FileName base = m_project->projectDirectory();
+    foreach (const QString &f, buildSystemFiles) {
+        if (Utils::FileName::fromString(f).isChildOf(base))
+                projectBuildSystemFiles.append(f);
+    }
+    QbsGroupNode::setupFiles(m_buildSystemFiles, projectBuildSystemFiles, base.toString(), false);
+
     update(m_project->qbsProjectData());
+}
+
+static QSet<QString> referencedBuildSystemFiles(const qbs::ProjectData &data)
+{
+    QSet<QString> result;
+    result.insert(data.location().fileName());
+    foreach (const qbs::ProjectData &subProject, data.subProjects())
+        result.unite(referencedBuildSystemFiles(subProject));
+    foreach (const qbs::ProductData &product, data.products()) {
+        result.insert(product.location().fileName());
+        foreach (const qbs::GroupData &group, product.groups())
+            result.insert(group.location().fileName());
+    }
+
+    return result;
+}
+
+QStringList QbsRootProjectNode::unreferencedBuildSystemFiles(const qbs::Project &p) const
+{
+    return p.buildSystemFiles().subtract(referencedBuildSystemFiles(p.projectData())).toList();
 }
 
 } // namespace Internal
