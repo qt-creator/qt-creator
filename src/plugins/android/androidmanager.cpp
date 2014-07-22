@@ -91,9 +91,7 @@ typedef QMap<QString, Library> LibrariesMap;
 static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
 static bool saveXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
 static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
-static bool saveManifest(ProjectExplorer::Target *target, QDomDocument &doc);
 static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag);
-static bool setLibsXml(ProjectExplorer::Target *target, const QStringList &libs, const QString &tag);
 
 enum ItemType
 {
@@ -322,11 +320,6 @@ static bool openLibsXml(ProjectExplorer::Target *target, QDomDocument &doc)
     return openXmlFile(doc, AndroidManager::libsPath(target));
 }
 
-static bool saveLibsXml(ProjectExplorer::Target *target, QDomDocument &doc)
-{
-    return saveXmlFile(doc, AndroidManager::libsPath(target));
-}
-
 static void raiseError(const QString &reason)
 {
     QMessageBox::critical(0, AndroidManager::tr("Error creating Android templates."), reason);
@@ -459,12 +452,6 @@ static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc)
     return openXmlFile(doc, AndroidManager::manifestPath(target));
 }
 
-static bool saveManifest(ProjectExplorer::Target *target, QDomDocument &doc)
-{
-    Core::FileChangeBlocker blocker(AndroidManager::manifestPath(target).toString());
-    return saveXmlFile(doc, AndroidManager::manifestPath(target));
-}
-
 static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag)
 {
     QStringList libs;
@@ -482,53 +469,6 @@ static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag)
             return libs;
         }
         arrayElem = arrayElem.nextSiblingElement(QLatin1String("array"));
-    }
-    return libs;
-}
-
-static bool setLibsXml(ProjectExplorer::Target *target, const QStringList &libs, const QString &tag)
-{
-    QDomDocument doc;
-    if (!openLibsXml(target, doc))
-        return false;
-    QDomElement arrayElem = doc.documentElement().firstChildElement(QLatin1String("array"));
-    while (!arrayElem.isNull()) {
-        if (arrayElem.attribute(QLatin1String("name")) == tag) {
-            doc.documentElement().removeChild(arrayElem);
-            arrayElem = doc.createElement(QLatin1String("array"));
-            arrayElem.setAttribute(QLatin1String("name"), tag);
-            foreach (const QString &lib, libs) {
-                QDomElement item = doc.createElement(QLatin1String("item"));
-                item.appendChild(doc.createTextNode(lib));
-                arrayElem.appendChild(item);
-            }
-            doc.documentElement().appendChild(arrayElem);
-            return saveLibsXml(target, doc);
-        }
-        arrayElem = arrayElem.nextSiblingElement(QLatin1String("array"));
-    }
-    return false;
-}
-
-
-static QStringList dependencies(const Utils::FileName &readelfPath, const QString &lib)
-{
-    QStringList libs;
-
-    QProcess readelfProc;
-    readelfProc.start(readelfPath.toString(), QStringList() << QLatin1String("-d") << QLatin1String("-W") << lib);
-
-    if (!readelfProc.waitForFinished(-1)) {
-        readelfProc.kill();
-        return libs;
-    }
-
-    QList<QByteArray> lines = readelfProc.readAll().trimmed().split('\n');
-    foreach (const QByteArray &line, lines) {
-        if (line.contains("(NEEDED)") && line.contains("Shared library:") ) {
-            const int pos = line.lastIndexOf('[') + 1;
-            libs << QString::fromLatin1(line.mid(pos, line.lastIndexOf(']') - pos));
-        }
     }
     return libs;
 }
