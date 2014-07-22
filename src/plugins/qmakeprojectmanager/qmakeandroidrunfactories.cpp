@@ -61,12 +61,12 @@ QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory(QObject
 {
 }
 
-QString QmakeAndroidRunConfigurationFactory::displayNameForId(const Core::Id id) const
+QString QmakeAndroidRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     return QFileInfo(pathFromId(id)).completeBaseName();
 }
 
-bool QmakeAndroidRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool QmakeAndroidRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -100,7 +100,7 @@ QList<Core::Id> QmakeAndroidRunConfigurationFactory::availableCreationIds(Target
     return QmakeProject::idsForNodes(base, nodes);
 }
 
-RunConfiguration *QmakeAndroidRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
+RunConfiguration *QmakeAndroidRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     if (parent->project()->rootProjectNode())
         return new QmakeAndroidRunConfiguration(parent, id, parent->project()->rootProjectNode()->path());
@@ -132,7 +132,9 @@ bool QmakeAndroidRunConfigurationFactory::canHandle(Target *t) const
             && qobject_cast<QmakeProject *>(t->project());
 }
 
-#warning FIX ME !!!
+#ifdef Q_CC_GCC
+#  warning FIX ME !!!
+#endif
 QList<RunConfiguration *> QmakeAndroidRunConfigurationFactory::runConfigurationsForNode(Target *t, ProjectExplorer::Node *n)
 {
     QList<ProjectExplorer::RunConfiguration *> result;
