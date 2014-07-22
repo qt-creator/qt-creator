@@ -101,6 +101,9 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     connect(m_ui->ministroOption, SIGNAL(clicked()), SLOT(setMinistro()));
     connect(m_ui->temporaryQtOption, SIGNAL(clicked()), SLOT(setDeployLocalQtLibs()));
     connect(m_ui->bundleQtOption, SIGNAL(clicked()), SLOT(setBundleQtLibs()));
+    connect(m_ui->ministroOption, SIGNAL(clicked()), SLOT(updateDebugDeploySigningWarning()));
+    connect(m_ui->temporaryQtOption, SIGNAL(clicked()), SLOT(updateDebugDeploySigningWarning()));
+    connect(m_ui->bundleQtOption, SIGNAL(clicked()), SLOT(updateDebugDeploySigningWarning()));
 
     connect(m_ui->openPackageLocationCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(openPackageLocationCheckBoxToggled(bool)));
@@ -123,6 +126,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
             this, SLOT(updateSigningWarning()));
 
     updateSigningWarning();
+    updateDebugDeploySigningWarning();
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(step->target()->kit());
     m_ui->temporaryQtOption->setVisible(qt->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0));
 }
@@ -233,6 +237,20 @@ void AndroidBuildApkWidget::updateSigningWarning()
     } else {
         m_ui->signingDebugWarningIcon->setVisible(false);
         m_ui->signingDebugWarningLabel->setVisible(false);
+    }
+}
+
+void AndroidBuildApkWidget::updateDebugDeploySigningWarning()
+{
+    if (m_step->deployAction() == AndroidBuildApkStep::DebugDeployment) {
+        m_ui->signingDebugDeployError->setVisible(true);
+        m_ui->signingDebugDeployErrorIcon->setVisible(true);
+        m_ui->signPackageCheckBox->setChecked(false);
+        m_ui->signPackageCheckBox->setEnabled(false);
+    } else {
+        m_ui->signingDebugDeployError->setVisible(false);
+        m_ui->signingDebugDeployErrorIcon->setVisible(false);
+        m_ui->signPackageCheckBox->setEnabled(true);
     }
 }
 

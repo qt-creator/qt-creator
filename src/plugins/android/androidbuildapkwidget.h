@@ -63,6 +63,7 @@ private slots:
     void certificatesAliasComboBoxCurrentIndexChanged(const QString &alias);
     void certificatesAliasComboBoxActivated(const QString &alias);
     void updateSigningWarning();
+    void updateDebugDeploySigningWarning();
     void openPackageLocationCheckBoxToggled(bool checked);
     void verboseOutputCheckBoxToggled(bool checked);
     void updateKeyStorePath(const QString &path);
