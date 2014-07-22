@@ -260,15 +260,6 @@ QString QbsFileNode::displayName() const
     return ProjectExplorer::FileNode::displayName() + QLatin1Char(':') + QString::number(l);
 }
 
-bool QbsFileNode::update(const qbs::CodeLocation &loc)
-{
-    const QString oldPath = path();
-    const int oldLine = line();
-
-    setPathAndLine(loc.fileName(), loc.line());
-    return (line() != oldLine || path() != oldPath);
-}
-
 // ---------------------------------------------------------------------------
 // QbsBaseProjectNode:
 // ---------------------------------------------------------------------------
@@ -437,8 +428,8 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData *grp, const QString &
         if (idx)
             break;
     }
-    if (idx->update(grp->location()) || updateExisting)
-        idx->emitNodeUpdated();
+    QTC_ASSERT(idx, return);
+    idx->setPathAndLine(grp->location().fileName(), grp->location().line());
 
     setupFiles(this, grp->allFilePaths(), productPath, updateExisting);
 
@@ -639,8 +630,8 @@ void QbsProductNode::setQbsProductData(const qbs::ProductData prd)
         if (idx)
             break;
     }
-    if (idx->update(prd.location()) || updateExisting)
-        idx->emitNodeUpdated();
+    QTC_ASSERT(idx, return);
+    idx->setPathAndLine(prd.location().fileName(), prd.location().line());
 
     QList<ProjectExplorer::ProjectNode *> toAdd;
     QList<ProjectExplorer::ProjectNode *> toRemove = subProjectNodes();

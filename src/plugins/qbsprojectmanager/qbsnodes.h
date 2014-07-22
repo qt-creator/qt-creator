@@ -55,8 +55,6 @@ public:
                 int line);
 
     QString displayName() const;
-
-    bool update(const qbs::CodeLocation &loc);
 };
 
 // ---------------------------------------------------------------------------
