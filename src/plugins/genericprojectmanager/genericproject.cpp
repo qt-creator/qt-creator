@@ -252,12 +252,14 @@ void GenericProject::refresh(RefreshOptions options)
 
         Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::defaultKit();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
-            QStringList cxxflags; // FIXME: Can we do better?
-            part->evaluateToolchain(tc, cxxflags, cxxflags,
+            QStringList cflags;
+            QStringList cxxflags;
+            cxxflags << QLatin1String("-std=c++11");
+
+            part->evaluateToolchain(tc, cxxflags, cflags,
                                     SysRootKitInformation::sysRoot(k));
         }
 
-        part->cxxVersion = CppTools::ProjectPart::CXX11; // assume C++11
         part->projectConfigFile = configFileName();
 
         // ### add _defines.

@@ -3050,7 +3050,7 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
     return parsed;
 }
 
-bool Parser::parseStatement(StatementAST *&node)
+bool Parser::parseStatement(StatementAST *&node, bool blockLabeledStatement)
 {
     DEBUG_THIS_RULE();
     switch (LA()) {
@@ -3077,6 +3077,8 @@ bool Parser::parseStatement(StatementAST *&node)
 
     case T_CASE:
     case T_DEFAULT:
+        if (blockLabeledStatement)
+            return false;
         return parseLabeledStatement(node);
 
     case T_BREAK:
@@ -3145,8 +3147,11 @@ bool Parser::parseStatement(StatementAST *&node)
     }
 
     default:
-        if (LA() == T_IDENTIFIER && LA(2) == T_COLON)
+        if (LA() == T_IDENTIFIER && LA(2) == T_COLON) {
+            if (blockLabeledStatement)
+                return false;
             return parseLabeledStatement(node);
+        }
 
         return parseExpressionOrDeclarationStatement(node);
     } // switch
@@ -3617,7 +3622,7 @@ bool Parser::parseLabeledStatement(StatementAST *&node)
             LabeledStatementAST *ast = new (_pool) LabeledStatementAST;
             ast->label_token = consumeToken();
             ast->colon_token = consumeToken();
-            parseStatement(ast->statement);
+            parseStatement(ast->statement, /*blockLabeledStatement =*/ true);
             node = ast;
             return true;
         }
@@ -3627,7 +3632,7 @@ bool Parser::parseLabeledStatement(StatementAST *&node)
         LabeledStatementAST *ast = new (_pool) LabeledStatementAST;
         ast->label_token = consumeToken();
         match(T_COLON, &ast->colon_token);
-        parseStatement(ast->statement);
+        parseStatement(ast->statement, /*blockLabeledStatement =*/ true);
         node = ast;
         return true;
     }
@@ -3637,7 +3642,7 @@ bool Parser::parseLabeledStatement(StatementAST *&node)
         ast->case_token = consumeToken();
         parseConstantExpression(ast->expression);
         match(T_COLON, &ast->colon_token);
-        parseStatement(ast->statement);
+        parseStatement(ast->statement, /*blockLabeledStatement =*/ true);
         node = ast;
         return true;
     }

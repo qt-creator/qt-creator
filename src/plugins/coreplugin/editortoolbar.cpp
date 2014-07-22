@@ -318,12 +318,14 @@ void EditorToolBar::listContextMenu(QPoint pos)
                 d->m_editorList->currentIndex());
     QString fileName = entry ? entry->fileName() : QString();
     QString shortFileName = entry ? QFileInfo(fileName).fileName() : QString();
-    if (fileName.isEmpty() || shortFileName.isEmpty())
-        return;
     QMenu menu;
     QAction *copyPath = menu.addAction(tr("Copy Full Path to Clipboard"));
     QAction *copyFileName = menu.addAction(tr("Copy File Name to Clipboard"));
     menu.addSeparator();
+    if (fileName.isEmpty() || shortFileName.isEmpty()) {
+        copyPath->setEnabled(false);
+        copyFileName->setEnabled(false);
+    }
     EditorManager::addSaveAndCloseEditorActions(&menu, entry);
     menu.addSeparator();
     EditorManager::addNativeDirAndOpenWithActions(&menu, entry);

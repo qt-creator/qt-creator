@@ -202,17 +202,17 @@ QList<FormEditorItem *> AbstractFormEditorTool::filterSelectedModelNodes(const Q
     return filteredItemList;
 }
 
-void AbstractFormEditorTool::dropEvent(QGraphicsSceneDragDropEvent * /* event */)
+void AbstractFormEditorTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /* event */)
 {
 }
 
-void AbstractFormEditorTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
+void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event)
 {
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
         event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
         event->accept();
         view()->changeToDragTool();
-        view()->currentTool()->dragEnterEvent(event);
+        view()->currentTool()->dragEnterEvent(itemList, event);
     } else {
         event->ignore();
     }
@@ -262,6 +262,32 @@ Snapper::Snapping AbstractFormEditorTool::generateUseSnapping(Qt::KeyboardModifi
     }
 
     return useSnapping;
+}
+
+static bool isNotAncestorOfItemInList(FormEditorItem *formEditorItem, const QList<FormEditorItem*> &itemList)
+{
+    foreach (FormEditorItem *item, itemList) {
+        if (item
+            && item->qmlItemNode().isValid()
+            && item->qmlItemNode().isAncestorOf(formEditorItem->qmlItemNode()))
+            return false;
+    }
+
+    return true;
+}
+
+FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGraphicsItem *> &itemUnderMouseList, const QList<FormEditorItem *> &selectedItemList) const
+{
+    foreach (QGraphicsItem* item, itemUnderMouseList) {
+        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
+        if (formEditorItem
+                && !selectedItemList.contains(formEditorItem)
+                && isNotAncestorOfItemInList(formEditorItem, selectedItemList)
+                && formEditorItem->isContainer())
+            return formEditorItem;
+    }
+
+    return 0;
 }
 
 void AbstractFormEditorTool::clear()

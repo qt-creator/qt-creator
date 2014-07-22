@@ -42,27 +42,13 @@
 
 #include <QFuture>
 #include <QTimer>
-#include <QVariantMap>
-
-namespace qbs {
-class BuildJob;
-class CleanJob;
-class Error;
-class ProjectData;
-class CleanOptions;
-class InstallJob;
-class InstallOptions;
-class Project;
-class ErrorInfo;
-class BuildOptions;
-} // namespace qbs
 
 namespace Core { class IDocument; }
 namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace QbsProjectManager {
 namespace Internal {
-
+class QbsBaseProjectNode;
 class QbsProjectNode;
 class QbsRootProjectNode;
 class QbsProjectParser;
@@ -83,6 +69,13 @@ public:
     ProjectExplorer::ProjectNode *rootProjectNode() const;
 
     QStringList files(FilesMode fileMode) const;
+
+    bool addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
+                           const qbs::ProductData &productData, const qbs::GroupData &groupData,
+                           QStringList *notAdded);
+    bool removeFilesFromProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
+            const qbs::ProductData &productData, const qbs::GroupData &groupData,
+            QStringList *notRemoved);
 
     qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products = QStringList());
     qbs::CleanJob *clean(const qbs::CleanOptions &opts);
@@ -106,7 +99,7 @@ public:
                                                  const QString &bcName);
 
     qbs::Project qbsProject() const;
-    const qbs::ProjectData qbsProjectData() const;
+    qbs::ProjectData qbsProjectData() const;
 
     bool needsSpecialDeployment() const;
     void generateErrors(const qbs::ErrorInfo &e);

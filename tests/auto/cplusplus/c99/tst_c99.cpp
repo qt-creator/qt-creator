@@ -133,6 +133,7 @@ void tst_c99::parse_data()
 
     QTest::newRow("designatedInitializer.1") << "designatedInitializer.1.c" << "";
     QTest::newRow("designatedInitializer.2") << "designatedInitializer.2.c" << "";
+    QTest::newRow("limits-caselabels (QTCREATORBUG-12673)") << "limits-caselabels.c" << "";
 }
 
 void tst_c99::parse()

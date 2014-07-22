@@ -58,7 +58,7 @@
    <item row="2" column="0">
     <widget class="QLabel" name="userNameLabel">
      <property name="text">
-      <string>The user name to log into the device:</string>
+      <string>The username to log into the device:</string>
      </property>
     </widget>
    </item>

@@ -44,6 +44,7 @@ public:
     operator ModelNode() const;
     ModelNode modelNode();
     const ModelNode modelNode() const;
+    bool hasModelNode() const;
     static bool isValidQmlModelNodeFacade(const ModelNode &modelNode);
     virtual bool isValid() const;
     virtual ~QmlModelNodeFacade();

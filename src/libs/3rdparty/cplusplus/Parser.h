@@ -142,7 +142,7 @@ public:
     bool parsePtrOperator(PtrOperatorListAST *&node);
     bool parseRelationalExpression(ExpressionAST *&node);
     bool parseShiftExpression(ExpressionAST *&node);
-    bool parseStatement(StatementAST *&node);
+    bool parseStatement(StatementAST *&node, bool blockLabeledStatement = false);
     bool parseThisExpression(ExpressionAST *&node);
     bool parseBoolLiteral(ExpressionAST *&node);
     bool parseNumericLiteral(ExpressionAST *&node);

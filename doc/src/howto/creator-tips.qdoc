@@ -124,11 +124,7 @@
     For example, running \tt{qtcreator somesession}, launches \QC and
     loads session somesession.
 
-    \note Make sure \QC is included in the PATH environment variable.
-    This can be done by typing the following in the command line:
-    \code
-    set PATH=c:\qtsdk\mingw\bin;c:\qtsdk\qt\bin;%PATH%
-    \endcode
+    For more information, see \l{Using Command Line Options}.
 
     \section1 Showing and Hiding the Sidebar
 
@@ -152,15 +148,16 @@
 
     Press \key Ctrl (\key Cmd on OS X) and click a symbol to move directly to
     the definition or the declaration of the symbol. You can also move the
-    on the symbol and press \key {F2}. For more information, see
-    cursor \l{Moving to Symbol Definition or Declaration}.
+    cursor on the symbol and press \key {F2}. For more information, see
+    \l{Moving to Symbol Definition or Declaration}.
 
     \section1 Displaying Signals and Slots
 
     If an instance of a class is derived from QObject, and you would like to
     find all other objects connected to one of your object's slots using
     Qt's signals and slots mechanism, select \gui Tools > \gui Options
-    > \gui{Debugger} > \gui{Debugging Helper} > \gui{Use Debugging Helper}.
+    > \gui{Debugger} > \gui{Locals and Expressions} >
+    \gui{Use Debugging Helper}.
 
     In the \gui{Locals and Expressions} view, expand the object's entry and open
     the slot in the \e slots subitem. The objects connected to this slot are
@@ -179,7 +176,7 @@
     \list 1
 
         \li Select \gui Tools > \gui Options > \gui Debugger >
-            \gui{Debugging Helper}.
+            \gui{Locals and Expressions}.
 
         \li Uncheck the \gui{Use Debugging Helper} checkbox.
 
@@ -234,7 +231,7 @@
         \li \c %MONTH%: Month
         \li \c %DAY%: Day of the month
         \li \c %DATE%: Date
-        \li \c %USER%: User name
+        \li \c %USER%: Username
         \li \c %FILENAME%: File name
         \li \c %CLASS%: Class name (if applicable)
         \li \c %$VARIABLE%: Contents of environment variable \c{VARIABLE}.

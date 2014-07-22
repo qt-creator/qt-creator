@@ -99,7 +99,7 @@ def main():
         replaceEditorContent(waitForObject(":Working Copy_Utils::BaseValidatingLineEdit"),
                              targetDir)
         cloneDirEdit = waitForObject(":Working Copy.checkoutDirectoryLineEdit_QLineEdit")
-        test.compare(cloneDirEdit.text, "p-qt-labs-jom")
+        test.compare(cloneDirEdit.text, "jom")
         replaceEditorContent(cloneDirEdit, cloneDir)
         clickButton(waitForObject(":Next_QPushButton"))
         cloneLog = waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit", 1000)

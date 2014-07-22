@@ -161,7 +161,7 @@ QString Node::path() const
 
 int Node::line() const
 {
-    return -1;
+    return m_line;
 }
 
 QString Node::displayName() const

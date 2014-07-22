@@ -78,8 +78,8 @@
                     enter the host name or IP address of the device.
                     This value will be available in the variable \c %{CurrentDevice:HostAddress}.
 
-                \li In the \gui {The user name to log into the device} field,
-                    enter the user name to log into the device and run the
+                \li In the \gui {The username to log into the device} field,
+                    enter the username to log into the device and run the
                     application as.
                     This value will be available in the variable \c %{CurrentDevice:UserName}.
 

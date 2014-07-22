@@ -188,6 +188,8 @@ void NodeInstanceView::handleChrash()
         restartProcess();
     else
         emit  qmlPuppetCrashed();
+
+    emitCustomNotification(QStringLiteral("puppet crashed"));
 }
 
 
@@ -217,6 +219,11 @@ void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
 
     if (isSkippedNode(createdNode))
         return;
+
+    QList<VariantProperty> propertyList;
+    propertyList.append(createdNode.variantProperty("x"));
+    propertyList.append(createdNode.variantProperty("y"));
+    updatePosition(propertyList);
 
     nodeInstanceServer()->createInstances(createCreateInstancesCommand(QList<NodeInstance>() << instance));
     nodeInstanceServer()->changePropertyValues(createChangeValueCommand(createdNode.variantProperties()));

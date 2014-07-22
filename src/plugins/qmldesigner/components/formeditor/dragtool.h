@@ -42,38 +42,23 @@ namespace QmlDesigner {
 
 class DragTool;
 
-namespace Internal {
-
-class TimerHandler : public QObject
-{
-    Q_OBJECT
-
-public:
-    TimerHandler(DragTool *tool) : QObject(), m_dragTool(tool) {}
-public slots:
-    void clearMoveDelay();
-
-private:
-    DragTool *m_dragTool;
-};
-}
-
 class DragTool : public AbstractFormEditorTool
 {
 public:
-    DragTool(FormEditorView* editorView);
+    DragTool(FormEditorView *editorView);
     virtual ~DragTool();
 
-    void mousePressEvent(const QList<QGraphicsItem*> &itemList,
-                         QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
-                           QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList,
-                               QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+
+    void hoverMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+
+    void dropEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) QTC_OVERRIDE;
+    void dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) QTC_OVERRIDE;
+    void dragLeaveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) QTC_OVERRIDE;
+    void dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) QTC_OVERRIDE;
 
     void keyPressEvent(QKeyEvent *event) QTC_OVERRIDE;
     void keyReleaseEvent(QKeyEvent *keyEvent) QTC_OVERRIDE;
@@ -88,14 +73,6 @@ public:
 
     void beginWithPoint(const QPointF &beginPoint);
 
-
-    virtual void dropEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-
-    //void beginWithPoint(const QPointF &beginPoint);
-
     void clear() QTC_OVERRIDE;
 
     void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) QTC_OVERRIDE;
@@ -106,28 +83,24 @@ public:
 
 protected:
     void abort();
-
-
-private:
-    void commitTransaction();
     void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QmlItemNode &parentNode, const QPointF &scenePos);
     void createQmlItemNodeFromImage(const QString &imageName, const QmlItemNode &parentNode, const QPointF &scenePos);
-    FormEditorItem* calculateContainer(const QPointF &point, FormEditorItem * currentItem = 0);
-
+    FormEditorItem *targetContainerOrRootItem(const QList<QGraphicsItem*> &itemList, FormEditorItem *urrentItem = 0);
     void begin(QPointF scenePos);
     void end();
     void end(Snapper::Snapping useSnapping);
-    void move(const QPointF &scenePos);
+    void move(const QPointF &scenePos, const QList<QGraphicsItem *> &itemList);
+    void createDragNode(const QMimeData *mimeData, const QPointF &scenePosition, const QList<QGraphicsItem *> &itemList);
 
+private:
     MoveManipulator m_moveManipulator;
     SelectionIndicator m_selectionIndicator;
     QPointer<FormEditorItem> m_movingItem;
     RewriterTransaction m_rewriterTransaction;
     QmlItemNode m_dragNode;
-    QScopedPointer<Internal::TimerHandler> m_timerHandler;
     bool m_blockMove;
     QPointF m_startPoint;
-    bool m_Aborted;
+    bool m_isAborted;
 };
 
 

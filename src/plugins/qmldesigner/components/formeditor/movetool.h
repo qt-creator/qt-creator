@@ -47,21 +47,16 @@ public:
     MoveTool(FormEditorView* editorView);
     ~MoveTool();
 
-    void mousePressEvent(const QList<QGraphicsItem*> &itemList,
-                         QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
-                           QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList,
-                               QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
-    void hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
+    void hoverMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) QTC_OVERRIDE;
     void keyPressEvent(QKeyEvent *event) QTC_OVERRIDE;
     void keyReleaseEvent(QKeyEvent *keyEvent) QTC_OVERRIDE;
 
-    void dragLeaveEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
-    void dragMoveEvent(QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
+    void dragLeaveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
+    void dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent * event) QTC_OVERRIDE;
 
     void itemsAboutToRemoved(const QList<FormEditorItem*> &itemList) QTC_OVERRIDE;
 
@@ -84,8 +79,6 @@ protected:
 
     static QList<FormEditorItem*> movingItems(const QList<FormEditorItem*> &selectedItemList);
 
-    static FormEditorItem* containerFormEditorItem(const QList<QGraphicsItem*> &itemUnderMouseList,
-                                            const QList<FormEditorItem*> &selectedItemList);
 
     static bool isAncestorOfAllItems(FormEditorItem* maybeAncestorItem,
                                     const QList<FormEditorItem*> &itemList);

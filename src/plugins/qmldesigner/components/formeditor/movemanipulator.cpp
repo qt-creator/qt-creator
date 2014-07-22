@@ -103,7 +103,7 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
 
 void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
 {
-    if (m_view->model() && !m_itemList.isEmpty() && m_itemList.first()->qmlItemNode().instanceParent().isValid())
+    if (m_view->model() && !m_itemList.isEmpty() && m_itemList.first()->qmlItemNode().hasInstanceParent())
         synchronizeParent(itemList, m_itemList.first()->qmlItemNode().instanceParent());
 }
 

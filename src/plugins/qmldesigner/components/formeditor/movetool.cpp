@@ -198,12 +198,12 @@ void MoveTool::keyReleaseEvent(QKeyEvent *keyEvent)
     }
 }
 
-void  MoveTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+void  MoveTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
 
 }
 
-void  MoveTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+void  MoveTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
 
 }
@@ -319,35 +319,7 @@ void MoveTool::beginWithPoint(const QPointF &beginPoint)
     m_moveManipulator.begin(beginPoint);
 }
 
-static bool isNotAncestorOfItemInList(FormEditorItem *formEditorItem, const QList<FormEditorItem*> &itemList)
-{
-    foreach (FormEditorItem *item, itemList) {
-        if (item
-            && item->qmlItemNode().isValid()
-            && item->qmlItemNode().isAncestorOf(formEditorItem->qmlItemNode()))
-            return false;
-    }
 
-    return true;
-}
-
-FormEditorItem* MoveTool::containerFormEditorItem(const QList<QGraphicsItem*> &itemUnderMouseList,
-                                        const QList<FormEditorItem*> &selectedItemList)
-{
-    Q_ASSERT(!selectedItemList.isEmpty());
-
-    foreach (QGraphicsItem* item, itemUnderMouseList) {
-        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-        if (formEditorItem
-           && !selectedItemList.contains(formEditorItem)
-           && isNotAncestorOfItemInList(formEditorItem, selectedItemList)
-           && formEditorItem->isContainer())
-                return formEditorItem;
-
-    }
-
-    return 0;
-}
 
 QList<FormEditorItem*> movalbeItems(const QList<FormEditorItem*> &itemList)
 {

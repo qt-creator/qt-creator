@@ -211,11 +211,11 @@ void SelectionTool::keyReleaseEvent(QKeyEvent * /*keyEvent*/)
 
 }
 
-void SelectionTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+void SelectionTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
 }
 
-void SelectionTool::dragMoveEvent(QGraphicsSceneDragDropEvent * /*event*/)
+void SelectionTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSceneDragDropEvent * /*event*/)
 {
 }
 

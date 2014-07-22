@@ -1090,7 +1090,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         []() { return variableValue(Constants::VAR_CURRENTDEVICE_SSHPORT); });
 
     VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_USERNAME,
-        tr("The user name with which to log into the device in the currently active kit."),
+        tr("The username with which to log into the device in the currently active kit."),
         []() { return variableValue(Constants::VAR_CURRENTDEVICE_USERNAME); });
 
     VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE,

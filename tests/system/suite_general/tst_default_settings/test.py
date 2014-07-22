@@ -215,8 +215,8 @@ def __getExpectedDebuggers__():
     result = []
     if platform.system() in ('Microsoft', 'Windows'):
         result.extend(__getCDB__())
-    debuggers = ["gdb", "lldb"]
-    result.extend(filter(None, map(which, debuggers)))
+    for debugger in ["gdb", "lldb"]:
+        result.extend(findAllFilesInPATH(debugger))
     if platform.system() == 'Linux':
         result.extend(findAllFilesInPATH("lldb-*"))
     if platform.system() == 'Darwin':

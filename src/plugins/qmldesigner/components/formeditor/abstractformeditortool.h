@@ -52,23 +52,17 @@ public:
 
     virtual ~AbstractFormEditorTool();
 
-    virtual void mousePressEvent(const QList<QGraphicsItem*> &itemList,
-                         QGraphicsSceneMouseEvent *event);
-    virtual void mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent *event) = 0;
-    virtual void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
-                           QGraphicsSceneMouseEvent *event);
+    virtual void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event);
+    virtual void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) = 0;
+    virtual void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event);
+    virtual void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event);
 
-    virtual void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList,
-                                       QGraphicsSceneMouseEvent *event);
+    virtual void hoverMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) = 0;
 
-    virtual void hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent *event) = 0;
-
-    virtual void dropEvent(QGraphicsSceneDragDropEvent * event);
-    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent * event);
-    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent * event) = 0;
-    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent * event) = 0;
+    virtual void dropEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event);
+    virtual void dragEnterEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event);
+    virtual void dragLeaveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) = 0;
+    virtual void dragMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneDragDropEvent *event) = 0;
 
     virtual void keyPressEvent(QKeyEvent *event) = 0;
     virtual void keyReleaseEvent(QKeyEvent *keyEvent) = 0;
@@ -105,6 +99,7 @@ protected:
     virtual void selectedItemsChanged(const QList<FormEditorItem*> &itemList) = 0;
     virtual void showContextMenu(QGraphicsSceneMouseEvent *event);
     Snapper::Snapping generateUseSnapping(Qt::KeyboardModifiers keyboardModifier) const;
+    FormEditorItem *containerFormEditorItem(const QList<QGraphicsItem*> &itemUnderMouseList, const QList<FormEditorItem*> &selectedItemList) const;
 
     FormEditorView *view() const;
     void setView(FormEditorView *view);

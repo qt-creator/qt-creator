@@ -225,7 +225,7 @@ FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNod
 
 void FormEditorScene::dropEvent(QGraphicsSceneDragDropEvent * event)
 {
-    currentTool()->dropEvent(event);
+    currentTool()->dropEvent(removeLayerItems(items(event->scenePos())), event);
 
     if (views().first())
         views().first()->setFocus();
@@ -233,19 +233,19 @@ void FormEditorScene::dropEvent(QGraphicsSceneDragDropEvent * event)
 
 void FormEditorScene::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
 {
-    currentTool()->dragEnterEvent(event);
+    currentTool()->dragEnterEvent(removeLayerItems(items(event->scenePos())), event);
 }
 
 void FormEditorScene::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
 {
-    currentTool()->dragLeaveEvent(event);
+    currentTool()->dragLeaveEvent(removeLayerItems(items(event->scenePos())), event);
 
     return;
 }
 
 void FormEditorScene::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
 {
-    currentTool()->dragMoveEvent(event);
+    currentTool()->dragMoveEvent(removeLayerItems(items(event->scenePos())), event);
 }
 
 QList<QGraphicsItem *> FormEditorScene::removeLayerItems(const QList<QGraphicsItem *> &itemList)

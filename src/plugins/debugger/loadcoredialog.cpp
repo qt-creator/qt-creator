@@ -218,6 +218,36 @@ public:
     PathChooser *overrideStartScriptFileName;
 
     QDialogButtonBox *buttonBox;
+
+    struct State
+    {
+        bool isValid() const
+        {
+            return validKit && validLocalExecFilename && validCoreFilename;
+        }
+
+        bool validKit;
+        bool validLocalExecFilename;
+        bool validCoreFilename;
+        bool localCoreFile;
+        bool localKit;
+    };
+
+    State getDialogState(const AttachCoreDialog &p) const
+    {
+        State st;
+        st.localCoreFile = p.useLocalCoreFile();
+        st.validKit = (kitChooser->currentKit() != 0);
+        st.validLocalExecFilename = localExecFileName->isValid();
+
+        if (st.localCoreFile)
+            st.validCoreFilename = localCoreFileName->isValid();
+        else
+            st.validCoreFilename = !p.remoteCoreFile().isEmpty();
+
+        st.localKit = p.isLocalKit();
+        return st;
+    }
 };
 
 AttachCoreDialog::AttachCoreDialog(QWidget *parent)
@@ -302,6 +332,18 @@ int AttachCoreDialog::exec()
     connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
     changed();
 
+    AttachCoreDialogPrivate::State st = d->getDialogState(*this);
+    if (!st.validKit) {
+        d->kitChooser->setFocus();
+    } else if (!st.validCoreFilename) {
+        if (st.localCoreFile)
+            d->localCoreFileName->setFocus();
+        else
+            d->remoteCoreFileName->setFocus();
+    } else if (!st.validLocalExecFilename) {
+        d->localExecFileName->setFocus();
+    }
+
     return QDialog::exec();
 }
 
@@ -335,24 +377,21 @@ void AttachCoreDialog::coreFileChanged(const QString &core)
 
 void AttachCoreDialog::changed()
 {
-    bool isValid = d->kitChooser->currentKit() && d->localExecFileName->isValid();
-    bool isKitLocal = isLocalKit();
+    AttachCoreDialogPrivate::State st = d->getDialogState(*this);
 
-    d->forceLocalLabel->setVisible(!isKitLocal);
-    d->forceLocalCheckBox->setVisible(!isKitLocal);
-    if (useLocalCoreFile()) {
+    d->forceLocalLabel->setVisible(!st.localKit);
+    d->forceLocalCheckBox->setVisible(!st.localKit);
+    if (st.localCoreFile) {
         d->localCoreFileName->setVisible(true);
         d->remoteCoreFileName->setVisible(false);
         d->selectRemoteCoreButton->setVisible(false);
-        isValid = isValid && d->localCoreFileName->isValid();
     } else {
         d->localCoreFileName->setVisible(false);
         d->remoteCoreFileName->setVisible(true);
         d->selectRemoteCoreButton->setVisible(true);
-        isValid = isValid && !remoteCoreFile().isEmpty();
     }
 
-    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isValid);
+    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(st.isValid());
 }
 
 void AttachCoreDialog::selectRemoteCoreFile()

@@ -332,11 +332,16 @@ void RunSettingsWidget::cloneRunConfiguration()
     if (!factory)
         return;
 
+    //: Title of a the cloned RunConfiguration window, text of the window
+    QString name = uniqueRCName(QInputDialog::getText(this, tr("Clone Configuration"), tr("New configuration name:")));
+    if (name.isEmpty())
+        return;
+
     RunConfiguration *newRc = factory->clone(m_target, activeRunConfiguration);
     if (!newRc)
         return;
 
-    newRc->setDisplayName(activeRunConfiguration->displayName());
+    newRc->setDisplayName(name);
     m_target->addRunConfiguration(newRc);
     m_target->setActiveRunConfiguration(newRc);
 }

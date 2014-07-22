@@ -84,6 +84,8 @@ public:
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) QTC_OVERRIDE;
     void propertiesRemoved(const QList<AbstractProperty> &propertyList) QTC_OVERRIDE;
 
+    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) QTC_OVERRIDE;
+
     // FormEditorView
     WidgetInfo widgetInfo() QTC_OVERRIDE;
 

@@ -604,7 +604,7 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(QSt
         if (res.qtQmlPath.isEmpty())
             res.qtQmlPath = pInfo.qtQmlPath;
         foreach (const QString &path, pInfo.importPaths)
-            if (res.importPaths.contains(path))
+            if (!res.importPaths.contains(path))
                 res.importPaths.append(path);
     }
     return res;
@@ -1105,28 +1105,24 @@ void ModelManagerInterface::updateImportPaths()
     while (pInfoIter.hasNext()) {
         pInfoIter.next();
         QString pathAtt = pInfoIter.value().qtQmlPath;
-        if (!pathAtt.isEmpty() && allImportPaths.size() > 0
-                && allImportPaths.value(allImportPaths.size()) != pathAtt)
+        if (!pathAtt.isEmpty() && (allImportPaths.isEmpty() || allImportPaths.last() != pathAtt))
             allImportPaths.append(pathAtt);
     }
     {
         QString pathAtt = defaultProjectInfo().qtQmlPath;
-        if (!pathAtt.isEmpty() && allImportPaths.size() > 0
-                && allImportPaths.value(allImportPaths.size()) != pathAtt)
+        if (!pathAtt.isEmpty() && (allImportPaths.isEmpty() || allImportPaths.last() != pathAtt))
             allImportPaths.append(pathAtt);
     }
     pInfoIter.toFront();
     while (pInfoIter.hasNext()) {
         pInfoIter.next();
         QString pathAtt = pInfoIter.value().qtImportsPath;
-        if (!pathAtt.isEmpty() && allImportPaths.size() > 0
-                && allImportPaths.value(allImportPaths.size()) != pathAtt)
+        if (!pathAtt.isEmpty() && (allImportPaths.isEmpty() || allImportPaths.last() != pathAtt))
             allImportPaths.append(pathAtt);
     }
     {
         QString pathAtt = defaultProjectInfo().qtImportsPath;
-        if (!pathAtt.isEmpty() && allImportPaths.size() > 0
-                && allImportPaths.value(allImportPaths.size()) != pathAtt)
+        if (!pathAtt.isEmpty() && (allImportPaths.isEmpty() || allImportPaths.last() != pathAtt))
             allImportPaths.append(pathAtt);
     }
     allImportPaths += m_defaultImportPaths;
