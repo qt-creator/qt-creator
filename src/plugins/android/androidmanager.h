@@ -37,7 +37,9 @@
 #include <QObject>
 #include <QStringList>
 
+QT_BEGIN_NAMESPACE
 class QDomDocument;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class Kit;
