@@ -612,14 +612,14 @@ int OutputPaneManager::currentIndex() const
 
 static QString buttonStyleSheet()
 {
-    QString styleSheet = QLatin1String("QToolButton { border-image: url(:/core/images/panel_button.png) 2 2 2 19;"
-            " border-width: 2px 2px 2px 19px; padding-left: -17; padding-right: 4 } "
-            "QToolButton:checked { border-image: url(:/core/images/panel_button_checked.png) 2 2 2 19 } "
+    QString styleSheet = QLatin1String("QToolButton { border-image: url(:/core/images/panel_button.png) 3 3 3 19;"
+            " border-width: 3px 3px 3px 19px; padding-left: -17; padding-right: 4 } "
+            "QToolButton:checked { border-image: url(:/core/images/panel_button_checked.png) 3 3 3 19 } "
             "QToolButton::menu-indicator { width:0; height:0 }");
     if (!Utils::HostOsInfo::isMacHost()) { // Mac UIs usually don't hover
-        styleSheet += QLatin1String("QToolButton:checked:hover { border-image: url(:/core/images/panel_button_checked_hover.png) 2 2 2 19 } "
-                "QToolButton:pressed:hover { border-image: url(:/core/images/panel_button_pressed.png) 2 2 2 19 } "
-                "QToolButton:hover { border-image: url(:/core/images/panel_button_hover.png) 2 2 2 19 } ");
+        styleSheet += QLatin1String("QToolButton:checked:hover { border-image: url(:/core/images/panel_button_checked_hover.png) 3 3 3 19 } "
+                "QToolButton:pressed:hover { border-image: url(:/core/images/panel_button_pressed.png) 3 3 3 19 } "
+                "QToolButton:hover { border-image: url(:/core/images/panel_button_hover.png) 3 3 3 19 } ");
     }
     return styleSheet;
 }
@@ -768,15 +768,15 @@ OutputPaneManageButton::OutputPaneManageButton()
 {
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
-    setStyleSheet(QLatin1String("QToolButton { border-image: url(:/core/images/panel_manage_button.png) 2 2 2 2;"
-                                " border-width: 2px 2px 2px 2px } "
+    setStyleSheet(QLatin1String("QToolButton { border-image: url(:/core/images/panel_manage_button.png) 3 3 3 3;"
+                                " border-width: 3px 3px 3px 3px } "
                                 "QToolButton::menu-indicator { width:0; height:0 }"));
 }
 
 QSize OutputPaneManageButton::sizeHint() const
 {
     ensurePolished();
-    return QSize(18, QApplication::globalStrut().height());
+    return QSize(19, QApplication::globalStrut().height());
 }
 
 void OutputPaneManageButton::paintEvent(QPaintEvent *event)
@@ -786,7 +786,7 @@ void OutputPaneManageButton::paintEvent(QPaintEvent *event)
     QStyle *s = style();
     QStyleOption arrowOpt;
     arrowOpt.initFrom(this);
-    arrowOpt.rect = QRect(5, rect().center().y() - 3, 9, 9);
+    arrowOpt.rect = QRect(6, rect().center().y() - 3, 9, 9);
     arrowOpt.rect.translate(0, -3);
     s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
     arrowOpt.rect.translate(0, 6);

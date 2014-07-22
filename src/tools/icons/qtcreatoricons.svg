@@ -19,6 +19,66 @@
   <defs
      id="defs4">
     <linearGradient
+       id="linearGradient4072">
+      <stop
+         id="stop4074"
+         offset="0"
+         style="stop-color:#7c7c7c;stop-opacity:1;" />
+      <stop
+         id="stop4076"
+         offset="1"
+         style="stop-color:#5b5b5b;stop-opacity:1;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4096">
+      <stop
+         style="stop-color:#a5a5a5;stop-opacity:1;"
+         offset="0"
+         id="stop4098" />
+      <stop
+         id="stop4100"
+         offset="0.5"
+         style="stop-color:#b0b0b0;stop-opacity:1;" />
+      <stop
+         id="stop4102"
+         offset="0.5"
+         style="stop-color:#bababa;stop-opacity:1;" />
+      <stop
+         style="stop-color:#e2e2e2;stop-opacity:1;"
+         offset="1"
+         id="stop4104" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4144">
+      <stop
+         id="stop4146"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0.5"
+         id="stop4152" />
+      <stop
+         style="stop-color:#f3f3f3;stop-opacity:1;"
+         offset="0.5"
+         id="stop4150" />
+      <stop
+         id="stop4148"
+         offset="1"
+         style="stop-color:#e2e2e2;stop-opacity:1;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4132">
+      <stop
+         style="stop-color:#8f8f8f;stop-opacity:1;"
+         offset="0"
+         id="stop4134" />
+      <stop
+         style="stop-color:#6f6f6f;stop-opacity:1;"
+         offset="1"
+         id="stop4136" />
+    </linearGradient>
+    <linearGradient
        id="linearGradient3975">
       <stop
          id="stop3977"
@@ -438,6 +498,45 @@
          id="rect4028"
          style="fill:none" />
     </clipPath>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4132"
+       id="linearGradient4138"
+       x1="74"
+       y1="502.5"
+       x2="74"
+       y2="517.5"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4144"
+       id="linearGradient4142"
+       gradientUnits="userSpaceOnUse"
+       x1="74"
+       y1="502.5"
+       x2="74"
+       y2="517.5"
+       gradientTransform="translate(8,0)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4096"
+       id="linearGradient4111"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(120,0)"
+       x1="74"
+       y1="502.5"
+       x2="74"
+       y2="517.5" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4072"
+       id="linearGradient4078"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.35294118,0,0,1,162.05882,0)"
+       x1="74"
+       y1="502.5"
+       x2="74"
+       y2="517.5" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -511,6 +610,46 @@
       </cc:Work>
     </rdf:RDF>
   </metadata>
+  <g
+     id="transparencyChecker"
+     transform="translate(-224,50)"
+     inkscape:label="#g4101">
+    <rect
+       y="418"
+       x="200"
+       height="32"
+       width="8"
+       id="rect3327"
+       style="fill:#ff0000;fill-opacity:1;stroke:none" />
+    <rect
+       style="fill:#0000ff;fill-opacity:1;stroke:none"
+       id="rect4099"
+       width="8"
+       height="32"
+       x="216"
+       y="418" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect4108"
+       width="8"
+       height="32"
+       x="192"
+       y="418" />
+    <rect
+       y="418"
+       x="184"
+       height="32"
+       width="8"
+       id="rect4110"
+       style="fill:#000000;fill-opacity:1;stroke:none" />
+    <rect
+       y="418"
+       x="208"
+       height="32"
+       width="8"
+       id="rect4112"
+       style="fill:#00ff00;fill-opacity:1;stroke:none" />
+  </g>
   <g
      inkscape:label="Other icons"
      inkscape:groupmode="layer"
@@ -612,33 +751,6 @@
          height="16"
          x="155"
          y="584" />
-    </g>
-    <g
-       style="display:inline"
-       id="src/plugins/coreplugin/images/sidebaricon"
-       clip-path="url(#clipPath3237)"
-       transform="translate(-142,16)">
-      <use
-         height="600"
-         width="800"
-         transform="matrix(0,-1,1,0,-351,785)"
-         id="use3223"
-         xlink:href="#rect3233"
-         y="0"
-         x="0" />
-      <rect
-         style="fill:none;stroke:none"
-         id="rect3216"
-         width="16"
-         height="16"
-         x="218"
-         y="568" />
-      <path
-         id="rect3241-1"
-         style="fill:none;stroke:#292929;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
-         d="m 225.5,572.5 4,0 0,7 -4,0 z m -6,-2 12,0 0,11 -12,0 z"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cccccccccc" />
     </g>
   </g>
   <g
@@ -1441,7 +1553,7 @@
     </g>
     <g
        id="src/plugins/coreplugin/images/inputfield_disabled"
-       transform="translate(-211,-80)">
+       transform="translate(-212,-80)">
       <use
          height="600"
          width="800"
@@ -1459,15 +1571,15 @@
          height="15"
          width="15"
          id="rect3256"
-         style="fill:#000000;fill-opacity:0.07843138;stroke:none"
-         transform="translate(17,0)" />
+         style="fill:#000000;fill-opacity:0.07843137;stroke:none"
+         transform="translate(16.5,0.5)" />
     </g>
     <g
        id="src/plugins/coreplugin/images/editclear"
        style="opacity:0.6"
-       transform="translate(55,-82)">
+       transform="translate(-139,-80)">
       <path
-         d="m 186,592 a 7,7 0 1 1 -14,0 7,7 0 1 1 14,0 z"
+         d="m 186,592 c 0,3.86599 -3.13401,7 -7,7 -3.86599,0 -7,-3.13401 -7,-7 0,-3.86599 3.13401,-7 7,-7 3.86599,0 7,3.13401 7,7 z"
          sodipodi:ry="7"
          sodipodi:rx="7"
          sodipodi:cy="592"
@@ -1503,6 +1615,256 @@
          height="16"
          x="171"
          y="584" />
+    </g>
+    <g
+       style="display:inline"
+       id="src/plugins/coreplugin/images/sidebaricon"
+       clip-path="url(#clipPath3237)"
+       transform="translate(-170,-64)">
+      <use
+         height="600"
+         width="800"
+         transform="matrix(0,-1,1,0,-351,785)"
+         id="use3223"
+         xlink:href="#rect3233"
+         y="0"
+         x="0" />
+      <rect
+         style="fill:none;stroke:none"
+         id="rect3216"
+         width="16"
+         height="16"
+         x="218"
+         y="568" />
+      <path
+         id="rect3241-1"
+         style="fill:none;stroke:#292929;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+         d="m 225.5,572.5 4,0 0,7 -4,0 z m -6,-2 12,0 0,11 -12,0 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccc" />
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/panel_button"
+       style="opacity:0.83"
+       inkscape:export-filename="panel_button.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <g
+         id="g4052">
+        <rect
+           style="fill:url(#linearGradient4138);fill-opacity:1;stroke:none"
+           id="rect4130"
+           width="17"
+           height="18"
+           x="65"
+           y="501" />
+        <rect
+           y="501"
+           x="83"
+           height="18"
+           width="4"
+           id="rect4140"
+           style="fill:url(#linearGradient4142);fill-opacity:1;stroke:none" />
+        <g
+           id="panelButtonFrame">
+          <rect
+             ry="2.5"
+             y="500.5"
+             x="64.5"
+             height="19"
+             width="23"
+             id="rect4114"
+             style="fill:none;stroke:#333333;stroke-opacity:1" />
+          <rect
+             ry="1.5"
+             y="501.5"
+             x="65.5"
+             height="17"
+             width="21"
+             id="rect4116"
+             style="fill:none;stroke:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-opacity:0.4;stroke-dasharray:none" />
+          <path
+             style="fill:none;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:0.39215686000000000"
+             d="m 81.5,502 0,16"
+             id="path4120"
+             inkscape:connector-curvature="0"
+             sodipodi:nodetypes="cc" />
+          <path
+             style="fill:#959595;fill-opacity:0.83137254999999999;stroke:#333333;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             d="m 82.5,501 0,18"
+             id="path4123"
+             inkscape:connector-curvature="0"
+             sodipodi:nodetypes="cc" />
+        </g>
+      </g>
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/panel_button_hover"
+       style="opacity:0.82999998"
+       inkscape:export-filename="panel_button.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(-4,0)">
+      <use
+         height="600"
+         width="800"
+         transform="translate(28,0)"
+         id="use3268"
+         xlink:href="#g4052"
+         y="0"
+         x="0" />
+      <rect
+         ry="3"
+         y="500"
+         x="92"
+         height="20"
+         width="24"
+         id="panelButtonHoverRect"
+         style="fill:#ffffff;fill-opacity:0.1254902;stroke:none" />
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/panel_button_checked"
+       style="opacity:0.82999998"
+       inkscape:export-filename="panel_button.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(-8,0)">
+      <g
+         id="g4061">
+        <use
+           x="0"
+           y="0"
+           xlink:href="#rect4130"
+           id="use4047"
+           transform="matrix(1.2941176,0,0,1,36.882359,0)"
+           width="800"
+           height="600" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#panelButtonFrame"
+           id="use4044"
+           transform="translate(56,0)"
+           width="800"
+           height="600" />
+      </g>
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/panel_button_checked_hover"
+       style="opacity:0.82999998"
+       inkscape:export-filename="panel_button.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(-12,0)">
+      <use
+         height="600"
+         width="800"
+         transform="translate(28,0)"
+         id="use4070"
+         xlink:href="#g4061"
+         y="0"
+         x="0" />
+      <use
+         height="600"
+         width="800"
+         transform="translate(56,0)"
+         id="use4073"
+         xlink:href="#panelButtonHoverRect"
+         y="0"
+         x="0" />
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/panel_button_pressed"
+       style="opacity:0.82999998"
+       inkscape:export-filename="panel_button.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(-16,0)">
+      <rect
+         y="501"
+         x="195"
+         height="18"
+         width="4"
+         id="rect4090"
+         style="fill:url(#linearGradient4111);fill-opacity:1;stroke:none" />
+      <use
+         height="600"
+         width="800"
+         transform="matrix(1,0,0,-1,112,1020)"
+         id="use4084"
+         xlink:href="#rect4130"
+         y="0"
+         x="0" />
+      <use
+         height="600"
+         width="800"
+         transform="translate(112,0)"
+         id="use4080"
+         xlink:href="#panelButtonFrame"
+         y="0"
+         x="0" />
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/panel_manage_button"
+       style="opacity:0.82999998">
+      <g
+         id="panel_manage_button">
+        <rect
+           y="501"
+           x="185"
+           height="18"
+           width="6"
+           id="use4125"
+           style="fill:url(#linearGradient4078);fill-opacity:1;stroke:none" />
+        <rect
+           style="fill:none;stroke:#333333;stroke-opacity:1"
+           id="rect4115"
+           width="7"
+           height="19"
+           x="184.5"
+           y="500.5"
+           ry="2.5" />
+        <rect
+           style="fill:none;stroke:#ffffff;stroke-width:1;stroke-miterlimit:4;stroke-opacity:0.4;stroke-dasharray:none"
+           id="rect4120"
+           width="5"
+           height="17"
+           x="185.5"
+           y="501.5"
+           ry="1.5" />
+      </g>
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/panel_manage_button_hover"
+       style="opacity:0.83">
+      <use
+         height="600"
+         width="800"
+         transform="translate(8,0)"
+         id="use4140"
+         xlink:href="#panel_manage_button"
+         y="0"
+         x="0" />
+      <rect
+         ry="3"
+         y="500"
+         x="192"
+         height="20"
+         width="8"
+         id="rect4143"
+         style="fill:#ffffff;fill-opacity:0.12549020000000000;stroke:none" />
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/panel_manage_button_pressed"
+       style="opacity:0.82999998">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#panel_manage_button"
+         id="use3293"
+         transform="matrix(1,0,0,-1,16,1020)"
+         width="800"
+         height="600" />
     </g>
   </g>
 </svg>
