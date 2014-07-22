@@ -397,6 +397,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     KitManager::registerKitInformation(new DeviceKitInformation);
     KitManager::registerKitInformation(new ToolChainKitInformation);
     KitManager::registerKitInformation(new SysRootKitInformation);
+    KitManager::registerKitInformation(new EnvironmentKitInformation);
 
     addAutoReleasedObject(new Internal::ToolChainOptionsPage);
     addAutoReleasedObject(new KitOptionsPage);

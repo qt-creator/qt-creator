@@ -37,14 +37,24 @@
 #include "kitinformation.h"
 #include "toolchain.h"
 #include "toolchainmanager.h"
+#include "environmentwidget.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/pathchooser.h>
+#include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
+#include <utils/environment.h>
+#include <utils/qtcassert.h>
+#include <utils/pathchooser.h>
 
 #include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QFontMetrics>
+#include <QLabel>
+#include <QPlainTextEdit>
 #include <QPushButton>
+#include <QVBoxLayout>
 
 using namespace Core;
 
@@ -390,6 +400,111 @@ void DeviceInformationConfigWidget::currentDeviceChanged()
     if (m_ignoreChange)
         return;
     DeviceKitInformation::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
+}
+
+// --------------------------------------------------------------------
+// KitEnvironmentConfigWidget:
+// --------------------------------------------------------------------
+
+KitEnvironmentConfigWidget::KitEnvironmentConfigWidget(Kit *workingCopy, const KitInformation *ki) :
+    KitConfigWidget(workingCopy, ki),
+    m_summaryLabel(new QLabel),
+    m_manageButton(new QPushButton),
+    m_dialog(0),
+    m_editor(0)
+{
+    refresh();
+    m_manageButton->setText(tr("Change ..."));
+    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(editEnvironmentChanges()));
+}
+
+QWidget *KitEnvironmentConfigWidget::mainWidget() const
+{
+    return m_summaryLabel;
+}
+
+QString KitEnvironmentConfigWidget::displayName() const
+{
+    return tr("Environment:");
+}
+
+QString KitEnvironmentConfigWidget::toolTip() const
+{
+    return tr("Additional environment settings when using this kit.");
+}
+
+void KitEnvironmentConfigWidget::refresh()
+{
+    QList<Utils::EnvironmentItem> changes = EnvironmentKitInformation::environmentChanges(m_kit);
+    Utils::sort(changes, [](const Utils::EnvironmentItem &lhs, const Utils::EnvironmentItem &rhs)
+                         { return QString::localeAwareCompare(lhs.name, rhs.name) < 0; });
+    QString shortSummary = Utils::EnvironmentItem::toStringList(changes).join(QLatin1String("; "));
+    QFontMetrics fm(m_summaryLabel->font());
+    shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_summaryLabel->width());
+    m_summaryLabel->setText(shortSummary.isEmpty() ? tr("No Changes to apply") : shortSummary);
+    if (m_editor)
+        m_editor->setPlainText(Utils::EnvironmentItem::toStringList(changes).join(QLatin1Char('\n')));
+}
+
+void KitEnvironmentConfigWidget::makeReadOnly()
+{
+    m_manageButton->setEnabled(false);
+    if (m_dialog)
+        m_dialog->reject();
+}
+
+void KitEnvironmentConfigWidget::editEnvironmentChanges()
+{
+    if (m_dialog) {
+        m_dialog->activateWindow();
+        m_dialog->raise();
+        return;
+    }
+
+    QTC_ASSERT(!m_editor, return);
+
+    m_dialog = new QDialog(m_summaryLabel);
+    m_dialog->setWindowTitle(tr("Edit Environment Changes"));
+    QVBoxLayout *layout = new QVBoxLayout(m_dialog);
+    m_editor = new QPlainTextEdit;
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Apply|QDialogButtonBox::Cancel);
+
+    layout->addWidget(m_editor);
+    layout->addWidget(buttons);
+
+    connect(buttons, SIGNAL(accepted()), m_dialog, SLOT(accept()));
+    connect(buttons, SIGNAL(rejected()), m_dialog, SLOT(reject()));
+    connect(m_dialog, SIGNAL(accepted()), this, SLOT(acceptChangesDialog()));
+    connect(m_dialog, SIGNAL(rejected()), this, SLOT(closeChangesDialog()));
+    connect(buttons->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(applyChanges()));
+
+    refresh();
+    m_dialog->show();
+}
+
+void KitEnvironmentConfigWidget::applyChanges()
+{
+    QTC_ASSERT(m_editor, return);
+    auto changes = Utils::EnvironmentItem::fromStringList(m_editor->toPlainText().split(QLatin1Char('\n')));
+    EnvironmentKitInformation::setEnvironmentChanges(m_kit, changes);
+}
+
+void KitEnvironmentConfigWidget::closeChangesDialog()
+{
+    m_dialog->deleteLater();
+    m_dialog = 0;
+    m_editor = 0;
+}
+
+void KitEnvironmentConfigWidget::acceptChangesDialog()
+{
+    applyChanges();
+    closeChangesDialog();
+}
+
+QWidget *KitEnvironmentConfigWidget::buttonWidget() const
+{
+    return m_manageButton;
 }
 
 } // namespace Internal

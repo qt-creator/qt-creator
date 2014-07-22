@@ -34,6 +34,7 @@
 #include "kit.h"
 
 #include "devicesupport/idevice.h"
+#include <utils/environment.h>
 
 #include <QVariant>
 
@@ -167,6 +168,32 @@ private slots:
     void deviceUpdated(Core::Id dataId);
     void devicesChanged();
     void kitUpdated(ProjectExplorer::Kit *k);
+};
+
+// --------------------------------------------------------------------------
+// EnvironmentKitInformation:
+// --------------------------------------------------------------------------
+
+class PROJECTEXPLORER_EXPORT EnvironmentKitInformation : public KitInformation
+{
+    Q_OBJECT
+
+public:
+    EnvironmentKitInformation();
+
+    QVariant defaultValue(Kit *k) const;
+
+    QList<Task> validate(const Kit *k) const;
+    void fix(Kit *k);
+
+    void addToEnvironment(const Kit *k, Utils::Environment &env) const;
+    KitConfigWidget *createConfigWidget(Kit *k) const;
+
+    ItemList toUserOutput(const Kit *k) const;
+
+    static Core::Id id();
+    static QList<Utils::EnvironmentItem> environmentChanges(const Kit *k);
+    static void setEnvironmentChanges(Kit *k, const QList<Utils::EnvironmentItem> &changes);
 };
 
 } // namespace ProjectExplorer

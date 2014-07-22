@@ -467,4 +467,81 @@ void DeviceKitInformation::devicesChanged()
         setup(k); // Set default device if necessary
 }
 
+// --------------------------------------------------------------------------
+// EnvironmentKitInformation:
+// --------------------------------------------------------------------------
+
+EnvironmentKitInformation::EnvironmentKitInformation()
+{
+    setObjectName(QLatin1String("EnvironmentKitInformation"));
+    setId(EnvironmentKitInformation::id());
+    setPriority(29000);
+}
+
+QVariant EnvironmentKitInformation::defaultValue(Kit *k) const
+{
+    Q_UNUSED(k)
+    return QStringList();
+}
+
+QList<Task> EnvironmentKitInformation::validate(const Kit *k) const
+{
+    QList<Task> result;
+    const QVariant variant = k->value(EnvironmentKitInformation::id());
+    if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
+        result.append(Task(Task::Error, tr("The environment setting value is invalid."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    }
+    return result;
+}
+
+void EnvironmentKitInformation::fix(Kit *k)
+{
+    const QVariant variant = k->value(EnvironmentKitInformation::id());
+    if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
+        qWarning("Kit \"%s\" has a wrong environment value set.", qPrintable(k->displayName()));
+        setEnvironmentChanges(k, QList<Utils::EnvironmentItem>());
+    }
+}
+
+void EnvironmentKitInformation::addToEnvironment(const Kit *k, Utils::Environment &env) const
+{
+    const QVariant envValue = k->value(EnvironmentKitInformation::id());
+    if (envValue.isValid())
+        env.modify(Utils::EnvironmentItem::fromStringList(envValue.toStringList()));
+}
+
+KitConfigWidget *EnvironmentKitInformation::createConfigWidget(Kit *k) const
+{
+    return new Internal::KitEnvironmentConfigWidget(k, this);
+}
+
+KitInformation::ItemList EnvironmentKitInformation::toUserOutput(const Kit *k) const
+{
+    ItemList retVal;
+    QVariant envValue = k->value(EnvironmentKitInformation::id());
+    if (envValue.isValid())
+        retVal << qMakePair(QLatin1Literal("Environment"), envValue.toStringList().join(QLatin1Literal("\n")));
+
+    return retVal;
+}
+
+Core::Id EnvironmentKitInformation::id()
+{
+    return "PE.Profile.Environment";
+}
+
+QList<Utils::EnvironmentItem> EnvironmentKitInformation::environmentChanges(const Kit *k)
+{
+     if (k)
+         return Utils::EnvironmentItem::fromStringList(k->value(EnvironmentKitInformation::id()).toStringList());
+     return QList<Utils::EnvironmentItem>();
+}
+
+void EnvironmentKitInformation::setEnvironmentChanges(Kit *k, const QList<Utils::EnvironmentItem> &changes)
+{
+    if (k)
+        k->setValue(EnvironmentKitInformation::id(), Utils::EnvironmentItem::toStringList(changes));
+}
+
 } // namespace ProjectExplorer

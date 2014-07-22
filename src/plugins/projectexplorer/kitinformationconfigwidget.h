@@ -34,8 +34,12 @@
 
 #include <coreplugin/id.h>
 
+#include <utils/environment.h>
+
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QLabel;
+class QPlainTextEdit;
 class QPushButton;
 QT_END_NAMESPACE
 
@@ -45,6 +49,7 @@ namespace ProjectExplorer {
 
 class DeviceManagerModel;
 class ToolChain;
+class EnvironmentWidget;
 
 namespace Internal {
 
@@ -166,6 +171,34 @@ private:
     QPushButton *m_manageButton;
     DeviceManagerModel *m_model;
     Core::Id m_selectedId;
+};
+
+class KitEnvironmentConfigWidget : public KitConfigWidget
+{
+    Q_OBJECT
+
+public:
+    KitEnvironmentConfigWidget(Kit *workingCopy, const KitInformation *ki);
+
+    QWidget *mainWidget() const;
+    QWidget *buttonWidget() const;
+    QString displayName() const;
+    QString toolTip() const;
+    void refresh();
+    void makeReadOnly();
+
+private slots:
+    void editEnvironmentChanges();
+
+    void applyChanges();
+    void closeChangesDialog();
+    void acceptChangesDialog();
+
+private:
+    QLabel *m_summaryLabel;
+    QPushButton *m_manageButton;
+    QDialog *m_dialog;
+    QPlainTextEdit *m_editor;
 };
 
 } // namespace Internal
