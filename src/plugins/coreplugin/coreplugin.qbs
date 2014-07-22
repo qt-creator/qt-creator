@@ -140,6 +140,7 @@ QtcPlugin {
         files: [
             "BinFiles.mimetypes.xml",
             "documentmodel.cpp", "documentmodel.h",
+            "editorarea.cpp", "editorarea.h",
             "editormanager.cpp", "editormanager.h", "editormanager_p.h",
             "editorview.cpp", "editorview.h",
             "ieditor.cpp", "ieditor.h",

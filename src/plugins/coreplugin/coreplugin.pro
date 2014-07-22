@@ -28,6 +28,7 @@ SOURCES += mainwindow.cpp \
     vcsmanager.cpp \
     statusbarmanager.cpp \
     versiondialog.cpp \
+    editormanager/editorarea.cpp \
     editormanager/editormanager.cpp \
     editormanager/editorview.cpp \
     editormanager/documentmodel.cpp \
@@ -117,6 +118,7 @@ HEADERS += mainwindow.h \
     outputwindow.h \
     vcsmanager.h \
     statusbarmanager.h \
+    editormanager/editorarea.h \
     editormanager/editormanager.h \
     editormanager/editormanager_p.h \
     editormanager/editorview.h \

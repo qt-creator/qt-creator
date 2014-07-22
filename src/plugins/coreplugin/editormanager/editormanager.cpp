@@ -126,7 +126,7 @@ EditorManagerPlaceHolder::EditorManagerPlaceHolder(Core::IMode *mode, QWidget *p
 {
     setLayout(new QVBoxLayout);
     layout()->setMargin(0);
-    setFocusProxy(EditorManagerPrivate::rootWidget());
+    setFocusProxy(EditorManagerPrivate::mainEditorArea());
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(currentModeChanged(Core::IMode*)));
 
@@ -136,7 +136,7 @@ EditorManagerPlaceHolder::EditorManagerPlaceHolder(Core::IMode *mode, QWidget *p
 EditorManagerPlaceHolder::~EditorManagerPlaceHolder()
 {
     // EditorManager will be deleted in ~MainWindow()
-    QWidget *em = EditorManagerPrivate::rootWidget();
+    QWidget *em = EditorManagerPrivate::mainEditorArea();
     if (em && em->parent() == this) {
         em->hide();
         em->setParent(0);
@@ -147,7 +147,7 @@ void EditorManagerPlaceHolder::currentModeChanged(Core::IMode *mode)
 {
     if (m_mode == mode) {
         QWidget *previousFocus = 0;
-        QWidget *em = EditorManagerPrivate::rootWidget();
+        QWidget *em = EditorManagerPrivate::mainEditorArea();
         if (em->focusWidget() && em->focusWidget()->hasFocus())
             previousFocus = em->focusWidget();
         layout()->addWidget(em);
@@ -263,18 +263,12 @@ EditorManagerPrivate::~EditorManagerPrivate()
     }
 
     // close all extra windows
-    for (int i = 0; i < m_root.size(); ++i) {
-        SplitterOrView *root = m_root.at(i);
-        disconnect(root, SIGNAL(destroyed(QObject*)), this, SLOT(rootDestroyed(QObject*)));
-        IContext *rootContext = m_rootContext.at(i);
-        if (rootContext) {
-            ICore::removeContextObject(rootContext);
-            delete rootContext;
-        }
-        delete root;
+    for (int i = 0; i < m_editorAreas.size(); ++i) {
+        EditorArea *area = m_editorAreas.at(i);
+        disconnect(area, SIGNAL(destroyed(QObject*)), this, SLOT(editorAreaDestroyed(QObject*)));
+        delete area;
     }
-    m_root.clear();
-    m_rootContext.clear();
+    m_editorAreas.clear();
     delete m_windowPopup;
 
     DocumentModel::destroy();
@@ -454,12 +448,11 @@ void EditorManagerPrivate::init()
     advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_EDITOR);
 
     // other setup
-    SplitterOrView *firstRoot = new SplitterOrView();
-    firstRoot->hide();
-    connect(firstRoot, SIGNAL(destroyed(QObject*)), this, SLOT(rootDestroyed(QObject*)));
-    m_root.append(firstRoot);
-    m_rootContext.append(0);
-    m_currentView = firstRoot->view();
+    auto mainEditorArea = new EditorArea();
+    mainEditorArea->hide();
+    connect(mainEditorArea, SIGNAL(destroyed(QObject*)), this, SLOT(editorAreaDestroyed(QObject*)));
+    d->m_editorAreas.append(mainEditorArea);
+    d->m_currentView = mainEditorArea->view();
 
     updateActions();
 
@@ -497,9 +490,9 @@ void EditorManagerPrivate::init()
         });
 }
 
-QWidget *EditorManagerPrivate::rootWidget()
+QWidget *EditorManagerPrivate::mainEditorArea()
 {
-    return d->m_root.at(0);
+    return d->m_editorAreas.at(0);
 }
 
 IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileName, Id editorId,
@@ -707,22 +700,22 @@ void EditorManagerPrivate::showPopupOrSelectDocument()
     } else {
         QWidget *activeWindow = qApp->activeWindow();
         // decide where to show the popup
-        // if the active window has editors, we want that root as a reference
-        // TODO: this does not work correctly with multiple roots in the same window
-        SplitterOrView *activeRoot = 0;
-        foreach (SplitterOrView *root, d->m_root) {
-            if (root->window() == activeWindow) {
-                activeRoot = root;
+        // if the active window has editors, we want that editor area as a reference
+        // TODO: this does not work correctly with multiple editor areas in the same window
+        EditorArea *activeEditorArea = 0;
+        foreach (EditorArea *area, d->m_editorAreas) {
+            if (area->window() == activeWindow) {
+                activeEditorArea = area;
                 break;
             }
         }
-        // otherwise we take the "current" root
-        if (!activeRoot)
-            activeRoot = findRoot(EditorManagerPrivate::currentEditorView());
-        QTC_ASSERT(activeRoot, activeRoot = d->m_root.first());
+        // otherwise we take the "current" editor area
+        if (!activeEditorArea)
+            activeEditorArea = findEditorArea(EditorManagerPrivate::currentEditorView());
+        QTC_ASSERT(activeEditorArea, activeEditorArea = d->m_editorAreas.first());
 
-        // root in main window is invisible when invoked from Design Mode.
-        QWidget *referenceWidget = activeRoot->isVisible() ? activeRoot : activeRoot->window();
+        // editor area in main window is invisible when invoked from Design Mode.
+        QWidget *referenceWidget = activeEditorArea->isVisible() ? activeEditorArea : activeEditorArea->window();
         QTC_CHECK(referenceWidget->isVisible());
         const QPoint p = referenceWidget->mapToGlobal(QPoint(0, 0));
         OpenEditorsWindow *popup = windowPopup();
@@ -985,9 +978,9 @@ IEditor *EditorManagerPrivate::activateEditor(EditorView *view, IEditor *editor,
                 ModeManager::activateMode(Core::Constants::MODE_DESIGN);
                 ModeManager::setFocusToCurrentMode();
             } else {
-                int rootIndex;
-                findRoot(view, &rootIndex);
-                if (rootIndex == 0) // main window --> we might need to switch mode
+                int index;
+                findEditorArea(view, &index);
+                if (index == 0) // main window --> we might need to switch mode
                     if (!editor->widget()->isVisible())
                         ModeManager::activateMode(Core::Constants::MODE_EDIT);
                 editor->widget()->setFocus();
@@ -1094,19 +1087,20 @@ void EditorManagerPrivate::setCurrentView(EditorView *view)
     }
 }
 
-SplitterOrView *EditorManagerPrivate::findRoot(const EditorView *view, int *rootIndex)
+EditorArea *EditorManagerPrivate::findEditorArea(const EditorView *view, int *areaIndex)
 {
     SplitterOrView *current = view->parentSplitterOrView();
     while (current) {
-        int index = d->m_root.indexOf(current);
-        if (index >= 0) {
-            if (rootIndex)
-                *rootIndex = index;
-            return current;
+        if (EditorArea *area = qobject_cast<EditorArea *>(current)) {
+            int index = d->m_editorAreas.indexOf(area);
+            QTC_ASSERT(index >= 0, return 0);
+            if (areaIndex)
+                *areaIndex = index;
+            return area;
         }
         current = current->findParentSplitter();
     }
-    QTC_CHECK(false); // we should never have views without a root
+    QTC_CHECK(false); // we should never have views without a editor area
     return 0;
 }
 
@@ -1169,39 +1163,33 @@ void EditorManagerPrivate::emptyView(EditorView *view)
 
 void EditorManagerPrivate::splitNewWindow(EditorView *view)
 {
-    SplitterOrView *splitter;
     IEditor *editor = view->currentEditor();
     IEditor *newEditor = 0;
     if (editor && editor->duplicateSupported())
         newEditor = EditorManagerPrivate::duplicateEditor(editor);
     else
         newEditor = editor; // move to the new view
-    splitter = new SplitterOrView;
+    auto area = new EditorArea;
     QWidget *win = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
     win->setLayout(layout);
-    layout->addWidget(splitter);
-    win->setFocusProxy(splitter);
+    layout->addWidget(area);
+    win->setFocusProxy(area);
     win->setAttribute(Qt::WA_DeleteOnClose);
     win->setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
     win->resize(QSize(800, 600));
     static int windowId = 0;
     ICore::registerWindow(win, Context(Id("EditorManager.ExternalWindow.").withSuffix(++windowId)));
-    IContext *context = new IContext;
-    context->setContext(Context(Constants::C_EDITORMANAGER));
-    context->setWidget(splitter);
-    ICore::addContextObject(context);
-    d->m_root.append(splitter);
-    d->m_rootContext.append(context);
-    connect(splitter, SIGNAL(destroyed(QObject*)), d, SLOT(rootDestroyed(QObject*)));
+    d->m_editorAreas.append(area);
+    connect(area, SIGNAL(destroyed(QObject*)), d, SLOT(editorAreaDestroyed(QObject*)));
     win->show();
     ICore::raiseWindow(win);
     if (newEditor)
-        activateEditor(splitter->view(), newEditor, EditorManager::IgnoreNavigationHistory);
+        activateEditor(area->view(), newEditor, EditorManager::IgnoreNavigationHistory);
     else
-        splitter->view()->setFocus();
+        area->view()->setFocus();
     updateActions();
 }
 
@@ -1320,14 +1308,14 @@ void EditorManagerPrivate::updateActions()
 
     if (curDocument) {
         if (HostOsInfo::isMacHost())
-            rootWidget()->window()->setWindowModified(curDocument->isModified());
+            mainEditorArea()->window()->setWindowModified(curDocument->isModified());
         updateMakeWritableWarning();
     } else /* curEditor */ if (HostOsInfo::isMacHost()) {
-        rootWidget()->window()->setWindowModified(false);
+        mainEditorArea()->window()->setWindowModified(false);
     }
 
-    foreach (SplitterOrView *root, d->m_root)
-        setCloseSplitEnabled(root, root->isSplitter());
+    foreach (EditorArea *area, d->m_editorAreas)
+        setCloseSplitEnabled(area, area->isSplitter());
 
     QString quotedName;
     if (curDocument)
@@ -1353,7 +1341,7 @@ void EditorManagerPrivate::updateActions()
     bool hasSplitter = parentSplitter && parentSplitter->isSplitter();
     d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
     d->m_removeAllSplitsAction->setEnabled(hasSplitter);
-    d->m_gotoNextSplitAction->setEnabled(hasSplitter || d->m_root.size() > 1);
+    d->m_gotoNextSplitAction->setEnabled(hasSplitter || d->m_editorAreas.size() > 1);
 }
 
 void EditorManagerPrivate::updateWindowTitle()
@@ -1417,16 +1405,16 @@ void EditorManagerPrivate::gotoNextSplit()
         return;
     EditorView *nextView = view->findNextView();
     if (!nextView) {
-        // we are in the "last" view in this root
-        int rootIndex = -1;
-        SplitterOrView *root = findRoot(view, &rootIndex);
-        QTC_ASSERT(root, return);
-        QTC_ASSERT(rootIndex >= 0 && rootIndex < d->m_root.size(), return);
-        // find next root. this might be the same root if there's only one.
-        int nextRootIndex = rootIndex + 1;
-        if (nextRootIndex >= d->m_root.size())
-            nextRootIndex = 0;
-        nextView = d->m_root.at(nextRootIndex)->findFirstView();
+        // we are in the "last" view in this editor area
+        int index = -1;
+        EditorArea *area = findEditorArea(view, &index);
+        QTC_ASSERT(area, return);
+        QTC_ASSERT(index >= 0 && index < d->m_editorAreas.size(), return);
+        // find next editor area. this might be the same editor area if there's only one.
+        int nextIndex = index + 1;
+        if (nextIndex >= d->m_editorAreas.size())
+            nextIndex = 0;
+        nextView = d->m_editorAreas.at(nextIndex)->findFirstView();
         QTC_CHECK(nextView);
     }
 
@@ -1470,46 +1458,43 @@ void EditorManagerPrivate::handleDocumentStateChange()
     }
 }
 
-void EditorManagerPrivate::rootDestroyed(QObject *root)
+void EditorManagerPrivate::editorAreaDestroyed(QObject *area)
 {
     QWidget *activeWin = qApp->activeWindow();
-    SplitterOrView *newActiveRoot = 0;
-    for (int i = 0; i < d->m_root.size(); ++i) {
-        SplitterOrView *r = d->m_root.at(i);
-        if (r == root) {
-            d->m_root.removeAt(i);
-            IContext *context = d->m_rootContext.takeAt(i);
-            ICore::removeContextObject(context);
-            delete context;
+    EditorArea *newActiveArea = 0;
+    for (int i = 0; i < d->m_editorAreas.size(); ++i) {
+        EditorArea *r = d->m_editorAreas.at(i);
+        if (r == area) {
+            d->m_editorAreas.removeAt(i);
             --i; // we removed the current one
         } else if (r->window() == activeWin) {
-            newActiveRoot = r;
+            newActiveArea = r;
         }
     }
-    // check if the destroyed root had the current view or current editor
-    if (d->m_currentEditor || (d->m_currentView && d->m_currentView->parentSplitterOrView() != root))
+    // check if the destroyed editor area had the current view or current editor
+    if (d->m_currentEditor || (d->m_currentView && d->m_currentView->parentSplitterOrView() != area))
         return;
     // we need to set a new current editor or view
-    if (!newActiveRoot) {
+    if (!newActiveArea) {
         // some window managers behave weird and don't activate another window
         // or there might be a Qt Creator toplevel activated that doesn't have editor windows
-        newActiveRoot = d->m_root.first();
+        newActiveArea = d->m_editorAreas.first();
     }
 
     // check if the focusWidget points to some view
     SplitterOrView *focusSplitterOrView = 0;
-    QWidget *candidate = newActiveRoot->focusWidget();
-    while (candidate && candidate != newActiveRoot) {
+    QWidget *candidate = newActiveArea->focusWidget();
+    while (candidate && candidate != newActiveArea) {
         if ((focusSplitterOrView = qobject_cast<SplitterOrView *>(candidate)))
             break;
         candidate = candidate->parentWidget();
     }
     // focusWidget might have been 0
     if (!focusSplitterOrView)
-        focusSplitterOrView = newActiveRoot->findFirstView()->parentSplitterOrView();
-    QTC_ASSERT(focusSplitterOrView, focusSplitterOrView = newActiveRoot);
+        focusSplitterOrView = newActiveArea->findFirstView()->parentSplitterOrView();
+    QTC_ASSERT(focusSplitterOrView, focusSplitterOrView = newActiveArea);
     EditorView *focusView = focusSplitterOrView->findFirstView(); // can be just focusSplitterOrView
-    QTC_ASSERT(focusView, focusView = newActiveRoot->findFirstView());
+    QTC_ASSERT(focusView, focusView = newActiveArea->findFirstView());
     QTC_ASSERT(focusView, return);
     if (focusView->currentEditor())
         setCurrentEditor(focusView->currentEditor());
@@ -1746,7 +1731,7 @@ void EditorManagerPrivate::removeCurrentSplit()
     EditorView *viewToClose = currentEditorView();
 
     QTC_ASSERT(viewToClose, return);
-    QTC_ASSERT(!d->m_root.contains(viewToClose->parentSplitterOrView()), return);
+    QTC_ASSERT(!qobject_cast<EditorArea *>(viewToClose->parentSplitterOrView()), return);
 
     closeView(viewToClose);
     updateActions();
@@ -1756,9 +1741,9 @@ void EditorManagerPrivate::removeAllSplits()
 {
     EditorView *view = currentEditorView();
     QTC_ASSERT(view, return);
-    SplitterOrView *root = findRoot(view);
-    QTC_ASSERT(root, return);
-    root->unsplitAll();
+    EditorArea *currentArea = findEditorArea(view);
+    QTC_ASSERT(currentArea, return);
+    currentArea->unsplitAll();
 }
 
 void EditorManagerPrivate::setCurrentEditorFromContextChange()
@@ -1779,17 +1764,17 @@ EditorView *EditorManagerPrivate::currentEditorView()
     if (!view) {
         if (d->m_currentEditor) {
             view = EditorManagerPrivate::viewForEditor(d->m_currentEditor);
-            QTC_ASSERT(view, view = d->m_root.first()->findFirstView());
+            QTC_ASSERT(view, view = d->m_editorAreas.first()->findFirstView());
         }
         QTC_CHECK(view);
         if (!view) { // should not happen, we should always have either currentview or currentdocument
-            foreach (SplitterOrView *root, d->m_root) {
-                if (root->window()->isActiveWindow()) {
-                    view = root->findFirstView();
+            foreach (EditorArea *area, d->m_editorAreas) {
+                if (area->window()->isActiveWindow()) {
+                    view = area->findFirstView();
                     break;
                 }
             }
-            QTC_ASSERT(view, view = d->m_root.first()->findFirstView());
+            QTC_ASSERT(view, view = d->m_editorAreas.first()->findFirstView());
         }
     }
     return view;
@@ -2306,17 +2291,17 @@ bool EditorManager::hasSplitter()
 {
     EditorView *view = EditorManagerPrivate::currentEditorView();
     QTC_ASSERT(view, return false);
-    SplitterOrView *root = EditorManagerPrivate::findRoot(view);
-    QTC_ASSERT(root, return false);
-    return root->isSplitter();
+    EditorArea *area = EditorManagerPrivate::findEditorArea(view);
+    QTC_ASSERT(area, return false);
+    return area->isSplitter();
 }
 
 QList<IEditor*> EditorManager::visibleEditors()
 {
     QList<IEditor *> editors;
-    foreach (SplitterOrView *root, d->m_root) {
-        if (root->isSplitter()) {
-            EditorView *firstView = root->findFirstView();
+    foreach (EditorArea *area, d->m_editorAreas) {
+        if (area->isSplitter()) {
+            EditorView *firstView = area->findFirstView();
             EditorView *view = firstView;
             if (view) {
                 do {
@@ -2327,8 +2312,8 @@ QList<IEditor*> EditorManager::visibleEditors()
                 } while (view);
             }
         } else {
-            if (root->editor())
-                editors.append(root->editor());
+            if (area->editor())
+                editors.append(area->editor());
         }
     }
     return editors;
@@ -2400,7 +2385,7 @@ QByteArray EditorManager::saveState()
             stream << entry->fileName() << entry->displayName() << entry->id();
     }
 
-    stream << d->m_root.first()->saveState(); // TODO
+    stream << d->m_editorAreas.first()->saveState(); // TODO
 
     return bytes;
 }
@@ -2409,9 +2394,9 @@ bool EditorManager::restoreState(const QByteArray &state)
 {
     closeAllEditors(true);
     // remove extra windows
-    for (int i = d->m_root.count() - 1; i > 0 /* keep first alive */; --i)
-        delete d->m_root.at(i); // automatically removes it from list
-    if (d->m_root.first()->isSplitter())
+    for (int i = d->m_editorAreas.count() - 1; i > 0 /* keep first alive */; --i)
+        delete d->m_editorAreas.at(i); // automatically removes it from list
+    if (d->m_editorAreas.first()->isSplitter())
         EditorManagerPrivate::removeAllSplits();
     QDataStream stream(state);
 
@@ -2449,7 +2434,7 @@ bool EditorManager::restoreState(const QByteArray &state)
 
     QByteArray splitterstates;
     stream >> splitterstates;
-    d->m_root.first()->restoreState(splitterstates); // TODO
+    d->m_editorAreas.first()->restoreState(splitterstates); // TODO
 
     // splitting and stuff results in focus trouble, that's why we set the focus again after restoration
     if (d->m_currentEditor) {
@@ -2510,28 +2495,28 @@ void EditorManager::gotoOtherSplit()
         return;
     EditorView *nextView = view->findNextView();
     if (!nextView) {
-        // we are in the "last" view in this root
-        int rootIndex = -1;
-        SplitterOrView *root = EditorManagerPrivate::findRoot(view, &rootIndex);
-        QTC_ASSERT(root, return);
-        QTC_ASSERT(rootIndex >= 0 && rootIndex < d->m_root.size(), return);
+        // we are in the "last" view in this editor area
+        int index = -1;
+        EditorArea *area = EditorManagerPrivate::findEditorArea(view, &index);
+        QTC_ASSERT(area, return);
+        QTC_ASSERT(index >= 0 && index < d->m_editorAreas.size(), return);
         // stay in same window if it is split
-        if (root->isSplitter()) {
-            nextView = root->findFirstView();
+        if (area->isSplitter()) {
+            nextView = area->findFirstView();
             QTC_CHECK(nextView != view);
         } else {
-            // find next root. this might be the same root if there's only one.
-            int nextRootIndex = rootIndex + 1;
-            if (nextRootIndex >= d->m_root.size())
-                nextRootIndex = 0;
-            nextView = d->m_root.at(nextRootIndex)->findFirstView();
+            // find next editor area. this might be the same editor area if there's only one.
+            int nextIndex = index + 1;
+            if (nextIndex >= d->m_editorAreas.size())
+                nextIndex = 0;
+            nextView = d->m_editorAreas.at(nextIndex)->findFirstView();
             QTC_CHECK(nextView);
-            // if we had only one root with only one view, we end up at the startpoint
+            // if we had only one editor area with only one view, we end up at the startpoint
             // in that case we need to split
             if (nextView == view) {
-                QTC_CHECK(!root->isSplitter());
+                QTC_CHECK(!area->isSplitter());
                 splitSideBySide(); // that deletes 'view'
-                view = root->findFirstView();
+                view = area->findFirstView();
                 nextView = view->findNextView();
                 QTC_CHECK(nextView != view);
                 QTC_CHECK(nextView);

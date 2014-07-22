@@ -30,10 +30,11 @@
 #ifndef EDITORMANAGER_P_H
 #define EDITORMANAGER_P_H
 
-#include "idocument.h"
 #include "documentmodel.h"
+#include "editorarea.h"
 #include "editormanager.h"
 #include "editorview.h"
+#include "idocument.h"
 #include "ieditor.h"
 
 #include <QList>
@@ -65,7 +66,7 @@ class EditorManagerPrivate : public QObject
     friend class Core::EditorManager;
 
 public:
-    static QWidget *rootWidget();
+    static QWidget *mainEditorArea();
     static EditorView *currentEditorView();
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     static IEditor *openEditor(EditorView *view,
@@ -114,7 +115,7 @@ public slots:
     static void gotoNextSplit();
 
     void handleDocumentStateChange();
-    static void rootDestroyed(QObject *root);
+    static void editorAreaDestroyed(QObject *area);
 
 private slots:
     static void gotoNextDocHistory();
@@ -153,7 +154,7 @@ private:
     static void activateView(EditorView *view);
     static void restoreEditorState(IEditor *editor);
     static int visibleDocumentsCount();
-    static SplitterOrView *findRoot(const EditorView *view, int *rootIndex = 0);
+    static EditorArea *findEditorArea(const EditorView *view, int *areaIndex = 0);
     static IEditor *pickUnusedEditor(Internal::EditorView **foundView = 0);
     static void addDocumentToRecentFiles(IDocument *document);
     static void updateAutoSave();
@@ -169,8 +170,7 @@ private:
     void init();
 
     QList<EditLocation> m_globalHistory;
-    QList<SplitterOrView *> m_root;
-    QList<IContext *> m_rootContext;
+    QList<EditorArea *> m_editorAreas;
     QPointer<IEditor> m_currentEditor;
     QPointer<IEditor> m_scheduledCurrentEditor;
     QPointer<EditorView> m_currentView;
