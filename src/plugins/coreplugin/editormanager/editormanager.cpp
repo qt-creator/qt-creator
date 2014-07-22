@@ -2031,9 +2031,10 @@ void EditorManager::updateMakeWritableWarning()
 
 void EditorManager::setupSaveActions(IDocument *document, QAction *saveAction, QAction *saveAsAction, QAction *revertToSavedAction)
 {
-    saveAction->setEnabled(document != 0 && document->isModified());
+    const bool hasFile = document != 0 && !document->filePath().isEmpty();
+    saveAction->setEnabled(hasFile && document->isModified());
     saveAsAction->setEnabled(document != 0 && document->isSaveAsAllowed());
-    revertToSavedAction->setEnabled(document != 0 && !document->filePath().isEmpty());
+    revertToSavedAction->setEnabled(hasFile);
 
     const QString documentName = document ? document->displayName() : QString();
     QString quotedName;
