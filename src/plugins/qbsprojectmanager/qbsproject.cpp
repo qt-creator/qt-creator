@@ -183,6 +183,7 @@ QStringList QbsProject::files(Project::FilesMode fileMode) const
         return QStringList();
     QSet<QString> result;
     collectFilesForProject(m_rootProjectNode->qbsProjectData(), result);
+    result.unite(qbsProject().buildSystemFiles());
     return result.toList();
 }
 
