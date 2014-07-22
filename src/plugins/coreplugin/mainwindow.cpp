@@ -242,6 +242,11 @@ bool MainWindow::isNewItemDialogRunning() const
 
 MainWindow::~MainWindow()
 {
+    // explicitly delete window support, because that calls methods from ICore that call methods
+    // from mainwindow, so mainwindow still needs to be alive
+    delete m_windowSupport;
+    m_windowSupport = 0;
+
     ExtensionSystem::PluginManager::removeObject(m_shortcutSettings);
     ExtensionSystem::PluginManager::removeObject(m_generalSettings);
     ExtensionSystem::PluginManager::removeObject(m_toolSettings);
@@ -372,11 +377,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
     m_navigationWidget->closeSubWidgets();
 
     event->accept();
-
-    // explicitly delete window support, because that calls methods from ICore that call methods
-    // from mainwindow, so mainwindow still needs to be alive
-    delete m_windowSupport;
-    m_windowSupport = 0;
 }
 
 void MainWindow::openDroppedFiles(const QStringList &files)
