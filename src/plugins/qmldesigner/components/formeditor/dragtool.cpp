@@ -284,7 +284,6 @@ void DragTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphi
 
         m_rewriterTransaction.commit();
 
-        view()->clearSelectedModelNodes();
         view()->changeToSelectionTool();
     }
 }
