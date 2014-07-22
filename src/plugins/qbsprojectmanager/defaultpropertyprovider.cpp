@@ -91,11 +91,6 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
                         qbs::Internal::HostOsInfo::canonicalArchitecture(architecture));
         }
 
-        if (targetAbi.endianness() == ProjectExplorer::Abi::BigEndian)
-            data.insert(QLatin1String(QBS_ENDIANNESS), QLatin1String("big"));
-        else if (targetAbi.endianness() == ProjectExplorer::Abi::LittleEndian)
-            data.insert(QLatin1String(QBS_ENDIANNESS), QLatin1String("little"));
-
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             data.insert(QLatin1String(QBS_TARGETOS), QLatin1String("windows"));
             data.insert(QLatin1String(QBS_TOOLCHAIN),
