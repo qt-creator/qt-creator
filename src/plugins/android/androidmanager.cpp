@@ -76,6 +76,35 @@ namespace Android {
 
 using namespace Internal;
 
+class Library
+{
+public:
+    Library()
+    { level = -1; }
+    int level;
+    QStringList dependencies;
+    QString name;
+};
+
+typedef QMap<QString, Library> LibrariesMap;
+
+static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
+static bool saveXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
+static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
+static bool saveManifest(ProjectExplorer::Target *target, QDomDocument &doc);
+static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag);
+static bool setLibsXml(ProjectExplorer::Target *target, const QStringList &libs, const QString &tag);
+
+enum ItemType
+{
+    Lib,
+    Jar,
+    BundledFile,
+    BundledJar
+};
+static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute=QLatin1String("file"));
+
+
 bool AndroidManager::supportsAndroid(const ProjectExplorer::Kit *kit)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
@@ -288,22 +317,22 @@ QStringList AndroidManager::prebundledLibs(ProjectExplorer::Target *target)
     return libsXml(target, QLatin1String("bundled_libs"));
 }
 
-bool AndroidManager::openLibsXml(ProjectExplorer::Target *target, QDomDocument &doc)
+static bool openLibsXml(ProjectExplorer::Target *target, QDomDocument &doc)
 {
-    return openXmlFile(doc, libsPath(target));
+    return openXmlFile(doc, AndroidManager::libsPath(target));
 }
 
-bool AndroidManager::saveLibsXml(ProjectExplorer::Target *target, QDomDocument &doc)
+static bool saveLibsXml(ProjectExplorer::Target *target, QDomDocument &doc)
 {
-    return saveXmlFile(doc, libsPath(target));
+    return saveXmlFile(doc, AndroidManager::libsPath(target));
 }
 
-void AndroidManager::raiseError(const QString &reason)
+static void raiseError(const QString &reason)
 {
-    QMessageBox::critical(0, tr("Error creating Android templates."), reason);
+    QMessageBox::critical(0, AndroidManager::tr("Error creating Android templates."), reason);
 }
 
-QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute)
+static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute)
 {
     QString itemType;
     if (item == Lib)
@@ -315,12 +344,12 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
 
     QString localLibs;
 
-    QDir rulesFilesDir(localLibsRulesFilePath(target).toString());
+    QDir rulesFilesDir(AndroidManager::localLibsRulesFilePath(target).toString());
     if (!rulesFilesDir.exists())
         return localLibs;
 
     QStringList libs;
-    libs << qtLibs(target) << prebundledLibs(target);
+    libs << AndroidManager::qtLibs(target) << AndroidManager::prebundledLibs(target);
 
     QFileInfoList rulesFiles = rulesFilesDir.entryInfoList(QStringList() << QLatin1String("*.xml"),
                                                            QDir::Files | QDir::Readable);
@@ -402,41 +431,41 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
     return localLibs;
 }
 
-bool AndroidManager::openXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
+static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
 {
     QFile f(fileName.toString());
     if (!f.open(QIODevice::ReadOnly))
         return false;
 
     if (!doc.setContent(f.readAll())) {
-        raiseError(tr("Cannot parse \"%1\".").arg(fileName.toUserOutput()));
+        raiseError(AndroidManager::tr("Cannot parse \"%1\".").arg(fileName.toUserOutput()));
         return false;
     }
     return true;
 }
 
-bool AndroidManager::saveXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
+static bool saveXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
 {
     QFile f(fileName.toString());
     if (!f.open(QIODevice::WriteOnly)) {
-        raiseError(tr("Cannot open \"%1\".").arg(fileName.toUserOutput()));
+        raiseError(AndroidManager::tr("Cannot open \"%1\".").arg(fileName.toUserOutput()));
         return false;
     }
     return f.write(doc.toByteArray(4)) >= 0;
 }
 
-bool AndroidManager::openManifest(ProjectExplorer::Target *target, QDomDocument &doc)
+static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc)
 {
-    return openXmlFile(doc, manifestPath(target));
+    return openXmlFile(doc, AndroidManager::manifestPath(target));
 }
 
-bool AndroidManager::saveManifest(ProjectExplorer::Target *target, QDomDocument &doc)
+static bool saveManifest(ProjectExplorer::Target *target, QDomDocument &doc)
 {
-    Core::FileChangeBlocker blocker(manifestPath(target).toString());
-    return saveXmlFile(doc, manifestPath(target));
+    Core::FileChangeBlocker blocker(AndroidManager::manifestPath(target).toString());
+    return saveXmlFile(doc, AndroidManager::manifestPath(target));
 }
 
-QStringList AndroidManager::libsXml(ProjectExplorer::Target *target, const QString &tag)
+static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag)
 {
     QStringList libs;
     QDomDocument doc;
@@ -457,7 +486,7 @@ QStringList AndroidManager::libsXml(ProjectExplorer::Target *target, const QStri
     return libs;
 }
 
-bool AndroidManager::setLibsXml(ProjectExplorer::Target *target, const QStringList &libs, const QString &tag)
+static bool setLibsXml(ProjectExplorer::Target *target, const QStringList &libs, const QString &tag)
 {
     QDomDocument doc;
     if (!openLibsXml(target, doc))
@@ -482,7 +511,7 @@ bool AndroidManager::setLibsXml(ProjectExplorer::Target *target, const QStringLi
 }
 
 
-QStringList AndroidManager::dependencies(const Utils::FileName &readelfPath, const QString &lib)
+static QStringList dependencies(const Utils::FileName &readelfPath, const QString &lib)
 {
     QStringList libs;
 
@@ -504,7 +533,7 @@ QStringList AndroidManager::dependencies(const Utils::FileName &readelfPath, con
     return libs;
 }
 
-int AndroidManager::setLibraryLevel(const QString &library, LibrariesMap &mapLibs)
+static int setLibraryLevel(const QString &library, LibrariesMap &mapLibs)
 {
     int maxlevel = mapLibs[library].level;
     if (maxlevel > 0)
@@ -648,7 +677,7 @@ bool AndroidManager::checkForQt51Files(Utils::FileName fileName)
     if (!fileName.toFileInfo().exists())
         return false;
     QDomDocument dstVersionDoc;
-    if (!AndroidManager::openXmlFile(dstVersionDoc, fileName))
+    if (!openXmlFile(dstVersionDoc, fileName))
         return false;
     return dstVersionDoc.documentElement().attribute(QLatin1String("value")).toDouble() < 5.2;
 }

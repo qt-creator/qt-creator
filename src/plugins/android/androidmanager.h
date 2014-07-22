@@ -37,10 +37,6 @@
 #include <QObject>
 #include <QStringList>
 
-QT_BEGIN_NAMESPACE
-class QDomDocument;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 class Kit;
 class Target;
@@ -90,17 +86,6 @@ public:
     static QPair<int, int> apiLevelRange();
     static QString androidNameForApiLevel(int x);
 
-    class Library
-    {
-    public:
-        Library()
-        { level = -1; }
-        int level;
-        QStringList dependencies;
-        QString name;
-    };
-    typedef QMap<QString, Library> LibrariesMap;
-
     static QStringList qtLibs(ProjectExplorer::Target *target);
     static QStringList prebundledLibs(ProjectExplorer::Target *target);
 
@@ -111,30 +96,6 @@ public:
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
     static bool checkForQt51Files(Utils::FileName fileName);
     static AndroidQtSupport *androidQtSupport(ProjectExplorer::Target *target);
-
-private:
-    static void raiseError(const QString &reason);
-    static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
-    static bool saveXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
-    static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
-    static bool saveManifest(ProjectExplorer::Target *target, QDomDocument &doc);
-    static bool openLibsXml(ProjectExplorer::Target *target, QDomDocument &doc);
-    static bool saveLibsXml(ProjectExplorer::Target *target, QDomDocument &doc);
-    static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag);
-    static bool setLibsXml(ProjectExplorer::Target *target, const QStringList &libs, const QString &tag);
-
-    enum ItemType
-    {
-        Lib,
-        Jar,
-        BundledFile,
-        BundledJar
-    };
-    static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute=QLatin1String("file"));
-
-    static QStringList dependencies(const Utils::FileName &readelfPath, const QString &lib);
-    static int setLibraryLevel(const QString &library, LibrariesMap &mapLibs);
-
 };
 
 } // namespace Android
