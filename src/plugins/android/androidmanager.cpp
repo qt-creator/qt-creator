@@ -89,7 +89,6 @@ public:
 typedef QMap<QString, Library> LibrariesMap;
 
 static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
-static bool saveXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
 static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
 static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag);
 
@@ -435,16 +434,6 @@ static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
         return false;
     }
     return true;
-}
-
-static bool saveXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
-{
-    QFile f(fileName.toString());
-    if (!f.open(QIODevice::WriteOnly)) {
-        raiseError(AndroidManager::tr("Cannot open \"%1\".").arg(fileName.toUserOutput()));
-        return false;
-    }
-    return f.write(doc.toByteArray(4)) >= 0;
 }
 
 static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc)
