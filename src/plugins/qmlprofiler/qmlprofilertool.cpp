@@ -67,15 +67,15 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <QApplication>
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QToolButton>
-#include <QMessageBox>
-#include <QFileDialog>
 #include <QMenu>
-#include <QTimer>
-#include <QTime>
+#include <QMessageBox>
 #include <QTcpServer>
+#include <QTime>
+#include <QTimer>
+#include <QToolButton>
 
 using namespace Core;
 using namespace Core::Constants;
@@ -137,20 +137,20 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     Command *command = 0;
     const Context globalContext(C_GLOBAL);
 
-    ActionContainer *menu = Core::ActionManager::actionContainer(M_DEBUG_ANALYZER);
-    ActionContainer *options = Core::ActionManager::createMenu(M_DEBUG_ANALYZER_QML_OPTIONS);
+    ActionContainer *menu = ActionManager::actionContainer(M_DEBUG_ANALYZER);
+    ActionContainer *options = ActionManager::createMenu(M_DEBUG_ANALYZER_QML_OPTIONS);
     options->menu()->setTitle(tr("QML Profiler Options"));
     menu->addMenu(options, G_ANALYZER_OPTIONS);
     options->menu()->setEnabled(true);
 
     QAction *act = d->m_loadQmlTrace = new QAction(tr("Load QML Trace"), options);
-    command = Core::ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace", globalContext);
+    command = ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.LoadQMLTrace", globalContext);
     connect(act, SIGNAL(triggered()), this, SLOT(showLoadDialog()));
     options->addAction(command);
 
     act = d->m_saveQmlTrace = new QAction(tr("Save QML Trace"), options);
     d->m_saveQmlTrace->setEnabled(false);
-    command = Core::ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace", globalContext);
+    command = ActionManager::registerAction(act, "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace", globalContext);
     connect(act, SIGNAL(triggered()), this, SLOT(showSaveDialog()));
     options->addAction(command);
 
@@ -214,9 +214,9 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
 static QString sysroot(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return QString());
-    ProjectExplorer::Kit *k = runConfig->target()->kit();
-    if (k && ProjectExplorer::SysRootKitInformation::hasSysRoot(k))
-        return ProjectExplorer::SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
+    Kit *k = runConfig->target()->kit();
+    if (k && SysRootKitInformation::hasSysRoot(k))
+        return SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
     return QString();
 }
 
@@ -426,8 +426,6 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 
 void QmlProfilerTool::startTool(StartMode mode)
 {
-    using namespace ProjectExplorer;
-
     // Make sure mode is shown.
     AnalyzerManager::showMode();
 
@@ -442,7 +440,7 @@ void QmlProfilerTool::startTool(StartMode mode)
 
 void QmlProfilerTool::logState(const QString &msg)
 {
-    MessageManager::write(msg, Core::MessageManager::Flash);
+    MessageManager::write(msg, MessageManager::Flash);
 }
 
 void QmlProfilerTool::logError(const QString &msg)
@@ -452,7 +450,7 @@ void QmlProfilerTool::logError(const QString &msg)
 
 void QmlProfilerTool::showErrorDialog(const QString &error)
 {
-    QMessageBox *errorDialog = new QMessageBox(Core::ICore::mainWindow());
+    QMessageBox *errorDialog = new QMessageBox(ICore::mainWindow());
     errorDialog->setIcon(QMessageBox::Warning);
     errorDialog->setWindowTitle(tr("QML Profiler"));
     errorDialog->setText(error);
@@ -469,7 +467,7 @@ void QmlProfilerTool::showSaveOption()
 
 void QmlProfilerTool::showSaveDialog()
 {
-    QString filename = QFileDialog::getSaveFileName(Core::ICore::mainWindow(), tr("Save QML Trace"), QString(),
+    QString filename = QFileDialog::getSaveFileName(ICore::mainWindow(), tr("Save QML Trace"), QString(),
                                                     tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
     if (!filename.isEmpty()) {
         if (!filename.endsWith(QLatin1String(TraceFileExtension)))
@@ -485,7 +483,7 @@ void QmlProfilerTool::showLoadDialog()
 
     AnalyzerManager::selectTool(this, StartRemote);
 
-    QString filename = QFileDialog::getOpenFileName(Core::ICore::mainWindow(), tr("Load QML Trace"), QString(),
+    QString filename = QFileDialog::getOpenFileName(ICore::mainWindow(), tr("Load QML Trace"), QString(),
                                                     tr("QML traces (*%1)").arg(QLatin1String(TraceFileExtension)));
 
     if (!filename.isEmpty()) {
@@ -542,7 +540,7 @@ QList <QAction *> QmlProfilerTool::profilerContextMenuActions() const
 
 void QmlProfilerTool::showNonmodalWarning(const QString &warningMsg)
 {
-    QMessageBox *noExecWarning = new QMessageBox(Core::ICore::mainWindow());
+    QMessageBox *noExecWarning = new QMessageBox(ICore::mainWindow());
     noExecWarning->setIcon(QMessageBox::Warning);
     noExecWarning->setWindowTitle(tr("QML Profiler"));
     noExecWarning->setText(warningMsg);
@@ -554,7 +552,7 @@ void QmlProfilerTool::showNonmodalWarning(const QString &warningMsg)
 
 QMessageBox *QmlProfilerTool::requestMessageBox()
 {
-    return new QMessageBox(Core::ICore::mainWindow());
+    return new QMessageBox(ICore::mainWindow());
 }
 
 void QmlProfilerTool::handleHelpRequest(const QString &link)
