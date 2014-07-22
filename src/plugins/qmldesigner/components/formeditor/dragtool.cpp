@@ -155,13 +155,6 @@ void DragTool::createQmlItemNodeFromImage(const QString &imageName,
     }
 }
 
-static inline bool isAncestorOf(FormEditorItem *formEditorItem, FormEditorItem *newParentItem)
-{
-    if (formEditorItem && newParentItem)
-        return formEditorItem->isAncestorOf(newParentItem);
-    return false;
-}
-
 FormEditorItem* DragTool::targetContainerOrRootItem(const QList<QGraphicsItem*> &itemList, FormEditorItem * currentItem)
 {
     FormEditorItem *formEditorItem = containerFormEditorItem(itemList, QList<FormEditorItem*>() << currentItem);
