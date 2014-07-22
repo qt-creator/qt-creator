@@ -42,22 +42,6 @@
 
 #include <QFuture>
 #include <QTimer>
-#include <QVariantMap>
-
-namespace qbs {
-class BuildJob;
-class CleanJob;
-class Error;
-class GroupData;
-class ProductData;
-class ProjectData;
-class CleanOptions;
-class InstallJob;
-class InstallOptions;
-class Project;
-class ErrorInfo;
-class BuildOptions;
-} // namespace qbs
 
 namespace Core { class IDocument; }
 namespace ProjectExplorer { class BuildConfiguration; }
@@ -115,7 +99,7 @@ public:
                                                  const QString &bcName);
 
     qbs::Project qbsProject() const;
-    const qbs::ProjectData qbsProjectData() const;
+    qbs::ProjectData qbsProjectData() const;
 
     bool needsSpecialDeployment() const;
     void generateErrors(const qbs::ErrorInfo &e);

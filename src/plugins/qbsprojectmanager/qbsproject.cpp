@@ -68,6 +68,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QVariantMap>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -337,11 +338,9 @@ qbs::Project QbsProject::qbsProject() const
     return m_qbsProject;
 }
 
-const qbs::ProjectData QbsProject::qbsProjectData() const
+qbs::ProjectData QbsProject::qbsProjectData() const
 {
-    if (m_qbsProject.isValid())
-        return m_qbsProject.projectData();
-    return qbs::ProjectData();
+    return m_projectData;
 }
 
 bool QbsProject::needsSpecialDeployment() const
