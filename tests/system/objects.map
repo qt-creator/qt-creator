@@ -141,6 +141,8 @@
 :Qt Creator.Replace All_QToolButton	{name='replaceAllButton' text='Replace All' type='QToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Replace_QToolButton	{name='replaceButton' text='Replace' type='QToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Stop_QToolButton	{text='Stop' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.WelcomePageStyledBar_QWindowContainer	{aboveWidget=':Qt Creator.WelcomePageStyledBar_Utils::StyledBar' type='QWindowContainer' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.WelcomePageStyledBar_Utils::StyledBar	{name='WelcomePageStyledBar' type='Utils::StyledBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.replaceEdit_Utils::FilterLineEdit	{name='replaceEdit' type='Utils::FancyLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.splitter_QSplitter	{name='splitter' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -204,6 +206,8 @@
 :Session Manager_ProjectExplorer::Internal::SessionDialog	{name='ProjectExplorer__Internal__SessionDialog' type='ProjectExplorer::Internal::SessionDialog' visible='1' windowTitle='Session Manager'}
 :Startup.contextHelpComboBox_QComboBox	{container=':Form.Startup_QGroupBox' name='contextHelpComboBox' type='QComboBox' visible='1'}
 :User Interface.languageBox_QComboBox	{container=':Core__Internal__GeneralSettings.User Interface_QGroupBox' name='languageBox' type='QComboBox' visible='1'}
+:WelcomePage.scrollView_ScrollView	{container=':WelcomePageStyledBar.WelcomePage_QQuickView' id='scrollView' type='ScrollView' unnamed='1' visible='true'}
+:WelcomePageStyledBar.WelcomePage_QQuickView	{container=':Qt Creator.WelcomePageStyledBar_QWindowContainer' name='WelcomePage' type='QQuickView' visible='true'}
 :Widget Box_qdesigner_internal::WidgetBoxTreeWidget	{container=':*Qt Creator.Widget Box_QDockWidget' type='qdesigner_internal::WidgetBoxTreeWidget' unnamed='1' visible='1'}
 :Working Copy.checkoutDirectoryLineEdit_QLineEdit	{container=':Git Repository Clone.Working Copy_QGroupBox' name='checkoutDirectoryLineEdit' type='QLineEdit' visible='1'}
 :Working Copy_Utils::BaseValidatingLineEdit	{container=':Git Repository Clone.Working Copy_QGroupBox' type='Utils::FancyLineEdit' unnamed='1' visible='1'}

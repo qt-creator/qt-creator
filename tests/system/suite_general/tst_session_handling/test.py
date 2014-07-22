@@ -29,6 +29,10 @@
 
 source("../../shared/qtcreator.py")
 
+def canTestQtQuick():
+    return (squishinfo.major * 0x10000 + squishinfo.minor * 0x100
+            + squishinfo.patch) > 0x050100
+
 def main():
     projects = prepareTestExamples()
     if not projects:
@@ -41,6 +45,8 @@ def main():
     mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
     test.verify(waitFor("sessionName in str(mainWindow.windowTitle)", 2000),
                 "Verifying window title contains created session name.")
+    if not isQt4Build and canTestQtQuick():
+        checkWelcomePage(sessionName, True)
     for project in projects:
         openQmakeProject(project, Targets.DESKTOP_480_GCC)
     progressBarWait(20000)
@@ -52,6 +58,9 @@ def main():
     switchSession("default")
     test.verify(waitFor("'Qt Creator' == str(mainWindow.windowTitle)", 2000),
                 "Verifying window title is set to default.")
+    if not isQt4Build and canTestQtQuick():
+        checkWelcomePage(sessionName, False)
+        switchViewTo(ViewConstants.EDIT)
     checkNavigator(1, "Verifying that no more project is opened.")
     checkOpenDocuments(0, "Verifying whether all files have been closed.")
     switchSession(sessionName)
@@ -106,17 +115,16 @@ def createAndSwitchToSession(toSession):
 
 def checkWelcomePage(sessionName, isCurrent=False):
     switchViewTo(ViewConstants.WELCOME)
-    mouseClick(waitForObject("{clip='false' container=':Qt Creator_QDeclarativeView' enabled='true'"
-                             " text='Develop' type='LinkedText' unnamed='1' visible='true'}"),
-                             5, 5, 0, Qt.LeftButton)
-    waitForObject("{clip='false' container=':Qt Creator_QDeclarativeView' enabled='true' "
+    mouseClick(waitForObject("{container=':WelcomePage.scrollView_ScrollView' text='Projects' "
+                             "type='Button' unnamed='1' visible='true'}"), 5, 5, Qt.LeftButton)
+    waitForObject("{container=':WelcomePage.scrollView_ScrollView' id='sessionsTitle' "
                   "text='Sessions' type='Text' unnamed='1' visible='true'}")
     if isCurrent:
         sessions = ["default", "%s (current session)" % sessionName]
     else:
         sessions = ["default (current session)", sessionName]
     for sessionName in sessions:
-        test.verify(object.exists("{clip='false' container=':Qt Creator_QDeclarativeView' "
+        test.verify(object.exists("{container=':WelcomePage.scrollView_ScrollView' "
                                   "enabled='true' type='LinkedText' "
                                   "unnamed='1' visible='true' text='%s'}" % sessionName),
                                   "Verifying session '%s' exists." % sessionName)
