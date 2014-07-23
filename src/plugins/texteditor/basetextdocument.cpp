@@ -525,7 +525,7 @@ bool BaseTextDocument::open(QString *errorString, const QString &fileName, const
         d->m_document->setModified(false);
         const int chunks = content.size();
         if (chunks == 0) {
-            d->m_document->setPlainText(QString());
+            d->m_document->clear();
         } else if (chunks == 1) {
             d->m_document->setPlainText(content.at(0));
         } else {

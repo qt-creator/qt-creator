@@ -112,7 +112,7 @@ bool FormWindowFile::setContents(const QByteArray &contents)
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << contents.size();
 
-    document()->setPlainText(QString());
+    document()->clear();
 
     QTC_ASSERT(m_formWindow, return false);
 

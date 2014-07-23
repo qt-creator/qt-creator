@@ -211,7 +211,7 @@ void GeneralSettings::resetWarnings()
 void GeneralSettings::resetTerminal()
 {
     if (HostOsInfo::isAnyUnixHost())
-        m_page->terminalComboBox->lineEdit()->setText(QString());
+        m_page->terminalComboBox->lineEdit()->clear();
 }
 
 void GeneralSettings::resetFileBrowser()

@@ -521,11 +521,11 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     updateButtons(index);
     ExternalTool *tool = m_model->toolForIndex(index);
     if (!tool) {
-        ui->description->setText(QString());
+        ui->description->clear();
         ui->executable->setPath(QString());
-        ui->arguments->setText(QString());
+        ui->arguments->clear();
         ui->workingDirectory->setPath(QString());
-        ui->inputText->setPlainText(QString());
+        ui->inputText->clear();
         ui->infoWidget->setEnabled(false);
         return;
     }

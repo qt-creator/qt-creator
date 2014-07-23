@@ -70,7 +70,7 @@ void PluginErrorOverview::showDetails(QListWidgetItem *item)
         PluginSpec *spec = item->data(Qt::UserRole).value<PluginSpec *>();
         m_ui->pluginError->setText(spec->errorString());
     } else {
-        m_ui->pluginError->setText(QString());
+        m_ui->pluginError->clear();
     }
 }
 

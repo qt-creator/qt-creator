@@ -73,8 +73,8 @@ QString RemoteAdditionDialog::remoteUrl() const
 
 void RemoteAdditionDialog::clear()
 {
-    m_ui->nameEdit->setText(QString());
-    m_ui->urlEdit->setText(QString());
+    m_ui->nameEdit->clear();
+    m_ui->urlEdit->clear();
 }
 
 // --------------------------------------------------------------------------

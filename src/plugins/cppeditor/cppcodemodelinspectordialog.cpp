@@ -1330,7 +1330,7 @@ void CppCodeModelInspectorDialog::onWorkingCopyDocumentSelected(const QModelInde
             m_ui->workingCopySourceEdit->setPlainText(source);
         }
     } else {
-        m_ui->workingCopySourceEdit->setPlainText(QString());
+        m_ui->workingCopySourceEdit->clear();
     }
 }
 
@@ -1489,7 +1489,7 @@ void CppCodeModelInspectorDialog::clearDocumentData()
     m_ui->docTab->setTabText(DocumentDefinedMacrosTab, docTabName(DocumentDefinedMacrosTab));
     m_docMacrosModel->clear();
 
-    m_ui->docPreprocessedSourceEdit->setPlainText(QString());
+    m_ui->docPreprocessedSourceEdit->clear();
 
     m_docSymbolsModel->clear();
 
@@ -1582,18 +1582,18 @@ void CppCodeModelInspectorDialog::clearProjectPartData()
 {
     m_partGenericInfoModel->clear();
 
-    m_ui->partProjectFilesEdit->setPlainText(QString());
+    m_ui->partProjectFilesEdit->clear();
     m_ui->projectPartTab->setTabText(ProjectPartFilesTab, partTabName(ProjectPartFilesTab));
 
-    m_ui->partToolchainDefinesEdit->setPlainText(QString());
-    m_ui->partProjectDefinesEdit->setPlainText(QString());
+    m_ui->partToolchainDefinesEdit->clear();
+    m_ui->partProjectDefinesEdit->clear();
     m_ui->projectPartTab->setTabText(ProjectPartDefinesTab, partTabName(ProjectPartDefinesTab));
 
-    m_ui->partHeaderPathsEdit->setPlainText(QString());
+    m_ui->partHeaderPathsEdit->clear();
     m_ui->projectPartTab->setTabText(ProjectPartHeaderPathsTab,
                                      partTabName(ProjectPartHeaderPathsTab));
 
-    m_ui->partPrecompiledHeadersEdit->setPlainText(QString());
+    m_ui->partPrecompiledHeadersEdit->clear();
     m_ui->projectPartTab->setTabText(ProjectPartPrecompiledHeadersTab,
                                      partTabName(ProjectPartPrecompiledHeadersTab));
 }

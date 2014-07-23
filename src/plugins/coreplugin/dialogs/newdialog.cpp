@@ -429,7 +429,7 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
         }
 
     } else {
-        m_ui->templateDescription->setText(QString());
+        m_ui->templateDescription->clear();
     }
     updateOkButton();
 }

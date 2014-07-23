@@ -130,7 +130,7 @@ void CustomWizardFieldPage::showError(const QString &m)
 
 void CustomWizardFieldPage::clearError()
 {
-    m_errorLabel->setText(QString());
+    m_errorLabel->clear();
     m_errorLabel->setVisible(false);
 }
 

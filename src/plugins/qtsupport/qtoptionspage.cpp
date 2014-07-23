@@ -837,7 +837,7 @@ void QtOptionsPageWidget::updateDescriptionLabel()
         m_infoBrowser->setHtml(version->toHtml(true));
         setInfoWidgetVisibility();
     } else {
-        m_infoBrowser->setHtml(QString());
+        m_infoBrowser->clear();
         m_ui->versionInfoWidget->setVisible(false);
         m_ui->infoWidget->setVisible(false);
         m_ui->debuggingHelperWidget->setVisible(false);
@@ -895,7 +895,7 @@ void QtOptionsPageWidget::updateWidgets()
         }
     } else {
         m_versionUi->nameEdit->clear();
-        m_versionUi->qmakePath->setText(QString()); // clear()
+        m_versionUi->qmakePath->clear();
     }
 
     const bool enabled = version != 0;

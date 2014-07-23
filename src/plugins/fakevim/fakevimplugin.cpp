@@ -525,7 +525,7 @@ void FakeVimOptionPage::setPlainStyle()
     m_ui.checkBoxAutoIndent->setChecked(false);
     m_ui.checkBoxSmartIndent->setChecked(false);
     m_ui.checkBoxIncSearch->setChecked(false);
-    m_ui.lineEditBackspace->setText(QString());
+    m_ui.lineEditBackspace->clear();
     m_ui.checkBoxPassKeys->setChecked(false);
 }
 

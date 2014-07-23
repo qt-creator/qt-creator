@@ -275,7 +275,7 @@ void CallgrindToolPrivate::doClear(bool clearParseData)
         m_filterProjectCosts->setChecked(false);
     m_proxyModel->setFilterBaseDir(QString());
     if (m_searchFilter)
-        m_searchFilter->setText(QString());
+        m_searchFilter->clear();
     m_proxyModel->setFilterFixedString(QString());
 }
 

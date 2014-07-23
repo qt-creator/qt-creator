@@ -1132,7 +1132,7 @@ public:
     void setHistoryCompleter(const QString &key)
     {
         m_lineEdit->setHistoryCompleter(key);
-        m_lineEdit->setText(QString()); // Undo "convenient" population with history item.
+        m_lineEdit->clear(); // Undo "convenient" population with history item.
     }
 
     QString text() const

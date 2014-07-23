@@ -512,7 +512,7 @@ void SettingsDialog::currentChanged(const QModelIndex &current)
         showCategory(m_proxyModel->mapToSource(current).row());
     } else {
         m_stackedLayout->setCurrentIndex(0);
-        m_headerLabel->setText(QString());
+        m_headerLabel->clear();
     }
 }
 

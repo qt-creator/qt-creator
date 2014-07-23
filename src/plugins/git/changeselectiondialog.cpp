@@ -244,7 +244,7 @@ void ChangeSelectionDialog::recalculateDetails()
 
     const QString ref = change();
     if (ref.isEmpty()) {
-        m_ui->detailsText->setPlainText(QString());
+        m_ui->detailsText->clear();
         return;
     }
 

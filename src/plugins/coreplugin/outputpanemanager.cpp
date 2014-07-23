@@ -751,7 +751,7 @@ void OutputPaneToggleButton::setIconBadgeNumber(int number)
 
         //Do not show yet, we wait until the button has been resized
     } else {
-        m_label->setText(QString());
+        m_label->clear();
         m_label->hide();
     }
     updateGeometry();
