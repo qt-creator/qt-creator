@@ -314,6 +314,8 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
         d->document->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
         d->document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
         d->configureMimeType();
+    } else {
+        EditorManager::activateEditorForDocument(d->document);
     }
 
     d->document->setPlainText(contents.toString());
