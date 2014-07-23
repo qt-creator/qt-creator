@@ -94,12 +94,17 @@ public:
     Core::Context m_projectLanguages;
     QVariantMap m_pluginSettings;
     Internal::UserFileAccessor *m_accessor;
+
+    KitMatcher m_requiredKitMatcher;
+    KitMatcher m_preferredKitMatcher;
 };
 
 ProjectPrivate::ProjectPrivate() :
     m_activeTarget(0),
     m_editorConfiguration(new EditorConfiguration()),
-    m_accessor(0)
+    m_accessor(0),
+    m_requiredKitMatcher([](const Kit*) { return true; }),
+    m_preferredKitMatcher([](const Kit*) { return true; })
 { }
 
 ProjectPrivate::~ProjectPrivate()
@@ -517,6 +522,26 @@ void Project::setup(QList<const BuildInfo *> infoList)
 ProjectImporter *Project::createProjectImporter() const
 {
     return 0;
+}
+
+KitMatcher Project::requiredKitMatcher() const
+{
+    return d->m_requiredKitMatcher;
+}
+
+void Project::setRequiredKitMatcher(const KitMatcher &matcher)
+{
+    d->m_preferredKitMatcher = matcher;
+}
+
+KitMatcher Project::preferredKitMatcher() const
+{
+    return d->m_preferredKitMatcher;
+}
+
+void Project::setPreferredKitMatcher(const KitMatcher &matcher)
+{
+    d->m_requiredKitMatcher = matcher;
 }
 
 void Project::onBuildDirectoryChanged()

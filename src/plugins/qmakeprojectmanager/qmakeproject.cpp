@@ -344,6 +344,7 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     setId(Constants::QMAKEPROJECT_ID);
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+    setRequiredKitMatcher(QtSupport::QtKitInformation::qtVersionMatcher());
 
     m_asyncUpdateTimer.setSingleShot(true);
     m_asyncUpdateTimer.setInterval(3000);
@@ -1642,11 +1643,6 @@ void QmakeProject::emitBuildDirectoryInitialized()
 ProjectImporter *QmakeProject::createProjectImporter() const
 {
     return new QmakeProjectImporter(projectFilePath().toString());
-}
-
-KitMatcher *QmakeProject::createRequiredKitMatcher() const
-{
-    return new QtSupport::QtVersionKitMatcher;
 }
 
 } // namespace QmakeProjectManager

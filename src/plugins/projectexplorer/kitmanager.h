@@ -37,6 +37,8 @@
 #include <QObject>
 #include <QPair>
 
+#include <functional>
+
 namespace Utils {
 class FileName;
 class Environment;
@@ -103,8 +105,13 @@ private:
 class PROJECTEXPLORER_EXPORT KitMatcher
 {
 public:
-    virtual ~KitMatcher() { }
-    virtual bool matches(const Kit *k) const = 0;
+    typedef std::function<bool(const Kit *)> Matcher;
+    KitMatcher(const Matcher &m) : m_matcher(m) {}
+
+    bool matches(const Kit *kit) const { return m_matcher(kit); }
+
+private:
+    Matcher m_matcher;
 };
 
 class PROJECTEXPLORER_EXPORT KitManager : public QObject

@@ -204,12 +204,8 @@ void TargetSetupPage::initializePage()
     selectAtLeastOneKit();
 }
 
-void TargetSetupPage::setRequiredKitMatcher(KitMatcher *matcher)
+void TargetSetupPage::setRequiredKitMatcher(const KitMatcher &matcher)
 {
-    if (matcher == m_requiredMatcher)
-        return;
-    if (m_requiredMatcher)
-        delete m_requiredMatcher;
     m_requiredMatcher = matcher;
 }
 
@@ -227,12 +223,8 @@ QList<Core::Id> TargetSetupPage::selectedKits() const
     return result;
 }
 
-void TargetSetupPage::setPreferredKitMatcher(KitMatcher *matcher)
+void TargetSetupPage::setPreferredKitMatcher(const KitMatcher &matcher)
 {
-    if (matcher == m_preferredMatcher)
-        return;
-    if (m_preferredMatcher)
-        delete m_preferredMatcher;
     m_preferredMatcher = matcher;
 }
 
@@ -240,8 +232,6 @@ TargetSetupPage::~TargetSetupPage()
 {
     reset();
     delete m_ui;
-    delete m_preferredMatcher;
-    delete m_requiredMatcher;
     delete m_importer;
 }
 
@@ -267,14 +257,7 @@ bool TargetSetupPage::isComplete() const
 
 void TargetSetupPage::setupWidgets()
 {
-    QList<Kit *> kitList;
-    // Known profiles:
-    if (m_requiredMatcher)
-        kitList = KitManager::matchingKits(*m_requiredMatcher);
-    else
-        kitList = KitManager::kits();
-
-    foreach (Kit *k, kitList)
+    foreach (Kit *k, KitManager::matchingKits(m_requiredMatcher))
         addWidget(k);
 
     // Setup import widget:
@@ -386,9 +369,7 @@ void TargetSetupPage::handleKitUpdate(Kit *k)
 
     TargetSetupWidget *widget = m_widgets.value(k->id());
 
-    bool acceptable = true;
-    if (m_requiredMatcher && !m_requiredMatcher->matches(k))
-        acceptable = false;
+    bool acceptable = m_requiredMatcher.matches(k);
 
     if (widget && !acceptable)
         removeWidget(k);
@@ -524,7 +505,7 @@ void TargetSetupPage::removeWidget(Kit *k)
 
 TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 {
-    if (!k || (m_requiredMatcher && !m_requiredMatcher->matches(k)))
+    if (!k || !m_requiredMatcher.matches(k))
         return 0;
 
     IBuildConfigurationFactory *factory
@@ -542,7 +523,7 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
         m_baseLayout->removeWidget(widget);
     m_baseLayout->removeItem(m_spacer);
 
-    widget->setKitSelected(m_preferredMatcher && m_preferredMatcher->matches(k));
+    widget->setKitSelected(m_preferredMatcher.matches(k));
     m_widgets.insert(k->id(), widget);
     connect(widget, SIGNAL(selectedToggled()),
             this, SLOT(kitSelectionChanged()));

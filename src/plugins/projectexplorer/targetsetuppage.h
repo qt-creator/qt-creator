@@ -33,6 +33,7 @@
 #include "projectexplorer_export.h"
 
 #include "projectimporter.h"
+#include "kitinformation.h"
 
 #include <QString>
 #include <QWizardPage>
@@ -68,8 +69,8 @@ public:
     void initializePage();
 
     // Call these before initializePage!
-    void setRequiredKitMatcher(KitMatcher *matcher);
-    void setPreferredKitMatcher(KitMatcher *matcher);
+    void setRequiredKitMatcher(const KitMatcher &matcher);
+    void setPreferredKitMatcher(const KitMatcher &matcher);
 
     /// Sets whether the targetsetupage uses a scrollarea
     /// to host the widgets from the factories
@@ -111,8 +112,8 @@ private:
     void setupWidgets();
     void reset();
 
-    KitMatcher *m_requiredMatcher;
-    KitMatcher *m_preferredMatcher;
+    KitMatcher m_requiredMatcher;
+    KitMatcher m_preferredMatcher;
     ProjectImporter *m_importer;
     QLayout *m_baseLayout;
     QString m_projectPath;

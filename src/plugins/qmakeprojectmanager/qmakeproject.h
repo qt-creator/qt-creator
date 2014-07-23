@@ -140,7 +140,6 @@ public:
 
     ProjectExplorer::ProjectImporter *createProjectImporter() const;
 
-    ProjectExplorer::KitMatcher *createRequiredKitMatcher() const;
 signals:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool, bool);
     void buildDirectoryInitialized();

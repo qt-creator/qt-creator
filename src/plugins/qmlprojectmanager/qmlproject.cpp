@@ -55,53 +55,6 @@ using namespace ProjectExplorer;
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlProjectKitMatcher : public ProjectExplorer::KitMatcher
-{
-public:
-    QmlProjectKitMatcher(const QmlProject::QmlImport &import)
-        : import(import)
-    {
-    }
-
-    bool matches(const ProjectExplorer::Kit *k) const
-    {
-        if (!k->isValid())
-            return false;
-
-        ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(k);
-        if (dev.isNull() || dev->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-            return false;
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-        if (!version || version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT))
-            return false;
-
-        bool hasViewer = false; // Initialization needed for dumb compilers.
-        QtSupport::QtVersionNumber minVersion;
-        switch (import) {
-        case QmlProject::UnknownImport:
-            minVersion = QtSupport::QtVersionNumber(4, 7, 0);
-            hasViewer = !version->qmlviewerCommand().isEmpty() || !version->qmlsceneCommand().isEmpty();
-            break;
-        case QmlProject::QtQuick1Import:
-            minVersion = QtSupport::QtVersionNumber(4, 7, 1);
-            hasViewer = !version->qmlviewerCommand().isEmpty();
-            break;
-        case QmlProject::QtQuick2Import:
-            minVersion = QtSupport::QtVersionNumber(5, 0, 0);
-            hasViewer = !version->qmlsceneCommand().isEmpty();
-            break;
-        }
-
-        if (version->qtVersion() >= minVersion
-                && hasViewer)
-            return true;
-
-        return false;
-    }
-private:
-    QmlProject::QmlImport import;
-};
-
 } // namespace Internal
 
 QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
@@ -394,8 +347,37 @@ bool QmlProject::fromMap(const QVariantMap &map)
 
     if (!activeTarget()) {
         // find a kit that matches prerequisites (prefer default one)
-        Internal::QmlProjectKitMatcher matcher(defaultImport());
-        QList<Kit*> kits = KitManager::matchingKits(matcher);
+        QList<Kit*> kits = KitManager::matchingKits(
+            std::function<bool(const Kit *)>([this](const Kit *k) -> bool {
+                if (!k->isValid())
+                    return false;
+
+                IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+                if (dev.isNull() || dev->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+                    return false;
+                QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+                if (!version || version->type() != QLatin1String(QtSupport::Constants::DESKTOPQT))
+                    return false;
+
+                bool hasViewer = false; // Initialization needed for dumb compilers.
+                QtSupport::QtVersionNumber minVersion;
+                switch (m_defaultImport) {
+                case QmlProject::UnknownImport:
+                    minVersion = QtSupport::QtVersionNumber(4, 7, 0);
+                    hasViewer = !version->qmlviewerCommand().isEmpty() || !version->qmlsceneCommand().isEmpty();
+                    break;
+                case QmlProject::QtQuick1Import:
+                    minVersion = QtSupport::QtVersionNumber(4, 7, 1);
+                    hasViewer = !version->qmlviewerCommand().isEmpty();
+                    break;
+                case QmlProject::QtQuick2Import:
+                    minVersion = QtSupport::QtVersionNumber(5, 0, 0);
+                    hasViewer = !version->qmlsceneCommand().isEmpty();
+                    break;
+                }
+
+                return version->qtVersion() >= minVersion && hasViewer;
+            }));
 
         if (!kits.isEmpty()) {
             Kit *kit = 0;

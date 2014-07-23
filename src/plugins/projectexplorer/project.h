@@ -130,8 +130,12 @@ public:
 
     virtual bool requiresTargetPanel() const;
     virtual ProjectImporter *createProjectImporter() const;
-    virtual KitMatcher *createRequiredKitMatcher() const { return 0; }
-    virtual KitMatcher *createPreferredKitMatcher() const { return 0; }
+
+    KitMatcher requiredKitMatcher() const;
+    void setRequiredKitMatcher(const KitMatcher &matcher);
+
+    KitMatcher preferredKitMatcher() const;
+    void setPreferredKitMatcher(const KitMatcher &matcher);
 
     virtual bool needsSpecialDeployment() const;
 

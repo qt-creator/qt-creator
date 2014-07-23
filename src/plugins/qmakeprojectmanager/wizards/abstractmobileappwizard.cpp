@@ -43,7 +43,9 @@
 #include <projectexplorer/session.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+using namespace Core;
 using namespace ProjectExplorer;
+using namespace QtSupport;
 
 namespace QmakeProjectManager {
 
@@ -75,14 +77,13 @@ void AbstractMobileAppWizardDialog::updateKitsPage()
         QString platform = selectedPlatform();
         if (platform.isEmpty()) {
             m_kitsPage->setPreferredKitMatcher(
-                        new QtSupport::QtVersionKitMatcher(
-                            Core::FeatureSet( QtSupport::Constants::FEATURE_MOBILE)));
+                QtKitInformation::qtVersionMatcher(FeatureSet(QtSupport::Constants::FEATURE_MOBILE)));
         } else {
-            m_kitsPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(platform));
+            m_kitsPage->setPreferredKitMatcher(QtKitInformation::platformMatcher(platform));
         }
-        m_kitsPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(requiredFeatures(),
-                                                                             m_minimumQtVersionNumber,
-                                                                             m_maximumQtVersionNumber));
+        m_kitsPage->setRequiredKitMatcher(QtKitInformation::qtVersionMatcher(requiredFeatures(),
+                                                                           m_minimumQtVersionNumber,
+                                                                           m_maximumQtVersionNumber));
     }
 }
 

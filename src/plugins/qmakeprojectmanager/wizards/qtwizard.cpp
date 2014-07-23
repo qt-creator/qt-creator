@@ -39,6 +39,7 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/targetsetuppage.h>
@@ -53,6 +54,7 @@
 using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
+using namespace QtSupport;
 
 // -------------------- QtWizard
 QtWizard::QtWizard()
@@ -209,11 +211,11 @@ int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
     const QString platform = selectedPlatform();
     Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
     if (platform.isEmpty())
-        m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
+        m_targetSetupPage->setPreferredKitMatcher(QtKitInformation::qtVersionMatcher(features));
     else
-        m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(platform));
+        m_targetSetupPage->setPreferredKitMatcher(QtKitInformation::platformMatcher(platform));
 
-    m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(requiredFeatures()));
+    m_targetSetupPage->setRequiredKitMatcher(QtKitInformation::qtVersionMatcher(requiredFeatures()));
 
     resize(900, 450);
     if (id >= 0)
@@ -285,7 +287,7 @@ bool BaseQmakeProjectWizardDialog::isQtPlatformSelected(const QString &platform)
 {
     QList<Core::Id> selectedKitList = selectedKits();
 
-    foreach (Kit *k, KitManager::matchingKits(QtSupport::QtPlatformKitMatcher(platform)))
+    foreach (Kit *k, KitManager::matchingKits(QtKitInformation::platformMatcher(platform)))
         if (selectedKitList.contains(k->id()))
             return true;
 

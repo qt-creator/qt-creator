@@ -67,21 +67,6 @@ public:
     static void setSysRoot(Kit *k, const Utils::FileName &v);
 };
 
-class PROJECTEXPLORER_EXPORT SysRootMatcher : public KitMatcher
-{
-public:
-    SysRootMatcher(const Utils::FileName &fn) : m_sysroot(fn)
-    { }
-
-    bool matches(const Kit *k) const
-    {
-        return SysRootKitInformation::sysRoot(k) == m_sysroot;
-    }
-
-private:
-    Utils::FileName m_sysroot;
-};
-
 // --------------------------------------------------------------------------
 // ToolChainInformation:
 // --------------------------------------------------------------------------
@@ -120,21 +105,6 @@ private slots:
     void toolChainRemoved(ProjectExplorer::ToolChain *tc);
 };
 
-class PROJECTEXPLORER_EXPORT ToolChainMatcher : public KitMatcher
-{
-public:
-    ToolChainMatcher(const ToolChain *tc) : m_tc(tc)
-    { }
-
-    bool matches(const Kit *k) const
-    {
-        return ToolChainKitInformation::toolChain(k) == m_tc;
-    }
-
-private:
-    const ToolChain *m_tc;
-};
-
 // --------------------------------------------------------------------------
 // DeviceTypeInformation:
 // --------------------------------------------------------------------------
@@ -157,24 +127,8 @@ public:
     static const Core::Id id();
     static const Core::Id deviceTypeId(const Kit *k);
     static void setDeviceTypeId(Kit *k, Core::Id type);
-};
 
-class PROJECTEXPLORER_EXPORT DeviceTypeMatcher : public KitMatcher
-{
-public:
-    DeviceTypeMatcher(Core::Id t) : m_type(t)
-    { }
-
-    bool matches(const Kit *k) const
-    {
-        Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(k);
-        if (!deviceType.isValid())
-            return false;
-        return deviceType == m_type;
-    }
-
-private:
-    const Core::Id m_type;
+    static KitMatcher deviceTypeMatcher(Core::Id type);
 };
 
 // --------------------------------------------------------------------------
@@ -211,23 +165,6 @@ private slots:
     void deviceUpdated(Core::Id dataId);
     void devicesChanged();
     void kitUpdated(ProjectExplorer::Kit *k);
-};
-
-class PROJECTEXPLORER_EXPORT DeviceMatcher : public KitMatcher
-{
-public:
-    DeviceMatcher(Core::Id id) : m_devId(id)
-    { }
-
-    DeviceMatcher() { }
-
-    bool matches(const Kit *k) const
-    {
-        return DeviceKitInformation::deviceId(k) == m_devId;
-    }
-
-private:
-    Core::Id m_devId;
 };
 
 } // namespace ProjectExplorer

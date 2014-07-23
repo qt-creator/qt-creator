@@ -37,6 +37,8 @@
 #include <utils/buildablehelperlibrary.h>
 #include <utils/qtcassert.h>
 
+using namespace ProjectExplorer;
+
 namespace QtSupport {
 
 QtKitInformation::QtKitInformation()
@@ -195,27 +197,28 @@ void QtKitInformation::kitsWereLoaded()
             this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 }
 
-QtPlatformKitMatcher::QtPlatformKitMatcher(const QString &platform) :
-    m_platform(platform)
-{ }
-
-bool QtPlatformKitMatcher::matches(const ProjectExplorer::Kit *k) const
+KitMatcher QtKitInformation::platformMatcher(const QString &platform)
 {
-    BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    return version && version->platformName() == m_platform;
+    return std::function<bool(const Kit *)>([platform](const Kit *kit) -> bool {
+        BaseQtVersion *version = QtKitInformation::qtVersion(kit);
+        return version && version->platformName() == platform;
+    });
 }
 
-bool QtVersionKitMatcher::matches(const ProjectExplorer::Kit *k) const
+KitMatcher QtKitInformation::qtVersionMatcher(const Core::FeatureSet &required,
+    const QtVersionNumber &min, const QtVersionNumber &max)
 {
-    BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    if (!version)
-        return false;
-    QtVersionNumber current = version->qtVersion();
-    if (m_min.majorVersion > -1 && current < m_min)
-        return false;
-    if (m_max.majorVersion > -1 && current > m_max)
-        return false;
-    return version->availableFeatures().contains(m_features);
+    return std::function<bool(const Kit *)>([required, min, max](const Kit *kit) -> bool {
+        BaseQtVersion *version = QtKitInformation::qtVersion(kit);
+        if (!version)
+            return false;
+        QtVersionNumber current = version->qtVersion();
+        if (min.majorVersion > -1 && current < min)
+            return false;
+        if (max.majorVersion > -1 && current > max)
+            return false;
+        return version->availableFeatures().contains(required);
+    });
 }
 
 } // namespace QtSupport

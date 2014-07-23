@@ -66,39 +66,16 @@ public:
     static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *k);
     static void setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v);
 
+    static ProjectExplorer::KitMatcher platformMatcher(const QString &platform);
+    static ProjectExplorer::KitMatcher qtVersionMatcher(const Core::FeatureSet &required = Core::FeatureSet(),
+                                 const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
+                                 const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX));
+
 private slots:
     void qtVersionsChanged(const QList<int> &addedIds,
                            const QList<int> &removedIds,
                            const QList<int> &changedIds);
     void kitsWereLoaded();
-};
-
-class QTSUPPORT_EXPORT QtPlatformKitMatcher : public ProjectExplorer::KitMatcher
-{
-public:
-    QtPlatformKitMatcher(const QString &platform);
-
-    bool matches(const ProjectExplorer::Kit *k) const;
-
-private:
-    QString m_platform;
-};
-
-class QTSUPPORT_EXPORT QtVersionKitMatcher : public ProjectExplorer::KitMatcher
-{
-public:
-    explicit QtVersionKitMatcher(const Core::FeatureSet &required = Core::FeatureSet(),
-                                 const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
-                                 const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX)) :
-        m_min(min), m_max(max), m_features(required)
-    { }
-
-    bool matches(const ProjectExplorer::Kit *k) const;
-
-private:
-    QtVersionNumber m_min;
-    QtVersionNumber m_max;
-    Core::FeatureSet m_features;
 };
 
 } // namespace QtSupport

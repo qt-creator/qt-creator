@@ -63,8 +63,8 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project) :
     m_targetSetupPage->setProjectImporter(project->createProjectImporter());
     m_targetSetupPage->setUseScrollArea(false);
     m_targetSetupPage->setProjectPath(project->projectFilePath().toString());
-    m_targetSetupPage->setRequiredKitMatcher(project->createRequiredKitMatcher());
-    m_targetSetupPage->setPreferredKitMatcher(project->createPreferredKitMatcher());
+    m_targetSetupPage->setRequiredKitMatcher(project->requiredKitMatcher());
+    m_targetSetupPage->setPreferredKitMatcher(project->preferredKitMatcher());
     m_targetSetupPage->initializePage();
     m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     updateNoteText();

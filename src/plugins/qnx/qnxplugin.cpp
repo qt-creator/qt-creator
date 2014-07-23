@@ -77,6 +77,7 @@
 #include <QAction>
 #include <QtPlugin>
 
+using namespace ProjectExplorer;
 using namespace Qnx::Internal;
 
 QnxPlugin::QnxPlugin()
@@ -178,11 +179,10 @@ ExtensionSystem::IPlugin::ShutdownFlag QnxPlugin::aboutToShutdown()
 void QnxPlugin::updateDebuggerActions()
 {
     bool hasValidQnxKit = false;
-    ProjectExplorer::DeviceTypeMatcher qnxTypeMatcher(Constants::QNX_QNX_OS_TYPE);
-    const QList<ProjectExplorer::Kit *> qnxKits = ProjectExplorer::KitManager::matchingKits(qnxTypeMatcher);
 
-    foreach (ProjectExplorer::Kit *qnxKit, qnxKits) {
-        if (qnxKit->isValid() && !ProjectExplorer::DeviceKitInformation::device(qnxKit).isNull()) {
+    KitMatcher matcher = DeviceTypeKitInformation::deviceTypeMatcher(Constants::QNX_QNX_OS_TYPE);
+    foreach (Kit *qnxKit, KitManager::matchingKits(matcher)) {
+        if (qnxKit->isValid() && !DeviceKitInformation::device(qnxKit).isNull()) {
             hasValidQnxKit = true;
             break;
         }

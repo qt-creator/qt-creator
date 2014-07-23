@@ -552,74 +552,31 @@ static QString executableForPid(qint64 pid)
     return QString();
 }
 
-class AbiKitMatcher : public KitMatcher
+static std::function<bool(const Kit *)> cdbMatcher(char wordWidth = 0)
 {
-public:
-    explicit AbiKitMatcher(const QList<Abi> &abis) : m_abis(abis) {}
-    bool matches(const Kit *k) const
-    {
-        if (const ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
-            return m_abis.contains(tc->targetAbi())
-                   && DebuggerKitInformation::isValidDebugger(k);
-        }
-        return false;
-    }
-
-private:
-    const QList<Abi> m_abis;
-};
-
-class CompatibleAbiKitMatcher : public KitMatcher
-{
-public:
-    explicit CompatibleAbiKitMatcher(const QList<Abi> &abis) : m_abis(abis) {}
-    bool matches(const Kit *k) const
-    {
-        if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
-            foreach (const Abi &a, m_abis)
-                if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k))
-                    return true;
-        return false;
-    }
-
-private:
-    const QList<Abi> m_abis;
-};
-
-class CdbMatcher : KitMatcher
-{
-public:
-    CdbMatcher(char wordWidth = 0) : m_wordWidth(wordWidth) {}
-
-    bool matches(const Kit *k) const
-    {
+    return [wordWidth](const Kit *k) -> bool {
         if (DebuggerKitInformation::engineType(k) != CdbEngineType
             || !DebuggerKitInformation::isValidDebugger(k)) {
             return false;
         }
-        if (m_wordWidth) {
+        if (wordWidth) {
             const ToolChain *tc = ToolChainKitInformation::toolChain(k);
-            return tc && m_wordWidth == tc->targetAbi().wordWidth();
+            return tc && wordWidth == tc->targetAbi().wordWidth();
         }
         return true;
-    }
+    };
+}
 
-    // Find a CDB kit for debugging unknown processes.
-    // On a 64bit OS, prefer a 64bit debugger.
-    static Kit *findUniversalCdbKit()
-    {
-        if (Utils::is64BitWindowsSystem()) {
-            CdbMatcher matcher64(64);
-            if (Kit *cdb64Kit = KitManager::find(matcher64))
-                return cdb64Kit;
-        }
-        CdbMatcher matcher;
-        return KitManager::find(matcher);
+// Find a CDB kit for debugging unknown processes.
+// On a 64bit OS, prefer a 64bit debugger.
+static Kit *findUniversalCdbKit()
+{
+    if (Utils::is64BitWindowsSystem()) {
+        if (Kit *cdb64Kit = KitManager::find(cdbMatcher(64)))
+            return cdb64Kit;
     }
-
-private:
-    const char m_wordWidth;
-};
+    return KitManager::find(cdbMatcher());
+}
 
 bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorMessage /* = 0 */)
 {
@@ -640,9 +597,24 @@ bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorM
                 abis = Abi::abisOfBinary(Utils::FileName::fromString(sp->executable));
         }
         if (!abis.isEmpty()) {
-            kit = KitManager::find(AbiKitMatcher(abis));
-            if (!kit)
-                kit = KitManager::find(CompatibleAbiKitMatcher(abis));
+            // Try exact abis.
+            kit = KitManager::find(std::function<bool (const Kit *)>([abis](const Kit *k) -> bool {
+                if (const ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
+                    return abis.contains(tc->targetAbi())
+                           && DebuggerKitInformation::isValidDebugger(k);
+                }
+                return false;
+            }));
+            if (!kit) {
+                // Or something compatible.
+                kit = KitManager::find(std::function<bool (const Kit *)>([abis](const Kit *k) -> bool {
+                    if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
+                        foreach (const Abi &a, abis)
+                            if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k))
+                                return true;
+                    return false;
+                }));
+            }
         }
         if (!kit)
             kit = KitManager::defaultKit();
@@ -1464,7 +1436,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
-        if (!fillParameters(&sp, CdbMatcher::findUniversalCdbKit(), errorMessage))
+        if (!fillParameters(&sp, findUniversalCdbKit(), errorMessage))
             return false;
         sp.startMode = AttachCrashedExternal;
         sp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
@@ -1643,7 +1615,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
 {
     const QByteArray connectionKey = "CdbRemoteConnection";
     DebuggerStartParameters sp;
-    Kit *kit = CdbMatcher::findUniversalCdbKit();
+    Kit *kit = findUniversalCdbKit();
     QTC_ASSERT(kit && fillParameters(&sp, kit), return);
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;

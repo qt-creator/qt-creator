@@ -248,7 +248,8 @@ void ToolChainKitInformation::kitsWereLoaded()
 
 void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
 {
-    foreach (Kit *k, KitManager::matchingKits(ToolChainMatcher(tc)))
+    auto matcher = KitMatcher([tc](const Kit *k) { return toolChain(k) == tc; });
+    foreach (Kit *k, KitManager::matchingKits(matcher))
         notifyAboutUpdate(k);
 }
 
@@ -316,6 +317,13 @@ const Core::Id DeviceTypeKitInformation::deviceTypeId(const Kit *k)
 void DeviceTypeKitInformation::setDeviceTypeId(Kit *k, Core::Id type)
 {
     k->setValue(DeviceTypeKitInformation::id(), type.toSetting());
+}
+
+KitMatcher DeviceTypeKitInformation::deviceTypeMatcher(Core::Id type)
+{
+    return std::function<bool(const Kit *)>([type](const Kit *kit) {
+        return type.isValid() && deviceTypeId(kit) == type;
+    });
 }
 
 // --------------------------------------------------------------------------
