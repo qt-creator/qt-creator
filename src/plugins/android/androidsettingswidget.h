@@ -92,6 +92,9 @@ private slots:
     void manageAVD();
     void createKitToggled();
 
+    void checkGdbFinished();
+    void showGdbWarningDialog();
+
 private:
     enum Mode { Sdk = 1, Ndk = 2, Java = 4, All = Sdk | Ndk | Java };
     enum State { NotSet = 0, Okay = 1, Error = 2 };
@@ -111,6 +114,8 @@ private:
     AndroidConfig m_androidConfig;
     AvdModel m_AVDModel;
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
+    QFutureWatcher<QPair<QString, bool>> m_checkGdbWatcher;
+    QString m_gdbCheckPath;
 };
 
 } // namespace Internal
