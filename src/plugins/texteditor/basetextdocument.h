@@ -33,7 +33,6 @@
 #include "texteditor_global.h"
 
 #include "itexteditor.h"
-#include "itexteditor.h"
 
 #include <QList>
 
@@ -56,7 +55,7 @@ class TypingSettings;
 
 typedef QList<TextMark *> TextMarks;
 
-class TEXTEDITOR_EXPORT BaseTextDocument : public ITextEditorDocument
+class TEXTEDITOR_EXPORT BaseTextDocument : public BaseTextEditorDocument
 {
     Q_OBJECT
 
@@ -64,7 +63,7 @@ public:
     BaseTextDocument();
     virtual ~BaseTextDocument();
 
-    // ITextEditorDocument
+    // BaseTextEditorDocument
     QString plainText() const;
     QString textAt(int pos, int length) const;
     QChar characterAt(int pos) const;

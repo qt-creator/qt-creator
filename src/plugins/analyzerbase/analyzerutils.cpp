@@ -65,20 +65,16 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
     IEditor *editor = EditorManager::currentEditor();
     if (!editor)
         return 0;
-    TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
+    TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
     if (!textEditor)
         return 0;
 
-    TextEditor::BaseTextEditorWidget *editorWidget = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
+    TextEditor::BaseTextEditorWidget *editorWidget = textEditor->editorWidget();
     if (!editorWidget)
         return 0;
 
-    QPlainTextEdit *ptEdit = qobject_cast<QPlainTextEdit *>(editor->widget());
-    if (!ptEdit)
-        return 0;
-
     QTextCursor tc;
-    tc = ptEdit->textCursor();
+    tc = editorWidget->textCursor();
     int line = 0;
     int column = 0;
     const int pos = tc.position();

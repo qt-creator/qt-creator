@@ -55,7 +55,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/taskhub.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <utils/synchronousprocess.h>
 #include <utils/qtcprocess.h>
@@ -447,7 +447,7 @@ void CdbEngine::syncVerboseLog(bool verboseLog)
     postCommand(m_verboseLog ? QByteArray("!sym noisy") : QByteArray("!sym quiet"), 0);
 }
 
-bool CdbEngine::setToolTipExpression(TextEditor::ITextEditor *editor,
+bool CdbEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor,
                                      const DebuggerToolTipContext &contextIn)
 {
     if (debug)

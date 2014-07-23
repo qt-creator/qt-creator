@@ -32,7 +32,7 @@
 
 #include <QString>
 
-namespace TextEditor { class ITextEditor; }
+namespace TextEditor { class BaseTextEditor; }
 namespace Core { class IEditor; }
 namespace CPlusPlus { class Snapshot; }
 
@@ -41,7 +41,7 @@ namespace Internal {
 
 // Editor tooltip support
 bool isCppEditor(Core::IEditor *editor);
-QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
+QString cppExpressionAt(TextEditor::BaseTextEditor *editor, int pos,
                         int *line, int *column, QString *function = 0);
 QString fixCppExpression(const QString &exp);
 QString cppFunctionAt(const QString &fileName, int line);

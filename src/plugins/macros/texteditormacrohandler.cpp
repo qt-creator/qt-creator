@@ -31,7 +31,7 @@
 #include "macroevent.h"
 #include "macro.h"
 
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <coreplugin/icore.h>
@@ -135,7 +135,7 @@ void TextEditorMacroHandler::changeEditor(Core::IEditor *editor)
     if (isRecording() && m_currentEditor && m_currentEditor->widget())
         m_currentEditor->widget()->removeEventFilter(this);
 
-    m_currentEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
+    m_currentEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
     if (isRecording() && m_currentEditor && m_currentEditor->widget())
         m_currentEditor->widget()->installEventFilter(this);
 }

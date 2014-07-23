@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "itexteditor.h"
+#include "basetexteditor.h"
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QTextCodec>
@@ -35,32 +35,32 @@
 namespace TextEditor {
 
 /*!
-    \class TextEditor::ITextEditorDocument
-    \brief The ITextEditorDocument class is an abstract base for documents of text editors.
+    \class TextEditor::BaseTextEditorDocument
+    \brief The BaseTextEditorDocument class is an abstract base for documents of text editors.
 
-    It is the base class for documents used by implementations of the ITextEditor class,
+    It is the base class for documents used by implementations of the BaseTextEditor class,
     and contains basic functions for retrieving text content and markers (like bookmarks).
 */
 
 /*!
-    \class TextEditor::ITextEditor
-    \brief The ITextEditor class is an abstract base class for text editors.
+    \class TextEditor::BaseTextEditor
+    \brief The BaseTextEditor class is an abstract base class for text editors.
 
     It contains the basic functions for retrieving and setting cursor position and selections,
     and operations on them, like removing or inserting. It uses implementations of
-    ITextEditorDocument as the underlying document.
+    BaseTextEditorDocument as the underlying document.
 */
 
-ITextEditorDocument::ITextEditorDocument(QObject *parent)
+BaseTextEditorDocument::BaseTextEditorDocument(QObject *parent)
     : Core::TextDocument(parent)
 {
 }
 
-QMap<QString, QString> ITextEditorDocument::openedTextDocumentContents()
+QMap<QString, QString> BaseTextEditorDocument::openedTextDocumentContents()
 {
     QMap<QString, QString> workingCopy;
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
-        ITextEditorDocument *textEditorDocument = qobject_cast<ITextEditorDocument *>(document);
+        BaseTextEditorDocument *textEditorDocument = qobject_cast<BaseTextEditorDocument *>(document);
         if (!textEditorDocument)
             continue;
         QString fileName = textEditorDocument->filePath();
@@ -69,11 +69,11 @@ QMap<QString, QString> ITextEditorDocument::openedTextDocumentContents()
     return workingCopy;
 }
 
-QMap<QString, QTextCodec *> ITextEditorDocument::openedTextDocumentEncodings()
+QMap<QString, QTextCodec *> BaseTextEditorDocument::openedTextDocumentEncodings()
 {
     QMap<QString, QTextCodec *> workingCopy;
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
-        ITextEditorDocument *textEditorDocument = qobject_cast<ITextEditorDocument *>(document);
+        BaseTextEditorDocument *textEditorDocument = qobject_cast<BaseTextEditorDocument *>(document);
         if (!textEditorDocument)
             continue;
         QString fileName = textEditorDocument->filePath();
@@ -82,15 +82,15 @@ QMap<QString, QTextCodec *> ITextEditorDocument::openedTextDocumentEncodings()
     return workingCopy;
 }
 
-ITextEditorDocument *ITextEditor::textDocument()
+BaseTextEditorDocument *BaseTextEditor::textDocument()
 {
-    return qobject_cast<ITextEditorDocument *>(document());
+    return qobject_cast<BaseTextEditorDocument *>(document());
 }
 
 
-ITextEditor *ITextEditor::currentTextEditor()
+BaseTextEditor *BaseTextEditor::currentTextEditor()
 {
-    return qobject_cast<ITextEditor *>(Core::EditorManager::currentEditor());
+    return qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor());
 }
 
 } // namespace TextEditor

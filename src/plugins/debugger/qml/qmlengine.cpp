@@ -54,6 +54,7 @@
 #include <utils/qtcassert.h>
 
 #include <texteditor/basetextdocument.h>
+#include <texteditor/basetexteditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
@@ -341,9 +342,9 @@ QmlEngine::~QmlEngine()
 {
     QList<Core::IEditor *> editorsToClose;
 
-    QHash<QString, QWeakPointer<TextEditor::ITextEditor> >::iterator iter;
+    QHash<QString, QWeakPointer<TextEditor::BaseTextEditor> >::iterator iter;
     for (iter = m_sourceEditors.begin(); iter != m_sourceEditors.end(); ++iter) {
-        QWeakPointer<TextEditor::ITextEditor> textEditPtr = iter.value();
+        QWeakPointer<TextEditor::BaseTextEditor> textEditPtr = iter.value();
         if (textEditPtr)
             editorsToClose << textEditPtr.data();
     }
@@ -983,7 +984,7 @@ void QmlEngine::requestModuleSymbols(const QString &moduleName)
 //
 //////////////////////////////////////////////////////////////////////
 
-bool QmlEngine::setToolTipExpression(TextEditor::ITextEditor *editor,
+bool QmlEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor,
     const DebuggerToolTipContext &ctx)
 {
     // This is processed by QML inspector, which has dependencies to

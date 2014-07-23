@@ -590,9 +590,9 @@ Core::IEditor *DesignDocument::editor() const
     return m_textEditor.data();
 }
 
-TextEditor::ITextEditor *DesignDocument::textEditor() const
+TextEditor::BaseTextEditor *DesignDocument::textEditor() const
 {
-    return qobject_cast<TextEditor::ITextEditor*>(editor());
+    return qobject_cast<TextEditor::BaseTextEditor*>(editor());
 }
 
 QPlainTextEdit *DesignDocument::plainTextEdit() const

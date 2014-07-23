@@ -47,7 +47,7 @@ class ActionManager;
 class IEditor;
 }
 
-namespace TextEditor { class ITextEditor; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace QmlJS { class ModelManagerInterface; }
 

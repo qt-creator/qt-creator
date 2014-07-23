@@ -1277,8 +1277,8 @@ void DebuggerToolTipManager::slotEditorOpened(IEditor *e)
         connect(toolTipEditor.widget->verticalScrollBar(), SIGNAL(valueChanged(int)),
                 this, SLOT(slotUpdateVisibleToolTips()));
         connect(toolTipEditor.editor,
-            SIGNAL(tooltipOverrideRequested(TextEditor::ITextEditor*,QPoint,int,bool*)),
-            SLOT(slotTooltipOverrideRequested(TextEditor::ITextEditor*,QPoint,int,bool*)));
+            SIGNAL(tooltipOverrideRequested(TextEditor::BaseTextEditor*,QPoint,int,bool*)),
+            SLOT(slotTooltipOverrideRequested(TextEditor::BaseTextEditor*,QPoint,int,bool*)));
     }
 }
 
@@ -1324,7 +1324,7 @@ void DebuggerToolTipManager::leavingDebugMode()
 }
 
 void DebuggerToolTipManager::slotTooltipOverrideRequested
-    (ITextEditor *editor, const QPoint &point, int pos, bool *handled)
+    (BaseTextEditor *editor, const QPoint &point, int pos, bool *handled)
 {
     QTC_ASSERT(handled, return);
     QTC_ASSERT(editor, return);
@@ -1347,7 +1347,7 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested
     }
 }
 
-bool DebuggerToolTipManager::tryHandleToolTipOverride(ITextEditor *editor, const QPoint &point, int pos)
+bool DebuggerToolTipManager::tryHandleToolTipOverride(BaseTextEditor *editor, const QPoint &point, int pos)
 {
     DebuggerCore *core = debuggerCore();
     if (!core->boolSetting(UseToolTipsInMainEditor))

@@ -37,7 +37,7 @@
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/find/ifindsupport.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <texteditor/refactoringchanges.h>
 #include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
@@ -174,12 +174,12 @@ void BaseFileFind::runSearch(Core::SearchResult *search)
         watcher->setFuture(Utils::findInFilesRegExp(parameters.text,
             files(parameters.nameFilters, parameters.additionalParameters),
             textDocumentFlagsForFindFlags(parameters.flags),
-            ITextEditorDocument::openedTextDocumentContents()));
+            BaseTextEditorDocument::openedTextDocumentContents()));
     } else {
         watcher->setFuture(Utils::findInFiles(parameters.text,
             files(parameters.nameFilters, parameters.additionalParameters),
             textDocumentFlagsForFindFlags(parameters.flags),
-            ITextEditorDocument::openedTextDocumentContents()));
+            BaseTextEditorDocument::openedTextDocumentContents()));
     }
     FutureProgress *progress =
         ProgressManager::addTask(watcher->future(), tr("Searching"), Constants::TASK_SEARCH);

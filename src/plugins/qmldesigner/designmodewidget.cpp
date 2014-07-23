@@ -288,7 +288,7 @@ void DesignModeWidget::updateErrorStatus(const QList<RewriterView::Error> &error
     }
 }
 
-TextEditor::ITextEditor *DesignModeWidget::textEditor() const
+TextEditor::BaseTextEditor *DesignModeWidget::textEditor() const
 {
     return currentDesignDocument()->textEditor();
 }

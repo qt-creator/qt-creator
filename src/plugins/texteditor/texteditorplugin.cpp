@@ -214,7 +214,7 @@ void TextEditorPlugin::extensionsInitialized()
         tr("Selected text within the current document."),
         []() -> QString {
             QString value;
-            if (ITextEditor *editor = ITextEditor::currentTextEditor()) {
+            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
                 value = editor->selectedText();
                 value.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
             }
@@ -224,35 +224,35 @@ void TextEditorPlugin::extensionsInitialized()
     Core::VariableManager::registerIntVariable(kCurrentDocumentRow,
         tr("Line number of the text cursor position in current document (starts with 1)."),
         []() -> int {
-            ITextEditor *editor = ITextEditor::currentTextEditor();
+            BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->currentLine() : 0;
         });
 
     Core::VariableManager::registerIntVariable(kCurrentDocumentColumn,
         tr("Column number of the text cursor position in current document (starts with 0)."),
         []() -> int {
-            ITextEditor *editor = ITextEditor::currentTextEditor();
+            BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->currentColumn() : 0;
         });
 
     Core::VariableManager::registerIntVariable(kCurrentDocumentRowCount,
         tr("Number of lines visible in current document."),
         []() -> int {
-            ITextEditor *editor = ITextEditor::currentTextEditor();
+            BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->rowCount() : 0;
         });
 
     Core::VariableManager::registerIntVariable(kCurrentDocumentColumnCount,
         tr("Number of columns visible in current document."),
         []() -> int {
-            ITextEditor *editor = ITextEditor::currentTextEditor();
+            BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->columnCount() : 0;
         });
 
     Core::VariableManager::registerIntVariable(kCurrentDocumentFontSize,
         tr("Current document's font size in points."),
         []() -> int {
-            ITextEditor *editor = ITextEditor::currentTextEditor();
+            BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->widget()->font().pointSize() : 0;
         });
 
@@ -304,9 +304,9 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 
 void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
-    if (ITextEditor *editor = qobject_cast<ITextEditor *>(Core::EditorManager::currentEditor())) {
+    if (BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor())) {
         const int pos = editor->position();
-        int anchor = editor->position(ITextEditor::Anchor);
+        int anchor = editor->position(BaseTextEditor::Anchor);
         if (anchor < 0) // no selection
             anchor = pos;
         int selectionLength = pos - anchor;

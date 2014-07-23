@@ -42,7 +42,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/modemanager.h>
 
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/stylehelper.h>
@@ -572,7 +572,7 @@ bool SessionManagerPrivate::projectContainsFile(Project *p, const QString &fileN
 
 void SessionManager::configureEditor(Core::IEditor *editor, const QString &fileName)
 {
-    if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
+    if (TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
         Project *project = projectForFile(fileName);
         // Global settings are the default.
         if (project)

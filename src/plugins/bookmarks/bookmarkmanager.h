@@ -34,7 +34,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <QAbstractItemModel>
 #include <QMultiMap>
@@ -108,10 +108,10 @@ signals:
 private slots:
     void updateActionStatus();
     void loadBookmarks();
-    void handleBookmarkRequest(TextEditor::ITextEditor * textEditor,
+    void handleBookmarkRequest(TextEditor::BaseTextEditor * textEditor,
                                int line,
-                               TextEditor::ITextEditor::MarkRequestKind kind);
-    void handleBookmarkTooltipRequest(TextEditor::ITextEditor *textEditor,
+                               TextEditor::BaseTextEditor::MarkRequestKind kind);
+    void handleBookmarkTooltipRequest(TextEditor::BaseTextEditor *textEditor,
                                       const QPoint &pos,
                                       int line);
 
@@ -123,7 +123,7 @@ private:
     void addBookmark(const QString &s);
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
-    void operateTooltip(TextEditor::ITextEditor *textEditor, const QPoint &pos, Bookmark *mark);
+    void operateTooltip(TextEditor::BaseTextEditor *textEditor, const QPoint &pos, Bookmark *mark);
 
     typedef QMultiMap<QString, Bookmark *> FileNameBookmarksMap;
     typedef QMap<QString, FileNameBookmarksMap *> DirectoryFileBookmarksMap;

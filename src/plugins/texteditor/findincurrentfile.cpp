@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "findincurrentfile.h"
-#include "itexteditor.h"
+#include "basetexteditor.h"
 
 #include <utils/filesearch.h>
 #include <coreplugin/icore.h>
@@ -64,7 +64,7 @@ Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
     Q_UNUSED(nameFilters)
     QString fileName = additionalParameters.toString();
     QMap<QString, QTextCodec *> openEditorEncodings
-            = ITextEditorDocument::openedTextDocumentEncodings();
+            = BaseTextEditorDocument::openedTextDocumentEncodings();
     QTextCodec *codec = openEditorEncodings.value(fileName);
     if (!codec)
         codec = Core::EditorManager::defaultTextCodec();

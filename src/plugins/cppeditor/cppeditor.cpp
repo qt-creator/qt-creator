@@ -1054,7 +1054,7 @@ void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
     Core::IDocument *targetDocument
             = Core::DocumentModel::documentForFilePath( d->m_declDefLink->targetFile->fileName());
     if (baseTextDocument() != targetDocument) {
-        if (TextEditor::ITextEditorDocument *textEditorDocument = qobject_cast<TextEditor::ITextEditorDocument *>(targetDocument))
+        if (TextEditor::BaseTextEditorDocument *textEditorDocument = qobject_cast<TextEditor::BaseTextEditorDocument *>(targetDocument))
             connect(textEditorDocument, SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
     }
@@ -1103,7 +1103,7 @@ void CPPEditorWidget::abortDeclDefLink()
     Core::IDocument *targetDocument
             = Core::DocumentModel::documentForFilePath(d->m_declDefLink->targetFile->fileName());
     if (baseTextDocument() != targetDocument) {
-        if (TextEditor::ITextEditorDocument *textEditorDocument = qobject_cast<TextEditor::ITextEditorDocument *>(targetDocument))
+        if (TextEditor::BaseTextEditorDocument *textEditorDocument = qobject_cast<TextEditor::BaseTextEditorDocument *>(targetDocument))
             disconnect(textEditorDocument, SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
     }

@@ -37,7 +37,7 @@
 #include <QtPlugin>
 #include <QAction>
 
-namespace TextEditor { class ITextEditor; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace CppEditor {
 namespace Internal {
@@ -243,7 +243,7 @@ private:
 
     QPointer<CppCodeModelInspectorDialog> m_cppCodeModelInspectorDialog;
 
-    QPointer<TextEditor::ITextEditor> m_currentEditor;
+    QPointer<TextEditor::BaseTextEditor> m_currentEditor;
 };
 
 class CppEditorFactory : public Core::IEditorFactory

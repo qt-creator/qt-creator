@@ -57,7 +57,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
@@ -1360,7 +1360,7 @@ DebuggerRunControl *DebuggerEngine::runControl() const
     return d->runControl();
 }
 
-bool DebuggerEngine::setToolTipExpression(TextEditor::ITextEditor *,
+bool DebuggerEngine::setToolTipExpression(TextEditor::BaseTextEditor *,
     const DebuggerToolTipContext &)
 {
     return false;

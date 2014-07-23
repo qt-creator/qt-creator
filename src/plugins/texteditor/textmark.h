@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class ITextEditor;
+class BaseTextEditor;
 class BaseTextDocument;
 
 namespace Internal { class TextMarkRegistry; }

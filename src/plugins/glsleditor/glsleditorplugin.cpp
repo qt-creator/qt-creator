@@ -95,7 +95,7 @@ public:
     }
 
     GLSLEditorFactory *m_editor;
-    QPointer<TextEditor::ITextEditor> m_currentTextEditable;
+    QPointer<TextEditor::BaseTextEditor> m_currentTextEditable;
 
     GLSLEditorPlugin::InitFile *m_glsl_120_frag;
     GLSLEditorPlugin::InitFile *m_glsl_120_vert;

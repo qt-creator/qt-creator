@@ -82,12 +82,12 @@ public:
         : BaseTextEditor(editorWidget)
     {
         document()->setId("DiffEditor.SideDiffEditor");
-        connect(this, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
-                this, SLOT(slotTooltipRequested(TextEditor::ITextEditor*,QPoint,int)));
+        connect(this, SIGNAL(tooltipRequested(TextEditor::BaseTextEditor*,QPoint,int)),
+                this, SLOT(slotTooltipRequested(TextEditor::BaseTextEditor*,QPoint,int)));
     }
 
 private slots:
-    void slotTooltipRequested(TextEditor::ITextEditor *editor,
+    void slotTooltipRequested(TextEditor::BaseTextEditor *editor,
                               const QPoint &globalPoint,
                               int position);
 
@@ -210,7 +210,7 @@ private:
 
 ////////////////////////
 
-void SideDiffEditor::slotTooltipRequested(TextEditor::ITextEditor *editor,
+void SideDiffEditor::slotTooltipRequested(TextEditor::BaseTextEditor *editor,
                                           const QPoint &globalPoint,
                                           int position)
 {

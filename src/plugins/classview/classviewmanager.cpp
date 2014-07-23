@@ -41,7 +41,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <QThread>
 #include <QMutex>
@@ -458,7 +458,7 @@ void Manager::gotoLocations(const QList<QVariant> &list)
             fileName = document->filePath();
 
         // if text file - what is current position?
-        TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
+        TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
         if (textEditor) {
             // there is open currently text editor
             int position = textEditor->position();

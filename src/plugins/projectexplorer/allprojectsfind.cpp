@@ -34,7 +34,7 @@
 #include "projectexplorer.h"
 #include "editorconfiguration.h"
 
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <utils/filesearch.h>
 #include <utils/algorithm.h>
 
@@ -84,7 +84,7 @@ Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFi
         filterRegs << QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard);
     }
     QMap<QString, QTextCodec *> openEditorEncodings
-            = TextEditor::ITextEditorDocument::openedTextDocumentEncodings();
+            = TextEditor::BaseTextEditorDocument::openedTextDocumentEncodings();
     QMap<QString, QTextCodec *> encodings;
     foreach (const Project *project, projects) {
         QStringList projectFiles = project->files(Project::AllFiles);

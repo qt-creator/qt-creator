@@ -276,9 +276,9 @@ static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
     return Document::Ptr();
 }
 
-static inline ITextEditor *editableAt(const QString &fileName, int line, int column)
+static inline BaseTextEditor *editorAt(const QString &fileName, int line, int column)
 {
-    return qobject_cast<ITextEditor *>(Core::EditorManager::openEditorAt(fileName, line, column,
+    return qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(fileName, line, column,
                                                                          Core::Id(),
                                                                          Core::EditorManager::DoNotMakeVisible));
 }
@@ -301,15 +301,15 @@ static void addDeclaration(const Snapshot &snapshot,
     //! \todo change this to use the Refactoring changes.
     //
 
-    if (ITextEditor *editable = editableAt(fileName, loc.line(), loc.column() - 1)) {
-        BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(editable->widget());
-        if (editor) {
-            QTextCursor tc = editor->textCursor();
+    if (BaseTextEditor *editor = editorAt(fileName, loc.line(), loc.column() - 1)) {
+        BaseTextEditorWidget *widget = editor->editorWidget();
+        if (widget) {
+            QTextCursor tc = widget->textCursor();
             int pos = tc.position();
             tc.beginEditBlock();
             tc.insertText(loc.prefix() + declaration + loc.suffix());
             tc.setPosition(pos, QTextCursor::KeepAnchor);
-            editor->baseTextDocument()->autoIndent(tc);
+            widget->baseTextDocument()->autoIndent(tc);
             tc.endEditBlock();
         }
     }
@@ -344,17 +344,17 @@ static Document::Ptr addDefinition(const Snapshot &docTable,
             //! \todo change this to use the Refactoring changes.
             //
 
-            if (ITextEditor *editable = editableAt(doc->fileName(), 0, 0)) {
+            if (BaseTextEditor *editor = editorAt(doc->fileName(), 0, 0)) {
 
                 //
                 //! \todo use the InsertionPointLocator to insert at the correct place.
                 // (we'll have to extend that class first to do definition insertions)
 
-                const QString contents = editable->textDocument()->plainText();
+                const QString contents = editor->textDocument()->plainText();
                 int column;
-                editable->convertPosition(contents.length(), line, &column);
-                editable->gotoLine(*line, column);
-                editable->insert(definition);
+                editor->convertPosition(contents.length(), line, &column);
+                editor->gotoLine(*line, column);
+                editor->insert(definition);
                 *line += 1;
             }
             return doc;

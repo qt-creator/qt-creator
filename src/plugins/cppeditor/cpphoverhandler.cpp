@@ -54,7 +54,7 @@ bool CppHoverHandler::acceptEditor(IEditor *editor)
     return editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID;
 }
 
-void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
+void CppHoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
 {
     using namespace TextEditor;
     BaseTextEditorWidget *textEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget());

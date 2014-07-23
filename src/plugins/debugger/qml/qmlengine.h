@@ -89,7 +89,7 @@ public:
 
 signals:
     void tooltipRequested(const QPoint &mousePos,
-        TextEditor::ITextEditor *editor, int cursorPos);
+        TextEditor::BaseTextEditor *editor, int cursorPos);
     void aboutToNotifyInferiorSetupOk();
 
 private slots:
@@ -128,7 +128,7 @@ private:
     void shutdownInferior();
     void shutdownEngine();
 
-    bool setToolTipExpression(TextEditor::ITextEditor *editor,
+    bool setToolTipExpression(TextEditor::BaseTextEditor *editor,
         const DebuggerToolTipContext &);
 
     void continueInferior();
@@ -190,7 +190,7 @@ private:
     QTimer m_noDebugOutputTimer;
     QmlDebug::QmlOutputParser m_outputParser;
     QHash<QString, QTextDocument*> m_sourceDocuments;
-    QHash<QString, QWeakPointer<TextEditor::ITextEditor> > m_sourceEditors;
+    QHash<QString, QWeakPointer<TextEditor::BaseTextEditor> > m_sourceEditors;
     InteractiveInterpreter m_interpreter;
     QHash<QString,BreakpointModelId> pendingBreakpoints;
     QList<quint32> queryIds;

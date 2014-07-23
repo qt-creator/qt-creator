@@ -67,7 +67,7 @@
 #include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/taskhub.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -3651,7 +3651,7 @@ void GdbEngine::resetLocation()
     DebuggerEngine::resetLocation();
 }
 
-bool GdbEngine::setToolTipExpression(TextEditor::ITextEditor *editor,
+bool GdbEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor,
     const DebuggerToolTipContext &context)
 {
     if (state() != InferiorStopOk || !isCppEditor(editor)) {

@@ -57,7 +57,7 @@
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <extensionsystem/iplugin.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
@@ -167,7 +167,7 @@ public slots:
     void engineFinished();
 
     void editorOpened(Core::IEditor *);
-    void requestContextMenu(TextEditor::ITextEditor *editor, int line, QMenu *menu);
+    void requestContextMenu(TextEditor::BaseTextEditor *editor, int line, QMenu *menu);
 
 public:
     CallgrindTool *q;
@@ -866,16 +866,16 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
 
 void CallgrindToolPrivate::editorOpened(IEditor *editor)
 {
-    TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
+    TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
     if (!textEditor)
         return;
 
     connect(textEditor,
-        SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
-        SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+        SIGNAL(markContextMenuRequested(TextEditor::BaseTextEditor*,int,QMenu*)),
+        SLOT(requestContextMenu(TextEditor::BaseTextEditor*,int,QMenu*)));
 }
 
-void CallgrindToolPrivate::requestContextMenu(TextEditor::ITextEditor *editor, int line, QMenu *menu)
+void CallgrindToolPrivate::requestContextMenu(TextEditor::BaseTextEditor *editor, int line, QMenu *menu)
 {
     // find callgrind text mark that corresponds to this editor's file and line number
     const Function *func = 0;

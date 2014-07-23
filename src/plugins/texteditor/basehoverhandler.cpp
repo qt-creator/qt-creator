@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "basehoverhandler.h"
-#include "itexteditor.h"
 #include "basetexteditor.h"
 
 #include <coreplugin/icore.h>
@@ -41,7 +40,7 @@ using namespace Core;
 
 namespace TextEditor {
 
-static BaseTextEditorWidget *baseTextEditor(ITextEditor *editor)
+static BaseTextEditorWidget *baseTextEditor(BaseTextEditor *editor)
 {
     if (!editor)
         return 0;
@@ -63,16 +62,16 @@ void BaseHoverHandler::editorOpened(Core::IEditor *editor)
     if (acceptEditor(editor)) {
         BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor);
         if (textEditor) {
-            connect(textEditor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
-                    this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
+            connect(textEditor, SIGNAL(tooltipRequested(TextEditor::BaseTextEditor*,QPoint,int)),
+                    this, SLOT(showToolTip(TextEditor::BaseTextEditor*,QPoint,int)));
 
-            connect(textEditor, SIGNAL(contextHelpIdRequested(TextEditor::ITextEditor*,int)),
-                    this, SLOT(updateContextHelpId(TextEditor::ITextEditor*,int)));
+            connect(textEditor, SIGNAL(contextHelpIdRequested(TextEditor::BaseTextEditor*,int)),
+                    this, SLOT(updateContextHelpId(TextEditor::BaseTextEditor*,int)));
         }
     }
 }
 
-void BaseHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos)
+void BaseHoverHandler::showToolTip(TextEditor::BaseTextEditor *editor, const QPoint &point, int pos)
 {
     BaseTextEditorWidget *baseEditor = baseTextEditor(editor);
     if (!baseEditor)
@@ -84,7 +83,7 @@ void BaseHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint
     operateTooltip(editor, point);
 }
 
-void BaseHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
+void BaseHoverHandler::updateContextHelpId(TextEditor::BaseTextEditor *editor, int pos)
 {
     BaseTextEditorWidget *baseEditor = baseTextEditor(editor);
     if (!baseEditor)
@@ -150,7 +149,7 @@ void BaseHoverHandler::clear()
     m_lastHelpItemIdentified = HelpItem();
 }
 
-void BaseHoverHandler::process(ITextEditor *editor, int pos)
+void BaseHoverHandler::process(BaseTextEditor *editor, int pos)
 {
     clear();
     identifyMatch(editor, pos);
@@ -172,7 +171,7 @@ void BaseHoverHandler::decorateToolTip()
     }
 }
 
-void BaseHoverHandler::operateTooltip(ITextEditor *editor, const QPoint &point)
+void BaseHoverHandler::operateTooltip(BaseTextEditor *editor, const QPoint &point)
 {
     if (m_toolTip.isEmpty())
         Utils::ToolTip::hide();

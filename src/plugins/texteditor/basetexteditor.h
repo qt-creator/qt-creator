@@ -42,15 +42,13 @@
 
 QT_BEGIN_NAMESPACE
 class QToolBar;
-class QTimeLine;
 class QPrinter;
 QT_END_NAMESPACE
 
-namespace Utils {
-    class LineColumnLabel;
-}
+namespace Utils { class LineColumnLabel; }
 
 namespace TextEditor {
+
 class TabSettings;
 class RefactorOverlay;
 struct RefactorMarker;
@@ -67,7 +65,7 @@ namespace Internal {
     typedef QString (QString::*TransformationMethod)() const;
 }
 
-class BaseTextEditor;
+class BaseTextEditorWidget;
 class FontSettings;
 class BehaviorSettings;
 class CompletionSettings;
@@ -79,44 +77,109 @@ class Indenter;
 class AutoCompleter;
 class ExtraEncodingSettings;
 
-class TEXTEDITOR_EXPORT BaseTextEditorAnimator : public QObject
+class TEXTEDITOR_EXPORT BaseTextEditor : public Core::IEditor
 {
     Q_OBJECT
 
 public:
-    BaseTextEditorAnimator(QObject *parent);
+    enum PositionOperation {
+        Current = 1,
+        EndOfLine = 2,
+        StartOfLine = 3,
+        Anchor = 4,
+        EndOfDoc = 5
+    };
 
-    inline void setPosition(int position) { m_position = position; }
-    inline int position() const { return m_position; }
+    BaseTextEditor(BaseTextEditorWidget *editorWidget);
+    ~BaseTextEditor();
 
-    void setData(const QFont &f, const QPalette &pal, const QString &text);
+    virtual BaseTextEditorDocument *textDocument();
 
-    void draw(QPainter *p, const QPointF &pos);
-    QRectF rect() const;
+    enum MarkRequestKind {
+        BreakpointRequest,
+        BookmarkRequest,
+        TaskMarkRequest
+    };
 
-    inline qreal value() const { return m_value; }
-    inline QPointF lastDrawPos() const { return m_lastDrawPos; }
+    static BaseTextEditor *currentTextEditor();
 
-    void finish();
+    friend class BaseTextEditorWidget;
+    BaseTextEditorWidget *editorWidget() const { return m_editorWidget; }
+    BaseTextDocument *baseTextDocument();
 
-    bool isRunning() const;
+    // IEditor
+    Core::IDocument *document();
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+
+    QByteArray saveState() const;
+    bool restoreState(const QByteArray &state);
+    QWidget *toolBar();
+
+    enum Side { Left, Right };
+    void insertExtraToolBarWidget(Side side, QWidget *widget);
+
+    QString contextHelpId() const; // from IContext
+
+    int currentLine() const;
+    int currentColumn() const;
+    void gotoLine(int line, int column = 0, bool centerLine = true);
+
+    /*! Returns the amount of visible columns (in characters) in the editor */
+    int columnCount() const;
+
+    /*! Returns the amount of visible lines (in characters) in the editor */
+    int rowCount() const;
+
+    /*! Returns the position at \a posOp in characters from the beginning of the document */
+    virtual int position(PositionOperation posOp = Current, int at = -1) const;
+
+    /*! Converts the \a pos in characters from beginning of document to \a line and \a column */
+    virtual void convertPosition(int pos, int *line, int *column) const;
+
+    /*! Returns the cursor rectangle in pixels at \a pos, or current position if \a pos = -1 */
+    virtual QRect cursorRect(int pos = -1) const;
+
+    virtual QString selectedText() const;
+
+    /*! Removes \a length characters to the right of the cursor. */
+    virtual void remove(int length);
+    /*! Inserts the given string to the right of the cursor. */
+    virtual void insert(const QString &string);
+    /*! Replaces \a length characters to the right of the cursor with the given string. */
+    virtual void replace(int length, const QString &string);
+    /*! Sets current cursor position to \a pos. */
+    virtual void setCursorPosition(int pos);
+    /*! Selects text between current cursor position and \a toPos. */
+    virtual void select(int toPos);
+
+    virtual const Utils::CommentDefinition *commentDefinition() const;
+
+    virtual CompletionAssistProvider *completionAssistProvider();
 
 signals:
-    void updateRequest(int position, QPointF lastPos, QRectF rect);
-
+    void markRequested(TextEditor::BaseTextEditor *editor, int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
+    void markContextMenuRequested(TextEditor::BaseTextEditor *editor, int line, QMenu *menu);
+    void tooltipOverrideRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int position, bool *handled);
+    void tooltipRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int position);
+    void markTooltipRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int line);
+    void contextHelpIdRequested(TextEditor::BaseTextEditor *editor, int position);
 
 private slots:
-    void step(qreal v);
+    void updateCursorPosition();
+    void openGotoLocator();
+    void setFileEncodingLabelVisible(bool visible);
+    void setFileEncodingLabelText(const QString &text);
 
 private:
-    QTimeLine *m_timeline;
-    qreal m_value;
-    int m_position;
-    QPointF m_lastDrawPos;
-    QFont m_font;
-    QPalette m_palette;
-    QString m_text;
-    QSizeF m_size;
+    // Note: This is always a copy of IContext::m_widget.
+    BaseTextEditorWidget *m_editorWidget;
+
+    QToolBar *m_toolBar;
+    QWidget *m_stretchWidget;
+    QAction *m_cursorPositionLabelAction;
+    Utils::LineColumnLabel *m_cursorPositionLabel;
+    QAction *m_fileEncodingLabelAction;
+    Utils::LineColumnLabel *m_fileEncodingLabel;
 };
 
 
@@ -139,7 +202,7 @@ public:
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     void gotoLine(int line, int column = 0, bool centerLine = true);
-    int position(ITextEditor::PositionOperation posOp = ITextEditor::Current,
+    int position(BaseTextEditor::PositionOperation posOp = BaseTextEditor::Current,
          int at = -1) const;
     void convertPosition(int pos, int *line, int *column) const;
 
@@ -235,7 +298,7 @@ public:
     static QString msgTextTooLarge(quint64 size);
 
     void insertPlainText(const QString &text);
-    QString selectedText() const;
+
 
 public slots:
     virtual void copy();
@@ -482,6 +545,8 @@ public:
         int targetColumn;
     };
 
+    QString selectedText() const;
+
 protected:
     /*!
        Reimplement this function to enable code navigation.
@@ -568,75 +633,6 @@ private slots:
     void slotSelectionChanged();
     void _q_animateUpdate(int position, QPointF lastPos, QRectF rect);
     void doFoo();
-};
-
-
-class TEXTEDITOR_EXPORT BaseTextEditor : public ITextEditor
-{
-    Q_OBJECT
-
-public:
-    BaseTextEditor(BaseTextEditorWidget *editorWidget);
-    ~BaseTextEditor();
-
-    friend class BaseTextEditorWidget;
-    BaseTextEditorWidget *editorWidget() const { return m_editorWidget; }
-    BaseTextDocument *baseTextDocument() { return m_editorWidget->baseTextDocument(); }
-
-    // IEditor
-    Core::IDocument *document() { return m_editorWidget->baseTextDocument(); }
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-
-    QByteArray saveState() const { return m_editorWidget->saveState(); }
-    bool restoreState(const QByteArray &state) { return m_editorWidget->restoreState(state); }
-    QWidget *toolBar();
-
-    enum Side { Left, Right };
-    void insertExtraToolBarWidget(Side side, QWidget *widget);
-
-    // ITextEditor
-    int currentLine() const;
-    int currentColumn() const;
-    void gotoLine(int line, int column = 0, bool centerLine = true) { m_editorWidget->gotoLine(line, column, centerLine); }
-    int columnCount() const;
-    int rowCount() const;
-
-    int position(PositionOperation posOp = Current, int at = -1) const
-    { return m_editorWidget->position(posOp, at); }
-    void convertPosition(int pos, int *line, int *column) const
-    { m_editorWidget->convertPosition(pos, line, column); }
-    QRect cursorRect(int pos = -1) const;
-
-    QString selectedText() const;
-
-    QString contextHelpId() const; // from IContext
-
-    // ITextEditor
-    void remove(int length);
-    void insert(const QString &string);
-    void replace(int length, const QString &string);
-    void setCursorPosition(int pos);
-    void select(int toPos);
-    const Utils::CommentDefinition *commentDefinition() const;
-
-    virtual CompletionAssistProvider *completionAssistProvider();
-
-private slots:
-    void updateCursorPosition();
-    void openGotoLocator();
-    void setFileEncodingLabelVisible(bool visible);
-    void setFileEncodingLabelText(const QString &text);
-
-private:
-    // Note: This is always a copy of IContext::m_widget.
-    BaseTextEditorWidget *m_editorWidget;
-
-    QToolBar *m_toolBar;
-    QWidget *m_stretchWidget;
-    QAction *m_cursorPositionLabelAction;
-    Utils::LineColumnLabel *m_cursorPositionLabel;
-    QAction *m_fileEncodingLabelAction;
-    Utils::LineColumnLabel *m_fileEncodingLabel;
 };
 
 } // namespace TextEditor

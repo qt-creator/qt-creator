@@ -34,7 +34,7 @@
 
 namespace Core { class IEditor; }
 
-namespace TextEditor { class ITextEditor; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace Macros {
 namespace Internal {
@@ -59,7 +59,7 @@ public slots:
     void closeEditor(Core::IEditor *editor);
 
 private:
-    TextEditor::ITextEditor *m_currentEditor;
+    TextEditor::BaseTextEditor *m_currentEditor;
 };
 
 } // namespace Internal

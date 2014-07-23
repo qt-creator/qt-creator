@@ -38,7 +38,7 @@
 namespace Core { class Id; }
 
 namespace TextEditor {
-class ITextEditor;
+class BaseTextEditor;
 class BaseTextEditorWidget;
 class BaseTextDocument;
 class TabSettings;
@@ -80,8 +80,8 @@ public:
     TextEditor::ICodeStylePreferences *codeStyle(Core::Id languageId) const;
     QMap<Core::Id, TextEditor::ICodeStylePreferences *> codeStyles() const;
 
-    void configureEditor(TextEditor::ITextEditor *textEditor) const;
-    void deconfigureEditor(TextEditor::ITextEditor *textEditor) const;
+    void configureEditor(TextEditor::BaseTextEditor *textEditor) const;
+    void deconfigureEditor(TextEditor::BaseTextEditor *textEditor) const;
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);

@@ -48,7 +48,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
@@ -452,7 +452,7 @@ static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
 
-bool PdbEngine::setToolTipExpression(TextEditor::ITextEditor *editor,
+bool PdbEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor,
     const DebuggerToolTipContext &ctx)
 {
     Q_UNUSED(editor)

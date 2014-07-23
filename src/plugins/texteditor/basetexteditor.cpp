@@ -119,6 +119,176 @@ using namespace Utils;
 namespace TextEditor {
 namespace Internal {
 
+class BaseTextEditorAnimator : public QObject
+{
+    Q_OBJECT
+
+public:
+    BaseTextEditorAnimator(QObject *parent);
+
+    inline void setPosition(int position) { m_position = position; }
+    inline int position() const { return m_position; }
+
+    void setData(const QFont &f, const QPalette &pal, const QString &text);
+
+    void draw(QPainter *p, const QPointF &pos);
+    QRectF rect() const;
+
+    inline qreal value() const { return m_value; }
+    inline QPointF lastDrawPos() const { return m_lastDrawPos; }
+
+    void finish();
+
+    bool isRunning() const;
+
+signals:
+    void updateRequest(int position, QPointF lastPos, QRectF rect);
+
+
+private slots:
+    void step(qreal v);
+
+private:
+    QTimeLine *m_timeline;
+    qreal m_value;
+    int m_position;
+    QPointF m_lastDrawPos;
+    QFont m_font;
+    QPalette m_palette;
+    QString m_text;
+    QSizeF m_size;
+};
+
+class BaseTextEditorWidgetPrivate
+{
+    BaseTextEditorWidgetPrivate(const BaseTextEditorWidgetPrivate &);
+    BaseTextEditorWidgetPrivate &operator=(const BaseTextEditorWidgetPrivate &);
+
+public:
+    BaseTextEditorWidgetPrivate();
+    ~BaseTextEditorWidgetPrivate();
+
+    void setupDocumentSignals();
+    void updateLineSelectionColor();
+
+    void print(QPrinter *printer);
+
+    BaseTextEditorWidget *q;
+    bool m_contentsChanged;
+    bool m_lastCursorChangeWasInteresting;
+
+    QSharedPointer<BaseTextDocument> m_document;
+    QByteArray m_tempState;
+    QByteArray m_tempNavigationState;
+
+    bool m_parenthesesMatchingEnabled;
+
+    // parentheses matcher
+    bool m_formatRange;
+    QTextCharFormat m_mismatchFormat;
+    QTimer m_parenthesesMatchingTimer;
+    // end parentheses matcher
+
+    QWidget *m_extraArea;
+
+    Core::Id m_tabSettingsId;
+    ICodeStylePreferences *m_codeStylePreferences;
+    DisplaySettings m_displaySettings;
+    MarginSettings m_marginSettings;
+    bool m_fontSettingsNeedsApply;
+    BehaviorSettings m_behaviorSettings;
+
+    int extraAreaSelectionAnchorBlockNumber;
+    int extraAreaToggleMarkBlockNumber;
+    int extraAreaHighlightFoldedBlockNumber;
+
+    TextEditorOverlay *m_overlay;
+    TextEditorOverlay *m_snippetOverlay;
+    TextEditorOverlay *m_searchResultOverlay;
+    bool snippetCheckCursor(const QTextCursor &cursor);
+    void snippetTabOrBacktab(bool forward);
+
+    RefactorOverlay *m_refactorOverlay;
+
+    QBasicTimer foldedBlockTimer;
+    int visibleFoldedBlockNumber;
+    int suggestedVisibleFoldedBlockNumber;
+    void clearVisibleFoldedBlock();
+    bool m_mouseOnFoldedMarker;
+    void foldLicenseHeader();
+
+    QBasicTimer autoScrollTimer;
+    uint m_marksVisible : 1;
+    uint m_codeFoldingVisible : 1;
+    uint m_codeFoldingSupported : 1;
+    uint m_revisionsVisible : 1;
+    uint m_lineNumbersVisible : 1;
+    uint m_highlightCurrentLine : 1;
+    uint m_requestMarkEnabled : 1;
+    uint m_lineSeparatorsAllowed : 1;
+    uint autoParenthesisOverwriteBackup : 1;
+    uint surroundWithEnabledOverwriteBackup : 1;
+    uint m_maybeFakeTooltipEvent : 1;
+    int m_visibleWrapColumn;
+
+    BaseTextEditorWidget::Link m_currentLink;
+    bool m_linkPressed;
+
+    QRegExp m_searchExpr;
+    Core::FindFlags m_findFlags;
+    void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay);
+    QTimer m_delayedUpdateTimer;
+
+    BaseTextEditor *m_editor;
+
+    QList<QTextEdit::ExtraSelection> m_extraSelections[BaseTextEditorWidget::NExtraSelectionKinds];
+
+    // block selection mode
+    bool m_inBlockSelectionMode;
+    QString copyBlockSelection();
+    void insertIntoBlockSelection(const QString &text = QString());
+    void setCursorToColumn(QTextCursor &cursor, int column,
+                          QTextCursor::MoveMode moveMode = QTextCursor::MoveAnchor);
+    void removeBlockSelection();
+    void enableBlockSelection(const QTextCursor &cursor);
+    void enableBlockSelection(int positionBlock, int positionColumn,
+                              int anchorBlock, int anchorColumn);
+    void disableBlockSelection(bool keepSelection = true);
+    void resetCursorFlashTimer();
+    QBasicTimer m_cursorFlashTimer;
+    bool m_cursorVisible;
+    bool m_moveLineUndoHack;
+
+    QTextCursor m_findScopeStart;
+    QTextCursor m_findScopeEnd;
+    int m_findScopeVerticalBlockSelectionFirstColumn;
+    int m_findScopeVerticalBlockSelectionLastColumn;
+
+    QTextCursor m_selectBlockAnchor;
+
+    Internal::BaseTextBlockSelection m_blockSelection;
+
+    void moveCursorVisible(bool ensureVisible = true);
+
+    int visualIndent(const QTextBlock &block) const;
+    BaseTextEditorPrivateHighlightBlocks m_highlightBlocksInfo;
+    QTimer m_highlightBlocksTimer;
+
+    QScopedPointer<CodeAssistant> m_codeAssistant;
+    bool m_assistRelevantContentAdded;
+
+    QPointer<BaseTextEditorAnimator> m_animator;
+    int m_cursorBlockNumber;
+    int m_blockCount;
+
+    QPoint m_markDragStart;
+    bool m_markDragging;
+
+    QScopedPointer<AutoCompleter> m_autoCompleter;
+
+    QScopedPointer<Internal::ClipboardAssistProvider> m_clipboardAssistProvider;
+};
+
 class TextEditExtraArea : public QWidget
 {
 public:
@@ -2059,28 +2229,28 @@ void BaseTextEditorWidget::gotoLine(int line, int column, bool centerLine)
     saveCurrentCursorPositionForNavigation();
 }
 
-int BaseTextEditorWidget::position(ITextEditor::PositionOperation posOp, int at) const
+int BaseTextEditorWidget::position(BaseTextEditor::PositionOperation posOp, int at) const
 {
     QTextCursor tc = textCursor();
 
     if (at != -1)
         tc.setPosition(at);
 
-    if (posOp == ITextEditor::Current)
+    if (posOp == BaseTextEditor::Current)
         return tc.position();
 
     switch (posOp) {
-    case ITextEditor::EndOfLine:
+    case BaseTextEditor::EndOfLine:
         tc.movePosition(QTextCursor::EndOfLine);
         return tc.position();
-    case ITextEditor::StartOfLine:
+    case BaseTextEditor::StartOfLine:
         tc.movePosition(QTextCursor::StartOfLine);
         return tc.position();
-    case ITextEditor::Anchor:
+    case BaseTextEditor::Anchor:
         if (tc.hasSelection())
             return tc.anchor();
         break;
-    case ITextEditor::EndOfDoc:
+    case BaseTextEditor::EndOfDoc:
         tc.movePosition(QTextCursor::End);
         return tc.position();
     default:
@@ -4673,11 +4843,11 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
                 }
             }
             int line = n + 1;
-            ITextEditor::MarkRequestKind kind;
+            BaseTextEditor::MarkRequestKind kind;
             if (QApplication::keyboardModifiers() & Qt::ShiftModifier)
-                kind = ITextEditor::BookmarkRequest;
+                kind = BaseTextEditor::BookmarkRequest;
             else
-                kind = ITextEditor::BreakpointRequest;
+                kind = BaseTextEditor::BreakpointRequest;
 
             emit editor()->markRequested(editor(), line, kind);
         }
@@ -6202,6 +6372,16 @@ BaseTextEditor::~BaseTextEditor()
     delete m_editorWidget;
 }
 
+BaseTextDocument *BaseTextEditor::baseTextDocument()
+{
+    return m_editorWidget->baseTextDocument();
+}
+
+IDocument *BaseTextEditor::document()
+{
+    return m_editorWidget->baseTextDocument();
+}
+
 QWidget *BaseTextEditor::toolBar()
 {
     return m_toolBar;
@@ -6233,6 +6413,11 @@ int BaseTextEditor::currentColumn() const
     return cursor.position() - cursor.block().position() + 1;
 }
 
+void BaseTextEditor::gotoLine(int line, int column, bool centerLine)
+{
+    m_editorWidget->gotoLine(line, column, centerLine);
+}
+
 int BaseTextEditor::columnCount() const
 {
     return m_editorWidget->columnCount();
@@ -6241,6 +6426,16 @@ int BaseTextEditor::columnCount() const
 int BaseTextEditor::rowCount() const
 {
     return m_editorWidget->rowCount();
+}
+
+int BaseTextEditor::position(BaseTextEditor::PositionOperation posOp, int at) const
+{
+    return m_editorWidget->position(posOp, at);
+}
+
+void BaseTextEditor::convertPosition(int pos, int *line, int *column) const
+{
+    m_editorWidget->convertPosition(pos, line, column);
 }
 
 QRect BaseTextEditor::cursorRect(int pos) const
@@ -6644,4 +6839,16 @@ bool BaseTextEditor::open(QString *errorString, const QString &fileName, const Q
     return m_editorWidget->open(errorString, fileName, realFileName);
 }
 
+QByteArray BaseTextEditor::saveState() const
+{
+    return m_editorWidget->saveState();
+}
+
+bool BaseTextEditor::restoreState(const QByteArray &state)
+{
+    return m_editorWidget->restoreState(state);
+}
+
 } // namespace TextEditor
+
+#include "basetexteditor.moc"

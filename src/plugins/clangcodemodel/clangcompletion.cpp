@@ -509,7 +509,7 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
     }
 
     // Avoid inserting characters that are already there
-    const int endsPosition = editor->position(TextEditor::ITextEditor::EndOfLine);
+    const int endsPosition = editor->position(TextEditor::BaseTextEditor::EndOfLine);
     const QString existingText = editor->textDocument()->textAt(editor->position(),
                                                                 endsPosition - editor->position());
     int existLength = 0;

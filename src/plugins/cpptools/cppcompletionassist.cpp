@@ -305,7 +305,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
 
     // Determine the length of characters that should just be kept on the editor, but do
     // not consider content that ends as an identifier (which could be undesired).
-    const int lineEnd = editor->position(TextEditor::ITextEditor::EndOfLine);
+    const int lineEnd = editor->position(TextEditor::BaseTextEditor::EndOfLine);
     const QString inEditor = editor->textDocument()->textAt(editor->position(),
                                                             lineEnd - editor->position());
     int preserveLength = 0;

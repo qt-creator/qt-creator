@@ -45,7 +45,7 @@ class QMessageBox;
 class QAbstractItemModel;
 QT_END_NAMESPACE
 
-namespace TextEditor { class ITextEditor; }
+namespace TextEditor { class BaseTextEditor; }
 namespace Core { class IOptionsPage; }
 
 namespace Debugger {
@@ -143,7 +143,7 @@ public:
     const DebuggerStartParameters &startParameters() const;
     DebuggerStartParameters &startParameters();
 
-    virtual bool setToolTipExpression(TextEditor::ITextEditor *editor,
+    virtual bool setToolTipExpression(TextEditor::BaseTextEditor *editor,
         const Internal::DebuggerToolTipContext &);
 
     virtual void updateWatchData(const Internal::WatchData &data,

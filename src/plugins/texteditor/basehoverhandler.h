@@ -44,7 +44,7 @@ namespace Core { class IEditor; }
 
 namespace TextEditor {
 
-class ITextEditor;
+class BaseTextEditor;
 class BaseTextEditorWidget;
 
 class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
@@ -57,8 +57,8 @@ public:
 
 private slots:
     void editorOpened(Core::IEditor *editor);
-    void showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos);
-    void updateContextHelpId(TextEditor::ITextEditor *editor, int pos);
+    void showToolTip(TextEditor::BaseTextEditor *editor, const QPoint &point, int pos);
+    void updateContextHelpId(TextEditor::BaseTextEditor *editor, int pos);
 
 protected:
     void setToolTip(const QString &tooltip);
@@ -75,12 +75,12 @@ protected:
 
 private:
     void clear();
-    void process(ITextEditor *editor, int pos);
+    void process(BaseTextEditor *editor, int pos);
 
     virtual bool acceptEditor(Core::IEditor *editor) = 0;
-    virtual void identifyMatch(ITextEditor *editor, int pos) = 0;
+    virtual void identifyMatch(BaseTextEditor *editor, int pos) = 0;
     virtual void decorateToolTip();
-    virtual void operateTooltip(ITextEditor *editor, const QPoint &point);
+    virtual void operateTooltip(BaseTextEditor *editor, const QPoint &point);
 
     bool m_diagnosticTooltip;
     QString m_toolTip;

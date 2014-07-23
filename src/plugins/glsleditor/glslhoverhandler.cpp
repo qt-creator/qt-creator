@@ -35,7 +35,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
 #include <QTextCursor>
@@ -58,7 +57,7 @@ bool GLSLHoverHandler::acceptEditor(IEditor *editor)
     return false;
 }
 
-void GLSLHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
+void GLSLHoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
 {
     if (GLSLTextEditorWidget *glslEditor = qobject_cast<GLSLTextEditorWidget *>(editor->widget())) {
         if (! glslEditor->extraSelectionTooltip(pos).isEmpty())

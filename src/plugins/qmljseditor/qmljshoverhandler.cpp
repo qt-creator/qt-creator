@@ -45,7 +45,6 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsqrcparser.h>
-#include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/helpitem.h>
 #include <utils/tooltip/tooltip.h>
@@ -184,7 +183,7 @@ bool HoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::
     return true;
 }
 
-void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
+void HoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
 {
     reset();
 
@@ -377,7 +376,7 @@ void HoverHandler::reset()
     m_colorTip = QColor();
 }
 
-void HoverHandler::operateTooltip(TextEditor::ITextEditor *editor, const QPoint &point)
+void HoverHandler::operateTooltip(TextEditor::BaseTextEditor *editor, const QPoint &point)
 {
     if (toolTip().isEmpty())
         Utils::ToolTip::hide();

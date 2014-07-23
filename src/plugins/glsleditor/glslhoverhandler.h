@@ -36,7 +36,7 @@
 
 namespace Core { class IEditor; }
 
-namespace TextEditor { class ITextEditor; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace GLSLEditor {
 namespace Internal {
@@ -50,7 +50,7 @@ public:
 
 private:
     virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
+    virtual void identifyMatch(TextEditor::BaseTextEditor *editor, int pos);
     virtual void decorateToolTip();
 };
 

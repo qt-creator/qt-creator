@@ -51,7 +51,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -341,7 +341,7 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber,
         return;
 
     IEditor *editor = EditorManager::openEditor(projectFileName);
-    TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
+    TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor);
 
     if (textEditor) {
         EditorManager::addCurrentPositionToNavigationHistory();

@@ -41,7 +41,7 @@ QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
 
-namespace TextEditor { class ITextEditor; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace QmlJS {
 class ScopeChain;
@@ -67,8 +67,8 @@ private:
     void reset();
 
     virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
-    virtual void operateTooltip(TextEditor::ITextEditor *editor, const QPoint &point);
+    virtual void identifyMatch(TextEditor::BaseTextEditor *editor, int pos);
+    virtual void operateTooltip(TextEditor::BaseTextEditor *editor, const QPoint &point);
 
     bool matchDiagnosticMessage(QmlJSTextEditorWidget *qmlEditor, int pos);
     bool matchColorItem(const QmlJS::ScopeChain &lookupContext,

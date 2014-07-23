@@ -93,7 +93,7 @@ public:
     void setEditor(Core::IEditor *editor);
     Core::IEditor *editor() const;
 
-    TextEditor::ITextEditor *textEditor() const;
+    TextEditor::BaseTextEditor *textEditor() const;
     QPlainTextEdit *plainTextEdit() const;
     QString fileName() const;
     ProjectExplorer::Kit *currentKit() const;

@@ -99,7 +99,7 @@ public:
     void readSettings();
     void saveSettings();
 
-    TextEditor::ITextEditor *textEditor() const;
+    TextEditor::BaseTextEditor *textEditor() const;
 
     DesignDocument *currentDesignDocument() const;
     ViewManager &viewManager();

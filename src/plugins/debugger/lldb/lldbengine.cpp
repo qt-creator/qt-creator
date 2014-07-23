@@ -54,7 +54,7 @@
 #include <utils/savedaction.h>
 #include <utils/qtcprocess.h>
 
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
@@ -837,7 +837,7 @@ void LldbEngine::resetLocation()
     DebuggerEngine::resetLocation();
 }
 
-bool LldbEngine::setToolTipExpression(TextEditor::ITextEditor *editor, const DebuggerToolTipContext &context)
+bool LldbEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor, const DebuggerToolTipContext &context)
 {
     if (state() != InferiorStopOk || !isCppEditor(editor)) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "

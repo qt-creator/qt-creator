@@ -40,7 +40,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <QtPlugin>
@@ -152,32 +152,32 @@ void BookmarksPlugin::updateActions(int state)
 
 void BookmarksPlugin::editorOpened(Core::IEditor *editor)
 {
-    if (qobject_cast<ITextEditor *>(editor)) {
-        connect(editor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
-                this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+    if (qobject_cast<BaseTextEditor *>(editor)) {
+        connect(editor, SIGNAL(markContextMenuRequested(TextEditor::BaseTextEditor*,int,QMenu*)),
+                this, SLOT(requestContextMenu(TextEditor::BaseTextEditor*,int,QMenu*)));
 
         connect(editor,
-                SIGNAL(markRequested(TextEditor::ITextEditor*,int,
-                                     TextEditor::ITextEditor::MarkRequestKind)),
+                SIGNAL(markRequested(TextEditor::BaseTextEditor*,int,
+                                     TextEditor::BaseTextEditor::MarkRequestKind)),
                 m_bookmarkManager,
-                SLOT(handleBookmarkRequest(TextEditor::ITextEditor*,int,
-                                           TextEditor::ITextEditor::MarkRequestKind)));
+                SLOT(handleBookmarkRequest(TextEditor::BaseTextEditor*,int,
+                                           TextEditor::BaseTextEditor::MarkRequestKind)));
         connect(editor,
-                SIGNAL(markTooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
+                SIGNAL(markTooltipRequested(TextEditor::BaseTextEditor*,QPoint,int)),
                 m_bookmarkManager,
-                SLOT(handleBookmarkTooltipRequest(TextEditor::ITextEditor*,QPoint,int)));
+                SLOT(handleBookmarkTooltipRequest(TextEditor::BaseTextEditor*,QPoint,int)));
     }
 }
 
 void BookmarksPlugin::editorAboutToClose(Core::IEditor *editor)
 {
-    if (qobject_cast<ITextEditor *>(editor)) {
-        disconnect(editor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
-                this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+    if (qobject_cast<BaseTextEditor *>(editor)) {
+        disconnect(editor, SIGNAL(markContextMenuRequested(TextEditor::BaseTextEditor*,int,QMenu*)),
+                this, SLOT(requestContextMenu(TextEditor::BaseTextEditor*,int,QMenu*)));
     }
 }
 
-void BookmarksPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
+void BookmarksPlugin::requestContextMenu(TextEditor::BaseTextEditor *editor,
     int lineNumber, QMenu *menu)
 {
     // Don't set bookmarks in disassembler views.

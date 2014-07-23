@@ -323,7 +323,7 @@ bool isCppEditor(Core::IEditor *editor)
 }
 
 // Return the Cpp expression, and, if desired, the function
-QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
+QString cppExpressionAt(TextEditor::BaseTextEditor *editor, int pos,
                         int *line, int *column, QString *function /* = 0 */)
 {
     using namespace CppTools;

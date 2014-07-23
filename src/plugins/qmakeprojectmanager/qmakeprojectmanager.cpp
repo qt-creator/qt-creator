@@ -157,7 +157,7 @@ void QmakeManager::addLibrary(const QString &fileName, ProFileEditor *editor)
     if (!editor)
         return;
 
-    const int endOfDoc = editor->position(TextEditor::ITextEditor::EndOfDoc);
+    const int endOfDoc = editor->position(TextEditor::BaseTextEditor::EndOfDoc);
     editor->setCursorPosition(endOfDoc);
     QString snippet = wizard.snippet();
 

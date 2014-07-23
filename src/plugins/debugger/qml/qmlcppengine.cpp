@@ -35,7 +35,7 @@
 #include <debugger/watchhandler.h>
 
 #include <utils/qtcassert.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <qmljs/consolemanagerinterface.h>
@@ -89,7 +89,7 @@ bool QmlCppEngine::canDisplayTooltip() const
     return m_cppEngine->canDisplayTooltip() || m_qmlEngine->canDisplayTooltip();
 }
 
-bool QmlCppEngine::setToolTipExpression(TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
+bool QmlCppEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor, const DebuggerToolTipContext &ctx)
 {
     QTC_ASSERT(editor, return false);
     bool success = false;

@@ -690,7 +690,7 @@ bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorM
 
 static bool currentTextEditorPosition(ContextData *data)
 {
-    ITextEditor *textEditor = ITextEditor::currentTextEditor();
+    BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
     if (!textEditor)
         return false;
     const IDocument *document = textEditor->document();
@@ -864,10 +864,10 @@ public slots:
     void editorOpened(Core::IEditor *editor);
     void updateBreakMenuItem(Core::IEditor *editor);
     void setBusyCursor(bool busy);
-    void requestMark(TextEditor::ITextEditor *editor,
+    void requestMark(TextEditor::BaseTextEditor *editor,
                      int lineNumber,
-                     TextEditor::ITextEditor::MarkRequestKind kind);
-    void requestContextMenu(TextEditor::ITextEditor *editor,
+                     TextEditor::BaseTextEditor::MarkRequestKind kind);
+    void requestContextMenu(TextEditor::BaseTextEditor *editor,
         int lineNumber, QMenu *menu);
 
     void activatePreviousMode();
@@ -1060,11 +1060,10 @@ public slots:
 
     void handleExecRunToSelectedFunction()
     {
-        ITextEditor *textEditor = ITextEditor::currentTextEditor();
+        BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
         QTC_ASSERT(textEditor, return);
-        QPlainTextEdit *ed = qobject_cast<QPlainTextEdit*>(textEditor->widget());
-        if (!ed)
-            return;
+        QPlainTextEdit *ed = textEditor->editorWidget();
+        QTC_ASSERT(ed, return);
         QTextCursor cursor = ed->textCursor();
         QString functionName = cursor.selectedText();
         if (functionName.isEmpty()) {
@@ -1132,15 +1131,10 @@ public slots:
     {
         // Requires a selection, but that's the only case we want anyway.
         IEditor *editor = EditorManager::currentEditor();
-        if (!editor)
-            return;
-        ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
+        BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor);
         if (!textEditor)
             return;
-        QTextCursor tc;
-        QPlainTextEdit *ptEdit = qobject_cast<QPlainTextEdit*>(editor->widget());
-        if (ptEdit)
-            tc = ptEdit->textCursor();
+        QTextCursor tc = textEditor->editorWidget()->textCursor();
         QString exp;
         if (tc.hasSelection()) {
             exp = tc.selectedText();
@@ -1900,24 +1894,24 @@ void DebuggerPluginPrivate::runScheduled()
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
 {
-    ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
+    BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor);
     if (!textEditor)
         return;
     connect(textEditor,
-        SIGNAL(markRequested(TextEditor::ITextEditor*,int,TextEditor::ITextEditor::MarkRequestKind)),
-        SLOT(requestMark(TextEditor::ITextEditor*,int,TextEditor::ITextEditor::MarkRequestKind)));
+        SIGNAL(markRequested(TextEditor::BaseTextEditor*,int,TextEditor::BaseTextEditor::MarkRequestKind)),
+        SLOT(requestMark(TextEditor::BaseTextEditor*,int,TextEditor::BaseTextEditor::MarkRequestKind)));
     connect(textEditor,
-        SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
-        SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
+        SIGNAL(markContextMenuRequested(TextEditor::BaseTextEditor*,int,QMenu*)),
+        SLOT(requestContextMenu(TextEditor::BaseTextEditor*,int,QMenu*)));
 }
 
 void DebuggerPluginPrivate::updateBreakMenuItem(IEditor *editor)
 {
-    ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
+    BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor);
     m_breakAction->setEnabled(textEditor != 0);
 }
 
-void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
+void DebuggerPluginPrivate::requestContextMenu(BaseTextEditor *editor,
     int lineNumber, QMenu *menu)
 {
     BreakpointMenuContextData args;
@@ -1925,7 +1919,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     bool contextUsable = true;
 
     BreakpointModelId id = BreakpointModelId();
-    ITextEditorDocument *document = editor->textDocument();
+    BaseTextEditorDocument *document = editor->textDocument();
     args.fileName = document->filePath();
     if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
         QString line = document->plainText()
@@ -2037,7 +2031,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
 
 void DebuggerPluginPrivate::toggleBreakpoint()
 {
-    ITextEditor *textEditor = ITextEditor::currentTextEditor();
+    BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
     QTC_ASSERT(textEditor, return);
     const int lineNumber = textEditor->currentLine();
     if (textEditor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
@@ -2090,11 +2084,11 @@ void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address,
     }
 }
 
-void DebuggerPluginPrivate::requestMark(ITextEditor *editor,
+void DebuggerPluginPrivate::requestMark(BaseTextEditor *editor,
                                         int lineNumber,
-                                        ITextEditor::MarkRequestKind kind)
+                                        BaseTextEditor::MarkRequestKind kind)
 {
-    if (kind != ITextEditor::BreakpointRequest)
+    if (kind != BaseTextEditor::BreakpointRequest)
         return;
 
     if (IDocument *document = editor->document()) {

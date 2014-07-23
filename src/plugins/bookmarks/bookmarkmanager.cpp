@@ -39,7 +39,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>
@@ -410,7 +410,7 @@ QVariant BookmarkManager::data(const QModelIndex &index, int role) const
 
 void BookmarkManager::toggleBookmark()
 {
-    ITextEditor *editor = ITextEditor::currentTextEditor();
+    BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
     if (!editor)
         return;
 
@@ -524,7 +524,7 @@ void BookmarkManager::prevInDocument()
 
 void BookmarkManager::documentPrevNext(bool next)
 {
-    ITextEditor *editor = ITextEditor::currentTextEditor();
+    BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
     int editorLine = editor->currentLine();
     QFileInfo fi(editor->document()->filePath());
     if (!m_bookmarksMap.contains(fi.path()))
@@ -613,7 +613,7 @@ BookmarkManager::State BookmarkManager::state() const
     if (m_bookmarksMap.empty())
         return NoBookMarks;
 
-    ITextEditor *editor = ITextEditor::currentTextEditor();
+    BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
     if (!editor)
         return HasBookMarks;
 
@@ -795,7 +795,7 @@ void BookmarkManager::saveBookmarks()
     SessionManager::setValue(QLatin1String("Bookmarks"), list);
 }
 
-void BookmarkManager::operateTooltip(ITextEditor *textEditor, const QPoint &pos, Bookmark *mark)
+void BookmarkManager::operateTooltip(BaseTextEditor *textEditor, const QPoint &pos, Bookmark *mark)
 {
     if (!mark)
         return;
@@ -817,15 +817,15 @@ void BookmarkManager::loadBookmarks()
     updateActionStatus();
 }
 
-void BookmarkManager::handleBookmarkRequest(ITextEditor *textEditor,
+void BookmarkManager::handleBookmarkRequest(BaseTextEditor *textEditor,
                                             int line,
-                                            ITextEditor::MarkRequestKind kind)
+                                            BaseTextEditor::MarkRequestKind kind)
 {
-    if (kind == ITextEditor::BookmarkRequest && textEditor->document())
+    if (kind == BaseTextEditor::BookmarkRequest && textEditor->document())
         toggleBookmark(textEditor->document()->filePath(), line);
 }
 
-void BookmarkManager::handleBookmarkTooltipRequest(ITextEditor *textEditor, const QPoint &pos,
+void BookmarkManager::handleBookmarkTooltipRequest(BaseTextEditor *textEditor, const QPoint &pos,
                                             int line)
 {
     if (textEditor->document()) {
