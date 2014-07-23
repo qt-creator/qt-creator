@@ -47,7 +47,7 @@ public:
 
     template<class T> static T *buildStep(const ProjectExplorer::BuildConfiguration *dc)
     {
-        for (const Core::Id &id : dc->knownStepLists()) {
+        foreach (const Core::Id &id, dc->knownStepLists()) {
             ProjectExplorer::BuildStepList *bsl = dc->stepList(id);
             if (!bsl)
                 return 0;
