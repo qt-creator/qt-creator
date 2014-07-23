@@ -42,7 +42,7 @@
     between the filename and line number. You can also use a space between the
     separator and the line number.
 
-    For example:
+    For example, on Windows:
 
     \list
 
@@ -51,6 +51,14 @@
         \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100}
 
         \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100}
+
+    \endlist
+
+    On OS X:
+
+    \list
+
+        \li \c {Qt Creator.app/Contents/MacOS/Qt Creator -help}
 
     \endlist
 
@@ -89,6 +97,16 @@
             \li  Attempt to connect to an already running instance of \QC.
 
        \row
+            \li -pid
+            \li Attempt to connect to an already running instance of \QC with
+                the specified process ID.
+
+        \row
+            \li -block
+            \li Open files in editors in a running \QC instance and block the
+                command line until the first editor is closed.
+
+       \row
             \li -load <plugin>
             \li Load the specified plugin.
 
@@ -112,6 +130,11 @@
         \row
             \li  -color <color>
             \li  Core plugin: override the selected UI color.
+
+       \row
+            \li -presentationMode
+            \li  Core plugin: display keyboard shortcuts as popups when you
+                 press them. Mostly useful when presenting \QC to someone else.
 
         \row
             \li  -debug <pid>
@@ -146,9 +169,9 @@
                  and sysroots.
 
         \row
-            \li  -wincrashevent <event-handle>
+            \li  -wincrashevent <event-handle:pid>
             \li  Debugger plugin: Attach to crashed processes by using the specified
-            event handle.
+                 event handle and process ID.
 
         \row
             \li  -customwizard-verbose
@@ -162,10 +185,6 @@
             Open the projects and files that were open when you last exited \QC.
             For more information about managing sessions, see \l{Managing Sessions}.
 
-        \row
-            \li -block
-            \li Open files in editors in a running \QC instance and block the
-                command line until the first editor is closed.
     \endtable
 
     \section1 Using Custom Styles
