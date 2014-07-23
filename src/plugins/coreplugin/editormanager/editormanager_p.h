@@ -37,6 +37,8 @@
 #include "idocument.h"
 #include "ieditor.h"
 
+#include <coreplugin/idocument.h>
+
 #include <QList>
 #include <QObject>
 #include <QPointer>
