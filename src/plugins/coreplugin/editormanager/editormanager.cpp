@@ -1858,6 +1858,8 @@ bool EditorManager::saveDocumentAs(IDocument *documentParam)
     const QString filter = MimeDatabase::allFiltersString();
     QString selectedFilter =
         MimeDatabase::findByFile(QFileInfo(document->filePath())).filterString();
+    if (selectedFilter.isEmpty())
+        selectedFilter = MimeDatabase::findByType(document->mimeType()).filterString();
     const QString &absoluteFilePath =
         DocumentManager::getSaveAsFileName(document, filter, &selectedFilter);
 
