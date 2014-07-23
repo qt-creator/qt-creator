@@ -70,7 +70,7 @@ public:
 
     // Dockwidgets are registered to the main window.
     static QDockWidget *createDockWidget(IAnalyzerTool *tool,
-        QWidget *widget, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
+        QWidget *widget, Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
 
     static Utils::FancyMainWindow *mainWindow();
 

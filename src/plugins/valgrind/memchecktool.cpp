@@ -366,8 +366,7 @@ QWidget *MemcheckTool::createWidgets()
     m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
-    QDockWidget *errorDock = AnalyzerManager::createDockWidget
-        (this, m_errorView, Qt::BottomDockWidgetArea);
+    QDockWidget *errorDock = AnalyzerManager::createDockWidget(this, m_errorView);
     errorDock->show();
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 

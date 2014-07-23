@@ -642,15 +642,9 @@ QWidget *CallgrindToolPrivate::createWidgets()
 
     updateCostFormat();
 
-    QDockWidget *callersDock = AnalyzerManager::createDockWidget
-        (q, m_callersView, Qt::BottomDockWidgetArea);
-
-    QDockWidget *flatDock = AnalyzerManager::createDockWidget
-        (q, m_flatView, Qt::BottomDockWidgetArea);
-
-    QDockWidget *calleesDock = AnalyzerManager::createDockWidget
-        (q, m_calleesView, Qt::BottomDockWidgetArea);
-
+    QDockWidget *callersDock = AnalyzerManager::createDockWidget(q, m_callersView);
+    QDockWidget *flatDock = AnalyzerManager::createDockWidget(q, m_flatView);
+    QDockWidget *calleesDock = AnalyzerManager::createDockWidget(q, m_calleesView);
     QDockWidget *visualizationDock = AnalyzerManager::createDockWidget
         (q, m_visualisation, Qt::RightDockWidgetArea);
 
