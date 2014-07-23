@@ -38,6 +38,8 @@
 #include <QIcon>
 #include <QWidget>
 
+#include <functional>
+
 namespace ProjectExplorer {
 class Project;
 class Target;
