@@ -178,9 +178,10 @@ void LinuxDeviceDebugSupport::startExecution()
         command = device()->debugServerPath();
         if (command.isEmpty())
             command = QLatin1String("gdbserver");
-        args.prepend(QString::fromLatin1(":%1").arg(d->gdbServerPort));
-        args.prepend(QString::fromLatin1("--multi"));
-        args.prepend(QString::fromLatin1("--once"));
+        args.clear();
+        args.append(QString::fromLatin1("--once"));
+        args.append(QString::fromLatin1("--multi"));
+        args.append(QString::fromLatin1(":%1").arg(d->gdbServerPort));
     }
 
     connect(runner, SIGNAL(finished(bool)), SLOT(handleAppRunnerFinished(bool)));
