@@ -30,6 +30,7 @@
 #include "editorwindow.h"
 
 #include "editorarea.h"
+#include "editormanager_p.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -55,11 +56,20 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
     static int windowId = 0;
     ICore::registerWindow(this, Context(Id("EditorManager.ExternalWindow.").withSuffix(++windowId)));
+
+    connect(m_area, &EditorArea::windowTitleNeedsUpdate,
+            this, &EditorWindow::updateWindowTitle);
+    updateWindowTitle();
 }
 
 EditorArea *EditorWindow::editorArea() const
 {
     return m_area;
+}
+
+void EditorWindow::updateWindowTitle()
+{
+    EditorManagerPrivate::updateWindowTitleForDocument(m_area->currentDocument(), this);
 }
 
 } // Internal

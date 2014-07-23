@@ -46,6 +46,8 @@ public:
     EditorArea *editorArea() const;
 
 private:
+    void updateWindowTitle();
+
     EditorArea *m_area;
 };
 

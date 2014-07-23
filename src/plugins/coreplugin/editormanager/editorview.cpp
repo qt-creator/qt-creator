@@ -359,6 +359,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
         m_toolBar->setCurrentEditor(0);
         m_infoBarDisplay->setInfoBar(0);
         m_container->setCurrentIndex(0);
+        emit currentEditorChanged(0);
         return;
     }
 
@@ -373,6 +374,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
     updateEditorHistory(editor);
 
     m_infoBarDisplay->setInfoBar(editor->document()->infoBar());
+    emit currentEditorChanged(editor);
 }
 
 int EditorView::editorCount() const

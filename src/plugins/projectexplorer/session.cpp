@@ -100,6 +100,8 @@ public:
     void dependencies(const QString &proName, QStringList &result) const;
 
 public:
+    static QString windowTitleAddition(const QString &filePath);
+
     SessionNode *m_sessionNode;
     QString m_sessionName;
     bool m_virginSession;
@@ -134,12 +136,18 @@ SessionManager::SessionManager(QObject *parent)
 
     connect(EditorManager::instance(), SIGNAL(editorCreated(Core::IEditor*,QString)),
             this, SLOT(configureEditor(Core::IEditor*,QString)));
-    connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(updateWindowTitle()));
+    connect(this, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            EditorManager::instance(), SLOT(updateWindowTitles()));
+    connect(this, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            EditorManager::instance(), SLOT(updateWindowTitles()));
+    connect(this, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
+            EditorManager::instance(), SLOT(updateWindowTitles()));
     connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
             this, SLOT(markSessionFileDirty()));
     connect(EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(markSessionFileDirty()));
+
+    EditorManager::setWindowTitleAdditionHandler(&SessionManagerPrivate::windowTitleAddition);
 }
 
 SessionManager::~SessionManager()
@@ -444,6 +452,28 @@ void SessionManagerPrivate::dependencies(const QString &proName, QStringList &re
         result.append(proName);
 }
 
+QString SessionManagerPrivate::windowTitleAddition(const QString &filePath)
+{
+    if (SessionManager::isDefaultSession(d->m_sessionName)) {
+        if (filePath.isEmpty()) {
+            // use single project's name if there is only one loaded.
+            const QList<ProjectExplorer::Project *> projects = ProjectExplorer::SessionManager::projects();
+            if (projects.size() == 1)
+                return projects.first()->displayName();
+            return QString();
+        } else if (Project *project = SessionManager::projectForFile(filePath)) {
+            return project->displayName();
+        } else {
+            return QString();
+        }
+    } else {
+        QString sessionName = d->m_sessionName;
+        if (sessionName.isEmpty())
+            sessionName = SessionManager::tr("Untitled");
+        return sessionName;
+    }
+}
+
 QStringList SessionManagerPrivate::dependenciesOrder() const
 {
     QList<QPair<QString, QStringList> > unordered;
@@ -577,21 +607,6 @@ void SessionManager::configureEditor(Core::IEditor *editor, const QString &fileN
         // Global settings are the default.
         if (project)
             project->editorConfiguration()->configureEditor(textEditor);
-    }
-}
-
-void SessionManager::updateWindowTitle()
-{
-    if (isDefaultSession(d->m_sessionName)) {
-        if (Project *currentProject = ProjectExplorerPlugin::currentProject())
-            EditorManager::setWindowTitleAddition(currentProject->displayName());
-        else
-            EditorManager::setWindowTitleAddition(QString());
-    } else {
-        QString sessionName = d->m_sessionName;
-        if (sessionName.isEmpty())
-            sessionName = tr("Untitled");
-        EditorManager::setWindowTitleAddition(sessionName);
     }
 }
 
@@ -901,7 +916,7 @@ bool SessionManager::loadSession(const QString &session)
     d->m_values.clear();
 
     d->m_sessionName = session;
-    updateWindowTitle();
+    EditorManager::updateWindowTitles();
 
     if (fileName.toFileInfo().exists()) {
         d->m_virginSession = false;

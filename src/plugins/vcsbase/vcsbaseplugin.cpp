@@ -43,6 +43,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
@@ -196,6 +197,8 @@ class StateListener : public QObject
 public:
     explicit StateListener(QObject *parent);
 
+    static QString windowTitleVcsTopic(const QString &filePath);
+
 signals:
     void stateChanged(const VcsBase::Internal::State &s, Core::IVersionControl *vc);
 
@@ -216,6 +219,27 @@ StateListener::StateListener(QObject *parent) :
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
             SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(slotStateChanged()));
+
+    Core::EditorManager::setWindowTitleVcsTopicHandler(&StateListener::windowTitleVcsTopic);
+}
+
+QString StateListener::windowTitleVcsTopic(const QString &filePath)
+{
+    QString searchPath;
+    if (!filePath.isEmpty()) {
+        searchPath = filePath;
+    } else {
+        // use single project's information if there is only one loaded.
+        const QList<ProjectExplorer::Project *> projects = ProjectExplorer::SessionManager::projects();
+        if (projects.size() == 1)
+            searchPath = projects.first()->projectDirectory().toString();
+    }
+    if (searchPath.isEmpty())
+        return QString();
+    QString topLevelPath;
+    Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(
+                searchPath, &topLevelPath);
+    return (vc && !topLevelPath.isEmpty()) ? vc->vcsTopic(topLevelPath) : QString();
 }
 
 static inline QString displayNameOfEditor(const QString &fileName)
@@ -300,12 +324,11 @@ void StateListener::slotStateChanged()
     Core::IVersionControl *vc = fileControl;
     if (!vc)
         vc = projectControl;
-    if (!vc) {
+    if (!vc)
         state.clearPatchFile(); // Need a repository to patch
-        Core::EditorManager::setWindowTitleVcsTopic(QString());
-    }
     if (debug)
         qDebug() << state << (vc ? vc->displayName() : QLatin1String("No version control"));
+    Core::EditorManager::updateWindowTitles();
     emit stateChanged(state, vc);
 }
 
@@ -586,7 +609,6 @@ void VcsBasePlugin::slotStateChanged(const VcsBase::Internal::State &newInternal
             d->m_state.setState(newInternalState);
             updateActions(VcsEnabled);
         }
-        Core::EditorManager::setWindowTitleVcsTopic(vc->vcsTopic(d->m_state.topLevel()));
     } else {
         // Some other VCS plugin or state changed: Reset us to empty state.
         const ActionState newActionState = vc ? OtherVcsEnabled : NoVcsEnabled;

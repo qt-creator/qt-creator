@@ -103,6 +103,9 @@ public:
 
     static void updateEditorHistory(IEditor *editor, QList<EditLocation> &history);
 
+signals:
+    void currentEditorChanged(Core::IEditor *editor);
+
 protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *e);

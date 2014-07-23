@@ -67,7 +67,7 @@ class EditorManagerPrivate : public QObject
     friend class Core::EditorManager;
 
 public:
-    static QWidget *mainEditorArea();
+    static EditorArea *mainEditorArea();
     static EditorView *currentEditorView();
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     static IEditor *openEditor(EditorView *view,
@@ -104,6 +104,8 @@ public:
     static void emptyView(Internal::EditorView *view);
 
     static void updateActions();
+
+    static void updateWindowTitleForDocument(IDocument *document, QWidget *window);
 
 public slots:
     static bool saveDocument(Core::IDocument *document);
@@ -217,8 +219,8 @@ private:
 
     IDocument::ReloadSetting m_reloadSetting;
 
-    QString m_titleAddition;
-    QString m_titleVcsTopic;
+    EditorManager::WindowTitleHandler m_titleAdditionHandler;
+    EditorManager::WindowTitleHandler m_titleVcsTopicHandler;
 
     bool m_autoSaveEnabled;
     int m_autoSaveInterval;

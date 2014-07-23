@@ -41,6 +41,8 @@
 #include <QWidget>
 #include <QMenu>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 QT_END_NAMESPACE
 
@@ -93,6 +95,7 @@ class CORE_EXPORT EditorManager : public QObject
 public:
     typedef QList<IEditorFactory *> EditorFactoryList;
     typedef QList<IExternalEditor *> ExternalEditorList;
+    typedef std::function<QString (const QString &)> WindowTitleHandler;
 
     static EditorManager *instance();
 
@@ -160,11 +163,8 @@ public:
 
     static qint64 maxTextFileSize();
 
-    static void setWindowTitleAddition(const QString &addition);
-    static QString windowTitleAddition();
-
-    static void setWindowTitleVcsTopic(const QString &topic);
-    static QString windowTitleVcsTopic();
+    static void setWindowTitleAdditionHandler(WindowTitleHandler handler);
+    static void setWindowTitleVcsTopicHandler(WindowTitleHandler handler);
 
     static void addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
@@ -189,6 +189,7 @@ public slots:
     static void gotoOtherSplit();
     static void goBackInNavigationHistory();
     static void goForwardInNavigationHistory();
+    static void updateWindowTitles();
 
 private:
     explicit EditorManager(QObject *parent);

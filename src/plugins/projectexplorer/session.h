@@ -144,7 +144,6 @@ private slots:
     static void saveActiveMode(Core::IMode *mode);
     static void clearProjectFileCache();
     static void configureEditor(Core::IEditor *editor, const QString &fileName);
-    static void updateWindowTitle();
     static void markSessionFileDirty(bool makeDefaultVirginDirty = true);
     static void projectDisplayNameChanged();
 };

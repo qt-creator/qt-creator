@@ -451,6 +451,8 @@ void EditorManagerPrivate::init()
     // other setup
     auto mainEditorArea = new EditorArea();
     mainEditorArea->hide();
+    connect(mainEditorArea, &EditorArea::windowTitleNeedsUpdate,
+            this, &EditorManagerPrivate::updateWindowTitle);
     connect(mainEditorArea, SIGNAL(destroyed(QObject*)), this, SLOT(editorAreaDestroyed(QObject*)));
     d->m_editorAreas.append(mainEditorArea);
     d->m_currentView = mainEditorArea->view();
@@ -491,7 +493,7 @@ void EditorManagerPrivate::init()
         });
 }
 
-QWidget *EditorManagerPrivate::mainEditorArea()
+EditorArea *EditorManagerPrivate::mainEditorArea()
 {
     return d->m_editorAreas.at(0);
 }
@@ -1065,7 +1067,6 @@ void EditorManagerPrivate::setCurrentEditor(IEditor *editor, bool ignoreNavigati
         EditorView::updateEditorHistory(editor, d->m_globalHistory);
     }
     updateActions();
-    updateWindowTitle();
     emit m_instance->currentEditorChanged(editor);
 }
 
@@ -1297,13 +1298,8 @@ void EditorManagerPrivate::updateActions()
     IDocument *curDocument = EditorManager::currentDocument();
     const int openedCount = DocumentModel::entryCount();
 
-    if (curDocument) {
-        if (HostOsInfo::isMacHost())
-            mainEditorArea()->window()->setWindowModified(curDocument->isModified());
+    if (curDocument)
         updateMakeWritableWarning();
-    } else /* curEditor */ if (HostOsInfo::isMacHost()) {
-        mainEditorArea()->window()->setWindowModified(false);
-    }
 
     foreach (EditorArea *area, d->m_editorAreas)
         setCloseSplitEnabled(area, area->isSplitter());
@@ -1335,32 +1331,53 @@ void EditorManagerPrivate::updateActions()
     d->m_gotoNextSplitAction->setEnabled(hasSplitter || d->m_editorAreas.size() > 1);
 }
 
+void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWidget *window)
+{
+    QTC_ASSERT(window, return);
+    QString windowTitle;
+    const QString dashSep = QLatin1String(" - ");
+
+    QString filePath = document ? QFileInfo(document->filePath()).absoluteFilePath()
+                              : QString();
+
+    const QString windowTitleAddition = d->m_titleAdditionHandler
+            ? d->m_titleAdditionHandler(filePath)
+            : QString();
+
+    QString windowTitleVcsTopic;
+    if (d->m_titleVcsTopicHandler)
+        windowTitleVcsTopic = d->m_titleVcsTopicHandler(filePath);
+    if (!windowTitleVcsTopic.isEmpty())
+        windowTitleVcsTopic = QStringLiteral(" [") + windowTitleVcsTopic + QStringLiteral("]");
+
+    const QString documentName = document ? document->displayName() : QString();
+
+    if (!documentName.isEmpty())
+        windowTitle.append(documentName + windowTitleVcsTopic + dashSep);
+    if (!windowTitleAddition.isEmpty()) {
+        windowTitle.append(windowTitleAddition);
+        if (documentName.isEmpty()) // vcs topic not already added
+            windowTitle.append(windowTitleVcsTopic);
+        windowTitle.append(dashSep);
+    }
+
+    windowTitle.append(tr("Qt Creator"));
+    window->window()->setWindowTitle(windowTitle);
+    window->window()->setWindowFilePath(filePath);
+
+    if (HostOsInfo::isMacHost()) {
+        if (document)
+            window->window()->setWindowModified(document->isModified());
+        else
+            window->window()->setWindowModified(false);
+    }
+}
+
 void EditorManagerPrivate::updateWindowTitle()
 {
-    QString windowTitle = tr("Qt Creator");
-    const QString dashSep = QLatin1String(" - ");
-    QString vcsTopic;
-    IDocument *document = EditorManager::currentDocument();
-
-    if (!d->m_titleVcsTopic.isEmpty())
-        vcsTopic = QLatin1String(" [") + d->m_titleVcsTopic + QLatin1Char(']');
-    if (!d->m_titleAddition.isEmpty()) {
-        windowTitle.prepend(dashSep);
-        if (!document)
-            windowTitle.prepend(vcsTopic);
-        windowTitle.prepend(d->m_titleAddition);
-    }
-    if (document) {
-        const QString documentName = document->displayName();
-        if (!documentName.isEmpty())
-            windowTitle.prepend(documentName + vcsTopic + dashSep);
-        QString filePath = QFileInfo(document->filePath()).absoluteFilePath();
-        if (!filePath.isEmpty())
-            ICore::mainWindow()->setWindowFilePath(filePath);
-    } else {
-        ICore::mainWindow()->setWindowFilePath(QString());
-    }
-    ICore::mainWindow()->setWindowTitle(windowTitle);
+    EditorArea *mainArea = mainEditorArea();
+    IDocument *document = mainArea->currentDocument();
+    updateWindowTitleForDocument(document, mainArea->window());
 }
 
 void EditorManagerPrivate::gotoNextDocHistory()
@@ -1444,7 +1461,6 @@ void EditorManagerPrivate::handleDocumentStateChange()
     if (!document->isModified())
         document->removeAutoSaveFile();
     if (EditorManager::currentDocument() == document) {
-        updateWindowTitle();
         emit m_instance->currentDocumentStateChanged();
     }
 }
@@ -2045,7 +2061,6 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     if (!currentEditor()) {
         emit m_instance->currentEditorChanged(0);
         EditorManagerPrivate::updateActions();
-        EditorManagerPrivate::updateWindowTitle();
     }
 
     return !closingFailed;
@@ -2524,24 +2539,18 @@ qint64 EditorManager::maxTextFileSize()
     return qint64(3) << 24;
 }
 
-void EditorManager::setWindowTitleAddition(const QString &addition)
+void EditorManager::setWindowTitleAdditionHandler(WindowTitleHandler handler)
 {
-    d->m_titleAddition = addition;
-    EditorManagerPrivate::updateWindowTitle();
+    d->m_titleAdditionHandler = handler;
 }
 
-QString EditorManager::windowTitleAddition()
+void EditorManager::updateWindowTitles()
 {
-    return d->m_titleAddition;
+    foreach (EditorArea *area, d->m_editorAreas)
+        emit area->windowTitleNeedsUpdate();
 }
 
-void EditorManager::setWindowTitleVcsTopic(const QString &topic)
+void EditorManager::setWindowTitleVcsTopicHandler(WindowTitleHandler handler)
 {
-    d->m_titleVcsTopic = topic;
-    EditorManagerPrivate::updateWindowTitle();
-}
-
-QString EditorManager::windowTitleVcsTopic()
-{
-    return d->m_titleVcsTopic;
+    d->m_titleVcsTopicHandler = handler;
 }
