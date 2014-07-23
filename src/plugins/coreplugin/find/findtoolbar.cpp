@@ -348,8 +348,6 @@ void FindToolBar::updateToolBar()
     bool replaceEnabled = enabled && m_currentDocumentFind->supportsReplace();
     bool showAllControls = canShowAllControls(replaceEnabled);
 
-    m_goToCurrentFindAction->setEnabled(enabled);
-
     m_findNextAction->setEnabled(enabled);
     m_findPreviousAction->setEnabled(enabled);
 
@@ -618,9 +616,11 @@ void FindToolBar::updateFlagMenus()
     m_preserveCaseAction->setEnabled((supportedFlags & FindPreserveCase) && !regexp && replaceEnabled);
 }
 
-bool FindToolBar::setFocusToCurrentFindSupport()
+void FindToolBar::setFocusToCurrentFindSupport()
 {
-    return m_currentDocumentFind->setFocusToCurrentFindSupport();
+    if (!m_currentDocumentFind->setFocusToCurrentFindSupport())
+        if (QWidget *w = focusWidget())
+            w->clearFocus();
 }
 
 void FindToolBar::hideAndResetFocus()
