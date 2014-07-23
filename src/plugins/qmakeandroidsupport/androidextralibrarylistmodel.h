@@ -1,6 +1,7 @@
 /**************************************************************************
 **
 ** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,47 +28,51 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKE_ANDROIDRUNCONFIGURATION_H
-#define QMAKE_ANDROIDRUNCONFIGURATION_H
+#ifndef ANDROIDEXTRALIBRARYLISTMODEL_H
+#define ANDROIDEXTRALIBRARYLISTMODEL_H
 
-#include <android/androidrunconfiguration.h>
+#include <QAbstractItemModel>
+#include <QStringList>
 
 namespace QmakeProjectManager {
+class QmakeProject;
 class QmakeProFileNode;
+}
+
+namespace QmakeAndroidSupport {
 
 namespace Internal {
-
-class QmakeAndroidRunConfiguration : public Android::AndroidRunConfiguration
+class AndroidExtraLibraryListModel : public QAbstractItemModel
 {
     Q_OBJECT
-    friend class QmakeAndroidRunConfigurationFactory;
-
 public:
-    QmakeAndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path = QString());
+    explicit AndroidExtraLibraryListModel(QmakeProjectManager::QmakeProject *project,
+                                          QObject *parent = 0);
 
-    QString proFilePath() const;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
+
+    void removeEntries(QModelIndexList list);
+    void addEntries(const QStringList &list);
 
     bool isEnabled() const;
-    QString disabledReason() const;
 
-protected:
-    QmakeAndroidRunConfiguration(ProjectExplorer::Target *parent, QmakeAndroidRunConfiguration *source);
-
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+signals:
+    void enabledChanged(bool);
 
 private slots:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool success, bool parseInProgress);
 
 private:
-    void init();
-
-    mutable QString m_proFilePath;
-    bool m_parseSuccess;
-    bool m_parseInProgress;
+    QmakeProjectManager::QmakeProject *m_project;
+    QStringList m_entries;
+    QString m_scope;
 };
 
 } // namespace Internal
-} // namespace Android
+} // namespace QmakeAndroidSupport
 
-#endif // QMAKE_ANDROIDRUNCONFIGURATION_H
+#endif // ANDROIDEXTRALIBRARYLISTMODEL_H

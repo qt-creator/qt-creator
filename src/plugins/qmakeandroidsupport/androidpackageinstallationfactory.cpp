@@ -39,7 +39,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QmakeProjectManager {
+namespace QmakeAndroidSupport {
 namespace Internal {
 
 AndroidPackageInstallationFactory::AndroidPackageInstallationFactory(QObject *parent)

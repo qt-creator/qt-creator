@@ -29,10 +29,6 @@
 
 #include "androidpackageinstallationstep.h"
 #include "qmakeandroidsupport.h"
-#include "qmakebuildconfiguration.h"
-#include "qmakenodes.h"
-#include "qmakeproject.h"
-#include "qmakestep.h"
 
 #include <android/androidconstants.h>
 #include <projectexplorer/buildmanager.h>
@@ -42,8 +38,14 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakestep.h>
 
-namespace QmakeProjectManager {
+using namespace QmakeProjectManager;
+
+namespace QmakeAndroidSupport {
 namespace Internal {
 
 bool QmakeAndroidSupport::canHandle(const ProjectExplorer::Target *target) const

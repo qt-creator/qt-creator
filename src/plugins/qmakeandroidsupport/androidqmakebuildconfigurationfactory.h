@@ -1,6 +1,6 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,59 +27,32 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEANDROIDBUILDAPKWIDGET_H
-#define QMAKEANDROIDBUILDAPKWIDGET_H
+#ifndef ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H
+#define ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H
 
-#include "androidextralibrarylistmodel.h"
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
 
-#include <QWidget>
-
-#include <projectexplorer/buildstep.h>
-
-QT_BEGIN_NAMESPACE
-class QLabel;
-QT_END_NAMESPACE
-
-namespace QmakeProjectManager {
-class QmakeBuildConfiguration;
-
+namespace QmakeAndroidSupport {
 namespace Internal {
 
-namespace Ui {
-class QmakeAndroidBuildApkWidget;
-}
-
-class QmakeAndroidBuildApkStep;
-
-class QmakeAndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
+class AndroidQmakeBuildConfigurationFactory : public QmakeProjectManager::QmakeBuildConfigurationFactory
 {
-    Q_OBJECT
-
 public:
-    explicit QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep *step);
-    ~QmakeAndroidBuildApkWidget();
+    explicit AndroidQmakeBuildConfigurationFactory(QObject *parent = 0)
+        : QmakeBuildConfigurationFactory(parent)
+    { }
 
-private slots:
-    void updateInputFileUi();
-    void inputFileComboBoxIndexChanged();
-    void createManifestButton();
-    void addAndroidExtraLib();
-    void removeAndroidExtraLib();
-    void checkEnableRemoveButton();
+    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const;
+    int priority(const ProjectExplorer::Target *parent) const;
 
-private:
-    Ui::QmakeAndroidBuildApkWidget *m_ui;
-    QmakeAndroidBuildApkStep *m_step;
-    AndroidExtraLibraryListModel *m_extraLibraryListModel;
-    bool m_ignoreChange;
-
-    // BuildStepConfigWidget interface
-public:
-    QString summaryText() const;
-    QString displayName() const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
+                                                const ProjectExplorer::BuildInfo *info) const;
+    // The clone and restore from QmakeBuildConfigurationFactory
+    // work for us too.
 };
 
 } // namespace Internal
 } // namespace QmakeProjectManager
 
-#endif // QMAKEANDROIDBUILDAPKWIDGET_H
+
+#endif // ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H

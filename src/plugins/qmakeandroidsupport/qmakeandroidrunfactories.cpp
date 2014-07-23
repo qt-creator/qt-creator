@@ -42,11 +42,11 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
-
 using namespace Android;
 using namespace ProjectExplorer;
+using namespace QmakeProjectManager;
 
-namespace QmakeProjectManager {
+namespace QmakeAndroidSupport {
 namespace Internal {
 
 static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";

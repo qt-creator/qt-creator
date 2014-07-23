@@ -1,6 +1,5 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
 ** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
@@ -28,48 +27,27 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDEXTRALIBRARYLISTMODEL_H
-#define ANDROIDEXTRALIBRARYLISTMODEL_H
+#ifndef QMAKEANDROIDSUPPORTPLUGIN_H
+#define QMAKEANDROIDSUPPORTPLUGIN_H
 
-#include <QAbstractItemModel>
-#include <QStringList>
+#include <extensionsystem/iplugin.h>
 
-namespace QmakeProjectManager {
-class QmakeProject;
-class QmakeProFileNode;
-
+namespace QmakeAndroidSupport {
 namespace Internal {
-class AndroidExtraLibraryListModel : public QAbstractItemModel
+
+class QmakeAndroidSupportPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmakeAndroidSupport.json")
+
 public:
-    explicit AndroidExtraLibraryListModel(QmakeProjectManager::QmakeProject *project,
-                                          QObject *parent = 0);
-
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-
-    void removeEntries(QModelIndexList list);
-    void addEntries(const QStringList &list);
-
-    bool isEnabled() const;
-
-signals:
-    void enabledChanged(bool);
-
-private slots:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool success, bool parseInProgress);
-
-private:
-    QmakeProjectManager::QmakeProject *m_project;
-    QStringList m_entries;
-    QString m_scope;
+    QmakeAndroidSupportPlugin();
+    ~QmakeAndroidSupportPlugin();
+    bool initialize(const QStringList &arguments, QString *errorMessage);
+    void extensionsInitialized();
 };
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeAndroidSupport
 
-#endif // ANDROIDEXTRALIBRARYLISTMODEL_H
+#endif // QMAKEANDROIDSUPPORTPLUGIN_H

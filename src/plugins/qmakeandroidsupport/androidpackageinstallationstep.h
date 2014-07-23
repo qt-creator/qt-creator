@@ -27,27 +27,49 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEANDROIDSUPPORT_H
-#define QMAKEANDROIDSUPPORT_H
+#ifndef ANDROIDPACKAGEINSTALLATIONSTEP_H
+#define ANDROIDPACKAGEINSTALLATIONSTEP_H
 
-#include <android/androidqtsupport.h>
+#include <projectexplorer/buildstep.h>
+#include <projectexplorer/abstractprocessstep.h>
 
-namespace QmakeProjectManager {
+namespace QmakeAndroidSupport {
 namespace Internal {
 
-class QmakeAndroidSupport : public Android::AndroidQtSupport
+class AndroidPackageInstallationStep : public ProjectExplorer::AbstractProcessStep
+{
+    Q_OBJECT
+    friend class AndroidPackageInstallationFactory;
+
+public:
+    explicit AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl);
+    bool init();
+
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    bool immutable() const;
+
+    void run(QFutureInterface<bool> &fi);
+private:
+    AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc,
+        AndroidPackageInstallationStep *other);
+    QString m_androidDirToClean;
+    static const Core::Id Id;
+};
+
+class AndroidPackageInstallationStepWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    bool canHandle(const ProjectExplorer::Target *target) const;
-    QStringList soLibSearchPath(const ProjectExplorer::Target *target) const;
-    QStringList projectTargetApplications(const ProjectExplorer::Target *target) const;
-    Utils::FileName apkPath(ProjectExplorer::Target *target, BuildType buildType) const;
+    AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step);
 
-    void resetBuild(const ProjectExplorer::Target *target);
+    QString summaryText() const;
+    QString displayName() const;
+    bool showWidget() const;
+private:
+    AndroidPackageInstallationStep *m_step;
 };
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeAndroidSupport
 
-#endif // QMAKEANDROIDSUPPORT_H
+#endif // ANDROIDPACKAGEINSTALLATIONSTEP_H

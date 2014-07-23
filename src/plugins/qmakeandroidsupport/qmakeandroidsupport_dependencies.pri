@@ -1,4 +1,4 @@
-QTC_PLUGIN_NAME = QmakeProjectManager
+QTC_PLUGIN_NAME = QmakeAndroidSupport
 QTC_LIB_DEPENDS += \
     aggregation \
     extensionsystem \
@@ -11,7 +11,6 @@ QTC_PLUGIN_DEPENDS += \
     texteditor \
     cpptools \
     qmljstools \
-    resourceeditor
-
-QTC_PLUGIN_RECOMMENDS += \
-    designer
+    resourceeditor \
+    android \
+    qmakeprojectmanager

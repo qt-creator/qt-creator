@@ -41,7 +41,7 @@ class Target;
 class Node;
 } // namespace ProjectExplorer
 
-namespace QmakeProjectManager {
+namespace QmakeAndroidSupport {
 namespace Internal {
 
 class QmakeAndroidRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
@@ -73,6 +73,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Android
+} // namespace QmakeAndroidSupport
 
 #endif  // ANDROIDRUNFACTORIES_H

@@ -48,7 +48,8 @@ SUBDIRS   = \
     clearcase \
     baremetal \
     ios \
-    beautifier
+    beautifier \
+    qmakeandroidsupport
 
 minQtVersion(5, 0, 0) {
     SUBDIRS += winrt

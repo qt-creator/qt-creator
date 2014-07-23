@@ -35,9 +35,9 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-using namespace QmakeProjectManager;
-using namespace QmakeProjectManager::Internal;
-
+using namespace QmakeAndroidSupport;
+using namespace QmakeAndroidSupport::Internal;
+using QmakeProjectManager::QmakeBuildConfiguration;
 
 int AndroidQmakeBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {

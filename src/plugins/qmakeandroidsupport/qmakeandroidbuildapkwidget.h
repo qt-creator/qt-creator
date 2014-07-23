@@ -1,6 +1,6 @@
-/****************************************************************************
+/**************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (c) 2014 BogDan Vatra <bog_dan_ro@yahoo.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,33 +27,59 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H
-#define ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H
+#ifndef QMAKEANDROIDBUILDAPKWIDGET_H
+#define QMAKEANDROIDBUILDAPKWIDGET_H
 
-#include "qmakebuildconfiguration.h"
+#include "androidextralibrarylistmodel.h"
 
-namespace QmakeProjectManager {
+#include <QWidget>
+
+#include <projectexplorer/buildstep.h>
+
+QT_BEGIN_NAMESPACE
+class QLabel;
+QT_END_NAMESPACE
+
+namespace QmakeProjectManager { class QmakeBuildConfiguration; }
+
+namespace QmakeAndroidSupport {
 namespace Internal {
 
+namespace Ui {
+class QmakeAndroidBuildApkWidget;
+}
 
-class AndroidQmakeBuildConfigurationFactory : public QmakeBuildConfigurationFactory
+class QmakeAndroidBuildApkStep;
+
+class QmakeAndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
 {
+    Q_OBJECT
+
 public:
-    explicit AndroidQmakeBuildConfigurationFactory(QObject *parent = 0)
-        : QmakeBuildConfigurationFactory(parent)
-    { }
+    explicit QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep *step);
+    ~QmakeAndroidBuildApkWidget();
 
-    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const;
-    int priority(const ProjectExplorer::Target *parent) const;
+private slots:
+    void updateInputFileUi();
+    void inputFileComboBoxIndexChanged();
+    void createManifestButton();
+    void addAndroidExtraLib();
+    void removeAndroidExtraLib();
+    void checkEnableRemoveButton();
 
-    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
-                                                const ProjectExplorer::BuildInfo *info) const;
-    // The clone and restore from QmakeBuildConfigurationFactory
-    // work for us too.
+private:
+    Ui::QmakeAndroidBuildApkWidget *m_ui;
+    QmakeAndroidBuildApkStep *m_step;
+    AndroidExtraLibraryListModel *m_extraLibraryListModel;
+    bool m_ignoreChange;
+
+    // BuildStepConfigWidget interface
+public:
+    QString summaryText() const;
+    QString displayName() const;
 };
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeAndroidSupport
 
-
-#endif // ANDROIDQMAKEBUILDCONFIGURATIONFACTORY_H
+#endif // QMAKEANDROIDBUILDAPKWIDGET_H

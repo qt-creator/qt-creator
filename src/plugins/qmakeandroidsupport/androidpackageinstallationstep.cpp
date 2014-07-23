@@ -41,8 +41,8 @@
 
 #include <QDir>
 
-using namespace Android;
-using namespace QmakeProjectManager::Internal;
+using namespace QmakeAndroidSupport;
+using namespace QmakeAndroidSupport::Internal;
 
 const Core::Id AndroidPackageInstallationStep::Id = Core::Id("Qt4ProjectManager.AndroidPackageInstallationStep");
 namespace {
@@ -64,7 +64,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::
 bool AndroidPackageInstallationStep::init()
 {
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
-    QString dirPath = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
+    QString dirPath = bc->buildDirectory().appendPath(QLatin1String(Android::Constants::ANDROID_BUILDDIRECTORY)).toString();
     if (Utils::HostOsInfo::isWindowsHost())
         if (bc->environment().searchInPath(QLatin1String("sh.exe")).isEmpty())
             dirPath = QDir::toNativeSeparators(dirPath);

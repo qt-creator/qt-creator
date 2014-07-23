@@ -27,49 +27,27 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDPACKAGEINSTALLATIONSTEP_H
-#define ANDROIDPACKAGEINSTALLATIONSTEP_H
+#ifndef QMAKEANDROIDSUPPORT_H
+#define QMAKEANDROIDSUPPORT_H
 
-#include <projectexplorer/buildstep.h>
-#include <projectexplorer/abstractprocessstep.h>
+#include <android/androidqtsupport.h>
 
-namespace QmakeProjectManager {
+namespace QmakeAndroidSupport {
 namespace Internal {
 
-class AndroidPackageInstallationStep : public ProjectExplorer::AbstractProcessStep
-{
-    Q_OBJECT
-    friend class AndroidPackageInstallationFactory;
-
-public:
-    explicit AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl);
-    bool init();
-
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool immutable() const;
-
-    void run(QFutureInterface<bool> &fi);
-private:
-    AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc,
-        AndroidPackageInstallationStep *other);
-    QString m_androidDirToClean;
-    static const Core::Id Id;
-};
-
-class AndroidPackageInstallationStepWidget : public ProjectExplorer::BuildStepConfigWidget
+class QmakeAndroidSupport : public Android::AndroidQtSupport
 {
     Q_OBJECT
 public:
-    AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step);
+    bool canHandle(const ProjectExplorer::Target *target) const;
+    QStringList soLibSearchPath(const ProjectExplorer::Target *target) const;
+    QStringList projectTargetApplications(const ProjectExplorer::Target *target) const;
+    Utils::FileName apkPath(ProjectExplorer::Target *target, BuildType buildType) const;
 
-    QString summaryText() const;
-    QString displayName() const;
-    bool showWidget() const;
-private:
-    AndroidPackageInstallationStep *m_step;
+    void resetBuild(const ProjectExplorer::Target *target);
 };
 
 } // namespace Internal
-} // namespace Android
+} // namespace QmakeProjectManager
 
-#endif // ANDROIDPACKAGEINSTALLATIONSTEP_H
+#endif // QMAKEANDROIDSUPPORT_H

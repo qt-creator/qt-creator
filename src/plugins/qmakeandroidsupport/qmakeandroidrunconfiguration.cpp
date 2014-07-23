@@ -45,7 +45,7 @@ namespace {
 using namespace ProjectExplorer;
 using QmakeProjectManager::QmakeProject;
 
-namespace QmakeProjectManager {
+namespace QmakeAndroidSupport {
 namespace Internal {
 
 QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *parent, Core::Id id, const QString &path)

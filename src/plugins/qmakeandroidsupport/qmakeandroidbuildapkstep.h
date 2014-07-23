@@ -33,9 +33,8 @@
 
 #include <android/androidbuildapkstep.h>
 
-namespace QmakeProjectManager {
+namespace QmakeAndroidSupport {
 namespace Internal {
-
 
 class QmakeAndroidBuildApkStepFactory : public ProjectExplorer::IBuildStepFactory
 {
@@ -95,6 +94,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeAndroidSupport
 
 #endif // QMAKEANDROIDBUILDAPKSTEP_H

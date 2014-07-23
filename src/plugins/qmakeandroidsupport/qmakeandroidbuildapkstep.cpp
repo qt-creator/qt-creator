@@ -30,8 +30,6 @@
 
 #include "qmakeandroidbuildapkstep.h"
 #include "qmakeandroidbuildapkwidget.h"
-#include "qmakenodes.h"
-#include "qmakeproject.h"
 
 #include <android/androidconfigurations.h>
 #include <android/androidconstants.h>
@@ -43,16 +41,19 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
-
 #include <qtsupport/qtkitinformation.h>
+#include <qmakeprojectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 
 #include <utils/qtcprocess.h>
 
 #include <QHBoxLayout>
 
 using namespace Android;
+using QmakeProjectManager::QmakeProject;
+using QmakeProjectManager::QmakeProFileNode;
 
-namespace QmakeProjectManager {
+namespace QmakeAndroidSupport {
 namespace Internal {
 
 const Core::Id ANDROID_BUILD_APK_ID("QmakeProjectManager.AndroidBuildApkStep");

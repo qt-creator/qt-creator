@@ -27,11 +27,6 @@
 **
 ****************************************************************************/
 
-#include "androidpackageinstallationfactory.h"
-#include "androidqmakebuildconfigurationfactory.h"
-#include "qmakeandroidbuildapkstep.h"
-#include "qmakeandroidrunfactories.h"
-#include "qmakeandroidsupport.h"
 #include "qmakeprojectmanagerplugin.h"
 
 #include "qmakeprojectmanager.h"
@@ -138,7 +133,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     addAutoReleasedObject(new MakeStepFactory);
 
     addAutoReleasedObject(new QmakeBuildConfigurationFactory);
-    addAutoReleasedObject(new AndroidQmakeBuildConfigurationFactory);
     addAutoReleasedObject(new DesktopQmakeRunConfigurationFactory);
 
     if (Utils::HostOsInfo::isMacHost())
@@ -157,12 +151,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     hf->addMimeType(QmakeProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
     hf->addMimeType(QmakeProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
     addAutoReleasedObject(hf);
-
-    // Android stuff
-    addAutoReleasedObject(new AndroidPackageInstallationFactory);
-    addAutoReleasedObject(new QmakeAndroidBuildApkStepFactory);
-    addAutoReleasedObject(new QmakeAndroidRunConfigurationFactory);
-    addAutoReleasedObject(new QmakeAndroidSupport);
 
     //menus
     Core::ActionContainer *mbuild =

@@ -30,16 +30,19 @@
 #include "createandroidmanifestwizard.h"
 #include "qmakeandroidbuildapkstep.h"
 #include "qmakeandroidbuildapkwidget.h"
-#include "qmakenodes.h"
-#include "qmakeproject.h"
 #include "ui_qmakeandroidbuildapkwidget.h"
 
 #include <android/androidbuildapkwidget.h>
 #include <android/androidmanager.h>
+#include <qmakeprojectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 
 #include <QFileDialog>
 
-namespace QmakeProjectManager {
+using QmakeProjectManager::QmakeProject;
+using QmakeProjectManager::QmakeProFileNode;
+
+namespace QmakeAndroidSupport {
 namespace Internal {
 
 QmakeAndroidBuildApkWidget::QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep *step) :

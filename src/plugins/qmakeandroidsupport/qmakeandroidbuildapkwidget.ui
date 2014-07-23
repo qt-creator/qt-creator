@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QmakeProjectManager::Internal::QmakeAndroidBuildApkWidget</class>
- <widget class="QWidget" name="QmakeProjectManager::Internal::QmakeAndroidBuildApkWidget">
+ <class>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkWidget</class>
+ <widget class="QWidget" name="QmakeAndroidSupport::Internal::QmakeAndroidBuildApkWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

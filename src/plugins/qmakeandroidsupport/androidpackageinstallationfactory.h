@@ -32,7 +32,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-namespace QmakeProjectManager {
+namespace QmakeAndroidSupport {
 namespace Internal {
 
 class AndroidPackageInstallationFactory: public ProjectExplorer::IBuildStepFactory
@@ -58,6 +58,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace Android
+} // namespace QmakeAndroidSupport
 
 #endif // ANDROIDPACKAGEINSTALLATIONFACTORY_H
