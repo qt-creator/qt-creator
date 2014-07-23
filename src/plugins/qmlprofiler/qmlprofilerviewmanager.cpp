@@ -96,6 +96,7 @@ void QmlProfilerViewManager::createViews()
                                             this,
                                             d->profilerModelManager,
                                             d->profilerState);
+    d->traceView->setWindowTitle(tr("Timeline"));
     connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
             this, SIGNAL(gotoSourceLocation(QString,int,int)));
     d->traceView->reset();
@@ -103,6 +104,7 @@ void QmlProfilerViewManager::createViews()
 
     d->eventsView = new QmlProfilerEventsWidget(mw, d->profilerTool, this,
                                                 d->profilerModelManager);
+    d->eventsView->setWindowTitle(tr("Events"));
     connect(d->eventsView, SIGNAL(gotoSourceLocation(QString,int,int)), this,
             SIGNAL(gotoSourceLocation(QString,int,int)));
     connect(d->eventsView, SIGNAL(eventSelectedByTypeIndex(int)),
@@ -112,6 +114,7 @@ void QmlProfilerViewManager::createViews()
 
     d->v8profilerView = new QV8ProfilerEventsWidget(mw, d->profilerTool, this,
                                                     d->profilerModelManager);
+    d->v8profilerView->setWindowTitle(tr("JavaScript"));
     connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)), this,
             SIGNAL(gotoSourceLocation(QString,int,int)));
     connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
@@ -124,11 +127,11 @@ void QmlProfilerViewManager::createViews()
             d->v8profilerView, SLOT(selectBySourceLocation(QString,int,int)));
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
-            (d->profilerTool, tr("Events"), d->eventsView, Qt::BottomDockWidgetArea);
+            (d->profilerTool, d->eventsView, Qt::BottomDockWidgetArea);
     QDockWidget *timelineDock = AnalyzerManager::createDockWidget
-            (d->profilerTool, tr("Timeline"), d->traceView, Qt::BottomDockWidgetArea);
-    QDockWidget *v8profilerDock = AnalyzerManager::createDockWidget(
-                d->profilerTool, tr("JavaScript"), d->v8profilerView, Qt::BottomDockWidgetArea);
+            (d->profilerTool, d->traceView, Qt::BottomDockWidgetArea);
+    QDockWidget *v8profilerDock = AnalyzerManager::createDockWidget
+            (d->profilerTool, d->v8profilerView, Qt::BottomDockWidgetArea);
 
     eventsDock->show();
     timelineDock->show();
