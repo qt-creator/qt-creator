@@ -15,6 +15,7 @@ Product {
     }
     cpp.minimumOsxVersion: "10.7"
     cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"
+    cpp.visibility: "minimal"
 
     Depends { name: "Qt.core" }
 
