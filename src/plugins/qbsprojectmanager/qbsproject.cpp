@@ -86,7 +86,9 @@ static const char CONFIG_CXXFLAGS[] = "cxxFlags";
 static const char CONFIG_CFLAGS[] = "cFlags";
 static const char CONFIG_DEFINES[] = "defines";
 static const char CONFIG_INCLUDEPATHS[] = "includePaths";
+static const char CONFIG_SYSTEM_INCLUDEPATHS[] = "systemIncludePaths";
 static const char CONFIG_FRAMEWORKPATHS[] = "frameworkPaths";
+static const char CONFIG_SYSTEM_FRAMEWORKPATHS[] = "systemFrameworkPaths";
 static const char CONFIG_PRECOMPILEDHEADER[] = "precompiledHeader";
 static const char CONFIGURATION_PATH[] = "<configuration>";
 
@@ -655,6 +657,8 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_INCLUDEPATHS));
+            list.append(props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
+                                                              QLatin1String(CONFIG_SYSTEM_INCLUDEPATHS)));
             CppTools::ProjectPart::HeaderPaths grpHeaderPaths;
             foreach (const QString &p, list)
                 grpHeaderPaths += CppTools::ProjectPart::HeaderPath(
@@ -663,6 +667,8 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_FRAMEWORKPATHS));
+            list.append(props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
+                                                              QLatin1String(CONFIG_SYSTEM_FRAMEWORKPATHS)));
             foreach (const QString &p, list)
                 grpHeaderPaths += CppTools::ProjectPart::HeaderPath(
                             FileName::fromUserInput(p).toString(),
