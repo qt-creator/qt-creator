@@ -29,17 +29,15 @@
 
 #include "styleanimator.h"
 
+#include <utils/algorithm.h>
+
 #include <QStyleOption>
 
 Animation * StyleAnimator::widgetAnimation(const QWidget *widget) const
 {
     if (!widget)
         return 0;
-    foreach (Animation *a, animations) {
-        if (a->widget() == widget)
-            return a;
-    }
-    return 0;
+    return Utils::findOrDefault(animations, Utils::equal(&Animation::widget, widget));
 }
 
 void Animation::paint(QPainter *painter, const QStyleOption *option)
