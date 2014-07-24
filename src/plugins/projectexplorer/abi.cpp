@@ -483,6 +483,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
         } else if (p == QLatin1String("i386") || p == QLatin1String("i486") || p == QLatin1String("i586")
                    || p == QLatin1String("i686") || p == QLatin1String("x86")) {
             arch = Abi::X86Architecture;
+            width = 32;
         } else if (p.startsWith(QLatin1String("arm"))) {
             arch = Abi::ArmArchitecture;
             width = p.contains(QLatin1String("64")) ? 64 : 32;
@@ -1057,27 +1058,27 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
 
     QTest::newRow("i586-pc-mingw32msvc") << int(Abi::X86Architecture)
                                          << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                         << int(Abi::PEFormat) << 0;
+                                         << int(Abi::PEFormat) << 32;
 
     QTest::newRow("i686-linux-gnu") << int(Abi::X86Architecture)
                                     << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
-                                    << int(Abi::ElfFormat) << 0;
+                                    << int(Abi::ElfFormat) << 32;
 
     QTest::newRow("i686-linux-android") << int(Abi::X86Architecture)
                                         << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                        << int(Abi::ElfFormat) << 0;
+                                        << int(Abi::ElfFormat) << 32;
 
     QTest::newRow("i686-pc-linux-android") << int(Abi::X86Architecture)
                                            << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                           << int(Abi::ElfFormat) << 0;
+                                           << int(Abi::ElfFormat) << 32;
 
     QTest::newRow("i686-pc-mingw32") << int(Abi::X86Architecture)
                                      << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                     << int(Abi::PEFormat) << 0;
+                                     << int(Abi::PEFormat) << 32;
 
     QTest::newRow("i686-w64-mingw32") << int(Abi::X86Architecture)
                                       << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                      << int(Abi::PEFormat) << 0;
+                                      << int(Abi::PEFormat) << 32;
 
     QTest::newRow("x86_64-pc-msys") << int(Abi::X86Architecture)
                                     << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
