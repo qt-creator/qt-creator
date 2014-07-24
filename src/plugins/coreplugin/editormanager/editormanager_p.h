@@ -34,7 +34,6 @@
 #include "editorarea.h"
 #include "editormanager.h"
 #include "editorview.h"
-#include "idocument.h"
 #include "ieditor.h"
 
 #include <coreplugin/idocument.h>
