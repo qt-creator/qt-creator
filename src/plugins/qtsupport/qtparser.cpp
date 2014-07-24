@@ -39,7 +39,7 @@ using ProjectExplorer::Task;
 #define FILE_PATTERN "^(([A-Za-z]:)?[^:]+\\.[^:]+)"
 
 QtParser::QtParser() :
-    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+)\\)?:\\s([Ww]arning|[Ee]rror):\\s(.+)$")),
+    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+)\\)?:\\s([Ww]arning|[Ee]rror|[Nn]ote):\\s(.+)$")),
     m_translationRegExp(QLatin1String("^([Ww]arning|[Ee]rror):\\s+(.*) in '(.*)'$"))
 {
     setObjectName(QLatin1String("QtParser"));
@@ -56,8 +56,11 @@ void QtParser::stdError(const QString &line)
         if (!ok)
             lineno = -1;
         Task::TaskType type = Task::Error;
-        if (m_mocRegExp.cap(4).compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
+        const QString level = m_mocRegExp.cap(4);
+        if (level.compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
             type = Task::Warning;
+        if (level.compare(QLatin1String("Note"), Qt::CaseInsensitive) == 0)
+            type = Task::Unknown;
         Task task(type, m_mocRegExp.cap(5).trimmed() /* description */,
                   Utils::FileName::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
                   lineno,
@@ -152,6 +155,15 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
                                                        Utils::FileName::fromUserInput(QLatin1String("c:\\code\\test.h")), 96,
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("moc note")
+            << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>() << Task(Task::Unknown,
+                                                       QLatin1String("No relevant classes found. No output generated."),
+                                                       Utils::FileName::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("ninja with moc")
