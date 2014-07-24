@@ -21,8 +21,11 @@ General
    * Made keyboard and mouse activation of navigation panes and other trees more consistent
    * Removed unhelpful Generic Highlighter loading progress bar
    * Fixed case-sensitivity of file system locator filter (QTCREATORBUG-10843)
+   * Fixed that Window > Minimize, Zoom and Full Screen were always affecting the main window
+     instead of the active window
 
 Editing
+   * Added support for manually editing bookmark line number (QTCREATORBUG-9721)
    * Made Ctrl+Up and Ctrl+Down shortcuts configurable (QTCREATORBUG-4994)
    * Made editor popup (Ctrl+Tab) adapt its size to contents (QTCREATORBUG-10618)
    * Improved block editing (QTCREATORBUG-7773)
@@ -39,6 +42,8 @@ Editing
    * Fixed Open With when file is open in multiple splits
    * Fixed that search highlights were removed when switching editors
      (QTCREATORBUG-9949)
+   * Fixed dropping files in the presence of splits or external windows
+     (QTCREATORBUG-9023)
 
 Help
    * Added page up and page down shortcuts to topic chooser
@@ -69,6 +74,9 @@ QMake Projects
    * Removed warning about build directory below source directory for kits
      with Qt 5.2 and later where this is supported (QTCREATORBUG-10024)
    * Fixed that adding files to .pri file was missing $$PWD
+
+CMake Projects
+   * Fixed that .cmake files were opened as projects (QTCREATORBUG-12461)
 
 Qbs Projects
    * Added support for adding and removing files from projects
@@ -124,6 +132,7 @@ QML Profiler
    * Fixed drawing issues (QTBUG-38222)
    * Fixed that clicking visible event was sometimes moving timeline
      (QTCREATORBUG-11945)
+   * Fixed navigation through events (QTCREATORBUG-12634)
 
 Analyzer
    * Added support for Run in Terminal (QTCREATORBUG-7311)
@@ -197,6 +206,7 @@ Beautifier
    * Added support for formatting a file asynchronously
    * Added support for redirecting text to a formatter tool
      instead of using temporary files
+   * Fixed that running formatting tool was blocking UI
 
 Platform Specific
 
@@ -209,6 +219,7 @@ OS X
    * Fixed activation of items with Enter in Bookmarks pane
 
 Android
+   * Removed upper limit of version code in manifest editor (QTCREATORBUG-12668)
    * Fixed that UI was unresponsive while creating AVD (QTCREATORBUG-10601)
 
 Remote Linux
