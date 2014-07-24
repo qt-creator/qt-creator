@@ -34,6 +34,10 @@
 
 #include <QString>
 
+namespace ProjectExplorer {
+    class Project;
+}
+
 namespace ClangCodeModel {
 namespace Internal {
 

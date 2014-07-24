@@ -41,6 +41,7 @@
 
 #include <cpptools/cppmodelmanager.h>
 
+#include <projectexplorer/iprojectpanelfactory.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
@@ -57,7 +58,7 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     auto panelFactory = new ProjectExplorer::IProjectPanelFactory();
     panelFactory->setPriority(60);
     panelFactory->setDisplayName(ClangProjectSettingsWidget::tr("Clang Settings"));
-    panelFactory->setSimpleCreatePanelFunction<ClangProjectSettingsWidget>(QIcon());
+    panelFactory->setSimpleCreateWidgetFunction<ClangProjectSettingsWidget>(QIcon());
 
     addAutoReleasedObject(panelFactory);
 
