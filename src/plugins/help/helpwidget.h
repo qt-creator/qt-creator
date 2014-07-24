@@ -75,6 +75,7 @@ private slots:
     void updateHelpModeButtonToolTip();
 
 private:
+    Core::IContext *m_context;
     QAction *m_switchToHelp;
     QMenu *m_backMenu;
     QMenu *m_forwardMenu;
