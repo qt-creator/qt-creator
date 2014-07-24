@@ -30,6 +30,7 @@
 #include <QtTest>
 #include <QDebug>
 
+#include <cplusplus/ASTVisitor.h>
 #include <cplusplus/Control.h>
 #include <cplusplus/Literals.h>
 #include <cplusplus/Parser.h>
@@ -61,6 +62,13 @@ public:
         unit->setSource(source.constData(), source.length());
         unit->blockErrors(blockErrors);
         unit->parse(mode);
+
+        // Sanity check: Visit all AST nodes
+        if (AST *ast = unit->ast()) {
+            ASTVisitor visitor(unit);
+            visitor.accept(ast);
+        }
+
         return unit;
     }
 
