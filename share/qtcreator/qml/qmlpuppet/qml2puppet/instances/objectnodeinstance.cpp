@@ -1089,17 +1089,9 @@ static bool isCrashingType(QQmlType *type)
     return false;
 }
 
-static QObject *createDummyWindow(QQmlContext *context, const QUrl &sourceUrl)
+static QObject *createDummyWindow(QQmlContext *context)
 {
-    QQmlComponent component(context->engine());
-    QByteArray dummyWindow;
-    dummyWindow.append("import QtQuick 2.0\n");
-    dummyWindow.append("Rectangle {\n");
-    dummyWindow.append("property string title\n");
-    dummyWindow.append("}\n");
-
-    component.setData(dummyWindow, sourceUrl);
-
+    QQmlComponent component(context->engine(), QUrl(QStringLiteral("qrc:/qtquickplugin/mockfiles/Window.qml")));
     return component.create();
 }
 
@@ -1137,10 +1129,12 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
 
         if (isWindow(object)) {
             delete object;
-            object = createDummyWindow(context, type->sourceUrl());
+            object = createDummyWindow(context);
         }
 
-    } else {
+    }
+
+    if (!object) {
         qWarning() << "QuickDesigner: Cannot create an object of type"
                    << QString("%1 %2,%3").arg(typeName).arg(majorNumber).arg(minorNumber)
                    << "- type isn't known to declarative meta type system";
