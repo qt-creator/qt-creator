@@ -462,32 +462,6 @@ static QStringList libsXml(ProjectExplorer::Target *target, const QString &tag)
     return libs;
 }
 
-static int setLibraryLevel(const QString &library, LibrariesMap &mapLibs)
-{
-    int maxlevel = mapLibs[library].level;
-    if (maxlevel > 0)
-        return maxlevel;
-    foreach (QString lib, mapLibs[library].dependencies) {
-        foreach (const QString &key, mapLibs.keys()) {
-            if (library == key)
-                continue;
-            if (key == lib) {
-                int libLevel = mapLibs[key].level;
-
-                if (libLevel < 0)
-                    libLevel = setLibraryLevel(key, mapLibs);
-
-                if (libLevel > maxlevel)
-                    maxlevel = libLevel;
-                break;
-            }
-        }
-    }
-    if (mapLibs[library].level < 0)
-        mapLibs[library].level = maxlevel + 1;
-    return maxlevel + 1;
-}
-
 void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
 {
     const QString targetArch = AndroidManager::targetArch(target);
