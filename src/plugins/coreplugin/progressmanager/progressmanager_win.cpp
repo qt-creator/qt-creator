@@ -123,7 +123,7 @@ void Core::Internal::ProgressManagerPrivate::doSetApplicationLabel(const QString
     if (text.isEmpty()) {
         pITask->SetOverlayIcon(winId, NULL, NULL);
     } else {
-        QPixmap pix = Utils::StyleHelper::dpiSpecificPixmap(QLatin1String(":/core/images/compile_error_taskbar.png"));
+        QPixmap pix(Utils::StyleHelper::dpiSpecificImageFile(QLatin1String(":/core/images/compile_error_taskbar.png")));
         pix.setDevicePixelRatio(1); // We want device-pixel sized font depending on the pix.height
         QPainter p(&pix);
         p.setPen(Qt::white);
