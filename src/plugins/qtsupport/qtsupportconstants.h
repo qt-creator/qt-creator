@@ -35,7 +35,7 @@ namespace Constants {
 
 // Qt4 settings pages
 const char QTVERSION_SETTINGS_PAGE_ID[] = "H.Qt Versions";
-const char QTVERSION_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Versions");
+const char QTVERSION_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("QtSupport", "Qt Versions");
 
 // QtVersions
 const char DESKTOPQT[]   = "Qt4ProjectManager.QtVersion.Desktop";
