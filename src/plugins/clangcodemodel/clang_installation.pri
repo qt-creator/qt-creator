@@ -64,13 +64,13 @@ win32 {
 unix {
     LLVM_CONFIG = $$findLLVMConfig()
 
-    LLVM_VERSION = $$system($$LLVM_CONFIG --version)
+    LLVM_VERSION = $$system($$LLVM_CONFIG --version 2>/dev/null)
     LLVM_VERSION = $$replace(LLVM_VERSION, ^(\\d+\\.\\d+).*$, \\1)
     message("... version $$LLVM_VERSION")
 
-    LLVM_INCLUDEPATH = $$system($$LLVM_CONFIG --includedir)
+    LLVM_INCLUDEPATH = $$system($$LLVM_CONFIG --includedir 2>/dev/null)
     isEmpty(LLVM_INCLUDEPATH):LLVM_INCLUDEPATH=$$LLVM_INSTALL_DIR/include
-    LLVM_LIBDIR = $$system($$LLVM_CONFIG --libdir)
+    LLVM_LIBDIR = $$system($$LLVM_CONFIG --libdir 2>/dev/null)
     isEmpty(LLVM_LIBDIR):LLVM_LIBDIR=$$LLVM_INSTALL_DIR/lib
 
     exists ($${LLVM_LIBDIR}/libclang.*) {
