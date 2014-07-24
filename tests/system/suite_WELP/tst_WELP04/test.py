@@ -31,47 +31,50 @@ source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
 def main():
-    test.log("Welcome mode is not scriptable at the moment")
-    return
+    if isQt4Build or not canTestEmbeddedQtQuick():
+        test.log("Welcome mode is not available or not scriptable with this Squish version")
+        return
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    if not test.verify(checkIfObjectExists(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
-                                                      "text='Getting Started'")),
-                       "Verifying: Qt Creator displays Welcome Page with Getting Started."):
-        mouseClick(waitForObject(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
-                                            "text='Getting Started'")), 5, 5, 0, Qt.LeftButton)
-    # select "Tutorials" topic
-    mouseClick(waitForObject(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
+    getStarted = getQmlItem("Button", ":WelcomePage.scrollView_ScrollView", False,
+                            "text='Get Started Now' id='gettingStartedButton'")
+    if not test.verify(checkIfObjectExists(getStarted),
+                       "Verifying: Qt Creator displays Welcome Page with Get Started Now button."):
+        test.fatal("Something's wrong here - leaving test.")
+        invokeMenuItem("File", "Exit")
+        return
+    # select "Tutorials"
+    mouseClick(waitForObject(getQmlItem("Button", ":WelcomePage.scrollView_ScrollView", False,
                                         "text='Tutorials'")), 5, 5, 0, Qt.LeftButton)
-    mouseClick(waitForObject(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
-                                        "text='Search in Tutorials...'")), 5, 5, 0, Qt.LeftButton)
-    searchTutsAndExmpl = getQmlItem("TextInput", ":Qt Creator_QDeclarativeView", False)
-    replaceEditorContent(waitForObject(searchTutsAndExmpl), "qwerty")
-    test.verify(checkIfObjectExists(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
+    searchTut = getQmlItem("TextField", ":WelcomePage.scrollView_ScrollView", False,
+                           "placeholderText='Search in Tutorials...' id='lineEdit'")
+    mouseClick(waitForObject(searchTut), 5, 5, 0, Qt.LeftButton)
+    replaceEditorContent(waitForObject(searchTut), "qwerty")
+    test.verify(checkIfObjectExists(getQmlItem("Text", ":WelcomePage.scrollView_ScrollView", False,
                                                "text='Tutorials'")) and
-                checkIfObjectExists("{clip='true' container=':Qt Creator_QDeclarativeView' "
-                                    "enabled='true' id='captionItem' type='Text' unnamed='1' "
-                                    "visible='true'}", False),
+                checkIfObjectExists(getQmlItem("Delegate", ":WelcomePage.scrollView_ScrollView",
+                                               False, "id='delegate' radius='0' caption~='.*'"),
+                                    False),
                 "Verifying: 'Tutorials' topic is opened and nothing is shown.")
-    replaceEditorContent(waitForObject(searchTutsAndExmpl),
-                         "building and running an example application")
-    bldRunExmpl = getQmlItem("Text", ":Qt Creator_QDeclarativeView", True,
-                             "text='Building and Running an Example Application'")
-    test.verify(checkIfObjectExists(bldRunExmpl), "Verifying: Text and Video tutorials are shown.")
+    replaceEditorContent(waitForObject(searchTut), "building and running an example application")
+    bldRunExmpl = getQmlItem("Delegate", ":WelcomePage.scrollView_ScrollView", False,
+                             "caption='Building and Running an Example Application' "
+                             "id='delegate' radius='0'")
+    test.verify(checkIfObjectExists(bldRunExmpl), "Verifying: Expected Text tutorial is shown.")
     # select a text tutorial
     mouseClick(waitForObject(bldRunExmpl), 5, 5, 0, Qt.LeftButton)
-    test.verify(checkIfObjectExists(":Qt Creator.Go to Help Mode_QToolButton") and
-                checkIfObjectExists(":DebugModeWidget.Debugger Toolbar_QDockWidget", False) and
-                checkIfObjectExists(":Qt Creator.Analyzer Toolbar_QDockWidget", False),
-                "Verifying: The tutorial is opened and located to the right part. "
-                "The view is in 'Edit' mode.")
-    # go to "Welcome" page -> "Tutorials" topic again and check the video tutorial link
-    switchViewTo(ViewConstants.WELCOME)
-    replaceEditorContent(waitForObject(searchTutsAndExmpl), "meet qt quick")
-    test.verify(checkIfObjectExists(getQmlItem("Text", ":Qt Creator_QDeclarativeView", True,
-                                               "text='Meet Qt Quick'")),
-                "Verifying: Link to the video tutorial exists.")
+    test.verify("Building and Running an Example" in
+                str(waitForObject(":Help Widget_Help::Internal::HelpWidget").windowTitle),
+                "Verifying: The tutorial is opened inside Help.")
+    # close help widget again to avoid focus issues
+    sendEvent("QCloseEvent", waitForObject(":Help Widget_Help::Internal::HelpWidget"))
+    # check a demonstration video link
+    replaceEditorContent(waitForObject(searchTut), "embedded linux")
+    test.verify(checkIfObjectExists(getQmlItem("Delegate", ":WelcomePage.scrollView_ScrollView",
+                                               False, "id='delegate' radius='0' caption="
+                                               "'Developing Embedded Linux Applications with Qt'")),
+                "Verifying: Link to the expected demonstration video exists.")
     # exit Qt Creator
     invokeMenuItem("File", "Exit")
