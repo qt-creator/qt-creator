@@ -96,7 +96,7 @@ bool WinRtPackageDeploymentStep::init()
                 raiseError(tr("Cannot parse manifest file %1.").arg(fullManifestPath));
                 return false;
             }
-            foreach (QString icon, iconsToDeploy) {
+            foreach (const QString &icon, iconsToDeploy) {
                 m_mappingFileContent += QLatin1Char('"')
                         + QDir::toNativeSeparators(targetDir + icon) + QLatin1String("\" \"")
                         + QDir::toNativeSeparators(icon) + QLatin1String("\"\n");

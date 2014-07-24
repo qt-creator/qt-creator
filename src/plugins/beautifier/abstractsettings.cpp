@@ -196,7 +196,7 @@ void AbstractSettings::save()
     }
 
     // remove old files
-    foreach (const QString file, m_stylesToRemove)
+    foreach (const QString &file, m_stylesToRemove)
         m_styleDir.remove(file);
     m_stylesToRemove.clear();
 
@@ -239,7 +239,7 @@ void AbstractSettings::read()
     s->beginGroup(QLatin1String(Constants::SETTINGS_GROUP));
     s->beginGroup(m_name);
     const QStringList keys = s->allKeys();
-    foreach (const QString key, keys) {
+    foreach (const QString &key, keys) {
         if (key == QLatin1String("command"))
             setCommand(s->value(key).toString());
         else if (m_settings.contains(key))
@@ -259,7 +259,7 @@ void AbstractSettings::read()
     const QStringList files
             = m_styleDir.entryList(QStringList() << QLatin1Char('*') + m_ending,
                                    QDir::Files | QDir::Readable | QDir::NoDotAndDotDot);
-    foreach (const QString filename, files) {
+    foreach (const QString &filename, files) {
         // do not allow empty file names
         if (filename == m_ending)
             continue;

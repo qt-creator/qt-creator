@@ -87,7 +87,7 @@ bool ActivitySelector::refresh()
     int current;
     QList<QStringPair> activities = m_plugin->activities(&current);
     m_cmbActivity->clear();
-    foreach (QStringPair activity, activities)
+    foreach (const QStringPair &activity, activities)
         m_cmbActivity->addItem(activity.second, activity.first);
     m_cmbActivity->setCurrentIndex(current);
     m_cmbActivity->updateGeometry();

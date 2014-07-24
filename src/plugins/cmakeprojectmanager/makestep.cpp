@@ -140,7 +140,7 @@ void MakeStep::activeBuildConfigurationChanged()
 void MakeStep::buildTargetsChanged()
 {
     QStringList filteredTargets;
-    foreach (const QString t, static_cast<CMakeProject *>(project())->buildTargetTitles()) {
+    foreach (const QString &t, static_cast<CMakeProject *>(project())->buildTargetTitles()) {
         if (m_buildTargets.contains(t))
             filteredTargets.append(t);
     }

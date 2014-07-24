@@ -244,7 +244,7 @@ void BlackBerrySigningUtils::saveDebugTokens()
     settings->beginGroup(DebugTokensGroup);
 
     int count = 0;
-    foreach (QString dt, m_debugTokens) {
+    foreach (const QString &dt, m_debugTokens) {
         settings->beginGroup(QString::fromLatin1("debugToken_%1").arg(++count));
         settings->setValue(DebugTokensPath, dt);
         settings->endGroup();

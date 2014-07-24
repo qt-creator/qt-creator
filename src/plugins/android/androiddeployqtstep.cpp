@@ -247,7 +247,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 
     ProjectExplorer::ProcessParameters *pp = processParameters();
     QString args;
-    foreach (const QString arg, AndroidDeviceInfo::adbSelector(m_serialNumber))
+    foreach (const QString &arg, AndroidDeviceInfo::adbSelector(m_serialNumber))
         Utils::QtcProcess::addArg(&args, arg);
 
     Utils::QtcProcess::addArg(&args, QLatin1String("install"));

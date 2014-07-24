@@ -978,7 +978,7 @@ bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAd
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
-    foreach (const QString file, filePaths) {
+    foreach (const QString &file, filePaths) {
         const Core::MimeType mt = Core::MimeDatabase::findByFile(file);
         typeFileMap[mt.type()] << file;
     }
@@ -1025,7 +1025,7 @@ bool QmakePriFileNode::removeFiles(const QStringList &filePaths,
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
-    foreach (const QString file, filePaths) {
+    foreach (const QString &file, filePaths) {
         const Core::MimeType mt = Core::MimeDatabase::findByFile(file);
         typeFileMap[mt.type()] << file;
     }

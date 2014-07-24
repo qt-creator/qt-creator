@@ -1000,7 +1000,7 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
             QStringList subDirs(dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot));
             workDone += 1;
             totalWork += pathBudget / 2 * subDirs.size() - pathBudget * 3 / 4 + 1;
-            foreach (const QString path, subDirs)
+            foreach (const QString &path, subDirs)
                 pathsToScan.append(ScanItem(dir.absoluteFilePath(path), toScan.depth + 1));
         } else {
             workDone += pathBudget * 3 / 4;
@@ -1040,7 +1040,7 @@ void ModelManagerInterface::maybeScan(const QStringList &importPaths,
     QStringList pathToScan;
     {
         QMutexLocker l(&m_mutex);
-        foreach (QString importPath, importPaths)
+        foreach (const QString &importPath, importPaths)
             if (!m_scannedPaths.contains(importPath)) {
                 pathToScan.append(importPath);
             }
