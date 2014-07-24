@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/stateseditor">
-        <file>stateslist.qml</file>
-        <file>HorizontalScrollBar.qml</file>
-    </qresource>
-</RCC>
