@@ -43,8 +43,6 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-QString readExecutableNameFromCore(const QString &cmd, const QString &coreFile, bool *isCore);
-
 class GdbCoreEngine : public GdbEngine
 {
     Q_OBJECT
@@ -53,6 +51,13 @@ public:
     explicit GdbCoreEngine(const DebuggerStartParameters &startParameters);
     ~GdbCoreEngine();
 
+    struct CoreInfo
+    {
+        QString rawStringFromCore;
+        QString foundExecutableName; // empty if no corresponding exec could be found
+        bool isCore;
+    };
+    static CoreInfo readExecutableNameFromCore(const QString &debuggerCmd, const QString &coreFile);
 private:
     void setupEngine();
     void setupInferior();

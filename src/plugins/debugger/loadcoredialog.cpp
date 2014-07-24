@@ -367,10 +367,12 @@ void AttachCoreDialog::coreFileChanged(const QString &core)
         Kit *k = d->kitChooser->currentKit();
         QTC_ASSERT(k, return);
         FileName cmd = DebuggerKitInformation::debuggerCommand(k);
-        bool isCore = false;
-        const QString exe = readExecutableNameFromCore(cmd.toString(), core, &isCore);
-        if (!exe.isEmpty())
-            d->localExecFileName->setFileName(FileName::fromString(exe));
+        GdbCoreEngine::CoreInfo cinfo =
+            GdbCoreEngine::readExecutableNameFromCore(cmd.toString(), core);
+        if (!cinfo.foundExecutableName.isEmpty())
+            d->localExecFileName->setFileName(FileName::fromString(cinfo.foundExecutableName));
+        else if (!d->localExecFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
+            d->localExecFileName->setFileName(FileName::fromString(cinfo.rawStringFromCore));
     }
     changed();
 }

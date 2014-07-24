@@ -34,6 +34,7 @@
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerstringutils.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -89,11 +90,49 @@ void GdbCoreEngine::setupEngine()
     unpackCoreIfNeeded();
 }
 
-QString readExecutableNameFromCore(const QString &debuggerCommand, const QString &coreFile, bool *isCore)
+static QString findExecutableFromName(const QString &fileNameFromCore, const QString &coreFile)
 {
+    if (QFileInfo(fileNameFromCore).isFile())
+        return fileNameFromCore;
+    if (fileNameFromCore.isEmpty())
+        return QString();
+
+    // turn the filename into an absolute path, using the location of the core as a hint
+    QString absPath;
+    QFileInfo fi(fileNameFromCore);
+    if (fi.isAbsolute()) {
+        absPath = fileNameFromCore;
+    } else {
+        QFileInfo coreInfo(coreFile);
+        QDir coreDir = coreInfo.dir();
+        absPath = FileUtils::resolvePath(coreDir.absolutePath(), fileNameFromCore);
+    }
+    if (QFileInfo(absPath).isFile() || absPath.isEmpty())
+        return absPath;
+
+    // remove possible trailing arguments
+    QLatin1Char sep(' ');
+    QStringList pathFragments = absPath.split(sep);
+    while (pathFragments.size() > 0) {
+        QString joined_path = pathFragments.join(sep);
+        if (QFileInfo(joined_path).isFile()) {
+            return joined_path;
+        }
+        pathFragments.pop_back();
+    }
+
+    return QString();
+}
+
+GdbCoreEngine::CoreInfo
+GdbCoreEngine::readExecutableNameFromCore(const QString &debuggerCommand, const QString &coreFile)
+{
+    CoreInfo cinfo;
 #if 0
-    ElfReader reader(coreFileName());
-    return QString::fromLocal8Bit(reader.readCoreName(isCore));
+    ElfReader reader(coreFile);
+    cinfo.isCore = false;
+    cinfo.rawStringFromCore = QString::fromLocal8Bit(reader.readCoreName(&cinfo.isCore));
+    cinfo.foundExecutableName = findExecutableFromName(cinfo.rawStringFromCore, coreFile);
 #else
     QStringList args;
     args.append(QLatin1String("-nx"));
@@ -116,13 +155,15 @@ QString readExecutableNameFromCore(const QString &debuggerCommand, const QString
             pos1 += 23;
             int pos2 = ba.indexOf('\'', pos1);
             if (pos2 != -1) {
-                *isCore = true;
-                return QString::fromLocal8Bit(ba.mid(pos1, pos2 - pos1));
+                cinfo.isCore = true;
+                cinfo.rawStringFromCore = QString::fromLocal8Bit(ba.mid(pos1, pos2 - pos1));
+                cinfo.foundExecutableName = findExecutableFromName(cinfo.rawStringFromCore, coreFile);
             }
         }
     }
-    return QString();
+    cinfo.isCore = false;
 #endif
+    return cinfo;
 }
 
 void GdbCoreEngine::continueSetupEngine()
@@ -136,17 +177,12 @@ void GdbCoreEngine::continueSetupEngine()
             m_tempCoreFile.close();
     }
     if (isCore && m_executable.isEmpty()) {
-        // Read executable from core.
-        isCore = false;
-        m_executable = readExecutableNameFromCore(
-                    startParameters().debuggerCommand,
-                    coreFileName(), &isCore);
+        GdbCoreEngine::CoreInfo cinfo = readExecutableNameFromCore(
+                                            startParameters().debuggerCommand,
+                                            coreFileName());
 
-        if (isCore) {
-            // Strip off command line arguments. FIXME: make robust.
-            int idx = m_executable.indexOf(QLatin1Char(' '));
-            if (idx >= 0)
-                m_executable.truncate(idx);
+        if (cinfo.isCore) {
+            m_executable = cinfo.foundExecutableName;
             if (m_executable.isEmpty()) {
                 showMessageBox(QMessageBox::Warning,
                     tr("Error Loading Symbols"),
