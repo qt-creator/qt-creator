@@ -70,6 +70,7 @@ public:
 
     QStringList files(FilesMode fileMode) const;
 
+    bool isProjectEditable() const;
     bool addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
                            const qbs::ProductData &productData, const qbs::GroupData &groupData,
                            QStringList *notAdded);

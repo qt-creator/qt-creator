@@ -189,6 +189,11 @@ QStringList QbsProject::files(Project::FilesMode fileMode) const
     return result.toList();
 }
 
+bool QbsProject::isProjectEditable() const
+{
+    return m_qbsProject.isValid() && !isParsing() && !ProjectExplorer::BuildManager::isBuilding();
+}
+
 class ChangeExpector
 {
 public:
