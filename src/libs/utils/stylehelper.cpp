@@ -522,25 +522,17 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
     return grad;
 }
 
-QPixmap StyleHelper::dpiSpecificPixmap(const QString &fileName)
+QString StyleHelper::dpiSpecificImageFile(const QString &fileName)
 {
-    QString pixmapFileName = fileName;
-    qreal pixmapDevicePixelRatio = 1.0;
-
     // See QIcon::addFile()
     if (qApp->devicePixelRatio() > 1.0) {
         const QFileInfo fi(fileName);
         const QString at2xfileName = fi.path() + QLatin1Char('/')
                 + fi.completeBaseName() + QStringLiteral("@2x.") + fi.suffix();
-        if (QFile::exists(at2xfileName)) {
-            pixmapFileName = at2xfileName;
-            pixmapDevicePixelRatio = 2.0;
-        }
+        if (QFile::exists(at2xfileName))
+            return at2xfileName;
     }
-
-    QPixmap result(pixmapFileName);
-    result.setDevicePixelRatio(pixmapDevicePixelRatio);
-    return result;
+    return fileName;
 }
 
 } // namespace Utils

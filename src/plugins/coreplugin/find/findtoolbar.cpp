@@ -569,7 +569,7 @@ void FindToolBar::updateIcons()
     bool preserveCase = effectiveFlags & FindPreserveCase;
     if (!casesensitive && !wholewords && !regexp && !preserveCase) {
         m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left,
-                                       Utils::StyleHelper::dpiSpecificPixmap(QLatin1Literal(Core::Constants::ICON_MAGNIFIER)));
+                                       Utils::StyleHelper::dpiSpecificImageFile(QLatin1Literal(Core::Constants::ICON_MAGNIFIER)));
     } else {
         m_ui.findEdit->setButtonPixmap(Utils::FancyLineEdit::Left,
                                        IFindFilter::pixmapForFindFlags(effectiveFlags));
