@@ -41,7 +41,6 @@
 
 #include <QDir>
 
-using namespace QmakeAndroidSupport;
 using namespace QmakeAndroidSupport::Internal;
 
 const Core::Id AndroidPackageInstallationStep::Id = Core::Id("Qt4ProjectManager.AndroidPackageInstallationStep");

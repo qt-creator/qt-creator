@@ -51,7 +51,6 @@
 #include <QVBoxLayout>
 
 using namespace Android;
-using namespace QmakeAndroidSupport;
 using namespace QmakeAndroidSupport::Internal;
 
 using QmakeProjectManager::QmakeProject;
