@@ -30,20 +30,32 @@
 source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
-webPageContentLoadedValue = 0
+class Qt5Path:
+    DOCS = 0
+    EXAMPLES = 1
 
-# wait until help gets loaded
-def webPageContentLoaded(*args):
-    global webPageContentLoadedValue
-    objectClass = str(args[0].metaObject().className())
-    if objectClass in ("QWebPage", "Help::Internal::HelpViewer"):
-        webPageContentLoadedValue += 1
-
-def isLoaded():
-    if platform.system() == "Darwin":
-        return webPageContentLoadedValue == 1
-    else:
-        return webPageContentLoadedValue == 3
+    @staticmethod
+    def getPaths(pathSpec):
+        if pathSpec == Qt5Path.DOCS:
+            path52 = "/doc"
+            path53 = "/Docs/Qt-5.3"
+        elif pathSpec == Qt5Path.EXAMPLES:
+            path52 = "/examples"
+            path53 = "/Examples/Qt-5.3"
+        else:
+            test.fatal("Unknown pathSpec given: %s" % str(pathSpec))
+            return []
+        if platform.system() in ('Microsoft', 'Windows'):
+            return ["C:/Qt/Qt5.2.1/5.2.1/msvc2010" + path52, "C:/Qt/Qt5.3.1" + path53]
+        elif platform.system() == 'Linux':
+            if __is64BitOS__():
+                return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/gcc_64" + path52,
+                                                "~/Qt5.3.1" + path53])
+            return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/gcc" + path52,
+                                            "~/Qt5.3.1" + path53])
+        else:
+            return map(os.path.expanduser, ["~/Qt5.2.1/5.2.1/clang_64" + path52,
+                                            "~/Qt5.3.1" + path53])
 
 def handlePackagingMessageBoxes():
     if platform.system() == "Darwin":
@@ -60,62 +72,66 @@ def handlePackagingMessageBoxes():
             break
 
 def main():
-    test.log("Welcome mode is not scriptable at the moment")
-    return
-    global sdkPath, webPageContentLoadedValue
+    if isQt4Build or not canTestEmbeddedQtQuick():
+        test.log("Welcome mode is not available or not scriptable with this Squish version")
+        return
+    global sdkPath
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    installLazySignalHandler(":QWebPage","loadFinished(bool)", "webPageContentLoaded")
-    installLazySignalHandler(":Qt Creator_Help::Internal::HelpViewer", "loadFinished(bool)",
-                             "webPageContentLoaded")
-    qt5sdkPath = qt5SDKPath()
-    qchs = [os.path.join(sdkPath, "Documentation", "qt.qch"),
-            os.path.join(qt5sdkPath, "doc", "qtopengl.qch"),
-            os.path.join(qt5sdkPath, "doc", "qtwidgets.qch")]
+    qchs = [os.path.join(sdkPath, "Documentation", "qt.qch")]
+    for p in Qt5Path.getPaths(Qt5Path.DOCS):
+        qchs.extend([os.path.join(p, "qtopengl.qch"), os.path.join(p, "qtwidgets.qch")])
     addHelpDocumentation(qchs)
     setAlwaysStartFullHelp()
-    if not test.verify(checkIfObjectExists(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
-                                                      "text='Getting Started'")),
+    getStartedNow = getQmlItem("Button", ":WelcomePage.scrollView_ScrollView", False,
+                               "text='Get Started Now' id='gettingStartedButton'")
+    if not test.verify(checkIfObjectExists(getStartedNow),
                        "Verifying: Qt Creator displays Welcome Page with Getting Started."):
-        mouseClick(waitForObject(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
-                                            "text='Getting Started'")), 5, 5, 0, Qt.LeftButton)
+        test.fatal("Something's wrong - leaving test.")
+        invokeMenuItem("File", "Exit")
+        return
     # select "Examples" topic
-    mouseClick(waitForObject(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
+    mouseClick(waitForObject(getQmlItem("Button", ":WelcomePage.scrollView_ScrollView", False,
                                         "text='Examples'")), 5, 5, 0, Qt.LeftButton)
-    test.verify(checkIfObjectExists(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
+    test.verify(checkIfObjectExists(getQmlItem("Text", ":WelcomePage.scrollView_ScrollView", False,
                                                "text='Examples'")),
                 "Verifying: 'Examples' topic is opened and the examples are shown.")
-    # select an example and run example
-    webPageContentLoadedValue = 0
     basePath = "opengl/2dpainting/2dpainting.pro"
     qt4Exmpl = os.path.join(sdkPath, "Examples", "4.7", basePath)
-    qt5Exmpl = os.path.join(qt5sdkPath, "examples", basePath)
-    cleanUpUserFiles([qt4Exmpl, qt5Exmpl])
-    removePackagingDirectory(os.path.dirname(qt4Exmpl))
-    removePackagingDirectory(os.path.dirname(qt5Exmpl))
-    mouseClick(waitForObject(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
-                                        "text='Search in Examples...'")), 5, 5, 0, Qt.LeftButton)
-    searchTutsAndExmpl = getQmlItem("TextInput", ":Qt Creator_QDeclarativeView", False)
-    kitCombo = waitForObject("{clip='false' container=':Qt Creator_QDeclarativeView' enabled='true'"
-                             " type='ChoiceList' unnamed='1' visible='true'}")
-    test.log("Using examples from Kit %s." % (kitCombo.currentText))
-    replaceEditorContent(waitForObject(searchTutsAndExmpl), "qwerty")
-    test.verify(checkIfObjectExists("{clip='true' container=':Qt Creator_QDeclarativeView' "
-                                    "enabled='true' id='captionItem' type='Text' unnamed='1' "
-                                    "visible='true'}", False),
-                "Verifying: 'Tutorials' topic is opened and nothing is shown.")
-    replaceEditorContent(waitForObject(searchTutsAndExmpl), "2d painting")
-    twoDPainting = getQmlItem("Text", ":Qt Creator_QDeclarativeView", True, "text~='2D Painting.*'")
+    qt5Exmpls = []
+    for p in Qt5Path.getPaths(Qt5Path.EXAMPLES):
+        qt5Exmpls.append(os.path.join(p, basePath))
+    proFiles = [qt4Exmpl]
+    proFiles.extend(qt5Exmpls)
+    cleanUpUserFiles(proFiles)
+    for p in proFiles:
+        removePackagingDirectory(os.path.dirname(p))
+    examplesLineEdit = getQmlItem("TextField", ":WelcomePage.scrollView_ScrollView", False,
+                                  "id='lineEdit' placeholderText='Search in Examples...'")
+    mouseClick(waitForObject(examplesLineEdit), 5, 5, 0, Qt.LeftButton)
+    test.log("Using examples from Kit %s."
+             % (waitForObject(getQmlItem("ComboBox", ":WelcomePage.scrollView_ScrollView", False,
+                                         "id='comboBox'")).currentText))
+    replaceEditorContent(waitForObject(examplesLineEdit), "qwerty")
+    test.verify(checkIfObjectExists(getQmlItem("Delegate", ":WelcomePage.scrollView_ScrollView",
+                                               False, "id='delegate' radius='0' caption~='.*'"),
+                                    False), "Verifying: No example is shown.")
+    replaceEditorContent(waitForObject(examplesLineEdit), "2d painting")
+    twoDPainting = getQmlItem("Delegate", ":WelcomePage.scrollView_ScrollView",
+                              False, "id='delegate' radius='0' caption~='2D Painting.*'")
     test.verify(checkIfObjectExists(twoDPainting),
-                "Verifying: Text and Video tutorials are shown.")
+                "Verifying: Example (2D Painting) is shown.")
     mouseClick(waitForObject(twoDPainting), 5, 5, 0, Qt.LeftButton)
     handlePackagingMessageBoxes()
-    waitFor("isLoaded()", 5000)
-    test.verify("2D Painting Example" in str(waitForObject(":Qt Creator_HelpSelector_QComboBox").currentText),
-                "Verifying: The example application is opened.")
-    switchViewTo(ViewConstants.EDIT)
+    helpWidget = waitForObject(":Help Widget_Help::Internal::HelpWidget")
+    test.verify(waitFor('"2D Painting Example" in str(helpWidget.windowTitle)', 5000),
+                "Verifying: The example application is opened inside Help.")
+    sendEvent("QCloseEvent", helpWidget)
+    # assume the correct kit is selected, hit Configure Project
+    clickButton(waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
                                     " text='2dpainting' type='QModelIndex'}"),
                 "Verifying: The project is shown in 'Edit' mode.")
@@ -125,30 +141,35 @@ def main():
     test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "2dpainting"),
                 "Verifying: The first example is closed.")
     # clean up created packaging directories
-    removePackagingDirectory(os.path.dirname(qt4Exmpl))
-    removePackagingDirectory(os.path.dirname(qt5Exmpl))
+    for p in proFiles:
+        removePackagingDirectory(os.path.dirname(p))
 
-    # close example and go to "Welcome" page -> "Examples" again and choose another example
-    webPageContentLoadedValue = 0
+    # go to "Welcome" page and choose another example
     switchViewTo(ViewConstants.WELCOME)
     basePath = "itemviews/addressbook/addressbook.pro"
     qt4Exmpl = os.path.join(sdkPath, "Examples", "4.7", basePath)
-    qt5Exmpl = os.path.join(qt5sdkPath, "examples", "widgets", basePath)
-    cleanUpUserFiles([qt4Exmpl, qt5Exmpl])
-    removePackagingDirectory(os.path.dirname(qt4Exmpl))
-    removePackagingDirectory(os.path.dirname(qt5Exmpl))
-    replaceEditorContent(waitForObject(searchTutsAndExmpl),
-                         "address book")
-    addressBook = getQmlItem("Text", ":Qt Creator_QDeclarativeView", True, "text~='Address Book.*'")
-    test.verify(checkIfObjectExists(addressBook),
-                "Verifying: Text and Video tutorials are shown.")
+    qt5Exmpls = []
+    for p in Qt5Path.getPaths(Qt5Path.EXAMPLES):
+        qt5Exmpls.append(os.path.join(p, "widgets", basePath))
+    proFiles = [qt4Exmpl]
+    proFiles.extend(qt5Exmpls)
+    cleanUpUserFiles(proFiles)
+    for p in proFiles:
+        removePackagingDirectory(os.path.dirname(p))
+    replaceEditorContent(waitForObject(examplesLineEdit), "address book")
+    addressBook = getQmlItem("Delegate", ":WelcomePage.scrollView_ScrollView",
+                              False, "id='delegate' radius='0' caption~='Address Book.*'")
+    test.verify(checkIfObjectExists(addressBook), "Verifying: Example (address book) is shown.")
     mouseClick(waitForObject(addressBook), 5, 5, 0, Qt.LeftButton)
     handlePackagingMessageBoxes()
-    waitFor("isLoaded()", 5000)
-    test.verify("Address Book Example" in str(waitForObject(":Qt Creator_HelpSelector_QComboBox").currentText),
-                "Verifying: First example is closed and another application is opened.")
+    helpWidget = waitForObject(":Help Widget_Help::Internal::HelpWidget")
+    test.verify(waitFor('"Address Book Example" in str(helpWidget.windowTitle)', 5000),
+                "Verifying: The example application is opened inside Help.")
+    sendEvent("QCloseEvent", helpWidget)
+    # assume the correct kit is selected, hit Configure Project
+    clickButton(waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
     # close second example application
-    switchViewTo(ViewConstants.EDIT)
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
                                     " text='propertyanimation' type='QModelIndex'}", False) and
                 checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
@@ -160,7 +181,7 @@ def main():
     test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "addressbook"),
                 "Verifying: The second example is closed.")
     # clean up created packaging directories
-    removePackagingDirectory(os.path.dirname(qt4Exmpl))
-    removePackagingDirectory(os.path.dirname(qt5Exmpl))
+    for p in proFiles:
+        removePackagingDirectory(os.path.dirname(p))
     # exit Qt Creator
     invokeMenuItem("File", "Exit")
