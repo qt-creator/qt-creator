@@ -64,7 +64,7 @@ QtcPlugin {
         "codegensettings.h",
         "codegensettingspage.cpp",
         "codegensettingspage.h",
-        "codegensettingswidget.ui",
+        "codegensettingspagewidget.ui",
         "qtconfigwidget.cpp",
         "qtconfigwidget.h",
         "qtsupport.qrc",
