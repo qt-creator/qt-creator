@@ -69,7 +69,8 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
     {
-        painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+        const bool smoothTransform = painter->worldTransform().m11() < 1;
+        painter->setRenderHint(QPainter::SmoothPixmapTransform, smoothTransform);
         painter->drawPixmap(offset(), m_movie->currentPixmap());
     }
 
@@ -257,6 +258,9 @@ void ImageView::doScale(qreal factor)
 
     scale(actualFactor, actualFactor);
     emitScaleFactor();
+    if (QGraphicsPixmapItem *pixmapItem = dynamic_cast<QGraphicsPixmapItem *>(d->imageItem))
+        pixmapItem->setTransformationMode(
+                    transform().m11() < 1 ? Qt::SmoothTransformation : Qt::FastTransformation);
 }
 
 void ImageView::updatePixmap(const QRect &rect)
