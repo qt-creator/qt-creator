@@ -63,7 +63,6 @@ struct FormClassWizardGenerationParameters
     bool retranslationSupport; // Add handling for language change events
     bool includeQtModule; // Include "<QtGui/[Class]>" or just "<[Class]>"
     bool addQtVersionCheck; // Include #ifdef when using "#include <QtGui/..."
-    bool indentNamespace;
 };
 
 inline bool operator==(const FormClassWizardGenerationParameters &p1, const FormClassWizardGenerationParameters &p2) { return p1.equals(p2); }

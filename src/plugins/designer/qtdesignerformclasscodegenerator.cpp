@@ -47,11 +47,10 @@ static const char formClassWizardPageGroupC[] = "FormClassWizardPage";
 static const char translationKeyC[] = "RetranslationSupport";
 static const char embeddingModeKeyC[] = "Embedding";
 
-// TODO: These 3 are general coding convention settings and
+// TODO: These 2 are general coding convention settings and
 // should go to CppTools...
 static const char includeQtModuleKeyC[] = "IncludeQtModule";
 static const char addQtVersionCheckKeyC[] = "AddQtVersionCheck";
-static const char indentNamespaceKeyC[] = "IndentNamespace";
 
 static const bool retranslationSupportDefault = false;
 
@@ -62,8 +61,7 @@ FormClassWizardGenerationParameters::FormClassWizardGenerationParameters() :
     embedding(PointerAggregatedUiClass),
     retranslationSupport(retranslationSupportDefault),
     includeQtModule(false),
-    addQtVersionCheck(false),
-    indentNamespace(false)
+    addQtVersionCheck(false)
 {
 }
 
@@ -75,7 +73,6 @@ void FormClassWizardGenerationParameters::fromSettings(const QSettings *settings
     embedding =  static_cast<UiClassEmbedding>(settings->value(group + QLatin1String(embeddingModeKeyC), int(PointerAggregatedUiClass)).toInt());
     includeQtModule = settings->value(group + QLatin1String(includeQtModuleKeyC), false).toBool();
     addQtVersionCheck = settings->value(group + QLatin1String(addQtVersionCheckKeyC), false).toBool();
-    indentNamespace = settings->value(group + QLatin1String(indentNamespaceKeyC), false).toBool();
 }
 
 void FormClassWizardGenerationParameters::toSettings(QSettings *settings) const
@@ -85,7 +82,6 @@ void FormClassWizardGenerationParameters::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(embeddingModeKeyC), embedding);
     settings->setValue(QLatin1String(includeQtModuleKeyC), includeQtModule);
     settings->setValue(QLatin1String(addQtVersionCheckKeyC), addQtVersionCheck);
-    settings->setValue(QLatin1String(indentNamespaceKeyC), indentNamespace);
     settings->endGroup();
 }
 
@@ -94,8 +90,7 @@ bool FormClassWizardGenerationParameters::equals(const FormClassWizardGeneration
     return embedding == rhs.embedding
             && retranslationSupport == rhs.retranslationSupport
             && includeQtModule == rhs.includeQtModule
-            && addQtVersionCheck == rhs.addQtVersionCheck
-            && indentNamespace == rhs.indentNamespace;
+            && addQtVersionCheck == rhs.addQtVersionCheck;
 }
 
 // Generation code
@@ -185,8 +180,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
         }
     }
 
-    const QString namespaceIndent = Utils::writeOpeningNameSpaces(namespaceList,
-                                                                  generationParameters.indentNamespace ? indent : QString(),
+    const QString namespaceIndent = Utils::writeOpeningNameSpaces(namespaceList, QString(),
                                                                   headerStr);
 
     // Forward-declare the UI class
@@ -220,7 +214,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
         headerStr << uiMemberC << ";\n";
     }
     headerStr << namespaceIndent << "};\n\n";
-    Utils::writeClosingNameSpaces(namespaceList, generationParameters.indentNamespace ? indent : QString(), headerStr);
+    Utils::writeClosingNameSpaces(namespaceList, QString(), headerStr);
     headerStr << "#endif // "<<  guard << '\n';
 
     // 2) Source file
@@ -230,7 +224,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     if (generationParameters.embedding == Internal::PointerAggregatedUiClass)
         Utils::writeIncludeFileDirective(uiInclude, false, sourceStr);
     // NameSpaces(
-    Utils::writeOpeningNameSpaces(namespaceList, generationParameters.indentNamespace ? indent : QString(), sourceStr);
+    Utils::writeOpeningNameSpaces(namespaceList, QString(), sourceStr);
     // Constructor with setupUi
     sourceStr << '\n' << namespaceIndent << unqualifiedClassName << "::" << unqualifiedClassName << "(QWidget *parent) :\n"
                << namespaceIndent << indent << formBaseClass << "(parent)";
@@ -261,7 +255,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
                   << namespaceIndent << indent << "}\n"
                   << namespaceIndent << "}\n";
     }
-    Utils::writeClosingNameSpaces(namespaceList, generationParameters.indentNamespace ? indent : QString(), sourceStr);
+    Utils::writeClosingNameSpaces(namespaceList, QString(), sourceStr);
     return true;
 }
 
