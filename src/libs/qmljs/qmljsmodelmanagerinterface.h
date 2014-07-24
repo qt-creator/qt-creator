@@ -198,6 +198,8 @@ public:
                                   bool autoComplete = true) const;
     void setDefaultVContext(const ViewerContext &vContext);
     virtual ProjectInfo defaultProjectInfo() const;
+    virtual ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const;
+
 
     // Blocks until all parsing threads are done. Used for testing.
     void joinAllThreads();

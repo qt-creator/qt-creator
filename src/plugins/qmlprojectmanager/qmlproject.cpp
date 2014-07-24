@@ -41,7 +41,7 @@
 #include <coreplugin/documentmanager.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qmljstools/qmljsmodelmanager.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
@@ -108,7 +108,6 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
       m_defaultImport(UnknownImport),
-      m_modelManager(QmlJS::ModelManagerInterface::instance()),
       m_activeTarget(0)
 {
     setId("QmlProjectManager.QmlProject");
@@ -210,7 +209,8 @@ void QmlProject::parseProject(RefreshOptions options)
         }
         if (m_projectItem) {
             m_projectItem.data()->setSourceDirectory(projectDir().path());
-            m_modelManager->updateSourceFiles(m_projectItem.data()->files(), true);
+            if (modelManager())
+                modelManager()->updateSourceFiles(m_projectItem.data()->files(), true);
 
             QString mainFilePath = m_projectItem.data()->mainFile();
             if (!mainFilePath.isEmpty()) {
@@ -243,11 +243,14 @@ void QmlProject::refresh(RefreshOptions options)
     if (options & Files)
         m_rootNode->refresh();
 
+    if (!modelManager())
+        return;
+
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
-            QmlJSTools::defaultProjectInfoForProject(this);
+            modelManager()->defaultProjectInfoForProject(this);
     projectInfo.importPaths = customImportPaths();
 
-    m_modelManager->updateProjectInfo(projectInfo, this);
+    modelManager()->updateProjectInfo(projectInfo, this);
 }
 
 QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
@@ -260,6 +263,11 @@ QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
     }
     absolutePaths.removeDuplicates();
     return absolutePaths;
+}
+
+QmlJS::ModelManagerInterface *QmlProject::modelManager() const
+{
+    return QmlJS::ModelManagerInterface::instance();
 }
 
 QStringList QmlProject::files() const
@@ -316,8 +324,8 @@ QmlProject::QmlImport QmlProject::defaultImport() const
 void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString> &removed)
 {
     refresh(Files);
-    if (!removed.isEmpty())
-        m_modelManager->removeFiles(removed.toList());
+    if (!removed.isEmpty() && modelManager())
+        modelManager()->removeFiles(removed.toList());
 }
 
 QString QmlProject::displayName() const

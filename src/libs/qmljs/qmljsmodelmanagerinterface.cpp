@@ -1399,6 +1399,12 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() c
     return m_defaultProjectInfo;
 }
 
+ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfoForProject(
+        ProjectExplorer::Project *) const
+{
+    return ModelManagerInterface::ProjectInfo();
+}
+
 void ModelManagerInterface::setDefaultVContext(const ViewerContext &vContext)
 {
     QMutexLocker locker(&m_mutex);

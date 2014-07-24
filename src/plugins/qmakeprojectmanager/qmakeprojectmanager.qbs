@@ -15,7 +15,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "CppTools" }
     Depends { name: "TextEditor" }
-    Depends { name: "QmlJSTools" }
     Depends { name: "ResourceEditor" }
     Depends { name: "Android" }
 

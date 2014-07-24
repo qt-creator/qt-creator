@@ -46,7 +46,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/documentmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <qmljstools/qmljsmodelmanager.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
@@ -600,7 +600,7 @@ void QmakeProject::updateQmlJSCodeModel()
         return;
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
-            QmlJSTools::defaultProjectInfoForProject(this);
+            modelManager->defaultProjectInfoForProject(this);
 
     FindQmakeProFiles findQt4ProFiles;
     QList<QmakeProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());

@@ -723,7 +723,7 @@ void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData &prj)
         return;
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
-            QmlJSTools::defaultProjectInfoForProject(this);
+            modelManager->defaultProjectInfoForProject(this);
 
     setProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS, !projectInfo.sourceFiles.isEmpty());
     modelManager->updateProjectInfo(projectInfo, this);

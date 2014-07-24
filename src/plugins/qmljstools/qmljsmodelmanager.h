@@ -72,6 +72,7 @@ protected:
     void writeMessageInternal(const QString &msg) const QTC_OVERRIDE;
     WorkingCopy workingCopyInternal() const QTC_OVERRIDE;
     void addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const QTC_OVERRIDE;
+    ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const QTC_OVERRIDE;
 private slots:
     void updateDefaultProjectInfo();
 private:
@@ -81,8 +82,6 @@ private:
 
 } // namespace Internal
 
-QMLJSTOOLS_EXPORT QmlJS::ModelManagerInterface::ProjectInfo defaultProjectInfoForProject(
-        ProjectExplorer::Project *project);
 QMLJSTOOLS_EXPORT void setupProjectInfoQmlBundles(QmlJS::ModelManagerInterface::ProjectInfo &projectInfo);
 
 } // namespace QmlJSTools

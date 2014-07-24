@@ -68,8 +68,8 @@ using namespace QmlJSTools;
 using namespace QmlJSTools::Internal;
 
 
-ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
-        ProjectExplorer::Project *project)
+ModelManagerInterface::ProjectInfo QmlJSTools::Internal::ModelManager::defaultProjectInfoForProject(
+        ProjectExplorer::Project *project) const
 {
     ModelManagerInterface::ProjectInfo projectInfo(project);
     ProjectExplorer::Target *activeTarget = 0;

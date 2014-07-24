@@ -107,13 +107,13 @@ private:
     // plain format
     void parseProject(RefreshOptions options);
     QStringList convertToAbsoluteFiles(const QStringList &paths) const;
+    QmlJS::ModelManagerInterface *modelManager() const;
 
     Internal::Manager *m_manager;
     QString m_fileName;
     Internal::QmlProjectFile *m_file;
     QString m_projectName;
     QmlImport m_defaultImport;
-    QmlJS::ModelManagerInterface *m_modelManager;
     ProjectExplorer::Target *m_activeTarget;
 
     // plain format
