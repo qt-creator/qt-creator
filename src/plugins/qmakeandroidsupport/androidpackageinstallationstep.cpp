@@ -44,9 +44,6 @@
 using namespace QmakeAndroidSupport::Internal;
 
 const Core::Id AndroidPackageInstallationStep::Id = Core::Id("Qt4ProjectManager.AndroidPackageInstallationStep");
-namespace {
-const char ANDROIDDIRECTORY[] = "Android.AndroidPackageInstallationStep.AndroidDirectory";
-}
 
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl)
     : AbstractProcessStep(bsl, Id)
