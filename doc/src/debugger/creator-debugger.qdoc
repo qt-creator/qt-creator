@@ -892,8 +892,8 @@
 
     Debugging helpers are always automatically used. To force a plain
     C-like display of structures, select \gui Tools > \gui Options >
-    \gui Debugger > \gui {Locals & Expressions}, and then select the
-    \gui{Force Raw Structure Display} check box. For GDB
+    \gui Debugger > \gui {Locals & Expressions}, and then deselect the
+    \gui{Use Debugging Helper} check box. For GDB
     and LLDB this will still use the Python scripts, but generate
     more basic output. To force plain display for a single object
     or for all objects of a given type, select the corresponding
