@@ -248,7 +248,7 @@ void ToolChainKitInformation::kitsWereLoaded()
 
 void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
 {
-    auto matcher = KitMatcher([tc](const Kit *k) { return toolChain(k) == tc; });
+    auto matcher = KitMatcher([tc, this](const Kit *k) { return toolChain(k) == tc; });
     foreach (Kit *k, KitManager::matchingKits(matcher))
         notifyAboutUpdate(k);
 }
