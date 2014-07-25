@@ -214,7 +214,7 @@ void CodepasterPlugin::postEditor()
     if (const BaseTextEditor *textEditor = qobject_cast<const BaseTextEditor *>(editor))
         data = textEditor->selectedText();
     if (data.isEmpty()) {
-        if (const BaseTextEditorDocument *textDocument = qobject_cast<const BaseTextEditorDocument *>(document))
+        if (auto textDocument = qobject_cast<const BaseTextDocument *>(document))
             data = textDocument->plainText();
     }
     post(data, mimeType);

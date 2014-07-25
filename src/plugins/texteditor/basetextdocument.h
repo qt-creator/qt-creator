@@ -58,24 +58,7 @@ class TypingSettings;
 
 typedef QList<TextMark *> TextMarks;
 
-class TEXTEDITOR_EXPORT BaseTextEditorDocument : public Core::TextDocument
-{
-    Q_OBJECT
-public:
-    explicit BaseTextEditorDocument(QObject *parent = 0);
-
-    virtual QString plainText() const = 0;
-    virtual QString textAt(int pos, int length) const = 0;
-    virtual QChar characterAt(int pos) const = 0;
-
-    static QMap<QString, QString> openedTextDocumentContents();
-    static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
-
-signals:
-    void contentsChanged();
-};
-
-class TEXTEDITOR_EXPORT BaseTextDocument : public BaseTextEditorDocument
+class TEXTEDITOR_EXPORT BaseTextDocument : public Core::TextDocument
 {
     Q_OBJECT
 
@@ -83,10 +66,12 @@ public:
     BaseTextDocument();
     virtual ~BaseTextDocument();
 
-    // BaseTextEditorDocument
-    QString plainText() const;
-    QString textAt(int pos, int length) const;
-    QChar characterAt(int pos) const;
+    static QMap<QString, QString> openedTextDocumentContents();
+    static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
+
+    virtual QString plainText() const;
+    virtual QString textAt(int pos, int length) const;
+    virtual QChar characterAt(int pos) const;
 
     void setTypingSettings(const TypingSettings &typingSettings);
     void setStorageSettings(const StorageSettings &storageSettings);
@@ -148,6 +133,7 @@ public slots:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
 signals:
+    void contentsChanged();
     void tabSettingsChanged();
     void fontSettingsChanged();
 

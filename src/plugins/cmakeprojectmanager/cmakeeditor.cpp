@@ -109,7 +109,7 @@ void CMakeEditor::build()
 QString CMakeEditor::contextHelpId() const
 {
     int pos = position();
-    TextEditor::BaseTextEditorDocument* doc = const_cast<CMakeEditor*>(this)->textDocument();
+    TextEditor::BaseTextDocument *doc = const_cast<CMakeEditor*>(this)->textDocument();
 
     QChar chr;
     do {

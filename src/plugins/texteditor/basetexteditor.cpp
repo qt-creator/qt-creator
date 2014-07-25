@@ -6850,11 +6850,10 @@ bool BaseTextEditor::restoreState(const QByteArray &state)
     return m_editorWidget->restoreState(state);
 }
 
-BaseTextEditorDocument *BaseTextEditor::textDocument()
+BaseTextDocument *BaseTextEditor::textDocument()
 {
-    return qobject_cast<BaseTextEditorDocument *>(document());
+    return qobject_cast<BaseTextDocument *>(document());
 }
-
 
 BaseTextEditor *BaseTextEditor::currentTextEditor()
 {

@@ -197,38 +197,15 @@ void BaseTextDocumentPrivate::onModificationChanged(bool modified)
         updateRevisions();
 }
 
-BaseTextEditorDocument::BaseTextEditorDocument(QObject *parent)
-    : Core::TextDocument(parent)
-{
-}
 
-QMap<QString, QString> BaseTextEditorDocument::openedTextDocumentContents()
-{
-    QMap<QString, QString> workingCopy;
-    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
-        BaseTextEditorDocument *textEditorDocument = qobject_cast<BaseTextEditorDocument *>(document);
-        if (!textEditorDocument)
-            continue;
-        QString fileName = textEditorDocument->filePath();
-        workingCopy[fileName] = textEditorDocument->plainText();
-    }
-    return workingCopy;
-}
+///////////////////////////////////////////////////////////////////////
+//
+// BaseTextDocument
+//
+///////////////////////////////////////////////////////////////////////
 
-QMap<QString, QTextCodec *> BaseTextEditorDocument::openedTextDocumentEncodings()
-{
-    QMap<QString, QTextCodec *> workingCopy;
-    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
-        BaseTextEditorDocument *textEditorDocument = qobject_cast<BaseTextEditorDocument *>(document);
-        if (!textEditorDocument)
-            continue;
-        QString fileName = textEditorDocument->filePath();
-        workingCopy[fileName] = const_cast<QTextCodec *>(textEditorDocument->codec());
-    }
-    return workingCopy;
-}
-
-BaseTextDocument::BaseTextDocument() : d(new BaseTextDocumentPrivate(this))
+BaseTextDocument::BaseTextDocument()
+    : d(new BaseTextDocumentPrivate(this))
 {
     connect(d->m_document, SIGNAL(modificationChanged(bool)), d, SLOT(onModificationChanged(bool)));
     connect(d->m_document, SIGNAL(modificationChanged(bool)), this, SIGNAL(changed()));
@@ -250,6 +227,32 @@ BaseTextDocument::~BaseTextDocument()
     delete d->m_document;
     d->m_document = 0;
     delete d;
+}
+
+QMap<QString, QString> BaseTextDocument::openedTextDocumentContents()
+{
+    QMap<QString, QString> workingCopy;
+    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
+        BaseTextDocument *textEditorDocument = qobject_cast<BaseTextDocument *>(document);
+        if (!textEditorDocument)
+            continue;
+        QString fileName = textEditorDocument->filePath();
+        workingCopy[fileName] = textEditorDocument->plainText();
+    }
+    return workingCopy;
+}
+
+QMap<QString, QTextCodec *> BaseTextDocument::openedTextDocumentEncodings()
+{
+    QMap<QString, QTextCodec *> workingCopy;
+    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
+        BaseTextDocument *textEditorDocument = qobject_cast<BaseTextDocument *>(document);
+        if (!textEditorDocument)
+            continue;
+        QString fileName = textEditorDocument->filePath();
+        workingCopy[fileName] = const_cast<QTextCodec *>(textEditorDocument->codec());
+    }
+    return workingCopy;
 }
 
 QString BaseTextDocument::plainText() const

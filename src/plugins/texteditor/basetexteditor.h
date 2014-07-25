@@ -121,7 +121,7 @@ public:
     BaseTextEditor(BaseTextEditorWidget *editorWidget);
     ~BaseTextEditor();
 
-    virtual BaseTextEditorDocument *textDocument();
+    virtual BaseTextDocument *textDocument();
 
     enum MarkRequestKind {
         BreakpointRequest,

@@ -1891,7 +1891,7 @@ void DebuggerPluginPrivate::requestContextMenu(BaseTextEditor *editor,
     bool contextUsable = true;
 
     BreakpointModelId id = BreakpointModelId();
-    BaseTextEditorDocument *document = editor->textDocument();
+    BaseTextDocument *document = editor->textDocument();
     args.fileName = document->filePath();
     if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
         QString line = document->plainText()

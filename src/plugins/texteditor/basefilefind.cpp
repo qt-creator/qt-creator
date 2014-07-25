@@ -174,12 +174,12 @@ void BaseFileFind::runSearch(Core::SearchResult *search)
         watcher->setFuture(Utils::findInFilesRegExp(parameters.text,
             files(parameters.nameFilters, parameters.additionalParameters),
             textDocumentFlagsForFindFlags(parameters.flags),
-            BaseTextEditorDocument::openedTextDocumentContents()));
+            BaseTextDocument::openedTextDocumentContents()));
     } else {
         watcher->setFuture(Utils::findInFiles(parameters.text,
             files(parameters.nameFilters, parameters.additionalParameters),
             textDocumentFlagsForFindFlags(parameters.flags),
-            BaseTextEditorDocument::openedTextDocumentContents()));
+            BaseTextDocument::openedTextDocumentContents()));
     }
     FutureProgress *progress =
         ProgressManager::addTask(watcher->future(), tr("Searching"), Constants::TASK_SEARCH);
