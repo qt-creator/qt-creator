@@ -233,6 +233,9 @@ bool QmakeAndroidBuildApkStep::init()
     if (m_verbose)
         arguments << QLatin1String("--verbose");
 
+    if (buildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Release)
+        arguments << QLatin1String("--release");
+
     if (m_signPackage) {
         arguments << QLatin1String("--sign")
                   << m_keystorePath.toString()
