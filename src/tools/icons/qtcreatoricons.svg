@@ -19,6 +19,32 @@
   <defs
      id="defs4">
     <linearGradient
+       id="linearGradient4115">
+      <stop
+         style="stop-color:#373737;stop-opacity:0.07843138;"
+         offset="0"
+         id="stop4117" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0.27450982;"
+         offset="1"
+         id="stop4119" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4090">
+      <stop
+         style="stop-color:#070707;stop-opacity:0.30980393;"
+         offset="0"
+         id="stop4092" />
+      <stop
+         id="stop4099"
+         offset="0.875"
+         style="stop-color:#303030;stop-opacity:0.2;" />
+      <stop
+         style="stop-color:#2f2f2f;stop-opacity:0.25098041;"
+         offset="1"
+         id="stop4094" />
+    </linearGradient>
+    <linearGradient
        id="linearGradient4072">
       <stop
          id="stop4074"
@@ -537,6 +563,24 @@
        y1="502.5"
        x2="74"
        y2="517.5" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4090"
+       id="linearGradient4128"
+       gradientUnits="userSpaceOnUse"
+       x1="181"
+       y1="589.5"
+       x2="181"
+       y2="597.5" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4115"
+       id="linearGradient4130"
+       gradientUnits="userSpaceOnUse"
+       x1="181"
+       y1="587"
+       x2="181"
+       y2="599" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -545,11 +589,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="16"
-     inkscape:cx="193.42734"
-     inkscape:cy="26.302703"
+     inkscape:zoom="1"
+     inkscape:cx="381.31904"
+     inkscape:cy="185.84959"
      inkscape:document-units="px"
-     inkscape:current-layer="src/plugins/coreplugin/images/unlocked"
+     inkscape:current-layer="layer1"
      showgrid="true"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -751,6 +795,33 @@
          height="16"
          x="155"
          y="584" />
+    </g>
+    <g
+       id="src/plugins/coreplugin/images/progressbar">
+      <rect
+         ry="1"
+         y="588.5"
+         x="178.5"
+         height="10"
+         width="5"
+         id="rect3320"
+         style="fill:none;stroke:#232323;stroke-width:1;stroke-miterlimit:4;stroke-opacity:0.68627451;stroke-dasharray:none" />
+      <rect
+         style="fill:url(#linearGradient4128);fill-opacity:1"
+         id="rect4101"
+         width="4"
+         height="9"
+         x="179"
+         y="589"
+         ry="0.5" />
+      <rect
+         style="fill:none;stroke:url(#linearGradient4130);stroke-width:1;stroke-miterlimit:4;stroke-opacity:0.68627450999999995;stroke-dasharray:none"
+         id="rect4103"
+         width="7"
+         height="12"
+         x="177.5"
+         y="587.5"
+         ry="2" />
     </g>
   </g>
   <g

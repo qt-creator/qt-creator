@@ -93,6 +93,7 @@ private:
     float m_cancelButtonFader;
     bool m_finished;
     bool m_error;
+    QRect m_cancelRect;
 };
 
 } // namespace Internal
