@@ -129,6 +129,13 @@ QStringList DoubleTabWidget::subTabs(int index) const
     return QStringList();
 }
 
+void DoubleTabWidget::setSubTabs(int index, const QStringList &subTabs)
+{
+    if (index >= 0 && index < m_tabs.size())
+        m_tabs[index].subTabs = subTabs;
+    update();
+}
+
 void DoubleTabWidget::setCurrentIndex(int index, int subIndex)
 {
     Q_ASSERT(index < m_tabs.size());

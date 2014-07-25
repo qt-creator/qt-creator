@@ -97,6 +97,7 @@ void ProjectWindow::aboutToShutdown()
 {
     showProperties(-1, -1); // that's a bit stupid, but otherwise stuff is still
                             // connected to the session
+    m_cache.clear();
     disconnect(KitManager::instance(), 0, this, 0);
     disconnect(SessionManager::instance(), 0, this, 0);
 }
@@ -109,41 +110,34 @@ void ProjectWindow::removedTarget(Target *)
         projectUpdated(p);
 }
 
-void ProjectWindow::projectUpdated(Project *p)
+void ProjectWindow::projectUpdated(Project *project)
 {
     // Called after a project was configured
-    int index = m_tabWidget->currentIndex();
-    if (deregisterProject(p)) // might return false if the project is unloading
-        registerProject(p);
-    m_tabWidget->setCurrentIndex(index);
-}
+    int currentIndex = m_tabWidget->currentIndex();
+    int oldSubIndex = m_tabWidget->currentSubIndex();
 
-QStringList ProjectWindow::tabDisplayNamesFor(Project *project)
-{
-    QStringList subTabs;
-    foreach (ProjectPanelFactory *panelFactory, ProjectPanelFactory::factories()) {
-        if (panelFactory->supports(project))
-            subTabs << panelFactory->displayName();
-    }
-    return subTabs;
-}
+    removeCurrentWidget();
 
-int ProjectWindow::insertPosFor(Project *project)
-{
-    int newIndex = -1;
-    for (int i = 0; i <= m_tabIndexToProject.count(); ++i) {
-        if (i == m_tabIndexToProject.count() ||
-            m_tabIndexToProject.at(i)->displayName() > project->displayName()) {
-            newIndex = i;
-            break;
-        }
+    int newSubIndex = m_cache.recheckFactories(project, oldSubIndex);
+    if (newSubIndex == -1)
+        newSubIndex = 0;
+    m_tabWidget->setSubTabs(currentIndex, m_cache.tabNames(project));
+    m_ignoreChange = true;
+    m_tabWidget->setCurrentIndex(currentIndex, newSubIndex);
+    m_ignoreChange = false;
+
+    QWidget *widget = m_cache.widgetFor(project, newSubIndex);
+    if (widget) {
+        m_currentWidget = widget;
+        m_centralWidget->addWidget(m_currentWidget);
+        m_centralWidget->setCurrentWidget(m_currentWidget);
+        m_currentWidget->show();
     }
-    return newIndex;
 }
 
 void ProjectWindow::projectDisplayNameChanged(Project *project)
 {
-    int index = m_tabIndexToProject.indexOf(project);
+    int index = m_cache.indexForProject(project);
     if (index < 0)
         return;
 
@@ -151,11 +145,11 @@ void ProjectWindow::projectDisplayNameChanged(Project *project)
     bool isCurrentIndex = m_tabWidget->currentIndex() == index;
     int subIndex = m_tabWidget->currentSubIndex();
     QStringList subTabs = m_tabWidget->subTabs(index);
-    m_tabIndexToProject.removeAt(index);
     m_tabWidget->removeTab(index);
 
-    int newIndex = insertPosFor(project);
-    m_tabIndexToProject.insert(newIndex, project);
+    m_cache.sort();
+
+    int newIndex = m_cache.indexForProject(project);
     m_tabWidget->insertTab(newIndex, project->displayName(), project->projectFilePath().toString(), subTabs);
 
     if (isCurrentIndex)
@@ -165,16 +159,14 @@ void ProjectWindow::projectDisplayNameChanged(Project *project)
 
 void ProjectWindow::registerProject(ProjectExplorer::Project *project)
 {
-    if (!project || m_tabIndexToProject.contains(project))
+    if (m_cache.isRegistered(project))
         return;
 
-    // find index to insert:
-    int index = insertPosFor(project);
-
-    // Add the project specific pages
-    QStringList subtabs = tabDisplayNamesFor(project);
-    m_tabIndexToProject.insert(index, project);
-    m_tabWidget->insertTab(index, project->displayName(), project->projectFilePath().toString(), subtabs);
+    m_cache.registerProject(project);
+    m_tabWidget->insertTab(m_cache.indexForProject(project),
+                           project->displayName(),
+                           project->projectFilePath().toString(),
+                           m_cache.tabNames(project));
 
     connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
             this, SLOT(removedTarget(ProjectExplorer::Target*)));
@@ -182,11 +174,14 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
 
 bool ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
 {
-    int index = m_tabIndexToProject.indexOf(project);
-    if (index < 0)
+    int index = m_cache.indexForProject(project);
+    if (index == -1)
         return false;
 
-    m_tabIndexToProject.removeAt(index);
+    QVector<QWidget *> deletedWidgets = m_cache.deregisterProject(project);
+    if (deletedWidgets.contains(m_currentWidget))
+        m_currentWidget = 0;
+
     m_tabWidget->removeTab(index);
     disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
             this, SLOT(removedTarget(ProjectExplorer::Target*)));
@@ -195,7 +190,7 @@ bool ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
 
 void ProjectWindow::startupProjectChanged(ProjectExplorer::Project *p)
 {
-    int index = m_tabIndexToProject.indexOf(p);
+    int index = m_cache.indexForProject(p);
     if (index != -1)
         m_tabWidget->setCurrentIndex(index);
 }
@@ -205,36 +200,18 @@ void ProjectWindow::showProperties(int index, int subIndex)
     if (m_ignoreChange)
         return;
 
-    if (index < 0 || index >= m_tabIndexToProject.count()) {
-        removeCurrentWidget();
+    removeCurrentWidget();
+    Project *project = m_cache.projectFor(index);
+    if (!project) {
         return;
     }
 
-    Project *project = m_tabIndexToProject.at(index);
-
-    // Set up custom panels again:
-    int pos = 0;
-    ProjectPanelFactory *fac = 0;
-
-    foreach (ProjectPanelFactory *panelFactory, ProjectPanelFactory::factories()) {
-        if (panelFactory->supports(project)) {
-            if (subIndex == pos) {
-                fac = panelFactory;
-                break;
-            }
-            ++pos;
-        }
-    }
-
-    if (fac) {
-        removeCurrentWidget();
-
-        QWidget *widget = fac->createWidget(project);
-        Q_ASSERT(widget);
-
+    QWidget *widget = m_cache.widgetFor(project, subIndex);
+    if (widget) {
         m_currentWidget = widget;
         m_centralWidget->addWidget(m_currentWidget);
         m_centralWidget->setCurrentWidget(m_currentWidget);
+        m_currentWidget->show();
         if (hasFocus()) // we get assigned focus from setFocusToCurrentMode, pass that on
             m_currentWidget->setFocus();
     }
@@ -246,9 +223,167 @@ void ProjectWindow::removeCurrentWidget()
 {
     if (m_currentWidget) {
         m_centralWidget->removeWidget(m_currentWidget);
-        if (m_currentWidget) {
-            delete m_currentWidget;
-            m_currentWidget = 0;
+        m_currentWidget->hide();
+        m_currentWidget = 0;
+    }
+}
+
+// WidgetCache
+void WidgetCache::registerProject(Project *project)
+{
+    QTC_ASSERT(!isRegistered(project), return);
+
+    QList<ProjectPanelFactory *> fac = ProjectPanelFactory::factories();
+    int factorySize = fac.size();
+
+    ProjectInfo info;
+    info.project = project;
+    info.widgets.resize(factorySize);
+    info.supports.resize(factorySize);
+
+    for (int i = 0; i < factorySize; ++i)
+        info.supports[i] = fac.at(i)->supports(project);
+
+    m_projects.append(info);
+    sort();
+}
+
+QVector<QWidget *> WidgetCache::deregisterProject(Project *project)
+{
+    QTC_ASSERT(isRegistered(project), return QVector<QWidget *>());
+
+    int index = indexForProject(project);
+    ProjectInfo info = m_projects.at(index);
+    QVector<QWidget *> deletedWidgets = info.widgets;
+    qDeleteAll(info.widgets);
+    m_projects.removeAt(index);
+    return deletedWidgets;
+}
+
+QStringList WidgetCache::tabNames(Project *project) const
+{
+    int index = indexForProject(project);
+    if (index == -1)
+        return QStringList();
+
+    QList<ProjectPanelFactory *> fac = ProjectPanelFactory::factories();
+
+    ProjectInfo info = m_projects.at(index);
+    int end = info.supports.size();
+    QStringList names;
+    for (int i = 0; i < end; ++i)
+        if (info.supports.at(i))
+            names << fac.at(i)->displayName();
+    return names;
+}
+
+int WidgetCache::factoryIndex(int projectIndex, int supportsIndex) const
+{
+    QList<ProjectPanelFactory *> fac = ProjectPanelFactory::factories();
+    int end = fac.size();
+    const ProjectInfo &info = m_projects.at(projectIndex);
+    for (int i = 0; i < end; ++i) {
+        if (info.supports.at(i)) {
+            if (supportsIndex == 0)
+                return i;
+            else
+                --supportsIndex;
         }
     }
+    return -1;
+}
+
+QWidget *WidgetCache::widgetFor(Project *project, int supportsIndex)
+{
+    int projectIndex = indexForProject(project);
+    if (projectIndex == -1)
+        return 0;
+
+    QList<ProjectPanelFactory *> fac = ProjectPanelFactory::factories();
+
+    int factoryIndex = factoryIndex(projectIndex, supportsIndex);
+    if (factoryIndex < 0 ||factoryIndex >= m_projects.at(projectIndex).widgets.size())
+        return 0;
+    if (!m_projects.at(projectIndex).widgets.at(factoryIndex))
+        m_projects[projectIndex].widgets[factoryIndex] = fac.at(factoryIndex)->createWidget(project);
+    return m_projects.at(projectIndex).widgets.at(factoryIndex);
+}
+
+bool WidgetCache::isRegistered(Project *project) const
+{
+    return Utils::anyOf(m_projects, [&project](ProjectInfo pinfo) {
+        return pinfo.project == project;
+    });
+}
+
+int WidgetCache::indexForProject(Project *project) const
+{
+    return Utils::indexOf(m_projects, [&project](ProjectInfo pinfo) {
+        return pinfo.project == project;
+    });
+}
+
+Project *WidgetCache::projectFor(int projectIndex) const
+{
+    if (projectIndex < 0)
+        return 0;
+    if (projectIndex >= m_projects.size())
+        return 0;
+    return m_projects.at(projectIndex).project;
+}
+
+void WidgetCache::sort()
+{
+    Utils::sort(m_projects, [](const ProjectInfo &a, const ProjectInfo &b) -> bool {
+        QString aName = a.project->displayName();
+        QString bName = b.project->displayName();
+        if (aName == bName) {
+            Utils::FileName aPath = a.project->projectFilePath();
+            Utils::FileName bPath = b.project->projectFilePath();
+            if (aPath == bPath)
+                return a.project < b.project;
+            else
+                return aPath < bPath;
+        } else {
+            return aName < bName;
+        }
+
+    });
+}
+
+int WidgetCache::recheckFactories(Project *project, int oldSupportsIndex)
+{
+    int projectIndex = indexForProject(project);
+    int factoryIndex = factoryIndex(projectIndex, oldSupportsIndex);
+
+    ProjectInfo &info = m_projects[projectIndex];
+    QList<ProjectPanelFactory *> fac = ProjectPanelFactory::factories();
+    int end = fac.size();
+
+    for (int i = 0; i < end; ++i) {
+        info.supports[i] = fac.at(i)->supports(project);
+        if (!info.supports.at(i)) {
+            delete info.widgets.at(i);
+            info.widgets[i] = 0;
+        }
+    }
+
+    if (factoryIndex < 0)
+        return -1;
+
+    if (!info.supports.at(factoryIndex))
+        return -1;
+
+    int newIndex = 0;
+    for (int i = 0; i < factoryIndex; ++i) {
+        if (info.supports.at(i))
+            ++newIndex;
+    }
+    return newIndex;
+}
+
+void WidgetCache::clear()
+{
+    while (!m_projects.isEmpty())
+        deregisterProject(m_projects.first().project);
 }

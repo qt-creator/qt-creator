@@ -47,6 +47,37 @@ namespace Internal {
 
 class DoubleTabWidget;
 
+class WidgetCache
+{
+public:
+    void registerProject(Project *project);
+    QVector<QWidget *> deregisterProject(Project *project);
+
+    bool isRegistered(Project *project) const;
+    int indexForProject(Project *project) const;
+    Project *projectFor(int projectIndex) const;
+    QStringList tabNames(Project *project) const;
+
+    QWidget *widgetFor(Project *project, int factoryIndex);
+
+    void sort();
+    int recheckFactories(Project *project, int oldSupportsIndex);
+
+    void clear();
+
+private:
+    int factoryIndex(int projectIndex, int supportsIndex) const;
+
+    class ProjectInfo
+    {
+    public:
+        Project *project;
+        QVector<bool> supports;
+        QVector<QWidget *> widgets;
+    };
+    QList<ProjectInfo> m_projects; //ordered by displaynames of the projects
+};
+
 class ProjectWindow : public QWidget
 {
     Q_OBJECT
@@ -58,7 +89,7 @@ public:
     void aboutToShutdown();
 
 public slots:
-    void projectUpdated(ProjectExplorer::Project *p);
+    void projectUpdated(ProjectExplorer::Project *project);
 
 private slots:
     void projectDisplayNameChanged(ProjectExplorer::Project *p);
@@ -70,14 +101,12 @@ private slots:
 
 private:
     void removeCurrentWidget();
-    static QStringList tabDisplayNamesFor(Project *project);
-    int insertPosFor(Project *project);
 
     bool m_ignoreChange;
     DoubleTabWidget *m_tabWidget;
     QStackedWidget *m_centralWidget;
     QWidget *m_currentWidget;
-    QList<ProjectExplorer::Project *> m_tabIndexToProject;
+    WidgetCache m_cache;
 };
 
 } // namespace Internal

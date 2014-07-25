@@ -61,6 +61,7 @@ public:
     int currentSubIndex() const;
 
     QStringList subTabs(int index) const;
+    void setSubTabs(int index, const QStringList &subTabs);
 
 signals:
     void currentIndexChanged(int index, int subIndex);

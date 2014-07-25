@@ -270,6 +270,7 @@ struct ProjectExplorerPluginPrivate {
     bool m_shuttingDown;
     bool m_ignoreDocumentManagerChangedFile;
     QStringList m_arguments;
+    QList<ProjectPanelFactory *> m_panelFactories;
 };
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
@@ -325,7 +326,6 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     delete d->m_kitManager; // remove all the profile informations
     delete d->m_toolChainManager;
     ProjectPanelFactory::destroyFactories();
-
     delete d;
 }
 
