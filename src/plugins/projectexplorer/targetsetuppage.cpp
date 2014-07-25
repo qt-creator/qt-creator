@@ -144,8 +144,8 @@ using namespace Internal;
 
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
-    m_requiredMatcher(0),
-    m_preferredMatcher(0),
+    m_requiredMatcher(KitMatcher::Matcher()),
+    m_preferredMatcher(KitMatcher::Matcher()),
     m_importer(0),
     m_baseLayout(0),
     m_firstWidget(0),
