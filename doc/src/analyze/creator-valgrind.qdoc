@@ -46,9 +46,7 @@
 
         \li In the \gui Projects mode, select a debug build configuration.
 
-        \li Select \gui Analyze to open the \gui Analyze mode.
-
-        \li Select \gui {Analyze Memory} on the toolbar.
+        \li Select \gui Analyze > \gui {Valgrind Memory Analyzer}.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png "Start button"
@@ -156,9 +154,7 @@
 
         \li In the \gui Projects mode, select a release build configuration.
 
-        \li Select \gui Analyze to open the \gui Analyze mode.
-
-        \li Select \gui Profile on the toolbar.
+        \li Select \gui Analyze > \gui {Valgrind Function Profiler}.
 
         \li Select the
             \inlineimage qtcreator-analyze-start-button.png "Start button"
