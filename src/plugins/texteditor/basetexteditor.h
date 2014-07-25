@@ -72,7 +72,6 @@ typedef QList<RefactorMarker> RefactorMarkers;
 namespace Internal {
     class BaseTextEditorWidgetPrivate;
     class TextEditorOverlay;
-    typedef QString (QString::*TransformationMethod)() const;
 }
 
 class BaseTextEditorWidget;
@@ -327,12 +326,64 @@ public:
 
     void insertPlainText(const QString &text);
 
+    QWidget *extraArea() const;
+    virtual int extraAreaWidth(int *markWidthPtr = 0) const;
+    virtual void extraAreaPaintEvent(QPaintEvent *);
+    virtual void extraAreaLeaveEvent(QEvent *);
+    virtual void extraAreaContextMenuEvent(QContextMenuEvent *);
+    virtual void extraAreaMouseEvent(QMouseEvent *);
+    void updateFoldingHighlight(const QPoint &pos);
+
+    void setLanguageSettingsId(Core::Id settingsId);
+    Core::Id languageSettingsId() const;
+
+    void setCodeStyle(ICodeStylePreferences *settings);
+
+    const DisplaySettings &displaySettings() const;
+    const MarginSettings &marginSettings() const;
+
+    void ensureCursorVisible();
+
+    enum ExtraSelectionKind {
+        CurrentLineSelection,
+        ParenthesesMatchingSelection,
+        CodeWarningsSelection,
+        CodeSemanticsSelection,
+        UndefinedSymbolSelection,
+        UnusedSymbolSelection,
+        FakeVimSelection,
+        OtherSelection,
+        SnippetPlaceholderSelection,
+        ObjCSelection,
+        DebuggerExceptionSelection,
+        NExtraSelectionKinds
+    };
+    void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
+    QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
+    QString extraSelectionTooltip(int pos) const;
+
+    RefactorMarkers refactorMarkers() const;
+    void setRefactorMarkers(const RefactorMarkers &markers);
+
+    // the blocks list must be sorted
+    void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
 
 public slots:
     virtual void copy();
     virtual void paste();
     virtual void cut();
     virtual void selectAll();
+
+    virtual void format();
+    virtual void rewrapParagraph();
+    virtual void unCommentSelection();
+    virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
+    virtual void setMarginSettings(const TextEditor::MarginSettings &);
+    virtual void setBehaviorSettings(const TextEditor::BehaviorSettings &);
+    virtual void setTypingSettings(const TextEditor::TypingSettings &);
+    virtual void setStorageSettings(const TextEditor::StorageSettings &);
+    virtual void setCompletionSettings(const TextEditor::CompletionSettings &);
+    virtual void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &);
 
     void circularPaste();
     void switchUtf8bom();
@@ -419,6 +470,11 @@ public slots:
 signals:
     void assistFinished();
     void readOnlyChanged();
+    void refactorMarkerClicked(const TextEditor::RefactorMarker &marker);
+
+    void requestFontZoom(int zoom);
+    void requestZoomReset();
+    void requestBlockUpdate(const QTextBlock &);
 
 protected:
     bool event(QEvent *e);
@@ -428,8 +484,18 @@ protected:
     void changeEvent(QEvent *e);
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
-
     void showEvent(QShowEvent *);
+    bool viewportEvent(QEvent *event);
+    void resizeEvent(QResizeEvent *);
+    void paintEvent(QPaintEvent *);
+    void timerEvent(QTimerEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void mouseDoubleClickEvent(QMouseEvent *);
+    void leaveEvent(QEvent *);
+    void keyReleaseEvent(QKeyEvent *);
+    void dragEnterEvent(QDragEnterEvent *e);
 
     QMimeData *createMimeDataFromSelection() const;
     bool canInsertFromMimeData(const QMimeData *source) const;
@@ -444,104 +510,9 @@ protected:
     virtual bool replacementVisible(int blockNumber) const;
     virtual QColor replacementPenColor(int blockNumber) const;
 
-private:
-    void maybeSelectLine();
-    void updateCannotDecodeInfo();
-    void collectToCircularClipboard();
-
-protected:
     virtual BaseTextEditor *createEditor() = 0;
     virtual void triggerPendingUpdates();
     virtual void applyFontSettings();
-
-private slots:
-    void editorContentsChange(int position, int charsRemoved, int charsAdded);
-    void documentAboutToBeReloaded();
-    void documentReloadFinished(bool success);
-    void highlightSearchResults(const QString &txt, Core::FindFlags findFlags);
-    void setFindScope(const QTextCursor &start, const QTextCursor &end, int, int);
-    bool inFindScope(const QTextCursor &cursor);
-    bool inFindScope(int selectionStart, int selectionEnd);
-    void inSnippetMode(bool *active);
-
-private:
-    Internal::BaseTextEditorWidgetPrivate *d;
-    friend class Internal::BaseTextEditorWidgetPrivate;
-    friend class Internal::TextEditorOverlay;
-    friend class RefactorOverlay;
-
-public:
-    QWidget *extraArea() const;
-    virtual int extraAreaWidth(int *markWidthPtr = 0) const;
-    virtual void extraAreaPaintEvent(QPaintEvent *);
-    virtual void extraAreaLeaveEvent(QEvent *);
-    virtual void extraAreaContextMenuEvent(QContextMenuEvent *);
-    virtual void extraAreaMouseEvent(QMouseEvent *);
-    void updateFoldingHighlight(const QPoint &pos);
-
-    void setLanguageSettingsId(Core::Id settingsId);
-    Core::Id languageSettingsId() const;
-
-    void setCodeStyle(ICodeStylePreferences *settings);
-
-    const DisplaySettings &displaySettings() const;
-    const MarginSettings &marginSettings() const;
-
-    void ensureCursorVisible();
-
-    enum ExtraSelectionKind {
-        CurrentLineSelection,
-        ParenthesesMatchingSelection,
-        CodeWarningsSelection,
-        CodeSemanticsSelection,
-        UndefinedSymbolSelection,
-        UnusedSymbolSelection,
-        FakeVimSelection,
-        OtherSelection,
-        SnippetPlaceholderSelection,
-        ObjCSelection,
-        DebuggerExceptionSelection,
-        NExtraSelectionKinds
-    };
-    void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
-    QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
-    QString extraSelectionTooltip(int pos) const;
-
-    RefactorMarkers refactorMarkers() const;
-    void setRefactorMarkers(const RefactorMarkers &markers);
-signals:
-    void refactorMarkerClicked(const TextEditor::RefactorMarker &marker);
-
-public:
-    // the blocks list must be sorted
-    void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
-
-public slots:
-    virtual void format();
-    virtual void rewrapParagraph();
-    virtual void unCommentSelection();
-    virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
-    virtual void setMarginSettings(const TextEditor::MarginSettings &);
-    virtual void setBehaviorSettings(const TextEditor::BehaviorSettings &);
-    virtual void setTypingSettings(const TextEditor::TypingSettings &);
-    virtual void setStorageSettings(const TextEditor::StorageSettings &);
-    virtual void setCompletionSettings(const TextEditor::CompletionSettings &);
-    virtual void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &);
-
-protected:
-    bool viewportEvent(QEvent *event);
-
-    void resizeEvent(QResizeEvent *);
-    void paintEvent(QPaintEvent *);
-    void timerEvent(QTimerEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void mousePressEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    void mouseDoubleClickEvent(QMouseEvent *);
-    void leaveEvent(QEvent *);
-    void keyReleaseEvent(QKeyEvent *);
-
-    void dragEnterEvent(QDragEnterEvent *e);
 
     void showDefaultContextMenu(QContextMenuEvent *e, Core::Id menuContextId);
 
@@ -610,50 +581,18 @@ protected slots:
     virtual void slotUpdateBlockNotify(const QTextBlock &);
     virtual void slotCodeStyleSettingsChanged(const QVariant &);
 
-signals:
-    void requestFontZoom(int zoom);
-    void requestZoomReset();
-    void requestBlockUpdate(const QTextBlock &);
-
-private:
-    void ctor(const QSharedPointer<BaseTextDocument> &doc);
-    void handleHomeKey(bool anchor);
-    void handleBackspaceKey();
-    void moveLineUpDown(bool up);
-    void copyLineUpDown(bool up);
-    void saveCurrentCursorPositionForNavigation();
-    void updateHighlights();
-    void updateCurrentLineHighlight();
-
-    void drawFoldingMarker(QPainter *painter, const QPalette &pal,
-                           const QRect &rect,
-                           bool expanded,
-                           bool active,
-                           bool hovered) const;
-
-    void toggleBlockVisible(const QTextBlock &block);
-    QRect foldBox();
-
-    QTextBlock foldedBlockAt(const QPoint &pos, QRect *box = 0) const;
-
-    void updateLink(QMouseEvent *e);
-    void showLink(const Link &);
-    void clearLink();
-
-    void universalHelper(); // test function for development
-
-    bool cursorMoveKeyEvent(QKeyEvent *e);
-    bool camelCaseRight(QTextCursor &cursor, QTextCursor::MoveMode mode);
-    bool camelCaseLeft(QTextCursor &cursor, QTextCursor::MoveMode mode);
-
-    void processTooltipRequest(const QTextCursor &c);
-
-    void transformSelection(Internal::TransformationMethod method);
-    void transformBlockSelection(Internal::TransformationMethod method);
-
 private slots:
     void updateTabStops();
     void applyFontSettingsDelayed();
+
+    void editorContentsChange(int position, int charsRemoved, int charsAdded);
+    void documentAboutToBeReloaded();
+    void documentReloadFinished(bool success);
+    void highlightSearchResults(const QString &txt, Core::FindFlags findFlags);
+    void setFindScope(const QTextCursor &start, const QTextCursor &end, int, int);
+    bool inFindScope(const QTextCursor &cursor);
+    bool inFindScope(int selectionStart, int selectionEnd);
+    void inSnippetMode(bool *active);
 
     // parentheses matcher
     void _q_matchParentheses();
@@ -661,6 +600,12 @@ private slots:
     void slotSelectionChanged();
     void _q_animateUpdate(int position, QPointF lastPos, QRectF rect);
     void doFoo();
+
+private:
+    Internal::BaseTextEditorWidgetPrivate *d;
+    friend class Internal::BaseTextEditorWidgetPrivate;
+    friend class Internal::TextEditorOverlay;
+    friend class RefactorOverlay;
 };
 
 } // namespace TextEditor
