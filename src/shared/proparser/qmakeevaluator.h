@@ -40,6 +40,7 @@
 
 #include <qlist.h>
 #include <qlinkedlist.h>
+#include <qmap.h>
 #include <qset.h>
 #include <qstack.h>
 #include <qstring.h>
@@ -227,8 +228,9 @@ public:
 
     void populateDeps(
             const ProStringList &deps, const ProString &prefix, const ProStringList &suffixes,
-            QHash<ProKey, QSet<ProKey> > &dependencies,
-            ProValueMap &dependees, ProStringList &rootSet) const;
+            const ProString &priosfx,
+            QHash<ProKey, QSet<ProKey> > &dependencies, ProValueMap &dependees,
+            QMultiMap<int, ProString> &rootSet) const;
 
     VisitReturn writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
                           const QString &contents);

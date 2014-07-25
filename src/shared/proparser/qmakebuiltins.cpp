@@ -426,8 +426,9 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
 
 void QMakeEvaluator::populateDeps(
         const ProStringList &deps, const ProString &prefix, const ProStringList &suffixes,
+        const ProString &priosfx,
         QHash<ProKey, QSet<ProKey> > &dependencies, ProValueMap &dependees,
-        ProStringList &rootSet) const
+        QMultiMap<int, ProString> &rootSet) const
 {
     foreach (const ProString &item, deps)
         if (!dependencies.contains(item.toKey())) {
@@ -436,13 +437,13 @@ void QMakeEvaluator::populateDeps(
             foreach (const ProString &suffix, suffixes)
                 depends += values(ProKey(prefix + item + suffix));
             if (depends.isEmpty()) {
-                rootSet << item;
+                rootSet.insert(first(ProKey(prefix + item + priosfx)).toInt(), item);
             } else {
                 foreach (const ProString &dep, depends) {
                     dset.insert(dep.toKey());
                     dependees[dep.toKey()] << item;
                 }
-                populateDeps(depends, prefix, suffixes, dependencies, dependees, rootSet);
+                populateDeps(depends, prefix, suffixes, priosfx, dependencies, dependees, rootSet);
             }
         }
 }
@@ -963,27 +964,31 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         break;
     case E_SORT_DEPENDS:
     case E_RESOLVE_DEPENDS:
-        if (args.count() < 1 || args.count() > 3) {
-            evalError(fL1S("%1(var, [prefix, [suffixes]]) requires one to three arguments.")
+        if (args.count() < 1 || args.count() > 4) {
+            evalError(fL1S("%1(var, [prefix, [suffixes, [prio-suffix]]]) requires one to four arguments.")
                       .arg(func.toQString(m_tmp1)));
         } else {
             QHash<ProKey, QSet<ProKey> > dependencies;
             ProValueMap dependees;
-            ProStringList rootSet;
+            QMultiMap<int, ProString> rootSet;
             ProStringList orgList = values(args.at(0).toKey());
-            populateDeps(orgList, (args.count() < 2 ? ProString() : args.at(1)),
+            ProString prefix = args.count() < 2 ? ProString() : args.at(1);
+            ProString priosfx = args.count() < 4 ? ProString(".priority") : args.at(3);
+            populateDeps(orgList, prefix,
                          args.count() < 3 ? ProStringList(ProString(".depends"))
                                           : split_value_list(args.at(2).toQString(m_tmp2)),
-                         dependencies, dependees, rootSet);
-            for (int i = 0; i < rootSet.size(); ++i) {
-                const ProString &item = rootSet.at(i);
+                         priosfx, dependencies, dependees, rootSet);
+            while (!rootSet.isEmpty()) {
+                QMultiMap<int, ProString>::iterator it = rootSet.begin();
+                const ProString item = *it;
+                rootSet.erase(it);
                 if ((func_t == E_RESOLVE_DEPENDS) || orgList.contains(item))
                     ret.prepend(item);
                 foreach (const ProString &dep, dependees[item.toKey()]) {
                     QSet<ProKey> &dset = dependencies[dep.toKey()];
-                    dset.remove(rootSet.at(i).toKey()); // *Don't* use 'item' - rootSet may have changed!
+                    dset.remove(item.toKey());
                     if (dset.isEmpty())
-                        rootSet << dep;
+                        rootSet.insert(first(ProKey(prefix + dep + priosfx)).toInt(), dep);
                 }
             }
         }
