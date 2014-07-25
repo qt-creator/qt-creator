@@ -29,7 +29,6 @@ SOURCES += texteditorplugin.cpp \
     findinopenfiles.cpp \
     colorscheme.cpp \
     colorschemeedit.cpp \
-    itexteditor.cpp \
     texteditoroverlay.cpp \
     texteditoroptionspage.cpp \
     basetextdocumentlayout.cpp \
@@ -126,7 +125,6 @@ HEADERS += texteditorplugin.h \
     displaysettings.h \
     displaysettingspage.h \
     fontsettings.h \
-    itexteditor.h \
     linenumberfilter.h \
     texteditor_global.h \
     findinfiles.h \

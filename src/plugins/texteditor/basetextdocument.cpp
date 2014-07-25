@@ -59,11 +59,15 @@ using namespace Core;
     \class TextEditor::BaseTextDocument
     \brief The BaseTextDocument class is the base class for QTextDocument based documents.
 
+    It is the base class for documents used by implementations of the BaseTextEditor class,
+    and contains basic functions for retrieving text content and markers (like bookmarks).
+
     Subclasses of BaseTextEditor can either use BaseTextDocument as is (and this is the default),
     or created subclasses of BaseTextDocument if they have special requirements.
 */
 
 namespace TextEditor {
+
 class BaseTextDocumentPrivate : public QObject
 {
     Q_OBJECT
@@ -191,6 +195,37 @@ void BaseTextDocumentPrivate::onModificationChanged(bool modified)
     // e.g. with undo
     if (!modified)
         updateRevisions();
+}
+
+BaseTextEditorDocument::BaseTextEditorDocument(QObject *parent)
+    : Core::TextDocument(parent)
+{
+}
+
+QMap<QString, QString> BaseTextEditorDocument::openedTextDocumentContents()
+{
+    QMap<QString, QString> workingCopy;
+    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
+        BaseTextEditorDocument *textEditorDocument = qobject_cast<BaseTextEditorDocument *>(document);
+        if (!textEditorDocument)
+            continue;
+        QString fileName = textEditorDocument->filePath();
+        workingCopy[fileName] = textEditorDocument->plainText();
+    }
+    return workingCopy;
+}
+
+QMap<QString, QTextCodec *> BaseTextEditorDocument::openedTextDocumentEncodings()
+{
+    QMap<QString, QTextCodec *> workingCopy;
+    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
+        BaseTextEditorDocument *textEditorDocument = qobject_cast<BaseTextEditorDocument *>(document);
+        if (!textEditorDocument)
+            continue;
+        QString fileName = textEditorDocument->filePath();
+        workingCopy[fileName] = const_cast<QTextCodec *>(textEditorDocument->codec());
+    }
+    return workingCopy;
 }
 
 BaseTextDocument::BaseTextDocument() : d(new BaseTextDocumentPrivate(this))

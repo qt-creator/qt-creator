@@ -30,8 +30,7 @@
 #include "textmark.h"
 #include "basetextdocument.h"
 #include "textmarkregistry.h"
-#include "itexteditor.h"
-#include "basetextdocument.h"
+#include "basetexteditor.h"
 #include "texteditorplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>

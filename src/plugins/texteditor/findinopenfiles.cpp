@@ -28,7 +28,8 @@
 ****************************************************************************/
 
 #include "findinopenfiles.h"
-#include "itexteditor.h"
+#include "basetextdocument.h"
+#include "basetexteditor.h"
 
 #include <utils/filesearch.h>
 #include <coreplugin/icore.h>

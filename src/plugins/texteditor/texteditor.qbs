@@ -88,8 +88,6 @@ QtcPlugin {
         "indenter.cpp",
         "indenter.h",
         "ioutlinewidget.h",
-        "itexteditor.cpp",
-        "itexteditor.h",
         "linenumberfilter.cpp",
         "linenumberfilter.h",
         "marginsettings.cpp",

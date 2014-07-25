@@ -36,7 +36,7 @@
 #include "sourcemarker.h"
 #include "utils.h"
 
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <QMutex>
 #include <QScopedPointer>

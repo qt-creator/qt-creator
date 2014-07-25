@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "linenumberfilter.h"
-#include "itexteditor.h"
+#include "basetexteditor.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>

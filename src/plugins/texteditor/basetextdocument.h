@@ -32,9 +32,12 @@
 
 #include "texteditor_global.h"
 
-#include "itexteditor.h"
+#include <coreplugin/textdocument.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <QList>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;
@@ -54,6 +57,23 @@ class TextMark;
 class TypingSettings;
 
 typedef QList<TextMark *> TextMarks;
+
+class TEXTEDITOR_EXPORT BaseTextEditorDocument : public Core::TextDocument
+{
+    Q_OBJECT
+public:
+    explicit BaseTextEditorDocument(QObject *parent = 0);
+
+    virtual QString plainText() const = 0;
+    virtual QString textAt(int pos, int length) const = 0;
+    virtual QChar characterAt(int pos) const = 0;
+
+    static QMap<QString, QString> openedTextDocumentContents();
+    static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
+
+signals:
+    void contentsChanged();
+};
 
 class TEXTEDITOR_EXPORT BaseTextDocument : public BaseTextEditorDocument
 {

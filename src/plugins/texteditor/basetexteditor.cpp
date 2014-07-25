@@ -113,6 +113,7 @@
     is BaseTextEditorWidget.
 */
 
+
 using namespace Core;
 using namespace Utils;
 
@@ -6829,7 +6830,7 @@ IAssistInterface *BaseTextEditorWidget::createAssistInterface(AssistKind kind,
     return new DefaultAssistInterface(document(), position(), d->m_document->filePath(), reason);
 }
 
-QString TextEditor::BaseTextEditorWidget::foldReplacementText(const QTextBlock &) const
+QString BaseTextEditorWidget::foldReplacementText(const QTextBlock &) const
 {
     return QLatin1String("...");
 }
@@ -6847,6 +6848,17 @@ QByteArray BaseTextEditor::saveState() const
 bool BaseTextEditor::restoreState(const QByteArray &state)
 {
     return m_editorWidget->restoreState(state);
+}
+
+BaseTextEditorDocument *BaseTextEditor::textDocument()
+{
+    return qobject_cast<BaseTextEditorDocument *>(document());
+}
+
+
+BaseTextEditor *BaseTextEditor::currentTextEditor()
+{
+    return qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor());
 }
 
 } // namespace TextEditor
