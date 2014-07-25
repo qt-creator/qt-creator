@@ -130,7 +130,7 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
             // Ideally this would be done in a better way...
             QRegExp re(QLatin1String("(MacOSX|iPhoneOS|iPhoneSimulator)([0-9]+\\.[0-9]+)\\.sdk"));
             if (re.exactMatch(QDir(sysroot).dirName())) {
-                data.insert(QLatin1String(CPP_XCODESDKNAME), re.cap(1).toLower() + re.cap(2));
+                data.insert(QLatin1String(CPP_XCODESDKNAME), QString(re.cap(1).toLower() + re.cap(2)));
                 data.insert(QLatin1String(CPP_XCODESDKVERSION), re.cap(2));
             }
         } else if (targetAbi.os() == ProjectExplorer::Abi::LinuxOS) {
