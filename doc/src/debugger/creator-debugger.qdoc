@@ -1216,7 +1216,7 @@
         \li Make sure the debugger is set up properly. For more information,
             see \l{Setting Up Debugger}.
 
-        \li In the \gui Debug mode, select \gui {Windows > Views > Debugger
+        \li In the \gui Debug mode, select \gui {Window > Views > Debugger
             Log} to open the \gui {Debugger Log} view. Browse the contents of
             the pane on the right hand side to find out what went wrong.
             Always attach the contents of the pane to debugger-related
