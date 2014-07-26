@@ -162,6 +162,20 @@ private:
     QSizeF m_size;
 };
 
+class BaseTextEditorPrivate
+{
+public:
+    // Note: This is always a copy of IContext::m_widget.
+    BaseTextEditorWidget *m_editorWidget;
+
+    QToolBar *m_toolBar;
+    QWidget *m_stretchWidget;
+    QAction *m_cursorPositionLabelAction;
+    Utils::LineColumnLabel *m_cursorPositionLabel;
+    QAction *m_fileEncodingLabelAction;
+    Utils::LineColumnLabel *m_fileEncodingLabel;
+};
+
 class BaseTextEditorWidgetPrivate
 {
     BaseTextEditorWidgetPrivate(const BaseTextEditorWidgetPrivate &);
@@ -792,8 +806,8 @@ bool BaseTextEditorWidget::open(QString *errorString, const QString &fileName, c
     if (d->m_document->open(errorString, fileName, realFileName)) {
         moveCursor(QTextCursor::Start);
         d->updateCannotDecodeInfo();
-        if (editor()->m_fileEncodingLabel) {
-            connect(editor()->m_fileEncodingLabel, SIGNAL(clicked()), this,
+        if (editor()->fileEncodingLabel()) {
+            connect(editor()->fileEncodingLabel(), SIGNAL(clicked()), this,
                     SLOT(selectEncoding()), Qt::UniqueConnection);
             connect(d->m_document->document(), SIGNAL(modificationChanged(bool)), this,
                     SLOT(updateTextCodecLabel()), Qt::UniqueConnection);
@@ -6372,9 +6386,10 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 
 
 BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
-  : m_editorWidget(editor)
+    : d(new BaseTextEditorPrivate)
 {
-    setWidget(m_editorWidget);
+    setWidget(editor);
+    d->m_editorWidget = editor;
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(editor);
     connect(baseTextFind, SIGNAL(highlightAll(QString,Core::FindFlags)),
@@ -6384,147 +6399,148 @@ BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
     aggregate->add(baseTextFind);
     aggregate->add(editor);
 
-    m_cursorPositionLabel = new Utils::LineColumnLabel;
+    d->m_cursorPositionLabel = new Utils::LineColumnLabel;
     const int spacing = editor->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
-    m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
+    d->m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
 
-    m_fileEncodingLabel = new Utils::LineColumnLabel;
-    m_fileEncodingLabel->setContentsMargins(spacing, 0, spacing, 0);
+    d->m_fileEncodingLabel = new Utils::LineColumnLabel;
+    d->m_fileEncodingLabel->setContentsMargins(spacing, 0, spacing, 0);
 
-    m_stretchWidget = new QWidget;
-    m_stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    d->m_stretchWidget = new QWidget;
+    d->m_stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    m_toolBar = new QToolBar;
-    m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-    m_toolBar->addWidget(m_stretchWidget);
-    m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
-    m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
+    d->m_toolBar = new QToolBar;
+    d->m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    d->m_toolBar->addWidget(d->m_stretchWidget);
+    d->m_cursorPositionLabelAction = d->m_toolBar->addWidget(d->m_cursorPositionLabel);
+    d->m_fileEncodingLabelAction = d->m_toolBar->addWidget(d->m_fileEncodingLabel);
 
     setFileEncodingLabelVisible(editor->displaySettings().m_displayFileEncoding);
     connect(editor, SIGNAL(cursorPositionChanged()), this, SLOT(updateCursorPosition()));
-    connect(m_cursorPositionLabel, SIGNAL(clicked()), this, SLOT(openGotoLocator()));
+    connect(d->m_cursorPositionLabel, SIGNAL(clicked()), this, SLOT(openGotoLocator()));
 }
 
 BaseTextEditor::~BaseTextEditor()
 {
-    delete m_toolBar;
-    delete m_editorWidget;
+    delete d->m_toolBar;
+    delete d->m_editorWidget;
+    delete d;
 }
 
 BaseTextDocument *BaseTextEditor::baseTextDocument()
 {
-    return m_editorWidget->baseTextDocument();
+    return d->m_editorWidget->baseTextDocument();
 }
 
 IDocument *BaseTextEditor::document()
 {
-    return m_editorWidget->baseTextDocument();
+    return d->m_editorWidget->baseTextDocument();
 }
 
 QWidget *BaseTextEditor::toolBar()
 {
-    return m_toolBar;
+    return d->m_toolBar;
 }
 
 void BaseTextEditor::insertExtraToolBarWidget(BaseTextEditor::Side side,
                                               QWidget *widget)
 {
     if (widget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag) {
-        if (m_stretchWidget)
-            m_stretchWidget->deleteLater();
-        m_stretchWidget = 0;
+        if (d->m_stretchWidget)
+            d->m_stretchWidget->deleteLater();
+        d->m_stretchWidget = 0;
     }
 
     if (side == Right)
-        m_toolBar->insertWidget(m_cursorPositionLabelAction, widget);
+        d->m_toolBar->insertWidget(d->m_cursorPositionLabelAction, widget);
     else
-        m_toolBar->insertWidget(m_toolBar->actions().first(), widget);
+        d->m_toolBar->insertWidget(d->m_toolBar->actions().first(), widget);
 }
 
 int BaseTextEditor::currentLine() const
 {
-    return m_editorWidget->textCursor().blockNumber() + 1;
+    return d->m_editorWidget->textCursor().blockNumber() + 1;
 }
 
 int BaseTextEditor::currentColumn() const
 {
-    QTextCursor cursor = m_editorWidget->textCursor();
+    QTextCursor cursor = d->m_editorWidget->textCursor();
     return cursor.position() - cursor.block().position() + 1;
 }
 
 void BaseTextEditor::gotoLine(int line, int column, bool centerLine)
 {
-    m_editorWidget->gotoLine(line, column, centerLine);
+    d->m_editorWidget->gotoLine(line, column, centerLine);
 }
 
 int BaseTextEditor::columnCount() const
 {
-    return m_editorWidget->columnCount();
+    return d->m_editorWidget->columnCount();
 }
 
 int BaseTextEditor::rowCount() const
 {
-    return m_editorWidget->rowCount();
+    return d->m_editorWidget->rowCount();
 }
 
 int BaseTextEditor::position(BaseTextEditor::PositionOperation posOp, int at) const
 {
-    return m_editorWidget->position(posOp, at);
+    return d->m_editorWidget->position(posOp, at);
 }
 
 void BaseTextEditor::convertPosition(int pos, int *line, int *column) const
 {
-    m_editorWidget->convertPosition(pos, line, column);
+    d->m_editorWidget->convertPosition(pos, line, column);
 }
 
 QRect BaseTextEditor::cursorRect(int pos) const
 {
-    QTextCursor tc = m_editorWidget->textCursor();
+    QTextCursor tc = d->m_editorWidget->textCursor();
     if (pos >= 0)
         tc.setPosition(pos);
-    QRect result = m_editorWidget->cursorRect(tc);
-    result.moveTo(m_editorWidget->viewport()->mapToGlobal(result.topLeft()));
+    QRect result = d->m_editorWidget->cursorRect(tc);
+    result.moveTo(d->m_editorWidget->viewport()->mapToGlobal(result.topLeft()));
     return result;
 }
 
 QString BaseTextEditor::selectedText() const
 {
-    return m_editorWidget->selectedText();
+    return d->m_editorWidget->selectedText();
 }
 
 void BaseTextEditor::remove(int length)
 {
-    QTextCursor tc = m_editorWidget->textCursor();
+    QTextCursor tc = d->m_editorWidget->textCursor();
     tc.setPosition(tc.position() + length, QTextCursor::KeepAnchor);
     tc.removeSelectedText();
 }
 
 void BaseTextEditor::insert(const QString &string)
 {
-    m_editorWidget->insertPlainText(string);
+    d->m_editorWidget->insertPlainText(string);
 }
 
 void BaseTextEditor::replace(int length, const QString &string)
 {
-    QTextCursor tc = m_editorWidget->textCursor();
+    QTextCursor tc = d->m_editorWidget->textCursor();
     tc.setPosition(tc.position() + length, QTextCursor::KeepAnchor);
     tc.insertText(string);
 }
 
 void BaseTextEditor::setCursorPosition(int pos)
 {
-    m_editorWidget->setBlockSelection(false);
-    QTextCursor tc = m_editorWidget->textCursor();
+    d->m_editorWidget->setBlockSelection(false);
+    QTextCursor tc = d->m_editorWidget->textCursor();
     tc.setPosition(pos);
-    m_editorWidget->setTextCursor(tc);
+    d->m_editorWidget->setTextCursor(tc);
 }
 
 void BaseTextEditor::select(int toPos)
 {
-    m_editorWidget->setBlockSelection(false);
-    QTextCursor tc = m_editorWidget->textCursor();
+    d->m_editorWidget->setBlockSelection(false);
+    QTextCursor tc = d->m_editorWidget->textCursor();
     tc.setPosition(toPos, QTextCursor::KeepAnchor);
-    m_editorWidget->setTextCursor(tc);
+    d->m_editorWidget->setTextCursor(tc);
 }
 
 const CommentDefinition *BaseTextEditor::commentDefinition() const
@@ -6537,20 +6553,25 @@ CompletionAssistProvider *BaseTextEditor::completionAssistProvider()
     return 0;
 }
 
+QObject *BaseTextEditor::fileEncodingLabel() const
+{
+    return d->m_fileEncodingLabel;
+}
+
 void BaseTextEditor::updateCursorPosition()
 {
-    const QTextCursor cursor = m_editorWidget->textCursor();
+    const QTextCursor cursor = d->m_editorWidget->textCursor();
     const QTextBlock block = cursor.block();
     const int line = block.blockNumber() + 1;
     const int column = cursor.position() - block.position();
-    m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line)
+    d->m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line)
                                    .arg(baseTextDocument()->tabSettings().columnAt(block.text(),
                                                                                    column)+1),
                                    tr("Line: 9999, Col: 999"));
     m_contextHelpId.clear();
 
     if (!block.isVisible())
-        m_editorWidget->ensureCursorVisible();
+        d->m_editorWidget->ensureCursorVisible();
 
 }
 
@@ -6565,19 +6586,19 @@ void BaseTextEditor::openGotoLocator()
 
 void BaseTextEditor::setFileEncodingLabelVisible(bool visible)
 {
-    m_fileEncodingLabelAction->setVisible(visible);
+    d->m_fileEncodingLabelAction->setVisible(visible);
 }
 
 void BaseTextEditor::setFileEncodingLabelText(const QString &text)
 {
-    m_fileEncodingLabel->setText(text, text);
+    d->m_fileEncodingLabel->setText(text, text);
 }
 
 QString BaseTextEditor::contextHelpId() const
 {
     if (m_contextHelpId.isEmpty())
         emit const_cast<BaseTextEditor*>(this)->contextHelpIdRequested(const_cast<BaseTextEditor*>(this),
-                                                                       m_editorWidget->textCursor().position());
+                                                                       d->m_editorWidget->textCursor().position());
     return m_contextHelpId;
 }
 
@@ -6875,17 +6896,17 @@ QString BaseTextEditorWidget::foldReplacementText(const QTextBlock &) const
 
 bool BaseTextEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    return m_editorWidget->open(errorString, fileName, realFileName);
+    return d->m_editorWidget->open(errorString, fileName, realFileName);
 }
 
 QByteArray BaseTextEditor::saveState() const
 {
-    return m_editorWidget->saveState();
+    return d->m_editorWidget->saveState();
 }
 
 bool BaseTextEditor::restoreState(const QByteArray &state)
 {
-    return m_editorWidget->restoreState(state);
+    return d->m_editorWidget->restoreState(state);
 }
 
 BaseTextDocument *BaseTextEditor::textDocument()
@@ -6896,6 +6917,11 @@ BaseTextDocument *BaseTextEditor::textDocument()
 BaseTextEditor *BaseTextEditor::currentTextEditor()
 {
     return qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor());
+}
+
+BaseTextEditorWidget *BaseTextEditor::editorWidget() const
+{
+    return d->m_editorWidget;
 }
 
 } // namespace TextEditor

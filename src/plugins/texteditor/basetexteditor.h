@@ -70,6 +70,7 @@ class CompletionAssistProvider;
 typedef QList<RefactorMarker> RefactorMarkers;
 
 namespace Internal {
+    class BaseTextEditorPrivate;
     class BaseTextEditorWidgetPrivate;
     class TextEditorOverlay;
 }
@@ -131,7 +132,7 @@ public:
     static BaseTextEditor *currentTextEditor();
 
     friend class BaseTextEditorWidget;
-    BaseTextEditorWidget *editorWidget() const { return m_editorWidget; }
+    BaseTextEditorWidget *editorWidget() const;
     BaseTextDocument *baseTextDocument();
 
     // IEditor
@@ -183,6 +184,8 @@ public:
 
     virtual CompletionAssistProvider *completionAssistProvider();
 
+    QObject *fileEncodingLabel() const; // FIXME: Remove
+
 signals:
     void markRequested(TextEditor::BaseTextEditor *editor, int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
     void markContextMenuRequested(TextEditor::BaseTextEditor *editor, int line, QMenu *menu);
@@ -198,15 +201,7 @@ private slots:
     void setFileEncodingLabelText(const QString &text);
 
 private:
-    // Note: This is always a copy of IContext::m_widget.
-    BaseTextEditorWidget *m_editorWidget;
-
-    QToolBar *m_toolBar;
-    QWidget *m_stretchWidget;
-    QAction *m_cursorPositionLabelAction;
-    Utils::LineColumnLabel *m_cursorPositionLabel;
-    QAction *m_fileEncodingLabelAction;
-    Utils::LineColumnLabel *m_fileEncodingLabel;
+    Internal::BaseTextEditorPrivate *d;
 };
 
 
