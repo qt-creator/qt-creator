@@ -41,13 +41,13 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-class GitEditor : public VcsBase::VcsBaseEditorWidget
+class GitEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
 
 public:
-    explicit GitEditor(const VcsBase::VcsBaseEditorParameters *type,
-                       QWidget *parent);
+    GitEditorWidget(const VcsBase::VcsBaseEditorParameters *type,
+                    QWidget *parent);
 
 public slots:
     void setPlainTextFiltered(const QString &text);

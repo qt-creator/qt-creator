@@ -272,7 +272,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_gitClient = new GitClient(&m_settings);
 
-    typedef VcsBase::VcsEditorFactory<GitEditor> GitEditorFactory;
+    typedef VcsBase::VcsEditorFactory<GitEditorWidget> GitEditorFactory;
     typedef VcsBase::VcsSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
 
     initializeVcs(new GitVersionControl(m_gitClient));
@@ -1575,7 +1575,7 @@ void GitPlugin::testDiffFileResolving_data()
 
 void GitPlugin::testDiffFileResolving()
 {
-    GitEditor editor(editorParameters + 3, 0);
+    GitEditorWidget editor(editorParameters + 3, 0);
     editor.testDiffFileResolving();
 }
 
@@ -1601,7 +1601,7 @@ void GitPlugin::testLogResolving()
                 "    \n"
                 "    Signed-off-by: Junio C Hamano <gitster@pobox.com>\n"
                 );
-    GitEditor editor(editorParameters + 1, 0);
+    GitEditorWidget editor(editorParameters + 1, 0);
     editor.testLogResolving(data,
                             "50a6b54c - Merge branch 'for-junio' of git://bogomips.org/git-svn",
                             "3587b513 - Update draft release notes to 1.8.2");

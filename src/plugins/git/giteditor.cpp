@@ -58,9 +58,7 @@
 namespace Git {
 namespace Internal {
 
-// ------------ GitEditor
-GitEditor::GitEditor(const VcsBase::VcsBaseEditorParameters *type,
-                     QWidget *parent)  :
+GitEditorWidget::GitEditorWidget(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent)  :
     VcsBase::VcsBaseEditorWidget(type, parent),
     m_changeNumberPattern(QLatin1String(CHANGE_PATTERN))
 {
@@ -77,7 +75,7 @@ GitEditor::GitEditor(const VcsBase::VcsBaseEditorParameters *type,
     setAnnotatePreviousRevisionTextFormat(tr("Blame Parent Revision %1"));
 }
 
-QSet<QString> GitEditor::annotationChanges() const
+QSet<QString> GitEditorWidget::annotationChanges() const
 {
     QSet<QString> changes;
     const QString txt = toPlainText();
@@ -99,7 +97,7 @@ QSet<QString> GitEditor::annotationChanges() const
     return changes;
 }
 
-QString GitEditor::changeUnderCursor(const QTextCursor &c) const
+QString GitEditorWidget::changeUnderCursor(const QTextCursor &c) const
 {
     QTextCursor cursor = c;
     // Any number is regarded as change number.
@@ -112,7 +110,7 @@ QString GitEditor::changeUnderCursor(const QTextCursor &c) const
     return QString();
 }
 
-VcsBase::BaseAnnotationHighlighter *GitEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *GitEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
     return new GitAnnotationHighlighter(changes);
 }
@@ -174,7 +172,7 @@ static QString removeAnnotationDate(const QString &b)
     return result;
 }
 
-void GitEditor::setPlainTextFiltered(const QString &text)
+void GitEditorWidget::setPlainTextFiltered(const QString &text)
 {
     QString modText = text;
     GitPlugin *plugin = GitPlugin::instance();
@@ -194,7 +192,7 @@ void GitEditor::setPlainTextFiltered(const QString &text)
     baseTextDocument()->setPlainText(modText);
 }
 
-void GitEditor::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v)
+void GitEditorWidget::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v)
 {
     reportCommandFinished(ok, exitCode, v);
     if (ok && v.type() == QVariant::Int) {
@@ -204,13 +202,13 @@ void GitEditor::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v
     }
 }
 
-void GitEditor::checkoutChange()
+void GitEditorWidget::checkoutChange()
 {
     GitPlugin::instance()->gitClient()->stashAndCheckout(
                 sourceWorkingDirectory(), m_currentChange);
 }
 
-void GitEditor::resetChange()
+void GitEditorWidget::resetChange()
 {
     const QString workingDir = sourceWorkingDirectory();
 
@@ -228,19 +226,19 @@ void GitEditor::resetChange()
     client->reset(workingDir, QLatin1String("--hard"), m_currentChange);
 }
 
-void GitEditor::cherryPickChange()
+void GitEditorWidget::cherryPickChange()
 {
     GitPlugin::instance()->gitClient()->synchronousCherryPick(
                 sourceWorkingDirectory(), m_currentChange);
 }
 
-void GitEditor::revertChange()
+void GitEditorWidget::revertChange()
 {
     GitPlugin::instance()->gitClient()->synchronousRevert(
                 sourceWorkingDirectory(), m_currentChange);
 }
 
-void GitEditor::stageDiffChunk()
+void GitEditorWidget::stageDiffChunk()
 {
     const QAction *a = qobject_cast<QAction *>(sender());
     QTC_ASSERT(a, return);
@@ -248,7 +246,7 @@ void GitEditor::stageDiffChunk()
     return applyDiffChunk(chunk, false);
 }
 
-void GitEditor::unstageDiffChunk()
+void GitEditorWidget::unstageDiffChunk()
 {
     const QAction *a = qobject_cast<QAction *>(sender());
     QTC_ASSERT(a, return);
@@ -256,7 +254,7 @@ void GitEditor::unstageDiffChunk()
     return applyDiffChunk(chunk, true);
 }
 
-void GitEditor::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert)
+void GitEditorWidget::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert)
 {
     VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
     QTemporaryFile patchFile;
@@ -287,7 +285,7 @@ void GitEditor::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert)
     }
 }
 
-void GitEditor::init()
+void GitEditorWidget::init()
 {
     VcsBase::VcsBaseEditorWidget::init();
     Core::Id editorId = editor()->document()->id();
@@ -297,7 +295,7 @@ void GitEditor::init()
         new GitRebaseHighlighter(baseTextDocument());
 }
 
-void GitEditor::addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk)
+void GitEditorWidget::addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk)
 {
     menu->addSeparator();
 
@@ -310,7 +308,7 @@ void GitEditor::addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk)
     connect(unstageAction, SIGNAL(triggered()), this, SLOT(unstageDiffChunk()));
 }
 
-bool GitEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
+bool GitEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     Core::Id editorId = editor()->document()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
@@ -324,7 +322,7 @@ bool GitEditor::open(QString *errorString, const QString &fileName, const QStrin
     return VcsBaseEditorWidget::open(errorString, fileName, realFileName);
 }
 
-QString GitEditor::decorateVersion(const QString &revision) const
+QString GitEditorWidget::decorateVersion(const QString &revision) const
 {
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
@@ -333,7 +331,7 @@ QString GitEditor::decorateVersion(const QString &revision) const
     return GitPlugin::instance()->gitClient()->synchronousShortDescription(workingDirectory, revision);
 }
 
-QStringList GitEditor::annotationPreviousVersions(const QString &revision) const
+QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
     QStringList revisions;
     QString errorMessage;
@@ -349,12 +347,12 @@ QStringList GitEditor::annotationPreviousVersions(const QString &revision) const
     return revisions;
 }
 
-bool GitEditor::isValidRevision(const QString &revision) const
+bool GitEditorWidget::isValidRevision(const QString &revision) const
 {
     return GitPlugin::instance()->gitClient()->isValidRevision(revision);
 }
 
-void GitEditor::addChangeActions(QMenu *menu, const QString &change)
+void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
 {
     m_currentChange = change;
     if (contentType() != VcsBase::OtherContent) {
@@ -365,7 +363,7 @@ void GitEditor::addChangeActions(QMenu *menu, const QString &change)
     }
 }
 
-QString GitEditor::revisionSubject(const QTextBlock &inBlock) const
+QString GitEditorWidget::revisionSubject(const QTextBlock &inBlock) const
 {
     for (QTextBlock block = inBlock.next(); block.isValid(); block = block.next()) {
         const QString line = block.text().trimmed();
@@ -377,14 +375,14 @@ QString GitEditor::revisionSubject(const QTextBlock &inBlock) const
     return QString();
 }
 
-bool GitEditor::supportChangeLinks() const
+bool GitEditorWidget::supportChangeLinks() const
 {
     return VcsBaseEditorWidget::supportChangeLinks()
             || (editor()->document()->id() == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
             || (editor()->document()->id() == Git::Constants::GIT_REBASE_EDITOR_ID);
 }
 
-QString GitEditor::fileNameForLine(int line) const
+QString GitEditorWidget::fileNameForLine(int line) const
 {
     // 7971b6e7 share/qtcreator/dumper/dumper.py   (hjk
     QTextBlock block = document()->findBlockByLineNumber(line - 1);
@@ -398,7 +396,7 @@ QString GitEditor::fileNameForLine(int line) const
     return source();
 }
 
-QString GitEditor::sourceWorkingDirectory() const
+QString GitEditorWidget::sourceWorkingDirectory() const
 {
     const QFileInfo fi(source());
     return fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
