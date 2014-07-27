@@ -363,7 +363,7 @@ bool AttachCoreDialog::useLocalCoreFile() const
 
 void AttachCoreDialog::coreFileChanged(const QString &core)
 {
-    if (!Utils::HostOsInfo::isWindowsHost() && QFileInfo::exists(core)) {
+    if (!Utils::HostOsInfo::isWindowsHost() && QFile::exists(core)) {
         Kit *k = d->kitChooser->currentKit();
         QTC_ASSERT(k, return);
         FileName cmd = DebuggerKitInformation::debuggerCommand(k);
