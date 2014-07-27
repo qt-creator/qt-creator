@@ -134,6 +134,10 @@ RunControl *BareMetalRunControlFactory::create(RunConfiguration *runConfiguratio
         return 0;
     }
     DebuggerStartParameters sp = startParameters(rc);
+    if (!QFile::exists(sp.executable)) {
+        *errorMessage = tr("Could not find executable");
+        return 0;
+    }
     return DebuggerPlugin::createDebugger(sp,runConfiguration,errorMessage);
 }
 
