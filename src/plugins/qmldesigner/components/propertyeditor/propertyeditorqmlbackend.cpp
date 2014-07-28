@@ -443,6 +443,11 @@ void PropertyEditorQmlBackend::emitSelectionToBeChanged()
     m_backendModelNode.emitSelectionToBeChanged();
 }
 
+void PropertyEditorQmlBackend::emitSelectionChanged()
+{
+    m_backendModelNode.emitSelectionChanged();
+}
+
 QUrl PropertyEditorQmlBackend::getQmlUrlForModelNode(const ModelNode &modelNode, TypeName &className)
 {
     if (modelNode.isValid()) {
