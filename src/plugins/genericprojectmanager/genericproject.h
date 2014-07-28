@@ -89,6 +89,7 @@ protected:
 
 private:
     bool saveRawFileList(const QStringList &rawFileList);
+    bool saveRawList(const QStringList &rawList, const QString &fileName);
     void parseProject(RefreshOptions options);
     QStringList processEntries(const QStringList &paths,
                                QHash<QString, QString> *map = 0) const;
@@ -106,6 +107,7 @@ private:
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
+    QStringList m_rawProjectIncludePaths;
     QStringList m_projectIncludePaths;
 
     GenericProjectNode *m_rootNode;

@@ -141,17 +141,23 @@ static QStringList readLines(const QString &absoluteFileName)
 
 bool GenericProject::saveRawFileList(const QStringList &rawFileList)
 {
+    bool result = saveRawList(rawFileList, filesFileName());
+    refresh(GenericProject::Files);
+    return result;
+}
+
+bool GenericProject::saveRawList(const QStringList &rawList, const QString &fileName)
+{
     // Make sure we can open the file for writing
-    Utils::FileSaver saver(filesFileName(), QIODevice::Text);
+    Utils::FileSaver saver(fileName, QIODevice::Text);
     if (!saver.hasError()) {
         QTextStream stream(saver.file());
-        foreach (const QString &filePath, rawFileList)
+        foreach (const QString &filePath, rawList)
             stream << filePath << QLatin1Char('\n');
         saver.setResult(&stream);
     }
     if (!saver.finalize(ICore::mainWindow()))
         return false;
-    refresh(GenericProject::Files);
     return true;
 }
 
@@ -163,7 +169,30 @@ bool GenericProject::addFiles(const QStringList &filePaths)
     foreach (const QString &filePath, filePaths)
         newList.append(baseDir.relativeFilePath(filePath));
 
-    return saveRawFileList(newList);
+
+    QSet<QString> includes = projectIncludePaths().toSet();
+    QSet<QString> toAdd;
+
+    foreach (const QString &filePaths, filePaths) {
+        QString directory = QFileInfo(filePaths).absolutePath();
+        if (!includes.contains(directory)
+                && !toAdd.contains(directory))
+            toAdd << directory;
+    }
+
+    const QDir dir(projectDirectory().toString());
+    foreach (const QString &path, toAdd) {
+        QString relative = dir.relativeFilePath(path);
+        if (relative.isEmpty())
+            relative = QLatin1String(".");
+        m_rawProjectIncludePaths.append(relative);
+    }
+
+    bool result = saveRawList(newList, filesFileName());
+    result &= saveRawList(m_rawProjectIncludePaths, includesFileName());
+    refresh(GenericProject::Everything);
+
+    return result;
 }
 
 bool GenericProject::removeFiles(const QStringList &filePaths)
@@ -214,7 +243,8 @@ void GenericProject::parseProject(RefreshOptions options)
     }
 
     if (options & Configuration) {
-        m_projectIncludePaths = processEntries(readLines(includesFileName()));
+        m_rawProjectIncludePaths = readLines(includesFileName());
+        m_projectIncludePaths = processEntries(m_rawProjectIncludePaths);
 
         // TODO: Possibly load some configuration from the project file
         //QSettings projectInfo(m_fileName, QSettings::IniFormat);
