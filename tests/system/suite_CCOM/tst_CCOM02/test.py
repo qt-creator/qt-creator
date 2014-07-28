@@ -44,7 +44,7 @@ def main():
     if not startedWithoutPluginError():
         return
     # open example project
-    targets = Targets.desktopTargetClasses() ^ Targets.DESKTOP_501_DEFAULT ^ Targets.DESKTOP_521_DEFAULT
+    targets = Targets.desktopTargetClasses() ^ Targets.DESKTOP_521_DEFAULT ^ Targets.DESKTOP_531_DEFAULT
     openQmakeProject(examplePath, targets)
     # create syntax error
     openDocument("propertyanimation.QML.qml.property-animation\\.qml")
