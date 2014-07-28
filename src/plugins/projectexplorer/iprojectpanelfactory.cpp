@@ -58,12 +58,6 @@ void IProjectPanelFactory::setDisplayName(const QString &name)
     m_displayName = name;
 }
 
-bool IProjectPanelFactory::prioritySort(IProjectPanelFactory *a, IProjectPanelFactory *b)
-{
-    return (a->priority() == b->priority() && a < b)
-            || a->priority() < b->priority();
-}
-
 bool IProjectPanelFactory::supportsAllProjects(Project *)
 {
     return true;
@@ -71,13 +65,23 @@ bool IProjectPanelFactory::supportsAllProjects(Project *)
 
 void IProjectPanelFactory::registerFactory(IProjectPanelFactory *factory)
 {
-    auto it = std::lower_bound(s_factories.begin(), s_factories.end(), factory, &IProjectPanelFactory::prioritySort);
+    auto it = std::lower_bound(s_factories.begin(), s_factories.end(), factory,
+        [](IProjectPanelFactory *a, IProjectPanelFactory *b)  {
+            return (a->priority() == b->priority() && a < b) || a->priority() < b->priority();
+        });
+
     s_factories.insert(it, factory);
 }
 
 QList<IProjectPanelFactory *> IProjectPanelFactory::factories()
 {
     return s_factories;
+}
+
+void IProjectPanelFactory::destroyFactories()
+{
+    qDeleteAll(s_factories);
+    s_factories.clear();
 }
 
 bool IProjectPanelFactory::supports(Project *project)

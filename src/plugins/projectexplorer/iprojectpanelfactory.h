@@ -41,20 +41,19 @@
 
 namespace ProjectExplorer {
 class Project;
+class ProjectExplorerPlugin;
 class Target;
 
 class PROJECTEXPLORER_EXPORT IProjectPanelFactory
 {
 public:
     IProjectPanelFactory();
+
     // simple properties
     QString displayName() const;
     void setDisplayName(const QString &name);
     int priority() const;
     void setPriority(int priority);
-
-    // helper to sort by priority
-    static bool prioritySort(IProjectPanelFactory *a, IProjectPanelFactory *b);
 
     // interface for users of IProjectPanelFactory
     bool supports(Project *project);
@@ -96,6 +95,9 @@ public:
     static QList<IProjectPanelFactory *> factories();
 
 private:
+    friend class ProjectExplorerPlugin;
+    static void destroyFactories();
+
     int m_priority;
     QString m_displayName;
     std::function<bool (Project *)> m_supportsFunction;

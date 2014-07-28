@@ -321,7 +321,7 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     // Force sequence of deletion:
     delete d->m_kitManager; // remove all the profile informations
     delete d->m_toolChainManager;
-    qDeleteAll(IProjectPanelFactory::s_factories);
+    IProjectPanelFactory::destroyFactories();
 
     delete d;
 }
