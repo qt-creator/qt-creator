@@ -94,13 +94,13 @@ QVariant GradientModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void GradientModel::addStop(qreal position, const QColor &color)
+int GradientModel::addStop(qreal position, const QColor &color)
 {
     if (m_lock)
-        return;
+        return -1;
 
     if (!m_itemNode.isValid() || gradientPropertyName().isEmpty())
-        return;
+        return -1;
 
     if (m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8())) {
         //QmlDesigner::RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
@@ -125,7 +125,11 @@ void GradientModel::addStop(qreal position, const QColor &color)
         gradientNode.nodeListProperty("stops").slide(stopNodes.count() - 1, properPos);
 
         setupModel();
+
+        return properPos;
     }
+
+    return -1;
 }
 
 void GradientModel::addGradient()

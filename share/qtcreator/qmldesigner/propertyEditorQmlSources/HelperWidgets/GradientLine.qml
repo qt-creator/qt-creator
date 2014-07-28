@@ -122,8 +122,11 @@ Item {
                 onClicked: {
                     var currentPosition = mouseX / colorLine.effectiveWidth
 
-                    gradientModel.addStop(currentPosition, currentColor)
-                    colorLine.select(gradientModel.count - 1)
+                    var newIndex = gradientModel.addStop(currentPosition, currentColor)
+
+                    if (newIndex > 0)
+                        colorLine.select(newIndex)
+
                     colorLine.invalidate()
                 }
                 Item {
