@@ -699,6 +699,55 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
 
     QTest::newRow("Last newline added to a line without newline") << patch
                                 << fileDataList3;
+
+    patch = _("diff --git a/difftest.txt b/difftest.txt\n"
+              "index 1234567..9876543 100644\n"
+              "--- a/difftest.txt\n"
+              "+++ b/difftest.txt\n"
+              "@@ -2,5 +2,5 @@ void func()\n"
+              " A\n"
+              " B\n"
+              "-C\n"
+              "+Z\n"
+              " D\n"
+              " \n"
+              "@@ -9,2 +9,4 @@ void OtherFunc()\n"
+              " \n"
+              " D\n"
+              "+E\n"
+              "+F\n"
+              );
+
+    fileData1.leftFileInfo = DiffFileInfo(_("difftest.txt"), _("1234567"));
+    fileData1.rightFileInfo = DiffFileInfo(_("difftest.txt"), _("9876543"));
+    fileData1.fileOperation = FileData::ChangeFile;
+    chunkData1.leftStartingLineNumber = 1;
+    chunkData1.rightStartingLineNumber = 1;
+    rows1.clear();
+    rows1 << RowData(_("A"));
+    rows1 << RowData(_("B"));
+    rows1 << RowData(_("C"), _("Z"));
+    rows1 << RowData(_("D"));
+    rows1 << RowData(_(""));
+    chunkData1.rows = rows1;
+
+    chunkData2.leftStartingLineNumber = 8;
+    chunkData2.rightStartingLineNumber = 8;
+    rows2.clear();
+    rows2 << RowData(_(""));
+    rows2 << RowData(_("D"));
+    rows2 << RowData(TextLineData::Separator, _("E"));
+    rows2 << RowData(TextLineData::Separator, _("F"));
+    chunkData2.rows = rows2;
+    fileData1.chunks.clear();
+    fileData1.chunks << chunkData1;
+    fileData1.chunks << chunkData2;
+
+    QList<FileData> fileDataList4;
+    fileDataList4 << fileData1;
+
+    QTest::newRow("2 chunks - first ends with blank line") << patch
+                                << fileDataList4;
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
@@ -726,6 +775,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
             QCOMPARE(resultChunkData.leftStartingLineNumber, origChunkData.leftStartingLineNumber);
             QCOMPARE(resultChunkData.rightStartingLineNumber, origChunkData.rightStartingLineNumber);
             QCOMPARE(resultChunkData.contextChunk, origChunkData.contextChunk);
+            QEXPECT_FAIL("2 chunks - first ends with blank line", "QTCREATORBUG-12665", Abort);
             QCOMPARE(resultChunkData.rows.count(), origChunkData.rows.count());
             for (int k = 0; k < origChunkData.rows.count(); k++) {
                 const RowData &origRowData = origChunkData.rows.at(k);
