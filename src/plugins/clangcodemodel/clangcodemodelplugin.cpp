@@ -60,7 +60,7 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     panelFactory->setDisplayName(ClangProjectSettingsWidget::tr("Clang Settings"));
     panelFactory->setSimpleCreateWidgetFunction<ClangProjectSettingsWidget>(QIcon());
 
-    addAutoReleasedObject(panelFactory);
+    ProjectExplorer::IProjectPanelFactory::registerFactory(panelFactory);
 
     ClangCodeModel::Internal::initializeClang();
 
