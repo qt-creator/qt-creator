@@ -199,7 +199,6 @@ private:
     void startCommit(CommitType commitType);
     void updateVersionWarning();
 
-    static GitPlugin *m_instance;
     Core::CommandLocator *m_commandLocator;
 
     QAction *m_submitCurrentAction;
