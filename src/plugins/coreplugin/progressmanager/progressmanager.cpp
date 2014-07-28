@@ -706,18 +706,17 @@ ToggleButton::ToggleButton(QWidget *parent)
 
 QSize ToggleButton::sizeHint() const
 {
-    return QSize(12, 12);
+    return QSize(13, 12); // Uneven width, because the arrow's width is also uneven.
 }
 
 void ToggleButton::paintEvent(QPaintEvent *event)
 {
     QToolButton::paintEvent(event);
     QPainter p(this);
-    QStyle *s = style();
     QStyleOption arrowOpt;
     arrowOpt.initFrom(this);
-    arrowOpt.rect = QRect(rect().center().x() - 3, rect().center().y() - 6, 9, 9);
-    s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
+    arrowOpt.rect.adjust(2, 0, -1, -2);
+    Utils::StyleHelper::drawArrow(QStyle::PE_IndicatorArrowUp, &p, &arrowOpt);
 }
 
 
