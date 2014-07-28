@@ -35,6 +35,8 @@
 
 #include <utils/fileutils.h>
 
+#include <functional>
+
 namespace VcsBase {
 class BaseCheckoutWizard;
 class Command;
@@ -50,7 +52,11 @@ public:
 
     static QString openProject(const Utils::FileName &path, QString *errorMessage);
 
-    virtual BaseCheckoutWizard *create(const Utils::FileName &path, QWidget *parent = 0) const = 0;
+    typedef std::function<BaseCheckoutWizard *(const Utils::FileName &path, QWidget *parent)> WizardCreator;
+    void setWizardCreator(const WizardCreator &creator);
+
+private:
+    WizardCreator m_wizardCreator;
 };
 
 } // namespace VcsBase

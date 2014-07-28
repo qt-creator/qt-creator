@@ -38,15 +38,6 @@ namespace Internal {
 
 // GitoriousCloneWizard: A wizard allowing for browsing
 // Gitorious-hosted projects.
-class GitoriousCloneWizardFactory : public VcsBase::BaseCheckoutWizardFactory
-{
-    Q_OBJECT
-
-public:
-    GitoriousCloneWizardFactory();
-
-    VcsBase::BaseCheckoutWizard *create(const Utils::FileName &path, QWidget *parent = 0) const;
-};
 
 class GitoriousCloneWizard : public VcsBase::BaseCheckoutWizard
 {

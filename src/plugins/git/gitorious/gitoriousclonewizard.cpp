@@ -68,20 +68,6 @@ void GitoriousCloneWizardPage::initializePage()
     setRepository(m_repositoryPage->repositoryURL().toString());
 }
 
-// -------- GitoriousCloneWizard
-GitoriousCloneWizardFactory::GitoriousCloneWizardFactory()
-{
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
-    setIcon(QIcon(QLatin1String(":/git/images/gitorious.png")));
-    setDescription(tr("Clones a Gitorious repository and tries to load the contained project."));
-    setDisplayName(tr("Gitorious Repository Clone"));
-}
-
-VcsBase::BaseCheckoutWizard *GitoriousCloneWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
-{
-    return new GitoriousCloneWizard(path, parent);
-}
-
 // --------------------------------------------------------------------
 // GitoriousCloneWizard:
 // --------------------------------------------------------------------

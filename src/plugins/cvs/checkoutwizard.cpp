@@ -40,19 +40,6 @@
 namespace Cvs {
 namespace Internal {
 
-CheckoutWizardFactory::CheckoutWizardFactory()
-{
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_CVS));
-    setIcon(QIcon(QLatin1String(":/cvs/images/cvs.png")));
-    setDescription(tr("Checks out a CVS repository and tries to load the contained project."));
-    setDisplayName(tr("CVS Checkout"));
-}
-
-VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
-{
-    return new CheckoutWizard(path, parent);
-}
-
 // --------------------------------------------------------------------
 // CheckoutWizard:
 // --------------------------------------------------------------------

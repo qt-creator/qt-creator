@@ -40,19 +40,6 @@
 using namespace Mercurial::Internal;
 using namespace VcsBase;
 
-CloneWizardFactory::CloneWizardFactory()
-{
-    setId(QLatin1String(Constants::VCS_ID_MERCURIAL));
-    setIcon(QIcon(QLatin1String(":/mercurial/images/hg.png")));
-    setDescription(tr("Clones a Mercurial repository and tries to load the contained project."));
-    setDisplayName(tr("Mercurial Clone"));
-}
-
-BaseCheckoutWizard *CloneWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
-{
-    return new CloneWizard(path, parent);
-}
-
 // --------------------------------------------------------------------
 // CloneWizard:
 // --------------------------------------------------------------------

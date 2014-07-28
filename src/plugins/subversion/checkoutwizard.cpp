@@ -38,23 +38,8 @@
 #include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
-#include <QIcon>
-
 namespace Subversion {
 namespace Internal {
-
-CheckoutWizardFactory::CheckoutWizardFactory()
-{
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_SUBVERSION));
-    setIcon(QIcon(QLatin1String(":/subversion/images/subversion.png")));
-    setDescription(tr("Checks out a Subversion repository and tries to load the contained project."));
-    setDisplayName(tr("Subversion Checkout"));
-}
-
-VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
-{
-    return new CheckoutWizard(path, parent);
-}
 
 // --------------------------------------------------------------------
 // CheckoutWizard:

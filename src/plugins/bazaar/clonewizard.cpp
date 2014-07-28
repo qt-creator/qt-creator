@@ -43,18 +43,6 @@
 
 using namespace Bazaar::Internal;
 
-CloneWizardFactory::CloneWizardFactory()
-{
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_BAZAAR));
-    setIcon(QIcon(QLatin1String(":/bazaar/images/bazaar.png")));
-    setDescription(tr("Clones a Bazaar branch and tries to load the contained project."));
-    setDisplayName(tr("Bazaar Clone (Or Branch)"));
-}
-
-VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
-{
-    return new CloneWizard(path, parent);
-}
 
 // --------------------------------------------------------------------
 // CloneWizard:

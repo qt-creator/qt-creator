@@ -37,6 +37,7 @@
 #include "checkoutwizard.h"
 
 #include <vcsbase/basevcseditorfactory.h>
+#include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
@@ -256,7 +257,15 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new CVSEditorFactory(editorParameters + i, this, describeSlotC));
 
-    addAutoReleasedObject(new CheckoutWizardFactory);
+    auto checkoutWizardFactory = new BaseCheckoutWizardFactory;
+    checkoutWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_CVS));
+    checkoutWizardFactory->setIcon(QIcon(QLatin1String(":/cvs/images/cvs.png")));
+    checkoutWizardFactory->setDescription(tr("Checks out a CVS repository and tries to load the contained project."));
+    checkoutWizardFactory->setDisplayName(tr("CVS Checkout"));
+    checkoutWizardFactory->setWizardCreator([this] (const FileName &path, QWidget *parent) {
+        return new CheckoutWizard(path, parent);
+    });
+    addAutoReleasedObject(checkoutWizardFactory);
 
     const QString prefix = QLatin1String("cvs");
     m_commandLocator = new CommandLocator("CVS", prefix, prefix);

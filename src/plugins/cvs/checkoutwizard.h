@@ -36,16 +36,6 @@
 namespace Cvs {
 namespace Internal {
 
-class CheckoutWizardFactory : public VcsBase::BaseCheckoutWizardFactory
-{
-    Q_OBJECT
-
-public:
-    CheckoutWizardFactory();
-
-    VcsBase::BaseCheckoutWizard *create(const Utils::FileName &path, QWidget *parent = 0) const;
-};
-
 class CheckoutWizard : public VcsBase::BaseCheckoutWizard
 {
     Q_OBJECT

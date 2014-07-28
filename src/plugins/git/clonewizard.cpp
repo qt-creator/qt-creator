@@ -40,19 +40,6 @@
 namespace Git {
 namespace Internal {
 
-CloneWizardFactory::CloneWizardFactory()
-{
-    setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
-    setIcon(QIcon(QLatin1String(":/git/images/git.png")));
-    setDescription(tr("Clones a Git repository and tries to load the contained project."));
-    setDisplayName(tr("Git Repository Clone"));
-}
-
-VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
-{
-    return new CloneWizard(path, parent);
-}
-
 // --------------------------------------------------------------------
 // CloneWizard:
 // --------------------------------------------------------------------

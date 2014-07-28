@@ -33,20 +33,8 @@
 #include <vcsbase/basecheckoutwizardfactory.h>
 #include <vcsbase/basecheckoutwizard.h>
 
-#include <QIcon>
-
 namespace Bazaar {
 namespace Internal {
-
-class CloneWizardFactory : public VcsBase::BaseCheckoutWizardFactory
-{
-    Q_OBJECT
-
-public:
-    CloneWizardFactory();
-
-    VcsBase::BaseCheckoutWizard *create(const Utils::FileName &path, QWidget *parent = 0) const;
-};
 
 class CloneWizard : public VcsBase::BaseCheckoutWizard
 {

@@ -83,7 +83,7 @@ void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, 
 
     Utils::FileName checkoutPath;
     {
-        QScopedPointer<BaseCheckoutWizard> wizard(create(Utils::FileName::fromString(path), parent));
+        QScopedPointer<BaseCheckoutWizard> wizard(m_wizardCreator(Utils::FileName::fromString(path), parent));
         wizard->setWindowTitle(displayName());
         checkoutPath = wizard->run();
     }
@@ -149,6 +149,11 @@ QString BaseCheckoutWizardFactory::openProject(const Utils::FileName &path, QStr
         return QString();
 
     return projectFile;
+}
+
+void BaseCheckoutWizardFactory::setWizardCreator(const BaseCheckoutWizardFactory::WizardCreator &creator)
+{
+    m_wizardCreator = creator;
 }
 
 } // namespace VcsBase

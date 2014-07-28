@@ -68,6 +68,7 @@
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/cleandialog.h>
@@ -296,8 +297,27 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         addAutoReleasedObject(new GitEditorFactory(editorParameters + i, m_gitClient, describeSlot));
 
     addAutoReleasedObject(new GitSubmitEditorFactory(&submitParameters));
-    addAutoReleasedObject(new CloneWizardFactory);
-    addAutoReleasedObject(new Gitorious::Internal::GitoriousCloneWizardFactory);
+
+    auto cloneWizardFactory = new VcsBase::BaseCheckoutWizardFactory;
+    cloneWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
+    cloneWizardFactory->setIcon(QIcon(QLatin1String(":/git/images/git.png")));
+    cloneWizardFactory->setDescription(tr("Clones a Git repository and tries to load the contained project."));
+    cloneWizardFactory->setDisplayName(tr("Git Repository Clone"));
+    cloneWizardFactory->setWizardCreator([this] (const Utils::FileName &path, QWidget *parent) {
+        return new CloneWizard(path, parent);
+    });
+    addAutoReleasedObject(cloneWizardFactory);
+
+    // A wizard allowing for browsing Gitorious-hosted projects.
+    cloneWizardFactory = new VcsBase::BaseCheckoutWizardFactory;
+    cloneWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
+    cloneWizardFactory->setIcon(QIcon(QLatin1String(":/git/images/gitorious.png")));
+    cloneWizardFactory->setDescription(tr("Clones a Gitorious repository and tries to load the contained project."));
+    cloneWizardFactory->setDisplayName(tr("Gitorious Repository Clone"));
+    cloneWizardFactory->setWizardCreator([this] (const Utils::FileName &path, QWidget *parent) {
+        return new Gitorious::Internal::GitoriousCloneWizard(path, parent);
+    });
+    addAutoReleasedObject(cloneWizardFactory);
 
     const QString prefix = QLatin1String("git");
     m_commandLocator = new CommandLocator("Git", prefix, prefix);

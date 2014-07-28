@@ -57,6 +57,7 @@
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QtPlugin>
@@ -68,18 +69,26 @@
 #include <QDialog>
 #include <QFileDialog>
 
-using namespace Mercurial::Internal;
-using namespace Mercurial;
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace VcsBase;
 using namespace Utils;
+
+namespace Mercurial {
+namespace Internal {
+
+using namespace VcsBase::Constants;
+using namespace Mercurial::Constants;
 
 static const VcsBaseEditorParameters editorParameters[] = {
 {
     LogOutput,
-    Constants::FILELOG_ID,
-    Constants::FILELOG_DISPLAY_NAME,
-    Constants::FILELOG,
-    Constants::LOGAPP},
+    FILELOG_ID,
+    FILELOG_DISPLAY_NAME,
+    FILELOG,
+    LOGAPP},
 
 {   AnnotateOutput,
     Constants::ANNOTATELOG_ID,
@@ -149,7 +158,15 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
 
     addAutoReleasedObject(new VcsSubmitEditorFactory<CommitEditor>(&submitEditorParameters));
 
-    addAutoReleasedObject(new CloneWizardFactory);
+    auto cloneWizardFactory = new BaseCheckoutWizardFactory;
+    cloneWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_MERCURIAL));
+    cloneWizardFactory->setIcon(QIcon(QLatin1String(":/mercurial/images/hg.png")));
+    cloneWizardFactory->setDescription(tr("Clones a Mercurial repository and tries to load the contained project."));
+    cloneWizardFactory->setDisplayName(tr("Mercurial Clone"));
+    cloneWizardFactory->setWizardCreator([this] (const FileName &path, QWidget *parent) {
+        return new CloneWizard(path, parent);
+    });
+    addAutoReleasedObject(cloneWizardFactory);
 
     const QString prefix = QLatin1String("hg");
     m_commandLocator = new Core::CommandLocator("Mercurial", prefix, prefix);
@@ -679,7 +696,6 @@ void MercurialPlugin::updateActions(VcsBasePlugin::ActionState as)
 }
 
 #ifdef WITH_TESTS
-#include <QTest>
 
 void MercurialPlugin::testDiffFileResolving_data()
 {
@@ -735,5 +751,8 @@ void MercurialPlugin::testLogResolving()
     editor.testLogResolving(data, "18473:692cbda1eb50", "18472:37100f30590f");
 }
 #endif
+
+} // namespace Internal
+} // namespace Mercurial
 
 Q_EXPORT_PLUGIN(MercurialPlugin)
