@@ -713,6 +713,7 @@ PropertyNameList allPropertyNames(QObject *object, const PropertyName &baseName 
         } else if (QQmlValueTypeFactory::valueType(metaProperty.userType())) {
             QQmlValueType *valueType = QQmlValueTypeFactory::valueType(metaProperty.userType());
             valueType->setValue(metaProperty.read(object));
+            propertyNameList.append(baseName + PropertyName(metaProperty.name()));
             propertyNameList.append(allPropertyNames(valueType, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
         } else  {
             propertyNameList.append(baseName + PropertyName(metaProperty.name()));
