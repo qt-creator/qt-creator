@@ -55,7 +55,7 @@ public:
     int contextLinesNumber() const;
     bool isIgnoreWhitespace() const;
 
-    QString makePatch(int diffFileIndex, int chunkIndex, bool revert) const;
+    QString makePatch(bool revert, bool addPrefix = false) const;
 
     DiffEditorReloader *reloader() const;
     void setReloader(DiffEditorReloader *reloader);
@@ -86,9 +86,7 @@ signals:
     void descriptionEnablementChanged(bool on);
     void contextLinesNumberChanged(int lines);
     void ignoreWhitespaceChanged(bool ignore);
-    void chunkActionsRequested(QMenu *menu,
-                               int diffFileIndex,
-                               int chunkIndex);
+    void chunkActionsRequested(QMenu *menu, bool isValid);
     void saveStateRequested();
     void restoreStateRequested();
     void expandBranchesRequested(const QString &revision);
@@ -99,6 +97,8 @@ private:
     QString m_clearMessage;
 
     QList<FileData> m_diffFiles;
+    int m_diffFileIndex;
+    int m_chunkIndex;
     QString m_workingDirectory;
     QString m_description;
     bool m_descriptionEnabled;

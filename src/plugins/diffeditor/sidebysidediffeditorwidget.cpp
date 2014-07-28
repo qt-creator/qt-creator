@@ -1319,9 +1319,7 @@ void SideBySideDiffEditorWidget::slotSendChunkToCodePaster()
     if (m_contextMenuChunkIndex >= fileData.chunks.count())
         return;
 
-    const QString patch = m_controller->makePatch(m_contextMenuFileIndex,
-                                                  m_contextMenuChunkIndex,
-                                                  false);
+    const QString patch = m_controller->makePatch(false);
     if (patch.isEmpty())
         return;
 
@@ -1341,27 +1339,27 @@ void SideBySideDiffEditorWidget::slotSendChunkToCodePaster()
 
 void SideBySideDiffEditorWidget::slotApplyChunk()
 {
-    patch(m_contextMenuFileIndex, m_contextMenuChunkIndex, false);
+    patch(false);
 }
 
 void SideBySideDiffEditorWidget::slotRevertChunk()
 {
-    patch(m_contextMenuFileIndex, m_contextMenuChunkIndex, true);
+    patch(true);
 }
 
-void SideBySideDiffEditorWidget::patch(int diffFileIndex, int chunkIndex, bool revert)
+void SideBySideDiffEditorWidget::patch(bool revert)
 {
     if (!m_controller)
         return;
 
-    if (diffFileIndex < 0 || chunkIndex < 0)
+    if (m_contextMenuFileIndex < 0 || m_contextMenuChunkIndex < 0)
         return;
 
-    if (diffFileIndex >= m_contextFileData.count())
+    if (m_contextMenuFileIndex >= m_contextFileData.count())
         return;
 
-    const FileData fileData = m_contextFileData.at(diffFileIndex);
-    if (chunkIndex >= fileData.chunks.count())
+    const FileData fileData = m_contextFileData.at(m_contextMenuFileIndex);
+    if (m_contextMenuChunkIndex >= fileData.chunks.count())
         return;
 
     const QString title = revert ? tr("Revert Chunk") : tr("Apply Chunk");
@@ -1385,7 +1383,7 @@ void SideBySideDiffEditorWidget::patch(int diffFileIndex, int chunkIndex, bool r
             ? QFileInfo(fileName).absolutePath()
             : m_controller->workingDirectory();
 
-    const QString patch = m_controller->makePatch(diffFileIndex, chunkIndex, revert);
+    const QString patch = m_controller->makePatch(revert);
 
     if (patch.isEmpty())
         return;

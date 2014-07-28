@@ -43,6 +43,8 @@ namespace DiffEditor {
 
 DiffEditorController::DiffEditorController(QObject *parent)
     : QObject(parent),
+      m_diffFileIndex(-1),
+      m_chunkIndex(-1),
       m_descriptionEnabled(false),
       m_contextLinesNumber(3),
       m_ignoreWhitespace(true),
@@ -99,30 +101,33 @@ bool DiffEditorController::isIgnoreWhitespace() const
     return m_ignoreWhitespace;
 }
 
-QString DiffEditorController::makePatch(int diffFileIndex,
-                                        int chunkIndex,
-                                        bool revert) const
+QString DiffEditorController::makePatch(bool revert, bool addPrefix) const
 {
-    if (diffFileIndex < 0 || chunkIndex < 0)
+    if (m_diffFileIndex < 0 || m_chunkIndex < 0)
         return QString();
 
-    if (diffFileIndex >= m_diffFiles.count())
+    if (m_diffFileIndex >= m_diffFiles.count())
         return QString();
 
-    const FileData fileData = m_diffFiles.at(diffFileIndex);
-    if (chunkIndex >= fileData.chunks.count())
+    const FileData fileData = m_diffFiles.at(m_diffFileIndex);
+    if (m_chunkIndex >= fileData.chunks.count())
         return QString();
 
-    const ChunkData chunkData = fileData.chunks.at(chunkIndex);
-    const bool lastChunk = (chunkIndex == fileData.chunks.count() - 1);
+    const ChunkData chunkData = fileData.chunks.at(m_chunkIndex);
+    const bool lastChunk = (m_chunkIndex == fileData.chunks.count() - 1);
 
     const QString fileName = revert
             ? fileData.rightFileInfo.fileName
             : fileData.leftFileInfo.fileName;
 
+    QString leftPrefix, rightPrefix;
+    if (addPrefix) {
+        leftPrefix = QLatin1String("a/");
+        rightPrefix = QLatin1String("b/");
+    }
     return DiffUtils::makePatch(chunkData,
-                                fileName,
-                                fileName,
+                                leftPrefix + fileName,
+                                rightPrefix + fileName,
                                 lastChunk && fileData.lastChunkAtTheEndOfFile);
 }
 
@@ -269,7 +274,9 @@ void DiffEditorController::requestChunkActions(QMenu *menu,
                          int diffFileIndex,
                          int chunkIndex)
 {
-    emit chunkActionsRequested(menu, diffFileIndex, chunkIndex);
+    m_diffFileIndex = diffFileIndex;
+    m_chunkIndex = chunkIndex;
+    emit chunkActionsRequested(menu, diffFileIndex >= 0 && chunkIndex >= 0);
 }
 
 void DiffEditorController::requestSaveState()

@@ -94,7 +94,7 @@ private:
 //    void synchronizeFoldings(SideDiffEditorWidget *source, SideDiffEditorWidget *destination);
     void jumpToOriginalFile(const QString &fileName,
                             int lineNumber, int columnNumber);
-    void patch(int diffFileIndex, int chunkIndex, bool revert);
+    void patch(bool revert);
 
     DiffEditorGuiController *m_guiController;
     DiffEditorController *m_controller;

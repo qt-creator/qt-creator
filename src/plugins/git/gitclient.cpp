@@ -731,9 +731,7 @@ GitClient::GitClient(GitSettings *settings) :
     m_cachedGitVersion(0),
     m_msgWait(tr("Waiting for data...")),
     m_settings(settings),
-    m_disableEditor(false),
-    m_contextDiffFileIndex(-1),
-    m_contextChunkIndex(-1)
+    m_disableEditor(false)
 {
     QTC_CHECK(settings);
     connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
@@ -823,8 +821,8 @@ GitDiffEditorReloader *GitClient::findOrCreateDiffEditor(const QString &document
         QTC_ASSERT(diffEditorDocument, return 0);
         controller = diffEditorDocument->controller();
 
-        connect(controller, SIGNAL(chunkActionsRequested(QMenu*,int,int)),
-                this, SLOT(slotChunkActionsRequested(QMenu*,int,int)), Qt::DirectConnection);
+        connect(controller, SIGNAL(chunkActionsRequested(QMenu*,bool)),
+                this, SLOT(slotChunkActionsRequested(QMenu*,bool)), Qt::DirectConnection);
         connect(controller, SIGNAL(expandBranchesRequested(QString)),
                 this, SLOT(branchesForCommit(QString)));
 
@@ -839,7 +837,7 @@ GitDiffEditorReloader *GitClient::findOrCreateDiffEditor(const QString &document
     return reloader;
 }
 
-void GitClient::slotChunkActionsRequested(QMenu *menu, int diffFileIndex, int chunkIndex)
+void GitClient::slotChunkActionsRequested(QMenu *menu, bool isValid)
 {
     menu->addSeparator();
     QAction *stageChunkAction = menu->addAction(tr("Stage Chunk"));
@@ -847,44 +845,12 @@ void GitClient::slotChunkActionsRequested(QMenu *menu, int diffFileIndex, int ch
     QAction *unstageChunkAction = menu->addAction(tr("Unstage Chunk"));
     connect(unstageChunkAction, SIGNAL(triggered()), this, SLOT(slotUnstageChunk()));
 
-    m_contextDiffFileIndex = diffFileIndex;
-    m_contextChunkIndex = chunkIndex;
     m_contextController = qobject_cast<DiffEditor::DiffEditorController *>(sender());
 
-    if (m_contextDiffFileIndex < 0 || m_contextChunkIndex < 0 || !m_contextController) {
+    if (!isValid || !m_contextController) {
         stageChunkAction->setEnabled(false);
         unstageChunkAction->setEnabled(false);
     }
-}
-
-QString GitClient::makePatch(int diffFileIndex, int chunkIndex, bool revert) const
-{
-    if (m_contextController.isNull())
-        return QString();
-
-    if (diffFileIndex < 0 || chunkIndex < 0)
-        return QString();
-
-    QList<DiffEditor::FileData> fileDataList = m_contextController->diffFiles();
-
-    if (diffFileIndex >= fileDataList.count())
-        return QString();
-
-    const DiffEditor::FileData fileData = fileDataList.at(diffFileIndex);
-    if (chunkIndex >= fileData.chunks.count())
-        return QString();
-
-    const DiffEditor::ChunkData chunkData = fileData.chunks.at(chunkIndex);
-    const bool lastChunk = (chunkIndex == fileData.chunks.count() - 1);
-
-    const QString fileName = revert
-            ? fileData.rightFileInfo.fileName
-            : fileData.leftFileInfo.fileName;
-
-    return DiffEditor::DiffUtils::makePatch(chunkData,
-                                QLatin1String("a/") + fileName,
-                                QLatin1String("b/") + fileName,
-                                lastChunk && fileData.lastChunkAtTheEndOfFile);
 }
 
 void GitClient::slotStageChunk()
@@ -892,8 +858,7 @@ void GitClient::slotStageChunk()
     if (m_contextController.isNull())
         return;
 
-    const QString patch = makePatch(m_contextDiffFileIndex,
-                                    m_contextChunkIndex, false);
+    const QString patch = m_contextController->makePatch(false, true);
     if (patch.isEmpty())
         return;
 
@@ -905,8 +870,7 @@ void GitClient::slotUnstageChunk()
     if (m_contextController.isNull())
         return;
 
-    const QString patch = makePatch(m_contextDiffFileIndex,
-                                    m_contextChunkIndex, true);
+    const QString patch = m_contextController->makePatch(true, true);
     if (patch.isEmpty())
         return;
 

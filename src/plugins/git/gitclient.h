@@ -353,13 +353,12 @@ private slots:
                                     QString change, int lineNumber);
     void finishSubmoduleUpdate();
     void fetchFinished(const QVariant &cookie);
-    void slotChunkActionsRequested(QMenu *menu, int diffFileIndex, int chunkIndex);
+    void slotChunkActionsRequested(QMenu *menu, bool isValid);
     void slotStageChunk();
     void slotUnstageChunk();
     void branchesForCommit(const QString &revision);
 
 private:
-    QString makePatch(int diffFileIndex, int chunkIndex, bool revert) const;
     void stage(const QString &patch, bool revert);
     QByteArray readConfigBytes(const QString &workingDirectory, const QString &configVar) const;
     QTextCodec *getSourceCodec(const QString &file) const;
@@ -442,8 +441,6 @@ private:
     QMap<QString, StashInfo> m_stashInfo;
     QStringList m_updatedSubmodules;
     bool m_disableEditor;
-    int m_contextDiffFileIndex;
-    int m_contextChunkIndex;
     QPointer<DiffEditor::DiffEditorController> m_contextController;
     QFutureSynchronizer<void> m_synchronizer; // for commit updates
 };
