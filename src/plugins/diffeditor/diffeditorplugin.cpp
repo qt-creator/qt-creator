@@ -775,7 +775,6 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
             QCOMPARE(resultChunkData.leftStartingLineNumber, origChunkData.leftStartingLineNumber);
             QCOMPARE(resultChunkData.rightStartingLineNumber, origChunkData.rightStartingLineNumber);
             QCOMPARE(resultChunkData.contextChunk, origChunkData.contextChunk);
-            QEXPECT_FAIL("2 chunks - first ends with blank line", "QTCREATORBUG-12665", Abort);
             QCOMPARE(resultChunkData.rows.count(), origChunkData.rows.count());
             for (int k = 0; k < origChunkData.rows.count(); k++) {
                 const RowData &origRowData = origChunkData.rows.at(k);

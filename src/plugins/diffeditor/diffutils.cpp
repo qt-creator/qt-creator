@@ -604,7 +604,7 @@ static QList<RowData> readLines(const QString &patch,
     } else {
         if (noNewLineInEqual >= 0) {
             removeNewLineFromLastEqual = true;
-        } else if (lastChunk) {
+        } else {
             if (lastEqual > lastDelete && lastEqual > lastInsert) {
                 removeNewLineFromLastEqual = true;
             } else if (lastDelete > lastEqual && lastDelete > lastInsert) {
