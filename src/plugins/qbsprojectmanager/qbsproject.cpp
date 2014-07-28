@@ -502,6 +502,8 @@ void QbsProject::cancelParsing()
 
 void QbsProject::updateAfterBuild()
 {
+    QTC_ASSERT(m_qbsProject.isValid(), return);
+    m_projectData = m_qbsProject.projectData();
     updateBuildTargetData();
 }
 
@@ -763,7 +765,7 @@ void QbsProject::updateDeploymentInfo(const qbs::Project &project)
         qbs::InstallOptions installOptions;
         installOptions.setInstallRoot(QLatin1String("/"));
         foreach (const qbs::InstallableFile &f,
-                 project.installableFilesForProject(project.projectData(), installOptions)) {
+                 project.installableFilesForProject(m_projectData, installOptions)) {
             deploymentData.addFile(f.sourceFilePath(), f.targetDirectory(), f.isExecutable()
                                    ? ProjectExplorer::DeployableFile::TypeExecutable
                                    : ProjectExplorer::DeployableFile::TypeNormal);
@@ -774,7 +776,7 @@ void QbsProject::updateDeploymentInfo(const qbs::Project &project)
 
 void QbsProject::updateBuildTargetData()
 {
-    updateApplicationTargets(m_qbsProject.projectData());
+    updateApplicationTargets(m_projectData);
     updateDeploymentInfo(m_qbsProject);
     foreach (Target *t, targets())
         t->updateDefaultRunConfigurations();
