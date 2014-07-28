@@ -252,7 +252,7 @@ Item {
             }
             onPressed: positionChanged(mouse)
 
-            onClicked: colorButton.clicked()
+            onReleased: colorButton.clicked()
         }
         Rectangle {
             anchors.fill: parent
