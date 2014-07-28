@@ -188,89 +188,88 @@ const VcsBaseSubmitEditorParameters submitParameters = {
 };
 
 // Create a parameter action
-ParameterActionCommandPair
-        GitPlugin::createParameterAction(ActionContainer *ac,
-                                         const QString &defaultText, const QString &parameterText,
-                                         Id id, const Context &context,
-                                         bool addToLocator)
+ParameterAction *GitPlugin::createParameterAction(ActionContainer *ac,
+                                                  const QString &defaultText, const QString &parameterText,
+                                                  Id id, const Context &context,
+                                                  bool addToLocator, const QKeySequence &keys)
 {
     auto action = new ParameterAction(defaultText, parameterText, ParameterAction::EnabledWithParameter, this);
     Core::Command *command = ActionManager::registerAction(action, id, context);
+    if (!keys.isEmpty())
+        command->setDefaultKeySequence(keys);
     command->setAttribute(Core::Command::CA_UpdateText);
     ac->addAction(command);
     if (addToLocator)
         m_commandLocator->appendCommand(command);
-    return ParameterActionCommandPair(action, command);
+    return action;
 }
 
 // Create an action to act on a file with a slot.
-ParameterActionCommandPair
-        GitPlugin::createFileAction(ActionContainer *ac,
-                                    const QString &defaultText, const QString &parameterText,
-                                    Id id, const Context &context, bool addToLocator,
-                                    const char *pluginSlot)
+QAction *GitPlugin::createFileAction(ActionContainer *ac,
+                                     const QString &defaultText, const QString &parameterText,
+                                     Id id, const Context &context, bool addToLocator,
+                                     const char *pluginSlot, const QKeySequence &keys)
 {
-    const ParameterActionCommandPair rc = createParameterAction(ac, defaultText, parameterText, id, context, addToLocator);
-    m_fileActions.push_back(rc.first);
-    connect(rc.first, SIGNAL(triggered()), this, pluginSlot);
-    return rc;
+    ParameterAction *action = createParameterAction(ac, defaultText, parameterText, id, context, addToLocator, keys);
+    m_fileActions.push_back(action);
+    connect(action, SIGNAL(triggered()), this, pluginSlot);
+    return action;
 }
 
 // Create an action to act on a project with slot.
-ParameterActionCommandPair
-        GitPlugin::createProjectAction(ActionContainer *ac,
-                                       const QString &defaultText, const QString &parameterText,
-                                       Id id, const Context &context, bool addToLocator,
-                                       const char *pluginSlot)
+QAction *GitPlugin::createProjectAction(ActionContainer *ac,
+                                        const QString &defaultText, const QString &parameterText,
+                                        Id id, const Context &context, bool addToLocator,
+                                        const char *pluginSlot, const QKeySequence &keys)
 {
-    const ParameterActionCommandPair rc = createParameterAction(ac, defaultText, parameterText, id, context, addToLocator);
-    m_projectActions.push_back(rc.first);
-    connect(rc.first, SIGNAL(triggered()), this, pluginSlot);
-    return rc;
+    ParameterAction *action = createParameterAction(ac, defaultText, parameterText, id, context, addToLocator, keys);
+    m_projectActions.push_back(action);
+    connect(action, SIGNAL(triggered()), this, pluginSlot);
+    return action;
 }
 
 // Create an action to act on the repository
-ActionCommandPair
-        GitPlugin::createRepositoryAction(ActionContainer *ac,
-                                          const QString &text, Id id,
-                                          const Context &context, bool addToLocator)
+QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
+                                           const QString &text, Id id,
+                                           const Context &context, bool addToLocator,
+                                           const QKeySequence &keys)
 {
-    QAction  *action = new QAction(text, this);
+    QAction *action = new QAction(text, this);
     Core::Command *command = ActionManager::registerAction(action, id, context);
+    if (!keys.isEmpty())
+        command->setDefaultKeySequence(keys);
     if (ac)
         ac->addAction(command);
     m_repositoryActions.push_back(action);
     if (addToLocator)
         m_commandLocator->appendCommand(command);
-    return ActionCommandPair(action, command);
+    return action;
 }
 
 // Create an action to act on the repository with slot
-ActionCommandPair
-        GitPlugin::createRepositoryAction(ActionContainer *ac,
-                                          const QString &text, Id id,
-                                          const Context &context, bool addToLocator,
-                                          const char *pluginSlot)
+QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
+                                           const QString &text, Id id,
+                                           const Context &context, bool addToLocator,
+                                           const char *pluginSlot, const QKeySequence &keys)
 {
-    const ActionCommandPair rc = createRepositoryAction(ac, text, id, context, addToLocator);
-    connect(rc.first, SIGNAL(triggered()), this, pluginSlot);
-    rc.first->setData(id.uniqueIdentifier());
-    return rc;
+    QAction *action = createRepositoryAction(ac, text, id, context, addToLocator, keys);
+    connect(action, SIGNAL(triggered()), this, pluginSlot);
+    action->setData(id.uniqueIdentifier());
+    return action;
 }
 
 // Action to act on the repository forwarded to a git client member function
 // taking the directory. Store the member function as data on the action.
-ActionCommandPair
-        GitPlugin::createRepositoryAction(ActionContainer *ac,
-                                          const QString &text, Id id,
-                                          const Context &context, bool addToLocator,
-                                          GitClientMemberFunc func)
+QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
+                                           const QString &text, Id id,
+                                           const Context &context, bool addToLocator,
+                                           GitClientMemberFunc func, const QKeySequence &keys)
 {
     // Set the member func as data and connect to generic slot
-    const ActionCommandPair rc = createRepositoryAction(ac, text, id, context, addToLocator);
-    rc.first->setData(qVariantFromValue(func));
-    connect(rc.first, SIGNAL(triggered()), this, SLOT(gitClientMemberFuncRepositoryAction()));
-    return rc;
+    QAction *action = createRepositoryAction(ac, text, id, context, addToLocator, keys);
+    action->setData(qVariantFromValue(func));
+    connect(action, SIGNAL(triggered()), this, SLOT(gitClientMemberFuncRepositoryAction()));
+    return action;
 }
 
 bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -313,125 +312,88 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     toolsContainer->addMenu(gitContainer);
     m_menuAction = gitContainer->menu()->menuAction();
 
+
     /*  "Current File" menu */
     ActionContainer *currentFileMenu = ActionManager::createMenu("Git.CurrentFileMenu");
     currentFileMenu->menu()->setTitle(tr("Current &File"));
     gitContainer->addMenu(currentFileMenu);
 
-    ParameterActionCommandPair parameterActionCommand
-            = createFileAction(currentFileMenu,
-                               tr("Diff Current File"), tr("Diff of \"%1\""),
-                               "Git.Diff", globalcontext, true,
-                               SLOT(diffCurrentFile()));
-    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+D") : tr("Alt+G,Alt+D")));
+    createFileAction(currentFileMenu, tr("Diff Current File"), tr("Diff of \"%1\""),
+                     "Git.Diff", globalcontext, true, SLOT(diffCurrentFile()),
+                      QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+D") : tr("Alt+G,Alt+D")));
 
-    parameterActionCommand
-            = createFileAction(currentFileMenu,
-                               tr("Log Current File"), tr("Log of \"%1\""),
-                               "Git.Log", globalcontext, true, SLOT(logFile()));
-    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+L") : tr("Alt+G,Alt+L")));
+    createFileAction(currentFileMenu, tr("Log Current File"), tr("Log of \"%1\""),
+                     "Git.Log", globalcontext, true, SLOT(logFile()),
+                     QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+L") : tr("Alt+G,Alt+L")));
 
-    parameterActionCommand
-                = createFileAction(currentFileMenu,
-                                   tr("Blame Current File"), tr("Blame for \"%1\""),
-                                   "Git.Blame",
-                                   globalcontext, true, SLOT(blameFile()));
-    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+B") : tr("Alt+G,Alt+B")));
+    createFileAction(currentFileMenu, tr("Blame Current File"), tr("Blame for \"%1\""),
+                     "Git.Blame", globalcontext, true, SLOT(blameFile()),
+                     QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+B") : tr("Alt+G,Alt+B")));
 
-    // ------
     currentFileMenu->addSeparator(globalcontext);
 
-    parameterActionCommand
-            = createFileAction(currentFileMenu,
-                               tr("Stage File for Commit"), tr("Stage \"%1\" for Commit"),
-                               "Git.Stage", globalcontext, true, SLOT(stageFile()));
-    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+A") : tr("Alt+G,Alt+A")));
+    createFileAction(currentFileMenu, tr("Stage File for Commit"), tr("Stage \"%1\" for Commit"),
+                     "Git.Stage", globalcontext, true, SLOT(stageFile()),
+                     QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+A") : tr("Alt+G,Alt+A")));
 
-    parameterActionCommand
-            = createFileAction(currentFileMenu,
-                               tr("Unstage File from Commit"), tr("Unstage \"%1\" from Commit"),
-                               "Git.Unstage", globalcontext, true, SLOT(unstageFile()));
+    createFileAction(currentFileMenu, tr("Unstage File from Commit"), tr("Unstage \"%1\" from Commit"),
+                     "Git.Unstage", globalcontext, true, SLOT(unstageFile()));
 
-    parameterActionCommand
-            = createFileAction(currentFileMenu,
-                               tr("Undo Unstaged Changes"), tr("Undo Unstaged Changes for \"%1\""),
-                               "Git.UndoUnstaged", globalcontext,
-                               true, SLOT(undoUnstagedFileChanges()));
+    createFileAction(currentFileMenu, tr("Undo Unstaged Changes"), tr("Undo Unstaged Changes for \"%1\""),
+                     "Git.UndoUnstaged", globalcontext,
+                     true, SLOT(undoUnstagedFileChanges()));
 
-    parameterActionCommand
-            = createFileAction(currentFileMenu,
-                               tr("Undo Uncommitted Changes"), tr("Undo Uncommitted Changes for \"%1\""),
-                               "Git.Undo", globalcontext,
-                               true, SLOT(undoFileChanges()));
-    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+U") : tr("Alt+G,Alt+U")));
+    createFileAction(currentFileMenu, tr("Undo Uncommitted Changes"), tr("Undo Uncommitted Changes for \"%1\""),
+                     "Git.Undo", globalcontext,
+                     true, SLOT(undoFileChanges()),
+                     QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+U") : tr("Alt+G,Alt+U")));
 
-    /* \"Current File" menu */
-
-    // ------------
 
     /*  "Current Project" menu */
     ActionContainer *currentProjectMenu = ActionManager::createMenu("Git.CurrentProjectMenu");
     currentProjectMenu->menu()->setTitle(tr("Current &Project"));
     gitContainer->addMenu(currentProjectMenu);
 
-    parameterActionCommand
-            = createProjectAction(currentProjectMenu,
-                                  tr("Diff Current Project"), tr("Diff Project \"%1\""),
-                                  "Git.DiffProject", globalcontext, true,
-                                  SLOT(diffCurrentProject()));
-    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+Shift+D") : tr("Alt+G,Alt+Shift+D")));
+    createProjectAction(currentProjectMenu, tr("Diff Current Project"), tr("Diff Project \"%1\""),
+                        "Git.DiffProject", globalcontext, true, SLOT(diffCurrentProject()),
+                        QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+Shift+D") : tr("Alt+G,Alt+Shift+D")));
 
-    parameterActionCommand
-            = createProjectAction(currentProjectMenu,
-                                  tr("Log Project"), tr("Log Project \"%1\""),
-                                  "Git.LogProject", globalcontext, true,
-                                  SLOT(logProject()));
-    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+K") : tr("Alt+G,Alt+K")));
+    createProjectAction(currentProjectMenu, tr("Log Project"), tr("Log Project \"%1\""),
+                        "Git.LogProject", globalcontext, true, SLOT(logProject()),
+                        QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+K") : tr("Alt+G,Alt+K")));
 
-    parameterActionCommand
-                = createProjectAction(currentProjectMenu,
-                                      tr("Clean Project..."), tr("Clean Project \"%1\"..."),
-                                      "Git.CleanProject", globalcontext,
-                                      true, SLOT(cleanProject()));
+    createProjectAction(currentProjectMenu, tr("Clean Project..."), tr("Clean Project \"%1\"..."),
+                        "Git.CleanProject", globalcontext, true, SLOT(cleanProject()));
 
-    /* \"Current Project" menu */
-
-    // --------------
 
     /*  "Local Repository" menu */
     ActionContainer *localRepositoryMenu = ActionManager::createMenu("Git.LocalRepositoryMenu");
     localRepositoryMenu->menu()->setTitle(tr("&Local Repository"));
     gitContainer->addMenu(localRepositoryMenu);
 
-    createRepositoryAction(localRepositoryMenu,
-                           tr("Diff"), "Git.DiffRepository",
+    createRepositoryAction(localRepositoryMenu, tr("Diff"), "Git.DiffRepository",
                            globalcontext, true, SLOT(diffRepository()));
 
-    createRepositoryAction(localRepositoryMenu,
-                           tr("Log"), "Git.LogRepository",
+    createRepositoryAction(localRepositoryMenu, tr("Log"), "Git.LogRepository",
                            globalcontext, true,
                            SLOT(logRepository()));
 
-    createRepositoryAction(localRepositoryMenu,
-                           tr("Reflog"), "Git.ReflogRepository",
+    createRepositoryAction(localRepositoryMenu, tr("Reflog"), "Git.ReflogRepository",
                            globalcontext, true,
                            SLOT(reflogRepository()));
 
-    createRepositoryAction(localRepositoryMenu,
-                           tr("Clean..."), "Git.CleanRepository",
+    createRepositoryAction(localRepositoryMenu, tr("Clean..."), "Git.CleanRepository",
                            globalcontext, true, SLOT(cleanRepository()));
 
-    createRepositoryAction(localRepositoryMenu,
-                           tr("Status"), "Git.StatusRepository",
+    createRepositoryAction(localRepositoryMenu, tr("Status"), "Git.StatusRepository",
                            globalcontext, true, &GitClient::status);
 
     // --------------
     localRepositoryMenu->addSeparator(globalcontext);
 
-    ActionCommandPair actionCommand = createRepositoryAction(localRepositoryMenu,
-                                                             tr("Commit..."), "Git.Commit",
-                                                             globalcontext, true, SLOT(startCommit()));
-    actionCommand.second->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+C") : tr("Alt+G,Alt+C")));
+    createRepositoryAction(localRepositoryMenu, tr("Commit..."), "Git.Commit",
+                           globalcontext, true, SLOT(startCommit()));
+                           QKeySequence(UseMacShortcuts ? tr("Meta+G,Meta+C") : tr("Alt+G,Alt+C"));
 
     createRepositoryAction(localRepositoryMenu,
                            tr("Amend Last Commit..."), "Git.AmendCommit",
@@ -440,7 +402,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_fixupCommitAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Fixup Previous Commit..."), "Git.FixupCommit",
-                                   globalcontext, true, SLOT(startFixupCommit())).first;
+                                   globalcontext, true, SLOT(startFixupCommit()));
+
     // --------------
     localRepositoryMenu->addSeparator(globalcontext);
 
@@ -451,46 +414,46 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_interactiveRebaseAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Interactive Rebase..."), "Git.InteractiveRebase",
-                                   globalcontext, true, SLOT(startRebase())).first;
+                                   globalcontext, true, SLOT(startRebase()));
 
     m_submoduleUpdateAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Update Submodules"), "Git.SubmoduleUpdate",
-                                   globalcontext, true, SLOT(updateSubmodules())).first;
+                                   globalcontext, true, SLOT(updateSubmodules()));
     m_abortMergeAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Abort Merge"), "Git.MergeAbort",
-                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+                                   globalcontext, true, SLOT(continueOrAbortCommand()));
 
     m_abortRebaseAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Abort Rebase"), "Git.RebaseAbort",
-                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+                                   globalcontext, true, SLOT(continueOrAbortCommand()));
 
     m_abortCherryPickAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Abort Cherry Pick"), "Git.CherryPickAbort",
-                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+                                   globalcontext, true, SLOT(continueOrAbortCommand()));
 
     m_abortRevertAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Abort Revert"), "Git.RevertAbort",
-                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+                                   globalcontext, true, SLOT(continueOrAbortCommand()));
 
     m_continueRebaseAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Continue Rebase"), "Git.RebaseContinue",
-                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+                                   globalcontext, true, SLOT(continueOrAbortCommand()));
 
     m_continueCherryPickAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Continue Cherry Pick"), "Git.CherryPickContinue",
-                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+                                   globalcontext, true, SLOT(continueOrAbortCommand()));
 
     m_continueRevertAction =
             createRepositoryAction(localRepositoryMenu,
                                    tr("Continue Revert"), "Git.RevertContinue",
-                                   globalcontext, true, SLOT(continueOrAbortCommand())).first;
+                                   globalcontext, true, SLOT(continueOrAbortCommand()));
 
     // --------------
     localRepositoryMenu->addSeparator(globalcontext);
@@ -508,12 +471,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     localRepositoryMenu->addMenu(patchMenu);
 
     // Apply current file as patch is handled specially.
-    parameterActionCommand =
+    m_applyCurrentFilePatchAction =
             createParameterAction(patchMenu,
                                   tr("Apply from Editor"), tr("Apply \"%1\""),
                                   "Git.ApplyCurrentFilePatch",
                                   globalcontext, true);
-    m_applyCurrentFilePatchAction = parameterActionCommand.first;
+
     connect(m_applyCurrentFilePatchAction, SIGNAL(triggered()), this,
             SLOT(applyCurrentFilePatch()));
 
@@ -532,22 +495,19 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     stashMenu->addSeparator(globalcontext);
 
-    actionCommand = createRepositoryAction(stashMenu,
-                                           tr("Stash"), "Git.Stash",
-                                           globalcontext, true, SLOT(stash()));
-    actionCommand.first->setToolTip(tr("Saves the current state of your work and resets the repository."));
+    QAction *action = createRepositoryAction(stashMenu, tr("Stash"), "Git.Stash",
+                                             globalcontext, true, SLOT(stash()));
+    action->setToolTip(tr("Saves the current state of your work and resets the repository."));
 
-    actionCommand = createRepositoryAction(stashMenu,
-                                           tr("Take Snapshot..."), "Git.StashSnapshot",
-                                           globalcontext, true, SLOT(stashSnapshot()));
-    actionCommand.first->setToolTip(tr("Saves the current state of your work."));
+    action = createRepositoryAction(stashMenu, tr("Take Snapshot..."), "Git.StashSnapshot",
+                                    globalcontext, true, SLOT(stashSnapshot()));
+    action->setToolTip(tr("Saves the current state of your work."));
 
     stashMenu->addSeparator(globalcontext);
 
-    actionCommand = createRepositoryAction(stashMenu,
-                                           tr("Stash Pop"), "Git.StashPop",
-                                           globalcontext, true, &GitClient::stashPop);
-    actionCommand.first->setToolTip(tr("Restores changes saved to the stash list using \"Stash\"."));
+    action = createRepositoryAction(stashMenu, tr("Stash Pop"), "Git.StashPop",
+                                    globalcontext, true, &GitClient::stashPop);
+    action->setToolTip(tr("Restores changes saved to the stash list using \"Stash\"."));
 
 
     /* \"Local Repository" menu */
@@ -559,17 +519,14 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     remoteRepositoryMenu->menu()->setTitle(tr("&Remote Repository"));
     gitContainer->addMenu(remoteRepositoryMenu);
 
-    createRepositoryAction(remoteRepositoryMenu,
-                           tr("Fetch"), "Git.Fetch",
+    createRepositoryAction(remoteRepositoryMenu, tr("Fetch"), "Git.Fetch",
                            globalcontext, true, SLOT(fetch()));
 
-    createRepositoryAction(remoteRepositoryMenu,
-                           tr("Pull"), "Git.Pull",
+    createRepositoryAction(remoteRepositoryMenu, tr("Pull"), "Git.Pull",
                            globalcontext, true, SLOT(pull()));
 
-    actionCommand = createRepositoryAction(remoteRepositoryMenu,
-                                           tr("Push"), "Git.Push",
-                                           globalcontext, true, SLOT(push()));
+    createRepositoryAction(remoteRepositoryMenu, tr("Push"), "Git.Push",
+                           globalcontext, true, SLOT(push()));
 
     // --------------
     remoteRepositoryMenu->addSeparator(globalcontext);
@@ -630,15 +587,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Gitk"), "Git.LaunchGitK",
                            globalcontext, true, &GitClient::launchGitK);
 
-    parameterActionCommand
-            = createFileAction(gitToolsMenu,
-                               tr("Gitk Current File"), tr("Gitk of \"%1\""),
-                               "Git.GitkFile", globalcontext, true, SLOT(gitkForCurrentFile()));
+    createFileAction(gitToolsMenu, tr("Gitk Current File"), tr("Gitk of \"%1\""),
+                     "Git.GitkFile", globalcontext, true, SLOT(gitkForCurrentFile()));
 
-    parameterActionCommand
-            = createFileAction(gitToolsMenu,
-                               tr("Gitk for folder of Current File"), tr("Gitk for folder of \"%1\""),
-                               "Git.GitkFolder", globalcontext, true, SLOT(gitkForCurrentFolder()));
+    createFileAction(gitToolsMenu, tr("Gitk for folder of Current File"), tr("Gitk for folder of \"%1\""),
+                     "Git.GitkFolder", globalcontext, true, SLOT(gitkForCurrentFolder()));
 
     // --------------
     gitToolsMenu->addSeparator(globalcontext);
@@ -649,15 +602,15 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // --------------
     gitToolsMenu->addSeparator(globalcontext);
 
-    m_repositoryBrowserAction
-            = createRepositoryAction(gitToolsMenu,
-                                     tr("Repository Browser"), "Git.LaunchRepositoryBrowser",
-                                     globalcontext, true, &GitClient::launchRepositoryBrowser).first;
+    m_repositoryBrowserAction =
+            createRepositoryAction(gitToolsMenu,
+                                   tr("Repository Browser"), "Git.LaunchRepositoryBrowser",
+                                   globalcontext, true, &GitClient::launchRepositoryBrowser);
 
     m_mergeToolAction =
             createRepositoryAction(gitToolsMenu,
                                    tr("Merge Tool"), "Git.MergeTool",
-                                   globalcontext, true, SLOT(startMergeTool())).first;
+                                   globalcontext, true, SLOT(startMergeTool()));
 
     /* \"Git Tools" menu */
 

@@ -36,7 +36,7 @@
 
 #include <QStringList>
 #include <QPointer>
-#include <QPair>
+#include <QKeySequence>
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
@@ -68,9 +68,6 @@ class BranchDialog;
 class RemoteDialog;
 
 typedef void (GitClient::*GitClientMemberFunc)(const QString &);
-
-typedef QPair<QAction *, Core::Command* > ActionCommandPair;
-typedef QPair<Utils::ParameterAction *, Core::Command* > ParameterActionCommandPair;
 
 class GitPlugin : public VcsBase::VcsBasePlugin
 {
@@ -155,40 +152,42 @@ protected:
     bool submitEditorAboutToClose();
 
 private:
-    inline ParameterActionCommandPair
-            createParameterAction(Core::ActionContainer *ac,
-                                  const QString &defaultText, const QString &parameterText,
-                                  Core::Id id, const Core::Context &context, bool addToLocator);
+    Utils::ParameterAction *createParameterAction(Core::ActionContainer *ac,
+                                                  const QString &defaultText, const QString &parameterText,
+                                                  Core::Id id, const Core::Context &context, bool addToLocator,
+                                                  const QKeySequence &keys = QKeySequence());
 
-    inline ParameterActionCommandPair
-            createFileAction(Core::ActionContainer *ac,
-                             const QString &defaultText, const QString &parameterText,
-                             Core::Id id, const Core::Context &context, bool addToLocator,
-                             const char *pluginSlot);
+    QAction *createFileAction(Core::ActionContainer *ac,
+                              const QString &defaultText, const QString &parameterText,
+                              Core::Id id, const Core::Context &context, bool addToLocator,
+                              const char *pluginSlot,
+                              const QKeySequence &keys = QKeySequence());
 
-    inline ParameterActionCommandPair
-            createProjectAction(Core::ActionContainer *ac,
-                                const QString &defaultText, const QString &parameterText,
-                                Core::Id id, const Core::Context &context, bool addToLocator);
+    QAction *createProjectAction(Core::ActionContainer *ac,
+                                 const QString &defaultText, const QString &parameterText,
+                                 Core::Id id, const Core::Context &context, bool addToLocator,
+                                 const QKeySequence &keys = QKeySequence());
 
-    inline ParameterActionCommandPair
-                createProjectAction(Core::ActionContainer *ac,
-                                    const QString &defaultText, const QString &parameterText,
-                                    Core::Id id, const Core::Context &context, bool addToLocator,
-                                    const char *pluginSlot);
+    QAction *createProjectAction(Core::ActionContainer *ac,
+                                 const QString &defaultText, const QString &parameterText,
+                                 Core::Id id, const Core::Context &context, bool addToLocator,
+                                 const char *pluginSlot, const QKeySequence &keys = QKeySequence());
 
 
-    inline ActionCommandPair createRepositoryAction(Core::ActionContainer *ac,
-                                           const QString &text, Core::Id id,
-                                           const Core::Context &context, bool addToLocator);
-    inline ActionCommandPair createRepositoryAction(Core::ActionContainer *ac,
-                                           const QString &text, Core::Id id,
-                                           const Core::Context &context,
-                                           bool addToLocator, const char *pluginSlot);
-    inline ActionCommandPair createRepositoryAction(Core::ActionContainer *ac,
-                                           const QString &text, Core::Id id,
-                                           const Core::Context &context,
-                                           bool addToLocator, GitClientMemberFunc);
+    QAction *createRepositoryAction(Core::ActionContainer *ac,
+                                    const QString &text, Core::Id id,
+                                    const Core::Context &context, bool addToLocator,
+                                    const QKeySequence &keys = QKeySequence());
+    QAction *createRepositoryAction(Core::ActionContainer *ac,
+                                    const QString &text, Core::Id id,
+                                    const Core::Context &context,
+                                    bool addToLocator, const char *pluginSlot,
+                                    const QKeySequence &keys = QKeySequence());
+    QAction *createRepositoryAction(Core::ActionContainer *ac,
+                                    const QString &text, Core::Id id,
+                                    const Core::Context &context,
+                                    bool addToLocator, GitClientMemberFunc,
+                                    const QKeySequence &keys = QKeySequence());
 
     void updateRepositoryBrowserAction();
     bool isCommitEditorOpen() const;
