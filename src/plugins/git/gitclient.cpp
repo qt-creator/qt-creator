@@ -783,7 +783,7 @@ DiffEditor::DiffEditorDocument *GitClient::createDiffEditor(const QString &docum
     VcsBasePlugin::setSource(diffEditorDocument, source);
 
     connect(diffEditorDocument->controller(), SIGNAL(chunkActionsRequested(QMenu*,int,int)),
-            this, SLOT(slotChunkActionsRequested(QMenu*,int,int)));
+            this, SLOT(slotChunkActionsRequested(QMenu*,int,int)), Qt::DirectConnection);
 
     return diffEditorDocument;
 }
