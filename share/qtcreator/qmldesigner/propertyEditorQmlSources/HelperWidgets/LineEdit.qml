@@ -47,7 +47,7 @@ Controls.TextField {
 
     property bool showTranslateCheckBox: true
 
-    property bool hasToConvertColor: false
+    property bool writeValueManually: false
 
     property bool __dirty: false
 
@@ -62,7 +62,7 @@ Controls.TextField {
         id: colorLogic
         backendValue: lineEdit.backendValue
         onValueFromBackendChanged: {
-            if (hasToConvertColor) {
+            if (writeValueManually) {
                 lineEdit.text = convertColorToString(valueFromBackend)
             } else {
                 lineEdit.text = valueFromBackend
@@ -78,7 +78,7 @@ Controls.TextField {
     Connections {
         target: modelNodeBackend
         onSelectionToBeChanged: {
-            if (__dirty) {
+            if (__dirty && !writeValueManually) {
                 lineEdit.backendValue.value = text
             }
             __dirty = false
@@ -87,7 +87,7 @@ Controls.TextField {
 
     onEditingFinished: {
 
-        if (hasToConvertColor)
+        if (writeValueManually)
             return
 
         if (!__dirty)

@@ -149,7 +149,7 @@ Column {
             LineEdit {
                 id: textField
 
-                hasToConvertColor: true
+                writeValueManually: true
 
                 validator: RegExpValidator {
                     regExp: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g
