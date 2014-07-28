@@ -34,7 +34,7 @@
 #include "kitmanager.h"
 #include "project.h"
 #include "projectexplorer.h"
-#include "iprojectpanelfactory.h"
+#include "projectpanelfactory.h"
 #include "session.h"
 #include "target.h"
 
@@ -121,7 +121,7 @@ void ProjectWindow::projectUpdated(Project *p)
 QStringList ProjectWindow::tabDisplayNamesFor(Project *project)
 {
     QStringList subTabs;
-    foreach (IProjectPanelFactory *panelFactory, IProjectPanelFactory::factories()) {
+    foreach (ProjectPanelFactory *panelFactory, ProjectPanelFactory::factories()) {
         if (panelFactory->supports(project))
             subTabs << panelFactory->displayName();
     }
@@ -214,9 +214,9 @@ void ProjectWindow::showProperties(int index, int subIndex)
 
     // Set up custom panels again:
     int pos = 0;
-    IProjectPanelFactory *fac = 0;
+    ProjectPanelFactory *fac = 0;
 
-    foreach (IProjectPanelFactory *panelFactory, IProjectPanelFactory::factories()) {
+    foreach (ProjectPanelFactory *panelFactory, ProjectPanelFactory::factories()) {
         if (panelFactory->supports(project)) {
             if (subIndex == pos) {
                 fac = panelFactory;

@@ -27,74 +27,71 @@
 **
 ****************************************************************************/
 
-#include "iprojectpanelfactory.h"
+#include "projectpanelfactory.h"
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
-QList<IProjectPanelFactory *> IProjectPanelFactory::s_factories;
+static QList<ProjectPanelFactory *> s_factories;
 
-IProjectPanelFactory::IProjectPanelFactory()
+ProjectPanelFactory::ProjectPanelFactory()
     : m_priority(0),
-      m_supportsFunction(&supportsAllProjects)
+      m_supportsFunction([] (Project *) { return true; })
 {}
 
-int IProjectPanelFactory::priority() const
+int ProjectPanelFactory::priority() const
 {
     return m_priority;
 }
 
-void IProjectPanelFactory::setPriority(int priority)
+void ProjectPanelFactory::setPriority(int priority)
 {
     m_priority = priority;
 }
 
-QString IProjectPanelFactory::displayName() const
+QString ProjectPanelFactory::displayName() const
 {
     return m_displayName;
 }
 
-void IProjectPanelFactory::setDisplayName(const QString &name)
+void ProjectPanelFactory::setDisplayName(const QString &name)
 {
     m_displayName = name;
 }
 
-bool IProjectPanelFactory::supportsAllProjects(Project *)
-{
-    return true;
-}
-
-void IProjectPanelFactory::registerFactory(IProjectPanelFactory *factory)
+void ProjectPanelFactory::registerFactory(ProjectPanelFactory *factory)
 {
     auto it = std::lower_bound(s_factories.begin(), s_factories.end(), factory,
-        [](IProjectPanelFactory *a, IProjectPanelFactory *b)  {
+        [](ProjectPanelFactory *a, ProjectPanelFactory *b)  {
             return (a->priority() == b->priority() && a < b) || a->priority() < b->priority();
         });
 
     s_factories.insert(it, factory);
 }
 
-QList<IProjectPanelFactory *> IProjectPanelFactory::factories()
+QList<ProjectPanelFactory *> ProjectPanelFactory::factories()
 {
     return s_factories;
 }
 
-void IProjectPanelFactory::destroyFactories()
+void ProjectPanelFactory::destroyFactories()
 {
     qDeleteAll(s_factories);
     s_factories.clear();
 }
 
-bool IProjectPanelFactory::supports(Project *project)
+bool ProjectPanelFactory::supports(Project *project)
 {
     return m_supportsFunction(project);
 }
 
-void IProjectPanelFactory::setSupportsFunction(std::function<bool (Project *)> function)
+void ProjectPanelFactory::setSupportsFunction(std::function<bool (Project *)> function)
 {
     m_supportsFunction = function;
 }
 
-QWidget *IProjectPanelFactory::createWidget(Project *project)
+QWidget *ProjectPanelFactory::createWidget(Project *project)
 {
     return m_createWidgetFunction(project);
 }
+
+} // namespace ProjectExplorer

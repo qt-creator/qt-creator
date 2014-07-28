@@ -84,7 +84,7 @@
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/devicesettingspage.h"
 #include "targetsettingspanel.h"
-#include "iprojectpanelfactory.h"
+#include "projectpanelfactory.h"
 
 #ifdef Q_OS_WIN
 #    include "windebuginterface.h"
@@ -321,7 +321,7 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     // Force sequence of deletion:
     delete d->m_kitManager; // remove all the profile informations
     delete d->m_toolChainManager;
-    IProjectPanelFactory::destroyFactories();
+    ProjectPanelFactory::destroyFactories();
 
     delete d;
 }
@@ -471,31 +471,31 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new CurrentProjectFilter);
 
     // ProjectPanelFactories
-    auto editorSettingsPanelFactory = new IProjectPanelFactory;
+    auto editorSettingsPanelFactory = new ProjectPanelFactory;
     editorSettingsPanelFactory->setPriority(30);
     QString displayName = QCoreApplication::translate("EditorSettingsPanelFactory", "Editor");
     editorSettingsPanelFactory->setDisplayName(displayName);
     QIcon icon = QIcon(QLatin1String(":/projectexplorer/images/EditorSettings.png"));
     editorSettingsPanelFactory->setSimpleCreateWidgetFunction<EditorSettingsWidget>(icon);
-    IProjectPanelFactory::registerFactory(editorSettingsPanelFactory);
+    ProjectPanelFactory::registerFactory(editorSettingsPanelFactory);
 
-    auto codeStyleSettingsPanelFactory = new IProjectPanelFactory;
+    auto codeStyleSettingsPanelFactory = new ProjectPanelFactory;
     codeStyleSettingsPanelFactory->setPriority(40);
     displayName = QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style");
     codeStyleSettingsPanelFactory->setDisplayName(displayName);
     icon = QIcon(QLatin1String(":/projectexplorer/images/CodeStyleSettings.png"));
     codeStyleSettingsPanelFactory->setSimpleCreateWidgetFunction<CodeStyleSettingsWidget>(icon);
-    IProjectPanelFactory::registerFactory(codeStyleSettingsPanelFactory);
+    ProjectPanelFactory::registerFactory(codeStyleSettingsPanelFactory);
 
-    auto dependenciesPanelFactory = new IProjectPanelFactory;
+    auto dependenciesPanelFactory = new ProjectPanelFactory;
     dependenciesPanelFactory->setPriority(50);
     displayName = QCoreApplication::translate("DependenciesPanelFactory", "Dependencies");
     dependenciesPanelFactory->setDisplayName(displayName);
     icon = QIcon(QLatin1String(":/projectexplorer/images/ProjectDependencies.png"));
     dependenciesPanelFactory->setSimpleCreateWidgetFunction<DependenciesWidget>(icon);
-    IProjectPanelFactory::registerFactory(dependenciesPanelFactory);
+    ProjectPanelFactory::registerFactory(dependenciesPanelFactory);
 
-    auto unconfiguredProjectPanel = new IProjectPanelFactory;
+    auto unconfiguredProjectPanel = new ProjectPanelFactory;
     unconfiguredProjectPanel->setPriority(-10);
     unconfiguredProjectPanel->setDisplayName(tr("Configure Project"));
     unconfiguredProjectPanel->setSupportsFunction([](Project *project){
@@ -503,9 +503,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     });
     icon = QIcon(QLatin1String(":/projectexplorer/images/unconfigured.png"));
     unconfiguredProjectPanel->setSimpleCreateWidgetFunction<TargetSetupPageWrapper>(icon);
-    IProjectPanelFactory::registerFactory(unconfiguredProjectPanel);
+    ProjectPanelFactory::registerFactory(unconfiguredProjectPanel);
 
-    auto targetSettingsPanelFactory = new IProjectPanelFactory;
+    auto targetSettingsPanelFactory = new ProjectPanelFactory;
     targetSettingsPanelFactory->setPriority(-10);
     displayName = QCoreApplication::translate("TargetSettingsPanelFactory", "Build & Run");
     targetSettingsPanelFactory->setDisplayName(displayName);
@@ -516,7 +516,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     targetSettingsPanelFactory->setCreateWidgetFunction([](Project *project) {
         return new TargetSettingsPanelWidget(project);
     });
-    IProjectPanelFactory::registerFactory(targetSettingsPanelFactory);
+    ProjectPanelFactory::registerFactory(targetSettingsPanelFactory);
 
     addAutoReleasedObject(new ProcessStepFactory);
 

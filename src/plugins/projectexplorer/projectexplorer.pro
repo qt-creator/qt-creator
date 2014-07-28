@@ -149,7 +149,7 @@ HEADERS += projectexplorer.h \
     xcodebuildparser.h \
     propertiespanel.h \
     panelswidget.h \
-    iprojectpanelfactory.h
+    projectpanelfactory.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -286,7 +286,7 @@ SOURCES += projectexplorer.cpp \
     xcodebuildparser.cpp \
     propertiespanel.cpp \
     panelswidget.cpp \
-    iprojectpanelfactory.cpp
+    projectpanelfactory.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

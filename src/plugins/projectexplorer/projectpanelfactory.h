@@ -27,27 +27,24 @@
 **
 ****************************************************************************/
 
-#ifndef IPROJECTPROPERTIES_H
-#define IPROJECTPROPERTIES_H
+#ifndef PROJECTPANELFACTORY_H
+#define PROJECTPANELFACTORY_H
 
 #include "projectexplorer_export.h"
 #include "propertiespanel.h"
 #include "panelswidget.h"
 
-#include <QIcon>
-#include <QWidget>
-
 #include <functional>
 
 namespace ProjectExplorer {
+
 class Project;
 class ProjectExplorerPlugin;
-class Target;
 
-class PROJECTEXPLORER_EXPORT IProjectPanelFactory
+class PROJECTEXPLORER_EXPORT ProjectPanelFactory
 {
 public:
-    IProjectPanelFactory();
+    ProjectPanelFactory();
 
     // simple properties
     QString displayName() const;
@@ -55,11 +52,11 @@ public:
     int priority() const;
     void setPriority(int priority);
 
-    // interface for users of IProjectPanelFactory
+    // interface for users of ProjectPanelFactory
     bool supports(Project *project);
-    QWidget *createWidget(ProjectExplorer::Project *project);
+    QWidget *createWidget(Project *project);
 
-    // interface for "implementations" of IProjectPanelFactory
+    // interface for "implementations" of ProjectPanelFactory
     // by default all projects are supported, only set a custom supports function
     // if you need something different
     void setSupportsFunction(std::function<bool (Project *)> function);
@@ -88,11 +85,10 @@ public:
         m_createWidgetFunction = function;
     }
 
-    static bool supportsAllProjects(Project *);
+    // This takes ownership.
+    static void registerFactory(ProjectPanelFactory *factory);
 
-    static void registerFactory(IProjectPanelFactory *factory);
-
-    static QList<IProjectPanelFactory *> factories();
+    static QList<ProjectPanelFactory *> factories();
 
 private:
     friend class ProjectExplorerPlugin;
@@ -102,9 +98,8 @@ private:
     QString m_displayName;
     std::function<bool (Project *)> m_supportsFunction;
     std::function<QWidget *(Project *)> m_createWidgetFunction;
-    static QList<IProjectPanelFactory *> s_factories;
 };
 
 } // namespace ProjectExplorer
 
-#endif // IPROJECTPROPERTIES_H
+#endif // PROJECTPANELFACTORY_H
