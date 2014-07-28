@@ -61,38 +61,6 @@ const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Diff Editor
 const char DIFFLOG[] = "Bazaar Diff Editor";
 const char DIFFAPP[] = "text/x-patch";
 
-// Submit editor parameters
-const char COMMIT_ID[] = "Bazaar Commit Log Editor";
-const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Commit Log Editor");
-const char COMMITMIMETYPE[] = "text/vnd.qtcreator.bazaar.commit";
-
-// Menu items
-// File menu actions
-const char ADD[] = "Bazaar.AddSingleFile";
-const char DELETE[] = "Bazaar.DeleteSingleFile";
-const char ANNOTATE[] = "Bazaar.Annotate";
-const char DIFF[] = "Bazaar.DiffSingleFile";
-const char LOG[] = "Bazaar.LogSingleFile";
-const char REVERT[] = "Bazaar.RevertSingleFile";
-const char STATUS[] = "Bazaar.Status";
-
-// Directory menu Actions
-const char DIFFMULTI[] = "Bazaar.Action.DiffMulti";
-const char REVERTMULTI[] = "Bazaar.Action.RevertALL";
-const char STATUSMULTI[] = "Bazaar.Action.StatusMulti";
-const char LOGMULTI[] = "Bazaar.Action.Logmulti";
-
-// Repository menu actions
-const char PULL[] = "Bazaar.Action.Pull";
-const char PUSH[] = "Bazaar.Action.Push";
-const char UPDATE[] = "Bazaar.Action.Update";
-const char COMMIT[] = "Bazaar.Action.Commit";
-const char UNCOMMIT[] = "Bazaar.Action.UnCommit";
-const char CREATE_REPOSITORY[] = "Bazaar.Action.CreateRepository";
-
-// Submit editor actions
-const char DIFFEDITOR[] = "Bazaar.Action.Editor.Diff";
-
 } // namespace Constants
 } // namespace Bazaar
 

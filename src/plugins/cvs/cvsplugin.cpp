@@ -75,8 +75,9 @@
 #include <QTest>
 #endif
 
-using namespace VcsBase;
 using namespace Core;
+using namespace VcsBase;
+using namespace Utils;
 
 namespace Cvs {
 namespace Internal {
@@ -92,30 +93,37 @@ static inline QString msgLogParsingFailed()
     return CvsPlugin::tr("Parsing of the log output failed");
 }
 
-static const char CMD_ID_CVS_MENU[]           = "CVS.Menu";
-static const char CMD_ID_ADD[]                = "CVS.Add";
-static const char CMD_ID_DELETE_FILE[]        = "CVS.Delete";
-static const char CMD_ID_EDIT_FILE[]          = "CVS.EditFile";
-static const char CMD_ID_UNEDIT_FILE[]        = "CVS.UneditFile";
-static const char CMD_ID_UNEDIT_REPOSITORY[]  = "CVS.UneditRepository";
-static const char CMD_ID_REVERT[]             = "CVS.Revert";
-static const char CMD_ID_DIFF_PROJECT[]       = "CVS.DiffAll";
-static const char CMD_ID_DIFF_CURRENT[]       = "CVS.DiffCurrent";
-static const char CMD_ID_COMMIT_ALL[]         = "CVS.CommitAll";
-static const char CMD_ID_REVERT_ALL[]         = "CVS.RevertAll";
-static const char CMD_ID_COMMIT_CURRENT[]     = "CVS.CommitCurrent";
-static const char CMD_ID_FILELOG_CURRENT[]    = "CVS.FilelogCurrent";
-static const char CMD_ID_ANNOTATE_CURRENT[]   = "CVS.AnnotateCurrent";
-static const char CMD_ID_STATUS[]             = "CVS.Status";
-static const char CMD_ID_UPDATE[]             = "CVS.Update";
-static const char CMD_ID_PROJECTLOG[]         = "CVS.ProjectLog";
-static const char CMD_ID_PROJECTCOMMIT[]      = "CVS.ProjectCommit";
-static const char CMD_ID_REPOSITORYLOG[]      = "CVS.RepositoryLog";
-static const char CMD_ID_REPOSITORYDIFF[]     = "CVS.RepositoryDiff";
-static const char CMD_ID_REPOSITORYSTATUS[]   = "CVS.RepositoryStatus";
-static const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
+const char CMD_ID_CVS_MENU[]           = "CVS.Menu";
+const char CMD_ID_ADD[]                = "CVS.Add";
+const char CMD_ID_DELETE_FILE[]        = "CVS.Delete";
+const char CMD_ID_EDIT_FILE[]          = "CVS.EditFile";
+const char CMD_ID_UNEDIT_FILE[]        = "CVS.UneditFile";
+const char CMD_ID_UNEDIT_REPOSITORY[]  = "CVS.UneditRepository";
+const char CMD_ID_REVERT[]             = "CVS.Revert";
+const char CMD_ID_DIFF_PROJECT[]       = "CVS.DiffAll";
+const char CMD_ID_DIFF_CURRENT[]       = "CVS.DiffCurrent";
+const char CMD_ID_COMMIT_ALL[]         = "CVS.CommitAll";
+const char CMD_ID_REVERT_ALL[]         = "CVS.RevertAll";
+const char CMD_ID_COMMIT_CURRENT[]     = "CVS.CommitCurrent";
+const char CMD_ID_FILELOG_CURRENT[]    = "CVS.FilelogCurrent";
+const char CMD_ID_ANNOTATE_CURRENT[]   = "CVS.AnnotateCurrent";
+const char CMD_ID_STATUS[]             = "CVS.Status";
+const char CMD_ID_UPDATE[]             = "CVS.Update";
+const char CMD_ID_PROJECTLOG[]         = "CVS.ProjectLog";
+const char CMD_ID_PROJECTCOMMIT[]      = "CVS.ProjectCommit";
+const char CMD_ID_REPOSITORYLOG[]      = "CVS.RepositoryLog";
+const char CMD_ID_REPOSITORYDIFF[]     = "CVS.RepositoryDiff";
+const char CMD_ID_REPOSITORYSTATUS[]   = "CVS.RepositoryStatus";
+const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
 
-static const VcsBaseEditorParameters editorParameters[] = {
+const char CVS_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.cvs.submit";
+const char CVSCOMMITEDITOR[]  = "CVS Commit Editor";
+const char CVSCOMMITEDITOR_ID[]  = "CVS Commit Editor";
+const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "CVS Commit Editor");
+const char SUBMIT_CURRENT[] = "CVS.SubmitCurrentLog";
+const char DIFF_SELECTED[] = "CVS.DiffSelectedFilesInLog";
+
+const VcsBaseEditorParameters editorParameters[] = {
 {
     OtherContent,
     "CVS Command Log Editor", // id
@@ -143,7 +151,7 @@ static const VcsBaseEditorParameters editorParameters[] = {
 static inline const VcsBaseEditorParameters *findType(int ie)
 {
     const EditorContentType et = static_cast<EditorContentType>(ie);
-    return  VcsBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VcsBaseEditorParameters), et);
+    return VcsBaseEditorWidget::findType(editorParameters, sizeof(editorParameters) / sizeof(editorParameters[0]), et);
 }
 
 static inline QString debugCodec(const QTextCodec *c)
@@ -211,11 +219,11 @@ bool CvsPlugin::isCommitEditorOpen() const
 }
 
 static const VcsBaseSubmitEditorParameters submitParameters = {
-    Constants::CVS_SUBMIT_MIMETYPE,
-    Constants::CVSCOMMITEDITOR_ID,
-    Constants::CVSCOMMITEDITOR_DISPLAY_NAME,
-    Constants::CVSCOMMITEDITOR,
-    VcsBase::VcsBaseSubmitEditorParameters::DiffFiles
+    CVS_SUBMIT_MIMETYPE,
+    CVSCOMMITEDITOR_ID,
+    CVSCOMMITEDITOR_DISPLAY_NAME,
+    CVSCOMMITEDITOR,
+    VcsBaseSubmitEditorParameters::DiffFiles
 };
 
 bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -251,13 +259,13 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new CheckoutWizardFactory);
 
     const QString prefix = QLatin1String("cvs");
-    m_commandLocator = new Core::CommandLocator("CVS", prefix, prefix);
+    m_commandLocator = new CommandLocator("CVS", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     // Register actions
-    ActionContainer *toolsContainer = Core::ActionManager::actionContainer(M_TOOLS);
+    ActionContainer *toolsContainer = ActionManager::actionContainer(M_TOOLS);
 
-    ActionContainer *cvsMenu = Core::ActionManager::createMenu(Id(CMD_ID_CVS_MENU));
+    ActionContainer *cvsMenu = ActionManager::createMenu(Id(CMD_ID_CVS_MENU));
     cvsMenu->menu()->setTitle(tr("&CVS"));
     toolsContainer->addMenu(cvsMenu);
     m_menuAction = cvsMenu->menu()->menuAction();
@@ -266,8 +274,8 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Command *command;
 
-    m_diffCurrentAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_diffCurrentAction,
+    m_diffCurrentAction = new ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+D") : tr("Alt+C,Alt+D")));
@@ -275,8 +283,8 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_filelogCurrentAction = new Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_filelogCurrentAction,
+    m_filelogCurrentAction = new ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_filelogCurrentAction,
         CMD_ID_FILELOG_CURRENT, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_filelogCurrentAction, SIGNAL(triggered()), this,
@@ -284,8 +292,8 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_annotateCurrentAction = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_annotateCurrentAction,
+    m_annotateCurrentAction = new ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_annotateCurrentAction,
         CMD_ID_ANNOTATE_CURRENT, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_annotateCurrentAction, SIGNAL(triggered()), this,
@@ -295,8 +303,8 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     cvsMenu->addSeparator(globalcontext);
 
-    m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_addAction, CMD_ID_ADD,
+    m_addAction = new ParameterAction(tr("Add"), tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_addAction, CMD_ID_ADD,
         globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+A") : tr("Alt+C,Alt+A")));
@@ -304,8 +312,8 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitCurrentAction = new Utils::ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_commitCurrentAction,
+    m_commitCurrentAction = new ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_commitCurrentAction,
         CMD_ID_COMMIT_CURRENT, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+C") : tr("Alt+C,Alt+C")));
@@ -313,16 +321,16 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_deleteAction = new Utils::ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
+    m_deleteAction = new ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
         globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_revertAction = new Utils::ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_revertAction, CMD_ID_REVERT,
+    m_revertAction = new ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_revertAction, CMD_ID_REVERT,
         globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
@@ -331,60 +339,60 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     cvsMenu->addSeparator(globalcontext);
 
-    m_editCurrentAction = new Utils::ParameterAction(tr("Edit"), tr("Edit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_editCurrentAction, CMD_ID_EDIT_FILE, globalcontext);
+    m_editCurrentAction = new ParameterAction(tr("Edit"), tr("Edit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_editCurrentAction, CMD_ID_EDIT_FILE, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_editCurrentAction, SIGNAL(triggered()), this, SLOT(editCurrentFile()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_uneditCurrentAction = new Utils::ParameterAction(tr("Unedit"), tr("Unedit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_uneditCurrentAction, CMD_ID_UNEDIT_FILE, globalcontext);
+    m_uneditCurrentAction = new ParameterAction(tr("Unedit"), tr("Unedit \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_uneditCurrentAction, CMD_ID_UNEDIT_FILE, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_uneditCurrentAction, SIGNAL(triggered()), this, SLOT(uneditCurrentFile()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_uneditRepositoryAction = new QAction(tr("Unedit Repository"), this);
-    command = Core::ActionManager::registerAction(m_uneditRepositoryAction, CMD_ID_UNEDIT_REPOSITORY, globalcontext);
+    command = ActionManager::registerAction(m_uneditRepositoryAction, CMD_ID_UNEDIT_REPOSITORY, globalcontext);
     connect(m_uneditRepositoryAction, SIGNAL(triggered()), this, SLOT(uneditCurrentRepository()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     cvsMenu->addSeparator(globalcontext);
 
-    m_diffProjectAction = new Utils::ParameterAction(tr("Diff Project"), tr("Diff Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
+    m_diffProjectAction = new ParameterAction(tr("Diff Project"), tr("Diff Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
         globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffProject()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_statusProjectAction = new Utils::ParameterAction(tr("Project Status"), tr("Status of Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_statusProjectAction, CMD_ID_STATUS,
+    m_statusProjectAction = new ParameterAction(tr("Project Status"), tr("Status of Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_statusProjectAction, CMD_ID_STATUS,
         globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_statusProjectAction, SIGNAL(triggered()), this, SLOT(projectStatus()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logProjectAction = new Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, globalcontext);
+    m_logProjectAction = new ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_updateProjectAction = new Utils::ParameterAction(tr("Update Project"), tr("Update Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE, globalcontext);
+    m_updateProjectAction = new ParameterAction(tr("Update Project"), tr("Update Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_updateProjectAction, SIGNAL(triggered()), this, SLOT(updateProject()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitProjectAction = new Utils::ParameterAction(tr("Commit Project"), tr("Commit Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_commitProjectAction, CMD_ID_PROJECTCOMMIT, globalcontext);
+    m_commitProjectAction = new ParameterAction(tr("Commit Project"), tr("Commit Project \"%1\""), ParameterAction::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_commitProjectAction, CMD_ID_PROJECTCOMMIT, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_commitProjectAction, SIGNAL(triggered()), this, SLOT(commitProject()));
     cvsMenu->addAction(command);
@@ -393,59 +401,59 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     cvsMenu->addSeparator(globalcontext);
 
     m_diffRepositoryAction = new QAction(tr("Diff Repository"), this);
-    command = Core::ActionManager::registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, globalcontext);
+    command = ActionManager::registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, globalcontext);
     connect(m_diffRepositoryAction, SIGNAL(triggered()), this, SLOT(diffRepository()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_statusRepositoryAction = new QAction(tr("Repository Status"), this);
-    command = Core::ActionManager::registerAction(m_statusRepositoryAction, CMD_ID_REPOSITORYSTATUS, globalcontext);
+    command = ActionManager::registerAction(m_statusRepositoryAction, CMD_ID_REPOSITORYSTATUS, globalcontext);
     connect(m_statusRepositoryAction, SIGNAL(triggered()), this, SLOT(statusRepository()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_logRepositoryAction = new QAction(tr("Repository Log"), this);
-    command = Core::ActionManager::registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, globalcontext);
+    command = ActionManager::registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, globalcontext);
     connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_updateRepositoryAction = new QAction(tr("Update Repository"), this);
-    command = Core::ActionManager::registerAction(m_updateRepositoryAction, CMD_ID_REPOSITORYUPDATE, globalcontext);
+    command = ActionManager::registerAction(m_updateRepositoryAction, CMD_ID_REPOSITORYUPDATE, globalcontext);
     connect(m_updateRepositoryAction, SIGNAL(triggered()), this, SLOT(updateRepository()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_commitAllAction = new QAction(tr("Commit All Files"), this);
-    command = Core::ActionManager::registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
+    command = ActionManager::registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
         globalcontext);
     connect(m_commitAllAction, SIGNAL(triggered()), this, SLOT(startCommitAll()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertRepositoryAction = new QAction(tr("Revert Repository..."), this);
-    command = Core::ActionManager::registerAction(m_revertRepositoryAction, CMD_ID_REVERT_ALL,
-                                  globalcontext);
+    command = ActionManager::registerAction(m_revertRepositoryAction, CMD_ID_REVERT_ALL,
+                             globalcontext);
     connect(m_revertRepositoryAction, SIGNAL(triggered()), this, SLOT(revertAll()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    Context cvscommitcontext(Constants::CVSCOMMITEDITOR);
+    Context cvscommitcontext(CVSCOMMITEDITOR);
 
     m_submitCurrentLogAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    command = Core::ActionManager::registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, cvscommitcontext);
+    command = ActionManager::registerAction(m_submitCurrentLogAction, SUBMIT_CURRENT, cvscommitcontext);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_submitDiffAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = Core::ActionManager::registerAction(m_submitDiffAction , Constants::DIFF_SELECTED, cvscommitcontext);
+    command = ActionManager::registerAction(m_submitDiffAction , DIFF_SELECTED, cvscommitcontext);
 
     m_submitUndoAction = new QAction(tr("&Undo"), this);
-    command = Core::ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, cvscommitcontext);
+    command = ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, cvscommitcontext);
 
     m_submitRedoAction = new QAction(tr("&Redo"), this);
-    command = Core::ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, cvscommitcontext);
+    command = ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, cvscommitcontext);
     return true;
 }
 
@@ -512,7 +520,7 @@ static void setDiffBaseDirectory(IEditor *editor, const QString &db)
 
 CvsSubmitEditor *CvsPlugin::openCVSSubmitEditor(const QString &fileName)
 {
-    IEditor *editor = EditorManager::openEditor(fileName, Constants::CVSCOMMITEDITOR_ID);
+    IEditor *editor = EditorManager::openEditor(fileName, CVSCOMMITEDITOR_ID);
     CvsSubmitEditor *submitEditor = qobject_cast<CvsSubmitEditor*>(editor);
     QTC_CHECK(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
@@ -685,7 +693,7 @@ void CvsPlugin::startCommit(const QString &workingDir, const QString &file)
     m_commitRepository = workingDir;
 
     // Create a new submit change file containing the submit template
-    Utils::TempFileSaver saver;
+    TempFileSaver saver;
     saver.setAutoRemove(false);
     // TODO: Retrieve submit template from
     const QString submitTemplate;
@@ -758,12 +766,12 @@ void CvsPlugin::filelog(const QString &workingDir,
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     const QString tag = VcsBaseEditorWidget::editorTag(LogOutput, workingDir, QStringList(file));
-    if (Core::IEditor *editor = VcsBaseEditorWidget::locateEditorByTag(tag)) {
+    if (IEditor *editor = VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->document()->setContents(response.stdOut.toUtf8());
-        Core::EditorManager::activateEditor(editor);
+        EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
-        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, LogOutput, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, response.stdOut, LogOutput, source, codec);
         VcsBaseEditorWidget::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
             VcsBaseEditorWidget::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
@@ -1125,7 +1133,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
                               unsigned flags,
                               QTextCodec *outputCodec) const
 {
-    const Utils::FileName executable = m_settings.binaryPath();
+    const FileName executable = m_settings.binaryPath();
     CvsResponse response;
     if (executable.isEmpty()) {
         response.result = CvsResponse::OtherError;
@@ -1133,7 +1141,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
         return response;
     }
     // Run, connect stderr to the output window
-    const Utils::SynchronousProcessResponse sp_resp =
+    const SynchronousProcessResponse sp_resp =
             runVcs(workingDirectory, executable, m_settings.addOptions(arguments),
                    timeOut, flags, outputCodec);
 
@@ -1141,15 +1149,15 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
     response.stdErr = sp_resp.stdErr;
     response.stdOut = sp_resp.stdOut;
     switch (sp_resp.result) {
-    case Utils::SynchronousProcessResponse::Finished:
+    case SynchronousProcessResponse::Finished:
         response.result = CvsResponse::Ok;
         break;
-    case Utils::SynchronousProcessResponse::FinishedError:
+    case SynchronousProcessResponse::FinishedError:
         response.result = CvsResponse::NonNullExitCode;
         break;
-    case Utils::SynchronousProcessResponse::TerminatedAbnormally:
-    case Utils::SynchronousProcessResponse::StartFailed:
-    case Utils::SynchronousProcessResponse::Hang:
+    case SynchronousProcessResponse::TerminatedAbnormally:
+    case SynchronousProcessResponse::StartFailed:
+    case SynchronousProcessResponse::Hang:
         break;
     }
 

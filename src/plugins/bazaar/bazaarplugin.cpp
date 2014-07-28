@@ -78,7 +78,39 @@ using namespace VcsBase;
 namespace Bazaar {
 namespace Internal {
 
-static const VcsBaseEditorParameters editorParameters[] = {
+// Submit editor parameters
+const char COMMIT_ID[] = "Bazaar Commit Log Editor";
+const char COMMIT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Bazaar Commit Log Editor");
+const char COMMITMIMETYPE[] = "text/vnd.qtcreator.bazaar.commit";
+
+// Menu items
+// File menu actions
+const char ADD[] = "Bazaar.AddSingleFile";
+const char DELETE[] = "Bazaar.DeleteSingleFile";
+const char ANNOTATE[] = "Bazaar.Annotate";
+const char DIFF[] = "Bazaar.DiffSingleFile";
+const char LOG[] = "Bazaar.LogSingleFile";
+const char REVERT[] = "Bazaar.RevertSingleFile";
+const char STATUS[] = "Bazaar.Status";
+
+// Directory menu Actions
+const char DIFFMULTI[] = "Bazaar.Action.DiffMulti";
+const char REVERTMULTI[] = "Bazaar.Action.RevertALL";
+const char STATUSMULTI[] = "Bazaar.Action.StatusMulti";
+const char LOGMULTI[] = "Bazaar.Action.Logmulti";
+
+// Repository menu actions
+const char PULL[] = "Bazaar.Action.Pull";
+const char PUSH[] = "Bazaar.Action.Push";
+const char UPDATE[] = "Bazaar.Action.Update";
+const char COMMIT[] = "Bazaar.Action.Commit";
+const char UNCOMMIT[] = "Bazaar.Action.UnCommit";
+const char CREATE_REPOSITORY[] = "Bazaar.Action.CreateRepository";
+
+// Submit editor actions
+const char DIFFEDITOR[] = "Bazaar.Action.Editor.Diff";
+
+const VcsBaseEditorParameters editorParameters[] = {
     {   LogOutput, // type
         Constants::FILELOG_ID, // id
         Constants::FILELOG_DISPLAY_NAME, // display name
@@ -98,11 +130,11 @@ static const VcsBaseEditorParameters editorParameters[] = {
         Constants::DIFFAPP}
 };
 
-static const VcsBaseSubmitEditorParameters submitEditorParameters = {
-    Constants::COMMITMIMETYPE,
-    Constants::COMMIT_ID,
-    Constants::COMMIT_DISPLAY_NAME,
-    Constants::COMMIT_ID,
+const VcsBaseSubmitEditorParameters submitEditorParameters = {
+    COMMITMIMETYPE,
+    COMMIT_ID,
+    COMMIT_DISPLAY_NAME,
+    COMMIT_ID,
     VcsBaseSubmitEditorParameters::DiffFiles
 };
 
@@ -217,14 +249,14 @@ void BazaarPlugin::createFileActions(const Context &context)
     Core::Command *command;
 
     m_annotateFile = new ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_annotateFile, Constants::ANNOTATE, context);
+    command = ActionManager::registerAction(m_annotateFile, ANNOTATE, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_annotateFile, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_diffFile = new ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_diffFile, Constants::DIFF, context);
+    command = ActionManager::registerAction(m_diffFile, DIFF, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+D") : tr("ALT+Z,Alt+D")));
     connect(m_diffFile, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
@@ -232,7 +264,7 @@ void BazaarPlugin::createFileActions(const Context &context)
     m_commandLocator->appendCommand(command);
 
     m_logFile = new ParameterAction(tr("Log Current File"), tr("Log \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_logFile, Constants::LOG, context);
+    command = ActionManager::registerAction(m_logFile, LOG, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+L") : tr("ALT+Z,Alt+L")));
     connect(m_logFile, SIGNAL(triggered()), this, SLOT(logCurrentFile()));
@@ -240,7 +272,7 @@ void BazaarPlugin::createFileActions(const Context &context)
     m_commandLocator->appendCommand(command);
 
     m_statusFile = new ParameterAction(tr("Status Current File"), tr("Status \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_statusFile, Constants::STATUS, context);
+    command = ActionManager::registerAction(m_statusFile, STATUS, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+S") : tr("ALT+Z,Alt+S")));
     connect(m_statusFile, SIGNAL(triggered()), this, SLOT(statusCurrentFile()));
@@ -250,21 +282,21 @@ void BazaarPlugin::createFileActions(const Context &context)
     m_bazaarContainer->addSeparator(context);
 
     m_addAction = new ParameterAction(tr("Add"), tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_addAction, Constants::ADD, context);
+    command = ActionManager::registerAction(m_addAction, ADD, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_deleteAction = new ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_deleteAction, Constants::DELETE, context);
+    command = ActionManager::registerAction(m_deleteAction, DELETE, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_revertFile = new ParameterAction(tr("Revert Current File..."), tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_revertFile, Constants::REVERT, context);
+    command = ActionManager::registerAction(m_revertFile, REVERT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_revertFile, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     m_bazaarContainer->addAction(command);
@@ -329,28 +361,28 @@ void BazaarPlugin::createDirectoryActions(const Context &context)
 
     action = new QAction(tr("Diff"), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, Constants::DIFFMULTI, context);
+    command = ActionManager::registerAction(action, DIFFMULTI, context);
     connect(action, SIGNAL(triggered()), this, SLOT(diffRepository()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Log"), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, Constants::LOGMULTI, context);
+    command = ActionManager::registerAction(action, LOGMULTI, context);
     connect(action, SIGNAL(triggered()), this, SLOT(logRepository()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Revert..."), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, Constants::REVERTMULTI, context);
+    command = ActionManager::registerAction(action, REVERTMULTI, context);
     connect(action, SIGNAL(triggered()), this, SLOT(revertAll()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Status"), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, Constants::STATUSMULTI, context);
+    command = ActionManager::registerAction(action, STATUSMULTI, context);
     connect(action, SIGNAL(triggered()), this, SLOT(statusMulti()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -400,28 +432,28 @@ void BazaarPlugin::createRepositoryActions(const Context &context)
 
     action = new QAction(tr("Pull..."), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, Constants::PULL, context);
+    command = ActionManager::registerAction(action, PULL, context);
     connect(action, SIGNAL(triggered()), this, SLOT(pull()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Push..."), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, Constants::PUSH, context);
+    command = ActionManager::registerAction(action, PUSH, context);
     connect(action, SIGNAL(triggered()), this, SLOT(push()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Update..."), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, Constants::UPDATE, context);
+    command = ActionManager::registerAction(action, UPDATE, context);
     connect(action, SIGNAL(triggered()), this, SLOT(update()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     action = new QAction(tr("Commit..."), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, Constants::COMMIT, context);
+    command = ActionManager::registerAction(action, COMMIT, context);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Z,Meta+C") : tr("ALT+Z,Alt+C")));
     connect(action, SIGNAL(triggered()), this, SLOT(commit()));
     m_bazaarContainer->addAction(command);
@@ -429,13 +461,13 @@ void BazaarPlugin::createRepositoryActions(const Context &context)
 
     action = new QAction(tr("Uncommit..."), this);
     m_repositoryActionList.append(action);
-    command = ActionManager::registerAction(action, Constants::UNCOMMIT, context);
+    command = ActionManager::registerAction(action, UNCOMMIT, context);
     connect(action, SIGNAL(triggered()), this, SLOT(uncommit()));
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     QAction *createRepositoryAction = new QAction(tr("Create Repository..."), this);
-    command = ActionManager::registerAction(createRepositoryAction, Constants::CREATE_REPOSITORY, context);
+    command = ActionManager::registerAction(createRepositoryAction, CREATE_REPOSITORY, context);
     connect(createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     m_bazaarContainer->addAction(command);
 }
@@ -498,16 +530,16 @@ void BazaarPlugin::update()
 
 void BazaarPlugin::createSubmitEditorActions()
 {
-    Context context(Constants::COMMIT_ID);
+    Context context(COMMIT_ID);
     Core::Command *command;
 
     m_editorCommit = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    command = ActionManager::registerAction(m_editorCommit, Constants::COMMIT, context);
+    command = ActionManager::registerAction(m_editorCommit, COMMIT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_editorCommit, SIGNAL(triggered()), this, SLOT(commitFromEditor()));
 
     m_editorDiff = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = ActionManager::registerAction(m_editorDiff, Constants::DIFFEDITOR, context);
+    command = ActionManager::registerAction(m_editorDiff, DIFFEDITOR, context);
 
     m_editorUndo = new QAction(tr("&Undo"), this);
     command = ActionManager::registerAction(m_editorUndo, Core::Constants::UNDO, context);
@@ -553,7 +585,7 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &stat
         return;
     }
 
-    IEditor *editor = EditorManager::openEditor(saver.fileName(), Constants::COMMIT_ID);
+    IEditor *editor = EditorManager::openEditor(saver.fileName(), COMMIT_ID);
     if (!editor) {
         outputWindow->appendError(tr("Unable to create an editor for the commit."));
         return;
@@ -688,7 +720,7 @@ bool BazaarPlugin::submitEditorAboutToClose()
     QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {
         //save the commit message
-        if (!Core::DocumentManager::saveDocument(editorDocument))
+        if (!DocumentManager::saveDocument(editorDocument))
             return false;
 
         //rewrite entries of the form 'file => newfile' to 'newfile' because

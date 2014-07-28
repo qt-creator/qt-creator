@@ -44,25 +44,24 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
-#include <utils/synchronousprocess.h>
-#include <utils/parameteraction.h>
-#include <utils/fileutils.h>
-#include <utils/hostosinfo.h>
 
-#include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
+#include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/id.h>
-#include <coreplugin/editormanager/editormanager.h>
 
-#include <coreplugin/locator/commandlocator.h>
-
+#include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
+#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 
 #include <QDebug>
 #include <QDir>
@@ -77,6 +76,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QInputDialog>
+
 #include <limits.h>
 
 #ifdef WITH_TESTS
@@ -90,32 +90,35 @@ using namespace VcsBase;
 namespace Subversion {
 namespace Internal {
 
-static const char CMD_ID_SUBVERSION_MENU[]    = "Subversion.Menu";
-static const char CMD_ID_ADD[]                = "Subversion.Add";
-static const char CMD_ID_DELETE_FILE[]        = "Subversion.Delete";
-static const char CMD_ID_REVERT[]             = "Subversion.Revert";
-static const char CMD_ID_DIFF_PROJECT[]       = "Subversion.DiffAll";
-static const char CMD_ID_DIFF_CURRENT[]       = "Subversion.DiffCurrent";
-static const char CMD_ID_COMMIT_ALL[]         = "Subversion.CommitAll";
-static const char CMD_ID_REVERT_ALL[]         = "Subversion.RevertAll";
-static const char CMD_ID_COMMIT_CURRENT[]     = "Subversion.CommitCurrent";
-static const char CMD_ID_FILELOG_CURRENT[]    = "Subversion.FilelogCurrent";
-static const char CMD_ID_ANNOTATE_CURRENT[]   = "Subversion.AnnotateCurrent";
-static const char CMD_ID_STATUS[]             = "Subversion.Status";
-static const char CMD_ID_PROJECTLOG[]         = "Subversion.ProjectLog";
-static const char CMD_ID_REPOSITORYLOG[]      = "Subversion.RepositoryLog";
-static const char CMD_ID_REPOSITORYUPDATE[]   = "Subversion.RepositoryUpdate";
-static const char CMD_ID_REPOSITORYDIFF[]     = "Subversion.RepositoryDiff";
-static const char CMD_ID_REPOSITORYSTATUS[]   = "Subversion.RepositoryStatus";
-static const char CMD_ID_UPDATE[]             = "Subversion.Update";
-static const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
-static const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
+const char CMD_ID_SUBVERSION_MENU[]    = "Subversion.Menu";
+const char CMD_ID_ADD[]                = "Subversion.Add";
+const char CMD_ID_DELETE_FILE[]        = "Subversion.Delete";
+const char CMD_ID_REVERT[]             = "Subversion.Revert";
+const char CMD_ID_DIFF_PROJECT[]       = "Subversion.DiffAll";
+const char CMD_ID_DIFF_CURRENT[]       = "Subversion.DiffCurrent";
+const char CMD_ID_COMMIT_ALL[]         = "Subversion.CommitAll";
+const char CMD_ID_REVERT_ALL[]         = "Subversion.RevertAll";
+const char CMD_ID_COMMIT_CURRENT[]     = "Subversion.CommitCurrent";
+const char CMD_ID_FILELOG_CURRENT[]    = "Subversion.FilelogCurrent";
+const char CMD_ID_ANNOTATE_CURRENT[]   = "Subversion.AnnotateCurrent";
+const char CMD_ID_STATUS[]             = "Subversion.Status";
+const char CMD_ID_PROJECTLOG[]         = "Subversion.ProjectLog";
+const char CMD_ID_REPOSITORYLOG[]      = "Subversion.RepositoryLog";
+const char CMD_ID_REPOSITORYUPDATE[]   = "Subversion.RepositoryUpdate";
+const char CMD_ID_REPOSITORYDIFF[]     = "Subversion.RepositoryDiff";
+const char CMD_ID_REPOSITORYSTATUS[]   = "Subversion.RepositoryStatus";
+const char CMD_ID_UPDATE[]             = "Subversion.Update";
+const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
+const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-static const char nonInteractiveOptionC[] = "--non-interactive";
+const char SUBVERSION_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.svn.submit";
+const char SUBVERSIONCOMMITEDITOR[]     = "Subversion Commit Editor";
+const char SUBVERSIONCOMMITEDITOR_ID[]  = "Subversion Commit Editor";
+const char SUBVERSIONCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "Subversion Commit Editor");
+const char SUBMIT_CURRENT[]             = "Subversion.SubmitCurrentLog";
+const char DIFF_SELECTED[]              = "Subversion.DiffSelectedFilesInLog";
 
-
-
-static const VcsBaseEditorParameters editorParameters[] = {
+const VcsBaseEditorParameters editorParameters[] = {
 {
     LogOutput,
     "Subversion File Log Editor",   // id
@@ -234,10 +237,10 @@ bool SubversionPlugin::isCommitEditorOpen() const
 }
 
 const VcsBaseSubmitEditorParameters submitParameters = {
-    Subversion::Constants::SUBVERSION_SUBMIT_MIMETYPE,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR_ID,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR_DISPLAY_NAME,
-    Subversion::Constants::SUBVERSIONCOMMITEDITOR,
+    SUBVERSION_SUBMIT_MIMETYPE,
+    SUBVERSIONCOMMITEDITOR_ID,
+    SUBVERSIONCOMMITEDITOR_DISPLAY_NAME,
+    SUBVERSIONCOMMITEDITOR,
     VcsBaseSubmitEditorParameters::DiffFiles
 };
 
@@ -433,15 +436,15 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    Context svncommitcontext(Constants::SUBVERSIONCOMMITEDITOR);
+    Context svncommitcontext(SUBVERSIONCOMMITEDITOR);
 
     m_submitCurrentLogAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    command = ActionManager::registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, svncommitcontext);
+    command = ActionManager::registerAction(m_submitCurrentLogAction, SUBMIT_CURRENT, svncommitcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_submitDiffAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = ActionManager::registerAction(m_submitDiffAction , Constants::DIFF_SELECTED, svncommitcontext);
+    command = ActionManager::registerAction(m_submitDiffAction , DIFF_SELECTED, svncommitcontext);
 
     m_submitUndoAction = new QAction(tr("&Undo"), this);
     command = ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, svncommitcontext);
@@ -513,7 +516,7 @@ void SubversionPlugin::diffCommitFiles(const QStringList &files)
 
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
 {
-    IEditor *editor = EditorManager::openEditor(fileName, Constants::SUBVERSIONCOMMITEDITOR_ID);
+    IEditor *editor = EditorManager::openEditor(fileName, SUBVERSIONCOMMITEDITOR_ID);
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     setSubmitEditor(submitEditor);
@@ -714,7 +717,7 @@ bool SubversionPlugin::commit(const QString &messageFile,
     // "[ADM]<blanks>file" into an args list. The files of the status log
     // can be relative or absolute depending on where the command was run.
     QStringList args = QStringList(QLatin1String("commit"));
-    args << QLatin1String(nonInteractiveOptionC) << QLatin1String("--file") << messageFile;
+    args << QLatin1String(Constants::NON_INTERACTIVE_OPTION) << QLatin1String("--file") << messageFile;
     args.append(subVersionFileList);
     const SubversionResponse response =
             runSvn(m_commitRepository, args, 10 * m_settings.timeOutMs(),
@@ -828,7 +831,7 @@ void SubversionPlugin::updateProject()
 void SubversionPlugin::svnUpdate(const QString &workingDir, const QString &relativePath)
 {
     QStringList args(QLatin1String("update"));
-    args.push_back(QLatin1String(nonInteractiveOptionC));
+    args.push_back(QLatin1String(Constants::NON_INTERACTIVE_OPTION));
     if (!relativePath.isEmpty())
         args.append(relativePath);
         const SubversionResponse response =
@@ -1108,7 +1111,7 @@ bool SubversionPlugin::vcsCheckout(const QString &directory, const QByteArray &u
     QString username = tempUrl.userName();
     QString password = tempUrl.password();
     QStringList args = QStringList(QLatin1String("checkout"));
-    args << QLatin1String(nonInteractiveOptionC) ;
+    args << QLatin1String(Constants::NON_INTERACTIVE_OPTION) ;
 
     if (!username.isEmpty() && !password.isEmpty()) {
         // If url contains username and password we have to use separate username and password

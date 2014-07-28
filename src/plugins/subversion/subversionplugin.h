@@ -43,12 +43,9 @@ QT_END_NAMESPACE
 
 namespace Core {
     class CommandLocator;
-    class IVersionControl;
     class IEditor;
 }
 namespace Utils { class ParameterAction; }
-
-namespace VcsBase { class VcsBaseSubmitEditor; }
 
 namespace Subversion {
 namespace Internal {
