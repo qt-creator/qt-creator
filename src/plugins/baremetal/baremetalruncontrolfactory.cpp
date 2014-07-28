@@ -47,6 +47,8 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+
 using namespace Analyzer;
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -135,7 +137,9 @@ RunControl *BareMetalRunControlFactory::create(RunConfiguration *runConfiguratio
     }
     DebuggerStartParameters sp = startParameters(rc);
     if (!QFile::exists(sp.executable)) {
-        *errorMessage = tr("Could not find executable");
+        *errorMessage = QApplication::translate("Core::Internal::ExecuteFilter",
+                                                "Could not find executable for \"%1\".")
+                .arg(sp.executable);
         return 0;
     }
     return DebuggerPlugin::createDebugger(sp,runConfiguration,errorMessage);
