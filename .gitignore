@@ -136,7 +136,6 @@ tmp/
 /tests/manual/qml-ast2dot/qml-ast2dot
 /tests/manual/debugger/simple/libsimple_test_plugin.*dylib
 /tests/manual/debugger/simple/simple_test_app
-/tests/manual/plain-cplusplus/plain-c++
 /tests/manual/preprocessor/pp
 /tests/tools/cplusplus-ast2png/cplusplus-ast2png
 /tests/auto/aggregation/tst_aggregation

@@ -10,7 +10,6 @@ utils
 unix {
 #   Uses popen
     SUBDIRS += \
-    plain-cplusplus \
 #   Profile library paths issues
     process \
     ssh
