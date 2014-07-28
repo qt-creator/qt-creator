@@ -106,7 +106,8 @@ void KitChooser::populate()
 
     const int n = m_chooser->count();
     const int index = Core::ICore::settings()->value(QLatin1String(lastKitKey)).toInt();
-    m_chooser->setCurrentIndex(0 <= index && index < n ? index : -1);
+    if (0 <= index && index < n)
+        m_chooser->setCurrentIndex(index);
     m_chooser->setEnabled(n > 1);
 
     if (n > 1)
