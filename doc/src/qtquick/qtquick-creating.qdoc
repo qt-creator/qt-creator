@@ -68,10 +68,10 @@
             \gui {Qt Quick UI} > \gui Choose.
 
         \li In the \gui {Qt Quick component set} field, select the component set
-            to use for the project. The Qt Quick imports enable you to create
-            cross-platform applications with a custom look and feel, whereas the
-            Qt Quick Controls provide the look and feel for a particular
-            platform:
+            to use for the project. The Qt Quick imports enable you to use the
+            basic QML types to create user interfaces, whereas the Qt Quick
+            Controls provide a set of ready-made controls that you can customize
+            by using Qt Quick Controls Styles:
 
         \list
 
@@ -84,6 +84,10 @@
                 1.0.
 
         \endlist
+
+        You can add imports later to combine Qt Quick basic types with Qt Quick
+        Controls, Qt Quick Dialogs, and Qt Quick Layouts (available since
+        Qt 5.1).
 
     \endlist
 

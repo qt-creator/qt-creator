@@ -143,9 +143,9 @@
     components, basic types, layouts, positioner types, and views.
 
     Sets of UI components with the look and feel of a particular mobile device
-    platform have been defined for Qt Quick 1. Since Qt 5.1, a set of Qt Quick
-    Controls is available for creating classic desktop-style user interfaces
-    using Qt Quick 2.1. The Qt Quick Components and Controls are based on
+    platform have been defined for Qt Quick 1. Since Qt 5.1, ready-made Qt
+    Quick Controls, Dialogs, and Layouts are available for creating user
+    interfaces using Qt Quick 2.1. The components and controls are based on
     standard QML types. To view the components and controls in the
     \gui {Library} pane, import the component sets in the \gui Imports pane.
 

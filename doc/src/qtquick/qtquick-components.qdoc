@@ -71,14 +71,11 @@
 
     \endlist
 
-    QML types allow you to write cross-platform applications with custom look
-    and feel. You can also use ready-made Qt Quick Components (for Qt 4) to
-    create screens with a native look and feel for a particular target platform.
-    Since Qt 5.1, a set of Qt Quick Controls is available for creating classic
-    desktop-style user interfaces using Qt Quick 2.1.
-
-    Qt Quick 1 Components are a part of Qt 4, whereas Qt Quick Controls were
-    added to Qt 5.1.
+    You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
+    screens with a native look and feel for a particular target platform.
+    Since Qt 5.1, Qt Quick Controls, Dialogs, and Layouts are available for
+    creating classic desktop-style user interfaces using Qt Quick 2.1. You can
+    use the Qt Quick Controls Styles to customize Qt Quick Controls.
 
     The \QC project wizards create Qt Quick applications that use Qt Quick
     Components or Controls.
