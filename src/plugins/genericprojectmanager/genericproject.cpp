@@ -227,7 +227,7 @@ void GenericProject::parseProject(RefreshOptions options)
 void GenericProject::refresh(RefreshOptions options)
 {
     QSet<QString> oldFileList;
-    if (!(options & Configuration))
+    if (options & Files)
         oldFileList = m_files.toSet();
 
     parseProject(options);
