@@ -55,20 +55,15 @@
 namespace Debugger {
 namespace Internal {
 
-static DebuggerEngine *currentEngine()
-{
-    return debuggerCore()->currentEngine();
-}
-
 StackTreeView::StackTreeView()
 {
     setWindowTitle(tr("Stack"));
 
-    connect(debuggerCore()->action(UseAddressInStackView), SIGNAL(toggled(bool)),
+    connect(action(UseAddressInStackView), SIGNAL(toggled(bool)),
         SLOT(showAddressColumn(bool)));
-    connect(debuggerCore()->action(ExpandStack), SIGNAL(triggered()),
+    connect(action(ExpandStack), SIGNAL(triggered()),
         SLOT(reloadFullStack()));
-    connect(debuggerCore()->action(MaximalStackDepth), SIGNAL(triggered()),
+    connect(action(MaximalStackDepth), SIGNAL(triggered()),
         SLOT(reloadFullStack()));
     showAddressColumn(false);
 }
@@ -88,7 +83,7 @@ void StackTreeView::setModel(QAbstractItemModel *model)
     BaseTreeView::setModel(model);
     resizeColumnToContents(0);
     resizeColumnToContents(3);
-    showAddressColumn(debuggerCore()->action(UseAddressInStackView)->isChecked());
+    showAddressColumn(action(UseAddressInStackView)->isChecked());
 }
 
 // Input a function to be disassembled. Accept CDB syntax
@@ -155,7 +150,7 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
     const quint64 address = frame.address;
 
     QMenu menu;
-    menu.addAction(debuggerCore()->action(ExpandStack));
+    menu.addAction(action(ExpandStack));
 
     QAction *actCopyContents = menu.addAction(tr("Copy Contents to Clipboard"));
     actCopyContents->setEnabled(model() != 0);
@@ -164,7 +159,7 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
     actSaveTaskFile->setEnabled(model() != 0);
 
     if (engine->hasCapability(CreateFullBacktraceCapability))
-        menu.addAction(debuggerCore()->action(CreateFullBacktrace));
+        menu.addAction(action(CreateFullBacktrace));
 
     QAction *additionalQmlStackAction = 0;
     if (engine->hasCapability(AdditionalQmlStackCapability))
@@ -204,12 +199,12 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
         actLoadSymbols = menu.addAction(tr("Try to Load Unknown Symbols"));
 
     if (engine->hasCapability(MemoryAddressCapability))
-        menu.addAction(debuggerCore()->action(UseAddressInStackView));
+        menu.addAction(action(UseAddressInStackView));
 
     menu.addSeparator();
-    menu.addAction(debuggerCore()->action(UseToolTipsInStackView));
+    menu.addAction(action(UseToolTipsInStackView));
     menu.addSeparator();
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    menu.addAction(action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
     if (!act)

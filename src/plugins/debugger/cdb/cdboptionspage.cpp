@@ -182,15 +182,14 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent)
     m_ui.breakCrtDbgReportCheckBox
         ->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(CdbOptionsPage::crtDbgReport, hint));
 
-    DebuggerCore *dc = debuggerCore();
-    group.insert(dc->action(CdbAdditionalArguments), m_ui.additionalArgumentsLineEdit);
-    group.insert(dc->action(CdbBreakOnCrtDbgReport), m_ui.breakCrtDbgReportCheckBox);
-    group.insert(dc->action(UseCdbConsole), m_ui.consoleCheckBox);
-    group.insert(dc->action(CdbBreakPointCorrection), m_ui.breakpointCorrectionCheckBox);
-    group.insert(dc->action(IgnoreFirstChanceAccessViolation),
+    group.insert(action(CdbAdditionalArguments), m_ui.additionalArgumentsLineEdit);
+    group.insert(action(CdbBreakOnCrtDbgReport), m_ui.breakCrtDbgReportCheckBox);
+    group.insert(action(UseCdbConsole), m_ui.consoleCheckBox);
+    group.insert(action(CdbBreakPointCorrection), m_ui.breakpointCorrectionCheckBox);
+    group.insert(action(IgnoreFirstChanceAccessViolation),
                  m_ui.ignoreFirstChanceAccessViolationCheckBox);
 
-    m_breakEventWidget->setBreakEvents(dc->stringListSetting(CdbBreakEvents));
+    m_breakEventWidget->setBreakEvents(stringListSetting(CdbBreakEvents));
 }
 
 QStringList CdbOptionsPageWidget::breakEvents() const
@@ -226,7 +225,7 @@ void CdbOptionsPage::apply()
     if (!m_widget)
         return;
     m_widget->group.apply(Core::ICore::settings());
-    debuggerCore()->action(CdbBreakEvents)->setValue(m_widget->breakEvents());
+    action(CdbBreakEvents)->setValue(m_widget->breakEvents());
 }
 
 void CdbOptionsPage::finish()
@@ -274,9 +273,8 @@ CdbPathsPageWidget::CdbPathsPageWidget(QWidget *parent) :
     layout->addWidget(gbSymbolPath);
     layout->addWidget(gbSourcePath);
 
-    DebuggerCore *dc = debuggerCore();
-    group.insert(dc->action(CdbSymbolPaths), m_symbolPathListEditor);
-    group.insert(dc->action(CdbSourcePaths), m_sourcePathListEditor);
+    group.insert(action(CdbSymbolPaths), m_symbolPathListEditor);
+    group.insert(action(CdbSourcePaths), m_sourcePathListEditor);
 }
 
 CdbPathsPage::CdbPathsPage()

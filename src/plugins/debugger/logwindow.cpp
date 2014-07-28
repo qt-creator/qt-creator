@@ -172,11 +172,11 @@ public:
         QMenu *menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
-        menu->addAction(debuggerCore()->action(LogTimeStamps));
-        menu->addAction(debuggerCore()->action(VerboseLog));
+        menu->addAction(action(LogTimeStamps));
+        menu->addAction(action(VerboseLog));
         menu->addAction(m_reloadDebuggingHelpersAction);
         menu->addSeparator();
-        menu->addAction(debuggerCore()->action(SettingsDialog));
+        menu->addAction(action(SettingsDialog));
         menu->exec(ev->globalPos());
         delete menu;
     }
@@ -225,7 +225,7 @@ void DebuggerPane::saveContents()
 
 void DebuggerPane::reloadDebuggingHelpers()
 {
-    debuggerCore()->currentEngine()->reloadDebuggingHelpers();
+    currentEngine()->reloadDebuggingHelpers();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -433,18 +433,18 @@ LogWindow::LogWindow(QWidget *parent)
 void LogWindow::executeLine()
 {
     m_ignoreNextInputEcho = true;
-    debuggerCore()->currentEngine()->
+    currentEngine()->
         executeDebuggerCommand(m_inputText->textCursor().block().text(), CppLanguage);
 }
 
 void LogWindow::repeatLastCommand()
 {
-    debuggerCore()->currentEngine()->debugLastCommand();
+    currentEngine()->debugLastCommand();
 }
 
 void LogWindow::sendCommand()
 {
-    DebuggerEngine *engine = debuggerCore()->currentEngine();
+    DebuggerEngine *engine = currentEngine();
     if (engine->acceptsDebuggerCommands())
         engine->executeDebuggerCommand(m_commandEdit->text(), CppLanguage);
     else
@@ -462,7 +462,7 @@ void LogWindow::showOutput(int channel, const QString &output)
     QString out;
     out.reserve(output.size() + 1000);
 
-    if (output.at(0) != QLatin1Char('~') && debuggerCore()->boolSetting(LogTimeStamps)) {
+    if (output.at(0) != QLatin1Char('~') && boolSetting(LogTimeStamps)) {
         out.append(charForChannel(LogTime));
         out.append(logTimeStamp());
         out.append(nchar);
@@ -521,7 +521,7 @@ void LogWindow::showInput(int channel, const QString &input)
         m_inputText->setTextCursor(cursor);
         return;
     }
-    if (debuggerCore()->boolSetting(LogTimeStamps))
+    if (boolSetting(LogTimeStamps))
         m_inputText->append(logTimeStamp());
     m_inputText->append(input);
     QTextCursor cursor = m_inputText->textCursor();

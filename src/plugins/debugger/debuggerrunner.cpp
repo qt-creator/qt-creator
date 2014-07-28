@@ -172,7 +172,7 @@ void DebuggerRunControl::start()
 
     if (d->m_engine->startParameters().startMode == StartInternal) {
         QStringList unhandledIds;
-        foreach (const BreakpointModelId &id, debuggerCore()->breakHandler()->allBreakpointIds()) {
+        foreach (const BreakpointModelId &id, breakHandler()->allBreakpointIds()) {
             if (d->m_engine->breakHandler()->breakpointData(id).enabled
                     && !d->m_engine->acceptsBreakpoint(id))
                 unhandledIds.append(id.toString());
@@ -431,7 +431,7 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
     DebuggerStartParameters sp = sp0;
-    if (!debuggerCore()->boolSetting(AutoEnrichParameters)) {
+    if (!boolSetting(AutoEnrichParameters)) {
         const QString sysroot = sp.sysRoot;
         if (sp.debugInfoLocation.isEmpty())
             sp.debugInfoLocation = sysroot + QLatin1String("/usr/lib/debug");

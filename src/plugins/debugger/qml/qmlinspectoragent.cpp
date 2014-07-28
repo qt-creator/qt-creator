@@ -62,7 +62,7 @@ QmlInspectorAgent::QmlInspectorAgent(DebuggerEngine *engine, QObject *parent)
     , m_objectToSelect(-1)
 {
     m_debugIdToIname.insert(-1, QByteArray("inspect"));
-    connect(debuggerCore()->action(ShowQmlObjectTree),
+    connect(action(ShowQmlObjectTree),
             SIGNAL(valueChanged(QVariant)), SLOT(updateState()));
     m_delayQueryTimer.setSingleShot(true);
     m_delayQueryTimer.setInterval(100);
@@ -177,8 +177,7 @@ quint32 QmlInspectorAgent::setBindingForObject(int objectDebugId,
     if (propertyName == QLatin1String("id"))
         return 0; // Crashes the QMLViewer.
 
-    if (!isConnected()
-            || !debuggerCore()->boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return 0;
 
     log(LogSend, QString::fromLatin1("SET_BINDING %1 %2 %3 %4").arg(
@@ -206,8 +205,7 @@ quint32 QmlInspectorAgent::setMethodBodyForObject(int objectDebugId,
     if (objectDebugId == -1)
         return 0;
 
-    if (!isConnected()
-            || !debuggerCore()->boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return 0;
 
     log(LogSend, QString::fromLatin1("SET_METHOD_BODY %1 %2 %3").arg(
@@ -232,8 +230,7 @@ quint32 QmlInspectorAgent::resetBindingForObject(int objectDebugId,
     if (objectDebugId == -1)
         return 0;
 
-    if (!isConnected()
-            || !debuggerCore()->boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return 0;
 
     log(LogSend, QString::fromLatin1("RESET_BINDING %1 %2").arg(
@@ -331,8 +328,7 @@ bool QmlInspectorAgent::addObjectWatch(int objectDebugId)
     if (objectDebugId == -1)
         return false;
 
-    if (!isConnected()
-            || !debuggerCore()->boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return false;
 
     // already set
@@ -412,8 +408,7 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
 
 QString QmlInspectorAgent::displayName(int objectDebugId) const
 {
-    if (!isConnected()
-            || !debuggerCore()->boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return QString();
 
     if (m_debugIdToIname.contains(objectDebugId)) {
@@ -429,7 +424,7 @@ void QmlInspectorAgent::updateState()
 {
     if (m_engineClient
             && (m_engineClient->state() == QmlDebugClient::Enabled)
-            && debuggerCore()->boolSetting(ShowQmlObjectTree)) {
+            && boolSetting(ShowQmlObjectTree)) {
         reloadEngines();
     } else {
         clearObjectTree();
@@ -550,8 +545,7 @@ void QmlInspectorAgent::queryEngineContext()
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__;
 
-    if (!isConnected()
-            || !debuggerCore()->boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return;
 
     log(LogSend, QLatin1String("LIST_OBJECTS"));
@@ -564,8 +558,7 @@ void QmlInspectorAgent::fetchObject(int debugId)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << debugId << ')';
 
-    if (!isConnected()
-            || !debuggerCore()->boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return;
 
     log(LogSend, QLatin1String("FETCH_OBJECT ") + QString::number(debugId));
@@ -583,8 +576,7 @@ void QmlInspectorAgent::fetchContextObjectsForLocation(const QString &file,
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << file << ':' << lineNumber
                              << ':' << columnNumber << ')';
 
-    if (!isConnected()
-            || !debuggerCore()->boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return;
 
     log(LogSend, QString::fromLatin1("FETCH_OBJECTS_FOR_LOCATION %1:%2:%3").arg(file)
@@ -601,8 +593,7 @@ void QmlInspectorAgent::updateObjectTree(const ContextReference &context)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << context << ')';
 
-    if (!isConnected()
-            || !debuggerCore()->boolSetting(ShowQmlObjectTree))
+    if (!isConnected() || !boolSetting(ShowQmlObjectTree))
         return;
 
     foreach (const ObjectReference & obj, context.objects())

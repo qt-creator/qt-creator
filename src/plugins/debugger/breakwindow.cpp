@@ -655,7 +655,7 @@ MultiBreakPointsDialog::MultiBreakPointsDialog(QWidget *parent) :
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
     QFormLayout *formLayout = new QFormLayout;
-    if (debuggerCore()->currentEngine()->hasCapability(BreakConditionCapability))
+    if (currentEngine()->hasCapability(BreakConditionCapability))
         formLayout->addRow(tr("&Condition:"), m_lineEditCondition);
     formLayout->addRow(tr("&Ignore count:"), m_spinBoxIgnoreCount);
     formLayout->addRow(tr("&Thread specification:"), m_lineEditThreadSpec);
@@ -678,7 +678,7 @@ BreakTreeView::BreakTreeView()
 {
     setWindowIcon(QIcon(QLatin1String(":/debugger/images/debugger_breakpoints.png")));
     setSelectionMode(QAbstractItemView::ExtendedSelection);
-    connect(debuggerCore()->action(UseAddressInBreakpointsView),
+    connect(action(UseAddressInBreakpointsView),
         SIGNAL(toggled(bool)), SLOT(showAddressColumn(bool)));
 }
 
@@ -816,11 +816,11 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
     menu.addAction(synchronizeAction);
     menu.addSeparator();
-    menu.addAction(debuggerCore()->action(UseToolTipsInBreakpointsView));
-    if (debuggerCore()->currentEngine()->hasCapability(MemoryAddressCapability))
-        menu.addAction(debuggerCore()->action(UseAddressInBreakpointsView));
+    menu.addAction(action(UseToolTipsInBreakpointsView));
+    if (currentEngine()->hasCapability(MemoryAddressCapability))
+        menu.addAction(action(UseAddressInBreakpointsView));
     menu.addSeparator();
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    menu.addAction(action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

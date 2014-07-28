@@ -50,11 +50,6 @@
 namespace Debugger {
 namespace Internal {
 
-static DebuggerEngine *currentEngine()
-{
-    return debuggerCore()->currentEngine();
-}
-
 static RegisterHandler *currentHandler()
 {
     DebuggerEngine *engine = currentEngine();
@@ -226,7 +221,7 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
     act2->setChecked(base == 2);
 
     menu.addSeparator();
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    menu.addAction(action(SettingsDialog));
 
     const QPoint position = ev->globalPos();
     QAction *act = menu.exec(position);

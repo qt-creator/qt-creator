@@ -57,7 +57,6 @@ class DebuggerEngine;
 namespace Internal {
 
 class BreakHandler;
-class SnapshotHandler;
 class Symbol;
 class Section;
 class GlobalDebuggerOptions;
@@ -75,20 +74,12 @@ class DebuggerCore : public QObject
 public:
     DebuggerCore() {}
 
-    static QVariant sessionValue(const QByteArray &name);
-    static void setSessionValue(const QByteArray &name, const QVariant &value);
-    static QVariant configValue(const QByteArray &name);
-    static void setConfigValue(const QByteArray &name, const QVariant &value);
-
     virtual void updateState(DebuggerEngine *engine) = 0;
     virtual void updateWatchersWindow(bool showWatch, bool showReturn) = 0;
     virtual QIcon locationMarkIcon() const = 0;
     virtual const CPlusPlus::Snapshot &cppCodeModelSnapshot() const = 0;
     virtual bool hasSnapshots() const = 0;
     virtual void openTextEditor(const QString &titlePattern, const QString &contents) = 0;
-    virtual BreakHandler *breakHandler() const = 0;
-    virtual SnapshotHandler *snapshotHandler() const = 0;
-    virtual DebuggerEngine *currentEngine() const = 0;
     virtual bool isActiveDebugLanguage(int language) const = 0;
 
     // void runTest(const QString &fileName);
@@ -104,8 +95,6 @@ public:
     virtual bool initialize(const QStringList &arguments, QString *errorMessage) = 0;
     virtual QWidget *mainWindow() const = 0;
     virtual bool isDockVisible(const QString &objectName) const = 0;
-//    virtual QString debuggerForAbi(const ProjectExplorer::Abi &abi,
-//        DebuggerEngineType et = NoEngineType) const = 0;
     virtual void showModuleSymbols(const QString &moduleName,
         const QVector<Symbol> &symbols) = 0;
     virtual void showModuleSections(const QString &moduleName,
@@ -113,10 +102,6 @@ public:
     virtual void openMemoryEditor() = 0;
     virtual void languagesChanged() = 0;
 
-    virtual Utils::SavedAction *action(int code) const = 0;
-    virtual bool boolSetting(int code) const = 0;
-    virtual QString stringSetting(int code) const = 0;
-    virtual QStringList stringListSetting(int code) const = 0;
     virtual void setThreads(const QStringList &list, int index) = 0;
 
     virtual QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const = 0;
@@ -127,9 +112,23 @@ public slots:
     virtual void attachExternalApplication(ProjectExplorer::RunControl *rc) = 0;
 };
 
+// Some convenience.
+QVariant sessionValue(const QByteArray &name);
+void setSessionValue(const QByteArray &name, const QVariant &value);
+QVariant configValue(const QByteArray &name);
+void setConfigValue(const QByteArray &name, const QVariant &value);
+
+Utils::SavedAction *action(int code);
+bool boolSetting(int code);
+QString stringSetting(int code);
+QStringList stringListSetting(int code);
+
+BreakHandler *breakHandler();
+DebuggerEngine *currentEngine();
+
 // This is the only way to access the global object.
 DebuggerCore *debuggerCore();
-inline BreakHandler *breakHandler() { return debuggerCore()->breakHandler(); }
+
 QMessageBox *showMessageBox(int icon, const QString &title,
     const QString &text, int buttons = 0);
 

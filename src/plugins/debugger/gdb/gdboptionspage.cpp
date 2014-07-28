@@ -268,23 +268,22 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     gridLayout->addWidget(groupBoxPostAttachCommands, 2, 1, 2, 1);
     gridLayout->addWidget(groupBoxCustomDumperCommands, 4, 1, 2, 1);
 
-    DebuggerCore *dc = debuggerCore();
-    group.insert(dc->action(GdbStartupCommands), textEditStartupCommands);
-    group.insert(dc->action(ExtraDumperFile), pathChooserExtraDumperFile);
-    group.insert(dc->action(ExtraDumperCommands), textEditCustomDumperCommands);
-    group.insert(dc->action(GdbPostAttachCommands), textEditPostAttachCommands);
-    group.insert(dc->action(LoadGdbInit), checkBoxLoadGdbInit);
-    group.insert(dc->action(LoadGdbDumpers), checkBoxLoadGdbDumpers);
-    group.insert(dc->action(UseDynamicType), checkBoxUseDynamicType);
-    group.insert(dc->action(AdjustBreakpointLocations), checkBoxAdjustBreakpointLocations);
-    group.insert(dc->action(GdbWatchdogTimeout), spinBoxGdbWatchdogTimeout);
-    group.insert(dc->action(IntelFlavor), checkBoxIntelFlavor);
-    group.insert(dc->action(IdentifyDebugInfoPackages), checkBoxIdentifyDebugInfoPackages);
-    group.insert(dc->action(UseMessageBoxForSignals), checkBoxUseMessageBoxForSignals);
-    group.insert(dc->action(SkipKnownFrames), checkBoxSkipKnownFrames);
+    group.insert(action(GdbStartupCommands), textEditStartupCommands);
+    group.insert(action(ExtraDumperFile), pathChooserExtraDumperFile);
+    group.insert(action(ExtraDumperCommands), textEditCustomDumperCommands);
+    group.insert(action(GdbPostAttachCommands), textEditPostAttachCommands);
+    group.insert(action(LoadGdbInit), checkBoxLoadGdbInit);
+    group.insert(action(LoadGdbDumpers), checkBoxLoadGdbDumpers);
+    group.insert(action(UseDynamicType), checkBoxUseDynamicType);
+    group.insert(action(AdjustBreakpointLocations), checkBoxAdjustBreakpointLocations);
+    group.insert(action(GdbWatchdogTimeout), spinBoxGdbWatchdogTimeout);
+    group.insert(action(IntelFlavor), checkBoxIntelFlavor);
+    group.insert(action(IdentifyDebugInfoPackages), checkBoxIdentifyDebugInfoPackages);
+    group.insert(action(UseMessageBoxForSignals), checkBoxUseMessageBoxForSignals);
+    group.insert(action(SkipKnownFrames), checkBoxSkipKnownFrames);
 
     //lineEditSelectedPluginBreakpointsPattern->
-    //    setEnabled(dc->action(SelectedPluginBreakpoints)->value().toBool());
+    //    setEnabled(action(SelectedPluginBreakpoints)->value().toBool());
     //connect(radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
     //    lineEditSelectedPluginBreakpointsPattern, SLOT(setEnabled(bool)));
 }
@@ -425,15 +424,14 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
     QGridLayout *gridLayout = new QGridLayout(this);
     gridLayout->addWidget(groupBoxDangerous, 0, 0, 2, 1);
 
-    DebuggerCore *dc = debuggerCore();
-    group.insert(dc->action(AutoEnrichParameters), checkBoxAutoEnrichParameters);
-    group.insert(dc->action(TargetAsync), checkBoxTargetAsync);
-    group.insert(dc->action(BreakOnWarning), checkBoxBreakOnWarning);
-    group.insert(dc->action(BreakOnFatal), checkBoxBreakOnFatal);
-    group.insert(dc->action(BreakOnAbort), checkBoxBreakOnAbort);
-    group.insert(dc->action(AttemptQuickStart), checkBoxAttemptQuickStart);
-    group.insert(dc->action(MultiInferior), checkBoxMultiInferior);
-    group.insert(dc->action(EnableReverseDebugging), checkBoxEnableReverseDebugging);
+    group.insert(action(AutoEnrichParameters), checkBoxAutoEnrichParameters);
+    group.insert(action(TargetAsync), checkBoxTargetAsync);
+    group.insert(action(BreakOnWarning), checkBoxBreakOnWarning);
+    group.insert(action(BreakOnFatal), checkBoxBreakOnFatal);
+    group.insert(action(BreakOnAbort), checkBoxBreakOnAbort);
+    group.insert(action(AttemptQuickStart), checkBoxAttemptQuickStart);
+    group.insert(action(MultiInferior), checkBoxMultiInferior);
+    group.insert(action(EnableReverseDebugging), checkBoxEnableReverseDebugging);
 }
 
 GdbOptionsPage2::GdbOptionsPage2()

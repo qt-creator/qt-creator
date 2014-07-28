@@ -533,7 +533,7 @@ public:
 static QWidget *addSearch(BaseTreeView *treeView, const QString &title,
     const char *objectName)
 {
-    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
+    QAction *act = action(UseAlternatingRowColors);
     treeView->setAlternatingRowColors(act->isChecked());
     QObject::connect(act, SIGNAL(toggled(bool)),
             treeView, SLOT(setAlternatingRowColorsHelper(bool)));
@@ -715,7 +715,6 @@ public:
 
     void connectEngine(DebuggerEngine *engine);
     void disconnectEngine() { connectEngine(0); }
-    DebuggerEngine *currentEngine() const { return m_currentEngine; }
     DebuggerEngine *dummyEngine();
 
     void setThreads(const QStringList &list, int index)
@@ -896,9 +895,6 @@ public slots:
     void remoteCommand(const QStringList &options, const QStringList &);
 
     bool isReverseDebugging() const;
-
-    BreakHandler *breakHandler() const { return m_breakHandler; }
-    SnapshotHandler *snapshotHandler() const { return m_snapshotHandler; }
 
     void displayDebugger(DebuggerEngine *engine, bool updateEngine = true);
 
@@ -1157,11 +1153,6 @@ public slots:
 
     void openTextEditor(const QString &titlePattern0, const QString &contents);
     void showMessage(const QString &msg, int channel, int timeout = -1);
-
-    SavedAction *action(int code) const;
-    bool boolSetting(int code) const;
-    QString stringSetting(int code) const;
-    QStringList stringListSetting(int code) const;
 
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
     void showModuleSections(const QString &moduleName, const Sections &sections);
@@ -1497,12 +1488,12 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     return true;
 }
 
-void DebuggerCore::setConfigValue(const QByteArray &name, const QVariant &value)
+void setConfigValue(const QByteArray &name, const QVariant &value)
 {
     ICore::settings()->setValue(_("DebugMode/" + name), value);
 }
 
-QVariant DebuggerCore::configValue(const QByteArray &name)
+QVariant configValue(const QByteArray &name)
 {
     return ICore::settings()->value(_("DebugMode/" + name));
 }
@@ -2029,7 +2020,7 @@ void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileNam
         handler->removeBreakpoint(id);
     } else {
         BreakpointParameters data(BreakpointByFileAndLine);
-        if (debuggerCore()->boolSetting(BreakpointsFullPathByDefault))
+        if (boolSetting(BreakpointsFullPathByDefault))
             data.pathUsage = BreakpointUseFullPath;
         data.tracepoint = !tracePointMessage.isEmpty();
         data.message = tracePointMessage;
@@ -2536,12 +2527,12 @@ const CPlusPlus::Snapshot &DebuggerPluginPrivate::cppCodeModelSnapshot() const
     return m_codeModelSnapshot;
 }
 
-void DebuggerCore::setSessionValue(const QByteArray &key, const QVariant &value)
+void setSessionValue(const QByteArray &key, const QVariant &value)
 {
     SessionManager::setValue(QString::fromUtf8(key), value);
 }
 
-QVariant DebuggerCore::sessionValue(const QByteArray &key)
+QVariant sessionValue(const QByteArray &key)
 {
     return SessionManager::value(QString::fromUtf8(key));
 }
@@ -3366,25 +3357,35 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // time gdb -i mi -ex 'b debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
 }
 
-SavedAction *DebuggerPluginPrivate::action(int code) const
+DebuggerEngine *currentEngine()
 {
-    return m_debuggerSettings->item(code);
+    return theDebuggerCore->m_currentEngine;
 }
 
-bool DebuggerPluginPrivate::boolSetting(int code) const
+SavedAction *action(int code)
 {
-    return m_debuggerSettings->item(code)->value().toBool();
+    return theDebuggerCore->m_debuggerSettings->item(code);
 }
 
-QString DebuggerPluginPrivate::stringSetting(int code) const
+bool boolSetting(int code)
 {
-    QString raw = m_debuggerSettings->item(code)->value().toString();
+    return theDebuggerCore->m_debuggerSettings->item(code)->value().toBool();
+}
+
+QString stringSetting(int code)
+{
+    QString raw = theDebuggerCore->m_debuggerSettings->item(code)->value().toString();
     return VariableManager::expandedString(raw);
 }
 
-QStringList DebuggerPluginPrivate::stringListSetting(int code) const
+QStringList stringListSetting(int code)
 {
-    return m_debuggerSettings->item(code)->value().toStringList();
+    return theDebuggerCore->m_debuggerSettings->item(code)->value().toStringList();
+}
+
+BreakHandler *breakHandler()
+{
+    return theDebuggerCore->m_breakHandler;
 }
 
 void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,

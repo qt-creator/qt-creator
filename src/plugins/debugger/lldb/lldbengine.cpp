@@ -105,15 +105,15 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
         #endif
     }
 
-    connect(debuggerCore()->action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
+    connect(action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             SLOT(updateLocals()));
-    connect(debuggerCore()->action(CreateFullBacktrace), SIGNAL(triggered()),
+    connect(action(CreateFullBacktrace), SIGNAL(triggered()),
             SLOT(createFullBacktrace()));
-    connect(debuggerCore()->action(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+    connect(action(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
             SLOT(updateLocals()));
-    connect(debuggerCore()->action(UseDynamicType), SIGNAL(valueChanged(QVariant)),
+    connect(action(UseDynamicType), SIGNAL(valueChanged(QVariant)),
             SLOT(updateLocals()));
-    connect(debuggerCore()->action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
+    connect(action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
             SLOT(updateAll()));
 }
 
@@ -275,7 +275,7 @@ void LldbEngine::setupInferior()
 {
     const DebuggerStartParameters &sp = startParameters();
 
-    const QString path = debuggerCore()->stringSetting(ExtraDumperFile);
+    const QString path = stringSetting(ExtraDumperFile);
     if (!path.isEmpty()) {
         QFileInfo fi(path);
 
@@ -288,7 +288,7 @@ void LldbEngine::setupInferior()
         runCommand(cmd2);
     }
 
-    const QString commands = debuggerCore()->stringSetting(ExtraDumperCommands);
+    const QString commands = stringSetting(ExtraDumperCommands);
     if (!commands.isEmpty()) {
         Command cmd("executeDebuggerCommand");
         cmd.arg(commands.toUtf8());
@@ -873,7 +873,7 @@ void LldbEngine::reloadFullStack()
 void LldbEngine::updateStack()
 {
     Command cmd("reportStack");
-    cmd.arg("stacklimit", debuggerCore()->action(MaximalStackDepth)->value().toInt());
+    cmd.arg("stacklimit", action(MaximalStackDepth)->value().toInt());
     runCommand(cmd);
 }
 
@@ -917,9 +917,9 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
 
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
     cmd.arg("passexceptions", alwaysVerbose);
-    cmd.arg("fancy", debuggerCore()->boolSetting(UseDebuggingHelpers));
-    cmd.arg("autoderef", debuggerCore()->boolSetting(AutoDerefPointers));
-    cmd.arg("dyntype", debuggerCore()->boolSetting(UseDynamicType));
+    cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
+    cmd.arg("autoderef", boolSetting(AutoDerefPointers));
+    cmd.arg("dyntype", boolSetting(UseDynamicType));
     cmd.arg("partial", params.tryPartial);
     cmd.arg("tooltiponly", params.tooltipOnly);
 
@@ -1102,7 +1102,7 @@ void LldbEngine::refreshStack(const GdbMi &stack)
         frames.append(frame);
     }
     bool canExpand = stack["hasmore"].toInt();
-    debuggerCore()->action(ExpandStack)->setEnabled(canExpand);
+    action(ExpandStack)->setEnabled(canExpand);
     handler->setFrames(frames, canExpand);
 }
 
@@ -1219,7 +1219,7 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
 
 void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 {
-    if (debuggerCore()->boolSetting(OperateByInstruction)) {
+    if (boolSetting(OperateByInstruction)) {
         Location loc(reportedLocation["addr"].toAddress());
         loc.setNeedsMarker(true);
         gotoLocation(loc);
@@ -1249,7 +1249,7 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
     cmd.arg("cookie", id);
     cmd.arg("address", loc.address());
     cmd.arg("function", loc.functionName());
-    cmd.arg("flavor", debuggerCore()->boolSetting(IntelFlavor) ? "intel" : "att");
+    cmd.arg("flavor", boolSetting(IntelFlavor) ? "intel" : "att");
     runCommand(cmd);
 }
 

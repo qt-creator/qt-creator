@@ -76,8 +76,8 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     , m_inspectorToolsContext("Debugger.QmlInspector")
     , m_selectAction(new QAction(this))
     , m_zoomAction(new QAction(this))
-    , m_showAppOnTopAction(debuggerCore()->action(ShowAppOnTop))
-    , m_updateOnSaveAction(debuggerCore()->action(QmlUpdateOnSave))
+    , m_showAppOnTopAction(action(ShowAppOnTop))
+    , m_updateOnSaveAction(action(QmlUpdateOnSave))
     , m_engineClientConnected(false)
 {
     if (!m_engine->isMasterEngine())
@@ -325,8 +325,7 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
             QmlLiveTextPreview *preview
                     = new QmlLiveTextPreview(doc, initdoc, this, this);
 
-            preview->setApplyChangesToQmlInspector(
-                        debuggerCore()->action(QmlUpdateOnSave)->isChecked());
+            preview->setApplyChangesToQmlInspector(action(QmlUpdateOnSave)->isChecked());
             connect(preview, SIGNAL(reloadRequest()),
                     this, SLOT(onReload()));
 

@@ -202,7 +202,7 @@ void GdbRemoteServerEngine::setupInferior()
     // gdb/mi/mi-main.c:1958: internal-error:
     // mi_execute_async_cli_command: Assertion `is_running (inferior_ptid)'
     // failed.\nA problem internal to GDB has been detected,[...]
-    if (debuggerCore()->boolSetting(TargetAsync))
+    if (boolSetting(TargetAsync))
         postCommand("set target-async on", CB(handleSetTargetAsync));
 
     if (executableFileName.isEmpty()) {
@@ -277,7 +277,7 @@ void GdbRemoteServerEngine::handleTargetRemote(const GdbResponse &response)
         // gdb server will stop the remote application itself.
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString postAttachCommands = debuggerCore()->stringSetting(GdbPostAttachCommands);
+        QString postAttachCommands = stringSetting(GdbPostAttachCommands);
         if (!postAttachCommands.isEmpty()) {
             foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
                 postCommand(cmd.toLatin1());
@@ -297,7 +297,7 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const GdbResponse &respon
     if (response.resultClass == GdbResultDone) {
         showMessage(_("ATTACHED TO GDB SERVER STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString postAttachCommands = debuggerCore()->stringSetting(GdbPostAttachCommands);
+        QString postAttachCommands = stringSetting(GdbPostAttachCommands);
         if (!postAttachCommands.isEmpty()) {
             foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
                 postCommand(cmd.toLatin1());
@@ -432,7 +432,7 @@ void GdbRemoteServerEngine::handleExecRun(const GdbResponse &response)
 void GdbRemoteServerEngine::interruptInferior2()
 {
     QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
-    if (debuggerCore()->boolSetting(TargetAsync)) {
+    if (boolSetting(TargetAsync)) {
         postCommand("-exec-interrupt", GdbEngine::Immediate,
             CB(handleInterruptInferior));
     } else if (m_isQnxGdb && Utils::HostOsInfo::isWindowsHost()) {

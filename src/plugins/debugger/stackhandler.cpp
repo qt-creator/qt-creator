@@ -63,7 +63,7 @@ StackHandler::StackHandler()
     m_contentsValid = false;
     m_currentIndex = -1;
     m_canExpand = false;
-    connect(debuggerCore()->action(OperateByInstruction), SIGNAL(triggered()),
+    connect(action(OperateByInstruction), SIGNAL(triggered()),
         this, SLOT(resetModel()));
 }
 
@@ -123,7 +123,7 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
             ? m_positionIcon : m_emptyIcon;
     }
 
-    if (role == Qt::ToolTipRole && debuggerCore()->boolSetting(UseToolTipsInStackView))
+    if (role == Qt::ToolTipRole && boolSetting(UseToolTipsInStackView))
         return frame.toToolTip();
 
     return QVariant();
@@ -151,8 +151,7 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
     if (index.row() == m_stackFrames.size())
         return QAbstractTableModel::flags(index);
     const StackFrame &frame = m_stackFrames.at(index.row());
-    const bool isValid = frame.isUsable()
-        || debuggerCore()->boolSetting(OperateByInstruction);
+    const bool isValid = frame.isUsable() || boolSetting(OperateByInstruction);
     return isValid && m_contentsValid
         ? QAbstractTableModel::flags(index) : Qt::ItemFlags();
 }
@@ -222,7 +221,7 @@ void StackHandler::prependFrames(const StackFrames &frames)
 
 int StackHandler::firstUsableIndex() const
 {
-    if (!debuggerCore()->boolSetting(OperateByInstruction)) {
+    if (!boolSetting(OperateByInstruction)) {
         for (int i = 0, n = m_stackFrames.size(); i != n; ++i)
             if (m_stackFrames.at(i).isUsable())
                 return i;

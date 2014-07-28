@@ -50,13 +50,13 @@ ThreadsTreeView::ThreadsTreeView()
 void ThreadsTreeView::rowActivated(const QModelIndex &index)
 {
     ThreadId id = ThreadId(index.data(ThreadData::IdRole).toLongLong());
-    debuggerCore()->currentEngine()->selectThread(id);
+    currentEngine()->selectThread(id);
 }
 
 void ThreadsTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    menu.addAction(action(SettingsDialog));
     menu.exec(ev->globalPos());
 }
 

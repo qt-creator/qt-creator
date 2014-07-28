@@ -730,9 +730,9 @@ void PdbEngine::updateLocals()
     }
 
     QByteArray options;
-    if (debuggerCore()->boolSetting(UseDebuggingHelpers))
+    if (boolSetting(UseDebuggingHelpers))
         options += "fancy,";
-    if (debuggerCore()->boolSetting(AutoDerefPointers))
+    if (boolSetting(AutoDerefPointers))
         options += "autoderef,";
     if (options.isEmpty())
         options += "defaults,";

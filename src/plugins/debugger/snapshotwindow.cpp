@@ -93,7 +93,7 @@ void SnapshotTreeView::contextMenuEvent(QContextMenuEvent *ev)
     actRemove->setEnabled(idx.isValid());
 
     menu.addSeparator();
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    menu.addAction(action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

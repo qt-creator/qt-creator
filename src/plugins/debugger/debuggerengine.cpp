@@ -174,7 +174,7 @@ public:
         m_isStateDebugging(false)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
-        connect(debuggerCore()->action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
+        connect(action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
                 SLOT(reloadDisassembly()));
 
         VariableManager::registerFileVariables(PrefixDebugExecutable,
@@ -521,8 +521,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     if (!d->m_startParameters.environment.size())
         d->m_startParameters.environment = Utils::Environment();
 
-    debuggerCore()->action(OperateByInstruction)
-        ->setEnabled(hasCapability(DisassemblerCapability));
+    action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
 
     QTC_ASSERT(state() == DebuggerNotReady || state() == DebuggerFinished,
          qDebug() << state());
@@ -543,7 +542,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
      d->resetLocation();
 
     if ((hasCapability(OperateByInstructionCapability) &&
-            debuggerCore()->boolSetting(OperateByInstruction)) || !loc.hasDebugInfo()) {
+            boolSetting(OperateByInstruction)) || !loc.hasDebugInfo()) {
         d->m_disassemblerAgent.setLocation(loc);
         return;
     }
@@ -559,7 +558,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
                                                 EditorManager::IgnoreNavigationHistory, &newEditor);
     QTC_ASSERT(editor, return); // Unreadable file?
 
-    editor->gotoLine(line, 0, !debuggerCore()->boolSetting(StationaryEditorWhileStepping));
+    editor->gotoLine(line, 0, !boolSetting(StationaryEditorWhileStepping));
 
     if (newEditor)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
@@ -953,7 +952,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
     QTC_ASSERT(state() == InferiorRunOk, qDebug() << this << state());
     showStatusMessage(tr("Stopped."));
     setState(InferiorStopOk);
-    if (debuggerCore()->boolSetting(RaiseOnInterrupt))
+    if (boolSetting(RaiseOnInterrupt))
         ICore::raiseWindow(debuggerCore()->mainWindow());
 }
 
@@ -1620,7 +1619,7 @@ void DebuggerEngine::executeDebuggerCommand(const QString &, DebuggerLanguages)
 
 BreakHandler *DebuggerEngine::breakHandler() const
 {
-    return debuggerCore()->breakHandler();
+    return Internal::breakHandler();
 }
 
 bool DebuggerEngine::isDying() const
@@ -1752,7 +1751,7 @@ void DebuggerEngine::setStateDebugging(bool on)
 
 void DebuggerEngine::checkForReleaseBuild(const DebuggerStartParameters &sp)
 {
-    if (!debuggerCore()->boolSetting(WarnOnReleaseBuilds) || !(sp.languages & CppLanguage))
+    if (!boolSetting(WarnOnReleaseBuilds) || !(sp.languages & CppLanguage))
         return;
     QString binary = sp.executable;
     if (binary.isEmpty())

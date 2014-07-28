@@ -336,15 +336,14 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("message"), data.message);
         list.append(map);
     }
-    DebuggerCore::setSessionValue("Breakpoints", list);
+    setSessionValue("Breakpoints", list);
     //qDebug() << "SAVED BREAKPOINTS" << this << list.size();
 }
 
 void BreakHandler::loadBreakpoints()
 {
-    QTC_ASSERT(debuggerCore(), return);
     //qDebug() << "LOADING BREAKPOINTS...";
-    QVariant value = DebuggerCore::sessionValue("Breakpoints");
+    QVariant value = sessionValue("Breakpoints");
     QList<QVariant> list = value.toList();
     //clear();
     foreach (const QVariant &var, list) {
@@ -686,7 +685,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     }
     switch (role) {
     case Qt::ToolTipRole:
-        if (debuggerCore()->boolSetting(UseToolTipsInBreakpointsView))
+        if (boolSetting(UseToolTipsInBreakpointsView))
                 return QVariant(it->toToolTip());
         break;
     }
@@ -1217,7 +1216,7 @@ void BreakHandler::gotoLocation(BreakpointModelId id) const
 {
     ConstIterator it = m_storage.find(id);
     BREAK_ASSERT(it != m_storage.end(), return);
-    DebuggerEngine *engine = debuggerCore()->currentEngine();
+    DebuggerEngine *engine = currentEngine();
     if (it->data.type == BreakpointByAddress) {
         if (engine)
             engine->gotoLocation(it->data.address);

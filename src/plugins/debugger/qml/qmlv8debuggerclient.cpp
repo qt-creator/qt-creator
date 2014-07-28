@@ -1591,7 +1591,7 @@ QmlJS::ConsoleItem *constructLogItemTree(QmlJS::ConsoleItem *parent,
                                                  const QVariant &refsVal)
 {
     using namespace QmlJS;
-    bool sorted = debuggerCore()->boolSetting(SortStructMembers);
+    bool sorted = boolSetting(SortStructMembers);
     if (!objectData.value.isValid())
         return 0;
 

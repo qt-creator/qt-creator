@@ -1185,7 +1185,7 @@ void DebuggerToolTipManager::sessionAboutToChange()
 
 void DebuggerToolTipManager::loadSessionData()
 {
-    const QString data = DebuggerCore::sessionValue(sessionSettingsKeyC).toString();
+    const QString data = sessionValue(sessionSettingsKeyC).toString();
     QXmlStreamReader r(data);
     r.readNextStartElement();
     if (r.tokenType() == QXmlStreamReader::StartElement && r.name() == QLatin1String(sessionDocumentC))
@@ -1207,7 +1207,7 @@ void DebuggerToolTipManager::saveSessionData()
             tw->saveSessionData(w);
     w.writeEndDocument();
 
-    DebuggerCore::setSessionValue(sessionSettingsKeyC, QVariant(data));
+    setSessionValue(sessionSettingsKeyC, QVariant(data));
 }
 
 void DebuggerToolTipManager::closeAllToolTips()
@@ -1349,16 +1349,15 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested
 
 bool DebuggerToolTipManager::tryHandleToolTipOverride(BaseTextEditor *editor, const QPoint &point, int pos)
 {
-    DebuggerCore *core = debuggerCore();
-    if (!core->boolSetting(UseToolTipsInMainEditor))
+    if (!boolSetting(UseToolTipsInMainEditor))
         return false;
 
-    DebuggerEngine *currentEngine = core->currentEngine();
-    if (!currentEngine || !currentEngine->canDisplayTooltip())
+    DebuggerEngine *engine = currentEngine();
+    if (!engine || !engine->canDisplayTooltip())
         return false;
 
     DebuggerToolTipContext context;
-    context.engineType = currentEngine->objectName();
+    context.engineType = engine->objectName();
     context.fileName = editor->document()->filePath();
     context.position = pos;
     context.mousePosition = point;
@@ -1370,18 +1369,18 @@ bool DebuggerToolTipManager::tryHandleToolTipOverride(BaseTextEditor *editor, co
         return false;
 
     // Prefer a filter on an existing local variable if it can be found.
-    if (const WatchData *localVariable = currentEngine->watchHandler()->findCppLocalVariable(context.expression)) {
+    if (const WatchData *localVariable = engine->watchHandler()->findCppLocalVariable(context.expression)) {
         context.expression = QLatin1String(localVariable->exp);
         if (context.expression.isEmpty())
             context.expression = localVariable->name;
         context.iname = localVariable->iname;
-        showToolTip(context, currentEngine);
+        showToolTip(context, engine);
         return true;
     }
 
     context.iname = "tooltip." + context.expression.toLatin1().toHex();
 
-    if (currentEngine->setToolTipExpression(editor, context))
+    if (engine->setToolTipExpression(editor, context))
         return true;
 
     // Other tooltip, close all in case mouse never entered the tooltip

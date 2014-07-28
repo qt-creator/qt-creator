@@ -86,11 +86,6 @@ namespace Internal {
 
 const char CurrentIndex[] = "CurrentIndex";
 
-static DebuggerEngine *currentEngine()
-{
-    return debuggerCore()->currentEngine();
-}
-
 class WatchDelegate : public QItemDelegate
 {
 public:
@@ -912,15 +907,15 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(&actShowInEditor);
     menu.addSeparator();
 
-    menu.addAction(debuggerCore()->action(UseDebuggingHelpers));
-    menu.addAction(debuggerCore()->action(UseToolTipsInLocalsView));
-    menu.addAction(debuggerCore()->action(AutoDerefPointers));
-    menu.addAction(debuggerCore()->action(SortStructMembers));
-    menu.addAction(debuggerCore()->action(UseDynamicType));
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    menu.addAction(action(UseDebuggingHelpers));
+    menu.addAction(action(UseToolTipsInLocalsView));
+    menu.addAction(action(AutoDerefPointers));
+    menu.addAction(action(SortStructMembers));
+    menu.addAction(action(UseDynamicType));
+    menu.addAction(action(SettingsDialog));
 
     menu.addSeparator();
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    menu.addAction(action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

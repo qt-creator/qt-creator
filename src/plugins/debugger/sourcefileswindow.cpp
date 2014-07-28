@@ -58,14 +58,14 @@ SourceFilesTreeView::SourceFilesTreeView()
 
 void SourceFilesTreeView::rowActivated(const QModelIndex &index)
 {
-    DebuggerEngine *engine = debuggerCore()->currentEngine();
+    DebuggerEngine *engine = currentEngine();
     QTC_ASSERT(engine, return);
     engine->gotoLocation(index.data().toString());
 }
 
 void SourceFilesTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
-    DebuggerEngine *engine = debuggerCore()->currentEngine();
+    DebuggerEngine *engine = currentEngine();
     QTC_ASSERT(engine, return);
     QModelIndex index = indexAt(ev->pos());
     index = index.sibling(index.row(), 0);
@@ -89,7 +89,7 @@ void SourceFilesTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(act1);
     menu.addAction(act2);
     menu.addSeparator();
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    menu.addAction(action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

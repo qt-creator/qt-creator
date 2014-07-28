@@ -195,7 +195,7 @@ namespace Internal {
 
 static inline bool isCreatorConsole(const DebuggerStartParameters &sp)
 {
-    return !debuggerCore()->boolSetting(UseCdbConsole) && sp.useTerminal
+    return !boolSetting(UseCdbConsole) && sp.useTerminal
            && (sp.startMode == StartInternal || sp.startMode == StartExternal);
 }
 
@@ -345,11 +345,11 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
     m_watchPointY(0),
     m_ignoreCdbOutput(false)
 {
-    connect(debuggerCore()->action(OperateByInstruction), SIGNAL(triggered(bool)),
+    connect(action(OperateByInstruction), SIGNAL(triggered(bool)),
             this, SLOT(operateByInstructionTriggered(bool)));
-    connect(debuggerCore()->action(VerboseLog), SIGNAL(triggered(bool)),
+    connect(action(VerboseLog), SIGNAL(triggered(bool)),
             this, SLOT(verboseLogTriggered(bool)));
-    connect(debuggerCore()->action(CreateFullBacktrace), SIGNAL(triggered()),
+    connect(action(CreateFullBacktrace), SIGNAL(triggered()),
             this, SLOT(createFullBacktrace()));
     setObjectName(QLatin1String("CdbEngine"));
     connect(&m_process, SIGNAL(finished(int)), this, SLOT(processFinished()));
@@ -366,8 +366,8 @@ void CdbEngine::init()
     m_specialStopMode = NoSpecialStop;
     m_nextCommandToken  = 0;
     m_currentBuiltinCommandIndex = -1;
-    m_operateByInstructionPending = debuggerCore()->action(OperateByInstruction)->isChecked();
-    m_verboseLogPending = debuggerCore()->boolSetting(VerboseLog);
+    m_operateByInstructionPending = action(OperateByInstruction)->isChecked();
+    m_verboseLogPending = boolSetting(VerboseLog);
     m_operateByInstruction = true; // Default CDB setting
     m_verboseLog = false; // Default CDB setting
     m_notifyEngineShutdownOnTermination = false;
@@ -597,9 +597,9 @@ void CdbEngine::setupEngine()
     if (debug)
         qDebug(">setupEngine");
     // Nag to add symbol server and cache
-    QStringList symbolPaths = debuggerCore()->stringListSetting(CdbSymbolPaths);
+    QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
     if (CdbSymbolPathListEditor::promptToAddSymbolPaths(&symbolPaths))
-        debuggerCore()->action(CdbSymbolPaths)->setValue(symbolPaths);
+        action(CdbSymbolPaths)->setValue(symbolPaths);
 
     init();
     if (!m_logTime.elapsed())
@@ -680,18 +680,18 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
               << QLatin1String(".idle_cmd ") + QString::fromLatin1(m_extensionCommandPrefixBA) + QLatin1String("idle");
     if (sp.useTerminal) // Separate console
         arguments << QLatin1String("-2");
-    if (debuggerCore()->boolSetting(IgnoreFirstChanceAccessViolation))
+    if (boolSetting(IgnoreFirstChanceAccessViolation))
         arguments << QLatin1String("-x");
 
-    const QStringList &symbolPaths = debuggerCore()->stringListSetting(CdbSymbolPaths);
+    const QStringList &symbolPaths = stringListSetting(CdbSymbolPaths);
     if (!symbolPaths.isEmpty())
         arguments << QLatin1String("-y") << symbolPaths.join(QString(QLatin1Char(';')));
-    const QStringList &sourcePaths = debuggerCore()->stringListSetting(CdbSourcePaths);
+    const QStringList &sourcePaths = stringListSetting(CdbSourcePaths);
     if (!sourcePaths.isEmpty())
         arguments << QLatin1String("-srcpath") << sourcePaths.join(QString(QLatin1Char(';')));
 
     // Compile argument string preserving quotes
-    QString nativeArguments = debuggerCore()->stringSetting(CdbAdditionalArguments);
+    QString nativeArguments = stringSetting(CdbAdditionalArguments);
     switch (sp.startMode) {
     case StartInternal:
     case StartExternal:
@@ -786,9 +786,9 @@ void CdbEngine::setupInferior()
     postCommand("sxn ibp", 0); // Do not break on initial breakpoints.
     postCommand(".asm source_line", 0); // Source line in assembly
     postCommand(m_extensionCommandPrefixBA + "setparameter maxStringLength="
-                + debuggerCore()->action(MaximalStringLength)->value().toByteArray()
+                + action(MaximalStringLength)->value().toByteArray()
                 + " maxStackDepth="
-                + debuggerCore()->action(MaximalStackDepth)->value().toByteArray()
+                + action(MaximalStackDepth)->value().toByteArray()
                 , 0);
     postExtensionCommand("pid", QByteArray(), 0, &CdbEngine::handlePid);
 }
@@ -827,13 +827,12 @@ void CdbEngine::runEngine()
     if (debug)
         qDebug("runEngine");
 
-    const QStringList &breakEvents =
-            debuggerCore()->stringListSetting(CdbBreakEvents);
+    const QStringList breakEvents = stringListSetting(CdbBreakEvents);
     foreach (const QString &breakEvent, breakEvents)
         postCommand(QByteArray("sxe ") + breakEvent.toLatin1(), 0);
     // Break functions: each function must be fully qualified,
     // else the debugger will slow down considerably.
-    if (debuggerCore()->boolSetting(CdbBreakOnCrtDbgReport)) {
+    if (boolSetting(CdbBreakOnCrtDbgReport)) {
         const QByteArray module = msvcRunTime(startParameters().toolChainAbi.osFlavor());
         const QByteArray debugModule = module + 'D';
         const QByteArray wideFunc = QByteArray(CdbOptionsPage::crtDbgReport).append('W');
@@ -846,13 +845,13 @@ void CdbEngine::runEngine()
         postBuiltinCommand(breakAtFunctionCommand(wideFunc, debugModule), 0,
                            &CdbEngine::handleBreakInsert);
     }
-    if (debuggerCore()->boolSetting(BreakOnWarning)) {
+    if (boolSetting(BreakOnWarning)) {
         postBuiltinCommand("bm /( QtCored4!qWarning", 0,
                            &CdbEngine::handleBreakInsert); // 'bm': All overloads.
         postBuiltinCommand("bm /( Qt5Cored!QMessageLogger::warning", 0,
                            &CdbEngine::handleBreakInsert);
     }
-    if (debuggerCore()->boolSetting(BreakOnFatal)) {
+    if (boolSetting(BreakOnFatal)) {
         postBuiltinCommand("bm /( QtCored4!qFatal", 0,
                            &CdbEngine::handleBreakInsert); // 'bm': All overloads.
         postBuiltinCommand("bm /( Qt5Cored!QMessageLogger::fatal", 0,
@@ -1061,9 +1060,9 @@ void CdbEngine::handleAddWatch(const CdbExtensionCommandPtr &reply)
 
 void CdbEngine::addLocalsOptions(ByteArrayInputStream &str) const
 {
-    if (debuggerCore()->boolSetting(VerboseLog))
+    if (boolSetting(VerboseLog))
         str << blankSeparator << "-v";
-    if (debuggerCore()->boolSetting(UseDebuggingHelpers))
+    if (boolSetting(UseDebuggingHelpers))
         str << blankSeparator << "-c";
     const QByteArray typeFormats = watchHandler()->typeFormatRequests();
     if (!typeFormats.isEmpty())
@@ -1521,7 +1520,7 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
     addLocalsOptions(str);
     // Uninitialized variables if desired. Quote as safeguard against shadowed
     // variables in case of errors in uninitializedVariables().
-    if (debuggerCore()->boolSetting(UseCodeModel)) {
+    if (boolSetting(UseCodeModel)) {
         QStringList uninitializedVariables;
         getUninitializedVariables(debuggerCore()->cppCodeModelSnapshot(),
                                   frame.function, frame.file, frame.line, &uninitializedVariables);
@@ -1932,7 +1931,7 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
 {
     const int flags = reply->cookie.toInt();
     if (reply->success) {
-        if (debuggerCore()->boolSetting(VerboseLog))
+        if (boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(reply->reply), LogDebug);
         QList<WatchData> watchData;
         WatchHandler *handler = watchHandler();
@@ -2915,7 +2914,7 @@ void CdbEngine::attemptBreakpointSynchronization()
         case BreakpointInsertRequested:
             if (!m_autoBreakPointCorrection
                     && parameters.type == BreakpointByFileAndLine
-                    && debuggerCore()->boolSetting(CdbBreakPointCorrection)) {
+                    && boolSetting(CdbBreakPointCorrection)) {
                 if (lineCorrection.isNull())
                     lineCorrection.reset(new BreakpointCorrectionContext(debuggerCore()->cppCodeModelSnapshot(),
                                                                          CppTools::CppModelManagerInterface::instance()->workingCopy()));

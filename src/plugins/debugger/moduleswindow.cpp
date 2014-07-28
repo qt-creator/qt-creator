@@ -38,9 +38,8 @@
 #include <utils/savedaction.h>
 
 #include <QDebug>
-#include <QProcess>
-
 #include <QMenu>
+#include <QProcess>
 #include <QResizeEvent>
 
 
@@ -63,7 +62,7 @@ ModulesTreeView::ModulesTreeView()
 
 void ModulesTreeView::moduleActivated(const QModelIndex &index)
 {
-    DebuggerEngine *engine = debuggerCore()->currentEngine();
+    DebuggerEngine *engine = currentEngine();
     QTC_ASSERT(engine, return);
     if (index.isValid())
         engine->gotoLocation(index.sibling(index.row(), 1).data().toString());
@@ -81,7 +80,7 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
         fileName = index.sibling(index.row(), 1).data().toString();
     }
 
-    DebuggerEngine *engine = debuggerCore()->currentEngine();
+    DebuggerEngine *engine = currentEngine();
     QTC_ASSERT(engine, return);
     const bool enabled = engine->debuggerActionsEnabled();
     const bool canReload = engine->hasCapability(ReloadModuleCapability);
@@ -150,7 +149,7 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actShowModuleSymbols);
     menu.addAction(actShowModuleSections);
     menu.addSeparator();
-    menu.addAction(debuggerCore()->action(SettingsDialog));
+    menu.addAction(action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

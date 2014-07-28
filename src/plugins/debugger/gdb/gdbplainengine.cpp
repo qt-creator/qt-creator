@@ -101,7 +101,7 @@ void GdbPlainEngine::handleExecRun(const GdbResponse &response)
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgInferiorSetupOk(), StatusBar);
         // FIXME: That's the wrong place for it.
-        if (debuggerCore()->boolSetting(EnableReverseDebugging))
+        if (boolSetting(EnableReverseDebugging))
             postCommand("target record");
     } else {
         QString msg = fromLocalEncoding(response.data["msg"].data());

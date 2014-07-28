@@ -155,14 +155,14 @@ public:
         setWindowFlags(windowFlags() | Qt::Window);
         setWindowTitle(WatchHandler::tr("Debugger - Qt Creator"));
 
-        QVariant geometry = DebuggerCore::sessionValue("DebuggerSeparateWidgetGeometry");
+        QVariant geometry = sessionValue("DebuggerSeparateWidgetGeometry");
         if (geometry.isValid())
             setGeometry(geometry.toRect());
     }
 
     ~SeparatedView()
     {
-        DebuggerCore::setSessionValue("DebuggerSeparateWidgetGeometry", geometry());
+        setSessionValue("DebuggerSeparateWidgetGeometry", geometry());
     }
 
     void removeObject(const QByteArray &key)
@@ -348,11 +348,11 @@ WatchModel::WatchModel(WatchHandler *handler)
     m_returnRoot = createItem("return", tr("Return Value"), m_root);
     m_tooltipRoot = createItem("tooltip", tr("Tooltip"), m_root);
 
-    connect(debuggerCore()->action(SortStructMembers), SIGNAL(valueChanged(QVariant)),
+    connect(action(SortStructMembers), SIGNAL(valueChanged(QVariant)),
         SLOT(reinsertAllData()));
-    connect(debuggerCore()->action(ShowStdNamespace), SIGNAL(valueChanged(QVariant)),
+    connect(action(ShowStdNamespace), SIGNAL(valueChanged(QVariant)),
         SLOT(reinsertAllData()));
-    connect(debuggerCore()->action(ShowQtNamespace), SIGNAL(valueChanged(QVariant)),
+    connect(action(ShowQtNamespace), SIGNAL(valueChanged(QVariant)),
         SLOT(reinsertAllData()));
 }
 
@@ -560,9 +560,9 @@ static QString niceTypeHelper(const QByteArray &typeIn)
 
 QString WatchModel::removeNamespaces(QString str) const
 {
-    if (!debuggerCore()->boolSetting(ShowStdNamespace))
+    if (!boolSetting(ShowStdNamespace))
         str.remove(QLatin1String("std::"));
-    if (!debuggerCore()->boolSetting(ShowQtNamespace)) {
+    if (!boolSetting(ShowQtNamespace)) {
         const QString qtNamespace = QString::fromLatin1(engine()->qtNamespace());
         if (!qtNamespace.isEmpty())
             str.remove(qtNamespace);
@@ -1151,7 +1151,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         }
 
         case Qt::ToolTipRole:
-            return debuggerCore()->boolSetting(UseToolTipsInLocalsView)
+            return boolSetting(UseToolTipsInLocalsView)
                 ? data.toToolTip() : QVariant();
 
         case Qt::ForegroundRole: {
@@ -1491,7 +1491,7 @@ bool watchItemSorter(const WatchItem *item1, const WatchItem *item2)
 
 static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *item)
 {
-    sortWatchDataAlphabetically = debuggerCore()->boolSetting(SortStructMembers);
+    sortWatchDataAlphabetically = boolSetting(SortStructMembers);
     const QList<WatchItem *>::const_iterator it =
         qLowerBound(list.begin(), list.end(), item, watchItemSorter);
     return it - list.begin();
@@ -1639,7 +1639,7 @@ void WatchModel::setCurrentItem(const QByteArray &iname)
 WatchHandler::WatchHandler(DebuggerEngine *engine)
 {
     m_engine = engine;
-    m_watcherCounter = DebuggerCore::sessionValue("Watchers").toStringList().count();
+    m_watcherCounter = sessionValue("Watchers").toStringList().count();
     m_model = new WatchModel(this);
     m_contentsValid = false;
     m_contentsValid = true; // FIXME
@@ -1918,12 +1918,12 @@ QStringList WatchHandler::watchedExpressions()
 
 void WatchHandler::saveWatchers()
 {
-    DebuggerCore::setSessionValue("Watchers", watchedExpressions());
+    setSessionValue("Watchers", watchedExpressions());
 }
 
 void WatchHandler::loadFormats()
 {
-    QVariant value = DebuggerCore::sessionValue("DefaultFormats");
+    QVariant value = sessionValue("DefaultFormats");
     QMapIterator<QString, QVariant> it(value.toMap());
     while (it.hasNext()) {
         it.next();
@@ -1931,7 +1931,7 @@ void WatchHandler::loadFormats()
             theTypeFormats.insert(it.key().toUtf8(), it.value().toInt());
     }
 
-    value = DebuggerCore::sessionValue("IndividualFormats");
+    value = sessionValue("IndividualFormats");
     it = QMapIterator<QString, QVariant>(value.toMap());
     while (it.hasNext()) {
         it.next();
@@ -1953,7 +1953,7 @@ void WatchHandler::saveFormats()
                 formats.insert(QString::fromLatin1(key), format);
         }
     }
-    DebuggerCore::setSessionValue("DefaultFormats", formats);
+    setSessionValue("DefaultFormats", formats);
 
     formats.clear();
     it = QHashIterator<QByteArray, int>(theIndividualFormats);
@@ -1964,7 +1964,7 @@ void WatchHandler::saveFormats()
         if (!key.isEmpty())
             formats.insert(QString::fromLatin1(key), format);
     }
-    DebuggerCore::setSessionValue("IndividualFormats", formats);
+    setSessionValue("IndividualFormats", formats);
 }
 
 void WatchHandler::saveSessionData()
@@ -1978,7 +1978,7 @@ void WatchHandler::loadSessionData()
     loadFormats();
     theWatcherNames.clear();
     m_watcherCounter = 0;
-    QVariant value = DebuggerCore::sessionValue("Watchers");
+    QVariant value = sessionValue("Watchers");
     m_model->destroyChildren(m_model->m_watchRoot);
     foreach (const QString &exp, value.toStringList())
         watchExpression(exp);

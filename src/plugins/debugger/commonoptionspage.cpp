@@ -175,48 +175,47 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     verticalLayout->addWidget(sourcesMappingWidget);
     verticalLayout->addStretch();
 
-    DebuggerCore *dc = debuggerCore();
     m_group->clear();
 
-    m_group->insert(dc->action(ListSourceFiles),
+    m_group->insert(action(ListSourceFiles),
         checkBoxListSourceFiles);
-    m_group->insert(dc->action(UseAlternatingRowColors),
+    m_group->insert(action(UseAlternatingRowColors),
         checkBoxUseAlternatingRowColors);
-    m_group->insert(dc->action(UseToolTipsInMainEditor),
+    m_group->insert(action(UseToolTipsInMainEditor),
         checkBoxUseToolTipsInMainEditor);
-    m_group->insert(dc->action(CloseBuffersOnExit),
+    m_group->insert(action(CloseBuffersOnExit),
         checkBoxCloseBuffersOnExit);
-    m_group->insert(dc->action(SwitchModeOnExit),
+    m_group->insert(action(SwitchModeOnExit),
         checkBoxSwitchModeOnExit);
-    m_group->insert(dc->action(BreakpointsFullPathByDefault),
+    m_group->insert(action(BreakpointsFullPathByDefault),
         checkBoxBreakpointsFullPath);
-    m_group->insert(dc->action(RaiseOnInterrupt),
+    m_group->insert(action(RaiseOnInterrupt),
         checkBoxBringToForegroundOnInterrrupt);
-    m_group->insert(dc->action(ShowQmlObjectTree),
+    m_group->insert(action(ShowQmlObjectTree),
         checkBoxShowQmlObjectTree);
-    m_group->insert(dc->action(WarnOnReleaseBuilds),
+    m_group->insert(action(WarnOnReleaseBuilds),
         checkBoxWarnOnReleaseBuilds);
-    m_group->insert(dc->action(StationaryEditorWhileStepping),
+    m_group->insert(action(StationaryEditorWhileStepping),
         checkBoxKeepEditorStationaryWhileStepping);
-    m_group->insert(dc->action(FontSizeFollowsEditor),
+    m_group->insert(action(FontSizeFollowsEditor),
         checkBoxFontSizeFollowsEditor);
-    m_group->insert(dc->action(AutoDerefPointers), 0);
-    m_group->insert(dc->action(UseToolTipsInLocalsView), 0);
-    m_group->insert(dc->action(AlwaysAdjustColumnWidths), 0);
-    m_group->insert(dc->action(UseToolTipsInBreakpointsView), 0);
-    m_group->insert(dc->action(UseToolTipsInStackView), 0);
-    m_group->insert(dc->action(UseAddressInBreakpointsView), 0);
-    m_group->insert(dc->action(UseAddressInStackView), 0);
-    m_group->insert(dc->action(MaximalStackDepth), spinBoxMaximalStackDepth);
-    m_group->insert(dc->action(ShowStdNamespace), 0);
-    m_group->insert(dc->action(ShowQtNamespace), 0);
-    m_group->insert(dc->action(SortStructMembers), 0);
-    m_group->insert(dc->action(LogTimeStamps), 0);
-    m_group->insert(dc->action(VerboseLog), 0);
-    m_group->insert(dc->action(BreakOnThrow), 0);
-    m_group->insert(dc->action(BreakOnCatch), 0);
+    m_group->insert(action(AutoDerefPointers), 0);
+    m_group->insert(action(UseToolTipsInLocalsView), 0);
+    m_group->insert(action(AlwaysAdjustColumnWidths), 0);
+    m_group->insert(action(UseToolTipsInBreakpointsView), 0);
+    m_group->insert(action(UseToolTipsInStackView), 0);
+    m_group->insert(action(UseAddressInBreakpointsView), 0);
+    m_group->insert(action(UseAddressInStackView), 0);
+    m_group->insert(action(MaximalStackDepth), spinBoxMaximalStackDepth);
+    m_group->insert(action(ShowStdNamespace), 0);
+    m_group->insert(action(ShowQtNamespace), 0);
+    m_group->insert(action(SortStructMembers), 0);
+    m_group->insert(action(LogTimeStamps), 0);
+    m_group->insert(action(VerboseLog), 0);
+    m_group->insert(action(BreakOnThrow), 0);
+    m_group->insert(action(BreakOnCatch), 0);
     if (Utils::HostOsInfo::isWindowsHost()) {
-        Utils::SavedAction *registerAction = dc->action(RegisterForPostMortem);
+        Utils::SavedAction *registerAction = action(RegisterForPostMortem);
         m_group->insert(registerAction,
                 checkBoxRegisterForPostMortem);
         connect(registerAction, SIGNAL(toggled(bool)),
@@ -340,7 +339,6 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
 {
     if (!m_widget) {
         m_widget = new QWidget;
-        DebuggerCore *dc = debuggerCore();
 
         auto debuggingHelperGroupBox = new QGroupBox(m_widget);
         debuggingHelperGroupBox->setTitle(tr("Use Debugging Helper"));
@@ -357,7 +355,7 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
 
         auto checkBoxUseCodeModel = new QCheckBox(debuggingHelperGroupBox);
         checkBoxUseCodeModel->setText(tr("Use code model"));
-        checkBoxUseCodeModel->setToolTip(dc->action(UseCodeModel)->toolTip());
+        checkBoxUseCodeModel->setToolTip(action(UseCodeModel)->toolTip());
         checkBoxUseCodeModel->setToolTip(tr("Makes use of Qt Creator's code model "
             "to find out if a variable has already been assigned a "
             "value at the point the debugger interrupts."));
@@ -409,13 +407,13 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         layout->addStretch();
 
         m_group.clear();
-        m_group.insert(dc->action(UseDebuggingHelpers), debuggingHelperGroupBox);
-        m_group.insert(dc->action(UseCodeModel), checkBoxUseCodeModel);
-        m_group.insert(dc->action(ShowThreadNames), checkBoxShowThreadNames);
-        m_group.insert(dc->action(ShowStdNamespace), checkBoxShowStdNamespace);
-        m_group.insert(dc->action(ShowQtNamespace), checkBoxShowQtNamespace);
-        m_group.insert(dc->action(DisplayStringLimit), spinBoxDisplayStringLimit);
-        m_group.insert(dc->action(MaximalStringLength), spinBoxMaximalStringLength);
+        m_group.insert(action(UseDebuggingHelpers), debuggingHelperGroupBox);
+        m_group.insert(action(UseCodeModel), checkBoxUseCodeModel);
+        m_group.insert(action(ShowThreadNames), checkBoxShowThreadNames);
+        m_group.insert(action(ShowStdNamespace), checkBoxShowStdNamespace);
+        m_group.insert(action(ShowQtNamespace), checkBoxShowQtNamespace);
+        m_group.insert(action(DisplayStringLimit), spinBoxDisplayStringLimit);
+        m_group.insert(action(MaximalStringLength), spinBoxMaximalStringLength);
 
 #ifndef QT_DEBUG
 #if 0
