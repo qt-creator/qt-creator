@@ -220,7 +220,7 @@ private:
     qint32 m_instanceId;
     bool m_deleteHeldInstance;
     bool m_isInLayoutable;
-    static QHash<EnumerationName, int> m_enumationValueHash;
+    static QHash<EnumerationName, QVariant> m_enumationValueHash;
 };
 
 } // namespace Internal

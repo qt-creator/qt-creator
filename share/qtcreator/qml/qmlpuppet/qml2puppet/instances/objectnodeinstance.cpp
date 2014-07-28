@@ -94,7 +94,7 @@ static bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
 namespace QmlDesigner {
 namespace Internal {
 
-QHash<EnumerationName, int> ObjectNodeInstance::m_enumationValueHash;
+QHash<EnumerationName, QVariant> ObjectNodeInstance::m_enumationValueHash;
 
 ObjectNodeInstance::ObjectNodeInstance(QObject *object)
     : m_object(object),
@@ -1328,27 +1328,31 @@ void ObjectNodeInstance::doComponentCompleteRecursive(QObject *object, NodeInsta
     }
 }
 
-static QHash<EnumerationName, int> enumationValuesFromMetaEnum(const QMetaEnum &metaEnum)
+static QHash<EnumerationName, QVariant> enumationValuesFromMetaEnum(const QMetaEnum &metaEnum)
 {
-    QHash<EnumerationName, int> enumationValues;
+    QHash<EnumerationName, QVariant> enumationValues;
     for (int index = 0; index < metaEnum.keyCount(); index++) {
         EnumerationName enumerationName = EnumerationName(metaEnum.scope()) + "." + metaEnum.key(index);
-        enumationValues.insert(enumerationName, metaEnum.value(index));
+        enumationValues.insert(enumerationName, QVariant::fromValue(metaEnum.value(index)));
+                qDebug() << __FUNCTION__ << enumerationName << metaEnum.value(index);
     }
 
     return enumationValues;
 }
 
-static QHash<EnumerationName, int> collectEnumationValues(const Enumeration &enumeration)
+static QHash<EnumerationName, QVariant> collectEnumationValues(const Enumeration &enumeration)
 {
-    QHash<EnumerationName, int> enumationValues;
+    QHash<EnumerationName, QVariant> enumationValues;
     EnumerationName enumerationScope = enumeration.scope();
-    const QMetaObject *metaObject = QMetaType::metaObjectForType(QMetaType::type(enumerationScope.data()));
+    const QMetaObject *metaObject = QMetaType::metaObjectForType(QMetaType::type(enumerationScope.constData()));
     if (metaObject) {
         int enumeratorCount = metaObject->enumeratorOffset() + metaObject->enumeratorCount();
         for (int index = metaObject->enumeratorOffset(); index < enumeratorCount; index++)
             enumationValues.unite(enumationValuesFromMetaEnum(metaObject->enumerator(index)));
+    } else {
+        enumationValues.insert(enumeration.toEnumerationName(), QVariant::fromValue(enumeration.nameToString()));
     }
+
     return enumationValues;
 }
 
@@ -1358,7 +1362,7 @@ QVariant ObjectNodeInstance::enumationValue(const Enumeration &enumeration)
     if (!m_enumationValueHash.contains(enumerationName))
         m_enumationValueHash.unite(collectEnumationValues(enumeration));
 
-    return  QVariant::fromValue(m_enumationValueHash.value(enumerationName));
+    return  m_enumationValueHash.value(enumerationName);
 }
 
 ObjectNodeInstance::Pointer ObjectNodeInstance::parentInstance() const
