@@ -531,7 +531,7 @@ KitMatcher Project::requiredKitMatcher() const
 
 void Project::setRequiredKitMatcher(const KitMatcher &matcher)
 {
-    d->m_preferredKitMatcher = matcher;
+    d->m_requiredKitMatcher = matcher;
 }
 
 KitMatcher Project::preferredKitMatcher() const
@@ -541,7 +541,7 @@ KitMatcher Project::preferredKitMatcher() const
 
 void Project::setPreferredKitMatcher(const KitMatcher &matcher)
 {
-    d->m_requiredKitMatcher = matcher;
+    d->m_preferredKitMatcher = matcher;
 }
 
 void Project::onBuildDirectoryChanged()
