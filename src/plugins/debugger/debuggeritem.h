@@ -86,7 +86,7 @@ public:
     void setAbis(const QList<ProjectExplorer::Abi> &abis);
     void setAbi(const ProjectExplorer::Abi &abi);
 
-    enum MatchLevel { DoesNotMatch, MatchesSomewhat, MatchesPerfectly };
+    enum MatchLevel { DoesNotMatch, MatchesSomewhat, MatchesWell, MatchesPerfectly };
     MatchLevel matchTarget(const ProjectExplorer::Abi &targetAbi) const;
 
     QStringList abiNames() const;
