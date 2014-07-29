@@ -27,26 +27,29 @@
 **
 ****************************************************************************/
 
-#ifndef QTFEATUREPROVIDER_H
-#define QTFEATUREPROVIDER_H
+#ifndef KITFEATUREPROVIDER_H
+#define KITFEATUREPROVIDER_H
 
+#include <coreplugin/id.h>
 #include <coreplugin/featureprovider.h>
 
-namespace QtSupport {
+namespace ProjectExplorer {
 namespace Internal {
 
-class QtFeatureProvider : public Core::IFeatureProvider
+class KitFeatureProvider : public Core::IFeatureProvider
 {
     Q_OBJECT
 
 public:
-    QtFeatureProvider() {}
-    Core::FeatureSet availableFeatures(const QString &platformName) const;
+
+    // IFeatureProvider interface
+public:
+    Core::FeatureSet availableFeatures(const QString &platform) const;
     QStringList availablePlatforms() const;
     QString displayNameForPlatform(const QString &string) const;
 };
 
 } // namespace Internal
-} // namespace QtSupport
+} // namespace ProjectExplorer
 
-#endif // QTFEATUREPROVIDER_H
+#endif // KITFEATUREPROVIDER_H

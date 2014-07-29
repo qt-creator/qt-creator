@@ -32,7 +32,6 @@
 #include "codegensettingspage.h"
 #include "customexecutablerunconfiguration.h"
 #include "desktopqtversionfactory.h"
-#include "qtfeatureprovider.h"
 #include "qtkitinformation.h"
 #include "qtoptionspage.h"
 #include "qtversionmanager.h"
@@ -78,9 +77,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     addAutoReleasedObject(new SimulatorQtVersionFactory);
     addAutoReleasedObject(new WinCeQtVersionFactory);
     addAutoReleasedObject(new UiCodeModelManager);
-
-    QtFeatureProvider *featureMgr = new QtFeatureProvider;
-    addAutoReleasedObject(featureMgr);
 
     addAutoReleasedObject(new CodeGenSettingsPage);
     addAutoReleasedObject(new QtOptionsPage);

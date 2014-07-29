@@ -40,6 +40,7 @@
 #include "projectmacroexpander.h"
 #include "removetaskhandler.h"
 #include "unconfiguredprojectpanel.h"
+#include "kitfeatureprovider.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 #include "target.h"
@@ -387,6 +388,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     d->m_kitManager = new KitManager; // register before ToolChainManager
     d->m_toolChainManager = new ToolChainManager;
+
+    addAutoReleasedObject(new Internal::KitFeatureProvider);
 
     // Register KitInformation:
     KitManager::registerKitInformation(new DeviceTypeKitInformation);

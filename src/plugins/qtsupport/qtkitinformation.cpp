@@ -221,4 +221,27 @@ KitMatcher QtKitInformation::qtVersionMatcher(const Core::FeatureSet &required,
     });
 }
 
+QSet<QString> QtKitInformation::availablePlatforms(const Kit *k) const
+{
+    QSet<QString> result;
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    if (version)
+        result.insert(version->platformName());
+    return result;
+}
+
+QString QtKitInformation::displayNameForPlatform(const Kit *k, const QString &platform) const
+{
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    if (version && version->platformName() == platform)
+        return version->platformDisplayName();
+    return QString();
+}
+
+Core::FeatureSet QtKitInformation::availableFeatures(const Kit *k) const
+{
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    return version ? version->availableFeatures() : Core::FeatureSet();
+}
+
 } // namespace QtSupport

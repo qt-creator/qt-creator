@@ -33,6 +33,9 @@
 #include "projectexplorer_export.h"
 #include "task.h"
 
+#include <coreplugin/featureprovider.h>
+
+#include <QSet>
 #include <QVariant>
 
 namespace Utils { class Environment; }
@@ -112,6 +115,12 @@ public:
 
     void setMutable(Core::Id id, bool b);
     bool isMutable(Core::Id id) const;
+
+    QSet<QString> availablePlatforms() const;
+    bool hasPlatform(const QString &platform) const;
+    QString displayNameForPlatform(const QString &platform) const;
+    Core::FeatureSet availableFeatures() const;
+    bool hasFeatures(const Core::FeatureSet &features) const;
 
 private:
     void setSdkProvided(bool sdkProvided);

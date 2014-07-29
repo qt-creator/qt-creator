@@ -89,6 +89,7 @@ QtcPlugin {
             "kit.cpp", "kit.h",
             "kitchooser.cpp", "kitchooser.h",
             "kitconfigwidget.cpp", "kitconfigwidget.h",
+            "kitfeatureprovider.h",
             "kitinformation.cpp", "kitinformation.h",
             "kitinformationconfigwidget.cpp", "kitinformationconfigwidget.h",
             "kitmanager.cpp", "kitmanager.h",

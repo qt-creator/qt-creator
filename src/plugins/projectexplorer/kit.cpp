@@ -582,6 +582,45 @@ bool Kit::isMutable(Id id) const
     return d->m_mutable.contains(id);
 }
 
+QSet<QString> Kit::availablePlatforms() const
+{
+    QSet<QString> platforms;
+    foreach (const KitInformation *ki, KitManager::kitInformation())
+        platforms.unite(ki->availablePlatforms(this));
+    return platforms;
+}
+
+bool Kit::hasPlatform(const QString &platform) const
+{
+    if (platform.isEmpty())
+        return true;
+    return availablePlatforms().contains(platform);
+}
+
+QString Kit::displayNameForPlatform(const QString &platform) const
+{
+    foreach (const KitInformation *ki, KitManager::kitInformation()) {
+        const QString displayName = ki->displayNameForPlatform(this, platform);
+        if (!displayName.isEmpty())
+            return displayName;
+    }
+    return QString();
+
+}
+
+FeatureSet Kit::availableFeatures() const
+{
+    Core::FeatureSet features;
+    foreach (const KitInformation *ki, KitManager::kitInformation())
+        features |= ki->availableFeatures(this);
+    return features;
+}
+
+bool Kit::hasFeatures(const FeatureSet &features) const
+{
+    return availableFeatures().contains(features);
+}
+
 void Kit::kitUpdated()
 {
     if (d->m_nestedBlockingLevel > 0 && !d->m_mustNotifyAboutDisplayName) {

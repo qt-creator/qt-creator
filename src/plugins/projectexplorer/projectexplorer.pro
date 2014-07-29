@@ -28,6 +28,7 @@ HEADERS += projectexplorer.h \
     kitconfigwidget.h \
     kitinformation.h \
     kitinformationconfigwidget.h \
+    kitfeatureprovider.h \
     kitmanager.h \
     kitmanagerconfigwidget.h \
     kitmodel.h \

@@ -129,6 +129,8 @@ public:
     static void setDeviceTypeId(Kit *k, Core::Id type);
 
     static KitMatcher deviceTypeMatcher(Core::Id type);
+
+    Core::FeatureSet availableFeatures(const Kit *k) const;
 };
 
 // --------------------------------------------------------------------------

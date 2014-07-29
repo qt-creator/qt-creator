@@ -101,7 +101,6 @@ QtcPlugin {
         "qtversionmanager.cpp",
         "qtversionmanager.h",
         "qtversionmanager.ui",
-        "qtfeatureprovider.h",
         "screenshotcropper.cpp",
         "screenshotcropper.h",
         "showbuildlog.ui",

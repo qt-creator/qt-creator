@@ -29,7 +29,6 @@ HEADERS += \
     exampleslistmodel.h \
     screenshotcropper.h \
     qtconfigwidget.h \
-    qtfeatureprovider.h \
     desktopqtversionfactory.h \
     simulatorqtversionfactory.h \
     desktopqtversion.h \

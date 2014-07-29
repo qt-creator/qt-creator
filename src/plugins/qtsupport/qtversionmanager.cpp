@@ -32,7 +32,6 @@
 #include "qtkitinformation.h"
 #include "qtversionfactory.h"
 #include "baseqtversion.h"
-#include "qtfeatureprovider.h"
 #include "qtsupportconstants.h"
 
 #include <coreplugin/icore.h>
@@ -811,37 +810,6 @@ static BaseQtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeA
         }
     }
     return result;
-}
-
-Core::FeatureSet QtFeatureProvider::availableFeatures(const QString &platformName) const
-{
-    Core::FeatureSet features;
-    foreach (BaseQtVersion *const qtVersion, QtVersionManager::validVersions()) {
-        if (qtVersion->platformName() == platformName || platformName.isEmpty())
-            features |= qtVersion->availableFeatures();
-    }
-
-    return features;
-}
-
-QStringList QtFeatureProvider::availablePlatforms() const
-{
-    QStringList platforms;
-    foreach (BaseQtVersion *const qtVersion, QtVersionManager::validVersions()) {
-        if (!qtVersion->platformName().isEmpty())
-            platforms.append(qtVersion->platformName());
-    }
-    platforms.removeDuplicates();
-    return platforms;
-}
-
-QString QtFeatureProvider::displayNameForPlatform(const QString &string) const
-{
-    foreach (BaseQtVersion *const qtVersion, QtVersionManager::validVersions()) {
-        if (qtVersion->platformName() == string)
-            return qtVersion->platformDisplayName();
-    }
-    return QString();
 }
 
 } // namespace QtVersion

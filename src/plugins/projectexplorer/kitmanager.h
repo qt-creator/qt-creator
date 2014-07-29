@@ -33,6 +33,7 @@
 #include "projectexplorer_export.h"
 
 #include <coreplugin/id.h>
+#include <coreplugin/featureprovider.h>
 
 #include <QObject>
 #include <QPair>
@@ -92,6 +93,10 @@ public:
 
     virtual QString displayNamePostfix(const Kit *k) const;
 
+    virtual QSet<QString> availablePlatforms(const Kit *k) const;
+    virtual QString displayNameForPlatform(const ProjectExplorer::Kit *k, const QString &platform) const;
+    virtual Core::FeatureSet availableFeatures(const Kit *k) const;
+
 protected:
     void setId(Core::Id id) { m_id = id; }
     void setPriority(int priority) { m_priority = priority; }
@@ -143,6 +148,10 @@ public:
 
     static void registerKitInformation(ProjectExplorer::KitInformation *ki);
     static void deregisterKitInformation(ProjectExplorer::KitInformation *ki);
+
+    static QSet<QString> availablePlatforms();
+    static QString displayNameForPlatform(const QString &platform);
+    static Core::FeatureSet availableFeatures(const QString &platform);
 
 public slots:
     void saveKits();

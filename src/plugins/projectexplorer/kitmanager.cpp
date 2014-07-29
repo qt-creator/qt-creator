@@ -30,9 +30,10 @@
 #include "kitmanager.h"
 
 #include "kit.h"
-#include "task.h"
+#include "kitfeatureprovider.h"
 #include "kitmanagerconfigwidget.h"
 #include "project.h"
+#include "task.h"
 
 #include <coreplugin/icore.h>
 
@@ -341,6 +342,35 @@ void KitManager::deregisterKitInformation(KitInformation *ki)
     delete ki;
 }
 
+QSet<QString> KitManager::availablePlatforms()
+{
+    QSet<QString> platforms;
+    foreach (const Kit *k, kits())
+        platforms.unite(k->availablePlatforms());
+    return platforms;
+}
+
+QString KitManager::displayNameForPlatform(const QString &platform)
+{
+    foreach (const Kit *k, kits()) {
+        const QString displayName = k->displayNameForPlatform(platform);
+        if (!displayName.isEmpty())
+            return displayName;
+    }
+    return QString();
+}
+
+Core::FeatureSet KitManager::availableFeatures(const QString &platform)
+{
+    Core::FeatureSet features;
+    foreach (const Kit *k, kits()) {
+        QSet<QString> kitPlatforms = k->availablePlatforms();
+        if (kitPlatforms.isEmpty() || kitPlatforms.contains(platform))
+            features |= k->availableFeatures();
+    }
+    return features;
+}
+
 KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
 {
     KitList result;
@@ -586,9 +616,47 @@ QString KitInformation::displayNamePostfix(const Kit *k) const
     return QString();
 }
 
+QSet<QString> KitInformation::availablePlatforms(const Kit *k) const
+{
+    Q_UNUSED(k);
+    return QSet<QString>();
+}
+
+QString KitInformation::displayNameForPlatform(const Kit *k, const QString &platform) const
+{
+    Q_UNUSED(k);
+    Q_UNUSED(platform);
+    return QString();
+}
+
+Core::FeatureSet KitInformation::availableFeatures(const Kit *k) const
+{
+    Q_UNUSED(k);
+    return Core::FeatureSet();
+}
+
 void KitInformation::notifyAboutUpdate(Kit *k)
 {
     KitManager::notifyAboutUpdate(k);
+}
+
+// --------------------------------------------------------------------
+// KitFeatureProvider:
+// --------------------------------------------------------------------
+
+Core::FeatureSet Internal::KitFeatureProvider::availableFeatures(const QString &platform) const
+{
+    return KitManager::availableFeatures(platform);
+}
+
+QStringList Internal::KitFeatureProvider::availablePlatforms() const
+{
+    return KitManager::availablePlatforms().toList();
+}
+
+QString Internal::KitFeatureProvider::displayNameForPlatform(const QString &string) const
+{
+    return KitManager::displayNameForPlatform(string);
 }
 
 } // namespace ProjectExplorer
