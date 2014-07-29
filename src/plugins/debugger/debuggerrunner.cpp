@@ -454,14 +454,10 @@ IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect
     return new DebuggerRunConfigurationAspect(rc);
 }
 
-DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun
-    (const DebuggerStartParameters &sp, RunConfiguration *runConfiguration)
+DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun(const DebuggerStartParameters &sp)
 {
     QString errorMessage;
-    if (runConfiguration && !runConfiguration->ensureConfigured(&errorMessage))
-        ProjectExplorer::ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
-
-    DebuggerRunControl *rc = doCreate(sp, runConfiguration, &errorMessage);
+    DebuggerRunControl *rc = doCreate(sp, 0, &errorMessage);
     if (!rc) {
         ProjectExplorer::ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
         return 0;
