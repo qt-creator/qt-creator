@@ -114,8 +114,8 @@ private:
     AndroidConfig m_androidConfig;
     AvdModel m_AVDModel;
     QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
-    QFutureWatcher<QPair<QString, bool>> m_checkGdbWatcher;
-    QString m_gdbCheckPath;
+    QFutureWatcher<QPair<QStringList, bool>> m_checkGdbWatcher;
+    QStringList m_gdbCheckPaths;
 };
 
 } // namespace Internal
