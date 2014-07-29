@@ -106,9 +106,9 @@ class PROJECTEXPLORER_EXPORT KitMatcher
 {
 public:
     typedef std::function<bool(const Kit *)> Matcher;
+    KitMatcher() : m_matcher([](const Kit *k) -> bool { Q_UNUSED(k); return true; }) {}
     KitMatcher(const Matcher &m) : m_matcher(m) {}
 
-    bool isValid() const { return !!m_matcher; }
     bool matches(const Kit *kit) const { return m_matcher(kit); }
 
 private:

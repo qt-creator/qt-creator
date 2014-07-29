@@ -102,9 +102,7 @@ public:
 ProjectPrivate::ProjectPrivate() :
     m_activeTarget(0),
     m_editorConfiguration(new EditorConfiguration()),
-    m_accessor(0),
-    m_requiredKitMatcher([](const Kit*) { return true; }),
-    m_preferredKitMatcher([](const Kit*) { return true; })
+    m_accessor(0)
 { }
 
 ProjectPrivate::~ProjectPrivate()
