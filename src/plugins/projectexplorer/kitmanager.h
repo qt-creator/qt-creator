@@ -108,6 +108,7 @@ public:
     typedef std::function<bool(const Kit *)> Matcher;
     KitMatcher(const Matcher &m) : m_matcher(m) {}
 
+    bool isValid() const { return !!m_matcher; }
     bool matches(const Kit *kit) const { return m_matcher(kit); }
 
 private:

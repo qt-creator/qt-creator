@@ -257,7 +257,14 @@ bool TargetSetupPage::isComplete() const
 
 void TargetSetupPage::setupWidgets()
 {
-    foreach (Kit *k, KitManager::matchingKits(m_requiredMatcher))
+    // Known profiles:
+    QList<Kit *> kitList;
+    if (m_requiredMatcher.isValid())
+        kitList = KitManager::matchingKits(m_requiredMatcher);
+    else
+        kitList = KitManager::kits();
+
+    foreach (Kit *k, kitList)
         addWidget(k);
 
     // Setup import widget:
@@ -369,7 +376,7 @@ void TargetSetupPage::handleKitUpdate(Kit *k)
 
     TargetSetupWidget *widget = m_widgets.value(k->id());
 
-    bool acceptable = m_requiredMatcher.matches(k);
+    bool acceptable = !m_requiredMatcher.isValid() || m_requiredMatcher.matches(k);
 
     if (widget && !acceptable)
         removeWidget(k);
@@ -505,7 +512,7 @@ void TargetSetupPage::removeWidget(Kit *k)
 
 TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 {
-    if (!k || !m_requiredMatcher.matches(k))
+    if (!k || (m_requiredMatcher.isValid() && !m_requiredMatcher.matches(k)))
         return 0;
 
     IBuildConfigurationFactory *factory
@@ -523,7 +530,7 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
         m_baseLayout->removeWidget(widget);
     m_baseLayout->removeItem(m_spacer);
 
-    widget->setKitSelected(m_preferredMatcher.matches(k));
+    widget->setKitSelected(m_preferredMatcher.isValid() && m_preferredMatcher.matches(k));
     m_widgets.insert(k->id(), widget);
     connect(widget, SIGNAL(selectedToggled()),
             this, SLOT(kitSelectionChanged()));
