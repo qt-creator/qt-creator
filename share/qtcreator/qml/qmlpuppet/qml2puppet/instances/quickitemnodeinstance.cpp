@@ -325,7 +325,7 @@ QSizeF QuickItemNodeInstance::size() const
 {
     double width;
 
-    if (DesignerSupport::isValidWidth(quickItem())) {
+    if (DesignerSupport::isValidHeight(quickItem())) { // isValidHeight is QQuickItemPrivate::get(item)->widthValid
         width = quickItem()->width();
     } else {
         width = quickItem()->implicitWidth();
@@ -333,7 +333,7 @@ QSizeF QuickItemNodeInstance::size() const
 
     double height;
 
-    if (DesignerSupport::isValidHeight(quickItem())) {
+    if (DesignerSupport::isValidWidth(quickItem())) { // isValidWidth is QQuickItemPrivate::get(item)->heightValid
         height = quickItem()->height();
     } else {
         height = quickItem()->implicitHeight();
