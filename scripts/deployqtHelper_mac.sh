@@ -44,6 +44,7 @@ macdeployqt "$1" \
         "-executable=$1/Contents/Resources/sdktool" \
         "-executable=$1/Contents/Resources/ios/iostool" \
         "-executable=$1/Contents/Resources/ios/iossim" \
+        "-executable=$1/Contents/Resources/ios/iossim_1_8_2" \
         "$qmlpuppetArgument" "$qml2puppetArgument" || exit 1
 
 # copy qt creator qt.conf
