@@ -947,7 +947,11 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
                               bool emitDocChangedOnDisk)
 {
     // paths we have scanned for files and added to the files list
-    QSet<QString> scannedPaths = modelManager->m_scannedPaths;
+    QSet<QString> scannedPaths;
+    {
+        QMutexLocker l(&modelManager->m_mutex);
+        scannedPaths = modelManager->m_scannedPaths;
+    }
     // libraries we've found while scanning imports
     QSet<QString> newLibraries;
 
