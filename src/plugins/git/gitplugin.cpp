@@ -88,7 +88,6 @@
 #include <QTest>
 #endif
 
-Q_DECLARE_METATYPE(Git::Internal::GitClientMemberFunc)
 Q_DECLARE_METATYPE(Git::Internal::FileStates)
 
 using namespace Core;
@@ -147,8 +146,6 @@ GitPlugin::GitPlugin() :
     m_submitActionTriggered(false)
 {
     m_instance = this;
-    const int mid = qRegisterMetaType<GitClientMemberFunc>();
-    Q_UNUSED(mid)
     m_fileActions.reserve(10);
     m_projectActions.reserve(10);
     m_repositoryActions.reserve(50);
@@ -259,7 +256,7 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
 }
 
 // Action to act on the repository forwarded to a git client member function
-// taking the directory. Store the member function as data on the action.
+// taking the directory.
 QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
                                            const QString &text, Id id,
                                            const Context &context, bool addToLocator,
@@ -267,8 +264,10 @@ QAction *GitPlugin::createRepositoryAction(ActionContainer *ac,
 {
     // Set the member func as data and connect to generic slot
     QAction *action = createRepositoryAction(ac, text, id, context, addToLocator, keys);
-    action->setData(qVariantFromValue(func));
-    connect(action, SIGNAL(triggered()), this, SLOT(gitClientMemberFuncRepositoryAction()));
+    connect(action, &QAction::triggered, [this, func]() -> void {
+        QTC_ASSERT(currentState().hasTopLevel(), return);
+        (m_gitClient->*func)(currentState().topLevel());
+    });
     return action;
 }
 
@@ -1153,29 +1152,6 @@ void GitPlugin::continueOrAbortCommand()
         m_gitClient->revert(state.topLevel(), QLatin1String("--continue"));
 
     updateContinueAndAbortCommands();
-}
-
-// Retrieve member function of git client stored as user data of action
-static inline GitClientMemberFunc memberFunctionFromAction(const QObject *o)
-{
-    if (o) {
-        if (const QAction *action = qobject_cast<const QAction *>(o)) {
-            const QVariant v = action->data();
-            if (v.canConvert<GitClientMemberFunc>())
-                return qvariant_cast<GitClientMemberFunc>(v);
-        }
-    }
-    return 0;
-}
-
-void GitPlugin::gitClientMemberFuncRepositoryAction()
-{
-    const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return);
-    // Retrieve member function and invoke on repository
-    GitClientMemberFunc func = memberFunctionFromAction(sender());
-    QTC_ASSERT(func, return);
-    (m_gitClient->*func)(state.topLevel());
 }
 
 void GitPlugin::cleanProject()

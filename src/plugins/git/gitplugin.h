@@ -121,7 +121,6 @@ private slots:
     void updateSubmodules();
     void applyCurrentFilePatch();
     void promptApplyPatch();
-    void gitClientMemberFuncRepositoryAction();
 
     void startAmendCommit();
     void startFixupCommit();
