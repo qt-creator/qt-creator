@@ -146,7 +146,7 @@
 
     \section3 Selecting API Level
 
-    In the \gui {Android target SDK} field, you can select the API level to use
+    In the \gui {Android build SDK} field, you can select the API level to use
     for building the application. Usually, you should select the newest API
     level available.
 
