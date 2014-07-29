@@ -46,6 +46,8 @@
 #include <QListView>
 #include <QPointer>
 #include <QPushButton>
+#include <QResizeEvent>
+#include <QScrollArea>
 #include <QScrollBar>
 #include <QSettings>
 #include <QSortFilterProxyModel>
@@ -278,8 +280,7 @@ public:
     virtual QSize sizeHint() const
     {
         int width = sizeHintForColumn(0) + frameWidth() * 2 + 5;
-        if (verticalScrollBar()->isVisible())
-            width += verticalScrollBar()->width();
+        width += verticalScrollBar()->width();
         return QSize(width, 100);
     }
 
@@ -293,6 +294,68 @@ public:
         return QListView::eventFilter(obj, event);
     }
 };
+
+// ----------- SmartScrollArea
+
+class SmartScrollArea : public QScrollArea
+{
+public:
+    SmartScrollArea(QWidget *parent = 0)
+        : QScrollArea(parent)
+    {
+        setFrameStyle(QFrame::NoFrame | QFrame::Plain);
+        viewport()->setAutoFillBackground(false);
+    }
+private:
+    void resizeEvent(QResizeEvent *event) override
+    {
+        QWidget *inner = widget();
+        if (inner) {
+            int fw = frameWidth() * 2;
+            QSize innerSize = event->size() - QSize(fw, fw);
+            QSize innerSizeHint = inner->minimumSizeHint();
+
+            if (innerSizeHint.height() > innerSize.height()) { // Widget wants to be bigger than available space
+                innerSize.setWidth(innerSize.width() - scrollBarWidth());
+                innerSize.setHeight(innerSizeHint.height());
+            }
+            inner->resize(innerSize);
+        }
+        QScrollArea::resizeEvent(event);
+    }
+
+    QSize minimumSizeHint() const override {
+        QWidget *inner = widget();
+        if (inner) {
+            int fw = frameWidth() * 2;
+
+            QSize minSize = inner->minimumSizeHint();
+            minSize += QSize(fw, fw);
+            minSize += QSize(scrollBarWidth(), 0);
+            minSize.setHeight(qMin(minSize.height(), 450));
+            minSize.setWidth(qMin(minSize.width(), 810));
+            return minSize;
+        }
+        return QSize(0, 0);
+    }
+
+    bool event(QEvent *event) override {
+        if (event->type() == QEvent::LayoutRequest)
+            updateGeometry();
+        return QScrollArea::event(event);
+    }
+
+    int scrollBarWidth() const
+    {
+        auto that = const_cast<SmartScrollArea *>(this);
+        QWidgetList list = that->scrollBarWidgets(Qt::AlignRight);
+        if (list.isEmpty())
+            return 0;
+        return list.first()->sizeHint().width();
+    }
+
+};
+
 
 // ----------- SettingsDialog
 
@@ -447,9 +510,7 @@ void SettingsDialog::createGui()
 
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
-    setMinimumSize(1000, 550);
-    if (Utils::HostOsInfo::isMacHost())
-        setMinimumHeight(minimumHeight() * 1.1);
+    mainGridLayout->setSizeConstraint(QLayout::SetMinimumSize);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -491,7 +552,10 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
     for (int j = 0; j < category->pages.size(); ++j) {
         IOptionsPage *page = category->pages.at(j);
         QWidget *widget = page->widget();
-        tabWidget->addTab(widget, page->displayName());
+        SmartScrollArea *ssa = new SmartScrollArea(this);
+        ssa->setWidget(widget);
+        widget->setAutoFillBackground(false);
+        tabWidget->addTab(ssa, page->displayName());
     }
 
     connect(tabWidget, &QTabWidget::currentChanged,
