@@ -207,7 +207,11 @@ public:
     void joinAllThreads();
 
     QmlJS::Document::Ptr ensuredGetDocumentForPath(const QString &filePath);
-
+    static void importScan(QFutureInterface<void> &future,
+                    WorkingCopy workingCopyInternal,
+                    PathsAndLanguages paths,
+                    ModelManagerInterface *modelManager,
+                    bool emitDocChangedOnDisk);
 public slots:
     virtual void resetCodeModel();
     void removeProjectInfo(ProjectExplorer::Project *project);
@@ -243,11 +247,6 @@ protected:
                       ModelManagerInterface *modelManager,
                       QmlJS::Dialect mainLanguage,
                       bool emitDocChangedOnDisk);
-    static void importScan(QFutureInterface<void> &future,
-                    WorkingCopy workingCopyInternal,
-                    PathsAndLanguages paths,
-                    ModelManagerInterface *modelManager,
-                    bool emitDocChangedOnDisk);
     static void updateCppQmlTypes(QFutureInterface<void> &interface,
                                   ModelManagerInterface *qmlModelManager,
                                   CPlusPlus::Snapshot snapshot,

@@ -2,5 +2,5 @@ import qbs
 
 Project {
     name: "QML code model autotests"
-    references: ["check/check.qbs"]
+    references: ["check/check.qbs", "importscheck/importscheck.qbs"]
 }

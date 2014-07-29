@@ -1,3 +1,4 @@
 TEMPLATE = subdirs
 
-SUBDIRS += check
+SUBDIRS += check \
+    importscheck
