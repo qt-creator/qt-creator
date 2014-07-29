@@ -36,23 +36,6 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
-namespace {
-
-class DesktopQtKitMatcher : public ProjectExplorer::KitMatcher
-{
-public:
-    bool matches(const ProjectExplorer::Kit *k) const
-    {
-        ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(k);
-        if (dev.isNull() || dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
-            return false;
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-        return version && version->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
-    }
-};
-
-} // namespace
-
 namespace QmakeProjectManager {
 namespace Internal {
 
