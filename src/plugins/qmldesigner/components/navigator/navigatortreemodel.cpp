@@ -578,10 +578,10 @@ static bool removeModelNodeFromNodeProperty(NodeAbstractProperty &parentProperty
 {
 
     if (parentProperty.isNodeProperty()) {
-        bool removeNodeInPropertySucceeded = true;
+        bool removeNodeInPropertySucceeded = false;
         ModelNode propertyNode = parentProperty.toNodeProperty().modelNode();
         // Destruction of ancestors is not allowed
-        if (!propertyNode.isAncestorOf(modelNode)) {
+        if (modelNode != propertyNode && !propertyNode.isAncestorOf(modelNode)) {
             QApplication::setOverrideCursor(Qt::ArrowCursor);
 
             QMessageBox::StandardButton selectedButton = QMessageBox::warning(Core::ICore::dialogParent(),
@@ -658,9 +658,8 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
 
                 if (nodeCanBeMovedToParentProperty) {
                     reparentModelNodeToNodeProperty(parentProperty, modelNode);
+                    slideModelNodeInList(parentProperty, modelNode, targetIndex);
                 }
-
-                slideModelNodeInList(parentProperty, modelNode, targetIndex);
             }
         }
     }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
@@ -708,7 +707,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
         ItemLibraryEntry itemLibraryEntry = itemLibraryEntryFromData(mimeData->data("application/vnd.bauhaus.itemlibraryinfo"));
         QmlItemNode newQmlItemNode = QmlItemNode::createQmlItemNode(m_view, itemLibraryEntry, QPointF(0., 0.), targetProperty);
 
-        if (newQmlItemNode.isValid()) {
+        if (newQmlItemNode.isValid() && targetProperty.isNodeListProperty()) {
             QList<ModelNode> newModelNodeList;
             newModelNodeList.append(newQmlItemNode);
 
