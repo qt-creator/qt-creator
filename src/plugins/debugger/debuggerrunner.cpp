@@ -310,8 +310,6 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     QTC_ASSERT(rc, return sp);
     EnvironmentAspect *environment = rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
     QTC_ASSERT(environment, return sp);
-    if (!rc->ensureConfigured(errorMessage))
-        return sp;
 
     Target *target = runConfiguration->target();
     Kit *kit = target ? target->kit() : KitManager::defaultKit();
