@@ -389,7 +389,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_kitManager = new KitManager; // register before ToolChainManager
     d->m_toolChainManager = new ToolChainManager;
 
-    addAutoReleasedObject(new Internal::KitFeatureProvider);
+    Core::IWizardFactory::registerFeatureProvider(new Internal::KitFeatureProvider);
 
     // Register KitInformation:
     KitManager::registerKitInformation(new DeviceTypeKitInformation);

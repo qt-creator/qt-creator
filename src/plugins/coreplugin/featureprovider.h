@@ -42,10 +42,8 @@ namespace Core {
 
 class CORE_EXPORT FeatureSet;
 
-class CORE_EXPORT IFeatureProvider : public QObject
+class CORE_EXPORT IFeatureProvider
 {
-    Q_OBJECT
-
 public:
     IFeatureProvider() {}
     virtual ~IFeatureProvider() {}

@@ -35,6 +35,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QStringList>
 
@@ -145,6 +146,10 @@
 
 using namespace Core;
 
+namespace {
+static QList<IFeatureProvider *> s_providerList;
+}
+
 /* A utility to find all wizards supporting a view mode and matching a predicate */
 template <class Predicate>
     QList<IWizardFactory*> findWizardFactories(Predicate predicate)
@@ -201,10 +206,7 @@ bool IWizardFactory::isAvailable(const QString &platformName) const
     foreach (const QString &n, plugins)
         availableFeatures |= Feature(Core::Id::fromString(n));
 
-    const QList<Core::IFeatureProvider *> featureManagers
-            = ExtensionSystem::PluginManager::getObjects<Core::IFeatureProvider>();
-
-    foreach (const Core::IFeatureProvider *featureManager, featureManagers)
+    foreach (const Core::IFeatureProvider *featureManager, s_providerList)
         availableFeatures |= featureManager->availableFeatures(platformName);
 
     return availableFeatures.contains(requiredFeatures());
@@ -226,10 +228,7 @@ QStringList IWizardFactory::allAvailablePlatforms()
 {
     QStringList platforms;
 
-    const QList<Core::IFeatureProvider*> featureManagers =
-            ExtensionSystem::PluginManager::getObjects<Core::IFeatureProvider>();
-
-    foreach (const Core::IFeatureProvider *featureManager, featureManagers)
+    foreach (const Core::IFeatureProvider *featureManager, s_providerList)
         platforms.append(featureManager->availablePlatforms());
 
     return platforms;
@@ -237,13 +236,22 @@ QStringList IWizardFactory::allAvailablePlatforms()
 
 QString IWizardFactory::displayNameForPlatform(const QString &string)
 {
-    const QList<Core::IFeatureProvider*> featureManagers =
-            ExtensionSystem::PluginManager::getObjects<Core::IFeatureProvider>();
-
-    foreach (const Core::IFeatureProvider *featureManager, featureManagers) {
+    foreach (const Core::IFeatureProvider *featureManager, s_providerList) {
         QString displayName = featureManager->displayNameForPlatform(string);
         if (!displayName.isEmpty())
             return displayName;
     }
     return QString();
+}
+
+void IWizardFactory::registerFeatureProvider(IFeatureProvider *provider)
+{
+    QTC_ASSERT(!s_providerList.contains(provider), return);
+    s_providerList.append(provider);
+}
+
+void IWizardFactory::destroyFeatureProvider()
+{
+    qDeleteAll(s_providerList);
+    s_providerList.clear();
 }

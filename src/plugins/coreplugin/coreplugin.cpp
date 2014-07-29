@@ -35,6 +35,7 @@
 #include "mimedatabase.h"
 #include "modemanager.h"
 #include "infobar.h"
+#include "iwizardfactory.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -60,6 +61,8 @@ CorePlugin::CorePlugin() : m_editMode(0), m_designMode(0)
 
 CorePlugin::~CorePlugin()
 {
+    IWizardFactory::destroyFeatureProvider();
+
     delete m_findPlugin;
     delete m_locator;
 

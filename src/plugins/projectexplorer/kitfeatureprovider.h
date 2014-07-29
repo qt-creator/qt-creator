@@ -38,11 +38,6 @@ namespace Internal {
 
 class KitFeatureProvider : public Core::IFeatureProvider
 {
-    Q_OBJECT
-
-public:
-
-    // IFeatureProvider interface
 public:
     Core::FeatureSet availableFeatures(const QString &platform) const;
     QStringList availablePlatforms() const;

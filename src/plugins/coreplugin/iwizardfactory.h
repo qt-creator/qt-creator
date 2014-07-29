@@ -40,6 +40,8 @@
 
 namespace Core {
 
+namespace Internal { class CorePlugin; }
+
 class CORE_EXPORT IWizardFactory
     : public QObject
 {
@@ -94,7 +96,11 @@ public:
     static QStringList allAvailablePlatforms();
     static QString displayNameForPlatform(const QString &string);
 
+    static void registerFeatureProvider(IFeatureProvider *provider);
+
 private:
+    static void destroyFeatureProvider();
+
     IWizardFactory::WizardKind m_kind;
     QIcon m_icon;
     QString m_description;
@@ -105,6 +111,8 @@ private:
     FeatureSet m_requiredFeatures;
     WizardFlags m_flags;
     QString m_descriptionImage;
+
+    friend class Internal::CorePlugin;
 };
 
 } // namespace Core
