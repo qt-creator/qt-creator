@@ -104,10 +104,12 @@ class CustomExecutableDialog : public QDialog
 public:
     explicit CustomExecutableDialog(CustomExecutableRunConfiguration *rc, QWidget *parent = 0);
 
+    void accept();
+
 private slots:
     void changed()
     {
-        setOkButtonEnabled(m_runConfiguration->isConfigured());
+        setOkButtonEnabled(m_widget->isValid());
     }
 
 private:
@@ -117,6 +119,7 @@ private:
     }
 
     QDialogButtonBox *m_dialogButtonBox;
+    CustomExecutableConfigurationWidget *m_widget;
     CustomExecutableRunConfiguration *m_runConfiguration;
 };
 
@@ -125,20 +128,26 @@ CustomExecutableDialog::CustomExecutableDialog(CustomExecutableRunConfiguration 
     , m_dialogButtonBox(new  QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel))
     , m_runConfiguration(rc)
 {
-    connect(rc, SIGNAL(changed()), this, SLOT(changed()));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QVBoxLayout *layout = new QVBoxLayout(this);
     QLabel *label = new QLabel(tr("Could not find the executable, please specify one."));
     label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     layout->addWidget(label);
-    QWidget *configWidget = rc->createConfigurationWidget();
-    configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    layout->addWidget(configWidget);
+    m_widget = new CustomExecutableConfigurationWidget(rc, CustomExecutableConfigurationWidget::DelayedApply);
+    m_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    connect(m_widget, SIGNAL(validChanged()), this, SLOT(changed()));
+    layout->addWidget(m_widget);
     setOkButtonEnabled(false);
     connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
     layout->addWidget(m_dialogButtonBox);
     layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+}
+
+void CustomExecutableDialog::accept()
+{
+    m_widget->apply();
+    QDialog::accept();
 }
 
 bool CustomExecutableRunConfiguration::ensureConfigured(QString *errorMessage)
@@ -301,7 +310,7 @@ void CustomExecutableRunConfiguration::setRunMode(ApplicationLauncher::Mode runM
 
 QWidget *CustomExecutableRunConfiguration::createConfigurationWidget()
 {
-    return new CustomExecutableConfigurationWidget(this);
+    return new CustomExecutableConfigurationWidget(this, CustomExecutableConfigurationWidget::InstantApply);
 }
 
 Abi CustomExecutableRunConfiguration::abi() const

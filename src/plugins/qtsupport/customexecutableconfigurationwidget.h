@@ -55,7 +55,13 @@ class CustomExecutableConfigurationWidget : public QWidget
     Q_OBJECT
 
 public:
-    CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc);
+    enum ApplyMode { InstantApply, DelayedApply};
+    CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc, ApplyMode mode);
+    void apply(); // only used for DelayedApply
+
+    bool isValid() const;
+signals:
+    void validChanged();
 
 private slots:
     void changed();
