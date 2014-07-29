@@ -333,7 +333,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
         if (value() < maximum() && !m_error) {
             m_cancelRect = QRect(rect.adjusted(rect.width() - CANCELBUTTON_WIDTH + 2, 1, 0, 0));
             const bool hover = m_cancelRect.contains(mapFromGlobal(QCursor::pos()));
-            const QRectF cancelVisualRect(m_cancelRect.adjusted(.5, 1.5, -2.5, -2.5));
+            const QRectF cancelVisualRect(m_cancelRect.adjusted(0, 1, -2, -2));
             QLinearGradient grad(cancelVisualRect.topLeft(), cancelVisualRect.bottomLeft());
             int intensity = hover ? 90 : 70;
             QColor buttonColor(intensity, intensity, intensity, 255);
