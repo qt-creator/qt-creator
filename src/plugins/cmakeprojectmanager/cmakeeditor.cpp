@@ -30,7 +30,6 @@
 #include "cmakeeditor.h"
 
 #include "cmakefilecompletionassist.h"
-#include "cmakehighlighter.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 
@@ -38,12 +37,14 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/highlighterutils.h>
 
 #include <QFileInfo>
 #include <QSharedPointer>
@@ -247,13 +248,14 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 //
 // CMakeDocument
 //
-
 CMakeDocument::CMakeDocument()
     : TextEditor::BaseTextDocument()
 {
     setId(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
     setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
-    setSyntaxHighlighter(new CMakeHighlighter);
+
+    Core::MimeType mimeType = Core::MimeDatabase::findByType(QLatin1String(Constants::CMAKEMIMETYPE));
+    setSyntaxHighlighter(TextEditor::createGenericSyntaxHighlighter(mimeType));
 }
 
 QString CMakeDocument::defaultPath() const

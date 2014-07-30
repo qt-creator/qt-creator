@@ -12,7 +12,6 @@ HEADERS = cmakebuildinfo.h \
     cmakebuildconfiguration.h \
     cmakeeditorfactory.h \
     cmakeeditor.h \
-    cmakehighlighter.h \
     cmakelocatorfilter.h \
     cmakefilecompletionassist.h \
     cmaketool.h \
@@ -30,7 +29,6 @@ SOURCES = cmakeproject.cpp \
     cmakebuildconfiguration.cpp \
     cmakeeditorfactory.cpp \
     cmakeeditor.cpp \
-    cmakehighlighter.cpp \
     cmakelocatorfilter.cpp \
     cmakefilecompletionassist.cpp \
     cmaketool.cpp \

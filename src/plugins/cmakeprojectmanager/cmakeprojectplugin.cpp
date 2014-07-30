@@ -36,12 +36,10 @@
 #include "cmakeprojectconstants.h"
 #include "cmakelocatorfilter.h"
 #include "cmakefilecompletionassist.h"
-#include "cmakehighlighter.h"
 
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/mimedatabase.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/highlighterfactory.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -72,13 +70,6 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     addAutoReleasedObject(new CMakeEditorFactory(manager));
     addAutoReleasedObject(new CMakeLocatorFilter);
     addAutoReleasedObject(new CMakeFileCompletionAssistProvider(cmp));
-
-    auto hf = new TextEditor::HighlighterFactory;
-    hf->setProductType<CMakeHighlighter>();
-    hf->setId(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
-    hf->addMimeType(CMakeProjectManager::Constants::CMAKEMIMETYPE);
-    hf->addMimeType(CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE);
-    addAutoReleasedObject(hf);
 
     return true;
 }
