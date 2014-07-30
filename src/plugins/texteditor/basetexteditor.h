@@ -40,7 +40,6 @@
 #include <coreplugin/find/ifindsupport.h>
 
 #include <QPlainTextEdit>
-#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QToolBar;
@@ -51,6 +50,8 @@ class QPoint;
 class QRect;
 class QTextBlock;
 QT_END_NAMESPACE
+
+namespace Core { class MimeType; }
 
 namespace Utils {
 class CommentDefinition;
@@ -362,6 +363,7 @@ public:
 
     // the blocks list must be sorted
     void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
+    bool isMissingSyntaxDefinition() const;
 
 public slots:
     virtual void copy();
@@ -461,6 +463,7 @@ public slots:
 
     /// Abort code assistant if it is running.
     void abortAssist();
+    void configureMimeType(const Core::MimeType &mimeType);
 
 signals:
     void assistFinished();
@@ -470,6 +473,8 @@ signals:
     void requestFontZoom(int zoom);
     void requestZoomReset();
     void requestBlockUpdate(const QTextBlock &);
+
+    void configured(Core::IEditor *editor);
 
 protected:
     bool event(QEvent *e);

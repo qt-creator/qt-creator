@@ -43,8 +43,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 
-#include <QSharedPointer>
-
 using namespace Core;
 using namespace TextEditor::Internal;
 
@@ -90,14 +88,11 @@ PlainTextEditorWidget::PlainTextEditorWidget(PlainTextEditorWidget *other)
 
 void PlainTextEditorWidget::ctor()
 {
-    m_isMissingSyntaxDefinition = false;
     setRevisionsVisible(true);
     setMarksVisible(true);
     setLineSeparatorsAllowed(true);
 
     baseTextDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
-
-    m_commentDefinition.clearCommentStyles();
 
     connect(baseTextDocument(), SIGNAL(filePathChanged(QString,QString)),
             this, SLOT(configure()));
@@ -112,70 +107,17 @@ IEditor *PlainTextEditor::duplicate()
     return newWidget->editor();
 }
 
-void PlainTextEditorWidget::unCommentSelection()
-{
-    Utils::unCommentSelection(this, m_commentDefinition);
-}
-
 void PlainTextEditorWidget::configure()
 {
     MimeType mimeType;
     if (baseTextDocument())
         mimeType = MimeDatabase::findByFile(baseTextDocument()->filePath());
-    configure(mimeType);
+    configureMimeType(mimeType);
 }
 
 void PlainTextEditorWidget::configure(const QString &mimeType)
 {
-    configure(MimeDatabase::findByType(mimeType));
-}
-
-void PlainTextEditorWidget::configure(const MimeType &mimeType)
-{
-    Highlighter *highlighter = new Highlighter();
-    highlighter->setTabSettings(baseTextDocument()->tabSettings());
-    baseTextDocument()->setSyntaxHighlighter(highlighter);
-
-    setCodeFoldingSupported(false);
-
-    if (!mimeType.isNull()) {
-        m_isMissingSyntaxDefinition = true;
-
-        setMimeTypeForHighlighter(highlighter, mimeType);
-        const QString &type = mimeType.type();
-        baseTextDocument()->setMimeType(type);
-
-        QString definitionId = Manager::instance()->definitionIdByMimeType(type);
-        if (definitionId.isEmpty())
-            definitionId = findDefinitionId(mimeType, true);
-
-        if (!definitionId.isEmpty()) {
-            m_isMissingSyntaxDefinition = false;
-            const QSharedPointer<HighlightDefinition> &definition =
-                Manager::instance()->definition(definitionId);
-            if (!definition.isNull() && definition->isValid()) {
-                m_commentDefinition.isAfterWhiteSpaces = definition->isCommentAfterWhiteSpaces();
-                m_commentDefinition.singleLine = definition->singleLineComment();
-                m_commentDefinition.multiLineStart = definition->multiLineCommentStart();
-                m_commentDefinition.multiLineEnd = definition->multiLineCommentEnd();
-
-                setCodeFoldingSupported(true);
-            }
-        } else {
-            const QString &fileName = baseTextDocument()->filePath();
-            if (TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName))
-                m_isMissingSyntaxDefinition = false;
-        }
-    }
-
-    baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
-
-    emit configured(editor());
-}
-
-bool PlainTextEditorWidget::isMissingSyntaxDefinition() const
-{
-    return m_isMissingSyntaxDefinition;
+    configureMimeType(MimeDatabase::findByType(mimeType));
 }
 
 void PlainTextEditorWidget::acceptMissingSyntaxDefinitionInfo()

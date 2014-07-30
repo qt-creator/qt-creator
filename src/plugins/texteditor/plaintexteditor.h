@@ -32,14 +32,9 @@
 
 #include "basetexteditor.h"
 
-#include <utils/uncommentselection.h>
-
-namespace Core { class MimeType; }
-
 namespace TextEditor {
 
 class PlainTextEditorWidget;
-class Indenter;
 
 class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
 {
@@ -69,18 +64,10 @@ public:
     PlainTextEditorWidget(PlainTextEditorWidget *other);
 
     void configure(const QString& mimeType);
-    void configure(const Core::MimeType &mimeType);
-    bool isMissingSyntaxDefinition() const;
-
-public slots:
-    virtual void unCommentSelection();
 
 private slots:
     void configure();
     void acceptMissingSyntaxDefinitionInfo();
-
-signals:
-    void configured(Core::IEditor *editor);
 
 protected:
     virtual BaseTextEditor *createEditor() { return new PlainTextEditor(this); }
@@ -89,9 +76,6 @@ private:
     PlainTextEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
     PlainTextEditorWidget(BaseTextDocument *, QWidget *); //avoid stupidity
     void ctor();
-
-    bool m_isMissingSyntaxDefinition;
-    Utils::CommentDefinition m_commentDefinition;
 };
 
 } // namespace TextEditor

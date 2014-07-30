@@ -43,7 +43,7 @@
 #include <coreplugin/mimedatabase.h>
 
 #include <texteditor/basetextdocument.h>
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <utils/qtcassert.h>
 
@@ -257,8 +257,8 @@ void DisassemblerAgentPrivate::configureMimeType()
     MimeType mtype = MimeDatabase::findByType(mimeType);
     if (mtype) {
         foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
-            if (PlainTextEditorWidget *widget = qobject_cast<PlainTextEditorWidget *>(editor->widget()))
-                widget->configure(mtype);
+            if (BaseTextEditorWidget *widget = qobject_cast<BaseTextEditorWidget *>(editor->widget()))
+                widget->configureMimeType(mtype);
     } else {
         qWarning("Assembler mimetype '%s' not found.", qPrintable(mimeType));
     }

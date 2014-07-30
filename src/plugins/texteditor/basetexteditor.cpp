@@ -47,9 +47,16 @@
 #include "texteditoroverlay.h"
 #include "circularclipboard.h"
 #include "circularclipboardassist.h"
+#include "highlighterutils.h"
 #include <texteditor/codeassist/codeassistant.h>
 #include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/generichighlighter/context.h>
+#include <texteditor/generichighlighter/highlightdefinition.h>
+#include <texteditor/generichighlighter/highlighter.h>
+#include <texteditor/generichighlighter/highlightersettings.h>
+#include <texteditor/generichighlighter/manager.h>
 
+#include <coreplugin/icore.h>
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -183,7 +190,6 @@ class BaseTextEditorWidgetPrivate
 
 public:
     BaseTextEditorWidgetPrivate(BaseTextEditorWidget *parent);
-    ~BaseTextEditorWidgetPrivate();
 
     void setupDocumentSignals();
     void updateLineSelectionColor();
@@ -343,6 +349,9 @@ public:
     QScopedPointer<AutoCompleter> m_autoCompleter;
 
     QScopedPointer<Internal::ClipboardAssistProvider> m_clipboardAssistProvider;
+
+    bool m_isMissingSyntaxDefinition;
+    Utils::CommentDefinition m_commentDefinition;
 };
 
 class TextEditExtraArea : public QWidget
@@ -506,6 +515,8 @@ void BaseTextEditorWidgetPrivate::ctor(const QSharedPointer<BaseTextDocument> &d
     QObject::connect(&m_delayedUpdateTimer, SIGNAL(timeout()), q->viewport(), SLOT(update()));
 
     m_moveLineUndoHack = false;
+
+    m_commentDefinition.clearCommentStyles();
 }
 
 BaseTextEditorWidget::~BaseTextEditorWidget()
@@ -2696,11 +2707,8 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
     m_blockCount(0),
     m_markDragging(false),
     m_autoCompleter(new AutoCompleter),
-    m_clipboardAssistProvider(new Internal::ClipboardAssistProvider)
-{
-}
-
-BaseTextEditorWidgetPrivate::~BaseTextEditorWidgetPrivate()
+    m_clipboardAssistProvider(new Internal::ClipboardAssistProvider),
+    m_isMissingSyntaxDefinition(false)
 {
 }
 
@@ -5859,6 +5867,7 @@ void BaseTextEditorWidget::rewrapParagraph()
 
 void BaseTextEditorWidget::unCommentSelection()
 {
+    Utils::unCommentSelection(this, d->m_commentDefinition);
 }
 
 void BaseTextEditorWidget::showEvent(QShowEvent* e)
@@ -6922,6 +6931,54 @@ BaseTextEditor *BaseTextEditor::currentTextEditor()
 BaseTextEditorWidget *BaseTextEditor::editorWidget() const
 {
     return d->m_editorWidget;
+}
+
+void BaseTextEditorWidget::configureMimeType(const MimeType &mimeType)
+{
+    Highlighter *highlighter = new Highlighter();
+    highlighter->setTabSettings(baseTextDocument()->tabSettings());
+    baseTextDocument()->setSyntaxHighlighter(highlighter);
+
+    setCodeFoldingSupported(false);
+
+    if (!mimeType.isNull()) {
+        d->m_isMissingSyntaxDefinition = true;
+
+        setMimeTypeForHighlighter(highlighter, mimeType);
+        const QString &type = mimeType.type();
+        baseTextDocument()->setMimeType(type);
+
+        QString definitionId = Manager::instance()->definitionIdByMimeType(type);
+        if (definitionId.isEmpty())
+            definitionId = findDefinitionId(mimeType, true);
+
+        if (!definitionId.isEmpty()) {
+            d->m_isMissingSyntaxDefinition = false;
+            const QSharedPointer<HighlightDefinition> &definition =
+                Manager::instance()->definition(definitionId);
+            if (!definition.isNull() && definition->isValid()) {
+                d->m_commentDefinition.isAfterWhiteSpaces = definition->isCommentAfterWhiteSpaces();
+                d->m_commentDefinition.singleLine = definition->singleLineComment();
+                d->m_commentDefinition.multiLineStart = definition->multiLineCommentStart();
+                d->m_commentDefinition.multiLineEnd = definition->multiLineCommentEnd();
+
+                setCodeFoldingSupported(true);
+            }
+        } else {
+            const QString &fileName = baseTextDocument()->filePath();
+            if (TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName))
+                d->m_isMissingSyntaxDefinition = false;
+        }
+    }
+
+    baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
+
+    emit configured(editor());
+}
+
+bool BaseTextEditorWidget::isMissingSyntaxDefinition() const
+{
+    return d->m_isMissingSyntaxDefinition;
 }
 
 } // namespace TextEditor
