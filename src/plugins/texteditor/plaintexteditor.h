@@ -62,12 +62,6 @@ public:
     PlainTextEditorWidget(PlainTextDocument *doc, QWidget *parent = 0);
     PlainTextEditorWidget(PlainTextEditorWidget *other);
 
-    void configure(const QString& mimeType);
-
-private slots:
-    void configure();
-    void acceptMissingSyntaxDefinitionInfo();
-
 protected:
     virtual BaseTextEditor *createEditor() { return new PlainTextEditor(this); }
 

@@ -6933,6 +6933,11 @@ BaseTextEditorWidget *BaseTextEditor::editorWidget() const
     return d->m_editorWidget;
 }
 
+void BaseTextEditorWidget::configureMimeType(const QString &mimeType)
+{
+    configureMimeType(MimeDatabase::findByType(mimeType));
+}
+
 void BaseTextEditorWidget::configureMimeType(const MimeType &mimeType)
 {
     Highlighter *highlighter = new Highlighter();
@@ -6980,6 +6985,22 @@ bool BaseTextEditorWidget::isMissingSyntaxDefinition() const
 {
     return d->m_isMissingSyntaxDefinition;
 }
+
+void BaseTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
+{
+    ICore::showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
+                             Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS,
+                             this);
+}
+
+void BaseTextEditorWidget::configureMimeType()
+{
+    MimeType mimeType;
+    if (baseTextDocument())
+        mimeType = MimeDatabase::findByFile(baseTextDocument()->filePath());
+    configureMimeType(mimeType);
+}
+
 
 } // namespace TextEditor
 

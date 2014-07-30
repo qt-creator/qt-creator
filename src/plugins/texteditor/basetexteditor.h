@@ -463,6 +463,10 @@ public slots:
 
     /// Abort code assistant if it is running.
     void abortAssist();
+
+    void acceptMissingSyntaxDefinitionInfo();
+
+    void configureMimeType(const QString &mimeType);
     void configureMimeType(const Core::MimeType &mimeType);
 
 signals:
@@ -580,6 +584,8 @@ protected slots:
     virtual void slotCursorPositionChanged();
     virtual void slotUpdateBlockNotify(const QTextBlock &);
     virtual void slotCodeStyleSettingsChanged(const QVariant &);
+
+    void configureMimeType();
 
 private slots:
     void updateTabStops();

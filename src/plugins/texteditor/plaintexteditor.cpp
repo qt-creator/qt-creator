@@ -87,8 +87,8 @@ void PlainTextEditorWidget::ctor()
     baseTextDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
     connect(baseTextDocument(), SIGNAL(filePathChanged(QString,QString)),
-            this, SLOT(configure()));
-    connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configure()));
+            this, SLOT(configureMimeType()));
+    connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configureMimeType()));
 }
 
 IEditor *PlainTextEditor::duplicate()
@@ -97,26 +97,6 @@ IEditor *PlainTextEditor::duplicate()
                 qobject_cast<PlainTextEditorWidget *>(editorWidget()));
     TextEditorSettings::initializeEditor(newWidget);
     return newWidget->editor();
-}
-
-void PlainTextEditorWidget::configure()
-{
-    MimeType mimeType;
-    if (baseTextDocument())
-        mimeType = MimeDatabase::findByFile(baseTextDocument()->filePath());
-    configureMimeType(mimeType);
-}
-
-void PlainTextEditorWidget::configure(const QString &mimeType)
-{
-    configureMimeType(MimeDatabase::findByType(mimeType));
-}
-
-void PlainTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
-{
-    ICore::showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
-                             Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS,
-                             this);
 }
 
 PlainTextDocument::PlainTextDocument()

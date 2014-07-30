@@ -172,7 +172,7 @@ void BarDescriptorEditorWidget::initSourcePage()
     addWidget(m_xmlSourceWidget);
 
     TextEditor::TextEditorSettings::initializeEditor(m_xmlSourceWidget);
-    m_xmlSourceWidget->configure(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
+    m_xmlSourceWidget->configureMimeType(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
 }
 
 void BarDescriptorEditorWidget::initPanelSize(ProjectExplorer::PanelsWidget *panelsWidget)

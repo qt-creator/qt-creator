@@ -82,7 +82,7 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
         BaseTextDocument *file = qobject_cast<BaseTextDocument *>(editor->document());
         if (!file)
             return;
-        PlainTextEditorWidget *textEditor = static_cast<PlainTextEditorWidget *>(editorEditable->editorWidget());
+        BaseTextEditorWidget *textEditor = editorEditable->editorWidget();
         Core::Id infoSyntaxDefinition(Constants::INFO_SYNTAX_DEFINITION);
         Core::InfoBar *infoBar = file->infoBar();
         if (!textEditor->isMissingSyntaxDefinition()) {

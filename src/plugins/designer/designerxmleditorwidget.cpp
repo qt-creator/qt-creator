@@ -43,7 +43,7 @@ DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *f
     m_designerEditor(new FormWindowEditor(this))
 {
     setReadOnly(true);
-    configure(baseTextDocument()->mimeType());
+    configureMimeType(baseTextDocument()->mimeType());
 }
 
 TextEditor::BaseTextEditor *DesignerXmlEditorWidget::createEditor()
