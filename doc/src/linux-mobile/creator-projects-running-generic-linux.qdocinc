@@ -1,8 +1,6 @@
     \section1 Running on Embedded Linux Devices
 
-    \list 1
-
-        \li Build and run the application for a device:
+    To build and run the application for a device:
 
         \list 1
 
@@ -12,8 +10,6 @@
             \li Click the \gui Run button.
 
         \endlist
-
-    \endlist
 
     \QC uses the compiler specified in the project build settings
     (tool chain) to build the application.
