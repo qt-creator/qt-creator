@@ -59,15 +59,12 @@ public:
     JavaEditorWidget(QWidget *parent = 0);
     JavaEditorWidget(JavaEditorWidget *other);
 
-    void unCommentSelection();
-
 protected:
     TextEditor::BaseTextEditor *createEditor();
 
 private:
     JavaEditorWidget(BaseTextEditorWidget *); // avoid stupidity
     void ctor();
-    Utils::CommentDefinition m_commentDefinition;
 };
 
 class JavaDocument : public TextEditor::BaseTextDocument

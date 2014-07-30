@@ -43,9 +43,6 @@ class EditorWidget : public TextEditor::BaseTextEditorWidget
 public:
     EditorWidget(QWidget *parent = 0);
     EditorWidget(EditorWidget *other);
-    virtual ~EditorWidget();
-
-    virtual void unCommentSelection();
 
 protected:
     TextEditor::BaseTextEditor *createEditor();
@@ -53,7 +50,6 @@ protected:
 private:
     EditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
     void ctor();
-    Utils::CommentDefinition m_commentDefinition;
 };
 
 } // namespace Internal

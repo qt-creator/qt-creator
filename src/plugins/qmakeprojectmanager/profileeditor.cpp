@@ -58,6 +58,7 @@ ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
     setContext(Core::Context(Constants::C_PROFILEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
     setDuplicateSupported(true);
+    setCommentStyle(Utils::CommentDefinition::HashStyle);
 }
 
 Core::IEditor *ProFileEditor::duplicate()
@@ -79,26 +80,11 @@ TextEditor::CompletionAssistProvider *ProFileEditor::completionAssistProvider()
 
 ProFileEditorWidget::ProFileEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(new ProFileDocument(), parent)
-{
-    ctor();
-}
+{}
 
 ProFileEditorWidget::ProFileEditorWidget(ProFileEditorWidget *other)
     : BaseTextEditorWidget(other)
-{
-    ctor();
-}
-
-void ProFileEditorWidget::ctor()
-{
-    m_commentDefinition.clearCommentStyles();
-    m_commentDefinition.singleLine = QLatin1Char('#');
-}
-
-void ProFileEditorWidget::unCommentSelection()
-{
-    Utils::unCommentSelection(this, m_commentDefinition);
-}
+{}
 
 static bool isValidFileNameChar(const QChar &c)
 {

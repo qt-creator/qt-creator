@@ -66,11 +66,7 @@ public:
               const QString &fileName,
               const QString &realFileName) QTC_OVERRIDE;
 
-    const Utils::CommentDefinition *commentDefinition() const QTC_OVERRIDE;
     TextEditor::CompletionAssistProvider *completionAssistProvider() QTC_OVERRIDE;
-
-private:
-    Utils::CommentDefinition m_commentDefinition;
 };
 
 class CPPEditorWidget : public TextEditor::BaseTextEditorWidget
@@ -105,7 +101,6 @@ public slots:
     void cut() QTC_OVERRIDE;
     void selectAll() QTC_OVERRIDE;
 
-    void unCommentSelection() QTC_OVERRIDE;
     void switchDeclarationDefinition(bool inNextSplit);
     void showPreProcessorWidget();
 

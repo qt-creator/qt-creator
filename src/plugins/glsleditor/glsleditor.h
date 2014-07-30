@@ -90,8 +90,6 @@ public:
     GLSLTextEditorWidget(GLSLTextEditorWidget *other);
     ~GLSLTextEditorWidget();
 
-    virtual void unCommentSelection();
-
     int editorRevision() const;
     bool isOutdated() const;
 

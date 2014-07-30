@@ -54,6 +54,7 @@ QmlJSEditor::QmlJSEditor(QmlJSTextEditorWidget *editor)
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
     m_context.add(ProjectExplorer::Constants::LANG_QMLJS);
     setDuplicateSupported(true);
+    setCommentStyle(Utils::CommentDefinition::CppStyle);
 }
 
 bool QmlJSEditor::isDesignModePreferred() const
@@ -63,11 +64,6 @@ bool QmlJSEditor::isDesignModePreferred() const
     if (mode && mode->id() == Core::Constants::MODE_DESIGN)
         return true;
     return false;
-}
-
-const Utils::CommentDefinition *QmlJSEditor::commentDefinition() const
-{
-    return &m_commentDefinition;
 }
 
 TextEditor::CompletionAssistProvider *QmlJSEditor::completionAssistProvider()

@@ -197,6 +197,7 @@ public:
     Utils::LineColumnLabel *m_cursorPositionLabel;
     QAction *m_fileEncodingLabelAction;
     Utils::LineColumnLabel *m_fileEncodingLabel;
+    CommentDefinition m_commentDefinition;
 };
 
 class BaseTextEditorWidgetPrivate
@@ -367,7 +368,6 @@ public:
     QScopedPointer<Internal::ClipboardAssistProvider> m_clipboardAssistProvider;
 
     bool m_isMissingSyntaxDefinition;
-    Utils::CommentDefinition m_commentDefinition;
 };
 
 class TextEditExtraArea : public QWidget
@@ -531,8 +531,6 @@ void BaseTextEditorWidgetPrivate::ctor(const QSharedPointer<BaseTextDocument> &d
     QObject::connect(&m_delayedUpdateTimer, SIGNAL(timeout()), q->viewport(), SLOT(update()));
 
     m_moveLineUndoHack = false;
-
-    m_commentDefinition.clearCommentStyles();
 }
 
 BaseTextEditorWidget::~BaseTextEditorWidget()
@@ -1396,18 +1394,18 @@ void BaseTextEditorWidgetPrivate::moveLineUpDown(bool up)
     m_refactorOverlay->setMarkers(nonAffectedMarkers + affectedMarkers);
 
     bool shouldReindent = true;
-    const CommentDefinition *commentDefinition = q->editor()->commentDefinition();
-    if (commentDefinition) {
+    const CommentDefinition &cd = q->editor()->commentDefinition();
+    if (cd.isValid()) {
         QString trimmedText(text.trimmed());
 
-        if (commentDefinition->hasSingleLineStyle()) {
-            if (trimmedText.startsWith(commentDefinition->singleLine))
+        if (cd.hasSingleLineStyle()) {
+            if (trimmedText.startsWith(cd.singleLine))
                 shouldReindent = false;
         }
-        if (shouldReindent && commentDefinition->hasMultiLineStyle()) {
+        if (shouldReindent && cd.hasMultiLineStyle()) {
             // Don't have any single line comments; try multi line.
-            if (trimmedText.startsWith(commentDefinition->multiLineStart)
-                && trimmedText.endsWith(commentDefinition->multiLineEnd)) {
+            if (trimmedText.startsWith(cd.multiLineStart)
+                && trimmedText.endsWith(cd.multiLineEnd)) {
                 shouldReindent = false;
             }
         }
@@ -5883,7 +5881,7 @@ void BaseTextEditorWidget::rewrapParagraph()
 
 void BaseTextEditorWidget::unCommentSelection()
 {
-    Utils::unCommentSelection(this, d->m_commentDefinition);
+    Utils::unCommentSelection(this, editor()->commentDefinition());
 }
 
 void BaseTextEditorWidget::showEvent(QShowEvent* e)
@@ -6577,9 +6575,14 @@ void BaseTextEditor::select(int toPos)
     d->m_editorWidget->setTextCursor(tc);
 }
 
-const CommentDefinition *BaseTextEditor::commentDefinition() const
+CommentDefinition &BaseTextEditor::commentDefinition() const
 {
-    return 0;
+    return d->m_commentDefinition;
+}
+
+void BaseTextEditor::setCommentStyle(CommentDefinition::Style style)
+{
+    d->m_commentDefinition.setStyle(style);
 }
 
 CompletionAssistProvider *BaseTextEditor::completionAssistProvider()
@@ -6987,10 +6990,11 @@ void BaseTextEditorWidget::configureMimeType(const MimeType &mimeType)
             const QSharedPointer<HighlightDefinition> &definition =
                 Manager::instance()->definition(definitionId);
             if (!definition.isNull() && definition->isValid()) {
-                d->m_commentDefinition.isAfterWhiteSpaces = definition->isCommentAfterWhiteSpaces();
-                d->m_commentDefinition.singleLine = definition->singleLineComment();
-                d->m_commentDefinition.multiLineStart = definition->multiLineCommentStart();
-                d->m_commentDefinition.multiLineEnd = definition->multiLineCommentEnd();
+                CommentDefinition &cd = editor()->commentDefinition();
+                cd.isAfterWhiteSpaces = definition->isCommentAfterWhiteSpaces();
+                cd.singleLine = definition->singleLineComment();
+                cd.multiLineStart = definition->multiLineCommentStart();
+                cd.multiLineEnd = definition->multiLineCommentEnd();
 
                 setCodeFoldingSupported(true);
             }

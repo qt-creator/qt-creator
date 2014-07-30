@@ -59,8 +59,6 @@ public:
     ProFileEditorWidget(QWidget *parent = 0);
     ProFileEditorWidget(ProFileEditorWidget *other);
 
-    void unCommentSelection();
-
 protected:
     virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
                             bool inNextSplit = false);
@@ -69,8 +67,6 @@ protected:
 
 private:
     ProFileEditorWidget(BaseTextEditorWidget *); // avoid stupidity
-    void ctor();
-    Utils::CommentDefinition m_commentDefinition;
 };
 
 class ProFileDocument : public TextEditor::BaseTextDocument

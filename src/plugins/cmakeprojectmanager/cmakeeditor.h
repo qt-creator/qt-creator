@@ -78,13 +78,8 @@ protected:
     TextEditor::BaseTextEditor *createEditor();
     void contextMenuEvent(QContextMenuEvent *e);
 
-public slots:
-    void unCommentSelection();
-
 private:
     CMakeEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
-    void ctor();
-    Utils::CommentDefinition m_commentDefinition;
 };
 
 class CMakeDocument : public TextEditor::BaseTextDocument

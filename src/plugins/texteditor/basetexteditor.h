@@ -39,6 +39,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/ifindsupport.h>
 
+#include <utils/uncommentselection.h>
+
 #include <QPlainTextEdit>
 
 QT_BEGIN_NAMESPACE
@@ -52,11 +54,6 @@ class QTextBlock;
 QT_END_NAMESPACE
 
 namespace Core { class MimeType; }
-
-namespace Utils {
-class CommentDefinition;
-class LineColumnLabel;
-}
 
 namespace TextEditor {
 
@@ -183,7 +180,10 @@ public:
     /*! Selects text between current cursor position and \a toPos. */
     virtual void select(int toPos);
 
-    virtual const Utils::CommentDefinition *commentDefinition() const;
+    /*! Full access to comment definition, */
+    Utils::CommentDefinition &commentDefinition() const;
+    /*! Convenience style setter. */
+    void setCommentStyle(Utils::CommentDefinition::Style style);
 
     virtual CompletionAssistProvider *completionAssistProvider();
 

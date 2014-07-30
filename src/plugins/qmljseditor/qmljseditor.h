@@ -78,8 +78,6 @@ public:
     QmlJSTextEditorWidget(QmlJSTextEditorWidget *other);
     ~QmlJSTextEditorWidget();
 
-    virtual void unCommentSelection();
-
     QmlJSEditorDocument *qmlJsEditorDocument() const;
 
     QModelIndex outlineModelIndex();

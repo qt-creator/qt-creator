@@ -113,6 +113,7 @@ CPPEditor::CPPEditor(CPPEditorWidget *editor)
     m_context.add(ProjectExplorer::Constants::LANG_CXX);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
     setDuplicateSupported(true);
+    setCommentStyle(Utils::CommentDefinition::CppStyle);
 }
 
 Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
@@ -796,11 +797,6 @@ bool CPPEditor::open(QString *errorString, const QString &fileName, const QStrin
     return true;
 }
 
-const Utils::CommentDefinition *CPPEditor::commentDefinition() const
-{
-    return &m_commentDefinition;
-}
-
 TextEditor::CompletionAssistProvider *CPPEditor::completionAssistProvider()
 {
     return CppModelManagerInterface::instance()->cppEditorSupport(this)->completionAssistProvider();
@@ -834,11 +830,6 @@ void CPPEditorWidget::applyFontSettings()
     // this also makes the document apply font settings
     TextEditor::BaseTextEditorWidget::applyFontSettings();
     semanticRehighlight(true);
-}
-
-void CPPEditorWidget::unCommentSelection()
-{
-    Utils::unCommentSelection(this);
 }
 
 void CPPEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)

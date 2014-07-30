@@ -800,11 +800,6 @@ void QmlJSTextEditorWidget::resizeEvent(QResizeEvent *event)
      hideContextPane();
  }
 
-void QmlJSTextEditorWidget::unCommentSelection()
-{
-    Utils::unCommentSelection(this);
-}
-
 QmlJSEditorDocument *QmlJSTextEditorWidget::qmlJsEditorDocument() const
 {
     return m_qmlJsEditorDocument;

@@ -263,11 +263,6 @@ void GLSLTextEditorWidget::createToolBar(GLSLEditorEditable *editor)
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
 
-void GLSLTextEditorWidget::unCommentSelection()
-{
-    Utils::unCommentSelection(this);
-}
-
 void GLSLTextEditorWidget::updateDocument()
 {
     m_updateDocumentTimer->start();

@@ -64,27 +64,11 @@ EditorWidget::EditorWidget(EditorWidget *other)
 
 void EditorWidget::ctor()
 {
-    m_commentDefinition.multiLineStart.clear();
-    m_commentDefinition.multiLineEnd.clear();
-    m_commentDefinition.singleLine = QLatin1Char('#');
-
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
 
     new PythonHighlighter(baseTextDocument());
-}
-
-EditorWidget::~EditorWidget()
-{
-}
-
-/**
-  Comments or uncomments selection using Python commenting syntax
-  */
-void EditorWidget::unCommentSelection()
-{
-    Utils::unCommentSelection(this, m_commentDefinition);
 }
 
 TextEditor::BaseTextEditor *EditorWidget::createEditor()

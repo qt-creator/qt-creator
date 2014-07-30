@@ -50,11 +50,7 @@ public:
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool isDesignModePreferred() const;
 
-    const Utils::CommentDefinition *commentDefinition() const;
-
     TextEditor::CompletionAssistProvider *completionAssistProvider();
-private:
-    Utils::CommentDefinition m_commentDefinition;
 };
 
 } // namespace Internal

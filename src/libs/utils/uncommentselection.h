@@ -45,10 +45,12 @@ class QTCREATOR_UTILS_EXPORT CommentDefinition
 public:
     CommentDefinition();
 
+    enum Style { CppStyle, HashStyle };
+    void setStyle(Style style);
+
+    bool isValid() const;
     bool hasSingleLineStyle() const;
     bool hasMultiLineStyle() const;
-
-    void clearCommentStyles();
 
 public:
     bool isAfterWhiteSpaces;

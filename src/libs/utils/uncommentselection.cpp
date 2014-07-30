@@ -34,11 +34,29 @@
 using namespace Utils;
 
 CommentDefinition::CommentDefinition() :
-    isAfterWhiteSpaces(false),
-    singleLine(QLatin1String("//")),
-    multiLineStart(QLatin1String("/*")),
-    multiLineEnd(QLatin1String("*/"))
+    isAfterWhiteSpaces(false)
 {}
+
+void CommentDefinition::setStyle(Style style)
+{
+    switch (style) {
+        case CppStyle:
+            singleLine = QLatin1String("//");
+            multiLineStart = QLatin1String("/*");
+            multiLineEnd = QLatin1String("*/");
+            break;
+        case HashStyle:
+            singleLine = QLatin1String("#");
+            multiLineStart.clear();
+            multiLineEnd.clear();
+            break;
+    }
+}
+
+bool CommentDefinition::isValid() const
+{
+    return hasSingleLineStyle() || hasMultiLineStyle();
+}
 
 bool CommentDefinition::hasSingleLineStyle() const
 {
@@ -48,13 +66,6 @@ bool CommentDefinition::hasSingleLineStyle() const
 bool CommentDefinition::hasMultiLineStyle() const
 {
     return !multiLineStart.isEmpty() && !multiLineEnd.isEmpty();
-}
-
-void CommentDefinition::clearCommentStyles()
-{
-    singleLine.clear();
-    multiLineStart.clear();
-    multiLineEnd.clear();
 }
 
 static bool isComment(const QString &text, int index,
@@ -76,7 +87,7 @@ static bool isComment(const QString &text, int index,
 
 void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &definition)
 {
-    if (!definition.hasSingleLineStyle() && !definition.hasMultiLineStyle())
+    if (!definition.isValid())
         return;
 
     QTextCursor cursor = edit->textCursor();

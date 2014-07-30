@@ -43,7 +43,6 @@ class PythonEditor : public TextEditor::BaseTextEditor
 
 public:
     explicit PythonEditor(EditorWidget *editorWidget);
-    virtual ~PythonEditor();
 
     Core::IEditor *duplicate();
 

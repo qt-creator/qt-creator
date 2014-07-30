@@ -62,6 +62,7 @@ CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
     setContext(Core::Context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
     setDuplicateSupported(true);
+    setCommentStyle(Utils::CommentDefinition::HashStyle);
     connect(document(), SIGNAL(changed()), this, SLOT(markAsChanged()));
 }
 
@@ -154,30 +155,15 @@ QString CMakeEditor::contextHelpId() const
 
 CMakeEditorWidget::CMakeEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(new CMakeDocument(), parent)
-{
-    ctor();
-}
+{}
 
 CMakeEditorWidget::CMakeEditorWidget(CMakeEditorWidget *other)
     : BaseTextEditorWidget(other)
-{
-    ctor();
-}
-
-void CMakeEditorWidget::ctor()
-{
-    m_commentDefinition.clearCommentStyles();
-    m_commentDefinition.singleLine = QLatin1Char('#');
-}
+{}
 
 TextEditor::BaseTextEditor *CMakeEditorWidget::createEditor()
 {
     return new CMakeEditor(this);
-}
-
-void CMakeEditorWidget::unCommentSelection()
-{
-    Utils::unCommentSelection(this, m_commentDefinition);
 }
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)

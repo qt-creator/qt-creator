@@ -55,6 +55,7 @@ JavaEditor::JavaEditor(JavaEditorWidget *editor)
     setContext(Core::Context(Constants::C_JAVA_EDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
     setDuplicateSupported(true);
+    setCommentStyle(Utils::CommentDefinition::CppStyle);
 }
 
 Core::IEditor *JavaEditor::duplicate()
@@ -88,16 +89,7 @@ JavaEditorWidget::JavaEditorWidget(JavaEditorWidget *other)
 
 void JavaEditorWidget::ctor()
 {
-    m_commentDefinition.clearCommentStyles();
-    m_commentDefinition.singleLine = QLatin1String("//");
-    m_commentDefinition.multiLineStart = QLatin1String("/*");
-    m_commentDefinition.multiLineEnd = QLatin1String("*/");
     setAutoCompleter(new JavaAutoCompleter);
-}
-
-void JavaEditorWidget::unCommentSelection()
-{
-    Utils::unCommentSelection(this, m_commentDefinition);
 }
 
 TextEditor::BaseTextEditor *JavaEditorWidget::createEditor()
