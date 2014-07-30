@@ -95,9 +95,11 @@ QDateTime PuppetCreator::puppetSourceLastModified() const
     sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qml2puppet/instances"));
 
     foreach (const QString directoryPath, sourceDirectoryPathes) {
-        QDateTime directoryPathLastModified = QFileInfo(directoryPath).lastModified();
-        if (lastModified < directoryPathLastModified)
-            lastModified = directoryPathLastModified;
+        foreach (const QFileInfo fileEntry, QDir(directoryPath).entryInfoList()) {
+            QDateTime filePathLastModified = fileEntry.lastModified();
+            if (lastModified < filePathLastModified)
+                lastModified = filePathLastModified;
+        }
     }
 
     return lastModified;
