@@ -30,14 +30,14 @@
 #ifndef ANDROIDMANIFESTDOCUMENT_H
 #define ANDROIDMANIFESTDOCUMENT_H
 
-#include <coreplugin/textdocument.h>
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 namespace Android {
 namespace Internal {
+
 class AndroidManifestEditorWidget;
 
-class AndroidManifestDocument : public TextEditor::PlainTextDocument
+class AndroidManifestDocument : public TextEditor::BaseTextDocument
 {
 public:
     explicit AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget);

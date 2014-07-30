@@ -33,17 +33,15 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QDir>
-#include <QDomDocument>
+#include <QFileInfo>
 
 using namespace Android;
 using namespace Android::Internal;
 
-
 AndroidManifestDocument::AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget)
-    : TextEditor::PlainTextDocument(),
-      m_editorWidget(editorWidget)
+    : m_editorWidget(editorWidget)
 {
+    setupAsPlainTextDocument();
     setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
     setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
     connect(editorWidget, SIGNAL(guiChanged()),

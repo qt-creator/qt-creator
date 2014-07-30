@@ -43,15 +43,6 @@ public:
     Core::IEditor *duplicate();
 };
 
-class TEXTEDITOR_EXPORT PlainTextDocument : public BaseTextDocument
-{
-    Q_OBJECT
-public:
-    PlainTextDocument();
-private slots:
-    void updateTabSettings();
-};
-
 } // namespace TextEditor
 
 #endif // PLAINTEXTEDITOR_H

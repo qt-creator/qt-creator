@@ -128,6 +128,8 @@ public:
 
     virtual void triggerPendingUpdates();
 
+    void setupAsPlainTextDocument();
+
 public slots:
     void setTabSettings(const TextEditor::TabSettings &tabSettings);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);

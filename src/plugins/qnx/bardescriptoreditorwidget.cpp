@@ -41,12 +41,14 @@
 #include "bardescriptoreditorpackageinformationwidget.h"
 #include "bardescriptoreditorpermissionswidget.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/panelswidget.h>
 #include <projectexplorer/propertiespanel.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/basetextdocument.h>
+#include <texteditor/basetexteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/normalindenter.h>
@@ -166,8 +168,11 @@ void BarDescriptorEditorWidget::initAssetsPage()
 
 void BarDescriptorEditorWidget::initSourcePage()
 {
-    auto doc = new TextEditor::PlainTextDocument;
+    auto doc = new TextEditor::BaseTextDocument;
+    doc->setupAsPlainTextDocument();
+    doc->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); // FIXME: This looks odd.
     doc->setIndenter(new TextEditor::NormalIndenter);
+
     m_xmlSourceWidget = new TextEditor::BaseTextEditorWidget(doc, this);
     m_xmlSourceWidget->setupAsPlainEditor();
     addWidget(m_xmlSourceWidget);

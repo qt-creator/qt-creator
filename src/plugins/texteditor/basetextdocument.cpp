@@ -40,6 +40,7 @@
 #include "tabsettings.h"
 #include "texteditorconstants.h"
 #include "typingsettings.h"
+#include <texteditor/generichighlighter/highlighter.h>
 
 #include <QApplication>
 #include <QDir>
@@ -49,6 +50,7 @@
 #include <QStringList>
 #include <QTextCodec>
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
@@ -80,6 +82,7 @@ public:
 
 public slots:
     void onModificationChanged(bool modified);
+    void updateTabSettings();
 
 public:
     QString m_defaultPath;
@@ -195,6 +198,12 @@ void BaseTextDocumentPrivate::onModificationChanged(bool modified)
     // e.g. with undo
     if (!modified)
         updateRevisions();
+}
+
+void BaseTextDocumentPrivate::updateTabSettings()
+{
+    if (Highlighter *highlighter = qobject_cast<Highlighter *>(m_highlighter))
+        highlighter->setTabSettings(m_tabSettings);
 }
 
 
@@ -316,6 +325,11 @@ void BaseTextDocument::triggerPendingUpdates()
 {
     if (d->m_fontSettingsNeedsApply)
         applyFontSettings();
+}
+
+void BaseTextDocument::setupAsPlainTextDocument()
+{
+    connect(this, SIGNAL(tabSettingsChanged()), d, SLOT(updateTabSettings()));
 }
 
 void BaseTextDocument::applyFontSettings()

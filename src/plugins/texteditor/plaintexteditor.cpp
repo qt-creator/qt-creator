@@ -74,16 +74,4 @@ IEditor *PlainTextEditor::duplicate()
     return newWidget->editor();
 }
 
-PlainTextDocument::PlainTextDocument()
-{
-    setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
-    connect(this, SIGNAL(tabSettingsChanged()), this, SLOT(updateTabSettings()));
-}
-
-void PlainTextDocument::updateTabSettings()
-{
-    if (Highlighter *highlighter = qobject_cast<Highlighter *>(syntaxHighlighter()))
-        highlighter->setTabSettings(tabSettings());
-}
-
 } // namespace TextEditor

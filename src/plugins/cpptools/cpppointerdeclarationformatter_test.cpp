@@ -32,7 +32,9 @@
 #include "cpptoolsplugin.h"
 #include "cpptoolstestcase.h"
 
-#include <texteditor/plaintexteditor.h>
+#include <coreplugin/coreconstants.h>
+
+#include <texteditor/basetexteditor.h>
 
 #include <utils/fileutils.h>
 
@@ -100,7 +102,10 @@ public:
         QVERIFY(ast);
 
         // Open file
-        TextEditor::BaseTextEditorWidget editorWidget(new TextEditor::PlainTextDocument);
+        auto textDocument = new TextEditor::BaseTextDocument;
+        textDocument->setupAsPlainTextDocument();
+        textDocument->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
+        TextEditor::BaseTextEditorWidget editorWidget(textDocument);
         editorWidget.setupAsPlainEditor();
         QString error;
         editorWidget.open(&error, document->fileName(), document->fileName());
@@ -111,7 +116,7 @@ public:
         cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, cursorPosition);
         editorWidget.setTextCursor(cursor);
 
-        QTextDocument *textDocument = editorWidget.document();
+        QTextDocument *qtextDocument = editorWidget.document();
         CppRefactoringFilePtr cppRefactoringFile
             = CppRefactoringChanges::file(&editorWidget, document);
 
@@ -126,11 +131,11 @@ public:
         Utils::ChangeSet change = formatter.format(ast); // ChangeSet may be empty.
 
         // Apply change
-        QTextCursor changeCursor(textDocument);
+        QTextCursor changeCursor(qtextDocument);
         change.apply(&changeCursor);
 
         // Compare
-        QCOMPARE(textDocument->toPlainText(), expectedSource);
+        QCOMPARE(qtextDocument->toPlainText(), expectedSource);
     }
 };
 

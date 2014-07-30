@@ -56,6 +56,7 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     m_formWindow(form),
     m_isModified(false)
 {
+    setupAsPlainTextDocument();
     setMimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE));
     setParent(parent);
     setId(Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
