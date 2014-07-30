@@ -48,11 +48,16 @@
 
     \list 1
 
-        \li  Select a \l{glossary-buildandrun-kit}{kit} for the project.
+        \li  Click the \gui {Build and Run Kit Selector} icon (1) or select
+             \gui Build > \gui {Open Build and Run Kit Selector} to select the
+             build and run \l{glossary-buildandrun-kit}{kit}.
 
         \image qtcreator-kit-selector.png "Kit selector"
 
         \li  Choose \gui {Build > Build Project} or press \key {Ctrl+B}.
+
+             You can also select the \gui Run button (2) to also deploy and run
+             the application after building it.
 
     \endlist
 
@@ -62,5 +67,11 @@
     To quickly check the compile output for changes that you made in one file or
     subproject, you can use the \gui Build menu commands to build a file or
     subproject.
+
+    To remove all build artifacts, select \gui Build > \gui {Clean All} or
+    \gui {Clean Project}. To clean the build directory and then build the
+    project, select \gui Build > \gui {Rebuild All} or \gui {Rebuild Project}.
+
+    To run qmake to generate new Makefiles, select \gui Build > \gui qmake.
 
 */
