@@ -749,6 +749,10 @@ static bool isBlacklistImport(const ImportKey &importKey)
             || importPathFirst == QStringLiteral("QtQml")
             || (importPathFirst == QStringLiteral("QtQuick") && importPathLast == QStringLiteral("PrivateWidgets"))
             || importPathLast == QStringLiteral("Private")
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Particles") //Unsupported
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Dialogs")   //Unsupported
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Controls.Styles")   //Unsupported
+            || importKey.libraryQualifiedPath().contains(QStringLiteral("Qt.labs"))    //No support for labs plugins
             || (importKey.splitPath.count() == 1 && importPathFirst == QStringLiteral("QtQuick")); // Don't show Quick X.X imports
 }
 
