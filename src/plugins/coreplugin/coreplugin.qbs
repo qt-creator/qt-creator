@@ -174,8 +174,6 @@ QtcPlugin {
         name: "ProgressManager_mac"
         condition: qbs.targetOS.contains("osx")
         files: [
-            "macfullscreen.h",
-            "macfullscreen.mm",
             "progressmanager/progressmanager_mac.mm",
         ]
     }
