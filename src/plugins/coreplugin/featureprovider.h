@@ -77,6 +77,11 @@ public:
        return *this;
     }
 
+    bool isEmpty() const
+    {
+        return QSet<Feature>::isEmpty();
+    }
+
     bool contains(const Feature &feature) const
     {
         return QSet<Feature>::contains(feature);
@@ -90,6 +95,11 @@ public:
     void remove(const Feature &feature)
     {
         QSet<Feature>::remove(feature);
+    }
+
+    void remove(const FeatureSet &features)
+    {
+        QSet<Feature>::subtract(features);
     }
 
     FeatureSet operator|(const Feature &feature) const
@@ -128,6 +138,14 @@ public:
         foreach (const Feature &feature, QSet<Feature>(*this))
             stringList.append(feature.toString());
         return stringList;
+    }
+
+    static FeatureSet fromStringList(const QStringList &list)
+    {
+        FeatureSet features;
+        foreach (const QString &i, list)
+            features |= Feature(Id::fromString(i));
+        return features;
     }
 };
 
