@@ -59,7 +59,6 @@ class TEXTEDITOR_EXPORT PlainTextEditorWidget : public BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    PlainTextEditorWidget(QWidget *parent = 0);
     PlainTextEditorWidget(PlainTextDocument *doc, QWidget *parent = 0);
     PlainTextEditorWidget(PlainTextEditorWidget *other);
 

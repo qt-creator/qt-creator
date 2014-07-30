@@ -30,6 +30,7 @@
 #include "plaintexteditorfactory.h"
 #include "plaintexteditor.h"
 #include "basetextdocument.h"
+#include "normalindenter.h"
 #include "texteditoractionhandler.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
@@ -60,12 +61,14 @@ PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
 
 Core::IEditor *PlainTextEditorFactory::createEditor()
 {
-    PlainTextEditorWidget *rc = new PlainTextEditorWidget();
-    TextEditorSettings::initializeEditor(rc);
-    connect(rc, SIGNAL(configured(Core::IEditor*)),
+    auto doc = new PlainTextDocument;
+    doc->setIndenter(new NormalIndenter);
+    auto widget = new PlainTextEditorWidget(doc);
+    TextEditorSettings::initializeEditor(widget);
+    connect(widget, SIGNAL(configured(Core::IEditor*)),
             this, SLOT(updateEditorInfoBar(Core::IEditor*)));
-    updateEditorInfoBar(rc->editor());
-    return rc->editor();
+    updateEditorInfoBar(widget->editor());
+    return widget->editor();
 }
 
 /*!

@@ -66,14 +66,6 @@ PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
     setDuplicateSupported(true);
 }
 
-PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
-  : BaseTextEditorWidget(new PlainTextDocument(), parent)
-{
-    // Currently only "normal" indentation is supported.
-    baseTextDocument()->setIndenter(new NormalIndenter);
-    ctor();
-}
-
 PlainTextEditorWidget::PlainTextEditorWidget(PlainTextDocument *doc, QWidget *parent)
     : BaseTextEditorWidget(doc, parent)
 {
