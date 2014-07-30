@@ -264,7 +264,7 @@ static QString fixStringForTags(const QString &string)
 
 static QStringList trimStringList(const QStringList &stringlist)
 {
-    return Utils::transform(stringlist, &QString::trimmed);
+    return Utils::transform(stringlist, [](const QString &str) { return str.trimmed(); });
 }
 
 static QString relativeOrInstallPath(const QString &path, const QString &manifestPath,
