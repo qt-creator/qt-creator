@@ -42,7 +42,7 @@ namespace TextEditor { class BaseTextEditor; }
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorWidget;
 class CppCodeModelInspectorDialog;
 class CppQuickFixCollector;
 class CppQuickFixAssistProvider;
@@ -63,7 +63,7 @@ public:
     ShutdownFlag aboutToShutdown();
 
     // Connect editor to settings changed signals.
-    void initializeEditor(CPPEditorWidget *editor);
+    void initializeEditor(CppEditorWidget *editor);
 
     bool sortedOutline() const;
 

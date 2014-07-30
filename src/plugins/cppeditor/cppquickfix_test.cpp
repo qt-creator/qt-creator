@@ -251,7 +251,7 @@ private:
 
 /// Apply the factory on the source and get back the resultIndex'th result or a null pointer.
 QSharedPointer<TextEditor::QuickFixOperation> QuickFixTestCase::getFix(
-        CppQuickFixFactory *factory, CPPEditorWidget *editorWidget, int resultIndex)
+        CppQuickFixFactory *factory, CppEditorWidget *editorWidget, int resultIndex)
 {
     CppQuickFixInterface qfi(new CppQuickFixAssistInterface(editorWidget, ExplicitlyInvoked));
     TextEditor::QuickFixOperations results;

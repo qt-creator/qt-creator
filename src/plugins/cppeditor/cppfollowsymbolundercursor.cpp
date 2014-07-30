@@ -306,8 +306,8 @@ inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbo
     return result;
 }
 
-CPPEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor,
-    CPPEditorWidget *, CPlusPlus::Snapshot snapshot, const CPlusPlus::Document::Ptr &document,
+CppEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor,
+    CppEditorWidget *, CPlusPlus::Snapshot snapshot, const CPlusPlus::Document::Ptr &document,
     SymbolFinder *symbolFinder)
 {
     Link result;
@@ -365,7 +365,7 @@ CPPEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor,
     }
 
     if (target) {
-        result = CPPEditorWidget::linkToSymbol(target);
+        result = CppEditorWidget::linkToSymbol(target);
 
         unsigned startLine, startColumn, endLine, endColumn;
         document->translationUnit()->getTokenStartPosition(name->firstToken(), &startLine,
@@ -396,7 +396,7 @@ Symbol *findDefinition(Symbol *symbol, const Snapshot &snapshot, SymbolFinder *s
 
 } // anonymous namespace
 
-FollowSymbolUnderCursor::FollowSymbolUnderCursor(CPPEditorWidget *widget)
+FollowSymbolUnderCursor::FollowSymbolUnderCursor(CppEditorWidget *widget)
     : m_widget(widget)
     , m_virtualFunctionAssistProvider(new VirtualFunctionAssistProvider)
 {
@@ -592,7 +592,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     const Macro *macro = doc->findMacroDefinitionAt(line);
     if (macro) {
         QTextCursor macroCursor = cursor;
-        const QByteArray name = CPPEditorWidget::identifierUnderCursor(&macroCursor).toUtf8();
+        const QByteArray name = CppEditorWidget::identifierUnderCursor(&macroCursor).toUtf8();
         if (macro->name() == name)
             return link;    //already on definition!
     } else if (const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1)) {
@@ -723,7 +723,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
 
     // Handle macro uses
     QTextCursor macroCursor = cursor;
-    const QByteArray name = CPPEditorWidget::identifierUnderCursor(&macroCursor).toUtf8();
+    const QByteArray name = CppEditorWidget::identifierUnderCursor(&macroCursor).toUtf8();
     link = findMacroLink(name, documentFromSemanticInfo);
     if (link.hasValidTarget()) {
         link.linkTextStart = macroCursor.selectionStart();

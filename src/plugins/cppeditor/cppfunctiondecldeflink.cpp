@@ -287,7 +287,7 @@ static bool namesEqual(const Name *n1, const Name *n2)
     return n1 == n2 || (n1 && n2 && n1->match(n2));
 }
 
-void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
+void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
 {
     Snapshot snapshot = editor->semanticInfo().snapshot;
 
@@ -323,7 +323,7 @@ static QList<TextEditor::RefactorMarker> removeMarkersOfType(const QList<TextEdi
     return result;
 }
 
-void FunctionDeclDefLink::hideMarker(CPPEditorWidget *editor)
+void FunctionDeclDefLink::hideMarker(CppEditorWidget *editor)
 {
     if (!hasMarker)
         return;
@@ -332,7 +332,7 @@ void FunctionDeclDefLink::hideMarker(CPPEditorWidget *editor)
     hasMarker = false;
 }
 
-void FunctionDeclDefLink::showMarker(CPPEditorWidget *editor)
+void FunctionDeclDefLink::showMarker(CppEditorWidget *editor)
 {
     if (hasMarker)
         return;

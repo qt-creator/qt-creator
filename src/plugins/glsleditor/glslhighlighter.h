@@ -34,7 +34,7 @@
 namespace GLSLEditor {
 namespace Internal {
 
-class GLSLTextEditorWidget;
+class GlslEditorWidget;
 
 class Highlighter : public TextEditor::SyntaxHighlighter
 {

@@ -45,7 +45,7 @@ namespace Utils { class TreeViewComboBox; }
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorWidget;
 
 class CppEditorOutline : public QObject
 {
@@ -53,7 +53,7 @@ class CppEditorOutline : public QObject
     Q_DISABLE_COPY(CppEditorOutline)
 
 public:
-    explicit CppEditorOutline(CPPEditorWidget *editorWidget);
+    explicit CppEditorOutline(CppEditorWidget *editorWidget);
 
     void update();
 
@@ -83,7 +83,7 @@ private:
                                  const QModelIndex &rootIndex = QModelIndex()) const;
 
 private:
-    CPPEditorWidget *m_editorWidget;
+    CppEditorWidget *m_editorWidget;
 
     Utils::TreeViewComboBox *m_combo; // Not owned
     CPlusPlus::OverviewModel *m_model;

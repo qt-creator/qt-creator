@@ -84,7 +84,7 @@ public:
                     CppQuickFixFactory *factory, const QString &incPath);
 private:
     QSharedPointer<TextEditor::QuickFixOperation> getFix(CppQuickFixFactory *factory,
-                                                         CPPEditorWidget *editorWidget,
+                                                         CppEditorWidget *editorWidget,
                                                          int resultIndex = 0);
 
 private:

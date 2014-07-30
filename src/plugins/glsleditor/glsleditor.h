@@ -49,8 +49,8 @@ class Scope;
 namespace GLSLEditor {
 namespace Internal {
 
-class GLSLEditorEditable;
-class GLSLTextEditorWidget;
+class GlslEditor;
+class GlslEditorWidget;
 
 class Document
 {
@@ -78,17 +78,17 @@ private:
     GLSL::Scope *_globalScope;
     QList<Range> _cursors;
 
-    friend class GLSLTextEditorWidget;
+    friend class GlslEditorWidget;
 };
 
-class GLSLTextEditorWidget : public TextEditor::BaseTextEditorWidget
+class GlslEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
-    GLSLTextEditorWidget(QWidget *parent = 0);
-    GLSLTextEditorWidget(GLSLTextEditorWidget *other);
-    ~GLSLTextEditorWidget();
+    GlslEditorWidget(QWidget *parent = 0);
+    GlslEditorWidget(GlslEditorWidget *other);
+    ~GlslEditorWidget();
 
     int editorRevision() const;
     bool isOutdated() const;
@@ -106,10 +106,10 @@ private slots:
 
 protected:
     TextEditor::BaseTextEditor *createEditor();
-    void createToolBar(Internal::GLSLEditorEditable *editable);
+    void createToolBar(Internal::GlslEditor *editable);
 
 private:
-    GLSLTextEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
+    GlslEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
     void ctor();
     void setSelectedElements();
     QString wordUnderCursor() const;

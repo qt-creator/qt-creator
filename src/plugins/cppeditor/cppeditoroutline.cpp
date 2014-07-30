@@ -42,14 +42,14 @@
 
 /*!
     \class CppEditor::Internal::CppEditorOutline
-    \brief A helper class of CPPEditorWidget that provides the outline model
+    \brief A helper class of CppEditorWidget that provides the outline model
            and widget, e.g. for the editor's tool bar.
 
     \internal
 
     The caller is responsible for deleting the widget returned by widget().
 
-    \sa CppEditor::Internal::CPPEditorWidget
+    \sa CppEditor::Internal::CppEditorWidget
  */
 
 enum { UpdateOutlineIntervalInMs = 500 };
@@ -95,7 +95,7 @@ QTimer *newSingleShotTimer(QObject *parent, int msInternal)
 namespace CppEditor {
 namespace Internal {
 
-CppEditorOutline::CppEditorOutline(CPPEditorWidget *editorWidget)
+CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     : QObject(editorWidget)
     , m_editorWidget(editorWidget)
     , m_combo(new Utils::TreeViewComboBox)
@@ -249,7 +249,7 @@ void CppEditorOutline::gotoSymbolInEditor()
     if (!symbol)
         return;
 
-    const TextEditor::BaseTextEditorWidget::Link &link = CPPEditorWidget::linkToSymbol(symbol);
+    const TextEditor::BaseTextEditorWidget::Link &link = CppEditorWidget::linkToSymbol(symbol);
     if (!link.hasValidTarget())
         return;
 

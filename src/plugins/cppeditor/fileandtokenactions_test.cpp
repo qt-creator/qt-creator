@@ -92,7 +92,7 @@ public:
     {
     public:
         /// Every Action is expected to undo its changes.
-        virtual void run(CPPEditorWidget *editorWidget) = 0;
+        virtual void run(CppEditorWidget *editorWidget) = 0;
         virtual ~AbstractAction() {}
     };
     typedef QSharedPointer<AbstractAction> ActionPointer;
@@ -113,7 +113,7 @@ public:
     static void undoChangesInAllEditorWidgets();
 
     /// Execute actions for the current cursor position of editorWidget.
-    static void executeActionsOnEditorWidget(CPPEditorWidget *editorWidget, Actions actions);
+    static void executeActionsOnEditorWidget(CppEditorWidget *editorWidget, Actions actions);
 
 private:
     /// Move word camel case wise from current cursor position until given token (not included)
@@ -187,7 +187,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
         // Open editor
         QCOMPARE(DocumentModel::openedDocuments().size(), 0);
         CPPEditor *editor;
-        CPPEditorWidget *editorWidget;
+        CppEditorWidget *editorWidget;
         QVERIFY(openCppEditor(filePath, &editor, &editorWidget));
 
         QCOMPARE(DocumentModel::openedDocuments().size(), 1);
@@ -276,7 +276,7 @@ void TestActionsTestCase::undoChangesInAllEditorWidgets()
     }
 }
 
-void TestActionsTestCase::executeActionsOnEditorWidget(CPPEditorWidget *editorWidget,
+void TestActionsTestCase::executeActionsOnEditorWidget(CppEditorWidget *editorWidget,
                                                         TestActionsTestCase::Actions actions)
 {
     foreach (const ActionPointer &action, actions)
@@ -291,7 +291,7 @@ void TestActionsTestCase::moveWordCamelCaseToToken(TranslationUnit *translationU
 {
     QVERIFY(translationUnit);
     QVERIFY(editor);
-    CPPEditorWidget *editorWidget = dynamic_cast<CPPEditorWidget *>(editor->editorWidget());
+    CppEditorWidget *editorWidget = dynamic_cast<CppEditorWidget *>(editor->editorWidget());
     QVERIFY(editorWidget);
 
     unsigned line, column;
@@ -329,7 +329,7 @@ class NoOpTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Do nothing on each token
-    void run(CPPEditorWidget *) {}
+    void run(CppEditorWidget *) {}
 };
 
 class FollowSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractAction
@@ -337,10 +337,10 @@ class FollowSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractA
 public:
     /// Follow symbol under cursor
     /// Warning: May block if file does not exists (e.g. a not generated ui_* file).
-    void run(CPPEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget);
 };
 
-void FollowSymbolUnderCursorTokenAction::run(CPPEditorWidget *editorWidget)
+void FollowSymbolUnderCursorTokenAction::run(CppEditorWidget *editorWidget)
 {
     // Follow link
     IEditor *editorBefore = EditorManager::currentEditor();
@@ -363,10 +363,10 @@ class SwitchDeclarationDefinitionTokenAction : public TestActionsTestCase::Abstr
 {
 public:
     /// Switch Declaration/Definition on each token
-    void run(CPPEditorWidget *);
+    void run(CppEditorWidget *);
 };
 
-void SwitchDeclarationDefinitionTokenAction::run(CPPEditorWidget *)
+void SwitchDeclarationDefinitionTokenAction::run(CppEditorWidget *)
 {
     // Switch Declaration/Definition
     IEditor *editorBefore = EditorManager::currentEditor();
@@ -388,10 +388,10 @@ class FindUsagesTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Find Usages on each token
-    void run(CPPEditorWidget *);
+    void run(CppEditorWidget *);
 };
 
-void FindUsagesTokenAction::run(CPPEditorWidget *)
+void FindUsagesTokenAction::run(CppEditorWidget *)
 {
     CppEditor::Internal::CppEditorPlugin::instance()->findUsages();
     QApplication::processEvents();
@@ -401,10 +401,10 @@ class RenameSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractA
 {
 public:
     /// Rename Symbol Under Cursor on each token (Renaming is not applied)
-    void run(CPPEditorWidget *);
+    void run(CppEditorWidget *);
 };
 
-void RenameSymbolUnderCursorTokenAction::run(CPPEditorWidget *)
+void RenameSymbolUnderCursorTokenAction::run(CppEditorWidget *)
 {
     CppEditor::Internal::CppEditorPlugin::instance()->renameSymbolUnderCursor();
     QApplication::processEvents();
@@ -414,10 +414,10 @@ class OpenTypeHierarchyTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Open Type Hierarchy on each token
-    void run(CPPEditorWidget *);
+    void run(CppEditorWidget *);
 };
 
-void OpenTypeHierarchyTokenAction::run(CPPEditorWidget *)
+void OpenTypeHierarchyTokenAction::run(CppEditorWidget *)
 {
     CppEditor::Internal::CppEditorPlugin::instance()->openTypeHierarchy();
     QApplication::processEvents();
@@ -428,10 +428,10 @@ class InvokeCompletionTokenAction : public TestActionsTestCase::AbstractAction
 public:
     /// Invoke completion menu on each token.
     /// Warning: May create tool tip artefacts if focus is lost.
-    void run(CPPEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget);
 };
 
-void InvokeCompletionTokenAction::run(CPPEditorWidget *editorWidget)
+void InvokeCompletionTokenAction::run(CppEditorWidget *editorWidget)
 {
     // Invoke assistant and wait until it is finished
     QEventLoop loop;
@@ -454,11 +454,11 @@ class RunAllQuickFixesTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Trigger all Quick Fixes and apply the matching ones
-    void run(CPPEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget);
 };
 
 // TODO: Some QuickFixes operate on selections.
-void RunAllQuickFixesTokenAction::run(CPPEditorWidget *editorWidget)
+void RunAllQuickFixesTokenAction::run(CppEditorWidget *editorWidget)
 {
     // Calling editorWidget->invokeAssist(QuickFix) would be not enough
     // since we also want to execute the ones that match.
@@ -497,10 +497,10 @@ void RunAllQuickFixesTokenAction::run(CPPEditorWidget *editorWidget)
 class SwitchHeaderSourceFileAction : public TestActionsTestCase::AbstractAction
 {
 public:
-    void run(CPPEditorWidget *);
+    void run(CppEditorWidget *);
 };
 
-void SwitchHeaderSourceFileAction::run(CPPEditorWidget *)
+void SwitchHeaderSourceFileAction::run(CppEditorWidget *)
 {
     // Switch Header/Source
     IEditor *editorBefore = EditorManager::currentEditor();

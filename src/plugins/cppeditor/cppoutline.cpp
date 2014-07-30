@@ -90,7 +90,7 @@ bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
 }
 
 
-CppOutlineWidget::CppOutlineWidget(CPPEditorWidget *editor) :
+CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     TextEditor::IOutlineWidget(),
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
@@ -193,7 +193,7 @@ bool CppOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
 TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor *editor)
 {
     CPPEditor *cppEditor = qobject_cast<CPPEditor*>(editor);
-    CPPEditorWidget *cppEditorWidget = qobject_cast<CPPEditorWidget*>(cppEditor->widget());
+    CppEditorWidget *cppEditorWidget = qobject_cast<CppEditorWidget*>(cppEditor->widget());
     QTC_ASSERT(cppEditorWidget, return 0);
 
     CppOutlineWidget *widget = new CppOutlineWidget(cppEditorWidget);

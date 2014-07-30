@@ -113,7 +113,7 @@ typedef QByteArray _;
 class VirtualFunctionTestAssistProvider : public VirtualFunctionAssistProvider
 {
 public:
-    VirtualFunctionTestAssistProvider(CPPEditorWidget *editorWidget)
+    VirtualFunctionTestAssistProvider(CppEditorWidget *editorWidget)
         : m_editorWidget(editorWidget)
     {}
 
@@ -170,7 +170,7 @@ public:
     OverrideItemList m_finalItems;
 
 private:
-    CPPEditorWidget *m_editorWidget;
+    CppEditorWidget *m_editorWidget;
 };
 
 class TestDocument;
@@ -308,7 +308,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     // Trigger the action
     switch (action) {
     case FollowSymbolUnderCursorAction: {
-        CPPEditorWidget *widget = initialTestFile->m_editorWidget;
+        CppEditorWidget *widget = initialTestFile->m_editorWidget;
         FollowSymbolUnderCursor *delegate = widget->followSymbolUnderCursorDelegate();
         VirtualFunctionAssistProvider *original = delegate->virtualFunctionAssistProvider();
 

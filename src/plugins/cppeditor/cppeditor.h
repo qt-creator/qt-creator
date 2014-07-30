@@ -50,15 +50,16 @@ namespace CppEditor {
 namespace Internal {
 
 class CppEditorOutline;
-class CPPEditorWidget;
-class CPPEditorWidgetPrivate;
+class CppEditorWidget;
+class CppEditorWidgetPrivate;
 class FollowSymbolUnderCursor;
 
 class CPPEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
+
 public:
-    CPPEditor(CPPEditorWidget *);
+    CPPEditor(CppEditorWidget *);
 
     Core::IEditor *duplicate() QTC_OVERRIDE;
 
@@ -69,7 +70,7 @@ public:
     TextEditor::CompletionAssistProvider *completionAssistProvider() QTC_OVERRIDE;
 };
 
-class CPPEditorWidget : public TextEditor::BaseTextEditorWidget
+class CppEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
@@ -78,9 +79,9 @@ public:
     static QString identifierUnderCursor(QTextCursor *macroCursor);
 
 public:
-    CPPEditorWidget(QWidget *parent = 0);
-    CPPEditorWidget(CPPEditorWidget *other);
-    ~CPPEditorWidget();
+    CppEditorWidget(QWidget *parent = 0);
+    CppEditorWidget(CppEditorWidget *other);
+    ~CppEditorWidget();
 
     CPPEditorDocument *cppEditorDocument() const;
     CppEditorOutline *outline() const;
@@ -155,7 +156,7 @@ private slots:
 private:
     static bool openCppEditorAt(const Link &, bool inNextSplit = false);
 
-    CPPEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
+    CppEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
     void ctor();
 
     void createToolBar(CPPEditor *editable);
@@ -174,7 +175,7 @@ private:
             const QList<TextEditor::HighlightingResult> &uses);
 
 private:
-    QScopedPointer<CPPEditorWidgetPrivate> d;
+    QScopedPointer<CppEditorWidgetPrivate> d;
 };
 
 } // namespace Internal

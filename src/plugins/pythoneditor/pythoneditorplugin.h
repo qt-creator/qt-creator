@@ -37,7 +37,7 @@ namespace PythonEditor {
 namespace Internal {
 
 class EditorFactory;
-class EditorWidget;
+class PythonEditorWidget;
 
 /**
   \class PyEditor::Plugin implements ExtensionSystem::IPlugin

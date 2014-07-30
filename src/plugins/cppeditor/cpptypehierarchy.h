@@ -56,7 +56,7 @@ class AnnotatedItemDelegate;
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorWidget;
 class CppClass;
 class CppClassLabel;
 
@@ -81,7 +81,7 @@ private:
     void showTypeHierarchy();
     void clearTypeHierarchy();
 
-    CPPEditorWidget *m_cppEditor;
+    CppEditorWidget *m_cppEditor;
     Utils::NavigationTreeView *m_treeView;
     QWidget *m_hierarchyWidget;
     QStackedLayout *m_stackLayout;

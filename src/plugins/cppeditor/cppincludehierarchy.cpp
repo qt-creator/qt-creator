@@ -67,7 +67,7 @@ public:
     void setup(const QString &fileName, const QString &filePath)
     {
         setText(fileName);
-        m_link = CPPEditorWidget::Link(filePath);
+        m_link = CppEditorWidget::Link(filePath);
     }
 
 private:
@@ -82,7 +82,7 @@ private:
                                           Constants::CPPEDITOR_ID);
     }
 
-    CPPEditorWidget::Link m_link;
+    CppEditorWidget::Link m_link;
 };
 
 // CppIncludeHierarchyWidget
@@ -138,7 +138,7 @@ void CppIncludeHierarchyWidget::perform()
     if (!m_editor)
         return;
 
-    CPPEditorWidget *widget = qobject_cast<CPPEditorWidget *>(m_editor->widget());
+    CppEditorWidget *widget = qobject_cast<CppEditorWidget *>(m_editor->widget());
     if (!widget)
         return;
 

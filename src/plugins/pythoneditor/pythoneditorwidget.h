@@ -36,19 +36,19 @@
 namespace PythonEditor {
 namespace Internal {
 
-class EditorWidget : public TextEditor::BaseTextEditorWidget
+class PythonEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
-    EditorWidget(QWidget *parent = 0);
-    EditorWidget(EditorWidget *other);
+    PythonEditorWidget(QWidget *parent = 0);
+    PythonEditorWidget(PythonEditorWidget *other);
 
 protected:
     TextEditor::BaseTextEditor *createEditor();
 
 private:
-    EditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
+    PythonEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
     void ctor();
 };
 

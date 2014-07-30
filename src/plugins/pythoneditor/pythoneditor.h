@@ -35,14 +35,14 @@
 namespace PythonEditor {
 namespace Internal {
 
-class EditorWidget;
+class PythonEditorWidget;
 
 class PythonEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    explicit PythonEditor(EditorWidget *editorWidget);
+    explicit PythonEditor(PythonEditorWidget *editorWidget);
 
     Core::IEditor *duplicate();
 

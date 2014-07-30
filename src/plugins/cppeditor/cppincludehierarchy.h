@@ -55,7 +55,7 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditor;
-class CPPEditorWidget;
+class CppEditorWidget;
 class CppInclude;
 class CppIncludeLabel;
 class CppIncludeHierarchyModel;
@@ -79,7 +79,7 @@ private:
     void showNoIncludeHierarchyLabel();
     void showIncludeHierarchy();
 
-    CPPEditorWidget *m_cppEditor;
+    CppEditorWidget *m_cppEditor;
     CppIncludeHierarchyTreeView *m_treeView;
     CppIncludeHierarchyModel *m_model;
     Utils::AnnotatedItemDelegate *m_delegate;

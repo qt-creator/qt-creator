@@ -36,7 +36,7 @@
 namespace GLSLEditor {
 namespace Internal {
 
-class GLSLTextEditorWidget;
+class GlslEditorWidget;
 
 class GLSLEditorPlugin : public ExtensionSystem::IPlugin
 {

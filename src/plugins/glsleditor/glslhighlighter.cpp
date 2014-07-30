@@ -92,7 +92,7 @@ void Highlighter::highlightBlock(const QString &text)
     lex.setState(state);
     lex.setScanKeywords(false);
     lex.setScanComments(true);
-    const int variant = GLSLTextEditorWidget::languageVariant(parent()
+    const int variant = GlslEditorWidget::languageVariant(parent()
                          ? static_cast<BaseTextDocument*>(parent())->mimeType()
                          : QString());
     lex.setVariant(variant);

@@ -38,7 +38,7 @@ namespace CppEditor {
 
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorWidget;
 
 class CppHighlighter : public TextEditor::SyntaxHighlighter
 {

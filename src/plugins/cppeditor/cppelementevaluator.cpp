@@ -301,7 +301,7 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
     }
 
     tooltip = overview.prettyType(declaration->type(), qualifiedName);
-    link = CPPEditorWidget::linkToSymbol(declaration);
+    link = CppEditorWidget::linkToSymbol(declaration);
     helpMark = name;
 }
 

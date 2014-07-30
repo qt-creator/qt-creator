@@ -43,7 +43,7 @@ namespace CppTools { class SymbolFinder; }
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorWidget;
 class VirtualFunctionAssistProvider;
 
 class FollowSymbolUnderCursor
@@ -51,7 +51,7 @@ class FollowSymbolUnderCursor
 public:
     typedef TextEditor::BaseTextEditorWidget::Link Link;
 
-    FollowSymbolUnderCursor(CPPEditorWidget *widget);
+    FollowSymbolUnderCursor(CppEditorWidget *widget);
     ~FollowSymbolUnderCursor();
 
     Link findLink(const QTextCursor &cursor, bool resolveTarget,
@@ -63,7 +63,7 @@ public:
     void setVirtualFunctionAssistProvider(VirtualFunctionAssistProvider *provider);
 
 private:
-    CPPEditorWidget *m_widget;
+    CppEditorWidget *m_widget;
     VirtualFunctionAssistProvider *m_virtualFunctionAssistProvider;
 };
 

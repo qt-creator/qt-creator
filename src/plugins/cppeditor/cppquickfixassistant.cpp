@@ -84,7 +84,7 @@ const IAssistProvider *CppQuickFixAssistProcessor::provider() const
 // --------------------------
 // CppQuickFixAssistInterface
 // --------------------------
-CppQuickFixAssistInterface::CppQuickFixAssistInterface(CPPEditorWidget *editor,
+CppQuickFixAssistInterface::CppQuickFixAssistInterface(CppEditorWidget *editor,
                                                        TextEditor::AssistReason reason)
     : DefaultAssistInterface(editor->document(), editor->position(),
                              editor->baseTextDocument()->filePath(), reason)
@@ -119,7 +119,7 @@ const LookupContext &CppQuickFixAssistInterface::context() const
     return m_context;
 }
 
-CPPEditorWidget *CppQuickFixAssistInterface::editor() const
+CppEditorWidget *CppQuickFixAssistInterface::editor() const
 {
     return m_editor;
 }

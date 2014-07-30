@@ -47,7 +47,7 @@
 namespace PythonEditor {
 namespace Internal {
 
-PythonEditor::PythonEditor(EditorWidget *editorWidget)
+PythonEditor::PythonEditor(PythonEditorWidget *editorWidget)
     :BaseTextEditor(editorWidget)
 {
     setContext(Core::Context(Constants::C_PYTHONEDITOR_ID,
@@ -58,7 +58,7 @@ PythonEditor::PythonEditor(EditorWidget *editorWidget)
 
 Core::IEditor *PythonEditor::duplicate()
 {
-    EditorWidget *widget = new EditorWidget(qobject_cast<EditorWidget *>(editorWidget()));
+    PythonEditorWidget *widget = new PythonEditorWidget(qobject_cast<PythonEditorWidget *>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(widget);
     return widget->editor();
 }

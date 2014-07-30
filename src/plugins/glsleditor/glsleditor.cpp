@@ -140,7 +140,7 @@ void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
     _cursors.append(c);
 }
 
-GLSLTextEditorWidget::GLSLTextEditorWidget(QWidget *parent)
+GlslEditorWidget::GlslEditorWidget(QWidget *parent)
     : TextEditor::BaseTextEditorWidget(parent)
 {
     baseTextDocument()->setId(GLSLEditor::Constants::C_GLSLEDITOR_ID);
@@ -148,13 +148,13 @@ GLSLTextEditorWidget::GLSLTextEditorWidget(QWidget *parent)
     ctor();
 }
 
-GLSLTextEditorWidget::GLSLTextEditorWidget(GLSLTextEditorWidget *other)
+GlslEditorWidget::GlslEditorWidget(GlslEditorWidget *other)
     : TextEditor::BaseTextEditorWidget(other)
 {
     ctor();
 }
 
-void GLSLTextEditorWidget::ctor()
+void GlslEditorWidget::ctor()
 {
     m_outlineCombo = 0;
     setParenthesesMatchingEnabled(true);
@@ -181,17 +181,17 @@ void GLSLTextEditorWidget::ctor()
 //    }
 }
 
-GLSLTextEditorWidget::~GLSLTextEditorWidget()
+GlslEditorWidget::~GlslEditorWidget()
 {
 }
 
-int GLSLTextEditorWidget::editorRevision() const
+int GlslEditorWidget::editorRevision() const
 {
     //return document()->revision();
     return 0;
 }
 
-bool GLSLTextEditorWidget::isOutdated() const
+bool GlslEditorWidget::isOutdated() const
 {
 //    if (m_semanticInfo.revision() != editorRevision())
 //        return true;
@@ -199,27 +199,27 @@ bool GLSLTextEditorWidget::isOutdated() const
     return false;
 }
 
-Core::IEditor *GLSLEditorEditable::duplicate()
+Core::IEditor *GlslEditor::duplicate()
 {
-    GLSLTextEditorWidget *newEditor = new GLSLTextEditorWidget(
-                qobject_cast<GLSLTextEditorWidget *>(editorWidget()));
+    GlslEditorWidget *newEditor = new GlslEditorWidget(
+                qobject_cast<GlslEditorWidget *>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(newEditor);
     return newEditor->editor();
 }
 
-bool GLSLEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)
+bool GlslEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     baseTextDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
     return b;
 }
 
-TextEditor::CompletionAssistProvider *GLSLEditorEditable::completionAssistProvider()
+TextEditor::CompletionAssistProvider *GlslEditor::completionAssistProvider()
 {
     return ExtensionSystem::PluginManager::getObject<GLSLCompletionAssistProvider>();
 }
 
-QString GLSLTextEditorWidget::wordUnderCursor() const
+QString GlslEditorWidget::wordUnderCursor() const
 {
     QTextCursor tc = textCursor();
     const QChar ch = document()->characterAt(tc.position() - 1);
@@ -232,14 +232,14 @@ QString GLSLTextEditorWidget::wordUnderCursor() const
     return word;
 }
 
-TextEditor::BaseTextEditor *GLSLTextEditorWidget::createEditor()
+TextEditor::BaseTextEditor *GlslEditorWidget::createEditor()
 {
-    GLSLEditorEditable *editable = new GLSLEditorEditable(this);
+    GlslEditor *editable = new GlslEditor(this);
     createToolBar(editable);
     return editable;
 }
 
-void GLSLTextEditorWidget::createToolBar(GLSLEditorEditable *editor)
+void GlslEditorWidget::createToolBar(GlslEditor *editor)
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
@@ -263,12 +263,12 @@ void GLSLTextEditorWidget::createToolBar(GLSLEditorEditable *editor)
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
 
-void GLSLTextEditorWidget::updateDocument()
+void GlslEditorWidget::updateDocument()
 {
     m_updateDocumentTimer->start();
 }
 
-void GLSLTextEditorWidget::updateDocumentNow()
+void GlslEditorWidget::updateDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
@@ -334,7 +334,7 @@ void GLSLTextEditorWidget::updateDocumentNow()
     }
 }
 
-int GLSLTextEditorWidget::languageVariant(const QString &type)
+int GlslEditorWidget::languageVariant(const QString &type)
 {
     int variant = 0;
     bool isVertex = false;
@@ -371,7 +371,7 @@ int GLSLTextEditorWidget::languageVariant(const QString &type)
     return variant;
 }
 
-TextEditor::IAssistInterface *GLSLTextEditorWidget::createAssistInterface(
+TextEditor::IAssistInterface *GlslEditorWidget::createAssistInterface(
     TextEditor::AssistKind kind,
     TextEditor::AssistReason reason) const
 {

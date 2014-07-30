@@ -35,14 +35,14 @@
 namespace GLSLEditor {
 namespace Internal {
 
-class GLSLTextEditorWidget;
+class GlslEditorWidget;
 
-class GLSLEditorEditable : public TextEditor::BaseTextEditor
+class GlslEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    explicit GLSLEditorEditable(GLSLTextEditorWidget *);
+    explicit GlslEditor(GlslEditorWidget *);
 
     Core::IEditor *duplicate();
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);

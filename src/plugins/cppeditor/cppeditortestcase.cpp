@@ -63,14 +63,14 @@ TestCase::~TestCase()
 
 bool TestCase::openCppEditor(const QString &fileName,
                              Internal::CPPEditor **editor,
-                             Internal::CPPEditorWidget **editorWidget)
+                             Internal::CppEditorWidget **editorWidget)
 {
     using namespace CppEditor::Internal;
     if (CPPEditor *e = dynamic_cast<CPPEditor *>(Core::EditorManager::openEditor(fileName))) {
         if (editor)
             *editor = e;
         if (editorWidget) {
-            if (CPPEditorWidget *w = dynamic_cast<CPPEditorWidget *>(e->editorWidget())) {
+            if (CppEditorWidget *w = dynamic_cast<CppEditorWidget *>(e->editorWidget())) {
                 *editorWidget = w;
                 return true;
             } else {
@@ -85,7 +85,7 @@ bool TestCase::openCppEditor(const QString &fileName,
 }
 
 CPlusPlus::Document::Ptr TestCase::waitForRehighlightedSemanticDocument(
-        Internal::CPPEditorWidget *editorWidget)
+        Internal::CppEditorWidget *editorWidget)
 {
     editorWidget->semanticRehighlight(true);
     while (editorWidget->semanticInfo().doc.isNull())

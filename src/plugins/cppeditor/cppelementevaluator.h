@@ -50,7 +50,7 @@ namespace CppTools { class CppModelManagerInterface; }
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorWidget;
 class CppElement;
 
 class CppElementEvaluator

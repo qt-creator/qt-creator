@@ -1369,8 +1369,8 @@ void CppCodeModelInspectorDialog::refresh()
             dumper.dumpSnapshot(editorSnapshot, editorSnapshotTitle);
             m_ui->snapshotSelector->addItem(editorSnapshotTitle);
         }
-        CppEditor::Internal::CPPEditorWidget *cppEditorWidget
-            = qobject_cast<CppEditor::Internal::CPPEditorWidget *>(editor->editorWidget());
+        CppEditor::Internal::CppEditorWidget *cppEditorWidget
+            = qobject_cast<CppEditor::Internal::CppEditorWidget *>(editor->editorWidget());
         if (cppEditorWidget) {
             SemanticInfo semanticInfo = cppEditorWidget->semanticInfo();
             CPlusPlus::Snapshot snapshot;

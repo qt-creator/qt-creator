@@ -36,16 +36,16 @@
 
 /*!
     \class CppEditor::Internal::CppLocalRenaming
-    \brief A helper class of CPPEditorWidget that implements renaming local usages.
+    \brief A helper class of CppEditorWidget that implements renaming local usages.
 
     \internal
 
     Local use selections must be first set/updated with updateLocalUseSelections().
-    Afterwards the local renaming can be started with start(). The CPPEditorWidget
+    Afterwards the local renaming can be started with start(). The CppEditorWidget
     can then delegate work related to the local renaming mode to the handle*
     functions.
 
-    \sa CppEditor::Internal::CPPEditorWidget
+    \sa CppEditor::Internal::CppEditorWidget
  */
 
 namespace {

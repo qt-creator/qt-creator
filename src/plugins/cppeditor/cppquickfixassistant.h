@@ -47,18 +47,18 @@ typedef QSharedPointer<CppRefactoringFile> CppRefactoringFilePtr;
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorWidget;
 
 class CppQuickFixAssistInterface : public TextEditor::DefaultAssistInterface
 {
 public:
-    CppQuickFixAssistInterface(CPPEditorWidget *editor, TextEditor::AssistReason reason);
+    CppQuickFixAssistInterface(CppEditorWidget *editor, TextEditor::AssistReason reason);
 
     const QList<CPlusPlus::AST *> &path() const;
     CPlusPlus::Snapshot snapshot() const;
     CppTools::SemanticInfo semanticInfo() const;
     const CPlusPlus::LookupContext &context() const;
-    CPPEditorWidget *editor() const;
+    CppEditorWidget *editor() const;
 
     CppTools::CppRefactoringFilePtr currentFile() const;
 
@@ -66,7 +66,7 @@ public:
     bool isCursorOn(const CPlusPlus::AST *ast) const;
 
 private:
-    CPPEditorWidget *m_editor;
+    CppEditorWidget *m_editor;
     CppTools::SemanticInfo m_semanticInfo;
     CPlusPlus::Snapshot m_snapshot;
     CppTools::CppRefactoringFilePtr m_currentFile;

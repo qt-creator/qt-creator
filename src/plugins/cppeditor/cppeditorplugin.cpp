@@ -97,7 +97,7 @@ CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
 
 IEditor *CppEditorFactory::createEditor()
 {
-    CPPEditorWidget *editor = new CPPEditorWidget();
+    CppEditorWidget *editor = new CppEditorWidget();
     editor->setRevisionsVisible(true);
     m_owner->initializeEditor(editor);
     return editor->editor();
@@ -129,7 +129,7 @@ CppEditorPlugin *CppEditorPlugin::instance()
     return m_instance;
 }
 
-void CppEditorPlugin::initializeEditor(CPPEditorWidget *editor)
+void CppEditorPlugin::initializeEditor(CppEditorWidget *editor)
 {
     editor->setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
     TextEditor::TextEditorSettings::initializeEditor(editor);
@@ -343,38 +343,38 @@ ExtensionSystem::IPlugin::ShutdownFlag CppEditorPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-static CPPEditorWidget *currentCppEditorWidget()
+static CppEditorWidget *currentCppEditorWidget()
 {
-    return qobject_cast<CPPEditorWidget*>(EditorManager::currentEditor()->widget());
+    return qobject_cast<CppEditorWidget*>(EditorManager::currentEditor()->widget());
 }
 
 void CppEditorPlugin::switchDeclarationDefinition()
 {
-    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+    if (CppEditorWidget *editorWidget = currentCppEditorWidget())
         editorWidget->switchDeclarationDefinition(/*inNextSplit*/ false);
 }
 
 void CppEditorPlugin::openDeclarationDefinitionInNextSplit()
 {
-    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+    if (CppEditorWidget *editorWidget = currentCppEditorWidget())
         editorWidget->switchDeclarationDefinition(/*inNextSplit*/ true);
 }
 
 void CppEditorPlugin::renameSymbolUnderCursor()
 {
-    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+    if (CppEditorWidget *editorWidget = currentCppEditorWidget())
         editorWidget->renameSymbolUnderCursor();
 }
 
 void CppEditorPlugin::findUsages()
 {
-    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+    if (CppEditorWidget *editorWidget = currentCppEditorWidget())
         editorWidget->findUsages();
 }
 
 void CppEditorPlugin::showPreProcessorDialog()
 {
-    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+    if (CppEditorWidget *editorWidget = currentCppEditorWidget())
         editorWidget->showPreProcessorWidget();
 }
 

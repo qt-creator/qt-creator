@@ -43,7 +43,7 @@
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorWidget;
+class CppEditorWidget;
 class FunctionDeclDefLink;
 
 class FunctionDeclDefLinkFinder : public QObject
@@ -80,9 +80,9 @@ public:
     bool isValid() const;
     bool isMarkerVisible() const;
 
-    void apply(CPPEditorWidget *editor, bool jumpToMatch);
-    void hideMarker(CPPEditorWidget *editor);
-    void showMarker(CPPEditorWidget *editor);
+    void apply(CppEditorWidget *editor, bool jumpToMatch);
+    void hideMarker(CppEditorWidget *editor);
+    void showMarker(CppEditorWidget *editor);
     Utils::ChangeSet changes(const CPlusPlus::Snapshot &snapshot, int targetOffset = -1);
 
     QTextCursor linkSelection;

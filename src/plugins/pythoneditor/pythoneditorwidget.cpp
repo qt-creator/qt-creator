@@ -48,7 +48,7 @@
 namespace PythonEditor {
 namespace Internal {
 
-EditorWidget::EditorWidget(QWidget *parent)
+PythonEditorWidget::PythonEditorWidget(QWidget *parent)
     : TextEditor::BaseTextEditorWidget(parent)
 {
     baseTextDocument()->setId(Constants::C_PYTHONEDITOR_ID);
@@ -56,13 +56,13 @@ EditorWidget::EditorWidget(QWidget *parent)
     ctor();
 }
 
-EditorWidget::EditorWidget(EditorWidget *other)
+PythonEditorWidget::PythonEditorWidget(PythonEditorWidget *other)
     : TextEditor::BaseTextEditorWidget(other)
 {
     ctor();
 }
 
-void EditorWidget::ctor()
+void PythonEditorWidget::ctor()
 {
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -71,7 +71,7 @@ void EditorWidget::ctor()
     new PythonHighlighter(baseTextDocument());
 }
 
-TextEditor::BaseTextEditor *EditorWidget::createEditor()
+TextEditor::BaseTextEditor *PythonEditorWidget::createEditor()
 {
     return new PythonEditor(this);
 }

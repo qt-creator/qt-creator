@@ -4091,7 +4091,7 @@ public:
 
     void perform()
     {
-        CPPEditorWidget *editor = assistInterface()->editor();
+        CppEditorWidget *editor = assistInterface()->editor();
         QSharedPointer<FunctionDeclDefLink> link = editor->declDefLink();
         if (link == m_link)
             editor->applyDeclDefLinkChanges(/*don't jump*/false);

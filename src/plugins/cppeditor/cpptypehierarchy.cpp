@@ -65,7 +65,7 @@ QStandardItem *itemForClass(const CppClass &cppClass)
         item->setData(cppClass.qualifiedName, AnnotationRole);
     item->setData(cppClass.icon, Qt::DecorationRole);
     QVariant link;
-    link.setValue(CPPEditorWidget::Link(cppClass.link));
+    link.setValue(CppEditorWidget::Link(cppClass.link));
     item->setData(link, LinkRole);
     return item;
 }
@@ -102,7 +102,7 @@ public:
     void clear()
     {
         QLabel::clear();
-        m_link = CPPEditorWidget::Link();
+        m_link = CppEditorWidget::Link();
     }
 
 private:
@@ -117,7 +117,7 @@ private:
                                           Constants::CPPEDITOR_ID);
     }
 
-    CPPEditorWidget::Link m_link;
+    CppEditorWidget::Link m_link;
 };
 
 // CppTypeHierarchyWidget
@@ -174,7 +174,7 @@ void CppTypeHierarchyWidget::perform()
     if (!editor)
         return;
 
-    CPPEditorWidget *widget = qobject_cast<CPPEditorWidget *>(editor->widget());
+    CppEditorWidget *widget = qobject_cast<CppEditorWidget *>(editor->widget());
     if (!widget)
         return;
 

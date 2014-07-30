@@ -39,7 +39,7 @@ namespace CppEditor {
 
 namespace Internal {
 class CPPEditor;
-class CPPEditorWidget;
+class CppEditorWidget;
 
 namespace Tests {
 
@@ -53,7 +53,7 @@ public:
 public:
     int m_cursorPosition;
     Internal::CPPEditor *m_editor;
-    Internal::CPPEditorWidget *m_editorWidget;
+    Internal::CppEditorWidget *m_editorWidget;
 };
 
 class TestCase : public CppTools::Tests::TestCase
@@ -64,10 +64,10 @@ public:
 
     static bool openCppEditor(const QString &fileName,
                               Internal::CPPEditor **editor,
-                              Internal::CPPEditorWidget **editorWidget = 0);
+                              Internal::CppEditorWidget **editorWidget = 0);
 
     static CPlusPlus::Document::Ptr waitForRehighlightedSemanticDocument(
-            Internal::CPPEditorWidget *editorWidget);
+            Internal::CppEditorWidget *editorWidget);
 };
 
 } // namespace Tests

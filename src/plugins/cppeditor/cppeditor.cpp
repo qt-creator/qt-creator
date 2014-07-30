@@ -106,7 +106,7 @@ QTimer *newSingleShotTimer(QObject *parent, int msecInterval)
 namespace CppEditor {
 namespace Internal {
 
-CPPEditor::CPPEditor(CPPEditorWidget *editor)
+CPPEditor::CPPEditor(CppEditorWidget *editor)
     : BaseTextEditor(editor)
 {
     m_context.add(CppEditor::Constants::C_CPPEDITOR);
@@ -118,13 +118,13 @@ CPPEditor::CPPEditor(CPPEditorWidget *editor)
 
 Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
 
-class CPPEditorWidgetPrivate
+class CppEditorWidgetPrivate
 {
 public:
-    CPPEditorWidgetPrivate(CPPEditorWidget *q);
+    CppEditorWidgetPrivate(CppEditorWidget *q);
 
 public:
-    CPPEditorWidget *q;
+    CppEditorWidget *q;
 
     QPointer<CppTools::CppModelManagerInterface> m_modelManager;
 
@@ -156,7 +156,7 @@ public:
     QToolButton *m_preprocessorButton;
 };
 
-CPPEditorWidgetPrivate::CPPEditorWidgetPrivate(CPPEditorWidget *q)
+CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     : q(q)
     , m_modelManager(CppModelManagerInterface::instance())
     , m_cppEditorDocument(qobject_cast<CPPEditorDocument *>(q->baseTextDocument()))
@@ -172,22 +172,22 @@ CPPEditorWidgetPrivate::CPPEditorWidgetPrivate(CPPEditorWidget *q)
 {
 }
 
-CPPEditorWidget::CPPEditorWidget(QWidget *parent)
+CppEditorWidget::CppEditorWidget(QWidget *parent)
     : TextEditor::BaseTextEditorWidget(new CPPEditorDocument(), parent)
 {
     baseTextDocument()->setIndenter(new CppTools::CppQtStyleIndenter);
     ctor();
 }
 
-CPPEditorWidget::CPPEditorWidget(CPPEditorWidget *other)
+CppEditorWidget::CppEditorWidget(CppEditorWidget *other)
     : TextEditor::BaseTextEditorWidget(other)
 {
     ctor();
 }
 
-void CPPEditorWidget::ctor()
+void CppEditorWidget::ctor()
 {
-    d.reset(new CPPEditorWidgetPrivate(this));
+    d.reset(new CppEditorWidgetPrivate(this));
 
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
 
@@ -221,30 +221,30 @@ void CPPEditorWidget::ctor()
             this, SLOT(onLocalRenamingProcessKeyPressNormally(QKeyEvent*)));
 }
 
-CPPEditorWidget::~CPPEditorWidget()
+CppEditorWidget::~CppEditorWidget()
 {
     if (d->m_modelManager)
         d->m_modelManager->deleteCppEditorSupport(editor());
 }
 
-CPPEditorDocument *CPPEditorWidget::cppEditorDocument() const
+CPPEditorDocument *CppEditorWidget::cppEditorDocument() const
 {
     return d->m_cppEditorDocument;
 }
 
-CppEditorOutline *CPPEditorWidget::outline() const
+CppEditorOutline *CppEditorWidget::outline() const
 {
     return d->m_cppEditorOutline;
 }
 
-TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
+TextEditor::BaseTextEditor *CppEditorWidget::createEditor()
 {
     CPPEditor *editable = new CPPEditor(this);
     createToolBar(editable);
     return editable;
 }
 
-void CPPEditorWidget::createToolBar(CPPEditor *editor)
+void CppEditorWidget::createToolBar(CPPEditor *editor)
 {
     d->m_updateUsesTimer = newSingleShotTimer(this, UPDATE_USES_INTERVAL);
     connect(d->m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
@@ -278,7 +278,7 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, d->m_cppEditorOutline->widget());
 }
 
-void CPPEditorWidget::paste()
+void CppEditorWidget::paste()
 {
     if (d->m_localRenaming.handlePaste())
         return;
@@ -286,7 +286,7 @@ void CPPEditorWidget::paste()
     BaseTextEditorWidget::paste();
 }
 
-void CPPEditorWidget::cut()
+void CppEditorWidget::cut()
 {
     if (d->m_localRenaming.handlePaste())
         return;
@@ -294,7 +294,7 @@ void CPPEditorWidget::cut()
     BaseTextEditorWidget::cut();
 }
 
-void CPPEditorWidget::selectAll()
+void CppEditorWidget::selectAll()
 {
     if (d->m_localRenaming.handleSelectAll())
         return;
@@ -304,12 +304,12 @@ void CPPEditorWidget::selectAll()
 
 /// \brief Called by \c CppEditorSupport when the document corresponding to the
 ///        file in this editor is updated.
-void CPPEditorWidget::onDocumentUpdated()
+void CppEditorWidget::onDocumentUpdated()
 {
     d->m_cppEditorOutline->update();
 }
 
-const Macro *CPPEditorWidget::findCanonicalMacro(const QTextCursor &cursor, Document::Ptr doc) const
+const Macro *CppEditorWidget::findCanonicalMacro(const QTextCursor &cursor, Document::Ptr doc) const
 {
     if (!doc)
         return 0;
@@ -329,7 +329,7 @@ const Macro *CPPEditorWidget::findCanonicalMacro(const QTextCursor &cursor, Docu
     return 0;
 }
 
-void CPPEditorWidget::findUsages()
+void CppEditorWidget::findUsages()
 {
     if (!d->m_modelManager)
         return;
@@ -348,7 +348,7 @@ void CPPEditorWidget::findUsages()
     }
 }
 
-void CPPEditorWidget::renameUsages(const QString &replacement)
+void CppEditorWidget::renameUsages(const QString &replacement)
 {
     if (!d->m_modelManager)
         return;
@@ -367,7 +367,7 @@ void CPPEditorWidget::renameUsages(const QString &replacement)
     }
 }
 
-void CPPEditorWidget::markSymbolsNow()
+void CppEditorWidget::markSymbolsNow()
 {
     QTC_ASSERT(d->m_referencesWatcher, return);
     if (!d->m_referencesWatcher->isCanceled()
@@ -417,7 +417,7 @@ static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr d
     return QList<int>();
 }
 
-void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &info)
+void CppEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &info)
 {
     d->m_localRenaming.stop();
 
@@ -482,7 +482,7 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
     }
 }
 
-void CPPEditorWidget::renameSymbolUnderCursor()
+void CppEditorWidget::renameSymbolUnderCursor()
 {
     if (!d->m_modelManager)
         return;
@@ -494,7 +494,7 @@ void CPPEditorWidget::renameSymbolUnderCursor()
         renameUsages(); // Rename non-local symbol or macro
 }
 
-void CPPEditorWidget::onContentsChanged(int position, int charsRemoved, int charsAdded)
+void CppEditorWidget::onContentsChanged(int position, int charsRemoved, int charsAdded)
 {
     Q_UNUSED(position)
     Q_UNUSED(charsAdded)
@@ -503,7 +503,7 @@ void CPPEditorWidget::onContentsChanged(int position, int charsRemoved, int char
         updateUses();
 }
 
-void CPPEditorWidget::updatePreprocessorButtonTooltip()
+void CppEditorWidget::updatePreprocessorButtonTooltip()
 {
     QTC_ASSERT(d->m_preprocessorButton, return);
     Core::Command *cmd = Core::ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
@@ -511,7 +511,7 @@ void CPPEditorWidget::updatePreprocessorButtonTooltip()
     d->m_preprocessorButton->setToolTip(cmd->action()->toolTip());
 }
 
-QList<QTextEdit::ExtraSelection> CPPEditorWidget::createSelectionsFromUses(
+QList<QTextEdit::ExtraSelection> CppEditorWidget::createSelectionsFromUses(
         const QList<SemanticInfo::Use> &uses)
 {
     QList<QTextEdit::ExtraSelection> result;
@@ -540,14 +540,14 @@ QList<QTextEdit::ExtraSelection> CPPEditorWidget::createSelectionsFromUses(
     return result;
 }
 
-void CPPEditorWidget::updateUses()
+void CppEditorWidget::updateUses()
 {
     // Block premature semantic info calculation when editor is created.
     if (d->m_modelManager && d->m_modelManager->cppEditorSupport(editor())->initialized())
         d->m_updateUsesTimer->start();
 }
 
-void CPPEditorWidget::updateUsesNow()
+void CppEditorWidget::updateUsesNow()
 {
     if (d->m_localRenaming.isActive())
         return;
@@ -555,7 +555,7 @@ void CPPEditorWidget::updateUsesNow()
     semanticRehighlight();
 }
 
-void CPPEditorWidget::highlightSymbolUsages(int from, int to)
+void CppEditorWidget::highlightSymbolUsages(int from, int to)
 {
     if (editorRevision() != d->m_highlightRevision)
         return; // outdated
@@ -570,7 +570,7 @@ void CPPEditorWidget::highlightSymbolUsages(int from, int to)
                 highlighter, d->m_highlightWatcher->future(), from, to, d->m_semanticHighlightFormatMap);
 }
 
-void CPPEditorWidget::finishHighlightSymbolUsages()
+void CppEditorWidget::finishHighlightSymbolUsages()
 {
     QTC_ASSERT(d->m_highlightWatcher, return);
     if (!d->m_highlightWatcher->isCanceled()
@@ -585,7 +585,7 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
     d->m_highlightWatcher.reset();
 }
 
-void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
+void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 {
     if (!d->m_modelManager)
         return;
@@ -618,7 +618,7 @@ void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     }
 
     // Link to function definition/declaration
-    CPPEditorWidget::Link symbolLink;
+    CppEditorWidget::Link symbolLink;
     if (functionDeclarationSymbol) {
         symbolLink = linkToSymbol(symbolFinder()
             ->findMatchingDefinition(functionDeclarationSymbol, d->m_modelManager->snapshot()));
@@ -653,14 +653,14 @@ void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
         openCppEditorAt(symbolLink, inNextSplit != alwaysOpenLinksInNextSplit());
 }
 
-QString CPPEditorWidget::identifierUnderCursor(QTextCursor *macroCursor)
+QString CppEditorWidget::identifierUnderCursor(QTextCursor *macroCursor)
 {
     macroCursor->movePosition(QTextCursor::StartOfWord);
     macroCursor->movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
     return macroCursor->selectedText();
 }
 
-CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, bool resolveTarget,
+CppEditorWidget::Link CppEditorWidget::findLinkAt(const QTextCursor &cursor, bool resolveTarget,
                                                   bool inNextSplit)
 {
     if (!d->m_modelManager)
@@ -673,12 +673,12 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, boo
                                                   inNextSplit);
 }
 
-unsigned CPPEditorWidget::editorRevision() const
+unsigned CppEditorWidget::editorRevision() const
 {
     return document()->revision();
 }
 
-bool CPPEditorWidget::isOutdated() const
+bool CppEditorWidget::isOutdated() const
 {
     if (d->m_lastSemanticInfo.revision != editorRevision())
         return true;
@@ -686,12 +686,12 @@ bool CPPEditorWidget::isOutdated() const
     return false;
 }
 
-SemanticInfo CPPEditorWidget::semanticInfo() const
+SemanticInfo CppEditorWidget::semanticInfo() const
 {
     return d->m_lastSemanticInfo;
 }
 
-bool CPPEditorWidget::event(QEvent *e)
+bool CppEditorWidget::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::ShortcutOverride:
@@ -708,13 +708,13 @@ bool CPPEditorWidget::event(QEvent *e)
     return BaseTextEditorWidget::event(e);
 }
 
-void CPPEditorWidget::performQuickFix(int index)
+void CppEditorWidget::performQuickFix(int index)
 {
     TextEditor::QuickFixOperation::Ptr op = d->m_quickFixes.at(index);
     op->perform();
 }
 
-void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
+void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     // ### enable
     // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
@@ -770,7 +770,7 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     delete menu;
 }
 
-void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
+void CppEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     if (d->m_localRenaming.handleKeyPressEvent(e))
         return;
@@ -783,8 +783,8 @@ void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
 
 Core::IEditor *CPPEditor::duplicate()
 {
-    CPPEditorWidget *newEditor = new CPPEditorWidget(
-                qobject_cast<CPPEditorWidget *>(editorWidget()));
+    CppEditorWidget *newEditor = new CppEditorWidget(
+                qobject_cast<CppEditorWidget *>(editorWidget()));
     CppEditorPlugin::instance()->initializeEditor(newEditor);
     return newEditor->editor();
 }
@@ -802,7 +802,7 @@ TextEditor::CompletionAssistProvider *CPPEditor::completionAssistProvider()
     return CppModelManagerInterface::instance()->cppEditorSupport(this)->completionAssistProvider();
 }
 
-void CPPEditorWidget::applyFontSettings()
+void CppEditorWidget::applyFontSettings()
 {
     const TextEditor::FontSettings &fs = baseTextDocument()->fontSettings();
 
@@ -832,13 +832,13 @@ void CPPEditorWidget::applyFontSettings()
     semanticRehighlight(true);
 }
 
-void CPPEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
+void CppEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
 {
     CppTools::QtStyleCodeFormatter formatter;
     formatter.invalidateCache(document());
 }
 
-CPPEditorWidget::Link CPPEditorWidget::linkToSymbol(CPlusPlus::Symbol *symbol)
+CppEditorWidget::Link CppEditorWidget::linkToSymbol(CPlusPlus::Symbol *symbol)
 {
     if (!symbol)
         return Link();
@@ -858,7 +858,7 @@ CPPEditorWidget::Link CPPEditorWidget::linkToSymbol(CPlusPlus::Symbol *symbol)
     return Link(filename, line, column);
 }
 
-bool CPPEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
+bool CppEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
 {
     if (!link.hasValidTarget())
         return false;
@@ -873,7 +873,7 @@ bool CPPEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
                                              flags);
 }
 
-void CPPEditorWidget::semanticRehighlight(bool force)
+void CppEditorWidget::semanticRehighlight(bool force)
 {
     if (d->m_modelManager) {
         const CppEditorSupport::ForceReason forceReason = force
@@ -883,7 +883,7 @@ void CPPEditorWidget::semanticRehighlight(bool force)
     }
 }
 
-void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
+void CppEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
                                          unsigned revision)
 {
     d->m_highlightRevision = revision;
@@ -897,7 +897,7 @@ void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult>
     d->m_highlightWatcher->setFuture(QFuture<TextEditor::HighlightingResult>(*highlighter));
 }
 
-void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
+void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 {
     if (semanticInfo.revision != editorRevision()) {
         // got outdated semantic info
@@ -956,7 +956,7 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     updateFunctionDeclDefLink();
 }
 
-TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
+TextEditor::IAssistInterface *CppEditorWidget::createAssistInterface(
     TextEditor::AssistKind kind,
     TextEditor::AssistReason reason) const
 {
@@ -972,25 +972,25 @@ TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
     } else if (kind == TextEditor::QuickFix) {
         if (!semanticInfo().doc || isOutdated())
             return 0;
-        return new CppQuickFixAssistInterface(const_cast<CPPEditorWidget *>(this), reason);
+        return new CppQuickFixAssistInterface(const_cast<CppEditorWidget *>(this), reason);
     } else {
         return BaseTextEditorWidget::createAssistInterface(kind, reason);
     }
     return 0;
 }
 
-QSharedPointer<FunctionDeclDefLink> CPPEditorWidget::declDefLink() const
+QSharedPointer<FunctionDeclDefLink> CppEditorWidget::declDefLink() const
 {
     return d->m_declDefLink;
 }
 
-void CPPEditorWidget::onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker)
+void CppEditorWidget::onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker)
 {
     if (marker.data.canConvert<FunctionDeclDefLink::Marker>())
         applyDeclDefLinkChanges(true);
 }
 
-void CPPEditorWidget::updateFunctionDeclDefLink()
+void CppEditorWidget::updateFunctionDeclDefLink()
 {
     const int pos = textCursor().selectionStart();
 
@@ -1016,7 +1016,7 @@ void CPPEditorWidget::updateFunctionDeclDefLink()
     d->m_updateFunctionDeclDefLinkTimer->start();
 }
 
-void CPPEditorWidget::updateFunctionDeclDefLinkNow()
+void CppEditorWidget::updateFunctionDeclDefLinkNow()
 {
     if (Core::EditorManager::currentEditor() != editor())
         return;
@@ -1038,7 +1038,7 @@ void CPPEditorWidget::updateFunctionDeclDefLinkNow()
     d->m_declDefLinkFinder->startFindLinkAt(textCursor(), d->m_lastSemanticInfo.doc, snapshot);
 }
 
-void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link)
+void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link)
 {
     abortDeclDefLink();
     d->m_declDefLink = link;
@@ -1052,7 +1052,7 @@ void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
 
 }
 
-void CPPEditorWidget::onFilePathChanged()
+void CppEditorWidget::onFilePathChanged()
 {
     QTC_ASSERT(d->m_modelManager, return);
     QByteArray additionalDirectives;
@@ -1072,7 +1072,7 @@ void CPPEditorWidget::onFilePathChanged()
     d->m_preprocessorButton->update();
 }
 
-void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
+void CppEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
 {
     if (!d->m_declDefLink)
         return;
@@ -1081,12 +1081,12 @@ void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
     updateFunctionDeclDefLink();
 }
 
-FollowSymbolUnderCursor *CPPEditorWidget::followSymbolUnderCursorDelegate()
+FollowSymbolUnderCursor *CppEditorWidget::followSymbolUnderCursorDelegate()
 {
     return d->m_followSymbolUnderCursor.data();
 }
 
-void CPPEditorWidget::abortDeclDefLink()
+void CppEditorWidget::abortDeclDefLink()
 {
     if (!d->m_declDefLink)
         return;
@@ -1103,22 +1103,22 @@ void CPPEditorWidget::abortDeclDefLink()
     d->m_declDefLink.clear();
 }
 
-void CPPEditorWidget::onLocalRenamingFinished()
+void CppEditorWidget::onLocalRenamingFinished()
 {
     semanticRehighlight(true);
 }
 
-void CPPEditorWidget::onLocalRenamingProcessKeyPressNormally(QKeyEvent *e)
+void CppEditorWidget::onLocalRenamingProcessKeyPressNormally(QKeyEvent *e)
 {
     BaseTextEditorWidget::keyPressEvent(e);
 }
 
-QTextCharFormat CPPEditorWidget::textCharFormat(TextEditor::TextStyle category)
+QTextCharFormat CppEditorWidget::textCharFormat(TextEditor::TextStyle category)
 {
     return baseTextDocument()->fontSettings().toTextCharFormat(category);
 }
 
-void CPPEditorWidget::showPreProcessorWidget()
+void CppEditorWidget::showPreProcessorWidget()
 {
     const QString &fileName = editor()->document()->filePath();
 

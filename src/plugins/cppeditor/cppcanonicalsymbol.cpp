@@ -41,7 +41,7 @@ using namespace CPlusPlus;
 namespace CppEditor {
 namespace Internal {
 
-CanonicalSymbol::CanonicalSymbol(CPPEditorWidget *editor,
+CanonicalSymbol::CanonicalSymbol(CppEditorWidget *editor,
                                  const Document::Ptr &document,
                                  const Snapshot &snapshot)
     : m_editorWidget(editor),

@@ -52,14 +52,14 @@ GLSLHoverHandler::~GLSLHoverHandler()
 
 bool GLSLHoverHandler::acceptEditor(IEditor *editor)
 {
-    if (qobject_cast<GLSLEditorEditable *>(editor) != 0)
+    if (qobject_cast<GlslEditor *>(editor) != 0)
         return true;
     return false;
 }
 
 void GLSLHoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
 {
-    if (GLSLTextEditorWidget *glslEditor = qobject_cast<GLSLTextEditorWidget *>(editor->widget())) {
+    if (GlslEditorWidget *glslEditor = qobject_cast<GlslEditorWidget *>(editor->widget())) {
         if (! glslEditor->extraSelectionTooltip(pos).isEmpty())
             setToolTip(glslEditor->extraSelectionTooltip(pos));
     }
