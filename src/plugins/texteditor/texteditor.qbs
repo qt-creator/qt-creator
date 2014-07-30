@@ -96,8 +96,6 @@ QtcPlugin {
         "normalindenter.h",
         "outlinefactory.cpp",
         "outlinefactory.h",
-        "plaintexteditor.cpp",
-        "plaintexteditor.h",
         "plaintexteditorfactory.cpp",
         "plaintexteditorfactory.h",
         "quickfix.cpp",

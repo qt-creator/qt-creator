@@ -32,7 +32,7 @@
 
 #include "formwindowfile.h"
 
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <QSharedPointer>
 

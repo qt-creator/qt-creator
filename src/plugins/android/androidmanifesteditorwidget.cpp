@@ -48,7 +48,7 @@
 
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/basetexteditor.h>
 #include <utils/algorithm.h>
 
 #include <QLineEdit>

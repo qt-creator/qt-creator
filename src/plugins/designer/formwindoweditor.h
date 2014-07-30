@@ -32,13 +32,11 @@
 
 #include "designer_export.h"
 #include <coreplugin/editormanager/ieditor.h>
-#include <texteditor/plaintexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
-
-namespace TextEditor { class PlainTextEditor; }
 
 namespace Designer {
 
@@ -46,13 +44,13 @@ namespace Internal { class DesignerXmlEditorWidget; }
 struct FormWindowEditorPrivate;
 
 // IEditor that is used for the QDesignerFormWindowInterface
-// It is a read-only PlainTextEditor that shows the XML of the form.
-// DesignerXmlEditorWidget is the corresponding PlainTextEditorWidget,
+// It is a read-only text editor that shows the XML of the form.
+// DesignerXmlEditorWidget is the corresponding BaseTextEditorWidget,
 // FormWindowFile the corresponding BaseTextDocument.
 // The content from the QDesignerFormWindowInterface is synced to the
 // content of the XML editor.
 
-class DESIGNER_EXPORT FormWindowEditor : public TextEditor::PlainTextEditor
+class DESIGNER_EXPORT FormWindowEditor : public TextEditor::BaseTextEditor
 {
     Q_PROPERTY(QString contents READ contents)
     Q_OBJECT

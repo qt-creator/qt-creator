@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "plaintexteditorfactory.h"
-#include "plaintexteditor.h"
+#include "basetexteditor.h"
 #include "basetextdocument.h"
 #include "normalindenter.h"
 #include "texteditoractionhandler.h"
@@ -80,15 +80,15 @@ Core::IEditor *PlainTextEditorFactory::createEditor()
  */
 void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
 {
-    PlainTextEditor *editorEditable = qobject_cast<PlainTextEditor *>(editor);
-    if (editorEditable) {
-        BaseTextDocument *file = qobject_cast<BaseTextDocument *>(editor->document());
+    BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor);
+    if (textEditor) {
+        Core::IDocument *file = editor->document();
         if (!file)
             return;
-        BaseTextEditorWidget *textEditor = editorEditable->editorWidget();
+        BaseTextEditorWidget *widget = textEditor->editorWidget();
         Core::Id infoSyntaxDefinition(Constants::INFO_SYNTAX_DEFINITION);
         Core::InfoBar *infoBar = file->infoBar();
-        if (!textEditor->isMissingSyntaxDefinition()) {
+        if (!widget->isMissingSyntaxDefinition()) {
             infoBar->removeInfo(infoSyntaxDefinition);
         } else if (infoBar->canInfoBeAdded(infoSyntaxDefinition)) {
             Core::InfoBarEntry info(infoSyntaxDefinition,
@@ -96,7 +96,7 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
                                        "Would you like to try to find one?"),
                                     Core::InfoBarEntry::GlobalSuppressionEnabled);
             info.setCustomButtonInfo(tr("Show Highlighter Options..."),
-                                     textEditor, SLOT(acceptMissingSyntaxDefinitionInfo()));
+                                     widget, SLOT(acceptMissingSyntaxDefinitionInfo()));
             infoBar->addInfo(info);
         }
     }

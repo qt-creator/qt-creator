@@ -37,7 +37,7 @@
 #include "texteditorsettings.h"
 #include "textfilewizard.h"
 #include "plaintexteditorfactory.h"
-#include "plaintexteditor.h"
+#include "basetexteditor.h"
 #include "outlinefactory.h"
 #include "snippets/plaintextsnippetprovider.h"
 #include "textmarkregistry.h"

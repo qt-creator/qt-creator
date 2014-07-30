@@ -31,7 +31,6 @@
 #define ANDROIDMANIFESTEDITORWIDGET_H
 
 #include <texteditor/basetexteditor.h>
-#include <texteditor/plaintexteditor.h>
 
 #include <QAbstractListModel>
 #include <QStackedWidget>

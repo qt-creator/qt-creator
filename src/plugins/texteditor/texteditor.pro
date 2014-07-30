@@ -6,7 +6,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
 include(../../qtcreatorplugin.pri)
 SOURCES += texteditorplugin.cpp \
     textfilewizard.cpp \
-    plaintexteditor.cpp \
     plaintexteditorfactory.cpp \
     basetextdocument.cpp \
     basetexteditor.cpp \
@@ -110,7 +109,6 @@ SOURCES += texteditorplugin.cpp \
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
-    plaintexteditor.h \
     plaintexteditorfactory.h \
     basetexteditor_p.h \
     basetextdocument.h \

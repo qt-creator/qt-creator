@@ -37,7 +37,6 @@ namespace Core { class SearchResultWindow; }
 namespace TextEditor {
 
 class FontSettings;
-class PlainTextEditorWidget;
 class TextEditorSettings;
 
 namespace Internal {

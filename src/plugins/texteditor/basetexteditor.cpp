@@ -48,7 +48,7 @@
 #include "circularclipboard.h"
 #include "circularclipboardassist.h"
 #include "highlighterutils.h"
-#include "plaintexteditor.h"
+#include "basetexteditor.h"
 #include <texteditor/codeassist/codeassistant.h>
 #include <texteditor/codeassist/defaultassistinterface.h>
 #include <texteditor/generichighlighter/context.h>
@@ -115,10 +115,15 @@
 
 /*!
     \class TextEditor::BaseTextEditor
-    \brief The BaseTextEditor class is a base class for QPlainTextEdit-based text editors.
+    \brief The BaseTextEditor class is base implementation for QPlainTextEdit-based
+    text editors. It can use the Kate text highlighting definitions, and some basic
+    auto indentation.
 
-    The corresponding document base class is BaseTextDocument, the corresponding widget base class
-    is BaseTextEditorWidget.
+    The corresponding document base class is BaseTextDocument, the corresponding
+    widget base class is BaseTextEditorWidget.
+
+    It is the default editor for text files used by \QC, if no other editor
+    implementation matches the MIME type.
 */
 
 
@@ -6367,7 +6372,11 @@ QColor BaseTextEditorWidget::replacementPenColor(int blockNumber) const
 
 BaseTextEditor *BaseTextEditorWidget::createEditor()
 {
-    return new PlainTextEditor(this);
+    auto editor = new BaseTextEditor(this);
+    editor->setContext(Core::Context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
+                      TextEditor::Constants::C_TEXTEDITOR));
+    editor->setDuplicateSupported(true);
+    return editor;
 }
 
 void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
@@ -7021,6 +7030,17 @@ void BaseTextEditorWidget::setupAsPlainEditor()
     connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configureMimeType()));
 }
 
+IEditor *BaseTextEditor::duplicate()
+{
+    auto newWidget = new BaseTextEditorWidget(editorWidget());
+    newWidget->setupAsPlainEditor();
+    TextEditorSettings::initializeEditor(newWidget);
+    auto editor = newWidget->editor();
+    editor->setContext(Core::Context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
+                        TextEditor::Constants::C_TEXTEDITOR));
+    editor->setDuplicateSupported(true);
+    return editor;
+}
 
 } // namespace TextEditor
 

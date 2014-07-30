@@ -140,6 +140,8 @@ public:
     Core::IDocument *document();
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 
+    IEditor *duplicate();
+
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     QWidget *toolBar();
