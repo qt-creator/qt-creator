@@ -51,11 +51,13 @@ Controls.TextField {
 
     property bool __dirty: false
 
+    property bool showExtendedFunctionButton: true
+
     ExtendedFunctionButton {
         x: 2
         y: 4
         backendValue: lineEdit.backendValue
-        visible: lineEdit.enabled
+        visible: lineEdit.enabled && showExtendedFunctionButton
     }
 
     ColorLogic {
