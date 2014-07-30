@@ -31,7 +31,6 @@
 #define PYTHONEDITORWIDGET_H
 
 #include <texteditor/basetexteditor.h>
-#include <utils/uncommentselection.h>
 
 namespace PythonEditor {
 namespace Internal {
