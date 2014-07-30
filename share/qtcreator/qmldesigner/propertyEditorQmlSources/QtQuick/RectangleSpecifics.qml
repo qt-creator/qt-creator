@@ -91,6 +91,8 @@ Column {
                     backendValue: backendValues.radius
                     hasSlider: true
                     Layout.preferredWidth: 80
+                    minimumValue: 0
+                    maximumValue: Math.min(backendValues.height.value, backendValues.width.value) / 2
                 }
                 ExpandingSpacer {
 
