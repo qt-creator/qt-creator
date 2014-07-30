@@ -34,13 +34,11 @@
 
 namespace TextEditor {
 
-class PlainTextEditorWidget;
-
 class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
 {
     Q_OBJECT
 public:
-    PlainTextEditor(PlainTextEditorWidget *);
+    PlainTextEditor(BaseTextEditorWidget *);
 
     Core::IEditor *duplicate();
 };
@@ -52,23 +50,6 @@ public:
     PlainTextDocument();
 private slots:
     void updateTabSettings();
-};
-
-class TEXTEDITOR_EXPORT PlainTextEditorWidget : public BaseTextEditorWidget
-{
-    Q_OBJECT
-
-public:
-    PlainTextEditorWidget(PlainTextDocument *doc, QWidget *parent = 0);
-    PlainTextEditorWidget(PlainTextEditorWidget *other);
-
-protected:
-    virtual BaseTextEditor *createEditor() { return new PlainTextEditor(this); }
-
-private:
-    PlainTextEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
-    PlainTextEditorWidget(BaseTextDocument *, QWidget *); //avoid stupidity
-    void ctor();
 };
 
 } // namespace TextEditor

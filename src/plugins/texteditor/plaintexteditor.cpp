@@ -58,7 +58,7 @@ using namespace TextEditor::Internal;
 
 namespace TextEditor {
 
-PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
+PlainTextEditor::PlainTextEditor(BaseTextEditorWidget *editor)
   : BaseTextEditor(editor)
 {
     setContext(Core::Context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
@@ -66,35 +66,10 @@ PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
     setDuplicateSupported(true);
 }
 
-PlainTextEditorWidget::PlainTextEditorWidget(PlainTextDocument *doc, QWidget *parent)
-    : BaseTextEditorWidget(doc, parent)
-{
-    ctor();
-}
-
-PlainTextEditorWidget::PlainTextEditorWidget(PlainTextEditorWidget *other)
-    : BaseTextEditorWidget(other)
-{
-    ctor();
-}
-
-void PlainTextEditorWidget::ctor()
-{
-    setRevisionsVisible(true);
-    setMarksVisible(true);
-    setLineSeparatorsAllowed(true);
-
-    baseTextDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
-
-    connect(baseTextDocument(), SIGNAL(filePathChanged(QString,QString)),
-            this, SLOT(configureMimeType()));
-    connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configureMimeType()));
-}
-
 IEditor *PlainTextEditor::duplicate()
 {
-    PlainTextEditorWidget *newWidget = new PlainTextEditorWidget(
-                qobject_cast<PlainTextEditorWidget *>(editorWidget()));
+    auto newWidget = new BaseTextEditorWidget(editorWidget());
+    newWidget->setupAsPlainEditor();
     TextEditorSettings::initializeEditor(newWidget);
     return newWidget->editor();
 }

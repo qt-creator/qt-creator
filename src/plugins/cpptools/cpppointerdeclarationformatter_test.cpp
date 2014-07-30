@@ -100,20 +100,20 @@ public:
         QVERIFY(ast);
 
         // Open file
-        QScopedPointer<TextEditor::BaseTextEditorWidget> editorWidget(
-            new TextEditor::PlainTextEditorWidget(new TextEditor::PlainTextDocument));
+        TextEditor::BaseTextEditorWidget editorWidget(new TextEditor::PlainTextDocument);
+        editorWidget.setupAsPlainEditor();
         QString error;
-        editorWidget->open(&error, document->fileName(), document->fileName());
+        editorWidget.open(&error, document->fileName(), document->fileName());
         QVERIFY(error.isEmpty());
 
         // Set cursor position
-        QTextCursor cursor = editorWidget->textCursor();
+        QTextCursor cursor = editorWidget.textCursor();
         cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, cursorPosition);
-        editorWidget->setTextCursor(cursor);
+        editorWidget.setTextCursor(cursor);
 
-        QTextDocument *textDocument = editorWidget->document();
+        QTextDocument *textDocument = editorWidget.document();
         CppRefactoringFilePtr cppRefactoringFile
-            = CppRefactoringChanges::file(editorWidget.data(), document);
+            = CppRefactoringChanges::file(&editorWidget, document);
 
         // Prepare for formatting
         Overview overview;

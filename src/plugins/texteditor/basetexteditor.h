@@ -514,7 +514,7 @@ protected:
     virtual bool replacementVisible(int blockNumber) const;
     virtual QColor replacementPenColor(int blockNumber) const;
 
-    virtual BaseTextEditor *createEditor() = 0;
+    virtual BaseTextEditor *createEditor();
     virtual void triggerPendingUpdates();
     virtual void applyFontSettings();
 
@@ -549,6 +549,8 @@ public:
     };
 
     QString selectedText() const;
+
+    void setupAsPlainEditor();
 
 protected:
     /*!

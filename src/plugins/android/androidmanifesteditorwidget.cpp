@@ -111,6 +111,7 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
       m_appNameInStringsXml(false)
 {
     m_textEditorWidget = new AndroidManifestTextEditorWidget(this);
+    m_textEditorWidget->setupAsPlainEditor();
     TextEditor::TextEditorSettings::initializeEditor(m_textEditorWidget);
 
     initializePage();
@@ -619,7 +620,7 @@ Core::IEditor *AndroidManifestEditorWidget::editor() const
     return m_editor;
 }
 
-TextEditor::PlainTextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() const
+TextEditor::BaseTextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() const
 {
     return m_textEditorWidget;
 }
@@ -1421,9 +1422,10 @@ int PermissionsModel::rowCount(const QModelIndex &parent) const
 
 
 AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent)
-    : TextEditor::PlainTextEditorWidget(new AndroidManifestDocument(parent), parent),
+    : TextEditor::BaseTextEditorWidget(new AndroidManifestDocument(parent), parent),
       m_parent(parent)
 {
+    setupAsPlainEditor();
     baseTextDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
 }
 

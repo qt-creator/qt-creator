@@ -40,10 +40,7 @@ namespace Core { class IEditor; }
 
 namespace ProjectExplorer { class PanelsWidget; }
 
-namespace TextEditor {
-class PlainTextEditorWidget;
-class BaseTextEditorWidget;
-}
+namespace TextEditor { class BaseTextEditorWidget; }
 
 namespace Qnx {
 namespace Internal {
@@ -97,7 +94,7 @@ private:
 
     BarDescriptorEditorAssetsWidget *m_assetsWidget;
 
-    TextEditor::PlainTextEditorWidget *m_xmlSourceWidget;
+    TextEditor::BaseTextEditorWidget *m_xmlSourceWidget;
 };
 
 

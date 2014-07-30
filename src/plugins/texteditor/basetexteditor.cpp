@@ -48,6 +48,7 @@
 #include "circularclipboard.h"
 #include "circularclipboardassist.h"
 #include "highlighterutils.h"
+#include "plaintexteditor.h"
 #include <texteditor/codeassist/codeassistant.h>
 #include <texteditor/codeassist/defaultassistinterface.h>
 #include <texteditor/generichighlighter/context.h>
@@ -6364,6 +6365,11 @@ QColor BaseTextEditorWidget::replacementPenColor(int blockNumber) const
     return QColor();
 }
 
+BaseTextEditor *BaseTextEditorWidget::createEditor()
+{
+    return new PlainTextEditor(this);
+}
+
 void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
     menu->addSeparator();
@@ -6999,6 +7005,20 @@ void BaseTextEditorWidget::configureMimeType()
     if (baseTextDocument())
         mimeType = MimeDatabase::findByFile(baseTextDocument()->filePath());
     configureMimeType(mimeType);
+}
+
+// The remnants of PlainTextEditor.
+void BaseTextEditorWidget::setupAsPlainEditor()
+{
+    setRevisionsVisible(true);
+    setMarksVisible(true);
+    setLineSeparatorsAllowed(true);
+
+    baseTextDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
+
+    connect(baseTextDocument(), SIGNAL(filePathChanged(QString,QString)),
+            this, SLOT(configureMimeType()));
+    connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configureMimeType()));
 }
 
 

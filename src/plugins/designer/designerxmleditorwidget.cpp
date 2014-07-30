@@ -39,9 +39,10 @@ namespace Internal {
 
 DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *form,
                                                  QWidget *parent) :
-    TextEditor::PlainTextEditorWidget(new FormWindowFile(form), parent),
+    TextEditor::BaseTextEditorWidget(new FormWindowFile(form), parent),
     m_designerEditor(new FormWindowEditor(this))
 {
+    setupAsPlainEditor();
     setReadOnly(true);
     configureMimeType(baseTextDocument()->mimeType());
 }

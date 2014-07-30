@@ -53,7 +53,7 @@ namespace Internal {
   * Internally manages a FormWindowEditor and uses the plain text
   * editable embedded in it.  */
 
-class DesignerXmlEditorWidget : public TextEditor::PlainTextEditorWidget
+class DesignerXmlEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 public:

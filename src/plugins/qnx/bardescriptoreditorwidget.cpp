@@ -168,7 +168,8 @@ void BarDescriptorEditorWidget::initSourcePage()
 {
     auto doc = new TextEditor::PlainTextDocument;
     doc->setIndenter(new TextEditor::NormalIndenter);
-    m_xmlSourceWidget = new TextEditor::PlainTextEditorWidget(doc, this);
+    m_xmlSourceWidget = new TextEditor::BaseTextEditorWidget(doc, this);
+    m_xmlSourceWidget->setupAsPlainEditor();
     addWidget(m_xmlSourceWidget);
 
     TextEditor::TextEditorSettings::initializeEditor(m_xmlSourceWidget);
