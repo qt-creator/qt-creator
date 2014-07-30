@@ -34,14 +34,28 @@
     location from where it can be run on the desktop, on a device emulator or
     simulator, or on a mobile device that is connected to the development PC.
 
-    To run executable files without deploying them first, deselect the
-    \gui {Tools > Options > Project > Always deploy project before running it}
-    option.
+    To run executable files without deploying them first, select \gui Build >
+    \gui {Run Without Deployment}. To make this the default option, deselect the
+    \gui Tools > \gui Options > \gui Project >
+    \gui {Always deploy project before running it} option.
+
+    To run applications:
+
+    \list 1
+
+        \li Click the \gui {Build and Run Kit Selector} icon (1) or select
+            \gui Build > \gui {Open Build and Run Kit Selector} to select the
+            build and run \l{glossary-buildandrun-kit}{kit}.
+
+            \image qtcreator-kit-selector.png "Kit selector"
+
+        \li Click the \gui Run button (2).
+
+    \endlist
 
     For more information on the options you have, see
     \l{Specifying Run Settings}.
 
-    \include projects/creator-projects-running-desktop.qdocinc
     \include linux-mobile/creator-projects-running-generic-linux.qdocinc
     \include qnx/creator-projects-running-qnx.qdocinc
 */
