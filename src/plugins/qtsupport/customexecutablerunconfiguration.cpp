@@ -71,7 +71,8 @@ void CustomExecutableRunConfiguration::ctor()
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
     LocalApplicationRunConfiguration(parent, Core::Id(CUSTOM_EXECUTABLE_ID)),
     m_workingDirectory(QLatin1String(Constants::DEFAULT_WORKING_DIR)),
-    m_runMode(ProjectExplorer::ApplicationLauncher::Gui)
+    m_runMode(ProjectExplorer::ApplicationLauncher::Gui),
+    m_dialog(0)
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
 
@@ -86,7 +87,8 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
     m_executable(source->m_executable),
     m_workingDirectory(source->m_workingDirectory),
     m_cmdArguments(source->m_cmdArguments),
-    m_runMode(source->m_runMode)
+    m_runMode(source->m_runMode),
+    m_dialog(0)
 {
     ctor();
 }
@@ -94,6 +96,12 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
 // Note: Qt4Project deletes all empty customexecrunconfigs for which isConfigured() == false.
 CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
 {
+    if (m_dialog) {
+        emit configurationFinished();
+        disconnect(m_dialog, SIGNAL(finished(int)),
+                   this, SLOT(configurationDialogFinished()));
+        delete m_dialog;
+    }
 }
 
 // Dialog embedding the CustomExecutableConfigurationWidget
@@ -150,30 +158,33 @@ void CustomExecutableDialog::accept()
     QDialog::accept();
 }
 
-bool CustomExecutableRunConfiguration::ensureConfigured(QString *errorMessage)
+// CustomExecutableRunConfiguration
+
+RunConfiguration::ConfigurationState CustomExecutableRunConfiguration::ensureConfigured(QString *errorMessage)
 {
-    if (isConfigured())
-        return validateExecutable(0, errorMessage);
-    CustomExecutableDialog dialog(this, Core::ICore::mainWindow());
-    dialog.setWindowTitle(displayName());
-    const QString oldExecutable = m_executable;
-    const QString oldWorkingDirectory = m_workingDirectory;
-    const QString oldCmdArguments = m_cmdArguments;
-    if (dialog.exec() == QDialog::Accepted)
-        return validateExecutable(0, errorMessage);
-    // User canceled: Hack: Silence the error dialog.
-    if (errorMessage)
-        *errorMessage = QLatin1String("");
-    // Restore values changed by the configuration widget.
-    if (m_executable != oldExecutable
-        || m_workingDirectory != oldWorkingDirectory
-        || m_cmdArguments != oldCmdArguments) {
-        m_executable = oldExecutable;
-        m_workingDirectory = oldWorkingDirectory;
-        m_cmdArguments = oldCmdArguments;
-        emit changed();
+    Q_UNUSED(errorMessage)
+    if (m_dialog) {// uhm already shown
+        *errorMessage = QLatin1String(""); // no error dialog
+        m_dialog->activateWindow();
+        m_dialog->raise();
+        return UnConfigured;
     }
-    return false;
+
+    m_dialog = new CustomExecutableDialog(this, Core::ICore::mainWindow());
+    connect(m_dialog, SIGNAL(finished(int)),
+            this, SLOT(configurationDialogFinished()));
+    m_dialog->setWindowTitle(displayName()); // pretty pointless
+    m_dialog->show();
+    return Waiting;
+}
+
+void CustomExecutableRunConfiguration::configurationDialogFinished()
+{
+    disconnect(m_dialog, SIGNAL(finished(int)),
+            this, SLOT(configurationDialogFinished()));
+    m_dialog->deleteLater();
+    m_dialog = 0;
+    emit configurationFinished();
 }
 
 // Search the executable in the path.

@@ -163,9 +163,12 @@ public:
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
     virtual QWidget *createConfigurationWidget() = 0;
+
     virtual bool isConfigured() const;
     // Pop up configuration dialog in case for example the executable is missing.
-    virtual bool ensureConfigured(QString *errorMessage = 0);
+    enum ConfigurationState { Configured, UnConfigured, Waiting };
+    // TODO rename function
+    virtual ConfigurationState ensureConfigured(QString *errorMessage = 0);
 
     Target *target() const;
 
@@ -194,6 +197,7 @@ public:
 signals:
     void enabledChanged();
     void requestRunActionsUpdate();
+    void configurationFinished();
 
 protected:
     RunConfiguration(Target *parent, Core::Id id);

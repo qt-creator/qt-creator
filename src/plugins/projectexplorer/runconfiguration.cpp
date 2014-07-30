@@ -273,13 +273,13 @@ bool RunConfiguration::isConfigured() const
     return true;
 }
 
-bool RunConfiguration::ensureConfigured(QString *errorMessage)
+RunConfiguration::ConfigurationState RunConfiguration::ensureConfigured(QString *errorMessage)
 {
     if (isConfigured())
-        return true;
+        return Configured;
     if (errorMessage)
         *errorMessage = tr("Unknown error.");
-    return false;
+    return UnConfigured;
 }
 
 

@@ -74,7 +74,7 @@ public:
 
     QVariantMap toMap() const;
 
-    bool ensureConfigured(QString *errorMessage);
+    ConfigurationState ensureConfigured(QString *errorMessage);
 
 signals:
     void changed();
@@ -85,6 +85,8 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
     QString defaultDisplayName() const;
 
+private slots:
+    void configurationDialogFinished();
 private:
     void ctor();
 
@@ -102,6 +104,7 @@ private:
     QString m_workingDirectory;
     QString m_cmdArguments;
     ProjectExplorer::ApplicationLauncher::Mode m_runMode;
+    QWidget *m_dialog;
 };
 
 class CustomExecutableRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

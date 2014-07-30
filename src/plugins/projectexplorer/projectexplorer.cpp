@@ -248,6 +248,7 @@ struct ProjectExplorerPluginPrivate {
 
     QString m_lastOpenDirectory;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
+    QList<QPair<RunConfiguration *, ProjectExplorer::RunMode>> m_delayedRunConfigurationForRun;
     bool m_shouldHaveRunConfiguration;
     RunMode m_runMode;
     QString m_projectFilterString;
@@ -1753,14 +1754,25 @@ void ProjectExplorerPlugin::buildStateChanged(Project * pro)
 
 void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfiguration, RunMode runMode)
 {
-    QString errorMessage;
-    if (!runConfiguration->ensureConfigured(&errorMessage)) {
-        showRunErrorMessage(errorMessage);
-        return;
+    if (!runConfiguration->isConfigured()) {
+        QString errorMessage;
+        RunConfiguration::ConfigurationState state = runConfiguration->ensureConfigured(&errorMessage);
+
+        if (state == RunConfiguration::UnConfigured) {
+            showRunErrorMessage(errorMessage);
+            return;
+        } else if (state == RunConfiguration::Waiting) {
+            connect(runConfiguration, SIGNAL(configurationFinished()),
+                    this, SLOT(runConfigurationConfigurationFinished()));
+            d->m_delayedRunConfigurationForRun.append(qMakePair(runConfiguration, runMode));
+            return;
+        }
     }
+
     if (IRunControlFactory *runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
         emit aboutToExecuteProject(runConfiguration->target()->project(), runMode);
 
+        QString errorMessage;
         RunControl *control = runControlFactory->create(runConfiguration, runMode, &errorMessage);
         if (!control) {
             showRunErrorMessage(errorMessage);
@@ -1875,6 +1887,22 @@ void ProjectExplorerPlugin::updateContext()
     }
 
     ICore::updateAdditionalContexts(oldContext, newContext);
+}
+
+void ProjectExplorerPlugin::runConfigurationConfigurationFinished()
+{
+    RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
+    ProjectExplorer::RunMode runMode = ProjectExplorer::NoRunMode;
+    for (int i = 0; i < d->m_delayedRunConfigurationForRun.size(); ++i) {
+        if (d->m_delayedRunConfigurationForRun.at(i).first == rc) {
+            runMode = d->m_delayedRunConfigurationForRun.at(i).second;
+            d->m_delayedRunConfigurationForRun.removeAt(i);
+            break;
+        }
+    }
+    if (runMode != ProjectExplorer::NoRunMode
+            && rc->isConfigured())
+        executeRunConfiguration(rc, runMode);
 }
 
 void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node *node)
