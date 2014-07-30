@@ -169,7 +169,6 @@ void BarDescriptorEditorWidget::initAssetsPage()
 void BarDescriptorEditorWidget::initSourcePage()
 {
     auto doc = new TextEditor::BaseTextDocument;
-    doc->setupAsPlainTextDocument();
     doc->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); // FIXME: This looks odd.
     doc->setIndenter(new TextEditor::NormalIndenter);
 

@@ -41,7 +41,6 @@ using namespace Android::Internal;
 AndroidManifestDocument::AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget)
     : m_editorWidget(editorWidget)
 {
-    setupAsPlainTextDocument();
     setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
     setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
     connect(editorWidget, SIGNAL(guiChanged()),

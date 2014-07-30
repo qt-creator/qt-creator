@@ -103,7 +103,6 @@ public:
 
         // Open file
         auto textDocument = new TextEditor::BaseTextDocument;
-        textDocument->setupAsPlainTextDocument();
         textDocument->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
         TextEditor::BaseTextEditorWidget editorWidget(textDocument);
         editorWidget.setupAsPlainEditor();

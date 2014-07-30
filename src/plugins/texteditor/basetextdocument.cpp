@@ -82,7 +82,6 @@ public:
 
 public slots:
     void onModificationChanged(bool modified);
-    void updateTabSettings();
 
 public:
     QString m_defaultPath;
@@ -200,13 +199,6 @@ void BaseTextDocumentPrivate::onModificationChanged(bool modified)
         updateRevisions();
 }
 
-void BaseTextDocumentPrivate::updateTabSettings()
-{
-    if (Highlighter *highlighter = qobject_cast<Highlighter *>(m_highlighter))
-        highlighter->setTabSettings(m_tabSettings);
-}
-
-
 ///////////////////////////////////////////////////////////////////////
 //
 // BaseTextDocument
@@ -304,6 +296,10 @@ void BaseTextDocument::setTabSettings(const TextEditor::TabSettings &tabSettings
     if (tabSettings == d->m_tabSettings)
         return;
     d->m_tabSettings = tabSettings;
+
+    if (Highlighter *highlighter = qobject_cast<Highlighter *>(d->m_highlighter))
+        highlighter->setTabSettings(tabSettings);
+
     emit tabSettingsChanged();
 }
 
@@ -325,11 +321,6 @@ void BaseTextDocument::triggerPendingUpdates()
 {
     if (d->m_fontSettingsNeedsApply)
         applyFontSettings();
-}
-
-void BaseTextDocument::setupAsPlainTextDocument()
-{
-    connect(this, SIGNAL(tabSettingsChanged()), d, SLOT(updateTabSettings()));
 }
 
 void BaseTextDocument::applyFontSettings()
