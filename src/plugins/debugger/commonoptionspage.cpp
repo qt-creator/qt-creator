@@ -397,7 +397,7 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
         layout1->addRow(checkBoxShowQtNamespace);
         layout1->addItem(new QSpacerItem(10, 10));
         layout1->addRow(tr("Maximum string length:"), spinBoxMaximalStringLength);
-        layout1->addRow(tr("Displayh string length:"), spinBoxDisplayStringLimit);
+        layout1->addRow(tr("Display string length:"), spinBoxDisplayStringLimit);
 
         auto lowerLayout = new QHBoxLayout;
         lowerLayout->addLayout(layout1);
