@@ -329,7 +329,7 @@ bool CMakeProject::parseCMakeLists()
     CppTools::CppModelManagerInterface *modelmanager =
             CppTools::CppModelManagerInterface::instance();
     if (modelmanager) {
-        CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+        CppTools::ProjectInfo pinfo = modelmanager->projectInfo(this);
         pinfo.clearProjectParts();
 
         foreach (const CMakeBuildTarget &cbt, m_buildTargets) {

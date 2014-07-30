@@ -36,6 +36,7 @@ HEADERS += \
     cppmodelmanagersupportinternal.h \
     cpppointerdeclarationformatter.h \
     cppprojectfile.h \
+    cppprojects.h \
     cppqtstyleindenter.h \
     cpprefactoringchanges.h \
     cppsemanticinfo.h \
@@ -93,6 +94,7 @@ SOURCES += \
     cppmodelmanagersupportinternal.cpp \
     cpppointerdeclarationformatter.cpp \
     cppprojectfile.cpp \
+    cppprojects.cpp \
     cppqtstyleindenter.cpp \
     cpprefactoringchanges.cpp \
     cppsemanticinfo.cpp \

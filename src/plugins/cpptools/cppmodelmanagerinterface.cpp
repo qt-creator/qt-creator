@@ -34,8 +34,6 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/toolchain.h>
 
-#include <QSet>
-
 using namespace CppTools;
 using namespace ProjectExplorer;
 
@@ -99,71 +97,6 @@ using namespace ProjectExplorer;
     \sa CppTools::CppModelManagerInterface::updateProjectInfo()
 */
 
-ProjectPart::ProjectPart()
-    : project(0)
-    , cVersion(C89)
-    , cxxVersion(CXX11)
-    , cxxExtensions(NoExtensions)
-    , qtVersion(UnknownQt)
-    , cWarningFlags(ProjectExplorer::ToolChain::WarningsDefault)
-    , cxxWarningFlags(ProjectExplorer::ToolChain::WarningsDefault)
-
-{
-}
-
-/*!
-    \brief Retrieves info from concrete compiler using it's flags.
-
-    \param tc Either nullptr or toolchain for project's active target.
-    \param cxxflags C++ or Objective-C++ flags.
-    \param cflags C or ObjectiveC flags if possible, \a cxxflags otherwise.
-*/
-void ProjectPart::evaluateToolchain(const ToolChain *tc,
-                                    const QStringList &cxxflags,
-                                    const QStringList &cflags,
-                                    const Utils::FileName &sysRoot)
-{
-    if (!tc)
-        return;
-
-    ToolChain::CompilerFlags cxx = tc->compilerFlags(cxxflags);
-    ToolChain::CompilerFlags c = (cxxflags == cflags)
-            ? cxx : tc->compilerFlags(cflags);
-
-    if (c & ToolChain::StandardC11)
-        cVersion = C11;
-    else if (c & ToolChain::StandardC99)
-        cVersion = C99;
-    else
-        cVersion = C89;
-
-    if (cxx & ToolChain::StandardCxx11)
-        cxxVersion = CXX11;
-    else
-        cxxVersion = CXX98;
-
-    if (cxx & ToolChain::BorlandExtensions)
-        cxxExtensions |= BorlandExtensions;
-    if (cxx & ToolChain::GnuExtensions)
-        cxxExtensions |= GnuExtensions;
-    if (cxx & ToolChain::MicrosoftExtensions)
-        cxxExtensions |= MicrosoftExtensions;
-    if (cxx & ToolChain::OpenMP)
-        cxxExtensions |= OpenMPExtensions;
-
-    cWarningFlags = tc->warningFlags(cflags);
-    cxxWarningFlags = tc->warningFlags(cxxflags);
-
-    const QList<ProjectExplorer::HeaderPath> headers = tc->systemHeaderPaths(cxxflags, sysRoot);
-    foreach (const ProjectExplorer::HeaderPath &header, headers) {
-        headerPaths << HeaderPath(header.path(),
-                                  header.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath
-                                  ? HeaderPath::FrameworkPath : HeaderPath::IncludePath);
-    }
-
-    toolchainDefines = tc->predefinedMacros(cxxflags);
-}
-
 const QString CppModelManagerInterface::configurationFileName()
 { return CPlusPlus::Preprocessor::configurationFileName; }
 
@@ -183,62 +116,3 @@ CppModelManagerInterface *CppModelManagerInterface::instance()
 {
     return qobject_cast<CppModelManagerInterface *>(CPlusPlus::CppModelManagerBase::instance());
 }
-
-void CppModelManagerInterface::ProjectInfo::clearProjectParts()
-{
-    m_projectParts.clear();
-    m_headerPaths.clear();
-    m_sourceFiles.clear();
-    m_defines.clear();
-}
-
-void CppModelManagerInterface::ProjectInfo::appendProjectPart(const ProjectPart::Ptr &part)
-{
-    if (!part)
-        return;
-
-    m_projectParts.append(part);
-
-    typedef ProjectPart::HeaderPath HeaderPath;
-
-    // Update header paths
-    QSet<HeaderPath> incs = QSet<HeaderPath>::fromList(m_headerPaths);
-    foreach (const HeaderPath &hp, part->headerPaths) {
-        if (!incs.contains(hp)) {
-            incs.insert(hp);
-            m_headerPaths += hp;
-        }
-    }
-
-    // Update source files
-    QSet<QString> srcs = QSet<QString>::fromList(m_sourceFiles);
-    foreach (const ProjectFile &file, part->files)
-        srcs.insert(file.path);
-    m_sourceFiles = srcs.toList();
-
-    // Update defines
-    if (!m_defines.isEmpty())
-        m_defines.append('\n');
-    m_defines.append(part->toolchainDefines);
-    m_defines.append(part->projectDefines);
-    if (!part->projectConfigFile.isEmpty()) {
-        m_defines.append('\n');
-        m_defines += readProjectConfigFile(part);
-        m_defines.append('\n');
-    }
-}
-
-QByteArray CppModelManagerInterface::readProjectConfigFile(const ProjectPart::Ptr &part)
-{
-    QByteArray result;
-
-    QFile f(part->projectConfigFile);
-    if (f.open(QIODevice::ReadOnly)) {
-        QTextStream is(&f);
-        result = is.readAll().toUtf8();
-        f.close();
-    }
-
-    return result;
-}
-

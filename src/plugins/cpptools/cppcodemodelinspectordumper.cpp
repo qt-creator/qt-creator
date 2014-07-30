@@ -472,7 +472,7 @@ Dumper::~Dumper()
     m_out << "*** END Code Model Inspection Report\n";
 }
 
-void Dumper::dumpProjectInfos( const QList<CppModelManagerInterface::ProjectInfo> &projectInfos)
+void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
 {
     const QByteArray i1 = indent(1);
     const QByteArray i2 = indent(2);
@@ -480,7 +480,7 @@ void Dumper::dumpProjectInfos( const QList<CppModelManagerInterface::ProjectInfo
     const QByteArray i4 = indent(4);
 
     m_out << "Projects loaded: " << projectInfos.size() << "{{{1\n";
-    foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
+    foreach (const ProjectInfo &info, projectInfos) {
         const QPointer<ProjectExplorer::Project> project = info.project();
         m_out << i1 << "Project " << project->displayName()
               << " (" << project->projectFilePath().toUserOutput() << "){{{2\n";

@@ -32,11 +32,10 @@
 
 #include "cpptools_global.h"
 
-#include "cppprojectfile.h"
+#include "cppprojects.h"
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/cppmodelmanagerbase.h>
-#include <projectexplorer/toolchain.h>
 
 #include <QFuture>
 #include <QHash>
@@ -53,96 +52,12 @@ namespace Utils { class FileName; }
 namespace CppTools {
 
 class AbstractEditorSupport;
-class ModelManagerSupport;
 class CppCompletionAssistProvider;
 class CppEditorSupport;
 class CppHighlightingSupport;
 class CppIndexingSupport;
+class ModelManagerSupport;
 class WorkingCopy;
-
-class CPPTOOLS_EXPORT ProjectPart
-{
-public:
-    ProjectPart();
-
-    void evaluateToolchain(const ProjectExplorer::ToolChain *tc,
-                           const QStringList &cxxflags,
-                           const QStringList &cflags,
-                           const Utils::FileName &sysRoot);
-
-public:
-    enum CVersion {
-        C89,
-        C99,
-        C11
-    };
-
-    enum CXXVersion {
-        CXX98,
-        CXX11
-    };
-
-    enum CXXExtension {
-        NoExtensions = 0x0,
-        GnuExtensions = 0x1,
-        MicrosoftExtensions = 0x2,
-        BorlandExtensions = 0x4,
-        OpenMPExtensions = 0x8,
-
-        AllExtensions = GnuExtensions | MicrosoftExtensions | BorlandExtensions | OpenMPExtensions
-    };
-    Q_DECLARE_FLAGS(CXXExtensions, CXXExtension)
-
-    enum QtVersion {
-        UnknownQt = -1,
-        NoQt = 0,
-        Qt4 = 1,
-        Qt5 = 2
-    };
-
-    typedef QSharedPointer<ProjectPart> Ptr;
-
-    struct HeaderPath {
-        enum Type { InvalidPath, IncludePath, FrameworkPath };
-
-    public:
-        QString path;
-        Type type;
-
-        HeaderPath(): type(InvalidPath) {}
-        HeaderPath(const QString &path, Type type): path(path), type(type) {}
-
-        bool isValid() const { return type != InvalidPath; }
-        bool isFrameworkPath() const { return type == FrameworkPath; }
-
-        bool operator==(const HeaderPath &other) const
-        { return path == other.path && type == other.type; }
-
-        bool operator!=(const HeaderPath &other) const
-        { return !(*this == other); }
-    };
-    typedef QList<HeaderPath> HeaderPaths;
-
-public:
-    QString displayName;
-    QString projectFile;
-    ProjectExplorer::Project *project;
-    QList<ProjectFile> files;
-    QString projectConfigFile; // currently only used by the Generic Project Manager
-    QByteArray projectDefines;
-    QByteArray toolchainDefines;
-    QList<HeaderPath> headerPaths;
-    QStringList precompiledHeaders;
-    CVersion cVersion;
-    CXXVersion cxxVersion;
-    CXXExtensions cxxExtensions;
-    QtVersion qtVersion;
-    ProjectExplorer::ToolChain::WarningFlags cWarningFlags;
-    ProjectExplorer::ToolChain::WarningFlags cxxWarningFlags;
-};
-
-inline uint qHash(const ProjectPart::HeaderPath &key, uint seed = 0)
-{ return ((qHash(key.path) << 2) | key.type) ^ seed; }
 
 class CPPTOOLS_EXPORT CppModelManagerInterface : public CPlusPlus::CppModelManagerBase
 {
@@ -153,52 +68,6 @@ public:
      enum ProgressNotificationMode {
         ForcedProgressNotification,
         ReservedProgressNotification
-    };
-
-    class CPPTOOLS_EXPORT ProjectInfo
-    {
-    public:
-        ProjectInfo()
-        {}
-
-        ProjectInfo(QPointer<ProjectExplorer::Project> project)
-            : m_project(project)
-        {}
-
-        operator bool() const
-        { return !m_project.isNull(); }
-
-        bool isValid() const
-        { return !m_project.isNull(); }
-
-        bool isNull() const
-        { return m_project.isNull(); }
-
-        QPointer<ProjectExplorer::Project> project() const
-        { return m_project; }
-
-        const QList<ProjectPart::Ptr> projectParts() const
-        { return m_projectParts; }
-
-        void clearProjectParts();
-        void appendProjectPart(const ProjectPart::Ptr &part);
-
-        const ProjectPart::HeaderPaths headerPaths() const
-        { return m_headerPaths; }
-
-        const QStringList sourceFiles() const
-        { return m_sourceFiles; }
-
-        const QByteArray defines() const
-        { return m_defines; }
-
-    private:
-        QPointer<ProjectExplorer::Project> m_project;
-        QList<ProjectPart::Ptr> m_projectParts;
-        // The members below are (re)calculated from the project parts once a part is appended.
-        ProjectPart::HeaderPaths m_headerPaths;
-        QStringList m_sourceFiles;
-        QByteArray m_defines;
     };
 
 public:
@@ -278,9 +147,6 @@ public slots:
 
     virtual void updateModifiedSourceFiles() = 0;
     virtual void GC() = 0;
-
-protected:
-    static QByteArray readProjectConfigFile(const ProjectPart::Ptr &part);
 };
 
 } // namespace CppTools

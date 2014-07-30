@@ -69,7 +69,7 @@ public:
                     const QString &logFileId = QString());
     ~Dumper();
 
-    void dumpProjectInfos(const QList<CppTools::CppModelManagerInterface::ProjectInfo> &projectInfos);
+    void dumpProjectInfos(const QList<CppTools::ProjectInfo> &projectInfos);
     void dumpSnapshot(const CPlusPlus::Snapshot &snapshot,
                       const QString &title,
                       bool isGlobalSnapshot = false);

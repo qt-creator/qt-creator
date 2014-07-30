@@ -150,12 +150,12 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
     // Collect files to process
     QStringList filesToOpen;
     QList<QPointer<ProjectExplorer::Project> > projects;
-    const QList<CppModelManagerInterface::ProjectInfo> projectInfos
+    const QList<ProjectInfo> projectInfos
             = m_modelManager->projectInfos();
     if (projectInfos.isEmpty())
         MSKIP_SINGLE("No project(s) loaded. Test operates only on loaded projects.");
 
-    foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
+    foreach (const ProjectInfo &info, projectInfos) {
         QPointer<ProjectExplorer::Project> project = info.project();
         if (!projects.contains(project))
             projects << project;

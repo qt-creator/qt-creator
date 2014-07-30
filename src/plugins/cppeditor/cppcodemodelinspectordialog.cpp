@@ -949,7 +949,7 @@ class ProjectPartsModel : public QAbstractListModel
 public:
     ProjectPartsModel(QObject *parent);
 
-    void configure(const QList<CppModelManagerInterface::ProjectInfo> &projectInfos,
+    void configure(const QList<ProjectInfo> &projectInfos,
                    const ProjectPart::Ptr &currentEditorsProjectPart);
 
     QModelIndex indexForCurrentEditorsProjectPart() const;
@@ -972,12 +972,12 @@ ProjectPartsModel::ProjectPartsModel(QObject *parent)
 {
 }
 
-void ProjectPartsModel::configure(const QList<CppModelManagerInterface::ProjectInfo> &projectInfos,
+void ProjectPartsModel::configure(const QList<ProjectInfo> &projectInfos,
                                   const ProjectPart::Ptr &currentEditorsProjectPart)
 {
     emit layoutAboutToBeChanged();
     m_projectPartsList.clear();
-    foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
+    foreach (const ProjectInfo &info, projectInfos) {
         foreach (const ProjectPart::Ptr &projectPart, info.projectParts()) {
             if (!m_projectPartsList.contains(projectPart)) {
                 m_projectPartsList << projectPart;
@@ -1416,7 +1416,7 @@ void CppCodeModelInspectorDialog::refresh()
         ? editorSupport->snapshotUpdater()->currentProjectPart()
         : ProjectPart::Ptr();
 
-    const QList<CppModelManagerInterface::ProjectInfo> projectInfos = cmmi->projectInfos();
+    const QList<ProjectInfo> projectInfos = cmmi->projectInfos();
     dumper.dumpProjectInfos(projectInfos);
     m_projectPartsModel->configure(projectInfos, editorsProjectPart);
     m_projectPartsView->resizeColumns(ProjectPartsModel::ColumnCount);

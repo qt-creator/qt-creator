@@ -441,7 +441,7 @@ void PchManager::updateActivePchFiles()
 
     QSet<ProjectPart::Ptr> activeParts;
     CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
-    foreach (const CppTools::CppModelManagerInterface::ProjectInfo &pi, mmi->projectInfos())
+    foreach (const CppTools::ProjectInfo &pi, mmi->projectInfos())
         activeParts.unite(QSet<ProjectPart::Ptr>::fromList(pi.projectParts()));
     QList<ProjectPart::Ptr> partsWithPCHFiles = m_activePchFiles.keys();
     foreach (ProjectPart::Ptr pPart, partsWithPCHFiles)

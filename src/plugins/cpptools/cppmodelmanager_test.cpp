@@ -55,7 +55,7 @@ using namespace CppTools::Internal;
 using namespace ProjectExplorer;
 
 typedef CPlusPlus::Document Document;
-typedef CppTools::CppModelManagerInterface::ProjectInfo ProjectInfo;
+typedef CppTools::ProjectInfo ProjectInfo;
 typedef CppTools::ProjectPart ProjectPart;
 typedef CppTools::ProjectFile ProjectFile;
 

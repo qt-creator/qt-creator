@@ -270,7 +270,7 @@ void GenericProject::refresh(RefreshOptions options)
         CppTools::CppModelManagerInterface::instance();
 
     if (modelManager) {
-        CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
+        CppTools::ProjectInfo pinfo = modelManager->projectInfo(this);
         pinfo.clearProjectParts();
         CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
         part->project = this;

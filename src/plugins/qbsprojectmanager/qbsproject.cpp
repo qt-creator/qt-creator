@@ -627,7 +627,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
     if (!modelmanager)
         return;
 
-    CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+    CppTools::ProjectInfo pinfo = modelmanager->projectInfo(this);
     pinfo.clearProjectParts();
     CppTools::ProjectPart::QtVersion qtVersionForPart
             = CppTools::ProjectPart::NoQt;

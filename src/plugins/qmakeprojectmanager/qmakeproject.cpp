@@ -495,7 +495,7 @@ void QmakeProject::updateCppCodeModel()
     FindQmakeProFiles findQmakeProFiles;
     QList<QmakeProFileNode *> proFiles = findQmakeProFiles(rootProjectNode());
 
-    CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
+    CppTools::ProjectInfo pinfo = modelmanager->projectInfo(this);
     pinfo.clearProjectParts();
     ProjectPart::QtVersion qtVersionForPart = ProjectPart::NoQt;
     if (qtVersion) {

@@ -433,8 +433,8 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
     // Find files in other projects
     } else {
         CppModelManager *modelManager = CppModelManager::instance();
-        QList<CppModelManagerInterface::ProjectInfo> projectInfos = modelManager->projectInfos();
-        foreach (const CppModelManagerInterface::ProjectInfo &projectInfo, projectInfos) {
+        QList<ProjectInfo> projectInfos = modelManager->projectInfos();
+        foreach (const ProjectInfo &projectInfo, projectInfos) {
             const ProjectExplorer::Project *project = projectInfo.project().data();
             if (project == currentProject)
                 continue; // We have already checked the current project.

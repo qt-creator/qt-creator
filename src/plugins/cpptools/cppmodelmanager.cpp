@@ -368,7 +368,7 @@ QByteArray CppModelManager::internalDefinedMacros() const
             addUnique(part->toolchainDefines.split('\n'), &macros, &alreadyIn);
             addUnique(part->projectDefines.split('\n'), &macros, &alreadyIn);
             if (!part->projectConfigFile.isEmpty())
-                macros += readProjectConfigFile(part);
+                macros += ProjectPart::readProjectConfigFile(part);
         }
     }
     return macros;
@@ -523,13 +523,13 @@ QFuture<void> CppModelManager::updateSourceFiles(const QStringList &sourceFiles,
     return m_internalIndexingSupport->refreshSourceFiles(sourceFiles, mode);
 }
 
-QList<CppModelManager::ProjectInfo> CppModelManager::projectInfos() const
+QList<ProjectInfo> CppModelManager::projectInfos() const
 {
     QMutexLocker locker(&m_projectMutex);
     return m_projectToProjectsInfo.values();
 }
 
-CppModelManager::ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Project *project) const
+ProjectInfo CppModelManager::projectInfo(ProjectExplorer::Project *project) const
 {
     QMutexLocker locker(&m_projectMutex);
     return m_projectToProjectsInfo.value(project, ProjectInfo(project));
@@ -569,8 +569,8 @@ void CppModelManager::removeFilesFromSnapshot(const QSet<QString> &filesToRemove
 class ProjectInfoComparer
 {
 public:
-    ProjectInfoComparer(const CppModelManager::ProjectInfo &oldProjectInfo,
-                        const CppModelManager::ProjectInfo &newProjectInfo)
+    ProjectInfoComparer(const ProjectInfo &oldProjectInfo,
+                        const ProjectInfo &newProjectInfo)
         : m_old(oldProjectInfo)
         , m_oldSourceFiles(oldProjectInfo.sourceFiles().toSet())
         , m_new(newProjectInfo)
@@ -625,10 +625,10 @@ public:
     }
 
 private:
-    const CppModelManager::ProjectInfo &m_old;
+    const ProjectInfo &m_old;
     const QSet<QString> m_oldSourceFiles;
 
-    const CppModelManager::ProjectInfo &m_new;
+    const ProjectInfo &m_new;
     const QSet<QString> m_newSourceFiles;
 };
 

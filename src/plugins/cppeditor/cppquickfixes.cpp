@@ -1903,9 +1903,9 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     // find the include paths
     ProjectPart::HeaderPaths headerPaths;
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-    QList<CppModelManagerInterface::ProjectInfo> projectInfos = modelManager->projectInfos();
+    QList<ProjectInfo> projectInfos = modelManager->projectInfos();
     bool inProject = false;
-    foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
+    foreach (const ProjectInfo &info, projectInfos) {
         foreach (ProjectPart::Ptr part, info.projectParts()) {
             foreach (const ProjectFile &file, part->files) {
                 if (file.path == doc->fileName()) {

@@ -98,7 +98,7 @@ void GenericProjectPlugin::test_simple()
     cppHelper.waitForSourceFilesRefreshed(mainFile);
 
     CppModelManagerInterface *mm = cppHelper.cppModelManager();
-    CppModelManagerInterface::ProjectInfo pInfo = mm->projectInfo(project);
+    ProjectInfo pInfo = mm->projectInfo(project);
 
     QCOMPARE(pInfo.projectParts().size(), 1);
 
