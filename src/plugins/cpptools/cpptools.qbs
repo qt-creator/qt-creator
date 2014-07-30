@@ -24,6 +24,7 @@ QtcPlugin {
 
     files: [
         "abstracteditorsupport.cpp", "abstracteditorsupport.h",
+        "baseeditordocumentparser.cpp", "baseeditordocumentparser.h",
         "builtinindexingsupport.cpp", "builtinindexingsupport.h",
         "commentssettings.cpp", "commentssettings.h",
         "completionsettingspage.cpp", "completionsettingspage.h", "completionsettingspage.ui",

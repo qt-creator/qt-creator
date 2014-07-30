@@ -4,6 +4,7 @@ include(../../qtcreatorplugin.pri)
 
 HEADERS += \
     abstracteditorsupport.h \
+    baseeditordocumentparser.h \
     builtinindexingsupport.h \
     commentssettings.h \
     completionsettingspage.h \
@@ -62,6 +63,7 @@ HEADERS += \
 
 SOURCES += \
     abstracteditorsupport.cpp \
+    baseeditordocumentparser.cpp \
     builtinindexingsupport.cpp \
     commentssettings.cpp \
     completionsettingspage.cpp \

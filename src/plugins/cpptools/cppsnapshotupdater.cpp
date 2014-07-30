@@ -36,11 +36,8 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-SnapshotUpdater::SnapshotUpdater(const QString &fileInEditor)
-    : m_mutex(QMutex::Recursive)
-    , m_fileInEditor(fileInEditor)
-    , m_editorDefinesChangedSinceLastUpdate(false)
-    , m_usePrecompiledHeaders(false)
+SnapshotUpdater::SnapshotUpdater(const QString &filePath)
+    : BaseEditorDocumentParser(filePath)
     , m_forceSnapshotInvalidation(false)
     , m_releaseSourceAndAST(true)
 {
@@ -50,10 +47,10 @@ void SnapshotUpdater::update(WorkingCopy workingCopy)
 {
     QMutexLocker locker(&m_mutex);
 
-    if (m_fileInEditor.isEmpty())
+    if (filePath().isEmpty())
         return;
 
-    bool invalidateSnapshot = false, invalidateConfig = false, editorDefinesChanged = false;
+    bool invalidateSnapshot = false, invalidateConfig = false, editorDefinesChanged_ = false;
 
     CppModelManager *modelManager
         = dynamic_cast<CppModelManager *>(CppModelManagerInterface::instance());
@@ -69,13 +66,13 @@ void SnapshotUpdater::update(WorkingCopy workingCopy)
         m_forceSnapshotInvalidation = false;
     }
 
-    if (m_projectPart) {
-        configFile += m_projectPart->toolchainDefines;
-        configFile += m_projectPart->projectDefines;
-        headerPaths = m_projectPart->headerPaths;
-        projectConfigFile = m_projectPart->projectConfigFile;
-        if (m_usePrecompiledHeaders)
-            precompiledHeaders = m_projectPart->precompiledHeaders;
+    if (const ProjectPart::Ptr part = projectPart()) {
+        configFile += part->toolchainDefines;
+        configFile += part->projectDefines;
+        headerPaths = part->headerPaths;
+        projectConfigFile = part->projectConfigFile;
+        if (usePrecompiledHeaders())
+            precompiledHeaders = part->precompiledHeaders;
     }
 
     if (configFile != m_configFile) {
@@ -84,10 +81,10 @@ void SnapshotUpdater::update(WorkingCopy workingCopy)
         invalidateConfig = true;
     }
 
-    if (m_editorDefinesChangedSinceLastUpdate) {
+    if (editorDefinesChanged()) {
         invalidateSnapshot = true;
-        editorDefinesChanged = true;
-        m_editorDefinesChangedSinceLastUpdate = false;
+        editorDefinesChanged_ = true;
+        resetEditorDefinesChanged();
     }
 
     if (headerPaths != m_headerPaths) {
@@ -144,18 +141,18 @@ void SnapshotUpdater::update(WorkingCopy workingCopy)
             m_snapshot.remove(configurationFileName);
         if (!m_snapshot.contains(configurationFileName))
             workingCopy.insert(configurationFileName, m_configFile);
-        m_snapshot.remove(m_fileInEditor);
+        m_snapshot.remove(filePath());
 
         static const QString editorDefinesFileName
             = CppModelManagerInterface::editorConfigurationFileName();
-        if (editorDefinesChanged) {
+        if (editorDefinesChanged_) {
             m_snapshot.remove(editorDefinesFileName);
-            workingCopy.insert(editorDefinesFileName, m_editorDefines);
+            workingCopy.insert(editorDefinesFileName, editorDefines());
         }
 
         CppSourceProcessor sourceProcessor(m_snapshot, [&](const Document::Ptr &doc) {
             const QString fileName = doc->fileName();
-            const bool isInEditor = fileName == fileInEditor();
+            const bool isInEditor = fileName == filePath();
             Document::Ptr otherDoc = modelManager->document(fileName);
             unsigned newRev = otherDoc.isNull() ? 1U : otherDoc->revision() + 1;
             if (isInEditor)
@@ -166,22 +163,21 @@ void SnapshotUpdater::update(WorkingCopy workingCopy)
                 doc->releaseSourceAndAST();
         });
         Snapshot globalSnapshot = modelManager->snapshot();
-        globalSnapshot.remove(fileInEditor());
+        globalSnapshot.remove(filePath());
         sourceProcessor.setGlobalSnapshot(globalSnapshot);
         sourceProcessor.setWorkingCopy(workingCopy);
         sourceProcessor.setHeaderPaths(m_headerPaths);
         sourceProcessor.run(configurationFileName);
         if (!m_projectConfigFile.isEmpty())
             sourceProcessor.run(m_projectConfigFile);
-        if (m_usePrecompiledHeaders) {
+        if (usePrecompiledHeaders()) {
             foreach (const QString &precompiledHeader, m_precompiledHeaders)
                 sourceProcessor.run(precompiledHeader);
         }
-        if (!m_editorDefines.isEmpty())
+        if (!editorDefines().isEmpty())
             sourceProcessor.run(editorDefinesFileName);
-        sourceProcessor.run(m_fileInEditor, m_usePrecompiledHeaders ? m_precompiledHeaders
+        sourceProcessor.run(filePath(), usePrecompiledHeaders() ? m_precompiledHeaders
                                                                     : QStringList());
-
         m_snapshot = sourceProcessor.snapshot();
         Snapshot newSnapshot = m_snapshot.simplified(document());
         for (Snapshot::const_iterator i = m_snapshot.begin(), ei = m_snapshot.end(); i != ei; ++i) {
@@ -193,7 +189,7 @@ void SnapshotUpdater::update(WorkingCopy workingCopy)
     }
 }
 
-void SnapshotUpdater::releaseSnapshot()
+void SnapshotUpdater::releaseResources()
 {
     QMutexLocker locker(&m_mutex);
     m_snapshot = Snapshot();
@@ -204,7 +200,7 @@ void SnapshotUpdater::releaseSnapshot()
 Document::Ptr SnapshotUpdater::document() const
 {
     QMutexLocker locker(&m_mutex);
-    return m_snapshot.document(m_fileInEditor);
+    return m_snapshot.document(filePath());
 }
 
 Snapshot SnapshotUpdater::snapshot() const
@@ -219,73 +215,16 @@ ProjectPart::HeaderPaths SnapshotUpdater::headerPaths() const
     return m_headerPaths;
 }
 
-ProjectPart::Ptr SnapshotUpdater::currentProjectPart() const
-{
-    QMutexLocker locker(&m_mutex);
-    return m_projectPart;
-}
-
-void SnapshotUpdater::setProjectPart(ProjectPart::Ptr projectPart)
-{
-    QMutexLocker locker(&m_mutex);
-    m_manuallySetProjectPart = projectPart;
-}
-
-void SnapshotUpdater::setUsePrecompiledHeaders(bool usePrecompiledHeaders)
-{
-    QMutexLocker locker(&m_mutex);
-    m_usePrecompiledHeaders = usePrecompiledHeaders;
-}
-
-void SnapshotUpdater::setEditorDefines(const QByteArray &editorDefines)
-{
-    QMutexLocker locker(&m_mutex);
-
-    if (editorDefines != m_editorDefines) {
-        m_editorDefines = editorDefines;
-        m_editorDefinesChangedSinceLastUpdate = true;
-    }
-}
-
 void SnapshotUpdater::setReleaseSourceAndAST(bool onoff)
 {
     QMutexLocker locker(&m_mutex);
     m_releaseSourceAndAST = onoff;
 }
 
-void SnapshotUpdater::updateProjectPart()
-{
-    if (m_manuallySetProjectPart) {
-        m_projectPart = m_manuallySetProjectPart;
-        return;
-    }
-
-    CppModelManager *cmm = dynamic_cast<CppModelManager *>(CppModelManagerInterface::instance());
-    QList<ProjectPart::Ptr> pParts = cmm->projectPart(m_fileInEditor);
-    if (pParts.isEmpty()) {
-        if (m_projectPart)
-            // File is not directly part of any project, but we got one before. We will re-use it,
-            // because re-calculating this can be expensive when the dependency table is big.
-            return;
-
-        // Fall-back step 1: Get some parts through the dependency table:
-        pParts = cmm->projectPartFromDependencies(m_fileInEditor);
-        if (pParts.isEmpty())
-            // Fall-back step 2: Use fall-back part from the model manager:
-            m_projectPart = cmm->fallbackProjectPart();
-        else
-            m_projectPart = pParts.first();
-    } else {
-        if (!pParts.contains(m_projectPart))
-            // Apparently the project file changed, so update our project part.
-            m_projectPart = pParts.first();
-    }
-}
-
 void SnapshotUpdater::addFileAndDependencies(QSet<QString> *toRemove, const QString &fileName) const
 {
     toRemove->insert(fileName);
-    if (fileName != m_fileInEditor) {
+    if (fileName != filePath()) {
         QStringList deps = m_deps.filesDependingOn(fileName);
         toRemove->unite(QSet<QString>::fromList(deps));
     }

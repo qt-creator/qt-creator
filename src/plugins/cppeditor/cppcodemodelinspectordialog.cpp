@@ -1413,7 +1413,7 @@ void CppCodeModelInspectorDialog::refresh()
 
     // Project Parts
     const ProjectPart::Ptr editorsProjectPart = editorSupport
-        ? editorSupport->snapshotUpdater()->currentProjectPart()
+        ? editorSupport->snapshotUpdater()->projectPart()
         : ProjectPart::Ptr();
 
     const QList<ProjectInfo> projectInfos = cmmi->projectInfos();

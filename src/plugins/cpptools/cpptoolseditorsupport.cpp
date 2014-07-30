@@ -262,7 +262,7 @@ CppCompletionAssistProvider *CppEditorSupport::completionAssistProvider() const
 QSharedPointer<SnapshotUpdater> CppEditorSupport::snapshotUpdater()
 {
     QSharedPointer<SnapshotUpdater> updater = snapshotUpdater_internal();
-    if (!updater || updater->fileInEditor() != fileName()) {
+    if (!updater || updater->filePath() != fileName()) {
         updater = QSharedPointer<SnapshotUpdater>(new SnapshotUpdater(fileName()));
         setSnapshotUpdater_internal(updater);
 
@@ -293,7 +293,7 @@ static void parse(QFutureInterface<void> &future, QSharedPointer<SnapshotUpdater
 
     CppModelManager *cmm = qobject_cast<CppModelManager *>(CppModelManager::instance());
     updater->update(workingCopy);
-    cmm->finishedRefreshingSourceFiles(QStringList(updater->fileInEditor()));
+    cmm->finishedRefreshingSourceFiles(QStringList(updater->filePath()));
 
     future.setProgressValue(1);
 }
@@ -488,7 +488,7 @@ void CppEditorSupport::releaseResources()
 {
     m_highlighter.cancel();
     m_highlighter = QFuture<TextEditor::HighlightingResult>();
-    snapshotUpdater()->releaseSnapshot();
+    snapshotUpdater()->releaseResources();
     setSemanticInfo(SemanticInfo(), /*emitSignal=*/ false);
     m_lastHighlightOnCompleteSemanticInfo = true;
 }

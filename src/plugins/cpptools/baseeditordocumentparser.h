@@ -27,52 +27,57 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_INTERNAL_SNAPSHOTUPDATER_H
-#define CPPTOOLS_INTERNAL_SNAPSHOTUPDATER_H
+#ifndef BASEEDITORDOCUMENTPARSER_H
+#define BASEEDITORDOCUMENTPARSER_H
 
-#include "baseeditordocumentparser.h"
+#include "cppmodelmanagerinterface.h"
 #include "cpptools_global.h"
-#include "cppmodelmanager.h"
-
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/DependencyTable.h>
-#include <utils/qtcoverride.h>
-
-#include <QMutex>
-#include <QString>
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT SnapshotUpdater : public BaseEditorDocumentParser
+class CPPTOOLS_EXPORT BaseEditorDocumentParser
 {
+    Q_DISABLE_COPY(BaseEditorDocumentParser)
+    BaseEditorDocumentParser();
+
 public:
-    SnapshotUpdater(const QString &filePath);
+    BaseEditorDocumentParser(const QString &filePath);
+    virtual ~BaseEditorDocumentParser();
 
-    void update(WorkingCopy workingCopy) QTC_OVERRIDE;
-    void releaseResources();
+    QString filePath() const;
 
-    CPlusPlus::Document::Ptr document() const;
-    CPlusPlus::Snapshot snapshot() const;
-    ProjectPart::HeaderPaths headerPaths() const;
+    virtual void update(WorkingCopy workingCopy) = 0;
 
-    void setReleaseSourceAndAST(bool onoff);
+    ProjectPart::Ptr projectPart() const;
+    void setProjectPart(ProjectPart::Ptr projectPart);
+
+    bool usePrecompiledHeaders() const;
+    void setUsePrecompiledHeaders(bool usePrecompiledHeaders);
+
+    QByteArray editorDefines() const;
+    void setEditorDefines(const QByteArray &editorDefines);
+
+protected:
+    void updateProjectPart();
+
+    bool editorDefinesChanged() const;
+    void resetEditorDefinesChanged();
+
+protected:
+    mutable QMutex m_mutex;
 
 private:
-    void addFileAndDependencies(QSet<QString> *toRemove, const QString &fileName) const;
+    const QString m_filePath;
 
-private:
-    QByteArray m_configFile;
+    ProjectPart::Ptr m_projectPart;
+    ProjectPart::Ptr m_manuallySetProjectPart;
 
-    ProjectPart::HeaderPaths m_headerPaths;
-    QString m_projectConfigFile;
-    QStringList m_precompiledHeaders;
+    bool m_usePrecompiledHeaders;
 
-    CPlusPlus::Snapshot m_snapshot;
-    CPlusPlus::DependencyTable m_deps;
-    bool m_forceSnapshotInvalidation;
-    bool m_releaseSourceAndAST;
+    QByteArray m_editorDefines;
+    bool m_editorDefinesChangedSinceLastUpdate;
 };
 
 } // namespace CppTools
 
-#endif // CPPTOOLS_INTERNAL_SNAPSHOTUPDATER_H
+#endif // BASEEDITORDOCUMENTPARSER_H
