@@ -55,6 +55,7 @@ QmlJSEditor::QmlJSEditor(QmlJSTextEditorWidget *editor)
     m_context.add(ProjectExplorer::Constants::LANG_QMLJS);
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>());
 }
 
 bool QmlJSEditor::isDesignModePreferred() const
@@ -64,11 +65,6 @@ bool QmlJSEditor::isDesignModePreferred() const
     if (mode && mode->id() == Core::Constants::MODE_DESIGN)
         return true;
     return false;
-}
-
-TextEditor::CompletionAssistProvider *QmlJSEditor::completionAssistProvider()
-{
-    return ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>();
 }
 
 } // namespace Internal

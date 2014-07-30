@@ -198,6 +198,7 @@ public:
     QAction *m_fileEncodingLabelAction;
     Utils::LineColumnLabel *m_fileEncodingLabel;
     CommentDefinition m_commentDefinition;
+    std::function<CompletionAssistProvider *()> m_completionAssistProvider;
 };
 
 class BaseTextEditorWidgetPrivate
@@ -6447,6 +6448,8 @@ BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
     d->m_cursorPositionLabelAction = d->m_toolBar->addWidget(d->m_cursorPositionLabel);
     d->m_fileEncodingLabelAction = d->m_toolBar->addWidget(d->m_fileEncodingLabel);
 
+    d->m_completionAssistProvider = [] () -> CompletionAssistProvider * { return 0; };
+
     setFileEncodingLabelVisible(editor->displaySettings().m_displayFileEncoding);
     connect(editor, SIGNAL(cursorPositionChanged()), this, SLOT(updateCursorPosition()));
     connect(d->m_cursorPositionLabel, SIGNAL(clicked()), this, SLOT(openGotoLocator()));
@@ -6587,7 +6590,17 @@ void BaseTextEditor::setCommentStyle(CommentDefinition::Style style)
 
 CompletionAssistProvider *BaseTextEditor::completionAssistProvider()
 {
-    return 0;
+    return d->m_completionAssistProvider();
+}
+
+void BaseTextEditor::setCompletionAssistProvider(CompletionAssistProvider *provider)
+{
+    d->m_completionAssistProvider = [provider] () -> CompletionAssistProvider * { return provider; };
+}
+
+void BaseTextEditor::setCompletionAssistProvider(const std::function<CompletionAssistProvider *()> &provider)
+{
+    d->m_completionAssistProvider = provider;
 }
 
 QObject *BaseTextEditor::fileEncodingLabel() const

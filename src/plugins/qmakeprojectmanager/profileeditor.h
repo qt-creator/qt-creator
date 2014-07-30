@@ -48,7 +48,6 @@ public:
     ProFileEditor(ProFileEditorWidget *);
 
     Core::IEditor *duplicate();
-    TextEditor::CompletionAssistProvider *completionAssistProvider();
 };
 
 class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget

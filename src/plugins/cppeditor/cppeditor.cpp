@@ -114,6 +114,9 @@ CPPEditor::CPPEditor(CppEditorWidget *editor)
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCompletionAssistProvider([this] () -> TextEditor::CompletionAssistProvider * {
+        return CppModelManagerInterface::instance()->cppEditorSupport(this)->completionAssistProvider();
+    });
 }
 
 Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
@@ -795,11 +798,6 @@ bool CPPEditor::open(QString *errorString, const QString &fileName, const QStrin
         return false;
     baseTextDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
     return true;
-}
-
-TextEditor::CompletionAssistProvider *CPPEditor::completionAssistProvider()
-{
-    return CppModelManagerInterface::instance()->cppEditorSupport(this)->completionAssistProvider();
 }
 
 void CppEditorWidget::applyFontSettings()

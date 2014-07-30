@@ -28,17 +28,14 @@
 ****************************************************************************/
 
 #include "glsleditoreditable.h"
-#include "glsleditor.h"
 #include "glsleditorconstants.h"
+#include "glslcompletionassist.h"
 
 #include <texteditor/texteditorconstants.h>
-#include <qmldesigner/qmldesignerconstants.h>
 
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/designmode.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/coreconstants.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 namespace GLSLEditor {
 namespace Internal {
@@ -50,6 +47,7 @@ GlslEditor::GlslEditor(GlslEditorWidget *editor)
                              TextEditor::Constants::C_TEXTEDITOR));
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GLSLCompletionAssistProvider>());
 }
 
 } // namespace Internal

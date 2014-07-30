@@ -66,8 +66,6 @@ public:
     bool open(QString *errorString,
               const QString &fileName,
               const QString &realFileName) QTC_OVERRIDE;
-
-    TextEditor::CompletionAssistProvider *completionAssistProvider() QTC_OVERRIDE;
 };
 
 class CppEditorWidget : public TextEditor::BaseTextEditorWidget

@@ -56,6 +56,7 @@ JavaEditor::JavaEditor(JavaEditorWidget *editor)
               TextEditor::Constants::C_TEXTEDITOR));
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<JavaCompletionAssistProvider>());
 }
 
 Core::IEditor *JavaEditor::duplicate()
@@ -64,11 +65,6 @@ Core::IEditor *JavaEditor::duplicate()
                 qobject_cast<JavaEditorWidget*>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
-}
-
-TextEditor::CompletionAssistProvider *JavaEditor::completionAssistProvider()
-{
-    return ExtensionSystem::PluginManager::getObject<JavaCompletionAssistProvider>();
 }
 
 //

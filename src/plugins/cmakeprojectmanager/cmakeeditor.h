@@ -53,7 +53,6 @@ public:
     CMakeEditor(CMakeEditorWidget *);
 
     Core::IEditor *duplicate();
-    TextEditor::CompletionAssistProvider *completionAssistProvider();
 
     QString contextHelpId() const;
 

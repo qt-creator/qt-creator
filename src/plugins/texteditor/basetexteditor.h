@@ -42,6 +42,7 @@
 #include <utils/uncommentselection.h>
 
 #include <QPlainTextEdit>
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QToolBar;
@@ -185,7 +186,12 @@ public:
     /*! Convenience style setter. */
     void setCommentStyle(Utils::CommentDefinition::Style style);
 
-    virtual CompletionAssistProvider *completionAssistProvider();
+    CompletionAssistProvider *completionAssistProvider();
+    void setCompletionAssistProvider(CompletionAssistProvider *provider); // Not owned.
+
+    // FIXME: Only used to delay initialization from CppEditor.
+    // There should be something simpler.
+    void setCompletionAssistProvider(const std::function<CompletionAssistProvider *()> &provider);
 
     QObject *fileEncodingLabel() const; // FIXME: Remove
 

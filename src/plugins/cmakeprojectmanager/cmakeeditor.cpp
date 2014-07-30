@@ -63,6 +63,7 @@ CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
               TextEditor::Constants::C_TEXTEDITOR));
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::HashStyle);
+    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>());
     connect(document(), SIGNAL(changed()), this, SLOT(markAsChanged()));
 }
 
@@ -72,11 +73,6 @@ Core::IEditor *CMakeEditor::duplicate()
                 qobject_cast<CMakeEditorWidget *>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
-}
-
-TextEditor::CompletionAssistProvider *CMakeEditor::completionAssistProvider()
-{
-    return ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>();
 }
 
 void CMakeEditor::markAsChanged()

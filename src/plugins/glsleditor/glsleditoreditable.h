@@ -46,7 +46,6 @@ public:
 
     Core::IEditor *duplicate();
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    TextEditor::CompletionAssistProvider *completionAssistProvider();
 };
 
 } // namespace Internal

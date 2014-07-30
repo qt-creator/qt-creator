@@ -59,6 +59,7 @@ ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
               TextEditor::Constants::C_TEXTEDITOR));
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::HashStyle);
+    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>());
 }
 
 Core::IEditor *ProFileEditor::duplicate()
@@ -67,11 +68,6 @@ Core::IEditor *ProFileEditor::duplicate()
                 qobject_cast<ProFileEditorWidget*>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
-}
-
-TextEditor::CompletionAssistProvider *ProFileEditor::completionAssistProvider()
-{
-    return ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>();
 }
 
 //
