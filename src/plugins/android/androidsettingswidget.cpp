@@ -208,7 +208,7 @@ static QPair<QStringList, bool> checkGdbForBrokenPython(const QStringList &paths
             if (output.contains("(gdb)"))
                 break;
             if (timer.elapsed() > 7 * 1000)
-                return qMakePair(QStringList(path), true); // Took too long, abort
+                return qMakePair(paths, true); // Took too long, abort
         }
 
         output.clear();
@@ -219,7 +219,7 @@ static QPair<QStringList, bool> checkGdbForBrokenPython(const QStringList &paths
         proc.write("quit\n");
         while (proc.waitForFinished(300)) {
             if (timer.elapsed() > 9 * 1000)
-                return qMakePair(QStringList(path), true); // Took too long, abort
+                return qMakePair(paths, true); // Took too long, abort
         }
         proc.waitForFinished();
 
