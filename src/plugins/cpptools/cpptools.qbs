@@ -68,6 +68,7 @@ QtcPlugin {
         "cpptoolsplugin.cpp", "cpptoolsplugin.h",
         "cpptoolsreuse.cpp", "cpptoolsreuse.h",
         "cpptoolssettings.cpp", "cpptoolssettings.h",
+        "cppworkingcopy.cpp", "cppworkingcopy.h",
         "doxygengenerator.cpp", "doxygengenerator.h",
         "functionutils.cpp", "functionutils.h",
         "includeutils.cpp", "includeutils.h",

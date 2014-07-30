@@ -2,6 +2,7 @@
 #define CPPSOURCEPROCESSOR_H
 
 #include "cppmodelmanagerinterface.h"
+#include "cppworkingcopy.h"
 
 #include <cplusplus/PreprocessorEnvironment.h>
 #include <cplusplus/pp-engine.h>
@@ -39,7 +40,7 @@ public:
     { m_dumpFileNameWhileParsing = onoff; }
 
     void setRevision(unsigned revision);
-    void setWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy);
+    void setWorkingCopy(const CppTools::WorkingCopy &workingCopy);
     void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
     void setTodo(const QStringList &files);
 
@@ -91,7 +92,7 @@ private:
     CPlusPlus::Environment m_env;
     CPlusPlus::Preprocessor m_preprocess;
     ProjectPart::HeaderPaths m_headerPaths;
-    CppTools::CppModelManagerInterface::WorkingCopy m_workingCopy;
+    CppTools::WorkingCopy m_workingCopy;
     QSet<QString> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;
     QSet<QString> m_todo;

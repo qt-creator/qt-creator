@@ -38,7 +38,7 @@ public:
     int dumpFileNameWhileParsing;
     int revision;
     ProjectPart::HeaderPaths headerPaths;
-    CppModelManagerInterface::WorkingCopy workingCopy;
+    WorkingCopy workingCopy;
     QStringList sourceFiles;
 };
 

@@ -479,7 +479,7 @@ void CppModelManager::replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot)
     m_snapshot = newSnapshot;
 }
 
-CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
+WorkingCopy CppModelManager::buildWorkingCopyList()
 {
     WorkingCopy workingCopy;
 
@@ -502,7 +502,7 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
     return workingCopy;
 }
 
-CppModelManager::WorkingCopy CppModelManager::workingCopy() const
+WorkingCopy CppModelManager::workingCopy() const
 {
     return const_cast<CppModelManager *>(this)->buildWorkingCopyList();
 }

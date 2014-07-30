@@ -29,6 +29,8 @@
 
 #include "modelmanagertesthelper.h"
 
+#include "cppworkingcopy.h"
+
 #include <QtTest>
 
 #include <cassert>

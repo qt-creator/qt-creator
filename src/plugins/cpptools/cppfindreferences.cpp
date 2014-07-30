@@ -31,6 +31,7 @@
 
 #include "cpptoolsconstants.h"
 #include "cppmodelmanagerinterface.h"
+#include "cppworkingcopy.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -54,7 +55,7 @@ using namespace CppTools;
 using namespace CPlusPlus;
 
 static QByteArray getSource(const QString &fileName,
-                            const CppModelManagerInterface::WorkingCopy &workingCopy)
+                            const WorkingCopy &workingCopy)
 {
     if (workingCopy.contains(fileName)) {
         return workingCopy.source(fileName);
@@ -167,14 +168,14 @@ namespace {
 
 class ProcessFile: public std::unary_function<QString, QList<Usage> >
 {
-    const CppModelManagerInterface::WorkingCopy workingCopy;
+    const WorkingCopy workingCopy;
     const Snapshot snapshot;
     Document::Ptr symbolDocument;
     Symbol *symbol;
     QFutureInterface<Usage> *future;
 
 public:
-    ProcessFile(const CppModelManagerInterface::WorkingCopy &workingCopy,
+    ProcessFile(const WorkingCopy &workingCopy,
                 const Snapshot snapshot,
                 Document::Ptr symbolDocument,
                 Symbol *symbol,
@@ -268,7 +269,7 @@ QList<int> CppFindReferences::references(Symbol *symbol, const LookupContext &co
 }
 
 static void find_helper(QFutureInterface<Usage> &future,
-                        const CppModelManagerInterface::WorkingCopy workingCopy,
+                        const WorkingCopy workingCopy,
                         const LookupContext context,
                         CppFindReferences *findRefs,
                         Symbol *symbol)
@@ -367,7 +368,7 @@ void CppFindReferences::findAll_helper(Core::SearchResult *search, CPlusPlus::Sy
             this, SLOT(openEditor(Core::SearchResultItem)));
 
     Core::SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
-    const CppModelManagerInterface::WorkingCopy workingCopy = m_modelManager->workingCopy();
+    const WorkingCopy workingCopy = m_modelManager->workingCopy();
     QFuture<Usage> result;
     result = QtConcurrent::run(&find_helper, workingCopy, context, this, symbol);
     createWatcher(result, search);
@@ -531,13 +532,13 @@ namespace {
 
 class FindMacroUsesInFile: public std::unary_function<QString, QList<Usage> >
 {
-    const CppModelManagerInterface::WorkingCopy workingCopy;
+    const WorkingCopy workingCopy;
     const Snapshot snapshot;
     const Macro &macro;
     QFutureInterface<Usage> *future;
 
 public:
-    FindMacroUsesInFile(const CppModelManagerInterface::WorkingCopy &workingCopy,
+    FindMacroUsesInFile(const WorkingCopy &workingCopy,
                         const Snapshot snapshot,
                         const Macro &macro,
                         QFutureInterface<Usage> *future)
@@ -611,7 +612,7 @@ restart_search:
 } // end of anonymous namespace
 
 static void findMacroUses_helper(QFutureInterface<Usage> &future,
-                                 const CppModelManagerInterface::WorkingCopy workingCopy,
+                                 const WorkingCopy workingCopy,
                                  const Snapshot snapshot,
                                  CppFindReferences *findRefs,
                                  const Macro macro)
@@ -663,7 +664,7 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     connect(search, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
 
     const Snapshot snapshot = m_modelManager->snapshot();
-    const CppModelManagerInterface::WorkingCopy workingCopy = m_modelManager->workingCopy();
+    const WorkingCopy workingCopy = m_modelManager->workingCopy();
 
     // add the macro definition itself
     {

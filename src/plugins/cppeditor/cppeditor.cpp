@@ -53,6 +53,7 @@
 #include <cpptools/cpptoolseditorsupport.h>
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/cppworkingcopy.h>
 #include <cpptools/symbolfinder.h>
 
 #include <projectexplorer/session.h>

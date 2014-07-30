@@ -44,6 +44,7 @@
 
 #include <cpptools/cppdoxygen.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppworkingcopy.h>
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/convenience.h>

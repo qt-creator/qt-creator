@@ -27,32 +27,25 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CLANGUTILS_H
-#define CPPTOOLS_CLANGUTILS_H
+#include "cppworkingcopy.h"
 
-#include "utils.h"
+/*!
+    \class CppTools::WorkingCopy
+    \brief The working copy holds among others the unsaved content of editors.
 
-#include <cpptools/cppmodelmanagerinterface.h>
+    The working copy holds
+     - unsaved content of editors
+     - uic-ed UI files (through \c AbstractEditorSupport)
+     - the preprocessor configuration
 
-namespace ClangCodeModel {
-namespace Utils {
+    Contents are keyed on filename, and hold the revision in the editor and the editor's
+    contents encoded as UTF-8.
+*/
 
-ClangCodeModel::Internal::UnsavedFiles createUnsavedFiles(CppTools::WorkingCopy workingCopy);
+namespace CppTools {
 
-QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, CppTools::ProjectFile::Kind fileKind);
-QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, const QString &fileName = QString());
-QStringList clangNonProjectFileOptions(CppTools::ProjectFile::Kind kind);
-QStringList createPCHInclusionOptions(const QStringList &pchFiles);
-QStringList createPCHInclusionOptions(const QString &pchFile);
+WorkingCopy::WorkingCopy()
+{
+}
 
-QStringList clangLanguageOption(CppTools::ProjectFile::Kind fileKind);
-QStringList clangOptionsForC(CppTools::ProjectPart::CVersion cVersion,
-                             CppTools::ProjectPart::CXXExtensions cxxExtensions);
-QStringList clangOptionsForCxx(CppTools::ProjectPart::QtVersion qtVersion,
-                                     CppTools::ProjectPart::CXXVersion cxxVersion,
-                                     CppTools::ProjectPart::CXXExtensions cxxExtensions);
-
-} // namespace Utils
-} // namespace Clang
-
-#endif // CPPTOOLS_CLANGUTILS_H
+} // namespace CppTools

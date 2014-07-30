@@ -36,6 +36,7 @@
 #include <cpptools/cppcodemodelinspectordumper.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolseditorsupport.h>
+#include <cpptools/cppworkingcopy.h>
 #include <projectexplorer/project.h>
 
 #include <cplusplus/CppDocument.h>
@@ -1050,7 +1051,7 @@ class WorkingCopyModel : public QAbstractListModel
 public:
     WorkingCopyModel(QObject *parent);
 
-    void configure(const CppModelManagerInterface::WorkingCopy &workingCopy);
+    void configure(const WorkingCopy &workingCopy);
     QModelIndex indexForFile(const QString &filePath);
 
     enum Columns { RevisionColumn, FilePathColumn, ColumnCount };
@@ -1078,7 +1079,7 @@ WorkingCopyModel::WorkingCopyModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-void WorkingCopyModel::configure(const CppModelManagerInterface::WorkingCopy &workingCopy)
+void WorkingCopyModel::configure(const WorkingCopy &workingCopy)
 {
     emit layoutAboutToBeChanged();
     m_workingCopyList.clear();
@@ -1431,7 +1432,7 @@ void CppCodeModelInspectorDialog::refresh()
     }
 
     // Working Copy
-    const CppModelManagerInterface::WorkingCopy workingCopy = cmmi->workingCopy();
+    const WorkingCopy workingCopy = cmmi->workingCopy();
     dumper.dumpWorkingCopy(workingCopy);
     m_workingCopyModel->configure(workingCopy);
     m_workingCopyView->resizeColumns(WorkingCopyModel::ColumnCount);

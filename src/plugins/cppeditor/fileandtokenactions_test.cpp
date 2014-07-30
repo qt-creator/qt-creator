@@ -38,14 +38,15 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsreuse.h>
-#include <extensionsystem/pluginmanager.h>
+#include <cpptools/cppworkingcopy.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/basetextdocument.h>
-#include <utils/algorithm.h>
 
+#include <extensionsystem/pluginmanager.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
+#include <utils/algorithm.h>
 
 #include <QApplication>
 #include <QDebug>

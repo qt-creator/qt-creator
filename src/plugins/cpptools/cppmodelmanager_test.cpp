@@ -672,7 +672,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     // Check working copy.
     // An AbstractEditorSupport object should have been added for the ui_* file.
     CppModelManagerInterface *mm = CppModelManagerInterface::instance();
-    CppModelManagerInterface::WorkingCopy workingCopy = mm->workingCopy();
+    WorkingCopy workingCopy = mm->workingCopy();
 
     QCOMPARE(workingCopy.size(), 2); // mm->configurationFileName() and "ui_*.h"
 

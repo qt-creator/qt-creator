@@ -32,6 +32,7 @@
 
 #include "cppcompletionassistprovider.h"
 #include "cppmodelmanagerinterface.h"
+#include "cppworkingcopy.h"
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/TypeOfExpression.h>
@@ -177,7 +178,7 @@ public:
                                  bool isObjCEnabled,
                                  int position,
                                  TextEditor::AssistReason reason,
-                                 const CppModelManagerInterface::WorkingCopy &workingCopy)
+                                 const WorkingCopy &workingCopy)
         : TextEditor::DefaultAssistInterface(textDocument, position, editor->document()->filePath(),
                                              reason)
         , m_editor(editor)
@@ -212,7 +213,7 @@ private:
     TextEditor::BaseTextEditor *m_editor;
     mutable bool m_isObjCEnabled;
     mutable bool m_gotCppSpecifics;
-    CppModelManagerInterface::WorkingCopy m_workingCopy;
+    WorkingCopy m_workingCopy;
     mutable CPlusPlus::Snapshot m_snapshot;
     mutable ProjectPart::HeaderPaths m_headerPaths;
 };

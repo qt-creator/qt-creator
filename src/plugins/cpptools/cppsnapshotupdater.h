@@ -51,7 +51,7 @@ public:
     QString fileInEditor() const
     { return m_fileInEditor; }
 
-    void update(CppModelManagerInterface::WorkingCopy workingCopy);
+    void update(WorkingCopy workingCopy);
     void releaseSnapshot();
 
     CPlusPlus::Document::Ptr document() const;

@@ -35,6 +35,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <cpptools/cppworkingcopy.h>
+
 #include <QDir>
 #include <QFile>
 #include <QSet>
@@ -64,7 +66,7 @@ bool isBlacklisted(const QString &path)
 }
 } // anonymous namespace
 
-UnsavedFiles createUnsavedFiles(CppModelManagerInterface::WorkingCopy workingCopy)
+UnsavedFiles createUnsavedFiles(WorkingCopy workingCopy)
 {
     // TODO: change the modelmanager to hold one working copy, and amend it every time we ask for one.
     // TODO: Reason: the UnsavedFile needs a QByteArray.

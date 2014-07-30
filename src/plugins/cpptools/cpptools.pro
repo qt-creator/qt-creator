@@ -47,6 +47,7 @@ HEADERS += \
     cpptoolsplugin.h \
     cpptoolsreuse.h \
     cpptoolssettings.h \
+    cppworkingcopy.h \
     doxygengenerator.h \
     functionutils.h \
     includeutils.h \
@@ -101,6 +102,7 @@ SOURCES += \
     cpptoolsplugin.cpp \
     cpptoolsreuse.cpp \
     cpptoolssettings.cpp \
+    cppworkingcopy.cpp \
     doxygengenerator.cpp \
     functionutils.cpp \
     includeutils.cpp \

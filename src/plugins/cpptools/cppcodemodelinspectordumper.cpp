@@ -29,6 +29,8 @@
 
 #include "cppcodemodelinspectordumper.h"
 
+#include "cppworkingcopy.h"
+
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cppprojectfile.h>
@@ -578,7 +580,7 @@ void Dumper::dumpSnapshot(const CPlusPlus::Snapshot &snapshot, const QString &ti
     }
 }
 
-void Dumper::dumpWorkingCopy(const CppModelManagerInterface::WorkingCopy &workingCopy)
+void Dumper::dumpWorkingCopy(const WorkingCopy &workingCopy)
 {
     m_out << "Working Copy contains " << workingCopy.size() << " entries{{{1\n";
 

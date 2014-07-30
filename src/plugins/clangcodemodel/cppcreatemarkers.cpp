@@ -30,8 +30,10 @@
 #include "clangutils.h"
 #include "cppcreatemarkers.h"
 
-#include <cplusplus/CppDocument.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppworkingcopy.h>
+
+#include <cplusplus/CppDocument.h>
 #include <utils/hostosinfo.h>
 #include <utils/runextensions.h>
 

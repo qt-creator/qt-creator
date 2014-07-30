@@ -22,7 +22,7 @@
  * correctly.
  *
  * \sa CPlusPlus::Document
- * \sa CppTools::CppModelManagerInterface::WorkingCopy
+ * \sa CppTools::WorkingCopy
  */
 
 using namespace CPlusPlus;
@@ -69,7 +69,7 @@ inline Message messageNoFileContents(Document::Ptr &document, const QString &fil
     return Message(Message::Warning, document->fileName(), line, /*column =*/ 0, text);
 }
 
-inline const Macro revision(const CppModelManagerInterface::WorkingCopy &workingCopy,
+inline const Macro revision(const WorkingCopy &workingCopy,
                             const Macro &macro)
 {
     Macro newMacro(macro);
@@ -96,7 +96,7 @@ CppSourceProcessor::~CppSourceProcessor()
 void CppSourceProcessor::setRevision(unsigned revision)
 { m_revision = revision; }
 
-void CppSourceProcessor::setWorkingCopy(const CppModelManagerInterface::WorkingCopy &workingCopy)
+void CppSourceProcessor::setWorkingCopy(const WorkingCopy &workingCopy)
 { m_workingCopy = workingCopy; }
 
 void CppSourceProcessor::setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)

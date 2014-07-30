@@ -68,6 +68,7 @@
 
 #include <cplusplus/findcdbbreakpoint.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppworkingcopy.h>
 
 #include <QDir>
 #include <QMessageBox>
@@ -2796,18 +2797,18 @@ class BreakpointCorrectionContext
 {
 public:
     explicit BreakpointCorrectionContext(const CPlusPlus::Snapshot &s,
-                                         const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy) :
+                                         const CppTools::WorkingCopy &workingCopy) :
         m_snapshot(s), m_workingCopy(workingCopy) {}
 
     unsigned fixLineNumber(const QString &fileName, unsigned lineNumber) const;
 
 private:
     const CPlusPlus::Snapshot m_snapshot;
-    CppTools::CppModelManagerInterface::WorkingCopy m_workingCopy;
+    CppTools::WorkingCopy m_workingCopy;
 };
 
 static CPlusPlus::Document::Ptr getParsedDocument(const QString &fileName,
-                                                  const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy,
+                                                  const CppTools::WorkingCopy &workingCopy,
                                                   const CPlusPlus::Snapshot &snapshot)
 {
     QByteArray src;

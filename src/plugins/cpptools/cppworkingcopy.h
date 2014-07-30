@@ -27,32 +27,45 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CLANGUTILS_H
-#define CPPTOOLS_CLANGUTILS_H
+#ifndef CPPWORKINGCOPY_H
+#define CPPWORKINGCOPY_H
 
-#include "utils.h"
+#include "cpptools_global.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <QHash>
+#include <QString>
+#include <QPair>
 
-namespace ClangCodeModel {
-namespace Utils {
+namespace CppTools {
 
-ClangCodeModel::Internal::UnsavedFiles createUnsavedFiles(CppTools::WorkingCopy workingCopy);
+class CPPTOOLS_EXPORT WorkingCopy
+{
+public:
+    WorkingCopy();
 
-QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, CppTools::ProjectFile::Kind fileKind);
-QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, const QString &fileName = QString());
-QStringList clangNonProjectFileOptions(CppTools::ProjectFile::Kind kind);
-QStringList createPCHInclusionOptions(const QStringList &pchFiles);
-QStringList createPCHInclusionOptions(const QString &pchFile);
+    void insert(const QString &fileName, const QByteArray &source, unsigned revision = 0)
+    { _elements.insert(fileName, qMakePair(source, revision)); }
 
-QStringList clangLanguageOption(CppTools::ProjectFile::Kind fileKind);
-QStringList clangOptionsForC(CppTools::ProjectPart::CVersion cVersion,
-                             CppTools::ProjectPart::CXXExtensions cxxExtensions);
-QStringList clangOptionsForCxx(CppTools::ProjectPart::QtVersion qtVersion,
-                                     CppTools::ProjectPart::CXXVersion cxxVersion,
-                                     CppTools::ProjectPart::CXXExtensions cxxExtensions);
+    bool contains(const QString &fileName) const
+    { return _elements.contains(fileName); }
 
-} // namespace Utils
-} // namespace Clang
+    QByteArray source(const QString &fileName) const
+    { return _elements.value(fileName).first; }
 
-#endif // CPPTOOLS_CLANGUTILS_H
+    QPair<QByteArray, unsigned> get(const QString &fileName) const
+    { return _elements.value(fileName); }
+
+    QHashIterator<QString, QPair<QByteArray, unsigned> > iterator() const
+    { return QHashIterator<QString, QPair<QByteArray, unsigned> >(_elements); }
+
+    int size() const
+    { return _elements.size(); }
+
+private:
+    typedef QHash<QString, QPair<QByteArray, unsigned> > Table;
+    Table _elements;
+};
+
+} // namespace CppTools
+
+#endif // CPPWORKINGCOPY_H

@@ -73,7 +73,7 @@ public:
     void dumpSnapshot(const CPlusPlus::Snapshot &snapshot,
                       const QString &title,
                       bool isGlobalSnapshot = false);
-    void dumpWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy);
+    void dumpWorkingCopy(const CppTools::WorkingCopy &workingCopy);
     void dumpMergedEntities(const ProjectPart::HeaderPaths &mergedHeaderPaths,
                             const QByteArray &mergedMacros);
 

@@ -46,7 +46,7 @@ SnapshotUpdater::SnapshotUpdater(const QString &fileInEditor)
 {
 }
 
-void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
+void SnapshotUpdater::update(WorkingCopy workingCopy)
 {
     QMutexLocker locker(&m_mutex);
 

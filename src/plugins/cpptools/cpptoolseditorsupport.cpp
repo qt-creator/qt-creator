@@ -35,6 +35,7 @@
 #include "cpplocalsymbols.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/cppworkingcopy.h>
 
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -282,7 +283,7 @@ void CppEditorSupport::updateDocument()
 }
 
 static void parse(QFutureInterface<void> &future, QSharedPointer<SnapshotUpdater> updater,
-                  CppModelManagerInterface::WorkingCopy workingCopy)
+                  WorkingCopy workingCopy)
 {
     future.setProgressRange(0, 1);
     if (future.isCanceled()) {

@@ -32,6 +32,8 @@
 #include "cppqtstyleindenter.h"
 #include "cppcodeformatter.h"
 #include "cppmodelmanager.h"
+#include "cppworkingcopy.h"
+
 #include <projectexplorer/editorconfiguration.h>
 
 #include <utils/qtcassert.h>
@@ -77,7 +79,7 @@ public:
 
     Snapshot m_snapshot;
     CppModelManagerInterface *m_modelManager;
-    CppModelManagerInterface::WorkingCopy m_workingCopy;
+    WorkingCopy m_workingCopy;
 
 };
 

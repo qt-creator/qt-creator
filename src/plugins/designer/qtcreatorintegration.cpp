@@ -36,6 +36,7 @@
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cppworkingcopy.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
 #include <cplusplus/Overview.h>
@@ -498,7 +499,7 @@ static inline QString uiClassName(QString formObjectName)
 }
 
 static Document::Ptr getParsedDocument(const QString &fileName,
-                                       CppTools::CppModelManagerInterface::WorkingCopy &workingCopy,
+                                       CppTools::WorkingCopy &workingCopy,
                                        Snapshot &snapshot)
 {
     QByteArray src;
@@ -553,7 +554,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                 newDocTable.insert(it.value());
         }
     } else {
-        const CppTools::CppModelManagerInterface::WorkingCopy workingCopy =
+        const CppTools::WorkingCopy workingCopy =
                 CppTools::CppModelManagerInterface::instance()->workingCopy();
         QHashIterator<QString, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
         while (it.hasNext()) {
@@ -631,7 +632,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         }
     } else {
         // add function declaration to cl
-        CppTools::CppModelManagerInterface::WorkingCopy workingCopy =
+        CppTools::WorkingCopy workingCopy =
             CppTools::CppModelManagerInterface::instance()->workingCopy();
         const QString fileName = doc->fileName();
         getParsedDocument(fileName, workingCopy, docTable);
