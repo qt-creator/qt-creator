@@ -256,7 +256,7 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
         return DebuggerItem::DoesNotMatch;
 
     // We have at least 'Matches well' now. Mark the combinations we really like.
-    if (HostOsInfo::isWindowsHost() && engineType == GdbEngineType && targetAbi.os() == Abi::WindowsMSysFlavor)
+    if (HostOsInfo::isWindowsHost() && engineType == GdbEngineType && targetAbi.osFlavor() == Abi::WindowsMSysFlavor)
         return DebuggerItem::MatchesPerfectly;
     if (HostOsInfo::isLinuxHost() && engineType == GdbEngineType && targetAbi.os() == Abi::LinuxOS)
         return DebuggerItem::MatchesPerfectly;
