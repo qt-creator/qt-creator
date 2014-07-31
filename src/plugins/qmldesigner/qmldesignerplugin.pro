@@ -3,6 +3,8 @@ CONFIG += exceptions
 
 INCLUDEPATH += $$PWD
 
+unix:!osx:LIBS += -lrt # posix shared memory
+
 include(../../qtcreatorplugin.pri)
 
 include(designercore/designercore-lib.pri)

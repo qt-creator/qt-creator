@@ -14,7 +14,7 @@ QT += core-private qml-private quick-private gui-private
     QT += v8-private
 }
 
-!macx {
+!osx {
     CONFIG += c++11
 }
 
@@ -41,8 +41,9 @@ DEFINES -= QT_NO_CAST_FROM_ASCII
 
 OTHER_FILES += Info.plist
 
+unix:!osx:LIBS += -lrt # posix shared memory
 
-macx {
+osx {
     CONFIG -= app_bundle
     QMAKE_LFLAGS += -sectcreate __TEXT __info_plist $$system_quote($$PWD/Info.plist)
 } else {

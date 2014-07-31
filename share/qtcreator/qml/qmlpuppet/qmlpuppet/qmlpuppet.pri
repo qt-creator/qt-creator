@@ -22,6 +22,8 @@ SOURCES += $$PWD/qmlpuppetmain.cpp
 RESOURCES += $$PWD/../qmlpuppet.qrc
 DEFINES -= QT_NO_CAST_FROM_ASCII
 
+unix:!osx:LIBS += -lrt # posix shared memory
+
 OTHER_FILES += Info.plist
 macx {
     CONFIG -= app_bundle
