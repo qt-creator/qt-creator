@@ -51,6 +51,15 @@
     indicates lines that contain added text (painted a darker green) in the
     right pane.
 
+    To view the differences in a unified view where changed rows are placed
+    below each other, select
+    \inlineimage qtcreator-switchto-unified-diffeditor.png
+    (\gui {Switch to Unified Diff Editor}).
+
+    To switch back to the side-by-side view, select
+    \inlineimage qtcreator-switchto-sidebyside-diffeditor.png
+    (\gui {Switch to Side by Side Diff Editor}).
+
     To change the default colors, select \gui Tools > \gui Options >
     \gui {Text Editor} > \gui {Font & Colors}. Create your own color scheme and
     select new colors for the following options:
@@ -86,4 +95,8 @@
     synchronized. To use them independently of each other, select the
     \inlineimage qtcreator-synchronizefocus.png
     (\gui {Synchronize Horizontal Scroll Bars}) button.
+
+    If the files change outside \QC, select
+    \inlineimage qtcreator-regenerate-index.png
+    (\gui {Reload Editor}) to compare them again and to show the results.
 */
