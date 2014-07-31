@@ -64,9 +64,9 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager)
 
 Core::IEditor *ProjectFilesFactory::createEditor()
 {
-    ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget();
-    TextEditorSettings::initializeEditor(ed);
-    return ed->editor();
+    auto widget = new ProjectFilesEditorWidget(new BaseTextDocument, 0);
+    TextEditorSettings::initializeEditor(widget);
+    return widget->editor();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -85,10 +85,9 @@ ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
 
 Core::IEditor *ProjectFilesEditor::duplicate()
 {
-    ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget(
-                qobject_cast<ProjectFilesEditorWidget *>(editorWidget()));
-    TextEditorSettings::initializeEditor(editor);
-    return editor->editor();
+    auto widget = new ProjectFilesEditorWidget(editorWidget());
+    TextEditorSettings::initializeEditor(widget);
+    return widget->editor();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -97,12 +96,12 @@ Core::IEditor *ProjectFilesEditor::duplicate()
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(parent)
+ProjectFilesEditorWidget::ProjectFilesEditorWidget(BaseTextDocument *doc, QWidget *parent)
+    : BaseTextEditorWidget(doc, parent)
 {
 }
 
-ProjectFilesEditorWidget::ProjectFilesEditorWidget(ProjectFilesEditorWidget *other)
+ProjectFilesEditorWidget::ProjectFilesEditorWidget(BaseTextEditorWidget *other)
     : BaseTextEditorWidget(other)
 {
 }

@@ -31,6 +31,7 @@
 #include "pythoneditorconstants.h"
 #include "pythoneditorwidget.h"
 #include "pythoneditorplugin.h"
+#include "tools/pythonindenter.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -38,6 +39,8 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QDebug>
+
+using namespace TextEditor;
 
 namespace PythonEditor {
 namespace Internal {
@@ -57,7 +60,10 @@ EditorFactory::EditorFactory(QObject *parent)
 
 Core::IEditor *EditorFactory::createEditor()
 {
-    PythonEditorWidget *widget = new PythonEditorWidget();
+    auto doc = new BaseTextDocument;
+    doc->setId(Constants::C_PYTHONEDITOR_ID);
+    doc->setIndenter(new PythonIndenter);
+    PythonEditorWidget *widget = new PythonEditorWidget(doc, 0);
     TextEditor::TextEditorSettings::initializeEditor(widget);
 
     return widget->editor();

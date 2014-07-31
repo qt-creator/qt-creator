@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "selectabletexteditorwidget.h"
+#include <texteditor/basetextdocument.h>
 
 #include <QPainter>
 #include <QTextBlock>
@@ -35,7 +36,7 @@
 namespace DiffEditor {
 
 SelectableTextEditorWidget::SelectableTextEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(parent)
+    : BaseTextEditorWidget(new TextEditor::BaseTextDocument, parent)
 {
     setFrameStyle(QFrame::NoFrame);
 }

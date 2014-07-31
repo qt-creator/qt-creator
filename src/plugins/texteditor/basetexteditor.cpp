@@ -455,13 +455,6 @@ QString BaseTextEditorWidget::convertToPlainText(const QString &txt)
 
 static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";
 
-BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
-    : QPlainTextEdit(parent)
-{
-    d = new BaseTextEditorWidgetPrivate(this);
-    d->ctor(QSharedPointer<BaseTextDocument>(new BaseTextDocument));
-}
-
 BaseTextEditorWidget::BaseTextEditorWidget(BaseTextDocument *doc, QWidget *parent)
     : QPlainTextEdit(parent)
 {

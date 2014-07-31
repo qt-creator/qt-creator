@@ -648,7 +648,7 @@ QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
 */
 
 VcsBaseEditorWidget::VcsBaseEditorWidget(const VcsBaseEditorParameters *type, QWidget *parent)
-  : BaseTextEditorWidget(parent),
+  : BaseTextEditorWidget(new TextEditor::BaseTextDocument, parent),
     d(new Internal::VcsBaseEditorWidgetPrivate(this, type))
 {
     viewport()->setMouseTracking(true);

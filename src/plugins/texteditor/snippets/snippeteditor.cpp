@@ -49,7 +49,8 @@ SnippetEditor::SnippetEditor(SnippetEditorWidget *editor)
     setContext(Core::Context(Constants::SNIPPET_EDITOR_ID, Constants::C_TEXTEDITOR));
 }
 
-SnippetEditorWidget::SnippetEditorWidget(QWidget *parent) : BaseTextEditorWidget(parent)
+SnippetEditorWidget::SnippetEditorWidget(QWidget *parent)
+    : BaseTextEditorWidget(new BaseTextDocument, parent)
 {
     baseTextDocument()->setId(Constants::SNIPPET_EDITOR_ID);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);

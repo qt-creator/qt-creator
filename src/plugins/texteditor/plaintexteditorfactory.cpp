@@ -64,7 +64,7 @@ Core::IEditor *PlainTextEditorFactory::createEditor()
     auto doc = new BaseTextDocument;
     doc->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     doc->setIndenter(new NormalIndenter);
-    auto widget = new BaseTextEditorWidget(doc);
+    auto widget = new BaseTextEditorWidget(doc, 0);
     widget->setupAsPlainEditor();
     TextEditorSettings::initializeEditor(widget);
     connect(widget, SIGNAL(configured(Core::IEditor*)),

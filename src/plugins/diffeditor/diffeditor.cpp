@@ -101,7 +101,7 @@ private:
 };
 
 DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(parent)
+    : BaseTextEditorWidget(new BaseTextDocument, parent)
 {
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;

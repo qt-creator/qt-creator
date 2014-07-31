@@ -140,11 +140,9 @@ void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
     _cursors.append(c);
 }
 
-GlslEditorWidget::GlslEditorWidget(QWidget *parent)
-    : TextEditor::BaseTextEditorWidget(parent)
+GlslEditorWidget::GlslEditorWidget(TextEditor::BaseTextDocument *doc, QWidget *parent)
+    : TextEditor::BaseTextEditorWidget(doc, parent)
 {
-    baseTextDocument()->setId(GLSLEditor::Constants::C_GLSLEDITOR_ID);
-    baseTextDocument()->setIndenter(new GLSLIndenter());
     ctor();
 }
 
@@ -178,10 +176,6 @@ void GlslEditorWidget::ctor()
 //                this, SLOT(forceSemanticRehighlight()));
 //        connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
 //    }
-}
-
-GlslEditorWidget::~GlslEditorWidget()
-{
 }
 
 int GlslEditorWidget::editorRevision() const

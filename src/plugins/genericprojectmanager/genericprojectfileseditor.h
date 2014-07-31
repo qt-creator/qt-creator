@@ -67,13 +67,10 @@ class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    ProjectFilesEditorWidget(QWidget *parent = 0);
-    ProjectFilesEditorWidget(ProjectFilesEditorWidget *other);
+    ProjectFilesEditorWidget(TextEditor::BaseTextDocument *doc, QWidget *parent);
+    ProjectFilesEditorWidget(BaseTextEditorWidget *other);
 
     TextEditor::BaseTextEditor *createEditor();
-
-private:
-    ProjectFilesEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
 };
 
 } // namespace Internal

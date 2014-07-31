@@ -40,7 +40,7 @@ class PythonEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    PythonEditorWidget(QWidget *parent = 0);
+    PythonEditorWidget(TextEditor::BaseTextDocument *doc, QWidget *parent);
     PythonEditorWidget(PythonEditorWidget *other);
 
 protected:

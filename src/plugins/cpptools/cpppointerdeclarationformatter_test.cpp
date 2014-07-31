@@ -104,7 +104,7 @@ public:
         // Open file
         auto textDocument = new TextEditor::BaseTextDocument;
         textDocument->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
-        TextEditor::BaseTextEditorWidget editorWidget(textDocument);
+        TextEditor::BaseTextEditorWidget editorWidget(textDocument, 0);
         editorWidget.setupAsPlainEditor();
         QString error;
         editorWidget.open(&error, document->fileName(), document->fileName());

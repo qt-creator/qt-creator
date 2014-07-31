@@ -86,9 +86,8 @@ class GlslEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    GlslEditorWidget(QWidget *parent = 0);
+    GlslEditorWidget(TextEditor::BaseTextDocument *doc, QWidget *parent);
     GlslEditorWidget(GlslEditorWidget *other);
-    ~GlslEditorWidget();
 
     int editorRevision() const;
     bool isOutdated() const;

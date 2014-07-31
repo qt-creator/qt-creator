@@ -35,7 +35,6 @@
 
 #include "pythoneditorwidget.h"
 #include "tools/pythonhighlighter.h"
-#include "tools/pythonindenter.h"
 #include "pythoneditor.h"
 #include "pythoneditorconstants.h"
 
@@ -48,11 +47,9 @@
 namespace PythonEditor {
 namespace Internal {
 
-PythonEditorWidget::PythonEditorWidget(QWidget *parent)
-    : TextEditor::BaseTextEditorWidget(parent)
+PythonEditorWidget::PythonEditorWidget(TextEditor::BaseTextDocument *doc, QWidget *parent)
+    : TextEditor::BaseTextEditorWidget(doc, parent)
 {
-    baseTextDocument()->setId(Constants::C_PYTHONEDITOR_ID);
-    baseTextDocument()->setIndenter(new PythonIndenter());
     ctor();
 }
 

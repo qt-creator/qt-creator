@@ -225,8 +225,7 @@ class TEXTEDITOR_EXPORT BaseTextEditorWidget : public QPlainTextEdit
     Q_PROPERTY(int verticalBlockSelectionLastColumn READ verticalBlockSelectionLastColumn)
 
 public:
-    BaseTextEditorWidget(QWidget *parent = 0);
-    BaseTextEditorWidget(BaseTextDocument *doc, QWidget *parent = 0);
+    BaseTextEditorWidget(BaseTextDocument *doc, QWidget *parent);
     BaseTextEditorWidget(BaseTextEditorWidget *other);
     ~BaseTextEditorWidget();
 

@@ -32,6 +32,7 @@
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
 #include "glsleditorplugin.h"
+#include "glslindenter.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -65,7 +66,10 @@ GLSLEditorFactory::GLSLEditorFactory(QObject *parent)
 
 Core::IEditor *GLSLEditorFactory::createEditor()
 {
-    GlslEditorWidget *rc = new GlslEditorWidget();
+    auto doc = new TextEditor::BaseTextDocument;
+    doc->setId(C_GLSLEDITOR_ID);
+    doc->setIndenter(new GLSLIndenter);
+    GlslEditorWidget *rc = new GlslEditorWidget(doc, 0);
     TextEditor::TextEditorSettings::initializeEditor(rc);
     return rc->editor();
 }
