@@ -312,6 +312,7 @@ void PathsAndLanguages::compact() {
     }
     if (oldCompactionPlace == 0)
         return;
+    compactedList << m_list.mid(oldCompactionPlace);
     if (restrictFailed)
         qCWarning(qmljsLog) << "failed to restrict PathAndLanguages " << m_list;
     m_list = compactedList;
