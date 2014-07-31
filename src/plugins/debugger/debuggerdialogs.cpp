@@ -117,7 +117,7 @@ bool DebuggerKitChooser::kitMatches(const ProjectExplorer::Kit *k) const
         return false;
     if (m_mode == LocalDebugging) {
         const ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(k);
-        return tc && tc->targetAbi().isCompatibleWith(m_hostAbi);
+        return tc && tc->targetAbi().os() == m_hostAbi.os();
     }
     return true;
 }
