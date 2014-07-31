@@ -34,6 +34,7 @@
 #include "glslhighlighter.h"
 #include "glslautocompleter.h"
 #include "glslcompletionassist.h"
+#include "glslindenter.h"
 
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
