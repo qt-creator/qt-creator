@@ -298,7 +298,7 @@ void PathsAndLanguages::compact() {
             LanguageMerger merger;
             merger.merge(m_list.at(i - 1).language());
             do {
-                merger.merge(m_list.at(i++).language());
+                merger.merge(m_list.at(i).language());
                 if (++i == m_list.length())
                     break;
                 newPath = m_list.at(i).path();
