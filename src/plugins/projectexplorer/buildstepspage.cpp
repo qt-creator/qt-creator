@@ -285,12 +285,6 @@ void BuildStepListWidget::init(BuildStepList *bsl)
     m_addButton->setText(tr("Add %1 Step").arg(m_buildStepList->displayName()));
 
     updateBuildStepButtonsState();
-
-    static QLatin1String buttonStyle(
-            "QToolButton{ border-width: 2;}"
-            "QToolButton:hover{border-image: url(:/welcome/images/btn_26_hover.png) 4;}"
-            "QToolButton:pressed{ border-image: url(:/welcome/images/btn_26_pressed.png) 4;}");
-    setStyleSheet(buttonStyle);
 }
 
 void BuildStepListWidget::updateAddBuildStepMenu()
