@@ -43,6 +43,8 @@ namespace Internal {
 
 class BareMetalDeviceConfigurationWizardSetupPage : public QWizardPage
 {
+    Q_OBJECT
+
 public:
     explicit BareMetalDeviceConfigurationWizardSetupPage(QWidget *parent = 0);
 

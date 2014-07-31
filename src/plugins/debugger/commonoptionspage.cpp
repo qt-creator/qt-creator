@@ -55,6 +55,8 @@ namespace Internal {
 
 class CommonOptionsPageWidget : public QWidget
 {
+    Q_OBJECT
+
 public:
     explicit CommonOptionsPageWidget(const QSharedPointer<Utils::SavedActionSet> &group);
 
@@ -431,3 +433,5 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
 
 } // namespace Internal
 } // namespace Debugger
+
+#include "commonoptionspage.moc"
