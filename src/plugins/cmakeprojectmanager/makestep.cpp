@@ -340,7 +340,6 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     m_buildTargetsList->setMinimumHeight(200);
     fl->addRow(tr("Targets:"), m_buildTargetsList);
 
-    // TODO update this list also on rescans of the CMakeLists.txt
     CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->project());
     QStringList targetList = pro->buildTargetTitles();
     targetList.sort();
