@@ -47,6 +47,8 @@ public:
 
     template<class T> static T *buildStep(const ProjectExplorer::DeployConfiguration *dc)
     {
+        if (!dc)
+            return 0;
         ProjectExplorer::BuildStepList *bsl = dc->stepList();
         if (!bsl)
             return 0;
