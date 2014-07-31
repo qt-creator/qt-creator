@@ -30,6 +30,7 @@
 #include "glsleditoreditable.h"
 #include "glsleditorconstants.h"
 #include "glslcompletionassist.h"
+#include "glslautocompleter.h"
 
 #include <texteditor/texteditorconstants.h>
 
@@ -48,6 +49,7 @@ GlslEditor::GlslEditor(GlslEditorWidget *editor)
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GLSLCompletionAssistProvider>());
+    setAutoCompleter(new GLSLCompleter);
 }
 
 } // namespace Internal

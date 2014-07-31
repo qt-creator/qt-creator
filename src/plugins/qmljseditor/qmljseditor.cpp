@@ -35,7 +35,6 @@
 #include "qmljseditorplugin.h"
 #include "qmloutlinemodel.h"
 #include "qmljsfindreferences.h"
-#include "qmljsautocompleter.h"
 #include "qmljscompletionassist.h"
 #include "qmljsquickfixassist.h"
 
@@ -120,7 +119,6 @@ void QmlJSTextEditorWidget::ctor()
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setAutoCompleter(new AutoCompleter);
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 
     m_updateUsesTimer = new QTimer(this);

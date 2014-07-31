@@ -130,7 +130,6 @@ public:
 
     static BaseTextEditor *currentTextEditor();
 
-    friend class BaseTextEditorWidget;
     BaseTextEditorWidget *editorWidget() const;
     BaseTextDocument *baseTextDocument();
 
@@ -195,6 +194,9 @@ public:
 
     QObject *fileEncodingLabel() const; // FIXME: Remove
 
+    void setAutoCompleter(AutoCompleter *autoCompleter);
+    AutoCompleter *autoCompleter() const;
+
 signals:
     void markRequested(TextEditor::BaseTextEditor *editor, int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
     void markContextMenuRequested(TextEditor::BaseTextEditor *editor, int line, QMenu *menu);
@@ -210,6 +212,8 @@ private slots:
     void setFileEncodingLabelText(const QString &text);
 
 private:
+    friend class Internal::BaseTextEditorWidgetPrivate;
+    friend class BaseTextEditorWidget;
     Internal::BaseTextEditorPrivate *d;
 };
 
@@ -314,9 +318,6 @@ public:
     int verticalBlockSelectionLastColumn() const;
 
     QRegion translatedLineRegion(int lineStart, int lineEnd) const;
-
-    void setAutoCompleter(AutoCompleter *autoCompleter);
-    AutoCompleter *autoCompleter() const;
 
     QPoint toolTipPosition(const QTextCursor &c) const;
 
@@ -619,6 +620,7 @@ private slots:
 
 private:
     Internal::BaseTextEditorWidgetPrivate *d;
+    Internal::BaseTextEditorPrivate *dd() const;
     friend class Internal::BaseTextEditorWidgetPrivate;
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;

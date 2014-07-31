@@ -31,6 +31,7 @@
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljscompletionassist.h"
+#include "qmljsautocompleter.h"
 
 #include <qmljstools/qmljstoolsconstants.h>
 #include <texteditor/texteditorconstants.h>
@@ -56,6 +57,7 @@ QmlJSEditor::QmlJSEditor(QmlJSTextEditorWidget *editor)
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>());
+    setAutoCompleter(new AutoCompleter);
 }
 
 bool QmlJSEditor::isDesignModePreferred() const

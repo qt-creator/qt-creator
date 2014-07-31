@@ -57,6 +57,7 @@ JavaEditor::JavaEditor(JavaEditorWidget *editor)
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<JavaCompletionAssistProvider>());
+    setAutoCompleter(new JavaAutoCompleter);
 }
 
 Core::IEditor *JavaEditor::duplicate()
@@ -74,18 +75,11 @@ Core::IEditor *JavaEditor::duplicate()
 JavaEditorWidget::JavaEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(new JavaDocument(), parent)
 {
-    ctor();
 }
 
 JavaEditorWidget::JavaEditorWidget(JavaEditorWidget *other)
     : BaseTextEditorWidget(other)
 {
-    ctor();
-}
-
-void JavaEditorWidget::ctor()
-{
-    setAutoCompleter(new JavaAutoCompleter);
 }
 
 TextEditor::BaseTextEditor *JavaEditorWidget::createEditor()

@@ -64,7 +64,6 @@ protected:
 
 private:
     JavaEditorWidget(BaseTextEditorWidget *); // avoid stupidity
-    void ctor();
 };
 
 class JavaDocument : public TextEditor::BaseTextDocument

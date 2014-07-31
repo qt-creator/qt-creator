@@ -33,7 +33,6 @@
 #include "glsleditorplugin.h"
 #include "glslhighlighter.h"
 #include "glslautocompleter.h"
-#include "glslindenter.h"
 #include "glslcompletionassist.h"
 
 #include <glsl/glsllexer.h>
@@ -160,7 +159,6 @@ void GlslEditorWidget::ctor()
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setAutoCompleter(new GLSLCompleter());
 
     m_updateDocumentTimer = new QTimer(this);
     m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);

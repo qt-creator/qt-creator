@@ -188,6 +188,9 @@ private:
 class BaseTextEditorPrivate
 {
 public:
+    BaseTextEditorPrivate()
+    {}
+
     // Note: This is always a copy of IContext::m_widget.
     BaseTextEditorWidget *m_editorWidget;
 
@@ -199,6 +202,7 @@ public:
     Utils::LineColumnLabel *m_fileEncodingLabel;
     CommentDefinition m_commentDefinition;
     std::function<CompletionAssistProvider *()> m_completionAssistProvider;
+    QScopedPointer<AutoCompleter> m_autoCompleter;
 };
 
 class BaseTextEditorWidgetPrivate
@@ -208,6 +212,9 @@ class BaseTextEditorWidgetPrivate
 
 public:
     BaseTextEditorWidgetPrivate(BaseTextEditorWidget *parent);
+
+    // FIXME: Remove after relevant members have been moved to BaseTextEditorPrivate
+    BaseTextEditorPrivate *dd() { return q->editor()->d; }
 
     void setupDocumentSignals();
     void updateLineSelectionColor();
@@ -363,8 +370,6 @@ public:
 
     QPoint m_markDragStart;
     bool m_markDragging;
-
-    QScopedPointer<AutoCompleter> m_autoCompleter;
 
     QScopedPointer<Internal::ClipboardAssistProvider> m_clipboardAssistProvider;
 
@@ -1892,7 +1897,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         cursor.beginEditBlock();
 
         int extraBlocks =
-            d->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor,
+            dd()->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor,
                                                                     d->m_document->tabSettings());
 
         QString previousIndentationString;
@@ -2092,16 +2097,17 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Insert:
         if (ro) break;
         if (e->modifiers() == Qt::NoModifier) {
+            AutoCompleter *ac = dd()->m_autoCompleter.data();
             if (inOverwriteMode) {
-                d->m_autoCompleter->setAutoParenthesesEnabled(d->autoParenthesisOverwriteBackup);
-                d->m_autoCompleter->setSurroundWithEnabled(d->surroundWithEnabledOverwriteBackup);
+                ac->setAutoParenthesesEnabled(d->autoParenthesisOverwriteBackup);
+                ac->setSurroundWithEnabled(d->surroundWithEnabledOverwriteBackup);
                 setOverwriteMode(false);
                 viewport()->update();
             } else {
-                d->autoParenthesisOverwriteBackup = d->m_autoCompleter->isAutoParenthesesEnabled();
-                d->surroundWithEnabledOverwriteBackup = d->m_autoCompleter->isSurroundWithEnabled();
-                d->m_autoCompleter->setAutoParenthesesEnabled(false);
-                d->m_autoCompleter->setSurroundWithEnabled(false);
+                d->autoParenthesisOverwriteBackup = ac->isAutoParenthesesEnabled();
+                d->surroundWithEnabledOverwriteBackup = ac->isSurroundWithEnabled();
+                ac->setAutoParenthesesEnabled(false);
+                ac->setSurroundWithEnabled(false);
                 setOverwriteMode(true);
             }
             e->accept();
@@ -2150,7 +2156,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         // only go here if control is not pressed, except if also alt is pressed
         // because AltGr maps to Alt + Ctrl
         QTextCursor cursor = textCursor();
-        const QString &autoText = d->m_autoCompleter->autoComplete(cursor, eventText);
+        const QString &autoText = dd()->m_autoCompleter->autoComplete(cursor, eventText);
 
         QChar electricChar;
         if (d->m_document->typingSettings().m_autoIndent) {
@@ -2190,7 +2196,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
             //Select the inserted text, to be able to re-indent the inserted text
             cursor.setPosition(pos, QTextCursor::KeepAnchor);
         }
-        if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
+        if (!electricChar.isNull() && dd()->m_autoCompleter->contextAllowsElectricCharacters(cursor))
             d->m_document->autoIndent(cursor, electricChar);
         if (!autoText.isEmpty())
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
@@ -2666,12 +2672,12 @@ int BaseTextEditorWidget::visibleWrapColumn() const
     return d->m_visibleWrapColumn;
 }
 
-void BaseTextEditorWidget::setAutoCompleter(AutoCompleter *autoCompleter)
+void BaseTextEditor::setAutoCompleter(AutoCompleter *autoCompleter)
 {
     d->m_autoCompleter.reset(autoCompleter);
 }
 
-AutoCompleter *BaseTextEditorWidget::autoCompleter() const
+AutoCompleter *BaseTextEditor::autoCompleter() const
 {
     return d->m_autoCompleter.data();
 }
@@ -2721,7 +2727,6 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
     m_cursorBlockNumber(-1),
     m_blockCount(0),
     m_markDragging(false),
-    m_autoCompleter(new AutoCompleter),
     m_clipboardAssistProvider(new Internal::ClipboardAssistProvider),
     m_isMissingSyntaxDefinition(false)
 {
@@ -5060,7 +5065,7 @@ void BaseTextEditorWidgetPrivate::handleBackspaceKey()
     const TextEditor::TabSettings &tabSettings = m_document->tabSettings();
     const TextEditor::TypingSettings &typingSettings = m_document->typingSettings();
 
-    if (typingSettings.m_autoIndent && m_autoCompleter->autoBackspace(cursor))
+    if (typingSettings.m_autoIndent && dd()->m_autoCompleter->autoBackspace(cursor))
         return;
 
     bool handled = false;
@@ -6003,8 +6008,8 @@ void BaseTextEditorWidget::setStorageSettings(const StorageSettings &storageSett
 
 void BaseTextEditorWidget::setCompletionSettings(const TextEditor::CompletionSettings &completionSettings)
 {
-    d->m_autoCompleter->setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
-    d->m_autoCompleter->setSurroundWithEnabled(completionSettings.m_autoInsertBrackets
+    dd()->m_autoCompleter->setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
+    dd()->m_autoCompleter->setSurroundWithEnabled(completionSettings.m_autoInsertBrackets
                                                && completionSettings.m_surroundingAutoBrackets);
 }
 
@@ -6676,6 +6681,11 @@ void BaseTextEditorWidget::doFoo() {
     markers += marker;
     setRefactorMarkers(markers);
 #endif
+}
+
+BaseTextEditorPrivate *BaseTextEditorWidget::dd() const
+{
+    return editor()->d;
 }
 
 BaseTextBlockSelection::BaseTextBlockSelection(const BaseTextBlockSelection &other)

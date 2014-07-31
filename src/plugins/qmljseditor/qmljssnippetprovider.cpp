@@ -66,5 +66,5 @@ void QmlJSSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *edito
 {
     editor->setSyntaxHighlighter(new Highlighter);
     editor->baseTextDocument()->setIndenter(new Indenter);
-    editor->setAutoCompleter(new AutoCompleter);
+    editor->editor()->setAutoCompleter(new AutoCompleter);
 }

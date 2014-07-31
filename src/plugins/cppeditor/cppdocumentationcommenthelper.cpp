@@ -253,7 +253,7 @@ bool CppDocumentationCommentHelper::handleKeyPressEvent(QKeyEvent *e) const
 
     if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) {
         QTextCursor cursor = m_editorWidget->textCursor();
-        if (!m_editorWidget->autoCompleter()->isInComment(cursor))
+        if (!m_editorWidget->editor()->autoCompleter()->isInComment(cursor))
             return false;
 
         // We are interested on two particular cases:

@@ -117,6 +117,7 @@ CPPEditor::CPPEditor(CppEditorWidget *editor)
     setCompletionAssistProvider([this] () -> TextEditor::CompletionAssistProvider * {
         return CppModelManagerInterface::instance()->cppEditorSupport(this)->completionAssistProvider();
     });
+    setAutoCompleter(new CppAutoCompleter);
 }
 
 Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
@@ -197,7 +198,6 @@ void CppEditorWidget::ctor()
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setAutoCompleter(new CppAutoCompleter);
 
     if (d->m_modelManager) {
         CppEditorSupport *editorSupport = d->m_modelManager->cppEditorSupport(editor());
