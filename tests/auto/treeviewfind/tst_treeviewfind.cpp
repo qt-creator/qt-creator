@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include <coreplugin/find/treeviewfind.h>
+#include <coreplugin/find/itemviewfind.h>
 
 #include <QtTest>
 
@@ -69,7 +69,7 @@ void tst_treeviewfind::wrapping()
     tree->addTopLevelItems(toplevelitems);
 
     // set up
-    Core::TreeViewFind *findSupport = new Core::TreeViewFind(tree);
+    Core::ItemViewFind *findSupport = new Core::ItemViewFind(tree);
     tree->setCurrentItem(toplevelitems.at(2)->child(0));
     QCOMPARE(tree->currentItem()->text(0), QString::fromLatin1("FOO2"));
 
@@ -114,7 +114,7 @@ void tst_treeviewfind::columns()
     tree->addTopLevelItems(toplevelitems);
 
     // set up
-    Core::TreeViewFind *findSupport = new Core::TreeViewFind(tree);
+    Core::ItemViewFind *findSupport = new Core::ItemViewFind(tree);
     tree->setCurrentItem(toplevelitems.at(0));
     QCOMPARE(tree->currentItem()->text(0), QString::fromLatin1("HEADER1"));
 

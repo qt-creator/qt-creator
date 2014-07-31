@@ -34,7 +34,7 @@
 #include "classviewutils.h"
 #include "classviewconstants.h"
 
-#include <coreplugin/find/treeviewfind.h>
+#include <coreplugin/find/itemviewfind.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 
@@ -98,8 +98,8 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
     verticalLayout->setContentsMargins(0, 0, 0, 0);
     treeView = new ::Utils::NavigationTreeView(this);
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    verticalLayout->addWidget(Core::TreeViewFind::createSearchableWrapper(
-                              treeView, Core::TreeViewFind::FetchMoreWhileSearching));
+    verticalLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(
+                              treeView, Core::ItemViewFind::FetchMoreWhileSearching));
 
     // tree model
     treeModel = new TreeItemModel(this);

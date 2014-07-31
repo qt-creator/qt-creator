@@ -15,7 +15,7 @@ HEADERS += \
     $$PWD/searchresulttreeview.h \
     $$PWD/searchresultwindow.h \
     $$PWD/searchresultwidget.h \
-    $$PWD/treeviewfind.h
+    $$PWD/itemviewfind.h
 
 SOURCES += \
     $$PWD/findtoolwindow.cpp \
@@ -31,7 +31,7 @@ SOURCES += \
     $$PWD/ifindfilter.cpp \
     $$PWD/ifindsupport.cpp \
     $$PWD/searchresultwidget.cpp \
-    $$PWD/treeviewfind.cpp
+    $$PWD/itemviewfind.cpp
 
 FORMS += \
     $$PWD/findwidget.ui \

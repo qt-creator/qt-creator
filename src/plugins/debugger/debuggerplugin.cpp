@@ -74,7 +74,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/find/treeviewfind.h>
+#include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -538,7 +538,7 @@ static QWidget *addSearch(BaseTreeView *treeView, const QString &title,
     QObject::connect(act, SIGNAL(toggled(bool)),
             treeView, SLOT(setAlternatingRowColorsHelper(bool)));
 
-    QWidget *widget = TreeViewFind::createSearchableWrapper(treeView);
+    QWidget *widget = ItemViewFind::createSearchableWrapper(treeView);
     widget->setObjectName(QLatin1String(objectName));
     widget->setWindowTitle(title);
     return widget;

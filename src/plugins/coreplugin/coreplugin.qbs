@@ -222,6 +222,8 @@ QtcPlugin {
             "ifindfilter.h",
             "ifindsupport.cpp",
             "ifindsupport.h",
+            "itemviewfind.cpp",
+            "itemviewfind.h",
             "searchresultcolor.h",
             "searchresulttreeitemdelegate.cpp",
             "searchresulttreeitemdelegate.h",
@@ -237,8 +239,6 @@ QtcPlugin {
             "searchresultwindow.cpp",
             "searchresultwindow.h",
             "textfindconstants.h",
-            "treeviewfind.cpp",
-            "treeviewfind.h",
         ]
     }
 

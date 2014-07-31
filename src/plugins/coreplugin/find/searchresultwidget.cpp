@@ -34,7 +34,7 @@
 #include "searchresulttreeitemroles.h"
 
 #include "findplugin.h"
-#include "treeviewfind.h"
+#include "itemviewfind.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/coreplugin.h>
@@ -123,8 +123,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     Aggregation::Aggregate * agg = new Aggregation::Aggregate;
     agg->add(m_searchResultTreeView);
-    agg->add(new TreeViewFind(m_searchResultTreeView,
-                              ItemDataRoles::ResultLineRole));
+    agg->add(new ItemViewFind(m_searchResultTreeView,
+                                      ItemDataRoles::ResultLineRole));
     layout->addWidget(m_searchResultTreeView);
 
     m_infoBarDisplay.setTarget(layout, 2);

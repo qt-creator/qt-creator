@@ -34,7 +34,7 @@
 #include "cppelementevaluator.h"
 #include "cppeditorplugin.h"
 
-#include <coreplugin/find/treeviewfind.h>
+#include <coreplugin/find/itemviewfind.h>
 #include <utils/algorithm.h>
 #include <utils/navigationtreeview.h>
 #include <utils/annotateditemdelegate.h>
@@ -151,7 +151,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_inspectedClass);
-    layout->addWidget(Core::TreeViewFind::createSearchableWrapper(m_treeView));
+    layout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_treeView));
     m_hierarchyWidget->setLayout(layout);
 
     m_stackLayout = new QStackedLayout;

@@ -27,20 +27,20 @@
 **
 ****************************************************************************/
 
-#ifndef TREEVIEWFIND_H
-#define TREEVIEWFIND_H
+#ifndef ITEMVIEWFIND_H
+#define ITEMVIEWFIND_H
 
 #include "ifindsupport.h"
 
 QT_BEGIN_NAMESPACE
-class QTreeView;
+class QAbstractItemView;
 class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Core {
 class ItemModelFindPrivate;
 
-class CORE_EXPORT TreeViewFind : public IFindSupport
+class CORE_EXPORT ItemViewFind : public IFindSupport
 {
     Q_OBJECT
 public:
@@ -49,9 +49,9 @@ public:
         FetchMoreWhileSearching
     };
 
-    explicit TreeViewFind(QTreeView *view, int role = Qt::DisplayRole,
+    explicit ItemViewFind(QAbstractItemView *view, int role = Qt::DisplayRole,
             FetchOption option = DoNotFetchMoreWhileSearching);
-    virtual ~TreeViewFind();
+    virtual ~ItemViewFind();
 
     bool supportsReplace() const;
     FindFlags supportedFindFlags() const;
@@ -64,7 +64,7 @@ public:
     Result findIncremental(const QString &txt, FindFlags findFlags);
     Result findStep(const QString &txt, FindFlags findFlags);
 
-    static QWidget *createSearchableWrapper(QTreeView *treeView,
+    static QWidget *createSearchableWrapper(QAbstractItemView *treeView,
             FetchOption option = DoNotFetchMoreWhileSearching);
 
 private:
@@ -81,4 +81,4 @@ private:
 
 } // namespace Core
 
-#endif // TREEVIEWFIND_H
+#endif // ITEMVIEWFIND_H

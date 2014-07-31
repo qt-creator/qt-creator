@@ -39,7 +39,7 @@
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/find/treeviewfind.h>
+#include <coreplugin/find/itemviewfind.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/fileutils.h>
 
@@ -92,7 +92,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
 
     Aggregation::Aggregate * agg = new Aggregation::Aggregate;
     agg->add(m_resourceEditor->treeView());
-    agg->add(new Core::TreeViewFind(m_resourceEditor->treeView()));
+    agg->add(new Core::ItemViewFind(m_resourceEditor->treeView()));
 
     m_resourceEditor->setResourceDragEnabled(true);
     m_contextMenu->addAction(tr("Open File"), this, SLOT(openCurrentFile()));

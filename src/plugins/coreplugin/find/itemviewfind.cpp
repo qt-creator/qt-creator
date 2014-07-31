@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "treeviewfind.h"
+#include "itemviewfind.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>
@@ -42,7 +42,7 @@ namespace Core {
 class ItemModelFindPrivate
 {
 public:
-    explicit ItemModelFindPrivate(QTreeView *view, int role, TreeViewFind::FetchOption option)
+    explicit ItemModelFindPrivate(QAbstractItemView *view, int role, ItemViewFind::FetchOption option)
         : m_view(view),
           m_incrementalWrappedState(false),
           m_role(role),
@@ -50,58 +50,58 @@ public:
     {
     }
 
-    QTreeView *m_view;
+    QAbstractItemView *m_view;
     QModelIndex m_incrementalFindStart;
     bool m_incrementalWrappedState;
     int m_role;
-    TreeViewFind::FetchOption m_option;
+    ItemViewFind::FetchOption m_option;
 };
 
-TreeViewFind::TreeViewFind(QTreeView *view, int role, FetchOption option)
+ItemViewFind::ItemViewFind(QAbstractItemView *view, int role, FetchOption option)
     : d(new ItemModelFindPrivate(view, role, option))
 {
 }
 
-TreeViewFind::~TreeViewFind()
+ItemViewFind::~ItemViewFind()
 {
     delete d;
 }
 
-bool TreeViewFind::supportsReplace() const
+bool ItemViewFind::supportsReplace() const
 {
     return false;
 }
 
-FindFlags TreeViewFind::supportedFindFlags() const
+FindFlags ItemViewFind::supportedFindFlags() const
 {
     return FindBackward | FindCaseSensitively | FindRegularExpression | FindWholeWords;
 }
 
-void TreeViewFind::resetIncrementalSearch()
+void ItemViewFind::resetIncrementalSearch()
 {
     d->m_incrementalFindStart = QModelIndex();
     d->m_incrementalWrappedState = false;
 }
 
-void TreeViewFind::clearHighlights()
+void ItemViewFind::clearHighlights()
 {
 }
 
-QString TreeViewFind::currentFindString() const
-{
-    return QString();
-}
-
-QString TreeViewFind::completedFindString() const
+QString ItemViewFind::currentFindString() const
 {
     return QString();
 }
 
-void TreeViewFind::highlightAll(const QString &/*txt*/, FindFlags /*findFlags*/)
+QString ItemViewFind::completedFindString() const
+{
+    return QString();
+}
+
+void ItemViewFind::highlightAll(const QString &/*txt*/, FindFlags /*findFlags*/)
 {
 }
 
-IFindSupport::Result TreeViewFind::findIncremental(const QString &txt, FindFlags findFlags)
+IFindSupport::Result ItemViewFind::findIncremental(const QString &txt, FindFlags findFlags)
 {
     if (!d->m_incrementalFindStart.isValid()) {
         d->m_incrementalFindStart = d->m_view->currentIndex();
@@ -118,7 +118,7 @@ IFindSupport::Result TreeViewFind::findIncremental(const QString &txt, FindFlags
     return result;
 }
 
-IFindSupport::Result TreeViewFind::findStep(const QString &txt, FindFlags findFlags)
+IFindSupport::Result ItemViewFind::findStep(const QString &txt, FindFlags findFlags)
 {
     bool wrapped = false;
     IFindSupport::Result result = find(txt, findFlags, false/*startFromNext*/,
@@ -132,7 +132,7 @@ IFindSupport::Result TreeViewFind::findStep(const QString &txt, FindFlags findFl
     return result;
 }
 
-QWidget *TreeViewFind::createSearchableWrapper(QTreeView *treeView, FetchOption option)
+QWidget *ItemViewFind::createSearchableWrapper(QAbstractItemView *treeView, FetchOption option)
 {
     QWidget *widget = new QWidget;
     QVBoxLayout *vbox = new QVBoxLayout(widget);
@@ -143,12 +143,12 @@ QWidget *TreeViewFind::createSearchableWrapper(QTreeView *treeView, FetchOption 
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(treeView);
-    agg->add(new TreeViewFind(treeView, Qt::DisplayRole, option));
+    agg->add(new ItemViewFind(treeView, Qt::DisplayRole, option));
 
     return widget;
 }
 
-IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
+IFindSupport::Result ItemViewFind::find(const QString &searchTxt,
                                         FindFlags findFlags,
                                         bool startFromCurrentIndex,
                                         bool *wrapped)
@@ -214,7 +214,8 @@ IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
         d->m_view->setCurrentIndex(resultIndex);
         d->m_view->scrollTo(resultIndex);
         if (resultIndex.parent().isValid())
-            d->m_view->expand(resultIndex.parent());
+            if (QTreeView *treeView = qobject_cast<QTreeView *>(d->m_view))
+                treeView->expand(resultIndex.parent());
         if (wrapped)
             *wrapped = anyWrapped;
         return IFindSupport::Found;
@@ -222,7 +223,7 @@ IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
     return IFindSupport::NotFound;
 }
 
-QModelIndex TreeViewFind::nextIndex(const QModelIndex &idx, bool *wrapped) const
+QModelIndex ItemViewFind::nextIndex(const QModelIndex &idx, bool *wrapped) const
 {
     if (wrapped)
         *wrapped = false;
@@ -269,7 +270,7 @@ QModelIndex TreeViewFind::nextIndex(const QModelIndex &idx, bool *wrapped) const
     return nextIndex;
 }
 
-QModelIndex TreeViewFind::prevIndex(const QModelIndex &idx, bool *wrapped) const
+QModelIndex ItemViewFind::prevIndex(const QModelIndex &idx, bool *wrapped) const
 {
     if (wrapped)
         *wrapped = false;
@@ -306,7 +307,7 @@ QModelIndex TreeViewFind::prevIndex(const QModelIndex &idx, bool *wrapped) const
     return current;
 }
 
-QModelIndex TreeViewFind::followingIndex(const QModelIndex &idx, bool backward, bool *wrapped)
+QModelIndex ItemViewFind::followingIndex(const QModelIndex &idx, bool backward, bool *wrapped)
 {
     if (backward)
         return prevIndex(idx, wrapped);

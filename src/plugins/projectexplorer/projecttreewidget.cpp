@@ -40,7 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/find/treeviewfind.h>
+#include <coreplugin/find/itemviewfind.h>
 
 #include <utils/navigationtreeview.h>
 #include <utils/algorithm.h>
@@ -135,8 +135,8 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     initView();
 
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(Core::TreeViewFind::createSearchableWrapper(
-                          m_view, TreeViewFind::FetchMoreWhileSearching));
+    layout->addWidget(Core::ItemViewFind::createSearchableWrapper(
+                          m_view, ItemViewFind::FetchMoreWhileSearching));
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
