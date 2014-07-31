@@ -465,18 +465,13 @@ void PluginDumper::dump(const Plugin &plugin)
     connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
     connect(process, SIGNAL(error(QProcess::ProcessError)), SLOT(qmlPluginTypeDumpError(QProcess::ProcessError)));
     QStringList args;
-    if (plugin.importUri.isEmpty()) {
-        args << QLatin1String("--path");
-        args << plugin.importPath;
-        if (ComponentVersion(plugin.importVersion).isValid())
-            args << plugin.importVersion;
-    } else {
-        if (info.qmlDumpHasRelocatableFlag)
-            args << QLatin1String("-relocatable");
-        args << plugin.importUri;
-        args << plugin.importVersion;
-        args << plugin.importPath;
-    }
+    if (plugin.importUri.isEmpty())
+        return; // dumping with --path always fails
+    if (info.qmlDumpHasRelocatableFlag)
+        args << QLatin1String("-relocatable");
+    args << plugin.importUri;
+    args << plugin.importVersion;
+    args << plugin.importPath;
     process->start(info.qmlDumpPath, args);
     m_runningQmldumps.insert(process, plugin.qmldirPath);
 }
