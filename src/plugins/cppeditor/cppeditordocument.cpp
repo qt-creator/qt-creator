@@ -33,6 +33,7 @@
 #include "cpphighlighter.h"
 
 #include <cpptools/cppcodeformatter.h>
+#include <cpptools/cppqtstyleindenter.h>
 #include <cpptools/cpptoolsconstants.h>
 
 #include <QTextDocument>
@@ -48,6 +49,7 @@ CPPEditorDocument::CPPEditorDocument()
     connect(this, SIGNAL(mimeTypeChanged()),
             this, SLOT(onMimeTypeChanged()));
     setSyntaxHighlighter(new CppHighlighter);
+    setIndenter(new CppTools::CppQtStyleIndenter);
     onMimeTypeChanged();
 }
 

@@ -49,7 +49,6 @@
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cpphighlightingsupport.h>
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <cpptools/cppqtstyleindenter.h>
 #include <cpptools/cppsemanticinfo.h>
 #include <cpptools/cpptoolseditorsupport.h>
 #include <cpptools/cpptoolsplugin.h>
@@ -179,7 +178,6 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
 CppEditorWidget::CppEditorWidget(QWidget *parent)
     : TextEditor::BaseTextEditorWidget(new CPPEditorDocument(), parent)
 {
-    textDocument()->setIndenter(new CppTools::CppQtStyleIndenter);
     ctor();
 }
 
