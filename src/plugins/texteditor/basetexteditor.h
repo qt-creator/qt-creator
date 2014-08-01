@@ -588,16 +588,16 @@ protected:
 
 
 protected slots:
-    virtual void slotUpdateExtraArea();
-    virtual void slotUpdateExtraAreaWidth();
-    virtual void slotUpdateRequest(const QRect &r, int dy);
-    virtual void slotCursorPositionChanged();
-    virtual void slotUpdateBlockNotify(const QTextBlock &);
-    virtual void slotCodeStyleSettingsChanged(const QVariant &);
+    virtual void slotCursorPositionChanged(); // Used in VcsBase
+    virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
 
     void configureMimeType();
 
 private slots:
+    void slotUpdateExtraArea();
+    void slotUpdateExtraAreaWidth();
+    void slotUpdateRequest(const QRect &r, int dy);
+    void slotUpdateBlockNotify(const QTextBlock &);
     void updateTabStops();
     void applyFontSettingsDelayed();
 
