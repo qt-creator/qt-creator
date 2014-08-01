@@ -168,7 +168,7 @@ public:
 
     virtual QbsProject *project() const;
     const qbs::Project qbsProject() const;
-    const qbs::ProjectData qbsProjectData() const;
+    const qbs::ProjectData qbsProjectData() const { return m_projectData; }
 
     bool showInSimpleTree() const;
 
@@ -182,6 +182,7 @@ private:
     QbsProjectNode *findProjectNode(const QString &name);
 
     static QIcon m_projectIcon;
+    qbs::ProjectData m_projectData;
 };
 
 // --------------------------------------------------------------------

@@ -752,6 +752,7 @@ void QbsProjectNode::update(const qbs::ProjectData &prjData)
 
     removeProjectNodes(toRemove);
     addProjectNodes(toAdd);
+    m_projectData = prjData;
 }
 
 QbsProject *QbsProjectNode::project() const
@@ -762,11 +763,6 @@ QbsProject *QbsProjectNode::project() const
 const qbs::Project QbsProjectNode::qbsProject() const
 {
     return project()->qbsProject();
-}
-
-const qbs::ProjectData QbsProjectNode::qbsProjectData() const
-{
-    return project()->qbsProjectData();
 }
 
 bool QbsProjectNode::showInSimpleTree() const
