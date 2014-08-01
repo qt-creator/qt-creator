@@ -37,7 +37,6 @@ Controls.SpinBox {
     property color highlightColor: "orange"
     property color textColor: colorLogic.textColor
     property variant backendValue;
-    prefix: "    "
 
     ExtendedFunctionButton {
         x: 2
