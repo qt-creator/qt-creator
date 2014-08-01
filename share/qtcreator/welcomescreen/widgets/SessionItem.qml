@@ -174,7 +174,6 @@ Item {
                     x: 6
                     width: parent.width -12
                     spacing: 4
-                    visible: !defaultSession
 
                     Image { source: "images/icons/clone.png" }
                     LinkedText {
@@ -184,18 +183,34 @@ Item {
                         }
                     }
 
-                    Text { width: 16; text: " "; }
-                    Image { source: "images/icons/rename.png" }
+                    Text {
+                        visible: !defaultSession
+                        width: 16;
+                        text: " ";
+                    }
+                    Image {
+                        visible: !defaultSession
+                        source: "images/icons/rename.png"
+                    }
                     LinkedText {
+                        visible: !defaultSession
                         text: qsTr("Rename")
                         onClicked: {
                             root.model.renameSession(sessionName);
                         }
                     }
 
-                    Text { width: 16; text: " "; visible: y === 0}
-                    Image { source: "images/icons/delete.png" }
+                    Text {
+                        visible: y === 0 && !defaultSession
+                        width: 16;
+                        text: " ";
+                    }
+                    Image {
+                        visible: !defaultSession
+                        source: "images/icons/delete.png"
+                    }
                     LinkedText {
+                        visible: !defaultSession
                         text: qsTr("Delete")
                         onClicked: {
                             root.model.deleteSession(sessionName);
