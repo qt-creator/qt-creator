@@ -199,7 +199,7 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
     setQbsConfiguration(map.value(QLatin1String(QBS_CONFIG)).toMap());
     m_qbsBuildOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN)).toBool());
     m_qbsBuildOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
-    m_qbsBuildOptions.setForceTimestampCheck(map.value(QLatin1String(QBS_CHECK_TIMESTAMPS), true).toBool());
+    m_qbsBuildOptions.setForceTimestampCheck(map.value(QLatin1String(QBS_CHECK_TIMESTAMPS)).toBool());
     m_qbsBuildOptions.setMaxJobCount(map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt());
     return true;
 }
