@@ -398,6 +398,61 @@ public:
     bool m_isMissingSyntaxDefinition;
 };
 
+BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *parent)
+  : q(parent),
+    m_contentsChanged(false),
+    m_lastCursorChangeWasInteresting(false),
+    m_parenthesesMatchingEnabled(false),
+    m_formatRange(false),
+    m_parenthesesMatchingTimer(0),
+    m_extraArea(0),
+    m_codeStylePreferences(0),
+    m_fontSettingsNeedsApply(true), // apply when making visible the first time, for the split case
+    extraAreaSelectionAnchorBlockNumber(-1),
+    extraAreaToggleMarkBlockNumber(-1),
+    extraAreaHighlightFoldedBlockNumber(-1),
+    m_overlay(0),
+    m_snippetOverlay(0),
+    m_searchResultOverlay(0),
+    m_refactorOverlay(0),
+    visibleFoldedBlockNumber(-1),
+    suggestedVisibleFoldedBlockNumber(-1),
+    m_mouseOnFoldedMarker(false),
+    m_marksVisible(false),
+    m_codeFoldingVisible(false),
+    m_codeFoldingSupported(false),
+    m_revisionsVisible(false),
+    m_lineNumbersVisible(true),
+    m_highlightCurrentLine(true),
+    m_requestMarkEnabled(true),
+    m_lineSeparatorsAllowed(false),
+    m_maybeFakeTooltipEvent(false),
+    m_visibleWrapColumn(0),
+    m_linkPressed(false),
+    m_delayedUpdateTimer(0),
+    m_editor(0),
+    m_inBlockSelectionMode(false),
+    m_moveLineUndoHack(false),
+    m_findScopeVerticalBlockSelectionFirstColumn(-1),
+    m_findScopeVerticalBlockSelectionLastColumn(-1),
+    m_highlightBlocksTimer(0),
+    m_codeAssistant(new CodeAssistant),
+    m_assistRelevantContentAdded(false),
+    m_cursorBlockNumber(-1),
+    m_blockCount(0),
+    m_markDragging(false),
+    m_clipboardAssistProvider(new Internal::ClipboardAssistProvider),
+    m_isMissingSyntaxDefinition(false)
+{
+    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
+    BaseTextFind *baseTextFind = new BaseTextFind(q);
+    connect(baseTextFind, &BaseTextFind::highlightAll,
+            this, &BaseTextEditorWidgetPrivate::highlightSearchResultsSlot);
+    connect(baseTextFind, &BaseTextFind::findScopeChanged,
+            this, &BaseTextEditorWidgetPrivate::setFindScope);
+    aggregate->add(baseTextFind);
+    aggregate->add(q);
+}
 class TextEditExtraArea : public QWidget
 {
 public:
@@ -2709,53 +2764,6 @@ AutoCompleter *BaseTextEditor::autoCompleter() const
 
 //--------- BaseTextEditorPrivate -----------
 
-BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *parent)
-  : q(parent),
-    m_contentsChanged(false),
-    m_lastCursorChangeWasInteresting(false),
-    m_parenthesesMatchingEnabled(false),
-    m_formatRange(false),
-    m_parenthesesMatchingTimer(0),
-    m_extraArea(0),
-    m_codeStylePreferences(0),
-    m_fontSettingsNeedsApply(true), // apply when making visible the first time, for the split case
-    extraAreaSelectionAnchorBlockNumber(-1),
-    extraAreaToggleMarkBlockNumber(-1),
-    extraAreaHighlightFoldedBlockNumber(-1),
-    m_overlay(0),
-    m_snippetOverlay(0),
-    m_searchResultOverlay(0),
-    m_refactorOverlay(0),
-    visibleFoldedBlockNumber(-1),
-    suggestedVisibleFoldedBlockNumber(-1),
-    m_mouseOnFoldedMarker(false),
-    m_marksVisible(false),
-    m_codeFoldingVisible(false),
-    m_codeFoldingSupported(false),
-    m_revisionsVisible(false),
-    m_lineNumbersVisible(true),
-    m_highlightCurrentLine(true),
-    m_requestMarkEnabled(true),
-    m_lineSeparatorsAllowed(false),
-    m_maybeFakeTooltipEvent(false),
-    m_visibleWrapColumn(0),
-    m_linkPressed(false),
-    m_delayedUpdateTimer(0),
-    m_editor(0),
-    m_inBlockSelectionMode(false),
-    m_moveLineUndoHack(false),
-    m_findScopeVerticalBlockSelectionFirstColumn(-1),
-    m_findScopeVerticalBlockSelectionLastColumn(-1),
-    m_highlightBlocksTimer(0),
-    m_codeAssistant(new CodeAssistant),
-    m_assistRelevantContentAdded(false),
-    m_cursorBlockNumber(-1),
-    m_blockCount(0),
-    m_markDragging(false),
-    m_clipboardAssistProvider(new Internal::ClipboardAssistProvider),
-    m_isMissingSyntaxDefinition(false)
-{
-}
 
 void BaseTextEditorWidgetPrivate::setupDocumentSignals()
 {
@@ -6459,22 +6467,14 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 }
 
 
-BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
+BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *widget)
     : d(new BaseTextEditorPrivate)
 {
-    setWidget(editor);
-    d->m_editorWidget = editor;
-    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
-    BaseTextFind *baseTextFind = new BaseTextFind(editor);
-    connect(baseTextFind, &BaseTextFind::highlightAll,
-            editor->d, &BaseTextEditorWidgetPrivate::highlightSearchResultsSlot);
-    connect(baseTextFind, &BaseTextFind::findScopeChanged,
-            editor->d, &BaseTextEditorWidgetPrivate::setFindScope);
-    aggregate->add(baseTextFind);
-    aggregate->add(editor);
+    setWidget(widget);
+    d->m_editorWidget = widget;
 
     d->m_cursorPositionLabel = new Utils::LineColumnLabel;
-    const int spacing = editor->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
+    const int spacing = widget->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
     d->m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
 
     d->m_fileEncodingLabel = new Utils::LineColumnLabel;
@@ -6491,9 +6491,9 @@ BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
 
     d->m_completionAssistProvider = [] () -> CompletionAssistProvider * { return 0; };
 
-    setFileEncodingLabelVisible(editor->displaySettings().m_displayFileEncoding);
+    setFileEncodingLabelVisible(widget->displaySettings().m_displayFileEncoding);
 
-    connect(editor, &QPlainTextEdit::cursorPositionChanged,
+    connect(widget, &QPlainTextEdit::cursorPositionChanged,
             this, &BaseTextEditor::updateCursorPosition);
 
     connect(d->m_cursorPositionLabel, &LineColumnLabel::clicked,
