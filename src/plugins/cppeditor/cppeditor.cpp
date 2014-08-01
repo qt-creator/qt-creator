@@ -198,6 +198,7 @@ void CppEditorWidget::ctor()
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
+    setRevisionsVisible(true);
 
     if (d->m_modelManager) {
         CppEditorSupport *editorSupport = d->m_modelManager->cppEditorSupport(editor());

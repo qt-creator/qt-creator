@@ -98,7 +98,6 @@ CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
 IEditor *CppEditorFactory::createEditor()
 {
     CppEditorWidget *editor = new CppEditorWidget();
-    editor->setRevisionsVisible(true);
     m_owner->initializeEditor(editor);
     return editor->editor();
 }
