@@ -578,7 +578,7 @@ void QmlJSTextEditorWidget::createToolBar(QmlJSEditor *editor)
 
     connect(this, SIGNAL(cursorPositionChanged()), m_updateOutlineIndexTimer, SLOT(start()));
 
-    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
+    editor->editorWidget()->insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, m_outlineCombo);
 }
 
 TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const QTextCursor &cursor,

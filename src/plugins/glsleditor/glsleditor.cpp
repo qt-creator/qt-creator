@@ -248,7 +248,7 @@ void GlslEditorWidget::createToolBar(GlslEditor *editor)
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
 
-    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
+    insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, m_outlineCombo);
 }
 
 void GlslEditorWidget::updateDocument()

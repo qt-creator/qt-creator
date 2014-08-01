@@ -614,7 +614,8 @@ QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_entriesComboBox->setSizePolicy(policy);
 
-    m_editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_entriesComboBox);
+    m_editor->editorWidget()->insertExtraToolBarWidget
+        (TextEditor::BaseTextEditorWidget::Left, m_entriesComboBox);
     return m_entriesComboBox;
 }
 
@@ -1337,7 +1338,7 @@ bool VcsBaseEditorWidget::setConfigurationWidget(VcsBaseEditorParameterWidget *w
         return false;
 
     d->m_configurationWidget = w;
-    d->m_editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Right, w);
+    d->m_editor->editorWidget()->insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Right, w);
 
     return true;
 }

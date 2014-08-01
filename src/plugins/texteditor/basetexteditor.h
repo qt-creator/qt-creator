@@ -143,9 +143,6 @@ public:
     bool restoreState(const QByteArray &state);
     QWidget *toolBar();
 
-    enum Side { Left, Right };
-    void insertExtraToolBarWidget(Side side, QWidget *widget);
-
     QString contextHelpId() const; // from IContext
 
     int currentLine() const;
@@ -192,8 +189,6 @@ public:
     // There should be something simpler.
     void setCompletionAssistProvider(const std::function<CompletionAssistProvider *()> &provider);
 
-    QObject *fileEncodingLabel() const; // FIXME: Remove
-
     void setAutoCompleter(AutoCompleter *autoCompleter);
     AutoCompleter *autoCompleter() const;
 
@@ -204,12 +199,6 @@ signals:
     void tooltipRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int position);
     void markTooltipRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int line);
     void contextHelpIdRequested(TextEditor::BaseTextEditor *editor, int position);
-
-private slots:
-    void updateCursorPosition();
-    void openGotoLocator();
-    void setFileEncodingLabelVisible(bool visible);
-    void setFileEncodingLabelText(const QString &text);
 
 private:
     friend class Internal::BaseTextEditorWidgetPrivate;
@@ -371,6 +360,9 @@ public:
     // the blocks list must be sorted
     void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
     bool isMissingSyntaxDefinition() const;
+
+    enum Side { Left, Right };
+    void insertExtraToolBarWidget(Side side, QWidget *widget);
 
 public slots:
     virtual void copy();

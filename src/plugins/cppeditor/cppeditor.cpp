@@ -277,8 +277,8 @@ void CppEditorWidget::createToolBar(CPPEditor *editor)
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updatePreprocessorButtonTooltip()));
     updatePreprocessorButtonTooltip();
     connect(d->m_preprocessorButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
-    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, d->m_preprocessorButton);
-    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, d->m_cppEditorOutline->widget());
+    insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_preprocessorButton);
+    insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_cppEditorOutline->widget());
 }
 
 void CppEditorWidget::paste()
