@@ -105,7 +105,6 @@ private slots:
 
 protected:
     TextEditor::BaseTextEditor *createEditor();
-    void createToolBar(Internal::GlslEditor *editable);
 
 private:
     GlslEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity

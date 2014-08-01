@@ -168,6 +168,27 @@ void GlslEditorWidget::ctor()
 
     new Highlighter(textDocument());
 
+    m_outlineCombo = new QComboBox;
+    m_outlineCombo->setMinimumContentsLength(22);
+
+    // ### m_outlineCombo->setModel(m_outlineModel);
+
+    QTreeView *treeView = new QTreeView;
+    treeView->header()->hide();
+    treeView->setItemsExpandable(false);
+    treeView->setRootIsDecorated(false);
+    m_outlineCombo->setView(treeView);
+    treeView->expandAll();
+
+    //m_outlineCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+
+    // Make the combo box prefer to expand
+    QSizePolicy policy = m_outlineCombo->sizePolicy();
+    policy.setHorizontalPolicy(QSizePolicy::Expanding);
+    m_outlineCombo->setSizePolicy(policy);
+
+    insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, m_outlineCombo);
+
 //    if (m_modelManager) {
 //        m_semanticHighlighter->setModelManager(m_modelManager);
 //        connect(m_modelManager, SIGNAL(documentUpdated(GLSL::Document::Ptr)),
@@ -222,33 +243,7 @@ QString GlslEditorWidget::wordUnderCursor() const
 
 TextEditor::BaseTextEditor *GlslEditorWidget::createEditor()
 {
-    GlslEditor *editable = new GlslEditor(this);
-    createToolBar(editable);
-    return editable;
-}
-
-void GlslEditorWidget::createToolBar(GlslEditor *editor)
-{
-    m_outlineCombo = new QComboBox;
-    m_outlineCombo->setMinimumContentsLength(22);
-
-    // ### m_outlineCombo->setModel(m_outlineModel);
-
-    QTreeView *treeView = new QTreeView;
-    treeView->header()->hide();
-    treeView->setItemsExpandable(false);
-    treeView->setRootIsDecorated(false);
-    m_outlineCombo->setView(treeView);
-    treeView->expandAll();
-
-    //m_outlineCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-
-    // Make the combo box prefer to expand
-    QSizePolicy policy = m_outlineCombo->sizePolicy();
-    policy.setHorizontalPolicy(QSizePolicy::Expanding);
-    m_outlineCombo->setSizePolicy(policy);
-
-    insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, m_outlineCombo);
+    return new GlslEditor(this);
 }
 
 void GlslEditorWidget::updateDocument()
