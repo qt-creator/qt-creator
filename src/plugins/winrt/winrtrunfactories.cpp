@@ -37,17 +37,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-
-#include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
-#include <debugger/debuggerstartparameters.h>
-
 #include <utils/qtcassert.h>
-
-#include <QLocalServer>
-#include <QLocalSocket>
 
 using namespace ProjectExplorer;
 
