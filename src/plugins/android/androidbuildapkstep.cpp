@@ -84,7 +84,11 @@ AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
       m_openPackageLocation(other->m_openPackageLocation),
       m_buildTargetSdk(other->m_buildTargetSdk)
 {
-
+    const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (version->qtVersion() <  QtSupport::QtVersionNumber(5, 4, 0)) {
+        if (m_deployAction == DebugDeployment)
+            m_deployAction = BundleLibrariesDeployment;
+    }
 }
 
 bool AndroidBuildApkStep::init()
