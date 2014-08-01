@@ -90,8 +90,7 @@ bool WinRtRunnerHelper::init(WinRtRunConfiguration *runConfiguration, QString *e
         return false;
     }
 
-    const Utils::FileName proFile = Utils::FileName::fromString(
-                target->project()->document()->filePath());
+    const QString &proFile = m_runConfiguration->proFilePath();
     m_executableFilePath = target->applicationTargets().targetForProject(proFile).toString()
                 + QStringLiteral(".exe");   // ### we should not need to append ".exe" here.
 

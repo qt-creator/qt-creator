@@ -33,6 +33,7 @@
 namespace WinRt {
 namespace Internal {
 namespace Constants {
+
 const char WINRT_DEVICE_TYPE_LOCAL[] = "WinRt.Device.Local";
 const char WINRT_DEVICE_TYPE_EMULATOR[] = "WinRt.Device.Emulator";
 const char WINRT_DEVICE_TYPE_PHONE[] = "WinRt.Device.Phone";
@@ -43,7 +44,9 @@ const char WINRT_WINPHONEQT[] = "WinRt.QtVersion.WindowsPhone";
 const char WINRT_QTMAP_SUBKEYNAME[] = "WinRt";
 const char WINRT_QTMAP_OSFLAVOR[] = "OsFlavor";
 const char WINRT_MANIFEST_EDITOR_ID[] = "WinRTManifestEditorID";
-}
+const char WINRT_RC_PREFIX[] = "WinRt.WinRtRunConfiguration:";
+
+} // Constants
 } // Internal
 } // WinRt
 

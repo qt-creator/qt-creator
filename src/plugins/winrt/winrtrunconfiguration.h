@@ -47,6 +47,7 @@ public:
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &map);
 
+    const QString &proFilePath() const { return m_proFilePath; }
     const QString &arguments() const { return m_arguments; }
     bool uninstallAfterStop() const { return m_uninstallAfterStop; }
 
@@ -59,6 +60,7 @@ public slots:
     void setUninstallAfterStop(bool b);
 
 private:
+    QString m_proFilePath;
     QString m_arguments;
     bool m_uninstallAfterStop;
 };
