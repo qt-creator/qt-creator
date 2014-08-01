@@ -269,7 +269,6 @@ public:
     void setLineSeparatorsAllowed(bool b);
     bool lineSeparatorsAllowed() const;
 
-    void updateCodeFoldingVisible();
     bool codeFoldingVisible() const;
 
     void setCodeFoldingSupported(bool b);
@@ -476,6 +475,7 @@ public slots:
 
     void configureMimeType(const QString &mimeType);
     void configureMimeType(const Core::MimeType &mimeType);
+    void inSnippetMode(bool *active);
 
 signals:
     void assistFinished();
@@ -592,34 +592,12 @@ protected slots:
     virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
 
     void configureMimeType();
-
-private slots:
-    void slotUpdateExtraArea();
-    void slotUpdateExtraAreaWidth();
-    void slotUpdateRequest(const QRect &r, int dy);
-    void slotUpdateBlockNotify(const QTextBlock &);
-    void updateTabStops();
-    void applyFontSettingsDelayed();
-
-    void editorContentsChange(int position, int charsRemoved, int charsAdded);
-    void documentAboutToBeReloaded();
-    void documentReloadFinished(bool success);
-    void highlightSearchResults(const QString &txt, Core::FindFlags findFlags);
-    void setFindScope(const QTextCursor &start, const QTextCursor &end, int, int);
-    bool inFindScope(const QTextCursor &cursor);
-    bool inFindScope(int selectionStart, int selectionEnd);
-    void inSnippetMode(bool *active);
-
-    // parentheses matcher
-    void _q_matchParentheses();
-    void _q_highlightBlocks();
-    void slotSelectionChanged();
-    void _q_animateUpdate(int position, QPointF lastPos, QRectF rect);
     void doFoo();
 
 private:
     Internal::BaseTextEditorWidgetPrivate *d;
     Internal::BaseTextEditorPrivate *dd() const;
+    friend class BaseTextEditor;
     friend class Internal::BaseTextEditorWidgetPrivate;
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;
