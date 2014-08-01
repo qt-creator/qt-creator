@@ -34,6 +34,7 @@
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemView;
+class QFrame;
 class QModelIndex;
 QT_END_NAMESPACE
 
@@ -64,7 +65,7 @@ public:
     Result findIncremental(const QString &txt, FindFlags findFlags);
     Result findStep(const QString &txt, FindFlags findFlags);
 
-    static QWidget *createSearchableWrapper(QAbstractItemView *treeView,
+    static QFrame *createSearchableWrapper(QAbstractItemView *treeView,
             FetchOption option = DoNotFetchMoreWhileSearching);
 
 private:

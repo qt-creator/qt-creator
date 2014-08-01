@@ -30,6 +30,8 @@
 #include "environmentwidget.h"
 #include "environmentitemswidget.h"
 
+#include <coreplugin/find/itemviewfind.h>
+
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/environmentmodel.h>
@@ -99,7 +101,10 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     new Utils::HeaderViewStretcher(d->m_environmentView->header(), 1);
     d->m_environmentView->setSelectionMode(QAbstractItemView::SingleSelection);
     d->m_environmentView->setSelectionBehavior(QAbstractItemView::SelectItems);
-    horizontalLayout->addWidget(d->m_environmentView);
+    d->m_environmentView->setFrameShape(QFrame::NoFrame);
+    QFrame *findWrapper = Core::ItemViewFind::createSearchableWrapper(d->m_environmentView);
+    findWrapper->setFrameStyle(QFrame::StyledPanel);
+    horizontalLayout->addWidget(findWrapper);
 
     QVBoxLayout *buttonLayout = new QVBoxLayout();
 

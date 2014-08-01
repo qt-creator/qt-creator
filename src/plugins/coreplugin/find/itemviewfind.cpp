@@ -132,9 +132,10 @@ IFindSupport::Result ItemViewFind::findStep(const QString &txt, FindFlags findFl
     return result;
 }
 
-QWidget *ItemViewFind::createSearchableWrapper(QAbstractItemView *treeView, FetchOption option)
+QFrame *ItemViewFind::createSearchableWrapper(QAbstractItemView *treeView, FetchOption option)
 {
-    QWidget *widget = new QWidget;
+    QFrame *widget = new QFrame;
+    widget->setFrameStyle(QFrame::NoFrame);
     QVBoxLayout *vbox = new QVBoxLayout(widget);
     vbox->setMargin(0);
     vbox->setSpacing(0);
