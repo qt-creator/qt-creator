@@ -121,10 +121,6 @@ def waitForCleanShutdown(timeOut=10):
                 break
 
 def checkForStillRunningQmlExecutable(possibleNames):
-    if JIRA.isBugStillOpen(12644):
-        possibleNames.append('WerFault.exe')
-    else:
-        test.warning("Remove temporary workaround for QTCREATORBUG-12644!")
     for qmlHelper in possibleNames:
         tasks = subprocess.Popen("tasklist /FI \"IMAGENAME eq %s\"" % qmlHelper, shell=True,
                                  stdout=subprocess.PIPE)
