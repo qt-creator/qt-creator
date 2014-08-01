@@ -202,6 +202,7 @@ const char ICON_TOGGLE_SIDEBAR[]     = ":/core/images/sidebaricon.png";
 const char ICON_CLOSE_DOCUMENT[]     = ":/core/images/button_close.png";
 const char ICON_CLOSE[]              = ":/core/images/closebutton.png";
 const char ICON_CLOSE_DARK[]         = ":/core/images/darkclosebutton.png";
+const char ICON_DARK_CLOSE[]         = ":/core/images/darkclose.png";
 const char ICON_SPLIT_HORIZONTAL[]   = ":/core/images/splitbutton_horizontal.png";
 const char ICON_SPLIT_VERTICAL[]     = ":/core/images/splitbutton_vertical.png";
 const char ICON_CLOSE_SPLIT_TOP[]    = ":/core/images/splitbutton_closetop.png";
