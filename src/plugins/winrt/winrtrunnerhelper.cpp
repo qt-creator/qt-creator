@@ -91,8 +91,16 @@ bool WinRtRunnerHelper::init(WinRtRunConfiguration *runConfiguration, QString *e
     }
 
     const QString &proFile = m_runConfiguration->proFilePath();
-    m_executableFilePath = target->applicationTargets().targetForProject(proFile).toString()
-                + QStringLiteral(".exe");   // ### we should not need to append ".exe" here.
+    m_executableFilePath = target->applicationTargets().targetForProject(proFile).toString();
+    if (m_executableFilePath.isEmpty()) {
+        *errorMessage = tr("Cannot determine the executable file path for \"%1\".").arg(
+                    QDir::toNativeSeparators(proFile));
+        return false;
+    }
+
+    // ### we should not need to append ".exe" here.
+    if (!m_executableFilePath.endsWith(QLatin1String(".exe")))
+        m_executableFilePath += QStringLiteral(".exe");
 
     m_arguments = runConfiguration->arguments();
     m_uninstallAfterStop = runConfiguration->uninstallAfterStop();
