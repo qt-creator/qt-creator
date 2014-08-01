@@ -447,7 +447,7 @@ void InvokeCompletionTokenAction::run(CppEditorWidget *editorWidget)
     //    editorWidget->setFocus();
     QApplication::processEvents();
 
-    TestActionsTestCase::undoChangesInDocument(editorWidget->baseTextDocument());
+    TestActionsTestCase::undoChangesInDocument(editorWidget->textDocument());
 }
 
 class RunAllQuickFixesTokenAction : public TestActionsTestCase::AbstractAction

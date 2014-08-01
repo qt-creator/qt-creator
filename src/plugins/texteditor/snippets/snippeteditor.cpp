@@ -52,7 +52,7 @@ SnippetEditor::SnippetEditor(SnippetEditorWidget *editor)
 SnippetEditorWidget::SnippetEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(new BaseTextDocument, parent)
 {
-    baseTextDocument()->setId(Constants::SNIPPET_EDITOR_ID);
+    textDocument()->setId(Constants::SNIPPET_EDITOR_ID);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setHighlightCurrentLine(false);
     setLineNumbersVisible(false);
@@ -61,7 +61,7 @@ SnippetEditorWidget::SnippetEditorWidget(QWidget *parent)
 
 void SnippetEditorWidget::setSyntaxHighlighter(TextEditor::SyntaxHighlighter *highlighter)
 {
-    baseTextDocument()->setSyntaxHighlighter(highlighter);
+    textDocument()->setSyntaxHighlighter(highlighter);
 }
 
 void SnippetEditorWidget::focusOutEvent(QFocusEvent *event)

@@ -159,7 +159,7 @@ void BarDescriptorEditor::updateCursorPosition()
     const int line = block.blockNumber() + 1;
     const int column = cursor.position() - block.position();
     m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line)
-                                   .arg(editorWidget->sourceWidget()->baseTextDocument()
+                                   .arg(editorWidget->sourceWidget()->textDocument()
                                         ->tabSettings().columnAt(block.text(), column)+1),
                                    tr("Line: 9999, Col: 999"));
     if (!block.isVisible())

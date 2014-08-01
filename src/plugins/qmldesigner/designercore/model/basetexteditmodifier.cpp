@@ -49,7 +49,7 @@ void BaseTextEditModifier::indent(int offset, int length)
 
     if (TextEditor::BaseTextEditorWidget *baseTextEditorWidget = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())) {
 
-        TextEditor::BaseTextDocument *baseTextEditorDocument = baseTextEditorWidget->baseTextDocument();
+        TextEditor::BaseTextDocument *baseTextEditorDocument = baseTextEditorWidget->textDocument();
         QTextDocument *textDocument = baseTextEditorWidget->document();
         TextEditor::BaseTextEditor *baseTextEditor = baseTextEditorWidget->editor();
 
@@ -83,7 +83,7 @@ void BaseTextEditModifier::indent(int offset, int length)
 int BaseTextEditModifier::indentDepth() const
 {
     if (TextEditor::BaseTextEditorWidget *bte = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit()))
-        return bte->baseTextDocument()->tabSettings().m_indentSize;
+        return bte->textDocument()->tabSettings().m_indentSize;
     else
         return 0;
 }
@@ -92,7 +92,7 @@ bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
 {
     if (TextEditor::BaseTextEditorWidget *bte = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())) {
         if (QmlJSEditor::QmlJSEditorDocument *document
-                = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->baseTextDocument())) {
+                = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument())) {
             Utils::ChangeSet changeSet;
             foreach (const QmlJS::AST::SourceLocation &loc,
                     document->semanticInfo().idLocations.value(oldId)) {

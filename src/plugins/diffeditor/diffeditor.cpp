@@ -264,14 +264,14 @@ void DiffEditor::ctor()
             SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
     connect(TextEditorSettings::instance(),
             SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            m_descriptionWidget->baseTextDocument(),
+            m_descriptionWidget->textDocument(),
             SLOT(setFontSettings(TextEditor::FontSettings)));
 
     m_descriptionWidget->setDisplaySettings(
                 TextEditorSettings::displaySettings());
     m_descriptionWidget->setCodeStyle(
                 TextEditorSettings::codeStyle());
-    m_descriptionWidget->baseTextDocument()->setFontSettings(
+    m_descriptionWidget->textDocument()->setFontSettings(
                 TextEditorSettings::fontSettings());
 
     m_controller = m_document->controller();

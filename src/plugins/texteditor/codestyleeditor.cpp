@@ -54,7 +54,7 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
     CodeStyleSelectorWidget *selector = new CodeStyleSelectorWidget(factory, this);
     selector->setCodeStyle(codeStyle);
     m_preview = new SnippetEditorWidget(this);
-    m_preview->baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
+    m_preview->textDocument()->setFontSettings(TextEditorSettings::fontSettings());
     DisplaySettings displaySettings = m_preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
     m_preview->setDisplaySettings(displaySettings);
@@ -93,13 +93,13 @@ void CodeStyleEditor::updatePreview()
 {
     QTextDocument *doc = m_preview->document();
 
-    m_preview->baseTextDocument()->indenter()->invalidateCache(doc);
+    m_preview->textDocument()->indenter()->invalidateCache(doc);
 
     QTextBlock block = doc->firstBlock();
     QTextCursor tc = m_preview->textCursor();
     tc.beginEditBlock();
     while (block.isValid()) {
-        m_preview->baseTextDocument()->indenter()
+        m_preview->textDocument()->indenter()
                 ->indentBlock(doc, block, QChar::Null, m_codeStyle->currentTabSettings());
         block = block.next();
     }

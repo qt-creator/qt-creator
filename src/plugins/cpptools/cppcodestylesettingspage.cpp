@@ -465,7 +465,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
     const TextEditor::TabSettings ts = cppCodeStylePreferences->currentTabSettings();
     QtStyleCodeFormatter formatter(ts, ccss);
     foreach (TextEditor::SnippetEditorWidget *preview, m_previews) {
-        preview->baseTextDocument()->setTabSettings(ts);
+        preview->textDocument()->setTabSettings(ts);
         preview->setCodeStyle(cppCodeStylePreferences);
 
         QTextDocument *doc = preview->document();
@@ -475,7 +475,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
         QTextCursor tc = preview->textCursor();
         tc.beginEditBlock();
         while (block.isValid()) {
-            preview->baseTextDocument()->indenter()->indentBlock(doc, block, QChar::Null, ts);
+            preview->textDocument()->indenter()->indentBlock(doc, block, QChar::Null, ts);
 
             block = block.next();
         }
@@ -492,7 +492,7 @@ void CppCodeStylePreferencesWidget::decorateEditors(const TextEditor::FontSettin
         });
 
     foreach (TextEditor::SnippetEditorWidget *editor, m_previews) {
-        editor->baseTextDocument()->setFontSettings(fontSettings);
+        editor->textDocument()->setFontSettings(fontSettings);
         if (provider)
             provider->decorateEditor(editor);
     }

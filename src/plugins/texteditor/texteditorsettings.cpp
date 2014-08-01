@@ -337,7 +337,7 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
 {
     // Connect to settings change signals
     connect(m_instance, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            editor->baseTextDocument(), SLOT(setFontSettings(TextEditor::FontSettings)));
+            editor->textDocument(), SLOT(setFontSettings(TextEditor::FontSettings)));
     connect(m_instance, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
             editor, SLOT(setTypingSettings(TextEditor::TypingSettings)));
     connect(m_instance, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
@@ -359,8 +359,8 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
             m_instance, SLOT(zoomResetRequested()));
 
     // Apply current settings
-    editor->baseTextDocument()->setFontSettings(fontSettings());
-    editor->baseTextDocument()->setTabSettings(codeStyle()->tabSettings()); // also set through code style ???
+    editor->textDocument()->setFontSettings(fontSettings());
+    editor->textDocument()->setTabSettings(codeStyle()->tabSettings()); // also set through code style ???
     editor->setTypingSettings(typingSettings());
     editor->setStorageSettings(storageSettings());
     editor->setBehaviorSettings(behaviorSettings());

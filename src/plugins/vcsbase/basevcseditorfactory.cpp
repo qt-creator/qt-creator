@@ -88,7 +88,7 @@ Core::IEditor *BaseVcsEditorFactory::createEditor()
         connect(vcsEditor, SIGNAL(describeRequested(QString,QString)), d->m_describeReceiver, d->m_describeSlot);
 
     if (!mimeTypes().isEmpty())
-        vcsEditor->baseTextDocument()->setMimeType(mimeTypes().front());
+        vcsEditor->textDocument()->setMimeType(mimeTypes().front());
 
     TextEditor::TextEditorSettings::initializeEditor(vcsEditor);
     return vcsEditor->editor();

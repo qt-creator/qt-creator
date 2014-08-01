@@ -120,8 +120,6 @@ public:
     BaseTextEditor(BaseTextEditorWidget *editorWidget);
     ~BaseTextEditor();
 
-    virtual BaseTextDocument *textDocument();
-
     enum MarkRequestKind {
         BreakpointRequest,
         BookmarkRequest,
@@ -131,7 +129,7 @@ public:
     static BaseTextEditor *currentTextEditor();
 
     BaseTextEditorWidget *editorWidget() const;
-    BaseTextDocument *baseTextDocument();
+    BaseTextDocument *textDocument();
 
     // IEditor
     Core::IDocument *document();
@@ -218,7 +216,7 @@ public:
     BaseTextEditorWidget(BaseTextEditorWidget *other);
     ~BaseTextEditorWidget();
 
-    BaseTextDocument *baseTextDocument() const;
+    BaseTextDocument *textDocument() const;
 
     // IEditor
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);

@@ -101,7 +101,7 @@ void QmlJSCodeStylePreferencesWidget::decorateEditor(const TextEditor::FontSetti
             return current->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
         });
 
-    m_ui->previewTextEdit->baseTextDocument()->setFontSettings(fontSettings);
+    m_ui->previewTextEdit->textDocument()->setFontSettings(fontSettings);
     if (provider)
         provider->decorateEditor(m_ui->previewTextEdit);
 }
@@ -125,7 +125,7 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
     const TextEditor::TabSettings &ts = m_preferences
             ? m_preferences->currentTabSettings()
             : TextEditorSettings::codeStyle()->tabSettings();
-    m_ui->previewTextEdit->baseTextDocument()->setTabSettings(ts);
+    m_ui->previewTextEdit->textDocument()->setTabSettings(ts);
     CreatorCodeFormatter formatter(ts);
     formatter.invalidateCache(doc);
 
@@ -133,7 +133,7 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
     QTextCursor tc = m_ui->previewTextEdit->textCursor();
     tc.beginEditBlock();
     while (block.isValid()) {
-        m_ui->previewTextEdit->baseTextDocument()->indenter()
+        m_ui->previewTextEdit->textDocument()->indenter()
                 ->indentBlock(doc, block, QChar::Null, ts);
         block = block.next();
     }

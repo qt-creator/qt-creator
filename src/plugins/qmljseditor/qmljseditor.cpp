@@ -111,7 +111,7 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QmlJSTextEditorWidget *other)
 
 void QmlJSTextEditorWidget::ctor()
 {
-    m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(baseTextDocument());
+    m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(textDocument());
     m_outlineCombo = 0;
     m_contextPane = 0;
     m_findReferences = new FindReferences(this);
@@ -132,7 +132,7 @@ void QmlJSTextEditorWidget::ctor()
     m_updateOutlineIndexTimer->setSingleShot(true);
     connect(m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
 
-    baseTextDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
+    textDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
 
     m_modelManager = QmlJS::ModelManagerInterface::instance();
     m_contextPane = ExtensionSystem::PluginManager::getObject<QmlJS::IContextPane>();
@@ -186,7 +186,7 @@ IEditor *QmlJSEditor::duplicate()
 bool QmlJSEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
-    baseTextDocument()->setMimeType(MimeDatabase::findByFile(QFileInfo(fileName)).type());
+    textDocument()->setMimeType(MimeDatabase::findByFile(QFileInfo(fileName)).type());
     return b;
 }
 
@@ -243,7 +243,7 @@ void QmlJSTextEditorWidget::updateCodeWarnings(QmlJS::Document::Ptr doc)
 void QmlJSTextEditorWidget::modificationChanged(bool changed)
 {
     if (!changed && m_modelManager)
-        m_modelManager->fileChangedOnDisk(baseTextDocument()->filePath());
+        m_modelManager->fileChangedOnDisk(textDocument()->filePath());
 }
 
 void QmlJSTextEditorWidget::jumpToOutlineElement(int /*index*/)
@@ -367,7 +367,7 @@ void QmlJSTextEditorWidget::updateUses()
             continue;
 
         QTextEdit::ExtraSelection sel;
-        sel.format = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
+        sel.format = textDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
         sel.cursor = textCursor();
         sel.cursor.setPosition(loc.begin());
         sel.cursor.setPosition(loc.end(), QTextCursor::KeepAnchor);
@@ -666,12 +666,12 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
 
 void QmlJSTextEditorWidget::findUsages()
 {
-    m_findReferences->findUsages(baseTextDocument()->filePath(), textCursor().position());
+    m_findReferences->findUsages(textDocument()->filePath(), textCursor().position());
 }
 
 void QmlJSTextEditorWidget::renameUsages()
 {
-    m_findReferences->renameUsages(baseTextDocument()->filePath(), textCursor().position());
+    m_findReferences->renameUsages(textDocument()->filePath(), textCursor().position());
 }
 
 void QmlJSTextEditorWidget::showContextPane()
@@ -807,7 +807,7 @@ void QmlJSTextEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo
 {
     if (isVisible()) {
          // trigger semantic highlighting and model update if necessary
-        baseTextDocument()->triggerPendingUpdates();
+        textDocument()->triggerPendingUpdates();
     }
 
     if (m_contextPane) {

@@ -189,7 +189,7 @@ void GitEditorWidget::setPlainTextFiltered(const QString &text)
         break;
     }
 
-    baseTextDocument()->setPlainText(modText);
+    textDocument()->setPlainText(modText);
 }
 
 void GitEditorWidget::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v)
@@ -290,9 +290,9 @@ void GitEditorWidget::init()
     VcsBase::VcsBaseEditorWidget::init();
     Core::Id editorId = editor()->document()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
-        new GitSubmitHighlighter(baseTextDocument());
+        new GitSubmitHighlighter(textDocument());
     else if (editorId == Git::Constants::GIT_REBASE_EDITOR_ID)
-        new GitRebaseHighlighter(baseTextDocument());
+        new GitRebaseHighlighter(textDocument());
 }
 
 void GitEditorWidget::addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk)
@@ -316,7 +316,7 @@ bool GitEditorWidget::open(QString *errorString, const QString &fileName, const 
         QFileInfo fi(fileName);
         const QString gitPath = fi.absolutePath();
         setSource(gitPath);
-        baseTextDocument()->setCodec(
+        textDocument()->setCodec(
                     GitPlugin::instance()->gitClient()->encoding(gitPath, "i18n.commitEncoding"));
     }
     return VcsBaseEditorWidget::open(errorString, fileName, realFileName);

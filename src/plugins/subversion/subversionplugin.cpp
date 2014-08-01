@@ -1043,7 +1043,7 @@ IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const QStrin
         return 0;
     e->setForceReadOnly(true);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
-    e->baseTextDocument()->setSuggestedFileName(s);
+    e->textDocument()->setSuggestedFileName(s);
     if (!source.isEmpty())
         e->setSource(source);
     if (codec)

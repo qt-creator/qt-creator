@@ -121,7 +121,7 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     , m_initialized(false)
     , m_lastHighlightRevision(0)
     , m_lastHighlightOnCompleteSemanticInfo(true)
-    , m_highlightingSupport(modelManager->highlightingSupport(textEditor->baseTextDocument()))
+    , m_highlightingSupport(modelManager->highlightingSupport(textEditor->textDocument()))
     , m_completionAssistProvider(
         modelManager->completionAssistProvider(textEditor->document()->mimeType()))
 {

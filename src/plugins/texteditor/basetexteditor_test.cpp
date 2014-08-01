@@ -147,7 +147,7 @@ void Internal::TextEditorPlugin::testBlockSelectionTransformation()
             editorWidget->lowercaseSelection();
             break;
         }
-        QCOMPARE(textEditor->baseTextDocument()->plainText(), transformedText);
+        QCOMPARE(textEditor->textDocument()->plainText(), transformedText);
     }
     Core::EditorManager::closeEditor(editor, false);
 }
@@ -362,7 +362,7 @@ void Internal::TextEditorPlugin::testBlockSelectionInsert()
         editorWidget->update();
         editorWidget->insertPlainText(insertText);
 
-        QCOMPARE(textEditor->baseTextDocument()->plainText(), transformedText);
+        QCOMPARE(textEditor->textDocument()->plainText(), transformedText);
     }
     Core::EditorManager::closeEditor(editor, false);
 }
@@ -440,7 +440,7 @@ void Internal::TextEditorPlugin::testBlockSelectionRemove()
         editorWidget->update();
         editorWidget->insertPlainText(QString());
 
-        QCOMPARE(textEditor->baseTextDocument()->plainText(), transformedText);
+        QCOMPARE(textEditor->textDocument()->plainText(), transformedText);
     }
     Core::EditorManager::closeEditor(editor, false);
 }

@@ -185,7 +185,7 @@ void CodeAssistantPrivate::configure(BaseTextEditor *textEditor)
     filterEditorSpecificProviders(&m_quickFixProviders, m_textEditor->document()->id());
 
     m_textEditor->editorWidget()->installEventFilter(this);
-    connect(m_textEditor->baseTextDocument(),SIGNAL(mimeTypeChanged()),
+    connect(m_textEditor->textDocument(),SIGNAL(mimeTypeChanged()),
             m_q, SLOT(reconfigure()));
 }
 

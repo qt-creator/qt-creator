@@ -423,7 +423,7 @@ void QuickToolBar::onEnabledChanged(bool b)
 void QuickToolBar::indentLines(int startLine, int endLine)
 {
     if (startLine > 0) {
-        TextEditor::TabSettings tabSettings = m_editor->baseTextDocument()->tabSettings();
+        TextEditor::TabSettings tabSettings = m_editor->textDocument()->tabSettings();
         for (int i = startLine; i <= endLine; i++) {
             QTextBlock start = m_editor->editorWidget()->document()->findBlockByNumber(i);
 

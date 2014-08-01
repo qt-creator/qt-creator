@@ -71,7 +71,7 @@ EnvironmentItemsWidget::EnvironmentItemsWidget(QWidget *parent) :
     QWidget(parent), d(new EnvironmentItemsWidgetPrivate)
 {
     d->m_editor = new TextEditor::SnippetEditorWidget(this);
-    d->m_editor->baseTextDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
+    d->m_editor->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(d->m_editor);
 }

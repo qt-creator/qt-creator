@@ -68,7 +68,7 @@ bool PythonEditor::open(QString *errorString,
                         const QString &realFileName)
 {
     Core::MimeType mimeType = Core::MimeDatabase::findByFile(QFileInfo(fileName));
-    baseTextDocument()->setMimeType(mimeType.type());
+    textDocument()->setMimeType(mimeType.type());
     return TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
 }
 

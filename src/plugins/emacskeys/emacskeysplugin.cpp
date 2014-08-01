@@ -322,7 +322,7 @@ void EmacsKeysPlugin::insertLineAndIndent()
     cursor.beginEditBlock();
     cursor.insertBlock();
     if (m_currentBaseTextEditorWidget != 0)
-        m_currentBaseTextEditorWidget->baseTextDocument()->autoIndent(cursor);
+        m_currentBaseTextEditorWidget->textDocument()->autoIndent(cursor);
     cursor.endEditBlock();
     m_currentEditorWidget->setTextCursor(cursor);
     m_currentState->endOwnAction(KeysActionOther);

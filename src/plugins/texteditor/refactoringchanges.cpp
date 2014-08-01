@@ -158,7 +158,7 @@ RefactoringFile::RefactoringFile(QTextDocument *document, const QString &fileNam
 { }
 
 RefactoringFile::RefactoringFile(BaseTextEditorWidget *editor)
-    : m_fileName(editor->baseTextDocument()->filePath())
+    : m_fileName(editor->textDocument()->filePath())
     , m_document(0)
     , m_editor(editor)
     , m_openEditor(false)
@@ -393,7 +393,7 @@ void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const 
         QTextCursor selection(p.first.document());
         selection.setPosition(p.first.position());
         selection.setPosition(p.second.position(), QTextCursor::KeepAnchor);
-        ((*m_data).*(mf))(selection, m_fileName, m_editor ? m_editor->baseTextDocument() : 0);
+        ((*m_data).*(mf))(selection, m_fileName, m_editor ? m_editor->textDocument() : 0);
     }
 }
 

@@ -309,7 +309,7 @@ static void addDeclaration(const Snapshot &snapshot,
             tc.beginEditBlock();
             tc.insertText(loc.prefix() + declaration + loc.suffix());
             tc.setPosition(pos, QTextCursor::KeepAnchor);
-            widget->baseTextDocument()->autoIndent(tc);
+            widget->textDocument()->autoIndent(tc);
             tc.endEditBlock();
         }
     }

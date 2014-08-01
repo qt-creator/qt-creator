@@ -81,7 +81,7 @@ AndroidManifestEditorWidget *AndroidManifestEditor::widget() const
 
 Core::IDocument *AndroidManifestEditor::document()
 {
-    return textEditor()->baseTextDocument();
+    return textEditor()->textDocument();
 }
 
 TextEditor::BaseTextEditorWidget *AndroidManifestEditor::textEditor() const

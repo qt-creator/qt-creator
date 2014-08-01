@@ -163,7 +163,7 @@ public:
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     : q(q)
     , m_modelManager(CppModelManagerInterface::instance())
-    , m_cppEditorDocument(qobject_cast<CPPEditorDocument *>(q->baseTextDocument()))
+    , m_cppEditorDocument(qobject_cast<CPPEditorDocument *>(q->textDocument()))
     , m_cppEditorOutline(new CppEditorOutline(q))
     , m_cppDocumentationCommentHelper(q)
     , m_localRenaming(q)
@@ -179,7 +179,7 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
 CppEditorWidget::CppEditorWidget(QWidget *parent)
     : TextEditor::BaseTextEditorWidget(new CPPEditorDocument(), parent)
 {
-    baseTextDocument()->setIndenter(new CppTools::CppQtStyleIndenter);
+    textDocument()->setIndenter(new CppTools::CppQtStyleIndenter);
     ctor();
 }
 
@@ -215,7 +215,7 @@ void CppEditorWidget::ctor()
     connect(d->m_declDefLinkFinder, SIGNAL(foundLink(QSharedPointer<FunctionDeclDefLink>)),
             this, SLOT(onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink>)));
 
-    connect(baseTextDocument(), SIGNAL(filePathChanged(QString,QString)),
+    connect(textDocument(), SIGNAL(filePathChanged(QString,QString)),
             this, SLOT(onFilePathChanged()));
 
     connect(&d->m_localRenaming, SIGNAL(finished()),
@@ -566,7 +566,7 @@ void CppEditorWidget::highlightSymbolUsages(int from, int to)
     else if (!d->m_highlightWatcher || d->m_highlightWatcher->isCanceled())
         return; // aborted
 
-    TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
+    TextEditor::SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter();
     QTC_ASSERT(highlighter, return);
 
     TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
@@ -579,7 +579,7 @@ void CppEditorWidget::finishHighlightSymbolUsages()
     if (!d->m_highlightWatcher->isCanceled()
             && editorRevision() == d->m_highlightRevision
             && !d->m_lastSemanticInfo.doc.isNull()) {
-        TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
+        TextEditor::SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter();
         QTC_CHECK(highlighter);
         if (highlighter)
             TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(highlighter,
@@ -796,13 +796,13 @@ bool CPPEditor::open(QString *errorString, const QString &fileName, const QStrin
 {
     if (!TextEditor::BaseTextEditor::open(errorString, fileName, realFileName))
         return false;
-    baseTextDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
+    textDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
     return true;
 }
 
 void CppEditorWidget::applyFontSettings()
 {
-    const TextEditor::FontSettings &fs = baseTextDocument()->fontSettings();
+    const TextEditor::FontSettings &fs = textDocument()->fontSettings();
 
     d->m_semanticHighlightFormatMap[CppHighlightingSupport::TypeUse] =
             fs.toTextCharFormat(TextEditor::C_TYPE);
@@ -913,7 +913,7 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
     // We can use the semanticInfo's snapshot (and avoid locking), but not its
     // document, since it doesn't contain expanded macros.
-    LookupContext context(semanticInfo.snapshot.document(baseTextDocument()->filePath()),
+    LookupContext context(semanticInfo.snapshot.document(textDocument()->filePath()),
                           semanticInfo.snapshot);
 
     SemanticInfo::LocalUseIterator it(semanticInfo.localUses);
@@ -1042,7 +1042,7 @@ void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
     d->m_declDefLink = link;
     Core::IDocument *targetDocument
             = Core::DocumentModel::documentForFilePath( d->m_declDefLink->targetFile->fileName());
-    if (baseTextDocument() != targetDocument) {
+    if (textDocument() != targetDocument) {
         if (auto textDocument = qobject_cast<TextEditor::BaseTextDocument *>(targetDocument))
             connect(textDocument, SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
@@ -1054,7 +1054,7 @@ void CppEditorWidget::onFilePathChanged()
 {
     QTC_ASSERT(d->m_modelManager, return);
     QByteArray additionalDirectives;
-    const QString &filePath = baseTextDocument()->filePath();
+    const QString &filePath = textDocument()->filePath();
     if (!filePath.isEmpty()) {
         const QString &projectFile = ProjectExplorer::SessionManager::value(
                     QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + filePath).toString();
@@ -1091,7 +1091,7 @@ void CppEditorWidget::abortDeclDefLink()
 
     Core::IDocument *targetDocument
             = Core::DocumentModel::documentForFilePath(d->m_declDefLink->targetFile->fileName());
-    if (baseTextDocument() != targetDocument) {
+    if (textDocument() != targetDocument) {
         if (auto textDocument = qobject_cast<TextEditor::BaseTextDocument *>(targetDocument))
             disconnect(textDocument, SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
@@ -1113,7 +1113,7 @@ void CppEditorWidget::onLocalRenamingProcessKeyPressNormally(QKeyEvent *e)
 
 QTextCharFormat CppEditorWidget::textCharFormat(TextEditor::TextStyle category)
 {
-    return baseTextDocument()->fontSettings().toTextCharFormat(category);
+    return textDocument()->fontSettings().toTextCharFormat(category);
 }
 
 void CppEditorWidget::showPreProcessorWidget()
@@ -1127,7 +1127,7 @@ void CppEditorWidget::showPreProcessorWidget()
     if (projectParts.isEmpty())
         projectParts << d->m_modelManager->fallbackProjectPart();
 
-    CppPreProcessorDialog preProcessorDialog(this, baseTextDocument()->filePath(), projectParts);
+    CppPreProcessorDialog preProcessorDialog(this, textDocument()->filePath(), projectParts);
     if (preProcessorDialog.exec() == QDialog::Accepted) {
         QSharedPointer<SnapshotUpdater> updater
                 = d->m_modelManager->cppEditorSupport(editor())->snapshotUpdater();

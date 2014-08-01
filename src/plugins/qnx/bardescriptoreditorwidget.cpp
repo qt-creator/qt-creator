@@ -193,7 +193,7 @@ TextEditor::BaseTextEditorWidget *BarDescriptorEditorWidget::sourceWidget() cons
 
 void BarDescriptorEditorWidget::setFilePath(const QString &filePath)
 {
-    Core::IDocument *doc = m_xmlSourceWidget->baseTextDocument();
+    Core::IDocument *doc = m_xmlSourceWidget->textDocument();
     if (doc)
         doc->setFilePath(filePath);
 }

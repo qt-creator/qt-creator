@@ -294,7 +294,7 @@ bool CppDocumentationCommentHelper::handleKeyPressEvent(QKeyEvent *e) const
                         cursor.setPosition(pos);
                         cursor.insertText(comment);
                         cursor.setPosition(pos - 3, QTextCursor::KeepAnchor);
-                        m_editorWidget->baseTextDocument()->autoIndent(cursor);
+                        m_editorWidget->textDocument()->autoIndent(cursor);
                         cursor.endEditBlock();
                         e->accept();
                         return true;

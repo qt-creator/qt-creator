@@ -296,7 +296,7 @@ void CppLocalRenaming::updateEditorWidgetWithSelections()
 
 QTextCharFormat CppLocalRenaming::textCharFormat(TextEditor::TextStyle category) const
 {
-    return m_editorWidget->baseTextDocument()->fontSettings().toTextCharFormat(category);
+    return m_editorWidget->textDocument()->fontSettings().toTextCharFormat(category);
 }
 
 void CppLocalRenaming::finishRenameChange()

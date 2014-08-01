@@ -348,7 +348,7 @@ void SideDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 void SideDiffEditorWidget::applyFontSettings()
 {
     SelectableTextEditorWidget::applyFontSettings();
-    const TextEditor::FontSettings &fs = baseTextDocument()->fontSettings();
+    const TextEditor::FontSettings &fs = textDocument()->fontSettings();
     m_fileLineForeground = fs.formatFor(C_DIFF_FILE_LINE).foreground();
     m_chunkLineForeground = fs.formatFor(C_DIFF_CONTEXT_LINE).foreground();
     m_textForeground = fs.toTextCharFormat(C_TEXT).foreground().color();
@@ -1161,8 +1161,8 @@ void SideBySideDiffEditorWidget::showDiff()
 void SideBySideDiffEditorWidget::setFontSettings(
         const TextEditor::FontSettings &fontSettings)
 {
-    m_leftEditor->baseTextDocument()->setFontSettings(fontSettings);
-    m_rightEditor->baseTextDocument()->setFontSettings(fontSettings);
+    m_leftEditor->textDocument()->setFontSettings(fontSettings);
+    m_rightEditor->textDocument()->setFontSettings(fontSettings);
 
     m_spanLineFormat  = fontSettings.toTextCharFormat(C_LINE_NUMBER);
     m_fileLineFormat  = fontSettings.toTextCharFormat(C_DIFF_FILE_LINE);

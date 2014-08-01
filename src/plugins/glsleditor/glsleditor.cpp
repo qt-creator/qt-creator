@@ -166,7 +166,7 @@ void GlslEditorWidget::ctor()
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
 
-    new Highlighter(baseTextDocument());
+    new Highlighter(textDocument());
 
 //    if (m_modelManager) {
 //        m_semanticHighlighter->setModelManager(m_modelManager);
@@ -202,7 +202,7 @@ Core::IEditor *GlslEditor::duplicate()
 
 bool GlslEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    baseTextDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
+    textDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
     return b;
 }
@@ -260,7 +260,7 @@ void GlslEditorWidget::updateDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
-    int variant = languageVariant(baseTextDocument()->mimeType());
+    int variant = languageVariant(textDocument()->mimeType());
     const QString contents = toPlainText(); // get the code from the editor
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
@@ -368,7 +368,7 @@ TextEditor::IAssistInterface *GlslEditorWidget::createAssistInterface(
                                                  position(),
                                                  editor()->document()->filePath(),
                                                  reason,
-                                                 baseTextDocument()->mimeType(),
+                                                 textDocument()->mimeType(),
                                                  m_glslDocument);
     return BaseTextEditorWidget::createAssistInterface(kind, reason);
 }

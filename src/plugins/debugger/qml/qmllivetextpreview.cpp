@@ -714,7 +714,7 @@ void QmlLiveTextPreview::showSyncWarning(
 
     foreach (TextEditor::BaseTextEditorWidget *editor, m_editors) {
         if (editor) {
-            Core::InfoBar *infoBar = editor->baseTextDocument()->infoBar();
+            Core::InfoBar *infoBar = editor->textDocument()->infoBar();
             Core::InfoBarEntry info(Core::Id(INFO_OUT_OF_SYNC), errorMessage);
             BaseToolsClient *toolsClient = m_inspectorAdapter->toolsClient();
             if (toolsClient && toolsClient->supportReload())
@@ -735,7 +735,7 @@ void QmlLiveTextPreview::removeOutofSyncInfo()
 {
     foreach (TextEditor::BaseTextEditorWidget *editor, m_editors) {
         if (editor) {
-            Core::InfoBar *infoBar = editor->baseTextDocument()->infoBar();
+            Core::InfoBar *infoBar = editor->textDocument()->infoBar();
             infoBar->removeInfo(Core::Id(INFO_OUT_OF_SYNC));
         }
     }

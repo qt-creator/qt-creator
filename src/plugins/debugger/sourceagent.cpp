@@ -136,7 +136,7 @@ void SourceAgent::updateLocationMarker()
     QTC_ASSERT(d->editor, return);
 
     if (d->locationMark)
-        d->editor->baseTextDocument()->removeMark(d->locationMark);
+        d->editor->textDocument()->removeMark(d->locationMark);
     delete d->locationMark;
     d->locationMark = 0;
     if (d->engine->stackHandler()->currentFrame().file == d->path) {
@@ -144,7 +144,7 @@ void SourceAgent::updateLocationMarker()
         d->locationMark = new TextEditor::TextMark(QString(), lineNumber);
         d->locationMark->setIcon(debuggerCore()->locationMarkIcon());
         d->locationMark->setPriority(TextEditor::TextMark::HighPriority);
-        d->editor->baseTextDocument()->addMark(d->locationMark);
+        d->editor->textDocument()->addMark(d->locationMark);
         QPlainTextEdit *plainTextEdit = d->editor->editorWidget();
         QTC_ASSERT(plainTextEdit, return);
         QTextCursor tc = plainTextEdit->textCursor();

@@ -653,8 +653,8 @@ VcsBaseEditorWidget::VcsBaseEditorWidget(const VcsBaseEditorParameters *type, QW
     d(new Internal::VcsBaseEditorWidgetPrivate(this, type))
 {
     viewport()->setMouseTracking(true);
-    baseTextDocument()->setId(type->id);
-    baseTextDocument()->setMimeType(QLatin1String(d->m_parameters->mimeType));
+    textDocument()->setId(type->id);
+    textDocument()->setMimeType(QLatin1String(d->m_parameters->mimeType));
 }
 
 void VcsBaseEditorWidget::setDiffFilePattern(const QRegExp &pattern)
@@ -711,7 +711,7 @@ void VcsBaseEditorWidget::init()
     if (hasDiff()) {
         DiffHighlighter *dh = new DiffHighlighter(d->m_diffFilePattern);
         setCodeFoldingSupported(true);
-        baseTextDocument()->setSyntaxHighlighter(dh);
+        textDocument()->setSyntaxHighlighter(dh);
     }
     TextEditor::TextEditorSettings::initializeEditor(this);
     // override revisions display (green or red bar on the left, marking changes):
@@ -734,12 +734,12 @@ void VcsBaseEditorWidget::setForceReadOnly(bool b)
 
 QString VcsBaseEditorWidget::source() const
 {
-    return VcsBasePlugin::source(baseTextDocument());
+    return VcsBasePlugin::source(textDocument());
 }
 
 void VcsBaseEditorWidget::setSource(const  QString &source)
 {
-    VcsBasePlugin::setSource(baseTextDocument(), source);
+    VcsBasePlugin::setSource(textDocument(), source);
 }
 
 QString VcsBaseEditorWidget::annotateRevisionTextFormat() const
@@ -794,13 +794,13 @@ void VcsBaseEditorWidget::setWorkingDirectory(const QString &wd)
 
 QTextCodec *VcsBaseEditorWidget::codec() const
 {
-    return const_cast<QTextCodec *>(baseTextDocument()->codec());
+    return const_cast<QTextCodec *>(textDocument()->codec());
 }
 
 void VcsBaseEditorWidget::setCodec(QTextCodec *c)
 {
     if (c)
-        baseTextDocument()->setCodec(c);
+        textDocument()->setCodec(c);
     else
         qWarning("%s: Attempt to set 0 codec.", Q_FUNC_INFO);
 }
@@ -1054,11 +1054,11 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
 
     disconnect(this, SIGNAL(textChanged()), this, SLOT(slotActivateAnnotation()));
 
-    if (BaseAnnotationHighlighter *ah = qobject_cast<BaseAnnotationHighlighter *>(baseTextDocument()->syntaxHighlighter())) {
+    if (BaseAnnotationHighlighter *ah = qobject_cast<BaseAnnotationHighlighter *>(textDocument()->syntaxHighlighter())) {
         ah->setChangeNumbers(changes);
         ah->rehighlight();
     } else {
-        baseTextDocument()->setSyntaxHighlighter(createAnnotationHighlighter(changes));
+        textDocument()->setSyntaxHighlighter(createAnnotationHighlighter(changes));
     }
 }
 
@@ -1175,7 +1175,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
             unicode += QLatin1Char('\n');
         }
     }
-    const QTextCodec *cd = baseTextDocument()->codec();
+    const QTextCodec *cd = textDocument()->codec();
     rc.chunk = cd ? cd->fromUnicode(unicode) : unicode.toLocal8Bit();
     rc.header = cd ? cd->fromUnicode(header) : header.toLocal8Bit();
     return rc;
@@ -1187,7 +1187,7 @@ void VcsBaseEditorWidget::reportCommandFinished(bool ok, int exitCode, const QVa
     Q_UNUSED(data);
 
     if (!ok)
-        baseTextDocument()->setPlainText(tr("Failed to retrieve data."));
+        textDocument()->setPlainText(tr("Failed to retrieve data."));
 }
 
 const VcsBaseEditorParameters *VcsBaseEditorWidget::findType(const VcsBaseEditorParameters *array,
@@ -1584,7 +1584,7 @@ void VcsBase::VcsBaseEditorWidget::testLogResolving(QByteArray &data,
                                                     const QByteArray &entry2)
 {
     init();
-    baseTextDocument()->setPlainText(QLatin1String(data));
+    textDocument()->setPlainText(QLatin1String(data));
     QCOMPARE(d->entriesComboBox()->itemText(0), QString::fromLatin1(entry1));
     QCOMPARE(d->entriesComboBox()->itemText(1), QString::fromLatin1(entry2));
 }

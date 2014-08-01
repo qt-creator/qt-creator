@@ -1921,7 +1921,7 @@ void FakeVimPluginPrivate::checkForElectricCharacter(bool *result, QChar c)
     if (!handler)
         return;
     if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
-        *result = bt->baseTextDocument()->indenter()->isElectricCharacter(c);
+        *result = bt->textDocument()->indenter()->isElectricCharacter(c);
 }
 
 void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
@@ -2117,7 +2117,7 @@ void FakeVimPluginPrivate::indentRegion(int beginBlock, int endBlock,
             while (!cursor.atBlockEnd())
                 cursor.deleteChar();
         } else {
-            bt->baseTextDocument()->indenter()->indentBlock(doc, block, typedChar, tabSettings);
+            bt->textDocument()->indenter()->indentBlock(doc, block, typedChar, tabSettings);
         }
         block = block.next();
     }

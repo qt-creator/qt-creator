@@ -172,7 +172,7 @@ void UnifiedDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
 void UnifiedDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)
 {
-    baseTextDocument()->setFontSettings(fontSettings);
+    textDocument()->setFontSettings(fontSettings);
 
     m_fileLineFormat  = fontSettings.toTextCharFormat(C_DIFF_FILE_LINE);
     m_chunkLineFormat = fontSettings.toTextCharFormat(C_DIFF_CONTEXT_LINE);

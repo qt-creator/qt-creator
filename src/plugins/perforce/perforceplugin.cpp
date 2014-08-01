@@ -1212,7 +1212,7 @@ IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
     e->setForceReadOnly(true);
     e->setSource(source);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
-    e->baseTextDocument()->setSuggestedFileName(s);
+    e->textDocument()->setSuggestedFileName(s);
     if (codec)
         e->setCodec(codec);
     return editor;

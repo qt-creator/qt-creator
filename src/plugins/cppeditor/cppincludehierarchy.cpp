@@ -143,12 +143,12 @@ void CppIncludeHierarchyWidget::perform()
         return;
 
     m_model->clear();
-    m_model->buildHierarchy(m_editor, widget->baseTextDocument()->filePath());
+    m_model->buildHierarchy(m_editor, widget->textDocument()->filePath());
     if (m_model->isEmpty())
         return;
 
-    m_inspectedFile->setup(widget->baseTextDocument()->displayName(),
-                           widget->baseTextDocument()->filePath());
+    m_inspectedFile->setup(widget->textDocument()->displayName(),
+                           widget->textDocument()->filePath());
 
     //expand "Includes"
     m_treeView->expand(m_model->index(0, 0));

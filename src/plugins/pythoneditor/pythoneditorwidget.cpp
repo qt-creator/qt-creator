@@ -65,7 +65,7 @@ void PythonEditorWidget::ctor()
     setMarksVisible(true);
     setCodeFoldingSupported(true);
 
-    new PythonHighlighter(baseTextDocument());
+    new PythonHighlighter(textDocument());
 }
 
 TextEditor::BaseTextEditor *PythonEditorWidget::createEditor()

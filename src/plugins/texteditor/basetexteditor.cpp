@@ -996,7 +996,7 @@ void BaseTextEditorWidgetPrivate::foldLicenseHeader()
     }
 }
 
-BaseTextDocument *BaseTextEditorWidget::baseTextDocument() const
+BaseTextDocument *BaseTextEditorWidget::textDocument() const
 {
     return d->m_document.data();
 }
@@ -1396,12 +1396,12 @@ void BaseTextEditorWidget::lowercaseSelection()
 
 void BaseTextEditorWidget::indent()
 {
-    setTextCursor(baseTextDocument()->indent(textCursor()));
+    setTextCursor(textDocument()->indent(textCursor()));
 }
 
 void BaseTextEditorWidget::unindent()
 {
-    setTextCursor(baseTextDocument()->unindent(textCursor()));
+    setTextCursor(textDocument()->unindent(textCursor()));
 }
 
 void BaseTextEditorWidget::undo()
@@ -2361,8 +2361,8 @@ void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, cons
         QTextEdit::ExtraSelection selection;
         selection.cursor = tc;
         selection.format = (length
-                            ? baseTextDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES)
-                            : baseTextDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES_RENAME));
+                            ? textDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES)
+                            : textDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES_RENAME));
         selections.append(selection);
         manglers << data.ranges.at(i).mangler;
     }
@@ -3392,7 +3392,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
     QTextDocument *doc = document();
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
-    const FontSettings &fs = baseTextDocument()->fontSettings();
+    const FontSettings &fs = textDocument()->fontSettings();
     const QTextCharFormat &searchScopeFormat = fs.toTextCharFormat(C_SEARCH_SCOPE);
     const QTextCharFormat &ifdefedOutFormat = fs.toTextCharFormat(C_DISABLED_CODE);
 
@@ -4087,7 +4087,7 @@ void BaseTextEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
     painter.translate(.5, .5);
     QBrush brush = palette().base();
     const QTextCharFormat &ifdefedOutFormat
-            = baseTextDocument()->fontSettings().toTextCharFormat(C_DISABLED_CODE);
+            = textDocument()->fontSettings().toTextCharFormat(C_DISABLED_CODE);
     if (ifdefedOutFormat.hasProperty(QTextFormat::BackgroundBrush))
         brush = ifdefedOutFormat.background();
     painter.setBrush(brush);
@@ -4134,7 +4134,7 @@ int BaseTextEditorWidget::extraAreaWidth(int *markWidthPtr) const
         // this works under the assumption that bold or italic
         // can only make a font wider
         const QTextCharFormat &currentLineNumberFormat
-                = baseTextDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
+                = textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
         fnt.setBold(currentLineNumberFormat.font().bold());
         fnt.setItalic(currentLineNumberFormat.font().italic());
         const QFontMetrics linefm(fnt);
@@ -4361,7 +4361,7 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                 painter.save();
                 QFont f = painter.font();
                 const QTextCharFormat &currentLineNumberFormat
-                        = baseTextDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
+                        = textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
                 f.setBold(currentLineNumberFormat.font().bold());
                 f.setItalic(currentLineNumberFormat.font().italic());
                 painter.setFont(f);
@@ -4466,7 +4466,7 @@ void BaseTextEditorWidgetPrivate::updateCurrentLineHighlight()
 
     if (m_highlightCurrentLine) {
         QTextEdit::ExtraSelection sel;
-        sel.format.setBackground(q->baseTextDocument()->fontSettings()
+        sel.format.setBackground(q->textDocument()->fontSettings()
                                  .toTextCharFormat(C_CURRENT_LINE).background());
         sel.format.setProperty(QTextFormat::FullWidthSelection, true);
         sel.cursor = q->textCursor();
@@ -5068,7 +5068,7 @@ Core::Id BaseTextEditorWidget::languageSettingsId() const
 
 void BaseTextEditorWidget::setCodeStyle(ICodeStylePreferences *preferences)
 {
-    baseTextDocument()->indenter()->setCodeStylePreferences(preferences);
+    textDocument()->indenter()->setCodeStylePreferences(preferences);
     if (d->m_codeStylePreferences) {
         disconnect(d->m_codeStylePreferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
                 d->m_document.data(), SLOT(setTabSettings(TextEditor::TabSettings)));
@@ -5266,7 +5266,7 @@ bool BaseTextEditorWidget::openLink(const Link &link, bool inNextSplit)
 
     if (inNextSplit) {
         Core::EditorManager::gotoOtherSplit();
-    } else if (baseTextDocument()->filePath() == link.targetFileName) {
+    } else if (textDocument()->filePath() == link.targetFileName) {
         Core::EditorManager::addCurrentPositionToNavigationHistory();
         gotoLine(link.targetLine, link.targetColumn);
         setFocus();
@@ -5313,7 +5313,7 @@ void BaseTextEditorWidgetPrivate::showLink(const BaseTextEditorWidget::Link &lin
     sel.cursor = q->textCursor();
     sel.cursor.setPosition(link.linkTextStart);
     sel.cursor.setPosition(link.linkTextEnd, QTextCursor::KeepAnchor);
-    sel.format = q->baseTextDocument()->fontSettings().toTextCharFormat(C_LINK);
+    sel.format = q->textDocument()->fontSettings().toTextCharFormat(C_LINK);
     sel.format.setFontUnderline(true);
     q->setExtraSelections(BaseTextEditorWidget::OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
     q->viewport()->setCursor(Qt::PointingHandCursor);
@@ -5488,7 +5488,7 @@ void BaseTextEditorWidgetPrivate::_q_matchParentheses()
     }
 
     const QTextCharFormat &matchFormat
-            = q->baseTextDocument()->fontSettings().toTextCharFormat(C_PARENTHESES);
+            = q->textDocument()->fontSettings().toTextCharFormat(C_PARENTHESES);
     int animatePosition = -1;
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
@@ -5991,13 +5991,13 @@ void BaseTextEditorWidget::triggerPendingUpdates()
 {
     if (d->m_fontSettingsNeedsApply)
         applyFontSettings();
-    baseTextDocument()->triggerPendingUpdates();
+    textDocument()->triggerPendingUpdates();
 }
 
 void BaseTextEditorWidget::applyFontSettings()
 {
     d->m_fontSettingsNeedsApply = false;
-    const FontSettings &fs = baseTextDocument()->fontSettings();
+    const FontSettings &fs = textDocument()->fontSettings();
     const QTextCharFormat textFormat = fs.toTextCharFormat(C_TEXT);
     const QTextCharFormat selectionFormat = fs.toTextCharFormat(C_SELECTION);
     const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(C_LINE_NUMBER);
@@ -6042,7 +6042,7 @@ void BaseTextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     d->m_fileEncodingLabelAction->setVisible(ds.m_displayFileEncoding);
 
     if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
-        if (SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())
+        if (SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter())
             highlighter->rehighlight();
         QTextOption option =  document()->defaultTextOption();
         if (ds.m_visualizeWhitespace)
@@ -6236,7 +6236,7 @@ void BaseTextEditorWidget::circularPaste()
 
 void BaseTextEditorWidget::switchUtf8bom()
 {
-    baseTextDocument()->switchUtf8Bom();
+    textDocument()->switchUtf8Bom();
 }
 
 QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
@@ -6493,7 +6493,7 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
     if (a && a->isEnabled())
         menu->addAction(a);
 
-    BaseTextDocument *doc = baseTextDocument();
+    BaseTextDocument *doc = textDocument();
     if (doc->codec()->name() == QByteArray("UTF-8") && doc->supportsUtf8Bom()) {
         a = Core::ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
         if (a && a->isEnabled()) {
@@ -6521,14 +6521,14 @@ BaseTextEditor::~BaseTextEditor()
     delete d;
 }
 
-BaseTextDocument *BaseTextEditor::baseTextDocument()
+BaseTextDocument *BaseTextEditor::textDocument()
 {
-    return d->m_editorWidget->baseTextDocument();
+    return d->m_editorWidget->textDocument();
 }
 
 IDocument *BaseTextEditor::document()
 {
-    return d->m_editorWidget->baseTextDocument();
+    return d->m_editorWidget->textDocument();
 }
 
 QWidget *BaseTextEditor::toolBar()
@@ -6670,7 +6670,7 @@ void BaseTextEditorWidgetPrivate::updateCursorPosition()
     const int column = cursor.position() - block.position();
     m_cursorPositionLabel->show();
     m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line)
-                                   .arg(q->baseTextDocument()->tabSettings().columnAt(block.text(),
+                                   .arg(q->textDocument()->tabSettings().columnAt(block.text(),
                                                                                    column)+1),
                                    tr("Line: 9999, Col: 999"));
     q->editor()->m_contextHelpId.clear();
@@ -7000,11 +7000,6 @@ bool BaseTextEditor::restoreState(const QByteArray &state)
     return d->m_editorWidget->restoreState(state);
 }
 
-BaseTextDocument *BaseTextEditor::textDocument()
-{
-    return qobject_cast<BaseTextDocument *>(document());
-}
-
 BaseTextEditor *BaseTextEditor::currentTextEditor()
 {
     return qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor());
@@ -7023,8 +7018,8 @@ void BaseTextEditorWidget::configureMimeType(const QString &mimeType)
 void BaseTextEditorWidget::configureMimeType(const MimeType &mimeType)
 {
     Highlighter *highlighter = new Highlighter();
-    highlighter->setTabSettings(baseTextDocument()->tabSettings());
-    baseTextDocument()->setSyntaxHighlighter(highlighter);
+    highlighter->setTabSettings(textDocument()->tabSettings());
+    textDocument()->setSyntaxHighlighter(highlighter);
 
     setCodeFoldingSupported(false);
 
@@ -7033,7 +7028,7 @@ void BaseTextEditorWidget::configureMimeType(const MimeType &mimeType)
 
         setMimeTypeForHighlighter(highlighter, mimeType);
         const QString &type = mimeType.type();
-        baseTextDocument()->setMimeType(type);
+        textDocument()->setMimeType(type);
 
         QString definitionId = Manager::instance()->definitionIdByMimeType(type);
         if (definitionId.isEmpty())
@@ -7053,13 +7048,13 @@ void BaseTextEditorWidget::configureMimeType(const MimeType &mimeType)
                 setCodeFoldingSupported(true);
             }
         } else {
-            const QString &fileName = baseTextDocument()->filePath();
+            const QString &fileName = textDocument()->filePath();
             if (TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName))
                 d->m_isMissingSyntaxDefinition = false;
         }
     }
 
-    baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
+    textDocument()->setFontSettings(TextEditorSettings::fontSettings());
 
     emit configured(editor());
 }
@@ -7079,8 +7074,8 @@ void BaseTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
 void BaseTextEditorWidget::configureMimeType()
 {
     MimeType mimeType;
-    if (baseTextDocument())
-        mimeType = MimeDatabase::findByFile(baseTextDocument()->filePath());
+    if (textDocument())
+        mimeType = MimeDatabase::findByFile(textDocument()->filePath());
     configureMimeType(mimeType);
 }
 
@@ -7091,9 +7086,9 @@ void BaseTextEditorWidget::setupAsPlainEditor()
     setMarksVisible(true);
     setLineSeparatorsAllowed(true);
 
-    baseTextDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
+    textDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
-    connect(baseTextDocument(), SIGNAL(filePathChanged(QString,QString)),
+    connect(textDocument(), SIGNAL(filePathChanged(QString,QString)),
             this, SLOT(configureMimeType()));
     connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configureMimeType()));
 }
