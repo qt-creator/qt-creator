@@ -189,6 +189,7 @@ class BaseTextEditorPrivate
 {
 public:
     BaseTextEditorPrivate()
+        : m_autoCompleter(new AutoCompleter)
     {}
 
     // Note: This is always a copy of IContext::m_widget.
