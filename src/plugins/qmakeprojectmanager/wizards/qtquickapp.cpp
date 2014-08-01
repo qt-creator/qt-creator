@@ -31,6 +31,8 @@
 
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <QDebug>
 #include <QDir>
@@ -173,6 +175,12 @@ class TemplateInfoList
 public:
     TemplateInfoList()
     {
+        QSet<QString> availablePlugins;
+        foreach (ExtensionSystem::PluginSpec *s, ExtensionSystem::PluginManager::plugins()) {
+            if (s->state() == ExtensionSystem::PluginSpec::Running && !s->hasError())
+                availablePlugins += s->name();
+        }
+
         QMultiMap<QString, TemplateInfo> multiMap;
         foreach (const QString &templateName, templateNames()) {
             const QString templatePath = templateRootDirectory() + templateName;
@@ -185,7 +193,17 @@ public:
             info.templateName = templateName;
             info.templatePath = templatePath;
             QXmlStreamReader reader(&xmlFile);
-            if (parseTemplateXml(reader, &info))
+            if (!parseTemplateXml(reader, &info))
+                continue;
+
+            bool ok = true;
+            foreach (const QString &neededPlugin, info.requiredPlugins) {
+                if (!availablePlugins.contains(neededPlugin)) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok)
                 multiMap.insert(info.priority, info);
         }
         m_templateInfoList = multiMap.values();
