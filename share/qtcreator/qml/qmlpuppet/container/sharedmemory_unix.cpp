@@ -57,9 +57,7 @@
 #define QStringLiteral(str) QString::fromUtf8(str)
 #endif
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
 #include <QRegExp>
-#endif
 
 namespace QmlDesigner {
 
