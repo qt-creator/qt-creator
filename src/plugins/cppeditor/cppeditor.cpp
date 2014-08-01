@@ -222,33 +222,8 @@ void CppEditorWidget::ctor()
             this, SLOT(onLocalRenamingFinished()));
     connect(&d->m_localRenaming, SIGNAL(processKeyPressNormally(QKeyEvent*)),
             this, SLOT(onLocalRenamingProcessKeyPressNormally(QKeyEvent*)));
-}
 
-CppEditorWidget::~CppEditorWidget()
-{
-    if (d->m_modelManager)
-        d->m_modelManager->deleteCppEditorSupport(editor());
-}
-
-CPPEditorDocument *CppEditorWidget::cppEditorDocument() const
-{
-    return d->m_cppEditorDocument;
-}
-
-CppEditorOutline *CppEditorWidget::outline() const
-{
-    return d->m_cppEditorOutline;
-}
-
-TextEditor::BaseTextEditor *CppEditorWidget::createEditor()
-{
-    CPPEditor *editable = new CPPEditor(this);
-    createToolBar(editable);
-    return editable;
-}
-
-void CppEditorWidget::createToolBar(CPPEditor *editor)
-{
+    // Tool bar creation
     d->m_updateUsesTimer = newSingleShotTimer(this, UPDATE_USES_INTERVAL);
     connect(d->m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
 
@@ -279,6 +254,27 @@ void CppEditorWidget::createToolBar(CPPEditor *editor)
     connect(d->m_preprocessorButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
     insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_preprocessorButton);
     insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_cppEditorOutline->widget());
+}
+
+CppEditorWidget::~CppEditorWidget()
+{
+    if (d->m_modelManager)
+        d->m_modelManager->deleteCppEditorSupport(editor());
+}
+
+CPPEditorDocument *CppEditorWidget::cppEditorDocument() const
+{
+    return d->m_cppEditorDocument;
+}
+
+CppEditorOutline *CppEditorWidget::outline() const
+{
+    return d->m_cppEditorOutline;
+}
+
+TextEditor::BaseTextEditor *CppEditorWidget::createEditor()
+{
+    return new CPPEditor(this);
 }
 
 void CppEditorWidget::paste()

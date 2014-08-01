@@ -157,8 +157,6 @@ private:
     CppEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
     void ctor();
 
-    void createToolBar(CPPEditor *editable);
-
     unsigned editorRevision() const;
     bool isOutdated() const;
 
