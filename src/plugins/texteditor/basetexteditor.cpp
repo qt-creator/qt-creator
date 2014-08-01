@@ -577,7 +577,6 @@ BaseTextEditorWidget::BaseTextEditorWidget(BaseTextEditorWidget *other)
 {
     d = new BaseTextEditorWidgetPrivate(this);
     d->ctor(other->d->m_document);
-    d->m_revisionsVisible = other->d->m_revisionsVisible;
 }
 
 void BaseTextEditorWidgetPrivate::ctor(const QSharedPointer<BaseTextDocument> &doc)
