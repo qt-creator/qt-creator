@@ -102,17 +102,13 @@ static QByteArray makePlatformSafeKey(const QString &key)
 {
     if (key.isEmpty())
         return QByteArray();
-#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
     QByteArray data(QCryptographicHash::hash(key.toLatin1(), QCryptographicHash::Sha1).toBase64());
-    QString ambiguousChars(QStringLiteral("[=~<>|?*!@#$%^&:,; \\\\]"));
+    QString notBase64UrlChars(QStringLiteral("[=+/]"));
 
     QByteArray normalizedData;
-    normalizedData = QString(data).replace(QRegExp(ambiguousChars), QStringLiteral("_")).toLatin1();
+    normalizedData = QString(data).replace(QRegExp(notBase64UrlChars), QStringLiteral("_")).toLatin1();
 
     return normalizedData;
-#else
-    return QCryptographicHash::hash(key.toLatin1(), QCryptographicHash::Sha1).toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
-#endif
 }
 
 
