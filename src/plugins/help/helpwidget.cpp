@@ -152,7 +152,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     }
 
     if (style == SideBarWidget) {
-        QAction *close = new QAction(QIcon(QLatin1String(Core::Constants::ICON_CLOSE_DOCUMENT)),
+        QAction *close = new QAction(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)),
             QString(), toolBar);
         connect(close, SIGNAL(triggered()), this, SIGNAL(closeButtonClicked()));
         layout->addWidget(toolButton(close));

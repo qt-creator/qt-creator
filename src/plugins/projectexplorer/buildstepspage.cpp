@@ -34,6 +34,7 @@
 #include "projectexplorerconstants.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
@@ -102,7 +103,7 @@ ToolWidget::ToolWidget(QWidget *parent)
     m_removeButton->setAutoRaise(true);
     m_removeButton->setToolTip(BuildStepListWidget::tr("Remove Item"));
     m_removeButton->setFixedSize(buttonSize);
-    m_removeButton->setIcon(QIcon(QLatin1String(":/core/images/darkclose.png")));
+    m_removeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_DARK_CLOSE)));
     hbox->addWidget(m_removeButton);
 
     layout->addWidget(m_secondWidget);

@@ -841,7 +841,7 @@ Utils::StyledBar *HelpPlugin::createWidgetToolBar()
         SLOT(updateSideBarSource()));
 
     m_closeButton = new QToolButton();
-    m_closeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE_DOCUMENT)));
+    m_closeButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)));
     m_closeButton->setToolTip(tr("Close current page"));
     connect(m_closeButton, SIGNAL(clicked()), &OpenPagesManager::instance(),
         SLOT(closeCurrentPage()));

@@ -143,7 +143,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_minMaxAction->setIcon(m_maximizeIcon);
     m_minMaxAction->setText(tr("Maximize Output Pane"));
 
-    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLOSE_DOCUMENT)));
+    m_closeButton->setIcon(QIcon(QLatin1String(Constants::ICON_BUTTON_CLOSE)));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
 
     connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));

@@ -93,7 +93,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     connect(m_ui.findEdit, SIGNAL(editingFinished()), this, SLOT(invokeResetIncrementalSearch()));
 
-    m_ui.close->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLOSE_DOCUMENT)));
+    m_ui.close->setIcon(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)));
     connect(m_ui.close, SIGNAL(clicked()), this, SLOT(hideAndResetFocus()));
 
     m_findCompleter->setModel(m_plugin->findCompletionModel());

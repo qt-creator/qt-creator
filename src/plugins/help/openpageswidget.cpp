@@ -69,7 +69,7 @@ void OpenPagesDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     if (index.column() == 1 && index.model()->rowCount() > 1
         && option.state & QStyle::State_MouseOver) {
         const QIcon icon(QLatin1String((option.state & QStyle::State_Selected) ?
-                                       Core::Constants::ICON_CLOSE : Core::Constants::ICON_CLOSE_DARK));
+                                       Core::Constants::ICON_CLOSE_BUTTON : Core::Constants::ICON_DARK_CLOSE_BUTTON));
 
         const QRect iconRect(option.rect.right() - option.rect.height(),
             option.rect.top(), option.rect.height(), option.rect.height());

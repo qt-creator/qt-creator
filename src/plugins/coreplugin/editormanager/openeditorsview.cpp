@@ -68,7 +68,7 @@ void OpenEditorsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     if (index.column() == 1 && option.state & QStyle::State_MouseOver) {
         const QIcon icon(QLatin1String((option.state & QStyle::State_Selected) ?
-                                       Constants::ICON_CLOSE : Constants::ICON_CLOSE_DARK));
+                                       Constants::ICON_CLOSE_BUTTON : Constants::ICON_DARK_CLOSE_BUTTON));
 
         QRect iconRect(option.rect.right() - option.rect.height(),
                        option.rect.top(),
