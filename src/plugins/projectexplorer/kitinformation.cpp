@@ -352,28 +352,40 @@ DeviceKitInformation::DeviceKitInformation()
 QVariant DeviceKitInformation::defaultValue(Kit *k) const
 {
     Core::Id type = DeviceTypeKitInformation::deviceTypeId(k);
+    // Use default device if that is compatible:
     IDevice::ConstPtr dev = DeviceManager::instance()->defaultDevice(type);
-    return dev.isNull() ? QString() : dev->id().toString();
+    if (dev && dev->isCompatibleWith(k))
+        return dev->id().toString();
+    // Use any other device that is compatible:
+    for (int i = 0; i < DeviceManager::instance()->deviceCount(); ++i) {
+        dev = DeviceManager::instance()->deviceAt(i);
+        if (dev && dev->isCompatibleWith(k))
+            return dev->id().toString();
+    }
+    // Fail: No device set up.
+    return QString();
 }
 
 QList<Task> DeviceKitInformation::validate(const Kit *k) const
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     QList<Task> result;
-    if (!dev.isNull() && dev->type() != DeviceTypeKitInformation::deviceTypeId(k))
-        result.append(Task(Task::Error, tr("Device does not match device type."),
-                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
     if (dev.isNull())
         result.append(Task(Task::Warning, tr("No device set."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    else if (!dev->isCompatibleWith(k))
+        result.append(Task(Task::Error, tr("Device is incompatible with this kit."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+
     return result;
 }
 
 void DeviceKitInformation::fix(Kit *k)
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
-    if (!dev.isNull() && dev->type() != DeviceTypeKitInformation::deviceTypeId(k)) {
-        qWarning("Device is no longer known, removing from kit \"%s\".", qPrintable(k->displayName()));
+    if (!dev.isNull() && !dev->isCompatibleWith(k)) {
+        qWarning("Device is no longer compatible with kit \"%s\", removing it.",
+                 qPrintable(k->displayName()));
         setDeviceId(k, Core::Id());
     }
 }
@@ -382,7 +394,7 @@ void DeviceKitInformation::setup(Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return);
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
-    if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
+    if (!dev.isNull() && dev->isCompatibleWith(k))
         return;
 
     setDeviceId(k, Core::Id::fromSetting(defaultValue(k)));

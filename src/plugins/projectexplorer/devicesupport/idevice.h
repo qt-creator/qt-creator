@@ -50,6 +50,8 @@ namespace ProjectExplorer {
 class DeviceProcess;
 class DeviceProcessList;
 
+class Kit;
+
 namespace Internal { class IDevicePrivate; }
 
 class IDeviceWidget;
@@ -120,6 +122,8 @@ public:
     Core::Id type() const;
     bool isAutoDetected() const;
     Core::Id id() const;
+
+    virtual bool isCompatibleWith(const Kit *k) const;
 
     virtual QString displayType() const = 0;
     virtual IDeviceWidget *createWidget() = 0;
