@@ -47,7 +47,7 @@
 namespace ProjectExplorer {
 
 // --------------------------------------------------------------------------
-// SysRootInformation:
+// SysRootKitInformation:
 // --------------------------------------------------------------------------
 
 SysRootKitInformation::SysRootKitInformation()
@@ -109,7 +109,7 @@ void SysRootKitInformation::setSysRoot(Kit *k, const Utils::FileName &v)
 }
 
 // --------------------------------------------------------------------------
-// ToolChainInformation:
+// ToolChainKitInformation:
 // --------------------------------------------------------------------------
 
 ToolChainKitInformation::ToolChainKitInformation()
@@ -261,7 +261,7 @@ void ToolChainKitInformation::toolChainRemoved(ToolChain *tc)
 }
 
 // --------------------------------------------------------------------------
-// DeviceTypeInformation:
+// DeviceTypeKitInformation:
 // --------------------------------------------------------------------------
 
 DeviceTypeKitInformation::DeviceTypeKitInformation()
@@ -336,7 +336,7 @@ Core::FeatureSet DeviceTypeKitInformation::availableFeatures(const Kit *k) const
 }
 
 // --------------------------------------------------------------------------
-// DeviceInformation:
+// DeviceKitInformation:
 // --------------------------------------------------------------------------
 
 DeviceKitInformation::DeviceKitInformation()
