@@ -807,18 +807,36 @@ VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynami
     return rc;
 }
 
-DiffEditor::DiffEditorDocument *GitClient::createDiffEditor(const QString &documentId,
-                                                            const QString &source,
-                                                            const QString &title) const
+GitDiffEditorReloader *GitClient::findOrCreateDiffEditor(const QString &documentId,
+                                                         const QString &source,
+                                                         const QString &title,
+                                                         const QString &workingDirectory) const
 {
-    DiffEditor::DiffEditorDocument *diffEditorDocument = DiffEditor::DiffEditorManager::findOrCreate(documentId, title);
-    QTC_ASSERT(diffEditorDocument, return 0);
+    DiffEditor::DiffEditorController *controller = 0;
+    GitDiffEditorReloader *reloader = 0;
+    DiffEditor::DiffEditorDocument *diffEditorDocument = DiffEditor::DiffEditorManager::find(documentId);
+    if (diffEditorDocument) {
+        controller = diffEditorDocument->controller();
+        reloader = static_cast<GitDiffEditorReloader *>(controller->reloader());
+    } else {
+        diffEditorDocument = DiffEditor::DiffEditorManager::findOrCreate(documentId, title);
+        QTC_ASSERT(diffEditorDocument, return 0);
+        controller = diffEditorDocument->controller();
+
+        connect(controller, SIGNAL(chunkActionsRequested(QMenu*,int,int)),
+                this, SLOT(slotChunkActionsRequested(QMenu*,int,int)), Qt::DirectConnection);
+        connect(controller, SIGNAL(expandBranchesRequested(QString)),
+                this, SLOT(branchesForCommit(QString)));
+
+        reloader = new GitDiffEditorReloader(controller);
+        controller->setReloader(reloader);
+
+        reloader->setWorkingDirectory(workingDirectory);
+    }
+
     VcsBasePlugin::setSource(diffEditorDocument, source);
-
-    connect(diffEditorDocument->controller(), SIGNAL(chunkActionsRequested(QMenu*,int,int)),
-            this, SLOT(slotChunkActionsRequested(QMenu*,int,int)), Qt::DirectConnection);
-
-    return diffEditorDocument;
+    EditorManager::activateEditorForDocument(diffEditorDocument);
+    return reloader;
 }
 
 void GitClient::slotChunkActionsRequested(QMenu *menu, int diffFileIndex, int chunkIndex)
@@ -966,78 +984,54 @@ VcsBaseEditorWidget *GitClient::createVcsEditor(
     return rc;
 }
 
-void GitClient::diff(const QString &workingDirectory,
-                     const QStringList &unstagedFileNames,
-                     const QStringList &stagedFileNames) const
+void GitClient::diffFiles(const QString &workingDirectory,
+                          const QStringList &unstagedFileNames,
+                          const QStringList &stagedFileNames) const
 {
-    GitDiffEditorReloader::DiffType diffType = GitDiffEditorReloader::DiffProjectList;
-
-    if (unstagedFileNames.empty() && stagedFileNames.empty())
-        diffType = GitDiffEditorReloader::DiffRepository;
-    else if (!stagedFileNames.empty())
-        diffType = GitDiffEditorReloader::DiffFileList;
-
-    QString title = tr("Git Diff Projects");
-    QString documentTypeId = QLatin1String("Projects:");
-    if (diffType ==  GitDiffEditorReloader::DiffRepository) {
-        title = tr("Git Diff Repository");
-        documentTypeId = QLatin1String("Repository:");
-    } else if (diffType == GitDiffEditorReloader::DiffFileList) {
-        title = tr("Git Diff Files");
-        documentTypeId = QLatin1String("Files:");
-    }
-
-    const QString documentId = documentTypeId + workingDirectory;
-
-    DiffEditor::DiffEditorDocument *diffEditorDocument =
-            DiffEditor::DiffEditorManager::find(documentId);
-    if (!diffEditorDocument) {
-        diffEditorDocument = createDiffEditor(documentId, workingDirectory, title);
-
-        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
-        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
-        controller->setReloader(reloader);
-
-        reloader->setWorkingDirectory(workingDirectory);
-    }
-
-    DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
-    GitDiffEditorReloader *reloader = static_cast<GitDiffEditorReloader *>(controller->reloader());
-    reloader->setDiffType(diffType);
-    // we force setFileList, since the lists can be different
-    // e.g. when double click for the second time on different file inside commit editor
-    if (diffType == GitDiffEditorReloader::DiffFileList)
-        reloader->setFileList(stagedFileNames, unstagedFileNames);
-    else if (diffType == GitDiffEditorReloader::DiffProjectList) // the same when unstaged file was clicked
-        reloader->setProjectList(unstagedFileNames);
-
-    diffEditorDocument->controller()->requestReload();
-
-    EditorManager::activateEditorForDocument(diffEditorDocument);
+    GitDiffEditorReloader *reloader = findOrCreateDiffEditor(QLatin1String("Files:") + workingDirectory,
+                                                             workingDirectory,
+                                                             tr("Git Diff Files"),
+                                                             workingDirectory);
+    QTC_ASSERT(reloader, return);
+    reloader->setDiffType(GitDiffEditorReloader::DiffFileList);
+    reloader->setFileList(stagedFileNames, unstagedFileNames);
+    reloader->requestReload();
 }
 
-void GitClient::diff(const QString &workingDirectory, const QString &fileName) const
+void GitClient::diffProject(const QString &workingDirectory, const QString &projectDirectory) const
+{
+    GitDiffEditorReloader *reloader = findOrCreateDiffEditor(QLatin1String("Project:") + workingDirectory,
+                                                             workingDirectory,
+                                                             tr("Git Diff Project"),
+                                                             workingDirectory);
+    QTC_ASSERT(reloader, return);
+    reloader->setDiffType(GitDiffEditorReloader::DiffProjectList);
+    reloader->setProjectList(QStringList(projectDirectory));
+    reloader->requestReload();
+}
+
+void GitClient::diffRepository(const QString &workingDirectory) const
+{
+    GitDiffEditorReloader *reloader = findOrCreateDiffEditor(QLatin1String("Repository:") + workingDirectory,
+                                                             workingDirectory,
+                                                             tr("Git Diff Repository"),
+                                                             workingDirectory);
+    QTC_ASSERT(reloader, return);
+    reloader->setDiffType(GitDiffEditorReloader::DiffRepository);
+    reloader->requestReload();
+}
+
+void GitClient::diffFile(const QString &workingDirectory, const QString &fileName) const
 {
     const QString title = tr("Git Diff \"%1\"").arg(fileName);
     const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
     const QString documentId = QLatin1String("File:") + sourceFile;
-    DiffEditor::DiffEditorDocument *diffEditorDocument =
-            DiffEditor::DiffEditorManager::find(documentId);
-    if (!diffEditorDocument) {
-        diffEditorDocument = createDiffEditor(documentId, sourceFile, title);
-
-        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
-        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
-        controller->setReloader(reloader);
-
-        reloader->setWorkingDirectory(workingDirectory);
-        reloader->setDiffType(GitDiffEditorReloader::DiffFile);
-        reloader->setFileName(fileName);
-    }
-
-    diffEditorDocument->controller()->requestReload();
-
-    EditorManager::activateEditorForDocument(diffEditorDocument);
+    GitDiffEditorReloader *reloader = findOrCreateDiffEditor(documentId, sourceFile,
+                                                             title, workingDirectory);
+    QTC_ASSERT(reloader, return);
+    reloader->setDiffType(GitDiffEditorReloader::DiffFile);
+    reloader->setFileName(fileName);
+    reloader->requestReload();
 }
 
 void GitClient::diffBranch(const QString &workingDirectory,
@@ -1045,23 +1039,12 @@ void GitClient::diffBranch(const QString &workingDirectory,
 {
     const QString title = tr("Git Diff Branch \"%1\"").arg(branchName);
     const QString documentId = QLatin1String("Branch:") + branchName;
-    DiffEditor::DiffEditorDocument *diffEditorDocument =
-            DiffEditor::DiffEditorManager::find(documentId);
-    if (!diffEditorDocument) {
-        diffEditorDocument = createDiffEditor(documentId, workingDirectory, title);
-
-        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
-        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
-        controller->setReloader(reloader);
-
-        reloader->setWorkingDirectory(workingDirectory);
-        reloader->setDiffType(GitDiffEditorReloader::DiffBranch);
-        reloader->setBranchName(branchName);
-    }
-
-    diffEditorDocument->controller()->requestReload();
-
-    EditorManager::activateEditorForDocument(diffEditorDocument);
+    GitDiffEditorReloader *reloader = findOrCreateDiffEditor(documentId, workingDirectory,
+                                                             title, workingDirectory);
+    QTC_ASSERT(reloader, return);
+    reloader->setDiffType(GitDiffEditorReloader::DiffBranch);
+    reloader->setBranchName(branchName);
+    reloader->requestReload();
 }
 
 void GitClient::merge(const QString &workingDirectory,
@@ -1171,29 +1154,13 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
     if (!repoDirectory.isEmpty())
         workingDirectory = repoDirectory;
     const QString documentId = QLatin1String("Show:") + id;
-    DiffEditor::DiffEditorDocument *diffEditorDocument =
-            DiffEditor::DiffEditorManager::find(documentId);
-    if (!diffEditorDocument) {
-        diffEditorDocument = createDiffEditor(documentId, source, title);
-
-        connect(diffEditorDocument->controller(), SIGNAL(expandBranchesRequested(QString)),
-                this, SLOT(branchesForCommit(QString)));
-
-        diffEditorDocument->controller()->setDescriptionEnabled(true);
-
-        DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
-        GitDiffEditorReloader *reloader = new GitDiffEditorReloader(controller);
-        controller->setReloader(reloader);
-
-        reloader->setWorkingDirectory(workingDirectory);
-        reloader->setDiffType(GitDiffEditorReloader::DiffShow);
-        reloader->setFileName(source);
-        reloader->setId(id);
-    }
-
-    diffEditorDocument->controller()->requestReload();
-
-    EditorManager::activateEditorForDocument(diffEditorDocument);
+    GitDiffEditorReloader *reloader = findOrCreateDiffEditor(documentId, source, title, workingDirectory);
+    QTC_ASSERT(reloader, return);
+    reloader->setDiffType(GitDiffEditorReloader::DiffShow);
+    reloader->setFileName(source);
+    reloader->setId(id);
+    reloader->controller()->setDescriptionEnabled(true);
+    reloader->requestReload();
 }
 
 void GitClient::saveSettings()

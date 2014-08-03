@@ -71,6 +71,7 @@ namespace Git {
 namespace Internal {
 
 class CommitData;
+class GitDiffEditorReloader;
 struct GitSubmitEditorPanelData;
 class Stash;
 
@@ -143,10 +144,13 @@ public:
     QString findGitDirForRepository(const QString &repositoryDir) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 
-    void diff(const QString &workingDirectory, const QString &fileName) const;
-    void diff(const QString &workingDirectory,
-              const QStringList &unstagedFileNames,
-              const QStringList &stagedFileNames = QStringList()) const;
+    void diffFile(const QString &workingDirectory, const QString &fileName) const;
+    void diffFiles(const QString &workingDirectory,
+                   const QStringList &unstagedFileNames,
+                   const QStringList &stagedFileNames) const;
+    void diffProject(const QString &workingDirectory,
+                     const QString &projectDirectory) const;
+    void diffRepository(const QString &workingDirectory) const;
     void diffBranch(const QString &workingDirectory,
                     const QString &branchName) const;
     void merge(const QString &workingDirectory, const QStringList &unmergedFileNames = QStringList());
@@ -363,6 +367,7 @@ private:
                                                         const QString &dynamicPropertyValue) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
+
     VcsBase::VcsBaseEditorWidget *createVcsEditor(Core::Id kind,
                                             QString title,
                                             const QString &source,
@@ -370,9 +375,11 @@ private:
                                             const char *registerDynamicProperty,
                                             const QString &dynamicPropertyValue,
                                             VcsBase::VcsBaseEditorParameterWidget *configWidget) const;
-    DiffEditor::DiffEditorDocument *createDiffEditor(const QString &documentId,
-                                             const QString &source,
-                                             const QString &title) const;
+
+    GitDiffEditorReloader *findOrCreateDiffEditor(const QString &documentId,
+                                                  const QString &source,
+                                                  const QString &title,
+                                                  const QString &workingDirectory) const;
 
     VcsBase::VcsCommand *createCommand(const QString &workingDirectory,
                              VcsBase::VcsBaseEditorWidget* editor = 0,

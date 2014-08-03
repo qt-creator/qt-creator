@@ -677,7 +677,7 @@ GitVersionControl *GitPlugin::gitVersionControl() const
 
 void GitPlugin::submitEditorDiff(const QStringList &unstaged, const QStringList &staged)
 {
-    m_gitClient->diff(m_submitRepository, unstaged, staged);
+    m_gitClient->diffFiles(m_submitRepository, unstaged, staged);
 }
 
 void GitPlugin::submitEditorMerge(const QStringList &unmerged)
@@ -689,7 +689,7 @@ void GitPlugin::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_gitClient->diff(state.currentFileTopLevel(), state.relativeCurrentFile());
+    m_gitClient->diffFile(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void GitPlugin::diffCurrentProject()
@@ -697,15 +697,17 @@ void GitPlugin::diffCurrentProject()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     const QString relativeProject = state.relativeCurrentProject();
-    m_gitClient->diff(state.currentProjectTopLevel(),
-                      relativeProject.isEmpty() ? QStringList() : QStringList(relativeProject));
+    if (relativeProject.isEmpty())
+        m_gitClient->diffRepository(state.currentProjectTopLevel());
+    else
+        m_gitClient->diffProject(state.currentProjectTopLevel(), relativeProject);
 }
 
 void GitPlugin::diffRepository()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_gitClient->diff(state.topLevel(), QStringList());
+    m_gitClient->diffRepository(state.topLevel());
 }
 
 void GitPlugin::logFile()

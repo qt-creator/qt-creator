@@ -46,6 +46,7 @@ public:
     ~DiffEditorReloader();
 
     bool isReloading() const;
+    DiffEditorController *controller() const;
 
 public slots:
     void requestReload();
@@ -55,7 +56,6 @@ protected:
     // inside reload() (for synchronous reload)
     // or later (for asynchronous reload)
     virtual void reload() = 0;
-    DiffEditorController *controller() const;
     void setController(DiffEditorController *controller);
 
 protected slots:
