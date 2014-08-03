@@ -152,12 +152,16 @@ void BranchDialog::add()
 
     QStringList localNames = m_model->localBranchNames();
 
-    QString suggestedNameBase = trackedBranch.mid(trackedBranch.lastIndexOf(QLatin1Char('/')) + 1);
-    QString suggestedName = suggestedNameBase;
-    int i = 2;
-    while (localNames.contains(suggestedName)) {
-        suggestedName = suggestedNameBase + QString::number(i);
-        ++i;
+    QString suggestedName;
+    if (!isTag) {
+        QString suggestedNameBase;
+        suggestedNameBase = trackedBranch.mid(trackedBranch.lastIndexOf(QLatin1Char('/')) + 1);
+        suggestedName = suggestedNameBase;
+        int i = 2;
+        while (localNames.contains(suggestedName)) {
+            suggestedName = suggestedNameBase + QString::number(i);
+            ++i;
+        }
     }
 
     BranchAddDialog branchAddDialog(localNames, true, this);
