@@ -131,6 +131,8 @@ public slots:
 
     bool jumpToLocalMark(QChar mark, bool backTickMode);
 
+    bool eventFilter(QObject *ob, QEvent *ev);
+
 signals:
     void commandBufferChanged(const QString &msg, int cursorPos,
         int anchorPos, int messageLevel, QObject *eventFilter);
@@ -162,8 +164,6 @@ public:
     class Private;
 
 private:
-    bool eventFilter(QObject *ob, QEvent *ev);
-
     Private *d;
 };
 
