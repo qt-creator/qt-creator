@@ -59,7 +59,7 @@ namespace Internal {
 class StartGdbServerDialogPrivate
 {
 public:
-    StartGdbServerDialogPrivate() {}
+    StartGdbServerDialogPrivate() : dialog(0), kit(0) {}
 
     DeviceProcessesDialog *dialog;
     bool startServerOnly;
