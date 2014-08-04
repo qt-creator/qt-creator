@@ -54,7 +54,7 @@ namespace GenericProjectManager {
 namespace Internal {
 
 GenericProjectPlugin::GenericProjectPlugin()
-    : m_projectFilesEditorFactory(0)
+    : m_projectFilesEditorFactory(0), m_editFilesAction(0), m_contextMenuProject(0)
 { }
 
 GenericProjectPlugin::~GenericProjectPlugin()
