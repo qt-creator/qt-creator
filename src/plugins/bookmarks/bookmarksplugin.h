@@ -73,7 +73,6 @@ private slots:
     void editBookmarkActionTriggered();
 
 private:
-    static BookmarksPlugin *m_instance;
     BookmarkManager *m_bookmarkManager;
 
     QAction *m_toggleAction;
