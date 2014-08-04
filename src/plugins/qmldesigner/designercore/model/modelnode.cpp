@@ -1061,9 +1061,27 @@ bool ModelNode::isComponent() const
     }
 
     if (metaInfo().isSubclassOf("QtQuick.Loader", -1 , -1)) {
-        if (hasNodeProperty("component")
-                && nodeProperty("component").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
-            return true;
+
+        if (hasNodeListProperty("component")) {
+
+        /*
+         * The component property should be a NodeProperty, but currently is a NodeListProperty, because
+         * the default property is always implcitly a NodeListProperty. This is something that has to be fixed.
+         */
+
+            ModelNode componentNode = nodeListProperty("component").toModelNodeList().first();
+            if (componentNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
+                return true;
+            if (componentNode.metaInfo().isFileComponent())
+                return true;
+        }
+
+        if (hasNodeProperty("sourceComponent")) {
+            if (nodeProperty("sourceComponent").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
+                return true;
+            if (nodeProperty("sourceComponent").modelNode().metaInfo().isFileComponent())
+                return true;
+        }
 
         if (hasVariantProperty("source"))
             return true;
