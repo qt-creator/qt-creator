@@ -101,12 +101,13 @@ static QByteArray makePlatformSafeKey(const QString &key)
     if (key.isEmpty())
         return QByteArray();
     QByteArray data(QCryptographicHash::hash(key.toLatin1(), QCryptographicHash::Sha1).toBase64());
-    QString notBase64UrlChars(QStringLiteral("[=+/]"));
 
-    QByteArray normalizedData;
-    normalizedData = QString(data).replace(QRegExp(notBase64UrlChars), QStringLiteral("_")).toLatin1();
+    data = data.replace('+', '-');
+    data = data.replace('/', '_');
 
-    return normalizedData;
+    data.truncate(31); // OS X is only supporting 31 byte long names
+
+    return data;
 }
 
 
