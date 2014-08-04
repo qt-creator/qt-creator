@@ -440,7 +440,7 @@ QWidget *BinEditorWidgetFactory::createWidget(QWidget *parent)
 
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
-BinEditorPlugin::BinEditorPlugin()
+BinEditorPlugin::BinEditorPlugin() : m_factory(0)
 {
     m_undoAction = m_redoAction = m_copyAction = m_selectAllAction = 0;
 }
