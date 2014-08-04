@@ -49,15 +49,9 @@
 
 #include <private/qcore_unix_p.h>
 
-#ifdef Q_OS_OSX
-#define NAME_MAX PSHMNAMLEN
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+#define QStringLiteral(str) QLatin1String(str)
 #endif
-
-#ifndef QStringLiteral
-#define QStringLiteral(str) QString::fromUtf8(str)
-#endif
-
-#include <QRegExp>
 
 namespace QmlDesigner {
 
