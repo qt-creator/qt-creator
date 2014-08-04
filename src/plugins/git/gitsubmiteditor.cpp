@@ -229,9 +229,10 @@ void GitSubmitEditor::updateFileModel()
         m_firstUpdate = false;
         return;
     }
-    if (m_workingDirectory.isEmpty())
+    GitSubmitEditorWidget *w = submitEditorWidget();
+    if (w->updateInProgress() || m_workingDirectory.isEmpty())
         return;
-    submitEditorWidget()->setUpdateInProgress(true);
+    w->setUpdateInProgress(true);
     resetCommitDataFetcher();
     m_commitDataFetcher = new CommitDataFetcher(m_commitType, m_workingDirectory);
     connect(m_commitDataFetcher, SIGNAL(finished(bool)), this, SLOT(commitDataRetrieved(bool)));
@@ -244,10 +245,9 @@ void GitSubmitEditor::updateFileModel()
 void GitSubmitEditor::commitDataRetrieved(bool success)
 {
     GitSubmitEditorWidget *w = submitEditorWidget();
-    w->setUpdateInProgress(false);
     if (success) {
         setCommitData(m_commitDataFetcher->commitData());
-        submitEditorWidget()->refreshLog(m_workingDirectory);
+        w->refreshLog(m_workingDirectory);
         w->setEnabled(true);
     } else {
         // Nothing to commit left!
@@ -257,6 +257,7 @@ void GitSubmitEditor::commitDataRetrieved(bool success)
     }
     m_commitDataFetcher->deleteLater();
     m_commitDataFetcher = 0;
+    w->setUpdateInProgress(false);
 }
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const
