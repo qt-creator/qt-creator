@@ -52,7 +52,7 @@
 
 using namespace Macros::Internal;
 
-MacrosPlugin::MacrosPlugin()
+MacrosPlugin::MacrosPlugin() : m_macroManager(0)
 {
 }
 
