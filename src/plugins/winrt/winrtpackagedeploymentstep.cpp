@@ -28,8 +28,10 @@
 ****************************************************************************/
 
 #include "winrtpackagedeploymentstep.h"
-#include "winrtpackagedeploymentstepwidget.h"
+
 #include "winrtconstants.h"
+#include "winrtpackagedeploymentstepwidget.h"
+#include "winrtrunconfiguration.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -39,6 +41,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtkitinformation.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QRegularExpression>
@@ -59,13 +62,32 @@ WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl)
 
 bool WinRtPackageDeploymentStep::init()
 {
-    Utils::FileName proFile = project()->projectFilePath();
-    m_targetFilePath
-            = target()->applicationTargets().targetForProject(proFile).toString()
-                + QLatin1String(".exe");
-    m_targetDirPath = m_targetFilePath.left(m_targetFilePath.lastIndexOf(QLatin1Char('/')) + 1);
-    // ### Actually, targetForProject is supposed to return the file path including the file
-    // extension. Whenever this will eventually work, we have to remove the .exe suffix here.
+    WinRtRunConfiguration *rc = qobject_cast<WinRtRunConfiguration *>(
+                target()->activeRunConfiguration());
+    QTC_ASSERT(rc, return false);
+
+    const Utils::FileName activeProjectFilePath = Utils::FileName::fromString(rc->proFilePath());
+    Utils::FileName appTargetFilePath;
+    foreach (const BuildTargetInfo &buildTarget, target()->applicationTargets().list) {
+        if (buildTarget.projectFilePath == activeProjectFilePath) {
+            appTargetFilePath = buildTarget.targetFilePath;
+            break;
+        }
+    }
+
+    m_targetFilePath = appTargetFilePath.toString();
+    if (m_targetFilePath.isEmpty()) {
+        // ### raise error in 3.3
+        // raiseError(tr("No executable to deploy found in %1.").arg(rc->proFilePath()));
+        return false;
+    }
+
+    // ### Ideally, the file paths in applicationTargets() should already have the .exe suffix.
+    // Whenever this will eventually work, we can drop appending the .exe suffix here.
+    if (!m_targetFilePath.endsWith(QLatin1String(".exe"), Qt::CaseInsensitive))
+        m_targetFilePath.append(QLatin1String(".exe"));
+
+    m_targetDirPath = appTargetFilePath.parentDir().toString();
 
     const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!qt)
