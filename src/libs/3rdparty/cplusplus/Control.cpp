@@ -217,6 +217,8 @@ public:
         , objcRetainId(0)
         , objcCopyId(0)
         , objcNonatomicId(0)
+        , cpp11Override(0)
+        , cpp11Final(0)
         , processor(0)
     {}
 
