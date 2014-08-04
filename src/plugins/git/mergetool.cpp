@@ -75,7 +75,11 @@ private:
 MergeTool::MergeTool(QObject *parent) :
     QObject(parent),
     m_process(0),
-    m_gitClient(GitPlugin::instance()->gitClient())
+    m_mergeType(NormalMerge),
+    m_localState(UnknownState),
+    m_remoteState(UnknownState),
+    m_gitClient(GitPlugin::instance()->gitClient()),
+    m_merging(false)
 {
 }
 

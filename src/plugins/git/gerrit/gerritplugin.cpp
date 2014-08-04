@@ -266,6 +266,7 @@ void FetchContext::checkout()
 GerritPlugin::GerritPlugin(QObject *parent)
     : QObject(parent)
     , m_parameters(new GerritParameters)
+    , m_gerritCommand(0), m_pushToGerritCommand(0)
 {
 }
 
