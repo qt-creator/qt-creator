@@ -42,7 +42,8 @@ namespace Qnx {
 namespace Internal {
 
 BlackBerryDeviceInformation::BlackBerryDeviceInformation(QObject *parent) :
-    BlackBerryNdkProcess(QLatin1String(PROCESS_NAME), parent)
+    BlackBerryNdkProcess(QLatin1String(PROCESS_NAME), parent),
+    m_debugTokenValid(false), m_isSimulator(false), m_isProductionDevice(true)
 {
     addErrorStringMapping(QLatin1String(ERR_NO_ROUTE_HOST), NoRouteToHost);
     addErrorStringMapping(QLatin1String(ERR_AUTH_FAILED), AuthenticationFailed);
