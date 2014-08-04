@@ -339,18 +339,17 @@ static QList<ProjectExplorer::ProjectAction> supportedNodeActions(ProjectExplore
 // QbsGroupNode:
 // --------------------------------------------------------------------
 
-QbsGroupNode::QbsGroupNode(const qbs::GroupData *grp, const QString &productPath) :
-    QbsBaseProjectNode(QString()),
-    m_qbsGroupData(0)
+QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath) :
+    QbsBaseProjectNode(QString())
 {
     if (m_groupIcon.isNull())
         m_groupIcon = QIcon(QString::fromLatin1(Constants::QBS_GROUP_ICON));
 
     setIcon(m_groupIcon);
 
-    QbsFileNode *idx = new QbsFileNode(grp->location().fileName(),
+    QbsFileNode *idx = new QbsFileNode(grp.location().fileName(),
                                        ProjectExplorer::ProjectFileType, false,
-                                       grp->location().line());
+                                       grp.location().line());
     addFileNodes(QList<ProjectExplorer::FileNode *>() << idx);
 
     updateQbsGroupData(grp, productPath, true, true);
@@ -358,10 +357,10 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData *grp, const QString &productPath
 
 bool QbsGroupNode::isEnabled() const
 {
-    if (!parentFolderNode() || !m_qbsGroupData)
+    if (!parentFolderNode() || !m_qbsGroupData.isValid())
         return false;
     return static_cast<QbsProductNode *>(parentFolderNode())->isEnabled()
-            && m_qbsGroupData->isEnabled();
+            && m_qbsGroupData.isEnabled();
 }
 
 QList<ProjectExplorer::ProjectAction> QbsGroupNode::supportedActions(ProjectExplorer::Node *node) const
@@ -388,7 +387,7 @@ bool QbsGroupNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
     }
 
     return prjNode->project()->addFilesToProduct(this, filePaths, prdNode->qbsProductData(),
-                                                 *m_qbsGroupData, notAdded);
+                                                 m_qbsGroupData, notAdded);
 }
 
 bool QbsGroupNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
@@ -410,26 +409,27 @@ bool QbsGroupNode::removeFiles(const QStringList &filePaths, QStringList *notRem
     }
 
     return prjNode->project()->removeFilesFromProduct(this, filePaths, prdNode->qbsProductData(),
-                                                      *m_qbsGroupData, notRemoved);
+                                                      m_qbsGroupData, notRemoved);
 }
 
-void QbsGroupNode::updateQbsGroupData(const qbs::GroupData *grp, const QString &productPath,
+void QbsGroupNode::updateQbsGroupData(const qbs::GroupData &grp, const QString &productPath,
                                       bool productWasEnabled, bool productIsEnabled)
 {
-    Q_ASSERT(grp);
+    QTC_ASSERT(grp.isValid(), return);
 
     if (grp == m_qbsGroupData && productPath == m_productPath)
         return;
 
-    bool groupWasEnabled = productWasEnabled && m_qbsGroupData && m_qbsGroupData->isEnabled();
-    bool groupIsEnabled = productIsEnabled && grp->isEnabled();
+    bool groupWasEnabled = productWasEnabled && m_qbsGroupData.isValid()
+            && m_qbsGroupData.isEnabled();
+    bool groupIsEnabled = productIsEnabled && grp.isEnabled();
     bool updateExisting = groupWasEnabled != groupIsEnabled;
 
     m_productPath = productPath;
     m_qbsGroupData = grp;
 
-    setPath(grp->location().fileName());
-    setDisplayName(grp->name());
+    setPath(grp.location().fileName());
+    setDisplayName(grp.name());
 
     QbsFileNode *idx = 0;
     foreach (ProjectExplorer::FileNode *fn, fileNodes()) {
@@ -438,9 +438,9 @@ void QbsGroupNode::updateQbsGroupData(const qbs::GroupData *grp, const QString &
             break;
     }
     QTC_ASSERT(idx, return);
-    idx->setPathAndLine(grp->location().fileName(), grp->location().line());
+    idx->setPathAndLine(grp.location().fileName(), grp.location().line());
 
-    setupFiles(this, grp->allFilePaths(), productPath, updateExisting);
+    setupFiles(this, grp.allFilePaths(), productPath, updateExisting);
 
     if (updateExisting)
         emitNodeUpdated();
@@ -652,9 +652,9 @@ void QbsProductNode::setQbsProductData(const qbs::ProductData prd)
         QbsGroupNode *gn = findGroupNode(grp.name());
         if (gn) {
             toRemove.removeOne(gn);
-            gn->updateQbsGroupData(&grp, productPath, productWasEnabled, productIsEnabled);
+            gn->updateQbsGroupData(grp, productPath, productWasEnabled, productIsEnabled);
         } else {
-            gn = new QbsGroupNode(&grp, productPath);
+            gn = new QbsGroupNode(grp, productPath);
             toAdd.append(gn);
         }
     }
@@ -691,7 +691,7 @@ QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
 {
     foreach (ProjectExplorer::ProjectNode *n, subProjectNodes()) {
         QbsGroupNode *qn = static_cast<QbsGroupNode *>(n);
-        if (qn->qbsGroupData()->name() == name)
+        if (qn->qbsGroupData().name() == name)
             return qn;
     }
     return 0;

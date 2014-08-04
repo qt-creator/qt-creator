@@ -98,16 +98,16 @@ class QbsGroupNode : public QbsBaseProjectNode
     Q_OBJECT
 
 public:
-    QbsGroupNode(const qbs::GroupData *grp, const QString &productPath);
+    QbsGroupNode(const qbs::GroupData &grp, const QString &productPath);
 
     bool isEnabled() const;
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
-    void updateQbsGroupData(const qbs::GroupData *grp, const QString &productPath,
+    void updateQbsGroupData(const qbs::GroupData &grp, const QString &productPath,
                             bool productWasEnabled, bool productIsEnabled);
 
-    const qbs::GroupData *qbsGroupData() const { return m_qbsGroupData; }
+    qbs::GroupData qbsGroupData() const { return m_qbsGroupData; }
 
     QString productPath() const;
 
@@ -117,7 +117,7 @@ public:
 private:
     static void setupFolder(ProjectExplorer::FolderNode *folder,
                             const FileTreeNode *subFileTree, const QString &baseDir, bool updateExisting);
-    const qbs::GroupData *m_qbsGroupData;
+    qbs::GroupData m_qbsGroupData;
     QString m_productPath;
 
     static QIcon m_groupIcon;
