@@ -52,7 +52,7 @@ public:
           fputc('-', stderr);
 
         ++depth;
-        fprintf(stderr, " %s, ahead: '%s' (%d) - block-errors: %d\n", name, spell, idx, blocked);
+        fprintf(stderr, " %s, ahead: '%s' (%u) - block-errors: %d\n", name, spell, idx, blocked);
     }
 
     ~DebugRule()
