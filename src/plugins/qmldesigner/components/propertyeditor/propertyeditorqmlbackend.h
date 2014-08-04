@@ -46,7 +46,12 @@ namespace QmlDesigner {
 class PropertyEditorTransaction;
 class PropertyEditorView;
 
-class PropertyEditorQmlBackend {
+class PropertyEditorQmlBackend
+{
+
+    Q_DISABLE_COPY(PropertyEditorQmlBackend)
+
+
 public:
     PropertyEditorQmlBackend(PropertyEditorView *propertyEditor);
     ~PropertyEditorQmlBackend();
