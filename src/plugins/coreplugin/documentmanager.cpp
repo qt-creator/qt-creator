@@ -679,8 +679,8 @@ QString DocumentManager::getSaveFileName(const QString &title, const QString &pa
                 // Mime database creates filter strings like this: Anything here (*.foo *.bar)
                 QRegExp regExp(QLatin1String(".*\\s+\\((.*)\\)$"));
                 const int index = regExp.lastIndexIn(*selectedFilter);
-                bool suffixOk = false;
                 if (index != -1) {
+                    bool suffixOk = false;
                     const QStringList &suffixes = regExp.cap(1).remove(QLatin1Char('*')).split(QLatin1Char(' '));
                     foreach (const QString &suffix, suffixes)
                         if (fileName.endsWith(suffix)) {
