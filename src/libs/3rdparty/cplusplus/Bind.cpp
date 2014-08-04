@@ -1882,7 +1882,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         }
         else if (declTy.isAuto()) {
             const ExpressionAST *initializer = it->value->initializer;
-            if (!initializer)
+            if (!initializer && declaratorId)
                 translationUnit()->error(location(declaratorId->name, ast->firstToken()), "auto-initialized variable must have an initializer");
             else {
                 unsigned startOfExpression = initializer->firstToken();
