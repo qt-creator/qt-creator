@@ -58,6 +58,8 @@ private:
     bool parseIconsAndExecutableFromManifest(QString manifestFileName, QStringList *items, QString *executable);
 
     QString m_args;
+    QString m_targetFilePath;
+    QString m_targetDirPath;
     QString m_executablePathInManifest;
     QString m_mappingFileContent;
     QString m_manifestFileName;
