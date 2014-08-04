@@ -507,6 +507,52 @@ FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
     return parsedSpec;
 }
 
+QStringList QmakeBuildConfiguration::extractDeducedArguments(QString *args)
+{
+    QStringList allPossibleDeducedArguments;
+    allPossibleDeducedArguments << QLatin1String("CONFIG+=x86")
+                                << QLatin1String("CONFIG+=x86_64")
+                                << QLatin1String("CONFIG+=iphonesimulator")
+                                << QLatin1String("CONFIG+=ppc")
+                                << QLatin1String("CONFIG+=ppc64")
+                                << QLatin1String("CONFIG+=iphoneos");
+    QStringList result;
+    for (QtcProcess::ArgIterator ait(args); ait.next(); ) {
+        QString arg = ait.value();
+        if (allPossibleDeducedArguments.contains(arg))  {
+            result << arg;
+            ait.deleteArg();
+        }
+    }
+    return result;
+}
+
+QStringList QmakeBuildConfiguration::deduceArgumnetsForTargetAbi(const ProjectExplorer::Abi &targetAbi, const BaseQtVersion *version)
+{
+    QStringList arguments;
+    if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)
+            && (targetAbi.binaryFormat() == ProjectExplorer::Abi::MachOFormat)) {
+        if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture) {
+            if (targetAbi.wordWidth() == 32)
+                arguments << QLatin1String("CONFIG+=x86");
+            else if (targetAbi.wordWidth() == 64)
+                arguments << QLatin1String("CONFIG+=x86_64");
+
+            const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios";
+            if (version && version->type() == QLatin1String(IOSQT)) // ugly, we can't distinguish between ios and mac toolchains
+                arguments << QLatin1String("CONFIG+=iphonesimulator");
+        } else if (targetAbi.architecture() == ProjectExplorer::Abi::PowerPCArchitecture) {
+            if (targetAbi.wordWidth() == 32)
+                arguments << QLatin1String("CONFIG+=ppc");
+            else if (targetAbi.wordWidth() == 64)
+                arguments << QLatin1String("CONFIG+=ppc64");
+        } else if (targetAbi.architecture() == ProjectExplorer::Abi::ArmArchitecture) {
+            arguments << QLatin1String("CONFIG+=iphoneos");
+        }
+    }
+    return arguments;
+}
+
 bool QmakeBuildConfiguration::isEnabled() const
 {
     return m_isEnabled;

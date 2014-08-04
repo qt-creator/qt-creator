@@ -108,8 +108,6 @@ public:
     virtual QString invalidReason() const;
     virtual QStringList warningReason() const;
 
-    virtual ProjectExplorer::ToolChain *preferredToolChain(const Utils::FileName &ms) const;
-
     virtual QString description() const = 0;
     virtual QString toHtml(bool verbose) const;
 

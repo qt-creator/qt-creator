@@ -478,19 +478,6 @@ QStringList BaseQtVersion::warningReason() const
     return ret;
 }
 
-ToolChain *BaseQtVersion::preferredToolChain(const FileName &ms) const
-{
-    const FileName spec = ms.isEmpty() ? mkspec() : ms;
-
-    QList<ToolChain *> toolchains = ToolChainManager::toolChains();
-    return Utils::findOr(toolchains,
-                         toolchains.isEmpty() ? 0 : toolchains.first(),
-                         [&spec, this](ToolChain *tc) {
-                                return qtAbis().contains(tc->targetAbi())
-                                         && tc->suggestedMkspecList().contains(spec);
-                          });
-}
-
 FileName BaseQtVersion::qmakeCommand() const
 {
     return m_qmakeCommand;

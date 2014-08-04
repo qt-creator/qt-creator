@@ -91,6 +91,8 @@ public:
     static Utils::FileName extractSpecFromArguments(QString *arguments,
                                             const QString &directory, const QtSupport::BaseQtVersion *version,
                                             QStringList *outArgs = 0);
+    static QStringList extractDeducedArguments(QString *args);
+    static QStringList deduceArgumnetsForTargetAbi(const ProjectExplorer::Abi &targetAbi, const QtSupport::BaseQtVersion *version);
 
     QVariantMap toMap() const;
 

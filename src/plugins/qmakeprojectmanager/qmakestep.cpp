@@ -170,29 +170,9 @@ QStringList QMakeStep::deducedArguments()
         targetAbi = tc->targetAbi();
 
     // explicitly add architecture to CONFIG
-    if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)
-            && (targetAbi.binaryFormat() == ProjectExplorer::Abi::MachOFormat)) {
-        if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture) {
-            if (targetAbi.wordWidth() == 32)
-                arguments << QLatin1String("CONFIG+=x86");
-            else if (targetAbi.wordWidth() == 64)
-                arguments << QLatin1String("CONFIG+=x86_64");
-
-            const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // from Ios::Constants (include header?)
-            QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-            if (version && version->type() == QLatin1String(IOSQT))
-                arguments << QLatin1String("CONFIG+=iphonesimulator");
-        } else if (targetAbi.architecture() == ProjectExplorer::Abi::PowerPCArchitecture) {
-            if (targetAbi.wordWidth() == 32)
-                arguments << QLatin1String("CONFIG+=ppc");
-            else if (targetAbi.wordWidth() == 64)
-                arguments << QLatin1String("CONFIG+=ppc64");
-        } else if (targetAbi.architecture() == ProjectExplorer::Abi::ArmArchitecture) {
-            arguments << QLatin1String("CONFIG+=iphoneos");
-        }
-    }
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    arguments << QmakeBuildConfiguration::deduceArgumnetsForTargetAbi(targetAbi, version);
     if (linkQmlDebuggingLibrary() && version) {
         arguments << QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG);
         if (version->qtVersion().majorVersion >= 5)

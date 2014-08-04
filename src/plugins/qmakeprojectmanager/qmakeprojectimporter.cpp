@@ -38,11 +38,14 @@
 #include <coreplugin/idocument.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/qtcprocess.h>
+#include <utils/algorithm.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -113,6 +116,9 @@ QList<ProjectExplorer::BuildInfo *> QmakeProjectImporter::import(const Utils::Fi
         QString additionalArguments = makefileBuildConfig.second;
         Utils::FileName parsedSpec =
                 QmakeBuildConfiguration::extractSpecFromArguments(&additionalArguments, importPath.toString(), version);
+        QStringList deducedArguments =
+                QmakeBuildConfiguration::extractDeducedArguments(&additionalArguments);
+
         Utils::FileName versionSpec = version->mkspec();
         if (parsedSpec.isEmpty() || parsedSpec == Utils::FileName::fromLatin1("default"))
             parsedSpec = versionSpec;
@@ -131,13 +137,17 @@ QList<ProjectExplorer::BuildInfo *> QmakeProjectImporter::import(const Utils::Fi
             ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
             if (kitSpec.isEmpty() && kitVersion)
                 kitSpec = kitVersion->mkspecFor(tc);
+            QStringList kitDeducedArguments;
+            if (tc)
+                kitDeducedArguments = QmakeBuildConfiguration::deduceArgumnetsForTargetAbi(tc->targetAbi(), kitVersion);
 
             if (kitVersion == version
-                    && kitSpec == parsedSpec)
+                    && kitSpec == parsedSpec
+                    && kitDeducedArguments == deducedArguments)
                 kitList.append(k);
         }
         if (kitList.isEmpty())
-            kitList.append(createTemporaryKit(version, temporaryVersion, parsedSpec));
+            kitList.append(createTemporaryKit(version, temporaryVersion, parsedSpec, deducedArguments));
 
         foreach (ProjectExplorer::Kit *k, kitList) {
             addProject(k);
@@ -254,16 +264,34 @@ void QmakeProjectImporter::makePermanent(ProjectExplorer::Kit *k)
     ProjectImporter::makePermanent(k);
 }
 
+namespace {
+ProjectExplorer::ToolChain *preferredToolChain(QtSupport::BaseQtVersion *qtVersion, const Utils::FileName &ms, const QStringList &deducedArguments)
+{
+    const Utils::FileName spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
+
+    QList<ProjectExplorer::ToolChain *> toolchains = ProjectExplorer::ToolChainManager::toolChains();
+    QList<ProjectExplorer::Abi> qtAbis = qtVersion->qtAbis();
+    return Utils::findOr(toolchains,
+                         toolchains.isEmpty() ? 0 : toolchains.first(),
+                         [&spec, &deducedArguments, &qtAbis](ProjectExplorer::ToolChain *tc) -> bool{
+                                return qtAbis.contains(tc->targetAbi())
+                                        && tc->suggestedMkspecList().contains(spec)
+                                        && QmakeBuildConfiguration::deduceArgumnetsForTargetAbi(tc->targetAbi(), 0) == deducedArguments;
+                          });
+}
+}
+
 ProjectExplorer::Kit *QmakeProjectImporter::createTemporaryKit(QtSupport::BaseQtVersion *version,
                                                                bool temporaryVersion,
-                                                               const Utils::FileName &parsedSpec)
+                                                               const Utils::FileName &parsedSpec,
+                                                               const QStringList &deducedQmakeArguments)
 {
     ProjectExplorer::Kit *k = new ProjectExplorer::Kit;
 
     ProjectExplorer::KitGuard guard(k);
 
     QtSupport::QtKitInformation::setQtVersion(k, version);
-    ProjectExplorer::ToolChainKitInformation::setToolChain(k, version->preferredToolChain(parsedSpec));
+    ProjectExplorer::ToolChainKitInformation::setToolChain(k, preferredToolChain(version, parsedSpec, deducedQmakeArguments));
     QmakeKitInformation::setMkspec(k, parsedSpec);
 
     markTemporary(k);

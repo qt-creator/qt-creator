@@ -57,7 +57,7 @@ public:
 private:
     ProjectExplorer::Kit *createTemporaryKit(QtSupport::BaseQtVersion *version,
                                              bool temporaryVersion,
-                                             const Utils::FileName &parsedSpec);
+                                             const Utils::FileName &parsedSpec, const QStringList &deducedQmakeArguments);
 };
 
 } // namespace Internal
