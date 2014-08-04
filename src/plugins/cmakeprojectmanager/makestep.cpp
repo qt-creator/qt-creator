@@ -45,6 +45,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtparser.h>
 
+#include <coreplugin/find/itemviewfind.h>
+
 #include <utils/qtcprocess.h>
 
 #include <QFormLayout>
@@ -337,8 +339,16 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     m_additionalArguments->setText(m_makeStep->additionalArguments());
 
     m_buildTargetsList = new QListWidget;
+    m_buildTargetsList->setFrameStyle(QFrame::NoFrame);
     m_buildTargetsList->setMinimumHeight(200);
-    fl->addRow(tr("Targets:"), m_buildTargetsList);
+
+    QFrame *frame = new QFrame(this);
+    frame->setFrameStyle(QFrame::StyledPanel);
+    QVBoxLayout *frameLayout = new QVBoxLayout(frame);
+    frameLayout->setMargin(0);
+    frameLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_buildTargetsList));
+
+    fl->addRow(tr("Targets:"), frame);
 
     CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->project());
     QStringList targetList = pro->buildTargetTitles();
