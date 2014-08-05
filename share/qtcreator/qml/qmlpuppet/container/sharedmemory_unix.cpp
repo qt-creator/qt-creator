@@ -50,7 +50,7 @@
 #include <private/qcore_unix_p.h>
 
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-#define QStringLiteral(str) QLatin1String(str)
+#define QStringLiteral(str) QString::fromLatin1(str)
 #endif
 
 namespace QmlDesigner {
