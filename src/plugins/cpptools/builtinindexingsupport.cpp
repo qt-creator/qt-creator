@@ -175,7 +175,6 @@ BuiltinIndexingSupport::BuiltinIndexingSupport()
     : m_revision(0)
 {
     m_synchronizer.setCancelOnWait(true);
-    m_dumpFileNameWhileParsing = DumpFileNameWhileParsing;
 }
 
 BuiltinIndexingSupport::~BuiltinIndexingSupport()
@@ -188,7 +187,7 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
     const WorkingCopy workingCopy = mgr->workingCopy();
 
     CppSourceProcessor *preproc = CppModelManager::createSourceProcessor();
-    preproc->setDumpFileNameWhileParsing(m_dumpFileNameWhileParsing);
+    preproc->setDumpFileNameWhileParsing(DumpFileNameWhileParsing);
     preproc->setRevision(++m_revision);
     preproc->setHeaderPaths(mgr->headerPaths());
     preproc->setWorkingCopy(workingCopy);
