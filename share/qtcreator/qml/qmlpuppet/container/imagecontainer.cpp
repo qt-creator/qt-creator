@@ -42,7 +42,9 @@
 
 namespace QmlDesigner {
 
-static QCache<qint32, SharedMemory> globalSharedMemoryCache(10000);
+// using cache as a container which deletes sharedmemory pointers at process exit
+typedef QCache<qint32, SharedMemory> GlobalSharedMemoryContainer;
+Q_GLOBAL_STATIC_WITH_ARGS(GlobalSharedMemoryContainer, globalSharedMemoryContainer, (10000))
 
 ImageContainer::ImageContainer()
     : m_instanceId(-1),
@@ -82,7 +84,7 @@ void ImageContainer::setImage(const QImage &image)
 void ImageContainer::removeSharedMemorys(const QVector<qint32> &keyNumberVector)
 {
     foreach (qint32 keyNumber, keyNumberVector) {
-        SharedMemory *sharedMemory = globalSharedMemoryCache.take(keyNumber);
+        SharedMemory *sharedMemory = globalSharedMemoryContainer()->take(keyNumber);
         delete sharedMemory;
     }
 }
@@ -91,13 +93,13 @@ static const QLatin1String imageKeyTemplateString("Image-%1");
 
 static SharedMemory *createSharedMemory(qint32 key, int byteCount)
 {
-    SharedMemory *sharedMemory = globalSharedMemoryCache.take(key);
+    SharedMemory *sharedMemory = (*globalSharedMemoryContainer())[key];
 
     if (sharedMemory == 0) {
         sharedMemory = new SharedMemory(QString(imageKeyTemplateString).arg(key));
         bool sharedMemoryIsCreated = sharedMemory->create(byteCount);
         if (sharedMemoryIsCreated) {
-            globalSharedMemoryCache.insert(key, sharedMemory);
+            globalSharedMemoryContainer()->insert(key, sharedMemory);
         } else {
             delete sharedMemory;
             sharedMemory = 0;
@@ -118,7 +120,7 @@ static SharedMemory *createSharedMemory(qint32 key, int byteCount)
         }
 
         if (!sharedMemory->isAttached()) {
-            globalSharedMemoryCache.remove(key);
+            globalSharedMemoryContainer()->remove(key);
             delete sharedMemory;
             sharedMemory = 0;
         }
