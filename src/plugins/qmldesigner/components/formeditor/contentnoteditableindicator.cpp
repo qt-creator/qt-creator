@@ -31,6 +31,7 @@
 #include "nodemetainfo.h"
 
 #include <QSet>
+#include <QPen>
 
 namespace QmlDesigner {
 
