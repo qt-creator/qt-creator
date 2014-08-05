@@ -1,23 +1,29 @@
 #include "builtinindexingsupport.h"
 
+#include "cppchecksymbols.h"
 #include "cppmodelmanager.h"
+#include "cppprojectfile.h"
+#include "cppsnapshotupdater.h"
 #include "cppsourceprocessor.h"
-#include "searchsymbols.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
-#include "cppprojectfile.h"
+#include "searchsymbols.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <cplusplus/LookupContext.h>
+#include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
 #include <QCoreApplication>
+#include <QElapsedTimer>
 
 using namespace CppTools;
 using namespace CppTools::Internal;
 
 static const bool DumpFileNameWhileParsing = qgetenv("QTC_DUMP_FILENAME_WHILE_PARSING") == "1";
+static const bool FindErrorsIndexing = qgetenv("QTC_FIND_ERRORS_INDEXING") == "1";
 
 namespace {
 
@@ -36,11 +42,125 @@ public:
     QStringList sourceFiles;
 };
 
-static void parse(QFutureInterface<void> &future, const ParseParams params)
+class WriteTaskFileForDiagnostics
 {
-    if (params.sourceFiles.isEmpty())
-        return;
+    Q_DISABLE_COPY(WriteTaskFileForDiagnostics)
 
+public:
+    WriteTaskFileForDiagnostics()
+        : m_processedDiagnostics(0)
+    {
+        const QString fileName = QDir::tempPath()
+                + QLatin1String("/qtc_findErrorsIndexing.diagnostics.")
+                + QDateTime::currentDateTime().toString(QLatin1String("yyMMdd_HHmm"))
+                + QLatin1String(".tasks");
+
+        m_file.setFileName(fileName);
+        Q_ASSERT(m_file.open(QIODevice::WriteOnly | QIODevice::Text));
+        m_out.setDevice(&m_file);
+
+        qDebug("FindErrorsIndexing: Task file for diagnostics is \"%s\".",
+               qPrintable(m_file.fileName()));
+    }
+
+    ~WriteTaskFileForDiagnostics()
+    {
+        qDebug("FindErrorsIndexing: %d diagnostic messages written to \"%s\".",
+               m_processedDiagnostics, qPrintable(m_file.fileName()));
+    }
+
+    int processedDiagnostics() const { return m_processedDiagnostics; }
+
+    void process(const CPlusPlus::Document::Ptr document)
+    {
+        using namespace CPlusPlus;
+        const QString fileName = document->fileName();
+
+        foreach (const Document::DiagnosticMessage &message, document->diagnosticMessages()) {
+            ++m_processedDiagnostics;
+
+            QString type;
+            switch (message.level()) {
+            case Document::DiagnosticMessage::Warning:
+                type = QLatin1String("warn"); break;
+            case Document::DiagnosticMessage::Error:
+            case Document::DiagnosticMessage::Fatal:
+                type = QLatin1String("err"); break;
+            default:
+                break;
+            }
+
+            // format: file\tline\ttype\tdescription
+            m_out << fileName << "\t"
+                  << message.line() << "\t"
+                  << type << "\t"
+                  << message.text() << "\n";
+        }
+    }
+
+private:
+    QFile m_file;
+    QTextStream m_out;
+    int m_processedDiagnostics;
+};
+
+void classifyFiles(const QStringList &files, QStringList *headers, QStringList *sources)
+{
+    foreach (const QString &file, files) {
+        if (ProjectFile::isSource(ProjectFile::classify(file)))
+            sources->append(file);
+        else
+            headers->append(file);
+    }
+}
+
+void indexFindErrors(QFutureInterface<void> &future, const ParseParams params)
+{
+    QStringList files = params.sourceFiles;
+    files.sort();
+    QStringList sources, headers;
+    classifyFiles(files, &headers, &sources);
+    files = sources + headers;
+
+    WriteTaskFileForDiagnostics taskFileWriter;
+    QElapsedTimer timer;
+    timer.start();
+
+    for (int i = 0, end = files.size(); i < end ; ++i) {
+        if (future.isPaused())
+            future.waitForResume();
+        if (future.isCanceled())
+            break;
+
+        const QString file = files.at(i);
+        qDebug("FindErrorsIndexing: \"%s\"", qPrintable(file));
+
+        // Parse the file as precisely as possible
+        SnapshotUpdater updater(file);
+        updater.setReleaseSourceAndAST(false);
+        updater.update(params.workingCopy);
+        CPlusPlus::Document::Ptr document = updater.document();
+        QTC_ASSERT(document, return);
+
+        // Write diagnostic messages
+        taskFileWriter.process(document);
+
+        // Look up symbols
+        CPlusPlus::LookupContext context(document, updater.snapshot());
+        CheckSymbols::go(document, context, QList<CheckSymbols::Result>()).waitForFinished();
+
+        document->releaseSourceAndAST();
+
+        future.setProgressValue(files.size() - (files.size() - (i + 1)));
+    }
+
+    const QTime format = QTime(0, 0, 0, 0).addMSecs(timer.elapsed() + 500);
+    const QString time = format.toString(QLatin1String("hh:mm:ss"));
+    qDebug("FindErrorsIndexing: Finished after %s.", qPrintable(time));
+}
+
+void index(QFutureInterface<void> &future, const ParseParams params)
+{
     QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
     sourceProcessor->setDumpFileNameWhileParsing(params.dumpFileNameWhileParsing);
     sourceProcessor->setRevision(params.revision);
@@ -48,24 +168,19 @@ static void parse(QFutureInterface<void> &future, const ParseParams params)
     sourceProcessor->setWorkingCopy(params.workingCopy);
 
     QStringList files = params.sourceFiles;
+
     QStringList sources;
     QStringList headers;
+    classifyFiles(files, &headers, &sources);
 
-    foreach (const QString &file, files) {
+    foreach (const QString &file, files)
         sourceProcessor->removeFromCache(file);
-        if (ProjectFile::isSource(ProjectFile::classify(file)))
-            sources.append(file);
-        else
-            headers.append(file);
-    }
 
     const int sourceCount = sources.size();
     files = sources;
     files += headers;
 
     sourceProcessor->setTodo(files);
-
-    future.setProgressRange(0, files.size());
 
     const QString conf = CppModelManagerInterface::configurationFileName();
     bool processingHeaders = false;
@@ -102,9 +217,23 @@ static void parse(QFutureInterface<void> &future, const ParseParams params)
         if (isSourceFile)
             sourceProcessor->resetEnvironment();
     }
+}
+
+void parse(QFutureInterface<void> &future, const ParseParams params)
+{
+    const QStringList files = params.sourceFiles;
+    if (files.isEmpty())
+        return;
+
+    future.setProgressRange(0, files.size());
+
+    if (FindErrorsIndexing)
+        indexFindErrors(future, params);
+    else
+        index(future, params);
 
     future.setProgressValue(files.size());
-    cmm->finishedRefreshingSourceFiles(files);
+    CppModelManager::instance()->finishedRefreshingSourceFiles(files);
 }
 
 class BuiltinSymbolSearcher: public SymbolSearcher
@@ -235,4 +364,9 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
 SymbolSearcher *BuiltinIndexingSupport::createSymbolSearcher(SymbolSearcher::Parameters parameters, QSet<QString> fileNames)
 {
     return new BuiltinSymbolSearcher(CppModelManager::instance()->snapshot(), parameters, fileNames);
+}
+
+bool BuiltinIndexingSupport::isFindErrorsIndexingActive()
+{
+    return FindErrorsIndexing;
 }

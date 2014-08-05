@@ -225,6 +225,8 @@ CppModelManager::CppModelManager(QObject *parent)
             this, SIGNAL(globalSnapshotChanged()));
     connect(this, SIGNAL(aboutToRemoveFiles(QStringList)),
             this, SIGNAL(globalSnapshotChanged()));
+    connect(this, SIGNAL(sourceFilesRefreshed(QStringList)),
+            this, SLOT(onSourceFilesRefreshed()));
 
     m_findReferences = new CppFindReferences(this);
     m_indexerEnabled = qgetenv("QTC_NO_CODE_INDEXER") != "1";
@@ -790,6 +792,14 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
     } while (0);
 
     delayedGC();
+}
+
+void CppModelManager::onSourceFilesRefreshed() const
+{
+    if (BuiltinIndexingSupport::isFindErrorsIndexingActive()) {
+        QTimer::singleShot(1, QCoreApplication::instance(), SLOT(quit()));
+        qDebug("FindErrorsIndexing: Done, requesting Qt Creator to quit.");
+    }
 }
 
 void CppModelManager::onAboutToLoadSession()

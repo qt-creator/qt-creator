@@ -42,6 +42,7 @@ SnapshotUpdater::SnapshotUpdater(const QString &fileInEditor)
     , m_editorDefinesChangedSinceLastUpdate(false)
     , m_usePrecompiledHeaders(false)
     , m_forceSnapshotInvalidation(false)
+    , m_releaseSourceAndAST(true)
 {
 }
 
@@ -161,7 +162,8 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
                 newRev = qMax(rev + 1, newRev);
             doc->setRevision(newRev);
             modelManager->emitDocumentUpdated(doc);
-            doc->releaseSourceAndAST();
+            if (m_releaseSourceAndAST)
+                doc->releaseSourceAndAST();
         });
         Snapshot globalSnapshot = modelManager->snapshot();
         globalSnapshot.remove(fileInEditor());
@@ -243,6 +245,12 @@ void SnapshotUpdater::setEditorDefines(const QByteArray &editorDefines)
         m_editorDefines = editorDefines;
         m_editorDefinesChangedSinceLastUpdate = true;
     }
+}
+
+void SnapshotUpdater::setReleaseSourceAndAST(bool onoff)
+{
+    QMutexLocker locker(&m_mutex);
+    m_releaseSourceAndAST = onoff;
 }
 
 void SnapshotUpdater::updateProjectPart()

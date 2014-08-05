@@ -165,6 +165,7 @@ private slots:
     void onAboutToUnloadSession();
     void onProjectAdded(ProjectExplorer::Project *project);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
+    void onSourceFilesRefreshed() const;
     void onCoreAboutToClose();
 
 private:

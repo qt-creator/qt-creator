@@ -64,6 +64,8 @@ public:
     void setUsePrecompiledHeaders(bool usePrecompiledHeaders);
     void setEditorDefines(const QByteArray &editorDefines);
 
+    void setReleaseSourceAndAST(bool onoff);
+
 private:
     void updateProjectPart();
     void addFileAndDependencies(QSet<QString> *toRemove, const QString &fileName) const;
@@ -82,6 +84,7 @@ private:
     CPlusPlus::DependencyTable m_deps;
     bool m_usePrecompiledHeaders;
     bool m_forceSnapshotInvalidation;
+    bool m_releaseSourceAndAST;
 };
 
 } // namespace CppTools

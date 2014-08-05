@@ -51,6 +51,9 @@ public:
     virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
                                                  QSet<QString> fileNames);
 
+public:
+    static bool isFindErrorsIndexingActive();
+
 private:
     QFutureSynchronizer<void> m_synchronizer;
     unsigned m_revision;
