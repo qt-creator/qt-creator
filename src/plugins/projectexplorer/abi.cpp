@@ -1077,7 +1077,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()
 
     const Abi expectedAbi = Abi(Abi::Architecture(architecture),
                                 Abi::OS(os), Abi::OSFlavor(osFlavor),
-                                Abi::BinaryFormat(binaryFormat), unsigned char(wordWidth));
+                                Abi::BinaryFormat(binaryFormat), (unsigned char)wordWidth);
 
     QCOMPARE(Abi::abiFromTargetTriplet(QLatin1String(QTest::currentDataTag())), expectedAbi);
 }
