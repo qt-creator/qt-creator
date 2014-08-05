@@ -212,8 +212,12 @@ QString CreateAndroidManifestWizard::sourceFileName() const
         return result;
     Utils::FileName srcPath
             = Utils::FileName::fromString(version->qmakeProperty("QT_INSTALL_PREFIX"))
-            .appendPath(QLatin1String("src/android/java"));
-    srcPath.appendPath(QLatin1String("AndroidManifest.xml"));
+            .appendPath(QLatin1String("src/android"));
+    if (QFile::exists(srcPath.toString() + QLatin1String("/templates/AndroidManifest.xml")))
+        srcPath.appendPath(QLatin1String("/templates/AndroidManifest.xml"));
+    else
+        srcPath.appendPath(QLatin1String("/java/AndroidManifest.xml"));
+
     return srcPath.toString();
 }
 
