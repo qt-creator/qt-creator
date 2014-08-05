@@ -21,13 +21,33 @@ static const bool DumpFileNameWhileParsing = qgetenv("QTC_DUMP_FILENAME_WHILE_PA
 
 namespace {
 
-static void parse(QFutureInterface<void> &future,
-                  CppSourceProcessor *sourceProcessor,
-                  QStringList files)
+class ParseParams
 {
-    if (files.isEmpty())
+public:
+    ParseParams()
+        : dumpFileNameWhileParsing(DumpFileNameWhileParsing)
+        , revision(0)
+    {}
+
+    int dumpFileNameWhileParsing;
+    int revision;
+    ProjectPart::HeaderPaths headerPaths;
+    CppModelManagerInterface::WorkingCopy workingCopy;
+    QStringList sourceFiles;
+};
+
+static void parse(QFutureInterface<void> &future, const ParseParams params)
+{
+    if (params.sourceFiles.isEmpty())
         return;
 
+    QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
+    sourceProcessor->setDumpFileNameWhileParsing(params.dumpFileNameWhileParsing);
+    sourceProcessor->setRevision(params.revision);
+    sourceProcessor->setHeaderPaths(params.headerPaths);
+    sourceProcessor->setWorkingCopy(params.workingCopy);
+
+    QStringList files = params.sourceFiles;
     QStringList sources;
     QStringList headers;
 
@@ -85,8 +105,6 @@ static void parse(QFutureInterface<void> &future,
 
     future.setProgressValue(files.size());
     cmm->finishedRefreshingSourceFiles(files);
-
-    delete sourceProcessor;
 }
 
 class BuiltinSymbolSearcher: public SymbolSearcher
@@ -184,15 +202,14 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
     CppModelManagerInterface::ProgressNotificationMode mode)
 {
     CppModelManager *mgr = CppModelManager::instance();
-    const WorkingCopy workingCopy = mgr->workingCopy();
 
-    CppSourceProcessor *preproc = CppModelManager::createSourceProcessor();
-    preproc->setDumpFileNameWhileParsing(DumpFileNameWhileParsing);
-    preproc->setRevision(++m_revision);
-    preproc->setHeaderPaths(mgr->headerPaths());
-    preproc->setWorkingCopy(workingCopy);
+    ParseParams params;
+    params.revision = ++m_revision;
+    params.headerPaths = mgr->headerPaths();
+    params.workingCopy = mgr->workingCopy();
+    params.sourceFiles = sourceFiles;
 
-    QFuture<void> result = QtConcurrent::run(&parse, preproc, sourceFiles);
+    QFuture<void> result = QtConcurrent::run(&parse, params);
 
     if (m_synchronizer.futures().size() > 10) {
         QList<QFuture<void> > futures = m_synchronizer.futures();
