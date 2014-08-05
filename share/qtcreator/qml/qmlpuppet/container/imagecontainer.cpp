@@ -121,7 +121,6 @@ static SharedMemory *createSharedMemory(qint32 key, int byteCount)
 
         if (!sharedMemory->isAttached()) {
             globalSharedMemoryContainer()->remove(key);
-            delete sharedMemory;
             sharedMemory = 0;
         }
     }
