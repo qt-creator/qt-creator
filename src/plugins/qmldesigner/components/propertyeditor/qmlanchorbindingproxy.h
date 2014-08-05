@@ -210,6 +210,7 @@ private:
     void setDefaultRelativeLeftTarget();
     void setDefaultRelativeRightTarget();
 
+    RewriterTransaction beginRewriterTransaction(const QByteArray &identifier);
 
     QmlItemNode targetIdToNode(const QString &id) const;
     QString idForNode(const QmlItemNode &qmlItemNode) const;
