@@ -105,6 +105,7 @@ public:
 
     virtual bool canSubmit() const;
     void setUpdateInProgress(bool value);
+    bool updateInProgress() const;
 
 signals:
     void diffSelected(const QList<int> &);

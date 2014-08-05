@@ -65,7 +65,9 @@ namespace {
 static inline QStringList supportedVersionsList()
 {
     QStringList list;
-    list << QStringLiteral("1.0") << QStringLiteral("1.1") << QStringLiteral("2.0") << QStringLiteral("2.1") << QStringLiteral("2.2");
+    list << QStringLiteral("1.0") << QStringLiteral("1.1")
+         << QStringLiteral("2.0") << QStringLiteral("2.1")
+         << QStringLiteral("2.2") << QStringLiteral("2.3");
     return list;
 }
 
@@ -747,6 +749,10 @@ static bool isBlacklistImport(const ImportKey &importKey)
             || importPathFirst == QStringLiteral("QtQml")
             || (importPathFirst == QStringLiteral("QtQuick") && importPathLast == QStringLiteral("PrivateWidgets"))
             || importPathLast == QStringLiteral("Private")
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Particles") //Unsupported
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Dialogs")   //Unsupported
+            || importKey.libraryQualifiedPath() == QStringLiteral("QtQuick.Controls.Styles")   //Unsupported
+            || importKey.libraryQualifiedPath().contains(QStringLiteral("Qt.labs"))    //No support for labs plugins
             || (importKey.splitPath.count() == 1 && importPathFirst == QStringLiteral("QtQuick")); // Don't show Quick X.X imports
 }
 

@@ -243,31 +243,6 @@ MetaInfo {
     }
 
     Type {
-        name: "QtQuick.Flipable"
-        icon: ":/qtquickplugin/images/flipable-icon16.png"
-
-        ItemLibraryEntry {
-            name: "Flipable"
-            category: "Qt Quick - Basic"
-            libraryIcon: ":/qtquickplugin/images/flipable-icon.png"
-            version: "1.0"
-
-            Property { name: "width"; type: "int"; value: 200; }
-            Property { name: "height"; type: "int"; value: 200; }
-        }
-
-        ItemLibraryEntry {
-            name: "Flipable"
-            category: "Qt Quick - Basic"
-            libraryIcon: ":/qtquickplugin/images/flipable-icon.png"
-            version: "2.0"
-
-            Property { name: "width"; type: "int"; value: 200; }
-            Property { name: "height"; type: "int"; value: 200; }
-        }
-    }
-
-    Type {
         name: "QtQuick.GridView"
         icon: ":/qtquickplugin/images/gridview-icon16.png"
 

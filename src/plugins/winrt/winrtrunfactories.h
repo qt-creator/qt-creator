@@ -52,6 +52,7 @@ public:
                                              ProjectExplorer::RunConfiguration *product);
 
 private:
+    bool canHandle(ProjectExplorer::Target *parent) const;
     virtual ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, Core::Id id);
     virtual ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent, const QVariantMap &map);
 };

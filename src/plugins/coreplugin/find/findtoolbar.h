@@ -119,7 +119,7 @@ private slots:
 
     void adaptToCandidate();
 
-    bool setFocusToCurrentFindSupport();
+    void setFocusToCurrentFindSupport();
 
 protected:
     bool focusNextPrevChild(bool next);

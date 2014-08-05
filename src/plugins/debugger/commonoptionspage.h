@@ -86,6 +86,8 @@ private:
 
 class LocalsAndExpressionsOptionsPage : public Core::IOptionsPage
 {
+    Q_OBJECT
+
 public:
     LocalsAndExpressionsOptionsPage();
 

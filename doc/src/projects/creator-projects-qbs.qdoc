@@ -39,6 +39,8 @@
     selecting \gui Help > \gui {About Plugins} > \gui {Build Systems}
     > \gui {QbsProjectManager} and restarting \QC.
 
+    \section1 Building Qbs
+
     To build the Qbs plugin yourself from the \QC git repository:
 
     \list 1
@@ -46,7 +48,7 @@
         \li Fetch the Qbs submodule in your \QC git checkout with
             \c {git submodule update --init}.
 
-        \li Run qmake on \QC and build \QC again.
+        \li Use Qbs or qmake and make to build \QC again.
 
         \li Enable the Qbs plugin as described above.
 
@@ -69,10 +71,88 @@
             \c Depends item for a Qt application. For examples, see the
             \c {examples} directory in the qbs repository.
 
+        \li Select \gui Projects to specify \gui {Build Settings} for the
+            project.
+
+        \li Select \gui {Build Steps} > \gui Details to specify build steps:
+
+            \image creator-qbs-build-app.png
+
+            \list 1
+
+                \li In the \gui {Build variant} field, select \gui Debug to
+                    include debug symbols in the build for debugging the
+                    application and \gui Release to create the final
+                    installation file.
+
+                \li In the \gui {Parallel jobs} field, specify the number of
+                    parallel jobs to use for building.
+
+                \li Select the \gui {Enable QML debugging} check box to debug
+                    Qt Quick application projects.
+
+                    \note Debugging requires opening a socket at a well-known
+                    port, which presents a security risk. Anyone on the Internet
+                    could connect to the application that you are debugging and
+                    execute any JavaScript functions. Therefore, you must make
+                    sure that the port is properly protected by a firewall.
+
+                \li In the \gui Properties field, specify the properties to pass
+                    to the project. Use colons (:) to separate keys from values.
+                    For more information, see
+                    \l{http://qt-project.org/doc/qbs/language-introduction.html}
+                    {Modules} in the Qbs Manual.
+
+                \li In the \gui Flags field:
+
+                    \list
+
+                        \li Select \gui {Dry run} to test building without
+                            executing commands or making permanent
+                            changes to the build graph.
+
+                        \li Select \gui {Keep going} to continue building when
+                            errors occur, if possible.
+
+                        \li Select \gui {Check timestamps} to retrieve the
+                            timestamps from the file system instead of using the
+                            ones stored in the build graph. You only need this
+                            option if you made changes to the build directory
+                            manually, which is not recommended.
+
+                    \endlist
+
+            \endlist
+
+            The \gui {Equivalent command line} field displays the build command
+            that is constructed based on the selected options.
+
+        \li Select \gui {Clean Steps} > \gui Details to specify flags for the
+            cleaning step.
+
+            \image creator-qbs-build-clean.png
+
+            \list
+
+                \li Select \gui {Clean all artifacts} to remove all build
+                    artifacts.
+
+                \li Select \gui {Dry run} to test cleaning without executing
+                    commands or making permanent changes to the build graph.
+
+                \li Select \gui {Keep going} to continue cleaning when errors
+                    occur, if possible.
+
+            \endlist
+
+            The \gui {Equivalent command line} field displays the clean command
+            that is constructed based on the selected options.
+
+        \li Select \gui Build > \gui {Build Project} to build the application.
+
         \li Click the
             \inlineimage qtcreator-run.png
-            (\gui Run) button to build, deploy, and run the application.
-
+            (\gui Run) button to deploy and run the application.
         \endlist
 
 */

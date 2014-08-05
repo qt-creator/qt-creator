@@ -32,7 +32,7 @@
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
-#include <QString>
+#include <QStringList>
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
@@ -100,7 +100,8 @@ public:
   virtual void startSkippingBlocks(unsigned utf16charsOffset) = 0;
   virtual void stopSkippingBlocks(unsigned utf16charsOffset) = 0;
 
-  virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode) = 0;
+  virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode,
+                            const QStringList &initialIncludes = QStringList()) = 0;
 
   static inline bool isInjectedFile(const QString &fileName)
   {

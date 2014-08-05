@@ -50,7 +50,21 @@ virtual bool visit(SimpleSpecifierAST *ast)
     return false;
 }
 
-virtual bool visit(AttributeSpecifierAST *ast)
+virtual bool visit(AlignmentSpecifierAST *ast)
+{
+    if (ast->align_token)
+        terminal(ast->align_token, ast);
+    if (ast->lparen_token)
+        terminal(ast->lparen_token, ast);
+    nonterminal(ast->typeIdExprOrAlignmentExpr);
+    if (ast->ellipses_token)
+        terminal(ast->ellipses_token, ast);
+    if (ast->rparen_token)
+        terminal(ast->rparen_token, ast);
+    return false;
+}
+
+virtual bool visit(GnuAttributeSpecifierAST *ast)
 {
     if (ast->attribute_token)
         terminal(ast->attribute_token, ast);
@@ -58,7 +72,7 @@ virtual bool visit(AttributeSpecifierAST *ast)
         terminal(ast->first_lparen_token, ast);
     if (ast->second_lparen_token)
         terminal(ast->second_lparen_token, ast);
-    for (AttributeListAST *iter = ast->attribute_list; iter; iter = iter->next)
+    for (GnuAttributeListAST *iter = ast->attribute_list; iter; iter = iter->next)
         nonterminal(iter->value);
     if (ast->first_rparen_token)
         terminal(ast->first_rparen_token, ast);
@@ -67,7 +81,7 @@ virtual bool visit(AttributeSpecifierAST *ast)
     return false;
 }
 
-virtual bool visit(AttributeAST *ast)
+virtual bool visit(GnuAttributeAST *ast)
 {
     if (ast->identifier_token)
         terminal(ast->identifier_token, ast);

@@ -23,6 +23,7 @@ Project {
         condition: qbsSubModuleExists && !useExternalQbs
 
         property bool enableUnitTests: false
+        property bool enableProjectFileUpdates: true
         property bool installApiHeaders: false
         property string libInstallDir: project.ide_library_path
         property stringList libRPaths:  qbs.targetOS.contains("osx")

@@ -29,6 +29,7 @@
 
 #include "winrtrunconfiguration.h"
 #include "winrtrunconfigurationwidget.h"
+#include "winrtconstants.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/target.h>
@@ -40,8 +41,14 @@ namespace Internal {
 static const char argumentsIdC[] = "WinRtRunConfigurationArgumentsId";
 static const char uninstallAfterStopIdC[] = "WinRtRunConfigurationUninstallAfterStopId";
 
+static QString pathFromId(Core::Id id)
+{
+    return id.suffixAfter(Constants::WINRT_RC_PREFIX);
+}
+
 WinRtRunConfiguration::WinRtRunConfiguration(ProjectExplorer::Target *parent, Core::Id id)
     : RunConfiguration(parent, id)
+    , m_proFilePath(pathFromId(id))
     , m_uninstallAfterStop(false)
 {
     setDisplayName(tr("Run App Package"));

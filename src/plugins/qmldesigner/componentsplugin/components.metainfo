@@ -278,36 +278,6 @@ MetaInfo {
         }
     }
 
-
-    Type {
-        name: "QtQuick.Controls.ToolBar"
-        icon: ":/componentsplugin/images/toolbar16.png"
-
-        ItemLibraryEntry {
-            name: "Tool Bar"
-            category: "Qt Quick - Controls"
-            libraryIcon: ":/componentsplugin/images/toolbar.png"
-            version: "1.0"
-            requiredImport: "QtQuick.Controls"
-
-            Property { name: "width"; type: "int"; value: 360; }
-            Property { name: "height"; type: "int"; value: 50; }
-        }
-    }
-
-    Type {
-        name: "QtQuick.Controls.StatusBar"
-        icon: ":/componentsplugin/images/toolbar16.png"
-
-        ItemLibraryEntry {
-            name: "Status Bar"
-            category: "Qt Quick - Controls"
-            libraryIcon: ":/componentsplugin/images/toolbar.png"
-            version: "1.0"
-            requiredImport: "QtQuick.Controls"
-        }
-    }
-
     Type {
         name: "QtQuick.Controls.Dial"
         //icon: ":/componentsplugin/images/progressbar16.png"

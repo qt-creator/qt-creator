@@ -177,7 +177,8 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         }
         if (!m_editorDefines.isEmpty())
             sourceProcessor.run(editorDefinesFileName);
-        sourceProcessor.run(m_fileInEditor);
+        sourceProcessor.run(m_fileInEditor, m_usePrecompiledHeaders ? m_precompiledHeaders
+                                                                    : QStringList());
 
         m_snapshot = sourceProcessor.snapshot();
         Snapshot newSnapshot = m_snapshot.simplified(document());

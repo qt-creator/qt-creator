@@ -310,8 +310,6 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     QTC_ASSERT(rc, return sp);
     EnvironmentAspect *environment = rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
     QTC_ASSERT(environment, return sp);
-    if (!rc->ensureConfigured(errorMessage))
-        return sp;
 
     Target *target = runConfiguration->target();
     Kit *kit = target ? target->kit() : KitManager::defaultKit();
@@ -454,14 +452,10 @@ IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect
     return new DebuggerRunConfigurationAspect(rc);
 }
 
-DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun
-    (const DebuggerStartParameters &sp, RunConfiguration *runConfiguration)
+DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun(const DebuggerStartParameters &sp)
 {
     QString errorMessage;
-    if (runConfiguration && !runConfiguration->ensureConfigured(&errorMessage))
-        ProjectExplorer::ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
-
-    DebuggerRunControl *rc = doCreate(sp, runConfiguration, &errorMessage);
+    DebuggerRunControl *rc = doCreate(sp, 0, &errorMessage);
     if (!rc) {
         ProjectExplorer::ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
         return 0;

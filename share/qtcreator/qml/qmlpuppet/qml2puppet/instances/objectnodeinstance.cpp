@@ -94,7 +94,7 @@ static bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
 namespace QmlDesigner {
 namespace Internal {
 
-QHash<EnumerationName, int> ObjectNodeInstance::m_enumationValueHash;
+QHash<EnumerationName, QVariant> ObjectNodeInstance::m_enumationValueHash;
 
 ObjectNodeInstance::ObjectNodeInstance(QObject *object)
     : m_object(object),
@@ -713,6 +713,7 @@ PropertyNameList allPropertyNames(QObject *object, const PropertyName &baseName 
         } else if (QQmlValueTypeFactory::valueType(metaProperty.userType())) {
             QQmlValueType *valueType = QQmlValueTypeFactory::valueType(metaProperty.userType());
             valueType->setValue(metaProperty.read(object));
+            propertyNameList.append(baseName + PropertyName(metaProperty.name()));
             propertyNameList.append(allPropertyNames(valueType, baseName +  PropertyName(metaProperty.name()) + '.', inspectedObjects));
         } else  {
             propertyNameList.append(baseName + PropertyName(metaProperty.name()));
@@ -1088,17 +1089,9 @@ static bool isCrashingType(QQmlType *type)
     return false;
 }
 
-static QObject *createDummyWindow(QQmlContext *context, const QUrl &sourceUrl)
+static QObject *createDummyWindow(QQmlContext *context)
 {
-    QQmlComponent component(context->engine());
-    QByteArray dummyWindow;
-    dummyWindow.append("import QtQuick 2.0\n");
-    dummyWindow.append("Rectangle {\n");
-    dummyWindow.append("property string title\n");
-    dummyWindow.append("}\n");
-
-    component.setData(dummyWindow, sourceUrl);
-
+    QQmlComponent component(context->engine(), QUrl(QStringLiteral("qrc:/qtquickplugin/mockfiles/Window.qml")));
     return component.create();
 }
 
@@ -1136,10 +1129,12 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
 
         if (isWindow(object)) {
             delete object;
-            object = createDummyWindow(context, type->sourceUrl());
+            object = createDummyWindow(context);
         }
 
-    } else {
+    }
+
+    if (!object) {
         qWarning() << "QuickDesigner: Cannot create an object of type"
                    << QString("%1 %2,%3").arg(typeName).arg(majorNumber).arg(minorNumber)
                    << "- type isn't known to declarative meta type system";
@@ -1327,27 +1322,31 @@ void ObjectNodeInstance::doComponentCompleteRecursive(QObject *object, NodeInsta
     }
 }
 
-static QHash<EnumerationName, int> enumationValuesFromMetaEnum(const QMetaEnum &metaEnum)
+static QHash<EnumerationName, QVariant> enumationValuesFromMetaEnum(const QMetaEnum &metaEnum)
 {
-    QHash<EnumerationName, int> enumationValues;
+    QHash<EnumerationName, QVariant> enumationValues;
     for (int index = 0; index < metaEnum.keyCount(); index++) {
         EnumerationName enumerationName = EnumerationName(metaEnum.scope()) + "." + metaEnum.key(index);
-        enumationValues.insert(enumerationName, metaEnum.value(index));
+        enumationValues.insert(enumerationName, QVariant::fromValue(metaEnum.value(index)));
+                qDebug() << __FUNCTION__ << enumerationName << metaEnum.value(index);
     }
 
     return enumationValues;
 }
 
-static QHash<EnumerationName, int> collectEnumationValues(const Enumeration &enumeration)
+static QHash<EnumerationName, QVariant> collectEnumationValues(const Enumeration &enumeration)
 {
-    QHash<EnumerationName, int> enumationValues;
+    QHash<EnumerationName, QVariant> enumationValues;
     EnumerationName enumerationScope = enumeration.scope();
-    const QMetaObject *metaObject = QMetaType::metaObjectForType(QMetaType::type(enumerationScope.data()));
+    const QMetaObject *metaObject = QMetaType::metaObjectForType(QMetaType::type(enumerationScope.constData()));
     if (metaObject) {
         int enumeratorCount = metaObject->enumeratorOffset() + metaObject->enumeratorCount();
         for (int index = metaObject->enumeratorOffset(); index < enumeratorCount; index++)
             enumationValues.unite(enumationValuesFromMetaEnum(metaObject->enumerator(index)));
+    } else {
+        enumationValues.insert(enumeration.toEnumerationName(), QVariant::fromValue(enumeration.nameToString()));
     }
+
     return enumationValues;
 }
 
@@ -1357,7 +1356,7 @@ QVariant ObjectNodeInstance::enumationValue(const Enumeration &enumeration)
     if (!m_enumationValueHash.contains(enumerationName))
         m_enumationValueHash.unite(collectEnumationValues(enumeration));
 
-    return  QVariant::fromValue(m_enumationValueHash.value(enumerationName));
+    return  m_enumationValueHash.value(enumerationName);
 }
 
 ObjectNodeInstance::Pointer ObjectNodeInstance::parentInstance() const

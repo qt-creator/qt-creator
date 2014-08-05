@@ -111,7 +111,7 @@ public:
 
     QString productPath() const;
 
-    static void setupFiles(QbsBaseProjectNode *root, const QStringList &files,
+    static void setupFiles(FolderNode *root, const QStringList &files,
                            const QString &productPath, bool updateExisting);
 
 private:
@@ -168,7 +168,7 @@ public:
 
     virtual QbsProject *project() const;
     const qbs::Project qbsProject() const;
-    const qbs::ProjectData qbsProjectData() const;
+    const qbs::ProjectData qbsProjectData() const { return m_projectData; }
 
     bool showInSimpleTree() const;
 
@@ -182,7 +182,12 @@ private:
     QbsProjectNode *findProjectNode(const QString &name);
 
     static QIcon m_projectIcon;
+    qbs::ProjectData m_projectData;
 };
+
+// --------------------------------------------------------------------
+// QbsRootProjectNode:
+// --------------------------------------------------------------------
 
 class QbsRootProjectNode : public QbsProjectNode
 {
@@ -197,7 +202,10 @@ public:
     QbsProject *project() const { return m_project; }
 
 private:
+    QStringList unreferencedBuildSystemFiles(const qbs::Project &p) const;
+
     QbsProject * const m_project;
+    ProjectExplorer::FolderNode *m_buildSystemFiles;
 };
 
 

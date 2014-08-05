@@ -30,6 +30,7 @@
 #include <QtTest>
 #include <QDebug>
 
+#include <cplusplus/ASTVisitor.h>
 #include <cplusplus/Control.h>
 #include <cplusplus/Literals.h>
 #include <cplusplus/Parser.h>
@@ -61,6 +62,13 @@ public:
         unit->setSource(source.constData(), source.length());
         unit->blockErrors(blockErrors);
         unit->parse(mode);
+
+        // Sanity check: Visit all AST nodes
+        if (AST *ast = unit->ast()) {
+            ASTVisitor visitor(unit);
+            visitor.accept(ast);
+        }
+
         return unit;
     }
 
@@ -185,6 +193,7 @@ private slots:
     void incomplete_ast();
     void unnamed_class();
     void unnamed_class_data();
+    void expensiveExpression();
 };
 
 void tst_AST::gcc_attributes_1()
@@ -207,12 +216,12 @@ void tst_AST::gcc_attributes_2()
     QVERIFY(ns->attribute_list);
     QVERIFY(!ns->attribute_list->next);
     QVERIFY(ns->attribute_list->value);
-    AttributeSpecifierAST *attrSpec = ns->attribute_list->value->asAttributeSpecifier();
+    GnuAttributeSpecifierAST *attrSpec = ns->attribute_list->value->asGnuAttributeSpecifier();
     QVERIFY(attrSpec);
     QVERIFY(attrSpec->attribute_list);
     QVERIFY(!attrSpec->attribute_list->next);
     QVERIFY(attrSpec->attribute_list->value);
-    AttributeAST *attr = attrSpec->attribute_list->value->asAttribute();
+    GnuAttributeAST *attr = attrSpec->attribute_list->value->asGnuAttribute();
     QVERIFY(attr);
     QCOMPARE(unit->spell(attr->identifier_token), "__visibility__");
     QVERIFY(attr->expression_list);
@@ -1371,13 +1380,13 @@ void tst_AST::objc_method_attributes_1()
     QVERIFY(foo->attribute_list);
     QVERIFY(foo->attribute_list->value);
     QVERIFY(! (foo->attribute_list->next));
-    AttributeSpecifierAST *deprecatedSpec = foo->attribute_list->value->asAttributeSpecifier();
+    GnuAttributeSpecifierAST *deprecatedSpec = foo->attribute_list->value->asGnuAttributeSpecifier();
     QVERIFY(deprecatedSpec);
     QCOMPARE(unit->tokenKind(deprecatedSpec->attribute_token), (int) T___ATTRIBUTE__);
     QVERIFY(deprecatedSpec->attribute_list);
     QVERIFY(deprecatedSpec->attribute_list->value);
     QVERIFY(! (deprecatedSpec->attribute_list->next));
-    AttributeAST *deprecatedAttr = deprecatedSpec->attribute_list->value->asAttribute();
+    GnuAttributeAST *deprecatedAttr = deprecatedSpec->attribute_list->value->asGnuAttribute();
     QVERIFY(deprecatedAttr);
     QVERIFY(! deprecatedAttr->expression_list);
     QCOMPARE(unit->spell(deprecatedAttr->identifier_token), "deprecated");
@@ -1399,13 +1408,13 @@ void tst_AST::objc_method_attributes_1()
     QVERIFY(bar->attribute_list);
     QVERIFY(bar->attribute_list->value);
     QVERIFY(! (bar->attribute_list->next));
-    AttributeSpecifierAST *unavailableSpec = bar->attribute_list->value->asAttributeSpecifier();
+    GnuAttributeSpecifierAST *unavailableSpec = bar->attribute_list->value->asGnuAttributeSpecifier();
     QVERIFY(unavailableSpec);
     QCOMPARE(unit->tokenKind(unavailableSpec->attribute_token), (int) T___ATTRIBUTE__);
     QVERIFY(unavailableSpec->attribute_list);
     QVERIFY(unavailableSpec->attribute_list->value);
     QVERIFY(! (unavailableSpec->attribute_list->next));
-    AttributeAST *unavailableAttr = unavailableSpec->attribute_list->value->asAttribute();
+    GnuAttributeAST *unavailableAttr = unavailableSpec->attribute_list->value->asGnuAttribute();
     QVERIFY(unavailableAttr);
     QVERIFY(! unavailableAttr->expression_list);
     QCOMPARE(unit->spell(unavailableAttr->identifier_token), "unavailable");
@@ -1780,6 +1789,46 @@ void tst_AST::unnamed_class_data()
     QTest::newRow("unnamed-only") << _("class {};");
     QTest::newRow("unnamed-derived") << _("class : B {};");
     QTest::newRow("unnamed-__attribute__") << _("class __attribute__((aligned(8))){};");
+}
+
+void tst_AST::expensiveExpression()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement(
+        "void f()\n"
+        "{\n"
+            "(g1\n"
+            "(g2\n"
+            "(g3\n"
+            "(g4\n"
+            "(g5\n"
+            "(g6\n"
+            "(g7\n"
+            "(g8\n"
+            "(g9\n"
+            "(g10\n"
+            "(g11\n"
+            "(g12\n"
+            "(g13\n"
+            "(g14\n"
+            "(g15\n"
+            "(g16\n"
+            "(g17\n"
+            "(g18\n"
+            "(g19\n"
+            "(g20\n"
+            "(g21\n"
+            "(g22\n"
+            "(g23\n"
+            "(g24\n"
+            "(g25\n"
+            "(g26\n"
+            "(g27\n"
+            "(g28\n"
+            "(g29\n"
+            "(g30\n"
+            "(g31(0))))))))))))))))))))))))))))))));\n"
+        "}\n"));
+    QVERIFY(unit->ast());
 }
 
 void tst_AST::initTestCase()

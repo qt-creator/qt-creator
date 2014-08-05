@@ -49,7 +49,6 @@ using ProjectExplorer::IDevice;
 using ProjectExplorer::RunControl;
 using ProjectExplorer::RunMode;
 using ProjectExplorer::Target;
-using Utils::QtcProcess;
 
 namespace WinRt {
 namespace Internal {

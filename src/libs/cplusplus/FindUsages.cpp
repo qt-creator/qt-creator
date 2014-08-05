@@ -348,14 +348,14 @@ void FindUsages::objCSelectorArgument(ObjCSelectorArgumentAST *ast)
     // unsigned colon_token = ast->colon_token;
 }
 
-bool FindUsages::visit(AttributeAST *ast)
+bool FindUsages::visit(GnuAttributeAST *ast)
 {
     (void) ast;
     Q_ASSERT(!"unreachable");
     return false;
 }
 
-void FindUsages::attribute(AttributeAST *ast)
+void FindUsages::attribute(GnuAttributeAST *ast)
 {
     if (! ast)
         return;
@@ -1971,12 +1971,12 @@ bool FindUsages::visit(SimpleSpecifierAST *ast)
     return false;
 }
 
-bool FindUsages::visit(AttributeSpecifierAST *ast)
+bool FindUsages::visit(GnuAttributeSpecifierAST *ast)
 {
     // unsigned attribute_token = ast->attribute_token;
     // unsigned first_lparen_token = ast->first_lparen_token;
     // unsigned second_lparen_token = ast->second_lparen_token;
-    for (AttributeListAST *it = ast->attribute_list; it; it = it->next) {
+    for (GnuAttributeListAST *it = ast->attribute_list; it; it = it->next) {
         this->attribute(it->value);
     }
     // unsigned first_rparen_token = ast->first_rparen_token;

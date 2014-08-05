@@ -34,6 +34,7 @@
 #include <qmlitemnode.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
+#include <nodelistproperty.h>
 #include <bindingproperty.h>
 #include <variantproperty.h>
 
@@ -120,6 +121,34 @@ static void openFileComponentForDelegate(const ModelNode &modelNode)
     openFileComponent(modelNode.nodeProperty("delegate").modelNode());
 }
 
+static void openComponentSourcePropertyOfLoader(const ModelNode &modelNode)
+{
+    QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
+
+    QHash<PropertyName, QVariant> propertyHash;
+
+    getProperties(modelNode, propertyHash);
+
+    ModelNode componentModelNode;
+
+    if (modelNode.hasNodeProperty("sourceComponent")) {
+        componentModelNode = modelNode.nodeProperty("sourceComponent").modelNode();
+    } else if (modelNode.hasNodeListProperty("component")) {
+
+     /*
+     * The component property should be a NodeProperty, but currently is a NodeListProperty, because
+     * the default property is always implcitly a NodeListProperty. This is something that has to be fixed.
+     */
+
+        componentModelNode = modelNode.nodeListProperty("component").toModelNodeList().first();
+    }
+
+    Core::EditorManager::openEditor(componentModelNode.metaInfo().componentFileName(), Core::Id(), Core::EditorManager::DoNotMakeVisible);
+
+    ModelNode rootModelNode = currentDesignDocument()->rewriterView()->rootModelNode();
+    applyProperties(rootModelNode, propertyHash);
+}
+
 static void openSourcePropertyOfLoader(const ModelNode &modelNode)
 {
     QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
@@ -202,6 +231,22 @@ static bool hasDelegateWithFileComponent(const ModelNode &node)
     return false;
 }
 
+static bool isLoaderWithSourceComponent(const ModelNode &modelNode)
+{
+    if (modelNode.isValid()
+            && modelNode.metaInfo().isValid()
+            && modelNode.metaInfo().isSubclassOf("QtQuick.Loader", -1, -1)) {
+
+        if (modelNode.hasNodeProperty("sourceComponent"))
+            return true;
+        if (modelNode.hasNodeListProperty("component"))
+            return true;
+    }
+
+    return false;
+
+}
+
 static bool hasSourceWithFileComponent(const ModelNode &modelNode)
 {
     if (modelNode.isValid()
@@ -265,6 +310,8 @@ void DocumentManager::goIntoComponent(const ModelNode &modelNode)
             openFileComponentForDelegate(modelNode);
         else if (hasSourceWithFileComponent(modelNode))
             openSourcePropertyOfLoader(modelNode);
+        else if (isLoaderWithSourceComponent(modelNode))
+            openComponentSourcePropertyOfLoader(modelNode);
         else
             openInlineComponent(modelNode);
     }

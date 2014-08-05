@@ -101,12 +101,6 @@ public:
         UnknownFormat
     };
 
-    enum Endianness {
-        LittleEndian,
-        BigEndian,
-        UnknownEndian
-    };
-
     Abi() :
         m_architecture(UnknownArchitecture), m_os(UnknownOS),
         m_osFlavor(UnknownFlavor), m_binaryFormat(UnknownFormat), m_wordWidth(0)
@@ -126,7 +120,6 @@ public:
     bool isNull() const;
 
     Architecture architecture() const { return m_architecture; }
-    Endianness endianness() const;
     OS os() const { return m_os; }
     OSFlavor osFlavor() const { return m_osFlavor; }
     BinaryFormat binaryFormat() const { return m_binaryFormat; }

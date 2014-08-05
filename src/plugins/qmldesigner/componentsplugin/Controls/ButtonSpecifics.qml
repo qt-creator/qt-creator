@@ -129,7 +129,7 @@ Column {
 
             SecondColumnLayout {
                 LineEdit {
-                    backendValue: backendValues.toolTip
+                    backendValue: backendValues.tooltip
                     implicitWidth: 180
                 }
                 ExpandingSpacer {

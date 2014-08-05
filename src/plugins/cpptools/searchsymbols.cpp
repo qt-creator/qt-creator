@@ -105,11 +105,7 @@ bool SearchSymbols::visit(Enum *symbol)
 
 bool SearchSymbols::visit(Function *symbol)
 {
-    if (!(symbolsToSearchFor & SymbolSearcher::Functions) || !symbol->name())
-        return false;
-    QString name = overview.prettyName(symbol->name());
-    QString type = overview.prettyType(symbol->type());
-    addChildItem(name, type, _scope, IndexItem::Function, symbol);
+    processFunction(symbol);
     return false;
 }
 
@@ -130,10 +126,12 @@ bool SearchSymbols::visit(Declaration *symbol)
         // if we're searching for functions, still allow signal declarations to show up.
         if (symbolsToSearchFor & SymbolSearcher::Functions) {
             Function *funTy = symbol->type()->asFunctionType();
-            if (!funTy)
+            if (!funTy) {
+                if (!symbol->type()->asObjCMethodType())
+                    return false;
+            } else if (!funTy->isSignal()) {
                 return false;
-            if (!funTy->isSignal())
-                return false;
+            }
         } else {
             return false;
         }
@@ -153,19 +151,7 @@ bool SearchSymbols::visit(Declaration *symbol)
 
 bool SearchSymbols::visit(Class *symbol)
 {
-    QString name = overview.prettyName(symbol->name());
-
-    IndexItem::Ptr newParent;
-    if (symbolsToSearchFor & SymbolSearcher::Classes)
-        newParent = addChildItem(name, QString(), _scope, IndexItem::Class, symbol);
-    if (!newParent)
-        newParent = _parent;
-    ScopedIndexItemPtr parentRaii(_parent, newParent);
-
-    QString newScope = scopedSymbolName(name, symbol);
-    ScopedScope scopeRaii(_scope, newScope);
-    for (unsigned i = 0, ei = symbol->memberCount(); i != ei; ++i)
-        accept(symbol->memberAt(i));
+    processClass(symbol);
 
     return false;
 }
@@ -225,8 +211,10 @@ bool SearchSymbols::visit(CPlusPlus::ObjCBaseProtocol *)
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCClass *)
+bool SearchSymbols::visit(CPlusPlus::ObjCClass *symbol)
 {
+    processClass(symbol);
+
     return false;
 }
 
@@ -235,8 +223,10 @@ bool SearchSymbols::visit(CPlusPlus::ObjCForwardClassDeclaration *)
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCProtocol *)
+bool SearchSymbols::visit(CPlusPlus::ObjCProtocol *symbol)
 {
+    processClass(symbol);
+
     return false;
 }
 
@@ -245,13 +235,15 @@ bool SearchSymbols::visit(CPlusPlus::ObjCForwardProtocolDeclaration *)
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCMethod *)
+bool SearchSymbols::visit(CPlusPlus::ObjCMethod *symbol)
 {
+    processFunction(symbol);
     return false;
 }
 
-bool SearchSymbols::visit(CPlusPlus::ObjCPropertyDeclaration *)
+bool SearchSymbols::visit(CPlusPlus::ObjCPropertyDeclaration *symbol)
 {
+    processFunction(symbol);
     return false;
 }
 
@@ -314,4 +306,32 @@ IndexItem::Ptr SearchSymbols::addChildItem(const QString &symbolName, const QStr
                                                icon);
     _parent->addChild(newItem);
     return newItem;
+}
+
+template<class T>
+void SearchSymbols::processClass(T *clazz)
+{
+    QString name = overview.prettyName(clazz->name());
+
+    IndexItem::Ptr newParent;
+    if (symbolsToSearchFor & SymbolSearcher::Classes)
+        newParent = addChildItem(name, QString(), _scope, IndexItem::Class, clazz);
+    if (!newParent)
+        newParent = _parent;
+    ScopedIndexItemPtr parentRaii(_parent, newParent);
+
+    QString newScope = scopedSymbolName(name, clazz);
+    ScopedScope scopeRaii(_scope, newScope);
+    for (unsigned i = 0, ei = clazz->memberCount(); i != ei; ++i)
+        accept(clazz->memberAt(i));
+}
+
+template<class T>
+void SearchSymbols::processFunction(T *func)
+{
+    if (!(symbolsToSearchFor & SymbolSearcher::Functions) || !func->name())
+        return;
+    QString name = overview.prettyName(func->name());
+    QString type = overview.prettyType(func->type());
+    addChildItem(name, type, _scope, IndexItem::Function, func);
 }

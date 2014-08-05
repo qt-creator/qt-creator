@@ -75,14 +75,13 @@ public:
 
     virtual bool visit(AccessDeclarationAST *) { return true; }
     virtual bool visit(AliasDeclarationAST *) { return true; }
+    virtual bool visit(AlignmentSpecifierAST *) { return true; }
     virtual bool visit(AlignofExpressionAST *) { return true; }
     virtual bool visit(AnonymousNameAST *) { return true; }
     virtual bool visit(ArrayAccessAST *) { return true; }
     virtual bool visit(ArrayDeclaratorAST *) { return true; }
     virtual bool visit(ArrayInitializerAST *) { return true; }
     virtual bool visit(AsmDefinitionAST *) { return true; }
-    virtual bool visit(AttributeAST *) { return true; }
-    virtual bool visit(AttributeSpecifierAST *) { return true; }
     virtual bool visit(BaseSpecifierAST *) { return true; }
     virtual bool visit(BinaryExpressionAST *) { return true; }
     virtual bool visit(BoolLiteralAST *) { return true; }
@@ -126,6 +125,8 @@ public:
     virtual bool visit(ForeachStatementAST *) { return true; }
     virtual bool visit(FunctionDeclaratorAST *) { return true; }
     virtual bool visit(FunctionDefinitionAST *) { return true; }
+    virtual bool visit(GnuAttributeAST *) { return true; }
+    virtual bool visit(GnuAttributeSpecifierAST *) { return true; }
     virtual bool visit(GotoStatementAST *) { return true; }
     virtual bool visit(IdExpressionAST *) { return true; }
     virtual bool visit(IfStatementAST *) { return true; }
@@ -224,14 +225,13 @@ public:
 
     virtual void endVisit(AccessDeclarationAST *) {}
     virtual void endVisit(AliasDeclarationAST *) {}
+    virtual void endVisit(AlignmentSpecifierAST *) {}
     virtual void endVisit(AlignofExpressionAST *) {}
     virtual void endVisit(AnonymousNameAST *) {}
     virtual void endVisit(ArrayAccessAST *) {}
     virtual void endVisit(ArrayDeclaratorAST *) {}
     virtual void endVisit(ArrayInitializerAST *) {}
     virtual void endVisit(AsmDefinitionAST *) {}
-    virtual void endVisit(AttributeAST *) {}
-    virtual void endVisit(AttributeSpecifierAST *) {}
     virtual void endVisit(BaseSpecifierAST *) {}
     virtual void endVisit(BinaryExpressionAST *) {}
     virtual void endVisit(BoolLiteralAST *) {}
@@ -275,6 +275,8 @@ public:
     virtual void endVisit(ForeachStatementAST *) {}
     virtual void endVisit(FunctionDeclaratorAST *) {}
     virtual void endVisit(FunctionDefinitionAST *) {}
+    virtual void endVisit(GnuAttributeAST *) {}
+    virtual void endVisit(GnuAttributeSpecifierAST *) {}
     virtual void endVisit(GotoStatementAST *) {}
     virtual void endVisit(IdExpressionAST *) {}
     virtual void endVisit(IfStatementAST *) {}

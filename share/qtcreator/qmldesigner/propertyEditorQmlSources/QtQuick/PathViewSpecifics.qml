@@ -208,22 +208,6 @@ Column {
 
                 }
             }
-
-            Label {
-                text: qsTr("Follows current")
-                toolTip: qsTr("Determines whether the highlight is managed by the view.")
-            }
-
-            SecondColumnLayout {
-                CheckBox {
-                    backendValue: backendValues.highlightFollowsCurrentItem
-                }
-
-                ExpandingSpacer {
-
-                }
-            }
-
         }
     }
 }

@@ -102,10 +102,10 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
     setFocusProxy(m_viewer);
 
-    Core::IContext *icontext = new Core::IContext(this);
-    icontext->setContext(context);
-    icontext->setWidget(m_viewer);
-    Core::ICore::addContextObject(icontext);
+    m_context = new Core::IContext(this);
+    m_context->setContext(context);
+    m_context->setWidget(m_viewer);
+    Core::ICore::addContextObject(m_context);
 
     back->setEnabled(m_viewer->isBackwardAvailable());
     connect(back, SIGNAL(triggered()), m_viewer, SLOT(backward()));
@@ -171,6 +171,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
 HelpWidget::~HelpWidget()
 {
+    Core::ICore::removeContextObject(m_context);
     Core::ActionManager::unregisterAction(m_copy, Core::Constants::COPY);
     Core::ActionManager::unregisterAction(m_openHelpMode, Help::Constants::CONTEXT_HELP);
     if (m_scaleUp)

@@ -29,7 +29,7 @@
 
 #include "valueschangedcommand.h"
 
-#include <QSharedMemory>
+#include "sharedmemory.h"
 #include <QCache>
 #include <QDebug>
 
@@ -37,7 +37,7 @@
 
 namespace QmlDesigner {
 
-static QCache<qint32, QSharedMemory> globalSharedMemoryCache(10000);
+static QCache<qint32, SharedMemory> globalSharedMemoryCache(10000);
 
 ValuesChangedCommand::ValuesChangedCommand()
     : m_keyNumber(0)
@@ -63,7 +63,7 @@ quint32 ValuesChangedCommand::keyNumber() const
 void ValuesChangedCommand::removeSharedMemorys(const QVector<qint32> &keyNumberVector)
 {
     foreach (qint32 keyNumber, keyNumberVector) {
-        QSharedMemory *sharedMemory = globalSharedMemoryCache.take(keyNumber);
+        SharedMemory *sharedMemory = globalSharedMemoryCache.take(keyNumber);
         delete sharedMemory;
     }
 }
@@ -75,17 +75,11 @@ void ValuesChangedCommand::sort()
 
 static const QLatin1String valueKeyTemplateString("Values-%1");
 
-static QSharedMemory *createSharedMemory(qint32 key, int byteCount)
+static SharedMemory *createSharedMemory(qint32 key, int byteCount)
 {
-    QSharedMemory *sharedMemory = new QSharedMemory(QString(valueKeyTemplateString).arg(key));
+    SharedMemory *sharedMemory = new SharedMemory(QString(valueKeyTemplateString).arg(key));
 
     bool sharedMemoryIsCreated = sharedMemory->create(byteCount);
-    if (!sharedMemoryIsCreated) {
-        if (sharedMemory->isAttached())
-            sharedMemory->attach();
-        sharedMemory->detach();
-        sharedMemoryIsCreated = sharedMemory->create(byteCount);
-    }
 
     if (sharedMemoryIsCreated) {
         globalSharedMemoryCache.insert(key, sharedMemory);
@@ -109,12 +103,13 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
 
         temporaryOutDataStream << command.valueChanges();
 
-        QSharedMemory *sharedMemory = createSharedMemory(keyCounter, outDataStreamByteArray.size());
+        SharedMemory *sharedMemory = createSharedMemory(keyCounter, outDataStreamByteArray.size());
 
         if (sharedMemory) {
             sharedMemory->lock();
             std::memcpy(sharedMemory->data(), outDataStreamByteArray.constData(), sharedMemory->size());
             sharedMemory->unlock();
+
             out << command.keyNumber();
             return out;
         }
@@ -128,13 +123,18 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
 
 void readSharedMemory(qint32 key, QVector<PropertyValueContainer> *valueChangeVector)
 {
-    QSharedMemory sharedMemory(QString(valueKeyTemplateString).arg(key));
+    SharedMemory sharedMemory(QString(valueKeyTemplateString).arg(key));
     bool canAttach = sharedMemory.attach(QSharedMemory::ReadOnly);
 
     if (canAttach) {
+        sharedMemory.lock();
+
         QDataStream in(QByteArray::fromRawData(static_cast<const char*>(sharedMemory.constData()), sharedMemory.size()));
         in.setVersion(QDataStream::Qt_4_8);
         in >> *valueChangeVector;
+
+        sharedMemory.unlock();
+        sharedMemory.detach();
     }
 }
 

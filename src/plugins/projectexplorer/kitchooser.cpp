@@ -56,6 +56,7 @@ KitChooser::KitChooser(QWidget *parent) :
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_chooser);
     layout->addWidget(m_manageButton);
+    setFocusProxy(m_manageButton);
 
     connect(m_chooser, SIGNAL(currentIndexChanged(int)), SLOT(onCurrentIndexChanged(int)));
     connect(m_chooser, SIGNAL(activated(int)), SIGNAL(activated(int)));
@@ -105,8 +106,15 @@ void KitChooser::populate()
 
     const int n = m_chooser->count();
     const int index = Core::ICore::settings()->value(QLatin1String(lastKitKey)).toInt();
-    m_chooser->setCurrentIndex(0 <= index && index < n ? index : -1);
+    if (0 <= index && index < n)
+        m_chooser->setCurrentIndex(index);
     m_chooser->setEnabled(n > 1);
+
+    if (n > 1)
+        setFocusProxy(m_chooser);
+    else
+        setFocusProxy(m_manageButton);
+
 }
 
 Kit *KitChooser::currentKit() const

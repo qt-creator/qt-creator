@@ -65,7 +65,7 @@ minQtVersion(5, 0, 0):exists(src/shared/qbs/qbs.pro) {
     cache(QBS_RELATIVE_PLUGINS_PATH)
     QBS_RELATIVE_SEARCH_PATH = $$relative_path($$QBS_RESOURCES_BUILD_DIR, $$QBS_APPS_DESTDIR)
     cache(QBS_RELATIVE_SEARCH_PATH)
-    QBS_CONFIG_ADDITION = qbs_no_dev_install
+    QBS_CONFIG_ADDITION = qbs_no_dev_install qbs_enable_project_file_updates
     cache(CONFIG, add, QBS_CONFIG_ADDITION)
 }
 

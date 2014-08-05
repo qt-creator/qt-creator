@@ -59,9 +59,7 @@ public:
         const DebuggerStartParameters &sp,
         QString *errorMessage);
 
-    static DebuggerRunControl *createAndScheduleRun(
-        const DebuggerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration = 0);
+    static DebuggerRunControl *createAndScheduleRun(const DebuggerStartParameters &sp);
 
     static DebuggerRunControl *doCreate(const DebuggerStartParameters &sp,
         ProjectExplorer::RunConfiguration *rc, QString *errorMessage);

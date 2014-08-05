@@ -347,6 +347,9 @@ void PropertyEditorView::resetView()
 
     setupQmlBackend();
 
+    if (m_qmlBackEndForCurrentType)
+        m_qmlBackEndForCurrentType->emitSelectionChanged();
+
     m_locked = false;
 
     if (m_timerId)

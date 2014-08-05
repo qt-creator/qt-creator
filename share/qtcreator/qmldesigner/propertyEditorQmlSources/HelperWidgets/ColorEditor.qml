@@ -62,6 +62,7 @@ Column {
         id: colorEditorTimer
         repeat: false
         interval: 100
+        running: false
         onTriggered: {
             if (backendendValue !== undefined)
                 backendendValue.value = colorEditor.color
@@ -69,21 +70,22 @@ Column {
     }
 
     onColorChanged: {
-        if (!gradientLine.isCompleted)
+        if (!gradientLine.isInValidState)
             return;
 
         if (supportGradient && gradientLine.hasGradient) {
-            gradientLine.currentColor = color
             textField.text = convertColorToString(color)
+            gradientLine.currentColor = color
         }
 
-        if (buttonRow.checkedIndex !== 1)
+        if (buttonRow.checkedIndex !== 1) {
             //Delay setting the color to keep ui responsive
             colorEditorTimer.restart()
+        }
     }
 
     GradientLine {
-        property bool isCompleted: false
+        property bool isInValidState: false
         visible: buttonRow.checkedIndex === 1
         id: gradientLine
 
@@ -110,18 +112,23 @@ Column {
 
         Connections {
             target: modelNodeBackend
-            onSelectionChanged: {
-                if (supportGradient && gradientLine.hasGradient) {
-                    colorEditor.color = gradientLine.currentColor
-                } else {
-                    colorEditor.color = colorEditor.value
-                }
+            onSelectionToBeChanged: {
+                colorEditorTimer.stop()
+                gradientLine.isInValidState = false
             }
         }
 
-        Component.onCompleted: {
-            isCompleted= true
+        Connections {
+            target: modelNodeBackend
+            onSelectionChanged: {
+                if (supportGradient && gradientLine.hasGradient) {
+                    colorEditor.color = gradientLine.currentColor
+                    gradientLine.currentColor = color
+                }
+                gradientLine.isInValidState = true
+            }
         }
+
     }
 
     SectionLayout {
@@ -149,7 +156,7 @@ Column {
             LineEdit {
                 id: textField
 
-                hasToConvertColor: true
+                writeValueManually: true
 
                 validator: RegExpValidator {
                     regExp: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g

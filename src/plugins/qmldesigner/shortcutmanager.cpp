@@ -115,36 +115,36 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     //Edit Menu
 
-    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_BACKSPACE, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_BACKSPACE, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_BACKSPACE, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_Backspace));
     command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
     if (Utils::HostOsInfo::isMacHost())
         editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Delete);
     command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
     if (!Utils::HostOsInfo::isMacHost())
         editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    command = Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Cut);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    command = Core::ActionManager::registerAction(&m_copyAction, Core::Constants::COPY, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_copyAction, Core::Constants::COPY, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_copyAction,  Core::Constants::COPY, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Copy);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    command = Core::ActionManager::registerAction(&m_pasteAction,  Core::Constants::PASTE, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_pasteAction,  Core::Constants::PASTE, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_pasteAction,  Core::Constants::PASTE, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Paste);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    command = Core::ActionManager::registerAction(&m_selectAllAction, Core::Constants::SELECTALL, qmlDesignerFormEditorContext);
+    Core::ActionManager::registerAction(&m_selectAllAction, Core::Constants::SELECTALL, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_selectAllAction, Core::Constants::SELECTALL, qmlDesignerNavigatorContext);
 
     command->setDefaultKeySequence(QKeySequence::SelectAll);
@@ -166,7 +166,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command->setAttribute(Core::Command::CA_Hide);
     viewsMenu->addAction(command);
 
-    command = Core::ActionManager::registerAction(&m_hideSidebarsAction, Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
+    Core::ActionManager::registerAction(&m_hideSidebarsAction, Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
 }
 
 void ShortCutManager::updateActions(Core::IEditor* currentEditor)

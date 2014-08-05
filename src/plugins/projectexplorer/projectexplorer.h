@@ -232,6 +232,7 @@ private slots:
     void updateExternalFileWarning();
 
     void updateContext();
+    void runConfigurationConfigurationFinished();
 
 #ifdef WITH_TESTS
     void testAnsiFilterOutputParser_data();

@@ -49,6 +49,8 @@
 #include <QFile>
 #include <QTextStream>
 #include <QProcess>
+#include <QTimer>
+#include <QTime>
 
 #include <QDesktopServices>
 #include <QFileDialog>
@@ -134,6 +136,9 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
 {
     m_ui->setupUi(this);
 
+    connect(&m_checkGdbWatcher, SIGNAL(finished()),
+            this, SLOT(checkGdbFinished()));
+
     m_ui->SDKLocationPathChooser->setFileName(m_androidConfig.sdkLocation());
     m_ui->SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
     m_ui->NDKLocationPathChooser->setFileName(m_androidConfig.ndkLocation());
@@ -170,6 +175,9 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->downloadAntToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
     m_ui->downloadOpenJDKToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
 
+    connect(m_ui->gdbWarningLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(showGdbWarningDialog()));
+
     check(All);
     applyToUi(All);
 
@@ -181,6 +189,50 @@ AndroidSettingsWidget::~AndroidSettingsWidget()
 {
     delete m_ui;
     m_futureWatcher.waitForFinished();
+}
+
+// NOTE: Will be run via QFuture
+static QPair<QStringList, bool> checkGdbForBrokenPython(const QStringList &paths)
+{
+    foreach (const QString &path, paths) {
+        QTime timer;
+        timer.start();
+        QProcess proc;
+        proc.setProcessChannelMode(QProcess::MergedChannels);
+        proc.start(path);
+        proc.waitForStarted();
+
+        QByteArray output;
+        while (proc.waitForReadyRead(300)) {
+            output += proc.readAll();
+            if (output.contains("(gdb)"))
+                break;
+            if (timer.elapsed() > 7 * 1000)
+                return qMakePair(paths, true); // Took too long, abort
+        }
+
+        output.clear();
+
+        proc.write("python import string\n");
+        proc.write("python print(string.ascii_uppercase)\n");
+        proc.write("python import struct\n");
+        proc.write("quit\n");
+        while (proc.waitForFinished(300)) {
+            if (timer.elapsed() > 9 * 1000)
+                return qMakePair(paths, true); // Took too long, abort
+        }
+        proc.waitForFinished();
+
+        output = proc.readAll();
+
+        bool error = output.contains("_PyObject_Free")
+                || output.contains("_PyExc_IOError")
+                || output.contains("_sysconfigdata_nd ")
+                || !output.contains("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        if (error)
+            return qMakePair(paths, error);
+    }
+    return qMakePair(paths, false);
 }
 
 void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
@@ -198,6 +250,8 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
         Utils::FileName platformPath = m_androidConfig.ndkLocation();
         Utils::FileName toolChainPath = m_androidConfig.ndkLocation();
         Utils::FileName sourcesPath = m_androidConfig.ndkLocation();
+        m_ui->gdbWarningIconLabel->setVisible(false);
+        m_ui->gdbWarningLabel->setVisible(false);
         if (m_androidConfig.ndkLocation().isEmpty()) {
             m_ndkState = NotSet;
         } else if (!platformPath.appendPath(QLatin1String("platforms")).toFileInfo().exists()
@@ -214,6 +268,21 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
                     = AndroidToolChainFactory::toolchainPathsForNdk(m_androidConfig.ndkLocation());
             m_ndkCompilerCount = compilerPaths.count();
 
+            // Check for a gdb with a broken python
+            QStringList gdbPaths;
+            foreach (const AndroidToolChainFactory::AndroidToolChainInformation &ati, compilerPaths) {
+                // we only check the arm gdbs, that's indicative enough
+                if (ati.architecture != ProjectExplorer::Abi::ArmArchitecture)
+                    continue;
+                Utils::FileName gdbPath = m_androidConfig.gdbPath(ati.architecture, ati.version);
+                if (gdbPath.toFileInfo().exists())
+                    gdbPaths << gdbPath.toString();
+            }
+
+            if (!gdbPaths.isEmpty()) {
+                m_checkGdbWatcher.setFuture(QtConcurrent::run(&checkGdbForBrokenPython, gdbPaths));
+                m_gdbCheckPaths = gdbPaths;
+            }
 
             // See if we have qt versions for those toolchains
             QSet<ProjectExplorer::Abi::Architecture> toolchainsForArch;
@@ -506,6 +575,25 @@ void AndroidSettingsWidget::dataPartitionSizeEditingFinished()
 void AndroidSettingsWidget::createKitToggled()
 {
     m_androidConfig.setAutomaticKitCreation(m_ui->CreateKitCheckBox->isChecked());
+}
+
+void AndroidSettingsWidget::checkGdbFinished()
+{
+    QPair<QStringList, bool> result = m_checkGdbWatcher.future().result();
+    if (result.first != m_gdbCheckPaths) // no longer relevant
+        return;
+    m_ui->gdbWarningIconLabel->setVisible(result.second);
+    m_ui->gdbWarningLabel->setVisible(result.second);
+}
+
+void AndroidSettingsWidget::showGdbWarningDialog()
+{
+    QMessageBox::warning(this,
+                         tr("Unsupported GDB"),
+                         tr("The GDB inside this NDK seems to not support Python. "
+                            "The Qt Project offers fixed GDB builds at: "
+                            "<a href=\"http://download.qt-project.org/official_releases/gdb/osx/\">"
+                            "http://download.qt-project.org/official_releases/gdb/osx/</a>"));
 }
 
 void AndroidSettingsWidget::manageAVD()

@@ -39,6 +39,7 @@
 
 #include <tools/hostosinfo.h>
 
+#include <QDir>
 #include <QFileInfo>
 
 namespace QbsProjectManager {
@@ -60,8 +61,10 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
 {
     QTC_ASSERT(k, return defaultData);
     QVariantMap data = defaultData;
+
+    const QString sysroot = ProjectExplorer::SysRootKitInformation::sysRoot(k).toUserOutput();
     if (ProjectExplorer::SysRootKitInformation::hasSysRoot(k))
-        data.insert(QLatin1String(QBS_SYSROOT), ProjectExplorer::SysRootKitInformation::sysRoot(k).toUserOutput());
+        data.insert(QLatin1String(QBS_SYSROOT), sysroot);
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if (tc) {
@@ -90,11 +93,6 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
             data.insert(QLatin1String(QBS_ARCHITECTURE),
                         qbs::Internal::HostOsInfo::canonicalArchitecture(architecture));
         }
-
-        if (targetAbi.endianness() == ProjectExplorer::Abi::BigEndian)
-            data.insert(QLatin1String(QBS_ENDIANNESS), QLatin1String("big"));
-        else if (targetAbi.endianness() == ProjectExplorer::Abi::LittleEndian)
-            data.insert(QLatin1String(QBS_ENDIANNESS), QLatin1String("little"));
 
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             data.insert(QLatin1String(QBS_TARGETOS), QLatin1String("windows"));
@@ -126,6 +124,14 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
                             QStringList() << QLatin1String("clang")
                             << QLatin1String("llvm")
                             << QLatin1String("gcc"));
+            }
+
+            // Set Xcode SDK name and version - required by Qbs if a sysroot is present
+            // Ideally this would be done in a better way...
+            QRegExp re(QLatin1String("(MacOSX|iPhoneOS|iPhoneSimulator)([0-9]+\\.[0-9]+)\\.sdk"));
+            if (re.exactMatch(QDir(sysroot).dirName())) {
+                data.insert(QLatin1String(CPP_XCODESDKNAME), QString(re.cap(1).toLower() + re.cap(2)));
+                data.insert(QLatin1String(CPP_XCODESDKVERSION), re.cap(2));
             }
         } else if (targetAbi.os() == ProjectExplorer::Abi::LinuxOS) {
             data.insert(QLatin1String(QBS_TARGETOS), QStringList() << QLatin1String("linux")

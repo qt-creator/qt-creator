@@ -71,7 +71,8 @@ void CustomExecutableRunConfiguration::ctor()
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
     LocalApplicationRunConfiguration(parent, Core::Id(CUSTOM_EXECUTABLE_ID)),
     m_workingDirectory(QLatin1String(Constants::DEFAULT_WORKING_DIR)),
-    m_runMode(ProjectExplorer::ApplicationLauncher::Gui)
+    m_runMode(ProjectExplorer::ApplicationLauncher::Gui),
+    m_dialog(0)
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
 
@@ -86,7 +87,8 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
     m_executable(source->m_executable),
     m_workingDirectory(source->m_workingDirectory),
     m_cmdArguments(source->m_cmdArguments),
-    m_runMode(source->m_runMode)
+    m_runMode(source->m_runMode),
+    m_dialog(0)
 {
     ctor();
 }
@@ -94,6 +96,12 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
 // Note: Qt4Project deletes all empty customexecrunconfigs for which isConfigured() == false.
 CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
 {
+    if (m_dialog) {
+        emit configurationFinished();
+        disconnect(m_dialog, SIGNAL(finished(int)),
+                   this, SLOT(configurationDialogFinished()));
+        delete m_dialog;
+    }
 }
 
 // Dialog embedding the CustomExecutableConfigurationWidget
@@ -104,10 +112,12 @@ class CustomExecutableDialog : public QDialog
 public:
     explicit CustomExecutableDialog(CustomExecutableRunConfiguration *rc, QWidget *parent = 0);
 
+    void accept();
+
 private slots:
     void changed()
     {
-        setOkButtonEnabled(m_runConfiguration->isConfigured());
+        setOkButtonEnabled(m_widget->isValid());
     }
 
 private:
@@ -117,6 +127,7 @@ private:
     }
 
     QDialogButtonBox *m_dialogButtonBox;
+    CustomExecutableConfigurationWidget *m_widget;
     CustomExecutableRunConfiguration *m_runConfiguration;
 };
 
@@ -125,15 +136,15 @@ CustomExecutableDialog::CustomExecutableDialog(CustomExecutableRunConfiguration 
     , m_dialogButtonBox(new  QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel))
     , m_runConfiguration(rc)
 {
-    connect(rc, SIGNAL(changed()), this, SLOT(changed()));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QVBoxLayout *layout = new QVBoxLayout(this);
     QLabel *label = new QLabel(tr("Could not find the executable, please specify one."));
     label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     layout->addWidget(label);
-    QWidget *configWidget = rc->createConfigurationWidget();
-    configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    layout->addWidget(configWidget);
+    m_widget = new CustomExecutableConfigurationWidget(rc, CustomExecutableConfigurationWidget::DelayedApply);
+    m_widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    connect(m_widget, SIGNAL(validChanged()), this, SLOT(changed()));
+    layout->addWidget(m_widget);
     setOkButtonEnabled(false);
     connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
@@ -141,30 +152,39 @@ CustomExecutableDialog::CustomExecutableDialog(CustomExecutableRunConfiguration 
     layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 }
 
-bool CustomExecutableRunConfiguration::ensureConfigured(QString *errorMessage)
+void CustomExecutableDialog::accept()
 {
-    if (isConfigured())
-        return validateExecutable(0, errorMessage);
-    CustomExecutableDialog dialog(this, Core::ICore::mainWindow());
-    dialog.setWindowTitle(displayName());
-    const QString oldExecutable = m_executable;
-    const QString oldWorkingDirectory = m_workingDirectory;
-    const QString oldCmdArguments = m_cmdArguments;
-    if (dialog.exec() == QDialog::Accepted)
-        return validateExecutable(0, errorMessage);
-    // User canceled: Hack: Silence the error dialog.
-    if (errorMessage)
-        *errorMessage = QLatin1String("");
-    // Restore values changed by the configuration widget.
-    if (m_executable != oldExecutable
-        || m_workingDirectory != oldWorkingDirectory
-        || m_cmdArguments != oldCmdArguments) {
-        m_executable = oldExecutable;
-        m_workingDirectory = oldWorkingDirectory;
-        m_cmdArguments = oldCmdArguments;
-        emit changed();
+    m_widget->apply();
+    QDialog::accept();
+}
+
+// CustomExecutableRunConfiguration
+
+RunConfiguration::ConfigurationState CustomExecutableRunConfiguration::ensureConfigured(QString *errorMessage)
+{
+    Q_UNUSED(errorMessage)
+    if (m_dialog) {// uhm already shown
+        *errorMessage = QLatin1String(""); // no error dialog
+        m_dialog->activateWindow();
+        m_dialog->raise();
+        return UnConfigured;
     }
-    return false;
+
+    m_dialog = new CustomExecutableDialog(this, Core::ICore::mainWindow());
+    connect(m_dialog, SIGNAL(finished(int)),
+            this, SLOT(configurationDialogFinished()));
+    m_dialog->setWindowTitle(displayName()); // pretty pointless
+    m_dialog->show();
+    return Waiting;
+}
+
+void CustomExecutableRunConfiguration::configurationDialogFinished()
+{
+    disconnect(m_dialog, SIGNAL(finished(int)),
+            this, SLOT(configurationDialogFinished()));
+    m_dialog->deleteLater();
+    m_dialog = 0;
+    emit configurationFinished();
 }
 
 // Search the executable in the path.
@@ -301,7 +321,7 @@ void CustomExecutableRunConfiguration::setRunMode(ApplicationLauncher::Mode runM
 
 QWidget *CustomExecutableRunConfiguration::createConfigurationWidget()
 {
-    return new CustomExecutableConfigurationWidget(this);
+    return new CustomExecutableConfigurationWidget(this, CustomExecutableConfigurationWidget::InstantApply);
 }
 
 Abi CustomExecutableRunConfiguration::abi() const

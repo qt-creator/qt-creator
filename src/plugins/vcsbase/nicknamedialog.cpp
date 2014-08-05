@@ -187,6 +187,7 @@ NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
         treeWidth += m_ui->filterTreeView->columnWidth(c);
     }
     m_ui->filterTreeView->setMinimumWidth(treeWidth + 20);
+    m_ui->filterLineEdit->setFiltering(true);
     connect(m_ui->filterTreeView, SIGNAL(activated(QModelIndex)), this,
             SLOT(slotActivated(QModelIndex)));
     connect(m_ui->filterTreeView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),

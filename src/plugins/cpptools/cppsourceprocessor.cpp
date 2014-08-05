@@ -148,9 +148,10 @@ void CppSourceProcessor::addFrameworkPath(const ProjectPart::HeaderPath &framewo
 void CppSourceProcessor::setTodo(const QStringList &files)
 { m_todo = QSet<QString>::fromList(files); }
 
-void CppSourceProcessor::run(const QString &fileName)
+void CppSourceProcessor::run(const QString &fileName,
+                             const QStringList &initialIncludes)
 {
-    sourceNeeded(0, fileName, IncludeGlobal);
+    sourceNeeded(0, fileName, IncludeGlobal, initialIncludes);
 }
 
 void CppSourceProcessor::removeFromCache(const QString &fileName)
@@ -377,7 +378,8 @@ void CppSourceProcessor::stopSkippingBlocks(unsigned utf16charsOffset)
         m_currentDoc->stopSkippingBlocks(utf16charsOffset);
 }
 
-void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType type)
+void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType type,
+                                      const QStringList &initialIncludes)
 {
     if (fileName.isEmpty())
         return;
@@ -417,6 +419,11 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
     Document::Ptr document = Document::create(absoluteFileName);
     document->setRevision(m_revision);
     document->setEditorRevision(editorRevision);
+    foreach (const QString &include, initialIncludes) {
+        m_included.insert(include);
+        Document::Include inc(include, include, 0, IncludeLocal);
+        document->addIncludeFile(inc);
+    }
     const QFileInfo info(absoluteFileName);
     if (info.exists())
         document->setLastModified(info.lastModified());

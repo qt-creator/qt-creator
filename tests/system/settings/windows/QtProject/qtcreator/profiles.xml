@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProfiles>
-<!-- Written by QtCreator 2.8.82, 2013-10-24T15:19:45. -->
+<!-- Written by QtCreator 3.1.83, 2014-07-21T18:40:39. -->
 <qtcreator>
  <data>
   <variable>Profile.0</variable>
@@ -111,6 +111,7 @@
   <variable>Profile.5</variable>
   <valuemap type="QVariantMap">
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
+   <value type="QString" key="PE.Profile.AutoDetectionSource"></value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
     <value type="QString" key="Debugger.Information">{811977c9-ea95-4616-bc28-c66d1935ff65}</value>
@@ -119,13 +120,14 @@
     <value type="QString" key="PE.Profile.SysRoot"></value>
     <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Msvc:{1186dad9-c485-4f69-b7e1-aff54c89ecb2}</value>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
-    <value type="int" key="QtSupport.QtInformation">18</value>
+    <value type="int" key="QtSupport.QtInformation">20</value>
    </valuemap>
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
-   <value type="QString" key="PE.Profile.Id">{175f6238-a585-4e62-b2d3-d15e90296bb6}</value>
+   <value type="QString" key="PE.Profile.Id">{6a95566e-8372-4372-8286-ef73af7de191}</value>
    <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
-   <value type="QString" key="PE.Profile.Name">Desktop 501 default</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 531 default</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
+   <valuelist type="QVariantList" key="PE.Profile.StickyInfo"/>
   </valuemap>
  </data>
  <data>

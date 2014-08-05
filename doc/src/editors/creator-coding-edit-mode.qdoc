@@ -142,12 +142,12 @@
     \section1 Moving to Symbol Definition or Declaration
 
     You can move directly to the definition or the declaration of a symbol by
-    holding the \key Ctrl and clicking the symbol. If you have multiple splits
+    holding the \key Ctrl key and clicking the symbol. If you have multiple splits
     opened, you can open the link in the next split by holding \key Ctrl and
-    \key Alt while clicking on the symbol.
+    \key Alt while clicking the symbol.
 
-    To enable this moving function, in \gui Tools > \gui{Options} >
-    \gui{Text Editor} > \gui Behavior, select \gui{Enable mouse navigation}.
+    To enable this moving function, select \gui Tools > \gui{Options} >
+    \gui{Text Editor} > \gui Behavior > \gui{Enable mouse navigation}.
 
     You can also select the symbol and press \key F2, or right-click the symbol
     and select \gui {Follow Symbol Under Cursor} to move to its definition or

@@ -624,14 +624,13 @@ void AnalyzerManager::addAction(AnalyzerAction *action)
     d->addAction(action);
 }
 
-QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QString &title,
+QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool,
                                                QWidget *widget, Qt::DockWidgetArea area)
 {
     QTC_ASSERT(!widget->objectName().isEmpty(), return 0);
     QDockWidget *dockWidget = d->m_mainWindow->addDockForWidget(widget);
     dockWidget->setProperty(INITIAL_DOCK_AREA, int(area));
     d->m_dockWidgets.append(AnalyzerManagerPrivate::DockPtr(dockWidget));
-    dockWidget->setWindowTitle(title);
     d->m_toolWidgets[tool].push_back(dockWidget);
     return dockWidget;
 }

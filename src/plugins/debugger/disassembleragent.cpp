@@ -107,8 +107,6 @@ public:
     QList<TextMark *> breakpointMarks;
     QList<CacheEntry> cache;
     QString mimeType;
-    bool tryMixedInitialized;
-    bool tryMixed;
     bool resetLocationScheduled;
 };
 
@@ -116,8 +114,6 @@ DisassemblerAgentPrivate::DisassemblerAgentPrivate()
   : document(0),
     locationMark(QString(), 0),
     mimeType(_("text/x-qtcreator-generic-asm")),
-    tryMixedInitialized(false),
-    tryMixed(true),
     resetLocationScheduled(false)
 {
     locationMark.setIcon(debuggerCore()->locationMarkIcon());
@@ -201,20 +197,6 @@ const Location &DisassemblerAgent::location() const
     return d->location;
 }
 
-bool DisassemblerAgent::isMixed() const
-{
-    if (!d->tryMixedInitialized) {
-        if (d->engine->startParameters().toolChainAbi.os() == ProjectExplorer::Abi::MacOS)
-           d->tryMixed = false;
-        d->tryMixedInitialized = true;
-    }
-
-    return d->tryMixed
-        && d->location.lineNumber() > 0
-        && !d->location.functionName().isEmpty()
-        && d->location.functionName() != _("??");
-}
-
 void DisassemblerAgent::reload()
 {
     d->cache.clear();
@@ -228,7 +210,7 @@ void DisassemblerAgent::setLocation(const Location &loc)
     if (index != -1) {
         // Refresh when not displaying a function and there is not sufficient
         // context left past the address.
-        if (!isMixed() && d->cache.at(index).first.endAddress - loc.address() < 24) {
+        if (d->cache.at(index).first.endAddress - loc.address() < 24) {
             index = -1;
             d->cache.removeAt(index);
         }
@@ -314,6 +296,8 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
         d->document->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
         d->document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
         d->configureMimeType();
+    } else {
+        EditorManager::activateEditorForDocument(d->document);
     }
 
     d->document->setPlainText(contents.toString());

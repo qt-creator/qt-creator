@@ -9,7 +9,7 @@ Product {
     Transformer {
         inputs: ["app_version.h.in"]
         Artifact {
-            fileName: "app/app_version.h"
+            filePath: "app/app_version.h"
             fileTags: "hpp"
         }
         prepare: {

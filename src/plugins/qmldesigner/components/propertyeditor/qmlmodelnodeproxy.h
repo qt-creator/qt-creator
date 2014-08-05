@@ -50,6 +50,7 @@ public:
     static void registerDeclarativeType();
 
     void emitSelectionToBeChanged();
+    void emitSelectionChanged();
 
     QmlItemNode qmlItemNode() const;
 
@@ -58,6 +59,7 @@ public:
 signals:
     void modelNodeChanged();
     void selectionToBeChanged();
+    void selectionChanged();
 
 public slots:
 

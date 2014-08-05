@@ -164,8 +164,10 @@ public:
     bool parseTypeParameter(DeclarationAST *&node);
 
     bool parseBuiltinTypeSpecifier(SpecifierListAST *&node);
-    bool parseAttributeSpecifier(SpecifierListAST *&node);
-    bool parseAttributeList(AttributeListAST *&node);
+    bool parseOptionalAttributeSpecifierSequence(SpecifierListAST *&attribute_list);
+    bool parseAttributeSpecifier(SpecifierListAST *&attribute_list);
+    bool parseGnuAttributeSpecifier(SpecifierListAST *&node);
+    bool parseGnuAttributeList(GnuAttributeListAST *&node);
 
     bool parseDeclSpecifierSeq(SpecifierListAST *&node,
                                bool noStorageSpecifiers = false,
@@ -316,7 +318,6 @@ private:
     unsigned _tokenIndex;
     bool _templateArguments: 1;
     bool _inFunctionBody: 1;
-    bool _inObjCImplementationContext: 1;
     bool _inExpressionStatement: 1;
     int _expressionDepth;
     int _statementDepth;
@@ -324,8 +325,9 @@ private:
     MemoryPool _expressionStatementTempPool;
     std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
 
-    class Rewind;
-    friend class Rewind;
+    class ASTCache;
+    ASTCache *_astCache;
+    ASTCache *_expressionStatementAstCache;
 
 private:
     Parser(const Parser& source);

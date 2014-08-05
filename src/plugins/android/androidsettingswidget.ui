@@ -6,45 +6,34 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>573</width>
-    <height>429</height>
+    <width>843</width>
+    <height>625</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Android Configuration</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,0">
-   <item row="0" column="0">
-    <widget class="QLabel" name="OpenJDKLocationLabel">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="0">
+    <widget class="QLabel" name="SDKLocationLabel">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
      <property name="text">
-      <string>JDK location:</string>
+      <string>Android SDK location:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
-   <item row="0" column="1" colspan="2">
-    <widget class="Utils::PathChooser" name="OpenJDKLocationPathChooser" native="true"/>
+   <item row="10" column="1">
+    <widget class="Utils::PathChooser" name="AntLocationPathChooser" native="true"/>
    </item>
-   <item row="0" column="3">
-    <widget class="QToolButton" name="downloadOpenJDKToolButton">
-     <property name="toolTip">
-      <string>Download JDK</string>
-     </property>
-     <property name="icon">
-      <iconset resource="android.qrc">
-       <normaloff>:/android/images/download.png</normaloff>:/android/images/download.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1" colspan="3">
+   <item row="1" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
       <widget class="QLabel" name="jdkWarningIconLabel">
@@ -58,7 +47,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>:/core/images/warning.png</pixmap>
+        <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
        </property>
       </widget>
      </item>
@@ -80,37 +69,7 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="SDKLocationLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Android SDK location:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1" colspan="2">
-    <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
-   </item>
-   <item row="2" column="3">
-    <widget class="QToolButton" name="downloadSDKToolButton">
-     <property name="toolTip">
-      <string>Download Android SDK</string>
-     </property>
-     <property name="icon">
-      <iconset resource="android.qrc">
-       <normaloff>:/android/images/download.png</normaloff>:/android/images/download.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="3">
+   <item row="3" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QLabel" name="sdkWarningIconLabel">
@@ -146,29 +105,13 @@
      </item>
     </layout>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="NDKLocationLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Android NDK location:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
+   <item row="0" column="1">
+    <widget class="Utils::PathChooser" name="OpenJDKLocationPathChooser" native="true"/>
    </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="Utils::PathChooser" name="NDKLocationPathChooser" native="true"/>
-   </item>
-   <item row="4" column="3">
-    <widget class="QToolButton" name="downloadNDKToolButton">
+   <item row="10" column="2">
+    <widget class="QToolButton" name="downloadAntToolButton">
      <property name="toolTip">
-      <string>Download Android NDK</string>
+      <string>Download Ant</string>
      </property>
      <property name="icon">
       <iconset resource="android.qrc">
@@ -176,98 +119,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1" colspan="3">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <property name="spacing">
-      <number>2</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="ndkWarningIconLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../coreplugin/core.qrc">:/core/images/error.png</pixmap>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="toolchainFoundLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="6" column="1" colspan="3">
-    <widget class="QCheckBox" name="CreateKitCheckBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Automatically create kits for Android tool chains</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1" colspan="3">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <property name="spacing">
-      <number>2</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="kitWarningIconLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="kitWarningLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="8" column="0">
+   <item row="10" column="0">
     <widget class="QLabel" name="AntLocationLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -283,13 +135,10 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1" colspan="2">
-    <widget class="Utils::PathChooser" name="AntLocationPathChooser" native="true"/>
-   </item>
-   <item row="8" column="3">
-    <widget class="QToolButton" name="downloadAntToolButton">
+   <item row="2" column="2">
+    <widget class="QToolButton" name="downloadSDKToolButton">
      <property name="toolTip">
-      <string>Download Ant</string>
+      <string>Download Android SDK</string>
      </property>
      <property name="icon">
       <iconset resource="android.qrc">
@@ -297,7 +146,18 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="4">
+   <item row="4" column="2">
+    <widget class="QToolButton" name="downloadNDKToolButton">
+     <property name="toolTip">
+      <string>Download Android NDK</string>
+     </property>
+     <property name="icon">
+      <iconset resource="android.qrc">
+       <normaloff>:/android/images/download.png</normaloff>:/android/images/download.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0" colspan="2">
     <widget class="QFrame" name="AVDManagerFrame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -416,6 +276,182 @@
      </layout>
     </widget>
    </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="OpenJDKLocationLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>JDK location:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="ndkWarningIconLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../coreplugin/core.qrc">:/core/images/error.png</pixmap>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="toolchainFoundLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="NDKLocationLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Android NDK location:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="Utils::PathChooser" name="NDKLocationPathChooser" native="true"/>
+   </item>
+   <item row="0" column="2">
+    <widget class="QToolButton" name="downloadOpenJDKToolButton">
+     <property name="toolTip">
+      <string>Download JDK</string>
+     </property>
+     <property name="icon">
+      <iconset resource="android.qrc">
+       <normaloff>:/android/images/download.png</normaloff>:/android/images/download.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QCheckBox" name="CreateKitCheckBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Automatically create kits for Android tool chains</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="kitWarningIconLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../coreplugin/core.qrc">:/core/images/warning.png</pixmap>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="kitWarningLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="1">
+    <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
+   </item>
+   <item row="5" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="gdbWarningIconLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../coreplugin/core.qrc">:/core/images/error.png</pixmap>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="gdbWarningLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&lt;a href=&quot;xx&quot;&gt;The GDB in the NDK appears to have broken python support.&lt;/a&gt;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -428,6 +464,7 @@
  </customwidgets>
  <resources>
   <include location="android.qrc"/>
+  <include location="../coreplugin/core.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -627,24 +664,64 @@
    <signal>clicked()</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>openSDKDownloadUrl()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>downloadNDKToolButton</sender>
    <signal>clicked()</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>openNDKDownloadUrl()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>downloadAntToolButton</sender>
    <signal>clicked()</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>openAntDownloadUrl()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
   <connection>
    <sender>downloadOpenJDKToolButton</sender>
    <signal>clicked()</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>openOpenJDKDownloadUrl()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
   </connection>
  </connections>
  <slots>

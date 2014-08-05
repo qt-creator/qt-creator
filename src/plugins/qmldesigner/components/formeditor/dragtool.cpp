@@ -234,11 +234,9 @@ void DragTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSce
 
         m_rewriterTransaction.commit();
 
-        if (m_dragNode.isValid()) {
-            QList<QmlItemNode> nodeList;
-            nodeList.append(m_dragNode);
-            view()->setSelectedModelNodes(toModelNodeList(nodeList));
-        }
+        if (m_dragNode.isValid())
+            view()->setSelectedModelNode(m_dragNode);
+
 
         m_dragNode = QmlItemNode();
 
@@ -286,7 +284,6 @@ void DragTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphi
 
         m_rewriterTransaction.commit();
 
-        view()->clearSelectedModelNodes();
         view()->changeToSelectionTool();
     }
 }

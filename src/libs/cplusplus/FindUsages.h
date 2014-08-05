@@ -95,7 +95,7 @@ protected:
     void postfixDeclarator(PostfixDeclaratorAST *ast);
 
     void objCSelectorArgument(ObjCSelectorArgumentAST *ast);
-    void attribute(AttributeAST *ast);
+    void attribute(GnuAttributeAST *ast);
     void declarator(DeclaratorAST *ast, Scope *symbol = 0);
     void qtPropertyDeclarationItem(QtPropertyDeclarationItemAST *ast);
     void qtInterfaceName(QtInterfaceNameAST *ast);
@@ -127,7 +127,7 @@ protected:
 
     // AST
     virtual bool visit(ObjCSelectorArgumentAST *ast);
-    virtual bool visit(AttributeAST *ast);
+    virtual bool visit(GnuAttributeAST *ast);
     virtual bool visit(DeclaratorAST *ast);
     virtual bool visit(QtPropertyDeclarationItemAST *ast);
     virtual bool visit(QtInterfaceNameAST *ast);
@@ -258,7 +258,7 @@ protected:
 
     // SpecifierAST
     virtual bool visit(SimpleSpecifierAST *ast);
-    virtual bool visit(AttributeSpecifierAST *ast);
+    virtual bool visit(GnuAttributeSpecifierAST *ast);
     virtual bool visit(TypeofSpecifierAST *ast);
     virtual bool visit(DecltypeSpecifierAST *ast);
     virtual bool visit(ClassSpecifierAST *ast);

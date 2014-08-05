@@ -55,23 +55,35 @@ SimpleSpecifierAST *SimpleSpecifierAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-AttributeSpecifierAST *AttributeSpecifierAST::clone(MemoryPool *pool) const
+AlignmentSpecifierAST *AlignmentSpecifierAST::clone(MemoryPool *pool) const
 {
-    AttributeSpecifierAST *ast = new (pool) AttributeSpecifierAST;
+    AlignmentSpecifierAST *ast = new (pool) AlignmentSpecifierAST;
+    ast->align_token = align_token;
+    ast->lparen_token = lparen_token;
+    if (typeIdExprOrAlignmentExpr)
+        ast->typeIdExprOrAlignmentExpr = typeIdExprOrAlignmentExpr->clone(pool);
+    ast->ellipses_token = ellipses_token;
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
+GnuAttributeSpecifierAST *GnuAttributeSpecifierAST::clone(MemoryPool *pool) const
+{
+    GnuAttributeSpecifierAST *ast = new (pool) GnuAttributeSpecifierAST;
     ast->attribute_token = attribute_token;
     ast->first_lparen_token = first_lparen_token;
     ast->second_lparen_token = second_lparen_token;
-    for (AttributeListAST *iter = attribute_list, **ast_iter = &ast->attribute_list;
+    for (GnuAttributeListAST *iter = attribute_list, **ast_iter = &ast->attribute_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) AttributeListAST((iter->value) ? iter->value->clone(pool) : 0);
+        *ast_iter = new (pool) GnuAttributeListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->first_rparen_token = first_rparen_token;
     ast->second_rparen_token = second_rparen_token;
     return ast;
 }
 
-AttributeAST *AttributeAST::clone(MemoryPool *pool) const
+GnuAttributeAST *GnuAttributeAST::clone(MemoryPool *pool) const
 {
-    AttributeAST *ast = new (pool) AttributeAST;
+    GnuAttributeAST *ast = new (pool) GnuAttributeAST;
     ast->identifier_token = identifier_token;
     ast->lparen_token = lparen_token;
     ast->tag_token = tag_token;

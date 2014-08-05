@@ -251,6 +251,7 @@ void SelectionTool::clear()
     m_resizeIndicator.clear();
     m_anchorIndicator.clear();
     m_bindingIndicator.clear();
+    m_contentNotEditableIndicator.clear();
 
     AbstractFormEditorTool::clear();
 }

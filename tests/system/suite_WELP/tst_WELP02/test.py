@@ -30,9 +30,16 @@
 source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
+def checkTypeAndProperties(typePropertiesDetails):
+    for (qType, props, detail) in typePropertiesDetails:
+        test.verify(checkIfObjectExists(getQmlItem(qType, ":WelcomePage.scrollView_ScrollView",
+                                                   False, props)),
+                    "Verifying: Qt Creator displays %s." % detail)
+
 def main():
-    test.log("Welcome mode is not scriptable at the moment")
-    return
+    if isQt4Build or not canTestEmbeddedQtQuick():
+        test.log("Welcome mode is not available or not scriptable with this Squish version")
+        return
     # prepare example project
     sourceExample = os.path.join(sdkPath, "Examples", "4.7", "declarative", "animation", "basics",
                                  "property-animation")
@@ -42,47 +49,46 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    if not test.verify(checkIfObjectExists(getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
-                                                      "text='Getting Started'")),
-                       "Verifying: Qt Creator displays Welcome Page with Getting Started."):
-        mouseClick(waitForObject(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
-                                            "text='Getting Started'")), 5, 5, 0, Qt.LeftButton)
-    # select "Develop" topic
-    mouseClick(waitForObject(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
-                                        "text='Develop'")), 5, 5, 0, Qt.LeftButton)
-    sessionsText = getQmlItem("Text", ":Qt Creator_QDeclarativeView", False, "text='Sessions'")
-    recentProjText = getQmlItem("Text", ":Qt Creator_QDeclarativeView", False,
-                                "text='Recent Projects'")
-    test.verify(checkIfObjectExists(sessionsText) and checkIfObjectExists(recentProjText),
-                "Verifying: 'Develop' with 'Recently used sessions' and "
-                "'Recently used Projects' is being opened.")
-    # select "Create Project" and try to create a new project.
-    # create Qt Quick application from "Welcome" page -> "Develop" tab
+
+    typePropDet = (("Button", "text='Get Started Now' id='gettingStartedButton'",
+                    "Get Started Now button"),
+                   ("Text", "text='Sessions' id='sessionsTitle'", "Sessions section"),
+                    ("Text", "text='default' id='text'", "default session listed"),
+                   ("Text", "text='Recent Projects' id='recentProjectsTitle'", "Projects section"),
+                   )
+    checkTypeAndProperties(typePropDet)
+
+    # select "Create Project" and try to create a new project
     createNewQtQuickApplication(tempDir(), "SampleApp", fromWelcome = True)
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
                                     " text~='SampleApp( \(.*\))?' type='QModelIndex'}"),
                 "Verifying: The project is opened in 'Edit' mode after configuring.")
-    # go to "Welcome page" -> "Develop" topic again.
+    # go to "Welcome page" again and verify updated information
     switchViewTo(ViewConstants.WELCOME)
-    test.verify(checkIfObjectExists(sessionsText) and checkIfObjectExists(recentProjText),
-                "Verifying: 'Develop' with 'Sessions' and 'Recent Projects' is opened.")
-    # select "Open project" and select any project.
-    # copy example project to temp directory
+    typePropDet = (("Text", "text='Sessions' id='sessionsTitle'", "Sessions section"),
+                   ("Text", "text='default (current session)' id='text'",
+                    "default session as current listed"),
+                   ("Text", "text='Recent Projects' id='recentProjectsTitle'", "Projects section"),
+                   ("LinkedText", "text='SampleApp' id='projectNameText'",
+                    "current project listed in projects section")
+                   )
+    checkTypeAndProperties(typePropDet)
+
+    # select "Open project" and select a project
     examplePath = os.path.join(prepareTemplate(sourceExample), "propertyanimation.pro")
-    # open example project from "Welcome" page -> "Develop" tab
     openQmakeProject(examplePath, fromWelcome = True)
     progressBarWait(30000)
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
                                     " text~='propertyanimation( \(.*\))?' type='QModelIndex'}"),
                 "Verifying: The project is opened in 'Edit' mode after configuring.")
-    # go to "Welcome page" -> "Develop" again and check if there is an information about
-    # recent projects in "Recent Projects".
+    # go to "Welcome page" again and check if there is an information about recent projects
     switchViewTo(ViewConstants.WELCOME)
-    test.verify(checkIfObjectExists(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
-                                               "text='propertyanimation'")) and
-                checkIfObjectExists(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
-                                               "text='SampleApp'")),
-                "Verifying: 'Develop' is opened and the recently created and "
-                "opened project can be seen in 'Recent Projects'.")
+    test.verify(checkIfObjectExists(getQmlItem("LinkedText", ":WelcomePage.scrollView_ScrollView",
+                                               False,
+                                               "text='propertyanimation' id='projectNameText'")) and
+                checkIfObjectExists(getQmlItem("LinkedText", ":WelcomePage.scrollView_ScrollView",
+                                               False, "text='SampleApp' id='projectNameText'")),
+                "Verifying: 'Welcome page' displays information about recently created and "
+                "opened projects.")
     # exit Qt Creator
     invokeMenuItem("File", "Exit")

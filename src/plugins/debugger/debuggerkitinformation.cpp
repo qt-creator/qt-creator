@@ -126,6 +126,8 @@ void DebuggerKitInformation::setup(Kit *k)
             goodItem = &item;
         if (detection == DetectedAutomatically && item.engineType() == autoEngine)
             goodItem = &item;
+        if (item.isAutoDetected())
+            goodItem = &item;
 
         if (goodItem) {
             DebuggerItem::MatchLevel level = goodItem->matchTarget(toolChainAbi);

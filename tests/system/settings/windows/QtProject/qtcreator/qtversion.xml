@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorQtVersions>
-<!-- Written by QtCreator 2.8.1, 2013-07-15T17:43:58. -->
+<!-- Written by QtCreator 3.1.83, 2014-07-21T18:40:39. -->
 <qtcreator>
  <data>
   <variable>QtVersion.0</variable>
@@ -65,9 +65,9 @@
  <data>
   <variable>QtVersion.6</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">18</value>
-   <value type="QString" key="Name">Desktop Qt 5.0.1 (msvc2010)</value>
-   <value type="QString" key="QMakePath">C:/Qt/Qt5.0.1/5.0.1/msvc2010/bin/qmake.exe</value>
+   <value type="int" key="Id">4</value>
+   <value type="QString" key="Name">Desktop Qt 5.2.1 (msvc2010)</value>
+   <value type="QString" key="QMakePath">C:/Qt/Qt5.2.1/5.2.1/msvc2010/bin/qmake.exe</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>
@@ -75,9 +75,9 @@
  <data>
   <variable>QtVersion.7</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">4</value>
-   <value type="QString" key="Name">Desktop Qt 5.2.1 (msvc2010)</value>
-   <value type="QString" key="QMakePath">C:/Qt/Qt5.2.1/5.2.1/msvc2010/bin/qmake.exe</value>
+   <value type="int" key="Id">20</value>
+   <value type="QString" key="Name">Qt 5.3.1 (msvc2010_opengl)</value>
+   <value type="QString" key="QMakePath">C:/Qt/Qt5.3.1/5.3/msvc2010_opengl/bin/qmake.exe</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>

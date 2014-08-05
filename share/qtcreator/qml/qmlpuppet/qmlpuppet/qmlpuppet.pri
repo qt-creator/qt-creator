@@ -22,10 +22,12 @@ SOURCES += $$PWD/qmlpuppetmain.cpp
 RESOURCES += $$PWD/../qmlpuppet.qrc
 DEFINES -= QT_NO_CAST_FROM_ASCII
 
+unix:!macx:LIBS += -lrt # posix shared memory
+
 OTHER_FILES += Info.plist
 macx {
     CONFIG -= app_bundle
-    QMAKE_LFLAGS += -sectcreate __TEXT __info_plist $$quote($$PWD/Info.plist)
+    QMAKE_LFLAGS += -sectcreate __TEXT __info_plist \"$$PWD/Info.plist\"
 } else {
     target.path  = $$QTC_PREFIX/bin
     INSTALLS    += target

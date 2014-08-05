@@ -146,7 +146,7 @@
 
     \section3 Selecting API Level
 
-    In the \gui {Android target SDK} field, you can select the API level to use
+    In the \gui {Android build SDK} field, you can select the API level to use
     for building the application. Usually, you should select the newest API
     level available.
 
@@ -235,6 +235,9 @@
     install the application. Android OS then grants the application access to
     the appropriate data and features.
 
-    To add permissions, select \gui Add and select permissions from the list.
+    Select the \gui {Include default permissions and features for Qt modules}
+    check box to add the permissions needed by Qt libraries.
+
+    To add permissions, select them in the list, and then select \gui Add.
 */
 

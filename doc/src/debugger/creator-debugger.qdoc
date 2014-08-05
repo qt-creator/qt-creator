@@ -412,10 +412,8 @@
 
     \image qtcreator-debugger-views.png "Debug mode views"
 
-    By default, the views are locked into place in the workspace. Select
-    \gui {Window > Views > Locked} to unlock the views. Drag and drop the
-    views into new positions on the screen. Drag view borders to resize the
-    views. The size and position of views are saved for future sessions. Select
+    You can drag and drop the views in \QD to new positions on the screen.
+    The size and position of views are saved for future sessions. Select
     \gui {Window > Views > Reset to Default Layout} to reset the views to
     their original sizes and positions.
 
@@ -894,8 +892,8 @@
 
     Debugging helpers are always automatically used. To force a plain
     C-like display of structures, select \gui Tools > \gui Options >
-    \gui Debugger > \gui {Locals & Expressions}, and then select the
-    \gui{Force Raw Structure Display} check box. For GDB
+    \gui Debugger > \gui {Locals & Expressions}, and then deselect the
+    \gui{Use Debugging Helper} check box. For GDB
     and LLDB this will still use the Python scripts, but generate
     more basic output. To force plain display for a single object
     or for all objects of a given type, select the corresponding
@@ -1218,7 +1216,7 @@
         \li Make sure the debugger is set up properly. For more information,
             see \l{Setting Up Debugger}.
 
-        \li In the \gui Debug mode, select \gui {Windows > Views > Debugger
+        \li In the \gui Debug mode, select \gui {Window > Views > Debugger
             Log} to open the \gui {Debugger Log} view. Browse the contents of
             the pane on the right hand side to find out what went wrong.
             Always attach the contents of the pane to debugger-related

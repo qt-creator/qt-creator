@@ -120,6 +120,9 @@
     the build step and add a custom build step that specifies another shell
     command.
 
+    \note For more information about the build steps when using Qbs, see
+    \l{Building Applications with Qbs}.
+
     \section2 Adding Custom Build Steps
 
     To add custom steps to the build settings, select \gui {Add Build Step >
@@ -155,6 +158,9 @@
             \inlineimage qtcreator-movestep.png
             (\gui {Move Up} and \gui {Move Down}).
     \endlist
+
+    \note For more information about the cleaning steps when using Qbs, see
+    \l{Building Applications with Qbs}.
 
     \section1 Build Environment
 

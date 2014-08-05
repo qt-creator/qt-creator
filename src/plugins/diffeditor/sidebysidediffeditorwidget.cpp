@@ -779,7 +779,8 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     connect(m_leftEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),
             this, SLOT(slotLeftJumpToOriginalFileRequested(int,int,int)));
     connect(m_leftEditor, SIGNAL(contextMenuRequested(QMenu*,int,int)),
-            this, SLOT(slotLeftContextMenuRequested(QMenu*,int,int)));
+            this, SLOT(slotLeftContextMenuRequested(QMenu*,int,int)),
+            Qt::DirectConnection);
 
     m_rightEditor = new SideDiffEditorWidget(this);
     m_rightEditor->setReadOnly(true);
@@ -791,7 +792,8 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     connect(m_rightEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),
             this, SLOT(slotRightJumpToOriginalFileRequested(int,int,int)));
     connect(m_rightEditor, SIGNAL(contextMenuRequested(QMenu*,int,int)),
-            this, SLOT(slotRightContextMenuRequested(QMenu*,int,int)));
+            this, SLOT(slotRightContextMenuRequested(QMenu*,int,int)),
+            Qt::DirectConnection);
 
     connect(TextEditorSettings::instance(),
             SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),

@@ -783,7 +783,7 @@ DiffEditor::DiffEditorDocument *GitClient::createDiffEditor(const QString &docum
     VcsBasePlugin::setSource(diffEditorDocument, source);
 
     connect(diffEditorDocument->controller(), SIGNAL(chunkActionsRequested(QMenu*,int,int)),
-            this, SLOT(slotChunkActionsRequested(QMenu*,int,int)));
+            this, SLOT(slotChunkActionsRequested(QMenu*,int,int)), Qt::DirectConnection);
 
     return diffEditorDocument;
 }
@@ -1952,7 +1952,7 @@ bool GitClient::synchronousForEachRefCmd(const QString &workingDirectory, QStrin
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText,
                                         VcsBasePlugin::SuppressCommandLogging);
-    *output = commandOutputFromLocal8Bit(outputText);
+    *output = Utils::SynchronousProcess::normalizeNewlines(QString::fromUtf8(outputText));
     if (!rc)
         msgCannotRun(args, workingDirectory, errorText, errorMessage);
 

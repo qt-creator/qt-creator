@@ -63,16 +63,23 @@ public:
         return __ast;
     }
 
-    AttributeSpecifierAST *AttributeSpecifier(AttributeListAST *attribute_list = 0)
+    AlignmentSpecifierAST *AlignmentSpecifier(ExpressionAST *typeIdExprOrAlignmentExpr = 0)
     {
-        AttributeSpecifierAST *__ast = new (&pool) AttributeSpecifierAST;
+        AlignmentSpecifierAST *__ast = new (&pool) AlignmentSpecifierAST;
+        __ast->typeIdExprOrAlignmentExpr = typeIdExprOrAlignmentExpr;
+        return __ast;
+    }
+
+    GnuAttributeSpecifierAST *GnuAttributeSpecifier(GnuAttributeListAST *attribute_list = 0)
+    {
+        GnuAttributeSpecifierAST *__ast = new (&pool) GnuAttributeSpecifierAST;
         __ast->attribute_list = attribute_list;
         return __ast;
     }
 
-    AttributeAST *Attribute(ExpressionListAST *expression_list = 0)
+    GnuAttributeAST *GnuAttribute(ExpressionListAST *expression_list = 0)
     {
-        AttributeAST *__ast = new (&pool) AttributeAST;
+        GnuAttributeAST *__ast = new (&pool) GnuAttributeAST;
         __ast->expression_list = expression_list;
         return __ast;
     }
@@ -1168,14 +1175,6 @@ public:
         return __ast;
     }
 
-    AttributeListAST *AttributeList(AttributeAST *value, AttributeListAST *next = 0)
-    {
-        AttributeListAST *__list = new (&pool) AttributeListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
-    }
-
     BaseSpecifierListAST *BaseSpecifierList(BaseSpecifierAST *value, BaseSpecifierListAST *next = 0)
     {
         BaseSpecifierListAST *__list = new (&pool) BaseSpecifierListAST;
@@ -1235,6 +1234,14 @@ public:
     ExpressionListAST *ExpressionList(ExpressionAST *value, ExpressionListAST *next = 0)
     {
         ExpressionListAST *__list = new (&pool) ExpressionListAST;
+        __list->next = next;
+        __list->value = value;
+        return __list;
+    }
+
+    GnuAttributeListAST *GnuAttributeList(GnuAttributeAST *value, GnuAttributeListAST *next = 0)
+    {
+        GnuAttributeListAST *__list = new (&pool) GnuAttributeListAST;
         __list->next = next;
         __list->value = value;
         return __list;

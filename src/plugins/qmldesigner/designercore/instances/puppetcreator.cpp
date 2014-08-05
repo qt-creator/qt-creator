@@ -95,9 +95,11 @@ QDateTime PuppetCreator::puppetSourceLastModified() const
     sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qml2puppet/instances"));
 
     foreach (const QString directoryPath, sourceDirectoryPathes) {
-        QDateTime directoryPathLastModified = QFileInfo(directoryPath).lastModified();
-        if (lastModified < directoryPathLastModified)
-            lastModified = directoryPathLastModified;
+        foreach (const QFileInfo fileEntry, QDir(directoryPath).entryInfoList()) {
+            QDateTime filePathLastModified = fileEntry.lastModified();
+            if (lastModified < filePathLastModified)
+                lastModified = filePathLastModified;
+        }
     }
 
     return lastModified;
@@ -130,7 +132,10 @@ QProcess *PuppetCreator::createPuppetProcess(PuppetCreator::QmlPuppetVersion pup
      else
         puppetPath = qml2PuppetPath(m_availablePuppetType);
 
+    const QString workingDirectory = qmlPuppetDirectory(m_availablePuppetType);
+
     return puppetProcess(puppetPath,
+                         workingDirectory,
                          puppetMode,
                          socketToken,
                          handlerObject,
@@ -140,6 +145,7 @@ QProcess *PuppetCreator::createPuppetProcess(PuppetCreator::QmlPuppetVersion pup
 
 
 QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
+                                       const QString &workingDirectory,
                                        const QString &puppetMode,
                                        const QString &socketToken,
                                        QObject *handlerObject,
@@ -156,6 +162,7 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
     }
+    puppetProcess->setWorkingDirectory(workingDirectory);
     puppetProcess->start(puppetPath, QStringList() << socketToken << puppetMode << "-graphicssystem raster");
 
     if (!qgetenv("DEBUG_QML_PUPPET").isEmpty())
@@ -192,7 +199,9 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             qmakeArguments.append(QStringLiteral("-r"));
             qmakeArguments.append(QStringLiteral("-after"));
             qmakeArguments.append(QStringLiteral("DESTDIR=") + qmlPuppetDirectory(UserSpacePuppet));
-#ifndef QT_DEBUG
+#ifdef QT_DEBUG
+            qmakeArguments.append(QStringLiteral("CONFIG+=debug"));
+#else
             qmakeArguments.append(QStringLiteral("CONFIG+=release"));
 #endif
             qmakeArguments.append(qmlPuppetProjectFilePath);
@@ -241,34 +250,31 @@ static void warnAboutInvalidKit()
 
 void PuppetCreator::createQml1PuppetExecutableIfMissing()
 {
-    if (!m_useOnlyFallbackPuppet && m_kit) {
-            if (m_qml1PuppetForKitPuppetHash.contains(m_kit->id())) {
-                m_availablePuppetType = m_qml1PuppetForKitPuppetHash.value(m_kit->id());
-            } else if (checkQmlpuppetIsReady()) {
-                m_availablePuppetType = UserSpacePuppet;
-            } else {
-                if (m_kit->isValid()) {
+    m_availablePuppetType = FallbackPuppet;
 
-                    bool buildSucceeded = build(qmlPuppetProjectFile());
-                    if (buildSucceeded)
-                        m_availablePuppetType = UserSpacePuppet;
-                    else
-                        m_availablePuppetType = FallbackPuppet;
-                } else {
-                    warnAboutInvalidKit();
-                    m_availablePuppetType = FallbackPuppet;
-                }
-                m_qml1PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
+    if (!m_useOnlyFallbackPuppet && m_kit) {
+        if (m_qml1PuppetForKitPuppetHash.contains(m_kit->id())) {
+            m_availablePuppetType = m_qml1PuppetForKitPuppetHash.value(m_kit->id());
+        } else if (checkQmlpuppetIsReady()) {
+            m_availablePuppetType = UserSpacePuppet;
+        } else {
+            if (m_kit->isValid()) {
+                bool buildSucceeded = build(qmlPuppetProjectFile());
+                if (buildSucceeded)
+                    m_availablePuppetType = UserSpacePuppet;
+            } else {
+                warnAboutInvalidKit();
             }
-    } else {
-        m_availablePuppetType = FallbackPuppet;
+            m_qml1PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
+        }
     }
 }
 
 void PuppetCreator::createQml2PuppetExecutableIfMissing()
 {
-    if (!m_useOnlyFallbackPuppet && m_kit) {
+    m_availablePuppetType = FallbackPuppet;
 
+    if (!m_useOnlyFallbackPuppet && m_kit) {
         if (m_qml2PuppetForKitPuppetHash.contains(m_kit->id())) {
             m_availablePuppetType = m_qml2PuppetForKitPuppetHash.value(m_kit->id());
         } else if (checkQml2PuppetIsReady()) {
@@ -278,16 +284,11 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
                 bool buildSucceeded = build(qml2PuppetProjectFile());
                 if (buildSucceeded)
                     m_availablePuppetType = UserSpacePuppet;
-                else
-                    m_availablePuppetType = FallbackPuppet;
             } else {
                 warnAboutInvalidKit();
-                m_availablePuppetType = FallbackPuppet;
             }
             m_qml2PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
         }
-    } else {
-        m_availablePuppetType = FallbackPuppet;
     }
 }
 

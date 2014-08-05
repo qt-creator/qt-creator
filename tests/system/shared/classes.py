@@ -40,13 +40,13 @@ class Targets:
     HARMATTAN = 16
     EMBEDDED_LINUX = 32
     DESKTOP_480_MSVC2010 = 64
-    DESKTOP_501_DEFAULT = 128
-    DESKTOP_521_DEFAULT = 256
+    DESKTOP_521_DEFAULT = 128
+    DESKTOP_531_DEFAULT = 256
 
     @staticmethod
     def desktopTargetClasses():
         desktopTargets = (Targets.DESKTOP_474_GCC | Targets.DESKTOP_480_GCC
-                          | Targets.DESKTOP_501_DEFAULT | Targets.DESKTOP_521_DEFAULT)
+                          | Targets.DESKTOP_521_DEFAULT | Targets.DESKTOP_531_DEFAULT)
         if platform.system() in ('Windows', 'Microsoft'):
             desktopTargets |= Targets.DESKTOP_480_MSVC2010
         return desktopTargets
@@ -67,10 +67,10 @@ class Targets:
             return "Embedded Linux"
         elif target == Targets.DESKTOP_480_MSVC2010:
             return "Desktop 480 MSVC2010"
-        elif target == Targets.DESKTOP_501_DEFAULT:
-            return "Desktop 501 default"
         elif target == Targets.DESKTOP_521_DEFAULT:
             return "Desktop 521 default"
+        elif target == Targets.DESKTOP_531_DEFAULT:
+            return "Desktop 531 default"
         else:
             return None
 
@@ -88,12 +88,16 @@ class Targets:
     def intToArray(targets):
         available = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_GCC, Targets.SIMULATOR, Targets.MAEMO5,
                      Targets.HARMATTAN, Targets.EMBEDDED_LINUX, Targets.DESKTOP_480_MSVC2010,
-                     Targets.DESKTOP_501_DEFAULT, Targets.DESKTOP_521_DEFAULT]
+                     Targets.DESKTOP_521_DEFAULT, Targets.DESKTOP_531_DEFAULT]
         return filter(lambda x: x & targets == x, available)
 
     @staticmethod
     def arrayToInt(targetArr):
         return reduce(operator.or_, targetArr, 0)
+
+    @staticmethod
+    def getDefaultKit():
+        return Targets.DESKTOP_521_DEFAULT
 
 # this class holds some constants for easier usage inside the Projects view
 class ProjectSettings:

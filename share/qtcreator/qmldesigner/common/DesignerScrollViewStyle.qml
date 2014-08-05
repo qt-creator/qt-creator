@@ -58,4 +58,5 @@ ScrollViewStyle {
 
     decrementControl: Item {}
     incrementControl: Item {}
+    corner: Item {}
 }

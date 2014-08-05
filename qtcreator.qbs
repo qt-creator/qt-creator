@@ -1,6 +1,7 @@
 import qbs 1.0
 
 Project {
+    minimumQbsVersion: "1.3"
     property bool withAutotests: qbs.buildVariant === "debug"
     property string ide_version_major: '3'
     property string ide_version_minor: '2'

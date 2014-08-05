@@ -1006,6 +1006,7 @@ void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXm
     if (!m_appNameInStringsXml) {
         keys << QLatin1String("android:label");
         values << m_appNameLineEdit->text();
+        m_setAppName = false;
     }
     bool ensureIconAttribute =  !m_lIconPath.isEmpty()
             || !m_mIconPath.isEmpty()

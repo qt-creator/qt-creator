@@ -77,6 +77,7 @@ Rectangle {
                             Layout.fillWidth: true
                             Layout.maximumWidth: 320
                             showTranslateCheckBox: false
+                            showExtendedFunctionButton: false
                         }
 
                         ExpandingSpacer {

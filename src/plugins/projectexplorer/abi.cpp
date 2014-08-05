@@ -469,9 +469,9 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
         } else if (p.startsWith(QLatin1String("arm"))) {
             arch = Abi::ArmArchitecture;
             width = 32;
-        } else if (p == QLatin1String("mipsel")) {
+        } else if (p.startsWith(QLatin1String("mips"))) {
             arch = Abi::MipsArchitecture;
-            width = 32;
+            width = p.endsWith(QLatin1String("64")) ? 64 : 32;
         } else if (p == QLatin1String("x86_64") || p == QLatin1String("amd64")) {
             arch = Abi::X86Architecture;
             width = 64;
@@ -817,14 +817,6 @@ QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
     return result;
 }
 
-ProjectExplorer::Abi::Endianness Abi::endianness() const
-{
-    if (m_architecture == X86Architecture)
-        return LittleEndian;
-    // All other architectures are bi-endian:/
-    return UnknownEndian; // Todo: Add a field for endianness to the Abi struct!
-}
-
 } // namespace ProjectExplorer
 
 // Unit tests:
@@ -996,92 +988,98 @@ void ProjectExplorer::ProjectExplorerPlugin::testFlavorForOs()
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
 {
-    QTest::addColumn<QString>("targetTriplet");
     QTest::addColumn<int>("architecture");
     QTest::addColumn<int>("os");
     QTest::addColumn<int>("osFlavor");
     QTest::addColumn<int>("binaryFormat");
-    QTest::addColumn<unsigned char>("wordWidth");
+    QTest::addColumn<int>("wordWidth");
 
-    QTest::newRow("x86_64-apple-darwin") << "x86_64-apple-darwin" << int(Abi::X86Architecture)
+    QTest::newRow("x86_64-apple-darwin") << int(Abi::X86Architecture)
                                          << int(Abi::MacOS) << int(Abi::GenericMacFlavor)
-                                         << int(Abi::MachOFormat) << (unsigned char) 64;
+                                         << int(Abi::MachOFormat) << 64;
 
-    QTest::newRow("x86_64-apple-darwin12.5.0") << "x86_64-apple-darwin12.5.0" << int(Abi::X86Architecture)
+    QTest::newRow("x86_64-apple-darwin12.5.0") << int(Abi::X86Architecture)
                                                << int(Abi::MacOS) << int(Abi::GenericMacFlavor)
-                                               << int(Abi::MachOFormat) << (unsigned char) 64;
+                                               << int(Abi::MachOFormat) << 64;
 
-    QTest::newRow("x86_64-linux-gnu") << "x86_64-linux-gnu" << int(Abi::X86Architecture)
+    QTest::newRow("x86_64-linux-gnu") << int(Abi::X86Architecture)
                                       << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
-                                      << int(Abi::ElfFormat) << (unsigned char) 64;
+                                      << int(Abi::ElfFormat) << 64;
 
-    QTest::newRow("x86_64-pc-mingw32msvc") << "x86_64-pc-mingw32msvc" << int(Abi::X86Architecture)
+    QTest::newRow("x86_64-pc-mingw32msvc") << int(Abi::X86Architecture)
                                            << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                           << int(Abi::PEFormat) << (unsigned char) 64;
+                                           << int(Abi::PEFormat) << 64;
 
-    QTest::newRow("i586-pc-mingw32msvc") << "i586-pc-mingw32msvc" << int(Abi::X86Architecture)
+    QTest::newRow("i586-pc-mingw32msvc") << int(Abi::X86Architecture)
                                          << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                         << int(Abi::PEFormat) << (unsigned char) 0;
+                                         << int(Abi::PEFormat) << 0;
 
-    QTest::newRow("i686-linux-gnu") << "i686-linux-gnu" << int(Abi::X86Architecture)
+    QTest::newRow("i686-linux-gnu") << int(Abi::X86Architecture)
                                     << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
-                                    << int(Abi::ElfFormat) << (unsigned char) 0;
+                                    << int(Abi::ElfFormat) << 0;
 
-    QTest::newRow("i686-linux-android") << "i686-linux-android" << int(Abi::X86Architecture)
+    QTest::newRow("i686-linux-android") << int(Abi::X86Architecture)
                                         << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                        << int(Abi::ElfFormat) << (unsigned char) 0;
+                                        << int(Abi::ElfFormat) << 0;
 
-    QTest::newRow("i686-pc-linux-android") << "i686-pc-linux-android" << int(Abi::X86Architecture)
+    QTest::newRow("i686-pc-linux-android") << int(Abi::X86Architecture)
                                            << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                           << int(Abi::ElfFormat) << (unsigned char) 0;
+                                           << int(Abi::ElfFormat) << 0;
 
-    QTest::newRow("i686-pc-mingw32") << "i686-pc-mingw32" << int(Abi::X86Architecture)
+    QTest::newRow("i686-pc-mingw32") << int(Abi::X86Architecture)
                                      << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                     << int(Abi::PEFormat) << (unsigned char) 0;
+                                     << int(Abi::PEFormat) << 0;
 
-    QTest::newRow("i686-w64-mingw32") << "i686-w64-mingw32" << int(Abi::X86Architecture)
+    QTest::newRow("i686-w64-mingw32") << int(Abi::X86Architecture)
                                       << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                      << int(Abi::PEFormat) << (unsigned char) 0;
+                                      << int(Abi::PEFormat) << 0;
 
-    QTest::newRow("mingw32") << "mingw32" << int(Abi::X86Architecture)
+    QTest::newRow("mingw32") << int(Abi::X86Architecture)
                              << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                             << int(Abi::PEFormat) << (unsigned char) 0;
+                             << int(Abi::PEFormat) << 0;
 
-    QTest::newRow("arm-linux-android") << "arm-linux-android" << int(Abi::ArmArchitecture)
+    QTest::newRow("arm-linux-android") << int(Abi::ArmArchitecture)
                                        << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                       << int(Abi::ElfFormat) << (unsigned char) 32;
+                                       << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("arm-linux-androideabi") << "arm-linux-androideabi" << int(Abi::ArmArchitecture)
+    QTest::newRow("arm-linux-androideabi") << int(Abi::ArmArchitecture)
                                            << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                           << int(Abi::ElfFormat) << (unsigned char) 32;
+                                           << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("arm-none-linux-gnueabi") << "arm-none-linux-gnueabi" << int(Abi::ArmArchitecture)
+    QTest::newRow("arm-none-linux-gnueabi") << int(Abi::ArmArchitecture)
                                             << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
-                                            << int(Abi::ElfFormat) << (unsigned char) 32;
+                                            << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("mipsel-linux-android") << "mipsel-linux-android" << int(Abi::MipsArchitecture)
+    QTest::newRow("mipsel-linux-android") << int(Abi::MipsArchitecture)
                                           << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                          << int(Abi::ElfFormat) << (unsigned char) 32;
+                                          << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("mipsel-unknown-linux-android") << "mipsel-unknown-linux-android" << int(Abi::MipsArchitecture)
+    QTest::newRow("mipsel-unknown-linux-android") << int(Abi::MipsArchitecture)
                                                   << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                                  << int(Abi::ElfFormat) << (unsigned char) 32;
+                                                  << int(Abi::ElfFormat) << 32;
+
+    QTest::newRow("mips-linux-gnu") << int(Abi::MipsArchitecture)
+                                    << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
+                                    << int(Abi::ElfFormat) << 32;
+
+    QTest::newRow("mips64-linux-octeon-gnu") << int(Abi::MipsArchitecture)
+                                             << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
+                                             << int(Abi::ElfFormat) << 64;
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()
 {
-    QFETCH(QString, targetTriplet);
     QFETCH(int, architecture);
     QFETCH(int, os);
     QFETCH(int, osFlavor);
     QFETCH(int, binaryFormat);
-    QFETCH(unsigned char, wordWidth);
+    QFETCH(int, wordWidth);
 
     const Abi expectedAbi = Abi(Abi::Architecture(architecture),
                                 Abi::OS(os), Abi::OSFlavor(osFlavor),
-                                Abi::BinaryFormat(binaryFormat), wordWidth);
+                                Abi::BinaryFormat(binaryFormat), (unsigned char)wordWidth);
 
-    QCOMPARE(Abi::abiFromTargetTriplet(targetTriplet), expectedAbi);
+    QCOMPARE(Abi::abiFromTargetTriplet(QLatin1String(QTest::currentDataTag())), expectedAbi);
 }
 
 #endif

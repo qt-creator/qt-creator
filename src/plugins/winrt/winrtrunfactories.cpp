@@ -37,24 +37,15 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-
-#include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
-#include <debugger/debuggerstartparameters.h>
-
+#include <qmakeprojectmanager/qmakeproject.h>
 #include <utils/qtcassert.h>
 
-#include <QLocalServer>
-#include <QLocalSocket>
-
 using namespace ProjectExplorer;
+using QmakeProjectManager::QmakeProject;
+using QmakeProjectManager::QmakeProFileNode;
 
 namespace WinRt {
 namespace Internal {
-
-static const char winrtConfigurationIdC[] = "WinRTConfigurationID";
 
 static bool isKitCompatible(Kit *kit)
 {
@@ -72,13 +63,17 @@ WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
 {
 }
 
-QList<Core::Id> WinRtRunConfigurationFactory::availableCreationIds(Target *parent, CreationMode mode) const
+QList<Core::Id> WinRtRunConfigurationFactory::availableCreationIds(Target *parent,
+                                                                   CreationMode mode) const
 {
-    Q_UNUSED(mode)
-    QList<Core::Id> result;
-    if (isKitCompatible(parent->kit()))
-        result.append(Core::Id(winrtConfigurationIdC));
-    return result;
+    if (!canHandle(parent))
+        return QList<Core::Id>();
+
+    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
+    QList<QmakeProFileNode *> nodes = project->applicationProFiles();
+    if (mode == AutoCreate)
+        nodes = QmakeProject::nodesWithQtcRunnable(nodes);
+    return QmakeProject::idsForNodes(Core::Id(Constants::WINRT_RC_PREFIX), nodes);
 }
 
 QString WinRtRunConfigurationFactory::displayNameForId(Core::Id id) const
@@ -89,7 +84,8 @@ QString WinRtRunConfigurationFactory::displayNameForId(Core::Id id) const
 
 bool WinRtRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
 {
-    return id == winrtConfigurationIdC && isKitCompatible(parent->kit());
+    Q_UNUSED(id);
+    return canHandle(parent);
 }
 
 RunConfiguration *WinRtRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
@@ -99,12 +95,15 @@ RunConfiguration *WinRtRunConfigurationFactory::doCreate(Target *parent, Core::I
 
 bool WinRtRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    return ProjectExplorer::idFromMap(map) == winrtConfigurationIdC && isKitCompatible(parent->kit());
+    if (!canHandle(parent))
+        return false;
+
+    return idFromMap(map).toString().startsWith(QLatin1String(Constants::WINRT_RC_PREFIX));
 }
 
 RunConfiguration *WinRtRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
-    RunConfiguration *config = new WinRtRunConfiguration(parent, winrtConfigurationIdC);
+    RunConfiguration *config = new WinRtRunConfiguration(parent, idFromMap(map));
     config->fromMap(map);
     return config;
 }
@@ -121,6 +120,15 @@ RunConfiguration *WinRtRunConfigurationFactory::clone(Target *parent, RunConfigu
     Q_UNUSED(parent);
     Q_UNUSED(product);
     return 0;
+}
+
+bool WinRtRunConfigurationFactory::canHandle(Target *parent) const
+{
+    if (!isKitCompatible(parent->kit()))
+        return false;
+    if (!qobject_cast<QmakeProject *>(parent->project()))
+        return false;
+    return true;
 }
 
 WinRtRunControlFactory::WinRtRunControlFactory()

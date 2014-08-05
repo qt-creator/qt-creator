@@ -299,7 +299,7 @@ void FormEditorView::propertiesRemoved(const QList<AbstractProperty> &/*property
 {
 }
 
-void FormEditorView::customNotification(const AbstractView */*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
+void FormEditorView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
 {
     if (identifier == QStringLiteral("puppet crashed"))
         m_dragTool->clearMoveDelay();

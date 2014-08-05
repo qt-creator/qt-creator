@@ -53,7 +53,7 @@ public:
     QHash<int, QByteArray> roleNames() const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    Q_INVOKABLE void addStop(qreal position, const QColor &color);
+    Q_INVOKABLE int addStop(qreal position, const QColor &color);
     Q_INVOKABLE void addGradient();
 
     Q_INVOKABLE void setColor(int index, const QColor &color);

@@ -86,7 +86,9 @@ static const char CONFIG_CXXFLAGS[] = "cxxFlags";
 static const char CONFIG_CFLAGS[] = "cFlags";
 static const char CONFIG_DEFINES[] = "defines";
 static const char CONFIG_INCLUDEPATHS[] = "includePaths";
+static const char CONFIG_SYSTEM_INCLUDEPATHS[] = "systemIncludePaths";
 static const char CONFIG_FRAMEWORKPATHS[] = "frameworkPaths";
+static const char CONFIG_SYSTEM_FRAMEWORKPATHS[] = "systemFrameworkPaths";
 static const char CONFIG_PRECOMPILEDHEADER[] = "precompiledHeader";
 static const char CONFIGURATION_PATH[] = "<configuration>";
 
@@ -183,7 +185,13 @@ QStringList QbsProject::files(Project::FilesMode fileMode) const
         return QStringList();
     QSet<QString> result;
     collectFilesForProject(m_rootProjectNode->qbsProjectData(), result);
+    result.unite(qbsProject().buildSystemFiles());
     return result.toList();
+}
+
+bool QbsProject::isProjectEditable() const
+{
+    return m_qbsProject.isValid() && !isParsing() && !ProjectExplorer::BuildManager::isBuilding();
 }
 
 class ChangeExpector
@@ -235,6 +243,7 @@ bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &
     if (notAdded->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
         QbsGroupNode::setupFiles(node, allPaths, QFileInfo(productFilePath).absolutePath(), true);
+        m_rootProjectNode->update();
     }
     return notAdded->isEmpty();
 }
@@ -260,6 +269,7 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
     if (notRemoved->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
         QbsGroupNode::setupFiles(node, allPaths, QFileInfo(productFilePath).absolutePath(), true);
+        m_rootProjectNode->update();
     }
     return notRemoved->isEmpty();
 }
@@ -494,6 +504,8 @@ void QbsProject::cancelParsing()
 
 void QbsProject::updateAfterBuild()
 {
+    QTC_ASSERT(m_qbsProject.isValid(), return);
+    m_projectData = m_qbsProject.projectData();
     updateBuildTargetData();
 }
 
@@ -654,6 +666,8 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_INCLUDEPATHS));
+            list.append(props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
+                                                              QLatin1String(CONFIG_SYSTEM_INCLUDEPATHS)));
             CppTools::ProjectPart::HeaderPaths grpHeaderPaths;
             foreach (const QString &p, list)
                 grpHeaderPaths += CppTools::ProjectPart::HeaderPath(
@@ -662,6 +676,8 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_FRAMEWORKPATHS));
+            list.append(props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
+                                                              QLatin1String(CONFIG_SYSTEM_FRAMEWORKPATHS)));
             foreach (const QString &p, list)
                 grpHeaderPaths += CppTools::ProjectPart::HeaderPath(
                             FileName::fromUserInput(p).toString(),
@@ -751,7 +767,7 @@ void QbsProject::updateDeploymentInfo(const qbs::Project &project)
         qbs::InstallOptions installOptions;
         installOptions.setInstallRoot(QLatin1String("/"));
         foreach (const qbs::InstallableFile &f,
-                 project.installableFilesForProject(project.projectData(), installOptions)) {
+                 project.installableFilesForProject(m_projectData, installOptions)) {
             deploymentData.addFile(f.sourceFilePath(), f.targetDirectory(), f.isExecutable()
                                    ? ProjectExplorer::DeployableFile::TypeExecutable
                                    : ProjectExplorer::DeployableFile::TypeNormal);
@@ -762,7 +778,7 @@ void QbsProject::updateDeploymentInfo(const qbs::Project &project)
 
 void QbsProject::updateBuildTargetData()
 {
-    updateApplicationTargets(m_qbsProject.projectData());
+    updateApplicationTargets(m_projectData);
     updateDeploymentInfo(m_qbsProject);
     foreach (Target *t, targets())
         t->updateDefaultRunConfigurations();

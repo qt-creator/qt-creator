@@ -47,22 +47,24 @@ Controls.TextField {
 
     property bool showTranslateCheckBox: true
 
-    property bool hasToConvertColor: false
+    property bool writeValueManually: false
 
     property bool __dirty: false
+
+    property bool showExtendedFunctionButton: true
 
     ExtendedFunctionButton {
         x: 2
         y: 4
         backendValue: lineEdit.backendValue
-        visible: lineEdit.enabled
+        visible: lineEdit.enabled && showExtendedFunctionButton
     }
 
     ColorLogic {
         id: colorLogic
         backendValue: lineEdit.backendValue
         onValueFromBackendChanged: {
-            if (hasToConvertColor) {
+            if (writeValueManually) {
                 lineEdit.text = convertColorToString(valueFromBackend)
             } else {
                 lineEdit.text = valueFromBackend
@@ -78,7 +80,7 @@ Controls.TextField {
     Connections {
         target: modelNodeBackend
         onSelectionToBeChanged: {
-            if (__dirty) {
+            if (__dirty && !writeValueManually) {
                 lineEdit.backendValue.value = text
             }
             __dirty = false
@@ -87,7 +89,7 @@ Controls.TextField {
 
     onEditingFinished: {
 
-        if (hasToConvertColor)
+        if (writeValueManually)
             return
 
         if (!__dirty)

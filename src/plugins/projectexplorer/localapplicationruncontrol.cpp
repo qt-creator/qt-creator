@@ -54,11 +54,9 @@ bool LocalApplicationRunControlFactory::canRun(RunConfiguration *runConfiguratio
 
 RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage)
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     LocalApplicationRunConfiguration *localRunConfiguration = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    // Force the dialog about executables at this point and fail if there is none
-    if (!localRunConfiguration->ensureConfigured(errorMessage))
-        return 0;
     return new LocalApplicationRunControl(localRunConfiguration, mode);
 }
 

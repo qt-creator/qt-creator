@@ -250,6 +250,7 @@ struct ProjectExplorerPluginPrivate {
 
     QString m_lastOpenDirectory;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
+    QList<QPair<RunConfiguration *, ProjectExplorer::RunMode>> m_delayedRunConfigurationForRun;
     bool m_shouldHaveRunConfiguration;
     RunMode m_runMode;
     QString m_projectFilterString;
@@ -1790,14 +1791,25 @@ void ProjectExplorerPlugin::buildStateChanged(Project * pro)
 
 void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfiguration, RunMode runMode)
 {
-    QString errorMessage;
-    if (!runConfiguration->ensureConfigured(&errorMessage)) {
-        showRunErrorMessage(errorMessage);
-        return;
+    if (!runConfiguration->isConfigured()) {
+        QString errorMessage;
+        RunConfiguration::ConfigurationState state = runConfiguration->ensureConfigured(&errorMessage);
+
+        if (state == RunConfiguration::UnConfigured) {
+            showRunErrorMessage(errorMessage);
+            return;
+        } else if (state == RunConfiguration::Waiting) {
+            connect(runConfiguration, SIGNAL(configurationFinished()),
+                    this, SLOT(runConfigurationConfigurationFinished()));
+            d->m_delayedRunConfigurationForRun.append(qMakePair(runConfiguration, runMode));
+            return;
+        }
     }
+
     if (IRunControlFactory *runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
         emit aboutToExecuteProject(runConfiguration->target()->project(), runMode);
 
+        QString errorMessage;
         RunControl *control = runControlFactory->create(runConfiguration, runMode, &errorMessage);
         if (!control) {
             showRunErrorMessage(errorMessage);
@@ -1912,6 +1924,22 @@ void ProjectExplorerPlugin::updateContext()
     }
 
     ICore::updateAdditionalContexts(oldContext, newContext);
+}
+
+void ProjectExplorerPlugin::runConfigurationConfigurationFinished()
+{
+    RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
+    ProjectExplorer::RunMode runMode = ProjectExplorer::NoRunMode;
+    for (int i = 0; i < d->m_delayedRunConfigurationForRun.size(); ++i) {
+        if (d->m_delayedRunConfigurationForRun.at(i).first == rc) {
+            runMode = d->m_delayedRunConfigurationForRun.at(i).second;
+            d->m_delayedRunConfigurationForRun.removeAt(i);
+            break;
+        }
+    }
+    if (runMode != ProjectExplorer::NoRunMode
+            && rc->isConfigured())
+        executeRunConfiguration(rc, runMode);
 }
 
 void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node *node)
@@ -2773,6 +2801,7 @@ void ProjectExplorerPlugin::updateContextMenuActions()
     d->m_addExistingDirectoryAction->setEnabled(false);
     d->m_addNewFileAction->setEnabled(false);
     d->m_addNewSubprojectAction->setEnabled(false);
+    d->m_removeProjectAction->setEnabled(false);
     d->m_removeFileAction->setEnabled(false);
     d->m_deleteFileAction->setEnabled(false);
     d->m_renameFileAction->setEnabled(false);
@@ -2781,6 +2810,7 @@ void ProjectExplorerPlugin::updateContextMenuActions()
     d->m_addExistingDirectoryAction->setVisible(true);
     d->m_addNewFileAction->setVisible(true);
     d->m_addNewSubprojectAction->setVisible(true);
+    d->m_removeProjectAction->setVisible(true);
     d->m_removeFileAction->setVisible(true);
     d->m_deleteFileAction->setVisible(true);
     d->m_runActionContextMenu->setVisible(false);
@@ -2823,6 +2853,8 @@ void ProjectExplorerPlugin::updateContextMenuActions()
             d->m_addNewSubprojectAction->setEnabled(d->m_currentNode->nodeType() == ProjectNodeType
                                                     && actions.contains(ProjectExplorer::AddSubProject)
                                                     && !ICore::isNewItemDialogRunning());
+            d->m_removeProjectAction->setEnabled(d->m_currentNode->nodeType() == ProjectNodeType
+                                                    && actions.contains(ProjectExplorer::RemoveSubProject));
             d->m_addExistingFilesAction->setEnabled(actions.contains(ProjectExplorer::AddExistingFile));
             d->m_addExistingDirectoryAction->setEnabled(actions.contains(ProjectExplorer::AddExistingDirectory));
             d->m_renameFileAction->setEnabled(actions.contains(ProjectExplorer::Rename));
@@ -2856,6 +2888,7 @@ void ProjectExplorerPlugin::updateContextMenuActions()
         if (actions.contains(ProjectExplorer::HideFolderActions)) {
             d->m_addNewFileAction->setVisible(false);
             d->m_addNewSubprojectAction->setVisible(false);
+            d->m_removeProjectAction->setVisible(false);
             d->m_addExistingFilesAction->setVisible(false);
             d->m_addExistingDirectoryAction->setVisible(false);
         }

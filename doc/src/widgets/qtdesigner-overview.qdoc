@@ -61,18 +61,7 @@
 
     \section1 Specifying Settings for Qt Designer
 
-    To change the layout of \QD user interface elements:
-
-    \list 1
-
-        \li Select \gui Tools > \gui{Form Editor} > \gui Views > \gui Locked.
-
-            When this option is not checked, you can change the layout.
-
-        \li Click the header of an element and drag the element to a new
-            position.
-
-    \endlist
+    You can drag and drop the views in \QD to new positions on the screen.
 
     To specify settings for \QD:
 

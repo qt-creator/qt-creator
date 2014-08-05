@@ -583,6 +583,11 @@ void SubmitEditorWidget::setUpdateInProgress(bool value)
     updateSubmitAction();
 }
 
+bool SubmitEditorWidget::updateInProgress() const
+{
+    return d->m_updateInProgress;
+}
+
 QString SubmitEditorWidget::commitName() const
 {
     return tr("&Commit");

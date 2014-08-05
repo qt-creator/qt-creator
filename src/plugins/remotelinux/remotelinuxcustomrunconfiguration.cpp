@@ -119,16 +119,17 @@ bool RemoteLinuxCustomRunConfiguration::isConfigured() const
     return !m_remoteExecutable.isEmpty();
 }
 
-bool RemoteLinuxCustomRunConfiguration::ensureConfigured(QString *errorMessage)
+ProjectExplorer::RunConfiguration::ConfigurationState
+RemoteLinuxCustomRunConfiguration::ensureConfigured(QString *errorMessage)
 {
     if (!isConfigured()) {
         if (errorMessage) {
             *errorMessage = tr("The remote executable must be set "
                                "in order to run a custom remote run configuration.");
         }
-        return false;
+        return UnConfigured;
     }
-    return true;
+    return Configured;
 }
 
 QWidget *RemoteLinuxCustomRunConfiguration::createConfigurationWidget()

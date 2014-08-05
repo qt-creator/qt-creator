@@ -510,7 +510,7 @@ class Dumper(DumperBase):
         self.typesToReport = {}
 
         if "forcens" in self.options:
-            self.qtNamepaceToRport = self.qtNamespace()
+            self.qtNamepaceToReport = self.qtNamespace()
 
         if self.qtNamespaceToReport:
             self.output.append(',qtnamespace="%s"' % self.qtNamespaceToReport)
@@ -1500,6 +1500,16 @@ class Dumper(DumperBase):
         except:
             pass
 
+        try:
+            # Seemingly needed with Debian's GDB 7.4.1
+            s = gdb.execute("ptype QByteArray", to_string=True)
+            ns = s[s.find("class")+6:s.find("QByteArray")]
+            if len(ns):
+                self.qtNamespaceToReport = ns
+                self.qtNamespace = lambda: ns
+                return ns
+        except:
+            pass
         self.currentQtNamespaceGuess = ""
         return ""
 

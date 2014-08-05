@@ -247,7 +247,7 @@ int AddKitOperation::execute() const
         map = initializeKits();
 
     QVariantMap result = addKit(map, m_id, m_displayName, m_icon, m_debuggerId, m_debuggerEngine,
-                                m_debugger, m_deviceType.toUtf8(), m_device, m_sysRoot, m_tc, m_qt,
+                                m_debugger, m_deviceType, m_device, m_sysRoot, m_tc, m_qt,
                                 m_mkspec, m_extra);
 
     if (result.isEmpty() || map == result)
@@ -295,7 +295,7 @@ bool AddKitOperation::test() const
     QVariantMap empty = addKit(map, tcMap, qtMap, devMap,
                                QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
                                QString(), 1, QLatin1String("/usr/bin/gdb-test"),
-                               QByteArray("Desktop"), QLatin1String("{dev-id}"), QString(),
+                               QLatin1String("Desktop"), QLatin1String("{dev-id}"), QString(),
                                QLatin1String("{tcXX-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
                                KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (!empty.isEmpty())
@@ -304,7 +304,7 @@ bool AddKitOperation::test() const
     empty = addKit(map, tcMap, qtMap, devMap,
                    QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
                    QString(), 1, QLatin1String("/usr/bin/gdb-test"),
-                   QByteArray("Desktop"), QLatin1String("{dev-id}"), QString(),
+                   QLatin1String("Desktop"), QLatin1String("{dev-id}"), QString(),
                    QLatin1String("x86-linux-generic-elf-64bit"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
                    KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (empty.isEmpty())
@@ -313,7 +313,7 @@ bool AddKitOperation::test() const
     empty = addKit(map, tcMap, qtMap, devMap,
                    QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
                    QString(), 1, QLatin1String("/usr/bin/gdb-test"),
-                   QByteArray("Desktop"), QLatin1String("{dev-id}"), QString(),
+                   QLatin1String("Desktop"), QLatin1String("{dev-id}"), QString(),
                    QLatin1String("x86-macos-generic-mach_o-64bit"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
                    KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (empty.isEmpty())
@@ -323,7 +323,7 @@ bool AddKitOperation::test() const
     empty = addKit(map, tcMap, qtMap, devMap,
                    QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
                    QString(), 1, QLatin1String("/usr/bin/gdb-test"),
-                   QByteArray("Desktop"), QLatin1String("{dev-id}"), QString(),
+                   QLatin1String("Desktop"), QLatin1String("{dev-id}"), QString(),
                    QLatin1String("{tc-id}"), QLatin1String("{qtXX-id}"), QLatin1String("unsupported/mkspec"),
                    KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (!empty.isEmpty())
@@ -332,7 +332,7 @@ bool AddKitOperation::test() const
     empty = addKit(map, tcMap, qtMap, devMap,
                    QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
                    QString(), 1, QLatin1String("/usr/bin/gdb-test"),
-                   QByteArray("Desktop"), QLatin1String("{devXX-id}"), QString(),
+                   QLatin1String("Desktop"), QLatin1String("{devXX-id}"), QString(),
                    QLatin1String("{tc-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
                    KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (!empty.isEmpty())
@@ -341,7 +341,7 @@ bool AddKitOperation::test() const
     map = addKit(map, tcMap, qtMap, devMap,
                  QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
                  QString(), 1, QLatin1String("/usr/bin/gdb-test"),
-                 QByteArray("Desktop"), QString(), QString(),
+                 QLatin1String("Desktop"), QString(), QString(),
                  QLatin1String("{tc-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
 
@@ -391,7 +391,7 @@ bool AddKitOperation::test() const
     QVariantMap result = addKit(map, tcMap, qtMap, devMap,
                                 QLatin1String("testId"), QLatin1String("Test Qt Version X"), QLatin1String("/tmp/icon3.png"),
                                 QString(), 1, QLatin1String("/usr/bin/gdb-test3"),
-                                QByteArray("Desktop"), QString(), QString(),
+                                QLatin1String("Desktop"), QString(), QString(),
                                 QLatin1String("{tc-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
                                 KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (!result.isEmpty())
@@ -401,7 +401,7 @@ bool AddKitOperation::test() const
     map = addKit(map, tcMap, qtMap, devMap,
                  QLatin1String("testId2"), QLatin1String("Test Kit2"), QLatin1String("/tmp/icon2.png"),
                  QString(), 1, QLatin1String("/usr/bin/gdb-test2"),
-                 QByteArray("Desktop"), QLatin1String("{dev-id}"), QLatin1String("/sys/root\\\\"),
+                 QLatin1String("Desktop"), QLatin1String("{dev-id}"), QLatin1String("/sys/root\\\\"),
                  QLatin1String("{tc-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (map.count() != 5
@@ -457,7 +457,7 @@ bool AddKitOperation::test() const
     map = addKit(map, tcMap, qtMap, devMap,
                  QLatin1String("test with debugger Id"), QLatin1String("Test debugger Id"), QLatin1String("/tmp/icon2.png"),
                  QString::fromLatin1("debugger Id"), 0, QString(),
-                 QByteArray("Desktop"), QString(), QString(),
+                 QLatin1String("Desktop"), QString(), QString(),
                  QLatin1String("{tc-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (map.count() != 6
@@ -506,7 +506,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map,
                                     const QString &id, const QString &displayName,
                                     const QString &icon, const QString &debuggerId,
                                     const quint32 &debuggerType, const QString &debugger,
-                                    const QByteArray &deviceType, const QString &device,
+                                    const QString &deviceType, const QString &device,
                                     const QString &sysRoot, const QString &tc, const QString &qt,
                                     const QString &mkspec, const KeyValuePairList &extra)
 {
@@ -523,7 +523,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
                                     const QString &id, const QString &displayName,
                                     const QString &icon, const QString &debuggerId,
                                     const quint32 &debuggerType, const QString &debugger,
-                                    const QByteArray &deviceType, const QString &device,
+                                    const QString &deviceType, const QString &device,
                                     const QString &sysRoot, const QString &tc, const QString &qt,
                                     const QString &mkspec, const KeyValuePairList &extra)
 {

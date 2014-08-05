@@ -12,7 +12,7 @@ Module {
 
         Artifact {
             fileTags: ["pluginSpec"]
-            fileName: input.fileName.replace(/\.[^\.]*$/,'')
+            filePath: input.fileName.replace(/\.[^\.]*$/,'')
         }
 
         prepare: {
@@ -72,7 +72,7 @@ Module {
 
         Artifact {
             fileTags: ["qt_plugin_metadata"]
-            fileName: {
+            filePath: {
                 var destdir = FileInfo.joinPaths(product.moduleProperty("Qt/core", "generatedFilesDir"),
                                                  input.fileName);
                 return destdir.replace(/\.[^\.]*$/, '.json');

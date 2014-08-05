@@ -40,9 +40,9 @@
 
     You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
     screens with a native look and feel for a particular target platform.
-    Since Qt 5.1, a set of Qt Quick Controls is available for creating classic
-    desktop-style user interfaces using Qt Quick 2.1. Qt Quick 1 Components are
-    a part of Qt 4, whereas Qt Quick Controls were added to Qt 5.1.
+    Since Qt 5.1, Qt Quick Controls, Dialogs, and Layouts are available for
+    creating classic desktop-style user interfaces using Qt Quick 2.1. You can
+    use the Qt Quick Controls Styles to customize Qt Quick Controls.
 
     \section1 Adding Components to Screens
 
@@ -347,10 +347,6 @@
         \li \l{Flickable}
             items can be flicked horizontally or vertically.
 
-        \li \l{Flipable}
-            items can be flipped between their front and back sides by using
-            rotation, state, and transition.
-
         \li FocusScope
             assists in keyboard focus handling when building reusable QML
             components.
@@ -394,18 +390,24 @@
             down buttons, by pressing up or down on the keyboard, or by entering
             a value in the box.
 
+        \omit
+        Not visible in the item library in 3.2.
         \li StatusBar contains status information in your application. It
             does not provide a layout of its own, but requires you to position
             its contents, for instance by creating a \gui {Row Layout}.
+        \endomit
 
         \li TextArea displays multiple lines of editable formatted text.
 
         \li TextField displays a single line of editable plain text.
 
+        \omit
+        Not visible in the item library in 3.2.
         \li ToolBar provides styling for ToolButton as well as other controls
             that it can contain. However, it does not provide a layout of its
             own, but requires you to position its contents, for instance by
             creating a \gui {Row Layout}.
+        \endomit
 
         \li ToolButton provides a button that is functionally similar to
             \gui Button, but that looks more suitable on a \gui {Tool Bar}.

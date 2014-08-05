@@ -43,7 +43,7 @@ public:
     void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
     void setTodo(const QStringList &files);
 
-    void run(const QString &fileName);
+    void run(const QString &fileName, const QStringList &initialIncludes = QStringList());
     void removeFromCache(const QString &fileName);
     void resetEnvironment();
 
@@ -80,7 +80,8 @@ private:
     void markAsIncludeGuard(const QByteArray &macroName) QTC_OVERRIDE;
     void startSkippingBlocks(unsigned utf16charsOffset) QTC_OVERRIDE;
     void stopSkippingBlocks(unsigned utf16charsOffset) QTC_OVERRIDE;
-    void sourceNeeded(unsigned line, const QString &fileName, IncludeType type) QTC_OVERRIDE;
+    void sourceNeeded(unsigned line, const QString &fileName, IncludeType type,
+                      const QStringList &initialIncludes) QTC_OVERRIDE;
 
 private:
     CPlusPlus::Snapshot m_snapshot;

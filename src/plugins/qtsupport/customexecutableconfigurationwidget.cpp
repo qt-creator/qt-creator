@@ -47,7 +47,7 @@
 namespace QtSupport {
 namespace Internal {
 
-CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc)
+CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc, ApplyMode mode)
     : m_ignoreChange(false), m_runConfiguration(rc)
 {
     QFormLayout *layout = new QFormLayout;
@@ -86,14 +86,25 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
 
     changed();
 
-    connect(m_executableChooser, SIGNAL(changed(QString)),
-            this, SLOT(executableEdited()));
-    connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(argumentsEdited(QString)));
-    connect(m_workingDirectory, SIGNAL(changed(QString)),
-            this, SLOT(workingDirectoryEdited()));
-    connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
-            this, SLOT(termToggled(bool)));
+    if (mode == InstantApply) {
+        connect(m_executableChooser, SIGNAL(changed(QString)),
+                this, SLOT(executableEdited()));
+        connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(QString)),
+                this, SLOT(argumentsEdited(QString)));
+        connect(m_workingDirectory, SIGNAL(changed(QString)),
+                this, SLOT(workingDirectoryEdited()));
+        connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
+                this, SLOT(termToggled(bool)));
+    } else {
+        connect(m_executableChooser, SIGNAL(changed(QString)),
+                this, SIGNAL(validChanged()));
+        connect(m_commandLineArgumentsLineEdit, SIGNAL(textEdited(QString)),
+                this, SIGNAL(validChanged()));
+        connect(m_workingDirectory, SIGNAL(changed(QString)),
+                this, SIGNAL(validChanged()));
+        connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
+                this, SIGNAL(validChanged()));
+    }
 
     ProjectExplorer::EnvironmentAspect *aspect = rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
     if (aspect) {
@@ -101,7 +112,11 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
         environmentWasChanged();
     }
 
-    connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
+    // If we are in mode InstantApply, we keep us in sync with the rc
+    // otherwise we ignore changes to the rc and override them on apply,
+    // or keep them on cancel
+    if (mode == InstantApply)
+        connect(m_runConfiguration, SIGNAL(changed()), this, SLOT(changed()));
 }
 
 void CustomExecutableConfigurationWidget::environmentWasChanged()
@@ -151,6 +166,22 @@ void CustomExecutableConfigurationWidget::changed()
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
     m_useTerminalCheck->setChecked(m_runConfiguration->runMode()
                                    == ProjectExplorer::ApplicationLauncher::Console);
+}
+
+void CustomExecutableConfigurationWidget::apply()
+{
+    m_ignoreChange = true;
+    m_runConfiguration->setExecutable(m_executableChooser->rawPath());
+    m_runConfiguration->setCommandLineArguments(m_commandLineArgumentsLineEdit->text());
+    m_runConfiguration->setBaseWorkingDirectory(m_workingDirectory->rawPath());
+    m_runConfiguration->setRunMode(m_useTerminalCheck->isChecked() ? ProjectExplorer::ApplicationLauncher::Console
+                                                                   : ProjectExplorer::ApplicationLauncher::Gui);
+    m_ignoreChange = false;
+}
+
+bool CustomExecutableConfigurationWidget::isValid() const
+{
+    return !m_executableChooser->rawPath().isEmpty();
 }
 
 } // namespace Internal

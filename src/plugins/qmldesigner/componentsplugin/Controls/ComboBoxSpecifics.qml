@@ -43,21 +43,6 @@ Column {
         SectionLayout {
 
             Label {
-                text: qsTr("Tool tip")
-                toolTip: qsTr("The tool tip shown for the combobox.")
-            }
-
-            SecondColumnLayout {
-                LineEdit {
-                    backendValue: backendValues.tooltip
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
-                }
-            }
-
-            Label {
                 text: qsTr("Focus on press")
                 toolTip: "Determines whether the combobox gets focus if pressed."
             }

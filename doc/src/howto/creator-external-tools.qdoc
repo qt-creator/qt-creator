@@ -43,11 +43,12 @@
     code and translations. The lrelease tool is used to create run-time
     translation files for use by the released application.
 
-    To synchronize ts files from a translator with the application code,
+    To synchronize translation source (TS) files from a translator with the
+    application code,
     select \gui {Tools > External > Text > Linguist > Update Translations
     (lupdate)}.
 
-    To generate from the ts files qm translation files that can be used by an
+    To generate from the TS files Qt message (QM) files that can be used by an
     application, select \gui {Tools > External > Text > Linguist > Release
     Translations (lrelease)}.
 

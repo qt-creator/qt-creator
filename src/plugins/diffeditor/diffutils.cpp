@@ -604,7 +604,7 @@ static QList<RowData> readLines(const QString &patch,
     } else {
         if (noNewLineInEqual >= 0) {
             removeNewLineFromLastEqual = true;
-        } else if (lastChunk) {
+        } else {
             if (lastEqual > lastDelete && lastEqual > lastInsert) {
                 removeNewLineFromLastEqual = true;
             } else if (lastDelete > lastEqual && lastDelete > lastInsert) {
@@ -821,7 +821,7 @@ static QList<FileData> readDiffPatch(const QString &patch,
     QList<FileData> fileDataList;
 
     int pos = diffRegExp.indexIn(patch, 0);
-    if (pos == 0) { // git style patch
+    if (pos >= 0) { // git style patch
         readOk = true;
         int lastPos = -1;
         do {
@@ -1045,7 +1045,7 @@ static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace,
         simpleGitMatched = (pos == simpleGitPos);
     }
 
-    if (pos == 0) { // git style patch
+    if (pos >= 0) { // git style patch
         readOk = true;
         int endOfLastHeader = 0;
         QString lastLeftFileName;
@@ -1159,9 +1159,16 @@ QList<FileData> DiffUtils::readPatch(const QString &patch, bool ignoreWhitespace
 
     QList<FileData> fileDataList;
 
-    fileDataList = readGitPatch(patch, ignoreWhitespace, &readOk);
+    QString croppedPatch = patch;
+    // Crop e.g. "-- \n1.9.4.msysgit.0\n\n" at end of file
+    const QRegExp formatPatchEndingRegExp(QLatin1String("(\\n-- \\n\\S*\\n\\n$)"));
+    const int pos = formatPatchEndingRegExp.indexIn(patch, 0);
+    if (pos != -1)
+        croppedPatch = patch.left(pos + 1); // crop the ending for git format-patch
+
+    fileDataList = readGitPatch(croppedPatch, ignoreWhitespace, &readOk);
     if (!readOk)
-        fileDataList = readDiffPatch(patch, ignoreWhitespace, &readOk);
+        fileDataList = readDiffPatch(croppedPatch, ignoreWhitespace, &readOk);
 
     if (ok)
         *ok = readOk;

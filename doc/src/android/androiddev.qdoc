@@ -190,7 +190,7 @@
     information, see the Android documentation.
 
     In addition, debugging is supported at android-10 API level, or higher. In
-    the run settings for the project, in the \gui {Android target SDK} field,
+    the run settings for the project, in the \gui {Android build SDK} field,
     select android-10, or higher. For more information about Android API levels,
     see \l{http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels}
     {What is API Level?}.

@@ -48,7 +48,7 @@ public:
 
     bool isEnabled() const { return true; }
     bool isConfigured() const;
-    bool ensureConfigured(QString *errorMessage);
+    ConfigurationState ensureConfigured(QString *errorMessage);
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
 

@@ -606,6 +606,8 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 bool CMakeProject::setupTarget(Target *t)
 {
     t->updateDefaultBuildConfigurations();
+    if (t->buildConfigurations().isEmpty())
+        return false;
     t->updateDefaultDeployConfigurations();
 
     return true;

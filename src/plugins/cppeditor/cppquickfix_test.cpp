@@ -325,6 +325,50 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Checks: Enum type in class is found.
+    QTest::newRow("CompleteSwitchCaseStatement_enumTypeInClass")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "struct C { enum EnumType { V1, V2 }; };\n"
+        "\n"
+        "void f(C::EnumType t) {\n"
+        "    @switch (t) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "struct C { enum EnumType { V1, V2 }; };\n"
+        "\n"
+        "void f(C::EnumType t) {\n"
+        "    switch (t) {\n"
+        "    case C::V1:\n"
+        "        break;\n"
+        "    case C::V2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
+    // Checks: Enum type in namespace is found.
+    QTest::newRow("CompleteSwitchCaseStatement_enumTypeInNamespace")
+        << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
+        "namespace N { enum EnumType { V1, V2 }; };\n"
+        "\n"
+        "void f(N::EnumType t) {\n"
+        "    @switch (t) {\n"
+        "    }\n"
+        "}\n"
+        ) << _(
+        "namespace N { enum EnumType { V1, V2 }; };\n"
+        "\n"
+        "void f(N::EnumType t) {\n"
+        "    switch (t) {\n"
+        "    case N::V1:\n"
+        "        break;\n"
+        "    case N::V2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+    );
+
     // Checks: The missing enum value is added.
     QTest::newRow("CompleteSwitchCaseStatement_oneValueMissing")
         << CppQuickFixFactoryPtr(new CompleteSwitchCaseStatement) << _(
