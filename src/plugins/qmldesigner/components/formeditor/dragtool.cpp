@@ -81,7 +81,7 @@ void DragTool::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Escape) {
         abort();
         event->accept();
-        m_rewriterTransaction.commit();
+        commitTransaction();
         view()->changeToSelectionTool();
     }
 }
@@ -232,7 +232,7 @@ void DragTool::dropEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphicsSce
         event->accept();
         end(generateUseSnapping(event->modifiers()));
 
-        m_rewriterTransaction.commit();
+        commitTransaction();
 
         if (m_dragNode.isValid())
             view()->setSelectedModelNode(m_dragNode);
@@ -282,7 +282,7 @@ void DragTool::dragLeaveEvent(const QList<QGraphicsItem*> &/*itemList*/, QGraphi
         if (m_dragNode.isValid())
             m_dragNode.destroy();
 
-        m_rewriterTransaction.commit();
+        commitTransaction();
 
         view()->changeToSelectionTool();
     }
@@ -358,6 +358,15 @@ void  DragTool::move(const QPointF &scenePosition, const QList<QGraphicsItem*> &
         Snapper::Snapping useSnapping = Snapper::UseSnapping;
 
         m_moveManipulator.update(scenePosition, useSnapping, MoveManipulator::UseBaseState);
+    }
+}
+
+void DragTool::commitTransaction()
+{
+    try {
+        m_rewriterTransaction.commit();
+    } catch (RewritingException &e) {
+        e.showException();
     }
 }
 
