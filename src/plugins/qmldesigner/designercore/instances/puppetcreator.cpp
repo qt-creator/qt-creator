@@ -52,7 +52,7 @@
 
 namespace QmlDesigner {
 
-bool PuppetCreator::m_useOnlyFallbackPuppet = !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty();
+bool PuppetCreator::m_useOnlyFallbackPuppet = !qgetenv("USE_ONLY_FALLBACK_QML_PUPPET").isEmpty();
 QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml1PuppetForKitPuppetHash;
 QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml2PuppetForKitPuppetHash;
 
@@ -157,7 +157,7 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     puppetProcess->setProcessEnvironment(processEnvironment());
     QObject::connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), puppetProcess, SLOT(kill()));
     QObject::connect(puppetProcess, SIGNAL(finished(int,QProcess::ExitStatus)), handlerObject, finishSlot);
-    bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QMLPUPPET_OUTPUT").isEmpty();
+    bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QML_PUPPET_OUTPUT").isEmpty();
     if (fowardQmlpuppetOutput) {
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
