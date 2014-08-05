@@ -43,7 +43,8 @@ DesignerSettings::DesignerSettings()
     designerWarningsInEditor(false),
     showDebugView(false),
     enableDebugView(false),
-    alwaysSaveInCrumbleBar(false)
+    alwaysSaveInCrumbleBar(false),
+    useOnlyFallbackPuppet(false)
 {}
 
 void DesignerSettings::fromSettings(QSettings *settings)
@@ -66,6 +67,8 @@ void DesignerSettings::fromSettings(QSettings *settings)
             QLatin1String(QmlDesigner::Constants::QML_ENABLE_DEBUGVIEW), QVariant(false)).toBool();
     alwaysSaveInCrumbleBar = settings->value(
                 QLatin1String(QmlDesigner::Constants::QML_ALWAYS_SAFE_IN_CRUMBLEBAR), QVariant(false)).toBool();
+    useOnlyFallbackPuppet = settings->value(
+                QLatin1String(QmlDesigner::Constants::QML_USE_ONLY_FALLBACK_PUPPET), QVariant(false)).toBool();
 
     settings->endGroup();
     settings->endGroup();
@@ -84,6 +87,7 @@ void DesignerSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_SHOW_DEBUGVIEW), showDebugView);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ENABLE_DEBUGVIEW), enableDebugView);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ALWAYS_SAFE_IN_CRUMBLEBAR), alwaysSaveInCrumbleBar);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_USE_ONLY_FALLBACK_PUPPET), useOnlyFallbackPuppet);
 
     settings->endGroup();
     settings->endGroup();
@@ -98,5 +102,6 @@ bool DesignerSettings::equals(const DesignerSettings &other) const
             && designerWarningsInEditor == other.designerWarningsInEditor
             && showDebugView == other.showDebugView
             && enableDebugView == other.enableDebugView
-            && alwaysSaveInCrumbleBar == other.alwaysSaveInCrumbleBar;
+            && alwaysSaveInCrumbleBar == other.alwaysSaveInCrumbleBar
+            && useOnlyFallbackPuppet == other.useOnlyFallbackPuppet;
 }

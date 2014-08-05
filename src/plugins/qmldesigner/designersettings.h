@@ -56,6 +56,7 @@ public:
     bool showDebugView;
     bool enableDebugView;
     bool alwaysSaveInCrumbleBar;
+    bool useOnlyFallbackPuppet;
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)
