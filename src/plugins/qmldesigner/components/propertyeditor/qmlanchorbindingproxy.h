@@ -205,6 +205,11 @@ private:
     void setupAnchorTargets();
     void emitAnchorSignals();
 
+    void setDefaultRelativeTopTarget();
+    void setDefaultRelativeBottomTarget();
+    void setDefaultRelativeLeftTarget();
+    void setDefaultRelativeRightTarget();
+
 
     QmlItemNode targetIdToNode(const QString &id) const;
     QString idForNode(const QmlItemNode &qmlItemNode) const;

@@ -247,6 +247,42 @@ void QmlAnchorBindingProxy::emitAnchorSignals()
     emit relativeAnchorTargetRightChanged();
 }
 
+void QmlAnchorBindingProxy::setDefaultRelativeTopTarget()
+{
+    if (m_topTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
+        m_relativeTopTarget = SameEdge;
+    } else {
+        m_relativeTopTarget = OppositeEdge;
+    }
+}
+
+void QmlAnchorBindingProxy::setDefaultRelativeBottomTarget()
+{
+    if (m_bottomTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
+        m_relativeBottomTarget = SameEdge;
+    } else {
+        m_relativeBottomTarget = OppositeEdge;
+    }
+}
+
+void QmlAnchorBindingProxy::setDefaultRelativeLeftTarget()
+{
+    if (m_leftTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
+        m_relativeLeftTarget = SameEdge;
+    } else {
+        m_relativeLeftTarget = OppositeEdge;
+    }
+}
+
+void QmlAnchorBindingProxy::setDefaultRelativeRightTarget()
+{
+    if (m_rightTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
+        m_relativeRightTarget = SameEdge;
+    } else {
+        m_relativeRightTarget = OppositeEdge;
+    }
+}
+
 bool QmlAnchorBindingProxy::hasParent()
 {
     return m_qmlItemNode.isValid() && m_qmlItemNode.hasNodeParent();
@@ -304,6 +340,9 @@ void QmlAnchorBindingProxy::setTopTarget(const QString &target)
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::setTopTarget"));
 
     m_topTarget = newTarget;
+
+    setDefaultRelativeTopTarget();
+
     anchorTop();
 
     emit topTargetChanged();
@@ -326,6 +365,7 @@ void QmlAnchorBindingProxy::setBottomTarget(const QString &target)
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::setBottomTarget"));
 
     m_bottomTarget = newTarget;
+    setDefaultRelativeBottomTarget();
     anchorBottom();
 
     emit bottomTargetChanged();
@@ -347,6 +387,7 @@ void QmlAnchorBindingProxy::setLeftTarget(const QString &target)
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::setLeftTarget"));
 
     m_leftTarget = newTarget;
+    setDefaultRelativeLeftTarget();
     anchorLeft();
 
     emit leftTargetChanged();
@@ -368,6 +409,7 @@ void QmlAnchorBindingProxy::setRightTarget(const QString &target)
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::setRightTarget"));
 
     m_rightTarget = newTarget;
+    setDefaultRelativeRightTarget();
     anchorRight();
 
     emit rightTargetChanged();
@@ -589,13 +631,7 @@ void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
     if (!anchor) {
         removeBottomAnchor();
     } else {
-
-        if (m_bottomTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
-            m_relativeBottomTarget = SameEdge;
-        } else {
-            m_relativeBottomTarget = OppositeEdge;
-        }
-
+        setDefaultRelativeBottomTarget();
         anchorBottom();
         if (topAnchored())
             backupPropertyAndRemove(modelNode(), "height");
@@ -621,12 +657,7 @@ void QmlAnchorBindingProxy::setLeftAnchor(bool anchor)
     if (!anchor) {
         removeLeftAnchor();
     } else {
-
-        if (m_leftTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
-            m_relativeLeftTarget = SameEdge;
-        } else {
-            m_relativeLeftTarget = OppositeEdge;
-        }
+        setDefaultRelativeLeftTarget();
 
         anchorLeft();
         backupPropertyAndRemove(modelNode(), "x");
@@ -653,12 +684,7 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
     if (!anchor) {
         removeRightAnchor();
     } else {
-
-        if (m_rightTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
-            m_relativeRightTarget = SameEdge;
-        } else {
-            m_relativeRightTarget = OppositeEdge;
-        }
+        setDefaultRelativeRightTarget();
 
         anchorRight();
         if (leftAnchored())
@@ -847,12 +873,7 @@ void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
     if (!anchor) {
         removeTopAnchor();
     } else {
-
-        if (m_topTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
-            m_relativeTopTarget = SameEdge;
-        } else {
-            m_relativeTopTarget = OppositeEdge;
-        }
+        setDefaultRelativeTopTarget();
 
         anchorTop();
         backupPropertyAndRemove(modelNode(), "y");
