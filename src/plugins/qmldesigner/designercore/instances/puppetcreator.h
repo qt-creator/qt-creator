@@ -94,6 +94,7 @@ protected:
     bool qtIsSupported() const;
     static bool checkPuppetVersion(const QString &qmlPuppetPath);
     QProcess *puppetProcess(const QString &puppetPath,
+                            const QString &workingDirectory,
                             const QString &puppetMode,
                             const QString &socketToken,
                             QObject *handlerObject,

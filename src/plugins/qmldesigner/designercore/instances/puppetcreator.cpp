@@ -132,7 +132,10 @@ QProcess *PuppetCreator::createPuppetProcess(PuppetCreator::QmlPuppetVersion pup
      else
         puppetPath = qml2PuppetPath(m_availablePuppetType);
 
+    const QString workingDirectory = qmlPuppetDirectory(m_availablePuppetType);
+
     return puppetProcess(puppetPath,
+                         workingDirectory,
                          puppetMode,
                          socketToken,
                          handlerObject,
@@ -142,6 +145,7 @@ QProcess *PuppetCreator::createPuppetProcess(PuppetCreator::QmlPuppetVersion pup
 
 
 QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
+                                       const QString &workingDirectory,
                                        const QString &puppetMode,
                                        const QString &socketToken,
                                        QObject *handlerObject,
@@ -158,6 +162,7 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
     }
+    puppetProcess->setWorkingDirectory(workingDirectory);
     puppetProcess->start(puppetPath, QStringList() << socketToken << puppetMode << "-graphicssystem raster");
 
     if (!qgetenv("DEBUG_QML_PUPPET").isEmpty())
