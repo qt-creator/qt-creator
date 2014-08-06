@@ -1296,6 +1296,7 @@ QStringList QmakePriFileNode::varNames(ProjectExplorer::FileType type, QtSupport
         vars << QLatin1String("OTHER_FILES");
         vars << QLatin1String("DISTFILES");
         vars << QLatin1String("ICON");
+        vars << QLatin1String("QMAKE_INFO_PLIST");
         break;
     }
     return vars;
@@ -1356,6 +1357,7 @@ QStringList QmakePriFileNode::varNamesForRemoving()
     vars << QLatin1String("SUBDIRS");
     vars << QLatin1String("OTHER_FILES");
     vars << QLatin1String("ICON");
+    vars << QLatin1String("QMAKE_INFO_PLIST");
     return vars;
 }
 
