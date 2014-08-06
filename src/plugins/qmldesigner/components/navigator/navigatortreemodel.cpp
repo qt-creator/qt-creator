@@ -54,6 +54,7 @@
 
 namespace QmlDesigner {
 
+#ifndef DISABLE_VISIBLE_PROPERTIES
 static PropertyNameList visibleProperties(const ModelNode &node)
 {
     PropertyNameList propertyList;
@@ -77,6 +78,7 @@ static PropertyNameList visibleProperties(const ModelNode &node)
 
     return propertyList;
 }
+#endif
 
 static QList<ModelNode> acceptedModelNodeChildren(const ModelNode &parentNode)
 {
@@ -342,6 +344,7 @@ static void findTargetItem(const NodeListProperty &listProperty,
                            int *newRowNumber,
                            QStandardItem **targetItem)
 {
+    Q_UNUSED(newRowNumber);
     if (navigatorTreeModel->isInTree(listProperty.parentModelNode())) {
         ItemRow parentRow = navigatorTreeModel->itemRowForNode(listProperty.parentModelNode());
         if (parentRow.propertyItems.contains(listProperty.name())) {
