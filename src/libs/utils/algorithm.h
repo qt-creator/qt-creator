@@ -64,6 +64,12 @@ bool anyOf(const T &container, F predicate)
     return std::any_of(container.begin(), container.end(), predicate);
 }
 
+template<typename T, typename F>
+int count(const T &container, F predicate)
+{
+    return std::count_if(container.begin(), container.end(), predicate);
+}
+
 //////////////////
 // allOf
 /////////////////

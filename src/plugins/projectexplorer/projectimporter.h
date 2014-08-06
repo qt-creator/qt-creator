@@ -65,8 +65,14 @@ public:
     void addProject(Kit *k);
     void removeProject(Kit *k, const QString &path);
 
+    bool isTemporaryKit(Kit *k);
+
 protected:
-    void setIsUpdating(bool b) { m_isUpdating = b; }
+    bool setIsUpdating(bool b) {
+        bool old = m_isUpdating;
+        m_isUpdating = b;
+        return old;
+    }
 
 private:
     const QString m_projectPath;

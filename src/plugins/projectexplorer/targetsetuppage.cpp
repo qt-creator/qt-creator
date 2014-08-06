@@ -181,6 +181,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     setUseScrollArea(true);
 
     QObject *km = KitManager::instance();
+    // do note that those slots are triggered once *per* targetsetuppage
+    // thus the same slot can be triggered multiple times on different instances!
     connect(km, SIGNAL(kitAdded(ProjectExplorer::Kit*)),
             this, SLOT(handleKitAddition(ProjectExplorer::Kit*)));
     connect(km, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),

@@ -57,7 +57,7 @@ void ProjectImporter::markTemporary(Kit *k)
 {
     QTC_ASSERT(!k->hasValue(KIT_IS_TEMPORARY), return);
 
-    setIsUpdating(true);
+    bool oldIsUpdating = setIsUpdating(true);
 
     const QString name = k->displayName();
     k->setUnexpandedDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectImporter",
@@ -67,7 +67,7 @@ void ProjectImporter::markTemporary(Kit *k)
     k->setValue(KIT_FINAL_NAME, name);
     k->setValue(KIT_IS_TEMPORARY, true);
 
-    setIsUpdating(false);
+    setIsUpdating(oldIsUpdating);
 }
 
 void ProjectImporter::makePermanent(Kit *k)
@@ -75,7 +75,7 @@ void ProjectImporter::makePermanent(Kit *k)
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
-    setIsUpdating(true);
+    bool oldIsUpdating = setIsUpdating(true);
 
     k->removeKey(KIT_IS_TEMPORARY);
     k->removeKey(TEMPORARY_OF_PROJECTS);
@@ -85,7 +85,7 @@ void ProjectImporter::makePermanent(Kit *k)
     k->removeKey(KIT_TEMPORARY_NAME);
     k->removeKey(KIT_FINAL_NAME);
 
-    setIsUpdating(false);
+    setIsUpdating(oldIsUpdating);
 }
 
 void ProjectImporter::cleanupKit(Kit *k)
@@ -102,11 +102,11 @@ void ProjectImporter::addProject(Kit *k)
 
     projects.append(m_projectPath); // note: There can be more than one instance of the project added!
 
-    setIsUpdating(true);
+    bool oldIsUpdating = setIsUpdating(true);
 
-    k->setValue(TEMPORARY_OF_PROJECTS, projects);
+    k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
 
-    setIsUpdating(false);
+    setIsUpdating(oldIsUpdating);
 }
 
 void ProjectImporter::removeProject(Kit *k, const QString &path)
@@ -117,14 +117,19 @@ void ProjectImporter::removeProject(Kit *k, const QString &path)
     QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
     projects.removeOne(path);
 
-    setIsUpdating(true);
+    bool oldIsUpdating = setIsUpdating(true);
 
     if (projects.isEmpty())
         ProjectExplorer::KitManager::deregisterKit(k);
     else
-        k->setValue(TEMPORARY_OF_PROJECTS, projects);
+        k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
 
-    setIsUpdating(false);
+    setIsUpdating(oldIsUpdating);
+}
+
+bool ProjectImporter::isTemporaryKit(Kit *k)
+{
+    return k->hasValue(KIT_IS_TEMPORARY);
 }
 
 } // namespace ProjectExplorer

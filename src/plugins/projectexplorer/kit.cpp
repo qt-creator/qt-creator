@@ -477,6 +477,25 @@ void Kit::setValue(Id key, const QVariant &value)
     kitUpdated();
 }
 
+/// \internal
+void Kit::setValueSilently(Id key, const QVariant &value)
+{
+    if (d->m_data.value(key) == value)
+        return;
+    d->m_data.insert(key, value);
+}
+
+/// \internal
+void Kit::removeKeySilently(Id key)
+{
+    if (!d->m_data.contains(key))
+        return;
+    d->m_data.remove(key);
+    d->m_sticky.remove(key);
+    d->m_mutable.remove(key);
+}
+
+
 void Kit::removeKey(Id key)
 {
     if (!d->m_data.contains(key))
