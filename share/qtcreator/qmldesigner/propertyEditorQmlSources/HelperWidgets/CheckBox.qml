@@ -39,6 +39,7 @@ Controls.CheckBox {
     property color highlightColor: "orange"
     property color textColor: colorLogic.textColor
 
+    opacity: enabled ? 1 : 0.5
 
     property variant backendValue
 
