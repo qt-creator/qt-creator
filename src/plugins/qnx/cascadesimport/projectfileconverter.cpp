@@ -165,7 +165,7 @@ bool ProjectFileConverter::convertFile(Core::GeneratedFile &file, QString &error
     fileContent.replace(QLatin1String("%HEADERS%"), headers.join(QLatin1String(" \\\n    ")));
     fileContent.replace(QLatin1String("%SOURCES%"), sources.join(QLatin1String(" \\\n    ")));
     fileContent.replace(QLatin1String("%RESOURCES%"), resources.join(QLatin1String(" \\\n    ")));
-    fileContent.replace(QLatin1String("%OTHER_FILES%"), otherFiles.join(QLatin1String(" \\\n    ")));
+    fileContent.replace(QLatin1String("%DISTFILES%"), otherFiles.join(QLatin1String(" \\\n    ")));
     fileContent.replace(QLatin1String("%PROJECT_NAME%"), convertedProjectContext().projectName());
     fileContent.replace(QLatin1String("%TARGET%"), origProjectVariables.value(QLatin1String("TARGET"),
                                       convertedProjectContext().projectName()));

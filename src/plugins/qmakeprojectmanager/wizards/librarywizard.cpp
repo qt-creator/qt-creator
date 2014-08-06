@@ -142,7 +142,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
         if (!globalHeaderFileName.isEmpty())
             proStr << "\\\n        " << globalHeaderFileName << '\n';
         if (!pluginJsonFileName.isEmpty())
-            proStr << "\nOTHER_FILES += " << pluginJsonFileName << '\n';
+            proStr << "\nDISTFILES += " << pluginJsonFileName << '\n';
         writeLinuxProFile(proStr);
     }
     profile.setContents(profileContents);

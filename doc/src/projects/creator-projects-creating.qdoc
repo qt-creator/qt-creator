@@ -340,7 +340,7 @@
     \QC determines whether to display files from the project folder
     in the \gui Projects pane depending on the file type (.pro, .pri, .cpp,
     .h, .qrc, and so on). To display other types of files, edit the
-    project file. Add filenames as values of the \c {OTHER_FILES} variable.
+    project file. Add filenames as values of the \c {DISTFILES} variable.
     You can also use wildcards.
 
     For example, the following code specifies that text files are displayed
@@ -348,7 +348,7 @@
 
     \code
 
-    OTHER_FILES += *.txt
+    DISTFILES += *.txt
 
     \endcode
 

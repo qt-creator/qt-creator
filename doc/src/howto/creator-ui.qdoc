@@ -199,10 +199,10 @@
 
     \endlist
 
-    You can make additional files known to \QC, so that they become visible in
-    the \gui Projects view and known to the locator and search, but do not
-    affect the build system. Add the paths to the files to the \c OTHER_FILES
-    variable in the .pro file.
+    Files that are not sources or data can be still included into a project's
+    distribution tarball by adding their paths to the \c DISTFILES variable in
+    the .pro file. This way they also become known to \QC, so that they are
+    visible in the \gui Projects view and are known to the locator and search.
 
     \section2 Viewing the File System
 

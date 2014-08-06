@@ -2317,8 +2317,9 @@
 
     \endlist
 
-    If locator does not find some files, you can add them to the \c OTHER_FILES
-    variable in the .pro file to make them known to \QC.
+    If locator does not find some files, you can add them to the \c DISTFILES
+    variable in the .pro file to include them into the distribution tarball
+    of your project and thus make them known to \QC as well.
 
     \section1 Configuring Locator Filters
 

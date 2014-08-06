@@ -10,7 +10,7 @@ SOURCES += \
 HEADERS += \
     src/applicationui.%CppHeaderSuffix% \
 
-OTHER_FILES += \
+DISTFILES += \
     bar-descriptor.xml \
     assets/main.qml \
 

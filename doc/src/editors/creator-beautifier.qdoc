@@ -86,7 +86,7 @@
 
                 \li Select the \gui {Use file defined in project files} option
                     to use the configuration file defined in the qmake
-                    OTHER_FILES variable as the configuration file for the
+                    DISTFILES variable as the configuration file for the
                     selected tool.
 
                 \li Select the \gui {Use $HOME} option to use the specified file

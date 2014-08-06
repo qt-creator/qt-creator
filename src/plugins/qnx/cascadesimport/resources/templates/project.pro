@@ -41,6 +41,6 @@ SOURCES += \
 RESOURCES += \
     %RESOURCES%
 
-OTHER_FILES += \
+DISTFILES += \
     bar-descriptor.xml \
-    %OTHER_FILES%
+    %DISTFILES%
