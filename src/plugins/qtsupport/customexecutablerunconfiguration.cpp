@@ -128,13 +128,11 @@ private:
 
     QDialogButtonBox *m_dialogButtonBox;
     CustomExecutableConfigurationWidget *m_widget;
-    CustomExecutableRunConfiguration *m_runConfiguration;
 };
 
 CustomExecutableDialog::CustomExecutableDialog(CustomExecutableRunConfiguration *rc, QWidget *parent)
     : QDialog(parent)
     , m_dialogButtonBox(new  QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel))
-    , m_runConfiguration(rc)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QVBoxLayout *layout = new QVBoxLayout(this);
