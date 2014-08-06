@@ -362,15 +362,33 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
     int rightLineCount = 0;
     QList<TextLineData> leftBuffer, rightBuffer;
 
-    int lastEqualRow = -1;
+    int rowToBeSplit = -1;
+
     if (lastChunk) {
-        for (int i = chunkData.rows.count(); i > 0; i--) {
-            if (chunkData.rows.at(i - 1).equal) {
-                if (i != chunkData.rows.count())
-                    lastEqualRow = i - 1;
+        // Detect the case when the last equal line is followed by
+        // only separators on left or on right. In that case
+        // the last equal line needs to be split.
+        const int rowCount = chunkData.rows.count();
+        int i = 0;
+        for (i = rowCount; i > 0; i--) {
+            const RowData &rowData = chunkData.rows.at(i - 1);
+            if (rowData.leftLine.textLineType != TextLineData::Separator
+                    || rowData.rightLine.textLineType != TextLineData::TextLine)
                 break;
-            }
         }
+        const int leftSeparator = i;
+        for (i = rowCount; i > 0; i--) {
+            const RowData &rowData = chunkData.rows.at(i - 1);
+            if (rowData.rightLine.textLineType != TextLineData::Separator
+                    || rowData.leftLine.textLineType != TextLineData::TextLine)
+                break;
+        }
+        const int rightSeparator = i;
+        const int commonSeparator = qMin(leftSeparator, rightSeparator);
+        if (commonSeparator > 0
+                && commonSeparator < rowCount
+                && chunkData.rows.at(commonSeparator - 1).equal)
+            rowToBeSplit = commonSeparator - 1;
     }
 
     for (int i = 0; i <= chunkData.rows.count(); i++) {
@@ -379,7 +397,7 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
                 : RowData(TextLineData(TextLineData::Separator)); // dummy,
                                         // ensure we process buffers to the end.
                                         // rowData will be equal
-        if (rowData.equal && i != lastEqualRow) {
+        if (rowData.equal && i != rowToBeSplit) {
             if (leftBuffer.count()) {
                 for (int j = 0; j < leftBuffer.count(); j++) {
                     const QString line = makePatchLine(QLatin1Char('-'),
@@ -529,8 +547,6 @@ static QList<RowData> readLines(const QString &patch,
             if (!diffList.isEmpty()) {
                 Diff &last = diffList.last();
                 if (last.text.isEmpty())
-                    break;
-                if (last.text.at(0) == newLine) // there is a new line
                     break;
 
                 if (last.command == Diff::Equal) {
