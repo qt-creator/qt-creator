@@ -64,6 +64,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    enabled: backendValues.checkable.value
                     text: backendValues.checked.valueToString
                     backendValue: backendValues.checked
                     implicitWidth: 180
@@ -82,6 +83,13 @@ Column {
                 CheckBox {
                     text: backendValues.checkable.valueToString
                     backendValue: backendValues.checkable
+                    property bool backEndValueValue: backendValues.checkable.value
+                    onTextChanged: {
+                        if (!backendValues.checkable.value) {
+                            backendValues.checked.resetValue()
+                        }
+                    }
+
                     implicitWidth: 180
                 }
                 ExpandingSpacer {
