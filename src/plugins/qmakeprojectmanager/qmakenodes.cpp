@@ -1290,9 +1290,11 @@ QStringList QmakePriFileNode::varNames(ProjectExplorer::FileType type, QtSupport
         break;
     case ProjectExplorer::QMLType:
         vars << QLatin1String("OTHER_FILES");
+        vars << QLatin1String("DISTFILES");
         break;
     default:
         vars << QLatin1String("OTHER_FILES");
+        vars << QLatin1String("DISTFILES");
         vars << QLatin1String("ICON");
         break;
     }
