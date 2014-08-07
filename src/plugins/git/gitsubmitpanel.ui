@@ -7,11 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>364</width>
-    <height>178</height>
+    <height>198</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -142,10 +151,20 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="2" column="1">
        <widget class="QCheckBox" name="bypassHooksCheckBox">
         <property name="text">
-         <string>By&amp;pass hooks</string>
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>By&amp;pass hooks:</string>
+        </property>
+        <property name="buddy">
+         <cstring>bypassHooksCheckBox</cstring>
         </property>
        </widget>
       </item>
@@ -155,7 +174,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../projectexplorer/projectexplorer.qrc"/>
+  <include location="../coreplugin/core.qrc"/>
  </resources>
  <connections/>
 </ui>
