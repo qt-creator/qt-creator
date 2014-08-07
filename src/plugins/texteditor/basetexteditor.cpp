@@ -3939,7 +3939,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
         if (!block.isVisible()) {
             if (block.blockNumber() == d->visibleFoldedBlockNumber) {
                 visibleCollapsedBlock = block;
-                visibleCollapsedBlockOffset = offset + QPointF(0,1);
+                visibleCollapsedBlockOffset = offset;
             }
 
             // invisible blocks do have zero line count
