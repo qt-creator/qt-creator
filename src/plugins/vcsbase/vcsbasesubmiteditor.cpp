@@ -579,8 +579,13 @@ VcsBaseSubmitEditor::PromptSubmitResult
         }
     } else {
         // Check failed.
+        QMessageBox::StandardButtons buttons;
+        if (canCommitOnFailure)
+            buttons = QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel;
+        else
+            buttons = QMessageBox::Yes|QMessageBox::No;
         QMessageBox msgBox(QMessageBox::Question, title, checkFailureQuestion,
-                           QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel, parent);
+                           buttons, parent);
         msgBox.setDefaultButton(QMessageBox::Cancel);
         msgBox.setInformativeText(errorMessage);
         msgBox.setMinimumWidth(checkDialogMinimumWidth);
