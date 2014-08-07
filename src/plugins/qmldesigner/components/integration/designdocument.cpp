@@ -422,6 +422,8 @@ void DesignDocument::cutSelected()
 
 static void scatterItem(const ModelNode &pastedNode, const ModelNode &targetNode, int offset = -2000)
 {
+    if (targetNode.metaInfo().isValid() && targetNode.metaInfo().isLayoutable())
+        return;
 
     bool scatter = false;
     foreach (const ModelNode &childNode, targetNode.directSubModelNodes()) {
