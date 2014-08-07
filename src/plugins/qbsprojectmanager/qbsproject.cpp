@@ -749,6 +749,13 @@ void QbsProject::updateApplicationTargets(const qbs::ProjectData &projectData)
 {
     ProjectExplorer::BuildTargetInfoList applications;
     foreach (const qbs::ProductData &productData, projectData.allProducts()) {
+        if (!productData.isEnabled() || !productData.isRunnable())
+            continue;
+        if (productData.targetArtifacts().isEmpty()) { // No build yet.
+            applications.list << ProjectExplorer::BuildTargetInfo(Utils::FileName(),
+                    Utils::FileName::fromString(productData.location().fileName()));
+            continue;
+        }
         foreach (const qbs::TargetArtifact &ta, productData.targetArtifacts()) {
             QTC_ASSERT(ta.isValid(), continue);
             if (!ta.isExecutable())
