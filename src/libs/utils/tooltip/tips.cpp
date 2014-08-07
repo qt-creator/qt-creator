@@ -132,7 +132,7 @@ void ColorTip::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setPen(pen);
     painter.setBrush(color);
-    QRect r(1, 1, rect().width() - 2, rect().height() - 2);
+    QRect r(0, 0, rect().width() - 1, rect().height() - 1);
     painter.drawTiledPixmap(r, m_tilePixMap);
     painter.drawRect(r);
 }
