@@ -1084,6 +1084,15 @@ static bool isCrashingType(QQmlType *type)
 
         if (type->qmlTypeName() == QStringLiteral("QtMultimedia/Audio"))
             return true;
+
+        if (type->qmlTypeName() == QStringLiteral("QtQuick.Controls/MenuItem"))
+            return true;
+
+        if (type->qmlTypeName() == QStringLiteral("QtQuick.Controls/Menu"))
+            return true;
+
+        if (type->qmlTypeName() == QStringLiteral("QtQuick/Timer"))
+            return true;
     }
 
     return false;
