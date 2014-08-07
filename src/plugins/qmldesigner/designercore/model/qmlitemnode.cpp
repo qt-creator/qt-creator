@@ -369,6 +369,13 @@ bool itemIsMovable(const ModelNode &modelNode)
     if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab", -1, -1))
         return false;
 
+    if (modelNode.hasParentProperty()) {
+        ModelNode parentModelNode = modelNode.parentProperty().parentModelNode();
+        if (QmlItemNode::isValidQmlItemNode(parentModelNode)
+                && parentModelNode.metaInfo().isLayoutable())
+            return false;
+    }
+
     return true;
 }
 
