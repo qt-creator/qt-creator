@@ -66,8 +66,11 @@ Controls.ComboBox {
 
                 var index = comboBox.find(enumString)
 
+                if (index < 0)
+                    index = 0
+
                 if (index !== comboBox.currentIndex)
-                    comboBox.currentIndex = comboBox.find(enumString)
+                    comboBox.currentIndex = index
 
             } else {
                 if (comboBox.currentIndex !== backendValue.value)
