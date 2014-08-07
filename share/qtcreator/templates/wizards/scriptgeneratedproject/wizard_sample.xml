@@ -30,7 +30,7 @@
 ****************************************************************************/
 
 Custom class wizard example configuration file. -->
-<wizard version="1" class="qt4project" firstpage="10" kind="project" id="A.ScriptGeneratedProject" category="B.CustomProjects">
+<wizard version="1" class="qmakeproject" firstpage="10" kind="project" id="A.ScriptGeneratedProject" category="B.CustomProjects">
     <description>Creates a simple project using a generator script</description>
     <displayname>Simple Script-Generated Project</displayname>;
     <displaycategory>Custom Projects</displaycategory>
