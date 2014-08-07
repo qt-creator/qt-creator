@@ -1514,7 +1514,9 @@ bool NodeMetaInfo::isLayoutable() const
     if (isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1))
         return true; //QtQuick 1
 
-    return isSubclassOf("QtQuick.Positioner", -1, -1) || isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
+    return isSubclassOf("QtQuick.Positioner", -1, -1)
+            || isSubclassOf("QtQuick.Layouts.Layout", -1, -1)
+            || isSubclassOf("QtQuick.Controls.SplitView", -1, -1);
 }
 
 bool NodeMetaInfo::isView() const
