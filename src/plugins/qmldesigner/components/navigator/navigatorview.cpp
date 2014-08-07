@@ -47,9 +47,15 @@ static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPo
 {
     if (modelNode.hasParentProperty() && QmlDesigner::QmlItemNode::isValidQmlItemNode(modelNode.parentProperty().parentModelNode())) {
         QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
-        QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
-        modelNode.variantProperty("x").setValue(localPos.toPoint().x());
-        modelNode.variantProperty("y").setValue(localPos.toPoint().y());
+
+        if (!parentNode.modelNode().metaInfo().isLayoutable()) {
+            QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
+            modelNode.variantProperty("x").setValue(localPos.toPoint().x());
+            modelNode.variantProperty("y").setValue(localPos.toPoint().y());
+        } else { //Items in Layouts do not have a position
+            modelNode.removeProperty("x");
+            modelNode.removeProperty("y");
+        }
     }
 }
 
