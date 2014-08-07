@@ -25,6 +25,7 @@ QtcLibrary {
 
     files: [
         "QtConcurrentTools",
+        "algorithm.h",
         "annotateditemdelegate.cpp",
         "annotateditemdelegate.h",
         "ansiescapecodehandler.cpp",
