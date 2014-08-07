@@ -31,6 +31,7 @@
 #include "model.h"
 
 #include "metainfo.h"
+#include <enumeration.h>
 #include <rewriterview.h>
 #include <propertyparser.h>
 
@@ -1358,7 +1359,8 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
 
     const QVariant variant = value;
     QVariant copyVariant = variant;
-    if (propertyIsEnumType(propertyName))
+    if (propertyIsEnumType(propertyName)
+            || variant.canConvert<Enumeration>())
         return variant;
 
     const QString typeName = propertyTypeName(propertyName);
