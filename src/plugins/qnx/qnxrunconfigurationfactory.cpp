@@ -97,7 +97,17 @@ bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, Core
 
 ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, Core::Id id)
 {
-    return new QnxRunConfiguration(parent, id, pathFromId(id));
+    const QString projectFilePath = pathFromId(id);
+    const QmakeProjectManager::QmakeProject * const qt4Project
+            = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
+    QTC_ASSERT(qt4Project, return 0);
+    foreach (const QmakeProjectManager::QmakeProFileNode * const node,
+             qt4Project->applicationProFiles()) {
+        if (node->path() == projectFilePath)
+            return new QnxRunConfiguration(parent, id, node->targetInformation().target);
+    }
+    QTC_CHECK(false);
+    return 0;
 }
 
 bool QnxRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const

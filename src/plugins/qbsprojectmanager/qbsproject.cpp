@@ -769,7 +769,8 @@ void QbsProject::updateApplicationTargets(const qbs::ProjectData &projectData)
         if (!productData.isEnabled() || !productData.isRunnable())
             continue;
         if (productData.targetArtifacts().isEmpty()) { // No build yet.
-            applications.list << ProjectExplorer::BuildTargetInfo(Utils::FileName(),
+            applications.list << ProjectExplorer::BuildTargetInfo(productData.name(),
+                    Utils::FileName(),
                     Utils::FileName::fromString(productData.location().fileName()));
             continue;
         }
@@ -777,7 +778,8 @@ void QbsProject::updateApplicationTargets(const qbs::ProjectData &projectData)
             QTC_ASSERT(ta.isValid(), continue);
             if (!ta.isExecutable())
                 continue;
-            applications.list << ProjectExplorer::BuildTargetInfo(Utils::FileName::fromString(ta.filePath()),
+            applications.list << ProjectExplorer::BuildTargetInfo(productData.name(),
+                    Utils::FileName::fromString(ta.filePath()),
                     Utils::FileName::fromString(productData.location().fileName()));
         }
     }

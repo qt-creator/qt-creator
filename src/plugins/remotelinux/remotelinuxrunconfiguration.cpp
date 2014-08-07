@@ -46,7 +46,7 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 const char ArgumentsKey[] = "Qt4ProjectManager.MaemoRunConfiguration.Arguments";
-const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
+const char TargetNameKey[] = "Qt4ProjectManager.MaemoRunConfiguration.TargetName";
 const char UseAlternateExeKey[] = "RemoteLinux.RunConfig.UseAlternateRemoteExecutable";
 const char AlternateExeKey[] = "RemoteLinux.RunConfig.AlternateRemoteExecutable";
 const char WorkingDirectoryKey[] = "RemoteLinux.RunConfig.WorkingDirectory";
@@ -55,14 +55,14 @@ const char WorkingDirectoryKey[] = "RemoteLinux.RunConfig.WorkingDirectory";
 
 class RemoteLinuxRunConfigurationPrivate {
 public:
-    RemoteLinuxRunConfigurationPrivate(const QString &projectFilePath)
-        : projectFilePath(projectFilePath),
+    RemoteLinuxRunConfigurationPrivate(const QString &targetName)
+        : targetName(targetName),
           useAlternateRemoteExecutable(false)
     {
     }
 
     RemoteLinuxRunConfigurationPrivate(const RemoteLinuxRunConfigurationPrivate *other)
-        : projectFilePath(other->projectFilePath),
+        : targetName(other->targetName),
           arguments(other->arguments),
           useAlternateRemoteExecutable(other->useAlternateRemoteExecutable),
           alternateRemoteExecutable(other->alternateRemoteExecutable),
@@ -70,7 +70,7 @@ public:
     {
     }
 
-    QString projectFilePath;
+    QString targetName;
     QStringList arguments;
     bool useAlternateRemoteExecutable;
     QString alternateRemoteExecutable;
@@ -82,9 +82,9 @@ public:
 using namespace Internal;
 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, Core::Id id,
-        const QString &proFilePath)
+        const QString &targetName)
     : AbstractRemoteLinuxRunConfiguration(parent, id),
-      d(new RemoteLinuxRunConfigurationPrivate(proFilePath))
+      d(new RemoteLinuxRunConfigurationPrivate(targetName))
 {
     init();
 }
@@ -135,7 +135,7 @@ QVariantMap RemoteLinuxRunConfiguration::toMap() const
     QVariantMap map(RunConfiguration::toMap());
     map.insert(QLatin1String(ArgumentsKey), d->arguments);
     const QDir dir = QDir(target()->project()->projectDirectory().toString());
-    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(d->projectFilePath));
+    map.insert(QLatin1String(TargetNameKey), d->targetName);
     map.insert(QLatin1String(UseAlternateExeKey), d->useAlternateRemoteExecutable);
     map.insert(QLatin1String(AlternateExeKey), d->alternateRemoteExecutable);
     map.insert(QLatin1String(WorkingDirectoryKey), d->workingDirectory);
@@ -149,8 +149,8 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
 
     d->arguments = map.value(QLatin1String(ArgumentsKey)).toStringList();
     const QDir dir = QDir(target()->project()->projectDirectory().toString());
-    d->projectFilePath
-            = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
+    d->targetName
+            = QDir::cleanPath(dir.filePath(map.value(QLatin1String(TargetNameKey)).toString()));
     d->useAlternateRemoteExecutable = map.value(QLatin1String(UseAlternateExeKey), false).toBool();
     d->alternateRemoteExecutable = map.value(QLatin1String(AlternateExeKey)).toString();
     d->workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
@@ -162,9 +162,9 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
 
 QString RemoteLinuxRunConfiguration::defaultDisplayName()
 {
-    if (!d->projectFilePath.isEmpty())
+    if (!d->targetName.isEmpty())
         //: %1 is the name of a project which is being run on remote Linux
-        return tr("%1 (on Remote Device)").arg(QFileInfo(d->projectFilePath).completeBaseName());
+        return tr("%1 (on Remote Device)").arg(d->targetName);
     //: Remote Linux run configuration default display name
     return tr("Run on Remote Device");
 }
@@ -183,8 +183,7 @@ Environment RemoteLinuxRunConfiguration::environment() const
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
 {
-    return target()->applicationTargets()
-            .targetForProject(Utils::FileName::fromString(d->projectFilePath)).toString();
+    return target()->applicationTargets().targetFilePath(d->targetName).toString();
 }
 
 QString RemoteLinuxRunConfiguration::defaultRemoteExecutableFilePath() const
@@ -239,11 +238,6 @@ void RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated()
     emit deploySpecsChanged();
     emit targetInformationChanged();
     updateEnabledState();
-}
-
-QString RemoteLinuxRunConfiguration::projectFilePath() const
-{
-    return d->projectFilePath;
 }
 
 const char *RemoteLinuxRunConfiguration::IdPrefix = "RemoteLinuxRunConfiguration:";

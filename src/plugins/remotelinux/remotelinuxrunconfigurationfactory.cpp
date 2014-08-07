@@ -38,7 +38,6 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QString>
 
 using namespace ProjectExplorer;
@@ -47,7 +46,7 @@ namespace RemoteLinux {
 namespace Internal {
 
 namespace {
-QString pathFromId(Core::Id id)
+QString stringFromId(Core::Id id)
 {
     QByteArray idStr = id.name();
     if (!idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix))
@@ -72,7 +71,7 @@ bool RemoteLinuxRunConfigurationFactory::canCreate(Target *parent, Core::Id id) 
     if (!canHandle(parent))
         return false;
     return id == RemoteLinuxCustomRunConfiguration::runConfigId()
-            || !parent->applicationTargets().targetForProject(pathFromId(id)).isEmpty();
+            || parent->applicationTargets().hasTarget(stringFromId(id));
 }
 
 bool RemoteLinuxRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
@@ -100,7 +99,7 @@ QList<Core::Id> RemoteLinuxRunConfigurationFactory::availableCreationIds(Target 
 
     const Core::Id base = Core::Id(RemoteLinuxRunConfiguration::IdPrefix);
     foreach (const BuildTargetInfo &bti, parent->applicationTargets().list)
-        result << base.withSuffix(bti.projectFilePath.toString());
+        result << base.withSuffix(bti.targetName);
     result << RemoteLinuxCustomRunConfiguration::runConfigId();
     return result;
 }
@@ -109,15 +108,14 @@ QString RemoteLinuxRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
     if (id == RemoteLinuxCustomRunConfiguration::runConfigId())
         return RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName();
-    return QFileInfo(pathFromId(id)).completeBaseName()
-        + QLatin1Char(' ') + tr("(on Remote Generic Linux Host)");
+    return stringFromId(id) + QLatin1Char(' ') + tr("(on Remote Generic Linux Host)");
 }
 
 RunConfiguration *RemoteLinuxRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
 {
     if (id == RemoteLinuxCustomRunConfiguration::runConfigId())
         return new RemoteLinuxCustomRunConfiguration(parent);
-    return new RemoteLinuxRunConfiguration(parent, id, pathFromId(id));
+    return new RemoteLinuxRunConfiguration(parent, id, stringFromId(id));
 }
 
 RunConfiguration *RemoteLinuxRunConfigurationFactory::doRestore(Target *parent,

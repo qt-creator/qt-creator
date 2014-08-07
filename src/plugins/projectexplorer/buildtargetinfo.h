@@ -31,6 +31,7 @@
 
 #include "projectexplorer_export.h"
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 #include <QList>
@@ -42,26 +43,24 @@ class PROJECTEXPLORER_EXPORT BuildTargetInfo
 {
 public:
     BuildTargetInfo() {}
-    BuildTargetInfo(const Utils::FileName &targetFilePath, const Utils::FileName &projectFilePath)
-        : targetFilePath(targetFilePath), projectFilePath(projectFilePath)
+    BuildTargetInfo(const QString &targetName, const Utils::FileName &targetFilePath,
+                    const Utils::FileName &projectFilePath)
+        : targetName(targetName)
+        , targetFilePath(targetFilePath)
+        , projectFilePath(projectFilePath)
     {
     }
 
-    BuildTargetInfo(const QString &targetFilePath, const QString &projectFilePath)
-        : targetFilePath(Utils::FileName::fromUserInput(targetFilePath)),
-          projectFilePath(Utils::FileName::fromUserInput(projectFilePath))
-    {
-    }
-
+    QString targetName;
     Utils::FileName targetFilePath;
     Utils::FileName projectFilePath;
 
-    bool isValid() const { return !targetFilePath.isEmpty(); }
+    bool isValid() const { return !targetName.isEmpty(); }
 };
 
 inline bool operator==(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
 {
-    return ti1.targetFilePath == ti2.targetFilePath;
+    return ti1.targetName == ti2.targetName;
 }
 
 inline bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
@@ -71,7 +70,7 @@ inline bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
 
 inline uint qHash(const BuildTargetInfo &ti)
 {
-    return qHash(ti.targetFilePath);
+    return qHash(ti.targetName);
 }
 
 
@@ -90,6 +89,18 @@ public:
                 return ti.targetFilePath;
         }
         return Utils::FileName();
+    }
+
+    bool hasTarget(const QString &targetName) {
+        return Utils::anyOf(list, [&targetName](const BuildTargetInfo &ti) {
+            return ti.targetName == targetName;
+        });
+    }
+
+    Utils::FileName targetFilePath(const QString &targetName) {
+        return Utils::findOrDefault(list, [&targetName](const BuildTargetInfo &ti) {
+            return ti.targetName == targetName;
+        }).targetFilePath;
     }
 
     QList<BuildTargetInfo> list;

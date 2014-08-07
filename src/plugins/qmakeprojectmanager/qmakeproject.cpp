@@ -1497,8 +1497,11 @@ void QmakeProject::updateBuildSystemData()
     target->setDeploymentData(deploymentData);
 
     BuildTargetInfoList appTargetList;
-    foreach (const QmakeProFileNode * const node, applicationProFiles())
-        appTargetList.list << BuildTargetInfo(executableFor(node), node->path());
+    foreach (const QmakeProFileNode * const node, applicationProFiles()) {
+        appTargetList.list << BuildTargetInfo(node->targetInformation().target,
+                                              Utils::FileName::fromString(executableFor(node)),
+                                              Utils::FileName::fromString(node->path()));
+    }
     target->setApplicationTargets(appTargetList);
 }
 

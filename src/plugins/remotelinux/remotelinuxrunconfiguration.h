@@ -60,7 +60,7 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public AbstractRemoteLinu
 
 public:
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
-        const QString &projectFilePath);
+        const QString &targetName);
     ~RemoteLinuxRunConfiguration();
 
     bool isEnabled() const;
@@ -82,8 +82,6 @@ public:
     bool useAlternateExecutable() const;
 
     QVariantMap toMap() const;
-
-    QString projectFilePath() const;
 
     static const char *IdPrefix;
 

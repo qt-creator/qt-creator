@@ -709,7 +709,9 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
         deploymentData.addFile(ct.executable, deploymentPrefix + buildDir.relativeFilePath(QFileInfo(ct.executable).dir().path()), DeployableFile::TypeExecutable);
         if (!ct.library) {
             // TODO: Put a path to corresponding .cbp file into projectFilePath?
-            appTargetList.list << BuildTargetInfo(ct.executable, ct.executable);
+            appTargetList.list << BuildTargetInfo(ct.title,
+                                                  Utils::FileName::fromString(ct.executable),
+                                                  Utils::FileName::fromString(ct.executable));
         }
     }
 
