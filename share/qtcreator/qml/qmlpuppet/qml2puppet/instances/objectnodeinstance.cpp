@@ -91,6 +91,14 @@ static bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
     return false;
 }
 
+static bool isSimpleExpression(const QString &expression)
+{
+    if (expression.startsWith(QStringLiteral("{")))
+        return false;
+
+    return true;
+}
+
 namespace QmlDesigner {
 namespace Internal {
 
@@ -510,6 +518,9 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
 void ObjectNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     if (ignoredProperties().contains(name))
+        return;
+
+    if (!isSimpleExpression(expression))
         return;
 
     QQmlProperty property(object(), name, context());
