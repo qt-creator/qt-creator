@@ -28,9 +28,11 @@
 ****************************************************************************/
 
 #include "androidpackageinstallationstep.h"
+#include "qmakeandroidbuildapkstep.h"
 #include "qmakeandroidsupport.h"
 
 #include <android/androidconstants.h>
+#include <android/androidglobal.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -106,6 +108,39 @@ Utils::FileName QmakeAndroidSupport::apkPath(ProjectExplorer::Target *target, An
             .appendPath(QString::fromLatin1("%1-%2.apk")
                         .arg(packageName)
                         .arg(buildTypeName));
+}
+
+Utils::FileName QmakeAndroidSupport::androiddeployqtPath(ProjectExplorer::Target *target) const
+{
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
+    if (!version)
+        return Utils::FileName();
+
+    QString command = version->qmakeProperty("QT_HOST_BINS");
+    if (!command.endsWith(QLatin1Char('/')))
+        command += QLatin1Char('/');
+    command += Utils::HostOsInfo::withExecutableSuffix(QLatin1String("androiddeployqt"));
+    return Utils::FileName::fromString(command);
+}
+
+Utils::FileName QmakeAndroidSupport::androiddeployJsonPath(ProjectExplorer::Target *target) const
+{
+    const auto *pro = static_cast<QmakeProjectManager::QmakeProject *>(target->project());
+    QmakeAndroidBuildApkStep *buildApkStep
+        = Android::AndroidGlobal::buildStep<QmakeAndroidBuildApkStep>(target->activeBuildConfiguration());
+
+    if (!buildApkStep) // should never happen
+        return Utils::FileName();
+
+    const QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(buildApkStep->proFilePathForInputFile());
+    if (!node) // should never happen
+        return Utils::FileName();
+
+    QString inputFile = node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
+    if (inputFile.isEmpty()) // should never happen
+        return Utils::FileName();
+
+    return Utils::FileName::fromString(inputFile);
 }
 
 void QmakeAndroidSupport::resetBuild(const ProjectExplorer::Target *target)

@@ -39,7 +39,6 @@
     AndroidGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
 
 namespace Android {
-namespace Internal {
 
 class AndroidGlobal
 {
@@ -78,7 +77,6 @@ public:
     }
 };
 
-} // namespace Internal
 } // namespace Android
 
 #endif // ANDROIDGLOBAL_H

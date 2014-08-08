@@ -36,6 +36,7 @@
 #include "javaparser.h"
 #include "androidmanager.h"
 #include "androidconstants.h"
+#include "androidglobal.h"
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
@@ -202,19 +203,66 @@ bool AndroidDeployQtStep::init()
             return false;
         }
     }
-
     ProjectExplorer::ProcessParameters *pp = processParameters();
-    pp->setCommand(AndroidConfigurations::currentConfig().adbToolPath().toString());
+    m_useAndroiddeployqt = version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
+    if (m_useAndroiddeployqt) {
+        AndroidBuildApkStep *androidBuildApkStep
+            = AndroidGlobal::buildStep<AndroidBuildApkStep>(target()->activeBuildConfiguration());
+        if (!androidBuildApkStep) {
+            emit addOutput(tr("Cannot find the android build step."), ErrorOutput);
+            return false;
+        }
+        Utils::FileName tmp = AndroidManager::androidQtSupport(target())->androiddeployqtPath(target());
+        if (tmp.isEmpty()) {
+            emit addOutput(tr("Cannot find the androiddeployqt tool."), ErrorOutput);
+            return false;
+        }
+
+
+        pp->setCommand(tmp.toString());
+        const QString output(bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString());
+        pp->setWorkingDirectory(output);
+
+        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--verbose"));
+        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--output"));
+        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, output);
+        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--no-build"));
+        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--input"));
+        tmp = AndroidManager::androidQtSupport(target())->androiddeployJsonPath(target());
+        if (tmp.isEmpty()) {
+            emit addOutput(tr("Cannot find the androiddeploy Json file."), ErrorOutput);
+            return false;
+        }
+        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, tmp.toString());
+
+        if (m_uninstallPreviousPackageRun)
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--install"));
+        else
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--reinstall"));
+
+        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--deployment"));
+        switch (androidBuildApkStep->deployAction()) {
+            case AndroidBuildApkStep::MinistroDeployment:
+                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("ministro"));
+                break;
+            case AndroidBuildApkStep::DebugDeployment:
+                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("debug"));
+                break;
+            case AndroidBuildApkStep::BundleLibrariesDeployment:
+                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("bundled"));
+                break;
+        }
+    } else {
+        pp->setCommand(AndroidConfigurations::currentConfig().adbToolPath().toString());
+        m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target(), AndroidManager::signPackage(target())
+                                                                        ? AndroidQtSupport::ReleaseBuildSigned
+                                                                        : AndroidQtSupport::DebugBuild).toString();
+        pp->setWorkingDirectory(bc->buildDirectory().toString());
+    }
     pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
     Utils::Environment env = bc->environment();
     pp->setEnvironment(env);
-    m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target(), AndroidManager::signPackage(target())
-                                                                    ? AndroidQtSupport::ReleaseBuildSigned
-                                                                    : AndroidQtSupport::DebugBuild).toString();
-
     m_buildDirectory = bc->buildDirectory().toString();
-
     bool result = AbstractProcessStep::init();
     if (!result)
         return false;
@@ -238,22 +286,30 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         AndroidManager::setDeviceSerialNumber(target(), serialNumber);
     }
 
-    if (m_uninstallPreviousPackageRun) {
-        emit addOutput(tr("Uninstall previous package %1.").arg(m_packageName), MessageOutput);
-        runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
-                   AndroidDeviceInfo::adbSelector(m_serialNumber)
-                   << QLatin1String("uninstall") << m_packageName);
-    }
-
     ProjectExplorer::ProcessParameters *pp = processParameters();
-    QString args;
-    foreach (const QString &arg, AndroidDeviceInfo::adbSelector(m_serialNumber))
-        Utils::QtcProcess::addArg(&args, arg);
+    if (m_useAndroiddeployqt) {
+        if (!m_serialNumber.isEmpty() && !m_serialNumber.startsWith(QLatin1String("????"))) {
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--device"));
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, m_serialNumber);
+        }
+        pp->setArguments(m_androiddeployqtArgs);
+    } else {
+        if (m_uninstallPreviousPackageRun) {
+            emit addOutput(tr("Uninstall previous package %1.").arg(m_packageName), MessageOutput);
+            runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
+                       AndroidDeviceInfo::adbSelector(m_serialNumber)
+                       << QLatin1String("uninstall") << m_packageName);
+        }
 
-    Utils::QtcProcess::addArg(&args, QLatin1String("install"));
-    Utils::QtcProcess::addArg(&args, QLatin1String("-r"));
-    Utils::QtcProcess::addArg(&args, m_apkPath);
-    pp->setArguments(args);
+        QString args;
+        foreach (const QString &arg, AndroidDeviceInfo::adbSelector(m_serialNumber))
+            Utils::QtcProcess::addArg(&args, arg);
+
+        Utils::QtcProcess::addArg(&args, QLatin1String("install"));
+        Utils::QtcProcess::addArg(&args, QLatin1String("-r"));
+        Utils::QtcProcess::addArg(&args, m_apkPath);
+        pp->setArguments(args);
+    }
     pp->resolveAll();
 
     AbstractProcessStep::run(fi);

@@ -43,6 +43,8 @@ public:
     QStringList soLibSearchPath(const ProjectExplorer::Target *target) const;
     QStringList projectTargetApplications(const ProjectExplorer::Target *target) const;
     Utils::FileName apkPath(ProjectExplorer::Target *target, BuildType buildType) const;
+    Utils::FileName androiddeployqtPath(ProjectExplorer::Target *target) const;
+    Utils::FileName androiddeployJsonPath(ProjectExplorer::Target *target) const;
 
     void resetBuild(const ProjectExplorer::Target *target);
 };

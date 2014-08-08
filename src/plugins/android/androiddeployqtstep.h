@@ -31,6 +31,7 @@
 #ifndef ANDROIDDEPLOYQTSTEP_H
 #define ANDROIDDEPLOYQTSTEP_H
 
+#include "androidbuildapkstep.h"
 #include "androidconfigurations.h"
 
 #include <projectexplorer/abstractprocessstep.h>
@@ -108,6 +109,9 @@ private:
     bool m_uninstallPreviousPackageRun;
     static const Core::Id Id;
     bool m_installOk;
+    bool m_useAndroiddeployqt;
+    AndroidBuildApkStep::AndroidDeployAction m_deployAction;
+    QString m_androiddeployqtArgs;
 };
 
 }
