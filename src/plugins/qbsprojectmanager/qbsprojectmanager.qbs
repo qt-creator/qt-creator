@@ -76,6 +76,7 @@ QtcPlugin {
         "qbscleanstep.cpp",
         "qbscleanstep.h",
         "qbscleanstepconfigwidget.ui",
+        "qbsconstants.h",
         "qbsdeployconfigurationfactory.cpp",
         "qbsdeployconfigurationfactory.h",
         "qbsinstallstep.cpp",
