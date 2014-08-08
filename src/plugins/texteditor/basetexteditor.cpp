@@ -3441,6 +3441,8 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
 
     QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
 
+    int documentWidth = int(document()->size().width());
+
     if (!d->m_highlightBlocksInfo.isEmpty()) {
         const QColor baseColor = palette().base().color();
 
@@ -3467,7 +3469,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                     const QColor &blendedColor = calcBlendColor(baseColor, i, count);
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
                     QRectF oneRect = r;
-                    oneRect.setWidth(viewport()->width());
+                    oneRect.setWidth(qMax(viewport()->width(), documentWidth));
                     oneRect.adjust(vi, 0, -8*i, 0);
                     if (oneRect.left() >= oneRect.right())
                         continue;
