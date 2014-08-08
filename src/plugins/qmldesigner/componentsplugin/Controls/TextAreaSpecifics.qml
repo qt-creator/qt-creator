@@ -64,11 +64,9 @@ Column {
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.text
-                    implicitWidth: 180
+                    Layout.fillWidth: true
                 }
-                ExpandingSpacer {
 
-                }
             }
 
             Label {
