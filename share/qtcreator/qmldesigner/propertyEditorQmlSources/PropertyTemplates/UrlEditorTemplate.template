@@ -4,4 +4,6 @@ Label {
 }
 LineEdit {
     backendValue: backendValues.%2
+    Layout.fillWidth: true
+    showTranslateCheckBox: false
 }
