@@ -49,7 +49,7 @@ minQtVersion(5, 0, 0):exists(src/shared/qbs/qbs.pro) {
         QBS_APPS_RPATH_DIR = @loader_path/../PlugIns
     } else {
         QBS_PLUGINS_BUILD_DIR = $${IDE_BUILD_TREE}/$${IDE_LIBRARY_BASENAME}/qtcreator
-        QBS_APPS_RPATH_DIR = \\\$\\\$ORIGIN/../$$IDE_LIBRARY_BASENAME/qtcreator
+        QBS_APPS_RPATH_DIR = \$\$ORIGIN/../$$IDE_LIBRARY_BASENAME/qtcreator
     }
     cache(QBS_PLUGINS_BUILD_DIR)
     cache(QBS_APPS_RPATH_DIR)
