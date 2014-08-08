@@ -250,22 +250,15 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
     points += firstSelection.topRight() + QPointF(margin+1, -margin);
     points += firstSelection.bottomRight() + QPointF(margin+1, 0);
 
-
     const int count = selection.count();
-    if (count > 2) {
-        const QRectF *prev = &selection.at(0);
-        const QRectF *current = &selection.at(1);
-        const QRectF *next = &selection.at(2);
-        for (int i = 0; i < count; ++i) {
-    #define MAX3(a,b,c) qMax(a, qMax(b,c))
-            qreal x = MAX3(prev->right(), current->right(), next->right()) + margin;
-            points += QPointF(x+1, current->top());
-            points += QPointF(x+1, current->bottom());
-            prev = current;
-            current = next;
-            if (i < count-1)
-                next = &selection.at(i+1);
-        }
+    for (int i = 1; i < count-1; ++i) {
+#define MAX3(a,b,c) qMax(a, qMax(b,c))
+        qreal x = MAX3(selection.at(i-1).right(),
+                       selection.at(i).right(),
+                       selection.at(i+1).right()) + margin;
+
+        points += QPointF(x+1, selection.at(i).top());
+        points += QPointF(x+1, selection.at(i).bottom());
     }
 
     const QRectF &lastSelection = selection.at(count-1);
@@ -274,20 +267,14 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
     points += lastSelection.bottomLeft() + QPointF(-margin, margin+extra);
     points += lastSelection.topLeft() + QPointF(-margin, 0);
 
-    if (count > 2) {
-        const QRectF *prev = &selection.at(count-3);
-        const QRectF *current = &selection.at(count-2);
-        const QRectF *next = &selection.at(count-1);
-        for (int i = count-1; i >= 0; --i) {
+    for (int i = count-2; i > 0; --i) {
 #define MIN3(a,b,c) qMin(a, qMin(b,c))
-            qreal x = MIN3(prev->left(), current->left(), next->left()) - margin;
-            points += QPointF(x, current->bottom()+extra);
-            points += QPointF(x, current->top());
-            next = current;
-            current = prev;
-            if (i > 0)
-                prev = &selection.at(i);
-        }
+        qreal x = MIN3(selection.at(i-1).left(),
+                       selection.at(i).left(),
+                       selection.at(i+1).left()) - margin;
+
+        points += QPointF(x, selection.at(i).bottom()+extra);
+        points += QPointF(x, selection.at(i).top());
     }
 
     points += firstSelection.bottomLeft() + QPointF(-margin, extra);
