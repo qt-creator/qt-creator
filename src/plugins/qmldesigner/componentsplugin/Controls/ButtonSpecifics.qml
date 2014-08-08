@@ -50,10 +50,7 @@ Column {
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.text
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
@@ -138,10 +135,7 @@ Column {
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.tooltip
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
@@ -170,10 +164,7 @@ Column {
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.iconSource
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
