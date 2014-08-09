@@ -98,6 +98,8 @@ public:
     // call before widget is deleted
     void disconnectFromEditor();
 
+    static void updateGlobalMarksFilenames(const QString &oldFileName, const QString &newFileName);
+
 public slots:
     void setCurrentFileName(const QString &fileName);
     QString currentFileName() const;

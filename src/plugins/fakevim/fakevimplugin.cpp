@@ -1003,6 +1003,10 @@ private slots:
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
 
+    void allDocumentsRenamed(const QString &oldName, const QString &newName);
+    void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
+    void renameFileNameInEditors(const QString &oldName, const QString &newName);
+
     void setUseFakeVim(const QVariant &value);
     void setUseFakeVimInternal(bool on);
     void quitFakeVim();
@@ -1221,6 +1225,11 @@ bool FakeVimPluginPrivate::initialize()
         this, SLOT(editorAboutToClose(Core::IEditor*)));
     connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
         this, SLOT(editorOpened(Core::IEditor*)));
+
+    connect(DocumentManager::instance(), SIGNAL(allDocumentsRenamed(QString,QString)),
+            this, SLOT(allDocumentsRenamed(QString,QString)));
+    connect(DocumentManager::instance(), SIGNAL(documentRenamed(Core::IDocument*,QString,QString)),
+            this, SLOT(documentRenamed(Core::IDocument*,QString,QString)));
 
     connect(theFakeVimSetting(ConfigUseFakeVim), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setUseFakeVim(QVariant)));
@@ -1821,6 +1830,26 @@ void FakeVimPluginPrivate::editorAboutToClose(IEditor *editor)
 {
     //qDebug() << "CLOSING: " << editor << editor->widget();
     m_editorToHandler.remove(editor);
+}
+
+void FakeVimPluginPrivate::allDocumentsRenamed(const QString &oldName, const QString &newName)
+{
+    renameFileNameInEditors(oldName, newName);
+    FakeVimHandler::updateGlobalMarksFilenames(oldName, newName);
+}
+
+void FakeVimPluginPrivate::documentRenamed(
+        IDocument *, const QString &oldName, const QString &newName)
+{
+    renameFileNameInEditors(oldName, newName);
+}
+
+void FakeVimPluginPrivate::renameFileNameInEditors(const QString &oldName, const QString &newName)
+{
+    foreach (FakeVimHandler *handler, m_editorToHandler.values()) {
+        if (handler->currentFileName() == oldName)
+            handler->setCurrentFileName(newName);
+    }
 }
 
 void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)

@@ -320,6 +320,8 @@ public:
 
     const QString &fileName() const { return m_fileName; }
 
+    void setFileName(const QString &fileName) { m_fileName = fileName; }
+
 private:
     CursorPosition m_position;
     QString m_fileName;
@@ -8470,6 +8472,15 @@ void FakeVimHandler::disconnectFromEditor()
 {
     d->m_textedit = 0;
     d->m_plaintextedit = 0;
+}
+
+void FakeVimHandler::updateGlobalMarksFilenames(const QString &oldFileName, const QString &newFileName)
+{
+    for (int i = 0; i < Private::g.marks.size(); ++i) {
+        Mark &mark = Private::g.marks[i];
+        if (mark.fileName() == oldFileName)
+            mark.setFileName(newFileName);
+    }
 }
 
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
