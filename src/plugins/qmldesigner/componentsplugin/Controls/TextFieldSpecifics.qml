@@ -51,8 +51,7 @@ Column {
                 LineEdit {
                     backendValue: backendValues.text
                     implicitWidth: 180
-                }
-                ExpandingSpacer {
+                    Layout.fillWidth: true
 
                 }
             }
@@ -65,10 +64,7 @@ Column {
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.placeholderText
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
@@ -96,10 +92,7 @@ Column {
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.inputMask
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
