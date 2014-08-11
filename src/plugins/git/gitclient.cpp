@@ -968,12 +968,17 @@ void GitClient::diff(const QString &workingDirectory,
         controller->setReloader(reloader);
 
         reloader->setWorkingDirectory(workingDirectory);
-        reloader->setDiffType(diffType);
-        if (diffType == GitDiffEditorReloader::DiffFileList)
-            reloader->setFileList(stagedFileNames, unstagedFileNames);
-        else if (diffType == GitDiffEditorReloader::DiffProjectList)
-            reloader->setProjectList(unstagedFileNames);
     }
+
+    DiffEditor::DiffEditorController *controller = diffEditorDocument->controller();
+    GitDiffEditorReloader *reloader = static_cast<GitDiffEditorReloader *>(controller->reloader());
+    reloader->setDiffType(diffType);
+    // we force setFileList, since the lists can be different
+    // e.g. when double click for the second time on different file inside commit editor
+    if (diffType == GitDiffEditorReloader::DiffFileList)
+        reloader->setFileList(stagedFileNames, unstagedFileNames);
+    else if (diffType == GitDiffEditorReloader::DiffProjectList) // the same when unstaged file was clicked
+        reloader->setProjectList(unstagedFileNames);
 
     diffEditorDocument->controller()->requestReload();
 
