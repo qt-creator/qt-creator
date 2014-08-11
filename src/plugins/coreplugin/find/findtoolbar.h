@@ -83,6 +83,7 @@ public:
     void openFindToolBar(bool focus = true);
     void setUseFakeVim(bool on);
 
+    void setLightColoredIcon(bool lightColored);
 public slots:
     void setBackward(bool backward);
 

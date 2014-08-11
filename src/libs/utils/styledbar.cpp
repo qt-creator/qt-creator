@@ -54,7 +54,11 @@ bool StyledBar::isSingleRow() const
 
 void StyledBar::setLightColored(bool lightColored)
 {
+    if (isLightColored() == lightColored)
+        return;
     setProperty("lightColored", lightColored);
+    foreach (QWidget *childWidget, findChildren<QWidget *>())
+        childWidget->style()->polish(childWidget);
 }
 
 bool StyledBar::isLightColored() const

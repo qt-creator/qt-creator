@@ -28,18 +28,18 @@
 ****************************************************************************/
 
 #include "findplaceholder.h"
+#include "find/findtoolbar.h"
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <QVBoxLayout>
-
 
 using namespace Core;
 
 FindToolBarPlaceHolder *FindToolBarPlaceHolder::m_current = 0;
 
 FindToolBarPlaceHolder::FindToolBarPlaceHolder(QWidget *owner, QWidget *parent)
-    : QWidget(parent), m_owner(owner), m_subWidget(0)
+    : QWidget(parent), m_owner(owner), m_subWidget(0), m_lightColored(false)
 {
     setLayout(new QVBoxLayout);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
@@ -77,15 +77,18 @@ bool FindToolBarPlaceHolder::isUsedByWidget(QWidget *widget)
     return false;
 }
 
-void FindToolBarPlaceHolder::setWidget(QWidget *widget)
+void FindToolBarPlaceHolder::setWidget(Internal::FindToolBar *widget)
 {
     if (m_subWidget) {
         m_subWidget->setVisible(false);
         m_subWidget->setParent(0);
     }
     m_subWidget = widget;
-    if (m_subWidget)
+    if (m_subWidget) {
+        m_subWidget->setLightColored(m_lightColored);
+        m_subWidget->setLightColoredIcon(m_lightColored);
         layout()->addWidget(m_subWidget);
+    }
 }
 
 FindToolBarPlaceHolder *FindToolBarPlaceHolder::getCurrent()
@@ -96,4 +99,14 @@ FindToolBarPlaceHolder *FindToolBarPlaceHolder::getCurrent()
 void FindToolBarPlaceHolder::setCurrent(FindToolBarPlaceHolder *placeHolder)
 {
     m_current = placeHolder;
+}
+
+void FindToolBarPlaceHolder::setLightColored(bool lightColored)
+{
+    m_lightColored = lightColored;
+}
+
+bool FindToolBarPlaceHolder::isLightColored() const
+{
+    return m_lightColored;
 }

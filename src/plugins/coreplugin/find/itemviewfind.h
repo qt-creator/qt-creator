@@ -50,6 +50,11 @@ public:
         FetchMoreWhileSearching
     };
 
+    enum ColorOption {
+        DarkColored = 0,
+        LightColored = 1
+    };
+
     explicit ItemViewFind(QAbstractItemView *view, int role = Qt::DisplayRole,
             FetchOption option = DoNotFetchMoreWhileSearching);
     virtual ~ItemViewFind();
@@ -65,9 +70,8 @@ public:
     Result findIncremental(const QString &txt, FindFlags findFlags);
     Result findStep(const QString &txt, FindFlags findFlags);
 
-    static QFrame *createSearchableWrapper(QAbstractItemView *treeView,
-            FetchOption option = DoNotFetchMoreWhileSearching);
-
+    static QFrame *createSearchableWrapper(QAbstractItemView *treeView, ColorOption lightColored = DarkColored,
+                                           FetchOption option = DoNotFetchMoreWhileSearching);
 private:
     Result find(const QString &txt, FindFlags findFlags,
                 bool startFromCurrentIndex, bool *wrapped);

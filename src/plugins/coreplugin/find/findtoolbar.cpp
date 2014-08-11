@@ -93,7 +93,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     connect(m_ui.findEdit, SIGNAL(editingFinished()), this, SLOT(invokeResetIncrementalSearch()));
 
-    m_ui.close->setIcon(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)));
+    setLightColoredIcon(false);
     connect(m_ui.close, SIGNAL(clicked()), this, SLOT(hideAndResetFocus()));
 
     m_findCompleter->setModel(m_plugin->findCompletionModel());
@@ -819,6 +819,12 @@ void FindToolBar::setPreserveCase(bool preserveCase)
 void FindToolBar::setBackward(bool backward)
 {
     setFindFlag(FindBackward, backward);
+}
+
+void FindToolBar::setLightColoredIcon(bool lightColored)
+{
+    m_ui.close->setIcon(lightColored ? QIcon(QLatin1String(Core::Constants::ICON_DARK_CLOSE))
+                                     : QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)));
 }
 
 OptionsPopup::OptionsPopup(QWidget *parent)

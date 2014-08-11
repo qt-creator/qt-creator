@@ -116,7 +116,9 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget() :
     layout->setSpacing(0);
     layout->addWidget(m_inspectedFile);
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(
-                          m_treeView, Core::ItemViewFind::FetchMoreWhileSearching));
+                          m_treeView,
+                          Core::ItemViewFind::DarkColored,
+                          Core::ItemViewFind::FetchMoreWhileSearching));
     layout->addWidget(m_includeHierarchyInfoLabel);
     setLayout(layout);
 

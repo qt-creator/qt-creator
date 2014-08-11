@@ -36,6 +36,7 @@
 #include <QWidget>
 
 namespace Core {
+namespace Internal { class FindToolBar; }
 
 class CORE_EXPORT FindToolBarPlaceHolder : public QWidget
 {
@@ -46,14 +47,18 @@ public:
     QWidget *owner() const;
     bool isUsedByWidget(QWidget *widget);
 
-    void setWidget(QWidget *widget);
+    void setWidget(Internal::FindToolBar *widget);
 
     static FindToolBarPlaceHolder *getCurrent();
     static void setCurrent(FindToolBarPlaceHolder *placeHolder);
 
+    void setLightColored(bool lightColored);
+    bool isLightColored() const;
+
 private:
     QWidget *m_owner;
-    QPointer<QWidget> m_subWidget;
+    QPointer<Internal::FindToolBar> m_subWidget;
+    bool m_lightColored;
     static FindToolBarPlaceHolder *m_current;
 };
 

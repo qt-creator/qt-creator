@@ -132,7 +132,7 @@ IFindSupport::Result ItemViewFind::findStep(const QString &txt, FindFlags findFl
     return result;
 }
 
-QFrame *ItemViewFind::createSearchableWrapper(QAbstractItemView *treeView, FetchOption option)
+QFrame *ItemViewFind::createSearchableWrapper(QAbstractItemView *treeView, ColorOption lightColored, FetchOption option)
 {
     QFrame *widget = new QFrame;
     widget->setFrameStyle(QFrame::NoFrame);
@@ -140,7 +140,9 @@ QFrame *ItemViewFind::createSearchableWrapper(QAbstractItemView *treeView, Fetch
     vbox->setMargin(0);
     vbox->setSpacing(0);
     vbox->addWidget(treeView);
-    vbox->addWidget(new Core::FindToolBarPlaceHolder(widget));
+    auto placeHolder = new Core::FindToolBarPlaceHolder(widget);
+    placeHolder->setLightColored(lightColored);
+    vbox->addWidget(placeHolder);
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(treeView);

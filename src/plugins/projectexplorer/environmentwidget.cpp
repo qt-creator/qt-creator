@@ -102,7 +102,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     d->m_environmentView->setSelectionMode(QAbstractItemView::SingleSelection);
     d->m_environmentView->setSelectionBehavior(QAbstractItemView::SelectItems);
     d->m_environmentView->setFrameShape(QFrame::NoFrame);
-    QFrame *findWrapper = Core::ItemViewFind::createSearchableWrapper(d->m_environmentView);
+    QFrame *findWrapper = Core::ItemViewFind::createSearchableWrapper(d->m_environmentView, Core::ItemViewFind::LightColored);
     findWrapper->setFrameStyle(QFrame::StyledPanel);
     horizontalLayout->addWidget(findWrapper);
 

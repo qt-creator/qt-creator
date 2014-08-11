@@ -99,7 +99,8 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
     treeView = new ::Utils::NavigationTreeView(this);
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     verticalLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(
-                              treeView, Core::ItemViewFind::FetchMoreWhileSearching));
+                                  treeView, Core::ItemViewFind::DarkColored,
+                                  Core::ItemViewFind::FetchMoreWhileSearching));
 
     // tree model
     treeModel = new TreeItemModel(this);

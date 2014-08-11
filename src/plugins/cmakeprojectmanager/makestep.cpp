@@ -346,7 +346,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     frame->setFrameStyle(QFrame::StyledPanel);
     QVBoxLayout *frameLayout = new QVBoxLayout(frame);
     frameLayout->setMargin(0);
-    frameLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_buildTargetsList));
+    frameLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_buildTargetsList,
+                                                                       Core::ItemViewFind::LightColored));
 
     fl->addRow(tr("Targets:"), frame);
 

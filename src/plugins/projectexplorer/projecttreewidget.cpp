@@ -136,7 +136,8 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(
-                          m_view, ItemViewFind::FetchMoreWhileSearching));
+                          m_view, ItemViewFind::DarkColored,
+                          ItemViewFind::FetchMoreWhileSearching));
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
