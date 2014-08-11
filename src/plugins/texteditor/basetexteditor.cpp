@@ -3470,7 +3470,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
                     QRectF oneRect = r;
                     oneRect.setWidth(qMax(viewport()->width(), documentWidth));
-                    oneRect.adjust(vi, 0, -8*i, 0);
+                    oneRect.adjust(vi, 0, 0, 0);
                     if (oneRect.left() >= oneRect.right())
                         continue;
                     if (lineX > 0 && oneRect.left() < lineX && oneRect.right() > lineX) {
