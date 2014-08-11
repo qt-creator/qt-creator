@@ -471,7 +471,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             width = 32;
         } else if (p.startsWith(QLatin1String("mips"))) {
             arch = Abi::MipsArchitecture;
-            width = p.endsWith(QLatin1String("64")) ? 64 : 32;
+            width = p.contains(QLatin1String("64")) ? 64 : 32;
         } else if (p == QLatin1String("x86_64") || p == QLatin1String("amd64")) {
             arch = Abi::X86Architecture;
             width = 64;
@@ -1065,6 +1065,10 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
     QTest::newRow("mips64-linux-octeon-gnu") << int(Abi::MipsArchitecture)
                                              << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
                                              << int(Abi::ElfFormat) << 64;
+
+    QTest::newRow("mips64el-linux-gnuabi") << int(Abi::MipsArchitecture)
+                                    << int(Abi::LinuxOS) << int(Abi::GenericLinuxFlavor)
+                                    << int(Abi::ElfFormat) << 64;
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()
