@@ -81,19 +81,49 @@ public:
     TabWidget(QWidget *parent = 0);
 signals:
     void contextMenuRequested(const QPoint &pos, const int index);
+protected:
+    bool eventFilter(QObject *object, QEvent *event);
 private slots:
     void slotContextMenuRequested(const QPoint &pos);
+private:
+    int m_tabIndexForMiddleClick;
 };
 
 }
 }
 
 TabWidget::TabWidget(QWidget *parent)
-    : QTabWidget(parent)
+    : QTabWidget(parent), m_tabIndexForMiddleClick(-1)
 {
+    tabBar()->installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(slotContextMenuRequested(QPoint)));
+}
+
+bool TabWidget::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == tabBar()) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            if (me->button() == Qt::MiddleButton) {
+                m_tabIndexForMiddleClick = tabBar()->tabAt(me->pos());
+                event->accept();
+                return true;
+            }
+        } else if (event->type() == QEvent::MouseButtonRelease) {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            if (me->button() == Qt::MiddleButton) {
+                int tab = tabBar()->tabAt(me->pos());
+                if (tab != -1 && tab == m_tabIndexForMiddleClick)
+                    emit tabCloseRequested(tab);
+                m_tabIndexForMiddleClick = -1;
+                event->accept();
+                return true;
+            }
+        }
+    }
+    return QTabWidget::eventFilter(object, event);
 }
 
 void TabWidget::slotContextMenuRequested(const QPoint &pos)
