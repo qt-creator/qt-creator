@@ -5,7 +5,7 @@ staging=${broot}/staging
 pyversion=2.7
 expatversion=2.1.0
 arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
-version=7.7.1
+version=7.8
 targetdir=${broot}/qtcreator-gdb-${version}
 gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
 packagename=qtcreator-gdb-${version}-${arch}.tar.gz
@@ -36,12 +36,12 @@ ${source}/Python-${pyversion}.tgz: | makesourcedir
 	curl -Osf http://www.python.org/ftp/python/${pyversion}/Python-${pyversion}.tgz && \
 	touch ${source}/Python-${pyversion}.tgz
 
-${source}/gdb-${version}.tar.bz2: | makesourcedir
+${source}/gdb-${version}.tar.xz: | makesourcedir
 	cd ${source} && \
 	echo "Downloading gdb..." && \
-	curl -Osf http://ftp.gnu.org/gnu/gdb/gdb-${version}.tar.bz2 || \
-	curl -osf gdb-${version}.tar.bz2 http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.bz2 && \
-	touch gdb-*.tar.bz2
+	curl -Osf http://ftp.gnu.org/gnu/gdb/gdb-${version}.tar.xz || \
+	curl -osf gdb-${version}.tar.xz http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.xz && \
+	touch gdb-*.tar.xz
 
 ${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.gz | makestagingdir
 	cd ${staging} && \
@@ -60,10 +60,10 @@ ${targetdir}/python/include/python${pyversion}/pyconfig.h: ${staging}/lib/libpyt
 	mkdir -p ${targetdir}/python/lib && cp -a ${staging}/lib/python${pyversion} ${targetdir}/python/lib/
 	mkdir -p ${targetdir}/python/include/python${pyversion} && cp ${staging}/include/python${pyversion}/pyconfig.h ${targetdir}/python/include/python${pyversion}/
 
-${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestagingdir
+${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.xz | makestagingdir
 	cd ${staging} && \
 	echo "Extracting gdb..." && \
-	tar xf ${source}/gdb-${version}.tar.bz2 && \
+	tar xf ${source}/gdb-${version}.tar.xz && \
 	cd gdb-${version} && \
 	touch configure
 
