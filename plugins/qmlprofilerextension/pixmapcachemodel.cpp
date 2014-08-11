@@ -199,9 +199,9 @@ const QVariantList PixmapCacheModel::getEventDetails(int index) const
     {
         QVariantMap res;
         if (ev->pixmapEventType == PixmapCacheCountChanged)
-            res.insert(QLatin1String("title"), QVariant(QLatin1String("Image Cached")));
+            res.insert(QLatin1String("displayName"), QVariant(QLatin1String("Image Cached")));
         else if (ev->pixmapEventType == PixmapLoadingStarted)
-            res.insert(QLatin1String("title"), QVariant(QLatin1String("Image Loaded")));
+            res.insert(QLatin1String("displayName"), QVariant(QLatin1String("Image Loaded")));
         result << res;
     }
 

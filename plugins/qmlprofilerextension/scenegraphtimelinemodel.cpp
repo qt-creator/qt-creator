@@ -165,7 +165,7 @@ const QVariantList SceneGraphTimelineModel::getEventDetails(int index) const
 
     {
         QVariantMap res;
-        res.insert(QLatin1String("title"), QVariant(labelForSGType(
+        res.insert(QLatin1String("displayName"), QVariant(labelForSGType(
                                     d->seenPolishAndSync ? ev->sgEventType : SceneGraphGUIThread)));
         result << res;
     }

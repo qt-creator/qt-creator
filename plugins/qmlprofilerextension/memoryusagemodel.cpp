@@ -137,16 +137,15 @@ const QVariantList MemoryUsageModel::getLabels() const
 const QVariantList MemoryUsageModel::getEventDetails(int index) const
 {
     Q_D(const MemoryUsageModel);
-    static QString title = QStringLiteral("title");
 
     QVariantList result;
     const MemoryUsageModelPrivate::Range *ev = &d->range(index);
 
     QVariantMap res;
     if (ev->allocated >= -ev->deallocated)
-        res.insert(title, tr("Memory Allocated"));
+        res.insert(QLatin1String("displayName"), tr("Memory Allocated"));
     else
-        res.insert(title, tr("Memory Freed"));
+        res.insert(QLatin1String("displayName"), tr("Memory Freed"));
     result << res;
     res.clear();
 
