@@ -152,11 +152,20 @@ QString CMakeEditor::contextHelpId() const
 
 CMakeEditorWidget::CMakeEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(new CMakeDocument(), parent)
-{}
+{
+    ctor();
+}
 
 CMakeEditorWidget::CMakeEditorWidget(CMakeEditorWidget *other)
     : BaseTextEditorWidget(other)
-{}
+{
+    ctor();
+}
+
+void CMakeEditorWidget::ctor()
+{
+    setCodeFoldingSupported(true);
+}
 
 TextEditor::BaseTextEditor *CMakeEditorWidget::createEditor()
 {

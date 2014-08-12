@@ -79,6 +79,7 @@ protected:
 
 private:
     CMakeEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
+    void ctor();
 };
 
 class CMakeDocument : public TextEditor::BaseTextDocument
