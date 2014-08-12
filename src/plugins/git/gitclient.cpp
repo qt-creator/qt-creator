@@ -124,13 +124,18 @@ public:
 
 private slots:
     void slotShowDescriptionReceived(const QString &data);
-    void slotDiffOutputReceived(const QString &contents);
+    void slotTextualDiffOutputReceived(const QString &contents);
 
 private:
     void postCollectShowDescription(const QString &id);
-    void postCollectDiffOutput(const QStringList &arguments);
-    void postCollectDiffOutput(const QList<QStringList> &argumentsList);
-    void addJob(VcsBase::Command *command, const QStringList &arguments);
+    void postCollectTextualDiffOutputUsingDiffCommand(const QStringList &arguments);
+    void postCollectTextualDiffOutputUsingDiffCommand(const QList<QStringList> &argumentsList);
+    void postCollectTextualDiffOutputUsingShowCommand(const QStringList &arguments);
+    void postCollectTextualDiffOutput(const QString &gitCommand,
+                                      const QList<QStringList> &argumentsList);
+    void addJob(VcsBase::Command *command,
+                const QString &gitCommand,
+                const QStringList &arguments);
     int timeout() const;
     QProcessEnvironment processEnvironment() const;
     QString gitPath() const;
@@ -154,7 +159,7 @@ GitDiffHandler::GitDiffHandler(DiffEditor::DiffEditorController *controller,
 
 void GitDiffHandler::diffFile(const QString &fileName)
 {
-    postCollectDiffOutput(QStringList() << QLatin1String("--") << fileName);
+    postCollectTextualDiffOutputUsingDiffCommand(QStringList() << QLatin1String("--") << fileName);
 }
 
 void GitDiffHandler::diffFiles(const QStringList &stagedFileNames,
@@ -175,22 +180,22 @@ void GitDiffHandler::diffFiles(const QStringList &stagedFileNames,
         arguments << unstagedArguments;
     }
 
-    postCollectDiffOutput(arguments);
+    postCollectTextualDiffOutputUsingDiffCommand(arguments);
 }
 
 void GitDiffHandler::diffProjects(const QStringList &projectPaths)
 {
-    postCollectDiffOutput(QStringList() << QLatin1String("--") << projectPaths);
+    postCollectTextualDiffOutputUsingDiffCommand(QStringList() << QLatin1String("--") << projectPaths);
 }
 
 void GitDiffHandler::diffRepository()
 {
-    postCollectDiffOutput(QStringList());
+    postCollectTextualDiffOutputUsingDiffCommand(QStringList());
 }
 
 void GitDiffHandler::diffBranch(const QString &branchName)
 {
-    postCollectDiffOutput(QStringList() << branchName);
+    postCollectTextualDiffOutputUsingDiffCommand(QStringList() << branchName);
 }
 
 void GitDiffHandler::show(const QString &id)
@@ -231,7 +236,11 @@ void GitDiffHandler::slotShowDescriptionReceived(const QString &description)
         return;
     }
 
-    postCollectDiffOutput(QStringList() << m_id + QLatin1Char('^') << m_id);
+    postCollectTextualDiffOutputUsingShowCommand(QStringList()
+              << QLatin1String("--format=format:") // omit header, already generated
+              << QLatin1String(noColorOption)
+              << QLatin1String(decorateOption)
+              << m_id);
 
     // need to be called after postCollectDiffOutput(), since it clears the description
     m_controller->setDescription(
@@ -239,10 +248,14 @@ void GitDiffHandler::slotShowDescriptionReceived(const QString &description)
                                                      description));
 }
 
-void GitDiffHandler::addJob(VcsBase::Command *command, const QStringList &arguments)
+void GitDiffHandler::addJob(VcsBase::Command *command,
+                            const QString &gitCommand,
+                            const QStringList &arguments)
 {
     QStringList args;
-    args << QLatin1String("diff");
+    args << gitCommand;
+    args << QLatin1String("-m"); // show diff agains parents instead of merge commits
+    args << QLatin1String("--first-parent"); // show only first parent
     if (m_controller->isIgnoreWhitespace())
         args << QLatin1String("--ignore-space-change");
     args << QLatin1String("--unified=") + QString::number(
@@ -251,12 +264,22 @@ void GitDiffHandler::addJob(VcsBase::Command *command, const QStringList &argume
     command->addJob(args, timeout());
 }
 
-void GitDiffHandler::postCollectDiffOutput(const QStringList &arguments)
+void GitDiffHandler::postCollectTextualDiffOutputUsingDiffCommand(const QStringList &arguments)
 {
-    postCollectDiffOutput(QList<QStringList>() << arguments);
+    postCollectTextualDiffOutputUsingDiffCommand(QList<QStringList>() << arguments);
 }
 
-void GitDiffHandler::postCollectDiffOutput(const QList<QStringList> &argumentsList)
+void GitDiffHandler::postCollectTextualDiffOutputUsingDiffCommand(const QList<QStringList> &argumentsList)
+{
+    postCollectTextualDiffOutput(QLatin1String("diff"), argumentsList);
+}
+
+void GitDiffHandler::postCollectTextualDiffOutputUsingShowCommand(const QStringList &arguments)
+{
+    postCollectTextualDiffOutput(QLatin1String("show"), QList<QStringList>() << arguments);
+}
+
+void GitDiffHandler::postCollectTextualDiffOutput(const QString &gitCommand, const QList<QStringList> &argumentsList)
 {
     if (m_controller.isNull()) {
         deleteLater();
@@ -269,16 +292,16 @@ void GitDiffHandler::postCollectDiffOutput(const QList<QStringList> &argumentsLi
                                                      processEnvironment());
     command->setCodec(EditorManager::defaultTextCodec());
     connect(command, SIGNAL(output(QString)),
-            this, SLOT(slotDiffOutputReceived(QString)));
+            this, SLOT(slotTextualDiffOutputReceived(QString)));
     command->addFlags(diffExecutionFlags());
 
     for (int i = 0; i < argumentsList.count(); i++)
-        addJob(command, argumentsList.at(i));
+        addJob(command, gitCommand, argumentsList.at(i));
 
     command->execute();
 }
 
-void GitDiffHandler::slotDiffOutputReceived(const QString &contents)
+void GitDiffHandler::slotTextualDiffOutputReceived(const QString &contents)
 {
     if (m_controller.isNull()) {
         deleteLater();
