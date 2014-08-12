@@ -55,6 +55,7 @@ public:
     explicit QmlProfilerFileReader(QObject *parent = 0);
 
     void setV8DataModel(QV8ProfilerDataModel *dataModel);
+    void setQmlDataModel(QmlProfilerDataModel *dataModel);
 
     bool load(QIODevice *device);
 
@@ -62,20 +63,14 @@ signals:
     void traceStartTime(qint64 traceStartTime);
     void traceEndTime(qint64 traceStartTime);
 
-    void rangedEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType, int detailType,
-                     qint64 startTime, qint64 length, const QString &data,
-                     const QmlDebug::QmlEventLocation &location,
-                     qint64 param1, qint64 param2, qint64 param3, qint64 param4, qint64 param5);
     void error(const QString &error);
 
 private:
     void loadEventData(QXmlStreamReader &reader);
     void loadProfilerDataModel(QXmlStreamReader &reader);
 
-    void processQmlEvents();
-
-
     QV8ProfilerDataModel *m_v8Model;
+    QmlProfilerDataModel *m_qmlModel;
     QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
     QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
 };

@@ -367,15 +367,10 @@ void QmlProfilerModelManager::load()
 
     QmlProfilerFileReader reader;
     connect(&reader, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
-    connect(&reader, SIGNAL(rangedEvent(QmlDebug::Message,QmlDebug::RangeType,int,qint64,qint64,
-                                        QString,QmlDebug::QmlEventLocation,
-                                        qint64, qint64, qint64, qint64, qint64)),
-            this, SLOT(addQmlEvent(QmlDebug::Message,QmlDebug::RangeType,int,qint64,qint64,
-                                   QString,QmlDebug::QmlEventLocation,
-                                   qint64, qint64, qint64, qint64, qint64)));
     connect(&reader, SIGNAL(traceStartTime(qint64)), traceTime(), SLOT(setStartTime(qint64)));
     connect(&reader, SIGNAL(traceEndTime(qint64)), traceTime(), SLOT(setEndTime(qint64)));
     reader.setV8DataModel(d->v8Model);
+    reader.setQmlDataModel(d->model);
     reader.load(&file);
 
     complete();

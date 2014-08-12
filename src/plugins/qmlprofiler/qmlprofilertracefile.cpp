@@ -130,6 +130,11 @@ void QmlProfilerFileReader::setV8DataModel(QV8ProfilerDataModel *dataModel)
     m_v8Model = dataModel;
 }
 
+void QmlProfilerFileReader::setQmlDataModel(QmlProfilerDataModel *dataModel)
+{
+    m_qmlModel = dataModel;
+}
+
 bool QmlProfilerFileReader::load(QIODevice *device)
 {
     QXmlStreamReader stream(device);
@@ -180,8 +185,7 @@ bool QmlProfilerFileReader::load(QIODevice *device)
          emit error(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
          return false;
      } else {
-         processQmlEvents();
-
+         m_qmlModel->setData(m_qmlEvents, m_ranges);
          return true;
      }
 }
@@ -369,28 +373,6 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
         }
         default: break;
         } // switch
-    }
-}
-
-void QmlProfilerFileReader::processQmlEvents()
-{
-    for (int i = 0; i < m_ranges.size(); ++i) {
-        const QmlProfilerDataModel::QmlEventData &range = m_ranges[i];
-        int eventIndex = range.typeIndex;
-
-        if (eventIndex < 0 || eventIndex >= m_qmlEvents.size()) {
-            qWarning() << ".qtd file - range index" << eventIndex
-                       << "is outside of bounds (0, " << m_qmlEvents.size() << ")";
-            continue;
-        }
-
-        const QmlProfilerDataModel::QmlEventTypeData &event = m_qmlEvents[eventIndex];
-
-        emit rangedEvent(event.message, event.rangeType, event.detailType, range.startTime,
-                         range.duration, event.data, event.location,
-                         range.numericData1,range.numericData2, range.numericData3,
-                         range.numericData4, range.numericData5);
-
     }
 }
 

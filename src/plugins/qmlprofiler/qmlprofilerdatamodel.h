@@ -63,6 +63,8 @@ public:
 
     const QVector<QmlEventData> &getEvents() const;
     const QVector<QmlEventTypeData> &getEventTypes() const;
+    void setData(const QVector<QmlEventTypeData> &types, const QVector<QmlEventData> &events);
+
     int count() const;
     virtual void clear();
     virtual bool isEmpty() const;

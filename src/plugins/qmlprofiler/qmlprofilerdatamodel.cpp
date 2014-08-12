@@ -126,6 +126,18 @@ const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerDataModel::get
     return d->eventTypes;
 }
 
+void QmlProfilerDataModel::setData(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
+                                   const QVector<QmlProfilerDataModel::QmlEventData> &events)
+{
+    Q_D(QmlProfilerDataModel);
+    d->eventList = events;
+    d->eventTypes = types;
+    for (int id = 0; id < types.count(); ++id)
+        d->eventTypeIds[types[id]] = id;
+    // Half the work is done. complete() will do the rest.
+    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 2);
+}
+
 int QmlProfilerDataModel::count() const
 {
     Q_D(const QmlProfilerDataModel);
