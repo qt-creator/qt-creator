@@ -32,8 +32,11 @@
 #include "projectexplorer.h"
 #include "project.h"
 
+#include <utils/algorithm.h>
+
 #include <coreplugin/id.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/simplecodestylepreferences.h>
@@ -82,6 +85,7 @@ struct EditorConfigurationPrivate
     QTextCodec *m_textCodec;
 
     QMap<Core::Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
+    QList<ITextEditor *> m_editors;
 };
 
 EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
@@ -116,6 +120,8 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
 
     connect(SessionManager::instance(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(slotAboutToRemoveProject(ProjectExplorer::Project*)));
+    connect(Core::EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+            this, SLOT(editorsClosed(QList<Core::IEditor*>)));
 }
 
 EditorConfiguration::~EditorConfiguration()
@@ -256,6 +262,7 @@ void EditorConfiguration::configureEditor(ITextEditor *textEditor) const
         if (baseTextEditor)
             switchSettings(baseTextEditor);
     }
+    d->m_editors.append(textEditor);
 }
 
 void EditorConfiguration::deconfigureEditor(ITextEditor *textEditor) const
@@ -263,6 +270,8 @@ void EditorConfiguration::deconfigureEditor(ITextEditor *textEditor) const
     BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(textEditor->widget());
     if (baseTextEditor)
         baseTextEditor->setCodeStyle(TextEditorSettings::codeStyle(baseTextEditor->languageSettingsId()));
+
+    d->m_editors.removeOne(textEditor);
 
     // TODO: what about text codec and switching settings?
 }
@@ -384,16 +393,15 @@ void EditorConfiguration::slotAboutToRemoveProject(ProjectExplorer::Project *pro
     if (project->editorConfiguration() != this)
         return;
 
-    foreach (Core::IEditor *editor, Core::DocumentModel::editorsForOpenedDocuments()) {
-        if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
-            Core::IDocument *document = editor->document();
-            if (document) {
-                Project *editorProject = SessionManager::projectForFile(document->filePath());
-                if (project == editorProject)
-                    deconfigureEditor(textEditor);
-            }
-        }
-    }
+    foreach (TextEditor::ITextEditor *editor, d->m_editors)
+        deconfigureEditor(editor);
+}
+
+void EditorConfiguration::editorsClosed(const QList<Core::IEditor*> &closedEditors)
+{
+    Utils::erase(d->m_editors, [&closedEditors](Core::IEditor *editor) {
+        return closedEditors.contains(editor);
+    });
 }
 
 TabSettings actualTabSettings(const QString &fileName,

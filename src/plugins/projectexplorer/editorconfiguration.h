@@ -35,7 +35,10 @@
 #include <QObject>
 #include <QVariantMap>
 
-namespace Core { class Id; }
+namespace Core {
+class IEditor;
+class Id;
+}
 
 namespace TextEditor {
 class ITextEditor;
@@ -107,6 +110,7 @@ private slots:
     void setTextCodec(QTextCodec *textCodec);
 
     void slotAboutToRemoveProject(ProjectExplorer::Project *project);
+    void editorsClosed(const QList<Core::IEditor*> &closedEditors);
 private:
     void switchSettings(TextEditor::BaseTextEditorWidget *baseTextEditor) const;
 
