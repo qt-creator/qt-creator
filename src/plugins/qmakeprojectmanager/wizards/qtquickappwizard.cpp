@@ -71,6 +71,8 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
     addPage(m_componentSetPage);
 
     addKitsPage();
+
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK));
 }
 
 void QtQuickAppWizardDialog::initializePage(int id)
