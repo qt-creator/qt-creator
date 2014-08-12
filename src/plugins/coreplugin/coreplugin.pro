@@ -31,6 +31,7 @@ SOURCES += mainwindow.cpp \
     editormanager/editorarea.cpp \
     editormanager/editormanager.cpp \
     editormanager/editorview.cpp \
+    editormanager/editorwindow.cpp \
     editormanager/documentmodel.cpp \
     editormanager/openeditorsview.cpp \
     editormanager/openeditorswindow.cpp \
@@ -122,6 +123,7 @@ HEADERS += mainwindow.h \
     editormanager/editormanager.h \
     editormanager/editormanager_p.h \
     editormanager/editorview.h \
+    editormanager/editorwindow.h \
     editormanager/documentmodel.h \
     editormanager/openeditorsview.h \
     editormanager/openeditorswindow.h \

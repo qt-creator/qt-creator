@@ -29,6 +29,7 @@
 
 #include "editormanager.h"
 #include "editormanager_p.h"
+#include "editorwindow.h"
 
 #include "editorview.h"
 #include "openeditorswindow.h"
@@ -1169,19 +1170,9 @@ void EditorManagerPrivate::splitNewWindow(EditorView *view)
         newEditor = EditorManagerPrivate::duplicateEditor(editor);
     else
         newEditor = editor; // move to the new view
-    auto area = new EditorArea;
-    QWidget *win = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    win->setLayout(layout);
-    layout->addWidget(area);
-    win->setFocusProxy(area);
-    win->setAttribute(Qt::WA_DeleteOnClose);
-    win->setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
-    win->resize(QSize(800, 600));
-    static int windowId = 0;
-    ICore::registerWindow(win, Context(Id("EditorManager.ExternalWindow.").withSuffix(++windowId)));
+
+    auto win = new EditorWindow;
+    EditorArea *area = win->editorArea();
     d->m_editorAreas.append(area);
     connect(area, SIGNAL(destroyed(QObject*)), d, SLOT(editorAreaDestroyed(QObject*)));
     win->show();
