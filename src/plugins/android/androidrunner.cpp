@@ -41,6 +41,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
 
+#include <QDir>
 #include <QTime>
 #include <QtConcurrentRun>
 #include <QTemporaryFile>
@@ -298,7 +299,7 @@ void AndroidRunner::asyncStart()
 
         // Handling ping.
         for (int i = 0; ; ++i) {
-            QTemporaryFile tmp(_("pingpong"));
+            QTemporaryFile tmp(QDir::tempPath() + _("/pingpong"));
             tmp.open();
             tmp.close();
 
@@ -330,7 +331,7 @@ void AndroidRunner::asyncStart()
 void AndroidRunner::handleRemoteDebuggerRunning()
 {
     if (m_useCppDebugger) {
-        QTemporaryFile tmp(_("pingpong"));
+        QTemporaryFile tmp(QDir::tempPath() + _("/pingpong"));
         tmp.open();
 
         QProcess process;
