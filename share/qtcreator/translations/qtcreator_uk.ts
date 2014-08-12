@@ -31554,7 +31554,7 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The GDB inside this NDK seems to not support Python. The Qt Project offers fixed GDB builds at: &lt;a href=&quot;http://download.qt-project.org/official_releases/gdb/osx/&quot;&gt;http://download.qt-project.org/official_releases/gdb/osx/&lt;/a&gt;</source>
+        <source>The GDB inside this NDK seems to not support Python. The Qt Project offers fixed GDB builds at: &lt;a href=&quot;http://download.qt-project.org/official_releases/gdb/&quot;&gt;http://download.qt-project.org/official_releases/gdb/&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
