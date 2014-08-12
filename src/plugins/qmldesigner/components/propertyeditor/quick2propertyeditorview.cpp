@@ -41,11 +41,8 @@ namespace QmlDesigner {
 void Quick2PropertyEditorView::execute()
 {
     m_view.setSource(m_source);
-
-    if (!m_source.isEmpty()) {
-        m_view.setSource(m_source);
+    if (!m_source.isEmpty())
         connect(&m_view, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(continueExecute()));
-    }
 }
 
 Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
