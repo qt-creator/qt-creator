@@ -252,15 +252,21 @@ def selectFromFileDialog(fileName, waitForFile=False):
     else:
         fName = os.path.basename(os.path.abspath(fileName))
         pName = os.path.dirname(os.path.abspath(fileName)) + os.sep
-        waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}")
-        pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
-        snooze(1)
-        replaceEditorContent(pathLine, pName)
-        clickButton(waitForObject("{text='Open' type='QPushButton'}"))
-        waitFor("str(pathLine.text)==''")
-        snooze(1)
-        replaceEditorContent(pathLine, fName)
-        clickButton(waitForObject("{text='Open' type='QPushButton'}"))
+        try:
+            waitForObject("{name='QFileDialog' type='QFileDialog' visible='1'}", 5000)
+            pathLine = waitForObject("{name='fileNameEdit' type='QLineEdit' visible='1'}")
+            snooze(1)
+            replaceEditorContent(pathLine, pName)
+            clickButton(waitForObject("{text='Open' type='QPushButton'}"))
+            waitFor("str(pathLine.text)==''")
+            snooze(1)
+            replaceEditorContent(pathLine, fName)
+            clickButton(waitForObject("{text='Open' type='QPushButton'}"))
+        except:
+            nativeType(pName + fName)
+            snooze(1)
+            nativeType("<Return>")
+            snooze(3)
     if waitForFile:
         fileCombo = waitForObject(":Qt Creator_FilenameQComboBox")
         if not waitFor("str(fileCombo.currentText) in fileName", 5000):
