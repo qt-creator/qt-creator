@@ -42,7 +42,7 @@ public:
     JsFileWizard();
 
 private:
-    QString fileContents(const QString &baseName, bool statelessLibrary) const;
+    QString fileContents(const QString &baseName, bool isLibrary) const;
 
     Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
 

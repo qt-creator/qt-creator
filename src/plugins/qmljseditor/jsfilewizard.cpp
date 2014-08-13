@@ -53,24 +53,24 @@ public:
         setTitle(tr("Options"));
 
         QVBoxLayout *layout = new QVBoxLayout;
-        m_statelessLibrary = new QCheckBox(tr("Stateless library"));
-        m_statelessLibrary->setToolTip(
+        m_library = new QCheckBox(tr("JavaScript library"));
+        m_library->setToolTip(
                     tr("Usually each QML component instance has a unique copy of\n"
-                       "imported JavaScript libraries. Indicating that a library is\n"
-                       "stateless means that a single instance will be shared among\n"
-                       "all components. Stateless libraries will not be able to access\n"
+                       "imported JavaScript libraries. Indicating that a JavaScript file is\n"
+                       "a library means that a single instance will be shared among\n"
+                       "all components. JavaScript libraries will not be able to access\n"
                        "QML component instance objects and properties directly."));
-        layout->addWidget(m_statelessLibrary);
+        layout->addWidget(m_library);
         setLayout(layout);
     }
 
-    bool statelessLibrary() const
+    bool isLibrary() const
     {
-        return m_statelessLibrary->isChecked();
+        return m_library->isChecked();
     }
 
 private:
-    QCheckBox *m_statelessLibrary;
+    QCheckBox *m_library;
 };
 
 class JsFileWizardDialog : public Core::BaseFileWizard
@@ -109,17 +109,17 @@ Core::GeneratedFiles JsFileWizard::generateFiles(const QWizard *w,
     const QString fileName = Core::BaseFileWizardFactory::buildFileName(path, name, preferredSuffix(mimeType));
 
     Core::GeneratedFile file(fileName);
-    file.setContents(fileContents(fileName, optionPage->statelessLibrary()));
+    file.setContents(fileContents(fileName, optionPage->isLibrary()));
     file.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     return Core::GeneratedFiles() << file;
 }
 
-QString JsFileWizard::fileContents(const QString &, bool statelessLibrary) const
+QString JsFileWizard::fileContents(const QString &, bool isLibrary) const
 {
     QString contents;
     QTextStream str(&contents);
 
-    if (statelessLibrary)
+    if (isLibrary)
         str << QLatin1String(".pragma library\n\n");
     str << QLatin1String("function func() {\n")
         << QLatin1String("\n")
