@@ -45,6 +45,15 @@
     parsed .pro files. For more information on how the commands are constructed,
     see \l{Starting External Processes}.
 
+    \section2 Creating Run Configurations for Subprojects
+
+    To prevent \QC from automatically creating run configurations for SUBDIRS
+    projects, specify the following variable in the .pro file of the SUBDIRS
+    project: \c {CONFIG += qtc_runnable}.
+
+    \QC creates run configurations only for subprojects that also have
+    \c {CONFIG += qtc_runnable} set in their .pro files.
+
     \include projects/creator-projects-settings-run-desktop.qdocinc
     \include projects/creator-projects-settings-run-analyze.qdocinc
     \include projects/creator-projects-settings-run-debug.qdocinc
