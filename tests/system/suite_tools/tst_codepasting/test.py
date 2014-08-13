@@ -91,6 +91,7 @@ def main():
         clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
         invokeMenuItem('File', 'Revert "main.cpp" to Saved')
         clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+        snooze(1)   # "Close All" might be disabled
         invokeMenuItem("File", "Close All")
         if not pasteId:
             test.fatal("Could not get id of paste to %s" % protocol)
