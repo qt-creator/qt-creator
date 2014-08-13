@@ -836,6 +836,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setMargin(0);
     l->addWidget(m_splitter);
+    setFocusProxy(m_rightEditor);
 
     clear(tr("No controller"));
 }
