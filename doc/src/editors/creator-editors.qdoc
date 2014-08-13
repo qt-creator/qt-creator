@@ -2174,7 +2174,8 @@
     locator. For example, to open main.cpp to line 41, enter: \c {main.cpp:41}.
 
     If the path to a file is very long, it might not fit into the locator
-    window. To view the full path, press \key Alt when the filename is selected.
+    window. To view the full path, press \key Alt when the filename is selected
+    or use the handle next to the locator window to increase the window width.
 
     It is also possible to enter only a part of a search string. As you type,
     the locator shows the occurrences of that string regardless of where in the
