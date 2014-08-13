@@ -1549,6 +1549,12 @@
     The instances of the symbol are highlighted in code and you can edit the
     symbol. All instances of the local symbol are changed as you type.
 
+    \section1 Column Editing
+
+    To apply a change to several rows in a column simultaneously, press
+    \key Alt, select the rows, and enter or remove text. The changes are made
+    simultaneously at the cursor position on all the selected rows.
+
     \section1 Applying Refactoring Actions
 
     \QC allows you to quickly and conveniently apply actions to refactor
