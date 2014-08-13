@@ -263,6 +263,8 @@ def selectFromFileDialog(fileName, waitForFile=False):
             replaceEditorContent(pathLine, fName)
             clickButton(waitForObject("{text='Open' type='QPushButton'}"))
         except:
+            nativeType("<Ctrl+a>")
+            nativeType("<Delete>")
             nativeType(pName + fName)
             snooze(1)
             nativeType("<Return>")
