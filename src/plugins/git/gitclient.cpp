@@ -136,6 +136,7 @@ private:
     void addJob(VcsBase::Command *command,
                 const QString &gitCommand,
                 const QStringList &arguments);
+    QStringList addHeadWhenCommandInProgress() const;
     int timeout() const;
     QProcessEnvironment processEnvironment() const;
     QString gitPath() const;
@@ -159,7 +160,9 @@ GitDiffHandler::GitDiffHandler(DiffEditor::DiffEditorController *controller,
 
 void GitDiffHandler::diffFile(const QString &fileName)
 {
-    postCollectTextualDiffOutputUsingDiffCommand(QStringList() << QLatin1String("--") << fileName);
+    postCollectTextualDiffOutputUsingDiffCommand(addHeadWhenCommandInProgress()
+                                                 << QLatin1String("--")
+                                                 << fileName);
 }
 
 void GitDiffHandler::diffFiles(const QStringList &stagedFileNames,
@@ -174,7 +177,7 @@ void GitDiffHandler::diffFiles(const QStringList &stagedFileNames,
     arguments << stagedArguments;
 
     if (!unstagedFileNames.isEmpty()) {
-        QStringList unstagedArguments;
+        QStringList unstagedArguments = addHeadWhenCommandInProgress();
         unstagedArguments << QLatin1String("--");
         unstagedArguments << unstagedFileNames;
         arguments << unstagedArguments;
@@ -185,17 +188,20 @@ void GitDiffHandler::diffFiles(const QStringList &stagedFileNames,
 
 void GitDiffHandler::diffProjects(const QStringList &projectPaths)
 {
-    postCollectTextualDiffOutputUsingDiffCommand(QStringList() << QLatin1String("--") << projectPaths);
+    postCollectTextualDiffOutputUsingDiffCommand(addHeadWhenCommandInProgress()
+                                                 << QLatin1String("--")
+                                                 << projectPaths);
 }
 
 void GitDiffHandler::diffRepository()
 {
-    postCollectTextualDiffOutputUsingDiffCommand(QStringList());
+    postCollectTextualDiffOutputUsingDiffCommand(addHeadWhenCommandInProgress());
 }
 
 void GitDiffHandler::diffBranch(const QString &branchName)
 {
-    postCollectTextualDiffOutputUsingDiffCommand(QStringList() << branchName);
+    postCollectTextualDiffOutputUsingDiffCommand(addHeadWhenCommandInProgress()
+                                                 << branchName);
 }
 
 void GitDiffHandler::show(const QString &id)
@@ -263,6 +269,18 @@ void GitDiffHandler::addJob(VcsBase::Command *command,
                 m_controller->contextLinesNumber());
     args << arguments;
     command->addJob(args, timeout());
+}
+
+QStringList GitDiffHandler::addHeadWhenCommandInProgress() const
+{
+    QStringList args;
+    // This is workaround for lack of support for merge commits and resolving conflicts,
+    // we compare the current state of working tree to the HEAD of current branch
+    // instead of showing unsupported combined diff format.
+    GitClient::CommandInProgress commandInProgress = m_gitClient->checkCommandInProgress(m_workingDirectory);
+    if (commandInProgress != GitClient::NoCommand)
+        args << QLatin1String(HEAD);
+    return args;
 }
 
 void GitDiffHandler::postCollectTextualDiffOutputUsingDiffCommand(const QStringList &arguments)
