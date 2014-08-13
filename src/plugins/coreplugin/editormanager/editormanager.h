@@ -139,7 +139,7 @@ public:
     static void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
     static void cutForwardNavigationHistory();
 
-    static bool saveEditor(IEditor *editor);
+    static bool saveDocument(IDocument *document);
 
     static bool closeEditors(const QList<IEditor *> &editorsToClose, bool askAboutModifiedEditors = true);
     static void closeEditor(IEditor *editor, bool askAboutModifiedEditors = true);

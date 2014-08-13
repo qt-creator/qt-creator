@@ -899,7 +899,7 @@ void BaseTextEditorWidget::selectEncoding()
         break; }
     case CodecSelector::Save:
         doc->setCodec(codecSelector.selectedCodec());
-        Core::EditorManager::saveEditor(editor());
+        Core::EditorManager::saveDocument(textDocument());
         updateTextCodecLabel();
         break;
     case CodecSelector::Cancel:

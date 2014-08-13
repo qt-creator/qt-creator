@@ -2290,9 +2290,9 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
     return edt;
 }
 
-bool EditorManager::saveEditor(IEditor *editor)
+bool EditorManager::saveDocument(IDocument *document)
 {
-    return EditorManagerPrivate::saveDocument(editor->document());
+    return EditorManagerPrivate::saveDocument(document);
 }
 
 bool EditorManager::hasSplitter()
