@@ -100,6 +100,8 @@ private:
     LogChangeWidget *m_logChangeWidget;
     Ui::GitSubmitPanel m_gitSubmitPanelUi;
     QValidator *m_emailValidator;
+    QString m_originalAuthor;
+    QString m_originalEmail;
     bool m_hasUnmerged;
     bool m_isInitialized;
 };
