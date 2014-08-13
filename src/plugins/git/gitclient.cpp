@@ -739,7 +739,7 @@ GitClient::~GitClient()
 {
 }
 
-QString GitClient::findRepositoryForDirectory(const QString &dir)
+QString GitClient::findRepositoryForDirectory(const QString &dir) const
 {
     if (dir.isEmpty() || dir.endsWith(QLatin1String("/.git"))
             || dir.contains(QLatin1String("/.git/"))) {
@@ -963,7 +963,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
 
 void GitClient::diff(const QString &workingDirectory,
                      const QStringList &unstagedFileNames,
-                     const QStringList &stagedFileNames)
+                     const QStringList &stagedFileNames) const
 {
     GitDiffEditorReloader::DiffType diffType = GitDiffEditorReloader::DiffProjectList;
 
@@ -1011,7 +1011,7 @@ void GitClient::diff(const QString &workingDirectory,
     EditorManager::activateEditorForDocument(diffEditorDocument);
 }
 
-void GitClient::diff(const QString &workingDirectory, const QString &fileName)
+void GitClient::diff(const QString &workingDirectory, const QString &fileName) const
 {
     const QString title = tr("Git Diff \"%1\"").arg(fileName);
     const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(
@@ -1037,7 +1037,7 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
 }
 
 void GitClient::diffBranch(const QString &workingDirectory,
-                           const QString &branchName)
+                           const QString &branchName) const
 {
     const QString title = tr("Git Diff Branch \"%1\"").arg(branchName);
     const QString documentId = QLatin1String("Branch:") + branchName;
@@ -1552,7 +1552,7 @@ static inline bool splitCommitParents(const QString &line,
 }
 
 bool GitClient::synchronousRevListCmd(const QString &workingDirectory, const QStringList &arguments,
-                                      QString *output, QString *errorMessage)
+                                      QString *output, QString *errorMessage) const
 {
     QByteArray outputTextData;
     QByteArray errorText;
@@ -1576,7 +1576,7 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
                                            const QStringList &files /* = QStringList() */,
                                            const QString &revision,
                                            QStringList *parents,
-                                           QString *errorMessage)
+                                           QString *errorMessage) const
 {
     QString outputText;
     QString errorText;
@@ -1609,7 +1609,7 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
 static const char defaultShortLogFormatC[] = "%h (%an \"%s";
 static const int maxShortLogLength = 120;
 
-QString GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision)
+QString GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision) const
 {
     // Short SHA 1, author, subject
     QString output = synchronousShortDescription(workingDirectory, revision,
@@ -1624,7 +1624,7 @@ QString GitClient::synchronousShortDescription(const QString &workingDirectory, 
     return output;
 }
 
-QString GitClient::synchronousCurrentLocalBranch(const QString &workingDirectory)
+QString GitClient::synchronousCurrentLocalBranch(const QString &workingDirectory) const
 {
     QByteArray outputTextData;
     QStringList arguments;
@@ -1642,7 +1642,7 @@ QString GitClient::synchronousCurrentLocalBranch(const QString &workingDirectory
 }
 
 bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList *output,
-                                    QString *errorMessage)
+                                    QString *errorMessage) const
 {
     QStringList args;
     args << QLatin1String("show-ref") << QLatin1String("--head")
@@ -1674,7 +1674,7 @@ bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList
 }
 
 // Retrieve topic (branch, tag or HEAD hash)
-QString GitClient::synchronousTopic(const QString &workingDirectory)
+QString GitClient::synchronousTopic(const QString &workingDirectory) const
 {
     // First try to find branch
     QString branch = synchronousCurrentLocalBranch(workingDirectory);
@@ -1742,7 +1742,7 @@ QString GitClient::synchronousTopRevision(const QString &workingDirectory, QStri
 }
 
 void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,
-                                         QString &precedes, QString &follows)
+                                         QString &precedes, QString &follows) const
 {
     QByteArray pr;
     QStringList arguments;
@@ -1820,7 +1820,7 @@ bool GitClient::isFastForwardMerge(const QString &workingDirectory, const QStrin
 
 // Format an entry in a one-liner for selection list using git log.
 QString GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision,
-                                            const QString &format)
+                                            const QString &format) const
 {
     QString description;
     QByteArray outputTextData;
@@ -1862,7 +1862,7 @@ static inline QString creatorStashMessage(const QString &keyword = QString())
  * StashIgnoreUnchanged: Be quiet about unchanged repositories (used for IVersionControl's snapshots). */
 
 QString GitClient::synchronousStash(const QString &workingDirectory, const QString &messageKeyword,
-                                    unsigned flags, bool *unchanged)
+                                    unsigned flags, bool *unchanged) const
 {
     if (unchanged)
         *unchanged = false;
@@ -1905,7 +1905,7 @@ QString GitClient::synchronousStash(const QString &workingDirectory, const QStri
 
 bool GitClient::executeSynchronousStash(const QString &workingDirectory,
                                         const QString &message,
-                                        QString *errorMessage)
+                                        QString *errorMessage) const
 {
     QByteArray outputText;
     QByteArray errorText;
@@ -1924,7 +1924,7 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
 // Resolve a stash name from message
 bool GitClient::stashNameFromMessage(const QString &workingDirectory,
                                      const QString &message, QString *name,
-                                     QString *errorMessage)
+                                     QString *errorMessage) const
 {
     // All happy
     if (message.startsWith(QLatin1String(stashNamePrefix))) {
@@ -1948,7 +1948,7 @@ bool GitClient::stashNameFromMessage(const QString &workingDirectory,
 }
 
 bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
-                                     QString *output, QString *errorMessage)
+                                     QString *output, QString *errorMessage) const
 {
     branchArgs.push_front(QLatin1String("branch"));
     QByteArray outputText;
@@ -1962,7 +1962,7 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
 }
 
 bool GitClient::synchronousTagCmd(const QString &workingDirectory, QStringList tagArgs,
-                                  QString *output, QString *errorMessage)
+                                  QString *output, QString *errorMessage) const
 {
     tagArgs.push_front(QLatin1String("tag"));
     QByteArray outputText;
@@ -1976,7 +1976,7 @@ bool GitClient::synchronousTagCmd(const QString &workingDirectory, QStringList t
 }
 
 bool GitClient::synchronousForEachRefCmd(const QString &workingDirectory, QStringList args,
-                                      QString *output, QString *errorMessage)
+                                      QString *output, QString *errorMessage) const
 {
     args.push_front(QLatin1String("for-each-ref"));
     QByteArray outputText;
@@ -1991,7 +1991,7 @@ bool GitClient::synchronousForEachRefCmd(const QString &workingDirectory, QStrin
 }
 
 bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
-                                     QString *output, QString *errorMessage, bool silent)
+                                     QString *output, QString *errorMessage, bool silent) const
 {
     remoteArgs.push_front(QLatin1String("remote"));
     QByteArray outputText;
@@ -2006,7 +2006,7 @@ bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringLis
 }
 
 QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDirectory,
-                                                        QString *errorMessage)
+                                                        QString *errorMessage) const
 {
     QMap<QString,QString> result;
     QString output;
@@ -2032,7 +2032,7 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDi
 }
 
 QStringList GitClient::synchronousSubmoduleStatus(const QString &workingDirectory,
-                                                  QString *errorMessage)
+                                                  QString *errorMessage) const
 {
     QByteArray outputTextData;
     QByteArray errorText;
@@ -2049,7 +2049,7 @@ QStringList GitClient::synchronousSubmoduleStatus(const QString &workingDirector
     return commandOutputLinesFromLocal8Bit(outputTextData);
 }
 
-SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory)
+SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory) const
 {
     SubmoduleDataMap result;
     QString gitmodulesFileName = workingDirectory + QLatin1String("/.gitmodules");
@@ -2107,7 +2107,7 @@ SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory)
 }
 
 bool GitClient::synchronousShow(const QString &workingDirectory, const QString &id,
-                                 QString *output, QString *errorMessage)
+                                 QString *output, QString *errorMessage) const
 {
     if (!canShow(id)) {
         *errorMessage = msgCannotShow(id);
@@ -2282,7 +2282,7 @@ bool GitClient::isValidRevision(const QString &revision) const
 Utils::SynchronousProcessResponse GitClient::synchronousGit(const QString &workingDirectory,
                                                             const QStringList &gitArguments,
                                                             unsigned flags,
-                                                            QTextCodec *outputCodec)
+                                                            QTextCodec *outputCodec) const
 {
     return VcsBasePlugin::runVcs(workingDirectory, gitExecutable(), gitArguments,
                                  settings()->intValue(GitSettings::timeoutKey) * 1000,
@@ -2368,7 +2368,7 @@ void GitClient::fetchFinished(const QVariant &cookie)
 }
 
 GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, StatusMode mode,
-                                             QString *output, QString *errorMessage)
+                                             QString *output, QString *errorMessage) const
 {
     // Run 'status'. Note that git returns exitcode 1 if there are no added files.
     QByteArray outputText;
@@ -2407,7 +2407,7 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, St
     return StatusUnchanged;
 }
 
-QString GitClient::commandInProgressDescription(const QString &workingDirectory)
+QString GitClient::commandInProgressDescription(const QString &workingDirectory) const
 {
     switch (checkCommandInProgress(workingDirectory)) {
     case NoCommand:
@@ -2425,7 +2425,7 @@ QString GitClient::commandInProgressDescription(const QString &workingDirectory)
     return QString();
 }
 
-GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &workingDirectory)
+GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &workingDirectory) const
 {
     const QString gitDir = findGitDirForRepository(workingDirectory);
     if (QFile::exists(gitDir + QLatin1String("/MERGE_HEAD")))
@@ -2519,7 +2519,7 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
     }
 }
 
-QString GitClient::extendedShowDescription(const QString &workingDirectory, const QString &text)
+QString GitClient::extendedShowDescription(const QString &workingDirectory, const QString &text) const
 {
     if (!text.startsWith(QLatin1String("commit ")))
         return text;
@@ -2538,7 +2538,7 @@ QString GitClient::extendedShowDescription(const QString &workingDirectory, cons
 // Quietly retrieve branch list of remote repository URL
 //
 // The branch HEAD is pointing to is always returned first.
-QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL)
+QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL) const
 {
     QStringList arguments(QLatin1String("ls-remote"));
     arguments << repositoryURL << QLatin1String(HEAD) << QLatin1String("refs/heads/*");
@@ -3099,7 +3099,7 @@ void GitClient::fetch(const QString &workingDirectory, const QString &remote)
 
 bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
                                           const QStringList &arguments,
-                                          const QString &abortCommand)
+                                          const QString &abortCommand) const
 {
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsBasePlugin::SshPasswordPrompt
@@ -3404,7 +3404,7 @@ void GitClient::stashPop(const QString &workingDirectory)
 bool GitClient::synchronousStashRestore(const QString &workingDirectory,
                                         const QString &stash,
                                         bool pop,
-                                        const QString &branch /* = QString()*/)
+                                        const QString &branch /* = QString()*/) const
 {
     QStringList arguments(QLatin1String("stash"));
     if (branch.isEmpty())
@@ -3416,7 +3416,7 @@ bool GitClient::synchronousStashRestore(const QString &workingDirectory,
 
 bool GitClient::synchronousStashRemove(const QString &workingDirectory,
                             const QString &stash /* = QString() */,
-                            QString *errorMessage /* = 0 */)
+                            QString *errorMessage /* = 0 */) const
 {
     QStringList arguments(QLatin1String("stash"));
     if (stash.isEmpty())
@@ -3438,7 +3438,7 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
 
 bool GitClient::synchronousStashList(const QString &workingDirectory,
                                      QList<Stash> *stashes,
-                                     QString *errorMessage /* = 0 */)
+                                     QString *errorMessage /* = 0 */) const
 {
     stashes->clear();
     QStringList arguments(QLatin1String("stash"));
