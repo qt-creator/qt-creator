@@ -217,7 +217,7 @@ void GitDiffHandler::postCollectShowDescription(const QString &id)
         return;
     }
 
-    m_controller->saveStateRequested();
+    m_controller->requestSaveState();
     m_controller->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(gitPath(),
                                                      m_workingDirectory,
@@ -305,7 +305,7 @@ void GitDiffHandler::postCollectTextualDiffOutput(const QString &gitCommand, con
         return;
     }
 
-    m_controller->saveStateRequested();
+    m_controller->requestSaveState();
     m_controller->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(gitPath(),
                                                      m_workingDirectory,
@@ -333,7 +333,7 @@ void GitDiffHandler::slotTextualDiffOutputReceived(const QString &contents)
             = DiffEditor::DiffUtils::readPatch(
                 contents, m_controller->isIgnoreWhitespace(), &ok);
     m_controller->setDiffFiles(fileDataList, m_workingDirectory);
-    m_controller->restoreStateRequested();
+    m_controller->requestRestoreState();
     deleteLater();
 }
 
