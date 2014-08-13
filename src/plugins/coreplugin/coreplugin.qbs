@@ -143,6 +143,7 @@ QtcPlugin {
             "editorarea.cpp", "editorarea.h",
             "editormanager.cpp", "editormanager.h", "editormanager_p.h",
             "editorview.cpp", "editorview.h",
+            "editorwindow.cpp", "editorwindow.h",
             "ieditor.cpp", "ieditor.h",
             "ieditorfactory.cpp", "ieditorfactory.h",
             "iexternaleditor.cpp", "iexternaleditor.h",
