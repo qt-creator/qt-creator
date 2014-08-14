@@ -6,8 +6,8 @@ headerdirs =
 sourcedirs = $SRCDIR/src
 imagedirs = $SRCDIR/images $SRCDIR/templates/images
 outputdir = $OUTDIR
-exampledirs = $SRCDIR/examples \
-              $SRCDIR/snippets
+exampledirs = $SRCDIR/examples
+
 indexes +=    $QDOC_INDEX_DIR/qtwidgets/qtwidgets.index \
               $QDOC_INDEX_DIR/qtcore/qtcore.index \
               $QDOC_INDEX_DIR/qtqml/qtqml.index \
