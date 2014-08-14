@@ -160,9 +160,10 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     updateCommits(m_ui->localBranchComboBox->currentIndex());
     setRemoteBranches();
 
+    QRegExpValidator *noSpaceValidator = new QRegExpValidator(QRegExp(QLatin1String("^\\S+$")), this);
     m_ui->reviewersLineEdit->setText(reviewerList);
-
-    m_ui->topicLineEdit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("^\\S+$")), this));
+    m_ui->reviewersLineEdit->setValidator(noSpaceValidator);
+    m_ui->topicLineEdit->setValidator(noSpaceValidator);
 
     m_valid = true;
 }
