@@ -597,7 +597,7 @@ static QString generatePreTargetDepsSnippet(AddLibraryWizard::Platforms platform
             generatedPlatforms |= windowsPlatforms;
         } else {
             if (windowsPlatforms & AddLibraryWizard::WindowsMSVCPlatform) {
-                str << "win32:!win32-g++ " << preTargetDepsSnippet << libName << ".lib\n";
+                str << "win32:!win32-g++: " << preTargetDepsSnippet << libName << ".lib\n";
                 generatedPlatforms |= AddLibraryWizard::WindowsMSVCPlatform; // mingw will be handled with common scopes
             }
             // mingw not generated yet, will be joined with unix like
