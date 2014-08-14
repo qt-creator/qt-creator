@@ -154,6 +154,8 @@
        <property name="toolTip">
         <string>Comma-separated list of reviewers.
 
+Reviewers can be specified by nickname or email address. Spaces not allowed.
+
 Partial names can be used if they are unambiguous.</string>
        </property>
       </widget>
