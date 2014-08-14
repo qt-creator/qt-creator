@@ -457,7 +457,9 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
             + QString::number(chunkData.rightStartingLineNumber + 1)
             + QLatin1Char(',')
             + QString::number(rightLineCount)
-            + QLatin1String(" @@\n");
+            + QLatin1String(" @@")
+            + chunkData.contextInfo
+            + QLatin1Char('\n');
 
     diffText.prepend(chunkLine);
 
@@ -706,7 +708,7 @@ static QList<ChunkData> readChunks(const QString &patch,
                                   // @@ -leftPos[,leftCount] +rightPos[,rightCount] @@
                               "@@ -(\\d+)(?:,\\d+)? \\+(\\d+)(?:,\\d+)? @@"
                                   // optional hint (e.g. function name)
-                              "(?:\\ +[^\\n]*)?"
+                              "(\\ +[^\\n]*)?"
                                   // end of line (need to be followed by text line)
                               "(?:\\n))"));
 
@@ -722,6 +724,7 @@ static QList<ChunkData> readChunks(const QString &patch,
             const QString captured = capturedTexts.at(1);
             const int leftStartingPos = capturedTexts.at(2).toInt();
             const int rightStartingPos = capturedTexts.at(3).toInt();
+            const QString contextInfo = capturedTexts.at(4);
             if (endOfLastChunk > 0) {
                 const QString lines = patch.mid(endOfLastChunk,
                                                 pos - endOfLastChunk);
@@ -738,6 +741,7 @@ static QList<ChunkData> readChunks(const QString &patch,
             ChunkData chunkData;
             chunkData.leftStartingLineNumber = leftStartingPos - 1;
             chunkData.rightStartingLineNumber = rightStartingPos - 1;
+            chunkData.contextInfo = contextInfo;
             chunkDataList.append(chunkData);
         } while ((pos = chunkRegExp.indexIn(patch, pos)) != -1);
 

@@ -638,7 +638,9 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
             + QString::number(chunkData.rightStartingLineNumber+ 1)
             + QLatin1Char(',')
             + QString::number(rightLineCount)
-            + QLatin1String(" @@\n");
+            + QLatin1String(" @@")
+            + chunkData.contextInfo
+            + QLatin1Char('\n');
 
     diffText.prepend(chunkLine);
 

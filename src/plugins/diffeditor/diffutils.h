@@ -95,6 +95,7 @@ public:
     bool contextChunk;
     int leftStartingLineNumber;
     int rightStartingLineNumber;
+    QString contextInfo;
 };
 
 class DIFFEDITOR_EXPORT FileData {
