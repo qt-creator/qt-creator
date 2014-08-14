@@ -95,10 +95,12 @@ AndroidRunner::AndroidRunner(QObject *parent,
     m_pingFile = packageDir + _("/debug-ping");
     m_pongFile = _("/data/local/tmp/qt/debug-pong-") + m_packageName;
     m_gdbserverSocket = packageDir + _("/debug-socket");
-    m_gdbserverPath = packageDir + _("/lib/gdbserver");
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (version && version->qtVersion() >=  QtSupport::QtVersionNumber(5, 4, 0))
-        m_gdbserverPath += _(".so");
+        m_gdbserverPath = packageDir + _("/lib/libgdbserver.so");
+    else
+        m_gdbserverPath = packageDir + _("/lib/gdbserver");
+
 
     m_gdbserverCommand = m_gdbserverPath + _(" --multi +") + m_gdbserverSocket;
     // Detect busybox, as we need to pass -w to ps to get wide output.
