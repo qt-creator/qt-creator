@@ -1935,12 +1935,12 @@ void EditorManager::closeEditor(Core::IEditor *editor, bool askAboutModifiedEdit
     closeEditors(QList<IEditor *>() << editor, askAboutModifiedEditors);
 }
 
-void EditorManager::closeEditor(DocumentModel::Entry *entry)
+void EditorManager::closeDocument(DocumentModel::Entry *entry)
 {
     if (!entry)
         return;
     if (entry->document)
-        closeEditors(DocumentModel::editorsForDocument(entry->document));
+        closeDocuments(QList<IDocument *>() << entry->document);
     else
         DocumentModel::removeEntry(entry);
 }

@@ -194,7 +194,7 @@ void OpenEditorsWidget::activateEditor(const QModelIndex &index)
 
 void OpenEditorsWidget::closeEditor(const QModelIndex &index)
 {
-    EditorManager::closeEditor(
+    EditorManager::closeDocument(
                 DocumentModel::entryAtRow(m_model->mapToSource(index).row()));
     // work around selection changes
     updateCurrentItem(EditorManager::currentEditor());

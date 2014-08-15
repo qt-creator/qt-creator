@@ -133,7 +133,7 @@ public:
     static IEditor *activateEditorForDocument(IDocument *document, OpenEditorFlags flags = 0);
 
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
-    static void closeEditor(DocumentModel::Entry *entry);
+    static void closeDocument(DocumentModel::Entry *entry);
     static void closeOtherEditors(IDocument *document);
 
     static void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
