@@ -50,6 +50,10 @@ Column {
 
     property alias gradientPropertyName: gradientLine.gradientPropertyName
 
+    function isNotInGradientMode() {
+         return (buttonRow.checkedIndex !== 1)
+    }
+
     onValueChanged: {
         colorEditor.color = colorEditor.value
     }
@@ -78,7 +82,7 @@ Column {
             gradientLine.currentColor = color
         }
 
-        if (buttonRow.checkedIndex !== 1) {
+        if (isNotInGradientMode()) {
             //Delay setting the color to keep ui responsive
             colorEditorTimer.restart()
         }
@@ -168,6 +172,12 @@ Column {
 
                 onAccepted: {
                     colorEditor.color = colorFromString(textField.text)
+                }
+
+                onCommitData: {
+                    colorEditor.color = colorFromString(textField.text)
+                    if (isNotInGradientMode())
+                        backendendValue.value = colorEditor.color
                 }
 
                 Layout.fillWidth: true
