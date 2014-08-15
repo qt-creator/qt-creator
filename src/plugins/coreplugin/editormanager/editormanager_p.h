@@ -131,7 +131,7 @@ private slots:
     static void saveDocumentAsFromContextMenu();
     static void revertToSavedFromContextMenu();
     static void closeEditorFromContextMenu();
-    static void closeOtherEditorsFromContextMenu();
+    static void closeOtherDocumentsFromContextMenu();
 
     static void closeAllEditorsExceptVisible();
     static void revertToSaved(IDocument *document);
@@ -185,7 +185,7 @@ private:
     QAction *m_saveAsAction;
     QAction *m_closeCurrentEditorAction;
     QAction *m_closeAllEditorsAction;
-    QAction *m_closeOtherEditorsAction;
+    QAction *m_closeOtherDocumentsAction;
     QAction *m_closeAllEditorsExceptVisibleAction;
     QAction *m_gotoNextDocHistoryAction;
     QAction *m_gotoPreviousDocHistoryAction;
@@ -204,7 +204,7 @@ private:
 
     QAction *m_closeCurrentEditorContextAction;
     QAction *m_closeAllEditorsContextAction;
-    QAction *m_closeOtherEditorsContextAction;
+    QAction *m_closeOtherDocumentsContextAction;
     QAction *m_closeAllEditorsExceptVisibleContextAction;
     QAction *m_openGraphicalShellAction;
     QAction *m_openTerminalAction;

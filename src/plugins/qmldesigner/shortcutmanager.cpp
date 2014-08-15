@@ -100,7 +100,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     //Close All Others Action
     Core::ActionManager::registerAction(&m_closeOtherEditorsAction, Core::Constants::CLOSEOTHERS, qmlDesignerMainContext);
-    connect(&m_closeOtherEditorsAction, SIGNAL(triggered()), em, SLOT(closeOtherEditors()));
+    connect(&m_closeOtherEditorsAction, SIGNAL(triggered()), em, SLOT(closeOtherDocuments()));
 
     // Undo / Redo
     Core::ActionManager::registerAction(&m_undoAction, Core::Constants::UNDO, qmlDesignerMainContext);

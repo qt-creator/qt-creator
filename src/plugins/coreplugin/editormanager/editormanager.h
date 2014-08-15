@@ -134,7 +134,7 @@ public:
 
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
     static void closeDocument(DocumentModel::Entry *entry);
-    static void closeOtherEditors(IDocument *document);
+    static void closeOtherDocuments(IDocument *document);
 
     static void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
     static void cutForwardNavigationHistory();
@@ -184,7 +184,7 @@ public slots:
     static void revertToSaved();
     static bool closeAllEditors(bool askAboutModifiedEditors = true);
     static void closeEditor();
-    static void closeOtherEditors();
+    static void closeOtherDocuments();
     static void splitSideBySide();
     static void gotoOtherSplit();
     static void goBackInNavigationHistory();

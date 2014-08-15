@@ -227,7 +227,7 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_saveAsAction(new QAction(this)),
     m_closeCurrentEditorAction(new QAction(EditorManager::tr("Close"), this)),
     m_closeAllEditorsAction(new QAction(EditorManager::tr("Close All"), this)),
-    m_closeOtherEditorsAction(new QAction(EditorManager::tr("Close Others"), this)),
+    m_closeOtherDocumentsAction(new QAction(EditorManager::tr("Close Others"), this)),
     m_closeAllEditorsExceptVisibleAction(new QAction(EditorManager::tr("Close All Except Visible"), this)),
     m_gotoNextDocHistoryAction(new QAction(EditorManager::tr("Next Open Document in History"), this)),
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Open Document in History"), this)),
@@ -238,7 +238,7 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_revertToSavedCurrentEditorContextAction(new QAction(EditorManager::tr("Revert to Saved"), this)),
     m_closeCurrentEditorContextAction(new QAction(EditorManager::tr("Close"), this)),
     m_closeAllEditorsContextAction(new QAction(EditorManager::tr("Close All"), this)),
-    m_closeOtherEditorsContextAction(new QAction(EditorManager::tr("Close Others"), this)),
+    m_closeOtherDocumentsContextAction(new QAction(EditorManager::tr("Close Others"), this)),
     m_closeAllEditorsExceptVisibleContextAction(new QAction(EditorManager::tr("Close All Except Visible"), this)),
     m_openGraphicalShellAction(new QAction(FileUtils::msgGraphicalShellAction(), this)),
     m_openTerminalAction(new QAction(FileUtils::msgTerminalAction(), this)),
@@ -336,10 +336,10 @@ void EditorManagerPrivate::init()
     connect(m_closeAllEditorsAction, SIGNAL(triggered()), m_instance, SLOT(closeAllEditors()));
 
     // Close All Others Action
-    cmd = ActionManager::registerAction(m_closeOtherEditorsAction, Constants::CLOSEOTHERS, editManagerContext, true);
+    cmd = ActionManager::registerAction(m_closeOtherDocumentsAction, Constants::CLOSEOTHERS, editManagerContext, true);
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_closeOtherEditorsAction, SIGNAL(triggered()), m_instance, SLOT(closeOtherEditors()));
+    connect(m_closeOtherDocumentsAction, SIGNAL(triggered()), m_instance, SLOT(closeOtherDocuments()));
 
     // Close All Others Except Visible Action
     cmd = ActionManager::registerAction(m_closeAllEditorsExceptVisibleAction, Constants::CLOSEALLEXCEPTVISIBLE, editManagerContext, true);
@@ -360,8 +360,8 @@ void EditorManagerPrivate::init()
             m_instance, SLOT(closeAllEditors()));
     connect(m_closeCurrentEditorContextAction, SIGNAL(triggered()),
             this, SLOT(closeEditorFromContextMenu()));
-    connect(m_closeOtherEditorsContextAction, SIGNAL(triggered()),
-            this, SLOT(closeOtherEditorsFromContextMenu()));
+    connect(m_closeOtherDocumentsContextAction, SIGNAL(triggered()),
+            this, SLOT(closeOtherDocumentsFromContextMenu()));
     connect(m_closeAllEditorsExceptVisibleContextAction, SIGNAL(triggered()),
             this, SLOT(closeAllEditorsExceptVisible()));
 
@@ -1312,8 +1312,8 @@ void EditorManagerPrivate::updateActions()
     d->m_closeCurrentEditorAction->setEnabled(curDocument);
     d->m_closeCurrentEditorAction->setText(tr("Close %1").arg(quotedName));
     d->m_closeAllEditorsAction->setEnabled(openedCount > 0);
-    d->m_closeOtherEditorsAction->setEnabled(openedCount > 1);
-    d->m_closeOtherEditorsAction->setText((openedCount > 1 ? tr("Close All Except %1").arg(quotedName) : tr("Close Others")));
+    d->m_closeOtherDocumentsAction->setEnabled(openedCount > 1);
+    d->m_closeOtherDocumentsAction->setText((openedCount > 1 ? tr("Close All Except %1").arg(quotedName) : tr("Close Others")));
 
     d->m_closeAllEditorsExceptVisibleAction->setEnabled(visibleDocumentsCount() < openedCount);
 
@@ -1579,10 +1579,10 @@ void EditorManagerPrivate::closeEditorFromContextMenu()
         EditorManager::closeEditors(DocumentModel::editorsForDocument(document));
 }
 
-void EditorManagerPrivate::closeOtherEditorsFromContextMenu()
+void EditorManagerPrivate::closeOtherDocumentsFromContextMenu()
 {
     IDocument *document = d->m_contextMenuEntry ? d->m_contextMenuEntry->document : 0;
-    EditorManager::closeOtherEditors(document);
+    EditorManager::closeOtherDocuments(document);
 }
 
 bool EditorManagerPrivate::saveDocument(IDocument *document)
@@ -1824,7 +1824,7 @@ bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
     return false;
 }
 
-void EditorManager::closeOtherEditors(IDocument *document)
+void EditorManager::closeOtherDocuments(IDocument *document)
 {
     DocumentModel::removeAllRestoredEntries();
     QList<IDocument *> documentsToClose = DocumentModel::openedDocuments();
@@ -1841,9 +1841,9 @@ void EditorManager::closeEditor()
     closeEditor(d->m_currentEditor);
 }
 
-void EditorManager::closeOtherEditors()
+void EditorManager::closeOtherDocuments()
 {
-    closeOtherEditors(currentDocument());
+    closeOtherDocuments(currentDocument());
 }
 
 static void assignAction(QAction *self, QAction *other)
@@ -1881,17 +1881,17 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
     d->m_closeCurrentEditorContextAction->setText(entry
                                                     ? tr("Close \"%1\"").arg(entry->displayName())
                                                     : tr("Close Editor"));
-    d->m_closeOtherEditorsContextAction->setText(entry
+    d->m_closeOtherDocumentsContextAction->setText(entry
                                                    ? tr("Close All Except \"%1\"").arg(entry->displayName())
                                                    : tr("Close Other Editors"));
     d->m_closeCurrentEditorContextAction->setEnabled(entry != 0);
-    d->m_closeOtherEditorsContextAction->setEnabled(entry != 0);
+    d->m_closeOtherDocumentsContextAction->setEnabled(entry != 0);
     d->m_closeAllEditorsContextAction->setEnabled(!DocumentModel::entries().isEmpty());
     d->m_closeAllEditorsExceptVisibleContextAction->setEnabled(
                 EditorManagerPrivate::visibleDocumentsCount() < DocumentModel::entries().count());
     contextMenu->addAction(d->m_closeCurrentEditorContextAction);
     contextMenu->addAction(d->m_closeAllEditorsContextAction);
-    contextMenu->addAction(d->m_closeOtherEditorsContextAction);
+    contextMenu->addAction(d->m_closeOtherDocumentsContextAction);
     contextMenu->addAction(d->m_closeAllEditorsExceptVisibleContextAction);
 }
 
