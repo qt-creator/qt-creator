@@ -227,7 +227,7 @@ QString StateListener::windowTitleVcsTopic(const QString &filePath)
 {
     QString searchPath;
     if (!filePath.isEmpty()) {
-        searchPath = filePath;
+        searchPath = QFileInfo(filePath).absolutePath();
     } else {
         // use single project's information if there is only one loaded.
         const QList<ProjectExplorer::Project *> projects = ProjectExplorer::SessionManager::projects();
