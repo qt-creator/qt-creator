@@ -34,8 +34,6 @@ def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWe
     cleanUpUserFiles(projectPath)
     if fromWelcome:
         mouseClick(waitForObject(":OpenProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
-        if not platform.system() == "Darwin":
-            waitFor("waitForObject(':fileNameEdit_QLineEdit', 1000).focus == True", 3000)
     else:
         invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
@@ -737,13 +735,3 @@ def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False, addTo
             buttonToClick = 'Cancel'
         clickButton("{text='%s' type='QPushButton' unnamed='1' visible='1' window=%s}"
                     % (buttonToClick, overwriteDialog))
-
-def qt5SDKPath():
-    if platform.system() in ('Microsoft', 'Windows'):
-        return os.path.abspath("C:/Qt/Qt5.0.1/5.0.1/msvc2010")
-    elif platform.system() == 'Linux':
-        if __is64BitOS__():
-            return os.path.expanduser("~/Qt5.0.1/5.0.1/gcc_64")
-        return os.path.expanduser("~/Qt5.0.1/5.0.1/gcc")
-    else:
-        return os.path.expanduser("~/Qt5.0.1/5.0.1/clang_64")

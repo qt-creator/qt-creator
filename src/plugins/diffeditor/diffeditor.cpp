@@ -611,6 +611,7 @@ void DiffEditor::showDiffEditor(QWidget *newEditor)
 
     writeCurrentDiffEditorSetting(m_currentEditor);
     updateDiffEditorSwitcher();
+    widget()->setFocusProxy(m_currentEditor);
 }
 
 QWidget *DiffEditor::readLegacyCurrentDiffEditorSetting()

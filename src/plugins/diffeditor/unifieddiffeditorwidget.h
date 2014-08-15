@@ -87,6 +87,8 @@ private slots:
     void slotSendChunkToCodePaster();
     void slotApplyChunk();
     void slotRevertChunk();
+    void saveStateRequested();
+    void restoreStateRequested();
 
 private:
     void setLeftLineNumber(int blockNumber, int lineNumber);
@@ -139,6 +141,7 @@ private:
     QTextCharFormat m_rightLineFormat;
     QTextCharFormat m_leftCharFormat;
     QTextCharFormat m_rightCharFormat;
+    QByteArray m_state;
 };
 
 } // namespace DiffEditor

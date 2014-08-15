@@ -58,7 +58,7 @@ WinRtDeviceFactory::WinRtDeviceFactory()
     } else {
         connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
                 this, &WinRtDeviceFactory::onPrerequisitesLoaded, Qt::QueuedConnection);
-        connect(static_cast<QtVersionManager *>(QtVersionManager::instance()),
+        connect(QtVersionManager::instance(),
                 &QtVersionManager::qtVersionsLoaded,
                 this, &WinRtDeviceFactory::onPrerequisitesLoaded, Qt::QueuedConnection);
     }
@@ -125,12 +125,10 @@ void WinRtDeviceFactory::onPrerequisitesLoaded()
     m_initialized = true;
     disconnect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
                this, &WinRtDeviceFactory::onPrerequisitesLoaded);
-    QtVersionManager *qtVersionManager
-            = static_cast<QtVersionManager *>(QtVersionManager::instance());
-    disconnect(qtVersionManager, &QtVersionManager::qtVersionsLoaded,
+    disconnect(QtVersionManager::instance(), &QtVersionManager::qtVersionsLoaded,
                this, &WinRtDeviceFactory::onPrerequisitesLoaded);
     autoDetect();
-    connect(qtVersionManager, &QtVersionManager::qtVersionsChanged,
+    connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &WinRtDeviceFactory::autoDetect);
 }
 

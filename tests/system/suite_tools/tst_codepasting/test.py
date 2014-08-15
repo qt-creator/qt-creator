@@ -71,8 +71,8 @@ def main():
         aut.readStderr()
         clickButton(waitForObject(":Send to Codepaster.Paste_QPushButton"))
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
-        waitFor("not outputWindow.plainText.isEmpty()", 20000)
-        output = str(outputWindow.plainText)
+        waitFor("'http://' in str(outputWindow.plainText)", 20000)
+        output = str(outputWindow.plainText).splitlines()[-1]
         stdErrOut = aut.readStderr()
         match = re.search("^%s protocol error: (.*)$" % protocol, stdErrOut, re.MULTILINE)
         if match:
@@ -91,6 +91,7 @@ def main():
         clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
         invokeMenuItem('File', 'Revert "main.cpp" to Saved')
         clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+        snooze(1)   # "Close All" might be disabled
         invokeMenuItem("File", "Close All")
         if not pasteId:
             test.fatal("Could not get id of paste to %s" % protocol)

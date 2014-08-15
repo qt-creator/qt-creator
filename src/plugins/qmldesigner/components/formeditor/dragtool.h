@@ -91,6 +91,7 @@ protected:
     void end(Snapper::Snapping useSnapping);
     void move(const QPointF &scenePos, const QList<QGraphicsItem *> &itemList);
     void createDragNode(const QMimeData *mimeData, const QPointF &scenePosition, const QList<QGraphicsItem *> &itemList);
+    void commitTransaction();
 
 private:
     MoveManipulator m_moveManipulator;

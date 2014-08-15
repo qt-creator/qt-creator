@@ -73,6 +73,8 @@ public slots:
     void requestChunkActions(QMenu *menu,
                              int diffFileIndex,
                              int chunkIndex);
+    void requestSaveState();
+    void requestRestoreState();
     void branchesForCommitReceived(const QString &output);
     void expandBranchesRequested();
 
@@ -87,6 +89,8 @@ signals:
     void chunkActionsRequested(QMenu *menu,
                                int diffFileIndex,
                                int chunkIndex);
+    void saveStateRequested();
+    void restoreStateRequested();
     void expandBranchesRequested(const QString &revision);
     void reloaderChanged(DiffEditorReloader *reloader);
 

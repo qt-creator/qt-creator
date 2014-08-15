@@ -110,12 +110,13 @@ protected:
     QDateTime qtLastModified() const;
     QDateTime puppetSourceLastModified() const;
 
+    bool useOnlyFallbackPuppet() const;
+
 private:
     QString m_qtCreatorVersion;
     mutable QString m_compileLog;
     ProjectExplorer::Kit *m_kit;
     PuppetType m_availablePuppetType;
-    static bool m_useOnlyFallbackPuppet;
     static QHash<Core::Id, PuppetType> m_qml1PuppetForKitPuppetHash;
     static QHash<Core::Id, PuppetType> m_qml2PuppetForKitPuppetHash;
 };

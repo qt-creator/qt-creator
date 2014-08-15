@@ -46,6 +46,7 @@ DiffEditorDocument::DiffEditorDocument() :
     m_controller(new DiffEditorController(this))
 {
     setId(Constants::DIFF_EDITOR_ID);
+    setMimeType(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
     setTemporary(true);
 }
 

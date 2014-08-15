@@ -128,7 +128,7 @@ public:
     NodeListProperty defaultNodeListProperty() const;
     NodeProperty defaultNodeProperty() const;
 
-    void removeProperty(const PropertyName &name); //### also implement in AbstractProperty
+    void removeProperty(const PropertyName &name) const; //### also implement in AbstractProperty
     QList<AbstractProperty> properties() const;
     QList<VariantProperty> variantProperties() const;
     QList<NodeAbstractProperty> nodeAbstractProperties() const;

@@ -50,10 +50,7 @@ Column {
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.text
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 

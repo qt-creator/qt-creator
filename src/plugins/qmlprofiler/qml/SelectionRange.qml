@@ -48,7 +48,7 @@ RangeMover {
         target: zoomControl
         onRangeChanged: {
             var oldTimePerPixel = selectionRange.viewTimePerPixel;
-            selectionRange.viewTimePerPixel = Math.abs(zoomControl.endTime() - zoomControl.startTime()) / flick.width;
+            selectionRange.viewTimePerPixel = Math.abs(zoomControl.endTime() - zoomControl.startTime()) / view.intWidth;
             if (creationState === 3 && oldTimePerPixel != selectionRange.viewTimePerPixel) {
                 var newWidth = getWidth() * oldTimePerPixel / viewTimePerPixel;
                 setLeft(getLeft() * oldTimePerPixel / viewTimePerPixel);

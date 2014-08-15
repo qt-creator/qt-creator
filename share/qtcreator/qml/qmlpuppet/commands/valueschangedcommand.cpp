@@ -37,7 +37,9 @@
 
 namespace QmlDesigner {
 
-static QCache<qint32, SharedMemory> globalSharedMemoryCache(10000);
+// using cache as a container which deletes sharedmemory pointers at process exit
+typedef QCache<qint32, SharedMemory> GlobalSharedMemoryContainer;
+Q_GLOBAL_STATIC_WITH_ARGS(GlobalSharedMemoryContainer, globalSharedMemoryContainer, (10000))
 
 ValuesChangedCommand::ValuesChangedCommand()
     : m_keyNumber(0)
@@ -63,7 +65,7 @@ quint32 ValuesChangedCommand::keyNumber() const
 void ValuesChangedCommand::removeSharedMemorys(const QVector<qint32> &keyNumberVector)
 {
     foreach (qint32 keyNumber, keyNumberVector) {
-        SharedMemory *sharedMemory = globalSharedMemoryCache.take(keyNumber);
+        SharedMemory *sharedMemory = globalSharedMemoryContainer()->take(keyNumber);
         delete sharedMemory;
     }
 }
@@ -82,8 +84,10 @@ static SharedMemory *createSharedMemory(qint32 key, int byteCount)
     bool sharedMemoryIsCreated = sharedMemory->create(byteCount);
 
     if (sharedMemoryIsCreated) {
-        globalSharedMemoryCache.insert(key, sharedMemory);
+        globalSharedMemoryContainer()->insert(key, sharedMemory);
         return sharedMemory;
+    } else {
+        delete sharedMemory;
     }
 
     return 0;

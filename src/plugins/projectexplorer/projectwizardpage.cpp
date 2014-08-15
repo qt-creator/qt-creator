@@ -115,8 +115,10 @@ void BestNodeSelector::inspect(AddNewTree *tree)
     const int projectDirectorySize = projectDirectory.size();
     if (!m_commonDirectory.startsWith(projectDirectory))
         return;
-    bool betterMatch = projectDirectorySize > m_bestMatchLength
-            || (projectDirectorySize == m_bestMatchLength && tree->priority() > m_bestMatchPriority);
+    bool betterMatch = tree->priority() > 0
+            && (projectDirectorySize > m_bestMatchLength
+                || (projectDirectorySize == m_bestMatchLength && tree->priority() > m_bestMatchPriority));
+
     if (betterMatch) {
         m_bestMatchPriority = tree->priority();
         m_bestMatchLength = projectDirectorySize;

@@ -132,7 +132,9 @@ void SimpleDiffEditorReloader::reload()
     QList<FileData> fileDataList;
     fileDataList << fileData;
 
+    controller()->requestSaveState();
     controller()->setDiffFiles(fileDataList);
+    controller()->requestRestoreState();
 
     reloadFinished();
 }
@@ -299,6 +301,25 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
 
     rows.clear();
     rows << RowData(_("ABCD"));
+    rows << RowData(_(""), TextLineData::Separator);
+    rows << RowData(_(""), TextLineData::Separator);
+    chunk.rows = rows;
+    patchText = header + _("@@ -1,2 +1,1 @@\n"
+                           "-ABCD\n"
+                           "-\n"
+                           "+ABCD\n"
+                           "\\ No newline at end of file\n");
+
+    QTest::newRow("Two last EOLs removed") << chunk
+                            << fileName
+                            << fileName
+                            << true
+                            << patchText;
+
+    ///////////
+
+    rows.clear();
+    rows << RowData(_("ABCD"));
     rows << RowData(TextLineData::Separator, _(""));
     chunk.rows = rows;
     patchText = header + _("@@ -1,1 +1,1 @@\n"
@@ -417,6 +438,26 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
             << fileName
             << fileName
             << false
+            << patchText;
+
+    ///////////
+
+    rows.clear();
+    rows << RowData(_("ABCD"));
+    rows << RowData(TextLineData::Separator, _(""));
+    rows << RowData(_(""), _("EFGH"));
+    chunk.rows = rows;
+    patchText = header + _("@@ -1,1 +1,3 @@\n"
+                           " ABCD\n"
+                           "+\n"
+                           "+EFGH\n"
+                           "\\ No newline at end of file\n");
+
+    QTest::newRow("Blank line followed by No newline")
+            << chunk
+            << fileName
+            << fileName
+            << true
             << patchText;
 }
 
@@ -748,6 +789,37 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
 
     QTest::newRow("2 chunks - first ends with blank line") << patch
                                 << fileDataList4;
+
+    //////////////
+
+    patch = _("diff --git a/file foo.txt b/file foo.txt\n"
+              "index 1234567..9876543 100644\n"
+              "--- a/file foo.txt\n"
+              "+++ b/file foo.txt\n"
+              "@@ -1,1 +1,3 @@ void DiffEditor::ctor()\n"
+              " ABCD\n"
+              "+\n"
+              "+EFGH\n"
+              "\\ No newline at end of file\n");
+
+    fileData1.leftFileInfo = DiffFileInfo(_("file foo.txt"), _("1234567"));
+    fileData1.rightFileInfo = DiffFileInfo(_("file foo.txt"), _("9876543"));
+    fileData1.fileOperation = FileData::ChangeFile;
+    chunkData1.leftStartingLineNumber = 0;
+    chunkData1.rightStartingLineNumber = 0;
+    rows1.clear();
+    rows1 << RowData(_("ABCD"));
+    rows1 << RowData(TextLineData::Separator, _(""));
+    rows1 << RowData(_(""), _("EFGH"));
+    chunkData1.rows = rows1;
+    fileData1.chunks.clear();
+    fileData1.chunks << chunkData1;
+
+    QList<FileData> fileDataList5;
+    fileDataList5 << fileData1;
+
+    QTest::newRow("Blank line followed by No newline") << patch
+                                << fileDataList5;
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()

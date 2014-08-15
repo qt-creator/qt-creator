@@ -31,6 +31,7 @@
 #include "nodemetainfo.h"
 
 #include <QSet>
+#include <QPen>
 
 namespace QmlDesigner {
 
@@ -95,12 +96,13 @@ void ContentNotEditableIndicator::addAddiationEntries(const QList<FormEditorItem
 
             if (!m_entryList.contains(EntryPair(formEditorItem, 0))) {
                 QGraphicsRectItem *indicatorShape = new QGraphicsRectItem(m_layerItem);
+                QPen linePen;
+                linePen.setColor("#a0a0a0");
+                indicatorShape->setPen(linePen);
                 QRectF boundingRectangleInSceneSpace = formEditorItem->qmlItemNode().instanceSceneTransform().mapRect(formEditorItem->qmlItemNode().instanceBoundingRect());
                 indicatorShape->setRect(boundingRectangleInSceneSpace);
-                static QBrush brush(QColor(0, 0, 0, 130), Qt::BDiagPattern);
+                static QBrush brush(QColor(0, 0, 0, 10), Qt::BDiagPattern);
                 indicatorShape->setBrush(brush);
-
-                formEditorItem->blurContent(true);
 
                 m_entryList.append(EntryPair(formEditorItem, indicatorShape));
             }

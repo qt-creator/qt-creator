@@ -75,15 +75,14 @@ Rectangle {
                             placeholderText: qsTr("id")
                             text: backendValues.id.value
                             Layout.fillWidth: true
-                            Layout.maximumWidth: 320
+                            showTranslateCheckBox: false
+                            showExtendedFunctionButton: false
                         }
-
-                        ExpandingSpacer {
-                        }
-
+                        // workaround: without this item the lineedit does not shrink to the
+                        // right size after resizing to a wider width
                         Item {
-                            width: 16
-                            height: 16
+                            width: 0
+                            height: 1
                         }
                     }
                 }

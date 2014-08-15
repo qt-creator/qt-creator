@@ -39,10 +39,7 @@ Controls.CheckBox {
     property color highlightColor: "orange"
     property color textColor: colorLogic.textColor
 
-    onTextChanged: {
-        if (text.charAt(0) !== " ")
-            text = "    " + text
-    }
+    opacity: enabled ? 1 : 0.5
 
     property variant backendValue
 

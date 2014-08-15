@@ -212,9 +212,19 @@ void DebugView::rootNodeTypeChanged(const QString &type, int majorVersion, int m
     }
 }
 
-void DebugView::selectedNodesChanged(const QList<ModelNode> & /*selectedNodeList*/,
+void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*selectedNodeList*/,
                                      const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
+    foreach (const ModelNode &selectedNode, selectedNodes) {
+        QTextStream message;
+        QString string;
+        message.setString(&string);
+        message << selectedNode;
+        foreach (const VariantProperty &property, selectedNode.variantProperties()) {
+            message << property;
+        }
+        log(tr("Node selected:"), string);
+    }
 }
 
 void DebugView::scriptFunctionsChanged(const ModelNode & /*node*/, const QStringList & /*scriptFunctionList*/)

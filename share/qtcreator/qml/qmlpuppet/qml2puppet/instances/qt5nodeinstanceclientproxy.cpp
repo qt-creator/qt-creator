@@ -38,11 +38,26 @@
 
 #include <designersupport.h>
 
+#if defined(Q_OS_UNIX)
+#include <unistd.h>
+#elif defined(Q_OS_WIN)
+#include <windows.h>
+#endif
+
 namespace QmlDesigner {
+static void prioritizeDown()
+{
+#if defined(Q_OS_UNIX)
+    nice(19);
+#elif defined(Q_OS_WIN)
+    SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
+#endif
+}
 
 Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
     NodeInstanceClientProxy(parent)
 {
+    prioritizeDown();
     DesignerSupport::activateDesignerWindowManager();
     if (QCoreApplication::arguments().at(1) == QLatin1String("--readcapturedstream")) {
         qputenv("DESIGNER_DONT_USE_SHARED_MEMORY", "1");

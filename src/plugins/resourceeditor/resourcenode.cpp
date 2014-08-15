@@ -256,10 +256,11 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
             .arg(QFileInfo(path()).fileName())
             .arg(QLatin1String("/"));
 
-    int p = 80;
-    if (priority(files)) {
-        if (context == 0 || context == this)
-            p = 125;
+    int p = -1;
+    if (priority(files)) { // images/* and qml/js mimetypes
+        p = 110;
+        if (context == this)
+            p = 120;
         else if (projectNode() == context)
             p = 150; // steal from our project node
         // The ResourceFolderNode '/' defers to us, as otherwise
@@ -267,7 +268,7 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
         // Thus also return a high priority for it
         if (ResourceFolderNode *rfn = qobject_cast<ResourceFolderNode *>(context))
             if (rfn->prefix() == QLatin1String("/") && rfn->parentFolderNode() == this)
-                p = 150;
+                p = 120;
     }
 
     return AddNewInformation(name, p);
@@ -389,9 +390,10 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceFolderNode::addNewInforma
             .arg(QFileInfo(m_topLevelNode->path()).fileName())
             .arg(displayName());
 
-    int p = 80;
-    if (priority(files)) {
-        if (context == 0 || context == this)
+    int p = -1; // never the default
+    if (priority(files)) { // image/* and qml/js mimetypes
+        p = 105; // prefer against .pro and .pri files
+        if (context == this)
             p = 120;
     }
 

@@ -20,11 +20,11 @@ QtcTool {
         "version.h",
         "iphonesimulatorremoteclient/iphonesimulatorremoteclient.h"
     ]
-    cpp.linkerFlags: base.concat(["-sectcreate", "__TEXT", "__info_plist", path + "/Info.plist",
-                                  "-fobjc-link-runtime"])
+    cpp.linkerFlags: base.concat(["-fobjc-link-runtime"])
     cpp.frameworks: base.concat(["Foundation", "CoreServices", "ApplicationServices", "IOKit",
                                  "AppKit"])
     cpp.frameworkPaths: base.concat("/System/Library/PrivateFrameworks")
+    cpp.infoPlistFile: "Info.plist"
 
     toolInstallDir: project.ide_libexec_path + "/ios"
 }

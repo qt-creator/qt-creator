@@ -99,6 +99,7 @@
 :Go to slot.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Go to slot_QDialog'}
 :Go to slot.Select signal_QGroupBox	{name='groupBox' title='Select signal' type='QGroupBox' visible='1' window=':Go to slot_QDialog'}
 :Go to slot_QDialog	{name='SelectSignalDialog' type='QDialog' visible='1' windowTitle='Go to slot'}
+:Help Widget_Help::Internal::HelpWidget	{type='Help::Internal::HelpWidget' unnamed='1' visible='1' windowTitle?='Help -*'}
 :Hits_QCLuceneResultWidget	{aboveWidget=':Hits_QLabel' type='QCLuceneResultWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Hits_QLabel	{text~='\\\\d+ - \\\\d+ of \\\\d+ Hits' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :JavaScript.QmlProfilerEventsTable_QmlProfiler::Internal::QV8ProfilerEventsMainView	{container=':*Qt Creator.JavaScript_QDockWidget' name='QmlProfilerEventsTable' type='QmlProfiler::Internal::QV8ProfilerEventsMainView' visible='1'}

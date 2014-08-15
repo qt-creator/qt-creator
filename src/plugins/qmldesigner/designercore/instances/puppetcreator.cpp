@@ -47,12 +47,13 @@
 #include <coreplugin/icore.h>
 
 #include <qmldesignerwarning.h>
+#include <qmldesignerplugin.h>
+#include <designersettings.h>
 #include "puppetbuildprogressdialog.h"
 
 
 namespace QmlDesigner {
 
-bool PuppetCreator::m_useOnlyFallbackPuppet = !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty();
 QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml1PuppetForKitPuppetHash;
 QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml2PuppetForKitPuppetHash;
 
@@ -103,6 +104,13 @@ QDateTime PuppetCreator::puppetSourceLastModified() const
     }
 
     return lastModified;
+}
+
+bool PuppetCreator::useOnlyFallbackPuppet() const
+{
+    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    return  settings.useOnlyFallbackPuppet
+            || !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty();
 }
 
 PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion)
@@ -157,7 +165,7 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     puppetProcess->setProcessEnvironment(processEnvironment());
     QObject::connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), puppetProcess, SLOT(kill()));
     QObject::connect(puppetProcess, SIGNAL(finished(int,QProcess::ExitStatus)), handlerObject, finishSlot);
-    bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QMLPUPPET_OUTPUT").isEmpty();
+    bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QML_PUPPET_OUTPUT").isEmpty();
     if (fowardQmlpuppetOutput) {
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
@@ -252,7 +260,7 @@ void PuppetCreator::createQml1PuppetExecutableIfMissing()
 {
     m_availablePuppetType = FallbackPuppet;
 
-    if (!m_useOnlyFallbackPuppet && m_kit) {
+    if (!useOnlyFallbackPuppet() && m_kit) {
         if (m_qml1PuppetForKitPuppetHash.contains(m_kit->id())) {
             m_availablePuppetType = m_qml1PuppetForKitPuppetHash.value(m_kit->id());
         } else if (checkQmlpuppetIsReady()) {
@@ -274,7 +282,7 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
 {
     m_availablePuppetType = FallbackPuppet;
 
-    if (!m_useOnlyFallbackPuppet && m_kit) {
+    if (!useOnlyFallbackPuppet() && m_kit) {
         if (m_qml2PuppetForKitPuppetHash.contains(m_kit->id())) {
             m_availablePuppetType = m_qml2PuppetForKitPuppetHash.value(m_kit->id());
         } else if (checkQml2PuppetIsReady()) {

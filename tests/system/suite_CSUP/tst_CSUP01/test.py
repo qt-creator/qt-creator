@@ -66,7 +66,7 @@ def main():
         type(editorWidget, "<Meta+Shift+Right>")
     else:
         type(editorWidget, "<Shift+End>")
-    type(editorWidget, "<Del>")
+    type(editorWidget, "<Delete>")
     type(editorWidget, "voi")
     waitForObjectItem(":popupFrame_Proposal_QListView", "void")
     type(waitForObject(":popupFrame_Proposal_QListView"), "<Tab>")
@@ -83,7 +83,7 @@ def main():
         type(editorWidget, "<Meta+Shift+Right>")
     else:
         type(editorWidget, "<Shift+End>")
-    type(editorWidget, "<Del>")
+    type(editorWidget, "<Delete>")
     type(editorWidget, "ret")
     if platform.system() == "Darwin":
         type(editorWidget, "<Meta+Space>")

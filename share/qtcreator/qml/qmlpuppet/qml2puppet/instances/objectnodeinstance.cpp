@@ -91,6 +91,14 @@ static bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
     return false;
 }
 
+static bool isSimpleExpression(const QString &expression)
+{
+    if (expression.startsWith(QStringLiteral("{")))
+        return false;
+
+    return true;
+}
+
 namespace QmlDesigner {
 namespace Internal {
 
@@ -510,6 +518,9 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
 void ObjectNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
     if (ignoredProperties().contains(name))
+        return;
+
+    if (!isSimpleExpression(expression))
         return;
 
     QQmlProperty property(object(), name, context());
@@ -1083,6 +1094,15 @@ static bool isCrashingType(QQmlType *type)
             return true;
 
         if (type->qmlTypeName() == QStringLiteral("QtMultimedia/Audio"))
+            return true;
+
+        if (type->qmlTypeName() == QStringLiteral("QtQuick.Controls/MenuItem"))
+            return true;
+
+        if (type->qmlTypeName() == QStringLiteral("QtQuick.Controls/Menu"))
+            return true;
+
+        if (type->qmlTypeName() == QStringLiteral("QtQuick/Timer"))
             return true;
     }
 

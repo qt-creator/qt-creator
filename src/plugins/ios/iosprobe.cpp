@@ -63,7 +63,7 @@ static int compareVersions(const QString &v1, const QString &v2)
     QStringList v1L = v1.split(QLatin1Char('.'));
     QStringList v2L = v2.split(QLatin1Char('.'));
     int i = 0;
-    while (v1.length() > i && v1.length() > i) {
+    while (v1L.length() > i && v2L.length() > i) {
         bool n1Ok, n2Ok;
         int n1 = v1L.value(i).toInt(&n1Ok);
         int n2 = v2L.value(i).toInt(&n2Ok);
@@ -77,9 +77,9 @@ static int compareVersions(const QString &v1, const QString &v2)
             return 1;
         ++i;
     }
-    if (v1.length() > v2.length())
+    if (v1L.length() > v2L.length())
         return -1;
-    if (v1.length() < v2.length())
+    if (v1L.length() < v2L.length())
         return 1;
     return 0;
 }

@@ -38,6 +38,7 @@
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include "qmlprojectmanager.h"
 #include "qmlproject.h"
@@ -79,6 +80,8 @@ QmlApplicationWizard::QmlApplicationWizard()
          QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
     setDisplayName(tr("Qt Quick UI"));
     setDescription(tr("Creates a Qt Quick UI project."));
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QMLPROJECT)
+                        | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK));
 }
 
 Core::BaseFileWizard *QmlApplicationWizard::create(QWidget *parent, const WizardDialogParameters &parameters) const

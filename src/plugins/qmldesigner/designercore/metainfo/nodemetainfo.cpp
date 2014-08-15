@@ -31,6 +31,7 @@
 #include "model.h"
 
 #include "metainfo.h"
+#include <enumeration.h>
 #include <rewriterview.h>
 #include <propertyparser.h>
 
@@ -1358,7 +1359,8 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
 
     const QVariant variant = value;
     QVariant copyVariant = variant;
-    if (propertyIsEnumType(propertyName))
+    if (propertyIsEnumType(propertyName)
+            || variant.canConvert<Enumeration>())
         return variant;
 
     const QString typeName = propertyTypeName(propertyName);
@@ -1512,7 +1514,9 @@ bool NodeMetaInfo::isLayoutable() const
     if (isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1))
         return true; //QtQuick 1
 
-    return isSubclassOf("QtQuick.Positioner", -1, -1) || isSubclassOf("QtQuick.Layouts.Layout", -1, -1);
+    return isSubclassOf("QtQuick.Positioner", -1, -1)
+            || isSubclassOf("QtQuick.Layouts.Layout", -1, -1)
+            || isSubclassOf("QtQuick.Controls.SplitView", -1, -1);
 }
 
 bool NodeMetaInfo::isView() const

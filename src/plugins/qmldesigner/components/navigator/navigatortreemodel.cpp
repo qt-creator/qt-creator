@@ -50,8 +50,11 @@
 
 #include <QtDebug>
 
+#define DISABLE_VISIBLE_PROPERTIES
+
 namespace QmlDesigner {
 
+#ifndef DISABLE_VISIBLE_PROPERTIES
 static PropertyNameList visibleProperties(const ModelNode &node)
 {
     PropertyNameList propertyList;
@@ -75,6 +78,7 @@ static PropertyNameList visibleProperties(const ModelNode &node)
 
     return propertyList;
 }
+#endif
 
 static QList<ModelNode> acceptedModelNodeChildren(const ModelNode &parentNode)
 {
@@ -84,7 +88,9 @@ static QList<ModelNode> acceptedModelNodeChildren(const ModelNode &parentNode)
     if (parentNode.metaInfo().hasDefaultProperty())
         properties.append(parentNode.metaInfo().defaultPropertyName());
 
+#ifndef DISABLE_VISIBLE_PROPERTIES
     properties.append(visibleProperties(parentNode));
+#endif
 
     foreach (const PropertyName &propertyName, properties) {
         AbstractProperty property(parentNode.property(propertyName));
@@ -201,7 +207,9 @@ static bool computeTarget(const QModelIndex &rowModelIndex,
         ModelNode targetNode = navigatorTreeModel->nodeForIndex(targetItemIndex);
         if (!targetNode.metaInfo().hasDefaultProperty())
             return false;
+#ifndef DISABLE_VISIBLE_PROPERTIES
         *targetRowNumber -= visibleProperties(targetNode).count();
+#endif
         targetPropertyName = targetNode.metaInfo().defaultPropertyName();
     } else {
         targetItemIndex = rowModelIndex.parent();
@@ -280,6 +288,7 @@ ItemRow NavigatorTreeModel::createItemRow(const ModelNode &node)
         visibilityItem->setCheckable(false);
 
     QMap<QString, QStandardItem *> propertyItems;
+#ifndef DISABLE_VISIBLE_PROPERTIES
     foreach (const QString &propertyName, visibleProperties(node)) {
         QStandardItem *propertyItem = new QStandardItem;
         propertyItem->setSelectable(false);
@@ -290,6 +299,7 @@ ItemRow NavigatorTreeModel::createItemRow(const ModelNode &node)
         propertyItems.insert(propertyName, propertyItem);
         idItem->appendRow(propertyItem);
     }
+#endif
 
 #   ifdef _LOCK_ITEMS_
     ItemRow newRow =  ItemRow(idItem, lockItem, visibilityItem, propertyItems);
@@ -334,13 +344,16 @@ static void findTargetItem(const NodeListProperty &listProperty,
                            int *newRowNumber,
                            QStandardItem **targetItem)
 {
+    Q_UNUSED(newRowNumber);
     if (navigatorTreeModel->isInTree(listProperty.parentModelNode())) {
         ItemRow parentRow = navigatorTreeModel->itemRowForNode(listProperty.parentModelNode());
         if (parentRow.propertyItems.contains(listProperty.name())) {
             *targetItem = parentRow.propertyItems.value(listProperty.name());
         } else  { // default property
             *targetItem = parentRow.idItem;
+#ifndef DISABLE_VISIBLE_PROPERTIES
             newRowNumber += visibleProperties(listProperty.parentModelNode()).count();
+#endif
         }
     } else {
         *targetItem = currentItemRow.idItem->parent();

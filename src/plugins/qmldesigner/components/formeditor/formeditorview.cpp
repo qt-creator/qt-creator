@@ -646,7 +646,7 @@ void FormEditorView::delayedReset()
     m_resizeTool->clear();
     m_dragTool->clear();
     m_scene->clearFormEditorItems();
-    if (QmlItemNode::isValidQmlItemNode(rootModelNode()))
+    if (isAttached() && QmlItemNode::isValidQmlItemNode(rootModelNode()))
         setupFormEditorItemTree(rootModelNode());
 }
 

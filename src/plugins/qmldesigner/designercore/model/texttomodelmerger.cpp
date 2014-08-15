@@ -247,6 +247,11 @@ static inline QVariant convertDynamicPropertyValueToVariant(const QString &astVa
     }
 }
 
+static bool isListElementType(const QmlDesigner::TypeName &type)
+{
+    return  type == "ListElement" || type == "QtQuick.ListElement" || type == "Qt.ListElement";
+}
+
 static bool isComponentType(const QmlDesigner::TypeName &type)
 {
     return  type == "Component" || type == "Qt.Component" || type == "QtQuick.Component" || type == "<cpp>.QQmlComponent";
@@ -1225,7 +1230,8 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
 
     if (isLiteralValue(script)) {
         if (isPropertyChangesType(modelNode.type())
-                || isConnectionsType(modelNode.type())) {
+                || isConnectionsType(modelNode.type())
+                || isListElementType(modelNode.type())) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
             QVariant variantValue = parsePropertyScriptBinding(script);
             if (!variantValue.isValid())

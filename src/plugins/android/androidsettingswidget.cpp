@@ -592,8 +592,8 @@ void AndroidSettingsWidget::showGdbWarningDialog()
                          tr("Unsupported GDB"),
                          tr("The GDB inside this NDK seems to not support Python. "
                             "The Qt Project offers fixed GDB builds at: "
-                            "<a href=\"http://download.qt-project.org/official_releases/gdb/osx/\">"
-                            "http://download.qt-project.org/official_releases/gdb/osx/</a>"));
+                            "<a href=\"http://download.qt-project.org/official_releases/gdb/\">"
+                            "http://download.qt-project.org/official_releases/gdb/</a>"));
 }
 
 void AndroidSettingsWidget::manageAVD()

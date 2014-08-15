@@ -214,22 +214,6 @@ MetaInfo {
     }
 
     Type {
-        name: "QtQuick.Controls.TabView"
-        icon: ":/componentsplugin/images/window16.png"
-
-        ItemLibraryEntry {
-            name: "Tab View"
-            category: "Qt Quick - Controls"
-            libraryIcon: ":/componentsplugin/images/window.png"
-            version: "1.0"
-            requiredImport: "QtQuick.Controls"
-
-            Property { name: "width"; type: "int"; value: 360; }
-            Property { name: "height"; type: "int"; value: 300; }
-        }
-    }
-
-    Type {
         name: "QtQuick.Controls.GroupBox"
         icon: ":/componentsplugin/images/window16.png"
 

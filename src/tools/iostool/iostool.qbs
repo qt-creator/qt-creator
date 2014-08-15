@@ -15,10 +15,10 @@ QtcTool {
         "iosdevicemanager.cpp",
         "iosdevicemanager.h"
     ]
-    cpp.linkerFlags: base.concat(["-sectcreate", "__TEXT", "__info_plist", path + "/Info.plist"])
     cpp.frameworks: base.concat(["CoreFoundation", "CoreServices", "IOKit", "Security",
                                  "SystemConfiguration"])
     cpp.dynamicLibraries: base.concat(["ssl", "bz2"])
+    cpp.infoPlistFile: "Info.plist"
 
     installDir: project.ide_libexec_path + "/ios"
 }

@@ -163,6 +163,10 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
         if (!toolchainPrefix.isEmpty())
             data.insert(QLatin1String(CPP_TOOLCHAINPREFIX), toolchainPrefix);
         data.insert(QLatin1String(CPP_COMPILERNAME), compilerName);
+        if (targetAbi.os() != ProjectExplorer::Abi::WindowsOS
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
+            data.insert(QLatin1String(CPP_LINKERNAME), compilerName);
+        }
         data.insert(QLatin1String(CPP_TOOLCHAINPATH), cxxFileInfo.absolutePath());
         if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor) {
             const QLatin1String flags("/FS");

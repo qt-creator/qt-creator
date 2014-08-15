@@ -134,6 +134,10 @@ void UnifiedDiffEditorWidget::setDiffEditorGuiController(
                    this, SLOT(clearAll(QString)));
         disconnect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
                 this, SLOT(setDiff(QList<FileData>,QString)));
+        disconnect(m_controller, SIGNAL(saveStateRequested()),
+                this, SLOT(saveStateRequested()));
+        disconnect(m_controller, SIGNAL(restoreStateRequested()),
+                this, SLOT(restoreStateRequested()));
 
         disconnect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
                 this, SLOT(setCurrentDiffFileIndex(int)));
@@ -149,6 +153,10 @@ void UnifiedDiffEditorWidget::setDiffEditorGuiController(
                 this, SLOT(clearAll(QString)));
         connect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
                 this, SLOT(setDiff(QList<FileData>,QString)));
+        connect(m_controller, SIGNAL(saveStateRequested()),
+                this, SLOT(saveStateRequested()));
+        connect(m_controller, SIGNAL(restoreStateRequested()),
+                this, SLOT(restoreStateRequested()));
 
         connect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
                 this, SLOT(setCurrentDiffFileIndex(int)));
@@ -156,6 +164,23 @@ void UnifiedDiffEditorWidget::setDiffEditorGuiController(
         setDiff(m_controller->diffFiles(), m_controller->workingDirectory());
         setCurrentDiffFileIndex(m_guiController->currentDiffFileIndex());
     }
+}
+
+void UnifiedDiffEditorWidget::saveStateRequested()
+{
+    if (!m_state.isNull())
+        return;
+
+    m_state = saveState();
+}
+
+void UnifiedDiffEditorWidget::restoreStateRequested()
+{
+    if (m_state.isNull())
+        return;
+
+    restoreState(m_state);
+    m_state.clear();
 }
 
 DiffEditorGuiController *UnifiedDiffEditorWidget::diffEditorGuiController() const
@@ -613,7 +638,9 @@ QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
             + QString::number(chunkData.rightStartingLineNumber+ 1)
             + QLatin1Char(',')
             + QString::number(rightLineCount)
-            + QLatin1String(" @@\n");
+            + QLatin1String(" @@")
+            + chunkData.contextInfo
+            + QLatin1Char('\n');
 
     diffText.prepend(chunkLine);
 

@@ -50,10 +50,7 @@ Column {
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.text
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
@@ -64,6 +61,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    enabled: backendValues.checkable.value
                     text: backendValues.checked.valueToString
                     backendValue: backendValues.checked
                     implicitWidth: 180
@@ -82,6 +80,13 @@ Column {
                 CheckBox {
                     text: backendValues.checkable.valueToString
                     backendValue: backendValues.checkable
+                    property bool backEndValueValue: backendValues.checkable.value
+                    onTextChanged: {
+                        if (!backendValues.checkable.value) {
+                            backendValues.checked.resetValue()
+                        }
+                    }
+
                     implicitWidth: 180
                 }
                 ExpandingSpacer {
@@ -130,10 +135,7 @@ Column {
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.tooltip
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
@@ -162,10 +164,7 @@ Column {
             SecondColumnLayout {
                 LineEdit {
                     backendValue: backendValues.iconSource
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
