@@ -596,7 +596,7 @@ void MercurialPlugin::commitFromEditor()
 {
     // Close the submit editor
     m_submitActionTriggered = true;
-    Core::EditorManager::closeEditor();
+    Core::EditorManager::closeEditor(submitEditor());
 }
 
 bool MercurialPlugin::submitEditorAboutToClose()

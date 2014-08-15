@@ -981,7 +981,7 @@ void SubversionPlugin::slotDescribe()
 void SubversionPlugin::submitCurrentLog()
 {
     m_submitActionTriggered = true;
-    EditorManager::closeEditor(EditorManager::currentEditor());
+    EditorManager::closeEditor(submitEditor());
 }
 
 SubversionResponse

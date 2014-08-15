@@ -1475,7 +1475,7 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
 void ClearCasePlugin::checkInSelected()
 {
     m_submitActionTriggered = true;
-    EditorManager::closeEditor();
+    EditorManager::closeEditor(submitEditor());
 }
 
 QString ClearCasePlugin::runCleartoolSync(const QString &workingDir,
