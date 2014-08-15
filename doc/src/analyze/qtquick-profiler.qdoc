@@ -299,7 +299,7 @@
     JavaScript events are shown in the \gui Events view only for applications
     that use Qt Quick 2 and are compiled with Qt 5.3 or later. For applications
     that use Qt Quick 2 and are built with Qt 5.0 or 5.1, you can view
-    information about JavaScript events in the separate \gui JavaScript view.
+    information about JavaScript events in the separate \gui V8 view.
 
     \section2 Viewing More Data
 

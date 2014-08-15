@@ -106,7 +106,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
                         "Elapsed time should be positive in string '%s'" % str(elapsedLabel.text))
         except:
             test.fatal("Could not read elapsed time from '%s'" % str(elapsedLabel.text))
-        if safeClickTab("JavaScript"):
+        if safeClickTab("V8"):
             model = findObject(":JavaScript.QmlProfilerEventsTable_QmlProfiler::"
                                "Internal::QV8ProfilerEventsMainView").model()
             test.compare(model.rowCount(), 0)
