@@ -1576,7 +1576,7 @@ void EditorManagerPrivate::closeEditorFromContextMenu()
 {
     IDocument *document = d->m_contextMenuEntry ? d->m_contextMenuEntry->document : 0;
     if (document)
-        EditorManager::closeEditors(DocumentModel::editorsForDocument(document));
+        EditorManager::closeDocument(document);
 }
 
 void EditorManagerPrivate::closeOtherDocumentsFromContextMenu()
@@ -2325,6 +2325,11 @@ QList<IEditor*> EditorManager::visibleEditors()
         }
     }
     return editors;
+}
+
+bool EditorManager::closeDocument(IDocument *document, bool askAboutModifiedEditors)
+{
+    return closeDocuments(QList<IDocument *>() << document, askAboutModifiedEditors);
 }
 
 bool EditorManager::closeDocuments(const QList<IDocument *> &document, bool askAboutModifiedEditors)

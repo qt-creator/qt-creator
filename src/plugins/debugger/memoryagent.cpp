@@ -104,11 +104,11 @@ void MemoryAgent::closeEditors()
     if (m_editors.isEmpty())
         return;
 
-    QList<IEditor *> editors;
+    QSet<IDocument *> documents;
     foreach (QPointer<IEditor> editor, m_editors)
         if (editor)
-            editors.append(editor.data());
-    EditorManager::closeEditors(editors);
+            documents.insert(editor->document());
+    EditorManager::closeDocuments(documents.toList());
     m_editors.clear();
 }
 

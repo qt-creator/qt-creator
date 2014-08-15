@@ -340,15 +340,15 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters, DebuggerEng
 
 QmlEngine::~QmlEngine()
 {
-    QList<Core::IEditor *> editorsToClose;
+    QSet<Core::IDocument *> documentsToClose;
 
     QHash<QString, QWeakPointer<TextEditor::BaseTextEditor> >::iterator iter;
     for (iter = m_sourceEditors.begin(); iter != m_sourceEditors.end(); ++iter) {
         QWeakPointer<TextEditor::BaseTextEditor> textEditPtr = iter.value();
         if (textEditPtr)
-            editorsToClose << textEditPtr.data();
+            documentsToClose << textEditPtr.data()->document();
     }
-    Core::EditorManager::closeEditors(editorsToClose);
+    Core::EditorManager::closeDocuments(documentsToClose.toList());
 }
 
 void QmlEngine::notifyInferiorSetupOk()

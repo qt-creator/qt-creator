@@ -2364,7 +2364,7 @@ public:
 
     ~TestCase()
     {
-        Core::EditorManager::closeEditor(m_editor, false);
+        Core::EditorManager::closeDocument(m_editor->document(), false);
         QCoreApplication::processEvents(); // process any pending events
 
         QFile file(m_fileName);

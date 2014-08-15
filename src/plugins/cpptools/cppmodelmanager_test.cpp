@@ -730,7 +730,7 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
     helper.waitForRefreshedSourceFiles();
 
     // Close file/editor
-    Core::EditorManager::closeEditor(editor, /*askAboutModifiedEditors=*/ false);
+    Core::EditorManager::closeDocument(editor->document(), /*askAboutModifiedEditors=*/ false);
     helper.waitForFinishedGc();
 
     // Check: File is removed from the snapshpt
@@ -769,7 +769,7 @@ void CppToolsPlugin::test_modelmanager_dont_gc_opened_files()
     QVERIFY(mm->snapshot().contains(file));
 
     // Close editor
-    Core::EditorManager::closeEditor(editor);
+    Core::EditorManager::closeDocument(editor->document());
     helper.waitForFinishedGc();
     QVERIFY(mm->snapshot().isEmpty());
 }

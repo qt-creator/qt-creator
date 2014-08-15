@@ -149,7 +149,7 @@ void Internal::TextEditorPlugin::testBlockSelectionTransformation()
         }
         QCOMPARE(textEditor->textDocument()->plainText(), transformedText);
     }
-    Core::EditorManager::closeEditor(editor, false);
+    Core::EditorManager::closeDocument(editor->document(), false);
 }
 
 static const char text[] =
@@ -364,7 +364,7 @@ void Internal::TextEditorPlugin::testBlockSelectionInsert()
 
         QCOMPARE(textEditor->textDocument()->plainText(), transformedText);
     }
-    Core::EditorManager::closeEditor(editor, false);
+    Core::EditorManager::closeDocument(editor->document(), false);
 }
 
 
@@ -442,7 +442,7 @@ void Internal::TextEditorPlugin::testBlockSelectionRemove()
 
         QCOMPARE(textEditor->textDocument()->plainText(), transformedText);
     }
-    Core::EditorManager::closeEditor(editor, false);
+    Core::EditorManager::closeDocument(editor->document(), false);
 }
 
 void Internal::TextEditorPlugin::testBlockSelectionCopy_data()
@@ -497,7 +497,7 @@ void Internal::TextEditorPlugin::testBlockSelectionCopy()
 
         QCOMPARE(qApp->clipboard()->text(), copiedText);
     }
-    Core::EditorManager::closeEditor(editor, false);
+    Core::EditorManager::closeDocument(editor->document(), false);
 }
 
 #endif // ifdef WITH_TESTS

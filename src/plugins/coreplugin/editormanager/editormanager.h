@@ -132,6 +132,7 @@ public:
     static void activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags = 0);
     static IEditor *activateEditorForDocument(IDocument *document, OpenEditorFlags flags = 0);
 
+    static bool closeDocument(IDocument *document, bool askAboutModifiedEditors = true);
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
     static void closeDocument(DocumentModel::Entry *entry);
     static void closeOtherDocuments(IDocument *document);
