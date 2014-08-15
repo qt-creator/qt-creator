@@ -42,6 +42,7 @@ class EditorWindow : public QWidget
     Q_OBJECT
 public:
     explicit EditorWindow(QWidget *parent = 0);
+    ~EditorWindow();
 
     EditorArea *editorArea() const;
 

@@ -1329,7 +1329,7 @@ void PerforcePlugin::describe(const QString & source, const QString &n)
 void PerforcePlugin::submitCurrentLog()
 {
     m_submitActionTriggered = true;
-    EditorManager::closeEditor(EditorManager::currentEditor());
+    EditorManager::closeEditor(submitEditor());
 }
 
 void PerforcePlugin::cleanCommitMessageFile()

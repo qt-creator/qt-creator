@@ -681,7 +681,7 @@ void BazaarPlugin::commitFromEditor()
 {
     // Close the submit editor
     m_submitActionTriggered = true;
-    EditorManager::closeEditor();
+    EditorManager::closeEditor(submitEditor());
 }
 
 void BazaarPlugin::uncommit()
