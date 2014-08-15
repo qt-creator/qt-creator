@@ -62,6 +62,12 @@ EditorWindow::EditorWindow(QWidget *parent) :
     updateWindowTitle();
 }
 
+EditorWindow::~EditorWindow()
+{
+    disconnect(m_area, &EditorArea::windowTitleNeedsUpdate,
+               this, &EditorWindow::updateWindowTitle);
+}
+
 EditorArea *EditorWindow::editorArea() const
 {
     return m_area;
