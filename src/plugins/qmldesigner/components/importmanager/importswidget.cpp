@@ -92,6 +92,9 @@ void ImportsWidget::removeUsedImports()
 
 static bool importLess(const Import &firstImport, const Import &secondImport)
 {
+    if (firstImport.url() == secondImport.url())
+        return firstImport.toString() < secondImport.toString();
+
     if (firstImport.url() == "QtQuick")
         return true;
 
