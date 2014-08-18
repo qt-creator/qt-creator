@@ -41,8 +41,7 @@
 namespace GLSLEditor {
 namespace Internal {
 
-GlslEditor::GlslEditor(GlslEditorWidget *editor)
-    : BaseTextEditor(editor)
+GlslEditor::GlslEditor()
 {
     setContext(Core::Context(GLSLEditor::Constants::C_GLSLEDITOR_ID,
                              TextEditor::Constants::C_TEXTEDITOR));

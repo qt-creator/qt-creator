@@ -49,8 +49,7 @@ using namespace Android::Internal;
 // JavaEditor
 //
 
-JavaEditor::JavaEditor(JavaEditorWidget *editor)
-  : BaseTextEditor(editor)
+JavaEditor::JavaEditor()
 {
     setContext(Core::Context(Constants::C_JAVA_EDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
@@ -78,7 +77,7 @@ JavaEditorWidget::JavaEditorWidget()
 
 TextEditor::BaseTextEditor *JavaEditorWidget::createEditor()
 {
-    return new JavaEditor(this);
+    return new JavaEditor;
 }
 
 //
@@ -86,7 +85,6 @@ TextEditor::BaseTextEditor *JavaEditorWidget::createEditor()
 //
 
 JavaDocument::JavaDocument()
-        : TextEditor::BaseTextDocument()
 {
     setId(Constants::JAVA_EDITOR_ID);
     setMimeType(QLatin1String(Constants::JAVA_MIMETYPE));

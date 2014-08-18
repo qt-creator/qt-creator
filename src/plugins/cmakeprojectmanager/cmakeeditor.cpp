@@ -57,15 +57,13 @@ using namespace CMakeProjectManager::Internal;
 // ProFileEditorEditable
 //
 
-CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
-  : BaseTextEditor(editor)
+CMakeEditor::CMakeEditor()
 {
     setContext(Core::Context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>());
-    connect(document(), SIGNAL(changed()), this, SLOT(markAsChanged()));
 }
 
 Core::IEditor *CMakeEditor::duplicate()
@@ -157,7 +155,9 @@ CMakeEditorWidget::CMakeEditorWidget()
 
 TextEditor::BaseTextEditor *CMakeEditorWidget::createEditor()
 {
-    return new CMakeEditor(this);
+    auto editor = new CMakeEditor;
+    connect(textDocument(), &Core::IDocument::changed, editor, &CMakeEditor::markAsChanged);
+    return editor;
 }
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)

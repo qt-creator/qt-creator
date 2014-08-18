@@ -105,8 +105,7 @@ QTimer *newSingleShotTimer(QObject *parent, int msecInterval)
 namespace CppEditor {
 namespace Internal {
 
-CPPEditor::CPPEditor(CppEditorWidget *editor)
-    : BaseTextEditor(editor)
+CPPEditor::CPPEditor()
 {
     m_context.add(CppEditor::Constants::C_CPPEDITOR);
     m_context.add(ProjectExplorer::Constants::LANG_CXX);
@@ -263,7 +262,7 @@ CppEditorOutline *CppEditorWidget::outline() const
 
 TextEditor::BaseTextEditor *CppEditorWidget::createEditor()
 {
-    return new CPPEditor(this);
+    return new CPPEditor;
 }
 
 void CppEditorWidget::paste()

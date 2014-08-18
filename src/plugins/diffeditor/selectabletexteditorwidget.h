@@ -54,8 +54,7 @@ class DIFFEDITOR_EXPORT SelectableTextEditorWidget
 public:
     SelectableTextEditorWidget(QWidget *parent = 0);
     ~SelectableTextEditorWidget();
-    void setSelections(const QMap<int,
-                       QList<DiffSelection> > &selections) {
+    void setSelections(const QMap<int, QList<DiffSelection> > &selections) {
         m_selections = selections;
     }
 

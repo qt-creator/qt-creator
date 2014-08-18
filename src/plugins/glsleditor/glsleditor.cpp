@@ -232,7 +232,7 @@ QString GlslEditorWidget::wordUnderCursor() const
 
 TextEditor::BaseTextEditor *GlslEditorWidget::createEditor()
 {
-    return new GlslEditor(this);
+    return new GlslEditor;
 }
 
 void GlslEditorWidget::updateDocument()

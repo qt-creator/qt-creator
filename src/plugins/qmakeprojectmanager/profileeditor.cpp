@@ -52,8 +52,7 @@ namespace Internal {
 // ProFileEditor
 //
 
-ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
-  : BaseTextEditor(editor)
+ProFileEditor::ProFileEditor()
 {
     setContext(Core::Context(Constants::C_PROFILEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
@@ -167,7 +166,7 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
 
 TextEditor::BaseTextEditor *ProFileEditorWidget::createEditor()
 {
-    return new ProFileEditor(this);
+    return new ProFileEditor;
 }
 
 void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
@@ -180,7 +179,6 @@ void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 //
 
 ProFileDocument::ProFileDocument()
-        : TextEditor::BaseTextDocument()
 {
     setId(Constants::PROFILE_EDITOR_ID);
     setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));

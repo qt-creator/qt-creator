@@ -43,8 +43,7 @@ using namespace TextEditor;
     \ingroup Snippets
 */
 
-SnippetEditor::SnippetEditor(SnippetEditorWidget *editor)
-    : BaseTextEditor(editor)
+SnippetEditor::SnippetEditor()
 {
     setContext(Core::Context(Constants::SNIPPET_EDITOR_ID, Constants::C_TEXTEDITOR));
 }
@@ -77,5 +76,5 @@ void SnippetEditorWidget::focusOutEvent(QFocusEvent *event)
 
 BaseTextEditor *SnippetEditorWidget::createEditor()
 {
-    return new SnippetEditor(this);
+    return new SnippetEditor;
 }

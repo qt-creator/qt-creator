@@ -50,11 +50,12 @@ class CMakeEditor : public TextEditor::BaseTextEditor
     Q_OBJECT
 
 public:
-    CMakeEditor(CMakeEditorWidget *);
+    CMakeEditor();
 
     Core::IEditor *duplicate();
-
     QString contextHelpId() const;
+
+    friend class CMakeEditorWidget;
 
 private slots:
     void markAsChanged();

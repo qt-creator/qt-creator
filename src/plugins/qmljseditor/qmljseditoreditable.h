@@ -44,7 +44,7 @@ class QmlJSEditor : public TextEditor::BaseTextEditor
     Q_OBJECT
 
 public:
-    explicit QmlJSEditor(QmlJSTextEditorWidget *);
+    QmlJSEditor();
 
     Core::IEditor *duplicate();
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);

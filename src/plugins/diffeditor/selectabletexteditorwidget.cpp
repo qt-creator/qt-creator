@@ -38,13 +38,12 @@ namespace DiffEditor {
 SelectableTextEditorWidget::SelectableTextEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(parent)
 {
-    setTextDocument(TextEditor::BaseTextDocumentPtr(new TextEditor::BaseTextDocument));
+    setSimpleTextDocument("DiffEditor.UnifiedDiffEditor");
     setFrameStyle(QFrame::NoFrame);
 }
 
 SelectableTextEditorWidget::~SelectableTextEditorWidget()
 {
-
 }
 
 void SelectableTextEditorWidget::paintEvent(QPaintEvent *e)

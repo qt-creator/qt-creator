@@ -205,7 +205,7 @@ void BaseTextDocumentPrivate::onModificationChanged(bool modified)
 //
 ///////////////////////////////////////////////////////////////////////
 
-BaseTextDocument::BaseTextDocument()
+BaseTextDocument::BaseTextDocument(Id id)
     : d(new BaseTextDocumentPrivate(this))
 {
     connect(d->m_document, SIGNAL(modificationChanged(bool)), d, SLOT(onModificationChanged(bool)));
@@ -221,6 +221,9 @@ BaseTextDocument::BaseTextDocument()
     d->m_document->setDefaultTextOption(opt);
     BaseTextDocumentLayout *documentLayout = new BaseTextDocumentLayout(d->m_document);
     d->m_document->setDocumentLayout(documentLayout);
+
+    if (id.isValid())
+        setId(id);
 }
 
 BaseTextDocument::~BaseTextDocument()

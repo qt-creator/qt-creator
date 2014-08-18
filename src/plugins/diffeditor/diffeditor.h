@@ -63,7 +63,6 @@ public:
 public:
     DiffEditorController *controller() const;
 
-    // Core::IEditor
     Core::IEditor *duplicate();
 
     bool open(QString *errorString,

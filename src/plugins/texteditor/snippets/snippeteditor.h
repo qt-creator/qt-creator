@@ -46,7 +46,7 @@ class TEXTEDITOR_EXPORT SnippetEditor : public BaseTextEditor
     Q_OBJECT
 
 public:
-    SnippetEditor(SnippetEditorWidget *editorWidget);
+    SnippetEditor();
 
     Core::IEditor *duplicate() { return 0; }
 };

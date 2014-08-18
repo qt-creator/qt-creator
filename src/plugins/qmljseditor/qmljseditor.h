@@ -116,7 +116,7 @@ protected:
     void scrollContentsBy(int dx, int dy);
     void applyFontSettings();
     TextEditor::BaseTextEditor *createEditor();
-    void createToolBar(QmlJSEditor *editable);
+    void createToolBar();
     TextEditor::BaseTextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
                                                       bool resolveTarget = true,
                                                       bool inNextSplit = false);

@@ -65,7 +65,7 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager)
 Core::IEditor *ProjectFilesFactory::createEditor()
 {
     auto widget = new ProjectFilesEditorWidget;
-    widget->setTextDocument(BaseTextDocumentPtr(new BaseTextDocument));
+    widget->setSimpleTextDocument(Constants::FILES_EDITOR_ID);
     TextEditorSettings::initializeEditor(widget);
     return widget->editor();
 }
@@ -76,10 +76,8 @@ Core::IEditor *ProjectFilesFactory::createEditor()
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
-  : BaseTextEditor(editor)
+ProjectFilesEditor::ProjectFilesEditor()
 {
-    document()->setId(Constants::FILES_EDITOR_ID);
     setContext(Core::Context(Constants::C_FILESEDITOR));
     setDuplicateSupported(true);
 }
@@ -104,7 +102,7 @@ ProjectFilesEditorWidget::ProjectFilesEditorWidget()
 
 BaseTextEditor *ProjectFilesEditorWidget::createEditor()
 {
-    return new ProjectFilesEditor(this);
+    return new ProjectFilesEditor;
 }
 
 } // namespace Internal

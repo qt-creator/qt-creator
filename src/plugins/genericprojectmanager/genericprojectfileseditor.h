@@ -65,7 +65,7 @@ class ProjectFilesEditor : public TextEditor::BaseTextEditor
     Q_OBJECT
 
 public:
-    ProjectFilesEditor(ProjectFilesEditorWidget *editorWidget);
+    ProjectFilesEditor();
 
     Core::IEditor *duplicate();
 };

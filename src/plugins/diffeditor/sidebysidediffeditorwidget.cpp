@@ -78,10 +78,8 @@ class SideDiffEditor : public BaseTextEditor
 {
     Q_OBJECT
 public:
-    SideDiffEditor(BaseTextEditorWidget *editorWidget)
-        : BaseTextEditor(editorWidget)
+    SideDiffEditor()
     {
-        document()->setId("DiffEditor.SideDiffEditor");
         connect(this, SIGNAL(tooltipRequested(TextEditor::BaseTextEditor*,QPoint,int)),
                 this, SLOT(slotTooltipRequested(TextEditor::BaseTextEditor*,QPoint,int)));
     }
@@ -170,7 +168,7 @@ protected:
         return SelectableTextEditorWidget::extraAreaWidth(markWidthPtr);
     }
     void applyFontSettings();
-    BaseTextEditor *createEditor() { return new SideDiffEditor(this); }
+    BaseTextEditor *createEditor() { return new SideDiffEditor; }
     virtual QString lineNumber(int blockNumber) const;
     virtual int lineNumberDigits() const;
     virtual bool selectionVisible(int blockNumber) const;
@@ -326,6 +324,7 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
       m_lineNumberDigits(1),
       m_inPaintEvent(false)
 {
+    textDocument()->setId("DiffEditor.SideDiffEditor");
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = true;

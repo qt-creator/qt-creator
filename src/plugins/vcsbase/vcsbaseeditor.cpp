@@ -155,7 +155,7 @@ class VcsBaseEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 public:
-    VcsBaseEditor(VcsBaseEditorWidget *, const VcsBaseEditorParameters *type);
+    explicit VcsBaseEditor(const VcsBaseEditorParameters *type);
 
 signals:
     void describeRequested(const QString &source, const QString &change);
@@ -163,9 +163,7 @@ signals:
                                    const QString &change, int line);
 };
 
-VcsBaseEditor::VcsBaseEditor(VcsBaseEditorWidget *widget,
-                             const VcsBaseEditorParameters *type)  :
-    BaseTextEditor(widget)
+VcsBaseEditor::VcsBaseEditor(const VcsBaseEditorParameters *type)
 {
     setContext(Core::Context(type->context, TextEditor::Constants::C_TEXTEDITOR));
 }
@@ -821,7 +819,7 @@ bool VcsBaseEditorWidget::isModified() const
 
 TextEditor::BaseTextEditor *VcsBaseEditorWidget::createEditor()
 {
-    TextEditor::BaseTextEditor *editor = new VcsBaseEditor(this, d->m_parameters);
+    TextEditor::BaseTextEditor *editor = new VcsBaseEditor(d->m_parameters);
 
     // Pass on signals.
     connect(this, SIGNAL(describeRequested(QString,QString)),

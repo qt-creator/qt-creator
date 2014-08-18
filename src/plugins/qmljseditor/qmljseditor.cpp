@@ -98,7 +98,6 @@ namespace QmlJSEditor {
 namespace Internal {
 
 QmlJSTextEditorWidget::QmlJSTextEditorWidget(TextEditor::BaseTextDocumentPtr doc)
-    : TextEditor::BaseTextEditorWidget(0)
 {
     setTextDocument(doc);
 
@@ -151,6 +150,7 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(TextEditor::BaseTextDocumentPtr doc
             SLOT(onRefactorMarkerClicked(TextEditor::RefactorMarker)));
 
     setRequestMarkEnabled(true);
+    createToolBar();
 }
 
 QmlJSTextEditorWidget::~QmlJSTextEditorWidget()
@@ -529,12 +529,10 @@ bool QmlJSTextEditorWidget::isClosingBrace(const QList<Token> &tokens) const
 
 TextEditor::BaseTextEditor *QmlJSTextEditorWidget::createEditor()
 {
-    QmlJSEditor *editable = new QmlJSEditor(this);
-    createToolBar(editable);
-    return editable;
+    return new QmlJSEditor;
 }
 
-void QmlJSTextEditorWidget::createToolBar(QmlJSEditor *editor)
+void QmlJSTextEditorWidget::createToolBar()
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
@@ -568,7 +566,7 @@ void QmlJSTextEditorWidget::createToolBar(QmlJSEditor *editor)
 
     connect(this, SIGNAL(cursorPositionChanged()), m_updateOutlineIndexTimer, SLOT(start()));
 
-    editor->editorWidget()->insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, m_outlineCombo);
+    insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, m_outlineCombo);
 }
 
 TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const QTextCursor &cursor,

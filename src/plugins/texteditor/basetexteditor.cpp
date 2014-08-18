@@ -662,6 +662,11 @@ BaseTextEditorWidget::~BaseTextEditorWidget()
     d = 0;
 }
 
+void BaseTextEditorWidget::setSimpleTextDocument(Id id)
+{
+    setTextDocument(BaseTextDocumentPtr(new BaseTextDocument(id)));
+}
+
 void BaseTextEditorWidget::print(QPrinter *printer)
 {
     const bool oldFullPage = printer->fullPage();
@@ -874,7 +879,10 @@ int BaseTextEditorWidgetPrivate::visualIndent(const QTextBlock &block) const
 BaseTextEditor *BaseTextEditorWidget::editor() const
 {
     if (!d->m_editor) {
-        d->m_editor = const_cast<BaseTextEditorWidget *>(this)->createEditor();
+        auto that = const_cast<BaseTextEditorWidget *>(this);
+        d->m_editor = that->createEditor();
+        if (!d->m_editor->widget())
+            d->m_editor->setEditorWidget(that);
         d->m_codeAssistant->configure(d->m_editor);
     }
     return d->m_editor;
@@ -6473,7 +6481,8 @@ QColor BaseTextEditorWidget::replacementPenColor(int blockNumber) const
 
 BaseTextEditor *BaseTextEditorWidget::createEditor()
 {
-    auto editor = new BaseTextEditor(this);
+    auto editor = new BaseTextEditor;
+    editor->setEditorWidget(this);
     editor->setContext(Core::Context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                       TextEditor::Constants::C_TEXTEDITOR));
     editor->setDuplicateSupported(true);
@@ -6510,13 +6519,16 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 }
 
 
-BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *widget)
+BaseTextEditor::BaseTextEditor()
     : d(new BaseTextEditorPrivate)
+{
+    d->m_completionAssistProvider = [] () -> CompletionAssistProvider * { return 0; };
+}
+
+void BaseTextEditor::setEditorWidget(BaseTextEditorWidget *widget)
 {
     setWidget(widget);
     d->m_editorWidget = widget;
-
-    d->m_completionAssistProvider = [] () -> CompletionAssistProvider * { return 0; };
 }
 
 BaseTextEditor::~BaseTextEditor()

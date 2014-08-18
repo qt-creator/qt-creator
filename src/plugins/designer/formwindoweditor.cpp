@@ -50,10 +50,10 @@ struct FormWindowEditorPrivate
     Internal::DesignerXmlEditorWidget *m_widget;
 };
 
-FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditorWidget *editor) :
-    TextEditor::BaseTextEditor(editor),
-    d(new FormWindowEditorPrivate)
+FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditorWidget *editor)
+    : d(new FormWindowEditorPrivate)
 {
+    setEditorWidget(editor);
     d->m_widget = editor;
     setDuplicateSupported(true);
     setContext(Core::Context(Designer::Constants::K_DESIGNER_XML_EDITOR_ID,

@@ -50,7 +50,6 @@ namespace CppEditor {
 namespace Internal {
 
 class CppEditorOutline;
-class CppEditorWidget;
 class CppEditorWidgetPrivate;
 class FollowSymbolUnderCursor;
 
@@ -59,7 +58,7 @@ class CPPEditor : public TextEditor::BaseTextEditor
     Q_OBJECT
 
 public:
-    CPPEditor(CppEditorWidget *);
+    CPPEditor();
 
     Core::IEditor *duplicate() QTC_OVERRIDE;
 

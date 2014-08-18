@@ -32,6 +32,7 @@
 
 #include "texteditor_global.h"
 
+#include <coreplugin/id.h>
 #include <coreplugin/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -64,7 +65,7 @@ class TEXTEDITOR_EXPORT BaseTextDocument : public Core::TextDocument
     Q_OBJECT
 
 public:
-    BaseTextDocument();
+    explicit BaseTextDocument(Core::Id id = Core::Id());
     virtual ~BaseTextDocument();
 
     static QMap<QString, QString> openedTextDocumentContents();

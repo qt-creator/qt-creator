@@ -83,12 +83,7 @@ public slots:
     void setDisplaySettings(const DisplaySettings &ds);
 
 protected:
-    BaseTextEditor *createEditor()
-    {
-        BaseTextEditor *editor = new BaseTextEditor(this);
-        editor->document()->setId("DiffEditor.DescriptionEditor");
-        return editor;
-    }
+    BaseTextEditor *createEditor() { return new BaseTextEditor; }
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
 
@@ -103,7 +98,7 @@ private:
 DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(parent)
 {
-    setTextDocument(BaseTextDocumentPtr(new BaseTextDocument));
+    setSimpleTextDocument("DiffEditor.DescriptionEditor");
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = false;

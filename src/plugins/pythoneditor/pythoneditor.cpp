@@ -47,8 +47,7 @@
 namespace PythonEditor {
 namespace Internal {
 
-PythonEditor::PythonEditor(PythonEditorWidget *editorWidget)
-    :BaseTextEditor(editorWidget)
+PythonEditor::PythonEditor()
 {
     setContext(Core::Context(Constants::C_PYTHONEDITOR_ID,
                              TextEditor::Constants::C_TEXTEDITOR));

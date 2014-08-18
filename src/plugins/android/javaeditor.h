@@ -38,14 +38,13 @@ namespace Android {
 namespace Internal {
 
 class JavaEditorFactory;
-class JavaEditorWidget;
 
 class JavaEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    JavaEditor(JavaEditorWidget *);
+    JavaEditor();
 
     Core::IEditor *duplicate();
     TextEditor::CompletionAssistProvider *completionAssistProvider();

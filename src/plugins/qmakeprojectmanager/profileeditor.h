@@ -45,7 +45,7 @@ class ProFileEditor : public TextEditor::BaseTextEditor
     Q_OBJECT
 
 public:
-    ProFileEditor(ProFileEditorWidget *);
+    ProFileEditor();
 
     Core::IEditor *duplicate();
 };

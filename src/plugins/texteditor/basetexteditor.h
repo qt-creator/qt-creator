@@ -117,8 +117,10 @@ public:
         EndOfDoc = 5
     };
 
-    BaseTextEditor(BaseTextEditorWidget *editorWidget);
+    BaseTextEditor();
     ~BaseTextEditor();
+
+    void setEditorWidget(BaseTextEditorWidget *editorWidget);
 
     enum MarkRequestKind {
         BreakpointRequest,
@@ -216,6 +218,7 @@ public:
     ~BaseTextEditorWidget();
 
     void setTextDocument(const BaseTextDocumentPtr &doc);
+    void setSimpleTextDocument(Core::Id id); // Convenience.
 
     BaseTextDocument *textDocument() const;
     BaseTextDocumentPtr textDocumentPtr() const;

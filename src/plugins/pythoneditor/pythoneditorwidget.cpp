@@ -59,7 +59,7 @@ PythonEditorWidget::PythonEditorWidget(TextEditor::BaseTextDocumentPtr doc)
 
 TextEditor::BaseTextEditor *PythonEditorWidget::createEditor()
 {
-    return new PythonEditor(this);
+    return new PythonEditor;
 }
 
 } // namespace Internal
