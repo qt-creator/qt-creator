@@ -922,8 +922,31 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
     return 0;
 }
 
-ClassOrNamespace *ClassOrNamespace::findSpecializationWithPointer(const TemplateNameId *templId,
-                                                         const TemplateNameIdTable &specializations)
+static ClassOrNamespace *findSpecializationWithMatchingTemplateArgument(const Name *argumentName,
+                                                                        ClassOrNamespace *reference)
+{
+    foreach (Symbol *s, reference->symbols()) {
+        if (Class *clazz = s->asClass()) {
+            if (Template *templateSpecialization = clazz->enclosingTemplate()) {
+                const unsigned argumentCountOfSpecialization
+                                    = templateSpecialization->templateParameterCount();
+                for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
+                    if (TypenameArgument *tParam
+                            = templateSpecialization->templateParameterAt(i)->asTypenameArgument()) {
+                        if (const Name *name = tParam->name()) {
+                            if (compareName(name, argumentName))
+                                return reference;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+ClassOrNamespace *ClassOrNamespace::findSpecialization(const TemplateNameId *templId,
+                                                       const TemplateNameIdTable &specializations)
 {
     // we go through all specialization and try to find that one with template argument as pointer
     for (TemplateNameIdTable::const_iterator cit = specializations.begin();
@@ -948,6 +971,21 @@ ClassOrNamespace *ClassOrNamespace::findSpecializationWithPointer(const Template
                 if (specPointer && initializationTemplateArgument.type()->isPointerType()
                         && specPointer->elementType().type()->isNamedType()) {
                     return cit->second;
+                }
+
+                ArrayType *specArray
+                        = specializationTemplateArgument.type()->asArrayType();
+                if (specArray && initializationTemplateArgument.type()->isArrayType()) {
+                    if (const NamedType *argumentNamedType
+                            = specArray->elementType().type()->asNamedType()) {
+                        if (const Name *argumentName = argumentNamedType->name()) {
+                            if (ClassOrNamespace *reference
+                                    = findSpecializationWithMatchingTemplateArgument(
+                                            argumentName, cit->second)) {
+                                return reference;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1026,7 +1064,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                 reference = cit->second;
             } else {
                 ClassOrNamespace *specializationWithPointer
-                        = findSpecializationWithPointer(templId, specializations);
+                        = findSpecialization(templId, specializations);
                 if (specializationWithPointer)
                     reference = specializationWithPointer;
                 // TODO: find the best specialization(probably partial) for this instantiation
