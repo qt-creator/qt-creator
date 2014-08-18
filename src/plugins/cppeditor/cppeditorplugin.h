@@ -201,13 +201,14 @@ private slots:
     void test_quickfix_ExtractLiteralAsParameter_typeDeduction();
     void test_quickfix_ExtractLiteralAsParameter_freeFunction_separateFiles();
     void test_quickfix_ExtractLiteralAsParameter_memberFunction_separateFiles();
+    void test_quickfix_ExtractLiteralAsParameter_notTriggeringForInvalidCode();
 
     void test_quickfix_InsertVirtualMethods_data();
     void test_quickfix_InsertVirtualMethods();
     void test_quickfix_InsertVirtualMethods_implementationFile();
     void test_quickfix_InsertVirtualMethods_BaseClassInNamespace();
 
-    // tests for "Include Hiererchy"
+    // tests for "Include Hierarchy"
     void test_includehierarchy_data();
     void test_includehierarchy();
 
