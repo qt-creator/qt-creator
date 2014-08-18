@@ -71,7 +71,7 @@ def main():
         return
     for i in range(4):
         type(editorWidget, "<Left>")
-    type(editorWidget, "<Ctrl+Shift+U>")
+    type(editorWidget, "<Ctrl+Shift+u>")
     # wait until search finished and verify search results
     waitForSearchResults()
     validateSearchResult(3)

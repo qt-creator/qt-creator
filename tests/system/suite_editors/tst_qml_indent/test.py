@@ -65,9 +65,9 @@ def prepareQmlFile():
             markText(editor, "Ctrl+End")
         # unmark the last line
         type(editor, "<Shift+Up>")
-        type(editor, "<Ctrl+C>")
+        type(editor, "<Ctrl+c>")
         for j in range(10):
-            type(editor, "<Ctrl+V>")
+            type(editor, "<Ctrl+v>")
     # assume the current editor content to be indented correctly
     originalText = "%s" % editor.plainText
     indented = editor.plainText
@@ -80,10 +80,10 @@ def testReIndent(originalText):
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     correctIndented = len(originalText)
     incorrectIndented = correctIndented + 4004
-    type(editor, "<Ctrl+A>")
+    type(editor, "<Ctrl+a>")
     test.log("calling re-indent")
     starttime = datetime.utcnow()
-    type(editor, "<Ctrl+I>")
+    type(editor, "<Ctrl+i>")
     waitFor("len(str(editor.plainText)) in (incorrectIndented, correctIndented)", 25000)
     endtime = datetime.utcnow()
     test.xverify(originalText == str(editor.plainText),

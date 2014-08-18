@@ -74,13 +74,13 @@ def main():
     if not verifyIndentation(editorArea):
         return
     # cancel indentation
-    type(editorArea, "<Ctrl+A>")
+    type(editorArea, "<Ctrl+a>")
     for i in range(5):
         type(editorArea, "<Shift+Backtab>")
     # select unindented block
-    type(editorArea, "<Ctrl+A>")
+    type(editorArea, "<Ctrl+a>")
     # do indentation
-    type(editorArea, "<Ctrl+I>")
+    type(editorArea, "<Ctrl+i>")
     # verify invoked indentation
     if not verifyIndentation(editorArea):
         return

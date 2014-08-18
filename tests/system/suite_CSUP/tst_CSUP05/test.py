@@ -60,7 +60,7 @@ def main():
         return
     type(editorWidget, "<Left>")
     markText(editorWidget, "Left", 6)
-    type(editorWidget, "<Ctrl+F>")
+    type(editorWidget, "<Ctrl+f>")
     # verify if find toolbar exists and if search text contains selected word
     test.verify(checkIfObjectExists(":*Qt Creator.Find_Find::Internal::FindToolBar"),
                 "Verifying if: Find/Replace pane is displayed at the bottom of the view.")

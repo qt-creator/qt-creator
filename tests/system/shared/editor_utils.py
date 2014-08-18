@@ -115,7 +115,7 @@ def markText(editor, direction, typeCount=1):
 
 # works for all standard editors
 def replaceEditorContent(editor, newcontent):
-    type(editor, "<Ctrl+A>")
+    type(editor, "<Ctrl+a>")
     type(editor, "<Delete>")
     type(editor, newcontent)
 

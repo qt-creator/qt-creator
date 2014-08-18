@@ -289,7 +289,7 @@ def addHelpDocumentation(which):
     if listWidget.count > 0:
         rect = listWidget.visualItemRect(listWidget.item(0))
         mouseClick(listWidget, rect.x+5, rect.y+5, 0, Qt.LeftButton)
-        type(listWidget, "<Ctrl+A>")
+        type(listWidget, "<Ctrl+a>")
         mouseClick(waitForObject("{type='QPushButton' name='removeButton' visible='1'}"), 5, 5, 0, Qt.LeftButton)
     for qch in which:
         clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
