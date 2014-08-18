@@ -39,6 +39,9 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/id.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
@@ -68,6 +71,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QVariantMap>
 
 using namespace Core;
@@ -229,6 +233,27 @@ private:
     bool m_wasInDocumentManager;
 };
 
+bool QbsProject::ensureWriteableQbsFile(const QString &file)
+{
+    // Ensure that the file is not read only
+    QFileInfo fi(file);
+    if (!fi.isWritable()) {
+        // Try via vcs manager
+        Core::IVersionControl *versionControl =
+            Core::VcsManager::findVersionControlForDirectory(fi.absolutePath());
+        if (!versionControl || !versionControl->vcsOpen(file)) {
+            bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
+            if (!makeWritable) {
+                QMessageBox::warning(Core::ICore::mainWindow(),
+                                     tr("Failed!"),
+                                     tr("Could not write project file %1.").arg(file));
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
         const qbs::ProductData &productData, const qbs::GroupData &groupData, QStringList *notAdded)
 {
@@ -236,6 +261,7 @@ bool QbsProject::addFilesToProduct(QbsBaseProjectNode *node, const QStringList &
     QStringList allPaths = groupData.allFilePaths();
     const QString productFilePath = productData.location().fileName();
     ChangeExpector expector(productFilePath, m_qbsDocuments);
+    ensureWriteableQbsFile(productFilePath);
     foreach (const QString &path, filePaths) {
         qbs::ErrorInfo err = m_qbsProject.addFiles(productData, groupData, QStringList() << path);
         if (err.hasError()) {
@@ -261,6 +287,7 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
     QStringList allPaths = groupData.allFilePaths();
     const QString productFilePath = productData.location().fileName();
     ChangeExpector expector(productFilePath, m_qbsDocuments);
+    ensureWriteableQbsFile(productFilePath);
     foreach (const QString &path, filePaths) {
         qbs::ErrorInfo err
                 = m_qbsProject.removeFiles(productData, groupData, QStringList() << path);

@@ -135,6 +135,8 @@ private:
     void updateDeploymentInfo(const qbs::Project &project);
     void updateBuildTargetData();
 
+    static bool ensureWriteableQbsFile(const QString &file);
+
     QbsManager *const m_manager;
     const QString m_projectName;
     const QString m_fileName;
