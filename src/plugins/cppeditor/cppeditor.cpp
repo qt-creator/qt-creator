@@ -1029,22 +1029,24 @@ void CPPEditorWidget::updateFunctionDeclDefLinkNow()
 {
     if (Core::EditorManager::currentEditor() != editor())
         return;
+    const Snapshot semanticSnapshot = d->m_lastSemanticInfo.snapshot;
+    const Document::Ptr semanticDoc = d->m_lastSemanticInfo.doc;
     if (d->m_declDefLink) {
         // update the change marker
-        const Utils::ChangeSet changes = d->m_declDefLink->changes(d->m_lastSemanticInfo.snapshot);
+        const Utils::ChangeSet changes = d->m_declDefLink->changes(semanticSnapshot);
         if (changes.isEmpty())
             d->m_declDefLink->hideMarker(this);
         else
             d->m_declDefLink->showMarker(this);
         return;
     }
-    if (!d->m_lastSemanticInfo.doc || isOutdated())
+    if (semanticDoc.isNull() || isOutdated())
         return;
 
     Snapshot snapshot = CppModelManagerInterface::instance()->snapshot();
-    snapshot.insert(d->m_lastSemanticInfo.doc);
+    snapshot.insert(semanticDoc);
 
-    d->m_declDefLinkFinder->startFindLinkAt(textCursor(), d->m_lastSemanticInfo.doc, snapshot);
+    d->m_declDefLinkFinder->startFindLinkAt(textCursor(), semanticDoc, snapshot);
 }
 
 void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link)
