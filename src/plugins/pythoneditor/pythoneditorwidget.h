@@ -40,15 +40,10 @@ class PythonEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    PythonEditorWidget(TextEditor::BaseTextDocument *doc, QWidget *parent);
-    PythonEditorWidget(PythonEditorWidget *other);
+    PythonEditorWidget(TextEditor::BaseTextDocumentPtr doc);
 
 protected:
     TextEditor::BaseTextEditor *createEditor();
-
-private:
-    PythonEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
-    void ctor();
 };
 
 } // namespace Internal

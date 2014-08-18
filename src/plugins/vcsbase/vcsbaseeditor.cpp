@@ -90,6 +90,8 @@
     \sa VcsBase::VcsBaseEditorWidget
 */
 
+using namespace TextEditor;
+
 namespace VcsBase {
 
 /*!
@@ -649,12 +651,14 @@ QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
 */
 
 VcsBaseEditorWidget::VcsBaseEditorWidget(const VcsBaseEditorParameters *type, QWidget *parent)
-  : BaseTextEditorWidget(new TextEditor::BaseTextDocument, parent),
+  : BaseTextEditorWidget(parent),
     d(new Internal::VcsBaseEditorWidgetPrivate(this, type))
 {
+    BaseTextDocumentPtr doc(new BaseTextDocument);
+    doc->setId(type->id);
+    doc->setMimeType(QLatin1String(d->m_parameters->mimeType));
+    setTextDocument(doc);
     viewport()->setMouseTracking(true);
-    textDocument()->setId(type->id);
-    textDocument()->setMimeType(QLatin1String(d->m_parameters->mimeType));
 }
 
 void VcsBaseEditorWidget::setDiffFilePattern(const QRegExp &pattern)

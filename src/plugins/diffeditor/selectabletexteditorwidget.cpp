@@ -36,8 +36,9 @@
 namespace DiffEditor {
 
 SelectableTextEditorWidget::SelectableTextEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(new TextEditor::BaseTextDocument, parent)
+    : BaseTextEditorWidget(parent)
 {
+    setTextDocument(TextEditor::BaseTextDocumentPtr(new TextEditor::BaseTextDocument));
     setFrameStyle(QFrame::NoFrame);
 }
 

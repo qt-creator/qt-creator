@@ -111,7 +111,7 @@ public:
     // Deletes an existing instance if there is one.
     static void deleteInstance();
 
-    EditorData createEditor(QWidget *parent = 0);
+    EditorData createEditor();
 
     inline QDesignerFormEditorInterface *designerEditor() const { return m_formeditor; }
     inline QWidget * const*designerSubWindows() const { return m_designerSubWindows; }

@@ -566,17 +566,15 @@ QString BaseTextEditorWidget::convertToPlainText(const QString &txt)
 
 static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";
 
-BaseTextEditorWidget::BaseTextEditorWidget(BaseTextDocument *doc, QWidget *parent)
+BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     : QPlainTextEdit(parent)
 {
     d = new BaseTextEditorWidgetPrivate(this);
-    d->ctor(QSharedPointer<BaseTextDocument>(doc));
 }
 
-BaseTextEditorWidget::BaseTextEditorWidget(BaseTextEditorWidget *other)
+void BaseTextEditorWidget::setTextDocument(const QSharedPointer<BaseTextDocument> &doc)
 {
-    d = new BaseTextEditorWidgetPrivate(this);
-    d->ctor(other->d->m_document);
+    d->ctor(doc);
 }
 
 void BaseTextEditorWidgetPrivate::ctor(const QSharedPointer<BaseTextDocument> &doc)
@@ -998,6 +996,11 @@ void BaseTextEditorWidgetPrivate::foldLicenseHeader()
 BaseTextDocument *BaseTextEditorWidget::textDocument() const
 {
     return d->m_document.data();
+}
+
+BaseTextDocumentPtr BaseTextEditorWidget::textDocumentPtr() const
+{
+    return d->m_document;
 }
 
 void BaseTextEditorWidgetPrivate::editorContentsChange(int position, int charsRemoved, int charsAdded)
@@ -2806,7 +2809,7 @@ AutoCompleter *BaseTextEditor::autoCompleter() const
 void BaseTextEditorWidgetPrivate::setupDocumentSignals()
 {
     QTextDocument *doc = m_document->document();
-    q->setDocument(doc);
+    q->QPlainTextEdit::setDocument(doc);
     q->setCursorWidth(2); // Applies to the document layout
 
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
@@ -7096,7 +7099,8 @@ void BaseTextEditorWidget::setupAsPlainEditor()
 
 IEditor *BaseTextEditor::duplicate()
 {
-    auto newWidget = new BaseTextEditorWidget(editorWidget());
+    auto newWidget = new BaseTextEditorWidget(0);
+    newWidget->setTextDocument(editorWidget()->textDocumentPtr());
     newWidget->setupAsPlainEditor();
     TextEditorSettings::initializeEditor(newWidget);
     auto editor = newWidget->editor();

@@ -66,6 +66,7 @@ ProFileEditorFactory::ProFileEditorFactory(QmakeManager *manager) :
 Core::IEditor *ProFileEditorFactory::createEditor()
 {
     ProFileEditorWidget *editor = new ProFileEditorWidget;
+    editor->setTextDocument(TextEditor::BaseTextDocumentPtr(new ProFileDocument));
     TextEditor::TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }

@@ -57,8 +57,7 @@ class DesignerXmlEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 public:
-    explicit DesignerXmlEditorWidget(QDesignerFormWindowInterface *form,
-                               QWidget *parent = 0);
+    explicit DesignerXmlEditorWidget(QDesignerFormWindowInterface *form);
 
     FormWindowEditor *designerEditor() const;
     Internal::FormWindowFile *formWindowFile() const;

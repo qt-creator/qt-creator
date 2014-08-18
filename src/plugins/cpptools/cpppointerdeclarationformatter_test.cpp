@@ -102,9 +102,10 @@ public:
         QVERIFY(ast);
 
         // Open file
-        auto textDocument = new TextEditor::BaseTextDocument;
+        TextEditor::BaseTextDocumentPtr textDocument(new TextEditor::BaseTextDocument);
         textDocument->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
-        TextEditor::BaseTextEditorWidget editorWidget(textDocument, 0);
+        TextEditor::BaseTextEditorWidget editorWidget(0);
+        editorWidget.setTextDocument(textDocument);
         editorWidget.setupAsPlainEditor();
         QString error;
         editorWidget.open(&error, document->fileName(), document->fileName());

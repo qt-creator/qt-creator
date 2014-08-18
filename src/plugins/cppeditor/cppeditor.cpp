@@ -175,20 +175,10 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
 {
 }
 
-CppEditorWidget::CppEditorWidget(QWidget *parent)
-    : TextEditor::BaseTextEditorWidget(new CPPEditorDocument(), parent)
+CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc)
+    : TextEditor::BaseTextEditorWidget(0)
 {
-    ctor();
-}
-
-CppEditorWidget::CppEditorWidget(CppEditorWidget *other)
-    : TextEditor::BaseTextEditorWidget(other)
-{
-    ctor();
-}
-
-void CppEditorWidget::ctor()
-{
+    setTextDocument(doc);
     d.reset(new CppEditorWidgetPrivate(this));
 
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
@@ -781,8 +771,7 @@ void CppEditorWidget::keyPressEvent(QKeyEvent *e)
 
 Core::IEditor *CPPEditor::duplicate()
 {
-    CppEditorWidget *newEditor = new CppEditorWidget(
-                qobject_cast<CppEditorWidget *>(editorWidget()));
+    CppEditorWidget *newEditor = new CppEditorWidget(editorWidget()->textDocumentPtr());
     CppEditorPlugin::instance()->initializeEditor(newEditor);
     return newEditor->editor();
 }

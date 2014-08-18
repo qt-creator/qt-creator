@@ -61,10 +61,11 @@ PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
 
 Core::IEditor *PlainTextEditorFactory::createEditor()
 {
-    auto doc = new BaseTextDocument;
+    BaseTextDocumentPtr doc(new BaseTextDocument);
     doc->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     doc->setIndenter(new NormalIndenter);
-    auto widget = new BaseTextEditorWidget(doc, 0);
+    auto widget = new BaseTextEditorWidget(0);
+    widget->setTextDocument(doc);
     widget->setupAsPlainEditor();
     TextEditorSettings::initializeEditor(widget);
     connect(widget, SIGNAL(configured(Core::IEditor*)),

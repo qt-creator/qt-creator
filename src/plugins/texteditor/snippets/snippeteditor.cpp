@@ -50,9 +50,11 @@ SnippetEditor::SnippetEditor(SnippetEditorWidget *editor)
 }
 
 SnippetEditorWidget::SnippetEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(new BaseTextDocument, parent)
+    : BaseTextEditorWidget(parent)
 {
-    textDocument()->setId(Constants::SNIPPET_EDITOR_ID);
+    BaseTextDocumentPtr doc(new BaseTextDocument);
+    doc->setId(Constants::SNIPPET_EDITOR_ID);
+    setTextDocument(doc);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setHighlightCurrentLine(false);
     setLineNumbersVisible(false);

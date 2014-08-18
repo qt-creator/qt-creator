@@ -49,6 +49,7 @@ JavaEditorFactory::JavaEditorFactory()
 Core::IEditor *JavaEditorFactory::createEditor()
 {
     JavaEditorWidget *editor = new JavaEditorWidget;
+    editor->setTextDocument(TextEditor::BaseTextDocumentPtr(new JavaDocument));
     TextEditor::TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }

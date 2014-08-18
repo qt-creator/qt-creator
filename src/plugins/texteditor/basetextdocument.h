@@ -38,6 +38,7 @@
 
 #include <QList>
 #include <QMap>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;
@@ -146,6 +147,8 @@ private:
 
     BaseTextDocumentPrivate *d;
 };
+
+typedef QSharedPointer<BaseTextDocument> BaseTextDocumentPtr;
 
 } // namespace TextEditor
 

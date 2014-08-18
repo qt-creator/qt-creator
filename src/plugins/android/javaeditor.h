@@ -56,14 +56,10 @@ class JavaEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    JavaEditorWidget(QWidget *parent = 0);
-    JavaEditorWidget(JavaEditorWidget *other);
+    JavaEditorWidget();
 
 protected:
     TextEditor::BaseTextEditor *createEditor();
-
-private:
-    JavaEditorWidget(BaseTextEditorWidget *); // avoid stupidity
 };
 
 class JavaDocument : public TextEditor::BaseTextDocument

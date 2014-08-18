@@ -39,8 +39,6 @@ namespace GenericProjectManager {
 namespace Internal {
 
 class Manager;
-class ProjectFilesEditor;
-class ProjectFilesEditorWidget;
 
 class ProjectFilesFactory: public Core::IEditorFactory
 {
@@ -52,6 +50,16 @@ public:
     Core::IEditor *createEditor();
 };
 
+class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget
+{
+    Q_OBJECT
+
+public:
+    ProjectFilesEditorWidget();
+
+    TextEditor::BaseTextEditor *createEditor();
+};
+
 class ProjectFilesEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
@@ -60,17 +68,6 @@ public:
     ProjectFilesEditor(ProjectFilesEditorWidget *editorWidget);
 
     Core::IEditor *duplicate();
-};
-
-class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget
-{
-    Q_OBJECT
-
-public:
-    ProjectFilesEditorWidget(TextEditor::BaseTextDocument *doc, QWidget *parent);
-    ProjectFilesEditorWidget(BaseTextEditorWidget *other);
-
-    TextEditor::BaseTextEditor *createEditor();
 };
 
 } // namespace Internal

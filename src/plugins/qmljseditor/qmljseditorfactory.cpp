@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmljseditorfactory.h"
+#include "qmljseditordocument.h"
 #include "qmljseditoreditable.h"
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
@@ -64,7 +65,7 @@ QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
 
 Core::IEditor *QmlJSEditorFactory::createEditor()
 {
-    QmlJSTextEditorWidget *rc = new QmlJSTextEditorWidget();
+    QmlJSTextEditorWidget *rc = new QmlJSTextEditorWidget(TextEditor::BaseTextDocumentPtr(new QmlJSEditorDocument));
     TextEditor::TextEditorSettings::initializeEditor(rc);
     return rc->editor();
 }

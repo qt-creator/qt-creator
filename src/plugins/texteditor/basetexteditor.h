@@ -212,11 +212,13 @@ class TEXTEDITOR_EXPORT BaseTextEditorWidget : public QPlainTextEdit
     Q_PROPERTY(int verticalBlockSelectionLastColumn READ verticalBlockSelectionLastColumn)
 
 public:
-    BaseTextEditorWidget(BaseTextDocument *doc, QWidget *parent);
-    BaseTextEditorWidget(BaseTextEditorWidget *other);
+    BaseTextEditorWidget(QWidget *parent = 0);
     ~BaseTextEditorWidget();
 
+    void setTextDocument(const BaseTextDocumentPtr &doc);
+
     BaseTextDocument *textDocument() const;
+    BaseTextDocumentPtr textDocumentPtr() const;
 
     // IEditor
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);

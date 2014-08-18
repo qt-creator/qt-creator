@@ -663,7 +663,7 @@ Command *FormEditorW::addToolAction(QAction *a, const Context &context, Id id,
     return command;
 }
 
-EditorData FormEditorW::createEditor(QWidget *parent)
+EditorData FormEditorW::createEditor()
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormEditorW::createEditor";
@@ -683,7 +683,7 @@ EditorData FormEditorW::createEditor(QWidget *parent)
     qdesigner_internal::FormWindowBase::setupDefaultAction(form);
 #endif
     data.widgetHost = new SharedTools::WidgetHost( /* parent */ 0, form);
-    DesignerXmlEditorWidget *xmlEditor = new DesignerXmlEditorWidget(form, parent);
+    DesignerXmlEditorWidget *xmlEditor = new DesignerXmlEditorWidget(form);
     TextEditor::TextEditorSettings::initializeEditor(xmlEditor);
     data.formWindowEditor = xmlEditor->designerEditor();
     connect(data.formWindowEditor->document(), SIGNAL(filePathChanged(QString,QString)),

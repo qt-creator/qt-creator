@@ -74,8 +74,7 @@ class QmlJSTextEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    QmlJSTextEditorWidget(QWidget *parent = 0);
-    QmlJSTextEditorWidget(QmlJSTextEditorWidget *other);
+    QmlJSTextEditorWidget(TextEditor::BaseTextDocumentPtr doc);
     ~QmlJSTextEditorWidget();
 
     QmlJSEditorDocument *qmlJsEditorDocument() const;
@@ -124,8 +123,6 @@ protected:
     QString foldReplacementText(const QTextBlock &block) const;
 
 private:
-    QmlJSTextEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
-    void ctor();
     bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
 
     void setSelectedElements();

@@ -97,21 +97,12 @@ using namespace QmlJSTools;
 namespace QmlJSEditor {
 namespace Internal {
 
-QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
-    TextEditor::BaseTextEditorWidget(new QmlJSEditorDocument, parent)
+QmlJSTextEditorWidget::QmlJSTextEditorWidget(TextEditor::BaseTextDocumentPtr doc)
+    : TextEditor::BaseTextEditorWidget(0)
 {
-    ctor();
-}
+    setTextDocument(doc);
 
-QmlJSTextEditorWidget::QmlJSTextEditorWidget(QmlJSTextEditorWidget *other)
-    : TextEditor::BaseTextEditorWidget(other)
-{
-    ctor();
-}
-
-void QmlJSTextEditorWidget::ctor()
-{
-    m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(textDocument());
+    m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(doc.data());
     m_outlineCombo = 0;
     m_contextPane = 0;
     m_findReferences = new FindReferences(this);
@@ -177,8 +168,7 @@ QModelIndex QmlJSTextEditorWidget::outlineModelIndex()
 
 IEditor *QmlJSEditor::duplicate()
 {
-    QmlJSTextEditorWidget *newEditor = new QmlJSTextEditorWidget(
-                qobject_cast<QmlJSTextEditorWidget *>(editorWidget()));
+    QmlJSTextEditorWidget *newEditor = new QmlJSTextEditorWidget(editorWidget()->textDocumentPtr());
     TextEditor::TextEditorSettings::initializeEditor(newEditor);
     return newEditor->editor();
 }

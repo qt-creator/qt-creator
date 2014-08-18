@@ -1423,9 +1423,10 @@ int PermissionsModel::rowCount(const QModelIndex &parent) const
 
 
 AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent)
-    : TextEditor::BaseTextEditorWidget(new AndroidManifestDocument(parent), parent),
+    : TextEditor::BaseTextEditorWidget(parent),
       m_parent(parent)
 {
+    setTextDocument(TextEditor::BaseTextDocumentPtr(new AndroidManifestDocument(parent)));
     setupAsPlainEditor();
     textDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
 }

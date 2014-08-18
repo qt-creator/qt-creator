@@ -140,20 +140,10 @@ void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
     _cursors.append(c);
 }
 
-GlslEditorWidget::GlslEditorWidget(TextEditor::BaseTextDocument *doc, QWidget *parent)
-    : TextEditor::BaseTextEditorWidget(doc, parent)
+GlslEditorWidget::GlslEditorWidget(const TextEditor::BaseTextDocumentPtr &doc)
 {
-    ctor();
-}
+    setTextDocument(doc);
 
-GlslEditorWidget::GlslEditorWidget(GlslEditorWidget *other)
-    : TextEditor::BaseTextEditorWidget(other)
-{
-    ctor();
-}
-
-void GlslEditorWidget::ctor()
-{
     m_outlineCombo = 0;
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -215,8 +205,7 @@ bool GlslEditorWidget::isOutdated() const
 
 Core::IEditor *GlslEditor::duplicate()
 {
-    GlslEditorWidget *newEditor = new GlslEditorWidget(
-                qobject_cast<GlslEditorWidget *>(editorWidget()));
+    GlslEditorWidget *newEditor = new GlslEditorWidget(editorWidget()->textDocumentPtr());
     TextEditor::TextEditorSettings::initializeEditor(newEditor);
     return newEditor->editor();
 }

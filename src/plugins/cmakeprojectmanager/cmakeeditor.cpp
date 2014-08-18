@@ -70,8 +70,8 @@ CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
 
 Core::IEditor *CMakeEditor::duplicate()
 {
-    CMakeEditorWidget *ret = new CMakeEditorWidget(
-                qobject_cast<CMakeEditorWidget *>(editorWidget()));
+    CMakeEditorWidget *ret = new CMakeEditorWidget;
+    ret->setTextDocument(editorWidget()->textDocumentPtr());
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
 }
@@ -150,19 +150,7 @@ QString CMakeEditor::contextHelpId() const
 // CMakeEditor
 //
 
-CMakeEditorWidget::CMakeEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(new CMakeDocument(), parent)
-{
-    ctor();
-}
-
-CMakeEditorWidget::CMakeEditorWidget(CMakeEditorWidget *other)
-    : BaseTextEditorWidget(other)
-{
-    ctor();
-}
-
-void CMakeEditorWidget::ctor()
+CMakeEditorWidget::CMakeEditorWidget()
 {
     setCodeFoldingSupported(true);
 }

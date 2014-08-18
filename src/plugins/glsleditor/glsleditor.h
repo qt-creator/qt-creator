@@ -86,8 +86,7 @@ class GlslEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    GlslEditorWidget(TextEditor::BaseTextDocument *doc, QWidget *parent);
-    GlslEditorWidget(GlslEditorWidget *other);
+    GlslEditorWidget(const TextEditor::BaseTextDocumentPtr &doc);
 
     int editorRevision() const;
     bool isOutdated() const;
@@ -107,8 +106,6 @@ protected:
     TextEditor::BaseTextEditor *createEditor();
 
 private:
-    GlslEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
-    void ctor();
     void setSelectedElements();
     QString wordUnderCursor() const;
 

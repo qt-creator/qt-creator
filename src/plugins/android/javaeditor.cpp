@@ -62,8 +62,8 @@ JavaEditor::JavaEditor(JavaEditorWidget *editor)
 
 Core::IEditor *JavaEditor::duplicate()
 {
-    JavaEditorWidget *ret = new JavaEditorWidget(
-                qobject_cast<JavaEditorWidget*>(editorWidget()));
+    JavaEditorWidget *ret = new JavaEditorWidget;
+    ret->setTextDocument(editorWidget()->textDocumentPtr());
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
 }
@@ -72,13 +72,7 @@ Core::IEditor *JavaEditor::duplicate()
 // JavaEditorWidget
 //
 
-JavaEditorWidget::JavaEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(new JavaDocument(), parent)
-{
-}
-
-JavaEditorWidget::JavaEditorWidget(JavaEditorWidget *other)
-    : BaseTextEditorWidget(other)
+JavaEditorWidget::JavaEditorWidget()
 {
 }
 

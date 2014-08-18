@@ -55,17 +55,13 @@ class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    ProFileEditorWidget(QWidget *parent = 0);
-    ProFileEditorWidget(ProFileEditorWidget *other);
+    ProFileEditorWidget();
 
 protected:
     virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
                             bool inNextSplit = false);
     TextEditor::BaseTextEditor *createEditor();
     void contextMenuEvent(QContextMenuEvent *);
-
-private:
-    ProFileEditorWidget(BaseTextEditorWidget *); // avoid stupidity
 };
 
 class ProFileDocument : public TextEditor::BaseTextDocument

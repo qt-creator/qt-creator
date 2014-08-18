@@ -66,8 +66,7 @@ class CMakeEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    CMakeEditorWidget(QWidget *parent = 0);
-    CMakeEditorWidget(CMakeEditorWidget *other);
+    CMakeEditorWidget();
 
     bool save(const QString &fileName = QString());
 
@@ -76,10 +75,6 @@ public:
 protected:
     TextEditor::BaseTextEditor *createEditor();
     void contextMenuEvent(QContextMenuEvent *e);
-
-private:
-    CMakeEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
-    void ctor();
 };
 
 class CMakeDocument : public TextEditor::BaseTextDocument

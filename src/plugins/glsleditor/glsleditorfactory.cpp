@@ -66,10 +66,10 @@ GLSLEditorFactory::GLSLEditorFactory(QObject *parent)
 
 Core::IEditor *GLSLEditorFactory::createEditor()
 {
-    auto doc = new TextEditor::BaseTextDocument;
+    TextEditor::BaseTextDocumentPtr doc(new TextEditor::BaseTextDocument);
     doc->setId(C_GLSLEDITOR_ID);
     doc->setIndenter(new GLSLIndenter);
-    GlslEditorWidget *rc = new GlslEditorWidget(doc, 0);
+    GlslEditorWidget *rc = new GlslEditorWidget(doc);
     TextEditor::TextEditorSettings::initializeEditor(rc);
     return rc->editor();
 }

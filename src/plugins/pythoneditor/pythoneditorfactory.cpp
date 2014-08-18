@@ -60,10 +60,10 @@ EditorFactory::EditorFactory(QObject *parent)
 
 Core::IEditor *EditorFactory::createEditor()
 {
-    auto doc = new BaseTextDocument;
+    BaseTextDocumentPtr doc(new BaseTextDocument);
     doc->setId(Constants::C_PYTHONEDITOR_ID);
     doc->setIndenter(new PythonIndenter);
-    PythonEditorWidget *widget = new PythonEditorWidget(doc, 0);
+    PythonEditorWidget *widget = new PythonEditorWidget(doc);
     TextEditor::TextEditorSettings::initializeEditor(widget);
 
     return widget->editor();

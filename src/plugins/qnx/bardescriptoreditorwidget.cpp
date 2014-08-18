@@ -54,6 +54,7 @@
 #include <texteditor/normalindenter.h>
 #include <utils/qtcassert.h>
 
+using namespace TextEditor;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
@@ -168,11 +169,12 @@ void BarDescriptorEditorWidget::initAssetsPage()
 
 void BarDescriptorEditorWidget::initSourcePage()
 {
-    auto doc = new TextEditor::BaseTextDocument;
+    BaseTextDocumentPtr doc(new BaseTextDocument);
     doc->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); // FIXME: This looks odd.
     doc->setIndenter(new TextEditor::NormalIndenter);
 
-    m_xmlSourceWidget = new TextEditor::BaseTextEditorWidget(doc, this);
+    m_xmlSourceWidget = new TextEditor::BaseTextEditorWidget(this);
+    m_xmlSourceWidget->setTextDocument(doc);
     m_xmlSourceWidget->setupAsPlainEditor();
     addWidget(m_xmlSourceWidget);
 

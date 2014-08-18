@@ -77,8 +77,7 @@ public:
     static QString identifierUnderCursor(QTextCursor *macroCursor);
 
 public:
-    CppEditorWidget(QWidget *parent = 0);
-    CppEditorWidget(CppEditorWidget *other);
+    CppEditorWidget(TextEditor::BaseTextDocumentPtr doc);
     ~CppEditorWidget();
 
     CPPEditorDocument *cppEditorDocument() const;
@@ -153,9 +152,6 @@ private slots:
 
 private:
     static bool openCppEditorAt(const Link &, bool inNextSplit = false);
-
-    CppEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
-    void ctor();
 
     unsigned editorRevision() const;
     bool isOutdated() const;

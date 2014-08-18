@@ -58,7 +58,7 @@ PythonEditor::PythonEditor(PythonEditorWidget *editorWidget)
 
 Core::IEditor *PythonEditor::duplicate()
 {
-    PythonEditorWidget *widget = new PythonEditorWidget(qobject_cast<PythonEditorWidget *>(editorWidget()));
+    PythonEditorWidget *widget = new PythonEditorWidget(editorWidget()->textDocumentPtr());
     TextEditor::TextEditorSettings::initializeEditor(widget);
     return widget->editor();
 }

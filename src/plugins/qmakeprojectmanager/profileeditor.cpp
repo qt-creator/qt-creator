@@ -64,8 +64,8 @@ ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
 
 Core::IEditor *ProFileEditor::duplicate()
 {
-    ProFileEditorWidget *ret = new ProFileEditorWidget(
-                qobject_cast<ProFileEditorWidget*>(editorWidget()));
+    ProFileEditorWidget *ret = new ProFileEditorWidget;
+    ret->setTextDocument(editorWidget()->textDocumentPtr());
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
 }
@@ -74,12 +74,7 @@ Core::IEditor *ProFileEditor::duplicate()
 // ProFileEditorWidget
 //
 
-ProFileEditorWidget::ProFileEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(new ProFileDocument(), parent)
-{}
-
-ProFileEditorWidget::ProFileEditorWidget(ProFileEditorWidget *other)
-    : BaseTextEditorWidget(other)
+ProFileEditorWidget::ProFileEditorWidget()
 {}
 
 static bool isValidFileNameChar(const QChar &c)
