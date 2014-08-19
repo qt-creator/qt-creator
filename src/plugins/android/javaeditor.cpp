@@ -33,6 +33,7 @@
 #include "androidconstants.h"
 #include "javacompletionassistprovider.h"
 
+#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/normalindenter.h>
 #include <texteditor/highlighterutils.h>
@@ -41,8 +42,8 @@
 
 #include <QFileInfo>
 
-using namespace Android;
-using namespace Android::Internal;
+namespace Android {
+namespace Internal {
 
 //
 // JavaEditor
@@ -50,33 +51,20 @@ using namespace Android::Internal;
 
 JavaEditor::JavaEditor()
 {
-    setContext(Core::Context(Constants::C_JAVA_EDITOR,
-              TextEditor::Constants::C_TEXTEDITOR));
+    addContext(Constants::C_JAVA_EDITOR);
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<JavaCompletionAssistProvider>());
+    setEditorCreator([]() { return new JavaEditor; });
+    setDocumentCreator([]() { return new JavaDocument; });
+
+    setWidgetCreator([]() -> TextEditor::BaseTextEditorWidget * {
+        auto widget = new TextEditor::BaseTextEditorWidget;
+        widget->setAutoCompleter(new JavaAutoCompleter);
+        return widget;
+    });
 }
 
-Core::IEditor *JavaEditor::duplicate()
-{
-    JavaEditorWidget *ret = new JavaEditorWidget;
-    ret->setTextDocument(editorWidget()->textDocumentPtr());
-    return ret->editor();
-}
-
-//
-// JavaEditorWidget
-//
-
-JavaEditorWidget::JavaEditorWidget()
-{
-    setAutoCompleter(new JavaAutoCompleter);
-}
-
-TextEditor::BaseTextEditor *JavaEditorWidget::createEditor()
-{
-    return new JavaEditor;
-}
 
 //
 // JavaDocument
@@ -101,3 +89,25 @@ QString JavaDocument::suggestedFileName() const
     QFileInfo fi(filePath());
     return fi.fileName();
 }
+
+
+//
+// JavaEditorFactory
+//
+
+JavaEditorFactory::JavaEditorFactory()
+{
+    setId(Android::Constants::JAVA_EDITOR_ID);
+    setDisplayName(tr("Java Editor"));
+    addMimeType(Android::Constants::JAVA_MIMETYPE);
+    new TextEditor::TextEditorActionHandler(this, Constants::C_JAVA_EDITOR,
+                  TextEditor::TextEditorActionHandler::UnCommentSelection);
+}
+
+Core::IEditor *JavaEditorFactory::createEditor()
+{
+    return new JavaEditor;
+}
+
+} // namespace Internal
+} // namespace Android

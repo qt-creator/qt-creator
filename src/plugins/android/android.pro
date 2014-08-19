@@ -42,7 +42,6 @@ HEADERS += \
     androidpotentialkit.h \
     androidsignaloperation.h \
     javaeditor.h \
-    javaeditorfactory.h \
     javaindenter.h \
     javaautocompleter.h \
     javacompletionassistprovider.h \
@@ -86,7 +85,6 @@ SOURCES += \
     androidpotentialkit.cpp \
     androidsignaloperation.cpp \
     javaeditor.cpp \
-    javaeditorfactory.cpp \
     javaindenter.cpp \
     javaautocompleter.cpp \
     javacompletionassistprovider.cpp \

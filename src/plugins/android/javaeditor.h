@@ -33,11 +33,10 @@
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
 #include <utils/uncommentselection.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 
 namespace Android {
 namespace Internal {
-
-class JavaEditorFactory;
 
 class JavaEditor : public TextEditor::BaseTextEditor
 {
@@ -46,19 +45,7 @@ class JavaEditor : public TextEditor::BaseTextEditor
 public:
     JavaEditor();
 
-    Core::IEditor *duplicate();
     TextEditor::CompletionAssistProvider *completionAssistProvider();
-};
-
-class JavaEditorWidget : public TextEditor::BaseTextEditorWidget
-{
-    Q_OBJECT
-
-public:
-    JavaEditorWidget();
-
-protected:
-    TextEditor::BaseTextEditor *createEditor();
 };
 
 class JavaDocument : public TextEditor::BaseTextDocument
@@ -69,6 +56,16 @@ public:
     JavaDocument();
     QString defaultPath() const;
     QString suggestedFileName() const;
+};
+
+
+class JavaEditorFactory : public Core::IEditorFactory
+{
+    Q_OBJECT
+
+public:
+    JavaEditorFactory();
+    Core::IEditor *createEditor();
 };
 
 } // namespace Internal
