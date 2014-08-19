@@ -662,7 +662,7 @@ void QtOptionsPageWidget::editPath()
     QString dir = currentVersion()->qmakeCommand().toFileInfo().absolutePath();
     FileName qtVersion = FileName::fromString(
                 QFileDialog::getOpenFileName(this,
-                                             tr("Select a qmake executable"),
+                                             tr("Select a qmake Executable"),
                                              dir,
                                              filterForQmakeFileDialog(),
                                              0,
