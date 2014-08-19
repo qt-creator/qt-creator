@@ -144,8 +144,7 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
     CppEditorSupport *cppEditorSupport = CppModelManagerInterface::instance()
         ->cppEditorSupport(editor);
     QVERIFY(cppEditorSupport);
-    QSharedPointer<BuiltinEditorDocumentParser> documentParser
-        = cppEditorSupport->documentParser();
+    BuiltinEditorDocumentParser::Ptr documentParser = cppEditorSupport->documentParser();
     QVERIFY(documentParser);
     Snapshot snapshot = documentParser->snapshot();
     QCOMPARE(snapshot.size(), 3); // Configuration file included

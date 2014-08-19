@@ -133,7 +133,7 @@ public:
 
     CppCompletionAssistProvider *completionAssistProvider() const;
 
-    QSharedPointer<BuiltinEditorDocumentParser> documentParser();
+    BuiltinEditorDocumentParser::Ptr documentParser();
 
     /// Checks whether the document is (re)parsed or about to be (re)parsed.
     bool isUpdatingDocument();
@@ -202,8 +202,8 @@ private:
     SemanticInfo semanticInfo() const;
     void setSemanticInfo(const SemanticInfo &semanticInfo, bool emitSignal = true);
 
-    QSharedPointer<BuiltinEditorDocumentParser> documentParser_internal() const;
-    void setDocumentParser_internal(const QSharedPointer<BuiltinEditorDocumentParser> &updater);
+    BuiltinEditorDocumentParser::Ptr documentParser_internal() const;
+    void setDocumentParser_internal(const BuiltinEditorDocumentParser::Ptr &updater);
 
 private:
     Internal::CppModelManager *m_modelManager;
@@ -234,7 +234,7 @@ private:
     SemanticInfo m_lastSemanticInfo;
     QFuture<void> m_futureSemanticInfo;
     mutable QMutex m_documentParserLock;
-    QSharedPointer<BuiltinEditorDocumentParser> m_documentParser;
+    BuiltinEditorDocumentParser::Ptr m_documentParser;
     QFuture<void> m_documentParserFuture;
 
     // Highlighting:

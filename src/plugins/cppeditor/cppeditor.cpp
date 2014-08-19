@@ -1020,7 +1020,7 @@ void CppEditorWidget::onFilePathChanged()
         additionalDirectives = ProjectExplorer::SessionManager::value(
                     projectFile + QLatin1Char(',') + filePath).toString().toUtf8();
 
-        QSharedPointer<BuiltinEditorDocumentParser> parser
+        BuiltinEditorDocumentParser::Ptr parser
                 = d->m_modelManager->cppEditorSupport(editor())->documentParser();
         parser->setProjectPart(d->m_modelManager->projectPartForProjectFile(projectFile));
         parser->setEditorDefines(additionalDirectives);
@@ -1088,7 +1088,7 @@ void CppEditorWidget::showPreProcessorWidget()
 
     CppPreProcessorDialog preProcessorDialog(this, textDocument()->filePath(), projectParts);
     if (preProcessorDialog.exec() == QDialog::Accepted) {
-        QSharedPointer<BuiltinEditorDocumentParser> parser
+        BuiltinEditorDocumentParser::Ptr parser
                 = d->m_modelManager->cppEditorSupport(editor())->documentParser();
         const QString &additionals = preProcessorDialog.additionalPreProcessorDirectives();
         parser->setProjectPart(preProcessorDialog.projectPart());

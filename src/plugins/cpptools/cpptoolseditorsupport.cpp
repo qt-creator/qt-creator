@@ -259,11 +259,11 @@ CppCompletionAssistProvider *CppEditorSupport::completionAssistProvider() const
     return m_completionAssistProvider;
 }
 
-QSharedPointer<BuiltinEditorDocumentParser> CppEditorSupport::documentParser()
+BuiltinEditorDocumentParser::Ptr CppEditorSupport::documentParser()
 {
-    QSharedPointer<BuiltinEditorDocumentParser> updater = documentParser_internal();
+    BuiltinEditorDocumentParser::Ptr updater = documentParser_internal();
     if (!updater || updater->filePath() != fileName()) {
-        updater = QSharedPointer<BuiltinEditorDocumentParser>(new BuiltinEditorDocumentParser(fileName()));
+        updater = BuiltinEditorDocumentParser::Ptr(new BuiltinEditorDocumentParser(fileName()));
         setDocumentParser_internal(updater);
 
         QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
@@ -282,7 +282,7 @@ void CppEditorSupport::updateDocument()
     m_updateDocumentTimer->start(m_updateDocumentInterval);
 }
 
-static void parse(QFutureInterface<void> &future, QSharedPointer<BuiltinEditorDocumentParser> updater,
+static void parse(QFutureInterface<void> &future, BuiltinEditorDocumentParser::Ptr updater,
                   WorkingCopy workingCopy)
 {
     future.setProgressRange(0, 1);
@@ -524,8 +524,7 @@ SemanticInfo CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::So
 
     // Otherwise reprocess document
     } else {
-        const QSharedPointer<BuiltinEditorDocumentParser> documentParser
-            = documentParser_internal();
+        const BuiltinEditorDocumentParser::Ptr documentParser = documentParser_internal();
         QTC_ASSERT(documentParser, return newSemanticInfo);
         newSemanticInfo.snapshot = documentParser->snapshot();
         if (!newSemanticInfo.snapshot.contains(source.fileName))
@@ -584,14 +583,13 @@ void CppEditorSupport::setSemanticInfo(const SemanticInfo &semanticInfo, bool em
         emit semanticInfoUpdated(semanticInfo);
 }
 
-QSharedPointer<BuiltinEditorDocumentParser> CppEditorSupport::documentParser_internal() const
+BuiltinEditorDocumentParser::Ptr CppEditorSupport::documentParser_internal() const
 {
     QMutexLocker locker(&m_documentParserLock);
     return m_documentParser;
 }
 
-void CppEditorSupport::setDocumentParser_internal(
-        const QSharedPointer<BuiltinEditorDocumentParser> &updater)
+void CppEditorSupport::setDocumentParser_internal(const BuiltinEditorDocumentParser::Ptr &updater)
 {
     QMutexLocker locker(&m_documentParserLock);
     m_documentParser = updater;

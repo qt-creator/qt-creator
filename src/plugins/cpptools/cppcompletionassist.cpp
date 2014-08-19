@@ -1959,7 +1959,7 @@ void CppCompletionAssistInterface::getCppSpecifics() const
 
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
     if (CppEditorSupport *supp = modelManager->cppEditorSupport(m_editor)) {
-        if (QSharedPointer<BuiltinEditorDocumentParser> parser = supp->documentParser()) {
+        if (BuiltinEditorDocumentParser::Ptr parser = supp->documentParser()) {
             parser->update(m_workingCopy);
             m_snapshot = parser->snapshot();
             m_headerPaths = parser->headerPaths();

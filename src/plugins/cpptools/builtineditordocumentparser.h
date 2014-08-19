@@ -46,6 +46,9 @@ namespace CppTools {
 class CPPTOOLS_EXPORT BuiltinEditorDocumentParser : public BaseEditorDocumentParser
 {
 public:
+    typedef QSharedPointer<BuiltinEditorDocumentParser> Ptr;
+
+public:
     BuiltinEditorDocumentParser(const QString &filePath);
 
     void update(WorkingCopy workingCopy) QTC_OVERRIDE;
