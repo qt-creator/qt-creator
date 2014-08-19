@@ -72,10 +72,12 @@ public:
         m_createWidgetFunction = [icon, this](Project *project) -> QWidget * {
             PropertiesPanel *panel = new PropertiesPanel;
             panel->setDisplayName(this->displayName());
-            panel->setWidget(new T(project)),
+            QWidget *widget = new T(project);
+            panel->setWidget(widget);
             panel->setIcon(icon);
             PanelsWidget *panelsWidget = new PanelsWidget();
             panelsWidget->addPropertiesPanel(panel);
+            panelsWidget->setFocusProxy(widget);
             return panelsWidget;
         };
     }

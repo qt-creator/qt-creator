@@ -235,7 +235,8 @@ void ProjectWindow::showProperties(int index, int subIndex)
         m_currentWidget = widget;
         m_centralWidget->addWidget(m_currentWidget);
         m_centralWidget->setCurrentWidget(m_currentWidget);
-
+        if (hasFocus()) // we get assigned focus from setFocusToCurrentMode, pass that on
+            m_currentWidget->setFocus();
     }
 
     SessionManager::setStartupProject(project);
