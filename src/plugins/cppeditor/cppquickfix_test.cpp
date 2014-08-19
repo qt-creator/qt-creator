@@ -3781,3 +3781,21 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction_sep
     ExtractLiteralAsParameter factory;
     QuickFixTestCase(testFiles, &factory);
 }
+
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_notTriggeringForInvalidCode()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    original =
+        "T(\"test\")\n"
+        "{\n"
+        "    const int i = @14;\n"
+        "}\n";
+    expected = original;
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    ExtractLiteralAsParameter factory;
+    QuickFixTestCase(testFiles, &factory);
+}

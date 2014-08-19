@@ -63,7 +63,7 @@ def main():
 #    - Press F2 or select from the menu: Tools / C++ / Follow Symbol under Cursor
 #    Creator will show you the declaration of the variable.
 
-    type(cppwindow, "<Ctrl+F>")
+    type(cppwindow, "<Ctrl+f>")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "    xi")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")
     __typeAndWaitForAction__(cppwindow, "<F2>")
@@ -72,7 +72,7 @@ def main():
 #    - Move the cursor to a function call.
 #    - Press F2 or select from the menu: Tools / C++ / Follow Symbol under Cursor
 #    Creator will show you the definition of the function.
-    type(cppwindow, "<Ctrl+F>")
+    type(cppwindow, "<Ctrl+f>")
     clickButton(waitForObject(":*Qt Creator_Utils::IconButton"))
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "freefunc2")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")
@@ -94,7 +94,7 @@ def main():
     else:
         type(cppwindow, "<Ctrl+Home>")
 
-    type(cppwindow, "<Ctrl+F>")
+    type(cppwindow, "<Ctrl+f>")
     clickButton(waitForObject(":*Qt Creator_Utils::IconButton"))
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "Dummy::Dummy")
     # Take us to the second instance

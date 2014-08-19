@@ -6,7 +6,7 @@ pyversion=2.7
 pydir=${broot}/python
 expatversion=2.1.0
 iconvversion=1.14
-version=7.7.1
+version=7.8
 targetdir=${broot}/qtcreator-gdb-${version}
 gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
 packageparts=${targetdir}/lib ${targetdir}/data-directory ${targetdir}/libiconv-2.dll ${targetdir}/python27.dll ${targetdir}/libexpat-1.dll
@@ -48,12 +48,12 @@ ${broot}/python/python.exe: ${source}/python.zip | checkunzip
 checkwget:
 	wget -V &> /dev/null || mingw-get install msys-wget-bin
 
-${source}/gdb-${version}.tar.bz2: | makesourcedir checkwget
+${source}/gdb-${version}.tar.xz: | makesourcedir checkwget
 	cd ${source} && \
 	echo "Downloading gdb..." && \
-	wget -q http://ftp.gnu.org/gnu/gdb/gdb-${version}.tar.bz2 || \
-	wget -Oq gdb-${version}.tar.bz2 http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.bz2 && \
-	touch gdb-${version}.tar.bz2
+	wget -q http://ftp.gnu.org/gnu/gdb/gdb-${version}.tar.xz || \
+	wget -Oq gdb-${version}.tar.xz http://ftp.gnu.org/gnu/gdb/gdb-${version}a.tar.xz && \
+	touch gdb-${version}.tar.xz
 
 ${source}/libiconv-${iconvversion}.tar.gz: | makesourcedir checkwget
 	cd ${source} && \
@@ -67,10 +67,10 @@ ${source}/expat-${expatversion}.tar.gz: | makesourcedir checkwget
 	wget -q http://sourceforge.net/projects/expat/files/expat/${expatversion}/expat-${expatversion}.tar.gz/download && \
 	touch ${source}/expat-${expatversion}.tar.gz
 
-${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestagingdir
+${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.xz | makestagingdir
 	cd ${staging} && \
 	echo "Extracting gdb..." && \
-	tar xf ${source}/gdb-${version}.tar.bz2 && \
+	tar xf ${source}/gdb-${version}.tar.xz && \
 	cd gdb-${version} && \
 	touch configure
 

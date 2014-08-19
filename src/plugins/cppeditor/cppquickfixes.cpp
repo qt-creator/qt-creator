@@ -3889,13 +3889,15 @@ void ExtractLiteralAsParameter::match(const CppQuickFixInterface &interface,
             return;
     }
 
-    FunctionDeclaratorAST *functionDeclarator
-            = function->declarator->postfix_declarator_list->value->asFunctionDeclarator();
-    if (functionDeclarator
-            && functionDeclarator->parameter_declaration_clause
-            && functionDeclarator->parameter_declaration_clause->dot_dot_dot_token) {
-        // Do not handle functions with ellipsis parameter.
+    PostfixDeclaratorListAST * const declaratorList = function->declarator->postfix_declarator_list;
+    if (!declaratorList)
         return;
+    if (FunctionDeclaratorAST *declarator = declaratorList->value->asFunctionDeclarator()) {
+        if (declarator->parameter_declaration_clause
+                && declarator->parameter_declaration_clause->dot_dot_dot_token) {
+            // Do not handle functions with ellipsis parameter.
+            return;
+        }
     }
 
     const int priority = path.size() - 1;

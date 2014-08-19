@@ -33,8 +33,8 @@ source("../../shared/suites_qtta.py")
 # go to proper line, make backup, type needed text
 def __beginTestSuggestions__(editorArea, lineText, textToType):
     # make source code backup to clipboard
-    type(editorArea, "<Ctrl+A>")
-    type(editorArea, "<Ctrl+C>")
+    type(editorArea, "<Ctrl+a>")
+    type(editorArea, "<Ctrl+c>")
     # place cursor to proper position and start typing
     if not placeCursorToLine(editorArea, lineText):
         return False
@@ -53,8 +53,8 @@ def verifySuggestions(textToType):
 
 # restore source code from clipboard backup
 def __endTestSuggestions__(editorArea):
-    type(editorArea, "<Ctrl+A>")
-    type(editorArea, "<Ctrl+V>")
+    type(editorArea, "<Ctrl+a>")
+    type(editorArea, "<Ctrl+v>")
 
 def testSuggestionsAuto(lineText, textToType, expectedText, keyToUseSuggestion):
     # get editor

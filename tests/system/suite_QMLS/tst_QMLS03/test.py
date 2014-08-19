@@ -132,7 +132,7 @@ def main():
         return
     for i in range(5):
         type(editorArea, "<Left>")
-    type(editorArea, "<Ctrl+Shift+U>")
+    type(editorArea, "<Ctrl+Shift+u>")
     # check if usage was properly found
     expectedResults = [ExpectedResult("color-animation.qml", 87, "SequentialAnimation on opacity {")]
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
