@@ -990,7 +990,8 @@ void SubversionPlugin::slotDescribe()
 void SubversionPlugin::submitCurrentLog()
 {
     m_submitActionTriggered = true;
-    EditorManager::closeEditor(submitEditor());
+    QTC_ASSERT(submitEditor(), return);
+    EditorManager::closeDocument(submitEditor()->document());
 }
 
 SubversionResponse

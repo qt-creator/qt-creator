@@ -82,6 +82,9 @@ public:
                                               EditorManager::OpenEditorFlags flags = 0);
     static void activateEditorForEntry(EditorView *view, DocumentModel::Entry *entry,
                                        EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
+    /* closes the document if there is no other editor on the document visible */
+    static void closeEditorOrDocument(IEditor *editor);
+
     static EditorView *viewForEditor(IEditor *editor);
     static void setCurrentView(EditorView *view);
 
@@ -214,6 +217,7 @@ private:
     QAction *m_openTerminalAction;
     QAction *m_findInDirectoryAction;
     DocumentModel::Entry *m_contextMenuEntry;
+    IEditor *m_contextMenuEditor;
 
     OpenEditorsWindow *m_windowPopup;
     EditorClosingCoreListener *m_coreListener;

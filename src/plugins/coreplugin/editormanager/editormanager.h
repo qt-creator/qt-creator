@@ -167,7 +167,8 @@ public:
     static void setWindowTitleAdditionHandler(WindowTitleHandler handler);
     static void setWindowTitleVcsTopicHandler(WindowTitleHandler handler);
 
-    static void addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
+    static void addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry,
+                                             IEditor *editor = 0);
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
 
 signals:
@@ -184,7 +185,7 @@ public slots:
     static void saveDocumentAs();
     static void revertToSaved();
     static bool closeAllEditors(bool askAboutModifiedEditors = true);
-    static void closeEditor();
+    static void slotCloseCurrentEditorOrDocument();
     static void closeOtherDocuments();
     static void splitSideBySide();
     static void gotoOtherSplit();

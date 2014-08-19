@@ -92,7 +92,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     //Close Editor
     Core::ActionManager::registerAction(&m_closeCurrentEditorAction, Core::Constants::CLOSE, qmlDesignerMainContext);
-    connect(&m_closeCurrentEditorAction, SIGNAL(triggered()), em, SLOT(closeEditor()));
+    connect(&m_closeCurrentEditorAction, SIGNAL(triggered()), em, SLOT(slotCloseCurrentEditorOrDocument()));
 
     //Close All
     Core::ActionManager::registerAction(&m_closeAllEditorsAction, Core::Constants::CLOSEALL, qmlDesignerMainContext);

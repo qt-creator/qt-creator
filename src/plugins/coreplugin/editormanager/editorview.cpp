@@ -76,12 +76,14 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     {
         connect(m_toolBar, SIGNAL(goBackClicked()), this, SLOT(goBackInNavigationHistory()));
         connect(m_toolBar, SIGNAL(goForwardClicked()), this, SLOT(goForwardInNavigationHistory()));
-        connect(m_toolBar, SIGNAL(closeClicked()), this, SLOT(closeView()));
+        connect(m_toolBar, SIGNAL(closeClicked()), this, SLOT(closeCurrentEditor()));
         connect(m_toolBar, SIGNAL(listSelectionActivated(int)), this, SLOT(listSelectionActivated(int)));
         connect(m_toolBar, SIGNAL(horizontalSplitClicked()), this, SLOT(splitHorizontally()));
         connect(m_toolBar, SIGNAL(verticalSplitClicked()), this, SLOT(splitVertically()));
         connect(m_toolBar, SIGNAL(splitNewWindowClicked()), this, SLOT(splitNewWindow()));
         connect(m_toolBar, SIGNAL(closeSplitClicked()), this, SLOT(closeSplit()));
+        connect(m_toolBar, &EditorToolBar::listContextMenuRequested,
+                this, &EditorView::showListContextMenu);
         tl->addWidget(m_toolBar);
     }
 
@@ -159,11 +161,11 @@ EditorView *EditorView::findNextView()
     return 0;
 }
 
-void EditorView::closeView()
+void EditorView::closeCurrentEditor()
 {
     IEditor *editor = currentEditor();
     if (editor)
-       EditorManager::closeEditor(editor);
+       EditorManagerPrivate::closeEditorOrDocument(editor);
 }
 
 void EditorView::showEditorStatusBar(const QString &id,
@@ -309,6 +311,18 @@ IEditor *EditorView::currentEditor() const
 void EditorView::listSelectionActivated(int index)
 {
     EditorManagerPrivate::activateEditorForEntry(this, DocumentModel::entryAtRow(index));
+}
+
+void EditorView::showListContextMenu(QPoint pos)
+{
+    IEditor *editor = currentEditor();
+    DocumentModel::Entry entry;
+    entry.document = editor ? editor->document() : 0;
+    QMenu menu;
+    EditorManager::addSaveAndCloseEditorActions(&menu, &entry, editor);
+    menu.addSeparator();
+    EditorManager::addNativeDirAndOpenWithActions(&menu, &entry);
+    menu.exec(pos);
 }
 
 void EditorView::splitHorizontally()

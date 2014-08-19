@@ -1034,7 +1034,8 @@ void GitPlugin::submitCurrentLog()
 {
     // Close the submit editor
     m_submitActionTriggered = true;
-    EditorManager::closeEditor(submitEditor());
+    QTC_ASSERT(submitEditor(), return);
+    EditorManager::closeDocument(submitEditor()->document());
 }
 
 bool GitPlugin::submitEditorAboutToClose()

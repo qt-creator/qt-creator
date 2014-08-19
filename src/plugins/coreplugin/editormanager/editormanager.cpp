@@ -322,7 +322,8 @@ void EditorManagerPrivate::init()
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDescription(m_closeCurrentEditorAction->text());
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
-    connect(m_closeCurrentEditorAction, SIGNAL(triggered()), m_instance, SLOT(closeEditor()));
+    connect(m_closeCurrentEditorAction, SIGNAL(triggered()),
+            m_instance, SLOT(slotCloseCurrentEditorOrDocument()));
 
     if (Utils::HostOsInfo::isWindowsHost()) {
         // workaround for QTCREATORBUG-72
@@ -330,7 +331,7 @@ void EditorManagerPrivate::init()
         cmd = ActionManager::registerAction(action, Constants::CLOSE_ALTERNATIVE, editManagerContext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
         cmd->setDescription(EditorManager::tr("Close"));
-        connect(action, SIGNAL(triggered()), m_instance, SLOT(closeEditor()));
+        connect(action, SIGNAL(triggered()), m_instance, SLOT(slotCloseCurrentEditorOrDocument()));
     }
 
     // Close All Action
@@ -1023,6 +1024,20 @@ void EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentMode
         DocumentModel::removeEntry(entry);
 }
 
+void EditorManagerPrivate::closeEditorOrDocument(IEditor *editor)
+{
+    QTC_ASSERT(editor, return);
+    QList<IEditor *> visible = EditorManager::visibleEditors();
+    if (Utils::contains(visible,
+                        [&editor](IEditor *other) {
+                            return editor != other && other->document() == editor->document();
+                        })) {
+        EditorManager::closeEditor(editor);
+    } else {
+        EditorManager::closeDocument(editor->document());
+    }
+}
+
 void EditorManagerPrivate::activateView(EditorView *view)
 {
     QTC_ASSERT(view, return);
@@ -1597,9 +1612,13 @@ void EditorManagerPrivate::revertToSavedFromContextMenu()
 
 void EditorManagerPrivate::closeEditorFromContextMenu()
 {
-    IDocument *document = d->m_contextMenuEntry ? d->m_contextMenuEntry->document : 0;
-    if (document)
-        EditorManager::closeDocument(document);
+    if (d->m_contextMenuEditor) {
+        closeEditorOrDocument(d->m_contextMenuEditor);
+    } else {
+        IDocument *document = d->m_contextMenuEntry ? d->m_contextMenuEntry->document : 0;
+        if (document)
+            EditorManager::closeDocument(document);
+    }
 }
 
 void EditorManagerPrivate::closeOtherDocumentsFromContextMenu()
@@ -1856,12 +1875,12 @@ void EditorManager::closeOtherDocuments(IDocument *document)
 }
 
 // SLOT connected to action
-void EditorManager::closeEditor()
+void EditorManager::slotCloseCurrentEditorOrDocument()
 {
     if (!d->m_currentEditor)
         return;
     addCurrentPositionToNavigationHistory();
-    closeEditor(d->m_currentEditor);
+    d->closeEditorOrDocument(d->m_currentEditor);
 }
 
 void EditorManager::closeOtherDocuments()
@@ -1878,10 +1897,12 @@ static void assignAction(QAction *self, QAction *other)
     self->setIconVisibleInMenu(other->isIconVisibleInMenu());
 }
 
-void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry)
+void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry,
+                                                 IEditor *editor)
 {
     QTC_ASSERT(contextMenu, return);
     d->m_contextMenuEntry = entry;
+    d->m_contextMenuEditor = editor;
 
     const QString filePath = entry ? entry->fileName() : QString();
     const bool copyActionsEnabled = !filePath.isEmpty();
@@ -1929,6 +1950,7 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
 void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry)
 {
     QTC_ASSERT(contextMenu, return);
+    d->m_contextMenuEntry = entry;
     bool enabled = entry && !entry->fileName().isEmpty();
     d->m_openGraphicalShellAction->setEnabled(enabled);
     d->m_openTerminalAction->setEnabled(enabled);
@@ -1980,13 +2002,18 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
 {
     if (editorsToClose.isEmpty())
         return true;
+    bool closingFailed = false;
+    // close Editor History list
+    EditorManagerPrivate::windowPopup()->setVisible(false);
+
 
     EditorView *currentView = EditorManagerPrivate::currentEditorView();
 
-    bool closingFailed = false;
+    // go through all editors to close and
+    // 1. ask all core listeners to check whether the editor can be closed
+    // 2. keep track of the document and all the editors that might remain open for it
     QSet<IEditor*> acceptedEditors;
-    QSet<IDocument *> acceptedDocuments;
-    //ask all core listeners to check whether the editor can be closed
+    QMap<IDocument *, QList<IEditor *> > documentMap;
     const QList<ICoreListener *> listeners =
         ExtensionSystem::PluginManager::getObjects<ICoreListener>();
     foreach (IEditor *editor, editorsToClose) {
@@ -1999,32 +2026,40 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
             }
         }
         if (editorAccepted) {
-            acceptedEditors += DocumentModel::editorsForDocument(editor->document()).toSet();
-            acceptedDocuments.insert(editor->document());
-        }
-    }
-    if (acceptedEditors.isEmpty())
-        return false;
-    //ask whether to save modified files
-    if (askAboutModifiedEditors) {
-        bool cancelled = false;
-        QList<IDocument *> list;
-        DocumentManager::saveModifiedDocuments(acceptedDocuments.toList(), QString(), &cancelled,
-                                               QString(), 0, &list);
-        if (cancelled)
-            return false;
-        if (!list.isEmpty()) {
-            closingFailed = true;
-            acceptedDocuments.subtract(list.toSet());
-            QSet<IEditor*> skipSet = DocumentModel::editorsForDocuments(list).toSet();
-            acceptedEditors = acceptedEditors.subtract(skipSet);
+            acceptedEditors.insert(editor);
+            IDocument *document = editor->document();
+            if (!documentMap.contains(document)) // insert the document to track
+                documentMap.insert(document, DocumentModel::editorsForDocument(document));
+            // keep track that we'll close this editor for the document
+            documentMap[document].removeAll(editor);
         }
     }
     if (acceptedEditors.isEmpty())
         return false;
 
-    // close Editor History list
-    EditorManagerPrivate::windowPopup()->setVisible(false);
+    //ask whether to save modified documents that we are about to close
+    if (askAboutModifiedEditors) {
+        // Check for which documents we will close all editors, and therefore might have to ask the user
+        QList<IDocument *> documentsToClose;
+        for (auto i = documentMap.constBegin(); i != documentMap.constEnd(); ++i) {
+            if (i.value().isEmpty())
+                documentsToClose.append(i.key());
+        }
+
+        bool cancelled = false;
+        QList<IDocument *> rejectedList;
+        DocumentManager::saveModifiedDocuments(documentsToClose, QString(), &cancelled,
+                                               QString(), 0, &rejectedList);
+        if (cancelled)
+            return false;
+        if (!rejectedList.isEmpty()) {
+            closingFailed = true;
+            QSet<IEditor*> skipSet = DocumentModel::editorsForDocuments(rejectedList).toSet();
+            acceptedEditors = acceptedEditors.subtract(skipSet);
+        }
+    }
+    if (acceptedEditors.isEmpty())
+        return false;
 
     QList<EditorView*> closedViews;
 
@@ -2051,6 +2086,16 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         }
     }
 
+    // TODO doesn't work as expected with multiple areas in main window and some other cases
+    // instead each view should have its own file history and handle solely themselves
+    // which editor is shown if their current editor closes
+    EditorView *forceViewToShowEditor = 0;
+    if (!closedViews.isEmpty() && visibleEditors().isEmpty()) {
+        if (closedViews.contains(currentView))
+            forceViewToShowEditor = currentView;
+        else
+            forceViewToShowEditor = closedViews.first();
+    }
     bool currentViewHandled = false;
     foreach (EditorView *view, closedViews) {
         OpenEditorFlags flags;
@@ -2059,11 +2104,11 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         else
             flags = OpenEditorFlags(DoNotChangeCurrentEditor);
         IEditor *newCurrent = view->currentEditor();
-        if (!newCurrent)
+        if (!newCurrent && forceViewToShowEditor == view)
             newCurrent = EditorManagerPrivate::pickUnusedEditor();
         if (newCurrent) {
             EditorManagerPrivate::activateEditor(view, newCurrent, flags);
-        } else {
+        } else if (forceViewToShowEditor == view) {
             DocumentModel::Entry *entry = DocumentModel::firstRestoredEntry();
             if (entry) {
                 EditorManagerPrivate::activateEditorForEntry(view, entry, flags);
@@ -2363,9 +2408,9 @@ bool EditorManager::closeDocument(IDocument *document, bool askAboutModifiedEdit
     return closeDocuments(QList<IDocument *>() << document, askAboutModifiedEditors);
 }
 
-bool EditorManager::closeDocuments(const QList<IDocument *> &document, bool askAboutModifiedEditors)
+bool EditorManager::closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors)
 {
-    return m_instance->closeEditors(DocumentModel::editorsForDocuments(document), askAboutModifiedEditors);
+    return m_instance->closeEditors(DocumentModel::editorsForDocuments(documents), askAboutModifiedEditors);
 }
 
 void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)

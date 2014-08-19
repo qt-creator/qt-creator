@@ -112,8 +112,9 @@ protected:
     void focusInEvent(QFocusEvent *);
 
 private slots:
-    void closeView();
+    void closeCurrentEditor();
     void listSelectionActivated(int index);
+    void showListContextMenu(QPoint pos);
     void splitHorizontally();
     void splitVertically();
     void splitNewWindow();

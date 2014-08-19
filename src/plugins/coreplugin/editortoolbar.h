@@ -93,6 +93,7 @@ signals:
     void splitNewWindowClicked();
     void closeSplitClicked();
     void listSelectionActivated(int row);
+    void listContextMenuRequested(QPoint globalpos);
 
 private slots:
     void updateEditorListSelection(Core::IEditor *newSelection);
