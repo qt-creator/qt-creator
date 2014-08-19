@@ -34,8 +34,8 @@
 #include "cppmodelmanager.h"
 #include "cppmodelmanagerinterface.h"
 #include "cpptoolsconstants.h"
-#include "cpptoolseditorsupport.h"
 #include "cpptoolsreuse.h"
+#include "editordocumenthandle.h"
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -421,15 +421,14 @@ IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
 }
 
 TextEditor::IAssistInterface *InternalCompletionAssistProvider::createAssistInterface(
-        ProjectExplorer::Project *project, BaseTextEditor *editor, QTextDocument *document,
+        ProjectExplorer::Project *project, const QString &filePath, QTextDocument *document,
         bool isObjCEnabled, int position, TextEditor::AssistReason reason) const
 {
     Q_UNUSED(project);
-    QTC_ASSERT(editor, return 0);
     QTC_ASSERT(document, return 0);
 
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-    return new CppTools::Internal::CppCompletionAssistInterface(editor, document, isObjCEnabled,
+    return new CppTools::Internal::CppCompletionAssistInterface(filePath, document, isObjCEnabled,
                                                                 position, reason,
                                                                 modelManager->workingCopy());
 }
@@ -1957,12 +1956,9 @@ void CppCompletionAssistInterface::getCppSpecifics() const
         return;
     m_gotCppSpecifics = true;
 
-    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-    if (CppEditorSupport *supp = modelManager->cppEditorSupport(m_editor)) {
-        if (BuiltinEditorDocumentParser::Ptr parser = supp->documentParser()) {
-            parser->update(m_workingCopy);
-            m_snapshot = parser->snapshot();
-            m_headerPaths = parser->headerPaths();
-        }
+    if (BuiltinEditorDocumentParser *parser = BuiltinEditorDocumentParser::get(fileName())) {
+        parser->update(m_workingCopy);
+        m_snapshot = parser->snapshot();
+        m_headerPaths = parser->headerPaths();
     }
 }

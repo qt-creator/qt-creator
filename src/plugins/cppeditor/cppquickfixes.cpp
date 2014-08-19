@@ -30,6 +30,7 @@
 #include "cppquickfixes.h"
 
 #include "cppeditor.h"
+#include "cppeditordocument.h"
 #include "cppfunctiondecldeflink.h"
 #include "cppquickfixassistant.h"
 #include "cppvirtualfunctionassistprovider.h"

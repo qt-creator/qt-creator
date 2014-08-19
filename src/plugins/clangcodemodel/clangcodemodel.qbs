@@ -94,8 +94,6 @@ QtcPlugin {
         name: "Highlighting support"
         condition: product.clangHighlighting
         files: [
-            "clanghighlightingsupport.cpp",
-            "clanghighlightingsupport.h",
             "cppcreatemarkers.cpp",
             "cppcreatemarkers.h",
         ]
@@ -156,6 +154,10 @@ QtcPlugin {
 
     files: [
         "clang_global.h",
+        "clangeditordocumentparser.cpp",
+        "clangeditordocumentparser.h",
+        "clangeditordocumentprocessor.cpp",
+        "clangeditordocumentprocessor.h",
         "clangmodelmanagersupport.cpp",
         "clangmodelmanagersupport.h",
         "clangcodemodelplugin.cpp",

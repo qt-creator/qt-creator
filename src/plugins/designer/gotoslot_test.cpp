@@ -33,9 +33,10 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/testdatadir.h>
+#include <cpptools/builtineditordocumentprocessor.h>
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolseditorsupport.h>
 #include <cpptools/cpptoolstestcase.h>
+#include <cpptools/editordocumenthandle.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
@@ -163,8 +164,6 @@ public:
             closeEditorAtEndOfTestCase(editor);
             editors << e;
         }
-        TextEditor::BaseTextEditor *cppFileEditor = editors.at(0);
-        TextEditor::BaseTextEditor *hFileEditor = editors.at(1);
 
         const QString cppFile = files.at(0);
         const QString hFile = files.at(1);
@@ -184,18 +183,22 @@ public:
 
         // Wait for updated documents
         foreach (TextEditor::BaseTextEditor *editor, editors) {
-            if (CppEditorSupport *editorSupport = m_modelManager->cppEditorSupport(editor)) {
-                while (editorSupport->isUpdatingDocument())
+            const QString filePath = editor->document()->filePath();
+            if (auto parser = BuiltinEditorDocumentParser::get(filePath)) {
+                forever {
+                    if (Document::Ptr document = parser->document()) {
+                        if (document->editorRevision() == 2)
+                            break;
+                    }
                     QApplication::processEvents();
+                }
             }
         }
 
         // Compare
-        const Document::Ptr cppDocument
-            = m_modelManager->cppEditorSupport(cppFileEditor)->documentParser()->document();
+        const Document::Ptr cppDocument = BuiltinEditorDocumentParser::get(cppFile)->document();
         QVERIFY(checkDiagsnosticMessages(cppDocument));
-        const Document::Ptr hDocument
-            = m_modelManager->cppEditorSupport(hFileEditor)->documentParser()->document();
+        const Document::Ptr hDocument = BuiltinEditorDocumentParser::get(hFile)->document();
         QVERIFY(checkDiagsnosticMessages(hDocument));
 
         QVERIFY(documentContainsFunctionDefinition(cppDocument,

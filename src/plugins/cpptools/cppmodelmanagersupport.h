@@ -38,8 +38,8 @@ namespace TextEditor { class BaseTextDocument; }
 
 namespace CppTools {
 
+class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
-class CppHighlightingSupport;
 
 class CPPTOOLS_EXPORT ModelManagerSupport
 {
@@ -50,8 +50,8 @@ public:
     virtual QString displayName() const = 0;
 
     virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
-    virtual CppHighlightingSupport *highlightingSupport(
-            TextEditor::BaseTextDocument *baseTextDocument) = 0;
+    virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
+                TextEditor::BaseTextDocument *baseTextDocument) = 0;
 };
 
 } // CppTools namespace

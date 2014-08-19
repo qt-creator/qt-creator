@@ -45,8 +45,7 @@ namespace CppTools {
 
 class CPPTOOLS_EXPORT BuiltinEditorDocumentParser : public BaseEditorDocumentParser
 {
-public:
-    typedef QSharedPointer<BuiltinEditorDocumentParser> Ptr;
+    Q_OBJECT
 
 public:
     BuiltinEditorDocumentParser(const QString &filePath);
@@ -59,6 +58,9 @@ public:
     ProjectPart::HeaderPaths headerPaths() const;
 
     void setReleaseSourceAndAST(bool onoff);
+
+public:
+    static BuiltinEditorDocumentParser *get(const QString &filePath);
 
 private:
     void addFileAndDependencies(QSet<QString> *toRemove, const QString &fileName) const;

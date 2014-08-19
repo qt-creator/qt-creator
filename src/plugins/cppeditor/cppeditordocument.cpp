@@ -32,30 +32,124 @@
 #include "cppeditorconstants.h"
 #include "cpphighlighter.h"
 
+#include <cpptools/builtineditordocumentprocessor.h>
 #include <cpptools/cppcodeformatter.h>
+#include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cppqtstyleindenter.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <cpptools/cpptoolsplugin.h>
+
+#include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QTextDocument>
+
+namespace {
+
+CppTools::CppModelManagerInterface *mm()
+{
+    return CppTools::CppModelManagerInterface::instance();
+}
+
+} // anonymous namespace
 
 namespace CppEditor {
 namespace Internal {
 
+enum { processDocumentIntervalInMs = 150 };
+
+class CppEditorDocumentHandle : public CppTools::EditorDocumentHandle
+{
+public:
+    CppEditorDocumentHandle(CppEditor::Internal::CPPEditorDocument *cppEditorDocument)
+        : m_cppEditorDocument(cppEditorDocument)
+        , m_registrationFilePath(cppEditorDocument->filePath())
+    {
+        mm()->registerEditorDocument(this);
+    }
+
+    ~CppEditorDocumentHandle() { mm()->unregisterEditorDocument(m_registrationFilePath); }
+
+    QString filePath() const { return m_cppEditorDocument->filePath(); }
+    QByteArray contents() const { return m_cppEditorDocument->contentsText(); }
+    unsigned revision() const { return m_cppEditorDocument->contentsRevision(); }
+
+    CppTools::BaseEditorDocumentProcessor *processor()
+    { return m_cppEditorDocument->processor(); }
+
+private:
+    CppEditor::Internal::CPPEditorDocument * const m_cppEditorDocument;
+    // The file path of the editor document can change (e.g. by "Save As..."), so make sure
+    // that un-registration happens with the path the document was registered.
+    const QString m_registrationFilePath;
+};
+
 CPPEditorDocument::CPPEditorDocument()
+    : m_fileIsBeingReloaded(false)
+    , m_isObjCEnabled(false)
+    , m_cachedContentsRevision(-1)
+    , m_processorRevision(0)
+    , m_completionAssistProvider(0)
 {
     setId(CppEditor::Constants::CPPEDITOR_ID);
-    connect(this, SIGNAL(tabSettingsChanged()),
-            this, SLOT(invalidateFormatterCache()));
-    connect(this, SIGNAL(mimeTypeChanged()),
-            this, SLOT(onMimeTypeChanged()));
     setSyntaxHighlighter(new CppHighlighter);
     setIndenter(new CppTools::CppQtStyleIndenter);
-    onMimeTypeChanged();
+
+    connect(this, SIGNAL(tabSettingsChanged()), this, SLOT(invalidateFormatterCache()));
+    connect(this, SIGNAL(mimeTypeChanged()), this, SLOT(onMimeTypeChanged()));
+
+    connect(this, SIGNAL(aboutToReload()), this, SLOT(onAboutToReload()));
+    connect(this, SIGNAL(reloadFinished(bool)), this, SLOT(onReloadFinished()));
+    connect(this, SIGNAL(filePathChanged(QString,QString)),
+            this, SLOT(onFilePathChanged(QString,QString)));
+
+    m_processorTimer.setSingleShot(true);
+    m_processorTimer.setInterval(processDocumentIntervalInMs);
+    connect(&m_processorTimer, SIGNAL(timeout()), this, SLOT(processDocument()));
+
+    // See also onFilePathChanged() for more initialization
+}
+
+CPPEditorDocument::~CPPEditorDocument()
+{
 }
 
 bool CPPEditorDocument::isObjCEnabled() const
 {
     return m_isObjCEnabled;
+}
+
+CppTools::CppCompletionAssistProvider *CPPEditorDocument::completionAssistProvider() const
+{
+    return m_completionAssistProvider;
+}
+
+void CPPEditorDocument::semanticRehighlight()
+{
+    CppTools::BaseEditorDocumentProcessor *p = processor();
+    QTC_ASSERT(p, return);
+    p->semanticRehighlight(true);
+}
+
+CppTools::SemanticInfo CPPEditorDocument::recalculateSemanticInfo()
+{
+    CppTools::BaseEditorDocumentProcessor *p = processor();
+    QTC_ASSERT(p, CppTools::SemanticInfo());
+    return p->recalculateSemanticInfo();
+}
+
+QByteArray CPPEditorDocument::contentsText() const
+{
+    QMutexLocker locker(&m_cachedContentsLock);
+
+    const int currentRevision = document()->revision();
+    if (m_cachedContentsRevision != currentRevision && !m_fileIsBeingReloaded) {
+        m_cachedContentsRevision = currentRevision;
+        m_cachedContents = plainText().toUtf8();
+    }
+
+    return m_cachedContents;
 }
 
 void CPPEditorDocument::applyFontSettings()
@@ -82,7 +176,94 @@ void CPPEditorDocument::onMimeTypeChanged()
 {
     const QString &mt = mimeType();
     m_isObjCEnabled = (mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-                   || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+                       || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+    m_completionAssistProvider = mm()->completionAssistProvider(mt);
+}
+
+void CPPEditorDocument::onAboutToReload()
+{
+    QTC_CHECK(!m_fileIsBeingReloaded);
+    m_fileIsBeingReloaded = true;
+}
+
+void CPPEditorDocument::onReloadFinished()
+{
+    QTC_CHECK(m_fileIsBeingReloaded);
+    m_fileIsBeingReloaded = false;
+}
+
+void CPPEditorDocument::onFilePathChanged(const QString &oldPath, const QString &newPath)
+{
+    Q_UNUSED(oldPath);
+
+    if (!newPath.isEmpty()) {
+        setMimeType(Core::MimeDatabase::findByFile(QFileInfo(newPath)).type());
+
+        disconnect(this, SIGNAL(contentsChanged()), this, SLOT(scheduleProcessDocument()));
+        connect(this, SIGNAL(contentsChanged()), this, SLOT(scheduleProcessDocument()));
+
+        // Un-Register/Register in ModelManager
+        m_editorDocumentHandle.reset(new CppEditorDocumentHandle(this));
+
+        resetProcessor();
+        m_processorRevision = document()->revision();
+        processDocument();
+    }
+}
+
+void CPPEditorDocument::scheduleProcessDocument()
+{
+    m_processorRevision = document()->revision();
+    m_processorTimer.start(processDocumentIntervalInMs);
+}
+
+void CPPEditorDocument::processDocument()
+{
+    if (processor()->isParserRunning() || m_processorRevision != contentsRevision()) {
+        m_processorTimer.start();
+        return;
+    }
+
+    m_processorTimer.stop();
+    if (m_fileIsBeingReloaded || filePath().isEmpty())
+        return;
+
+    processor()->run();
+}
+
+void CPPEditorDocument::resetProcessor()
+{
+    releaseResources();
+    processor(); // creates a new processor
+}
+
+unsigned CPPEditorDocument::contentsRevision() const
+{
+    return document()->revision();
+}
+
+void CPPEditorDocument::releaseResources()
+{
+    if (m_processor)
+        disconnect(m_processor.data(), 0, this, 0);
+    m_processor.reset();
+}
+
+CppTools::BaseEditorDocumentProcessor *CPPEditorDocument::processor()
+{
+    if (!m_processor) {
+        m_processor.reset(mm()->editorDocumentProcessor(this));
+        connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::codeWarningsUpdated,
+                this, &CPPEditorDocument::codeWarningsUpdated);
+        connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
+                this, &CPPEditorDocument::ifdefedOutBlocksUpdated);
+        connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::cppDocumentUpdated,
+                this, &CPPEditorDocument::cppDocumentUpdated);
+        connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::semanticInfoUpdated,
+                this, &CPPEditorDocument::semanticInfoUpdated);
+    }
+
+    return m_processor.data();
 }
 
 } // namespace Internal

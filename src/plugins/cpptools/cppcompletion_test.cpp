@@ -102,8 +102,8 @@ public:
     {
         QStringList completions;
         CppCompletionAssistInterface *ai
-            = new CppCompletionAssistInterface(m_editorWidget->document(), m_position,
-                                               m_editorWidget->textDocument()->filePath(),
+            = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath(),
+                                               m_editorWidget->document(), m_position,
                                                ExplicitlyInvoked, m_snapshot,
                                                ProjectPart::HeaderPaths());
         CppCompletionAssistProcessor processor;

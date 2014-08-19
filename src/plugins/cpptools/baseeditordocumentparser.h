@@ -33,10 +33,13 @@
 #include "cppmodelmanagerinterface.h"
 #include "cpptools_global.h"
 
+#include <QObject>
+
 namespace CppTools {
 
-class CPPTOOLS_EXPORT BaseEditorDocumentParser
+class CPPTOOLS_EXPORT BaseEditorDocumentParser : public QObject
 {
+    Q_OBJECT
     Q_DISABLE_COPY(BaseEditorDocumentParser)
     BaseEditorDocumentParser();
 
@@ -56,6 +59,9 @@ public:
 
     QByteArray editorDefines() const;
     void setEditorDefines(const QByteArray &editorDefines);
+
+public:
+    static BaseEditorDocumentParser *get(const QString &filePath);
 
 protected:
     void updateProjectPart();

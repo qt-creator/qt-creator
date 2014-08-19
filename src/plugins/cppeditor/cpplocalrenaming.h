@@ -47,8 +47,6 @@ class CppLocalRenaming : public QObject
 public:
     explicit CppLocalRenaming(TextEditor::BaseTextEditorWidget *editorWidget);
 
-    void updateLocalUseSelections(const QList<QTextEdit::ExtraSelection> &selections);
-
     bool start();
     bool isActive() const;
     void stop();
@@ -61,6 +59,9 @@ public:
     // E.g. limit navigation keys to selection, stop() on Esc/Return or delegate
     // to BaseTextEditorWidget::keyPressEvent()
     bool handleKeyPressEvent(QKeyEvent *e);
+
+public slots:
+    void updateSelectionsForVariableUnderCursor(const QList<QTextEdit::ExtraSelection> &selections);
 
 signals:
     void finished();

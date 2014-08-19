@@ -27,43 +27,29 @@
 **
 ****************************************************************************/
 
-#ifndef CLANG_CLANGHIGHLIGHTINGSUPPORT_H
-#define CLANG_CLANGHIGHLIGHTINGSUPPORT_H
+#ifndef EDITORDOCUMENTHANDLE_H
+#define EDITORDOCUMENTHANDLE_H
 
-#include "clangutils.h"
-#include "cppcreatemarkers.h"
-#include "fastindexer.h"
+#include "baseeditordocumentprocessor.h"
+#include "cpptools_global.h"
 
-#include <cpptools/cpphighlightingsupport.h>
+namespace CppTools {
 
-#include <QObject>
-#include <QScopedPointer>
-
-namespace ClangCodeModel {
-
-class ClangHighlightingSupport: public CppTools::CppHighlightingSupport
+class CPPTOOLS_EXPORT EditorDocumentHandle
 {
 public:
-    ClangHighlightingSupport(TextEditor::BaseTextDocument *baseTextDocument,
-                             Internal::FastIndexer *fastIndexer);
-    ~ClangHighlightingSupport();
+    EditorDocumentHandle();
+    virtual ~EditorDocumentHandle();
 
-    virtual bool requiresSemanticInfo() const
-    { return false; }
+    // For the Working Copy
+    virtual QString filePath() const = 0;
+    virtual QByteArray contents() const = 0;
+    virtual unsigned revision() const = 0;
 
-    virtual bool hightlighterHandlesDiagnostics() const
-    { return true; }
-
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot) const;
-
-private:
-    Internal::FastIndexer *m_fastIndexer;
-    ClangCodeModel::SemanticMarker::Ptr m_semanticMarker;
+    // For updating if new project info is set
+    virtual BaseEditorDocumentProcessor *processor() = 0;
 };
 
-} // namespace ClangCodeModel
+} // namespace CppTools
 
-#endif // CLANG_CLANGHIGHLIGHTINGSUPPORT_H
+#endif // EDITORDOCUMENTHANDLE_H

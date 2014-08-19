@@ -32,6 +32,8 @@
 #include "utils_p.h"
 #include "cxraii.h"
 
+#include <utils/qtcassert.h>
+
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 
@@ -74,7 +76,7 @@ void SemanticMarker::setFileName(const QString &fileName)
 
 void SemanticMarker::setCompilationOptions(const QStringList &options)
 {
-    Q_ASSERT(m_unit);
+    QTC_ASSERT(m_unit, return);
 
     if (m_unit->compilationOptions() == options)
         return;
@@ -84,7 +86,7 @@ void SemanticMarker::setCompilationOptions(const QStringList &options)
 
 void SemanticMarker::reparse(const UnsavedFiles &unsavedFiles)
 {
-    Q_ASSERT(m_unit);
+    QTC_ASSERT(m_unit, return);
 
     m_unit->setUnsavedFiles(unsavedFiles);
     if (m_unit->isLoaded())
@@ -169,9 +171,9 @@ QList<Diagnostic> SemanticMarker::diagnostics() const
     return diagnostics;
 }
 
-QList<TextEditor::BlockRange> SemanticMarker::ifdefedOutBlocks() const
+QList<SemanticMarker::Range> SemanticMarker::ifdefedOutBlocks() const
 {
-    QList<TextEditor::BlockRange> blocks;
+    QList<Range> blocks;
 
     if (!m_unit || !m_unit->isLoaded())
         return blocks;
@@ -188,7 +190,7 @@ QList<TextEditor::BlockRange> SemanticMarker::ifdefedOutBlocks() const
         const SourceLocation &spellEnd = Internal::getSpellingLocation(clang_getRangeEnd(r));
         const int begin = spellBegin.offset() + 1;
         const int end = spellEnd.offset() - spellEnd.column();
-        blocks.append(TextEditor::BlockRange(begin, end));
+        blocks.append(Range(begin, end));
     }
     clang_disposeSourceRangeList(skippedRanges);
 #endif
@@ -322,9 +324,8 @@ static const QSet<QString> ObjcPseudoKeywords = QSet<QString>()
 QList<SourceMarker> SemanticMarker::sourceMarkersInRange(unsigned firstLine,
                                                          unsigned lastLine)
 {
-    Q_ASSERT(m_unit);
-
     QList<SourceMarker> result;
+    QTC_ASSERT(m_unit, return result);
 
     if (!m_unit->isLoaded())
         return result;

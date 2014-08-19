@@ -135,7 +135,7 @@ SelectionList UseSelectionsTestCase::waitForUseSelections(bool *hasTimedOut) con
 
     QList<QTextEdit::ExtraSelection> extraSelections = getExtraSelections();
     while (extraSelections.isEmpty()) {
-        if (timer.hasExpired(500)) {
+        if (timer.hasExpired(2500)) {
             if (hasTimedOut)
                 *hasTimedOut = true;
             break;

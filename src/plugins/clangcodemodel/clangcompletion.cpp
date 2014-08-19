@@ -203,15 +203,14 @@ IAssistProcessor *ClangCompletionAssistProvider::createProcessor() const
 }
 
 IAssistInterface *ClangCompletionAssistProvider::createAssistInterface(
-        ProjectExplorer::Project *project, TextEditor::BaseTextEditor *editor,
+        ProjectExplorer::Project *project, const QString &filePath,
         QTextDocument *document, bool isObjCEnabled, int position, AssistReason reason) const
 {
     Q_UNUSED(project);
     Q_UNUSED(isObjCEnabled);
 
-    QString fileName = editor->document()->filePath();
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-    QList<ProjectPart::Ptr> parts = modelManager->projectPart(fileName);
+    QList<ProjectPart::Ptr> parts = modelManager->projectPart(filePath);
     if (parts.isEmpty())
         parts += modelManager->fallbackProjectPart();
     ProjectPart::HeaderPaths headerPaths;
@@ -220,7 +219,7 @@ IAssistInterface *ClangCompletionAssistProvider::createAssistInterface(
     foreach (ProjectPart::Ptr part, parts) {
         if (part.isNull())
             continue;
-        options = ClangCodeModel::Utils::createClangOptions(part, fileName);
+        options = ClangCodeModel::Utils::createClangOptions(part, filePath);
         pchInfo = PchManager::instance()->pchInfo(part);
         if (!pchInfo.isNull())
             options.append(ClangCodeModel::Utils::createPCHInclusionOptions(pchInfo->fileName()));
@@ -230,7 +229,7 @@ IAssistInterface *ClangCompletionAssistProvider::createAssistInterface(
 
     return new ClangCodeModel::ClangCompletionAssistInterface(
                 m_clangCompletionWrapper,
-                document, position, fileName, reason,
+                document, position, filePath, reason,
                 options, headerPaths, pchInfo);
 }
 

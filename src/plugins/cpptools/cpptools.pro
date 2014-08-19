@@ -5,7 +5,9 @@ include(../../qtcreatorplugin.pri)
 HEADERS += \
     abstracteditorsupport.h \
     baseeditordocumentparser.h \
+    baseeditordocumentprocessor.h \
     builtineditordocumentparser.h \
+    builtineditordocumentprocessor.h \
     builtinindexingsupport.h \
     commentssettings.h \
     completionsettingspage.h \
@@ -26,8 +28,6 @@ HEADERS += \
     cppfilesettingspage.h \
     cppfindreferences.h \
     cppfunctionsfilter.h \
-    cpphighlightingsupport.h \
-    cpphighlightingsupportinternal.h \
     cppindexingsupport.h \
     cpplocalsymbols.h \
     cpplocatordata.h \
@@ -42,20 +42,22 @@ HEADERS += \
     cppqtstyleindenter.h \
     cpprefactoringchanges.h \
     cppsemanticinfo.h \
+    cppsemanticinfoupdater.h \
     cppsourceprocessor.h \
     cpptools_global.h \
     cpptoolsconstants.h \
-    cpptoolseditorsupport.h \
     cpptoolsplugin.h \
     cpptoolsreuse.h \
     cpptoolssettings.h \
     cppworkingcopy.h \
     doxygengenerator.h \
+    editordocumenthandle.h \
     functionutils.h \
     includeutils.h \
     indexitem.h \
     insertionpointlocator.h \
     searchsymbols.h \
+    semantichighlighter.h \
     stringtable.h \
     symbolfinder.h \
     symbolsfindfilter.h \
@@ -64,7 +66,9 @@ HEADERS += \
 SOURCES += \
     abstracteditorsupport.cpp \
     baseeditordocumentparser.cpp \
+    baseeditordocumentprocessor.cpp \
     builtineditordocumentparser.cpp \
+    builtineditordocumentprocessor.cpp \
     builtinindexingsupport.cpp \
     commentssettings.cpp \
     completionsettingspage.cpp \
@@ -85,8 +89,6 @@ SOURCES += \
     cppfilesettingspage.cpp \
     cppfindreferences.cpp \
     cppfunctionsfilter.cpp \
-    cpphighlightingsupport.cpp \
-    cpphighlightingsupportinternal.cpp \
     cppindexingsupport.cpp \
     cpplocalsymbols.cpp \
     cpplocatordata.cpp \
@@ -101,18 +103,20 @@ SOURCES += \
     cppqtstyleindenter.cpp \
     cpprefactoringchanges.cpp \
     cppsemanticinfo.cpp \
+    cppsemanticinfoupdater.cpp \
     cppsourceprocessor.cpp \
-    cpptoolseditorsupport.cpp \
     cpptoolsplugin.cpp \
     cpptoolsreuse.cpp \
     cpptoolssettings.cpp \
     cppworkingcopy.cpp \
     doxygengenerator.cpp \
+    editordocumenthandle.cpp \
     functionutils.cpp \
     includeutils.cpp \
     indexitem.cpp \
     insertionpointlocator.cpp \
     searchsymbols.cpp \
+    semantichighlighter.cpp \
     stringtable.cpp \
     symbolfinder.cpp \
     symbolsfindfilter.cpp \

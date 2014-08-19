@@ -44,8 +44,6 @@ namespace TextEditor { class BaseTextEditorWidget; }
 
 namespace CppTools {
 
-class CppEditorSupport;
-
 namespace Internal {
 
 class CppFindReferences;
@@ -94,8 +92,10 @@ public:
 
     virtual void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
     virtual void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
-    virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *textEditor);
-    virtual void deleteCppEditorSupport(TextEditor::BaseTextEditor *textEditor);
+
+    virtual EditorDocumentHandle *editorDocument(const QString &filePath);
+    virtual void registerEditorDocument(EditorDocumentHandle *editorDocument);
+    virtual void unregisterEditorDocument(const QString &filePath);
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
@@ -106,18 +106,13 @@ public:
     virtual void findMacroUsages(const CPlusPlus::Macro &macro);
     virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement);
 
-    virtual bool setExtraDiagnostics(const QString &fileName, const QString &key,
-                                     const QList<Document::DiagnosticMessage> &diagnostics);
-    virtual void setIfdefedOutBlocks(const QString &fileName,
-                                     const QList<TextEditor::BlockRange> &ifdeffedOutBlocks);
-
-    void finishedRefreshingSourceFiles(const QStringList &files);
+    virtual void finishedRefreshingSourceFiles(const QStringList &files);
 
     virtual void addModelManagerSupport(ModelManagerSupport *modelManagerSupport);
     virtual ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const;
     virtual CppCompletionAssistProvider *completionAssistProvider(const QString &mimeType) const;
-    virtual CppHighlightingSupport *highlightingSupport(
-            TextEditor::BaseTextDocument *baseTextDocument) const;
+    virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
+                TextEditor::BaseTextDocument *baseTextDocument) const;
 
     virtual void setIndexingSupport(CppIndexingSupport *indexingSupport);
     virtual CppIndexingSupport *indexingSupport();
@@ -176,7 +171,7 @@ private:
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
     void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
 
-    QList<CppEditorSupport *> cppEditorSupportList() const;
+    QList<EditorDocumentHandle *> cppEditors() const;
 
     WorkingCopy buildWorkingCopyList();
 
@@ -208,8 +203,8 @@ private:
     QByteArray m_definedMacros;
 
     // Editor integration
-    mutable QMutex m_cppEditorSupportsMutex;
-    QMap<TextEditor::BaseTextEditor *, CppEditorSupport *> m_cppEditorSupports;
+    mutable QMutex m_cppEditorsMutex;
+    QMap<QString, EditorDocumentHandle *> m_cppEditors;
     QSet<AbstractEditorSupport *> m_extraEditorSupports;
 
     // Completion & highlighting

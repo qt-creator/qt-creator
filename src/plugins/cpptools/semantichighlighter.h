@@ -27,60 +27,76 @@
 **
 ****************************************************************************/
 
-#ifndef CPPSEMANTICINFO_H
-#define CPPSEMANTICINFO_H
+#ifndef SEMANTICHIGHLIGHTER_H
+#define SEMANTICHIGHLIGHTER_H
 
+#include "cppsemanticinfo.h"
 #include "cpptools_global.h"
 
+#include <texteditor/basetextdocument.h>
 #include <texteditor/semantichighlighter.h>
 
-#include <cplusplus/CppDocument.h>
+#include <QFutureWatcher>
+#include <QScopedPointer>
+#include <QTextEdit>
 
-#include <QHash>
+#include <functional>
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT SemanticInfo
+class CPPTOOLS_EXPORT SemanticHighlighter : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(SemanticHighlighter)
+
 public:
-    struct Source
-    {
-        const QString fileName;
-        const QByteArray code;
-        const unsigned revision;
-        const bool force;
-
-        Source() : revision(0), force(false) {}
-
-        Source(const QString &fileName,
-               const QByteArray &code,
-               unsigned revision,
-               bool force)
-            : fileName(fileName)
-            , code(code)
-            , revision(revision)
-            , force(force)
-        {}
+    enum Kind {
+        Unknown = 0,
+        TypeUse,
+        LocalUse,
+        FieldUse,
+        EnumerationUse,
+        VirtualMethodUse,
+        LabelUse,
+        MacroUse,
+        FunctionUse,
+        PseudoKeywordUse,
+        StringUse
     };
 
+    typedef std::function<QFuture<TextEditor::HighlightingResult> ()> HighlightingRunner;
+
 public:
-    typedef TextEditor::HighlightingResult Use;
+    explicit SemanticHighlighter(TextEditor::BaseTextDocument *baseTextDocument);
+    ~SemanticHighlighter();
 
-    typedef QHash<CPlusPlus::Symbol *, QList<Use> > LocalUseMap;
-    typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
+    void setHighlightingRunner(HighlightingRunner highlightingRunner);
 
-    SemanticInfo();
+    void run();
 
-    unsigned revision;
-    bool complete;
-    CPlusPlus::Snapshot snapshot;
-    CPlusPlus::Document::Ptr doc;
+private slots:
+    void onDocumentFontSettingsChanged();
 
-    // Widget specific (e.g. related to cursor position)
-    bool localUsesUpdated;
-    LocalUseMap localUses;
+    void onHighlighterResultAvailable(int from, int to);
+    void onHighlighterFinished();
+
+private:
+    void connectWatcher();
+    void disconnectWatcher();
+
+    unsigned documentRevision() const;
+    void updateFormatMapFromFontSettings();
+
+private:
+    TextEditor::BaseTextDocument *m_baseTextDocument;
+
+    unsigned m_revision;
+    QScopedPointer<QFutureWatcher<TextEditor::HighlightingResult>> m_watcher;
+    QHash<int, QTextCharFormat> m_formatMap;
+
+    HighlightingRunner m_highlightingRunner;
 };
 
 } // namespace CppTools
 
-#endif // CPPSEMANTICINFO_H
+#endif // SEMANTICHIGHLIGHTER_H

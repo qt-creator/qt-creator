@@ -94,7 +94,9 @@ CppQuickFixAssistInterface::CppQuickFixAssistInterface(CppEditorWidget *editor,
     , m_currentFile(CppRefactoringChanges::file(editor, m_semanticInfo.doc))
     , m_context(m_semanticInfo.doc, m_snapshot)
 {
-    QTC_CHECK(!m_semanticInfo.doc.isNull());
+    QTC_CHECK(m_semanticInfo.doc);
+    QTC_CHECK(m_semanticInfo.doc->translationUnit());
+    QTC_CHECK(m_semanticInfo.doc->translationUnit()->ast());
     CPlusPlus::ASTPath astPath(m_semanticInfo.doc);
     m_path = astPath(editor->textCursor());
 }

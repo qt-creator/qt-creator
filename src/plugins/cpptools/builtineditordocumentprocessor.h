@@ -27,59 +27,54 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef BUILTINEDITORDOCUMENTPROCESSOR_H
+#define BUILTINEDITORDOCUMENTPROCESSOR_H
 
+#include "baseeditordocumentprocessor.h"
+#include "builtineditordocumentparser.h"
+#include "cppsemanticinfoupdater.h"
 #include "cpptools_global.h"
+#include "semantichighlighter.h"
 
-#include <texteditor/semantichighlighter.h>
-
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor { class BaseTextDocument; }
+#include <utils/qtcoverride.h>
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class CPPTOOLS_EXPORT BuiltinEditorDocumentProcessor : public BaseEditorDocumentProcessor
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    Q_OBJECT
+    BuiltinEditorDocumentProcessor();
 
 public:
-    CppHighlightingSupport(TextEditor::BaseTextDocument *baseTextDocument);
-    virtual ~CppHighlightingSupport() = 0;
+    BuiltinEditorDocumentProcessor(TextEditor::BaseTextDocument *document,
+                                   bool enableSemanticHighlighter = true);
+    ~BuiltinEditorDocumentProcessor();
 
-    virtual bool requiresSemanticInfo() const = 0;
+    // BaseEditorDocumentProcessor interface
+    void run() QTC_OVERRIDE;
+    void semanticRehighlight(bool force) QTC_OVERRIDE;
+    CppTools::SemanticInfo recalculateSemanticInfo() QTC_OVERRIDE;
+    BaseEditorDocumentParser *parser() QTC_OVERRIDE;
+    bool isParserRunning() const QTC_OVERRIDE;
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+public:
+    static BuiltinEditorDocumentProcessor *get(const QString &filePath);
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::BaseTextDocument *baseTextDocument() const
-    { return m_baseTextDocument; }
+private slots:
+    void onDocumentUpdated(CPlusPlus::Document::Ptr document);
+    void onSemanticInfoUpdated(const CppTools::SemanticInfo semanticInfo);
 
 private:
-    TextEditor::BaseTextDocument *m_baseTextDocument;
+    SemanticInfo::Source createSemanticInfoSource(bool force) const;
+
+private:
+    QScopedPointer<BuiltinEditorDocumentParser> m_parser;
+    QFuture<void> m_parserFuture;
+
+    SemanticInfoUpdater m_semanticInfoUpdater;
+    QScopedPointer<SemanticHighlighter> m_semanticHighlighter;
 };
 
 } // namespace CppTools
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // BUILTINEDITORDOCUMENTPROCESSOR_H

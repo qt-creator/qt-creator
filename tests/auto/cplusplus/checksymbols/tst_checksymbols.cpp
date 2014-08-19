@@ -34,7 +34,6 @@
 
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppsemanticinfo.h>
-#include <cpptools/cpphighlightingsupport.h>
 #include <texteditor/semantichighlighter.h>
 #include <utils/fileutils.h>
 
@@ -50,7 +49,7 @@
 typedef QByteArray _;
 typedef CppTools::CheckSymbols::Result Use;
 typedef CppTools::CheckSymbols::Kind UseKind;
-typedef CppTools::CppHighlightingSupport Highlighting;
+typedef CppTools::SemanticHighlighter Highlighting;
 typedef QList<Use> UseList;
 Q_DECLARE_METATYPE(UseList)
 
@@ -62,25 +61,25 @@ static QString useKindToString(UseKind useKind)
 {
     switch (useKind) {
     case Highlighting::Unknown:
-        return QLatin1String("CppHighlightingSupport::Unknown");
+        return QLatin1String("SemanticHighlighter::Unknown");
     case Highlighting::TypeUse:
-        return QLatin1String("CppHighlightingSupport::TypeUse");
+        return QLatin1String("SemanticHighlighter::TypeUse");
     case Highlighting::LocalUse:
-        return QLatin1String("CppHighlightingSupport::LocalUse");
+        return QLatin1String("SemanticHighlighter::LocalUse");
     case Highlighting::FieldUse:
-        return QLatin1String("CppHighlightingSupport::FieldUse");
+        return QLatin1String("SemanticHighlighter::FieldUse");
     case Highlighting::EnumerationUse:
-        return QLatin1String("CppHighlightingSupport::EnumerationUse");
+        return QLatin1String("SemanticHighlighter::EnumerationUse");
     case Highlighting::VirtualMethodUse:
-        return QLatin1String("CppHighlightingSupport::VirtualMethodUse");
+        return QLatin1String("SemanticHighlighter::VirtualMethodUse");
     case Highlighting::LabelUse:
-        return QLatin1String("CppHighlightingSupport::LabelUse");
+        return QLatin1String("SemanticHighlighter::LabelUse");
     case Highlighting::MacroUse:
-        return QLatin1String("CppHighlightingSupport::MacroUse");
+        return QLatin1String("SemanticHighlighter::MacroUse");
     case Highlighting::FunctionUse:
-        return QLatin1String("CppHighlightingSupport::FunctionUse");
+        return QLatin1String("SemanticHighlighter::FunctionUse");
     case Highlighting::PseudoKeywordUse:
-        return QLatin1String("CppHighlightingSupport::PseudoKeywordUse");
+        return QLatin1String("SemanticHighlighter::PseudoKeywordUse");
     default:
         QTest::qFail("Unknown UseKind", __FILE__, __LINE__);
         return QLatin1String("Unknown UseKind");
@@ -1608,13 +1607,13 @@ void tst_CheckSymbols::test_checksymbols_data()
                  "    Foo foo;\n"
                  "}\n")
             << (QList<Use>()
-                << Use(3, 15, 2, CppHighlightingSupport::TypeUse)
-                << Use(3, 27, 3, CppHighlightingSupport::TypeUse)
-                << Use(4, 11, 2, CppHighlightingSupport::TypeUse)
-                << Use(4, 15, 3, CppHighlightingSupport::TypeUse)
-                << Use(6, 6, 3, CppHighlightingSupport::FunctionUse)
-                << Use(8, 5, 3, CppHighlightingSupport::TypeUse)
-                << Use(8, 9, 3, CppHighlightingSupport::LocalUse)
+                << Use(3, 15, 2, Highlighting::TypeUse)
+                << Use(3, 27, 3, Highlighting::TypeUse)
+                << Use(4, 11, 2, Highlighting::TypeUse)
+                << Use(4, 15, 3, Highlighting::TypeUse)
+                << Use(6, 6, 3, Highlighting::FunctionUse)
+                << Use(8, 5, 3, Highlighting::TypeUse)
+                << Use(8, 9, 3, Highlighting::LocalUse)
                 );
 
     QTest::newRow("using_inside_different_block_of_scope_named_namespace_QTCREATORBUG12357")
@@ -1632,14 +1631,14 @@ void tst_CheckSymbols::test_checksymbols_data()
                  "}\n"
                  )
             << (QList<Use>()
-                << Use(1, 11, 3, CppHighlightingSupport::TypeUse)
-                << Use(3, 15, 2, CppHighlightingSupport::TypeUse)
-                << Use(3, 27, 3, CppHighlightingSupport::TypeUse)
-                << Use(4, 11, 2, CppHighlightingSupport::TypeUse)
-                << Use(4, 15, 3, CppHighlightingSupport::TypeUse)
-                << Use(6, 11, 3, CppHighlightingSupport::TypeUse)
-                << Use(8, 10, 3, CppHighlightingSupport::FunctionUse)
-                << Use(10, 13, 3, CppHighlightingSupport::LocalUse)
+                << Use(1, 11, 3, Highlighting::TypeUse)
+                << Use(3, 15, 2, Highlighting::TypeUse)
+                << Use(3, 27, 3, Highlighting::TypeUse)
+                << Use(4, 11, 2, Highlighting::TypeUse)
+                << Use(4, 15, 3, Highlighting::TypeUse)
+                << Use(6, 11, 3, Highlighting::TypeUse)
+                << Use(8, 10, 3, Highlighting::FunctionUse)
+                << Use(10, 13, 3, Highlighting::LocalUse)
                 );
 
     QTest::newRow("using_inside_different_namespace_QTCREATORBUG7978")
@@ -1660,13 +1659,13 @@ void tst_CheckSymbols::test_checksymbols_data()
              "void f(My" TEST_UNICODE_IDENTIFIER "Type var" TEST_UNICODE_IDENTIFIER ")\n"
              "{ var" TEST_UNICODE_IDENTIFIER "." TEST_UNICODE_IDENTIFIER "Member = 0; }\n")
         << (UseList()
-            << Use(1, 7, 10, CppHighlightingSupport::TypeUse)
-            << Use(1, 24, 10, CppHighlightingSupport::FieldUse)
-            << Use(2, 6, 1, CppHighlightingSupport::FunctionUse)
-            << Use(2, 8, 10, CppHighlightingSupport::TypeUse)
-            << Use(2, 19, 7, CppHighlightingSupport::LocalUse)
-            << Use(3, 3, 7, CppHighlightingSupport::LocalUse)
-            << Use(3, 11, 10, CppHighlightingSupport::FieldUse));
+            << Use(1, 7, 10, Highlighting::TypeUse)
+            << Use(1, 24, 10, Highlighting::FieldUse)
+            << Use(2, 6, 1, Highlighting::FunctionUse)
+            << Use(2, 8, 10, Highlighting::TypeUse)
+            << Use(2, 19, 7, Highlighting::LocalUse)
+            << Use(3, 3, 7, Highlighting::LocalUse)
+            << Use(3, 11, 10, Highlighting::FieldUse));
 
     QTest::newRow("unicodeIdentifier2")
         << _("class v" TEST_UNICODE_IDENTIFIER "\n"
@@ -1702,10 +1701,10 @@ void tst_CheckSymbols::test_checksymbols_data()
                  "Foo *x;\n"
              "};\n")
         << (UseList()
-            << Use(6, 7, 3, CppHighlightingSupport::TypeUse)
-            << Use(7, 8, 1, CppHighlightingSupport::FunctionUse)
-            << Use(8, 1, 3, CppHighlightingSupport::TypeUse)
-            << Use(8, 6, 1, CppHighlightingSupport::FieldUse));
+            << Use(6, 7, 3, Highlighting::TypeUse)
+            << Use(7, 8, 1, Highlighting::FunctionUse)
+            << Use(8, 1, 3, Highlighting::TypeUse)
+            << Use(8, 6, 1, Highlighting::FieldUse));
 #undef UC_U10302_12TIMES
 #undef UC_U10302_4TIMES
 }

@@ -96,7 +96,7 @@ public:
     TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
     TextEditor::IAssistInterface *createAssistInterface(ProjectExplorer::Project *project,
-            TextEditor::BaseTextEditor *editor,
+            const QString &filePath,
             QTextDocument *document,
             bool isObjCEnabled,
             int position,
@@ -173,28 +173,25 @@ private:
 class CppCompletionAssistInterface : public TextEditor::DefaultAssistInterface
 {
 public:
-    CppCompletionAssistInterface(TextEditor::BaseTextEditor *editor,
+    CppCompletionAssistInterface(const QString &filePath,
                                  QTextDocument *textDocument,
                                  bool isObjCEnabled,
                                  int position,
                                  TextEditor::AssistReason reason,
                                  const WorkingCopy &workingCopy)
-        : TextEditor::DefaultAssistInterface(textDocument, position, editor->document()->filePath(),
-                                             reason)
-        , m_editor(editor)
+        : TextEditor::DefaultAssistInterface(textDocument, position, filePath, reason)
         , m_isObjCEnabled(isObjCEnabled)
         , m_gotCppSpecifics(false)
         , m_workingCopy(workingCopy)
     {}
 
-    CppCompletionAssistInterface(QTextDocument *textDocument,
+    CppCompletionAssistInterface(const QString &filePath,
+                                 QTextDocument *textDocument,
                                  int position,
-                                 const QString &fileName,
                                  TextEditor::AssistReason reason,
                                  const CPlusPlus::Snapshot &snapshot,
                                  const ProjectPart::HeaderPaths &headerPaths)
-        : TextEditor::DefaultAssistInterface(textDocument, position, fileName, reason)
-        , m_editor(0)
+        : TextEditor::DefaultAssistInterface(textDocument, position, filePath, reason)
         , m_isObjCEnabled(false)
         , m_gotCppSpecifics(true)
         , m_snapshot(snapshot)
@@ -210,7 +207,6 @@ public:
 private:
     void getCppSpecifics() const;
 
-    TextEditor::BaseTextEditor *m_editor;
     mutable bool m_isObjCEnabled;
     mutable bool m_gotCppSpecifics;
     WorkingCopy m_workingCopy;

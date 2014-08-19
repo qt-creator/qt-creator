@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "clangcompletion.h"
-#include "clanghighlightingsupport.h"
+#include "clangeditordocumentprocessor.h"
 #include "clangmodelmanagersupport.h"
 
 #include <QCoreApplication>
@@ -36,9 +36,8 @@
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 
-ModelManagerSupport::ModelManagerSupport(FastIndexer *fastIndexer)
+ModelManagerSupport::ModelManagerSupport()
     : m_completionAssistProvider(new ClangCompletionAssistProvider)
-    , m_fastIndexer(fastIndexer)
 {
 }
 
@@ -63,8 +62,8 @@ CppTools::CppCompletionAssistProvider *ModelManagerSupport::completionAssistProv
     return m_completionAssistProvider.data();
 }
 
-CppTools::CppHighlightingSupport *ModelManagerSupport::highlightingSupport(
+CppTools::BaseEditorDocumentProcessor *ModelManagerSupport::editorDocumentProcessor(
         TextEditor::BaseTextDocument *baseTextDocument)
 {
-    return new ClangHighlightingSupport(baseTextDocument, m_fastIndexer);
+    return new ClangCodeModel::ClangEditorDocumentProcessor(baseTextDocument);
 }

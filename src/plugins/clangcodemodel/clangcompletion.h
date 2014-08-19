@@ -58,7 +58,7 @@ public:
 
     virtual TextEditor::IAssistProcessor *createProcessor() const;
     virtual TextEditor::IAssistInterface *createAssistInterface(
-            ProjectExplorer::Project *project, TextEditor::BaseTextEditor *editor,
+            ProjectExplorer::Project *project, const QString &filePath,
             QTextDocument *document, bool isObjCEnabled, int position,
             TextEditor::AssistReason reason) const;
 

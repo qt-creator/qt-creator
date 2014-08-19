@@ -17,18 +17,14 @@ contains(DEFINES, CLANG_COMPLETION) {
 }
 
 contains(DEFINES, CLANG_HIGHLIGHTING) {
-    HEADERS += cppcreatemarkers.h clanghighlightingsupport.h
-    SOURCES += cppcreatemarkers.cpp clanghighlightingsupport.cpp
+    HEADERS += cppcreatemarkers.h
+    SOURCES += cppcreatemarkers.cpp
 }
-
-HEADERS += clangutils.h \
-    cxprettyprinter.h
-
-SOURCES += clangutils.cpp \
-    cxprettyprinter.cpp
 
 SOURCES += \
     $$PWD/clangcodemodelplugin.cpp \
+    $$PWD/clangeditordocumentparser.cpp \
+    $$PWD/clangeditordocumentprocessor.cpp \
     $$PWD/sourcemarker.cpp \
     $$PWD/symbol.cpp \
     $$PWD/sourcelocation.cpp \
@@ -48,6 +44,8 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/clangcodemodelplugin.h \
+    $$PWD/clangeditordocumentparser.h \
+    $$PWD/clangeditordocumentprocessor.h \
     $$PWD/clang_global.h \
     $$PWD/sourcemarker.h \
     $$PWD/constants.h \
@@ -67,6 +65,12 @@ HEADERS += \
     $$PWD/clangprojectsettingspropertiespage.h \
     $$PWD/raii/scopedclangoptions.h \
     $$PWD/clangmodelmanagersupport.h
+
+HEADERS += clangutils.h \
+    cxprettyprinter.h
+
+SOURCES += clangutils.cpp \
+    cxprettyprinter.cpp
 
 contains(DEFINES, CLANG_INDEXING) {
     HEADERS += \

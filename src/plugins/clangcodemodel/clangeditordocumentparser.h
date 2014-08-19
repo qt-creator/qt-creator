@@ -27,16 +27,42 @@
 **
 ****************************************************************************/
 
-#include "cpphighlightingsupport.h"
 
-using namespace CppTools;
+#ifndef CLANGEDITORDOCUMENTPARSER_H
+#define CLANGEDITORDOCUMENTPARSER_H
 
-CppHighlightingSupport::CppHighlightingSupport(TextEditor::BaseTextDocument *baseTextDocument)
-    : m_baseTextDocument(baseTextDocument)
+#include "semanticmarker.h"
+
+#include <cpptools/baseeditordocumentparser.h>
+
+#include <utils/qtcoverride.h>
+
+namespace CppTools { class WorkingCopy; }
+
+namespace ClangCodeModel {
+
+class ClangEditorDocumentParser : public CppTools::BaseEditorDocumentParser
 {
-    Q_ASSERT(baseTextDocument);
-}
+    Q_OBJECT
 
-CppHighlightingSupport::~CppHighlightingSupport()
-{
-}
+public:
+    typedef QSharedPointer<ClangEditorDocumentParser> Ptr;
+
+public:
+    ClangEditorDocumentParser(const QString &filePath);
+
+    void update(CppTools::WorkingCopy workingCopy) QTC_OVERRIDE;
+
+    QList<Diagnostic> diagnostics() const;
+    QList<SemanticMarker::Range> ifdefedOutBlocks() const;
+    SemanticMarker::Ptr semanticMarker() const;
+
+private:
+    SemanticMarker::Ptr m_marker;
+    QStringList m_options;
+    Internal::UnsavedFiles m_unsavedFiles;
+};
+
+} // namespace ClangCodeModel
+
+#endif // CLANGEDITORDOCUMENTPARSER_H

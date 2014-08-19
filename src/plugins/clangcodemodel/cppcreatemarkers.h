@@ -37,7 +37,6 @@
 
 #include <texteditor/semantichighlighter.h>
 
-#include <QSet>
 #include <QFuture>
 #include <QtConcurrentRun>
 
@@ -70,35 +69,23 @@ public:
     }
 
     static CreateMarkers *create(ClangCodeModel::SemanticMarker::Ptr semanticMarker,
-                                 const QString &fileName,
-                                 const QStringList &options,
-                                 unsigned firstLine, unsigned lastLine,
-                                 Internal::FastIndexer *fastIndexer,
-                                 const Internal::PchInfo::Ptr &pchInfo);
+                                 const QString &fileName, unsigned firstLine, unsigned lastLine);
 
     void addUse(const SourceMarker &marker);
     void flush();
 
 protected:
     CreateMarkers(ClangCodeModel::SemanticMarker::Ptr semanticMarker,
-                  const QString &fileName, const QStringList &options,
-                  unsigned firstLine, unsigned lastLine,
-                  Internal::FastIndexer *fastIndexer,
-                  const Internal::PchInfo::Ptr &pchInfo);
+                  const QString &fileName, unsigned firstLine, unsigned lastLine);
 
 private:
     ClangCodeModel::SemanticMarker::Ptr m_marker;
-    Internal::PchInfo::Ptr m_pchInfo;
     QString m_fileName;
-    QStringList m_options;
     unsigned m_firstLine;
     unsigned m_lastLine;
-    Internal::FastIndexer *m_fastIndexer;
     QVector<SourceMarker> m_usages;
     bool m_flushRequested;
     unsigned m_flushLine;
-
-    ClangCodeModel::Internal::UnsavedFiles m_unsavedFiles;
 };
 
 } // namespace ClangCodeModel

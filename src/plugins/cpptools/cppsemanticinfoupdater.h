@@ -27,37 +27,40 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORTINTERNAL_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORTINTERNAL_H
+#ifndef CPPSEMANTICINFOUPDATER_H
+#define CPPSEMANTICINFOUPDATER_H
 
-#include "cpphighlightingsupport.h"
+#include "cppsemanticinfo.h"
 
-#include <QFuture>
+#include <QObject>
+#include <QScopedPointer>
 
 namespace CppTools {
-namespace Internal {
 
-class CppHighlightingSupportInternal: public CppHighlightingSupport
+class BuiltinEditorDocumentParser;
+class SemanticInfoUpdaterPrivate;
+
+class SemanticInfoUpdater : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(SemanticInfoUpdater)
+
 public:
-    CppHighlightingSupportInternal(TextEditor::BaseTextDocument *baseTextDocument);
-    virtual ~CppHighlightingSupportInternal();
+    explicit SemanticInfoUpdater(BuiltinEditorDocumentParser *parser);
+    ~SemanticInfoUpdater();
 
-    virtual bool requiresSemanticInfo() const
-    { return true; }
+    SemanticInfo semanticInfo() const;
 
-    virtual bool hightlighterHandlesDiagnostics() const
-    { return false; }
+    SemanticInfo update(const SemanticInfo::Source &source);
+    void updateDetached(const SemanticInfo::Source source);
 
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const
-    { return false; }
+signals:
+    void updated(CppTools::SemanticInfo semanticInfo);
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const;
+private:
+    QScopedPointer<SemanticInfoUpdaterPrivate> d;
 };
 
-} // namespace Internal
 } // namespace CppTools
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORTINTERNAL_H
+#endif // CPPSEMANTICINFOUPDATER_H

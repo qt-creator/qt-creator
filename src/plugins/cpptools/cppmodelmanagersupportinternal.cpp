@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "cppcompletionassist.h"
-#include "cpphighlightingsupportinternal.h"
 #include "cppmodelmanagersupportinternal.h"
+#include "builtineditordocumentprocessor.h"
 
 #include <QCoreApplication>
 
@@ -56,13 +56,13 @@ QString ModelManagerSupportInternal::displayName() const
                                        "Qt Creator Built-in");
 }
 
+BaseEditorDocumentProcessor *ModelManagerSupportInternal::editorDocumentProcessor(
+        TextEditor::BaseTextDocument *baseTextDocument)
+{
+    return new BuiltinEditorDocumentProcessor(baseTextDocument);
+}
+
 CppCompletionAssistProvider *ModelManagerSupportInternal::completionAssistProvider()
 {
     return m_completionAssistProvider.data();
-}
-
-CppHighlightingSupport *ModelManagerSupportInternal::highlightingSupport(
-        TextEditor::BaseTextDocument *baseTextDocument)
-{
-    return new CppHighlightingSupportInternal(baseTextDocument);
 }

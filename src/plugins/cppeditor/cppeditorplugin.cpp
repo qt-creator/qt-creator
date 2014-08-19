@@ -32,6 +32,7 @@
 #include "cppclasswizard.h"
 #include "cppcodemodelinspectordialog.h"
 #include "cppeditorconstants.h"
+#include "cppeditordocument.h"
 #include "cppeditor.h"
 #include "cppeditoroutline.h"
 #include "cppfilewizard.h"

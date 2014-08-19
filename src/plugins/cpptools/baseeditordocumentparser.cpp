@@ -29,6 +29,8 @@
 
 #include "baseeditordocumentparser.h"
 
+#include "editordocumenthandle.h"
+
 namespace CppTools {
 
 /*!
@@ -99,6 +101,16 @@ void BaseEditorDocumentParser::setEditorDefines(const QByteArray &editorDefines)
         m_editorDefines = editorDefines;
         m_editorDefinesChangedSinceLastUpdate = true;
     }
+}
+
+BaseEditorDocumentParser *BaseEditorDocumentParser::get(const QString &filePath)
+{
+    CppModelManagerInterface *cmmi = CppModelManagerInterface::instance();
+    if (EditorDocumentHandle *editorDocument = cmmi->editorDocument(filePath)) {
+        if (BaseEditorDocumentProcessor *processor = editorDocument->processor())
+            return processor->parser();
+    }
+    return 0;
 }
 
 void BaseEditorDocumentParser::updateProjectPart()

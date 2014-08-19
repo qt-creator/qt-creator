@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "cpphighlightingsupport.h"
 #include "cpplocalsymbols.h"
+#include "semantichighlighter.h"
 
 #include "cppsemanticinfo.h"
 
@@ -86,7 +86,7 @@ protected:
                         getPosition(token.utf16charsBegin(), &line, &column);
                         localUses[member].append(
                                     HighlightingResult(line, column, token.utf16chars(),
-                                                       CppHighlightingSupport::LocalUse));
+                                                       SemanticHighlighter::LocalUse));
                     }
                 }
             }
@@ -110,7 +110,7 @@ protected:
                         getTokenStartPosition(simpleName->identifier_token, &line, &column);
                         localUses[member].append(
                                     HighlightingResult(line, column, token.utf16chars(),
-                                                       CppHighlightingSupport::LocalUse));
+                                                       SemanticHighlighter::LocalUse));
                         return false;
                     }
                 }

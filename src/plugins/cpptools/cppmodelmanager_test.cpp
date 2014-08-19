@@ -27,10 +27,11 @@
 **
 ****************************************************************************/
 
+#include "builtineditordocumentparser.h"
 #include "cppsourceprocessor.h"
-#include "cpptoolseditorsupport.h"
 #include "cpptoolsplugin.h"
 #include "cpptoolstestcase.h"
+#include "editordocumenthandle.h"
 #include "modelmanagertesthelper.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -865,10 +866,10 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
-        CppEditorSupport *sup = mm->cppEditorSupport(
-                    qobject_cast<TextEditor::BaseTextEditor *>(editor));
-        while (sup->lastSemanticInfoDocument().isNull())
-            QCoreApplication::processEvents();
+//        CppEditorSupport *sup = mm->cppEditorSupport(
+//                    qobject_cast<TextEditor::BaseTextEditor *>(editor));
+//        while (sup->lastSemanticInfoDocument().isNull())
+//            QCoreApplication::processEvents();
 
         Document::Ptr doc = mm->document(fileName);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
@@ -942,20 +943,16 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
-        CppEditorSupport *sup = mm->cppEditorSupport(
-                    qobject_cast<TextEditor::BaseTextEditor *>(editor));
-        while (sup->lastSemanticInfoDocument().isNull())
-            QCoreApplication::processEvents();
-
-        sup->documentParser()->setUsePrecompiledHeaders(true);
-        sup->documentParser()->update(mm->workingCopy());
+        BuiltinEditorDocumentParser *parser = BuiltinEditorDocumentParser::get(fileName);
+        parser->setUsePrecompiledHeaders(true);
+        parser->update(mm->workingCopy());
 
         // Check if defines from pch are considered
         Document::Ptr document = mm->document(fileName);
         QCOMPARE(nameOfFirstDeclaration(document), firstDeclarationName);
 
         // Check if declarations from pch are considered
-        CPlusPlus::LookupContext context(document, sup->documentParser()->snapshot());
+        CPlusPlus::LookupContext context(document, parser->snapshot());
         const CPlusPlus::Identifier *identifier
             = document->control()->identifier(firstClassInPchFile.data());
         const QList<CPlusPlus::LookupItem> results = context.lookup(identifier,
@@ -1025,13 +1022,10 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
-        CppEditorSupport *sup = mm->cppEditorSupport(
-                    qobject_cast<TextEditor::BaseTextEditor *>(editor));
-        while (sup->lastSemanticInfoDocument().isNull())
-            QCoreApplication::processEvents();
-
-        sup->documentParser()->setEditorDefines(editorDefines.toUtf8());
-        sup->documentParser()->update(mm->workingCopy());
+        const QString filePath = editor->document()->filePath();
+        BaseEditorDocumentParser *parser = BaseEditorDocumentParser::get(filePath);
+        parser->setEditorDefines(editorDefines.toUtf8());
+        parser->update(mm->workingCopy());
 
         Document::Ptr doc = mm->document(main1File);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);

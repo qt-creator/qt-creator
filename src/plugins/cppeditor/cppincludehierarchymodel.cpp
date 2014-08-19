@@ -32,8 +32,9 @@
 #include "cppincludehierarchyitem.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <cpptools/builtineditordocumentparser.h>
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <cpptools/cpptoolseditorsupport.h>
+#include <cpptools/editordocumenthandle.h>
 #include <texteditor/basetexteditor.h>
 
 #include <cplusplus/CppDocument.h>
@@ -42,6 +43,15 @@
 
 using namespace CPlusPlus;
 using namespace CppTools;
+
+namespace {
+
+Snapshot globalSnapshot()
+{
+    return CppTools::CppModelManagerInterface::instance()->snapshot();
+}
+
+} // anonymous namespace
 
 namespace CppEditor {
 namespace Internal {
@@ -161,18 +171,24 @@ void CppIncludeHierarchyModel::fetchMore(const QModelIndex &parent)
         return;
 
     if (parentItem->needChildrenPopulate()) {
+        const QString editorFilePath = m_editor->document()->filePath();
         QSet<QString> cyclic;
-        cyclic << m_editor->document()->filePath();
+        cyclic << editorFilePath;
         CppIncludeHierarchyItem *item = parentItem->parent();
         while (!(item == m_includesItem || item == m_includedByItem)) {
             cyclic << item->filePath();
             item = item->parent();
         }
 
-        if (item == m_includesItem)
-            buildHierarchyIncludes_helper(parentItem->filePath(), parentItem, &cyclic);
-        else
-            buildHierarchyIncludedBy_helper(parentItem->filePath(), parentItem, &cyclic);
+        if (item == m_includesItem) {
+            const Snapshot editorDocumentSnapshot
+                = BuiltinEditorDocumentParser::get(editorFilePath)->snapshot();
+            buildHierarchyIncludes_helper(parentItem->filePath(), parentItem,
+                                          editorDocumentSnapshot, &cyclic);
+        } else {
+            buildHierarchyIncludedBy_helper(parentItem->filePath(), parentItem,
+                                            globalSnapshot(), &cyclic);
+        }
     }
 
 }
@@ -231,19 +247,21 @@ bool CppIncludeHierarchyModel::isEmpty() const
 
 void CppIncludeHierarchyModel::buildHierarchyIncludes(const QString &currentFilePath)
 {
+    if (!m_editor)
+        return;
+
+    const QString editorFilePath = m_editor->document()->filePath();
+    const Snapshot snapshot = BuiltinEditorDocumentParser::get(editorFilePath)->snapshot();
     QSet<QString> cyclic;
-    buildHierarchyIncludes_helper(currentFilePath, m_includesItem, &cyclic);
+    buildHierarchyIncludes_helper(currentFilePath, m_includesItem, snapshot, &cyclic);
 }
 
 void CppIncludeHierarchyModel::buildHierarchyIncludes_helper(const QString &filePath,
                                                              CppIncludeHierarchyItem *parent,
-                                                             QSet<QString> *cyclic, bool recursive)
+                                                             Snapshot snapshot,
+                                                             QSet<QString> *cyclic,
+                                                             bool recursive)
 {
-    if (!m_editor)
-        return;
-
-    CppModelManagerInterface *cppMM = CppModelManagerInterface::instance();
-    const Snapshot &snapshot = cppMM->cppEditorSupport(m_editor)->documentParser()->snapshot();
     Document::Ptr doc = snapshot.document(filePath);
     if (!doc)
         return;
@@ -265,7 +283,7 @@ void CppIncludeHierarchyModel::buildHierarchyIncludes_helper(const QString &file
         }
         item = new CppIncludeHierarchyItem(includedFilePath, parent);
         parent->appendChild(item);
-        buildHierarchyIncludes_helper(includedFilePath, item, cyclic, false);
+        buildHierarchyIncludes_helper(includedFilePath, item, snapshot, cyclic, false);
 
     }
     cyclic->remove(filePath);
@@ -274,16 +292,16 @@ void CppIncludeHierarchyModel::buildHierarchyIncludes_helper(const QString &file
 void CppIncludeHierarchyModel::buildHierarchyIncludedBy(const QString &currentFilePath)
 {
     QSet<QString> cyclic;
-    buildHierarchyIncludedBy_helper(currentFilePath, m_includedByItem, &cyclic);
+    buildHierarchyIncludedBy_helper(currentFilePath, m_includedByItem, globalSnapshot(), &cyclic);
 }
 
 void CppIncludeHierarchyModel::buildHierarchyIncludedBy_helper(const QString &filePath,
                                                                CppIncludeHierarchyItem *parent,
+                                                               Snapshot snapshot,
                                                                QSet<QString> *cyclic,
                                                                bool recursive)
 {
     cyclic->insert(filePath);
-    const Snapshot &snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
     Snapshot::const_iterator citEnd = snapshot.end();
     for (Snapshot::const_iterator cit = snapshot.begin(); cit != citEnd; ++cit) {
         const QString filePathFromSnapshot = cit.key();
@@ -307,8 +325,9 @@ void CppIncludeHierarchyModel::buildHierarchyIncludedBy_helper(const QString &fi
 
                 if (isCyclic)
                     continue;
-                else
-                    buildHierarchyIncludedBy_helper(filePathFromSnapshot, item, cyclic, false);
+
+                buildHierarchyIncludedBy_helper(filePathFromSnapshot, item, snapshot, cyclic,
+                                                false);
             }
         }
     }

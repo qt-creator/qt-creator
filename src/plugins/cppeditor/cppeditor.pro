@@ -33,6 +33,7 @@ HEADERS += \
     cppquickfixes.h \
     cppsnippetprovider.h \
     cpptypehierarchy.h \
+    cppuseselectionsupdater.h \
     cppvirtualfunctionassistprovider.h \
     cppvirtualfunctionproposalitem.h
 
@@ -65,6 +66,7 @@ SOURCES += \
     cppquickfixes.cpp \
     cppsnippetprovider.cpp \
     cpptypehierarchy.cpp \
+    cppuseselectionsupdater.cpp \
     cppvirtualfunctionassistprovider.cpp \
     cppvirtualfunctionproposalitem.cpp
 

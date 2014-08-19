@@ -27,68 +27,48 @@
 **
 ****************************************************************************/
 
-#ifndef CLANG_SEMANTICMARKER_H
-#define CLANG_SEMANTICMARKER_H
+#ifndef CLANGEDITORDOCUMENTPROCESSOR_H
+#define CLANGEDITORDOCUMENTPROCESSOR_H
 
-#include "clang_global.h"
-#include "diagnostic.h"
-#include "fastindexer.h"
-#include "sourcemarker.h"
-#include "utils.h"
+#include "clangeditordocumentparser.h"
 
-#include <QMutex>
-#include <QScopedPointer>
-#include <QSharedPointer>
-#include <QString>
-#include <QStringList>
+#include <cpptools/baseeditordocumentprocessor.h>
+#include <cpptools/builtineditordocumentprocessor.h>
+#include <cpptools/semantichighlighter.h>
+
+#include <utils/qtcoverride.h>
+
+#include <QFutureWatcher>
 
 namespace ClangCodeModel {
 
-class CLANG_EXPORT SemanticMarker
+class ClangEditorDocumentProcessor : public CppTools::BaseEditorDocumentProcessor
 {
-    Q_DISABLE_COPY(SemanticMarker)
+    Q_OBJECT
 
 public:
-    typedef QSharedPointer<SemanticMarker> Ptr;
+    ClangEditorDocumentProcessor(TextEditor::BaseTextDocument *document);
+    ~ClangEditorDocumentProcessor();
 
-    class Range
-    {
-        Range();
-    public:
-        Range(int first, int last) : first(first), last(last) {}
+    // BaseEditorDocumentProcessor interface
+    void run() QTC_OVERRIDE;
+    void semanticRehighlight(bool force) QTC_OVERRIDE;
+    CppTools::SemanticInfo recalculateSemanticInfo() QTC_OVERRIDE;
+    CppTools::BaseEditorDocumentParser *parser() QTC_OVERRIDE;
+    bool isParserRunning() const QTC_OVERRIDE;
 
-        int first;
-        int last;
-    };
-
-public:
-    SemanticMarker();
-    ~SemanticMarker();
-
-    QMutex *mutex() const
-    { return &m_mutex; }
-
-    QString fileName() const;
-    void setFileName(const QString &fileName);
-
-    void setCompilationOptions(const QStringList &options);
-
-    void reparse(const Internal::UnsavedFiles &unsavedFiles);
-
-    QList<Diagnostic> diagnostics() const;
-
-    QList<Range> ifdefedOutBlocks() const;
-
-    QList<SourceMarker> sourceMarkersInRange(unsigned firstLine,
-                                             unsigned lastLine);
-
-    Internal::Unit::Ptr unit() const;
+private slots:
+    void onParserFinished();
 
 private:
-    mutable QMutex m_mutex;
-    Internal::Unit::Ptr m_unit;
+    QScopedPointer<ClangEditorDocumentParser> m_parser;
+    QFutureWatcher<void> m_parserWatcher;
+    unsigned m_parserRevision;
+
+    CppTools::SemanticHighlighter m_semanticHighlighter;
+    CppTools::BuiltinEditorDocumentProcessor m_builtinProcessor;
 };
 
 } // namespace ClangCodeModel
 
-#endif // CLANG_SEMANTICMARKER_H
+#endif // CLANGEDITORDOCUMENTPROCESSOR_H

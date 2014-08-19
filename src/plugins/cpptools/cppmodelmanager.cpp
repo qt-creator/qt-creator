@@ -34,13 +34,12 @@
 #include "cppcodemodelinspectordumper.h"
 #include "cppcodemodelsettings.h"
 #include "cppfindreferences.h"
-#include "cpphighlightingsupport.h"
 #include "cppindexingsupport.h"
 #include "cppmodelmanagersupportinternal.h"
 #include "cppsourceprocessor.h"
 #include "cpptoolsconstants.h"
-#include "cpptoolseditorsupport.h"
 #include "cpptoolsplugin.h"
+#include "editordocumenthandle.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -399,47 +398,42 @@ void CppModelManager::removeExtraEditorSupport(AbstractEditorSupport *editorSupp
     m_extraEditorSupports.remove(editorSupport);
 }
 
-/// \brief Returns the \c CppEditorSupport for the given text editor. It will
-///        create one when none exists yet.
-CppEditorSupport *CppModelManager::cppEditorSupport(TextEditor::BaseTextEditor *textEditor)
+EditorDocumentHandle *CppModelManager::editorDocument(const QString &filePath)
 {
-    Q_ASSERT(textEditor);
+    QTC_ASSERT(!filePath.isEmpty(), return 0);
 
-    QMutexLocker locker(&m_cppEditorSupportsMutex);
-
-    CppEditorSupport *editorSupport = m_cppEditorSupports.value(textEditor, 0);
-    if (!editorSupport && isCppEditor(textEditor)) {
-        editorSupport = new CppEditorSupport(this, textEditor);
-        m_cppEditorSupports.insert(textEditor, editorSupport);
-    }
-    return editorSupport;
+    QMutexLocker locker(&m_cppEditorsMutex);
+    return m_cppEditors.value(filePath, 0);
 }
 
-/// \brief Removes the CppEditorSupport for the closed editor.
-void CppModelManager::deleteCppEditorSupport(TextEditor::BaseTextEditor *textEditor)
+void CppModelManager::registerEditorDocument(EditorDocumentHandle *editorDocument)
 {
-    static short numberOfClosedEditors = 0;
+    QTC_ASSERT(editorDocument, return);
+    const QString filePath = editorDocument->filePath();
+    QTC_ASSERT(!filePath.isEmpty(), return);
 
-    QTC_ASSERT(textEditor, return);
+    QMutexLocker locker(&m_cppEditorsMutex);
+    QTC_ASSERT(m_cppEditors.value(filePath, 0) == 0, return);
+    m_cppEditors.insert(filePath, editorDocument);
+}
 
-    if (!isCppEditor(textEditor))
-        return;
+void CppModelManager::unregisterEditorDocument(const QString &filePath)
+{
+    QTC_ASSERT(!filePath.isEmpty(), return);
 
-    CppEditorSupport *editorSupport;
-    int numberOfOpenEditors = 0;
+    static short closedCppDocuments = 0;
+    int openCppDocuments = 0;
 
-    { // Only lock the operations on m_cppEditorSupport
-        QMutexLocker locker(&m_cppEditorSupportsMutex);
-        editorSupport = m_cppEditorSupports.value(textEditor, 0);
-        m_cppEditorSupports.remove(textEditor);
-        numberOfOpenEditors = m_cppEditorSupports.size();
+    {
+        QMutexLocker locker(&m_cppEditorsMutex);
+        QTC_ASSERT(m_cppEditors.value(filePath, 0), return);
+        QTC_CHECK(m_cppEditors.remove(filePath) == 1);
+        openCppDocuments = m_cppEditors.size();
     }
 
-    delete editorSupport;
-
-    ++numberOfClosedEditors;
-    if (numberOfOpenEditors == 0 || numberOfClosedEditors == 5) {
-        numberOfClosedEditors = 0;
+    ++closedCppDocuments;
+    if (openCppDocuments == 0 || closedCppDocuments == 5) {
+        closedCppDocuments = 0;
         delayedGC();
     }
 }
@@ -483,10 +477,8 @@ WorkingCopy CppModelManager::buildWorkingCopyList()
 {
     WorkingCopy workingCopy;
 
-    foreach (const CppEditorSupport *editorSupport, cppEditorSupportList()) {
-        workingCopy.insert(editorSupport->fileName(), editorSupport->contents(),
-                           editorSupport->editorRevision());
-    }
+    foreach (const EditorDocumentHandle *cppEditor, cppEditors())
+        workingCopy.insert(cppEditor->filePath(), cppEditor->contents(), cppEditor->revision());
 
     QSetIterator<AbstractEditorSupport *> it(m_extraEditorSupports);
     while (it.hasNext()) {
@@ -551,10 +543,10 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
     }
 }
 
-QList<CppEditorSupport *> CppModelManager::cppEditorSupportList() const
+QList<EditorDocumentHandle *> CppModelManager::cppEditors() const
 {
-    QMutexLocker locker(&m_cppEditorSupportsMutex);
-    return m_cppEditorSupports.values();
+    QMutexLocker locker(&m_cppEditorsMutex);
+    return m_cppEditors.values();
 }
 
 /// \brief Remove all given files from the snapshot.
@@ -832,8 +824,8 @@ void CppModelManager::GC()
 
     // Collect files of CppEditorSupport and AbstractEditorSupport.
     QStringList filesInEditorSupports;
-    foreach (const CppEditorSupport *cppEditorSupport, cppEditorSupportList())
-        filesInEditorSupports << cppEditorSupport->fileName();
+    foreach (const EditorDocumentHandle *cppEditor, cppEditors())
+        filesInEditorSupports << cppEditor->filePath();
 
     QSetIterator<AbstractEditorSupport *> jt(m_extraEditorSupports);
     while (jt.hasNext()) {
@@ -909,13 +901,13 @@ CppCompletionAssistProvider *CppModelManager::completionAssistProvider(const QSt
     return cms->completionAssistProvider();
 }
 
-CppHighlightingSupport *CppModelManager::highlightingSupport(
+BaseEditorDocumentProcessor *CppModelManager::editorDocumentProcessor(
         TextEditor::BaseTextDocument *baseTextDocument) const
 {
     QTC_ASSERT(baseTextDocument, return 0);
     ModelManagerSupport *cms = modelManagerSupportForMimeType(baseTextDocument->mimeType());
     QTC_ASSERT(cms, return 0);
-    return cms->highlightingSupport(baseTextDocument);
+    return cms->editorDocumentProcessor(baseTextDocument);
 }
 
 void CppModelManager::setIndexingSupport(CppIndexingSupport *indexingSupport)
@@ -933,28 +925,4 @@ void CppModelManager::enableGarbageCollector(bool enable)
 {
     m_delayedGcTimer->stop();
     m_enableGC = enable;
-}
-
-bool CppModelManager::setExtraDiagnostics(const QString &fileName,
-                                          const QString &kind,
-                                          const QList<Document::DiagnosticMessage> &diagnostics)
-{
-    foreach (CppEditorSupport *editorSupport, cppEditorSupportList()) {
-        if (editorSupport->fileName() == fileName) {
-            editorSupport->setExtraDiagnostics(kind, diagnostics);
-            return true;
-        }
-    }
-    return false;
-}
-
-void CppModelManager::setIfdefedOutBlocks(const QString &fileName,
-                                          const QList<TextEditor::BlockRange> &ifdeffedOutBlocks)
-{
-    foreach (CppEditorSupport *editorSupport, cppEditorSupportList()) {
-        if (editorSupport->fileName() == fileName) {
-            editorSupport->setIfdefedOutBlocks(ifdeffedOutBlocks);
-            break;
-        }
-    }
 }

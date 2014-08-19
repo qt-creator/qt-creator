@@ -52,9 +52,9 @@ namespace Utils { class FileName; }
 namespace CppTools {
 
 class AbstractEditorSupport;
+class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
-class CppEditorSupport;
-class CppHighlightingSupport;
+class EditorDocumentHandle;
 class CppIndexingSupport;
 class ModelManagerSupport;
 class WorkingCopy;
@@ -95,8 +95,10 @@ public:
 
     virtual void addExtraEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
     virtual void removeExtraEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
-    virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *textEditor) = 0;
-    virtual void deleteCppEditorSupport(TextEditor::BaseTextEditor *textEditor) = 0;
+
+    virtual EditorDocumentHandle *editorDocument(const QString &filePath) = 0;
+    virtual void registerEditorDocument(EditorDocumentHandle *editorDocument) = 0;
+    virtual void unregisterEditorDocument(const QString &filePath) = 0;
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol,
                                   const CPlusPlus::LookupContext &context) = 0;
@@ -108,14 +110,13 @@ public:
     virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement = QString()) = 0;
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
 
-    virtual void setIfdefedOutBlocks(const QString &fileName,
-                                     const QList<TextEditor::BlockRange> &ifdeffedOutBlocks) = 0;
+    virtual void finishedRefreshingSourceFiles(const QStringList &files) = 0;
 
     virtual void addModelManagerSupport(ModelManagerSupport *modelManagerSupport) = 0;
     virtual ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const = 0;
     virtual CppCompletionAssistProvider *completionAssistProvider(const QString &mimeType) const = 0;
-    virtual CppHighlightingSupport *highlightingSupport(
-            TextEditor::BaseTextDocument *baseTextDocument) const = 0;
+    virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
+                TextEditor::BaseTextDocument *baseTextDocument) const = 0;
 
     virtual void setIndexingSupport(CppTools::CppIndexingSupport *indexingSupport) = 0;
     virtual CppIndexingSupport *indexingSupport() = 0;

@@ -29,6 +29,7 @@
 
 #include "builtineditordocumentparser.h"
 #include "cppsourceprocessor.h"
+#include "editordocumenthandle.h"
 
 #include <utils/qtcassert.h>
 
@@ -221,8 +222,15 @@ void BuiltinEditorDocumentParser::setReleaseSourceAndAST(bool onoff)
     m_releaseSourceAndAST = onoff;
 }
 
+BuiltinEditorDocumentParser *BuiltinEditorDocumentParser::get(const QString &filePath)
+{
+    if (BaseEditorDocumentParser *b = BaseEditorDocumentParser::get(filePath))
+        return qobject_cast<BuiltinEditorDocumentParser *>(b);
+    return 0;
+}
+
 void BuiltinEditorDocumentParser::addFileAndDependencies(QSet<QString> *toRemove,
-                                                            const QString &fileName) const
+                                                         const QString &fileName) const
 {
     toRemove->insert(fileName);
     if (fileName != filePath()) {
@@ -230,4 +238,3 @@ void BuiltinEditorDocumentParser::addFileAndDependencies(QSet<QString> *toRemove
         toRemove->unite(QSet<QString>::fromList(deps));
     }
 }
-

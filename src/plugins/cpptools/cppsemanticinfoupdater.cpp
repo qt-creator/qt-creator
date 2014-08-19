@@ -1,0 +1,226 @@
+/****************************************************************************
+**
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+#include "builtineditordocumentparser.h"
+#include "cpplocalsymbols.h"
+#include "cppsemanticinfoupdater.h"
+
+#include <utils/qtcassert.h>
+#include <utils/qtcoverride.h>
+#include <utils/runextensions.h>
+
+#include <cplusplus/Control.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/TranslationUnit.h>
+
+enum { debug = 0 };
+
+using namespace CPlusPlus;
+using namespace CppTools;
+
+namespace CppTools {
+
+class SemanticInfoUpdaterPrivate
+{
+public:
+    class FuturizedTopLevelDeclarationProcessor: public CPlusPlus::TopLevelDeclarationProcessor
+    {
+    public:
+        FuturizedTopLevelDeclarationProcessor(QFutureInterface<void> &future): m_future(future) {}
+        bool processDeclaration(CPlusPlus::DeclarationAST *) { return !isCanceled(); }
+        bool isCanceled() { return m_future.isCanceled(); }
+    private:
+        QFutureInterface<void> m_future;
+    };
+
+public:
+    SemanticInfoUpdaterPrivate(SemanticInfoUpdater *q, BuiltinEditorDocumentParser *m_parser);
+    ~SemanticInfoUpdaterPrivate();
+
+    SemanticInfo semanticInfo() const;
+    void setSemanticInfo(const SemanticInfo &semanticInfo, bool emitSignal);
+
+    SemanticInfo update(const SemanticInfo::Source &source,
+                        bool emitSignalWhenFinished,
+                        FuturizedTopLevelDeclarationProcessor *processor);
+
+    bool reuseCurrentSemanticInfo(const SemanticInfo::Source &source, bool emitSignalWhenFinished);
+
+    void update_helper(QFutureInterface<void> &future, const SemanticInfo::Source source);
+
+public:
+    SemanticInfoUpdater *q;
+    mutable QMutex m_lock;
+    SemanticInfo m_semanticInfo;
+    QFuture<void> m_future;
+    BuiltinEditorDocumentParser *m_parser;
+};
+
+SemanticInfoUpdaterPrivate::SemanticInfoUpdaterPrivate(SemanticInfoUpdater *q,
+                                                       BuiltinEditorDocumentParser *parser)
+    : q(q)
+    , m_parser(parser)
+{
+}
+
+SemanticInfoUpdaterPrivate::~SemanticInfoUpdaterPrivate()
+{
+    m_future.cancel();
+    m_future.waitForFinished();
+}
+
+SemanticInfo SemanticInfoUpdaterPrivate::semanticInfo() const
+{
+    QMutexLocker locker(&m_lock);
+    return m_semanticInfo;
+}
+
+void SemanticInfoUpdaterPrivate::setSemanticInfo(const SemanticInfo &semanticInfo, bool emitSignal)
+{
+    {
+        QMutexLocker locker(&m_lock);
+        m_semanticInfo = semanticInfo;
+    }
+    if (emitSignal) {
+        if (debug)
+            qDebug() << "SemanticInfoUpdater: emiting new info";
+        emit q->updated(semanticInfo);
+    }
+}
+
+SemanticInfo SemanticInfoUpdaterPrivate::update(const SemanticInfo::Source &source,
+                                                bool emitSignalWhenFinished,
+                                                FuturizedTopLevelDeclarationProcessor *processor)
+{
+    if (debug)
+        qDebug() << "SemanticInfoUpdater: update() - source revision" << source.revision;
+
+    SemanticInfo newSemanticInfo;
+    newSemanticInfo.revision = source.revision;
+
+    QTC_ASSERT(m_parser, return newSemanticInfo);
+    newSemanticInfo.snapshot = m_parser->snapshot();
+    QTC_ASSERT(newSemanticInfo.snapshot.contains(source.fileName), return newSemanticInfo);
+
+    Document::Ptr doc = newSemanticInfo.snapshot.preprocessedDocument(source.code, source.fileName);
+    if (processor)
+        doc->control()->setTopLevelDeclarationProcessor(processor);
+    doc->check();
+    if (processor && processor->isCanceled())
+        newSemanticInfo.complete = false;
+    newSemanticInfo.doc = doc;
+
+    if (debug)
+        qDebug() << "SemanticInfoUpdater: update() - re-calculated document. Canceled ="
+                 << !newSemanticInfo.complete;
+
+    setSemanticInfo(newSemanticInfo, emitSignalWhenFinished);
+    return newSemanticInfo;
+}
+
+bool SemanticInfoUpdaterPrivate::reuseCurrentSemanticInfo(const SemanticInfo::Source &source,
+                                                          bool emitSignalWhenFinished)
+{
+    const SemanticInfo currentSemanticInfo = semanticInfo();
+
+    if (!source.force
+            && currentSemanticInfo.complete
+            && currentSemanticInfo.revision == source.revision
+            && currentSemanticInfo.doc
+            && currentSemanticInfo.doc->translationUnit()->ast()
+            && currentSemanticInfo.doc->fileName() == source.fileName) {
+        SemanticInfo newSemanticInfo;
+        newSemanticInfo.revision = source.revision;
+        newSemanticInfo.doc = currentSemanticInfo.doc;
+        newSemanticInfo.snapshot = currentSemanticInfo.snapshot; // ### TODO: use the new snapshot.
+        setSemanticInfo(newSemanticInfo, emitSignalWhenFinished);
+        if (debug)
+            qDebug() << "SemanticInfoUpdater: re-using current semantic info - source.revision"
+                     << source.revision;
+        return true;
+    }
+
+    return false;
+}
+
+void SemanticInfoUpdaterPrivate::update_helper(QFutureInterface<void> &future,
+                                               const SemanticInfo::Source source)
+{
+    FuturizedTopLevelDeclarationProcessor processor(future);
+    update(source, true, &processor);
+}
+
+SemanticInfoUpdater::SemanticInfoUpdater(BuiltinEditorDocumentParser *parser)
+    : d(new SemanticInfoUpdaterPrivate(this, parser))
+{
+}
+
+SemanticInfoUpdater::~SemanticInfoUpdater()
+{
+    d->m_future.cancel();
+    d->m_future.waitForFinished();
+}
+
+SemanticInfo SemanticInfoUpdater::update(const SemanticInfo::Source &source)
+{
+    if (debug)
+        qDebug() << "SemanticInfoUpdater: update() - synchronous";
+    d->m_future.cancel();
+
+    const bool emitSignalWhenFinished = false;
+    if (d->reuseCurrentSemanticInfo(source, emitSignalWhenFinished)) {
+        d->m_future = QFuture<void>();
+        return semanticInfo();
+    }
+
+    return d->update(source, emitSignalWhenFinished, 0);
+}
+
+void SemanticInfoUpdater::updateDetached(const SemanticInfo::Source source)
+{
+    if (debug)
+        qDebug() << "SemanticInfoUpdater: updateDetached() - asynchronous";
+    d->m_future.cancel();
+
+    const bool emitSignalWhenFinished = true;
+    if (d->reuseCurrentSemanticInfo(source, emitSignalWhenFinished)) {
+        d->m_future = QFuture<void>();
+        return;
+    }
+
+    d->m_future = QtConcurrent::run<SemanticInfoUpdaterPrivate, void, const SemanticInfo::Source>
+            (&SemanticInfoUpdaterPrivate::update_helper, d.data(), source);
+}
+
+SemanticInfo SemanticInfoUpdater::semanticInfo() const
+{
+    return d->semanticInfo();
+}
+
+} // namespace CppTools

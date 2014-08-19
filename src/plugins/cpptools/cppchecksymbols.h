@@ -31,8 +31,8 @@
 #define CPLUSPLUSCHECKSYMBOLS_H
 
 #include "cpptools_global.h"
-#include "cpphighlightingsupport.h"
 #include "cppsemanticinfo.h"
+#include "semantichighlighter.h"
 
 #include <cplusplus/TypeOfExpression.h>
 
@@ -51,7 +51,7 @@ public:
     virtual ~CheckSymbols();
 
     typedef TextEditor::HighlightingResult Result;
-    typedef CppHighlightingSupport::Kind Kind;
+    typedef SemanticHighlighter::Kind Kind;
 
     virtual void run();
 

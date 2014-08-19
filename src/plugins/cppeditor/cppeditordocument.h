@@ -30,7 +30,16 @@
 #ifndef CPPEDITORDOCUMENT_H
 #define CPPEDITORDOCUMENT_H
 
+#include <cpptools/baseeditordocumentprocessor.h>
+#include <cpptools/cppcompletionassistprovider.h>
+#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppsemanticinfo.h>
+#include <cpptools/editordocumenthandle.h>
+
 #include <texteditor/basetextdocument.h>
+
+#include <QMutex>
+#include <QTimer>
 
 namespace CppEditor {
 namespace Internal {
@@ -38,20 +47,68 @@ namespace Internal {
 class CPPEditorDocument : public TextEditor::BaseTextDocument
 {
     Q_OBJECT
+
+    friend class CppEditorDocumentHandle;
+
 public:
     explicit CPPEditorDocument();
+    ~CPPEditorDocument();
 
     bool isObjCEnabled() const;
+    CppTools::CppCompletionAssistProvider *completionAssistProvider() const;
+
+    void semanticRehighlight();
+    CppTools::SemanticInfo recalculateSemanticInfo(); // TODO: Remove me
+
+signals:
+    void codeWarningsUpdated(unsigned contentsRevision,
+                             const QList<QTextEdit::ExtraSelection> selections);
+
+    void ifdefedOutBlocksUpdated(unsigned contentsRevision,
+                                 const QList<TextEditor::BlockRange> ifdefedOutBlocks);
+
+    void cppDocumentUpdated(const CPlusPlus::Document::Ptr document);    // TODO: Remove me
+    void semanticInfoUpdated(const CppTools::SemanticInfo semanticInfo); // TODO: Remove me
 
 protected:
     void applyFontSettings();
 
 private slots:
     void invalidateFormatterCache();
+    void onFilePathChanged(const QString &oldPath, const QString &newPath);
     void onMimeTypeChanged();
 
+    void onAboutToReload();
+    void onReloadFinished();
+
+    void scheduleProcessDocument();
+    void processDocument();
+
 private:
+    QByteArray contentsText() const;
+    unsigned contentsRevision() const;
+
+    CppTools::BaseEditorDocumentProcessor *processor();
+    void resetProcessor();
+    void releaseResources();
+
+private:
+    bool m_fileIsBeingReloaded;
     bool m_isObjCEnabled;
+
+    // Caching contents
+    mutable QMutex m_cachedContentsLock;
+    mutable QByteArray m_cachedContents;
+    mutable int m_cachedContentsRevision;
+
+    unsigned m_processorRevision;
+    QTimer m_processorTimer;
+    QScopedPointer<CppTools::BaseEditorDocumentProcessor> m_processor;
+
+    CppTools::CppCompletionAssistProvider *m_completionAssistProvider;
+
+    // (Un)Registration in CppModelManager
+    QScopedPointer<CppTools::EditorDocumentHandle> m_editorDocumentHandle;
 };
 
 } // namespace Internal

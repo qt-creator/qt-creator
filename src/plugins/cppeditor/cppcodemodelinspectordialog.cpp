@@ -30,12 +30,13 @@
 #include "cppcodemodelinspectordialog.h"
 #include "ui_cppcodemodelinspectordialog.h"
 #include "cppeditor.h"
+#include "cppeditordocument.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <cpptools/builtineditordocumentparser.h>
 #include <cpptools/cppcodemodelinspectordumper.h>
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolseditorsupport.h>
 #include <cpptools/cppworkingcopy.h>
 #include <projectexplorer/project.h>
 
@@ -1358,11 +1359,13 @@ void CppCodeModelInspectorDialog::refresh()
     dumper.dumpSnapshot(globalSnapshot, globalSnapshotTitle, /*isGlobalSnapshot=*/ true);
 
     TextEditor::BaseTextEditor *editor = currentEditor();
-    CppEditorSupport *editorSupport = 0;
+    EditorDocumentHandle *editorDocument = 0;
     if (editor) {
-        editorSupport = cmmi->cppEditorSupport(editor);
-        if (editorSupport) {
-            const CPlusPlus::Snapshot editorSnapshot = editorSupport->documentParser()->snapshot();
+        const QString editorFilePath = editor->document()->filePath();
+        editorDocument = cmmi->editorDocument(editorFilePath);
+        if (editorDocument) {
+            const CPlusPlus::Snapshot editorSnapshot
+                = BuiltinEditorDocumentParser::get(editorFilePath)->snapshot();
             m_snapshotInfos->append(SnapshotInfo(editorSnapshot, SnapshotInfo::EditorSnapshot));
             const QString editorSnapshotTitle
                 = QString::fromLatin1("Current Editor's Snapshot (%1 Documents)")
@@ -1412,8 +1415,8 @@ void CppCodeModelInspectorDialog::refresh()
     onSnapshotSelected(snapshotIndex);
 
     // Project Parts
-    const ProjectPart::Ptr editorsProjectPart = editorSupport
-        ? editorSupport->documentParser()->projectPart()
+    const ProjectPart::Ptr editorsProjectPart = editorDocument
+        ? editorDocument->processor()->parser()->projectPart()
         : ProjectPart::Ptr();
 
     const QList<ProjectInfo> projectInfos = cmmi->projectInfos();

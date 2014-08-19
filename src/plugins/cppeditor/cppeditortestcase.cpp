@@ -31,8 +31,10 @@
 #include "cppeditortestcase.h"
 
 #include "cppeditor.h"
+#include "cppeditordocument.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppsemanticinfo.h>
 #include <cplusplus/CppDocument.h>
 
@@ -87,8 +89,10 @@ bool TestCase::openCppEditor(const QString &fileName,
 CPlusPlus::Document::Ptr TestCase::waitForRehighlightedSemanticDocument(
         Internal::CppEditorWidget *editorWidget)
 {
-    editorWidget->semanticRehighlight(true);
-    while (editorWidget->semanticInfo().doc.isNull())
+    const QString filePath = editorWidget->textDocument()->filePath();
+    auto processor = CppTools::BaseEditorDocumentProcessor::get(filePath);
+    processor->semanticRehighlight(false);
+    while (!editorWidget->isSemanticInfoValid())
         QCoreApplication::processEvents();
     return editorWidget->semanticInfo().doc;
 }

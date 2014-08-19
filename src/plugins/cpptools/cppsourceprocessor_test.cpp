@@ -33,8 +33,8 @@
 #include "cppmodelmanager.h"
 #include "cppsourceprocessertesthelper.h"
 #include "cppsourceprocessor.h"
-#include "cpptoolseditorsupport.h"
 #include "cpptoolstestcase.h"
+#include "editordocumenthandle.h"
 
 #include <texteditor/basetexteditor.h>
 
@@ -140,13 +140,11 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
     QVERIFY(testCase.openBaseTextEditor(fileName1, &editor));
     testCase.closeEditorAtEndOfTestCase(editor);
 
-    // Get editor snapshot
-    CppEditorSupport *cppEditorSupport = CppModelManagerInterface::instance()
-        ->cppEditorSupport(editor);
-    QVERIFY(cppEditorSupport);
-    BuiltinEditorDocumentParser::Ptr documentParser = cppEditorSupport->documentParser();
-    QVERIFY(documentParser);
-    Snapshot snapshot = documentParser->snapshot();
+    // Check editor snapshot
+    const QString filePath = editor->document()->filePath();
+    BuiltinEditorDocumentParser *parser = BuiltinEditorDocumentParser::get(filePath);
+    QVERIFY(parser);
+    Snapshot snapshot = parser->snapshot();
     QCOMPARE(snapshot.size(), 3); // Configuration file included
 
     // Check includes

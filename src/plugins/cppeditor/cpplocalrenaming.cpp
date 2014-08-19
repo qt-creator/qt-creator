@@ -72,7 +72,8 @@ CppLocalRenaming::CppLocalRenaming(TextEditor::BaseTextEditorWidget *editorWidge
             this, SLOT(onContentsChangeOfEditorWidgetDocument(int,int,int)));
 }
 
-void CppLocalRenaming::updateLocalUseSelections(const QList<QTextEdit::ExtraSelection> &selections)
+void CppLocalRenaming::updateSelectionsForVariableUnderCursor(
+        const QList<QTextEdit::ExtraSelection> &selections)
 {
     QTC_ASSERT(!isActive(), return);
     m_selections = selections;

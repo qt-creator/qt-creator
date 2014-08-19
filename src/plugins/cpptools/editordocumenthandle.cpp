@@ -27,68 +27,23 @@
 **
 ****************************************************************************/
 
-#ifndef CLANG_SEMANTICMARKER_H
-#define CLANG_SEMANTICMARKER_H
+#include "editordocumenthandle.h"
 
-#include "clang_global.h"
-#include "diagnostic.h"
-#include "fastindexer.h"
-#include "sourcemarker.h"
-#include "utils.h"
+namespace CppTools {
 
-#include <QMutex>
-#include <QScopedPointer>
-#include <QSharedPointer>
-#include <QString>
-#include <QStringList>
+/*!
+    \class CppTools::EditorDocumentHandle
 
-namespace ClangCodeModel {
+    \brief The EditorDocumentHandle class provides an interface to an opened
+           C++ editor document.
+*/
 
-class CLANG_EXPORT SemanticMarker
+EditorDocumentHandle::EditorDocumentHandle()
 {
-    Q_DISABLE_COPY(SemanticMarker)
+}
 
-public:
-    typedef QSharedPointer<SemanticMarker> Ptr;
+EditorDocumentHandle::~EditorDocumentHandle()
+{
+}
 
-    class Range
-    {
-        Range();
-    public:
-        Range(int first, int last) : first(first), last(last) {}
-
-        int first;
-        int last;
-    };
-
-public:
-    SemanticMarker();
-    ~SemanticMarker();
-
-    QMutex *mutex() const
-    { return &m_mutex; }
-
-    QString fileName() const;
-    void setFileName(const QString &fileName);
-
-    void setCompilationOptions(const QStringList &options);
-
-    void reparse(const Internal::UnsavedFiles &unsavedFiles);
-
-    QList<Diagnostic> diagnostics() const;
-
-    QList<Range> ifdefedOutBlocks() const;
-
-    QList<SourceMarker> sourceMarkersInRange(unsigned firstLine,
-                                             unsigned lastLine);
-
-    Internal::Unit::Ptr unit() const;
-
-private:
-    mutable QMutex m_mutex;
-    Internal::Unit::Ptr m_unit;
-};
-
-} // namespace ClangCodeModel
-
-#endif // CLANG_SEMANTICMARKER_H
+} // namespace CppTools

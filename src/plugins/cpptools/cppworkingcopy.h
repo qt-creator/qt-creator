@@ -52,6 +52,9 @@ public:
     QByteArray source(const QString &fileName) const
     { return _elements.value(fileName).first; }
 
+    unsigned revision(const QString &fileName) const
+    { return _elements.value(fileName).second; }
+
     QPair<QByteArray, unsigned> get(const QString &fileName) const
     { return _elements.value(fileName); }
 

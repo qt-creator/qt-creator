@@ -29,7 +29,6 @@
 
 #include "clangcodemodelplugin.h"
 #include "clangprojectsettingspropertiespage.h"
-#include "fastindexer.h"
 #include "pchmanager.h"
 #include "utils.h"
 
@@ -65,11 +64,9 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     ClangCodeModel::Internal::initializeClang();
 
     PchManager *pchManager = new PchManager(this);
-    FastIndexer *fastIndexer = 0;
 
 #ifdef CLANG_INDEXING
     m_indexer.reset(new ClangIndexer);
-    fastIndexer = m_indexer.data();
     CppTools::CppModelManagerInterface::instance()->setIndexingSupport(m_indexer->indexingSupport());
 #endif // CLANG_INDEXING
 
@@ -80,7 +77,7 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     connect(CppTools::CppModelManagerInterface::instance(), SIGNAL(projectPartsUpdated(ProjectExplorer::Project*)),
             pchManager, SLOT(onProjectPartsUpdated(ProjectExplorer::Project*)));
 
-    m_modelManagerSupport.reset(new ModelManagerSupport(fastIndexer));
+    m_modelManagerSupport.reset(new ModelManagerSupport);
     CppTools::CppModelManagerInterface::instance()->addModelManagerSupport(
                 m_modelManagerSupport.data());
 

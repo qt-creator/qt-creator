@@ -61,7 +61,7 @@ public:
     bool isContinuationChar(const QChar &c) const QTC_OVERRIDE;
 
     virtual TextEditor::IAssistInterface *createAssistInterface(
-            ProjectExplorer::Project *project, TextEditor::BaseTextEditor *editor,
+            ProjectExplorer::Project *project, const QString &filePath,
             QTextDocument *document, bool isObjCEnabled, int position,
             TextEditor::AssistReason reason) const = 0;
 
