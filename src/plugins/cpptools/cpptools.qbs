@@ -25,6 +25,7 @@ QtcPlugin {
     files: [
         "abstracteditorsupport.cpp", "abstracteditorsupport.h",
         "baseeditordocumentparser.cpp", "baseeditordocumentparser.h",
+        "builtineditordocumentparser.cpp", "builtineditordocumentparser.h",
         "builtinindexingsupport.cpp", "builtinindexingsupport.h",
         "commentssettings.cpp", "commentssettings.h",
         "completionsettingspage.cpp", "completionsettingspage.h", "completionsettingspage.ui",
@@ -61,7 +62,6 @@ QtcPlugin {
         "cppqtstyleindenter.cpp", "cppqtstyleindenter.h",
         "cpprefactoringchanges.cpp", "cpprefactoringchanges.h",
         "cppsemanticinfo.cpp", "cppsemanticinfo.h",
-        "cppsnapshotupdater.cpp", "cppsnapshotupdater.h",
         "cppsourceprocessor.cpp", "cppsourceprocessor.h",
         "cpptools.qrc",
         "cpptools_global.h",

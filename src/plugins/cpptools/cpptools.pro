@@ -5,6 +5,7 @@ include(../../qtcreatorplugin.pri)
 HEADERS += \
     abstracteditorsupport.h \
     baseeditordocumentparser.h \
+    builtineditordocumentparser.h \
     builtinindexingsupport.h \
     commentssettings.h \
     completionsettingspage.h \
@@ -41,7 +42,6 @@ HEADERS += \
     cppqtstyleindenter.h \
     cpprefactoringchanges.h \
     cppsemanticinfo.h \
-    cppsnapshotupdater.h \
     cppsourceprocessor.h \
     cpptools_global.h \
     cpptoolsconstants.h \
@@ -64,6 +64,7 @@ HEADERS += \
 SOURCES += \
     abstracteditorsupport.cpp \
     baseeditordocumentparser.cpp \
+    builtineditordocumentparser.cpp \
     builtinindexingsupport.cpp \
     commentssettings.cpp \
     completionsettingspage.cpp \
@@ -100,7 +101,6 @@ SOURCES += \
     cppqtstyleindenter.cpp \
     cpprefactoringchanges.cpp \
     cppsemanticinfo.cpp \
-    cppsnapshotupdater.cpp \
     cppsourceprocessor.cpp \
     cpptoolseditorsupport.cpp \
     cpptoolsplugin.cpp \

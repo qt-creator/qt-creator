@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
+#include "builtineditordocumentparser.h"
 #include "cppsourceprocessor.h"
-#include "cppsnapshotupdater.h"
 
 #include <utils/qtcassert.h>
 
@@ -36,14 +36,14 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-SnapshotUpdater::SnapshotUpdater(const QString &filePath)
+BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath)
     : BaseEditorDocumentParser(filePath)
     , m_forceSnapshotInvalidation(false)
     , m_releaseSourceAndAST(true)
 {
 }
 
-void SnapshotUpdater::update(WorkingCopy workingCopy)
+void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -189,7 +189,7 @@ void SnapshotUpdater::update(WorkingCopy workingCopy)
     }
 }
 
-void SnapshotUpdater::releaseResources()
+void BuiltinEditorDocumentParser::releaseResources()
 {
     QMutexLocker locker(&m_mutex);
     m_snapshot = Snapshot();
@@ -197,31 +197,32 @@ void SnapshotUpdater::releaseResources()
     m_forceSnapshotInvalidation = true;
 }
 
-Document::Ptr SnapshotUpdater::document() const
+Document::Ptr BuiltinEditorDocumentParser::document() const
 {
     QMutexLocker locker(&m_mutex);
     return m_snapshot.document(filePath());
 }
 
-Snapshot SnapshotUpdater::snapshot() const
+Snapshot BuiltinEditorDocumentParser::snapshot() const
 {
     QMutexLocker locker(&m_mutex);
     return m_snapshot;
 }
 
-ProjectPart::HeaderPaths SnapshotUpdater::headerPaths() const
+ProjectPart::HeaderPaths BuiltinEditorDocumentParser::headerPaths() const
 {
     QMutexLocker locker(&m_mutex);
     return m_headerPaths;
 }
 
-void SnapshotUpdater::setReleaseSourceAndAST(bool onoff)
+void BuiltinEditorDocumentParser::setReleaseSourceAndAST(bool onoff)
 {
     QMutexLocker locker(&m_mutex);
     m_releaseSourceAndAST = onoff;
 }
 
-void SnapshotUpdater::addFileAndDependencies(QSet<QString> *toRemove, const QString &fileName) const
+void BuiltinEditorDocumentParser::addFileAndDependencies(QSet<QString> *toRemove,
+                                                            const QString &fileName) const
 {
     toRemove->insert(fileName);
     if (fileName != filePath()) {

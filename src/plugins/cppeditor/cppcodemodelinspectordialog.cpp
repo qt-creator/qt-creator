@@ -1362,7 +1362,7 @@ void CppCodeModelInspectorDialog::refresh()
     if (editor) {
         editorSupport = cmmi->cppEditorSupport(editor);
         if (editorSupport) {
-            const CPlusPlus::Snapshot editorSnapshot = editorSupport->snapshotUpdater()->snapshot();
+            const CPlusPlus::Snapshot editorSnapshot = editorSupport->documentParser()->snapshot();
             m_snapshotInfos->append(SnapshotInfo(editorSnapshot, SnapshotInfo::EditorSnapshot));
             const QString editorSnapshotTitle
                 = QString::fromLatin1("Current Editor's Snapshot (%1 Documents)")
@@ -1413,7 +1413,7 @@ void CppCodeModelInspectorDialog::refresh()
 
     // Project Parts
     const ProjectPart::Ptr editorsProjectPart = editorSupport
-        ? editorSupport->snapshotUpdater()->projectPart()
+        ? editorSupport->documentParser()->projectPart()
         : ProjectPart::Ptr();
 
     const QList<ProjectInfo> projectInfos = cmmi->projectInfos();

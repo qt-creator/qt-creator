@@ -29,10 +29,10 @@
 
 #include "cpptoolsplugin.h"
 
+#include "builtineditordocumentparser.h"
 #include "cppmodelmanager.h"
 #include "cppsourceprocessertesthelper.h"
 #include "cppsourceprocessor.h"
-#include "cppsnapshotupdater.h"
 #include "cpptoolseditorsupport.h"
 #include "cpptoolstestcase.h"
 
@@ -131,7 +131,7 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
     const QString fileName2 = TestIncludePaths::testFilePath(QLatin1String("cyclic2.h"));
     const QStringList sourceFiles = QStringList() << fileName1 << fileName2;
 
-    // Create global snapshot (needed in SnapshotUpdater)
+    // Create global snapshot (needed in BuiltinEditorDocumentParser)
     TestCase testCase;
     testCase.parseFiles(sourceFiles);
 
@@ -144,9 +144,10 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
     CppEditorSupport *cppEditorSupport = CppModelManagerInterface::instance()
         ->cppEditorSupport(editor);
     QVERIFY(cppEditorSupport);
-    QSharedPointer<SnapshotUpdater> snapshotUpdater = cppEditorSupport->snapshotUpdater();
-    QVERIFY(snapshotUpdater);
-    Snapshot snapshot = snapshotUpdater->snapshot();
+    QSharedPointer<BuiltinEditorDocumentParser> documentParser
+        = cppEditorSupport->documentParser();
+    QVERIFY(documentParser);
+    Snapshot snapshot = documentParser->snapshot();
     QCOMPARE(snapshot.size(), 3); // Configuration file included
 
     // Check includes

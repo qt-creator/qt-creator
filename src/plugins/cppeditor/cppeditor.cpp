@@ -1020,10 +1020,10 @@ void CppEditorWidget::onFilePathChanged()
         additionalDirectives = ProjectExplorer::SessionManager::value(
                     projectFile + QLatin1Char(',') + filePath).toString().toUtf8();
 
-        QSharedPointer<SnapshotUpdater> updater
-                = d->m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
-        updater->setProjectPart(d->m_modelManager->projectPartForProjectFile(projectFile));
-        updater->setEditorDefines(additionalDirectives);
+        QSharedPointer<BuiltinEditorDocumentParser> parser
+                = d->m_modelManager->cppEditorSupport(editor())->documentParser();
+        parser->setProjectPart(d->m_modelManager->projectPartForProjectFile(projectFile));
+        parser->setEditorDefines(additionalDirectives);
     }
     d->m_preprocessorButton->setProperty("highlightWidget", !additionalDirectives.trimmed().isEmpty());
     d->m_preprocessorButton->update();
@@ -1088,12 +1088,12 @@ void CppEditorWidget::showPreProcessorWidget()
 
     CppPreProcessorDialog preProcessorDialog(this, textDocument()->filePath(), projectParts);
     if (preProcessorDialog.exec() == QDialog::Accepted) {
-        QSharedPointer<SnapshotUpdater> updater
-                = d->m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
+        QSharedPointer<BuiltinEditorDocumentParser> parser
+                = d->m_modelManager->cppEditorSupport(editor())->documentParser();
         const QString &additionals = preProcessorDialog.additionalPreProcessorDirectives();
-        updater->setProjectPart(preProcessorDialog.projectPart());
-        updater->setEditorDefines(additionals.toUtf8());
-        updater->update(d->m_modelManager->workingCopy());
+        parser->setProjectPart(preProcessorDialog.projectPart());
+        parser->setEditorDefines(additionals.toUtf8());
+        parser->update(d->m_modelManager->workingCopy());
 
         d->m_preprocessorButton->setProperty("highlightWidget", !additionals.trimmed().isEmpty());
         d->m_preprocessorButton->update();

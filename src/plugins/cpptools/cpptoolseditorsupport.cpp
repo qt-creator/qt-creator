@@ -171,11 +171,11 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
 
 CppEditorSupport::~CppEditorSupport()
 {
-    m_documentParser.cancel();
+    m_documentParserFuture.cancel();
     m_highlighter.cancel();
     m_futureSemanticInfo.cancel();
 
-    m_documentParser.waitForFinished();
+    m_documentParserFuture.waitForFinished();
     m_highlighter.waitForFinished();
     m_futureSemanticInfo.waitForFinished();
 }
@@ -259,12 +259,12 @@ CppCompletionAssistProvider *CppEditorSupport::completionAssistProvider() const
     return m_completionAssistProvider;
 }
 
-QSharedPointer<SnapshotUpdater> CppEditorSupport::snapshotUpdater()
+QSharedPointer<BuiltinEditorDocumentParser> CppEditorSupport::documentParser()
 {
-    QSharedPointer<SnapshotUpdater> updater = snapshotUpdater_internal();
+    QSharedPointer<BuiltinEditorDocumentParser> updater = documentParser_internal();
     if (!updater || updater->filePath() != fileName()) {
-        updater = QSharedPointer<SnapshotUpdater>(new SnapshotUpdater(fileName()));
-        setSnapshotUpdater_internal(updater);
+        updater = QSharedPointer<BuiltinEditorDocumentParser>(new BuiltinEditorDocumentParser(fileName()));
+        setDocumentParser_internal(updater);
 
         QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
         updater->setUsePrecompiledHeaders(cms->pchUsage() != CppCodeModelSettings::PchUse_None);
@@ -282,7 +282,7 @@ void CppEditorSupport::updateDocument()
     m_updateDocumentTimer->start(m_updateDocumentInterval);
 }
 
-static void parse(QFutureInterface<void> &future, QSharedPointer<SnapshotUpdater> updater,
+static void parse(QFutureInterface<void> &future, QSharedPointer<BuiltinEditorDocumentParser> updater,
                   WorkingCopy workingCopy)
 {
     future.setProgressRange(0, 1);
@@ -300,7 +300,7 @@ static void parse(QFutureInterface<void> &future, QSharedPointer<SnapshotUpdater
 
 void CppEditorSupport::updateDocumentNow()
 {
-    if (m_documentParser.isRunning() || m_revision != editorRevision()) {
+    if (m_documentParserFuture.isRunning() || m_revision != editorRevision()) {
         m_updateDocumentTimer->start(m_updateDocumentInterval);
     } else {
         m_updateDocumentTimer->stop();
@@ -311,14 +311,14 @@ void CppEditorSupport::updateDocumentNow()
         if (m_highlightingSupport && !m_highlightingSupport->requiresSemanticInfo())
             startHighlighting();
 
-        m_documentParser = QtConcurrent::run(&parse, snapshotUpdater(),
+        m_documentParserFuture = QtConcurrent::run(&parse, documentParser(),
                                              CppModelManager::instance()->workingCopy());
     }
 }
 
 bool CppEditorSupport::isUpdatingDocument()
 {
-    return m_updateDocumentTimer->isActive() || m_documentParser.isRunning();
+    return m_updateDocumentTimer->isActive() || m_documentParserFuture.isRunning();
 }
 
 void CppEditorSupport::onDocumentUpdated(Document::Ptr doc)
@@ -488,7 +488,7 @@ void CppEditorSupport::releaseResources()
 {
     m_highlighter.cancel();
     m_highlighter = QFuture<TextEditor::HighlightingResult>();
-    snapshotUpdater()->releaseResources();
+    documentParser()->releaseResources();
     setSemanticInfo(SemanticInfo(), /*emitSignal=*/ false);
     m_lastHighlightOnCompleteSemanticInfo = true;
 }
@@ -524,11 +524,12 @@ SemanticInfo CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::So
 
     // Otherwise reprocess document
     } else {
-        const QSharedPointer<SnapshotUpdater> snapshotUpdater = snapshotUpdater_internal();
-        QTC_ASSERT(snapshotUpdater, return newSemanticInfo);
-        newSemanticInfo.snapshot = snapshotUpdater->snapshot();
+        const QSharedPointer<BuiltinEditorDocumentParser> documentParser
+            = documentParser_internal();
+        QTC_ASSERT(documentParser, return newSemanticInfo);
+        newSemanticInfo.snapshot = documentParser->snapshot();
         if (!newSemanticInfo.snapshot.contains(source.fileName))
-            return newSemanticInfo; // SnapshotUpdater::update() not yet started.
+            return newSemanticInfo; // BuiltinEditorDocumentParser::update() not yet started.
         Document::Ptr doc = newSemanticInfo.snapshot.preprocessedDocument(source.code,
                                                                           source.fileName);
         if (processor)
@@ -583,16 +584,17 @@ void CppEditorSupport::setSemanticInfo(const SemanticInfo &semanticInfo, bool em
         emit semanticInfoUpdated(semanticInfo);
 }
 
-QSharedPointer<SnapshotUpdater> CppEditorSupport::snapshotUpdater_internal() const
+QSharedPointer<BuiltinEditorDocumentParser> CppEditorSupport::documentParser_internal() const
 {
-    QMutexLocker locker(&m_snapshotUpdaterLock);
-    return m_snapshotUpdater;
+    QMutexLocker locker(&m_documentParserLock);
+    return m_documentParser;
 }
 
-void CppEditorSupport::setSnapshotUpdater_internal(const QSharedPointer<SnapshotUpdater> &updater)
+void CppEditorSupport::setDocumentParser_internal(
+        const QSharedPointer<BuiltinEditorDocumentParser> &updater)
 {
-    QMutexLocker locker(&m_snapshotUpdaterLock);
-    m_snapshotUpdater = updater;
+    QMutexLocker locker(&m_documentParserLock);
+    m_documentParser = updater;
 }
 
 void CppEditorSupport::onMimeTypeChanged()

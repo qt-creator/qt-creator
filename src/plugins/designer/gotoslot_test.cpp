@@ -195,10 +195,10 @@ public:
 
         // Compare
         const Document::Ptr cppDocument
-            = m_modelManager->cppEditorSupport(cppFileEditor)->snapshotUpdater()->document();
+            = m_modelManager->cppEditorSupport(cppFileEditor)->documentParser()->document();
         QVERIFY(checkDiagsnosticMessages(cppDocument));
         const Document::Ptr hDocument
-            = m_modelManager->cppEditorSupport(hFileEditor)->snapshotUpdater()->document();
+            = m_modelManager->cppEditorSupport(hFileEditor)->documentParser()->document();
         QVERIFY(checkDiagsnosticMessages(hDocument));
 
         QVERIFY(documentContainsFunctionDefinition(cppDocument,

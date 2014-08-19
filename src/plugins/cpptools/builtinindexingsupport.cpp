@@ -1,9 +1,9 @@
 #include "builtinindexingsupport.h"
 
+#include "builtineditordocumentparser.h"
 #include "cppchecksymbols.h"
 #include "cppmodelmanager.h"
 #include "cppprojectfile.h"
-#include "cppsnapshotupdater.h"
 #include "cppsourceprocessor.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
@@ -136,17 +136,17 @@ void indexFindErrors(QFutureInterface<void> &future, const ParseParams params)
         qDebug("FindErrorsIndexing: \"%s\"", qPrintable(file));
 
         // Parse the file as precisely as possible
-        SnapshotUpdater updater(file);
-        updater.setReleaseSourceAndAST(false);
-        updater.update(params.workingCopy);
-        CPlusPlus::Document::Ptr document = updater.document();
+        BuiltinEditorDocumentParser parser(file);
+        parser.setReleaseSourceAndAST(false);
+        parser.update(params.workingCopy);
+        CPlusPlus::Document::Ptr document = parser.document();
         QTC_ASSERT(document, return);
 
         // Write diagnostic messages
         taskFileWriter.process(document);
 
         // Look up symbols
-        CPlusPlus::LookupContext context(document, updater.snapshot());
+        CPlusPlus::LookupContext context(document, parser.snapshot());
         CheckSymbols::go(document, context, QList<CheckSymbols::Result>()).waitForFinished();
 
         document->releaseSourceAndAST();

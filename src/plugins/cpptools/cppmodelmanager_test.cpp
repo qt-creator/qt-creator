@@ -947,16 +947,15 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
         while (sup->lastSemanticInfoDocument().isNull())
             QCoreApplication::processEvents();
 
-        const QSharedPointer<SnapshotUpdater> updater = sup->snapshotUpdater();
-        updater->setUsePrecompiledHeaders(true);
-        updater->update(mm->workingCopy());
+        sup->documentParser()->setUsePrecompiledHeaders(true);
+        sup->documentParser()->update(mm->workingCopy());
 
         // Check if defines from pch are considered
         Document::Ptr document = mm->document(fileName);
         QCOMPARE(nameOfFirstDeclaration(document), firstDeclarationName);
 
         // Check if declarations from pch are considered
-        CPlusPlus::LookupContext context(document, updater->snapshot());
+        CPlusPlus::LookupContext context(document, sup->documentParser()->snapshot());
         const CPlusPlus::Identifier *identifier
             = document->control()->identifier(firstClassInPchFile.data());
         const QList<CPlusPlus::LookupItem> results = context.lookup(identifier,
@@ -1031,8 +1030,8 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
         while (sup->lastSemanticInfoDocument().isNull())
             QCoreApplication::processEvents();
 
-        sup->snapshotUpdater()->setEditorDefines(editorDefines.toUtf8());
-        sup->snapshotUpdater()->update(mm->workingCopy());
+        sup->documentParser()->setEditorDefines(editorDefines.toUtf8());
+        sup->documentParser()->update(mm->workingCopy());
 
         Document::Ptr doc = mm->document(main1File);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);

@@ -243,7 +243,7 @@ void CppIncludeHierarchyModel::buildHierarchyIncludes_helper(const QString &file
         return;
 
     CppModelManagerInterface *cppMM = CppModelManagerInterface::instance();
-    const Snapshot &snapshot = cppMM->cppEditorSupport(m_editor)->snapshotUpdater()->snapshot();
+    const Snapshot &snapshot = cppMM->cppEditorSupport(m_editor)->documentParser()->snapshot();
     Document::Ptr doc = snapshot.document(filePath);
     if (!doc)
         return;

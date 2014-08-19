@@ -29,10 +29,10 @@
 
 #include "cppcompletionassist.h"
 
+#include "builtineditordocumentparser.h"
 #include "cppdoxygen.h"
 #include "cppmodelmanager.h"
 #include "cppmodelmanagerinterface.h"
-#include "cppsnapshotupdater.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
 #include "cpptoolsreuse.h"
@@ -1959,10 +1959,10 @@ void CppCompletionAssistInterface::getCppSpecifics() const
 
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
     if (CppEditorSupport *supp = modelManager->cppEditorSupport(m_editor)) {
-        if (QSharedPointer<SnapshotUpdater> updater = supp->snapshotUpdater()) {
-            updater->update(m_workingCopy);
-            m_snapshot = updater->snapshot();
-            m_headerPaths = updater->headerPaths();
+        if (QSharedPointer<BuiltinEditorDocumentParser> parser = supp->documentParser()) {
+            parser->update(m_workingCopy);
+            m_snapshot = parser->snapshot();
+            m_headerPaths = parser->headerPaths();
         }
     }
 }

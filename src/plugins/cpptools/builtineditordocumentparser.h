@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_INTERNAL_SNAPSHOTUPDATER_H
-#define CPPTOOLS_INTERNAL_SNAPSHOTUPDATER_H
+#ifndef BUILTINEDITORDOCUMENTPARSER_H
+#define BUILTINEDITORDOCUMENTPARSER_H
 
 #include "baseeditordocumentparser.h"
 #include "cpptools_global.h"
@@ -43,10 +43,10 @@
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT SnapshotUpdater : public BaseEditorDocumentParser
+class CPPTOOLS_EXPORT BuiltinEditorDocumentParser : public BaseEditorDocumentParser
 {
 public:
-    SnapshotUpdater(const QString &filePath);
+    BuiltinEditorDocumentParser(const QString &filePath);
 
     void update(WorkingCopy workingCopy) QTC_OVERRIDE;
     void releaseResources();
@@ -75,4 +75,4 @@ private:
 
 } // namespace CppTools
 
-#endif // CPPTOOLS_INTERNAL_SNAPSHOTUPDATER_H
+#endif // BUILTINEDITORDOCUMENTPARSER_H

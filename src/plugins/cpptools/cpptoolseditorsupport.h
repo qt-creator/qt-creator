@@ -30,10 +30,10 @@
 #ifndef CPPTOOLSEDITORSUPPORT_H
 #define CPPTOOLSEDITORSUPPORT_H
 
+#include "builtineditordocumentparser.h"
 #include "cpphighlightingsupport.h"
 #include "cppmodelmanager.h"
 #include "cppsemanticinfo.h"
-#include "cppsnapshotupdater.h"
 
 #include <cplusplus/Control.h>
 #include <cplusplus/CppDocument.h>
@@ -133,7 +133,7 @@ public:
 
     CppCompletionAssistProvider *completionAssistProvider() const;
 
-    QSharedPointer<SnapshotUpdater> snapshotUpdater();
+    QSharedPointer<BuiltinEditorDocumentParser> documentParser();
 
     /// Checks whether the document is (re)parsed or about to be (re)parsed.
     bool isUpdatingDocument();
@@ -202,8 +202,8 @@ private:
     SemanticInfo semanticInfo() const;
     void setSemanticInfo(const SemanticInfo &semanticInfo, bool emitSignal = true);
 
-    QSharedPointer<SnapshotUpdater> snapshotUpdater_internal() const;
-    void setSnapshotUpdater_internal(const QSharedPointer<SnapshotUpdater> &updater);
+    QSharedPointer<BuiltinEditorDocumentParser> documentParser_internal() const;
+    void setDocumentParser_internal(const QSharedPointer<BuiltinEditorDocumentParser> &updater);
 
 private:
     Internal::CppModelManager *m_modelManager;
@@ -212,7 +212,6 @@ private:
     QTimer *m_updateDocumentTimer;
     int m_updateDocumentInterval;
     unsigned m_revision;
-    QFuture<void> m_documentParser;
 
     QTimer *m_editorGCTimer;
     bool m_editorVisible;
@@ -234,8 +233,9 @@ private:
     mutable QMutex m_lastSemanticInfoLock;
     SemanticInfo m_lastSemanticInfo;
     QFuture<void> m_futureSemanticInfo;
-    mutable QMutex m_snapshotUpdaterLock;
-    QSharedPointer<SnapshotUpdater> m_snapshotUpdater;
+    mutable QMutex m_documentParserLock;
+    QSharedPointer<BuiltinEditorDocumentParser> m_documentParser;
+    QFuture<void> m_documentParserFuture;
 
     // Highlighting:
     unsigned m_lastHighlightRevision;
