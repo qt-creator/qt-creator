@@ -32,7 +32,6 @@
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
-#include "qmljseditorfactory.h"
 #include "qmljshoverhandler.h"
 #include "qmlfilewizard.h"
 #include "jsfilewizard.h"
@@ -93,7 +92,6 @@ QmlJSEditorPlugin *QmlJSEditorPlugin::m_instance = 0;
 
 QmlJSEditorPlugin::QmlJSEditorPlugin() :
         m_modelManager(0),
-    m_editor(0),
     m_quickFixAssistProvider(0),
     m_reformatFileAction(0),
     m_currentDocument(0),
@@ -106,7 +104,6 @@ QmlJSEditorPlugin::QmlJSEditorPlugin() :
 
 QmlJSEditorPlugin::~QmlJSEditorPlugin()
 {
-    removeObject(m_editor);
     m_instance = 0;
 }
 
@@ -142,8 +139,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     Core::Context context(Constants::C_QMLJSEDITOR_ID);
 
-    m_editor = new QmlJSEditorFactory(this);
-    addObject(m_editor);
+    addAutoReleasedObject(new QmlJSEditorFactory);
 
     IWizardFactory *wizard = new QmlFileWizard;
     wizard->setWizardKind(Core::IWizardFactory::FileWizard);

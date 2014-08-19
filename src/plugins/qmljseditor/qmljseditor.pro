@@ -8,7 +8,6 @@ HEADERS += \
     qmljseditor.h \
     qmljseditor_global.h \
     qmljseditorconstants.h \
-    qmljseditorfactory.h \
     qmljseditorplugin.h \
     qmlexpressionundercursor.h \
     qmlfilewizard.h \
@@ -24,7 +23,6 @@ HEADERS += \
     quicktoolbar.h \
     qmljscomponentnamedialog.h \
     qmljsfindreferences.h \
-    qmljseditoreditable.h \
     qmljsautocompleter.h \
     jsfilewizard.h \
     qmljssnippetprovider.h \
@@ -40,7 +38,6 @@ HEADERS += \
 
 SOURCES += \
     qmljseditor.cpp \
-    qmljseditorfactory.cpp \
     qmljseditorplugin.cpp \
     qmlexpressionundercursor.cpp \
     qmlfilewizard.cpp \
@@ -57,7 +54,6 @@ SOURCES += \
     quicktoolbar.cpp \
     qmljscomponentnamedialog.cpp \
     qmljsfindreferences.cpp \
-    qmljseditoreditable.cpp \
     qmljsautocompleter.cpp \
     jsfilewizard.cpp \
     qmljssnippetprovider.cpp \

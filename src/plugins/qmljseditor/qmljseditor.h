@@ -34,40 +34,31 @@
 
 #include <qmljs/qmljsscanner.h>
 #include <qmljstools/qmljssemanticinfo.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/uncommentselection.h>
 
-#include <QSharedPointer>
 #include <QModelIndex>
-#include <QTextLayout>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QTimer;
 QT_END_NAMESPACE
 
-namespace Core { class ICore; }
-
 namespace QmlJS {
     class ModelManagerInterface;
     class IContextPane;
-    class LookupContext;
 namespace AST { class UiObjectMember; }
 }
 
-/*!
-    The top-level namespace of the QmlJSEditor plug-in.
- */
 namespace QmlJSEditor {
+
 class QmlJSEditorDocument;
 class FindReferences;
 
 namespace Internal {
-
-class QmlJSEditor;
-class QmlOutlineModel;
 
 class QmlJSTextEditorWidget : public TextEditor::BaseTextEditorWidget
 {
@@ -145,6 +136,29 @@ private:
     int m_oldCursorPosition;
 
     FindReferences *m_findReferences;
+};
+
+
+class QmlJSEditor : public TextEditor::BaseTextEditor
+{
+    Q_OBJECT
+
+public:
+    QmlJSEditor();
+
+    Core::IEditor *duplicate();
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    bool isDesignModePreferred() const;
+};
+
+class QmlJSEditorFactory : public Core::IEditorFactory
+{
+    Q_OBJECT
+
+public:
+    QmlJSEditorFactory();
+
+    Core::IEditor *createEditor();
 };
 
 } // namespace Internal

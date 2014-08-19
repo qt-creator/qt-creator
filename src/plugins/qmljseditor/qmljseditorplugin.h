@@ -43,23 +43,17 @@ namespace Utils { class JsonSchemaManager; }
 namespace Core {
 class Command;
 class ActionContainer;
-class ActionManager;
 class IEditor;
 }
-
-namespace TextEditor { class BaseTextEditor; }
 
 namespace QmlJS { class ModelManagerInterface; }
 
 namespace QmlJSEditor {
 
-class QmlFileWizard;
 class QmlJSEditorDocument;
 
 namespace Internal {
 
-class QmlJSEditorFactory;
-class QmlJSPreviewRunner;
 class QmlJSQuickFixAssistProvider;
 class QmlTaskManager;
 
@@ -102,7 +96,6 @@ private:
     static QmlJSEditorPlugin *m_instance;
 
     QmlJS::ModelManagerInterface *m_modelManager;
-    QmlJSEditorFactory *m_editor;
     QmlJSQuickFixAssistProvider *m_quickFixAssistProvider;
     QmlTaskManager *m_qmlTaskManager;
 

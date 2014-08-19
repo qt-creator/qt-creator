@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmltaskmanager.h"
+#include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 
 #include <coreplugin/idocument.h>
@@ -35,16 +36,17 @@
 #include <projectexplorer/taskhub.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljscontext.h>
+#include <qmljs/qmljsconstants.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljscheck.h>
-#include <qmljseditor/qmljseditor.h>
-#include <qmljseditor/qmljseditoreditable.h>
+#include <utils/runextensions.h>
 
 #include <QDebug>
 #include <QtConcurrentRun>
-#include <utils/runextensions.h>
 
+using namespace ProjectExplorer;
 using namespace QmlJS;
+using namespace Utils;
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -65,23 +67,18 @@ QmlTaskManager::QmlTaskManager(QObject *parent) :
             SLOT(updateMessagesNow()));
 }
 
-static QList<ProjectExplorer::Task> convertToTasks(const QList<DiagnosticMessage> &messages, const Utils::FileName &fileName, Core::Id category)
+static QList<Task> convertToTasks(const QList<DiagnosticMessage> &messages, const FileName &fileName, Core::Id category)
 {
-    QList<ProjectExplorer::Task> result;
+    QList<Task> result;
     foreach (const DiagnosticMessage &msg, messages) {
-        ProjectExplorer::Task::TaskType type
-                = msg.isError() ? ProjectExplorer::Task::Error
-                                : ProjectExplorer::Task::Warning;
-
-        ProjectExplorer::Task task(type, msg.message, fileName, msg.loc.startLine,
-                                   category);
-
+        Task::TaskType type = msg.isError() ? Task::Error : Task::Warning;
+        Task task(type, msg.message, fileName, msg.loc.startLine, category);
         result += task;
     }
     return result;
 }
 
-static QList<ProjectExplorer::Task> convertToTasks(const QList<StaticAnalysis::Message> &messages, const Utils::FileName &fileName, Core::Id category)
+static QList<Task> convertToTasks(const QList<StaticAnalysis::Message> &messages, const FileName &fileName, Core::Id category)
 {
     QList<DiagnosticMessage> diagnostics;
     foreach (const StaticAnalysis::Message &msg, messages)
@@ -111,18 +108,18 @@ void QmlTaskManager::collectMessages(
             result.fileName = fileName;
             if (document->language().isFullySupportedLanguage()) {
                 result.tasks = convertToTasks(document->diagnosticMessages(),
-                                              Utils::FileName::fromString(fileName),
-                                              Core::Id(Constants::TASK_CATEGORY_QML));
+                                              FileName::fromString(fileName),
+                                              Constants::TASK_CATEGORY_QML);
 
                 if (updateSemantic) {
                     result.tasks += convertToTasks(linkMessages.value(fileName),
-                                                   Utils::FileName::fromString(fileName),
-                                                   Core::Id(Constants::TASK_CATEGORY_QML_ANALYSIS));
+                                                   FileName::fromString(fileName),
+                                                   Constants::TASK_CATEGORY_QML_ANALYSIS);
 
                     Check checker(document, context);
                     result.tasks += convertToTasks(checker(),
-                                                   Utils::FileName::fromString(fileName),
-                                                   Core::Id(Constants::TASK_CATEGORY_QML_ANALYSIS));
+                                                   FileName::fromString(fileName),
+                                                   Constants::TASK_CATEGORY_QML_ANALYSIS);
                 }
             }
 
@@ -175,7 +172,7 @@ void QmlTaskManager::displayResults(int begin, int end)
 {
     for (int i = begin; i < end; ++i) {
         FileErrorMessages result = m_messageCollector.resultAt(i);
-        foreach (const ProjectExplorer::Task &task, result.tasks) {
+        foreach (const Task &task, result.tasks) {
             insertTask(task);
         }
     }
@@ -187,29 +184,29 @@ void QmlTaskManager::displayAllResults()
     m_updatingSemantic = false;
 }
 
-void QmlTaskManager::insertTask(const ProjectExplorer::Task &task)
+void QmlTaskManager::insertTask(const Task &task)
 {
-    QList<ProjectExplorer::Task> tasks = m_docsWithTasks.value(task.file.toString());
+    QList<Task> tasks = m_docsWithTasks.value(task.file.toString());
     tasks.append(task);
     m_docsWithTasks.insert(task.file.toString(), tasks);
-    ProjectExplorer::TaskHub::addTask(task);
+    TaskHub::addTask(task);
 }
 
 void QmlTaskManager::removeTasksForFile(const QString &fileName)
 {
     if (m_docsWithTasks.contains(fileName)) {
-        const QList<ProjectExplorer::Task> tasks = m_docsWithTasks.value(fileName);
-        foreach (const ProjectExplorer::Task &task, tasks)
-            ProjectExplorer::TaskHub::removeTask(task);
+        const QList<Task> tasks = m_docsWithTasks.value(fileName);
+        foreach (const Task &task, tasks)
+            TaskHub::removeTask(task);
         m_docsWithTasks.remove(fileName);
     }
 }
 
 void QmlTaskManager::removeAllTasks(bool clearSemantic)
 {
-    ProjectExplorer::TaskHub::clearTasks(Constants::TASK_CATEGORY_QML);
+    TaskHub::clearTasks(Constants::TASK_CATEGORY_QML);
     if (clearSemantic)
-        ProjectExplorer::TaskHub::clearTasks(Constants::TASK_CATEGORY_QML_ANALYSIS);
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_QML_ANALYSIS);
     m_docsWithTasks.clear();
 }
 

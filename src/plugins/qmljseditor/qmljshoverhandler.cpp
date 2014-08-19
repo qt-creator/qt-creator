@@ -30,7 +30,6 @@
 #include "qmljshoverhandler.h"
 #include "qmljseditor.h"
 #include "qmljseditordocument.h"
-#include "qmljseditoreditable.h"
 #include "qmlexpressionundercursor.h"
 
 #include <coreplugin/editormanager/ieditor.h>
