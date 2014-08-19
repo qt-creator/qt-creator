@@ -35,7 +35,6 @@
 #include <texteditor/texteditoractionhandler.h>
 
 #include <QCoreApplication>
-#include <QSharedPointer>
 
 using namespace TextEditor;
 
@@ -48,8 +47,7 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesFactory::ProjectFilesFactory(Manager *manager)
-    : Core::IEditorFactory(manager)
+ProjectFilesFactory::ProjectFilesFactory()
 {
     setId(Constants::FILES_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", ".files Editor"));
@@ -57,33 +55,11 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager)
     addMimeType(Constants::INCLUDES_MIMETYPE);
     addMimeType(Constants::CONFIG_MIMETYPE);
     new TextEditor::TextEditorActionHandler(this, Constants::C_FILESEDITOR);
-
 }
 
 Core::IEditor *ProjectFilesFactory::createEditor()
 {
-    auto widget = new ProjectFilesEditorWidget;
-    widget->setSimpleTextDocument(Constants::FILES_EDITOR_ID);
-    return widget->editor();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-//
-// ProjectFilesEditable
-//
-////////////////////////////////////////////////////////////////////////////////////////
-
-ProjectFilesEditor::ProjectFilesEditor()
-{
-    setContext(Core::Context(Constants::C_FILESEDITOR));
-    setDuplicateSupported(true);
-}
-
-Core::IEditor *ProjectFilesEditor::duplicate()
-{
-    auto widget = new ProjectFilesEditorWidget;
-    widget->setTextDocument(editorWidget()->textDocumentPtr());
-    return widget->editor();
+    return new ProjectFilesEditor;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -92,13 +68,13 @@ Core::IEditor *ProjectFilesEditor::duplicate()
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesEditorWidget::ProjectFilesEditorWidget()
+ProjectFilesEditor::ProjectFilesEditor()
 {
-}
-
-BaseTextEditor *ProjectFilesEditorWidget::createEditor()
-{
-    return new ProjectFilesEditor;
+    addContext(Constants::C_FILESEDITOR);
+    setDuplicateSupported(true);
+    setEditorCreator([]() { return new ProjectFilesEditor; });
+    setWidgetCreator([]() { return new BaseTextEditorWidget; });
+    setDocumentCreator([]() { return new BaseTextDocument(Constants::FILES_EDITOR_ID); });
 }
 
 } // namespace Internal
