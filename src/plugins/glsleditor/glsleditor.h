@@ -31,13 +31,14 @@
 #define GLSLEDITOR_H
 
 #include <texteditor/basetexteditor.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <QSharedPointer>
 #include <QSet>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
-class QTimer;
 QT_END_NAMESPACE
 
 namespace GLSL {
@@ -86,7 +87,7 @@ class GlslEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    GlslEditorWidget(const TextEditor::BaseTextDocumentPtr &doc);
+    GlslEditorWidget();
 
     int editorRevision() const;
     bool isOutdated() const;
@@ -98,20 +99,36 @@ public:
     TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;
 
-private slots:
-    void updateDocument();
-    void updateDocumentNow();
-
-protected:
+private:
     TextEditor::BaseTextEditor *createEditor();
 
-private:
+    void updateDocumentNow();
     void setSelectedElements();
     QString wordUnderCursor() const;
 
-    QTimer *m_updateDocumentTimer;
+    QTimer m_updateDocumentTimer;
     QComboBox *m_outlineCombo;
     Document::Ptr m_glslDocument;
+};
+
+class GlslEditor : public TextEditor::BaseTextEditor
+{
+    Q_OBJECT
+
+public:
+    GlslEditor();
+
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+};
+
+class GlslEditorFactory : public Core::IEditorFactory
+{
+    Q_OBJECT
+
+public:
+    GlslEditorFactory();
+
+    Core::IEditor *createEditor();
 };
 
 } // namespace Internal

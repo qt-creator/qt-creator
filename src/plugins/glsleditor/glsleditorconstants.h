@@ -35,7 +35,6 @@
 namespace GLSLEditor {
 namespace Constants {
 
-// menus
 const char M_CONTEXT[] = "GLSL Editor.ContextMenu";
 const char M_TOOLS_GLSL[] = "GLSLEditor.Tools.Menu";
 

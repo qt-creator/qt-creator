@@ -6,8 +6,6 @@ DEFINES += \
 HEADERS += \
 glsleditor.h \
 glsleditorconstants.h \
-glsleditoreditable.h \
-glsleditorfactory.h \
 glsleditorplugin.h \
 glslfilewizard.h \
 glslhighlighter.h \
@@ -19,8 +17,6 @@ glslhoverhandler.h \
 
 SOURCES += \
 glsleditor.cpp \
-glsleditoreditable.cpp \
-glsleditorfactory.cpp \
 glsleditorplugin.cpp \
 glslfilewizard.cpp \
 glslhighlighter.cpp \

@@ -29,7 +29,6 @@
 
 #include "glslhoverhandler.h"
 #include "glsleditor.h"
-#include "glsleditoreditable.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -38,7 +37,6 @@
 #include <texteditor/basetexteditor.h>
 
 #include <QTextCursor>
-#include <QUrl>
 
 using namespace GLSLEditor;
 using namespace GLSLEditor::Internal;

@@ -28,42 +28,42 @@
 ****************************************************************************/
 
 #include "glsleditorplugin.h"
+#include "glslcompletionassist.h"
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
-#include "glsleditorfactory.h"
 #include "glslfilewizard.h"
-#include "glslhoverhandler.h"
-#include "glslcompletionassist.h"
 #include "glslhighlighter.h"
-
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/mimedatabase.h>
-#include <coreplugin/id.h>
-#include <coreplugin/fileiconprovider.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/taskhub.h>
-#include <extensionsystem/pluginmanager.h>
-#include <texteditor/highlighterfactory.h>
-#include <texteditor/texteditorconstants.h>
-#include <texteditor/textfilewizard.h>
-#include <utils/qtcassert.h>
+#include "glslhoverhandler.h"
 
 #include <glsl/glslengine.h>
 #include <glsl/glslparser.h>
 #include <glsl/glsllexer.h>
 
-#include <QtPlugin>
-#include <QDebug>
-#include <QSettings>
-#include <QDir>
-#include <QCoreApplication>
-#include <QTimer>
-#include <QMenu>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/fileiconprovider.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
+#include <coreplugin/mimedatabase.h>
+
+#include <extensionsystem/pluginmanager.h>
+
+#include <texteditor/highlighterfactory.h>
+#include <texteditor/texteditorconstants.h>
+#include <texteditor/textfilewizard.h>
+
+#include <utils/qtcassert.h>
+
 #include <QAction>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QMenu>
+#include <QSettings>
+#include <QTimer>
+#include <QtPlugin>
 
 using namespace Core;
 using namespace TextEditor;
@@ -75,7 +75,6 @@ class GLSLEditorPluginPrivate
 {
 public:
     GLSLEditorPluginPrivate() :
-        m_editor(0),
         m_glsl_120_frag(0),
         m_glsl_120_vert(0),
         m_glsl_120_common(0),
@@ -94,7 +93,6 @@ public:
         delete m_glsl_es_100_common;
     }
 
-    GLSLEditorFactory *m_editor;
     QPointer<TextEditor::BaseTextEditor> m_currentTextEditable;
 
     GLSLEditorPlugin::InitFile *m_glsl_120_frag;
@@ -121,7 +119,6 @@ GLSLEditorPlugin::GLSLEditorPlugin()
 
 GLSLEditorPlugin::~GLSLEditorPlugin()
 {
-    removeObject(dd->m_editor);
     delete dd;
     m_instance = 0;
 }
@@ -131,14 +128,8 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     if (!MimeDatabase::addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), errorMessage))
         return false;
 
-//    m_modelManager = new ModelManager(this);
-//    addAutoReleasedObject(m_modelManager);
-
     addAutoReleasedObject(new GLSLHoverHandler(this));
-
-    dd->m_editor = new GLSLEditorFactory(this);
-    addObject(dd->m_editor);
-
+    addAutoReleasedObject(new GlslEditorFactory);
     addAutoReleasedObject(new GLSLCompletionAssistProvider);
 
     ActionContainer *contextMenu = ActionManager::createMenu(GLSLEditor::Constants::M_CONTEXT);

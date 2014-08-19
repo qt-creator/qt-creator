@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "glsleditor.h"
-#include "glsleditoreditable.h"
 #include "glsleditorconstants.h"
 #include "glsleditorplugin.h"
 #include "glslhighlighter.h"
@@ -44,20 +43,29 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/id.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <coreplugin/mimedatabase.h>
+
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/basetextdocument.h>
-#include <texteditor/texteditorconstants.h>
-#include <texteditor/syntaxhighlighter.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <texteditor/refactoroverlay.h>
+#include <texteditor/syntaxhighlighter.h>
+#include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorsettings.h>
+
 #include <qmldesigner/qmldesignerconstants.h>
+
 #include <utils/changeset.h>
+#include <utils/qtcassert.h>
 #include <utils/uncommentselection.h>
 
+#include <QCoreApplication>
+#include <QSettings>
 #include <QComboBox>
 #include <QFileInfo>
 #include <QHeaderView>
@@ -65,15 +73,16 @@
 #include <QTimer>
 #include <QTreeView>
 
+using namespace TextEditor;
 using namespace GLSL;
-using namespace GLSLEditor;
-using namespace GLSLEditor::Internal;
+using namespace GLSLEditor::Constants;
+
+namespace GLSLEditor {
+namespace Internal {
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 150
 };
-
-namespace {
 
 class CreateRanges: protected GLSL::Visitor
 {
@@ -100,14 +109,11 @@ protected:
     }
 };
 
-} // end of anonymous namespace
-
 Document::Document()
     : _engine(0)
     , _ast(0)
     , _globalScope(0)
 {
-
 }
 
 Document::~Document()
@@ -133,24 +139,21 @@ void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
     _cursors.append(c);
 }
 
-GlslEditorWidget::GlslEditorWidget(const TextEditor::BaseTextDocumentPtr &doc)
+GlslEditorWidget::GlslEditorWidget()
 {
-    setTextDocument(doc);
     setAutoCompleter(new GLSLCompleter);
-
     m_outlineCombo = 0;
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
 
-    m_updateDocumentTimer = new QTimer(this);
-    m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
-    m_updateDocumentTimer->setSingleShot(true);
-    connect(m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(updateDocumentNow()));
+    m_updateDocumentTimer.setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_updateDocumentTimer.setSingleShot(true);
+    connect(&m_updateDocumentTimer, &QTimer::timeout,
+            this, &GlslEditorWidget::updateDocumentNow);
 
-    connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
-
-    new Highlighter(textDocument());
+    connect(this, &QPlainTextEdit::textChanged,
+            [this]() { m_updateDocumentTimer.start(); });
 
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
@@ -171,7 +174,7 @@ GlslEditorWidget::GlslEditorWidget(const TextEditor::BaseTextDocumentPtr &doc)
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
 
-    insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, m_outlineCombo);
+    insertExtraToolBarWidget(BaseTextEditorWidget::Left, m_outlineCombo);
 
 //    if (m_modelManager) {
 //        m_semanticHighlighter->setModelManager(m_modelManager);
@@ -197,16 +200,10 @@ bool GlslEditorWidget::isOutdated() const
     return false;
 }
 
-Core::IEditor *GlslEditor::duplicate()
-{
-    GlslEditorWidget *newEditor = new GlslEditorWidget(editorWidget()->textDocumentPtr());
-    return newEditor->editor();
-}
-
 bool GlslEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     textDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
-    bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
+    bool b = BaseTextEditor::open(errorString, fileName, realFileName);
     return b;
 }
 
@@ -223,26 +220,21 @@ QString GlslEditorWidget::wordUnderCursor() const
     return word;
 }
 
-TextEditor::BaseTextEditor *GlslEditorWidget::createEditor()
+BaseTextEditor *GlslEditorWidget::createEditor()
 {
-    return new GlslEditor;
-}
-
-void GlslEditorWidget::updateDocument()
-{
-    m_updateDocumentTimer->start();
+    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
 
 void GlslEditorWidget::updateDocumentNow()
 {
-    m_updateDocumentTimer->stop();
+    m_updateDocumentTimer.stop();
 
     int variant = languageVariant(textDocument()->mimeType());
     const QString contents = toPlainText(); // get the code from the editor
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
     Document::Ptr doc(new Document());
-    GLSL::Engine *engine = new GLSL::Engine();
+    Engine *engine = new GLSL::Engine();
     doc->_engine = new GLSL::Engine();
     Parser parser(doc->_engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnitAST *ast = parser.parse();
@@ -336,11 +328,10 @@ int GlslEditorWidget::languageVariant(const QString &type)
     return variant;
 }
 
-TextEditor::IAssistInterface *GlslEditorWidget::createAssistInterface(
-    TextEditor::AssistKind kind,
-    TextEditor::AssistReason reason) const
+IAssistInterface *GlslEditorWidget::createAssistInterface(
+    AssistKind kind, AssistReason reason) const
 {
-    if (kind == TextEditor::Completion)
+    if (kind == Completion)
         return new GLSLCompletionAssistInterface(document(),
                                                  position(),
                                                  editor()->document()->filePath(),
@@ -349,3 +340,59 @@ TextEditor::IAssistInterface *GlslEditorWidget::createAssistInterface(
                                                  m_glslDocument);
     return BaseTextEditorWidget::createAssistInterface(kind, reason);
 }
+
+
+//////////////////////////////////////////////////////////////////
+//
+//  GlslEditor
+//
+//////////////////////////////////////////////////////////////////
+
+GlslEditor::GlslEditor()
+{
+    addContext(C_GLSLEDITOR_ID);
+    setDuplicateSupported(true);
+    setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GLSLCompletionAssistProvider>());
+
+    setEditorCreator([]() { return new GlslEditor; });
+    setWidgetCreator([]() { return new GlslEditorWidget; });
+
+    setDocumentCreator([]() -> BaseTextDocument * {
+        auto doc = new BaseTextDocument(C_GLSLEDITOR_ID);
+        doc->setIndenter(new GLSLIndenter);
+        new Highlighter(doc);
+        return doc;
+    });
+}
+
+
+//////////////////////////////////////////////////////////////////
+//
+//  GlslEditorFactory
+//
+//////////////////////////////////////////////////////////////////
+
+GlslEditorFactory::GlslEditorFactory()
+{
+    setId(C_GLSLEDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", C_GLSLEDITOR_DISPLAY_NAME));
+    addMimeType(GLSL_MIMETYPE);
+    addMimeType(GLSL_MIMETYPE_VERT);
+    addMimeType(GLSL_MIMETYPE_FRAG);
+    addMimeType(GLSL_MIMETYPE_VERT_ES);
+    addMimeType(GLSL_MIMETYPE_FRAG_ES);
+    new TextEditorActionHandler(this, C_GLSLEDITOR_ID,
+                                TextEditorActionHandler::Format
+                                | TextEditorActionHandler::UnCommentSelection
+                                | TextEditorActionHandler::UnCollapseAll);
+
+}
+
+Core::IEditor *GlslEditorFactory::createEditor()
+{
+    return new GlslEditor;
+}
+
+} // namespace Internal
+} // namespace GLSLEditor
