@@ -101,6 +101,7 @@ const char LANG_QMLJS[]           = "QMLJS";
 
 // Menus
 const char M_RECENTPROJECTS[]     = "ProjectExplorer.Menu.Recent";
+const char M_UNLOADPROJECTS[]     = "ProjectExplorer.Menu.Unload";
 const char M_BUILDPROJECT[]       = "ProjectExplorer.Menu.Build";
 const char M_DEBUG[]              = "ProjectExplorer.Menu.Debug";
 const char M_DEBUG_STARTDEBUGGING[] = "ProjectExplorer.Menu.Debug.StartDebugging";

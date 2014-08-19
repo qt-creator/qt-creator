@@ -205,6 +205,7 @@ private slots:
     void updateRecentProjectMenu();
     void clearRecentProjects();
     void openRecentProject();
+    void updateUnloadProjectMenu();
     void openTerminalHere();
 
     void invalidateProject(ProjectExplorer::Project *project);

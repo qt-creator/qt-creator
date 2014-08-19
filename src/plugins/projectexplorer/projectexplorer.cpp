@@ -734,6 +734,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDescription(d->m_unloadAction->text());
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
 
+    ActionContainer *munload =
+        ActionManager::createMenu(Constants::M_UNLOADPROJECTS);
+    munload->menu()->setTitle(tr("Close Project"));
+    munload->setOnAllDisabledBehavior(ActionContainer::Show);
+    mfile->addMenu(munload, Core::Constants::G_FILE_PROJECT);
+    connect(mfile->menu(), SIGNAL(aboutToShow()),
+        this, SLOT(updateUnloadProjectMenu()));
+
     // unload session action
     d->m_closeAllProjects = new QAction(tr("Close All Projects and Editors"), this);
     cmd = ActionManager::registerAction(d->m_closeAllProjects, Constants::CLEARSESSION, globalcontext);
@@ -1209,13 +1217,18 @@ void ProjectExplorerPlugin::unloadProject()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::unloadProject";
 
-    if (BuildManager::isBuilding(d->m_currentProject)) {
+    unloadProject(d->m_currentProject);
+}
+
+void ProjectExplorerPlugin::unloadProject(Project *project)
+{
+    if (BuildManager::isBuilding(project)) {
         QMessageBox box;
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Unload"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(tr("Do Not Unload"), QMessageBox::RejectRole);
         box.setDefaultButton(cancelClose);
-        box.setWindowTitle(tr("Unload Project %1?").arg(d->m_currentProject->displayName()));
-        box.setText(tr("The project %1 is currently being built.").arg(d->m_currentProject->displayName()));
+        box.setWindowTitle(tr("Unload Project %1?").arg(project->displayName()));
+        box.setText(tr("The project %1 is currently being built.").arg(project->displayName()));
         box.setInformativeText(tr("Do you want to cancel the build process and unload the project anyway?"));
         box.exec();
         if (box.clickedButton() != closeAnyway)
@@ -1223,7 +1236,7 @@ void ProjectExplorerPlugin::unloadProject()
         BuildManager::cancel();
     }
 
-    IDocument *document = d->m_currentProject->document();
+    IDocument *document = project->document();
 
     if (!document || document->filePath().isEmpty()) //nothing to save?
         return;
@@ -1231,12 +1244,8 @@ void ProjectExplorerPlugin::unloadProject()
     if (!DocumentManager::saveModifiedDocumentSilently(document))
         return;
 
-    addToRecentProjects(document->filePath(), d->m_currentProject->displayName());
-    unloadProject(d->m_currentProject);
-}
+    addToRecentProjects(document->filePath(), project->displayName());
 
-void ProjectExplorerPlugin::unloadProject(Project *project)
-{
     SessionManager::removeProject(project);
     updateActions();
 }
@@ -2060,6 +2069,11 @@ void ProjectExplorerPlugin::updateActions()
 
     // Session actions
     d->m_closeAllProjects->setEnabled(SessionManager::hasProjects());
+    d->m_unloadAction->setVisible(SessionManager::projects().size() <= 1);
+
+    ActionContainer *aci =
+        ActionManager::actionContainer(Constants::M_UNLOADPROJECTS);
+    aci->menu()->menuAction()->setVisible(SessionManager::projects().size() > 1);
 
     d->m_buildSessionAction->setEnabled(buildSessionState.first);
     d->m_rebuildSessionAction->setEnabled(buildSessionState.first);
@@ -2719,6 +2733,18 @@ void ProjectExplorerPlugin::addToRecentProjects(const QString &fileName, const Q
     QFileInfo fi(prettyFileName);
     d->m_lastOpenDirectory = fi.absolutePath();
     emit recentProjectsChanged();
+}
+
+void ProjectExplorerPlugin::updateUnloadProjectMenu()
+{
+    ActionContainer *aci = ActionManager::actionContainer(Constants::M_UNLOADPROJECTS);
+    QMenu *menu = aci->menu();
+    menu->clear();
+    foreach (Project *project, SessionManager::projects()) {
+        QAction *action = menu->addAction(tr("Close Project \"%1\"").arg(project->displayName()));
+        connect(action, &QAction::triggered,
+                this, [project, this](){ unloadProject(project); } );
+    }
 }
 
 void ProjectExplorerPlugin::updateRecentProjectMenu()
