@@ -36,6 +36,8 @@
 
 #include <utils/fileutils.h>
 
+#include <QFuture>
+
 QT_FORWARD_DECLARE_CLASS(QDir)
 
 namespace Utils { class FileSystemWatcher; }
@@ -156,6 +158,8 @@ private:
 
     /// Responsible for parsing the makefiles asynchronously in a thread
     MakefileParserThread *m_makefileParserThread;
+
+    QFuture<void> m_codeModelFuture;
 };
 
 } // namespace Internal

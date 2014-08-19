@@ -402,39 +402,29 @@ void AutotoolsProject::updateCppCodeModel()
 {
     CppTools::CppModelManagerInterface *modelManager =
         CppTools::CppModelManagerInterface::instance();
+
     if (!modelManager)
         return;
+
+    m_codeModelFuture.cancel();
+    CppTools::ProjectInfo pInfo = modelManager->projectInfo(this);
+    pInfo.clearProjectParts();
+
+    CppTools::ProjectPartBuilder ppBuilder(pInfo);
 
     const QStringList cflags = m_makefileParserThread->cflags();
     QStringList cxxflags = m_makefileParserThread->cxxflags();
     if (cxxflags.isEmpty())
         cxxflags = cflags;
+    ppBuilder.setCFlags(cflags);
+    ppBuilder.setCxxFlags(cxxflags);
 
-    CppTools::ProjectInfo pinfo = modelManager->projectInfo(this);
-    pinfo.clearProjectParts();
-    CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
-    part->project = this;
-    part->displayName = displayName();
-    part->projectFile = projectFilePath().toString();
+    ppBuilder.setIncludePaths(m_makefileParserThread->includePaths());
+    ppBuilder.setDefines(m_makefileParserThread->defines());
 
-    if (activeTarget()) {
-        ProjectExplorer::Kit *k = activeTarget()->kit();
-        ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-        part->evaluateToolchain(tc, cxxflags, cflags,
-                                SysRootKitInformation::sysRoot(k));
-    }
+    const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(m_files);
+    foreach (Core::Id language, languages)
+        setProjectLanguage(language, true);
 
-    foreach (const QString &file, m_files)
-        part->files << CppTools::ProjectFile(file, CppTools::ProjectFile::CXXSource);
-
-    foreach (const QString &inc, m_makefileParserThread->includePaths()) {
-        part->headerPaths += CppTools::ProjectPart::HeaderPath(
-                    inc, CppTools::ProjectPart::HeaderPath::IncludePath);
-    }
-    part->projectDefines += m_makefileParserThread->defines();
-    pinfo.appendProjectPart(part);
-
-    modelManager->updateProjectInfo(pinfo);
-
-    setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
+    m_codeModelFuture = modelManager->updateProjectInfo(pInfo);
 }
