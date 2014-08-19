@@ -246,9 +246,9 @@ void tst_AST::gcc_attributes_3()
     QVERIFY(ns->linkage_body);
     LinkageBodyAST *link = ns->linkage_body->asLinkageBody();
     QVERIFY(link);
-    QCOMPARE(unit->tokenKind(link->lbrace_token), (int) T_LBRACE);
+    QCOMPARE(unit->tokenKind(link->lbrace_token), T_LBRACE);
     QVERIFY(!link->declaration_list);
-    QCOMPARE(unit->tokenKind(link->rbrace_token), (int) T_RBRACE);
+    QCOMPARE(unit->tokenKind(link->rbrace_token), T_RBRACE);
 }
 
 void tst_AST::crash_test_1()
@@ -374,13 +374,13 @@ void tst_AST::condition_1()
     QVERIFY(nestedExpr->expression);
     BinaryExpressionAST *andExpr = nestedExpr->expression->asBinaryExpression();
     QVERIFY(andExpr);
-    QCOMPARE(unit->tokenKind(andExpr->binary_op_token), (int) T_AMPER_AMPER);
+    QCOMPARE(unit->tokenKind(andExpr->binary_op_token), T_AMPER_AMPER);
     QVERIFY(andExpr->left_expression);
     QVERIFY(andExpr->right_expression);
 
     BinaryExpressionAST *ltExpr = andExpr->left_expression->asBinaryExpression();
     QVERIFY(ltExpr);
-    QCOMPARE(unit->tokenKind(ltExpr->binary_op_token), (int) T_LESS);
+    QCOMPARE(unit->tokenKind(ltExpr->binary_op_token), T_LESS);
     QVERIFY(ltExpr->left_expression);
     QVERIFY(ltExpr->right_expression);
 
@@ -394,7 +394,7 @@ void tst_AST::condition_1()
 
     BinaryExpressionAST *gtExpr = andExpr->right_expression->asBinaryExpression();
     QVERIFY(gtExpr);
-    QCOMPARE(unit->tokenKind(gtExpr->binary_op_token), (int) T_GREATER);
+    QCOMPARE(unit->tokenKind(gtExpr->binary_op_token), T_GREATER);
     QVERIFY(gtExpr->left_expression);
     QVERIFY(gtExpr->right_expression);
 
@@ -446,13 +446,13 @@ void tst_AST::conditional_1()
     QVERIFY(nestedExpr->expression);
     BinaryExpressionAST *andExpr = nestedExpr->expression->asBinaryExpression();
     QVERIFY(andExpr);
-    QCOMPARE(unit->tokenKind(andExpr->binary_op_token), (int) T_AMPER_AMPER);
+    QCOMPARE(unit->tokenKind(andExpr->binary_op_token), T_AMPER_AMPER);
     QVERIFY(andExpr->left_expression);
     QVERIFY(andExpr->right_expression);
 
     BinaryExpressionAST *ltExpr = andExpr->left_expression->asBinaryExpression();
     QVERIFY(ltExpr);
-    QCOMPARE(unit->tokenKind(ltExpr->binary_op_token), (int) T_LESS);
+    QCOMPARE(unit->tokenKind(ltExpr->binary_op_token), T_LESS);
     QVERIFY(ltExpr->left_expression);
     QVERIFY(ltExpr->right_expression);
 
@@ -466,7 +466,7 @@ void tst_AST::conditional_1()
 
     BinaryExpressionAST *gtExpr = andExpr->right_expression->asBinaryExpression();
     QVERIFY(gtExpr);
-    QCOMPARE(unit->tokenKind(gtExpr->binary_op_token), (int) T_GREATER);
+    QCOMPARE(unit->tokenKind(gtExpr->binary_op_token), T_GREATER);
     QVERIFY(gtExpr->left_expression);
     QVERIFY(gtExpr->right_expression);
 
@@ -495,7 +495,7 @@ void tst_AST::conditional_1()
 
     BinaryExpressionAST *equals = conditional->left_expression->asBinaryExpression();
     QVERIFY(equals);
-    QCOMPARE(unit->tokenKind(equals->binary_op_token), (int) T_EQUAL_EQUAL);
+    QCOMPARE(unit->tokenKind(equals->binary_op_token), T_EQUAL_EQUAL);
 
     x = equals->left_expression->asIdExpression()->name->asSimpleName();
     QVERIFY(x);
@@ -507,7 +507,7 @@ void tst_AST::conditional_1()
 
     BinaryExpressionAST *assignment = conditional->right_expression->asBinaryExpression();
     QVERIFY(assignment);
-    QCOMPARE(unit->tokenKind(assignment->binary_op_token), (int) T_EQUAL);
+    QCOMPARE(unit->tokenKind(assignment->binary_op_token), T_EQUAL);
 
     y = assignment->left_expression->asIdExpression()->name->asSimpleName();
     QVERIFY(y);
@@ -694,7 +694,7 @@ void tst_AST::templated_dtor_4()
     QVERIFY(e->expression);
     UnaryExpressionAST *u = e->expression->asUnaryExpression();
     QVERIFY(u);
-    QCOMPARE(unit->tokenKind(u->unary_op_token), (int) T_TILDE);
+    QCOMPARE(unit->tokenKind(u->unary_op_token), T_TILDE);
     QVERIFY(u->expression);
     CallAST *call = u->expression->asCall();
     QVERIFY(call);
@@ -737,7 +737,7 @@ void tst_AST::templated_dtor_5()
     QVERIFY(binExpr->left_expression);
     UnaryExpressionAST *notExpr = binExpr->left_expression->asUnaryExpression();
     QVERIFY(notExpr);
-    QCOMPARE(unit->tokenKind(notExpr->unary_op_token), (int) T_TILDE);
+    QCOMPARE(unit->tokenKind(notExpr->unary_op_token), T_TILDE);
 
     CallAST *call = binExpr->right_expression->asCall();
     QVERIFY(call->base_expression);
@@ -774,7 +774,7 @@ void tst_AST::call_call_1()
     QVERIFY(member_name->identifier_token);
     QCOMPARE(unit->spell(member_name->identifier_token), "call");
 
-    QCOMPARE(unit->tokenKind(member_xs->access_token), (int) T_ARROW);
+    QCOMPARE(unit->tokenKind(member_xs->access_token), T_ARROW);
 
     QVERIFY(member_xs->base_expression);
     CallAST *method_call = member_xs->base_expression->asCall();
@@ -886,7 +886,7 @@ void tst_AST::if_statement_2()
 
     QVERIFY(stmt->condition);
     QVERIFY(stmt->condition->asBinaryExpression());
-    QCOMPARE(unit->tokenKind(stmt->condition->asBinaryExpression()->binary_op_token), int(T_AMPER_AMPER));
+    QCOMPARE(unit->tokenKind(stmt->condition->asBinaryExpression()->binary_op_token), T_AMPER_AMPER);
 }
 
 void tst_AST::if_statement_3()
@@ -1371,7 +1371,7 @@ void tst_AST::objc_method_attributes_1()
 
     ObjCMethodPrototypeAST *foo = fooDecl->method_prototype;
     QVERIFY(foo);
-    QCOMPARE(unit->tokenKind(foo->method_type_token), (int) T_MINUS);
+    QCOMPARE(unit->tokenKind(foo->method_type_token), T_MINUS);
     QVERIFY(foo->type_name);
     QVERIFY(foo->selector);
     QVERIFY(foo->selector->selector_argument_list->value);
@@ -1382,7 +1382,7 @@ void tst_AST::objc_method_attributes_1()
     QVERIFY(! (foo->attribute_list->next));
     GnuAttributeSpecifierAST *deprecatedSpec = foo->attribute_list->value->asGnuAttributeSpecifier();
     QVERIFY(deprecatedSpec);
-    QCOMPARE(unit->tokenKind(deprecatedSpec->attribute_token), (int) T___ATTRIBUTE__);
+    QCOMPARE(unit->tokenKind(deprecatedSpec->attribute_token), T___ATTRIBUTE__);
     QVERIFY(deprecatedSpec->attribute_list);
     QVERIFY(deprecatedSpec->attribute_list->value);
     QVERIFY(! (deprecatedSpec->attribute_list->next));
@@ -1398,7 +1398,7 @@ void tst_AST::objc_method_attributes_1()
 
     ObjCMethodPrototypeAST *bar = barDecl->method_prototype;
     QVERIFY(bar);
-    QCOMPARE(unit->tokenKind(bar->method_type_token), (int) T_PLUS);
+    QCOMPARE(unit->tokenKind(bar->method_type_token), T_PLUS);
     QVERIFY(bar->type_name);
     QVERIFY(bar->selector);
     QVERIFY(bar->selector->selector_argument_list);
@@ -1410,7 +1410,7 @@ void tst_AST::objc_method_attributes_1()
     QVERIFY(! (bar->attribute_list->next));
     GnuAttributeSpecifierAST *unavailableSpec = bar->attribute_list->value->asGnuAttributeSpecifier();
     QVERIFY(unavailableSpec);
-    QCOMPARE(unit->tokenKind(unavailableSpec->attribute_token), (int) T___ATTRIBUTE__);
+    QCOMPARE(unit->tokenKind(unavailableSpec->attribute_token), T___ATTRIBUTE__);
     QVERIFY(unavailableSpec->attribute_list);
     QVERIFY(unavailableSpec->attribute_list->value);
     QVERIFY(! (unavailableSpec->attribute_list->next));
