@@ -332,55 +332,25 @@ bool CMakeProject::parseCMakeLists()
         CppTools::ProjectInfo pinfo = modelmanager->projectInfo(this);
         pinfo.clearProjectParts();
 
+        CppTools::ProjectPartBuilder ppBuilder(pinfo);
+
         foreach (const CMakeBuildTarget &cbt, m_buildTargets) {
-            typedef CppTools::ProjectPart ProjectPart;
-            ProjectPart::Ptr part(new ProjectPart);
-            part->project = this;
-            part->displayName = cbt.title;
-            part->projectFile = projectFilePath().toString();
-
             // This explicitly adds -I. to the include paths
-            part->headerPaths += ProjectPart::HeaderPath(projectDirectory().toString(),
-                                                         ProjectPart::HeaderPath::IncludePath);
+            QStringList includePaths = cbt.includeFiles;
+            includePaths += projectDirectory().toString();
+            ppBuilder.setIncludePaths(includePaths);
+            ppBuilder.setCFlags(getCXXFlagsFor(cbt));
+            ppBuilder.setCxxFlags(getCXXFlagsFor(cbt));
+            ppBuilder.setDefines(cbt.defines);
+            ppBuilder.setDisplayName(cbt.title);
 
-            foreach (const QString &includeFile, cbt.includeFiles) {
-                ProjectPart::HeaderPath hp(includeFile, ProjectPart::HeaderPath::IncludePath);
-
-                // CodeBlocks is utterly ignorant of frameworks on Mac, and won't report framework
-                // paths. The work-around is to check if the include path ends in ".framework", and
-                // if so, add the parent directory as framework path.
-                if (includeFile.endsWith(QLatin1String(".framework"))) {
-                    const int slashIdx = includeFile.lastIndexOf(QLatin1Char('/'));
-                    if (slashIdx != -1) {
-                        hp = ProjectPart::HeaderPath(includeFile.left(slashIdx),
-                                                     ProjectPart::HeaderPath::FrameworkPath);
-                        continue;
-                    }
-                }
-
-                part->headerPaths += hp;
-            }
-
-            part->projectDefines += cbt.defines;
-
-            // TODO rewrite
-            CppTools::ProjectFileAdder adder(part->files);
-            foreach (const QString &file, cbt.files)
-                adder.maybeAdd(file);
-
-            QStringList cxxflags = getCXXFlagsFor(cbt);
-
-            part->evaluateToolchain(tc,
-                                    cxxflags,
-                                    cxxflags,
-                                    SysRootKitInformation::sysRoot(k));
-
-            setProjectLanguage(ProjectExplorer::Constants::LANG_CXX, !part->files.isEmpty());
-            pinfo.appendProjectPart(part);
+            const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(cbt.files);
+            foreach (Core::Id language, languages)
+                setProjectLanguage(language, true);
         }
+
         m_codeModelFuture.cancel();
         m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
-
     }
 
     emit displayNameChanged();
