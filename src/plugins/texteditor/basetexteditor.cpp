@@ -5300,15 +5300,16 @@ void BaseTextEditorWidget::wheelEvent(QWheelEvent *e)
     QPlainTextEdit::wheelEvent(e);
 }
 
-void BaseTextEditorWidget::zoomIn(int range)
+void BaseTextEditorWidget::zoomIn()
 {
     d->clearVisibleFoldedBlock();
-    emit requestFontZoom(range*10);
+    emit requestFontZoom(10);
 }
 
-void BaseTextEditorWidget::zoomOut(int range)
+void BaseTextEditorWidget::zoomOut()
 {
-    zoomIn(-range);
+    d->clearVisibleFoldedBlock();
+    emit requestFontZoom(-10);
 }
 
 void BaseTextEditorWidget::zoomReset()
