@@ -36,7 +36,6 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <QCoreApplication>
 
@@ -66,7 +65,6 @@ QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
 Core::IEditor *QmlJSEditorFactory::createEditor()
 {
     QmlJSTextEditorWidget *rc = new QmlJSTextEditorWidget(TextEditor::BaseTextDocumentPtr(new QmlJSEditorDocument));
-    TextEditor::TextEditorSettings::initializeEditor(rc);
     return rc->editor();
 }
 

@@ -37,7 +37,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -74,6 +73,5 @@ Core::IEditor *CMakeEditorFactory::createEditor()
 {
     CMakeEditorWidget *widget = new CMakeEditorWidget;
     widget->setTextDocument(TextEditor::BaseTextDocumentPtr(new CMakeDocument));
-    TextEditor::TextEditorSettings::initializeEditor(widget);
     return widget->editor();
 }

@@ -32,9 +32,7 @@
 #include "genericprojectconstants.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <QCoreApplication>
 #include <QSharedPointer>
@@ -66,7 +64,6 @@ Core::IEditor *ProjectFilesFactory::createEditor()
 {
     auto widget = new ProjectFilesEditorWidget;
     widget->setSimpleTextDocument(Constants::FILES_EDITOR_ID);
-    TextEditorSettings::initializeEditor(widget);
     return widget->editor();
 }
 
@@ -86,7 +83,6 @@ Core::IEditor *ProjectFilesEditor::duplicate()
 {
     auto widget = new ProjectFilesEditorWidget;
     widget->setTextDocument(editorWidget()->textDocumentPtr());
-    TextEditorSettings::initializeEditor(widget);
     return widget->editor();
 }
 

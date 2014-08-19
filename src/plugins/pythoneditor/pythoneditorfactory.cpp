@@ -36,9 +36,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorsettings.h>
-
-#include <QDebug>
 
 using namespace TextEditor;
 
@@ -64,7 +61,6 @@ Core::IEditor *EditorFactory::createEditor()
     doc->setId(Constants::C_PYTHONEDITOR_ID);
     doc->setIndenter(new PythonIndenter);
     PythonEditorWidget *widget = new PythonEditorWidget(doc);
-    TextEditor::TextEditorSettings::initializeEditor(widget);
 
     return widget->editor();
 }

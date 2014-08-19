@@ -43,7 +43,6 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class BaseTextEditorWidget;
 class FontSettings;
 class TabSettings;
 class TypingSettings;
@@ -72,8 +71,6 @@ public:
     ~TextEditorSettings();
 
     static TextEditorSettings *instance();
-
-    static void initializeEditor(BaseTextEditorWidget *editor);
 
     static const FontSettings &fontSettings();
     static const TypingSettings &typingSettings();
@@ -116,7 +113,7 @@ signals:
     void completionSettingsChanged(const TextEditor::CompletionSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
 
-private slots:
+public slots:
     void fontZoomRequested(int zoom);
     void zoomResetRequested();
 };

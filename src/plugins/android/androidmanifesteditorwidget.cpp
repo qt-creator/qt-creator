@@ -47,7 +47,6 @@
 #include <projectexplorer/kitinformation.h>
 
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/basetexteditor.h>
 #include <utils/algorithm.h>
 
@@ -112,7 +111,6 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 {
     m_textEditorWidget = new AndroidManifestTextEditorWidget(this);
     m_textEditorWidget->setupAsPlainEditor();
-    TextEditor::TextEditorSettings::initializeEditor(m_textEditorWidget);
 
     initializePage();
 

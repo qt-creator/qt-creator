@@ -32,7 +32,6 @@
 #include "androidconstants.h"
 
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorsettings.h>
 
 using namespace Android;
 using namespace Android::Internal;
@@ -50,6 +49,5 @@ Core::IEditor *JavaEditorFactory::createEditor()
 {
     JavaEditorWidget *editor = new JavaEditorWidget;
     editor->setTextDocument(TextEditor::BaseTextDocumentPtr(new JavaDocument));
-    TextEditor::TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }

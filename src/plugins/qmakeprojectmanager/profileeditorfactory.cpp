@@ -36,7 +36,6 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/fileiconprovider.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <QCoreApplication>
 
@@ -67,6 +66,5 @@ Core::IEditor *ProFileEditorFactory::createEditor()
 {
     ProFileEditorWidget *editor = new ProFileEditorWidget;
     editor->setTextDocument(TextEditor::BaseTextDocumentPtr(new ProFileDocument));
-    TextEditor::TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }

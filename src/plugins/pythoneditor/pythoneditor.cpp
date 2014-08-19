@@ -40,7 +40,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <QFileInfo>
 
@@ -58,7 +57,6 @@ PythonEditor::PythonEditor()
 Core::IEditor *PythonEditor::duplicate()
 {
     PythonEditorWidget *widget = new PythonEditorWidget(editorWidget()->textDocumentPtr());
-    TextEditor::TextEditorSettings::initializeEditor(widget);
     return widget->editor();
 }
 

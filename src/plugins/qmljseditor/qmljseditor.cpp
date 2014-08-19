@@ -29,6 +29,7 @@
 
 #include "qmljseditor.h"
 
+#include "qmljsautocompleter.h"
 #include "qmljseditoreditable.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
@@ -58,7 +59,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -100,6 +100,7 @@ namespace Internal {
 QmlJSTextEditorWidget::QmlJSTextEditorWidget(TextEditor::BaseTextDocumentPtr doc)
 {
     setTextDocument(doc);
+    setAutoCompleter(new AutoCompleter);
 
     m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(doc.data());
     m_outlineCombo = 0;
@@ -169,7 +170,6 @@ QModelIndex QmlJSTextEditorWidget::outlineModelIndex()
 IEditor *QmlJSEditor::duplicate()
 {
     QmlJSTextEditorWidget *newEditor = new QmlJSTextEditorWidget(editorWidget()->textDocumentPtr());
-    TextEditor::TextEditorSettings::initializeEditor(newEditor);
     return newEditor->editor();
 }
 

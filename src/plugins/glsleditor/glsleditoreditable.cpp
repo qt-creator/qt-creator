@@ -48,7 +48,6 @@ GlslEditor::GlslEditor()
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GLSLCompletionAssistProvider>());
-    setAutoCompleter(new GLSLCompleter);
 }
 
 } // namespace Internal

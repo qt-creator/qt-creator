@@ -44,7 +44,6 @@
 #include <projectexplorer/session.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetextdocumentlayout.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -715,7 +714,6 @@ void VcsBaseEditorWidget::init()
         setCodeFoldingSupported(true);
         textDocument()->setSyntaxHighlighter(dh);
     }
-    TextEditor::TextEditorSettings::initializeEditor(this);
     // override revisions display (green or red bar on the left, marking changes):
     setRevisionsVisible(false);
 }

@@ -52,25 +52,18 @@
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/refactoroverlay.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
 
-#include <QFileInfo>
-#include <QSignalMapper>
-#include <QTimer>
-#include <QTextBlock>
-
-#include <QMenu>
 #include <QComboBox>
+#include <QFileInfo>
 #include <QHeaderView>
-#include <QInputDialog>
-#include <QToolBar>
+#include <QTextBlock>
+#include <QTimer>
 #include <QTreeView>
-#include <QSharedPointer>
 
 using namespace GLSL;
 using namespace GLSLEditor;
@@ -143,6 +136,7 @@ void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
 GlslEditorWidget::GlslEditorWidget(const TextEditor::BaseTextDocumentPtr &doc)
 {
     setTextDocument(doc);
+    setAutoCompleter(new GLSLCompleter);
 
     m_outlineCombo = 0;
     setParenthesesMatchingEnabled(true);
@@ -206,7 +200,6 @@ bool GlslEditorWidget::isOutdated() const
 Core::IEditor *GlslEditor::duplicate()
 {
     GlslEditorWidget *newEditor = new GlslEditorWidget(editorWidget()->textDocumentPtr());
-    TextEditor::TextEditorSettings::initializeEditor(newEditor);
     return newEditor->editor();
 }
 

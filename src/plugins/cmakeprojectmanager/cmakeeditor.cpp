@@ -43,7 +43,6 @@
 #include <projectexplorer/session.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/highlighterutils.h>
 
 #include <QFileInfo>
@@ -70,7 +69,6 @@ Core::IEditor *CMakeEditor::duplicate()
 {
     CMakeEditorWidget *ret = new CMakeEditorWidget;
     ret->setTextDocument(editorWidget()->textDocumentPtr());
-    TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
 }
 

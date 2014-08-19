@@ -54,7 +54,6 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/highlighterfactory.h>
 
 #include <utils/hostosinfo.h>
@@ -130,9 +129,6 @@ CppEditorPlugin *CppEditorPlugin::instance()
 
 void CppEditorPlugin::initializeEditor(CppEditorWidget *editor)
 {
-    editor->setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
-    TextEditor::TextEditorSettings::initializeEditor(editor);
-
     // function combo box sorting
     connect(this, SIGNAL(outlineSortingChanged(bool)),
             editor->outline(), SLOT(setSorted(bool)));

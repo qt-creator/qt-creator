@@ -33,7 +33,6 @@
 #include "androidconstants.h"
 #include "javacompletionassistprovider.h"
 
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/normalindenter.h>
 #include <texteditor/highlighterutils.h>
@@ -56,14 +55,12 @@ JavaEditor::JavaEditor()
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<JavaCompletionAssistProvider>());
-    setAutoCompleter(new JavaAutoCompleter);
 }
 
 Core::IEditor *JavaEditor::duplicate()
 {
     JavaEditorWidget *ret = new JavaEditorWidget;
     ret->setTextDocument(editorWidget()->textDocumentPtr());
-    TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
 }
 
@@ -73,6 +70,7 @@ Core::IEditor *JavaEditor::duplicate()
 
 JavaEditorWidget::JavaEditorWidget()
 {
+    setAutoCompleter(new JavaAutoCompleter);
 }
 
 TextEditor::BaseTextEditor *JavaEditorWidget::createEditor()

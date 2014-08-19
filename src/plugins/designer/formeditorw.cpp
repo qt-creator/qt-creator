@@ -49,7 +49,6 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/outputpane.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
 
 #include <QDesignerFormEditorPluginInterface>
@@ -684,7 +683,6 @@ EditorData FormEditorW::createEditor()
 #endif
     data.widgetHost = new SharedTools::WidgetHost( /* parent */ 0, form);
     DesignerXmlEditorWidget *xmlEditor = new DesignerXmlEditorWidget(form);
-    TextEditor::TextEditorSettings::initializeEditor(xmlEditor);
     data.formWindowEditor = xmlEditor->designerEditor();
     connect(data.formWindowEditor->document(), SIGNAL(filePathChanged(QString,QString)),
             resourceHandler, SLOT(updateResources()));

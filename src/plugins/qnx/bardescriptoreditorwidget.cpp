@@ -49,7 +49,6 @@
 #include <projectexplorer/taskhub.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/normalindenter.h>
 #include <utils/qtcassert.h>
@@ -178,7 +177,6 @@ void BarDescriptorEditorWidget::initSourcePage()
     m_xmlSourceWidget->setupAsPlainEditor();
     addWidget(m_xmlSourceWidget);
 
-    TextEditor::TextEditorSettings::initializeEditor(m_xmlSourceWidget);
     m_xmlSourceWidget->configureMimeType(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
 }
 

@@ -36,13 +36,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorsettings.h>
-
 #include <QFileInfo>
 #include <QDir>
-#include <QSharedPointer>
 #include <QTextBlock>
 
 namespace QmakeProjectManager {
@@ -65,7 +60,6 @@ Core::IEditor *ProFileEditor::duplicate()
 {
     ProFileEditorWidget *ret = new ProFileEditorWidget;
     ret->setTextDocument(editorWidget()->textDocumentPtr());
-    TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
 }
 

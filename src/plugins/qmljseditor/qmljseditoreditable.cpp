@@ -56,7 +56,6 @@ QmlJSEditor::QmlJSEditor()
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>());
-    setAutoCompleter(new AutoCompleter);
 }
 
 bool QmlJSEditor::isDesignModePreferred() const

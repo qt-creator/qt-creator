@@ -189,7 +189,6 @@ class BaseTextEditorPrivate
 {
 public:
     BaseTextEditorPrivate()
-        : m_autoCompleter(new AutoCompleter)
     {}
 
     // Note: This is always a copy of IContext::m_widget.
@@ -197,7 +196,6 @@ public:
 
     CommentDefinition m_commentDefinition;
     std::function<CompletionAssistProvider *()> m_completionAssistProvider;
-    QScopedPointer<AutoCompleter> m_autoCompleter;
 };
 
 class BaseTextEditorWidgetPrivate : public QObject
@@ -205,9 +203,6 @@ class BaseTextEditorWidgetPrivate : public QObject
 public:
     BaseTextEditorWidgetPrivate(BaseTextEditorWidget *parent);
     ~BaseTextEditorWidgetPrivate() { delete m_toolBar; }
-
-    // FIXME: Remove after relevant members have been moved to BaseTextEditorPrivate
-    BaseTextEditorPrivate *dd() { return q->editor()->d; }
 
     void setupDocumentSignals();
     void updateLineSelectionColor();
@@ -399,6 +394,8 @@ public:
     QScopedPointer<Internal::ClipboardAssistProvider> m_clipboardAssistProvider;
 
     bool m_isMissingSyntaxDefinition;
+
+    QScopedPointer<AutoCompleter> m_autoCompleter;
 };
 
 BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *parent)
@@ -451,7 +448,8 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
     m_blockCount(0),
     m_markDragging(false),
     m_clipboardAssistProvider(new Internal::ClipboardAssistProvider),
-    m_isMissingSyntaxDefinition(false)
+    m_isMissingSyntaxDefinition(false),
+    m_autoCompleter(new AutoCompleter)
 {
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(q);
@@ -2026,7 +2024,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         cursor.beginEditBlock();
 
         int extraBlocks =
-            dd()->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor,
+            d->m_autoCompleter->paragraphSeparatorAboutToBeInserted(cursor,
                                                                     d->m_document->tabSettings());
 
         QString previousIndentationString;
@@ -2226,7 +2224,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Insert:
         if (ro) break;
         if (e->modifiers() == Qt::NoModifier) {
-            AutoCompleter *ac = dd()->m_autoCompleter.data();
+            AutoCompleter *ac = d->m_autoCompleter.data();
             if (inOverwriteMode) {
                 ac->setAutoParenthesesEnabled(d->autoParenthesisOverwriteBackup);
                 ac->setSurroundWithEnabled(d->surroundWithEnabledOverwriteBackup);
@@ -2285,7 +2283,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         // only go here if control is not pressed, except if also alt is pressed
         // because AltGr maps to Alt + Ctrl
         QTextCursor cursor = textCursor();
-        const QString &autoText = dd()->m_autoCompleter->autoComplete(cursor, eventText);
+        const QString &autoText = d->m_autoCompleter->autoComplete(cursor, eventText);
 
         QChar electricChar;
         if (d->m_document->typingSettings().m_autoIndent) {
@@ -2325,7 +2323,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
             //Select the inserted text, to be able to re-indent the inserted text
             cursor.setPosition(pos, QTextCursor::KeepAnchor);
         }
-        if (!electricChar.isNull() && dd()->m_autoCompleter->contextAllowsElectricCharacters(cursor))
+        if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
             d->m_document->autoIndent(cursor, electricChar);
         if (!autoText.isEmpty())
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
@@ -2800,12 +2798,12 @@ int BaseTextEditorWidget::visibleWrapColumn() const
     return d->m_visibleWrapColumn;
 }
 
-void BaseTextEditor::setAutoCompleter(AutoCompleter *autoCompleter)
+void BaseTextEditorWidget::setAutoCompleter(AutoCompleter *autoCompleter)
 {
     d->m_autoCompleter.reset(autoCompleter);
 }
 
-AutoCompleter *BaseTextEditor::autoCompleter() const
+AutoCompleter *BaseTextEditorWidget::autoCompleter() const
 {
     return d->m_autoCompleter.data();
 }
@@ -2847,8 +2845,44 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals()
                      this, &BaseTextEditorWidgetPrivate::applyFontSettingsDelayed);
 
     slotUpdateExtraAreaWidth();
-}
 
+    TextEditorSettings *settings = TextEditorSettings::instance();
+
+    // Connect to settings change signals
+    connect(settings, &TextEditorSettings::fontSettingsChanged,
+            m_document.data(), &BaseTextDocument::setFontSettings);
+    connect(settings, &TextEditorSettings::typingSettingsChanged,
+            q, &BaseTextEditorWidget::setTypingSettings);
+    connect(settings, &TextEditorSettings::storageSettingsChanged,
+            q, &BaseTextEditorWidget::setStorageSettings);
+    connect(settings, &TextEditorSettings::behaviorSettingsChanged,
+            q, &BaseTextEditorWidget::setBehaviorSettings);
+    connect(settings, &TextEditorSettings::marginSettingsChanged,
+            q, &BaseTextEditorWidget::setMarginSettings);
+    connect(settings, &TextEditorSettings::displaySettingsChanged,
+            q, &BaseTextEditorWidget::setDisplaySettings);
+    connect(settings, &TextEditorSettings::completionSettingsChanged,
+            q, &BaseTextEditorWidget::setCompletionSettings);
+    connect(settings, &TextEditorSettings::extraEncodingSettingsChanged,
+            q, &BaseTextEditorWidget::setExtraEncodingSettings);
+
+    connect(q, &BaseTextEditorWidget::requestFontZoom,
+            settings, &TextEditorSettings::fontZoomRequested);
+    connect(q, &BaseTextEditorWidget::requestZoomReset,
+            settings, &TextEditorSettings::zoomResetRequested);
+
+    // Apply current settings
+    m_document->setFontSettings(settings->fontSettings());
+    m_document->setTabSettings(settings->codeStyle()->tabSettings()); // also set through code style ???
+    q->setTypingSettings(settings->typingSettings());
+    q->setStorageSettings(settings->storageSettings());
+    q->setBehaviorSettings(settings->behaviorSettings());
+    q->setMarginSettings(settings->marginSettings());
+    q->setDisplaySettings(settings->displaySettings());
+    q->setCompletionSettings(settings->completionSettings());
+    q->setExtraEncodingSettings(settings->extraEncodingSettings());
+    q->setCodeStyle(settings->codeStyle(q->languageSettingsId()));
+}
 
 bool BaseTextEditorWidgetPrivate::snippetCheckCursor(const QTextCursor &cursor)
 {
@@ -5159,7 +5193,7 @@ void BaseTextEditorWidgetPrivate::handleBackspaceKey()
     const TextEditor::TabSettings &tabSettings = m_document->tabSettings();
     const TextEditor::TypingSettings &typingSettings = m_document->typingSettings();
 
-    if (typingSettings.m_autoIndent && dd()->m_autoCompleter->autoBackspace(cursor))
+    if (typingSettings.m_autoIndent && m_autoCompleter->autoBackspace(cursor))
         return;
 
     bool handled = false;
@@ -6102,8 +6136,8 @@ void BaseTextEditorWidget::setStorageSettings(const StorageSettings &storageSett
 
 void BaseTextEditorWidget::setCompletionSettings(const TextEditor::CompletionSettings &completionSettings)
 {
-    dd()->m_autoCompleter->setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
-    dd()->m_autoCompleter->setSurroundWithEnabled(completionSettings.m_autoInsertBrackets
+    d->m_autoCompleter->setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
+    d->m_autoCompleter->setSurroundWithEnabled(completionSettings.m_autoInsertBrackets
                                                && completionSettings.m_surroundingAutoBrackets);
 }
 
@@ -6729,11 +6763,6 @@ void BaseTextEditorWidget::doFoo()
 #endif
 }
 
-BaseTextEditorPrivate *BaseTextEditorWidget::dd() const
-{
-    return editor()->d;
-}
-
 BaseTextBlockSelection::BaseTextBlockSelection(const BaseTextBlockSelection &other)
 {
     positionBlock = other.positionBlock;
@@ -7110,10 +7139,9 @@ void BaseTextEditorWidget::setupAsPlainEditor()
 
 IEditor *BaseTextEditor::duplicate()
 {
-    auto newWidget = new BaseTextEditorWidget(0);
+    auto newWidget = new BaseTextEditorWidget;
     newWidget->setTextDocument(editorWidget()->textDocumentPtr());
     newWidget->setupAsPlainEditor();
-    TextEditorSettings::initializeEditor(newWidget);
     auto editor = newWidget->editor();
     editor->setContext(Core::Context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                         TextEditor::Constants::C_TEXTEDITOR));

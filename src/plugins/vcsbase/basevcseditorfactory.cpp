@@ -31,7 +31,6 @@
 #include "vcsbaseeditor.h"
 
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <diffeditor/diffeditorconstants.h>
 
@@ -90,7 +89,6 @@ Core::IEditor *BaseVcsEditorFactory::createEditor()
     if (!mimeTypes().isEmpty())
         vcsEditor->textDocument()->setMimeType(mimeTypes().front());
 
-    TextEditor::TextEditorSettings::initializeEditor(vcsEditor);
     return vcsEditor->editor();
 }
 

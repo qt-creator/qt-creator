@@ -329,48 +329,6 @@ TextEditorSettings *TextEditorSettings::instance()
     return m_instance;
 }
 
-/**
- * Initializes editor settings. Also connects signals to keep them up to date
- * when they are changed.
- */
-void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
-{
-    // Connect to settings change signals
-    connect(m_instance, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            editor->textDocument(), SLOT(setFontSettings(TextEditor::FontSettings)));
-    connect(m_instance, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
-            editor, SLOT(setTypingSettings(TextEditor::TypingSettings)));
-    connect(m_instance, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
-            editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
-    connect(m_instance, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
-            editor, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
-    connect(m_instance, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)),
-            editor, SLOT(setMarginSettings(TextEditor::MarginSettings)));
-    connect(m_instance, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-    connect(m_instance, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
-            editor, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
-    connect(m_instance, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
-            editor, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
-
-    connect(editor, SIGNAL(requestFontZoom(int)),
-            m_instance, SLOT(fontZoomRequested(int)));
-    connect(editor, SIGNAL(requestZoomReset()),
-            m_instance, SLOT(zoomResetRequested()));
-
-    // Apply current settings
-    editor->textDocument()->setFontSettings(fontSettings());
-    editor->textDocument()->setTabSettings(codeStyle()->tabSettings()); // also set through code style ???
-    editor->setTypingSettings(typingSettings());
-    editor->setStorageSettings(storageSettings());
-    editor->setBehaviorSettings(behaviorSettings());
-    editor->setMarginSettings(marginSettings());
-    editor->setDisplaySettings(displaySettings());
-    editor->setCompletionSettings(completionSettings());
-    editor->setExtraEncodingSettings(extraEncodingSettings());
-    editor->setCodeStyle(codeStyle(editor->languageSettingsId()));
-}
-
 const FontSettings &TextEditorSettings::fontSettings()
 {
     return d->m_fontSettingsPage->fontSettings();

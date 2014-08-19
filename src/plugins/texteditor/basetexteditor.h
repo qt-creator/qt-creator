@@ -189,9 +189,6 @@ public:
     // There should be something simpler.
     void setCompletionAssistProvider(const std::function<CompletionAssistProvider *()> &provider);
 
-    void setAutoCompleter(AutoCompleter *autoCompleter);
-    AutoCompleter *autoCompleter() const;
-
 signals:
     void markRequested(TextEditor::BaseTextEditor *editor, int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
     void markContextMenuRequested(TextEditor::BaseTextEditor *editor, int line, QMenu *menu);
@@ -237,6 +234,9 @@ public:
     void print(QPrinter *);
 
     void appendStandardContextMenuActions(QMenu *menu);
+
+    void setAutoCompleter(AutoCompleter *autoCompleter);
+    AutoCompleter *autoCompleter() const;
 
     // Works only in conjunction with a syntax highlighter that puts
     // parentheses into text block user data
@@ -591,7 +591,6 @@ protected slots:
 
 private:
     Internal::BaseTextEditorWidgetPrivate *d;
-    Internal::BaseTextEditorPrivate *dd() const;
     friend class BaseTextEditor;
     friend class Internal::BaseTextEditorWidgetPrivate;
     friend class Internal::TextEditorOverlay;

@@ -64,5 +64,5 @@ void CppSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *editor)
 {
     editor->setSyntaxHighlighter(new CppHighlighter);
     editor->textDocument()->setIndenter(new CppTools::CppQtStyleIndenter);
-    editor->editor()->setAutoCompleter(new CppAutoCompleter);
+    editor->setAutoCompleter(new CppAutoCompleter);
 }

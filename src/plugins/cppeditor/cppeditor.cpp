@@ -50,6 +50,7 @@
 #include <cpptools/cpphighlightingsupport.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cppsemanticinfo.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolseditorsupport.h>
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -116,7 +117,6 @@ CPPEditor::CPPEditor()
     setCompletionAssistProvider([this] () -> TextEditor::CompletionAssistProvider * {
         return CppModelManagerInterface::instance()->cppEditorSupport(this)->completionAssistProvider();
     });
-    setAutoCompleter(new CppAutoCompleter);
 }
 
 Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
@@ -180,6 +180,7 @@ CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc)
 {
     setTextDocument(doc);
     d.reset(new CppEditorWidgetPrivate(this));
+    setAutoCompleter(new CppAutoCompleter);
 
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
 
@@ -243,6 +244,7 @@ CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc)
     connect(d->m_preprocessorButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
     insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_preprocessorButton);
     insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_cppEditorOutline->widget());
+    setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
 }
 
 CppEditorWidget::~CppEditorWidget()
