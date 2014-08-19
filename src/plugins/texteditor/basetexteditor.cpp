@@ -74,30 +74,30 @@
 #include <utils/tooltip/tipcontents.h>
 #include <utils/uncommentselection.h>
 
-#include <QCoreApplication>
-#include <QTextCodec>
-#include <QDebug>
-#include <QTime>
-#include <QTimer>
-#include <QTimeLine>
-#include <QMimeData>
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
+#include <QClipboard>
+#include <QCoreApplication>
+#include <QDebug>
 #include <QKeyEvent>
+#include <QMenu>
+#include <QMessageBox>
+#include <QMimeData>
 #include <QPainter>
-#include <QPrinter>
 #include <QPrintDialog>
+#include <QPrinter>
 #include <QScrollBar>
 #include <QShortcut>
 #include <QStyle>
+#include <QTextBlock>
+#include <QTextCodec>
 #include <QTextCursor>
 #include <QTextDocumentFragment>
-#include <QTextBlock>
 #include <QTextLayout>
+#include <QTime>
+#include <QTimeLine>
+#include <QTimer>
 #include <QToolBar>
-#include <QMenu>
-#include <QMessageBox>
-#include <QClipboard>
 
 //#define DO_FOO
 
@@ -256,7 +256,6 @@ public:
     bool inFindScope(const QTextCursor &cursor);
     bool inFindScope(int selectionStart, int selectionEnd);
 
-//public slots:
     void slotUpdateExtraAreaWidth();
     void slotUpdateRequest(const QRect &r, int dy);
     void slotUpdateBlockNotify(const QTextBlock &);
@@ -266,7 +265,7 @@ public:
     void editorContentsChange(int position, int charsRemoved, int charsAdded);
     void documentAboutToBeReloaded();
     void documentReloadFinished(bool success);
-    void highlightSearchResultsSlot(const QString &txt, Core::FindFlags findFlags);
+    void highlightSearchResultsSlot(const QString &txt, FindFlags findFlags);
     void setFindScope(const QTextCursor &start, const QTextCursor &end, int, int);
 
     void updateCursorPosition();
@@ -282,8 +281,8 @@ public:
     BaseTextEditorWidget *q;
     QToolBar *m_toolBar;
     QWidget *m_stretchWidget;
-    Utils::LineColumnLabel *m_cursorPositionLabel;
-    Utils::LineColumnLabel *m_fileEncodingLabel;
+    LineColumnLabel *m_cursorPositionLabel;
+    LineColumnLabel *m_fileEncodingLabel;
     QAction *m_cursorPositionLabelAction;
     QAction *m_fileEncodingLabelAction;
 
@@ -304,7 +303,7 @@ public:
 
     QWidget *m_extraArea;
 
-    Core::Id m_tabSettingsId;
+    Id m_tabSettingsId;
     ICodeStylePreferences *m_codeStylePreferences;
     DisplaySettings m_displaySettings;
     MarginSettings m_marginSettings;
@@ -348,7 +347,7 @@ public:
     bool m_linkPressed;
 
     QRegExp m_searchExpr;
-    Core::FindFlags m_findFlags;
+    FindFlags m_findFlags;
     void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay);
     QTimer m_delayedUpdateTimer;
 
@@ -469,19 +468,19 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
     m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     m_toolBar->addWidget(m_stretchWidget);
 
-    m_cursorPositionLabel = new Utils::LineColumnLabel;
+    m_cursorPositionLabel = new LineColumnLabel;
     const int spacing = q->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
     m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
 
-    m_fileEncodingLabel = new Utils::LineColumnLabel;
+    m_fileEncodingLabel = new LineColumnLabel;
     m_fileEncodingLabel->setContentsMargins(spacing, 0, spacing, 0);
 
     m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
     m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
 
     connect(m_cursorPositionLabel, &LineColumnLabel::clicked, [this] {
-        Core::EditorManager::activateEditor(q->editor(), Core::EditorManager::IgnoreNavigationHistory);
-        if (Core::Command *cmd = Core::ActionManager::command(Core::Constants::GOTO)) {
+        EditorManager::activateEditor(q->editor(), EditorManager::IgnoreNavigationHistory);
+        if (Core::Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
             if (QAction *act = cmd->action())
                 act->trigger();
         }
@@ -904,7 +903,7 @@ void BaseTextEditorWidget::selectEncoding()
         break; }
     case CodecSelector::Save:
         doc->setCodec(codecSelector.selectedCodec());
-        Core::EditorManager::saveDocument(textDocument());
+        EditorManager::saveDocument(textDocument());
         updateTextCodecLabel();
         break;
     case CodecSelector::Cancel:
@@ -943,12 +942,12 @@ QString BaseTextEditorWidget::selectedText() const
 void BaseTextEditorWidgetPrivate::updateCannotDecodeInfo()
 {
     q->setReadOnly(m_document->hasDecodingError());
-    Core::InfoBar *infoBar = m_document->infoBar();
-    Core::Id selectEncodingId(Constants::SELECT_ENCODING);
+    InfoBar *infoBar = m_document->infoBar();
+    Id selectEncodingId(Constants::SELECT_ENCODING);
     if (m_document->hasDecodingError()) {
         if (!infoBar->canInfoBeAdded(selectEncodingId))
             return;
-        Core::InfoBarEntry info(selectEncodingId,
+        InfoBarEntry info(selectEncodingId,
             BaseTextEditorWidget::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
             .arg(m_document->displayName()).arg(QString::fromLatin1(m_document->codec()->name())));
         info.setCustomButtonInfo(BaseTextEditorWidget::tr("Select Encoding"), q, SLOT(selectEncoding()));
@@ -3059,7 +3058,7 @@ void BaseTextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block
         l = m_searchExpr.matchedLength();
         if (l == 0)
             break;
-        if ((m_findFlags & Core::FindWholeWords)
+        if ((m_findFlags & FindWholeWords)
             && ((idx && text.at(idx-1).isLetterOrNumber())
                 || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
             continue;
@@ -4191,7 +4190,7 @@ static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool e
 
     QRgb b = pal.base().color().rgb();
     QRgb h = pal.highlight().color().rgb();
-    QColor c = Utils::StyleHelper::mergedColors(b,h, 50);
+    QColor c = StyleHelper::mergedColors(b,h, 50);
 
     QLinearGradient grad(rect.topLeft(), rect.topRight());
     grad.setColorAt(0, c.lighter(110));
@@ -4511,7 +4510,7 @@ void BaseTextEditorWidget::slotCursorPositionChanged()
             << "indent:" << BaseTextDocumentLayout::userData(textCursor().block())->foldingIndent();
 #endif
     if (!d->m_contentsChanged && d->m_lastCursorChangeWasInteresting) {
-        Core::EditorManager::addCurrentPositionToNavigationHistory(editor(), d->m_tempNavigationState);
+        EditorManager::addCurrentPositionToNavigationHistory(editor(), d->m_tempNavigationState);
         d->m_lastCursorChangeWasInteresting = false;
     } else if (d->m_contentsChanged) {
         d->saveCurrentCursorPositionForNavigation();
@@ -4692,11 +4691,11 @@ void BaseTextEditorWidget::mouseMoveEvent(QMouseEvent *e)
 static bool handleForwardBackwardMouseButtons(QMouseEvent *e)
 {
     if (e->button() == Qt::XButton1) {
-        Core::EditorManager::goBackInNavigationHistory();
+        EditorManager::goBackInNavigationHistory();
         return true;
     }
     if (e->button() == Qt::XButton2) {
-        Core::EditorManager::goForwardInNavigationHistory();
+        EditorManager::goForwardInNavigationHistory();
         return true;
     }
 
@@ -4767,7 +4766,7 @@ void BaseTextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
             && e->button() == Qt::LeftButton
             ) {
 
-        Core::EditorManager::addCurrentPositionToNavigationHistory();
+        EditorManager::addCurrentPositionToNavigationHistory();
         bool inNextSplit = ((e->modifiers() & Qt::AltModifier) && !alwaysOpenLinksInNextSplit())
                 || (alwaysOpenLinksInNextSplit() && !(e->modifiers() & Qt::AltModifier));
         if (openLink(findLinkAt(cursorForPosition(e->pos())), inNextSplit)) {
@@ -4831,16 +4830,16 @@ void BaseTextEditorWidget::dragEnterEvent(QDragEnterEvent *e)
     QPlainTextEdit::dragEnterEvent(e);
 }
 
-static void appendMenuActionsFromContext(QMenu *menu, Core::Id menuContextId)
+static void appendMenuActionsFromContext(QMenu *menu, Id menuContextId)
 {
-    Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(menuContextId);
+    ActionContainer *mcontext = ActionManager::actionContainer(menuContextId);
     QMenu *contextMenu = mcontext->menu();
 
     foreach (QAction *action, contextMenu->actions())
         menu->addAction(action);
 }
 
-void BaseTextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, Core::Id menuContextId)
+void BaseTextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, Id menuContextId)
 {
     QMenu menu;
     appendMenuActionsFromContext(&menu, menuContextId);
@@ -5068,12 +5067,12 @@ void BaseTextEditorWidgetPrivate::toggleBlockVisible(const QTextBlock &block)
     documentLayout->emitDocumentSizeChanged();
 }
 
-void BaseTextEditorWidget::setLanguageSettingsId(Core::Id settingsId)
+void BaseTextEditorWidget::setLanguageSettingsId(Id settingsId)
 {
     d->m_tabSettingsId = settingsId;
 }
 
-Core::Id BaseTextEditorWidget::languageSettingsId() const
+Id BaseTextEditorWidget::languageSettingsId() const
 {
     return d->m_tabSettingsId;
 }
@@ -5277,15 +5276,15 @@ bool BaseTextEditorWidget::openLink(const Link &link, bool inNextSplit)
         return false;
 
     if (inNextSplit) {
-        Core::EditorManager::gotoOtherSplit();
+        EditorManager::gotoOtherSplit();
     } else if (textDocument()->filePath() == link.targetFileName) {
-        Core::EditorManager::addCurrentPositionToNavigationHistory();
+        EditorManager::addCurrentPositionToNavigationHistory();
         gotoLine(link.targetLine, link.targetColumn);
         setFocus();
         return true;
     }
 
-    return Core::EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn);
+    return EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn);
 }
 
 void BaseTextEditorWidgetPrivate::updateLink(QMouseEvent *e)
@@ -5344,7 +5343,7 @@ void BaseTextEditorWidgetPrivate::clearLink()
     m_linkPressed = false;
 }
 
-void BaseTextEditorWidgetPrivate::highlightSearchResultsSlot(const QString &txt, Core::FindFlags findFlags)
+void BaseTextEditorWidgetPrivate::highlightSearchResultsSlot(const QString &txt, FindFlags findFlags)
 {
     if (m_searchExpr.pattern() == txt)
         return;
@@ -6493,22 +6492,22 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
     menu->addSeparator();
 
-    QAction *a = Core::ActionManager::command(Core::Constants::CUT)->action();
+    QAction *a = ActionManager::command(Core::Constants::CUT)->action();
     if (a && a->isEnabled())
         menu->addAction(a);
-    a = Core::ActionManager::command(Core::Constants::COPY)->action();
+    a = ActionManager::command(Core::Constants::COPY)->action();
     if (a && a->isEnabled())
         menu->addAction(a);
-    a = Core::ActionManager::command(Core::Constants::PASTE)->action();
+    a = ActionManager::command(Core::Constants::PASTE)->action();
     if (a && a->isEnabled())
         menu->addAction(a);
-    a = Core::ActionManager::command(Constants::CIRCULAR_PASTE)->action();
+    a = ActionManager::command(Constants::CIRCULAR_PASTE)->action();
     if (a && a->isEnabled())
         menu->addAction(a);
 
     BaseTextDocument *doc = textDocument();
     if (doc->codec()->name() == QByteArray("UTF-8") && doc->supportsUtf8Bom()) {
-        a = Core::ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
+        a = ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
         if (a && a->isEnabled()) {
             a->setText(doc->format().hasUtf8Bom ? tr("Delete UTF-8 BOM on Save")
                                                 : tr("Add UTF-8 BOM on Save"));
@@ -7018,7 +7017,7 @@ bool BaseTextEditor::restoreState(const QByteArray &state)
 
 BaseTextEditor *BaseTextEditor::currentTextEditor()
 {
-    return qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor());
+    return qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
 }
 
 BaseTextEditorWidget *BaseTextEditor::editorWidget() const
