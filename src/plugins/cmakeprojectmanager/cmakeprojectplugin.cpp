@@ -28,10 +28,11 @@
 ****************************************************************************/
 
 #include "cmakeprojectplugin.h"
+
+#include "cmakeeditor.h"
 #include "cmakeprojectmanager.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakerunconfiguration.h"
-#include "cmakeeditorfactory.h"
 #include "makestep.h"
 #include "cmakeprojectconstants.h"
 #include "cmakelocatorfilter.h"
@@ -39,7 +40,6 @@
 
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/mimedatabase.h>
-#include <texteditor/texteditoractionhandler.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -61,13 +61,12 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
         return false;
     CMakeSettingsPage *cmp = new CMakeSettingsPage();
     addAutoReleasedObject(cmp);
-    CMakeManager *manager = new CMakeManager(cmp);
-    addAutoReleasedObject(manager);
+    addAutoReleasedObject(new CMakeManager(cmp));
     addAutoReleasedObject(new MakeStepFactory);
     addAutoReleasedObject(new CMakeRunConfigurationFactory);
     addAutoReleasedObject(new CMakeBuildConfigurationFactory);
 
-    addAutoReleasedObject(new CMakeEditorFactory(manager));
+    addAutoReleasedObject(new CMakeEditorFactory);
     addAutoReleasedObject(new CMakeLocatorFilter);
     addAutoReleasedObject(new CMakeFileCompletionAssistProvider(cmp));
 

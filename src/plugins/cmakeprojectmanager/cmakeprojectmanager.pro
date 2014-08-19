@@ -10,7 +10,6 @@ HEADERS = cmakebuildinfo.h \
     cmakerunconfiguration.h \
     cmakeopenprojectwizard.h \
     cmakebuildconfiguration.h \
-    cmakeeditorfactory.h \
     cmakeeditor.h \
     cmakelocatorfilter.h \
     cmakefilecompletionassist.h \
@@ -27,7 +26,6 @@ SOURCES = cmakeproject.cpp \
     cmakerunconfiguration.cpp \
     cmakeopenprojectwizard.cpp \
     cmakebuildconfiguration.cpp \
-    cmakeeditorfactory.cpp \
     cmakeeditor.cpp \
     cmakelocatorfilter.cpp \
     cmakefilecompletionassist.cpp \

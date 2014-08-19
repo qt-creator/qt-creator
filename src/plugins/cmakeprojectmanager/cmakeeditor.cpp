@@ -33,56 +33,68 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/mimedatabase.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
+#include <texteditor/highlighterutils.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/highlighterutils.h>
+
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
-#include <QSharedPointer>
 #include <QTextBlock>
 
-using namespace CMakeProjectManager;
-using namespace CMakeProjectManager::Internal;
+using namespace Core;
+using namespace TextEditor;
+using namespace CMakeProjectManager::Constants;
+
+namespace CMakeProjectManager {
+namespace Internal {
 
 //
-// ProFileEditorEditable
+// CMakeEditor
 //
 
 CMakeEditor::CMakeEditor()
 {
-    setContext(Core::Context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
-              TextEditor::Constants::C_TEXTEDITOR));
+    addContext(Constants::C_CMAKEEDITOR);
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>());
-}
+    setEditorCreator([]() { return new CMakeEditor; });
+    setWidgetCreator([]() { return new CMakeEditorWidget; });
 
-Core::IEditor *CMakeEditor::duplicate()
-{
-    CMakeEditorWidget *ret = new CMakeEditorWidget;
-    ret->setTextDocument(editorWidget()->textDocumentPtr());
-    return ret->editor();
+    setDocumentCreator([this]() -> BaseTextDocument * {
+        auto doc = new CMakeDocument;
+        connect(doc, &IDocument::changed, this, &CMakeEditor::markAsChanged);
+        return doc;
+    });
 }
 
 void CMakeEditor::markAsChanged()
 {
     if (!document()->isModified())
         return;
-    Core::InfoBar *infoBar = document()->infoBar();
-    Core::Id infoRunCmake("CMakeEditor.RunCMake");
+    InfoBar *infoBar = document()->infoBar();
+    Id infoRunCmake("CMakeEditor.RunCMake");
     if (!infoBar->canInfoBeAdded(infoRunCmake))
         return;
-    Core::InfoBarEntry info(infoRunCmake,
-                            tr("Changes to cmake files are shown in the project tree after building."),
-                            Core::InfoBarEntry::GlobalSuppressionEnabled);
+    InfoBarEntry info(infoRunCmake,
+                      tr("Changes to cmake files are shown in the project tree after building."),
+                      InfoBarEntry::GlobalSuppressionEnabled);
     info.setCustomButtonInfo(tr("Build now"), this, SLOT(build()));
     infoBar->addInfo(info);
 }
@@ -103,7 +115,7 @@ void CMakeEditor::build()
 QString CMakeEditor::contextHelpId() const
 {
     int pos = position();
-    TextEditor::BaseTextDocument *doc = const_cast<CMakeEditor*>(this)->textDocument();
+    BaseTextDocument *doc = const_cast<CMakeEditor*>(this)->textDocument();
 
     QChar chr;
     do {
@@ -143,7 +155,7 @@ QString CMakeEditor::contextHelpId() const
 }
 
 //
-// CMakeEditor
+// CMakeEditorWidget
 //
 
 CMakeEditorWidget::CMakeEditorWidget()
@@ -151,11 +163,9 @@ CMakeEditorWidget::CMakeEditorWidget()
     setCodeFoldingSupported(true);
 }
 
-TextEditor::BaseTextEditor *CMakeEditorWidget::createEditor()
+BaseTextEditor *CMakeEditorWidget::createEditor()
 {
-    auto editor = new CMakeEditor;
-    connect(textDocument(), &Core::IDocument::changed, editor, &CMakeEditor::markAsChanged);
-    return editor;
+    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
@@ -165,14 +175,12 @@ void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
 static bool isValidFileNameChar(const QChar &c)
 {
-    if (c.isLetterOrNumber()
+    return c.isLetterOrNumber()
             || c == QLatin1Char('.')
             || c == QLatin1Char('_')
             || c == QLatin1Char('-')
             || c == QLatin1Char('/')
-            || c == QLatin1Char('\\'))
-        return true;
-    return false;
+            || c == QLatin1Char('\\');
 }
 
 CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
@@ -239,17 +247,16 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     return link;
 }
 
-
 //
 // CMakeDocument
 //
-CMakeDocument::CMakeDocument()
-    : TextEditor::BaseTextDocument()
-{
-    setId(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
-    setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
 
-    Core::MimeType mimeType = Core::MimeDatabase::findByType(QLatin1String(Constants::CMAKEMIMETYPE));
+CMakeDocument::CMakeDocument()
+{
+    setId(Constants::CMAKE_EDITOR_ID);
+    setMimeType(QLatin1String(Constants::CMAKEMIMETYPE));
+
+    MimeType mimeType = MimeDatabase::findByType(QLatin1String(Constants::CMAKEMIMETYPE));
     setSyntaxHighlighter(TextEditor::createGenericSyntaxHighlighter(mimeType));
 }
 
@@ -264,3 +271,32 @@ QString CMakeDocument::suggestedFileName() const
     QFileInfo fi(filePath());
     return fi.fileName();
 }
+
+//
+// CMakeEditorFactory
+//
+
+CMakeEditorFactory::CMakeEditorFactory()
+{
+    setId(Constants::CMAKE_EDITOR_ID);
+    setDisplayName(tr(Constants::CMAKE_EDITOR_DISPLAY_NAME));
+    addMimeType(Constants::CMAKEMIMETYPE);
+    addMimeType(Constants::CMAKEPROJECTMIMETYPE);
+
+    new TextEditorActionHandler(this, Constants::C_CMAKEEDITOR,
+            TextEditorActionHandler::UnCommentSelection
+            | TextEditorActionHandler::JumpToFileUnderCursor);
+
+    ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
+    contextMenu->addAction(ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR));
+    contextMenu->addSeparator(Context(C_CMAKEEDITOR));
+    contextMenu->addAction(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
+}
+
+IEditor *CMakeEditorFactory::createEditor()
+{
+    return new CMakeEditor;
+}
+
+} // namespace Internal
+} // namespace CMakeProjectManager

@@ -33,17 +33,12 @@
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/codeassist/completionassistprovider.h>
-#include <utils/uncommentselection.h>
-
-
-namespace TextEditor { class FontSettings; }
+#include <coreplugin/editormanager/ieditorfactory.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeEditorWidget;
-class CMakeHighlighter;
-class CMakeManager;
 
 class CMakeEditor : public TextEditor::BaseTextEditor
 {
@@ -52,7 +47,6 @@ class CMakeEditor : public TextEditor::BaseTextEditor
 public:
     CMakeEditor();
 
-    Core::IEditor *duplicate();
     QString contextHelpId() const;
 
     friend class CMakeEditorWidget;
@@ -69,11 +63,9 @@ class CMakeEditorWidget : public TextEditor::BaseTextEditorWidget
 public:
     CMakeEditorWidget();
 
+private:
     bool save(const QString &fileName = QString());
-
     Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false);
-
-protected:
     TextEditor::BaseTextEditor *createEditor();
     void contextMenuEvent(QContextMenuEvent *e);
 };
@@ -84,8 +76,18 @@ class CMakeDocument : public TextEditor::BaseTextDocument
 
 public:
     CMakeDocument();
+
     QString defaultPath() const;
     QString suggestedFileName() const;
+};
+
+class CMakeEditorFactory : public Core::IEditorFactory
+{
+    Q_OBJECT
+
+public:
+    CMakeEditorFactory();
+    Core::IEditor *createEditor();
 };
 
 } // namespace Internal
