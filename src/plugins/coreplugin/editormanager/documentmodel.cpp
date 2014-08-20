@@ -131,7 +131,7 @@ QString DocumentModel::Entry::displayName() const
 
 Id DocumentModel::Entry::id() const
 {
-    return m_id;
+    return document ? document->id() : m_id;
 }
 
 int DocumentModelPrivate::columnCount(const QModelIndex &parent) const
@@ -161,7 +161,6 @@ void DocumentModel::addEditor(IEditor *editor, bool *isNewDocument)
     if (isNew) {
         Entry *entry = new Entry;
         entry->document = editor->document();
-        entry->m_id = editor->document()->id();
         d->addEntry(entry);
     }
 }
