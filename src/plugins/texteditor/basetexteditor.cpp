@@ -191,8 +191,9 @@ public:
     BaseTextEditorPrivate()
     {}
 
-    // Note: This is always a copy of IContext::m_widget.
-    BaseTextEditorWidget *m_editorWidget;
+    BaseTextEditor::EditorCreator m_editorCreator;
+    BaseTextEditor::DocumentCreator m_documentCreator;
+    BaseTextEditor::WidgetCreator m_widgetCreator;
 
     CommentDefinition m_commentDefinition;
     std::function<CompletionAssistProvider *()> m_completionAssistProvider;
@@ -878,7 +879,7 @@ BaseTextEditor *BaseTextEditorWidget::editor() const
     if (!d->m_editor) {
         auto that = const_cast<BaseTextEditorWidget *>(this);
         d->m_editor = that->createEditor();
-        if (!d->m_editor->widget())
+        if (!d->m_editor->m_widget)
             d->m_editor->setEditorWidget(that);
         d->m_codeAssistant->configure(d->m_editor);
     }
@@ -6556,33 +6557,55 @@ BaseTextEditor::BaseTextEditor()
     : d(new BaseTextEditorPrivate)
 {
     d->m_completionAssistProvider = [] () -> CompletionAssistProvider * { return 0; };
+    addContext(TextEditor::Constants::C_TEXTEDITOR);
 }
 
 void BaseTextEditor::setEditorWidget(BaseTextEditorWidget *widget)
 {
+    widget->d->m_editor = this;
     setWidget(widget);
-    d->m_editorWidget = widget;
 }
 
 BaseTextEditor::~BaseTextEditor()
 {
-    delete d->m_editorWidget;
+    delete m_widget;
     delete d;
+}
+
+void BaseTextEditor::setEditorCreator(const BaseTextEditor::EditorCreator &creator)
+{
+    d->m_editorCreator = creator;
+}
+
+void BaseTextEditor::setDocumentCreator(const BaseTextEditor::DocumentCreator &creator)
+{
+    d->m_documentCreator = creator;
+}
+
+void BaseTextEditor::setWidgetCreator(const BaseTextEditor::WidgetCreator &creator)
+{
+    d->m_widgetCreator = creator;
 }
 
 BaseTextDocument *BaseTextEditor::textDocument()
 {
-    return d->m_editorWidget->textDocument();
+    ensureDocument();
+    return editorWidget()->textDocument();
+}
+
+void BaseTextEditor::addContext(Id id)
+{
+    m_context.add(id);
 }
 
 IDocument *BaseTextEditor::document()
 {
-    return d->m_editorWidget->textDocument();
+    return textDocument();
 }
 
 QWidget *BaseTextEditor::toolBar()
 {
-    return d->m_editorWidget->d->m_toolBar;
+    return editorWidget()->d->m_toolBar;
 }
 
 void BaseTextEditorWidget::insertExtraToolBarWidget(BaseTextEditorWidget::Side side,
@@ -6602,88 +6625,88 @@ void BaseTextEditorWidget::insertExtraToolBarWidget(BaseTextEditorWidget::Side s
 
 int BaseTextEditor::currentLine() const
 {
-    return d->m_editorWidget->textCursor().blockNumber() + 1;
+    return editorWidget()->textCursor().blockNumber() + 1;
 }
 
 int BaseTextEditor::currentColumn() const
 {
-    QTextCursor cursor = d->m_editorWidget->textCursor();
+    QTextCursor cursor = editorWidget()->textCursor();
     return cursor.position() - cursor.block().position() + 1;
 }
 
 void BaseTextEditor::gotoLine(int line, int column, bool centerLine)
 {
-    d->m_editorWidget->gotoLine(line, column, centerLine);
+    editorWidget()->gotoLine(line, column, centerLine);
 }
 
 int BaseTextEditor::columnCount() const
 {
-    return d->m_editorWidget->columnCount();
+    return editorWidget()->columnCount();
 }
 
 int BaseTextEditor::rowCount() const
 {
-    return d->m_editorWidget->rowCount();
+    return editorWidget()->rowCount();
 }
 
 int BaseTextEditor::position(BaseTextEditor::PositionOperation posOp, int at) const
 {
-    return d->m_editorWidget->position(posOp, at);
+    return editorWidget()->position(posOp, at);
 }
 
 void BaseTextEditor::convertPosition(int pos, int *line, int *column) const
 {
-    d->m_editorWidget->convertPosition(pos, line, column);
+    editorWidget()->convertPosition(pos, line, column);
 }
 
 QRect BaseTextEditor::cursorRect(int pos) const
 {
-    QTextCursor tc = d->m_editorWidget->textCursor();
+    QTextCursor tc = editorWidget()->textCursor();
     if (pos >= 0)
         tc.setPosition(pos);
-    QRect result = d->m_editorWidget->cursorRect(tc);
-    result.moveTo(d->m_editorWidget->viewport()->mapToGlobal(result.topLeft()));
+    QRect result = editorWidget()->cursorRect(tc);
+    result.moveTo(editorWidget()->viewport()->mapToGlobal(result.topLeft()));
     return result;
 }
 
 QString BaseTextEditor::selectedText() const
 {
-    return d->m_editorWidget->selectedText();
+    return editorWidget()->selectedText();
 }
 
 void BaseTextEditor::remove(int length)
 {
-    QTextCursor tc = d->m_editorWidget->textCursor();
+    QTextCursor tc = editorWidget()->textCursor();
     tc.setPosition(tc.position() + length, QTextCursor::KeepAnchor);
     tc.removeSelectedText();
 }
 
 void BaseTextEditor::insert(const QString &string)
 {
-    d->m_editorWidget->insertPlainText(string);
+    editorWidget()->insertPlainText(string);
 }
 
 void BaseTextEditor::replace(int length, const QString &string)
 {
-    QTextCursor tc = d->m_editorWidget->textCursor();
+    QTextCursor tc = editorWidget()->textCursor();
     tc.setPosition(tc.position() + length, QTextCursor::KeepAnchor);
     tc.insertText(string);
 }
 
 void BaseTextEditor::setCursorPosition(int pos)
 {
-    d->m_editorWidget->setBlockSelection(false);
-    QTextCursor tc = d->m_editorWidget->textCursor();
+    editorWidget()->setBlockSelection(false);
+    QTextCursor tc = editorWidget()->textCursor();
     tc.setPosition(pos);
-    d->m_editorWidget->setTextCursor(tc);
+    editorWidget()->setTextCursor(tc);
 }
 
 void BaseTextEditor::select(int toPos)
 {
-    d->m_editorWidget->setBlockSelection(false);
-    QTextCursor tc = d->m_editorWidget->textCursor();
+    editorWidget()->setBlockSelection(false);
+    QTextCursor tc = editorWidget()->textCursor();
     tc.setPosition(toPos, QTextCursor::KeepAnchor);
-    d->m_editorWidget->setTextCursor(tc);
+    editorWidget()->setTextCursor(tc);
 }
 
 CommentDefinition &BaseTextEditor::commentDefinition() const
@@ -6732,7 +6755,7 @@ QString BaseTextEditor::contextHelpId() const
 {
     if (m_contextHelpId.isEmpty())
         emit const_cast<BaseTextEditor*>(this)->contextHelpIdRequested(const_cast<BaseTextEditor*>(this),
-                                                                       d->m_editorWidget->textCursor().position());
+                                                                       editorWidget()->textCursor().position());
     return m_contextHelpId;
 }
 
@@ -7031,17 +7054,17 @@ QString BaseTextEditorWidget::foldReplacementText(const QTextBlock &) const
 
 bool BaseTextEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    return d->m_editorWidget->open(errorString, fileName, realFileName);
+    return editorWidget()->open(errorString, fileName, realFileName);
 }
 
 QByteArray BaseTextEditor::saveState() const
 {
-    return d->m_editorWidget->saveState();
+    return editorWidget()->saveState();
 }
 
 bool BaseTextEditor::restoreState(const QByteArray &state)
 {
-    return d->m_editorWidget->restoreState(state);
+    return editorWidget()->restoreState(state);
 }
 
 BaseTextEditor *BaseTextEditor::currentTextEditor()
@@ -7051,7 +7074,8 @@ BaseTextEditor *BaseTextEditor::currentTextEditor()
 
 BaseTextEditorWidget *BaseTextEditor::editorWidget() const
 {
-    return d->m_editorWidget;
+    QTC_ASSERT(qobject_cast<BaseTextEditorWidget *>(m_widget.data()), return 0);
+    return static_cast<BaseTextEditorWidget *>(m_widget.data());
 }
 
 void BaseTextEditorWidget::configureMimeType(const QString &mimeType)
@@ -7139,14 +7163,52 @@ void BaseTextEditorWidget::setupAsPlainEditor()
 
 IEditor *BaseTextEditor::duplicate()
 {
+    // Use standard setup if that's available.
+    if (d->m_editorCreator) {
+        BaseTextEditor *editor = d->m_editorCreator();
+        BaseTextEditorWidget *widget = editor->ensureWidget();
+        widget->setTextDocument(editorWidget()->textDocumentPtr());
+        m_widget = widget;
+        return editor;
+    }
+
+    // That's a really plain text editor.
     auto newWidget = new BaseTextEditorWidget;
     newWidget->setTextDocument(editorWidget()->textDocumentPtr());
     newWidget->setupAsPlainEditor();
     auto editor = newWidget->editor();
-    editor->setContext(Core::Context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
-                        TextEditor::Constants::C_TEXTEDITOR));
+    editor->addContext(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     editor->setDuplicateSupported(true);
     return editor;
+
+    // If neither is sufficient, you need to implement 'YourEditor::duplicate'.
+}
+
+QWidget *BaseTextEditor::widget() const
+{
+    return ensureWidget();
+}
+
+BaseTextEditorWidget *BaseTextEditor::ensureWidget() const
+{
+    if (m_widget.isNull()) {
+        QTC_ASSERT(d->m_widgetCreator, return 0);
+        BaseTextEditorWidget *widget = d->m_widgetCreator();
+        auto that = const_cast<BaseTextEditor *>(this);
+        widget->d->m_editor = that;
+        that->m_widget = widget;
+    }
+    return editorWidget();
+}
+
+BaseTextDocumentPtr BaseTextEditor::ensureDocument()
+{
+    BaseTextEditorWidget *widget = ensureWidget();
+    if (widget->d->m_document.isNull()) {
+        QTC_ASSERT(d->m_documentCreator, return BaseTextDocumentPtr());
+        widget->setTextDocument(BaseTextDocumentPtr(d->m_documentCreator()));
+    }
+    return widget->textDocumentPtr();
 }
 
 } // namespace TextEditor

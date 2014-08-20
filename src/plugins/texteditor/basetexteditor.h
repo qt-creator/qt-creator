@@ -120,6 +120,15 @@ public:
     BaseTextEditor();
     ~BaseTextEditor();
 
+    typedef std::function<BaseTextEditor *()> EditorCreator;
+    void setEditorCreator(const EditorCreator &creator);
+
+    typedef std::function<BaseTextDocument *()> DocumentCreator;
+    void setDocumentCreator(const DocumentCreator &creator);
+
+    typedef std::function<BaseTextEditorWidget *()> WidgetCreator;
+    void setWidgetCreator(const WidgetCreator &creator);
+
     void setEditorWidget(BaseTextEditorWidget *editorWidget);
 
     enum MarkRequestKind {
@@ -130,14 +139,20 @@ public:
 
     static BaseTextEditor *currentTextEditor();
 
+    BaseTextEditorWidget *ensureWidget() const;
+    BaseTextDocumentPtr ensureDocument();
+
     BaseTextEditorWidget *editorWidget() const;
     BaseTextDocument *textDocument();
+
+    void addContext(Core::Id id);
 
     // IEditor
     Core::IDocument *document();
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 
     IEditor *duplicate();
+    QWidget *widget() const;
 
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
