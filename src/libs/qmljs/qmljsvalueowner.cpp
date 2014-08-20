@@ -365,6 +365,8 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     addFunction(_datePrototype, QLatin1String("getTime"), numberValue(), 0);
     addFunction(_datePrototype, QLatin1String("getFullYear"), numberValue(), 0);
     addFunction(_datePrototype, QLatin1String("getUTCFullYear"), numberValue(), 0);
+    addFunction(_datePrototype, QLatin1String("getDay"), numberValue(), 0);
+    addFunction(_datePrototype, QLatin1String("getUTCDay"), numberValue(), 0);
     addFunction(_datePrototype, QLatin1String("getMonth"), numberValue(), 0);
     addFunction(_datePrototype, QLatin1String("getUTCMonth"), numberValue(), 0);
     addFunction(_datePrototype, QLatin1String("getDate"), numberValue(), 0);
