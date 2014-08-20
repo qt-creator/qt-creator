@@ -170,12 +170,10 @@ public:
 signals:
     void updateRequest(int position, QPointF lastPos, QRectF rect);
 
-
-private slots:
+private:
     void step(qreal v);
 
-private:
-    QTimeLine *m_timeline;
+    QTimeLine m_timeline;
     qreal m_value;
     int m_position;
     QPointF m_lastDrawPos;
@@ -5447,16 +5445,14 @@ void BaseTextEditorWidgetPrivate::_q_animateUpdate(int position, QPointF lastPos
 
 
 BaseTextEditorAnimator::BaseTextEditorAnimator(QObject *parent)
-        :QObject(parent)
+    : QObject(parent), m_timeline(256)
 {
     m_value = 0;
-    m_timeline = new QTimeLine(256, this);
-    m_timeline->setCurveShape(QTimeLine::SineCurve);
-    connect(m_timeline, SIGNAL(valueChanged(qreal)), this, SLOT(step(qreal)));
-    connect(m_timeline, SIGNAL(finished()), this, SLOT(deleteLater()));
-    m_timeline->start();
+    m_timeline.setCurveShape(QTimeLine::SineCurve);
+    connect(&m_timeline, &QTimeLine::valueChanged, this, &BaseTextEditorAnimator::step);
+    connect(&m_timeline, &QTimeLine::finished, this, &QObject::deleteLater);
+    m_timeline.start();
 }
-
 
 void BaseTextEditorAnimator::setData(const QFont &f, const QPalette &pal, const QString &text)
 {
@@ -5484,7 +5480,7 @@ void BaseTextEditorAnimator::draw(QPainter *p, const QPointF &pos)
 
 bool BaseTextEditorAnimator::isRunning() const
 {
-    return m_timeline->state() == QTimeLine::Running;
+    return m_timeline.state() == QTimeLine::Running;
 }
 
 QRectF BaseTextEditorAnimator::rect() const
@@ -5506,7 +5502,7 @@ void BaseTextEditorAnimator::step(qreal v)
 
 void BaseTextEditorAnimator::finish()
 {
-    m_timeline->stop();
+    m_timeline.stop();
     step(0);
     deleteLater();
 }
