@@ -29,13 +29,18 @@
 
 #include "profileeditor.h"
 
-#include "profilehighlighter.h"
-#include "qmakeprojectmanagerconstants.h"
-#include "profileeditorfactory.h"
 #include "profilecompletionassist.h"
+#include "profilehighlighter.h"
+#include "qmakeprojectmanager.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakeprojectmanagerconstants.h"
 
+#include <coreplugin/fileiconprovider.h>
 #include <extensionsystem/pluginmanager.h>
+#include <qtsupport/qtsupportconstants.h>
+#include <texteditor/texteditoractionhandler.h>
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QDir>
 #include <QTextBlock>
@@ -189,6 +194,37 @@ QString ProFileDocument::suggestedFileName() const
 {
     QFileInfo fi(filePath());
     return fi.fileName();
+}
+
+
+//
+// ProFileEditorFactory
+//
+
+ProFileEditorFactory::ProFileEditorFactory()
+{
+    setId(QmakeProjectManager::Constants::PROFILE_EDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", QmakeProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME));
+    addMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROCONFIGURATIONFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROCACHEFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROSTASHFILE_MIMETYPE);
+    new TextEditor::TextEditorActionHandler(this, Constants::C_PROFILEEDITOR,
+                  TextEditor::TextEditorActionHandler::UnCommentSelection
+                  | TextEditor::TextEditorActionHandler::JumpToFileUnderCursor);
+
+    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pro");
+    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pri");
+    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "prf");
+}
+
+Core::IEditor *ProFileEditorFactory::createEditor()
+{
+    ProFileEditorWidget *editor = new ProFileEditorWidget;
+    editor->setTextDocument(TextEditor::BaseTextDocumentPtr(new ProFileDocument));
+    return editor->editor();
 }
 
 } // namespace Internal

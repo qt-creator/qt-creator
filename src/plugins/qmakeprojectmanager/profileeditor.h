@@ -30,15 +30,12 @@
 #ifndef PROFILEEDITOR_H
 #define PROFILEEDITOR_H
 
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
-#include <utils/uncommentselection.h>
 
 namespace QmakeProjectManager {
 namespace Internal {
-
-class ProFileEditorFactory;
-class ProFileEditorWidget;
 
 class ProFileEditor : public TextEditor::BaseTextEditor
 {
@@ -76,6 +73,16 @@ public:
     // qmake project files doesn't support UTF8-BOM
     // If the BOM would be added qmake would fail and QtCreator couldn't parse the project file
     bool supportsUtf8Bom() { return false; }
+};
+
+class ProFileEditorFactory : public Core::IEditorFactory
+{
+    Q_OBJECT
+
+public:
+    ProFileEditorFactory();
+
+    Core::IEditor *createEditor();
 };
 
 } // namespace Internal

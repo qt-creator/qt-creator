@@ -33,7 +33,6 @@ QtcPlugin {
             "makestep.cpp", "makestep.h", "makestep.ui",
             "profilecompletionassist.cpp", "profilecompletionassist.h",
             "profileeditor.cpp", "profileeditor.h",
-            "profileeditorfactory.cpp", "profileeditorfactory.h",
             "profilehighlighter.cpp", "profilehighlighter.h",
             "profilehoverhandler.cpp", "profilehoverhandler.h",
             "qmakebuildinfo.h",

@@ -16,7 +16,6 @@ HEADERS += \
     qmakenodes.h \
     profileeditor.h \
     profilehighlighter.h \
-    profileeditorfactory.h \
     profilehoverhandler.h \
     wizards/qtprojectparameters.h \
     wizards/guiappwizard.h \
@@ -67,7 +66,6 @@ SOURCES += \
     qmakenodes.cpp \
     profileeditor.cpp \
     profilehighlighter.cpp \
-    profileeditorfactory.cpp \
     profilehoverhandler.cpp \
     wizards/qtprojectparameters.cpp \
     wizards/guiappwizard.cpp \

@@ -29,6 +29,7 @@
 
 #include "qmakeprojectmanagerplugin.h"
 
+#include "profileeditor.h"
 #include "qmakeprojectmanager.h"
 #include "qmakenodes.h"
 #include "qmakestep.h"
@@ -43,7 +44,6 @@
 #include "wizards/subdirsprojectwizard.h"
 #include "wizards/qtquickappwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
-#include "profileeditorfactory.h"
 #include "profilehoverhandler.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeproject.h"
@@ -90,8 +90,6 @@ QmakeProjectManagerPlugin::~QmakeProjectManagerPlugin()
     //removeObject(m_embeddedPropertiesPage);
     //delete m_embeddedPropertiesPage;
 
-    removeObject(m_proFileEditorFactory);
-    delete m_proFileEditorFactory;
     removeObject(m_qmakeProjectManager);
     delete m_qmakeProjectManager;
 }
@@ -111,12 +109,9 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     m_qmakeProjectManager = new QmakeManager(this);
     addObject(m_qmakeProjectManager);
 
-    m_proFileEditorFactory = new ProFileEditorFactory(m_qmakeProjectManager);
-
     ProjectExplorer::KitManager::registerKitInformation(new QmakeKitInformation);
 
-    addObject(m_proFileEditorFactory);
-
+    addAutoReleasedObject(new ProFileEditorFactory);
     addAutoReleasedObject(new EmptyProjectWizard);
     addAutoReleasedObject(new SubdirsProjectWizard);
     addAutoReleasedObject(new GuiAppWizard);
