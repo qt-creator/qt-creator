@@ -50,7 +50,7 @@ qmake and rebuild Qt Creator. Watch out for a message like
     Project MESSAGE:   INCLUDEPATH += /usr/lib/llvm-3.4/include
     Project MESSAGE:   LIBS += -L/usr/lib/llvm-3.4/lib -lclang
 
-This indicates that the ClangCodeModel plugin will be build.
+This indicates that the ClangCodeModel plugin will be built.
 
 Enable the plugin
 -----------------
