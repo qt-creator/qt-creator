@@ -117,8 +117,10 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
         QList<PropertyBindingEntry> propertyBindingList;
         if (itemLibraryEntry.qmlSource().isEmpty()) {
             QList<QPair<PropertyName, QVariant> > propertyPairList;
-            propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
-            propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
+            if (!position.isNull()) {
+                propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
+                propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
+            }
 
             foreach (const PropertyContainer &property, itemLibraryEntry.properties()) {
                 if (property.type() == QStringLiteral("binding")) {
