@@ -39,6 +39,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -54,18 +55,13 @@ namespace Internal {
 
 ProFileEditor::ProFileEditor()
 {
-    setContext(Core::Context(Constants::C_PROFILEEDITOR,
-              TextEditor::Constants::C_TEXTEDITOR));
+    addContext(Constants::C_PROFILEEDITOR);
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>());
-}
-
-Core::IEditor *ProFileEditor::duplicate()
-{
-    ProFileEditorWidget *ret = new ProFileEditorWidget;
-    ret->setTextDocument(editorWidget()->textDocumentPtr());
-    return ret->editor();
+    setEditorCreator([]() { return new ProFileEditor; });
+    setDocumentCreator([]() { return new ProFileDocument; });
+    setWidgetCreator([]() { return new ProFileEditorWidget; });
 }
 
 //
@@ -165,7 +161,7 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
 
 TextEditor::BaseTextEditor *ProFileEditorWidget::createEditor()
 {
-    return new ProFileEditor;
+    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
 
 void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
@@ -222,9 +218,7 @@ ProFileEditorFactory::ProFileEditorFactory()
 
 Core::IEditor *ProFileEditorFactory::createEditor()
 {
-    ProFileEditorWidget *editor = new ProFileEditorWidget;
-    editor->setTextDocument(TextEditor::BaseTextDocumentPtr(new ProFileDocument));
-    return editor->editor();
+    return new ProFileEditor;
 }
 
 } // namespace Internal

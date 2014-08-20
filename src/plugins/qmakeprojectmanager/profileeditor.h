@@ -43,8 +43,6 @@ class ProFileEditor : public TextEditor::BaseTextEditor
 
 public:
     ProFileEditor();
-
-    Core::IEditor *duplicate();
 };
 
 class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget
