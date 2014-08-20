@@ -437,7 +437,6 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
 bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
     typedef VcsBase::VcsSubmitEditorFactory<ClearCaseSubmitEditor> ClearCaseSubmitEditorFactory;
-    typedef VcsBase::VcsEditorFactory<ClearCaseEditor> ClearCaseEditorFactory;
     using namespace Constants;
 
     using namespace Core::Constants;
@@ -466,8 +465,9 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     // any editor responds to describe (when clicking a version)
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters);
+    const auto widgetCreator = []() { return new ClearCaseEditor; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new ClearCaseEditorFactory(editorParameters + i, this, describeSlot));
+        addAutoReleasedObject(new VcsBase::VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
 
     const QString description = QLatin1String("ClearCase");
     const QString prefix = QLatin1String("cc");
@@ -2229,7 +2229,8 @@ void ClearCasePlugin::testDiffFileResolving_data()
 
 void ClearCasePlugin::testDiffFileResolving()
 {
-    ClearCaseEditor editor(editorParameters + 2, 0);
+    ClearCaseEditor editor;
+    editor.setParameters(editorParameters + 2);
     editor.testDiffFileResolving();
 }
 
@@ -2239,7 +2240,8 @@ void ClearCasePlugin::testLogResolving()
                 "13-Sep.17:41   user1      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9\" (baseline1, baseline2, ...)\n"
                 "22-Aug.14:13   user2      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8\" (baseline3, baseline4, ...)\n"
                 );
-    ClearCaseEditor editor(editorParameters, 0);
+    ClearCaseEditor editor;
+    editor.setParameters(editorParameters);
     editor.testLogResolving(data,
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9",
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8");

@@ -166,8 +166,6 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
-    typedef VcsEditorFactory<BazaarEditor> BazaarEditorFactory;
-
     m_client = new BazaarClient(&m_bazaarSettings);
     initializeVcs(new BazaarControl(m_client));
 
@@ -179,8 +177,9 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     static const char *describeSlot = SLOT(view(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(VcsBaseEditorParameters);
+    const auto widgetCreator = []() { return new BazaarEditor; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new BazaarEditorFactory(editorParameters + i, m_client, describeSlot));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, m_client, describeSlot));
 
     addAutoReleasedObject(new VcsSubmitEditorFactory<CommitEditor>(&submitEditorParameters));
 
@@ -657,7 +656,8 @@ void BazaarPlugin::testDiffFileResolving_data()
 
 void BazaarPlugin::testDiffFileResolving()
 {
-    BazaarEditor editor(editorParameters + 2, 0);
+    BazaarEditor editor;
+    editor.setParameters(editorParameters + 2);
     editor.testDiffFileResolving();
 }
 
@@ -681,7 +681,8 @@ void BazaarPlugin::testLogResolving()
                 "  (gz) Set approved revision and vote \"Approve\" when using lp-propose\n"
                 "   --approve (Jonathan Lange)\n"
                 );
-    BazaarEditor editor(editorParameters, 0);
+    BazaarEditor editor;
+    editor.setParameters(editorParameters);
     editor.testLogResolving(data, "6572", "6571");
 }
 #endif

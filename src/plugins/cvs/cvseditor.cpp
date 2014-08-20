@@ -47,9 +47,7 @@ namespace Internal {
 #define CVS_REVISION_PATTERN "[\\d\\.]+"
 #define CVS_REVISION_AT_START_PATTERN "^(" CVS_REVISION_PATTERN ") "
 
-CvsEditor::CvsEditor(const VcsBase::VcsBaseEditorParameters *type,
-                                   QWidget *parent) :
-    VcsBase::VcsBaseEditorWidget(type, parent),
+CvsEditor::CvsEditor() :
     m_revisionAnnotationPattern(QLatin1String(CVS_REVISION_AT_START_PATTERN ".*$")),
     m_revisionLogPattern(QLatin1String("^revision  *(" CVS_REVISION_PATTERN ")$"))
 {

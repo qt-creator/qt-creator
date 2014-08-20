@@ -87,6 +87,18 @@ public:
     QByteArray header;
 };
 
+class VcsBaseEditor : public TextEditor::BaseTextEditor
+{
+    Q_OBJECT
+public:
+    explicit VcsBaseEditor(const VcsBaseEditorParameters *type);
+
+signals:
+    void describeRequested(const QString &source, const QString &change);
+    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+                                   const QString &change, int line);
+};
+
 class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_PROPERTY(QString source READ source WRITE setSource)
@@ -100,8 +112,7 @@ class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::BaseTextEditorWidg
 protected:
     // Initialization requires calling init() (which in turns calls
     // virtual functions).
-    explicit VcsBaseEditorWidget(const VcsBaseEditorParameters *type,
-                                 QWidget *parent);
+    VcsBaseEditorWidget();
     // Pattern for diff header. File name must be in the first capture group
     void setDiffFilePattern(const QRegExp &pattern);
     // Pattern for log entry. hash/revision number must be in the first capture group
@@ -111,6 +122,8 @@ protected:
 
 public:
     virtual void init();
+    //
+    void setParameters(const VcsBaseEditorParameters *parameters);
 
     ~VcsBaseEditorWidget();
 
@@ -281,6 +294,7 @@ private:
 
 #ifdef WITH_TESTS
 public:
+    void addDummyEditor();
     void testDiffFileResolving();
     void testLogResolving(QByteArray &data, const QByteArray &entry1, const QByteArray &entry2);
 #endif

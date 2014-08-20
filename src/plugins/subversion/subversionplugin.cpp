@@ -248,7 +248,6 @@ const VcsBaseSubmitEditorParameters submitParameters = {
 bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
     typedef VcsSubmitEditorFactory<SubversionSubmitEditor> SubversionSubmitEditorFactory;
-    typedef VcsEditorFactory<SubversionEditor> SubversionEditorFactory;
     using namespace Constants;
 
     using namespace Core::Constants;
@@ -270,8 +269,9 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
 
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
+    const auto widgetCreator = []() { return new SubversionEditor; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new SubversionEditorFactory(editorParameters + i, this, describeSlot));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
 
     auto checkoutWizardFactory = new BaseCheckoutWizardFactory;
     checkoutWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_SUBVERSION));
@@ -1282,7 +1282,8 @@ void SubversionPlugin::testDiffFileResolving_data()
 
 void SubversionPlugin::testDiffFileResolving()
 {
-    SubversionEditor editor(editorParameters + 2, 0);
+    SubversionEditor editor;
+    editor.setParameters(editorParameters + 2);
     editor.testDiffFileResolving();
 }
 
@@ -1304,7 +1305,8 @@ void SubversionPlugin::testLogResolving()
                 "   expectations, remove XFail.\n"
                 "\n"
                 );
-    SubversionEditor editor(editorParameters, 0);
+    SubversionEditor editor;
+    editor.setParameters(editorParameters);
     editor.testLogResolving(data, "r1439551", "r1439540");
 }
 #endif

@@ -44,9 +44,7 @@
 using namespace ClearCase;
 using namespace ClearCase::Internal;
 
-ClearCaseEditor::ClearCaseEditor(const VcsBase::VcsBaseEditorParameters *type,
-                                   QWidget *parent) :
-    VcsBase::VcsBaseEditorWidget(type, parent),
+ClearCaseEditor::ClearCaseEditor() :
     m_versionNumberPattern(QLatin1String("[\\\\/]main[\\\\/][^ \t\n\"]*"))
 {
     QTC_ASSERT(m_versionNumberPattern.isValid(), return);

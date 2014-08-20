@@ -41,7 +41,7 @@ class MercurialEditor : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
 public:
-    explicit MercurialEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent);
+    MercurialEditor();
 
 private:
     QSet<QString> annotationChanges() const;

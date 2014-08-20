@@ -280,7 +280,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_gitClient = new GitClient(&m_settings);
 
-    typedef VcsEditorFactory<GitEditorWidget> GitEditorFactory;
     typedef VcsSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
 
     initializeVcs(new GitVersionControl(m_gitClient));
@@ -293,8 +292,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     static const char *describeSlot = SLOT(show(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
+    const auto widgetCreator = []() { return new GitEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new GitEditorFactory(editorParameters + i, m_gitClient, describeSlot));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, m_gitClient, describeSlot));
 
     addAutoReleasedObject(new GitSubmitEditorFactory(&submitParameters));
 
@@ -1523,7 +1523,8 @@ void GitPlugin::testDiffFileResolving_data()
 
 void GitPlugin::testDiffFileResolving()
 {
-    GitEditorWidget editor(editorParameters + 3, 0);
+    GitEditorWidget editor;
+    editor.setParameters(editorParameters + 3);
     editor.testDiffFileResolving();
 }
 
@@ -1549,7 +1550,8 @@ void GitPlugin::testLogResolving()
                 "    \n"
                 "    Signed-off-by: Junio C Hamano <gitster@pobox.com>\n"
                 );
-    GitEditorWidget editor(editorParameters + 1, 0);
+    GitEditorWidget editor;
+    editor.setParameters(editorParameters + 1);
     editor.testLogResolving(data,
                             "50a6b54c - Merge branch 'for-junio' of git://bogomips.org/git-svn",
                             "3587b513 - Update draft release notes to 1.8.2");

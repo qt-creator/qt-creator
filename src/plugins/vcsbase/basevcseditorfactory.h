@@ -34,46 +34,26 @@
 #include "vcsbaseeditor.h"
 
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <texteditor/basetexteditor.h>
 
 namespace VcsBase {
 namespace Internal { class BaseVcsEditorFactoryPrivate; }
 
-class VCSBASE_EXPORT BaseVcsEditorFactory : public Core::IEditorFactory
+class VCSBASE_EXPORT VcsEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 
 public:
-    explicit BaseVcsEditorFactory(const VcsBaseEditorParameters *type,
-                              QObject *describeReceiver,
-                              const char *describeSlot);
-    ~BaseVcsEditorFactory();
+    VcsEditorFactory(const VcsBaseEditorParameters *type,
+                     const TextEditor::BaseTextEditor::WidgetCreator &creator,
+                     QObject *describeReceiver,
+                     const char *describeSlot);
+    ~VcsEditorFactory();
 
     Core::IEditor *createEditor();
 
 private:
-    // Implement to create and initialize (call init()) a VcsBaseEditor subclass.
-    virtual VcsBaseEditorWidget *createVcsBaseEditor(const VcsBaseEditorParameters *type) = 0;
-
     Internal::BaseVcsEditorFactoryPrivate *const d;
-};
-
-// Utility template to create an editor.
-template <class Editor>
-class VcsEditorFactory : public BaseVcsEditorFactory
-{
-public:
-    explicit VcsEditorFactory(const VcsBaseEditorParameters *type,
-                              QObject *describeReceiver = 0,
-                              const char *describeSlot = 0)
-        : BaseVcsEditorFactory(type, describeReceiver, describeSlot)
-    {
-    }
-
-private:
-    VcsBaseEditorWidget *createVcsBaseEditor(const VcsBaseEditorParameters *type)
-    {
-        return new Editor(type, 0);
-    }
 };
 
 } // namespace VcsBase

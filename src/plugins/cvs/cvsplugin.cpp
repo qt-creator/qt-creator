@@ -231,7 +231,6 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments);
     typedef VcsSubmitEditorFactory<CvsSubmitEditor> CVSSubmitEditorFactory;
-    typedef VcsEditorFactory<CvsEditor> CVSEditorFactory;
     using namespace Constants;
 
     using namespace Core::Constants;
@@ -254,8 +253,9 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     static const char *describeSlotC = SLOT(slotDescribe(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
+    const auto widgetCreator = []() { return new CvsEditor; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new CVSEditorFactory(editorParameters + i, this, describeSlotC));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlotC));
 
     auto checkoutWizardFactory = new BaseCheckoutWizardFactory;
     checkoutWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_CVS));
@@ -1318,7 +1318,8 @@ void CvsPlugin::testDiffFileResolving_data()
 
 void CvsPlugin::testDiffFileResolving()
 {
-    CvsEditor editor(editorParameters + 3, 0);
+    CvsEditor editor;
+    editor.setParameters(editorParameters + 3);
     editor.testDiffFileResolving();
 }
 
@@ -1345,7 +1346,8 @@ void CvsPlugin::testLogResolving()
                 "added latest commentary\n"
                 "----------------------------\n"
                 );
-    CvsEditor editor(editorParameters + 1, 0);
+    CvsEditor editor;
+    editor.setParameters(editorParameters + 1);
     editor.testLogResolving(data, "1.3", "1.2");
 }
 #endif

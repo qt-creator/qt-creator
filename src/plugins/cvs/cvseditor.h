@@ -42,8 +42,7 @@ class CvsEditor : public VcsBase::VcsBaseEditorWidget
     Q_OBJECT
 
 public:
-    explicit CvsEditor(const VcsBase::VcsBaseEditorParameters *type,
-                            QWidget *parent);
+    CvsEditor();
 
 private:
     QSet<QString> annotationChanges() const;

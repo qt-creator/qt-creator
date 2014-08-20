@@ -43,8 +43,7 @@ class ClearCaseEditor : public VcsBase::VcsBaseEditorWidget
     Q_OBJECT
 
 public:
-    explicit ClearCaseEditor(const VcsBase::VcsBaseEditorParameters *type,
-                            QWidget *parent);
+    ClearCaseEditor();
 
 private:
     QSet<QString> annotationChanges() const;

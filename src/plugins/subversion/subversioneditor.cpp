@@ -44,9 +44,7 @@
 using namespace Subversion;
 using namespace Subversion::Internal;
 
-SubversionEditor::SubversionEditor(const VcsBase::VcsBaseEditorParameters *type,
-                                   QWidget *parent) :
-    VcsBase::VcsBaseEditorWidget(type, parent),
+SubversionEditor::SubversionEditor() :
     m_changeNumberPattern(QLatin1String("^\\d+$")),
     m_revisionNumberPattern(QLatin1String("^r\\d+$"))
 {

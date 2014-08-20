@@ -227,7 +227,6 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
 
 bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
 {
-    typedef VcsEditorFactory<PerforceEditor> PerforceEditorFactory;
     typedef VcsSubmitEditorFactory<PerforceSubmitEditor> PerforceSubmitEditorFactory;
 
     initializeVcs(new PerforceVersionControl(this));
@@ -245,8 +244,9 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
+    const auto widgetCreator = []() { return new PerforceEditor; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new PerforceEditorFactory(editorParameters + i, this, describeSlot));
+        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
 
     const QString prefix = QLatin1String("p4");
     m_commandLocator = new CommandLocator("Perforce", prefix, prefix);
@@ -1557,13 +1557,14 @@ void PerforcePlugin::testLogResolving()
                 "\n"
                 "        Comment\n"
                 );
-    PerforceEditor editor(editorParameters, 0);
+    PerforceEditor editor;
+    editor.setParameters(editorParameters);
     editor.testLogResolving(data, "12345", "12344");
 }
 #endif
 
-}
-}
+} // namespace Internal
+} // namespace Perforce
 
 Q_EXPORT_PLUGIN(Perforce::Internal::PerforcePlugin)
 

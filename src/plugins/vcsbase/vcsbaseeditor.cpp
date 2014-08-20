@@ -150,18 +150,6 @@ namespace VcsBase {
     manager passes the editor around.
 */
 
-class VcsBaseEditor : public TextEditor::BaseTextEditor
-{
-    Q_OBJECT
-public:
-    explicit VcsBaseEditor(const VcsBaseEditorParameters *type);
-
-signals:
-    void describeRequested(const QString &source, const QString &change);
-    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
-                                   const QString &change, int line);
-};
-
 VcsBaseEditor::VcsBaseEditor(const VcsBaseEditorParameters *type)
 {
     setContext(Core::Context(type->context, TextEditor::Constants::C_TEXTEDITOR));
@@ -547,13 +535,14 @@ void EmailTextCursorHandler::slotOpenUrl()
 class VcsBaseEditorWidgetPrivate
 {
 public:
-    VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget* editorWidget, const VcsBaseEditorParameters *type);
+    VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *editorWidget);
 
     AbstractTextCursorHandler *findTextCursorHandler(const QTextCursor &cursor);
     // creates a browse combo in the toolbar for quick access to entries.
     // Can be used for diff and log. Combo created on first call.
     QComboBox *entriesComboBox();
 
+    TextEditor::BaseTextEditorWidget *q;
     const VcsBaseEditorParameters *m_parameters;
 
     QString m_workingDirectory;
@@ -566,7 +555,6 @@ public:
     QString m_annotatePreviousRevisionTextFormat;
     QString m_copyRevisionTextFormat;
     bool m_fileLogAnnotateEnabled;
-    TextEditor::BaseTextEditor *m_editor;
     VcsBaseEditorParameterWidget *m_configurationWidget;
     bool m_mouseDragging;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
@@ -576,14 +564,13 @@ private:
     QComboBox *m_entriesComboBox;
 };
 
-VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *editorWidget,
-                                                       const VcsBaseEditorParameters *type)  :
-    m_parameters(type),
+VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *editorWidget)  :
+    q(editorWidget),
+    m_parameters(0),
     m_cursorLine(-1),
     m_annotateRevisionTextFormat(VcsBaseEditorWidget::tr("Annotate \"%1\"")),
     m_copyRevisionTextFormat(VcsBaseEditorWidget::tr("Copy \"%1\"")),
     m_fileLogAnnotateEnabled(false),
-    m_editor(0),
     m_configurationWidget(0),
     m_mouseDragging(false),
     m_entriesComboBox(0)
@@ -613,8 +600,7 @@ QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_entriesComboBox->setSizePolicy(policy);
 
-    m_editor->editorWidget()->insertExtraToolBarWidget
-        (TextEditor::BaseTextEditorWidget::Left, m_entriesComboBox);
+    q->insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, m_entriesComboBox);
     return m_entriesComboBox;
 }
 
@@ -647,15 +633,20 @@ QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
     \sa VcsBase::BaseVcsEditorFactory, VcsBase::VcsBaseEditorParameters, VcsBase::EditorContentType
 */
 
-VcsBaseEditorWidget::VcsBaseEditorWidget(const VcsBaseEditorParameters *type, QWidget *parent)
-  : BaseTextEditorWidget(parent),
-    d(new Internal::VcsBaseEditorWidgetPrivate(this, type))
+VcsBaseEditorWidget::VcsBaseEditorWidget()
+  : d(new Internal::VcsBaseEditorWidgetPrivate(this))
 {
-    BaseTextDocumentPtr doc(new BaseTextDocument);
-    doc->setId(type->id);
-    doc->setMimeType(QLatin1String(d->m_parameters->mimeType));
-    setTextDocument(doc);
     viewport()->setMouseTracking(true);
+    BaseTextDocumentPtr doc(new BaseTextDocument);
+    setTextDocument(doc);
+}
+
+void VcsBaseEditorWidget::setParameters(const VcsBaseEditorParameters *parameters)
+{
+    QTC_CHECK(d->m_parameters == 0);
+    d->m_parameters = parameters;
+    textDocument()->setId(d->m_parameters->id);
+    textDocument()->setMimeType(QLatin1String(d->m_parameters->mimeType));
 }
 
 void VcsBaseEditorWidget::setDiffFilePattern(const QRegExp &pattern)
@@ -689,7 +680,6 @@ QString VcsBaseEditorWidget::fileNameForLine(int line) const
 
 void VcsBaseEditorWidget::init()
 {
-    d->m_editor = editor();
     switch (d->m_parameters->type) {
     case OtherContent:
         break;
@@ -817,14 +807,7 @@ bool VcsBaseEditorWidget::isModified() const
 
 TextEditor::BaseTextEditor *VcsBaseEditorWidget::createEditor()
 {
-    TextEditor::BaseTextEditor *editor = new VcsBaseEditor(d->m_parameters);
-
-    // Pass on signals.
-    connect(this, SIGNAL(describeRequested(QString,QString)),
-            editor, SIGNAL(describeRequested(QString,QString)));
-    connect(this, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
-            editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)));
-    return editor;
+    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
 
 void VcsBaseEditorWidget::slotPopulateDiffBrowser()
@@ -1334,11 +1317,11 @@ QString VcsBaseEditorWidget::getTitleId(const QString &workingDirectory,
 
 bool VcsBaseEditorWidget::setConfigurationWidget(VcsBaseEditorParameterWidget *w)
 {
-    if (!d->m_editor || d->m_configurationWidget)
+    if (d->m_configurationWidget)
         return false;
 
     d->m_configurationWidget = w;
-    d->m_editor->editorWidget()->insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Right, w);
+    insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Right, w);
 
     return true;
 }
@@ -1569,8 +1552,21 @@ Core::IEditor* VcsBaseEditorWidget::locateEditorByTag(const QString &tag)
 #ifdef WITH_TESTS
 #include <QTest>
 
+// Tests need a fully set-up editor/widget combo.
+void VcsBase::VcsBaseEditorWidget::addDummyEditor()
+{
+    TextEditor::BaseTextEditor *editor = new VcsBaseEditor(d->m_parameters);
+    // Pass on signals.
+    connect(this, SIGNAL(describeRequested(QString,QString)),
+            editor, SIGNAL(describeRequested(QString,QString)));
+    connect(this, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)));
+    editor->setEditorWidget(this);
+}
+
 void VcsBase::VcsBaseEditorWidget::testDiffFileResolving()
 {
+    addDummyEditor();
     QFETCH(QByteArray, header);
     QFETCH(QByteArray, fileName);
     QTextDocument doc(QString::fromLatin1(header));
@@ -1583,6 +1579,7 @@ void VcsBase::VcsBaseEditorWidget::testLogResolving(QByteArray &data,
                                                     const QByteArray &entry1,
                                                     const QByteArray &entry2)
 {
+    addDummyEditor();
     init();
     textDocument()->setPlainText(QLatin1String(data));
     QCOMPARE(d->entriesComboBox()->itemText(0), QString::fromLatin1(entry1));

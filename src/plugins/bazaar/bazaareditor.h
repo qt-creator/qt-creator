@@ -41,7 +41,7 @@ class BazaarEditor : public VcsBase::VcsBaseEditorWidget
     Q_OBJECT
 
 public:
-    explicit BazaarEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent);
+    BazaarEditor();
 
 private:
     QSet<QString> annotationChanges() const;

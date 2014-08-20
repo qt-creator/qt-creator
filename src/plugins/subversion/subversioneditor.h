@@ -42,8 +42,7 @@ class SubversionEditor : public VcsBase::VcsBaseEditorWidget
     Q_OBJECT
 
 public:
-    explicit SubversionEditor(const VcsBase::VcsBaseEditorParameters *type,
-                            QWidget *parent);
+    SubversionEditor();
 
 private:
     QSet<QString> annotationChanges() const;

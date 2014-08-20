@@ -58,8 +58,7 @@
 namespace Git {
 namespace Internal {
 
-GitEditorWidget::GitEditorWidget(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent)  :
-    VcsBase::VcsBaseEditorWidget(type, parent),
+GitEditorWidget::GitEditorWidget() :
     m_changeNumberPattern(QLatin1String(CHANGE_PATTERN))
 {
     QTC_ASSERT(m_changeNumberPattern.isValid(), return);

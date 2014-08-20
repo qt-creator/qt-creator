@@ -41,8 +41,7 @@
 using namespace Bazaar::Internal;
 using namespace Bazaar;
 
-BazaarEditor::BazaarEditor(const VcsBase::VcsBaseEditorParameters *type, QWidget *parent)
-    : VcsBase::VcsBaseEditorWidget(type, parent),
+BazaarEditor::BazaarEditor() :
       m_changesetId(QLatin1String(Constants::CHANGESET_ID)),
       m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT))
 {

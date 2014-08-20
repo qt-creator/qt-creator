@@ -56,9 +56,7 @@ namespace Perforce {
 namespace Internal {
 
 // ------------ PerforceEditor
-PerforceEditor::PerforceEditor(const VcsBase::VcsBaseEditorParameters *type,
-                               QWidget *parent)  :
-    VcsBase::VcsBaseEditorWidget(type, parent),
+PerforceEditor::PerforceEditor() :
     m_changeNumberPattern(QLatin1String("^\\d+$"))
 {
     QTC_CHECK(m_changeNumberPattern.isValid());
@@ -70,8 +68,6 @@ PerforceEditor::PerforceEditor(const VcsBase::VcsBaseEditorParameters *type,
     setDiffFilePattern(QRegExp(QLatin1String("^(?:={4}|\\+{3}) (.+)(?:\\t|#\\d)")));
     setLogEntryPattern(QRegExp(QLatin1String("^... #\\d change (\\d+) ")));
     setAnnotateRevisionTextFormat(tr("Annotate change list \"%1\""));
-    if (Perforce::Constants::debug)
-        qDebug() << "PerforceEditor::PerforceEditor" << type->type << type->id;
 }
 
 QSet<QString> PerforceEditor::annotationChanges() const

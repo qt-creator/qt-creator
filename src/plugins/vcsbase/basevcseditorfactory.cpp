@@ -37,6 +37,8 @@
 #include <QCoreApplication>
 #include <QStringList>
 
+using namespace TextEditor;
+
 /*!
     \class VcsBase::BaseVCSEditorFactory
 
@@ -52,44 +54,57 @@ namespace Internal {
 class BaseVcsEditorFactoryPrivate
 {
 public:
-    const VcsBaseEditorParameters *m_type;
+    const VcsBaseEditorParameters *m_parameters;
     QObject *m_describeReceiver;
     const char *m_describeSlot;
+    BaseTextEditor::WidgetCreator m_widgetCreator;
 };
 
 } // namespace Internal
 
-BaseVcsEditorFactory::BaseVcsEditorFactory(const VcsBaseEditorParameters *t,
-                                           QObject *describeReceiver, const char *describeSlot)
+VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
+                                   const BaseTextEditor::WidgetCreator &creator,
+                                   QObject *describeReceiver, const char *describeSlot)
   : d(new Internal::BaseVcsEditorFactoryPrivate)
 {
-    d->m_type = t;
+    d->m_parameters = parameters;
     d->m_describeReceiver = describeReceiver;
     d->m_describeSlot = describeSlot;
-    setId(t->id);
-    setDisplayName(QCoreApplication::translate("VCS", t->displayName));
-    if (QLatin1String(t->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
-        addMimeType(t->mimeType);
-    new TextEditor::TextEditorActionHandler(this, t->context);
+    d->m_widgetCreator = creator;
+    setId(parameters->id);
+    setDisplayName(QCoreApplication::translate("VCS", parameters->displayName));
+    if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
+        addMimeType(parameters->mimeType);
+    new TextEditor::TextEditorActionHandler(this, parameters->context);
 }
 
-BaseVcsEditorFactory::~BaseVcsEditorFactory()
+VcsEditorFactory::~VcsEditorFactory()
 {
     delete d;
 }
 
-Core::IEditor *BaseVcsEditorFactory::createEditor()
+Core::IEditor *VcsEditorFactory::createEditor()
 {
-    VcsBaseEditorWidget *vcsEditor = createVcsBaseEditor(d->m_type);
+    TextEditor::BaseTextEditor *editor = new VcsBaseEditor(d->m_parameters);
 
-    vcsEditor->init();
+    VcsBaseEditorWidget *widget = qobject_cast<VcsBaseEditorWidget *>(d->m_widgetCreator());
+    widget->setParameters(d->m_parameters);
+
+    // Pass on signals.
+    connect(widget, SIGNAL(describeRequested(QString,QString)),
+            editor, SIGNAL(describeRequested(QString,QString)));
+    connect(widget, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)));
+    editor->setEditorWidget(widget);
+
+    widget->init();
     if (d->m_describeReceiver)
-        connect(vcsEditor, SIGNAL(describeRequested(QString,QString)), d->m_describeReceiver, d->m_describeSlot);
+        connect(widget, SIGNAL(describeRequested(QString,QString)), d->m_describeReceiver, d->m_describeSlot);
 
     if (!mimeTypes().isEmpty())
-        vcsEditor->textDocument()->setMimeType(mimeTypes().front());
+        widget->textDocument()->setMimeType(mimeTypes().front());
 
-    return vcsEditor->editor();
+    return editor;
 }
 
 } // namespace VcsBase

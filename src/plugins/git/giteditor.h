@@ -46,8 +46,7 @@ class GitEditorWidget : public VcsBase::VcsBaseEditorWidget
     Q_OBJECT
 
 public:
-    GitEditorWidget(const VcsBase::VcsBaseEditorParameters *type,
-                    QWidget *parent);
+    GitEditorWidget();
 
 public slots:
     void setPlainTextFiltered(const QString &text);
