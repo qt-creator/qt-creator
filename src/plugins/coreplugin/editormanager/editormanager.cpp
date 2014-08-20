@@ -64,9 +64,11 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QClipboard>
 #include <QDateTime>
 #include <QDebug>
 #include <QFileInfo>
@@ -233,6 +235,8 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_gotoPreviousDocHistoryAction(new QAction(EditorManager::tr("Previous Open Document in History"), this)),
     m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), this)),
     m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), this)),
+    m_copyFilePathContextAction(new QAction(EditorManager::tr("Copy Full Path to Clipboard"), this)),
+    m_copyFileNameContextAction(new QAction(EditorManager::tr("Copy File Name to Clipboard"), this)),
     m_saveCurrentEditorContextAction(new QAction(EditorManager::tr("&Save"), this)),
     m_saveAsCurrentEditorContextAction(new QAction(EditorManager::tr("Save &As..."), this)),
     m_revertToSavedCurrentEditorContextAction(new QAction(EditorManager::tr("Revert to Saved"), this)),
@@ -348,6 +352,10 @@ void EditorManagerPrivate::init()
             this, SLOT(closeAllEditorsExceptVisible()));
 
     //Save XXX Context Actions
+    connect(m_copyFilePathContextAction, SIGNAL(triggered()),
+            this, SLOT(copyFilePathFromContextMenu()));
+    connect(m_copyFileNameContextAction, SIGNAL(triggered()),
+            this, SLOT(copyFileNameFromContextMenu()));
     connect(m_saveCurrentEditorContextAction, SIGNAL(triggered()),
             this, SLOT(saveDocumentFromContextMenu()));
     connect(m_saveAsCurrentEditorContextAction, SIGNAL(triggered()),
@@ -1551,6 +1559,21 @@ void EditorManagerPrivate::handleContextChange(const QList<IContext *> &context)
     }
 }
 
+void EditorManagerPrivate::copyFilePathFromContextMenu()
+{
+    if (!d->m_contextMenuEntry)
+        return;
+    QApplication::clipboard()->setText(Utils::FileName::fromString(
+                                           d->m_contextMenuEntry->fileName()).toUserOutput());
+}
+
+void EditorManagerPrivate::copyFileNameFromContextMenu()
+{
+    if (!d->m_contextMenuEntry)
+        return;
+    QApplication::clipboard()->setText(QFileInfo(d->m_contextMenuEntry->fileName()).fileName());
+}
+
 void EditorManagerPrivate::saveDocumentFromContextMenu()
 {
     IDocument *document = d->m_contextMenuEntry ? d->m_contextMenuEntry->document : 0;
@@ -1859,6 +1882,14 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
 {
     QTC_ASSERT(contextMenu, return);
     d->m_contextMenuEntry = entry;
+
+    const QString filePath = entry ? entry->fileName() : QString();
+    const bool copyActionsEnabled = !filePath.isEmpty();
+    d->m_copyFilePathContextAction->setEnabled(copyActionsEnabled);
+    d->m_copyFileNameContextAction->setEnabled(copyActionsEnabled);
+    contextMenu->addAction(d->m_copyFilePathContextAction);
+    contextMenu->addAction(d->m_copyFileNameContextAction);
+    contextMenu->addSeparator();
 
     assignAction(d->m_saveCurrentEditorContextAction, ActionManager::command(Constants::SAVE)->action());
     assignAction(d->m_saveAsCurrentEditorContextAction, ActionManager::command(Constants::SAVEAS)->action());

@@ -127,6 +127,8 @@ private slots:
     static void autoSave();
     static void handleContextChange(const QList<Core::IContext *> &context);
 
+    static void copyFilePathFromContextMenu();
+    static void copyFileNameFromContextMenu();
     static void saveDocumentFromContextMenu();
     static void saveDocumentAsFromContextMenu();
     static void revertToSavedFromContextMenu();
@@ -198,6 +200,8 @@ private:
     QAction *m_removeAllSplitsAction;
     QAction *m_gotoNextSplitAction;
 
+    QAction *m_copyFilePathContextAction;
+    QAction *m_copyFileNameContextAction;
     QAction *m_saveCurrentEditorContextAction;
     QAction *m_saveAsCurrentEditorContextAction;
     QAction *m_revertToSavedCurrentEditorContextAction;
