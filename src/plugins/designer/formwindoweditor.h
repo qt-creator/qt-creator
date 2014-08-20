@@ -40,8 +40,10 @@ QT_END_NAMESPACE
 
 namespace Designer {
 
-namespace Internal { class DesignerXmlEditorWidget; }
-struct FormWindowEditorPrivate;
+namespace Internal {
+class DesignerXmlEditorWidget;
+class FormWindowFile;
+}
 
 // IEditor that is used for the QDesignerFormWindowInterface
 // It is a read-only text editor that shows the XML of the form.
@@ -68,14 +70,14 @@ public:
     // For uic code model support
     QString contents() const;
 
+    // Convenience access.
+    Internal::FormWindowFile *formWindowFile() const;
+
 public slots:
     void syncXmlEditor();
 
 private slots:
     void slotOpen(QString *errorString, const QString &fileName);
-
-private:
-    FormWindowEditorPrivate *d;
 };
 
 } // namespace Designer
