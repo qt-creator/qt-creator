@@ -36,6 +36,7 @@
 #include "ui_snippetssettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/headerviewstretcher.h>
@@ -336,7 +337,6 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     foreach (ISnippetProvider *provider, providers) {
         m_ui.groupCombo->addItem(provider->displayName(), provider->groupId());
         SnippetEditorWidget *snippetEditor = new SnippetEditorWidget(w);
-        snippetEditor->textDocument()->setFontSettings(TextEditorSettings::fontSettings());
         provider->decorateEditor(snippetEditor);
         m_ui.snippetsEditorStack->insertWidget(m_ui.groupCombo->count() - 1, snippetEditor);
         connect(snippetEditor, SIGNAL(snippetContentChanged()), this, SLOT(setSnippetContent()));

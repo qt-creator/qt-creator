@@ -35,28 +35,12 @@
 
 namespace TextEditor {
 
-class SnippetEditorWidget;
-class SyntaxHighlighter;
-class Indenter;
-
-// Should not be necessary in this case, but the base text editor assumes a
-// valid editable interface.
-class TEXTEDITOR_EXPORT SnippetEditor : public BaseTextEditor
-{
-    Q_OBJECT
-
-public:
-    SnippetEditor();
-};
-
 class TEXTEDITOR_EXPORT SnippetEditorWidget : public BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
     SnippetEditorWidget(QWidget *parent = 0);
-
-    void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
 
 signals:
     void snippetContentChanged();
@@ -68,6 +52,6 @@ protected:
     virtual BaseTextEditor *createEditor();
 };
 
-} // TextEditor
+} // namespace TextEditor
 
 #endif // SNIPPETEDITOR_H

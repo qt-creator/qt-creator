@@ -185,6 +185,47 @@ private:
     QSizeF m_size;
 };
 
+class TextEditExtraArea : public QWidget
+{
+public:
+    TextEditExtraArea(BaseTextEditorWidget *edit)
+        : QWidget(edit)
+    {
+        textEdit = edit;
+        setAutoFillBackground(true);
+    }
+
+protected:
+    QSize sizeHint() const {
+        return QSize(textEdit->extraAreaWidth(), 0);
+    }
+    void paintEvent(QPaintEvent *event) {
+        textEdit->extraAreaPaintEvent(event);
+    }
+    void mousePressEvent(QMouseEvent *event) {
+        textEdit->extraAreaMouseEvent(event);
+    }
+    void mouseMoveEvent(QMouseEvent *event) {
+        textEdit->extraAreaMouseEvent(event);
+    }
+    void mouseReleaseEvent(QMouseEvent *event) {
+        textEdit->extraAreaMouseEvent(event);
+    }
+    void leaveEvent(QEvent *event) {
+        textEdit->extraAreaLeaveEvent(event);
+    }
+    void contextMenuEvent(QContextMenuEvent *event) {
+        textEdit->extraAreaContextMenuEvent(event);
+    }
+
+    void wheelEvent(QWheelEvent *event) {
+        QCoreApplication::sendEvent(textEdit->viewport(), event);
+    }
+
+private:
+    BaseTextEditorWidget *textEdit;
+};
+
 class BaseTextEditorPrivate
 {
 public:
@@ -460,6 +501,9 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
     aggregate->add(baseTextFind);
     aggregate->add(q);
 
+    m_extraArea = new TextEditExtraArea(q);
+    m_extraArea->setMouseTracking(true);
+
     m_stretchWidget = new QWidget;
     m_stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_toolBar = new QToolBar;
@@ -484,47 +528,6 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
         }
     });
 }
-
-class TextEditExtraArea : public QWidget
-{
-public:
-    TextEditExtraArea(BaseTextEditorWidget *edit)
-        : QWidget(edit)
-    {
-        textEdit = edit;
-        setAutoFillBackground(true);
-    }
-
-protected:
-    QSize sizeHint() const {
-        return QSize(textEdit->extraAreaWidth(), 0);
-    }
-    void paintEvent(QPaintEvent *event) {
-        textEdit->extraAreaPaintEvent(event);
-    }
-    void mousePressEvent(QMouseEvent *event) {
-        textEdit->extraAreaMouseEvent(event);
-    }
-    void mouseMoveEvent(QMouseEvent *event) {
-        textEdit->extraAreaMouseEvent(event);
-    }
-    void mouseReleaseEvent(QMouseEvent *event) {
-        textEdit->extraAreaMouseEvent(event);
-    }
-    void leaveEvent(QEvent *event) {
-        textEdit->extraAreaLeaveEvent(event);
-    }
-    void contextMenuEvent(QContextMenuEvent *event) {
-        textEdit->extraAreaContextMenuEvent(event);
-    }
-
-    void wheelEvent(QWheelEvent *event) {
-        QCoreApplication::sendEvent(textEdit->viewport(), event);
-    }
-
-private:
-    BaseTextEditorWidget *textEdit;
-};
 
 } // namespace Internal
 
@@ -566,6 +569,9 @@ static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";
 BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     : QPlainTextEdit(parent)
 {
+    // "Needed", as the creation below triggers ChildEvents that are
+    // passed to this object's event() which uses 'd'.
+    d = 0;
     d = new BaseTextEditorWidgetPrivate(this);
 }
 
@@ -576,8 +582,6 @@ void BaseTextEditorWidget::setTextDocument(const QSharedPointer<BaseTextDocument
 
 void BaseTextEditorWidgetPrivate::ctor(const QSharedPointer<BaseTextDocument> &doc)
 {
-    m_extraArea = new TextEditExtraArea(q);
-    m_extraArea->setMouseTracking(true);
     q->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
     m_overlay = new TextEditorOverlay(q);
@@ -2482,12 +2486,9 @@ void BaseTextEditorWidget::convertPosition(int pos, int *line, int *column) cons
 
 bool BaseTextEditorWidget::event(QEvent *e)
 {
-#if QT_VERSION >= 0x050000
-    if (e->type() != QEvent::InputMethodQuery)
+    // FIXME: That's far too heavy, and triggers e.g for ChildEvent
+    if (d && e->type() != QEvent::InputMethodQuery)
         d->m_contentsChanged = false;
-#else
-    d->m_contentsChanged = false;
-#endif
     switch (e->type()) {
     case QEvent::ShortcutOverride:
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && d->m_snippetOverlay->isVisible()) {
