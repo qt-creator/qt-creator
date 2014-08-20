@@ -490,7 +490,6 @@ public slots:
 signals:
     void assistFinished();
     void readOnlyChanged();
-    void refactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
     void requestFontZoom(int zoom);
     void requestZoomReset();
@@ -535,6 +534,8 @@ protected:
     virtual BaseTextEditor *createEditor();
     virtual void triggerPendingUpdates();
     virtual void applyFontSettings();
+
+    virtual void onRefactorMarkerClicked(const RefactorMarker &) {}
 
     void showDefaultContextMenu(QContextMenuEvent *e, Core::Id menuContextId);
 

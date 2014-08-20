@@ -156,9 +156,6 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(BaseTextDocumentPtr doc)
     connect(m_qmlJsEditorDocument, SIGNAL(semanticInfoUpdated(QmlJSTools::SemanticInfo)),
             this, SLOT(semanticInfoUpdated(QmlJSTools::SemanticInfo)));
 
-    connect(this, SIGNAL(refactorMarkerClicked(TextEditor::RefactorMarker)),
-            SLOT(onRefactorMarkerClicked(TextEditor::RefactorMarker)));
-
     setRequestMarkEnabled(true);
     createToolBar();
 }

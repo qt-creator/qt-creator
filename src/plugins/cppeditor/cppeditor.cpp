@@ -199,9 +199,6 @@ CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc)
                 this, SLOT(highlighterStarted(QFuture<TextEditor::HighlightingResult>*,uint)));
     }
 
-    connect(this, SIGNAL(refactorMarkerClicked(TextEditor::RefactorMarker)),
-            this, SLOT(onRefactorMarkerClicked(TextEditor::RefactorMarker)));
-
     connect(d->m_declDefLinkFinder, SIGNAL(foundLink(QSharedPointer<FunctionDeclDefLink>)),
             this, SLOT(onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink>)));
 

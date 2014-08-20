@@ -4767,7 +4767,7 @@ void BaseTextEditorWidget::mousePressEvent(QMouseEvent *e)
 
             RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(e->pos());
             if (refactorMarker.isValid()) {
-                emit refactorMarkerClicked(refactorMarker);
+                onRefactorMarkerClicked(refactorMarker);
             } else {
                 d->updateLink(e);
 
