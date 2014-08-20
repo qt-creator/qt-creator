@@ -74,7 +74,8 @@ static inline QStringList supportedVersionsList()
 static inline QStringList globalQtEnums()
 {
     static QStringList list = QStringList() << QStringLiteral("Horizontal") << QStringLiteral("Vertical") << QStringLiteral("AlignVCenter")
-         << QStringLiteral("AlignLeft") << QStringLiteral("LeftToRight") << QStringLiteral("RightToLeft")
+         << QStringLiteral("AlignLeft") << QStringLiteral("LeftToRight") << QStringLiteral("RightToLeft") <<  QStringLiteral("AlignHCenter")
+         << QStringLiteral("AlignRight") <<  QStringLiteral("AlignBottom") << QStringLiteral("AlignBaseline") <<  QStringLiteral("AlignTop")
          << QStringLiteral("BottomLeft") <<  QStringLiteral("LeftEdge") <<  QStringLiteral("RightEdge") <<  QStringLiteral("BottomEdge");
 
     return list;
