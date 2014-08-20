@@ -382,7 +382,7 @@ public:
     BaseTextEditorPrivateHighlightBlocks m_highlightBlocksInfo;
     QTimer m_highlightBlocksTimer;
 
-    QScopedPointer<CodeAssistant> m_codeAssistant;
+    CodeAssistant m_codeAssistant;
     bool m_assistRelevantContentAdded;
 
     QPointer<BaseTextEditorAnimator> m_animator;
@@ -443,7 +443,6 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
     m_findScopeVerticalBlockSelectionFirstColumn(-1),
     m_findScopeVerticalBlockSelectionLastColumn(-1),
     m_highlightBlocksTimer(0),
-    m_codeAssistant(new CodeAssistant),
     m_assistRelevantContentAdded(false),
     m_cursorBlockNumber(-1),
     m_blockCount(0),
@@ -600,7 +599,7 @@ void BaseTextEditorWidgetPrivate::ctor(const QSharedPointer<BaseTextDocument> &d
     visibleFoldedBlockNumber = -1;
     suggestedVisibleFoldedBlockNumber = -1;
 
-    QObject::connect(m_codeAssistant.data(), &CodeAssistant::finished,
+    QObject::connect(&m_codeAssistant, &CodeAssistant::finished,
                      q, &BaseTextEditorWidget::assistFinished);
 
     QObject::connect(q, &QPlainTextEdit::blockCountChanged,
@@ -881,11 +880,10 @@ BaseTextEditor *BaseTextEditorWidget::editor() const
         d->m_editor = that->createEditor();
         if (!d->m_editor->m_widget)
             d->m_editor->setEditorWidget(that);
-        d->m_codeAssistant->configure(d->m_editor);
+        d->m_codeAssistant.configure(d->m_editor);
     }
     return d->m_editor;
 }
-
 
 void BaseTextEditorWidget::selectEncoding()
 {
@@ -1442,7 +1440,7 @@ void BaseTextEditorWidget::openLinkUnderCursorInNextSplit()
 
 void BaseTextEditorWidget::abortAssist()
 {
-    d->m_codeAssistant->destroyContext();
+    d->m_codeAssistant.destroyContext();
 }
 
 void BaseTextEditorWidgetPrivate::moveLineUpDown(bool up)
@@ -2343,7 +2341,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         d->m_parenthesesMatchingTimer.start(50);
 
     if (!ro && d->m_contentsChanged && isPrintableText(eventText) && !inOverwriteMode)
-        d->m_codeAssistant->process();
+        d->m_codeAssistant.process();
 }
 
 void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
@@ -6392,8 +6390,8 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
     if (text.isEmpty())
         return;
 
-    if (d->m_codeAssistant->hasContext())
-        d->m_codeAssistant->destroyContext();
+    if (d->m_codeAssistant.hasContext())
+        d->m_codeAssistant.destroyContext();
 
     if (d->m_inBlockSelectionMode) {
         d->insertIntoBlockSelection(text);
@@ -7036,7 +7034,7 @@ void BaseTextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provid
     bool previousMode = overwriteMode();
     setOverwriteMode(false);
     ensureCursorVisible();
-    d->m_codeAssistant->invoke(kind, provider);
+    d->m_codeAssistant.invoke(kind, provider);
     setOverwriteMode(previousMode);
 }
 
@@ -7197,6 +7195,7 @@ BaseTextEditorWidget *BaseTextEditor::ensureWidget() const
         auto that = const_cast<BaseTextEditor *>(this);
         widget->d->m_editor = that;
         that->m_widget = widget;
+        widget->d->m_codeAssistant.configure(that);
     }
     return editorWidget();
 }
