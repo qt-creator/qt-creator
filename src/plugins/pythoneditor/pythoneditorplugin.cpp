@@ -28,11 +28,10 @@
 ****************************************************************************/
 
 #include "pythoneditorplugin.h"
+#include "pythoneditor.h"
 #include "pythoneditorconstants.h"
 #include "wizard/pythonfilewizard.h"
 #include "wizard/pythonclasswizard.h"
-#include "pythoneditorwidget.h"
-#include "pythoneditorfactory.h"
 #include "tools/pythonhighlighter.h"
 
 #include <coreplugin/icore.h>
@@ -186,7 +185,7 @@ static const char *const LIST_OF_PYTHON_BUILTINS[] = {
 namespace PythonEditor {
 namespace Internal {
 
-PythonEditorPlugin *PythonEditorPlugin::m_instance = 0;
+static PythonEditorPlugin *m_instance = 0;
 
 /// Copies identifiers from array to QSet
 static void copyIdentifiers(const char * const words[], size_t bytesCount, QSet<QString> &result)
@@ -197,7 +196,6 @@ static void copyIdentifiers(const char * const words[], size_t bytesCount, QSet<
 }
 
 PythonEditorPlugin::PythonEditorPlugin()
-    : m_factory(0)
 {
     m_instance = this;
     copyIdentifiers(LIST_OF_PYTHON_KEYWORDS, sizeof(LIST_OF_PYTHON_KEYWORDS), m_keywords);
@@ -207,7 +205,6 @@ PythonEditorPlugin::PythonEditorPlugin()
 
 PythonEditorPlugin::~PythonEditorPlugin()
 {
-    removeObject(m_factory);
     m_instance = 0;
 }
 
@@ -218,8 +215,7 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     if (!Core::MimeDatabase::addMimeTypes(QLatin1String(RC_PY_MIME_XML), errorMessage))
         return false;
 
-    m_factory = new EditorFactory(this);
-    addObject(m_factory);
+    addAutoReleasedObject(new PythonEditorFactory);
 
     // Initialize editor actions handler
     // Add MIME overlay icons (these icons displayed at Project dock panel)
@@ -240,23 +236,19 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     return true;
 }
 
-void PythonEditorPlugin::extensionsInitialized()
-{
-}
-
 QSet<QString> PythonEditorPlugin::keywords()
 {
-    return instance()->m_keywords;
+    return m_instance->m_keywords;
 }
 
 QSet<QString> PythonEditorPlugin::magics()
 {
-    return instance()->m_magics;
+    return m_instance->m_magics;
 }
 
 QSet<QString> PythonEditorPlugin::builtins()
 {
-    return instance()->m_builtins;
+    return m_instance->m_builtins;
 }
 
 } // namespace Internal

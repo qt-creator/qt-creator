@@ -18,10 +18,8 @@ QtcPlugin {
         files: [
             "pythoneditor.cpp", "pythoneditor.h",
             "pythoneditorconstants.h",
-            "pythoneditorfactory.cpp", "pythoneditorfactory.h",
             "pythoneditorplugin.cpp", "pythoneditorplugin.h",
             "pythoneditorplugin.qrc",
-            "pythoneditorwidget.cpp", "pythoneditorwidget.h",
         ]
     }
 

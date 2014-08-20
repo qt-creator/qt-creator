@@ -27,37 +27,52 @@
 **
 ****************************************************************************/
 
-/**
-  \class PyEditor::Editor implements interface Core::IEditor
-  This editor makes possible to edit Python source files
-  */
-
 #include "pythoneditor.h"
 #include "pythoneditorconstants.h"
 #include "pythoneditorplugin.h"
-#include "pythoneditorwidget.h"
+#include "tools/pythonindenter.h"
+#include "tools/pythonhighlighter.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+
+#include <texteditor/texteditoractionhandler.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/basetextdocument.h>
+#include <texteditor/indenter.h>
+#include <texteditor/autocompleter.h>
+
+#include <utils/qtcassert.h>
 
 #include <QFileInfo>
+
+using namespace TextEditor;
 
 namespace PythonEditor {
 namespace Internal {
 
+//////////////////////////////////////////////////////////////////
+//
+//  PythonEditor
+//
+//////////////////////////////////////////////////////////////////
+
 PythonEditor::PythonEditor()
 {
-    setContext(Core::Context(Constants::C_PYTHONEDITOR_ID,
-                             TextEditor::Constants::C_TEXTEDITOR));
+    addContext(Constants::C_PYTHONEDITOR_ID);
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::HashStyle);
-}
+    setEditorCreator([]() { return new PythonEditor; });
+    setWidgetCreator([]() { return new PythonEditorWidget; });
 
-Core::IEditor *PythonEditor::duplicate()
-{
-    PythonEditorWidget *widget = new PythonEditorWidget(editorWidget()->textDocumentPtr());
-    return widget->editor();
+    setDocumentCreator([]() -> BaseTextDocument * {
+        auto doc = new BaseTextDocument(Constants::C_PYTHONEDITOR_ID);
+        doc->setIndenter(new PythonIndenter);
+        new PythonHighlighter(doc);
+        return doc;
+    });
 }
 
 bool PythonEditor::open(QString *errorString,
@@ -66,7 +81,49 @@ bool PythonEditor::open(QString *errorString,
 {
     Core::MimeType mimeType = Core::MimeDatabase::findByFile(QFileInfo(fileName));
     textDocument()->setMimeType(mimeType.type());
-    return TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
+    return BaseTextEditor::open(errorString, fileName, realFileName);
+}
+
+
+//////////////////////////////////////////////////////////////////
+//
+//  PythonEditorWidget
+//
+//////////////////////////////////////////////////////////////////
+
+PythonEditorWidget::PythonEditorWidget()
+{
+    setParenthesesMatchingEnabled(true);
+    setMarksVisible(true);
+    setCodeFoldingSupported(true);
+}
+
+BaseTextEditor *PythonEditorWidget::createEditor()
+{
+    QTC_ASSERT("should not happen anymore" && false, return 0);
+}
+
+
+//////////////////////////////////////////////////////////////////
+//
+//  PythonEditorFactory
+//
+//////////////////////////////////////////////////////////////////
+
+PythonEditorFactory::PythonEditorFactory()
+{
+    setId(Constants::C_PYTHONEDITOR_ID);
+    setDisplayName(tr(Constants::C_EDITOR_DISPLAY_NAME));
+    addMimeType(QLatin1String(Constants::C_PY_MIMETYPE));
+    new TextEditorActionHandler(this, Constants::C_PYTHONEDITOR_ID,
+                              TextEditorActionHandler::Format
+                              | TextEditorActionHandler::UnCommentSelection
+                              | TextEditorActionHandler::UnCollapseAll);
+}
+
+Core::IEditor *PythonEditorFactory::createEditor()
+{
+    return new PythonEditor;
 }
 
 } // namespace Internal

@@ -8,9 +8,7 @@ RESOURCES += \
 
 HEADERS += \
     pythoneditorplugin.h \
-    pythoneditorfactory.h \
     pythoneditor.h \
-    pythoneditorwidget.h \
     pythoneditorconstants.h \
     wizard/pythonfilewizard.h \
     wizard/pythonclasswizard.h \
@@ -25,9 +23,7 @@ HEADERS += \
 
 SOURCES += \
     pythoneditorplugin.cpp \
-    pythoneditorfactory.cpp \
     pythoneditor.cpp \
-    pythoneditorwidget.cpp \
     wizard/pythonfilewizard.cpp \
     wizard/pythonclasswizarddialog.cpp \
     wizard/pythonclasswizard.cpp \

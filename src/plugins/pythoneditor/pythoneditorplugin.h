@@ -36,13 +36,6 @@
 namespace PythonEditor {
 namespace Internal {
 
-class EditorFactory;
-class PythonEditorWidget;
-
-/**
-  \class PyEditor::Plugin implements ExtensionSystem::IPlugin
-  Singletone object - PyEditor plugin
-  */
 class PythonEditorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -53,16 +46,13 @@ public:
     virtual ~PythonEditorPlugin();
 
     virtual bool initialize(const QStringList &arguments, QString *errorMessage);
-    virtual void extensionsInitialized();
-    static PythonEditorPlugin *instance() { return m_instance; }
+    virtual void extensionsInitialized() {}
 
     static QSet<QString> keywords();
     static QSet<QString> magics();
     static QSet<QString> builtins();
 
 private:
-    static PythonEditorPlugin *m_instance;
-    EditorFactory *m_factory;
     QSet<QString> m_keywords;
     QSet<QString> m_magics;
     QSet<QString> m_builtins;
