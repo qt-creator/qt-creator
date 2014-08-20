@@ -52,9 +52,11 @@ EditorArea::EditorArea()
     ICore::addContextObject(m_context);
 
     setCurrentView(view());
+    updateCloseSplitButton();
 
     connect(qApp, &QApplication::focusChanged,
             this, &EditorArea::focusChanged);
+    connect(this, &SplitterOrView::splitStateChanged, this, &EditorArea::updateCloseSplitButton);
 }
 
 EditorArea::~EditorArea()
@@ -121,6 +123,12 @@ void EditorArea::updateCurrentEditor(IEditor *editor)
                 this, &EditorArea::windowTitleNeedsUpdate);
     }
     emit windowTitleNeedsUpdate();
+}
+
+void EditorArea::updateCloseSplitButton()
+{
+    if (EditorView *v = view())
+        v->setCloseSplitEnabled(false);
 }
 
 } // Internal

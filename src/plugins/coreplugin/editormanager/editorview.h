@@ -199,6 +199,9 @@ public:
 
     void unsplitAll();
 
+signals:
+    void splitStateChanged();
+
 private:
     void unsplitAll_helper();
     QStackedLayout *m_layout;

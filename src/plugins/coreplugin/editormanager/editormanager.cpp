@@ -1240,19 +1240,6 @@ void EditorManagerPrivate::updateAutoSave()
         d->m_autoSaveTimer->stop();
 }
 
-void EditorManagerPrivate::setCloseSplitEnabled(SplitterOrView *splitterOrView, bool enable)
-{
-    if (splitterOrView->isView())
-        splitterOrView->view()->setCloseSplitEnabled(enable);
-    QSplitter *splitter = splitterOrView->splitter();
-    if (splitter) {
-        for (int i = 0; i < splitter->count(); ++i) {
-            if (SplitterOrView *subSplitterOrView = qobject_cast<SplitterOrView*>(splitter->widget(i)))
-                setCloseSplitEnabled(subSplitterOrView, enable);
-        }
-    }
-}
-
 void EditorManagerPrivate::updateMakeWritableWarning()
 {
     IDocument *document = EditorManager::currentDocument();
@@ -1323,9 +1310,6 @@ void EditorManagerPrivate::updateActions()
 
     if (curDocument)
         updateMakeWritableWarning();
-
-    foreach (EditorArea *area, d->m_editorAreas)
-        setCloseSplitEnabled(area, area->isSplitter());
 
     QString quotedName;
     if (curDocument)

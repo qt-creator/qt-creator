@@ -166,7 +166,6 @@ private:
     static IEditor *pickUnusedEditor(Internal::EditorView **foundView = 0);
     static void addDocumentToRecentFiles(IDocument *document);
     static void updateAutoSave();
-    static void setCloseSplitEnabled(Internal::SplitterOrView *splitterOrView, bool enable);
     static void updateMakeWritableWarning();
     static void setupSaveActions(IDocument *document, QAction *saveAction,
                                  QAction *saveAsAction, QAction *revertToSavedAction);

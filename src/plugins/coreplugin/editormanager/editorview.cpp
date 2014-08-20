@@ -644,6 +644,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
     m_layout->addWidget(m_splitter);
     m_layout->removeWidget(m_view);
     EditorView *editorView = m_view;
+    editorView->setCloseSplitEnabled(true); // might have been disabled for root view
     m_view = 0;
     IEditor *e = editorView->currentEditor();
 
@@ -670,6 +671,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
         EditorManagerPrivate::activateEditor(otherView->view(), e);
     else
         EditorManagerPrivate::setCurrentView(otherView->view());
+    emit splitStateChanged();
 }
 
 void SplitterOrView::unsplitAll()
@@ -706,6 +708,7 @@ void SplitterOrView::unsplitAll()
         else
             m_view->setFocus();
     }
+    emit splitStateChanged();
 }
 
 void SplitterOrView::unsplitAll_helper()
@@ -769,6 +772,7 @@ void SplitterOrView::unsplit()
     }
     delete oldSplitter;
     EditorManagerPrivate::setCurrentView(findFirstView());
+    emit splitStateChanged();
 }
 
 
