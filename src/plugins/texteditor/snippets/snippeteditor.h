@@ -47,8 +47,6 @@ class TEXTEDITOR_EXPORT SnippetEditor : public BaseTextEditor
 
 public:
     SnippetEditor();
-
-    Core::IEditor *duplicate() { return 0; }
 };
 
 class TEXTEDITOR_EXPORT SnippetEditorWidget : public BaseTextEditorWidget
@@ -56,7 +54,7 @@ class TEXTEDITOR_EXPORT SnippetEditorWidget : public BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    SnippetEditorWidget(QWidget *parent);
+    SnippetEditorWidget(QWidget *parent = 0);
 
     void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
 

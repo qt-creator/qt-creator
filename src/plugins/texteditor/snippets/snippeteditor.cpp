@@ -31,10 +31,11 @@
 
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/qtcassert.h>
 
 #include <QFocusEvent>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 /*!
     \class TextEditor::SnippetEditorWidget
@@ -45,15 +46,15 @@ using namespace TextEditor;
 
 SnippetEditor::SnippetEditor()
 {
-    setContext(Core::Context(Constants::SNIPPET_EDITOR_ID, Constants::C_TEXTEDITOR));
+    addContext(Constants::SNIPPET_EDITOR_ID);
+    setEditorCreator([]() { return new SnippetEditor; });
+    setWidgetCreator([]() { return new SnippetEditorWidget; });
+    setDocumentCreator([]() { return new BaseTextDocument(Constants::SNIPPET_EDITOR_ID); });
 }
 
 SnippetEditorWidget::SnippetEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(parent)
 {
-    BaseTextDocumentPtr doc(new BaseTextDocument);
-    doc->setId(Constants::SNIPPET_EDITOR_ID);
-    setTextDocument(doc);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setHighlightCurrentLine(false);
     setLineNumbersVisible(false);
@@ -76,5 +77,7 @@ void SnippetEditorWidget::focusOutEvent(QFocusEvent *event)
 
 BaseTextEditor *SnippetEditorWidget::createEditor()
 {
-    return new SnippetEditor;
+    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
+
+} // namespace
