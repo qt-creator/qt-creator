@@ -34,11 +34,7 @@
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
-#if QT_VERSION >= 0x050000
 class QDesignerFormWindowInterface;
-#else
-namespace qdesigner_internal { class FormWindowBase; }
-#endif
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -63,11 +59,7 @@ class ResourceHandler : public QObject
 {
     Q_OBJECT
 public:
-#if QT_VERSION >= 0x050000
-        explicit ResourceHandler(QDesignerFormWindowInterface *fw);
-#else
-        explicit ResourceHandler(qdesigner_internal::FormWindowBase *fw);
-#endif
+    explicit ResourceHandler(QDesignerFormWindowInterface *fw);
     virtual ~ResourceHandler();
 
 public slots:
@@ -75,11 +67,7 @@ public slots:
 
 private:
     void ensureInitialized();
-#if QT_VERSION >= 0x050000
     QDesignerFormWindowInterface * const m_form;
-#else
-    qdesigner_internal::FormWindowBase * const m_form;
-#endif
     QStringList m_originalUiQrcPaths;
     ProjectExplorer::SessionNode *m_sessionNode;
     ProjectExplorer::NodesWatcher *m_sessionWatcher;

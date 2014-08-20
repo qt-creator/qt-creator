@@ -93,18 +93,12 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
         return false;
 
     form->setFileName(absfileName);
-#if QT_VERSION >= 0x050000
     const QByteArray contentsBA = contents.toUtf8();
     QBuffer str;
     str.setData(contentsBA);
     str.open(QIODevice::ReadOnly);
     if (!form->setContents(&str, errorString))
         return false;
-#else
-    form->setContents(contents);
-    if (!form->mainContainer())
-        return false;
-#endif
     form->setDirty(fileName != realFileName);
     d->m_widget->formWindowFile()->syncXmlFromFormWindow();
 

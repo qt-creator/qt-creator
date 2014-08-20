@@ -77,24 +77,14 @@ static QString msgClassNotFound(const QString &uiClassName, const QList<Document
 }
 
 QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent) :
-#if QT_VERSION >= 0x050000
     QDesignerIntegration(core, parent),
-#else
-    qdesigner_internal::QDesignerIntegration(core, parent),
-#endif
     m_few(parent)
 {
-#if QT_VERSION >= 0x050000
     setResourceFileWatcherBehaviour(ReloadResourceFileSilently);
     Feature f = features();
     f |= SlotNavigationFeature;
     f &= ~ResourceEditorFeature;
     setFeatures(f);
-#else
-    setResourceFileWatcherBehaviour(QDesignerIntegration::ReloadSilently);
-    setResourceEditingEnabled(false);
-    setSlotNavigationEnabled(true);
-#endif
     connect(this, SIGNAL(navigateToSlot(QString,QString,QStringList)),
             this, SLOT(slotNavigateToSlot(QString,QString,QStringList)));
     connect(this, SIGNAL(helpRequested(QString,QString)),
@@ -115,11 +105,7 @@ void QtCreatorIntegration::updateSelection()
 {
     if (const EditorData ed = m_few->activeEditor())
         ed.widgetHost->updateFormWindowSelectionHandles(true);
-#if QT_VERSION >= 0x050000
     QDesignerIntegration::updateSelection();
-#else
-    qdesigner_internal::QDesignerIntegration::updateSelection();
-#endif
 }
 
 QWidget *QtCreatorIntegration::containerWindow(QWidget * /*widget*/) const

@@ -29,9 +29,6 @@
 
 #include "formeditorplugin.h"
 
-#if QT_VERSION < 0x050000
-#include <QtTest>
-#else
 #include "formeditorw.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -228,23 +225,17 @@ public:
 };
 
 } // anonymous namespace
-#endif
 
 /// Check: Executes "Go To Slot..." on a QPushButton in a *.ui file and checks if the respective
 /// header and source files are correctly updated.
 void Designer::Internal::FormEditorPlugin::test_gotoslot()
 {
-#if QT_VERSION >= 0x050000
     QFETCH(QStringList, files);
     (GoToSlotTestCase(files));
-#else
-    QSKIP("Available only with >= Qt5", SkipSingle);
-#endif
 }
 
 void Designer::Internal::FormEditorPlugin::test_gotoslot_data()
 {
-#if QT_VERSION >= 0x050000
     typedef QLatin1String _;
     QTest::addColumn<QStringList>("files");
 
@@ -282,5 +273,4 @@ void Designer::Internal::FormEditorPlugin::test_gotoslot_data()
             << testDataDir.file(_("form.cpp"))
             << testDataDir.file(_("form.h"))
             << testDataDir.file(_("form.ui")));
-#endif
 }

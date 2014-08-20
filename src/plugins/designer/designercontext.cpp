@@ -31,12 +31,7 @@
 #include "formeditorw.h"
 
 #include <QDesignerFormEditorInterface>
-
-#if QT_VERSION >= 0x050000
-#    include <QDesignerIntegration>
-#else
-#    include "qt_private/qdesigner_integration_p.h"
-#endif
+#include <QDesignerIntegration>
 
 #include <QWidget>
 #include <QDebug>
@@ -57,17 +52,7 @@ DesignerContext::DesignerContext(const Core::Context &context,
 QString DesignerContext::contextHelpId() const
 {
     const QDesignerFormEditorInterface *core = FormEditorW::instance()->designerEditor();
-#if QT_VERSION >= 0x050000
     return core->integration()->contextHelpId();
-#else
-    QString helpId;
-     // Present from Qt 4.5.1 onwards. This will show the class documentation
-    // scrolled to the current property.
-    if (const qdesigner_internal::QDesignerIntegration *integration =
-            qobject_cast<const qdesigner_internal::QDesignerIntegration*>(core->integration()))
-        helpId = integration->contextHelpId();
-    return helpId;
-#endif
 }
 
 } // namespace Internal

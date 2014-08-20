@@ -30,12 +30,7 @@
 #include "settingspage.h"
 #include "formeditorw.h"
 
-#if QT_VERSION >= 0x050000
-#    include <QDesignerOptionsPageInterface>
-#else
-#    include "qt_private/abstractoptionspage_p.h"
-#endif
-
+#include <QDesignerOptionsPageInterface>
 #include <QCoreApplication>
 
 using namespace Designer::Internal;

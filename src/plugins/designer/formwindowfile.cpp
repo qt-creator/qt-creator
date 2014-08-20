@@ -36,14 +36,8 @@
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowManagerInterface>
 #include <QDesignerFormEditorInterface>
-#if QT_VERSION < 0x050000
-#    include "qt_private/qsimpleresource_p.h"
-#    include "qt_private/formwindowbase_p.h"
-#endif
-
 #include <QTextDocument>
 #include <QUndoStack>
-
 #include <QFileInfo>
 #include <QDebug>
 #include <QTextCodec>
@@ -84,13 +78,7 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
         m_formWindow->setFileName(fi.absoluteFilePath());
-#if QT_VERSION >= 0x050000
     const bool writeOK = writeFile(actualName, errorString);
-#else
-    const bool warningsEnabled = qdesigner_internal::QSimpleResource::setWarningsEnabled(false);
-    const bool writeOK = writeFile(actualName, errorString);
-    qdesigner_internal::QSimpleResource::setWarningsEnabled(warningsEnabled);
-#endif
     m_shouldAutoSave = false;
     if (autoSave)
         return writeOK;
@@ -128,12 +116,7 @@ bool FormWindowFile::setContents(const QByteArray &contents)
         QApplication::restoreOverrideCursor();
     }
 
-#if QT_VERSION >= 0x050000
     const bool success = m_formWindow->setContents(QString::fromUtf8(contents));
-#else
-    m_formWindow->setContents(QString::fromUtf8(contents));
-    const bool success = m_formWindow->mainContainer() != 0;
-#endif
 
     if (hasOverrideCursor)
         QApplication::setOverrideCursor(overrideCursor);

@@ -32,12 +32,7 @@
 
 #include <utils/wizard.h>
 
-#if QT_VERSION >= 0x050000
-#    include <QDesignerNewFormWidgetInterface>
-#else
-#    include "qt_private/abstractnewformwidget_p.h"
-#endif
-
+#include <QDesignerNewFormWidgetInterface>
 #include <QDebug>
 #include <QXmlStreamReader>
 #include <QXmlStreamAttributes>
