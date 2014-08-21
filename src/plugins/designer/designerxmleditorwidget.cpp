@@ -29,7 +29,8 @@
 
 #include "designerxmleditorwidget.h"
 #include "formwindoweditor.h"
-#include "designerconstants.h"
+
+#include <utils/qtcassert.h>
 
 #include <QDesignerFormWindowInterface>
 #include <QDebug>
@@ -41,7 +42,8 @@ DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *f
 {
     TextEditor::BaseTextDocumentPtr doc(new FormWindowFile(form));
     setTextDocument(doc);
-    m_designerEditor = new FormWindowEditor(this);
+    auto editor = new FormWindowEditor(this);
+    editor->setEditorWidget(this);
     setupAsPlainEditor();
     setReadOnly(true);
     configureMimeType(doc->mimeType());
@@ -49,14 +51,12 @@ DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *f
 
 TextEditor::BaseTextEditor *DesignerXmlEditorWidget::createEditor()
 {
-    if (Designer::Constants::Internal::debug)
-        qDebug() << "DesignerXmlEditor::createEditableInterface()";
-    return m_designerEditor;
+    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
 
 FormWindowEditor *DesignerXmlEditorWidget::designerEditor() const
 {
-    return m_designerEditor;
+    return qobject_cast<FormWindowEditor *>(editor());
 }
 
 Internal::FormWindowFile *DesignerXmlEditorWidget::formWindowFile() const

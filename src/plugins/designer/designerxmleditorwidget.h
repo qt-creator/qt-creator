@@ -64,9 +64,6 @@ public:
 
 protected:
     virtual TextEditor::BaseTextEditor *createEditor();
-
-private:
-    FormWindowEditor *m_designerEditor;
 };
 
 } // Internal
