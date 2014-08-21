@@ -53,6 +53,7 @@
 #include <private/qquickanimation_p.h>
 #include <private/qqmltimer_p.h>
 #include <private/qqmlengine_p.h>
+#include <private/qqmlexpression_p.h>
 #include <designersupport.h>
 
 
@@ -101,8 +102,6 @@ static bool isSimpleExpression(const QString &expression)
 
 namespace QmlDesigner {
 namespace Internal {
-
-QHash<EnumerationName, QVariant> ObjectNodeInstance::m_enumationValueHash;
 
 ObjectNodeInstance::ObjectNodeInstance(QObject *object)
     : m_object(object),
@@ -474,6 +473,37 @@ PropertyNameList ObjectNodeInstance::ignoredProperties() const
     return PropertyNameList();
 }
 
+QVariant ObjectNodeInstance::convertEnumToValue(const QVariant &value, const PropertyName &name)
+{
+    int idx = object()->metaObject()->indexOfProperty(name);
+    QMetaProperty metaProperty = object()->metaObject()->property(idx);
+
+    QVariant fixedValue = fixResourcePaths(value);
+
+    if (value.canConvert<Enumeration>()) {
+        Enumeration enumeration = value.value<Enumeration>();
+        if (metaProperty.isValid() && metaProperty.isEnumType()) {
+            fixedValue = metaProperty.enumerator().keyToValue(enumeration.name());
+        } else if (metaProperty.isValid()
+                   && (QLatin1String(metaProperty.typeName()) ==  QLatin1String("int"))) {
+
+            //If the target property is an integer handle an enum as binding
+            QQmlExpression expression(context(), object(), enumeration.toString());
+            fixedValue =  expression.evaluate();
+            if (expression.hasError())
+                qDebug() << "Enum can not be evaluated:" << object() << name << enumeration;
+        } else if (!metaProperty.isValid()) { //In this case this is most likely an attached property
+            QQmlExpression expression(context(), object(), enumeration.toString());
+            fixedValue =  expression.evaluate();
+
+            if (expression.hasError())
+                qDebug() << "Enum can not be evaluated:" << object() << name << enumeration;
+        }
+    }
+
+    return fixedValue;
+}
+
 void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     if (ignoredProperties().contains(name))
@@ -485,9 +515,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
         return;
 
     QVariant fixedValue = fixResourcePaths(value);
-
-    if (value.canConvert<Enumeration>())
-        fixedValue = enumationValue(value.value<Enumeration>());
+    fixedValue = convertEnumToValue(fixedValue, name);
 
     QVariant oldValue = property.read();
     if (oldValue.type() == QVariant::Url) {
@@ -1340,43 +1368,6 @@ void ObjectNodeInstance::doComponentCompleteRecursive(QObject *object, NodeInsta
                 qmlParserStatus->componentComplete();
         }
     }
-}
-
-static QHash<EnumerationName, QVariant> enumationValuesFromMetaEnum(const QMetaEnum &metaEnum)
-{
-    QHash<EnumerationName, QVariant> enumationValues;
-    for (int index = 0; index < metaEnum.keyCount(); index++) {
-        EnumerationName enumerationName = EnumerationName(metaEnum.scope()) + "." + metaEnum.key(index);
-        enumationValues.insert(enumerationName, QVariant::fromValue(metaEnum.value(index)));
-                qDebug() << __FUNCTION__ << enumerationName << metaEnum.value(index);
-    }
-
-    return enumationValues;
-}
-
-static QHash<EnumerationName, QVariant> collectEnumationValues(const Enumeration &enumeration)
-{
-    QHash<EnumerationName, QVariant> enumationValues;
-    EnumerationName enumerationScope = enumeration.scope();
-    const QMetaObject *metaObject = QMetaType::metaObjectForType(QMetaType::type(enumerationScope.constData()));
-    if (metaObject) {
-        int enumeratorCount = metaObject->enumeratorOffset() + metaObject->enumeratorCount();
-        for (int index = metaObject->enumeratorOffset(); index < enumeratorCount; index++)
-            enumationValues.unite(enumationValuesFromMetaEnum(metaObject->enumerator(index)));
-    } else {
-        enumationValues.insert(enumeration.toEnumerationName(), QVariant::fromValue(enumeration.nameToString()));
-    }
-
-    return enumationValues;
-}
-
-QVariant ObjectNodeInstance::enumationValue(const Enumeration &enumeration)
-{
-    EnumerationName enumerationName = enumeration.toEnumerationName();
-    if (!m_enumationValueHash.contains(enumerationName))
-        m_enumationValueHash.unite(collectEnumationValues(enumeration));
-
-    return  m_enumationValueHash.value(enumerationName);
 }
 
 ObjectNodeInstance::Pointer ObjectNodeInstance::parentInstance() const

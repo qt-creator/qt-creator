@@ -200,6 +200,7 @@ protected:
     void addToNewProperty(QObject *object, QObject *newParent, const PropertyName &newParentProperty);
     void deleteObjectsInList(const QQmlProperty &metaProperty);
     QVariant convertSpecialCharacter(const QVariant& value) const;
+    QVariant convertEnumToValue(const QVariant &value, const PropertyName &name);
     static QObject *parentObject(QObject *object);
     static void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInstanceServer);
     static QVariant enumationValue(const Enumeration &enumeration);
