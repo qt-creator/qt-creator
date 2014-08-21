@@ -1416,7 +1416,35 @@ void CppEditorPlugin::test_quickfix_data()
     QTest::newRow("ConvertToPointer_noTriggerRValueRefs")
         << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
         << _("void foo(Narf &&@narf) {}\n")
-        << _("void foo(Narf &&@narf) {}\n");
+        << _();
+
+    QTest::newRow("ConvertToPointer_noTriggerGlobal")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("int @global;\n")
+        << _();
+
+    QTest::newRow("ConvertToPointer_noTriggerClassMember")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("struct C { int @member; };\n")
+        << _();
+
+    QTest::newRow("ConvertToPointer_noTriggerClassMember2")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void f() { struct C { int @member; }; }\n")
+        << _();
+
+    QTest::newRow("ConvertToPointer_functionOfFunctionLocalClass")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void f() {\n"
+             "    struct C {\n"
+             "        void g() { int @member; }\n"
+             "    };\n"
+             "}\n")
+        << _("void f() {\n"
+             "    struct C {\n"
+             "        void g() { int *member; }\n"
+             "    };\n"
+             "}\n");
 
     QTest::newRow("ConvertToPointer_redeclaredVariable_block")
         << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)

@@ -4152,15 +4152,25 @@ void ConvertFromAndToPointer::match(const CppQuickFixInterface &interface,
         return;
     SimpleDeclarationAST *simpleDeclaration = 0;
     DeclaratorAST *declarator = 0;
+    bool isFunctionLocal = false;
+    bool isClassLocal = false;
     ConvertFromAndToPointerOp::Mode mode = ConvertFromAndToPointerOp::FromVariable;
     for (int i = path.count() - 2; i >= 0; --i) {
         AST *ast = path.at(i);
         if (!declarator && (declarator = ast->asDeclarator()))
             continue;
-        else if (!simpleDeclaration && (simpleDeclaration = ast->asSimpleDeclaration()))
+        if (!simpleDeclaration && (simpleDeclaration = ast->asSimpleDeclaration()))
             continue;
+        if (declarator && simpleDeclaration) {
+            if (ast->asClassSpecifier()) {
+                isClassLocal = true;
+            } else if (ast->asFunctionDefinition() && !isClassLocal) {
+                isFunctionLocal = true;
+                break;
+            }
+        }
     }
-    if (!simpleDeclaration || !declarator)
+    if (!isFunctionLocal || !simpleDeclaration || !declarator)
         return;
 
     Symbol *symbol = 0;
