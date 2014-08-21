@@ -35,7 +35,7 @@
 #include <QList>
 #include <QMetaType>
 
-namespace BINEditor {
+namespace BinEditor {
 
 class Markup
 {
@@ -49,8 +49,9 @@ public:
     QColor color;
     QString toolTip;
 };
-} // namespace BINEditor
 
-Q_DECLARE_METATYPE(QList<BINEditor::Markup>)
+} // namespace BinEditor
+
+Q_DECLARE_METATYPE(QList<BinEditor::Markup>)
 
 #endif // MARKUP_H

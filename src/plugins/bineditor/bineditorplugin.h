@@ -39,17 +39,8 @@
 #include <QStringList>
 #include <QAction>
 
-namespace BINEditor {
+namespace BinEditor {
 class BinEditorWidget;
-
-class BinEditorWidgetFactory : public QObject
-{
-    Q_OBJECT
-public:
-    explicit BinEditorWidgetFactory(QObject *parent = 0);
-
-    Q_INVOKABLE QWidget *createWidget(QWidget *parent);
-};
 
 namespace Internal {
 class BinEditorFactory;
@@ -109,6 +100,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace BINEditor
+} // namespace BinEditor
 
 #endif // BINEDITORPLUGIN_H

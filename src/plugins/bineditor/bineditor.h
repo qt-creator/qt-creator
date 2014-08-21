@@ -49,14 +49,14 @@ namespace Core { class IEditor; }
 
 namespace TextEditor { class FontSettings; }
 
-namespace BINEditor {
+namespace BinEditor {
 
 class BinEditorWidget : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE false)
-    Q_PROPERTY(QList<BINEditor::Markup> markup READ markup WRITE setMarkup DESIGNABLE false)
+    Q_PROPERTY(QList<BinEditor::Markup> markup READ markup WRITE setMarkup DESIGNABLE false)
     Q_PROPERTY(bool newWindowRequestAllowed READ newWindowRequestAllowed WRITE setNewWindowRequestAllowed DESIGNABLE false)
 
 public:
@@ -245,6 +245,6 @@ private:
     QList<Markup> m_markup;
 };
 
-} // namespace BINEditor
+} // namespace BinEditor
 
 #endif // BINEDITOR_H

@@ -61,9 +61,33 @@
 #include <utils/qtcassert.h>
 
 using namespace Core;
-using namespace BINEditor;
-using namespace BINEditor::Internal;
 
+namespace BinEditor {
+
+///////////////////////////////// BinEditorWidgetFactory //////////////////////////////////
+
+/*!
+   \class BinEditor::BinEditorWidgetFactory
+   \brief The BinEditorWidgetFactory class offers a service registered with
+   PluginManager to create bin editor widgets for plugins
+   without direct linkage.
+
+   \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
+*/
+
+class BinEditorWidgetFactory : public QObject
+{
+    Q_OBJECT
+public:
+    BinEditorWidgetFactory() {}
+
+    Q_INVOKABLE QWidget *createWidget(QWidget *parent)
+    {
+        return new BinEditorWidget(parent);
+    }
+};
+
+namespace Internal {
 
 class BinEditorFind : public Core::IFindSupport
 {
@@ -206,7 +230,7 @@ public:
         Core::IDocument(parent)
     {
         setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        setMimeType(QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE));
+        setMimeType(QLatin1String(BinEditor::Constants::C_BINEDITOR_MIMETYPE));
         m_widget = parent;
         connect(m_widget, SIGNAL(dataRequested(quint64)),
             this, SLOT(provideData(quint64)));
@@ -341,7 +365,7 @@ public:
         m_widget = widget;
         m_file = new BinEditorDocument(m_widget);
         m_context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        m_context.add(BINEditor::Constants::C_BINEDITOR);
+        m_context.add(Constants::C_BINEDITOR);
         m_addressEdit = new QLineEdit;
         QRegExpValidator * const addressValidator
             = new QRegExpValidator(QRegExp(QLatin1String("[0-9a-fA-F]{1,16}")),
@@ -418,25 +442,6 @@ Core::IEditor *BinEditorFactory::createEditor()
     return editor;
 }
 
-
-/*!
-   \class BINEditor::BinEditorWidgetFactory
-   \brief The BinEditorWidgetFactory class offers a service registered with
-   PluginManager to create bin editor widgets for plugins
-   without direct linkage.
-
-   \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
-*/
-
-BinEditorWidgetFactory::BinEditorWidgetFactory(QObject *parent) :
-    QObject(parent)
-{
-}
-
-QWidget *BinEditorWidgetFactory::createWidget(QWidget *parent)
-{
-    return new BinEditorWidget(parent);
-}
 
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
@@ -551,7 +556,9 @@ void BinEditorPlugin::selectAllAction()
         m_currentEditor->selectAll();
 }
 
+} // namespace Internal
+} // namespace BinEditor
 
-Q_EXPORT_PLUGIN(BinEditorPlugin)
+Q_EXPORT_PLUGIN(BinEditor::Internal::BinEditorPlugin)
 
 #include "bineditorplugin.moc"

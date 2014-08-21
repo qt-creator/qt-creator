@@ -81,9 +81,9 @@ void MemoryView::setBinEditorNewWindowRequestAllowed(QWidget *w, bool a)
 void MemoryView::setBinEditorMarkup(QWidget *w, const QList<MemoryMarkup> &ml)
 {
     // Convert into bin editor markup and set.
-    QList<BINEditor::Markup> bml;
+    QList<BinEditor::Markup> bml;
     foreach (const MemoryMarkup &m, ml)
-        bml.push_back(BINEditor::Markup(m.address, m.length, m.color, m.toolTip));
+        bml.push_back(BinEditor::Markup(m.address, m.length, m.color, m.toolTip));
     w->setProperty("markup", qVariantFromValue(bml));
 }
 

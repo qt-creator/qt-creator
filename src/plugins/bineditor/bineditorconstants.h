@@ -30,7 +30,7 @@
 #ifndef BINEDITORCONSTANTS_H
 #define BINEDITORCONSTANTS_H
 
-namespace BINEditor {
+namespace BinEditor {
 namespace Constants {
 
 const char C_BINEDITOR[] = "BinEditor.BinaryEditor";
@@ -38,6 +38,6 @@ const char C_BINEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "
 const char C_BINEDITOR_MIMETYPE[] = "application/octet-stream";
 
 } // namespace Constants
-} // namespace BINEditor
+} // namespace BinEditor
 
 #endif // BINEDITORCONSTANTS_H

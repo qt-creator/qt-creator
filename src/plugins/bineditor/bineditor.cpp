@@ -84,7 +84,7 @@ static QByteArray calculateHexPattern(const QByteArray &pattern)
     return result;
 }
 
-namespace BINEditor {
+namespace BinEditor {
 
 BinEditorWidget::BinEditorWidget(QWidget *parent)
     : QAbstractScrollArea(parent)
@@ -1617,4 +1617,4 @@ void BinEditorWidget::setMarkup(const QList<Markup> &markup)
     viewport()->update();
 }
 
-} // namespace BINEditor
+} // namespace BinEditor

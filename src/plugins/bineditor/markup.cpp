@@ -30,7 +30,7 @@
 #include "markup.h"
 
 /*!
-    \class BINEditor::Markup
+    \class BinEditor::Markup
     \brief The Markup class defines the range of the binary editor.
 
     Used for displaying class layouts by the debugger.

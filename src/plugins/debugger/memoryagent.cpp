@@ -146,7 +146,7 @@ bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
     if (flags & DebuggerEngine::MemoryView) {
         // Ask BIN editor plugin for factory service and have it create a bin editor widget.
         QWidget *binEditor = 0;
-        if (QObject *factory = ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("BINEditor::BinEditorWidgetFactory")))
+        if (QObject *factory = ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("BinEditor::BinEditorWidgetFactory")))
             binEditor = ExtensionSystem::invoke<QWidget *>(factory, "createWidget", (QWidget *)0);
         if (!binEditor)
             return false;
