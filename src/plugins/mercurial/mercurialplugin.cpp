@@ -151,7 +151,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
 
     static const char *describeSlot = SLOT(view(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(editorParameters[0]);
-    const auto widgetCreator = []() { return new MercurialEditor; };
+    const auto widgetCreator = []() { return new MercurialEditorWidget; };
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, m_client, describeSlot));
 
@@ -726,7 +726,7 @@ void MercurialPlugin::testDiffFileResolving_data()
 
 void MercurialPlugin::testDiffFileResolving()
 {
-    MercurialEditor editor;
+    MercurialEditorWidget editor;
     editor.setParameters(editorParameters + 2);
     editor.testDiffFileResolving();
 }
@@ -748,7 +748,7 @@ void MercurialPlugin::testLogResolving()
                 "date:        Sat Jan 19 04:08:16 2013 +0100\n"
                 "summary:     test-rebase: add another test for rebase with multiple roots\n"
                 );
-    MercurialEditor editor;
+    MercurialEditorWidget editor;
     editor.setParameters(editorParameters);
     editor.testLogResolving(data, "18473:692cbda1eb50", "18472:37100f30590f");
 }

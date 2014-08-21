@@ -37,12 +37,12 @@
 namespace Perforce {
 namespace Internal {
 
-class PerforceEditor : public VcsBase::VcsBaseEditorWidget
+class PerforceEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
 
 public:
-    PerforceEditor();
+    PerforceEditorWidget();
 
 private:
     QSet<QString> annotationChanges() const;

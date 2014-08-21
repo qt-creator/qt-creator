@@ -38,12 +38,12 @@
 namespace ClearCase {
 namespace Internal {
 
-class ClearCaseEditor : public VcsBase::VcsBaseEditorWidget
+class ClearCaseEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
 
 public:
-    ClearCaseEditor();
+    ClearCaseEditorWidget();
 
 private:
     QSet<QString> annotationChanges() const;

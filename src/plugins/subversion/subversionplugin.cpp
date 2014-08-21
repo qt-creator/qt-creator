@@ -269,7 +269,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
 
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
-    const auto widgetCreator = []() { return new SubversionEditor; };
+    const auto widgetCreator = []() { return new SubversionEditorWidget; };
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
 
@@ -1048,7 +1048,7 @@ IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const QStrin
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,QString,int)));
-    SubversionEditor *e = qobject_cast<SubversionEditor*>(editor->widget());
+    SubversionEditorWidget *e = qobject_cast<SubversionEditorWidget*>(editor->widget());
     if (!e)
         return 0;
     e->setForceReadOnly(true);
@@ -1283,7 +1283,7 @@ void SubversionPlugin::testDiffFileResolving_data()
 
 void SubversionPlugin::testDiffFileResolving()
 {
-    SubversionEditor editor;
+    SubversionEditorWidget editor;
     editor.setParameters(editorParameters + 2);
     editor.testDiffFileResolving();
 }
@@ -1306,7 +1306,7 @@ void SubversionPlugin::testLogResolving()
                 "   expectations, remove XFail.\n"
                 "\n"
                 );
-    SubversionEditor editor;
+    SubversionEditorWidget editor;
     editor.setParameters(editorParameters);
     editor.testLogResolving(data, "r1439551", "r1439540");
 }

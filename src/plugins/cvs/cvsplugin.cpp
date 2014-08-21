@@ -253,7 +253,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     static const char *describeSlotC = SLOT(slotDescribe(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
-    const auto widgetCreator = []() { return new CvsEditor; };
+    const auto widgetCreator = []() { return new CvsEditorWidget; };
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlotC));
 
@@ -1191,7 +1191,7 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(vcsAnnotate(QString,QString,QString,int)));
-    CvsEditor *e = qobject_cast<CvsEditor*>(editor->widget());
+    CvsEditorWidget *e = qobject_cast<CvsEditorWidget*>(editor->widget());
     if (!e)
         return 0;
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
@@ -1319,7 +1319,7 @@ void CvsPlugin::testDiffFileResolving_data()
 
 void CvsPlugin::testDiffFileResolving()
 {
-    CvsEditor editor;
+    CvsEditorWidget editor;
     editor.setParameters(editorParameters + 3);
     editor.testDiffFileResolving();
 }
@@ -1347,7 +1347,7 @@ void CvsPlugin::testLogResolving()
                 "added latest commentary\n"
                 "----------------------------\n"
                 );
-    CvsEditor editor;
+    CvsEditorWidget editor;
     editor.setParameters(editorParameters + 1);
     editor.testLogResolving(data, "1.3", "1.2");
 }

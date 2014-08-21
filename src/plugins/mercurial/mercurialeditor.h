@@ -37,11 +37,11 @@
 namespace Mercurial {
 namespace Internal {
 
-class MercurialEditor : public VcsBase::VcsBaseEditorWidget
+class MercurialEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
     Q_OBJECT
 public:
-    MercurialEditor();
+    MercurialEditorWidget();
 
 private:
     QSet<QString> annotationChanges() const;

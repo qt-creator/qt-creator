@@ -41,7 +41,7 @@
 using namespace Bazaar::Internal;
 using namespace Bazaar;
 
-BazaarEditor::BazaarEditor() :
+BazaarEditorWidget::BazaarEditorWidget() :
       m_changesetId(QLatin1String(Constants::CHANGESET_ID)),
       m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT))
 {
@@ -53,7 +53,7 @@ BazaarEditor::BazaarEditor() :
     setLogEntryPattern(QRegExp(QLatin1String("^revno: (\\d+)")));
 }
 
-QSet<QString> BazaarEditor::annotationChanges() const
+QSet<QString> BazaarEditorWidget::annotationChanges() const
 {
     QSet<QString> changes;
     const QString txt = toPlainText();
@@ -75,7 +75,7 @@ QSet<QString> BazaarEditor::annotationChanges() const
     return changes;
 }
 
-QString BazaarEditor::changeUnderCursor(const QTextCursor &cursorIn) const
+QString BazaarEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) const
 {
     // The test is done in two steps: first we check if the line contains a
     // changesetId. Then we check if the cursor is over the changesetId itself
@@ -105,7 +105,7 @@ QString BazaarEditor::changeUnderCursor(const QTextCursor &cursorIn) const
     return QString();
 }
 
-VcsBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *BazaarEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
     return new BazaarAnnotationHighlighter(changes);
 }

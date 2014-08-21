@@ -47,7 +47,7 @@ namespace Internal {
 #define CVS_REVISION_PATTERN "[\\d\\.]+"
 #define CVS_REVISION_AT_START_PATTERN "^(" CVS_REVISION_PATTERN ") "
 
-CvsEditor::CvsEditor() :
+CvsEditorWidget::CvsEditorWidget() :
     m_revisionAnnotationPattern(QLatin1String(CVS_REVISION_AT_START_PATTERN ".*$")),
     m_revisionLogPattern(QLatin1String("^revision  *(" CVS_REVISION_PATTERN ")$"))
 {
@@ -66,7 +66,7 @@ CvsEditor::CvsEditor() :
     setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
 }
 
-QSet<QString> CvsEditor::annotationChanges() const
+QSet<QString> CvsEditorWidget::annotationChanges() const
 {
     QSet<QString> changes;
     const QString txt = toPlainText();
@@ -90,7 +90,7 @@ QSet<QString> CvsEditor::annotationChanges() const
     return changes;
 }
 
-QString CvsEditor::changeUnderCursor(const QTextCursor &c) const
+QString CvsEditorWidget::changeUnderCursor(const QTextCursor &c) const
 {
     // Try to match "1.1" strictly:
     // 1) Annotation: Check for a revision number at the beginning of the line.
@@ -121,12 +121,12 @@ QString CvsEditor::changeUnderCursor(const QTextCursor &c) const
     return QString();
 }
 
-VcsBase::BaseAnnotationHighlighter *CvsEditor::createAnnotationHighlighter(const QSet<QString> &changes) const
+VcsBase::BaseAnnotationHighlighter *CvsEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
 {
     return new CvsAnnotationHighlighter(changes);
 }
 
-QStringList CvsEditor::annotationPreviousVersions(const QString &revision) const
+QStringList CvsEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
     if (isFirstRevision(revision))
         return QStringList();

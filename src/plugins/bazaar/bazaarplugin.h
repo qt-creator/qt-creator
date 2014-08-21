@@ -54,7 +54,7 @@ namespace Internal {
 class OptionsPage;
 class BazaarClient;
 class BazaarControl;
-class BazaarEditor;
+class BazaarEditorWidget;
 
 class BazaarPlugin : public VcsBase::VcsBasePlugin
 {

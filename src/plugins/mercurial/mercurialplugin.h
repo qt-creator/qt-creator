@@ -58,7 +58,7 @@ namespace Internal {
 class OptionsPage;
 class MercurialClient;
 class MercurialControl;
-class MercurialEditor;
+class MercurialEditorWidget;
 class MercurialSettings;
 
 class MercurialPlugin : public VcsBase::VcsBasePlugin

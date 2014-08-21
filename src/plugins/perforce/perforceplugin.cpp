@@ -244,7 +244,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
-    const auto widgetCreator = []() { return new PerforceEditor; };
+    const auto widgetCreator = []() { return new PerforceEditorWidget; };
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
 
@@ -1206,7 +1206,7 @@ IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(vcsAnnotate(QString,QString,QString,int)));
-    PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
+    PerforceEditorWidget *e = qobject_cast<PerforceEditorWidget*>(editor->widget());
     if (!e)
         return 0;
     e->setForceReadOnly(true);
@@ -1558,7 +1558,7 @@ void PerforcePlugin::testLogResolving()
                 "\n"
                 "        Comment\n"
                 );
-    PerforceEditor editor;
+    PerforceEditorWidget editor;
     editor.setParameters(editorParameters);
     editor.testLogResolving(data, "12345", "12344");
 }

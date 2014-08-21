@@ -465,7 +465,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     // any editor responds to describe (when clicking a version)
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters);
-    const auto widgetCreator = []() { return new ClearCaseEditor; };
+    const auto widgetCreator = []() { return new ClearCaseEditorWidget; };
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new VcsBase::VcsEditorFactory(editorParameters + i, widgetCreator, this, describeSlot));
 
@@ -1064,7 +1064,7 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
     IEditor *editor = showOutputInEditor(title, result, VcsBase::DiffOutput, source, codec);
     setWorkingDirectory(editor, workingDir);
     VcsBase::VcsBaseEditorWidget::tagEditor(editor, tag);
-    ClearCaseEditor *diffEditorWidget = qobject_cast<ClearCaseEditor *>(editor->widget());
+    ClearCaseEditorWidget *diffEditorWidget = qobject_cast<ClearCaseEditorWidget *>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return);
     if (files.count() == 1)
         editor->setProperty("originalFileName", diffname);
@@ -1527,7 +1527,7 @@ IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,QString,int)));
-    ClearCaseEditor *e = qobject_cast<ClearCaseEditor*>(editor->widget());
+    ClearCaseEditorWidget *e = qobject_cast<ClearCaseEditorWidget*>(editor->widget());
     if (!e)
         return 0;
     e->setForceReadOnly(true);
@@ -2230,7 +2230,7 @@ void ClearCasePlugin::testDiffFileResolving_data()
 
 void ClearCasePlugin::testDiffFileResolving()
 {
-    ClearCaseEditor editor;
+    ClearCaseEditorWidget editor;
     editor.setParameters(editorParameters + 2);
     editor.testDiffFileResolving();
 }
@@ -2241,7 +2241,7 @@ void ClearCasePlugin::testLogResolving()
                 "13-Sep.17:41   user1      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9\" (baseline1, baseline2, ...)\n"
                 "22-Aug.14:13   user2      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8\" (baseline3, baseline4, ...)\n"
                 );
-    ClearCaseEditor editor;
+    ClearCaseEditorWidget editor;
     editor.setParameters(editorParameters);
     editor.testLogResolving(data,
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9",
