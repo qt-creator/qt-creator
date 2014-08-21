@@ -32,7 +32,7 @@
 
 #include <texteditor/indenter.h>
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 class GlslIndenter : public TextEditor::Indenter
@@ -53,7 +53,7 @@ public:
                         const TextEditor::TabSettings &tabSettings);
 };
 
-} // Internal
-} // GLSLEditor
+} // namespace Internal
+} // namespace GlslEditor
 
 #endif // GLSLINDENTER_H

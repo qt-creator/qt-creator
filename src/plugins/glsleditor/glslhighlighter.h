@@ -31,7 +31,7 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 class GlslEditorWidget;
@@ -71,6 +71,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor
 
 #endif // GLSLHIGHLIGHTER_H

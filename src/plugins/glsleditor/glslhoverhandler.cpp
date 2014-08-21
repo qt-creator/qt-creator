@@ -40,7 +40,7 @@
 
 using namespace Core;
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 GlslHoverHandler::GlslHoverHandler(QObject *parent) : BaseHoverHandler(parent)
@@ -69,4 +69,4 @@ void GlslHoverHandler::decorateToolTip()
 }
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor

@@ -39,7 +39,7 @@
 #include <QTextBlock>
 #include <QTextCursor>
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 GlslIndenter::GlslIndenter()
@@ -116,4 +116,4 @@ void GlslIndenter::indent(QTextDocument *doc,
 }
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor

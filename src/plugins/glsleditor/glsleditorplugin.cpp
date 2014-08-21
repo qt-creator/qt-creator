@@ -68,7 +68,7 @@
 using namespace Core;
 using namespace TextEditor;
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 class GlslEditorPluginPrivate
@@ -132,7 +132,7 @@ bool GlslEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     addAutoReleasedObject(new GlslEditorFactory);
     addAutoReleasedObject(new GlslCompletionAssistProvider);
 
-    ActionContainer *contextMenu = ActionManager::createMenu(GLSLEditor::Constants::M_CONTEXT);
+    ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
     ActionContainer *glslToolsMenu = ActionManager::createMenu(Id(Constants::M_TOOLS_GLSL));
     glslToolsMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
     QMenu *menu = glslToolsMenu->menu();
@@ -213,12 +213,12 @@ bool GlslEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
     auto hf = new HighlighterFactory;
     hf->setProductType<Highlighter>();
-    hf->setId(GLSLEditor::Constants::C_GLSLEDITOR_ID);
-    hf->addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE);
-    hf->addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_VERT);
-    hf->addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG);
-    hf->addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES);
-    hf->addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES);
+    hf->setId(Constants::C_GLSLEDITOR_ID);
+    hf->addMimeType(Constants::GLSL_MIMETYPE);
+    hf->addMimeType(Constants::GLSL_MIMETYPE_VERT);
+    hf->addMimeType(Constants::GLSL_MIMETYPE_FRAG);
+    hf->addMimeType(Constants::GLSL_MIMETYPE_VERT_ES);
+    hf->addMimeType(Constants::GLSL_MIMETYPE_FRAG_ES);
     addAutoReleasedObject(hf);
 
     return true;
@@ -287,6 +287,6 @@ const GlslEditorPlugin::InitFile *GlslEditorPlugin::shaderInit(int variant)
 }
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor
 
-Q_EXPORT_PLUGIN(GLSLEditor::Internal::GLSLEditorPlugin)
+Q_EXPORT_PLUGIN(GlslEditor::Internal::GlslEditorPlugin)

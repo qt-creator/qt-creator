@@ -38,7 +38,7 @@ namespace Core { class IEditor; }
 
 namespace TextEditor { class BaseTextEditor; }
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 class GlslHoverHandler : public TextEditor::BaseHoverHandler
@@ -55,6 +55,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor
 
 #endif // GLSLHOVERHANDLER_H

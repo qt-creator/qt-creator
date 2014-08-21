@@ -75,9 +75,9 @@
 
 using namespace TextEditor;
 using namespace GLSL;
-using namespace GLSLEditor::Constants;
+using namespace GlslEditor::Constants;
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 enum {
@@ -395,4 +395,4 @@ Core::IEditor *GlslEditorFactory::createEditor()
 }
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor

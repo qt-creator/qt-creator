@@ -47,7 +47,7 @@ class TranslationUnitAST;
 class Scope;
 } // namespace GLSL
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 class GlslEditor;
@@ -132,6 +132,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor
 
 #endif // GLSLEDITOR_H

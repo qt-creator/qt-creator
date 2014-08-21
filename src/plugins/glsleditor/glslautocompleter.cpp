@@ -39,7 +39,7 @@
 
 using namespace CPlusPlus;
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 GlslCompleter::GlslCompleter()
@@ -135,4 +135,4 @@ QString GlslCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
 }
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor

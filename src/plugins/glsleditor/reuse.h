@@ -32,12 +32,12 @@
 
 #include <QtGlobal>
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 int languageVariant(const QString &mimeType);
 
-} // Internal
-} // GLSLEditor
+} // namespace Internal
+} // namespace GlslEditor
 
 #endif // REUSE_H

@@ -32,7 +32,7 @@
 
 #include <texteditor/autocompleter.h>
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 class GlslCompleter : public TextEditor::AutoCompleter
@@ -53,6 +53,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor
 
 #endif // GLSLAUTOCOMPLETER_H

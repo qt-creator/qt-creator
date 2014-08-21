@@ -43,7 +43,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace GLSLEditor {
+namespace GlslEditor {
 
 GlslFileWizard::GlslFileWizard(ShaderType shaderType)
     : m_shaderType(shaderType)

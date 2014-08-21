@@ -35,8 +35,8 @@
 
 #include <QDebug>
 
-using namespace GLSLEditor;
-using namespace GLSLEditor::Internal;
+using namespace GlslEditor;
+using namespace GlslEditor::Internal;
 using namespace TextEditor;
 
 Highlighter::Highlighter(QTextDocument *parent)

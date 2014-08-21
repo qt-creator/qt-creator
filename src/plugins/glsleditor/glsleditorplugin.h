@@ -33,7 +33,7 @@
 #include <extensionsystem/iplugin.h>
 #include <glsl/glsl.h>
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 class GlslEditorWidget;
@@ -70,6 +70,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor
 
 #endif // GLSLEDITORPLUGIN_H

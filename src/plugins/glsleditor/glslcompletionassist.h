@@ -46,7 +46,7 @@ namespace GLSL { class Function; }
 
 namespace TextEditor { class BasicProposalItem; }
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 class GlslCompletionAssistInterface;
@@ -110,6 +110,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor
 
 #endif // GLSLCOMPLETIONASSIST_H

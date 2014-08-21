@@ -32,7 +32,7 @@
 
 #include <coreplugin/basefilewizardfactory.h>
 
-namespace GLSLEditor {
+namespace GlslEditor {
 
 class GlslFileWizard: public Core::BaseFileWizardFactory
 {
@@ -63,6 +63,6 @@ private:
     ShaderType m_shaderType;
 };
 
-} // namespace GLSLEditor
+} // namespace GlslEditor
 
 #endif // GLSLFILEWIZARD_H

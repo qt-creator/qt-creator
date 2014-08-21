@@ -35,7 +35,7 @@
 
 using namespace GLSL;
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 int languageVariant(const QString &mimeType)
@@ -75,6 +75,6 @@ int languageVariant(const QString &mimeType)
     return variant;
 }
 
-} // Internal
-} // GLSLEditor
+} // namespace Internal
+} // namespace GlslEditor
 

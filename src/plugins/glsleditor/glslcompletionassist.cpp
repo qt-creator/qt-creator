@@ -61,7 +61,7 @@
 
 using namespace TextEditor;
 
-namespace GLSLEditor {
+namespace GlslEditor {
 namespace Internal {
 
 enum CompletionOrder {
@@ -472,4 +472,4 @@ GlslCompletionAssistInterface::GlslCompletionAssistInterface(QTextDocument *text
 }
 
 } // namespace Internal
-} // namespace GLSLEditor
+} // namespace GlslEditor
