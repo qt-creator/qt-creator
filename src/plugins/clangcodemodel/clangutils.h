@@ -45,12 +45,10 @@ QStringList clangNonProjectFileOptions(CppTools::ProjectFile::Kind kind);
 QStringList createPCHInclusionOptions(const QStringList &pchFiles);
 QStringList createPCHInclusionOptions(const QString &pchFile);
 
-QStringList clangLanguageOption(CppTools::ProjectFile::Kind fileKind);
-QStringList clangOptionsForC(CppTools::ProjectPart::CVersion cVersion,
-                             CppTools::ProjectPart::CXXExtensions cxxExtensions);
-QStringList clangOptionsForCxx(CppTools::ProjectPart::QtVersion qtVersion,
-                                     CppTools::ProjectPart::CXXVersion cxxVersion,
-                                     CppTools::ProjectPart::CXXExtensions cxxExtensions);
+QStringList clangLanguageOption(CppTools::ProjectFile::Kind fileKind, bool objcExt);
+QStringList clangOptionsForLanguage(CppTools::ProjectPart::QtVersion qtVersion,
+                                     CppTools::ProjectPart::LanguageVersion languageVersion,
+                                     CppTools::ProjectPart::LanguageExtensions languageExtensions);
 
 } // namespace Utils
 } // namespace Clang

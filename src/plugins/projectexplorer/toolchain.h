@@ -97,7 +97,10 @@ public:
         GnuExtensions = 0x8,
         MicrosoftExtensions = 0x10,
         BorlandExtensions = 0x20,
-        OpenMP = 0x40
+        OpenMP = 0x40,
+        ObjectiveC = 0x80,
+        StandardCxx14 = 0x100,
+        StandardCxx17 = 0x200
     };
     Q_DECLARE_FLAGS(CompilerFlags, CompilerFlag)
 

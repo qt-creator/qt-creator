@@ -97,7 +97,7 @@ public:
         QCOMPARE(projectInfo.project().data(), project);
 
         ProjectPart::Ptr part(new ProjectPart);
-        part->cxxVersion = ProjectPart::CXX98;
+        part->languageVersion = ProjectPart::CXX14;
         part->qtVersion = ProjectPart::Qt5;
         foreach (const QString &file, projectFiles) {
             ProjectFile projectFile(file, ProjectFile::classify(file));
@@ -221,7 +221,7 @@ void CppToolsPlugin::test_modelmanager_paths_are_clean()
     typedef ProjectPart::HeaderPath HeaderPath;
 
     ProjectPart::Ptr part(new ProjectPart);
-    part->cxxVersion = ProjectPart::CXX98;
+    part->languageVersion = ProjectPart::CXX14;
     part->qtVersion = ProjectPart::Qt5;
     part->projectDefines = QByteArray("#define OH_BEHAVE -1\n");
     part->headerPaths = QList<HeaderPath>()
@@ -257,7 +257,7 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     typedef ProjectPart::HeaderPath HeaderPath;
 
     ProjectPart::Ptr part(new ProjectPart);
-    part->cxxVersion = ProjectPart::CXX98;
+    part->languageVersion = ProjectPart::CXX14;
     part->qtVersion = ProjectPart::Qt5;
     part->projectDefines = QByteArray("#define OH_BEHAVE -1\n");
     part->headerPaths = QList<HeaderPath>()
@@ -310,7 +310,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     typedef ProjectPart::HeaderPath HeaderPath;
 
     ProjectPart::Ptr part(new ProjectPart);
-    part->cxxVersion = ProjectPart::CXX98;
+    part->languageVersion = ProjectPart::CXX14;
     part->qtVersion = ProjectPart::Qt5;
     part->projectDefines = QByteArray("#define OH_BEHAVE -1\n");
     part->headerPaths = QList<HeaderPath>()
@@ -371,7 +371,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
     QCOMPARE(pi.project().data(), project);
 
     ProjectPart::Ptr part(new ProjectPart);
-    part->cxxVersion = ProjectPart::CXX98;
+    part->languageVersion = ProjectPart::CXX14;
     part->qtVersion = ProjectPart::Qt5;
     part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
     part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
@@ -391,7 +391,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
         // Simulate project configuration change by having different defines each time.
         defines += "\n#define ANOTHER_DEFINE";
         part->projectDefines = defines;
-        part->cxxVersion = ProjectPart::CXX98;
+        part->languageVersion = ProjectPart::CXX14;
         part->qtVersion = ProjectPart::Qt5;
         part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
         part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
@@ -438,7 +438,7 @@ void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
     QCOMPARE(pi.project().data(), project);
 
     ProjectPart::Ptr part(new ProjectPart);
-    part->cxxVersion = ProjectPart::CXX98;
+    part->languageVersion = ProjectPart::CXX14;
     part->qtVersion = ProjectPart::Qt5;
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
@@ -476,7 +476,7 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     QCOMPARE(pi.project().data(), project);
 
     ProjectPart::Ptr part(new ProjectPart);
-    part->cxxVersion = ProjectPart::CXX98;
+    part->languageVersion = ProjectPart::CXX14;
     part->qtVersion = ProjectPart::Qt5;
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
@@ -499,7 +499,7 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     // Now add testHeader2 and remove testHeader1
     pi.clearProjectParts();
     ProjectPart::Ptr newPart(new ProjectPart);
-    newPart->cxxVersion = ProjectPart::CXX98;
+    newPart->languageVersion = ProjectPart::CXX14;
     newPart->qtVersion = ProjectPart::Qt5;
     newPart->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     newPart->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
@@ -535,7 +535,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     QCOMPARE(pi.project().data(), project);
 
     ProjectPart::Ptr part(new ProjectPart);
-    part->cxxVersion = ProjectPart::CXX98;
+    part->languageVersion = ProjectPart::CXX14;
     part->qtVersion = ProjectPart::Qt5;
     foreach (const ProjectFile &file, initialProjectFiles)
         part->files.append(file);
@@ -829,7 +829,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     part1->projectFile = QLatin1String("project1.projectfile");
     part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
     part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part1->cxxVersion = ProjectPart::CXX11;
+    part1->languageVersion = ProjectPart::CXX11;
     part1->qtVersion = ProjectPart::NoQt;
     part1->projectDefines = QByteArray("#define SUB1\n");
     part1->headerPaths = QList<HeaderPath>()
@@ -839,7 +839,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     part2->projectFile = QLatin1String("project1.projectfile");
     part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
     part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part2->cxxVersion = ProjectPart::CXX11;
+    part2->languageVersion = ProjectPart::CXX11;
     part2->qtVersion = ProjectPart::NoQt;
     part2->projectDefines = QByteArray("#define SUB2\n");
     part2->headerPaths = QList<HeaderPath>()
@@ -905,7 +905,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     part1->projectFile = QLatin1String("project1.projectfile");
     part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
     part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part1->cxxVersion = ProjectPart::CXX11;
+    part1->languageVersion = ProjectPart::CXX11;
     part1->qtVersion = ProjectPart::NoQt;
     part1->precompiledHeaders.append(pch1File);
     part1->headerPaths = QList<HeaderPath>()
@@ -915,7 +915,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     part2->projectFile = QLatin1String("project2.projectfile");
     part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
     part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part2->cxxVersion = ProjectPart::CXX11;
+    part2->languageVersion = ProjectPart::CXX11;
     part2->qtVersion = ProjectPart::NoQt;
     part2->precompiledHeaders.append(pch2File);
     part2->headerPaths = QList<HeaderPath>()
@@ -989,7 +989,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
     ProjectPart::Ptr part1(new ProjectPart);
     part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
     part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part1->cxxVersion = ProjectPart::CXX11;
+    part1->languageVersion = ProjectPart::CXX11;
     part1->qtVersion = ProjectPart::NoQt;
     part1->headerPaths = QList<HeaderPath>()
             << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);
@@ -997,7 +997,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
     ProjectPart::Ptr part2(new ProjectPart);
     part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
     part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
-    part2->cxxVersion = ProjectPart::CXX11;
+    part2->languageVersion = ProjectPart::CXX11;
     part2->qtVersion = ProjectPart::NoQt;
     part2->headerPaths = QList<HeaderPath>()
             << HeaderPath(testDataDirectory.includeDir(false), HeaderPath::IncludePath);

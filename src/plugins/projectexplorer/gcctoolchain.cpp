@@ -448,8 +448,14 @@ ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags
             } else if (std == "gnu++98" || std == "gnu++03") {
                 flags &= ~StandardCxx11;
                 flags |= GnuExtensions;
-            } else if (std == "c++0x" || std == "c++11" || std== "c++1y") {
+            } else if (std == "c++0x" || std == "c++11") {
                 flags |= StandardCxx11;
+                flags &= ~GnuExtensions;
+            } else if (std == "c++14" || std == "c++1y") {
+                flags |= StandardCxx14;
+                flags &= ~GnuExtensions;
+            } else if (std == "c++17" || std == "c++1z") {
+                flags |= StandardCxx17;
                 flags &= ~GnuExtensions;
             } else if (std == "gnu++0x" || std == "gnu++11" || std== "gnu++1y") {
                 flags |= CompilerFlags(StandardCxx11 | GnuExtensions);

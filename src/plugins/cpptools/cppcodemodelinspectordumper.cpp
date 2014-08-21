@@ -90,44 +90,38 @@ QString Utils::toString(CPlusPlus::Document::DiagnosticMessage::Level level)
     return QString();
 }
 
-QString Utils::toString(ProjectPart::CVersion cVersion)
+QString Utils::toString(ProjectPart::LanguageVersion languageVersion)
 {
-#define CASE_CVERSION(x) case ProjectPart::x: return QLatin1String(#x)
-    switch (cVersion) {
-    CASE_CVERSION(C89);
-    CASE_CVERSION(C99);
-    CASE_CVERSION(C11);
+#define CASE_LANGUAGEVERSION(x) case ProjectPart::x: return QLatin1String(#x)
+    switch (languageVersion) {
+    CASE_LANGUAGEVERSION(C89);
+    CASE_LANGUAGEVERSION(C99);
+    CASE_LANGUAGEVERSION(C11);
+    CASE_LANGUAGEVERSION(CXX98);
+    CASE_LANGUAGEVERSION(CXX03);
+    CASE_LANGUAGEVERSION(CXX11);
+    CASE_LANGUAGEVERSION(CXX14);
+    CASE_LANGUAGEVERSION(CXX17);
     // no default to get a compiler warning if anything is added
     }
-#undef CASE_CVERSION
+#undef CASE_LANGUAGEVERSION
     return QString();
 }
 
-QString Utils::toString(ProjectPart::CXXVersion cxxVersion)
-{
-#define CASE_CXXVERSION(x) case ProjectPart::x: return QLatin1String(#x)
-    switch (cxxVersion) {
-    CASE_CXXVERSION(CXX98);
-    CASE_CXXVERSION(CXX11);
-    // no default to get a compiler warning if anything is added
-    }
-#undef CASE_CXXVERSION
-    return QString();
-}
-
-QString Utils::toString(ProjectPart::CXXExtensions cxxExtension)
+QString Utils::toString(ProjectPart::LanguageExtensions languageExtension)
 {
     QString result;
 
-#define CASE_CXXEXTENSION(ext) if (cxxExtension & ProjectPart::ext) \
+#define CASE_LANGUAGE_EXTENSION(ext) if (languageExtension & ProjectPart::ext) \
     result += QLatin1String(#ext ", ");
 
-    CASE_CXXEXTENSION(NoExtensions);
-    CASE_CXXEXTENSION(GnuExtensions);
-    CASE_CXXEXTENSION(MicrosoftExtensions);
-    CASE_CXXEXTENSION(BorlandExtensions);
-    CASE_CXXEXTENSION(OpenMPExtensions);
-#undef CASE_CXXEXTENSION
+    CASE_LANGUAGE_EXTENSION(NoExtensions);
+    CASE_LANGUAGE_EXTENSION(GnuExtensions);
+    CASE_LANGUAGE_EXTENSION(MicrosoftExtensions);
+    CASE_LANGUAGE_EXTENSION(BorlandExtensions);
+    CASE_LANGUAGE_EXTENSION(OpenMPExtensions);
+    CASE_LANGUAGE_EXTENSION(ObjectiveCExtensions);
+#undef CASE_LANGUAGE_EXTENSION
     if (result.endsWith(QLatin1String(", ")))
         result.chop(2);
     return result;
@@ -496,13 +490,13 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
             if (!part->projectConfigFile.isEmpty())
                 m_out << i3 << "Project Config File: " << part->projectConfigFile << "\n";
             m_out << i2 << "Project Part \"" << part->projectFile << "\"{{{3\n";
-            m_out << i3 << "Project Part Name  : " << part->displayName << "\n";
-            m_out << i3 << "Project Name       : " << projectName << "\n";
-            m_out << i3 << "Project File       : " << projectFilePath << "\n";
-            m_out << i3 << "C Version          : " << Utils::toString(part->cVersion) << "\n";
-            m_out << i3 << "CXX Version        : " << Utils::toString(part->cxxVersion) << "\n";
-            m_out << i3 << "CXX Extensions     : " << Utils::toString(part->cxxExtensions) << "\n";
-            m_out << i3 << "Qt Version         : " << Utils::toString(part->qtVersion) << "\n";
+            m_out << i3 << "Project Part Name   : " << part->displayName << "\n";
+            m_out << i3 << "Project Name        : " << projectName << "\n";
+            m_out << i3 << "Project File        : " << projectFilePath << "\n";
+            m_out << i3 << "Lanugage Version    : " << Utils::toString(part->languageVersion)<<"\n";
+            m_out << i3 << "Lanugage Extensions : " << Utils::toString(part->languageExtensions)
+                  << "\n";
+            m_out << i3 << "Qt Version          : " << Utils::toString(part->qtVersion) << "\n";
 
             if (!part->files.isEmpty()) {
                 m_out << i3 << "Files:{{{4\n";

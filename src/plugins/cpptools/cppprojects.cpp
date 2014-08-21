@@ -44,12 +44,10 @@ using namespace ProjectExplorer;
 
 ProjectPart::ProjectPart()
     : project(0)
-    , cVersion(C89)
-    , cxxVersion(CXX11)
-    , cxxExtensions(NoExtensions)
+    , languageVersion(CXX14)
+    , languageExtensions(NoExtensions)
     , qtVersion(UnknownQt)
-    , cWarningFlags(ProjectExplorer::ToolChain::WarningsDefault)
-    , cxxWarningFlags(ProjectExplorer::ToolChain::WarningsDefault)
+    , warningFlags(ProjectExplorer::ToolChain::WarningsDefault)
 {
 }
 
@@ -61,43 +59,42 @@ ProjectPart::ProjectPart()
     \param cflags C or ObjectiveC flags if possible, \a cxxflags otherwise.
 */
 void ProjectPart::evaluateToolchain(const ProjectExplorer::ToolChain *tc,
-                                    const QStringList &cxxflags,
-                                    const QStringList &cflags,
+                                    const QStringList &commandLineFlags,
                                     const Utils::FileName &sysRoot)
 {
     if (!tc)
         return;
 
     using namespace ProjectExplorer;
-    ToolChain::CompilerFlags cxx = tc->compilerFlags(cxxflags);
-    ToolChain::CompilerFlags c = (cxxflags == cflags)
-            ? cxx : tc->compilerFlags(cflags);
+    ToolChain::CompilerFlags flags = tc->compilerFlags(commandLineFlags);
 
-    if (c & ToolChain::StandardC11)
-        cVersion = C11;
-    else if (c & ToolChain::StandardC99)
-        cVersion = C99;
+    if (flags & ToolChain::StandardC11)
+        languageVersion = C11;
+    else if (flags & ToolChain::StandardC99)
+        languageVersion = C99;
+    else if (flags & ToolChain::StandardCxx17)
+        languageVersion = CXX17;
+    else if (flags & ToolChain::StandardCxx14)
+        languageVersion = CXX14;
+    else if (flags & ToolChain::StandardCxx11)
+        languageVersion = CXX11;
     else
-        cVersion = C89;
+        languageVersion = CXX11;
 
-    if (cxx & ToolChain::StandardCxx11)
-        cxxVersion = CXX11;
-    else
-        cxxVersion = CXX98;
+    if (flags & ToolChain::BorlandExtensions)
+        languageExtensions |= BorlandExtensions;
+    if (flags & ToolChain::GnuExtensions)
+        languageExtensions |= GnuExtensions;
+    if (flags & ToolChain::MicrosoftExtensions)
+        languageExtensions |= MicrosoftExtensions;
+    if (flags & ToolChain::OpenMP)
+        languageExtensions |= OpenMPExtensions;
+    if (flags & ToolChain::ObjectiveC)
+        languageExtensions |= ObjectiveCExtensions;
 
-    if (cxx & ToolChain::BorlandExtensions)
-        cxxExtensions |= BorlandExtensions;
-    if (cxx & ToolChain::GnuExtensions)
-        cxxExtensions |= GnuExtensions;
-    if (cxx & ToolChain::MicrosoftExtensions)
-        cxxExtensions |= MicrosoftExtensions;
-    if (cxx & ToolChain::OpenMP)
-        cxxExtensions |= OpenMPExtensions;
+    warningFlags = tc->warningFlags(commandLineFlags);
 
-    cWarningFlags = tc->warningFlags(cflags);
-    cxxWarningFlags = tc->warningFlags(cxxflags);
-
-    const QList<ProjectExplorer::HeaderPath> headers = tc->systemHeaderPaths(cxxflags, sysRoot);
+    const QList<ProjectExplorer::HeaderPath> headers = tc->systemHeaderPaths(commandLineFlags, sysRoot);
     foreach (const ProjectExplorer::HeaderPath &header, headers) {
         headerPaths << ProjectPart::HeaderPath(header.path(),
                                 header.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath
@@ -105,7 +102,7 @@ void ProjectPart::evaluateToolchain(const ProjectExplorer::ToolChain *tc,
                                     : ProjectPart::HeaderPath::IncludePath);
     }
 
-    toolchainDefines = tc->predefinedMacros(cxxflags);
+    toolchainDefines = tc->predefinedMacros(commandLineFlags);
 }
 
 ProjectPart::Ptr ProjectPart::copy() const
@@ -389,7 +386,7 @@ QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList
         createProjectPart(cat.cSources(),
                           cat.partName(QCoreApplication::translate("CppTools", "C11")),
                           ProjectPart::C11,
-                          ProjectPart::CXX11);
+                          ProjectPart::NoExtensions);
         // TODO: there is no C...
 //        languages += ProjectExplorer::Constants::LANG_C;
     }
@@ -397,22 +394,22 @@ QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList
         createProjectPart(cat.objcSources(),
                           cat.partName(QCoreApplication::translate("CppTools", "Obj-C11")),
                           ProjectPart::C11,
-                          ProjectPart::CXX11);
+                          ProjectPart::ObjectiveCExtensions);
         // TODO: there is no Ojective-C...
 //        languages += ProjectExplorer::Constants::LANG_OBJC;
     }
     if (cat.hasCxxSources()) {
         createProjectPart(cat.cxxSources(),
                           cat.partName(QCoreApplication::translate("CppTools", "C++11")),
-                          ProjectPart::C11,
-                          ProjectPart::CXX11);
+                          ProjectPart::CXX11,
+                          ProjectPart::NoExtensions);
         languages += ProjectExplorer::Constants::LANG_CXX;
     }
     if (cat.hasObjcxxSources()) {
         createProjectPart(cat.objcxxSources(),
                           cat.partName(QCoreApplication::translate("CppTools", "Obj-C++11")),
-                          ProjectPart::C11,
-                          ProjectPart::CXX11);
+                          ProjectPart::CXX11,
+                          ProjectPart::ObjectiveCExtensions);
         // TODO: there is no Objective-C++...
         languages += ProjectExplorer::Constants::LANG_CXX;
     }
@@ -422,18 +419,20 @@ QList<Core::Id> ProjectPartBuilder::createProjectPartsForFiles(const QStringList
 
 void ProjectPartBuilder::createProjectPart(const QStringList &theSources,
                                            const QString &partName,
-                                           ProjectPart::CVersion cVersion,
-                                           ProjectPart::CXXVersion cxxVersion)
+                                           ProjectPart::LanguageVersion languageVersion,
+                                           ProjectPart::LanguageExtensions languageExtensions)
 {
     CppTools::ProjectPart::Ptr part(m_templatePart->copy());
     part->displayName = partName;
 
     Kit *k = part->project->activeTarget()->kit();
     if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
-        part->evaluateToolchain(tc, m_cFlags, m_cxxFlags, SysRootKitInformation::sysRoot(k));
+        part->evaluateToolchain(tc,
+                                languageVersion >= ProjectPart::CXX98 ? m_cxxFlags
+                                                                      : m_cFlags,
+                                SysRootKitInformation::sysRoot(k));
 
-    part->cVersion = cVersion;
-    part->cxxVersion = cxxVersion;
+    part->languageExtensions |= languageExtensions;
 
     CppTools::ProjectFileAdder adder(part->files);
     foreach (const QString &file, theSources)

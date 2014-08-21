@@ -580,7 +580,6 @@ void QmakeProject::updateCppCodeModel()
             const QStringList cxxflags = pro->variableValue(CppFlagsVar);
             cppPart->evaluateToolchain(ToolChainKitInformation::toolChain(k),
                                        cxxflags,
-                                       cxxflags,
                                        SysRootKitInformation::sysRoot(k));
 
             if (!cppPart->files.isEmpty()) {
@@ -604,7 +603,6 @@ void QmakeProject::updateCppCodeModel()
 
             const QStringList cxxflags = pro->variableValue(CppFlagsVar);
             objcppPart->evaluateToolchain(ToolChainKitInformation::toolChain(k),
-                                          cxxflags,
                                           cxxflags,
                                           SysRootKitInformation::sysRoot(k));
 

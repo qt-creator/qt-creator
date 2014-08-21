@@ -45,27 +45,29 @@ namespace CppTools {
 class CPPTOOLS_EXPORT ProjectPart
 {
 public: // Types
-    enum CVersion {
+    enum LanguageVersion {
         C89,
         C99,
-        C11
-    };
-
-    enum CXXVersion {
+        C11,
         CXX98,
-        CXX11
+        CXX03,
+        CXX11,
+        CXX14,
+        CXX17
     };
 
-    enum CXXExtension {
-        NoExtensions = 0x0,
-        GnuExtensions = 0x1,
-        MicrosoftExtensions = 0x2,
-        BorlandExtensions = 0x4,
-        OpenMPExtensions = 0x8,
+    enum LanguageExtension {
+        NoExtensions         = 0,
+        GnuExtensions        = 1 << 0,
+        MicrosoftExtensions  = 1 << 1,
+        BorlandExtensions    = 1 << 2,
+        OpenMPExtensions     = 1 << 3,
+        ObjectiveCExtensions = 1 << 4,
 
         AllExtensions = GnuExtensions | MicrosoftExtensions | BorlandExtensions | OpenMPExtensions
+                      | ObjectiveCExtensions
     };
-    Q_DECLARE_FLAGS(CXXExtensions, CXXExtension)
+    Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
 
     enum QtVersion {
         UnknownQt = -1,
@@ -101,8 +103,7 @@ public: // methods
     ProjectPart();
 
     void evaluateToolchain(const ProjectExplorer::ToolChain *tc,
-                           const QStringList &cxxflags,
-                           const QStringList &cflags,
+                           const QStringList &commandLineFlags,
                            const Utils::FileName &sysRoot);
 
     Ptr copy() const;
@@ -121,12 +122,10 @@ public: // fields
     QByteArray toolchainDefines;
     QList<HeaderPath> headerPaths;
     QStringList precompiledHeaders;
-    CVersion cVersion;
-    CXXVersion cxxVersion;
-    CXXExtensions cxxExtensions;
+    LanguageVersion languageVersion;
+    LanguageExtensions languageExtensions;
     QtVersion qtVersion;
-    ProjectExplorer::ToolChain::WarningFlags cWarningFlags;
-    ProjectExplorer::ToolChain::WarningFlags cxxWarningFlags;
+    ProjectExplorer::ToolChain::WarningFlags warningFlags;
 };
 
 inline uint qHash(const ProjectPart::HeaderPath &key, uint seed = 0)
@@ -182,7 +181,8 @@ public:
 
 private:
     void createProjectPart(const QStringList &theSources, const QString &partName,
-                           ProjectPart::CVersion cVersion, ProjectPart::CXXVersion cxxVersion);
+                           ProjectPart::LanguageVersion languageVersion,
+                           ProjectPart::LanguageExtensions languageExtensions);
 
 private:
     ProjectPart::Ptr m_templatePart;

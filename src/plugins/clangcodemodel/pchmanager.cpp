@@ -253,9 +253,8 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
     QHash<QString, bool> objc;
     QHash<QString, bool> cplusplus;
     QHash<QString, ProjectPart::QtVersion> qtVersions;
-    QHash<QString, ProjectPart::CVersion> cVersions;
-    QHash<QString, ProjectPart::CXXVersion> cxxVersions;
-    QHash<QString, ProjectPart::CXXExtensions> cxxExtensionsMap;
+    QHash<QString, ProjectPart::LanguageVersion> languageVersions;
+    QHash<QString, ProjectPart::LanguageExtensions> languageExtensionsMap;
     QHash<QString, QList<ProjectPart::Ptr> > inputToParts;
     foreach (const ProjectPart::Ptr &projectPart, params.projectParts) {
         if (projectPart->precompiledHeaders.isEmpty())
@@ -266,9 +265,9 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
         inputToParts[pch].append(projectPart);
 
         headers[pch].unite(QSet<HeaderPath>::fromList(projectPart->headerPaths));
-        cVersions[pch] = std::max(cVersions.value(pch, ProjectPart::C89), projectPart->cVersion);
-        cxxVersions[pch] = std::max(cxxVersions.value(pch, ProjectPart::CXX98), projectPart->cxxVersion);
-        cxxExtensionsMap[pch] = cxxExtensionsMap[pch] | projectPart->cxxExtensions;
+        languageVersions[pch] = std::max(languageVersions.value(pch, ProjectPart::C89),
+                                         projectPart->languageVersion);
+        languageExtensionsMap[pch] = languageExtensionsMap[pch] | projectPart->languageExtensions;
 
         if (hasObjCFiles(projectPart))
             objc[pch] = true;
@@ -301,9 +300,8 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
             return;
         ProjectPart::Ptr projectPart(new ProjectPart);
         projectPart->qtVersion = qtVersions[pch];
-        projectPart->cVersion = cVersions[pch];
-        projectPart->cxxVersion = cxxVersions[pch];
-        projectPart->cxxExtensions = cxxExtensionsMap[pch];
+        projectPart->languageVersion = languageVersions[pch];
+        projectPart->languageExtensions = languageExtensionsMap[pch];
         projectPart->headerPaths = headers[pch].toList();
 
         QList<QByteArray> defines = definesPerPCH[pch].toList();
@@ -379,11 +377,10 @@ void PchManager::doPchInfoUpdateCustom(QFutureInterface<void> &future,
     bool objc = false;
     bool cplusplus = false;
     ProjectPart::Ptr united(new ProjectPart());
-    united->cxxVersion = ProjectPart::CXX98;
+    united->languageVersion = ProjectPart::C89;
     foreach (const ProjectPart::Ptr &projectPart, params.projectParts) {
         headers += projectPart->headerPaths;
-        united->cVersion = std::max(united->cVersion, projectPart->cVersion);
-        united->cxxVersion = std::max(united->cxxVersion, projectPart->cxxVersion);
+        united->languageVersion = std::max(united->languageVersion, projectPart->languageVersion);
         united->qtVersion = std::max(united->qtVersion, projectPart->qtVersion);
         objc |= hasObjCFiles(projectPart);
         cplusplus |= hasCppFiles(projectPart);

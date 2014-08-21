@@ -1619,12 +1619,10 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
                      QDir::toNativeSeparators(part->projectFile))
         << qMakePair(QString::fromLatin1("Project Name"), projectName)
         << qMakePair(QString::fromLatin1("Project File"), projectFilePath)
-        << qMakePair(QString::fromLatin1("C Version"),
-                     CMI::Utils::toString(part->cVersion))
-        << qMakePair(QString::fromLatin1("CXX Version"),
-                     CMI::Utils::toString(part->cxxVersion))
-        << qMakePair(QString::fromLatin1("CXX Extensions"),
-                     CMI::Utils::toString(part->cxxExtensions))
+        << qMakePair(QString::fromLatin1("Language Version"),
+                     CMI::Utils::toString(part->languageVersion))
+        << qMakePair(QString::fromLatin1("Language Extensions"),
+                     CMI::Utils::toString(part->languageExtensions))
         << qMakePair(QString::fromLatin1("Qt Version"),
                      CMI::Utils::toString(part->qtVersion))
         ;

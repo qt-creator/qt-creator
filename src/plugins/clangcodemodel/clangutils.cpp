@@ -164,27 +164,11 @@ static QString getResourceDir()
  */
 QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind fileKind)
 {
-    QStringList result = clangLanguageOption(fileKind);
-    switch (fileKind) {
-    default:
-    case CppTools::ProjectFile::CXXHeader:
-    case CppTools::ProjectFile::CXXSource:
-    case CppTools::ProjectFile::ObjCXXHeader:
-    case CppTools::ProjectFile::ObjCXXSource:
-    case CppTools::ProjectFile::CudaSource:
-    case CppTools::ProjectFile::OpenCLSource:
-        result << clangOptionsForCxx(pPart->qtVersion,
-                                     pPart->cxxVersion,
-                                     pPart->cxxExtensions);
-        break;
-    case CppTools::ProjectFile::CHeader:
-    case CppTools::ProjectFile::CSource:
-    case CppTools::ProjectFile::ObjCHeader:
-    case CppTools::ProjectFile::ObjCSource:
-        result << clangOptionsForC(pPart->cVersion,
-                                   pPart->cxxExtensions);
-        break;
-    }
+    const bool objcExt = pPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
+    QStringList result = clangLanguageOption(fileKind, objcExt);
+    result << clangOptionsForLanguage(pPart->qtVersion,
+                                      pPart->languageVersion,
+                                      pPart->languageExtensions);
 
     if (pPart.isNull())
         return result;
@@ -204,6 +188,7 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
     result << QLatin1String("-fdiagnostics-show-note-include-stack");
     result << QLatin1String("-fmacro-backtrace-limit=0");
     result << QLatin1String("-fretain-comments-from-system-headers");
+    // TODO: -Xclang -ferror-limit -Xclang 0 ?
 
     if (!pPart->projectConfigFile.isEmpty())
         result << QLatin1String("-include") << pPart->projectConfigFile;
@@ -263,57 +248,45 @@ QStringList createPCHInclusionOptions(const QString &pchFile)
 }
 
 /// @return "-std" flag to select standard, flags for C extensions
-QStringList clangOptionsForC(ProjectPart::CVersion cVersion, ProjectPart::CXXExtensions cxxExtensions)
+/// @return "-std" flag to select standard, flags for C++ extensions, Qt injections
+QStringList clangOptionsForLanguage(CppTools::ProjectPart::QtVersion qtVersion,
+                                    CppTools::ProjectPart::LanguageVersion languageVersion,
+                                    ProjectPart::LanguageExtensions languageExtensions)
 {
     QStringList opts;
-    bool gnuExpensions = cxxExtensions & ProjectPart::GnuExtensions;
-    switch (cVersion) {
+    bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
+    switch (languageVersion) {
     case ProjectPart::C89:
-        opts << (gnuExpensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
+        opts << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
         break;
     case ProjectPart::C99:
-        opts << (gnuExpensions ? QLatin1String("-std=gnu99") : QLatin1String("-std=c99"));
+        opts << (gnuExtensions ? QLatin1String("-std=gnu99") : QLatin1String("-std=c99"));
         break;
     case ProjectPart::C11:
-        opts << (gnuExpensions ? QLatin1String("-std=gnu11") : QLatin1String("-std=c11"));
+        opts << (gnuExtensions ? QLatin1String("-std=gnu11") : QLatin1String("-std=c11"));
         break;
-    }
-
-    if (cxxExtensions & ProjectPart::MicrosoftExtensions) {
-        opts << QLatin1String("-fms-extensions");
-    }
-
-#if defined(CINDEX_VERSION) // clang 3.2 or higher
-    if (cxxExtensions & ProjectPart::BorlandExtensions)
-        opts << QLatin1String("-fborland-extensions");
-#endif
-
-    return opts;
-}
-
-/// @return "-std" flag to select standard, flags for C++ extensions, Qt injections
-QStringList clangOptionsForCxx(ProjectPart::QtVersion qtVersion,
-                                      ProjectPart::CXXVersion cxxVersion,
-                                      ProjectPart::CXXExtensions cxxExtensions)
-{
-    QStringList opts;
-    bool gnuExpensions = cxxExtensions & ProjectPart::GnuExtensions;
-    switch (cxxVersion) {
     case ProjectPart::CXX11:
-        opts << (gnuExpensions ? QLatin1String("-std=gnu++11") : QLatin1String("-std=c++11"));
+        opts << (gnuExtensions ? QLatin1String("-std=gnu++11") : QLatin1String("-std=c++11"));
         break;
     case ProjectPart::CXX98:
-        opts << (gnuExpensions ? QLatin1String("-std=gnu++98") : QLatin1String("-std=c++98"));
+        opts << (gnuExtensions ? QLatin1String("-std=gnu++98") : QLatin1String("-std=c++98"));
+        break;
+    case ProjectPart::CXX03:
+        opts << QLatin1String("-std=c++03");
+        break;
+    case ProjectPart::CXX14:
+        opts << QLatin1String("-std=c++1y"); // TODO: change to c++14 after 3.5
+        break;
+    case ProjectPart::CXX17:
+        opts << QLatin1String("-std=c++1z"); // TODO: change to c++17 at some point in the future
         break;
     }
 
-    if (cxxExtensions & ProjectPart::MicrosoftExtensions) {
-        opts << QLatin1String("-fms-extensions")
-             << QLatin1String("-fdelayed-template-parsing");
-    }
+    if (languageExtensions & ProjectPart::MicrosoftExtensions)
+        opts << QLatin1String("-fms-extensions");
 
 #if defined(CINDEX_VERSION) // clang 3.2 or higher
-    if (cxxExtensions & ProjectPart::BorlandExtensions)
+    if (languageExtensions & ProjectPart::BorlandExtensions)
         opts << QLatin1String("-fborland-extensions");
 #endif
 
@@ -327,37 +300,48 @@ QStringList clangOptionsForCxx(ProjectPart::QtVersion qtVersion,
 }
 
 /// @return "-x language-code"
-QStringList clangLanguageOption(ProjectFile::Kind fileKind)
+QStringList clangLanguageOption(ProjectFile::Kind fileKind, bool objcExt)
 {
     QStringList opts;
     opts += QLatin1String("-x");
 
     switch (fileKind) {
     case ProjectFile::CHeader:
-//        opts += QLatin1String("c-header");
-//        break;
+        if (objcExt)
+            opts += QLatin1String("objective-c-header");
+        else
+            opts += QLatin1String("c-header");
+        break;
+
     case ProjectFile::CXXHeader:
     default:
-        opts += QLatin1String("c++-header");
-        break;
-    case ProjectFile::CXXSource:
-        opts += QLatin1String("c++");
-        break;
-    case ProjectFile::CSource:
-        opts += QLatin1String("c");
-        break;
+        if (!objcExt) {
+            opts += QLatin1String("c++-header");
+            break;
+        } // else: fall-through!
     case ProjectFile::ObjCHeader:
-//        opts += QLatin1String("objective-c-header");
-//        break;
     case ProjectFile::ObjCXXHeader:
         opts += QLatin1String("objective-c++-header");
         break;
+
+    case ProjectFile::CSource:
+        if (!objcExt) {
+            opts += QLatin1String("c");
+            break;
+        } // else: fall-through!
     case ProjectFile::ObjCSource:
         opts += QLatin1String("objective-c");
         break;
+
+    case ProjectFile::CXXSource:
+        if (!objcExt) {
+            opts += QLatin1String("c++");
+            break;
+        } // else: fall-through!
     case ProjectFile::ObjCXXSource:
         opts += QLatin1String("objective-c++");
         break;
+
     case ProjectFile::OpenCLSource:
         opts += QLatin1String("cl");
         break;

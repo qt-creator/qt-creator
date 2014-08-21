@@ -746,9 +746,8 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart() const
 
     part->projectDefines = m_definedMacros;
     part->headerPaths = m_headerPaths;
-    part->cVersion = ProjectPart::C11;
-    part->cxxVersion = ProjectPart::CXX11;
-    part->cxxExtensions = ProjectPart::AllExtensions;
+    part->languageVersion = ProjectPart::CXX14;
+    part->languageExtensions = ProjectPart::AllExtensions;
     part->qtVersion = ProjectPart::Qt5;
 
     return part;

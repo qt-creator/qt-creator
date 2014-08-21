@@ -48,9 +48,8 @@ struct CPPTOOLS_EXPORT Utils
     static QString toString(const QDateTime &dateTime);
     static QString toString(CPlusPlus::Document::CheckMode checkMode);
     static QString toString(CPlusPlus::Document::DiagnosticMessage::Level level);
-    static QString toString(CppTools::ProjectPart::CVersion cVersion);
-    static QString toString(CppTools::ProjectPart::CXXVersion cxxVersion);
-    static QString toString(CppTools::ProjectPart::CXXExtensions cxxExtension);
+    static QString toString(CppTools::ProjectPart::LanguageVersion languageVersion);
+    static QString toString(CppTools::ProjectPart::LanguageExtensions languageExtension);
     static QString toString(CppTools::ProjectPart::QtVersion qtVersion);
     static QString toString(const QList<CppTools::ProjectFile> &projectFiles);
     static QString toString(CppTools::ProjectFile::Kind kind);
