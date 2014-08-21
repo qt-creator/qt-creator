@@ -96,9 +96,11 @@ CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
 
 IEditor *CppEditorFactory::createEditor()
 {
-    CppEditorWidget *editor = new CppEditorWidget(BaseTextDocumentPtr(new CPPEditorDocument));
-    m_owner->initializeEditor(editor);
-    return editor->editor();
+    CPPEditor *editor = new CPPEditor;
+    CppEditorWidget *widget = new CppEditorWidget(BaseTextDocumentPtr(new CPPEditorDocument), editor);
+    m_owner->initializeEditor(widget);
+    editor->configureCodeAssistant();
+    return editor;
 }
 
 ///////////////////////////////// CppEditorPlugin //////////////////////////////////

@@ -75,7 +75,7 @@ public:
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 
 public:
-    CppEditorWidget(TextEditor::BaseTextDocumentPtr doc);
+    CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CPPEditor *editor);
     ~CppEditorWidget();
 
     CPPEditorDocument *cppEditorDocument() const;

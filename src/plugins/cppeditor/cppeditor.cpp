@@ -127,8 +127,6 @@ public:
     CppEditorWidgetPrivate(CppEditorWidget *q);
 
 public:
-    CppEditorWidget *q;
-
     QPointer<CppTools::CppModelManagerInterface> m_modelManager;
 
     CPPEditorDocument *m_cppEditorDocument;
@@ -160,8 +158,7 @@ public:
 };
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
-    : q(q)
-    , m_modelManager(CppModelManagerInterface::instance())
+    : m_modelManager(CppModelManagerInterface::instance())
     , m_cppEditorDocument(qobject_cast<CPPEditorDocument *>(q->textDocument()))
     , m_cppEditorOutline(new CppEditorOutline(q))
     , m_cppDocumentationCommentHelper(q)
@@ -175,9 +172,10 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
 {
 }
 
-CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc)
-    : TextEditor::BaseTextEditorWidget(0)
+CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CPPEditor *editor)
 {
+    editor->setEditorWidget(this);
+
     setTextDocument(doc);
     d.reset(new CppEditorWidgetPrivate(this));
     setAutoCompleter(new CppAutoCompleter);
@@ -190,7 +188,7 @@ CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc)
     setRevisionsVisible(true);
 
     if (d->m_modelManager) {
-        CppEditorSupport *editorSupport = d->m_modelManager->cppEditorSupport(editor());
+        CppEditorSupport *editorSupport = d->m_modelManager->cppEditorSupport(editor);
         connect(editorSupport, SIGNAL(documentUpdated()),
                 this, SLOT(onDocumentUpdated()));
         connect(editorSupport, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
@@ -262,7 +260,7 @@ CppEditorOutline *CppEditorWidget::outline() const
 
 TextEditor::BaseTextEditor *CppEditorWidget::createEditor()
 {
-    return new CPPEditor;
+    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
 
 void CppEditorWidget::paste()
@@ -743,9 +741,11 @@ void CppEditorWidget::keyPressEvent(QKeyEvent *e)
 
 Core::IEditor *CPPEditor::duplicate()
 {
-    CppEditorWidget *newEditor = new CppEditorWidget(editorWidget()->textDocumentPtr());
-    CppEditorPlugin::instance()->initializeEditor(newEditor);
-    return newEditor->editor();
+    CPPEditor *editor = new CPPEditor;
+    CppEditorWidget *widget = new CppEditorWidget(editorWidget()->textDocumentPtr(), editor);
+    CppEditorPlugin::instance()->initializeEditor(widget);
+    editor->configureCodeAssistant();
+    return editor;
 }
 
 bool CPPEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
