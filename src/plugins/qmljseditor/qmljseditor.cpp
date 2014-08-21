@@ -175,8 +175,11 @@ QModelIndex QmlJSTextEditorWidget::outlineModelIndex()
 
 IEditor *QmlJSEditor::duplicate()
 {
-    QmlJSTextEditorWidget *newEditor = new QmlJSTextEditorWidget(editorWidget()->textDocumentPtr());
-    return newEditor->editor();
+    auto editor = new QmlJSEditor;
+    auto widget = new QmlJSTextEditorWidget(editorWidget()->textDocumentPtr());
+    editor->setEditorWidget(widget);
+    editor->configureCodeAssistant();
+    return editor;
 }
 
 bool QmlJSEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
@@ -535,7 +538,7 @@ bool QmlJSTextEditorWidget::isClosingBrace(const QList<Token> &tokens) const
 
 BaseTextEditor *QmlJSTextEditorWidget::createEditor()
 {
-    return new QmlJSEditor;
+    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
 
 void QmlJSTextEditorWidget::createToolBar()
@@ -928,8 +931,10 @@ QmlJSEditorFactory::QmlJSEditorFactory()
 
 IEditor *QmlJSEditorFactory::createEditor()
 {
-    QmlJSTextEditorWidget *rc = new QmlJSTextEditorWidget(BaseTextDocumentPtr(new QmlJSEditorDocument));
-    return rc->editor();
+    auto editor = new QmlJSEditor;
+    editor->setEditorWidget(new QmlJSTextEditorWidget(BaseTextDocumentPtr(new QmlJSEditorDocument)));
+    editor->configureCodeAssistant();
+    return editor;
 }
 
 } // namespace Internal
