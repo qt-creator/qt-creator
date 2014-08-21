@@ -92,18 +92,6 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppEditor::Internal;
 
-namespace {
-
-QTimer *newSingleShotTimer(QObject *parent, int msecInterval)
-{
-    QTimer *timer = new QTimer(parent);
-    timer->setSingleShot(true);
-    timer->setInterval(msecInterval);
-    return timer;
-}
-
-} // end of anonymous namespace
-
 namespace CppEditor {
 namespace Internal {
 
@@ -134,8 +122,8 @@ public:
 
     CppDocumentationCommentHelper m_cppDocumentationCommentHelper;
 
-    QTimer *m_updateUsesTimer;
-    QTimer *m_updateFunctionDeclDefLinkTimer;
+    QTimer m_updateUsesTimer;
+    QTimer m_updateFunctionDeclDefLinkTimer;
     QHash<int, QTextCharFormat> m_semanticHighlightFormatMap;
 
     CppLocalRenaming m_localRenaming;
@@ -209,12 +197,17 @@ CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CPPEditor 
             this, SLOT(onLocalRenamingProcessKeyPressNormally(QKeyEvent*)));
 
     // Tool bar creation
-    d->m_updateUsesTimer = newSingleShotTimer(this, UPDATE_USES_INTERVAL);
-    connect(d->m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
+    d->m_updateUsesTimer.setSingleShot(true);
+    d->m_updateUsesTimer.setInterval(UPDATE_USES_INTERVAL);
 
-    d->m_updateFunctionDeclDefLinkTimer = newSingleShotTimer(this, UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
-    connect(d->m_updateFunctionDeclDefLinkTimer, SIGNAL(timeout()),
-            this, SLOT(updateFunctionDeclDefLinkNow()));
+    connect(&d->m_updateUsesTimer, &QTimer::timeout,
+            this, &CppEditorWidget::updateUsesNow);
+
+    d->m_updateFunctionDeclDefLinkTimer.setSingleShot(true);
+    d->m_updateFunctionDeclDefLinkTimer.setInterval(UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
+
+    connect(&d->m_updateFunctionDeclDefLinkTimer, &QTimer::timeout,
+            this, &CppEditorWidget::updateFunctionDeclDefLinkNow);
 
     connect(this, SIGNAL(cursorPositionChanged()),
             d->m_cppEditorOutline, SLOT(updateIndex()));
@@ -509,7 +502,7 @@ void CppEditorWidget::updateUses()
 {
     // Block premature semantic info calculation when editor is created.
     if (d->m_modelManager && d->m_modelManager->cppEditorSupport(editor())->initialized())
-        d->m_updateUsesTimer->start();
+        d->m_updateUsesTimer.start();
 }
 
 void CppEditorWidget::updateUsesNow()
@@ -967,7 +960,7 @@ void CppEditorWidget::updateFunctionDeclDefLink()
         return;
     }
 
-    d->m_updateFunctionDeclDefLinkTimer->start();
+    d->m_updateFunctionDeclDefLinkTimer.start();
 }
 
 void CppEditorWidget::updateFunctionDeclDefLinkNow()
