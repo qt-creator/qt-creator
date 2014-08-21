@@ -146,8 +146,6 @@ void PchManager::onProjectPartsUpdated(ProjectExplorer::Project *project)
     const QList<ProjectPart::Ptr> projectParts = mmi->projectInfo(
                 cps->project()).projectParts();
     updatePchInfo(cps, projectParts);
-
-    emit pchInfoUpdated();
 }
 
 void PchManager::updatePchInfo(ClangProjectSettings *cps,

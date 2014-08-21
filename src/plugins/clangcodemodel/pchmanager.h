@@ -63,7 +63,6 @@ public:
     ClangProjectSettings *settingsForProject(ProjectExplorer::Project *project);
 
 signals:
-    void pchInfoUpdated(); // TODO: check if this is used
     void pchMessage(const QString &message, Core::MessageManager::PrintToOutputPaneFlags flags);
 
 public slots:
