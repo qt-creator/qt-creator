@@ -193,9 +193,8 @@ void DescriptionEditorWidget::handleCurrentContents()
 
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
-DiffEditor::DiffEditor()
-    : IEditor(0)
-    , m_document(new DiffEditorDocument())
+DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
+    : m_document(doc)
     , m_descriptionWidget(0)
     , m_stackedWidget(0)
     , m_sideBySideEditor(0)
@@ -208,30 +207,6 @@ DiffEditor::DiffEditor()
     , m_toggleDescriptionAction(0)
     , m_reloadAction(0)
     , m_diffEditorSwitcher(0)
-{
-    ctor();
-}
-
-DiffEditor::DiffEditor(DiffEditor *other)
-    : IEditor(0)
-    , m_document(other->m_document)
-    , m_descriptionWidget(0)
-    , m_stackedWidget(0)
-    , m_sideBySideEditor(0)
-    , m_unifiedEditor(0)
-    , m_currentEditor(0)
-    , m_controller(0)
-    , m_guiController(0)
-    , m_toolBar(0)
-    , m_entriesComboBox(0)
-    , m_toggleDescriptionAction(0)
-    , m_reloadAction(0)
-    , m_diffEditorSwitcher(0)
-{
-    ctor();
-}
-
-void DiffEditor::ctor()
 {
     setDuplicateSupported(true);
 
@@ -303,7 +278,7 @@ DiffEditor::~DiffEditor()
 
 Core::IEditor *DiffEditor::duplicate()
 {
-    return new DiffEditor(this);
+    return new DiffEditor(m_document);
 }
 
 bool DiffEditor::open(QString *errorString,

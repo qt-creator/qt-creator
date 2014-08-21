@@ -29,6 +29,7 @@
 
 #include "diffeditor.h"
 #include "diffeditorconstants.h"
+#include "diffeditordocument.h"
 #include "diffeditorfactory.h"
 #include "sidebysidediffeditorwidget.h"
 
@@ -48,7 +49,7 @@ DiffEditorFactory::DiffEditorFactory(QObject *parent)
 
 Core::IEditor *DiffEditorFactory::createEditor()
 {
-    return new DiffEditor();
+    return new DiffEditor(QSharedPointer<DiffEditorDocument>(new DiffEditorDocument));
 }
 
 } // namespace Internal
