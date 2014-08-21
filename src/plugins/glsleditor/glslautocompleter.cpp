@@ -37,17 +37,18 @@
 #include <QLatin1Char>
 #include <QTextCursor>
 
-using namespace GLSLEditor;
-using namespace Internal;
 using namespace CPlusPlus;
 
-GLSLCompleter::GLSLCompleter()
+namespace GLSLEditor {
+namespace Internal {
+
+GlslCompleter::GlslCompleter()
 {}
 
-GLSLCompleter::~GLSLCompleter()
+GlslCompleter::~GlslCompleter()
 {}
 
-bool GLSLCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
+bool GlslCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
                                                  const QString &textToInsert) const
 {
     QChar ch;
@@ -65,7 +66,7 @@ bool GLSLCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
     return true;
 }
 
-bool GLSLCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) const
+bool GlslCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
     const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(),
                                           BackwardsScanner::previousBlockState(cursor.block()));
@@ -94,7 +95,7 @@ bool GLSLCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) c
     return true;
 }
 
-bool GLSLCompleter::isInComment(const QTextCursor &cursor) const
+bool GlslCompleter::isInComment(const QTextCursor &cursor) const
 {
     const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(),
                                           BackwardsScanner::previousBlockState(cursor.block()));
@@ -118,7 +119,7 @@ bool GLSLCompleter::isInComment(const QTextCursor &cursor) const
     return false;
 }
 
-QString GLSLCompleter::insertMatchingBrace(const QTextCursor &cursor,
+QString GlslCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                            const QString &text,
                                            QChar la,
                                            int *skippedChars) const
@@ -127,8 +128,11 @@ QString GLSLCompleter::insertMatchingBrace(const QTextCursor &cursor,
     return m.insertMatchingBrace(cursor, text, la, skippedChars);
 }
 
-QString GLSLCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
+QString GlslCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
 {
     MatchingText m;
     return m.insertParagraphSeparator(cursor);
 }
+
+} // namespace Internal
+} // namespace GLSLEditor

@@ -41,12 +41,12 @@ namespace TextEditor { class BaseTextEditor; }
 namespace GLSLEditor {
 namespace Internal {
 
-class GLSLHoverHandler : public TextEditor::BaseHoverHandler
+class GlslHoverHandler : public TextEditor::BaseHoverHandler
 {
     Q_OBJECT
 public:
-    GLSLHoverHandler(QObject *parent = 0);
-    virtual ~GLSLHoverHandler();
+    GlslHoverHandler(QObject *parent = 0);
+    virtual ~GlslHoverHandler();
 
 private:
     virtual bool acceptEditor(Core::IEditor *editor);

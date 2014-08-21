@@ -40,39 +40,41 @@
 #include <QWizard>
 #include <QPushButton>
 
-using namespace GLSLEditor;
+using namespace Core;
+using namespace Utils;
 
-GLSLFileWizard::GLSLFileWizard(ShaderType shaderType)
+namespace GLSLEditor {
+
+GlslFileWizard::GlslFileWizard(ShaderType shaderType)
     : m_shaderType(shaderType)
 {
-    setFlags(Core::IWizardFactory::PlatformIndependent);
+    setFlags(IWizardFactory::PlatformIndependent);
 }
 
-Core::GeneratedFiles GLSLFileWizard::generateFiles(const QWizard *w,
-                                                 QString * /*errorMessage*/) const
+GeneratedFiles GlslFileWizard::generateFiles(const QWizard *w, QString * /*errorMessage*/) const
 {
-    const Core::BaseFileWizard *wizard = qobject_cast<const Core::BaseFileWizard *>(w);
-    Utils::FileWizardPage *page = wizard->find<Utils::FileWizardPage>();
-    QTC_ASSERT(page, return Core::GeneratedFiles());
+    const BaseFileWizard *wizard = qobject_cast<const BaseFileWizard *>(w);
+    const FileWizardPage *page = wizard->find<FileWizardPage>();
+    QTC_ASSERT(page, return GeneratedFiles());
 
     const QString path = page->path();
     const QString name = page->fileName();
 
-    const QString fileName = Core::BaseFileWizardFactory::buildFileName(path, name, preferredSuffix(m_shaderType));
+    const QString fileName = BaseFileWizardFactory::buildFileName(path, name, preferredSuffix(m_shaderType));
 
-    Core::GeneratedFile file(fileName);
+    GeneratedFile file(fileName);
     file.setContents(fileContents(fileName, m_shaderType));
-    file.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
-    return Core::GeneratedFiles() << file;
+    file.setAttributes(GeneratedFile::OpenEditorAttribute);
+    return GeneratedFiles() << file;
 }
 
-QString GLSLFileWizard::fileContents(const QString &, ShaderType shaderType) const
+QString GlslFileWizard::fileContents(const QString &, ShaderType shaderType) const
 {
     QString contents;
     QTextStream str(&contents);
 
     switch (shaderType) {
-    case GLSLFileWizard::VertexShaderES:
+    case GlslFileWizard::VertexShaderES:
         str << QLatin1String("attribute highp vec4 qt_Vertex;\n")
             << QLatin1String("attribute highp vec4 qt_MultiTexCoord0;\n")
             << QLatin1String("uniform highp mat4 qt_ModelViewProjectionMatrix;\n")
@@ -84,7 +86,7 @@ QString GLSLFileWizard::fileContents(const QString &, ShaderType shaderType) con
             << QLatin1String("    qt_TexCoord0 = qt_MultiTexCoord0;\n")
             << QLatin1String("}\n");
         break;
-    case GLSLFileWizard::FragmentShaderES:
+    case GlslFileWizard::FragmentShaderES:
         str << QLatin1String("uniform sampler2D qt_Texture0;\n")
             << QLatin1String("varying highp vec4 qt_TexCoord0;\n")
             << QLatin1String("\n")
@@ -93,7 +95,7 @@ QString GLSLFileWizard::fileContents(const QString &, ShaderType shaderType) con
             << QLatin1String("    gl_FragColor = texture2D(qt_Texture0, qt_TexCoord0.st);\n")
             << QLatin1String("}\n");
         break;
-    case GLSLFileWizard::VertexShaderDesktop:
+    case GlslFileWizard::VertexShaderDesktop:
         str << QLatin1String("attribute vec4 qt_Vertex;\n")
             << QLatin1String("attribute vec4 qt_MultiTexCoord0;\n")
             << QLatin1String("uniform mat4 qt_ModelViewProjectionMatrix;\n")
@@ -105,7 +107,7 @@ QString GLSLFileWizard::fileContents(const QString &, ShaderType shaderType) con
             << QLatin1String("    qt_TexCoord0 = qt_MultiTexCoord0;\n")
             << QLatin1String("}\n");
         break;
-    case GLSLFileWizard::FragmentShaderDesktop:
+    case GlslFileWizard::FragmentShaderDesktop:
         str << QLatin1String("uniform sampler2D qt_Texture0;\n")
             << QLatin1String("varying vec4 qt_TexCoord0;\n")
             << QLatin1String("\n")
@@ -120,11 +122,11 @@ QString GLSLFileWizard::fileContents(const QString &, ShaderType shaderType) con
     return contents;
 }
 
-Core::BaseFileWizard *GLSLFileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+BaseFileWizard *GlslFileWizard::create(QWidget *parent, const WizardDialogParameters &parameters) const
 {
-    Core::BaseFileWizard *wizard = new Core::BaseFileWizard(parent);
+    BaseFileWizard *wizard = new BaseFileWizard(parent);
     wizard->setWindowTitle(tr("New %1").arg(displayName()));
-    Utils::FileWizardPage *page = new Utils::FileWizardPage;
+    FileWizardPage *page = new FileWizardPage;
     page->setPath(parameters.defaultPath());
     wizard->addPage(page);
 
@@ -133,18 +135,20 @@ Core::BaseFileWizard *GLSLFileWizard::create(QWidget *parent, const Core::Wizard
     return wizard;
 }
 
-QString GLSLFileWizard::preferredSuffix(ShaderType shaderType) const
+QString GlslFileWizard::preferredSuffix(ShaderType shaderType) const
 {
     switch (shaderType) {
-    case GLSLFileWizard::VertexShaderES:
+    case GlslFileWizard::VertexShaderES:
         return QLatin1String("vsh");
-    case GLSLFileWizard::FragmentShaderES:
+    case GlslFileWizard::FragmentShaderES:
         return QLatin1String("fsh");
-    case GLSLFileWizard::VertexShaderDesktop:
+    case GlslFileWizard::VertexShaderDesktop:
         return QLatin1String("vert");
-    case GLSLFileWizard::FragmentShaderDesktop:
+    case GlslFileWizard::FragmentShaderDesktop:
         return QLatin1String("frag");
     default:
         return QLatin1String("glsl");
     }
 }
+
+} // namespace GlslEditor

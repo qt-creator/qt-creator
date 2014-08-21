@@ -141,7 +141,7 @@ void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
 
 GlslEditorWidget::GlslEditorWidget()
 {
-    setAutoCompleter(new GLSLCompleter);
+    setAutoCompleter(new GlslCompleter);
     m_outlineCombo = 0;
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -242,14 +242,14 @@ void GlslEditorWidget::updateDocumentNow()
         Semantic sem;
         Scope *globalScope = engine->newNamespace();
         doc->_globalScope = globalScope;
-        const GLSLEditorPlugin::InitFile *file = GLSLEditorPlugin::shaderInit(variant);
+        const GlslEditorPlugin::InitFile *file = GlslEditorPlugin::shaderInit(variant);
         sem.translationUnit(file->ast, globalScope, file->engine);
         if (variant & Lexer::Variant_VertexShader) {
-            file = GLSLEditorPlugin::vertexShaderInit(variant);
+            file = GlslEditorPlugin::vertexShaderInit(variant);
             sem.translationUnit(file->ast, globalScope, file->engine);
         }
         if (variant & Lexer::Variant_FragmentShader) {
-            file = GLSLEditorPlugin::fragmentShaderInit(variant);
+            file = GlslEditorPlugin::fragmentShaderInit(variant);
             sem.translationUnit(file->ast, globalScope, file->engine);
         }
         sem.translationUnit(ast, globalScope, engine);
@@ -332,7 +332,7 @@ IAssistInterface *GlslEditorWidget::createAssistInterface(
     AssistKind kind, AssistReason reason) const
 {
     if (kind == Completion)
-        return new GLSLCompletionAssistInterface(document(),
+        return new GlslCompletionAssistInterface(document(),
                                                  position(),
                                                  editor()->document()->filePath(),
                                                  reason,
@@ -353,14 +353,14 @@ GlslEditor::GlslEditor()
     addContext(C_GLSLEDITOR_ID);
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
-    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GLSLCompletionAssistProvider>());
+    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GlslCompletionAssistProvider>());
 
     setEditorCreator([]() { return new GlslEditor; });
     setWidgetCreator([]() { return new GlslEditorWidget; });
 
     setDocumentCreator([]() -> BaseTextDocument * {
         auto doc = new BaseTextDocument(C_GLSLEDITOR_ID);
-        doc->setIndenter(new GLSLIndenter);
+        doc->setIndenter(new GlslIndenter);
         new Highlighter(doc);
         return doc;
     });

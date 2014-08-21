@@ -39,27 +39,24 @@
 #include <QTextBlock>
 #include <QTextCursor>
 
-using namespace GLSLEditor;
-using namespace Internal;
+namespace GLSLEditor {
+namespace Internal {
 
-GLSLIndenter::GLSLIndenter()
+GlslIndenter::GlslIndenter()
 {}
 
-GLSLIndenter::~GLSLIndenter()
+GlslIndenter::~GlslIndenter()
 {}
 
-bool GLSLIndenter::isElectricCharacter(const QChar &ch) const
+bool GlslIndenter::isElectricCharacter(const QChar &ch) const
 {
-    if (ch == QLatin1Char('{') ||
-        ch == QLatin1Char('}') ||
-        ch == QLatin1Char(':') ||
-        ch == QLatin1Char('#')) {
-        return true;
-    }
-    return false;
+    return ch == QLatin1Char('{')
+        || ch == QLatin1Char('}')
+        || ch == QLatin1Char(':')
+        || ch == QLatin1Char('#');
 }
 
-void GLSLIndenter::indentBlock(QTextDocument *doc,
+void GlslIndenter::indentBlock(QTextDocument *doc,
                                const QTextBlock &block,
                                const QChar &typedChar,
                                const TextEditor::TabSettings &tabSettings)
@@ -75,8 +72,8 @@ void GLSLIndenter::indentBlock(QTextDocument *doc,
     int padding;
     codeFormatter.indentFor(block, &indent, &padding);
 
-    // only reindent the current line when typing electric characters if the
-    // indent is the same it would be if the line were empty
+    // Only reindent the current line when typing electric characters if the
+    // indent is the same it would be if the line were empty.
     if (isElectricCharacter(typedChar)) {
         int newlineIndent;
         int newlinePadding;
@@ -88,7 +85,7 @@ void GLSLIndenter::indentBlock(QTextDocument *doc,
     tabSettings.indentLine(block, indent + padding, padding);
 }
 
-void GLSLIndenter::indent(QTextDocument *doc,
+void GlslIndenter::indent(QTextDocument *doc,
                           const QTextCursor &cursor,
                           const QChar &typedChar,
                           const TextEditor::TabSettings &tabSettings)
@@ -117,3 +114,6 @@ void GLSLIndenter::indent(QTextDocument *doc,
         indentBlock(doc, cursor.block(), typedChar, tabSettings);
     }
 }
+
+} // namespace Internal
+} // namespace GLSLEditor

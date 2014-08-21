@@ -38,14 +38,14 @@ namespace Internal {
 
 class GlslEditorWidget;
 
-class GLSLEditorPlugin : public ExtensionSystem::IPlugin
+class GlslEditorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GLSLEditor.json")
 
 public:
-    GLSLEditorPlugin();
-    ~GLSLEditorPlugin();
+    GlslEditorPlugin();
+    ~GlslEditorPlugin();
 
     // IPlugin
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);

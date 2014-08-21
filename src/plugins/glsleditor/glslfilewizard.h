@@ -34,7 +34,7 @@
 
 namespace GLSLEditor {
 
-class GLSLFileWizard: public Core::BaseFileWizardFactory
+class GlslFileWizard: public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 
@@ -47,7 +47,7 @@ public:
         FragmentShaderDesktop
     };
 
-    explicit GLSLFileWizard(ShaderType shaderType);
+    explicit GlslFileWizard(ShaderType shaderType);
 
 private:
     QString fileContents(const QString &baseName, ShaderType shaderType) const;

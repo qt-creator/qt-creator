@@ -59,28 +59,26 @@
 #include <QDesktopWidget>
 #include <QDebug>
 
-using namespace GLSLEditor;
-using namespace Internal;
 using namespace TextEditor;
 
-namespace {
+namespace GLSLEditor {
+namespace Internal {
 
 enum CompletionOrder {
     SpecialMemberOrder = -5
 };
 
-
-bool isActivationChar(const QChar &ch)
+static bool isActivationChar(const QChar &ch)
 {
     return ch == QLatin1Char('(') || ch == QLatin1Char('.') || ch == QLatin1Char(',');
 }
 
-bool isIdentifierChar(QChar ch)
+static bool isIdentifierChar(QChar ch)
 {
     return ch.isLetterOrNumber() || ch == QLatin1Char('_');
 }
 
-bool isDelimiter(QChar ch)
+static bool isDelimiter(QChar ch)
 {
     switch (ch.unicode()) {
     case '{':
@@ -104,7 +102,7 @@ bool isDelimiter(QChar ch)
     }
 }
 
-bool checkStartOfIdentifier(const QString &word)
+static bool checkStartOfIdentifier(const QString &word)
 {
     if (! word.isEmpty()) {
         const QChar ch = word.at(0);
@@ -115,38 +113,36 @@ bool checkStartOfIdentifier(const QString &word)
     return false;
 }
 
-} // Anonymous
-
 // ----------------------------
-// GLSLCompletionAssistProvider
+// GlslCompletionAssistProvider
 // ----------------------------
-bool GLSLCompletionAssistProvider::supportsEditor(Core::Id editorId) const
+bool GlslCompletionAssistProvider::supportsEditor(Core::Id editorId) const
 {
     return editorId == Constants::C_GLSLEDITOR_ID;
 }
 
-IAssistProcessor *GLSLCompletionAssistProvider::createProcessor() const
+IAssistProcessor *GlslCompletionAssistProvider::createProcessor() const
 {
-    return new GLSLCompletionAssistProcessor;
+    return new GlslCompletionAssistProcessor;
 }
 
-int GLSLCompletionAssistProvider::activationCharSequenceLength() const
+int GlslCompletionAssistProvider::activationCharSequenceLength() const
 {
     return 1;
 }
 
-bool GLSLCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
+bool GlslCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
 {
     return isActivationChar(sequence.at(0));
 }
 
 // -----------------------------
-// GLSLFunctionHintProposalModel
+// GlslFunctionHintProposalModel
 // -----------------------------
-class GLSLFunctionHintProposalModel : public TextEditor::IFunctionHintProposalModel
+class GlslFunctionHintProposalModel : public IFunctionHintProposalModel
 {
 public:
-    GLSLFunctionHintProposalModel(QVector<GLSL::Function *> functionSymbols)
+    GlslFunctionHintProposalModel(QVector<GLSL::Function *> functionSymbols)
         : m_items(functionSymbols)
         , m_currentArg(-1)
     {}
@@ -161,12 +157,12 @@ private:
     mutable int m_currentArg;
 };
 
-QString GLSLFunctionHintProposalModel::text(int index) const
+QString GlslFunctionHintProposalModel::text(int index) const
 {
     return m_items.at(index)->prettyPrint(m_currentArg);
 }
 
-int GLSLFunctionHintProposalModel::activeArgument(const QString &prefix) const
+int GlslFunctionHintProposalModel::activeArgument(const QString &prefix) const
 {
     const QByteArray &str = prefix.toLatin1();
     int argnr = 0;
@@ -200,7 +196,7 @@ int GLSLFunctionHintProposalModel::activeArgument(const QString &prefix) const
 // -----------------------------
 // GLSLCompletionAssistProcessor
 // -----------------------------
-GLSLCompletionAssistProcessor::GLSLCompletionAssistProcessor()
+GlslCompletionAssistProcessor::GlslCompletionAssistProcessor()
     : m_startPosition(0)
     , m_keywordIcon(QLatin1String(":/glsleditor/images/keyword.png"))
     , m_varIcon(QLatin1String(":/glsleditor/images/var.png"))
@@ -213,12 +209,12 @@ GLSLCompletionAssistProcessor::GLSLCompletionAssistProcessor()
     , m_otherIcon(QLatin1String(":/glsleditor/images/other.png"))
 {}
 
-GLSLCompletionAssistProcessor::~GLSLCompletionAssistProcessor()
+GlslCompletionAssistProcessor::~GlslCompletionAssistProcessor()
 {}
 
-IAssistProposal *GLSLCompletionAssistProcessor::perform(const IAssistInterface *interface)
+IAssistProposal *GlslCompletionAssistProcessor::perform(const IAssistInterface *interface)
 {
-    m_interface.reset(static_cast<const GLSLCompletionAssistInterface *>(interface));
+    m_interface.reset(static_cast<const GlslCompletionAssistInterface *>(interface));
 
     if (interface->reason() == IdleEditor && !acceptsIdleEditor())
         return 0;
@@ -404,22 +400,22 @@ IAssistProposal *GLSLCompletionAssistProcessor::perform(const IAssistInterface *
     return createContentProposal();
 }
 
-IAssistProposal *GLSLCompletionAssistProcessor::createContentProposal() const
+IAssistProposal *GlslCompletionAssistProcessor::createContentProposal() const
 {
     IGenericProposalModel *model = new BasicProposalItemListModel(m_completions);
     IAssistProposal *proposal = new GenericProposal(m_startPosition, model);
     return proposal;
 }
 
-IAssistProposal *GLSLCompletionAssistProcessor::createHintProposal(
+IAssistProposal *GlslCompletionAssistProcessor::createHintProposal(
     const QVector<GLSL::Function *> &symbols)
 {
-    IFunctionHintProposalModel *model = new GLSLFunctionHintProposalModel(symbols);
+    IFunctionHintProposalModel *model = new GlslFunctionHintProposalModel(symbols);
     IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
     return proposal;
 }
 
-bool GLSLCompletionAssistProcessor::acceptsIdleEditor() const
+bool GlslCompletionAssistProcessor::acceptsIdleEditor() const
 {
     const int cursorPosition = m_interface->position();
     const QChar ch = m_interface->characterAt(cursorPosition - 1);
@@ -449,7 +445,7 @@ bool GLSLCompletionAssistProcessor::acceptsIdleEditor() const
     return isActivationChar(ch);
 }
 
-void GLSLCompletionAssistProcessor::addCompletion(const QString &text,
+void GlslCompletionAssistProcessor::addCompletion(const QString &text,
                                                   const QIcon &icon,
                                                   int order)
 {
@@ -461,12 +457,12 @@ void GLSLCompletionAssistProcessor::addCompletion(const QString &text,
 }
 
 // -----------------------------
-// GLSLCompletionAssistInterface
+// GlslCompletionAssistInterface
 // -----------------------------
-GLSLCompletionAssistInterface::GLSLCompletionAssistInterface(QTextDocument *textDocument,
+GlslCompletionAssistInterface::GlslCompletionAssistInterface(QTextDocument *textDocument,
                                                              int position,
                                                              const QString &fileName,
-                                                             TextEditor::AssistReason reason,
+                                                             AssistReason reason,
                                                              const QString &mimeType,
                                                              const Document::Ptr &glslDoc)
     : DefaultAssistInterface(textDocument, position, fileName, reason)
@@ -474,3 +470,6 @@ GLSLCompletionAssistInterface::GLSLCompletionAssistInterface(QTextDocument *text
     , m_glslDoc(glslDoc)
 {
 }
+
+} // namespace Internal
+} // namespace GLSLEditor

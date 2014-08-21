@@ -35,11 +35,11 @@
 namespace GLSLEditor {
 namespace Internal {
 
-class GLSLIndenter : public TextEditor::Indenter
+class GlslIndenter : public TextEditor::Indenter
 {
 public:
-    GLSLIndenter();
-    virtual ~GLSLIndenter();
+    GlslIndenter();
+    virtual ~GlslIndenter();
 
     virtual bool isElectricCharacter(const QChar &ch) const;
     virtual void indentBlock(QTextDocument *doc,
