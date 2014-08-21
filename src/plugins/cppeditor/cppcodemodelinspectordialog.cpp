@@ -954,7 +954,7 @@ public:
                    const ProjectPart::Ptr &currentEditorsProjectPart);
 
     QModelIndex indexForCurrentEditorsProjectPart() const;
-    ProjectPart::Ptr projectPartForProjectFile(const QString &projectFilePath) const;
+    ProjectPart::Ptr projectPartForProjectId(const QString &projectPartId) const;
 
     enum Columns { PartNameColumn, PartFilePathColumn, ColumnCount };
 
@@ -997,10 +997,10 @@ QModelIndex ProjectPartsModel::indexForCurrentEditorsProjectPart() const
     return createIndex(m_currentEditorsProjectPartIndex, PartFilePathColumn);
 }
 
-ProjectPart::Ptr ProjectPartsModel::projectPartForProjectFile(const QString &projectFilePath) const
+ProjectPart::Ptr ProjectPartsModel::projectPartForProjectId(const QString &projectPartId) const
 {
     foreach (const ProjectPart::Ptr &part, m_projectPartsList) {
-        if (part->projectFile == projectFilePath)
+        if (part->id() == projectPartId)
             return part;
     }
     return ProjectPart::Ptr();
@@ -1025,6 +1025,8 @@ QVariant ProjectPartsModel::data(const QModelIndex &index, int role) const
             return m_projectPartsList.at(row)->displayName;
         else if (column == PartFilePathColumn)
             return QDir::toNativeSeparators(m_projectPartsList.at(row)->projectFile);
+    } else if (role == Qt::UserRole) {
+        return m_projectPartsList.at(row)->id();
     }
     return QVariant();
 }
@@ -1307,9 +1309,8 @@ void CppCodeModelInspectorDialog::onProjectPartSelected(const QModelIndex &curre
         QModelIndex index = m_proxyProjectPartsModel->mapToSource(current);
         if (index.isValid()) {
             index = m_projectPartsModel->index(index.row(), ProjectPartsModel::PartFilePathColumn);
-            const QString projectFilePath = QDir::fromNativeSeparators(
-                m_projectPartsModel->data(index, Qt::DisplayRole).toString());
-            updateProjectPartData(m_projectPartsModel->projectPartForProjectFile(projectFilePath));
+            const QString projectPartId = m_projectPartsModel->data(index, Qt::UserRole).toString();
+            updateProjectPartData(m_projectPartsModel->projectPartForProjectId(projectPartId));
         }
     } else {
         clearProjectPartData();

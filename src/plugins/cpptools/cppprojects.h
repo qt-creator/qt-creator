@@ -106,6 +106,8 @@ public: // methods
 
     Ptr copy() const;
 
+    QString id() const;
+
     static QByteArray readProjectConfigFile(const ProjectPart::Ptr &part);
 
 public: // fields

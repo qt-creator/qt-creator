@@ -113,6 +113,11 @@ ProjectPart::Ptr ProjectPart::copy() const
     return Ptr(new ProjectPart(*this));
 }
 
+QString ProjectPart::id() const
+{
+    return QDir::fromNativeSeparators(projectFile) + QLatin1Char(' ') + displayName;
+}
+
 QByteArray ProjectPart::readProjectConfigFile(const ProjectPart::Ptr &part)
 {
     QByteArray result;
