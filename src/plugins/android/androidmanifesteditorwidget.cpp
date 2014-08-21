@@ -1421,8 +1421,7 @@ int PermissionsModel::rowCount(const QModelIndex &parent) const
 
 
 AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent)
-    : TextEditor::BaseTextEditorWidget(parent),
-      m_parent(parent)
+    : TextEditor::BaseTextEditorWidget(parent)
 {
     setTextDocument(TextEditor::BaseTextDocumentPtr(new AndroidManifestDocument(parent)));
     setupAsPlainEditor();

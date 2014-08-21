@@ -82,9 +82,7 @@ private:
 class AndroidManifestTextEditorWidget : public TextEditor::BaseTextEditorWidget
 {
 public:
-    AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent = 0);
-protected:
-    AndroidManifestEditorWidget *m_parent;
+    explicit AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent);
 };
 
 class AndroidManifestEditorWidget : public QScrollArea
