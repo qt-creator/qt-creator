@@ -34,9 +34,12 @@
 #include "codeassist/assistenums.h"
 #include "texteditor_global.h"
 
+#include <texteditor/texteditoractionhandler.h>
+
 #include <coreplugin/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/find/ifindsupport.h>
 
 #include <utils/uncommentselection.h>
@@ -75,6 +78,7 @@ namespace Internal {
 }
 
 class BaseTextEditorWidget;
+class BaseTextEditorFactory;
 class FontSettings;
 class BehaviorSettings;
 class CompletionSettings;
@@ -85,6 +89,7 @@ class StorageSettings;
 class Indenter;
 class AutoCompleter;
 class ExtraEncodingSettings;
+class BaseTextEditor;
 
 class TEXTEDITOR_EXPORT BlockRange
 {
@@ -104,6 +109,10 @@ private:
     int _last;
 };
 
+typedef std::function<BaseTextEditor *()> BaseTextEditorCreator;
+typedef std::function<BaseTextDocument *()> BaseTextDocumentCreator;
+typedef std::function<BaseTextEditorWidget *()> BaseTextEditorWidgetCreator;
+
 class TEXTEDITOR_EXPORT BaseTextEditor : public Core::IEditor
 {
     Q_OBJECT
@@ -120,14 +129,9 @@ public:
     BaseTextEditor();
     ~BaseTextEditor();
 
-    typedef std::function<BaseTextEditor *()> EditorCreator;
-    void setEditorCreator(const EditorCreator &creator);
-
-    typedef std::function<BaseTextDocument *()> DocumentCreator;
-    void setDocumentCreator(const DocumentCreator &creator);
-
-    typedef std::function<BaseTextEditorWidget *()> WidgetCreator;
-    void setWidgetCreator(const WidgetCreator &creator);
+    void setEditorCreator(const BaseTextEditorCreator &creator);
+    void setDocumentCreator(const BaseTextDocumentCreator &creator);
+    void setWidgetCreator(const BaseTextEditorWidgetCreator &creator);
 
     void setEditorWidget(BaseTextEditorWidget *editorWidget);
 
@@ -216,6 +220,7 @@ signals:
 
 private:
     friend class Internal::BaseTextEditorWidgetPrivate;
+    friend class BaseTextEditorFactory;
     friend class BaseTextEditorWidget;
     Internal::BaseTextEditorPrivate *d;
 };
@@ -610,9 +615,42 @@ protected slots:
 private:
     Internal::BaseTextEditorWidgetPrivate *d;
     friend class BaseTextEditor;
+    friend class BaseTextEditorFactory;
     friend class Internal::BaseTextEditorWidgetPrivate;
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;
+};
+
+typedef std::function<SyntaxHighlighter *()> SyntaxHighLighterCreator;
+typedef std::function<Indenter *()> IndenterCreator;
+
+class TEXTEDITOR_EXPORT BaseTextEditorFactory : public Core::IEditorFactory
+{
+    Q_OBJECT
+
+public:
+    BaseTextEditorFactory(QObject *parent = 0);
+
+    void setDocumentCreator(const BaseTextDocumentCreator &creator);
+    void setEditorWidgetCreator(const BaseTextEditorWidgetCreator &creator);
+    void setEditorCreator(const BaseTextEditorCreator &creator);
+    void setIndenterCreator(const IndenterCreator &creator);
+    void setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator);
+
+    void setEditorActionHandlers(Core::Id contextId, uint optionalActions);
+    void setEditorActionHandlers(uint optionalActions);
+
+    BaseTextEditor *duplicateTextEditor(BaseTextEditor *);
+
+private:
+    Core::IEditor *createEditor();
+    BaseTextEditor *createEditorHelper(const BaseTextDocumentPtr &doc);
+
+    BaseTextDocumentCreator m_documentCreator;
+    BaseTextEditorWidgetCreator m_widgetCreator;
+    BaseTextEditorCreator m_editorCreator;
+    IndenterCreator m_indenterCreator;
+    SyntaxHighLighterCreator m_syntaxHighlighterCreator;
 };
 
 } // namespace TextEditor

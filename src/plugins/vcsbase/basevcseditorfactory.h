@@ -45,7 +45,7 @@ class VCSBASE_EXPORT VcsEditorFactory : public Core::IEditorFactory
 
 public:
     VcsEditorFactory(const VcsBaseEditorParameters *type,
-                     const TextEditor::BaseTextEditor::WidgetCreator &creator,
+                     const TextEditor::BaseTextEditorWidgetCreator &creator,
                      QObject *describeReceiver,
                      const char *describeSlot);
     ~VcsEditorFactory();

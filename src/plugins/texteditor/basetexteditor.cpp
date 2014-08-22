@@ -49,6 +49,7 @@
 #include "circularclipboardassist.h"
 #include "highlighterutils.h"
 #include "basetexteditor.h"
+
 #include <texteditor/codeassist/codeassistant.h>
 #include <texteditor/codeassist/defaultassistinterface.h>
 #include <texteditor/generichighlighter/context.h>
@@ -227,15 +228,16 @@ private:
 class BaseTextEditorPrivate
 {
 public:
-    BaseTextEditorPrivate()
-    {}
+    BaseTextEditorPrivate() {}
 
-    BaseTextEditor::EditorCreator m_editorCreator;
-    BaseTextEditor::DocumentCreator m_documentCreator;
-    BaseTextEditor::WidgetCreator m_widgetCreator;
+    BaseTextDocumentCreator m_documentCreator;
+    BaseTextEditorWidgetCreator m_editorWidgetCreator;
+    BaseTextEditorCreator m_editorCreator;
 
     CommentDefinition m_commentDefinition;
     std::function<CompletionAssistProvider *()> m_completionAssistProvider;
+
+    QPointer<BaseTextEditorFactory> m_origin;
 };
 
 class BaseTextEditorWidgetPrivate : public QObject
@@ -6572,19 +6574,19 @@ BaseTextEditor::~BaseTextEditor()
     delete d;
 }
 
-void BaseTextEditor::setEditorCreator(const BaseTextEditor::EditorCreator &creator)
+void BaseTextEditor::setEditorCreator(const BaseTextEditorCreator &creator)
 {
     d->m_editorCreator = creator;
 }
 
-void BaseTextEditor::setDocumentCreator(const BaseTextEditor::DocumentCreator &creator)
+void BaseTextEditor::setDocumentCreator(const BaseTextDocumentCreator &creator)
 {
     d->m_documentCreator = creator;
 }
 
-void BaseTextEditor::setWidgetCreator(const BaseTextEditor::WidgetCreator &creator)
+void BaseTextEditor::setWidgetCreator(const BaseTextEditorWidgetCreator &creator)
 {
-    d->m_widgetCreator = creator;
+    d->m_editorWidgetCreator = creator;
 }
 
 BaseTextDocument *BaseTextEditor::textDocument()
@@ -7163,6 +7165,10 @@ void BaseTextEditorWidget::setupAsPlainEditor()
 
 IEditor *BaseTextEditor::duplicate()
 {
+    // Use new standard setup if that's available.
+    if (d->m_origin)
+        return d->m_origin->duplicateTextEditor(this);
+
     // Use standard setup if that's available.
     if (d->m_editorCreator) {
         BaseTextEditor *editor = d->m_editorCreator();
@@ -7192,8 +7198,9 @@ QWidget *BaseTextEditor::widget() const
 BaseTextEditorWidget *BaseTextEditor::ensureWidget() const
 {
     if (m_widget.isNull()) {
-        QTC_ASSERT(d->m_widgetCreator, return 0);
-        BaseTextEditorWidget *widget = d->m_widgetCreator();
+        QTC_ASSERT(!d->m_origin, return 0); // New style always sets it.
+        QTC_ASSERT(d->m_editorWidgetCreator, return 0);
+        BaseTextEditorWidget *widget = d->m_editorWidgetCreator();
         auto that = const_cast<BaseTextEditor *>(this);
         widget->d->m_editor = that;
         that->m_widget = widget;
@@ -7206,10 +7213,92 @@ BaseTextDocumentPtr BaseTextEditor::ensureDocument()
 {
     BaseTextEditorWidget *widget = ensureWidget();
     if (widget->d->m_document.isNull()) {
+        QTC_ASSERT(!d->m_origin, return BaseTextDocumentPtr()); // New style always sets it.
         QTC_ASSERT(d->m_documentCreator, return BaseTextDocumentPtr());
         widget->setTextDocument(BaseTextDocumentPtr(d->m_documentCreator()));
     }
     return widget->textDocumentPtr();
+}
+
+
+//
+// BaseTextEditorFactory
+//
+
+BaseTextEditorFactory::BaseTextEditorFactory(QObject *parent)
+    : IEditorFactory(parent)
+{
+}
+
+void BaseTextEditorFactory::setDocumentCreator(const BaseTextDocumentCreator &creator)
+{
+    m_documentCreator = creator;
+}
+
+void BaseTextEditorFactory::setEditorWidgetCreator(const BaseTextEditorWidgetCreator &creator)
+{
+    m_widgetCreator = creator;
+}
+
+void BaseTextEditorFactory::setEditorCreator(const BaseTextEditorCreator &creator)
+{
+    m_editorCreator = creator;
+}
+
+void BaseTextEditorFactory::setIndenterCreator(const IndenterCreator &creator)
+{
+    m_indenterCreator = creator;
+}
+
+void BaseTextEditorFactory::setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator)
+{
+    m_syntaxHighlighterCreator = creator;
+}
+
+void BaseTextEditorFactory::setEditorActionHandlers(Id contextId, uint optionalActions)
+{
+    new TextEditorActionHandler(this, contextId, optionalActions);
+}
+
+void BaseTextEditorFactory::setEditorActionHandlers(uint optionalActions)
+{
+    new TextEditorActionHandler(this, id(), optionalActions);
+}
+
+BaseTextEditor *BaseTextEditorFactory::duplicateTextEditor(BaseTextEditor *other)
+{
+    return createEditorHelper(other->editorWidget()->textDocumentPtr());
+}
+
+IEditor *BaseTextEditorFactory::createEditor()
+{
+    BaseTextDocumentPtr doc(m_documentCreator());
+
+    if (m_indenterCreator)
+        doc->setIndenter(m_indenterCreator());
+
+    if (m_syntaxHighlighterCreator) {
+        SyntaxHighlighter *highlighter = m_syntaxHighlighterCreator();
+        highlighter->setParent(doc.data());
+        doc->setSyntaxHighlighter(highlighter);
+    }
+
+    return createEditorHelper(doc);
+}
+
+BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocumentPtr &document)
+{
+    BaseTextEditorWidget *widget = m_widgetCreator();
+    BaseTextEditor *editor = m_editorCreator();
+    editor->d->m_origin = this;
+
+    widget->d->m_editor = editor;
+    editor->m_widget = widget;
+    widget->setTextDocument(document);
+
+    widget->d->m_codeAssistant.configure(editor);
+
+    return editor;
 }
 
 } // namespace TextEditor
