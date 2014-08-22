@@ -23,20 +23,14 @@ if [ -d "$5" ]; then
     cp -R "$5"/ "$imports2Dir"/
 fi
 
-qmlpuppetapp="$1/Contents/MacOS/qmlpuppet.app"
+qmlpuppetapp="$1/Contents/MacOS/qmlpuppet"
 if [ -d "$qmlpuppetapp" ]; then
-    qmlpuppetArgument="-executable=$qmlpuppetapp/Contents/MacOS/qmlpuppet"
-    qmlpuppetResources="$1/Contents/MacOS/qmlpuppet.app/Contents/Resources"
-    test -d "$qmlpuppetResources" || mkdir -p "$qmlpuppetResources"
-    cp "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmlpuppet_qt.conf" "$qmlpuppetResources/qt.conf" || exit 1
+    qmlpuppetArgument="-executable=$qmlpuppetapp"
 fi
 
-qml2puppetapp="$1/Contents/MacOS/qml2puppet.app"
+qml2puppetapp="$1/Contents/MacOS/qml2puppet"
 if [ -d "$qml2puppetapp" ]; then
-    qml2puppetArgument="-executable=$qml2puppetapp/Contents/MacOS/qml2puppet"
-    qml2puppetResources="$1/Contents/MacOS/qml2puppet.app/Contents/Resources"
-    test -d "$qml2puppetResources" || mkdir -p "$qml2puppetResources"
-    cp "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmlpuppet_qt.conf" "$qml2puppetResources/qt.conf" || exit 1
+    qml2puppetArgument="-executable=$qml2puppetapp"
 fi
 
 macdeployqt "$1" \
