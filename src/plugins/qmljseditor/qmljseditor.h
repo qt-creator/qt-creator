@@ -94,7 +94,6 @@ private slots:
     void updateUses();
 
     void semanticInfoUpdated(const QmlJSTools::SemanticInfo &semanticInfo);
-    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
     void performQuickFix(int index);
     void updateCodeWarnings(QmlJS::Document::Ptr doc);
@@ -112,6 +111,7 @@ protected:
                                                       bool resolveTarget = true,
                                                       bool inNextSplit = false);
     QString foldReplacementText(const QTextBlock &block) const;
+    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
 private:
     bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;

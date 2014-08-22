@@ -119,6 +119,8 @@ protected:
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
                     bool inNextSplit = false) QTC_OVERRIDE;
 
+    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) QTC_OVERRIDE;
+
 protected slots:
     void slotCodeStyleSettingsChanged(const QVariant &) QTC_OVERRIDE;
 
@@ -126,7 +128,6 @@ private slots:
     void updateFunctionDeclDefLink();
     void updateFunctionDeclDefLinkNow();
     void abortDeclDefLink();
-    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
     void onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link);
 
     void onFilePathChanged();
