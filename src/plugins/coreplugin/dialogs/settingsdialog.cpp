@@ -365,6 +365,7 @@ void SettingsDialog::showPage(Id categoryId, Id pageId)
         if (category->id == initialCategory) {
             initialCategoryIndex = i;
             if (initialPage.isValid()) {
+                ensureCategoryWidget(category);
                 for (int j = 0; j < category->pages.size(); ++j) {
                     IOptionsPage *page = category->pages.at(j);
                     if (page->id() == initialPage)
