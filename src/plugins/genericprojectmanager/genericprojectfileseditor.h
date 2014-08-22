@@ -32,23 +32,13 @@
 
 #include <texteditor/basetexteditor.h>
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-
 namespace GenericProjectManager {
 namespace Internal {
 
-class ProjectFilesFactory: public Core::IEditorFactory
+class ProjectFilesFactory : public TextEditor::BaseTextEditorFactory
 {
 public:
     ProjectFilesFactory();
-
-    Core::IEditor *createEditor();
-};
-
-class ProjectFilesEditor : public TextEditor::BaseTextEditor
-{
-public:
-    ProjectFilesEditor();
 };
 
 } // namespace Internal

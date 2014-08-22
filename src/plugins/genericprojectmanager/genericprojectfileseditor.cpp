@@ -41,11 +41,23 @@ using namespace TextEditor;
 namespace GenericProjectManager {
 namespace Internal {
 
-////////////////////////////////////////////////////////////////////////////////////////
+//
+// ProjectFilesEditor
+//
+
+class ProjectFilesEditor : public BaseTextEditor
+{
+public:
+    ProjectFilesEditor()
+    {
+        addContext(Constants::C_FILESEDITOR);
+        setDuplicateSupported(true);
+    }
+};
+
 //
 // ProjectFilesFactory
 //
-////////////////////////////////////////////////////////////////////////////////////////
 
 ProjectFilesFactory::ProjectFilesFactory()
 {
@@ -54,27 +66,10 @@ ProjectFilesFactory::ProjectFilesFactory()
     addMimeType(Constants::FILES_MIMETYPE);
     addMimeType(Constants::INCLUDES_MIMETYPE);
     addMimeType(Constants::CONFIG_MIMETYPE);
-    new TextEditor::TextEditorActionHandler(this, Constants::C_FILESEDITOR);
-}
 
-Core::IEditor *ProjectFilesFactory::createEditor()
-{
-    return new ProjectFilesEditor;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-//
-// ProjectFilesEditor
-//
-////////////////////////////////////////////////////////////////////////////////////////
-
-ProjectFilesEditor::ProjectFilesEditor()
-{
-    addContext(Constants::C_FILESEDITOR);
-    setDuplicateSupported(true);
     setEditorCreator([]() { return new ProjectFilesEditor; });
-    setWidgetCreator([]() { return new BaseTextEditorWidget; });
     setDocumentCreator([]() { return new BaseTextDocument(Constants::FILES_EDITOR_ID); });
+    setEditorActionHandlers(Constants::C_FILESEDITOR, TextEditorActionHandler::None);
 }
 
 } // namespace Internal
