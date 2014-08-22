@@ -7316,6 +7316,9 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
     if (m_autoCompleterCreator)
         widget->setAutoCompleter(m_autoCompleterCreator());
 
+    widget->finalizeInitialization();
+    editor->finalizeInitialization();
+
     return editor;
 }
 

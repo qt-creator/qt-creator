@@ -32,8 +32,6 @@
 
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/codeassist/completionassistprovider.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -47,47 +45,21 @@ class CMakeEditor : public TextEditor::BaseTextEditor
 public:
     CMakeEditor();
 
+    void finalizeInitialization();
     QString contextHelpId() const;
 
     friend class CMakeEditorWidget;
 
-private slots:
-    void markAsChanged();
+public slots:
     void build();
 };
 
-class CMakeEditorWidget : public TextEditor::BaseTextEditorWidget
-{
-    Q_OBJECT
-
-public:
-    CMakeEditorWidget();
-
-private:
-    bool save(const QString &fileName = QString());
-    Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false);
-    TextEditor::BaseTextEditor *createEditor();
-    void contextMenuEvent(QContextMenuEvent *e);
-};
-
-class CMakeDocument : public TextEditor::BaseTextDocument
-{
-    Q_OBJECT
-
-public:
-    CMakeDocument();
-
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-};
-
-class CMakeEditorFactory : public Core::IEditorFactory
+class CMakeEditorFactory : public TextEditor::BaseTextEditorFactory
 {
     Q_OBJECT
 
 public:
     CMakeEditorFactory();
-    Core::IEditor *createEditor();
 };
 
 } // namespace Internal

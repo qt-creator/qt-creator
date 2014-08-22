@@ -129,6 +129,8 @@ public:
     BaseTextEditor();
     ~BaseTextEditor();
 
+    virtual void finalizeInitialization() {}
+
     void setEditorCreator(const BaseTextEditorCreator &creator);
     void setDocumentCreator(const BaseTextDocumentCreator &creator);
     void setWidgetCreator(const BaseTextEditorWidgetCreator &creator);
@@ -545,6 +547,7 @@ protected:
     virtual void onRefactorMarkerClicked(const RefactorMarker &) {}
 
     void showDefaultContextMenu(QContextMenuEvent *e, Core::Id menuContextId);
+    virtual void finalizeInitialization() {}
 
 public:
     struct Link
@@ -621,16 +624,16 @@ private:
     friend class RefactorOverlay;
 };
 
-typedef std::function<SyntaxHighlighter *()> SyntaxHighLighterCreator;
-typedef std::function<Indenter *()> IndenterCreator;
-typedef std::function<AutoCompleter *()> AutoCompleterCreator;
-
 class TEXTEDITOR_EXPORT BaseTextEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 
 public:
     BaseTextEditorFactory(QObject *parent = 0);
+
+    typedef std::function<SyntaxHighlighter *()> SyntaxHighLighterCreator;
+    typedef std::function<Indenter *()> IndenterCreator;
+    typedef std::function<AutoCompleter *()> AutoCompleterCreator;
 
     void setDocumentCreator(const BaseTextDocumentCreator &creator);
     void setEditorWidgetCreator(const BaseTextEditorWidgetCreator &creator);
@@ -643,10 +646,12 @@ public:
     void setEditorActionHandlers(Core::Id contextId, uint optionalActions);
     void setEditorActionHandlers(uint optionalActions);
 
-    BaseTextEditor *duplicateTextEditor(BaseTextEditor *);
 private:
+    friend class BaseTextEditor;
+
     Core::IEditor *createEditor();
     BaseTextEditor *createEditorHelper(const BaseTextDocumentPtr &doc);
+    BaseTextEditor *duplicateTextEditor(BaseTextEditor *);
 
     BaseTextDocumentCreator m_documentCreator;
     BaseTextEditorWidgetCreator m_widgetCreator;

@@ -34,14 +34,10 @@
 #include "cmakeproject.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -59,7 +55,6 @@
 
 using namespace Core;
 using namespace TextEditor;
-using namespace CMakeProjectManager::Constants;
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -74,29 +69,24 @@ CMakeEditor::CMakeEditor()
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>());
-    setEditorCreator([]() { return new CMakeEditor; });
-    setWidgetCreator([]() { return new CMakeEditorWidget; });
-
-    setDocumentCreator([this]() -> BaseTextDocument * {
-        auto doc = new CMakeDocument;
-        connect(doc, &IDocument::changed, this, &CMakeEditor::markAsChanged);
-        return doc;
-    });
 }
 
-void CMakeEditor::markAsChanged()
+void CMakeEditor::finalizeInitialization()
 {
-    if (!document()->isModified())
-        return;
-    InfoBar *infoBar = document()->infoBar();
-    Id infoRunCmake("CMakeEditor.RunCMake");
-    if (!infoBar->canInfoBeAdded(infoRunCmake))
-        return;
-    InfoBarEntry info(infoRunCmake,
-                      tr("Changes to cmake files are shown in the project tree after building."),
-                      InfoBarEntry::GlobalSuppressionEnabled);
-    info.setCustomButtonInfo(tr("Build now"), this, SLOT(build()));
-    infoBar->addInfo(info);
+    connect(document(), &IDocument::changed, [this]() {
+        BaseTextDocument *document = textDocument();
+        if (!document->isModified())
+            return;
+        InfoBar *infoBar = document->infoBar();
+        Id infoRunCmake("CMakeEditor.RunCMake");
+        if (!infoBar->canInfoBeAdded(infoRunCmake))
+            return;
+        InfoBarEntry info(infoRunCmake,
+                          tr("Changes to cmake files are shown in the project tree after building."),
+                          InfoBarEntry::GlobalSuppressionEnabled);
+        info.setCustomButtonInfo(tr("Build now"), this, SLOT(build()));
+        infoBar->addInfo(info);
+    });
 }
 
 void CMakeEditor::build()
@@ -157,6 +147,18 @@ QString CMakeEditor::contextHelpId() const
 //
 // CMakeEditorWidget
 //
+
+class CMakeEditorWidget : public BaseTextEditorWidget
+{
+public:
+    CMakeEditorWidget();
+
+private:
+    bool save(const QString &fileName = QString());
+    Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false);
+    BaseTextEditor *createEditor();
+    void contextMenuEvent(QContextMenuEvent *e);
+};
 
 CMakeEditorWidget::CMakeEditorWidget()
 {
@@ -251,13 +253,19 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 // CMakeDocument
 //
 
+class CMakeDocument : public BaseTextDocument
+{
+public:
+    CMakeDocument();
+
+    QString defaultPath() const;
+    QString suggestedFileName() const;
+};
+
 CMakeDocument::CMakeDocument()
 {
     setId(Constants::CMAKE_EDITOR_ID);
     setMimeType(QLatin1String(Constants::CMAKEMIMETYPE));
-
-    MimeType mimeType = MimeDatabase::findByType(QLatin1String(Constants::CMAKEMIMETYPE));
-    setSyntaxHighlighter(TextEditor::createGenericSyntaxHighlighter(mimeType));
 }
 
 QString CMakeDocument::defaultPath() const
@@ -283,19 +291,19 @@ CMakeEditorFactory::CMakeEditorFactory()
     addMimeType(Constants::CMAKEMIMETYPE);
     addMimeType(Constants::CMAKEPROJECTMIMETYPE);
 
-    new TextEditorActionHandler(this, Constants::C_CMAKEEDITOR,
+    setEditorCreator([]() { return new CMakeEditor; });
+    setEditorWidgetCreator([]() { return new CMakeEditorWidget; });
+    setDocumentCreator([]() { return new CMakeDocument; });
+    setGenericSyntaxHighlighter(QLatin1String(Constants::CMAKEMIMETYPE));
+
+    setEditorActionHandlers(Constants::C_CMAKEEDITOR,
             TextEditorActionHandler::UnCommentSelection
             | TextEditorActionHandler::JumpToFileUnderCursor);
 
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
     contextMenu->addAction(ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR));
-    contextMenu->addSeparator(Context(C_CMAKEEDITOR));
+    contextMenu->addSeparator(Context(Constants::C_CMAKEEDITOR));
     contextMenu->addAction(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
-}
-
-IEditor *CMakeEditorFactory::createEditor()
-{
-    return new CMakeEditor;
 }
 
 } // namespace Internal
