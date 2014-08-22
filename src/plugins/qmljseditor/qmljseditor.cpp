@@ -106,12 +106,8 @@ namespace Internal {
 // QmlJSEditorWidget
 //
 
-QmlJSEditorWidget::QmlJSEditorWidget(BaseTextDocumentPtr doc)
+QmlJSEditorWidget::QmlJSEditorWidget()
 {
-    setTextDocument(doc);
-    setAutoCompleter(new AutoCompleter);
-
-    m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(doc.data());
     m_outlineCombo = 0;
     m_contextPane = 0;
     m_findReferences = new FindReferences(this);
@@ -120,6 +116,11 @@ QmlJSEditorWidget::QmlJSEditorWidget(BaseTextDocumentPtr doc)
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+}
+
+void QmlJSEditorWidget::finalizeInitialization()
+{
+    m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(textDocument());
 
     m_updateUsesTimer = new QTimer(this);
     m_updateUsesTimer->setInterval(UPDATE_USES_DEFAULT_INTERVAL);
@@ -160,10 +161,6 @@ QmlJSEditorWidget::QmlJSEditorWidget(BaseTextDocumentPtr doc)
     createToolBar();
 }
 
-QmlJSEditorWidget::~QmlJSEditorWidget()
-{
-}
-
 QModelIndex QmlJSEditorWidget::outlineModelIndex()
 {
     if (!m_outlineModelIndex.isValid()) {
@@ -171,15 +168,6 @@ QModelIndex QmlJSEditorWidget::outlineModelIndex()
         emit outlineModelIndexChanged(m_outlineModelIndex);
     }
     return m_outlineModelIndex;
-}
-
-IEditor *QmlJSEditor::duplicate()
-{
-    auto editor = new QmlJSEditor;
-    auto widget = new QmlJSEditorWidget(editorWidget()->textDocumentPtr());
-    editor->setEditorWidget(widget);
-    editor->configureCodeAssistant();
-    return editor;
 }
 
 bool QmlJSEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
@@ -898,6 +886,11 @@ QmlJSEditor::QmlJSEditor()
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>());
 }
 
+void QmlJSEditor::finalizeInitialization()
+{
+    configureCodeAssistant();
+}
+
 bool QmlJSEditor::isDesignModePreferred() const
 {
     // stay in design mode if we are there
@@ -921,20 +914,18 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
     addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
     addMimeType(QmlJSTools::Constants::JSON_MIMETYPE);
-    new TextEditorActionHandler(this, Constants::C_QMLJSEDITOR_ID,
+
+    setDocumentCreator([]() { return new QmlJSEditorDocument; });
+    setEditorWidgetCreator([]() { return new QmlJSEditorWidget; });
+    setEditorCreator([]() { return new QmlJSEditor; });
+    setAutoCompleterCreator([]() { return new AutoCompleter; });
+
+    setEditorActionHandlers(Constants::C_QMLJSEDITOR_ID,
           TextEditorActionHandler::Format
         | TextEditorActionHandler::UnCommentSelection
         | TextEditorActionHandler::UnCollapseAll
         | TextEditorActionHandler::FollowSymbolUnderCursor);
 
-}
-
-IEditor *QmlJSEditorFactory::createEditor()
-{
-    auto editor = new QmlJSEditor;
-    editor->setEditorWidget(new QmlJSEditorWidget(BaseTextDocumentPtr(new QmlJSEditorDocument)));
-    editor->configureCodeAssistant();
-    return editor;
 }
 
 } // namespace Internal

@@ -29,6 +29,7 @@
 
 #include "qmljshoverhandler.h"
 #include "qmljseditor.h"
+#include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
 #include "qmlexpressionundercursor.h"
 
@@ -97,10 +98,7 @@ HoverHandler::HoverHandler(QObject *parent) : BaseHoverHandler(parent), m_modelM
 
 bool HoverHandler::acceptEditor(IEditor *editor)
 {
-    QmlJSEditor *qmlEditor = qobject_cast<QmlJSEditor *>(editor);
-    if (qmlEditor)
-        return true;
-    return false;
+    return editor->context().contains(Constants::C_QMLJSEDITOR_ID);
 }
 
 static inline QString getModuleName(const ScopeChain &scopeChain, const Document::Ptr &qmlDocument,

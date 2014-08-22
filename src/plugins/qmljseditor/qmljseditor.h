@@ -34,7 +34,6 @@
 
 #include <qmljs/qmljsscanner.h>
 #include <qmljstools/qmljssemanticinfo.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 #include <texteditor/texteditorconstants.h>
@@ -65,8 +64,9 @@ class QmlJSEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    QmlJSEditorWidget(TextEditor::BaseTextDocumentPtr doc);
-    ~QmlJSEditorWidget();
+    QmlJSEditorWidget();
+
+    void finalizeInitialization();
 
     QmlJSEditorDocument *qmlJsEditorDocument() const;
 
@@ -146,19 +146,17 @@ class QmlJSEditor : public TextEditor::BaseTextEditor
 public:
     QmlJSEditor();
 
-    Core::IEditor *duplicate();
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool isDesignModePreferred() const;
+    void finalizeInitialization();
 };
 
-class QmlJSEditorFactory : public Core::IEditorFactory
+class QmlJSEditorFactory : public TextEditor::BaseTextEditorFactory
 {
     Q_OBJECT
 
 public:
     QmlJSEditorFactory();
-
-    Core::IEditor *createEditor();
 };
 
 } // namespace Internal
