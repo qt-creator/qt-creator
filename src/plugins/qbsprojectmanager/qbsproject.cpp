@@ -131,6 +131,11 @@ QbsProject::~QbsProject()
 {
     m_codeModelFuture.cancel();
     delete m_qbsProjectParser;
+    if (m_qbsUpdateFutureInterface) {
+        m_qbsUpdateFutureInterface->reportCanceled();
+        delete m_qbsUpdateFutureInterface;
+        m_qbsUpdateFutureInterface = 0;
+    }
 
     // Deleting the root node triggers a few things, make sure rootProjectNode
     // returns 0 already
