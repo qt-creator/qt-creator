@@ -235,7 +235,7 @@ static bool runBuildProcess(QProcess &proc,
         QString cmd = binary.toString();
         if (!args.isEmpty()) {
             cmd += QLatin1Char(' ');
-            cmd += args.join(QString(QLatin1Char(' ')));
+            cmd += args.join(QLatin1Char(' '));
         }
         *errorMessage =
                 QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
@@ -287,7 +287,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     log->append(newline);
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                             "Running %1 %2 ...\n").arg(arguments.qmakeCommand.toUserOutput(),
-                                                                       qmakeArgs.join(QLatin1String(" "))));
+                                                                       qmakeArgs.join(QLatin1Char(' '))));
 
     if (!runBuildProcess(proc, arguments.qmakeCommand, qmakeArgs, 30000, false, log, errorMessage))
         return false;
@@ -299,7 +299,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     }
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
                                             "Running %1 %2 ...\n")
-                .arg(makeFullPath.toUserOutput(), arguments.makeArguments.join(QLatin1String(" "))));
+                .arg(makeFullPath.toUserOutput(), arguments.makeArguments.join(QLatin1Char(' '))));
     if (!runBuildProcess(proc, makeFullPath, arguments.makeArguments, 120000, false, log, errorMessage))
         return false;
     return true;

@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     }
 
     if (!args.isEmpty())
-        qDebug("Ignoring extraneous parameters '%s'.\n", qPrintable(args.join(QLatin1String(" "))));
+        qDebug("Ignoring extraneous parameters '%s'.\n", qPrintable(args.join(QLatin1Char(' '))));
 
     QFile compilerOutputFile(filePath);
     if (!compilerOutputFile.open(QIODevice::ReadOnly)) {

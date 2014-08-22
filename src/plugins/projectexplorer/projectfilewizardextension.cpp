@@ -206,7 +206,7 @@ bool ProjectFileWizardExtension::processProject(
         QStringList filePaths = Utils::transform(files, &GeneratedFile::path);
         if (!folder->addFiles(filePaths)) {
             *errorMessage = tr("Failed to add one or more files to project\n\"%1\" (%2).").
-                    arg(folder->path(), filePaths.join(QString(QLatin1Char(','))));
+                    arg(folder->path(), filePaths.join(QLatin1Char(',')));
             return false;
         }
     }

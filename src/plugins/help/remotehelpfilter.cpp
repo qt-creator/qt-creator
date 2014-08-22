@@ -126,7 +126,7 @@ QByteArray RemoteHelpFilter::saveState() const
 {
     QByteArray value;
     QDataStream out(&value, QIODevice::WriteOnly);
-    out << m_remoteUrls.join(QLatin1String("^"));
+    out << m_remoteUrls.join(QLatin1Char('^'));
     out << shortcutString();
     out << isIncludedByDefault();
     return value;

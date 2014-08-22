@@ -237,7 +237,7 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
                     reader.readMetaInfoFile(metaInfoFile.absoluteFilePath(), true);
                 } catch (InvalidMetaInfoException &e) {
                     qWarning() << e.description();
-                    const QString errorMessage = metaInfoFile.absoluteFilePath() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QStringLiteral("\n"));
+                    const QString errorMessage = metaInfoFile.absoluteFilePath() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QLatin1Char('\n'));
                     QmlDesignerWarning::show(QCoreApplication::translate("SubComponentManager::parseDirectory", "Invalid meta info"),
                                           errorMessage);
                 }

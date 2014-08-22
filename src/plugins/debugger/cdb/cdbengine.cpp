@@ -686,10 +686,10 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
 
     const QStringList &symbolPaths = stringListSetting(CdbSymbolPaths);
     if (!symbolPaths.isEmpty())
-        arguments << QLatin1String("-y") << symbolPaths.join(QString(QLatin1Char(';')));
+        arguments << QLatin1String("-y") << symbolPaths.join(QLatin1Char(';'));
     const QStringList &sourcePaths = stringListSetting(CdbSourcePaths);
     if (!sourcePaths.isEmpty())
-        arguments << QLatin1String("-srcpath") << sourcePaths.join(QString(QLatin1Char(';')));
+        arguments << QLatin1String("-srcpath") << sourcePaths.join(QLatin1Char(';'));
 
     // Compile argument string preserving quotes
     QString nativeArguments = stringSetting(CdbAdditionalArguments);
@@ -727,7 +727,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
 
     const QString msg = QString::fromLatin1("Launching %1 %2\nusing %3 of %4.").
             arg(QDir::toNativeSeparators(executable),
-                arguments.join(QString(blank)) + blank + nativeArguments,
+                arguments.join(blank) + blank + nativeArguments,
                 QDir::toNativeSeparators(extensionFi.absoluteFilePath()),
                 extensionFi.lastModified().toString(Qt::SystemLocaleShortDate));
     showMessage(msg, LogMisc);

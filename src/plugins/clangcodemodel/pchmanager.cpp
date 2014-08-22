@@ -113,7 +113,7 @@ void PchManager::setPCHInfo(const QList<ProjectPart::Ptr> &projectParts,
                                 pchInfo->fileName()), Core::MessageManager::Silent);
         }
         if (!msgs.second.isEmpty())
-            emit pchMessage(msgs.second.join(QLatin1String("\n")), Core::MessageManager::Flash);
+            emit pchMessage(msgs.second.join(QLatin1Char('\n')), Core::MessageManager::Flash);
     }
 }
 

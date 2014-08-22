@@ -204,7 +204,7 @@ QString ParseData::prettyStringForEvent(const QString &event)
 
     // add original abbreviation
     prettyString << QLatin1Char('(') + event + QLatin1Char(')');
-    return prettyString.join(QString(QLatin1Char(' ')));
+    return prettyString.join(QLatin1Char(' '));
 }
 
 QStringList ParseData::events() const

@@ -166,7 +166,7 @@ void HighlighterSettings::setIgnoredFilesPatterns(const QString &patterns)
 
 QString HighlighterSettings::ignoredFilesPatterns() const
 {
-    return listFromExpressions().join(QLatin1String(","));
+    return listFromExpressions().join(QLatin1Char(','));
 }
 
 void HighlighterSettings::assignDefaultIgnoredPatterns()

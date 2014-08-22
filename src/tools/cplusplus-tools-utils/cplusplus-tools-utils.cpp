@@ -57,7 +57,7 @@ void executeCommand(const QString &command, const QStringList &arguments, const 
         exit(EXIT_FAILURE);
     }
 
-    const QString fullCommand = command + QLatin1Char(' ') + arguments.join(QLatin1String(" "));
+    const QString fullCommand = command + QLatin1Char(' ') + arguments.join(QLatin1Char(' '));
     if (verbose)
         out << "Executing: " << fullCommand << endl;
 

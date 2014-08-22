@@ -114,7 +114,7 @@ static bool
     if (CustomWizard::verbose())
         qDebug("In %s, running:\n%s\n%s\n", qPrintable(workingDirectory),
                qPrintable(binary),
-               qPrintable(arguments.join(QString(QLatin1Char(' ')))));
+               qPrintable(arguments.join(QLatin1Char(' '))));
     process.start(binary, arguments);
     if (!process.waitForStarted()) {
         *errorMessage = QString::fromLatin1("Unable to start generator script %1: %2").

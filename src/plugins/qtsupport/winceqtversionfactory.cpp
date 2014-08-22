@@ -73,7 +73,7 @@ BaseQtVersion *WinCeQtVersionFactory::create(const Utils::FileName &qmakePath, P
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
 
-    QString ce_sdk = evaluator->values(QLatin1String("CE_SDK")).join(QLatin1String(" "));
+    QString ce_sdk = evaluator->values(QLatin1String("CE_SDK")).join(QLatin1Char(' '));
     QString ce_arch = evaluator->value(QLatin1String("CE_ARCH"));
 
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty())

@@ -376,7 +376,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     if (useable) {
         warnings += version->warningReason();
         if (!warnings.isEmpty()) {
-            info.message = warnings.join(QLatin1String("\n"));
+            info.message = warnings.join(QLatin1Char('\n'));
             info.icon = m_warningVersionIcon;
         }
     }

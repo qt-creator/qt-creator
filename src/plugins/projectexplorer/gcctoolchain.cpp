@@ -100,7 +100,7 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
     if (cpp.exitCode() != 0) {
         qWarning().nospace()
             << Q_FUNC_INFO << ": " << gcc.toUserOutput() << ' '
-            << arguments.join(QLatin1String(" ")) << " returned exit code "
+            << arguments.join(QLatin1Char(' ')) << " returned exit code "
             << cpp.exitCode() << ": " << stdErr;
         return QByteArray();
     }

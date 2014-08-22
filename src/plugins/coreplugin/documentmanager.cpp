@@ -1113,7 +1113,7 @@ void DocumentManager::checkForReload()
     }
     if (!errorStrings.isEmpty())
         QMessageBox::critical(ICore::dialogParent(), tr("File Error"),
-                              errorStrings.join(QLatin1String("\n")));
+                              errorStrings.join(QLatin1Char('\n')));
 
     // handle deleted files
     EditorManager::closeDocuments(documentsToClose, false);

@@ -208,7 +208,7 @@ void StashDialog::deleteSelection()
             errors.push_back(errorMessage);
     refresh(m_repository, true);
     if (!errors.isEmpty())
-        warning(title, errors.join(QString(QLatin1Char('\n'))));
+        warning(title, errors.join(QLatin1Char('\n')));
 }
 
 void StashDialog::showCurrent()

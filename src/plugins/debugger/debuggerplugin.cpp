@@ -2640,7 +2640,7 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
                 << " Local: " << sp.localMountDir << '\n';
     }
     str << "Sysroot: " << sp.sysRoot << '\n';
-    str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1String(":")) << '\n';
+    str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1Char(':')) << '\n';
     return rc;
 }
 

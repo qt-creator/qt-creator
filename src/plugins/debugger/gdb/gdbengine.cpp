@@ -4156,7 +4156,7 @@ void GdbEngine::startGdb(const QStringList &args)
     connect(m_gdbProc, SIGNAL(readyReadStandardError()),
         SLOT(readGdbStandardError()));
 
-    showMessage(_("STARTING ") + m_gdb + _(" ") + gdbArgs.join(_(" ")));
+    showMessage(_("STARTING ") + m_gdb + _(" ") + gdbArgs.join(QLatin1Char(' ')));
     m_gdbProc->start(m_gdb, gdbArgs);
 
     if (!m_gdbProc->waitForStarted()) {

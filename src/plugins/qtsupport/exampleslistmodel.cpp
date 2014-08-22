@@ -657,7 +657,7 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
     switch (role)
     {
     case Qt::DisplayRole: // for search only
-        return QString(prefixForItem(item) + item.name + QLatin1Char(' ') + item.tags.join(QLatin1String(" ")));
+        return QString(prefixForItem(item) + item.name + QLatin1Char(' ') + item.tags.join(QLatin1Char(' ')));
     case Name:
         return item.name;
     case ProjectPath:

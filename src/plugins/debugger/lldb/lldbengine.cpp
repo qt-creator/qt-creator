@@ -254,7 +254,7 @@ void LldbEngine::startLldb()
     args.append(_("-i"));
     args.append(Core::ICore::resourcePath() + _("/debugger/lldbbridge.py"));
     args.append(m_lldbCmd);
-    showMessage(_("STARTING LLDB ") + args.join(QLatin1String(" ")));
+    showMessage(_("STARTING LLDB ") + args.join(QLatin1Char(' ')));
     m_lldbProc.setEnvironment(startParameters().environment.toStringList());
     if (!startParameters().workingDirectory.isEmpty())
         m_lldbProc.setWorkingDirectory(startParameters().workingDirectory);

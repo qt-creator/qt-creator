@@ -539,7 +539,7 @@ AndroidConfig::CreateAvdInfo AndroidConfig::createAVDImpl(CreateAvdInfo info, Ut
     proc.start(androidToolPath.toString(), arguments);
     if (!proc.waitForStarted()) {
         info.error = QApplication::translate("AndroidConfig", "Could not start process \"%1 %2\"")
-                .arg(androidToolPath.toString(), arguments.join(QLatin1String(" ")));
+                .arg(androidToolPath.toString(), arguments.join(QLatin1Char(' ')));
         return info;
     }
 

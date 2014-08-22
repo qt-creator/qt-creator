@@ -457,7 +457,7 @@ void tst_ProFileWriter::adds()
     PW::putVarValues(proFile, &lines, values, var, PW::PutFlags(flags), scope);
     proFile->deref();
 
-    QCOMPARE(lines.join(QLatin1String("\n")), output);
+    QCOMPARE(lines.join(QLatin1Char('\n')), output);
 }
 
 void tst_ProFileWriter::removes_data()
@@ -628,7 +628,7 @@ void tst_ProFileWriter::removes()
     QmakeProjectManager::Internal::ProWriter::removeVarValues(proFile, &lines, values, vars);
     proFile->deref();
 
-    QCOMPARE(lines.join(QLatin1String("\n")), output);
+    QCOMPARE(lines.join(QLatin1Char('\n')), output);
 }
 
 void tst_ProFileWriter::multiVar()
@@ -657,7 +657,7 @@ void tst_ProFileWriter::multiVar()
     QmakeProjectManager::Internal::ProWriter::removeFiles(proFile, &lines, baseDir, files, vars);
     proFile->deref();
 
-    QCOMPARE(lines.join(QLatin1String("\n")), output);
+    QCOMPARE(lines.join(QLatin1Char('\n')), output);
 }
 
 void tst_ProFileWriter::addFiles()
@@ -665,7 +665,7 @@ void tst_ProFileWriter::addFiles()
     QString input = QLatin1String(
             "SOURCES = foo.cpp"
             );
-    QStringList lines = input.split(QLatin1String("\n"));
+    QStringList lines = input.split(QLatin1Char('\n'));
     QString output = QLatin1String(
             "SOURCES = foo.cpp \\\n"
             "    sub/bar.cpp"
@@ -680,7 +680,7 @@ void tst_ProFileWriter::addFiles()
             QLatin1String("SOURCES"));
     proFile->deref();
 
-    QCOMPARE(lines.join(QLatin1String("\n")), output);
+    QCOMPARE(lines.join(QLatin1Char('\n')), output);
 }
 
 void tst_ProFileWriter::removeFiles()
@@ -688,7 +688,7 @@ void tst_ProFileWriter::removeFiles()
     QString input = QLatin1String(
             "SOURCES = foo.cpp sub/bar.cpp"
             );
-    QStringList lines = input.split(QLatin1String("\n"));
+    QStringList lines = input.split(QLatin1Char('\n'));
     QString output = QLatin1String(
             "SOURCES = foo.cpp"
             );
@@ -702,7 +702,7 @@ void tst_ProFileWriter::removeFiles()
             QStringList() << QLatin1String("SOURCES") << QLatin1String("HEADERS"));
     proFile->deref();
 
-    QCOMPARE(lines.join(QLatin1String("\n")), output);
+    QCOMPARE(lines.join(QLatin1Char('\n')), output);
 }
 
 

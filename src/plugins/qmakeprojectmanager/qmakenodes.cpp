@@ -1234,7 +1234,7 @@ void QmakePriFileNode::save(const QStringList &lines)
 {
     Core::DocumentManager::expectFileChange(m_projectFilePath);
     Utils::FileSaver saver(m_projectFilePath, QIODevice::Text);
-    saver.write(lines.join(QLatin1String("\n")).toLocal8Bit());
+    saver.write(lines.join(QLatin1Char('\n')).toLocal8Bit());
     saver.finalize(Core::ICore::mainWindow());
 
     m_project->qmakeProjectManager()->notifyChanged(m_projectFilePath);
@@ -1253,7 +1253,7 @@ void QmakePriFileNode::save(const QStringList &lines)
     }
     if (!errorStrings.isEmpty())
         QMessageBox::warning(Core::ICore::mainWindow(), tr("File Error"),
-                             errorStrings.join(QLatin1String("\n")));
+                             errorStrings.join(QLatin1Char('\n')));
 }
 
 QStringList QmakePriFileNode::varNames(ProjectExplorer::FileType type, QtSupport::ProFileReader *readerExact)

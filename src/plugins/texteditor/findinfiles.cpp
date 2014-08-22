@@ -104,7 +104,7 @@ QString FindInFiles::toolTip() const
     //: %3 is filled by BaseFileFind::runNewSearch
     return tr("Path: %1\nFilter: %2\n%3")
             .arg(path().toUserOutput())
-            .arg(fileNameFilters().join(QLatin1String(",")));
+            .arg(fileNameFilters().join(QLatin1Char(',')));
 }
 
 QWidget *FindInFiles::createConfigWidget()

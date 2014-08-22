@@ -619,7 +619,7 @@ void MimeTypeData::assignSuffixes(const QStringList &patterns)
 void MimeTypeData::debug(QTextStream &str, int indent) const
 {
     const QString indentS = QString(indent, QLatin1Char(' '));
-    const QString comma = QString(1, QLatin1Char(','));
+    const QLatin1Char comma(',');
     str << indentS << "Type: " << type;
     if (!aliases.empty())
         str << " Aliases: " << aliases.join(comma);
@@ -779,7 +779,7 @@ bool MimeType::setPreferredSuffix(const QString &s)
         qWarning("%s: Attempt to set preferred suffix to '%s', which is not in the list of suffixes: %s.",
                  m_d->type.toUtf8().constData(),
                  s.toUtf8().constData(),
-                 m_d->suffixes.join(QLatin1String(",")).toUtf8().constData());
+                 m_d->suffixes.join(QLatin1Char(',')).toUtf8().constData());
         return false;
     }
     m_d->preferredSuffix = s;
@@ -1280,7 +1280,6 @@ public:
     typedef QHash<QString, QString> AliasMap;
     typedef QMultiHash<QString, QString> ParentChildrenMap;
 
-    static const QChar kSemiColon;
     static const QString kModifiedMimeTypesFile;
     static QString kModifiedMimeTypesPath;
 
@@ -1299,7 +1298,6 @@ public:
     QMutex m_mutex;
 };
 
-const QChar MimeDatabasePrivate::kSemiColon(QLatin1Char(';'));
 const QString MimeDatabasePrivate::kModifiedMimeTypesFile(QLatin1String("modifiedmimetypes.xml"));
 QString MimeDatabasePrivate::kModifiedMimeTypesPath;
 
@@ -1691,7 +1689,7 @@ QList<MimeType> MimeDatabasePrivate::readUserModifiedMimeTypes()
                 if (reader.name() == QLatin1String(mimeTypeTagC)) {
                     mimeType.setType(atts.value(mimeTypeAttribute).toString());
                     const QString &patterns = atts.value(patternAttribute).toString();
-                    mimeType.setGlobPatterns(toGlobPatterns(patterns.split(kSemiColon)));
+                    mimeType.setGlobPatterns(toGlobPatterns(patterns.split(QLatin1Char(';'))));
                 } else if (reader.name() == QLatin1String(matchTagC)) {
                     const QString &value = atts.value(matchValueAttribute).toString();
                     const QStringRef type = atts.value(matchTypeAttribute);
@@ -1762,7 +1760,7 @@ void MimeDatabasePrivate::writeUserModifiedMimeTypes(const QList<MimeType> &mime
                 writer.writeStartElement(mimeTypeTag);
                 writer.writeAttribute(mimeTypeAttribute, mimeType.type());
                 writer.writeAttribute(patternAttribute,
-                                      fromGlobPatterns(mimeType.globPatterns()).join(kSemiColon));
+                                      fromGlobPatterns(mimeType.globPatterns()).join(QLatin1Char(';')));
                 const QList<QSharedPointer<IMagicMatcher> > &matchers = mimeType.magicMatchers();
                 foreach (const QSharedPointer<IMagicMatcher> &matcher, matchers) {
                     // Only care about rule-based matchers.

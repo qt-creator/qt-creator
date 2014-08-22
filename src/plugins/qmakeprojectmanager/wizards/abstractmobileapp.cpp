@@ -181,7 +181,7 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
                 folders.append(folderName);
             }
             if (foldersCount > 0)
-                out << "DEPLOYMENTFOLDERS = " << folders.join(QLatin1String(" ")) << endl;
+                out << "DEPLOYMENTFOLDERS = " << folders.join(QLatin1Char(' ')) << endl;
         } else if (line.contains(QLatin1String("# REMOVE_NEXT_LINE"))) {
             in.readLine(); // eats the following line
         } else {

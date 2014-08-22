@@ -50,7 +50,7 @@ static const char usage[] =
 static int testSynchronous(const QString &cmd, const QStringList &args)
 {
     std::fprintf(stdout, "testSynchronous %s %s\n", qPrintable(cmd),
-                 qPrintable(args.join(QLatin1String(" "))));
+                 qPrintable(args.join(QLatin1Char(' '))));
     QProcess p;
     p.start(cmd, args);
     if (!p.waitForStarted())

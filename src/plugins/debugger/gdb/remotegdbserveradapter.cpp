@@ -176,7 +176,7 @@ void GdbRemoteServerEngine::setupInferior()
 //    if (!remoteArch.isEmpty())
 //        postCommand("set architecture " + remoteArch);
     const QString solibSearchPath
-            = sp.solibSearchPath.join(QString(Utils::HostOsInfo::pathListSeparator()));
+            = sp.solibSearchPath.join(Utils::HostOsInfo::pathListSeparator());
     if (!solibSearchPath.isEmpty())
         postCommand("set solib-search-path " + solibSearchPath.toLocal8Bit());
 

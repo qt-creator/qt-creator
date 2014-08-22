@@ -202,7 +202,7 @@ QStringList PathListEditor::pathList() const
 
 void PathListEditor::setPathList(const QStringList &l)
 {
-    d->edit->setPlainText(l.join(QString(QLatin1Char('\n'))));
+    d->edit->setPlainText(l.join(QLatin1Char('\n')));
 }
 
 void PathListEditor::setPathList(const QString &pathString)

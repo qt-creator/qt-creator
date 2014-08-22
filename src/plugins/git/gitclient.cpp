@@ -727,7 +727,7 @@ static inline void msgCannotRun(const QStringList &args, const QString &workingD
                                 const QByteArray &error, QString *errorMessage)
 {
     const QString message = GitClient::tr("Cannot run \"%1 %2\" in \"%2\": %3")
-            .arg(QLatin1String("git ") + args.join(QLatin1String(" ")),
+            .arg(QLatin1String("git ") + args.join(QLatin1Char(' ')),
                  QDir::toNativeSeparators(workingDirectory),
                  commandOutputFromLocal8Bit(error));
 
@@ -3220,7 +3220,7 @@ void GitClient::handleMergeConflicts(const QString &workingDir, const QString &c
     if (!commit.isEmpty())
         message = tr("Conflicts detected with commit %1.").arg(commit);
     else if (!files.isEmpty())
-        message = tr("Conflicts detected with files:\n%1").arg(files.join(QLatin1String("\n")));
+        message = tr("Conflicts detected with files:\n%1").arg(files.join(QLatin1Char('\n')));
     else
         message = tr("Conflicts detected.");
     QMessageBox mergeOrAbort(QMessageBox::Question, tr("Conflicts Detected"), message,

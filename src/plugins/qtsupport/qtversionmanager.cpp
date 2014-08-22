@@ -801,7 +801,7 @@ static BaseQtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeA
                     newValues.append(value);
                 }
                 QMakeAssignment newQA = qa;
-                newQA.value = newValues.join(QLatin1String(" "));
+                newQA.value = newValues.join(QLatin1Char(' '));
                 if (!newValues.isEmpty())
                     assignments->append(newQA);
             }

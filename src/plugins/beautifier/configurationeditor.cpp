@@ -66,7 +66,7 @@ void ConfigurationSyntaxHighlighter::setKeywords(const QStringList &keywords)
             pattern << QRegExp::escape(word);
     }
 
-    m_expressionKeyword.setPattern(QLatin1String("(?:\\s|^)(") + pattern.join(QLatin1String("|"))
+    m_expressionKeyword.setPattern(QLatin1String("(?:\\s|^)(") + pattern.join(QLatin1Char('|'))
                                    + QLatin1String(")(?=\\s|\\:|\\=|\\,|$)"));
 }
 

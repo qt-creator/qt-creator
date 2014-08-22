@@ -416,7 +416,7 @@ static QString loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType
 
     // The next loop requires all library names to end with a ":" so we append one
     // to the end after joining.
-    localLibs = dependencyLibs.join(QLatin1String(":")) + QLatin1Char(':');
+    localLibs = dependencyLibs.join(QLatin1Char(':')) + QLatin1Char(':');
     foreach (QString replacedLib, replacedLibs)
         localLibs.remove(replacedLib + QLatin1Char(':'));
 
@@ -486,7 +486,7 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     arguments << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
     process->connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
     const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
-    Core::MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1String(" ")));
+    Core::MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1Char(' ')));
     process->start(adb, arguments);
     if (!process->waitForStarted(500))
         delete process;
@@ -516,7 +516,7 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
 
     process->connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
     const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
-    Core::MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1String(" ")));
+    Core::MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1Char(' ')));
     process->start(adb, arguments);
     if (!process->waitForFinished(500))
         delete process;

@@ -54,7 +54,7 @@ QnxVersionNumber::QnxVersionNumber()
 
 QString QnxVersionNumber::toString() const
 {
-    return m_segments.join(QLatin1String("."));
+    return m_segments.join(QLatin1Char('.'));
 }
 
 bool QnxVersionNumber::operator >(const QnxVersionNumber &b) const

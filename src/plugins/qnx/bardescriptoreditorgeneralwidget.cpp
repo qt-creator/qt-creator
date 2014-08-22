@@ -73,7 +73,7 @@ void BarDescriptorEditorGeneralWidget::updateWidgetValue(BarDescriptorDocument::
             unblockSignalMapping(BarDescriptorDocument::aspectRatio);
         }
     } else if (tag == BarDescriptorDocument::arg) {
-        m_ui->applicationArguments->setText(value.toStringList().join(QLatin1String(" ")));
+        m_ui->applicationArguments->setText(value.toStringList().join(QLatin1Char(' ')));
     } else {
         BarDescriptorEditorAbstractPanelWidget::updateWidgetValue(tag, value);
     }

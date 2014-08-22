@@ -200,7 +200,7 @@ ImportKey ImportKey::flatKey() const {
 
 QString ImportKey::libraryQualifiedPath() const
 {
-    QString res = splitPath.join(QString::fromLatin1("."));
+    QString res = splitPath.join(QLatin1Char('.'));
     if (res.isEmpty() && !splitPath.isEmpty())
         return QLatin1String("");
     return res;
@@ -208,7 +208,7 @@ QString ImportKey::libraryQualifiedPath() const
 
 QString ImportKey::path() const
 {
-    QString res = splitPath.join(QString::fromLatin1("/"));
+    QString res = splitPath.join(QLatin1Char('/'));
     if (res.isEmpty() && !splitPath.isEmpty())
         return QLatin1String("/");
     return res;
@@ -442,7 +442,7 @@ QString ImportKey::toString() const
         res = path();
         break;
     case ImportType::Library:
-        res = splitPath.join(QLatin1String("."));
+        res = splitPath.join(QLatin1Char('.'));
         break;
     }
 

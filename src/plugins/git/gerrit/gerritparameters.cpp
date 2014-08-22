@@ -132,7 +132,7 @@ void GerritParameters::toSettings(QSettings *s) const
 void GerritParameters::saveQueries(QSettings *s) const
 {
     s->beginGroup(QLatin1String(settingsGroupC));
-    s->setValue(QLatin1String(savedQueriesKeyC), savedQueries.join(QLatin1String(",")));
+    s->setValue(QLatin1String(savedQueriesKeyC), savedQueries.join(QLatin1Char(',')));
     s->endGroup();
 }
 

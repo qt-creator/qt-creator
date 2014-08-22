@@ -100,7 +100,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
     }
     if (aspect->useCppDebugger()) {
         params.languages |= CppLanguage;
-        params.processArgs = runConfig->arguments().join(QLatin1String(" "));
+        params.processArgs = runConfig->arguments().join(QLatin1Char(' '));
         params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
         params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");

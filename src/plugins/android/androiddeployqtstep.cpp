@@ -328,18 +328,18 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &arguments)
 {
     QProcess buildProc;
-    emit addOutput(tr("Package deploy: Running command \"%1 %2\".").arg(program).arg(arguments.join(QLatin1String(" "))), BuildStep::MessageOutput);
+    emit addOutput(tr("Package deploy: Running command \"%1 %2\".").arg(program).arg(arguments.join(QLatin1Char(' '))), BuildStep::MessageOutput);
     buildProc.start(program, arguments);
     if (!buildProc.waitForStarted()) {
         emit addOutput(tr("Packaging error: Could not start command \"%1 %2\". Reason: %3")
-            .arg(program).arg(arguments.join(QLatin1String(" "))).arg(buildProc.errorString()), BuildStep::ErrorMessageOutput);
+            .arg(program).arg(arguments.join(QLatin1Char(' '))).arg(buildProc.errorString()), BuildStep::ErrorMessageOutput);
         return;
     }
     if (!buildProc.waitForFinished(2 * 60 * 1000)
             || buildProc.error() != QProcess::UnknownError
             || buildProc.exitCode() != 0) {
         QString mainMessage = tr("Packaging Error: Command \"%1 %2\" failed.")
-                .arg(program).arg(arguments.join(QLatin1String(" ")));
+                .arg(program).arg(arguments.join(QLatin1Char(' ')));
         if (buildProc.error() != QProcess::UnknownError)
             mainMessage += QLatin1Char(' ') + tr("Reason: %1").arg(buildProc.errorString());
         else

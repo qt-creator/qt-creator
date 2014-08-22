@@ -193,11 +193,11 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
 void QMakeGlobals::commitCommandLineArguments(QMakeCmdLineParserState &state)
 {
     if (!state.preconfigs.isEmpty())
-        state.precmds << (fL1S("CONFIG += ") + state.preconfigs.join(fL1S(" ")));
-    precmds = state.precmds.join(fL1S("\n"));
+        state.precmds << (fL1S("CONFIG += ") + state.preconfigs.join(QLatin1Char(' ')));
+    precmds = state.precmds.join(QLatin1Char('\n'));
     if (!state.postconfigs.isEmpty())
-        state.postcmds << (fL1S("CONFIG += ") + state.postconfigs.join(fL1S(" ")));
-    postcmds = state.postcmds.join(fL1S("\n"));
+        state.postcmds << (fL1S("CONFIG += ") + state.postconfigs.join(QLatin1Char(' ')));
+    postcmds = state.postcmds.join(QLatin1Char('\n'));
 
     if (xqmakespec.isEmpty())
         xqmakespec = qmakespec;

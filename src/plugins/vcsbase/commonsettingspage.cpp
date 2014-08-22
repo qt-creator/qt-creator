@@ -96,7 +96,7 @@ void CommonSettingsWidget::updatePath()
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
     QStringList toAdd = Core::VcsManager::additionalToolsPath();
-    env.appendOrSetPath(toAdd.join(QString(Utils::HostOsInfo::pathListSeparator())));
+    env.appendOrSetPath(toAdd.join(Utils::HostOsInfo::pathListSeparator()));
     m_ui->sshPromptChooser->setEnvironment(env);
 }
 

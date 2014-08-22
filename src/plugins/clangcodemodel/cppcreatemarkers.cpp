@@ -95,7 +95,7 @@ static QString commandLine(const QStringList &options, const QString &fileName)
     foreach (const QString &option, allOptions)
         allOptionsQuoted.append(QLatin1Char('\'') + option + QLatin1Char('\''));
     return ::Utils::HostOsInfo::withExecutableSuffix(QLatin1String("clang"))
-        + QLatin1Char(' ') + allOptionsQuoted.join(QLatin1String(" "));
+        + QLatin1Char(' ') + allOptionsQuoted.join(QLatin1Char(' '));
 }
 
 void CreateMarkers::run()

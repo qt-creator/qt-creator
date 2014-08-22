@@ -112,7 +112,7 @@ void QmlToolsClient::messageReceived(const QByteArray &message)
                 }
             }
             log(LogReceive, type + ':' + event,
-                QString::fromLatin1("[%1]").arg(debugIdStrings.join(QLatin1String(","))));
+                QString::fromLatin1("[%1]").arg(debugIdStrings.join(QLatin1Char(','))));
             emit currentObjectsChanged(m_currentDebugIds);
         }
     } else {
@@ -277,7 +277,7 @@ void QmlToolsClient::createQmlObject(const QString &qmlText,
 
     log(LogSend, CREATE_OBJECT, QString::fromLatin1("%1 %2 [%3] %4").arg(qmlText,
                                                    QString::number(parentDebugId),
-                                                   imports.join(QLatin1String(",")), filename));
+                                                   imports.join(QLatin1Char(',')), filename));
 
     sendMessage(message);
 }

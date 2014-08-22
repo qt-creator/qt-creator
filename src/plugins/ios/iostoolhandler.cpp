@@ -221,7 +221,7 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(IosDeviceType::Enum devType,
         frameworkPaths << xcPath;
     frameworkPaths << QLatin1String("/System/Library/Frameworks")
                    << QLatin1String("/System/Library/PrivateFrameworks");
-    env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"), frameworkPaths.join(QLatin1String(":")));
+    env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"), frameworkPaths.join(QLatin1Char(':')));
     qCDebug(toolHandlerLog) << "IosToolHandler runEnv:" << env.toStringList();
     process.setProcessEnvironment(env);
     QObject::connect(&process, SIGNAL(readyReadStandardOutput()), q, SLOT(subprocessHasData()));

@@ -171,7 +171,7 @@ public:
             }
             return names;
         }
-        return QStringList(fullName().join(QString(QLatin1Char('/'))));
+        return QStringList(fullName().join(QLatin1Char('/')));
     }
 
     int rowOf(BranchNode *node)
@@ -438,7 +438,7 @@ QString BranchModel::fullName(const QModelIndex &idx, bool includePrefix) const
     if (!node || !node->isLeaf())
         return QString();
     QStringList path = node->fullName(includePrefix);
-    return path.join(QString(QLatin1Char('/')));
+    return path.join(QLatin1Char('/'));
 }
 
 QStringList BranchModel::localBranchNames() const

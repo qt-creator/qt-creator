@@ -55,7 +55,7 @@ namespace Internal {
 static inline QString msgStartFailed(const QString &binary, QStringList arguments)
 {
     arguments.push_front(binary);
-    return ExternalQtEditor::tr("Unable to start \"%1\"").arg(arguments.join(QString(QLatin1Char(' '))));
+    return ExternalQtEditor::tr("Unable to start \"%1\"").arg(arguments.join(QLatin1Char(' ')));
 }
 
 static inline QString msgAppNotFound(const QString &id)

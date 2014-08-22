@@ -224,7 +224,7 @@ void GeneralSettings::updatePath()
 {
     Environment env = Environment::systemEnvironment();
     QStringList toAdd = VcsManager::additionalToolsPath();
-    env.appendOrSetPath(toAdd.join(QString(HostOsInfo::pathListSeparator())));
+    env.appendOrSetPath(toAdd.join(HostOsInfo::pathListSeparator()));
     m_page->patchChooser->setEnvironment(env);
 }
 

@@ -288,7 +288,7 @@ void BlackBerryKeysWidget::updateDebugToken(const QStringList &pins)
     const QString debugTokenPath = m_dtModel->item(m_ui->debugTokens->currentIndex().row(), 0)->text();
     m_requester->requestDebugToken(debugTokenPath,
                                    cskPassword, BlackBerryConfigurationManager::instance()->defaultKeystorePath(),
-                                   certificatePassword, pins.join(QLatin1String(",")));
+                                   certificatePassword, pins.join(QLatin1Char(',')));
 }
 
 void BlackBerryKeysWidget::requestFinished(int status)

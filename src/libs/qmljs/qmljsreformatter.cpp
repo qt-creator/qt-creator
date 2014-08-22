@@ -301,7 +301,7 @@ protected:
                 continue;
 
             // the extra space is to avoid // comments sticking to the 0 offset
-            QString indentLine = newContext.join(QLatin1String("\n")) + QLatin1String("\n ") + restLine;
+            QString indentLine = newContext.join(QLatin1Char('\n')) + QLatin1String("\n ") + restLine;
             int indent = tryIndent(indentLine);
 
             QList<Split> newSplits = possibleSplits.mid(i + 1);

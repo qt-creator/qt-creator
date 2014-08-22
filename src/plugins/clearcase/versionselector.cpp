@@ -98,7 +98,7 @@ bool VersionSelector::readValues()
             break;
         messageLines << line;
     } while (!m_stream->atEnd());
-    m_message = messageLines.join(QLatin1String(" "));
+    m_message = messageLines.join(QLatin1Char(' '));
     return true;
 }
 

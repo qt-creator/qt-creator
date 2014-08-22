@@ -517,7 +517,7 @@ QString PluginManager::serializedArguments()
             rc += QLatin1Char(':');
             rc += ps->name();
             rc += separator;
-            rc +=  ps->arguments().join(QString(separator));
+            rc +=  ps->arguments().join(separator);
         }
     }
     if (!d->arguments.isEmpty()) {

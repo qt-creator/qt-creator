@@ -126,7 +126,7 @@ void BlackBerryAbstractDeployStep::addCommand(const QString &command, const QStr
 {
     ProjectExplorer::ProcessParameters param;
     param.setCommand(command);
-    param.setArguments(arguments.join(QLatin1String(" ")));
+    param.setArguments(arguments.join(QLatin1Char(' ')));
     m_params << param;
 }
 

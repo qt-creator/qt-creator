@@ -241,7 +241,7 @@ QVariantMap AddKeysOperation::addKeys(const QVariantMap &map, const KeyValuePair
         // insert
         Q_ASSERT(stack.count() == p.key.count());
         if (stack.last().contains(p.key.last())) {
-            std::cerr << "DEBUG: Adding key " << qPrintable(p.key.join(QLatin1String("/"))) << " which already exists." << std::endl;
+            std::cerr << "DEBUG: Adding key " << qPrintable(p.key.join(QLatin1Char('/'))) << " which already exists." << std::endl;
             return QVariantMap();
         }
         stack.last().insert(p.key.last(), p.value);

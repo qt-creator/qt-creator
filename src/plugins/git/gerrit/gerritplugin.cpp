@@ -344,7 +344,7 @@ void GerritPlugin::push(const QString &topLevel)
         options << QLatin1String("r=") + reviewer;
 
     if (!options.isEmpty())
-        target += QLatin1Char('%') + options.join(QLatin1String(","));
+        target += QLatin1Char('%') + options.join(QLatin1Char(','));
 
     args << target;
 

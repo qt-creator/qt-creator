@@ -105,7 +105,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_ui.nameEdit->selectAll();
     m_ui.directoryList->clear();
     m_ui.directoryList->addItems(m_directories);
-    m_ui.fileTypeEdit->setText(m_filters.join(QString(QLatin1Char(','))));
+    m_ui.fileTypeEdit->setText(m_filters.join(QLatin1Char(',')));
     m_ui.shortcutEdit->setText(shortcutString());
     m_ui.defaultFlag->setChecked(!isIncludedByDefault());
     updateOptionButtons();

@@ -465,7 +465,7 @@ void DeclarativeToolsClient::createQmlObject(const QString &qmlText,
 
     log(LogSend, cmd, QString::fromLatin1("%1 %2 [%3] %4").arg(qmlText,
                                                    QString::number(parentDebugId),
-                                                   imports.join(QLatin1String(",")), filename));
+                                                   imports.join(QLatin1Char(',')), filename));
 
     sendMessage(message);
 }

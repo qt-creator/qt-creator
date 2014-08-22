@@ -102,7 +102,7 @@ static QString updateVariable(const QString &varStr, const QString &varsToAdd,
         var.remove(s);
 
     QStringList sl = QStringList::fromSet(var);
-    return sl.join(QLatin1String(" "));
+    return sl.join(QLatin1Char(' '));
 }
 
 bool ProjectFileConverter::convertFile(Core::GeneratedFile &file, QString &errorMessage)

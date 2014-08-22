@@ -245,7 +245,7 @@ bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
         QTextStream str(&msg);
         str << "getUninitializedVariables() " << function << ' ' << file << ':' << line
                 << " returns (int) " << rc << " '"
-                << uninitializedVariables->join(QString(QLatin1Char(','))) << '\'';
+                << uninitializedVariables->join(QLatin1Char(',')) << '\'';
         if (rc)
             str << " of " << snapshot.size() << " documents";
         qDebug() << msg;

@@ -431,7 +431,7 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
                   "%1\n\n"
                   "For qmake projects, use the QML_IMPORT_PATH variable to add import paths.\n"
                   "For qmlproject projects, use the importPaths property to add import paths.").arg(
-                  importPaths.join(QLatin1String("\n"))));
+                  importPaths.join(QLatin1Char('\n'))));
     }
 
     return import;

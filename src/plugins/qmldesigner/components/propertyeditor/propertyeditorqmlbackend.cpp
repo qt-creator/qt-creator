@@ -337,7 +337,7 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
 
     QStringList imports = variantToStringList(templateConfiguration()->property(QStringLiteral("imports")));
 
-    QString qmlTemplate = imports.join(QStringLiteral("\n")) + QLatin1Char('\n');
+    QString qmlTemplate = imports.join(QLatin1Char('\n')) + QLatin1Char('\n');
     qmlTemplate += QStringLiteral("Section {\n");
     qmlTemplate += QStringLiteral("caption: \"%1\"\n").arg(QString::fromUtf8(objectNode.modelNode().simplifiedTypeName()));
     qmlTemplate += QStringLiteral("SectionLayout {\n");

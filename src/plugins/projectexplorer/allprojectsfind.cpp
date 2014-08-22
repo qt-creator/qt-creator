@@ -123,7 +123,7 @@ QString AllProjectsFind::label() const
 QString AllProjectsFind::toolTip() const
 {
     // %2 is filled by BaseFileFind::runNewSearch
-    return tr("Filter: %1\n%2").arg(fileNameFilters().join(QLatin1String(",")));
+    return tr("Filter: %1\n%2").arg(fileNameFilters().join(QLatin1Char(',')));
 }
 
 void AllProjectsFind::handleFileListChanged()

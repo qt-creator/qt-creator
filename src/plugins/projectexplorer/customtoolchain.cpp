@@ -585,9 +585,9 @@ void CustomToolChainConfigWidget::setFromToolchain()
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_makeCommand->setFileName(FileName::fromString(tc->makeCommand(Utils::Environment())));
     m_abiWidget->setAbis(QList<Abi>(), tc->targetAbi());
-    m_predefinedMacros->setPlainText(tc->rawPredefinedMacros().join(QLatin1String("\n")));
-    m_headerPaths->setPlainText(tc->headerPathsList().join(QLatin1String("\n")));
-    m_cxx11Flags->setText(tc->cxx11Flags().join(QLatin1String(",")));
+    m_predefinedMacros->setPlainText(tc->rawPredefinedMacros().join(QLatin1Char('\n')));
+    m_headerPaths->setPlainText(tc->headerPathsList().join(QLatin1Char('\n')));
+    m_cxx11Flags->setText(tc->cxx11Flags().join(QLatin1Char(',')));
     m_mkspecs->setText(tc->mkspecs());
     m_errorParserComboBox->setCurrentIndex(tc->outputParserType());
     m_customParserSettings = tc->customParserSettings();

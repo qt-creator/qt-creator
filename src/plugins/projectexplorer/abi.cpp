@@ -527,7 +527,7 @@ QString Abi::toString() const
     dn << toString(m_binaryFormat);
     dn << toString(m_wordWidth);
 
-    return dn.join(QLatin1String("-"));
+    return dn.join(QLatin1Char('-'));
 }
 
 bool Abi::operator != (const Abi &other) const

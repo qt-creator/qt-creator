@@ -125,7 +125,7 @@ void PerforceSubmitEditor::updateFields()
                     m_entries.value(QLatin1String("Client")).trimmed(),
                     m_entries.value(QLatin1String("User")).trimmed());
 
-    const QString newLine = QString(QLatin1Char('\n'));
+    const QChar newLine = QLatin1Char('\n');
     QStringList lines = m_entries.value(QLatin1String("Description")).split(newLine);
     lines.removeFirst(); // that is the line break after 'Description:'
     lines.removeLast(); // that is the empty line at the end
@@ -150,8 +150,8 @@ void PerforceSubmitEditor::updateFields()
 
 void PerforceSubmitEditor::updateEntries()
 {
-    const QString newLine = QString(QLatin1Char('\n'));
-    const QString tab = QString(QLatin1Char('\t'));
+    const QChar newLine = QLatin1Char('\n');
+    const QChar tab = QLatin1Char('\t');
 
     QStringList lines = submitEditorWidget()->descriptionText().split(newLine);
 

@@ -85,7 +85,7 @@ void EnvironmentItemsWidget::setEnvironmentItems(const QList<Utils::EnvironmentI
     QList<Utils::EnvironmentItem> sortedItems = items;
     Utils::EnvironmentItem::sort(&sortedItems);
     QStringList list = Utils::EnvironmentItem::toStringList(sortedItems);
-    d->m_editor->document()->setPlainText(list.join(QLatin1String("\n")));
+    d->m_editor->document()->setPlainText(list.join(QLatin1Char('\n')));
 }
 
 QList<Utils::EnvironmentItem> EnvironmentItemsWidget::environmentItems() const

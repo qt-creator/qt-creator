@@ -153,7 +153,7 @@ QString Utils::toString(const QList<ProjectFile> &projectFiles)
     foreach (const ProjectFile &projectFile, projectFiles)
         filesList << QDir::toNativeSeparators(projectFile.path);
     ::Utils::sort(filesList);
-    return filesList.join(QLatin1String("\n"));
+    return filesList.join(QLatin1Char('\n'));
 }
 
 QString Utils::toString(ProjectFile::Kind kind)
@@ -412,7 +412,7 @@ QString Utils::pathListToString(const QStringList &pathList)
     QStringList result;
     foreach (const QString &path, pathList)
         result << QDir::toNativeSeparators(path);
-    return result.join(QLatin1String("\n"));
+    return result.join(QLatin1Char('\n'));
 }
 
 QString Utils::pathListToString(const ProjectPart::HeaderPaths &pathList)
@@ -424,7 +424,7 @@ QString Utils::pathListToString(const ProjectPart::HeaderPaths &pathList)
                       path.isFrameworkPath() ? QLatin1String("framework") : QLatin1String("include")
                       );
     }
-    return result.join(QLatin1String("\n"));
+    return result.join(QLatin1Char('\n'));
 }
 
 QList<CPlusPlus::Document::Ptr> Utils::snapshotToList(const CPlusPlus::Snapshot &snapshot)

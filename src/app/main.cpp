@@ -452,7 +452,7 @@ int main(int argc, char **argv)
         }
     }
     if (!coreplugin) {
-        QString nativePaths = QDir::toNativeSeparators(pluginPaths.join(QLatin1String(",")));
+        QString nativePaths = QDir::toNativeSeparators(pluginPaths.join(QLatin1Char(',')));
         const QString reason = QCoreApplication::translate("Application", "Could not find 'Core.pluginspec' in %1").arg(nativePaths);
         displayError(msgCoreLoadFailure(reason));
         return 1;

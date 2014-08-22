@@ -300,7 +300,7 @@ QString SshDeviceProcess::fullCommandLine() const
 {
     QString cmdLine = executable();
     if (!arguments().isEmpty())
-        cmdLine.append(QLatin1Char(' ')).append(arguments().join(QLatin1String(" ")));
+        cmdLine.append(QLatin1Char(' ')).append(arguments().join(QLatin1Char(' ')));
     return cmdLine;
 }
 

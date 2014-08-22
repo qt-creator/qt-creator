@@ -1531,7 +1531,7 @@ void EditorManagerPrivate::autoSave()
     }
     if (!errors.isEmpty())
         QMessageBox::critical(ICore::mainWindow(), tr("File Error"),
-                              errors.join(QLatin1String("\n")));
+                              errors.join(QLatin1Char('\n')));
 }
 
 void EditorManagerPrivate::handleContextChange(const QList<IContext *> &context)

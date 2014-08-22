@@ -183,7 +183,7 @@ public:
             QString lineText;
             if (node->incompatibleReason().isEmpty()) {
                 lineText = AndroidManager::androidNameForApiLevel(device.sdk) + QLatin1String("  ");
-                lineText += AndroidDeviceDialog::tr("ABI:") + device.cpuAbi.join(QLatin1String(" "));
+                lineText += AndroidDeviceDialog::tr("ABI:") + device.cpuAbi.join(QLatin1Char(' '));
             } else {
                 lineText = node->incompatibleReason();
             }
@@ -342,7 +342,7 @@ void AndroidDeviceModel::setDevices(const QVector<AndroidDeviceInfo> &devices)
                     .arg(device.serialNumber);
         } else if (!device.cpuAbi.contains(m_abi)) {
             error = AndroidDeviceDialog::tr("ABI is incompatible, device supports ABIs: %1.")
-                    .arg(device.cpuAbi.join(QLatin1String(" ")));
+                    .arg(device.cpuAbi.join(QLatin1Char(' ')));
         } else if (device.sdk < m_apiLevel) {
             error = AndroidDeviceDialog::tr("API Level of device is: %1.")
                     .arg(device.sdk);

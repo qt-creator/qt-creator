@@ -416,7 +416,7 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
         else
             desciption += tr("Supported Platforms")
                     + QLatin1String("</b>: <tt>")
-                    + displayNamesForSupportedPlatforms.join(QLatin1String(" "))
+                    + displayNamesForSupportedPlatforms.join(QLatin1Char(' '))
                     + QLatin1String("</tt>");
 
         m_ui->templateDescription->setHtml(desciption);

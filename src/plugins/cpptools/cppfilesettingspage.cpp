@@ -311,13 +311,14 @@ static inline void setComboText(QComboBox *cb, const QString &text, int defaultI
 
 void CppFileSettingsWidget::setSettings(const CppFileSettings &s)
 {
+    const QChar comma = QLatin1Char(',');
     m_ui->lowerCaseFileNamesCheckBox->setChecked(s.lowerCaseFiles);
-    m_ui->headerPrefixesEdit->setText(s.headerPrefixes.join(QLatin1String(",")));
-    m_ui->sourcePrefixesEdit->setText(s.sourcePrefixes.join(QLatin1String(",")));
+    m_ui->headerPrefixesEdit->setText(s.headerPrefixes.join(comma));
+    m_ui->sourcePrefixesEdit->setText(s.sourcePrefixes.join(comma));
     setComboText(m_ui->headerSuffixComboBox, s.headerSuffix);
     setComboText(m_ui->sourceSuffixComboBox, s.sourceSuffix);
-    m_ui->headerSearchPathsEdit->setText(s.headerSearchPaths.join(QLatin1String(",")));
-    m_ui->sourceSearchPathsEdit->setText(s.sourceSearchPaths.join(QLatin1String(",")));
+    m_ui->headerSearchPathsEdit->setText(s.headerSearchPaths.join(comma));
+    m_ui->sourceSearchPathsEdit->setText(s.sourceSearchPaths.join(comma));
     setLicenseTemplatePath(s.licenseTemplatePath);
 }
 

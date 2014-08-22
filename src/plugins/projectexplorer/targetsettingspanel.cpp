@@ -442,21 +442,21 @@ Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
         if (!buildconfigurationError.isEmpty())
             error += tr("Build configurations:")
                     + QLatin1Char('\n')
-                    + buildconfigurationError.join(QLatin1String("\n"));
+                    + buildconfigurationError.join(QLatin1Char('\n'));
 
         if (!deployconfigurationError.isEmpty()) {
             if (!error.isEmpty())
                 error.append(QLatin1Char('\n'));
             error += tr("Deploy configurations:")
                     + QLatin1Char('\n')
-                    + deployconfigurationError.join(QLatin1String("\n"));
+                    + deployconfigurationError.join(QLatin1Char('\n'));
         }
 
         if (!runconfigurationError.isEmpty()) {
             if (!error.isEmpty())
                 error.append(QLatin1Char('\n'));
             error += tr("Run configurations") + QLatin1Char(' ')
-                    + runconfigurationError.join(QLatin1String("\n"));
+                    + runconfigurationError.join(QLatin1Char('\n'));
         }
 
         QMessageBox msgBox(Core::ICore::mainWindow());

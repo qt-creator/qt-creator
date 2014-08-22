@@ -153,7 +153,7 @@ void UncrustifySettings::createDocumentationFile() const
                 const QString text = QLatin1String("<p><span class=\"option\">") + keyword
                         + QLatin1String("</span> <span class=\"param\">") + options
                         + QLatin1String("</span></p><p>")
-                        + Qt::escape(docu.join(QLatin1String(" ")))
+                        + Qt::escape(docu.join(QLatin1Char(' ')))
                         + QLatin1String("</p>");
                 stream.writeStartElement(QLatin1String(Constants::DOCUMENTATION_XMLENTRY));
                 stream.writeTextElement(QLatin1String(Constants::DOCUMENTATION_XMLKEY), keyword);

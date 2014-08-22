@@ -98,7 +98,7 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
             reader.readMetaInfoFile(plugin->metaInfo());
         } catch (InvalidMetaInfoException &e) {
             qWarning() << e.description();
-            const QString errorMessage = plugin->metaInfo() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QStringLiteral("\n"));
+            const QString errorMessage = plugin->metaInfo() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QLatin1Char('\n'));
             QmlDesignerWarning::show(QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate", "Invalid meta info"),
                                   errorMessage);
         }

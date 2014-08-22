@@ -3022,7 +3022,7 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStri
     if (!notAdded.isEmpty()) {
         QString message = tr("Could not add following files to project %1:").arg(folderNode->projectNode()->displayName());
         message += QLatin1Char('\n');
-        QString files = notAdded.join(QString(QLatin1Char('\n')));
+        QString files = notAdded.join(QLatin1Char('\n'));
         QMessageBox::warning(ICore::mainWindow(), tr("Adding Files to Project Failed"),
                              message + files);
         foreach (const QString &file, notAdded)
