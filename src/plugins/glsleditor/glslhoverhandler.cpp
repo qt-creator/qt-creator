@@ -29,14 +29,13 @@
 
 #include "glslhoverhandler.h"
 #include "glsleditor.h"
+#include "glsleditorconstants.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetexteditor.h>
-
-#include <QTextCursor>
 
 using namespace Core;
 
@@ -51,15 +50,13 @@ GlslHoverHandler::~GlslHoverHandler()
 
 bool GlslHoverHandler::acceptEditor(IEditor *editor)
 {
-    return qobject_cast<GlslEditor *>(editor) != 0;
+    return editor->context().contains(Constants::C_GLSLEDITOR_ID);
 }
 
 void GlslHoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
 {
-    if (GlslEditorWidget *glslEditor = qobject_cast<GlslEditorWidget *>(editor->widget())) {
-        if (! glslEditor->extraSelectionTooltip(pos).isEmpty())
-            setToolTip(glslEditor->extraSelectionTooltip(pos));
-    }
+    if (!editor->editorWidget()->extraSelectionTooltip(pos).isEmpty())
+        setToolTip(editor->editorWidget()->extraSelectionTooltip(pos));
 }
 
 void GlslHoverHandler::decorateToolTip()

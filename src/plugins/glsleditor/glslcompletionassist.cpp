@@ -30,7 +30,6 @@
 #include "glslcompletionassist.h"
 #include "glsleditorconstants.h"
 #include "glsleditorplugin.h"
-#include "reuse.h"
 
 #include <glsl/glslengine.h>
 #include <glsl/glsllexer.h>
@@ -63,6 +62,37 @@ using namespace TextEditor;
 
 namespace GlslEditor {
 namespace Internal {
+
+Document::Document()
+    : _engine(0)
+    , _ast(0)
+    , _globalScope(0)
+{
+}
+
+Document::~Document()
+{
+    delete _globalScope;
+    delete _engine;
+}
+
+GLSL::Scope *Document::scopeAt(int position) const
+{
+    foreach (const Range &c, _cursors) {
+        if (position >= c.cursor.selectionStart() && position <= c.cursor.selectionEnd())
+            return c.scope;
+    }
+    return _globalScope;
+}
+
+void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
+{
+    Range c;
+    c.cursor = cursor;
+    c.scope = scope;
+    _cursors.append(c);
+}
+
 
 enum CompletionOrder {
     SpecialMemberOrder = -5

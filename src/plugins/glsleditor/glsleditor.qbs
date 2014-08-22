@@ -34,7 +34,5 @@ QtcPlugin {
         "glslhoverhandler.h",
         "glslindenter.cpp",
         "glslindenter.h",
-        "reuse.cpp",
-        "reuse.h",
     ]
 }

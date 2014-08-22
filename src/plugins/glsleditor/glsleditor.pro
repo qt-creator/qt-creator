@@ -12,8 +12,7 @@ glslhighlighter.h \
 glslautocompleter.h \
 glslindenter.h \
 glslhoverhandler.h \
-    glslcompletionassist.h \
-    reuse.h
+glslcompletionassist.h
 
 SOURCES += \
 glsleditor.cpp \
@@ -23,7 +22,6 @@ glslhighlighter.cpp \
 glslautocompleter.cpp \
 glslindenter.cpp \
 glslhoverhandler.cpp \
-    glslcompletionassist.cpp \
-    reuse.cpp
+glslcompletionassist.cpp
 
 RESOURCES += glsleditor.qrc

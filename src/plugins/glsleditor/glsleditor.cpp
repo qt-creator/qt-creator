@@ -75,7 +75,6 @@
 
 using namespace TextEditor;
 using namespace GLSL;
-using namespace GlslEditor::Constants;
 
 namespace GlslEditor {
 namespace Internal {
@@ -109,35 +108,33 @@ protected:
     }
 };
 
-Document::Document()
-    : _engine(0)
-    , _ast(0)
-    , _globalScope(0)
-{
-}
+//
+//  GlslEditorWidget
+//
 
-Document::~Document()
+class GlslEditorWidget : public BaseTextEditorWidget
 {
-    delete _globalScope;
-    delete _engine;
-}
+public:
+    GlslEditorWidget();
 
-GLSL::Scope *Document::scopeAt(int position) const
-{
-    foreach (const Range &c, _cursors) {
-        if (position >= c.cursor.selectionStart() && position <= c.cursor.selectionEnd())
-            return c.scope;
-    }
-    return _globalScope;
-}
+    int editorRevision() const;
+    bool isOutdated() const;
 
-void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
-{
-    Range c;
-    c.cursor = cursor;
-    c.scope = scope;
-    _cursors.append(c);
-}
+    QSet<QString> identifiers() const;
+
+    IAssistInterface *createAssistInterface(AssistKind assistKind, AssistReason reason) const;
+
+private:
+    BaseTextEditor *createEditor();
+
+    void updateDocumentNow();
+    void setSelectedElements();
+    QString wordUnderCursor() const;
+
+    QTimer m_updateDocumentTimer;
+    QComboBox *m_outlineCombo;
+    Document::Ptr m_glslDocument;
+};
 
 GlslEditorWidget::GlslEditorWidget()
 {
@@ -198,13 +195,6 @@ bool GlslEditorWidget::isOutdated() const
 //        return true;
 
     return false;
-}
-
-bool GlslEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    textDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
-    bool b = BaseTextEditor::open(errorString, fileName, realFileName);
-    return b;
 }
 
 QString GlslEditorWidget::wordUnderCursor() const
@@ -291,7 +281,7 @@ void GlslEditorWidget::updateDocumentNow()
     }
 }
 
-int GlslEditorWidget::languageVariant(const QString &type)
+int languageVariant(const QString &type)
 {
     int variant = 0;
     bool isVertex = false;
@@ -342,56 +332,55 @@ IAssistInterface *GlslEditorWidget::createAssistInterface(
 }
 
 
-//////////////////////////////////////////////////////////////////
 //
 //  GlslEditor
 //
-//////////////////////////////////////////////////////////////////
 
-GlslEditor::GlslEditor()
+class GlslEditor : public TextEditor::BaseTextEditor
 {
-    addContext(C_GLSLEDITOR_ID);
-    setDuplicateSupported(true);
-    setCommentStyle(Utils::CommentDefinition::CppStyle);
-    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GlslCompletionAssistProvider>());
+public:
+    GlslEditor()
+    {
+        addContext(Constants::C_GLSLEDITOR_ID);
+        setDuplicateSupported(true);
+        setCommentStyle(Utils::CommentDefinition::CppStyle);
+        setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GlslCompletionAssistProvider>());
+    }
 
-    setEditorCreator([]() { return new GlslEditor; });
-    setWidgetCreator([]() { return new GlslEditorWidget; });
-
-    setDocumentCreator([]() -> BaseTextDocument * {
-        auto doc = new BaseTextDocument(C_GLSLEDITOR_ID);
-        doc->setIndenter(new GlslIndenter);
-        new Highlighter(doc);
-        return doc;
-    });
-}
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName)
+    {
+        textDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
+        bool b = BaseTextEditor::open(errorString, fileName, realFileName);
+        return b;
+    }
+};
 
 
-//////////////////////////////////////////////////////////////////
 //
 //  GlslEditorFactory
 //
-//////////////////////////////////////////////////////////////////
 
 GlslEditorFactory::GlslEditorFactory()
 {
-    setId(C_GLSLEDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", C_GLSLEDITOR_DISPLAY_NAME));
-    addMimeType(GLSL_MIMETYPE);
-    addMimeType(GLSL_MIMETYPE_VERT);
-    addMimeType(GLSL_MIMETYPE_FRAG);
-    addMimeType(GLSL_MIMETYPE_VERT_ES);
-    addMimeType(GLSL_MIMETYPE_FRAG_ES);
-    new TextEditorActionHandler(this, C_GLSLEDITOR_ID,
-                                TextEditorActionHandler::Format
-                                | TextEditorActionHandler::UnCommentSelection
-                                | TextEditorActionHandler::UnCollapseAll);
+    setId(Constants::C_GLSLEDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", Constants::C_GLSLEDITOR_DISPLAY_NAME));
+    addMimeType(Constants::GLSL_MIMETYPE);
+    addMimeType(Constants::GLSL_MIMETYPE_VERT);
+    addMimeType(Constants::GLSL_MIMETYPE_FRAG);
+    addMimeType(Constants::GLSL_MIMETYPE_VERT_ES);
+    addMimeType(Constants::GLSL_MIMETYPE_FRAG_ES);
 
-}
+    setDocumentCreator([]() { return new BaseTextDocument(Constants::C_GLSLEDITOR_ID); });
+    setEditorWidgetCreator([]() { return new GlslEditorWidget; });
+    setEditorCreator([]() { return new GlslEditor; });
+    setIndenterCreator([]() { return new GlslIndenter; });
+    setSyntaxHighlighterCreator([]() { return new Highlighter; });
 
-Core::IEditor *GlslEditorFactory::createEditor()
-{
-    return new GlslEditor;
+    setEditorActionHandlers(Constants::C_GLSLEDITOR_ID,
+                            TextEditorActionHandler::Format
+                          | TextEditorActionHandler::UnCommentSelection
+                          | TextEditorActionHandler::UnCollapseAll);
+
 }
 
 } // namespace Internal

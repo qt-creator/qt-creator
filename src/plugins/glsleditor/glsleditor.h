@@ -31,104 +31,18 @@
 #define GLSLEDITOR_H
 
 #include <texteditor/basetexteditor.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
-
-#include <QSharedPointer>
-#include <QSet>
-#include <QTimer>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-QT_END_NAMESPACE
-
-namespace GLSL {
-class Engine;
-class TranslationUnitAST;
-class Scope;
-} // namespace GLSL
 
 namespace GlslEditor {
 namespace Internal {
 
-class GlslEditor;
-class GlslEditorWidget;
+int languageVariant(const QString &mimeType);
 
-class Document
-{
-public:
-    typedef QSharedPointer<Document> Ptr;
-
-    Document();
-    ~Document();
-
-    GLSL::Engine *engine() const { return _engine; }
-    GLSL::TranslationUnitAST *ast() const { return _ast; }
-    GLSL::Scope *globalScope() const { return _globalScope; }
-
-    GLSL::Scope *scopeAt(int position) const;
-    void addRange(const QTextCursor &cursor, GLSL::Scope *scope);
-
-private:
-    struct Range {
-        QTextCursor cursor;
-        GLSL::Scope *scope;
-    };
-
-    GLSL::Engine *_engine;
-    GLSL::TranslationUnitAST *_ast;
-    GLSL::Scope *_globalScope;
-    QList<Range> _cursors;
-
-    friend class GlslEditorWidget;
-};
-
-class GlslEditorWidget : public TextEditor::BaseTextEditorWidget
-{
-    Q_OBJECT
-
-public:
-    GlslEditorWidget();
-
-    int editorRevision() const;
-    bool isOutdated() const;
-
-    QSet<QString> identifiers() const;
-
-    static int languageVariant(const QString &mimeType);
-
-    TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
-                                                        TextEditor::AssistReason reason) const;
-
-private:
-    TextEditor::BaseTextEditor *createEditor();
-
-    void updateDocumentNow();
-    void setSelectedElements();
-    QString wordUnderCursor() const;
-
-    QTimer m_updateDocumentTimer;
-    QComboBox *m_outlineCombo;
-    Document::Ptr m_glslDocument;
-};
-
-class GlslEditor : public TextEditor::BaseTextEditor
-{
-    Q_OBJECT
-
-public:
-    GlslEditor();
-
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-};
-
-class GlslEditorFactory : public Core::IEditorFactory
+class GlslEditorFactory : public TextEditor::BaseTextEditorFactory
 {
     Q_OBJECT
 
 public:
     GlslEditorFactory();
-
-    Core::IEditor *createEditor();
 };
 
 } // namespace Internal

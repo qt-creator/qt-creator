@@ -39,15 +39,50 @@
 
 #include <utils/qtcoverride.h>
 
-#include <QScopedPointer>
 #include <QIcon>
+#include <QScopedPointer>
+#include <QSharedPointer>
 
-namespace GLSL { class Function; }
+namespace GLSL {
+class Engine;
+class Function;
+class TranslationUnitAST;
+class Scope;
+} // namespace GLSL
 
 namespace TextEditor { class BasicProposalItem; }
 
 namespace GlslEditor {
 namespace Internal {
+
+class Document
+{
+public:
+    typedef QSharedPointer<Document> Ptr;
+
+    Document();
+    ~Document();
+
+    GLSL::Engine *engine() const { return _engine; }
+    GLSL::TranslationUnitAST *ast() const { return _ast; }
+    GLSL::Scope *globalScope() const { return _globalScope; }
+
+    GLSL::Scope *scopeAt(int position) const;
+    void addRange(const QTextCursor &cursor, GLSL::Scope *scope);
+
+private:
+    struct Range {
+        QTextCursor cursor;
+        GLSL::Scope *scope;
+    };
+
+    GLSL::Engine *_engine;
+    GLSL::TranslationUnitAST *_ast;
+    GLSL::Scope *_globalScope;
+    QList<Range> _cursors;
+
+    friend class GlslEditorWidget;
+};
 
 class GlslCompletionAssistInterface;
 
