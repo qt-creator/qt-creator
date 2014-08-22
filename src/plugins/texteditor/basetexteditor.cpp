@@ -533,6 +533,27 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
 
 using namespace Internal;
 
+/*!
+ * Test if syntax highlighter is available (or unneeded) for \a widget.
+ * If not found, show a warning with a link to the relevant settings page.
+ */
+static void updateEditorInfoBar(BaseTextEditorWidget *widget)
+{
+    Id infoSyntaxDefinition(Constants::INFO_SYNTAX_DEFINITION);
+    InfoBar *infoBar = widget->textDocument()->infoBar();
+    if (!widget->isMissingSyntaxDefinition()) {
+        infoBar->removeInfo(infoSyntaxDefinition);
+    } else if (infoBar->canInfoBeAdded(infoSyntaxDefinition)) {
+        InfoBarEntry info(infoSyntaxDefinition,
+                          BaseTextEditor::tr("A highlight definition was not found for this file. "
+                                             "Would you like to try to find one?"),
+                          InfoBarEntry::GlobalSuppressionEnabled);
+        info.setCustomButtonInfo(BaseTextEditor::tr("Show Highlighter Options..."),
+                                 widget, SLOT(acceptMissingSyntaxDefinitionInfo()));
+        infoBar->addInfo(info);
+    }
+}
+
 QString BaseTextEditorWidget::plainTextFromSelection(const QTextCursor &cursor) const
 {
     // Copy the selected text as plain text
@@ -6512,11 +6533,9 @@ QColor BaseTextEditorWidget::replacementPenColor(int blockNumber) const
 
 BaseTextEditor *BaseTextEditorWidget::createEditor()
 {
+    QTC_CHECK("should not happen anymore" && false);
     auto editor = new BaseTextEditor;
     editor->setEditorWidget(this);
-    editor->setContext(Core::Context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
-                      TextEditor::Constants::C_TEXTEDITOR));
-    editor->setDuplicateSupported(true);
     return editor;
 }
 
@@ -6555,6 +6574,7 @@ BaseTextEditor::BaseTextEditor()
 {
     d->m_completionAssistProvider = [] () -> CompletionAssistProvider * { return 0; };
     addContext(TextEditor::Constants::C_TEXTEDITOR);
+    setDuplicateSupported(true);
 }
 
 void BaseTextEditor::setEditorWidget(BaseTextEditorWidget *widget)
@@ -7126,7 +7146,7 @@ void BaseTextEditorWidget::configureMimeType(const MimeType &mimeType)
 
     textDocument()->setFontSettings(TextEditorSettings::fontSettings());
 
-    emit configured(editor());
+    updateEditorInfoBar(this);
 }
 
 bool BaseTextEditorWidget::isMissingSyntaxDefinition() const
@@ -7141,26 +7161,27 @@ void BaseTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
                              this);
 }
 
-void BaseTextEditorWidget::configureMimeType()
-{
-    MimeType mimeType;
-    if (textDocument())
-        mimeType = MimeDatabase::findByFile(textDocument()->filePath());
-    configureMimeType(mimeType);
-}
-
 // The remnants of PlainTextEditor.
 void BaseTextEditorWidget::setupAsPlainEditor()
 {
     setRevisionsVisible(true);
     setMarksVisible(true);
     setLineSeparatorsAllowed(true);
+    setLineSeparatorsAllowed(true);
 
     textDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
-    connect(textDocument(), SIGNAL(filePathChanged(QString,QString)),
-            this, SLOT(configureMimeType()));
-    connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configureMimeType()));
+    auto reconf = [this]() {
+        MimeType mimeType;
+        if (textDocument())
+            mimeType = MimeDatabase::findByFile(textDocument()->filePath());
+        configureMimeType(mimeType);
+    };
+
+    connect(textDocument(), &IDocument::filePathChanged, reconf);
+    connect(Manager::instance(), &Manager::mimeTypesRegistered, reconf);
+
+    updateEditorInfoBar(this);
 }
 
 IEditor *BaseTextEditor::duplicate()
@@ -7169,7 +7190,7 @@ IEditor *BaseTextEditor::duplicate()
     if (d->m_origin)
         return d->m_origin->duplicateTextEditor(this);
 
-    // Use standard setup if that's available.
+    // Use old setup if that's available.
     if (d->m_editorCreator) {
         BaseTextEditor *editor = d->m_editorCreator();
         BaseTextEditorWidget *widget = editor->ensureWidget();
@@ -7178,16 +7199,9 @@ IEditor *BaseTextEditor::duplicate()
         return editor;
     }
 
-    // That's a really plain text editor.
-    auto newWidget = new BaseTextEditorWidget;
-    newWidget->setTextDocument(editorWidget()->textDocumentPtr());
-    newWidget->setupAsPlainEditor();
-    auto editor = newWidget->editor();
-    editor->addContext(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
-    editor->setDuplicateSupported(true);
-    return editor;
-
     // If neither is sufficient, you need to implement 'YourEditor::duplicate'.
+    QTC_CHECK(false);
+    return 0;
 }
 
 QWidget *BaseTextEditor::widget() const
@@ -7228,6 +7242,7 @@ BaseTextDocumentPtr BaseTextEditor::ensureDocument()
 BaseTextEditorFactory::BaseTextEditorFactory(QObject *parent)
     : IEditorFactory(parent)
 {
+    m_editorCreator = []() { return new BaseTextEditor; };
     m_widgetCreator = []() { return new BaseTextEditorWidget; };
 }
 

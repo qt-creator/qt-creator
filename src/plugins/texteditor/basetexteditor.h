@@ -504,8 +504,6 @@ signals:
     void requestZoomReset();
     void requestBlockUpdate(const QTextBlock &);
 
-    void configured(Core::IEditor *editor);
-
 protected:
     bool event(QEvent *e);
     void inputMethodEvent(QInputMethodEvent *e);
@@ -612,7 +610,6 @@ protected slots:
     virtual void slotCursorPositionChanged(); // Used in VcsBase
     virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
 
-    void configureMimeType();
     void doFoo();
 
 private:

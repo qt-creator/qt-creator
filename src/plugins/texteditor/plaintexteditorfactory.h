@@ -30,25 +30,17 @@
 #ifndef PLAINTEXTEDITORFACTORY_H
 #define PLAINTEXTEDITORFACTORY_H
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-
-#include <QStringList>
+#include <texteditor/basetexteditor.h>
 
 namespace TextEditor {
 namespace Internal {
 
-class PlainTextEditorFactory : public Core::IEditorFactory
+class PlainTextEditorFactory : public TextEditor::BaseTextEditorFactory
 {
     Q_OBJECT
 
 public:
-    PlainTextEditorFactory(QObject *parent = 0);
-
-    using Core::IEditorFactory::addMimeType;
-    Core::IEditor *createEditor();
-
-private slots:
-    void updateEditorInfoBar(Core::IEditor *editor);
+    PlainTextEditorFactory();
 };
 
 } // namespace Internal
