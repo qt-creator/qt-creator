@@ -778,7 +778,8 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             Utils::StyleHelper::menuGradient(painter, option->rect, option->rect);
             painter->save();
             painter->setPen(Utils::StyleHelper::borderColor());
-            painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
+            painter->drawLine(option->rect.bottomLeft() + QPointF(0.5, 0.5),
+                              option->rect.bottomRight() + QPointF(0.5, 0.5));
             painter->restore();
         }
         break;
