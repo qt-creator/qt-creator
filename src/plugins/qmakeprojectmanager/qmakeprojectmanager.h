@@ -36,7 +36,7 @@
 #include <projectexplorer/projectnodes.h>
 
 namespace Core { class IEditor; }
-namespace ExtensionSystem { class PluginManager; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace ProjectExplorer {
 class Project;
@@ -46,11 +46,6 @@ class ToolChain;
 
 namespace QmakeProjectManager {
 
-namespace Internal {
-class ProFileEditor;
-class QmakeProjectManagerPlugin;
-} // namespace Internal
-
 class QmakeProject;
 
 class QMAKEPROJECTMANAGER_EXPORT QmakeManager : public ProjectExplorer::IProjectManager
@@ -58,7 +53,7 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeManager : public ProjectExplorer::IProject
     Q_OBJECT
 
 public:
-    QmakeManager(Internal::QmakeProjectManagerPlugin *plugin);
+    QmakeManager();
     ~QmakeManager();
 
     void registerProject(QmakeProject *project);
@@ -96,10 +91,9 @@ private:
                                  ProjectExplorer::Project *contextProject,
                                  ProjectExplorer::Node *contextNode,
                                  ProjectExplorer::FileNode *contextFile);
-    void addLibrary(const QString &fileName, Internal::ProFileEditor *editor = 0);
+    void addLibrary(const QString &fileName, TextEditor::BaseTextEditor *editor = 0);
     void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 
-    Internal::QmakeProjectManagerPlugin *m_plugin;
     ProjectExplorer::Node *m_contextNode;
     ProjectExplorer::Project *m_contextProject;
     ProjectExplorer::FileNode *m_contextFile;

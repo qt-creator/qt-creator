@@ -28,19 +28,22 @@
 ****************************************************************************/
 
 #include "profilehoverhandler.h"
-#include "profileeditor.h"
 #include "profilecompletionassist.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <extensionsystem/pluginmanager.h>
+#include <texteditor/basetexteditor.h>
 #include <utils/htmldocextractor.h>
 
 #include <QTextBlock>
 #include <QUrl>
 
-using namespace QmakeProjectManager;
-using namespace QmakeProjectManager::Internal;
 using namespace Core;
+
+namespace QmakeProjectManager {
+namespace Internal {
 
 ProFileHoverHandler::ProFileHoverHandler(QObject *parent)
   : BaseHoverHandler(parent),
@@ -56,20 +59,18 @@ ProFileHoverHandler::~ProFileHoverHandler()
 
 bool ProFileHoverHandler::acceptEditor(IEditor *editor)
 {
-    if (qobject_cast<ProFileEditor *>(editor) != 0)
-        return true;
-    return false;
+    return editor->context().contains(Constants::C_PROFILEEDITOR);
 }
 
 void ProFileHoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
 {
     m_docFragment.clear();
     m_manualKind = UnknownManual;
-    if (ProFileEditorWidget *proFileEditor = qobject_cast<ProFileEditorWidget *>(editor->widget())) {
-        if (!proFileEditor->extraSelectionTooltip(pos).isEmpty()) {
-            setToolTip(proFileEditor->extraSelectionTooltip(pos));
+    if (TextEditor::BaseTextEditorWidget *widget = editor->editorWidget()) {
+        if (!widget->extraSelectionTooltip(pos).isEmpty()) {
+            setToolTip(widget->extraSelectionTooltip(pos));
         } else {
-            QTextDocument *document = proFileEditor->document();
+            QTextDocument *document = widget->document();
             QTextBlock block = document->findBlock(pos);
             identifyQMakeKeyword(block.text(), pos - block.position());
 
@@ -161,3 +162,5 @@ void ProFileHoverHandler::identifyDocFragment(ProFileHoverHandler::ManualKind ma
     }
 }
 
+} // namespace Internal
+} // namespace QmakeProjectManager

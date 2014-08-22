@@ -106,7 +106,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     m_projectExplorer = ProjectExplorerPlugin::instance();
 
     //create and register objects
-    m_qmakeProjectManager = new QmakeManager(this);
+    m_qmakeProjectManager = new QmakeManager;
     addObject(m_qmakeProjectManager);
 
     ProjectExplorer::KitManager::registerKitInformation(new QmakeKitInformation);

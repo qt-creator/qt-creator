@@ -46,6 +46,8 @@
 #include <QDir>
 #include <QTextBlock>
 
+using namespace TextEditor;
+
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -53,23 +55,33 @@ namespace Internal {
 // ProFileEditor
 //
 
-ProFileEditor::ProFileEditor()
+class ProFileEditor : public TextEditor::BaseTextEditor
 {
-    addContext(Constants::C_PROFILEEDITOR);
-    setDuplicateSupported(true);
-    setCommentStyle(Utils::CommentDefinition::HashStyle);
-    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>());
-    setEditorCreator([]() { return new ProFileEditor; });
-    setDocumentCreator([]() { return new ProFileDocument; });
-    setWidgetCreator([]() { return new ProFileEditorWidget; });
-}
+public:
+    ProFileEditor()
+    {
+        addContext(Constants::C_PROFILEEDITOR);
+        setDuplicateSupported(true);
+        setCommentStyle(Utils::CommentDefinition::HashStyle);
+        setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>());
+    }
+};
 
 //
 // ProFileEditorWidget
 //
 
-ProFileEditorWidget::ProFileEditorWidget()
-{}
+class ProFileEditorWidget : public BaseTextEditorWidget
+{
+public:
+    ProFileEditorWidget() {}
+
+protected:
+    virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
+                            bool inNextSplit = false);
+    BaseTextEditor *createEditor();
+    void contextMenuEvent(QContextMenuEvent *);
+};
 
 static bool isValidFileNameChar(const QChar &c)
 {
@@ -159,7 +171,7 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
     return link;
 }
 
-TextEditor::BaseTextEditor *ProFileEditorWidget::createEditor()
+BaseTextEditor *ProFileEditorWidget::createEditor()
 {
     QTC_ASSERT("should not happen anymore" && false, return 0);
 }
@@ -172,6 +184,18 @@ void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 //
 // ProFileDocument
 //
+
+class ProFileDocument : public BaseTextDocument
+{
+public:
+    ProFileDocument();
+    QString defaultPath() const;
+    QString suggestedFileName() const;
+
+    // qmake project files doesn't support UTF8-BOM
+    // If the BOM would be added qmake would fail and QtCreator couldn't parse the project file
+    bool supportsUtf8Bom() { return false; }
+};
 
 ProFileDocument::ProFileDocument()
 {
@@ -192,33 +216,32 @@ QString ProFileDocument::suggestedFileName() const
     return fi.fileName();
 }
 
-
 //
 // ProFileEditorFactory
 //
 
 ProFileEditorFactory::ProFileEditorFactory()
 {
-    setId(QmakeProjectManager::Constants::PROFILE_EDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", QmakeProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME));
-    addMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
-    addMimeType(QmakeProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
-    addMimeType(QmakeProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
-    addMimeType(QmakeProjectManager::Constants::PROCONFIGURATIONFILE_MIMETYPE);
-    addMimeType(QmakeProjectManager::Constants::PROCACHEFILE_MIMETYPE);
-    addMimeType(QmakeProjectManager::Constants::PROSTASHFILE_MIMETYPE);
-    new TextEditor::TextEditorActionHandler(this, Constants::C_PROFILEEDITOR,
-                  TextEditor::TextEditorActionHandler::UnCommentSelection
-                  | TextEditor::TextEditorActionHandler::JumpToFileUnderCursor);
+    setId(Constants::PROFILE_EDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", Constants::PROFILE_EDITOR_DISPLAY_NAME));
+    addMimeType(Constants::PROFILE_MIMETYPE);
+    addMimeType(Constants::PROINCLUDEFILE_MIMETYPE);
+    addMimeType(Constants::PROFEATUREFILE_MIMETYPE);
+    addMimeType(Constants::PROCONFIGURATIONFILE_MIMETYPE);
+    addMimeType(Constants::PROCACHEFILE_MIMETYPE);
+    addMimeType(Constants::PROSTASHFILE_MIMETYPE);
+
+    setDocumentCreator([]() { return new ProFileDocument; });
+    setEditorWidgetCreator([]() { return new ProFileEditorWidget; });
+    setEditorCreator([]() { return new ProFileEditor; });
+
+    setEditorActionHandlers(Constants::C_PROFILEEDITOR,
+                  TextEditorActionHandler::UnCommentSelection
+                | TextEditorActionHandler::JumpToFileUnderCursor);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pro");
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pri");
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "prf");
-}
-
-Core::IEditor *ProFileEditorFactory::createEditor()
-{
-    return new ProFileEditor;
 }
 
 } // namespace Internal

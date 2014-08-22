@@ -45,19 +45,19 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
+#include <texteditor/basetexteditor.h>
 
 #include <QDir>
 #include <QFileInfo>
 #include <QVariant>
-#include <QMessageBox>
 
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
-using namespace QmakeProjectManager::Internal;
+using namespace TextEditor;
 
-QmakeManager::QmakeManager(QmakeProjectManagerPlugin *plugin)
-  : m_plugin(plugin),
-    m_contextNode(0),
+namespace QmakeProjectManager {
+
+QmakeManager::QmakeManager()
+  : m_contextNode(0),
     m_contextProject(0),
     m_contextFile(0)
 {
@@ -132,9 +132,7 @@ void QmakeManager::setContextFile(ProjectExplorer::FileNode *file)
 
 void QmakeManager::addLibrary()
 {
-    ProFileEditor *editor =
-        qobject_cast<ProFileEditor*>(Core::EditorManager::currentEditor());
-    if (editor)
+    if (auto editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor()))
         addLibrary(editor->document()->filePath(), editor);
 }
 
@@ -145,19 +143,19 @@ void QmakeManager::addLibraryContextMenu()
         addLibrary(node->path());
 }
 
-void QmakeManager::addLibrary(const QString &fileName, ProFileEditor *editor)
+void QmakeManager::addLibrary(const QString &fileName, BaseTextEditor *editor)
 {
-    AddLibraryWizard wizard(fileName, Core::ICore::dialogParent());
+    Internal::AddLibraryWizard wizard(fileName, Core::ICore::dialogParent());
     if (wizard.exec() != QDialog::Accepted)
         return;
 
     if (!editor)
-        editor = qobject_cast<ProFileEditor *> (Core::EditorManager::openEditor(fileName,
-            QmakeProjectManager::Constants::PROFILE_EDITOR_ID, Core::EditorManager::DoNotMakeVisible));
+        editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditor(fileName,
+            Constants::PROFILE_EDITOR_ID, Core::EditorManager::DoNotMakeVisible));
     if (!editor)
         return;
 
-    const int endOfDoc = editor->position(TextEditor::BaseTextEditor::EndOfDoc);
+    const int endOfDoc = editor->position(BaseTextEditor::EndOfDoc);
     editor->setCursorPosition(endOfDoc);
     QString snippet = wizard.snippet();
 
@@ -297,3 +295,5 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
     bc->setSubNodeBuild(0);
     bc->setFileNodeBuild(0);
 }
+
+} // namespace QmakeProjectManager

@@ -30,57 +30,17 @@
 #ifndef PROFILEEDITOR_H
 #define PROFILEEDITOR_H
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
 
 namespace QmakeProjectManager {
 namespace Internal {
 
-class ProFileEditor : public TextEditor::BaseTextEditor
-{
-    Q_OBJECT
-
-public:
-    ProFileEditor();
-};
-
-class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget
-{
-    Q_OBJECT
-
-public:
-    ProFileEditorWidget();
-
-protected:
-    virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
-                            bool inNextSplit = false);
-    TextEditor::BaseTextEditor *createEditor();
-    void contextMenuEvent(QContextMenuEvent *);
-};
-
-class ProFileDocument : public TextEditor::BaseTextDocument
-{
-    Q_OBJECT
-
-public:
-    ProFileDocument();
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-
-    // qmake project files doesn't support UTF8-BOM
-    // If the BOM would be added qmake would fail and QtCreator couldn't parse the project file
-    bool supportsUtf8Bom() { return false; }
-};
-
-class ProFileEditorFactory : public Core::IEditorFactory
+class ProFileEditorFactory : public TextEditor::BaseTextEditorFactory
 {
     Q_OBJECT
 
 public:
     ProFileEditorFactory();
-
-    Core::IEditor *createEditor();
 };
 
 } // namespace Internal
