@@ -7228,6 +7228,7 @@ BaseTextDocumentPtr BaseTextEditor::ensureDocument()
 BaseTextEditorFactory::BaseTextEditorFactory(QObject *parent)
     : IEditorFactory(parent)
 {
+    m_widgetCreator = []() { return new BaseTextEditorWidget; };
 }
 
 void BaseTextEditorFactory::setDocumentCreator(const BaseTextDocumentCreator &creator)
@@ -7253,6 +7254,20 @@ void BaseTextEditorFactory::setIndenterCreator(const IndenterCreator &creator)
 void BaseTextEditorFactory::setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator)
 {
     m_syntaxHighlighterCreator = creator;
+}
+
+void BaseTextEditorFactory::setGenericSyntaxHighlighter(const QString &mimeType)
+{
+    m_syntaxHighlighterCreator = [this, mimeType]() -> SyntaxHighlighter * {
+        Highlighter *highlighter = new TextEditor::Highlighter();
+        setMimeTypeForHighlighter(highlighter, Core::MimeDatabase::findByType(mimeType));
+        return highlighter;
+    };
+}
+
+void BaseTextEditorFactory::setAutoCompleterCreator(const AutoCompleterCreator &creator)
+{
+    m_autoCompleterCreator = creator;
 }
 
 void BaseTextEditorFactory::setEditorActionHandlers(Id contextId, uint optionalActions)
@@ -7297,6 +7312,9 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
     widget->setTextDocument(document);
 
     widget->d->m_codeAssistant.configure(editor);
+
+    if (m_autoCompleterCreator)
+        widget->setAutoCompleter(m_autoCompleterCreator());
 
     return editor;
 }

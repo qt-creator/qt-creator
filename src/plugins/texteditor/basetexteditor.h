@@ -623,6 +623,7 @@ private:
 
 typedef std::function<SyntaxHighlighter *()> SyntaxHighLighterCreator;
 typedef std::function<Indenter *()> IndenterCreator;
+typedef std::function<AutoCompleter *()> AutoCompleterCreator;
 
 class TEXTEDITOR_EXPORT BaseTextEditorFactory : public Core::IEditorFactory
 {
@@ -636,12 +637,13 @@ public:
     void setEditorCreator(const BaseTextEditorCreator &creator);
     void setIndenterCreator(const IndenterCreator &creator);
     void setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator);
+    void setGenericSyntaxHighlighter(const QString &mimeType);
+    void setAutoCompleterCreator(const AutoCompleterCreator &creator);
 
     void setEditorActionHandlers(Core::Id contextId, uint optionalActions);
     void setEditorActionHandlers(uint optionalActions);
 
     BaseTextEditor *duplicateTextEditor(BaseTextEditor *);
-
 private:
     Core::IEditor *createEditor();
     BaseTextEditor *createEditorHelper(const BaseTextDocumentPtr &doc);
@@ -649,6 +651,7 @@ private:
     BaseTextDocumentCreator m_documentCreator;
     BaseTextEditorWidgetCreator m_widgetCreator;
     BaseTextEditorCreator m_editorCreator;
+    AutoCompleterCreator m_autoCompleterCreator;
     IndenterCreator m_indenterCreator;
     SyntaxHighLighterCreator m_syntaxHighlighterCreator;
 };

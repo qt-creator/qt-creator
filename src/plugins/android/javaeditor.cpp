@@ -33,11 +33,14 @@
 #include "androidconstants.h"
 #include "javacompletionassistprovider.h"
 
+#include <texteditor/basetextdocument.h>
+#include <texteditor/basetexteditor.h>
+#include <utils/uncommentselection.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/normalindenter.h>
-#include <texteditor/highlighterutils.h>
-#include <coreplugin/mimedatabase.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QFileInfo>
@@ -49,32 +52,36 @@ namespace Internal {
 // JavaEditor
 //
 
-JavaEditor::JavaEditor()
+class JavaEditor : public TextEditor::BaseTextEditor
 {
-    addContext(Constants::C_JAVA_EDITOR);
-    setDuplicateSupported(true);
-    setCommentStyle(Utils::CommentDefinition::CppStyle);
-    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<JavaCompletionAssistProvider>());
-    setEditorCreator([]() { return new JavaEditor; });
-    setDocumentCreator([]() { return new JavaDocument; });
-
-    setWidgetCreator([]() -> TextEditor::BaseTextEditorWidget * {
-        auto widget = new TextEditor::BaseTextEditorWidget;
-        widget->setAutoCompleter(new JavaAutoCompleter);
-        return widget;
-    });
-}
+public:
+    JavaEditor()
+    {
+        addContext(Constants::C_JAVA_EDITOR);
+        setDuplicateSupported(true);
+        setCommentStyle(Utils::CommentDefinition::CppStyle);
+        setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<JavaCompletionAssistProvider>());
+    }
+};
 
 
 //
 // JavaDocument
 //
 
+class JavaDocument : public TextEditor::BaseTextDocument
+{
+public:
+    JavaDocument();
+    QString defaultPath() const;
+    QString suggestedFileName() const;
+};
+
+
 JavaDocument::JavaDocument()
 {
     setId(Constants::JAVA_EDITOR_ID);
     setMimeType(QLatin1String(Constants::JAVA_MIMETYPE));
-    setSyntaxHighlighter(TextEditor::createGenericSyntaxHighlighter(Core::MimeDatabase::findByType(QLatin1String(Constants::JAVA_MIMETYPE))));
     setIndenter(new JavaIndenter);
 }
 
@@ -97,16 +104,17 @@ QString JavaDocument::suggestedFileName() const
 
 JavaEditorFactory::JavaEditorFactory()
 {
-    setId(Android::Constants::JAVA_EDITOR_ID);
+    setId(Constants::JAVA_EDITOR_ID);
     setDisplayName(tr("Java Editor"));
-    addMimeType(Android::Constants::JAVA_MIMETYPE);
-    new TextEditor::TextEditorActionHandler(this, Constants::C_JAVA_EDITOR,
-                  TextEditor::TextEditorActionHandler::UnCommentSelection);
-}
+    addMimeType(Constants::JAVA_MIMETYPE);
 
-Core::IEditor *JavaEditorFactory::createEditor()
-{
-    return new JavaEditor;
+    setEditorCreator([]() { return new JavaEditor; });
+    setDocumentCreator([]() { return new JavaDocument; });
+    setAutoCompleterCreator([]() { return new JavaAutoCompleter; });
+    setGenericSyntaxHighlighter(QLatin1String(Constants::JAVA_MIMETYPE));
+
+    setEditorActionHandlers(Constants::C_JAVA_EDITOR,
+                  TextEditor::TextEditorActionHandler::UnCommentSelection);
 }
 
 } // namespace Internal
