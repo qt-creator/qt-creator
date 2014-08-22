@@ -53,77 +53,69 @@ using namespace TextEditor;
 namespace PythonEditor {
 namespace Internal {
 
-//////////////////////////////////////////////////////////////////
 //
 //  PythonEditor
 //
-//////////////////////////////////////////////////////////////////
 
-PythonEditor::PythonEditor()
+class PythonEditor : public TextEditor::BaseTextEditor
 {
-    addContext(Constants::C_PYTHONEDITOR_ID);
-    setDuplicateSupported(true);
-    setCommentStyle(Utils::CommentDefinition::HashStyle);
-    setEditorCreator([]() { return new PythonEditor; });
-    setWidgetCreator([]() { return new PythonEditorWidget; });
+public:
+    PythonEditor()
+    {
+        addContext(Constants::C_PYTHONEDITOR_ID);
+        setDuplicateSupported(true);
+        setCommentStyle(Utils::CommentDefinition::HashStyle);
+    }
 
-    setDocumentCreator([]() -> BaseTextDocument * {
-        auto doc = new BaseTextDocument(Constants::C_PYTHONEDITOR_ID);
-        doc->setIndenter(new PythonIndenter);
-        new PythonHighlighter(doc);
-        return doc;
-    });
-}
-
-bool PythonEditor::open(QString *errorString,
-                        const QString &fileName,
-                        const QString &realFileName)
-{
-    Core::MimeType mimeType = Core::MimeDatabase::findByFile(QFileInfo(fileName));
-    textDocument()->setMimeType(mimeType.type());
-    return BaseTextEditor::open(errorString, fileName, realFileName);
-}
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName)
+    {
+        Core::MimeType mimeType = Core::MimeDatabase::findByFile(QFileInfo(fileName));
+        textDocument()->setMimeType(mimeType.type());
+        return BaseTextEditor::open(errorString, fileName, realFileName);
+    }
+};
 
 
-//////////////////////////////////////////////////////////////////
 //
 //  PythonEditorWidget
 //
-//////////////////////////////////////////////////////////////////
 
-PythonEditorWidget::PythonEditorWidget()
+class PythonEditorWidget : public TextEditor::BaseTextEditorWidget
 {
-    setParenthesesMatchingEnabled(true);
-    setMarksVisible(true);
-    setCodeFoldingSupported(true);
-}
+public:
+    PythonEditorWidget()
+    {
+        setParenthesesMatchingEnabled(true);
+        setMarksVisible(true);
+        setCodeFoldingSupported(true);
+    }
 
-BaseTextEditor *PythonEditorWidget::createEditor()
-{
-    QTC_ASSERT("should not happen anymore" && false, return 0);
-}
+    TextEditor::BaseTextEditor *createEditor()
+    {
+        QTC_ASSERT("should not happen anymore" && false, return 0);
+    }
+};
 
 
-//////////////////////////////////////////////////////////////////
 //
 //  PythonEditorFactory
 //
-//////////////////////////////////////////////////////////////////
 
 PythonEditorFactory::PythonEditorFactory()
 {
     setId(Constants::C_PYTHONEDITOR_ID);
     setDisplayName(tr(Constants::C_EDITOR_DISPLAY_NAME));
     addMimeType(QLatin1String(Constants::C_PY_MIMETYPE));
-    new TextEditorActionHandler(this, Constants::C_PYTHONEDITOR_ID,
-                              TextEditorActionHandler::Format
-                              | TextEditorActionHandler::UnCommentSelection
-                              | TextEditorActionHandler::UnCollapseAll);
-}
 
-Core::IEditor *PythonEditorFactory::createEditor()
-{
-    return new PythonEditor;
+    setEditorActionHandlers(TextEditorActionHandler::Format
+                       | TextEditorActionHandler::UnCommentSelection
+                       | TextEditorActionHandler::UnCollapseAll);
+
+    setDocumentCreator([]() { return new BaseTextDocument(Constants::C_PYTHONEDITOR_ID); });
+    setEditorWidgetCreator([]() { return new PythonEditorWidget; });
+    setEditorCreator([]() { return new PythonEditor; });
+    setIndenterCreator([]() { return new PythonIndenter; });
+    setSyntaxHighlighterCreator([]() { return new PythonHighlighter; });
 }
 
 } // namespace Internal

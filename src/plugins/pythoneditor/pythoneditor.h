@@ -31,48 +31,16 @@
 #define PYTHONEDITOR_EDITOR_H
 
 #include <texteditor/basetexteditor.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
 
 namespace PythonEditor {
 namespace Internal {
 
-class PythonEditorFactory : public Core::IEditorFactory
+class PythonEditorFactory : public TextEditor::BaseTextEditorFactory
 {
     Q_OBJECT
 
 public:
     PythonEditorFactory();
-
-    /**
-      Creates and initializes new editor widget
-      */
-    Core::IEditor *createEditor();
-};
-
-class PythonEditor : public TextEditor::BaseTextEditor
-{
-    Q_OBJECT
-
-public:
-    PythonEditor();
-
-    /**
-      Opens file for editing, actual work performed by base class
-      */
-    bool open(QString *errorString,
-              const QString &fileName,
-              const QString &realFileName);
-};
-
-class PythonEditorWidget : public TextEditor::BaseTextEditorWidget
-{
-    Q_OBJECT
-
-public:
-    PythonEditorWidget();
-
-protected:
-    TextEditor::BaseTextEditor *createEditor();
 };
 
 } // namespace Internal
