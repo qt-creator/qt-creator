@@ -1353,7 +1353,7 @@ void ClearCasePlugin::viewStatus()
         }
     }
     if (!anymod)
-        outputwindow->appendWarning(QLatin1String("No modified files found!"));
+        outputwindow->appendWarning(QLatin1String("No modified files found."));
 }
 
 void ClearCasePlugin::ccUpdate(const QString &workingDir, const QStringList &relativePaths)

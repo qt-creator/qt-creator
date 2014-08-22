@@ -1139,7 +1139,7 @@ bool QmakePriFileNode::ensureWriteableProFile(const QString &file)
             bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {
                 QMessageBox::warning(Core::ICore::mainWindow(),
-                                     tr("Failed!"),
+                                     tr("Failed"),
                                      tr("Could not write project file %1.").arg(file));
                 return false;
             }

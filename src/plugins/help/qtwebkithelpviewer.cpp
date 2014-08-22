@@ -212,7 +212,7 @@ void HelpPage::onHandleUnsupportedContent(QNetworkReply *reply)
     }
 
     // set a default error string we are going to display
-    QString errorString = HelpViewer::tr("Unknown or unsupported content!");
+    QString errorString = HelpViewer::tr("Unknown or unsupported content.");
     if (reply->error() == QNetworkReply::NoError) {
         // try to open the url using using the desktop service
         if (QDesktopServices::openUrl(reply->url())) {

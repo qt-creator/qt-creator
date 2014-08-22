@@ -70,5 +70,5 @@ ProjectExplorer::RunControl::StopResult QnxRunControl::stop()
 
 void QnxRunControl::printMissingWarning()
 {
-    appendMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available!"), Utils::ErrorMessageFormat);
+    appendMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), Utils::ErrorMessageFormat);
 }

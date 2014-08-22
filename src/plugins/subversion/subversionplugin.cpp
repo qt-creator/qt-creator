@@ -1017,7 +1017,7 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
     SubversionResponse response;
     if (executable.isEmpty()) {
         response.error = true;
-        response.message =tr("No subversion executable specified!");
+        response.message =tr("No subversion executable specified.");
         return response;
     }
 

@@ -1386,7 +1386,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     } else if (sp.executable.isEmpty()) {
                         sp.executable = key;
                     } else {
-                        *errorMessage = DebuggerPlugin::tr("Only one executable allowed!");
+                        *errorMessage = DebuggerPlugin::tr("Only one executable allowed.");
                         return false;
                     }
                 }

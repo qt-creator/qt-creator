@@ -160,5 +160,5 @@ void QnxAnalyzeSupport::showMessage(const QString &msg, Utils::OutputFormat form
 
 void QnxAnalyzeSupport::printMissingWarning()
 {
-    showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available!"), Utils::ErrorMessageFormat);
+    showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), Utils::ErrorMessageFormat);
 }

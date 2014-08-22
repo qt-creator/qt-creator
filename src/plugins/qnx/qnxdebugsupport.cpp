@@ -190,7 +190,7 @@ void QnxDebugSupport::handleError(const QString &error)
 void QnxDebugSupport::printMissingWarning()
 {
     if (m_engine)
-        m_engine->showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available!"), Debugger::AppError);
+        m_engine->showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."), Debugger::AppError);
 }
 
 void QnxDebugSupport::handleApplicationOutput(const QString &msg, Utils::OutputFormat outputFormat)

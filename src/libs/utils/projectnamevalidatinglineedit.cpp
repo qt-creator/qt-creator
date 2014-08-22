@@ -48,7 +48,7 @@ bool ProjectNameValidatingLineEdit::validateProjectName(const QString &name, QSt
     int pos = FileUtils::indexOfQmakeUnfriendly(name);
     if (pos >= 0) {
         if (errorMessage)
-            *errorMessage = tr("Invalid character \"%1\" found!").arg(name.at(pos));
+            *errorMessage = tr("Invalid character \"%1\" found.").arg(name.at(pos));
         return false;
     }
     if (name.contains(QLatin1Char('.'))) {

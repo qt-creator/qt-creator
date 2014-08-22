@@ -1147,7 +1147,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
     CvsResponse response;
     if (executable.isEmpty()) {
         response.result = CvsResponse::OtherError;
-        response.message =tr("No cvs executable specified!");
+        response.message =tr("No cvs executable specified.");
         return response;
     }
     // Run, connect stderr to the output window
