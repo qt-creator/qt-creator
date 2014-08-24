@@ -62,6 +62,41 @@ bool GetOperation::setArguments(const QStringList &args)
     return !m_file.isEmpty() && !m_keys.isEmpty();
 }
 
+static QString toString(const QVariant &variant, int indentation = 0)
+{
+    const QString indent(indentation, QLatin1Char(' '));
+    switch (variant.type()) {
+    case QVariant::Map: {
+        QVariantMap map = variant.toMap();
+        QString res;
+        for (auto item = map.begin(); item != map.end(); ++item) {
+            res += indent + item.key() + QLatin1String(": ");
+            QVariant value = item.value();
+            switch (value.type()) {
+            case QVariant::Map:
+            case QVariant::List:
+                res += QLatin1Char('\n') + toString(value, indentation + 1);
+                break;
+            default:
+                res += value.toString();
+                break;
+            }
+            res += QLatin1Char('\n');
+        }
+        return res;
+    }
+    case QVariant::List: {
+        QVariantList list = variant.toList();
+        QString res;
+        int counter = 0;
+        foreach (const QVariant &item, list)
+            res += indent + QString::number(counter++) + QLatin1String(":\n") + toString(item, indentation + 1);
+        return res;
+    }
+    }
+    return indent + variant.toString();
+}
+
 int GetOperation::execute() const
 {
     Q_ASSERT(!m_keys.isEmpty());
@@ -72,7 +107,7 @@ int GetOperation::execute() const
         if (!result.isValid())
             std::cout << "<invalid>" << std::endl;
         else
-            std::cout << qPrintable(result.toString()) << std::endl;
+            std::cout << qPrintable(toString(result)) << std::endl;
     }
 
     return 0;
