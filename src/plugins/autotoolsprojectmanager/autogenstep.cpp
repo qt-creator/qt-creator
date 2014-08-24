@@ -158,8 +158,9 @@ bool AutogenStep::init()
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
-    pp->setCommand(QLatin1String("autogen.sh"));
+    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    pp->setWorkingDirectory(projectDir);
+    pp->setCommand(QLatin1String("./autogen.sh"));
     pp->setArguments(additionalArguments());
     pp->resolveAll();
 
@@ -171,10 +172,10 @@ void AutogenStep::run(QFutureInterface<bool> &interface)
     BuildConfiguration *bc = buildConfiguration();
 
     // Check whether we need to run autogen.sh
-    const QString buildDir = bc->buildDirectory().toString();
-    const QFileInfo configureInfo(buildDir + QLatin1String("/configure"));
-    const QFileInfo configureAcInfo(buildDir + QLatin1String("/configure.ac"));
-    const QFileInfo makefileAmInfo(buildDir + QLatin1String("/Makefile.am"));
+    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    const QFileInfo configureInfo(projectDir + QLatin1String("/configure"));
+    const QFileInfo configureAcInfo(projectDir + QLatin1String("/configure.ac"));
+    const QFileInfo makefileAmInfo(projectDir + QLatin1String("/Makefile.am"));
 
     if (!configureInfo.exists()
         || configureInfo.lastModified() < configureAcInfo.lastModified()
@@ -276,8 +277,9 @@ void AutogenStepConfigWidget::updateDetails()
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
-    param.setWorkingDirectory(bc->buildDirectory().toString());
-    param.setCommand(QLatin1String("autogen.sh"));
+    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    param.setWorkingDirectory(projectDir);
+    param.setCommand(QLatin1String("./autogen.sh"));
     param.setArguments(m_autogenStep->additionalArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();

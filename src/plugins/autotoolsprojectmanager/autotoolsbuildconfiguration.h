@@ -60,6 +60,9 @@ protected:
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, AutotoolsBuildConfiguration *source);
 
     friend class AutotoolsBuildSettingsWidget;
+
+private:
+    void setBuildDirectory(const Utils::FileName &directory);
 };
 
 class AutotoolsBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

@@ -157,7 +157,8 @@ bool AutoreconfStep::init()
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
+    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    pp->setWorkingDirectory(projectDir);
     pp->setCommand(QLatin1String("autoreconf"));
     pp->setArguments(additionalArguments());
     pp->resolveAll();
@@ -170,8 +171,8 @@ void AutoreconfStep::run(QFutureInterface<bool> &interface)
     BuildConfiguration *bc = buildConfiguration();
 
     // Check whether we need to run autoreconf
-    const QString buildDir = bc->buildDirectory().toString();
-    const QFileInfo configureInfo(buildDir + QLatin1String("/configure"));
+    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    const QFileInfo configureInfo(projectDir + QLatin1String("/configure"));
 
     if (!configureInfo.exists())
         m_runAutoreconf = true;
@@ -270,7 +271,8 @@ void AutoreconfStepConfigWidget::updateDetails()
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
-    param.setWorkingDirectory(bc->buildDirectory().toString());
+    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    param.setWorkingDirectory(projectDir);
     param.setCommand(QLatin1String("autoreconf"));
     param.setArguments(m_autoreconfStep->additionalArguments());
     m_summaryText = param.summary(displayName());

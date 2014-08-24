@@ -54,6 +54,20 @@ using namespace ProjectExplorer;
 const char CONFIGURE_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.ConfigureStep.AdditionalArguments";
 const char CONFIGURE_STEP_ID[] = "AutotoolsProjectManager.ConfigureStep";
 
+/////////////////////
+// Helper Function
+/////////////////////
+static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
+    const QDir buildDir(bc->buildDirectory().toString());
+    QString projDirToBuildDir = buildDir.relativeFilePath(
+                bc->target()->project()->projectDirectory().toString());
+    if (projDirToBuildDir.isEmpty())
+        return QLatin1String("./");
+    if (!projDirToBuildDir.endsWith(QLatin1Char('/')))
+        projDirToBuildDir.append(QLatin1Char('/'));
+    return projDirToBuildDir;
+}
+
 ////////////////////////////////
 // ConfigureStepFactory Class
 ////////////////////////////////
@@ -159,7 +173,7 @@ bool ConfigureStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory().toString());
-    pp->setCommand(QLatin1String("configure"));
+    pp->setCommand(projectDirRelativeToBuildDir(bc) + QLatin1String("configure"));
     pp->setArguments(additionalArguments());
     pp->resolveAll();
 
@@ -171,9 +185,9 @@ void ConfigureStep::run(QFutureInterface<bool>& interface)
     BuildConfiguration *bc = buildConfiguration();
 
     //Check whether we need to run configure
-    QString buildDir = bc->buildDirectory().toString();
-    const QFileInfo configureInfo(buildDir +QLatin1String("/configure"));
-    const QFileInfo configStatusInfo(buildDir + QLatin1String("/config.status"));
+    const QString projectDir(bc->target()->project()->projectDirectory().toString());
+    const QFileInfo configureInfo(projectDir + QLatin1String("/configure"));
+    const QFileInfo configStatusInfo(bc->buildDirectory().toString() + QLatin1String("/config.status"));
 
     if (!configStatusInfo.exists()
         || configStatusInfo.lastModified() < configureInfo.lastModified()) {
@@ -210,6 +224,11 @@ void ConfigureStep::setAdditionalArguments(const QString &list)
     m_runConfigure = true;
 
     emit additionalArgumentsChanged(list);
+}
+
+void ConfigureStep::notifyBuildDirectoryChanged()
+{
+    emit buildDirectoryChanged();
 }
 
 QString ConfigureStep::additionalArguments() const
@@ -255,6 +274,8 @@ ConfigureStepConfigWidget::ConfigureStepConfigWidget(ConfigureStep *configureSte
             configureStep, SLOT(setAdditionalArguments(QString)));
     connect(configureStep, SIGNAL(additionalArgumentsChanged(QString)),
             this, SLOT(updateDetails()));
+    connect(configureStep, SIGNAL(buildDirectoryChanged(void)),
+            this, SLOT(updateDetails()));
 }
 
 QString ConfigureStepConfigWidget::displayName() const
@@ -275,7 +296,7 @@ void ConfigureStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
     param.setWorkingDirectory(bc->buildDirectory().toString());
-    param.setCommand(QLatin1String("configure"));
+    param.setCommand(projectDirRelativeToBuildDir(bc) + QLatin1String("configure"));
     param.setArguments(m_configureStep->additionalArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();

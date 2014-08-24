@@ -103,9 +103,11 @@ public:
 
 public slots:
     void setAdditionalArguments(const QString &list);
+    void notifyBuildDirectoryChanged();
 
 signals:
     void additionalArgumentsChanged(const QString &);
+    void buildDirectoryChanged();
 
 protected:
     ConfigureStep(ProjectExplorer::BuildStepList *bsl, ConfigureStep *bs);

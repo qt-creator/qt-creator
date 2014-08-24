@@ -223,3 +223,17 @@ BuildConfiguration::BuildType AutotoolsBuildConfiguration::buildType() const
     // TODO: Should I return something different from Unknown?
     return Unknown;
 }
+
+void AutotoolsBuildConfiguration::setBuildDirectory(const Utils::FileName &directory)
+{
+    if (directory == buildDirectory())
+        return;
+    BuildConfiguration::setBuildDirectory(directory);
+    ProjectExplorer::BuildStepList *bsl = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    foreach (BuildStep *bs, bsl->steps()) {
+        ConfigureStep *cs = qobject_cast<ConfigureStep *>(bs);
+        if (cs) {
+            cs->notifyBuildDirectoryChanged();
+        }
+    }
+}
