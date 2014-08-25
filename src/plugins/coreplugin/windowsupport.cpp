@@ -75,6 +75,12 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
 
 WindowSupport::~WindowSupport()
 {
+    if (UseMacShortcuts) {
+        ActionManager::unregisterAction(m_minimizeAction, Constants::MINIMIZE_WINDOW);
+        ActionManager::unregisterAction(m_zoomAction, Constants::ZOOM_WINDOW);
+        ActionManager::unregisterAction(m_closeAction, Constants::CLOSE_WINDOW);
+    }
+    ActionManager::unregisterAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN);
     ICore::removeContextObject(m_contextObject);
 }
 
