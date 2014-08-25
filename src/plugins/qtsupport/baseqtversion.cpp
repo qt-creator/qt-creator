@@ -264,6 +264,12 @@ FeatureSet BaseQtVersion::availableFeatures() const
      features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_2);
      features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_1);
 
+     if (qtVersion() < QtVersionNumber(5, 3, 0))
+         return features;
+
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_3);
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_2);
+
      return features;
 }
 
