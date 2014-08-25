@@ -57,7 +57,6 @@ static inline QString fileNameOfItem(const QStandardItem *item)
 }
 
 namespace Core {
-namespace Internal {
 
 PromptOverwriteDialog::PromptOverwriteDialog(QWidget *parent) :
     QDialog(parent),
@@ -157,5 +156,4 @@ bool PromptOverwriteDialog::isFileChecked(const QString &f) const
     return false;
 }
 
-} // namespace Internal
 } // namespace Core

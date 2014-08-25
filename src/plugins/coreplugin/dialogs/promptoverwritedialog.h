@@ -30,6 +30,8 @@
 #ifndef PROMPTOVERWRITEDIALOG_H
 #define PROMPTOVERWRITEDIALOG_H
 
+#include "../core_global.h"
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -40,10 +42,9 @@ class QLabel;
 QT_END_NAMESPACE
 
 namespace Core {
-namespace Internal {
 
 // Documentation inside.
-class PromptOverwriteDialog : public QDialog
+class CORE_EXPORT PromptOverwriteDialog : public QDialog
 {
     Q_OBJECT
 public:
@@ -69,7 +70,6 @@ private:
     QStandardItemModel *m_model;
 };
 
-} // namespace Internal
 } // namespace Core
 
 #endif // PROMPTOVERWRITEDIALOG_H

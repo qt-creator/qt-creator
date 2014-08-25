@@ -420,7 +420,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
         return OverwriteError;
     }
     // Prompt to overwrite existing files.
-    Internal::PromptOverwriteDialog overwriteDialog;
+    PromptOverwriteDialog overwriteDialog;
     // Scripts cannot handle overwrite
     overwriteDialog.setFiles(existingFiles);
     foreach (const GeneratedFile &file, *files)
