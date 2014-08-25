@@ -11,13 +11,11 @@ Windows XP SP3 or later
 Mac OS X 10.7 or later
 
 Building the sources requires Qt 5.3.1 or later.
-It is also possible to build with Qt 4.8.x, but in that case the Welcome mode,
-QML Profiler, and the WinRT and Qbs support are disabled.
 
 Compiling Qt Creator
 ====================
 Prerequisites:
-   * Qt 5.3.1 or later (with restrictions also Qt 4.8.x)
+   * Qt 5.3.1 or later
    * On Windows:
      -  ActiveState Active Perl
      -  MinGW with g++ 4.5 or Visual Studio 2010 or later
@@ -33,27 +31,9 @@ You can build Qt Creator with
     qmake -r
     make (or mingw32-make or nmake or jom, depending on your platform)
 
-Note: If you use Qt 4.8 to build on OS X, you need to additionally pass
-      "-spec unsupported/macx-clang-libc++" to qmake.
-
 Installation ("make install") is not needed. It is however possible, using
 
     make install INSTALL_ROOT=$INSTALL_DIRECTORY
-
-Private Header Dependencies When Compiling With Qt 4.8
-------------------------------------------------------
-
-The QNX plugin, and on Windows the Utils library, use
-private headers of Qt. These private headers always end with an "_p.h". Digia
-and the Qt Project do not promise to keep these files or APIs binary or source
-compatible between releases. This means that when compiled, Qt Creator has a
-dependency to the exact Qt version it was compiled with. Running Qt Creator
-against updated Qt libraries (also for patch releases) might lead to link time
-failures, or even crashes.
-
-To disable the plugins, pass "QT_PRIVATE_HEADERS=" to qmake:
-
-  qmake "QT_PRIVATE_HEADERS=" $SOURCE_DIRECTORY/qtcreator.pro
 
 Compiling Qt and Qt Creator on Windows
 --------------------------------------

@@ -3,11 +3,7 @@ QT += gui network
 include(../../qtcreatorlibrary.pri)
 include(utils-lib.pri)
 
-lessThan(QT_MAJOR_VERSION, 5) {
-#   Needed for QtCore/private/qwineventnotifier_p.h
-    win32:include(../../private_headers.pri)
-    linux-*: DEFINES += QTC_USE_QX11INFO
-} else:linux-* {
+linux-* {
     !isEmpty(QT.x11extras.name) {
         QT += x11extras
         CONFIG += x11

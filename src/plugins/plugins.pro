@@ -49,16 +49,16 @@ SUBDIRS   = \
     baremetal \
     ios \
     beautifier \
-    qmakeandroidsupport
+    qmakeandroidsupport \
+    winrt \
+    qmldesigner \
+    qmlprofiler \
+    welcome
 
-minQtVersion(5, 0, 0) {
-    SUBDIRS += winrt
-
-    isEmpty(QBS_INSTALL_DIR): QBS_INSTALL_DIR = $$(QBS_INSTALL_DIR)
-    exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \
-        SUBDIRS += \
-            qbsprojectmanager
-}
+isEmpty(QBS_INSTALL_DIR): QBS_INSTALL_DIR = $$(QBS_INSTALL_DIR)
+exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \
+    SUBDIRS += \
+        qbsprojectmanager
 
 # prefer qmake variable set on command line over env var
 isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
@@ -73,23 +73,6 @@ isEmpty(IDE_PACKAGE_MODE) {
 } else:!isEmpty(UPDATEINFO_ENABLE) {
     SUBDIRS += \
         updateinfo
-}
-
-minQtVersion(5, 3, 1) {
-    SUBDIRS += qmldesigner
-} else {
-     warning("QmlDesigner plugin has been disabled.")
-     warning("This plugin requires Qt 5.3.1 or newer.")
-}
-
-minQtVersion(5, 2, 0) {
-    SUBDIRS += \
-        qmlprofiler \
-        welcome
-} else {
-     warning("QmlProfiler plugin has been disabled.")
-     warning("Welcome plugin has been disabled.")
-     warning("These plugins need at least Qt 5.2.")
 }
 
 for(p, SUBDIRS) {

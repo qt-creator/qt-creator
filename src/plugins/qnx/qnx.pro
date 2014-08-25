@@ -254,20 +254,10 @@ FORMS += \
     qnxsettingswidget.ui \
     qnxdeployqtlibrariesdialog.ui
 
-include(../../private_headers.pri)
 include(./cascadesimport/cascadesimport.pri)
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += gui-private
-    DEFINES += QNX_ZIP_FILE_SUPPORT
-} else {
-    exists($${QT_PRIVATE_HEADERS}/QtGui/private/qzipreader_p.h) {
-        DEFINES += QNX_ZIP_FILE_SUPPORT
-    } else {
-        warning("The QNX plugin depends on private headers from QtGui module, to be fully functional.")
-        warning("To fix it, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
-    }
-}
+QT += gui-private
+DEFINES += QNX_ZIP_FILE_SUPPORT
 
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
 

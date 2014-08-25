@@ -1,9 +1,9 @@
 include(qtcreator.pri)
 
 #version check qt
-!minQtVersion(4, 8, 0) {
+!minQtVersion(5, 3, 1) {
     message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
-    error("Use at least Qt 4.8.0.")
+    error("Use at least Qt 5.3.1.")
 }
 
 include(doc/doc.pri)
@@ -28,7 +28,7 @@ OTHER_FILES += dist/copyright_template.txt \
     $$files(scripts/*.sh) \
     $$files(scripts/*.pl)
 
-minQtVersion(5, 0, 0):exists(src/shared/qbs/qbs.pro) {
+exists(src/shared/qbs/qbs.pro) {
     # Make sure the qbs dll ends up alongside the Creator executable.
     QBS_DLLDESTDIR = $${IDE_BUILD_TREE}/bin
     cache(QBS_DLLDESTDIR)
