@@ -230,10 +230,6 @@ class BaseTextEditorPrivate
 public:
     BaseTextEditorPrivate() {}
 
-    BaseTextDocumentCreator m_documentCreator;
-    BaseTextEditorWidgetCreator m_editorWidgetCreator;
-    BaseTextEditorCreator m_editorCreator;
-
     CommentDefinition m_commentDefinition;
     std::function<CompletionAssistProvider *()> m_completionAssistProvider;
 
@@ -6594,21 +6590,6 @@ BaseTextEditor::~BaseTextEditor()
     delete d;
 }
 
-void BaseTextEditor::setEditorCreator(const BaseTextEditorCreator &creator)
-{
-    d->m_editorCreator = creator;
-}
-
-void BaseTextEditor::setDocumentCreator(const BaseTextDocumentCreator &creator)
-{
-    d->m_documentCreator = creator;
-}
-
-void BaseTextEditor::setWidgetCreator(const BaseTextEditorWidgetCreator &creator)
-{
-    d->m_editorWidgetCreator = creator;
-}
-
 BaseTextDocument *BaseTextEditor::textDocument()
 {
     ensureDocument();
@@ -7190,15 +7171,6 @@ IEditor *BaseTextEditor::duplicate()
     if (d->m_origin)
         return d->m_origin->duplicateTextEditor(this);
 
-    // Use old setup if that's available.
-    if (d->m_editorCreator) {
-        BaseTextEditor *editor = d->m_editorCreator();
-        BaseTextEditorWidget *widget = editor->ensureWidget();
-        widget->setTextDocument(editorWidget()->textDocumentPtr());
-        m_widget = widget;
-        return editor;
-    }
-
     // If neither is sufficient, you need to implement 'YourEditor::duplicate'.
     QTC_CHECK(false);
     return 0;
@@ -7211,15 +7183,6 @@ QWidget *BaseTextEditor::widget() const
 
 BaseTextEditorWidget *BaseTextEditor::ensureWidget() const
 {
-    if (m_widget.isNull()) {
-        QTC_ASSERT(!d->m_origin, return 0); // New style always sets it.
-        QTC_ASSERT(d->m_editorWidgetCreator, return 0);
-        BaseTextEditorWidget *widget = d->m_editorWidgetCreator();
-        auto that = const_cast<BaseTextEditor *>(this);
-        widget->d->m_editor = that;
-        that->m_widget = widget;
-        widget->d->m_codeAssistant.configure(that);
-    }
     return editorWidget();
 }
 
@@ -7228,8 +7191,6 @@ BaseTextDocumentPtr BaseTextEditor::ensureDocument()
     BaseTextEditorWidget *widget = ensureWidget();
     if (widget->d->m_document.isNull()) {
         QTC_ASSERT(!d->m_origin, return BaseTextDocumentPtr()); // New style always sets it.
-        QTC_ASSERT(d->m_documentCreator, return BaseTextDocumentPtr());
-        widget->setTextDocument(BaseTextDocumentPtr(d->m_documentCreator()));
     }
     return widget->textDocumentPtr();
 }
@@ -7246,17 +7207,17 @@ BaseTextEditorFactory::BaseTextEditorFactory(QObject *parent)
     m_widgetCreator = []() { return new BaseTextEditorWidget; };
 }
 
-void BaseTextEditorFactory::setDocumentCreator(const BaseTextDocumentCreator &creator)
+void BaseTextEditorFactory::setDocumentCreator(const DocumentCreator &creator)
 {
     m_documentCreator = creator;
 }
 
-void BaseTextEditorFactory::setEditorWidgetCreator(const BaseTextEditorWidgetCreator &creator)
+void BaseTextEditorFactory::setEditorWidgetCreator(const EditorWidgetCreator &creator)
 {
     m_widgetCreator = creator;
 }
 
-void BaseTextEditorFactory::setEditorCreator(const BaseTextEditorCreator &creator)
+void BaseTextEditorFactory::setEditorCreator(const EditorCreator &creator)
 {
     m_editorCreator = creator;
 }

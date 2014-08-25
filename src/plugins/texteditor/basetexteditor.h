@@ -109,10 +109,6 @@ private:
     int _last;
 };
 
-typedef std::function<BaseTextEditor *()> BaseTextEditorCreator;
-typedef std::function<BaseTextDocument *()> BaseTextDocumentCreator;
-typedef std::function<BaseTextEditorWidget *()> BaseTextEditorWidgetCreator;
-
 class TEXTEDITOR_EXPORT BaseTextEditor : public Core::IEditor
 {
     Q_OBJECT
@@ -130,10 +126,6 @@ public:
     ~BaseTextEditor();
 
     virtual void finalizeInitialization() {}
-
-    void setEditorCreator(const BaseTextEditorCreator &creator);
-    void setDocumentCreator(const BaseTextDocumentCreator &creator);
-    void setWidgetCreator(const BaseTextEditorWidgetCreator &creator);
 
     void setEditorWidget(BaseTextEditorWidget *editorWidget);
 
@@ -628,13 +620,16 @@ class TEXTEDITOR_EXPORT BaseTextEditorFactory : public Core::IEditorFactory
 public:
     BaseTextEditorFactory(QObject *parent = 0);
 
+    typedef std::function<BaseTextEditor *()> EditorCreator;
+    typedef std::function<BaseTextDocument *()> DocumentCreator;
+    typedef std::function<BaseTextEditorWidget *()> EditorWidgetCreator;
     typedef std::function<SyntaxHighlighter *()> SyntaxHighLighterCreator;
     typedef std::function<Indenter *()> IndenterCreator;
     typedef std::function<AutoCompleter *()> AutoCompleterCreator;
 
-    void setDocumentCreator(const BaseTextDocumentCreator &creator);
-    void setEditorWidgetCreator(const BaseTextEditorWidgetCreator &creator);
-    void setEditorCreator(const BaseTextEditorCreator &creator);
+    void setDocumentCreator(const DocumentCreator &creator);
+    void setEditorWidgetCreator(const EditorWidgetCreator &creator);
+    void setEditorCreator(const EditorCreator &creator);
     void setIndenterCreator(const IndenterCreator &creator);
     void setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator);
     void setGenericSyntaxHighlighter(const QString &mimeType);
@@ -650,9 +645,9 @@ private:
     BaseTextEditor *createEditorHelper(const BaseTextDocumentPtr &doc);
     BaseTextEditor *duplicateTextEditor(BaseTextEditor *);
 
-    BaseTextDocumentCreator m_documentCreator;
-    BaseTextEditorWidgetCreator m_widgetCreator;
-    BaseTextEditorCreator m_editorCreator;
+    DocumentCreator m_documentCreator;
+    EditorWidgetCreator m_widgetCreator;
+    EditorCreator m_editorCreator;
     AutoCompleterCreator m_autoCompleterCreator;
     IndenterCreator m_indenterCreator;
     SyntaxHighLighterCreator m_syntaxHighlighterCreator;

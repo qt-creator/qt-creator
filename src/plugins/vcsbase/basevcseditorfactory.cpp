@@ -57,13 +57,13 @@ public:
     const VcsBaseEditorParameters *m_parameters;
     QObject *m_describeReceiver;
     const char *m_describeSlot;
-    BaseTextEditorWidgetCreator m_widgetCreator;
+    BaseTextEditorFactory::EditorWidgetCreator m_widgetCreator;
 };
 
 } // namespace Internal
 
 VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
-                                   const BaseTextEditorWidgetCreator &creator,
+                                   const BaseTextEditorFactory::EditorWidgetCreator &creator,
                                    QObject *describeReceiver, const char *describeSlot)
   : d(new Internal::BaseVcsEditorFactoryPrivate)
 {
