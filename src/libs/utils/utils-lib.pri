@@ -25,6 +25,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/pathchooser.cpp \
     $$PWD/pathlisteditor.cpp \
     $$PWD/wizard.cpp \
+    $$PWD/wizardpage.cpp \
     $$PWD/filewizardpage.cpp \
     $$PWD/filesystemwatcher.cpp \
     $$PWD/projectintropage.cpp \
@@ -110,6 +111,7 @@ HEADERS += \
     $$PWD/pathchooser.h \
     $$PWD/pathlisteditor.h \
     $$PWD/wizard.h \
+    $$PWD/wizardpage.h \
     $$PWD/filewizardpage.h \
     $$PWD/filesystemwatcher.h \
     $$PWD/projectintropage.h \

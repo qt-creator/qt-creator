@@ -28,13 +28,16 @@
 ****************************************************************************/
 
 #include "wizard.h"
+
 #include "hostosinfo.h"
+#include "qtcassert.h"
+#include "wizardpage.h"
 
 #include <QHash>
+#include <QIcon>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMap>
-#include <QStyle>
 #include <QVBoxLayout>
 #include <QVariant>
 
@@ -310,6 +313,7 @@ public:
     }
     bool m_automaticProgressCreation;
     WizardProgress *m_wizardProgress;
+    QSet<QString> m_fieldNames;
 };
 
 Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
@@ -377,6 +381,17 @@ bool Wizard::validateCurrentPage()
     return QWizard::validateCurrentPage();
 }
 
+bool Wizard::hasField(const QString &name) const
+{
+    return d_ptr->m_fieldNames.contains(name);
+}
+
+void Wizard::registerFieldName(const QString &name)
+{
+    QTC_ASSERT(!hasField(name), return);
+    d_ptr->m_fieldNames.insert(name);
+}
+
 bool Wizard::event(QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
@@ -400,10 +415,14 @@ void Wizard::_q_pageAdded(int pageId)
 {
     Q_D(Wizard);
 
+    QWizardPage *p = page(pageId);
+    WizardPage *wp = qobject_cast<WizardPage *>(p);
+    if (wp)
+        wp->pageWasAdded();
+
     if (!d->m_automaticProgressCreation)
         return;
 
-    QWizardPage *p = page(pageId);
     QVariant property = p->property(SHORT_TITLE_PROPERTY);
     const QString title = property.isNull() ? p->title() : property.toString();
     WizardProgressItem *item = d->m_wizardProgress->addItem(title);

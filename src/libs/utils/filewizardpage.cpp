@@ -59,7 +59,7 @@ FileWizardPagePrivate::FileWizardPagePrivate() :
 }
 
 FileWizardPage::FileWizardPage(QWidget *parent) :
-    QWizardPage(parent),
+    WizardPage(parent),
     d(new FileWizardPagePrivate)
 {
     d->m_ui.setupUi(this);
@@ -70,6 +70,9 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     connect(d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
 
     setProperty(SHORT_TITLE_PROPERTY, tr("Location"));
+
+    registerFieldWithName(QLatin1String("Path"), d->m_ui.pathChooser, "path", SIGNAL(pathChanged(QString)));
+    registerFieldWithName(QLatin1String("FileName"), d->m_ui.nameLineEdit);
 }
 
 FileWizardPage::~FileWizardPage()

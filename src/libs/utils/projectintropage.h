@@ -31,14 +31,13 @@
 #define PROJECTINTROPAGE_H
 
 #include "utils_global.h"
-
-#include <QWizardPage>
+#include "wizardpage.h"
 
 namespace Utils {
 
 struct ProjectIntroPagePrivate;
 
-class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public QWizardPage
+class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public WizardPage
 {
     Q_OBJECT
     Q_PROPERTY(QString description READ description WRITE setPath DESIGNABLE true)

@@ -81,7 +81,7 @@ ProjectIntroPagePrivate::  ProjectIntroPagePrivate() :
 }
 
 ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
-    QWizardPage(parent),
+    WizardPage(parent),
     d(new ProjectIntroPagePrivate)
 {
     d->m_ui.setupUi(this);
@@ -100,6 +100,8 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     connect(d->m_ui.projectComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotChanged()));
 
     setProperty(SHORT_TITLE_PROPERTY, tr("Location"));
+    registerFieldWithName(QLatin1String("Path"), d->m_ui.pathChooser, "path", SIGNAL(pathChanged(QString)));
+    registerFieldWithName(QLatin1String("ProjectName"), d->m_ui.nameLineEdit);
 }
 
 void ProjectIntroPage::insertControl(int row, QWidget *label, QWidget *control)

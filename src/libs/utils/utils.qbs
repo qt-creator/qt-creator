@@ -190,6 +190,8 @@ QtcLibrary {
         "winutils.h",
         "wizard.cpp",
         "wizard.h",
+        "wizardpage.cpp",
+        "wizardpage.h",
         "images/arrow.png",
         "images/crumblepath-segment-end.png",
         "images/crumblepath-segment-hover-end.png",

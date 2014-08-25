@@ -27,57 +27,34 @@
 **
 ****************************************************************************/
 
-#ifndef FILEWIZARDPAGE_H
-#define FILEWIZARDPAGE_H
+#ifndef WIZARDPAGE_H
+#define WIZARDPAGE_H
 
 #include "utils_global.h"
 
-#include "wizardpage.h"
+#include <QSet>
+#include <QString>
+#include <QWizardPage>
 
 namespace Utils {
 
-class FileWizardPagePrivate;
-
-class QTCREATOR_UTILS_EXPORT FileWizardPage : public WizardPage
+class Wizard;
+class QTCREATOR_UTILS_EXPORT WizardPage : public QWizardPage
 {
     Q_OBJECT
-    Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
-    Q_PROPERTY(QString fileName READ fileName WRITE setFileName DESIGNABLE true)
 
 public:
-    explicit FileWizardPage(QWidget *parent = 0);
-    virtual ~FileWizardPage();
+    explicit WizardPage(QWidget *parent = 0);
 
-    QString fileName() const;
-    QString path() const;
+    virtual void pageWasAdded(); // called when this page was added to a Utils::Wizard
 
-    virtual bool isComplete() const;
-
-    void setFileNameLabel(const QString &label);
-    void setPathLabel(const QString &label);
-
-    bool forceFirstCapitalLetterForFileName() const;
-    void setForceFirstCapitalLetterForFileName(bool b);
-
-    // Validate a base name entry field (potentially containing extension)
-    static bool validateBaseName(const QString &name, QString *errorMessage = 0);
-
-signals:
-    void activated();
-    void pathChanged();
-
-public slots:
-    void setPath(const QString &path);
-    void setFileName(const QString &name);
-
-private slots:
-    void slotValidChanged();
-    void slotActivated();
+    void registerFieldWithName(const QString &name, QWidget *widget,
+                               const char *property = 0, const char *changedSignal = 0);
 
 private:
-    FileWizardPagePrivate *d;
+    QSet<QString> m_toRegister;
 };
 
 } // namespace Utils
 
-#endif // FILEWIZARDPAGE_H
+#endif // WIZARDPAGE_H
