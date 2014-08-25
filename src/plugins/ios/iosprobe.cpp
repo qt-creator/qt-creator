@@ -248,7 +248,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                         continue;
                     }
                     if (sdkName.isEmpty()) {
-                        if (compareVersions(maxVersion, versionStr) > 0) {
+                        if (maxVersion.isEmpty() || compareVersions(maxVersion, versionStr) > 0) {
                             maxVersion = versionStr;
                             sdkPath = sdkDirInfo.canonicalFilePath();
                             sdkSettings = sdkInfo;
