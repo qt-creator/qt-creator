@@ -30,7 +30,7 @@
 #include "constants.h"
 
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
 #include <utils/synchronousprocess.h>
 
@@ -38,6 +38,8 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QDebug>
+
+using namespace VcsBase;
 
 namespace Bazaar {
 namespace Internal {
@@ -117,7 +119,7 @@ bool BazaarClient::synchronousUncommit(const QString &workingDir,
     QByteArray stdOut;
     const bool success = vcsFullySynchronousExec(workingDir, args, &stdOut);
     if (!stdOut.isEmpty())
-        VcsBase::VcsBaseOutputWindow::instance()->append(QString::fromUtf8(stdOut));
+        VcsOutputWindow::append(QString::fromUtf8(stdOut));
     return success;
 }
 

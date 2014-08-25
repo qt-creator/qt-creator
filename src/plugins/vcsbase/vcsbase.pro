@@ -21,7 +21,7 @@ HEADERS += vcsbase_global.h \
     basecheckoutwizard.h \
     checkoutprogresswizardpage.h \
     basecheckoutwizardpage.h \
-    vcsbaseoutputwindow.h \
+    vcsoutputwindow.h \
     cleandialog.h \
     vcsbaseoptionspage.h \
     command.h \
@@ -50,7 +50,7 @@ SOURCES += vcsplugin.cpp \
     basecheckoutwizard.cpp \
     checkoutprogresswizardpage.cpp \
     basecheckoutwizardpage.cpp \
-    vcsbaseoutputwindow.cpp \
+    vcsoutputwindow.cpp \
     cleandialog.cpp \
     vcsbaseoptionspage.cpp \
     command.cpp \

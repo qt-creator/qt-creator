@@ -58,7 +58,7 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QtPlugin>
 #include <QAction>
@@ -558,13 +558,12 @@ void MercurialPlugin::commit()
 
 void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &status)
 {
-    VcsBaseOutputWindow *outputWindow = VcsBaseOutputWindow::instance();
     //Once we receive our data release the connection so it can be reused elsewhere
     disconnect(m_client, SIGNAL(parsedStatus(QList<VcsBase::VcsBaseClient::StatusItem>)),
                this, SLOT(showCommitWidget(QList<VcsBase::VcsBaseClient::StatusItem>)));
 
     if (status.isEmpty()) {
-        outputWindow->appendError(tr("There are no changes to commit."));
+        VcsOutputWindow::appendError(tr("There are no changes to commit."));
         return;
     }
 
@@ -573,14 +572,14 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
     if (!saver.finalize()) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(saver.errorString());
+        VcsBase::VcsOutputWindow::appendError(saver.errorString());
         return;
     }
 
     Core::IEditor *editor = Core::EditorManager::openEditor(saver.fileName(),
                                                             Constants::COMMIT_ID);
     if (!editor) {
-        outputWindow->appendError(tr("Unable to create an editor for the commit."));
+        VcsOutputWindow::appendError(tr("Unable to create an editor for the commit."));
         return;
     }
 

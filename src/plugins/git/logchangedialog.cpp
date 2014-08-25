@@ -31,7 +31,7 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <utils/qtcassert.h>
@@ -82,7 +82,7 @@ bool LogChangeWidget::init(const QString &repository, const QString &commit, Log
     if (m_model->rowCount() > 0)
         return true;
     if (!(flags & Silent)) {
-        VcsBaseOutputWindow::instance()->appendError(
+        VcsOutputWindow::appendError(
                     GitPlugin::instance()->gitClient()->msgNoCommits(flags & IncludeRemotes));
     }
     return false;

@@ -33,7 +33,7 @@
 
 #include "commonsettingspage.h"
 #include "nicknamedialog.h"
-#include "vcsbaseoutputwindow.h"
+#include "vcsoutputwindow.h"
 #include "corelistener.h"
 
 #include <coreplugin/iversioncontrol.h>
@@ -79,7 +79,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_settingsPage = new CommonOptionsPage;
     addAutoReleasedObject(m_settingsPage);
-    addAutoReleasedObject(VcsBaseOutputWindow::instance());
+    addAutoReleasedObject(VcsOutputWindow::instance());
     connect(m_settingsPage, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
             this, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)));
     connect(m_settingsPage, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),

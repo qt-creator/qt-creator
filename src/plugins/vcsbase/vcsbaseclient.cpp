@@ -38,7 +38,7 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <QStringList>
@@ -65,21 +65,12 @@
 
 Q_DECLARE_METATYPE(QVariant)
 
-inline Core::IEditor *locateEditor(const char *property, const QString &entry)
+static Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
     foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
         if (document->property(property).toString() == entry)
             return Core::DocumentModel::editorsForDocument(document).first();
     return 0;
-}
-
-namespace {
-
-VcsBase::VcsBaseOutputWindow *vcsOutputWindow()
-{
-    return VcsBase::VcsBaseOutputWindow::instance();
-}
-
 }
 
 namespace VcsBase {
@@ -191,7 +182,7 @@ bool VcsBaseClient::synchronousCreateRepository(const QString &workingDirectory,
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
         return false;
-    ::vcsOutputWindow()->append(
+    VcsOutputWindow::append(
                 Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(outputData)));
 
     resetCachedVcsInfo(workingDirectory);
@@ -285,12 +276,12 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
 
     const Utils::FileName binary = settings()->binaryPath();
 
-    ::vcsOutputWindow()->appendCommand(workingDir, binary, args);
+    VcsOutputWindow::appendCommand(workingDir, binary, args);
 
     vcsProcess.start(binary.toString(), args);
 
     if (!vcsProcess.waitForStarted()) {
-        ::vcsOutputWindow()->appendError(tr("Unable to start process \"%1\": %2")
+        VcsOutputWindow::appendError(tr("Unable to start process \"%1\": %2")
                                          .arg(binary.toUserOutput(), vcsProcess.errorString()));
         return false;
     }
@@ -302,12 +293,12 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
     if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, timeoutSec * 1000,
                                                         output, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(vcsProcess);
-        ::vcsOutputWindow()->appendError(tr("Timed out after %1s waiting for the process %2 to finish.")
+        VcsOutputWindow::appendError(tr("Timed out after %1s waiting for the process %2 to finish.")
                                          .arg(timeoutSec).arg(binary.toUserOutput()));
         return false;
     }
     if (!stdErr.isEmpty())
-        ::vcsOutputWindow()->appendError(QString::fromLocal8Bit(stdErr));
+        VcsOutputWindow::appendError(QString::fromLocal8Bit(stdErr));
 
     return vcsProcess.exitStatus() == QProcess::NormalExit && vcsProcess.exitCode() == 0;
 }
@@ -429,9 +420,9 @@ void VcsBaseClient::status(const QString &workingDir, const QString &file,
 {
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions << file;
-    ::vcsOutputWindow()->setRepository(workingDir);
+    VcsOutputWindow::setRepository(workingDir);
     Command *cmd = createCommand(workingDir, 0, VcsWindowOutputBind);
-    connect(cmd, SIGNAL(finished(bool,int,QVariant)), ::vcsOutputWindow(), SLOT(clearRepository()),
+    connect(cmd, SIGNAL(finished(bool,int,QVariant)), VcsOutputWindow::instance(), SLOT(clearRepository()),
             Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }

@@ -59,7 +59,7 @@
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QtPlugin>
 #include <QAction>
@@ -574,13 +574,12 @@ void BazaarPlugin::commit()
 
 void BazaarPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &status)
 {
-    VcsBaseOutputWindow *outputWindow = VcsBaseOutputWindow::instance();
     //Once we receive our data release the connection so it can be reused elsewhere
     disconnect(m_client, SIGNAL(parsedStatus(QList<VcsBaseClient::StatusItem>)),
                this, SLOT(showCommitWidget(QList<VcsBaseClient::StatusItem>)));
 
     if (status.isEmpty()) {
-        outputWindow->appendError(tr("There are no changes to commit."));
+        VcsOutputWindow::appendError(tr("There are no changes to commit."));
         return;
     }
 
@@ -589,20 +588,20 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &stat
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
     if (!saver.finalize()) {
-        VcsBaseOutputWindow::instance()->appendError(saver.errorString());
+        VcsOutputWindow::appendError(saver.errorString());
         return;
     }
 
     IEditor *editor = EditorManager::openEditor(saver.fileName(), COMMIT_ID);
     if (!editor) {
-        outputWindow->appendError(tr("Unable to create an editor for the commit."));
+        VcsOutputWindow::appendError(tr("Unable to create an editor for the commit."));
         return;
     }
 
     CommitEditor *commitEditor = qobject_cast<CommitEditor *>(editor);
 
     if (!commitEditor) {
-        outputWindow->appendError(tr("Unable to create a commit editor."));
+        VcsOutputWindow::appendError(tr("Unable to create a commit editor."));
         return;
     }
     setSubmitEditor(commitEditor);

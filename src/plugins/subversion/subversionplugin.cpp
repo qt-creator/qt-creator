@@ -43,7 +43,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -680,7 +680,7 @@ void SubversionPlugin::startCommit(const QString &workingDir, const QStringList 
     if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
-        VcsBaseOutputWindow::instance()->appendWarning(tr("Another commit is currently being executed."));
+        VcsOutputWindow::appendWarning(tr("Another commit is currently being executed."));
         return;
     }
 
@@ -695,7 +695,7 @@ void SubversionPlugin::startCommit(const QString &workingDir, const QStringList 
     // Get list of added/modified/deleted files
     const StatusList statusOutput = parseStatusOutput(response.stdOut);
     if (statusOutput.empty()) {
-        VcsBaseOutputWindow::instance()->appendWarning(tr("There are no modified files."));
+        VcsOutputWindow::appendWarning(tr("There are no modified files."));
         return;
     }
     m_commitRepository = workingDir;
@@ -707,7 +707,7 @@ void SubversionPlugin::startCommit(const QString &workingDir, const QStringList 
     // Create a submit
     saver.write(submitTemplate.toUtf8());
     if (!saver.finalize()) {
-        VcsBaseOutputWindow::instance()->appendError(saver.errorString());
+        VcsOutputWindow::appendError(saver.errorString());
         return;
     }
     m_commitMessageFileName = saver.fileName();
@@ -783,11 +783,10 @@ void SubversionPlugin::svnStatus(const QString &workingDir, const QString &relat
     QStringList args(QLatin1String("status"));
     if (!relativePath.isEmpty())
         args.append(relativePath);
-    VcsBaseOutputWindow *outwin = VcsBaseOutputWindow::instance();
-    outwin->setRepository(workingDir);
+    VcsOutputWindow::setRepository(workingDir);
     runSvn(workingDir, args, m_settings.timeOutMs(),
            ShowStdOutInLogWindow|ShowSuccessMessage);
-    outwin->clearRepository();
+    VcsOutputWindow::clearRepository();
 }
 
 void SubversionPlugin::filelog(const QString &workingDir,

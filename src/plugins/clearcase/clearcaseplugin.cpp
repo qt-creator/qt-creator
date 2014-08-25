@@ -67,7 +67,7 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 
 
@@ -105,6 +105,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using VcsBase::VcsOutputWindow;
 
 namespace ClearCase {
 namespace Internal {
@@ -1033,8 +1034,7 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
         return; // done here, diff is opened in a new window
     }
     if (!m_settings.extDiffAvailable) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(
-                    tr("External diff is required to compare multiple files."));
+        VcsOutputWindow::appendError(tr("External diff is required to compare multiple files."));
         return;
     }
     QString result;
@@ -1106,8 +1106,7 @@ void ClearCasePlugin::diffActivity()
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO;
     if (!m_settings.extDiffAvailable) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(
-                    tr("External diff is required to compare multiple files."));
+        VcsOutputWindow::appendError(tr("External diff is required to compare multiple files."));
         return;
     }
     QString topLevel = state.topLevel();
@@ -1238,16 +1237,15 @@ void ClearCasePlugin::startCheckIn(const QString &workingDir, const QStringList 
 {
     if (raiseSubmitEditor())
         return;
-    VcsBase::VcsBaseOutputWindow *outputwindow = VcsBase::VcsBaseOutputWindow::instance();
 
     if (isCheckInEditorOpen()) {
-        outputwindow->appendWarning(tr("Another check in is currently being executed."));
+        VcsOutputWindow::appendWarning(tr("Another check in is currently being executed."));
         return;
     }
 
     // Get list of added/modified/deleted files
     if (files.empty()) {
-        outputwindow->appendWarning(tr("There are no modified files."));
+        VcsOutputWindow::appendWarning(tr("There are no modified files."));
         return;
     }
     // Create a new submit change file containing the submit template
@@ -1258,7 +1256,7 @@ void ClearCasePlugin::startCheckIn(const QString &workingDir, const QStringList 
     // Create a submit
     saver.write(submitTemplate.toUtf8());
     if (!saver.finalize()) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(saver.errorString());
+        VcsOutputWindow::appendError(saver.errorString());
         return;
     }
     m_checkInMessageFileName = saver.fileName();
@@ -1331,8 +1329,7 @@ void ClearCasePlugin::viewStatus()
     if (m_viewData.name.isEmpty())
         m_viewData = ccGetView(m_topLevel);
     QTC_ASSERT(!m_viewData.name.isEmpty() && !m_settings.disableIndexer, return);
-    VcsBase::VcsBaseOutputWindow *outputwindow = VcsBase::VcsBaseOutputWindow::instance();
-    outputwindow->appendCommand(QLatin1String("Indexed files status (C=Checked Out, "
+    VcsBase::VcsOutputWindow::appendCommand(QLatin1String("Indexed files status (C=Checked Out, "
                                               "H=Hijacked, ?=Missing)"));
     bool anymod = false;
     for (StatusMap::ConstIterator it = m_statusMap->constBegin();
@@ -1347,14 +1344,14 @@ void ClearCasePlugin::viewStatus()
             default: break;
         }
         if (cstat) {
-            outputwindow->append(QString::fromLatin1("%1    %2\n")
+            VcsOutputWindow::append(QString::fromLatin1("%1    %2\n")
                            .arg(cstat)
                            .arg(QDir::toNativeSeparators(it.key())));
             anymod = true;
         }
     }
     if (!anymod)
-        outputwindow->appendWarning(QLatin1String("No modified files found."));
+        VcsOutputWindow::appendWarning(QLatin1String("No modified files found."));
 }
 
 void ClearCasePlugin::ccUpdate(const QString &workingDir, const QStringList &relativePaths)
@@ -1637,9 +1634,8 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
                                             ShowStdOutInLogWindow | FullySynchronously);
                 }
             } else {
-                VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
-                outputWindow->append(response.stdOut);
-                outputWindow->appendError(response.stdErr);
+                VcsOutputWindow::append(response.stdOut);
+                VcsOutputWindow::appendError(response.stdErr);
             }
         }
 

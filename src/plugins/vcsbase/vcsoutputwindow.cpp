@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "vcsbaseoutputwindow.h"
+#include "vcsoutputwindow.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -67,7 +67,6 @@
 */
 
 namespace VcsBase {
-
 namespace Internal {
 
 // Store repository along with text blocks
@@ -90,13 +89,13 @@ public:
     ~OutputWindowPlainTextEdit();
 
     void appendLines(QString const& s, const QString &repository = QString());
-    void appendLinesWithStyle(QString const& s, enum VcsBaseOutputWindow::MessageStyle style, const QString &repository = QString());
+    void appendLinesWithStyle(QString const& s, enum VcsOutputWindow::MessageStyle style, const QString &repository = QString());
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
 
 private:
-    void setFormat(enum VcsBaseOutputWindow::MessageStyle style);
+    void setFormat(enum VcsOutputWindow::MessageStyle style);
     QString identifierUnderCursor(const QPoint &pos, QString *repository = 0) const;
 
     const QTextCharFormat m_defaultFormat;
@@ -184,14 +183,14 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
             fi = QFileInfo(repository + QLatin1Char('/') + token);
         if (fi.isFile())  {
             menu->addSeparator();
-            openAction = menu->addAction(VcsBaseOutputWindow::tr("Open \"%1\"").
+            openAction = menu->addAction(VcsOutputWindow::tr("Open \"%1\"").
                                          arg(QDir::toNativeSeparators(fi.fileName())));
             openAction->setData(fi.absoluteFilePath());
         }
     }
     // Add 'clear'
     menu->addSeparator();
-    QAction *clearAction = menu->addAction(VcsBaseOutputWindow::tr("Clear"));
+    QAction *clearAction = menu->addAction(VcsOutputWindow::tr("Clear"));
 
     // Run
     QAction *action = menu->exec(event->globalPos());
@@ -231,11 +230,11 @@ void OutputWindowPlainTextEdit::appendLines(QString const& s, const QString &rep
     }
 }
 
-void OutputWindowPlainTextEdit::appendLinesWithStyle(QString const& s, enum VcsBaseOutputWindow::MessageStyle style, const QString &repository)
+void OutputWindowPlainTextEdit::appendLinesWithStyle(QString const& s, enum VcsOutputWindow::MessageStyle style, const QString &repository)
 {
     setFormat(style);
 
-    if (style == VcsBaseOutputWindow::Command) {
+    if (style == VcsOutputWindow::Command) {
         const QString timeStamp = QTime::currentTime().toString(QLatin1String("\nHH:mm "));
         appendLines(timeStamp + s, repository);
     }
@@ -246,23 +245,23 @@ void OutputWindowPlainTextEdit::appendLinesWithStyle(QString const& s, enum VcsB
     setCurrentCharFormat(m_defaultFormat);
 }
 
-void OutputWindowPlainTextEdit::setFormat(enum VcsBaseOutputWindow::MessageStyle style)
+void OutputWindowPlainTextEdit::setFormat(enum VcsOutputWindow::MessageStyle style)
 {
     switch (style) {
-    case VcsBaseOutputWindow::Warning:
+    case VcsOutputWindow::Warning:
         setCurrentCharFormat(m_warningFormat);
         break;
-    case VcsBaseOutputWindow::Error:
+    case VcsOutputWindow::Error:
         setCurrentCharFormat(m_errorFormat);
         break;
-    case VcsBaseOutputWindow::Message:
+    case VcsOutputWindow::Message:
         setCurrentCharFormat(m_messageFormat);
         break;
-    case VcsBaseOutputWindow::Command:
+    case VcsOutputWindow::Command:
         setCurrentCharFormat(m_commandFormat);
         break;
     default:
-    case VcsBaseOutputWindow::None:
+    case VcsOutputWindow::None:
         setCurrentCharFormat(m_defaultFormat);
         break;
     }
@@ -271,10 +270,9 @@ void OutputWindowPlainTextEdit::setFormat(enum VcsBaseOutputWindow::MessageStyle
 } // namespace Internal
 
 // ------------------- VcsBaseOutputWindowPrivate
-class VcsBaseOutputWindowPrivate
+class VcsOutputWindowPrivate
 {
 public:
-    static VcsBaseOutputWindow *instance;
     Internal::OutputWindowPlainTextEdit *plainTextEdit();
 
     QPointer<Internal::OutputWindowPlainTextEdit> m_plainTextEdit;
@@ -285,24 +283,25 @@ public:
 // Create log editor on demand. Some errors might be logged
 // before CorePlugin::extensionsInitialized() pulls up the windows.
 
-Internal::OutputWindowPlainTextEdit *VcsBaseOutputWindowPrivate::plainTextEdit()
+Internal::OutputWindowPlainTextEdit *VcsOutputWindowPrivate::plainTextEdit()
 {
     if (!m_plainTextEdit)
         m_plainTextEdit = new Internal::OutputWindowPlainTextEdit();
     return m_plainTextEdit;
 }
 
-VcsBaseOutputWindow *VcsBaseOutputWindowPrivate::instance = 0;
+static VcsOutputWindow *m_instance = 0;
+static VcsOutputWindowPrivate *d = 0;
 
-VcsBaseOutputWindow::VcsBaseOutputWindow() :
-    d(new VcsBaseOutputWindowPrivate)
+VcsOutputWindow::VcsOutputWindow()
 {
+    d = new VcsOutputWindowPrivate;
     d->passwordRegExp = QRegExp(QLatin1String("://([^@:]+):([^@]+)@"));
     Q_ASSERT(d->passwordRegExp.isValid());
-    VcsBaseOutputWindowPrivate::instance = this;
+    m_instance = this;
 }
 
-QString VcsBaseOutputWindow::filterPasswordFromUrls(const QString &input)
+static QString filterPasswordFromUrls(const QString &input)
 {
     int pos = 0;
     QString result = input;
@@ -316,13 +315,13 @@ QString VcsBaseOutputWindow::filterPasswordFromUrls(const QString &input)
     return result;
 }
 
-VcsBaseOutputWindow::~VcsBaseOutputWindow()
+VcsOutputWindow::~VcsOutputWindow()
 {
-    VcsBaseOutputWindowPrivate::instance = 0;
+    m_instance = 0;
     delete d;
 }
 
-QWidget *VcsBaseOutputWindow::outputWidget(QWidget *parent)
+QWidget *VcsOutputWindow::outputWidget(QWidget *parent)
 {
     if (d->m_plainTextEdit) {
         if (parent != d->m_plainTextEdit->parent())
@@ -333,99 +332,99 @@ QWidget *VcsBaseOutputWindow::outputWidget(QWidget *parent)
     return d->m_plainTextEdit;
 }
 
-QWidgetList VcsBaseOutputWindow::toolBarWidgets() const
+QWidgetList VcsOutputWindow::toolBarWidgets() const
 {
     return QWidgetList();
 }
 
-QString VcsBaseOutputWindow::displayName() const
+QString VcsOutputWindow::displayName() const
 {
     return tr("Version Control");
 }
 
-int VcsBaseOutputWindow::priorityInStatusBar() const
+int VcsOutputWindow::priorityInStatusBar() const
 {
     return -1;
 }
 
-void VcsBaseOutputWindow::clearContents()
+void VcsOutputWindow::clearContents()
 {
     if (d->m_plainTextEdit)
         d->m_plainTextEdit->clear();
 }
 
-void VcsBaseOutputWindow::visibilityChanged(bool visible)
+void VcsOutputWindow::visibilityChanged(bool visible)
 {
     if (visible && d->m_plainTextEdit)
         d->m_plainTextEdit->setFocus();
 }
 
-void VcsBaseOutputWindow::setFocus()
+void VcsOutputWindow::setFocus()
 {
 }
 
-bool VcsBaseOutputWindow::hasFocus() const
-{
-    return false;
-}
-
-bool VcsBaseOutputWindow::canFocus() const
+bool VcsOutputWindow::hasFocus() const
 {
     return false;
 }
 
-bool VcsBaseOutputWindow::canNavigate() const
+bool VcsOutputWindow::canFocus() const
 {
     return false;
 }
 
-bool VcsBaseOutputWindow::canNext() const
+bool VcsOutputWindow::canNavigate() const
 {
     return false;
 }
 
-bool VcsBaseOutputWindow::canPrevious() const
+bool VcsOutputWindow::canNext() const
 {
     return false;
 }
 
-void VcsBaseOutputWindow::goToNext()
+bool VcsOutputWindow::canPrevious() const
+{
+    return false;
+}
+
+void VcsOutputWindow::goToNext()
 {
 }
 
-void VcsBaseOutputWindow::goToPrev()
+void VcsOutputWindow::goToPrev()
 {
 }
 
-void VcsBaseOutputWindow::setText(const QString &text)
+void VcsOutputWindow::setText(const QString &text)
 {
     d->plainTextEdit()->setPlainText(text);
 }
 
-void VcsBaseOutputWindow::setData(const QByteArray &data)
+void VcsOutputWindow::setData(const QByteArray &data)
 {
     setText(QTextCodec::codecForLocale()->toUnicode(data));
 }
 
-void VcsBaseOutputWindow::appendSilently(const QString &text)
+void VcsOutputWindow::appendSilently(const QString &text)
 {
     append(text, None, true);
 }
 
-void VcsBaseOutputWindow::append(const QString &text, enum MessageStyle style, bool silently)
+void VcsOutputWindow::append(const QString &text, enum MessageStyle style, bool silently)
 {
     d->plainTextEdit()->appendLinesWithStyle(text, style, d->repository);
 
     if (!silently && !d->plainTextEdit()->isVisible())
-        popup(Core::IOutputPane::NoModeSwitch);
+        m_instance->popup(Core::IOutputPane::NoModeSwitch);
 }
 
-void VcsBaseOutputWindow::appendError(const QString &text)
+void VcsOutputWindow::appendError(const QString &text)
 {
     append(text, Error, false);
 }
 
-void VcsBaseOutputWindow::appendWarning(const QString &text)
+void VcsOutputWindow::appendWarning(const QString &text)
 {
     append(text, Warning, false);
 }
@@ -453,7 +452,7 @@ static inline QString formatArguments(const QStringList &args)
     return rc;
 }
 
-QString VcsBaseOutputWindow::msgExecutionLogEntry(const QString &workingDir,
+QString VcsOutputWindow::msgExecutionLogEntry(const QString &workingDir,
                                                   const Utils::FileName &executable,
                                                   const QStringList &arguments)
 {
@@ -465,43 +464,41 @@ QString VcsBaseOutputWindow::msgExecutionLogEntry(const QString &workingDir,
             arg(QDir::toNativeSeparators(workingDir), nativeExecutable, args) + QLatin1Char('\n');
 }
 
-void VcsBaseOutputWindow::appendCommand(const QString &text)
+void VcsOutputWindow::appendCommand(const QString &text)
 {
     append(filterPasswordFromUrls(text), Command, true);
 }
 
-void VcsBaseOutputWindow::appendCommand(const QString &workingDirectory,
+void VcsOutputWindow::appendCommand(const QString &workingDirectory,
                                         const Utils::FileName &binary,
                                         const QStringList &args)
 {
     appendCommand(msgExecutionLogEntry(workingDirectory, binary, args));
 }
 
-void VcsBaseOutputWindow::appendMessage(const QString &text)
+void VcsOutputWindow::appendMessage(const QString &text)
 {
     append(text, Message, true);
 }
 
-VcsBaseOutputWindow *VcsBaseOutputWindow::instance()
+VcsOutputWindow *VcsOutputWindow::instance()
 {
-    if (!VcsBaseOutputWindowPrivate::instance) {
-        VcsBaseOutputWindow *w = new VcsBaseOutputWindow;
-        Q_UNUSED(w)
-    }
-    return VcsBaseOutputWindowPrivate::instance;
+    if (!m_instance)
+        (void) new VcsOutputWindow;
+    return m_instance;
 }
 
-QString VcsBaseOutputWindow::repository() const
+QString VcsOutputWindow::repository() const
 {
     return d->repository;
 }
 
-void VcsBaseOutputWindow::setRepository(const QString &r)
+void VcsOutputWindow::setRepository(const QString &r)
 {
     d->repository = r;
 }
 
-void VcsBaseOutputWindow::clearRepository()
+void VcsOutputWindow::clearRepository()
 {
     d->repository.clear();
 }

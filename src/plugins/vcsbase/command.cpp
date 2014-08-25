@@ -33,7 +33,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/icore.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <utils/synchronousprocess.h>
 #include <utils/runextensions.h>
 #include <utils/qtcassert.h>
@@ -100,7 +100,6 @@ public:
     QTextCodec *m_codec;
     const QString m_sshPasswordPrompt;
     ProgressParser *m_progressParser;
-    VcsBase::VcsBaseOutputWindow *m_outputWindow;
     bool m_progressiveOutput;
     bool m_hadOutput;
     bool m_preventRepositoryChanged;
@@ -124,7 +123,6 @@ CommandPrivate::CommandPrivate(const Utils::FileName &binary,
     m_codec(0),
     m_sshPasswordPrompt(VcsBasePlugin::sshPrompt()),
     m_progressParser(0),
-    m_outputWindow(VcsBase::VcsBaseOutputWindow::instance()),
     m_progressiveOutput(false),
     m_hadOutput(false),
     m_preventRepositoryChanged(false),
@@ -315,7 +313,7 @@ public:
     {
         // Users of this class can either be in the GUI thread or in other threads.
         // Use Qt::AutoConnection to always append in the GUI thread (directly or queued)
-        VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
+        VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
         connect(this, SIGNAL(append(QString)), outputWindow, SLOT(append(QString)));
         connect(this, SIGNAL(appendSilently(QString)), outputWindow, SLOT(appendSilently(QString)));
         connect(this, SIGNAL(appendError(QString)), outputWindow, SLOT(appendError(QString)));
@@ -561,7 +559,7 @@ void Command::bufferedOutput(const QString &text)
     if (d->m_progressParser)
         d->m_progressParser->parseProgress(text);
     if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow)
-        d->m_outputWindow->append(text);
+        VcsOutputWindow::append(text);
     if (d->m_progressiveOutput) {
         emit output(text);
         d->m_hadOutput = true;
@@ -571,7 +569,7 @@ void Command::bufferedOutput(const QString &text)
 void Command::bufferedError(const QString &text)
 {
     if (!(d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow))
-        d->m_outputWindow->appendError(text);
+        VcsOutputWindow::appendError(text);
     if (d->m_progressiveOutput)
         emit errorText(text);
 }

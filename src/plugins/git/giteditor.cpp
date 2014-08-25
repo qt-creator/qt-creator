@@ -39,7 +39,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <texteditor/basetextdocument.h>
 
 #include <QFileInfo>
@@ -54,6 +54,8 @@
 #include <QMessageBox>
 
 #define CHANGE_PATTERN "[a-f0-9]{7,40}"
+
+using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
@@ -255,7 +257,6 @@ void GitEditorWidget::unstageDiffChunk()
 
 void GitEditorWidget::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert)
 {
-    VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
     QTemporaryFile patchFile;
     if (!patchFile.open())
         return;
@@ -272,15 +273,15 @@ void GitEditorWidget::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool rever
     QString errorMessage;
     if (client->synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
         if (errorMessage.isEmpty())
-            outwin->append(tr("Chunk successfully staged"));
+            VcsOutputWindow::append(tr("Chunk successfully staged"));
         else
-            outwin->append(errorMessage);
+            VcsOutputWindow::append(errorMessage);
         if (revert)
             emit diffChunkReverted(chunk);
         else
             emit diffChunkApplied(chunk);
     } else {
-        outwin->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
     }
 }
 
@@ -340,7 +341,7 @@ QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision)
     // Get the SHA1's of the file.
     if (!client->synchronousParentRevisions(workingDirectory, QStringList(fi.fileName()),
                                             revision, &revisions, &errorMessage)) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendSilently(errorMessage);
+        VcsOutputWindow::appendSilently(errorMessage);
         return QStringList();
     }
     return revisions;

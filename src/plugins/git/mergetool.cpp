@@ -34,11 +34,13 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
+
+using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
@@ -47,8 +49,7 @@ class MergeToolProcess : public QProcess
 {
 public:
     MergeToolProcess(QObject *parent = 0) :
-        QProcess(parent),
-        m_window(VcsBase::VcsBaseOutputWindow::instance())
+        QProcess(parent)
     {
     }
 
@@ -57,19 +58,16 @@ protected:
     {
         qint64 res = QProcess::readData(data, maxlen);
         if (res > 0)
-            m_window->append(QString::fromLocal8Bit(data, res));
+            VcsOutputWindow::append(QString::fromLocal8Bit(data, res));
         return res;
     }
 
     qint64 writeData(const char *data, qint64 len)
     {
         if (len > 0)
-            m_window->append(QString::fromLocal8Bit(data, len));
+            VcsOutputWindow::append(QString::fromLocal8Bit(data, len));
         return QProcess::writeData(data, len);
     }
-
-private:
-    VcsBase::VcsBaseOutputWindow *m_window;
 };
 
 MergeTool::MergeTool(QObject *parent) :
@@ -103,7 +101,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     m_process = new MergeToolProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
     const Utils::FileName binary = m_gitClient->gitExecutable();
-    VcsBase::VcsBaseOutputWindow::instance()->appendCommand(workingDirectory, binary, arguments);
+    VcsOutputWindow::appendCommand(workingDirectory, binary, arguments);
     m_process->start(binary.toString(), arguments);
     if (m_process->waitForStarted()) {
         connect(m_process, SIGNAL(finished(int)), this, SLOT(done()));
@@ -266,13 +264,12 @@ void MergeTool::readData()
 
 void MergeTool::done()
 {
-    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     const QString workingDirectory = m_process->workingDirectory();
     int exitCode = m_process->exitCode();
     if (!exitCode) {
-        outputWindow->appendMessage(tr("Merge tool process finished successfully."));
+        VcsOutputWindow::appendMessage(tr("Merge tool process finished successfully."));
     } else {
-        outputWindow->appendError(tr("Merge tool process terminated with exit code %1")
+        VcsOutputWindow::appendError(tr("Merge tool process terminated with exit code %1")
                                   .arg(exitCode));
     }
     m_gitClient->continueCommandIfNeeded(workingDirectory, exitCode == 0);

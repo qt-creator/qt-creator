@@ -34,7 +34,7 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <utils/synchronousprocess.h>
 
 #include <QStringList>
@@ -58,6 +58,8 @@
 #endif
 
 enum { debug = 0 };
+
+using namespace VcsBase;
 
 namespace Gerrit {
 namespace Internal {
@@ -314,7 +316,7 @@ void QueryContext::startQuery(const QString &query)
 {
     QStringList arguments = m_baseArguments;
     arguments.push_back(query);
-    VcsBase::VcsBaseOutputWindow::instance()->appendCommand(
+    VcsBase::VcsOutputWindow::appendCommand(
                 m_process.workingDirectory(), Utils::FileName::fromString(m_binary), arguments);
     m_timer.start();
     m_process.start(m_binary, arguments);
@@ -325,7 +327,7 @@ void QueryContext::errorTermination(const QString &msg)
 {
     m_progress.reportCanceled();
     m_progress.reportFinished();
-    VcsBase::VcsBaseOutputWindow::instance()->appendError(msg);
+    VcsBase::VcsOutputWindow::appendError(msg);
     emit finished();
 }
 
@@ -335,7 +337,7 @@ void QueryContext::processError(QProcess::ProcessError e)
     if (e == QProcess::FailedToStart)
         errorTermination(msg);
     else
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(msg);
+        VcsBase::VcsOutputWindow::appendError(msg);
 }
 
 void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
@@ -363,7 +365,7 @@ void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
 
 void QueryContext::readyReadStandardError()
 {
-    VcsBase::VcsBaseOutputWindow::instance()->appendError(QString::fromLocal8Bit(m_process.readAllStandardError()));
+    VcsBase::VcsOutputWindow::appendError(QString::fromLocal8Bit(m_process.readAllStandardError()));
 }
 
 void QueryContext::readyReadStandardOutput()
@@ -601,7 +603,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
                     .arg(QString::fromLocal8Bit(line))
                     .arg(error.errorString());
             qWarning() << errorMessage;
-            VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+            VcsBase::VcsOutputWindow::appendError(errorMessage);
             res = false;
             continue;
         }
@@ -649,8 +651,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
             result.push_back(change);
         } else {
             qWarning("%s: Parse error: '%s'.", Q_FUNC_INFO, line.constData());
-            VcsBase::VcsBaseOutputWindow::instance()
-                    ->appendError(GerritModel::tr("Parse error: \"%1\"")
+            VcsOutputWindow::appendError(GerritModel::tr("Parse error: \"%1\"")
                                   .arg(QString::fromLocal8Bit(line)));
             res = false;
         }
@@ -747,7 +748,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
             QString errorMessage = GerritModel::tr("Parse error: \"%1\"")
                     .arg(QString::fromLocal8Bit(line));
             qWarning() << errorMessage;
-            VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+            VcsBase::VcsOutputWindow::appendError(errorMessage);
             res = false;
             continue;
         }
@@ -817,7 +818,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
         } else {
             QString errorMessage = GerritModel::tr("Parse error in line \"%1\"")
                     .arg(QString::fromLocal8Bit(line));
-            VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+            VcsBase::VcsOutputWindow::appendError(errorMessage);
             qWarning("%s: Parse error in line '%s'.", Q_FUNC_INFO, line.constData());
             res = false;
         }

@@ -31,10 +31,12 @@
 #include "gitclient.h"
 
 #include <utils/qtcassert.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <QFont>
+
+using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
@@ -310,7 +312,7 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
                                                       << newFullName.last(),
                                         &output, &errorMessage)) {
         node->name = oldFullName.last();
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         return false;
     }
 
@@ -354,7 +356,7 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     args << QLatin1String("--format=%(objectname)\t%(refname)\t%(upstream:short)\t%(*objectname)");
     QString output;
     if (!m_client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage))
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(*errorMessage);
+        VcsOutputWindow::appendError(*errorMessage);
 
     m_workingDirectory = workingDirectory;
     const QStringList lines = output.split(QLatin1Char('\n'));
@@ -393,7 +395,7 @@ void BranchModel::renameBranch(const QString &oldName, const QString &newName)
     if (!m_client->synchronousBranchCmd(m_workingDirectory,
                                         QStringList() << QLatin1String("-m") << oldName << newName,
                                         &output, &errorMessage))
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
     else
         refresh(m_workingDirectory, &errorMessage);
 }
@@ -407,7 +409,7 @@ void BranchModel::renameTag(const QString &oldName, const QString &newName)
      || !m_client->synchronousTagCmd(m_workingDirectory,
                                      QStringList() << QLatin1String("-d") << oldName,
                                      &output, &errorMessage)) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
     } else {
         refresh(m_workingDirectory, &errorMessage);
     }
@@ -497,7 +499,7 @@ void BranchModel::removeBranch(const QModelIndex &idx)
 
     args << QLatin1String("-D") << branch;
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         return;
     }
     removeNode(idx);
@@ -515,7 +517,7 @@ void BranchModel::removeTag(const QModelIndex &idx)
 
     args << QLatin1String("-d") << tag;
     if (!m_client->synchronousTagCmd(m_workingDirectory, args, &output, &errorMessage)) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         return;
     }
     removeNode(idx);
@@ -544,7 +546,7 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
 
     args << QLatin1String("-a") << QLatin1String("--contains") << sha(idx);
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage))
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
 
     QStringList lines = output.split(QLatin1Char('\n'), QString::SkipEmptyParts);
     foreach (const QString &l, lines) {
@@ -589,7 +591,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     }
 
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         return QModelIndex();
     }
 

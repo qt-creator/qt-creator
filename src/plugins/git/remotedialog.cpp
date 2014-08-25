@@ -37,7 +37,7 @@
 #include "ui_remoteadditiondialog.h"
 
 #include <utils/headerviewstretcher.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QMessageBox>
 
@@ -125,7 +125,7 @@ void RemoteDialog::refresh(const QString &repository, bool force)
     } else {
         QString errorMessage;
         if (!m_remoteModel->refresh(repository, &errorMessage))
-            VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+            VcsBase::VcsOutputWindow::appendError(errorMessage);
     }
 }
 

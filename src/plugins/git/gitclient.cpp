@@ -56,7 +56,7 @@
 #include <vcsbase/command.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <diffeditor/diffeditorconstants.h>
@@ -87,6 +87,7 @@ static const char noColorOption[] = "--no-color";
 static const char decorateOption[] = "--decorate";
 
 using namespace Core;
+using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
@@ -682,11 +683,6 @@ static inline QStringList commandOutputLinesFromLocal8Bit(const QByteArray &a)
     return output.split(newLine);
 }
 
-static inline VcsBase::VcsBaseOutputWindow *outputWindow()
-{
-    return VcsBase::VcsBaseOutputWindow::instance();
-}
-
 static inline QString msgRepositoryNotFound(const QString &dir)
 {
     return GitClient::tr("Cannot determine the repository for \"%1\".").arg(dir);
@@ -720,7 +716,7 @@ static inline void msgCannotRun(const QString &message, QString *errorMessage)
     if (errorMessage)
         *errorMessage = message;
     else
-        outputWindow()->appendError(message);
+        VcsOutputWindow::appendError(message);
 }
 
 static inline void msgCannotRun(const QStringList &args, const QString &workingDirectory,
@@ -908,8 +904,6 @@ void GitClient::slotUnstageChunk()
 
 void GitClient::stage(const QString &patch, bool revert)
 {
-    VcsBase::VcsBaseOutputWindow *outwin =
-            VcsBase::VcsBaseOutputWindow::instance();
     QTemporaryFile patchFile;
     if (!patchFile.open())
         return;
@@ -929,15 +923,15 @@ void GitClient::stage(const QString &patch, bool revert)
                               &errorMessage, args)) {
         if (errorMessage.isEmpty()) {
             if (revert)
-                outwin->append(tr("Chunk successfully unstaged"));
+                VcsOutputWindow::append(tr("Chunk successfully unstaged"));
             else
-                outwin->append(tr("Chunk successfully staged"));
+                VcsOutputWindow::append(tr("Chunk successfully staged"));
         } else {
-            outwin->append(errorMessage);
+            VcsOutputWindow::append(errorMessage);
         }
         m_contextController->requestReload();
     } else {
-        outwin->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
     }
 }
 
@@ -1090,10 +1084,9 @@ void GitClient::status(const QString &workingDirectory)
 {
     QStringList statusArgs = statusArguments();
     statusArgs << QLatin1String("-u");
-    VcsBase::VcsBaseOutputWindow *outwin = outputWindow();
-    outwin->setRepository(workingDirectory);
+    VcsOutputWindow::setRepository(workingDirectory);
     VcsBase::Command *command = executeGit(workingDirectory, statusArgs, 0, true);
-    connect(command, SIGNAL(finished(bool,int,QVariant)), outwin, SLOT(clearRepository()),
+    connect(command, SIGNAL(finished(bool,int,QVariant)), VcsOutputWindow::instance(), SLOT(clearRepository()),
             Qt::QueuedConnection);
 }
 
@@ -1174,7 +1167,7 @@ static inline QString msgCannotShow(const QString &sha)
 void GitClient::show(const QString &source, const QString &id, const QString &name)
 {
     if (!canShow(id)) {
-        outputWindow()->appendError(msgCannotShow(id));
+        VcsOutputWindow::appendError(msgCannotShow(id));
         return;
     }
 
@@ -1272,7 +1265,7 @@ bool GitClient::synchronousCheckout(const QString &workingDirectory,
     QStringList arguments = setupCheckoutArguments(workingDirectory, ref);
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
                                         VcsBasePlugin::ExpectRepoChanges);
-    outputWindow()->append(commandOutputFromLocal8Bit(outputText));
+    VcsOutputWindow::append(commandOutputFromLocal8Bit(outputText));
     if (!rc) {
         msgCannotRun(arguments, workingDirectory, errorText, errorMessage);
         return false;
@@ -1453,7 +1446,7 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
         arguments << QLatin1String(HEAD) << QLatin1String("--") << files;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     const QString output = commandOutputFromLocal8Bit(outputText);
-    outputWindow()->append(output);
+    VcsOutputWindow::append(output);
     // Note that git exits with 1 even if the operation is successful
     // Assume real failure if the output does not contain "foo.cpp modified"
     // or "Unstaged changes after reset" (git 1.7.0).
@@ -1480,9 +1473,9 @@ bool GitClient::synchronousInit(const QString &workingDirectory)
     const QStringList arguments(QLatin1String("init"));
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     // '[Re]Initialized...'
-    outputWindow()->append(commandOutputFromLocal8Bit(outputText));
+    VcsOutputWindow::append(commandOutputFromLocal8Bit(outputText));
     if (!rc) {
-        outputWindow()->appendError(commandOutputFromLocal8Bit(errorText));
+        VcsOutputWindow::appendError(commandOutputFromLocal8Bit(errorText));
     } else {
         // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
         VcsManager::resetVersionControlForDirectory(workingDirectory);
@@ -1849,8 +1842,7 @@ QString GitClient::synchronousShortDescription(const QString &workingDirectory, 
               << QLatin1String("--max-count=1") << revision;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
     if (!rc) {
-        VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
-        outputWindow->appendSilently(tr("Cannot describe revision \"%1\" in \"%2\": %3")
+        VcsOutputWindow::appendSilently(tr("Cannot describe revision \"%1\" in \"%2\": %3")
                                      .arg(revision, workingDirectory, commandOutputFromLocal8Bit(errorText)));
         return revision;
     }
@@ -1910,10 +1902,10 @@ QString GitClient::synchronousStash(const QString &workingDirectory, const QStri
         if (unchanged)
             *unchanged = true;
         if (!(flags & StashIgnoreUnchanged))
-            outputWindow()->appendWarning(msgNoChangedFiles());
+            VcsOutputWindow::appendWarning(msgNoChangedFiles());
         break;
     case StatusFailed:
-        outputWindow()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         break;
     }
     if (!success)
@@ -2234,7 +2226,7 @@ VcsBase::Command *GitClient::executeGit(const QString &workingDirectory,
                                         unsigned additionalFlags,
                                         int editorLineNumber)
 {
-    outputWindow()->appendCommand(workingDirectory,
+    VcsOutputWindow::appendCommand(workingDirectory,
                                   Utils::FileName::fromUserInput(settings()->stringValue(GitSettings::binaryPathKey)),
                                   arguments);
     VcsBase::Command *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
@@ -2603,7 +2595,7 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
         return;
 
     QString gitkPath = foundBinDir.path() + QLatin1String("/gitk");
-    VcsBase::VcsBaseOutputWindow::instance()->appendSilently(msgCannotLaunch(gitkPath));
+    VcsOutputWindow::appendSilently(msgCannotLaunch(gitkPath));
 
     if (foundBinDirIsCmdDir) {
         foundBinDir.cdUp();
@@ -2612,7 +2604,7 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
             return;
         }
         gitkPath = foundBinDir.path() + QLatin1String("/gitk");
-        VcsBase::VcsBaseOutputWindow::instance()->appendSilently(msgCannotLaunch(gitkPath));
+        VcsOutputWindow::appendSilently(msgCannotLaunch(gitkPath));
     }
 
     Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
@@ -2623,7 +2615,7 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
         return;
     }
 
-    VcsBase::VcsBaseOutputWindow::instance()->appendError(msgCannotLaunch(QLatin1String("gitk")));
+    VcsOutputWindow::appendError(msgCannotLaunch(QLatin1String("gitk")));
 }
 
 void GitClient::launchRepositoryBrowser(const QString &workingDirectory)
@@ -2648,13 +2640,12 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
             binary = wish;
         }
     }
-    VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
     const QString gitkOpts = settings()->stringValue(GitSettings::gitkOptionsKey);
     if (!gitkOpts.isEmpty())
         arguments.append(Utils::QtcProcess::splitArgs(gitkOpts, Utils::HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
         arguments << QLatin1String("--") << fileName;
-    outwin->appendCommand(workingDirectory, Utils::FileName::fromString(binary), arguments);
+    VcsOutputWindow::appendCommand(workingDirectory, Utils::FileName::fromString(binary), arguments);
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;
@@ -2684,7 +2675,7 @@ bool GitClient::launchGitGui(const QString &workingDirectory) {
     }
 
     if (!success)
-        outputWindow()->appendError(msgCannotLaunch(QLatin1String("git gui")));
+        VcsOutputWindow::appendError(msgCannotLaunch(QLatin1String("git gui")));
 
     return success;
 }
@@ -2991,10 +2982,10 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     const bool rc = fullySynchronousGit(repositoryDirectory, args, &outputText, &errorText);
     const QString stdErr = commandOutputFromLocal8Bit(errorText);
     if (rc) {
-        outputWindow()->appendMessage(msgCommitted(amendSHA1, commitCount));
-        outputWindow()->appendError(stdErr);
+        VcsOutputWindow::appendMessage(msgCommitted(amendSHA1, commitCount));
+        VcsOutputWindow::appendError(stdErr);
     } else {
-        outputWindow()->appendError(tr("Cannot commit %n file(s): %1\n", 0, commitCount).arg(stdErr));
+        VcsOutputWindow::appendError(tr("Cannot commit %n file(s): %1\n", 0, commitCount).arg(stdErr));
     }
 
     return rc;
@@ -3100,11 +3091,11 @@ void GitClient::revert(const QStringList &files, bool revertStaging)
         break;
     case RevertUnchanged: {
         const QString msg = (isDirectory || files.size() > 1) ? msgNoChangedFiles() : tr("The file is not modified.");
-        outputWindow()->appendWarning(msg);
+        VcsOutputWindow::appendWarning(msg);
     }
         break;
     case RevertFailed:
-        outputWindow()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         break;
     }
 }
@@ -3165,16 +3156,15 @@ void GitClient::synchronousAbortCommand(const QString &workingDir, const QString
                                  QStringList(), QString(), 0, false);
         return;
     }
-    VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
     QStringList arguments;
     arguments << abortCommand << QLatin1String("--abort");
     QByteArray stdOut;
     QByteArray stdErr;
     const bool rc = fullySynchronousGit(workingDir, arguments, &stdOut, &stdErr,
                                         VcsBasePlugin::ExpectRepoChanges);
-    outwin->append(commandOutputFromLocal8Bit(stdOut));
+    VcsOutputWindow::append(commandOutputFromLocal8Bit(stdOut));
     if (!rc)
-        outwin->appendError(commandOutputFromLocal8Bit(stdErr));
+        VcsOutputWindow::appendError(commandOutputFromLocal8Bit(stdErr));
 }
 
 QString GitClient::synchronousTrackingBranch(const QString &workingDirectory, const QString &branch)
@@ -3309,7 +3299,7 @@ bool GitClient::canRebase(const QString &workingDirectory) const
     const QString gitDir = findGitDirForRepository(workingDirectory);
     if (QFileInfo(gitDir + QLatin1String("/rebase-apply")).exists()
             || QFileInfo(gitDir + QLatin1String("/rebase-merge")).exists()) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(
+        VcsOutputWindow::appendError(
                     tr("Rebase, merge or am is in progress. Finish "
                        "or abort it and then try again."));
         return false;
@@ -3340,7 +3330,7 @@ void GitClient::asyncCommand(const QString &workingDirectory, const QStringList 
     // Git might request an editor, so this must be done asynchronously
     // and without timeout
     QString gitCommand = arguments.first();
-    outputWindow()->appendCommand(workingDirectory, settings()->binaryPath(), arguments);
+    VcsOutputWindow::appendCommand(workingDirectory, settings()->binaryPath(), arguments);
     VcsBase::Command *command = createCommand(workingDirectory, 0, true);
     new ConflictHandler(command, workingDirectory, gitCommand);
     if (hasProgress)
@@ -3386,7 +3376,7 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
     if (fixup)
         arguments << QLatin1String("--autosquash");
     arguments << commit + QLatin1Char('^');
-    outputWindow()->appendCommand(workingDirectory, settings()->binaryPath(), arguments);
+    VcsOutputWindow::appendCommand(workingDirectory, settings()->binaryPath(), arguments);
     if (fixup)
         m_disableEditor = true;
     asyncCommand(workingDirectory, arguments, true);
@@ -3448,7 +3438,7 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
     if (rc) {
         const QString output = commandOutputFromLocal8Bit(outputText);
         if (!output.isEmpty())
-            outputWindow()->append(output);
+            VcsOutputWindow::append(output);
     } else {
         msgCannotRun(arguments, workingDirectory, errorText, errorMessage);
     }
@@ -3646,7 +3636,7 @@ bool GitClient::StashInfo::init(const QString &workingDirectory, const QString &
     }
 
     if (m_stashResult == StashFailed)
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
     return !stashingFailed();
 }
 

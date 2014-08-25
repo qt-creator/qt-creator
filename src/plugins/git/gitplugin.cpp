@@ -70,7 +70,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/cleandialog.h>
 #include <coreplugin/locator/commandlocator.h>
 
@@ -950,7 +950,7 @@ void GitPlugin::startCommit(CommitType commitType)
     if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
-        VcsBaseOutputWindow::instance()->appendWarning(tr("Another submit is currently being executed."));
+        VcsOutputWindow::appendWarning(tr("Another submit is currently being executed."));
         return;
     }
 
@@ -960,7 +960,7 @@ void GitPlugin::startCommit(CommitType commitType)
     QString errorMessage, commitTemplate;
     CommitData data(commitType);
     if (!m_gitClient->getCommitData(state.topLevel(), &commitTemplate, data, &errorMessage)) {
-        VcsBaseOutputWindow::instance()->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
         return;
     }
 
@@ -974,7 +974,7 @@ void GitPlugin::startCommit(CommitType commitType)
     saver.setAutoRemove(false);
     saver.write(commitTemplate.toLocal8Bit());
     if (!saver.finalize()) {
-        VcsBaseOutputWindow::instance()->appendError(saver.errorString());
+        VcsOutputWindow::appendError(saver.errorString());
         return;
     }
     m_commitMessageFileName = saver.fileName();
@@ -1261,15 +1261,14 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
         }
     }
     // Run!
-    VcsBaseOutputWindow *outwin = VcsBaseOutputWindow::instance();
     QString errorMessage;
     if (m_gitClient->synchronousApplyPatch(workingDirectory, file, &errorMessage)) {
         if (errorMessage.isEmpty())
-            outwin->appendMessage(tr("Patch %1 successfully applied to %2").arg(file, workingDirectory));
+            VcsOutputWindow::appendMessage(tr("Patch %1 successfully applied to %2").arg(file, workingDirectory));
         else
-            outwin->appendError(errorMessage);
+            VcsOutputWindow::appendError(errorMessage);
     } else {
-        outwin->appendError(errorMessage);
+        VcsOutputWindow::appendError(errorMessage);
     }
     m_gitClient->endStashScope(workingDirectory);
 }

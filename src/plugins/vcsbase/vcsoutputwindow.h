@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef VCSBASEOUTPUTWINDOW_H
-#define VCSBASEOUTPUTWINDOW_H
+#ifndef VCSOUTPUTWINDOW_H
+#define VCSOUTPUTWINDOW_H
 
 #include "vcsbase_global.h"
 
@@ -38,15 +38,13 @@
 
 namespace VcsBase {
 
-class VcsBaseOutputWindowPrivate;
-
-class VCSBASE_EXPORT VcsBaseOutputWindow : public Core::IOutputPane
+class VCSBASE_EXPORT VcsOutputWindow : public Core::IOutputPane
 {
     Q_OBJECT
     Q_PROPERTY(QString repository READ repository WRITE setRepository)
 
 public:
-    ~VcsBaseOutputWindow();
+    ~VcsOutputWindow();
 
     QWidget *outputWidget(QWidget *parent);
     QList<QWidget *> toolBarWidgets() const;
@@ -67,7 +65,7 @@ public:
     void goToNext();
     void goToPrev();
 
-    static VcsBaseOutputWindow *instance();
+    static VcsOutputWindow *instance();
 
     QString repository() const;
 
@@ -87,47 +85,43 @@ public:
     };
 
 public slots:
-    void setRepository(const QString &);
-    void clearRepository();
+    static void setRepository(const QString &);
+    static void clearRepository();
 
     // Set the whole text.
-    void setText(const QString &text);
+    static void setText(const QString &text);
     // Set text from QProcess' output data using the Locale's converter.
-    void setData(const QByteArray &data);
+    static void setData(const QByteArray &data);
 
     // Append text with a certain style (none by default),
     // and maybe pop up (silent by default)
-    void append(const QString &text, enum MessageStyle style = None, bool silently = false);
+    static void append(const QString &text, enum MessageStyle style = None, bool silently = false);
 
     // Silently append text, do not pop up.
-    void appendSilently(const QString &text);
+    static void appendSilently(const QString &text);
 
     // Append red error text and pop up.
-    void appendError(const QString &text);
+    static void appendError(const QString &text);
 
     // Append dark-yellow warning text and pop up.
-    void appendWarning(const QString &text);
+    static void appendWarning(const QString &text);
 
     // Append a command, prepended by a log time stamp. "Executing: vcs -diff"
     // will result in "10:00 Executing: vcs -diff" in bold
-    void appendCommand(const QString &text);
+    static void appendCommand(const QString &text);
     // Append a standard-formatted entry for command execution
     // (see msgExecutionLogEntry).
-    void appendCommand(const QString &workingDirectory,
+    static void appendCommand(const QString &workingDirectory,
                        const Utils::FileName &binary,
                        const QStringList &args);
 
     // Append a blue message text and pop up.
-    void appendMessage(const QString &text);
+    static void appendMessage(const QString &text);
 
 private:
-    VcsBaseOutputWindow();
-
-    QString filterPasswordFromUrls(const QString &input);
-
-    VcsBaseOutputWindowPrivate *d;
+    VcsOutputWindow();
 };
 
 } // namespace VcsBase
 
-#endif // VCSBASEOUTPUTWINDOW_H
+#endif // VCSOUTPUTWINDOW_H

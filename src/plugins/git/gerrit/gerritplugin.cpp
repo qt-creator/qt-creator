@@ -53,7 +53,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/locator/commandlocator.h>
 
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/synchronousprocess.h>
 
@@ -178,7 +178,7 @@ void FetchContext::start()
     m_progress.reportStarted();
     // Order: initialize future before starting the process in case error handling is invoked.
     const QStringList args = m_change->gitFetchArguments(m_parameters);
-    VcsBase::VcsBaseOutputWindow::instance()->appendCommand(m_repository, m_git, args);
+    VcsBase::VcsOutputWindow::appendCommand(m_repository, m_git, args);
     m_process.start(m_git.toString(), args);
     m_process.closeWriteChannel();
 }
@@ -213,21 +213,21 @@ void FetchContext::processReadyReadStandardError()
     // Note: fetch displays progress on stderr.
     const QString errorOutput = QString::fromLocal8Bit(m_process.readAllStandardError());
     if (m_state == FetchState)
-        VcsBase::VcsBaseOutputWindow::instance()->append(errorOutput);
+        VcsBase::VcsOutputWindow::append(errorOutput);
     else
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(errorOutput);
+        VcsBase::VcsOutputWindow::appendError(errorOutput);
 }
 
 void FetchContext::processReadyReadStandardOutput()
 {
     const QByteArray output = m_process.readAllStandardOutput();
-    VcsBase::VcsBaseOutputWindow::instance()->append(QString::fromLocal8Bit(output));
+    VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(output));
 }
 
 void FetchContext::handleError(const QString &e)
 {
     m_state = ErrorState;
-    VcsBase::VcsBaseOutputWindow::instance()->appendError(e);
+    VcsBase::VcsOutputWindow::appendError(e);
     m_progress.reportCanceled();
     m_progress.reportFinished();
     deleteLater();
@@ -239,7 +239,7 @@ void FetchContext::processError(QProcess::ProcessError e)
     if (e == QProcess::FailedToStart)
         handleError(msg);
     else
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(msg);
+        VcsBase::VcsOutputWindow::appendError(msg);
 }
 
 void FetchContext::show()
@@ -252,7 +252,7 @@ void FetchContext::show()
 void FetchContext::cherryPick()
 {
     // Point user to errors.
-    VcsBase::VcsBaseOutputWindow::instance()->popup(IOutputPane::ModeSwitch
+    VcsBase::VcsOutputWindow::instance()->popup(IOutputPane::ModeSwitch
                                                   | IOutputPane::WithFocus);
     gitClient()->synchronousCherryPick(m_repository, QLatin1String("FETCH_HEAD"));
 }
@@ -394,7 +394,7 @@ Utils::FileName GerritPlugin::gitBinary()
     bool ok;
     const Utils::FileName git = gitClient()->gitExecutable(&ok);
     if (!ok) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(tr("Git is not available."));
+        VcsBase::VcsOutputWindow::appendError(tr("Git is not available."));
         return Utils::FileName();
     }
     return git;

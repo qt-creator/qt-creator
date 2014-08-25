@@ -31,7 +31,7 @@
 #include "vcsbasesubmiteditor.h"
 #include "vcsplugin.h"
 #include "commonvcssettings.h"
-#include "vcsbaseoutputwindow.h"
+#include "vcsoutputwindow.h"
 #include "corelistener.h"
 #include "command.h"
 

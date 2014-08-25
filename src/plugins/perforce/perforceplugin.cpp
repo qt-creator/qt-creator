@@ -56,7 +56,7 @@
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
 
 #include <QAction>
@@ -584,7 +584,6 @@ void PerforcePlugin::printOpenedFileList()
         return;
     // reformat "//depot/file.cpp#1 - description" into "file.cpp # - description"
     // for context menu opening to work. This produces absolute paths, then.
-    VcsBaseOutputWindow *outWin = VcsBaseOutputWindow::instance();
     QString errorMessage;
     QString mapped;
     const QChar delimiter = QLatin1Char('#');
@@ -594,11 +593,11 @@ void PerforcePlugin::printOpenedFileList()
         if (delimiterPos > 0)
             mapped = fileNameFromPerforceName(line.left(delimiterPos), true, &errorMessage);
         if (mapped.isEmpty())
-            outWin->appendSilently(line);
+            VcsOutputWindow::appendSilently(line);
         else
-            outWin->appendSilently(mapped + QLatin1Char(' ') + line.mid(delimiterPos));
+            VcsOutputWindow::appendSilently(mapped + QLatin1Char(' ') + line.mid(delimiterPos));
     }
-    outWin->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
+    VcsOutputWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 }
 
 void PerforcePlugin::startSubmitProject()
@@ -608,7 +607,7 @@ void PerforcePlugin::startSubmitProject()
         return;
 
     if (isCommitEditorOpen()) {
-        VcsBaseOutputWindow::instance()->appendWarning(tr("Another submit is currently executed."));
+        VcsOutputWindow::appendWarning(tr("Another submit is currently executed."));
         return;
     }
 
@@ -633,7 +632,7 @@ void PerforcePlugin::startSubmitProject()
     saver.setAutoRemove(false);
     saver.write(result.stdOut.toLatin1());
     if (!saver.finalize()) {
-        VcsBaseOutputWindow::instance()->appendError(saver.errorString());
+        VcsOutputWindow::appendError(saver.errorString());
         cleanCommitMessageFile();
         return;
     }
@@ -656,7 +655,7 @@ void PerforcePlugin::startSubmitProject()
             depotFileNames.append(line.mid(14));
     }
     if (depotFileNames.isEmpty()) {
-        VcsBaseOutputWindow::instance()->appendWarning(tr("Project has no files"));
+        VcsOutputWindow::appendWarning(tr("Project has no files"));
         cleanCommitMessageFile();
         return;
     }
@@ -1007,7 +1006,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
 {
     QTC_ASSERT(stdInput.isEmpty(), return PerforceResponse()); // Not supported here
 
-    VcsBaseOutputWindow *outputWindow = VcsBaseOutputWindow::instance();
+    VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
     // Run, connect stderr to the output window
     SynchronousProcess process;
     const int timeOut = (flags & LongTimeOut) ? settings().longTimeOutMS() : settings().timeOutMS();
@@ -1129,11 +1128,10 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
     response.stdErr.remove(cr);
     response.stdOut.remove(cr);
     // Logging
-    VcsBaseOutputWindow *outputWindow = VcsBaseOutputWindow::instance();
     if ((flags & StdErrToWindow) && !response.stdErr.isEmpty())
-        outputWindow->appendError(response.stdErr);
+        VcsOutputWindow::appendError(response.stdErr);
     if ((flags & StdOutToWindow) && !response.stdOut.isEmpty())
-        outputWindow->append(response.stdOut, VcsBaseOutputWindow::None, flags & SilentStdOut);
+        VcsOutputWindow::append(response.stdOut, VcsOutputWindow::None, flags & SilentStdOut);
     return response;
 }
 
@@ -1147,12 +1145,11 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::runP4Cmd [" << workingDir << ']' << args << extraArgs << stdInput << debugCodec(outputCodec);
 
-    VcsBaseOutputWindow *outputWindow = VcsBaseOutputWindow::instance();
     if (!settings().isValid()) {
         PerforceResponse invalidConfigResponse;
         invalidConfigResponse.error = true;
         invalidConfigResponse.message = tr("Perforce is not correctly configured.");
-        outputWindow->appendError(invalidConfigResponse.message);
+        VcsOutputWindow::appendError(invalidConfigResponse.message);
         return invalidConfigResponse;
     }
     QStringList actualArgs = settings().commonP4Arguments(workingDir);
@@ -1169,7 +1166,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
-        outputWindow->appendCommand(workingDir, FileName::fromString(settings().p4BinaryPath()), actualArgs);
+        VcsOutputWindow::appendCommand(workingDir, FileName::fromString(settings().p4BinaryPath()), actualArgs);
 
     if (flags & ShowBusyCursor)
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1185,7 +1182,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
         if (Perforce::Constants::debug)
             qDebug() << response.message;
         if (flags & ErrorToWindow)
-            outputWindow->appendError(response.message);
+            VcsOutputWindow::appendError(response.message);
     }
     return response;
 }
@@ -1382,7 +1379,7 @@ bool PerforcePlugin::submitEditorAboutToClose()
     // Pipe file into p4 submit -i
     FileReader reader;
     if (!reader.fetch(m_commitMessageFileName, QIODevice::Text)) {
-        VcsBaseOutputWindow::instance()->appendError(reader.errorString());
+        VcsOutputWindow::appendError(reader.errorString());
         return false;
     }
 
@@ -1392,10 +1389,10 @@ bool PerforcePlugin::submitEditorAboutToClose()
                                                      LongTimeOut|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
                                                      QStringList(), reader.data());
     if (submitResponse.error) {
-        VcsBaseOutputWindow::instance()->appendError(tr("p4 submit failed: %1").arg(submitResponse.message));
+        VcsOutputWindow::appendError(tr("p4 submit failed: %1").arg(submitResponse.message));
         return false;
     }
-    VcsBaseOutputWindow::instance()->append(submitResponse.stdOut);
+    VcsOutputWindow::append(submitResponse.stdOut);
     if (submitResponse.stdOut.contains(QLatin1String("Out of date files must be resolved or reverted)")))
         QMessageBox::warning(perforceEditor->widget(), tr("Pending change"), tr("Could not submit the change, because your workspace was out of date. Created a pending submit instead."));
 
@@ -1521,14 +1518,14 @@ void PerforcePlugin::slotTopLevelFound(const QString &t)
     m_settings.setTopLevel(t);
     const QString msg = tr("Perforce repository: %1").
                         arg(QDir::toNativeSeparators(t));
-    VcsBaseOutputWindow::instance()->appendSilently(msg);
+    VcsOutputWindow::appendSilently(msg);
     if (Perforce::Constants::debug)
         qDebug() << "P4: " << t;
 }
 
 void PerforcePlugin::slotTopLevelFailed(const QString &errorMessage)
 {
-    VcsBaseOutputWindow::instance()->appendSilently(tr("Perforce: Unable to determine the repository: %1").arg(errorMessage));
+    VcsOutputWindow::appendSilently(tr("Perforce: Unable to determine the repository: %1").arg(errorMessage));
     if (Perforce::Constants::debug)
         qDebug() << errorMessage;
 }

@@ -31,7 +31,7 @@
 #include "constants.h"
 
 #include <vcsbase/command.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
@@ -45,6 +45,8 @@
 #include <QTextCodec>
 #include <QTextStream>
 #include <QVariant>
+
+using namespace VcsBase;
 
 namespace Mercurial {
 namespace Internal  {
@@ -111,7 +113,7 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
         const QString hgrc = QLatin1String("[paths]\ndefault = ") + dstLocation + QLatin1Char('\n');
         saver.write(hgrc.toUtf8());
         if (!saver.finalize()) {
-            VcsBase::VcsBaseOutputWindow::instance()->appendError(saver.errorString());
+            VcsBase::VcsOutputWindow::appendError(saver.errorString());
             return false;
         }
 
@@ -197,15 +199,14 @@ changeset:   0:031a48610fba
 user: ...
 \endcode   */
     // Obtain first line and split by blank-delimited tokens
-    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
     const QStringList lines = output.split(QLatin1Char('\n'));
     if (lines.size() < 1) {
-        outputWindow->appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
+        VcsOutputWindow::appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
         return QStringList();
     }
     QStringList changeSets = lines.front().simplified().split(QLatin1Char(' '));
     if (changeSets.size() < 2) {
-        outputWindow->appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
+        VcsOutputWindow::appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
         return QStringList();
     }
     // Remove revision numbers

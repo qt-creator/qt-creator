@@ -37,7 +37,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/submitfilemodel.h>
-#include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QDebug>
 #include <QStringList>
@@ -45,6 +45,8 @@
 #include <QtConcurrentRun>
 
 static const char TASK_UPDATE_COMMIT[] = "Git.UpdateCommit";
+
+using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
@@ -251,7 +253,7 @@ void GitSubmitEditor::commitDataRetrieved(bool success)
         w->setEnabled(true);
     } else {
         // Nothing to commit left!
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(m_commitDataFetcher->errorMessage());
+        VcsOutputWindow::appendError(m_commitDataFetcher->errorMessage());
         m_model->clear();
         w->setEnabled(false);
     }

@@ -29,7 +29,7 @@
 
 #include "cleandialog.h"
 #include "ui_cleandialog.h"
-#include "vcsbaseoutputwindow.h"
+#include "vcsoutputwindow.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -262,7 +262,7 @@ bool CleanDialog::promptToDelete()
     // Remove in background
     Internal::CleanFilesTask *cleanTask = new Internal::CleanFilesTask(d->m_workingDirectory, selectedFiles);
     connect(cleanTask, SIGNAL(error(QString)),
-            VcsBase::VcsBaseOutputWindow::instance(), SLOT(appendSilently(QString)),
+            VcsOutputWindow::instance(), SLOT(appendSilently(QString)),
             Qt::QueuedConnection);
 
     QFuture<void> task = QtConcurrent::run(cleanTask, &Internal::CleanFilesTask::run);
