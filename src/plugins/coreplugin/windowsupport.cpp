@@ -29,18 +29,27 @@
 
 #include "windowsupport.h"
 
+#include "actionmanager/actioncontainer.h"
 #include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
 #include "icore.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
-#include <QWidget>
 #include <QEvent>
+#include <QMenu>
+#include <QWidget>
 
 namespace Core {
 namespace Internal {
+
+
+QMenu *WindowList::m_dockMenu = 0;
+QList<QWidget *> WindowList::m_windows;
+QList<QAction *> WindowList::m_windowActions;
+QList<Id> WindowList::m_windowActionIds;
 
 WindowSupport::WindowSupport(QWidget *window, const Context &context)
     : QObject(window),
@@ -71,6 +80,8 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
     updateFullScreenAction();
     ActionManager::registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, context);
     connect(m_toggleFullScreenAction, SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
+
+    WindowList::addWindow(window);
 }
 
 WindowSupport::~WindowSupport()
@@ -82,6 +93,7 @@ WindowSupport::~WindowSupport()
     }
     ActionManager::unregisterAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN);
     ICore::removeContextObject(m_contextObject);
+    WindowList::removeWindow(m_window);
 }
 
 void WindowSupport::setCloseActionEnabled(bool enabled)
@@ -101,6 +113,8 @@ bool WindowSupport::eventFilter(QObject *obj, QEvent *event)
             m_zoomAction->setEnabled(!minimized);
         }
         updateFullScreenAction();
+    } else if (event->type() == QEvent::WindowActivate) {
+        WindowList::setActiveWindow(m_window);
     }
     return false;
 }
@@ -129,6 +143,74 @@ void WindowSupport::updateFullScreenAction()
     }
 }
 
+void WindowList::addWindow(QWidget *window)
+{
+    if (Utils::HostOsInfo::isMacHost() && !m_dockMenu) {
+        m_dockMenu = new QMenu;
+        m_dockMenu->setAsDockMenu();
+    }
+
+    m_windows.append(window);
+    Id id = Id("QtCreator.Window.").withSuffix(m_windows.size());
+    m_windowActionIds.append(id);
+    auto action = new QAction(window->windowTitle(), 0);
+    m_windowActions.append(action);
+    connect(action, &QAction::triggered, [action]() { WindowList::activateWindow(action); });
+    action->setCheckable(true);
+    action->setChecked(false);
+    Command *cmd = ActionManager::registerAction(action, id,
+                                                 Context(Constants::C_GLOBAL));
+    cmd->setAttribute(Command::CA_UpdateText);
+    ActionManager::actionContainer(Constants::M_WINDOW)->addAction(cmd, Constants::G_WINDOW_LIST);
+    connect(window, &QWidget::windowTitleChanged, [window]() { WindowList::updateTitle(window); });
+    if (m_dockMenu)
+        m_dockMenu->addAction(action);
+    if (window->isActiveWindow())
+        setActiveWindow(window);
+}
+
+void WindowList::activateWindow(QAction *action)
+{
+    int index = m_windowActions.indexOf(action);
+    QTC_ASSERT(index >= 0, return);
+    QTC_ASSERT(index < m_windows.size(), return);
+    ICore::raiseWindow(m_windows.at(index));
+}
+
+void WindowList::updateTitle(QWidget *window)
+{
+    int index = m_windows.indexOf(window);
+    QTC_ASSERT(index >= 0, return);
+    QTC_ASSERT(index < m_windowActions.size(), return);
+    QString title = window->windowTitle();
+    if (title.endsWith(QStringLiteral("- Qt Creator")))
+        title.chop(12);
+    m_windowActions.at(index)->setText(title.trimmed());
+}
+
+void WindowList::removeWindow(QWidget *window)
+{
+    // remove window from list,
+    // remove last action from menu(s)
+    // and update all action titles, starting with the index where the window was
+    int index = m_windows.indexOf(window);
+    QTC_ASSERT(index >= 0, return);
+
+    ActionManager::unregisterAction(m_windowActions.last(), m_windowActionIds.last());
+    m_windowActions.removeLast();
+    m_windowActionIds.removeLast();
+
+    m_windows.removeOne(window);
+
+    for (int i = index; i < m_windows.size(); ++i)
+        updateTitle(m_windows.at(i));
+}
+
+void WindowList::setActiveWindow(QWidget *window)
+{
+    for (int i = 0; i < m_windows.size(); ++i)
+        m_windowActions.at(i)->setChecked(m_windows.at(i) == window);
+}
 
 } // Internal
 } // Core

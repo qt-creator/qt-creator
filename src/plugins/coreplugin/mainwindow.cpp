@@ -446,6 +446,7 @@ void MainWindow::registerDefaultContainers()
     mwindow->appendGroup(Constants::G_WINDOW_PANES);
     mwindow->appendGroup(Constants::G_WINDOW_SPLIT);
     mwindow->appendGroup(Constants::G_WINDOW_NAVIGATE);
+    mwindow->appendGroup(Constants::G_WINDOW_LIST);
     mwindow->appendGroup(Constants::G_WINDOW_OTHER);
 
     // Help Menu
@@ -627,6 +628,8 @@ void MainWindow::registerDefaultActions()
     }
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
     connect(m_optionsAction, SIGNAL(triggered()), this, SLOT(showOptionsDialog()));
+
+    mwindow->addSeparator(globalContext, Constants::G_WINDOW_LIST);
 
     if (UseMacShortcuts) {
         // Minimize Action

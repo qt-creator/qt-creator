@@ -36,11 +36,30 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QMenu;
 class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
 namespace Internal {
+
+class WindowList : public QObject
+{
+    Q_OBJECT
+public:
+    static void addWindow(QWidget *window);
+    static void removeWindow(QWidget *window);
+    static void setActiveWindow(QWidget *window);
+
+private:
+    static void activateWindow(QAction *action);
+    static void updateTitle(QWidget *window);
+
+    static QMenu *m_dockMenu;
+    static QList<QWidget *> m_windows;
+    static QList<QAction *> m_windowActions;
+    static QList<Id> m_windowActionIds;
+};
 
 class WindowSupport : public QObject
 {

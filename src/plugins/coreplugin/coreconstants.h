@@ -173,6 +173,7 @@ const char G_WINDOW_PANES[]        = "QtCreator.Group.Window.Panes";
 const char G_WINDOW_VIEWS[]        = "QtCreator.Group.Window.Views";
 const char G_WINDOW_SPLIT[]        = "QtCreator.Group.Window.Split";
 const char G_WINDOW_NAVIGATE[]     = "QtCreator.Group.Window.Navigate";
+const char G_WINDOW_LIST[]         = "QtCreator.Group.Window.List";
 const char G_WINDOW_OTHER[]        = "QtCreator.Group.Window.Other";
 
 // Help groups (global)
