@@ -60,13 +60,13 @@ class FindReferences;
 
 namespace Internal {
 
-class QmlJSTextEditorWidget : public TextEditor::BaseTextEditorWidget
+class QmlJSEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
-    QmlJSTextEditorWidget(TextEditor::BaseTextDocumentPtr doc);
-    ~QmlJSTextEditorWidget();
+    QmlJSEditorWidget(TextEditor::BaseTextDocumentPtr doc);
+    ~QmlJSEditorWidget();
 
     QmlJSEditorDocument *qmlJsEditorDocument() const;
 

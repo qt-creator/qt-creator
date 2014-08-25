@@ -189,7 +189,7 @@ void HoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
     if (!m_modelManager)
         return;
 
-    QmlJSTextEditorWidget *qmlEditor = qobject_cast<QmlJSTextEditorWidget *>(editor->widget());
+    QmlJSEditorWidget *qmlEditor = qobject_cast<QmlJSEditorWidget *>(editor->widget());
     if (!qmlEditor)
         return;
 
@@ -256,7 +256,7 @@ void HoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
     setQmlHelpItem(scopeChain, qmlDocument, node);
 }
 
-bool HoverHandler::matchDiagnosticMessage(QmlJSTextEditorWidget *qmlEditor, int pos)
+bool HoverHandler::matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos)
 {
     foreach (const QTextEdit::ExtraSelection &sel,
              qmlEditor->extraSelections(TextEditor::BaseTextEditorWidget::CodeWarningsSelection)) {

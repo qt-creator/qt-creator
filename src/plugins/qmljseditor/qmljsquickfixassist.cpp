@@ -46,7 +46,7 @@ using namespace Internal;
 // -----------------------
 // QuickFixAssistInterface
 // -----------------------
-QmlJSQuickFixAssistInterface::QmlJSQuickFixAssistInterface(QmlJSTextEditorWidget *editor,
+QmlJSQuickFixAssistInterface::QmlJSQuickFixAssistInterface(QmlJSEditorWidget *editor,
                                                            TextEditor::AssistReason reason)
     : DefaultAssistInterface(editor->document(), editor->position(),
                              editor->textDocument()->filePath(), reason)

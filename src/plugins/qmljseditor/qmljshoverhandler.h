@@ -55,7 +55,7 @@ namespace QmlJSEditor {
 
 namespace Internal {
 
-class QmlJSTextEditorWidget;
+class QmlJSEditorWidget;
 
 class HoverHandler : public TextEditor::BaseHoverHandler
 {
@@ -70,7 +70,7 @@ private:
     virtual void identifyMatch(TextEditor::BaseTextEditor *editor, int pos);
     virtual void operateTooltip(TextEditor::BaseTextEditor *editor, const QPoint &point);
 
-    bool matchDiagnosticMessage(QmlJSTextEditorWidget *qmlEditor, int pos);
+    bool matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos);
     bool matchColorItem(const QmlJS::ScopeChain &lookupContext,
                         const QmlJS::Document::Ptr &qmlDocument,
                         const QList<QmlJS::AST::Node *> &astPath,

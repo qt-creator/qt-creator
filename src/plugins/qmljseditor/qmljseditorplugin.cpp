@@ -265,13 +265,13 @@ Utils::JsonSchemaManager *QmlJSEditorPlugin::jsonManager() const
 
 void QmlJSEditorPlugin::findUsages()
 {
-    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
+    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
         editor->findUsages();
 }
 
 void QmlJSEditorPlugin::renameUsages()
 {
-    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
+    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
         editor->renameUsages();
 }
 
@@ -290,7 +290,7 @@ void QmlJSEditorPlugin::reformatFile()
 
 void QmlJSEditorPlugin::showContextPane()
 {
-    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
+    if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
         editor->showContextPane();
 }
 
