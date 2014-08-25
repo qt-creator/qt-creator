@@ -36,12 +36,12 @@ leave room for the Qt 4 target page.
 -->
 <wizard version="1" kind="project"
         class="qmakeproject" firstpage="10"
-        id="R.QtCreatorPlugin" category="G.Libraries"
+        id="R.QtCreatorPlugin" category="G.Library"
         featuresRequired="QtSupport.Wizards.FeatureQt,QtSupport.Wizards.FeatureDesktop">
     <icon>qtcreator_logo_24.png</icon>
     <description>Creates a custom Qt Creator plugin.</description>
     <displayname>Qt Creator Plugin</displayname>;
-    <displaycategory>Libraries</displaycategory>
+    <displaycategory>Library</displaycategory>
     <files>
         <file source="myplugin.pro" target="%PluginName:l%.pro" openproject="true"/>
         <file source="MyPlugin.json.in" target="%PluginName%.json.in" openeditor="true"/>

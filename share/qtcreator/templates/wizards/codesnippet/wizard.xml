@@ -36,10 +36,10 @@ leave room for the Qt 4 target page.
 -->
 <wizard version="1" kind="project"
         class="qmakeproject" firstpage="10"
-        id="Z.Snippet" category="H.QtProjects">
+        id="Z.Snippet" category="H.Project">
     <description>Creates a qmake-based test project for which a code snippet can be entered.</description>
     <displayname>Code Snippet</displayname>;
-    <displaycategory>Other Projects</displaycategory>
+    <displaycategory>Other Project</displaycategory>
     <files>
         <file source="main.cpp" target="main.%CppSourceSuffix%" openeditor="true"/>
         <file source="project.pro" target="%ProjectName%.pro" openproject="true"/>

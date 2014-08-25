@@ -36,12 +36,12 @@ leave room for the Qt 4 target page.
 -->
 <wizard version="1" kind="project"
         class="qmakeproject" firstpage="10"
-        id="QtQuick1ExtensionPlugin" category="G.Libraries"
+        id="QtQuick1ExtensionPlugin" category="G.Library"
         featuresRequired="QtSupport.Wizards.FeatureQtQuick,QtSupport.Wizards.FeatureQtQuick.1">
     <icon>lib.png</icon>
     <description>Creates a C++ plugin to load extensions dynamically into applications using the QDeclarativeEngine class. Requires Qt 4.7.0 or newer.</description>
     <displayname>Qt Quick 1 Extension Plugin</displayname>
-    <displaycategory>Libraries</displaycategory>
+    <displaycategory>Library</displaycategory>
     <files>
         <file source="qmldir" target="qmldir"/>
         <file source="plugin.h" target="%ProjectName:l%_plugin.%CppHeaderSuffix%"/>

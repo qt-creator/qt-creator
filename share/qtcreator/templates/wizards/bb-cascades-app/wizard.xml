@@ -32,7 +32,7 @@
 -->
 <wizard version="1" kind="project"
         class="qmakeproject" firstpage="10"
-        id="Q.QnxBlackBerryCascadesApp" category="F.QtApplications"
+        id="Q.QnxBlackBerryCascadesApp" category="F.QtApplication"
         featuresRequired="QtSupport.Wizards.FeatureBlackBerry">
     <icon>icon.png</icon>
     <displayname>BlackBerry Cascades Application</displayname>;

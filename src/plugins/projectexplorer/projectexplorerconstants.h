@@ -194,14 +194,14 @@ const char TASK_CATEGORY_BUILDSYSTEM[] = "Task.Category.Buildsystem";
 const char TASK_CATEGORY_DEPLOYMENT[] = "Task.Category.Deploy";
 
 // Wizard categories
-const char QT_PROJECT_WIZARD_CATEGORY[] = "H.QtProjects";
+const char QT_PROJECT_WIZARD_CATEGORY[] = "H.Project";
 const char QT_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Other Project");
 
-const char QT_APPLICATION_WIZARD_CATEGORY[] = "F.QtApplications";
-const char QT_APPLICATION_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Applications");
+const char QT_APPLICATION_WIZARD_CATEGORY[] = "F.Application";
+const char QT_APPLICATION_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Application");
 
-const char LIBRARIES_WIZARD_CATEGORY[] = "G.Libraries";
-const char LIBRARIES_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Libraries");
+const char LIBRARIES_WIZARD_CATEGORY[] = "G.Library";
+const char LIBRARIES_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Library");
 
 const char IMPORT_WIZARD_CATEGORY[] = "T.Import";
 const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Import Project");
