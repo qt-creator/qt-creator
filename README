@@ -49,7 +49,7 @@ http://qt-project.org/wiki/Building_Qt_5_from_Git .
        plan to contribute to Qt Creator, you should compile your changes with
        both compilers.
 
-   2.  Install msysGit from http://code.google.com/p/msysgit/. If you plan to
+   2.  Install msysGit from https://msysgit.github.io/. If you plan to
        use the MinGW compiler suite, do not choose to put git in the
        default path of Windows command prompts. For more information, see
        step 9.
