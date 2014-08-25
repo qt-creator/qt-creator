@@ -100,6 +100,7 @@
 #include <QXmlStreamReader>
 #ifdef WITH_TESTS
 #include <QTest>
+#include <coreplugin/vcsmanager.h>
 #endif
 
 using namespace Core;
@@ -2347,10 +2348,11 @@ public:
         m_editor(0)
     {
         ClearCasePlugin::instance()->setFakeCleartool(true);
+        Core::VcsManager::instance()->clearVersionControlCache();
+
         Utils::FileSaver srcSaver(fileName);
         srcSaver.write(QByteArray());
         srcSaver.finalize();
-
         m_editor = Core::EditorManager::openEditor(fileName);
 
         QCoreApplication::processEvents(); // process any pending events
