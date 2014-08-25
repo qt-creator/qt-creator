@@ -99,7 +99,6 @@ private:
     ProcessParameters m_param;
     bool m_ignoreReturnValue;
     Utils::QtcProcess *m_process;
-    QEventLoop *m_eventLoop;
     ProjectExplorer::IOutputParser *m_outputParserChain;
     bool m_killProcess;
     bool m_skipFlush;
