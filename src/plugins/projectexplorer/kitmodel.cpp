@@ -105,10 +105,12 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
 
     connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
             this, SLOT(addKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
-            this, SLOT(removeKit(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(updateKit(ProjectExplorer::Kit*)));
     connect(KitManager::instance(), SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
             this, SLOT(updateKit(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
+            this, SLOT(removeKit(ProjectExplorer::Kit*)));
     connect(KitManager::instance(), SIGNAL(defaultkitChanged()),
             this, SLOT(changeDefaultKit()));
 }
@@ -276,6 +278,25 @@ void KitModel::setDirty()
     }
 }
 
+void KitModel::validateKitNames()
+{
+    QList<KitNode *> nodes = m_manualRoot->childNodes;
+    nodes << m_autoRoot->childNodes;
+    QHash<QString, int> nameHash;
+    foreach (KitNode *n, nodes) {
+        const QString displayName = n->widget->displayName();
+        if (nameHash.contains(displayName))
+            ++nameHash[displayName];
+        else
+            nameHash.insert(displayName, 1);
+    }
+
+    foreach (KitNode *n, nodes) {
+        const QString displayName = n->widget->displayName();
+        n->widget->setHasUniqueName(nameHash.value(displayName) == 1);
+    }
+}
+
 void KitModel::apply()
 {
     // Remove unused kits:
@@ -286,8 +307,6 @@ void KitModel::apply()
     }
 
     // Update kits:
-    bool unique = KitManager::setKeepDisplayNameUnique(false);
-    m_keepUnique = false;
     nodes = m_autoRoot->childNodes; // These can be dirty due to being made default!
     nodes.append(m_manualRoot->childNodes);
     foreach (KitNode *n, nodes) {
@@ -298,8 +317,6 @@ void KitModel::apply()
             emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
         }
     }
-    m_keepUnique = unique;
-    KitManager::setKeepDisplayNameUnique(unique);
 }
 
 void KitModel::markForRemoval(Kit *k)
@@ -350,12 +367,6 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     endInsertRows();
 
     return k;
-}
-
-QString KitModel::findNameFor(Kit *k)
-{
-    QList<Kit *> kits = kitList(m_root);
-    return KitManager::uniqueKitName(k, kits);
 }
 
 QModelIndex KitModel::index(KitNode *node, int column) const
@@ -428,6 +439,13 @@ void KitModel::addKit(Kit *k)
     createNode(parent, k);
     endInsertRows();
 
+    validateKitNames();
+    emit kitStateChanged();
+}
+
+void KitModel::updateKit(Kit *k)
+{
+    validateKitNames();
     emit kitStateChanged();
 }
 
@@ -464,13 +482,8 @@ void KitModel::removeKit(Kit *k)
     endRemoveRows();
     delete node;
 
+    validateKitNames();
     emit kitStateChanged();
-}
-
-void KitModel::updateKit(Kit *k)
-{
-    if (m_keepUnique)
-        k->setUnexpandedDisplayName(findNameFor(k));
 }
 
 void KitModel::changeDefaultKit()

@@ -107,14 +107,13 @@ public:
 
     Kit *m_defaultKit;
     bool m_initialized;
-    bool m_keepDisplayNameUnique;
     QList<KitInformation *> m_informationList;
     QList<Kit *> m_kitList;
     Utils::PersistentSettingsWriter *m_writer;
 };
 
 KitManagerPrivate::KitManagerPrivate() :
-    m_defaultKit(0), m_initialized(false), m_keepDisplayNameUnique(true), m_writer(0)
+    m_defaultKit(0), m_initialized(false), m_writer(0)
 { }
 
 KitManagerPrivate::~KitManagerPrivate()
@@ -153,13 +152,6 @@ KitManager::KitManager(QObject *parent) :
             this, SIGNAL(kitsChanged()));
     connect(this, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
             this, SIGNAL(kitsChanged()));
-}
-
-bool KitManager::setKeepDisplayNameUnique(bool unique)
-{
-    bool current = d->m_keepDisplayNameUnique;
-    d->m_keepDisplayNameUnique = unique;
-    return current;
 }
 
 void KitManager::restoreKits()
@@ -477,45 +469,6 @@ void KitManager::deleteKit(Kit *k)
     delete k;
 }
 
-QString KitManager::uniqueKitName(const Kit *k, const QList<Kit *> &allKits)
-{
-    QStringList nameList;
-    nameList << QString(); // Disallow empty kit names!
-    foreach (Kit *tmp, allKits) {
-        if (tmp == k)
-            continue;
-        nameList.append(tmp->candidateNameList(tmp->displayName()));
-    }
-
-    const QString dn = k->displayName();
-    const QString udn = k->unexpandedDisplayName();
-
-    QString uniqueName = Project::makeUnique(dn, nameList);
-    if (uniqueName == dn)
-        return udn;
-
-    QStringList candidateNames = k->candidateNameList(udn);
-    foreach (const QString &candidate, candidateNames) {
-        QString expandedCandidate = Utils::expandMacros(candidate, k->macroExpander());
-        if (!nameList.contains(expandedCandidate))
-            return candidate;
-    }
-
-    return udn + uniqueName.mid(dn.count());
-}
-
-void KitManager::notifyAboutDisplayNameChange(Kit *k)
-{
-    if (!k)
-        return;
-    if (d->m_kitList.contains(k) && d->m_keepDisplayNameUnique)
-        k->setUnexpandedDisplayName(uniqueKitName(k, kits()));
-    int pos = d->m_kitList.indexOf(k);
-    if (pos >= 0 && d->m_initialized)
-        d->moveKit(pos);
-    notifyAboutUpdate(k);
-}
-
 void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 {
     if (!k || !isLoaded())
@@ -538,8 +491,6 @@ bool KitManager::registerKit(ProjectExplorer::Kit *k)
 
     if (kits().contains(k))
         return false;
-
-    k->setUnexpandedDisplayName(uniqueKitName(k, kits()));
 
     // make sure we have all the information in our kits:
     m_instance->addKit(k);

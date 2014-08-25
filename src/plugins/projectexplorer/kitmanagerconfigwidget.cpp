@@ -32,6 +32,7 @@
 
 #include "kit.h"
 #include "kitmanager.h"
+#include "task.h"
 
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
@@ -62,7 +63,8 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     m_fileSystemFriendlyNameLineEdit(new QLineEdit),
     m_kit(k),
     m_modifiedKit(new Kit(Core::Id(WORKING_COPY_KIT_ID))),
-    m_fixingKit(false)
+    m_fixingKit(false),
+    m_hasUniqueName(true)
 {
     static const Qt::Alignment alignment
             = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
@@ -182,12 +184,17 @@ bool KitManagerConfigWidget::isValid() const
 
 bool KitManagerConfigWidget::hasWarning() const
 {
-    return m_modifiedKit->hasWarning();
+    return m_modifiedKit->hasWarning() || !m_hasUniqueName;
 }
 
 QString KitManagerConfigWidget::validityMessage() const
 {
-    return m_modifiedKit->toHtml();
+    QList<Task> tmp;
+    if (!m_hasUniqueName) {
+        tmp.append(Task(Task::Warning, tr("Display name is not unique."), Utils::FileName(), -1,
+                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
+    }
+    return m_modifiedKit->toHtml(tmp);
 }
 
 void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *widget)
@@ -232,6 +239,11 @@ void KitManagerConfigWidget::updateVisibility()
             widget->buttonWidget()->setVisible(visible);
         m_labels.at(i)->setVisible(visible);
     }
+}
+
+void KitManagerConfigWidget::setHasUniqueName(bool unique)
+{
+    m_hasUniqueName = unique;
 }
 
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()

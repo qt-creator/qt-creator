@@ -104,20 +104,17 @@ public:
         m_id(id),
         m_nestedBlockingLevel(0),
         m_autodetected(false),
-        m_autoDetectionSource(QString()),
         m_sdkProvided(false),
         m_isValid(true),
         m_hasWarning(false),
         m_hasValidityInfo(false),
         m_mustNotify(false),
-        m_mustNotifyAboutDisplayName(false),
         m_macroExpander(0)
     {
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
 
         m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
-        m_previousDisplayName = m_displayName;
         m_iconPath = Utils::FileName::fromLatin1(":///DESKTOP///");
 
         QList<Utils::AbstractMacroExpander *> expanders;
@@ -133,25 +130,17 @@ public:
     ~KitPrivate()
     { delete m_macroExpander; }
 
-    void updatePreviousDisplayName()
-    {
-        QTC_ASSERT(m_macroExpander, return);
-        m_previousDisplayName = Utils::expandMacros(m_displayName, m_macroExpander);
-    }
-
     QString m_displayName;
-    QString m_previousDisplayName;
     QString m_fileSystemFriendlyName;
+    QString m_autoDetectionSource;
     Id m_id;
     int m_nestedBlockingLevel;
     bool m_autodetected;
-    QString m_autoDetectionSource;
     bool m_sdkProvided;
     bool m_isValid;
     bool m_hasWarning;
     bool m_hasValidityInfo;
     bool m_mustNotify;
-    bool m_mustNotifyAboutDisplayName;
     QIcon m_icon;
     Utils::FileName m_iconPath;
 
@@ -174,7 +163,6 @@ Kit::Kit(Core::Id id) :
         d->m_data.insert(sti->id(), sti->defaultValue(this));
 
     d->m_icon = icon(d->m_iconPath);
-    d->updatePreviousDisplayName();
 }
 
 Kit::Kit(const QVariantMap &data) :
@@ -212,8 +200,6 @@ Kit::Kit(const QVariantMap &data) :
     QStringList stickyInfoList = data.value(QLatin1String(STICKY_INFO_KEY)).toStringList();
     foreach (const QString &stickyInfo, stickyInfoList)
         d->m_sticky.insert(Core::Id::fromString(stickyInfo));
-
-    d->updatePreviousDisplayName();
 }
 
 Kit::~Kit()
@@ -231,12 +217,9 @@ void Kit::unblockNotification()
     --d->m_nestedBlockingLevel;
     if (d->m_nestedBlockingLevel > 0)
         return;
-    if (d->m_mustNotifyAboutDisplayName)
-        kitDisplayNameChanged();
-    else if (d->m_mustNotify)
-        kitUpdated();
+
+    kitUpdated();
     d->m_mustNotify = false;
-    d->m_mustNotifyAboutDisplayName = false;
 }
 
 Kit *Kit::clone(bool keepName) const
@@ -255,7 +238,6 @@ Kit *Kit::clone(bool keepName) const
     k->d->m_iconPath = d->m_iconPath;
     k->d->m_sticky = d->m_sticky;
     k->d->m_mutable = d->m_mutable;
-    k->d->updatePreviousDisplayName();
     return k;
 }
 
@@ -270,10 +252,8 @@ void Kit::copyFrom(const Kit *k)
     d->m_displayName = k->d->m_displayName;
     d->m_fileSystemFriendlyName = k->d->m_fileSystemFriendlyName;
     d->m_mustNotify = true;
-    d->m_mustNotifyAboutDisplayName = false;
     d->m_sticky = k->d->m_sticky;
     d->m_mutable = k->d->m_mutable;
-    d->updatePreviousDisplayName();
 }
 
 bool Kit::isValid() const
@@ -360,8 +340,7 @@ void Kit::setUnexpandedDisplayName(const QString &name)
         return;
 
     d->m_displayName = name;
-    d->updatePreviousDisplayName();
-    kitDisplayNameChanged();
+    kitUpdated();
 }
 
 QStringList Kit::candidateNameList(const QString &base) const
@@ -576,7 +555,7 @@ IOutputParser *Kit::createOutputParser() const
     return first;
 }
 
-QString Kit::toHtml() const
+QString Kit::toHtml(const QList<Task> &additional) const
 {
     QString rc;
     QTextStream str(&rc);
@@ -584,8 +563,9 @@ QString Kit::toHtml() const
     str << "<h3>" << displayName() << "</h3>";
     str << "<table>";
 
-    if (!isValid() || hasWarning()) {
-        QList<Task> issues = validate();
+    if (!isValid() || hasWarning() || !additional.isEmpty()) {
+        QList<Task> issues = additional;
+        issues.append(validate());
         str << "<p>";
         foreach (const Task &t, issues) {
             str << "<b>";
@@ -712,28 +692,11 @@ Utils::AbstractMacroExpander *Kit::macroExpander() const
 void Kit::kitUpdated()
 {
     if (d->m_nestedBlockingLevel > 0) {
-        if (!d->m_mustNotifyAboutDisplayName)
-            d->m_mustNotify = true;
+        d->m_mustNotify = true;
         return;
     }
     d->m_hasValidityInfo = false;
-    if (displayName() != d->m_previousDisplayName) {
-        d->updatePreviousDisplayName();
-        KitManager::notifyAboutDisplayNameChange(this);
-    } else {
-        KitManager::notifyAboutUpdate(this);
-    }
-}
-
-void Kit::kitDisplayNameChanged()
-{
-    if (d->m_nestedBlockingLevel > 0) {
-        d->m_mustNotifyAboutDisplayName = true;
-        d->m_mustNotify = false;
-        return;
-    }
-    d->m_hasValidityInfo = false;
-    KitManager::notifyAboutDisplayNameChange(this);
+    KitManager::notifyAboutUpdate(this);
 }
 
 } // namespace ProjectExplorer

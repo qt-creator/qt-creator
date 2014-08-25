@@ -144,8 +144,6 @@ public:
 
     static void deleteKit(Kit *k);
 
-    static QString uniqueKitName(const Kit *k, const QList<Kit *> &allKits);
-
     static bool registerKit(ProjectExplorer::Kit *k);
     static void deregisterKit(ProjectExplorer::Kit *k);
     static void setDefaultKit(ProjectExplorer::Kit *k);
@@ -177,8 +175,6 @@ signals:
 private:
     explicit KitManager(QObject *parent = 0);
 
-    static bool setKeepDisplayNameUnique(bool unique);
-
     // Make sure the this is only called after all
     // KitInformation are registered!
     void restoreKits();
@@ -192,7 +188,6 @@ private:
     };
     KitList restoreKits(const Utils::FileName &fileName);
 
-    static void notifyAboutDisplayNameChange(ProjectExplorer::Kit *k);
     static void notifyAboutUpdate(ProjectExplorer::Kit *k);
     void addKit(Kit *k);
 

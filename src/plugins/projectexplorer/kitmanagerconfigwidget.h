@@ -72,6 +72,8 @@ public:
     void removeKit();
     void updateVisibility();
 
+    void setHasUniqueName(bool unique);
+
 signals:
     void dirty();
 
@@ -103,6 +105,7 @@ private:
     Kit *m_modifiedKit;
     bool m_isDefaultKit;
     bool m_fixingKit;
+    bool m_hasUniqueName;
     QPixmap m_background;
     QList<QAction *> m_actions;
 };

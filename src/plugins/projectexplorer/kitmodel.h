@@ -86,17 +86,16 @@ public:
     void markForRemoval(Kit *k);
     Kit *markForAddition(Kit *baseKit);
 
-    QString findNameFor(Kit *k);
-
 signals:
     void kitStateChanged();
 
 private slots:
     void addKit(ProjectExplorer::Kit *k);
+    void updateKit(ProjectExplorer::Kit *k);
     void removeKit(ProjectExplorer::Kit *k);
-    void updateKit(ProjectExplorer::Kit*);
     void changeDefaultKit();
     void setDirty();
+    void validateKitNames();
 
 private:
     QModelIndex index(KitNode *, int column = 0) const;

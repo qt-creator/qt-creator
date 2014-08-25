@@ -108,7 +108,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const;
     IOutputParser *createOutputParser() const;
 
-    QString toHtml() const;
+    QString toHtml(const QList<Task> &additional = QList<Task>()) const;
     Kit *clone(bool keepName = false) const;
     void copyFrom(const Kit *k);
 
