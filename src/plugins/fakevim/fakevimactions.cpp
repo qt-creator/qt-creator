@@ -29,6 +29,7 @@
 
 #include "fakevimactions.h"
 #include "fakevimhandler.h"
+#include "fakevimtr.h"
 
 // Please do not add any direct dependencies to other Qt Creator code  here.
 // Instead emit signals and let the FakeVimPlugin channel the information to
@@ -39,8 +40,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QObject>
-#include <QCoreApplication>
 
 #ifdef FAKEVIM_STANDALONE
 using namespace FakeVim::Internal::Utils;
@@ -150,15 +149,15 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
 {
     int code = m_nameToCode.value(name, -1);
     if (code == -1)
-        return FakeVimHandler::tr("Unknown option: %1").arg(name);
+        return Tr::tr("Unknown option: %1").arg(name);
     if (code == ConfigTabStop || code == ConfigShiftWidth) {
         if (value.toInt() <= 0)
-            return FakeVimHandler::tr("Argument must be positive: %1=%2")
+            return Tr::tr("Argument must be positive: %1=%2")
                     .arg(name).arg(value);
     }
     SavedAction *act = item(code);
     if (!act)
-        return FakeVimHandler::tr("Unknown option: %1").arg(name);
+        return Tr::tr("Unknown option: %1").arg(name);
     act->setValue(value);
     return QString();
 }
@@ -191,12 +190,9 @@ FakeVimSettings *theFakeVimSettings()
     createAction(s, ConfigVimRcPath,  QString(), _("VimRcPath"));
 #ifndef FAKEVIM_STANDALONE
     createAction(s, ConfigUseFakeVim, false,     _("UseFakeVim"));
-    s->item(ConfigUseFakeVim)->setText(QCoreApplication::translate("FakeVim::Internal",
-        "Use Vim-style Editing"));
-    s->item(ConfigReadVimRc)->setText(QCoreApplication::translate("FakeVim::Internal",
-        "Read .vimrc"));
-    s->item(ConfigVimRcPath)->setText(QCoreApplication::translate("FakeVim::Internal",
-        "Path to .vimrc"));
+    s->item(ConfigUseFakeVim)->setText(Tr::tr("Use Vim-style Editing"));
+    s->item(ConfigReadVimRc)->setText(Tr::tr("Read .vimrc"));
+    s->item(ConfigVimRcPath)->setText(Tr::tr("Path to .vimrc"));
 #endif
     createAction(s, ConfigShowMarks,      false, _("ShowMarks"),      _("sm"));
     createAction(s, ConfigPassControlKey, false, _("PassControlKey"), _("pck"));

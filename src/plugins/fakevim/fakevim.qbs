@@ -21,6 +21,7 @@ QtcPlugin {
         "fakevimoptions.ui",
         "fakevimplugin.cpp",
         "fakevimplugin.h",
+        "fakevimtr.h",
     ]
 
     Group {

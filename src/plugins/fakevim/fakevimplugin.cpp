@@ -31,6 +31,7 @@
 
 #include "fakevimactions.h"
 #include "fakevimhandler.h"
+#include "fakevimtr.h"
 #include "ui_fakevimoptions.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -373,9 +374,9 @@ public:
     FakeVimOptionPage()
     {
         setId(SETTINGS_ID);
-        setDisplayName(tr("General"));
+        setDisplayName(Tr::tr("General"));
         setCategory(SETTINGS_CATEGORY);
-        setDisplayCategory(tr("FakeVim"));
+        setDisplayCategory(Tr::tr("FakeVim"));
         setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
@@ -404,9 +405,9 @@ QWidget *FakeVimOptionPage::widget()
         const QString vimrcDefault = Utils::HostOsInfo::isAnyUnixHost() ?
                     QLatin1String("$HOME/.vimrc") : QLatin1String("%USERPROFILE%\\_vimrc");
         m_ui.pathChooserVimRcPath->setExpectedKind(Utils::PathChooser::File);
-        m_ui.pathChooserVimRcPath->lineEdit()->setToolTip(tr("Keep empty to use the default path, i.e. "
+        m_ui.pathChooserVimRcPath->lineEdit()->setToolTip(Tr::tr("Keep empty to use the default path, i.e. "
                                                              "%USERPROFILE%\\_vimrc on Windows, ~/.vimrc otherwise."));
-        m_ui.pathChooserVimRcPath->lineEdit()->setPlaceholderText(tr("Default: %1").arg(vimrcDefault));
+        m_ui.pathChooserVimRcPath->lineEdit()->setPlaceholderText(Tr::tr("Default: %1").arg(vimrcDefault));
 
         m_group.clear();
         m_group.insert(theFakeVimSetting(ConfigUseFakeVim),
@@ -553,9 +554,9 @@ public:
         : m_q(q)
     {
         setId(SETTINGS_EX_CMDS_ID);
-        setDisplayName(tr("Ex Command Mapping"));
+        setDisplayName(Tr::tr("Ex Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
-        setDisplayCategory(tr("FakeVim"));
+        setDisplayCategory(Tr::tr("FakeVim"));
         setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
@@ -578,10 +579,10 @@ private:
 QWidget *FakeVimExCommandsPage::widget()
 {
     QWidget *w = CommandMappings::widget();
-    setPageTitle(tr("Ex Command Mapping"));
-    setTargetHeader(tr("Ex Trigger Expression"));
-    setTargetLabelText(tr("Regular expression:"));
-    setTargetEditTitle(tr("Ex Command"));
+    setPageTitle(Tr::tr("Ex Command Mapping"));
+    setTargetHeader(Tr::tr("Ex Trigger Expression"));
+    setTargetLabelText(Tr::tr("Regular expression:"));
+    setTargetEditTitle(Tr::tr("Ex Command"));
     setImportExportEnabled(false);
     return w;
 }
@@ -728,8 +729,8 @@ QVariant FakeVimUserCommandsModel::headerData(int section,
 {
     if (orient == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-            case 0: return tr("Action");
-            case 1: return tr("Command");
+            case 0: return Tr::tr("Action");
+            case 1: return Tr::tr("Command");
         };
     }
     return QVariant();
@@ -775,9 +776,9 @@ public:
         : m_q(q)
     {
         setId(SETTINGS_USER_CMDS_ID);
-        setDisplayName(tr("User Command Mapping"));
+        setDisplayName(Tr::tr("User Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
-        setDisplayCategory(tr("FakeVim"));
+        setDisplayCategory(Tr::tr("FakeVim"));
         setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
@@ -1094,7 +1095,7 @@ QVariant FakeVimUserCommandsModel::data(const QModelIndex &index, int role) cons
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         switch (index.column()) {
         case 0: // Action
-            return tr("User command #%1").arg(index.row() + 1);
+            return Tr::tr("User command #%1").arg(index.row() + 1);
         case 1: // Command
             return m_q->userCommandMap().value(index.row() + 1);
         }
@@ -1202,7 +1203,7 @@ bool FakeVimPluginPrivate::initialize()
     Command *cmd = 0;
     cmd = ActionManager::registerAction(theFakeVimSetting(ConfigUseFakeVim),
         INSTALL_HANDLER, globalcontext, true);
-    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+V,Meta+V") : tr("Alt+V,Alt+V")));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? Tr::tr("Meta+V,Meta+V") : Tr::tr("Alt+V,Alt+V")));
 
     ActionContainer *advancedMenu =
         ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
@@ -1211,10 +1212,10 @@ bool FakeVimPluginPrivate::initialize()
     const Id base = "FakeVim.UserAction";
     for (int i = 1; i < 10; ++i) {
         QAction *act = new QAction(this);
-        act->setText(tr("Execute User Action #%1").arg(i));
+        act->setText(Tr::tr("Execute User Action #%1").arg(i));
         act->setData(i);
         cmd = ActionManager::registerAction(act, base.withSuffix(i), globalcontext);
-        cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Meta+V,%1") : tr("Alt+V,%1")).arg(i)));
+        cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? Tr::tr("Meta+V,%1") : Tr::tr("Alt+V,%1")).arg(i)));
         connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
     }
 
@@ -1981,13 +1982,13 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             QFile file3(fileName);
             file3.open(QIODevice::ReadOnly);
             QByteArray ba = file3.readAll();
-            handler->showMessage(MessageInfo, FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
+            handler->showMessage(MessageInfo, Tr::tr("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(QLatin1Char(' '))
                 .arg(ba.count('\n')).arg(ba.size()));
             if (cmd.cmd == _("wq"))
                 delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
         } else {
-            handler->showMessage(MessageError, tr("File not saved"));
+            handler->showMessage(MessageError, Tr::tr("File not saved"));
         }
     } else if (cmd.matches(_("wa"), _("wall"))) {
         // :w[all]
@@ -1995,9 +1996,9 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         QList<IDocument *> failed;
         bool success = DocumentManager::saveModifiedDocuments(toSave, QString(), 0, QString(), 0, &failed);
         if (!success)
-            handler->showMessage(MessageInfo, tr("Saving succeeded"));
+            handler->showMessage(MessageInfo, Tr::tr("Saving succeeded"));
         else
-            handler->showMessage(MessageError, tr("%n files not saved", 0, failed.size()));
+            handler->showMessage(MessageError, Tr::tr("%n files not saved", 0, failed.size()));
     } else if (cmd.matches(_("q"), _("quit"))) {
         // :q[uit]
         emit delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
