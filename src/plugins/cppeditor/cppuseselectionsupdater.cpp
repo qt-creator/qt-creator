@@ -36,6 +36,7 @@
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
 
 #include <cplusplus/Macro.h>
@@ -119,8 +120,19 @@ QTextEdit::ExtraSelection extraSelection(const QTextCharFormat &format, const QT
     return selection;
 }
 
-struct Params
+class Params
 {
+public:
+    Params(const QTextCursor &textCursor, const Document::Ptr document, const Snapshot &snapshot)
+        : document(document), snapshot(snapshot)
+    {
+        TextEditor::Convenience::convertPosition(textCursor.document(), textCursor.position(),
+                                                 &line, &column);
+        CppEditor::Internal::CanonicalSymbol canonicalSymbol(document, snapshot);
+        scope = canonicalSymbol.getScopeAndExpression(textCursor, &expression);
+    }
+
+public:
     // Shared
     Document::Ptr document;
 
@@ -239,7 +251,7 @@ void CppUseSelectionsUpdater::abortSchedule()
     m_timer.stop();
 }
 
-void CppUseSelectionsUpdater::update()
+void CppUseSelectionsUpdater::update(CallType callType)
 {
     CppEditorWidget *cppEditorWidget = qobject_cast<CppEditorWidget *>(m_editorWidget);
     QTC_ASSERT(cppEditorWidget, return);
@@ -255,14 +267,15 @@ void CppUseSelectionsUpdater::update()
     QTC_ASSERT(document->translationUnit()->ast(), return);
     QTC_ASSERT(!snapshot.isEmpty(), return);
 
-    QTextCursor textCursor = m_editorWidget->textCursor();
-
-    if (handleMacroCase(textCursor, document)) {
+    if (handleMacroCase(document)) {
         emit finished(CppTools::SemanticInfo::LocalUseMap());
         return;
     }
 
-    handleSymbolCase(textCursor, document, snapshot);
+    if (callType == Asynchronous)
+        handleSymbolCaseAsynchronously(document, snapshot);
+    else
+        handleSymbolCaseSynchronously(document, snapshot);
 }
 
 void CppUseSelectionsUpdater::onFindUsesFinished()
@@ -276,39 +289,16 @@ void CppUseSelectionsUpdater::onFindUsesFinished()
     if (m_findUsesCursorPosition != m_editorWidget->position())
         return;
 
-    const UseSelectionsResult result = m_findUsesWatcher->result();
-    const bool hasUsesForLocalVariable = !result.selectionsForLocalVariableUnderCursor.isEmpty();
-    const bool hasReferences = !result.references.isEmpty();
-
-    ExtraSelections localVariableSelections;
-    if (hasUsesForLocalVariable) {
-        localVariableSelections = toExtraSelections(result.selectionsForLocalVariableUnderCursor,
-                                                    TextEditor::C_OCCURRENCES);
-        updateUseSelections(localVariableSelections);
-    } else if (hasReferences) {
-        const ExtraSelections selections = toExtraSelections(result.references,
-                                                             TextEditor::C_OCCURRENCES);
-        updateUseSelections(selections);
-    } else {
-        if (!currentUseSelections().isEmpty())
-            updateUseSelections(ExtraSelections());
-    }
-
-    updateUnusedSelections(toExtraSelections(result.selectionsForLocalUnusedVariables,
-                                             TextEditor::C_OCCURRENCES_UNUSED));
+    processSymbolCaseResults(m_findUsesWatcher->result());
 
     m_findUsesWatcher.reset();
     m_document.reset();
     m_snapshot = Snapshot();
-
-    emit selectionsForVariableUnderCursorUpdated(localVariableSelections);
-    emit finished(result.localUses);
 }
 
-bool CppUseSelectionsUpdater::handleMacroCase(const QTextCursor &textCursor,
-                                              const Document::Ptr document)
+bool CppUseSelectionsUpdater::handleMacroCase(const Document::Ptr document)
 {
-    const Macro *macro = CppTools::findCanonicalMacro(textCursor, document);
+    const Macro *macro = CppTools::findCanonicalMacro(m_editorWidget->textCursor(), document);
     if (!macro)
         return false;
 
@@ -345,9 +335,8 @@ bool CppUseSelectionsUpdater::handleMacroCase(const QTextCursor &textCursor,
     return true;
 }
 
-void CppUseSelectionsUpdater::handleSymbolCase(const QTextCursor &textCursor,
-                                               const Document::Ptr document,
-                                               const Snapshot &snapshot)
+void CppUseSelectionsUpdater::handleSymbolCaseAsynchronously(const Document::Ptr document,
+                                                             const Snapshot &snapshot)
 {
     m_document = document;
     m_snapshot = snapshot;
@@ -360,14 +349,42 @@ void CppUseSelectionsUpdater::handleSymbolCase(const QTextCursor &textCursor,
     m_findUsesRevision = textDocument()->revision();
     m_findUsesCursorPosition = m_editorWidget->position();
 
-    Params params;
-    params.document = document;
-    m_editorWidget->convertPosition(m_findUsesCursorPosition, &params.line, &params.column);
-    CanonicalSymbol canonicalSymbol(document, snapshot);
-    params.scope = canonicalSymbol.getScopeAndExpression(textCursor, &params.expression);
-    params.snapshot = snapshot;
-
+    const Params params = Params(m_editorWidget->textCursor(), document, snapshot);
     m_findUsesWatcher->setFuture(QtConcurrent::run(&findUses, params));
+}
+
+void CppUseSelectionsUpdater::handleSymbolCaseSynchronously(const Document::Ptr document,
+                                                            const Snapshot &snapshot)
+{
+    const Params params = Params(m_editorWidget->textCursor(), document, snapshot);
+    const UseSelectionsResult result = findUses(params);
+    processSymbolCaseResults(result);
+}
+
+void CppUseSelectionsUpdater::processSymbolCaseResults(const UseSelectionsResult &result)
+{
+    const bool hasUsesForLocalVariable = !result.selectionsForLocalVariableUnderCursor.isEmpty();
+    const bool hasReferences = !result.references.isEmpty();
+
+    ExtraSelections localVariableSelections;
+    if (hasUsesForLocalVariable) {
+        localVariableSelections = toExtraSelections(result.selectionsForLocalVariableUnderCursor,
+                                                    TextEditor::C_OCCURRENCES);
+        updateUseSelections(localVariableSelections);
+    } else if (hasReferences) {
+        const ExtraSelections selections = toExtraSelections(result.references,
+                                                             TextEditor::C_OCCURRENCES);
+        updateUseSelections(selections);
+    } else {
+        if (!currentUseSelections().isEmpty())
+            updateUseSelections(ExtraSelections());
+    }
+
+    updateUnusedSelections(toExtraSelections(result.selectionsForLocalUnusedVariables,
+                                             TextEditor::C_OCCURRENCES_UNUSED));
+
+    emit selectionsForVariableUnderCursorUpdated(localVariableSelections);
+    emit finished(result.localUses);
 }
 
 ExtraSelections CppUseSelectionsUpdater::toExtraSelections(const SemanticUses &uses,

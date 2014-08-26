@@ -133,7 +133,8 @@ private slots:
     void onIfdefedOutBlocksUpdated(unsigned revision,
                                    const QList<TextEditor::BlockRange> ifdefedOutBlocks);
 
-    void updateSemanticInfo(const CppTools::SemanticInfo &semanticInfo);
+    void updateSemanticInfo(const CppTools::SemanticInfo &semanticInfo,
+                            bool updateUseSelectionSynchronously = false);
     void updatePreprocessorButtonTooltip();
 
     void performQuickFix(int index);

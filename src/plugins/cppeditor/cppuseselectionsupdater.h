@@ -68,10 +68,12 @@ class CppUseSelectionsUpdater : public QObject
 public:
     explicit CppUseSelectionsUpdater(TextEditor::BaseTextEditorWidget *editorWidget);
 
+    enum CallType { Synchronous, Asynchronous };
+
 public slots:
     void scheduleUpdate();
     void abortSchedule();
-    void update();
+    void update(CallType callType = Asynchronous);
 
 signals:
     void finished(CppTools::SemanticInfo::LocalUseMap localUses);
@@ -83,11 +85,13 @@ private slots:
 private:
     CppUseSelectionsUpdater();
 
-    bool handleMacroCase(const QTextCursor &textCursor,
-                         const CPlusPlus::Document::Ptr document);
-    void handleSymbolCase(const QTextCursor &textCursor,
-                          const CPlusPlus::Document::Ptr document,
-                          const CPlusPlus::Snapshot &snapshot);
+    bool handleMacroCase(const CPlusPlus::Document::Ptr document);
+    void handleSymbolCaseAsynchronously(const CPlusPlus::Document::Ptr document,
+                                        const CPlusPlus::Snapshot &snapshot);
+    void handleSymbolCaseSynchronously(const CPlusPlus::Document::Ptr document,
+                                       const CPlusPlus::Snapshot &snapshot);
+
+    void processSymbolCaseResults(const UseSelectionsResult &result);
 
     ExtraSelections toExtraSelections(const SemanticUses &uses, TextEditor::TextStyle style) const;
     ExtraSelections toExtraSelections(const QList<int> &references,

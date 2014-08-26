@@ -342,21 +342,12 @@ void CppEditorWidget::renameUsages(const QString &replacement)
 
 void CppEditorWidget::renameSymbolUnderCursor()
 {
-    updateSemanticInfo(d->m_cppEditorDocument->recalculateSemanticInfo());
-
     d->m_useSelectionsUpdater.abortSchedule();
+    updateSemanticInfo(d->m_cppEditorDocument->recalculateSemanticInfo(),
+                       /*updateUseSelectionSynchronously=*/ true);
 
-    // Trigger once the use selections updater is finished and thus has updated
-    // the use selections for the local renaming
-    QSharedPointer<QMetaObject::Connection> connection(new QMetaObject::Connection);
-    *connection.data() = connect(&d->m_useSelectionsUpdater, &CppUseSelectionsUpdater::finished,
-        [this, connection] () {
-            QObject::disconnect(*connection);
-            if (!d->m_localRenaming.start()) // Rename local symbol
-                renameUsages(); // Rename non-local symbol or macro
-        });
-
-    d->m_useSelectionsUpdater.update();
+    if (!d->m_localRenaming.start()) // Rename local symbol
+        renameUsages(); // Rename non-local symbol or macro
 }
 
 void CppEditorWidget::updatePreprocessorButtonTooltip()
@@ -618,15 +609,20 @@ bool CppEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
                                              flags);
 }
 
-void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
+void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
+                                         bool updateUseSelectionSynchronously)
 {
     if (semanticInfo.revision != documentRevision())
         return;
 
     d->m_lastSemanticInfo = semanticInfo;
 
-    if (!d->m_localRenaming.isActive())
-        d->m_useSelectionsUpdater.update();
+    if (!d->m_localRenaming.isActive()) {
+        const CppUseSelectionsUpdater::CallType type = updateUseSelectionSynchronously
+                ? CppUseSelectionsUpdater::Synchronous
+                : CppUseSelectionsUpdater::Asynchronous;
+        d->m_useSelectionsUpdater.update(type);
+    }
 
     // schedule a check for a decl/def link
     updateFunctionDeclDefLink();
