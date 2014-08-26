@@ -30,9 +30,7 @@ Project {
             ? ["@loader_path/" + FileInfo.relativePath(appInstallDir, libInstallDir)]
             : ["$ORIGIN/..", "$ORIGIN/../" + project.ide_library_path]
         property string resourcesInstallDir: project.ide_data_path + "/qbs"
-        property string pluginsInstallDir: qbs.targetOS.contains("windows")
-            ? project.libDirName + "/qtcreator"
-            : project.ide_library_path
+        property string pluginsInstallDir: project.ide_plugin_path
         property string appInstallDir: project.ide_bin_path
         property string relativePluginsPath: FileInfo.relativePath(appInstallDir, pluginsInstallDir)
         property string relativeSearchPath: FileInfo.relativePath(appInstallDir,

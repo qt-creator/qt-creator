@@ -1,7 +1,7 @@
 macx {
-  DESTDIR = $$IDE_LIBRARY_PATH/QmlDesigner
+  DESTDIR = $$IDE_PLUGIN_PATH/QmlDesigner
 } else {
-  DESTDIR = $$IDE_LIBRARY_PATH/qmldesigner
-  target.path  = $$QTC_PREFIX/$$IDE_LIBRARY_BASENAME/qtcreator/qmldesigner
+  DESTDIR = $$IDE_PLUGIN_PATH/qmldesigner
+  target.path  = $$QTC_PREFIX/$$IDE_LIBRARY_BASENAME/qtcreator/plugins/qmldesigner
   INSTALLS    += target
 }

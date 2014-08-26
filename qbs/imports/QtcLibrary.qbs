@@ -19,7 +19,7 @@ QtcProduct {
             flags.push("/INCREMENTAL:NO"); // Speed up startup time when debugging with cdb
         return flags;
     }
-    cpp.installNamePrefix: "@rpath/PlugIns/"
+    cpp.installNamePrefix: "@rpath/Frameworks/"
     cpp.rpaths: qbs.targetOS.contains("osx")
             ? ["@loader_path/..", "@executable_path/.."]
             : ["$ORIGIN", "$ORIGIN/.."]

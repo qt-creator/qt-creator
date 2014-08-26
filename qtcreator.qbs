@@ -20,7 +20,7 @@ Project {
     property string libDirName: "lib"
     property string ide_library_path: {
         if (qbs.targetOS.contains("osx"))
-            return ide_app_target + ".app/Contents/PlugIns"
+            return ide_app_target + ".app/Contents/Frameworks"
         else if (qbs.targetOS.contains("windows"))
             return ide_app_path
         else
@@ -28,7 +28,7 @@ Project {
     }
     property string ide_plugin_path: {
         if (qbs.targetOS.contains("osx"))
-            return ide_library_path
+            return ide_app_target + ".app/Contents/PlugIns"
         else if (qbs.targetOS.contains("windows"))
             return libDirName + "/qtcreator/plugins"
         else

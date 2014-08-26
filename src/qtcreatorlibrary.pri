@@ -12,6 +12,7 @@ win32 {
 
 DESTDIR = $$IDE_LIBRARY_PATH
 
+osx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/Frameworks/
 include(rpath.pri)
 
 TARGET = $$qtLibraryName($$TARGET)

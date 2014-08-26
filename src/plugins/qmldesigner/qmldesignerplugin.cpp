@@ -139,7 +139,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     const QString pluginPath = Utils::HostOsInfo::isMacHost()
             ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
             : QString(QCoreApplication::applicationDirPath() + "/../"
-                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/qmldesigner");
+                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/plugins/qmldesigner");
     data->pluginManager.setPluginPaths(QStringList() << pluginPath);
 
     createDesignModeWidget();

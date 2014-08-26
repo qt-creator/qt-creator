@@ -45,15 +45,15 @@ exists(src/shared/qbs/qbs.pro) {
     QBS_RESOURCES_INSTALL_DIR = $${QTC_PREFIX}/share/qtcreator/qbs
     cache(QBS_RESOURCES_INSTALL_DIR)
     macx {
-        QBS_PLUGINS_BUILD_DIR = $${IDE_LIBRARY_PATH}
-        QBS_APPS_RPATH_DIR = @loader_path/../PlugIns
+        QBS_PLUGINS_BUILD_DIR = $${IDE_PLUGIN_PATH}
+        QBS_APPS_RPATH_DIR = @loader_path/../Frameworks
     } else {
-        QBS_PLUGINS_BUILD_DIR = $${IDE_BUILD_TREE}/$${IDE_LIBRARY_BASENAME}/qtcreator
+        QBS_PLUGINS_BUILD_DIR = $${IDE_BUILD_TREE}/$${IDE_LIBRARY_BASENAME}/qtcreator/plugins
         QBS_APPS_RPATH_DIR = \$\$ORIGIN/../$$IDE_LIBRARY_BASENAME/qtcreator
     }
     cache(QBS_PLUGINS_BUILD_DIR)
     cache(QBS_APPS_RPATH_DIR)
-    QBS_PLUGINS_INSTALL_DIR = $${QTC_PREFIX}/$${IDE_LIBRARY_BASENAME}/qtcreator
+    QBS_PLUGINS_INSTALL_DIR = $${QTC_PREFIX}/$${IDE_LIBRARY_BASENAME}/qtcreator/plugins
     cache(QBS_PLUGINS_INSTALL_DIR)
     QBS_LIBRARY_DIRNAME = $${IDE_LIBRARY_BASENAME}
     cache(QBS_LIBRARY_DIRNAME)
