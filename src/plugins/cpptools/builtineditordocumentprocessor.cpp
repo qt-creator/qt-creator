@@ -137,10 +137,10 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
                             ? new CppTools::SemanticHighlighter(document)
                             : 0)
 {
-    QSharedPointer<Internal::CppCodeModelSettings> cms
-            = Internal::CppToolsPlugin::instance()->codeModelSettings();
-    m_parser->setUsePrecompiledHeaders(
-                cms->pchUsage() != Internal::CppCodeModelSettings::PchUse_None);
+    using namespace Internal;
+
+    QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
+    m_parser->setUsePrecompiledHeaders(cms->pchUsage() != CppCodeModelSettings::PchUse_None);
 
     if (m_semanticHighlighter) {
         m_semanticHighlighter->setHighlightingRunner(
@@ -151,7 +151,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
             });
     }
 
-    connect(cmm(), &Internal::CppModelManager::documentUpdated,
+    connect(cmm(), &CppModelManager::documentUpdated,
             this, &BuiltinEditorDocumentProcessor::onDocumentUpdated);
     connect(&m_semanticInfoUpdater, &SemanticInfoUpdater::updated,
             this, &BuiltinEditorDocumentProcessor::onSemanticInfoUpdated);
