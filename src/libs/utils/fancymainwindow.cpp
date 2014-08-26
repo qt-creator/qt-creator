@@ -254,7 +254,7 @@ public:
     void enterEvent(QEvent *event)
     {
         QApplication::instance()->installEventFilter(this);
-        QDockWidget::leaveEvent(event);
+        QDockWidget::enterEvent(event);
     }
 
     void leaveEvent(QEvent *event)
