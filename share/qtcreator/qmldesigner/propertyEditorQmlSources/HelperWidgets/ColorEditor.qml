@@ -44,9 +44,9 @@ Column {
 
     property alias caption: label.text
 
-    property variant backendendValue
+    property variant backendValue
 
-    property variant value: backendendValue.value
+    property variant value: backendValue.value
 
     property alias gradientPropertyName: gradientLine.gradientPropertyName
 
@@ -58,7 +58,7 @@ Column {
         colorEditor.color = colorEditor.value
     }
 
-    onBackendendValueChanged: {
+    onBackendValueChanged: {
         colorEditor.color = colorEditor.value
     }
 
@@ -68,8 +68,8 @@ Column {
         interval: 100
         running: false
         onTriggered: {
-            if (backendendValue !== undefined)
-                backendendValue.value = colorEditor.color
+            if (backendValue !== undefined)
+                backendValue.value = colorEditor.color
         }
     }
 
@@ -168,7 +168,7 @@ Column {
 
                 showTranslateCheckBox: false
 
-                backendValue: colorEditor.backendendValue
+                backendValue: colorEditor.backendValue
 
                 onAccepted: {
                     colorEditor.color = colorFromString(textField.text)
@@ -177,7 +177,7 @@ Column {
                 onCommitData: {
                     colorEditor.color = colorFromString(textField.text)
                     if (isNotInGradientMode())
-                        backendendValue.value = colorEditor.color
+                        backendValue.value = colorEditor.color
                 }
 
                 Layout.fillWidth: true
@@ -195,7 +195,7 @@ Column {
                 ButtonRowButton {
                     iconSource: "images/icon_color_solid.png"
                     onClicked: {
-                        colorEditor.backendendValue.resetValue()
+                        colorEditor.backendValue.resetValue()
                         gradientLine.deleteGradient()
                     }
                     toolTip: qsTr("Solid Color")
@@ -204,7 +204,7 @@ Column {
                     visible: supportGradient
                     iconSource: "images/icon_color_gradient.png"
                     onClicked: {
-                        colorEditor.backendendValue.resetValue()
+                        colorEditor.backendValue.resetValue()
                         gradientLine.addGradient()
                     }
 
