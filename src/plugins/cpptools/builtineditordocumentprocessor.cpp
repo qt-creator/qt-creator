@@ -131,7 +131,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
         TextEditor::BaseTextDocument *document,
         bool enableSemanticHighlighter)
     : BaseEditorDocumentProcessor(document)
-    , m_parser(new BuiltinEditorDocumentParser(document->filePath()))
+    , m_parser(document->filePath())
     , m_semanticHighlighter(enableSemanticHighlighter
                             ? new CppTools::SemanticHighlighter(document)
                             : 0)
@@ -139,7 +139,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
     using namespace Internal;
 
     QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
-    m_parser->setUsePrecompiledHeaders(cms->pchUsage() != CppCodeModelSettings::PchUse_None);
+    m_parser.setUsePrecompiledHeaders(cms->pchUsage() != CppCodeModelSettings::PchUse_None);
 
     if (m_semanticHighlighter) {
         m_semanticHighlighter->setHighlightingRunner(
@@ -150,7 +150,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
             });
     }
 
-    connect(m_parser.data(), &BuiltinEditorDocumentParser::finished,
+    connect(&m_parser, &BuiltinEditorDocumentParser::finished,
             this, &BuiltinEditorDocumentProcessor::onParserFinished);
     connect(&m_semanticInfoUpdater, &SemanticInfoUpdater::updated,
             this, &BuiltinEditorDocumentProcessor::onSemanticInfoUpdated);
@@ -169,7 +169,7 @@ void BuiltinEditorDocumentProcessor::run()
 
 BaseEditorDocumentParser *BuiltinEditorDocumentProcessor::parser()
 {
-    return m_parser.data();
+    return &m_parser;
 }
 
 void BuiltinEditorDocumentProcessor::semanticRehighlight(bool force)
@@ -187,13 +187,6 @@ SemanticInfo BuiltinEditorDocumentProcessor::recalculateSemanticInfo()
 bool BuiltinEditorDocumentProcessor::isParserRunning() const
 {
     return m_parserFuture.isRunning();
-}
-
-BuiltinEditorDocumentProcessor *BuiltinEditorDocumentProcessor::get(const QString &filePath)
-{
-    if (BaseEditorDocumentProcessor *b = BaseEditorDocumentProcessor::get(filePath))
-        return qobject_cast<BuiltinEditorDocumentProcessor *>(b);
-    return 0;
 }
 
 void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr document,

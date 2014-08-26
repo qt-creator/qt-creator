@@ -92,7 +92,7 @@ namespace ClangCodeModel {
 
 ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::BaseTextDocument *document)
     : BaseEditorDocumentProcessor(document)
-    , m_parser(new ClangEditorDocumentParser(document->filePath()))
+    , m_parser(document->filePath())
     , m_parserRevision(0)
     , m_semanticHighlighter(document)
     , m_builtinProcessor(document, /*enableSemanticHighlighter=*/ false)
@@ -109,7 +109,7 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::BaseTextD
             const int firstLine = 1;
             const int lastLine = baseTextDocument()->document()->blockCount();
 
-            CreateMarkers *createMarkers = CreateMarkers::create(m_parser->semanticMarker(),
+            CreateMarkers *createMarkers = CreateMarkers::create(m_parser.semanticMarker(),
                                                                  baseTextDocument()->filePath(),
                                                                  firstLine, lastLine);
             return createMarkers->start();
@@ -155,7 +155,7 @@ CppTools::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
 
 CppTools::BaseEditorDocumentParser *ClangEditorDocumentProcessor::parser()
 {
-    return m_parser.data();
+    return &m_parser;
 }
 
 bool ClangEditorDocumentProcessor::isParserRunning() const
@@ -169,11 +169,11 @@ void ClangEditorDocumentProcessor::onParserFinished()
         return;
 
     // Emit ifdefed out blocks
-    const auto ifdefoutBlocks = toTextEditorBlocks(m_parser->ifdefedOutBlocks());
+    const auto ifdefoutBlocks = toTextEditorBlocks(m_parser.ifdefedOutBlocks());
     emit ifdefedOutBlocksUpdated(revision(), ifdefoutBlocks);
 
     // Emit code warnings
-    const auto diagnostics = toCppToolsDiagnostics(filePath(), m_parser->diagnostics());
+    const auto diagnostics = toCppToolsDiagnostics(filePath(), m_parser.diagnostics());
     const auto codeWarnings = toTextEditorSelections(diagnostics, textDocument());
     emit codeWarningsUpdated(revision(), codeWarnings);
 

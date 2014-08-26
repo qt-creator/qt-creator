@@ -57,9 +57,6 @@ public:
     BaseEditorDocumentParser *parser() QTC_OVERRIDE;
     bool isParserRunning() const QTC_OVERRIDE;
 
-public:
-    static BuiltinEditorDocumentProcessor *get(const QString &filePath);
-
 private:
     void onParserFinished(CPlusPlus::Document::Ptr document, CPlusPlus::Snapshot snapshot);
     void onSemanticInfoUpdated(const CppTools::SemanticInfo semanticInfo);
@@ -67,7 +64,7 @@ private:
     SemanticInfo::Source createSemanticInfoSource(bool force) const;
 
 private:
-    QScopedPointer<BuiltinEditorDocumentParser> m_parser;
+    BuiltinEditorDocumentParser m_parser;
     QFuture<void> m_parserFuture;
 
     CPlusPlus::Snapshot m_documentSnapshot;

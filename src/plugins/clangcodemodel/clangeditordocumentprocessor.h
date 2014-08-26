@@ -61,7 +61,7 @@ private slots:
     void onParserFinished();
 
 private:
-    QScopedPointer<ClangEditorDocumentParser> m_parser;
+    ClangEditorDocumentParser m_parser;
     QFutureWatcher<void> m_parserWatcher;
     unsigned m_parserRevision;
 
