@@ -30,7 +30,7 @@
 #define IOSCONSTANTS_H
 
 #include <QtGlobal>
-#include <utils/logging.h>
+#include <QLoggingCategory>
 
 namespace Ios {
 namespace Internal {

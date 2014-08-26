@@ -36,11 +36,12 @@
 #include <debugger/watchhandler.h>
 
 #include <qmldebug/qmldebugconstants.h>
-#include <utils/logging.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
+
 #include <QElapsedTimer>
 #include <QFileInfo>
+#include <QLoggingCategory>
 
 using namespace QmlDebug;
 using namespace QmlDebug::Constants;

@@ -34,24 +34,22 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
-#include <utils/logging.h>
 
-#include <QProcess>
-#include <QXmlStreamReader>
-#include <QSocketNotifier>
 #include <QCoreApplication>
-#include <QList>
-#include <QScopedArrayPointer>
-#include <QProcessEnvironment>
 #include <QFileInfo>
+#include <QList>
+#include <QLoggingCategory>
+#include <QProcess>
+#include <QProcessEnvironment>
+#include <QScopedArrayPointer>
+#include <QSocketNotifier>
 #include <QTimer>
+#include <QXmlStreamReader>
 
 #include <string.h>
 #include <errno.h>
 
-namespace {
-Q_LOGGING_CATEGORY(toolHandlerLog, "qtc.ios.toolhandler")
-}
+static Q_LOGGING_CATEGORY(toolHandlerLog, "qtc.ios.toolhandler")
 
 namespace Ios {
 

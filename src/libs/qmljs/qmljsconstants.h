@@ -29,9 +29,10 @@
 
 #ifndef QMLJSCONSTANTS_H
 #define QMLJSCONSTANTS_H
+
 #include "qmljs_global.h"
 
-#include <utils/logging.h>
+#include <QLoggingCategory>
 
 namespace QmlJS {
 

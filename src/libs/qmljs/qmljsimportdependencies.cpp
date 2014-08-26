@@ -32,15 +32,13 @@
 #include "qmljsqrcparser.h"
 
 #include <utils/qtcassert.h>
-#include <utils/logging.h>
 
 #include <QCryptographicHash>
+#include <QLoggingCategory>
 
 #include <algorithm>
 
-namespace {
-Q_LOGGING_CATEGORY(importsLog, "qtc.qmljs.imports")
-}
+static Q_LOGGING_CATEGORY(importsLog, "qtc.qmljs.imports")
 
 namespace QmlJS {
 

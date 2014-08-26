@@ -180,7 +180,6 @@ HEADERS += \
     $$PWD/ansiescapecodehandler.h \
     $$PWD/execmenu.h \
     $$PWD/completinglineedit.h \
-    $$PWD/logging.h \
     $$PWD/winutils.h \
     $$PWD/itemviews.h \
     $$PWD/treeviewcombobox.h \

@@ -36,12 +36,12 @@
 #include <extensionsystem/pluginspec.h>
 #include <qtsingleapplication.h>
 #include <utils/hostosinfo.h>
-#include <utils/logging.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QLibraryInfo>
+#include <QLoggingCategory>
 #include <QSettings>
 #include <QTextStream>
 #include <QThreadPool>

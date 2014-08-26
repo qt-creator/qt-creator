@@ -29,15 +29,12 @@
 
 #include "qmljscodeformatter.h"
 
-#include <utils/logging.h>
-
+#include <QLoggingCategory>
 #include <QMetaEnum>
-#include <QTextDocument>
 #include <QTextBlock>
+#include <QTextDocument>
 
-namespace {
-Q_LOGGING_CATEGORY(formatterLog, "qtc.qmljs.formatter")
-}
+static Q_LOGGING_CATEGORY(formatterLog, "qtc.qmljs.formatter")
 
 namespace QmlJS {
 

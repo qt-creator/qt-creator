@@ -29,11 +29,10 @@
 
 #include "qmljsicons.h"
 
-#include <utils/logging.h>
-
-#include <QIcon>
 #include <QDir>
 #include <QHash>
+#include <QIcon>
+#include <QLoggingCategory>
 #include <QPair>
 
 using namespace QmlJS;
@@ -43,9 +42,7 @@ enum {
     debug = false
 };
 
-namespace {
-Q_LOGGING_CATEGORY(iconsLog, "qtc.qmljs.icons")
-}
+static Q_LOGGING_CATEGORY(iconsLog, "qtc.qmljs.icons")
 
 namespace QmlJS {
 

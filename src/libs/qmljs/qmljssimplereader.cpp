@@ -33,15 +33,12 @@
 #include "parser/qmljslexer_p.h"
 #include "parser/qmljsengine_p.h"
 
-#include <utils/logging.h>
-
 #include "qmljsutils.h"
 
 #include <QFile>
+#include <QLoggingCategory>
 
-namespace {
-Q_LOGGING_CATEGORY(simpleReaderLog, "qtc.qmljs.simpleReader")
-}
+static Q_LOGGING_CATEGORY(simpleReaderLog, "qtc.qmljs.simpleReader")
 
 namespace QmlJS{
 
