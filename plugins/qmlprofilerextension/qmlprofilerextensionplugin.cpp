@@ -103,5 +103,3 @@ void QmlProfilerExtensionPlugin::triggerAction()
                              tr("This is an action from QmlProfilerExtension."));
 }
 
-Q_EXPORT_PLUGIN2(QmlProfilerExtension, QmlProfilerExtensionPlugin)
-
