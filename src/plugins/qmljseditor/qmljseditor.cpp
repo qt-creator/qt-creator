@@ -122,16 +122,16 @@ void QmlJSEditorWidget::finalizeInitialization()
 {
     m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(textDocument());
 
-    m_updateUsesTimer = new QTimer(this);
-    m_updateUsesTimer->setInterval(UPDATE_USES_DEFAULT_INTERVAL);
-    m_updateUsesTimer->setSingleShot(true);
-    connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUses()));
-    connect(this, SIGNAL(cursorPositionChanged()), m_updateUsesTimer, SLOT(start()));
+    m_updateUsesTimer.setInterval(UPDATE_USES_DEFAULT_INTERVAL);
+    m_updateUsesTimer.setSingleShot(true);
+    connect(&m_updateUsesTimer, &QTimer::timeout, this, &QmlJSEditorWidget::updateUses);
+    connect(this, &QPlainTextEdit::cursorPositionChanged,
+            &m_updateUsesTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
 
-    m_updateOutlineIndexTimer = new QTimer(this);
-    m_updateOutlineIndexTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
-    m_updateOutlineIndexTimer->setSingleShot(true);
-    connect(m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
+    m_updateOutlineIndexTimer.setInterval(UPDATE_OUTLINE_INTERVAL);
+    m_updateOutlineIndexTimer.setSingleShot(true);
+    connect(&m_updateOutlineIndexTimer, &QTimer::timeout,
+            this, &QmlJSEditorWidget::updateOutlineIndexNow);
 
     textDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
 
@@ -140,20 +140,22 @@ void QmlJSEditorWidget::finalizeInitialization()
 
     m_modelManager->activateScan();
 
-    m_contextPaneTimer  = new QTimer(this);
-    m_contextPaneTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
-    m_contextPaneTimer->setSingleShot(true);
-    connect(m_contextPaneTimer, SIGNAL(timeout()), this, SLOT(updateContextPane()));
+    m_contextPaneTimer.setInterval(UPDATE_OUTLINE_INTERVAL);
+    m_contextPaneTimer.setSingleShot(true);
+    connect(&m_contextPaneTimer, &QTimer::timeout, this, &QmlJSEditorWidget::updateContextPane);
     if (m_contextPane) {
-        connect(this, SIGNAL(cursorPositionChanged()), m_contextPaneTimer, SLOT(start()));
-        connect(m_contextPane, SIGNAL(closed()), this, SLOT(showTextMarker()));
+        connect(this, &QmlJSEditorWidget::cursorPositionChanged,
+                &m_contextPaneTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+        connect(m_contextPane, &IContextPane::closed, this, &QmlJSEditorWidget::showTextMarker);
     }
     m_oldCursorPosition = -1;
 
-    connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
+    connect(this->document(), &QTextDocument::modificationChanged,
+            this, &QmlJSEditorWidget::modificationChanged);
 
     connect(m_qmlJsEditorDocument, SIGNAL(updateCodeWarnings(QmlJS::Document::Ptr)),
             this, SLOT(updateCodeWarnings(QmlJS::Document::Ptr)));
+
     connect(m_qmlJsEditorDocument, SIGNAL(semanticInfoUpdated(QmlJSTools::SemanticInfo)),
             this, SLOT(semanticInfoUpdated(QmlJSTools::SemanticInfo)));
 
@@ -257,7 +259,7 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
         return;
 
     if (m_qmlJsEditorDocument->outlineModel()->document()->editorRevision() != document()->revision()) {
-        m_updateOutlineIndexTimer->start();
+        m_updateOutlineIndexTimer.start();
         return;
     }
 
@@ -561,7 +563,8 @@ void QmlJSEditorWidget::createToolBar()
     connect(m_qmlJsEditorDocument->outlineModel(), SIGNAL(updated()),
             this, SLOT(updateOutlineIndexNow()));
 
-    connect(this, SIGNAL(cursorPositionChanged()), m_updateOutlineIndexTimer, SLOT(start()));
+    connect(this, &QmlJSEditorWidget::cursorPositionChanged,
+            &m_updateOutlineIndexTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
 
     insertExtraToolBarWidget(BaseTextEditorWidget::Left, m_outlineCombo);
 }
@@ -795,7 +798,7 @@ void QmlJSEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
         Node *newNode = semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
             m_contextPane->apply(editor(), semanticInfo.document, 0, newNode, true);
-            m_contextPaneTimer->start(); //update text marker
+            m_contextPaneTimer.start(); //update text marker
         }
     }
 

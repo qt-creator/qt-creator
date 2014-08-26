@@ -40,10 +40,10 @@
 #include <utils/uncommentselection.h>
 
 #include <QModelIndex>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
-class QTimer;
 QT_END_NAMESPACE
 
 namespace QmlJS {
@@ -123,9 +123,9 @@ private:
     bool hideContextPane();
 
     QmlJSEditorDocument *m_qmlJsEditorDocument;
-    QTimer *m_updateUsesTimer; // to wait for multiple text cursor position changes
-    QTimer *m_updateOutlineIndexTimer;
-    QTimer *m_contextPaneTimer;
+    QTimer m_updateUsesTimer; // to wait for multiple text cursor position changes
+    QTimer m_updateOutlineIndexTimer;
+    QTimer m_contextPaneTimer;
     QComboBox *m_outlineCombo;
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
