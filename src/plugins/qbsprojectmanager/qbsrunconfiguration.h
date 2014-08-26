@@ -105,6 +105,7 @@ protected:
 
 private slots:
     void installStepChanged();
+    void installStepToBeRemoved(int pos);
 
 private:
     void setBaseWorkingDirectory(const QString &workingDirectory);
