@@ -515,5 +515,3 @@ void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
 
 } // namespace Internal
 } // namespace QbsProjectManager
-
-Q_EXPORT_PLUGIN(QbsProjectManager::Internal::QbsProjectManagerPlugin)

@@ -261,5 +261,3 @@ void TaskListPlugin::loadDataFromSession()
 
 } // namespace Internal
 } // namespace TaskList
-
-Q_EXPORT_PLUGIN(TaskList::Internal::TaskListPlugin)

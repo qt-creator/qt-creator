@@ -63,5 +63,3 @@ void ImageViewerPlugin::extensionsInitialized()
 
 } // namespace Internal
 } // namespace ImageViewer
-
-Q_EXPORT_PLUGIN(ImageViewer::Internal::ImageViewerPlugin)

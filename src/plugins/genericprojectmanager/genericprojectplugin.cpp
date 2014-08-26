@@ -101,5 +101,3 @@ void GenericProjectPlugin::editFiles()
 
 } // namespace Internal
 } // namespace GenericProjectManager
-
-Q_EXPORT_PLUGIN(GenericProjectManager::Internal::GenericProjectPlugin)

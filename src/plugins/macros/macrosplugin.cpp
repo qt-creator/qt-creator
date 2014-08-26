@@ -112,5 +112,3 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessag
 void MacrosPlugin::extensionsInitialized()
 {
 }
-
-Q_EXPORT_PLUGIN(MacrosPlugin)

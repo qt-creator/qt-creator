@@ -55,9 +55,9 @@
     Plugins must provide one implementation of the IPlugin class, located
     in a library that matches the \c name attribute given in their
     XML description. The IPlugin implementation must be exported and
-    made known to Qt's plugin system, see the Qt Documentation on the
-    \l{http://qt-project.org/doc/qt-4.8/qtplugin.html#Q_EXPORT_PLUGIN2}
-    {Q_EXPORT_PLUGIN2 macro}.
+    made known to Qt's plugin system, using the \c Q_PLUGIN_METADATA macro with
+    an IID set to \c "org.qt-project.Qt.QtCreatorPlugin".
+
 
     After the plugins' XML files have been read, and dependencies have been
     found, the plugin loading is done in three phases:

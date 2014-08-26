@@ -559,6 +559,4 @@ void BinEditorPlugin::selectAllAction()
 } // namespace Internal
 } // namespace BinEditor
 
-Q_EXPORT_PLUGIN(BinEditor::Internal::BinEditorPlugin)
-
 #include "bineditorplugin.moc"

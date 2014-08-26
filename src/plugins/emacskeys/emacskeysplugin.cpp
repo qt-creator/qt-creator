@@ -386,5 +386,3 @@ void EmacsKeysPlugin::genericVScroll(int direction)
     m_currentEditorWidget->setTextCursor(cursor);
     m_currentState->endOwnAction(KeysActionOther);
 }
-
-Q_EXPORT_PLUGIN2(EmacsKeys, EmacsKeysPlugin)

@@ -90,5 +90,3 @@ void ClangCodeModelPlugin::extensionsInitialized()
 
 } // namespace Internal
 } // namespace Clang
-
-Q_EXPORT_PLUGIN(ClangCodeModel::Internal::ClangCodeModelPlugin)

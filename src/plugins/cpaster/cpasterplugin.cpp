@@ -390,5 +390,3 @@ CodepasterPlugin *CodepasterPlugin::instance()
 }
 
 } // namespace CodePaster
-
-Q_EXPORT_PLUGIN(CodePaster::CodepasterPlugin)

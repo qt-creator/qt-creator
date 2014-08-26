@@ -322,6 +322,4 @@ void TextEditorPlugin::updateCurrentSelection(const QString &text)
     }
 }
 
-Q_EXPORT_PLUGIN(TextEditorPlugin)
-
 #include "texteditorplugin.moc"

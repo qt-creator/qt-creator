@@ -288,5 +288,3 @@ const GlslEditorPlugin::InitFile *GlslEditorPlugin::shaderInit(int variant)
 
 } // namespace Internal
 } // namespace GlslEditor
-
-Q_EXPORT_PLUGIN(GlslEditor::Internal::GlslEditorPlugin)

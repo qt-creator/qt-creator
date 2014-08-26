@@ -76,5 +76,3 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 void CMakeProjectPlugin::extensionsInitialized()
 {
 }
-
-Q_EXPORT_PLUGIN(CMakeProjectPlugin)

@@ -75,5 +75,3 @@ void RemoteLinuxPlugin::extensionsInitialized()
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-Q_EXPORT_PLUGIN(RemoteLinux::Internal::RemoteLinuxPlugin)

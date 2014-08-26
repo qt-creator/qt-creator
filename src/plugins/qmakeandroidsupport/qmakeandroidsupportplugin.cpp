@@ -66,5 +66,3 @@ bool QmakeAndroidSupportPlugin::initialize(const QStringList &arguments, QString
 
 void QmakeAndroidSupportPlugin::extensionsInitialized()
 { }
-
-Q_EXPORT_PLUGIN(QmakeAndroidSupportPlugin)

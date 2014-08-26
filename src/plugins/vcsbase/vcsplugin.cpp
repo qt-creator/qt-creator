@@ -163,5 +163,3 @@ void VcsPlugin::slotSettingsChanged()
 
 } // namespace Internal
 } // namespace VcsBase
-
-Q_EXPORT_PLUGIN(VcsBase::Internal::VcsPlugin)

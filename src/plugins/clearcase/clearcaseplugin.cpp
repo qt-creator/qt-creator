@@ -2480,5 +2480,3 @@ void ClearCasePlugin::testVcsStatusDynamicNotManaged()
 
 } // namespace Internal
 } // namespace ClearCase
-
-Q_EXPORT_PLUGIN(ClearCase::Internal::ClearCasePlugin)

@@ -1582,5 +1582,3 @@ void GitPlugin::testCloneWizard_directoryFromRepository_data()
 
 } // namespace Internal
 } // namespace Git
-
-Q_EXPORT_PLUGIN(GitPlugin)

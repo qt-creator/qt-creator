@@ -124,5 +124,3 @@ void AndroidPlugin::updateDevice()
 }
 
 } // namespace Android
-
-Q_EXPORT_PLUGIN(Android::AndroidPlugin)

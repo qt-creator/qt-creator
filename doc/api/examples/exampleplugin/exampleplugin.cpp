@@ -80,7 +80,3 @@ void ExamplePlugin::triggerAction()
                              tr("This is an action from Example."));
 }
 //! [slot implementation]
-
-//! [export plugin]
-Q_EXPORT_PLUGIN2(Example, ExamplePlugin)
-//! [export plugin]

@@ -3697,5 +3697,3 @@ void DebuggerPluginPrivate::testBenchmark1()
 } // namespace Debugger
 
 #include "debuggerplugin.moc"
-
-Q_EXPORT_PLUGIN(Debugger::DebuggerPlugin)

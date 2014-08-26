@@ -784,5 +784,3 @@ void BazaarPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
 
 } // namespace Internal
 } // namespace Bazaar
-
-Q_EXPORT_PLUGIN(Bazaar::Internal::BazaarPlugin)

@@ -1054,5 +1054,3 @@ void HelpPlugin::setupNavigationMenus(QAction *back, QAction *next, QWidget *par
     back->setMenu(m_backMenu);
     next->setMenu(m_nextMenu);
 }
-
-Q_EXPORT_PLUGIN(HelpPlugin)

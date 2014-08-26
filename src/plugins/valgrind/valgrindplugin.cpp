@@ -199,5 +199,3 @@ void ValgrindPlugin::extensionsInitialized()
 } // namespace Internal
 } // namespace Valgrind
 
-
-Q_EXPORT_PLUGIN(Valgrind::Internal::ValgrindPlugin)

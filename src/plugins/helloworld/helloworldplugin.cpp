@@ -153,5 +153,3 @@ void HelloWorldPlugin::sayHelloWorld()
 
 } // namespace Internal
 } // namespace HelloWorld
-
-Q_EXPORT_PLUGIN(HelloWorld::Internal::HelloWorldPlugin)

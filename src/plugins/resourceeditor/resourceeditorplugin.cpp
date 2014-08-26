@@ -377,6 +377,4 @@ ResourceEditorW * ResourceEditorPlugin::currentEditor() const
     return focusEditor;
 }
 
-Q_EXPORT_PLUGIN(ResourceEditorPlugin)
-
 #include "resourceeditorplugin.moc"

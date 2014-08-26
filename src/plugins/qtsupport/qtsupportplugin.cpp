@@ -127,5 +127,3 @@ bool QtSupportPlugin::delayedInitialize()
 {
     return QtVersionManager::delayedInitialize();
 }
-
-Q_EXPORT_PLUGIN(QtSupportPlugin)

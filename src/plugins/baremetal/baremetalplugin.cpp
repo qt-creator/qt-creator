@@ -73,5 +73,3 @@ bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorStr
 } // namespace Internal
 } // namespace BareMetal
 
-Q_EXPORT_PLUGIN(BareMetal::Internal::BareMetalPlugin)
-

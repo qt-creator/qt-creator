@@ -90,7 +90,8 @@ enum { debugLeaks = 0 };
 
     \section1 Plugins
     Plugins consist of an XML descriptor file, and of a library that contains a Qt plugin
-    (declared via Q_EXPORT_PLUGIN) that must derive from the IPlugin class.
+    that must derive from the IPlugin class and has an IID of
+    \c "org.qt-project.Qt.QtCreatorPlugin".
     The plugin manager is used to set a list of file system directories to search for
     plugins, retrieve information about the state of these plugins, and to load them.
 

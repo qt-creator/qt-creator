@@ -863,7 +863,4 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
 
 #endif // WITH_TESTS
 
-
-Q_EXPORT_PLUGIN(DiffEditor::Internal::DiffEditorPlugin)
-
 #include "diffeditorplugin.moc"

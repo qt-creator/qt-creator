@@ -49,5 +49,3 @@ void MyPluginImpl::extensionsInitialized()
     m_isExtensionsInitialized = true;
 }
 
-Q_EXPORT_PLUGIN(MyPluginImpl)
-

@@ -33,9 +33,7 @@
 #include "extensionsystem_global.h"
 
 #include <QObject>
-#if QT_VERSION >= 0x050000
-#    include <QtPlugin>
-#endif
+#include <QtPlugin>
 
 namespace ExtensionSystem {
 
@@ -82,17 +80,5 @@ private:
 };
 
 } // namespace ExtensionSystem
-
-// The macros Q_EXPORT_PLUGIN, Q_EXPORT_PLUGIN2 become obsolete in Qt 5.
-#if QT_VERSION >= 0x050000
-#    if defined(Q_EXPORT_PLUGIN)
-#        undef Q_EXPORT_PLUGIN
-#        undef Q_EXPORT_PLUGIN2
-#    endif
-#    define Q_EXPORT_PLUGIN(plugin)
-#    define Q_EXPORT_PLUGIN2(function, plugin)
-#else
-#    define Q_PLUGIN_METADATA(x)
-#endif
 
 #endif // IPLUGIN_H

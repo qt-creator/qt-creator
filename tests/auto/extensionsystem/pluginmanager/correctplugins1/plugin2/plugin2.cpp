@@ -61,5 +61,3 @@ void MyPlugin2::extensionsInitialized()
     addAutoReleasedObject(obj);
 }
 
-Q_EXPORT_PLUGIN(MyPlugin2)
-

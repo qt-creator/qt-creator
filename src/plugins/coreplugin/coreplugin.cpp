@@ -151,5 +151,3 @@ ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
     m_mainWindow->aboutToShutdown();
     return SynchronousShutdown;
 }
-
-Q_EXPORT_PLUGIN(CorePlugin)

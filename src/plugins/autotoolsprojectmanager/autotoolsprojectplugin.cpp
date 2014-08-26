@@ -70,5 +70,3 @@ bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
 
     return true;
 }
-
-Q_EXPORT_PLUGIN(AutotoolsProjectPlugin)

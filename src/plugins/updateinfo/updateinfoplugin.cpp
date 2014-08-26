@@ -278,5 +278,3 @@ void UpdateInfoPlugin::settingsHelper(T *settings)
 
 } //namespace Internal
 } //namespace UpdateInfo
-
-Q_EXPORT_PLUGIN(UpdateInfo::Internal::UpdateInfoPlugin)

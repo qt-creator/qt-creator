@@ -81,5 +81,3 @@ AnalyzerPlugin *AnalyzerPlugin::instance()
 {
     return m_instance;
 }
-
-Q_EXPORT_PLUGIN(AnalyzerPlugin)

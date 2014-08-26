@@ -421,5 +421,3 @@ void QmakeProjectManagerPlugin::updateBuildFileAction()
     m_buildFileAction->setVisible(visible);
     m_buildFileAction->setEnabled(enabled);
 }
-
-Q_EXPORT_PLUGIN(QmakeProjectManagerPlugin)

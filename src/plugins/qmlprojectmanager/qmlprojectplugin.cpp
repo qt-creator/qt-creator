@@ -77,5 +77,3 @@ void QmlProjectPlugin::extensionsInitialized()
 }
 
 } // namespace QmlProjectManager
-
-Q_EXPORT_PLUGIN(QmlProjectManager::QmlProjectPlugin)

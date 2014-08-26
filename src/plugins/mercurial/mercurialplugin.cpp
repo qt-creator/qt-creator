@@ -756,5 +756,3 @@ void MercurialPlugin::testLogResolving()
 
 } // namespace Internal
 } // namespace Mercurial
-
-Q_EXPORT_PLUGIN(MercurialPlugin)

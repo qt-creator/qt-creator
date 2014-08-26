@@ -109,5 +109,3 @@ QList<AbstractTimelineModel *> QmlProfilerPlugin::getModels() const
 
 } // namespace Internal
 } // namespace QmlProfiler
-
-Q_EXPORT_PLUGIN(QmlProfiler::Internal::QmlProfilerPlugin)

@@ -72,5 +72,3 @@ void WinRtPlugin::extensionsInitialized()
 
 } // namespace Internal
 } // namespace WinRt
-
-Q_EXPORT_PLUGIN(WinRt::Internal::WinRtPlugin)

@@ -341,5 +341,3 @@ void QmlJSEditorPlugin::checkCurrentEditorSemanticInfoUpToDate()
 }
 
 } // namespace QmlJSEditor
-
-Q_EXPORT_PLUGIN(QmlJSEditor::Internal::QmlJSEditorPlugin)

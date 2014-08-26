@@ -342,7 +342,4 @@ void WelcomePlugin::extensionsInitialized()
 } // namespace Internal
 } // namespace Welcome
 
-
-Q_EXPORT_PLUGIN(Welcome::Internal::WelcomePlugin)
-
 #include "welcomeplugin.moc"

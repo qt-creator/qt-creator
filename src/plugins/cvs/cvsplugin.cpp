@@ -1355,5 +1355,3 @@ void CvsPlugin::testLogResolving()
 
 } // namespace Internal
 } // namespace Cvs
-
-Q_EXPORT_PLUGIN(Cvs::Internal::CvsPlugin)

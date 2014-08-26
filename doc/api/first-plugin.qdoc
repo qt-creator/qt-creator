@@ -321,11 +321,4 @@
     This part defines the code that is called when the menu item is triggered.
     It uses the Qt API to open a message box that displays informative text and
     an \gui OK button.
-
-    \snippet exampleplugin/exampleplugin.cpp export plugin
-
-    At the end of the file, the Qt macro \c{Q_EXPORT_PLUGIN2} is used to register
-    the plugin with Qt's plugin loader system. This is necessary for Qt to
-    be able to load your plugin.
-
 */

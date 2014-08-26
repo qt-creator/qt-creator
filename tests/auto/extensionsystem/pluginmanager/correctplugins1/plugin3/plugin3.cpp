@@ -69,5 +69,3 @@ void MyPlugin3::extensionsInitialized()
     obj->setObjectName(QLatin1String("MyPlugin3_running"));
     addAutoReleasedObject(obj);
 }
-
-Q_EXPORT_PLUGIN(MyPlugin3)

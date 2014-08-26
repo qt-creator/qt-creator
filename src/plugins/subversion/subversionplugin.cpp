@@ -1315,5 +1315,3 @@ void SubversionPlugin::testLogResolving()
 } // Internal
 } // Subversion
 
-Q_EXPORT_PLUGIN(Subversion::Internal::SubversionPlugin)
-

@@ -200,5 +200,3 @@ void FormEditorPlugin::switchSourceForm()
     if (!fileToOpen.isEmpty())
         Core::EditorManager::openEditor(fileToOpen);
 }
-
-Q_EXPORT_PLUGIN(FormEditorPlugin)

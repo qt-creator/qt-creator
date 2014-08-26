@@ -3236,5 +3236,3 @@ QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
 {
     return d->m_recentProjects;
 }
-
-Q_EXPORT_PLUGIN(ProjectExplorerPlugin)

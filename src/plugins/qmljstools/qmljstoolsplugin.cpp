@@ -140,5 +140,3 @@ void QmlJSToolsPlugin::onAllTasksFinished(Core::Id type)
     if (type == QmlJS::Constants::TASK_INDEX)
         m_resetCodeModelAction->setEnabled(true);
 }
-
-Q_EXPORT_PLUGIN(QmlJSToolsPlugin)

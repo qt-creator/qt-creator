@@ -253,5 +253,3 @@ QSet<QString> PythonEditorPlugin::builtins()
 
 } // namespace Internal
 } // namespace PythonEditor
-
-Q_EXPORT_PLUGIN(PythonEditor::Internal::PythonEditorPlugin)

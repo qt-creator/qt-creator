@@ -512,5 +512,3 @@ void QmlDesignerPlugin::setSettings(const DesignerSettings &s)
 }
 
 }
-
-Q_EXPORT_PLUGIN(QmlDesigner::QmlDesignerPlugin)

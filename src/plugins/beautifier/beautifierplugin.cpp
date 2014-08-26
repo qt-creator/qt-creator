@@ -422,5 +422,3 @@ QString BeautifierPlugin::msgCommandPromptDialogTitle(const QString &command)
 
 } // namespace Internal
 } // namespace Beautifier
-
-Q_EXPORT_PLUGIN(Beautifier::Internal::BeautifierPlugin)

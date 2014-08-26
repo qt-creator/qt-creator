@@ -124,7 +124,5 @@ void TodoPlugin::createOptionsPage()
     connect(m_optionsPage, SIGNAL(settingsChanged(Settings)), SLOT(settingsChanged(Settings)));
 }
 
-Q_EXPORT_PLUGIN2(Todo, TodoPlugin)
-
 } // namespace Internal
 } // namespace Todo

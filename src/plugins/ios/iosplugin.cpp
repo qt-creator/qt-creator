@@ -100,5 +100,3 @@ void IosPlugin::kitsRestored()
 }
 
 } // namespace Ios
-
-Q_EXPORT_PLUGIN(Ios::IosPlugin)

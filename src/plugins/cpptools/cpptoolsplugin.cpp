@@ -449,5 +449,3 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
 }
 
 } // namespace CppTools
-
-Q_EXPORT_PLUGIN(CppTools::Internal::CppToolsPlugin)

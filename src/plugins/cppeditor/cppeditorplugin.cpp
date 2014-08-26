@@ -425,5 +425,3 @@ void CppEditorPlugin::openIncludeHierarchy()
         emit includeHierarchyRequested();
     }
 }
-
-Q_EXPORT_PLUGIN(CppEditorPlugin)

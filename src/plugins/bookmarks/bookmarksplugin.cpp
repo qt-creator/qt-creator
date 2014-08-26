@@ -202,5 +202,3 @@ void BookmarksPlugin::editBookmarkActionTriggered()
 {
     m_bookmarkManager->edit(m_bookmarkMarginActionFileName, m_bookmarkMarginActionLineNumber);
 }
-
-Q_EXPORT_PLUGIN(BookmarksPlugin)

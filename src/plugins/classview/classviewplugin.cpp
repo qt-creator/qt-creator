@@ -62,5 +62,3 @@ bool Plugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 } // namespace Internal
 } // namespace ClassView
-
-Q_EXPORT_PLUGIN(ClassView::Internal::Plugin)

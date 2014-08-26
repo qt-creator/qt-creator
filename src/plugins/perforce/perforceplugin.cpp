@@ -1567,6 +1567,4 @@ void PerforcePlugin::testLogResolving()
 } // namespace Internal
 } // namespace Perforce
 
-Q_EXPORT_PLUGIN(Perforce::Internal::PerforcePlugin)
-
 #include "perforceplugin.moc"
