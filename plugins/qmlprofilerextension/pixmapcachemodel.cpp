@@ -19,7 +19,6 @@
 #include "pixmapcachemodel.h"
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
-#include "qmlprofiler/sortedtimelinemodel.h"
 #include "qmlprofiler/abstracttimelinemodel_p.h"
 
 #include <QDebug>
@@ -62,9 +61,7 @@ struct Pixmap {
     QVector<PixmapState> sizes;
 };
 
-class PixmapCacheModel::PixmapCacheModelPrivate :
-        public SortedTimelineModel<PixmapCacheEvent,
-                                   AbstractTimelineModel::AbstractTimelineModelPrivate>
+class PixmapCacheModel::PixmapCacheModelPrivate : public AbstractTimelineModelPrivate
 {
 public:
     void computeMaxCacheSize();
@@ -73,6 +70,7 @@ public:
     int updateCacheCount(int lastCacheSizeEvent, qint64 startTime, qint64 pixSize,
                          PixmapCacheEvent &newEvent);
 
+    QVector<PixmapCacheEvent> data;
     QVector<Pixmap> pixmaps;
     int collapsedRowCount;
     void addVP(QVariantList &l, QString label, qint64 time) const;
@@ -116,20 +114,20 @@ int PixmapCacheModel::row(int index) const
     Q_D(const PixmapCacheModel);
     if (d->expanded)
         return eventId(index) + 1;
-    return d->range(index).rowNumberCollapsed;
+    return d->data[index].rowNumberCollapsed;
 }
 
 int PixmapCacheModel::eventId(int index) const
 {
     Q_D(const PixmapCacheModel);
-    return d->range(index).pixmapEventType == PixmapCacheCountChanged ?
-                0 : d->range(index).urlIndex + 1;
+    return d->data[index].pixmapEventType == PixmapCacheCountChanged ?
+                0 : d->data[index].urlIndex + 1;
 }
 
 QColor PixmapCacheModel::color(int index) const
 {
     Q_D(const PixmapCacheModel);
-    if (d->range(index).pixmapEventType == PixmapCacheCountChanged)
+    if (d->data[index].pixmapEventType == PixmapCacheCountChanged)
         return colorByHue(PixmapCacheCountHue);
 
     return colorByEventId(index);
@@ -138,8 +136,8 @@ QColor PixmapCacheModel::color(int index) const
 float PixmapCacheModel::height(int index) const
 {
     Q_D(const PixmapCacheModel);
-    if (d->range(index).pixmapEventType == PixmapCacheCountChanged)
-        return (float)d->range(index).cacheSize / (float)d->maxCacheSize;
+    if (d->data[index].pixmapEventType == PixmapCacheCountChanged)
+        return (float)d->data[index].cacheSize / (float)d->maxCacheSize;
     else
         return 1.0f;
 }
@@ -194,7 +192,7 @@ QVariantMap PixmapCacheModel::details(int index) const
 {
     Q_D(const PixmapCacheModel);
     QVariantMap result;
-    const PixmapCacheModelPrivate::Range *ev = &d->range(index);
+    const PixmapCacheEvent *ev = &d->data[index];
 
     if (ev->pixmapEventType == PixmapCacheCountChanged) {
         result.insert(QLatin1String("displayName"), tr("Image Cached"));
@@ -204,7 +202,7 @@ QVariantMap PixmapCacheModel::details(int index) const
             if (d->pixmaps[ev->urlIndex].sizes[ev->sizeIndex].loadState != Finished)
                 result.insert(tr("Result"), tr("Load Error"));
         }
-        result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(ev->duration));
+        result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(range(index).duration));
     }
 
     result.insert(tr("Cache Size"), QString::fromLatin1("%1 px").arg(ev->cacheSize));
@@ -371,7 +369,7 @@ void PixmapCacheModel::loadData()
                                                      newEvent);
             break;
         }
-        case PixmapLoadingStarted: // Load
+        case PixmapLoadingStarted: { // Load
             // Look for a pixmap that hasn't been started, yet. There may have been a refcount
             // event, which we ignore.
             for (QVector<PixmapState>::const_iterator i(pixmap.sizes.cbegin());
@@ -385,9 +383,13 @@ void PixmapCacheModel::loadData()
                 newEvent.sizeIndex = pixmap.sizes.length();
                 pixmap.sizes << PixmapState();
             }
-            pixmap.sizes[newEvent.sizeIndex].started = d->insertStart(startTime, newEvent);
-            pixmap.sizes[newEvent.sizeIndex].loadState = Loading;
+
+            PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
+            state.loadState = Loading;
+            state.started = insertStart(startTime);
+            d->data.insert(state.started, newEvent);
             break;
+        }
         case PixmapLoadingFinished:
         case PixmapLoadingError: {
             // First try to find one that has already started
@@ -428,7 +430,8 @@ void PixmapCacheModel::loadData()
             // If the pixmap loading wasn't started, start it at traceStartTime()
             if (state.loadState == Initial) {
                 newEvent.pixmapEventType = PixmapLoadingStarted;
-                state.started = d->insert(traceStartTime(), startTime - traceStartTime(), newEvent);
+                state.started = insert(traceStartTime(), startTime - traceStartTime());
+                d->data.insert(state.started, newEvent);
 
                 // All other indices are wrong now as we've prepended. Fix them ...
                 if (lastCacheSizeEvent >= state.started)
@@ -446,7 +449,7 @@ void PixmapCacheModel::loadData()
                 }
             }
 
-            d->insertEnd(state.started, startTime - d->range(state.started).start);
+            insertEnd(state.started, startTime - range(state.started).start);
             if (newEvent.pixmapEventType == PixmapLoadingError) {
                 state.loadState = Error;
                 switch (state.cacheState) {
@@ -471,18 +474,18 @@ void PixmapCacheModel::loadData()
             break;
         }
 
-        d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), 2*simpleModel->getEvents().count());
+        d->modelManager->modelProxyCountUpdated(d->modelId, count(),
+                                                2 * simpleModel->getEvents().count());
     }
 
-    if (lastCacheSizeEvent != -1) {
-        d->insertEnd(lastCacheSizeEvent, traceEndTime() - d->range(lastCacheSizeEvent).start);
-    }
+    if (lastCacheSizeEvent != -1)
+        insertEnd(lastCacheSizeEvent, traceEndTime() - range(lastCacheSizeEvent).start);
 
     d->resizeUnfinishedLoads();
 
     d->computeMaxCacheSize();
     d->flattenLoads();
-    d->computeNesting();
+    computeNesting();
 
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
 }
@@ -490,19 +493,17 @@ void PixmapCacheModel::loadData()
 void PixmapCacheModel::clear()
 {
     Q_D(PixmapCacheModel);
-    d->clear();
     d->pixmaps.clear();
     d->collapsedRowCount = 1;
     d->maxCacheSize = 1;
-    d->expanded = false;
-
-    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
+    d->data.clear();
+    AbstractTimelineModel::clear();
 }
 
 void PixmapCacheModel::PixmapCacheModelPrivate::computeMaxCacheSize()
 {
     maxCacheSize = 1;
-    foreach (const PixmapCacheModel::PixmapCacheEvent &event, ranges) {
+    foreach (const PixmapCacheModel::PixmapCacheEvent &event, data) {
         if (event.pixmapEventType == PixmapCacheModel::PixmapCacheCountChanged) {
             if (event.cacheSize > maxCacheSize)
                 maxCacheSize = event.cacheSize;
@@ -514,23 +515,24 @@ void PixmapCacheModel::PixmapCacheModelPrivate::resizeUnfinishedLoads()
 {
     Q_Q(PixmapCacheModel);
     // all the "load start" events with duration 0 continue till the end of the trace
-    for (int i = 0; i < count(); i++) {
-        if (range(i).pixmapEventType == PixmapCacheModel::PixmapLoadingStarted &&
-                range(i).duration == 0) {
-            insertEnd(i, q->traceEndTime() - range(i).start);
+    for (int i = 0; i < q->count(); i++) {
+        if (data[i].pixmapEventType == PixmapCacheModel::PixmapLoadingStarted &&
+                q->range(i).duration == 0) {
+            q->insertEnd(i, q->traceEndTime() - q->range(i).start);
         }
     }
 }
 
 void PixmapCacheModel::PixmapCacheModelPrivate::flattenLoads()
 {
+    Q_Q(PixmapCacheModel);
     collapsedRowCount = 0;
 
     // computes "compressed row"
     QVector <qint64> eventEndTimes;
-    for (int i = 0; i < count(); i++) {
-        PixmapCacheModel::PixmapCacheEvent &event = data(i);
-        const Range &start = range(i);
+    for (int i = 0; i < q->count(); i++) {
+        PixmapCacheModel::PixmapCacheEvent &event = data[i];
+        const Range &start = q->range(i);
         if (event.pixmapEventType == PixmapCacheModel::PixmapLoadingStarted) {
             event.rowNumberCollapsed = 0;
             while (eventEndTimes.count() > event.rowNumberCollapsed &&
@@ -555,17 +557,20 @@ void PixmapCacheModel::PixmapCacheModelPrivate::flattenLoads()
 int PixmapCacheModel::PixmapCacheModelPrivate::updateCacheCount(int lastCacheSizeEvent,
         qint64 startTime, qint64 pixSize, PixmapCacheEvent &newEvent)
 {
+    Q_Q(PixmapCacheModel);
     newEvent.pixmapEventType = PixmapCacheCountChanged;
     newEvent.rowNumberCollapsed = 1;
 
     qint64 prevSize = 0;
     if (lastCacheSizeEvent != -1) {
-        prevSize = range(lastCacheSizeEvent).cacheSize;
-        insertEnd(lastCacheSizeEvent, startTime - range(lastCacheSizeEvent).start);
+        prevSize = data[lastCacheSizeEvent].cacheSize;
+        q->insertEnd(lastCacheSizeEvent, startTime - q->range(lastCacheSizeEvent).start);
     }
 
     newEvent.cacheSize = prevSize + pixSize;
-    return insertStart(startTime, newEvent);
+    int index = q->insertStart(startTime);
+    data.insert(index, newEvent);
+    return index;
 }
 
 

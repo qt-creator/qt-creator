@@ -19,7 +19,6 @@
 #include "memoryusagemodel.h"
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
-#include "qmlprofiler/sortedtimelinemodel.h"
 #include "qmlprofiler/abstracttimelinemodel_p.h"
 
 #include <QStack>
@@ -29,13 +28,12 @@ namespace Internal {
 
 using namespace QmlProfiler;
 
-class MemoryUsageModel::MemoryUsageModelPrivate :
-        public SortedTimelineModel<MemoryAllocation,
-                                   AbstractTimelineModel::AbstractTimelineModelPrivate>
+class MemoryUsageModel::MemoryUsageModelPrivate : public AbstractTimelineModelPrivate
 {
 public:
     static QString memoryTypeName(int type);
 
+    QVector<MemoryAllocation> data;
     qint64 maxSize;
 private:
     Q_DECLARE_PUBLIC(MemoryUsageModel)
@@ -62,7 +60,7 @@ int MemoryUsageModel::rowMaxValue(int rowNumber) const
 int MemoryUsageModel::row(int index) const
 {
     Q_D(const MemoryUsageModel);
-    QmlDebug::MemoryType type = d->range(index).type;
+    QmlDebug::MemoryType type = d->data[index].type;
     if (type == QmlDebug::HeapPage || type == QmlDebug::LargeItem)
         return 1;
     else
@@ -72,7 +70,7 @@ int MemoryUsageModel::row(int index) const
 int MemoryUsageModel::eventId(int index) const
 {
     Q_D(const MemoryUsageModel);
-    return d->range(index).type;
+    return d->data[index].type;
 }
 
 QColor MemoryUsageModel::color(int index) const
@@ -83,7 +81,7 @@ QColor MemoryUsageModel::color(int index) const
 float MemoryUsageModel::height(int index) const
 {
     Q_D(const MemoryUsageModel);
-    return qMin(1.0f, (float)d->range(index).size / (float)d->maxSize);
+    return qMin(1.0f, (float)d->data[index].size / (float)d->maxSize);
 }
 
 QVariantMap MemoryUsageModel::location(int index) const
@@ -95,7 +93,7 @@ QVariantMap MemoryUsageModel::location(int index) const
     Q_D(const MemoryUsageModel);
     QVariantMap result;
 
-    int originType = d->range(index).originTypeIndex;
+    int originType = d->data[index].originTypeIndex;
     if (originType > -1) {
         const QmlDebug::QmlEventLocation &location =
                 d->modelManager->qmlModel()->getEventTypes().at(originType).location;
@@ -139,7 +137,7 @@ QVariantMap MemoryUsageModel::details(int index) const
     Q_D(const MemoryUsageModel);
 
     QVariantMap result;
-    const MemoryUsageModelPrivate::Range *ev = &d->range(index);
+    const MemoryAllocation *ev = &d->data[index];
 
     if (ev->allocated >= -ev->deallocated)
         result.insert(QLatin1String("displayName"), tr("Memory Allocated"));
@@ -203,10 +201,10 @@ void MemoryUsageModel::loadData()
         }
 
         if (type.detailType == QmlDebug::SmallItem || type.detailType == QmlDebug::LargeItem) {
-            MemoryAllocation &last = currentUsageIndex > -1 ? d->data(currentUsageIndex) : dummy;
+            MemoryAllocation &last = currentUsageIndex > -1 ? d->data[currentUsageIndex] : dummy;
             if (!rangeStack.empty() && type.detailType == last.type &&
                     last.originTypeIndex == rangeStack.top().originTypeIndex &&
-                    rangeStack.top().startTime < d->range(currentUsageIndex).start) {
+                    rangeStack.top().startTime < range(currentUsageIndex).start) {
                 last.update(event.numericData1);
                 currentUsage = last.size;
             } else {
@@ -216,18 +214,19 @@ void MemoryUsageModel::loadData()
                 currentUsage = allocation.size;
 
                 if (currentUsageIndex != -1) {
-                    d->insertEnd(currentUsageIndex,
-                                 event.startTime - d->range(currentUsageIndex).start - 1);
+                    insertEnd(currentUsageIndex,
+                              event.startTime - range(currentUsageIndex).start - 1);
                 }
-                currentUsageIndex = d->insertStart(event.startTime, allocation);
+                currentUsageIndex = insertStart(event.startTime);
+                d->data.insert(currentUsageIndex, allocation);
             }
         }
 
         if (type.detailType == QmlDebug::HeapPage || type.detailType == QmlDebug::LargeItem) {
-            MemoryAllocation &last = currentJSHeapIndex > -1 ? d->data(currentJSHeapIndex) : dummy;
+            MemoryAllocation &last = currentJSHeapIndex > -1 ? d->data[currentJSHeapIndex] : dummy;
             if (!rangeStack.empty() && type.detailType == last.type &&
                     last.originTypeIndex == rangeStack.top().originTypeIndex &&
-                    rangeStack.top().startTime < d->range(currentJSHeapIndex).start) {
+                    rangeStack.top().startTime < range(currentJSHeapIndex).start) {
                 last.update(event.numericData1);
                 currentSize = last.size;
             } else {
@@ -239,35 +238,33 @@ void MemoryUsageModel::loadData()
                 if (currentSize > d->maxSize)
                     d->maxSize = currentSize;
                 if (currentJSHeapIndex != -1)
-                    d->insertEnd(currentJSHeapIndex,
-                                 event.startTime - d->range(currentJSHeapIndex).start - 1);
-                currentJSHeapIndex = d->insertStart(event.startTime, allocation);
+                    insertEnd(currentJSHeapIndex,
+                              event.startTime - range(currentJSHeapIndex).start - 1);
+                currentJSHeapIndex = insertStart(event.startTime);
+                d->data.insert(currentJSHeapIndex, allocation);
             }
         }
 
-        d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), simpleModel->getEvents().count());
+        d->modelManager->modelProxyCountUpdated(d->modelId, count(),
+                                                simpleModel->getEvents().count());
     }
 
     if (currentJSHeapIndex != -1)
-        d->insertEnd(currentJSHeapIndex, traceEndTime() -
-                     d->range(currentJSHeapIndex).start - 1);
+        insertEnd(currentJSHeapIndex, traceEndTime() - range(currentJSHeapIndex).start - 1);
     if (currentUsageIndex != -1)
-        d->insertEnd(currentUsageIndex, traceEndTime() -
-                     d->range(currentUsageIndex).start - 1);
+        insertEnd(currentUsageIndex, traceEndTime() - range(currentUsageIndex).start - 1);
 
 
-    d->computeNesting();
+    computeNesting();
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
 }
 
 void MemoryUsageModel::clear()
 {
     Q_D(MemoryUsageModel);
-    d->SortedTimelineModel::clear();
-    d->expanded = false;
+    d->data.clear();
     d->maxSize = 1;
-
-    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
+    AbstractTimelineModel::clear();
 }
 
 QString MemoryUsageModel::MemoryUsageModelPrivate::memoryTypeName(int type)
