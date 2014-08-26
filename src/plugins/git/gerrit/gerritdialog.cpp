@@ -33,6 +33,7 @@
 #include "gerritparameters.h"
 
 #include <utils/qtcassert.h>
+#include <utils/fancylineedit.h>
 #include <utils/itemviews.h>
 #include <coreplugin/icore.h>
 
@@ -57,6 +58,24 @@ namespace Internal {
 
 static const int layoutSpacing  = 5;
 static const int maxTitleWidth = 350;
+
+class QueryValidatingLineEdit : public Utils::FancyLineEdit
+{
+    Q_OBJECT
+
+public:
+    explicit QueryValidatingLineEdit(QWidget *parent = 0);
+    void setTextColor(const QColor &c);
+
+public slots:
+    void setValid();
+    void setInvalid();
+
+private:
+    bool m_valid;
+    const QColor m_okTextColor;
+    const QColor m_errorTextColor;
+};
 
 QueryValidatingLineEdit::QueryValidatingLineEdit(QWidget *parent)
     : Utils::FancyLineEdit(parent)
@@ -319,3 +338,5 @@ void GerritDialog::fetchFinished()
 
 } // namespace Internal
 } // namespace Gerrit
+
+#include "gerritdialog.moc"

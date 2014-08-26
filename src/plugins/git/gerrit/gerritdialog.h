@@ -31,7 +31,6 @@
 #ifndef GERRIT_INTERNAL_GERRITDIALOG_H
 #define GERRIT_INTERNAL_GERRITDIALOG_H
 
-#include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
 
 #include <QDialog>
@@ -49,31 +48,17 @@ class QDialogButtonBox;
 class QTextBrowser;
 QT_END_NAMESPACE
 
-namespace Utils { class TreeView; }
+namespace Utils {
+class FancyLineEdit;
+class TreeView;
+}
 
 namespace Gerrit {
 namespace Internal {
 class GerritParameters;
 class GerritModel;
 class GerritChange;
-
-class QueryValidatingLineEdit : public Utils::FancyLineEdit
-{
-    Q_OBJECT
-
-public:
-    explicit QueryValidatingLineEdit(QWidget *parent = 0);
-    void setTextColor(const QColor &c);
-
-public slots:
-    void setValid();
-    void setInvalid();
-
-private:
-    bool m_valid;
-    const QColor m_okTextColor;
-    const QColor m_errorTextColor;
-};
+class QueryValidatingLineEdit;
 
 class GerritDialog : public QDialog
 {
