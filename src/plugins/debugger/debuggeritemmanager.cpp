@@ -389,7 +389,10 @@ QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
         }
     }
 
-    // Nothing suitable. Create a new id and add the item.
+    // If item already has an id, add it. Otherwise, create a new id.
+    if (item.id().isValid())
+        return addDebugger(item);
+
     DebuggerItem di = item;
     di.createId();
     return addDebugger(di);
