@@ -11,7 +11,7 @@ QtcPlugin {
     Depends { name: "Core" }
 
     property bool enable: false
-    pluginspecreplacements: ({"UPDATEINFO_EXPERIMENTAL_STR": (enable ? "false": "true")})
+    pluginJsonReplacements: ({"UPDATEINFO_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
     files: [
         "updateinfobutton.cpp",

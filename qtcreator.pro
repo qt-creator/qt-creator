@@ -18,7 +18,7 @@ unix:!macx:!isEmpty(copydata):SUBDIRS += bin
 OTHER_FILES += dist/copyright_template.txt \
     $$files(dist/changes-*) \
     qtcreator.qbs \
-    qbs/pluginspec/pluginspec.qbs \
+    qbs/pluginjson/pluginjson.qbs \
     $$files(dist/installer/ifw/config/config-*) \
     dist/installer/ifw/packages/org.qtproject.qtcreator/meta/package.xml.in \
     dist/installer/ifw/packages/org.qtproject.qtcreator.application/meta/installscript.qs \

@@ -102,7 +102,7 @@ public:
     QList<PluginSpec *> pluginSpecs;
     QList<TestSpec> testSpecs;
     QStringList pluginPaths;
-    QString extension;
+    QString pluginIID;
     QList<QObject *> allObjects; // ### make this a QList<QPointer<QObject> > > ?
     QStringList defaultDisabledPlugins; // Plugins/Ignored from install settings
     QStringList defaultEnabledPlugins; // Plugins/ForceEnabled from install settings

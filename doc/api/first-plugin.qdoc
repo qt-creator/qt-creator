@@ -141,9 +141,10 @@
         \li File
         \li Role
     \row
-        \li \c{Example.pluginspec.in}
-        \li Template plugin specification. QMake creates a \c{Example.pluginspec}
-            from this file, which is read by \QC to find out about the plugin.
+        \li \c{Example.json.in}
+        \li Plugin meta data template. QMake creates an \c{Example.json}
+            from this file, which is compiled into the plugin as meta data.
+            The meta data is read by \QC to find out about the plugin.
     \row
         \li \c{example.pro}
         \li Project file, used by QMake to generate a Makefile that then is used to
@@ -222,32 +223,32 @@
     For more information about qmake, and writing .pro files in general,
     see the \l{http://qt-project.org/doc/qt-4.8/qmake-manual.html}{qmake Manual}.
 
-    \section1 Plugin Specification
+    \section1 Plugin Meta Data Template
 
-    The .pluginspec file is an XML file that contains information that is needed by
+    The .json file is a JSON file that contains information that is needed by
     the plugin manager to find your plugin and resolve its dependencies before actually
     loading your plugin's library file. We will only have a short look at it here.
-    For more information, see \l{Plugin Specifications}.
+    For more information, see \l{Plugin Meta Data}.
 
-    The wizard doesn't actually create a .pluginspec file directly, but instead a
-    .pluginspec.in file. qmake uses this to generate the actual plugin specification
+    The wizard doesn't actually create a .json file directly, but instead a
+    .json.in file. qmake uses this to generate the actual plugin .json meta data
     file, replacing variables like \c{QTCREATOR_VERSION} with their actual values.
-    Therefore you need to escape all backslashes and quotes in the .pluginspec.in file
+    Therefore you need to escape all backslashes and quotes in the .json.in file
     (i.e. you need to write \c{\\} to get a backslash and \c{\"} to get a quote
-    in the generated plugin specification).
+    in the generated plugin JSON meta data).
 
-    \snippet exampleplugin/Example.pluginspec.in 1
+    \snippet exampleplugin/Example.json.in 1
 
-    The main tag of the plugin specification that is created by the wizard
-    defines the name of your plugin, its version, and with what version of this plugin
+    The first items in the meta data that is created by the wizard
+    define the name of your plugin, its version, and with what version of this plugin
     the current version is binary compatible with.
 
-    \snippet exampleplugin/Example.pluginspec.in 2
+    \snippet exampleplugin/Example.json.in 2
 
-    After the main tag you'll find the information about the plugin
+    After that you'll find the information about the plugin
     that you gave in the project wizard.
 
-    \snippet exampleplugin/Example.pluginspec.in 3
+    \snippet exampleplugin/Example.json.in 3
 
     The \c{$$dependencyList} variable is automatically replaced by the dependency information
     in \c{QTC_PLUGIN_DEPENDS} and \c{QTC_PLUGIN_RECOMMENDS} from your plugin's .pro file.
@@ -272,6 +273,9 @@
 
     All \QC plugins must be derived from \l{ExtensionSystem::IPlugin} and
     are QObjects. The \c{Q_PLUGIN_METADATA} macro is necessary to create a valid Qt plugin.
+    The \c IID given in the macro must be \c{org.qt-project.Qt.QtCreatorPlugin}, to identify it
+    as a \QC plugin, and \c FILE must point to the plugin's meta data file as described
+    in \l{Plugin Meta Data}.
 
     \snippet exampleplugin/exampleplugin.h plugin functions
 

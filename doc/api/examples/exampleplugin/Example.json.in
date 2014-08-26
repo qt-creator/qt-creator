@@ -1,0 +1,18 @@
+{
+//! [1]
+    \"Name\" : \"Example\",
+    \"Version\" : \"0.0.1\",
+    \"CompatVersion\" : \"0.0.1\",
+//! [1]
+//! [2]
+    \"Vendor\" : \"My Company\",
+    \"Copyright\" : \"(C) My Company\",
+    \"License\" : \"BSD\",
+    \"Category\" : \"Examples\",
+    \"Description\" : \"Minimal plugin example.\",
+    \"Url\" : \"http://www.mycompany.com\",
+//! [2]
+//! [3]
+    $$dependencyList
+//! [3]
+}

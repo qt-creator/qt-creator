@@ -1,0 +1,19 @@
+{
+    \"Name\" : \"Macros\",
+    \"Version\" : \"$$QTCREATOR_VERSION\",
+    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"Vendor\" : \"Digia Plc\",
+    \"Copyright\" : \"(C) 2014 Digia Plc\",
+    \"License\" : [ \"Commercial Usage\",
+                  \"\",
+                  \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and Digia.\",
+                  \"\",
+                  \"GNU Lesser General Public License Usage\",
+                  \"\",
+                  \"Alternatively, this plugin may be used under the terms of the GNU Lesser General Public License version 2.1 as published by the Free Software Foundation.  Please review the following information to ensure the GNU Lesser General Public License version 2.1 requirements will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\"
+    ],
+    \"Category\" : \"Qt Creator\",
+    \"Description\" : \"Macros in text editors.\",
+    \"Url\" : \"http://www.qt-project.org\",
+    $$dependencyList
+}

@@ -44,7 +44,7 @@ leave room for the Qt 4 target page.
     <displaycategory>Libraries</displaycategory>
     <files>
         <file source="myplugin.pro" target="%PluginName:l%.pro" openproject="true"/>
-        <file source="MyPlugin.pluginspec.in" target="%PluginName%.pluginspec.in" openeditor="true"/>
+        <file source="MyPlugin.json.in" target="%PluginName%.json.in" openeditor="true"/>
         <file source="myplugin_global.h" target="%PluginName:l%_global.%CppHeaderSuffix%" openeditor="true"/>
         <file source="mypluginconstants.h" target="%PluginName:l%constants.%CppHeaderSuffix%" openeditor="true"/>
         <file source="myplugin.h" target="%PluginName:l%plugin.%CppHeaderSuffix%" openeditor="true"/>
@@ -69,12 +69,12 @@ leave room for the Qt 4 target page.
             <fielddescription>Copyright:</fielddescription>
         </field>
         <field name="License">
-            <fieldcontrol class="QTextEdit"
-                          defaulttext="Put your license text here" />
+            <fieldcontrol class="QLineEdit"
+                          defaulttext="Put your license information here" />
             <fielddescription>License:</fielddescription>
         </field>
         <field name="Description">
-            <fieldcontrol class="QTextEdit"
+            <fieldcontrol class="QLineEdit"
                           defaulttext="Put a short description of your plugin here"/>
             <fielddescription>Description:</fielddescription>
         </field>

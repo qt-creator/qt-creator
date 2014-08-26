@@ -55,6 +55,7 @@ SUBDIRS   = \
     qmlprofiler \
     welcome
 
+
 isEmpty(QBS_INSTALL_DIR): QBS_INSTALL_DIR = $$(QBS_INSTALL_DIR)
 exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \
     SUBDIRS += \

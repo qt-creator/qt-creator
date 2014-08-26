@@ -54,7 +54,7 @@ DEV_HELP_DEP_FILES = \
     $$PWD/api/creating-plugins.qdoc \
     $$PWD/api/getting-and-building.qdoc \
     $$PWD/api/first-plugin.qdoc \
-    $$PWD/api/plugin-specifications.qdoc \
+    $$PWD/api/plugin-metadata.qdoc \
     $$PWD/api/plugin-lifecycle.qdoc \
     $$PWD/api/pluginmanager.qdoc \
     $$PWD/api/qtcreator-dev$${COMPAT}.qdocconf

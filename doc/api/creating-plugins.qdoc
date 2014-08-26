@@ -46,7 +46,7 @@
     \list
     \li \l{Getting and Building Qt Creator}
     \li \l{Creating Your First Plugin}
-    \li \l{Plugin Specifications}
+    \li \l{Plugin Meta Data}
     \li \l{Plugin Life Cycle}
     \endlist
 

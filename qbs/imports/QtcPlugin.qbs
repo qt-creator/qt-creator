@@ -7,7 +7,7 @@ QtcProduct {
     type: ["dynamiclibrary", "pluginSpec"]
     installDir: project.ide_plugin_path
 
-    property var pluginspecreplacements
+    property var pluginJsonReplacements
     property var pluginRecommends: []
 
     property string minimumQtVersion: "5.3.1"
@@ -17,7 +17,7 @@ QtcProduct {
     destinationDirectory: project.ide_plugin_path
 
     Depends { name: "ExtensionSystem" }
-    Depends { name: "pluginspec" }
+    Depends { name: "pluginjson" }
     Depends {
         condition: project.testsEnabled
         name: "Qt.test"
@@ -39,9 +39,9 @@ QtcProduct {
     cpp.includePaths: [pluginIncludeBase]
 
     Group {
-        name: "PluginSpec"
-        files: [ product.name + ".pluginspec.in" ]
-        fileTags: ["pluginSpecIn"]
+        name: "PluginMetaData"
+        files: [ product.name + ".json.in" ]
+        fileTags: ["pluginJsonIn"]
     }
 
     Group {

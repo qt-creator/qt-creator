@@ -1,0 +1,23 @@
+{
+    "IID" : "plugin",
+    "MetaData" : {
+        "Version" : "1.0.1",
+        "CompatVersion" : "1.0.0",
+        "Vendor" : "Digia Plc",
+        "Copyright" : "(C) 2014 Digia Plc",
+        "License" : [
+            "This is a default license bla",
+            "blubbblubb",
+            "end of terms"
+        ],
+        "Description" : [
+            "This plugin is just a test.",
+            "    it demonstrates the great use of the plugin spec."
+        ],
+        "Url" : "http://qt.digia.com",
+        "Dependencies" : [
+            { "Name" : "SomeOtherPlugin", "Version" : "2.3.0_2" },
+            { "Name" : "EvenOther", "Version" : "1.0.0" }
+        ]
+    }
+}

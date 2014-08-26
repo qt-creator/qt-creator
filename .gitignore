@@ -40,7 +40,6 @@ Thumbs.db
 *.creator.user*
 *.qbs.user*
 *.qmlproject.user*
-*.pluginspec
 *.json
 /src/app/Info.plist
 app_version.h

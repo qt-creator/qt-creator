@@ -118,10 +118,10 @@ public:
     static void loadPlugins();
     static QStringList pluginPaths();
     static void setPluginPaths(const QStringList &paths);
+    static QString pluginIID();
+    static void setPluginIID(const QString &iid);
     static QList<PluginSpec *> plugins();
     static QHash<QString, PluginCollection *> pluginCollections();
-    static void setFileExtension(const QString &extension);
-    static QString fileExtension();
     static bool hasError();
 
     // Settings

@@ -15,12 +15,5 @@ DynamicLibrary {
         project.buildDirectory + "/" + project.libDirName + "/qtcreator",
         project.buildDirectory + "/" + project.libDirName + "/qtcreator/plugins"
     ].concat(additionalRPaths)
-    property pathList filesToCopy
     property pathList additionalRPaths: []
-    Group {
-        name: "resources"
-        fileTags: "copyable_resource"
-        copyable_resource.targetDirectory: product.destinationDirectory
-        files: product.filesToCopy
-    }
 }

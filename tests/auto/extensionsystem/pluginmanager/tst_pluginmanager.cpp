@@ -49,7 +49,6 @@ private slots:
     void addRemoveObjects();
     void getObject();
     void getObjects();
-    void plugins();
     void circularPlugins();
     void correctPlugins1();
 
@@ -82,7 +81,9 @@ static QString pluginFolder(const QLatin1String &folder)
 
 void tst_PluginManager::init()
 {
+    QLoggingCategory::setFilterRules(QLatin1String("qtc.*.debug=false"));
     m_pm = new PluginManager;
+    m_pm->setPluginIID(QLatin1String("plugin"));
     m_objectAdded = new QSignalSpy(m_pm, SIGNAL(objectAdded(QObject*)));
     m_aboutToRemoveObject = new QSignalSpy(m_pm, SIGNAL(aboutToRemoveObject(QObject*)));
     m_pluginsChanged = new QSignalSpy(m_pm, SIGNAL(pluginsChanged()));
@@ -196,24 +197,6 @@ void tst_PluginManager::getObjects()
     delete object11;
 }
 
-void tst_PluginManager::plugins()
-{
-    m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("plugins")));
-    QCOMPARE(m_pluginsChanged->count(), 1);
-    QList<PluginSpec *> plugins = m_pm->plugins();
-    QCOMPARE(plugins.count(), 3);
-    foreach (const QString &expected, QStringList() << "helloworld" << "MyPlugin" << "dummyPlugin") {
-        bool found = false;
-        foreach (PluginSpec *spec, plugins) {
-            if (spec->name() == expected) {
-                found = true;
-                break;
-            }
-        }
-        QVERIFY2(found, QString("plugin \"%1\" not found").arg(expected).toLocal8Bit().constData());
-    }
-}
-
 void tst_PluginManager::circularPlugins()
 {
     m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("circularplugins")));
@@ -238,15 +221,20 @@ void tst_PluginManager::circularPlugins()
 
 void tst_PluginManager::correctPlugins1()
 {
-    m_pm->setFileExtension("spec");
     m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("correctplugins1")));
     m_pm->loadPlugins();
+    bool specError = false;
+    bool runError = false;
     foreach (PluginSpec *spec, m_pm->plugins()) {
-        if (spec->hasError())
+        if (spec->hasError()) {
+            qDebug() << spec->filePath();
             qDebug() << spec->errorString();
-        QVERIFY(!spec->hasError());
-        QCOMPARE(spec->state(), PluginSpec::Running);
+        }
+        specError = specError || spec->hasError();
+        runError = runError || (spec->state() != PluginSpec::Running);
     }
+    QVERIFY(!specError);
+    QVERIFY(!runError);
     bool plugin1running = false;
     bool plugin2running = false;
     bool plugin3running = false;

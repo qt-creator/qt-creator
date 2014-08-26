@@ -95,7 +95,7 @@ while (1) {
         next;
     }
 
-    if (!$hasContact && $file !~ /\.pluginspec\.in$/) {
+    if (!$hasContact && $file !~ /\.json\.in$/) {
         print "$file\tERROR\tWrong contact\n";
         next;
     }

@@ -33,10 +33,12 @@
 #include "pluginspec.h"
 #include "iplugin.h"
 
+#include <QJsonObject>
 #include <QObject>
+#include <QPluginLoader>
+#include <QRegExp>
 #include <QStringList>
 #include <QXmlStreamReader>
-#include <QRegExp>
 
 namespace ExtensionSystem {
 
@@ -61,6 +63,8 @@ public:
     bool delayedInitialize();
     IPlugin::ShutdownFlag stop();
     void kill();
+
+    QPluginLoader loader;
 
     QString name;
     QString version;
@@ -98,18 +102,12 @@ public:
 
     void disableIndirectlyIfDependencyDisabled();
 
+    bool readMetaData(const QJsonObject &metaData);
 
 private:
     PluginSpec *q;
 
     bool reportError(const QString &err);
-    void readPluginSpec(QXmlStreamReader &reader);
-    void readDependencies(QXmlStreamReader &reader);
-    void readDependencyEntry(QXmlStreamReader &reader);
-    void readArgumentDescriptions(QXmlStreamReader &reader);
-    void readArgumentDescription(QXmlStreamReader &reader);
-    bool readBooleanValue(QXmlStreamReader &reader, const char *key);
-
     static QRegExp &versionRegExp();
 };
 

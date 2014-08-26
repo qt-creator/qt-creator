@@ -314,7 +314,7 @@ int main(int argc, char **argv)
 #endif
 
     // Manually determine -settingspath command line option
-    // We can't use the regular way of the plugin manager, because that needs to parse pluginspecs
+    // We can't use the regular way of the plugin manager, because that needs to parse plugin meta data
     // but the settings path can influence which plugins are enabled
     QString settingsPath;
     QStringList customPluginPaths;
@@ -358,7 +358,7 @@ int main(int argc, char **argv)
                                               QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
                                               QLatin1String("QtCreator"));
     PluginManager pluginManager;
-    PluginManager::setFileExtension(QLatin1String("pluginspec"));
+    PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
     PluginManager::setGlobalSettings(globalSettings);
     PluginManager::setSettings(settings);
 
@@ -449,7 +449,7 @@ int main(int argc, char **argv)
     }
     if (!coreplugin) {
         QString nativePaths = QDir::toNativeSeparators(pluginPaths.join(QLatin1Char(',')));
-        const QString reason = QCoreApplication::translate("Application", "Could not find 'Core.pluginspec' in %1").arg(nativePaths);
+        const QString reason = QCoreApplication::translate("Application", "Could not find Core plugin in %1").arg(nativePaths);
         displayError(msgCoreLoadFailure(reason));
         return 1;
     }

@@ -129,12 +129,12 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *errorMe
 }
 
 /*! Notification that all extensions that this plugin depends on have been
-    initialized. The dependencies are defined in the plugins .pluginspec file.
+    initialized. The dependencies are defined in the plugins .json(.in) file.
 
     Normally this function is used for things that rely on other plugins to have
     added objects to the plugin manager, that implement interfaces that we're
     interested in. These objects can now be requested through the
-    PluginManagerInterface.
+    PluginManager.
 
     The HelloWorldPlugin doesn't need things from other plugins, so it does
     nothing here.

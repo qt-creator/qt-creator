@@ -40,7 +40,7 @@ namespace MyPlugin {
 class MYPLUGIN_EXPORT MyPluginImpl : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "testplugin.json")
+    Q_PLUGIN_METADATA(IID "plugin" FILE "testplugin.json")
 
 public:
     MyPluginImpl();

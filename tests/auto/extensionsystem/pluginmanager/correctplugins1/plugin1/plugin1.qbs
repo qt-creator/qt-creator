@@ -5,7 +5,6 @@ Plugin {
     name: "correct_plugin1"
     Depends { name: "correct_plugin2" }
     Depends { name: "correct_plugin3" }
-    filesToCopy: "plugin.spec"
     additionalRPaths: [
         destinationDirectory + "/../plugin2",
         destinationDirectory + "/../plugin3"

@@ -5,44 +5,43 @@ QtcAutotest {
     name: "ExtensionSystem pluginspec autotest"
     Depends { name: "Aggregation" }
     Depends { name: "ExtensionSystem" }
-    Depends { name: "pluginspec_test" }
-    cpp.defines: base.concat(['PLUGINSPEC_DIR="' + destinationDirectory + '"'])
-    files: "tst_pluginspec.cpp"
+    Group {
+        name: "Sources"
+        files: "tst_pluginspec.cpp"
+        cpp.defines: base.concat([
+            'PLUGIN_DIR="' + destinationDirectory + '"',
+            'PLUGINSPEC_DIR="' + sourceDirectory + '"'
+        ])
+    }
+
     Group {
         id: testSpecsGroup
         name: "test specs"
-        fileTags: "copyable_resource"
-        copyable_resource.targetDirectory: product.destinationDirectory + "/testspecs"
         files: [
-            "testspecs/simplespec.xml",
-            "testspecs/simplespec_experimental.xml",
-            "testspecs/spec1.xml",
-            "testspecs/spec2.xml",
-            "testspecs/spec_wrong1.xml",
-            "testspecs/spec_wrong2.xml",
-            "testspecs/spec_wrong3.xml",
-            "testspecs/spec_wrong4.xml",
-            "testspecs/spec_wrong5.xml",
+            "testspecs/simplespec.json",
+            "testspecs/simplespec_experimental.json",
+            "testspecs/spec1.json",
+            "testspecs/spec2.json",
+            "testspecs/spec_wrong2.json",
+            "testspecs/spec_wrong3.json",
+            "testspecs/spec_wrong4.json",
+            "testspecs/spec_wrong5.json",
         ]
     }
     Group {
         id: testDependenciesGroup
         name: "test dependencies"
-        fileTags: "copyable_resource"
-        copyable_resource.targetDirectory: product.destinationDirectory + "/testdependencies"
         files: [
-            "testdependencies/spec1.xml",
-            "testdependencies/spec2.xml",
-            "testdependencies/spec3.xml",
-            "testdependencies/spec4.xml",
-            "testdependencies/spec5.xml",
+            "testdependencies/spec1.json",
+            "testdependencies/spec2.json",
+            "testdependencies/spec3.json",
+            "testdependencies/spec4.json",
+            "testdependencies/spec5.json",
         ]
     }
     Group {
         id: specGroup
         name: "spec"
-        fileTags: "copyable_resource"
-        copyable_resource.targetDirectory: product.destinationDirectory + "/testdir"
-        files: ["testdir/spec.xml"]
+        files: ["testdir/spec.json"]
     }
 }

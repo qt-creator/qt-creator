@@ -1,0 +1,12 @@
+{
+    "IID" : "plugin",
+    "MetaData" : {
+        "Name" : "plugin1",
+        "Version" : "1.0.1",
+        "CompatVersion" : "1.0.0",
+        "Dependencies" : [
+            { "Name" : "plugin2", "Version" : "2.3.0_2" },
+            { "Name" : "plugin3", "Version" : "1.0.0" }
+        ]
+    }
+}

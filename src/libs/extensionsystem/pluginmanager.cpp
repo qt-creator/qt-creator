@@ -40,6 +40,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
+#include <QLibrary>
 #include <QMetaProperty>
 #include <QSettings>
 #include <QTextStream>
@@ -52,6 +53,8 @@
 #ifdef WITH_TESTS
 #include <QTest>
 #endif
+
+Q_LOGGING_CATEGORY(pluginLog, "qtc.extensionsystem")
 
 const char C_IGNORED_PLUGINS[] = "Plugins/Ignored";
 const char C_FORCEENABLED_PLUGINS[] = "Plugins/ForceEnabled";
@@ -406,25 +409,25 @@ void PluginManager::setPluginPaths(const QStringList &paths)
 }
 
 /*!
-    The file extension of plugin description files.
-    The default is "xml".
+    The IID that valid plugins must have.
 
-    \sa setFileExtension()
+    \sa setPluginIID()
 */
-QString PluginManager::fileExtension()
+QString PluginManager::pluginIID()
 {
-    return d->extension;
+    return d->pluginIID;
 }
 
 /*!
-    Sets the file extension of plugin description files.
-    The default is "xml".
+    Sets the IID that valid plugins must have. Only plugins with this IID are loaded, others are
+    silently ignored.
+
     At the moment this must be called before setPluginPaths() is called.
-    // ### TODO let this + setPluginPaths read the plugin specs lazyly whenever loadPlugins() or plugins() is called.
+    // ### TODO let this + setPluginPaths read the plugin meta data lazyly whenever loadPlugins() or plugins() is called.
 */
-void PluginManager::setFileExtension(const QString &extension)
+void PluginManager::setPluginIID(const QString &iid)
 {
-    d->extension = extension;
+    d->pluginIID = iid;
 }
 
 /*!
@@ -892,7 +895,6 @@ void PluginManagerPrivate::nextDelayedInitialize()
     \internal
 */
 PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
-    extension(QLatin1String("xml")),
     delayedInitializeTimer(0),
     shutdownEventLoop(0),
     m_profileElapsedMS(0),
@@ -1216,6 +1218,8 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
 */
 void PluginManagerPrivate::setPluginPaths(const QStringList &paths)
 {
+    qCDebug(pluginLog) << "Plugin search paths:" << paths;
+    qCDebug(pluginLog) << "Required IID:" << pluginIID;
     pluginPaths = paths;
     readSettings();
     readPluginPaths();
@@ -1231,14 +1235,16 @@ void PluginManagerPrivate::readPluginPaths()
     pluginSpecs.clear();
     pluginCategories.clear();
 
-    QStringList specFiles;
+    QStringList pluginFiles;
     QStringList searchPaths = pluginPaths;
     while (!searchPaths.isEmpty()) {
         const QDir dir(searchPaths.takeFirst());
-        const QString pattern = QLatin1String("*.") + extension;
-        const QFileInfoList files = dir.entryInfoList(QStringList(pattern), QDir::Files);
-        foreach (const QFileInfo &file, files)
-            specFiles << file.absoluteFilePath();
+        const QFileInfoList files = dir.entryInfoList(QDir::Files | QDir::NoSymLinks);
+        foreach (const QFileInfo &file, files) {
+            const QString filePath = file.absoluteFilePath();
+            if (QLibrary::isLibrary(filePath))
+                pluginFiles.append(filePath);
+        }
         const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot);
         foreach (const QFileInfo &subdir, dirs)
             searchPaths << subdir.absoluteFilePath();
@@ -1246,9 +1252,10 @@ void PluginManagerPrivate::readPluginPaths()
     defaultCollection = new PluginCollection(QString());
     pluginCategories.insert(QString(), defaultCollection);
 
-    foreach (const QString &specFile, specFiles) {
+    foreach (const QString &pluginFile, pluginFiles) {
         PluginSpec *spec = new PluginSpec;
-        spec->d->read(specFile);
+        if (!spec->d->read(pluginFile)) // not a Qt Creator plugin
+            continue;
 
         PluginCollection *collection = 0;
         // find correct plugin collection or create a new one
