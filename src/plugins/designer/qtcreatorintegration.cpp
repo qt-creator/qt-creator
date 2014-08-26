@@ -641,9 +641,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 
 void QtCreatorIntegration::slotSyncSettingsToDesigner()
 {
-#if QT_VERSION > 0x040800
     // Set promotion-relevant parameters on integration.
     setHeaderSuffix(Core::MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
     setHeaderLowercase(FormClassWizardPage::lowercaseHeaderFiles());
-#endif
 }

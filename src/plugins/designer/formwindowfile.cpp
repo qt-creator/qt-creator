@@ -212,16 +212,9 @@ void FormWindowFile::syncXmlFromFormWindow()
 
 QString FormWindowFile::formWindowContents() const
 {
-#if QT_VERSION >= 0x050000    // TODO: No warnings about spacers here
+    // TODO: No warnings about spacers here
     QTC_ASSERT(m_formWindow, return QString());
     return m_formWindow->contents();
-#else
-    // No warnings about spacers here
-    const qdesigner_internal::FormWindowBase *fw =
-            qobject_cast<const qdesigner_internal::FormWindowBase *>(m_formWindow);
-    QTC_ASSERT(fw, return QString());
-    return fw->fileContents();
-#endif
 }
 
 void FormWindowFile::slotFormWindowRemoved(QDesignerFormWindowInterface *w)

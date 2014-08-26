@@ -4,20 +4,7 @@ include(../../qtcreatorplugin.pri)
 include(../../shared/designerintegrationv2/designerintegration.pri)
 include(cpp/cpp.pri)
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += printsupport designer designercomponents-private
-} else {
-    # -- figure out shared dir location
-    !exists($$[QT_INSTALL_HEADERS]/QtDesigner/private/qdesigner_integration_p.h) {
-        QT_SOURCE_TREE=$$fromfile($$(QTDIR)/.qmake.cache,QT_SOURCE_TREE)
-        INCLUDEPATH += $$QT_SOURCE_TREE/include
-    }
-    INCLUDEPATH += $$QMAKE_INCDIR_QT/QtDesigner
-    qtAddLibrary(QtDesigner)
-    qtAddLibrary(QtDesignerComponents)
-}
-
-QT += xml
+QT += printsupport designer designercomponents-private xml
 
 HEADERS += formeditorplugin.h \
         formeditorfactory.h \
