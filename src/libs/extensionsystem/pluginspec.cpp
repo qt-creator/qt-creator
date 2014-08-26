@@ -34,32 +34,14 @@
 #include "iplugin_p.h"
 #include "pluginmanager.h"
 
+#include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QXmlStreamReader>
+#include <QPluginLoader>
 #include <QRegExp>
-#include <QCoreApplication>
-#include <QDebug>
-
-#ifdef Q_OS_LINUX
-// Using the patched version breaks on Fedora 10, KDE4.2.2/Qt4.5.
-#   define USE_UNPATCHED_QPLUGINLOADER 1
-#else
-#   define USE_UNPATCHED_QPLUGINLOADER 1
-#endif
-
-#if USE_UNPATCHED_QPLUGINLOADER
-
-#   include <QPluginLoader>
-    typedef QT_PREPEND_NAMESPACE(QPluginLoader) PluginLoader;
-
-#else
-
-#   include "patchedpluginloader.cpp"
-    typedef PatchedPluginLoader PluginLoader;
-
-#endif
+#include <QXmlStreamReader>
 
 /*!
     \class ExtensionSystem::PluginDependency
@@ -981,7 +963,7 @@ bool PluginSpecPrivate::loadLibrary()
 
 #endif
 
-    PluginLoader loader(libName);
+    QPluginLoader loader(libName);
     if (!loader.load()) {
         hasError = true;
         errorString = QDir::toNativeSeparators(libName)
