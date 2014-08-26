@@ -424,6 +424,7 @@ bool QmlProfilerQuickView::event(QEvent *ev)
             relayed = true;
         }
         break;
+    case QEvent::MouseMove:
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease: {
         QMouseEvent *orig = static_cast<QMouseEvent *>(ev);
