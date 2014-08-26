@@ -48,6 +48,7 @@ public:
         const QString fileName;
         const QByteArray code;
         const unsigned revision;
+        CPlusPlus::Snapshot snapshot;
         const bool force;
 
         Source() : revision(0), force(false) {}
@@ -55,10 +56,12 @@ public:
         Source(const QString &fileName,
                const QByteArray &code,
                unsigned revision,
+               const CPlusPlus::Snapshot &snapshot,
                bool force)
             : fileName(fileName)
             , code(code)
             , revision(revision)
+            , snapshot(snapshot)
             , force(force)
         {}
     };

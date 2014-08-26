@@ -42,6 +42,7 @@ BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath
     , m_forceSnapshotInvalidation(false)
     , m_releaseSourceAndAST(true)
 {
+    qRegisterMetaType<CPlusPlus::Snapshot>("CPlusPlus::Snapshot");
 }
 
 void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
@@ -187,6 +188,8 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
         }
         m_snapshot = newSnapshot;
         m_deps.build(m_snapshot);
+
+        emit finished(document(), m_snapshot);
     }
 }
 

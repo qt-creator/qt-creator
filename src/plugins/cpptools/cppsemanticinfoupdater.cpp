@@ -27,9 +27,9 @@
 **
 ****************************************************************************/
 
-#include "builtineditordocumentparser.h"
-#include "cpplocalsymbols.h"
 #include "cppsemanticinfoupdater.h"
+
+#include "cpplocalsymbols.h"
 
 #include <utils/qtcassert.h>
 #include <utils/qtcoverride.h>
@@ -60,7 +60,7 @@ public:
     };
 
 public:
-    SemanticInfoUpdaterPrivate(SemanticInfoUpdater *q, BuiltinEditorDocumentParser *m_parser);
+    SemanticInfoUpdaterPrivate(SemanticInfoUpdater *q);
     ~SemanticInfoUpdaterPrivate();
 
     SemanticInfo semanticInfo() const;
@@ -79,13 +79,10 @@ public:
     mutable QMutex m_lock;
     SemanticInfo m_semanticInfo;
     QFuture<void> m_future;
-    BuiltinEditorDocumentParser *m_parser;
 };
 
-SemanticInfoUpdaterPrivate::SemanticInfoUpdaterPrivate(SemanticInfoUpdater *q,
-                                                       BuiltinEditorDocumentParser *parser)
+SemanticInfoUpdaterPrivate::SemanticInfoUpdaterPrivate(SemanticInfoUpdater *q)
     : q(q)
-    , m_parser(parser)
 {
 }
 
@@ -123,10 +120,7 @@ SemanticInfo SemanticInfoUpdaterPrivate::update(const SemanticInfo::Source &sour
 
     SemanticInfo newSemanticInfo;
     newSemanticInfo.revision = source.revision;
-
-    QTC_ASSERT(m_parser, return newSemanticInfo);
-    newSemanticInfo.snapshot = m_parser->snapshot();
-    QTC_ASSERT(newSemanticInfo.snapshot.contains(source.fileName), return newSemanticInfo);
+    newSemanticInfo.snapshot = source.snapshot;
 
     Document::Ptr doc = newSemanticInfo.snapshot.preprocessedDocument(source.code, source.fileName);
     if (processor)
@@ -154,11 +148,12 @@ bool SemanticInfoUpdaterPrivate::reuseCurrentSemanticInfo(const SemanticInfo::So
             && currentSemanticInfo.revision == source.revision
             && currentSemanticInfo.doc
             && currentSemanticInfo.doc->translationUnit()->ast()
-            && currentSemanticInfo.doc->fileName() == source.fileName) {
+            && currentSemanticInfo.doc->fileName() == source.fileName
+            && !currentSemanticInfo.snapshot.isEmpty()) {
         SemanticInfo newSemanticInfo;
         newSemanticInfo.revision = source.revision;
+        newSemanticInfo.snapshot = source.snapshot;
         newSemanticInfo.doc = currentSemanticInfo.doc;
-        newSemanticInfo.snapshot = currentSemanticInfo.snapshot; // ### TODO: use the new snapshot.
         setSemanticInfo(newSemanticInfo, emitSignalWhenFinished);
         if (debug)
             qDebug() << "SemanticInfoUpdater: re-using current semantic info - source.revision"
@@ -176,8 +171,8 @@ void SemanticInfoUpdaterPrivate::update_helper(QFutureInterface<void> &future,
     update(source, true, &processor);
 }
 
-SemanticInfoUpdater::SemanticInfoUpdater(BuiltinEditorDocumentParser *parser)
-    : d(new SemanticInfoUpdaterPrivate(this, parser))
+SemanticInfoUpdater::SemanticInfoUpdater()
+    : d(new SemanticInfoUpdaterPrivate(this))
 {
 }
 

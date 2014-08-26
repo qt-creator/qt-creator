@@ -37,7 +37,6 @@
 
 namespace CppTools {
 
-class BuiltinEditorDocumentParser;
 class SemanticInfoUpdaterPrivate;
 
 class SemanticInfoUpdater : public QObject
@@ -46,7 +45,7 @@ class SemanticInfoUpdater : public QObject
     Q_DISABLE_COPY(SemanticInfoUpdater)
 
 public:
-    explicit SemanticInfoUpdater(BuiltinEditorDocumentParser *parser);
+    explicit SemanticInfoUpdater();
     ~SemanticInfoUpdater();
 
     SemanticInfo semanticInfo() const;

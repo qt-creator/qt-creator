@@ -446,7 +446,9 @@ unsigned CppEditorWidget::documentRevision() const
 
 bool CppEditorWidget::isSemanticInfoValidExceptLocalUses() const
 {
-    return d->m_lastSemanticInfo.doc && d->m_lastSemanticInfo.revision == documentRevision();
+    return d->m_lastSemanticInfo.doc
+            && d->m_lastSemanticInfo.revision == documentRevision()
+            && !d->m_lastSemanticInfo.snapshot.isEmpty();
 }
 
 bool CppEditorWidget::isSemanticInfoValid() const

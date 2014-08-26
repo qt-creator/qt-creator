@@ -132,7 +132,6 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
         bool enableSemanticHighlighter)
     : BaseEditorDocumentProcessor(document)
     , m_parser(new BuiltinEditorDocumentParser(document->filePath()))
-    , m_semanticInfoUpdater(m_parser.data())
     , m_semanticHighlighter(enableSemanticHighlighter
                             ? new CppTools::SemanticHighlighter(document)
                             : 0)
@@ -151,8 +150,8 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
             });
     }
 
-    connect(cmm(), &CppModelManager::documentUpdated,
-            this, &BuiltinEditorDocumentProcessor::onDocumentUpdated);
+    connect(m_parser.data(), &BuiltinEditorDocumentParser::finished,
+            this, &BuiltinEditorDocumentProcessor::onParserFinished);
     connect(&m_semanticInfoUpdater, &SemanticInfoUpdater::updated,
             this, &BuiltinEditorDocumentProcessor::onSemanticInfoUpdated);
 }
@@ -197,7 +196,8 @@ BuiltinEditorDocumentProcessor *BuiltinEditorDocumentProcessor::get(const QStrin
     return 0;
 }
 
-void BuiltinEditorDocumentProcessor::onDocumentUpdated(CPlusPlus::Document::Ptr document)
+void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr document,
+                                                      CPlusPlus::Snapshot snapshot)
 {
     if (document.isNull())
         return;
@@ -223,7 +223,9 @@ void BuiltinEditorDocumentProcessor::onDocumentUpdated(CPlusPlus::Document::Ptr 
 
     emit cppDocumentUpdated(document);
 
+    m_documentSnapshot = snapshot;
     const auto source = createSemanticInfoSource(false);
+    QTC_CHECK(source.snapshot.contains(document->fileName()));
     m_semanticInfoUpdater.updateDetached(source);
 }
 
@@ -247,6 +249,7 @@ SemanticInfo::Source BuiltinEditorDocumentProcessor::createSemanticInfoSource(bo
     return SemanticInfo::Source(path,
                                 workingCopy.source(path),
                                 workingCopy.revision(path),
+                                m_documentSnapshot,
                                 force);
 }
 

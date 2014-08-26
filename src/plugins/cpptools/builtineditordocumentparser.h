@@ -59,6 +59,9 @@ public:
 
     void setReleaseSourceAndAST(bool onoff);
 
+signals:
+    void finished(CPlusPlus::Document::Ptr document, CPlusPlus::Snapshot snapshot);
+
 public:
     static BuiltinEditorDocumentParser *get(const QString &filePath);
 

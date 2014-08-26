@@ -61,7 +61,7 @@ public:
     static BuiltinEditorDocumentProcessor *get(const QString &filePath);
 
 private:
-    void onDocumentUpdated(CPlusPlus::Document::Ptr document);
+    void onParserFinished(CPlusPlus::Document::Ptr document, CPlusPlus::Snapshot snapshot);
     void onSemanticInfoUpdated(const CppTools::SemanticInfo semanticInfo);
 
     SemanticInfo::Source createSemanticInfoSource(bool force) const;
@@ -69,6 +69,8 @@ private:
 private:
     QScopedPointer<BuiltinEditorDocumentParser> m_parser;
     QFuture<void> m_parserFuture;
+
+    CPlusPlus::Snapshot m_documentSnapshot;
 
     SemanticInfoUpdater m_semanticInfoUpdater;
     QScopedPointer<SemanticHighlighter> m_semanticHighlighter;
