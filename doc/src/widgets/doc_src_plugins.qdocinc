@@ -17,11 +17,14 @@
 ****************************************************************************/
 
 //! [0]
+\badcode
 otool -L /Developer/Applications/Qt/plugins/designer/libqwt_designer_plugin.dylib
+\endcode
 //! [0]
 
 
 //! [1]
+\badcode
 /Developer/Applications/Qt/plugins/designer/libqwt_designer_plugin.dylib:
 	libqwt_designer_plugin.dylib (compatibility version 0.0.0, current version 0.0.0)
 	libqwt.5.dylib (compatibility version 5.2.0, current version 5.2.1)
@@ -33,14 +36,18 @@ otool -L /Developer/Applications/Qt/plugins/designer/libqwt_designer_plugin.dyli
 	/usr/lib/libstdc++.6.dylib (compatibility version 7.0.0, current version 7.9.0)
 	/usr/lib/libgcc_s.1.dylib (compatibility version 1.0.0, current version 438.0.0)
 	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 125.0.1)
+\endcode
 //! [1]
 
 //! [2]
+\badcode
 otool -L /usr/local/qwt-5.2.1/lib/libqwt.5.dylib
+\endcode
 //! [2]
 
 
 //! [3]
+\badcode
 /usr/local/qwt-5.2.1/lib/libqwt.5.dylib:
 	libqwt.5.dylib (compatibility version 5.2.0, current version 5.2.1)
 	QtGui.framework/Versions/4/QtGui (compatibility version 4.6.0, current version 4.6.2)
@@ -48,18 +55,22 @@ otool -L /usr/local/qwt-5.2.1/lib/libqwt.5.dylib
 	/usr/lib/libstdc++.6.dylib (compatibility version 7.0.0, current version 7.9.0)
 	/usr/lib/libgcc_s.1.dylib (compatibility version 1.0.0, current version 438.0.0)
 	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 125.0.1)
+\endcode
 //! [3]
 
 
 //! [4]
+\badcode
 sudo cp /Developer/Applications/Qt/plugins/designer/libqwt_designer_plugin.dylib \
         /Developer/Applications/Qt/Qt\ Creator.app/Contents/MacOS/designer
 sudo cp -R /usr/local/qwt-5.2.1/lib/*  \
         /Developer/Applications/Qt/Qt\ Creator.app/Contents/Frameworks/
+\endcode
 //! [4]
 
 
 //! [5]
+\badcode
 cd /Developer/Applications/Qt/Qt\ Creator.app/Contents/MacOS/designer
 sudo install_name_tool -change
     QtCore.framework/Versions/4/QtCore \
@@ -90,4 +101,6 @@ sudo install_name_tool -change \
     QtGui.framework/Versions/4/QtGui \
     @executable_path/../Frameworks/libQtGui.4.dylib \
     libqwt.5.2.1.dylib
+\endcode
 //! [5]
+
