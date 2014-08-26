@@ -260,7 +260,10 @@ void CppUseSelectionsUpdater::update(CallType callType)
     const Document::Ptr document = semanticInfo.doc;
     const Snapshot snapshot = semanticInfo.snapshot;
 
-    if (!document || document->editorRevision() != static_cast<unsigned>(textDocument()->revision()))
+    if (!document)
+        return;
+
+    if (semanticInfo.revision != static_cast<unsigned>(textDocument()->revision()))
         return;
 
     QTC_ASSERT(document->translationUnit(), return);
