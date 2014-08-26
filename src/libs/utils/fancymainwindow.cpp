@@ -198,8 +198,6 @@ public:
 
 class DockWidget : public QDockWidget
 {
-    Q_OBJECT
-
 public:
     DockWidget(QWidget *inner, QWidget *parent)
         : QDockWidget(parent), m_inner(inner)
@@ -219,15 +217,23 @@ public:
         m_timer.setSingleShot(true);
         m_timer.setInterval(500);
 
-        connect(&m_timer, SIGNAL(timeout()), this, SLOT(handleMouseTimeout()));
+        connect(&m_timer, &QTimer::timeout, this, &DockWidget::handleMouseTimeout);
 
-        connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(handleToplevelChanged(bool)));
+        connect(this, &QDockWidget::topLevelChanged, this, &DockWidget::handleToplevelChanged);
+
+        connect(toggleViewAction(), &QAction::triggered,
+                [this]() {
+                    if (isVisible())
+                        raise();
+                });
 
         auto origFloatButton = findChild<QAbstractButton *>(QLatin1String("qt_dockwidget_floatbutton"));
-        connect(m_titleBar->m_floatButton, SIGNAL(clicked()), origFloatButton, SIGNAL(clicked()));
+        connect(m_titleBar->m_floatButton, &QAbstractButton::clicked,
+                origFloatButton, &QAbstractButton::clicked);
 
         auto origCloseButton = findChild<QAbstractButton *>(QLatin1String("qt_dockwidget_closebutton"));
-        connect(m_titleBar->m_closeButton, SIGNAL(clicked()), origCloseButton, SIGNAL(clicked()));
+        connect(m_titleBar->m_closeButton, &QAbstractButton::clicked,
+                origCloseButton, &QAbstractButton::clicked);
     }
 
     bool eventFilter(QObject *, QEvent *event)
@@ -257,7 +263,7 @@ public:
         QDockWidget::leaveEvent(event);
     }
 
-    Q_SLOT void handleMouseTimeout()
+    void handleMouseTimeout()
     {
         QPoint dist = m_startPos - QCursor::pos();
         if (!isFloating() && dist.manhattanLength() < 4) {
@@ -265,7 +271,7 @@ public:
         }
     }
 
-    Q_SLOT void handleToplevelChanged(bool floating)
+    void handleToplevelChanged(bool floating)
     {
         if (!floating)
             m_titleBar->setActive(false);
@@ -312,8 +318,8 @@ FancyMainWindowPrivate::FancyMainWindowPrivate() :
 FancyMainWindow::FancyMainWindow(QWidget *parent) :
     QMainWindow(parent), d(new FancyMainWindowPrivate)
 {
-    connect(&d->m_resetLayoutAction, SIGNAL(triggered()),
-            this, SIGNAL(resetLayout()));
+    connect(&d->m_resetLayoutAction, &QAction::triggered,
+            this, &FancyMainWindow::resetLayout);
 }
 
 FancyMainWindow::~FancyMainWindow()
@@ -328,28 +334,17 @@ QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget)
     QTC_CHECK(widget->windowTitle().size());
 
     auto dockWidget = new DockWidget(widget, this);
-    connect(dockWidget->toggleViewAction(), SIGNAL(triggered()),
-        this, SLOT(onDockActionTriggered()), Qt::QueuedConnection);
-    connect(dockWidget, SIGNAL(visibilityChanged(bool)),
-            this, SLOT(onDockVisibilityChange(bool)));
+
+    connect(dockWidget, &QDockWidget::visibilityChanged,
+        [this, dockWidget](bool visible) {
+            if (d->m_handleDockVisibilityChanges)
+                dockWidget->setProperty(dockWidgetActiveState, visible);
+        });
+
+
     dockWidget->setProperty(dockWidgetActiveState, true);
 
     return dockWidget;
-}
-
-void FancyMainWindow::onDockActionTriggered()
-{
-    QDockWidget *dw = qobject_cast<QDockWidget *>(sender()->parent());
-    if (dw) {
-        if (dw->isVisible())
-            dw->raise();
-    }
-}
-
-void FancyMainWindow::onDockVisibilityChange(bool visible)
-{
-    if (d->m_handleDockVisibilityChanges)
-        sender()->setProperty(dockWidgetActiveState, visible);
 }
 
 void FancyMainWindow::setTrackingEnabled(bool enabled)
@@ -495,5 +490,3 @@ void FancyMainWindow::setToolBarDockWidget(QDockWidget *dock)
 }
 
 } // namespace Utils
-
-#include "fancymainwindow.moc"

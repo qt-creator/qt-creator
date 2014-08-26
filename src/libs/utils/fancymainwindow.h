@@ -72,22 +72,17 @@ public:
     QDockWidget *toolBarDockWidget() const;
     void setToolBarDockWidget(QDockWidget *dock);
 
+    void setDockActionsVisible(bool v);
+
 signals:
     // Emitted by resetLayoutAction(). Connect to a slot
     // restoring the default layout.
     void resetLayout();
 
-public slots:
-    void setDockActionsVisible(bool v);
-
 protected:
     void hideEvent(QHideEvent *event);
     void showEvent(QShowEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
-
-private slots:
-    void onDockActionTriggered();
-    void onDockVisibilityChange(bool);
 
 private:
     void handleVisibilityChanged(bool visible);
