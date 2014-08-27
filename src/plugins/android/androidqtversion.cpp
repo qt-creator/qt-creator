@@ -57,7 +57,7 @@ AndroidQtVersion::AndroidQtVersion()
 AndroidQtVersion::AndroidQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
     : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
-    setDisplayName(defaultDisplayName(qtVersionString(), path, false));
+    setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
 
 AndroidQtVersion *AndroidQtVersion::clone() const

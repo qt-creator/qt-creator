@@ -441,7 +441,7 @@ static void findSystemQt()
 
     BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(systemQMakePath);
     if (version) {
-        version->setDisplayName(BaseQtVersion::defaultDisplayName(version->qtVersionString(), systemQMakePath, true));
+        version->setUnexpandedDisplayName(BaseQtVersion::defaultUnexpandedDisplayName(systemQMakePath, true));
         m_versions.insert(version->uniqueId(), version);
     }
 }

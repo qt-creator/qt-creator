@@ -65,7 +65,6 @@ public:
     QtOptionsPageWidget(QWidget *parent = 0);
     ~QtOptionsPageWidget();
     QList<BaseQtVersion *> versions() const;
-    void finish();
     void apply();
 
 private:
@@ -73,7 +72,6 @@ private:
     void userChangedCurrentVersion();
     void updateWidgets();
     void updateDebuggingHelperUi();
-    void fixQtVersionName(int index);
     int indexForTreeItem(const QTreeWidgetItem *item) const;
     QTreeWidgetItem *treeItemForIndex(int index) const;
     BaseQtVersion *currentVersion() const;

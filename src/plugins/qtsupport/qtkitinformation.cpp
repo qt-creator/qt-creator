@@ -45,19 +45,8 @@ namespace QtSupport {
 
 namespace Internal {
 
-class QtKitInformationMacroExpander : public ProjectExplorer::KitInformationMacroExpander
+static bool resolveQtMacro(const BaseQtVersion *version, const QString &name, QString *ret)
 {
-public:
-    QtKitInformationMacroExpander(const ProjectExplorer::Kit *k) :
-        ProjectExplorer::KitInformationMacroExpander(k)
-    { }
-
-    bool resolveMacro(const QString &name, QString *ret);
-};
-
-bool QtKitInformationMacroExpander::resolveMacro(const QString &name, QString *ret)
-{
-    BaseQtVersion *version = QtKitInformation::qtVersion(kit());
     const QString noInfo = QCoreApplication::translate("QtSupport::QtKitInformation", "none");
 
     if (name == QLatin1String("Qt:version")) {
@@ -75,6 +64,38 @@ bool QtKitInformationMacroExpander::resolveMacro(const QString &name, QString *r
     }
     return false;
 }
+
+class QtVersionMacroExpander : public Utils::AbstractMacroExpander
+{
+public:
+    QtVersionMacroExpander(const BaseQtVersion *v) :
+        qtVersion(v)
+    { }
+
+    bool resolveMacro(const QString &name, QString *ret)
+    {
+        if (name == QLatin1String("Qt:name"))
+            return false;
+        return resolveQtMacro(qtVersion, name, ret);
+    }
+
+private:
+    const BaseQtVersion *qtVersion;
+};
+
+
+class QtKitInformationMacroExpander : public ProjectExplorer::KitInformationMacroExpander
+{
+public:
+    QtKitInformationMacroExpander(const ProjectExplorer::Kit *k) :
+        ProjectExplorer::KitInformationMacroExpander(k)
+    { }
+
+    bool resolveMacro(const QString &name, QString *ret)
+    {
+        return resolveQtMacro(QtKitInformation::qtVersion(kit()), name, ret);
+    }
+};
 
 } // namespace Internal
 
@@ -167,6 +188,11 @@ ProjectExplorer::IOutputParser *QtKitInformation::createOutputParser(const Proje
 Utils::AbstractMacroExpander *QtKitInformation::createMacroExpander(const ProjectExplorer::Kit *k) const
 {
     return new Internal::QtKitInformationMacroExpander(k);
+}
+
+Utils::AbstractMacroExpander *QtKitInformation::createMacroExpander(const BaseQtVersion *v)
+{
+    return new Internal::QtVersionMacroExpander(v);
 }
 
 Core::Id QtKitInformation::id()

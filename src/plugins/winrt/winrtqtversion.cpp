@@ -45,7 +45,7 @@ WinRtQtVersion::WinRtQtVersion(const Utils::FileName &path, bool isAutodetected,
         const QString &autodetectionSource)
     : BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
-    setDisplayName(defaultDisplayName(qtVersionString(), path, false));
+    setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
 
 QtSupport::BaseQtVersion *WinRtQtVersion::clone() const

@@ -51,7 +51,7 @@ WinCeQtVersion::WinCeQtVersion(const Utils::FileName &path, const QString &archT
         m_archType = ProjectExplorer::Abi::X86Architecture;
     else if (0 == archType.compare(QLatin1String("mipsii"), Qt::CaseInsensitive))
         m_archType = ProjectExplorer::Abi::MipsArchitecture;
-    setDisplayName(defaultDisplayName(qtVersionString(), path, false));
+    setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
 
 WinCeQtVersion::~WinCeQtVersion()

@@ -58,7 +58,7 @@ IosQtVersion::IosQtVersion(const Utils::FileName &path, bool isAutodetected,
                            const QString &autodetectionSource)
     : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
-    setDisplayName(defaultDisplayName(qtVersionString(), path, false));
+    setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
 
 IosQtVersion *IosQtVersion::clone() const
