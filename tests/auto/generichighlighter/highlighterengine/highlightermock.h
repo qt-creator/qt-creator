@@ -34,13 +34,6 @@
 
 #include <QList>
 
-namespace TextEditor {
-namespace Internal {
-class Context;
-class HighlightDefinition;
-}
-}
-
 struct HighlightSequence
 {
     HighlightSequence() {}

@@ -538,7 +538,7 @@ QmlJSEditorDocument::QmlJSEditorDocument()
     setId(Constants::C_QMLJSEDITOR_ID);
     connect(this, SIGNAL(tabSettingsChanged()),
             d, SLOT(invalidateFormatterCache()));
-    setSyntaxHighlighter(new Highlighter(document()));
+    setSyntaxHighlighter(new QmlJSHighlighter(document()));
     setIndenter(new Internal::Indenter);
 }
 

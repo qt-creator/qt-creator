@@ -282,13 +282,6 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
     setDocument(parent);
 }
 
-SyntaxHighlighter::SyntaxHighlighter(BaseTextDocument *parent)
-    : d_ptr(new SyntaxHighlighterPrivate)
-{
-    d_ptr->q_ptr = this;
-    parent->setSyntaxHighlighter(this); // Extra logic (including setting the parent).
-}
-
 /*!
     Constructs a SyntaxHighlighter and installs it on \a parent's
     QTextDocument. The specified QTextEdit also becomes the owner of

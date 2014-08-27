@@ -32,8 +32,6 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
-namespace TextEditor { class FontSettings; }
-
 namespace Git {
 namespace Internal {
 
@@ -55,13 +53,10 @@ enum Format {
 class GitSubmitHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
-    explicit GitSubmitHighlighter(QTextEdit *parent);
-    explicit GitSubmitHighlighter(TextEditor::BaseTextDocument *parent);
+    explicit GitSubmitHighlighter(QTextEdit *parent = 0);
     void highlightBlock(const QString &text);
 
 private:
-    void initialize();
-
     enum State { None = -1, Header, Other };
     QRegExp m_keywordPattern;
     QChar m_hashChar;
@@ -72,7 +67,7 @@ private:
 class GitRebaseHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
-    explicit GitRebaseHighlighter(TextEditor::BaseTextDocument *parent);
+    explicit GitRebaseHighlighter(QTextDocument *parent = 0);
     void highlightBlock(const QString &text);
 
 private:

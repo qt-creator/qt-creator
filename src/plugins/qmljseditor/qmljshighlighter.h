@@ -39,13 +39,13 @@
 
 namespace QmlJSEditor {
 
-class QMLJSEDITOR_EXPORT Highlighter : public TextEditor::SyntaxHighlighter
+class QMLJSEDITOR_EXPORT QmlJSHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
 
 public:
-    Highlighter(QTextDocument *parent = 0);
-    virtual ~Highlighter();
+    QmlJSHighlighter(QTextDocument *parent = 0);
+    virtual ~QmlJSHighlighter();
 
     enum {
         NumberFormat,
@@ -76,16 +76,13 @@ protected:
     bool maybeQmlBuiltinType(const QStringRef &text) const;
 
 private:
-    typedef TextEditor::Parenthesis Parenthesis;
-    typedef TextEditor::Parentheses Parentheses;
-
     bool m_qmlEnabled;
     int m_braceDepth;
     int m_foldingIndent;
     bool m_inMultilineComment;
 
     QmlJS::Scanner m_scanner;
-    Parentheses m_currentBlockParentheses;
+    TextEditor::Parentheses m_currentBlockParentheses;
 };
 
 } // namespace QmlJSEditor

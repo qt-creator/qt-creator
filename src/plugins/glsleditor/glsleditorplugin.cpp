@@ -212,7 +212,7 @@ bool GlslEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     addAutoReleasedObject(wizard);
 
     auto hf = new HighlighterFactory;
-    hf->setProductType<Highlighter>();
+    hf->setProductType<GlslHighlighter>();
     hf->setId(Constants::C_GLSLEDITOR_ID);
     hf->addMimeType(Constants::GLSL_MIMETYPE);
     hf->addMimeType(Constants::GLSL_MIMETYPE_VERT);

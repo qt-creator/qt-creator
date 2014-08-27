@@ -35,23 +35,12 @@
 
 #include <QDebug>
 
-using namespace GlslEditor;
-using namespace GlslEditor::Internal;
 using namespace TextEditor;
 
-Highlighter::Highlighter(QTextDocument *parent)
-    : TextEditor::SyntaxHighlighter(parent)
-{
-    init();
-}
+namespace GlslEditor {
+namespace Internal {
 
-Highlighter::Highlighter(BaseTextDocument *parent)
-    : TextEditor::SyntaxHighlighter(parent)
-{
-    init();
-}
-
-void Highlighter::init()
+GlslHighlighter::GlslHighlighter()
 {
     static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty()) {
@@ -71,12 +60,7 @@ void Highlighter::init()
     setTextFormatCategories(categories);
 }
 
-Highlighter::~Highlighter()
-{
-
-}
-
-void Highlighter::highlightBlock(const QString &text)
+void GlslHighlighter::highlightBlock(const QString &text)
 {
     const int previousState = previousBlockState();
     int state = 0, initialBraceDepth = 0;
@@ -265,7 +249,7 @@ void Highlighter::highlightBlock(const QString &text)
     setCurrentBlockState((braceDepth << 8) | lex.state());
 }
 
-void Highlighter::highlightLine(const QString &text, int position, int length,
+void GlslHighlighter::highlightLine(const QString &text, int position, int length,
                                 const QTextCharFormat &format)
 {
     const QTextCharFormat visualSpaceFormat = formatForCategory(GLSLVisualWhitespace);
@@ -288,7 +272,7 @@ void Highlighter::highlightLine(const QString &text, int position, int length,
     }
 }
 
-bool Highlighter::isPPKeyword(const QStringRef &text) const
+bool GlslHighlighter::isPPKeyword(const QStringRef &text) const
 {
     switch (text.length())
     {
@@ -427,3 +411,6 @@ void Highlighter::highlightBlock(const QString &text)
     setCurrentBlockState((braceDepth << 8) | lex.state());
 }
 #endif
+
+} // namespace Internal
+} // namespace GlslEditor

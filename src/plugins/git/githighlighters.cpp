@@ -41,17 +41,6 @@ static const char CHANGE_PATTERN[] = "\\b[a-f0-9]{7,40}\\b";
 GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
     TextEditor::SyntaxHighlighter(parent)
 {
-    initialize();
-}
-
-GitSubmitHighlighter::GitSubmitHighlighter(TextEditor::BaseTextDocument *parent) :
-    TextEditor::SyntaxHighlighter(parent)
-{
-    initialize();
-}
-
-void GitSubmitHighlighter::initialize()
-{
     static QVector<TextEditor::TextStyle> categories;
     if (categories.isEmpty())
         categories << TextEditor::C_COMMENT;
@@ -108,7 +97,7 @@ GitRebaseHighlighter::RebaseAction::RebaseAction(const QString &regexp,
 {
 }
 
-GitRebaseHighlighter::GitRebaseHighlighter(TextEditor::BaseTextDocument *parent) :
+GitRebaseHighlighter::GitRebaseHighlighter(QTextDocument *parent) :
     TextEditor::SyntaxHighlighter(parent),
     m_hashChar(QLatin1Char('#')),
     m_changeNumberPattern(QLatin1String(CHANGE_PATTERN))

@@ -290,9 +290,9 @@ void GitEditorWidget::init()
     VcsBase::VcsBaseEditorWidget::init();
     Core::Id editorId = editor()->document()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
-        new GitSubmitHighlighter(textDocument());
+        textDocument()->setSyntaxHighlighter(new GitSubmitHighlighter);
     else if (editorId == Git::Constants::GIT_REBASE_EDITOR_ID)
-        new GitRebaseHighlighter(textDocument());
+        textDocument()->setSyntaxHighlighter(new GitRebaseHighlighter);
 }
 
 void GitEditorWidget::addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk)

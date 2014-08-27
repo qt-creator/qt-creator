@@ -113,7 +113,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     addAutoReleasedObject(new QmlJSSnippetProvider);
 
     auto hf = new TextEditor::HighlighterFactory;
-    hf->setProductType<Highlighter>();
+    hf->setProductType<QmlJSHighlighter>();
     hf->setId(Constants::C_QMLJSEDITOR_ID);
     hf->addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
     hf->addMimeType(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);

@@ -33,26 +33,24 @@
 #include <texteditor/syntaxhighlighter.h>
 
 namespace PythonEditor {
+namespace Internal {
 
-namespace Internal { class Scanner; }
+class Scanner;
 
 class PythonHighlighter : public TextEditor::SyntaxHighlighter
 {
-    Q_OBJECT
 public:
-    explicit PythonHighlighter(QTextDocument *parent = 0);
-    explicit PythonHighlighter(TextEditor::BaseTextDocument *parent);
-    virtual ~PythonHighlighter();
+    PythonHighlighter();
 
 protected:
-    virtual void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text);
 
 private:
     int highlightLine(const QString &text, int initialState);
     void highlightImport(Internal::Scanner &scanner);
-    void init();
 };
 
+} // namespace Internal
 } // namespace PythonEditor
 
 #endif // PYTHONHIGHLIGHTER_H

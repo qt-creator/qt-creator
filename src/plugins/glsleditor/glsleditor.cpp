@@ -374,7 +374,7 @@ GlslEditorFactory::GlslEditorFactory()
     setEditorWidgetCreator([]() { return new GlslEditorWidget; });
     setEditorCreator([]() { return new GlslEditor; });
     setIndenterCreator([]() { return new GlslIndenter; });
-    setSyntaxHighlighterCreator([]() { return new Highlighter; });
+    setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
 
     setEditorActionHandlers(Constants::C_GLSLEDITOR_ID,
                             TextEditorActionHandler::Format

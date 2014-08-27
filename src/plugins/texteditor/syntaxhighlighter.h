@@ -47,7 +47,6 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class BaseTextDocument;
 class FontSettings;
 class SyntaxHighlighterPrivate;
 
@@ -56,9 +55,8 @@ class TEXTEDITOR_EXPORT SyntaxHighlighter : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(SyntaxHighlighter)
 public:
-    SyntaxHighlighter(QObject *parent);
+    SyntaxHighlighter(QObject *parent = 0);
     SyntaxHighlighter(QTextDocument *parent);
-    SyntaxHighlighter(BaseTextDocument *parent);
     SyntaxHighlighter(QTextEdit *parent);
     virtual ~SyntaxHighlighter();
 
