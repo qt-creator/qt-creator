@@ -66,7 +66,6 @@ public:
 
     void apply(BaseTextEditor *editor, int /*basePosition*/) const QTC_OVERRIDE
     {
-        BaseTextEditorWidget *editwidget = editor->editorWidget();
 
         //Move to last in circular clipboard
         if (CircularClipboard * clipboard = CircularClipboard::instance()) {
@@ -79,7 +78,7 @@ public:
                     BaseTextEditorWidget::duplicateMimeData(m_mimeData.data()));
 
         //Paste
-        editwidget->paste();
+        editor->editorWidget()->paste();
     }
 
 private:

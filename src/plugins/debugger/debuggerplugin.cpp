@@ -1030,9 +1030,7 @@ public slots:
     {
         BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
         QTC_ASSERT(textEditor, return);
-        QPlainTextEdit *ed = textEditor->editorWidget();
-        QTC_ASSERT(ed, return);
-        QTextCursor cursor = ed->textCursor();
+        QTextCursor cursor = textEditor->textCursor();
         QString functionName = cursor.selectedText();
         if (functionName.isEmpty()) {
             const QTextBlock block = cursor.block();
@@ -1098,11 +1096,10 @@ public slots:
     void handleAddToWatchWindow()
     {
         // Requires a selection, but that's the only case we want anyway.
-        IEditor *editor = EditorManager::currentEditor();
-        BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor);
+        BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
         if (!textEditor)
             return;
-        QTextCursor tc = textEditor->editorWidget()->textCursor();
+        QTextCursor tc = textEditor->textCursor();
         QString exp;
         if (tc.hasSelection()) {
             exp = tc.selectedText();

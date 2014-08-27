@@ -140,10 +140,17 @@ public:
     static BaseTextEditor *currentTextEditor();
 
     BaseTextEditorWidget *ensureWidget() const;
-    BaseTextDocumentPtr ensureDocument();
+    BaseTextDocumentPtr ensureDocument() const;
 
     BaseTextEditorWidget *editorWidget() const;
-    BaseTextDocument *textDocument();
+    BaseTextDocument *textDocument() const;
+
+    // Some convenience text access
+    QTextDocument *qdocument() const;
+    void setTextCursor(const QTextCursor &cursor);
+    QTextCursor textCursor() const;
+    QChar characterAt(int pos) const;
+    QString textAt(int from, int to) const;
 
     void addContext(Core::Id id);
 

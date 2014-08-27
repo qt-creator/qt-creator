@@ -146,12 +146,10 @@ void SourceAgent::updateLocationMarker()
         d->locationMark->setIcon(debuggerCore()->locationMarkIcon());
         d->locationMark->setPriority(TextEditor::TextMark::HighPriority);
         d->editor->textDocument()->addMark(d->locationMark);
-        QPlainTextEdit *plainTextEdit = d->editor->editorWidget();
-        QTC_ASSERT(plainTextEdit, return);
-        QTextCursor tc = plainTextEdit->textCursor();
+        QTextCursor tc = d->editor->textCursor();
         QTextBlock block = tc.document()->findBlockByNumber(lineNumber - 1);
         tc.setPosition(block.position());
-        plainTextEdit->setTextCursor(tc);
+        d->editor->setTextCursor(tc);
         EditorManager::activateEditor(d->editor);
     }
 }

@@ -377,7 +377,7 @@ void QmlJSAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
     int replacedLength = 0;
     for (int i = 0; i < replaceable.length(); ++i) {
         const QChar a = replaceable.at(i);
-        const QChar b = editor->textDocument()->characterAt(editor->position() + i);
+        const QChar b = editor->characterAt(editor->position() + i);
         if (a == b)
             ++replacedLength;
         else

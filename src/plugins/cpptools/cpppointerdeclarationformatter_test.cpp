@@ -104,19 +104,18 @@ public:
 
         // Open file
         TextEditor::BaseTextEditor *editor = TextEditor::PlainTextEditorFactory::createPlainTextEditor();
-        TextEditor::BaseTextEditorWidget *editorWidget = editor->editorWidget();
         QString error;
         editor->open(&error, document->fileName(), document->fileName());
         QVERIFY(error.isEmpty());
 
         // Set cursor position
-        QTextCursor cursor = editorWidget->textCursor();
+        QTextCursor cursor = editor->textCursor();
         cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, cursorPosition);
-        editorWidget->setTextCursor(cursor);
+        editor->setTextCursor(cursor);
 
-        QTextDocument *qtextDocument = editorWidget->document();
+        QTextDocument *qtextDocument = editor->qdocument();
         CppRefactoringFilePtr cppRefactoringFile
-            = CppRefactoringChanges::file(editorWidget, document);
+            = CppRefactoringChanges::file(editor->editorWidget(), document);
 
         // Prepare for formatting
         Overview overview;

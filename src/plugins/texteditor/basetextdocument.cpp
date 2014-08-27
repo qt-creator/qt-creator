@@ -442,11 +442,10 @@ bool BaseTextDocument::save(QString *errorString, const QString &saveFileName, b
 
     // When saving the current editor, make sure to maintain the cursor and scroll bar
     // positions for undo
-    IEditor *currentEditor = EditorManager::currentEditor();
-    if (BaseTextEditor *editable = qobject_cast<BaseTextEditor*>(currentEditor)) {
-        if (editable->document() == this) {
-            editorWidget = editable->editorWidget();
-            QTextCursor cur = editorWidget->textCursor();
+    if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
+        if (editor->document() == this) {
+            editorWidget = editor->editorWidget();
+            QTextCursor cur = editor->textCursor();
             savedPosition = cur.position();
             savedAnchor = cur.anchor();
             savedVScrollBarValue = editorWidget->verticalScrollBar()->value();

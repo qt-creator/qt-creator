@@ -6590,7 +6590,7 @@ BaseTextEditor::~BaseTextEditor()
     delete d;
 }
 
-BaseTextDocument *BaseTextEditor::textDocument()
+BaseTextDocument *BaseTextEditor::textDocument() const
 {
     ensureDocument();
     return editorWidget()->textDocument();
@@ -7081,6 +7081,31 @@ BaseTextEditorWidget *BaseTextEditor::editorWidget() const
     return static_cast<BaseTextEditorWidget *>(m_widget.data());
 }
 
+QTextDocument *BaseTextEditor::qdocument() const
+{
+    return textDocument()->document();
+}
+
+void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
+{
+    editorWidget()->setTextCursor(cursor);
+}
+
+QTextCursor BaseTextEditor::textCursor() const
+{
+    return editorWidget()->textCursor();
+}
+
+QChar BaseTextEditor::characterAt(int pos) const
+{
+    return textDocument()->characterAt(pos);
+}
+
+QString BaseTextEditor::textAt(int from, int to) const
+{
+    return textDocument()->textAt(from, to);
+}
+
 void BaseTextEditorWidget::configureMimeType(const QString &mimeType)
 {
     configureMimeType(MimeDatabase::findByType(mimeType));
@@ -7186,7 +7211,7 @@ BaseTextEditorWidget *BaseTextEditor::ensureWidget() const
     return editorWidget();
 }
 
-BaseTextDocumentPtr BaseTextEditor::ensureDocument()
+BaseTextDocumentPtr BaseTextEditor::ensureDocument() const
 {
     BaseTextEditorWidget *widget = ensureWidget();
     if (widget->d->m_document.isNull()) {

@@ -289,16 +289,13 @@ static void addDeclaration(const Snapshot &snapshot,
     //
 
     if (BaseTextEditor *editor = editorAt(fileName, loc.line(), loc.column() - 1)) {
-        BaseTextEditorWidget *widget = editor->editorWidget();
-        if (widget) {
-            QTextCursor tc = widget->textCursor();
-            int pos = tc.position();
-            tc.beginEditBlock();
-            tc.insertText(loc.prefix() + declaration + loc.suffix());
-            tc.setPosition(pos, QTextCursor::KeepAnchor);
-            widget->textDocument()->autoIndent(tc);
-            tc.endEditBlock();
-        }
+        QTextCursor tc = editor->textCursor();
+        int pos = tc.position();
+        tc.beginEditBlock();
+        tc.insertText(loc.prefix() + declaration + loc.suffix());
+        tc.setPosition(pos, QTextCursor::KeepAnchor);
+        editor->textDocument()->autoIndent(tc);
+        tc.endEditBlock();
     }
 }
 

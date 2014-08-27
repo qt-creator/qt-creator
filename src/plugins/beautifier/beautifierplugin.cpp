@@ -63,6 +63,8 @@
 #include <QTimer>
 #include <QtPlugin>
 
+using namespace TextEditor;
+
 namespace Beautifier {
 namespace Internal {
 
@@ -219,9 +221,8 @@ void BeautifierPlugin::formatCurrentFile(const Command &command)
 {
     QPlainTextEdit *textEditor = 0;
     QString filePath;
-    if (TextEditor::BaseTextEditor *editor
-            = qobject_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::currentEditor())) {
-        textEditor = qobject_cast<QPlainTextEdit *>(editor->editorWidget());
+    if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
+        textEditor = editor->editorWidget();
         filePath = editor->document()->filePath();
     }
     if (!textEditor)
@@ -284,11 +285,10 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
     QList<int> foldedBlocks;
     QTextBlock block = textEditor->document()->firstBlock();
     while (block.isValid()) {
-        if (const TextEditor::TextBlockUserData *userdata
-                = static_cast<TextEditor::TextBlockUserData *>(block.userData())) {
+        if (const TextBlockUserData *userdata = static_cast<TextBlockUserData *>(block.userData())) {
             if (userdata->folded()) {
                 foldedBlocks << block.blockNumber();
-                TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(block, true);
+                BaseTextDocumentLayout::doFoldOrUnfold(block, true);
             }
         }
         block = block.next();
@@ -386,7 +386,7 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
     for (int i = 0; i < total; ++i) {
         QTextBlock block = doc->findBlockByNumber(qMax(0, foldedBlocks.at(i)));
         if (block.isValid())
-            TextEditor::BaseTextDocumentLayout::doFoldOrUnfold(block, false);
+            BaseTextDocumentLayout::doFoldOrUnfold(block, false);
     }
 
     textEditor->document()->setModified(true);

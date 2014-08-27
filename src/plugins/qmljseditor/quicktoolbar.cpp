@@ -208,15 +208,16 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
         if (contextWidget()->acceptsType(m_prototypes)) {
             m_node = 0;
             PropertyReader propertyReader(document, initializer);
-            QTextCursor tc(editor->editorWidget()->document());
+            QTextCursor tc = editor->textCursor();
+            QPlainTextEdit *editorWidget = editor->editorWidget();
             tc.setPosition(offset);
-            QPoint p1 = editor->editorWidget()->mapToParent(editor->editorWidget()->viewport()->mapToParent(editor->editorWidget()->cursorRect(tc).topLeft()) - QPoint(0, contextWidget()->height() + 10));
+            QPoint p1 = editorWidget->mapToParent(editorWidget->viewport()->mapToParent(editorWidget->cursorRect(tc).topLeft()) - QPoint(0, contextWidget()->height() + 10));
             tc.setPosition(end);
-            QPoint p2 = editor->editorWidget()->mapToParent(editor->editorWidget()->viewport()->mapToParent(editor->editorWidget()->cursorRect(tc).bottomLeft()) + QPoint(0, 10));
+            QPoint p2 = editorWidget->mapToParent(editorWidget->viewport()->mapToParent(editorWidget->cursorRect(tc).bottomLeft()) + QPoint(0, 10));
             QPoint offset = QPoint(10, 0);
             if (reg.boundingRect().width() < 400)
                 offset = QPoint(400 - reg.boundingRect().width() + 10 ,0);
-            QPoint p3 = editor->editorWidget()->mapToParent(editor->editorWidget()->viewport()->mapToParent(reg.boundingRect().topRight()) + offset);
+            QPoint p3 = editorWidget->mapToParent(editorWidget->viewport()->mapToParent(reg.boundingRect().topRight()) + offset);
             p2.setX(p1.x());
             contextWidget()->setIsPropertyChanges(isPropertyChanges);
             if (!update)
@@ -387,7 +388,7 @@ void QuickToolBar::onPropertyRemovedAndChange(const QString &remove, const QStri
     if (!m_doc)
         return;
 
-    QTextCursor tc(m_editor->editorWidget()->document());
+    QTextCursor tc = m_editor->textCursor();
     tc.beginEditBlock();
 
     if (removeFirst) {
@@ -425,11 +426,11 @@ void QuickToolBar::indentLines(int startLine, int endLine)
     if (startLine > 0) {
         TextEditor::TabSettings tabSettings = m_editor->textDocument()->tabSettings();
         for (int i = startLine; i <= endLine; i++) {
-            QTextBlock start = m_editor->editorWidget()->document()->findBlockByNumber(i);
+            QTextBlock start = m_editor->qdocument()->findBlockByNumber(i);
 
             if (start.isValid()) {
                 QmlJSEditor::Internal::Indenter indenterMy;
-                indenterMy.indentBlock(m_editor->editorWidget()->document(), start, QChar::Null, tabSettings);
+                indenterMy.indentBlock(m_editor->qdocument(), start, QChar::Null, tabSettings);
             }
         }
     }

@@ -109,10 +109,10 @@ void KeywordsAssistProposalItem::applyContextualContent(TextEditor::BaseTextEdit
     int cursorOffset = 0;
     if (m_keywords.isFunction(toInsert) && settings.m_autoInsertBrackets) {
         if (settings.m_spaceAfterFunctionName) {
-            if (editor->textDocument()->textAt(editor->position(), 2) == QLatin1String(" (")) {
+            if (editor->textAt(editor->position(), 2) == QLatin1String(" (")) {
                 cursorOffset = 2;
-            } else if (editor->textDocument()->characterAt(editor->position()) == QLatin1Char('(')
-                       || editor->textDocument()->characterAt(editor->position()) == QLatin1Char(' ')) {
+            } else if (editor->characterAt(editor->position()) == QLatin1Char('(')
+                       || editor->characterAt(editor->position()) == QLatin1Char(' ')) {
                 replaceLength += 1;
                 toInsert += QLatin1String(" (");
             } else {
@@ -120,7 +120,7 @@ void KeywordsAssistProposalItem::applyContextualContent(TextEditor::BaseTextEdit
                 cursorOffset = -1;
             }
         } else {
-            if (editor->textDocument()->characterAt(editor->position()) == QLatin1Char('(')) {
+            if (editor->characterAt(editor->position()) == QLatin1Char('(')) {
                 cursorOffset = 1;
             } else {
                 toInsert += QLatin1String("()");
