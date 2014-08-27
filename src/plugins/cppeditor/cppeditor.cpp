@@ -1031,6 +1031,10 @@ void CPPEditorWidget::updateFunctionDeclDefLink()
 
 void CPPEditorWidget::updateFunctionDeclDefLinkNow()
 {
+    static bool noTracking = qgetenv("QTC_NO_FUNCTION_DECL_DEF_LINK_TRACKING").trimmed() == "1";
+    if (noTracking)
+        return;
+
     if (Core::EditorManager::currentEditor() != editor())
         return;
     const Snapshot semanticSnapshot = d->m_lastSemanticInfo.snapshot;
