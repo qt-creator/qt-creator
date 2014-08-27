@@ -33,13 +33,18 @@ import QtQuick.Controls.Styles 1.2
 
 Item {
     id: labelContainer
-    property string text: qmlProfilerModelProxy.displayName(modelIndex)
+    property string text: trigger(1) ? qmlProfilerModelProxy.displayName(modelIndex) : ""
     property bool expanded: trigger(qmlProfilerModelProxy.expanded(modelIndex))
     property int modelIndex: index
     property int bindingTrigger: 1
     property var descriptions: []
     property var extdescriptions: []
     property var eventIds: []
+    property bool dragging
+    property Item draggerParent
+
+    signal dragStarted;
+    signal dragStopped;
 
     readonly property int dragHeight: 5
 
@@ -83,6 +88,32 @@ Item {
     Connections {
         target: qmlProfilerModelProxy
         onStateChanged: updateDescriptions()
+        onModelsChanged: updateDescriptions()
+    }
+
+    MouseArea {
+        id: dragArea
+        anchors.fill: txt
+        drag.target: dragger
+        cursorShape: dragging ? Qt.DragMoveCursor : Qt.OpenHandCursor
+    }
+
+    DropArea {
+        id: dropArea
+
+        onPositionChanged: {
+            if ((drag.source.modelIndex > labelContainer.modelIndex &&
+                    drag.source.y < labelContainer.y + drag.source.height) ||
+                    (drag.source.modelIndex < labelContainer.modelIndex &&
+                    drag.source.y > labelContainer.y + labelContainer.height -
+                    drag.source.height)) {
+                qmlProfilerModelProxy.swapModels(drag.source.modelIndex,
+                                                 labelContainer.modelIndex);
+                drag.source.modelIndex = labelContainer.modelIndex;
+            }
+        }
+
+        anchors.fill: parent
     }
 
     Text {
@@ -178,4 +209,67 @@ Item {
             }
         }
     }
+
+    Rectangle {
+        id: dragger
+        property int modelIndex
+        width: labelContainer.width
+        height: 0
+        color: "black"
+        opacity: 0.5
+        anchors.left: parent.left
+
+        // anchor to top so that it reliably snaps back after dragging
+        anchors.top: parent.top
+
+        Drag.active: dragArea.drag.active
+        Drag.onActiveChanged: {
+            // We don't want height, text, or modelIndex to be changed when reordering occurs, so we
+            // don't make them properties.
+            draggerText.text = txt.text;
+            modelIndex = labelContainer.modelIndex;
+            if (Drag.active) {
+                height = labelContainer.height;
+                labelContainer.dragStarted();
+            } else {
+                height = 0;
+                labelContainer.dragStopped();
+            }
+        }
+
+        states: [
+            State {
+                when: dragger.Drag.active
+                ParentChange {
+                    target: dragger
+                    parent: draggerParent
+                }
+                PropertyChanges {
+                    target: dragger
+                    anchors.top: undefined
+                }
+            }
+        ]
+
+        Text {
+            id: draggerText
+            visible: parent.Drag.active
+            x: txt.x
+            font.pixelSize: txt.font.pixelSize
+            color: "white"
+            width: txt.width
+            height: txt.height
+            verticalAlignment: txt.verticalAlignment
+            renderType: txt.renderType
+        }
+    }
+
+    MouseArea {
+        anchors.top: dragArea.bottom
+        anchors.bottom: labelContainer.dragging ? labelContainer.bottom : dragArea.bottom
+        anchors.left: labelContainer.left
+        anchors.right: labelContainer.right
+        cursorShape: dragArea.cursorShape
+    }
+
 }

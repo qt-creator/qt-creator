@@ -62,6 +62,7 @@ public:
     Q_INVOKABLE int rowHeight(int modelIndex, int row) const;
     Q_INVOKABLE void setRowHeight(int modelIndex, int row, int height);
     Q_INVOKABLE int rowOffset(int modelIndex, int row) const;
+
     Q_INVOKABLE bool expanded(int modelIndex) const;
     Q_INVOKABLE void setExpanded(int modelIndex, bool expanded);
     Q_INVOKABLE int rowCount(int modelIndex) const;
@@ -91,12 +92,14 @@ public:
     Q_INVOKABLE int eventIdForLocation(int modelIndex, const QString &filename, int line,
                                        int column) const;
 
+    Q_INVOKABLE void swapModels(int modelIndex1, int modelIndex2);
+
 signals:
     void dataAvailable();
     void stateChanged();
     void expandedChanged();
     void rowHeightChanged();
-    void modelsChanged();
+    void modelsChanged(int modelIndex1, int modelIndex2);
 
 protected slots:
     void dataChanged();

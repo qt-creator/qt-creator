@@ -116,7 +116,7 @@ signals:
 public slots:
     void clearData();
     void requestPaint();
-
+    void swapSelections(int modelIndex1, int modelIndex2);
 
     void setStartTime(qint64 arg)
     {

@@ -84,6 +84,7 @@ Rectangle {
             view.requestPaint();
         }
         onStateChanged: backgroundMarks.requestPaint()
+        onModelsChanged: backgroundMarks.requestPaint()
         onExpandedChanged: backgroundMarks.requestPaint()
         onRowHeightChanged: backgroundMarks.requestPaint()
     }
@@ -211,10 +212,20 @@ Rectangle {
 
             Column {
                 id: col
+
+                // Dispatch the cursor shape to all labels. When dragging the DropArea receiving
+                // the drag events is not necessarily related to the MouseArea receiving the mouse
+                // events, so we can't use the drag events to determine the cursor shape.
+                property bool dragging: false
+
                 Repeater {
                     model: labels.rowCount
                     delegate: CategoryLabel {
+                        dragging: col.dragging
                         reverseSelect: root.shiftPressed
+                        onDragStarted: col.dragging = true
+                        onDragStopped: col.dragging = false
+                        draggerParent: labels
                     }
                 }
             }

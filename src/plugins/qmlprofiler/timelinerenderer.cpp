@@ -56,12 +56,16 @@ void TimelineRenderer::setProfilerModelProxy(QObject *profilerModelProxy)
     if (m_profilerModelProxy) {
         disconnect(m_profilerModelProxy, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
         disconnect(m_profilerModelProxy, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
+        disconnect(m_profilerModelProxy, SIGNAL(modelsChanged(int,int)),
+                   this, SLOT(swapSelections(int,int)));
     }
     m_profilerModelProxy = qobject_cast<TimelineModelAggregator *>(profilerModelProxy);
 
     if (m_profilerModelProxy) {
         connect(m_profilerModelProxy, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
         connect(m_profilerModelProxy, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
+        connect(m_profilerModelProxy, SIGNAL(modelsChanged(int,int)),
+                this, SLOT(swapSelections(int,int)));
     }
     emit profilerModelProxyChanged(m_profilerModelProxy);
 }
@@ -81,6 +85,20 @@ void TimelineRenderer::componentComplete()
 
 void TimelineRenderer::requestPaint()
 {
+    update();
+}
+
+void TimelineRenderer::swapSelections(int modelIndex1, int modelIndex2)
+{
+    // Any hovered event is most likely useless now. Reset it.
+    resetCurrentSelection();
+
+    // Explicitly selected events can be tracked in a useful way.
+    if (m_selectedModel == modelIndex1)
+        setSelectedModel(modelIndex2);
+    else if (m_selectedModel == modelIndex2)
+        setSelectedModel(modelIndex1);
+
     update();
 }
 

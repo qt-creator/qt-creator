@@ -92,7 +92,7 @@ void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
     d->modelList << m;
     connect(m,SIGNAL(expandedChanged()),this,SIGNAL(expandedChanged()));
     connect(m,SIGNAL(rowHeightChanged()),this,SIGNAL(rowHeightChanged()));
-    emit modelsChanged();
+    emit modelsChanged(d->modelList.length(), d->modelList.length());
 }
 
 QVariantList TimelineModelAggregator::models() const
@@ -253,6 +253,12 @@ int TimelineModelAggregator::eventIdForLocation(int modelIndex, const QString &f
                                                    int line, int column) const
 {
     return d->modelList[modelIndex]->eventIdForLocation(filename, line, column);
+}
+
+void TimelineModelAggregator::swapModels(int modelIndex1, int modelIndex2)
+{
+    qSwap(d->modelList[modelIndex1], d->modelList[modelIndex2]);
+    emit modelsChanged(modelIndex1, modelIndex2);
 }
 
 void TimelineModelAggregator::dataChanged()
