@@ -786,8 +786,10 @@ void NodeMetaInfoPrivate::setupLocalPropertyInfo(QList<PropertyInfo> localProper
 void NodeMetaInfoPrivate::setupPropertyInfo(QList<PropertyInfo> propertyInfos)
 {
     foreach (const PropertyInfo &propertyInfo, propertyInfos) {
-        m_properties.append(propertyInfo.first);
-        m_propertyTypes.append(propertyInfo.second);
+        if (!m_properties.contains(propertyInfo.first)) {
+            m_properties.append(propertyInfo.first);
+            m_propertyTypes.append(propertyInfo.second);
+        }
     }
 }
 
