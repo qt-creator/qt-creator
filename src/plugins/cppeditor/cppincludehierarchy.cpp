@@ -136,7 +136,7 @@ void CppIncludeHierarchyWidget::perform()
 {
     showNoIncludeHierarchyLabel();
 
-    m_editor = qobject_cast<CPPEditor *>(Core::EditorManager::currentEditor());
+    m_editor = qobject_cast<CppEditor *>(Core::EditorManager::currentEditor());
     if (!m_editor)
         return;
 

@@ -47,7 +47,7 @@ namespace TextEditor { class BaseTextEditor; }
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditor;
+class CppEditor;
 class CppIncludeHierarchyItem;
 
 class CppIncludeHierarchyModel : public QAbstractItemModel

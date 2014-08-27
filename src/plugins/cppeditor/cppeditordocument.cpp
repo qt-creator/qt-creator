@@ -62,7 +62,7 @@ enum { processDocumentIntervalInMs = 150 };
 class CppEditorDocumentHandle : public CppTools::EditorDocumentHandle
 {
 public:
-    CppEditorDocumentHandle(CppEditor::Internal::CPPEditorDocument *cppEditorDocument)
+    CppEditorDocumentHandle(CppEditor::Internal::CppEditorDocument *cppEditorDocument)
         : m_cppEditorDocument(cppEditorDocument)
         , m_registrationFilePath(cppEditorDocument->filePath())
     {
@@ -79,13 +79,13 @@ public:
     { return m_cppEditorDocument->processor(); }
 
 private:
-    CppEditor::Internal::CPPEditorDocument * const m_cppEditorDocument;
+    CppEditor::Internal::CppEditorDocument * const m_cppEditorDocument;
     // The file path of the editor document can change (e.g. by "Save As..."), so make sure
     // that un-registration happens with the path the document was registered.
     const QString m_registrationFilePath;
 };
 
-CPPEditorDocument::CPPEditorDocument()
+CppEditorDocument::CppEditorDocument()
     : m_fileIsBeingReloaded(false)
     , m_isObjCEnabled(false)
     , m_cachedContentsRevision(-1)
@@ -111,35 +111,35 @@ CPPEditorDocument::CPPEditorDocument()
     // See also onFilePathChanged() for more initialization
 }
 
-CPPEditorDocument::~CPPEditorDocument()
+CppEditorDocument::~CppEditorDocument()
 {
 }
 
-bool CPPEditorDocument::isObjCEnabled() const
+bool CppEditorDocument::isObjCEnabled() const
 {
     return m_isObjCEnabled;
 }
 
-CppTools::CppCompletionAssistProvider *CPPEditorDocument::completionAssistProvider() const
+CppTools::CppCompletionAssistProvider *CppEditorDocument::completionAssistProvider() const
 {
     return m_completionAssistProvider;
 }
 
-void CPPEditorDocument::semanticRehighlight()
+void CppEditorDocument::semanticRehighlight()
 {
     CppTools::BaseEditorDocumentProcessor *p = processor();
     QTC_ASSERT(p, return);
     p->semanticRehighlight(true);
 }
 
-CppTools::SemanticInfo CPPEditorDocument::recalculateSemanticInfo()
+CppTools::SemanticInfo CppEditorDocument::recalculateSemanticInfo()
 {
     CppTools::BaseEditorDocumentProcessor *p = processor();
     QTC_ASSERT(p, CppTools::SemanticInfo());
     return p->recalculateSemanticInfo();
 }
 
-QByteArray CPPEditorDocument::contentsText() const
+QByteArray CppEditorDocument::contentsText() const
 {
     QMutexLocker locker(&m_cachedContentsLock);
 
@@ -152,7 +152,7 @@ QByteArray CPPEditorDocument::contentsText() const
     return m_cachedContents;
 }
 
-void CPPEditorDocument::applyFontSettings()
+void CppEditorDocument::applyFontSettings()
 {
     if (TextEditor::SyntaxHighlighter *highlighter = syntaxHighlighter()) {
         // Clear all additional formats since they may have changed
@@ -166,13 +166,13 @@ void CPPEditorDocument::applyFontSettings()
     BaseTextDocument::applyFontSettings(); // rehighlights and updates additional formats
 }
 
-void CPPEditorDocument::invalidateFormatterCache()
+void CppEditorDocument::invalidateFormatterCache()
 {
     CppTools::QtStyleCodeFormatter formatter;
     formatter.invalidateCache(document());
 }
 
-void CPPEditorDocument::onMimeTypeChanged()
+void CppEditorDocument::onMimeTypeChanged()
 {
     const QString &mt = mimeType();
     m_isObjCEnabled = (mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
@@ -180,19 +180,19 @@ void CPPEditorDocument::onMimeTypeChanged()
     m_completionAssistProvider = mm()->completionAssistProvider(mt);
 }
 
-void CPPEditorDocument::onAboutToReload()
+void CppEditorDocument::onAboutToReload()
 {
     QTC_CHECK(!m_fileIsBeingReloaded);
     m_fileIsBeingReloaded = true;
 }
 
-void CPPEditorDocument::onReloadFinished()
+void CppEditorDocument::onReloadFinished()
 {
     QTC_CHECK(m_fileIsBeingReloaded);
     m_fileIsBeingReloaded = false;
 }
 
-void CPPEditorDocument::onFilePathChanged(const QString &oldPath, const QString &newPath)
+void CppEditorDocument::onFilePathChanged(const QString &oldPath, const QString &newPath)
 {
     Q_UNUSED(oldPath);
 
@@ -211,13 +211,13 @@ void CPPEditorDocument::onFilePathChanged(const QString &oldPath, const QString 
     }
 }
 
-void CPPEditorDocument::scheduleProcessDocument()
+void CppEditorDocument::scheduleProcessDocument()
 {
     m_processorRevision = document()->revision();
     m_processorTimer.start(processDocumentIntervalInMs);
 }
 
-void CPPEditorDocument::processDocument()
+void CppEditorDocument::processDocument()
 {
     if (processor()->isParserRunning() || m_processorRevision != contentsRevision()) {
         m_processorTimer.start();
@@ -231,36 +231,36 @@ void CPPEditorDocument::processDocument()
     processor()->run();
 }
 
-void CPPEditorDocument::resetProcessor()
+void CppEditorDocument::resetProcessor()
 {
     releaseResources();
     processor(); // creates a new processor
 }
 
-unsigned CPPEditorDocument::contentsRevision() const
+unsigned CppEditorDocument::contentsRevision() const
 {
     return document()->revision();
 }
 
-void CPPEditorDocument::releaseResources()
+void CppEditorDocument::releaseResources()
 {
     if (m_processor)
         disconnect(m_processor.data(), 0, this, 0);
     m_processor.reset();
 }
 
-CppTools::BaseEditorDocumentProcessor *CPPEditorDocument::processor()
+CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()
 {
     if (!m_processor) {
         m_processor.reset(mm()->editorDocumentProcessor(this));
         connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::codeWarningsUpdated,
-                this, &CPPEditorDocument::codeWarningsUpdated);
+                this, &CppEditorDocument::codeWarningsUpdated);
         connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
-                this, &CPPEditorDocument::ifdefedOutBlocksUpdated);
+                this, &CppEditorDocument::ifdefedOutBlocksUpdated);
         connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::cppDocumentUpdated,
-                this, &CPPEditorDocument::cppDocumentUpdated);
+                this, &CppEditorDocument::cppDocumentUpdated);
         connect(m_processor.data(), &CppTools::BaseEditorDocumentProcessor::semanticInfoUpdated,
-                this, &CPPEditorDocument::semanticInfoUpdated);
+                this, &CppEditorDocument::semanticInfoUpdated);
     }
 
     return m_processor.data();

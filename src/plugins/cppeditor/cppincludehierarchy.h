@@ -54,7 +54,7 @@ class FileName;
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditor;
+class CppEditor;
 class CppEditorWidget;
 class CppInclude;
 class CppIncludeLabel;

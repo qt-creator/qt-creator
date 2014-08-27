@@ -43,22 +43,22 @@
 #include <QSet>
 #include <QQueue>
 
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace CPlusPlus;
 
-namespace {
-    QStringList stripName(const QString &name) {
-        QStringList all;
-        all << name;
-        int colonColon = 0;
-        const int size = name.size();
-        while ((colonColon = name.indexOf(QLatin1String("::"), colonColon)) != -1) {
-            all << name.right(size - colonColon - 2);
-            colonColon += 2;
-        }
-        return all;
+namespace CppEditor {
+namespace Internal {
+
+static QStringList stripName(const QString &name)
+{
+    QStringList all;
+    all << name;
+    int colonColon = 0;
+    const int size = name.size();
+    while ((colonColon = name.indexOf(QLatin1String("::"), colonColon)) != -1) {
+        all << name.right(size - colonColon - 2);
+        colonColon += 2;
     }
+    return all;
 }
 
 CppElementEvaluator::CppElementEvaluator(TextEditor::BaseTextEditorWidget *editor) :
@@ -78,7 +78,7 @@ void CppElementEvaluator::setLookupBaseClasses(const bool lookup)
 void CppElementEvaluator::setLookupDerivedClasses(const bool lookup)
 { m_lookupDerivedClasses = lookup; }
 
-// @todo: Consider refactoring code from CPPEditor::findLinkAt into here.
+// @todo: Consider refactoring code from CppEditor::findLinkAt into here.
 void CppElementEvaluator::execute()
 {
     clear();
@@ -235,7 +235,7 @@ const QString &CppElementEvaluator::diagnosis() const
     return m_diagnosis;
 }
 
-void CppEditor::Internal::CppElementEvaluator::clear()
+void CppElementEvaluator::clear()
 {
     m_element.clear();
     m_diagnosis.clear();
@@ -470,3 +470,6 @@ CppEnumerator::CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration)
     if (!enumeratorValue.isEmpty())
         tooltip.append(QLatin1String(" = ") + enumeratorValue);
 }
+
+} // namespace Internal
+} // namespace CppEditor

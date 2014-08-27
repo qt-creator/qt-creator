@@ -37,11 +37,12 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace TextEditor;
 using namespace CppTools;
 using namespace CPlusPlus;
+
+namespace CppEditor {
+namespace Internal {
 
 // -------------------------
 // CppQuickFixAssistProvider
@@ -53,7 +54,7 @@ bool CppQuickFixAssistProvider::isAsynchronous() const
 
 bool CppQuickFixAssistProvider::supportsEditor(Core::Id editorId) const
 {
-    return editorId == CppEditor::Constants::CPPEDITOR_ID;
+    return editorId == Constants::CPPEDITOR_ID;
 }
 
 IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
@@ -64,7 +65,7 @@ IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
 QList<TextEditor::QuickFixFactory *> CppQuickFixAssistProvider::quickFixFactories() const
 {
     QList<TextEditor::QuickFixFactory *> results;
-    foreach (CppQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<CppEditor::CppQuickFixFactory>())
+    foreach (CppQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<CppQuickFixFactory>())
         results.append(f);
     return results;
 }
@@ -140,3 +141,6 @@ bool CppQuickFixAssistInterface::isCursorOn(const CPlusPlus::AST *ast) const
 {
     return currentFile()->isCursorOn(ast);
 }
+
+} // namespace Internal
+} // namespace CppEditor

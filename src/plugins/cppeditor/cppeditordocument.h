@@ -44,15 +44,15 @@
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorDocument : public TextEditor::BaseTextDocument
+class CppEditorDocument : public TextEditor::BaseTextDocument
 {
     Q_OBJECT
 
     friend class CppEditorDocumentHandle;
 
 public:
-    explicit CPPEditorDocument();
-    ~CPPEditorDocument();
+    explicit CppEditorDocument();
+    ~CppEditorDocument();
 
     bool isObjCEnabled() const;
     CppTools::CppCompletionAssistProvider *completionAssistProvider() const;

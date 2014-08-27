@@ -71,7 +71,7 @@ bool GlslCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) c
     const Token tk = SimpleLexer::tokenAt(cursor.block().text(), cursor.positionInBlock(),
                                           BackwardsScanner::previousBlockState(cursor.block()));
 
-    // XXX Duplicated from CPPEditor::isInComment to avoid tokenizing twice
+    // XXX Duplicated from CppEditor::isInComment to avoid tokenizing twice
     if (tk.isComment()) {
         const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 

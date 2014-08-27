@@ -63,8 +63,9 @@
 #include <QStringList>
 
 using namespace Core;
-using namespace CppEditor;
-using namespace CppEditor::Internal;
+
+namespace CppEditor {
+namespace Internal {
 
 void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
 
@@ -75,30 +76,30 @@ enum { QUICKFIX_INTERVAL = 20 };
 CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
     m_owner(owner)
 {
-    setId(CppEditor::Constants::CPPEDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", CppEditor::Constants::CPPEDITOR_DISPLAY_NAME));
-    addMimeType(CppEditor::Constants::C_SOURCE_MIMETYPE);
-    addMimeType(CppEditor::Constants::C_HEADER_MIMETYPE);
-    addMimeType(CppEditor::Constants::CPP_SOURCE_MIMETYPE);
-    addMimeType(CppEditor::Constants::CPP_HEADER_MIMETYPE);
+    setId(Constants::CPPEDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", Constants::CPPEDITOR_DISPLAY_NAME));
+    addMimeType(Constants::C_SOURCE_MIMETYPE);
+    addMimeType(Constants::C_HEADER_MIMETYPE);
+    addMimeType(Constants::CPP_SOURCE_MIMETYPE);
+    addMimeType(Constants::CPP_HEADER_MIMETYPE);
 
-    new TextEditor::TextEditorActionHandler(this, CppEditor::Constants::C_CPPEDITOR,
+    new TextEditor::TextEditorActionHandler(this, Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll
         | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
 
     if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
-        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_cpp.png", CppEditor::Constants::CPP_SOURCE_MIMETYPE);
-        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_c.png", CppEditor::Constants::C_SOURCE_MIMETYPE);
-        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_h.png", CppEditor::Constants::CPP_HEADER_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_cpp.png", Constants::CPP_SOURCE_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_c.png", Constants::C_SOURCE_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_h.png", Constants::CPP_HEADER_MIMETYPE);
     }
 }
 
 IEditor *CppEditorFactory::createEditor()
 {
-    CPPEditor *editor = new CPPEditor;
-    CppEditorWidget *widget = new CppEditorWidget(BaseTextDocumentPtr(new CPPEditorDocument), editor);
+    CppEditor *editor = new CppEditor;
+    CppEditorWidget *widget = new CppEditorWidget(BaseTextDocumentPtr(new CppEditorDocument), editor);
     m_owner->initializeEditor(widget);
     editor->configureCodeAssistant();
     return editor;
@@ -167,16 +168,16 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
     auto hf = new TextEditor::HighlighterFactory;
     hf->setProductType<CppHighlighter>();
-    hf->setId(CppEditor::Constants::CPPEDITOR_ID);
-    hf->addMimeType(CppEditor::Constants::C_SOURCE_MIMETYPE);
-    hf->addMimeType(CppEditor::Constants::C_HEADER_MIMETYPE);
-    hf->addMimeType(CppEditor::Constants::CPP_SOURCE_MIMETYPE);
-    hf->addMimeType(CppEditor::Constants::CPP_HEADER_MIMETYPE);
+    hf->setId(Constants::CPPEDITOR_ID);
+    hf->addMimeType(Constants::C_SOURCE_MIMETYPE);
+    hf->addMimeType(Constants::C_HEADER_MIMETYPE);
+    hf->addMimeType(Constants::CPP_SOURCE_MIMETYPE);
+    hf->addMimeType(Constants::CPP_HEADER_MIMETYPE);
     addAutoReleasedObject(hf);
 
     m_quickFixProvider = new CppQuickFixAssistProvider;
     addAutoReleasedObject(m_quickFixProvider);
-    CppEditor::Internal::registerQuickFixes(this);
+    registerQuickFixes(this);
 
     QString trCat = QCoreApplication::translate(Constants::WIZARD_CATEGORY, Constants::WIZARD_TR_CATEGORY);
 
@@ -208,9 +209,9 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     wizard->setId(QLatin1String("C.Header"));
     addAutoReleasedObject(wizard);
 
-    Context context(CppEditor::Constants::C_CPPEDITOR);
+    Context context(Constants::C_CPPEDITOR);
 
-    ActionContainer *contextMenu = ActionManager::createMenu(CppEditor::Constants::M_CONTEXT);
+    ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
 
     Command *cmd;
     ActionContainer *cppToolsMenu = ActionManager::actionContainer(CppTools::Constants::M_TOOLS_CPP);
@@ -425,3 +426,6 @@ void CppEditorPlugin::openIncludeHierarchy()
         emit includeHierarchyRequested();
     }
 }
+
+} // namespace Internal
+} // namespace CppEditor

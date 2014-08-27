@@ -68,6 +68,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace CPPEditor
+} // namespace CppEditor
 
 #endif // CPPPREPROCESSORDIALOG_H

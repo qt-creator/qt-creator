@@ -40,7 +40,8 @@
 #include <QVBoxLayout>
 #include <QMenu>
 
-using namespace CppEditor::Internal;
+namespace CppEditor {
+namespace Internal {
 
 enum {
     debug = false
@@ -185,14 +186,14 @@ bool CppOutlineWidget::syncCursor()
 
 bool CppOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
 {
-    if (qobject_cast<CPPEditor*>(editor))
+    if (qobject_cast<CppEditor*>(editor))
         return true;
     return false;
 }
 
 TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor *editor)
 {
-    CPPEditor *cppEditor = qobject_cast<CPPEditor*>(editor);
+    CppEditor *cppEditor = qobject_cast<CppEditor*>(editor);
     CppEditorWidget *cppEditorWidget = qobject_cast<CppEditorWidget*>(cppEditor->widget());
     QTC_ASSERT(cppEditorWidget, return 0);
 
@@ -200,3 +201,6 @@ TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor 
 
     return widget;
 }
+
+} // namespace Internal
+} // namespace CppEditor

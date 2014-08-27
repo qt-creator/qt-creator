@@ -44,18 +44,18 @@ namespace CppTools { class SemanticInfo; }
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditorDocument;
+class CppEditorDocument;
 class CppEditorOutline;
 class CppEditorWidgetPrivate;
 class FollowSymbolUnderCursor;
 class FunctionDeclDefLink;
 
-class CPPEditor : public TextEditor::BaseTextEditor
+class CppEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    CPPEditor();
+    CppEditor();
 
     Core::IEditor *duplicate() QTC_OVERRIDE;
 
@@ -72,12 +72,12 @@ public:
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 
 public:
-    CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CPPEditor *editor);
+    CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CppEditor *editor);
     ~CppEditorWidget();
 
-    CppEditorWidget *duplicate(CPPEditor *editor) const;
+    CppEditorWidget *duplicate(CppEditor *editor) const;
 
-    CPPEditorDocument *cppEditorDocument() const;
+    CppEditorDocument *cppEditorDocument() const;
     CppEditorOutline *outline() const;
 
     CppTools::SemanticInfo semanticInfo() const;

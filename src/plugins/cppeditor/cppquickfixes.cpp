@@ -70,13 +70,14 @@
 #include <cctype>
 
 using namespace CPlusPlus;
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
 using Utils::ChangeSet;
 
-void CppEditor::Internal::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
+namespace CppEditor {
+namespace Internal {
+
+void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
 {
     plugIn->addAutoReleasedObject(new AddIncludeForUndefinedIdentifier);
     plugIn->addAutoReleasedObject(new AddIncludeForForwardDeclaration);
@@ -5342,3 +5343,6 @@ void EscapeStringLiteral::match(const CppQuickFixInterface &interface, QuickFixO
         result.append(op);
     }
 }
+
+} // namespace Internal
+} // namespace CppEditor

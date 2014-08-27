@@ -90,15 +90,15 @@ using namespace CppEditor::Internal;
 namespace CppEditor {
 namespace Internal {
 
-CPPEditor::CPPEditor()
+CppEditor::CppEditor()
 {
-    m_context.add(CppEditor::Constants::C_CPPEDITOR);
+    m_context.add(Constants::C_CPPEDITOR);
     m_context.add(ProjectExplorer::Constants::LANG_CXX);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
     setDuplicateSupported(true);
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider([this] () -> TextEditor::CompletionAssistProvider * {
-        if (CPPEditorDocument *document = qobject_cast<CPPEditorDocument *>(textDocument()))
+        if (CppEditorDocument *document = qobject_cast<CppEditorDocument *>(textDocument()))
             return document->completionAssistProvider();
         return 0;
     });
@@ -114,7 +114,7 @@ public:
 public:
     QPointer<CppTools::CppModelManagerInterface> m_modelManager;
 
-    CPPEditorDocument *m_cppEditorDocument;
+    CppEditorDocument *m_cppEditorDocument;
     CppEditorOutline *m_cppEditorOutline;
 
     CppDocumentationCommentHelper m_cppDocumentationCommentHelper;
@@ -137,7 +137,7 @@ public:
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     : m_modelManager(CppModelManagerInterface::instance())
-    , m_cppEditorDocument(qobject_cast<CPPEditorDocument *>(q->textDocument()))
+    , m_cppEditorDocument(qobject_cast<CppEditorDocument *>(q->textDocument()))
     , m_cppEditorOutline(new CppEditorOutline(q))
     , m_cppDocumentationCommentHelper(q)
     , m_localRenaming(q)
@@ -148,7 +148,7 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
 {
 }
 
-CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CPPEditor *editor)
+CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CppEditor *editor)
 {
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
 
@@ -163,9 +163,9 @@ CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CPPEditor 
     setParenthesesMatchingEnabled(true);
     setRevisionsVisible(true);
 
-    connect(d->m_cppEditorDocument, &CPPEditorDocument::codeWarningsUpdated,
+    connect(d->m_cppEditorDocument, &CppEditorDocument::codeWarningsUpdated,
             this, &CppEditorWidget::onCodeWarningsUpdated);
-    connect(d->m_cppEditorDocument, &CPPEditorDocument::ifdefedOutBlocksUpdated,
+    connect(d->m_cppEditorDocument, &CppEditorDocument::ifdefedOutBlocksUpdated,
             this, &CppEditorWidget::onIfdefedOutBlocksUpdated);
     connect(d->m_cppEditorDocument, SIGNAL(cppDocumentUpdated(CPlusPlus::Document::Ptr)),
             this, SLOT(onCppDocumentUpdated()));
@@ -229,7 +229,7 @@ CppEditorWidget::~CppEditorWidget()
     // non-inline destructor, see section "Forward Declared Pointers" of QScopedPointer.
 }
 
-CppEditorWidget *CppEditorWidget::duplicate(CPPEditor *editor) const
+CppEditorWidget *CppEditorWidget::duplicate(CppEditor *editor) const
 {
     QTC_ASSERT(editor, return 0);
 
@@ -243,7 +243,7 @@ CppEditorWidget *CppEditorWidget::duplicate(CPPEditor *editor) const
     return widget;
 }
 
-CPPEditorDocument *CppEditorWidget::cppEditorDocument() const
+CppEditorDocument *CppEditorWidget::cppEditorDocument() const
 {
     return d->m_cppEditorDocument;
 }
@@ -564,16 +564,16 @@ void CppEditorWidget::keyPressEvent(QKeyEvent *e)
     TextEditor::BaseTextEditorWidget::keyPressEvent(e);
 }
 
-Core::IEditor *CPPEditor::duplicate()
+Core::IEditor *CppEditor::duplicate()
 {
-    CPPEditor *editor = new CPPEditor;
+    CppEditor *editor = new CppEditor;
     CppEditorWidget *widget = qobject_cast<CppEditorWidget *>(editorWidget())->duplicate(editor);
     CppEditorPlugin::instance()->initializeEditor(widget);
     editor->configureCodeAssistant();
     return editor;
 }
 
-bool CPPEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
+bool CppEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     if (!TextEditor::BaseTextEditor::open(errorString, fileName, realFileName))
         return false;

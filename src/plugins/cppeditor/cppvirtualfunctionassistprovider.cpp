@@ -216,7 +216,7 @@ bool VirtualFunctionAssistProvider::isAsynchronous() const
 
 bool VirtualFunctionAssistProvider::supportsEditor(Core::Id editorId) const
 {
-    return editorId == CppEditor::Constants::CPPEDITOR_ID;
+    return editorId == Constants::CPPEDITOR_ID;
 }
 
 IAssistProcessor *VirtualFunctionAssistProvider::createProcessor() const

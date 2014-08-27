@@ -36,9 +36,9 @@
 #include <cpptools/cpptoolstestcase.h>
 
 namespace CppEditor {
-
 namespace Internal {
-class CPPEditor;
+
+class CppEditor;
 class CppEditorWidget;
 
 namespace Tests {
@@ -52,8 +52,8 @@ public:
 
 public:
     int m_cursorPosition;
-    Internal::CPPEditor *m_editor;
-    Internal::CppEditorWidget *m_editorWidget;
+    CppEditor *m_editor;
+    CppEditorWidget *m_editorWidget;
 };
 
 class TestCase : public CppTools::Tests::TestCase
@@ -63,11 +63,11 @@ public:
     ~TestCase();
 
     static bool openCppEditor(const QString &fileName,
-                              Internal::CPPEditor **editor,
-                              Internal::CppEditorWidget **editorWidget = 0);
+                              CppEditor **editor,
+                              CppEditorWidget **editorWidget = 0);
 
     static CPlusPlus::Document::Ptr waitForRehighlightedSemanticDocument(
-            Internal::CppEditorWidget *editorWidget);
+            CppEditorWidget *editorWidget);
 };
 
 } // namespace Tests
