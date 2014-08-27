@@ -57,8 +57,6 @@ class CppEditor : public TextEditor::BaseTextEditor
 public:
     CppEditor();
 
-    Core::IEditor *duplicate() QTC_OVERRIDE;
-
     bool open(QString *errorString,
               const QString &fileName,
               const QString &realFileName) QTC_OVERRIDE;
@@ -72,10 +70,10 @@ public:
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 
 public:
-    CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CppEditor *editor);
+    CppEditorWidget();
     ~CppEditorWidget();
 
-    CppEditorWidget *duplicate(CppEditor *editor) const;
+    void finalizeInitialization();
 
     CppEditorDocument *cppEditorDocument() const;
     CppEditorOutline *outline() const;

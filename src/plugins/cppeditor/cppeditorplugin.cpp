@@ -29,11 +29,12 @@
 
 #include "cppeditorplugin.h"
 
+#include "cppautocompleter.h"
 #include "cppclasswizard.h"
 #include "cppcodemodelinspectordialog.h"
 #include "cppeditorconstants.h"
-#include "cppeditordocument.h"
 #include "cppeditor.h"
+#include "cppeditordocument.h"
 #include "cppeditoroutline.h"
 #include "cppfilewizard.h"
 #include "cpphighlighter.h"
@@ -63,6 +64,7 @@
 #include <QStringList>
 
 using namespace Core;
+using namespace TextEditor;
 
 namespace CppEditor {
 namespace Internal {
@@ -73,37 +75,36 @@ enum { QUICKFIX_INTERVAL = 20 };
 
 //////////////////////////// CppEditorFactory /////////////////////////////
 
-CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
-    m_owner(owner)
+class CppEditorFactory : public BaseTextEditorFactory
 {
-    setId(Constants::CPPEDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", Constants::CPPEDITOR_DISPLAY_NAME));
-    addMimeType(Constants::C_SOURCE_MIMETYPE);
-    addMimeType(Constants::C_HEADER_MIMETYPE);
-    addMimeType(Constants::CPP_SOURCE_MIMETYPE);
-    addMimeType(Constants::CPP_HEADER_MIMETYPE);
+public:
+    CppEditorFactory()
+    {
+        setId(Constants::CPPEDITOR_ID);
+        setDisplayName(qApp->translate("OpenWith::Editors", Constants::CPPEDITOR_DISPLAY_NAME));
+        addMimeType(Constants::C_SOURCE_MIMETYPE);
+        addMimeType(Constants::C_HEADER_MIMETYPE);
+        addMimeType(Constants::CPP_SOURCE_MIMETYPE);
+        addMimeType(Constants::CPP_HEADER_MIMETYPE);
 
-    new TextEditor::TextEditorActionHandler(this, Constants::C_CPPEDITOR,
-        TextEditor::TextEditorActionHandler::Format
-        | TextEditor::TextEditorActionHandler::UnCommentSelection
-        | TextEditor::TextEditorActionHandler::UnCollapseAll
-        | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
+        setDocumentCreator([]() { return new CppEditorDocument; });
+        setEditorWidgetCreator([]() { return new CppEditorWidget; });
+        setEditorCreator([]() { return new CppEditor; });
+        setAutoCompleterCreator([]() { return new CppAutoCompleter; });
 
-    if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
-        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_cpp.png", Constants::CPP_SOURCE_MIMETYPE);
-        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_c.png", Constants::C_SOURCE_MIMETYPE);
-        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_h.png", Constants::CPP_HEADER_MIMETYPE);
+        setEditorActionHandlers(Constants::C_CPPEDITOR,
+                                TextEditorActionHandler::Format
+                              | TextEditorActionHandler::UnCommentSelection
+                              | TextEditorActionHandler::UnCollapseAll
+                              | TextEditorActionHandler::FollowSymbolUnderCursor);
+
+        if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
+            FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_cpp.png", Constants::CPP_SOURCE_MIMETYPE);
+            FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_c.png", Constants::C_SOURCE_MIMETYPE);
+            FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_h.png", Constants::CPP_HEADER_MIMETYPE);
+        }
     }
-}
-
-IEditor *CppEditorFactory::createEditor()
-{
-    CppEditor *editor = new CppEditor;
-    CppEditorWidget *widget = new CppEditorWidget(BaseTextDocumentPtr(new CppEditorDocument), editor);
-    m_owner->initializeEditor(widget);
-    editor->configureCodeAssistant();
-    return editor;
-}
+};
 
 ///////////////////////////////// CppEditorPlugin //////////////////////////////////
 
@@ -131,13 +132,6 @@ CppEditorPlugin *CppEditorPlugin::instance()
     return m_instance;
 }
 
-void CppEditorPlugin::initializeEditor(CppEditorWidget *editor)
-{
-    // function combo box sorting
-    connect(this, SIGNAL(outlineSortingChanged(bool)),
-            editor->outline(), SLOT(setSorted(bool)));
-}
-
 void CppEditorPlugin::setSortedOutline(bool sorted)
 {
     m_sortedOutline = sorted;
@@ -159,7 +153,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
         return false;
 
-    addAutoReleasedObject(new CppEditorFactory(this));
+    addAutoReleasedObject(new CppEditorFactory);
     addAutoReleasedObject(new CppHoverHandler);
     addAutoReleasedObject(new CppOutlineWidgetFactory);
     addAutoReleasedObject(new CppTypeHierarchyFactory);

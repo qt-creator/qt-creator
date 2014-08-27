@@ -148,20 +148,25 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
 {
 }
 
-CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CppEditor *editor)
+CppEditorWidget::CppEditorWidget()
+   : d(new CppEditorWidgetPrivate(this))
 {
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
+}
 
-    editor->setEditorWidget(this);
+void CppEditorWidget::finalizeInitialization()
+{
+    d->m_cppEditorDocument = qobject_cast<CppEditorDocument *>(textDocument());
 
-    setTextDocument(doc);
-    d.reset(new CppEditorWidgetPrivate(this));
-    setAutoCompleter(new CppAutoCompleter);
     setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
     setCodeFoldingSupported(true);
     setMarksVisible(true);
     setParenthesesMatchingEnabled(true);
     setRevisionsVisible(true);
+
+    // function combo box sorting
+    connect(CppEditorPlugin::instance(), &CppEditorPlugin::outlineSortingChanged,
+            outline(), &CppEditorOutline::setSorted);
 
     connect(d->m_cppEditorDocument, &CppEditorDocument::codeWarningsUpdated,
             this, &CppEditorWidget::onCodeWarningsUpdated);
@@ -222,25 +227,17 @@ CppEditorWidget::CppEditorWidget(TextEditor::BaseTextDocumentPtr doc, CppEditor 
     connect(d->m_preprocessorButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
     insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_preprocessorButton);
     insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_cppEditorOutline->widget());
+
+//    updateSemanticInfo(semanticInfo());
+//    updateFunctionDeclDefLink();
+//    d->m_cppEditorOutline->update();
+//    const ExtraSelectionKind selectionKind = CodeWarningsSelection;
+//    setExtraSelections(selectionKind, extraSelections(selectionKind));
 }
 
 CppEditorWidget::~CppEditorWidget()
 {
     // non-inline destructor, see section "Forward Declared Pointers" of QScopedPointer.
-}
-
-CppEditorWidget *CppEditorWidget::duplicate(CppEditor *editor) const
-{
-    QTC_ASSERT(editor, return 0);
-
-    CppEditorWidget *widget = new CppEditorWidget(textDocumentPtr(), editor);
-    widget->updateSemanticInfo(semanticInfo());
-    widget->updateFunctionDeclDefLink();
-    widget->d->m_cppEditorOutline->update();
-    const ExtraSelectionKind selectionKind = CodeWarningsSelection;
-    widget->setExtraSelections(selectionKind, extraSelections(selectionKind));
-
-    return widget;
 }
 
 CppEditorDocument *CppEditorWidget::cppEditorDocument() const
@@ -562,15 +559,6 @@ void CppEditorWidget::keyPressEvent(QKeyEvent *e)
         return;
 
     TextEditor::BaseTextEditorWidget::keyPressEvent(e);
-}
-
-Core::IEditor *CppEditor::duplicate()
-{
-    CppEditor *editor = new CppEditor;
-    CppEditorWidget *widget = qobject_cast<CppEditorWidget *>(editorWidget())->duplicate(editor);
-    CppEditorPlugin::instance()->initializeEditor(widget);
-    editor->configureCodeAssistant();
-    return editor;
 }
 
 bool CppEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)

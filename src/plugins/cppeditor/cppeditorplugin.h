@@ -62,9 +62,6 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-    // Connect editor to settings changed signals.
-    void initializeEditor(CppEditorWidget *editor);
-
     bool sortedOutline() const;
 
     CppQuickFixAssistProvider *quickFixProvider() const;
@@ -248,19 +245,6 @@ private:
     QPointer<CppCodeModelInspectorDialog> m_cppCodeModelInspectorDialog;
 
     QPointer<TextEditor::BaseTextEditor> m_currentEditor;
-};
-
-class CppEditorFactory : public Core::IEditorFactory
-{
-    Q_OBJECT
-
-public:
-    CppEditorFactory(CppEditorPlugin *owner);
-
-    Core::IEditor *createEditor();
-
-private:
-    CppEditorPlugin *m_owner;
 };
 
 } // namespace Internal
