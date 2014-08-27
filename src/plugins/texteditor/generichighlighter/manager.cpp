@@ -35,7 +35,6 @@
 #include "highlightersettings.h"
 #include <texteditor/plaintexteditorfactory.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorplugin.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <coreplugin/icore.h>
@@ -359,7 +358,7 @@ void Manager::registerMimeTypesFinished()
         const QPair<RegisterData, QList<MimeType> > &result = m_registeringWatcher.result();
         m_register = result.first;
 
-        PlainTextEditorFactory *factory = TextEditorPlugin::editorFactory();
+        PlainTextEditorFactory *factory = PlainTextEditorFactory::instance();
         const QSet<QString> &inFactory = factory->mimeTypes().toSet();
         foreach (const MimeType &mimeType, result.second) {
             MimeDatabase::addMimeType(mimeType);

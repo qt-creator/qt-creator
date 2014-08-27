@@ -41,10 +41,10 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
-#include <QDebug>
 
 namespace TextEditor {
-namespace Internal {
+
+static PlainTextEditorFactory *m_instance = 0;
 
 class PlainTextEditorWidget : public BaseTextEditorWidget
 {
@@ -55,6 +55,8 @@ public:
 
 PlainTextEditorFactory::PlainTextEditorFactory()
 {
+    QTC_CHECK(!m_instance);
+    m_instance = this;
     setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     setDisplayName(qApp->translate("OpenWith::Editors", Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
     addMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
@@ -69,5 +71,14 @@ PlainTextEditorFactory::PlainTextEditorFactory()
         TextEditorActionHandler::UnCollapseAll);
 }
 
-} // namespace Internal
+PlainTextEditorFactory *PlainTextEditorFactory::instance()
+{
+    return m_instance;
+}
+
+BaseTextEditor *PlainTextEditorFactory::createPlainTextEditor()
+{
+    return qobject_cast<BaseTextEditor *>(m_instance->createEditor());
+}
+
 } // namespace TextEditor

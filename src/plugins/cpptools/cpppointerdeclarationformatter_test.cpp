@@ -35,6 +35,7 @@
 #include <coreplugin/coreconstants.h>
 
 #include <texteditor/basetexteditor.h>
+#include <texteditor/plaintexteditorfactory.h>
 
 #include <utils/fileutils.h>
 
@@ -102,23 +103,20 @@ public:
         QVERIFY(ast);
 
         // Open file
-        TextEditor::BaseTextDocumentPtr textDocument(new TextEditor::BaseTextDocument);
-        textDocument->setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
-        TextEditor::BaseTextEditorWidget editorWidget(0);
-        editorWidget.setTextDocument(textDocument);
-        editorWidget.setupAsPlainEditor();
+        TextEditor::BaseTextEditor *editor = TextEditor::PlainTextEditorFactory::createPlainTextEditor();
+        TextEditor::BaseTextEditorWidget *editorWidget = editor->editorWidget();
         QString error;
-        editorWidget.open(&error, document->fileName(), document->fileName());
+        editor->open(&error, document->fileName(), document->fileName());
         QVERIFY(error.isEmpty());
 
         // Set cursor position
-        QTextCursor cursor = editorWidget.textCursor();
+        QTextCursor cursor = editorWidget->textCursor();
         cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, cursorPosition);
-        editorWidget.setTextCursor(cursor);
+        editorWidget->setTextCursor(cursor);
 
-        QTextDocument *qtextDocument = editorWidget.document();
+        QTextDocument *qtextDocument = editorWidget->document();
         CppRefactoringFilePtr cppRefactoringFile
-            = CppRefactoringChanges::file(&editorWidget, document);
+            = CppRefactoringChanges::file(editorWidget, document);
 
         // Prepare for formatting
         Overview overview;

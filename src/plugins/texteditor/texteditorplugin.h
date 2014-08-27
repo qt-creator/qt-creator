@@ -42,7 +42,6 @@ class TextEditorSettings;
 namespace Internal {
 
 class LineNumberFilter;
-class PlainTextEditorFactory;
 class OutlineFactory;
 class TextMarkRegistry;
 
@@ -59,7 +58,6 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
-    static PlainTextEditorFactory *editorFactory();
     static LineNumberFilter *lineNumberFilter();
     static TextMarkRegistry *baseTextMarkRegistry();
 
@@ -71,7 +69,6 @@ private slots:
 
 private:
     TextEditorSettings *m_settings;
-    PlainTextEditorFactory *m_editorFactory;
     LineNumberFilter *m_lineNumberFilter;
     Core::SearchResultWindow *m_searchResultWindow;
     OutlineFactory *m_outlineFactory;

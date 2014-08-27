@@ -70,7 +70,6 @@ static TextEditorPlugin *m_instance = 0;
 
 TextEditorPlugin::TextEditorPlugin()
   : m_settings(0),
-    m_editorFactory(0),
     m_lineNumberFilter(0),
     m_searchResultWindow(0)
 {
@@ -154,8 +153,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_settings = new TextEditorSettings(this);
 
     // Add plain text editor factory
-    m_editorFactory = new PlainTextEditorFactory;
-    addAutoReleasedObject(m_editorFactory);
+    addAutoReleasedObject(new PlainTextEditorFactory);
 
     // Goto line functionality for quick open
     m_lineNumberFilter = new LineNumberFilter;
@@ -259,11 +257,6 @@ void TextEditorPlugin::extensionsInitialized()
 
     connect(Core::ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
             this, SLOT(updateCurrentSelection(QString)));
-}
-
-PlainTextEditorFactory *TextEditorPlugin::editorFactory()
-{
-    return m_instance->m_editorFactory;
 }
 
 LineNumberFilter *TextEditorPlugin::lineNumberFilter()

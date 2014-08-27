@@ -33,17 +33,17 @@
 #include <texteditor/basetexteditor.h>
 
 namespace TextEditor {
-namespace Internal {
 
-class PlainTextEditorFactory : public TextEditor::BaseTextEditorFactory
+class TEXTEDITOR_EXPORT PlainTextEditorFactory : public TextEditor::BaseTextEditorFactory
 {
     Q_OBJECT
 
 public:
     PlainTextEditorFactory();
+    static PlainTextEditorFactory *instance();
+    static BaseTextEditor *createPlainTextEditor();
 };
 
-} // namespace Internal
 } // namespace TextEditor
 
 #endif // PLAINTEXTEDITORFACTORY_H

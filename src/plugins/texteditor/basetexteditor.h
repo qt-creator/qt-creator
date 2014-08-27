@@ -77,19 +77,21 @@ namespace Internal {
     class TextEditorOverlay;
 }
 
-class BaseTextEditorWidget;
+class AutoCompleter;
+class BaseTextEditor;
 class BaseTextEditorFactory;
-class FontSettings;
+class BaseTextEditorWidget;
+class PlainTextEditorFactory;
+
 class BehaviorSettings;
 class CompletionSettings;
 class DisplaySettings;
-class MarginSettings;
-class TypingSettings;
-class StorageSettings;
-class Indenter;
-class AutoCompleter;
 class ExtraEncodingSettings;
-class BaseTextEditor;
+class FontSettings;
+class Indenter;
+class MarginSettings;
+class StorageSettings;
+class TypingSettings;
 
 class TEXTEDITOR_EXPORT BlockRange
 {
@@ -640,6 +642,7 @@ public:
 
 private:
     friend class BaseTextEditor;
+    friend class PlainTextEditorFactory;
 
     Core::IEditor *createEditor();
     BaseTextEditor *createEditorHelper(const BaseTextDocumentPtr &doc);
