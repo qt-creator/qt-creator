@@ -48,7 +48,7 @@ namespace Designer {
 FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditorWidget *editor)
 {
     setEditorWidget(editor);
-    setDuplicateSupported(true);
+    setDuplicateSupported(false);
     setContext(Core::Context(Designer::Constants::K_DESIGNER_XML_EDITOR_ID,
                              Designer::Constants::C_DESIGNER_XML_EDITOR));
 
