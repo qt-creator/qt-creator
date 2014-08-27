@@ -127,6 +127,11 @@ void SortedTimelineModel::computeNesting()
     for (int range = 0; range != count(); ++range) {
         Range &current = ranges[range];
         for (QLinkedList<int>::iterator parentIt = parents.begin();;) {
+            if (parentIt == parents.end()) {
+                parents.append(range);
+                break;
+            }
+
             Range &parent = ranges[*parentIt];
             qint64 parentEnd = parent.start + parent.duration;
             if (parentEnd < current.start) {
@@ -151,11 +156,6 @@ void SortedTimelineModel::computeNesting()
                 break;
             } else {
                 ++parentIt;
-            }
-
-            if (parentIt == parents.end()) {
-                parents.append(range);
-                break;
             }
         }
     }
