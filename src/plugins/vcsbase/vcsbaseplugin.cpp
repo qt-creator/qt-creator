@@ -33,7 +33,7 @@
 #include "commonvcssettings.h"
 #include "vcsoutputwindow.h"
 #include "corelistener.h"
-#include "command.h"
+#include "vcscommand.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -799,8 +799,8 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
                                                  QTextCodec *outputCodec,
                                                  const QProcessEnvironment &env)
 {
-    Command command(binary, workingDir,
-                    env.isEmpty() ? QProcessEnvironment::systemEnvironment() : env);
+    VcsCommand command(binary, workingDir,
+                       env.isEmpty() ? QProcessEnvironment::systemEnvironment() : env);
     command.addFlags(flags);
     command.setCodec(outputCodec);
     return command.runVcs(arguments, timeOutMS);

@@ -35,34 +35,36 @@
 #include "bazaarsettings.h"
 
 #include <coreplugin/iversioncontrol.h>
-#include <vcsbase/command.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsconfigurationpage.h>
 
 #include <QDebug>
 
-using namespace Bazaar::Internal;
+using namespace VcsBase;
 
+namespace Bazaar {
+namespace Internal {
 
 // --------------------------------------------------------------------
 // CloneWizard:
 // --------------------------------------------------------------------
 
 CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(path, parent)
+    BaseCheckoutWizard(path, parent)
 {
     setTitle(tr("Cloning"));
     setStartedStatus(tr("Cloning started..."));
 
     const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
     if (!vc->isConfigured())
-        addPage(new VcsBase::VcsConfigurationPage(vc));
+        addPage(new VcsConfigurationPage(vc));
     CloneWizardPage *page = new CloneWizardPage;
     page->setPath(path.toString());
     addPage(page);
 }
 
-VcsBase::Command *CloneWizard::createCommand(Utils::FileName *checkoutDir)
+VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
 {
     const CloneWizardPage *cwp = 0;
     foreach (int pageId, pageIds()) {
@@ -99,8 +101,11 @@ VcsBase::Command *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     args << client->vcsCommandString(BazaarClient::CloneCommand)
          << extraOptions << cwp->repository() << cwp->directory();
 
-    VcsBase::Command *command = new VcsBase::Command(settings.binaryPath(), cwp->path(),
-                                                     client->processEnvironment());
+    VcsCommand *command = new VcsCommand(settings.binaryPath(), cwp->path(),
+                                         client->processEnvironment());
     command->addJob(args, -1);
     return command;
 }
+
+} // namespace Internal
+} // namespace Bazaar

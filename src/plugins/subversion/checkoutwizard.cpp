@@ -33,10 +33,13 @@
 #include "subversionclient.h"
 
 #include <coreplugin/iversioncontrol.h>
-#include <vcsbase/command.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
+
+using namespace Utils;
+using namespace VcsBase;
 
 namespace Subversion {
 namespace Internal {
@@ -45,18 +48,18 @@ namespace Internal {
 // CheckoutWizard:
 // --------------------------------------------------------------------
 
-CheckoutWizard::CheckoutWizard(const Utils::FileName &path, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(path, parent)
+CheckoutWizard::CheckoutWizard(const FileName &path, QWidget *parent) :
+    BaseCheckoutWizard(path, parent)
 {
     const Core::IVersionControl *vc = SubversionPlugin::instance()->versionControl();
     if (!vc->isConfigured())
-        addPage(new VcsBase::VcsConfigurationPage(vc));
+        addPage(new VcsConfigurationPage(vc));
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path.toString());
     addPage(cwp);
 }
 
-VcsBase::Command *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
+VcsCommand *CheckoutWizard::createCommand(FileName *checkoutDir)
 {
     // Collect parameters for the checkout command.
     const CheckoutWizardPage *cwp = 0;
@@ -67,21 +70,21 @@ VcsBase::Command *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
     QTC_ASSERT(cwp, return 0);
 
     const SubversionSettings settings = SubversionPlugin::instance()->settings();
-    const Utils::FileName binary = settings.binaryPath();
+    const FileName binary = settings.binaryPath();
     const QString directory = cwp->directory();
     QStringList args;
     args << QLatin1String("checkout") << cwp->repository() << directory;
     const QString workingDirectory = cwp->path();
 
-    *checkoutDir = Utils::FileName::fromString(workingDirectory + QLatin1Char('/') + directory);
+    *checkoutDir = FileName::fromString(workingDirectory + QLatin1Char('/') + directory);
 
     if (settings.hasAuthentication()) {
         const QString user = settings.stringValue(SubversionSettings::userKey);
         const QString pwd = settings.stringValue(SubversionSettings::passwordKey);
         args = SubversionClient::addAuthenticationOptions(args, user, pwd);
     }
-    VcsBase::Command *command = new VcsBase::Command(binary, workingDirectory,
-                                                     QProcessEnvironment::systemEnvironment());
+    VcsCommand *command = new VcsCommand(binary, workingDirectory,
+                                         QProcessEnvironment::systemEnvironment());
     command->addJob(args, -1);
     return command;
 }

@@ -36,7 +36,7 @@
 #include <utils/wizard.h>
 
 namespace VcsBase {
-class Command;
+class VcsCommand;
 
 namespace Internal { class CheckoutProgressWizardPage; }
 
@@ -53,7 +53,7 @@ public:
     Utils::FileName run();
 
 protected:
-    virtual VcsBase::Command *createCommand(Utils::FileName *checkoutDir) = 0;
+    virtual VcsBase::VcsCommand *createCommand(Utils::FileName *checkoutDir) = 0;
 
 private slots:
     void slotPageChanged(int id);

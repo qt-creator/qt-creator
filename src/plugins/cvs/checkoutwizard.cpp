@@ -32,10 +32,12 @@
 #include "cvsplugin.h"
 
 #include <coreplugin/iversioncontrol.h>
-#include <vcsbase/command.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
+
+using namespace VcsBase;
 
 namespace Cvs {
 namespace Internal {
@@ -45,17 +47,17 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 CheckoutWizard::CheckoutWizard(const Utils::FileName &path, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(path, parent)
+    BaseCheckoutWizard(path, parent)
 {
     const Core::IVersionControl *vc = CvsPlugin::instance()->versionControl();
     if (!vc->isConfigured())
-        addPage(new VcsBase::VcsConfigurationPage(vc));
+        addPage(new VcsConfigurationPage(vc));
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path.toString());
     addPage(cwp);
 }
 
-VcsBase::Command *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
+VcsCommand *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
 {
     // Collect parameters for the checkout command.
     // CVS does not allow for checking out into a different directory.
@@ -75,8 +77,8 @@ VcsBase::Command *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
     const QString workingDirectory = cwp->path();
     *checkoutDir = Utils::FileName::fromString(workingDirectory + QLatin1Char('/') + repository);
 
-    VcsBase::Command *command = new VcsBase::Command(binary, workingDirectory,
-                                                     QProcessEnvironment::systemEnvironment());
+    VcsCommand *command = new VcsCommand(binary, workingDirectory,
+                                         QProcessEnvironment::systemEnvironment());
     command->addJob(settings.addOptions(args), -1);
     return command;
 }

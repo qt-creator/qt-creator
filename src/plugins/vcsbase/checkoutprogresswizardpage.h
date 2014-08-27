@@ -41,7 +41,7 @@ QT_END_NAMESPACE
 namespace Utils { class OutputFormatter; }
 
 namespace VcsBase {
-class Command;
+class VcsCommand;
 
 namespace Internal {
 
@@ -56,7 +56,7 @@ public:
     ~CheckoutProgressWizardPage();
 
     void setStartedStatus(const QString &startedStatus);
-    void start(Command *command);
+    void start(VcsCommand *command);
 
     virtual bool isComplete() const;
     bool isRunning() const{ return m_state == Running; }
@@ -76,7 +76,7 @@ private:
     Utils::OutputFormatter *m_formatter;
     QLabel *m_statusLabel;
 
-    Command *m_command;
+    VcsCommand *m_command;
     QString m_startedStatus;
     QString m_error;
     bool m_overwriteOutput;

@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "vcsbaseclient.h"
-#include "command.h"
+#include "vcscommand.h"
 #include "vcsbaseclientsettings.h"
 #include "vcsbaseeditorparameterwidget.h"
 
@@ -85,7 +85,7 @@ public:
                           QString change, int lineNumber);
     void saveSettings();
 
-    void bindCommandToEditor(Command *cmd, VcsBaseEditorWidget *editor);
+    void bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor);
     void commandFinishedGotoLine(QWidget *editorObject);
 
     VcsBaseClientSettings *m_clientSettings;
@@ -133,7 +133,7 @@ void VcsBaseClientPrivate::saveSettings()
     m_clientSettings->writeSettings(Core::ICore::settings());
 }
 
-void VcsBaseClientPrivate::bindCommandToEditor(Command *cmd, VcsBaseEditorWidget *editor)
+void VcsBaseClientPrivate::bindCommandToEditor(VcsCommand *cmd, VcsBaseEditorWidget *editor)
 {
     editor->setCommand(cmd);
     QObject::connect(cmd, SIGNAL(finished(bool,int,QVariant)), m_cmdFinishedMapper, SLOT(map()));
@@ -142,8 +142,8 @@ void VcsBaseClientPrivate::bindCommandToEditor(Command *cmd, VcsBaseEditorWidget
 
 void VcsBaseClientPrivate::commandFinishedGotoLine(QWidget *editorObject)
 {
-    VcsBase::VcsBaseEditorWidget *editor = qobject_cast<VcsBase::VcsBaseEditorWidget *>(editorObject);
-    Command *cmd = qobject_cast<Command *>(m_cmdFinishedMapper->mapping(editor));
+    VcsBaseEditorWidget *editor = qobject_cast<VcsBaseEditorWidget *>(editorObject);
+    VcsCommand *cmd = qobject_cast<VcsCommand *>(m_cmdFinishedMapper->mapping(editor));
     if (editor && cmd) {
         if (!cmd->lastExecutionSuccess()) {
             editor->reportCommandFinished(false, cmd->lastExecutionExitCode(), cmd->cookie());
@@ -240,9 +240,9 @@ bool VcsBaseClient::synchronousPull(const QString &workingDir,
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
     // Disable UNIX terminals to suppress SSH prompting
     const unsigned flags =
-            VcsBase::VcsBasePlugin::SshPasswordPrompt
-            | VcsBase::VcsBasePlugin::ShowStdOutInLogWindow
-            | VcsBase::VcsBasePlugin::ShowSuccessMessage;
+            VcsBasePlugin::SshPasswordPrompt
+            | VcsBasePlugin::ShowStdOutInLogWindow
+            | VcsBasePlugin::ShowSuccessMessage;
     const Utils::SynchronousProcessResponse resp = vcsSynchronousExec(workingDir, args, flags);
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
     if (ok)
@@ -258,9 +258,9 @@ bool VcsBaseClient::synchronousPush(const QString &workingDir,
     args << vcsCommandString(PushCommand) << extraOptions << dstLocation;
     // Disable UNIX terminals to suppress SSH prompting
     const unsigned flags =
-            VcsBase::VcsBasePlugin::SshPasswordPrompt
-            | VcsBase::VcsBasePlugin::ShowStdOutInLogWindow
-            | VcsBase::VcsBasePlugin::ShowSuccessMessage;
+            VcsBasePlugin::SshPasswordPrompt
+            | VcsBasePlugin::ShowStdOutInLogWindow
+            | VcsBasePlugin::ShowSuccessMessage;
     const Utils::SynchronousProcessResponse resp = vcsSynchronousExec(workingDir, args, flags);
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
@@ -311,8 +311,8 @@ Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(
 {
     const Utils::FileName binary = settings()->binaryPath();
     const int timeoutSec = settings()->intValue(VcsBaseClientSettings::timeoutKey);
-    return VcsBase::VcsBasePlugin::runVcs(workingDirectory, binary, args,
-                                          timeoutSec * 1000, flags, outputCodec);
+    return VcsBasePlugin::runVcs(workingDirectory, binary, args,
+                                 timeoutSec * 1000, flags, outputCodec);
 }
 
 void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
@@ -328,10 +328,10 @@ void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBaseEditor::getSource(workingDir, file);
 
-    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
-                                                           vcsCmdString.toLatin1().constData(), id);
+    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
+                                                  vcsCmdString.toLatin1().constData(), id);
 
-    Command *cmd = createCommand(workingDir, editor);
+    VcsCommand *cmd = createCommand(workingDir, editor);
     cmd->setCookie(lineNumber);
     enqueueJob(cmd, args);
 }
@@ -344,14 +344,14 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBaseEditor::getSource(workingDir, files);
-    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
-                                                           vcsCmdString.toLatin1().constData(), id);
+    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
+                                                  vcsCmdString.toLatin1().constData(), id);
     editor->setWorkingDirectory(workingDir);
 
     VcsBaseEditorParameterWidget *paramWidget = editor->configurationWidget();
     if (!paramWidget && (paramWidget = createDiffEditor(workingDir, files, extraOptions))) {
         // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-        connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)), paramWidget, SLOT(executeCommand()));
+        connect(editor, SIGNAL(diffChunkReverted(DiffChunk)), paramWidget, SLOT(executeCommand()));
         editor->setConfigurationWidget(paramWidget);
     }
 
@@ -359,7 +359,7 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
     args << vcsCmdString << extraOptions << paramArgs << files;
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBaseEditor::getCodec(source);
-    Command *command = createCommand(workingDir, editor);
+    VcsCommand *command = createCommand(workingDir, editor);
     command->setCodec(codec);
     enqueueJob(command, args, exitCodeInterpreter(DiffCommand, command));
 }
@@ -373,8 +373,8 @@ void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBaseEditor::getSource(workingDir, files);
-    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
-                                                           vcsCmdString.toLatin1().constData(), id);
+    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
+                                                  vcsCmdString.toLatin1().constData(), id);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
     VcsBaseEditorParameterWidget *paramWidget = editor->configurationWidget();
@@ -397,7 +397,7 @@ void VcsBaseClient::revertFile(const QString &workingDir,
     QStringList args(vcsCommandString(RevertCommand));
     args << revisionSpec(revision) << extraOptions << file;
     // Indicate repository change or file list
-    Command *cmd = createCommand(workingDir);
+    VcsCommand *cmd = createCommand(workingDir);
     cmd->setCookie(QStringList(workingDir + QLatin1Char('/') + file));
     connect(cmd, SIGNAL(success(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(cmd, args);
@@ -409,7 +409,7 @@ void VcsBaseClient::revertAll(const QString &workingDir, const QString &revision
     QStringList args(vcsCommandString(RevertCommand));
     args << revisionSpec(revision) << extraOptions;
     // Indicate repository change or file list
-    Command *cmd = createCommand(workingDir);
+    VcsCommand *cmd = createCommand(workingDir);
     cmd->setCookie(QStringList(workingDir));
     connect(cmd, SIGNAL(success(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(createCommand(workingDir), args);
@@ -421,7 +421,7 @@ void VcsBaseClient::status(const QString &workingDir, const QString &file,
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions << file;
     VcsOutputWindow::setRepository(workingDir);
-    Command *cmd = createCommand(workingDir, 0, VcsWindowOutputBind);
+    VcsCommand *cmd = createCommand(workingDir, 0, VcsWindowOutputBind);
     connect(cmd, SIGNAL(finished(bool,int,QVariant)), VcsOutputWindow::instance(), SLOT(clearRepository()),
             Qt::QueuedConnection);
     enqueueJob(cmd, args);
@@ -431,12 +431,12 @@ void VcsBaseClient::emitParsedStatus(const QString &repository, const QStringLis
 {
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions;
-    Command *cmd = createCommand(repository);
+    VcsCommand *cmd = createCommand(repository);
     connect(cmd, SIGNAL(output(QString)), this, SLOT(statusParser(QString)));
     enqueueJob(cmd, args);
 }
 
-QString VcsBaseClient::vcsCommandString(VcsCommand cmd) const
+QString VcsBaseClient::vcsCommandString(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case CreateRepositoryCommand: return QLatin1String("init");
@@ -458,7 +458,7 @@ QString VcsBaseClient::vcsCommandString(VcsCommand cmd) const
     return QString();
 }
 
-Utils::ExitCodeInterpreter *VcsBaseClient::exitCodeInterpreter(VcsCommand cmd, QObject *parent) const
+Utils::ExitCodeInterpreter *VcsBaseClient::exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const
 {
     Q_UNUSED(cmd)
     Q_UNUSED(parent)
@@ -481,8 +481,7 @@ void VcsBaseClient::view(const QString &source, const QString &id,
     const Core::Id kind = vcsEditorKind(DiffCommand);
     const QString title = vcsEditorTitle(vcsCommandString(LogCommand), id);
 
-    VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
-                                                           true, "view", id);
+    VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true, "view", id);
 
     const QFileInfo fi(source);
     const QString workingDirPath = fi.isFile() ? fi.absolutePath() : source;
@@ -494,7 +493,7 @@ void VcsBaseClient::update(const QString &repositoryRoot, const QString &revisio
 {
     QStringList args(vcsCommandString(UpdateCommand));
     args << revisionSpec(revision) << extraOptions;
-    Command *cmd = createCommand(repositoryRoot);
+    VcsCommand *cmd = createCommand(repositoryRoot);
     cmd->setCookie(repositoryRoot);
     connect(cmd, SIGNAL(success(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(cmd, args);
@@ -552,12 +551,12 @@ QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sour
             QFileInfo(sourceId).fileName();
 }
 
-VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QString title,
-                                                             const QString &source, bool setSourceCodec,
-                                                             const char *registerDynamicProperty,
-                                                             const QString &dynamicPropertyValue) const
+VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QString title,
+                                                    const QString &source, bool setSourceCodec,
+                                                    const char *registerDynamicProperty,
+                                                    const QString &dynamicPropertyValue) const
 {
-    VcsBase::VcsBaseEditorWidget *baseEditor = 0;
+    VcsBaseEditorWidget *baseEditor = 0;
     Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
     const QString progressMsg = tr("Working...");
     if (outputEditor) {
@@ -585,16 +584,16 @@ VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QStr
 QProcessEnvironment VcsBaseClient::processEnvironment() const
 {
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
-    VcsBase::VcsBasePlugin::setProcessEnvironment(&environment, false);
+    VcsBasePlugin::setProcessEnvironment(&environment, false);
     return environment;
 }
 
-Command *VcsBaseClient::createCommand(const QString &workingDirectory,
-                                      VcsBase::VcsBaseEditorWidget *editor,
-                                      JobOutputBindMode mode) const
+VcsCommand *VcsBaseClient::createCommand(const QString &workingDirectory,
+                                         VcsBaseEditorWidget *editor,
+                                         JobOutputBindMode mode) const
 {
-    Command *cmd = new Command(d->m_clientSettings->binaryPath(), workingDirectory,
-                               processEnvironment());
+    VcsCommand *cmd = new VcsCommand(d->m_clientSettings->binaryPath(), workingDirectory,
+                                     processEnvironment());
     cmd->setDefaultTimeout(d->m_clientSettings->intValue(VcsBaseClientSettings::timeoutKey));
     if (editor)
         d->bindCommandToEditor(cmd, editor);
@@ -609,7 +608,7 @@ Command *VcsBaseClient::createCommand(const QString &workingDirectory,
     return cmd;
 }
 
-void VcsBaseClient::enqueueJob(Command *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter)
+void VcsBaseClient::enqueueJob(VcsCommand *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter)
 {
     cmd->addJob(args, interpreter);
     cmd->execute();

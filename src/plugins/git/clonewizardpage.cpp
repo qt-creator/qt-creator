@@ -31,13 +31,16 @@
 #include "gitplugin.h"
 #include "gitclient.h"
 
-#include <vcsbase/command.h>
+#include <vcsbase/vcscommand.h>
 
 #include <QCheckBox>
 
+using namespace VcsBase;
+
 namespace Git {
 
-struct CloneWizardPagePrivate {
+struct CloneWizardPagePrivate
+{
     CloneWizardPagePrivate();
 
     bool urlIsLocal(const QString &url);
@@ -64,7 +67,7 @@ bool CloneWizardPagePrivate::urlIsLocal(const QString &url)
 }
 
 CloneWizardPage::CloneWizardPage(QWidget *parent) :
-    VcsBase::BaseCheckoutWizardPage(parent),
+    BaseCheckoutWizardPage(parent),
     d(new CloneWizardPagePrivate)
 {
     setTitle(tr("Location"));
@@ -104,7 +107,7 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
     return url;
 }
 
-VcsBase::Command *CloneWizardPage::createCheckoutJob(Utils::FileName *checkoutPath) const
+VcsCommand *CloneWizardPage::createCheckoutJob(Utils::FileName *checkoutPath) const
 {
      const Internal::GitClient *client = Internal::GitPlugin::instance()->gitClient();
      const QString workingDirectory = path();
@@ -119,9 +122,9 @@ VcsBase::Command *CloneWizardPage::createCheckoutJob(Utils::FileName *checkoutPa
      if (d->recursiveCheckBox->isChecked())
          args << QLatin1String("--recursive");
      args << QLatin1String("--progress") << repository() << checkoutDir;
-     VcsBase::Command *command = new VcsBase::Command(client->gitExecutable(), workingDirectory,
-                                                      client->processEnvironment());
-     command->addFlags(VcsBase::VcsBasePlugin::MergeOutputChannels);
+     VcsCommand *command = new VcsCommand(client->gitExecutable(), workingDirectory,
+                                          client->processEnvironment());
+     command->addFlags(VcsBasePlugin::MergeOutputChannels);
      command->addJob(args, -1);
      return command;
 }

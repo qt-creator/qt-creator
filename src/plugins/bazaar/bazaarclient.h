@@ -63,9 +63,9 @@ public:
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 
 protected:
-    Core::Id vcsEditorKind(VcsCommand cmd) const;
-    QString vcsCommandString(VcsCommand cmd) const;
-    Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommand cmd, QObject *parent) const;
+    Core::Id vcsEditorKind(VcsCommandTag cmd) const;
+    QString vcsCommandString(VcsCommandTag cmd) const;
+    Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const;
     QStringList revisionSpec(const QString &revision) const;
     VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
                                                             const QStringList &files,

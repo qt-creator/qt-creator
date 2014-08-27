@@ -72,7 +72,7 @@ void BaseCheckoutWizard::slotPageChanged(int id)
     if (id != m_progressPageId)
         return;
 
-    VcsBase::Command *cmd = createCommand(&m_checkoutDir);
+    VcsBase::VcsCommand *cmd = createCommand(&m_checkoutDir);
     QTC_ASSERT(cmd, done(QDialog::Rejected));
 
     // No "back" available while running.

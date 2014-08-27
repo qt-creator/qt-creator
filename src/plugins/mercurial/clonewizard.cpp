@@ -33,19 +33,20 @@
 #include "mercurialsettings.h"
 
 #include <coreplugin/iversioncontrol.h>
-#include <vcsbase/command.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsconfigurationpage.h>
 
-using namespace Mercurial::Internal;
 using namespace VcsBase;
 
+namespace Mercurial {
+namespace Internal {
 // --------------------------------------------------------------------
 // CloneWizard:
 // --------------------------------------------------------------------
 
 CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(path, parent)
+    BaseCheckoutWizard(path, parent)
 {
     setTitle(tr("Cloning"));
     setStartedStatus(tr("Cloning started..."));
@@ -58,7 +59,7 @@ CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
     addPage(page);
 }
 
-Command *CloneWizard::createCommand(Utils::FileName *checkoutDir)
+VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
 {
     const CloneWizardPage *cwp = 0;
     foreach (int pageId, pageIds()) {
@@ -77,8 +78,11 @@ Command *CloneWizard::createCommand(Utils::FileName *checkoutDir)
     QStringList args;
     args << QLatin1String("clone") << cwp->repository() << directory;
     *checkoutDir = Utils::FileName::fromString(path + QLatin1Char('/') + directory);
-    VcsBase::Command *command = new VcsBase::Command(settings.binaryPath(), path,
-                                                     QProcessEnvironment::systemEnvironment());
+    VcsCommand *command = new VcsCommand(settings.binaryPath(), path,
+                                         QProcessEnvironment::systemEnvironment());
     command->addJob(args, -1);
     return command;
 }
+
+} // namespace Internal
+} // namespace Mercurial

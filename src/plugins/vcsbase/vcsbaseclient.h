@@ -49,7 +49,7 @@ class ExitCodeInterpreter;
 
 namespace VcsBase {
 
-class Command;
+class VcsCommand;
 class VcsBaseEditorWidget;
 class VcsBaseClientSettings;
 class VcsJob;
@@ -131,7 +131,7 @@ public slots:
                       const QStringList &extraOptions = QStringList());
 
 protected:
-    enum VcsCommand
+    enum VcsCommandTag
     {
         CreateRepositoryCommand,
         CloneCommand,
@@ -149,9 +149,9 @@ protected:
         LogCommand,
         StatusCommand
     };
-    virtual QString vcsCommandString(VcsCommand cmd) const;
-    virtual Core::Id vcsEditorKind(VcsCommand cmd) const = 0;
-    virtual Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommand cmd, QObject *parent) const;
+    virtual QString vcsCommandString(VcsCommandTag cmd) const;
+    virtual Core::Id vcsEditorKind(VcsCommandTag cmd) const = 0;
+    virtual Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const;
 
     virtual QStringList revisionSpec(const QString &revision) const = 0;
     virtual VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
@@ -173,19 +173,20 @@ protected:
                                                          const QStringList &args,
                                                          unsigned flags = 0,
                                                          QTextCodec *outputCodec = 0) const;
-    VcsBase::VcsBaseEditorWidget *createVcsEditor(Core::Id kind, QString title,
-                                                  const QString &source, bool setSourceCodec,
-                                                  const char *registerDynamicProperty,
-                                                  const QString &dynamicPropertyValue) const;
+    VcsBaseEditorWidget *createVcsEditor(Core::Id kind, QString title,
+                                         const QString &source, bool setSourceCodec,
+                                         const char *registerDynamicProperty,
+                                         const QString &dynamicPropertyValue) const;
 
     enum JobOutputBindMode {
         NoOutputBind,
         VcsWindowOutputBind
     };
-    Command *createCommand(const QString &workingDirectory,
-                           VcsBase::VcsBaseEditorWidget *editor = 0,
+
+    VcsCommand *createCommand(const QString &workingDirectory,
+                           VcsBaseEditorWidget *editor = 0,
                            JobOutputBindMode mode = NoOutputBind) const;
-    void enqueueJob(Command *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter = 0);
+    void enqueueJob(VcsCommand *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter = 0);
 
     void resetCachedVcsInfo(const QString &workingDir);
 

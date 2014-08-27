@@ -37,6 +37,8 @@
 #include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
+using namespace VcsBase;
+
 namespace Git {
 namespace Internal {
 
@@ -45,20 +47,20 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(path, parent)
+    BaseCheckoutWizard(path, parent)
 {
     setTitle(tr("Cloning"));
     setStartedStatus(tr("Cloning started..."));
 
     const Internal::GitVersionControl *vc = Internal::GitPlugin::instance()->gitVersionControl();
     if (!vc->isConfigured())
-        addPage(new VcsBase::VcsConfigurationPage(vc));
+        addPage(new VcsConfigurationPage(vc));
     CloneWizardPage *cwp = new CloneWizardPage;
     cwp->setPath(path.toString());
     addPage(cwp);
 }
 
-VcsBase::Command *CloneWizard::createCommand(Utils::FileName *checkoutDir)
+VcsCommand *CloneWizard::createCommand(Utils::FileName *checkoutDir)
 {
     // Collect parameters for the clone command.
     const CloneWizardPage *cwp = 0;

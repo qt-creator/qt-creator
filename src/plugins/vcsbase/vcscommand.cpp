@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "command.h"
+#include "vcscommand.h"
 #include "vcsbaseplugin.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -75,7 +75,7 @@ enum { debugExecution = 0 };
 namespace VcsBase {
 namespace Internal {
 
-class CommandPrivate
+class VcsCommandPrivate
 {
 public:
     struct Job {
@@ -86,10 +86,10 @@ public:
         Utils::ExitCodeInterpreter *exitCodeInterpreter;
     };
 
-    CommandPrivate(const Utils::FileName &binary,
-                   const QString &workingDirectory,
-                   const QProcessEnvironment &environment);
-    ~CommandPrivate();
+    VcsCommandPrivate(const Utils::FileName &binary,
+                      const QString &workingDirectory,
+                      const QProcessEnvironment &environment);
+    ~VcsCommandPrivate();
 
     const Utils::FileName m_binaryPath;
     const QString m_workingDirectory;
@@ -112,9 +112,9 @@ public:
     int m_lastExecExitCode;
 };
 
-CommandPrivate::CommandPrivate(const Utils::FileName &binary,
-                               const QString &workingDirectory,
-                               const QProcessEnvironment &environment) :
+VcsCommandPrivate::VcsCommandPrivate(const Utils::FileName &binary,
+                                     const QString &workingDirectory,
+                                     const QProcessEnvironment &environment) :
     m_binaryPath(binary),
     m_workingDirectory(workingDirectory),
     m_environment(environment),
@@ -132,12 +132,12 @@ CommandPrivate::CommandPrivate(const Utils::FileName &binary,
 {
 }
 
-CommandPrivate::~CommandPrivate()
+VcsCommandPrivate::~VcsCommandPrivate()
 {
     delete m_progressParser;
 }
 
-CommandPrivate::Job::Job(const QStringList &a, int t, Utils::ExitCodeInterpreter *interpreter) :
+VcsCommandPrivate::Job::Job(const QStringList &a, int t, Utils::ExitCodeInterpreter *interpreter) :
     arguments(a),
     timeout(t),
     exitCodeInterpreter(interpreter)
@@ -149,66 +149,66 @@ CommandPrivate::Job::Job(const QStringList &a, int t, Utils::ExitCodeInterpreter
 
 } // namespace Internal
 
-Command::Command(const Utils::FileName &binary,
-                 const QString &workingDirectory,
-                 const QProcessEnvironment &environment) :
-    d(new Internal::CommandPrivate(binary, workingDirectory, environment))
+VcsCommand::VcsCommand(const Utils::FileName &binary,
+                       const QString &workingDirectory,
+                       const QProcessEnvironment &environment) :
+    d(new Internal::VcsCommandPrivate(binary, workingDirectory, environment))
 {
     connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
             this, SLOT(coreAboutToClose()));
 }
 
-Command::~Command()
+VcsCommand::~VcsCommand()
 {
     delete d;
 }
 
-const Utils::FileName &Command::binaryPath() const
+const Utils::FileName &VcsCommand::binaryPath() const
 {
     return d->m_binaryPath;
 }
 
-const QString &Command::workingDirectory() const
+const QString &VcsCommand::workingDirectory() const
 {
     return d->m_workingDirectory;
 }
 
-const QProcessEnvironment &Command::processEnvironment() const
+const QProcessEnvironment &VcsCommand::processEnvironment() const
 {
     return d->m_environment;
 }
 
-int Command::defaultTimeout() const
+int VcsCommand::defaultTimeout() const
 {
     return d->m_defaultTimeout;
 }
 
-void Command::setDefaultTimeout(int timeout)
+void VcsCommand::setDefaultTimeout(int timeout)
 {
     d->m_defaultTimeout = timeout;
 }
 
-unsigned Command::flags() const
+unsigned VcsCommand::flags() const
 {
     return d->m_flags;
 }
 
-void Command::addFlags(unsigned f)
+void VcsCommand::addFlags(unsigned f)
 {
     d->m_flags |= f;
 }
 
-void Command::addJob(const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter)
+void VcsCommand::addJob(const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter)
 {
     addJob(arguments, defaultTimeout(), interpreter);
 }
 
-void Command::addJob(const QStringList &arguments, int timeout, Utils::ExitCodeInterpreter *interpreter)
+void VcsCommand::addJob(const QStringList &arguments, int timeout, Utils::ExitCodeInterpreter *interpreter)
 {
-    d->m_jobs.push_back(Internal::CommandPrivate::Job(arguments, timeout, interpreter));
+    d->m_jobs.push_back(Internal::VcsCommandPrivate::Job(arguments, timeout, interpreter));
 }
 
-void Command::execute()
+void VcsCommand::execute()
 {
     d->m_lastExecSuccess = false;
     d->m_lastExecExitCode = -1;
@@ -217,7 +217,7 @@ void Command::execute()
         return;
 
     // For some reason QtConcurrent::run() only works on this
-    QFuture<void> task = QtConcurrent::run(&Command::run, this);
+    QFuture<void> task = QtConcurrent::run(&VcsCommand::run, this);
     d->m_watcher.setFuture(task);
     connect(&d->m_watcher, SIGNAL(canceled()), this, SLOT(cancel()));
     QString binary = d->m_binaryPath.toFileInfo().baseName();
@@ -229,28 +229,28 @@ void Command::execute()
         Core::Id::fromString(binary + QLatin1String(".action")));
 }
 
-void Command::abort()
+void VcsCommand::abort()
 {
     d->m_aborted = true;
     d->m_watcher.future().cancel();
 }
 
-void Command::cancel()
+void VcsCommand::cancel()
 {
     emit terminate();
 }
 
-bool Command::lastExecutionSuccess() const
+bool VcsCommand::lastExecutionSuccess() const
 {
     return d->m_lastExecSuccess;
 }
 
-int Command::lastExecutionExitCode() const
+int VcsCommand::lastExecutionExitCode() const
 {
     return d->m_lastExecExitCode;
 }
 
-void Command::run(QFutureInterface<void> &future)
+void VcsCommand::run(QFutureInterface<void> &future)
 {
     // Check that the binary path is not empty
     if (binaryPath().isEmpty()) {
@@ -269,7 +269,7 @@ void Command::run(QFutureInterface<void> &future)
     d->m_lastExecExitCode = -1;
     d->m_lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
-        const Internal::CommandPrivate::Job &job = d->m_jobs.at(j);
+        const Internal::VcsCommandPrivate::Job &job = d->m_jobs.at(j);
         const int timeOutSeconds = job.timeout;
         Utils::SynchronousProcessResponse resp = runVcs(
                     job.arguments,
@@ -306,7 +306,7 @@ class OutputProxy : public QObject
 {
     Q_OBJECT
 
-    friend class Command;
+    friend class VcsCommand;
 
 public:
     OutputProxy()
@@ -332,8 +332,8 @@ signals:
     void appendMessage(const QString &text);
 };
 
-Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, int timeoutMS,
-                                                  Utils::ExitCodeInterpreter *interpreter)
+Utils::SynchronousProcessResponse VcsCommand::runVcs(const QStringList &arguments, int timeoutMS,
+                                                     Utils::ExitCodeInterpreter *interpreter)
 {
     Utils::SynchronousProcessResponse response;
     OutputProxy outputProxy;
@@ -438,8 +438,9 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
     return response;
 }
 
-Utils::SynchronousProcessResponse Command::runSynchronous(const QStringList &arguments, int timeoutMS,
-                                                          Utils::ExitCodeInterpreter *interpreter)
+Utils::SynchronousProcessResponse VcsCommand::runSynchronous(const QStringList &arguments,
+                                                             int timeoutMS,
+                                                             Utils::ExitCodeInterpreter *interpreter)
 {
     Utils::SynchronousProcessResponse response;
 
@@ -506,7 +507,7 @@ Utils::SynchronousProcessResponse Command::runSynchronous(const QStringList &arg
     return response;
 }
 
-void Command::emitRepositoryChanged()
+void VcsCommand::emitRepositoryChanged()
 {
     if (d->m_preventRepositoryChanged || !(d->m_flags & VcsBasePlugin::ExpectRepoChanges))
         return;
@@ -515,8 +516,8 @@ void Command::emitRepositoryChanged()
     Core::VcsManager::emitRepositoryChanged(d->m_workingDirectory);
 }
 
-bool Command::runFullySynchronous(const QStringList &arguments, int timeoutMS,
-                                  QByteArray *outputData, QByteArray *errorData)
+bool VcsCommand::runFullySynchronous(const QStringList &arguments, int timeoutMS,
+                                     QByteArray *outputData, QByteArray *errorData)
 {
     if (d->m_binaryPath.isEmpty())
         return false;
@@ -554,7 +555,7 @@ bool Command::runFullySynchronous(const QStringList &arguments, int timeoutMS,
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
-void Command::bufferedOutput(const QString &text)
+void VcsCommand::bufferedOutput(const QString &text)
 {
     if (d->m_progressParser)
         d->m_progressParser->parseProgress(text);
@@ -566,7 +567,7 @@ void Command::bufferedOutput(const QString &text)
     }
 }
 
-void Command::bufferedError(const QString &text)
+void VcsCommand::bufferedError(const QString &text)
 {
     if (!(d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow))
         VcsOutputWindow::appendError(text);
@@ -574,40 +575,40 @@ void Command::bufferedError(const QString &text)
         emit errorText(text);
 }
 
-void Command::coreAboutToClose()
+void VcsCommand::coreAboutToClose()
 {
     d->m_preventRepositoryChanged = true;
     abort();
 }
 
-const QVariant &Command::cookie() const
+const QVariant &VcsCommand::cookie() const
 {
     return d->m_cookie;
 }
 
-void Command::setCookie(const QVariant &cookie)
+void VcsCommand::setCookie(const QVariant &cookie)
 {
     d->m_cookie = cookie;
 }
 
-QTextCodec *Command::codec() const
+QTextCodec *VcsCommand::codec() const
 {
     return d->m_codec;
 }
 
-void Command::setCodec(QTextCodec *codec)
+void VcsCommand::setCodec(QTextCodec *codec)
 {
     d->m_codec = codec;
 }
 
 //! Use \a parser to parse progress data from stdout. Command takes ownership of \a parser
-void Command::setProgressParser(ProgressParser *parser)
+void VcsCommand::setProgressParser(ProgressParser *parser)
 {
     QTC_ASSERT(!d->m_progressParser, return);
     d->m_progressParser = parser;
 }
 
-void Command::setProgressiveOutput(bool progressive)
+void VcsCommand::setProgressiveOutput(bool progressive)
 {
     d->m_progressiveOutput = progressive;
 }
@@ -640,4 +641,4 @@ void ProgressParser::setFuture(QFutureInterface<void> *future)
 
 } // namespace VcsBase
 
-#include "command.moc"
+#include "vcscommand.moc"

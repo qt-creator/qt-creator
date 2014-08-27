@@ -52,7 +52,7 @@ class VcsBaseEditorWidgetPrivate;
 class BaseAnnotationHighlighter;
 class VcsBaseEditorWidget;
 class VcsBaseEditorParameterWidget;
-class Command;
+class VcsCommand;
 
 // Documentation inside
 enum EditorContentType
@@ -207,7 +207,7 @@ public:
     bool setConfigurationWidget(VcsBaseEditorParameterWidget *w);
     VcsBaseEditorParameterWidget *configurationWidget() const;
 
-    void setCommand(Command *command);
+    void setCommand(VcsCommand *command);
 signals:
     // These signals also exist in the opaque editable (IEditor) that is
     // handled by the editor manager for convenience. They are emitted

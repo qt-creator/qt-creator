@@ -32,7 +32,7 @@
 #include "baseannotationhighlighter.h"
 #include "vcsbaseplugin.h"
 #include "vcsbaseeditorparameterwidget.h"
-#include "command.h"
+#include "vcscommand.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
@@ -558,7 +558,7 @@ public:
     VcsBaseEditorParameterWidget *m_configurationWidget;
     bool m_mouseDragging;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
-    QPointer<Command> m_command;
+    QPointer<VcsCommand> m_command;
     QComboBox *m_entriesComboBox;
 };
 
@@ -1329,7 +1329,7 @@ VcsBaseEditorParameterWidget *VcsBaseEditorWidget::configurationWidget() const
     return d->m_configurationWidget;
 }
 
-void VcsBaseEditorWidget::setCommand(Command *command)
+void VcsBaseEditorWidget::setCommand(VcsCommand *command)
 {
     if (d->m_command)
         d->m_command->abort();

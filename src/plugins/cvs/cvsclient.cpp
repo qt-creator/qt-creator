@@ -42,23 +42,26 @@
 #include <QTextStream>
 #include <QDebug>
 
+using namespace Utils;
+using namespace VcsBase;
+
 namespace Cvs {
 namespace Internal {
 
-class CvsDiffExitCodeInterpreter : public Utils::ExitCodeInterpreter
+class CvsDiffExitCodeInterpreter : public ExitCodeInterpreter
 {
     Q_OBJECT
 public:
-    CvsDiffExitCodeInterpreter(QObject *parent) : Utils::ExitCodeInterpreter(parent) {}
-    Utils::SynchronousProcessResponse::Result interpretExitCode(int code) const;
+    CvsDiffExitCodeInterpreter(QObject *parent) : ExitCodeInterpreter(parent) {}
+    SynchronousProcessResponse::Result interpretExitCode(int code) const;
 
 };
 
-Utils::SynchronousProcessResponse::Result CvsDiffExitCodeInterpreter::interpretExitCode(int code) const
+SynchronousProcessResponse::Result CvsDiffExitCodeInterpreter::interpretExitCode(int code) const
 {
     if (code < 0 || code > 2)
-        return Utils::SynchronousProcessResponse::FinishedError;
-    return Utils::SynchronousProcessResponse::Finished;
+        return SynchronousProcessResponse::FinishedError;
+    return SynchronousProcessResponse::Finished;
 }
 
 // Collect all parameters required for a diff to be able to associate them
@@ -71,7 +74,7 @@ struct CvsDiffParameters
 };
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
-class CvsDiffParameterWidget : public VcsBase::VcsBaseEditorParameterWidget
+class CvsDiffParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
@@ -90,7 +93,7 @@ private:
 CvsDiffParameterWidget::CvsDiffParameterWidget(CvsClient *client,
                                                const CvsDiffParameters &p,
                                                QWidget *parent)
-    : VcsBase::VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
+    : VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
 {
     mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
                client->settings()->boolPointer(CvsSettings::diffIgnoreWhiteSpaceKey));
@@ -112,16 +115,16 @@ void CvsDiffParameterWidget::executeCommand()
 }
 
 CvsClient::CvsClient(CvsSettings *settings) :
-    VcsBase::VcsBaseClient(settings)
+    VcsBaseClient(settings)
 {
 }
 
 CvsSettings *CvsClient::settings() const
 {
-    return dynamic_cast<CvsSettings *>(VcsBase::VcsBaseClient::settings());
+    return dynamic_cast<CvsSettings *>(VcsBaseClient::settings());
 }
 
-Core::Id CvsClient::vcsEditorKind(VcsCommand cmd) const
+Core::Id CvsClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case DiffCommand:
@@ -131,7 +134,7 @@ Core::Id CvsClient::vcsEditorKind(VcsCommand cmd) const
     }
 }
 
-Utils::ExitCodeInterpreter *CvsClient::exitCodeInterpreter(VcsCommand cmd, QObject *parent) const
+ExitCodeInterpreter *CvsClient::exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const
 {
     switch (cmd) {
     case DiffCommand:
@@ -159,13 +162,13 @@ QStringList CvsClient::revisionSpec(const QString &revision) const
     return QStringList();
 }
 
-VcsBase::VcsBaseClient::StatusItem CvsClient::parseStatusLine(const QString &line) const
+VcsBaseClient::StatusItem CvsClient::parseStatusLine(const QString &line) const
 {
     Q_UNUSED(line)
-    return VcsBase::VcsBaseClient::StatusItem();
+    return VcsBaseClient::StatusItem();
 }
 
-VcsBase::VcsBaseEditorParameterWidget *CvsClient::createDiffEditor(
+VcsBaseEditorParameterWidget *CvsClient::createDiffEditor(
         const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
 {
     Q_UNUSED(extraOptions)

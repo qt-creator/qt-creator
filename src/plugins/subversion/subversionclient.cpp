@@ -31,7 +31,7 @@
 #include "subversionsettings.h"
 #include "subversionconstants.h"
 
-#include <vcsbase/command.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
@@ -41,6 +41,9 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QDebug>
+
+using namespace Utils;
+using namespace VcsBase;
 
 namespace Subversion {
 namespace Internal {
@@ -55,7 +58,7 @@ struct SubversionDiffParameters
 };
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
-class SubversionDiffParameterWidget : public VcsBase::VcsBaseEditorParameterWidget
+class SubversionDiffParameterWidget : public VcsBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
@@ -73,7 +76,7 @@ private:
 SubversionDiffParameterWidget::SubversionDiffParameterWidget(SubversionClient *client,
                                                              const SubversionDiffParameters &p,
                                                              QWidget *parent)
-    : VcsBase::VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
+    : VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
 {
     mapSetting(addToggleButton(QLatin1String("w"), tr("Ignore Whitespace")),
                client->settings()->boolPointer(SubversionSettings::diffIgnoreWhiteSpaceKey));
@@ -97,19 +100,19 @@ void SubversionDiffParameterWidget::executeCommand()
 }
 
 SubversionClient::SubversionClient(SubversionSettings *settings) :
-    VcsBase::VcsBaseClient(settings)
+    VcsBaseClient(settings)
 {
 }
 
 SubversionSettings *SubversionClient::settings() const
 {
-    return dynamic_cast<SubversionSettings *>(VcsBase::VcsBaseClient::settings());
+    return dynamic_cast<SubversionSettings *>(VcsBaseClient::settings());
 }
 
-VcsBase::Command *SubversionClient::createCommitCmd(const QString &repositoryRoot,
-                                                    const QStringList &files,
-                                                    const QString &commitMessageFile,
-                                                    const QStringList &extraOptions) const
+VcsCommand *SubversionClient::createCommitCmd(const QString &repositoryRoot,
+                                              const QStringList &files,
+                                              const QString &commitMessageFile,
+                                              const QStringList &extraOptions) const
 {
     const QStringList svnExtraOptions =
             QStringList(extraOptions)
@@ -117,7 +120,7 @@ VcsBase::Command *SubversionClient::createCommitCmd(const QString &repositoryRoo
             << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
             << QLatin1String("--file") << commitMessageFile;
 
-    VcsBase::Command *cmd = createCommand(repositoryRoot);
+    VcsCommand *cmd = createCommand(repositoryRoot);
     QStringList args(vcsCommandString(CommitCommand));
     cmd->addJob(args << svnExtraOptions << files);
     return cmd;
@@ -131,11 +134,11 @@ void SubversionClient::commit(const QString &repositoryRoot,
     if (Subversion::Constants::debug)
         qDebug() << Q_FUNC_INFO << commitMessageFile << files;
 
-    VcsBase::Command *cmd = createCommitCmd(repositoryRoot, files, commitMessageFile, extraOptions);
+    VcsCommand *cmd = createCommitCmd(repositoryRoot, files, commitMessageFile, extraOptions);
     cmd->execute();
 }
 
-Core::Id SubversionClient::vcsEditorKind(VcsCommand cmd) const
+Core::Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case DiffCommand:
@@ -150,10 +153,10 @@ SubversionClient::Version SubversionClient::svnVersion()
     if (m_svnVersionBinary != settings()->binaryPath()) {
         QStringList args;
         args << QLatin1String("--version") << QLatin1String("-q");
-        const Utils::SynchronousProcessResponse response =
-                VcsBase::VcsBasePlugin::runVcs(QDir().absolutePath(), settings()->binaryPath(),
-                                               args, settings()->timeOutMs());
-        if (response.result == Utils::SynchronousProcessResponse::Finished &&
+        const SynchronousProcessResponse response =
+                VcsBasePlugin::runVcs(QDir().absolutePath(), settings()->binaryPath(),
+                                      args, settings()->timeOutMs());
+        if (response.result == SynchronousProcessResponse::Finished &&
                 response.exitCode == 0) {
             m_svnVersionBinary = settings()->binaryPath();
             m_svnVersion = response.stdOut.trimmed();
@@ -172,7 +175,7 @@ SubversionClient::Version SubversionClient::svnVersion()
     return v;
 }
 
-QStringList SubversionClient::authenticationOptions(VcsCommand cmd) const
+QStringList SubversionClient::authenticationOptions(VcsCommandTag cmd) const
 {
     const bool hasAuth = settings()->hasAuthentication();
     const QString userName = hasAuth ? settings()->stringValue(SubversionSettings::userKey) : QString();
@@ -235,13 +238,13 @@ QStringList SubversionClient::revisionSpec(const QString &revision) const
     return QStringList();
 }
 
-VcsBase::VcsBaseClient::StatusItem SubversionClient::parseStatusLine(const QString &line) const
+VcsBaseClient::StatusItem SubversionClient::parseStatusLine(const QString &line) const
 {
     Q_UNUSED(line)
-    return VcsBase::VcsBaseClient::StatusItem();
+    return VcsBaseClient::StatusItem();
 }
 
-VcsBase::VcsBaseEditorParameterWidget *SubversionClient::createDiffEditor(
+VcsBaseEditorParameterWidget *SubversionClient::createDiffEditor(
         const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
 {
     Q_UNUSED(extraOptions)

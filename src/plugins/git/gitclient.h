@@ -54,7 +54,7 @@ QT_END_NAMESPACE
 namespace Core { class ICore; }
 
 namespace VcsBase {
-    class Command;
+    class VcsCommand;
     class SubmitFileModel;
     class VcsBaseEditorWidget;
     class VcsBaseEditorParameterWidget;
@@ -374,12 +374,12 @@ private:
                                              const QString &source,
                                              const QString &title) const;
 
-    VcsBase::Command *createCommand(const QString &workingDirectory,
+    VcsBase::VcsCommand *createCommand(const QString &workingDirectory,
                              VcsBase::VcsBaseEditorWidget* editor = 0,
                              bool useOutputToWindow = false,
                              int editorLineNumber = -1);
 
-    VcsBase::Command *executeGit(const QString &workingDirectory,
+    VcsBase::VcsCommand *executeGit(const QString &workingDirectory,
                                  const QStringList &arguments,
                                  VcsBase::VcsBaseEditorWidget* editor = 0,
                                  bool useOutputToWindow = false,
@@ -407,7 +407,7 @@ private:
                          bool *isDirectory,
                          QString *errorMessage,
                          bool revertStaging);
-    void connectRepositoryChanged(const QString & repository, VcsBase::Command *cmd);
+    void connectRepositoryChanged(const QString & repository, VcsBase::VcsCommand *cmd);
     bool executeAndHandleConflicts(const QString &workingDirectory, const QStringList &arguments,
                                    const QString &abortCommand = QString()) const;
     bool tryLauchingGitK(const QProcessEnvironment &env,

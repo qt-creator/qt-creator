@@ -48,7 +48,7 @@ QT_END_NAMESPACE
 
 namespace VcsBase {
 
-namespace Internal { class CommandPrivate; }
+namespace Internal { class VcsCommandPrivate; }
 
 class VCSBASE_EXPORT ProgressParser
 {
@@ -65,18 +65,18 @@ private:
 
     QFutureInterface<void> *m_future;
     QMutex *m_futureMutex;
-    friend class Command;
+    friend class VcsCommand;
 };
 
-class VCSBASE_EXPORT Command : public QObject
+class VCSBASE_EXPORT VcsCommand : public QObject
 {
     Q_OBJECT
 
 public:
-    Command(const Utils::FileName &binary,
-            const QString &workingDirectory,
-            const QProcessEnvironment &environment);
-    ~Command();
+    VcsCommand(const Utils::FileName &binary,
+               const QString &workingDirectory,
+               const QProcessEnvironment &environment);
+    ~VcsCommand();
 
     void addJob(const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter = 0);
     void addJob(const QStringList &arguments, int timeout, Utils::ExitCodeInterpreter *interpreter = 0);
@@ -134,7 +134,7 @@ signals:
     void terminate(); // Internal
 
 private:
-    class Internal::CommandPrivate *const d;
+    class Internal::VcsCommandPrivate *const d;
 };
 
 } // namespace VcsBase

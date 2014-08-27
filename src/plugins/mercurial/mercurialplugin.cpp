@@ -79,16 +79,13 @@ using namespace Utils;
 namespace Mercurial {
 namespace Internal {
 
-using namespace VcsBase::Constants;
-using namespace Mercurial::Constants;
-
 static const VcsBaseEditorParameters editorParameters[] = {
 {
     LogOutput,
-    FILELOG_ID,
-    FILELOG_DISPLAY_NAME,
-    FILELOG,
-    LOGAPP},
+    Constants::FILELOG_ID,
+    Constants::FILELOG_DISPLAY_NAME,
+    Constants::FILELOG,
+    Constants::LOGAPP},
 
 {   AnnotateOutput,
     Constants::ANNOTATELOG_ID,
@@ -108,7 +105,7 @@ static const VcsBaseSubmitEditorParameters submitEditorParameters = {
     Constants::COMMIT_ID,
     Constants::COMMIT_DISPLAY_NAME,
     Constants::COMMIT_ID,
-    VcsBase::VcsBaseSubmitEditorParameters::DiffFiles
+    VcsBaseSubmitEditorParameters::DiffFiles
 };
 
 MercurialPlugin *MercurialPlugin::m_instance = 0;
@@ -551,16 +548,16 @@ void MercurialPlugin::commit()
 
     m_submitRepository = state.topLevel();
 
-    connect(m_client, SIGNAL(parsedStatus(QList<VcsBase::VcsBaseClient::StatusItem>)),
-            this, SLOT(showCommitWidget(QList<VcsBase::VcsBaseClient::StatusItem>)));
+    connect(m_client, SIGNAL(parsedStatus(QList<VcsBaseClient::StatusItem>)),
+            this, SLOT(showCommitWidget(QList<VcsBaseClient::StatusItem>)));
     m_client->emitParsedStatus(m_submitRepository);
 }
 
 void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &status)
 {
     //Once we receive our data release the connection so it can be reused elsewhere
-    disconnect(m_client, SIGNAL(parsedStatus(QList<VcsBase::VcsBaseClient::StatusItem>)),
-               this, SLOT(showCommitWidget(QList<VcsBase::VcsBaseClient::StatusItem>)));
+    disconnect(m_client, SIGNAL(parsedStatus(QList<VcsBaseClient::StatusItem>)),
+               this, SLOT(showCommitWidget(QList<VcsBaseClient::StatusItem>)));
 
     if (status.isEmpty()) {
         VcsOutputWindow::appendError(tr("There are no changes to commit."));
@@ -572,7 +569,7 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
     if (!saver.finalize()) {
-        VcsBase::VcsOutputWindow::appendError(saver.errorString());
+        VcsOutputWindow::appendError(saver.errorString());
         return;
     }
 

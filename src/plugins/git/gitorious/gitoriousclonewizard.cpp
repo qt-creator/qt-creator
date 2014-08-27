@@ -94,7 +94,7 @@ GitoriousCloneWizard::GitoriousCloneWizard(const Utils::FileName &path, QWidget 
     addPage(clonePage);
 }
 
-VcsBase::Command *GitoriousCloneWizard::createCommand(Utils::FileName *checkoutDir)
+VcsBase::VcsCommand *GitoriousCloneWizard::createCommand(Utils::FileName *checkoutDir)
 {
     const Git::CloneWizardPage *cwp = 0;
     foreach (int pageId, pageIds()) {

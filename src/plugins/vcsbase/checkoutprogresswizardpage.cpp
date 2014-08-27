@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "checkoutprogresswizardpage.h"
-#include "command.h"
+#include "vcscommand.h"
 #include "vcsbaseplugin.h"
 
 #include <utils/outputformatter.h>
@@ -85,7 +85,7 @@ void CheckoutProgressWizardPage::setStartedStatus(const QString &startedStatus)
     m_startedStatus = startedStatus;
 }
 
-void CheckoutProgressWizardPage::start(Command *command)
+void CheckoutProgressWizardPage::start(VcsCommand *command)
 {
     if (!command) {
         m_logPlainTextEdit->setPlainText(tr("No job running, please abort."));

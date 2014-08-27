@@ -54,8 +54,8 @@ public:
 
 
 protected:
-    Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommand cmd, QObject *parent) const;
-    Core::Id vcsEditorKind(VcsCommand cmd) const;
+    Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommandTag cmd, QObject *parent) const;
+    Core::Id vcsEditorKind(VcsCommandTag cmd) const;
     VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
                                                             const QStringList &files,
                                                             const QStringList &extraOptions);

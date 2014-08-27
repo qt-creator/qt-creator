@@ -44,7 +44,7 @@ public:
     CheckoutWizard(const Utils::FileName &path, QWidget *parent = 0);
 
 protected:
-    VcsBase::Command *createCommand(Utils::FileName *checkoutDir);
+    VcsBase::VcsCommand *createCommand(Utils::FileName *checkoutDir);
 };
 
 } // namespace Internal

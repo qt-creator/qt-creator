@@ -24,7 +24,7 @@ HEADERS += vcsbase_global.h \
     vcsoutputwindow.h \
     cleandialog.h \
     vcsbaseoptionspage.h \
-    command.h \
+    vcscommand.h \
     vcsbaseclient.h \
     vcsbaseclientsettings.h \
     vcsbaseeditorparameterwidget.h \
@@ -53,7 +53,7 @@ SOURCES += vcsplugin.cpp \
     vcsoutputwindow.cpp \
     cleandialog.cpp \
     vcsbaseoptionspage.cpp \
-    command.cpp \
+    vcscommand.cpp \
     vcsbaseclient.cpp \
     vcsbaseclientsettings.cpp \
     vcsbaseeditorparameterwidget.cpp \

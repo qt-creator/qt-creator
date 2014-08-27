@@ -39,7 +39,7 @@
 
 namespace VcsBase {
 class BaseCheckoutWizard;
-class Command;
+class VcsCommand;
 
 class VCSBASE_EXPORT BaseCheckoutWizardFactory : public Core::IWizardFactory
 {

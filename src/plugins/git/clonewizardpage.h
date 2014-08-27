@@ -34,7 +34,7 @@
 
 #include <utils/fileutils.h>
 
-namespace VcsBase { class Command; }
+namespace VcsBase { class VcsCommand; }
 
 namespace Git {
 
@@ -48,7 +48,7 @@ public:
     explicit CloneWizardPage(QWidget *parent = 0);
     ~CloneWizardPage();
 
-    VcsBase::Command *createCheckoutJob(Utils::FileName *checkoutPath) const;
+    VcsBase::VcsCommand *createCheckoutJob(Utils::FileName *checkoutPath) const;
 
 protected:
     QString directoryFromRepository(const QString &r) const;
