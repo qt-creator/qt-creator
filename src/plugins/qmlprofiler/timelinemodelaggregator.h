@@ -39,12 +39,14 @@ namespace Internal {
 class TimelineModelAggregator : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QVariantList models READ models NOTIFY modelsChanged)
 public:
     TimelineModelAggregator(QObject *parent = 0);
     ~TimelineModelAggregator();
 
     void setModelManager(QmlProfilerModelManager *modelManager);
     void addModel(AbstractTimelineModel *m);
+    QVariantList models() const;
 
     Q_INVOKABLE int count(int modelIndex = -1) const;
     void clear();
@@ -94,6 +96,7 @@ signals:
     void stateChanged();
     void expandedChanged();
     void rowHeightChanged();
+    void modelsChanged();
 
 protected slots:
     void dataChanged();

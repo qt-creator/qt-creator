@@ -92,6 +92,15 @@ void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
     d->modelList << m;
     connect(m,SIGNAL(expandedChanged()),this,SIGNAL(expandedChanged()));
     connect(m,SIGNAL(rowHeightChanged()),this,SIGNAL(rowHeightChanged()));
+    emit modelsChanged();
+}
+
+QVariantList TimelineModelAggregator::models() const
+{
+    QVariantList ret;
+    foreach (AbstractTimelineModel *model, d->modelList)
+        ret << QVariant::fromValue(model);
+    return ret;
 }
 
 int TimelineModelAggregator::count(int modelIndex) const
