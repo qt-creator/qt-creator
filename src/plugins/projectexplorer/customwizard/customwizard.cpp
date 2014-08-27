@@ -345,34 +345,6 @@ CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizard
     return rc;
 }
 
-// Format all wizards for display
-static QString listWizards()
-{
-    typedef QMultiMap<QString, const Core::IWizardFactory *> CategoryWizardMap;
-
-    // Sort by category via multimap
-    QString rc;
-    QTextStream str(&rc);
-    CategoryWizardMap categoryWizardMap;
-    foreach (const Core::IWizardFactory *w, Core::IWizardFactory::allWizardFactories())
-        categoryWizardMap.insert(w->category(), w);
-    str << "### Registered wizards (" << categoryWizardMap.size() << ")\n";
-    // Format
-    QString lastCategory;
-    const CategoryWizardMap::const_iterator cend = categoryWizardMap.constEnd();
-    for (CategoryWizardMap::const_iterator it = categoryWizardMap.constBegin(); it != cend; ++it) {
-        const Core::IWizardFactory *wizard = it.value();
-        if (it.key() != lastCategory) {
-            lastCategory = it.key();
-            str << "\nCategory: '" << lastCategory << "' / '" << wizard->displayCategory() << "'\n";
-        }
-        str << "  Id: '" << wizard->id() << "' / '" << wizard->displayName() << "' Kind: "
-                << wizard->kind() << "\n  Class: " << wizard->metaObject()->className()
-                << " Description: '" << wizard->description() << "'\n";
-    }
-    return rc;
-}
-
 /*!
     Reads \c share/qtcreator/templates/wizards and creates all custom wizards.
 
@@ -457,7 +429,6 @@ QList<CustomWizard*> CustomWizard::createWizards()
         }
     }
     if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.
-        verboseLog += listWizards();
         qWarning("%s", qPrintable(verboseLog));
         Core::MessageManager::write(verboseLog, Core::MessageManager::ModeSwitch);
     }
