@@ -626,7 +626,7 @@ void BaseTextEditorWidgetPrivate::ctor(const QSharedPointer<BaseTextDocument> &d
     QObject::connect(q, &QPlainTextEdit::blockCountChanged,
                      this, &BaseTextEditorWidgetPrivate::slotUpdateExtraAreaWidth);
 
-    QObject::connect(q, &BaseTextEditorWidget::modificationChanged, m_extraArea,
+    QObject::connect(q, &QPlainTextEdit::modificationChanged, m_extraArea,
                      static_cast<void (QWidget::*)()>(&QWidget::update));
 
     QObject::connect(q, &QPlainTextEdit::cursorPositionChanged,
@@ -981,10 +981,10 @@ bool BaseTextEditorWidget::open(QString *errorString, const QString &fileName, c
         moveCursor(QTextCursor::Start);
         d->updateCannotDecodeInfo();
         if (d->m_fileEncodingLabel) {
-            connect(d->m_fileEncodingLabel, SIGNAL(clicked()), this,
-                    SLOT(selectEncoding()), Qt::UniqueConnection);
-            connect(d->m_document->document(), SIGNAL(modificationChanged(bool)), this,
-                    SLOT(updateTextCodecLabel()), Qt::UniqueConnection);
+            connect(d->m_fileEncodingLabel, &LineColumnLabel::clicked,
+                    this, &BaseTextEditorWidget::selectEncoding, Qt::UniqueConnection);
+            connect(d->m_document->document(), &QTextDocument::modificationChanged,
+                    this, &BaseTextEditorWidget::updateTextCodecLabel, Qt::UniqueConnection);
             updateTextCodecLabel();
         }
         return true;

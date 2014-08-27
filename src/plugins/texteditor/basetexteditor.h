@@ -392,7 +392,6 @@ public:
     enum Side { Left, Right };
     void insertExtraToolBarWidget(Side side, QWidget *widget);
 
-public slots:
     virtual void copy();
     virtual void paste();
     virtual void cut();
@@ -495,7 +494,8 @@ public slots:
 
     void configureMimeType(const QString &mimeType);
     void configureMimeType(const Core::MimeType &mimeType);
-    void inSnippetMode(bool *active);
+
+    Q_INVOKABLE void inSnippetMode(bool *active); // Used by FakeVim.
 
 signals:
     void assistFinished();
