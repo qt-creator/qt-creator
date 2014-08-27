@@ -190,21 +190,7 @@ QList<IWizardFactory*> IWizardFactory::wizardFactoriesOfKind(WizardKind kind)
 
 bool IWizardFactory::isAvailable(const QString &platformName) const
 {
-    FeatureSet availableFeatures;
-
-    // Implicitly create a feature for each plugin loaded:
-    QList<ExtensionSystem::PluginSpec *> activeSpecs;
-    foreach (ExtensionSystem::PluginSpec *s, ExtensionSystem::PluginManager::plugins()) {
-        if (s->state() == ExtensionSystem::PluginSpec::Running)
-            activeSpecs << s;
-    }
-
-    QStringList plugins = Utils::transform(activeSpecs,
-                                           [](ExtensionSystem::PluginSpec *s) -> QString {
-                                               return QStringLiteral("Plugin.") + s->name();
-                                           });
-    foreach (const QString &n, plugins)
-        availableFeatures |= Feature(Core::Id::fromString(n));
+    FeatureSet availableFeatures = pluginFeatures();
 
     foreach (const Core::IFeatureProvider *featureManager, s_providerList)
         availableFeatures |= featureManager->availableFeatures(platformName);
@@ -254,4 +240,19 @@ void IWizardFactory::destroyFeatureProvider()
 {
     qDeleteAll(s_providerList);
     s_providerList.clear();
+}
+
+FeatureSet IWizardFactory::pluginFeatures() const
+{
+    static FeatureSet plugins;
+    if (plugins.isEmpty()) {
+        QStringList list;
+        // Implicitly create a feature for each plugin loaded:
+        foreach (ExtensionSystem::PluginSpec *s, ExtensionSystem::PluginManager::plugins()) {
+            if (s->state() == ExtensionSystem::PluginSpec::Running)
+                list.append(QString::fromLatin1("Plugin.") + s->name());
+        }
+        plugins = FeatureSet::fromStringList(list);
+    }
+    return plugins;
 }

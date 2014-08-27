@@ -36,6 +36,7 @@
 
 #include <QIcon>
 #include <QObject>
+#include <QString>
 #include <QVariantMap>
 
 namespace Core {
@@ -97,6 +98,9 @@ public:
     static QString displayNameForPlatform(const QString &string);
 
     static void registerFeatureProvider(IFeatureProvider *provider);
+
+protected:
+    Core::FeatureSet pluginFeatures() const;
 
 private:
     static void destroyFeatureProvider();
