@@ -514,9 +514,7 @@ public:
 
     void executeCommand()
     {
-        int line = -1;
-        if (m_editor)
-            line = m_editor->lineNumberOfCurrentEditor();
+        int line = VcsBase::VcsBaseEditor::lineNumberOfCurrentEditor();
         m_client->blame(m_workingDirectory, baseArguments(), m_fileName, m_revision, line);
     }
 
@@ -809,7 +807,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
     // Exists already
     EditorManager::activateEditor(outputEditor);
     outputEditor->document()->setContents(m_msgWait.toUtf8());
-    rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
+    rc = VcsBaseEditor::getVcsBaseEditor(outputEditor);
 
     return rc;
 }
@@ -955,7 +953,7 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
     IEditor *outputEditor = EditorManager::openEditorWithContents(id, &title,
                                                                               m_msgWait.toUtf8());
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
-    rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
+    rc = VcsBaseEditor::getVcsBaseEditor(outputEditor);
     connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(slotBlameRevisionRequested(QString,QString,QString,int)));
     QTC_ASSERT(rc, return 0);
@@ -1026,7 +1024,7 @@ void GitClient::diff(const QString &workingDirectory,
 void GitClient::diff(const QString &workingDirectory, const QString &fileName) const
 {
     const QString title = tr("Git Diff \"%1\"").arg(fileName);
-    const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(
+    const QString sourceFile = VcsBase::VcsBaseEditor::getSource(
                 workingDirectory, fileName);
     const QString documentId = QLatin1String("File:") + sourceFile;
     DiffEditor::DiffEditorDocument *diffEditorDocument =
@@ -1096,7 +1094,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     const QString msgArg = fileName.isEmpty() ? workingDirectory : fileName;
     const QString title = tr("Git Log \"%1\"").arg(msgArg);
     const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
-    const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
+    const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
     if (!editor)
         editor = createVcsEditor(editorId, title, sourceFile, CodecLogOutput, "logFileName", sourceFile,
@@ -1222,7 +1220,7 @@ void GitClient::slotBlameRevisionRequested(const QString &workingDirectory, cons
 
 QTextCodec *GitClient::getSourceCodec(const QString &file) const
 {
-    return QFileInfo(file).isFile() ? VcsBase::VcsBaseEditorWidget::getCodec(file)
+    return QFileInfo(file).isFile() ? VcsBase::VcsBaseEditor::getCodec(file)
                                     : encoding(file, "gui.encoding");
 }
 
@@ -1233,9 +1231,9 @@ void GitClient::blame(const QString &workingDirectory,
                       int lineNumber)
 {
     const Id editorId = Git::Constants::GIT_BLAME_EDITOR_ID;
-    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDirectory, QStringList(fileName), revision);
+    const QString id = VcsBase::VcsBaseEditor::getTitleId(workingDirectory, QStringList(fileName), revision);
     const QString title = tr("Git Blame \"%1\"").arg(id);
-    const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
+    const QString sourceFile = VcsBase::VcsBaseEditor::getSource(workingDirectory, fileName);
 
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("blameFileName", id);
     if (!editor) {
@@ -3266,7 +3264,7 @@ void GitClient::subversionLog(const QString &workingDirectory)
     // Create a command editor, no highlighting or interaction.
     const QString title = tr("Git SVN Log");
     const Id editorId = Git::Constants::C_GIT_COMMAND_LOG_EDITOR;
-    const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, QStringList());
+    const QString sourceFile = VcsBase::VcsBaseEditor::getSource(workingDirectory, QStringList());
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("svnLog", sourceFile);
     if (!editor)
         editor = createVcsEditor(editorId, title, sourceFile, CodecNone, "svnLog", sourceFile, 0);

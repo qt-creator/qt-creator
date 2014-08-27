@@ -149,7 +149,7 @@ static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 static inline const VcsBase::VcsBaseEditorParameters *findType(int ie)
 {
     const VcsBase::EditorContentType et = static_cast<VcsBase::EditorContentType>(ie);
-    return VcsBase::VcsBaseEditorWidget::findType(editorParameters, sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters), et);
+    return VcsBase::VcsBaseEditor::findType(editorParameters, sizeof(editorParameters)/sizeof(VcsBase::VcsBaseEditorParameters), et);
 }
 
 static inline QString debugCodec(const QTextCodec *c)
@@ -1021,8 +1021,8 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
 {
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << files;
-    const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
-    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBase::VcsBaseEditorWidget::getCodec(source);
+    const QString source = VcsBase::VcsBaseEditor::getSource(workingDir, files);
+    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBase::VcsBaseEditor::getCodec(source);
 
     if ((m_settings.diffType == GraphicalDiff) && (files.count() == 1)) {
         const QString file = files.first();
@@ -1050,10 +1050,10 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
 
     // diff of a single file? re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, workingDir, files);
+    const QString tag = VcsBase::VcsBaseEditor::editorTag(VcsBase::DiffOutput, workingDir, files);
     if (files.count() == 1) {
         // Show in the same editor if diff has been executed before
-        if (IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
+        if (IEditor *existingEditor = VcsBase::VcsBaseEditor::locateEditorByTag(tag)) {
             existingEditor->document()->setContents(result.toUtf8());
             EditorManager::activateEditor(existingEditor);
             setWorkingDirectory(existingEditor, workingDir);
@@ -1064,7 +1064,7 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
     const QString title = QString::fromLatin1("cc diff %1").arg(diffname);
     IEditor *editor = showOutputInEditor(title, result, VcsBase::DiffOutput, source, codec);
     setWorkingDirectory(editor, workingDir);
-    VcsBase::VcsBaseEditorWidget::tagEditor(editor, tag);
+    VcsBase::VcsBaseEditor::tagEditor(editor, tag);
     ClearCaseEditorWidget *diffEditorWidget = qobject_cast<ClearCaseEditorWidget *>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return);
     if (files.count() == 1)
@@ -1290,7 +1290,7 @@ void ClearCasePlugin::history(const QString &workingDir,
                                const QStringList &files,
                                bool enableAnnotationContextMenu)
 {
-    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(workingDir, files);
+    QTextCodec *codec = VcsBase::VcsBaseEditor::getCodec(workingDir, files);
     // no need for temp file
     QStringList args(QLatin1String("lshistory"));
     if (m_settings.historyCount > 0)
@@ -1309,18 +1309,18 @@ void ClearCasePlugin::history(const QString &workingDir,
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
 
-    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, files);
-    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::LogOutput, workingDir, files);
-    if (IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
+    const QString id = VcsBase::VcsBaseEditor::getTitleId(workingDir, files);
+    const QString tag = VcsBase::VcsBaseEditor::editorTag(VcsBase::LogOutput, workingDir, files);
+    if (IEditor *editor = VcsBase::VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(response.stdOut.toUtf8());
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc history %1").arg(id);
-        const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
+        const QString source = VcsBase::VcsBaseEditor::getSource(workingDir, files);
         IEditor *newEditor = showOutputInEditor(title, response.stdOut, VcsBase::LogOutput, source, codec);
-        VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
+        VcsBase::VcsBaseEditor::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
-            VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
+            VcsBase::VcsBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
     }
 }
 
@@ -1388,7 +1388,7 @@ void ClearCasePlugin::vcsAnnotate(const QString &workingDir, const QString &file
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << file;
 
-    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(file);
+    QTextCodec *codec = VcsBase::VcsBaseEditor::getCodec(file);
 
     // Determine id
     QString id = file;
@@ -1410,7 +1410,7 @@ void ClearCasePlugin::vcsAnnotate(const QString &workingDir, const QString &file
     // the common usage pattern of continuously changing and diffing a file
     const QString source = workingDir + QLatin1Char('/') + file;
     if (lineNumber <= 0)
-        lineNumber = VcsBase::VcsBaseEditorWidget::lineNumberOfCurrentEditor(source);
+        lineNumber = VcsBase::VcsBaseEditor::lineNumberOfCurrentEditor(source);
 
     QString headerSep(QLatin1String("-------------------------------------------------"));
     int pos = qMax(0, response.stdOut.indexOf(headerSep));
@@ -1422,16 +1422,16 @@ void ClearCasePlugin::vcsAnnotate(const QString &workingDir, const QString &file
     stream << response.stdOut.mid(dataStart) << headerSep << QLatin1Char('\n')
            << headerSep << QLatin1Char('\n') << response.stdOut.left(pos);
     const QStringList files = QStringList(file);
-    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::AnnotateOutput, workingDir, files);
-    if (IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
+    const QString tag = VcsBase::VcsBaseEditor::editorTag(VcsBase::AnnotateOutput, workingDir, files);
+    if (IEditor *editor = VcsBase::VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(res.toUtf8());
-        VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
+        VcsBase::VcsBaseEditor::gotoLineOfEditor(editor, lineNumber);
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc annotate %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, res, VcsBase::AnnotateOutput, source, codec);
-        VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
-        VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(newEditor, lineNumber);
+        VcsBase::VcsBaseEditor::tagEditor(newEditor, tag);
+        VcsBase::VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
 }
 
@@ -1450,7 +1450,7 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
 
     QStringList args(QLatin1String("describe"));
     args.push_back(id);
-    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(source);
+    QTextCodec *codec = VcsBase::VcsBaseEditor::getCodec(source);
     const ClearCaseResponse response =
             runCleartool(topLevel, args, m_settings.timeOutMS(), 0, codec);
     description = response.stdOut;
@@ -1459,14 +1459,14 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, source, QStringList(), changeNr);
-    if (IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
+    const QString tag = VcsBase::VcsBaseEditor::editorTag(VcsBase::DiffOutput, source, QStringList(), changeNr);
+    if (IEditor *editor = VcsBase::VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(description.toUtf8());
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc describe %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, description, VcsBase::DiffOutput, source, codec);
-        VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
+        VcsBase::VcsBaseEditor::tagEditor(newEditor, tag);
     }
 }
 
@@ -2102,7 +2102,7 @@ QString ClearCasePlugin::getFile(const QString &nativeFile, const QString &prefi
 // runs external (GNU) diff, and returns the stdout result
 QString ClearCasePlugin::diffExternal(QString file1, QString file2, bool keep)
 {
-    QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(file1);
+    QTextCodec *codec = VcsBase::VcsBaseEditor::getCodec(file1);
 
     // if file2 is empty, we should compare to predecessor
     if (file2.isEmpty()) {

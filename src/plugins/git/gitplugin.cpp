@@ -726,7 +726,7 @@ void GitPlugin::blameFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    const int lineNumber = VcsBaseEditorWidget::lineNumberOfCurrentEditor(state.currentFile());
+    const int lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
     m_gitClient->blame(state.currentFileTopLevel(), QStringList(), state.relativeCurrentFile(), QString(), lineNumber);
 }
 

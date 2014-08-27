@@ -37,13 +37,10 @@
 #include <QSet>
 
 QT_BEGIN_NAMESPACE
-class QAction;
 class QRegExp;
 class QTextCodec;
 class QTextCursor;
 QT_END_NAMESPACE
-
-namespace Core { class IVersionControl; }
 
 namespace VcsBase {
 
@@ -52,8 +49,8 @@ class ChangeTextCursorHandler;
 class VcsBaseEditorWidgetPrivate;
 }
 
-class DiffHighlighter;
 class BaseAnnotationHighlighter;
+class VcsBaseEditorWidget;
 class VcsBaseEditorParameterWidget;
 class Command;
 
@@ -87,12 +84,54 @@ public:
     QByteArray header;
 };
 
-class VcsBaseEditor : public TextEditor::BaseTextEditor
+class VCSBASE_EXPORT VcsBaseEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 public:
     explicit VcsBaseEditor(const VcsBaseEditorParameters *type);
 
+    // Utility to find a parameter set by type in an array.
+    static  const VcsBaseEditorParameters *
+        findType(const VcsBaseEditorParameters *array, int arraySize, EditorContentType et);
+
+    // Utility to find the codec for a source (file or directory), querying
+    // the editor manager and the project managers (defaults to system codec).
+    // The codec should be set on editors displaying diff or annotation
+    // output.
+    static QTextCodec *getCodec(const QString &source);
+    static QTextCodec *getCodec(const QString &workingDirectory, const QStringList &files);
+
+    // Utility to return the widget from the IEditor returned by the editor
+    // manager which is a BaseTextEditor.
+    static VcsBaseEditorWidget *getVcsBaseEditor(const Core::IEditor *editor);
+
+    // Utility to find the line number of the current editor. Optionally,
+    // pass in the file name to match it. To be used when jumping to current
+    // line number in a 'annnotate current file' slot, which checks if the
+    // current file originates from the current editor or the project selection.
+    static int lineNumberOfCurrentEditor(const QString &currentFile = QString());
+
+    //Helper to go to line of editor if it is a text editor
+    static bool gotoLineOfEditor(Core::IEditor *e, int lineNumber);
+
+    // Convenience functions to determine the source to pass on to a diff
+    // editor if one has a call consisting of working directory and file arguments.
+    // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
+    static QString getSource(const QString &workingDirectory, const QString &fileName);
+    static QString getSource(const QString &workingDirectory, const QStringList &fileNames);
+    // Convenience functions to determine an title/id to identify the editor
+    // from the arguments (','-joined arguments or directory) + revision.
+    static QString getTitleId(const QString &workingDirectory,
+                              const QStringList &fileNames,
+                              const QString &revision = QString());
+
+    /* Tagging editors: Sometimes, an editor should be re-used, for example, when showing
+     * a diff of the same file with different diff-options. In order to be able to find
+     * the editor, they get a 'tag' containing type and parameters (dynamic property string). */
+    static void tagEditor(Core::IEditor *e, const QString &tag);
+    static Core::IEditor* locateEditorByTag(const QString &tag);
+    static QString editorTag(EditorContentType t, const QString &workingDirectory, const QStringList &files,
+                             const QString &revision = QString());
 signals:
     void describeRequested(const QString &source, const QString &change);
     void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
@@ -165,52 +204,10 @@ public:
 
     EditorContentType contentType() const;
 
-    // Utility to find a parameter set by type in an array.
-    static  const VcsBaseEditorParameters *
-        findType(const VcsBaseEditorParameters *array, int arraySize, EditorContentType et);
-
-    // Utility to find the codec for a source (file or directory), querying
-    // the editor manager and the project managers (defaults to system codec).
-    // The codec should be set on editors displaying diff or annotation
-    // output.
-    static QTextCodec *getCodec(const QString &source);
-    static QTextCodec *getCodec(const QString &workingDirectory, const QStringList &files);
-
-    // Utility to return the widget from the IEditor returned by the editor
-    // manager which is a BaseTextEditor.
-    static VcsBaseEditorWidget *getVcsBaseEditor(const Core::IEditor *editor);
-
-    // Utility to find the line number of the current editor. Optionally,
-    // pass in the file name to match it. To be used when jumping to current
-    // line number in a 'annnotate current file' slot, which checks if the
-    // current file originates from the current editor or the project selection.
-    static int lineNumberOfCurrentEditor(const QString &currentFile = QString());
-
-    //Helper to go to line of editor if it is a text editor
-    static bool gotoLineOfEditor(Core::IEditor *e, int lineNumber);
-
-    // Convenience functions to determine the source to pass on to a diff
-    // editor if one has a call consisting of working directory and file arguments.
-    // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
-    static QString getSource(const QString &workingDirectory, const QString &fileName);
-    static QString getSource(const QString &workingDirectory, const QStringList &fileNames);
-    // Convenience functions to determine an title/id to identify the editor
-    // from the arguments (','-joined arguments or directory) + revision.
-    static QString getTitleId(const QString &workingDirectory,
-                              const QStringList &fileNames,
-                              const QString &revision = QString());
-
     bool setConfigurationWidget(VcsBaseEditorParameterWidget *w);
     VcsBaseEditorParameterWidget *configurationWidget() const;
 
     void setCommand(Command *command);
-    /* Tagging editors: Sometimes, an editor should be re-used, for example, when showing
-     * a diff of the same file with different diff-options. In order to be able to find
-     * the editor, they get a 'tag' containing type and parameters (dynamic property string). */
-    static void tagEditor(Core::IEditor *e, const QString &tag);
-    static Core::IEditor* locateEditorByTag(const QString &tag);
-    static QString editorTag(EditorContentType t, const QString &workingDirectory, const QStringList &files,
-                             const QString &revision = QString());
 signals:
     // These signals also exist in the opaque editable (IEditor) that is
     // handled by the editor manager for convenience. They are emitted

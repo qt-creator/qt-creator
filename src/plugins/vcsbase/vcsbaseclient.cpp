@@ -324,9 +324,9 @@ void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
     QStringList args;
     args << vcsCmdString << revisionSpec(revision) << extraOptions << file;
     const Core::Id kind = vcsEditorKind(AnnotateCommand);
-    const QString id = VcsBase::VcsBaseEditorWidget::getSource(workingDir, QStringList(file));
+    const QString id = VcsBaseEditor::getSource(workingDir, QStringList(file));
     const QString title = vcsEditorTitle(vcsCmdString, id);
-    const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, file);
+    const QString source = VcsBaseEditor::getSource(workingDir, file);
 
     VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
                                                            vcsCmdString.toLatin1().constData(), id);
@@ -341,9 +341,9 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
 {
     const QString vcsCmdString = vcsCommandString(DiffCommand);
     const Core::Id kind = vcsEditorKind(DiffCommand);
-    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, files);
+    const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
-    const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
+    const QString source = VcsBaseEditor::getSource(workingDir, files);
     VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
                                                            vcsCmdString.toLatin1().constData(), id);
     editor->setWorkingDirectory(workingDir);
@@ -358,7 +358,7 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     QStringList args;
     const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
     args << vcsCmdString << extraOptions << paramArgs << files;
-    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBase::VcsBaseEditorWidget::getCodec(source);
+    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBaseEditor::getCodec(source);
     Command *command = createCommand(workingDir, editor);
     command->setCodec(codec);
     enqueueJob(command, args, exitCodeInterpreter(DiffCommand, command));
@@ -370,9 +370,9 @@ void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
 {
     const QString vcsCmdString = vcsCommandString(LogCommand);
     const Core::Id kind = vcsEditorKind(LogCommand);
-    const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, files);
+    const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
-    const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
+    const QString source = VcsBaseEditor::getSource(workingDir, files);
     VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
                                                            vcsCmdString.toLatin1().constData(), id);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
@@ -563,19 +563,19 @@ VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QStr
     if (outputEditor) {
         // Exists already
         outputEditor->document()->setContents(progressMsg.toUtf8());
-        baseEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
+        baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(baseEditor, return 0);
         Core::EditorManager::activateEditor(outputEditor);
     } else {
         outputEditor = Core::EditorManager::openEditorWithContents(kind, &title, progressMsg.toUtf8());
         outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
-        baseEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
+        baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
         connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
                 this, SLOT(annotateRevision(QString,QString,QString,int)));
         QTC_ASSERT(baseEditor, return 0);
         baseEditor->setSource(source);
         if (setSourceCodec)
-            baseEditor->setCodec(VcsBase::VcsBaseEditorWidget::getCodec(source));
+            baseEditor->setCodec(VcsBaseEditor::getCodec(source));
     }
 
     baseEditor->setForceReadOnly(true);
