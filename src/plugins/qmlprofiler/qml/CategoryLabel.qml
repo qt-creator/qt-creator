@@ -76,7 +76,7 @@ Item {
 
     Connections {
         target: qmlProfilerModelProxy
-        onExpandedChanged: updateDescriptions();
+        onExpandedChanged: updateDescriptions()
         onStateChanged: updateDescriptions()
         onRowHeightChanged: updateDescriptions()
     }
