@@ -47,7 +47,7 @@ namespace PythonEditor {
 namespace Internal {
 
 /**
- * @class PyEditor::Highlighter
+ * @class PythonEditor::Internal::PythonHighlighter
  * @brief Handles incremental lexical highlighting, but not semantic
  *
  * Incremental lexical highlighting works every time when any character typed
@@ -85,7 +85,7 @@ PythonHighlighter::PythonHighlighter()
 }
 
 /**
- * @brief Highlighter::highlightBlock highlights single line of Python code
+ * @brief PythonHighlighter::highlightBlock highlights single line of Python code
  * @param text is single line without EOLN symbol. Access to all block data
  * can be obtained through inherited currentBlock() function.
  *
