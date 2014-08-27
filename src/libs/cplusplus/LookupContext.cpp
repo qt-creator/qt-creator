@@ -994,6 +994,22 @@ ClassOrNamespace *ClassOrNamespace::findSpecialization(const TemplateNameId *tem
     return 0;
 }
 
+ClassOrNamespace *ClassOrNamespace::findOrCreateNestedAnonymousType(
+        const AnonymousNameId *anonymousNameId)
+{
+    QHash<const AnonymousNameId *, ClassOrNamespace *>::const_iterator cit
+            = _anonymouses.find(anonymousNameId);
+    if (cit != _anonymouses.end()) {
+        return cit.value();
+    } else {
+        ClassOrNamespace *newAnonymous = _factory->allocClassOrNamespace(this);
+        if (Q_UNLIKELY(debug))
+            newAnonymous->_name = anonymousNameId;
+        _anonymouses[anonymousNameId] = newAnonymous;
+        return newAnonymous;
+    }
+}
+
 ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespace *origin)
 {
     Q_ASSERT(name != 0);
@@ -1001,20 +1017,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
 
     const_cast<ClassOrNamespace *>(this)->flush();
 
-    const AnonymousNameId *anonymousNameId = name->asAnonymousNameId();
-    if (anonymousNameId) {
-        QHash<const AnonymousNameId *, ClassOrNamespace *>::const_iterator cit
-                = _anonymouses.find(anonymousNameId);
-        if (cit != _anonymouses.end()) {
-            return cit.value();
-        } else {
-            ClassOrNamespace *newAnonymous = _factory->allocClassOrNamespace(this);
-            if (Q_UNLIKELY(debug))
-                newAnonymous->_name = anonymousNameId;
-            _anonymouses[anonymousNameId] = newAnonymous;
-            return newAnonymous;
-        }
-    }
+    if (const AnonymousNameId *anonymousNameId = name->asAnonymousNameId())
+        return findOrCreateNestedAnonymousType(anonymousNameId);
 
     Table::const_iterator it = _classOrNamespaces.find(name);
     if (it == _classOrNamespaces.end())
