@@ -40,11 +40,11 @@ QT_END_NAMESPACE
 
 namespace SharedTools { class WidgetHost; }
 namespace Core { class IEditor; }
-namespace Designer {
-class FormWindowEditor;
 
+namespace Designer {
 namespace Internal {
-struct EditorData;
+
+class EditorData;
 class FormEditorStack;
 class FormEditorW;
 

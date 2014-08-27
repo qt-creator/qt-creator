@@ -38,7 +38,9 @@ namespace Designer {
 namespace Internal {
 
 // Associates the XML editor implementing the IEditor and its form widget host
-struct EditorData {
+class EditorData
+{
+public:
     EditorData() : formWindowEditor(0), widgetHost(0) {}
     operator bool() const { return formWindowEditor != 0; }
 
