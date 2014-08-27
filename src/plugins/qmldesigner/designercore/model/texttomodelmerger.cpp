@@ -868,7 +868,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         setupImports(doc, differenceHandler);
         setupPossibleImports(snapshot, vContext);
-        setupUsedImports();
 
         if (m_rewriterView->model()->imports().isEmpty()) {
             const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
@@ -944,6 +943,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 }
             }
         }
+        setupUsedImports();
 
         UiObjectMember *astRootNode = 0;
         if (UiProgram *program = doc->qmlProgram())

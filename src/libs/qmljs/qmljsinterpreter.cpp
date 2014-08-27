@@ -2312,8 +2312,10 @@ const Value *TypeScope::lookupMember(const QString &name, const Context *context
             continue;
         }
 
-        if (const Value *v = import->lookupMember(name, context, foundInObject))
+        if (const Value *v = import->lookupMember(name, context, foundInObject)) {
+            i.used = true;
             return v;
+        }
     }
     if (foundInObject)
         *foundInObject = 0;
@@ -2491,7 +2493,7 @@ bool Imports::importFailed() const
     return m_importFailed;
 }
 
-QList<Import> Imports::all() const
+const QList<Import> &Imports::all() const
 {
     return m_imports;
 }
