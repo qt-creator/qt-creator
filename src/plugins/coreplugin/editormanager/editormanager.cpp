@@ -438,6 +438,7 @@ EditorManager::EditorManager(QWidget *parent) :
     d->m_windowPopup = new OpenEditorsWindow(this);
 
     d->m_autoSaveTimer = new QTimer(this);
+    d->m_autoSaveTimer->setObjectName(QLatin1String("EditorManager::m_autoSaveTimer"));
     connect(d->m_autoSaveTimer, SIGNAL(timeout()), SLOT(autoSave()));
     updateAutoSave();
 }

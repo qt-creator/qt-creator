@@ -166,6 +166,7 @@ Parser::Parser(QObject *parent)
     d(new ParserPrivate())
 {
     d->timer = new QTimer(this);
+    d->timer->setObjectName(QLatin1String("ClassViewParser::timer"));
     d->timer->setSingleShot(true);
 
     // connect signal/slots

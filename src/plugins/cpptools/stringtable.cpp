@@ -47,6 +47,7 @@ StringTable::StringTable()
 
     m_gcRunner.setAutoDelete(false);
 
+    m_gcCountDown.setObjectName(QLatin1String("StringTable::m_gcCountDown"));
     m_gcCountDown.setSingleShot(true);
     m_gcCountDown.setInterval(GCTimeOut);
     connect(&m_gcCountDown, SIGNAL(timeout()),

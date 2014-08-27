@@ -232,6 +232,7 @@ CppModelManager::CppModelManager(QObject *parent)
     m_dirty = true;
 
     m_delayedGcTimer = new QTimer(this);
+    m_delayedGcTimer->setObjectName(QLatin1String("CppModelManager::m_delayedGcTimer"));
     m_delayedGcTimer->setSingleShot(true);
     connect(m_delayedGcTimer, SIGNAL(timeout()), this, SLOT(GC()));
 

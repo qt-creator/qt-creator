@@ -93,9 +93,10 @@ using namespace CppEditor::Internal;
 
 namespace {
 
-QTimer *newSingleShotTimer(QObject *parent, int msecInterval)
+QTimer *newSingleShotTimer(QObject *parent, int msecInterval, const QString &objectName)
 {
     QTimer *timer = new QTimer(parent);
+    timer->setObjectName(objectName);
     timer->setSingleShot(true);
     timer->setInterval(msecInterval);
     return timer;
@@ -245,10 +246,13 @@ TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
 
 void CPPEditorWidget::createToolBar(CPPEditor *editor)
 {
-    d->m_updateUsesTimer = newSingleShotTimer(this, UPDATE_USES_INTERVAL);
+    d->m_updateUsesTimer = newSingleShotTimer(this, UPDATE_USES_INTERVAL,
+                                              QLatin1String("CPPEditorWidget::m_updateUsesTimer"));
     connect(d->m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
 
-    d->m_updateFunctionDeclDefLinkTimer = newSingleShotTimer(this, UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
+    d->m_updateFunctionDeclDefLinkTimer = newSingleShotTimer(
+                this, UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL,
+                QLatin1String("CPPEditorWidget::m_updateFunctionDeclDefLinkTimer"));
     connect(d->m_updateFunctionDeclDefLinkTimer, SIGNAL(timeout()),
             this, SLOT(updateFunctionDeclDefLinkNow()));
 

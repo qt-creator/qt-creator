@@ -137,11 +137,13 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     }
 
     m_updateDocumentTimer = new QTimer(this);
+    m_updateDocumentTimer->setObjectName(QLatin1String("CppEditorSupport::m_updateDocumentTimer"));
     m_updateDocumentTimer->setSingleShot(true);
     m_updateDocumentTimer->setInterval(m_updateDocumentInterval);
     connect(m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(updateDocumentNow()));
 
     m_updateEditorTimer = new QTimer(this);
+    m_updateEditorTimer->setObjectName(QLatin1String("CppEditorSupport::m_updateEditorTimer"));
     m_updateEditorTimer->setInterval(UpdateEditorInterval);
     m_updateEditorTimer->setSingleShot(true);
     connect(m_updateEditorTimer, SIGNAL(timeout()),
@@ -161,6 +163,7 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(onCurrentEditorChanged()));
     m_editorGCTimer = new QTimer(this);
+    m_editorGCTimer->setObjectName(QLatin1String("CppEditorSupport::m_editorGCTimer"));
     m_editorGCTimer->setSingleShot(true);
     m_editorGCTimer->setInterval(EditorHiddenGCTimeout);
     connect(m_editorGCTimer, SIGNAL(timeout()), this, SLOT(releaseResources()));
