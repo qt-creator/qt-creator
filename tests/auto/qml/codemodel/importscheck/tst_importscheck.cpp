@@ -28,25 +28,25 @@
 ****************************************************************************/
 
 
-#include <QScopedPointer>
-#include <QLatin1String>
+#include <QFileInfo>
 #include <QGraphicsObject>
 #include <QGuiApplication>
+#include <QLatin1String>
+#include <QLoggingCategory>
+#include <QScopedPointer>
 #include <QSettings>
-#include <QFileInfo>
 #include <QStringList>
+#include <QtTest>
 
-#include <qmljs/qmljsimportdependencies.h>
-#include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsbind.h>
-#include <qmljs/qmljslink.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljscontext.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsimportdependencies.h>
+#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljslink.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <utils/logging.h>
 
-#include <QtTest>
 #include <algorithm>
 
 using namespace QmlJS;
