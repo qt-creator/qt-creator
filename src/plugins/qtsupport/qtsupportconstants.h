@@ -51,6 +51,8 @@ static const char QTVERSIONNAME[] = "Name";
 
 //Qt Features
 const char FEATURE_QT[] = "QtSupport.Wizards.FeatureQt";
+const char FEATURE_QT4[] = "QtSupport.Wizards.FeatureQt4";
+const char FEATURE_QT5[] = "QtSupport.Wizards.FeatureQt5";
 const char FEATURE_QWIDGETS[] = "QtSupport.Wizards.FeatureQWidgets";
 const char FEATURE_QT_QUICK[] = "QtSupport.Wizards.FeatureQtQuick";
 const char FEATURE_QMLPROJECT[] = "QtSupport.Wizards.FeatureQtQuickProject";
