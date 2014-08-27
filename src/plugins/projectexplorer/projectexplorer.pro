@@ -2,6 +2,7 @@ QT += quick script xml
 
 include(../../qtcreatorplugin.pri)
 include(customwizard/customwizard.pri)
+include(jsonwizard/jsonwizard.pri)
 HEADERS += projectexplorer.h \
     abi.h \
     abiwidget.h \

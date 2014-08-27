@@ -35,6 +35,8 @@
 #include "deployablefile.h"
 #include "deployconfiguration.h"
 #include "gcctoolchainfactories.h"
+#include "jsonwizard/jsonwizardexpander.h"
+#include "jsonwizard/jsonwizardfactory.h"
 #include "project.h"
 #include "projectexplorersettings.h"
 #include "projectmacroexpander.h"
@@ -313,6 +315,9 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
     removeObject(d->m_welcomePage);
     delete d->m_welcomePage;
+
+    JsonWizardFactory::destroyAllFactories();
+
     removeObject(this);
     // Force sequence of deletion:
     delete d->m_kitManager; // remove all the profile informations
@@ -329,6 +334,7 @@ ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
 bool ProjectExplorerPlugin::parseArguments(const QStringList &arguments, QString * /* error */)
 {
     CustomWizard::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
+    JsonWizardFactory::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
     return true;
 }
 
@@ -1313,6 +1319,8 @@ void ProjectExplorerPlugin::loadCustomWizards()
     if (firstTime) {
         firstTime = false;
         foreach (IWizardFactory *cpw, ProjectExplorer::CustomWizard::createWizards())
+            addAutoReleasedObject(cpw);
+        foreach (IWizardFactory *cpw, JsonWizardFactory::createWizardFactories())
             addAutoReleasedObject(cpw);
     }
 }

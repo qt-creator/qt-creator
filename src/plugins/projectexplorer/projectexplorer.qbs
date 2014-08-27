@@ -167,6 +167,18 @@ QtcPlugin {
     }
 
     Group {
+        name: "JsonWizard"
+        prefix: "jsonwizard/"
+        files: [
+            "jsonwizard.cpp", "jsonwizard.h",
+            "jsonwizardexpander.cpp", "jsonwizardexpander.h",
+            "jsonwizardfactory.cpp", "jsonwizardfactory.h",
+            "jsonwizardgeneratorfactory.cpp", "jsonwizardgeneratorfactory.h",
+            "jsonwizardpagefactory.cpp", "jsonwizardpagefactory.h"
+        ]
+    }
+
+    Group {
         name: "CustomWizard"
         prefix: "customwizard/"
         files: [

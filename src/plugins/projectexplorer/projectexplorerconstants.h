@@ -260,6 +260,10 @@ const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; 
 const char SHOW_FILE_FILTER_SETTING[] = "GenericProject/ShowFileFilter";
 const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
 
+// JsonWizard:
+const char PAGE_ID_PREFIX[] = "PE.Wizard.Page.";
+const char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";
+
 } // namespace Constants
 
 // Run modes
