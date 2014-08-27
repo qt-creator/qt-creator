@@ -222,6 +222,10 @@ const char ICON_INFO[]               = ":/core/images/info.png";
 
 const char WIZARD_CATEGORY_QT[] = "R.Qt";
 const char WIZARD_TR_CATEGORY_QT[] = QT_TRANSLATE_NOOP("Core", "Qt");
+const char WIZARD_KIND_UNKNOWN[] = "unknown";
+const char WIZARD_KIND_PROJECT[] = "project";
+const char WIZARD_KIND_CLASS[] = "class";
+const char WIZARD_KIND_FILE[] = "file";
 
 const char SETTINGS_CATEGORY_CORE[] = "A.Core";
 const char SETTINGS_CATEGORY_CORE_ICON[] = ":/core/images/category_core.png";

@@ -50,7 +50,9 @@ public:
                       * see BaseFileWizard::writeFiles() */
                      CustomGeneratorAttribute = 0x4,
                      /* File exists and the user indicated that he wants to keep it */
-                     KeepExistingFileAttribute = 0x8
+                     KeepExistingFileAttribute = 0x8,
+                     /* Force overwriting of a file without asking the user to keep it */
+                     ForceOverwrite = 0x10
                    };
     Q_DECLARE_FLAGS(Attributes, Attribute)
 
