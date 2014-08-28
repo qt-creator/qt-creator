@@ -827,11 +827,6 @@ bool VcsBaseEditorWidget::isModified() const
     return false;
 }
 
-BaseTextEditor *VcsBaseEditorWidget::createEditor()
-{
-    QTC_ASSERT("should not happen anymore" && false, return 0);
-}
-
 void VcsBaseEditorWidget::slotPopulateDiffBrowser()
 {
     QComboBox *entriesComboBox = d->entriesComboBox();

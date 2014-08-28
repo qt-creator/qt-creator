@@ -155,18 +155,12 @@ public:
 private:
     bool save(const QString &fileName = QString());
     Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false);
-    BaseTextEditor *createEditor();
     void contextMenuEvent(QContextMenuEvent *e);
 };
 
 CMakeEditorWidget::CMakeEditorWidget()
 {
     setCodeFoldingSupported(true);
-}
-
-BaseTextEditor *CMakeEditorWidget::createEditor()
-{
-    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)

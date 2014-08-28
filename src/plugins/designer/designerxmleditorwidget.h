@@ -61,9 +61,6 @@ public:
 
     FormWindowEditor *designerEditor() const;
     Internal::FormWindowFile *formWindowFile() const;
-
-protected:
-    virtual TextEditor::BaseTextEditor *createEditor();
 };
 
 } // Internal

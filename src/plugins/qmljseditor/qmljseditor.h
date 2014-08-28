@@ -105,7 +105,6 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void scrollContentsBy(int dx, int dy);
     void applyFontSettings();
-    TextEditor::BaseTextEditor *createEditor();
     void createToolBar();
     TextEditor::BaseTextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
                                                       bool resolveTarget = true,

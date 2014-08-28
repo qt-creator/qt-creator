@@ -79,7 +79,6 @@ public:
 protected:
     virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
                             bool inNextSplit = false);
-    BaseTextEditor *createEditor();
     void contextMenuEvent(QContextMenuEvent *);
 };
 
@@ -169,11 +168,6 @@ ProFileEditorWidget::Link ProFileEditorWidget::findLinkAt(const QTextCursor &cur
         link.linkTextEnd = cursor.position() - positionInBlock + endPos;
     }
     return link;
-}
-
-BaseTextEditor *ProFileEditorWidget::createEditor()
-{
-    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
 
 void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)

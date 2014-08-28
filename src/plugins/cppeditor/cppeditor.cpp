@@ -250,11 +250,6 @@ CppEditorOutline *CppEditorWidget::outline() const
     return d->m_cppEditorOutline;
 }
 
-TextEditor::BaseTextEditor *CppEditorWidget::createEditor()
-{
-    QTC_ASSERT("should not happen anymore" && false, return 0);
-}
-
 void CppEditorWidget::paste()
 {
     if (d->m_localRenaming.handlePaste())

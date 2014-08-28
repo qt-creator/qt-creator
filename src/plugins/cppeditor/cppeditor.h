@@ -109,7 +109,6 @@ protected:
     void keyPressEvent(QKeyEvent *e) QTC_OVERRIDE;
 
     void applyFontSettings() QTC_OVERRIDE;
-    TextEditor::BaseTextEditor *createEditor() QTC_OVERRIDE;
 
     bool openLink(const Link &link, bool inNextSplit) QTC_OVERRIDE
     { return openCppEditorAt(link, inNextSplit); }

@@ -526,11 +526,6 @@ bool QmlJSEditorWidget::isClosingBrace(const QList<Token> &tokens) const
     return false;
 }
 
-BaseTextEditor *QmlJSEditorWidget::createEditor()
-{
-    QTC_ASSERT("should not happen anymore" && false, return 0);
-}
-
 void QmlJSEditorWidget::createToolBar()
 {
     m_outlineCombo = new QComboBox;

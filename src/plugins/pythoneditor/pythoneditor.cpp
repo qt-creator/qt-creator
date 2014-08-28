@@ -57,7 +57,7 @@ namespace Internal {
 //  PythonEditor
 //
 
-class PythonEditor : public TextEditor::BaseTextEditor
+class PythonEditor : public BaseTextEditor
 {
 public:
     PythonEditor()
@@ -80,7 +80,7 @@ public:
 //  PythonEditorWidget
 //
 
-class PythonEditorWidget : public TextEditor::BaseTextEditorWidget
+class PythonEditorWidget : public BaseTextEditorWidget
 {
 public:
     PythonEditorWidget()
@@ -88,11 +88,6 @@ public:
         setParenthesesMatchingEnabled(true);
         setMarksVisible(true);
         setCodeFoldingSupported(true);
-    }
-
-    TextEditor::BaseTextEditor *createEditor()
-    {
-        QTC_ASSERT("should not happen anymore" && false, return 0);
     }
 };
 

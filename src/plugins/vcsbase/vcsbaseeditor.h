@@ -226,8 +226,6 @@ public slots:
     void reportCommandFinished(bool ok, int exitCode, const QVariant &data);
 
 protected:
-    virtual TextEditor::BaseTextEditor *createEditor();
-
     void contextMenuEvent(QContextMenuEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);

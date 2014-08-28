@@ -73,9 +73,4 @@ void SnippetEditorWidget::focusOutEvent(QFocusEvent *event)
     BaseTextEditorWidget::focusOutEvent(event);
 }
 
-BaseTextEditor *SnippetEditorWidget::createEditor()
-{
-    QTC_ASSERT("should not happen anymore" && false, return 0);
-}
-
 } // namespace

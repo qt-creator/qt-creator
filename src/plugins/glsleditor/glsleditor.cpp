@@ -125,8 +125,6 @@ public:
     IAssistInterface *createAssistInterface(AssistKind assistKind, AssistReason reason) const;
 
 private:
-    BaseTextEditor *createEditor();
-
     void updateDocumentNow();
     void setSelectedElements();
     QString wordUnderCursor() const;
@@ -208,11 +206,6 @@ QString GlslEditorWidget::wordUnderCursor() const
     tc.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
     const QString word = tc.selectedText();
     return word;
-}
-
-BaseTextEditor *GlslEditorWidget::createEditor()
-{
-    QTC_ASSERT("should not happen anymore" && false, return 0);
 }
 
 void GlslEditorWidget::updateDocumentNow()

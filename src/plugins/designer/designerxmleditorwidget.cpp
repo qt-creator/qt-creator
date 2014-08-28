@@ -49,11 +49,6 @@ DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *f
     configureMimeType(doc->mimeType());
 }
 
-TextEditor::BaseTextEditor *DesignerXmlEditorWidget::createEditor()
-{
-    QTC_ASSERT("should not happen anymore" && false, return 0);
-}
-
 FormWindowEditor *DesignerXmlEditorWidget::designerEditor() const
 {
     return qobject_cast<FormWindowEditor *>(editor());

@@ -49,7 +49,6 @@ protected:
     virtual void focusOutEvent(QFocusEvent *event);
 
     virtual int extraAreaWidth(int * /* markWidthPtr */ = 0) const { return 0; }
-    virtual BaseTextEditor *createEditor();
 };
 
 } // namespace TextEditor
