@@ -437,9 +437,7 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
 
 bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
-    typedef VcsSubmitEditorFactory<ClearCaseSubmitEditor> ClearCaseSubmitEditorFactory;
     using namespace Constants;
-
     using namespace Core::Constants;
 
     initializeVcs(new ClearCaseControl(this));
@@ -460,7 +458,8 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
 
     addAutoReleasedObject(new SettingsPage);
 
-    addAutoReleasedObject(new ClearCaseSubmitEditorFactory(&submitParameters));
+    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new ClearCaseSubmitEditor(&submitParameters); }));
 
     // any editor responds to describe (when clicking a version)
     static const char *describeSlot = SLOT(describe(QString,QString));

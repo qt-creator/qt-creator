@@ -227,8 +227,6 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
 
 bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
 {
-    typedef VcsSubmitEditorFactory<PerforceSubmitEditor> PerforceSubmitEditorFactory;
-
     initializeVcs(new PerforceVersionControl(this));
 
     if (!MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"), errorMessage))
@@ -240,7 +238,8 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     addAutoReleasedObject(new SettingsPage);
 
     // Editor factories
-    addAutoReleasedObject(new PerforceSubmitEditorFactory(&submitParameters));
+    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new PerforceSubmitEditor(&submitParameters); }));
 
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);

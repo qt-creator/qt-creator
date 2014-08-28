@@ -30,10 +30,9 @@
 #ifndef SUBVERSIONSUBMITEDITOR_H
 #define SUBVERSIONSUBMITEDITOR_H
 
-#include <QPair>
-#include <QStringList>
-
 #include <vcsbase/vcsbasesubmiteditor.h>
+
+#include <QPair>
 
 namespace Subversion {
 namespace Internal {
@@ -42,8 +41,7 @@ class SubversionSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
 public:
-    explicit SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
-                                    QWidget *parentWidget = 0);
+    explicit SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
 
     static QString fileFromStatusLine(const QString &statusLine);
 

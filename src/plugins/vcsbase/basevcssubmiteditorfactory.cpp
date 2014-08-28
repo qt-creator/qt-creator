@@ -32,21 +32,22 @@
 
 namespace VcsBase {
 
-BaseVcsSubmitEditorFactory::BaseVcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters *parameters)
-    : m_parameters(parameters)
+VcsSubmitEditorFactory::VcsSubmitEditorFactory
+        (const VcsBaseSubmitEditorParameters *parameters, const EditorCreator &editorCreator)
+    : m_editorCreator(editorCreator)
 {
     setId(parameters->id);
     setDisplayName(QLatin1String(parameters->displayName));
     addMimeType(parameters->mimeType);
 }
 
-BaseVcsSubmitEditorFactory::~BaseVcsSubmitEditorFactory()
+VcsSubmitEditorFactory::~VcsSubmitEditorFactory()
 {
 }
 
-Core::IEditor *BaseVcsSubmitEditorFactory::createEditor()
+Core::IEditor *VcsSubmitEditorFactory::createEditor()
 {
-    return createBaseSubmitEditor(m_parameters);
+    return m_editorCreator();
 }
 
 } // namespace VcsBase

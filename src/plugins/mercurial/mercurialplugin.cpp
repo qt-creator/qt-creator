@@ -152,7 +152,8 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, m_client, describeSlot));
 
-    addAutoReleasedObject(new VcsSubmitEditorFactory<CommitEditor>(&submitEditorParameters));
+    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitEditorParameters,
+        []() { return new CommitEditor(&submitEditorParameters); }));
 
     auto cloneWizardFactory = new BaseCheckoutWizardFactory;
     cloneWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_MERCURIAL));

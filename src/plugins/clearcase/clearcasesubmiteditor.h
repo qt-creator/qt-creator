@@ -33,8 +33,6 @@
 
 #include <vcsbase/vcsbasesubmiteditor.h>
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
-
 namespace ClearCase {
 namespace Internal {
 
@@ -43,9 +41,9 @@ class ClearCaseSubmitEditorWidget;
 class ClearCaseSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
+
 public:
-    explicit ClearCaseSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
-                                   QWidget *parentWidget = 0);
+    explicit ClearCaseSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
 
     static QString fileFromStatusLine(const QString &statusLine);
 

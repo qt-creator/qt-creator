@@ -37,9 +37,8 @@
 
 using namespace ClearCase::Internal;
 
-ClearCaseSubmitEditor::ClearCaseSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
-                                             QWidget *parentWidget) :
-    VcsBase::VcsBaseSubmitEditor(parameters, new ClearCaseSubmitEditorWidget(parentWidget))
+ClearCaseSubmitEditor::ClearCaseSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters) :
+    VcsBase::VcsBaseSubmitEditor(parameters, new ClearCaseSubmitEditorWidget)
 {
     document()->setDisplayName(tr("ClearCase Check In"));
 }

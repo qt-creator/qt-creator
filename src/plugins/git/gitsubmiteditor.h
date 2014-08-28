@@ -50,7 +50,7 @@ class GitSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
 public:
-    explicit GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent);
+    explicit GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
     ~GitSubmitEditor();
 
     void setCommitData(const CommitData &);

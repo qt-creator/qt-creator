@@ -176,8 +176,7 @@ SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
 {
 }
 
-SubmitEditorWidget::SubmitEditorWidget(QWidget *parent) :
-    QWidget(parent),
+SubmitEditorWidget::SubmitEditorWidget() :
     d(new SubmitEditorWidgetPrivate)
 {
     d->m_ui.setupUi(this);

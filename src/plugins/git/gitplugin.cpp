@@ -280,8 +280,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_gitClient = new GitClient(&m_settings);
 
-    typedef VcsSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
-
     initializeVcs(new GitVersionControl(m_gitClient));
 
     // Create the globalcontext list to register actions accordingly
@@ -296,7 +294,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, m_gitClient, describeSlot));
 
-    addAutoReleasedObject(new GitSubmitEditorFactory(&submitParameters));
+    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new GitSubmitEditor(&submitParameters); }));
 
     auto cloneWizardFactory = new VcsBase::BaseCheckoutWizardFactory;
     cloneWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));

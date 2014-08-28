@@ -45,8 +45,7 @@ namespace Git {
 namespace Internal {
 
 // ------------------
-GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
-    VcsBase::SubmitEditorWidget(parent),
+GitSubmitEditorWidget::GitSubmitEditorWidget() :
     m_pushAction(NoPush),
     m_gitSubmitPanel(new QWidget),
     m_logChangeWidget(0),

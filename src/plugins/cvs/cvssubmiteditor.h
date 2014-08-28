@@ -48,8 +48,7 @@ public:
     typedef QPair<State, QString> StateFilePair;
     typedef QList<StateFilePair> StateFilePairs;
 
-    explicit CvsSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
-                             QWidget *parentWidget = 0);
+    explicit CvsSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
 
     void setStateList(const StateFilePairs &statusOutput);
 

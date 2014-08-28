@@ -247,11 +247,8 @@ const VcsBaseSubmitEditorParameters submitParameters = {
 
 bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
-    typedef VcsSubmitEditorFactory<SubversionSubmitEditor> SubversionSubmitEditorFactory;
     using namespace Constants;
-
     using namespace Core::Constants;
-    using namespace ExtensionSystem;
 
     initializeVcs(new SubversionControl(this));
 
@@ -265,7 +262,8 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
 
     addAutoReleasedObject(new SettingsPage);
 
-    addAutoReleasedObject(new SubversionSubmitEditorFactory(&submitParameters));
+    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new SubversionSubmitEditor(&submitParameters); }));
 
     static const char *describeSlot = SLOT(describe(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);

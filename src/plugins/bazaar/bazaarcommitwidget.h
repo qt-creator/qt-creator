@@ -44,9 +44,8 @@ class BranchInfo;
 
 class BazaarCommitWidget : public VcsBase::SubmitEditorWidget
 {
-
 public:
-    explicit BazaarCommitWidget(QWidget *parent = 0);
+    BazaarCommitWidget();
 
     void setFields(const BranchInfo &branch,
                    const QString &userName, const QString &email);

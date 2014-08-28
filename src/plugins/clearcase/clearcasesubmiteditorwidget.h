@@ -48,7 +48,8 @@ class ClearCaseSubmitEditorWidget : public VcsBase::SubmitEditorWidget
     Q_OBJECT
 
 public:
-    explicit ClearCaseSubmitEditorWidget(QWidget *parent = 0);
+    ClearCaseSubmitEditorWidget();
+
     QString activity() const;
     bool isIdentical() const;
     bool isPreserve() const;

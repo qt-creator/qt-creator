@@ -230,12 +230,8 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
 bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments);
-    typedef VcsSubmitEditorFactory<CvsSubmitEditor> CVSSubmitEditorFactory;
     using namespace Constants;
-
     using namespace Core::Constants;
-    using namespace ExtensionSystem;
-    using Core::Command;
 
     initializeVcs(new CvsControl(this));
 
@@ -249,7 +245,8 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     addAutoReleasedObject(new SettingsPage);
 
-    addAutoReleasedObject(new CVSSubmitEditorFactory(&submitParameters));
+    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new CvsSubmitEditor(&submitParameters); }));
 
     static const char *describeSlotC = SLOT(slotDescribe(QString,QString));
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);

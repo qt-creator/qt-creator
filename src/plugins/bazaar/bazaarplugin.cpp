@@ -143,8 +143,7 @@ const VcsBaseSubmitEditorParameters submitEditorParameters = {
 BazaarPlugin *BazaarPlugin::m_instance = 0;
 
 BazaarPlugin::BazaarPlugin()
-    : m_optionsPage(0),
-      m_client(0),
+    : m_client(0),
       m_commandLocator(0),
       m_addAction(0),
       m_deleteAction(0),
@@ -169,8 +168,7 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     m_client = new BazaarClient(&m_bazaarSettings);
     initializeVcs(new BazaarControl(m_client));
 
-    m_optionsPage = new OptionsPage();
-    addAutoReleasedObject(m_optionsPage);
+    addAutoReleasedObject(new OptionsPage);
     m_bazaarSettings.readSettings(ICore::settings());
 
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
@@ -181,7 +179,8 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, m_client, describeSlot));
 
-    addAutoReleasedObject(new VcsSubmitEditorFactory<CommitEditor>(&submitEditorParameters));
+    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitEditorParameters,
+        []() { return new CommitEditor(&submitEditorParameters); }));
 
     auto cloneWizardFactory = new BaseCheckoutWizardFactory;
     cloneWizardFactory->setId(QLatin1String(VcsBase::Constants::VCS_ID_BAZAAR));

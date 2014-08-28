@@ -40,9 +40,8 @@ namespace Internal {
  * at the top. */
 class PerforceSubmitEditorWidget : public VcsBase::SubmitEditorWidget
 {
-
 public:
-    explicit PerforceSubmitEditorWidget(QWidget *parent = 0);
+    PerforceSubmitEditorWidget();
 
     void setData(const QString &change, const QString &client, const QString &userName);
 

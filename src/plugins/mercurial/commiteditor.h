@@ -45,9 +45,9 @@ class MercurialCommitWidget;
 class CommitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
+
 public:
-    explicit CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters,
-                          QWidget *parent);
+    explicit CommitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters);
 
     void setFields(const QFileInfo &repositoryRoot, const QString &branch,
                    const QString &userName, const QString &email,
@@ -56,13 +56,12 @@ public:
     QString committerInfo();
     QString repoRoot();
 
-
 private:
-    inline MercurialCommitWidget *commitWidget();
+    MercurialCommitWidget *commitWidget();
     VcsBase::SubmitFileModel *fileModel;
-
 };
 
-}
-}
+} // namespace Internal
+} // namespace Mercurial
+
 #endif // COMMITEDITOR_H

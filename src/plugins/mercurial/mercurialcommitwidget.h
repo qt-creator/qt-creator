@@ -43,9 +43,8 @@ namespace Internal {
 
 class MercurialCommitWidget : public VcsBase::SubmitEditorWidget
 {
-
 public:
-    explicit MercurialCommitWidget(QWidget *parent = 0);
+    MercurialCommitWidget();
 
     void setFields(const QString &repositoryRoot, const QString &branch,
                    const QString &userName, const QString &email);

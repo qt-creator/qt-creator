@@ -39,9 +39,8 @@
 
 using namespace ClearCase::Internal;
 
-ClearCaseSubmitEditorWidget::ClearCaseSubmitEditorWidget(QWidget *parent) :
-    VcsBase::SubmitEditorWidget(parent),
-    m_actSelector(0)
+ClearCaseSubmitEditorWidget::ClearCaseSubmitEditorWidget()
+    : m_actSelector(0)
 {
     setDescriptionMandatory(false);
     QWidget *checkInWidget = new QWidget(this);

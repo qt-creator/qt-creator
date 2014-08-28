@@ -123,8 +123,8 @@ private:
  * option for staged files. So, we sort apart the diff file lists
  * according to a type flag we add to the model. */
 
-GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent) :
-    VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget(parent)),
+GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters) :
+    VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget),
     m_model(0),
     m_commitEncoding(0),
     m_commitType(SimpleCommit),

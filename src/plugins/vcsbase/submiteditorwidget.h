@@ -59,8 +59,8 @@ class VCSBASE_EXPORT SubmitEditorWidget : public QWidget
     Q_PROPERTY(bool emptyFileListEnabled READ isEmptyFileListEnabled WRITE setEmptyFileListEnabled DESIGNABLE true)
 
 public:
-    explicit SubmitEditorWidget(QWidget *parent = 0);
-    virtual ~SubmitEditorWidget();
+    SubmitEditorWidget();
+    ~SubmitEditorWidget();
 
     // Register/Unregister actions that are managed by ActionManager with this widget.
     // The submit action should have Core::Command::CA_UpdateText set as its text will

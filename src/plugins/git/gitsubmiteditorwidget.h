@@ -64,7 +64,7 @@ class GitSubmitEditorWidget : public VcsBase::SubmitEditorWidget
     Q_OBJECT
 
 public:
-    explicit GitSubmitEditorWidget(QWidget *parent = 0);
+    GitSubmitEditorWidget();
 
     GitSubmitEditorPanelData panelData() const;
     QString amendSHA1() const;
