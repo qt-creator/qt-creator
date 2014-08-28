@@ -246,7 +246,7 @@ void SceneGraphTimelineModel::loadData()
             startTime += event.numericData3;
             d->data.insert(insert(startTime, event.numericData4), SceneGraphEvent(TextureUpload));
             startTime += event.numericData4;
-            d->data.insert(insert(startTime, event.numericData4), SceneGraphEvent(TextureMipmap));
+            d->data.insert(insert(startTime, event.numericData5), SceneGraphEvent(TextureMipmap));
             break;
         }
         case QmlDebug::SceneGraphPolishAndSync: {
