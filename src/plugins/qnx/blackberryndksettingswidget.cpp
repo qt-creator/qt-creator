@@ -67,7 +67,7 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
 
     m_activatedApiLevel << m_bbConfigManager->activeApiLevels();
 
-    m_ui->ndksTreeWidget->header()->setResizeMode(QHeaderView::Stretch);
+    m_ui->ndksTreeWidget->header()->setSectionResizeMode(QHeaderView::Stretch);
     m_ui->ndksTreeWidget->header()->setStretchLastSection(false);
     m_ui->ndksTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("Configuration")));
     m_ui->ndksTreeWidget->setTextElideMode(Qt::ElideNone);

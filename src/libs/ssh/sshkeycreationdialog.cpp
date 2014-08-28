@@ -36,8 +36,8 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QApplication>
-#include <QDesktopServices>
 #include <QMessageBox>
+#include <QStandardPaths>
 
 namespace QSsh {
 
@@ -51,7 +51,7 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
 #else
     m_ui->privateKeyFileButton->setText(tr("Browse..."));
 #endif
-    const QString defaultPath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+    const QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
         + QLatin1String("/.ssh/qtc_id");
     setPrivateKeyFile(defaultPath);
 

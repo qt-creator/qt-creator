@@ -187,10 +187,10 @@ void ClangCodeModelPlugin::test_CXX_snippets()
             if (ccr.text() != text)
                 continue;
             hasText = true;
-            QVERIFY2(snippet == ccr.snippet(), snippetError.arg(ccr.snippet()).toAscii());
+            QVERIFY2(snippet == ccr.snippet(), snippetError.arg(ccr.snippet()).toLatin1());
         }
         const QString textError(QLatin1String("Text not found:") + text);
-        QVERIFY2(hasText, textError.toAscii());
+        QVERIFY2(hasText, textError.toLatin1());
     }
 }
 
@@ -298,12 +298,12 @@ void ClangCodeModelPlugin::test_ObjC_hints()
             if (ccr.text() != text)
                 continue;
             hasText = true;
-            QVERIFY2(snippet == ccr.snippet(), snippetError.arg(ccr.snippet()).toAscii());
-            QVERIFY2(hint == ccr.hint(), hintError.arg(ccr.hint()).toAscii());
+            QVERIFY2(snippet == ccr.snippet(), snippetError.arg(ccr.snippet()).toLatin1());
+            QVERIFY2(hint == ccr.hint(), hintError.arg(ccr.hint()).toLatin1());
         }
         const QString textError(QString::fromLatin1("Text \"%1\" not found in set %2")
                                 .arg(text).arg(texts.join(QLatin1Char(','))));
-        QVERIFY2(hasText, textError.toAscii());
+        QVERIFY2(hasText, textError.toLatin1());
     }
 }
 

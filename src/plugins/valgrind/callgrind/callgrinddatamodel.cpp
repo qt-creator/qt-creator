@@ -248,7 +248,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
 
         QString entry = QLatin1String("<dt>%1</dt><dd>%2</dd>\n");
         // body, function info first
-        ret += entry.arg(tr("Function:")).arg(Qt::escape(func->name()));
+        ret += entry.arg(tr("Function:")).arg(func->name().toHtmlEscaped());
         ret += entry.arg(tr("File:")).arg(func->file());
         if (!func->costItems().isEmpty()) {
             const CostItem *firstItem = func->costItems().first();

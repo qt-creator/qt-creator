@@ -39,7 +39,7 @@ QmlProfilerTreeView::QmlProfilerTreeView(QWidget *parent)
     : Utils::TreeView(parent)
 {
     setFrameStyle(QFrame::NoFrame);
-    header()->setResizeMode(QHeaderView::Interactive);
+    header()->setSectionResizeMode(QHeaderView::Interactive);
     header()->setDefaultSectionSize(100);
     header()->setMinimumSectionSize(50);
 }

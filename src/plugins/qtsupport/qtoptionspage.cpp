@@ -139,8 +139,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
 
     // setup parent items for auto-detected and manual versions
     m_ui->qtdirList->header()->setStretchLastSection(false);
-    m_ui->qtdirList->header()->setResizeMode(0, QHeaderView::ResizeToContents);
-    m_ui->qtdirList->header()->setResizeMode(1, QHeaderView::Stretch);
+    m_ui->qtdirList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    m_ui->qtdirList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
     m_ui->qtdirList->setTextElideMode(Qt::ElideNone);
     m_autoItem = new QTreeWidgetItem(m_ui->qtdirList);
     m_autoItem->setText(0, tr("Auto-detected"));

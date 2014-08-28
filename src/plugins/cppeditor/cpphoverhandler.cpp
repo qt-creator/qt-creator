@@ -99,7 +99,7 @@ void CppHoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
 void CppHoverHandler::decorateToolTip()
 {
     if (Qt::mightBeRichText(toolTip()))
-        setToolTip(Qt::escape(toolTip()));
+        setToolTip(toolTip().toHtmlEscaped());
 
     if (isDiagnosticTooltip())
         return;

@@ -88,6 +88,7 @@ public:
     QMimeData *mimeData(const QModelIndexList &indexes) const;
     bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex  &parent);
     Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::DropActions supportedDragActions() const;
 
     QmlJS::Document::Ptr document() const;
     void update(const QmlJSTools::SemanticInfo &semanticInfo);

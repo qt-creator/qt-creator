@@ -168,7 +168,7 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
     if (frame.line() != -1)
         path += QLatin1Char(':') + QString::number(frame.line());
 
-    path = Qt::escape(path);
+    path = path.toHtmlEscaped();
 
     if (link && !f.isEmpty() && QFile::exists(fullPath)) {
         // make a hyperlink label
@@ -177,7 +177,7 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
     }
 
     if (!fn.isEmpty())
-        return QCoreApplication::translate("Valgrind::Internal", "%1 in %2").arg(Qt::escape(fn), path);
+        return QCoreApplication::translate("Valgrind::Internal", "%1 in %2").arg(fn.toHtmlEscaped(), path);
     if (!path.isEmpty())
         return path;
     return QString::fromLatin1("0x%1").arg(frame.instructionPointer(), 0, 16);

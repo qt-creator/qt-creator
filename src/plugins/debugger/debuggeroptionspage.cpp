@@ -249,9 +249,9 @@ QWidget *DebuggerOptionsPage::widget()
 
         QHeaderView *header = m_debuggerView->header();
         header->setStretchLastSection(false);
-        header->setResizeMode(0, QHeaderView::ResizeToContents);
-        header->setResizeMode(1, QHeaderView::ResizeToContents);
-        header->setResizeMode(2, QHeaderView::Stretch);
+        header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+        header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+        header->setSectionResizeMode(2, QHeaderView::Stretch);
 
         QVBoxLayout *buttonLayout = new QVBoxLayout();
         buttonLayout->setSpacing(6);

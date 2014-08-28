@@ -353,7 +353,7 @@ void BlackBerryInstallWizardTargetPage::initTargetsTreeWidget()
 {
     m_ui->targetsTreeWidget->clear();
     m_ui->targetsTreeWidget->setHeaderHidden(false);
-    m_ui->targetsTreeWidget->header()->setResizeMode(QHeaderView::ResizeToContents);
+    m_ui->targetsTreeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     m_ui->targetsTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("Version") << tr("Name")));
     m_ui->targetsTreeWidget->setTextElideMode(Qt::ElideNone);
     m_ui->targetsTreeWidget->setColumnCount(2);

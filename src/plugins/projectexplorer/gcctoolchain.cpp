@@ -442,7 +442,7 @@ ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags
     const QStringList allCxxflags = m_platformCodeGenFlags + cxxflags; // add only cxxflags is empty?
     foreach (const QString &flag, allCxxflags) {
         if (flag.startsWith(QLatin1String("-std="))) {
-            const QByteArray std = flag.mid(5).toAscii();
+            const QByteArray std = flag.mid(5).toLatin1();
             if (std == "c++98" || std == "c++03") {
                 flags &= ~CompilerFlags(StandardCxx11 | GnuExtensions);
             } else if (std == "gnu++98" || std == "gnu++03") {

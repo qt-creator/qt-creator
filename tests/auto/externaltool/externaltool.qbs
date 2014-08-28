@@ -20,8 +20,4 @@ QtcAutotest {
         name: "Test sources"
         files: "tst_externaltooltest.cpp"
     }
-
-    cpp.defines: base.concat([
-        "QT_DISABLE_DEPRECATED_BEFORE=0x040900",
-    ])
 }

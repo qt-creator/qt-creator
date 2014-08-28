@@ -42,16 +42,14 @@ static inline QString msgCanceled(const QString &searchTerm, int numMatches, int
 {
     return QCoreApplication::translate("Utils::FileSearch",
                                        "%1: canceled. %n occurrences found in %2 files.",
-                                       0, QCoreApplication::CodecForTr, numMatches).
-                                       arg(searchTerm).arg(numFilesSearched);
+                                       0, numMatches).arg(searchTerm).arg(numFilesSearched);
 }
 
 static inline QString msgFound(const QString &searchTerm, int numMatches, int numFilesSearched)
 {
     return QCoreApplication::translate("Utils::FileSearch",
                                        "%1: %n occurrences found in %2 files.",
-                                       0, QCoreApplication::CodecForTr, numMatches).
-                                       arg(searchTerm).arg(numFilesSearched);
+                                       0, numMatches).arg(searchTerm).arg(numFilesSearched);
 }
 
 namespace {

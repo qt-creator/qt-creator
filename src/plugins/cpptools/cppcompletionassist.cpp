@@ -375,11 +375,11 @@ QString CppFunctionHintModel::text(int index) const
     const int end = overview.markedArgumentEnd;
 
     QString hintText;
-    hintText += Qt::escape(prettyMethod.left(begin));
+    hintText += prettyMethod.left(begin).toHtmlEscaped();
     hintText += QLatin1String("<b>");
-    hintText += Qt::escape(prettyMethod.mid(begin, end - begin));
+    hintText += prettyMethod.mid(begin, end - begin).toHtmlEscaped();
     hintText += QLatin1String("</b>");
-    hintText += Qt::escape(prettyMethod.mid(end));
+    hintText += prettyMethod.mid(end).toHtmlEscaped();
     return hintText;
 }
 

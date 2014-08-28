@@ -133,7 +133,7 @@ void NavigatorView::modelAttached(Model *model)
     QTreeView *treeView = treeWidget();
     treeView->expandAll();
 
-    treeView->header()->setResizeMode(0, QHeaderView::Stretch);
+    treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     treeView->header()->resizeSection(1,26);
     treeView->setRootIsDecorated(false);
     treeView->setIndentation(20);

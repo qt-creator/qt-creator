@@ -341,36 +341,11 @@ QString WatchData::toString() const
     return res + QLatin1Char('}');
 }
 
-static QString htmlEscape(const QString &plain)
-{
-#if QT_VERSION >= 0x050000
-    return Qt::escape(plain);
-#else
-    // Copied from Qt to avoid GUI dependency
-    // (Qt::escape has been moved in Qt 5)
-    QString rich;
-    rich.reserve(int(plain.length() * qreal(1.1)));
-    for (int i = 0; i < plain.length(); ++i) {
-        if (plain.at(i) == QLatin1Char('<'))
-            rich += QLatin1String("&lt;");
-        else if (plain.at(i) == QLatin1Char('>'))
-            rich += QLatin1String("&gt;");
-        else if (plain.at(i) == QLatin1Char('&'))
-            rich += QLatin1String("&amp;");
-        else if (plain.at(i) == QLatin1Char('"'))
-            rich += QLatin1String("&quot;");
-        else
-            rich += plain.at(i);
-    }
-    return rich;
-#endif
-}
-
 // Format a tooltip fow with aligned colon.
 static void formatToolTipRow(QTextStream &str,
     const QString &category, const QString &value)
 {
-    QString val = htmlEscape(value);
+    QString val = value.toHtmlEscaped();
     val.replace(QLatin1Char('\n'), QLatin1String("<br>"));
     str << "<tr><td>" << category << "</td><td> : </td><td>"
         << val << "</td></tr>";

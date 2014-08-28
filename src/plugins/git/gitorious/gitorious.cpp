@@ -34,6 +34,7 @@
 #include <QSettings>
 
 #include <QNetworkReply>
+#include <QUrlQuery>
 
 #include <utils/qtcassert.h>
 #include <utils/networkaccessmanager.h>
@@ -544,9 +545,11 @@ void Gitorious::updateProjectList(int hostIndex)
 void Gitorious::startProjectsRequest(int hostIndex, int page)
 {
     QUrl url = httpRequest(hostName(hostIndex), QLatin1String("projects"));
-    url.addQueryItem(QLatin1String("format"), QLatin1String("xml"));
+    QUrlQuery query;
+    query.addQueryItem(QLatin1String("format"), QLatin1String("xml"));
     if (page >= 0)
-        url.addQueryItem(QLatin1String("page"), QString::number(page));
+        query.addQueryItem(QLatin1String("page"), QString::number(page));
+    url.setQuery(query);
     createRequest(url, ListProjectsProtocol, hostIndex, page);
 }
 

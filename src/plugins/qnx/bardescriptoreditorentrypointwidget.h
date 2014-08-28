@@ -34,6 +34,7 @@
 
 #include "bardescriptoreditorabstractpanelwidget.h"
 
+#include <QPointer>
 #include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
@@ -91,7 +92,7 @@ private:
     QString localAssetPathFromDestination(const QString &path);
 
     QStringListModel *m_splashScreenModel;
-    QWeakPointer<QStandardItemModel> m_assetsModel;
+    QPointer<QStandardItemModel> m_assetsModel;
 
     QString m_prevIconPath;
 

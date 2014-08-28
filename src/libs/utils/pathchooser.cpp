@@ -37,10 +37,10 @@
 #include "hostosinfo.h"
 
 #include <QDebug>
-#include <QDesktopServices>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QStandardPaths>
 
 /*!
     \class Utils::PathChooser
@@ -594,7 +594,7 @@ QString PathChooser::homePath()
     // does not let people actually display the contents of their home
     // directory. Alternatively, create a QtCreator-specific directory?
     if (HostOsInfo::isWindowsHost())
-        return QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+        return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     return QDir::homePath();
 }
 

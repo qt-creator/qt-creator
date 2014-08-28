@@ -487,8 +487,8 @@ QWidget *ToolChainOptionsPage::widget()
         connect(m_model, SIGNAL(toolChainStateChanged()), this, SLOT(updateState()));
 
         m_toolChainView->setModel(m_model);
-        m_toolChainView->header()->setResizeMode(0, QHeaderView::ResizeToContents);
-        m_toolChainView->header()->setResizeMode(1, QHeaderView::Stretch);
+        m_toolChainView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+        m_toolChainView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
         m_toolChainView->expandAll();
 
         m_selectionModel = m_toolChainView->selectionModel();

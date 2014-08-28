@@ -62,7 +62,7 @@ void GlslHoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos
 void GlslHoverHandler::decorateToolTip()
 {
     if (Qt::mightBeRichText(toolTip()))
-        setToolTip(Qt::escape(toolTip()));
+        setToolTip(toolTip().toHtmlEscaped());
 }
 
 } // namespace Internal

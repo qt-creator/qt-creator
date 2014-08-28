@@ -205,9 +205,9 @@ void EnvironmentWidget::updateSummaryText()
         if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
             text.append(QLatin1String("<br>"));
             if (item.unset)
-                text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(Qt::escape(item.name)));
+                text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped()));
             else
-                text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b>").arg(Qt::escape(item.name), Qt::escape(item.value)));
+                text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
         }
     }
 

@@ -101,8 +101,8 @@ PluginView::PluginView(QWidget *parent)
     gridLayout->addWidget(m_categoryWidget, 1, 0, 1, 1);
 
     QHeaderView *header = m_categoryWidget->header();
-    header->setResizeMode(0, QHeaderView::ResizeToContents);
-    header->setResizeMode(2, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 
     m_okIcon = QIcon(QLatin1String(":/extensionsystem/images/ok.png"));
     m_errorIcon = QIcon(QLatin1String(":/extensionsystem/images/error.png"));

@@ -53,8 +53,8 @@
 #include <QNetworkProxyFactory>
 
 #include <QApplication>
-#include <QDesktopServices>
 #include <QMessageBox>
+#include <QStandardPaths>
 
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>
@@ -214,7 +214,8 @@ static inline QStringList getPluginPaths()
     //    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
     //    "$XDG_DATA_HOME/data/QtProject/qtcreator" or "~/.local/share/data/QtProject/qtcreator" on Linux
     //    "~/Library/Application Support/QtProject/Qt Creator" on Mac
-    pluginPath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+    pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
+            + QLatin1String("/data");
     pluginPath += QLatin1Char('/')
             + QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR)
             + QLatin1Char('/');
@@ -295,11 +296,6 @@ int main(int argc, char **argv)
 
     rl.rlim_cur = qMin((rlim_t)OPEN_MAX, rl.rlim_max);
     setrlimit(RLIMIT_NOFILE, &rl);
-#endif
-
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    // QML is unusable with the xlib backend
-    QApplication::setGraphicsSystem(QLatin1String("raster"));
 #endif
 
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);

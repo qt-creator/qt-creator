@@ -149,7 +149,6 @@ win32-msvc* {
 qt {
     contains(QT, core): QT += concurrent
     contains(QT, gui): QT += widgets
-    DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x040900
 }
 
 QBSFILE = $$replace(_PRO_FILE_, \\.pro$, .qbs)

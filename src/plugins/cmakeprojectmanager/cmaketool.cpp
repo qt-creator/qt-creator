@@ -209,7 +209,7 @@ void CMakeTool::parseFunctionOutput(const QByteArray &output)
 QString CMakeTool::formatFunctionDetails(const QString &command, const QString &args)
 {
     return QString::fromLatin1("<table><tr><td><b>%1</b></td><td>%2</td></tr>")
-            .arg(Qt::escape(command)).arg(Qt::escape(args));
+            .arg(command.toHtmlEscaped(), args.toHtmlEscaped());
 }
 
 void CMakeTool::parseFunctionDetailsOutput(const QByteArray &output)
@@ -250,7 +250,7 @@ void CMakeTool::parseFunctionDetailsOutput(const QByteArray &output)
                         } else {
                             extractKeywords(lineTrimmed, &m_variables);
                             currentCommandSyntax += QString::fromLatin1("<tr><td>&nbsp;</td><td>%1</td></tr>")
-                                    .arg(Qt::escape(QString::fromLocal8Bit(lineTrimmed)));
+                                    .arg(QString::fromLocal8Bit(lineTrimmed).toHtmlEscaped());
                         }
                     }
                 }

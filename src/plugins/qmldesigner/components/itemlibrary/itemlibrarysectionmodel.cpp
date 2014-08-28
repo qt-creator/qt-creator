@@ -70,6 +70,11 @@ QVariant ItemLibrarySectionModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+QHash<int, QByteArray> ItemLibrarySectionModel::roleNames() const
+{
+    return m_roleNames;
+}
+
 void ItemLibrarySectionModel::clearItems()
 {
     beginResetModel();
@@ -111,8 +116,6 @@ void ItemLibrarySectionModel::addRoleNames()
         m_roleNames.insert(role, property.name());
         ++role;
     }
-
-    setRoleNames(m_roleNames);
 }
 
 } // namespace QmlDesigner

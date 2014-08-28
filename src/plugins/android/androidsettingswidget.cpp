@@ -169,8 +169,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
     m_ui->AVDTableView->setModel(&m_AVDModel);
     m_AVDModel.setAvdList(m_androidConfig.androidVirtualDevices());
-    m_ui->AVDTableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-    m_ui->AVDTableView->horizontalHeader()->setResizeMode(1, QHeaderView::ResizeToContents);
+    m_ui->AVDTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_ui->AVDTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
     m_ui->downloadAntToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
     m_ui->downloadOpenJDKToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());

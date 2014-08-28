@@ -31,9 +31,5 @@ QtcAutotest {
             "valgrindrunner.h", "valgrindrunner.cpp",
         ]
     }
-
-    cpp.defines: base.concat([
-        'QT_DISABLE_DEPRECATED_BEFORE=0x040900',
-    ])
     cpp.includePaths: base.concat([project.ide_source_tree + "/src/plugins"])
 }

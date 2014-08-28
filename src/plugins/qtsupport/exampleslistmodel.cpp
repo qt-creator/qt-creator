@@ -76,11 +76,6 @@ ExampleSetModel::ExampleSetModel(ExamplesListModel *examplesModel, QObject *pare
     QStandardItemModel(parent),
     examplesModel(examplesModel)
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::UserRole + 1] = "text";
-    roleNames[Qt::UserRole + 2] = "QtId";
-    roleNames[Qt::UserRole + 3] = "extraSetIndex";
-    setRoleNames(roleNames);
 }
 
 void ExampleSetModel::update()
@@ -195,31 +190,20 @@ int ExampleSetModel::getExtraExampleSetIndex(int i) const
     return variant.toInt();
 }
 
+QHash<int, QByteArray> ExampleSetModel::roleNames() const
+{
+    QHash<int, QByteArray> roleNames;
+    roleNames[Qt::UserRole + 1] = "text";
+    roleNames[Qt::UserRole + 2] = "QtId";
+    roleNames[Qt::UserRole + 3] = "extraSetIndex";
+    return roleNames;
+}
+
 ExamplesListModel::ExamplesListModel(QObject *parent) :
     QAbstractListModel(parent),
     m_exampleSetModel(new ExampleSetModel(this, this)),
     m_selectedExampleSetIndex(-1)
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Name] = "name";
-    roleNames[ProjectPath] = "projectPath";
-    roleNames[ImageUrl] = "imageUrl";
-    roleNames[Description] = "description";
-    roleNames[DocUrl] = "docUrl";
-    roleNames[FilesToOpen] = "filesToOpen";
-    roleNames[MainFile] = "mainFile";
-    roleNames[Tags] = "tags";
-    roleNames[Difficulty] = "difficulty";
-    roleNames[Type] = "type";
-    roleNames[HasSourceCode] = "hasSourceCode";
-    roleNames[Dependencies] = "dependencies";
-    roleNames[IsVideo] = "isVideo";
-    roleNames[VideoUrl] = "videoUrl";
-    roleNames[VideoLength] = "videoLength";
-    roleNames[Platforms] = "platforms";
-    roleNames[IsHighlighted] = "isHighlighted";
-    setRoleNames(roleNames);
-
     // read extra example sets settings
     QSettings *settings = Core::ICore::settings();
     QStringList list = settings->value(QLatin1String("Help/InstalledExamples"),
@@ -696,6 +680,29 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
         qDebug() << Q_FUNC_INFO << "role type not supported";
         return QVariant();
     }
+}
+
+QHash<int, QByteArray> ExamplesListModel::roleNames() const
+{
+    QHash<int, QByteArray> roleNames;
+    roleNames[Name] = "name";
+    roleNames[ProjectPath] = "projectPath";
+    roleNames[ImageUrl] = "imageUrl";
+    roleNames[Description] = "description";
+    roleNames[DocUrl] = "docUrl";
+    roleNames[FilesToOpen] = "filesToOpen";
+    roleNames[MainFile] = "mainFile";
+    roleNames[Tags] = "tags";
+    roleNames[Difficulty] = "difficulty";
+    roleNames[Type] = "type";
+    roleNames[HasSourceCode] = "hasSourceCode";
+    roleNames[Dependencies] = "dependencies";
+    roleNames[IsVideo] = "isVideo";
+    roleNames[VideoUrl] = "videoUrl";
+    roleNames[VideoLength] = "videoLength";
+    roleNames[Platforms] = "platforms";
+    roleNames[IsHighlighted] = "isHighlighted";
+    return roleNames;
 }
 
 void ExamplesListModel::update()

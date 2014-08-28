@@ -247,7 +247,7 @@ BaseTreeView::BaseTreeView(QWidget *parent)
 
     QHeaderView *h = header();
     h->setDefaultAlignment(Qt::AlignLeft);
-    h->setClickable(true);
+    h->setSectionsClickable(true);
     h->viewport()->installEventFilter(d);
 
     connect(this, SIGNAL(activated(QModelIndex)),

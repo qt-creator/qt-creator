@@ -90,7 +90,7 @@ BarDescriptorEditorEntryPointWidget::~BarDescriptorEditorEntryPointWidget()
 
 void BarDescriptorEditorEntryPointWidget::setAssetsModel(QStandardItemModel *assetsModel)
 {
-    m_assetsModel = QWeakPointer<QStandardItemModel>(assetsModel);
+    m_assetsModel = assetsModel;
 }
 
 void BarDescriptorEditorEntryPointWidget::updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value)

@@ -113,8 +113,6 @@ NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
     setColumnCount(2);
 #    endif
 
-    setSupportedDragActions(Qt::LinkAction);
-
     connect(this, SIGNAL(itemChanged(QStandardItem*)),
             this, SLOT(handleChangedItem(QStandardItem*)));
 }
@@ -126,6 +124,11 @@ NavigatorTreeModel::~NavigatorTreeModel()
 Qt::DropActions NavigatorTreeModel::supportedDropActions() const
 {
     return Qt::LinkAction | Qt::MoveAction;
+}
+
+Qt::DropActions NavigatorTreeModel::supportedDragActions() const
+{
+    return Qt::LinkAction;
 }
 
 QStringList NavigatorTreeModel::mimeTypes() const

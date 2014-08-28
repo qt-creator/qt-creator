@@ -36,7 +36,7 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
-#include <QDesktopServices>
+#include <QStandardPaths>
 
 #include <QString>
 #include <QUuid>
@@ -417,7 +417,7 @@ int IDevice::version() const
 
 QString IDevice::defaultPrivateKeyFilePath()
 {
-    return QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+    return QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
         + QLatin1String("/.ssh/id_rsa");
 }
 

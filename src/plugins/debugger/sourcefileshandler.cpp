@@ -118,7 +118,7 @@ void SourceFilesHandler::setSourceFiles(const QMap<QString, QString> &sourceFile
 void SourceFilesHandler::removeAll()
 {
     setSourceFiles(QMap<QString, QString>());
-    //header()->setResizeMode(0, QHeaderView::ResizeToContents);
+    //header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 }
 
 } // namespace Internal

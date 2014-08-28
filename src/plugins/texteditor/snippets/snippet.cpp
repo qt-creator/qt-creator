@@ -164,7 +164,7 @@ QString Snippet::generateTip() const
     static const QLatin1String kCloseBold("</b>");
     static const QLatin1String kEllipsis("...");
 
-    QString escapedContent(Qt::escape(m_content));
+    QString escapedContent(m_content.toHtmlEscaped());
     escapedContent.replace(kNewLine, kBr);
     escapedContent.replace(kSpace, kNbsp);
 

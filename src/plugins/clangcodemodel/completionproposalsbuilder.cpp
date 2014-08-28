@@ -91,7 +91,7 @@ void CompletionProposalsBuilder::operator ()(const CXCompletionResult &cxResult)
 #if defined(CINDEX_VERSION) && (CINDEX_VERSION > 5)
     const QString brief = Internal::getQString(clang_getCompletionBriefComment(cxResult.CompletionString));
     if (!brief.isEmpty())
-        m_comment += QLatin1String("<b>Brief:</b> ") + Qt::escape(brief);
+        m_comment += (QLatin1String("<b>Brief:</b> ") + brief).toHtmlEscaped();
 #endif
 
     if (m_resultAvailability == CodeCompletionResult::Deprecated) {
@@ -384,12 +384,12 @@ void CompletionProposalsBuilder::concatChunksForObjectiveCMessage(const CXComple
         const QString text = Internal::getQString(clang_getCompletionChunkText(cxString, index), false);
         if (chunkKind == CXCompletionChunk_ResultType) {
             hintPrefix += QLatin1String("(");
-            hintPrefix += Qt::escape(text);
+            hintPrefix += text.toHtmlEscaped();
             hintPrefix += QLatin1String(") ");
             indentBonus += 3 + text.length();
             addSpaceAtPrefixEnd = false;
         } else {
-            hintPrefix += Qt::escape(text);
+            hintPrefix += text.toHtmlEscaped();
             indentBonus += text.length();
             m_snippet += text;
         }
@@ -426,12 +426,12 @@ void CompletionProposalsBuilder::concatChunksForObjectiveCMessage(const CXComple
         case CXCompletionChunk_Comma:
         case CXCompletionChunk_HorizontalSpace:
             m_snippet += text;
-            parts.back().text += Qt::escape(text);
+            parts.back().text += text.toHtmlEscaped();
             break;
         case CXCompletionChunk_Placeholder:
             appendSnippet(text);
             parts.back().text += QLatin1String("<b>");
-            parts.back().text += Qt::escape(text);
+            parts.back().text += text.toHtmlEscaped();
             parts.back().text += QLatin1String("</b>");
             break;
         case CXCompletionChunk_LeftAngle:
@@ -487,7 +487,7 @@ void CompletionProposalsBuilder::concatChunksForNestedName(const CXCompletionStr
         case CXCompletionChunk_Comma:
         case CXCompletionChunk_HorizontalSpace:
             m_snippet += text;
-            m_hint += Qt::escape(text);
+            m_hint += text.toHtmlEscaped();
             break;
 
         case CXCompletionChunk_Placeholder:
@@ -575,7 +575,7 @@ void CompletionProposalsBuilder::concatChunksOnlyTypedText(const CXCompletionStr
         case CXCompletionChunk_Text:
         case CXCompletionChunk_LeftAngle:
         case CXCompletionChunk_RightAngle:
-            m_hint += Qt::escape(text);
+            m_hint += text.toHtmlEscaped();
             break;
 
         case CXCompletionChunk_HorizontalSpace:
@@ -583,14 +583,14 @@ void CompletionProposalsBuilder::concatChunksOnlyTypedText(const CXCompletionStr
             if (isInsideTemplateSpec) {
                 m_snippet += text;
             }
-            m_hint += Qt::escape(text);
+            m_hint += text.toHtmlEscaped();
             break;
 
         case CXCompletionChunk_Placeholder:
             if (isInsideTemplateSpec) {
                 appendSnippet(text);
             }
-            m_hint += Qt::escape(text);
+            m_hint += text.toHtmlEscaped();
             break;
 
         case CXCompletionChunk_TypedText:
@@ -599,7 +599,7 @@ void CompletionProposalsBuilder::concatChunksOnlyTypedText(const CXCompletionStr
             break;
 
         case CXCompletionChunk_ResultType: {
-            m_hint += Qt::escape(text);
+            m_hint += text.toHtmlEscaped();
             QChar last = text[text.size() - 1];
             if (last != QLatin1Char('*') && last != QLatin1Char('&'))
                 m_hint += QLatin1Char(' ');
@@ -698,7 +698,7 @@ void CompletionProposalsBuilder::appendOptionalChunks(const CXCompletionString &
 
         switch (chunkKind) {
         case CXCompletionChunk_Placeholder:
-            chunk.hint += Qt::escape(text);
+            chunk.hint += text.toHtmlEscaped();
             break;
 
         case CXCompletionChunk_Comma:
@@ -742,7 +742,7 @@ void CompletionProposalsBuilder::appendSnippet(const QString &text)
 void CompletionProposalsBuilder::appendHintBold(const QString &text)
 {
     m_hint += QLatin1String("<b>");
-    m_hint += Qt::escape(text);
+    m_hint += text.toHtmlEscaped();
     m_hint += QLatin1String("</b>");
 }
 

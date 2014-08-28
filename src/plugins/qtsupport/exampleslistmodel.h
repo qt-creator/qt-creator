@@ -68,6 +68,8 @@ public:
     int getExtraExampleSetIndex(int index) const;
 
 private:
+    QHash<int, QByteArray> roleNames() const;
+
     ExamplesListModel *examplesModel;
 };
 
@@ -121,6 +123,7 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QHash<int, QByteArray> roleNames() const;
 
     void beginReset() { beginResetModel(); }
     void endReset() { endResetModel(); }

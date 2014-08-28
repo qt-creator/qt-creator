@@ -50,7 +50,6 @@ Project {
     property stringList generalDefines: [
         "QT_CREATOR",
         'IDE_LIBRARY_BASENAME="' + libDirName + '"',
-        "QT_DISABLE_DEPRECATED_BEFORE=0x040900",
         "QT_NO_CAST_TO_ASCII",
         "QT_NO_CAST_FROM_ASCII"
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])

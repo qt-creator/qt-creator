@@ -50,14 +50,6 @@ namespace Internal {
 SessionModel::SessionModel(QObject *parent)
     : QAbstractListModel(parent)
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::DisplayRole] = "sessionName";
-    roleNames[DefaultSessionRole] = "defaultSession";
-    roleNames[ActiveSessionRole] = "activeSession";
-    roleNames[LastSessionRole] = "lastSession";
-    roleNames[ProjectsPathRole] = "projectsPath";
-    roleNames[ProjectsDisplayRole] = "projectsName";
-    setRoleNames(roleNames);
     connect(SessionManager::instance(), SIGNAL(sessionLoaded(QString)), SLOT(resetSessions()));
 }
 
@@ -101,6 +93,18 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
             return pathsToBaseNames(SessionManager::projectsForSessionName(sessionName));
     }
     return QVariant();
+}
+
+QHash<int, QByteArray> SessionModel::roleNames() const
+{
+    QHash<int, QByteArray> roleNames;
+    roleNames[Qt::DisplayRole] = "sessionName";
+    roleNames[DefaultSessionRole] = "defaultSession";
+    roleNames[ActiveSessionRole] = "activeSession";
+    roleNames[LastSessionRole] = "lastSession";
+    roleNames[ProjectsPathRole] = "projectsPath";
+    roleNames[ProjectsDisplayRole] = "projectsName";
+    return roleNames;
 }
 
 bool SessionModel::isDefaultVirgin() const
@@ -164,11 +168,6 @@ void SessionModel::renameSession(const QString &session)
 ProjectModel::ProjectModel(ProjectExplorerPlugin *plugin, QObject *parent)
     : QAbstractListModel(parent), m_plugin(plugin)
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames[Qt::DisplayRole] = "displayName";
-    roleNames[FilePathRole] = "filePath";
-    roleNames[PrettyFilePathRole] = "prettyFilePath";
-    setRoleNames(roleNames);
     connect(plugin, SIGNAL(recentProjectsChanged()), SLOT(resetProjects()));
 }
 
@@ -193,6 +192,15 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     }
 
     return QVariant();
+}
+
+QHash<int, QByteArray> ProjectModel::roleNames() const
+{
+    QHash<int, QByteArray> roleNames;
+    roleNames[Qt::DisplayRole] = "displayName";
+    roleNames[FilePathRole] = "filePath";
+    roleNames[PrettyFilePathRole] = "prettyFilePath";
+    return roleNames;
 }
 
 void ProjectModel::resetProjects()

@@ -316,7 +316,7 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
         if (*currentLocale < 0 && currentText->isEmpty()) {
             *currentText = QCoreApplication::translate("Core::Internal::ExternalTool",
                                                        reader->readElementText().toUtf8().constData(),
-                                                       "", QCoreApplication::UnicodeUTF8);
+                                                       "");
         } else {
             reader->skipCurrentElement();
         }

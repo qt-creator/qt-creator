@@ -50,9 +50,9 @@ TodoOutputTreeView::TodoOutputTreeView(QWidget *parent) :
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setSelectionBehavior(QTreeView::SelectRows);
 
-    header()->setResizeMode(QHeaderView::Interactive);
+    header()->setSectionResizeMode(QHeaderView::Interactive);
     header()->setStretchLastSection(true);
-    header()->setMovable(false);
+    header()->setSectionsMovable(false);
     connect(header(), SIGNAL(sectionResized(int,int,int)), SLOT(todoColumnResized(int,int,int)));
     loadDisplaySettings();
 }

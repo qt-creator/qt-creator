@@ -159,12 +159,12 @@ void BaseHoverHandler::process(BaseTextEditor *editor, int pos)
 void BaseHoverHandler::decorateToolTip()
 {
     if (Qt::mightBeRichText(toolTip()))
-        setToolTip(Qt::escape(toolTip()));
+        setToolTip(toolTip().toHtmlEscaped());
 
     if (!isDiagnosticTooltip() && lastHelpItemIdentified().isValid()) {
         const QString &contents = lastHelpItemIdentified().extractContent(false);
         if (!contents.isEmpty()) {
-            setToolTip(Qt::escape(toolTip()));
+            setToolTip(toolTip().toHtmlEscaped());
             appendToolTip(contents);
             addF1ToToolTip();
         }

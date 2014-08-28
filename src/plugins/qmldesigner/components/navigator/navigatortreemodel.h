@@ -90,6 +90,7 @@ public:
     ~NavigatorTreeModel();
 
     Qt::DropActions supportedDropActions() const;
+    Qt::DropActions supportedDragActions() const;
 
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;

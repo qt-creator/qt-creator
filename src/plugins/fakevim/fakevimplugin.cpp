@@ -97,10 +97,10 @@
 #include <QStackedWidget>
 #include <QTextStream>
 
-#include <QDesktopServices>
 #include <QItemDelegate>
 #include <QPlainTextEdit>
 #include <QShortcut>
+#include <QStandardPaths>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextEdit>
@@ -1379,7 +1379,7 @@ void FakeVimPluginPrivate::maybeReadVimRc()
         return;
     QString fileName = theFakeVimSetting(ConfigVimRcPath)->value().toString();
     if (fileName.isEmpty()) {
-        fileName = QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+        fileName = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
             + (Utils::HostOsInfo::isWindowsHost() ? _("/_vimrc") : _("/.vimrc"));
     }
     //qDebug() << "READING VIMRC: " << fileName;

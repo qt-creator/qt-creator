@@ -32,7 +32,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
-#include <QTextDocument> // Qt::escape() in Qt 4
+#include <QString>
 #include <QFont>
 
 namespace Utils {
@@ -151,7 +151,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
             QString value = d->m_resultEnvironment.value(d->m_resultEnvironment.constBegin() + index.row());
             if (role == Qt::ToolTipRole && value.length() > 80) {
                 // Use html to enable text wrapping
-                value = Qt::escape(value);
+                value = value.toHtmlEscaped();
                 value.prepend(QLatin1String("<html><body>"));
                 value.append(QLatin1String("</body></html>"));
             }

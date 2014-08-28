@@ -444,9 +444,9 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
 
             QString msg = stackFrames.isEmpty()
                     ? tr("<p>An uncaught exception occurred:</p><p>%1</p>")
-                      .arg(Qt::escape(error))
+                      .arg(error.toHtmlEscaped())
                     : tr("<p>An uncaught exception occurred in \"%1\":</p><p>%2</p>")
-                      .arg(QLatin1String(stackFrames.value(0).fileUrl), Qt::escape(error));
+                      .arg(QLatin1String(stackFrames.value(0).fileUrl), error.toHtmlEscaped());
             showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
         } else {
             QString file;

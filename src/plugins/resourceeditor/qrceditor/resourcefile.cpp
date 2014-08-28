@@ -547,9 +547,6 @@ void ResourceFile::clearPrefixList()
 ResourceModel::ResourceModel(const ResourceFile &resource_file, QObject *parent)
     : QAbstractItemModel(parent), m_resource_file(resource_file),  m_dirty(false)
 {
-    // Only action that works for QListWidget and the like.
-    setSupportedDragActions(Qt::CopyAction);
-
     m_prefixIcon = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
         QIcon(QLatin1String(":/resourceeditor/images/qt_qrc.png")), QSize(16, 16));
 }

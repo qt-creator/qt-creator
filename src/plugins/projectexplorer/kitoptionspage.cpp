@@ -97,7 +97,7 @@ QWidget *KitOptionsPage::widget()
         verticalLayout->setStretch(1, 0);
 
         m_kitsView->setModel(m_model);
-        m_kitsView->header()->setResizeMode(0, QHeaderView::Stretch);
+        m_kitsView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
         m_kitsView->expandAll();
 
         m_selectionModel = m_kitsView->selectionModel();

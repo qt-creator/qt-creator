@@ -21,6 +21,7 @@ include (../types/types.pri)
 SOURCES += $$PWD/qmlpuppetmain.cpp
 RESOURCES += $$PWD/../qmlpuppet.qrc
 DEFINES -= QT_NO_CAST_FROM_ASCII
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x040900 # For deprecated QWeakPointer use.
 
 unix:!macx:LIBS += -lrt # posix shared memory
 

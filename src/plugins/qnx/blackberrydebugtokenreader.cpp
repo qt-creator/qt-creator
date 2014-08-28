@@ -134,5 +134,5 @@ QString BlackBerryDebugTokenReader::value(const QByteArray &key, const QByteArra
 {
     int valueStart = data.indexOf(key) + key.size();
     int valueEnd = data.indexOf(QByteArray("\r\n"), valueStart);
-    return QString::fromAscii(data.mid(valueStart, valueEnd - valueStart));
+    return QString::fromLatin1(data.mid(valueStart, valueEnd - valueStart));
 }

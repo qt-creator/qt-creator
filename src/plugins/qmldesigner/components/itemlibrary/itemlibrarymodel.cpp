@@ -103,6 +103,11 @@ QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+QHash<int, QByteArray> ItemLibraryModel::roleNames() const
+{
+    return m_roleNames;
+}
+
 QString ItemLibraryModel::searchText() const
 {
     return m_searchText;
@@ -242,8 +247,6 @@ void ItemLibraryModel::addRoleNames()
         m_roleNames.insert(role, property.name());
         ++role;
     }
-
-    setRoleNames(m_roleNames);
 }
 
 void ItemLibraryModel::resetModel()

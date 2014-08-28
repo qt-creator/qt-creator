@@ -40,11 +40,12 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <QDesktopServices>
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QDebug>
 #include <QHash>
+#include <QStandardPaths>
 
 namespace {
 
@@ -308,7 +309,7 @@ QStringList QmlDumpTool::installDirectories(const QString &qtInstallData)
     directories
             << (qtInstallData + QLatin1String("/qtc-qmldump/"))
             << QDir::cleanPath((QCoreApplication::applicationDirPath() + QLatin1String("/../qtc-qmldump/") + QString::number(hash))) + slash
-            << (QDesktopServices::storageLocation(QDesktopServices::DataLocation) + QLatin1String("/qtc-qmldump/") + QString::number(hash)) + slash;
+            << (QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + QLatin1String("/data/qtc-qmldump/") + QString::number(hash)) + slash;
     return directories;
 }
 

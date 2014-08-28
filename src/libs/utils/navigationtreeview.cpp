@@ -60,7 +60,7 @@ NavigationTreeView::NavigationTreeView(QWidget *parent)
     setHeaderHidden(true);
     // We let the column adjust to contents, but note
     // the setting of a minimum size in resizeEvent()
-    header()->setResizeMode(QHeaderView::ResizeToContents);
+    header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     header()->setStretchLastSection(false);
 }
 

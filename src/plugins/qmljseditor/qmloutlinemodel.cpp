@@ -306,8 +306,6 @@ QmlOutlineModel::QmlOutlineModel(QmlJSEditorDocument *document) :
     const QString resourcePath = Core::ICore::resourcePath();
     Icons::instance()->setIconFilesPath(resourcePath + QLatin1String("/qmlicons"));
 
-    // TODO: Maybe add a Copy Action?
-    setSupportedDragActions(Qt::MoveAction);
     setItemPrototype(new QmlOutlineItem(this));
 }
 
@@ -408,6 +406,12 @@ Qt::ItemFlags QmlOutlineModel::flags(const QModelIndex &index) const
             flags |= Qt::ItemIsDropEnabled;
     }
     return flags;
+}
+
+Qt::DropActions QmlOutlineModel::supportedDragActions() const
+{
+    // TODO: Maybe add a Copy Action?
+    return Qt::MoveAction;
 }
 
 

@@ -36,9 +36,9 @@
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
-#include <QDesktopServices>
 #include <QDomDocument>
 #include <QProcess>
+#include <QStandardPaths>
 #include <QTemporaryFile>
 #include <QApplication>
 
@@ -191,9 +191,11 @@ QString QnxUtils::bbDataDirPath()
     if (Utils::HostOsInfo::isWindowsHost()) {
         // Get the proper storage location on Windows using QDesktopServices,
         // to not hardcode "AppData/Local", as it might refer to "AppData/Roaming".
-        QString dataDir = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+        QString dataDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
+                + QLatin1String("/data");
         dataDir = dataDir.left(dataDir.indexOf(QCoreApplication::organizationName()));
         dataDir.append(QLatin1String("Research in Motion"));
+        qDebug("qnx: Full data dir is '%s'", qPrintable(dataDir));
         return dataDir;
     }
 

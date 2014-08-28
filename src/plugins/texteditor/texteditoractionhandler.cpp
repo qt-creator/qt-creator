@@ -330,7 +330,7 @@ void TextEditorActionHandlerPrivate::createActions()
             QKeySequence(Qt::Key_F2));
     m_jumpToFileInNextSplitAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT,
             [this] (BaseTextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true,
-            QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")));
+            QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")).toString());
 
     m_viewPageUpAction = registerAction(VIEW_PAGE_UP,
             [this] (BaseTextEditorWidget *w) { w->viewPageUp(); }, true, tr("Move the View a Page Up and Keep the Cursor Position"),

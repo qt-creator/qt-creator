@@ -198,7 +198,7 @@ CompletionList::CompletionList(QWidget *parent)
     header()->hide();
     header()->setStretchLastSection(true);
     // This is too slow when done on all results
-    //header()->setResizeMode(QHeaderView::ResizeToContents);
+    //header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     setWindowFlags(Qt::ToolTip);
     if (Utils::HostOsInfo::isMacHost()) {
         if (horizontalScrollBar())

@@ -53,11 +53,6 @@ StatesEditorModel::StatesEditorModel(StatesEditorView *view)
       m_statesEditorView(view),
       m_updateCounter(0)
 {
-    QHash<int, QByteArray> roleNames;
-    roleNames.insert(StateNameRole, "stateName");
-    roleNames.insert(StateImageSourceRole, "stateImageSource");
-    roleNames.insert(InternalNodeId, "internalNodeId");
-    setRoleNames(roleNames);
 }
 
 
@@ -131,6 +126,15 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
 
 
     return QVariant();
+}
+
+QHash<int, QByteArray> StatesEditorModel::roleNames() const
+{
+    QHash<int, QByteArray> roleNames;
+    roleNames.insert(StateNameRole, "stateName");
+    roleNames.insert(StateImageSourceRole, "stateImageSource");
+    roleNames.insert(InternalNodeId, "internalNodeId");
+    return roleNames;
 }
 
 void StatesEditorModel::insertState(int stateIndex)

@@ -103,8 +103,8 @@ OpenEditorsWidget::OpenEditorsWidget()
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setActivationMode(Utils::SingleClickActivation);
     header()->setStretchLastSection(false);
-    header()->setResizeMode(0, QHeaderView::Stretch);
-    header()->setResizeMode(1, QHeaderView::Fixed);
+    header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    header()->setSectionResizeMode(1, QHeaderView::Fixed);
     header()->resizeSection(1, 16);
     setContextMenuPolicy(Qt::CustomContextMenu);
     installEventFilter(this);
