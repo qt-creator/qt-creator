@@ -1282,9 +1282,7 @@ void SubversionPlugin::testDiffFileResolving_data()
 
 void SubversionPlugin::testDiffFileResolving()
 {
-    SubversionEditorWidget editor;
-    editor.setParameters(editorParameters + 2);
-    editor.testDiffFileResolving();
+    VcsBaseEditorWidget::testDiffFileResolving(editorParameters[2].id);
 }
 
 void SubversionPlugin::testLogResolving()
@@ -1305,9 +1303,7 @@ void SubversionPlugin::testLogResolving()
                 "   expectations, remove XFail.\n"
                 "\n"
                 );
-    SubversionEditorWidget editor;
-    editor.setParameters(editorParameters);
-    editor.testLogResolving(data, "r1439551", "r1439540");
+    VcsBaseEditorWidget::testLogResolving(editorParameters[0].id, data, "r1439551", "r1439540");
 }
 #endif
 

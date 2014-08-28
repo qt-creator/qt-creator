@@ -160,6 +160,10 @@ protected:
     virtual QString fileNameForLine(int line) const;
 
 public:
+    void finalizeInitialization();
+    // FIXME: Consolidate these into finalizeInitialization
+    void setDescribeSlot(QObject *describeReceiver, const char *describeSlot);
+    // void
     virtual void init();
     //
     void setParameters(const VcsBaseEditorParameters *parameters);
@@ -291,9 +295,8 @@ private:
 
 #ifdef WITH_TESTS
 public:
-    void addDummyEditor();
-    void testDiffFileResolving();
-    void testLogResolving(QByteArray &data, const QByteArray &entry1, const QByteArray &entry2);
+    static void testDiffFileResolving(const char *id);
+    static void testLogResolving(const char *id, QByteArray &data, const QByteArray &entry1, const QByteArray &entry2);
 #endif
 };
 

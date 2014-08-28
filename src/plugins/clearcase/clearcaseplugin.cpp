@@ -70,7 +70,6 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 
-
 #include <QAction>
 #include <QDebug>
 #include <QDialog>
@@ -105,7 +104,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using VcsBase::VcsOutputWindow;
+using namespace VcsBase;
 
 namespace ClearCase {
 namespace Internal {
@@ -2227,9 +2226,7 @@ void ClearCasePlugin::testDiffFileResolving_data()
 
 void ClearCasePlugin::testDiffFileResolving()
 {
-    ClearCaseEditorWidget editor;
-    editor.setParameters(editorParameters + 2);
-    editor.testDiffFileResolving();
+    VcsBaseEditorWidget::testDiffFileResolving(editorParameters[2].id);
 }
 
 void ClearCasePlugin::testLogResolving()
@@ -2238,9 +2235,7 @@ void ClearCasePlugin::testLogResolving()
                 "13-Sep.17:41   user1      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9\" (baseline1, baseline2, ...)\n"
                 "22-Aug.14:13   user2      create version \"src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8\" (baseline3, baseline4, ...)\n"
                 );
-    ClearCaseEditorWidget editor;
-    editor.setParameters(editorParameters);
-    editor.testLogResolving(data,
+    VcsBaseEditorWidget::testLogResolving(editorParameters[0].id, data,
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/9",
                             "src/plugins/clearcase/clearcaseeditor.h@@/main/branch1/branch2/8");
 }

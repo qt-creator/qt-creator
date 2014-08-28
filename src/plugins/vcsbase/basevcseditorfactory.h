@@ -33,27 +33,22 @@
 #include "vcsbase_global.h"
 #include "vcsbaseeditor.h"
 
-#include <coreplugin/editormanager/ieditorfactory.h>
 #include <texteditor/basetexteditor.h>
+#include <QSharedPointer>
 
 namespace VcsBase {
-namespace Internal { class BaseVcsEditorFactoryPrivate; }
 
-class VCSBASE_EXPORT VcsEditorFactory : public Core::IEditorFactory
+class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::BaseTextEditorFactory
 {
     Q_OBJECT
 
 public:
-    VcsEditorFactory(const VcsBaseEditorParameters *type,
-                     const TextEditor::BaseTextEditorFactory::EditorWidgetCreator &creator,
+    VcsEditorFactory(const VcsBaseEditorParameters *parameters,
+                     const EditorWidgetCreator &editorWidgetCreator,
                      QObject *describeReceiver,
                      const char *describeSlot);
-    ~VcsEditorFactory();
 
-    Core::IEditor *createEditor();
-
-private:
-    Internal::BaseVcsEditorFactoryPrivate *const d;
+    static VcsBaseEditor *createEditorById(const char *id);
 };
 
 } // namespace VcsBase

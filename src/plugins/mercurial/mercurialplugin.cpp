@@ -722,9 +722,7 @@ void MercurialPlugin::testDiffFileResolving_data()
 
 void MercurialPlugin::testDiffFileResolving()
 {
-    MercurialEditorWidget editor;
-    editor.setParameters(editorParameters + 2);
-    editor.testDiffFileResolving();
+    VcsBaseEditorWidget::testDiffFileResolving(editorParameters[2].id);
 }
 
 void MercurialPlugin::testLogResolving()
@@ -744,9 +742,7 @@ void MercurialPlugin::testLogResolving()
                 "date:        Sat Jan 19 04:08:16 2013 +0100\n"
                 "summary:     test-rebase: add another test for rebase with multiple roots\n"
                 );
-    MercurialEditorWidget editor;
-    editor.setParameters(editorParameters);
-    editor.testLogResolving(data, "18473:692cbda1eb50", "18472:37100f30590f");
+    VcsBaseEditorWidget::testLogResolving(editorParameters[0].id, data, "18473:692cbda1eb50", "18472:37100f30590f");
 }
 #endif
 

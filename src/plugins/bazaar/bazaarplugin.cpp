@@ -655,9 +655,7 @@ void BazaarPlugin::testDiffFileResolving_data()
 
 void BazaarPlugin::testDiffFileResolving()
 {
-    BazaarEditorWidget editor;
-    editor.setParameters(editorParameters + 2);
-    editor.testDiffFileResolving();
+    VcsBaseEditorWidget::testDiffFileResolving(editorParameters[2].id);
 }
 
 void BazaarPlugin::testLogResolving()
@@ -680,9 +678,7 @@ void BazaarPlugin::testLogResolving()
                 "  (gz) Set approved revision and vote \"Approve\" when using lp-propose\n"
                 "   --approve (Jonathan Lange)\n"
                 );
-    BazaarEditorWidget editor;
-    editor.setParameters(editorParameters);
-    editor.testLogResolving(data, "6572", "6571");
+    VcsBaseEditorWidget::testLogResolving(editorParameters[0].id, data, "6572", "6571");
 }
 #endif
 

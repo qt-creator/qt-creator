@@ -1319,9 +1319,7 @@ void CvsPlugin::testDiffFileResolving_data()
 
 void CvsPlugin::testDiffFileResolving()
 {
-    CvsEditorWidget editor;
-    editor.setParameters(editorParameters + 3);
-    editor.testDiffFileResolving();
+    VcsBaseEditorWidget::testDiffFileResolving(editorParameters[3].id);
 }
 
 void CvsPlugin::testLogResolving()
@@ -1347,9 +1345,7 @@ void CvsPlugin::testLogResolving()
                 "added latest commentary\n"
                 "----------------------------\n"
                 );
-    CvsEditorWidget editor;
-    editor.setParameters(editorParameters + 1);
-    editor.testLogResolving(data, "1.3", "1.2");
+    VcsBaseEditorWidget::testLogResolving(editorParameters[1].id, data, "1.3", "1.2");
 }
 #endif
 

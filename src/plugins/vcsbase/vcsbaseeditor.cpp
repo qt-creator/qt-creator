@@ -30,6 +30,7 @@
 #include "vcsbaseeditor.h"
 #include "diffhighlighter.h"
 #include "baseannotationhighlighter.h"
+#include "basevcseditorfactory.h"
 #include "vcsbaseplugin.h"
 #include "vcsbaseeditorparameterwidget.h"
 #include "vcscommand.h"
@@ -559,6 +560,10 @@ public:
     bool m_mouseDragging;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
+    QObject *m_describeReceiver;
+    const char *m_describeSlot;
+
+private:
     QComboBox *m_entriesComboBox;
 };
 
@@ -571,6 +576,8 @@ VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *edit
     m_fileLogAnnotateEnabled(false),
     m_configurationWidget(0),
     m_mouseDragging(false),
+    m_describeReceiver(0),
+    m_describeSlot(0),
     m_entriesComboBox(0)
 {
     m_textCursorHandlers.append(new ChangeTextCursorHandler(editorWidget));
@@ -635,16 +642,12 @@ VcsBaseEditorWidget::VcsBaseEditorWidget()
   : d(new Internal::VcsBaseEditorWidgetPrivate(this))
 {
     viewport()->setMouseTracking(true);
-    BaseTextDocumentPtr doc(new BaseTextDocument);
-    setTextDocument(doc);
 }
 
 void VcsBaseEditorWidget::setParameters(const VcsBaseEditorParameters *parameters)
 {
     QTC_CHECK(d->m_parameters == 0);
     d->m_parameters = parameters;
-    textDocument()->setId(d->m_parameters->id);
-    textDocument()->setMimeType(QLatin1String(d->m_parameters->mimeType));
 }
 
 void VcsBaseEditorWidget::setDiffFilePattern(const QRegExp &pattern)
@@ -674,6 +677,27 @@ QString VcsBaseEditorWidget::fileNameForLine(int line) const
 {
     Q_UNUSED(line);
     return source();
+}
+
+void VcsBaseEditorWidget::setDescribeSlot(QObject *describeReceiver, const char *describeSlot)
+{
+    d->m_describeReceiver = describeReceiver;
+    d->m_describeSlot = describeSlot;
+}
+
+void VcsBaseEditorWidget::finalizeInitialization()
+{
+    BaseTextEditor *editor = this->editor();
+    // Pass on signals.
+    connect(this, SIGNAL(describeRequested(QString,QString)),
+            editor, SIGNAL(describeRequested(QString,QString)));
+    connect(this, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)));
+
+    if (d->m_describeReceiver)
+        connect(this, SIGNAL(describeRequested(QString,QString)), d->m_describeReceiver, d->m_describeSlot);
+
+    init();
 }
 
 void VcsBaseEditorWidget::init()
@@ -1550,38 +1574,32 @@ Core::IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
 #ifdef WITH_TESTS
 #include <QTest>
 
-// Tests need a fully set-up editor/widget combo.
-void VcsBase::VcsBaseEditorWidget::addDummyEditor()
+void VcsBase::VcsBaseEditorWidget::testDiffFileResolving(const char *id)
 {
-    BaseTextEditor *editor = new VcsBaseEditor(d->m_parameters);
-    // Pass on signals.
-    connect(this, SIGNAL(describeRequested(QString,QString)),
-            editor, SIGNAL(describeRequested(QString,QString)));
-    connect(this, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
-            editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)));
-    editor->setEditorWidget(this);
-}
+    VcsBaseEditor *editor = VcsBase::VcsEditorFactory::createEditorById(id);
+    VcsBaseEditorWidget *widget = qobject_cast<VcsBaseEditorWidget *>(editor->editorWidget());
 
-void VcsBase::VcsBaseEditorWidget::testDiffFileResolving()
-{
-    addDummyEditor();
     QFETCH(QByteArray, header);
     QFETCH(QByteArray, fileName);
     QTextDocument doc(QString::fromLatin1(header));
-    init();
     QTextBlock block = doc.lastBlock();
-    QVERIFY(fileNameFromDiffSpecification(block).endsWith(QString::fromLatin1(fileName)));
+    QVERIFY(widget->fileNameFromDiffSpecification(block).endsWith(QString::fromLatin1(fileName)));
+
+    delete editor;
 }
 
-void VcsBase::VcsBaseEditorWidget::testLogResolving(QByteArray &data,
+void VcsBase::VcsBaseEditorWidget::testLogResolving(const char *id, QByteArray &data,
                                                     const QByteArray &entry1,
                                                     const QByteArray &entry2)
 {
-    addDummyEditor();
-    init();
-    textDocument()->setPlainText(QLatin1String(data));
-    QCOMPARE(d->entriesComboBox()->itemText(0), QString::fromLatin1(entry1));
-    QCOMPARE(d->entriesComboBox()->itemText(1), QString::fromLatin1(entry2));
+    VcsBaseEditor *editor = VcsBase::VcsEditorFactory::createEditorById(id);
+    VcsBaseEditorWidget *widget = qobject_cast<VcsBaseEditorWidget *>(editor->editorWidget());
+
+    widget->textDocument()->setPlainText(QLatin1String(data));
+    QCOMPARE(widget->d->entriesComboBox()->itemText(0), QString::fromLatin1(entry1));
+    QCOMPARE(widget->d->entriesComboBox()->itemText(1), QString::fromLatin1(entry2));
+
+    delete editor;
 }
 #endif
 

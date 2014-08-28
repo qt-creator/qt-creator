@@ -58,6 +58,7 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -72,7 +73,6 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/cleandialog.h>
-#include <coreplugin/locator/commandlocator.h>
 
 #include <QDebug>
 #include <QDir>
@@ -1523,9 +1523,7 @@ void GitPlugin::testDiffFileResolving_data()
 
 void GitPlugin::testDiffFileResolving()
 {
-    GitEditorWidget editor;
-    editor.setParameters(editorParameters + 3);
-    editor.testDiffFileResolving();
+    VcsBaseEditorWidget::testDiffFileResolving(editorParameters[3].id);
 }
 
 void GitPlugin::testLogResolving()
@@ -1550,9 +1548,8 @@ void GitPlugin::testLogResolving()
                 "    \n"
                 "    Signed-off-by: Junio C Hamano <gitster@pobox.com>\n"
                 );
-    GitEditorWidget editor;
-    editor.setParameters(editorParameters + 1);
-    editor.testLogResolving(data,
+
+    VcsBaseEditorWidget::testLogResolving(editorParameters[1].id, data,
                             "50a6b54c - Merge branch 'for-junio' of git://bogomips.org/git-svn",
                             "3587b513 - Update draft release notes to 1.8.2");
 }

@@ -279,7 +279,8 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
     : QObject(parent), d_ptr(new SyntaxHighlighterPrivate)
 {
     d_ptr->q_ptr = this;
-    setDocument(parent);
+    if (parent)
+        setDocument(parent);
 }
 
 /*!
@@ -291,7 +292,8 @@ SyntaxHighlighter::SyntaxHighlighter(QTextEdit *parent)
     : QObject(parent), d_ptr(new SyntaxHighlighterPrivate)
 {
     d_ptr->q_ptr = this;
-    setDocument(parent->document());
+    if (parent)
+        setDocument(parent->document());
 }
 
 /*!

@@ -647,11 +647,12 @@ public:
     void setEditorActionHandlers(Core::Id contextId, uint optionalActions);
     void setEditorActionHandlers(uint optionalActions);
 
+    Core::IEditor *createEditor();
+
 private:
     friend class BaseTextEditor;
     friend class PlainTextEditorFactory;
 
-    Core::IEditor *createEditor();
     BaseTextEditor *createEditorHelper(const BaseTextDocumentPtr &doc);
     BaseTextEditor *duplicateTextEditor(BaseTextEditor *);
 

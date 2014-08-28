@@ -1555,9 +1555,7 @@ void PerforcePlugin::testLogResolving()
                 "\n"
                 "        Comment\n"
                 );
-    PerforceEditorWidget editor;
-    editor.setParameters(editorParameters);
-    editor.testLogResolving(data, "12345", "12344");
+    VcsBaseEditorWidget::testLogResolving(editorParameters[0].id, data, "12345", "12344");
 }
 #endif
 
