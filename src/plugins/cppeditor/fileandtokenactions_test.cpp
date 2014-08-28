@@ -53,13 +53,6 @@
 #include <QTextDocument>
 #include <QtTest>
 
-#if  QT_VERSION >= 0x050000
-#define MSKIP_SINGLE(x) QSKIP(x)
-#else
-#include <QtTest/qtestkeyboard.h>
-#define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
-#endif
-
 /*!
     Tests for executing "test actions" for
         (1) each file of each loaded project (file actions) or
@@ -154,7 +147,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
     const QList<ProjectInfo> projectInfos
             = m_modelManager->projectInfos();
     if (projectInfos.isEmpty())
-        MSKIP_SINGLE("No project(s) loaded. Test operates only on loaded projects.");
+        QSKIP("No project(s) loaded. Test operates only on loaded projects.");
 
     foreach (const ProjectInfo &info, projectInfos) {
         QPointer<ProjectExplorer::Project> project = info.project();

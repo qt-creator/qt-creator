@@ -27,21 +27,13 @@
 **
 ****************************************************************************/
 
-#include <QStringList>
-#include <QTextDocument>
-#include <QTextCursor>
-#include <QTextBlock>
-#include <QDir>
 #include <QDebug>
-
-#if QT_VERSION >= 0x050000
-    // Qt5: QTextDocument needs access to Fonts via QGuiApplication.
-    #include <QGuiApplication>
-    typedef QGuiApplication MyQApplication;
-#else
-    #include <QCoreApplication>
-    typedef QCoreApplication MyQApplication;
-#endif
+#include <QDir>
+#include <QGuiApplication>
+#include <QStringList>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QTextDocument>
 
 #include <cplusplus/Control.h>
 #include <cplusplus/Parser.h>
@@ -1720,7 +1712,7 @@ void printUsage()
 
 int main(int argc, char *argv[])
 {
-    MyQApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
     QStringList args = app.arguments();
     args.removeFirst();
 

@@ -60,7 +60,7 @@ QString StringTable::insert(const QString &string)
     if (string.isEmpty())
         return string;
 
-#if QT_VERSION >= 0x050000 && QT_SUPPORTS(UNSHARABLE_CONTAINERS)
+#if QT_SUPPORTS(UNSHARABLE_CONTAINERS)
     QTC_ASSERT(const_cast<QString&>(string).data_ptr()->ref.isSharable(), return string);
 #endif
 
@@ -90,12 +90,8 @@ enum {
 
 static inline bool isQStringInUse(const QString &string)
 {
-#if QT_VERSION >= 0x050000
     QArrayData *data_ptr = const_cast<QString&>(string).data_ptr();
     return data_ptr->ref.isShared() || data_ptr->ref.isStatic();
-#else
-    return const_cast<QString&>(string).data_ptr()->ref != 1;
-#endif
 }
 
 void StringTable::GC()
