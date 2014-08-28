@@ -81,6 +81,8 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     , m_leftLineNumberDigits(1)
     , m_rightLineNumberDigits(1)
 {
+    setupFallBackEditor(Id());
+
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = true;
@@ -374,11 +376,6 @@ void UnifiedDiffEditorWidget::patch(int diffFileIndex, int chunkIndex, bool reve
                 Core::EditorManager::defaultTextCodec()->fromUnicode(patch),
                 workingDirectory, strip, revert))
         m_controller->requestReload();
-}
-
-TextEditor::BaseTextEditor *UnifiedDiffEditorWidget::createEditor()
-{
-    return new BaseTextEditor;
 }
 
 void UnifiedDiffEditorWidget::clear(const QString &message)

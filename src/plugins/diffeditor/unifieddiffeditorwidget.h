@@ -68,7 +68,6 @@ public slots:
 protected:
     void mouseDoubleClickEvent(QMouseEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
-    TextEditor::BaseTextEditor *createEditor();
     QString lineNumber(int blockNumber) const;
     int lineNumberDigits() const;
 

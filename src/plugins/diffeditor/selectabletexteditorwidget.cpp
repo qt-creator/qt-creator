@@ -38,8 +38,8 @@ namespace DiffEditor {
 SelectableTextEditorWidget::SelectableTextEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(parent)
 {
-    setSimpleTextDocument("DiffEditor.UnifiedDiffEditor");
     setFrameStyle(QFrame::NoFrame);
+    setupFallBackEditor("DiffEditor.UnifiedDiffEditor");
 }
 
 SelectableTextEditorWidget::~SelectableTextEditorWidget()

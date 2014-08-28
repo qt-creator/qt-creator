@@ -69,27 +69,9 @@
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace DiffEditor {
-
-//////////////////////
-
-class SideDiffEditor : public BaseTextEditor
-{
-    Q_OBJECT
-public:
-    SideDiffEditor()
-    {
-        connect(this, SIGNAL(tooltipRequested(TextEditor::BaseTextEditor*,QPoint,int)),
-                this, SLOT(slotTooltipRequested(TextEditor::BaseTextEditor*,QPoint,int)));
-    }
-
-private slots:
-    void slotTooltipRequested(TextEditor::BaseTextEditor *editor,
-                              const QPoint &globalPoint,
-                              int position);
-
-};
 
 ////////////////////////
 /*
@@ -168,7 +150,7 @@ protected:
         return SelectableTextEditorWidget::extraAreaWidth(markWidthPtr);
     }
     void applyFontSettings();
-    BaseTextEditor *createEditor() { return new SideDiffEditor; }
+
     virtual QString lineNumber(int blockNumber) const;
     virtual int lineNumberDigits() const;
     virtual bool selectionVisible(int blockNumber) const;
@@ -208,27 +190,6 @@ private:
     QByteArray m_state;
 //    MultiHighlighter *m_highlighter;
 };
-
-////////////////////////
-
-void SideDiffEditor::slotTooltipRequested(TextEditor::BaseTextEditor *editor,
-                                          const QPoint &globalPoint,
-                                          int position)
-{
-    SideDiffEditorWidget *ew = qobject_cast<SideDiffEditorWidget *>(editorWidget());
-    if (!ew)
-        return;
-
-    QMap<int, DiffFileInfo> fi = ew->fileInfo();
-    QMap<int, DiffFileInfo>::const_iterator it
-            = fi.constFind(ew->document()->findBlock(position).blockNumber());
-    if (it != fi.constEnd()) {
-        Utils::ToolTip::show(globalPoint, Utils::TextContent(it.value().fileName),
-                                         editor->widget());
-    } else {
-        Utils::ToolTip::hide();
-    }
-}
 
 ////////////////////////
 /*
@@ -324,7 +285,8 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
       m_lineNumberDigits(1),
       m_inPaintEvent(false)
 {
-    textDocument()->setId("DiffEditor.SideDiffEditor");
+    setupFallBackEditor("DiffEditor.SideDiffEditor");
+
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = true;
@@ -333,6 +295,16 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
     settings.m_markTextChanges = false;
     settings.m_highlightBlocks = false;
     SelectableTextEditorWidget::setDisplaySettings(settings);
+
+    BaseTextEditor *editor = this->editor();
+    connect(editor, &BaseTextEditor::tooltipRequested, [this](BaseTextEditor *, const QPoint &point, int position) {
+        int block = textDocument()->document()->findBlock(position).blockNumber();
+        auto it = m_fileInfo.constFind(block);
+        if (it != m_fileInfo.constEnd())
+            ToolTip::show(point, TextContent(it.value().fileName), this);
+        else
+            ToolTip::hide();
+    });
 
 //    setCodeFoldingSupported(true);
 

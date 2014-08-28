@@ -35,7 +35,6 @@
 #include <extensionsystem/iplugin.h>
 
 namespace DiffEditor {
-
 namespace Internal {
 
 class DiffEditorPlugin : public ExtensionSystem::IPlugin

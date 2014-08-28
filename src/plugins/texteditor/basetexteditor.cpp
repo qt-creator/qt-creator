@@ -240,7 +240,12 @@ class BaseTextEditorWidgetPrivate : public QObject
 {
 public:
     BaseTextEditorWidgetPrivate(BaseTextEditorWidget *parent);
-    ~BaseTextEditorWidgetPrivate() { delete m_toolBar; }
+    ~BaseTextEditorWidgetPrivate()
+    {
+        delete m_toolBar;
+        if (m_editorIsFallBack)
+            delete m_editor;
+    }
 
     void setupDocumentSignals();
     void updateLineSelectionColor();
@@ -432,6 +437,7 @@ public:
     QScopedPointer<Internal::ClipboardAssistProvider> m_clipboardAssistProvider;
 
     bool m_isMissingSyntaxDefinition;
+    bool m_editorIsFallBack;
 
     QScopedPointer<AutoCompleter> m_autoCompleter;
 };
@@ -486,6 +492,7 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
     m_markDragging(false),
     m_clipboardAssistProvider(new Internal::ClipboardAssistProvider),
     m_isMissingSyntaxDefinition(false),
+    m_editorIsFallBack(false),
     m_autoCompleter(new AutoCompleter)
 {
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
@@ -678,11 +685,6 @@ BaseTextEditorWidget::~BaseTextEditorWidget()
 {
     delete d;
     d = 0;
-}
-
-void BaseTextEditorWidget::setSimpleTextDocument(Id id)
-{
-    setTextDocument(BaseTextDocumentPtr(new BaseTextDocument(id)));
 }
 
 void BaseTextEditorWidget::print(QPrinter *printer)
@@ -897,11 +899,8 @@ int BaseTextEditorWidgetPrivate::visualIndent(const QTextBlock &block) const
 BaseTextEditor *BaseTextEditorWidget::editor() const
 {
     if (!d->m_editor) {
-        auto that = const_cast<BaseTextEditorWidget *>(this);
-        d->m_editor = that->createEditor();
-        if (!d->m_editor->m_widget)
-            d->m_editor->setEditorWidget(that);
-        d->m_codeAssistant.configure(d->m_editor);
+        QTC_CHECK("should not happen anymore" && false);
+        const_cast<BaseTextEditorWidget *>(this)->setupFallBackEditor(Id());
     }
     return d->m_editor;
 }
@@ -6528,12 +6527,16 @@ QColor BaseTextEditorWidget::replacementPenColor(int blockNumber) const
     return QColor();
 }
 
-BaseTextEditor *BaseTextEditorWidget::createEditor()
+void BaseTextEditorWidget::setupFallBackEditor(Id id)
 {
-    QTC_CHECK("should not happen anymore" && false);
-    auto editor = new BaseTextEditor;
-    editor->setEditorWidget(this);
-    return editor;
+    QTC_CHECK(!d->m_editor);
+    QTC_CHECK(!d->m_editorIsFallBack);
+    BaseTextDocumentPtr doc(new BaseTextDocument(id));
+    doc->setFontSettings(TextEditorSettings::fontSettings());
+    setTextDocument(doc);
+    d->m_editor = new BaseTextEditor;
+    d->m_editor->setEditorWidget(this);
+    d->m_editorIsFallBack = true;
 }
 
 void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)

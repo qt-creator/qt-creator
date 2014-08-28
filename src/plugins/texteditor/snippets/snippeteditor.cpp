@@ -49,15 +49,7 @@ namespace TextEditor {
 SnippetEditorWidget::SnippetEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(parent)
 {
-    setSimpleTextDocument(TextEditor::Constants::SNIPPET_EDITOR_ID);
-    textDocument()->setFontSettings(TextEditorSettings::fontSettings());
-
-    // Should not be necessary in this case, but the base text editor
-    // implementation assumes a valid associated editor.
-    auto dummy = new BaseTextEditor;
-    dummy->addContext(Constants::SNIPPET_EDITOR_ID);
-    dummy->setEditorWidget(this);
-
+    setupFallBackEditor(TextEditor::Constants::SNIPPET_EDITOR_ID);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setHighlightCurrentLine(false);
     setLineNumbersVisible(false);

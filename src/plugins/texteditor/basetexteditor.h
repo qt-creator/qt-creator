@@ -240,8 +240,6 @@ public:
     ~BaseTextEditorWidget();
 
     void setTextDocument(const BaseTextDocumentPtr &doc);
-    void setSimpleTextDocument(Core::Id id); // Convenience.
-
     BaseTextDocument *textDocument() const;
     BaseTextDocumentPtr textDocumentPtr() const;
 
@@ -540,7 +538,6 @@ protected:
     virtual bool replacementVisible(int blockNumber) const;
     virtual QColor replacementPenColor(int blockNumber) const;
 
-    virtual BaseTextEditor *createEditor();
     virtual void triggerPendingUpdates();
     virtual void applyFontSettings();
 
@@ -581,6 +578,7 @@ public:
     QString selectedText() const;
 
     void setupAsPlainEditor();
+    void setupFallBackEditor(Core::Id id);
 
 protected:
     /*!
