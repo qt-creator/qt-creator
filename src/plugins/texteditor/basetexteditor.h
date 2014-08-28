@@ -400,13 +400,14 @@ public:
     virtual void format();
     virtual void rewrapParagraph();
     virtual void unCommentSelection();
+
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
-    virtual void setMarginSettings(const TextEditor::MarginSettings &);
-    virtual void setBehaviorSettings(const TextEditor::BehaviorSettings &);
-    virtual void setTypingSettings(const TextEditor::TypingSettings &);
-    virtual void setStorageSettings(const TextEditor::StorageSettings &);
-    virtual void setCompletionSettings(const TextEditor::CompletionSettings &);
-    virtual void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &);
+    void setMarginSettings(const TextEditor::MarginSettings &);
+    void setBehaviorSettings(const TextEditor::BehaviorSettings &);
+    void setTypingSettings(const TextEditor::TypingSettings &);
+    void setStorageSettings(const TextEditor::StorageSettings &);
+    void setCompletionSettings(const TextEditor::CompletionSettings &);
+    void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &);
 
     void circularPaste();
     void switchUtf8bom();

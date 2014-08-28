@@ -91,9 +91,8 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     SelectableTextEditorWidget::setDisplaySettings(settings);
 
     setReadOnly(true);
-    connect(TextEditorSettings::instance(),
-            SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            this, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
+    connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
+            this, &UnifiedDiffEditorWidget::setDisplaySettings);
     setDisplaySettings(TextEditorSettings::displaySettings());
     setCodeStyle(TextEditorSettings::codeStyle());
 

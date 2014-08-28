@@ -790,9 +790,8 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     m_leftEditor = new SideDiffEditorWidget(this);
     m_leftEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_leftEditor->setReadOnly(true);
-    connect(TextEditorSettings::instance(),
-            SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            m_leftEditor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
+    connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
+            m_leftEditor, &SideDiffEditorWidget::setDisplaySettings);
     m_leftEditor->setDisplaySettings(TextEditorSettings::displaySettings());
     m_leftEditor->setCodeStyle(TextEditorSettings::codeStyle());
     connect(m_leftEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),
@@ -803,9 +802,8 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
 
     m_rightEditor = new SideDiffEditorWidget(this);
     m_rightEditor->setReadOnly(true);
-    connect(TextEditorSettings::instance(),
-            SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            m_rightEditor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
+    connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
+            m_rightEditor, &SideDiffEditorWidget::setDisplaySettings);
     m_rightEditor->setDisplaySettings(TextEditorSettings::displaySettings());
     m_rightEditor->setCodeStyle(TextEditorSettings::codeStyle());
     connect(m_rightEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),

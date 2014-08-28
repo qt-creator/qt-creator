@@ -229,14 +229,10 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
 
     connect(m_descriptionWidget, SIGNAL(expandBranchesRequested()),
             m_document->controller(), SLOT(expandBranchesRequested()));
-    connect(TextEditorSettings::instance(),
-            SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            m_descriptionWidget,
-            SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-    connect(TextEditorSettings::instance(),
-            SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            m_descriptionWidget->textDocument(),
-            SLOT(setFontSettings(TextEditor::FontSettings)));
+    connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
+            m_descriptionWidget, &BaseTextEditorWidget::setDisplaySettings);
+    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+            m_descriptionWidget->textDocument(), &BaseTextDocument::setFontSettings);
 
     m_descriptionWidget->setDisplaySettings(
                 TextEditorSettings::displaySettings());
