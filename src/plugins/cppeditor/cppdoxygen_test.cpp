@@ -48,17 +48,19 @@
  */
 using namespace Core;
 using namespace CPlusPlus;
-using namespace CppEditor::Internal;
 
-namespace {
-
-typedef QByteArray _;
+namespace { typedef QByteArray _; }
 
 /**
  * Encapsulates the whole process of setting up an editor,
  * pressing ENTER and checking the result.
  */
-class DoxygenTestCase : public CppEditor::Internal::Tests::TestCase
+
+namespace CppEditor {
+namespace Internal {
+namespace Tests {
+
+class DoxygenTestCase : public Internal::Tests::TestCase
 {
 public:
     /// The '|' in the input denotes the cursor position.
@@ -66,7 +68,7 @@ public:
     {
         QVERIFY(succeededSoFar());
 
-        CppEditor::Internal::Tests::TestDocument testDocument("file.cpp", original, '|');
+        TestDocument testDocument("file.cpp", original, '|');
         QVERIFY(testDocument.hasCursorMarker());
         testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
         QVERIFY(testDocument.writeToDisk());
@@ -103,7 +105,7 @@ public:
     }
 };
 
-} // anonymous namespace
+} // namespace Tests
 
 void CppEditorPlugin::test_doxygen_comments_data()
 {
@@ -248,5 +250,8 @@ void CppEditorPlugin::test_doxygen_comments()
 {
     QFETCH(QByteArray, given);
     QFETCH(QByteArray, expected);
-    DoxygenTestCase(given, expected);
+    Tests::DoxygenTestCase(given, expected);
 }
+
+} // namespace Internal
+} // namespace CppEditor

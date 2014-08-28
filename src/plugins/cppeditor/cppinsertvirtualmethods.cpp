@@ -57,9 +57,17 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
+#ifdef WITH_TESTS
+
+#include "cppeditorplugin.h"
+#include "cppquickfix_test.h"
+
+#include <QtTest>
+
+#endif
+
+
 using namespace CPlusPlus;
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
 
@@ -123,6 +131,8 @@ public:
 
 } // namespace Internal
 } // namespace CppEditor
+
+Q_DECLARE_METATYPE(CppEditor::Internal::InsertVirtualMethodsDialog::ImplementationMode)
 
 namespace {
 
@@ -419,10 +429,7 @@ private:
         return static_cast<InsertVirtualMethodsItem *>(index.internalPointer());
     }
 };
-}
-}
 
-namespace {
 class InsertVirtualMethodsOp : public CppQuickFixOperation
 {
 public:
@@ -859,8 +866,6 @@ private:
     bool m_hideReimplemented;
 };
 
-} // anonymous namespace
-
 InsertVirtualMethodsDialog::InsertVirtualMethodsDialog(QWidget *parent)
     : QDialog(parent)
     , m_view(0)
@@ -1087,12 +1092,7 @@ void InsertVirtualMethods::match(const CppQuickFixInterface &interface, QuickFix
 
 #ifdef WITH_TESTS
 
-#include "cppeditorplugin.h"
-#include "cppquickfix_test.h"
-
-using namespace CppEditor::Internal::Tests;
-
-#include <QtTest>
+namespace Tests {
 
 typedef QByteArray _;
 
@@ -1113,13 +1113,13 @@ public:
     bool insertKeywordVirtual() const { return m_insertKeywordVirtual; }
 };
 
+} // namespace Tests
+
 InsertVirtualMethods *InsertVirtualMethods::createTestFactory()
 {
-    return new InsertVirtualMethods(new InsertVirtualMethodsDialogTest(
+    return new InsertVirtualMethods(new Tests::InsertVirtualMethodsDialogTest(
                                         InsertVirtualMethodsDialog::ModeOutsideClass, true));
 }
-
-Q_DECLARE_METATYPE(InsertVirtualMethodsDialog::ImplementationMode)
 
 void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 {
@@ -1631,14 +1631,14 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods()
     QFETCH(QByteArray, expected);
 
     InsertVirtualMethods factory(
-                new InsertVirtualMethodsDialogTest(implementationMode, insertVirtualKeyword));
-    QuickFixTestCase(singleDocument(original, expected), &factory);
+                new Tests::InsertVirtualMethodsDialogTest(implementationMode, insertVirtualKeyword));
+    Tests::QuickFixTestCase(Tests::singleDocument(original, expected), &factory);
 }
 
 /// Check: Insert in implementation file
 void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
 {
-    QList<QuickFixTestDocument::Ptr> testFiles;
+    QList<Tests::QuickFixTestDocument::Ptr> testFiles;
     QByteArray original;
     QByteArray expected;
 
@@ -1665,7 +1665,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
         "public:\n"
         "    virtual int a();\n"
         "};\n";
-    testFiles << QuickFixTestDocument::create("file.h", original, expected);
+    testFiles << Tests::QuickFixTestDocument::create("file.h", original, expected);
 
     // Source File
     original = "#include \"file.h\"\n";
@@ -1674,17 +1674,17 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
         "\n\n"
         "int Derived::a()\n"
         "{\n}";
-    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    testFiles << Tests::QuickFixTestDocument::create("file.cpp", original, expected);
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
+    InsertVirtualMethods factory(new Tests::InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeImplementationFile, true));
-    QuickFixTestCase(testFiles, &factory);
+    Tests::QuickFixTestCase(testFiles, &factory);
 }
 
 /// Check: Qualified names.
 void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
 {
-    QList<QuickFixTestDocument::Ptr> testFiles;
+    QList<Tests::QuickFixTestDocument::Ptr> testFiles;
     QByteArray original;
     QByteArray expected;
 
@@ -1717,7 +1717,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
         "public:\n"
         "    virtual BaseNS::BaseEnum a(BaseNS::BaseEnum e);\n"
         "};\n";
-    testFiles << QuickFixTestDocument::create("file.h", original, expected);
+    testFiles << Tests::QuickFixTestDocument::create("file.h", original, expected);
 
     // Source File
     original = "#include \"file.h\"\n";
@@ -1726,12 +1726,15 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
         "\n\n"
         "BaseNS::BaseEnum Derived::a(BaseNS::BaseEnum e)\n"
         "{\n}";
-    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    testFiles << Tests::QuickFixTestDocument::create("file.cpp", original, expected);
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
+    InsertVirtualMethods factory(new Tests::InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeImplementationFile, true));
-    QuickFixTestCase(testFiles, &factory);
+    Tests::QuickFixTestCase(testFiles, &factory);
 }
-#endif
+#endif // WITH_TESTS
+
+} // namespace Internal
+} // namespace CppEditor
 
 #include "cppinsertvirtualmethods.moc"

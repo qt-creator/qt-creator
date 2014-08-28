@@ -49,10 +49,7 @@
  */
 using namespace Core;
 using namespace CPlusPlus;
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace CppEditor::Internal::Tests;
-using namespace CppTools;
 using namespace TextEditor;
 
 using CppTools::Tests::TestIncludePaths;
@@ -114,10 +111,6 @@ static QString &removeTrailingWhitespace(QString &input)
     }
     return input;
 }
-
-} // namespace Tests
-} // namespace Internal
-} // namespace CppEditor
 
 /// The '@' in the originalSource is the position from where the quick-fix discovery is triggered.
 /// Exactly one TestFile must contain the cursor position marker '@' in the originalSource.
@@ -259,9 +252,17 @@ QSharedPointer<TextEditor::QuickFixOperation> QuickFixTestCase::getFix(
     return results.isEmpty() ? QuickFixOperation::Ptr() : results.at(resultIndex);
 }
 
+} // namespace Tests
+} // namespace Internal
+
 typedef QSharedPointer<CppQuickFixFactory> CppQuickFixFactoryPtr;
 
-Q_DECLARE_METATYPE(CppQuickFixFactoryPtr)
+} // namespace CppEditor
+
+Q_DECLARE_METATYPE(CppEditor::CppQuickFixFactoryPtr)
+
+namespace CppEditor {
+namespace Internal {
 
 void CppEditorPlugin::test_quickfix_data()
 {
@@ -1775,8 +1776,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitio
     const QByteArray expected = original;
 
     InsertDefFromDecl factory;
-    QuickFixTestCase test(singleDocument(original, expected), &factory, ProjectPart::HeaderPaths(),
-                          1);
+    QuickFixTestCase(singleDocument(original, expected), &factory, ProjectPart::HeaderPaths(), 1);
 }
 
 /// Find right implementation file.
@@ -3827,3 +3827,6 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_notTriggeringForIn
     ExtractLiteralAsParameter factory;
     QuickFixTestCase(testFiles, &factory);
 }
+
+} // namespace Internal
+} // namespace CppEditor

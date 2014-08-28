@@ -69,8 +69,6 @@
  */
 
 using namespace CPlusPlus;
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
 using namespace Core;
@@ -105,9 +103,10 @@ template<> char *toString(const OverrideItem &data)
 }
 QT_END_NAMESPACE
 
-namespace {
-
 typedef QByteArray _;
+
+namespace CppEditor {
+namespace Internal {
 
 /// A fake virtual functions assist provider that runs processor->perform() already in configure()
 class VirtualFunctionTestAssistProvider : public VirtualFunctionAssistProvider
@@ -183,11 +182,11 @@ typedef QSharedPointer<TestDocument> TestDocumentPtr;
  *   - a '@' character denotes the initial text cursor position
  *   - a '$' character denotes the target text cursor position
  */
-class TestDocument : public CppEditor::Internal::Tests::TestDocument
+class TestDocument : public Tests::TestDocument
 {
 public:
     TestDocument(const QByteArray &source, const QByteArray &fileName)
-        : CppEditor::Internal::Tests::TestDocument(fileName, source)
+        : Tests::TestDocument(fileName, source)
         , m_targetCursorPosition(m_source.indexOf(QLatin1Char('$')))
     {
         if (m_cursorPosition != -1 || m_targetCursorPosition != -1)
@@ -229,7 +228,7 @@ QList<TestDocumentPtr> singleDocument(const QByteArray &source)
  * executing Follow Symbol Under Cursor or Switch Between Function Declaration/Definition
  * and checking the result.
  */
-class F2TestCase : public CppEditor::Internal::Tests::TestCase
+class F2TestCase : public Tests::TestCase
 {
 public:
     enum CppEditorAction {
@@ -380,9 +379,13 @@ TestDocumentPtr F2TestCase::testFileWithTargetCursorMarker(const QList<TestDocum
     return TestDocumentPtr();
 }
 
-} // anonymous namespace
+} // namespace Internal
+} // namespace CppEditor
 
-Q_DECLARE_METATYPE(QList<TestDocumentPtr>)
+Q_DECLARE_METATYPE(QList<CppEditor::Internal::TestDocumentPtr>)
+
+namespace CppEditor {
+namespace Internal {
 
 void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
 {
@@ -1471,6 +1474,9 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_multipleD
 
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, testFiles, finalResults);
 }
+
+} // namespace Internal
+} // namespace CppEditor
 
 /*
 Potential test cases improving name lookup.
