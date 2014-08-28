@@ -883,8 +883,6 @@ bool ResolveExpression::visit(CallAST *ast)
 bool ResolveExpression::visit(ArrayAccessAST *ast)
 {
     const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
-    const QList<LookupItem> indexResults = resolve(ast->expression, _scope);
-
     const Name *arrayAccessOp = control()->operatorNameId(OperatorNameId::ArrayAccessOp);
 
     foreach (const LookupItem &result, baseResults) {
