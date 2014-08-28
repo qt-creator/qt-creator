@@ -84,14 +84,27 @@ void CppTodoItemsScanner::processDocument(CPlusPlus::Document::Ptr doc)
         }
 
         // Process every line of the comment
-        // TODO: Do not create QStringList, just iterate through a string tracking line endings.
-        const QStringList commentLines =
-            QString::fromUtf8(source).split(QLatin1Char('\n'), QString::SkipEmptyParts);
         unsigned lineNumber = 0;
         translationUnit->getPosition(token.utf16charsBegin(), &lineNumber);
-        for (int j = 0; j < commentLines.count(); ++j) {
-            const QString &commentLine = commentLines.at(j);
-            processCommentLine(doc->fileName(), commentLine, lineNumber + j, itemList);
+
+        for (int from = 0, sz = source.size(); from < sz; ++lineNumber) {
+            int to = source.indexOf('\n', from);
+            if (to == -1)
+                to = sz - 1;
+
+            const char *start = source.constData() + from;
+            const char *end = source.constData() + to;
+            while (start != end && std::isspace(*start))
+                ++start;
+            while (start != end && std::isspace(*end))
+                --end;
+            const int length = end - start + 1;
+            if (length > 0) {
+                QString commentLine = QString::fromUtf8(start, length);
+                processCommentLine(doc->fileName(), commentLine, lineNumber, itemList);
+            }
+
+            from = to + 1;
         }
     }
     emit itemsFetched(doc->fileName(), itemList);
