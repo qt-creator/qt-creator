@@ -490,7 +490,7 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
 {
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(q);
-    connect(baseTextFind, &BaseTextFind::highlightAll,
+    connect(baseTextFind, &BaseTextFind::highlightAllRequested,
             this, &BaseTextEditorWidgetPrivate::highlightSearchResultsSlot);
     connect(baseTextFind, &BaseTextFind::findScopeChanged,
             this, &BaseTextEditorWidgetPrivate::setFindScope);

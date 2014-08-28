@@ -135,7 +135,7 @@ void BaseTextFind::resetIncrementalSearch()
 
 void BaseTextFind::clearHighlights()
 {
-    emit highlightAll(QString(), 0);
+    highlightAll(QString(), 0);
 }
 
 QString BaseTextFind::currentFindString() const
@@ -184,9 +184,9 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, FindFlags
         showWrapIndicator(d->m_widget);
     }
     if (found)
-        emit highlightAll(txt, findFlags);
+        highlightAll(txt, findFlags);
     else
-        emit highlightAll(QString(), 0);
+        highlightAll(QString(), 0);
     return found ? Found : NotFound;
 }
 
@@ -422,6 +422,11 @@ void BaseTextFind::clearFindScope()
     emit findScopeChanged(d->m_findScopeStart, d->m_findScopeEnd,
                           d->m_findScopeVerticalBlockSelectionFirstColumn,
                           d->m_findScopeVerticalBlockSelectionLastColumn);
+}
+
+void BaseTextFind::highlightAll(const QString &txt, FindFlags findFlags)
+{
+    emit highlightAllRequested(txt, findFlags);
 }
 
 } // namespace Core

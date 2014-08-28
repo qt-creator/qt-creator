@@ -66,8 +66,10 @@ public:
     void defineFindScope();
     void clearFindScope();
 
-signals:
     void highlightAll(const QString &txt, Core::FindFlags findFlags);
+
+signals:
+    void highlightAllRequested(const QString &txt, Core::FindFlags findFlags);
     void findScopeChanged(const QTextCursor &start, const QTextCursor &end,
                           int verticalBlockSelectionFirstColumn,
                           int verticalBlockSelectionLastColumn);
