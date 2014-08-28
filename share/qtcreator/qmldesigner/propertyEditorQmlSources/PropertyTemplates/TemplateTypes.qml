@@ -22,8 +22,9 @@ AutoTypes {
         typeNames: ["bool", "boolean"]
         sourceFile: "BooleanEditorTemplate.template"
     }
+
     Type {
         typeNames: ["color", "QColor"]
-        sourceFile: "ColorEditorTemplate.template"
+        sourceFile: "StringEditorTemplate.template"
     }
 }
