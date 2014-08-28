@@ -7284,7 +7284,9 @@ void BaseTextEditorFactory::setEditorActionHandlers(uint optionalActions)
 
 BaseTextEditor *BaseTextEditorFactory::duplicateTextEditor(BaseTextEditor *other)
 {
-    return createEditorHelper(other->editorWidget()->textDocumentPtr());
+    BaseTextEditor *editor = createEditorHelper(other->editorWidget()->textDocumentPtr());
+    editor->editorWidget()->finalizeInitializationAfterDuplication(other->editorWidget());
+    return editor;
 }
 
 IEditor *BaseTextEditorFactory::createEditor()

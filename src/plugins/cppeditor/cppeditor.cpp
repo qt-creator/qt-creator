@@ -227,12 +227,19 @@ void CppEditorWidget::finalizeInitialization()
     connect(d->m_preprocessorButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
     insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_preprocessorButton);
     insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_cppEditorOutline->widget());
+}
 
-//    updateSemanticInfo(semanticInfo());
-//    updateFunctionDeclDefLink();
-//    d->m_cppEditorOutline->update();
-//    const ExtraSelectionKind selectionKind = CodeWarningsSelection;
-//    setExtraSelections(selectionKind, extraSelections(selectionKind));
+void CppEditorWidget::finalizeInitializationAfterDuplication(BaseTextEditorWidget *other)
+{
+    QTC_ASSERT(other, return);
+    CppEditorWidget *cppEditorWidget = qobject_cast<CppEditorWidget *>(other);
+    QTC_ASSERT(cppEditorWidget, return);
+
+    if (cppEditorWidget->isSemanticInfoValidExceptLocalUses())
+        updateSemanticInfo(cppEditorWidget->semanticInfo());
+    d->m_cppEditorOutline->update();
+    const ExtraSelectionKind selectionKind = CodeWarningsSelection;
+    setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
 }
 
 CppEditorWidget::~CppEditorWidget()

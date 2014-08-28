@@ -548,6 +548,7 @@ protected:
 
     void showDefaultContextMenu(QContextMenuEvent *e, Core::Id menuContextId);
     virtual void finalizeInitialization() {}
+    virtual void finalizeInitializationAfterDuplication(BaseTextEditorWidget *) {}
 
 public:
     struct Link

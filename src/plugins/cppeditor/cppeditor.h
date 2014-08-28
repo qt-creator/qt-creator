@@ -73,8 +73,6 @@ public:
     CppEditorWidget();
     ~CppEditorWidget();
 
-    void finalizeInitialization();
-
     CppEditorDocument *cppEditorDocument() const;
     CppEditorOutline *outline() const;
 
@@ -143,6 +141,9 @@ private slots:
     void processKeyNormally(QKeyEvent *e);
 
 private:
+    void finalizeInitialization() QTC_OVERRIDE;
+    void finalizeInitializationAfterDuplication(BaseTextEditorWidget *other) QTC_OVERRIDE;
+
     static bool openCppEditorAt(const Link &, bool inNextSplit = false);
 
     unsigned documentRevision() const;
