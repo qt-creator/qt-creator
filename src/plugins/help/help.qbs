@@ -6,17 +6,14 @@ QtcPlugin {
     name: "Help"
 
     Depends { name: "Qt"; submodules: ["help", "network"]; }
-    Depends {
-        condition: Qt.core.versionMajor >= 5;
-        name: "Qt.printsupport"
-    }
+    Depends { name: "Qt.printsupport" }
     Depends {
         name: "Qt.webkit"
         required: false
     }
     Depends {
         name: "Qt.webkitwidgets"
-        condition: Qt.core.versionMajor >= 5 && Qt.webkit.present
+        condition: Qt.webkit.present
     }
 
     Depends { name: "Aggregation" }
@@ -29,7 +26,7 @@ QtcPlugin {
 
     cpp.defines: {
         var defines = base.concat(["QT_CLUCENE_SUPPORT"]);
-        if (Qt.core.versionMajor >= 5 && !Qt.webkit.present)
+        if (!Qt.webkit.present)
             defines.push("QT_NO_WEBKIT");
         return defines;
     }

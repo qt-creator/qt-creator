@@ -7,7 +7,7 @@ QtcPlugin {
     name: "QtSupport"
 
     Depends { name: "Qt"; submodules: ["widgets"]; }
-    Depends { name: "Qt.quick"; condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1"); }
+    Depends { name: "Qt.quick" }
     Depends { name: "Aggregation" }
     Depends { name: "QmlJS" }
     Depends { name: "Utils" }
@@ -126,7 +126,6 @@ QtcPlugin {
 
     Group {
         name: "Getting Started Welcome Page"
-        condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1")
         files: [
             "gettingstartedwelcomepage.cpp",
             "gettingstartedwelcomepage.h"

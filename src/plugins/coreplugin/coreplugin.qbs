@@ -14,7 +14,7 @@ QtcPlugin {
 
     Depends {
         name: "Qt.gui-private"
-        condition: qbs.targetOS.contains("windows") && Qt.core.versionMajor >= 5
+        condition: qbs.targetOS.contains("windows")
     }
 
     Depends { name: "Utils" }

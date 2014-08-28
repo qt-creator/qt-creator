@@ -7,7 +7,7 @@ QtcPlugin {
     name: "ProjectExplorer"
 
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script"] }
-    Depends { name: "Qt.quick"; condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1"); }
+    Depends { name: "Qt.quick" }
     Depends { name: "Aggregation" }
     Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
@@ -160,7 +160,6 @@ QtcPlugin {
 
     Group {
         name: "Project Welcome Page"
-        condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1")
         files: [
             "projectwelcomepage.cpp",
             "projectwelcomepage.h"
