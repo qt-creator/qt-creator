@@ -77,9 +77,9 @@ private:
 class CPLUSPLUS_EXPORT TemplateNameId: public Name
 {
 public:
-    template <typename _Iterator>
-    TemplateNameId(const Identifier *identifier, bool isSpecialization, _Iterator first,
-                   _Iterator last)
+    template <typename Iterator>
+    TemplateNameId(const Identifier *identifier, bool isSpecialization, Iterator first,
+                   Iterator last)
         : _identifier(identifier)
         , _templateArguments(first, last)
         , _isSpecialization(isSpecialization) {}
@@ -220,8 +220,8 @@ private:
 class CPLUSPLUS_EXPORT SelectorNameId: public Name
 {
 public:
-    template <typename _Iterator>
-    SelectorNameId(_Iterator first, _Iterator last, bool hasArguments)
+    template <typename Iterator>
+    SelectorNameId(Iterator first, Iterator last, bool hasArguments)
         : _names(first, last), _hasArguments(hasArguments) {}
 
     virtual ~SelectorNameId();

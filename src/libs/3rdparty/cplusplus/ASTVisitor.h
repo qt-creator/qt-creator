@@ -63,8 +63,8 @@ public:
 
     void accept(AST *ast);
 
-    template <typename _Tp>
-    void accept(List<_Tp> *it)
+    template <typename Tptr>
+    void accept(List<Tptr> *it)
     {
         for (; it; it = it->next)
             accept(it->value);

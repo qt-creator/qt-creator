@@ -162,7 +162,7 @@ void TranslationUnit::tokenize()
     do {
         lex(&tk);
 
-        _Lrecognize:
+recognize:
         if (tk.is(T_POUND) && tk.newline()) {
             const unsigned utf16CharOffset = tk.utf16charOffset;
             lex(&tk);
@@ -244,7 +244,7 @@ void TranslationUnit::tokenize()
                 while (tk.isNot(T_EOF_SYMBOL) && ! tk.newline())
                     lex(&tk);
             }
-            goto _Lrecognize;
+            goto recognize;
         } else if (tk.kind() == T_LBRACE) {
             braces.push(unsigned(_tokens->size()));
         } else if (tk.kind() == T_RBRACE && ! braces.empty()) {

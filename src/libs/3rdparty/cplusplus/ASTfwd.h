@@ -25,7 +25,7 @@
 
 namespace CPlusPlus {
 
-template <typename _Tp> class List;
+template <typename Tptr> class List;
 
 class AST;
 class ASTVisitor;

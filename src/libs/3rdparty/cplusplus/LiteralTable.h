@@ -26,14 +26,14 @@
 
 namespace CPlusPlus {
 
-template <typename _Literal>
+template <typename Literal>
 class LiteralTable
 {
     LiteralTable(const LiteralTable &other);
     void operator =(const LiteralTable &other);
 
 public:
-    typedef _Literal *const *iterator;
+    typedef Literal *const *iterator;
 
 public:
     LiteralTable()
@@ -52,8 +52,8 @@ public:
     void reset()
     {
         if (_literals) {
-            _Literal **lastLiteral = _literals + _literalCount + 1;
-            for (_Literal **it = _literals; it != lastLiteral; ++it)
+            Literal **lastLiteral = _literals + _literalCount + 1;
+            for (Literal **it = _literals; it != lastLiteral; ++it)
                 delete *it;
             std::free(_literals);
         }
@@ -73,7 +73,7 @@ public:
     unsigned size() const
     { return _literalCount + 1; }
 
-    const _Literal *at(unsigned index) const
+    const Literal *at(unsigned index) const
     { return _literals[index]; }
 
     iterator begin() const
@@ -82,12 +82,12 @@ public:
     iterator end() const
     { return _literals + _literalCount + 1; }
 
-    const _Literal *findLiteral(const char *chars, unsigned size) const
+    const Literal *findLiteral(const char *chars, unsigned size) const
     {
         if (_buckets) {
-            unsigned h = _Literal::hashCode(chars, size);
-            _Literal *literal = _buckets[h % _allocatedBuckets];
-            for (; literal; literal = static_cast<_Literal *>(literal->_next)) {
+            unsigned h = Literal::hashCode(chars, size);
+            Literal *literal = _buckets[h % _allocatedBuckets];
+            for (; literal; literal = static_cast<Literal *>(literal->_next)) {
                 if (literal->size() == size && ! std::strncmp(literal->chars(), chars, size))
                     return literal;
             }
@@ -96,18 +96,18 @@ public:
         return 0;
     }
 
-    const _Literal *findOrInsertLiteral(const char *chars, unsigned size)
+    const Literal *findOrInsertLiteral(const char *chars, unsigned size)
     {
         if (_buckets) {
-            unsigned h = _Literal::hashCode(chars, size);
-            _Literal *literal = _buckets[h % _allocatedBuckets];
-            for (; literal; literal = static_cast<_Literal *>(literal->_next)) {
+            unsigned h = Literal::hashCode(chars, size);
+            Literal *literal = _buckets[h % _allocatedBuckets];
+            for (; literal; literal = static_cast<Literal *>(literal->_next)) {
                 if (literal->size() == size && ! std::strncmp(literal->chars(), chars, size))
                     return literal;
             }
         }
 
-        _Literal *literal = new _Literal(chars, size);
+        Literal *literal = new Literal(chars, size);
 
         if (++_literalCount == _allocatedLiterals) {
             if (! _allocatedLiterals)
@@ -115,7 +115,7 @@ public:
             else
                 _allocatedLiterals <<= 1;
 
-            _literals = (_Literal **) std::realloc(_literals, sizeof(_Literal *) * _allocatedLiterals);
+            _literals = (Literal **) std::realloc(_literals, sizeof(Literal *) * _allocatedLiterals);
         }
 
         _literals[_literalCount] = literal;
@@ -142,12 +142,12 @@ protected:
        else
            _allocatedBuckets <<= 1;
 
-       _buckets = (_Literal **) std::calloc(_allocatedBuckets, sizeof(_Literal *));
+       _buckets = (Literal **) std::calloc(_allocatedBuckets, sizeof(Literal *));
 
-       _Literal **lastLiteral = _literals + (_literalCount + 1);
+       Literal **lastLiteral = _literals + (_literalCount + 1);
 
-       for (_Literal **it = _literals; it != lastLiteral; ++it) {
-           _Literal *literal = *it;
+       for (Literal **it = _literals; it != lastLiteral; ++it) {
+           Literal *literal = *it;
            unsigned h = literal->hashCode() % _allocatedBuckets;
 
            literal->_next = _buckets[h];
@@ -156,8 +156,8 @@ protected:
     }
 
 protected:
-    _Literal **_literals;
-    _Literal **_buckets;
+    Literal **_literals;
+    Literal **_buckets;
     int _allocatedLiterals;
     int _literalCount;
     int _allocatedBuckets;

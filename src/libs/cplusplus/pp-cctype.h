@@ -55,17 +55,17 @@
 
 namespace CPlusPlus {
 
-inline bool CPLUSPLUS_EXPORT pp_isalpha (int __ch)
-{ return std::isalpha ((unsigned char) __ch) != 0; }
+inline bool CPLUSPLUS_EXPORT pp_isalpha (int ch)
+{ return std::isalpha ((unsigned char) ch) != 0; }
 
-inline bool CPLUSPLUS_EXPORT pp_isalnum (int __ch)
-{ return std::isalnum ((unsigned char) __ch) != 0; }
+inline bool CPLUSPLUS_EXPORT pp_isalnum (int ch)
+{ return std::isalnum ((unsigned char) ch) != 0; }
 
-inline bool CPLUSPLUS_EXPORT pp_isdigit (int __ch)
-{ return std::isdigit ((unsigned char) __ch) != 0; }
+inline bool CPLUSPLUS_EXPORT pp_isdigit (int ch)
+{ return std::isdigit ((unsigned char) ch) != 0; }
 
-inline bool CPLUSPLUS_EXPORT pp_isspace (int __ch)
-{ return std::isspace ((unsigned char) __ch) != 0; }
+inline bool CPLUSPLUS_EXPORT pp_isspace (int ch)
+{ return std::isspace ((unsigned char) ch) != 0; }
 
 } // namespace CPlusPlus
 

@@ -58,12 +58,12 @@ static const bool debug = ! qgetenv("QTC_LOOKUPCONTEXT_DEBUG").isEmpty();
 
 namespace {
 
-template <typename _Tp>
-static QList<_Tp> removeDuplicates(const QList<_Tp> &results)
+template <typename T>
+static QList<T> removeDuplicates(const QList<T> &results)
 {
-    QList<_Tp> uniqueList;
-    QSet<_Tp> processed;
-    foreach (const _Tp &r, results) {
+    QList<T> uniqueList;
+    QSet<T> processed;
+    foreach (const T &r, results) {
         if (processed.contains(r))
             continue;
 

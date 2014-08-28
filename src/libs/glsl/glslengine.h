@@ -72,20 +72,20 @@ private:
     int _line;
 };
 
-template <typename _Type>
+template <typename Type>
 class TypeTable
 {
 public:
-    struct Compare: std::binary_function<_Type, _Type, bool> {
-        bool operator()(const _Type &value, const _Type &other) const {
+    struct Compare: std::binary_function<Type, Type, bool> {
+        bool operator()(const Type &value, const Type &other) const {
             return value.isLessThan(&other);
         }
     };
 
-    const _Type *intern(const _Type &ty) { return &*_entries.insert(ty).first; }
+    const Type *intern(const Type &ty) { return &*_entries.insert(ty).first; }
 
 private:
-    std::set<_Type, Compare> _entries;
+    std::set<Type, Compare> _entries;
 };
 
 class GLSL_EXPORT Engine

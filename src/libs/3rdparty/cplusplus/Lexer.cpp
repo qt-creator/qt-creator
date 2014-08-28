@@ -137,7 +137,7 @@ void Lexer::scan(Token *tok)
 
 void Lexer::scan_helper(Token *tok)
 {
-  _Lagain:
+  again:
     while (_yychar && std::isspace(_yychar)) {
         if (_yychar == '\n') {
             tok->f.joined = s._newlineExpected;
@@ -198,7 +198,7 @@ void Lexer::scan_helper(Token *tok)
         }
 
         if (! f._scanCommentTokens)
-            goto _Lagain;
+            goto again;
 
         tok->f.kind = originalKind;
         return; // done
@@ -232,7 +232,7 @@ void Lexer::scan_helper(Token *tok)
     switch (ch) {
     case '\\':
         s._newlineExpected = true;
-        goto _Lagain;
+        goto again;
 
     case '"':
         scanStringLiteral(tok);
@@ -404,7 +404,7 @@ void Lexer::scan_helper(Token *tok)
             scanCppComment(commentType);
 
             if (! f._scanCommentTokens)
-                goto _Lagain;
+                goto again;
 
             tok->f.kind = commentType;
 
@@ -419,7 +419,7 @@ void Lexer::scan_helper(Token *tok)
                 yyinp();
 
                 if (ch == '*' && _yychar == '/')
-                    goto _Ldone;
+                    goto done;
 
                 if (_yychar == '<')
                     yyinp();
@@ -438,14 +438,14 @@ void Lexer::scan_helper(Token *tok)
                 }
             }
 
-        _Ldone:
+        done:
             if (_yychar)
                 yyinp();
             else
                 s._tokenKind = commentKind;
 
             if (! f._scanCommentTokens)
-                goto _Lagain;
+                goto again;
 
             tok->f.kind = commentKind;
 

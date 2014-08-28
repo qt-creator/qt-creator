@@ -33,7 +33,7 @@ using namespace CPlusPlus;
 
 namespace {
 
-template <typename _Tp>
+template <typename T>
 struct Compare;
 
 template <> struct Compare<IntegerType>
@@ -178,26 +178,26 @@ template <> struct Compare<SelectorNameId>
 };
 
 
-template <typename _Tp>
-class Table: public std::set<_Tp, Compare<_Tp> >
+template <typename T>
+class Table: public std::set<T, Compare<T> >
 {
-    typedef std::set<_Tp, Compare<_Tp> > _Base;
+    typedef std::set<T, Compare<T> > _Base;
 public:
-    _Tp *intern(const _Tp &element)
-    { return const_cast<_Tp *>(&*_Base::insert(element).first); }
+    T *intern(const T &element)
+    { return const_cast<T *>(&*_Base::insert(element).first); }
 };
 
 } // end of anonymous namespace
 
-template <typename _Iterator>
-static void delete_array_entries(_Iterator first, _Iterator last)
+template <typename Iterator>
+static void delete_array_entries(Iterator first, Iterator last)
 {
     for (; first != last; ++first)
         delete *first;
 }
 
-template <typename _Array>
-static void delete_array_entries(const _Array &a)
+template <typename Array>
+static void delete_array_entries(const Array &a)
 { delete_array_entries(a.begin(), a.end()); }
 
 class Control::Data
@@ -233,9 +233,9 @@ public:
         return anonymousNameIds.intern(AnonymousNameId(classTokenIndex));
     }
 
-    template <typename _Iterator>
+    template <typename Iterator>
     const TemplateNameId *findOrInsertTemplateNameId(const Identifier *id, bool isSpecialization,
-                                                     _Iterator first, _Iterator last)
+                                                     Iterator first, Iterator last)
     {
         return templateNameIds.intern(TemplateNameId(id, isSpecialization, first, last));
     }
@@ -260,8 +260,8 @@ public:
         return qualifiedNameIds.intern(QualifiedNameId(base, name));
     }
 
-    template <typename _Iterator>
-    const SelectorNameId *findOrInsertSelectorNameId(_Iterator first, _Iterator last, bool hasArguments)
+    template <typename Iterator>
+    const SelectorNameId *findOrInsertSelectorNameId(Iterator first, Iterator last, bool hasArguments)
     {
         return selectorNameIds.intern(SelectorNameId(first, last, hasArguments));
     }

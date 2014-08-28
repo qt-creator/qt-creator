@@ -99,11 +99,11 @@ Macro *Environment::macroAt(unsigned index) const
     return _macros[index];
 }
 
-Macro *Environment::bind(const Macro &__macro)
+Macro *Environment::bind(const Macro &macro)
 {
-    Q_ASSERT(! __macro.name().isEmpty());
+    Q_ASSERT(! macro.name().isEmpty());
 
-    Macro *m = new Macro (__macro);
+    Macro *m = new Macro (macro);
     const QByteArray &name = m->name();
     m->_hashcode = hashCode(name.begin(), name.size());
 

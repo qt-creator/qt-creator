@@ -27,7 +27,7 @@
 
 namespace CPlusPlus {
 
-template <typename _Tp>
+template <typename Tptr>
 class CPLUSPLUS_EXPORT List: public Managed
 {
     List(const List &other);
@@ -35,10 +35,10 @@ class CPLUSPLUS_EXPORT List: public Managed
 
 public:
     List()
-        : value(_Tp()), next(0)
+        : value(Tptr()), next(0)
     { }
 
-    List(const _Tp &value)
+    List(const Tptr &value)
         : value(value), next(0)
     { }
 
@@ -53,7 +53,7 @@ public:
 
     unsigned lastToken() const
     {
-        _Tp lv = lastValue();
+        Tptr lv = lastValue();
 
         if (lv)
             return lv->lastToken();
@@ -62,9 +62,9 @@ public:
         return 0;
     }
 
-    _Tp lastValue() const
+    Tptr lastValue() const
     {
-        _Tp lastValue = 0;
+        Tptr lastValue = 0;
 
         for (const List *it = this; it; it = it->next) {
             if (it->value)
@@ -74,7 +74,7 @@ public:
         return lastValue;
     }
 
-    _Tp value;
+    Tptr value;
     List *next;
 };
 
@@ -92,8 +92,8 @@ public:
     static void accept(AST *ast, ASTVisitor *visitor)
     { if (ast) ast->accept(visitor); }
 
-    template <typename _Tp>
-    static void accept(List<_Tp> *it, ASTVisitor *visitor)
+    template <typename Tptr>
+    static void accept(List<Tptr> *it, ASTVisitor *visitor)
     {
         for (; it; it = it->next)
             accept(it->value, visitor);
@@ -102,8 +102,8 @@ public:
     static bool match(AST *ast, AST *pattern, ASTMatcher *matcher);
     bool match(AST *pattern, ASTMatcher *matcher);
 
-    template <typename _Tp>
-    static bool match(List<_Tp> *it, List<_Tp> *patternIt, ASTMatcher *matcher)
+    template <typename Tptr>
+    static bool match(List<Tptr> *it, List<Tptr> *patternIt, ASTMatcher *matcher)
     {
         while (it && patternIt) {
             if (! match(it->value, patternIt->value, matcher))

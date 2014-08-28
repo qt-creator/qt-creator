@@ -391,14 +391,14 @@ private:
 
 class CPLUSPLUS_EXPORT Snapshot
 {
-    typedef QHash<QString, Document::Ptr> _Base;
+    typedef QHash<QString, Document::Ptr> Base;
 
 public:
     Snapshot();
     ~Snapshot();
 
-    typedef _Base::const_iterator iterator;
-    typedef _Base::const_iterator const_iterator;
+    typedef Base::const_iterator iterator;
+    typedef Base::const_iterator const_iterator;
 
     int size() const; // ### remove
     bool isEmpty() const;
@@ -428,7 +428,7 @@ private:
     void allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const;
 
 private:
-    _Base _documents;
+    Base _documents;
 };
 
 } // namespace CPlusPlus

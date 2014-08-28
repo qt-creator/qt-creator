@@ -834,13 +834,13 @@ void Preprocessor::pushToken(Preprocessor::PPToken *tk)
 
 void Preprocessor::lex(PPToken *tk)
 {
-_Lagain:
+again:
     if (m_state.m_tokenBuffer) {
         // There is a token buffer, so read from there.
         if (m_state.m_tokenBuffer->tokens.empty()) {
             // The token buffer is empty, so pop it, and start over.
             m_state.popTokenBuffer();
-            goto _Lagain;
+            goto again;
         }
         *tk = m_state.m_tokenBuffer->tokens.front();
         m_state.m_tokenBuffer->tokens.pop_front();
@@ -859,17 +859,17 @@ _Lagain:
     // Adjust token's line number in order to take into account the environment reference.
     tk->lineno += m_state.m_lineRef - 1;
 
-_Lclassify:
+reclassify:
     if (! m_state.m_inPreprocessorDirective) {
         if (tk->newline() && tk->is(T_POUND)) {
             handlePreprocessorDirective(tk);
-            goto _Lclassify;
+            goto reclassify;
         } else if (tk->newline() && skipping()) {
             ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
             do {
                 lex(tk);
             } while (isContinuationToken(*tk));
-            goto _Lclassify;
+            goto reclassify;
         } else if (tk->is(T_IDENTIFIER) && !isQtReservedWord(tk->tokenStart(), tk->bytes())) {
             m_state.updateIncludeGuardState(State::IncludeGuardStateHint_OtherToken);
             if (m_state.m_inCondition && tk->asByteArrayRef() == "defined") {
@@ -877,7 +877,7 @@ _Lclassify:
             } else {
                 synchronizeOutputLines(*tk);
                 if (handleIdentifier(tk))
-                    goto _Lagain;
+                    goto again;
             }
         } else if (tk->isNot(T_COMMENT) && tk->isNot(T_EOF_SYMBOL)) {
             m_state.updateIncludeGuardState(State::IncludeGuardStateHint_OtherToken);
