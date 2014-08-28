@@ -67,7 +67,7 @@ class EditorToolBar;
 namespace Designer {
 namespace Internal {
 
-struct EditorData;
+class EditorData;
 class EditorWidget;
 class SettingsPage;
 class DesignerContext;
