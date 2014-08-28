@@ -46,1333 +46,1333 @@ public:
 
     ObjCSelectorArgumentAST *ObjCSelectorArgument()
     {
-        ObjCSelectorArgumentAST *__ast = new (&pool) ObjCSelectorArgumentAST;
-        return __ast;
+        ObjCSelectorArgumentAST *ast = new (&pool) ObjCSelectorArgumentAST;
+        return ast;
     }
 
     ObjCSelectorAST *ObjCSelector(ObjCSelectorArgumentListAST *selector_argument_list = 0)
     {
-        ObjCSelectorAST *__ast = new (&pool) ObjCSelectorAST;
-        __ast->selector_argument_list = selector_argument_list;
-        return __ast;
+        ObjCSelectorAST *ast = new (&pool) ObjCSelectorAST;
+        ast->selector_argument_list = selector_argument_list;
+        return ast;
     }
 
     SimpleSpecifierAST *SimpleSpecifier()
     {
-        SimpleSpecifierAST *__ast = new (&pool) SimpleSpecifierAST;
-        return __ast;
+        SimpleSpecifierAST *ast = new (&pool) SimpleSpecifierAST;
+        return ast;
     }
 
     AlignmentSpecifierAST *AlignmentSpecifier(ExpressionAST *typeIdExprOrAlignmentExpr = 0)
     {
-        AlignmentSpecifierAST *__ast = new (&pool) AlignmentSpecifierAST;
-        __ast->typeIdExprOrAlignmentExpr = typeIdExprOrAlignmentExpr;
-        return __ast;
+        AlignmentSpecifierAST *ast = new (&pool) AlignmentSpecifierAST;
+        ast->typeIdExprOrAlignmentExpr = typeIdExprOrAlignmentExpr;
+        return ast;
     }
 
     GnuAttributeSpecifierAST *GnuAttributeSpecifier(GnuAttributeListAST *attribute_list = 0)
     {
-        GnuAttributeSpecifierAST *__ast = new (&pool) GnuAttributeSpecifierAST;
-        __ast->attribute_list = attribute_list;
-        return __ast;
+        GnuAttributeSpecifierAST *ast = new (&pool) GnuAttributeSpecifierAST;
+        ast->attribute_list = attribute_list;
+        return ast;
     }
 
     GnuAttributeAST *GnuAttribute(ExpressionListAST *expression_list = 0)
     {
-        GnuAttributeAST *__ast = new (&pool) GnuAttributeAST;
-        __ast->expression_list = expression_list;
-        return __ast;
+        GnuAttributeAST *ast = new (&pool) GnuAttributeAST;
+        ast->expression_list = expression_list;
+        return ast;
     }
 
     TypeofSpecifierAST *TypeofSpecifier(ExpressionAST *expression = 0)
     {
-        TypeofSpecifierAST *__ast = new (&pool) TypeofSpecifierAST;
-        __ast->expression = expression;
-        return __ast;
+        TypeofSpecifierAST *ast = new (&pool) TypeofSpecifierAST;
+        ast->expression = expression;
+        return ast;
     }
 
     DecltypeSpecifierAST *DecltypeSpecifier(ExpressionAST *expression = 0)
     {
-        DecltypeSpecifierAST *__ast = new (&pool) DecltypeSpecifierAST;
-        __ast->expression = expression;
-        return __ast;
+        DecltypeSpecifierAST *ast = new (&pool) DecltypeSpecifierAST;
+        ast->expression = expression;
+        return ast;
     }
 
     DeclaratorAST *Declarator(SpecifierListAST *attribute_list = 0, PtrOperatorListAST *ptr_operator_list = 0, CoreDeclaratorAST *core_declarator = 0, PostfixDeclaratorListAST *postfix_declarator_list = 0, SpecifierListAST *post_attribute_list = 0, ExpressionAST *initializer = 0)
     {
-        DeclaratorAST *__ast = new (&pool) DeclaratorAST;
-        __ast->attribute_list = attribute_list;
-        __ast->ptr_operator_list = ptr_operator_list;
-        __ast->core_declarator = core_declarator;
-        __ast->postfix_declarator_list = postfix_declarator_list;
-        __ast->post_attribute_list = post_attribute_list;
-        __ast->initializer = initializer;
-        return __ast;
+        DeclaratorAST *ast = new (&pool) DeclaratorAST;
+        ast->attribute_list = attribute_list;
+        ast->ptr_operator_list = ptr_operator_list;
+        ast->core_declarator = core_declarator;
+        ast->postfix_declarator_list = postfix_declarator_list;
+        ast->post_attribute_list = post_attribute_list;
+        ast->initializer = initializer;
+        return ast;
     }
 
     SimpleDeclarationAST *SimpleDeclaration(SpecifierListAST *decl_specifier_list = 0, DeclaratorListAST *declarator_list = 0)
     {
-        SimpleDeclarationAST *__ast = new (&pool) SimpleDeclarationAST;
-        __ast->decl_specifier_list = decl_specifier_list;
-        __ast->declarator_list = declarator_list;
-        return __ast;
+        SimpleDeclarationAST *ast = new (&pool) SimpleDeclarationAST;
+        ast->decl_specifier_list = decl_specifier_list;
+        ast->declarator_list = declarator_list;
+        return ast;
     }
 
     EmptyDeclarationAST *EmptyDeclaration()
     {
-        EmptyDeclarationAST *__ast = new (&pool) EmptyDeclarationAST;
-        return __ast;
+        EmptyDeclarationAST *ast = new (&pool) EmptyDeclarationAST;
+        return ast;
     }
 
     AccessDeclarationAST *AccessDeclaration()
     {
-        AccessDeclarationAST *__ast = new (&pool) AccessDeclarationAST;
-        return __ast;
+        AccessDeclarationAST *ast = new (&pool) AccessDeclarationAST;
+        return ast;
     }
 
     QtObjectTagAST *QtObjectTag()
     {
-        QtObjectTagAST *__ast = new (&pool) QtObjectTagAST;
-        return __ast;
+        QtObjectTagAST *ast = new (&pool) QtObjectTagAST;
+        return ast;
     }
 
     QtPrivateSlotAST *QtPrivateSlot(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0)
     {
-        QtPrivateSlotAST *__ast = new (&pool) QtPrivateSlotAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->declarator = declarator;
-        return __ast;
+        QtPrivateSlotAST *ast = new (&pool) QtPrivateSlotAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->declarator = declarator;
+        return ast;
     }
 
     QtPropertyDeclarationItemAST *QtPropertyDeclarationItem(ExpressionAST *expression = 0)
     {
-        QtPropertyDeclarationItemAST *__ast = new (&pool) QtPropertyDeclarationItemAST;
-        __ast->expression = expression;
-        return __ast;
+        QtPropertyDeclarationItemAST *ast = new (&pool) QtPropertyDeclarationItemAST;
+        ast->expression = expression;
+        return ast;
     }
 
     QtPropertyDeclarationAST *QtPropertyDeclaration(ExpressionAST *expression = 0, ExpressionAST *type_id = 0, NameAST *property_name = 0, QtPropertyDeclarationItemListAST *property_declaration_item_list = 0)
     {
-        QtPropertyDeclarationAST *__ast = new (&pool) QtPropertyDeclarationAST;
-        __ast->expression = expression;
-        __ast->type_id = type_id;
-        __ast->property_name = property_name;
-        __ast->property_declaration_item_list = property_declaration_item_list;
-        return __ast;
+        QtPropertyDeclarationAST *ast = new (&pool) QtPropertyDeclarationAST;
+        ast->expression = expression;
+        ast->type_id = type_id;
+        ast->property_name = property_name;
+        ast->property_declaration_item_list = property_declaration_item_list;
+        return ast;
     }
 
     QtEnumDeclarationAST *QtEnumDeclaration(NameListAST *enumerator_list = 0)
     {
-        QtEnumDeclarationAST *__ast = new (&pool) QtEnumDeclarationAST;
-        __ast->enumerator_list = enumerator_list;
-        return __ast;
+        QtEnumDeclarationAST *ast = new (&pool) QtEnumDeclarationAST;
+        ast->enumerator_list = enumerator_list;
+        return ast;
     }
 
     QtFlagsDeclarationAST *QtFlagsDeclaration(NameListAST *flag_enums_list = 0)
     {
-        QtFlagsDeclarationAST *__ast = new (&pool) QtFlagsDeclarationAST;
-        __ast->flag_enums_list = flag_enums_list;
-        return __ast;
+        QtFlagsDeclarationAST *ast = new (&pool) QtFlagsDeclarationAST;
+        ast->flag_enums_list = flag_enums_list;
+        return ast;
     }
 
     QtInterfaceNameAST *QtInterfaceName(NameAST *interface_name = 0, NameListAST *constraint_list = 0)
     {
-        QtInterfaceNameAST *__ast = new (&pool) QtInterfaceNameAST;
-        __ast->interface_name = interface_name;
-        __ast->constraint_list = constraint_list;
-        return __ast;
+        QtInterfaceNameAST *ast = new (&pool) QtInterfaceNameAST;
+        ast->interface_name = interface_name;
+        ast->constraint_list = constraint_list;
+        return ast;
     }
 
     QtInterfacesDeclarationAST *QtInterfacesDeclaration(QtInterfaceNameListAST *interface_name_list = 0)
     {
-        QtInterfacesDeclarationAST *__ast = new (&pool) QtInterfacesDeclarationAST;
-        __ast->interface_name_list = interface_name_list;
-        return __ast;
+        QtInterfacesDeclarationAST *ast = new (&pool) QtInterfacesDeclarationAST;
+        ast->interface_name_list = interface_name_list;
+        return ast;
     }
 
     AsmDefinitionAST *AsmDefinition()
     {
-        AsmDefinitionAST *__ast = new (&pool) AsmDefinitionAST;
-        return __ast;
+        AsmDefinitionAST *ast = new (&pool) AsmDefinitionAST;
+        return ast;
     }
 
     BaseSpecifierAST *BaseSpecifier(NameAST *name = 0)
     {
-        BaseSpecifierAST *__ast = new (&pool) BaseSpecifierAST;
-        __ast->name = name;
-        return __ast;
+        BaseSpecifierAST *ast = new (&pool) BaseSpecifierAST;
+        ast->name = name;
+        return ast;
     }
 
     IdExpressionAST *IdExpression(NameAST *name = 0)
     {
-        IdExpressionAST *__ast = new (&pool) IdExpressionAST;
-        __ast->name = name;
-        return __ast;
+        IdExpressionAST *ast = new (&pool) IdExpressionAST;
+        ast->name = name;
+        return ast;
     }
 
     CompoundExpressionAST *CompoundExpression(CompoundStatementAST *statement = 0)
     {
-        CompoundExpressionAST *__ast = new (&pool) CompoundExpressionAST;
-        __ast->statement = statement;
-        return __ast;
+        CompoundExpressionAST *ast = new (&pool) CompoundExpressionAST;
+        ast->statement = statement;
+        return ast;
     }
 
     CompoundLiteralAST *CompoundLiteral(ExpressionAST *type_id = 0, ExpressionAST *initializer = 0)
     {
-        CompoundLiteralAST *__ast = new (&pool) CompoundLiteralAST;
-        __ast->type_id = type_id;
-        __ast->initializer = initializer;
-        return __ast;
+        CompoundLiteralAST *ast = new (&pool) CompoundLiteralAST;
+        ast->type_id = type_id;
+        ast->initializer = initializer;
+        return ast;
     }
 
     QtMethodAST *QtMethod(DeclaratorAST *declarator = 0)
     {
-        QtMethodAST *__ast = new (&pool) QtMethodAST;
-        __ast->declarator = declarator;
-        return __ast;
+        QtMethodAST *ast = new (&pool) QtMethodAST;
+        ast->declarator = declarator;
+        return ast;
     }
 
     QtMemberDeclarationAST *QtMemberDeclaration(ExpressionAST *type_id = 0)
     {
-        QtMemberDeclarationAST *__ast = new (&pool) QtMemberDeclarationAST;
-        __ast->type_id = type_id;
-        return __ast;
+        QtMemberDeclarationAST *ast = new (&pool) QtMemberDeclarationAST;
+        ast->type_id = type_id;
+        return ast;
     }
 
     BinaryExpressionAST *BinaryExpression(ExpressionAST *left_expression = 0, ExpressionAST *right_expression = 0)
     {
-        BinaryExpressionAST *__ast = new (&pool) BinaryExpressionAST;
-        __ast->left_expression = left_expression;
-        __ast->right_expression = right_expression;
-        return __ast;
+        BinaryExpressionAST *ast = new (&pool) BinaryExpressionAST;
+        ast->left_expression = left_expression;
+        ast->right_expression = right_expression;
+        return ast;
     }
 
     CastExpressionAST *CastExpression(ExpressionAST *type_id = 0, ExpressionAST *expression = 0)
     {
-        CastExpressionAST *__ast = new (&pool) CastExpressionAST;
-        __ast->type_id = type_id;
-        __ast->expression = expression;
-        return __ast;
+        CastExpressionAST *ast = new (&pool) CastExpressionAST;
+        ast->type_id = type_id;
+        ast->expression = expression;
+        return ast;
     }
 
     ClassSpecifierAST *ClassSpecifier(SpecifierListAST *attribute_list = 0, NameAST *name = 0, BaseSpecifierListAST *base_clause_list = 0, DeclarationListAST *member_specifier_list = 0)
     {
-        ClassSpecifierAST *__ast = new (&pool) ClassSpecifierAST;
-        __ast->attribute_list = attribute_list;
-        __ast->name = name;
-        __ast->base_clause_list = base_clause_list;
-        __ast->member_specifier_list = member_specifier_list;
-        return __ast;
+        ClassSpecifierAST *ast = new (&pool) ClassSpecifierAST;
+        ast->attribute_list = attribute_list;
+        ast->name = name;
+        ast->base_clause_list = base_clause_list;
+        ast->member_specifier_list = member_specifier_list;
+        return ast;
     }
 
     CaseStatementAST *CaseStatement(ExpressionAST *expression = 0, StatementAST *statement = 0)
     {
-        CaseStatementAST *__ast = new (&pool) CaseStatementAST;
-        __ast->expression = expression;
-        __ast->statement = statement;
-        return __ast;
+        CaseStatementAST *ast = new (&pool) CaseStatementAST;
+        ast->expression = expression;
+        ast->statement = statement;
+        return ast;
     }
 
     CompoundStatementAST *CompoundStatement(StatementListAST *statement_list = 0)
     {
-        CompoundStatementAST *__ast = new (&pool) CompoundStatementAST;
-        __ast->statement_list = statement_list;
-        return __ast;
+        CompoundStatementAST *ast = new (&pool) CompoundStatementAST;
+        ast->statement_list = statement_list;
+        return ast;
     }
 
     ConditionAST *Condition(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0)
     {
-        ConditionAST *__ast = new (&pool) ConditionAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->declarator = declarator;
-        return __ast;
+        ConditionAST *ast = new (&pool) ConditionAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->declarator = declarator;
+        return ast;
     }
 
     ConditionalExpressionAST *ConditionalExpression(ExpressionAST *condition = 0, ExpressionAST *left_expression = 0, ExpressionAST *right_expression = 0)
     {
-        ConditionalExpressionAST *__ast = new (&pool) ConditionalExpressionAST;
-        __ast->condition = condition;
-        __ast->left_expression = left_expression;
-        __ast->right_expression = right_expression;
-        return __ast;
+        ConditionalExpressionAST *ast = new (&pool) ConditionalExpressionAST;
+        ast->condition = condition;
+        ast->left_expression = left_expression;
+        ast->right_expression = right_expression;
+        return ast;
     }
 
     CppCastExpressionAST *CppCastExpression(ExpressionAST *type_id = 0, ExpressionAST *expression = 0)
     {
-        CppCastExpressionAST *__ast = new (&pool) CppCastExpressionAST;
-        __ast->type_id = type_id;
-        __ast->expression = expression;
-        return __ast;
+        CppCastExpressionAST *ast = new (&pool) CppCastExpressionAST;
+        ast->type_id = type_id;
+        ast->expression = expression;
+        return ast;
     }
 
     CtorInitializerAST *CtorInitializer(MemInitializerListAST *member_initializer_list = 0)
     {
-        CtorInitializerAST *__ast = new (&pool) CtorInitializerAST;
-        __ast->member_initializer_list = member_initializer_list;
-        return __ast;
+        CtorInitializerAST *ast = new (&pool) CtorInitializerAST;
+        ast->member_initializer_list = member_initializer_list;
+        return ast;
     }
 
     DeclarationStatementAST *DeclarationStatement(DeclarationAST *declaration = 0)
     {
-        DeclarationStatementAST *__ast = new (&pool) DeclarationStatementAST;
-        __ast->declaration = declaration;
-        return __ast;
+        DeclarationStatementAST *ast = new (&pool) DeclarationStatementAST;
+        ast->declaration = declaration;
+        return ast;
     }
 
     DeclaratorIdAST *DeclaratorId(NameAST *name = 0)
     {
-        DeclaratorIdAST *__ast = new (&pool) DeclaratorIdAST;
-        __ast->name = name;
-        return __ast;
+        DeclaratorIdAST *ast = new (&pool) DeclaratorIdAST;
+        ast->name = name;
+        return ast;
     }
 
     NestedDeclaratorAST *NestedDeclarator(DeclaratorAST *declarator = 0)
     {
-        NestedDeclaratorAST *__ast = new (&pool) NestedDeclaratorAST;
-        __ast->declarator = declarator;
-        return __ast;
+        NestedDeclaratorAST *ast = new (&pool) NestedDeclaratorAST;
+        ast->declarator = declarator;
+        return ast;
     }
 
     FunctionDeclaratorAST *FunctionDeclarator(ParameterDeclarationClauseAST *parameter_declaration_clause = 0, SpecifierListAST *cv_qualifier_list = 0, ExceptionSpecificationAST *exception_specification = 0, TrailingReturnTypeAST *trailing_return_type = 0, ExpressionAST *as_cpp_initializer = 0)
     {
-        FunctionDeclaratorAST *__ast = new (&pool) FunctionDeclaratorAST;
-        __ast->parameter_declaration_clause = parameter_declaration_clause;
-        __ast->cv_qualifier_list = cv_qualifier_list;
-        __ast->exception_specification = exception_specification;
-        __ast->trailing_return_type = trailing_return_type;
-        __ast->as_cpp_initializer = as_cpp_initializer;
-        return __ast;
+        FunctionDeclaratorAST *ast = new (&pool) FunctionDeclaratorAST;
+        ast->parameter_declaration_clause = parameter_declaration_clause;
+        ast->cv_qualifier_list = cv_qualifier_list;
+        ast->exception_specification = exception_specification;
+        ast->trailing_return_type = trailing_return_type;
+        ast->as_cpp_initializer = as_cpp_initializer;
+        return ast;
     }
 
     ArrayDeclaratorAST *ArrayDeclarator(ExpressionAST *expression = 0)
     {
-        ArrayDeclaratorAST *__ast = new (&pool) ArrayDeclaratorAST;
-        __ast->expression = expression;
-        return __ast;
+        ArrayDeclaratorAST *ast = new (&pool) ArrayDeclaratorAST;
+        ast->expression = expression;
+        return ast;
     }
 
     DeleteExpressionAST *DeleteExpression(ExpressionAST *expression = 0)
     {
-        DeleteExpressionAST *__ast = new (&pool) DeleteExpressionAST;
-        __ast->expression = expression;
-        return __ast;
+        DeleteExpressionAST *ast = new (&pool) DeleteExpressionAST;
+        ast->expression = expression;
+        return ast;
     }
 
     DoStatementAST *DoStatement(StatementAST *statement = 0, ExpressionAST *expression = 0)
     {
-        DoStatementAST *__ast = new (&pool) DoStatementAST;
-        __ast->statement = statement;
-        __ast->expression = expression;
-        return __ast;
+        DoStatementAST *ast = new (&pool) DoStatementAST;
+        ast->statement = statement;
+        ast->expression = expression;
+        return ast;
     }
 
     NamedTypeSpecifierAST *NamedTypeSpecifier(NameAST *name = 0)
     {
-        NamedTypeSpecifierAST *__ast = new (&pool) NamedTypeSpecifierAST;
-        __ast->name = name;
-        return __ast;
+        NamedTypeSpecifierAST *ast = new (&pool) NamedTypeSpecifierAST;
+        ast->name = name;
+        return ast;
     }
 
     ElaboratedTypeSpecifierAST *ElaboratedTypeSpecifier(SpecifierListAST *attribute_list = 0, NameAST *name = 0)
     {
-        ElaboratedTypeSpecifierAST *__ast = new (&pool) ElaboratedTypeSpecifierAST;
-        __ast->attribute_list = attribute_list;
-        __ast->name = name;
-        return __ast;
+        ElaboratedTypeSpecifierAST *ast = new (&pool) ElaboratedTypeSpecifierAST;
+        ast->attribute_list = attribute_list;
+        ast->name = name;
+        return ast;
     }
 
     EnumSpecifierAST *EnumSpecifier(NameAST *name = 0, SpecifierListAST *type_specifier_list = 0, EnumeratorListAST *enumerator_list = 0)
     {
-        EnumSpecifierAST *__ast = new (&pool) EnumSpecifierAST;
-        __ast->name = name;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->enumerator_list = enumerator_list;
-        return __ast;
+        EnumSpecifierAST *ast = new (&pool) EnumSpecifierAST;
+        ast->name = name;
+        ast->type_specifier_list = type_specifier_list;
+        ast->enumerator_list = enumerator_list;
+        return ast;
     }
 
     EnumeratorAST *Enumerator(ExpressionAST *expression = 0)
     {
-        EnumeratorAST *__ast = new (&pool) EnumeratorAST;
-        __ast->expression = expression;
-        return __ast;
+        EnumeratorAST *ast = new (&pool) EnumeratorAST;
+        ast->expression = expression;
+        return ast;
     }
 
     ExceptionDeclarationAST *ExceptionDeclaration(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0)
     {
-        ExceptionDeclarationAST *__ast = new (&pool) ExceptionDeclarationAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->declarator = declarator;
-        return __ast;
+        ExceptionDeclarationAST *ast = new (&pool) ExceptionDeclarationAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->declarator = declarator;
+        return ast;
     }
 
     DynamicExceptionSpecificationAST *DynamicExceptionSpecification(ExpressionListAST *type_id_list = 0)
     {
-        DynamicExceptionSpecificationAST *__ast = new (&pool) DynamicExceptionSpecificationAST;
-        __ast->type_id_list = type_id_list;
-        return __ast;
+        DynamicExceptionSpecificationAST *ast = new (&pool) DynamicExceptionSpecificationAST;
+        ast->type_id_list = type_id_list;
+        return ast;
     }
 
     NoExceptSpecificationAST *NoExceptSpecification(ExpressionAST *expression = 0)
     {
-        NoExceptSpecificationAST *__ast = new (&pool) NoExceptSpecificationAST;
-        __ast->expression = expression;
-        return __ast;
+        NoExceptSpecificationAST *ast = new (&pool) NoExceptSpecificationAST;
+        ast->expression = expression;
+        return ast;
     }
 
     ExpressionOrDeclarationStatementAST *ExpressionOrDeclarationStatement(ExpressionStatementAST *expression = 0, DeclarationStatementAST *declaration = 0)
     {
-        ExpressionOrDeclarationStatementAST *__ast = new (&pool) ExpressionOrDeclarationStatementAST;
-        __ast->expression = expression;
-        __ast->declaration = declaration;
-        return __ast;
+        ExpressionOrDeclarationStatementAST *ast = new (&pool) ExpressionOrDeclarationStatementAST;
+        ast->expression = expression;
+        ast->declaration = declaration;
+        return ast;
     }
 
     ExpressionStatementAST *ExpressionStatement(ExpressionAST *expression = 0)
     {
-        ExpressionStatementAST *__ast = new (&pool) ExpressionStatementAST;
-        __ast->expression = expression;
-        return __ast;
+        ExpressionStatementAST *ast = new (&pool) ExpressionStatementAST;
+        ast->expression = expression;
+        return ast;
     }
 
     FunctionDefinitionAST *FunctionDefinition(SpecifierListAST *decl_specifier_list = 0, DeclaratorAST *declarator = 0, CtorInitializerAST *ctor_initializer = 0, StatementAST *function_body = 0)
     {
-        FunctionDefinitionAST *__ast = new (&pool) FunctionDefinitionAST;
-        __ast->decl_specifier_list = decl_specifier_list;
-        __ast->declarator = declarator;
-        __ast->ctor_initializer = ctor_initializer;
-        __ast->function_body = function_body;
-        return __ast;
+        FunctionDefinitionAST *ast = new (&pool) FunctionDefinitionAST;
+        ast->decl_specifier_list = decl_specifier_list;
+        ast->declarator = declarator;
+        ast->ctor_initializer = ctor_initializer;
+        ast->function_body = function_body;
+        return ast;
     }
 
     ForeachStatementAST *ForeachStatement(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0, ExpressionAST *initializer = 0, ExpressionAST *expression = 0, StatementAST *statement = 0)
     {
-        ForeachStatementAST *__ast = new (&pool) ForeachStatementAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->declarator = declarator;
-        __ast->initializer = initializer;
-        __ast->expression = expression;
-        __ast->statement = statement;
-        return __ast;
+        ForeachStatementAST *ast = new (&pool) ForeachStatementAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->declarator = declarator;
+        ast->initializer = initializer;
+        ast->expression = expression;
+        ast->statement = statement;
+        return ast;
     }
 
     RangeBasedForStatementAST *RangeBasedForStatement(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0, ExpressionAST *expression = 0, StatementAST *statement = 0)
     {
-        RangeBasedForStatementAST *__ast = new (&pool) RangeBasedForStatementAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->declarator = declarator;
-        __ast->expression = expression;
-        __ast->statement = statement;
-        return __ast;
+        RangeBasedForStatementAST *ast = new (&pool) RangeBasedForStatementAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->declarator = declarator;
+        ast->expression = expression;
+        ast->statement = statement;
+        return ast;
     }
 
     ForStatementAST *ForStatement(StatementAST *initializer = 0, ExpressionAST *condition = 0, ExpressionAST *expression = 0, StatementAST *statement = 0)
     {
-        ForStatementAST *__ast = new (&pool) ForStatementAST;
-        __ast->initializer = initializer;
-        __ast->condition = condition;
-        __ast->expression = expression;
-        __ast->statement = statement;
-        return __ast;
+        ForStatementAST *ast = new (&pool) ForStatementAST;
+        ast->initializer = initializer;
+        ast->condition = condition;
+        ast->expression = expression;
+        ast->statement = statement;
+        return ast;
     }
 
     IfStatementAST *IfStatement(ExpressionAST *condition = 0, StatementAST *statement = 0, StatementAST *else_statement = 0)
     {
-        IfStatementAST *__ast = new (&pool) IfStatementAST;
-        __ast->condition = condition;
-        __ast->statement = statement;
-        __ast->else_statement = else_statement;
-        return __ast;
+        IfStatementAST *ast = new (&pool) IfStatementAST;
+        ast->condition = condition;
+        ast->statement = statement;
+        ast->else_statement = else_statement;
+        return ast;
     }
 
     ArrayInitializerAST *ArrayInitializer(ExpressionListAST *expression_list = 0)
     {
-        ArrayInitializerAST *__ast = new (&pool) ArrayInitializerAST;
-        __ast->expression_list = expression_list;
-        return __ast;
+        ArrayInitializerAST *ast = new (&pool) ArrayInitializerAST;
+        ast->expression_list = expression_list;
+        return ast;
     }
 
     LabeledStatementAST *LabeledStatement(StatementAST *statement = 0)
     {
-        LabeledStatementAST *__ast = new (&pool) LabeledStatementAST;
-        __ast->statement = statement;
-        return __ast;
+        LabeledStatementAST *ast = new (&pool) LabeledStatementAST;
+        ast->statement = statement;
+        return ast;
     }
 
     LinkageBodyAST *LinkageBody(DeclarationListAST *declaration_list = 0)
     {
-        LinkageBodyAST *__ast = new (&pool) LinkageBodyAST;
-        __ast->declaration_list = declaration_list;
-        return __ast;
+        LinkageBodyAST *ast = new (&pool) LinkageBodyAST;
+        ast->declaration_list = declaration_list;
+        return ast;
     }
 
     LinkageSpecificationAST *LinkageSpecification(DeclarationAST *declaration = 0)
     {
-        LinkageSpecificationAST *__ast = new (&pool) LinkageSpecificationAST;
-        __ast->declaration = declaration;
-        return __ast;
+        LinkageSpecificationAST *ast = new (&pool) LinkageSpecificationAST;
+        ast->declaration = declaration;
+        return ast;
     }
 
     MemInitializerAST *MemInitializer(NameAST *name = 0, ExpressionAST *expression = 0)
     {
-        MemInitializerAST *__ast = new (&pool) MemInitializerAST;
-        __ast->name = name;
-        __ast->expression = expression;
-        return __ast;
+        MemInitializerAST *ast = new (&pool) MemInitializerAST;
+        ast->name = name;
+        ast->expression = expression;
+        return ast;
     }
 
     NestedNameSpecifierAST *NestedNameSpecifier(NameAST *class_or_namespace_name = 0)
     {
-        NestedNameSpecifierAST *__ast = new (&pool) NestedNameSpecifierAST;
-        __ast->class_or_namespace_name = class_or_namespace_name;
-        return __ast;
+        NestedNameSpecifierAST *ast = new (&pool) NestedNameSpecifierAST;
+        ast->class_or_namespace_name = class_or_namespace_name;
+        return ast;
     }
 
     QualifiedNameAST *QualifiedName(NestedNameSpecifierListAST *nested_name_specifier_list = 0, NameAST *unqualified_name = 0)
     {
-        QualifiedNameAST *__ast = new (&pool) QualifiedNameAST;
-        __ast->nested_name_specifier_list = nested_name_specifier_list;
-        __ast->unqualified_name = unqualified_name;
-        return __ast;
+        QualifiedNameAST *ast = new (&pool) QualifiedNameAST;
+        ast->nested_name_specifier_list = nested_name_specifier_list;
+        ast->unqualified_name = unqualified_name;
+        return ast;
     }
 
     OperatorFunctionIdAST *OperatorFunctionId(OperatorAST *op = 0)
     {
-        OperatorFunctionIdAST *__ast = new (&pool) OperatorFunctionIdAST;
-        __ast->op = op;
-        return __ast;
+        OperatorFunctionIdAST *ast = new (&pool) OperatorFunctionIdAST;
+        ast->op = op;
+        return ast;
     }
 
     ConversionFunctionIdAST *ConversionFunctionId(SpecifierListAST *type_specifier_list = 0, PtrOperatorListAST *ptr_operator_list = 0)
     {
-        ConversionFunctionIdAST *__ast = new (&pool) ConversionFunctionIdAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->ptr_operator_list = ptr_operator_list;
-        return __ast;
+        ConversionFunctionIdAST *ast = new (&pool) ConversionFunctionIdAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->ptr_operator_list = ptr_operator_list;
+        return ast;
     }
 
     AnonymousNameAST *AnonymousName()
     {
-        AnonymousNameAST *__ast = new (&pool) AnonymousNameAST;
-        return __ast;
+        AnonymousNameAST *ast = new (&pool) AnonymousNameAST;
+        return ast;
     }
 
     SimpleNameAST *SimpleName()
     {
-        SimpleNameAST *__ast = new (&pool) SimpleNameAST;
-        return __ast;
+        SimpleNameAST *ast = new (&pool) SimpleNameAST;
+        return ast;
     }
 
     DestructorNameAST *DestructorName(NameAST *unqualified_name = 0)
     {
-        DestructorNameAST *__ast = new (&pool) DestructorNameAST;
-        __ast->unqualified_name = unqualified_name;
-        return __ast;
+        DestructorNameAST *ast = new (&pool) DestructorNameAST;
+        ast->unqualified_name = unqualified_name;
+        return ast;
     }
 
     TemplateIdAST *TemplateId(ExpressionListAST *template_argument_list = 0)
     {
-        TemplateIdAST *__ast = new (&pool) TemplateIdAST;
-        __ast->template_argument_list = template_argument_list;
-        return __ast;
+        TemplateIdAST *ast = new (&pool) TemplateIdAST;
+        ast->template_argument_list = template_argument_list;
+        return ast;
     }
 
     NamespaceAST *Namespace(SpecifierListAST *attribute_list = 0, DeclarationAST *linkage_body = 0)
     {
-        NamespaceAST *__ast = new (&pool) NamespaceAST;
-        __ast->attribute_list = attribute_list;
-        __ast->linkage_body = linkage_body;
-        return __ast;
+        NamespaceAST *ast = new (&pool) NamespaceAST;
+        ast->attribute_list = attribute_list;
+        ast->linkage_body = linkage_body;
+        return ast;
     }
 
     NamespaceAliasDefinitionAST *NamespaceAliasDefinition(NameAST *name = 0)
     {
-        NamespaceAliasDefinitionAST *__ast = new (&pool) NamespaceAliasDefinitionAST;
-        __ast->name = name;
-        return __ast;
+        NamespaceAliasDefinitionAST *ast = new (&pool) NamespaceAliasDefinitionAST;
+        ast->name = name;
+        return ast;
     }
 
     AliasDeclarationAST *AliasDeclaration(NameAST *name = 0, TypeIdAST *typeId = 0)
     {
-        AliasDeclarationAST *__ast = new (&pool) AliasDeclarationAST;
-        __ast->name = name;
-        __ast->typeId = typeId;
-        return __ast;
+        AliasDeclarationAST *ast = new (&pool) AliasDeclarationAST;
+        ast->name = name;
+        ast->typeId = typeId;
+        return ast;
     }
 
     ExpressionListParenAST *ExpressionListParen(ExpressionListAST *expression_list = 0)
     {
-        ExpressionListParenAST *__ast = new (&pool) ExpressionListParenAST;
-        __ast->expression_list = expression_list;
-        return __ast;
+        ExpressionListParenAST *ast = new (&pool) ExpressionListParenAST;
+        ast->expression_list = expression_list;
+        return ast;
     }
 
     NewArrayDeclaratorAST *NewArrayDeclarator(ExpressionAST *expression = 0)
     {
-        NewArrayDeclaratorAST *__ast = new (&pool) NewArrayDeclaratorAST;
-        __ast->expression = expression;
-        return __ast;
+        NewArrayDeclaratorAST *ast = new (&pool) NewArrayDeclaratorAST;
+        ast->expression = expression;
+        return ast;
     }
 
     NewExpressionAST *NewExpression(ExpressionListParenAST *new_placement = 0, ExpressionAST *type_id = 0, NewTypeIdAST *new_type_id = 0, ExpressionAST *new_initializer = 0)
     {
-        NewExpressionAST *__ast = new (&pool) NewExpressionAST;
-        __ast->new_placement = new_placement;
-        __ast->type_id = type_id;
-        __ast->new_type_id = new_type_id;
-        __ast->new_initializer = new_initializer;
-        return __ast;
+        NewExpressionAST *ast = new (&pool) NewExpressionAST;
+        ast->new_placement = new_placement;
+        ast->type_id = type_id;
+        ast->new_type_id = new_type_id;
+        ast->new_initializer = new_initializer;
+        return ast;
     }
 
     NewTypeIdAST *NewTypeId(SpecifierListAST *type_specifier_list = 0, PtrOperatorListAST *ptr_operator_list = 0, NewArrayDeclaratorListAST *new_array_declarator_list = 0)
     {
-        NewTypeIdAST *__ast = new (&pool) NewTypeIdAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->ptr_operator_list = ptr_operator_list;
-        __ast->new_array_declarator_list = new_array_declarator_list;
-        return __ast;
+        NewTypeIdAST *ast = new (&pool) NewTypeIdAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->ptr_operator_list = ptr_operator_list;
+        ast->new_array_declarator_list = new_array_declarator_list;
+        return ast;
     }
 
     OperatorAST *Operator()
     {
-        OperatorAST *__ast = new (&pool) OperatorAST;
-        return __ast;
+        OperatorAST *ast = new (&pool) OperatorAST;
+        return ast;
     }
 
     ParameterDeclarationAST *ParameterDeclaration(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0, ExpressionAST *expression = 0)
     {
-        ParameterDeclarationAST *__ast = new (&pool) ParameterDeclarationAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->declarator = declarator;
-        __ast->expression = expression;
-        return __ast;
+        ParameterDeclarationAST *ast = new (&pool) ParameterDeclarationAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->declarator = declarator;
+        ast->expression = expression;
+        return ast;
     }
 
     ParameterDeclarationClauseAST *ParameterDeclarationClause(ParameterDeclarationListAST *parameter_declaration_list = 0)
     {
-        ParameterDeclarationClauseAST *__ast = new (&pool) ParameterDeclarationClauseAST;
-        __ast->parameter_declaration_list = parameter_declaration_list;
-        return __ast;
+        ParameterDeclarationClauseAST *ast = new (&pool) ParameterDeclarationClauseAST;
+        ast->parameter_declaration_list = parameter_declaration_list;
+        return ast;
     }
 
     CallAST *Call(ExpressionAST *base_expression = 0, ExpressionListAST *expression_list = 0)
     {
-        CallAST *__ast = new (&pool) CallAST;
-        __ast->base_expression = base_expression;
-        __ast->expression_list = expression_list;
-        return __ast;
+        CallAST *ast = new (&pool) CallAST;
+        ast->base_expression = base_expression;
+        ast->expression_list = expression_list;
+        return ast;
     }
 
     ArrayAccessAST *ArrayAccess(ExpressionAST *base_expression = 0, ExpressionAST *expression = 0)
     {
-        ArrayAccessAST *__ast = new (&pool) ArrayAccessAST;
-        __ast->base_expression = base_expression;
-        __ast->expression = expression;
-        return __ast;
+        ArrayAccessAST *ast = new (&pool) ArrayAccessAST;
+        ast->base_expression = base_expression;
+        ast->expression = expression;
+        return ast;
     }
 
     PostIncrDecrAST *PostIncrDecr(ExpressionAST *base_expression = 0)
     {
-        PostIncrDecrAST *__ast = new (&pool) PostIncrDecrAST;
-        __ast->base_expression = base_expression;
-        return __ast;
+        PostIncrDecrAST *ast = new (&pool) PostIncrDecrAST;
+        ast->base_expression = base_expression;
+        return ast;
     }
 
     MemberAccessAST *MemberAccess(ExpressionAST *base_expression = 0, NameAST *member_name = 0)
     {
-        MemberAccessAST *__ast = new (&pool) MemberAccessAST;
-        __ast->base_expression = base_expression;
-        __ast->member_name = member_name;
-        return __ast;
+        MemberAccessAST *ast = new (&pool) MemberAccessAST;
+        ast->base_expression = base_expression;
+        ast->member_name = member_name;
+        return ast;
     }
 
     TypeidExpressionAST *TypeidExpression(ExpressionAST *expression = 0)
     {
-        TypeidExpressionAST *__ast = new (&pool) TypeidExpressionAST;
-        __ast->expression = expression;
-        return __ast;
+        TypeidExpressionAST *ast = new (&pool) TypeidExpressionAST;
+        ast->expression = expression;
+        return ast;
     }
 
     TypenameCallExpressionAST *TypenameCallExpression(NameAST *name = 0, ExpressionAST *expression = 0)
     {
-        TypenameCallExpressionAST *__ast = new (&pool) TypenameCallExpressionAST;
-        __ast->name = name;
-        __ast->expression = expression;
-        return __ast;
+        TypenameCallExpressionAST *ast = new (&pool) TypenameCallExpressionAST;
+        ast->name = name;
+        ast->expression = expression;
+        return ast;
     }
 
     TypeConstructorCallAST *TypeConstructorCall(SpecifierListAST *type_specifier_list = 0, ExpressionAST *expression = 0)
     {
-        TypeConstructorCallAST *__ast = new (&pool) TypeConstructorCallAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->expression = expression;
-        return __ast;
+        TypeConstructorCallAST *ast = new (&pool) TypeConstructorCallAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->expression = expression;
+        return ast;
     }
 
     PointerToMemberAST *PointerToMember(NestedNameSpecifierListAST *nested_name_specifier_list = 0, SpecifierListAST *cv_qualifier_list = 0)
     {
-        PointerToMemberAST *__ast = new (&pool) PointerToMemberAST;
-        __ast->nested_name_specifier_list = nested_name_specifier_list;
-        __ast->cv_qualifier_list = cv_qualifier_list;
-        return __ast;
+        PointerToMemberAST *ast = new (&pool) PointerToMemberAST;
+        ast->nested_name_specifier_list = nested_name_specifier_list;
+        ast->cv_qualifier_list = cv_qualifier_list;
+        return ast;
     }
 
     PointerAST *Pointer(SpecifierListAST *cv_qualifier_list = 0)
     {
-        PointerAST *__ast = new (&pool) PointerAST;
-        __ast->cv_qualifier_list = cv_qualifier_list;
-        return __ast;
+        PointerAST *ast = new (&pool) PointerAST;
+        ast->cv_qualifier_list = cv_qualifier_list;
+        return ast;
     }
 
     ReferenceAST *Reference()
     {
-        ReferenceAST *__ast = new (&pool) ReferenceAST;
-        return __ast;
+        ReferenceAST *ast = new (&pool) ReferenceAST;
+        return ast;
     }
 
     BreakStatementAST *BreakStatement()
     {
-        BreakStatementAST *__ast = new (&pool) BreakStatementAST;
-        return __ast;
+        BreakStatementAST *ast = new (&pool) BreakStatementAST;
+        return ast;
     }
 
     ContinueStatementAST *ContinueStatement()
     {
-        ContinueStatementAST *__ast = new (&pool) ContinueStatementAST;
-        return __ast;
+        ContinueStatementAST *ast = new (&pool) ContinueStatementAST;
+        return ast;
     }
 
     GotoStatementAST *GotoStatement()
     {
-        GotoStatementAST *__ast = new (&pool) GotoStatementAST;
-        return __ast;
+        GotoStatementAST *ast = new (&pool) GotoStatementAST;
+        return ast;
     }
 
     ReturnStatementAST *ReturnStatement(ExpressionAST *expression = 0)
     {
-        ReturnStatementAST *__ast = new (&pool) ReturnStatementAST;
-        __ast->expression = expression;
-        return __ast;
+        ReturnStatementAST *ast = new (&pool) ReturnStatementAST;
+        ast->expression = expression;
+        return ast;
     }
 
     SizeofExpressionAST *SizeofExpression(ExpressionAST *expression = 0)
     {
-        SizeofExpressionAST *__ast = new (&pool) SizeofExpressionAST;
-        __ast->expression = expression;
-        return __ast;
+        SizeofExpressionAST *ast = new (&pool) SizeofExpressionAST;
+        ast->expression = expression;
+        return ast;
     }
 
     AlignofExpressionAST *AlignofExpression(TypeIdAST *typeId = 0)
     {
-        AlignofExpressionAST *__ast = new (&pool) AlignofExpressionAST;
-        __ast->typeId = typeId;
-        return __ast;
+        AlignofExpressionAST *ast = new (&pool) AlignofExpressionAST;
+        ast->typeId = typeId;
+        return ast;
     }
 
     PointerLiteralAST *PointerLiteral()
     {
-        PointerLiteralAST *__ast = new (&pool) PointerLiteralAST;
-        return __ast;
+        PointerLiteralAST *ast = new (&pool) PointerLiteralAST;
+        return ast;
     }
 
     NumericLiteralAST *NumericLiteral()
     {
-        NumericLiteralAST *__ast = new (&pool) NumericLiteralAST;
-        return __ast;
+        NumericLiteralAST *ast = new (&pool) NumericLiteralAST;
+        return ast;
     }
 
     BoolLiteralAST *BoolLiteral()
     {
-        BoolLiteralAST *__ast = new (&pool) BoolLiteralAST;
-        return __ast;
+        BoolLiteralAST *ast = new (&pool) BoolLiteralAST;
+        return ast;
     }
 
     ThisExpressionAST *ThisExpression()
     {
-        ThisExpressionAST *__ast = new (&pool) ThisExpressionAST;
-        return __ast;
+        ThisExpressionAST *ast = new (&pool) ThisExpressionAST;
+        return ast;
     }
 
     NestedExpressionAST *NestedExpression(ExpressionAST *expression = 0)
     {
-        NestedExpressionAST *__ast = new (&pool) NestedExpressionAST;
-        __ast->expression = expression;
-        return __ast;
+        NestedExpressionAST *ast = new (&pool) NestedExpressionAST;
+        ast->expression = expression;
+        return ast;
     }
 
     StaticAssertDeclarationAST *StaticAssertDeclaration(ExpressionAST *expression = 0, ExpressionAST *string_literal = 0)
     {
-        StaticAssertDeclarationAST *__ast = new (&pool) StaticAssertDeclarationAST;
-        __ast->expression = expression;
-        __ast->string_literal = string_literal;
-        return __ast;
+        StaticAssertDeclarationAST *ast = new (&pool) StaticAssertDeclarationAST;
+        ast->expression = expression;
+        ast->string_literal = string_literal;
+        return ast;
     }
 
     StringLiteralAST *StringLiteral(StringLiteralAST *next = 0)
     {
-        StringLiteralAST *__ast = new (&pool) StringLiteralAST;
-        __ast->next = next;
-        return __ast;
+        StringLiteralAST *ast = new (&pool) StringLiteralAST;
+        ast->next = next;
+        return ast;
     }
 
     SwitchStatementAST *SwitchStatement(ExpressionAST *condition = 0, StatementAST *statement = 0)
     {
-        SwitchStatementAST *__ast = new (&pool) SwitchStatementAST;
-        __ast->condition = condition;
-        __ast->statement = statement;
-        return __ast;
+        SwitchStatementAST *ast = new (&pool) SwitchStatementAST;
+        ast->condition = condition;
+        ast->statement = statement;
+        return ast;
     }
 
     TemplateDeclarationAST *TemplateDeclaration(DeclarationListAST *template_parameter_list = 0, DeclarationAST *declaration = 0)
     {
-        TemplateDeclarationAST *__ast = new (&pool) TemplateDeclarationAST;
-        __ast->template_parameter_list = template_parameter_list;
-        __ast->declaration = declaration;
-        return __ast;
+        TemplateDeclarationAST *ast = new (&pool) TemplateDeclarationAST;
+        ast->template_parameter_list = template_parameter_list;
+        ast->declaration = declaration;
+        return ast;
     }
 
     ThrowExpressionAST *ThrowExpression(ExpressionAST *expression = 0)
     {
-        ThrowExpressionAST *__ast = new (&pool) ThrowExpressionAST;
-        __ast->expression = expression;
-        return __ast;
+        ThrowExpressionAST *ast = new (&pool) ThrowExpressionAST;
+        ast->expression = expression;
+        return ast;
     }
 
     TranslationUnitAST *TranslationUnit(DeclarationListAST *declaration_list = 0)
     {
-        TranslationUnitAST *__ast = new (&pool) TranslationUnitAST;
-        __ast->declaration_list = declaration_list;
-        return __ast;
+        TranslationUnitAST *ast = new (&pool) TranslationUnitAST;
+        ast->declaration_list = declaration_list;
+        return ast;
     }
 
     TryBlockStatementAST *TryBlockStatement(StatementAST *statement = 0, CatchClauseListAST *catch_clause_list = 0)
     {
-        TryBlockStatementAST *__ast = new (&pool) TryBlockStatementAST;
-        __ast->statement = statement;
-        __ast->catch_clause_list = catch_clause_list;
-        return __ast;
+        TryBlockStatementAST *ast = new (&pool) TryBlockStatementAST;
+        ast->statement = statement;
+        ast->catch_clause_list = catch_clause_list;
+        return ast;
     }
 
     CatchClauseAST *CatchClause(ExceptionDeclarationAST *exception_declaration = 0, StatementAST *statement = 0)
     {
-        CatchClauseAST *__ast = new (&pool) CatchClauseAST;
-        __ast->exception_declaration = exception_declaration;
-        __ast->statement = statement;
-        return __ast;
+        CatchClauseAST *ast = new (&pool) CatchClauseAST;
+        ast->exception_declaration = exception_declaration;
+        ast->statement = statement;
+        return ast;
     }
 
     TypeIdAST *TypeId(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0)
     {
-        TypeIdAST *__ast = new (&pool) TypeIdAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->declarator = declarator;
-        return __ast;
+        TypeIdAST *ast = new (&pool) TypeIdAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->declarator = declarator;
+        return ast;
     }
 
     TypenameTypeParameterAST *TypenameTypeParameter(NameAST *name = 0, ExpressionAST *type_id = 0)
     {
-        TypenameTypeParameterAST *__ast = new (&pool) TypenameTypeParameterAST;
-        __ast->name = name;
-        __ast->type_id = type_id;
-        return __ast;
+        TypenameTypeParameterAST *ast = new (&pool) TypenameTypeParameterAST;
+        ast->name = name;
+        ast->type_id = type_id;
+        return ast;
     }
 
     TemplateTypeParameterAST *TemplateTypeParameter(DeclarationListAST *template_parameter_list = 0, NameAST *name = 0, ExpressionAST *type_id = 0)
     {
-        TemplateTypeParameterAST *__ast = new (&pool) TemplateTypeParameterAST;
-        __ast->template_parameter_list = template_parameter_list;
-        __ast->name = name;
-        __ast->type_id = type_id;
-        return __ast;
+        TemplateTypeParameterAST *ast = new (&pool) TemplateTypeParameterAST;
+        ast->template_parameter_list = template_parameter_list;
+        ast->name = name;
+        ast->type_id = type_id;
+        return ast;
     }
 
     UnaryExpressionAST *UnaryExpression(ExpressionAST *expression = 0)
     {
-        UnaryExpressionAST *__ast = new (&pool) UnaryExpressionAST;
-        __ast->expression = expression;
-        return __ast;
+        UnaryExpressionAST *ast = new (&pool) UnaryExpressionAST;
+        ast->expression = expression;
+        return ast;
     }
 
     UsingAST *Using(NameAST *name = 0)
     {
-        UsingAST *__ast = new (&pool) UsingAST;
-        __ast->name = name;
-        return __ast;
+        UsingAST *ast = new (&pool) UsingAST;
+        ast->name = name;
+        return ast;
     }
 
     UsingDirectiveAST *UsingDirective(NameAST *name = 0)
     {
-        UsingDirectiveAST *__ast = new (&pool) UsingDirectiveAST;
-        __ast->name = name;
-        return __ast;
+        UsingDirectiveAST *ast = new (&pool) UsingDirectiveAST;
+        ast->name = name;
+        return ast;
     }
 
     WhileStatementAST *WhileStatement(ExpressionAST *condition = 0, StatementAST *statement = 0)
     {
-        WhileStatementAST *__ast = new (&pool) WhileStatementAST;
-        __ast->condition = condition;
-        __ast->statement = statement;
-        return __ast;
+        WhileStatementAST *ast = new (&pool) WhileStatementAST;
+        ast->condition = condition;
+        ast->statement = statement;
+        return ast;
     }
 
     ObjCClassForwardDeclarationAST *ObjCClassForwardDeclaration(SpecifierListAST *attribute_list = 0, NameListAST *identifier_list = 0)
     {
-        ObjCClassForwardDeclarationAST *__ast = new (&pool) ObjCClassForwardDeclarationAST;
-        __ast->attribute_list = attribute_list;
-        __ast->identifier_list = identifier_list;
-        return __ast;
+        ObjCClassForwardDeclarationAST *ast = new (&pool) ObjCClassForwardDeclarationAST;
+        ast->attribute_list = attribute_list;
+        ast->identifier_list = identifier_list;
+        return ast;
     }
 
     ObjCClassDeclarationAST *ObjCClassDeclaration(SpecifierListAST *attribute_list = 0, NameAST *class_name = 0, NameAST *category_name = 0, NameAST *superclass = 0, ObjCProtocolRefsAST *protocol_refs = 0, ObjCInstanceVariablesDeclarationAST *inst_vars_decl = 0, DeclarationListAST *member_declaration_list = 0)
     {
-        ObjCClassDeclarationAST *__ast = new (&pool) ObjCClassDeclarationAST;
-        __ast->attribute_list = attribute_list;
-        __ast->class_name = class_name;
-        __ast->category_name = category_name;
-        __ast->superclass = superclass;
-        __ast->protocol_refs = protocol_refs;
-        __ast->inst_vars_decl = inst_vars_decl;
-        __ast->member_declaration_list = member_declaration_list;
-        return __ast;
+        ObjCClassDeclarationAST *ast = new (&pool) ObjCClassDeclarationAST;
+        ast->attribute_list = attribute_list;
+        ast->class_name = class_name;
+        ast->category_name = category_name;
+        ast->superclass = superclass;
+        ast->protocol_refs = protocol_refs;
+        ast->inst_vars_decl = inst_vars_decl;
+        ast->member_declaration_list = member_declaration_list;
+        return ast;
     }
 
     ObjCProtocolForwardDeclarationAST *ObjCProtocolForwardDeclaration(SpecifierListAST *attribute_list = 0, NameListAST *identifier_list = 0)
     {
-        ObjCProtocolForwardDeclarationAST *__ast = new (&pool) ObjCProtocolForwardDeclarationAST;
-        __ast->attribute_list = attribute_list;
-        __ast->identifier_list = identifier_list;
-        return __ast;
+        ObjCProtocolForwardDeclarationAST *ast = new (&pool) ObjCProtocolForwardDeclarationAST;
+        ast->attribute_list = attribute_list;
+        ast->identifier_list = identifier_list;
+        return ast;
     }
 
     ObjCProtocolDeclarationAST *ObjCProtocolDeclaration(SpecifierListAST *attribute_list = 0, NameAST *name = 0, ObjCProtocolRefsAST *protocol_refs = 0, DeclarationListAST *member_declaration_list = 0)
     {
-        ObjCProtocolDeclarationAST *__ast = new (&pool) ObjCProtocolDeclarationAST;
-        __ast->attribute_list = attribute_list;
-        __ast->name = name;
-        __ast->protocol_refs = protocol_refs;
-        __ast->member_declaration_list = member_declaration_list;
-        return __ast;
+        ObjCProtocolDeclarationAST *ast = new (&pool) ObjCProtocolDeclarationAST;
+        ast->attribute_list = attribute_list;
+        ast->name = name;
+        ast->protocol_refs = protocol_refs;
+        ast->member_declaration_list = member_declaration_list;
+        return ast;
     }
 
     ObjCProtocolRefsAST *ObjCProtocolRefs(NameListAST *identifier_list = 0)
     {
-        ObjCProtocolRefsAST *__ast = new (&pool) ObjCProtocolRefsAST;
-        __ast->identifier_list = identifier_list;
-        return __ast;
+        ObjCProtocolRefsAST *ast = new (&pool) ObjCProtocolRefsAST;
+        ast->identifier_list = identifier_list;
+        return ast;
     }
 
     ObjCMessageArgumentAST *ObjCMessageArgument(ExpressionAST *parameter_value_expression = 0)
     {
-        ObjCMessageArgumentAST *__ast = new (&pool) ObjCMessageArgumentAST;
-        __ast->parameter_value_expression = parameter_value_expression;
-        return __ast;
+        ObjCMessageArgumentAST *ast = new (&pool) ObjCMessageArgumentAST;
+        ast->parameter_value_expression = parameter_value_expression;
+        return ast;
     }
 
     ObjCMessageExpressionAST *ObjCMessageExpression(ExpressionAST *receiver_expression = 0, ObjCSelectorAST *selector = 0, ObjCMessageArgumentListAST *argument_list = 0)
     {
-        ObjCMessageExpressionAST *__ast = new (&pool) ObjCMessageExpressionAST;
-        __ast->receiver_expression = receiver_expression;
-        __ast->selector = selector;
-        __ast->argument_list = argument_list;
-        return __ast;
+        ObjCMessageExpressionAST *ast = new (&pool) ObjCMessageExpressionAST;
+        ast->receiver_expression = receiver_expression;
+        ast->selector = selector;
+        ast->argument_list = argument_list;
+        return ast;
     }
 
     ObjCProtocolExpressionAST *ObjCProtocolExpression()
     {
-        ObjCProtocolExpressionAST *__ast = new (&pool) ObjCProtocolExpressionAST;
-        return __ast;
+        ObjCProtocolExpressionAST *ast = new (&pool) ObjCProtocolExpressionAST;
+        return ast;
     }
 
     ObjCTypeNameAST *ObjCTypeName(ExpressionAST *type_id = 0)
     {
-        ObjCTypeNameAST *__ast = new (&pool) ObjCTypeNameAST;
-        __ast->type_id = type_id;
-        return __ast;
+        ObjCTypeNameAST *ast = new (&pool) ObjCTypeNameAST;
+        ast->type_id = type_id;
+        return ast;
     }
 
     ObjCEncodeExpressionAST *ObjCEncodeExpression(ObjCTypeNameAST *type_name = 0)
     {
-        ObjCEncodeExpressionAST *__ast = new (&pool) ObjCEncodeExpressionAST;
-        __ast->type_name = type_name;
-        return __ast;
+        ObjCEncodeExpressionAST *ast = new (&pool) ObjCEncodeExpressionAST;
+        ast->type_name = type_name;
+        return ast;
     }
 
     ObjCSelectorExpressionAST *ObjCSelectorExpression(ObjCSelectorAST *selector = 0)
     {
-        ObjCSelectorExpressionAST *__ast = new (&pool) ObjCSelectorExpressionAST;
-        __ast->selector = selector;
-        return __ast;
+        ObjCSelectorExpressionAST *ast = new (&pool) ObjCSelectorExpressionAST;
+        ast->selector = selector;
+        return ast;
     }
 
     ObjCInstanceVariablesDeclarationAST *ObjCInstanceVariablesDeclaration(DeclarationListAST *instance_variable_list = 0)
     {
-        ObjCInstanceVariablesDeclarationAST *__ast = new (&pool) ObjCInstanceVariablesDeclarationAST;
-        __ast->instance_variable_list = instance_variable_list;
-        return __ast;
+        ObjCInstanceVariablesDeclarationAST *ast = new (&pool) ObjCInstanceVariablesDeclarationAST;
+        ast->instance_variable_list = instance_variable_list;
+        return ast;
     }
 
     ObjCVisibilityDeclarationAST *ObjCVisibilityDeclaration()
     {
-        ObjCVisibilityDeclarationAST *__ast = new (&pool) ObjCVisibilityDeclarationAST;
-        return __ast;
+        ObjCVisibilityDeclarationAST *ast = new (&pool) ObjCVisibilityDeclarationAST;
+        return ast;
     }
 
     ObjCPropertyAttributeAST *ObjCPropertyAttribute(ObjCSelectorAST *method_selector = 0)
     {
-        ObjCPropertyAttributeAST *__ast = new (&pool) ObjCPropertyAttributeAST;
-        __ast->method_selector = method_selector;
-        return __ast;
+        ObjCPropertyAttributeAST *ast = new (&pool) ObjCPropertyAttributeAST;
+        ast->method_selector = method_selector;
+        return ast;
     }
 
     ObjCPropertyDeclarationAST *ObjCPropertyDeclaration(SpecifierListAST *attribute_list = 0, ObjCPropertyAttributeListAST *property_attribute_list = 0, DeclarationAST *simple_declaration = 0)
     {
-        ObjCPropertyDeclarationAST *__ast = new (&pool) ObjCPropertyDeclarationAST;
-        __ast->attribute_list = attribute_list;
-        __ast->property_attribute_list = property_attribute_list;
-        __ast->simple_declaration = simple_declaration;
-        return __ast;
+        ObjCPropertyDeclarationAST *ast = new (&pool) ObjCPropertyDeclarationAST;
+        ast->attribute_list = attribute_list;
+        ast->property_attribute_list = property_attribute_list;
+        ast->simple_declaration = simple_declaration;
+        return ast;
     }
 
     ObjCMessageArgumentDeclarationAST *ObjCMessageArgumentDeclaration(ObjCTypeNameAST *type_name = 0, SpecifierListAST *attribute_list = 0, NameAST *param_name = 0)
     {
-        ObjCMessageArgumentDeclarationAST *__ast = new (&pool) ObjCMessageArgumentDeclarationAST;
-        __ast->type_name = type_name;
-        __ast->attribute_list = attribute_list;
-        __ast->param_name = param_name;
-        return __ast;
+        ObjCMessageArgumentDeclarationAST *ast = new (&pool) ObjCMessageArgumentDeclarationAST;
+        ast->type_name = type_name;
+        ast->attribute_list = attribute_list;
+        ast->param_name = param_name;
+        return ast;
     }
 
     ObjCMethodPrototypeAST *ObjCMethodPrototype(ObjCTypeNameAST *type_name = 0, ObjCSelectorAST *selector = 0, ObjCMessageArgumentDeclarationListAST *argument_list = 0, SpecifierListAST *attribute_list = 0)
     {
-        ObjCMethodPrototypeAST *__ast = new (&pool) ObjCMethodPrototypeAST;
-        __ast->type_name = type_name;
-        __ast->selector = selector;
-        __ast->argument_list = argument_list;
-        __ast->attribute_list = attribute_list;
-        return __ast;
+        ObjCMethodPrototypeAST *ast = new (&pool) ObjCMethodPrototypeAST;
+        ast->type_name = type_name;
+        ast->selector = selector;
+        ast->argument_list = argument_list;
+        ast->attribute_list = attribute_list;
+        return ast;
     }
 
     ObjCMethodDeclarationAST *ObjCMethodDeclaration(ObjCMethodPrototypeAST *method_prototype = 0, StatementAST *function_body = 0)
     {
-        ObjCMethodDeclarationAST *__ast = new (&pool) ObjCMethodDeclarationAST;
-        __ast->method_prototype = method_prototype;
-        __ast->function_body = function_body;
-        return __ast;
+        ObjCMethodDeclarationAST *ast = new (&pool) ObjCMethodDeclarationAST;
+        ast->method_prototype = method_prototype;
+        ast->function_body = function_body;
+        return ast;
     }
 
     ObjCSynthesizedPropertyAST *ObjCSynthesizedProperty()
     {
-        ObjCSynthesizedPropertyAST *__ast = new (&pool) ObjCSynthesizedPropertyAST;
-        return __ast;
+        ObjCSynthesizedPropertyAST *ast = new (&pool) ObjCSynthesizedPropertyAST;
+        return ast;
     }
 
     ObjCSynthesizedPropertiesDeclarationAST *ObjCSynthesizedPropertiesDeclaration(ObjCSynthesizedPropertyListAST *property_identifier_list = 0)
     {
-        ObjCSynthesizedPropertiesDeclarationAST *__ast = new (&pool) ObjCSynthesizedPropertiesDeclarationAST;
-        __ast->property_identifier_list = property_identifier_list;
-        return __ast;
+        ObjCSynthesizedPropertiesDeclarationAST *ast = new (&pool) ObjCSynthesizedPropertiesDeclarationAST;
+        ast->property_identifier_list = property_identifier_list;
+        return ast;
     }
 
     ObjCDynamicPropertiesDeclarationAST *ObjCDynamicPropertiesDeclaration(NameListAST *property_identifier_list = 0)
     {
-        ObjCDynamicPropertiesDeclarationAST *__ast = new (&pool) ObjCDynamicPropertiesDeclarationAST;
-        __ast->property_identifier_list = property_identifier_list;
-        return __ast;
+        ObjCDynamicPropertiesDeclarationAST *ast = new (&pool) ObjCDynamicPropertiesDeclarationAST;
+        ast->property_identifier_list = property_identifier_list;
+        return ast;
     }
 
     ObjCFastEnumerationAST *ObjCFastEnumeration(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0, ExpressionAST *initializer = 0, ExpressionAST *fast_enumeratable_expression = 0, StatementAST *statement = 0)
     {
-        ObjCFastEnumerationAST *__ast = new (&pool) ObjCFastEnumerationAST;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->declarator = declarator;
-        __ast->initializer = initializer;
-        __ast->fast_enumeratable_expression = fast_enumeratable_expression;
-        __ast->statement = statement;
-        return __ast;
+        ObjCFastEnumerationAST *ast = new (&pool) ObjCFastEnumerationAST;
+        ast->type_specifier_list = type_specifier_list;
+        ast->declarator = declarator;
+        ast->initializer = initializer;
+        ast->fast_enumeratable_expression = fast_enumeratable_expression;
+        ast->statement = statement;
+        return ast;
     }
 
     ObjCSynchronizedStatementAST *ObjCSynchronizedStatement(ExpressionAST *synchronized_object = 0, StatementAST *statement = 0)
     {
-        ObjCSynchronizedStatementAST *__ast = new (&pool) ObjCSynchronizedStatementAST;
-        __ast->synchronized_object = synchronized_object;
-        __ast->statement = statement;
-        return __ast;
+        ObjCSynchronizedStatementAST *ast = new (&pool) ObjCSynchronizedStatementAST;
+        ast->synchronized_object = synchronized_object;
+        ast->statement = statement;
+        return ast;
     }
 
     LambdaExpressionAST *LambdaExpression(LambdaIntroducerAST *lambda_introducer = 0, LambdaDeclaratorAST *lambda_declarator = 0, StatementAST *statement = 0)
     {
-        LambdaExpressionAST *__ast = new (&pool) LambdaExpressionAST;
-        __ast->lambda_introducer = lambda_introducer;
-        __ast->lambda_declarator = lambda_declarator;
-        __ast->statement = statement;
-        return __ast;
+        LambdaExpressionAST *ast = new (&pool) LambdaExpressionAST;
+        ast->lambda_introducer = lambda_introducer;
+        ast->lambda_declarator = lambda_declarator;
+        ast->statement = statement;
+        return ast;
     }
 
     LambdaIntroducerAST *LambdaIntroducer(LambdaCaptureAST *lambda_capture = 0)
     {
-        LambdaIntroducerAST *__ast = new (&pool) LambdaIntroducerAST;
-        __ast->lambda_capture = lambda_capture;
-        return __ast;
+        LambdaIntroducerAST *ast = new (&pool) LambdaIntroducerAST;
+        ast->lambda_capture = lambda_capture;
+        return ast;
     }
 
     LambdaCaptureAST *LambdaCapture(CaptureListAST *capture_list = 0)
     {
-        LambdaCaptureAST *__ast = new (&pool) LambdaCaptureAST;
-        __ast->capture_list = capture_list;
-        return __ast;
+        LambdaCaptureAST *ast = new (&pool) LambdaCaptureAST;
+        ast->capture_list = capture_list;
+        return ast;
     }
 
     CaptureAST *Capture(NameAST *identifier = 0)
     {
-        CaptureAST *__ast = new (&pool) CaptureAST;
-        __ast->identifier = identifier;
-        return __ast;
+        CaptureAST *ast = new (&pool) CaptureAST;
+        ast->identifier = identifier;
+        return ast;
     }
 
     LambdaDeclaratorAST *LambdaDeclarator(ParameterDeclarationClauseAST *parameter_declaration_clause = 0, SpecifierListAST *attributes = 0, ExceptionSpecificationAST *exception_specification = 0, TrailingReturnTypeAST *trailing_return_type = 0)
     {
-        LambdaDeclaratorAST *__ast = new (&pool) LambdaDeclaratorAST;
-        __ast->parameter_declaration_clause = parameter_declaration_clause;
-        __ast->attributes = attributes;
-        __ast->exception_specification = exception_specification;
-        __ast->trailing_return_type = trailing_return_type;
-        return __ast;
+        LambdaDeclaratorAST *ast = new (&pool) LambdaDeclaratorAST;
+        ast->parameter_declaration_clause = parameter_declaration_clause;
+        ast->attributes = attributes;
+        ast->exception_specification = exception_specification;
+        ast->trailing_return_type = trailing_return_type;
+        return ast;
     }
 
     TrailingReturnTypeAST *TrailingReturnType(SpecifierListAST *attributes = 0, SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0)
     {
-        TrailingReturnTypeAST *__ast = new (&pool) TrailingReturnTypeAST;
-        __ast->attributes = attributes;
-        __ast->type_specifier_list = type_specifier_list;
-        __ast->declarator = declarator;
-        return __ast;
+        TrailingReturnTypeAST *ast = new (&pool) TrailingReturnTypeAST;
+        ast->attributes = attributes;
+        ast->type_specifier_list = type_specifier_list;
+        ast->declarator = declarator;
+        return ast;
     }
 
     BracedInitializerAST *BracedInitializer(ExpressionListAST *expression_list = 0)
     {
-        BracedInitializerAST *__ast = new (&pool) BracedInitializerAST;
-        __ast->expression_list = expression_list;
-        return __ast;
+        BracedInitializerAST *ast = new (&pool) BracedInitializerAST;
+        ast->expression_list = expression_list;
+        return ast;
     }
 
     DotDesignatorAST *DotDesignator()
     {
-        DotDesignatorAST *__ast = new (&pool) DotDesignatorAST;
-        return __ast;
+        DotDesignatorAST *ast = new (&pool) DotDesignatorAST;
+        return ast;
     }
 
     BracketDesignatorAST *BracketDesignator(ExpressionAST *expression = 0)
     {
-        BracketDesignatorAST *__ast = new (&pool) BracketDesignatorAST;
-        __ast->expression = expression;
-        return __ast;
+        BracketDesignatorAST *ast = new (&pool) BracketDesignatorAST;
+        ast->expression = expression;
+        return ast;
     }
 
     DesignatedInitializerAST *DesignatedInitializer(DesignatorListAST *designator_list = 0, ExpressionAST *initializer = 0)
     {
-        DesignatedInitializerAST *__ast = new (&pool) DesignatedInitializerAST;
-        __ast->designator_list = designator_list;
-        __ast->initializer = initializer;
-        return __ast;
+        DesignatedInitializerAST *ast = new (&pool) DesignatedInitializerAST;
+        ast->designator_list = designator_list;
+        ast->initializer = initializer;
+        return ast;
     }
 
     BaseSpecifierListAST *BaseSpecifierList(BaseSpecifierAST *value, BaseSpecifierListAST *next = 0)
     {
-        BaseSpecifierListAST *__list = new (&pool) BaseSpecifierListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        BaseSpecifierListAST *list = new (&pool) BaseSpecifierListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     CaptureListAST *CaptureList(CaptureAST *value, CaptureListAST *next = 0)
     {
-        CaptureListAST *__list = new (&pool) CaptureListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        CaptureListAST *list = new (&pool) CaptureListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     CatchClauseListAST *CatchClauseList(CatchClauseAST *value, CatchClauseListAST *next = 0)
     {
-        CatchClauseListAST *__list = new (&pool) CatchClauseListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        CatchClauseListAST *list = new (&pool) CatchClauseListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     DeclarationListAST *DeclarationList(DeclarationAST *value, DeclarationListAST *next = 0)
     {
-        DeclarationListAST *__list = new (&pool) DeclarationListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        DeclarationListAST *list = new (&pool) DeclarationListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     DeclaratorListAST *DeclaratorList(DeclaratorAST *value, DeclaratorListAST *next = 0)
     {
-        DeclaratorListAST *__list = new (&pool) DeclaratorListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        DeclaratorListAST *list = new (&pool) DeclaratorListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     DesignatorListAST *DesignatorList(DesignatorAST *value, DesignatorListAST *next = 0)
     {
-        DesignatorListAST *__list = new (&pool) DesignatorListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        DesignatorListAST *list = new (&pool) DesignatorListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     EnumeratorListAST *EnumeratorList(EnumeratorAST *value, EnumeratorListAST *next = 0)
     {
-        EnumeratorListAST *__list = new (&pool) EnumeratorListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        EnumeratorListAST *list = new (&pool) EnumeratorListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     ExpressionListAST *ExpressionList(ExpressionAST *value, ExpressionListAST *next = 0)
     {
-        ExpressionListAST *__list = new (&pool) ExpressionListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        ExpressionListAST *list = new (&pool) ExpressionListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     GnuAttributeListAST *GnuAttributeList(GnuAttributeAST *value, GnuAttributeListAST *next = 0)
     {
-        GnuAttributeListAST *__list = new (&pool) GnuAttributeListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        GnuAttributeListAST *list = new (&pool) GnuAttributeListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     MemInitializerListAST *MemInitializerList(MemInitializerAST *value, MemInitializerListAST *next = 0)
     {
-        MemInitializerListAST *__list = new (&pool) MemInitializerListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        MemInitializerListAST *list = new (&pool) MemInitializerListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     NameListAST *NameList(NameAST *value, NameListAST *next = 0)
     {
-        NameListAST *__list = new (&pool) NameListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        NameListAST *list = new (&pool) NameListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     NestedNameSpecifierListAST *NestedNameSpecifierList(NestedNameSpecifierAST *value, NestedNameSpecifierListAST *next = 0)
     {
-        NestedNameSpecifierListAST *__list = new (&pool) NestedNameSpecifierListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        NestedNameSpecifierListAST *list = new (&pool) NestedNameSpecifierListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     NewArrayDeclaratorListAST *NewArrayDeclaratorList(NewArrayDeclaratorAST *value, NewArrayDeclaratorListAST *next = 0)
     {
-        NewArrayDeclaratorListAST *__list = new (&pool) NewArrayDeclaratorListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        NewArrayDeclaratorListAST *list = new (&pool) NewArrayDeclaratorListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     ObjCMessageArgumentDeclarationListAST *ObjCMessageArgumentDeclarationList(ObjCMessageArgumentDeclarationAST *value, ObjCMessageArgumentDeclarationListAST *next = 0)
     {
-        ObjCMessageArgumentDeclarationListAST *__list = new (&pool) ObjCMessageArgumentDeclarationListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        ObjCMessageArgumentDeclarationListAST *list = new (&pool) ObjCMessageArgumentDeclarationListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     ObjCMessageArgumentListAST *ObjCMessageArgumentList(ObjCMessageArgumentAST *value, ObjCMessageArgumentListAST *next = 0)
     {
-        ObjCMessageArgumentListAST *__list = new (&pool) ObjCMessageArgumentListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        ObjCMessageArgumentListAST *list = new (&pool) ObjCMessageArgumentListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     ObjCPropertyAttributeListAST *ObjCPropertyAttributeList(ObjCPropertyAttributeAST *value, ObjCPropertyAttributeListAST *next = 0)
     {
-        ObjCPropertyAttributeListAST *__list = new (&pool) ObjCPropertyAttributeListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        ObjCPropertyAttributeListAST *list = new (&pool) ObjCPropertyAttributeListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     ObjCSelectorArgumentListAST *ObjCSelectorArgumentList(ObjCSelectorArgumentAST *value, ObjCSelectorArgumentListAST *next = 0)
     {
-        ObjCSelectorArgumentListAST *__list = new (&pool) ObjCSelectorArgumentListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        ObjCSelectorArgumentListAST *list = new (&pool) ObjCSelectorArgumentListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     ObjCSynthesizedPropertyListAST *ObjCSynthesizedPropertyList(ObjCSynthesizedPropertyAST *value, ObjCSynthesizedPropertyListAST *next = 0)
     {
-        ObjCSynthesizedPropertyListAST *__list = new (&pool) ObjCSynthesizedPropertyListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        ObjCSynthesizedPropertyListAST *list = new (&pool) ObjCSynthesizedPropertyListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     ParameterDeclarationListAST *ParameterDeclarationList(ParameterDeclarationAST *value, ParameterDeclarationListAST *next = 0)
     {
-        ParameterDeclarationListAST *__list = new (&pool) ParameterDeclarationListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        ParameterDeclarationListAST *list = new (&pool) ParameterDeclarationListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     PostfixDeclaratorListAST *PostfixDeclaratorList(PostfixDeclaratorAST *value, PostfixDeclaratorListAST *next = 0)
     {
-        PostfixDeclaratorListAST *__list = new (&pool) PostfixDeclaratorListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        PostfixDeclaratorListAST *list = new (&pool) PostfixDeclaratorListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     PtrOperatorListAST *PtrOperatorList(PtrOperatorAST *value, PtrOperatorListAST *next = 0)
     {
-        PtrOperatorListAST *__list = new (&pool) PtrOperatorListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        PtrOperatorListAST *list = new (&pool) PtrOperatorListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     QtInterfaceNameListAST *QtInterfaceNameList(QtInterfaceNameAST *value, QtInterfaceNameListAST *next = 0)
     {
-        QtInterfaceNameListAST *__list = new (&pool) QtInterfaceNameListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        QtInterfaceNameListAST *list = new (&pool) QtInterfaceNameListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     QtPropertyDeclarationItemListAST *QtPropertyDeclarationItemList(QtPropertyDeclarationItemAST *value, QtPropertyDeclarationItemListAST *next = 0)
     {
-        QtPropertyDeclarationItemListAST *__list = new (&pool) QtPropertyDeclarationItemListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        QtPropertyDeclarationItemListAST *list = new (&pool) QtPropertyDeclarationItemListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     SpecifierListAST *SpecifierList(SpecifierAST *value, SpecifierListAST *next = 0)
     {
-        SpecifierListAST *__list = new (&pool) SpecifierListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        SpecifierListAST *list = new (&pool) SpecifierListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
     StatementListAST *StatementList(StatementAST *value, StatementListAST *next = 0)
     {
-        StatementListAST *__list = new (&pool) StatementListAST;
-        __list->next = next;
-        __list->value = value;
-        return __list;
+        StatementListAST *list = new (&pool) StatementListAST;
+        list->next = next;
+        list->value = value;
+        return list;
     }
 
 };
