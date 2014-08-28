@@ -167,9 +167,10 @@ def qdump__QModelIndex(d, value):
     except:
         d.putValue("")
 
-    d.putNumChild(rowCount * columnCount)
+    d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
+            d.putFields(value, False)
             i = 0
             for row in xrange(rowCount):
                 for column in xrange(columnCount):
