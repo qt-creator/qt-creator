@@ -212,7 +212,7 @@ public:
 
 class QMLJS_EXPORT Snapshot
 {
-    typedef QHash<QString, Document::Ptr> _Base;
+    typedef QHash<QString, Document::Ptr> Base;
     QHash<QString, Document::Ptr> _documents;
     QHash<QString, QList<Document::Ptr> > _documentsByPath;
     QHash<QString, LibraryInfo> _libraries;
@@ -223,8 +223,8 @@ public:
     Snapshot(const Snapshot &o);
     ~Snapshot();
 
-    typedef _Base::iterator iterator;
-    typedef _Base::const_iterator const_iterator;
+    typedef Base::iterator iterator;
+    typedef Base::const_iterator const_iterator;
 
     const_iterator begin() const { return _documents.begin(); }
     const_iterator end() const { return _documents.end(); }

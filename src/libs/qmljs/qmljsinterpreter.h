@@ -156,10 +156,10 @@ public:
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 };
 
-template <typename _RetTy> const _RetTy *value_cast(const Value *)
+template <typename RetTy> const RetTy *value_cast(const Value *)
 {
     // Produce a good error message if a specialization is missing.
-    _RetTy::ERROR_MissingValueCastSpecialization();
+    RetTy::ERROR_MissingValueCastSpecialization();
     return 0;
 }
 
