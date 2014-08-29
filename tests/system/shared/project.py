@@ -30,6 +30,11 @@
 import __builtin__
 import re
 
+def openQbsProject(projectPath):
+    cleanUpUserFiles(projectPath)
+    invokeMenuItem("File", "Open File or Project...")
+    selectFromFileDialog(projectPath)
+
 def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWelcome=False):
     cleanUpUserFiles(projectPath)
     if fromWelcome:
