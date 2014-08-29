@@ -526,7 +526,7 @@ QString GerritPlugin::findLocalRepository(QString project, const QString &branch
     QScopedPointer<QRegExp> branchRegexp;
     if (!branch.isEmpty() && branch != QLatin1String("master")) {
         QString branchPattern = branch;
-        branchPattern.replace(QLatin1String("."), QLatin1String("[\\.-_]?"));
+        branchPattern.replace(QLatin1Char('.'), QLatin1String("[\\.-_]?"));
         const QString pattern = QLatin1Char('^') + project
                                 + QLatin1String("[-_]?")
                                 + branchPattern + QLatin1Char('$');

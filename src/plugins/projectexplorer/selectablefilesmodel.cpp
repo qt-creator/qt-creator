@@ -75,7 +75,7 @@ void SelectableFilesModel::startParsing(const QString &baseDir)
     m_baseDir = baseDir;
     // Build a tree in a future
     m_rootForFuture = new Tree;
-    m_rootForFuture->name = QLatin1String("/");
+    m_rootForFuture->name = QLatin1Char('/');
     m_rootForFuture->parent = 0;
     m_rootForFuture->fullPath = baseDir;
     m_rootForFuture->isDir = true;

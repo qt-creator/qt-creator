@@ -379,7 +379,7 @@ int QmlJSIndenter::indentForContinuationLine()
                 */
                 if (!isContinuationLine())
                     return indentOfLine(*yyLine);
-            } else if (isContinuationLine() || yyLine->endsWith(QLatin1String(","))) {
+            } else if (isContinuationLine() || yyLine->endsWith(QLatin1Char(','))) {
                 /*
                     We have
 

@@ -513,7 +513,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     dev3->setDisplayName(dev->displayName());
     mgr->addDevice(dev3);
     QCOMPARE(mgr->deviceAt(mgr->deviceCount() - 1)->displayName(),
-             QString(dev3->displayName() + QLatin1String("2")));
+             QString(dev3->displayName() + QLatin1Char('2')));
     QCOMPARE(deviceAddedSpy.count(), 1);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 0);

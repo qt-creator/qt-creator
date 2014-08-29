@@ -165,7 +165,7 @@ void IosConfigurations::updateAutomaticKitList()
                     }
                 }
                 if (unique) break;
-                displayName = baseDisplayName + QLatin1String("-") + QString::number(iVers);
+                displayName = baseDisplayName + QLatin1Char('-') + QString::number(iVers);
             }
             toolchain->setDisplayName(displayName);
             toolchain->setPlatformCodeGenFlags(p.backendFlags);
@@ -306,7 +306,7 @@ void IosConfigurations::updateAutomaticKitList()
                             }
                         }
                         if (unique) break;
-                        displayName = baseDisplayName + QLatin1String("-") + QString::number(iVers);
+                        displayName = baseDisplayName + QLatin1Char('-') + QString::number(iVers);
                     }
                     kitAtt->setUnexpandedDisplayName(displayName);
                 }

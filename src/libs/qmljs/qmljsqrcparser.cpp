@@ -119,7 +119,7 @@ QString QrcParser::normalizedQrcFilePath(const QString &path) {
         while (endPrefix + 1 < path.size() && path.at(endPrefix+1) == QLatin1Char('/'))
             ++endPrefix;
     normPath = path.right(path.size()-endPrefix);
-    if (!normPath.startsWith(QLatin1String("/")))
+    if (!normPath.startsWith(QLatin1Char('/')))
         normPath.insert(0, QLatin1Char('/'));
     return normPath;
 }

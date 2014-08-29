@@ -254,7 +254,7 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
 {
     QString name = tr("%1 Prefix: %2")
             .arg(QFileInfo(path()).fileName())
-            .arg(QLatin1String("/"));
+            .arg(QLatin1Char('/'));
 
     int p = -1;
     if (priority(files)) { // images/* and qml/js mimetypes

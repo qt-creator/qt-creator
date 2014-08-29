@@ -3165,7 +3165,7 @@ public:
         if (m_funcReturn) {
             funcDef.append(QLatin1String("\nreturn ")
                         + m_relevantDecls.at(0).first
-                        + QLatin1String(";"));
+                        + QLatin1Char(';'));
             funcCall.prepend(m_relevantDecls.at(0).second + QLatin1String(" = "));
         }
         funcDef.append(QLatin1String("\n}\n\n"));
@@ -4537,7 +4537,7 @@ public:
         } else {
             QString textFuncDecl = fromFile->textOf(m_funcDef);
             textFuncDecl.truncate(startPosition - fromFile->startOf(m_funcDef));
-            textFuncDecl = textFuncDecl.trimmed() + QLatin1String(";");
+            textFuncDecl = textFuncDecl.trimmed() + QLatin1Char(';');
             headerTarget.replace(fromFile->range(m_funcDef), textFuncDecl);
         }
         fromFile->setChangeSet(headerTarget);

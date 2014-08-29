@@ -563,7 +563,7 @@ bool LineInfo::isUnfinishedLine()
             unf = true;
 
         // ### This only checks one line back.
-        } else if (readLine() && yyLine->endsWith(QLatin1String(";")) && hasUnclosedParenOrBracket()) {
+        } else if (readLine() && yyLine->endsWith(QLatin1Char(';')) && hasUnclosedParenOrBracket()) {
             /*
               Exception:
 

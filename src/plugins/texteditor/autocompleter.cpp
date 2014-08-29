@@ -110,7 +110,7 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
 
     if (m_surroundWithEnabled && cursor.hasSelection()) {
         if (textToInsert == QLatin1String("("))
-            return cursor.selectedText() + QLatin1String(")");
+            return cursor.selectedText() + QLatin1Char(')');
         if (textToInsert == QLatin1String("{")) {
             //If the text span multiple lines, insert on different lines
             QString str = cursor.selectedText();
@@ -119,20 +119,20 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
                 str = (str.startsWith(QChar::ParagraphSeparator) ? QString() : QString(QChar::ParagraphSeparator)) +
                       str;
                 if (str.endsWith(QChar::ParagraphSeparator))
-                    str += QLatin1String("}") + QString(QChar::ParagraphSeparator);
+                    str += QLatin1Char('}') + QString(QChar::ParagraphSeparator);
                 else
-                    str += QString(QChar::ParagraphSeparator) + QLatin1String("}");
+                    str += QString(QChar::ParagraphSeparator) + QLatin1Char('}');
             } else {
-                str += QLatin1String("}");
+                str += QLatin1Char('}');
             }
             return str;
         }
         if (textToInsert == QLatin1String("["))
-            return cursor.selectedText() + QLatin1String("]");
+            return cursor.selectedText() + QLatin1Char(']');
         if (textToInsert == QLatin1String("\""))
-            return cursor.selectedText() + QLatin1String("\"");
+            return cursor.selectedText() + QLatin1Char('"');
         if (textToInsert == QLatin1String("'"))
-            return cursor.selectedText() + QLatin1String("'");
+            return cursor.selectedText() + QLatin1Char('\'');
     }
 
     if (!m_autoParenthesesEnabled)

@@ -157,7 +157,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         if (wo.sourceType == PluginOptions::WidgetOptions::LinkLibrary)
             widgetLibraries.insert(QLatin1String("-l") + wo.widgetLibrary);
         else
-            widgetProjects.insert(QLatin1String("include(") + wo.widgetProjectFile + QLatin1String(")"));
+            widgetProjects.insert(QLatin1String("include(") + wo.widgetProjectFile + QLatin1Char(')'));
         pluginIncludes += QLatin1String("#include \"") + wo.pluginHeaderFile + QLatin1String("\"\n");
         pluginAdditions +=
             QLatin1String("    m_widgets.append(new ") + wo.pluginClassName + QLatin1String("(this));\n");

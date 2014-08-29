@@ -123,7 +123,7 @@ QString StackFrame::toToolTip() const
         showDistributionNote = true;
     }
     if (!Utils::HostOsInfo::isWindowsHost() && showDistributionNote) {
-        str << QLatin1String(" ") <<
+        str << QLatin1Char(' ') <<
                tr("Note that most distributions ship debug information "
                   "in separate packages.");
     }

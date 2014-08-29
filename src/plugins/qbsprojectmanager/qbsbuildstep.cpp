@@ -481,7 +481,7 @@ void QbsBuildStepConfigWidget::updateState()
 
     QString command = QLatin1String("qbs build ");
     command += QString::fromLatin1("--settings-dir ")
-            + QDir::toNativeSeparators(Core::ICore::userResourcePath()) + QLatin1String(" ");
+            + QDir::toNativeSeparators(Core::ICore::userResourcePath()) + QLatin1Char(' ');
     if (m_step->dryRun())
         command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())

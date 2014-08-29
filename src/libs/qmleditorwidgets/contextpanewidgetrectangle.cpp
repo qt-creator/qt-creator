@@ -266,7 +266,7 @@ void ContextPaneWidgetRectangle::timerEvent(QTimerEvent *event)
             str += QLatin1String("color: ") + QLatin1String("\"") + stop.second.name() + QLatin1String("\";\n");
             str += QLatin1String("}\n");
         }
-        str += QLatin1String("}");
+        str += QLatin1Char('}');
         emit propertyChanged(QLatin1String("gradient"), str);
     }
 }

@@ -100,7 +100,7 @@ bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirector
         args << QLatin1String("-R");
     MessageManager::write(QApplication::translate("Core::PatchTool", "Executing in %1: %2 %3").
                           arg(QDir::toNativeSeparators(workingDirectory),
-                              QDir::toNativeSeparators(patch), args.join(QLatin1String(" "))));
+                              QDir::toNativeSeparators(patch), args.join(QLatin1Char(' '))));
     patchProcess.start(patch, args);
     if (!patchProcess.waitForStarted()) {
         MessageManager::write(QApplication::translate("Core::PatchTool", "Unable to launch \"%1\": %2").arg(patch, patchProcess.errorString()));

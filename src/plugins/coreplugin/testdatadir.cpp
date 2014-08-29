@@ -62,7 +62,7 @@ QString TestDataDir::directory(const QString &subdir, bool clean) const
 {
     QString path = m_directory;
     if (!subdir.isEmpty())
-        path += QLatin1String("/") + subdir;
+        path += QLatin1Char('/') + subdir;
     if (clean)
         path = QDir::cleanPath(path);
     maybeAppendSlash(&path);

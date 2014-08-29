@@ -185,7 +185,7 @@ bool GenericProject::addFiles(const QStringList &filePaths)
     foreach (const QString &path, toAdd) {
         QString relative = dir.relativeFilePath(path);
         if (relative.isEmpty())
-            relative = QLatin1String(".");
+            relative = QLatin1Char('.');
         m_rawProjectIncludePaths.append(relative);
     }
 

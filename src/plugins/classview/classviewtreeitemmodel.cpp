@@ -96,7 +96,7 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
             QString name(inf.name());
 
             if (!inf.type().isEmpty())
-                name += QLatin1String(" ") + inf.type();
+                name += QLatin1Char(' ') + inf.type();
 
             return name;
         }

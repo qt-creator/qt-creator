@@ -52,7 +52,7 @@ AbstractGeneratedFileInfo::AbstractGeneratedFileInfo()
 }
 
 const QString AbstractMobileApp::CFileComment(QLatin1String("//"));
-const QString AbstractMobileApp::ProFileComment(QLatin1String("#"));
+const QString AbstractMobileApp::ProFileComment(QLatin1Char('#'));
 const QString AbstractMobileApp::DeploymentPriFileName(QLatin1String("deployment.pri"));
 const QString AbstractMobileApp::FileChecksum(QLatin1String("checksum"));
 const QString AbstractMobileApp::FileStubVersion(QLatin1String("version"));

@@ -138,7 +138,7 @@ Command ClangFormat::command(int offset, int length) const
     } else {
         command.addOption(QLatin1String("-style={")
                           + m_settings->style(m_settings->customStyle()).remove(QLatin1Char('\n'))
-                          + QLatin1String("}"));
+                          + QLatin1Char('}'));
     }
 
     if (offset != -1) {

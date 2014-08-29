@@ -48,7 +48,7 @@ static const char * const FILE_PATTERN = "(<command line>|([A-Za-z]:)?[^:]+\\.[^
 ClangParser::ClangParser() :
     m_commandRegExp(QLatin1String("^clang(\\+\\+)?: +(fatal +)?(warning|error|note): (.*)$")),
     m_inLineRegExp(QLatin1String("^In (.*) included from (.*):(\\d+):$")),
-    m_messageRegExp(QLatin1String("^") + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$")),
+    m_messageRegExp(QLatin1Char('^') + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$")),
     m_summaryRegExp(QLatin1String("^\\d+ (warnings?|errors?)( and \\d (warnings?|errors?))? generated.$")),
     m_codesignRegExp(QLatin1String("^Code ?Sign error: (.*)$")),
     m_expectSnippet(false)

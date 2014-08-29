@@ -99,7 +99,7 @@ SftpFileSystemModel::SftpFileSystemModel(QObject *parent)
     : QAbstractItemModel(parent), d(new SftpFileSystemModelPrivate)
 {
     d->sshConnection = 0;
-    d->rootDirectory = QLatin1String("/");
+    d->rootDirectory = QLatin1Char('/');
     d->rootNode = 0;
     d->statJobId = SftpInvalidJob;
 }

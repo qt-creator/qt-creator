@@ -200,25 +200,25 @@ QString PropertyInfo::toString() const
     }
     if (isWriteable()) {
         if (join)
-            res += QLatin1String("|");
+            res += QLatin1Char('|');
         res += QLatin1String("Writeable");
         join = true;
     }
     if (isList()) {
         if (join)
-            res += QLatin1String("|");
+            res += QLatin1Char('|');
         res += QLatin1String("ListType");
         join = true;
     }
     if (canBePointer()) {
         if (join)
-            res += QLatin1String("|");
+            res += QLatin1Char('|');
         res += QLatin1String("Pointer");
         join = true;
     }
     if (canBeValue()) {
         if (join)
-            res += QLatin1String("|");
+            res += QLatin1Char('|');
         res += QLatin1String("Value");
         join = true;
     }

@@ -324,7 +324,7 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
     CppQmlTypesLoader::BuiltinObjects objectsList;
     QList<ModuleApiInfo> moduleApis;
     CppQmlTypesLoader::parseQmlTypeDescriptions(output, &objectsList, &moduleApis, &error, &warning,
-                                                QLatin1String("<dump of ") + libraryPath + QLatin1String(">"));
+                                                QLatin1String("<dump of ") + libraryPath + QLatin1Char('>'));
     if (exitCode == 0) {
         if (!error.isEmpty()) {
             libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,

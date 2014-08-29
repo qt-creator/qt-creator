@@ -162,7 +162,7 @@ QStringList FindValueOperation::findValue(const QVariant &in, const QVariant &va
     } else if (in.type() == QVariant::List) {
         QVariantList list = in.toList();
         for (int pos = 0; pos < list.count(); ++pos) {
-            QString pfx = prefix + QLatin1Char('[') + QString::number(pos) + QLatin1String("]");
+            QString pfx = prefix + QLatin1Char('[') + QString::number(pos) + QLatin1Char(']');
             result.append(findValue(list.at(pos), value, pfx));
         }
     }

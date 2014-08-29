@@ -260,7 +260,7 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
             m_ndkState = Error;
             m_ndkErrorMessage = tr("\"%1\" does not seem to be an Android NDK top folder.")
                     .arg(m_androidConfig.ndkLocation().toUserOutput());
-        } else if (platformPath.toString().contains(QLatin1String(" "))) {
+        } else if (platformPath.toString().contains(QLatin1Char(' '))) {
             m_ndkState = Error;
             m_ndkErrorMessage = tr("The Android NDK cannot be installed into a path with spaces.");
         } else {

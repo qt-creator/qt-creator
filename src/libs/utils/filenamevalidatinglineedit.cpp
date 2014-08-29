@@ -172,7 +172,7 @@ bool FileNameValidatingLineEdit::validateFileNameExtension(const QString &fileNa
     // file extension
     if (!requiredExtensions.isEmpty()) {
         foreach (const QString &requiredExtension, requiredExtensions) {
-            QString extension = QLatin1String(".") + requiredExtension;
+            QString extension = QLatin1Char('.') + requiredExtension;
             if (fileName.endsWith(extension, Qt::CaseSensitive) && extension.count() < fileName.count())
                 return true;
         }

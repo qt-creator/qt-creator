@@ -46,7 +46,7 @@ void CommentDefinition::setStyle(Style style)
             multiLineEnd = QLatin1String("*/");
             break;
         case HashStyle:
-            singleLine = QLatin1String("#");
+            singleLine = QLatin1Char('#');
             multiLineStart.clear();
             multiLineEnd.clear();
             break;

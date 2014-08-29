@@ -320,7 +320,7 @@ QString IosRunConfiguration::disabledReason() const
             IDevice::ConstPtr availDev = dm->deviceAt(idev);
             if (!availDev.isNull() && availDev->type() == Constants::IOS_DEVICE_TYPE) {
                 if (availDev->deviceState() == IDevice::DeviceReadyToUse) {
-                    validDevName += QLatin1String(" ");
+                    validDevName += QLatin1Char(' ');
                     validDevName += availDev->displayName();
                 } else if (availDev->deviceState() == IDevice::DeviceConnected) {
                     hasConncetedDev = true;

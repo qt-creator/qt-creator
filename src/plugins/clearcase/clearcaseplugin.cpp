@@ -403,7 +403,7 @@ QString ClearCasePlugin::ccViewRoot(const QString &directory) const
         if (HostOsInfo::isWindowsHost())
             root = getDriveLetterOfPath(directory);
         else
-            root = QLatin1String("/");
+            root = QLatin1Char('/');
     }
 
     return QDir::fromNativeSeparators(root);

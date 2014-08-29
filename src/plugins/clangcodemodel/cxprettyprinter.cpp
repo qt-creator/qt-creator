@@ -294,7 +294,7 @@ void CXPrettyPrinter::writeCompletionContexts(CXCodeCompleteResults *results)
 
     foreach (const QString &line, lines) {
         writeLineEnd();
-        m_printed += line + QLatin1String(",");
+        m_printed += line + QLatin1Char(',');
     }
 }
 
@@ -381,7 +381,7 @@ void CXPrettyPrinter::writeCompletionAnnotationJson(const CXCompletionString &st
 
 void CXPrettyPrinter::writeDiagnosticJson(const CXDiagnostic &diag)
 {
-    m_printed += QLatin1String("{");
+    m_printed += QLatin1Char('{');
     m_indent += 4;
     writeLineEnd();
 
@@ -410,7 +410,7 @@ void CXPrettyPrinter::writeDiagnosticJson(const CXDiagnostic &diag)
             writeFixItJson(diag, i);
             writeLineEnd();
         }
-        m_printed += QLatin1String("]");
+        m_printed += QLatin1Char(']');
         writeLineEnd();
     }
 
@@ -448,7 +448,7 @@ void CXPrettyPrinter::writeDiagnosticJson(const CXDiagnostic &diag)
         }
         m_indent -= 4;
         writeLineEnd();
-        m_printed += QLatin1String("]");
+        m_printed += QLatin1Char(']');
     }
 
     // children
@@ -465,12 +465,12 @@ void CXPrettyPrinter::writeDiagnosticJson(const CXDiagnostic &diag)
         }
         m_indent -= 4;
         writeLineEnd();
-        m_printed += QLatin1String("]");
+        m_printed += QLatin1Char(']');
     }
 
     m_indent -= 4;
     writeLineEnd();
-    m_printed += QLatin1String("}");
+    m_printed += QLatin1Char('}');
 }
 
 void CXPrettyPrinter::writeFixItJson(const CXDiagnostic &diag, unsigned i)
@@ -483,7 +483,7 @@ void CXPrettyPrinter::writeFixItJson(const CXDiagnostic &diag, unsigned i)
     m_printed += text;
     m_printed += QLatin1String("\', range: ");
     writeRangeJson(range);
-    m_printed += QLatin1String("}");
+    m_printed += QLatin1Char('}');
 }
 
 void CXPrettyPrinter::writeRangeJson(const CXSourceRange &range)
@@ -531,7 +531,7 @@ void CXPrettyPrinter::writeLocationJson(const CXSourceLocation &location)
 
     m_printed += QLatin1String("line: ");
     m_printed += QString::number(loc.line());
-    m_printed += QLatin1String(",");
+    m_printed += QLatin1Char(',');
     writeLineEnd();
 
     m_printed += QLatin1String("column: ");
@@ -539,7 +539,7 @@ void CXPrettyPrinter::writeLocationJson(const CXSourceLocation &location)
 
     m_indent -= 4;
     writeLineEnd();
-    m_printed += QLatin1String("}");
+    m_printed += QLatin1Char('}');
 }
 
 void CXPrettyPrinter::writeLineEnd()

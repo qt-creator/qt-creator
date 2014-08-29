@@ -169,7 +169,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
         if (! thisDir.entryList(nameFilters, QDir::Files).isEmpty()) {
             QString relative = dir.relativeFilePath(path);
             if (relative.isEmpty())
-                relative = QLatin1String(".");
+                relative = QLatin1Char('.');
             includePaths.append(relative);
         }
     }

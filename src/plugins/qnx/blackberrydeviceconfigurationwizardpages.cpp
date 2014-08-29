@@ -135,7 +135,7 @@ void BlackBerryDeviceConfigurationWizardSetupPage::onDeviceDetected(
 {
     QString displayName(deviceName);
     if (displayName != hostName)
-        displayName.append(QLatin1String(" (")).append(hostName).append(QLatin1String(")"));
+        displayName.append(QLatin1String(" (")).append(hostName).append(QLatin1Char(')'));
 
     QListWidgetItem *device = createDeviceListItem(displayName, Autodetected);
     device->setData(DeviceNameRole, displayName);

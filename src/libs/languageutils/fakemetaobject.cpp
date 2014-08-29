@@ -95,7 +95,7 @@ QString FakeMetaEnum::describe(int baseIndent) const
         res += QString::number(m_values.value(i, -1));
     }
     res += newLine;
-    res += QLatin1String("}");
+    res += QLatin1Char('}');
     return res;
 }
 
@@ -195,7 +195,7 @@ QString FakeMetaMethod::describe(int baseIndent) const
         res += QLatin1String("    ");
         res += pName;
     }
-    res += QLatin1String("]");
+    res += QLatin1Char(']');
     res += newLine;
     res += QLatin1String("  parameterTypes:[");
     foreach (const QString &pType, parameterTypes()) {
@@ -203,9 +203,9 @@ QString FakeMetaMethod::describe(int baseIndent) const
         res += QLatin1String("    ");
         res += pType;
     }
-    res += QLatin1String("]");
+    res += QLatin1Char(']');
     res += newLine;
-    res += QLatin1String("}");
+    res += QLatin1Char('}');
     return res;
 }
 
@@ -281,7 +281,7 @@ QString FakeMetaProperty::describe(int baseIndent) const
     res += QLatin1String("  isWritable:");
     res += isWritable();
     res += newLine;
-    res += QLatin1String("}");
+    res += QLatin1Char('}');
     return res;
 }
 
@@ -485,7 +485,7 @@ QString FakeMetaObject::describe(bool printDetails, int baseIndent) const
     if (!printDetails)
         return res;
     QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
-    res += QLatin1String("{");
+    res += QLatin1Char('{');
     res += newLine;
     res += QLatin1String("className:");
     res += className();
@@ -518,7 +518,7 @@ QString FakeMetaObject::describe(bool printDetails, int baseIndent) const
         res += QLatin1String("  ");
         res += e.describe(baseIndent + 2);
     }
-    res += QLatin1String("]");
+    res += QLatin1Char(']');
 
     res += newLine;
     res += QLatin1String("enums:[");
@@ -528,7 +528,7 @@ QString FakeMetaObject::describe(bool printDetails, int baseIndent) const
         res += QLatin1String("  ");
         res += e.describe(baseIndent + 2);
     }
-    res += QLatin1String("]");
+    res += QLatin1Char(']');
 
     res += newLine;
     res += QLatin1String("properties:[");
@@ -538,7 +538,7 @@ QString FakeMetaObject::describe(bool printDetails, int baseIndent) const
         res += QLatin1String("  ");
         res += prop.describe(baseIndent + 2);
     }
-    res += QLatin1String("]");
+    res += QLatin1Char(']');
     res += QLatin1String("methods:[");
     for (int iMethod = 0; iMethod < methodOffset() ; ++ iMethod) {
         FakeMetaMethod m = method(methodOffset() + iMethod);
@@ -546,9 +546,9 @@ QString FakeMetaObject::describe(bool printDetails, int baseIndent) const
         res += QLatin1String("  ");
         m.describe(baseIndent + 2);
     }
-    res += QLatin1String("]");
+    res += QLatin1Char(']');
     res += newLine;
-    res += QLatin1String("}");
+    res += QLatin1Char('}');
     return res;
 }
 
@@ -590,7 +590,7 @@ QString FakeMetaObject::Export::describe(int baseIndent) const
     res += QLatin1String("  isValid:");
     res += QString::number(isValid());
     res += newLine;
-    res += QLatin1String("}");
+    res += QLatin1Char('}');
     return res;
 }
 

@@ -124,7 +124,7 @@ bool AddDebuggerOperation::setArguments(const QStringList &args)
             if (next.isNull())
                 return false;
             ++i; // skip next
-            m_abis = next.split(QLatin1String(","));
+            m_abis = next.split(QLatin1Char(','));
             continue;
         }
     }

@@ -125,43 +125,43 @@ void NamePrettyPrinter::visit(const OperatorNameId *name)
         _name += QLatin1String("delete[]");
         break;
     case OperatorNameId::PlusOp:
-        _name += QLatin1String("+");
+        _name += QLatin1Char('+');
         break;
     case OperatorNameId::MinusOp:
-        _name += QLatin1String("-");
+        _name += QLatin1Char('-');
         break;
     case OperatorNameId::StarOp:
-        _name += QLatin1String("*");
+        _name += QLatin1Char('*');
         break;
     case OperatorNameId::SlashOp:
-        _name += QLatin1String("/");
+        _name += QLatin1Char('/');
         break;
     case OperatorNameId::PercentOp:
-        _name += QLatin1String("%");
+        _name += QLatin1Char('%');
         break;
     case OperatorNameId::CaretOp:
-        _name += QLatin1String("^");
+        _name += QLatin1Char('^');
         break;
     case OperatorNameId::AmpOp:
-        _name += QLatin1String("&");
+        _name += QLatin1Char('&');
         break;
     case OperatorNameId::PipeOp:
-        _name += QLatin1String("|");
+        _name += QLatin1Char('|');
         break;
     case OperatorNameId::TildeOp:
-        _name += QLatin1String("~");
+        _name += QLatin1Char('~');
         break;
     case OperatorNameId::ExclaimOp:
-        _name += QLatin1String("!");
+        _name += QLatin1Char('!');
         break;
     case OperatorNameId::EqualOp:
-        _name += QLatin1String("=");
+        _name += QLatin1Char('=');
         break;
     case OperatorNameId::LessOp:
-        _name += QLatin1String("<");
+        _name += QLatin1Char('<');
         break;
     case OperatorNameId::GreaterOp:
-        _name += QLatin1String(">");
+        _name += QLatin1Char('>');
         break;
     case OperatorNameId::PlusEqualOp:
         _name += QLatin1String("+=");
@@ -224,7 +224,7 @@ void NamePrettyPrinter::visit(const OperatorNameId *name)
         _name += QLatin1String("--");
         break;
     case OperatorNameId::CommaOp:
-        _name += QLatin1String(",");
+        _name += QLatin1Char(',');
         break;
     case OperatorNameId::ArrowStarOp:
         _name += QLatin1String("->*");

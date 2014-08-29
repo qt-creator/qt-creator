@@ -70,7 +70,7 @@ struct NewClassWidgetPrivate {
 };
 
 NewClassWidgetPrivate:: NewClassWidgetPrivate() :
-    m_headerExtension(QLatin1String("h")),
+    m_headerExtension(QLatin1Char('h')),
     m_sourceExtension(QLatin1String("cpp")),
     m_formExtension(QLatin1String("ui")),
     m_valid(false),

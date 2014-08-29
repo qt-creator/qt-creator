@@ -383,7 +383,7 @@ void CompletionProposalsBuilder::concatChunksForObjectiveCMessage(const CXComple
         }
         const QString text = Internal::getQString(clang_getCompletionChunkText(cxString, index), false);
         if (chunkKind == CXCompletionChunk_ResultType) {
-            hintPrefix += QLatin1String("(");
+            hintPrefix += QLatin1Char('(');
             hintPrefix += text.toHtmlEscaped();
             hintPrefix += QLatin1String(") ");
             indentBonus += 3 + text.length();

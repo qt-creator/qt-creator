@@ -1250,7 +1250,7 @@ void AndroidConfigurations::load()
             int major = -1;
             int minor = -1;
             foreach (const QString &version, allVersions) {
-                QStringList parts = version.split(QLatin1String("."));
+                QStringList parts = version.split(QLatin1Char('.'));
                 if (parts.size() != 2) // not interested in 1.7.0_u21
                     continue;
                 bool okMajor, okMinor;

@@ -138,7 +138,7 @@ bool RemoteHelpFilter::restoreState(const QByteArray &state)
 
     QString value;
     in >> value;
-    m_remoteUrls = value.split(QLatin1String("^"), QString::SkipEmptyParts);
+    m_remoteUrls = value.split(QLatin1Char('^'), QString::SkipEmptyParts);
 
     QString shortcut;
     in >> shortcut;

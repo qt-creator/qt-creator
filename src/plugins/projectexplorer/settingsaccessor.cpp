@@ -56,7 +56,7 @@ static QString generateSuffix(const QString &alt1, const QString &alt2)
     if (suffix.isEmpty())
         suffix = alt2;
     suffix.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_.-]")), QString(QLatin1Char('_'))); // replace fishy characters:
-    if (!suffix.startsWith(QLatin1String(".")))
+    if (!suffix.startsWith(QLatin1Char('.')))
         suffix.prepend(QLatin1Char('.'));
     return suffix;
 }
@@ -924,7 +924,7 @@ QList<FileName> SettingsAccessor::settingsFiles(const QString &suffix) const
     const Utils::FileName baseName = project()->projectFilePath();
     QFileInfo fi = baseName.toFileInfo();
     QDir dir = QDir(fi.absolutePath());
-    QString filter = fi.fileName() + suffix + QLatin1String("*");
+    QString filter = fi.fileName() + suffix + QLatin1Char('*');
 
     QFileInfoList list = dir.entryInfoList(QStringList() << filter, QDir::Files);
 
@@ -966,14 +966,14 @@ Utils::FileName SettingsAccessor::backupName(const QVariantMap &data) const
     QString backupName = defaultFileName(m_userSuffix);
     const QByteArray oldEnvironmentId = environmentIdFromMap(data);
     if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != creatorId())
-        backupName += QLatin1String(".") + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
+        backupName += QLatin1Char('.') + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
     const int oldVersion = versionFromMap(data);
     if (oldVersion != currentVersion()) {
         VersionUpgrader *upgrader = d->upgrader(oldVersion);
         if (upgrader)
-            backupName += QLatin1String(".") + upgrader->backupExtension();
+            backupName += QLatin1Char('.') + upgrader->backupExtension();
         else
-            backupName += QLatin1String(".") + QString::number(oldVersion);
+            backupName += QLatin1Char('.') + QString::number(oldVersion);
     }
     return Utils::FileName::fromString(backupName);
 }

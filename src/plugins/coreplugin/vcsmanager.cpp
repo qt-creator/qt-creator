@@ -247,7 +247,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     // Make sure we an absolute path:
     QString directory = QDir(inputDirectory).absolutePath();
 #ifdef WITH_TESTS
-    if (directory[0].isLetter() && directory.indexOf(QLatin1String(":") + QLatin1String(TEST_PREFIX)) == 1)
+    if (directory[0].isLetter() && directory.indexOf(QLatin1Char(':') + QLatin1String(TEST_PREFIX)) == 1)
         directory = directory.mid(2);
 #endif
     VcsManagerPrivate::VcsInfo *cachedData = d->findInCache(directory);
@@ -634,7 +634,7 @@ void CorePlugin::testVcsManager()
     foreach (const QString &result, results) {
         // qDebug() << "Expecting:" << result;
 
-        QStringList split = result.split(QLatin1String(":"));
+        QStringList split = result.split(QLatin1Char(':'));
         QCOMPARE(split.count(), 4);
         QVERIFY(split.at(3) == QLatin1String("*") || split.at(3) == QLatin1String("-"));
 

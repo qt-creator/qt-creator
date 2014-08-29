@@ -320,7 +320,7 @@ void TypePrettyPrinter::prependSpaceBeforeIndirection(const FullySpecifiedType &
     const bool elementIsConstPointerOrReference = elementTypeIsPointerOrReference && type.isConst();
     const bool shouldBindToLeftSpecifier = _overview->starBindFlags & Overview::BindToLeftSpecifier;
     if (elementIsConstPointerOrReference && ! shouldBindToLeftSpecifier)
-        _text.prepend(QLatin1String(" "));
+        _text.prepend(QLatin1Char(' '));
 }
 
 void TypePrettyPrinter::prependSpaceAfterIndirection(bool hasName)
@@ -340,7 +340,7 @@ void TypePrettyPrinter::prependSpaceAfterIndirection(bool hasName)
     const bool case3 = ! hasCvSpecifier && ! shouldBindToIdentifier
         && ! _isIndirectionToArrayOrFunction && _text.size() && _text.at(0).isLetter();
     if (case1 || case2 || case3)
-        _text.prepend(QLatin1String(" "));
+        _text.prepend(QLatin1Char(' '));
 }
 
 void TypePrettyPrinter::visit(PointerType *type)

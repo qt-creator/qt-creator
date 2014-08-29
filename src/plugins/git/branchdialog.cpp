@@ -193,7 +193,7 @@ void BranchDialog::checkout()
     const QString currentBranch = m_model->fullName(m_model->currentBranch());
     const QString nextBranch = m_model->fullName(idx);
     const QString popMessageStart = QCoreApplication::applicationName() +
-            QLatin1String(" ") + nextBranch + QLatin1String("-AutoStash ");
+            QLatin1Char(' ') + nextBranch + QLatin1String("-AutoStash ");
 
     BranchCheckoutDialog branchCheckoutDialog(this, currentBranch, nextBranch);
     GitClient *gitClient = GitPlugin::instance()->gitClient();

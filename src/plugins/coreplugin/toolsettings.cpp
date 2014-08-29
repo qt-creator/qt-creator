@@ -71,7 +71,7 @@ static QString getUserFilePath(const QString &proposalFileName)
     if (!resourceDir.exists(QLatin1String("externaltools")))
         resourceDir.mkpath(QLatin1String("externaltools"));
     const QFileInfo fi(proposalFileName);
-    const QString &suffix = QLatin1String(".") + fi.completeSuffix();
+    const QString &suffix = QLatin1Char('.') + fi.completeSuffix();
     const QString &newFilePath = ICore::userResourcePath()
             + QLatin1String("/externaltools/") + fi.baseName();
     int count = 0;

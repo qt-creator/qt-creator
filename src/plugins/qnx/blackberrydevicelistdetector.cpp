@@ -90,7 +90,7 @@ const QString BlackBerryDeviceListDetector::readProcessLine()
 void BlackBerryDeviceListDetector::processData(const QString &line)
 {
     // line format is: deviceName,deviceHostNameOrIP,deviceType,versionIfSimulator
-    QStringList list = line.split(QLatin1String(","));
+    QStringList list = line.split(QLatin1Char(','));
     if (list.count() == 4)
         emit deviceDetected (list[0], list[1], QLatin1String("Simulator") == list[2]);
 }

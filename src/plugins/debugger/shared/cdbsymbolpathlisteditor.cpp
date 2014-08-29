@@ -162,7 +162,7 @@ QString CdbSymbolPathListEditor::symbolPath(const QString &cacheDir,
         return QLatin1String(symbolCachePrefixC) + QDir::toNativeSeparators(cacheDir);
     QString s = QLatin1String(symbolServerPrefixC);
     if (!cacheDir.isEmpty())
-        s += QDir::toNativeSeparators(cacheDir) + QLatin1String("*");
+        s += QDir::toNativeSeparators(cacheDir) + QLatin1Char('*');
     s += QLatin1String(symbolServerPostfixC);
     return s;
 }

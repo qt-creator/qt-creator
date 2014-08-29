@@ -80,7 +80,7 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
         if (targetAbi.wordWidth() == 64) {
             switch (targetAbi.architecture()) {
             case ProjectExplorer::Abi::X86Architecture:
-                architecture.append(QLatin1String("_"));
+                architecture.append(QLatin1Char('_'));
                 // fall through
             case ProjectExplorer::Abi::ArmArchitecture:
             case ProjectExplorer::Abi::MipsArchitecture:

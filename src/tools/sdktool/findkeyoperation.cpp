@@ -153,7 +153,7 @@ QStringList FindKeyOperation::findKey(const QVariant &in, const QString &key, co
     } else if (in.type() == QVariant::List) {
         QVariantList list = in.toList();
         for (int pos = 0; pos < list.count(); ++pos) {
-            QString pfx = prefix + QLatin1Char('[') + QString::number(pos) + QLatin1String("]");
+            QString pfx = prefix + QLatin1Char('[') + QString::number(pos) + QLatin1Char(']');
             result.append(findKey(list.at(pos), key, pfx));
         }
     }
