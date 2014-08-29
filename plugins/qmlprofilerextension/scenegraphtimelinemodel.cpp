@@ -126,7 +126,7 @@ int SceneGraphTimelineModel::row(int index) const
     return expanded() ? (d->data[index].stage + 1) : d->data[index].rowNumberCollapsed;
 }
 
-int SceneGraphTimelineModel::eventId(int index) const
+int SceneGraphTimelineModel::selectionId(int index) const
 {
     Q_D(const SceneGraphTimelineModel);
     return d->data[index].stage;
@@ -134,7 +134,7 @@ int SceneGraphTimelineModel::eventId(int index) const
 
 QColor SceneGraphTimelineModel::color(int index) const
 {
-    return colorByEventId(index);
+    return colorBySelectionId(index);
 }
 
 QVariantList SceneGraphTimelineModel::labels() const

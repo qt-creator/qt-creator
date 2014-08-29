@@ -45,7 +45,7 @@ public:
     quint64 features() const;
 
     int row(int index) const;
-    int eventId(int index) const;
+    int selectionId(int index) const;
     QColor color(int index) const;
 
     QVariantList labels() const;

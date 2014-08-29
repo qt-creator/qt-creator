@@ -69,7 +69,7 @@ int MemoryUsageModel::row(int index) const
         return 2;
 }
 
-int MemoryUsageModel::eventId(int index) const
+int MemoryUsageModel::selectionId(int index) const
 {
     Q_D(const MemoryUsageModel);
     return d->data[index].type;
@@ -77,7 +77,7 @@ int MemoryUsageModel::eventId(int index) const
 
 QColor MemoryUsageModel::color(int index) const
 {
-    return colorByEventId(index);
+    return colorBySelectionId(index);
 }
 
 float MemoryUsageModel::relativeHeight(int index) const

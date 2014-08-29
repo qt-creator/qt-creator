@@ -106,11 +106,11 @@ int PixmapCacheModel::row(int index) const
 {
     Q_D(const PixmapCacheModel);
     if (d->expanded)
-        return eventId(index) + 1;
+        return selectionId(index) + 1;
     return d->data[index].rowNumberCollapsed;
 }
 
-int PixmapCacheModel::eventId(int index) const
+int PixmapCacheModel::selectionId(int index) const
 {
     Q_D(const PixmapCacheModel);
     return d->data[index].pixmapEventType == PixmapCacheCountChanged ?
@@ -123,7 +123,7 @@ QColor PixmapCacheModel::color(int index) const
     if (d->data[index].pixmapEventType == PixmapCacheCountChanged)
         return colorByHue(PixmapCacheCountHue);
 
-    return colorByEventId(index);
+    return colorBySelectionId(index);
 }
 
 float PixmapCacheModel::relativeHeight(int index) const

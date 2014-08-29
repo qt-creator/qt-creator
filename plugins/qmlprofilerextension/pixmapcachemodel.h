@@ -59,7 +59,7 @@ public:
     int rowMaxValue(int rowNumber) const;
 
     int row(int index) const;
-    int eventId(int index) const;
+    int selectionId(int index) const;
     QColor color(int index) const;
     float relativeHeight(int index) const;
 

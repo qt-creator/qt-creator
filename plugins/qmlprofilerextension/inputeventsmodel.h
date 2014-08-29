@@ -35,7 +35,7 @@ public:
     quint64 features() const;
 
     int rowCount() const {return 0;}
-    int eventId(int) const {return -1;}
+    int selectionId(int) const {return -1;}
     QColor color(int) const {return QColor();}
     QVariantList labels() const {return QVariantList();}
     QVariantMap details(int) const {return QVariantMap();}
