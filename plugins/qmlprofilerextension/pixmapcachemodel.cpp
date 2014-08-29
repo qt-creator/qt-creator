@@ -68,7 +68,7 @@ public:
     void resizeUnfinishedLoads();
     void flattenLoads();
     int updateCacheCount(int lastCacheSizeEvent, qint64 startTime, qint64 pixSize,
-                         PixmapCacheEvent &newEvent);
+                         PixmapCacheEvent &newEvent, int typeId);
 
     QVector<PixmapCacheEvent> data;
     QVector<Pixmap> pixmaps;
@@ -291,7 +291,8 @@ void PixmapCacheModel::loadData()
             PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
             if (state.cacheState == ToBeCached) {
                 lastCacheSizeEvent = d->updateCacheCount(lastCacheSizeEvent, startTime,
-                                              state.size.width() * state.size.height(), newEvent);
+                                              state.size.width() * state.size.height(), newEvent,
+                                              event.typeIndex);
                 state.cacheState = Cached;
             }
             break;
@@ -351,7 +352,7 @@ void PixmapCacheModel::loadData()
             }
 
             lastCacheSizeEvent = d->updateCacheCount(lastCacheSizeEvent, startTime, pixSize,
-                                                     newEvent);
+                                                     newEvent, event.typeIndex);
             break;
         }
         case PixmapLoadingStarted: { // Load
@@ -371,7 +372,7 @@ void PixmapCacheModel::loadData()
 
             PixmapState &state = pixmap.sizes[newEvent.sizeIndex];
             state.loadState = Loading;
-            state.started = insertStart(startTime);
+            state.started = insertStart(startTime, event.typeIndex);
             d->data.insert(state.started, newEvent);
             break;
         }
@@ -415,7 +416,8 @@ void PixmapCacheModel::loadData()
             // If the pixmap loading wasn't started, start it at traceStartTime()
             if (state.loadState == Initial) {
                 newEvent.pixmapEventType = PixmapLoadingStarted;
-                state.started = insert(traceStartTime(), startTime - traceStartTime());
+                state.started = insert(traceStartTime(), startTime - traceStartTime(),
+                                       event.typeIndex);
                 d->data.insert(state.started, newEvent);
 
                 // All other indices are wrong now as we've prepended. Fix them ...
@@ -540,7 +542,7 @@ void PixmapCacheModel::PixmapCacheModelPrivate::flattenLoads()
 }
 
 int PixmapCacheModel::PixmapCacheModelPrivate::updateCacheCount(int lastCacheSizeEvent,
-        qint64 startTime, qint64 pixSize, PixmapCacheEvent &newEvent)
+        qint64 startTime, qint64 pixSize, PixmapCacheEvent &newEvent, int typeId)
 {
     Q_Q(PixmapCacheModel);
     newEvent.pixmapEventType = PixmapCacheCountChanged;
@@ -553,7 +555,7 @@ int PixmapCacheModel::PixmapCacheModelPrivate::updateCacheCount(int lastCacheSiz
     }
 
     newEvent.cacheSize = prevSize + pixSize;
-    int index = q->insertStart(startTime);
+    int index = q->insertStart(startTime, typeId);
     data.insert(index, newEvent);
     return index;
 }

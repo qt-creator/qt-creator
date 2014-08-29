@@ -219,7 +219,7 @@ void MemoryUsageModel::loadData()
                     insertEnd(currentUsageIndex,
                               event.startTime - range(currentUsageIndex).start - 1);
                 }
-                currentUsageIndex = insertStart(event.startTime);
+                currentUsageIndex = insertStart(event.startTime, event.typeIndex);
                 d->data.insert(currentUsageIndex, allocation);
             }
         }
@@ -242,7 +242,7 @@ void MemoryUsageModel::loadData()
                 if (currentJSHeapIndex != -1)
                     insertEnd(currentJSHeapIndex,
                               event.startTime - range(currentJSHeapIndex).start - 1);
-                currentJSHeapIndex = insertStart(event.startTime);
+                currentJSHeapIndex = insertStart(event.startTime, event.typeIndex);
                 d->data.insert(currentJSHeapIndex, allocation);
             }
         }
