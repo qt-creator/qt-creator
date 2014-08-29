@@ -60,11 +60,10 @@ public:
 public:
     static BuiltinEditorDocumentProcessor *get(const QString &filePath);
 
-private slots:
+private:
     void onDocumentUpdated(CPlusPlus::Document::Ptr document);
     void onSemanticInfoUpdated(const CppTools::SemanticInfo semanticInfo);
 
-private:
     SemanticInfo::Source createSemanticInfoSource(bool force) const;
 
 private:
