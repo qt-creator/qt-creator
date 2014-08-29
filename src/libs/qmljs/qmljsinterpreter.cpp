@@ -248,13 +248,8 @@ CppComponentValue::CppComponentValue(FakeMetaObject::ConstPtr metaObject, const 
 
 CppComponentValue::~CppComponentValue()
 {
-#if QT_VERSION >= 0x050000
     delete m_metaSignatures.load();
     delete m_signalScopes.load();
-#else
-    delete m_metaSignatures;
-    delete m_signalScopes;
-#endif
 }
 
 static QString generatedSlotName(const QString &base)
@@ -292,11 +287,7 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
     QSet<QString> explicitSignals;
 
     // make MetaFunction instances lazily when first needed
-#if QT_VERSION >= 0x050000
     QList<const Value *> *signatures = m_metaSignatures.load();
-#else
-    QList<const Value *> *signatures = m_metaSignatures;
-#endif
     if (!signatures) {
         signatures = new QList<const Value *>;
         signatures->reserve(m_metaObject->methodCount());
@@ -304,11 +295,7 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
             signatures->append(new Internal::MetaFunction(m_metaObject->method(index), valueOwner()));
         if (!m_metaSignatures.testAndSetOrdered(0, signatures)) {
             delete signatures;
-#if QT_VERSION >= 0x050000
             signatures = m_metaSignatures.load();
-#else
-            signatures = m_metaSignatures;
-#endif
         }
     }
 
@@ -536,11 +523,7 @@ const QmlEnumValue *CppComponentValue::getEnumValue(const QString &typeName, con
 
 const ObjectValue *CppComponentValue::signalScope(const QString &signalName) const
 {
-#if QT_VERSION >= 0x050000
     QHash<QString, const ObjectValue *> *scopes = m_signalScopes.load();
-#else
-    QHash<QString, const ObjectValue *> *scopes = m_signalScopes;
-#endif
     if (!scopes) {
         scopes = new QHash<QString, const ObjectValue *>;
         // usually not all methods are signals
@@ -566,11 +549,7 @@ const ObjectValue *CppComponentValue::signalScope(const QString &signalName) con
         }
         if (!m_signalScopes.testAndSetOrdered(0, scopes)) {
             delete scopes;
-#if QT_VERSION >= 0x050000
             scopes = m_signalScopes.load();
-#else
-            scopes = m_signalScopes;
-#endif
         }
     }
 

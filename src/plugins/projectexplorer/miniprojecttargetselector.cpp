@@ -50,6 +50,7 @@
 #include <projectexplorer/projectmodels.h>
 #include <projectexplorer/runconfiguration.h>
 
+#include <QGuiApplication>
 #include <QTimer>
 #include <QLayout>
 #include <QLabel>
@@ -60,38 +61,24 @@
 #include <QAction>
 #include <QItemDelegate>
 
-#if QT_VERSION >= 0x050100
-#include <QGuiApplication>
-#endif
 
 static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
 {
     QPixmap targetPixmap;
-    qreal appDevicePixelRatio = 1.0;
-#if QT_VERSION >= 0x050100
-    appDevicePixelRatio = qApp->devicePixelRatio();
-#endif
+    const qreal appDevicePixelRatio = qApp->devicePixelRatio();
     int deviceSpaceIconSize = Core::Constants::TARGET_ICON_SIZE * appDevicePixelRatio;
     targetPixmap = QPixmap(deviceSpaceIconSize, deviceSpaceIconSize);
-#if QT_VERSION >= 0x050100
     targetPixmap.setDevicePixelRatio(appDevicePixelRatio);
-#endif
     targetPixmap.fill(Qt::transparent);
     QPainter painter(&targetPixmap); // painter in user space
 
     QPixmap pixmap = icon.pixmap(Core::Constants::TARGET_ICON_SIZE); // already takes app devicePixelRatio into account
-    qreal pixmapDevicePixelRatio = 1.0;
-#if QT_VERSION >= 0x050100
-    pixmapDevicePixelRatio = pixmap.devicePixelRatio();
-#endif
+    qreal pixmapDevicePixelRatio = pixmap.devicePixelRatio();
     painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - pixmap.width() / pixmapDevicePixelRatio) / 2,
                        (Core::Constants::TARGET_ICON_SIZE - pixmap.height() / pixmapDevicePixelRatio) / 2, pixmap);
     if (!overlay.isNull()) {
         pixmap = overlay.pixmap(Core::Constants::TARGET_ICON_SIZE); // already takes app devicePixelRatio into account
-        pixmapDevicePixelRatio = 1.0;
-#if QT_VERSION >= 0x050100
         pixmapDevicePixelRatio = pixmap.devicePixelRatio();
-#endif
         painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - pixmap.width() / pixmapDevicePixelRatio) / 2,
                            (Core::Constants::TARGET_ICON_SIZE - pixmap.height() / pixmapDevicePixelRatio) / 2, pixmap);
     }

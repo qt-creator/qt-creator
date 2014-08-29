@@ -29,11 +29,7 @@
 #include "iosdevicemanager.h"
 
 #include <qglobal.h>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#include <QApplication>
-#else
 #include <QGuiApplication>
-#endif
 #include <QTextStream>
 #include <QDebug>
 #include <QXmlStreamWriter>
@@ -504,11 +500,7 @@ IosTool::IosTool(QObject *parent):
     gdbServer(0),
     qmlServer(0)
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    outFile.open(stdout, QIODevice::WriteOnly, QFile::DontCloseHandle);
-#else
     outFile.open(stdout, QIODevice::WriteOnly, QFileDevice::DontCloseHandle);
-#endif
     out.setAutoFormatting(true);
     out.setCodec("UTF-8");
 }
@@ -886,11 +878,7 @@ int main(int argc, char *argv[])
         qtArgc = 1;
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QApplication a(qtArgc, &qtArg);
-#else
     QGuiApplication a(qtArgc, &qtArg);
-#endif
     IosTool tool;
     tool.run(args);
     int res = a.exec();

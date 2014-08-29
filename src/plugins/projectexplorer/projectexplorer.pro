@@ -1,4 +1,4 @@
-QT += xml script
+QT += quick script xml
 
 include(../../qtcreatorplugin.pri)
 include(customwizard/customwizard.pri)
@@ -151,6 +151,7 @@ HEADERS += projectexplorer.h \
     xcodebuildparser.h \
     propertiespanel.h \
     panelswidget.h \
+    projectwelcomepage.h \
     projectpanelfactory.h
 
 SOURCES += projectexplorer.cpp \
@@ -289,6 +290,7 @@ SOURCES += projectexplorer.cpp \
     xcodebuildparser.cpp \
     propertiespanel.cpp \
     panelswidget.cpp \
+    projectwelcomepage.cpp \
     projectpanelfactory.cpp
 
 FORMS += processstep.ui \
@@ -332,11 +334,6 @@ equals(TEST, 1) {
         outputparser_test.h
 }
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += quick
-    HEADERS += projectwelcomepage.h
-    SOURCES += projectwelcomepage.cpp
-}
 macx:LIBS += -framework Carbon
 
 RESOURCES += projectexplorer.qrc

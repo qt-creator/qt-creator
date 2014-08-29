@@ -43,11 +43,7 @@ class QTimer;
 QT_END_NAMESPACE
 
 #ifdef Q_OS_WIN
-#  if QT_VERSION >= 0x050000
-#    include <QWinEventNotifier>
-#  else
-#    include <private/qwineventnotifier_p.h>
-#  endif
+#  include <QWinEventNotifier>
 #  include <windows.h>
 #endif
 

@@ -1,13 +1,9 @@
 DEFINES += CORE_LIBRARY
-QT += network \
+QT += help \
+    network \
+    printsupport \
     script \
     sql
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += help printsupport
-} else {
-    CONFIG += help
-}
 
 include(../../qtcreatorplugin.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
@@ -227,7 +223,7 @@ include(locator/locator.pri)
 
 win32 {
     SOURCES += progressmanager/progressmanager_win.cpp
-    greaterThan(QT_MAJOR_VERSION, 4): QT += gui-private # Uses QPlatformNativeInterface.
+    QT += gui-private # Uses QPlatformNativeInterface.
     LIBS += -lole32 -luser32
 }
 else:macx {

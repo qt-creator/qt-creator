@@ -1958,12 +1958,7 @@ ZConfLib::ConnectionRef MainConnection::mainRef()
 
 MainConnection::Status MainConnection::status()
 {
-#if QT_VERSION >= 0x050000
     return static_cast<MainConnection::Status>(m_status.load());
-#else
-    int val = m_status;
-    return static_cast<MainConnection::Status>(val);
-#endif
 }
 
 QList<ErrorMessage> MainConnection::errors()

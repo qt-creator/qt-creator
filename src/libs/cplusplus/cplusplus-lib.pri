@@ -8,7 +8,7 @@ INCLUDEPATH *= $$IDE_SOURCE_TREE/src/libs/3rdparty
 
 include(../3rdparty/cplusplus/cplusplus.pri)
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += concurrent
+QT += concurrent
 
 #DEFINES += DEBUG_INCLUDE_GUARD_TRACKING
 

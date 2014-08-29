@@ -65,11 +65,7 @@ QStringList AbstractSettings::completerWords()
 QStringList AbstractSettings::styles() const
 {
     QStringList list = m_styles.keys();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     list.sort(Qt::CaseInsensitive);
-#else //QT_VERSION_CHECK(5, 0, 0)
-    list.sort();
-#endif // QT_VERSION_CHECK(5, 0, 0)
     return list;
 }
 

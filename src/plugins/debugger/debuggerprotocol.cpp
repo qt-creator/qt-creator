@@ -34,9 +34,7 @@
 #include <QDebug>
 #include <QHostAddress>
 #include <QRegExp>
-#if QT_VERSION >= 0x050200
 #include <QTimeZone>
-#endif
 
 #include <ctype.h>
 
@@ -512,7 +510,6 @@ static QTime timeFromData(int ms)
     return ms == -1 ? QTime() : QTime(0, 0, 0, 0).addMSecs(ms);
 }
 
-#if QT_VERSION >= 0x050200
 // Stolen and adapted from qdatetime.cpp
 static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time)
 {
@@ -559,7 +556,6 @@ static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time)
     *date = (status & NullDate) ? QDate() : QDate::fromJulianDay(jd);
     *time = (status & NullTime) ? QTime() : QTime::fromMSecsSinceStartOfDay(ds);
 }
-#endif
 
 QString decodeData(const QByteArray &ba, int encoding)
 {
@@ -688,7 +684,6 @@ QString decodeData(const QByteArray &ba, int encoding)
             return QString::fromUtf8(decodedBa);
         }
         case DateTimeInternal: { // 29, DateTimeInternal: msecs, spec, offset, tz, status
-#if QT_VERSION >= 0x050200
             int p0 = ba.indexOf('/');
             int p1 = ba.indexOf('/', p0 + 1);
             int p2 = ba.indexOf('/', p1 + 1);
@@ -719,10 +714,6 @@ QString decodeData(const QByteArray &ba, int encoding)
                 dateTime = QDateTime(date, time, spec);
             }
             return dateTime.toString();
-#else
-            // "Very plain".
-            return QString::fromLatin1(ba);
-#endif
         }
     }
     qDebug() << "ENCODING ERROR: " << encoding;

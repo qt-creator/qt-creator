@@ -27,18 +27,16 @@
 **
 ****************************************************************************/
 
+#include <QGuiApplication>
 #include <QVariant>
 #include <QMainWindow>
 #include <QFont>
 #include <QFontMetrics>
 #include <QPixmap>
 #include <QPainter>
-#if QT_VERSION >= 0x050000
-#    include <QGuiApplication>
-#    include <QWindow>
-#    include <qpa/qplatformnativeinterface.h>
-#endif
+#include <QWindow>
 #include <QLabel>
+#include <qpa/qplatformnativeinterface.h>
 
 #include <coreplugin/icore.h>
 #include <utils/stylehelper.h>
@@ -57,8 +55,6 @@ namespace {
     int total = 0;
     ITaskbarList3* pITask = 0;
 }
-
-#if QT_VERSION >= 0x050000
 
 QT_BEGIN_NAMESPACE
 Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &p);
@@ -80,12 +76,6 @@ static inline HWND hwndOfWidget(const QWidget *w)
         result = QGuiApplication::platformNativeInterface()->nativeResourceForWindow("handle", window);
     return static_cast<HWND>(result);
 }
-#else
-static inline HWND hwndOfWidget(const QWidget *w)
-{
-    return w->winId();
-}
-#endif
 
 void Core::Internal::ProgressManagerPrivate::initInternal()
 {
@@ -131,11 +121,7 @@ void Core::Internal::ProgressManagerPrivate::doSetApplicationLabel(const QString
         font.setPixelSize(pix.height() * 0.5);
         p.setFont(font);
         p.drawText(pix.rect(), Qt::AlignCenter, text);
-#if QT_VERSION >= 0x050000
         const HICON icon = qt_pixmapToWinHICON(pix);
-#else
-        const HICON icon = pix.toWinHICON();
-#endif
         pITask->SetOverlayIcon(winId, icon, (wchar_t*)text.utf16());
         DestroyIcon(icon);
     }

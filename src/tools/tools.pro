@@ -6,6 +6,7 @@ SUBDIRS = qtpromaker \
      sdktool \
      valgrindfake \
      3rdparty \
+     qml2puppet \
      buildoutputparser
 
 win32 {
@@ -27,12 +28,5 @@ QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
         debug_and_release|CONFIG(debug, debug|release) {
             SUBDIRS += qtcreatorcrashhandler
         }
-    }
-}
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-    !greaterThan(QT_MINOR_VERSION, 0):!greaterThan(QT_PATCH_VERSION, 0) {
-    } else {
-        SUBDIRS += qml2puppet
     }
 }

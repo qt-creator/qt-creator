@@ -123,11 +123,7 @@ void ConfigurationEditor::setSettings(AbstractSettings *settings)
     QStringList keywords = m_settings->options();
     m_highlighter->setKeywords(keywords);
     keywords << m_settings->completerWords();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     keywords.sort(Qt::CaseInsensitive);
-#else //QT_VERSION_CHECK(5, 0, 0)
-    keywords.sort();
-#endif //QT_VERSION_CHECK(5, 0, 0)
     m_model->setStringList(keywords);
 }
 

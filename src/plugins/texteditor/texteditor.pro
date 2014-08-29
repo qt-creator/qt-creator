@@ -1,8 +1,7 @@
 DEFINES += TEXTEDITOR_LIBRARY
-QT += xml network
+QT += network printsupport xml
 CONFIG += exceptions
 CONFIG += include_source_dir # For the highlighter autotest.
-greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
 include(../../qtcreatorplugin.pri)
 SOURCES += texteditorplugin.cpp \
     textfilewizard.cpp \

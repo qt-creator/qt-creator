@@ -160,11 +160,7 @@ void OpenEditorsWindow::selectPreviousEditor()
 QSize OpenEditorsTreeWidget::sizeHint() const
 {
     return QSize(sizeHintForColumn(0) + verticalScrollBar()->width() + frameWidth() * 2,
-#if QT_VERSION < 0x050200
-                 minimumHeight());
-#else
                  viewportSizeHint().height() + frameWidth() * 2);
-#endif
 }
 
 QSize OpenEditorsWindow::sizeHint() const

@@ -196,11 +196,7 @@ ProString &ProString::prepend(const ProString &other)
 ProString &ProString::append(const QLatin1String other)
 {
     const char *latin1 = other.latin1();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     int size = other.size();
-#else
-    int size = strlen(latin1);
-#endif
     if (size) {
         QChar *ptr = prepareExtend(size, 0, m_length);
         for (int i = 0; i < size; i++)

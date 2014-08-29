@@ -262,11 +262,7 @@ static void printParseWarnings(const QString &libraryPath, const QString &warnin
 static QString qmlPluginDumpErrorMessage(QProcess *process)
 {
     QString errorMessage;
-#if QT_VERSION >= 0x050000
     const QString binary = QDir::toNativeSeparators(process->program());
-#else
-    const QString binary = QLatin1String("qmlplugindump");
-#endif
     switch (process->error()) {
     case QProcess::FailedToStart:
         errorMessage = PluginDumper::tr("\"%1\" failed to start: %2").arg(binary, process->errorString());
@@ -286,9 +282,7 @@ static QString qmlPluginDumpErrorMessage(QProcess *process)
             errorMessage = PluginDumper::tr("\"%1\" returned exit code %2.").arg(binary).arg(process->exitCode());
         break;
     }
-#if QT_VERSION >= 0x050000
     errorMessage += QLatin1Char('\n') + PluginDumper::tr("Arguments: %1").arg(process->arguments().join(QLatin1Char(' ')));
-#endif
     if (process->error() != QProcess::FailedToStart) {
         const QString stdErr = QString::fromLocal8Bit(process->readAllStandardError());
         if (!stdErr.isEmpty()) {

@@ -19,12 +19,6 @@ SUBDIRS += \
     filesearch \
     valgrind
 
-lessThan(QT_MAJOR_VERSION, 5) {
-  contains(QT_CONFIG, declarative) {
-    SUBDIRS += qml
-  }
-} else {
-  qtHaveModule(declarative) {
+qtHaveModule(declarative) {
     SUBDIRS += qml qmlprofiler
-  }
 }

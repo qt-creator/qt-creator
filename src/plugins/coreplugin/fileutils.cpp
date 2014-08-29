@@ -47,10 +47,6 @@
 #include <QPushButton>
 #include <QWidget>
 
-#if QT_VERSION < 0x050000
-#include <QAbstractFileEngine>
-#endif
-
 using namespace Utils;
 
 namespace Core {
@@ -187,11 +183,6 @@ void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
 static inline bool fileSystemRenameFile(const QString &orgFilePath,
                                         const QString &newFilePath)
 {
-#if QT_VERSION < 0x050000
-    QAbstractFileEngine *fileEngine = QAbstractFileEngine::create(orgFilePath); // Due to QTBUG-3570
-    if (!fileEngine->caseSensitive() && orgFilePath.compare(newFilePath, Qt::CaseInsensitive) == 0)
-        return fileEngine->rename(newFilePath);
-#endif
     // QTBUG-3570 is also valid for Qt 5 but QAbstractFileEngine is now in a private header file and
     // the symbol is not exported.
     return QFile::rename(orgFilePath, newFilePath);

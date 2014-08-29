@@ -309,9 +309,7 @@ int main(int argc, char **argv)
     QtSystemExceptionHandler systemExceptionHandler;
 #endif
 
-#if QT_VERSION >= 0x050100
     app.setAttribute(Qt::AA_UseHighDpiPixmaps);
-#endif
 
     // Manually determine -settingspath command line option
     // We can't use the regular way of the plugin manager, because that needs to parse plugin meta data
@@ -365,23 +363,14 @@ int main(int argc, char **argv)
     QTranslator translator;
     QTranslator qtTranslator;
     QStringList uiLanguages;
-// uiLanguages crashes on Windows with 4.8.0 release builds
-#if (QT_VERSION >= 0x040801) || (QT_VERSION >= 0x040800 && !defined(Q_OS_WIN))
     uiLanguages = QLocale::system().uiLanguages();
-#else
-    uiLanguages << QLocale::system().name();
-#endif
     QString overrideLanguage = settings->value(QLatin1String("General/OverrideLanguage")).toString();
     if (!overrideLanguage.isEmpty())
         uiLanguages.prepend(overrideLanguage);
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
             + QLatin1String(SHARE_PATH "/translations");
     foreach (QString locale, uiLanguages) {
-#if (QT_VERSION >= 0x050000)
         locale = QLocale(locale).name();
-#else
-        locale.replace(QLatin1Char('-'), QLatin1Char('_')); // work around QTBUG-25973
-#endif
         if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {
             const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
             const QString &qtTrFile = QLatin1String("qt_") + locale;

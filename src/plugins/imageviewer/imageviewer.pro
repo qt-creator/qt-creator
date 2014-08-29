@@ -20,12 +20,8 @@ SOURCES += \
 RESOURCES += \
     imageviewer.qrc
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    !isEmpty(QT.svg.name): QT += svg
-    else: DEFINES += QT_NO_SVG
-} else {
-    contains(QT_CONFIG, svg): QT += svg
-}
+!isEmpty(QT.svg.name): QT += svg
+else: DEFINES += QT_NO_SVG
 
 FORMS += \
     imageviewertoolbar.ui

@@ -349,16 +349,6 @@ void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const Q
     }
 }
 
-static qreal pixmapDevicePixelRatio(const QPixmap &pixmap)
-{
-#if QT_VERSION > 0x050000
-    return pixmap.devicePixelRatio();
-#else
-    Q_UNUSED(pixmap);
-    return 1.0;
-#endif
-}
-
 // Draws a cached pixmap with shadow
 void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
                                      QPainter *p, QIcon::Mode iconMode, int dipRadius, const QColor &color, const QPoint &dipOffset)
@@ -373,7 +363,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // different than 1. The shadow drawing caluculations are done in device
         // pixels.
         QPixmap px = icon.pixmap(rect.size());
-        int devicePixelRatio = qCeil(pixmapDevicePixelRatio(px));
+        int devicePixelRatio = qCeil(px.devicePixelRatio());
         int radius = dipRadius * devicePixelRatio;
         QPoint offset = dipOffset * devicePixelRatio;
         cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));
@@ -428,14 +418,12 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
 
         // Draw the actual pixmap...
         cachePainter.drawPixmap(QRect(QPoint(radius, radius) + offset, QSize(px.width(), px.height())), px);
-#if QT_VERSION > 0x050000
         cache.setDevicePixelRatio(devicePixelRatio);
-#endif
         QPixmapCache::insert(pixmapName, cache);
     }
 
     QRect targetRect = cache.rect();
-    targetRect.setSize(targetRect.size() / pixmapDevicePixelRatio(cache));
+    targetRect.setSize(targetRect.size() / cache.devicePixelRatio());
     targetRect.moveCenter(rect.center() - dipOffset);
     p->drawPixmap(targetRect, cache);
 }

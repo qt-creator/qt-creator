@@ -498,10 +498,7 @@ IconButton::IconButton(QWidget *parent)
 
 void IconButton::paintEvent(QPaintEvent *)
 {
-    qreal pixmapRatio = 1.0;
-#if QT_VERSION >= 0x050100
-    pixmapRatio = m_pixmap.devicePixelRatio();
-#endif
+    const qreal pixmapRatio = m_pixmap.devicePixelRatio();
     QStylePainter painter(this);
     QRect pixmapRect = QRect(0, 0, m_pixmap.width()/pixmapRatio, m_pixmap.height()/pixmapRatio);
     pixmapRect.moveCenter(rect().center());
@@ -541,10 +538,7 @@ void IconButton::animateShow(bool visible)
 
 QSize IconButton::sizeHint() const
 {
-    qreal pixmapRatio = 1.0;
-#if QT_VERSION >= 0x050100
-    pixmapRatio = m_pixmap.devicePixelRatio();
-#endif
+    const qreal pixmapRatio = m_pixmap.devicePixelRatio();
     return QSize(m_pixmap.width()/pixmapRatio, m_pixmap.height()/pixmapRatio);
 }
 

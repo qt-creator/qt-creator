@@ -39,16 +39,10 @@
 #include <utils/synchronousprocess.h>
 #endif // Q_CC_MSVC
 
-#include "temporarydir.h"
-
 #include <QtTest>
 #include <math.h>
 
-#if  QT_VERSION >= 0x050000
 #define MSKIP_SINGLE(x) do { disarm(); QSKIP(x); } while (0)
-#else
-#define MSKIP_SINGLE(x) do { disarm(); QSKIP(x, SkipSingle); } while (0)
-#endif
 
 using namespace Debugger;
 using namespace Internal;

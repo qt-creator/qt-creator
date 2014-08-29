@@ -8,14 +8,6 @@ BINARY_ARTIFACTS_BRANCH = master
 # enable c++11
 CONFIG += c++11
 
-defineReplace(cleanPath) {
-    return($$clean_path($$1))
-}
-
-defineReplace(targetPath) {
-    return($$shell_path($$1))
-}
-
 defineReplace(qtLibraryName) {
    unset(LIBRARY_NAME)
    LIBRARY_NAME = $$1
@@ -78,7 +70,7 @@ IDE_SOURCE_TREE = $$PWD
 isEmpty(IDE_BUILD_TREE) {
     sub_dir = $$_PRO_FILE_PWD_
     sub_dir ~= s,^$$re_escape($$PWD),,
-    IDE_BUILD_TREE = $$cleanPath($$OUT_PWD)
+    IDE_BUILD_TREE = $$clean_path($$OUT_PWD)
     IDE_BUILD_TREE ~= s,$$re_escape($$sub_dir)$,,
 }
 IDE_APP_PATH = $$IDE_BUILD_TREE/bin

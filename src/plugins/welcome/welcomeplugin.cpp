@@ -98,9 +98,7 @@ signals:
 
 private slots:
     void welcomePluginAdded(QObject*);
-#if QT_VERSION >= 0x050300
     void sceneGraphError(QQuickWindow::SceneGraphError, const QString &message);
-#endif
 
 private:
     void facilitateQml(QQmlEngine *engine);
@@ -137,10 +135,8 @@ WelcomeMode::WelcomeMode() :
 
     m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
 
-#if QT_VERSION >= 0x050300
     connect(m_welcomePage, SIGNAL(sceneGraphError(QQuickWindow::SceneGraphError,QString)),
             this, SLOT(sceneGraphError(QQuickWindow::SceneGraphError,QString)));
-#endif // Qt 5.3
 
     Utils::StyledBar* styledBar = new Utils::StyledBar(m_modeWidget);
     styledBar->setObjectName(QLatin1String("WelcomePageStyledBar"));
@@ -168,7 +164,6 @@ WelcomeMode::~WelcomeMode()
     delete m_modeWidget;
 }
 
-#if QT_VERSION >= 0x050300
 void WelcomeMode::sceneGraphError(QQuickWindow::SceneGraphError, const QString &message)
 {
     QMessageBox *messageBox =
@@ -179,7 +174,6 @@ void WelcomeMode::sceneGraphError(QQuickWindow::SceneGraphError, const QString &
     messageBox->setAttribute(Qt::WA_DeleteOnClose);
     messageBox->show();
 }
-#endif // Qt 5.3
 
 void WelcomeMode::facilitateQml(QQmlEngine * /*engine*/)
 {

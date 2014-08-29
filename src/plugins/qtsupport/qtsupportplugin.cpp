@@ -32,6 +32,7 @@
 #include "codegensettingspage.h"
 #include "customexecutablerunconfiguration.h"
 #include "desktopqtversionfactory.h"
+#include "gettingstartedwelcomepage.h"
 #include "qtkitinformation.h"
 #include "qtoptionspage.h"
 #include "qtversionmanager.h"
@@ -48,9 +49,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
-#include "gettingstartedwelcomepage.h"
-#endif
 
 #include <QtPlugin>
 
@@ -81,7 +79,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     addAutoReleasedObject(new CodeGenSettingsPage);
     addAutoReleasedObject(new QtOptionsPage);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     ExamplesWelcomePage *welcomePage;
     welcomePage = new ExamplesWelcomePage;
     addAutoReleasedObject(welcomePage);
@@ -89,7 +86,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     welcomePage = new ExamplesWelcomePage;
     addAutoReleasedObject(welcomePage);
-#endif
     addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
     ProjectExplorer::KitManager::registerKitInformation(new QtKitInformation);

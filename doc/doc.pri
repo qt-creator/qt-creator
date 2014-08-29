@@ -1,5 +1,5 @@
-HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator) -platform minimal
-QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc)
+HELPGENERATOR = $$shell_path($$[QT_INSTALL_BINS]/qhelpgenerator) -platform minimal
+QDOC_BIN = $$shell_path($$[QT_INSTALL_BINS]/qdoc)
 QDOC_GLOBAL = QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS/src] QDOC_INDEX_DIR=$$[QT_INSTALL_DOCS]
 COMPAT =
 
@@ -90,6 +90,6 @@ QMAKE_EXTRA_TARGETS += html_docs dev_html_docs html_docs_online dev_html_docs_on
 OTHER_FILES = $$HELP_DEP_FILES $$DEV_HELP_DEP_FILES
 
 fixnavi.commands = \
-    cd $$targetPath($$PWD) && \
+    cd $$shell_path($$PWD) && \
     perl fixnavi.pl -Dqcmanual -Dqtquick src
 QMAKE_EXTRA_TARGETS += fixnavi

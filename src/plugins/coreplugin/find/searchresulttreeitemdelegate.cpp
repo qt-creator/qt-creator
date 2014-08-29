@@ -65,11 +65,7 @@ void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionVi
     if (checkable) {
         QVariant checkStateData = index.data(Qt::CheckStateRole);
         checkState = static_cast<Qt::CheckState>(checkStateData.toInt());
-#if QT_VERSION >= 0x050000
         checkRect = doCheck(opt, opt.rect, checkStateData);
-#else // Qt4
-        checkRect = check(opt, opt.rect, checkStateData);
-#endif
     }
 
     // icon

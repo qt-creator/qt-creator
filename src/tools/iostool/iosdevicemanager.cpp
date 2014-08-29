@@ -40,11 +40,7 @@
 #include <mach/error.h>
 
 /* // annoying to import, do without
-#if QT_VERSION < 0x050000
-#include <private/qcore_mac_p.h>
-#else
 #include <QtCore/private/qcore_mac_p.h>
-#endif
 */
 /* standard calling convention under Win32 is __stdcall */
 /* Note: When compiling Intel EFI (Extensible Firmware Interface) under MS Visual Studio, the */

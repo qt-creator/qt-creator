@@ -49,11 +49,7 @@
  * Tests after this macro will be skipped and warning printed.
  * Uncomment it to test a feature -- if tests succeeds it should be removed from the test.
  */
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#   define NOT_IMPLEMENTED QSKIP("Not fully implemented!", SkipSingle);
-#else
-#   define NOT_IMPLEMENTED QSKIP("Not fully implemented!");
-#endif
+#define NOT_IMPLEMENTED QSKIP("Not fully implemented!");
 
 // Text cursor representation in comparisons.
 #define X "|"

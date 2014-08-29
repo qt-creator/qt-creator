@@ -37,6 +37,10 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <utils/synchronousprocess.h>
 
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QStringList>
 #include <QProcess>
 #include <QVariant>
@@ -47,15 +51,6 @@
 #include <QScopedPointer>
 #include <QTimer>
 #include <QApplication>
-#if QT_VERSION >= 0x050000
-#  include <QJsonDocument>
-#  include <QJsonValue>
-#  include <QJsonArray>
-#  include <QJsonObject>
-#else
-#  include <utils/json.h>
-#  include <utils/qtcassert.h>
-#endif
 
 enum { debug = 0 };
 
@@ -559,8 +554,6 @@ void GerritModel::clearData()
 \endcode
 */
 
-#if QT_VERSION >= 0x050000
-// Qt 5 using the QJsonDocument classes.
 static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
                         const QByteArray &output,
                         QList<GerritChangePtr> &result)
@@ -678,177 +671,6 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     }
     return res;
 }
-#else // QT_VERSION >= 0x050000
-// Qt 4.8 using the Json classes from utils.
-
-static inline int jsonIntMember(Utils::JsonObjectValue *object,
-                                const QString &key,
-                                int defaultValue = 0)
-{
-    if (Utils::JsonValue *v = object->member(key)) {
-        if (Utils::JsonIntValue *iv = v->toInt())
-            return iv->value();
-        if (Utils::JsonStringValue *sv = v->toString()) {
-            bool ok;
-            const int result = sv->value().toInt(&ok);
-            if (ok)
-                return result;
-        }
-    }
-    return defaultValue;
-}
-
-static inline QString jsonStringMember(Utils::JsonObjectValue *object,
-                                       const QString &key)
-{
-    if (Utils::JsonValue *v = object->member(key))
-        if (Utils::JsonStringValue *sv = v->toString())
-            return sv->value();
-    return QString();
-}
-
-static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
-                                          const QByteArray &output,
-                                          QList<GerritChangePtr> &result)
-{
-   // The output consists of separate lines containing a document each
-    const QList<QByteArray> lines = output.split('\n');
-    const QString typeKey = QLatin1String("type");
-    const QString idKey = QLatin1String("id");
-    const QString dependsOnKey = QLatin1String("dependsOn");
-    const QString neededByKey = QLatin1String("neededBy");
-    const QString branchKey = QLatin1String("branch");
-    const QString numberKey = QLatin1String("number");
-    const QString ownerKey = QLatin1String("owner");
-    const QString ownerNameKey = QLatin1String("name");
-    const QString ownerEmailKey = QLatin1String("email");
-    const QString statusKey = QLatin1String("status");
-    const QString projectKey = QLatin1String("project");
-    const QString titleKey = QLatin1String("subject");
-    const QString urlKey = QLatin1String("url");
-    const QString patchSetKey = QLatin1String("currentPatchSet");
-    const QString refKey = QLatin1String("ref");
-    const QString approvalsKey = QLatin1String("approvals");
-    const QString approvalsValueKey = QLatin1String("value");
-    const QString approvalsByKey = QLatin1String("by");
-    const QString approvalsTypeKey = QLatin1String("type");
-    const QString approvalsDescriptionKey = QLatin1String("description");
-    const QString lastUpdatedKey = QLatin1String("lastUpdated");
-    bool res = true;
-    result.clear();
-    result.reserve(lines.size());
-
-    Utils::JsonMemoryPool pool;
-
-    foreach (const QByteArray &line, lines) {
-        if (line.isEmpty())
-            continue;
-        Utils::JsonValue *objectValue = Utils::JsonValue::create(QString::fromUtf8(line), &pool);
-        if (!objectValue) {
-            QString errorMessage = GerritModel::tr("Parse error: \"%1\"")
-                    .arg(QString::fromLocal8Bit(line));
-            qWarning() << errorMessage;
-            VcsBase::VcsOutputWindow::appendError(errorMessage);
-            res = false;
-            continue;
-        }
-        Utils::JsonObjectValue *object = objectValue->toObject();
-        QTC_ASSERT(object, continue );
-        GerritChangePtr change(new GerritChange);
-        // Skip stats line: {"type":"stats","rowCount":9,"runTimeMilliseconds":13}
-        if (jsonStringMember(object, typeKey) == QLatin1String("stats"))
-            continue;
-        // Read current patch set.
-        if (Utils::JsonValue *patchSetValue = object->member(patchSetKey)) {
-            Utils::JsonObjectValue *patchSet = patchSetValue->toObject();
-            QTC_ASSERT(patchSet, continue );
-            const int n = jsonIntMember(patchSet, numberKey);
-            change->currentPatchSet.patchSetNumber = qMax(1, n);
-            change->currentPatchSet.ref = jsonStringMember(patchSet, refKey);
-            if (Utils::JsonValue *approvalsV = patchSet->member(approvalsKey)) {
-                Utils::JsonArrayValue *approvals = approvalsV->toArray();
-                QTC_ASSERT(approvals, continue );
-                foreach (Utils::JsonValue *c, approvals->elements()) {
-                    Utils::JsonObjectValue *oc = c->toObject();
-                    QTC_ASSERT(oc, break );
-                    const int value = jsonIntMember(oc, approvalsValueKey);
-                    QString by;
-                    QString byMail;
-                    if (Utils::JsonValue *byV = oc->member(approvalsByKey)) {
-                        Utils::JsonObjectValue *byO = byV->toObject();
-                        QTC_ASSERT(byO, break );
-                        by = jsonStringMember(byO, ownerNameKey);
-                        byMail = jsonStringMember(byO, ownerEmailKey);
-                    }
-                    GerritApproval a;
-                    a.reviewer = by;
-                    a.email = byMail;
-                    a.approval = value;
-                    a.type = jsonStringMember(oc, approvalsTypeKey);
-                    a.description = jsonStringMember(oc, approvalsDescriptionKey);
-                    change->currentPatchSet.approvals.push_back(a);
-                }
-                qStableSort(change->currentPatchSet.approvals.begin(),
-                            change->currentPatchSet.approvals.end(),
-                            gerritApprovalLessThan);
-            }
-        } // patch set
-        // Remaining
-
-        change->number = jsonIntMember(object, numberKey);
-        change->url = jsonStringMember(object, urlKey);
-        if (change->url.isEmpty()) //  No "canonicalWebUrl" is in gerrit.config.
-            change->url = defaultUrl(parameters, change->number);
-        change->id = jsonStringMember(object, idKey);
-        change->title = jsonStringMember(object, titleKey);
-        if (Utils::JsonValue *ownerV = object->member(ownerKey)) {
-            Utils::JsonObjectValue *ownerO = ownerV->toObject();
-            QTC_ASSERT(ownerO, continue );
-            change->owner = jsonStringMember(ownerO, ownerNameKey);
-            change->email = jsonStringMember(ownerO, ownerEmailKey);
-        }
-        change->project = jsonStringMember(object, projectKey);
-        change->branch = jsonStringMember(object, branchKey);
-        change->status = jsonStringMember(object, statusKey);
-
-        if (const int timeT = jsonIntMember(object, lastUpdatedKey))
-            change->lastUpdated = QDateTime::fromTime_t(timeT);
-        if (change->isValid()) {
-            result.push_back(change);
-        } else {
-            QString errorMessage = GerritModel::tr("Parse error in line \"%1\"")
-                    .arg(QString::fromLocal8Bit(line));
-            VcsBase::VcsOutputWindow::appendError(errorMessage);
-            qWarning("%s: Parse error in line '%s'.", Q_FUNC_INFO, line.constData());
-            res = false;
-        }
-        // Read out dependencies
-        if (Utils::JsonValue *dependsOnValue = object->member(dependsOnKey)) {
-            if (Utils::JsonArrayValue *dependsOnArray = dependsOnValue->toArray()) {
-                if (dependsOnArray->size()) {
-                    if (Utils::JsonObjectValue *dependsOnObject = dependsOnArray->elements().first()->toObject())
-                        change->dependsOnId = jsonStringMember(dependsOnObject, idKey);
-                }
-            }
-        }
-        // Read out needed by
-        if (Utils::JsonValue *neededByValue = object->member(neededByKey)) {
-            if (Utils::JsonArrayValue *neededByArray = neededByValue->toArray()) {
-                if (neededByArray->size()) {
-                    if (Utils::JsonObjectValue *neededByObject = neededByArray->elements().first()->toObject())
-                        change->neededById = jsonStringMember(neededByObject, idKey);
-                }
-            }
-        }
-    }
-    if (debug) {
-        qDebug() << __FUNCTION__;
-        foreach (const GerritChangePtr &p, result)
-            qDebug() << *p;
-    }
-    return res;
-}
-#endif // QT_VERSION < 0x050000
 
 QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
 {

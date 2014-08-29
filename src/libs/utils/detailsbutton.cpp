@@ -32,14 +32,11 @@
 #include <utils/hostosinfo.h>
 
 #include <QGraphicsOpacityEffect>
+#include <QGuiApplication>
 #include <QPropertyAnimation>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QStyleOption>
-
-#if QT_VERSION >= 0x050100
-#include <QGuiApplication>
-#endif
 
 using namespace Utils;
 
@@ -127,19 +124,12 @@ void DetailsButton::paintEvent(QPaintEvent *e)
     if (!HostOsInfo::isMacHost() && !isDown() && m_fader > 0)
         p.fillRect(rect().adjusted(1, 1, -2, -2), QColor(255, 255, 255, int(m_fader*180)));
 
-    qreal checkedPixmapRatio = 1.0;
-    qreal uncheckedPixmapRatio = 1.0;
-#if QT_VERSION >= 0x050100
-    checkedPixmapRatio = m_checkedPixmap.devicePixelRatio();
-    uncheckedPixmapRatio = m_uncheckedPixmap.devicePixelRatio();
-#endif
-
     if (isChecked()) {
-        if (m_checkedPixmap.isNull() || m_checkedPixmap.size() / checkedPixmapRatio != contentsRect().size())
+        if (m_checkedPixmap.isNull() || m_checkedPixmap.size() / m_checkedPixmap.devicePixelRatio() != contentsRect().size())
             m_checkedPixmap = cacheRendering(contentsRect().size(), true);
         p.drawPixmap(contentsRect(), m_checkedPixmap);
     } else {
-        if (m_uncheckedPixmap.isNull() || m_uncheckedPixmap.size() / uncheckedPixmapRatio != contentsRect().size())
+        if (m_uncheckedPixmap.isNull() || m_uncheckedPixmap.size() / m_uncheckedPixmap.devicePixelRatio() != contentsRect().size())
             m_uncheckedPixmap = cacheRendering(contentsRect().size(), false);
         p.drawPixmap(contentsRect(), m_uncheckedPixmap);
     }
@@ -156,14 +146,9 @@ QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
     lg.setCoordinateMode(QGradient::ObjectBoundingMode);
     lg.setFinalStop(0, 1);
 
-    qreal pixelRatio = 1.0;
-#if QT_VERSION >= 0x050100
-    pixelRatio = devicePixelRatio();
-#endif
+    const qreal pixelRatio = devicePixelRatio();
     QPixmap pixmap(size * pixelRatio);
-#if QT_VERSION >= 0x050100
     pixmap.setDevicePixelRatio(pixelRatio);
-#endif
     pixmap.fill(Qt::transparent);
     QPainter p(&pixmap);
     p.setRenderHint(QPainter::Antialiasing, true);

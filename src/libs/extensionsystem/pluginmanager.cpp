@@ -714,11 +714,7 @@ void PluginManager::startTests()
         const QMetaObject *metaObject = pluginSpec->plugin()->metaObject();
 
         for (int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i) {
-#if QT_VERSION >= 0x050000
             const QByteArray signature = metaObject->method(i).methodSignature();
-#else
-            const QByteArray signature = metaObject->method(i).signature();
-#endif
             if (signature.startsWith("test") && !signature.endsWith("_data()")) {
                 const QString method = QString::fromLatin1(signature);
                 const QString methodName = method.left(method.size() - 2);

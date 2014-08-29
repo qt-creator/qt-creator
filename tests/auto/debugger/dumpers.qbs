@@ -20,7 +20,6 @@ QtcAutotest {
     Group {
         name: "Test sources"
         files: [
-            "temporarydir.h",
             "tst_dumpers.cpp"
         ]
     }

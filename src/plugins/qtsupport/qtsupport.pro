@@ -1,5 +1,5 @@
 DEFINES += QTSUPPORT_LIBRARY
-QT += network
+QT += network quick
 
 include(../../qtcreatorplugin.pri)
 
@@ -9,6 +9,7 @@ include(../../shared/proparser/proparser.pri)
 HEADERS += \
     codegensettings.h \
     codegensettingspage.h \
+    gettingstartedwelcomepage.h \
     qtsupportplugin.h \
     qtsupport_global.h \
     qtkitconfigwidget.h \
@@ -39,6 +40,7 @@ HEADERS += \
 SOURCES += \
     codegensettings.cpp \
     codegensettingspage.cpp \
+    gettingstartedwelcomepage.cpp \
     qtsupportplugin.cpp \
     qtkitconfigwidget.cpp \
     qtkitinformation.cpp \
@@ -63,12 +65,6 @@ SOURCES += \
     simulatorqtversion.cpp \
     winceqtversionfactory.cpp \
     winceqtversion.cpp
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += quick
-    HEADERS += gettingstartedwelcomepage.h
-    SOURCES += gettingstartedwelcomepage.cpp
-}
 
 FORMS   +=  \
     codegensettingspagewidget.ui \

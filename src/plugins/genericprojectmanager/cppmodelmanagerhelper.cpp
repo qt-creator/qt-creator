@@ -63,21 +63,7 @@ void CppModelManagerHelper::waitForSourceFilesRefreshed(const QStringList &files
 
     foreach (const QString &file, files) {
         while (!m_refreshedSourceFiles.contains(file)) {
-#if QT_VERSION >= 0x050000
             QVERIFY(spy.wait());
-#else // Qt 4.x
-            class MyThread: public QThread
-            {
-            public:
-                static void Zzzzz()
-                {
-                    QThread::msleep(50);
-                }
-            };
-
-            MyThread::Zzzzz();
-            QCoreApplication::processEvents();
-#endif
         }
         QVERIFY(t.elapsed() <= timeOut);
     }

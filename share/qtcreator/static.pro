@@ -88,7 +88,7 @@ defineReplace(stripSrcResourceDir) {
     } else {
         !contains(1, ^/.*):1 = $$OUT_PWD/$$1
     }
-    out = $$cleanPath($$1)
+    out = $$clean_path($$1)
     out ~= s|^$$re_escape($$SRCRESOURCEDIR)||$$i_flag
     return($$out)
 }

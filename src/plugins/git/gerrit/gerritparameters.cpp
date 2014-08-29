@@ -30,16 +30,13 @@
 #include "gerritparameters.h"
 #include "gerritplugin.h"
 
-#if QT_VERSION >= 0x050000
-#  include <QStandardPaths>
-#else
-#  include <utils/environment.h>
-#endif
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
+
 #include <QDebug>
 #include <QFileInfo>
 #include <QSettings>
+#include <QStandardPaths>
 
 namespace Gerrit {
 namespace Internal {
@@ -64,12 +61,7 @@ static inline QString detectSsh()
     const QByteArray gitSsh = qgetenv("GIT_SSH");
     if (!gitSsh.isEmpty())
         return QString::fromLocal8Bit(gitSsh);
-#if QT_VERSION >= 0x050000
     QString ssh = QStandardPaths::findExecutable(QLatin1String(defaultSshC));
-#else
-    const Utils::Environment env = Utils::Environment::systemEnvironment();
-    QString ssh = env.searchInPath(QLatin1String(defaultSshC));
-#endif
     if (!ssh.isEmpty())
         return ssh;
     if (Utils::HostOsInfo::isWindowsHost()) { // Windows: Use ssh.exe from git if it cannot be found.

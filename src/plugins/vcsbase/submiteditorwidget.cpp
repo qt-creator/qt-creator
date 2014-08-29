@@ -555,14 +555,6 @@ void SubmitEditorWidget::hideDescription()
 
 void SubmitEditorWidget::descriptionTextChanged()
 {
-#if QT_VERSION < 0x050000 // Fix Qt-Bug, see QTCREATORBUG-5633 && QTCREATORBUG-6082
-    static QString lastText;
-    const QString text = d->m_ui.description->toPlainText();
-    if (lastText != text)
-        lastText = text;
-    else
-        return;
-#endif
     updateSubmitAction();
 }
 

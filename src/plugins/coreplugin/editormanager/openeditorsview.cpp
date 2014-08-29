@@ -309,12 +309,10 @@ void ProxyModel::setSourceModel(QAbstractItemModel *sm)
     }
 }
 
-#if QT_VERSION >= 0x050000
 QModelIndex ProxyModel::sibling(int row, int column, const QModelIndex &idx) const
 {
     return QAbstractItemModel::sibling(row, column, idx);
 }
-#endif
 
 void ProxyModel::sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {

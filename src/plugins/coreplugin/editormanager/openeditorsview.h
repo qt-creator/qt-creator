@@ -57,10 +57,8 @@ public:
 
     void setSourceModel(QAbstractItemModel *sourceModel);
 
-#if QT_VERSION >= 0x050000
     // QAbstractProxyModel::sibling is broken in Qt 5
     QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
-#endif
 
 private slots:
     void sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

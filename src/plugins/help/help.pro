@@ -1,12 +1,6 @@
-QT += network
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += printsupport help
-    !isEmpty(QT.webkitwidgets.name): QT += webkitwidgets webkit
-    else: DEFINES += QT_NO_WEBKIT
-} else {
-    CONFIG += help
-    contains(QT_CONFIG, webkit): QT += webkit
-}
+QT += help network printsupport
+!isEmpty(QT.webkitwidgets.name): QT += webkitwidgets webkit
+else: DEFINES += QT_NO_WEBKIT
 
 INCLUDEPATH += $$PWD
 

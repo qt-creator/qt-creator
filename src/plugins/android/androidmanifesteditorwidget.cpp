@@ -855,11 +855,7 @@ int extractVersion(const QString &string)
     int index = string.indexOf(QLatin1Char(':'));
     if (index == -1)
         return 0;
-#if QT_VERSION < 0x050100
-    return string.mid(4, index - 4).toInt();
-#else
     return string.midRef(4, index - 4).toInt();
-#endif
 }
 
 void AndroidManifestEditorWidget::syncToEditor()

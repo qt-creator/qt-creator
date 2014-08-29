@@ -38,12 +38,10 @@ class SessionManager;
 class Project;
 }
 
-#if QT_VERSION >= 0x050000
-// Required for Q_DECLARE_METATYPE of forward-declared types in Qt 5.
-   Q_DECLARE_OPAQUE_POINTER(ProjectExplorer::Project*)
-   Q_DECLARE_OPAQUE_POINTER(ProjectExplorer::IProjectManager*)
-   Q_DECLARE_OPAQUE_POINTER(ProjectExplorer::SessionManager*)
-#endif // QT_VERSION >= 0x050000
+// Required for Q_DECLARE_METATYPE of forward-declared types.
+Q_DECLARE_OPAQUE_POINTER(ProjectExplorer::Project*)
+Q_DECLARE_OPAQUE_POINTER(ProjectExplorer::IProjectManager*)
+Q_DECLARE_OPAQUE_POINTER(ProjectExplorer::SessionManager*)
 
 Q_DECLARE_METATYPE(QList<ProjectExplorer::Project*>)
 Q_DECLARE_METATYPE(ProjectExplorer::SessionManager*)

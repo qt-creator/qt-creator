@@ -2699,9 +2699,7 @@ QMessageBox *showMessageBox(int icon, const QString &title,
         title, text, QMessageBox::StandardButtons(buttons),
         ICore::mainWindow());
     mb->setAttribute(Qt::WA_DeleteOnClose);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     mb->setTextInteractionFlags(Qt::TextSelectableByMouse);
-#endif
     mb->show();
     return mb;
 }
