@@ -243,8 +243,10 @@ public:
     ~BaseTextEditorWidgetPrivate()
     {
         delete m_toolBar;
-        if (m_editorIsFallBack)
+        if (m_editorIsFallBack) {
+            m_editor->m_widget = 0; // That's us.
             delete m_editor;
+        }
     }
 
     void setupDocumentSignals();
