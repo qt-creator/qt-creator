@@ -38,7 +38,9 @@
 #include <private/qfileinfo_p.h>
 #include <private/qobject_p.h>
 
+#ifdef HAS_BOOST
 #include <boost/unordered/unordered_set.hpp>
+#endif
 
 class tst_offsets : public QObject
 {
@@ -189,6 +191,7 @@ void tst_offsets::offsets_data()
 #endif
     }
 
+#ifdef HAS_BOOST
     {
         boost::unordered::unordered_set<int> *p = 0;
 
@@ -199,6 +202,7 @@ void tst_offsets::offsets_data()
         QTest::newRow("boost::unordered::unordered_set::buckets_")
             << int((char *)&p->table_.buckets_ - (char *)p) << 20 << 40;
     }
+#endif
 }
 
 
