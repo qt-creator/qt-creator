@@ -49,13 +49,10 @@ class RangeTimelineModel : public AbstractTimelineModel
 public:
 
     struct QmlRangeEventStartInstance {
-        QmlRangeEventStartInstance(int typeId = -1) :
-                typeId(typeId),
+        QmlRangeEventStartInstance() :
                 displayRowExpanded(QmlDebug::Constants::QML_MIN_LEVEL),
                 displayRowCollapsed(QmlDebug::Constants::QML_MIN_LEVEL),
                 bindingLoopHead(-1) {}
-
-        int typeId;
 
         // not-expanded, per type
         int displayRowExpanded;
@@ -69,7 +66,6 @@ public:
     quint64 features() const;
 
     int row(int index) const;
-    int selectionId(int index) const;
     int bindingLoopDest(int index) const;
     QColor color(int index) const;
 

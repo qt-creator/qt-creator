@@ -42,11 +42,12 @@ class QMLPROFILER_EXPORT SortedTimelineModel : public QObject {
 
 public:
     struct Range {
-        Range() : start(-1), duration(-1), parent(-1) {}
-        Range(qint64 start, qint64 duration) :
-            start(start), duration(duration), parent(-1) {}
+        Range() : start(-1), duration(-1), typeId(-1), parent(-1) {}
+        Range(qint64 start, qint64 duration, int typeId) :
+            start(start), duration(duration), typeId(typeId), parent(-1) {}
         qint64 start;
         qint64 duration;
+        int typeId;
         int parent;
         inline qint64 timestamp() const {return start;}
     };
@@ -75,20 +76,20 @@ public:
 
     inline const Range &range(int index) const { return ranges[index]; }
 
-    inline int insert(qint64 startTime, qint64 duration)
+    inline int insert(qint64 startTime, qint64 duration, int typeId)
     {
         /* Doing insert-sort here is preferable as most of the time the times will actually be
          * presorted in the right way. So usually this will just result in appending. */
-        int index = insertSorted(ranges, Range(startTime, duration));
+        int index = insertSorted(ranges, Range(startTime, duration, typeId));
         if (index < ranges.size() - 1)
             incrementStartIndices(index);
         insertSorted(endTimes, RangeEnd(index, startTime + duration));
         return index;
     }
 
-    inline int insertStart(qint64 startTime)
+    inline int insertStart(qint64 startTime, int typeId)
     {
-        int index = insertSorted(ranges, Range(startTime, 0));
+        int index = insertSorted(ranges, Range(startTime, 0, typeId));
         if (index < ranges.size() - 1)
             incrementStartIndices(index);
         return index;

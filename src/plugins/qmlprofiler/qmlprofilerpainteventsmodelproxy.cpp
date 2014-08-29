@@ -126,7 +126,8 @@ void PaintEventsModelProxy::loadData()
         lastEvent.animationcount = (int)event.numericData2;
         QTC_ASSERT(lastEvent.animationcount > 0, continue);
 
-        d->data.insert(insert(realStartTime, realEndTime - realStartTime), lastEvent);
+        d->data.insert(insert(realStartTime, realEndTime - realStartTime, event.typeIndex),
+                       lastEvent);
 
         if (lastEvent.threadId == QmlDebug::GuiThread)
             d->maxGuiThreadAnimations = qMax(lastEvent.animationcount, d->maxGuiThreadAnimations);

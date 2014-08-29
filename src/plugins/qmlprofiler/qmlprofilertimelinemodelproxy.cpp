@@ -98,8 +98,8 @@ void RangeTimelineModel::loadData()
             continue;
 
         // store starttime-based instance
-        d->data.insert(insert(event.startTime, event.duration),
-                       QmlRangeEventStartInstance(event.typeIndex));
+        d->data.insert(insert(event.startTime, event.duration, event.typeIndex),
+                       QmlRangeEventStartInstance());
         d->modelManager->modelProxyCountUpdated(d->modelId, count(), eventList.count() * 6);
     }
 
@@ -162,7 +162,7 @@ void RangeTimelineModel::RangeTimelineModelPrivate::computeExpandedLevels()
     QHash<int, int> eventRow;
     int eventCount = q->count();
     for (int i = 0; i < eventCount; i++) {
-        int typeId = data[i].typeId;
+        int typeId = q->range(i).typeId;
         if (!eventRow.contains(typeId)) {
             eventRow[typeId] = expandedRowTypes.size();
             expandedRowTypes << typeId;
@@ -194,14 +194,14 @@ void RangeTimelineModel::RangeTimelineModelPrivate::findBindingLoops()
 
         // check whether event is already in stack
         for (int ii = 0; ii < callStack.size(); ++ii) {
-            if (callStack.at(ii).first == data[i].typeId) {
+            if (callStack.at(ii).first == q->range(i).typeId) {
                 data[i].bindingLoopHead = callStack.at(ii).second;
                 break;
             }
         }
 
 
-        CallStackEntry newEntry(data[i].typeId, i);
+        CallStackEntry newEntry(q->range(i).typeId, i);
         callStack.push(newEntry);
     }
 
@@ -222,12 +222,6 @@ int RangeTimelineModel::row(int index) const
         return d->data[index].displayRowExpanded;
     else
         return d->data[index].displayRowCollapsed;
-}
-
-int RangeTimelineModel::selectionId(int index) const
-{
-    Q_D(const RangeTimelineModel);
-    return d->data[index].typeId;
 }
 
 int RangeTimelineModel::bindingLoopDest(int index) const

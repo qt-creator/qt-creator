@@ -260,6 +260,11 @@ int AbstractTimelineModel::rowCount() const
     return d->expanded ? d->expandedRowCount : d->collapsedRowCount;
 }
 
+int AbstractTimelineModel::selectionId(int index) const
+{
+    return range(index).typeId;
+}
+
 void AbstractTimelineModel::clear()
 {
     Q_D(AbstractTimelineModel);
