@@ -29,10 +29,15 @@
         <file>images/minus.png</file>
         <file>images/next.png</file>
         <file>images/panel_button.png</file>
+        <file>images/panel_button@2x.png</file>
         <file>images/panel_button_checked.png</file>
+        <file>images/panel_button_checked@2x.png</file>
         <file>images/panel_button_checked_hover.png</file>
+        <file>images/panel_button_checked_hover@2x.png</file>
         <file>images/panel_button_hover.png</file>
+        <file>images/panel_button_hover@2x.png</file>
         <file>images/panel_button_pressed.png</file>
+        <file>images/panel_button_pressed@2x.png</file>
         <file>images/plus.png</file>
         <file>images/prev.png</file>
         <file>images/pushbutton.png</file>
@@ -88,6 +93,7 @@
         <file>images/splitbutton_vertical.png</file>
         <file>images/splitbutton_vertical@2x.png</file>
         <file>images/panel_manage_button.png</file>
+        <file>images/panel_manage_button@2x.png</file>
         <file>images/pause.png</file>
         <file>images/reload_gray.png</file>
         <file>images/reload_gray@2x.png</file>

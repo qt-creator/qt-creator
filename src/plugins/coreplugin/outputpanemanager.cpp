@@ -46,6 +46,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -69,6 +70,8 @@ namespace Internal {
 static char outputPaneSettingsKeyC[] = "OutputPaneVisibility";
 static char outputPaneIdKeyC[] = "id";
 static char outputPaneVisibleKeyC[] = "visible";
+static const int numberAreaWidth = 19;
+static const int buttonBorderWidth = 3;
 
 ////
 // OutputPaneManager
@@ -610,20 +613,6 @@ int OutputPaneManager::currentIndex() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-static QString buttonStyleSheet()
-{
-    QString styleSheet = QLatin1String("QToolButton { border-image: url(:/core/images/panel_button.png) 3 3 3 19;"
-            " border-width: 3px 3px 3px 19px; padding-left: -17; padding-right: 4 } "
-            "QToolButton:checked { border-image: url(:/core/images/panel_button_checked.png) 3 3 3 19 } "
-            "QToolButton::menu-indicator { width:0; height:0 }");
-    if (!Utils::HostOsInfo::isMacHost()) { // Mac UIs usually don't hover
-        styleSheet += QLatin1String("QToolButton:checked:hover { border-image: url(:/core/images/panel_button_checked_hover.png) 3 3 3 19 } "
-                "QToolButton:pressed:hover { border-image: url(:/core/images/panel_button_pressed.png) 3 3 3 19 } "
-                "QToolButton:hover { border-image: url(:/core/images/panel_button_hover.png) 3 3 3 19 } ");
-    }
-    return styleSheet;
-}
-
 OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
                                                QAction *action, QWidget *parent)
     : QToolButton(parent)
@@ -636,7 +625,6 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     setCheckable(true);
     QFont fnt = QApplication::font();
     setFont(fnt);
-    setStyleSheet(buttonStyleSheet());
     if (m_action)
         connect(m_action, SIGNAL(changed()), this, SLOT(updateToolTip()));
 
@@ -645,15 +633,6 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     m_flashTimer->setFrameRange(0, 92);
     connect(m_flashTimer, SIGNAL(valueChanged(qreal)), this, SLOT(update()));
     connect(m_flashTimer, SIGNAL(finished()), this, SLOT(update()));
-
-    m_label = new QLabel(this);
-    fnt.setBold(true);
-    fnt.setPixelSize(11);
-    m_label->setFont(fnt);
-    m_label->setAlignment(Qt::AlignCenter);
-    m_label->setStyleSheet(QLatin1String("background-color: #818181; color: white; border-radius: 6; padding-left: 4; padding-right: 4;"));
-    m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_label->hide();
 }
 
 void OutputPaneToggleButton::updateToolTip()
@@ -668,46 +647,58 @@ QSize OutputPaneToggleButton::sizeHint() const
 
     QSize s = fontMetrics().size(Qt::TextSingleLine, m_text);
 
-    // Expand to account for border image set by stylesheet above
-    s.rwidth() += 19 + 5 + 2;
-    s.rheight() += 2 + 2;
+    // Expand to account for border image
+    s.rwidth() += numberAreaWidth + 1 + buttonBorderWidth + buttonBorderWidth;
 
-    if (!m_label->text().isNull())
-        s.rwidth() += m_label->width();
+    if (!m_badgeNumberLabel.text().isNull())
+        s.rwidth() += m_badgeNumberLabel.sizeHint().width() + 1;
 
     return s.expandedTo(QApplication::globalStrut());
 }
 
-void OutputPaneToggleButton::resizeEvent(QResizeEvent *event)
+void OutputPaneToggleButton::paintEvent(QPaintEvent*)
 {
-    QToolButton::resizeEvent(event);
-    if (!m_label->text().isNull()) {
-        m_label->move(width() - m_label->width() - 3,  (height() - m_label->height() + 1) / 2);
-        m_label->show();
-    }
-}
-
-void OutputPaneToggleButton::paintEvent(QPaintEvent *event)
-{
-    // For drawing the style sheet stuff
-    QToolButton::paintEvent(event);
+    static const QImage panelButton(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button.png")));
+    static const QImage panelButtonHover(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_hover.png")));
+    static const QImage panelButtonPressed(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_pressed.png")));
+    static const QImage panelButtonChecked(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_checked.png")));
+    static const QImage panelButtonCheckedHover(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_button_checked_hover.png")));
 
     const QFontMetrics fm = fontMetrics();
     const int baseLine = (height() - fm.height() + 1) / 2 + fm.ascent();
     const int numberWidth = fm.width(m_number);
 
     QPainter p(this);
-    if (m_flashTimer->state() == QTimeLine::Running) {
-        p.setPen(Qt::transparent);
-        p.fillRect(rect().adjusted(19, 1, -1, -1), QBrush(QColor(255,0,0, m_flashTimer->currentFrame())));
-    }
+
+    QStyleOption styleOption;
+    styleOption.initFrom(this);
+    const bool hovered = !Utils::HostOsInfo::isMacHost() && (styleOption.state & QStyle::State_MouseOver);
+
+    QImage const* image = 0;
+    if (isDown())
+        image = &panelButtonPressed;
+    else if (isChecked())
+        image = hovered ? &panelButtonCheckedHover : &panelButtonChecked;
+    else
+        image = hovered ? &panelButtonHover : &panelButton;
+    if (image)
+        Utils::StyleHelper::drawCornerImage(*image, &p, rect(), numberAreaWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
+
+    if (m_flashTimer->state() == QTimeLine::Running)
+        p.fillRect(rect().adjusted(numberAreaWidth, 1, -1, -1), QBrush(QColor(255, 0, 0, m_flashTimer->currentFrame())));
+
     p.setFont(font());
     p.setPen(Qt::white);
-    p.drawText((20 - numberWidth) / 2, baseLine, m_number);
+    p.drawText((numberAreaWidth - numberWidth) / 2, baseLine, m_number);
     if (!isChecked())
         p.setPen(Qt::black);
-    int leftPart = 22;
-    int labelWidth = m_label->isVisible() ? m_label->width() + 3 : 0;
+    int leftPart = numberAreaWidth + buttonBorderWidth;
+    int labelWidth = 0;
+    if (!m_badgeNumberLabel.text().isEmpty()) {
+        const QSize labelSize = m_badgeNumberLabel.sizeHint();
+        labelWidth = labelSize.width() + 3;
+        m_badgeNumberLabel.paint(&p, width() - labelWidth, (height() - labelSize.height()) / 2, isChecked());
+    }
     p.drawText(leftPart, baseLine, fm.elidedText(m_text, Qt::ElideRight, width() - leftPart - 1 - labelWidth));
 }
 
@@ -716,13 +707,6 @@ void OutputPaneToggleButton::checkStateSet()
     //Stop flashing when button is checked
     QToolButton::checkStateSet();
     m_flashTimer->stop();
-
-    if (isChecked())
-        m_label->setStyleSheet(QLatin1String("background-color: #e1e1e1; color: #606060; "
-                                             "border-radius: 6; padding-left: 4; padding-right: 4;"));
-    else
-        m_label->setStyleSheet(QLatin1String("background-color: #818181; color: white; border-radius: 6; "
-                                             "padding-left: 4; padding-right: 4;"));
 }
 
 void OutputPaneToggleButton::flash(int count)
@@ -739,21 +723,7 @@ void OutputPaneToggleButton::flash(int count)
 
 void OutputPaneToggleButton::setIconBadgeNumber(int number)
 {
-    if (number) {
-        const QString text = QString::number(number);
-        m_label->setText(text);
-
-        QSize size = m_label->sizeHint();
-        if (size.width() < size.height())
-            //Ensure we increase size by an even number of pixels
-            size.setWidth(size.height() + ((size.width() - size.height()) & 1));
-        m_label->resize(size);
-
-        //Do not show yet, we wait until the button has been resized
-    } else {
-        m_label->clear();
-        m_label->hide();
-    }
+    m_badgeNumberLabel.setText(number ? QString::number(number) : QString());
     updateGeometry();
 }
 
@@ -768,32 +738,76 @@ OutputPaneManageButton::OutputPaneManageButton()
 {
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
-    setStyleSheet(QLatin1String("QToolButton { border-image: url(:/core/images/panel_manage_button.png) 3 3 3 3;"
-                                " border-width: 3px 3px 3px 3px } "
-                                "QToolButton::menu-indicator { width:0; height:0 }"));
 }
 
 QSize OutputPaneManageButton::sizeHint() const
 {
     ensurePolished();
-    return QSize(19, QApplication::globalStrut().height());
+    return QSize(numberAreaWidth, QApplication::globalStrut().height());
 }
 
-void OutputPaneManageButton::paintEvent(QPaintEvent *event)
+void OutputPaneManageButton::paintEvent(QPaintEvent*)
 {
-    QToolButton::paintEvent(event); // Draw style sheet.
     QPainter p(this);
+    static const QImage button(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_manage_button.png")));
+    Utils::StyleHelper::drawCornerImage(button, &p, rect(), buttonBorderWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
     QStyle *s = style();
     QStyleOption arrowOpt;
     arrowOpt.initFrom(this);
-    arrowOpt.rect = QRect(6, rect().center().y() - 3, 9, 9);
+    arrowOpt.rect = QRect(6, rect().center().y() - 3, 8, 8);
     arrowOpt.rect.translate(0, -3);
     s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
     arrowOpt.rect.translate(0, 6);
     s->drawPrimitive(QStyle::PE_IndicatorArrowDown, &arrowOpt, &p, this);
 }
 
+BadgeLabel::BadgeLabel()
+{
+    m_font = QApplication::font();
+    m_font.setBold(true);
+    m_font.setPixelSize(11);
+}
+
+void BadgeLabel::paint(QPainter *p, int x, int y, bool isChecked)
+{
+    const QRectF rect(QRect(QPoint(x, y), m_size));
+    p->save();
+
+    p->setBrush(isChecked ? QColor(0xe0, 0xe0, 0xe0) : Qt::darkGray);
+    p->setPen(Qt::NoPen);
+    p->setRenderHint(QPainter::Antialiasing, true);
+    p->drawRoundedRect(rect, m_padding, m_padding, Qt::AbsoluteSize);
+
+    p->setFont(m_font);
+    p->setPen(isChecked ? QColor(0x60, 0x60, 0x60) : Qt::white);
+    p->drawText(rect, Qt::AlignCenter, m_text);
+
+    p->restore();
+}
+
+void BadgeLabel::setText(QString &text)
+{
+    m_text = text;
+    calculateSize();
+}
+
+QString BadgeLabel::text() const
+{
+    return m_text;
+}
+
+QSize BadgeLabel::sizeHint() const
+{
+    return m_size;
+}
+
+void BadgeLabel::calculateSize()
+{
+    const QFontMetrics fm(m_font);
+    m_size = fm.size(Qt::TextSingleLine, m_text);
+    m_size.setWidth(m_size.width() + m_padding * 1.5);
+    m_size.setHeight(2 * m_padding + 1); // Needs to be uneven for pixel perfect vertical centering in the button
+}
+
 } // namespace Internal
 } // namespace Core
-
-

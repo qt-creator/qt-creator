@@ -138,6 +138,24 @@ private:
     int m_outputPaneHeight;
 };
 
+class BadgeLabel
+{
+public:
+    BadgeLabel();
+    void paint(QPainter *p, int x, int y, bool isChecked);
+    void setText(QString &text);
+    QString text() const;
+    QSize sizeHint() const;
+
+private:
+    void calculateSize();
+
+    QSize m_size;
+    QString m_text;
+    QFont m_font;
+    static const int m_padding = 6;
+};
+
 class OutputPaneToggleButton : public QToolButton
 {
     Q_OBJECT
@@ -145,8 +163,7 @@ public:
     OutputPaneToggleButton(int number, const QString &text, QAction *action,
                            QWidget *parent = 0);
     QSize sizeHint() const;
-    void resizeEvent(QResizeEvent *event);
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent*);
     void flash(int count = 3);
     void setIconBadgeNumber(int number);
 
@@ -160,7 +177,7 @@ private:
     QString m_text;
     QAction *m_action;
     QTimeLine *m_flashTimer;
-    QLabel *m_label;
+    BadgeLabel m_badgeNumberLabel;
 };
 
 class OutputPaneManageButton : public QToolButton
@@ -169,7 +186,7 @@ class OutputPaneManageButton : public QToolButton
 public:
     OutputPaneManageButton();
     QSize sizeHint() const;
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent*);
 };
 
 } // namespace Internal
