@@ -143,7 +143,7 @@ int SceneGraphTimelineModel::eventId(int index) const
 
 QColor SceneGraphTimelineModel::color(int index) const
 {
-    return colorByEventId(eventId(index));
+    return colorByEventId(index);
 }
 
 QVariantList SceneGraphTimelineModel::labels() const
