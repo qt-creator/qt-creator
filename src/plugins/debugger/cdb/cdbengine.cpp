@@ -2828,10 +2828,7 @@ static CPlusPlus::Document::Ptr getParsedDocument(const QString &fileName,
 unsigned BreakpointCorrectionContext::fixLineNumber(const QString &fileName,
                                                     unsigned lineNumber) const
 {
-    CPlusPlus::Document::Ptr doc = m_snapshot.document(fileName);
-    if (!doc || !doc->translationUnit()->ast())
-        doc = getParsedDocument(fileName, m_workingCopy, m_snapshot);
-
+    const CPlusPlus::Document::Ptr doc = getParsedDocument(fileName, m_workingCopy, m_snapshot);
     CPlusPlus::FindCdbBreakpoint findVisitor(doc->translationUnit());
     const unsigned correctedLine = findVisitor(lineNumber);
     if (!correctedLine) {
