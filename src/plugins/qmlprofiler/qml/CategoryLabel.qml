@@ -39,7 +39,7 @@ Item {
     property int bindingTrigger: 1
     property var descriptions: []
     property var extdescriptions: []
-    property var eventIds: []
+    property var selectionIds: []
     property bool dragging
     property Item draggerParent
 
@@ -75,7 +75,7 @@ Item {
                 extdesc[i] += " (" + labelList[i].displayName + ")";
         }
         descriptions = desc;
-        eventIds = ids;
+        selectionIds = ids;
         extdescriptions = extdesc;
     }
 
@@ -148,9 +148,9 @@ Item {
                 action: Action {
                     onTriggered: {
                         if (reverseSelect)
-                            view.selectPrevFromId(modelIndex,eventIds[index]);
+                            view.selectPrevFromSelectionId(modelIndex,selectionIds[index]);
                         else
-                            view.selectNextFromId(modelIndex,eventIds[index]);
+                            view.selectNextFromSelectionId(modelIndex,selectionIds[index]);
                     }
 
                     tooltip: extdescriptions[index]

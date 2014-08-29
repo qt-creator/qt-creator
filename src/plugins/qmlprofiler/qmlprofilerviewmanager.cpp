@@ -107,8 +107,7 @@ void QmlProfilerViewManager::createViews()
     d->eventsView->setWindowTitle(tr("Events"));
     connect(d->eventsView, SIGNAL(gotoSourceLocation(QString,int,int)), this,
             SIGNAL(gotoSourceLocation(QString,int,int)));
-    connect(d->eventsView, SIGNAL(eventSelectedByTypeIndex(int)),
-            d->traceView, SLOT(selectByTypeIndex(int)));
+    connect(d->eventsView, SIGNAL(typeSelected(int)), d->traceView, SLOT(selectByTypeId(int)));
     connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
             d->eventsView, SLOT(selectBySourceLocation(QString,int,int)));
 

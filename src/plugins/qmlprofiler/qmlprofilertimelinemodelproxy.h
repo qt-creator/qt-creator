@@ -49,13 +49,13 @@ class RangeTimelineModel : public AbstractTimelineModel
 public:
 
     struct QmlRangeEventStartInstance {
-        QmlRangeEventStartInstance(int eventId = -1) :
-                eventId(eventId),
+        QmlRangeEventStartInstance(int typeId = -1) :
+                typeId(typeId),
                 displayRowExpanded(QmlDebug::Constants::QML_MIN_LEVEL),
                 displayRowCollapsed(QmlDebug::Constants::QML_MIN_LEVEL),
                 bindingLoopHead(-1) {}
 
-        int eventId;
+        int typeId;
 
         // not-expanded, per type
         int displayRowExpanded;
@@ -69,7 +69,7 @@ public:
     quint64 features() const;
 
     int row(int index) const;
-    int eventId(int index) const;
+    int selectionId(int index) const;
     int bindingLoopDest(int index) const;
     QColor color(int index) const;
 
@@ -77,8 +77,8 @@ public:
     QVariantMap details(int index) const;
     QVariantMap location(int index) const;
 
-    int eventIdForTypeIndex(int typeIndex) const;
-    int eventIdForLocation(const QString &filename, int line, int column) const;
+    bool isSelectionIdValid(int typeIndex) const;
+    int selectionIdForLocation(const QString &filename, int line, int column) const;
 
 protected:
     void loadData();

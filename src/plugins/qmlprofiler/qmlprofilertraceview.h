@@ -100,7 +100,7 @@ public:
 
 public slots:
     void clear();
-    void selectByTypeIndex(int typeIndex);
+    void selectByTypeId(int typeId);
     void selectBySourceLocation(const QString &filename, int line, int column);
 
 private slots:

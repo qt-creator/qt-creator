@@ -61,7 +61,7 @@ enum ItemRole {
     SortRole = Qt::UserRole + 1, // Sort by data, not by displayed text
     FilenameRole,
     LineRole,
-    EventIdRole
+    TypeIdRole
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -132,10 +132,10 @@ QV8ProfilerEventsWidget::QV8ProfilerEventsWidget(QWidget *parent,
     d->m_eventParents = new QV8ProfilerEventRelativesView(d->v8Model,
                                                           QV8ProfilerEventRelativesView::ParentsView,
                                                           this);
-    connect(d->m_eventTree, SIGNAL(eventSelected(int)), d->m_eventChildren, SLOT(displayEvent(int)));
-    connect(d->m_eventTree, SIGNAL(eventSelected(int)), d->m_eventParents, SLOT(displayEvent(int)));
-    connect(d->m_eventChildren, SIGNAL(eventClicked(int)), d->m_eventTree, SLOT(selectEvent(int)));
-    connect(d->m_eventParents, SIGNAL(eventClicked(int)), d->m_eventTree, SLOT(selectEvent(int)));
+    connect(d->m_eventTree, SIGNAL(typeSelected(int)), d->m_eventChildren, SLOT(displayType(int)));
+    connect(d->m_eventTree, SIGNAL(typeSelected(int)), d->m_eventParents, SLOT(displayType(int)));
+    connect(d->m_eventChildren, SIGNAL(typeClicked(int)), d->m_eventTree, SLOT(selectType(int)));
+    connect(d->m_eventParents, SIGNAL(typeClicked(int)), d->m_eventTree, SLOT(selectType(int)));
     connect(d->v8Model, SIGNAL(changed()), this, SLOT(updateEnabledState()));
 
     // widget arrangement
@@ -242,10 +242,10 @@ void QV8ProfilerEventsWidget::copyRowToClipboard() const
     d->m_eventTree->copyRowToClipboard();
 }
 
-void QV8ProfilerEventsWidget::updateSelectedEvent(int eventId) const
+void QV8ProfilerEventsWidget::updateSelectedType(int typeId) const
 {
-    if (d->m_eventTree->selectedEventId() != eventId)
-        d->m_eventTree->selectEvent(eventId);
+    if (d->m_eventTree->selectedTypeId() != typeId)
+        d->m_eventTree->selectType(typeId);
 }
 
 void QV8ProfilerEventsWidget::selectBySourceLocation(const QString &filename, int line, int column)
@@ -474,7 +474,7 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
             QStandardItem *firstItem = newRow.at(0);
             firstItem->setData(QVariant(v8event->filename), FilenameRole);
             firstItem->setData(QVariant(v8event->line), LineRole);
-            firstItem->setData(QVariant(v8event->eventId), EventIdRole);
+            firstItem->setData(QVariant(v8event->typeId), TypeIdRole);
 
             // append
             m_model->invisibleRootItem()->appendRow(newRow);
@@ -482,13 +482,13 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
     }
 }
 
-int QV8ProfilerEventsMainView::selectedEventId() const
+int QV8ProfilerEventsMainView::selectedTypeId() const
 {
     QModelIndex index = selectedItem();
     if (!index.isValid())
         return -1;
     QStandardItem *item = d->m_model->item(index.row(), 0);
-    return item->data(EventIdRole).toInt();
+    return item->data(TypeIdRole).toInt();
 }
 
 void QV8ProfilerEventsMainView::jumpToItem(const QModelIndex &index)
@@ -511,16 +511,16 @@ void QV8ProfilerEventsMainView::jumpToItem(const QModelIndex &index)
         emit gotoSourceLocation(fileName, line, -1);
 
     // show in callers/callees subwindow
-    emit eventSelected(infoItem->data(EventIdRole).toInt());
+    emit typeSelected(infoItem->data(TypeIdRole).toInt());
 
     d->m_preventSelectBounce = false;
 }
 
-void QV8ProfilerEventsMainView::selectEvent(int eventId)
+void QV8ProfilerEventsMainView::selectType(int typeId)
 {
     for (int i=0; i<d->m_model->rowCount(); i++) {
         QStandardItem *infoItem = d->m_model->item(i, 0);
-        if (infoItem->data(EventIdRole).toInt() == eventId) {
+        if (infoItem->data(TypeIdRole).toInt() == typeId) {
             setCurrentIndex(d->m_model->indexFromItem(infoItem));
             jumpToItem(currentIndex());
             return;
@@ -639,7 +639,7 @@ QV8ProfilerEventRelativesView::~QV8ProfilerEventRelativesView()
 {
 }
 
-void QV8ProfilerEventRelativesView::displayEvent(int index)
+void QV8ProfilerEventRelativesView::displayType(int index)
 {
     QV8ProfilerDataModel::QV8EventData *event = m_v8Model->v8EventDescription(index);
     QTC_CHECK(event);
@@ -670,7 +670,7 @@ void QV8ProfilerEventRelativesView::rebuildTree(QList<QV8ProfilerDataModel::QV8E
         newRow << new V8ViewItem(QmlProfilerBaseModel::formatTime(event->totalTime));
         newRow << new V8ViewItem(event->reference->functionName);
 
-        newRow.at(0)->setData(QVariant(event->reference->eventId), EventIdRole);
+        newRow.at(0)->setData(QVariant(event->reference->typeId), TypeIdRole);
         newRow.at(0)->setData(QVariant(event->reference->filename), FilenameRole);
         newRow.at(0)->setData(QVariant(event->reference->line), LineRole);
         newRow.at(1)->setData(QVariant(event->totalTime));
@@ -709,7 +709,7 @@ void QV8ProfilerEventRelativesView::updateHeader()
 void QV8ProfilerEventRelativesView::jumpToItem(const QModelIndex &index)
 {
     QStandardItem *infoItem = m_model->item(index.row(), 0);
-    emit eventClicked(infoItem->data(EventIdRole).toInt());
+    emit typeClicked(infoItem->data(TypeIdRole).toInt());
 }
 
 } // namespace Internal

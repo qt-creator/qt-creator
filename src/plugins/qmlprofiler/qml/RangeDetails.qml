@@ -223,7 +223,7 @@ Item {
             anchors.fill: parent
             onClicked: {
                 root.hideRangeDetails();
-                view.selectFromId(view.selectedModel, -1);
+                view.selectFromEventIndex(view.selectedModel, -1);
             }
         }
     }

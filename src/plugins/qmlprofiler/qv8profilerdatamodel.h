@@ -63,7 +63,7 @@ public:
         double SelfTimeInPercent;
         QHash <QString, QV8EventSub *> parentHash;
         QHash <QString, QV8EventSub *> childrenHash;
-        int eventId;
+        int typeId;
 
         QV8EventData &operator=(const QV8EventData &ref);
     };
@@ -81,7 +81,7 @@ public:
     void clear();
     bool isEmpty() const;
     QList<QV8EventData *> getV8Events() const;
-    QV8EventData *v8EventDescription(int eventId) const;
+    QV8EventData *v8EventDescription(int typeId) const;
 
     qint64 v8MeasuredTime() const;
 

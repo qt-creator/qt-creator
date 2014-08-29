@@ -152,13 +152,13 @@ QVariantMap AbstractTimelineModel::location(int index) const
     return map;
 }
 
-int AbstractTimelineModel::eventIdForTypeIndex(int typeIndex) const
+bool AbstractTimelineModel::isSelectionIdValid(int typeIndex) const
 {
     Q_UNUSED(typeIndex);
-    return -1;
+    return false;
 }
 
-int AbstractTimelineModel::eventIdForLocation(const QString &filename, int line, int column) const
+int AbstractTimelineModel::selectionIdForLocation(const QString &filename, int line, int column) const
 {
     Q_UNUSED(filename);
     Q_UNUSED(line);

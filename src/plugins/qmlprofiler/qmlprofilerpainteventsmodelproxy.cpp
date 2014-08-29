@@ -173,7 +173,7 @@ int PaintEventsModelProxy::rowMaxValue(int rowNumber) const
     }
 }
 
-int PaintEventsModelProxy::eventId(int index) const
+int PaintEventsModelProxy::selectionId(int index) const
 {
     Q_D(const PaintEventsModelProxy);
     return d->data[index].threadId;

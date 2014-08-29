@@ -220,9 +220,9 @@ qint64 TimelineModelAggregator::endTime(int modelIndex, int index) const
     return d->modelList[modelIndex]->endTime(index);
 }
 
-int TimelineModelAggregator::eventId(int modelIndex, int index) const
+int TimelineModelAggregator::selectionId(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->eventId(index);
+    return d->modelList[modelIndex]->selectionId(index);
 }
 
 int TimelineModelAggregator::bindingLoopDest(int modelIndex,int index) const
@@ -255,15 +255,15 @@ QVariantMap TimelineModelAggregator::location(int modelIndex, int index) const
     return d->modelList[modelIndex]->location(index);
 }
 
-int TimelineModelAggregator::eventIdForTypeIndex(int modelIndex, int typeIndex) const
+bool TimelineModelAggregator::isSelectionIdValid(int modelIndex, int typeIndex) const
 {
-    return d->modelList[modelIndex]->eventIdForTypeIndex(typeIndex);
+    return d->modelList[modelIndex]->isSelectionIdValid(typeIndex);
 }
 
-int TimelineModelAggregator::eventIdForLocation(int modelIndex, const QString &filename,
+int TimelineModelAggregator::selectionIdForLocation(int modelIndex, const QString &filename,
                                                    int line, int column) const
 {
-    return d->modelList[modelIndex]->eventIdForLocation(filename, line, column);
+    return d->modelList[modelIndex]->selectionIdForLocation(filename, line, column);
 }
 
 void TimelineModelAggregator::swapModels(int modelIndex1, int modelIndex2)

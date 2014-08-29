@@ -72,7 +72,7 @@ signals:
     void resized();
 
 public slots:
-    void updateSelectedEvent(int eventId) const;
+    void updateSelectedType(int typeId) const;
     void selectBySourceLocation(const QString &filename, int line, int column);
     void updateEnabledState();
 
@@ -101,19 +101,19 @@ public:
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
 
-    int selectedEventId() const;
+    int selectedTypeId() const;
 
     void setShowExtendedStatistics(bool);
     bool showExtendedStatistics() const;
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void eventSelected(int eventId);
+    void typeSelected(int typeId);
 
 public slots:
     void clear();
     void jumpToItem(const QModelIndex &index);
-    void selectEvent(int eventId);
+    void selectType(int typeId);
     void selectEventByLocation(const QString &filename, int line);
     void buildModel();
 
@@ -139,10 +139,10 @@ public:
     ~QV8ProfilerEventRelativesView();
 
 signals:
-    void eventClicked(int eventId);
+    void typeClicked(int typeId);
 
 public slots:
-    void displayEvent(int eventId);
+    void displayType(int typeId);
     void jumpToItem(const QModelIndex &);
     void clear();
 

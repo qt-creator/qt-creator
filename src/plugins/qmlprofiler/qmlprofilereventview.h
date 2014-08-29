@@ -49,11 +49,10 @@ class QmlProfilerEventRelativesView;
 
 enum ItemRole {
     SortRole = Qt::UserRole + 1, // Sort by data, not by displayed string
-    EventTypeIndexRole,
+    TypeIdRole,
     FilenameRole,
     LineRole,
-    ColumnRole,
-    EventIdRole
+    ColumnRole
 };
 
 class QmlProfilerEventsWidget : public QWidget
@@ -69,7 +68,7 @@ public:
     void clear();
 
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
-    QModelIndex selectedItem() const;
+    QModelIndex selectedModelIndex() const;
     bool mouseOnTable(const QPoint &position) const;
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
@@ -86,7 +85,7 @@ public:
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void eventSelectedByTypeIndex(int typeIndex);
+    void typeSelected(int typeIndex);
     void resized();
 
 public slots:
@@ -116,14 +115,14 @@ public:
     void setFieldViewable(Fields field, bool show);
     void setShowAnonymousEvents( bool showThem );
 
-    QModelIndex selectedItem() const;
+    QModelIndex selectedModelIndex() const;
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
 
     static QString nameForType(QmlDebug::RangeType typeNumber);
 
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
-    int selectedTypeIndex() const;
+    int selectedTypeId() const;
 
     void setShowExtendedStatistics(bool);
     bool showExtendedStatistics() const;
@@ -131,13 +130,13 @@ public:
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void eventSelected(int typeIndex);
+    void typeSelected(int typeIndex);
 
 public slots:
     void clear();
     void jumpToItem(const QModelIndex &index);
-    void selectEvent(int typeIndex);
-    void selectEventByLocation(const QString &filename, int line, int column);
+    void selectType(int typeIndex);
+    void selectByLocation(const QString &filename, int line, int column);
     void buildModel();
 
 private slots:
@@ -164,10 +163,10 @@ public:
     ~QmlProfilerEventRelativesView();
 
 signals:
-    void eventClicked(int typeIndex);
+    void typeClicked(int typeIndex);
 
 public slots:
-    void displayEvent(int typeIndex);
+    void displayType(int typeIndex);
     void jumpToItem(const QModelIndex &);
     void clear();
 

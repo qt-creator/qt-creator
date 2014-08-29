@@ -199,7 +199,7 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
         return;
 
 
-    int id = m_profilerModelProxy->eventId(modelIndex, m_selectedItem);
+    int id = m_profilerModelProxy->selectionId(modelIndex, m_selectedItem);
 
     int modelRowStart = 0;
     for (int mi = 0; mi < modelIndex; mi++)
@@ -219,7 +219,7 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
     int currentX, currentY, itemWidth;
     QRect selectedItemRect(0,0,0,0);
     for (int i = fromIndex; i <= toIndex; i++) {
-        if (m_profilerModelProxy->eventId(modelIndex, i) != id)
+        if (m_profilerModelProxy->selectionId(modelIndex, i) != id)
             continue;
 
         int row = m_profilerModelProxy->row(modelIndex, i);
@@ -377,11 +377,11 @@ void TimelineRenderer::manageClicked()
 
         // itemPressed() will trigger an update of the events and JavaScript views. Make sure the
         // correct event is already selected when that happens, to prevent confusion.
-        selectFromId(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
+        selectFromEventIndex(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
         emit itemPressed(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
     } else {
         setSelectionLocked(false);
-        selectFromId(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
+        selectFromEventIndex(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
     }
 }
 
@@ -436,7 +436,7 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
             m_currentSelection.row = row;
             m_currentSelection.modelIndex = modelIndex;
             if (!m_selectionLocked)
-                selectFromId(modelIndex, i);
+                selectFromEventIndex(modelIndex, i);
             return;
         }
     }
@@ -528,7 +528,7 @@ void TimelineRenderer::selectNext()
             }
     }
 
-    selectFromId(candidateModelIndex, itemIndex);
+    selectFromEventIndex(candidateModelIndex, itemIndex);
 }
 
 void TimelineRenderer::selectPrev()
@@ -580,10 +580,10 @@ void TimelineRenderer::selectPrev()
             }
     }
 
-    selectFromId(candidateModelIndex, itemIndex);
+    selectFromEventIndex(candidateModelIndex, itemIndex);
 }
 
-int TimelineRenderer::nextItemFromId(int modelIndex, int eventId) const
+int TimelineRenderer::nextItemFromSelectionId(int modelIndex, int selectionId) const
 {
     int ndx = -1;
     if (m_selectedItem == -1)
@@ -596,14 +596,14 @@ int TimelineRenderer::nextItemFromId(int modelIndex, int eventId) const
         ndx = 0;
     int startIndex = ndx;
     do {
-        if (m_profilerModelProxy->eventId(modelIndex, ndx) == eventId)
+        if (m_profilerModelProxy->selectionId(modelIndex, ndx) == selectionId)
             return ndx;
         ndx = (ndx + 1) % m_profilerModelProxy->count(modelIndex);
     } while (ndx != startIndex);
     return -1;
 }
 
-int TimelineRenderer::prevItemFromId(int modelIndex, int eventId) const
+int TimelineRenderer::prevItemFromSelectionId(int modelIndex, int selectionId) const
 {
     int ndx = -1;
     if (m_selectedItem == -1)
@@ -614,7 +614,7 @@ int TimelineRenderer::prevItemFromId(int modelIndex, int eventId) const
         ndx = m_profilerModelProxy->count(modelIndex) - 1;
     int startIndex = ndx;
     do {
-        if (m_profilerModelProxy->eventId(modelIndex, ndx) == eventId)
+        if (m_profilerModelProxy->selectionId(modelIndex, ndx) == selectionId)
             return ndx;
         if (--ndx < 0)
             ndx = m_profilerModelProxy->count(modelIndex)-1;
@@ -622,7 +622,7 @@ int TimelineRenderer::prevItemFromId(int modelIndex, int eventId) const
     return -1;
 }
 
-void TimelineRenderer::selectFromId(int modelIndex, int eventIndex)
+void TimelineRenderer::selectFromEventIndex(int modelIndex, int eventIndex)
 {
     if (modelIndex != m_selectedModel || eventIndex != m_selectedItem) {
         setSelectedModel(modelIndex);
@@ -631,12 +631,12 @@ void TimelineRenderer::selectFromId(int modelIndex, int eventIndex)
     }
 }
 
-void TimelineRenderer::selectNextFromId(int modelIndex, int eventId)
+void TimelineRenderer::selectNextFromSelectionId(int modelIndex, int typeId)
 {
-    selectFromId(modelIndex, nextItemFromId(modelIndex, eventId));
+    selectFromEventIndex(modelIndex, nextItemFromSelectionId(modelIndex, typeId));
 }
 
-void TimelineRenderer::selectPrevFromId(int modelIndex, int eventId)
+void TimelineRenderer::selectPrevFromSelectionId(int modelIndex, int typeId)
 {
-    selectFromId(modelIndex, prevItemFromId(modelIndex, eventId));
+    selectFromEventIndex(modelIndex, prevItemFromSelectionId(modelIndex, typeId));
 }

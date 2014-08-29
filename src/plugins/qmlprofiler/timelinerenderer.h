@@ -95,11 +95,11 @@ public:
 
     Q_INVOKABLE void selectNext();
     Q_INVOKABLE void selectPrev();
-    Q_INVOKABLE int nextItemFromId(int modelIndex, int eventId) const;
-    Q_INVOKABLE int prevItemFromId(int modelIndex, int eventId) const;
-    Q_INVOKABLE void selectFromId(int modelIndex, int eventId);
-    Q_INVOKABLE void selectNextFromId(int modelIndex, int eventId);
-    Q_INVOKABLE void selectPrevFromId(int modelIndex, int eventId);
+    Q_INVOKABLE int nextItemFromSelectionId(int modelIndex, int selectionId) const;
+    Q_INVOKABLE int prevItemFromSelectionId(int modelIndex, int selectionId) const;
+    Q_INVOKABLE void selectFromEventIndex(int modelIndex, int index);
+    Q_INVOKABLE void selectNextFromSelectionId(int modelIndex, int selectionId);
+    Q_INVOKABLE void selectPrevFromSelectionId(int modelIndex, int selectionId);
 
 signals:
     void startTimeChanged(qint64 arg);

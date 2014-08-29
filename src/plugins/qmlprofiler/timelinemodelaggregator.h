@@ -82,7 +82,7 @@ public:
     Q_INVOKABLE qint64 duration(int modelIndex, int index) const;
     Q_INVOKABLE qint64 startTime(int modelIndex, int index) const;
     Q_INVOKABLE qint64 endTime(int modelIndex, int index) const;
-    Q_INVOKABLE int eventId(int modelIndex, int index) const;
+    Q_INVOKABLE int selectionId(int modelIndex, int index) const;
     Q_INVOKABLE int bindingLoopDest(int modelIndex, int index) const;
     Q_INVOKABLE QColor color(int modelIndex, int index) const;
     Q_INVOKABLE float relativeHeight(int modelIndex, int index) const;
@@ -92,8 +92,8 @@ public:
     Q_INVOKABLE QVariantMap details(int modelIndex, int index) const;
     Q_INVOKABLE QVariantMap location(int modelIndex, int index) const;
 
-    Q_INVOKABLE int eventIdForTypeIndex(int modelIndex, int typeIndex) const;
-    Q_INVOKABLE int eventIdForLocation(int modelIndex, const QString &filename, int line,
+    Q_INVOKABLE bool isSelectionIdValid(int modelIndex, int typeIndex) const;
+    Q_INVOKABLE int selectionIdForLocation(int modelIndex, const QString &filename, int line,
                                        int column) const;
 
     Q_INVOKABLE void swapModels(int modelIndex1, int modelIndex2);

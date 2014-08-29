@@ -48,7 +48,7 @@ public:
     DummyModel(QString displayName = tr("dummy"), QObject *parent = 0);
     const QmlProfilerModelManager *modelManager() const;
     int rowCount() const;
-    int eventId(int index) const { return index; }
+    int selectionId(int index) const { return index; }
     QColor color(int) const { return QColor(); }
     QVariantList labels() const { return QVariantList(); }
     QVariantMap details(int) const { return QVariantMap(); }
@@ -82,7 +82,7 @@ private slots:
     void displayName();
     void defaultValues();
     void colorByHue();
-    void colorByEventId();
+    void colorByTypeId();
     void colorByFraction();
 };
 
@@ -284,8 +284,8 @@ void tst_AbstractTimelineModel::defaultValues()
     DummyModel dummy;
     dummy.loadData();
     QCOMPARE(dummy.location(0), QVariantMap());
-    QCOMPARE(dummy.eventIdForTypeIndex(0), -1);
-    QCOMPARE(dummy.eventIdForLocation(QString(), 0, 0), -1);
+    QCOMPARE(dummy.isSelectionIdValid(0), false);
+    QCOMPARE(dummy.selectionIdForLocation(QString(), 0, 0), -1);
     QCOMPARE(dummy.bindingLoopDest(0), -1);
     QCOMPARE(dummy.relativeHeight(0), 1.0);
     QCOMPARE(dummy.rowMinValue(0), 0);
@@ -299,11 +299,11 @@ void tst_AbstractTimelineModel::colorByHue()
     QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, 150, 166));
 }
 
-void tst_AbstractTimelineModel::colorByEventId()
+void tst_AbstractTimelineModel::colorByTypeId()
 {
     DummyModel dummy;
     dummy.loadData();
-    QCOMPARE(dummy.colorByEventId(5), QColor::fromHsl(5 * 25, 150, 166));
+    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(5 * 25, 150, 166));
 }
 
 void tst_AbstractTimelineModel::colorByFraction()

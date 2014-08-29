@@ -67,7 +67,7 @@ QV8ProfilerDataModel::QV8EventData &QV8ProfilerDataModel::QV8EventData::operator
     totalPercent = ref.totalPercent;
     selfTime = ref.selfTime;
     SelfTimeInPercent = ref.SelfTimeInPercent;
-    eventId = ref.eventId;
+    typeId = ref.typeId;
 
     qDeleteAll(parentHash);
     parentHash = cloneEventHash(ref.parentHash);
@@ -81,7 +81,7 @@ QV8ProfilerDataModel::QV8EventData &QV8ProfilerDataModel::QV8EventData::operator
 QV8ProfilerDataModel::QV8EventData::QV8EventData()
 {
     line = -1;
-    eventId = -1;
+    typeId = -1;
     totalTime = 0;
     selfTime = 0;
     totalPercent = 0;
@@ -141,11 +141,11 @@ bool QV8ProfilerDataModel::isEmpty() const
     return d->v8EventHash.isEmpty();
 }
 
-QV8ProfilerDataModel::QV8EventData *QV8ProfilerDataModel::v8EventDescription(int eventId) const
+QV8ProfilerDataModel::QV8EventData *QV8ProfilerDataModel::v8EventDescription(int typeId) const
 {
     Q_D(const QV8ProfilerDataModel);
     foreach (QV8EventData *event, d->v8EventHash) {
-        if (event->eventId == eventId)
+        if (event->typeId == typeId)
             return event;
     }
     return 0;
@@ -287,13 +287,13 @@ void QV8ProfilerDataModel::complete()
 
         int index = d->pendingRewrites.size();
         foreach (QV8EventData *v8event, d->v8EventHash.values()) {
-            v8event->eventId = index++;
+            v8event->typeId = index++;
             d->pendingRewrites << v8event;
             d->detailsRewriter->requestDetailsForLocation(index,
                     QmlDebug::QmlEventLocation(v8event->filename, v8event->line, 1));
         }
 
-        d->v8RootEvent.eventId = d->v8EventHash[rootEventHash]->eventId;
+        d->v8RootEvent.typeId = d->v8EventHash[rootEventHash]->typeId;
     } else {
         // On empty data, still add a fake root event
         clearV8RootEvent();
@@ -314,7 +314,7 @@ void QV8ProfilerDataModel::clearV8RootEvent()
     d->v8RootEvent.totalPercent = 0;
     d->v8RootEvent.selfTime = 0;
     d->v8RootEvent.SelfTimeInPercent = 0;
-    d->v8RootEvent.eventId = -1;
+    d->v8RootEvent.typeId = -1;
 
     qDeleteAll(d->v8RootEvent.parentHash.values());
     qDeleteAll(d->v8RootEvent.childrenHash.values());
@@ -347,7 +347,7 @@ void QV8ProfilerDataModel::save(QXmlStreamWriter &stream)
             QStringList childrenTimes;
             QStringList parentTimes;
             foreach (const QV8EventSub *v8child, v8event->childrenHash) {
-                childrenIndexes << QString::number(v8child->reference->eventId);
+                childrenIndexes << QString::number(v8child->reference->typeId);
                 childrenTimes << QString::number(v8child->totalTime);
                 parentTimes << QString::number(v8child->totalTime);
             }

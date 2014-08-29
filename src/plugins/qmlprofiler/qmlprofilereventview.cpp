@@ -151,8 +151,7 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
 
     d->m_eventTree = new QmlProfilerEventsMainView(this, d->modelProxy);
     connect(d->m_eventTree, SIGNAL(gotoSourceLocation(QString,int,int)), this, SIGNAL(gotoSourceLocation(QString,int,int)));
-    connect(d->m_eventTree, SIGNAL(eventSelected(int)),
-            this, SIGNAL(eventSelectedByTypeIndex(int)));
+    connect(d->m_eventTree, SIGNAL(typeSelected(int)), this, SIGNAL(typeSelected(int)));
 
     d->m_eventChildren = new QmlProfilerEventRelativesView(
                 profilerModelManager,
@@ -162,10 +161,10 @@ QmlProfilerEventsWidget::QmlProfilerEventsWidget(QWidget *parent,
                 profilerModelManager,
                 new QmlProfilerEventParentsModelProxy(profilerModelManager, d->modelProxy, this),
                 this);
-    connect(d->m_eventTree, SIGNAL(eventSelected(int)), d->m_eventChildren, SLOT(displayEvent(int)));
-    connect(d->m_eventTree, SIGNAL(eventSelected(int)), d->m_eventParents, SLOT(displayEvent(int)));
-    connect(d->m_eventChildren, SIGNAL(eventClicked(int)), d->m_eventTree, SLOT(selectEvent(int)));
-    connect(d->m_eventParents, SIGNAL(eventClicked(int)), d->m_eventTree, SLOT(selectEvent(int)));
+    connect(d->m_eventTree, SIGNAL(typeSelected(int)), d->m_eventChildren, SLOT(displayType(int)));
+    connect(d->m_eventTree, SIGNAL(typeSelected(int)), d->m_eventParents, SLOT(displayType(int)));
+    connect(d->m_eventChildren, SIGNAL(typeClicked(int)), d->m_eventTree, SLOT(selectType(int)));
+    connect(d->m_eventParents, SIGNAL(typeClicked(int)), d->m_eventTree, SLOT(selectType(int)));
 
     // widget arrangement
     QVBoxLayout *groupLayout = new QVBoxLayout;
@@ -214,9 +213,9 @@ void QmlProfilerEventsWidget::getStatisticsInRange(qint64 rangeStart, qint64 ran
     d->modelProxy->limitToRange(rangeStart, rangeEnd);
 }
 
-QModelIndex QmlProfilerEventsWidget::selectedItem() const
+QModelIndex QmlProfilerEventsWidget::selectedModelIndex() const
 {
-    return d->m_eventTree->selectedItem();
+    return d->m_eventTree->selectedModelIndex();
 }
 
 void QmlProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
@@ -243,7 +242,7 @@ void QmlProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
 
     if (mouseOnTable(position)) {
         menu.addSeparator();
-        if (selectedItem().isValid())
+        if (selectedModelIndex().isValid())
             copyRowAction = menu.addAction(tr("Copy Row"));
         copyTableAction = menu.addAction(tr("Copy Table"));
 
@@ -315,13 +314,13 @@ void QmlProfilerEventsWidget::copyRowToClipboard() const
 
 void QmlProfilerEventsWidget::updateSelectedEvent(int typeIndex) const
 {
-    if (d->m_eventTree->selectedTypeIndex() != typeIndex)
-        d->m_eventTree->selectEvent(typeIndex);
+    if (d->m_eventTree->selectedTypeId() != typeIndex)
+        d->m_eventTree->selectType(typeIndex);
 }
 
 void QmlProfilerEventsWidget::selectBySourceLocation(const QString &filename, int line, int column)
 {
-    d->m_eventTree->selectEventByLocation(filename, line, column);
+    d->m_eventTree->selectByLocation(filename, line, column);
 }
 
 bool QmlProfilerEventsWidget::hasGlobalStats() const
@@ -659,7 +658,7 @@ void QmlProfilerEventsMainView::parseModelProxy()
                 item->setEditable(false);
 
             // metadata
-            newRow.at(0)->setData(QVariant(typeIndex),EventTypeIndexRole);
+            newRow.at(0)->setData(QVariant(typeIndex),TypeIdRole);
             newRow.at(0)->setData(QVariant(event.location.filename),FilenameRole);
             newRow.at(0)->setData(QVariant(event.location.line),LineRole);
             newRow.at(0)->setData(QVariant(event.location.column),ColumnRole);
@@ -695,13 +694,13 @@ void QmlProfilerEventsMainView::getStatisticsInRange(qint64 rangeStart, qint64 r
     d->modelProxy->limitToRange(rangeStart, rangeEnd);
 }
 
-int QmlProfilerEventsMainView::selectedTypeIndex() const
+int QmlProfilerEventsMainView::selectedTypeId() const
 {
-    QModelIndex index = selectedItem();
+    QModelIndex index = selectedModelIndex();
     if (!index.isValid())
         return -1;
     QStandardItem *item = d->m_model->item(index.row(), 0);
-    return item->data(EventTypeIndexRole).toInt();
+    return item->data(TypeIdRole).toInt();
 }
 
 
@@ -726,7 +725,7 @@ void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
         emit gotoSourceLocation(fileName, line, column);
 
     // show in callers/callees subwindow
-    emit eventSelected(infoItem->data(EventTypeIndexRole).toInt());
+    emit typeSelected(infoItem->data(TypeIdRole).toInt());
 
     d->m_preventSelectBounce = false;
 }
@@ -741,18 +740,18 @@ void QmlProfilerEventsMainView::selectItem(const QStandardItem *item)
     }
 }
 
-void QmlProfilerEventsMainView::selectEvent(int typeIndex)
+void QmlProfilerEventsMainView::selectType(int typeIndex)
 {
     for (int i=0; i<d->m_model->rowCount(); i++) {
         QStandardItem *infoItem = d->m_model->item(i, 0);
-        if (infoItem->data(EventTypeIndexRole).toInt() == typeIndex) {
+        if (infoItem->data(TypeIdRole).toInt() == typeIndex) {
             selectItem(infoItem);
             return;
         }
     }
 }
 
-void QmlProfilerEventsMainView::selectEventByLocation(const QString &filename, int line, int column)
+void QmlProfilerEventsMainView::selectByLocation(const QString &filename, int line, int column)
 {
     if (d->m_preventSelectBounce)
         return;
@@ -769,7 +768,7 @@ void QmlProfilerEventsMainView::selectEventByLocation(const QString &filename, i
     }
 }
 
-QModelIndex QmlProfilerEventsMainView::selectedItem() const
+QModelIndex QmlProfilerEventsMainView::selectedModelIndex() const
 {
     QModelIndexList sel = selectedIndexes();
     if (sel.isEmpty())
@@ -833,7 +832,7 @@ void QmlProfilerEventsMainView::copyTableToClipboard() const
 void QmlProfilerEventsMainView::copyRowToClipboard() const
 {
     QString str;
-    str = d->textForItem(d->m_model->itemFromIndex(selectedItem()), false);
+    str = d->textForItem(d->m_model->itemFromIndex(selectedModelIndex()), false);
 
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(str, QClipboard::Selection);
@@ -876,7 +875,7 @@ QmlProfilerEventRelativesView::~QmlProfilerEventRelativesView()
     delete d;
 }
 
-void QmlProfilerEventRelativesView::displayEvent(int typeIndex)
+void QmlProfilerEventRelativesView::displayType(int typeIndex)
 {
     rebuildTree(d->modelProxy->getData(typeIndex));
 
@@ -914,7 +913,7 @@ void QmlProfilerEventRelativesView::rebuildTree(
         newRow << new EventsViewItem(type.data.isEmpty() ? tr("Source code not available") :
                                                            type.data);
 
-        newRow.at(0)->setData(QVariant(typeIndex), EventTypeIndexRole);
+        newRow.at(0)->setData(QVariant(typeIndex), TypeIdRole);
         newRow.at(0)->setData(QVariant(type.location.filename),FilenameRole);
         newRow.at(0)->setData(QVariant(type.location.line),LineRole);
         newRow.at(0)->setData(QVariant(type.location.column),ColumnRole);
@@ -981,7 +980,7 @@ void QmlProfilerEventRelativesView::jumpToItem(const QModelIndex &index)
 {
     if (treeModel()) {
         QStandardItem *infoItem = treeModel()->item(index.row(), 0);
-        emit eventClicked(infoItem->data(EventTypeIndexRole).toInt());
+        emit typeClicked(infoItem->data(TypeIdRole).toInt());
     }
 }
 

@@ -73,7 +73,7 @@ public:
     int rowCount() const;
 
     // Methods that have to be implemented by child models
-    virtual int eventId(int index) const = 0;
+    virtual int selectionId(int index) const = 0;
     virtual QColor color(int index) const = 0;
     virtual QVariantList labels() const = 0;
     virtual QVariantMap details(int index) const = 0;
@@ -83,8 +83,8 @@ public:
     // Methods which can optionally be implemented by child models.
     // returned map should contain "file", "line", "column" properties, or be empty
     virtual QVariantMap location(int index) const;
-    virtual int eventIdForTypeIndex(int typeIndex) const;
-    virtual int eventIdForLocation(const QString &filename, int line, int column) const;
+    virtual bool isSelectionIdValid(int selectionId) const;
+    virtual int selectionIdForLocation(const QString &filename, int line, int column) const;
     virtual int bindingLoopDest(int index) const;
     virtual float relativeHeight(int index) const;
     virtual int rowMinValue(int rowNumber) const;
@@ -100,16 +100,16 @@ protected:
     static const int DefaultRowHeight = 30;
 
     enum BoxColorProperties {
-        EventHueMultiplier = 25,
+        SelectionIdHueMultiplier = 25,
         FractionHueMultiplier = 96,
         FractionHueMininimum = 10,
         Saturation = 150,
         Lightness = 166
     };
 
-    QColor colorByEventId(int index) const
+    QColor colorBySelectionId(int index) const
     {
-        return colorByHue(eventId(index) * EventHueMultiplier);
+        return colorByHue(selectionId(index) * SelectionIdHueMultiplier);
     }
 
     QColor colorByFraction(double fraction) const
