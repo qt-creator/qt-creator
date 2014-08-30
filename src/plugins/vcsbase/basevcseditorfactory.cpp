@@ -64,14 +64,14 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
 
     setEditorActionHandlers(parameters->context, TextEditorActionHandler::None);
 
-    setDocumentCreator([=]() {
+    setDocumentCreator([=]() -> BaseTextDocument* {
         auto document = new BaseTextDocument(parameters->id);
  //  if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
         document->setMimeType(QLatin1String(parameters->mimeType));
         return document;
     });
 
-    setEditorWidgetCreator([=]() {
+    setEditorWidgetCreator([=]() -> BaseTextEditorWidget* {
         auto widget = qobject_cast<VcsBaseEditorWidget *>(editorWidgetCreator());
         widget->setDescribeSlot(describeReceiver, describeSlot);
         widget->setParameters(parameters);
