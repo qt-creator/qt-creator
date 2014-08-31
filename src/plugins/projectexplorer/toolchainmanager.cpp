@@ -48,9 +48,6 @@
 static const char TOOLCHAIN_DATA_KEY[] = "ToolChain.";
 static const char TOOLCHAIN_COUNT_KEY[] = "ToolChain.Count";
 static const char TOOLCHAIN_FILE_VERSION_KEY[] = "Version";
-static const char DEFAULT_DEBUGGER_COUNT_KEY[] = "DefaultDebugger.Count";
-static const char DEFAULT_DEBUGGER_ABI_KEY[] = "DefaultDebugger.Abi.";
-static const char DEFAULT_DEBUGGER_PATH_KEY[] = "DefaultDebugger.Path.";
 static const char TOOLCHAIN_FILENAME[] = "/qtcreator/toolchains.xml";
 static const char LEGACY_TOOLCHAIN_FILENAME[] = "/toolChains.xml";
 
@@ -142,22 +139,9 @@ static QList<ToolChain *> restoreFromFile(const FileName &fileName)
     if (version < 1)
         return result;
 
-    // Read default debugger settings (if any)
-    int count = data.value(QLatin1String(DEFAULT_DEBUGGER_COUNT_KEY)).toInt();
-    for (int i = 0; i < count; ++i) {
-        const QString abiKey = QString::fromLatin1(DEFAULT_DEBUGGER_ABI_KEY) + QString::number(i);
-        if (!data.contains(abiKey))
-            continue;
-        const QString pathKey = QString::fromLatin1(DEFAULT_DEBUGGER_PATH_KEY) + QString::number(i);
-        if (!data.contains(pathKey))
-            continue;
-        d->m_abiToDebugger.insert(data.value(abiKey).toString(),
-                                  FileName::fromString(data.value(pathKey).toString()));
-    }
-
     QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
 
-    count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
+    int count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
     for (int i = 0; i < count; ++i) {
         const QString key = QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(i);
         if (!data.contains(key))
