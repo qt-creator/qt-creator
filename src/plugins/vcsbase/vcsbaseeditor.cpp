@@ -156,6 +156,17 @@ VcsBaseEditor::VcsBaseEditor(const VcsBaseEditorParameters *type)
     setContext(Core::Context(type->context, TextEditor::Constants::C_TEXTEDITOR));
 }
 
+void VcsBaseEditor::finalizeInitialization()
+{
+    auto widget = qobject_cast<VcsBaseEditorWidget *>(editorWidget());
+    QTC_ASSERT(widget, return);
+    // Pass on signals.
+    connect(widget, &VcsBaseEditorWidget::describeRequested,
+            this, &VcsBaseEditor::describeRequested);
+    connect(widget, &VcsBaseEditorWidget::annotateRevisionRequested,
+            this, &VcsBaseEditor::annotateRevisionRequested);
+}
+
 // ----------- VcsBaseEditorPrivate
 
 namespace Internal {
@@ -687,13 +698,6 @@ void VcsBaseEditorWidget::setDescribeSlot(QObject *describeReceiver, const char 
 
 void VcsBaseEditorWidget::finalizeInitialization()
 {
-    BaseTextEditor *editor = this->editor();
-    // Pass on signals.
-    connect(this, SIGNAL(describeRequested(QString,QString)),
-            editor, SIGNAL(describeRequested(QString,QString)));
-    connect(this, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
-            editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)));
-
     if (d->m_describeReceiver)
         connect(this, SIGNAL(describeRequested(QString,QString)), d->m_describeReceiver, d->m_describeSlot);
 
@@ -738,10 +742,8 @@ VcsBaseEditorWidget::~VcsBaseEditorWidget()
 
 void VcsBaseEditorWidget::setForceReadOnly(bool b)
 {
-    VcsBaseEditor *eda = qobject_cast<VcsBaseEditor *>(editor());
-    QTC_ASSERT(eda != 0, return);
     setReadOnly(b);
-    eda->document()->setTemporary(b);
+    textDocument()->setTemporary(b);
 }
 
 QString VcsBaseEditorWidget::source() const

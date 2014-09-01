@@ -288,7 +288,7 @@ void GitEditorWidget::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool rever
 void GitEditorWidget::init()
 {
     VcsBase::VcsBaseEditorWidget::init();
-    Core::Id editorId = editor()->document()->id();
+    Core::Id editorId = textDocument()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
         textDocument()->setSyntaxHighlighter(new GitSubmitHighlighter);
     else if (editorId == Git::Constants::GIT_REBASE_EDITOR_ID)
@@ -310,7 +310,7 @@ void GitEditorWidget::addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chun
 
 bool GitEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    Core::Id editorId = editor()->document()->id();
+    Core::Id editorId = textDocument()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
         QFileInfo fi(fileName);
@@ -378,8 +378,8 @@ QString GitEditorWidget::revisionSubject(const QTextBlock &inBlock) const
 bool GitEditorWidget::supportChangeLinks() const
 {
     return VcsBaseEditorWidget::supportChangeLinks()
-            || (editor()->document()->id() == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
-            || (editor()->document()->id() == Git::Constants::GIT_REBASE_EDITOR_ID);
+            || (textDocument()->id() == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
+            || (textDocument()->id() == Git::Constants::GIT_REBASE_EDITOR_ID);
 }
 
 QString GitEditorWidget::fileNameForLine(int line) const

@@ -132,6 +132,7 @@ public:
     static Core::IEditor* locateEditorByTag(const QString &tag);
     static QString editorTag(EditorContentType t, const QString &workingDirectory, const QStringList &files,
                              const QString &revision = QString());
+    void finalizeInitialization();
 signals:
     void describeRequested(const QString &source, const QString &change);
     void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
