@@ -2962,10 +2962,8 @@ void BaseTextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
 {
     const QPoint toolTipPoint = q->toolTipPosition(c);
     bool handled = false;
-    BaseTextEditor *ed = q->editor();
-    emit ed->tooltipOverrideRequested(ed, toolTipPoint, c.position(), &handled);
     if (!handled)
-        emit ed->tooltipRequested(ed, toolTipPoint, c.position());
+        emit q->tooltipRequested(toolTipPoint, c.position());
 }
 
 bool BaseTextEditorWidget::viewportEvent(QEvent *event)
@@ -4900,10 +4898,10 @@ void BaseTextEditorWidget::extraAreaLeaveEvent(QEvent *)
 
 void BaseTextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
 {
-    QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
     if (d->m_marksVisible) {
+        QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
         QMenu * contextMenu = new QMenu(this);
-        emit editor()->markContextMenuRequested(editor(), cursor.blockNumber() + 1, contextMenu);
+        emit markContextMenuRequested(cursor.blockNumber() + 1, contextMenu);
         if (!contextMenu->isEmpty())
             contextMenu->exec(e->globalPos());
         delete contextMenu;
@@ -4951,7 +4949,7 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
         if (inMarkArea) {
             //Find line by cursor position
             int line = cursor.blockNumber() + 1;
-            emit editor()->markTooltipRequested(editor(), mapToGlobal(e->pos()), line);
+            emit markTooltipRequested(mapToGlobal(e->pos()), line);
         }
 
         if (e->buttons() & Qt::LeftButton && !d->m_markDragStart.isNull()) {
@@ -5069,7 +5067,7 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             else
                 kind = BaseTextEditor::BreakpointRequest;
 
-            emit editor()->markRequested(editor(), line, kind);
+            emit markRequested(line, kind);
         }
     }
 }
@@ -7317,6 +7315,31 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
 
     if (m_autoCompleterCreator)
         widget->setAutoCompleter(m_autoCompleterCreator());
+
+    connect(widget, &BaseTextEditorWidget::markRequested, editor,
+            [editor](int line, BaseTextEditor::MarkRequestKind kind) {
+                editor->markRequested(editor, line, kind);
+            });
+
+    connect(widget, &BaseTextEditorWidget::markContextMenuRequested, editor,
+            [editor](int line, QMenu *menu) {
+                editor->markContextMenuRequested(editor, line, menu);
+            });
+
+    connect(widget, &BaseTextEditorWidget::tooltipOverrideRequested, editor,
+            [editor](const QPoint &globalPos, int position, bool *handled) {
+                editor->tooltipOverrideRequested(editor, globalPos, position, handled);
+            });
+
+    connect(widget, &BaseTextEditorWidget::tooltipRequested, editor,
+            [editor](const QPoint &globalPos, int position) {
+                editor->tooltipRequested(editor, globalPos, position);
+            });
+
+    connect(widget, &BaseTextEditorWidget::markTooltipRequested, editor,
+            [editor](const QPoint &globalPos, int line) {
+                editor->markTooltipRequested(editor, globalPos, line);
+            });
 
     widget->finalizeInitialization();
     editor->finalizeInitialization();

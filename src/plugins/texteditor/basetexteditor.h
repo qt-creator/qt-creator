@@ -607,6 +607,13 @@ protected:
     int visibleFoldedBlockNumber() const;
 
 
+signals:
+    void markRequested(int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
+    void markContextMenuRequested(int line, QMenu *menu);
+    void tooltipOverrideRequested(const QPoint &globalPos, int position, bool *handled);
+    void tooltipRequested(const QPoint &globalPos, int position);
+    void markTooltipRequested(const QPoint &globalPos, int line);
+
 protected slots:
     virtual void slotCursorPositionChanged(); // Used in VcsBase
     virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
