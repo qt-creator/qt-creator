@@ -605,7 +605,9 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
 {
     const int senderIndex = indexOf(sender);
 
-    QTC_ASSERT(senderIndex != -1, return);
+    // This slot is queued, so the stop() call in closeTab might lead to this slot, after closeTab already cleaned up
+    if (senderIndex == -1)
+        return;
 
     // Enable buttons for current
     RunControl *current = currentRunControl();
