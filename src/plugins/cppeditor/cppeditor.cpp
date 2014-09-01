@@ -693,7 +693,7 @@ void CppEditorWidget::updateFunctionDeclDefLink()
 
 void CppEditorWidget::updateFunctionDeclDefLinkNow()
 {
-    if (Core::EditorManager::currentEditor() != editor())
+    if (Core::EditorManager::currentEditor()->widget() != this)
         return;
 
     const Snapshot semanticSnapshot = d->m_lastSemanticInfo.snapshot;
@@ -785,7 +785,7 @@ void CppEditorWidget::abortDeclDefLink()
 
 void CppEditorWidget::showPreProcessorWidget()
 {
-    const QString &fileName = editor()->document()->filePath();
+    const QString &fileName = textDocument()->filePath();
 
     // Check if this editor belongs to a project
     QList<ProjectPart::Ptr> projectParts = d->m_modelManager->projectPart(fileName);
