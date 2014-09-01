@@ -32,11 +32,10 @@ from dumper import *
 def qdump__Core__Id(d, value):
     try:
         name = d.parseAndEvaluate("Core::nameForId(%d)" % value["m_id"])
-        d.putValue(d.encodeCharArray(name), Hex2EncodedLatin1)
-        d.putPlainChildren(value)
+        d.putSimpleCharArray(name)
     except:
         d.putValue(value["m_id"])
-        d.putNumChild(0)
+    d.putPlainChildren(value)
 
 def qdump__Debugger__Internal__GdbMi(d, value):
     str = d.encodeByteArray(value["m_name"]) + "3a20" \
@@ -65,12 +64,11 @@ def qdump__Debugger__Internal__ThreadId(d, value):
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__ByteArrayRef(d, value):
-    d.putValue(d.encodeCharArray(value["m_start"], 100, value["m_length"]),
-        Hex2EncodedLatin1)
+    d.putSimpleCharArray(value["m_start"], value["m_length"])
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Identifier(d, value):
-    d.putValue(d.encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putSimpleCharArray(value["_chars"], value["_size"])
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__IntegerType(d, value):
@@ -79,20 +77,21 @@ def qdump__CPlusPlus__IntegerType(d, value):
 
 def qdump__CPlusPlus__NamedType(d, value):
     literal = d.downcast(value["_name"])
-    d.putValue(d.encodeCharArray(literal["_chars"]), Hex2EncodedLatin1)
+    d.putItem(literal)
+    d.putBetterType(value.type)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__TemplateNameId(d, value):
-    s = d.encodeCharArray(value["_identifier"]["_chars"])
-    d.putValue(s + "3c2e2e2e3e", Hex2EncodedLatin1)
+    d.putItem(value["_identifier"].dereference())
+    d.putBetterType(value.type)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Literal(d, value):
-    d.putValue(d.encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putSimpleCharArray(value["_chars"], value["_size"])
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__StringLiteral(d, value):
-    d.putValue(d.encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putSimpleCharArray(value["_chars"], value["_size"])
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Internal__Value(d, value):

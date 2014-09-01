@@ -823,6 +823,16 @@ class DumperBase:
         self.put('",')
         return True
 
+    def putSimpleCharArray(self, base, size = None):
+        t = self.lookupType("char")
+        p = base.cast(t.pointer())
+        if size is None:
+            elided, shown = self.findFirstZero(p, self.displayStringLimit)
+        else:
+            elided, shown = self.computeLimit(int(size), self.displayStringLimit)
+        data = self.readMemory(p, shown)
+        self.putValue(data, Hex2EncodedLatin1, elided=elided)
+
     def putDisplay(self, format, value = None, cmd = None):
         self.put('editformat="%s",' % format)
         if cmd is None:
