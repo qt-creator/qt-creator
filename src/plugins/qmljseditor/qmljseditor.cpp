@@ -306,9 +306,9 @@ void QmlJSEditorWidget::updateContextPane()
         Node *oldNode = info.declaringMemberNoProperties(m_oldCursorPosition);
         Node *newNode = info.declaringMemberNoProperties(position());
         if (oldNode != newNode && m_oldCursorPosition != -1)
-            m_contextPane->apply(editor(), info.document, 0, newNode, false);
+            m_contextPane->apply(this, info.document, 0, newNode, false);
 
-        if (m_contextPane->isAvailable(editor(), info.document, newNode) &&
+        if (m_contextPane->isAvailable(this, info.document, newNode) &&
             !m_contextPane->widget()->isVisible()) {
             QList<RefactorMarker> markers = removeMarkersOfType<QtQuickToolbarMarker>(refactorMarkers());
             if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
@@ -663,7 +663,7 @@ void QmlJSEditorWidget::showContextPane()
     if (m_contextPane && info.isValid()) {
         Node *newNode = info.declaringMemberNoProperties(position());
         ScopeChain scopeChain = info.scopeChain(info.rangePath(position()));
-        m_contextPane->apply(editor(), info.document,
+        m_contextPane->apply(this, info.document,
                              &scopeChain,
                              newNode, false, true);
         m_oldCursorPosition = position();
@@ -716,7 +716,7 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
                 menu->addMenu(refactoringMenu);
             if (action->objectName() == QLatin1String(Constants::SHOW_QT_QUICK_HELPER)) {
                 bool enabled = m_contextPane->isAvailable(
-                            editor(), m_qmlJsEditorDocument->semanticInfo().document,
+                            this, m_qmlJsEditorDocument->semanticInfo().document,
                             m_qmlJsEditorDocument->semanticInfo().declaringMemberNoProperties(position()));
                 action->setEnabled(enabled);
             }
@@ -760,7 +760,7 @@ void QmlJSEditorWidget::wheelEvent(QWheelEvent *event)
     BaseTextEditorWidget::wheelEvent(event);
 
     if (visible)
-        m_contextPane->apply(editor(), m_qmlJsEditorDocument->semanticInfo().document, 0,
+        m_contextPane->apply(this, m_qmlJsEditorDocument->semanticInfo().document, 0,
                              m_qmlJsEditorDocument->semanticInfo().declaringMemberNoProperties(m_oldCursorPosition),
                              false, true);
 }
@@ -792,7 +792,7 @@ void QmlJSEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
     if (m_contextPane) {
         Node *newNode = semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
-            m_contextPane->apply(editor(), semanticInfo.document, 0, newNode, true);
+            m_contextPane->apply(this, semanticInfo.document, 0, newNode, true);
             m_contextPaneTimer.start(); //update text marker
         }
     }
@@ -834,7 +834,7 @@ bool QmlJSEditorWidget::hideContextPane()
 {
     bool b = (m_contextPane) && m_contextPane->widget()->isVisible();
     if (b)
-        m_contextPane->apply(editor(), m_qmlJsEditorDocument->semanticInfo().document, 0, 0, false);
+        m_contextPane->apply(this, m_qmlJsEditorDocument->semanticInfo().document, 0, 0, false);
     return b;
 }
 
@@ -845,7 +845,7 @@ IAssistInterface *QmlJSEditorWidget::createAssistInterface(
     if (assistKind == TextEditor::Completion) {
         return new QmlJSCompletionAssistInterface(document(),
                                                   position(),
-                                                  editor()->document()->filePath(),
+                                                  textDocument()->filePath(),
                                                   reason,
                                                   m_qmlJsEditorDocument->semanticInfo());
     } else if (assistKind == TextEditor::QuickFix) {
