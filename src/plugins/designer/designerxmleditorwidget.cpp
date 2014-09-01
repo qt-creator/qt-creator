@@ -42,8 +42,8 @@ DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *f
 {
     TextEditor::BaseTextDocumentPtr doc(new FormWindowFile(form));
     setTextDocument(doc);
-    auto editor = new FormWindowEditor(this);
-    editor->setEditorWidget(this);
+    m_editor = new FormWindowEditor(this);
+    m_editor->setEditorWidget(this);
     setupAsPlainEditor();
     setReadOnly(true);
     configureMimeType(doc->mimeType());
@@ -51,7 +51,7 @@ DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *f
 
 FormWindowEditor *DesignerXmlEditorWidget::designerEditor() const
 {
-    return qobject_cast<FormWindowEditor *>(editor());
+    return m_editor;
 }
 
 Internal::FormWindowFile *DesignerXmlEditorWidget::formWindowFile() const

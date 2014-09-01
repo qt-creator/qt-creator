@@ -641,7 +641,7 @@ EditorData FormEditorW::createEditor()
             resourceHandler, SLOT(updateResources()));
     m_editorWidget->add(data);
 
-    m_toolBar->addEditor(xmlEditor->editor());
+    m_toolBar->addEditor(xmlEditor->designerEditor());
 
     return data;
 }

@@ -61,6 +61,9 @@ public:
 
     FormWindowEditor *designerEditor() const;
     Internal::FormWindowFile *formWindowFile() const;
+
+private:
+    FormWindowEditor *m_editor;
 };
 
 } // Internal
