@@ -78,6 +78,7 @@ protected:
 protected:
     void ctor();
     bool init();
+    void processStarted();
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
@@ -90,7 +91,12 @@ private slots:
     void updateInputFile();
 
 private:
+    void setupProcessParameters(ProjectExplorer::ProcessParameters *pp,
+                                ProjectExplorer::BuildConfiguration *bc,
+                                const QStringList &arguments, const QString &command);
     QString m_proFilePathForInputFile;
+    QString m_command;
+    QString m_argumentsPasswordConcealed;
 };
 
 } // namespace Internal

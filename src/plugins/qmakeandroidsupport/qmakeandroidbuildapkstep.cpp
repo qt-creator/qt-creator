@@ -236,18 +236,42 @@ bool QmakeAndroidBuildApkStep::init()
     if (buildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Release)
         arguments << QLatin1String("--release");
 
+    QStringList argumentsPasswordConcealed = arguments;
+
     if (m_signPackage) {
         arguments << QLatin1String("--sign")
                   << m_keystorePath.toString()
                   << m_certificateAlias
                   << QLatin1String("--storepass")
                   << m_keystorePasswd;
-        if (!m_certificatePasswd.isEmpty())
+        argumentsPasswordConcealed << QLatin1String("--sign") << QLatin1String("******")
+                                   << QLatin1String("--storepass") << QLatin1String("******");
+        if (!m_certificatePasswd.isEmpty()) {
             arguments << QLatin1String("--keypass")
                       << m_certificatePasswd;
+            argumentsPasswordConcealed << QLatin1String("--keypass")
+                      << QLatin1String("******");
+        }
+
     }
 
     ProjectExplorer::ProcessParameters *pp = processParameters();
+    setupProcessParameters(pp, bc, arguments, command);
+
+    // Generate arguments with keystore password concealed
+    ProjectExplorer::ProcessParameters pp2;
+    setupProcessParameters(&pp2, bc, argumentsPasswordConcealed, command);
+    m_command = pp2.effectiveCommand();
+    m_argumentsPasswordConcealed = pp2.prettyArguments();
+
+    return true;
+}
+
+void QmakeAndroidBuildApkStep::setupProcessParameters(ProjectExplorer::ProcessParameters *pp,
+                                                      ProjectExplorer::BuildConfiguration *bc,
+                                                      const QStringList &arguments,
+                                                      const QString &command)
+{
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory().toString());
     Utils::Environment env = bc->environment();
@@ -255,8 +279,14 @@ bool QmakeAndroidBuildApkStep::init()
     pp->setCommand(command);
     pp->setArguments(Utils::QtcProcess::joinArgs(arguments));
     pp->resolveAll();
+}
 
-    return true;
+void QmakeAndroidBuildApkStep::processStarted()
+{
+    emit addOutput(tr("Starting: \"%1\" %2")
+                   .arg(QDir::toNativeSeparators(m_command),
+                        m_argumentsPasswordConcealed),
+                   BuildStep::MessageOutput);
 }
 
 ProjectExplorer::BuildStepConfigWidget *QmakeAndroidBuildApkStep::createConfigWidget()
