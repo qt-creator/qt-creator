@@ -72,7 +72,7 @@ using namespace TextEditor;
 namespace DiffEditor {
 
 UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
-    : SelectableTextEditorWidget(parent)
+    : SelectableTextEditorWidget("DiffEditor.UnifiedDiffEditor", parent)
     , m_guiController(0)
     , m_controller(0)
     , m_ignoreCurrentIndexChange(false)
@@ -81,8 +81,6 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     , m_leftLineNumberDigits(1)
     , m_rightLineNumberDigits(1)
 {
-    setupFallBackEditor(Id());
-
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = true;

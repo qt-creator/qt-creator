@@ -281,12 +281,10 @@ void MultiHighlighter::highlightBlock(const QString &text)
 ////////////////////////
 
 SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
-    : SelectableTextEditorWidget(parent),
+    : SelectableTextEditorWidget("DiffEditor.SideDiffEditor", parent),
       m_lineNumberDigits(1),
       m_inPaintEvent(false)
 {
-    setupFallBackEditor("DiffEditor.SideDiffEditor");
-
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = true;
