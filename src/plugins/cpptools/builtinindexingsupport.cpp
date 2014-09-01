@@ -308,8 +308,7 @@ public:
                             info->unqualifiedNameAndScope(info->symbolName(), &name, &scope);
                             text = name + info->symbolType();
                         } else if (info->type() == IndexItem::Declaration){
-                            text = IndexItem::representDeclaration(info->symbolName(),
-                                                                       info->symbolType());
+                            text = info->representDeclaration();
                         }
 
                         Core::SearchResultItem item;

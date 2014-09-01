@@ -95,8 +95,7 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
 
         QString matchString = info->symbolName();
         if (info->type() == IndexItem::Declaration)
-            matchString = IndexItem::representDeclaration(info->symbolName(),
-                                                          info->symbolType());
+            matchString = info->representDeclaration();
         else if (info->type() == IndexItem::Function)
             matchString += info->symbolType();
 

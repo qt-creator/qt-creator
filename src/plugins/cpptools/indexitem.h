@@ -44,6 +44,8 @@ class CPPTOOLS_EXPORT IndexItem
 {
     Q_DISABLE_COPY(IndexItem)
 
+    IndexItem() {}
+
 public:
     enum ItemType {
         Enum        = 1 << 0,
@@ -54,32 +56,6 @@ public:
         All = Enum | Class | Function | Declaration
     };
 
-private:
-    IndexItem(const QString &symbolName,
-                  const QString &symbolType,
-                  const QString &symbolScope,
-                  ItemType type,
-                  const QString &fileName,
-                  int line,
-                  int column,
-                  const QIcon &icon)
-        : m_symbolName(symbolName),
-          m_symbolType(symbolType),
-          m_symbolScope(symbolScope),
-          m_fileName(fileName),
-          m_icon(icon),
-          m_type(type),
-          m_line(line),
-          m_column(column)
-    {}
-
-    IndexItem(const QString &fileName, int sizeHint)
-        : m_fileName(fileName)
-        , m_type(Declaration)
-        , m_line(0)
-        , m_column(0)
-    { m_children.reserve(sizeHint); }
-
 public:
     typedef QSharedPointer<IndexItem> Ptr;
     static Ptr create(const QString &symbolName,
@@ -89,16 +65,8 @@ public:
                       const QString &fileName,
                       int line,
                       int column,
-                      const QIcon &icon)
-    {
-        return Ptr(new IndexItem(
-                       symbolName, symbolType, symbolScope, type, fileName, line, column, icon));
-    }
-
-    static Ptr create(const QString &fileName, int sizeHint)
-    {
-        return Ptr(new IndexItem(fileName, sizeHint));
-    }
+                      const QIcon &icon);
+    static Ptr create(const QString &fileName, int sizeHint);
 
     QString scopedSymbolName() const
     {
@@ -107,30 +75,9 @@ public:
                 : m_symbolScope +  QLatin1String("::") + m_symbolName;
     }
 
-    bool unqualifiedNameAndScope(const QString &defaultName, QString *name, QString *scope) const
-    {
-        *name = defaultName;
-        *scope = m_symbolScope;
-        const QString qualifiedName = scopedSymbolName();
-        const int colonColonPosition = qualifiedName.lastIndexOf(QLatin1String("::"));
-        if (colonColonPosition != -1) {
-            *name = qualifiedName.mid(colonColonPosition + 2);
-            *scope = qualifiedName.left(colonColonPosition);
-            return true;
-        }
-        return false;
-    }
+    bool unqualifiedNameAndScope(const QString &defaultName, QString *name, QString *scope) const;
 
-    static QString representDeclaration(const QString &name, const QString &type)
-    {
-        if (type.isEmpty())
-            return QString();
-
-        const QString padding = type.endsWith(QLatin1Char('*'))
-            ? QString()
-            : QString(QLatin1Char(' '));
-        return type + padding + name;
-    }
+    QString representDeclaration() const;
 
     QString shortNativeFilePath() const;
 
