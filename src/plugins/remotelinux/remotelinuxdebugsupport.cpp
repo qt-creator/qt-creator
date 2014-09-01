@@ -42,6 +42,7 @@
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QPointer>
 
@@ -60,7 +61,6 @@ public:
         : engine(engine),
           qmlDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger()),
           cppDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger()),
-          target(DeviceKitInformation::device(runConfig->target()->kit())->sshParameters().host.toLatin1()),
           gdbServerPort(-1), qmlPort(-1)
     {
     }
@@ -69,7 +69,6 @@ public:
     bool qmlDebugging;
     bool cppDebugging;
     QByteArray gdbserverOutput;
-    QByteArray target;
     int gdbServerPort;
     int qmlPort;
 };
@@ -99,8 +98,12 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
         params.qmlServerPort = 0; // port is selected later on
     }
     if (aspect->useCppDebugger()) {
+        params.multiProcess = true;
         params.languages |= CppLanguage;
-        params.processArgs = runConfig->arguments().join(QLatin1String(" "));
+        QStringList args = runConfig->arguments();
+        if (aspect->useQmlDebugger())
+            args.prepend(QString::fromLatin1("-qmljsdebugger=port:%qml_port%,block"));
+        params.processArgs = Utils::QtcProcess::joinArgs(args, Utils::OsTypeLinux);
         params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
         params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
@@ -265,8 +268,6 @@ void LinuxDeviceDebugSupport::handleAdapterSetupFailed(const QString &error)
 void LinuxDeviceDebugSupport::handleAdapterSetupDone()
 {
     AbstractRemoteLinuxRunSupport::handleAdapterSetupDone();
-    QByteArray remote = d->target + ':' + QByteArray::number(d->gdbServerPort);
-    d->engine->notifyEngineRemoteServerRunning(remote, -1);
     d->engine->notifyEngineRemoteSetupDone(d->gdbServerPort, d->qmlPort);
 }
 
