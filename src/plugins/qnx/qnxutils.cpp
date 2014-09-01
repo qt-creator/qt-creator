@@ -195,7 +195,6 @@ QString QnxUtils::bbDataDirPath()
                 + QLatin1String("/data");
         dataDir = dataDir.left(dataDir.indexOf(QCoreApplication::organizationName()));
         dataDir.append(QLatin1String("Research in Motion"));
-        qDebug("qnx: Full data dir is '%s'", qPrintable(dataDir));
         return dataDir;
     }
 
