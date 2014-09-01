@@ -1408,7 +1408,7 @@ void VcsBaseEditorWidget::addDiffActions(QMenu *, const DiffChunk &)
 void VcsBaseEditorWidget::slotAnnotateRevision()
 {
     if (const QAction *a = qobject_cast<const QAction *>(sender())) {
-        const int currentLine = editor()->currentLine();
+        const int currentLine = textCursor().blockNumber() + 1;
         const QString fileName = fileNameForLine(currentLine);
         QString workingDirectory = d->m_workingDirectory;
         if (workingDirectory.isEmpty())
