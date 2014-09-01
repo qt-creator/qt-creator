@@ -50,6 +50,11 @@ void CommentDefinition::setStyle(Style style)
             multiLineStart.clear();
             multiLineEnd.clear();
             break;
+        case NoStyle:
+            singleLine.clear();
+            multiLineStart.clear();
+            multiLineEnd.clear();
+            break;
     }
 }
 

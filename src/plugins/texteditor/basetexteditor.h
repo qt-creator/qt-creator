@@ -199,11 +199,6 @@ public:
     /*! Selects text between current cursor position and \a toPos. */
     virtual void select(int toPos);
 
-    /*! Full access to comment definition, */
-    Utils::CommentDefinition &commentDefinition() const;
-    /*! Convenience style setter. */
-    void setCommentStyle(Utils::CommentDefinition::Style style);
-
     CompletionAssistProvider *completionAssistProvider();
     void setCompletionAssistProvider(CompletionAssistProvider *provider); // Not owned.
 
@@ -654,6 +649,8 @@ public:
     void setEditorActionHandlers(Core::Id contextId, uint optionalActions);
     void setEditorActionHandlers(uint optionalActions);
 
+    void setCommentStyle(Utils::CommentDefinition::Style style);
+
     Core::IEditor *createEditor();
 
 private:
@@ -669,6 +666,7 @@ private:
     AutoCompleterCreator m_autoCompleterCreator;
     IndenterCreator m_indenterCreator;
     SyntaxHighLighterCreator m_syntaxHighlighterCreator;
+    Utils::CommentDefinition::Style m_commentStyle;
 };
 
 } // namespace TextEditor

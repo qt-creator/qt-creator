@@ -336,7 +336,6 @@ public:
     {
         addContext(Constants::C_GLSLEDITOR_ID);
         setDuplicateSupported(true);
-        setCommentStyle(Utils::CommentDefinition::CppStyle);
         setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GlslCompletionAssistProvider>());
     }
 
@@ -368,6 +367,7 @@ GlslEditorFactory::GlslEditorFactory()
     setEditorCreator([]() { return new GlslEditor; });
     setIndenterCreator([]() { return new GlslIndenter; });
     setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
+    setCommentStyle(Utils::CommentDefinition::CppStyle);
 
     setEditorActionHandlers(Constants::C_GLSLEDITOR_ID,
                             TextEditorActionHandler::Format

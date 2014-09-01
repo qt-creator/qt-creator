@@ -880,7 +880,6 @@ QmlJSEditor::QmlJSEditor()
     addContext(Constants::C_QMLJSEDITOR_ID);
     addContext(ProjectExplorer::Constants::LANG_QMLJS);
     setDuplicateSupported(true);
-    setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>());
 }
 
@@ -917,13 +916,13 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     setEditorWidgetCreator([]() { return new QmlJSEditorWidget; });
     setEditorCreator([]() { return new QmlJSEditor; });
     setAutoCompleterCreator([]() { return new AutoCompleter; });
+    setCommentStyle(Utils::CommentDefinition::CppStyle);
 
     setEditorActionHandlers(Constants::C_QMLJSEDITOR_ID,
           TextEditorActionHandler::Format
         | TextEditorActionHandler::UnCommentSelection
         | TextEditorActionHandler::UnCollapseAll
         | TextEditorActionHandler::FollowSymbolUnderCursor);
-
 }
 
 } // namespace Internal

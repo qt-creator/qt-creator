@@ -96,7 +96,6 @@ CppEditor::CppEditor()
     m_context.add(ProjectExplorer::Constants::LANG_CXX);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
     setDuplicateSupported(true);
-    setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider([this] () -> TextEditor::CompletionAssistProvider * {
         if (CppEditorDocument *document = qobject_cast<CppEditorDocument *>(textDocument()))
             return document->completionAssistProvider();

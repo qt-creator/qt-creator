@@ -62,7 +62,6 @@ public:
     {
         addContext(Constants::C_PROFILEEDITOR);
         setDuplicateSupported(true);
-        setCommentStyle(Utils::CommentDefinition::HashStyle);
         setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>());
     }
 };
@@ -229,6 +228,7 @@ ProFileEditorFactory::ProFileEditorFactory()
     setEditorWidgetCreator([]() { return new ProFileEditorWidget; });
     setEditorCreator([]() { return new ProFileEditor; });
 
+    setCommentStyle(Utils::CommentDefinition::HashStyle);
     setEditorActionHandlers(Constants::C_PROFILEEDITOR,
                   TextEditorActionHandler::UnCommentSelection
                 | TextEditorActionHandler::JumpToFileUnderCursor);

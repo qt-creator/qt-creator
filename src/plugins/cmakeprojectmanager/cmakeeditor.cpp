@@ -67,7 +67,6 @@ CMakeEditor::CMakeEditor()
 {
     addContext(Constants::C_CMAKEEDITOR);
     setDuplicateSupported(true);
-    setCommentStyle(Utils::CommentDefinition::HashStyle);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>());
 }
 
@@ -288,6 +287,7 @@ CMakeEditorFactory::CMakeEditorFactory()
     setEditorWidgetCreator([]() { return new CMakeEditorWidget; });
     setDocumentCreator([]() { return new CMakeDocument; });
     setGenericSyntaxHighlighter(QLatin1String(Constants::CMAKEMIMETYPE));
+    setCommentStyle(Utils::CommentDefinition::HashStyle);
 
     setEditorActionHandlers(Constants::C_CMAKEEDITOR,
             TextEditorActionHandler::UnCommentSelection

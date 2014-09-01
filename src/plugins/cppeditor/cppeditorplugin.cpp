@@ -91,6 +91,7 @@ public:
         setEditorWidgetCreator([]() { return new CppEditorWidget; });
         setEditorCreator([]() { return new CppEditor; });
         setAutoCompleterCreator([]() { return new CppAutoCompleter; });
+        setCommentStyle(Utils::CommentDefinition::CppStyle);
 
         setEditorActionHandlers(Constants::C_CPPEDITOR,
                                 TextEditorActionHandler::Format

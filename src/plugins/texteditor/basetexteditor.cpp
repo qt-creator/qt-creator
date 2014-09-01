@@ -230,7 +230,6 @@ class BaseTextEditorPrivate
 public:
     BaseTextEditorPrivate() {}
 
-    CommentDefinition m_commentDefinition;
     std::function<CompletionAssistProvider *()> m_completionAssistProvider;
 
     QPointer<BaseTextEditorFactory> m_origin;
@@ -442,6 +441,7 @@ public:
     bool m_editorIsFallBack;
 
     QScopedPointer<AutoCompleter> m_autoCompleter;
+    CommentDefinition m_commentDefinition;
 };
 
 BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *parent)
@@ -1540,18 +1540,17 @@ void BaseTextEditorWidgetPrivate::moveLineUpDown(bool up)
     m_refactorOverlay->setMarkers(nonAffectedMarkers + affectedMarkers);
 
     bool shouldReindent = true;
-    const CommentDefinition &cd = q->editor()->commentDefinition();
-    if (cd.isValid()) {
+    if (m_commentDefinition.isValid()) {
         QString trimmedText(text.trimmed());
 
-        if (cd.hasSingleLineStyle()) {
-            if (trimmedText.startsWith(cd.singleLine))
+        if (m_commentDefinition.hasSingleLineStyle()) {
+            if (trimmedText.startsWith(m_commentDefinition.singleLine))
                 shouldReindent = false;
         }
-        if (shouldReindent && cd.hasMultiLineStyle()) {
+        if (shouldReindent && m_commentDefinition.hasMultiLineStyle()) {
             // Don't have any single line comments; try multi line.
-            if (trimmedText.startsWith(cd.multiLineStart)
-                && trimmedText.endsWith(cd.multiLineEnd)) {
+            if (trimmedText.startsWith(m_commentDefinition.multiLineStart)
+                && trimmedText.endsWith(m_commentDefinition.multiLineEnd)) {
                 shouldReindent = false;
             }
         }
@@ -6022,7 +6021,7 @@ void BaseTextEditorWidget::rewrapParagraph()
 
 void BaseTextEditorWidget::unCommentSelection()
 {
-    Utils::unCommentSelection(this, editor()->commentDefinition());
+    Utils::unCommentSelection(this, d->m_commentDefinition);
 }
 
 void BaseTextEditorWidget::showEvent(QShowEvent* e)
@@ -6708,16 +6707,6 @@ void BaseTextEditor::select(int toPos)
     editorWidget()->setTextCursor(tc);
 }
 
-CommentDefinition &BaseTextEditor::commentDefinition() const
-{
-    return d->m_commentDefinition;
-}
-
-void BaseTextEditor::setCommentStyle(CommentDefinition::Style style)
-{
-    d->m_commentDefinition.setStyle(style);
-}
-
 CompletionAssistProvider *BaseTextEditor::completionAssistProvider()
 {
     return d->m_completionAssistProvider();
@@ -7132,11 +7121,10 @@ void BaseTextEditorWidget::configureMimeType(const MimeType &mimeType)
             const QSharedPointer<HighlightDefinition> &definition =
                 Manager::instance()->definition(definitionId);
             if (!definition.isNull() && definition->isValid()) {
-                CommentDefinition &cd = editor()->commentDefinition();
-                cd.isAfterWhiteSpaces = definition->isCommentAfterWhiteSpaces();
-                cd.singleLine = definition->singleLineComment();
-                cd.multiLineStart = definition->multiLineCommentStart();
-                cd.multiLineEnd = definition->multiLineCommentEnd();
+                d->m_commentDefinition.isAfterWhiteSpaces = definition->isCommentAfterWhiteSpaces();
+                d->m_commentDefinition.singleLine = definition->singleLineComment();
+                d->m_commentDefinition.multiLineStart = definition->multiLineCommentStart();
+                d->m_commentDefinition.multiLineEnd = definition->multiLineCommentEnd();
 
                 setCodeFoldingSupported(true);
             }
@@ -7227,6 +7215,7 @@ BaseTextEditorFactory::BaseTextEditorFactory(QObject *parent)
 {
     m_editorCreator = []() { return new BaseTextEditor; };
     m_widgetCreator = []() { return new BaseTextEditorWidget; };
+    m_commentStyle = CommentDefinition::NoStyle;
 }
 
 void BaseTextEditorFactory::setDocumentCreator(const DocumentCreator &creator)
@@ -7278,6 +7267,11 @@ void BaseTextEditorFactory::setEditorActionHandlers(uint optionalActions)
     new TextEditorActionHandler(this, id(), optionalActions);
 }
 
+void BaseTextEditorFactory::setCommentStyle(CommentDefinition::Style style)
+{
+    m_commentStyle = style;
+}
+
 BaseTextEditor *BaseTextEditorFactory::duplicateTextEditor(BaseTextEditor *other)
 {
     BaseTextEditor *editor = createEditorHelper(other->editorWidget()->textDocumentPtr());
@@ -7312,6 +7306,7 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
     widget->setTextDocument(document);
 
     widget->d->m_codeAssistant.configure(editor);
+    widget->d->m_commentDefinition.setStyle(m_commentStyle);
 
     if (m_autoCompleterCreator)
         widget->setAutoCompleter(m_autoCompleterCreator());

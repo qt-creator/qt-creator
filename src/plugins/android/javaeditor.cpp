@@ -59,7 +59,6 @@ public:
     {
         addContext(Constants::C_JAVA_EDITOR);
         setDuplicateSupported(true);
-        setCommentStyle(Utils::CommentDefinition::CppStyle);
         setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<JavaCompletionAssistProvider>());
     }
 };
@@ -112,6 +111,7 @@ JavaEditorFactory::JavaEditorFactory()
     setDocumentCreator([]() { return new JavaDocument; });
     setAutoCompleterCreator([]() { return new JavaAutoCompleter; });
     setGenericSyntaxHighlighter(QLatin1String(Constants::JAVA_MIMETYPE));
+    setCommentStyle(Utils::CommentDefinition::CppStyle);
 
     setEditorActionHandlers(Constants::C_JAVA_EDITOR,
                   TextEditor::TextEditorActionHandler::UnCommentSelection);

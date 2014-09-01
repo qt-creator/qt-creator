@@ -64,7 +64,6 @@ public:
     {
         addContext(Constants::C_PYTHONEDITOR_ID);
         setDuplicateSupported(true);
-        setCommentStyle(Utils::CommentDefinition::HashStyle);
     }
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName)
@@ -111,6 +110,7 @@ PythonEditorFactory::PythonEditorFactory()
     setEditorCreator([]() { return new PythonEditor; });
     setIndenterCreator([]() { return new PythonIndenter; });
     setSyntaxHighlighterCreator([]() { return new PythonHighlighter; });
+    setCommentStyle(Utils::CommentDefinition::HashStyle);
 }
 
 } // namespace Internal

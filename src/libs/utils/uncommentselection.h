@@ -45,7 +45,7 @@ class QTCREATOR_UTILS_EXPORT CommentDefinition
 public:
     CommentDefinition();
 
-    enum Style { CppStyle, HashStyle };
+    enum Style { NoStyle, CppStyle, HashStyle };
     void setStyle(Style style);
 
     bool isValid() const;
