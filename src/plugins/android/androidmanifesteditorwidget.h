@@ -120,7 +120,7 @@ private slots:
     void setLDPIIcon();
     void setMDPIIcon();
     void setHDPIIcon();
-    void defaultPermissionCheckBoxClicked();
+    void defaultPermissionOrFeatureCheckBoxClicked();
     void addPermission();
     void removePermission();
     void updateAddRemovePermissionButtons();
@@ -182,6 +182,7 @@ private:
 
     // Permissions
     QCheckBox *m_defaultPermissonsCheckBox;
+    QCheckBox *m_defaultFeaturesCheckBox;
     PermissionsModel *m_permissionsModel;
     QListView *m_permissionsListView;
     QPushButton *m_addPermissionButton;
