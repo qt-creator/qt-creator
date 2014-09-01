@@ -145,10 +145,12 @@ void WindowSupport::updateFullScreenAction()
 
 void WindowList::addWindow(QWidget *window)
 {
-    if (Utils::HostOsInfo::isMacHost() && !m_dockMenu) {
+#ifdef Q_OS_OSX
+    if (!m_dockMenu) {
         m_dockMenu = new QMenu;
         m_dockMenu->setAsDockMenu();
     }
+#endif
 
     m_windows.append(window);
     Id id = Id("QtCreator.Window.").withSuffix(m_windows.size());
