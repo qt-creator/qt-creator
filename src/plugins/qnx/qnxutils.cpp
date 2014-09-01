@@ -194,7 +194,7 @@ QString QnxUtils::bbDataDirPath()
         QString dataDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
                 + QLatin1String("/data");
         dataDir = dataDir.left(dataDir.indexOf(QCoreApplication::organizationName()));
-        dataDir.append(QLatin1String("Research in Motion"));
+        dataDir.append(QLatin1String("/Research in Motion"));
         return dataDir;
     }
 
