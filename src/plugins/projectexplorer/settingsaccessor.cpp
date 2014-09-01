@@ -352,6 +352,20 @@ private:
                             NamePolicy policy);
 };
 
+// Version 17 Apply user sticky keys per map
+class UserFileVersion17Upgrader : public VersionUpgrader
+{
+public:
+    int version() const { return 17; }
+    QString backupExtension() const { return QLatin1String("3.3-pre2"); }
+    QVariantMap upgrade(const QVariantMap &map);
+
+    QVariant process(const QVariant &entry);
+
+private:
+    QVariantList m_sticky;
+};
+
 } // namespace
 
 //
@@ -435,6 +449,7 @@ UserFileAccessor::UserFileAccessor(Project *project)
     addVersionUpgrader(new UserFileVersion14Upgrader);
     addVersionUpgrader(new UserFileVersion15Upgrader);
     addVersionUpgrader(new UserFileVersion16Upgrader);
+    addVersionUpgrader(new UserFileVersion17Upgrader);
 }
 
 QVariantMap UserFileAccessor::prepareSettings(const QVariantMap &data) const
@@ -561,16 +576,14 @@ public:
 class MergeSettingsOperation : public Operation
 {
 public:
-    MergeSettingsOperation(const QSet<QString> &sticky) : m_userSticky(sticky) { }
-
     void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue)
     {
-        if (!m_userSticky.contains(key))
+        // Do not override bookkeeping settings:
+        if (key == QLatin1String(ORIGINAL_VERSION_KEY) || key == QLatin1String(VERSION_KEY))
+            return;
+        if (!userMap.value(QLatin1String(USER_STICKY_KEYS_KEY)).toList().contains(key))
             userMap.insert(key, sharedValue);
     }
-
-private:
-    QSet<QString> m_userSticky;
 };
 
 
@@ -579,14 +592,11 @@ class TrackStickyness : public Operation
 public:
     void apply(QVariantMap &userMap, const QString &key, const QVariant &)
     {
-        Q_UNUSED(userMap);
-        m_userSticky.insert(key);
+        const QString stickyKey = QLatin1String(USER_STICKY_KEYS_KEY);
+        QVariantList sticky = userMap.value(stickyKey).toList();
+        sticky.append(key);
+        userMap.insert(stickyKey, sticky);
     }
-
-    QStringList stickySettings() const { return m_userSticky.toList(); }
-
-private:
-    QSet<QString> m_userSticky;
 };
 
 } // namespace
@@ -813,22 +823,7 @@ QVariantMap mergeSharedSettings(const QVariantMap &userMap, const QVariantMap &s
     if (userMap.isEmpty())
         return sharedMap;
 
-    QSet<QString> stickyKeys;
-    const QVariant stickyList = result.take(QLatin1String(USER_STICKY_KEYS_KEY)).toList();
-    if (stickyList.isValid()) {
-        if (stickyList.type() != QVariant::List) {
-            // File is messed up... The user probably changed something.
-            return result;
-        }
-        foreach (const QVariant &v, stickyList.toList())
-            stickyKeys.insert(v.toString());
-    }
-
-    // Do not override bookkeeping settings:
-    stickyKeys.insert(QLatin1String(ORIGINAL_VERSION_KEY));
-    stickyKeys.insert(QLatin1String(VERSION_KEY));
-
-    MergeSettingsOperation op(stickyKeys);
+    MergeSettingsOperation op;
     op.synchronize(result, sharedMap);
     return result;
 }
@@ -848,8 +843,6 @@ void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
 
     TrackStickyness op;
     op.synchronize(userMap, sharedMap);
-
-    userMap.insert(QLatin1String(USER_STICKY_KEYS_KEY), QVariant(op.stickySettings()));
 }
 
 } // Anonymous
@@ -2661,4 +2654,35 @@ QVariantMap UserFileVersion16Upgrader::upgrade(const QVariantMap &data)
     }
 
     return result;
+}
+
+QVariantMap UserFileVersion17Upgrader::upgrade(const QVariantMap &map)
+{
+    m_sticky = map.value(QLatin1String(USER_STICKY_KEYS_KEY)).toList();
+    if (m_sticky.isEmpty())
+        return map;
+    return process(map).toMap();
+}
+
+QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
+{
+    switch (entry.type()) {
+    case QVariant::List: {
+        QVariantList result;
+        foreach (const QVariant &item, entry.toList())
+            result.append(process(item));
+        return result;
+    }
+    case QVariant::Map: {
+        QVariantMap result = entry.toMap();
+        for (QVariantMap::iterator i = result.begin(), end = result.end(); i != end; ++i) {
+            QVariant &v = i.value();
+            v = process(v);
+        }
+        result.insert(QLatin1String(USER_STICKY_KEYS_KEY), m_sticky);
+        return result;
+    }
+    default:
+        return entry;
+    }
 }
