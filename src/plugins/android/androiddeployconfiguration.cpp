@@ -129,7 +129,7 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *
 
 QString AndroidDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    if (id.name().startsWith(ANDROID_DC_PREFIX))
+    if (id == Core::Id(ANDROID_DEPLOYCONFIGURATION_ID))
         return tr("Deploy on Android");
     return QString();
 }
