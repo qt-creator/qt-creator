@@ -3066,25 +3066,6 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
 
     qreal lineX = 0;
 
-    if (d->m_visibleWrapColumn > 0) {
-        // Don't use QFontMetricsF::averageCharWidth here, due to it returning
-        // a fractional size even when this is not supported by the platform.
-        lineX = QFontMetricsF(font()).width(QLatin1Char('x')) * d->m_visibleWrapColumn + offset.x() + 4;
-
-        if (lineX < viewportRect.width()) {
-            const QBrush background = ifdefedOutFormat.background();
-            painter.fillRect(QRectF(lineX, er.top(), viewportRect.width() - lineX, er.height()),
-                             background);
-
-            const QColor col = (palette().base().color().value() > 128) ? Qt::black : Qt::white;
-            const QPen pen = painter.pen();
-            painter.setPen(blendColors(background.isOpaque() ? background.color() : palette().base().color(),
-                                       col, 32));
-            painter.drawLine(QPointF(lineX, er.top()), QPointF(lineX, er.bottom()));
-            painter.setPen(pen);
-        }
-    }
-
     // Set a brush origin so that the WaveUnderline knows where the wave started
     painter.setBrushOrigin(offset);
 
@@ -3223,6 +3204,26 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 blockIDO = doc->findBlockByLineNumber(blockIDO.firstLineNumber());
             }
 
+        }
+    }
+
+    // draw wrap column after ifdefed out blocks
+    if (d->m_visibleWrapColumn > 0) {
+        // Don't use QFontMetricsF::averageCharWidth here, due to it returning
+        // a fractional size even when this is not supported by the platform.
+        lineX = QFontMetricsF(font()).width(QLatin1Char('x')) * d->m_visibleWrapColumn + offset.x() + 4;
+
+        if (lineX < viewportRect.width()) {
+            const QBrush background = ifdefedOutFormat.background();
+            painter.fillRect(QRectF(lineX, er.top(), viewportRect.width() - lineX, er.height()),
+                             background);
+
+            const QColor col = (palette().base().color().value() > 128) ? Qt::black : Qt::white;
+            const QPen pen = painter.pen();
+            painter.setPen(blendColors(background.isOpaque() ? background.color() : palette().base().color(),
+                                       col, 32));
+            painter.drawLine(QPointF(lineX, er.top()), QPointF(lineX, er.bottom()));
+            painter.setPen(pen);
         }
     }
 
