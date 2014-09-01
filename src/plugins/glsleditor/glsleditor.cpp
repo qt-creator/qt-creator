@@ -317,7 +317,7 @@ IAssistInterface *GlslEditorWidget::createAssistInterface(
     if (kind == Completion)
         return new GlslCompletionAssistInterface(document(),
                                                  position(),
-                                                 editor()->document()->filePath(),
+                                                 textDocument()->filePath(),
                                                  reason,
                                                  textDocument()->mimeType(),
                                                  m_glslDocument);
