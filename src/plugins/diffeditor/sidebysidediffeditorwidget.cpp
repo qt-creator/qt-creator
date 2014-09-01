@@ -294,9 +294,8 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
     settings.m_highlightBlocks = false;
     SelectableTextEditorWidget::setDisplaySettings(settings);
 
-    BaseTextEditor *editor = this->editor();
-    connect(editor, &BaseTextEditor::tooltipRequested, [this](BaseTextEditor *, const QPoint &point, int position) {
-        int block = textDocument()->document()->findBlock(position).blockNumber();
+    connect(this, &BaseTextEditorWidget::tooltipRequested, [this](const QPoint &point, int position) {
+        int block = document()->findBlock(position).blockNumber();
         auto it = m_fileInfo.constFind(block);
         if (it != m_fileInfo.constEnd())
             ToolTip::show(point, TextContent(it.value().fileName), this);
