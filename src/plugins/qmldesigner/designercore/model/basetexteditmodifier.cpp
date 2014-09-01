@@ -51,14 +51,13 @@ void BaseTextEditModifier::indent(int offset, int length)
 
         TextEditor::BaseTextDocument *baseTextEditorDocument = baseTextEditorWidget->textDocument();
         QTextDocument *textDocument = baseTextEditorWidget->document();
-        TextEditor::BaseTextEditor *baseTextEditor = baseTextEditorWidget->editor();
 
         int startLine = -1;
         int endLine = -1;
         int column;
 
-        baseTextEditor->convertPosition(offset, &startLine, &column); //get line
-        baseTextEditor->convertPosition(offset + length, &endLine, &column); //get line
+        baseTextEditorWidget->convertPosition(offset, &startLine, &column); //get line
+        baseTextEditorWidget->convertPosition(offset + length, &endLine, &column); //get line
 
         QTextDocument *doc = baseTextEditorDocument->document();
         QTextCursor tc(doc);
