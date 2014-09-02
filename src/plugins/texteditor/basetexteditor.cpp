@@ -6725,8 +6725,7 @@ void BaseTextEditorWidgetPrivate::updateCursorPosition()
                                    .arg(q->textDocument()->tabSettings().columnAt(block.text(),
                                                                                    column)+1),
                                    tr("Line: 9999, Col: 999"));
-    if (m_editor)
-        m_editor->m_contextHelpId.clear();
+    q->clearContentsHelpId();
 
     if (!block.isVisible())
         q->ensureCursorVisible();
@@ -7330,6 +7329,9 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
 
     connect(widget, &BaseTextEditorWidget::activateEditor,
             [editor]() { Core::EditorManager::activateEditor(editor); });
+
+    connect(widget, &BaseTextEditorWidget::clearContentsHelpId,
+            [editor]() { editor->setContextHelpId(QString()); });
 
     widget->finalizeInitialization();
     editor->finalizeInitialization();
