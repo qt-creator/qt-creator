@@ -3188,12 +3188,13 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
     if (Core::FileUtils::renameFile(orgFilePath, newFilePath)) {
         // Tell the project plugin about rename
         FolderNode *folderNode = node->parentFolderNode();
+        QString projectDisplayName = folderNode->projectNode()->displayName();
         if (!folderNode->renameFile(orgFilePath, newFilePath)) {
             QMessageBox::warning(ICore::mainWindow(), tr("Project Editing Failed"),
                                  tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")
                                  .arg(orgFilePath)
                                  .arg(newFilePath)
-                                 .arg(folderNode->projectNode()->displayName()));
+                                 .arg(projectDisplayName));
         } else {
             setCurrent(SessionManager::projectForFile(newFilePath), newFilePath, 0);
         }
