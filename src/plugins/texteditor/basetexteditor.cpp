@@ -6754,7 +6754,8 @@ void BaseTextEditorWidgetPrivate::updateCursorPosition()
                                    .arg(q->textDocument()->tabSettings().columnAt(block.text(),
                                                                                    column)+1),
                                    tr("Line: 9999, Col: 999"));
-    q->editor()->m_contextHelpId.clear();
+    if (m_editor)
+        m_editor->m_contextHelpId.clear();
 
     if (!block.isVisible())
         q->ensureCursorVisible();
