@@ -253,8 +253,9 @@ void VariableManager::registerVariable(const QByteArray &variable,
 void VariableManager::registerIntVariable(const QByteArray &variable,
     const QString &description, const VariableManager::IntFunction &value)
 {
+    const VariableManager::IntFunction valuecopy = value; // do not capture a reference in a lambda
     registerVariable(variable, description,
-        [value]() { return QString::number(value ? value() : 0); });
+        [valuecopy]() { return QString::number(valuecopy ? valuecopy() : 0); });
 }
 
 /*!
