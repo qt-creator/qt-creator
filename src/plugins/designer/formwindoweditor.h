@@ -41,7 +41,6 @@ QT_END_NAMESPACE
 namespace Designer {
 
 namespace Internal {
-class DesignerXmlEditorWidget;
 class FormWindowFile;
 }
 
@@ -57,7 +56,7 @@ class DESIGNER_EXPORT FormWindowEditor : public TextEditor::BaseTextEditor
     Q_PROPERTY(QString contents READ contents)
     Q_OBJECT
 public:
-    explicit FormWindowEditor(Internal::DesignerXmlEditorWidget *editor);
+    explicit FormWindowEditor(TextEditor::BaseTextEditorWidget *widget);
     virtual ~FormWindowEditor();
 
     // IEditor

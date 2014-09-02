@@ -6557,11 +6557,6 @@ BaseTextEditor::BaseTextEditor()
     setDuplicateSupported(true);
 }
 
-void BaseTextEditor::setEditorWidget(BaseTextEditorWidget *widget)
-{
-    setWidget(widget);
-}
-
 BaseTextEditor::~BaseTextEditor()
 {
     delete m_widget;
@@ -6570,8 +6565,9 @@ BaseTextEditor::~BaseTextEditor()
 
 BaseTextDocument *BaseTextEditor::textDocument() const
 {
-    ensureDocument();
-    return editorWidget()->textDocument();
+    BaseTextEditorWidget *widget = editorWidget();
+    QTC_CHECK(!widget->d->m_document.isNull());
+    return widget->d->m_document.data();
 }
 
 void BaseTextEditor::addContext(Id id)
@@ -7186,25 +7182,6 @@ IEditor *BaseTextEditor::duplicate()
     // If neither is sufficient, you need to implement 'YourEditor::duplicate'.
     QTC_CHECK(false);
     return 0;
-}
-
-QWidget *BaseTextEditor::widget() const
-{
-    return ensureWidget();
-}
-
-BaseTextEditorWidget *BaseTextEditor::ensureWidget() const
-{
-    return editorWidget();
-}
-
-BaseTextDocumentPtr BaseTextEditor::ensureDocument() const
-{
-    BaseTextEditorWidget *widget = ensureWidget();
-    if (widget->d->m_document.isNull()) {
-        QTC_ASSERT(!d->m_origin, return BaseTextDocumentPtr()); // New style always sets it.
-    }
-    return widget->textDocumentPtr();
 }
 
 

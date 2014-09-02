@@ -43,7 +43,6 @@ DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *f
     TextEditor::BaseTextDocumentPtr doc(new FormWindowFile(form));
     setTextDocument(doc);
     m_editor = new FormWindowEditor(this);
-    m_editor->setEditorWidget(this);
     setupAsPlainEditor();
     setReadOnly(true);
     configureMimeType(doc->mimeType());

@@ -129,8 +129,6 @@ public:
 
     virtual void finalizeInitialization() {}
 
-    void setEditorWidget(BaseTextEditorWidget *editorWidget);
-
     enum MarkRequestKind {
         BreakpointRequest,
         BookmarkRequest,
@@ -138,9 +136,6 @@ public:
     };
 
     static BaseTextEditor *currentTextEditor();
-
-    BaseTextEditorWidget *ensureWidget() const;
-    BaseTextDocumentPtr ensureDocument() const;
 
     BaseTextEditorWidget *editorWidget() const;
     BaseTextDocument *textDocument() const;
@@ -159,7 +154,6 @@ public:
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 
     IEditor *duplicate();
-    QWidget *widget() const;
 
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
@@ -215,9 +209,7 @@ signals:
     void contextHelpIdRequested(TextEditor::BaseTextEditor *editor, int position);
 
 private:
-    friend class Internal::BaseTextEditorWidgetPrivate;
     friend class BaseTextEditorFactory;
-    friend class BaseTextEditorWidget;
     Internal::BaseTextEditorPrivate *d;
 };
 
