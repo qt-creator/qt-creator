@@ -184,10 +184,26 @@ bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitSt
                 relativeRemotePath = QDir(baseDir).relativeFilePath(pair.second);
 
             if (QDir(relativeRemotePath).isAbsolute() || relativeRemotePath.startsWith(QLatin1String(".."))) {
-                // for 3.3?
-                // raiseWarning(tr("File %1 is outside of the executable's directory. These files cannot be installed.").arg(relativeRemotePath));
-                continue;
+                // special case for winphone 8.0 font deployment
+                const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
+                if (!qt)
+                    return false;
+                if (qt->mkspec().toString().contains(QLatin1String("msvc2012"))) {
+                    const QString fileName = relativeRemotePath.mid(relativeRemotePath.lastIndexOf(QLatin1Char('/')) + 1);
+                    if (QFile::exists(m_targetDirPath + QLatin1String("fonts/") + fileName)) {
+                        relativeRemotePath = QLatin1String("fonts/") + fileName;
+                    } else {
+                        // for 3.3?
+                        // raiseWarning(tr("File %1 is outside of the executable's directory. These files cannot be installed.").arg(relativeRemotePath));
+                        continue;
+                    }
+                } else {
+                    // for 3.3?
+                    // raiseWarning(tr("File %1 is outside of the executable's directory. These files cannot be installed.").arg(relativeRemotePath));
+                    continue;
+                }
             }
+
             m_mappingFileContent += QLatin1Char('"') + QDir::toNativeSeparators(pair.first)
                     + QLatin1String("\" \"") + QDir::toNativeSeparators(relativeRemotePath)
                     + QLatin1String("\"\n");
