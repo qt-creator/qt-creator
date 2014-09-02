@@ -2943,6 +2943,7 @@ void BaseTextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
 {
     const QPoint toolTipPoint = q->toolTipPosition(c);
     bool handled = false;
+    emit q->tooltipOverrideRequested(toolTipPoint, c.position(), &handled);
     if (!handled)
         emit q->tooltipRequested(toolTipPoint, c.position());
 }
