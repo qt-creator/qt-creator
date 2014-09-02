@@ -78,7 +78,7 @@ QColor MemoryUsageModel::color(int index) const
     return colorByEventId(index);
 }
 
-float MemoryUsageModel::height(int index) const
+float MemoryUsageModel::relativeHeight(int index) const
 {
     Q_D(const MemoryUsageModel);
     return qMin(1.0f, (float)d->data[index].size / (float)d->maxSize);

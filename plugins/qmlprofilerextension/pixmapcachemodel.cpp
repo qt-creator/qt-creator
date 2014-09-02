@@ -132,7 +132,7 @@ QColor PixmapCacheModel::color(int index) const
     return colorByEventId(index);
 }
 
-float PixmapCacheModel::height(int index) const
+float PixmapCacheModel::relativeHeight(int index) const
 {
     Q_D(const PixmapCacheModel);
     if (d->data[index].pixmapEventType == PixmapCacheCountChanged)

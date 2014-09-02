@@ -56,7 +56,7 @@ public:
     int row(int index) const;
     int eventId(int index) const;
     QColor color(int index) const;
-    float height(int index) const;
+    float relativeHeight(int index) const;
 
     QVariantMap location(int index) const;
 
