@@ -44,6 +44,7 @@ const char NEWSESSION[]           = "ProjectExplorer.NewSession";
 const char NEWPROJECT[]           = "ProjectExplorer.NewProject";
 const char LOAD[]                 = "ProjectExplorer.Load";
 const char UNLOAD[]               = "ProjectExplorer.Unload";
+const char UNLOADCM[]             = "ProjectExplorer.UnloadCM";
 const char CLEARSESSION[]         = "ProjectExplorer.ClearSession";
 const char BUILDPROJECTONLY[]     = "ProjectExplorer.BuildProjectOnly";
 const char BUILD[]                = "ProjectExplorer.Build";

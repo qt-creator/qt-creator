@@ -195,6 +195,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_newAction;
     QAction *m_loadAction;
     Utils::ParameterAction *m_unloadAction;
+    Utils::ParameterAction *m_unloadActionContextMenu;
     QAction *m_closeAllProjects;
     QAction *m_buildProjectOnlyAction;
     Utils::ParameterAction *m_buildAction;
@@ -725,7 +726,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultKeySequence(QKeySequence());
 
 
-    // XXX same action?
     // unload action
     d->m_unloadAction = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
                                                       Utils::ParameterAction::EnabledWithParameter, this);
@@ -915,7 +915,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
 
     // unload project again, in right position
-    mprojectContextMenu->addAction(ActionManager::command(Constants::UNLOAD), Constants::G_PROJECT_LAST);
+    d->m_unloadActionContextMenu = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
+                                                              Utils::ParameterAction::EnabledWithParameter, this);
+    cmd = ActionManager::registerAction(d->m_unloadActionContextMenu, Constants::UNLOADCM, globalcontext);
+    cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setDescription(d->m_unloadActionContextMenu->text());
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
     // remove file action
     d->m_removeFileAction = new QAction(tr("Remove File..."), this);
@@ -1071,6 +1076,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_runWithoutDeployAction, SIGNAL(triggered()), this, SLOT(runProjectWithoutDeploy()));
     connect(d->m_cancelBuildAction, SIGNAL(triggered()), this, SLOT(cancelBuild()));
     connect(d->m_unloadAction, SIGNAL(triggered()), this, SLOT(unloadProject()));
+    connect(d->m_unloadActionContextMenu, SIGNAL(triggered()), this, SLOT(unloadProject()));
     connect(d->m_closeAllProjects, SIGNAL(triggered()), this, SLOT(closeAllProjects()));
     connect(d->m_addNewFileAction, SIGNAL(triggered()), this, SLOT(addNewFile()));
     connect(d->m_addExistingFilesAction, SIGNAL(triggered()), this, SLOT(addExistingFiles()));
@@ -2022,6 +2028,7 @@ void ProjectExplorerPlugin::updateActions()
     QString projectNameContextMenu = d->m_currentProject ? d->m_currentProject->displayName() : QString();
 
     d->m_unloadAction->setParameter(projectNameContextMenu);
+    d->m_unloadActionContextMenu->setParameter(projectNameContextMenu);
 
     // Normal actions
     d->m_buildAction->setParameter(projectName);
@@ -2070,6 +2077,7 @@ void ProjectExplorerPlugin::updateActions()
     // Session actions
     d->m_closeAllProjects->setEnabled(SessionManager::hasProjects());
     d->m_unloadAction->setVisible(SessionManager::projects().size() <= 1);
+    d->m_unloadActionContextMenu->setEnabled(SessionManager::hasProjects());
 
     ActionContainer *aci =
         ActionManager::actionContainer(Constants::M_UNLOADPROJECTS);
