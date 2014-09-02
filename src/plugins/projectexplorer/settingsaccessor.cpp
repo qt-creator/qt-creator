@@ -637,6 +637,11 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int toVer
     else
         result = data;
 
+    if (version < 15 && toVersion < 15) {
+        result.insert(QLatin1String(USER_STICKY_KEYS_KEY),
+                      data.value(QLatin1String("ProjectExplorer.Project.UserStickyKeys")));
+    }
+
     if (version >= toVersion
             || version < d->firstVersion()
             || toVersion > d->currentVersion())
