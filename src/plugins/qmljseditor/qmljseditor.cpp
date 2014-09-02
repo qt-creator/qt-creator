@@ -883,11 +883,6 @@ QmlJSEditor::QmlJSEditor()
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>());
 }
 
-void QmlJSEditor::finalizeInitialization()
-{
-    configureCodeAssistant();
-}
-
 bool QmlJSEditor::isDesignModePreferred() const
 {
     // stay in design mode if we are there

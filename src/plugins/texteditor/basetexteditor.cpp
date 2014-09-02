@@ -6551,11 +6551,6 @@ void BaseTextEditor::setEditorWidget(BaseTextEditorWidget *widget)
     setWidget(widget);
 }
 
-void BaseTextEditor::configureCodeAssistant()
-{
-    editorWidget()->d->m_codeAssistant.configure(this);
-}
-
 BaseTextEditor::~BaseTextEditor()
 {
     delete m_widget;

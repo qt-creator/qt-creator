@@ -147,7 +147,6 @@ public:
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool isDesignModePreferred() const;
-    void finalizeInitialization();
 };
 
 class QmlJSEditorFactory : public TextEditor::BaseTextEditorFactory

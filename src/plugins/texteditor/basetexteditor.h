@@ -205,8 +205,6 @@ public:
     // FIXME: Only used to delay initialization from CppEditor.
     // There should be something simpler.
     void setCompletionAssistProvider(const std::function<CompletionAssistProvider *()> &provider);
-    // FIXME: Remove.
-    void configureCodeAssistant();
 
 signals:
     void markRequested(TextEditor::BaseTextEditor *editor, int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
