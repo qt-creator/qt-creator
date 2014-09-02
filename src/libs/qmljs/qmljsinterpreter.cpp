@@ -1416,7 +1416,7 @@ void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &contents,
         case 0xff:
         case 0xee:
         case 0x00:
-            qWarning() << QApplication::translate("CppQmlTypesLoader", "%1 seems not to be encoded in UTF8 or has a BOM.").arg(fileName);
+            qWarning() << fileName << "seems not to be encoded in UTF8 or has a BOM.";
         default: break;
         }
     }
