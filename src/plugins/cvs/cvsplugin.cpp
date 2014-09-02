@@ -118,7 +118,6 @@ const char CMD_ID_REPOSITORYSTATUS[]   = "CVS.RepositoryStatus";
 const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
 
 const char CVS_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.cvs.submit";
-const char CVSCOMMITEDITOR[]  = "CVS Commit Editor";
 const char CVSCOMMITEDITOR_ID[]  = "CVS Commit Editor";
 const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "CVS Commit Editor");
 const char SUBMIT_CURRENT[] = "CVS.SubmitCurrentLog";
@@ -129,22 +128,18 @@ const VcsBaseEditorParameters editorParameters[] = {
     OtherContent,
     "CVS Command Log Editor", // id
     QT_TRANSLATE_NOOP("VCS", "CVS Command Log Editor"), // display name
-    "CVS Command Log Editor", // context
     "text/vnd.qtcreator.cvs.commandlog"},
 {   LogOutput,
     "CVS File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "CVS File Log Editor"),   // display name
-    "CVS File Log Editor",   // context
     "text/vnd.qtcreator.cvs.log"},
 {    AnnotateOutput,
     "CVS Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "CVS Annotation Editor"),  // display name
-    "CVS Annotation Editor",  // context
     "text/vnd.qtcreator.cvs.annotation"},
 {   DiffOutput,
     "CVS Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "CVS Diff Editor"),  // display name
-    "CVS Diff Editor",  // context
     "text/x-patch"}
 };
 
@@ -223,7 +218,6 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
     CVS_SUBMIT_MIMETYPE,
     CVSCOMMITEDITOR_ID,
     CVSCOMMITEDITOR_DISPLAY_NAME,
-    CVSCOMMITEDITOR,
     VcsBaseSubmitEditorParameters::DiffFiles
 };
 
@@ -445,7 +439,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    Context cvscommitcontext(CVSCOMMITEDITOR);
+    Context cvscommitcontext(CVSCOMMITEDITOR_ID);
 
     m_submitCurrentLogAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = ActionManager::registerAction(m_submitCurrentLogAction, SUBMIT_CURRENT, cvscommitcontext);

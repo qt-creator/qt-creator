@@ -65,7 +65,6 @@ namespace Internal {
 
 CMakeEditor::CMakeEditor()
 {
-    addContext(Constants::C_CMAKEEDITOR);
     setDuplicateSupported(true);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>());
 }
@@ -289,13 +288,12 @@ CMakeEditorFactory::CMakeEditorFactory()
     setGenericSyntaxHighlighter(QLatin1String(Constants::CMAKEMIMETYPE));
     setCommentStyle(Utils::CommentDefinition::HashStyle);
 
-    setEditorActionHandlers(Constants::C_CMAKEEDITOR,
-            TextEditorActionHandler::UnCommentSelection
+    setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
             | TextEditorActionHandler::JumpToFileUnderCursor);
 
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
     contextMenu->addAction(ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR));
-    contextMenu->addSeparator(Context(Constants::C_CMAKEEDITOR));
+    contextMenu->addSeparator(Context(Constants::CMAKE_EDITOR_ID));
     contextMenu->addAction(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
 }
 

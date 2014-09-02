@@ -56,7 +56,6 @@ public:
     const char *mimeType;
     const char *id;
     const char *displayName;
-    const char *context;
     enum DiffType { DiffRows, DiffFiles } diffType;
 };
 

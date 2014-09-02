@@ -106,27 +106,22 @@ const VcsBaseEditorParameters editorParameters[] = {
     VcsBase::OtherContent,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_ID,
     Git::Constants::GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME,
-    Git::Constants::C_GIT_COMMAND_LOG_EDITOR,
     "text/vnd.qtcreator.git.commandlog"},
 {   VcsBase::LogOutput,
     Git::Constants::GIT_LOG_EDITOR_ID,
     Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
-    Git::Constants::C_GIT_LOG_EDITOR,
     "text/vnd.qtcreator.git.log"},
 {   VcsBase::AnnotateOutput,
     Git::Constants::GIT_BLAME_EDITOR_ID,
     Git::Constants::GIT_BLAME_EDITOR_DISPLAY_NAME,
-    Git::Constants::C_GIT_BLAME_EDITOR,
     "text/vnd.qtcreator.git.annotation"},
 {   VcsBase::OtherContent,
     Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID,
     Git::Constants::GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME,
-    Git::Constants::C_GIT_COMMIT_TEXT_EDITOR,
     "text/vnd.qtcreator.git.commit"},
 {   VcsBase::OtherContent,
     Git::Constants::GIT_REBASE_EDITOR_ID,
     Git::Constants::GIT_REBASE_EDITOR_DISPLAY_NAME,
-    Git::Constants::C_GIT_REBASE_EDITOR,
     "text/vnd.qtcreator.git.rebase"},
 };
 
@@ -181,7 +176,6 @@ const VcsBaseSubmitEditorParameters submitParameters = {
     Git::Constants::SUBMIT_MIMETYPE,
     Git::Constants::GITSUBMITEDITOR_ID,
     Git::Constants::GITSUBMITEDITOR_DISPLAY_NAME,
-    Git::Constants::C_GITSUBMITEDITOR,
     VcsBaseSubmitEditorParameters::DiffRows
 };
 
@@ -644,7 +638,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addAction(createRepositoryCommand);
 
     // Submit editor
-    Context submitContext(Constants::C_GITSUBMITEDITOR);
+    Context submitContext(Constants::GITSUBMITEDITOR_ID);
     m_submitCurrentAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     Core::Command *command = ActionManager::registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);
     command->setAttribute(Core::Command::CA_UpdateText);

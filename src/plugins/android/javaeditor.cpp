@@ -57,7 +57,6 @@ class JavaEditor : public TextEditor::BaseTextEditor
 public:
     JavaEditor()
     {
-        addContext(Constants::C_JAVA_EDITOR);
         setDuplicateSupported(true);
         setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<JavaCompletionAssistProvider>());
     }
@@ -113,8 +112,7 @@ JavaEditorFactory::JavaEditorFactory()
     setGenericSyntaxHighlighter(QLatin1String(Constants::JAVA_MIMETYPE));
     setCommentStyle(Utils::CommentDefinition::CppStyle);
 
-    setEditorActionHandlers(Constants::C_JAVA_EDITOR,
-                  TextEditor::TextEditorActionHandler::UnCommentSelection);
+    setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection);
 }
 
 } // namespace Internal

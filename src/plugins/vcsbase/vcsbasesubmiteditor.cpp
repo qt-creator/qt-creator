@@ -181,7 +181,6 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
                                          SubmitEditorWidget *editorWidget) :
     d(new VcsBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
-    setContext(Core::Context(parameters->context));
     setWidget(d->m_widget);
     document()->setDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));
 

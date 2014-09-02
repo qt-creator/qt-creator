@@ -151,9 +151,8 @@ namespace VcsBase {
     manager passes the editor around.
 */
 
-VcsBaseEditor::VcsBaseEditor(const VcsBaseEditorParameters *type)
+VcsBaseEditor::VcsBaseEditor()
 {
-    setContext(Core::Context(type->context, TextEditor::Constants::C_TEXTEDITOR));
 }
 
 void VcsBaseEditor::finalizeInitialization()

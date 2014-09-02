@@ -84,36 +84,29 @@ const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.p4.submit";
 
 const char PERFORCE_SUBMIT_EDITOR_ID[] = "Perforce.SubmitEditor";
 const char PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce.SubmitEditor");
-const char PERFORCESUBMITEDITOR_CONTEXT[] = "Perforce Submit Editor";
 
 const char PERFORCE_LOG_EDITOR_ID[] = "Perforce.LogEditor";
 const char PERFORCE_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce Log Editor");
-const char PERFORCE_LOG_EDITOR_CONTEXT[] = "Perforce Log Editor";
 
 const char PERFORCE_DIFF_EDITOR_ID[] = "Perforce.DiffEditor";
 const char PERFORCE_DIFF_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce Diff Editor");
-const char PERFORCE_DIFF_EDITOR_CONTEXT[] = "Perforce Diff Editor";
 
 const char PERFORCE_ANNOTATION_EDITOR_ID[] = "Perforce.AnnotationEditor";
 const char PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Perforce Annotation Editor");
-const char PERFORCE_ANNOTATION_EDITOR_CONTEXT[] = "Perforce Annotation Editor";
 
 const VcsBaseEditorParameters editorParameters[] = {
 {
     VcsBase::LogOutput,
     PERFORCE_LOG_EDITOR_ID,
     PERFORCE_LOG_EDITOR_DISPLAY_NAME,
-    PERFORCE_LOG_EDITOR_CONTEXT,
     "text/vnd.qtcreator.p4.log"},
 {    VcsBase::AnnotateOutput,
     PERFORCE_ANNOTATION_EDITOR_ID,
     PERFORCE_ANNOTATION_EDITOR_DISPLAY_NAME,
-    PERFORCE_ANNOTATION_EDITOR_CONTEXT,
     "text/vnd.qtcreator.p4.annotation"},
 {   VcsBase::DiffOutput,
     PERFORCE_DIFF_EDITOR_ID,
     PERFORCE_DIFF_EDITOR_DISPLAY_NAME,
-    PERFORCE_DIFF_EDITOR_CONTEXT,
     "text/x-patch"}
 };
 
@@ -221,7 +214,6 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
     SUBMIT_MIMETYPE,
     PERFORCE_SUBMIT_EDITOR_ID,
     PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME,
-    PERFORCESUBMITEDITOR_CONTEXT,
     VcsBaseSubmitEditorParameters::DiffFiles
 };
 
@@ -259,7 +251,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_menuAction = mperforce->menu()->menuAction();
 
     Context globalcontext(Core::Constants::C_GLOBAL);
-    Context perforcesubmitcontext(PERFORCESUBMITEDITOR_CONTEXT);
+    Context perforcesubmitcontext(PERFORCE_SUBMIT_EDITOR_ID);
 
     Core::Command *command;
 

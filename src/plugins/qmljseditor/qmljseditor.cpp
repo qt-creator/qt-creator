@@ -877,7 +877,6 @@ QString QmlJSEditorWidget::foldReplacementText(const QTextBlock &block) const
 
 QmlJSEditor::QmlJSEditor()
 {
-    addContext(Constants::C_QMLJSEDITOR_ID);
     addContext(ProjectExplorer::Constants::LANG_QMLJS);
     setDuplicateSupported(true);
     setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>());
@@ -913,8 +912,7 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     setAutoCompleterCreator([]() { return new AutoCompleter; });
     setCommentStyle(Utils::CommentDefinition::CppStyle);
 
-    setEditorActionHandlers(Constants::C_QMLJSEDITOR_ID,
-          TextEditorActionHandler::Format
+    setEditorActionHandlers(TextEditorActionHandler::Format
         | TextEditorActionHandler::UnCommentSelection
         | TextEditorActionHandler::UnCollapseAll
         | TextEditorActionHandler::FollowSymbolUnderCursor);

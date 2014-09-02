@@ -113,7 +113,6 @@ const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
 const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
 const char SUBVERSION_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.svn.submit";
-const char SUBVERSIONCOMMITEDITOR[]     = "Subversion Commit Editor";
 const char SUBVERSIONCOMMITEDITOR_ID[]  = "Subversion Commit Editor";
 const char SUBVERSIONCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "Subversion Commit Editor");
 const char SUBMIT_CURRENT[]             = "Subversion.SubmitCurrentLog";
@@ -124,17 +123,14 @@ const VcsBaseEditorParameters editorParameters[] = {
     LogOutput,
     "Subversion File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "Subversion File Log Editor"),   // display_name
-    "Subversion File Log Editor",   // context
     "text/vnd.qtcreator.svn.log"},
 {    AnnotateOutput,
     "Subversion Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "Subversion Annotation Editor"),   // display_name
-    "Subversion Annotation Editor",  // context
     "text/vnd.qtcreator.svn.annotation"},
 {   DiffOutput,
     "Subversion Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "Subversion Diff Editor"),   // display_name
-    "Subversion Diff Editor",  // context
     "text/x-patch"}
 };
 
@@ -241,7 +237,6 @@ const VcsBaseSubmitEditorParameters submitParameters = {
     SUBVERSION_SUBMIT_MIMETYPE,
     SUBVERSIONCOMMITEDITOR_ID,
     SUBVERSIONCOMMITEDITOR_DISPLAY_NAME,
-    SUBVERSIONCOMMITEDITOR,
     VcsBaseSubmitEditorParameters::DiffFiles
 };
 
@@ -443,7 +438,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    Context svncommitcontext(SUBVERSIONCOMMITEDITOR);
+    Context svncommitcontext(SUBVERSIONCOMMITEDITOR_ID);
 
     m_submitCurrentLogAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
     command = ActionManager::registerAction(m_submitCurrentLogAction, SUBMIT_CURRENT, svncommitcontext);

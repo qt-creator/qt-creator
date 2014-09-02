@@ -168,7 +168,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     mtools->addMenu(mcpptools);
 
     // Actions
-    Context context(CppEditor::Constants::C_CPPEDITOR);
+    Context context(CppEditor::Constants::CPPEDITOR_ID);
 
     QAction *switchAction = new QAction(tr("Switch Header/Source"), this);
     Command *command = ActionManager::registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context, true);

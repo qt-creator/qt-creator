@@ -37,21 +37,15 @@ namespace Constants {
 
 const char GIT_COMMAND_LOG_EDITOR_ID[] = "Git Command Log Editor";
 const char GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Command Log Editor");
-const char C_GIT_COMMAND_LOG_EDITOR[] = "Git Command Log Editor";
 const char GIT_LOG_EDITOR_ID[] = "Git File Log Editor";
 const char GIT_LOG_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git File Log Editor");
-const char C_GIT_LOG_EDITOR[] = "Git File Log Editor";
 const char GIT_BLAME_EDITOR_ID[] = "Git Annotation Editor";
 const char GIT_BLAME_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Annotation Editor");
-const char C_GIT_BLAME_EDITOR[] = "Git Annotation Editor";
 const char GIT_COMMIT_TEXT_EDITOR_ID[] = "Git Commit Editor";
 const char GIT_COMMIT_TEXT_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Commit Editor");
-const char C_GIT_COMMIT_TEXT_EDITOR[] = "Git Commit Editor";
 const char GIT_REBASE_EDITOR_ID[] = "Git Rebase Editor";
 const char GIT_REBASE_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Rebase Editor");
-const char C_GIT_REBASE_EDITOR[] = "Git Rebase Editor";
 
-const char C_GITSUBMITEDITOR[]  = "Git Submit Editor";
 const char GITSUBMITEDITOR_ID[] = "Git Submit Editor";
 const char GITSUBMITEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Submit Editor");
 const char SUBMIT_CURRENT[] = "Git.SubmitCurrentLog";

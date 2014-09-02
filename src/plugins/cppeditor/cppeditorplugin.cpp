@@ -93,8 +93,7 @@ public:
         setAutoCompleterCreator([]() { return new CppAutoCompleter; });
         setCommentStyle(Utils::CommentDefinition::CppStyle);
 
-        setEditorActionHandlers(Constants::C_CPPEDITOR,
-                                TextEditorActionHandler::Format
+        setEditorActionHandlers(TextEditorActionHandler::Format
                               | TextEditorActionHandler::UnCommentSelection
                               | TextEditorActionHandler::UnCollapseAll
                               | TextEditorActionHandler::FollowSymbolUnderCursor);
@@ -204,7 +203,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     wizard->setId(QLatin1String("C.Header"));
     addAutoReleasedObject(wizard);
 
-    Context context(Constants::C_CPPEDITOR);
+    Context context(Constants::CPPEDITOR_ID);
 
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
 

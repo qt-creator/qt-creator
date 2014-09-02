@@ -286,7 +286,7 @@ void MercurialClient::incoming(const QString &repositoryRoot, const QString &rep
 
     const QString title = tr("Hg incoming %1").arg(id);
 
-    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG, title, repositoryRoot,
+    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
                                                   true, "incoming", id);
     VcsCommand *cmd = createCommand(repository, editor);
     enqueueJob(cmd, args);
@@ -300,7 +300,7 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
     const QString title = tr("Hg outgoing %1").
             arg(QDir::toNativeSeparators(repositoryRoot));
 
-    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG, title, repositoryRoot, true,
+    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot, true,
                                                   "outgoing", repositoryRoot);
 
     VcsCommand *cmd = createCommand(repositoryRoot, editor);
@@ -367,11 +367,11 @@ Core::Id MercurialClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case AnnotateCommand:
-        return Constants::ANNOTATELOG;
+        return Constants::ANNOTATELOG_ID;
     case DiffCommand:
-        return Constants::DIFFLOG;
+        return Constants::DIFFLOG_ID;
     case LogCommand:
-        return Constants::FILELOG;
+        return Constants::FILELOG_ID;
     default:
         return Core::Id();
     }

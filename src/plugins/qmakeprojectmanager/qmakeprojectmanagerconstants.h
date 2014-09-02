@@ -35,9 +35,6 @@
 namespace QmakeProjectManager {
 namespace Constants {
 
-// Contexts
-const char C_PROFILEEDITOR[] = ".pro File Editor";
-
 // Menus
 const char M_CONTEXT[] = "ProFileEditor.ContextMenu";
 

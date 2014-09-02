@@ -65,8 +65,7 @@ PlainTextEditorFactory::PlainTextEditorFactory()
     setEditorWidgetCreator([]() { return new PlainTextEditorWidget; });
     setIndenterCreator([]() { return new NormalIndenter; });
 
-    setEditorActionHandlers(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
-        TextEditorActionHandler::Format |
+    setEditorActionHandlers(TextEditorActionHandler::Format |
         TextEditorActionHandler::UnCommentSelection |
         TextEditorActionHandler::UnCollapseAll);
 }

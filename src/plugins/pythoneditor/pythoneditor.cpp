@@ -62,7 +62,6 @@ class PythonEditor : public BaseTextEditor
 public:
     PythonEditor()
     {
-        addContext(Constants::C_PYTHONEDITOR_ID);
         setDuplicateSupported(true);
     }
 

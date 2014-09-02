@@ -37,7 +37,6 @@ const char PROJECTCONTEXT[]     = "GenericProject.ProjectContext";
 const char GENERICMIMETYPE[]    = "text/x-generic-project"; // ### FIXME
 
 // Contexts
-const char C_FILESEDITOR[]      = ".files Editor";
 const char FILES_EDITOR_ID[]    = "QT4.FilesEditor";
 
 const char FILES_MIMETYPE[]     = "application/vnd.qtcreator.generic.files";

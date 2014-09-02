@@ -48,17 +48,14 @@ const char DIFFIDENTIFIER[] = "^(?:diff --git a/|[+-]{3} (?:/dev/null|[ab]/(.+$)
 // Base editor parameters
 const char FILELOG_ID[] = "Mercurial File Log Editor";
 const char FILELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial File Log Editor");
-const char FILELOG[] = "Mercurial File Log Editor";
 const char LOGAPP[] = "text/vnd.qtcreator.mercurial.log";
 
 const char ANNOTATELOG_ID[] = "Mercurial Annotation Editor";
 const char ANNOTATELOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Annotation Editor");
-const char ANNOTATELOG[] = "Mercurial Annotation Editor";
 const char ANNOTATEAPP[] = "text/vnd.qtcreator.mercurial.annotation";
 
 const char DIFFLOG_ID[] = "Mercurial Diff Editor";
 const char DIFFLOG_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Mercurial Diff Editor");
-const char DIFFLOG[] = "Mercurial Diff Editor";
 const char DIFFAPP[] = "text/x-patch";
 
 // Submit editor parameters

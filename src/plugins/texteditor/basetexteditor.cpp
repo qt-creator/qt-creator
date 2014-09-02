@@ -7270,6 +7270,7 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
 {
     BaseTextEditorWidget *widget = m_widgetCreator();
     BaseTextEditor *editor = m_editorCreator();
+    editor->addContext(id());
     editor->d->m_origin = this;
 
     editor->m_widget = widget;

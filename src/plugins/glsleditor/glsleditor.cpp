@@ -334,7 +334,6 @@ class GlslEditor : public TextEditor::BaseTextEditor
 public:
     GlslEditor()
     {
-        addContext(Constants::C_GLSLEDITOR_ID);
         setDuplicateSupported(true);
         setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GlslCompletionAssistProvider>());
     }
@@ -369,8 +368,7 @@ GlslEditorFactory::GlslEditorFactory()
     setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
     setCommentStyle(Utils::CommentDefinition::CppStyle);
 
-    setEditorActionHandlers(Constants::C_GLSLEDITOR_ID,
-                            TextEditorActionHandler::Format
+    setEditorActionHandlers(TextEditorActionHandler::Format
                           | TextEditorActionHandler::UnCommentSelection
                           | TextEditorActionHandler::UnCollapseAll);
 

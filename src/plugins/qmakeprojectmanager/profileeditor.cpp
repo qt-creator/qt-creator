@@ -60,7 +60,6 @@ class ProFileEditor : public TextEditor::BaseTextEditor
 public:
     ProFileEditor()
     {
-        addContext(Constants::C_PROFILEEDITOR);
         setDuplicateSupported(true);
         setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>());
     }
@@ -229,8 +228,7 @@ ProFileEditorFactory::ProFileEditorFactory()
     setEditorCreator([]() { return new ProFileEditor; });
 
     setCommentStyle(Utils::CommentDefinition::HashStyle);
-    setEditorActionHandlers(Constants::C_PROFILEEDITOR,
-                  TextEditorActionHandler::UnCommentSelection
+    setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
                 | TextEditorActionHandler::JumpToFileUnderCursor);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pro");

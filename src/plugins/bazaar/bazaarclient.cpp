@@ -170,11 +170,11 @@ Core::Id BazaarClient::vcsEditorKind(VcsCommandTag cmd) const
 {
     switch (cmd) {
     case AnnotateCommand:
-        return Constants::ANNOTATELOG;
+        return Constants::ANNOTATELOG_ID;
     case DiffCommand:
-        return Constants::DIFFLOG;
+        return Constants::DIFFLOG_ID;
     case LogCommand:
-        return Constants::FILELOG;
+        return Constants::FILELOG_ID;
     default:
         return Core::Id();
     }

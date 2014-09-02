@@ -131,17 +131,14 @@ static const VcsBaseEditorParameters editorParameters[] = {
     VcsBase::LogOutput,
     "ClearCase File Log Editor",   // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase File Log Editor"),   // display_name
-    "ClearCase File Log Editor",   // context
     "text/vnd.qtcreator.clearcase.log"},
 {    VcsBase::AnnotateOutput,
     "ClearCase Annotation Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Annotation Editor"),   // display_name
-    "ClearCase Annotation Editor",  // context
     "text/vnd.qtcreator.clearcase.annotation"},
 {   VcsBase::DiffOutput,
     "ClearCase Diff Editor",  // id
     QT_TRANSLATE_NOOP("VCS", "ClearCase Diff Editor"),   // display_name
-    "ClearCase Diff Editor",  // context
     "text/x-patch"}
 };
 
@@ -431,7 +428,6 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
     Constants::CLEARCASE_SUBMIT_MIMETYPE,
     Constants::CLEARCASECHECKINEDITOR_ID,
     Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
-    Constants::CLEARCASECHECKINEDITOR,
     VcsBaseSubmitEditorParameters::DiffFiles
 };
 
@@ -601,7 +597,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    Context clearcasecheckincontext(Constants::CLEARCASECHECKINEDITOR);
+    Context clearcasecheckincontext(Constants::CLEARCASECHECKINEDITOR_ID);
 
     m_checkInSelectedAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Check In"), this);
     command = ActionManager::registerAction(m_checkInSelectedAction, Constants::CHECKIN_SELECTED, clearcasecheckincontext);

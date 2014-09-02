@@ -254,7 +254,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(QmakeProjectManager::Constants::M_CONTEXT);
 
-    Core::Context proFileEditorContext = Core::Context(QmakeProjectManager::Constants::C_PROFILEEDITOR);
+    Core::Context proFileEditorContext = Core::Context(QmakeProjectManager::Constants::PROFILE_EDITOR_ID);
 
     command = Core::ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
     contextMenu->addAction(command);

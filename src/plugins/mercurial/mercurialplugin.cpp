@@ -84,19 +84,16 @@ static const VcsBaseEditorParameters editorParameters[] = {
     LogOutput,
     Constants::FILELOG_ID,
     Constants::FILELOG_DISPLAY_NAME,
-    Constants::FILELOG,
     Constants::LOGAPP},
 
 {   AnnotateOutput,
     Constants::ANNOTATELOG_ID,
     Constants::ANNOTATELOG_DISPLAY_NAME,
-    Constants::ANNOTATELOG,
     Constants::ANNOTATEAPP},
 
 {   DiffOutput,
     Constants::DIFFLOG_ID,
     Constants::DIFFLOG_DISPLAY_NAME,
-    Constants::DIFFLOG,
     Constants::DIFFAPP}
 };
 
@@ -104,7 +101,6 @@ static const VcsBaseSubmitEditorParameters submitEditorParameters = {
     Constants::COMMITMIMETYPE,
     Constants::COMMIT_ID,
     Constants::COMMIT_DISPLAY_NAME,
-    Constants::COMMIT_ID,
     VcsBaseSubmitEditorParameters::DiffFiles
 };
 

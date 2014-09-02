@@ -62,7 +62,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
     if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
         addMimeType(parameters->mimeType);
 
-    setEditorActionHandlers(parameters->context, TextEditorActionHandler::None);
+    setEditorActionHandlers(TextEditorActionHandler::None);
 
     setDocumentCreator([=]() -> BaseTextDocument* {
         auto document = new BaseTextDocument(parameters->id);
@@ -78,9 +78,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
         return widget;
     });
 
-    setEditorCreator([=]() {
-        return new VcsBaseEditor(parameters);
-    });
+    setEditorCreator([]() { return new VcsBaseEditor(); });
 }
 
 VcsBaseEditor *VcsEditorFactory::createEditorById(const char *id)

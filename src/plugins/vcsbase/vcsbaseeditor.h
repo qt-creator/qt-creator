@@ -69,7 +69,6 @@ public:
     EditorContentType type;
     const char *id;
     const char *displayName;
-    const char *context;
     const char *mimeType;
 };
 
@@ -88,7 +87,7 @@ class VCSBASE_EXPORT VcsBaseEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 public:
-    explicit VcsBaseEditor(const VcsBaseEditorParameters *type);
+    explicit VcsBaseEditor();
 
     // Utility to find a parameter set by type in an array.
     static  const VcsBaseEditorParameters *

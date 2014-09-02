@@ -2726,7 +2726,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     const Context globalcontext(CC::C_GLOBAL);
     const Context cppDebuggercontext(C_CPPDEBUGGER);
-    const Context cppeditorcontext(CppEditor::Constants::C_CPPEDITOR);
+    const Context cppeditorcontext(CppEditor::Constants::CPPEDITOR_ID);
 
     m_startIcon = QIcon(_(":/debugger/images/debugger_start_small.png"));
     m_startIcon.addFile(QLatin1String(":/debugger/images/debugger_start.png"));

@@ -50,7 +50,6 @@ class ProjectFilesEditor : public BaseTextEditor
 public:
     ProjectFilesEditor()
     {
-        addContext(Constants::C_FILESEDITOR);
         setDuplicateSupported(true);
     }
 };
@@ -69,7 +68,7 @@ ProjectFilesFactory::ProjectFilesFactory()
 
     setEditorCreator([]() { return new ProjectFilesEditor; });
     setDocumentCreator([]() { return new BaseTextDocument(Constants::FILES_EDITOR_ID); });
-    setEditorActionHandlers(Constants::C_FILESEDITOR, TextEditorActionHandler::None);
+    setEditorActionHandlers(TextEditorActionHandler::None);
 }
 
 } // namespace Internal

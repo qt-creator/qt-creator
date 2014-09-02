@@ -92,7 +92,6 @@ namespace Internal {
 
 CppEditor::CppEditor()
 {
-    m_context.add(Constants::C_CPPEDITOR);
     m_context.add(ProjectExplorer::Constants::LANG_CXX);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
     setDuplicateSupported(true);
