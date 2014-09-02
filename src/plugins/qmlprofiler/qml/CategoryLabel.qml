@@ -56,7 +56,7 @@ Item {
 
     visible: trigger(qmlProfilerModelProxy.rowCount(modelIndex)) > 0
 
-    height: trigger(qmlProfilerModelProxy.height(modelIndex))
+    height: trigger(qmlProfilerModelProxy.models[modelIndex].height)
     width: 150
 
     function updateDescriptions() {

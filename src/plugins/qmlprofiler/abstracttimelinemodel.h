@@ -46,6 +46,7 @@ class QMLPROFILER_EXPORT AbstractTimelineModel : public SortedTimelineModel
     Q_PROPERTY(QString displayName READ displayName CONSTANT)
     Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
     Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
+    Q_PROPERTY(int height READ height NOTIFY heightChanged)
 
 public:
     class AbstractTimelineModelPrivate;
@@ -96,6 +97,7 @@ signals:
     void hiddenChanged();
     void rowHeightChanged();
     void emptyChanged();
+    void heightChanged();
 
 protected:
     static const int DefaultRowHeight = 30;

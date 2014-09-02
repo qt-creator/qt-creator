@@ -167,7 +167,7 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
     p->setPen(Qt::transparent);
     int modelRowStart = 0;
     for (int mi = 0; mi < modelIndex; mi++)
-        modelRowStart += m_profilerModelProxy->height(mi);
+        modelRowStart += m_profilerModelProxy->model(mi)->height();
 
     for (int i = fromIndex; i <= toIndex; i++) {
         int currentX, currentY, itemWidth, itemHeight;
@@ -203,7 +203,7 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
 
     int modelRowStart = 0;
     for (int mi = 0; mi < modelIndex; mi++)
-        modelRowStart += m_profilerModelProxy->height(mi);
+        modelRowStart += m_profilerModelProxy->model(mi)->height();
 
     p->save();
 
@@ -310,7 +310,7 @@ int TimelineRenderer::rowFromPosition(int y)
 {
     int ret = 0;
     for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
-        int modelHeight = m_profilerModelProxy->height(modelIndex);
+        int modelHeight = m_profilerModelProxy->model(modelIndex)->height();
         if (y < modelHeight) {
             for (int row = 0; row < m_profilerModelProxy->rowCount(modelIndex); ++row) {
                 y -= m_profilerModelProxy->rowHeight(modelIndex, row);
@@ -328,7 +328,7 @@ int TimelineRenderer::rowFromPosition(int y)
 int TimelineRenderer::modelFromPosition(int y)
 {
     for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
-        y -= m_profilerModelProxy->height(modelIndex);
+        y -= m_profilerModelProxy->model(modelIndex)->height();
         if (y < 0)
             return modelIndex;
     }
@@ -469,7 +469,7 @@ int TimelineRenderer::getYPosition(int modelIndex, int index) const
 
     int modelRowStart = 0;
     for (int mi = 0; mi < modelIndex; mi++)
-        modelRowStart += m_profilerModelProxy->height(mi);
+        modelRowStart += m_profilerModelProxy->model(mi)->height();
 
     return modelRowStart + m_profilerModelProxy->rowOffset(modelIndex,
             m_profilerModelProxy->row(modelIndex, index));

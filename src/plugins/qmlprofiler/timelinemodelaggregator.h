@@ -39,13 +39,16 @@ namespace Internal {
 class TimelineModelAggregator : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int height READ height NOTIFY heightChanged)
     Q_PROPERTY(QVariantList models READ models NOTIFY modelsChanged)
 public:
     TimelineModelAggregator(QObject *parent = 0);
     ~TimelineModelAggregator();
 
+    int height() const;
     void setModelManager(QmlProfilerModelManager *modelManager);
     void addModel(AbstractTimelineModel *m);
+    const AbstractTimelineModel *model(int modelIndex) const;
     QVariantList models() const;
 
     Q_INVOKABLE int count(int modelIndex = -1) const;
@@ -58,7 +61,6 @@ public:
 
     bool isEmpty() const;
 
-    Q_INVOKABLE int height(int modelIndex) const;
     Q_INVOKABLE int rowHeight(int modelIndex, int row) const;
     Q_INVOKABLE void setRowHeight(int modelIndex, int row, int height);
     Q_INVOKABLE int rowOffset(int modelIndex, int row) const;
@@ -105,6 +107,7 @@ signals:
     void hiddenChanged();
     void rowHeightChanged();
     void modelsChanged(int modelIndex1, int modelIndex2);
+    void heightChanged();
 
 protected slots:
     void dataChanged();

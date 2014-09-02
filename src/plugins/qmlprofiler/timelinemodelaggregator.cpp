@@ -54,11 +54,21 @@ public:
 TimelineModelAggregator::TimelineModelAggregator(QObject *parent)
     : QObject(parent), d(new TimelineModelAggregatorPrivate(this))
 {
+    connect(this,SIGNAL(modelsChanged(int,int)),this,SIGNAL(heightChanged()));
+    connect(this,SIGNAL(stateChanged()),this,SIGNAL(heightChanged()));
 }
 
 TimelineModelAggregator::~TimelineModelAggregator()
 {
     delete d;
+}
+
+int TimelineModelAggregator::height() const
+{
+    int ret = 0;
+    for (int i = 0; i < d->modelList.length(); ++i)
+        ret += d->modelList[i]->height();
+    return ret;
 }
 
 void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelManager)
@@ -93,7 +103,13 @@ void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
     connect(m,SIGNAL(expandedChanged()),this,SIGNAL(expandedChanged()));
     connect(m,SIGNAL(hiddenChanged()),this,SIGNAL(hiddenChanged()));
     connect(m,SIGNAL(rowHeightChanged()),this,SIGNAL(rowHeightChanged()));
+    connect(m,SIGNAL(heightChanged()),this,SIGNAL(heightChanged()));
     emit modelsChanged(d->modelList.length(), d->modelList.length());
+}
+
+const AbstractTimelineModel *TimelineModelAggregator::model(int modelIndex) const
+{
+    return d->modelList[modelIndex];
 }
 
 QVariantList TimelineModelAggregator::models() const
@@ -123,11 +139,6 @@ bool TimelineModelAggregator::isEmpty() const
         if (!modelProxy->isEmpty())
             return false;
     return true;
-}
-
-int TimelineModelAggregator::height(int modelIndex) const
-{
-    return d->modelList[modelIndex]->height();
 }
 
 int TimelineModelAggregator::rowHeight(int modelIndex, int row) const

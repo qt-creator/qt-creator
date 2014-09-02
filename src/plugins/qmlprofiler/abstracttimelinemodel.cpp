@@ -38,6 +38,10 @@ AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
     SortedTimelineModel(parent), d_ptr(dd)
 {
     Q_D(AbstractTimelineModel);
+    connect(this,SIGNAL(rowHeightChanged()),this,SIGNAL(heightChanged()));
+    connect(this,SIGNAL(expandedChanged()),this,SIGNAL(heightChanged()));
+    connect(this,SIGNAL(hiddenChanged()),this,SIGNAL(heightChanged()));
+
     d->q_ptr = this;
     d->modelId = 0;
     d->modelManager = 0;
