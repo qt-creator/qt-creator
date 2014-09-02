@@ -32,8 +32,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Core { class SearchResultWindow; }
-
 namespace TextEditor {
 
 class FontSettings;
@@ -54,7 +52,7 @@ public:
     TextEditorPlugin();
     virtual ~TextEditorPlugin();
 
-    // ExtensionSystem::PluginInterface
+    // ExtensionSystem::IPlugin
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
@@ -62,18 +60,14 @@ public:
     static TextMarkRegistry *baseTextMarkRegistry();
 
 private slots:
-    void invokeCompletion();
-    void invokeQuickFix();
     void updateSearchResultsFont(const TextEditor::FontSettings &);
     void updateCurrentSelection(const QString &text);
 
 private:
     TextEditorSettings *m_settings;
     LineNumberFilter *m_lineNumberFilter;
-    Core::SearchResultWindow *m_searchResultWindow;
     OutlineFactory *m_outlineFactory;
     TextMarkRegistry *m_baseTextMarkRegistry;
-
 
 #ifdef WITH_TESTS
 private slots:

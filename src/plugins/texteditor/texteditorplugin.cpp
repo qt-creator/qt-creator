@@ -29,26 +29,26 @@
 
 #include "texteditorplugin.h"
 
-#include "findinfiles.h"
+#include "basetexteditor.h"
 #include "findincurrentfile.h"
+#include "findinfiles.h"
 #include "findinopenfiles.h"
 #include "fontsettings.h"
+#include "generichighlighter/manager.h"
 #include "linenumberfilter.h"
+#include "outlinefactory.h"
+#include "plaintexteditorfactory.h"
+#include "snippets/plaintextsnippetprovider.h"
+#include "texteditoractionhandler.h"
 #include "texteditorsettings.h"
 #include "textfilewizard.h"
-#include "plaintexteditorfactory.h"
-#include "basetexteditor.h"
-#include "outlinefactory.h"
-#include "snippets/plaintextsnippetprovider.h"
 #include "textmarkregistry.h"
-#include <texteditor/generichighlighter/manager.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/variablemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <utils/qtcassert.h>
 
 #include <QtPlugin>
@@ -56,8 +56,10 @@
 #include <QDir>
 #include <QTemporaryFile>
 
-using namespace TextEditor;
-using namespace TextEditor::Internal;
+using namespace Core;
+
+namespace TextEditor {
+namespace Internal {
 
 static const char kCurrentDocumentSelection[] = "CurrentDocument:Selection";
 static const char kCurrentDocumentRow[] = "CurrentDocument:Row";
@@ -70,8 +72,7 @@ static TextEditorPlugin *m_instance = 0;
 
 TextEditorPlugin::TextEditorPlugin()
   : m_settings(0),
-    m_lineNumberFilter(0),
-    m_searchResultWindow(0)
+    m_lineNumberFilter(0)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
@@ -91,7 +92,7 @@ static inline QString wizardDisplayCategory()
 
 // A wizard that quickly creates a scratch buffer
 // based on a temporary file without prompting for a path.
-class ScratchFileWizard : public Core::IWizardFactory
+class ScratchFileWizard : public IWizardFactory
 {
     Q_OBJECT
 
@@ -104,7 +105,7 @@ public:
         setId(QLatin1String("Z.ScratchFile"));
         setCategory(QLatin1String(wizardCategoryC));
         setDisplayCategory(wizardDisplayCategory());
-        setFlags(Core::IWizardFactory::PlatformIndependent);
+        setFlags(IWizardFactory::PlatformIndependent);
     }
 
     void runWizard(const QString &, QWidget *, const QString &, const QVariantMap &)
@@ -124,7 +125,7 @@ void ScratchFileWizard::createFile()
     file.setAutoRemove(false);
     QTC_ASSERT(file.open(), return; );
     file.close();
-    Core::EditorManager::openEditor(file.fileName());
+    EditorManager::openEditor(file.fileName());
 }
 
 // ExtensionSystem::PluginInterface
@@ -132,18 +133,18 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 {
     Q_UNUSED(arguments)
 
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
+    if (!MimeDatabase::addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
         return false;
 
     TextFileWizard *wizard = new TextFileWizard(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT),
                                                 QLatin1String("text$"));
-    wizard->setWizardKind(Core::IWizardFactory::FileWizard);
+    wizard->setWizardKind(IWizardFactory::FileWizard);
     wizard->setDescription(tr("Creates a text file. The default file extension is <tt>.txt</tt>. "
                                        "You can specify a different extension as part of the filename."));
     wizard->setDisplayName(tr("Text File"));
     wizard->setCategory(QLatin1String(wizardCategoryC));
     wizard->setDisplayCategory(wizardDisplayCategory());
-    wizard->setFlags(Core::IWizardFactory::PlatformIndependent);
+    wizard->setFlags(IWizardFactory::PlatformIndependent);
 
     // Add text file wizard
     addAutoReleasedObject(wizard);
@@ -159,28 +160,33 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_lineNumberFilter = new LineNumberFilter;
     addAutoReleasedObject(m_lineNumberFilter);
 
-    Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
+    Context context(TextEditor::Constants::C_TEXTEDITOR);
 
     // Add shortcut for invoking automatic completion
     QAction *completionAction = new QAction(tr("Trigger Completion"), this);
-    Core::Command *command = Core::ActionManager::registerAction(completionAction, Constants::COMPLETE_THIS, context);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
-    connect(completionAction, SIGNAL(triggered()), this, SLOT(invokeCompletion()));
+    Command *command = ActionManager::registerAction(completionAction, Constants::COMPLETE_THIS, context);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
+    connect(completionAction, &QAction::triggered, []() {
+        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+            editor->editorWidget()->invokeAssist(Completion);
+    });
 
     // Add shortcut for invoking quick fix options
     QAction *quickFixAction = new QAction(tr("Trigger Refactoring Action"), this);
-    Core::Command *quickFixCommand = Core::ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
+    Command *quickFixCommand = ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
     quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
-    connect(quickFixAction, SIGNAL(triggered()), this, SLOT(invokeQuickFix()));
+    connect(quickFixAction, &QAction::triggered, []() {
+        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+            editor->editorWidget()->invokeAssist(QuickFix);
+    });
 
     // Add shortcut for create a scratch buffer
     QAction *scratchBufferAction = new QAction(tr("Create Scratch Buffer Using a Temporary File"), this);
-    Core::ActionManager::registerAction(scratchBufferAction, Constants::CREATE_SCRATCH_BUFFER, context);
-    connect(scratchBufferAction, SIGNAL(triggered()), scratchFile, SLOT(createFile()));
+    ActionManager::registerAction(scratchBufferAction, Constants::CREATE_SCRATCH_BUFFER, context);
+    connect(scratchBufferAction, &QAction::triggered, scratchFile, &ScratchFileWizard::createFile);
 
     // Generic highlighter.
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()),
-            Manager::instance(), SLOT(registerMimeTypes()));
+    connect(ICore::instance(), &ICore::coreOpened, Manager::instance(), &Manager::registerMimeTypes);
 
     // Add text snippet provider.
     addAutoReleasedObject(new PlainTextSnippetProvider);
@@ -195,12 +201,10 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
 void TextEditorPlugin::extensionsInitialized()
 {
-    m_searchResultWindow = Core::SearchResultWindow::instance();
-
     m_outlineFactory->setWidgetFactories(ExtensionSystem::PluginManager::getObjects<TextEditor::IOutlineWidgetFactory>());
 
-    connect(m_settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            this, SLOT(updateSearchResultsFont(TextEditor::FontSettings)));
+    connect(m_settings, &TextEditorSettings::fontSettingsChanged,
+            this, &TextEditorPlugin::updateSearchResultsFont);
 
     updateSearchResultsFont(m_settings->fontSettings());
 
@@ -208,7 +212,7 @@ void TextEditorPlugin::extensionsInitialized()
     addAutoReleasedObject(new FindInCurrentFile);
     addAutoReleasedObject(new FindInOpenFiles);
 
-    Core::VariableManager::registerVariable(kCurrentDocumentSelection,
+    VariableManager::registerVariable(kCurrentDocumentSelection,
         tr("Selected text within the current document."),
         []() -> QString {
             QString value;
@@ -219,35 +223,35 @@ void TextEditorPlugin::extensionsInitialized()
             return value;
         });
 
-    Core::VariableManager::registerIntVariable(kCurrentDocumentRow,
+    VariableManager::registerIntVariable(kCurrentDocumentRow,
         tr("Line number of the text cursor position in current document (starts with 1)."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->currentLine() : 0;
         });
 
-    Core::VariableManager::registerIntVariable(kCurrentDocumentColumn,
+    VariableManager::registerIntVariable(kCurrentDocumentColumn,
         tr("Column number of the text cursor position in current document (starts with 0)."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->currentColumn() : 0;
         });
 
-    Core::VariableManager::registerIntVariable(kCurrentDocumentRowCount,
+    VariableManager::registerIntVariable(kCurrentDocumentRowCount,
         tr("Number of lines visible in current document."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->rowCount() : 0;
         });
 
-    Core::VariableManager::registerIntVariable(kCurrentDocumentColumnCount,
+    VariableManager::registerIntVariable(kCurrentDocumentColumnCount,
         tr("Number of columns visible in current document."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->columnCount() : 0;
         });
 
-    Core::VariableManager::registerIntVariable(kCurrentDocumentFontSize,
+    VariableManager::registerIntVariable(kCurrentDocumentFontSize,
         tr("Current document's font size in points."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
@@ -255,7 +259,7 @@ void TextEditorPlugin::extensionsInitialized()
         });
 
 
-    connect(Core::ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
+    connect(ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
             this, SLOT(updateCurrentSelection(QString)));
 }
 
@@ -269,35 +273,20 @@ TextMarkRegistry *TextEditorPlugin::baseTextMarkRegistry()
     return m_instance->m_baseTextMarkRegistry;
 }
 
-void TextEditorPlugin::invokeCompletion()
-{
-    Core::IEditor *iface = Core::EditorManager::currentEditor();
-    if (BaseTextEditorWidget *w = qobject_cast<BaseTextEditorWidget *>(iface->widget()))
-        w->invokeAssist(Completion);
-}
-
-void TextEditorPlugin::invokeQuickFix()
-{
-    Core::IEditor *iface = Core::EditorManager::currentEditor();
-    if (BaseTextEditorWidget *w = qobject_cast<BaseTextEditorWidget *>(iface->widget()))
-        w->invokeAssist(QuickFix);
-}
-
 void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 {
-    if (m_searchResultWindow) {
-        m_searchResultWindow->setTextEditorFont(QFont(settings.family(),
-                                                      settings.fontSize() * settings.fontZoom() / 100),
-                                                settings.formatFor(TextEditor::C_TEXT).foreground(),
-                                                settings.formatFor(TextEditor::C_TEXT).background(),
-                                                settings.formatFor(TextEditor::C_SEARCH_RESULT).foreground(),
-                                                settings.formatFor(TextEditor::C_SEARCH_RESULT).background());
+    if (auto window = SearchResultWindow::instance()) {
+        window->setTextEditorFont(QFont(settings.family(), settings.fontSize() * settings.fontZoom() / 100),
+                                  settings.formatFor(TextEditor::C_TEXT).foreground(),
+                                  settings.formatFor(TextEditor::C_TEXT).background(),
+                                  settings.formatFor(TextEditor::C_SEARCH_RESULT).foreground(),
+                                  settings.formatFor(TextEditor::C_SEARCH_RESULT).background());
     }
 }
 
 void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
-    if (BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor())) {
+    if (BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor())) {
         const int pos = editor->position();
         int anchor = editor->position(BaseTextEditor::Anchor);
         if (anchor < 0) // no selection
@@ -314,5 +303,8 @@ void TextEditorPlugin::updateCurrentSelection(const QString &text)
         editor->select(selectionInTextDirection ? replacementEnd : start);
     }
 }
+
+} // namespace Internal
+} // namespace TextEditor
 
 #include "texteditorplugin.moc"
