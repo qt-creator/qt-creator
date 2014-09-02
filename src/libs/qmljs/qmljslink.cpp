@@ -551,7 +551,7 @@ void LinkPrivate::loadQmldirComponents(ObjectValue *import, ComponentVersion ver
 
         importedTypes.insert(component.typeName);
         if (Document::Ptr importedDoc = snapshot.document(
-                    libraryPath + QDir::separator() + component.fileName)) {
+                    libraryPath + QLatin1Char('/') + component.fileName)) {
             if (ObjectValue *v = importedDoc->bind()->rootObjectValue())
                 import->setMember(component.typeName, v);
         }

@@ -961,7 +961,7 @@ public:
     // Other: non-absolute path
     QString name() const;
 
-    // LibraryImport: uri with QDir::separator separator
+    // LibraryImport: uri with '/' separator
     // Other: absoluteFilePath
     QString path() const;
 

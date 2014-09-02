@@ -138,7 +138,7 @@ static QString makeAbsolute(const QString &path, const QString &base)
 {
     if (QFileInfo(path).isAbsolute())
         return path;
-    return QString::fromLatin1("%1%2%3").arg(base, QDir::separator(), path);
+    return QString::fromLatin1("%1/%3").arg(base, path);
 }
 
 void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri, const QString &importVersion)

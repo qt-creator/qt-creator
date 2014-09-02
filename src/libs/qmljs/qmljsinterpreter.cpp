@@ -2185,7 +2185,7 @@ ImportInfo ImportInfo::moduleImport(QString uri, ComponentVersion version,
     info.m_type = ImportType::Library;
     info.m_name = uri;
     info.m_path = uri;
-    info.m_path.replace(QLatin1Char('.'), QDir::separator());
+    info.m_path.replace(QLatin1Char('.'), QLatin1Char('/'));
     info.m_version = version;
     info.m_as = as;
     info.m_ast = ast;
@@ -2200,7 +2200,7 @@ ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
 
     QFileInfo importFileInfo(path);
     if (!importFileInfo.isAbsolute())
-        importFileInfo = QFileInfo(docPath + QDir::separator() + path);
+        importFileInfo = QFileInfo(docPath + QLatin1Char('/') + path);
     info.m_path = importFileInfo.absoluteFilePath();
 
     if (importFileInfo.isFile()) {
