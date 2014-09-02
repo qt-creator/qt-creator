@@ -70,7 +70,15 @@ DeploymentDataView::~DeploymentDataView()
 void DeploymentDataView::updateDeploymentDataModel()
 {
     d->deploymentDataModel.setDeploymentData(d->target->deploymentData());
+    QHeaderView *header = d->ui.deploymentDataView->header();
+    header->setSectionResizeMode(0, QHeaderView::Interactive);
+    header->setSectionResizeMode(1, QHeaderView::Interactive);
     d->ui.deploymentDataView->resizeColumnToContents(0);
+    d->ui.deploymentDataView->resizeColumnToContents(1);
+    if (header->sectionSize(0) + header->sectionSize(1)
+            < d->ui.deploymentDataView->header()->width()) {
+        d->ui.deploymentDataView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    }
 }
 
 } // namespace ProjectExplorer
