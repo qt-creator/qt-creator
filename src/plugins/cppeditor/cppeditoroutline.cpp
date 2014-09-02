@@ -256,7 +256,7 @@ void CppEditorOutline::gotoSymbolInEditor()
     Core::EditorManager::cutForwardNavigationHistory();
     Core::EditorManager::addCurrentPositionToNavigationHistory();
     m_editorWidget->gotoLine(link.targetLine, link.targetColumn);
-    Core::EditorManager::activateEditor(m_editorWidget->editor());
+    m_editorWidget->activateEditor();
 }
 
 QModelIndex CppEditorOutline::indexForPosition(int line, int column,

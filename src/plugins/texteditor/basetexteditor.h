@@ -608,6 +608,7 @@ signals:
     void tooltipOverrideRequested(const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(const QPoint &globalPos, int position);
     void markTooltipRequested(const QPoint &globalPos, int line);
+    void activateEditor();
 
 protected slots:
     virtual void slotCursorPositionChanged(); // Used in VcsBase

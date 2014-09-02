@@ -7337,6 +7337,9 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
                 editor->markTooltipRequested(editor, globalPos, line);
             });
 
+    connect(widget, &BaseTextEditorWidget::activateEditor,
+            [editor]() { Core::EditorManager::activateEditor(editor); });
+
     widget->finalizeInitialization();
     editor->finalizeInitialization();
 
