@@ -524,14 +524,6 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
 
     m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
     m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
-
-    connect(m_cursorPositionLabel, &LineColumnLabel::clicked, [this] {
-        EditorManager::activateEditor(q->editor(), EditorManager::IgnoreNavigationHistory);
-        if (Core::Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
-            if (QAction *act = cmd->action())
-                act->trigger();
-        }
-    });
 }
 
 } // namespace Internal
@@ -7329,6 +7321,13 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
     widget->finalizeInitialization();
     editor->finalizeInitialization();
 
+    connect(widget->d->m_cursorPositionLabel, &LineColumnLabel::clicked, [editor] {
+        EditorManager::activateEditor(editor, EditorManager::IgnoreNavigationHistory);
+        if (Core::Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
+            if (QAction *act = cmd->action())
+                act->trigger();
+        }
+    });
     return editor;
 }
 
