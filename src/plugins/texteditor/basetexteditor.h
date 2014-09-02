@@ -247,8 +247,6 @@ public:
          int at = -1) const;
     void convertPosition(int pos, int *line, int *column) const;
 
-    BaseTextEditor *editor() const;
-
     void print(QPrinter *);
 
     void appendStandardContextMenuActions(QMenu *menu);

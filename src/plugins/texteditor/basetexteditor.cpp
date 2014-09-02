@@ -890,15 +890,6 @@ int BaseTextEditorWidgetPrivate::visualIndent(const QTextBlock &block) const
     return 0;
 }
 
-BaseTextEditor *BaseTextEditorWidget::editor() const
-{
-    if (!d->m_editor) {
-        QTC_CHECK("should not happen anymore" && false);
-        const_cast<BaseTextEditorWidget *>(this)->setupFallBackEditor(Id());
-    }
-    return d->m_editor;
-}
-
 void BaseTextEditorWidget::selectEncoding()
 {
     BaseTextDocument *doc = d->m_document.data();
