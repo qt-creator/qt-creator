@@ -279,7 +279,7 @@ void tst_AbstractTimelineModel::defaultValues()
     QCOMPARE(dummy.eventIdForTypeIndex(0), -1);
     QCOMPARE(dummy.eventIdForLocation(QString(), 0, 0), -1);
     QCOMPARE(dummy.bindingLoopDest(0), -1);
-    QCOMPARE(dummy.height(0), 1.0);
+    QCOMPARE(dummy.relativeHeight(0), 1.0);
     QCOMPARE(dummy.rowMinValue(0), 0);
     QCOMPARE(dummy.rowMaxValue(0), 0);
 }

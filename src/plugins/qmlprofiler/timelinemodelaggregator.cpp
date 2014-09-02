@@ -224,9 +224,9 @@ QColor TimelineModelAggregator::color(int modelIndex, int index) const
     return d->modelList[modelIndex]->color(index);
 }
 
-float TimelineModelAggregator::height(int modelIndex, int index) const
+float TimelineModelAggregator::relativeHeight(int modelIndex, int index) const
 {
-    return d->modelList[modelIndex]->height(index);
+    return d->modelList[modelIndex]->relativeHeight(index);
 }
 
 QVariantList TimelineModelAggregator::labels(int modelIndex) const

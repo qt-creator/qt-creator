@@ -81,7 +81,7 @@ public:
     virtual int eventIdForTypeIndex(int typeIndex) const;
     virtual int eventIdForLocation(const QString &filename, int line, int column) const;
     virtual int bindingLoopDest(int index) const;
-    virtual float height(int index) const;
+    virtual float relativeHeight(int index) const;
     virtual int rowMinValue(int rowNumber) const;
     virtual int rowMaxValue(int rowNumber) const;
     virtual void clear();

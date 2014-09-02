@@ -174,7 +174,7 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
             continue;
 
         itemHeight = m_profilerModelProxy->rowHeight(modelIndex, rowNumber) *
-                m_profilerModelProxy->height(modelIndex, i);
+                m_profilerModelProxy->relativeHeight(modelIndex, i);
 
         currentY += m_profilerModelProxy->rowHeight(modelIndex, rowNumber) - itemHeight;
         if (currentY + itemHeight < 0)
@@ -220,7 +220,7 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
 
         int row = m_profilerModelProxy->row(modelIndex, i);
         int rowHeight = m_profilerModelProxy->rowHeight(modelIndex, row);
-        int itemHeight = rowHeight * m_profilerModelProxy->height(modelIndex, i);
+        int itemHeight = rowHeight * m_profilerModelProxy->relativeHeight(modelIndex, i);
 
         currentY = modelRowStart + m_profilerModelProxy->rowOffset(modelIndex, row) + rowHeight -
                 itemHeight - y();

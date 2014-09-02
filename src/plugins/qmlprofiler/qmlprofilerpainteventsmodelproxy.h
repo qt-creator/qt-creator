@@ -71,7 +71,7 @@ public:
     int row(int index) const;
 
     QColor color(int index) const;
-    float height(int index) const;
+    float relativeHeight(int index) const;
 
     QVariantList labels() const;
     QVariantMap details(int index) const;

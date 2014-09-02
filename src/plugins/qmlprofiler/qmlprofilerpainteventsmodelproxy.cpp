@@ -193,7 +193,7 @@ QColor PaintEventsModelProxy::color(int index) const
     return colorByFraction(fpsFraction);
 }
 
-float PaintEventsModelProxy::height(int index) const
+float PaintEventsModelProxy::relativeHeight(int index) const
 {
     Q_D(const PaintEventsModelProxy);
     const QmlPaintEventData &data = d->data[index];

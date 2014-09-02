@@ -66,7 +66,7 @@ function drawData(canvas, ctxt)
 
             xx = Math.round(xx);
 
-            var itemHeight = qmlProfilerModelProxy.height(modelIndex,ii) * blockHeight;
+            var itemHeight = qmlProfilerModelProxy.relativeHeight(modelIndex, ii) * blockHeight;
             var yy = (modelIndex + 1) * blockHeight - itemHeight ;
 
             ctxt.fillStyle = qmlProfilerModelProxy.color(modelIndex, ii);

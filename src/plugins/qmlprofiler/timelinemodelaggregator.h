@@ -81,7 +81,7 @@ public:
     Q_INVOKABLE int eventId(int modelIndex, int index) const;
     Q_INVOKABLE int bindingLoopDest(int modelIndex, int index) const;
     Q_INVOKABLE QColor color(int modelIndex, int index) const;
-    Q_INVOKABLE float height(int modelIndex, int index) const;
+    Q_INVOKABLE float relativeHeight(int modelIndex, int index) const;
 
     Q_INVOKABLE QVariantList labels(int modelIndex) const;
 

@@ -168,7 +168,7 @@ int AbstractTimelineModel::bindingLoopDest(int index) const
     return -1;
 }
 
-float AbstractTimelineModel::height(int index) const
+float AbstractTimelineModel::relativeHeight(int index) const
 {
     Q_UNUSED(index);
     return 1.0f;
