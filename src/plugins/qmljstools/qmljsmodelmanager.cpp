@@ -112,14 +112,14 @@ ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
         projectInfo.tryQmlDump = project && (
                     qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
                     || qtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT));
-        projectInfo.qtQmlPath = qtVersion->qmakeProperty("QT_INSTALL_QML");
-        projectInfo.qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
+        projectInfo.qtQmlPath = QFileInfo(qtVersion->qmakeProperty("QT_INSTALL_QML")).canonicalFilePath();
+        projectInfo.qtImportsPath = QFileInfo(qtVersion->qmakeProperty("QT_INSTALL_IMPORTS")).canonicalFilePath();
         projectInfo.qtVersionString = qtVersion->qtVersionString();
     } else {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-        projectInfo.qtQmlPath = QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath);
+        projectInfo.qtQmlPath = QFileInfo(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)).canonicalFilePath();
 #endif
-        projectInfo.qtImportsPath = QLibraryInfo::location(QLibraryInfo::ImportsPath);
+        projectInfo.qtImportsPath = QFileInfo(QLibraryInfo::location(QLibraryInfo::ImportsPath)).canonicalFilePath();
         projectInfo.qtVersionString = QLatin1String(qVersion());
     }
 
