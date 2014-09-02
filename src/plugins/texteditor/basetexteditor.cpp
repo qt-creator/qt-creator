@@ -242,10 +242,6 @@ public:
     ~BaseTextEditorWidgetPrivate()
     {
         delete m_toolBar;
-        if (m_editorIsFallBack) {
-            m_editor->m_widget = 0; // That's us.
-            delete m_editor;
-        }
     }
 
     void setupDocumentSignals();
@@ -390,8 +386,6 @@ public:
     void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay);
     QTimer m_delayedUpdateTimer;
 
-    BaseTextEditor *m_editor;
-
     QList<QTextEdit::ExtraSelection> m_extraSelections[BaseTextEditorWidget::NExtraSelectionKinds];
 
     // block selection mode
@@ -438,7 +432,6 @@ public:
     QScopedPointer<Internal::ClipboardAssistProvider> m_clipboardAssistProvider;
 
     bool m_isMissingSyntaxDefinition;
-    bool m_editorIsFallBack;
 
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
@@ -482,7 +475,6 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
     m_visibleWrapColumn(0),
     m_linkPressed(false),
     m_delayedUpdateTimer(0),
-    m_editor(0),
     m_inBlockSelectionMode(false),
     m_moveLineUndoHack(false),
     m_findScopeVerticalBlockSelectionFirstColumn(-1),
@@ -494,7 +486,6 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
     m_markDragging(false),
     m_clipboardAssistProvider(new Internal::ClipboardAssistProvider),
     m_isMissingSyntaxDefinition(false),
-    m_editorIsFallBack(false),
     m_autoCompleter(new AutoCompleter)
 {
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
@@ -6512,14 +6503,9 @@ QColor BaseTextEditorWidget::replacementPenColor(int blockNumber) const
 
 void BaseTextEditorWidget::setupFallBackEditor(Id id)
 {
-    QTC_CHECK(!d->m_editor);
-    QTC_CHECK(!d->m_editorIsFallBack);
     BaseTextDocumentPtr doc(new BaseTextDocument(id));
     doc->setFontSettings(TextEditorSettings::fontSettings());
     setTextDocument(doc);
-    d->m_editor = new BaseTextEditor;
-    d->m_editor->setEditorWidget(this);
-    d->m_editorIsFallBack = true;
 }
 
 void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
@@ -6562,7 +6548,6 @@ BaseTextEditor::BaseTextEditor()
 
 void BaseTextEditor::setEditorWidget(BaseTextEditorWidget *widget)
 {
-    widget->d->m_editor = this;
     setWidget(widget);
 }
 
@@ -7292,7 +7277,6 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
     BaseTextEditor *editor = m_editorCreator();
     editor->d->m_origin = this;
 
-    widget->d->m_editor = editor;
     editor->m_widget = widget;
     widget->setTextDocument(document);
 
