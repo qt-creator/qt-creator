@@ -2397,9 +2397,9 @@ bool EditorManager::closeDocuments(const QList<IDocument *> &documents, bool ask
     return m_instance->closeEditors(DocumentModel::editorsForDocuments(documents), askAboutModifiedEditors);
 }
 
-void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
+void EditorManager::addCurrentPositionToNavigationHistory(const QByteArray &saveState)
 {
-    EditorManagerPrivate::currentEditorView()->addCurrentPositionToNavigationHistory(editor, saveState);
+    EditorManagerPrivate::currentEditorView()->addCurrentPositionToNavigationHistory(saveState);
     EditorManagerPrivate::updateActions();
 }
 

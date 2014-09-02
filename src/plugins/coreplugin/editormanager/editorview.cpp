@@ -414,13 +414,9 @@ void EditorView::updateEditorHistory(IEditor *editor)
     updateEditorHistory(editor, m_editorHistory);
 }
 
-void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
+void EditorView::addCurrentPositionToNavigationHistory(const QByteArray &saveState)
 {
-    if (editor && editor != currentEditor())
-        return; // we only save editor sate for the current editor, when the user interacts
-
-    if (!editor)
-        editor = currentEditor();
+    IEditor *editor = currentEditor();
     if (!editor)
         return;
     IDocument *document = editor->document();

@@ -137,7 +137,7 @@ public:
     static void closeDocument(DocumentModel::Entry *entry);
     static void closeOtherDocuments(IDocument *document);
 
-    static void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());
+    static void addCurrentPositionToNavigationHistory(const QByteArray &saveState = QByteArray());
     static void cutForwardNavigationHistory();
 
     static bool saveDocument(IDocument *document);
