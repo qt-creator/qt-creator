@@ -2125,10 +2125,12 @@ bool FindUsages::visit(MemberAccessAST *ast)
 
     if (ast->member_name) {
         if (SimpleNameAST *simple = ast->member_name->asSimpleName()) {
-            if (identifier(simple->identifier_token) == _id) {
+            if (identifier(simple->identifier_token) == _id)
                 checkExpression(ast->firstToken(), simple->identifier_token);
-                return false;
-            }
+        } else if (TemplateIdAST *templateId = ast->member_name->asTemplateId()) {
+            if (identifier(templateId->identifier_token) == _id)
+                checkExpression(ast->firstToken(), templateId->identifier_token);
+            accept(templateId->template_argument_list);
         }
     }
 

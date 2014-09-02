@@ -118,6 +118,8 @@ private Q_SLOTS:
     void unicodeIdentifier();
 
     void inAlignas();
+
+    void memberAccessAsTemplate();
 };
 
 void tst_FindUsages::dump(const QList<Usage> &usages) const
@@ -1016,6 +1018,67 @@ void tst_FindUsages::inAlignas()
     QCOMPARE(find.usages()[0].col, 7);
     QCOMPARE(find.usages()[1].line, 2);
     QCOMPARE(find.usages()[1].col, 15);
+}
+
+void tst_FindUsages::memberAccessAsTemplate()
+{
+    const QByteArray src = "\n"
+            "struct Foo {};\n"
+            "struct Bar {\n"
+            "    template <typename T>\n"
+            "    T *templateFunc() { return 0; }\n"
+            "};\n"
+            "struct Test {\n"
+            "    Bar member;\n"
+            "    void testFunc();\n"
+            "};\n"
+            "void Test::testFunc() {\n"
+            "    member.templateFunc<Foo>();\n"
+            "}\n";
+
+    Document::Ptr doc = Document::create("memberAccessAsTemplate");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 4U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    {   // Test "Foo"
+        Class *c = doc->globalSymbolAt(0)->asClass();
+        QVERIFY(c);
+        QCOMPARE(c->name()->identifier()->chars(), "Foo");
+
+        FindUsages find(src, doc, snapshot);
+        find(c);
+        QCOMPARE(find.usages().size(), 2);
+        QCOMPARE(find.usages()[0].line, 1);
+        QCOMPARE(find.usages()[0].col, 7);
+        QCOMPARE(find.usages()[1].line, 11);
+        QCOMPARE(find.usages()[1].col, 24);
+    }
+
+    {   // Test "templateFunc"
+        Class *c = doc->globalSymbolAt(1)->asClass();
+        QVERIFY(c);
+        QCOMPARE(c->name()->identifier()->chars(), "Bar");
+        QCOMPARE(c->memberCount(), 1U);
+
+        Template *f = c->memberAt(0)->asTemplate();
+        QVERIFY(f);
+        QCOMPARE(f->name()->identifier()->chars(), "templateFunc");
+
+        FindUsages find(src, doc, snapshot);
+        find(f);
+        QCOMPARE(find.usages().size(), 2);
+        QCOMPARE(find.usages()[0].line, 4);
+        QCOMPARE(find.usages()[0].col, 7);
+        QCOMPARE(find.usages()[1].line, 11);
+        QCOMPARE(find.usages()[1].col, 11);
+    }
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)
