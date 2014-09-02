@@ -39,6 +39,8 @@ Canvas {
     property int eventsPerPass: 4096
     property int increment: -1
     property int offset: -1
+    readonly property int bump: 10;
+    readonly property int blockHeight: (height - bump) / qmlProfilerModelProxy.models.length;
 
     // ***** properties
     height: 50
@@ -129,6 +131,10 @@ Canvas {
             Plotter.drawData(canvas, context);
             ++offset;
             paintTimer.interval = 1;
+            paintTimer.start();
+        } else if (offset < 2 * increment) {
+            Plotter.drawBindingLoops(canvas, context);
+            ++offset;
             paintTimer.start();
         }
     }

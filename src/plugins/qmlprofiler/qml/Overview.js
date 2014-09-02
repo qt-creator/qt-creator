@@ -44,13 +44,7 @@ function drawData(canvas, ctxt)
     if ((!qmlProfilerModelProxy) || qmlProfilerModelProxy.count() === 0)
         return;
 
-    var width = canvas.width;
-    var bump = 10;
-    var height = canvas.height - bump;
-
-    var blockHeight = height / qmlProfilerModelProxy.modelCount();
-
-    var spacing = width / qmlProfilerModelProxy.traceDuration();
+    var spacing = canvas.width / qmlProfilerModelProxy.traceDuration();
 
     for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
         for (var ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
@@ -66,26 +60,30 @@ function drawData(canvas, ctxt)
 
             xx = Math.round(xx);
 
-            var itemHeight = qmlProfilerModelProxy.relativeHeight(modelIndex, ii) * blockHeight;
-            var yy = (modelIndex + 1) * blockHeight - itemHeight ;
+            var itemHeight = qmlProfilerModelProxy.relativeHeight(modelIndex, ii) *
+                    canvas.blockHeight;
+            var yy = (modelIndex + 1) * canvas.blockHeight - itemHeight ;
 
             ctxt.fillStyle = qmlProfilerModelProxy.color(modelIndex, ii);
-            ctxt.fillRect(xx, bump + yy, eventWidth, itemHeight);
+            ctxt.fillRect(xx, canvas.bump + yy, eventWidth, itemHeight);
         }
     }
+}
 
-    // binding loops
+function drawBindingLoops(canvas, ctxt) {
     ctxt.strokeStyle = "orange";
     ctxt.lineWidth = 2;
     var radius = 1;
-    for (modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
-        for (ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
+    var spacing = canvas.width / qmlProfilerModelProxy.traceDuration();
+    for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
+        for (var ii = canvas.offset - canvas.increment; ii < qmlProfilerModelProxy.count(modelIndex);
              ii += canvas.increment) {
             if (qmlProfilerModelProxy.bindingLoopDest(modelIndex,ii) >= 0) {
                 var xcenter = Math.round(qmlProfilerModelProxy.startTime(modelIndex,ii) +
                                          qmlProfilerModelProxy.duration(modelIndex,ii) -
                                          qmlProfilerModelProxy.traceStartTime()) * spacing;
-                var ycenter = Math.round(bump + blockHeight * modelIndex + blockHeight / 2);
+                var ycenter = Math.round(canvas.bump + canvas.blockHeight * modelIndex +
+                                         canvas.blockHeight / 2);
                 ctxt.beginPath();
                 ctxt.arc(xcenter, ycenter, radius, 0, 2*Math.PI, true);
                 ctxt.stroke();
