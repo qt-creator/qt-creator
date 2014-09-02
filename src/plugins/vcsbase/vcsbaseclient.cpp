@@ -351,7 +351,8 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     VcsBaseEditorParameterWidget *paramWidget = editor->configurationWidget();
     if (!paramWidget && (paramWidget = createDiffEditor(workingDir, files, extraOptions))) {
         // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-        connect(editor, SIGNAL(diffChunkReverted(DiffChunk)), paramWidget, SLOT(executeCommand()));
+        connect(editor, &VcsBaseEditorWidget::diffChunkReverted,
+                paramWidget, &VcsBaseEditorParameterWidget::executeCommand);
         editor->setConfigurationWidget(paramWidget);
     }
 
