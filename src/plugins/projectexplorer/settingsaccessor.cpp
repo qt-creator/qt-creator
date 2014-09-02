@@ -675,7 +675,7 @@ bool SettingsAccessor::isBetterMatch(const QVariantMap &origData, const QVariant
  *
  * Returns settings of the requested version.
  */
-QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int toVersion) const
+QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data) const
 {
     const int version = versionFromMap(data);
 
@@ -688,14 +688,8 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int toVer
     else
         result = data;
 
-    if (version < 15 && toVersion < 15) {
-        result.insert(QLatin1String(USER_STICKY_KEYS_KEY),
-                      data.value(QLatin1String("ProjectExplorer.Project.UserStickyKeys")));
-    }
-
-    if (version >= toVersion
-            || version < d->firstVersion()
-            || toVersion > d->currentVersion())
+    const int toVersion = currentVersion();
+    if (version >= toVersion || version < d->firstVersion())
         return result;
 
     for (int i = version; i < toVersion; ++i) {
@@ -1064,8 +1058,8 @@ QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
     QVariantMap newShared = sharedMap;
     QVariantMap result;
     if (!newUser.isEmpty() && !newShared.isEmpty()) {
-        newUser = upgradeSettings(newUser, versionFromMap(newShared));
-        newShared = upgradeSettings(newShared, versionFromMap(newUser));
+        newUser = upgradeSettings(newUser);
+        newShared = upgradeSettings(newShared);
         result = mergeSharedSettings(newUser, newShared);
     } else if (!sharedMap.isEmpty()) {
         result = sharedMap;
@@ -1076,7 +1070,7 @@ QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
     m_project->setProperty(SHARED_SETTINGS, newShared);
 
     // Update from the base version to Creator's version.
-    return upgradeSettings(result, currentVersion());
+    return upgradeSettings(result);
 }
 
 // -------------------------------------------------------------------------

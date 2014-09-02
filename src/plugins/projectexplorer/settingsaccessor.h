@@ -105,7 +105,7 @@ public:
 
 protected:
     QVariantMap readFile(const Utils::FileName &path) const;
-    QVariantMap upgradeSettings(const QVariantMap &data, int toVersion) const;
+    QVariantMap upgradeSettings(const QVariantMap &data) const;
 
     ProceedInfo reportIssues(const QVariantMap &data, const Utils::FileName &path, QWidget *parent) const;
 
