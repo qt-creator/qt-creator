@@ -83,7 +83,7 @@ enum CompletionOrder {
     TypeOrder = -30
 };
 
-static void addCompletion(QList<TextEditor::BasicProposalItem *> *completions,
+static void addCompletion(QList<BasicProposalItem *> *completions,
                           const QString &text,
                           const QIcon &icon,
                           int order,
@@ -100,7 +100,7 @@ static void addCompletion(QList<TextEditor::BasicProposalItem *> *completions,
     completions->append(item);
 }
 
-static void addCompletions(QList<TextEditor::BasicProposalItem *> *completions,
+static void addCompletions(QList<BasicProposalItem *> *completions,
                            const QStringList &newCompletions,
                            const QIcon &icon,
                            int order)
@@ -125,10 +125,10 @@ public:
 class CompletionAdder : public PropertyProcessor
 {
 protected:
-    QList<TextEditor::BasicProposalItem *> *completions;
+    QList<BasicProposalItem *> *completions;
 
 public:
-    CompletionAdder(QList<TextEditor::BasicProposalItem *> *completions,
+    CompletionAdder(QList<BasicProposalItem *> *completions,
                     const QIcon &icon, int order)
         : completions(completions)
         , icon(icon)
@@ -155,7 +155,7 @@ public:
 class LhsCompletionAdder : public CompletionAdder
 {
 public:
-    LhsCompletionAdder(QList<TextEditor::BasicProposalItem *> *completions,
+    LhsCompletionAdder(QList<BasicProposalItem *> *completions,
                        const QIcon &icon,
                        int order,
                        bool afterOn)
@@ -353,7 +353,7 @@ bool QmlJSAssistProposalItem::prematurelyApplies(const QChar &c) const
             || (text().endsWith(QLatin1Char('.')) && c == QLatin1Char('.'));
 }
 
-void QmlJSAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *editor,
+void QmlJSAssistProposalItem::applyContextualContent(BaseTextEditor *editor,
                                                       int basePosition) const
 {
     const int currentPosition = editor->position();
@@ -392,7 +392,7 @@ void QmlJSAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
 // -------------------------
 // FunctionHintProposalModel
 // -------------------------
-class FunctionHintProposalModel : public TextEditor::IFunctionHintProposalModel
+class FunctionHintProposalModel : public IFunctionHintProposalModel
 {
 public:
     FunctionHintProposalModel(const QString &functionName, const QStringList &namedArguments,
@@ -968,7 +968,7 @@ bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath
 QmlJSCompletionAssistInterface::QmlJSCompletionAssistInterface(QTextDocument *textDocument,
                                                                int position,
                                                                const QString &fileName,
-                                                               TextEditor::AssistReason reason,
+                                                               AssistReason reason,
                                                                const SemanticInfo &info)
     : DefaultAssistInterface(textDocument, position, fileName, reason)
     , m_semanticInfo(info)
@@ -1036,7 +1036,7 @@ void QmlJSAssistProposalModel::sort(const QString &prefix)
     std::sort(currentItems().first, currentItems().second, QmlJSLessThan(prefix));
 }
 
-bool QmlJSAssistProposalModel::keepPerfectMatch(TextEditor::AssistReason reason) const
+bool QmlJSAssistProposalModel::keepPerfectMatch(AssistReason reason) const
 {
     return reason == ExplicitlyInvoked;
 }

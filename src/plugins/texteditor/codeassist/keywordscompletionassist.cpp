@@ -37,14 +37,13 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/basetexteditor.h>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 // --------------------------
 // Keywords
 // --------------------------
 Keywords::Keywords()
 {
-
 }
 
 // Note: variables and functions must be sorted
@@ -99,7 +98,7 @@ bool KeywordsAssistProposalItem::prematurelyApplies(const QChar &c) const
     return false;
 }
 
-void KeywordsAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *editor,
+void KeywordsAssistProposalItem::applyContextualContent(BaseTextEditor *editor,
                                                         int basePosition) const
 {
     const CompletionSettings &settings = TextEditorSettings::completionSettings();
@@ -271,4 +270,4 @@ void KeywordsCompletionAssistProcessor::addWordsToProposalList(QList<BasicPropos
     }
 }
 
-
+} // namespace TextEditor

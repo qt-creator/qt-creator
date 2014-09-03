@@ -56,20 +56,19 @@ private:
     QMap<QString, QStringList> m_functionArgs;
 };
 
-class TEXTEDITOR_EXPORT KeywordsAssistProposalItem : public TextEditor::BasicProposalItem
+class TEXTEDITOR_EXPORT KeywordsAssistProposalItem : public BasicProposalItem
 {
 public:
     KeywordsAssistProposalItem(Keywords keywords);
     ~KeywordsAssistProposalItem();
 
     bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
-    void applyContextualContent(TextEditor::BaseTextEditor *editor,
-                                int basePosition) const QTC_OVERRIDE;
+    void applyContextualContent(BaseTextEditor *editor, int basePosition) const QTC_OVERRIDE;
 private:
     Keywords m_keywords;
 };
 
-class TEXTEDITOR_EXPORT KeywordsFunctionHintModel : public TextEditor::IFunctionHintProposalModel
+class TEXTEDITOR_EXPORT KeywordsFunctionHintModel : public IFunctionHintProposalModel
 {
 public:
     KeywordsFunctionHintModel(const QStringList &functionSymbols);
@@ -84,13 +83,13 @@ private:
     QStringList m_functionSymbols;
 };
 
-class TEXTEDITOR_EXPORT KeywordsCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class TEXTEDITOR_EXPORT KeywordsCompletionAssistProcessor : public IAssistProcessor
 {
 public:
     KeywordsCompletionAssistProcessor(Keywords keywords);
     ~KeywordsCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface) QTC_OVERRIDE;
+    IAssistProposal *perform(const IAssistInterface *interface) QTC_OVERRIDE;
     QChar startOfCommentChar() const;
 
 private:
@@ -101,7 +100,7 @@ private:
 
     int m_startPosition;
     QString m_word;
-    QScopedPointer<const TextEditor::IAssistInterface> m_interface;
+    QScopedPointer<const IAssistInterface> m_interface;
     const QIcon m_variableIcon;
     const QIcon m_functionIcon;
     Keywords m_keywords;
