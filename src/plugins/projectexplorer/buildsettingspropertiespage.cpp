@@ -238,6 +238,7 @@ void BuildSettingsWidget::createConfiguration()
 {
     QAction *action = qobject_cast<QAction *>(sender());
     BuildInfo *info = static_cast<BuildInfo *>(action->data().value<void*>());
+    QString originalDisplayName = info->displayName;
 
     if (info->displayName.isEmpty()) {
         bool ok = false;
@@ -256,6 +257,7 @@ void BuildSettingsWidget::createConfiguration()
 
     m_target->addBuildConfiguration(bc);
     m_target->setActiveBuildConfiguration(bc);
+    info->displayName = originalDisplayName;
 }
 
 void BuildSettingsWidget::cloneConfiguration()
