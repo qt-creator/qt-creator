@@ -483,7 +483,7 @@ public:
     /// Abort code assistant if it is running.
     void abortAssist();
 
-    void acceptMissingSyntaxDefinitionInfo();
+    Q_INVOKABLE void acceptMissingSyntaxDefinitionInfo(); // used internally
 
     void configureMimeType(const QString &mimeType);
     void configureMimeType(const Core::MimeType &mimeType);
