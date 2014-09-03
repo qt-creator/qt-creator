@@ -317,7 +317,12 @@ protected:
         }
         if (ast->identifierToken.isValid())
             addUse(ast->identifierToken, SemanticHighlighter::BindingNameType);
-        scopedAccept(ast, ast->statement);
+        if (ast->statement)
+            scopedAccept(ast, ast->statement);
+        if (ast->binding)
+            // this is not strictly correct for Components, as their context depends from where they
+            // are instantiated, but normally not too bad as approximation
+            scopedAccept(ast, ast->binding);
         return false;
     }
 
