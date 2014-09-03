@@ -83,6 +83,7 @@
 
 enum { UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL = 200 };
 
+using namespace Core;
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace TextEditor;
@@ -115,7 +116,7 @@ public:
     CppLocalRenaming m_localRenaming;
 
     CppTools::SemanticInfo m_lastSemanticInfo;
-    QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
+    QList<QuickFixOperation::Ptr> m_quickFixes;
 
     CppUseSelectionsUpdater m_useSelectionsUpdater;
 
@@ -211,12 +212,12 @@ void CppEditorWidget::finalizeInitialization()
     // Tool bar creation
     d->m_preprocessorButton = new QToolButton(this);
     d->m_preprocessorButton->setText(QLatin1String("#"));
-    Core::Command *cmd = Core::ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
+    Command *cmd = ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updatePreprocessorButtonTooltip()));
     updatePreprocessorButtonTooltip();
     connect(d->m_preprocessorButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
-    insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_preprocessorButton);
-    insertExtraToolBarWidget(TextEditor::BaseTextEditorWidget::Left, d->m_cppEditorOutline->widget());
+    insertExtraToolBarWidget(BaseTextEditorWidget::Left, d->m_preprocessorButton);
+    insertExtraToolBarWidget(BaseTextEditorWidget::Left, d->m_cppEditorOutline->widget());
 }
 
 void CppEditorWidget::finalizeInitializationAfterDuplication(BaseTextEditorWidget *other)
@@ -285,7 +286,7 @@ void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,
 }
 
 void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
-    const QList<TextEditor::BlockRange> ifdefedOutBlocks)
+    const QList<BlockRange> ifdefedOutBlocks)
 {
     if (revision != documentRevision())
         return;
@@ -343,7 +344,7 @@ void CppEditorWidget::renameSymbolUnderCursor()
 void CppEditorWidget::updatePreprocessorButtonTooltip()
 {
     QTC_ASSERT(d->m_preprocessorButton, return);
-    Core::Command *cmd = Core::ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
+    Command *cmd = ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
     QTC_ASSERT(cmd, return);
     d->m_preprocessorButton->setToolTip(cmd->action()->toolTip());
 }
@@ -470,7 +471,7 @@ bool CppEditorWidget::event(QEvent *e)
 
 void CppEditorWidget::performQuickFix(int index)
 {
-    TextEditor::QuickFixOperation::Ptr op = d->m_quickFixes.at(index);
+    QuickFixOperation::Ptr op = d->m_quickFixes.at(index);
     op->perform();
 }
 
@@ -486,30 +487,25 @@ void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     QPointer<QMenu> menu(new QMenu(this));
 
-    Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(Constants::M_CONTEXT);
+    ActionContainer *mcontext = ActionManager::actionContainer(Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
     QMenu *quickFixMenu = new QMenu(tr("&Refactor"), menu);
-    quickFixMenu->addAction(Core::ActionManager::command(
-                                Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
+    quickFixMenu->addAction(ActionManager::command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
 
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
     if (isSemanticInfoValid()) {
-        TextEditor::IAssistInterface *interface =
-            createAssistInterface(TextEditor::QuickFix, TextEditor::ExplicitlyInvoked);
+        IAssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
-            QScopedPointer<TextEditor::IAssistProcessor> processor(
+            QScopedPointer<IAssistProcessor> processor(
                         CppEditorPlugin::instance()->quickFixProvider()->createProcessor());
-            QScopedPointer<TextEditor::IAssistProposal> proposal(processor->perform(interface));
+            QScopedPointer<IAssistProposal> proposal(processor->perform(interface));
             if (!proposal.isNull()) {
-                TextEditor::BasicProposalItemListModel *model =
-                        static_cast<TextEditor::BasicProposalItemListModel *>(proposal->model());
+                auto model = static_cast<BasicProposalItemListModel *>(proposal->model());
                 for (int index = 0; index < model->size(); ++index) {
-                    TextEditor::BasicProposalItem *item =
-                            static_cast<TextEditor::BasicProposalItem *>(model->proposalItem(index));
-                    TextEditor::QuickFixOperation::Ptr op =
-                            item->data().value<TextEditor::QuickFixOperation::Ptr>();
+                    auto item = static_cast<BasicProposalItem *>(model->proposalItem(index));
+                    QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
                     d->m_quickFixes.append(op);
                     QAction *action = quickFixMenu->addAction(op->description());
                     mapper.setMapping(action, index);
@@ -543,13 +539,13 @@ void CppEditorWidget::keyPressEvent(QKeyEvent *e)
     if (d->m_cppDocumentationCommentHelper.handleKeyPressEvent(e))
         return;
 
-    TextEditor::BaseTextEditorWidget::keyPressEvent(e);
+    BaseTextEditorWidget::keyPressEvent(e);
 }
 
 void CppEditorWidget::applyFontSettings()
 {
     // This also makes the document apply font settings
-    TextEditor::BaseTextEditorWidget::applyFontSettings();
+    BaseTextEditorWidget::applyFontSettings();
 }
 
 void CppEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
@@ -583,14 +579,14 @@ bool CppEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
     if (!link.hasValidTarget())
         return false;
 
-    Core::EditorManager::OpenEditorFlags flags;
+    EditorManager::OpenEditorFlags flags;
     if (inNextSplit)
-        flags |= Core::EditorManager::OpenInOtherSplit;
-    return Core::EditorManager::openEditorAt(link.targetFileName,
-                                             link.targetLine,
-                                             link.targetColumn,
-                                             Constants::CPPEDITOR_ID,
-                                             flags);
+        flags |= EditorManager::OpenInOtherSplit;
+    return EditorManager::openEditorAt(link.targetFileName,
+                                       link.targetLine,
+                                       link.targetColumn,
+                                       Constants::CPPEDITOR_ID,
+                                       flags);
 }
 
 void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
@@ -612,11 +608,9 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
     updateFunctionDeclDefLink();
 }
 
-TextEditor::IAssistInterface *CppEditorWidget::createAssistInterface(
-    TextEditor::AssistKind kind,
-    TextEditor::AssistReason reason) const
+IAssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistReason reason) const
 {
-    if (kind == TextEditor::Completion) {
+    if (kind == Completion) {
         if (CppCompletionAssistProvider *cap = cppEditorDocument()->completionAssistProvider()) {
             return cap->createAssistInterface(
                             ProjectExplorer::ProjectExplorerPlugin::currentProject(),
@@ -626,10 +620,9 @@ TextEditor::IAssistInterface *CppEditorWidget::createAssistInterface(
                             position(),
                             reason);
         }
-    } else if (kind == TextEditor::QuickFix) {
-        if (!isSemanticInfoValid())
-            return 0;
-        return new CppQuickFixAssistInterface(const_cast<CppEditorWidget *>(this), reason);
+    } else if (kind == QuickFix) {
+        if (isSemanticInfoValid())
+            return new CppQuickFixAssistInterface(const_cast<CppEditorWidget *>(this), reason);
     } else {
         return BaseTextEditorWidget::createAssistInterface(kind, reason);
     }
@@ -641,7 +634,7 @@ QSharedPointer<FunctionDeclDefLink> CppEditorWidget::declDefLink() const
     return d->m_declDefLink;
 }
 
-void CppEditorWidget::onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker)
+void CppEditorWidget::onRefactorMarkerClicked(const RefactorMarker &marker)
 {
     if (marker.data.canConvert<FunctionDeclDefLink::Marker>())
         applyDeclDefLinkChanges(true);
@@ -679,7 +672,7 @@ void CppEditorWidget::updateFunctionDeclDefLinkNow()
     if (noTracking)
         return;
 
-    if (Core::EditorManager::currentEditor()->widget() != this)
+    if (EditorManager::currentEditor()->widget() != this)
         return;
 
     const Snapshot semanticSnapshot = d->m_lastSemanticInfo.snapshot;
@@ -708,10 +701,9 @@ void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
 {
     abortDeclDefLink();
     d->m_declDefLink = link;
-    Core::IDocument *targetDocument
-            = Core::DocumentModel::documentForFilePath( d->m_declDefLink->targetFile->fileName());
+    IDocument *targetDocument = DocumentModel::documentForFilePath( d->m_declDefLink->targetFile->fileName());
     if (textDocument() != targetDocument) {
-        if (auto textDocument = qobject_cast<TextEditor::BaseTextDocument *>(targetDocument))
+        if (auto textDocument = qobject_cast<BaseTextDocument *>(targetDocument))
             connect(textDocument, SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
     }
@@ -764,10 +756,9 @@ void CppEditorWidget::abortDeclDefLink()
     if (!d->m_declDefLink)
         return;
 
-    Core::IDocument *targetDocument
-            = Core::DocumentModel::documentForFilePath(d->m_declDefLink->targetFile->fileName());
+    IDocument *targetDocument = DocumentModel::documentForFilePath(d->m_declDefLink->targetFile->fileName());
     if (textDocument() != targetDocument) {
-        if (auto textDocument = qobject_cast<TextEditor::BaseTextDocument *>(targetDocument))
+        if (auto textDocument = qobject_cast<BaseTextDocument *>(targetDocument))
             disconnect(textDocument, SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
     }
