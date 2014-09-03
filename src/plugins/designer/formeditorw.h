@@ -158,8 +158,6 @@ private:
                                  Core::Id groupId = Core::Id());
     QToolBar *createEditorToolBar() const;
 
-    static FormEditorW *m_self;
-
     QDesignerFormEditorInterface *m_formeditor;
     QDesignerIntegrationInterface *m_integration;
     QDesignerFormWindowManagerInterface *m_fwm;

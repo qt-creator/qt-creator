@@ -31,7 +31,6 @@
 #include "formeditorw.h"
 #include "formwindoweditor.h"
 #include "editordata.h"
-#include "designerxmleditorwidget.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

@@ -34,15 +34,9 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <texteditor/basetexteditor.h>
 
-QT_BEGIN_NAMESPACE
-class QDesignerFormWindowInterface;
-QT_END_NAMESPACE
-
 namespace Designer {
 
-namespace Internal {
-class FormWindowFile;
-}
+namespace Internal { class FormWindowFile; }
 
 // IEditor that is used for the QDesignerFormWindowInterface
 // It is a read-only text editor that shows the XML of the form.
@@ -55,28 +49,21 @@ class DESIGNER_EXPORT FormWindowEditor : public TextEditor::BaseTextEditor
 {
     Q_PROPERTY(QString contents READ contents)
     Q_OBJECT
+
 public:
-    explicit FormWindowEditor(TextEditor::BaseTextEditorWidget *widget);
-    virtual ~FormWindowEditor();
+    FormWindowEditor();
+    ~FormWindowEditor();
 
-    // IEditor
-    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-
-    virtual QWidget *toolBar();
-
-    virtual bool isDesignModePreferred() const;
+    void finalizeInitialization();
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    QWidget *toolBar();
+    bool isDesignModePreferred() const;
 
     // For uic code model support
     QString contents() const;
 
     // Convenience access.
     Internal::FormWindowFile *formWindowFile() const;
-
-public slots:
-    void syncXmlEditor();
-
-private slots:
-    void slotOpen(QString *errorString, const QString &fileName);
 };
 
 } // namespace Designer

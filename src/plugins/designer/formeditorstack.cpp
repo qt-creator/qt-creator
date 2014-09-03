@@ -30,6 +30,7 @@
 #include "formeditorstack.h"
 #include "formwindoweditor.h"
 #include "formeditorw.h"
+#include "formwindowfile.h"
 
 #include <widgethost.h>
 
@@ -188,7 +189,7 @@ void FormEditorStack::modeAboutToChange(Core::IMode *m)
     // Sync the editor when entering edit mode
     if (m && m->id() == Core::Constants::MODE_EDIT)
         foreach (const EditorData &data, m_formEditors)
-            data.formWindowEditor->syncXmlEditor();
+            data.formWindowEditor->formWindowFile()->syncXmlFromFormWindow();
 }
 
 } // Internal

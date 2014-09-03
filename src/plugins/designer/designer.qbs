@@ -31,7 +31,6 @@ QtcPlugin {
             "designer_export.h",
             "designerconstants.h",
             "designercontext.cpp", "designercontext.h",
-            "designerxmleditorwidget.cpp", "designerxmleditorwidget.h",
             "editordata.h",
             "editorwidget.cpp", "editorwidget.h",
             "formeditorfactory.cpp", "formeditorfactory.h",

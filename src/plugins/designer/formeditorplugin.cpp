@@ -30,6 +30,7 @@
 #include "formeditorplugin.h"
 #include "formeditorfactory.h"
 #include "formeditorw.h"
+#include "formwindoweditor.h"
 #include "formwizard.h"
 
 #ifdef CPP_ENABLED

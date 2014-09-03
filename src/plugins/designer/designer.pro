@@ -25,8 +25,7 @@ HEADERS += formeditorplugin.h \
     formeditorstack.h \
     editordata.h \
     resourcehandler.h \
-    qtdesignerformclasscodegenerator.h \
-    designerxmleditorwidget.h
+    qtdesignerformclasscodegenerator.h
 
 SOURCES += formeditorplugin.cpp \
         formeditorfactory.cpp \
@@ -44,8 +43,7 @@ SOURCES += formeditorplugin.cpp \
     designercontext.cpp \
     formeditorstack.cpp \
     resourcehandler.cpp \
-    qtdesignerformclasscodegenerator.cpp \
-    designerxmleditorwidget.cpp
+    qtdesignerformclasscodegenerator.cpp
 
 equals(TEST, 1) {
     SOURCES += gotoslot_test.cpp

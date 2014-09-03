@@ -31,7 +31,6 @@
 #include "formwindowfile.h"
 #include "designerconstants.h"
 #include "resourcehandler.h"
-#include "designerxmleditorwidget.h"
 
 #include <coreplugin/coreconstants.h>
 #include <texteditor/basetextdocument.h>
@@ -45,25 +44,23 @@
 
 namespace Designer {
 
-FormWindowEditor::FormWindowEditor(TextEditor::BaseTextEditorWidget *widget)
+FormWindowEditor::FormWindowEditor()
 {
-    setWidget(widget);
-    setDuplicateSupported(false);
-    setContext(Core::Context(Designer::Constants::K_DESIGNER_XML_EDITOR_ID,
-                             Designer::Constants::C_DESIGNER_XML_EDITOR));
-
-    // Revert to saved/load externally modified files.
-    connect(formWindowFile(), SIGNAL(reloadRequested(QString*,QString)),
-            this, SLOT(slotOpen(QString*,QString)), Qt::DirectConnection);
+    addContext(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
+    addContext(Designer::Constants::C_DESIGNER_XML_EDITOR);
 }
 
 FormWindowEditor::~FormWindowEditor()
 {
 }
 
-void FormWindowEditor::slotOpen(QString *errorString, const QString &fileName)
+void FormWindowEditor::finalizeInitialization()
 {
-    open(errorString, fileName, fileName);
+    // Revert to saved/load externally modified files.
+    connect(formWindowFile(), &Internal::FormWindowFile::reloadRequested,
+            [this](QString *errorString, const QString &fileName) {
+                open(errorString, fileName, fileName);
+    });
 }
 
 bool FormWindowEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
@@ -103,13 +100,6 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     return true;
 }
 
-void FormWindowEditor::syncXmlEditor()
-{
-    if (Designer::Constants::Internal::debug)
-        qDebug() << "FormWindowEditor::syncXmlEditor" << formWindowFile()->filePath();
-    formWindowFile()->syncXmlFromFormWindow();
-}
-
 QWidget *FormWindowEditor::toolBar()
 {
     return 0;
@@ -122,7 +112,7 @@ QString FormWindowEditor::contents() const
 
 Internal::FormWindowFile *FormWindowEditor::formWindowFile() const
 {
-    return qobject_cast<Internal::FormWindowFile *>(const_cast<FormWindowEditor *>(this)->textDocument());
+    return qobject_cast<Internal::FormWindowFile *>(textDocument());
 }
 
 bool FormWindowEditor::isDesignModePreferred() const

@@ -29,12 +29,12 @@
 
 #include "formeditorw.h"
 #include "formwindoweditor.h"
+#include "formwindowfile.h"
 #include "settingsmanager.h"
 #include "settingspage.h"
 #include "editorwidget.h"
 #include "editordata.h"
 #include "qtcreatorintegration.h"
-#include "designerxmleditorwidget.h"
 #include "designercontext.h"
 #include "resourcehandler.h"
 #include <widgethost.h>
@@ -104,9 +104,45 @@ using namespace Designer::Constants;
 namespace Designer {
 namespace Internal {
 
+/* A stub-like, read-only text editor which displays UI files as text. Could be used as a
+  * read/write editor too, but due to lack of XML editor, highlighting and other such
+  * functionality, editing is disabled.
+  * Provides an informational title bar containing a button triggering a
+  * switch to design mode.
+  * Internally manages a FormWindowEditor and uses the plain text
+  * editable embedded in it.  */
+class DesignerXmlEditorWidget : public TextEditor::BaseTextEditorWidget
+{
+public:
+    DesignerXmlEditorWidget() {}
+
+    void finalizeInitialization()
+    {
+        setupAsPlainEditor();
+        setReadOnly(true);
+    }
+};
+
+class FormWindowEditorFactory : public TextEditor::BaseTextEditorFactory
+{
+public:
+    FormWindowEditorFactory()
+    {
+        setId(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
+        setDocumentCreator([this]() { return new FormWindowFile(m_form); });
+        setEditorCreator([]() { return new FormWindowEditor; });
+        setEditorWidgetCreator([]() { return new Internal::DesignerXmlEditorWidget; });
+        setDuplicatedSupported(false);
+    }
+
+    QDesignerFormWindowInterface *m_form;
+};
+
+static FormWindowEditorFactory *m_xmlEditorFactory = 0;
+
 // --------- FormEditorW
 
-FormEditorW *FormEditorW::m_self = 0;
+static FormEditorW *m_self = 0;
 
 FormEditorW::FormEditorW() :
     m_formeditor(QDesignerComponents::createFormEditor(0)),
@@ -154,6 +190,8 @@ FormEditorW::FormEditorW() :
             this, SLOT(currentEditorChanged(Core::IEditor*)));
     connect(m_shortcutMapper, SIGNAL(mapped(QObject*)),
             this, SLOT(updateShortcut(QObject*)));
+
+    m_xmlEditorFactory = new FormWindowEditorFactory;
 }
 
 FormEditorW::~FormEditorW()
@@ -176,6 +214,7 @@ FormEditorW::~FormEditorW()
     m_settingsPages.clear();
     delete m_integration;
 
+    delete m_xmlEditorFactory ;
     m_self = 0;
 }
 
@@ -633,15 +672,16 @@ EditorData FormEditorW::createEditor()
     QDesignerFormWindowInterface *form = m_fwm->createFormWindow(0);
     QTC_ASSERT(form, return data);
     connect(form, SIGNAL(toolChanged(int)), this, SLOT(toolChanged(int)));
+
+    m_xmlEditorFactory->m_form = form;
     ResourceHandler *resourceHandler = new ResourceHandler(form);
     data.widgetHost = new SharedTools::WidgetHost( /* parent */ 0, form);
-    DesignerXmlEditorWidget *xmlEditor = new DesignerXmlEditorWidget(form);
-    data.formWindowEditor = xmlEditor->designerEditor();
-    connect(data.formWindowEditor->document(), SIGNAL(filePathChanged(QString,QString)),
+    data.formWindowEditor = qobject_cast<FormWindowEditor *>(m_xmlEditorFactory->createEditor());
+    connect(data.formWindowEditor->textDocument(), SIGNAL(filePathChanged(QString,QString)),
             resourceHandler, SLOT(updateResources()));
     m_editorWidget->add(data);
 
-    m_toolBar->addEditor(xmlEditor->designerEditor());
+    m_toolBar->addEditor(data.formWindowEditor);
 
     return data;
 }
