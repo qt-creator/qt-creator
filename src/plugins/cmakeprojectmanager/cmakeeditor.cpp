@@ -66,7 +66,6 @@ namespace Internal {
 CMakeEditor::CMakeEditor()
 {
     setDuplicateSupported(true);
-    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>());
 }
 
 void CMakeEditor::finalizeInitialization()
@@ -159,6 +158,7 @@ private:
 CMakeEditorWidget::CMakeEditorWidget()
 {
     setCodeFoldingSupported(true);
+    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>());
 }
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)

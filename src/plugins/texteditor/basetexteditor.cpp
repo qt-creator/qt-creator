@@ -230,8 +230,6 @@ class BaseTextEditorPrivate
 public:
     BaseTextEditorPrivate() {}
 
-    std::function<CompletionAssistProvider *()> m_completionAssistProvider;
-
     QPointer<BaseTextEditorFactory> m_origin;
 };
 
@@ -435,6 +433,7 @@ public:
 
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
+    CompletionAssistProvider *m_completionAssistProvider;
 };
 
 BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *parent)
@@ -486,7 +485,8 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate(BaseTextEditorWidget *p
     m_markDragging(false),
     m_clipboardAssistProvider(new Internal::ClipboardAssistProvider),
     m_isMissingSyntaxDefinition(false),
-    m_autoCompleter(new AutoCompleter)
+    m_autoCompleter(new AutoCompleter),
+    m_completionAssistProvider(0)
 {
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(q);
@@ -6552,7 +6552,6 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 BaseTextEditor::BaseTextEditor()
     : d(new BaseTextEditorPrivate)
 {
-    d->m_completionAssistProvider = [] () -> CompletionAssistProvider * { return 0; };
     addContext(TextEditor::Constants::C_TEXTEDITOR);
     setDuplicateSupported(true);
 }
@@ -6696,19 +6695,9 @@ void BaseTextEditor::select(int toPos)
     editorWidget()->setTextCursor(tc);
 }
 
-CompletionAssistProvider *BaseTextEditor::completionAssistProvider()
+CompletionAssistProvider *BaseTextEditorWidget::completionAssistProvider() const
 {
-    return d->m_completionAssistProvider();
-}
-
-void BaseTextEditor::setCompletionAssistProvider(CompletionAssistProvider *provider)
-{
-    d->m_completionAssistProvider = [provider] () -> CompletionAssistProvider * { return provider; };
-}
-
-void BaseTextEditor::setCompletionAssistProvider(const std::function<CompletionAssistProvider *()> &provider)
-{
-    d->m_completionAssistProvider = provider;
+    return d->m_completionAssistProvider;
 }
 
 void BaseTextEditorWidgetPrivate::updateCursorPosition()
@@ -7006,6 +6995,11 @@ void BaseTextEditorWidgetPrivate::transformBlockSelection(TransformationMethod m
 void BaseTextEditorWidget::inSnippetMode(bool *active)
 {
     *active = d->m_snippetOverlay->isVisible();
+}
+
+void BaseTextEditorWidget::setCompletionAssistProvider(CompletionAssistProvider *provider)
+{
+    d->m_completionAssistProvider = provider;
 }
 
 void BaseTextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)

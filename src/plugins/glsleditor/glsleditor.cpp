@@ -136,6 +136,7 @@ private:
 
 GlslEditorWidget::GlslEditorWidget()
 {
+    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GlslCompletionAssistProvider>());
     setAutoCompleter(new GlslCompleter);
     m_outlineCombo = 0;
     setParenthesesMatchingEnabled(true);
@@ -335,7 +336,6 @@ public:
     GlslEditor()
     {
         setDuplicateSupported(true);
-        setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GlslCompletionAssistProvider>());
     }
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName)

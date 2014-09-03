@@ -61,7 +61,6 @@ public:
     ProFileEditor()
     {
         setDuplicateSupported(true);
-        setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>());
     }
 };
 
@@ -72,7 +71,10 @@ public:
 class ProFileEditorWidget : public BaseTextEditorWidget
 {
 public:
-    ProFileEditorWidget() {}
+    ProFileEditorWidget()
+    {
+        setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>());
+    }
 
 protected:
     virtual Link findLinkAt(const QTextCursor &, bool resolveTarget = true,

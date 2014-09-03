@@ -116,6 +116,7 @@ QmlJSEditorWidget::QmlJSEditorWidget()
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>());
 }
 
 void QmlJSEditorWidget::finalizeInitialization()
@@ -879,7 +880,6 @@ QmlJSEditor::QmlJSEditor()
 {
     addContext(ProjectExplorer::Constants::LANG_QMLJS);
     setDuplicateSupported(true);
-    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>());
 }
 
 bool QmlJSEditor::isDesignModePreferred() const

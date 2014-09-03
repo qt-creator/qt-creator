@@ -85,7 +85,7 @@ enum { UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL = 200 };
 
 using namespace CPlusPlus;
 using namespace CppTools;
-using namespace CppEditor::Internal;
+using namespace TextEditor;
 
 namespace CppEditor {
 namespace Internal {
@@ -95,11 +95,6 @@ CppEditor::CppEditor()
     m_context.add(ProjectExplorer::Constants::LANG_CXX);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
     setDuplicateSupported(true);
-    setCompletionAssistProvider([this] () -> TextEditor::CompletionAssistProvider * {
-        if (CppEditorDocument *document = qobject_cast<CppEditorDocument *>(textDocument()))
-            return document->completionAssistProvider();
-        return 0;
-    });
 }
 
 Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
@@ -762,6 +757,13 @@ void CppEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
 FollowSymbolUnderCursor *CppEditorWidget::followSymbolUnderCursorDelegate()
 {
     return d->m_followSymbolUnderCursor.data();
+}
+
+CompletionAssistProvider *CppEditorWidget::completionAssistProvider() const
+{
+    auto document = qobject_cast<CppEditorDocument *>(textDocument());
+    QTC_ASSERT(document, return 0);
+    return document->completionAssistProvider();
 }
 
 void CppEditorWidget::abortDeclDefLink()

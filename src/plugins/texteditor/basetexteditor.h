@@ -193,13 +193,6 @@ public:
     /*! Selects text between current cursor position and \a toPos. */
     virtual void select(int toPos);
 
-    CompletionAssistProvider *completionAssistProvider();
-    void setCompletionAssistProvider(CompletionAssistProvider *provider); // Not owned.
-
-    // FIXME: Only used to delay initialization from CppEditor.
-    // There should be something simpler.
-    void setCompletionAssistProvider(const std::function<CompletionAssistProvider *()> &provider);
-
 signals:
     void markRequested(TextEditor::BaseTextEditor *editor, int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
     void markContextMenuRequested(TextEditor::BaseTextEditor *editor, int line, QMenu *menu);
@@ -481,6 +474,9 @@ public:
     void configureMimeType(const Core::MimeType &mimeType);
 
     Q_INVOKABLE void inSnippetMode(bool *active); // Used by FakeVim.
+
+    void setCompletionAssistProvider(CompletionAssistProvider *provider);
+    virtual CompletionAssistProvider *completionAssistProvider() const;
 
 signals:
     void assistFinished();

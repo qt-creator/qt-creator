@@ -179,7 +179,7 @@ void CodeAssistantPrivate::configure(BaseTextEditor *textEditor)
     // completion and quick-fix provider (getting rid of the list).
 
     m_textEditor = textEditor;
-    m_completionProvider = textEditor->completionAssistProvider();
+    m_completionProvider = textEditor->editorWidget()->completionAssistProvider();
     m_quickFixProviders =
         ExtensionSystem::PluginManager::getObjects<QuickFixAssistProvider>();
     filterEditorSpecificProviders(&m_quickFixProviders, m_textEditor->document()->id());
@@ -192,7 +192,7 @@ void CodeAssistantPrivate::configure(BaseTextEditor *textEditor)
 void CodeAssistantPrivate::reconfigure()
 {
     if (isConfigured())
-        m_completionProvider = m_textEditor->completionAssistProvider();
+        m_completionProvider = m_textEditor->editorWidget()->completionAssistProvider();
 }
 
 bool CodeAssistantPrivate::isConfigured() const

@@ -58,6 +58,19 @@ public:
     JavaEditor()
     {
         setDuplicateSupported(true);
+    }
+};
+
+
+//
+// JavaEditorWidget
+//
+
+class JavaEditorWidget : public TextEditor::BaseTextEditorWidget
+{
+public:
+    JavaEditorWidget()
+    {
         setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<JavaCompletionAssistProvider>());
     }
 };
@@ -106,8 +119,9 @@ JavaEditorFactory::JavaEditorFactory()
     setDisplayName(tr("Java Editor"));
     addMimeType(Constants::JAVA_MIMETYPE);
 
-    setEditorCreator([]() { return new JavaEditor; });
     setDocumentCreator([]() { return new JavaDocument; });
+    setEditorWidgetCreator([]() { return new JavaEditorWidget; });
+    setEditorCreator([]() { return new JavaEditor; });
     setAutoCompleterCreator([]() { return new JavaAutoCompleter; });
     setGenericSyntaxHighlighter(QLatin1String(Constants::JAVA_MIMETYPE));
     setCommentStyle(Utils::CommentDefinition::CppStyle);
