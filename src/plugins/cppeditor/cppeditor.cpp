@@ -92,8 +92,7 @@ namespace Internal {
 
 CppEditor::CppEditor()
 {
-    m_context.add(ProjectExplorer::Constants::LANG_CXX);
-    m_context.add(TextEditor::Constants::C_TEXTEDITOR);
+    addContext(ProjectExplorer::Constants::LANG_CXX);
 }
 
 Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
