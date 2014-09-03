@@ -47,7 +47,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
-#include <coreplugin/mimedatabase.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -327,26 +326,6 @@ IAssistInterface *GlslEditorWidget::createAssistInterface(
 
 
 //
-//  GlslEditor
-//
-
-class GlslEditor : public TextEditor::BaseTextEditor
-{
-public:
-    GlslEditor()
-    {
-    }
-
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName)
-    {
-        textDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
-        bool b = BaseTextEditor::open(errorString, fileName, realFileName);
-        return b;
-    }
-};
-
-
-//
 //  GlslEditorFactory
 //
 
@@ -362,7 +341,6 @@ GlslEditorFactory::GlslEditorFactory()
 
     setDocumentCreator([]() { return new BaseTextDocument(Constants::C_GLSLEDITOR_ID); });
     setEditorWidgetCreator([]() { return new GlslEditorWidget; });
-    setEditorCreator([]() { return new GlslEditor; });
     setIndenterCreator([]() { return new GlslIndenter; });
     setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
     setCommentStyle(Utils::CommentDefinition::CppStyle);

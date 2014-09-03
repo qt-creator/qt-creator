@@ -7024,7 +7024,10 @@ QString BaseTextEditorWidget::foldReplacementText(const QTextBlock &) const
 
 bool BaseTextEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    return editorWidget()->open(errorString, fileName, realFileName);
+    if (!editorWidget()->open(errorString, fileName, realFileName))
+        return false;
+    textDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
+    return true;
 }
 
 QByteArray BaseTextEditor::saveState() const

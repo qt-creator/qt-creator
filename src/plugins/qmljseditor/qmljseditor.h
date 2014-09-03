@@ -145,7 +145,6 @@ class QmlJSEditor : public TextEditor::BaseTextEditor
 public:
     QmlJSEditor();
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool isDesignModePreferred() const;
 };
 

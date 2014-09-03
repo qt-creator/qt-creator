@@ -56,7 +56,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -171,13 +170,6 @@ QModelIndex QmlJSEditorWidget::outlineModelIndex()
         emit outlineModelIndexChanged(m_outlineModelIndex);
     }
     return m_outlineModelIndex;
-}
-
-bool QmlJSEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    bool b = BaseTextEditor::open(errorString, fileName, realFileName);
-    textDocument()->setMimeType(MimeDatabase::findByFile(QFileInfo(fileName)).type());
-    return b;
 }
 
 static void appendExtraSelectionsForMessages(

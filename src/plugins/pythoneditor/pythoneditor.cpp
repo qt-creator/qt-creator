@@ -33,45 +33,16 @@
 #include "tools/pythonindenter.h"
 #include "tools/pythonhighlighter.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
-
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/basetextdocument.h>
-#include <texteditor/indenter.h>
-#include <texteditor/autocompleter.h>
 
 #include <utils/qtcassert.h>
-
-#include <QFileInfo>
 
 using namespace TextEditor;
 
 namespace PythonEditor {
 namespace Internal {
-
-//
-//  PythonEditor
-//
-
-class PythonEditor : public BaseTextEditor
-{
-public:
-    PythonEditor()
-    {
-    }
-
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName)
-    {
-        Core::MimeType mimeType = Core::MimeDatabase::findByFile(QFileInfo(fileName));
-        textDocument()->setMimeType(mimeType.type());
-        return BaseTextEditor::open(errorString, fileName, realFileName);
-    }
-};
-
 
 //
 //  PythonEditorWidget
@@ -105,7 +76,6 @@ PythonEditorFactory::PythonEditorFactory()
 
     setDocumentCreator([]() { return new BaseTextDocument(Constants::C_PYTHONEDITOR_ID); });
     setEditorWidgetCreator([]() { return new PythonEditorWidget; });
-    setEditorCreator([]() { return new PythonEditor; });
     setIndenterCreator([]() { return new PythonIndenter; });
     setSyntaxHighlighterCreator([]() { return new PythonHighlighter; });
     setCommentStyle(Utils::CommentDefinition::HashStyle);

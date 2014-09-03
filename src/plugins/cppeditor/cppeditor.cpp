@@ -546,14 +546,6 @@ void CppEditorWidget::keyPressEvent(QKeyEvent *e)
     TextEditor::BaseTextEditorWidget::keyPressEvent(e);
 }
 
-bool CppEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
-{
-    if (!TextEditor::BaseTextEditor::open(errorString, fileName, realFileName))
-        return false;
-    textDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
-    return true;
-}
-
 void CppEditorWidget::applyFontSettings()
 {
     // This also makes the document apply font settings
