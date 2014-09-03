@@ -29,6 +29,7 @@
 
 #include "formwindowfile.h"
 #include "designerconstants.h"
+#include "resourcehandler.h"
 
 #include <utils/qtcassert.h>
 
@@ -60,6 +61,10 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     connect(m_formWindow->commandHistory(), SIGNAL(indexChanged(int)),
             this, SLOT(setShouldAutoSave()));
     connect(m_formWindow, SIGNAL(changed()), SLOT(updateIsModified()));
+
+    m_resourceHandler = new ResourceHandler(form);
+    connect(this, SIGNAL(filePathChanged(QString,QString)),
+            m_resourceHandler, SLOT(updateResources()));
 }
 
 bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSave)
@@ -215,6 +220,11 @@ QString FormWindowFile::formWindowContents() const
     // TODO: No warnings about spacers here
     QTC_ASSERT(m_formWindow, return QString());
     return m_formWindow->contents();
+}
+
+ResourceHandler *FormWindowFile::resourceHandler() const
+{
+    return m_resourceHandler;
 }
 
 void FormWindowFile::slotFormWindowRemoved(QDesignerFormWindowInterface *w)

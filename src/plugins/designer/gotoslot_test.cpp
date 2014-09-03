@@ -172,8 +172,7 @@ public:
         waitForFilesInGlobalSnapshot(QStringList() << cppFile << hFile);
 
         // Execute "Go To Slot"
-        FormEditorW *few = FormEditorW::instance();
-        QDesignerIntegrationInterface *integration = few->designerEditor()->integration();
+        QDesignerIntegrationInterface *integration = FormEditorW::designerEditor()->integration();
         QVERIFY(integration);
         integration->emitNavigateToSlot(QLatin1String("pushButton"), QLatin1String("clicked()"),
                                         QStringList());

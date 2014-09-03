@@ -35,42 +35,18 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QMap>
-#include <QObject>
-
 QT_BEGIN_NAMESPACE
-
-class QDesignerIntegrationInterface;
 class QDesignerFormEditorInterface;
-class QDesignerFormWindowInterface;
-class QDesignerFormWindowManagerInterface;
-
-class QAction;
-class QActionGroup;
-class QMenu;
-class QSignalMapper;
-class QSettings;
-class QToolBar;
-
 QT_END_NAMESPACE
 
-namespace Core {
-class ActionManager;
-class ActionContainer;
-class Command;
-class IEditor;
-class Id;
-class DesignMode;
-class EditorToolBar;
-}
+namespace Core { class IEditor; }
+namespace SharedTools { class WidgetHost; }
 
 namespace Designer {
-namespace Internal {
 
-class EditorData;
-class EditorWidget;
-class SettingsPage;
-class DesignerContext;
+class FormWindowEditor;
+
+namespace Internal {
 
 /** FormEditorW is a singleton that stores the Designer CoreInterface and
   * performs centralized operations. The instance() function will return an
@@ -88,107 +64,29 @@ class DesignerContext;
   * in Design mode. */
 class FormEditorW : public QObject
 {
-    Q_OBJECT
 public:
     enum InitializationStage {
         // Register Creator plugins (settings pages, actions)
         RegisterPlugins,
+        // Subwindows of the designer are initialized
+        SubwindowsInitialized,
         // Fully initialized for handling editor requests
         FullyInitialized
     };
 
-    virtual ~FormEditorW();
-
     // Create an instance and initialize up to stage s
     static void ensureInitStage(InitializationStage s);
-    // Returns fully initialized instance
-    static FormEditorW *instance();
     // Deletes an existing instance if there is one.
     static void deleteInstance();
 
-    EditorData createEditor();
+    static Core::IEditor *createEditor();
 
-    inline QDesignerFormEditorInterface *designerEditor() const { return m_formeditor; }
-    inline QWidget * const*designerSubWindows() const { return m_designerSubWindows; }
+    static QDesignerFormEditorInterface *designerEditor();
+    static QWidget * const *designerSubWindows();
 
-    EditorData activeEditor() const;
-    QList<Core::IOptionsPage *> optionsPages() const;
-
-private slots:
-    void activateEditMode(int id);
-    void activateEditMode(QAction*);
-    void activeFormWindowChanged(QDesignerFormWindowInterface *);
-    void currentEditorChanged(Core::IEditor *editor);
-    void toolChanged(int);
-    void print();
-    void setPreviewMenuEnabled(bool e);
-    void updateShortcut(QObject *command);
-    void closeFormEditorsForXmlEditors(QList<Core::IEditor*> editors);
-
-private:
-    FormEditorW();
-    void fullInit();
-
-    void saveSettings(QSettings *s);
-
-    void initDesignerSubWindows();
-
-    void setupActions();
-    void setupViewActions();
-    void addDockViewAction(Core::ActionContainer *viewMenu,
-                           int index,
-                           const Core::Context &context,
-                           const QString &title, Core::Id id);
-
-    Core::ActionContainer *createPreviewStyleMenu(QActionGroup *actionGroup);
-
-    void critical(const QString &errorMessage);
-    void bindShortcut(Core::Command *command, QAction *action);
-    QAction *createEditModeAction(QActionGroup *ag,
-                                         const Core::Context &context,
-                                         Core::ActionContainer *medit,
-                                         const QString &actionName,
-                                         Core::Id id,
-                                         int toolNumber,
-                                         const QString &iconName = QString(),
-                                         const QString &keySequence = QString());
-    Core::Command *addToolAction(QAction *a,
-                                 const Core::Context &context, Core::Id id,
-                                 Core::ActionContainer *c1, const QString &keySequence = QString(),
-                                 Core::Id groupId = Core::Id());
-    QToolBar *createEditorToolBar() const;
-
-    QDesignerFormEditorInterface *m_formeditor;
-    QDesignerIntegrationInterface *m_integration;
-    QDesignerFormWindowManagerInterface *m_fwm;
-    InitializationStage m_initStage;
-
-    QWidget *m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
-
-    QAction *m_lockAction;
-    QAction *m_resetLayoutAction;
-
-    QList<Core::IOptionsPage *> m_settingsPages;
-    QActionGroup *m_actionGroupEditMode;
-    QAction *m_actionPrint;
-    QAction *m_actionPreview;
-    QActionGroup *m_actionGroupPreviewInStyle;
-    QMenu *m_previewInStyleMenu;
-    QAction *m_actionAboutPlugins;
-    QSignalMapper *m_shortcutMapper;
-
-    DesignerContext *m_context;
-    Core::Context m_contexts;
-
-    QList<Core::Id> m_toolActionIds;
-    QWidget *m_modeWidget;
-    EditorWidget *m_editorWidget;
-    Core::DesignMode *m_designMode;
-
-    QWidget *m_editorToolBar;
-    Core::EditorToolBar *m_toolBar;
-
-    QMap<Core::Command *, QAction *> m_commandToDesignerAction;
+    static SharedTools::WidgetHost *activeWidgetHost();
+    static FormWindowEditor *activeEditor();
+    static QList<Core::IOptionsPage *> optionsPages();
 };
 
 } // namespace Internal

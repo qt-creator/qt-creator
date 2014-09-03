@@ -41,6 +41,8 @@ QT_END_NAMESPACE
 namespace Designer {
 namespace Internal {
 
+class ResourceHandler;
+
 class FormWindowFile : public TextEditor::BaseTextDocument
 {
     Q_OBJECT
@@ -67,6 +69,7 @@ public:
     QDesignerFormWindowInterface *formWindow() const;
     void syncXmlFromFormWindow();
     QString formWindowContents() const;
+    ResourceHandler *resourceHandler() const;
 
 signals:
     // Internal
@@ -87,6 +90,7 @@ private:
     // to deleting the WidgetHost which owns it.
     QPointer<QDesignerFormWindowInterface> m_formWindow;
     bool m_isModified;
+    ResourceHandler *m_resourceHandler;
 };
 
 } // namespace Internal

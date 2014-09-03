@@ -44,6 +44,8 @@
 
 namespace Designer {
 
+using namespace Internal;
+
 FormWindowEditor::FormWindowEditor()
 {
     addContext(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
@@ -57,7 +59,7 @@ FormWindowEditor::~FormWindowEditor()
 void FormWindowEditor::finalizeInitialization()
 {
     // Revert to saved/load externally modified files.
-    connect(formWindowFile(), &Internal::FormWindowFile::reloadRequested,
+    connect(formWindowFile(), &FormWindowFile::reloadRequested,
             [this](QString *errorString, const QString &fileName) {
                 open(errorString, fileName, fileName);
     });
@@ -68,7 +70,8 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowEditor::open" << fileName;
 
-    QDesignerFormWindowInterface *form = formWindowFile()->formWindow();
+    auto document = qobject_cast<FormWindowFile *>(textDocument());
+    QDesignerFormWindowInterface *form = document->formWindow();
     QTC_ASSERT(form, return false);
 
     if (fileName.isEmpty())
@@ -78,7 +81,7 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     const QString absfileName = fi.absoluteFilePath();
 
     QString contents;
-    if (formWindowFile()->read(absfileName, &contents, errorString) != Utils::TextFileFormat::ReadSuccess)
+    if (document->read(absfileName, &contents, errorString) != Utils::TextFileFormat::ReadSuccess)
         return false;
 
     form->setFileName(absfileName);
@@ -90,12 +93,10 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
         return false;
     form->setDirty(fileName != realFileName);
 
-    formWindowFile()->syncXmlFromFormWindow();
-    formWindowFile()->setFilePath(absfileName);
-    formWindowFile()->setShouldAutoSave(false);
-
-    if (Internal::ResourceHandler *rh = form->findChild<Designer::Internal::ResourceHandler*>())
-        rh->updateResources(true);
+    document->syncXmlFromFormWindow();
+    document->setFilePath(absfileName);
+    document->setShouldAutoSave(false);
+    document->resourceHandler()->updateResources(true);
 
     return true;
 }
@@ -110,9 +111,9 @@ QString FormWindowEditor::contents() const
     return formWindowFile()->formWindowContents();
 }
 
-Internal::FormWindowFile *FormWindowEditor::formWindowFile() const
+FormWindowFile *FormWindowEditor::formWindowFile() const
 {
-    return qobject_cast<Internal::FormWindowFile *>(textDocument());
+    return qobject_cast<FormWindowFile *>(textDocument());
 }
 
 bool FormWindowEditor::isDesignModePreferred() const

@@ -51,7 +51,7 @@ DesignerContext::DesignerContext(const Core::Context &context,
 
 QString DesignerContext::contextHelpId() const
 {
-    const QDesignerFormEditorInterface *core = FormEditorW::instance()->designerEditor();
+    const QDesignerFormEditorInterface *core = FormEditorW::designerEditor();
     return core->integration()->contextHelpId();
 }
 

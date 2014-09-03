@@ -84,7 +84,7 @@ QList<Core::IOptionsPage *> SettingsPageProvider::pages() const
         m_initialized = true;
         FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
     }
-    return FormEditorW::instance()->optionsPages();
+    return FormEditorW::optionsPages();
 }
 
 bool SettingsPageProvider::matches(const QString &searchKeyWord) const

@@ -42,6 +42,9 @@ namespace SharedTools { class WidgetHost; }
 namespace Core { class IEditor; }
 
 namespace Designer {
+
+class FormWindowEditor;
+
 namespace Internal {
 
 class EditorData;
@@ -59,7 +62,7 @@ public:
     QDockWidget* const* designerDockWidgets() const;
 
     // Form editor stack API
-    void add(const EditorData &d);
+    void add(SharedTools::WidgetHost *widgetHost, FormWindowEditor *formWindowEditor);
     void removeFormWindowEditor(Core::IEditor *xmlEditor);
     bool setVisibleEditor(Core::IEditor *xmlEditor);
     SharedTools::WidgetHost *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;

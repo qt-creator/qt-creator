@@ -38,13 +38,12 @@ QT_FORWARD_DECLARE_CLASS(QUrl)
 namespace Designer {
 namespace Internal {
 
-class FormEditorW;
-
 class QtCreatorIntegration : public QDesignerIntegration
 {
     Q_OBJECT
+
 public:
-    explicit QtCreatorIntegration(QDesignerFormEditorInterface *core, FormEditorW *parent = 0);
+    explicit QtCreatorIntegration(QDesignerFormEditorInterface *core, QObject *parent = 0);
 
     QWidget *containerWindow(QWidget *widget) const;
 
@@ -66,7 +65,6 @@ private:
                         const QString &signalSignature,
                         const QStringList &parameterNames,
                         QString *errorMessage);
-    FormEditorW *m_few;
 };
 
 } // namespace Internal
