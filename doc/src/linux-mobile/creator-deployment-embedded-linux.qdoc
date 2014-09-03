@@ -35,10 +35,10 @@
     You can view the settings in the
     \gui {Run Settings}.
 
-    \image qtcreator-maemo-deployment.png "Deploy to device"
+    \image qtcreator-embedded-linux-deployment-overview.png "Deploy to device"
 
     The files to be installed are listed in the \gui {Deployment} step,
-    the \gui {Files to install for subproject} field. The \gui {Local File Path}
+    the \gui {Files to deploy} field. The \gui {Local File Path}
     field displays the location of the file on the development PC. The
     \gui {Remote Directory} field displays the folder where the file is
     installed on the device. Text in red color indicates that the information is
@@ -61,7 +61,7 @@
 
     \section1 Deploying on Embedded Linux
 
-    \image qtcreator-embedded-linux-deployment.png "Deploy to embedded Linux"
+    \image qtcreator-embedded-linux-deployment-details.png "Deploy to embedded Linux"
 
     When you run the application on the \gui {Embedded Linux} device,
     \QC deploys the application as specified by the deploy steps. By default,
@@ -83,6 +83,10 @@
 
     The \gui {Deploy tarball via SFTP upload} step specifies that \QC
     uploads the tarball to the device and extracts it.
+
+    The \gui {Check for free disk space} step is by default the first deploy step.
+    Use it to find out whether the remote file system has enough space left to deploy your project.
+    Errors due to lack of disk space can otherwise be hard to detect.
 
     \note If the SFTP upload fails, make sure that the remote device has
     SFTP enabled in its SSH daemon. Some versions of Dropbear that come
