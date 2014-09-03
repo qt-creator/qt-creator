@@ -484,7 +484,6 @@ void LocatorWidget::updateCompletionList(const QString &text)
 
     // cancel the old future
     m_entriesWatcher->future().cancel();
-    m_entriesWatcher->future().waitForFinished();
 
     QFuture<LocatorFilterEntry> future = QtConcurrent::run(runSearch, filters, searchText);
     m_entriesWatcher->setFuture(future);

@@ -114,10 +114,6 @@ CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const QString &fi
     CppRefactoringFilePtr result(new CppRefactoringFile(document, fileName));
     result->m_data = m_data;
 
-    Document::Ptr cppDocument = data()->m_snapshot.document(fileName);
-    if (cppDocument)
-        result->setCppDocument(cppDocument);
-
     return result;
 }
 

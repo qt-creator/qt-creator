@@ -70079,7 +70079,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
     <message>
         <source>Refresh Device List</source>
-        <translation>Rafréchir la liste des périphériques</translation>
+        <translation>Rafraîchir la liste des périphériques</translation>
     </message>
     <message>
         <source>Create Android Virtual Device</source>

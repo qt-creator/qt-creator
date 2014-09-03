@@ -74,7 +74,8 @@ static inline QStringList supportedVersionsList()
 static inline QStringList globalQtEnums()
 {
     static QStringList list = QStringList() << QStringLiteral("Horizontal") << QStringLiteral("Vertical") << QStringLiteral("AlignVCenter")
-         << QStringLiteral("AlignLeft") << QStringLiteral("LeftToRight") << QStringLiteral("RightToLeft")
+         << QStringLiteral("AlignLeft") << QStringLiteral("LeftToRight") << QStringLiteral("RightToLeft") <<  QStringLiteral("AlignHCenter")
+         << QStringLiteral("AlignRight") <<  QStringLiteral("AlignBottom") << QStringLiteral("AlignBaseline") <<  QStringLiteral("AlignTop")
          << QStringLiteral("BottomLeft") <<  QStringLiteral("LeftEdge") <<  QStringLiteral("RightEdge") <<  QStringLiteral("BottomEdge");
 
     return list;
@@ -867,7 +868,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         setupImports(doc, differenceHandler);
         setupPossibleImports(snapshot, vContext);
-        setupUsedImports();
 
         if (m_rewriterView->model()->imports().isEmpty()) {
             const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
@@ -943,6 +943,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 }
             }
         }
+        setupUsedImports();
 
         UiObjectMember *astRootNode = 0;
         if (UiProgram *program = doc->qmlProgram())

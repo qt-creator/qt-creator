@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template openeditor="main.qml" priority="BW"
+    featuresRequired="QtSupport.Wizards.FeatureQtQuick.2.3"
+    qrcdeployment="qrcdeployment.pri"
+    stubversionminor="5">
+    <displayname>Qt Quick 2.3</displayname>
+    <description>Creates a deployable Qt Quick 2 application using the QtQuick 2.3 import. Requires Qt 5.3 or newer.</description>
+</template>

@@ -39,6 +39,7 @@
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
+#include <utility>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -73,19 +74,7 @@ QVariant DebuggerKitInformation::defaultValue(Kit *k) const
 
 void DebuggerKitInformation::setup(Kit *k)
 {
-    // Get one of the available debugger matching the kit's toolchain.
-    const ToolChain *tc = ToolChainKitInformation::toolChain(k);
-    const Abi toolChainAbi = tc ? tc->targetAbi() : Abi::hostAbi();
-
     // This can be anything (Id, binary path, "auto")
-    const QVariant rawId = k->value(DebuggerKitInformation::id());
-
-    enum {
-        NotDetected, DetectedAutomatically, DetectedByFile, DetectedById
-    } detection = NotDetected;
-    DebuggerEngineType autoEngine = NoEngineType;
-    FileName fileName;
-
     // With 3.0 we have:
     // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
     // Before we had:
@@ -98,68 +87,87 @@ void DebuggerKitInformation::setup(Kit *k)
     //    <value type="QString" key="Binary">auto</value>
     //    <value type="int" key="EngineType">4</value>
     //  </valuemap>
+    const QVariant rawId = k->value(DebuggerKitInformation::id());
 
-    if (rawId.isNull()) {
-        // Initial setup of a kit
-        detection = NotDetected;
-    } else if (rawId.type() == QVariant::String) {
-        detection = DetectedById;
-    } else {
-        QMap<QString, QVariant> map = rawId.toMap();
-        QString binary = map.value(QLatin1String("Binary")).toString();
-        if (binary == QLatin1String("auto")) {
-            detection = DetectedAutomatically;
-            autoEngine = DebuggerEngineType(map.value(QLatin1String("EngineType")).toInt());
-        } else {
-            detection  = DetectedByFile;
-            fileName = FileName::fromUserInput(binary);
-        }
-    }
+    const ToolChain *tc = ToolChainKitInformation::toolChain(k);
+
+    // Get the best of the available debugger matching the kit's toolchain.
+    // The general idea is to find an item that exactly matches what
+    // is stored in the kit information, but also accept item based
+    // on toolchain matching as fallback with a lower priority.
 
     const DebuggerItem *bestItem = 0;
     DebuggerItem::MatchLevel bestLevel = DebuggerItem::DoesNotMatch;
-    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
-        const DebuggerItem *goodItem = 0;
-        if (detection == DetectedById && item.id() == rawId)
-            goodItem = &item;
-        if (detection == DetectedByFile && item.command() == fileName)
-            goodItem = &item;
-        if (detection == DetectedAutomatically && item.engineType() == autoEngine)
-            goodItem = &item;
-        if (item.isAutoDetected())
-            goodItem = &item;
 
-        if (goodItem) {
-            DebuggerItem::MatchLevel level = goodItem->matchTarget(toolChainAbi);
-            if (level > bestLevel) {
-                bestLevel = level;
-                bestItem = goodItem;
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
+        DebuggerItem::MatchLevel level = DebuggerItem::DoesNotMatch;
+
+        if (rawId.isNull()) {
+            // Initial setup of a kit.
+            if (tc) {
+                // Use item if target toolchain fits.
+                level = item.matchTarget(tc->targetAbi());
+            } else {
+                // Use item if host toolchain fits, but only as fallback.
+                level = std::min(item.matchTarget(Abi::hostAbi()), DebuggerItem::MatchesSomewhat);
+            }
+        } else if (rawId.type() == QVariant::String) {
+            // New structure.
+            if (item.id() == rawId) {
+                // Detected by ID.
+                level = DebuggerItem::MatchesPerfectly;
+            } else {
+                // This item does not match by ID, and is an unlikely candidate.
+                // However, consider using it as fallback if the tool chain fits.
+                if (tc)
+                    level = std::min(item.matchTarget(tc->targetAbi()), DebuggerItem::MatchesSomewhat);
+            }
+        } else {
+            // Old structure.
+            const QMap<QString, QVariant> map = rawId.toMap();
+            QString binary = map.value(QLatin1String("Binary")).toString();
+            if (binary == QLatin1String("auto")) {
+                // This is close to the "new kit" case, except that we know
+                // an engine type.
+                DebuggerEngineType autoEngine = DebuggerEngineType(map.value(QLatin1String("EngineType")).toInt());
+                if (item.engineType() == autoEngine) {
+                    if (tc) {
+                        // Use item if target toolchain fits.
+                        level = item.matchTarget(tc->targetAbi());
+                    } else {
+                        // Use item if host toolchain fits, but only as fallback.
+                        level = std::min(item.matchTarget(Abi::hostAbi()), DebuggerItem::MatchesSomewhat);
+                    }
+                }
+            } else {
+                // We have an executable path.
+                FileName fileName = FileName::fromUserInput(binary);
+                if (item.command() == fileName) {
+                    // And it's is the path of this item.
+                    if (tc) {
+                        // Use item if target toolchain fits.
+                        level = item.matchTarget(tc->targetAbi());
+                    } else {
+                        // Use item if host toolchain fits, but only as fallback.
+                        level = std::min(item.matchTarget(Abi::hostAbi()), DebuggerItem::MatchesSomewhat);
+                    }
+                } else {
+                    // This item does not match by filename, and is an unlikely candidate.
+                    // However, consider using it as fallback if the tool chain fits.
+                    if (tc)
+                        level = std::min(item.matchTarget(tc->targetAbi()), DebuggerItem::MatchesSomewhat);
+                }
             }
         }
-    }
 
-    // If we have an existing debugger with matching id _and_
-    // matching target ABI we are fine.
-    if (bestItem) {
-        k->setValue(DebuggerKitInformation::id(), bestItem->id());
-        return;
-    }
-
-    // We didn't find an existing debugger that matched by whatever
-    // data we found in the kit (i.e. no id, filename, "auto")
-    // (or what we found did not match ABI-wise)
-    // Let's try to pick one with matching ABI.
-    QVariant bestId;
-    bestLevel = DebuggerItem::DoesNotMatch;
-    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
-        DebuggerItem::MatchLevel level = item.matchTarget(toolChainAbi);
         if (level > bestLevel) {
             bestLevel = level;
-            bestId = item.id();
+            bestItem = &item;
         }
     }
 
-    k->setValue(DebuggerKitInformation::id(), bestId);
+    // Use the best id we found, or an invalid one.
+    k->setValue(DebuggerKitInformation::id(), bestItem ? bestItem->id() : QVariant());
 }
 
 

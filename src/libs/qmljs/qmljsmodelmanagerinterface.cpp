@@ -118,9 +118,11 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
     qRegisterMetaType<QmlJS::PathAndLanguage>("QmlJS::PathAndLanguage");
     qRegisterMetaType<QmlJS::PathsAndLanguages>("QmlJS::PathsAndLanguages");
 
-    m_defaultProjectInfo.qtImportsPath = QLibraryInfo::location(QLibraryInfo::ImportsPath);
+    m_defaultProjectInfo.qtImportsPath = QFileInfo(
+                QLibraryInfo::location(QLibraryInfo::ImportsPath)).canonicalFilePath();
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    m_defaultProjectInfo.qtQmlPath = QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath);
+    m_defaultProjectInfo.qtQmlPath = QFileInfo(
+                QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)).canonicalFilePath();
 #endif
 
     m_defaultImportPaths << environmentImportPaths();

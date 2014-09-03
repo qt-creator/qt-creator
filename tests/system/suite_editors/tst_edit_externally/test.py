@@ -77,7 +77,12 @@ def main():
             modifyExternally(files[i - 1])
             # clicking Cancel does not work when running inside Squish - mBox would not come up
             sendEvent("QCloseEvent", waitForObject(":New_Core::Internal::NewDialog"))
-            test.verify(str(waitForObject(mBox).text)
+            try:
+                shownMBox = waitForObject(mBox)
+            except:
+                test.fatal("No MessageBox shown after modifying file %s" % currentFile)
+                continue
+            test.verify(str(shownMBox.text)
                         in (popupText % os.path.basename(currentFile),
                             popupText % os.path.basename(files[i - 1])),
                         "Verifying: One of the modified files is offered as changed.")

@@ -41,7 +41,7 @@ include(../../../rpath.pri)
 OBJECTIVE_SOURCES += \
   main.mm \
   nsprintf.mm \
-  nsstringexpandPath.mm \
+  nsstringexpandpath.mm \
   iphonesimulator.mm
 
 HEADERS += \

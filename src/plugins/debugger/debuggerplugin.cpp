@@ -3079,7 +3079,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = ActionManager::registerAction(m_resetAction,
          Constants::RESET, globalcontext);
     cmd->setDescription(tr("Restart Debugging"));
-    cmd->setDefaultKeySequence(QKeySequence(tr("Shift+Ctrl+R")));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     debugMenu->addSeparator(globalcontext);

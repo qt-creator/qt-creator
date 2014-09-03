@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<template openeditor="main.qml" priority="D"
+<template openeditor="main.qml" priority="BY"
     featuresRequired="QtSupport.Wizards.FeatureQtQuick.2.1"
     qrcdeployment="qrcdeployment.pri"
     stubversionminor="5">

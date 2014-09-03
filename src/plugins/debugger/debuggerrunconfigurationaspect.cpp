@@ -184,8 +184,10 @@ void DebuggerRunConfigWidget::useCppDebuggerClicked(bool on)
     m_aspect->m_useCppDebugger = on
             ? DebuggerRunConfigurationAspect::EnabledLanguage
             : DebuggerRunConfigurationAspect::DisabledLanguage;
-    if (!on && !m_useQmlDebugger->isChecked())
+    if (!on && !m_useQmlDebugger->isChecked()) {
         m_useQmlDebugger->setChecked(true);
+        useQmlDebuggerClicked(true);
+    }
 }
 
 void DebuggerRunConfigWidget::useQmlDebuggerToggled(bool on)
@@ -199,8 +201,10 @@ void DebuggerRunConfigWidget::useQmlDebuggerClicked(bool on)
     m_aspect->m_useQmlDebugger = on
             ? DebuggerRunConfigurationAspect::EnabledLanguage
             : DebuggerRunConfigurationAspect::DisabledLanguage;
-    if (!on && !m_useCppDebugger->isChecked())
+    if (!on && !m_useCppDebugger->isChecked()) {
         m_useCppDebugger->setChecked(true);
+        useCppDebuggerClicked(true);
+    }
 }
 
 void DebuggerRunConfigWidget::useMultiProcessToggled(bool on)

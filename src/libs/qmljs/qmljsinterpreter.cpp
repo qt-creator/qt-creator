@@ -2242,7 +2242,7 @@ ImportInfo ImportInfo::moduleImport(QString uri, ComponentVersion version,
     info.m_type = ImportType::Library;
     info.m_name = uri;
     info.m_path = uri;
-    info.m_path.replace(QLatin1Char('.'), QDir::separator());
+    info.m_path.replace(QLatin1Char('.'), QLatin1Char('/'));
     info.m_version = version;
     info.m_as = as;
     info.m_ast = ast;
@@ -2257,7 +2257,7 @@ ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
 
     QFileInfo importFileInfo(path);
     if (!importFileInfo.isAbsolute())
-        importFileInfo = QFileInfo(docPath + QDir::separator() + path);
+        importFileInfo = QFileInfo(docPath + QLatin1Char('/') + path);
     info.m_path = importFileInfo.absoluteFilePath();
 
     if (importFileInfo.isFile()) {
@@ -2369,8 +2369,10 @@ const Value *TypeScope::lookupMember(const QString &name, const Context *context
             continue;
         }
 
-        if (const Value *v = import->lookupMember(name, context, foundInObject))
+        if (const Value *v = import->lookupMember(name, context, foundInObject)) {
+            i.used = true;
             return v;
+        }
     }
     if (foundInObject)
         *foundInObject = 0;
@@ -2548,7 +2550,7 @@ bool Imports::importFailed() const
     return m_importFailed;
 }
 
-QList<Import> Imports::all() const
+const QList<Import> &Imports::all() const
 {
     return m_imports;
 }

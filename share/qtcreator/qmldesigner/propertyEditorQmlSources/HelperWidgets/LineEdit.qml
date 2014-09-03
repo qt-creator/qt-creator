@@ -53,6 +53,8 @@ Controls.TextField {
 
     property bool showExtendedFunctionButton: true
 
+    signal commitData
+
     ExtendedFunctionButton {
         x: 2
         y: 4
@@ -82,7 +84,10 @@ Controls.TextField {
         onSelectionToBeChanged: {
             if (__dirty && !writeValueManually) {
                 lineEdit.backendValue.value = text
+            } else if (__dirty) {
+                commitData()
             }
+
             __dirty = false
         }
     }

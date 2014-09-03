@@ -480,21 +480,27 @@ void GdbRemoteServerEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int q
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     DebuggerEngine::notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
 
-    if (m_isMulti) {
-        // Has been done in notifyEngineRemoteServerRunning
-    } else {
-        if (qmlPort != -1)
-            startParameters().qmlServerPort = qmlPort;
-        if (gdbServerPort != -1) {
-            QString &rc = startParameters().remoteChannel;
-            const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
-            if (sepIndex != -1) {
-                rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
-                           QString::number(gdbServerPort));
-            }
+    DebuggerStartParameters &params = isMasterEngine()
+            ? startParameters()  : masterEngine()->startParameters();
+    if (gdbServerPort != -1) {
+        QString &rc = params.remoteChannel;
+        const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
+        if (sepIndex != -1) {
+            rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
+                       QString::number(gdbServerPort));
         }
-        startGdb();
     }
+    if (qmlPort != -1) {
+        params.qmlServerPort = qmlPort;
+        params.processArgs.replace(_("%qml_port%"), QString::number(qmlPort));
+    }
+
+    // TODO: Aren't these redundant?
+    m_isMulti = params.multiProcess;
+    m_targetPid = -1;
+    m_serverChannel = params.remoteChannel.toLatin1();
+
+    startGdb();
 }
 
 void GdbRemoteServerEngine::notifyEngineRemoteSetupFailed(const QString &reason)

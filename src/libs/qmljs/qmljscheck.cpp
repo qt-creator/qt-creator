@@ -123,7 +123,7 @@ public:
                     QString fileName = url.toLocalFile();
                     if (!fileName.isEmpty()) {
                         if (QFileInfo(fileName).isRelative()) {
-                            fileName.prepend(QDir::separator());
+                            fileName.prepend(QLatin1Char('/'));
                             fileName.prepend(_doc->path());
                         }
                         if (!QFileInfo(fileName).exists())

@@ -448,6 +448,7 @@ void Snapshot::insert(const Document::Ptr &document, bool allowInvalid)
 
 void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
 {
+    QTC_CHECK(!path.isEmpty());
     QTC_CHECK(info.fingerprint() == info.calculateFingerprint());
     _libraries.insert(QDir::cleanPath(path), info);
     if (!info.wasFound()) return;
