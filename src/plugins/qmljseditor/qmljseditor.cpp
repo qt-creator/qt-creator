@@ -67,7 +67,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/codeassist/genericproposal.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #include <utils/changeset.h>
@@ -679,15 +679,15 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
     if (!m_qmlJsEditorDocument->isSemanticInfoOutdated()) {
-        IAssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
+        AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
             QScopedPointer<IAssistProcessor> processor(
                         QmlJSEditorPlugin::instance()->quickFixAssistProvider()->createProcessor());
             QScopedPointer<IAssistProposal> proposal(processor->perform(interface));
             if (!proposal.isNull()) {
-                BasicProposalItemListModel *model = static_cast<BasicProposalItemListModel *>(proposal->model());
+                GenericProposalModel *model = static_cast<GenericProposalModel *>(proposal->model());
                 for (int index = 0; index < model->size(); ++index) {
-                    BasicProposalItem *item = static_cast<BasicProposalItem *>(model->proposalItem(index));
+                    AssistProposalItem *item = static_cast<AssistProposalItem *>(model->proposalItem(index));
                     QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
                     m_quickFixes.append(op);
                     QAction *action = refactoringMenu->addAction(op->description());
@@ -831,7 +831,7 @@ bool QmlJSEditorWidget::hideContextPane()
     return b;
 }
 
-IAssistInterface *QmlJSEditorWidget::createAssistInterface(
+AssistInterface *QmlJSEditorWidget::createAssistInterface(
     TextEditor::AssistKind assistKind,
     TextEditor::AssistReason reason) const
 {

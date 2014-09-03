@@ -37,7 +37,7 @@
 namespace TextEditor {
 
 class IAssistProvider;
-class IAssistInterface;
+class AssistInterface;
 class IAssistProposal;
 
 class TEXTEDITOR_EXPORT IAssistProcessor
@@ -46,8 +46,8 @@ public:
     IAssistProcessor();
     virtual ~IAssistProcessor();
 
-    virtual IAssistProposal *immediateProposal(const IAssistInterface *) { return 0; }
-    virtual IAssistProposal *perform(const IAssistInterface *interface) = 0;
+    virtual IAssistProposal *immediateProposal(const AssistInterface *) { return 0; }
+    virtual IAssistProposal *perform(const AssistInterface *interface) = 0;
 };
 
 } // TextEditor

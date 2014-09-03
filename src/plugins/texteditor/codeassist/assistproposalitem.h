@@ -27,40 +27,58 @@
 **
 ****************************************************************************/
 
-#include "iassistproposalitem.h"
+#ifndef IASSISTPROPOSALITEM_H
+#define IASSISTPROPOSALITEM_H
 
-using namespace TextEditor;
+#include <texteditor/texteditor_global.h>
 
-/*!
-    \class TextEditor::IAssistProposalItem
-    \brief The IAssistProposalItem class acts as an interface for representing an assist
-    proposal item.
-    \ingroup CodeAssist
+#include <utils/qtcoverride.h>
 
-    This is class is part of the CodeAssist API.
-*/
+#include <QIcon>
+#include <QString>
+#include <QVariant>
 
-IAssistProposalItem::IAssistProposalItem()
-{}
+namespace TextEditor {
 
-IAssistProposalItem::~IAssistProposalItem()
-{}
+class BaseTextEditorWidget;
 
-/*!
-    \fn bool TextEditor::IAssistProposalItem::implicitlyApplies() const
+class TEXTEDITOR_EXPORT AssistProposalItem
+{
+public:
+    AssistProposalItem();
+    virtual ~AssistProposalItem();
 
-    Returns whether this item should implicitly apply in the case it is the only proposal
-    item available.
-*/
+    virtual QString text() const;
+    virtual bool implicitlyApplies() const;
+    virtual bool prematurelyApplies(const QChar &c) const;
+    virtual void apply(BaseTextEditorWidget *editorWidget, int basePosition) const;
 
-/*!
-    \fn bool TextEditor::IAssistProposalItem::prematurelyApplies(const QChar &c) const
+    void setIcon(const QIcon &icon);
+    const QIcon &icon() const;
 
-    Returns whether the character \a c causes this item to be applied.
-*/
+    void setText(const QString &text);
 
-/*!
-    \fn void TextEditor::IAssistProposalItem::apply(BaseTextEditor *editor, int basePosition) const
+    void setDetail(const QString &detail);
+    const QString &detail() const;
 
-    This is the place to implement the actual application of the item.
-*/
+    void setData(const QVariant &var);
+    const QVariant &data() const;
+
+    int order() const;
+    void setOrder(int order);
+
+    virtual void applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const;
+    virtual void applySnippet(BaseTextEditorWidget *editorWidget, int basePosition) const;
+    virtual void applyQuickFix(BaseTextEditorWidget *editorWidget, int basePosition) const;
+
+private:
+    QIcon m_icon;
+    QString m_text;
+    QString m_detail;
+    QVariant m_data;
+    int m_order;
+};
+
+} // namespace TextEditor
+
+#endif // BASICPROPOSALITEM_H

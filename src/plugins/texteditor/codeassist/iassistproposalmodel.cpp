@@ -36,7 +36,7 @@ using namespace TextEditor;
     \brief The IAssistProposalModel class acts as an interface for representing proposals.
     \ingroup CodeAssist
 
-    Known implenters of this interface are IFunctionHintProposalModel and IGenericProposalModel.
+    Known implenters of this interface are IFunctionHintProposalModel and GenericProposalModel.
     The former is recommeded to be used when assisting function calls constructs (overloads
     and parameters) while the latter is quite generic so that it could be used to propose
     snippets, refactoring operations (quickfixes), and contextual content (the member of class

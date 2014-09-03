@@ -29,9 +29,9 @@
 
 #include "quickfixassistprocessor.h"
 #include "quickfixassistprovider.h"
-#include "iassistinterface.h"
-#include "basicproposalitemlistmodel.h"
-#include "basicproposalitem.h"
+#include "assistinterface.h"
+#include "genericproposalmodel.h"
+#include "assistproposalitem.h"
 #include "genericproposal.h"
 
 // @TODO: Move...
@@ -39,7 +39,7 @@
 
 #include <QDebug>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 QuickFixAssistProcessor::QuickFixAssistProcessor()
 {}
@@ -47,12 +47,12 @@ QuickFixAssistProcessor::QuickFixAssistProcessor()
 QuickFixAssistProcessor::~QuickFixAssistProcessor()
 {}
 
-IAssistProposal *QuickFixAssistProcessor::perform(const IAssistInterface *interface)
+IAssistProposal *QuickFixAssistProcessor::perform(const AssistInterface *interface)
 {
     if (!interface)
         return 0;
 
-    QSharedPointer<const IAssistInterface> assistInterface(interface);
+    QSharedPointer<const AssistInterface> assistInterface(interface);
 
     QuickFixOperations quickFixes;
 
@@ -62,18 +62,20 @@ IAssistProposal *QuickFixAssistProcessor::perform(const IAssistInterface *interf
         factory->matchingOperations(assistInterface, quickFixes);
 
     if (!quickFixes.isEmpty()) {
-        QList<BasicProposalItem *> items;
+        QList<AssistProposalItem *> items;
         foreach (const QuickFixOperation::Ptr &op, quickFixes) {
             QVariant v;
             v.setValue(op);
-            BasicProposalItem *item = new BasicProposalItem;
+            AssistProposalItem *item = new AssistProposalItem;
             item->setText(op->description());
             item->setData(v);
             item->setOrder(op->priority());
             items.append(item);
         }
-        return new GenericProposal(interface->position(), new BasicProposalItemListModel(items));
+        return new GenericProposal(interface->position(), new GenericProposalModel(items));
     }
 
     return 0;
 }
+
+} // namespace TextEdit

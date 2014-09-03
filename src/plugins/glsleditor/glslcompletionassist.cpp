@@ -40,8 +40,8 @@
 
 #include <coreplugin/idocument.h>
 #include <texteditor/completionsettings.h>
-#include <texteditor/codeassist/basicproposalitem.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/assistproposalitem.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -242,7 +242,7 @@ GlslCompletionAssistProcessor::GlslCompletionAssistProcessor()
 GlslCompletionAssistProcessor::~GlslCompletionAssistProcessor()
 {}
 
-IAssistProposal *GlslCompletionAssistProcessor::perform(const IAssistInterface *interface)
+IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *interface)
 {
     m_interface.reset(static_cast<const GlslCompletionAssistInterface *>(interface));
 
@@ -432,7 +432,7 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const IAssistInterface *
 
 IAssistProposal *GlslCompletionAssistProcessor::createContentProposal() const
 {
-    IGenericProposalModel *model = new BasicProposalItemListModel(m_completions);
+    GenericProposalModel *model = new GenericProposalModel(m_completions);
     IAssistProposal *proposal = new GenericProposal(m_startPosition, model);
     return proposal;
 }
@@ -479,7 +479,7 @@ void GlslCompletionAssistProcessor::addCompletion(const QString &text,
                                                   const QIcon &icon,
                                                   int order)
 {
-    BasicProposalItem *item = new BasicProposalItem;
+    AssistProposalItem *item = new AssistProposalItem;
     item->setText(text);
     item->setIcon(icon);
     item->setOrder(order);
@@ -495,7 +495,7 @@ GlslCompletionAssistInterface::GlslCompletionAssistInterface(QTextDocument *text
                                                              AssistReason reason,
                                                              const QString &mimeType,
                                                              const Document::Ptr &glslDoc)
-    : DefaultAssistInterface(textDocument, position, fileName, reason)
+    : AssistInterface(textDocument, position, fileName, reason)
     , m_mimeType(mimeType)
     , m_glslDoc(glslDoc)
 {

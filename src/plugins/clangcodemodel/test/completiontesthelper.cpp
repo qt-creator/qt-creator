@@ -39,8 +39,7 @@
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
-#include <texteditor/codeassist/iassistproposalmodel.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 
 #include <utils/fileutils.h>
 #include <utils/changeset.h>

@@ -34,7 +34,7 @@
 
 #include <coreplugin/idocument.h>
 
-#include <texteditor/codeassist/iassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
@@ -83,7 +83,7 @@ enum CompletionOrder {
     TypeOrder = -30
 };
 
-static void addCompletion(QList<BasicProposalItem *> *completions,
+static void addCompletion(QList<AssistProposalItem *> *completions,
                           const QString &text,
                           const QIcon &icon,
                           int order,
@@ -92,7 +92,7 @@ static void addCompletion(QList<BasicProposalItem *> *completions,
     if (text.isEmpty())
         return;
 
-    BasicProposalItem *item = new QmlJSAssistProposalItem;
+    AssistProposalItem *item = new QmlJSAssistProposalItem;
     item->setText(text);
     item->setIcon(icon);
     item->setOrder(order);
@@ -100,7 +100,7 @@ static void addCompletion(QList<BasicProposalItem *> *completions,
     completions->append(item);
 }
 
-static void addCompletions(QList<BasicProposalItem *> *completions,
+static void addCompletions(QList<AssistProposalItem *> *completions,
                            const QStringList &newCompletions,
                            const QIcon &icon,
                            int order)
@@ -125,10 +125,10 @@ public:
 class CompletionAdder : public PropertyProcessor
 {
 protected:
-    QList<BasicProposalItem *> *completions;
+    QList<AssistProposalItem *> *completions;
 
 public:
-    CompletionAdder(QList<BasicProposalItem *> *completions,
+    CompletionAdder(QList<AssistProposalItem *> *completions,
                     const QIcon &icon, int order)
         : completions(completions)
         , icon(icon)
@@ -155,7 +155,7 @@ public:
 class LhsCompletionAdder : public CompletionAdder
 {
 public:
-    LhsCompletionAdder(QList<BasicProposalItem *> *completions,
+    LhsCompletionAdder(QList<AssistProposalItem *> *completions,
                        const QIcon &icon,
                        int order,
                        bool afterOn)
@@ -511,7 +511,7 @@ QmlJSCompletionAssistProcessor::~QmlJSCompletionAssistProcessor()
 
 IAssistProposal *QmlJSCompletionAssistProcessor::createContentProposal() const
 {
-    IGenericProposalModel *model = new QmlJSAssistProposalModel(m_completions);
+    GenericProposalModel *model = new QmlJSAssistProposalModel(m_completions);
     IAssistProposal *proposal = new GenericProposal(m_startPosition, model);
     return proposal;
 }
@@ -526,7 +526,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::createHintProposal(
     return proposal;
 }
 
-IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface *assistInterface)
+IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *assistInterface)
 {
     m_interface.reset(static_cast<const QmlJSCompletionAssistInterface *>(assistInterface));
 
@@ -756,7 +756,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             processProperties.setEnumerateSlots(false);
 
             // id: is special
-            BasicProposalItem *idProposalItem = new QmlJSAssistProposalItem;
+            AssistProposalItem *idProposalItem = new QmlJSAssistProposalItem;
             idProposalItem->setText(QLatin1String("id: "));
             idProposalItem->setIcon(m_interface->symbolIcon());
             idProposalItem->setOrder(PropertyOrder);
@@ -932,7 +932,7 @@ bool QmlJSCompletionAssistProcessor::completeFileName(const QString &relativeBas
         dirIterator.next();
         const QString fileName = dirIterator.fileName();
 
-        BasicProposalItem *item = new QmlJSAssistProposalItem;
+        AssistProposalItem *item = new QmlJSAssistProposalItem;
         item->setText(fileName);
         item->setIcon(m_interface->fileNameIcon());
         m_completions.append(item);
@@ -970,7 +970,7 @@ QmlJSCompletionAssistInterface::QmlJSCompletionAssistInterface(QTextDocument *te
                                                                const QString &fileName,
                                                                AssistReason reason,
                                                                const SemanticInfo &info)
-    : DefaultAssistInterface(textDocument, position, fileName, reason)
+    : AssistInterface(textDocument, position, fileName, reason)
     , m_semanticInfo(info)
     , m_darkBlueIcon(iconForColor(Qt::darkBlue))
     , m_darkYellowIcon(iconForColor(Qt::darkYellow))
@@ -989,7 +989,7 @@ class QmlJSLessThan
 public:
     QmlJSLessThan(const QString &searchString) : m_searchString(searchString)
     { }
-    bool operator() (const BasicProposalItem *a, const BasicProposalItem *b)
+    bool operator() (const AssistProposalItem *a, const AssistProposalItem *b)
     {
         if (a->order() != b->order())
             return a->order() > b->order();
@@ -1020,12 +1020,12 @@ private:
 // -------------------------
 void QmlJSAssistProposalModel::filter(const QString &prefix)
 {
-    BasicProposalItemListModel::filter(prefix);
+    GenericProposalModel::filter(prefix);
     if (prefix.startsWith(QLatin1String("__")))
         return;
-    QList<BasicProposalItem *> newCurrentItems;
+    QList<AssistProposalItem *> newCurrentItems;
     newCurrentItems.reserve(m_currentItems.size());
-    foreach (BasicProposalItem *item, m_currentItems)
+    foreach (AssistProposalItem *item, m_currentItems)
         if (!item->text().startsWith(QLatin1String("__")))
             newCurrentItems << item;
     m_currentItems = newCurrentItems;

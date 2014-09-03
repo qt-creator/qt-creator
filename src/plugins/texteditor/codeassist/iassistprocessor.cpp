@@ -47,7 +47,7 @@ IAssistProcessor::~IAssistProcessor()
 {}
 
 /*!
-    \fn IAssistProposal *TextEditor::IAssistProcessor::perform(const IAssistInterface *interface)
+    \fn IAssistProposal *TextEditor::IAssistProcessor::perform(const AssistInterface *interface)
 
     Computes a proposal and returns it. Access to the document is made through the \a interface.
     If this is an asynchronous processor the \a interface will be detached.
@@ -56,5 +56,5 @@ IAssistProcessor::~IAssistProcessor()
     sharing data across asynchronous processors since there might be more than one instance of
     them computing a proposal at a particular time.
 
-    \sa IAssistInterface::detach()
+    \sa AssistInterface::detach()
 */

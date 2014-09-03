@@ -38,7 +38,7 @@ namespace TextEditor {
 
 class IAssistProcessor;
 class IAssistProposal;
-class IAssistInterface;
+class AssistInterface;
 
 namespace Internal {
 
@@ -51,7 +51,7 @@ public:
     virtual ~ProcessorRunner();
 
     void setProcessor(IAssistProcessor *processor); // Takes ownership of the processor.
-    void setAssistInterface(IAssistInterface *interface);
+    void setAssistInterface(AssistInterface *interface);
     void setDiscardProposal(bool discard);
 
     // @TODO: Not really necessary...
@@ -64,7 +64,7 @@ public:
 
 private:
     IAssistProcessor *m_processor;
-    IAssistInterface *m_interface;
+    AssistInterface *m_interface;
     bool m_discardProposal;
     IAssistProposal *m_proposal;
     AssistReason m_reason;

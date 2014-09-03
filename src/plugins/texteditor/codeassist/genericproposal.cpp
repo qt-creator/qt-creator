@@ -28,12 +28,12 @@
 ****************************************************************************/
 
 #include "genericproposal.h"
-#include "igenericproposalmodel.h"
+#include "genericproposalmodel.h"
 #include "genericproposalwidget.h"
 
-using namespace TextEditor;
+namespace TextEditor {
 
-GenericProposal::GenericProposal(int cursorPos, IGenericProposalModel *model)
+GenericProposal::GenericProposal(int cursorPos, GenericProposalModel *model)
     : m_basePosition(cursorPos)
     , m_model(model)
 {}
@@ -73,3 +73,5 @@ void GenericProposal::moveBasePosition(int length)
 {
     m_basePosition += length;
 }
+
+} // namespace TextEditor

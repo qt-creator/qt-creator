@@ -121,7 +121,7 @@ public:
 
     QSet<QString> identifiers() const;
 
-    IAssistInterface *createAssistInterface(AssistKind assistKind, AssistReason reason) const;
+    AssistInterface *createAssistInterface(AssistKind assistKind, AssistReason reason) const;
 
 private:
     void updateDocumentNow();
@@ -311,7 +311,7 @@ int languageVariant(const QString &type)
     return variant;
 }
 
-IAssistInterface *GlslEditorWidget::createAssistInterface(
+AssistInterface *GlslEditorWidget::createAssistInterface(
     AssistKind kind, AssistReason reason) const
 {
     if (kind == Completion)

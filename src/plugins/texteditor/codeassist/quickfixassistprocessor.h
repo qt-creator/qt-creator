@@ -44,7 +44,7 @@ public:
 
     virtual const IAssistProvider *provider() const = 0;
 
-    IAssistProposal *perform(const IAssistInterface *interface) QTC_OVERRIDE;
+    IAssistProposal *perform(const AssistInterface *interface) QTC_OVERRIDE;
 };
 
 } // TextEditor

@@ -38,7 +38,7 @@
 
 namespace TextEditor {
 
-class IAssistInterface;
+class AssistInterface;
 
 /*!
     Class to perform a single quick-fix.
@@ -91,7 +91,7 @@ private:
 };
 
 typedef QList<QuickFixOperation::Ptr> QuickFixOperations;
-typedef QSharedPointer<const IAssistInterface> QuickFixInterface;
+typedef QSharedPointer<const AssistInterface> QuickFixInterface;
 
 /*!
     The QuickFixFactory is responsible for generating QuickFixOperation s which are

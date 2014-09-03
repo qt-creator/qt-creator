@@ -44,10 +44,10 @@
 #include <cpptools/symbolfinder.h>
 #include <cpptools/typehierarchybuilder.h>
 
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalwidget.h>
-#include <texteditor/codeassist/iassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/texteditorconstants.h>
@@ -91,7 +91,7 @@ protected:
 
     void showProposal(const QString &prefix) QTC_OVERRIDE
     {
-        IGenericProposalModel *proposalModel = model();
+        GenericProposalModel *proposalModel = model();
         if (proposalModel && proposalModel->size() == 1) {
             emit proposalItemActivated(proposalModel->proposalItem(0));
             deleteLater();
@@ -107,7 +107,7 @@ private:
 class VirtualFunctionProposal : public GenericProposal
 {
 public:
-    VirtualFunctionProposal(int cursorPos, IGenericProposalModel *model, bool openInSplit)
+    VirtualFunctionProposal(int cursorPos, GenericProposalModel *model, bool openInSplit)
         : GenericProposal(cursorPos, model)
         , m_openInSplit(openInSplit)
     {}
@@ -128,24 +128,24 @@ public:
         : m_params(params)
     {}
 
-    IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *) QTC_OVERRIDE
+    IAssistProposal *immediateProposal(const TextEditor::AssistInterface *) QTC_OVERRIDE
     {
         QTC_ASSERT(m_params.function, return 0);
 
-        BasicProposalItem *hintItem = new VirtualFunctionProposalItem(CppEditorWidget::Link());
+        AssistProposalItem *hintItem = new VirtualFunctionProposalItem(CppEditorWidget::Link());
         hintItem->setText(QCoreApplication::translate("VirtualFunctionsAssistProcessor",
                                                       "...searching overrides"));
         hintItem->setOrder(-1000);
 
-        QList<BasicProposalItem *> items;
+        QList<AssistProposalItem *> items;
         items << itemFromFunction(m_params.function);
         items << hintItem;
         return new VirtualFunctionProposal(m_params.cursorPosition,
-                                           new BasicProposalItemListModel(items),
+                                           new GenericProposalModel(items),
                                            m_params.openInNextSplit);
     }
 
-    IAssistProposal *perform(const IAssistInterface *) QTC_OVERRIDE
+    IAssistProposal *perform(const AssistInterface *) QTC_OVERRIDE
     {
         QTC_ASSERT(m_params.function, return 0);
         QTC_ASSERT(m_params.staticClass, return 0);
@@ -161,13 +161,13 @@ public:
         if (overrides.isEmpty())
             return 0;
 
-        QList<BasicProposalItem *> items;
+        QList<AssistProposalItem *> items;
         foreach (Function *func, overrides)
             items << itemFromFunction(func);
         items.first()->setOrder(1000); // Ensure top position for function of static type
 
         return new VirtualFunctionProposal(m_params.cursorPosition,
-                                           new BasicProposalItemListModel(items),
+                                           new GenericProposalModel(items),
                                            m_params.openInNextSplit);
     }
 
@@ -179,14 +179,14 @@ private:
         return func;
     }
 
-    BasicProposalItem *itemFromFunction(Function *func) const
+    AssistProposalItem *itemFromFunction(Function *func) const
     {
         const CppEditorWidget::Link link = CppEditorWidget::linkToSymbol(maybeDefinitionFor(func));
         QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(func));
         if (func->isPureVirtual())
             text += QLatin1String(" = 0");
 
-        BasicProposalItem *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
+        AssistProposalItem *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
         item->setText(text);
         item->setIcon(m_icons.iconForSymbol(func));
 

@@ -65,11 +65,11 @@
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/indenter.h>
-#include <texteditor/codeassist/basicproposalitem.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/assistproposalitem.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
-#include <texteditor/codeassist/iassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 
 #include <utils/fancylineedit.h>
@@ -881,7 +881,7 @@ private:
     QString m_needle;
 };
 
-class FakeVimAssistProposalItem : public BasicProposalItem
+class FakeVimAssistProposalItem : public AssistProposalItem
 {
 public:
     FakeVimAssistProposalItem(const FakeVimCompletionAssistProvider *provider)
@@ -911,11 +911,11 @@ private:
 };
 
 
-class FakeVimAssistProposalModel : public BasicProposalItemListModel
+class FakeVimAssistProposalModel : public GenericProposalModel
 {
 public:
-    FakeVimAssistProposalModel(const QList<BasicProposalItem *> &items)
-        : BasicProposalItemListModel(items)
+    FakeVimAssistProposalModel(const QList<AssistProposalItem *> &items)
+        : GenericProposalModel(items)
     {}
 
     bool supportsPrefixExpansion() const QTC_OVERRIDE
@@ -931,7 +931,7 @@ public:
         : m_provider(static_cast<const FakeVimCompletionAssistProvider *>(provider))
     {}
 
-    IAssistProposal *perform(const IAssistInterface *interface) QTC_OVERRIDE
+    IAssistProposal *perform(const AssistInterface *interface) QTC_OVERRIDE
     {
         const QString &needle = m_provider->needle();
 
@@ -941,7 +941,7 @@ public:
         tc.setPosition(interface->position());
         tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
-        QList<BasicProposalItem *> items;
+        QList<AssistProposalItem *> items;
         QSet<QString> seen;
         QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
         while (1) {
@@ -956,7 +956,7 @@ public:
                     && !seen.contains(found)
                     && sel.anchor() != basePosition) {
                 seen.insert(found);
-                BasicProposalItem *item = new FakeVimAssistProposalItem(m_provider);
+                AssistProposalItem *item = new FakeVimAssistProposalItem(m_provider);
                 item->setText(found);
                 items.append(item);
             }

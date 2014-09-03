@@ -36,7 +36,7 @@
 
 namespace TextEditor {
 
-class IAssistProposalItem;
+class AssistProposalItem;
 
 class TEXTEDITOR_EXPORT IAssistProposalModel
 {

@@ -31,14 +31,12 @@
 #include "snippetscollection.h"
 
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/codeassist/basicproposalitem.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 
 using namespace TextEditor;
 using namespace Internal;
 
-namespace {
-
-void appendSnippets(QList<BasicProposalItem *> *items,
+static void appendSnippets(QList<AssistProposalItem *> *items,
                     const QString &groupId,
                     const QIcon &icon,
                     int order)
@@ -47,7 +45,7 @@ void appendSnippets(QList<BasicProposalItem *> *items,
     const int size = collection->totalActiveSnippets(groupId);
     for (int i = 0; i < size; ++i) {
         const Snippet &snippet = collection->snippet(i, groupId);
-        BasicProposalItem *item = new BasicProposalItem;
+        AssistProposalItem *item = new AssistProposalItem;
         item->setText(snippet.trigger() + QLatin1Char(' ') + snippet.complement());
         item->setData(snippet.content());
         item->setDetail(snippet.generateTip());
@@ -56,8 +54,6 @@ void appendSnippets(QList<BasicProposalItem *> *items,
         items->append(item);
     }
 }
-
-} // anonymous
 
 
 SnippetAssistCollector::SnippetAssistCollector(const QString &groupId, const QIcon &icon, int order)
@@ -69,9 +65,9 @@ SnippetAssistCollector::SnippetAssistCollector(const QString &groupId, const QIc
 SnippetAssistCollector::~SnippetAssistCollector()
 {}
 
-QList<BasicProposalItem *> SnippetAssistCollector::collect() const
+QList<AssistProposalItem *> SnippetAssistCollector::collect() const
 {
-    QList<BasicProposalItem *> snippets;
+    QList<AssistProposalItem *> snippets;
     appendSnippets(&snippets, m_groupId, m_icon, m_order);
     appendSnippets(&snippets, QLatin1String(Constants::TEXT_SNIPPET_GROUP_ID), m_icon, m_order);
     return snippets;

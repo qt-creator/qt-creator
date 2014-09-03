@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "genericproposalwidget.h"
-#include "igenericproposalmodel.h"
-#include "iassistproposalitem.h"
+#include "genericproposalmodel.h"
+#include "assistproposalitem.h"
 #include "codeassistant.h"
 
 #include <texteditor/texteditorsettings.h>
@@ -58,9 +58,7 @@ using namespace Utils;
 
 namespace TextEditor {
 
-namespace {
-
-QString cleanText(const QString &original)
+static QString cleanText(const QString &original)
 {
     QString clean = original;
     int ignore = 0;
@@ -76,7 +74,7 @@ QString cleanText(const QString &original)
     return clean;
 }
 
-bool isPerfectMatch(const QString &prefix, const IGenericProposalModel *model)
+static bool isPerfectMatch(const QString &prefix, const GenericProposalModel *model)
 {
     if (prefix.isEmpty())
         return false;
@@ -101,8 +99,6 @@ bool isPerfectMatch(const QString &prefix, const IGenericProposalModel *model)
     return false;
 }
 
-}
-
 // ------------
 // ModelAdapter
 // ------------
@@ -111,16 +107,16 @@ class ModelAdapter : public QAbstractListModel
     Q_OBJECT
 
 public:
-    ModelAdapter(IGenericProposalModel *completionModel, QWidget *parent);
+    ModelAdapter(GenericProposalModel *completionModel, QWidget *parent);
 
     virtual int rowCount(const QModelIndex &) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
 
 private:
-    IGenericProposalModel *m_completionModel;
+    GenericProposalModel *m_completionModel;
 };
 
-ModelAdapter::ModelAdapter(IGenericProposalModel *completionModel, QWidget *parent)
+ModelAdapter::ModelAdapter(GenericProposalModel *completionModel, QWidget *parent)
     : QAbstractListModel(parent)
     , m_completionModel(completionModel)
 {}
@@ -256,7 +252,7 @@ public:
 
     const QWidget *m_underlyingWidget;
     GenericProposalListView *m_completionListView;
-    IGenericProposalModel *m_model;
+    GenericProposalModel *m_model;
     QRect m_displayRect;
     bool m_isSynchronized;
     bool m_explicitlySelected;
@@ -394,7 +390,7 @@ void GenericProposalWidget::setUnderlyingWidget(const QWidget *underlyingWidget)
 void GenericProposalWidget::setModel(IAssistProposalModel *model)
 {
     delete d->m_model;
-    d->m_model = static_cast<IGenericProposalModel *>(model);
+    d->m_model = static_cast<GenericProposalModel *>(model);
     d->m_completionListView->setModel(new ModelAdapter(d->m_model, d->m_completionListView));
 
     connect(d->m_completionListView->selectionModel(),
@@ -493,7 +489,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
             && d->m_justInvoked
             && d->m_isSynchronized) {
         if (d->m_model->size() == 1) {
-            IAssistProposalItem *item = d->m_model->proposalItem(0);
+            AssistProposalItem *item = d->m_model->proposalItem(0);
             if (item->implicitlyApplies()) {
                 d->m_completionListView->reset();
                 abort();
@@ -638,7 +634,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
                 && d->m_completionListView->currentIndex().isValid()
                 && qApp->focusWidget() == o) {
             const QChar &typedChar = ke->text().at(0);
-            IAssistProposalItem *item =
+            AssistProposalItem *item =
                 d->m_model->proposalItem(d->m_completionListView->currentIndex().row());
             if (item->prematurelyApplies(typedChar)
                     && (d->m_reason == ExplicitlyInvoked || item->text().endsWith(typedChar))) {
@@ -667,11 +663,11 @@ bool GenericProposalWidget::activateCurrentProposalItem()
     return false;
 }
 
-IGenericProposalModel *GenericProposalWidget::model()
+GenericProposalModel *GenericProposalWidget::model()
 {
     return d->m_model;
 }
 
-#include "genericproposalwidget.moc"
+} // namespace TextEditor
 
-} // TextEditor
+#include "genericproposalwidget.moc"

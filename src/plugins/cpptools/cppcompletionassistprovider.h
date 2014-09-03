@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 class BaseTextEditor;
-class IAssistInterface;
+class AssistInterface;
 }
 
 namespace CppTools {
@@ -58,7 +58,7 @@ public:
     bool isActivationCharSequence(const QString &sequence) const QTC_OVERRIDE;
     bool isContinuationChar(const QChar &c) const QTC_OVERRIDE;
 
-    virtual TextEditor::IAssistInterface *createAssistInterface(
+    virtual TextEditor::AssistInterface *createAssistInterface(
             const QString &filePath,
             QTextDocument *document, bool isObjCEnabled, int position,
             TextEditor::AssistReason reason) const = 0;

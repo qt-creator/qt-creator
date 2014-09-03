@@ -62,8 +62,8 @@
 
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetextdocumentlayout.h>
-#include <texteditor/codeassist/basicproposalitem.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/assistproposalitem.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
@@ -498,15 +498,15 @@ void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
     if (isSemanticInfoValid()) {
-        IAssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
+        AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
             QScopedPointer<IAssistProcessor> processor(
                         CppEditorPlugin::instance()->quickFixProvider()->createProcessor());
             QScopedPointer<IAssistProposal> proposal(processor->perform(interface));
             if (!proposal.isNull()) {
-                auto model = static_cast<BasicProposalItemListModel *>(proposal->model());
+                auto model = static_cast<GenericProposalModel *>(proposal->model());
                 for (int index = 0; index < model->size(); ++index) {
-                    auto item = static_cast<BasicProposalItem *>(model->proposalItem(index));
+                    auto item = static_cast<AssistProposalItem *>(model->proposalItem(index));
                     QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
                     d->m_quickFixes.append(op);
                     QAction *action = quickFixMenu->addAction(op->description());
@@ -610,7 +610,7 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
     updateFunctionDeclDefLink();
 }
 
-IAssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistReason reason) const
+AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistReason reason) const
 {
     if (kind == Completion) {
         if (CppCompletionAssistProvider *cap = cppEditorDocument()->completionAssistProvider()) {

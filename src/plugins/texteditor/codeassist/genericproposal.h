@@ -36,12 +36,12 @@
 
 namespace TextEditor {
 
-class IGenericProposalModel;
+class GenericProposalModel;
 
 class TEXTEDITOR_EXPORT GenericProposal : public IAssistProposal
 {
 public:
-    GenericProposal(int cursorPos, IGenericProposalModel *model);
+    GenericProposal(int cursorPos, GenericProposalModel *model);
     ~GenericProposal();
 
     bool isFragile() const QTC_OVERRIDE;
@@ -56,7 +56,7 @@ protected:
 
 private:
     int m_basePosition;
-    IGenericProposalModel *m_model;
+    GenericProposalModel *m_model;
 };
 
 } // TextEditor

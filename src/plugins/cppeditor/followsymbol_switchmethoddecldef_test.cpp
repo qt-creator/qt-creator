@@ -34,7 +34,7 @@
 #include "cppvirtualfunctionassistprovider.h"
 #include "cppvirtualfunctionproposalitem.h"
 
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 
@@ -124,7 +124,7 @@ public:
         VirtualFunctionAssistProvider::configure(params);
 
         IAssistProcessor *processor = createProcessor();
-        IAssistInterface *assistInterface
+        AssistInterface *assistInterface
                 = m_editorWidget->createAssistInterface(FollowSymbol, ExplicitlyInvoked);
         IAssistProposal *immediateProposal = processor->immediateProposal(assistInterface);
         IAssistProposal *finalProposal = processor->perform(assistInterface);
@@ -140,7 +140,7 @@ public:
     static OverrideItemList itemList(IAssistProposalModel *imodel)
     {
         OverrideItemList result;
-        BasicProposalItemListModel *model = dynamic_cast<BasicProposalItemListModel *>(imodel);
+        GenericProposalModel *model = dynamic_cast<GenericProposalModel *>(imodel);
         if (!model)
             return result;
 

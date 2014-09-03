@@ -31,7 +31,7 @@
 #define CPPQUICKFIXASSISTANT_H
 
 #include <cpptools/cppsemanticinfo.h>
-#include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/quickfixassistprovider.h>
 #include <texteditor/codeassist/quickfixassistprocessor.h>
 
@@ -49,7 +49,7 @@ namespace Internal {
 
 class CppEditorWidget;
 
-class CppQuickFixAssistInterface : public TextEditor::DefaultAssistInterface
+class CppQuickFixAssistInterface : public TextEditor::AssistInterface
 {
 public:
     CppQuickFixAssistInterface(CppEditorWidget *editor, TextEditor::AssistReason reason);

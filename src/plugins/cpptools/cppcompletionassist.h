@@ -39,8 +39,8 @@
 #include <cplusplus/TypeOfExpression.h>
 
 #include <texteditor/basetexteditor.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
-#include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippetassistcollector.h>
 
@@ -48,10 +48,6 @@
 
 #include <QStringList>
 #include <QVariant>
-
-QT_BEGIN_NAMESPACE
-class QTextCursor;
-QT_END_NAMESPACE
 
 namespace CPlusPlus {
 class LookupItem;
@@ -65,11 +61,11 @@ namespace Internal {
 
 class CppCompletionAssistInterface;
 
-class CppAssistProposalModel : public TextEditor::BasicProposalItemListModel
+class CppAssistProposalModel : public TextEditor::GenericProposalModel
 {
 public:
     CppAssistProposalModel()
-        : TextEditor::BasicProposalItemListModel()
+        : TextEditor::GenericProposalModel()
         , m_completionOperator(CPlusPlus::T_EOF_SYMBOL)
         , m_replaceDotForArrow(false)
         , m_typeOfExpression(new CPlusPlus::TypeOfExpression)
@@ -78,7 +74,7 @@ public:
     }
 
     bool isSortable(const QString &prefix) const QTC_OVERRIDE;
-    TextEditor::IAssistProposalItem *proposalItem(int index) const QTC_OVERRIDE;
+    TextEditor::AssistProposalItem *proposalItem(int index) const QTC_OVERRIDE;
 
     unsigned m_completionOperator;
     bool m_replaceDotForArrow;
@@ -92,7 +88,7 @@ class InternalCompletionAssistProvider : public CppCompletionAssistProvider
 public:
     TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
-    TextEditor::IAssistInterface *createAssistInterface(
+    TextEditor::AssistInterface *createAssistInterface(
             const QString &filePath,
             QTextDocument *document,
             bool isObjCEnabled,
@@ -106,7 +102,7 @@ public:
     CppCompletionAssistProcessor();
     ~CppCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface) QTC_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) QTC_OVERRIDE;
 
 private:
     TextEditor::IAssistProposal *createContentProposal();
@@ -159,7 +155,7 @@ private:
     int m_startPosition;
     CPlusPlus::LanguageFeatures m_languageFeatures;
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
-    QList<TextEditor::BasicProposalItem *> m_completions;
+    QList<TextEditor::AssistProposalItem *> m_completions;
     TextEditor::SnippetAssistCollector m_snippetCollector;
     CPlusPlus::Icons m_icons;
     QStringList preprocessorCompletions;
@@ -167,7 +163,7 @@ private:
     TextEditor::IAssistProposal *m_hintProposal;
 };
 
-class CppCompletionAssistInterface : public TextEditor::DefaultAssistInterface
+class CppCompletionAssistInterface : public TextEditor::AssistInterface
 {
 public:
     CppCompletionAssistInterface(const QString &filePath,
@@ -176,7 +172,7 @@ public:
                                  int position,
                                  TextEditor::AssistReason reason,
                                  const WorkingCopy &workingCopy)
-        : TextEditor::DefaultAssistInterface(textDocument, position, filePath, reason)
+        : TextEditor::AssistInterface(textDocument, position, filePath, reason)
         , m_isObjCEnabled(isObjCEnabled)
         , m_gotCppSpecifics(false)
         , m_workingCopy(workingCopy)
@@ -188,7 +184,7 @@ public:
                                  TextEditor::AssistReason reason,
                                  const CPlusPlus::Snapshot &snapshot,
                                  const ProjectPart::HeaderPaths &headerPaths)
-        : TextEditor::DefaultAssistInterface(textDocument, position, filePath, reason)
+        : TextEditor::AssistInterface(textDocument, position, filePath, reason)
         , m_isObjCEnabled(false)
         , m_gotCppSpecifics(true)
         , m_snapshot(snapshot)

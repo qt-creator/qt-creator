@@ -39,7 +39,7 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <texteditor/codeassist/basicproposalitem.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/codeassist/functionhintproposal.h>
@@ -84,7 +84,7 @@ struct CompleteFunctionDeclaration
 // ---------------------
 // CppAssistProposalItem
 // ---------------------
-class CppAssistProposalItem : public BasicProposalItem
+class CppAssistProposalItem : public AssistProposalItem
 {
 public:
     CppAssistProposalItem() :
@@ -119,9 +119,9 @@ bool CppAssistProposalModel::isSortable(const QString &prefix) const
     return !prefix.isEmpty();
 }
 
-IAssistProposalItem *CppAssistProposalModel::proposalItem(int index) const
+AssistProposalItem *CppAssistProposalModel::proposalItem(int index) const
 {
-    auto item = static_cast<BasicProposalItem *>(BasicProposalItemListModel::proposalItem(index));
+    auto item = static_cast<AssistProposalItem *>(GenericProposalModel::proposalItem(index));
     if (!item->data().canConvert<QString>()) {
         CppAssistProposalItem *cppItem = static_cast<CppAssistProposalItem *>(item);
         cppItem->keepCompletionOperator(m_completionOperator);
@@ -416,7 +416,7 @@ IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
     return new CppCompletionAssistProcessor;
 }
 
-IAssistInterface *InternalCompletionAssistProvider::createAssistInterface(
+AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
         const QString &filePath, QTextDocument *document,
         bool isObjCEnabled, int position, AssistReason reason) const
 {
@@ -434,7 +434,7 @@ IAssistInterface *InternalCompletionAssistProvider::createAssistInterface(
 class CppAssistProposal : public GenericProposal
 {
 public:
-    CppAssistProposal(int cursorPos, IGenericProposalModel *model)
+    CppAssistProposal(int cursorPos, GenericProposalModel *model)
         : GenericProposal(cursorPos, model)
         , m_replaceDotForArrow(static_cast<CppAssistProposalModel *>(model)->m_replaceDotForArrow)
     {}
@@ -460,7 +460,7 @@ namespace {
 class ConvertToCompletionItem: protected NameVisitor
 {
     // The completion item.
-    BasicProposalItem *_item;
+    AssistProposalItem *_item;
 
     // The current symbol.
     Symbol *_symbol;
@@ -477,14 +477,14 @@ public:
         overview.showArgumentNames = true;
     }
 
-    BasicProposalItem *operator()(Symbol *symbol)
+    AssistProposalItem *operator()(Symbol *symbol)
     {
         //using declaration can be qualified
         if (!symbol || !symbol->name() || (symbol->name()->isQualifiedNameId()
                                            && !symbol->asUsingDeclaration()))
             return 0;
 
-        BasicProposalItem *previousItem = switchCompletionItem(0);
+        AssistProposalItem *previousItem = switchCompletionItem(0);
         Symbol *previousSymbol = switchSymbol(symbol);
         accept(symbol->unqualifiedName());
         if (_item)
@@ -501,16 +501,16 @@ protected:
         return previousSymbol;
     }
 
-    BasicProposalItem *switchCompletionItem(BasicProposalItem *item)
+    AssistProposalItem *switchCompletionItem(AssistProposalItem *item)
     {
-        BasicProposalItem *previousItem = _item;
+        AssistProposalItem *previousItem = _item;
         _item = item;
         return previousItem;
     }
 
-    BasicProposalItem *newCompletionItem(const Name *name)
+    AssistProposalItem *newCompletionItem(const Name *name)
     {
-        BasicProposalItem *item = new CppAssistProposalItem;
+        AssistProposalItem *item = new CppAssistProposalItem;
         item->setText(overview.prettyName(name));
         return item;
     }
@@ -631,7 +631,7 @@ CppCompletionAssistProcessor::CppCompletionAssistProcessor()
 CppCompletionAssistProcessor::~CppCompletionAssistProcessor()
 {}
 
-IAssistProposal * CppCompletionAssistProcessor::perform(const IAssistInterface *interface)
+IAssistProposal * CppCompletionAssistProcessor::perform(const AssistInterface *interface)
 {
     m_interface.reset(static_cast<const CppCompletionAssistInterface *>(interface));
 
@@ -719,7 +719,7 @@ IAssistProposal *CppCompletionAssistProcessor::createContentProposal()
 {
     // Duplicates are kept only if they are snippets.
     QSet<QString> processed;
-    QList<BasicProposalItem *>::iterator it = m_completions.begin();
+    QList<AssistProposalItem *>::iterator it = m_completions.begin();
     while (it != m_completions.end()) {
         CppAssistProposalItem *item = static_cast<CppAssistProposalItem *>(*it);
         if (!processed.contains(item->text()) || item->data().canConvert<QString>()) {
@@ -1047,7 +1047,7 @@ void CppCompletionAssistProcessor::addCompletionItem(const QString &text,
                                                      int order,
                                                      const QVariant &data)
 {
-    BasicProposalItem *item = new CppAssistProposalItem;
+    AssistProposalItem *item = new CppAssistProposalItem;
     item->setText(text);
     item->setIcon(icon);
     item->setOrder(order);
@@ -1059,7 +1059,7 @@ void CppCompletionAssistProcessor::addCompletionItem(CPlusPlus::Symbol *symbol,
                                                      int order)
 {
     ConvertToCompletionItem toCompletionItem;
-    BasicProposalItem *item = toCompletionItem(symbol);
+    AssistProposalItem *item = toCompletionItem(symbol);
     if (item) {
         item->setIcon(m_icons.iconForSymbol(symbol));
         item->setOrder(order);
@@ -1680,7 +1680,7 @@ bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::Looku
                     signature = QString::fromUtf8(normalized, normalized.size());
 
                     if (!signatures.contains(signature)) {
-                        BasicProposalItem *ci = toCompletionItem(fun);
+                        AssistProposalItem *ci = toCompletionItem(fun);
                         if (!ci)
                             break;
                         signatures.insert(signature);

@@ -32,12 +32,12 @@
 
 #include "qmljseditor.h"
 
-#include <texteditor/codeassist/basicproposalitem.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/assistproposalitem.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippetassistcollector.h>
-#include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 
 #include <utils/qtcoverride.h>
 
@@ -53,7 +53,7 @@ namespace Internal {
 
 class QmlJSCompletionAssistInterface;
 
-class QmlJSAssistProposalItem : public TextEditor::BasicProposalItem
+class QmlJSAssistProposalItem : public TextEditor::AssistProposalItem
 {
 public:
     bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
@@ -62,11 +62,11 @@ public:
 };
 
 
-class QmlJSAssistProposalModel : public TextEditor::BasicProposalItemListModel
+class QmlJSAssistProposalModel : public TextEditor::GenericProposalModel
 {
 public:
-    QmlJSAssistProposalModel(const QList<TextEditor::BasicProposalItem *> &items)
-        : TextEditor::BasicProposalItemListModel(items)
+    QmlJSAssistProposalModel(const QList<TextEditor::AssistProposalItem *> &items)
+        : TextEditor::GenericProposalModel(items)
     {}
 
     void filter(const QString &prefix) QTC_OVERRIDE;
@@ -95,7 +95,7 @@ public:
     QmlJSCompletionAssistProcessor();
     ~QmlJSCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface) QTC_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) QTC_OVERRIDE;
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;
@@ -112,12 +112,12 @@ private:
 
     int m_startPosition;
     QScopedPointer<const QmlJSCompletionAssistInterface> m_interface;
-    QList<TextEditor::BasicProposalItem *> m_completions;
+    QList<TextEditor::AssistProposalItem *> m_completions;
     TextEditor::SnippetAssistCollector m_snippetCollector;
 };
 
 
-class QmlJSCompletionAssistInterface : public TextEditor::DefaultAssistInterface
+class QmlJSCompletionAssistInterface : public TextEditor::AssistInterface
 {
 public:
     QmlJSCompletionAssistInterface(QTextDocument *textDocument,

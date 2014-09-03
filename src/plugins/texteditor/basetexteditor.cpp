@@ -51,7 +51,7 @@
 #include "basetexteditor.h"
 
 #include <texteditor/codeassist/codeassistant.h>
-#include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/generichighlighter/context.h>
 #include <texteditor/generichighlighter/highlightdefinition.h>
 #include <texteditor/generichighlighter/highlighter.h>
@@ -7014,11 +7014,11 @@ void BaseTextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provid
     setOverwriteMode(previousMode);
 }
 
-IAssistInterface *BaseTextEditorWidget::createAssistInterface(AssistKind kind,
-                                                              AssistReason reason) const
+AssistInterface *BaseTextEditorWidget::createAssistInterface(AssistKind kind,
+                                                             AssistReason reason) const
 {
     Q_UNUSED(kind);
-    return new DefaultAssistInterface(document(), position(), d->m_document->filePath(), reason);
+    return new AssistInterface(document(), position(), d->m_document->filePath(), reason);
 }
 
 QString BaseTextEditorWidget::foldReplacementText(const QTextBlock &) const

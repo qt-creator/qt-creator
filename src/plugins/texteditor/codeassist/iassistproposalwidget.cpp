@@ -133,11 +133,11 @@ IAssistProposalWidget::~IAssistProposalWidget()
     This can happen if all available proposal items share the same prefix and if the proposal's
     model supports prefix expansion.
 
-    \sa IGenericProposalModel::supportsPrefixExpansion()
+    \sa GenericProposalModel::supportsPrefixExpansion()
 */
 
 /*!
-    \fn void TextEditor::IAssistProposalWidget::proposalItemActivated(IAssistProposalItem *proposalItem)
+    \fn void TextEditor::IAssistProposalWidget::proposalItemActivated(AssistProposalItem *proposalItem)
 
     This signal is emitted whenever \a proposalItem is chosen to be applied.
 */

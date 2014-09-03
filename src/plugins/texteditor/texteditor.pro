@@ -76,19 +76,16 @@ SOURCES += texteditorplugin.cpp \
     codeassist/iassistproposalwidget.cpp \
     codeassist/codeassistant.cpp \
     snippets/snippetassistcollector.cpp \
-    codeassist/iassistinterface.cpp \
-    codeassist/defaultassistinterface.cpp \
-    codeassist/iassistproposalitem.cpp \
+    codeassist/assistinterface.cpp \
+    codeassist/assistproposalitem.cpp \
     convenience.cpp \
     codeassist/runner.cpp \
     codeassist/completionassistprovider.cpp \
-    codeassist/igenericproposalmodel.cpp \
+    codeassist/genericproposalmodel.cpp \
     codeassist/quickfixassistprovider.cpp \
     codeassist/quickfixassistprocessor.cpp \
     codeassist/genericproposal.cpp \
     codeassist/genericproposalwidget.cpp \
-    codeassist/basicproposalitem.cpp \
-    codeassist/basicproposalitemlistmodel.cpp \
     codeassist/iassistproposalmodel.cpp \
     tabsettingswidget.cpp \
     simplecodestylepreferences.cpp \
@@ -188,20 +185,17 @@ HEADERS += texteditorplugin.h \
     codeassist/iassistproposal.h \
     codeassist/codeassistant.h \
     snippets/snippetassistcollector.h \
-    codeassist/iassistinterface.h \
-    codeassist/defaultassistinterface.h \
-    codeassist/iassistproposalitem.h \
+    codeassist/assistinterface.h \
+    codeassist/assistproposalitem.h \
     convenience.h \
     codeassist/assistenums.h \
     codeassist/runner.h \
     codeassist/completionassistprovider.h \
-    codeassist/igenericproposalmodel.h \
+    codeassist/genericproposalmodel.h \
     codeassist/quickfixassistprovider.h \
     codeassist/quickfixassistprocessor.h \
     codeassist/genericproposal.h \
     codeassist/genericproposalwidget.h \
-    codeassist/basicproposalitem.h \
-    codeassist/basicproposalitemlistmodel.h \
     codeassist/iassistproposalmodel.h \
     tabsettingswidget.h \
     simplecodestylepreferences.h \

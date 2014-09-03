@@ -34,7 +34,7 @@
 
 #include <qmljstools/qmljsrefactoringchanges.h>
 
-#include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/quickfixassistprovider.h>
 #include <texteditor/codeassist/quickfixassistprocessor.h>
 
@@ -43,7 +43,7 @@
 namespace QmlJSEditor {
 namespace Internal {
 
-class QmlJSQuickFixAssistInterface : public TextEditor::DefaultAssistInterface
+class QmlJSQuickFixAssistInterface : public TextEditor::AssistInterface
 {
 public:
     QmlJSQuickFixAssistInterface(QmlJSEditorWidget *editor, TextEditor::AssistReason reason);

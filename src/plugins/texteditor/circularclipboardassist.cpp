@@ -28,11 +28,11 @@
 ****************************************************************************/
 
 #include "circularclipboardassist.h"
-#include "codeassist/iassistinterface.h"
+#include "codeassist/assistinterface.h"
 #include "codeassist/iassistprocessor.h"
 #include "codeassist/iassistproposal.h"
-#include "codeassist/basicproposalitem.h"
-#include "codeassist/basicproposalitemlistmodel.h"
+#include "codeassist/assistproposalitem.h"
+#include "codeassist/genericproposalmodel.h"
 #include "codeassist/genericproposal.h"
 #include "basetexteditor.h"
 #include "circularclipboard.h"
@@ -44,17 +44,16 @@
 #include <QApplication>
 #include <QClipboard>
 
-using namespace TextEditor;
-using namespace TextEditor::Internal;
-
 namespace TextEditor {
 namespace Internal {
 
-class ClipboardProposalItem: public BasicProposalItem {
+class ClipboardProposalItem: public AssistProposalItem
+{
 public:
     enum { maxLen = 80 };
 
-    ClipboardProposalItem(QSharedPointer<const QMimeData> mimeData): m_mimeData(mimeData)
+    ClipboardProposalItem(QSharedPointer<const QMimeData> mimeData)
+        : m_mimeData(mimeData)
     {
         QString text = mimeData->text().simplified();
         if (text.length() > maxLen) {
@@ -88,31 +87,28 @@ private:
 class ClipboardAssistProcessor: public IAssistProcessor
 {
 public:
-    IAssistProposal *perform(const IAssistInterface *interface) QTC_OVERRIDE
+    IAssistProposal *perform(const AssistInterface *interface) QTC_OVERRIDE
     {
         if (!interface)
             return 0;
 
-        QScopedPointer<const IAssistInterface> assistInterface(interface);
+        QScopedPointer<const AssistInterface> assistInterface(interface);
 
         QIcon icon = QIcon::fromTheme(QLatin1String("edit-paste"), QIcon(QLatin1String(Core::Constants::ICON_PASTE))).pixmap(16);
         CircularClipboard * clipboard = CircularClipboard::instance();
-        QList<BasicProposalItem *> items;
+        QList<AssistProposalItem *> items;
         for (int i = 0; i < clipboard->size(); ++i) {
             QSharedPointer<const QMimeData> data = clipboard->next();
 
-            BasicProposalItem *item = new ClipboardProposalItem(data);
+            AssistProposalItem *item = new ClipboardProposalItem(data);
             item->setIcon(icon);
             item->setOrder(clipboard->size() - 1 - i);
             items.append(item);
         }
 
-        return new GenericProposal(interface->position(), new BasicProposalItemListModel(items));
+        return new GenericProposal(interface->position(), new GenericProposalModel(items));
     }
 };
-
-} // namespace Internal
-} // namespace TextEditor
 
 bool ClipboardAssistProvider::isAsynchronous() const
 {
@@ -128,3 +124,6 @@ IAssistProcessor *ClipboardAssistProvider::createProcessor() const
 {
     return new ClipboardAssistProcessor;
 }
+
+} // namespace Internal
+} // namespace TextEditor

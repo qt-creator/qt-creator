@@ -27,40 +27,63 @@
 **
 ****************************************************************************/
 
-#ifndef IASSISTINTERFACE_H
-#define IASSISTINTERFACE_H
+#ifndef IGENERICPROPOSALMODEL_H
+#define IGENERICPROPOSALMODEL_H
 
+#include "iassistproposalmodel.h"
 #include "assistenums.h"
 
 #include <texteditor/texteditor_global.h>
 
-#include <QString>
+#include <utils/qtcoverride.h>
 
-QT_BEGIN_NAMESPACE
-class QTextDocument;
-class QThread;
-QT_END_NAMESPACE
-
-namespace Core { class IDocument; }
+#include <QHash>
+#include <QIcon>
+#include <QList>
+#include <QPair>
 
 namespace TextEditor {
 
-class TEXTEDITOR_EXPORT IAssistInterface
+class AssistProposalItem;
+
+class TEXTEDITOR_EXPORT GenericProposalModel : public IAssistProposalModel
 {
 public:
-    IAssistInterface();
-    virtual ~IAssistInterface();
+    GenericProposalModel();
+    GenericProposalModel(const QList<AssistProposalItem *> &items);
+    ~GenericProposalModel();
 
-    virtual int position() const = 0;
-    virtual QChar characterAt(int position) const = 0;
-    virtual QString textAt(int position, int length) const = 0;
-    virtual QString fileName() const = 0;
-    virtual QTextDocument *textDocument() const = 0;
-    virtual void prepareForAsyncUse() = 0;
-    virtual void recreateTextDocument() = 0;
-    virtual AssistReason reason() const = 0;
+    void reset() QTC_OVERRIDE;
+    int size() const QTC_OVERRIDE;
+    QString text(int index) const QTC_OVERRIDE;
+
+    virtual QIcon icon(int index) const;
+    virtual QString detail(int index) const;
+    virtual int persistentId(int index) const;
+    virtual void removeDuplicates();
+    virtual void filter(const QString &prefix);
+    virtual bool isSortable(const QString &prefix) const;
+    virtual void sort(const QString &prefix);
+    virtual bool supportsPrefixExpansion() const;
+    virtual QString proposalPrefix() const;
+    virtual bool keepPerfectMatch(AssistReason reason) const;
+    virtual AssistProposalItem *proposalItem(int index) const;
+
+    void loadContent(const QList<AssistProposalItem *> &items);
+    void setSortingAllowed(bool isAllowed);
+    bool isSortingAllowed() const;
+
+protected:
+    typedef QList<AssistProposalItem *>::iterator ItemIterator;
+    QPair<ItemIterator, ItemIterator> currentItems();
+    QList<AssistProposalItem *> m_currentItems;
+
+private:
+    void mapPersistentIds();
+
+    QHash<QString, int> m_idByText;
+    QList<AssistProposalItem *> m_originalItems;
 };
-
 } // TextEditor
 
-#endif // IASSISTINTERFACE_H
+#endif // IGENERICPROPOSALMODEL_H

@@ -33,8 +33,8 @@
 #include "iassistprocessor.h"
 #include "iassistproposal.h"
 #include "iassistproposalwidget.h"
-#include "iassistinterface.h"
-#include "iassistproposalitem.h"
+#include "assistinterface.h"
+#include "assistproposalitem.h"
 #include "runner.h"
 
 #include <texteditor/basetexteditor.h>
@@ -109,7 +109,7 @@ signals:
 private slots:
     void finalizeRequest();
     void proposalComputed();
-    void processProposalItem(IAssistProposalItem *proposalItem);
+    void processProposalItem(AssistProposalItem *proposalItem);
     void handlePrefixExpansion(const QString &newPrefix);
     void finalizeProposal();
     void automaticProposalTimeout();
@@ -263,7 +263,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
     m_assistKind = kind;
     IAssistProcessor *processor = provider->createProcessor();
-    IAssistInterface *assistInterface = m_editorWidget->createAssistInterface(kind, reason);
+    AssistInterface *assistInterface = m_editorWidget->createAssistInterface(kind, reason);
     if (!assistInterface)
         return;
 
@@ -340,8 +340,8 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     connect(m_proposalWidget, SIGNAL(destroyed()), this, SLOT(finalizeProposal()));
     connect(m_proposalWidget, SIGNAL(prefixExpanded(QString)),
             this, SLOT(handlePrefixExpansion(QString)));
-    connect(m_proposalWidget, SIGNAL(proposalItemActivated(IAssistProposalItem*)),
-            this, SLOT(processProposalItem(IAssistProposalItem*)));
+    connect(m_proposalWidget, SIGNAL(proposalItemActivated(AssistProposalItem*)),
+            this, SLOT(processProposalItem(AssistProposalItem*)));
     connect(m_proposalWidget, SIGNAL(explicitlyAborted()),
             this, SLOT(explicitlyAborted()));
     m_proposalWidget->setAssistant(m_q);
@@ -359,7 +359,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
                                        m_editorWidget->position() - basePosition));
 }
 
-void CodeAssistantPrivate::processProposalItem(IAssistProposalItem *proposalItem)
+void CodeAssistantPrivate::processProposalItem(AssistProposalItem *proposalItem)
 {
     QTC_ASSERT(m_proposal, return);
     proposalItem->apply(m_editorWidget, m_proposal->basePosition());

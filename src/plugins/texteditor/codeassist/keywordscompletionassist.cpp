@@ -29,10 +29,10 @@
 
 #include "keywordscompletionassist.h"
 
-#include <texteditor/codeassist/iassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/basetexteditor.h>
@@ -176,7 +176,7 @@ KeywordsCompletionAssistProcessor::KeywordsCompletionAssistProcessor(Keywords ke
 KeywordsCompletionAssistProcessor::~KeywordsCompletionAssistProcessor()
 {}
 
-IAssistProposal *KeywordsCompletionAssistProcessor::perform(const IAssistInterface *interface)
+IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterface *interface)
 {
     m_interface.reset(interface);
 
@@ -198,10 +198,10 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const IAssistInterfa
         IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
         return proposal;
     } else {
-        QList<TextEditor::BasicProposalItem *> items;
+        QList<TextEditor::AssistProposalItem *> items;
         addWordsToProposalList(&items, m_keywords.variables(), m_variableIcon);
         addWordsToProposalList(&items, m_keywords.functions(), m_functionIcon);
-        return new GenericProposal(m_startPosition, new BasicProposalItemListModel(items));
+        return new GenericProposal(m_startPosition, new GenericProposalModel(items));
     }
 }
 
@@ -257,13 +257,13 @@ bool KeywordsCompletionAssistProcessor::isInComment() const
     return false;
 }
 
-void KeywordsCompletionAssistProcessor::addWordsToProposalList(QList<BasicProposalItem *> *items, const QStringList &words, const QIcon &icon)
+void KeywordsCompletionAssistProcessor::addWordsToProposalList(QList<AssistProposalItem *> *items, const QStringList &words, const QIcon &icon)
 {
     if (!items)
         return;
 
     for (int i = 0; i < words.count(); ++i) {
-        BasicProposalItem *item = new KeywordsAssistProposalItem(m_keywords);
+        AssistProposalItem *item = new KeywordsAssistProposalItem(m_keywords);
         item->setText(words.at(i));
         item->setIcon(icon);
         items->append(item);

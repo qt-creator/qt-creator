@@ -31,12 +31,13 @@
 #define CPPVIRTUALFUNCTIONPROPOSALITEM_H
 
 #include <texteditor/basetexteditor.h>
-#include <texteditor/codeassist/basicproposalitem.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 
 namespace CppEditor {
 namespace Internal {
 
-class VirtualFunctionProposalItem: public TextEditor::BasicProposalItem {
+class VirtualFunctionProposalItem: public TextEditor::AssistProposalItem
+{
 public:
     VirtualFunctionProposalItem(const TextEditor::BaseTextEditorWidget::Link &link,
                                 bool openInSplit = true);

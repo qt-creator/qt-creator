@@ -72,7 +72,7 @@ public:
 
     QModelIndex outlineModelIndex();
 
-    TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
+    TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;
 public slots:
     void findUsages();

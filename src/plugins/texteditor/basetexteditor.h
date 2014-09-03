@@ -65,7 +65,7 @@ class TabSettings;
 class RefactorOverlay;
 struct RefactorMarker;
 class IAssistMonitorInterface;
-class IAssistInterface;
+class AssistInterface;
 class IAssistProvider;
 class ICodeStylePreferences;
 class CompletionAssistProvider;
@@ -315,7 +315,7 @@ public:
 
     void invokeAssist(AssistKind assistKind, IAssistProvider *provider = 0);
 
-    virtual IAssistInterface *createAssistInterface(AssistKind assistKind,
+    virtual TextEditor::AssistInterface *createAssistInterface(AssistKind assistKind,
                                                     AssistReason assistReason) const;
     static QMimeData *duplicateMimeData(const QMimeData *source);
 

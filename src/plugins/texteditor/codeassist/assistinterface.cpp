@@ -27,13 +27,13 @@
 **
 ****************************************************************************/
 
-#include "iassistinterface.h"
+#include "assistinterface.h"
 
 using namespace TextEditor;
 
 /*!
-    \class TextEditor::IAssistInterface
-    \brief The IAssistInterface class acts as an interface for providing access
+    \class TextEditor::AssistInterface
+    \brief The AssistInterface class acts as an interface for providing access
     to the document from which a proposal is computed.
     \ingroup CodeAssist
 
@@ -50,43 +50,37 @@ using namespace TextEditor;
     \sa IAssistProposal, IAssistProvider, IAssistProcessor
 */
 
-IAssistInterface::IAssistInterface()
-{}
-
-IAssistInterface::~IAssistInterface()
-{}
-
 /*!
-    \fn int TextEditor::IAssistInterface::position() const
+    \fn int TextEditor::AssistInterface::position() const
 
     Returns the cursor position.
 */
 
 /*!
-    \fn QChar TextEditor::IAssistInterface::characterAt(int position) const
+    \fn QChar TextEditor::AssistInterface::characterAt(int position) const
 
     Returns the character at \a position.
 */
 
 /*!
-    \fn QString TextEditor::IAssistInterface::textAt(int position, int length) const
+    \fn QString TextEditor::AssistInterface::textAt(int position, int length) const
 
     Returns the text at \a position with the given \a length.
 */
 
 /*!
-    \fn QString TextEditor::IAssistInterface::fileName() const
+    \fn QString TextEditor::AssistInterface::fileName() const
 
     Returns the file associated.
 */
 
 /*!
-    \fn QTextDocument *TextEditor::IAssistInterface::textDocument() const
+    \fn QTextDocument *TextEditor::AssistInterface::textDocument() const
     Returns the document.
 */
 
 /*!
-    \fn void TextEditor::IAssistInterface::detach(QThread *destination)
+    \fn void TextEditor::AssistInterface::detach(QThread *destination)
 
     Detaches the interface. If it is necessary to take any special care in order to allow
     this interface to be run in a separate thread \a destination this needs to be done
@@ -94,7 +88,63 @@ IAssistInterface::~IAssistInterface()
 */
 
 /*!
-    \fn AssistReason TextEditor::IAssistInterface::reason() const
+    \fn AssistReason TextEditor::AssistInterface::reason() const
 
     The reason which triggered the assist.
 */
+
+#include "assistinterface.h"
+
+#include <texteditor/convenience.h>
+
+#include <QTextDocument>
+#include <QTextCursor>
+
+namespace TextEditor {
+
+AssistInterface::AssistInterface(QTextDocument *textDocument,
+                                               int position,
+                                               const QString &fileName,
+                                               AssistReason reason)
+    : m_textDocument(textDocument)
+    , m_isAsync(false)
+    , m_position(position)
+    , m_fileName(fileName)
+    , m_reason(reason)
+{}
+
+AssistInterface::~AssistInterface()
+{
+    if (m_isAsync)
+        delete m_textDocument;
+}
+
+QChar AssistInterface::characterAt(int position) const
+{
+    return m_textDocument->characterAt(position);
+}
+
+QString AssistInterface::textAt(int pos, int length) const
+{
+    return Convenience::textAt(QTextCursor(m_textDocument), pos, length);
+}
+
+void AssistInterface::prepareForAsyncUse()
+{
+    m_text = m_textDocument->toPlainText();
+    m_textDocument = 0;
+    m_isAsync = true;
+}
+
+void AssistInterface::recreateTextDocument()
+{
+    m_textDocument = new QTextDocument(m_text);
+    m_text.clear();
+}
+
+AssistReason AssistInterface::reason() const
+{
+    return m_reason;
+}
+
+} // namespace TextEditor

@@ -31,7 +31,7 @@
 #define KEYWORDSCOMPLETIONASSIST_H
 
 #include "iassistprocessor.h"
-#include "basicproposalitem.h"
+#include "assistproposalitem.h"
 #include "ifunctionhintproposalmodel.h"
 
 #include <utils/qtcoverride.h>
@@ -56,7 +56,7 @@ private:
     QMap<QString, QStringList> m_functionArgs;
 };
 
-class TEXTEDITOR_EXPORT KeywordsAssistProposalItem : public BasicProposalItem
+class TEXTEDITOR_EXPORT KeywordsAssistProposalItem : public AssistProposalItem
 {
 public:
     KeywordsAssistProposalItem(Keywords keywords);
@@ -89,18 +89,18 @@ public:
     KeywordsCompletionAssistProcessor(Keywords keywords);
     ~KeywordsCompletionAssistProcessor();
 
-    IAssistProposal *perform(const IAssistInterface *interface) QTC_OVERRIDE;
+    IAssistProposal *perform(const AssistInterface *interface) QTC_OVERRIDE;
     QChar startOfCommentChar() const;
 
 private:
     bool acceptsIdleEditor();
     int findStartOfName(int pos = -1);
     bool isInComment() const;
-    void addWordsToProposalList(QList<BasicProposalItem *> *items, const QStringList &words, const QIcon &icon);
+    void addWordsToProposalList(QList<AssistProposalItem *> *items, const QStringList &words, const QIcon &icon);
 
     int m_startPosition;
     QString m_word;
-    QScopedPointer<const IAssistInterface> m_interface;
+    QScopedPointer<const AssistInterface> m_interface;
     const QIcon m_variableIcon;
     const QIcon m_functionIcon;
     Keywords m_keywords;

@@ -37,9 +37,9 @@
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
-#include <texteditor/codeassist/basicproposalitem.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/completionassistprovider.h>
-#include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 
 #include <QStringList>
@@ -56,7 +56,7 @@ public:
     ClangCompletionAssistProvider();
 
     virtual TextEditor::IAssistProcessor *createProcessor() const;
-    virtual TextEditor::IAssistInterface *createAssistInterface(
+    virtual TextEditor::AssistInterface *createAssistInterface(
             const QString &filePath,
             QTextDocument *document, bool isObjCEnabled, int position,
             TextEditor::AssistReason reason) const;
@@ -67,7 +67,7 @@ private:
 
 } // namespace Internal
 
-class CLANG_EXPORT ClangCompletionAssistInterface: public TextEditor::DefaultAssistInterface
+class CLANG_EXPORT ClangCompletionAssistInterface: public TextEditor::AssistInterface
 {
 public:
     ClangCompletionAssistInterface(ClangCodeModel::ClangCompleter::Ptr clangWrapper,
@@ -109,7 +109,7 @@ public:
     ClangCompletionAssistProcessor();
     virtual ~ClangCompletionAssistProcessor();
 
-    virtual TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface);
+    virtual TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface);
 
 private:
     int startCompletionHelper();
@@ -133,7 +133,7 @@ private:
 private:
     int m_startPosition;
     QScopedPointer<const ClangCompletionAssistInterface> m_interface;
-    QList<TextEditor::BasicProposalItem *> m_completions;
+    QList<TextEditor::AssistProposalItem *> m_completions;
     CPlusPlus::Icons m_icons;
     QStringList m_preprocessorCompletions;
     QScopedPointer<Internal::ClangAssistProposalModel> m_model;

@@ -27,8 +27,9 @@
 **
 ****************************************************************************/
 
-#include "basicproposalitemlistmodel.h"
-#include "basicproposalitem.h"
+#include "genericproposalmodel.h"
+
+#include "assistproposalitem.h"
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
@@ -41,7 +42,7 @@
 
 using namespace TextEditor;
 
-uint qHash(const BasicProposalItem &item)
+uint qHash(const AssistProposalItem &item)
 {
     return qHash(item.text());
 }
@@ -57,7 +58,7 @@ struct ContentLessThan
         : m_prefix(prefix)
     {}
 
-    bool operator()(const BasicProposalItem *a, const BasicProposalItem *b)
+    bool operator()(const AssistProposalItem *a, const AssistProposalItem *b)
     {
         // The order is case-insensitive in principle, but case-sensitive when this
         // would otherwise mean equality
@@ -132,65 +133,65 @@ private:
 
 } // Anonymous
 
-BasicProposalItemListModel::BasicProposalItemListModel()
+GenericProposalModel::GenericProposalModel()
 {}
 
-BasicProposalItemListModel::BasicProposalItemListModel(const QList<BasicProposalItem *> &items)
+GenericProposalModel::GenericProposalModel(const QList<AssistProposalItem *> &items)
     : m_currentItems(items)
     , m_originalItems(items)
 {
     mapPersistentIds();
 }
 
-BasicProposalItemListModel::~BasicProposalItemListModel()
+GenericProposalModel::~GenericProposalModel()
 {
     qDeleteAll(m_originalItems);
 }
 
-void BasicProposalItemListModel::loadContent(const QList<BasicProposalItem *> &items)
+void GenericProposalModel::loadContent(const QList<AssistProposalItem *> &items)
 {
     m_originalItems = items;
     m_currentItems = items;
     mapPersistentIds();
 }
 
-void BasicProposalItemListModel::mapPersistentIds()
+void GenericProposalModel::mapPersistentIds()
 {
     for (int i = 0; i < m_originalItems.size(); ++i)
         m_idByText.insert(m_originalItems.at(i)->text(), i);
 }
 
-void BasicProposalItemListModel::reset()
+void GenericProposalModel::reset()
 {
     m_currentItems = m_originalItems;
 }
 
-int BasicProposalItemListModel::size() const
+int GenericProposalModel::size() const
 {
     return m_currentItems.size();
 }
 
-QString BasicProposalItemListModel::text(int index) const
+QString GenericProposalModel::text(int index) const
 {
     return m_currentItems.at(index)->text();
 }
 
-QIcon BasicProposalItemListModel::icon(int index) const
+QIcon GenericProposalModel::icon(int index) const
 {
     return m_currentItems.at(index)->icon();
 }
 
-QString BasicProposalItemListModel::detail(int index) const
+QString GenericProposalModel::detail(int index) const
 {
     return m_currentItems.at(index)->detail();
 }
 
-void BasicProposalItemListModel::removeDuplicates()
+void GenericProposalModel::removeDuplicates()
 {
     QHash<QString, QVariant> unique;
-    QList<BasicProposalItem *>::iterator it = m_originalItems.begin();
+    QList<AssistProposalItem *>::iterator it = m_originalItems.begin();
     while (it != m_originalItems.end()) {
-        const BasicProposalItem *item = *it;
+        const AssistProposalItem *item = *it;
         if (unique.contains(item->text())
                 && unique.value(item->text(), QVariant()) == item->data()) {
             it = m_originalItems.erase(it);
@@ -201,7 +202,7 @@ void BasicProposalItemListModel::removeDuplicates()
     }
 }
 
-void BasicProposalItemListModel::filter(const QString &prefix)
+void GenericProposalModel::filter(const QString &prefix)
 {
     if (prefix.isEmpty())
         return;
@@ -260,16 +261,14 @@ void BasicProposalItemListModel::filter(const QString &prefix)
     QRegExp regExp(keyRegExp);
 
     m_currentItems.clear();
-    for (QList<BasicProposalItem *>::const_iterator it = m_originalItems.begin();
-         it != m_originalItems.end();
-         ++it) {
-        BasicProposalItem *item = *it;
+    for (auto it = m_originalItems.begin(); it != m_originalItems.end(); ++it) {
+        AssistProposalItem *item = *it;
         if (regExp.indexIn(item->text()) == 0)
             m_currentItems.append(item);
     }
 }
 
-bool BasicProposalItemListModel::isSortable(const QString &prefix) const
+bool GenericProposalModel::isSortable(const QString &prefix) const
 {
     Q_UNUSED(prefix);
 
@@ -278,27 +277,27 @@ bool BasicProposalItemListModel::isSortable(const QString &prefix) const
     return false;
 }
 
-void BasicProposalItemListModel::sort(const QString &prefix)
+void GenericProposalModel::sort(const QString &prefix)
 {
     std::stable_sort(m_currentItems.begin(), m_currentItems.end(), ContentLessThan(prefix));
 }
 
-int BasicProposalItemListModel::persistentId(int index) const
+int GenericProposalModel::persistentId(int index) const
 {
     return m_idByText.value(m_currentItems.at(index)->text());
 }
 
-bool BasicProposalItemListModel::supportsPrefixExpansion() const
+bool GenericProposalModel::supportsPrefixExpansion() const
 {
     return true;
 }
 
-bool BasicProposalItemListModel::keepPerfectMatch(AssistReason reason) const
+bool GenericProposalModel::keepPerfectMatch(AssistReason reason) const
 {
     return reason != IdleEditor;
 }
 
-QString BasicProposalItemListModel::proposalPrefix() const
+QString GenericProposalModel::proposalPrefix() const
 {
     if (m_currentItems.size() >= kMaxPrefixFilter || m_currentItems.isEmpty())
         return QString();
@@ -323,14 +322,14 @@ QString BasicProposalItemListModel::proposalPrefix() const
     return commonPrefix;
 }
 
-IAssistProposalItem *BasicProposalItemListModel::proposalItem(int index) const
+AssistProposalItem *GenericProposalModel::proposalItem(int index) const
 {
     return m_currentItems.at(index);
 }
 
-QPair<QList<BasicProposalItem *>::iterator,
-      QList<BasicProposalItem *>::iterator>
-BasicProposalItemListModel::currentItems()
+QPair<QList<AssistProposalItem *>::iterator,
+      QList<AssistProposalItem *>::iterator>
+GenericProposalModel::currentItems()
 {
     return qMakePair(m_currentItems.begin(), m_currentItems.end());
 }

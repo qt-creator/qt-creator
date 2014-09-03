@@ -30,7 +30,7 @@
 #include "runner.h"
 #include "iassistprocessor.h"
 #include "iassistproposal.h"
-#include "iassistinterface.h"
+#include "assistinterface.h"
 #include "iassistproposalmodel.h"
 
 using namespace TextEditor;
@@ -84,7 +84,7 @@ void ProcessorRunner::setDiscardProposal(bool discard)
     m_discardProposal = discard;
 }
 
-void ProcessorRunner::setAssistInterface(IAssistInterface *interface)
+void ProcessorRunner::setAssistInterface(AssistInterface *interface)
 {
     m_interface = interface;
 }

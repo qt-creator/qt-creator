@@ -79,7 +79,7 @@ public:
     QSharedPointer<FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
 
-    TextEditor::IAssistInterface *createAssistInterface(
+    TextEditor::AssistInterface *createAssistInterface(
             TextEditor::AssistKind kind,
             TextEditor::AssistReason reason) const QTC_OVERRIDE;
 

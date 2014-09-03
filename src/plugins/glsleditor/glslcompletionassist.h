@@ -34,7 +34,7 @@
 
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
-#include <texteditor/codeassist/defaultassistinterface.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
 #include <utils/qtcoverride.h>
@@ -50,7 +50,7 @@ class TranslationUnitAST;
 class Scope;
 } // namespace GLSL
 
-namespace TextEditor { class BasicProposalItem; }
+namespace TextEditor { class AssistProposalItem; }
 
 namespace GlslEditor {
 namespace Internal {
@@ -104,7 +104,7 @@ public:
     GlslCompletionAssistProcessor();
     ~GlslCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface) QTC_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) QTC_OVERRIDE;
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;
@@ -114,7 +114,7 @@ private:
 
     int m_startPosition;
     QScopedPointer<const GlslCompletionAssistInterface> m_interface;
-    QList<TextEditor::BasicProposalItem *> m_completions;
+    QList<TextEditor::AssistProposalItem *> m_completions;
 
     QIcon m_keywordIcon;
     QIcon m_varIcon;
@@ -127,7 +127,7 @@ private:
     QIcon m_otherIcon;
 };
 
-class GlslCompletionAssistInterface : public TextEditor::DefaultAssistInterface
+class GlslCompletionAssistInterface : public TextEditor::AssistInterface
 {
 public:
     GlslCompletionAssistInterface(QTextDocument *textDocument,

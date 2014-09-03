@@ -27,29 +27,50 @@
 **
 ****************************************************************************/
 
-#ifndef IASSISTPROPOSALITEM_H
-#define IASSISTPROPOSALITEM_H
+#ifndef IASSISTINTERFACE_H
+#define IASSISTINTERFACE_H
+
+#include "assistenums.h"
 
 #include <texteditor/texteditor_global.h>
 
+#include <utils/qtcoverride.h>
+
 #include <QString>
+
+QT_BEGIN_NAMESPACE
+class QTextDocument;
+QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class BaseTextEditorWidget;
-
-class TEXTEDITOR_EXPORT IAssistProposalItem
+class TEXTEDITOR_EXPORT AssistInterface
 {
 public:
-    IAssistProposalItem();
-    virtual ~IAssistProposalItem();
+    AssistInterface(QTextDocument *textDocument,
+                    int position,
+                    const QString &fileName,
+                    AssistReason reason);
+    virtual ~AssistInterface();
 
-    virtual QString text() const = 0;
-    virtual bool implicitlyApplies() const = 0;
-    virtual bool prematurelyApplies(const QChar &c) const = 0;
-    virtual void apply(BaseTextEditorWidget *editorWidget, int basePosition) const = 0;
+    virtual int position() const { return m_position; }
+    virtual QChar characterAt(int position) const;
+    virtual QString textAt(int position, int length) const;
+    virtual QString fileName() const { return m_fileName; }
+    virtual QTextDocument *textDocument() const { return m_textDocument; }
+    virtual void prepareForAsyncUse();
+    virtual void recreateTextDocument();
+    virtual AssistReason reason() const;
+
+private:
+    QTextDocument *m_textDocument;
+    bool m_isAsync;
+    int m_position;
+    QString m_fileName;
+    AssistReason m_reason;
+    QString m_text;
 };
 
-} // TextEditor
+} // namespace TextEditor
 
-#endif // IASSISTPROPOSALITEM_H
+#endif // IASSISTINTERFACE_H

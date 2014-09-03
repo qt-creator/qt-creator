@@ -48,8 +48,8 @@
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/convenience.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
-#include <texteditor/codeassist/basicproposalitem.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
@@ -202,7 +202,7 @@ IAssistProcessor *ClangCompletionAssistProvider::createProcessor() const
     return new ClangCompletionAssistProcessor;
 }
 
-IAssistInterface *ClangCompletionAssistProvider::createAssistInterface(
+AssistInterface *ClangCompletionAssistProvider::createAssistInterface(
         const QString &filePath,
         QTextDocument *document, bool isObjCEnabled, int position, AssistReason reason) const
 {
@@ -235,11 +235,11 @@ IAssistInterface *ClangCompletionAssistProvider::createAssistInterface(
 // ------------------------
 // ClangAssistProposalModel
 // ------------------------
-class ClangAssistProposalModel : public TextEditor::BasicProposalItemListModel
+class ClangAssistProposalModel : public TextEditor::GenericProposalModel
 {
 public:
     ClangAssistProposalModel()
-        : TextEditor::BasicProposalItemListModel()
+        : TextEditor::GenericProposalModel()
         , m_sortable(false)
         , m_completionOperator(T_EOF_SYMBOL)
         , m_replaceDotForArrow(false)
@@ -257,7 +257,7 @@ public:
 class ClangAssistProposal : public TextEditor::GenericProposal
 {
 public:
-    ClangAssistProposal(int cursorPos, TextEditor::IGenericProposalModel *model)
+    ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModel *model)
         : TextEditor::GenericProposal(cursorPos, model)
         , m_replaceDotForArrow(static_cast<ClangAssistProposalModel *>(model)->m_replaceDotForArrow)
     {}
@@ -345,7 +345,7 @@ int ClangFunctionHintModel::activeArgument(const QString &prefix) const
     return argnr;
 }
 
-class ClangAssistProposalItem : public TextEditor::BasicProposalItem
+class ClangAssistProposalItem : public TextEditor::AssistProposalItem
 {
 public:
     ClangAssistProposalItem() {}
@@ -550,7 +550,7 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(ClangCompleter::P
         const QStringList &options,
         const QList<CppTools::ProjectPart::HeaderPath> &headerPaths,
         const PchInfo::Ptr &pchInfo)
-    : DefaultAssistInterface(document, position, fileName, reason)
+    : AssistInterface(document, position, fileName, reason)
     , m_clangWrapper(clangWrapper)
     , m_options(options)
     , m_headerPaths(headerPaths)
@@ -602,7 +602,7 @@ ClangCompletionAssistProcessor::~ClangCompletionAssistProcessor()
 {
 }
 
-IAssistProposal *ClangCompletionAssistProcessor::perform(const IAssistInterface *interface)
+IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *interface)
 {
     m_interface.reset(static_cast<const ClangCompletionAssistInterface *>(interface));
 

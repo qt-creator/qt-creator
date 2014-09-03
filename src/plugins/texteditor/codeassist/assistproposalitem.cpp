@@ -27,84 +27,112 @@
 **
 ****************************************************************************/
 
-#include "basicproposalitem.h"
+#include "assistproposalitem.h"
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 
 #include <QTextCursor>
 
-using namespace TextEditor;
+namespace TextEditor {
 
-BasicProposalItem::BasicProposalItem()
+/*!
+    \class TextEditor::AssistProposalItem
+    \brief The AssistProposalItem class acts as an interface for representing an assist
+    proposal item.
+    \ingroup CodeAssist
+
+    This is class is part of the CodeAssist API.
+*/
+
+/*!
+    \fn bool TextEditor::AssistProposalItem::implicitlyApplies() const
+
+    Returns whether this item should implicitly apply in the case it is the only proposal
+    item available.
+*/
+
+/*!
+    \fn bool TextEditor::AssistProposalItem::prematurelyApplies(const QChar &c) const
+
+    Returns whether the character \a c causes this item to be applied.
+*/
+
+/*!
+    \fn void TextEditor::AssistProposalItem::apply(BaseTextEditor *editor, int basePosition) const
+
+    This is the place to implement the actual application of the item.
+*/
+
+AssistProposalItem::AssistProposalItem()
     : m_order(0)
 {}
 
-BasicProposalItem::~BasicProposalItem()
+AssistProposalItem::~AssistProposalItem()
 {}
 
-void BasicProposalItem::setIcon(const QIcon &icon)
+void AssistProposalItem::setIcon(const QIcon &icon)
 {
     m_icon = icon;
 }
 
-const QIcon &BasicProposalItem::icon() const
+const QIcon &AssistProposalItem::icon() const
 {
     return m_icon;
 }
 
-void BasicProposalItem::setText(const QString &text)
+void AssistProposalItem::setText(const QString &text)
 {
     m_text = text;
 }
 
-QString BasicProposalItem::text() const
+QString AssistProposalItem::text() const
 {
     return m_text;
 }
 
-void BasicProposalItem::setDetail(const QString &detail)
+void AssistProposalItem::setDetail(const QString &detail)
 {
     m_detail = detail;
 }
 
-const QString &BasicProposalItem::detail() const
+const QString &AssistProposalItem::detail() const
 {
     return m_detail;
 }
 
-void BasicProposalItem::setData(const QVariant &var)
+void AssistProposalItem::setData(const QVariant &var)
 {
     m_data = var;
 }
 
-const QVariant &BasicProposalItem::data() const
+const QVariant &AssistProposalItem::data() const
 {
     return m_data;
 }
 
-int BasicProposalItem::order() const
+int AssistProposalItem::order() const
 {
     return m_order;
 }
 
-void BasicProposalItem::setOrder(int order)
+void AssistProposalItem::setOrder(int order)
 {
     m_order = order;
 }
 
-bool BasicProposalItem::implicitlyApplies() const
+bool AssistProposalItem::implicitlyApplies() const
 {
     return !data().canConvert<QString>() && !data().canConvert<QuickFixOperation::Ptr>();
 }
 
-bool BasicProposalItem::prematurelyApplies(const QChar &c) const
+bool AssistProposalItem::prematurelyApplies(const QChar &c) const
 {
     Q_UNUSED(c);
     return false;
 }
 
-void BasicProposalItem::apply(BaseTextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::apply(BaseTextEditorWidget *editorWidget, int basePosition) const
 {
     if (data().canConvert<QString>())
         applySnippet(editorWidget, basePosition);
@@ -114,21 +142,21 @@ void BasicProposalItem::apply(BaseTextEditorWidget *editorWidget, int basePositi
         applyContextualContent(editorWidget, basePosition);
 }
 
-void BasicProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const
 {
     const int currentPosition = editorWidget->position();
     editorWidget->setCursorPosition(basePosition);
     editorWidget->replace(currentPosition - basePosition, text());
 }
 
-void BasicProposalItem::applySnippet(BaseTextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::applySnippet(BaseTextEditorWidget *editorWidget, int basePosition) const
 {
     QTextCursor tc = editorWidget->textCursor();
     tc.setPosition(basePosition, QTextCursor::KeepAnchor);
     editorWidget->insertCodeSnippet(tc, data().toString());
 }
 
-void BasicProposalItem::applyQuickFix(BaseTextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::applyQuickFix(BaseTextEditorWidget *editorWidget, int basePosition) const
 {
     Q_UNUSED(editorWidget)
     Q_UNUSED(basePosition)
@@ -136,3 +164,5 @@ void BasicProposalItem::applyQuickFix(BaseTextEditorWidget *editorWidget, int ba
     QuickFixOperation::Ptr op = data().value<QuickFixOperation::Ptr>();
     op->perform();
 }
+
+} // namespace TextEditor
