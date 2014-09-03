@@ -51,23 +51,6 @@ using namespace TextEditor;
 namespace QmakeProjectManager {
 namespace Internal {
 
-//
-// ProFileEditor
-//
-
-class ProFileEditor : public TextEditor::BaseTextEditor
-{
-public:
-    ProFileEditor()
-    {
-        setDuplicateSupported(true);
-    }
-};
-
-//
-// ProFileEditorWidget
-//
-
 class ProFileEditorWidget : public BaseTextEditorWidget
 {
 public:
@@ -227,7 +210,6 @@ ProFileEditorFactory::ProFileEditorFactory()
 
     setDocumentCreator([]() { return new ProFileDocument; });
     setEditorWidgetCreator([]() { return new ProFileEditorWidget; });
-    setEditorCreator([]() { return new ProFileEditor; });
 
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection

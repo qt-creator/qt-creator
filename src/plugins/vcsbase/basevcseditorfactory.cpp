@@ -63,6 +63,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
         addMimeType(parameters->mimeType);
 
     setEditorActionHandlers(TextEditorActionHandler::None);
+    setDuplicatedSupported(false);
 
     setDocumentCreator([=]() -> BaseTextDocument* {
         auto document = new BaseTextDocument(parameters->id);

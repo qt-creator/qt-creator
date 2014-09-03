@@ -42,19 +42,6 @@ namespace GenericProjectManager {
 namespace Internal {
 
 //
-// ProjectFilesEditor
-//
-
-class ProjectFilesEditor : public BaseTextEditor
-{
-public:
-    ProjectFilesEditor()
-    {
-        setDuplicateSupported(true);
-    }
-};
-
-//
 // ProjectFilesFactory
 //
 
@@ -66,7 +53,6 @@ ProjectFilesFactory::ProjectFilesFactory()
     addMimeType(Constants::INCLUDES_MIMETYPE);
     addMimeType(Constants::CONFIG_MIMETYPE);
 
-    setEditorCreator([]() { return new ProjectFilesEditor; });
     setDocumentCreator([]() { return new BaseTextDocument(Constants::FILES_EDITOR_ID); });
     setEditorActionHandlers(TextEditorActionHandler::None);
 }

@@ -335,7 +335,6 @@ class GlslEditor : public TextEditor::BaseTextEditor
 public:
     GlslEditor()
     {
-        setDuplicateSupported(true);
     }
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName)

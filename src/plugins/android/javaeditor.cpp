@@ -49,20 +49,6 @@ namespace Android {
 namespace Internal {
 
 //
-// JavaEditor
-//
-
-class JavaEditor : public TextEditor::BaseTextEditor
-{
-public:
-    JavaEditor()
-    {
-        setDuplicateSupported(true);
-    }
-};
-
-
-//
 // JavaEditorWidget
 //
 
@@ -121,7 +107,6 @@ JavaEditorFactory::JavaEditorFactory()
 
     setDocumentCreator([]() { return new JavaDocument; });
     setEditorWidgetCreator([]() { return new JavaEditorWidget; });
-    setEditorCreator([]() { return new JavaEditor; });
     setAutoCompleterCreator([]() { return new JavaAutoCompleter; });
     setGenericSyntaxHighlighter(QLatin1String(Constants::JAVA_MIMETYPE));
     setCommentStyle(Utils::CommentDefinition::CppStyle);

@@ -879,7 +879,6 @@ QString QmlJSEditorWidget::foldReplacementText(const QTextBlock &block) const
 QmlJSEditor::QmlJSEditor()
 {
     addContext(ProjectExplorer::Constants::LANG_QMLJS);
-    setDuplicateSupported(true);
 }
 
 bool QmlJSEditor::isDesignModePreferred() const

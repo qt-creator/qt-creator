@@ -62,7 +62,6 @@ class PythonEditor : public BaseTextEditor
 public:
     PythonEditor()
     {
-        setDuplicateSupported(true);
     }
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName)

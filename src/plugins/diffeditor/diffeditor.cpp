@@ -208,8 +208,6 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
     , m_reloadAction(0)
     , m_diffEditorSwitcher(0)
 {
-    setDuplicateSupported(true);
-
     QSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
 
     m_descriptionWidget = new Internal::DescriptionEditorWidget(splitter);

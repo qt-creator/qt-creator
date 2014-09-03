@@ -644,6 +644,7 @@ public:
     void setEditorActionHandlers(uint optionalActions);
 
     void setCommentStyle(Utils::CommentDefinition::Style style);
+    void setDuplicatedSupported(bool on);
 
     Core::IEditor *createEditor();
 
@@ -661,6 +662,7 @@ private:
     IndenterCreator m_indenterCreator;
     SyntaxHighLighterCreator m_syntaxHighlighterCreator;
     Utils::CommentDefinition::Style m_commentStyle;
+    bool m_duplicatedSupported;
 };
 
 } // namespace TextEditor

@@ -6553,7 +6553,6 @@ BaseTextEditor::BaseTextEditor()
     : d(new BaseTextEditorPrivate)
 {
     addContext(TextEditor::Constants::C_TEXTEDITOR);
-    setDuplicateSupported(true);
 }
 
 BaseTextEditor::~BaseTextEditor()
@@ -7189,6 +7188,7 @@ BaseTextEditorFactory::BaseTextEditorFactory(QObject *parent)
     m_editorCreator = []() { return new BaseTextEditor; };
     m_widgetCreator = []() { return new BaseTextEditorWidget; };
     m_commentStyle = CommentDefinition::NoStyle;
+    m_duplicatedSupported = true;
 }
 
 void BaseTextEditorFactory::setDocumentCreator(const DocumentCreator &creator)
@@ -7245,6 +7245,11 @@ void BaseTextEditorFactory::setCommentStyle(CommentDefinition::Style style)
     m_commentStyle = style;
 }
 
+void BaseTextEditorFactory::setDuplicatedSupported(bool on)
+{
+    m_duplicatedSupported = on;
+}
+
 BaseTextEditor *BaseTextEditorFactory::duplicateTextEditor(BaseTextEditor *other)
 {
     BaseTextEditor *editor = createEditorHelper(other->editorWidget()->textDocumentPtr());
@@ -7272,6 +7277,7 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
 {
     BaseTextEditorWidget *widget = m_widgetCreator();
     BaseTextEditor *editor = m_editorCreator();
+    editor->setDuplicateSupported(m_duplicatedSupported);
     editor->addContext(id());
     editor->d->m_origin = this;
 

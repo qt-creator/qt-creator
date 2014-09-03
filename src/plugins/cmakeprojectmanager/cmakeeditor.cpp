@@ -65,7 +65,6 @@ namespace Internal {
 
 CMakeEditor::CMakeEditor()
 {
-    setDuplicateSupported(true);
 }
 
 void CMakeEditor::finalizeInitialization()
