@@ -44,7 +44,6 @@
 
 #include <QStringList>
 #include <QTextCursor>
-#include <QCoreApplication>
 
 namespace ClangCodeModel {
 
@@ -58,7 +57,7 @@ public:
 
     virtual TextEditor::IAssistProcessor *createProcessor() const;
     virtual TextEditor::IAssistInterface *createAssistInterface(
-            ProjectExplorer::Project *project, const QString &filePath,
+            const QString &filePath,
             QTextDocument *document, bool isObjCEnabled, int position,
             TextEditor::AssistReason reason) const;
 

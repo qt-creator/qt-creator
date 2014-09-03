@@ -41,8 +41,6 @@ QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Project; }
-
 namespace TextEditor {
 class BaseTextEditor;
 class IAssistInterface;
@@ -61,7 +59,7 @@ public:
     bool isContinuationChar(const QChar &c) const QTC_OVERRIDE;
 
     virtual TextEditor::IAssistInterface *createAssistInterface(
-            ProjectExplorer::Project *project, const QString &filePath,
+            const QString &filePath,
             QTextDocument *document, bool isObjCEnabled, int position,
             TextEditor::AssistReason reason) const = 0;
 

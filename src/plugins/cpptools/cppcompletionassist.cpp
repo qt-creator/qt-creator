@@ -418,10 +418,9 @@ IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
 }
 
 IAssistInterface *InternalCompletionAssistProvider::createAssistInterface(
-        ProjectExplorer::Project *project, const QString &filePath, QTextDocument *document,
+        const QString &filePath, QTextDocument *document,
         bool isObjCEnabled, int position, AssistReason reason) const
 {
-    Q_UNUSED(project);
     QTC_ASSERT(document, return 0);
 
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();

@@ -92,7 +92,7 @@ class InternalCompletionAssistProvider : public CppCompletionAssistProvider
 public:
     TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
-    TextEditor::IAssistInterface *createAssistInterface(ProjectExplorer::Project *project,
+    TextEditor::IAssistInterface *createAssistInterface(
             const QString &filePath,
             QTextDocument *document,
             bool isObjCEnabled,

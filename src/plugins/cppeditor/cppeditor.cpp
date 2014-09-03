@@ -613,7 +613,6 @@ IAssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, Assist
     if (kind == Completion) {
         if (CppCompletionAssistProvider *cap = cppEditorDocument()->completionAssistProvider()) {
             return cap->createAssistInterface(
-                            ProjectExplorer::ProjectExplorerPlugin::currentProject(),
                             textDocument()->filePath(),
                             document(),
                             cppEditorDocument()->isObjCEnabled(),

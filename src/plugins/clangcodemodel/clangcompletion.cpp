@@ -203,10 +203,9 @@ IAssistProcessor *ClangCompletionAssistProvider::createProcessor() const
 }
 
 IAssistInterface *ClangCompletionAssistProvider::createAssistInterface(
-        ProjectExplorer::Project *project, const QString &filePath,
+        const QString &filePath,
         QTextDocument *document, bool isObjCEnabled, int position, AssistReason reason) const
 {
-    Q_UNUSED(project);
     Q_UNUSED(isObjCEnabled);
 
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
