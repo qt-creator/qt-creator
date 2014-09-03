@@ -244,6 +244,9 @@ public:
     int position(BaseTextEditor::PositionOperation posOp = BaseTextEditor::Current,
          int at = -1) const;
     void convertPosition(int pos, int *line, int *column) const;
+    using QPlainTextEdit::cursorRect;
+    QRect cursorRect(int pos) const;
+    void setCursorPosition(int pos);
 
     void print(QPrinter *);
 
@@ -570,6 +573,11 @@ public:
 
     void setupAsPlainEditor();
     void setupFallBackEditor(Core::Id id);
+
+    void remove(int length);
+    void replace(int length, const QString &string);
+    QChar characterAt(int pos) const;
+    QString textAt(int from, int to) const;
 
 protected:
     /*!

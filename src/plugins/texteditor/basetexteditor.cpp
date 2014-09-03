@@ -2470,6 +2470,16 @@ int BaseTextEditorWidget::position(BaseTextEditor::PositionOperation posOp, int 
     return -1;
 }
 
+QRect BaseTextEditorWidget::cursorRect(int pos) const
+{
+    QTextCursor tc = textCursor();
+    if (pos >= 0)
+        tc.setPosition(pos);
+    QRect result = cursorRect(tc);
+    result.moveTo(viewport()->mapToGlobal(result.topLeft()));
+    return result;
+}
+
 void BaseTextEditorWidget::convertPosition(int pos, int *line, int *column) const
 {
     Convenience::convertPosition(document(), pos, line, column);
@@ -6632,12 +6642,7 @@ void BaseTextEditor::convertPosition(int pos, int *line, int *column) const
 
 QRect BaseTextEditor::cursorRect(int pos) const
 {
-    QTextCursor tc = editorWidget()->textCursor();
-    if (pos >= 0)
-        tc.setPosition(pos);
-    QRect result = editorWidget()->cursorRect(tc);
-    result.moveTo(editorWidget()->viewport()->mapToGlobal(result.topLeft()));
-    return result;
+    return editorWidget()->cursorRect(pos);
 }
 
 QString BaseTextEditor::selectedText() const
@@ -6647,7 +6652,12 @@ QString BaseTextEditor::selectedText() const
 
 void BaseTextEditor::remove(int length)
 {
-    QTextCursor tc = editorWidget()->textCursor();
+    editorWidget()->remove(length);
+}
+
+void BaseTextEditorWidget::remove(int length)
+{
+    QTextCursor tc = textCursor();
     tc.setPosition(tc.position() + length, QTextCursor::KeepAnchor);
     tc.removeSelectedText();
 }
@@ -6659,17 +6669,27 @@ void BaseTextEditor::insert(const QString &string)
 
 void BaseTextEditor::replace(int length, const QString &string)
 {
-    QTextCursor tc = editorWidget()->textCursor();
+    editorWidget()->replace(length, string);
+}
+
+void BaseTextEditorWidget::replace(int length, const QString &string)
+{
+    QTextCursor tc = textCursor();
     tc.setPosition(tc.position() + length, QTextCursor::KeepAnchor);
     tc.insertText(string);
 }
 
 void BaseTextEditor::setCursorPosition(int pos)
 {
-    editorWidget()->setBlockSelection(false);
-    QTextCursor tc = editorWidget()->textCursor();
+    editorWidget()->setCursorPosition(pos);
+}
+
+void BaseTextEditorWidget::setCursorPosition(int pos)
+{
+    setBlockSelection(false);
+    QTextCursor tc = textCursor();
     tc.setPosition(pos);
-    editorWidget()->setTextCursor(tc);
+    setTextCursor(tc);
 }
 
 void BaseTextEditor::select(int toPos)
@@ -7060,6 +7080,16 @@ QChar BaseTextEditor::characterAt(int pos) const
 }
 
 QString BaseTextEditor::textAt(int from, int to) const
+{
+    return textDocument()->textAt(from, to);
+}
+
+QChar BaseTextEditorWidget::characterAt(int pos) const
+{
+    return textDocument()->characterAt(pos);
+}
+
+QString BaseTextEditorWidget::textAt(int from, int to) const
 {
     return textDocument()->textAt(from, to);
 }
