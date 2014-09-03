@@ -301,12 +301,12 @@ QWidget *WidgetCache::widgetFor(Project *project, int supportsIndex)
 
     QList<ProjectPanelFactory *> fac = ProjectPanelFactory::factories();
 
-    int factoryIndex = factoryIndex(projectIndex, supportsIndex);
-    if (factoryIndex < 0 ||factoryIndex >= m_projects.at(projectIndex).widgets.size())
+    int factoryIdx = factoryIndex(projectIndex, supportsIndex);
+    if (factoryIdx < 0 ||factoryIdx >= m_projects.at(projectIndex).widgets.size())
         return 0;
-    if (!m_projects.at(projectIndex).widgets.at(factoryIndex))
-        m_projects[projectIndex].widgets[factoryIndex] = fac.at(factoryIndex)->createWidget(project);
-    return m_projects.at(projectIndex).widgets.at(factoryIndex);
+    if (!m_projects.at(projectIndex).widgets.at(factoryIdx))
+        m_projects[projectIndex].widgets[factoryIdx] = fac.at(factoryIdx)->createWidget(project);
+    return m_projects.at(projectIndex).widgets.at(factoryIdx);
 }
 
 bool WidgetCache::isRegistered(Project *project) const
@@ -354,7 +354,7 @@ void WidgetCache::sort()
 int WidgetCache::recheckFactories(Project *project, int oldSupportsIndex)
 {
     int projectIndex = indexForProject(project);
-    int factoryIndex = factoryIndex(projectIndex, oldSupportsIndex);
+    int factoryIdx = factoryIndex(projectIndex, oldSupportsIndex);
 
     ProjectInfo &info = m_projects[projectIndex];
     QList<ProjectPanelFactory *> fac = ProjectPanelFactory::factories();
@@ -368,14 +368,14 @@ int WidgetCache::recheckFactories(Project *project, int oldSupportsIndex)
         }
     }
 
-    if (factoryIndex < 0)
+    if (factoryIdx < 0)
         return -1;
 
-    if (!info.supports.at(factoryIndex))
+    if (!info.supports.at(factoryIdx))
         return -1;
 
     int newIndex = 0;
-    for (int i = 0; i < factoryIndex; ++i) {
+    for (int i = 0; i < factoryIdx; ++i) {
         if (info.supports.at(i))
             ++newIndex;
     }
