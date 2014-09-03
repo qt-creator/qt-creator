@@ -69,7 +69,6 @@ signals:
 public slots:
     void setApplyChangesToQmlInspector(bool applyChanges);
     void updateDebugIds();
-    void reloadQml();
 
 private slots:
     void changeSelectedElements(const QList<QmlJS::AST::UiObjectMember *> offsets,

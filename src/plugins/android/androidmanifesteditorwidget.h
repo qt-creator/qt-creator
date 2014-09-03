@@ -126,7 +126,6 @@ private slots:
     void updateAddRemovePermissionButtons();
     void setAppName();
     void setPackageName();
-    void gotoError();
     void updateInfoBar();
     void updateSdkVersions();
     void startParseCheck();

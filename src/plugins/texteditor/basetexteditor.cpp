@@ -536,8 +536,12 @@ static void updateEditorInfoBar(BaseTextEditorWidget *widget)
                           BaseTextEditor::tr("A highlight definition was not found for this file. "
                                              "Would you like to try to find one?"),
                           InfoBarEntry::GlobalSuppressionEnabled);
-        info.setCustomButtonInfo(BaseTextEditor::tr("Show Highlighter Options..."),
-                                 widget, SLOT(acceptMissingSyntaxDefinitionInfo()));
+        info.setCustomButtonInfo(BaseTextEditor::tr("Show Highlighter Options..."), [widget]() {
+            ICore::showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
+                                     Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS,
+                                     widget);
+        });
+
         infoBar->addInfo(info);
     }
 }
@@ -943,7 +947,7 @@ void BaseTextEditorWidgetPrivate::updateCannotDecodeInfo()
         InfoBarEntry info(selectEncodingId,
             BaseTextEditorWidget::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
             .arg(m_document->displayName()).arg(QString::fromLatin1(m_document->codec()->name())));
-        info.setCustomButtonInfo(BaseTextEditorWidget::tr("Select Encoding"), q, SLOT(selectEncoding()));
+        info.setCustomButtonInfo(BaseTextEditorWidget::tr("Select Encoding"), [this]() { q->selectEncoding(); });
         infoBar->addInfo(info);
     } else {
         infoBar->removeInfo(selectEncodingId);
@@ -7137,13 +7141,6 @@ void BaseTextEditorWidget::configureMimeType(const MimeType &mimeType)
 bool BaseTextEditorWidget::isMissingSyntaxDefinition() const
 {
     return d->m_isMissingSyntaxDefinition;
-}
-
-void BaseTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
-{
-    ICore::showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
-                             Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS,
-                             this);
 }
 
 // The remnants of PlainTextEditor.

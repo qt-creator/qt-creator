@@ -329,8 +329,12 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
                                   .arg(versionControl->displayName()),
                                   InfoBarEntry::GlobalSuppressionEnabled);
                 d->m_unconfiguredVcs = versionControl;
-                info.setCustomButtonInfo(Core::ICore::msgShowOptionsDialog(), m_instance,
-                                         SLOT(configureVcs()));
+                info.setCustomButtonInfo(Core::ICore::msgShowOptionsDialog(), []() {
+                    QTC_ASSERT(d->m_unconfiguredVcs, return);
+                    ICore::showOptionsDialog(Id(VcsBase::Constants::VCS_SETTINGS_CATEGORY),
+                                             d->m_unconfiguredVcs->id());
+                 });
+
                 infoBar->addInfo(info);
             }
             return 0;
@@ -475,13 +479,6 @@ void VcsManager::clearVersionControlCache()
     d->clearCache();
     foreach (const QString &repo, repoList)
         emit m_instance->repositoryChanged(repo);
-}
-
-void VcsManager::configureVcs()
-{
-    QTC_ASSERT(d->m_unconfiguredVcs, return);
-    ICore::showOptionsDialog(Id(VcsBase::Constants::VCS_SETTINGS_CATEGORY),
-                             d->m_unconfiguredVcs->id());
 }
 
 void VcsManager::handleConfigurationChanges()

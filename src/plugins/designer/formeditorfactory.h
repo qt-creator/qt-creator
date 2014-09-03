@@ -43,9 +43,6 @@ public:
     FormEditorFactory();
 
     Core::IEditor *createEditor();
-
-private slots:
-    void designerModeClicked();
 };
 
 } // namespace Internal

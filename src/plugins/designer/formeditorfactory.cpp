@@ -41,6 +41,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
+using namespace Core;
 using namespace Designer::Constants;
 
 namespace Designer {
@@ -62,15 +63,10 @@ Core::IEditor *FormEditorFactory::createEditor()
     if (data.formWindowEditor) {
         Core::InfoBarEntry info(Core::Id(Constants::INFO_READ_ONLY),
                                 tr("This file can only be edited in <b>Design</b> mode."));
-        info.setCustomButtonInfo(tr("Switch Mode"), this, SLOT(designerModeClicked()));
+        info.setCustomButtonInfo(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
         data.formWindowEditor->document()->infoBar()->addInfo(info);
     }
     return data.formWindowEditor;
-}
-
-void FormEditorFactory::designerModeClicked()
-{
-    Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
 }
 
 } // namespace Internal

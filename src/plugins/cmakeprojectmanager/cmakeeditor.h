@@ -49,9 +49,6 @@ public:
     QString contextHelpId() const;
 
     friend class CMakeEditorWidget;
-
-public slots:
-    void build();
 };
 
 class CMakeEditorFactory : public TextEditor::BaseTextEditorFactory

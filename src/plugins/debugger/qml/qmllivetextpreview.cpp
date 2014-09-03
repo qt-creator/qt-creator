@@ -718,17 +718,13 @@ void QmlLiveTextPreview::showSyncWarning(
             Core::InfoBarEntry info(Core::Id(INFO_OUT_OF_SYNC), errorMessage);
             BaseToolsClient *toolsClient = m_inspectorAdapter->toolsClient();
             if (toolsClient && toolsClient->supportReload())
-                info.setCustomButtonInfo(tr("Reload QML"), this,
-                                         SLOT(reloadQml()));
+                info.setCustomButtonInfo(tr("Reload QML"), [this]() {
+                    removeOutofSyncInfo();
+                    emit reloadRequest();
+                });
             infoBar->addInfo(info);
         }
     }
-}
-
-void QmlLiveTextPreview::reloadQml()
-{
-    removeOutofSyncInfo();
-    emit reloadRequest();
 }
 
 void QmlLiveTextPreview::removeOutofSyncInfo()

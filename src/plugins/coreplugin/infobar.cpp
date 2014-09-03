@@ -46,32 +46,25 @@ QSet<Id> InfoBar::globallySuppressed;
 InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppressionMode _globalSuppression)
     : id(_id)
     , infoText(_infoText)
-    , object(0)
-    , buttonPressMember(0)
-    , cancelObject(0)
-    , cancelButtonPressMember(0)
     , globalSuppression(_globalSuppression)
 {
 }
 
-void InfoBarEntry::setCustomButtonInfo(const QString &_buttonText, QObject *_object, const char *_member)
+void InfoBarEntry::setCustomButtonInfo(const QString &_buttonText, CallBack callBack)
 {
     buttonText = _buttonText;
-    object = _object;
-    buttonPressMember = _member;
+    m_buttonCallBack = callBack;
 }
 
-void InfoBarEntry::setCancelButtonInfo(QObject *_object, const char *_member)
+void InfoBarEntry::setCancelButtonInfo(CallBack callBack)
 {
-    cancelObject = _object;
-    cancelButtonPressMember = _member;
+    m_cancelButtonCallBack = callBack;
 }
 
-void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, QObject *_object, const char *_member)
+void InfoBarEntry::setCancelButtonInfo(const QString &_cancelButtonText, CallBack callBack)
 {
     cancelButtonText = _cancelButtonText;
-    cancelObject = _object;
-    cancelButtonPressMember = _member;
+    m_cancelButtonCallBack = callBack;
 }
 
 
@@ -226,7 +219,7 @@ void InfoBarDisplay::update()
         if (!info.buttonText.isEmpty()) {
             QToolButton *infoWidgetButton = new QToolButton;
             infoWidgetButton->setText(info.buttonText);
-            connect(infoWidgetButton, SIGNAL(clicked()), info.object, info.buttonPressMember);
+            connect(infoWidgetButton, &QAbstractButton::clicked, [info]() { info.m_buttonCallBack(); });
 
             hbox->addWidget(infoWidgetButton);
         }
@@ -244,9 +237,8 @@ void InfoBarDisplay::update()
 
         // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
         // because the latter removes the button and with it any connect
-        if (info.cancelObject)
-            connect(infoWidgetCloseButton, SIGNAL(clicked()),
-                    info.cancelObject, info.cancelButtonPressMember);
+        if (info.m_cancelButtonCallBack)
+            connect(infoWidgetCloseButton, &QAbstractButton::clicked, info.m_cancelButtonCallBack);
         connect(infoWidgetCloseButton, SIGNAL(clicked()), SLOT(cancelButtonClicked()));
 
         if (info.cancelButtonText.isEmpty()) {

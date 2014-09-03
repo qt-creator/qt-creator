@@ -260,8 +260,8 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
         Core::InfoBarEntry info(sizeWarningId,
                                 tr("The search resulted in more than %n items, do you still want to continue?",
                                 0, SEARCHRESULT_WARNING_LIMIT));
-        info.setCancelButtonInfo(tr("Cancel"), this, SLOT(cancelAfterSizeWarning()));
-        info.setCustomButtonInfo(tr("Continue"), this, SLOT(continueAfterSizeWarning()));
+        info.setCancelButtonInfo(tr("Cancel"), [this]() { cancelAfterSizeWarning(); });
+        info.setCustomButtonInfo(tr("Continue"), [this]() { continueAfterSizeWarning(); });
         m_infoBar.addInfo(info);
         emit requestPopup(false/*no focus*/);
     }

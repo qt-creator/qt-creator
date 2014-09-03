@@ -713,7 +713,9 @@ void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int
     else
         text = tr("%2: Could not parse file: \"%1\".").arg(errorMessage).arg(line);
     Core::InfoBarEntry infoBarEntry(infoBarId, text);
-    infoBarEntry.setCustomButtonInfo(tr("Goto error"), this, SLOT(gotoError()));
+    infoBarEntry.setCustomButtonInfo(tr("Goto error"), [this]() {
+        m_textEditorWidget->gotoLine(m_errorLine, m_errorColumn);
+    });
     infoBar->removeInfo(infoBarId);
     infoBar->addInfo(infoBarEntry);
 
@@ -727,11 +729,6 @@ void AndroidManifestEditorWidget::hideInfoBar()
     Core::InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
         infoBar->removeInfo(infoBarId);
     m_timerParseCheck.stop();
-}
-
-void AndroidManifestEditorWidget::gotoError()
-{
-    m_textEditorWidget->gotoLine(m_errorLine, m_errorColumn);
 }
 
 void setApiLevel(QComboBox *box, const QDomElement &element, const QString &attribute)

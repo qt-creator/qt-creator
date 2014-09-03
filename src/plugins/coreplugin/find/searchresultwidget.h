@@ -110,14 +110,15 @@ signals:
     void navigateStateChanged();
 
 private slots:
-    void continueAfterSizeWarning();
-    void cancelAfterSizeWarning();
     void handleJumpToSearchResult(const SearchResultItem &item);
     void handleReplaceButton();
     void cancel();
     void searchAgain();
 
 private:
+    void continueAfterSizeWarning();
+    void cancelAfterSizeWarning();
+
     QList<SearchResultItem> checkedItems() const;
     void updateMatchesFoundLabel();
 

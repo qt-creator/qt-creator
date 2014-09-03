@@ -54,6 +54,7 @@
 #include <QTextBlock>
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace TextEditor;
 
 namespace CMakeProjectManager {
@@ -80,22 +81,18 @@ void CMakeEditor::finalizeInitialization()
         InfoBarEntry info(infoRunCmake,
                           tr("Changes to cmake files are shown in the project tree after building."),
                           InfoBarEntry::GlobalSuppressionEnabled);
-        info.setCustomButtonInfo(tr("Build now"), this, SLOT(build()));
+        info.setCustomButtonInfo(tr("Build now"), [document]() {
+            foreach (Project *p, SessionManager::projects()) {
+                if (CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p)) {
+                    if (cmakeProject->isProjectFile(document->filePath())) {
+                        ProjectExplorerPlugin::instance()->buildProject(cmakeProject);
+                        break;
+                    }
+                }
+            }
+        });
         infoBar->addInfo(info);
     });
-}
-
-void CMakeEditor::build()
-{
-    foreach (ProjectExplorer::Project *p, ProjectExplorer::SessionManager::projects()) {
-        CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
-        if (cmakeProject) {
-            if (cmakeProject->isProjectFile(document()->filePath())) {
-                ProjectExplorer::ProjectExplorerPlugin::instance()->buildProject(cmakeProject);
-                break;
-            }
-        }
-    }
 }
 
 QString CMakeEditor::contextHelpId() const

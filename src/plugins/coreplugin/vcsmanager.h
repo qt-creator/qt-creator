@@ -105,7 +105,6 @@ public slots:
     static void clearVersionControlCache();
 
 private slots:
-    static void configureVcs();
     void handleConfigurationChanges();
 
 private:

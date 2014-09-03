@@ -36,6 +36,8 @@
 #include <QObject>
 #include <QSet>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QBoxLayout;
 QT_END_NAMESPACE
@@ -56,19 +58,19 @@ public:
 
     InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppressionMode _globalSuppression = GlobalSuppressionDisabled);
     InfoBarEntry(const InfoBarEntry &other) { *this = other; }
-    void setCustomButtonInfo(const QString &_buttonText, QObject *_object, const char *_member);
-    void setCancelButtonInfo(QObject *_object, const char *_member);
-    void setCancelButtonInfo(const QString &_cancelButtonText, QObject *_object, const char *_member);
+
+    typedef std::function<void()> CallBack;
+    void setCustomButtonInfo(const QString &_buttonText, CallBack callBack);
+    void setCancelButtonInfo(CallBack callBack);
+    void setCancelButtonInfo(const QString &_cancelButtonText, CallBack callBack);
 
 private:
     Id id;
     QString infoText;
     QString buttonText;
-    QObject *object;
-    const char *buttonPressMember;
+    CallBack m_buttonCallBack;
     QString cancelButtonText;
-    QObject *cancelObject;
-    const char *cancelButtonPressMember;
+    CallBack m_cancelButtonCallBack;
     GlobalSuppressionMode globalSuppression;
     friend class InfoBar;
     friend class InfoBarDisplay;

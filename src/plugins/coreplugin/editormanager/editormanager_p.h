@@ -110,11 +110,12 @@ public:
 
     static void updateWindowTitleForDocument(IDocument *document, QWidget *window);
 
+    static void vcsOpenCurrentEditor();
+    static void makeCurrentEditorWritable();
+
 public slots:
     static bool saveDocument(Core::IDocument *document);
     static bool saveDocumentAs(Core::IDocument *document);
-    static void makeCurrentEditorWritable();
-    static void vcsOpenCurrentEditor();
 
     static void split(Qt::Orientation orientation);
     static void removeAllSplits();
