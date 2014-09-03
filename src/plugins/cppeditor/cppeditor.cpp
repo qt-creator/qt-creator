@@ -191,7 +191,6 @@ void CppEditorWidget::finalizeInitialization()
     });
     connect(&d->m_localRenaming, &CppLocalRenaming::processKeyPressNormally,
             this, &CppEditorWidget::processKeyNormally);
-
     connect(this, SIGNAL(cursorPositionChanged()),
             d->m_cppEditorOutline, SLOT(updateIndex()));
 
@@ -684,6 +683,10 @@ void CppEditorWidget::updateFunctionDeclDefLink()
 
 void CppEditorWidget::updateFunctionDeclDefLinkNow()
 {
+    static bool noTracking = qgetenv("QTC_NO_FUNCTION_DECL_DEF_LINK_TRACKING").trimmed() == "1";
+    if (noTracking)
+        return;
+
     if (Core::EditorManager::currentEditor()->widget() != this)
         return;
 

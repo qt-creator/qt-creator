@@ -1712,17 +1712,13 @@ void QmakeProFileNode::setupReader()
 
 QmakeProFileNode::EvalResult QmakeProFileNode::evaluate()
 {
-    EvalResult evalResult = EvalOk;
     if (ProFile *pro = m_readerExact->parsedProFile(m_projectFilePath)) {
-        if (!m_readerExact->accept(pro, QMakeEvaluator::LoadAll))
-            evalResult = EvalPartial;
-        if (!m_readerCumulative->accept(pro, QMakeEvaluator::LoadPreFiles))
-            evalResult = EvalFail;
+        bool exactOk = m_readerExact->accept(pro, QMakeEvaluator::LoadAll);
+        bool cumulOk = m_readerCumulative->accept(pro, QMakeEvaluator::LoadPreFiles);
         pro->deref();
-    } else {
-        evalResult = EvalFail;
+        return exactOk ? EvalOk : cumulOk ? EvalPartial : EvalFail;
     }
-    return evalResult;
+    return EvalFail;
 }
 
 void QmakeProFileNode::asyncEvaluate(QFutureInterface<EvalResult> &fi)

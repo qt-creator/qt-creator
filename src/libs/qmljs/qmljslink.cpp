@@ -438,15 +438,21 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
 }
 
 bool LinkPrivate::importLibrary(Document::Ptr doc,
-                         const QString &libraryPath,
+                         const QString &libraryPath_,
                          Import *import,
                          const QString &importPath)
 {
     const ImportInfo &importInfo = import->info;
+    QString libraryPath = libraryPath_;
 
-    const LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-    if (!libraryInfo.isValid())
-        return false;
+    LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
+    if (!libraryInfo.isValid()) {
+        // try canonical path
+        libraryPath = QFileInfo(libraryPath).canonicalFilePath();
+        libraryInfo = snapshot.libraryInfo(libraryPath);
+        if (!libraryInfo.isValid())
+            return false;
+    }
 
     import->libraryPath = libraryPath;
 
@@ -551,7 +557,7 @@ void LinkPrivate::loadQmldirComponents(ObjectValue *import, ComponentVersion ver
 
         importedTypes.insert(component.typeName);
         if (Document::Ptr importedDoc = snapshot.document(
-                    libraryPath + QDir::separator() + component.fileName)) {
+                    libraryPath + QLatin1Char('/') + component.fileName)) {
             if (ObjectValue *v = importedDoc->bind()->rootObjectValue())
                 import->setMember(component.typeName, v);
         }

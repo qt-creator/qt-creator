@@ -378,21 +378,21 @@ void DebuggerItemManager::saveDebuggers()
 
 QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
 {
-    // Force addition when Id is set.
-    if (item.id().isValid())
-        return addDebugger(item);
-
-    // Otherwise, try re-using existing item first.
+    // Try re-using existing item first.
     foreach (const DebuggerItem &d, m_debuggers) {
         if (d.command() == item.command()
                 && d.isAutoDetected() == item.isAutoDetected()
                 && d.engineType() == item.engineType()
                 && d.displayName() == item.displayName()
-                && d.abis() == item.abis())
+                && d.abis() == item.abis()) {
             return d.id();
+        }
     }
 
-    // Nothing suitable. Create a new id and add the item.
+    // If item already has an id, add it. Otherwise, create a new id.
+    if (item.id().isValid())
+        return addDebugger(item);
+
     DebuggerItem di = item;
     di.createId();
     return addDebugger(di);

@@ -472,6 +472,7 @@ void EditorManagerPrivate::init()
     m_windowPopup->hide();
 
     m_autoSaveTimer = new QTimer(this);
+    m_autoSaveTimer->setObjectName(QLatin1String("EditorManager::m_autoSaveTimer"));
     connect(m_autoSaveTimer, SIGNAL(timeout()), SLOT(autoSave()));
     updateAutoSave();
 

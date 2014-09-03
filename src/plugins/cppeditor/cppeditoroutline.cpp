@@ -82,9 +82,10 @@ private:
     CPlusPlus::OverviewModel *m_sourceModel;
 };
 
-QTimer *newSingleShotTimer(QObject *parent, int msInternal)
+QTimer *newSingleShotTimer(QObject *parent, int msInternal, const QString &objectName)
 {
     QTimer *timer = new QTimer(parent);
+    timer->setObjectName(objectName);
     timer->setSingleShot(true);
     timer->setInterval(msInternal);
     return timer;
@@ -131,10 +132,12 @@ CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     connect(m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateToolTip()));
 
     // Set up timers
-    m_updateTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs);
+    m_updateTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
+                                       QLatin1String("CppEditorOutline::m_updateTimer"));
     connect(m_updateTimer, SIGNAL(timeout()), this, SLOT(updateNow()));
 
-    m_updateIndexTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs);
+    m_updateIndexTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
+                                            QLatin1String("CppEditorOutline::m_updateIndexTimer"));
     connect(m_updateIndexTimer, SIGNAL(timeout()), this, SLOT(updateIndexNow()));
 }
 

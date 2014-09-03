@@ -554,6 +554,7 @@ void MainWindow::registerDefaultActions()
     m_exitAction = new QAction(icon, tr("E&xit"), this);
     cmd = ActionManager::registerAction(m_exitAction, Constants::EXIT, globalContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Q")));
+    cmd->action()->setMenuRole(QAction::QuitRole);
     mfile->addAction(cmd, Constants::G_FILE_OTHER);
     connect(m_exitAction, SIGNAL(triggered()), this, SLOT(exit()));
 

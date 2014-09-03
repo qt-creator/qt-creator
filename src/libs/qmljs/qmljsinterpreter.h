@@ -1011,7 +1011,7 @@ public:
     // Other: non-absolute path
     QString name() const;
 
-    // LibraryImport: uri with QDir::separator separator
+    // LibraryImport: uri with '/' separator
     // Other: absoluteFilePath
     QString path() const;
 
@@ -1088,7 +1088,7 @@ public:
     QString nameForImportedObject(const ObjectValue *value, const Context *context) const;
     bool importFailed() const;
 
-    QList<Import> all() const;
+    const QList<Import> &all() const;
 
     const TypeScope *typeScope() const;
     const JSImportScope *jsImportScope() const;

@@ -84,7 +84,7 @@ RunControl *WinRtDebugSupport::createDebugRunControl(WinRtRunConfiguration *runC
                              + QLatin1String("/winrtdebughelper.exe"));
     if (!debuggerHelper.isExecutable()) {
         *errorMessage = tr("The WinRT debugging helper is missing from your Qt Creator "
-                           "installation. It was assumed to be located at").arg(
+                           "installation. It was assumed to be located at %1").arg(
                     debuggerHelper.absoluteFilePath());
         return 0;
     }

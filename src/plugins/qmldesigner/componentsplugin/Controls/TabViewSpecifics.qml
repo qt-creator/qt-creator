@@ -39,7 +39,7 @@ Column {
     Section {
         anchors.left: parent.left
         anchors.right: parent.right
-        caption: qsTr("TabView")
+        caption: qsTr("Tab View")
 
         SectionLayout {
 

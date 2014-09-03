@@ -334,7 +334,9 @@ void CheckSymbols::run()
     _potentialStatics = collectTypes.statics();
 
     Utils::sort(_macroUses, sortByLinePredicate);
-    _doc->clearDiagnosticMessages();
+    // TODO: Handle concurrent (write) access of diagnostic messages and ensure
+    //       propagation to the editor widget
+//    _doc->clearDiagnosticMessages();
 
     if (!isCanceled()) {
         if (_doc->translationUnit()) {
@@ -350,7 +352,9 @@ void CheckSymbols::run()
 bool CheckSymbols::warning(unsigned line, unsigned column, const QString &text, unsigned length)
 {
     Document::DiagnosticMessage m(Document::DiagnosticMessage::Warning, _fileName, line, column, text, length);
-    _doc->addDiagnosticMessage(m);
+    // TODO: Handle concurrent (write) access of diagnostic messages and ensure
+    //       propagation to the editor widget
+//    _doc->addDiagnosticMessage(m);
     return false;
 }
 

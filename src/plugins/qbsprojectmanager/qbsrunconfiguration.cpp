@@ -194,11 +194,24 @@ void QbsRunConfiguration::installStepChanged()
 
     if (m_currentBuildStepList) {
         connect(m_currentBuildStepList, SIGNAL(stepInserted(int)), this, SLOT(installStepChanged()));
+        connect(m_currentBuildStepList, SIGNAL(aboutToRemoveStep(int)), this,
+                SLOT(installStepToBeRemoved(int)));
         connect(m_currentBuildStepList, SIGNAL(stepRemoved(int)), this, SLOT(installStepChanged()));
         connect(m_currentBuildStepList, SIGNAL(stepMoved(int,int)), this, SLOT(installStepChanged()));
     }
 
     emit targetInformationChanged();
+}
+
+void QbsRunConfiguration::installStepToBeRemoved(int pos)
+{
+    QTC_ASSERT(m_currentBuildStepList, return);
+    // TODO: Our logic is rather broken. Users can create as many qbs install steps as they want,
+    // but we ignore all but the first one.
+    if (m_currentBuildStepList->steps().at(pos) != m_currentInstallStep)
+        return;
+    disconnect(m_currentInstallStep, SIGNAL(changed()), this, SIGNAL(targetInformationChanged()));
+    m_currentInstallStep = 0;
 }
 
 QString QbsRunConfiguration::executable() const

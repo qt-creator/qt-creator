@@ -297,8 +297,10 @@ Document::Document(const QString &fileName)
 Document::~Document()
 {
     delete _translationUnit;
+    _translationUnit = 0;
     delete _control->diagnosticClient();
     delete _control;
+    _control = 0;
 }
 
 Control *Document::control() const

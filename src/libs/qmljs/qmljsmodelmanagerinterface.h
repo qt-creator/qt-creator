@@ -90,8 +90,6 @@ public:
         bool isNull() const
         { return project.isNull(); }
 
-        QStringList completeImportPaths();
-
     public: // attributes
         QPointer<ProjectExplorer::Project> project;
         QStringList sourceFiles;

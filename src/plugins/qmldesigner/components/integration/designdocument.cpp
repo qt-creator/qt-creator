@@ -650,10 +650,9 @@ static inline ProjectExplorer::Kit *getActiveKit(DesignDocument *designDocument)
     if (!isFileInProject(designDocument, currentProject))
         return 0;
 
-    designDocument->disconnect(designDocument,  SLOT(updateActiveQtVersion()));
-    designDocument->connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)), designDocument, SLOT(updateActiveQtVersion()));
+    designDocument->connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)), designDocument, SLOT(updateActiveQtVersion()), Qt::UniqueConnection);
 
-    designDocument->connect(currentProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)), designDocument, SLOT(updateActiveQtVersion()));
+    designDocument->connect(currentProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)), designDocument, SLOT(updateActiveQtVersion()), Qt::UniqueConnection);
 
 
     ProjectExplorer::Target *target = currentProject->activeTarget();
@@ -661,7 +660,7 @@ static inline ProjectExplorer::Kit *getActiveKit(DesignDocument *designDocument)
     if (!target)
         return 0;
 
-    designDocument->connect(target, SIGNAL(kitChanged()), designDocument, SLOT(updateActiveQtVersion()));
+    designDocument->connect(target, SIGNAL(kitChanged()), designDocument, SLOT(updateActiveQtVersion()), Qt::UniqueConnection);
 
     return target->kit();
 }

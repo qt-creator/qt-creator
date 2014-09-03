@@ -1,6 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.1
-import QtQuick.Window 2.0
+import QtQuick.Window 2.1
 
 ApplicationWindow {
     title: qsTr("Hello World")
@@ -10,6 +10,10 @@ ApplicationWindow {
     menuBar: MenuBar {
         Menu {
             title: qsTr("File")
+            MenuItem {
+                text: qsTr("&Open")
+                onTriggered: console.log("Open action triggered");
+            }
             MenuItem {
                 text: qsTr("Exit")
                 onTriggered: Qt.quit();

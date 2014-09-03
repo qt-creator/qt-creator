@@ -1,5 +1,5 @@
 import QtQuick 2.1
-import QtQuick.Window 2.1
+import QtQuick.Window 2.0
 
 Window {
     visible: true
