@@ -98,20 +98,20 @@ bool KeywordsAssistProposalItem::prematurelyApplies(const QChar &c) const
     return false;
 }
 
-void KeywordsAssistProposalItem::applyContextualContent(BaseTextEditor *editor,
+void KeywordsAssistProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget,
                                                         int basePosition) const
 {
     const CompletionSettings &settings = TextEditorSettings::completionSettings();
 
-    int replaceLength = editor->position() - basePosition;
+    int replaceLength = editorWidget->position() - basePosition;
     QString toInsert = text();
     int cursorOffset = 0;
     if (m_keywords.isFunction(toInsert) && settings.m_autoInsertBrackets) {
         if (settings.m_spaceAfterFunctionName) {
-            if (editor->textAt(editor->position(), 2) == QLatin1String(" (")) {
+            if (editorWidget->textAt(editorWidget->position(), 2) == QLatin1String(" (")) {
                 cursorOffset = 2;
-            } else if (editor->characterAt(editor->position()) == QLatin1Char('(')
-                       || editor->characterAt(editor->position()) == QLatin1Char(' ')) {
+            } else if (editorWidget->characterAt(editorWidget->position()) == QLatin1Char('(')
+                       || editorWidget->characterAt(editorWidget->position()) == QLatin1Char(' ')) {
                 replaceLength += 1;
                 toInsert += QLatin1String(" (");
             } else {
@@ -119,7 +119,7 @@ void KeywordsAssistProposalItem::applyContextualContent(BaseTextEditor *editor,
                 cursorOffset = -1;
             }
         } else {
-            if (editor->characterAt(editor->position()) == QLatin1Char('(')) {
+            if (editorWidget->characterAt(editorWidget->position()) == QLatin1Char('(')) {
                 cursorOffset = 1;
             } else {
                 toInsert += QLatin1String("()");
@@ -128,10 +128,10 @@ void KeywordsAssistProposalItem::applyContextualContent(BaseTextEditor *editor,
         }
     }
 
-    editor->setCursorPosition(basePosition);
-    editor->replace(replaceLength, toInsert);
+    editorWidget->setCursorPosition(basePosition);
+    editorWidget->replace(replaceLength, toInsert);
     if (cursorOffset)
-        editor->setCursorPosition(editor->position() + cursorOffset);
+        editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
 }
 
 // -------------------------

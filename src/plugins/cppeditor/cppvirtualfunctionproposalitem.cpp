@@ -39,7 +39,7 @@ VirtualFunctionProposalItem::VirtualFunctionProposalItem(
 {
 }
 
-void VirtualFunctionProposalItem::apply(TextEditor::BaseTextEditor *, int) const
+void VirtualFunctionProposalItem::apply(TextEditor::BaseTextEditorWidget *, int) const
 {
     if (!m_link.hasValidTarget())
         return;

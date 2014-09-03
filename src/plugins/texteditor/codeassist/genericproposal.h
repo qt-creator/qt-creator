@@ -47,7 +47,7 @@ public:
     bool isFragile() const QTC_OVERRIDE;
     int basePosition() const QTC_OVERRIDE;
     bool isCorrective() const QTC_OVERRIDE;
-    void makeCorrection(BaseTextEditor *editor) QTC_OVERRIDE;
+    void makeCorrection(BaseTextEditorWidget *editorWidget) QTC_OVERRIDE;
     IAssistProposalModel *model() const QTC_OVERRIDE;
     IAssistProposalWidget *createWidget() const QTC_OVERRIDE;
 

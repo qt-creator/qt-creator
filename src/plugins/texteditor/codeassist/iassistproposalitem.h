@@ -36,7 +36,7 @@
 
 namespace TextEditor {
 
-class BaseTextEditor;
+class BaseTextEditorWidget;
 
 class TEXTEDITOR_EXPORT IAssistProposalItem
 {
@@ -47,7 +47,7 @@ public:
     virtual QString text() const = 0;
     virtual bool implicitlyApplies() const = 0;
     virtual bool prematurelyApplies(const QChar &c) const = 0;
-    virtual void apply(BaseTextEditor *editor, int basePosition) const = 0;
+    virtual void apply(BaseTextEditorWidget *editorWidget, int basePosition) const = 0;
 };
 
 } // TextEditor

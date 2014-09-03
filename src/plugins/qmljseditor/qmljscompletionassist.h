@@ -57,7 +57,7 @@ class QmlJSAssistProposalItem : public TextEditor::BasicProposalItem
 {
 public:
     bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
-    void applyContextualContent(TextEditor::BaseTextEditor *editor,
+    void applyContextualContent(TextEditor::BaseTextEditorWidget *editorWidget,
                                 int basePosition) const QTC_OVERRIDE;
 };
 

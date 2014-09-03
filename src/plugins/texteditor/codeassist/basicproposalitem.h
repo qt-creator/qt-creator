@@ -64,10 +64,10 @@ public:
 
     bool implicitlyApplies() const QTC_OVERRIDE;
     bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
-    void apply(BaseTextEditor *editor, int basePosition) const QTC_OVERRIDE;
-    virtual void applyContextualContent(BaseTextEditor *editor, int basePosition) const;
-    virtual void applySnippet(BaseTextEditor *editor, int basePosition) const;
-    virtual void applyQuickFix(BaseTextEditor *editor, int basePosition) const;
+    void apply(BaseTextEditorWidget *editorWidget, int basePosition) const QTC_OVERRIDE;
+    virtual void applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const;
+    virtual void applySnippet(BaseTextEditorWidget *editorWidget, int basePosition) const;
+    virtual void applyQuickFix(BaseTextEditorWidget *editorWidget, int basePosition) const;
 
 private:
     QIcon m_icon;

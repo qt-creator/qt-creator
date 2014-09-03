@@ -353,12 +353,12 @@ bool QmlJSAssistProposalItem::prematurelyApplies(const QChar &c) const
             || (text().endsWith(QLatin1Char('.')) && c == QLatin1Char('.'));
 }
 
-void QmlJSAssistProposalItem::applyContextualContent(BaseTextEditor *editor,
+void QmlJSAssistProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget,
                                                       int basePosition) const
 {
-    const int currentPosition = editor->position();
-    editor->setCursorPosition(basePosition);
-    editor->remove(currentPosition - basePosition);
+    const int currentPosition = editorWidget->position();
+    editorWidget->setCursorPosition(basePosition);
+    editorWidget->remove(currentPosition - basePosition);
 
     QString content = text();
     int cursorOffset = 0;
@@ -377,16 +377,16 @@ void QmlJSAssistProposalItem::applyContextualContent(BaseTextEditor *editor,
     int replacedLength = 0;
     for (int i = 0; i < replaceable.length(); ++i) {
         const QChar a = replaceable.at(i);
-        const QChar b = editor->characterAt(editor->position() + i);
+        const QChar b = editorWidget->characterAt(editorWidget->position() + i);
         if (a == b)
             ++replacedLength;
         else
             break;
     }
-    const int length = editor->position() - basePosition + replacedLength;
-    editor->replace(length, content);
+    const int length = editorWidget->position() - basePosition + replacedLength;
+    editorWidget->replace(length, content);
     if (cursorOffset)
-        editor->setCursorPosition(editor->position() + cursorOffset);
+        editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
 }
 
 // -------------------------

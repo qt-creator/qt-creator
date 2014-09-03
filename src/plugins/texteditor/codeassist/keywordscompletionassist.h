@@ -63,7 +63,7 @@ public:
     ~KeywordsAssistProposalItem();
 
     bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
-    void applyContextualContent(BaseTextEditor *editor, int basePosition) const QTC_OVERRIDE;
+    void applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const QTC_OVERRIDE;
 private:
     Keywords m_keywords;
 };

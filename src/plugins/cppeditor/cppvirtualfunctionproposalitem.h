@@ -40,7 +40,7 @@ class VirtualFunctionProposalItem: public TextEditor::BasicProposalItem {
 public:
     VirtualFunctionProposalItem(const TextEditor::BaseTextEditorWidget::Link &link,
                                 bool openInSplit = true);
-    void apply(TextEditor::BaseTextEditor * /* editor */, int /* basePosition */) const;
+    void apply(TextEditor::BaseTextEditorWidget * /* editorWidget */, int /* basePosition */) const;
     TextEditor::BaseTextEditorWidget::Link link() const { return m_link; } // Exposed for tests
 
 private:

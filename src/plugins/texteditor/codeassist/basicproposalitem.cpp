@@ -104,33 +104,33 @@ bool BasicProposalItem::prematurelyApplies(const QChar &c) const
     return false;
 }
 
-void BasicProposalItem::apply(BaseTextEditor *editor, int basePosition) const
+void BasicProposalItem::apply(BaseTextEditorWidget *editorWidget, int basePosition) const
 {
     if (data().canConvert<QString>())
-        applySnippet(editor, basePosition);
+        applySnippet(editorWidget, basePosition);
     else if (data().canConvert<QuickFixOperation::Ptr>())
-        applyQuickFix(editor, basePosition);
+        applyQuickFix(editorWidget, basePosition);
     else
-        applyContextualContent(editor, basePosition);
+        applyContextualContent(editorWidget, basePosition);
 }
 
-void BasicProposalItem::applyContextualContent(BaseTextEditor *editor, int basePosition) const
+void BasicProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const
 {
-    const int currentPosition = editor->position();
-    editor->setCursorPosition(basePosition);
-    editor->replace(currentPosition - basePosition, text());
+    const int currentPosition = editorWidget->position();
+    editorWidget->setCursorPosition(basePosition);
+    editorWidget->replace(currentPosition - basePosition, text());
 }
 
-void BasicProposalItem::applySnippet(BaseTextEditor *editor, int basePosition) const
+void BasicProposalItem::applySnippet(BaseTextEditorWidget *editorWidget, int basePosition) const
 {
-    QTextCursor tc = editor->textCursor();
+    QTextCursor tc = editorWidget->textCursor();
     tc.setPosition(basePosition, QTextCursor::KeepAnchor);
-    editor->editorWidget()->insertCodeSnippet(tc, data().toString());
+    editorWidget->insertCodeSnippet(tc, data().toString());
 }
 
-void BasicProposalItem::applyQuickFix(BaseTextEditor *editor, int basePosition) const
+void BasicProposalItem::applyQuickFix(BaseTextEditorWidget *editorWidget, int basePosition) const
 {
-    Q_UNUSED(editor)
+    Q_UNUSED(editorWidget)
     Q_UNUSED(basePosition)
 
     QuickFixOperation::Ptr op = data().value<QuickFixOperation::Ptr>();

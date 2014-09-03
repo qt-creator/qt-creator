@@ -7284,7 +7284,7 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
     editor->m_widget = widget;
     widget->setTextDocument(document);
 
-    widget->d->m_codeAssistant.configure(editor);
+    widget->d->m_codeAssistant.configure(widget);
     widget->d->m_commentDefinition.setStyle(m_commentStyle);
 
     if (m_autoCompleterCreator)

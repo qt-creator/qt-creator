@@ -263,10 +263,10 @@ public:
     {}
 
     virtual bool isCorrective() const { return m_replaceDotForArrow; }
-    virtual void makeCorrection(BaseTextEditor *editor)
+    virtual void makeCorrection(BaseTextEditorWidget *editorWidget)
     {
-        editor->setCursorPosition(basePosition() - 1);
-        editor->replace(1, QLatin1String("->"));
+        editorWidget->setCursorPosition(basePosition() - 1);
+        editorWidget->replace(1, QLatin1String("->"));
         moveBasePosition(1);
     }
 
@@ -351,7 +351,7 @@ public:
     ClangAssistProposalItem() {}
 
     virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void applyContextualContent(TextEditor::BaseTextEditor *editor,
+    virtual void applyContextualContent(TextEditor::BaseTextEditorWidget *editorWidget,
                                         int basePosition) const;
 
     void keepCompletionOperator(unsigned compOp) { m_completionOperator = compOp; }
@@ -410,7 +410,7 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
     return ok;
 }
 
-void ClangAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *editor,
+void ClangAssistProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget,
                                                      int basePosition) const
 {
     const CodeCompletionResult ccr = originalItem();
@@ -455,7 +455,7 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
 
             // If the function doesn't return anything, automatically place the semicolon,
             // unless we're doing a scope completion (then it might be function definition).
-            const QChar characterAtCursor = editor->characterAt(editor->position());
+            const QChar characterAtCursor = editorWidget->characterAt(editorWidget->position());
             bool endWithSemicolon = m_typedChar == QLatin1Char(';')/*
                                             || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON)*/; //###
             const QChar semicolon = m_typedChar.isNull() ? QLatin1Char(';') : m_typedChar;
@@ -473,7 +473,7 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
                     m_typedChar = QChar();
                 }
             } else if (autoParenthesesEnabled) {
-                const QChar lookAhead = editor->characterAt(editor->position() + 1);
+                const QChar lookAhead = editorWidget->characterAt(editorWidget->position() + 1);
                 if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                     extraChars += QLatin1Char(')');
                     --cursorOffset;
@@ -508,12 +508,12 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
     }
 
     // Avoid inserting characters that are already there
-    const int endsPosition = editor->position(TextEditor::BaseTextEditor::EndOfLine);
-    const QString existingText = editor->textAt(editor->position(), endsPosition - editor->position());
+    const int endsPosition = editorWidget->position(TextEditor::BaseTextEditor::EndOfLine);
+    const QString existingText = editorWidget->textAt(editorWidget->position(), endsPosition - editorWidget->position());
     int existLength = 0;
     if (!existingText.isEmpty()) {
         // Calculate the exist length in front of the extra chars
-        existLength = toInsert.length() - (editor->position() - basePosition);
+        existLength = toInsert.length() - (editorWidget->position() - basePosition);
         while (!existingText.startsWith(toInsert.right(existLength))) {
             if (--existLength == 0)
                 break;
@@ -521,7 +521,7 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
     }
     for (int i = 0; i < extraChars.length(); ++i) {
         const QChar a = extraChars.at(i);
-        const QChar b = editor->characterAt(editor->position() + i + existLength);
+        const QChar b = editorWidget->characterAt(editorWidget->position() + i + existLength);
         if (a == b)
             ++extraLength;
         else
@@ -530,11 +530,11 @@ void ClangAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
     toInsert += extraChars;
 
     // Insert the remainder of the name
-    const int length = editor->position() - basePosition + existLength + extraLength;
-    editor->setCursorPosition(basePosition);
-    editor->replace(length, toInsert);
+    const int length = editorWidget->position() - basePosition + existLength + extraLength;
+    editorWidget->setCursorPosition(basePosition);
+    editorWidget->replace(length, toInsert);
     if (cursorOffset)
-        editor->setCursorPosition(editor->position() + cursorOffset);
+        editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
 }
 
 bool ClangCompletionAssistInterface::objcEnabled() const

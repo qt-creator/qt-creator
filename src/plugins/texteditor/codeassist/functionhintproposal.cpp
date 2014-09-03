@@ -56,7 +56,7 @@ bool FunctionHintProposal::isCorrective() const
     return false;
 }
 
-void FunctionHintProposal::makeCorrection(BaseTextEditor *)
+void FunctionHintProposal::makeCorrection(BaseTextEditorWidget *)
 {}
 
 IAssistProposalModel *FunctionHintProposal::model() const

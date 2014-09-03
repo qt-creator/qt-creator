@@ -91,7 +91,7 @@ public:
         m_isOverloaded(false) {}
 
     bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
-    void applyContextualContent(BaseTextEditor *editor, int basePosition) const QTC_OVERRIDE;
+    void applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const QTC_OVERRIDE;
 
     bool isOverloaded() const { return m_isOverloaded; }
     void markAsOverloaded() { m_isOverloaded = true; }
@@ -121,8 +121,7 @@ bool CppAssistProposalModel::isSortable(const QString &prefix) const
 
 IAssistProposalItem *CppAssistProposalModel::proposalItem(int index) const
 {
-    BasicProposalItem *item =
-        static_cast<BasicProposalItem *>(BasicProposalItemListModel::proposalItem(index));
+    auto item = static_cast<BasicProposalItem *>(BasicProposalItemListModel::proposalItem(index));
     if (!item->data().canConvert<QString>()) {
         CppAssistProposalItem *cppItem = static_cast<CppAssistProposalItem *>(item);
         cppItem->keepCompletionOperator(m_completionOperator);
@@ -163,9 +162,9 @@ bool CppAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
     return false;
 }
 
-static bool isDereferenced(BaseTextEditor *editor, int basePosition)
+static bool isDereferenced(BaseTextEditorWidget *editorWidget, int basePosition)
 {
-    QTextCursor cursor = editor->textCursor();
+    QTextCursor cursor = editorWidget->textCursor();
     cursor.setPosition(basePosition);
 
     BackwardsScanner scanner(cursor);
@@ -183,7 +182,7 @@ static bool isDereferenced(BaseTextEditor *editor, int basePosition)
     return false;
 }
 
-void CppAssistProposalItem::applyContextualContent(BaseTextEditor *editor, int basePosition) const
+void CppAssistProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const
 {
     Symbol *symbol = 0;
 
@@ -233,7 +232,7 @@ void CppAssistProposalItem::applyContextualContent(BaseTextEditor *editor, int b
                     if (function->argumentCount() == 0)
                         extraChars += QLatin1Char('<');
 #endif
-                } else if (!isDereferenced(editor, basePosition) && !function->isAmbiguous()) {
+                } else if (!isDereferenced(editorWidget, basePosition) && !function->isAmbiguous()) {
                     // When the user typed the opening parenthesis, he'll likely also type the closing one,
                     // in which case it would be annoying if we put the cursor after the already automatically
                     // inserted closing parenthesis.
@@ -247,7 +246,7 @@ void CppAssistProposalItem::applyContextualContent(BaseTextEditor *editor, int b
 
                     // If the function doesn't return anything, automatically place the semicolon,
                     // unless we're doing a scope completion (then it might be function definition).
-                    const QChar characterAtCursor = editor->characterAt(editor->position());
+                    const QChar characterAtCursor = editorWidget->characterAt(editorWidget->position());
                     bool endWithSemicolon = m_typedChar == QLatin1Char(';')
                             || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON);
                     const QChar semicolon = m_typedChar.isNull() ? QLatin1Char(';') : m_typedChar;
@@ -265,7 +264,7 @@ void CppAssistProposalItem::applyContextualContent(BaseTextEditor *editor, int b
                             m_typedChar = QChar();
                         }
                     } else if (autoParenthesesEnabled) {
-                        const QChar lookAhead = editor->characterAt(editor->position() + 1);
+                        const QChar lookAhead = editorWidget->characterAt(editorWidget->position() + 1);
                         if (MatchingText::shouldInsertMatchingText(lookAhead)) {
                             extraChars += QLatin1Char(')');
                             --cursorOffset;
@@ -303,11 +302,11 @@ void CppAssistProposalItem::applyContextualContent(BaseTextEditor *editor, int b
 
     // Determine the length of characters that should just be kept on the editor, but do
     // not consider content that ends as an identifier (which could be undesired).
-    const int lineEnd = editor->position(BaseTextEditor::EndOfLine);
-    const QString inEditor = editor->textAt(editor->position(), lineEnd - editor->position());
+    const int lineEnd = editorWidget->position(BaseTextEditor::EndOfLine);
+    const QString inEditor = editorWidget->textAt(editorWidget->position(), lineEnd - editorWidget->position());
     int preserveLength = 0;
     if (!inEditor.isEmpty()) {
-        preserveLength = toInsert.length() - (editor->position() - basePosition);
+        preserveLength = toInsert.length() - (editorWidget->position() - basePosition);
         const int inEditorLength = inEditor.length();
         while (preserveLength > 0) {
             if (inEditor.startsWith(toInsert.right(preserveLength))
@@ -321,7 +320,7 @@ void CppAssistProposalItem::applyContextualContent(BaseTextEditor *editor, int b
 
     for (int i = 0; i < extraChars.length(); ++i) {
         const QChar a = extraChars.at(i);
-        const QChar b = editor->characterAt(editor->position() + i + preserveLength);
+        const QChar b = editorWidget->characterAt(editorWidget->position() + i + preserveLength);
         if (a == b)
             ++extraLength;
         else
@@ -331,11 +330,11 @@ void CppAssistProposalItem::applyContextualContent(BaseTextEditor *editor, int b
     toInsert += extraChars;
 
     // Insert the remainder of the name
-    const int length = editor->position() - basePosition + preserveLength + extraLength;
-    editor->setCursorPosition(basePosition);
-    editor->replace(length, toInsert);
+    const int length = editorWidget->position() - basePosition + preserveLength + extraLength;
+    editorWidget->setCursorPosition(basePosition);
+    editorWidget->replace(length, toInsert);
     if (cursorOffset)
-        editor->setCursorPosition(editor->position() + cursorOffset);
+        editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
 }
 
 // --------------------
@@ -441,18 +440,18 @@ public:
     {}
 
     bool isCorrective() const QTC_OVERRIDE { return m_replaceDotForArrow; }
-    void makeCorrection(BaseTextEditor *editor) QTC_OVERRIDE;
+    void makeCorrection(BaseTextEditorWidget *editorWidget) QTC_OVERRIDE;
 
 private:
     bool m_replaceDotForArrow;
 };
 
-void CppAssistProposal::makeCorrection(BaseTextEditor *editor)
+void CppAssistProposal::makeCorrection(BaseTextEditorWidget *editorWidget)
 {
-    const int oldPosition = editor->position();
-    editor->setCursorPosition(basePosition() - 1);
-    editor->replace(1, QLatin1String("->"));
-    editor->setCursorPosition(oldPosition + 1);
+    const int oldPosition = editorWidget->position();
+    editorWidget->setCursorPosition(basePosition() - 1);
+    editorWidget->replace(1, QLatin1String("->"));
+    editorWidget->setCursorPosition(oldPosition + 1);
     moveBasePosition(1);
 }
 

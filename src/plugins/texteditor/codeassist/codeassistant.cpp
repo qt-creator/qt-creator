@@ -79,7 +79,7 @@ public:
     CodeAssistantPrivate(CodeAssistant *assistant);
     virtual ~CodeAssistantPrivate();
 
-    void configure(BaseTextEditor *textEditor);
+    void configure(BaseTextEditorWidget *editorWidget);
     void reconfigure();
     bool isConfigured() const;
 
@@ -119,7 +119,7 @@ private slots:
 
 private:
     CodeAssistant *m_q;
-    BaseTextEditor *m_textEditor;
+    BaseTextEditorWidget *m_editorWidget;
     CompletionAssistProvider *m_completionProvider;
     QList<QuickFixAssistProvider *> m_quickFixProviders;
     Internal::ProcessorRunner *m_requestRunner;
@@ -145,7 +145,7 @@ static const int AutomaticProposalTimerInterval = 400;
 
 CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     : m_q(assistant)
-    , m_textEditor(0)
+    , m_editorWidget(0)
     , m_completionProvider(0)
     , m_requestRunner(0)
     , m_requestProvider(0)
@@ -171,33 +171,33 @@ CodeAssistantPrivate::~CodeAssistantPrivate()
 {
 }
 
-void CodeAssistantPrivate::configure(BaseTextEditor *textEditor)
+void CodeAssistantPrivate::configure(BaseTextEditorWidget *editorWidget)
 {
     // @TODO: There's a list of providers but currently only the first one is used. Perhaps we
     // should implement a truly mechanism to support multiple providers for an editor (either
     // merging or not proposals) or just leave it as not extensible and store directly the one
     // completion and quick-fix provider (getting rid of the list).
 
-    m_textEditor = textEditor;
-    m_completionProvider = textEditor->editorWidget()->completionAssistProvider();
+    m_editorWidget = editorWidget;
+    m_completionProvider = editorWidget->completionAssistProvider();
     m_quickFixProviders =
         ExtensionSystem::PluginManager::getObjects<QuickFixAssistProvider>();
-    filterEditorSpecificProviders(&m_quickFixProviders, m_textEditor->document()->id());
+    filterEditorSpecificProviders(&m_quickFixProviders, m_editorWidget->textDocument()->id());
 
-    m_textEditor->editorWidget()->installEventFilter(this);
-    connect(m_textEditor->textDocument(),SIGNAL(mimeTypeChanged()),
+    m_editorWidget->installEventFilter(this);
+    connect(m_editorWidget->textDocument(),SIGNAL(mimeTypeChanged()),
             m_q, SLOT(reconfigure()));
 }
 
 void CodeAssistantPrivate::reconfigure()
 {
     if (isConfigured())
-        m_completionProvider = m_textEditor->editorWidget()->completionAssistProvider();
+        m_completionProvider = m_editorWidget->completionAssistProvider();
 }
 
 bool CodeAssistantPrivate::isConfigured() const
 {
-    return m_textEditor != 0;
+    return m_editorWidget != 0;
 }
 
 void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
@@ -210,9 +210,9 @@ void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
     if (isDisplayingProposal() && m_assistKind == kind && !m_proposal->isFragile()) {
         m_proposalWidget->setReason(ExplicitlyInvoked);
         m_proposalWidget->updateProposal(
-                    m_textEditor->textDocument()->textAt(
+                    m_editorWidget->textDocument()->textAt(
                         m_proposal->basePosition(),
-                        m_textEditor->position() - m_proposal->basePosition()));
+                        m_editorWidget->position() - m_proposal->basePosition()));
     } else {
         destroyContext();
         requestProposal(ExplicitlyInvoked, kind, provider);
@@ -248,7 +248,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 {
     QTC_ASSERT(!isWaitingForProposal(), return);
 
-    if (m_textEditor->editorWidget()->hasBlockSelection())
+    if (m_editorWidget->hasBlockSelection())
         return; // TODO
 
     if (!provider) {
@@ -263,8 +263,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
     m_assistKind = kind;
     IAssistProcessor *processor = provider->createProcessor();
-    IAssistInterface *assistInterface =
-        m_textEditor->editorWidget()->createAssistInterface(kind, reason);
+    IAssistInterface *assistInterface = m_editorWidget->createAssistInterface(kind, reason);
     if (!assistInterface)
         return;
 
@@ -324,7 +323,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     }
 
     int basePosition = proposalCandidate->basePosition();
-    if (m_textEditor->position() < basePosition)
+    if (m_editorWidget->position() < basePosition)
         return;
 
     if (m_abortedBasePosition == basePosition && reason != ExplicitlyInvoked)
@@ -334,7 +333,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     m_proposal.reset(proposalCandidate.take());
 
     if (m_proposal->isCorrective())
-        m_proposal->makeCorrection(m_textEditor);
+        m_proposal->makeCorrection(m_editorWidget);
 
     basePosition = m_proposal->basePosition();
     m_proposalWidget = m_proposal->createWidget();
@@ -348,22 +347,22 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     m_proposalWidget->setAssistant(m_q);
     m_proposalWidget->setReason(reason);
     m_proposalWidget->setKind(m_assistKind);
-    m_proposalWidget->setUnderlyingWidget(m_textEditor->widget());
+    m_proposalWidget->setUnderlyingWidget(m_editorWidget);
     m_proposalWidget->setModel(m_proposal->model());
-    m_proposalWidget->setDisplayRect(m_textEditor->cursorRect(basePosition));
+    m_proposalWidget->setDisplayRect(m_editorWidget->cursorRect(basePosition));
     if (m_receivedContentWhileWaiting)
         m_proposalWidget->setIsSynchronized(false);
     else
         m_proposalWidget->setIsSynchronized(true);
-    m_proposalWidget->showProposal(m_textEditor->textDocument()->textAt(
+    m_proposalWidget->showProposal(m_editorWidget->textDocument()->textAt(
                                        basePosition,
-                                       m_textEditor->position() - basePosition));
+                                       m_editorWidget->position() - basePosition));
 }
 
 void CodeAssistantPrivate::processProposalItem(IAssistProposalItem *proposalItem)
 {
     QTC_ASSERT(m_proposal, return);
-    proposalItem->apply(m_textEditor, m_proposal->basePosition());
+    proposalItem->apply(m_editorWidget, m_proposal->basePosition());
     destroyContext();
     process();
 }
@@ -371,9 +370,9 @@ void CodeAssistantPrivate::processProposalItem(IAssistProposalItem *proposalItem
 void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
 {
     QTC_ASSERT(m_proposal, return);
-    const int currentPosition = m_textEditor->position();
-    m_textEditor->setCursorPosition(m_proposal->basePosition());
-    m_textEditor->replace(currentPosition - m_proposal->basePosition(), newPrefix);
+    const int currentPosition = m_editorWidget->position();
+    m_editorWidget->setCursorPosition(m_proposal->basePosition());
+    m_editorWidget->replace(currentPosition - m_proposal->basePosition(), newPrefix);
     notifyChange();
 }
 
@@ -416,7 +415,7 @@ CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
     const int length = m_completionProvider->activationCharSequenceLength();
     if (length == 0)
         return 0;
-    QString sequence = m_textEditor->textDocument()->textAt(m_textEditor->position() - length,
+    QString sequence = m_editorWidget->textDocument()->textAt(m_editorWidget->position() - length,
                                                             length);
     // In pretty much all cases the sequence will have the appropriate length. Only in the
     // case of typing the very first characters in the document for providers that request a
@@ -434,12 +433,12 @@ void CodeAssistantPrivate::notifyChange()
 
     if (isDisplayingProposal()) {
         QTC_ASSERT(m_proposal, return);
-        if (m_textEditor->position() < m_proposal->basePosition()) {
+        if (m_editorWidget->position() < m_proposal->basePosition()) {
             destroyContext();
         } else {
             m_proposalWidget->updateProposal(
-                m_textEditor->textDocument()->textAt(m_proposal->basePosition(),
-                                     m_textEditor->position() - m_proposal->basePosition()));
+                m_editorWidget->textDocument()->textAt(m_proposal->basePosition(),
+                                     m_editorWidget->position() - m_proposal->basePosition()));
             if (m_proposal->isFragile())
                 startAutomaticProposalTimer();
         }
@@ -544,9 +543,9 @@ CodeAssistant::~CodeAssistant()
     delete d;
 }
 
-void CodeAssistant::configure(BaseTextEditor *textEditor)
+void CodeAssistant::configure(BaseTextEditorWidget *editorWidget)
 {
-    d->configure(textEditor);
+    d->configure(editorWidget);
 }
 
 void CodeAssistant::process()
