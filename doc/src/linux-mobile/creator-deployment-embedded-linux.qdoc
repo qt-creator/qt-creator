@@ -25,7 +25,7 @@
 /*!
     \contentspage {Qt Creator Manual}
     \previouspage creator-deployment-bb10.html
-    \page creator-deployment-maemo.html
+    \page creator-deployment-embedded-linux.html
     \nextpage creator-deployment-qnx.html
 
     \title Deploying Applications to Embedded Linux Devices

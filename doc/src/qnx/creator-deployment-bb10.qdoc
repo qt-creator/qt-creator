@@ -28,7 +28,7 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-deploying-android.html
     \page creator-deployment-bb10.html
-    \nextpage creator-deployment-maemo.html
+    \nextpage creator-deployment-embedded-linux.html
 
     \title Deploying Applications to BlackBerry 10 Devices
 
