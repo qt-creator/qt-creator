@@ -659,11 +659,11 @@ static QString quoteUnprintable(const QString &str)
             int u = c.unicode();
             if (c.isPrint())
                 encoded += c;
-            else if (u == '\r')
+            else if (u == 10)
                 encoded += QLatin1String("\\r");
-            else if (u == '\t')
+            else if (u == 9)
                 encoded += QLatin1String("\\t");
-            else if (u == '\n')
+            else if (u == 13)
                 encoded += QLatin1String("\\n");
             else
                 encoded += QString::fromLatin1("\\%1")
@@ -769,6 +769,7 @@ QString WatchModel::formattedValue(const WatchData &data) const
     if (data.elided) {
         QString v = value;
         v.chop(1);
+        v = translate(v);
         QString len = data.elided > 0 ? QString::number(data.elided)
                                       : QLatin1String("unknown length");
         return v + QLatin1String("\"... (") + len  + QLatin1Char(')');
