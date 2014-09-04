@@ -711,8 +711,9 @@ static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
     return hasFiles;
 }
 
-FileDropSupport::FileDropSupport(QWidget *parentWidget)
-    : QObject(parentWidget)
+FileDropSupport::FileDropSupport(QWidget *parentWidget, const DropFilterFunction &filterFunction)
+    : QObject(parentWidget),
+      m_filterFunction(filterFunction)
 {
     QTC_ASSERT(parentWidget, return);
     parentWidget->setAcceptDrops(true);
@@ -744,15 +745,22 @@ bool FileDropSupport::eventFilter(QObject *obj, QEvent *event)
     Q_UNUSED(obj)
     if (event->type() == QEvent::DragEnter) {
         auto dee = static_cast<QDragEnterEvent *>(event);
-        if (isDesktopFileManagerDrop(dee->mimeData()))
+        if (isDesktopFileManagerDrop(dee->mimeData())
+                && (!m_filterFunction || m_filterFunction(dee)))
             event->accept();
         else
             event->ignore();
+        return true;
+    } else if (event->type() == QEvent::DragMove) {
+        event->accept();
+        return true;
     } else if (event->type() == QEvent::Drop) {
         auto de = static_cast<QDropEvent *>(event);
         QStringList tempFiles;
-        if (isDesktopFileManagerDrop(de->mimeData(), &tempFiles)) {
+        if (isDesktopFileManagerDrop(de->mimeData(), &tempFiles)
+                && (!m_filterFunction || m_filterFunction(de))) {
             event->accept();
+            de->acceptProposedAction();
             bool needToScheduleEmit = m_files.isEmpty();
             m_files.append(tempFiles);
             if (needToScheduleEmit) // otherwise we already have a timer pending
@@ -760,6 +768,7 @@ bool FileDropSupport::eventFilter(QObject *obj, QEvent *event)
         } else {
             event->ignore();
         }
+        return true;
     }
     return false;
 }

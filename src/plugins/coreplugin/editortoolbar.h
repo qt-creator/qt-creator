@@ -94,11 +94,15 @@ signals:
     void closeSplitClicked();
     void listSelectionActivated(int row);
     void listContextMenuRequested(QPoint globalpos);
+    void currentDocumentMoved();
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 
 private slots:
     void updateEditorListSelection(Core::IEditor *newSelection);
     void changeActiveEditor(int row);
-    void listContextMenu(QPoint);
+    void listContextMenu(QPoint pos);
     void makeEditorWritable();
 
     void checkDocumentStatus();

@@ -78,6 +78,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
         connect(m_toolBar, SIGNAL(goForwardClicked()), this, SLOT(goForwardInNavigationHistory()));
         connect(m_toolBar, SIGNAL(closeClicked()), this, SLOT(closeCurrentEditor()));
         connect(m_toolBar, SIGNAL(listSelectionActivated(int)), this, SLOT(listSelectionActivated(int)));
+        connect(m_toolBar, &EditorToolBar::currentDocumentMoved, this, &EditorView::closeCurrentEditor);
         connect(m_toolBar, SIGNAL(horizontalSplitClicked()), this, SLOT(splitHorizontally()));
         connect(m_toolBar, SIGNAL(verticalSplitClicked()), this, SLOT(splitVertically()));
         connect(m_toolBar, SIGNAL(splitNewWindowClicked()), this, SLOT(splitNewWindow()));
@@ -122,7 +123,9 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     m_container->addWidget(empty);
     m_widgetEditorMap.insert(empty, 0);
 
-    auto dropSupport = new Utils::FileDropSupport(this);
+    auto dropSupport = new Utils::FileDropSupport(this, [this](QDropEvent *event) {
+        return event->source() != m_toolBar; // do not accept drops on ourselves
+    });
     connect(dropSupport, SIGNAL(filesDropped(QStringList)),
             this, SLOT(openDroppedFiles(QStringList)));
 

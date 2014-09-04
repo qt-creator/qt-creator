@@ -29,24 +29,32 @@
 
 #include "editortoolbar.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
-
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
-#include <coreplugin/editormanager/documentmodel.h>
-#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/fileiconprovider.h>
+#include <coreplugin/icore.h>
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
 #include <QApplication>
 #include <QComboBox>
-#include <QVBoxLayout>
-#include <QToolButton>
+#include <QDir>
+#include <QDrag>
+#include <QLabel>
 #include <QMenu>
+#include <QMimeData>
+#include <QMouseEvent>
+#include <QTimer>
+#include <QToolButton>
+#include <QVBoxLayout>
+
+#include <QDebug>
 
 enum {
     debug = false
@@ -61,6 +69,7 @@ struct EditorToolBarPrivate
     QComboBox *m_editorList;
     QToolButton *m_closeEditorButton;
     QToolButton *m_lockButton;
+    QToolButton *m_dragHandle;
     QAction *m_goBackAction;
     QAction *m_goForwardAction;
     QToolButton *m_backButton;
@@ -75,22 +84,25 @@ struct EditorToolBarPrivate
     QWidget *m_toolBarPlaceholder;
     QWidget *m_defaultToolBar;
 
+    QPoint m_dragStartPosition;
+
     bool m_isStandalone;
 };
 
 EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q) :
     m_editorList(new QComboBox(q)),
-    m_closeEditorButton(new QToolButton),
-    m_lockButton(new QToolButton),
+    m_closeEditorButton(new QToolButton(q)),
+    m_lockButton(new QToolButton(q)),
+    m_dragHandle(new QToolButton(q)),
     m_goBackAction(new QAction(QIcon(QLatin1String(Constants::ICON_PREV)), EditorManager::tr("Go Back"), parent)),
     m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
-    m_splitButton(new QToolButton),
+    m_splitButton(new QToolButton(q)),
     m_horizontalSplitAction(new QAction(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)), EditorManager::tr("Split"), parent)),
     m_verticalSplitAction(new QAction(QIcon(QLatin1String(Constants::ICON_SPLIT_VERTICAL)), EditorManager::tr("Split Side by Side"), parent)),
     m_splitNewWindowAction(new QAction(EditorManager::tr("Open in New Window"), parent)),
-    m_closeSplitButton(new QToolButton),
+    m_closeSplitButton(new QToolButton(q)),
     m_activeToolBar(0),
-    m_toolBarPlaceholder(new QWidget),
+    m_toolBarPlaceholder(new QWidget(q)),
     m_defaultToolBar(new QWidget(q)),
     m_isStandalone(false)
 {
@@ -114,6 +126,11 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     d->m_lockButton->setAutoRaise(true);
     d->m_lockButton->setEnabled(false);
+
+    d->m_dragHandle->setCheckable(false);
+    d->m_dragHandle->setChecked(false);
+    d->m_dragHandle->setToolTip(tr("Drag to drag documents between splits"));
+    d->m_dragHandle->installEventFilter(this);
 
     connect(d->m_goBackAction, SIGNAL(triggered()), this, SIGNAL(goBackClicked()));
     connect(d->m_goForwardAction, SIGNAL(triggered()), this, SIGNAL(goForwardClicked()));
@@ -164,6 +181,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     toplayout->addWidget(d->m_backButton);
     toplayout->addWidget(d->m_forwardButton);
     toplayout->addWidget(d->m_lockButton);
+    toplayout->addWidget(d->m_dragHandle);
     toplayout->addWidget(d->m_editorList);
     toplayout->addWidget(d->m_closeEditorButton);
     toplayout->addWidget(d->m_toolBarPlaceholder, 1); // Custom toolbar stretches
@@ -367,6 +385,7 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
         d->m_lockButton->setIcon(QIcon());
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(QString());
+        d->m_dragHandle->setIcon(QIcon());
         d->m_editorList->setToolTip(QString());
         return;
     }
@@ -386,10 +405,48 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(tr("File is writable"));
     }
+
+    if (document->filePath().isEmpty())
+        d->m_dragHandle->setIcon(QIcon());
+    else
+        d->m_dragHandle->setIcon(FileIconProvider::icon(QFileInfo(document->filePath())));
+
     d->m_editorList->setToolTip(
             document->filePath().isEmpty()
             ? document->displayName()
             : QDir::toNativeSeparators(document->filePath()));
+}
+
+bool EditorToolBar::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == d->m_dragHandle) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            auto me = static_cast<QMouseEvent *>(event);
+            if (me->buttons() == Qt::LeftButton) {
+                d->m_dragStartPosition = me->pos();
+                return true;
+            }
+            return Utils::StyledBar::eventFilter(obj, event);
+        } else if (event->type() == QEvent::MouseMove) {
+            auto me = static_cast<QMouseEvent *>(event);
+            if (me->buttons() != Qt::LeftButton)
+                return Utils::StyledBar::eventFilter(obj, event);
+            if ((me->pos() - d->m_dragStartPosition).manhattanLength()
+                    < QApplication::startDragDistance())
+                return Utils::StyledBar::eventFilter(obj, event);
+            DocumentModel::Entry *entry = DocumentModel::entryAtRow(
+                        d->m_editorList->currentIndex());
+            if (!entry) // no document
+                return Utils::StyledBar::eventFilter(obj, event);
+            auto *drag = new QDrag(this);
+            drag->setMimeData(Utils::FileDropSupport::mimeDataForFilePath(entry->fileName()));
+            Qt::DropAction action = drag->exec(Qt::MoveAction | Qt::CopyAction, Qt::MoveAction);
+            if (action == Qt::MoveAction)
+                emit currentDocumentMoved();
+            return true;
+        }
+    }
+    return Utils::StyledBar::eventFilter(obj, event);
 }
 
 void EditorToolBar::setNavigationVisible(bool isVisible)

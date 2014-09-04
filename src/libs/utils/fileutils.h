@@ -37,18 +37,21 @@
 #include <QMetaType>
 #include <QStringList>
 
+#include <functional>
+
 namespace Utils {class FileName; }
 
 QT_BEGIN_NAMESPACE
-class QFile;
-class QMimeData;
-class QTemporaryFile;
-class QWidget;
-class QTextStream;
 class QDataStream;
 class QDateTime;
-class QFileInfo;
 class QDir;
+class QDropEvent;
+class QFile;
+class QFileInfo;
+class QMimeData;
+class QTemporaryFile;
+class QTextStream;
+class QWidget;
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::FileName &c);
 
@@ -198,7 +201,11 @@ class QTCREATOR_UTILS_EXPORT FileDropSupport : public QObject
 {
     Q_OBJECT
 public:
-    FileDropSupport(QWidget *parentWidget);
+     // returns true if the event should be accepted
+    typedef std::function<bool(QDropEvent*)> DropFilterFunction;
+
+    FileDropSupport(QWidget *parentWidget, const DropFilterFunction &filterFunction
+                    = DropFilterFunction());
 
     static QStringList mimeTypesForFilePaths();
     static QMimeData *mimeDataForFilePaths(const QStringList &filePaths);
@@ -214,6 +221,7 @@ private slots:
     void emitFilesDropped();
 
 private:
+    DropFilterFunction m_filterFunction;
     QStringList m_files;
 
 };

@@ -207,7 +207,9 @@ MainWindow::MainWindow() :
 
     statusBar()->setProperty("p_styled", true);
 
-    auto dropSupport = new Utils::FileDropSupport(this);
+    auto dropSupport = new Utils::FileDropSupport(this, [](QDropEvent *event) {
+        return event->source() == 0; // only accept drops from the "outside" (e.g. file manager)
+    });
     connect(dropSupport, SIGNAL(filesDropped(QStringList)),
             this, SLOT(openDroppedFiles(QStringList)));
 }
