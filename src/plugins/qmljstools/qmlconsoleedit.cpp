@@ -102,7 +102,9 @@ void QmlConsoleEdit::keyPressEvent(QKeyEvent *e)
 
     case Qt::Key_Home: {
         QTextCursor c(textCursor());
-        c.setPosition(m_startOfEditableArea);
+        bool select = e->modifiers() & Qt::ShiftModifier;
+        c.setPosition(m_startOfEditableArea,
+                      select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
         setTextCursor(c);
         keyConsumed = true;
         break;
@@ -124,7 +126,9 @@ void QmlConsoleEdit::keyPressEvent(QKeyEvent *e)
         if (textCursor().position() <= m_startOfEditableArea
                 || e->modifiers() & Qt::ControlModifier) {
             QTextCursor c(textCursor());
-            c.setPosition(m_startOfEditableArea);
+            bool select = e->modifiers() & Qt::ShiftModifier;
+            c.setPosition(m_startOfEditableArea,
+                          select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
             setTextCursor(c);
             keyConsumed = true;
         }
