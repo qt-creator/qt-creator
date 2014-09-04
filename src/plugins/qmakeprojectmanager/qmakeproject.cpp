@@ -231,6 +231,14 @@ ProjectFilesVisitor::ProjectFilesVisitor(QmakeProjectFiles *files) :
 {
 }
 
+namespace {
+// uses std::unique, so takes a sorted list
+void unique(QStringList &list)
+{
+    list.erase(std::unique(list.begin(), list.end()), list.end());
+}
+}
+
 void ProjectFilesVisitor::findProjectFiles(QmakeProFileNode *rootNode, QmakeProjectFiles *files)
 {
     files->clear();
@@ -238,16 +246,18 @@ void ProjectFilesVisitor::findProjectFiles(QmakeProFileNode *rootNode, QmakeProj
     rootNode->accept(&visitor);
     for (int i = 0; i < FileTypeSize; ++i) {
         Utils::sort(files->files[i]);
+        unique(files->files[i]);
         Utils::sort(files->generatedFiles[i]);
+        unique(files->generatedFiles[i]);
     }
     Utils::sort(files->proFiles);
+    unique(files->proFiles);
 }
 
 void ProjectFilesVisitor::visitProjectNode(ProjectNode *projectNode)
 {
     const QString path = projectNode->path();
-    if (!m_files->proFiles.contains(path))
-        m_files->proFiles.append(path);
+    m_files->proFiles.append(path);
     visitFolderNode(projectNode);
 }
 
@@ -260,8 +270,7 @@ void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
         const QString path = fileNode->path();
         const int type = fileNode->fileType();
         QStringList &targetList = fileNode->isGenerated() ? m_files->generatedFiles[type] : m_files->files[type];
-        if (!targetList.contains(path))
-            targetList.push_back(path);
+        targetList.push_back(path);
     }
 }
 
