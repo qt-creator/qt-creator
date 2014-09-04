@@ -268,7 +268,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         QVERIFY(testFile->writeToDisk());
 
     // Update Code Model
-    QStringList filePaths;
+    QSet<QString> filePaths;
     foreach (const TestDocumentPtr &testFile, testFiles)
         filePaths << testFile->filePath();
     QVERIFY(parseFiles(filePaths));

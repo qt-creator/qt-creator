@@ -194,7 +194,7 @@ private:
     const QString &m_filePath;
 };
 
-static QStringList updateProjectInfo(CppModelManager *modelManager, ModelManagerTestHelper *helper,
+static QSet<QString> updateProjectInfo(CppModelManager *modelManager, ModelManagerTestHelper *helper,
                                      const ProjectInfo &projectInfo)
 {
     helper->resetRefreshedSourceFiles();
@@ -315,7 +315,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
 
-    QStringList refreshedFiles = updateProjectInfo(mm, &helper, pi);
+    QSet<QString> refreshedFiles = updateProjectInfo(mm, &helper, pi);
     QCOMPARE(refreshedFiles.size(), 1);
     QVERIFY(refreshedFiles.contains(testCpp));
     CPlusPlus::Snapshot snapshot = mm->snapshot();
@@ -375,7 +375,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
     mm->updateProjectInfo(pi);
 
     CPlusPlus::Snapshot snapshot;
-    QStringList refreshedFiles;
+    QSet<QString> refreshedFiles;
     CPlusPlus::Document::Ptr document;
 
     QByteArray defines = "#define FIRST_DEFINE";
@@ -441,7 +441,7 @@ void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
     QFuture<void> firstFuture = mm->updateProjectInfo(pi);
     QVERIFY(firstFuture.isStarted() || firstFuture.isRunning());
     firstFuture.waitForFinished();
-    const QStringList refreshedFiles = helper.waitForRefreshedSourceFiles();
+    const QSet<QString> refreshedFiles = helper.waitForRefreshedSourceFiles();
     QCOMPARE(refreshedFiles.size(), 1);
     QVERIFY(refreshedFiles.contains(testCpp));
 
@@ -475,7 +475,7 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     pi.appendProjectPart(part);
 
     CPlusPlus::Snapshot snapshot;
-    QStringList refreshedFiles;
+    QSet<QString> refreshedFiles;
 
     refreshedFiles = updateProjectInfo(mm, &helper, pi);
 
@@ -533,7 +533,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
 
     Document::Ptr document;
     CPlusPlus::Snapshot snapshot;
-    QStringList refreshedFiles;
+    QSet<QString> refreshedFiles;
 
     refreshedFiles = updateProjectInfo(mm, &helper, pi);
 
@@ -608,7 +608,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
 ///        files of the first project.
 void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
 {
-    QStringList refreshedFiles;
+    QSet<QString> refreshedFiles;
     ModelManagerTestHelper helper;
     ProjectCreator project1(&helper);
     ProjectCreator project2(&helper);
@@ -622,7 +622,7 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
                                   << _("main.cpp"));
 
     refreshedFiles = updateProjectInfo(mm, &helper, project1.projectInfo);
-    QCOMPARE(refreshedFiles.toSet(), project1.projectFiles.toSet());
+    QCOMPARE(refreshedFiles, project1.projectFiles.toSet());
     const int snapshotSizeAfterProject1 = mm->snapshot().size();
 
     foreach (const QString &file, project1.projectFiles)
@@ -636,7 +636,7 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
                                   << _("main.cpp"));
 
     refreshedFiles = updateProjectInfo(mm, &helper, project2.projectInfo);
-    QCOMPARE(refreshedFiles.toSet(), project2.projectFiles.toSet());
+    QCOMPARE(refreshedFiles, project2.projectFiles.toSet());
 
     const int snapshotSizeAfterProject2 = mm->snapshot().size();
     QVERIFY(snapshotSizeAfterProject2 > snapshotSizeAfterProject1);

@@ -45,7 +45,7 @@ static bool closeEditorsWithoutGarbageCollectorInvocation(const QList<Core::IEdi
     return closeEditorsSucceeded;
 }
 
-static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QStringList &filePaths)
+static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<QString> &filePaths)
 {
     foreach (const QString &filePath, filePaths) {
         if (!snapshot.contains(filePath)) {
@@ -125,7 +125,7 @@ bool TestCase::garbageCollectGlobalSnapshot()
     return globalSnapshot().isEmpty();
 }
 
-bool TestCase::parseFiles(const QStringList &filePaths)
+bool TestCase::parseFiles(const QSet<QString> &filePaths)
 {
     CppModelManagerInterface::instance()->updateSourceFiles(filePaths).waitForFinished();
     QCoreApplication::processEvents();
@@ -143,7 +143,7 @@ bool TestCase::parseFiles(const QStringList &filePaths)
 
 bool TestCase::parseFiles(const QString &filePath)
 {
-    return parseFiles(QStringList(filePath));
+    return parseFiles(QSet<QString>() << filePath);
 }
 
 void TestCase::closeEditorAtEndOfTestCase(Core::IEditor *editor)

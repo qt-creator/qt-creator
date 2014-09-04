@@ -68,7 +68,7 @@ public:
     int revision;
     ProjectPart::HeaderPaths headerPaths;
     WorkingCopy workingCopy;
-    QStringList sourceFiles;
+    QSet<QString> sourceFiles;
 };
 
 class WriteTaskFileForDiagnostics
@@ -133,7 +133,7 @@ private:
     int m_processedDiagnostics;
 };
 
-void classifyFiles(const QStringList &files, QStringList *headers, QStringList *sources)
+void classifyFiles(const QSet<QString> &files, QStringList *headers, QStringList *sources)
 {
     foreach (const QString &file, files) {
         if (ProjectFile::isSource(ProjectFile::classify(file)))
@@ -145,11 +145,11 @@ void classifyFiles(const QStringList &files, QStringList *headers, QStringList *
 
 void indexFindErrors(QFutureInterface<void> &future, const ParseParams params)
 {
-    QStringList files = params.sourceFiles;
-    files.sort();
     QStringList sources, headers;
-    classifyFiles(files, &headers, &sources);
-    files = sources + headers;
+    classifyFiles(params.sourceFiles, &headers, &sources);
+    sources.sort();
+    headers.sort();
+    QStringList files = sources + headers;
 
     WriteTaskFileForDiagnostics taskFileWriter;
     QElapsedTimer timer;
@@ -196,20 +196,18 @@ void index(QFutureInterface<void> &future, const ParseParams params)
     sourceProcessor->setHeaderPaths(params.headerPaths);
     sourceProcessor->setWorkingCopy(params.workingCopy);
 
-    QStringList files = params.sourceFiles;
 
     QStringList sources;
     QStringList headers;
-    classifyFiles(files, &headers, &sources);
+    classifyFiles(params.sourceFiles, &headers, &sources);
 
-    foreach (const QString &file, files)
+    foreach (const QString &file, params.sourceFiles)
         sourceProcessor->removeFromCache(file);
 
     const int sourceCount = sources.size();
-    files = sources;
-    files += headers;
+    QStringList files = sources + headers;
 
-    sourceProcessor->setTodo(files);
+    sourceProcessor->setTodo(files.toSet());
 
     const QString conf = CppModelManagerInterface::configurationFileName();
     bool processingHeaders = false;
@@ -250,7 +248,7 @@ void index(QFutureInterface<void> &future, const ParseParams params)
 
 void parse(QFutureInterface<void> &future, const ParseParams params)
 {
-    const QStringList files = params.sourceFiles;
+    const QSet<QString> &files = params.sourceFiles;
     if (files.isEmpty())
         return;
 
@@ -356,7 +354,7 @@ BuiltinIndexingSupport::BuiltinIndexingSupport()
 BuiltinIndexingSupport::~BuiltinIndexingSupport()
 {}
 
-QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sourceFiles,
+QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QSet<QString> &sourceFiles,
     CppModelManagerInterface::ProgressNotificationMode mode)
 {
     CppModelManager *mgr = CppModelManager::instance();

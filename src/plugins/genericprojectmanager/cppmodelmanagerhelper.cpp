@@ -40,8 +40,8 @@ using namespace GenericProjectManager::Internal::Tests;
 CppModelManagerHelper::CppModelManagerHelper(QObject *parent) :
     QObject(parent)
 {
-    connect(cppModelManager(), SIGNAL(sourceFilesRefreshed(const QStringList &)),
-            this, SLOT(onSourceFilesRefreshed(const QStringList &)));
+    connect(cppModelManager(), SIGNAL(sourceFilesRefreshed(const QSet<QString> &)),
+            this, SLOT(onSourceFilesRefreshed(const QSet<QString> &)));
 }
 
 
@@ -59,7 +59,7 @@ void CppModelManagerHelper::waitForSourceFilesRefreshed(const QStringList &files
 {
     QTime t;
     t.start();
-    QSignalSpy spy(cppModelManager(), SIGNAL(sourceFilesRefreshed(const QStringList &)));
+    QSignalSpy spy(cppModelManager(), SIGNAL(sourceFilesRefreshed(const QSet<QString> &)));
 
     foreach (const QString &file, files) {
         while (!m_refreshedSourceFiles.contains(file)) {
@@ -83,7 +83,7 @@ void CppModelManagerHelper::waitForSourceFilesRefreshed(const QStringList &files
     }
 }
 
-void CppModelManagerHelper::onSourceFilesRefreshed(const QStringList &files)
+void CppModelManagerHelper::onSourceFilesRefreshed(const QSet<QString> &files)
 {
-    m_refreshedSourceFiles += files;
+    m_refreshedSourceFiles.unite(files);
 }

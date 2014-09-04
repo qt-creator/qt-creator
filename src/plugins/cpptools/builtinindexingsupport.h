@@ -43,7 +43,7 @@ public:
     BuiltinIndexingSupport();
     ~BuiltinIndexingSupport();
 
-    virtual QFuture<void> refreshSourceFiles(const QStringList &sourceFiles,
+    virtual QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
         CppModelManagerInterface::ProgressNotificationMode mode);
     virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
                                                  QSet<QString> fileNames);

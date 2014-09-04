@@ -127,7 +127,7 @@ void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
 
     parser->update(workingCopy);
     CppModelManagerInterface::instance()
-        ->finishedRefreshingSourceFiles(QStringList(parser->filePath()));
+        ->finishedRefreshingSourceFiles(QSet<QString>() << parser->filePath());
 
     future.setProgressValue(1);
 }

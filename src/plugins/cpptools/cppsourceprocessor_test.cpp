@@ -129,7 +129,7 @@ void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
 {
     const QString fileName1 = TestIncludePaths::testFilePath(QLatin1String("cyclic1.h"));
     const QString fileName2 = TestIncludePaths::testFilePath(QLatin1String("cyclic2.h"));
-    const QStringList sourceFiles = QStringList() << fileName1 << fileName2;
+    const QSet<QString> sourceFiles = QSet<QString>() << fileName1 << fileName2;
 
     // Create global snapshot (needed in BuiltinEditorDocumentParser)
     TestCase testCase;

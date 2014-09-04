@@ -49,7 +49,7 @@ AbstractEditorSupport::~AbstractEditorSupport()
 void AbstractEditorSupport::updateDocument()
 {
     ++m_revision;
-    m_modelmanager->updateSourceFiles(QStringList(fileName()));
+    m_modelmanager->updateSourceFiles(QSet<QString>() << fileName());
 }
 
 QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelManager,

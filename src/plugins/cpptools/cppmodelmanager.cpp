@@ -141,9 +141,9 @@ static const char pp_configuration[] =
     "#define __inline inline\n"
     "#define __forceinline inline\n";
 
-QStringList CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck)
+QSet<QString> CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck)
 {
-    QStringList sourceFiles;
+    QSet<QString> sourceFiles;
 
     foreach (const Document::Ptr doc, documentsToCheck) {
         const QDateTime lastModified = doc->lastModified();
@@ -152,7 +152,7 @@ QStringList CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr> &
             QFileInfo fileInfo(doc->fileName());
 
             if (fileInfo.exists() && fileInfo.lastModified() != lastModified)
-                sourceFiles.append(doc->fileName());
+                sourceFiles.insert(doc->fileName());
         }
     }
 
@@ -184,8 +184,7 @@ void CppModelManager::updateModifiedSourceFiles()
     foreach (const Document::Ptr document, snapshot)
         documentsToCheck << document;
 
-    const QStringList filesToUpdate = timeStampModifiedFiles(documentsToCheck);
-    updateSourceFiles(filesToUpdate);
+    updateSourceFiles(timeStampModifiedFiles(documentsToCheck));
 }
 
 /*!
@@ -224,7 +223,7 @@ CppModelManager::CppModelManager(QObject *parent)
             this, SIGNAL(globalSnapshotChanged()));
     connect(this, SIGNAL(aboutToRemoveFiles(QStringList)),
             this, SIGNAL(globalSnapshotChanged()));
-    connect(this, SIGNAL(sourceFilesRefreshed(QStringList)),
+    connect(this, SIGNAL(sourceFilesRefreshed(QSet<QString>)),
             this, SLOT(onSourceFilesRefreshed()));
 
     m_findReferences = new CppFindReferences(this);
@@ -505,7 +504,7 @@ QByteArray CppModelManager::codeModelConfiguration() const
     return QByteArray::fromRawData(pp_configuration, qstrlen(pp_configuration));
 }
 
-QFuture<void> CppModelManager::updateSourceFiles(const QStringList &sourceFiles,
+QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFiles,
                                                  ProgressNotificationMode mode)
 {
     if (sourceFiles.isEmpty() || !m_indexerEnabled)
@@ -565,9 +564,9 @@ public:
     ProjectInfoComparer(const ProjectInfo &oldProjectInfo,
                         const ProjectInfo &newProjectInfo)
         : m_old(oldProjectInfo)
-        , m_oldSourceFiles(oldProjectInfo.sourceFiles().toSet())
+        , m_oldSourceFiles(oldProjectInfo.sourceFiles())
         , m_new(newProjectInfo)
-        , m_newSourceFiles(newProjectInfo.sourceFiles().toSet())
+        , m_newSourceFiles(newProjectInfo.sourceFiles())
     {}
 
     bool definesChanged() const
@@ -614,7 +613,7 @@ public:
                 documentsToCheck << document;
         }
 
-        return CppModelManager::timeStampModifiedFiles(documentsToCheck).toSet();
+        return CppModelManager::timeStampModifiedFiles(documentsToCheck);
     }
 
 private:
@@ -645,14 +644,14 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     if (!newProjectInfo.isValid())
         return QFuture<void>();
 
-    QStringList filesToReindex;
+    QSet<QString> filesToReindex;
     bool filesRemoved = false;
 
     { // Only hold the mutex for a limited scope, so the dumping afterwards does not deadlock.
         QMutexLocker projectLocker(&m_projectMutex);
 
         ProjectExplorer::Project *project = newProjectInfo.project().data();
-        const QStringList newSourceFiles = newProjectInfo.sourceFiles();
+        const QSet<QString> newSourceFiles = newProjectInfo.sourceFiles();
 
         // Check if we can avoid a full reindexing
         ProjectInfo oldProjectInfo = m_projectToProjectsInfo.value(project);
@@ -664,7 +663,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
             // If the project configuration changed, do a full reindexing
             if (comparer.configurationChanged()) {
                 removeProjectInfoFilesAndIncludesFromSnapshot(oldProjectInfo);
-                filesToReindex << newSourceFiles;
+                filesToReindex.unite(newSourceFiles);
 
                 // The "configuration file" includes all defines and therefore should be updated
                 if (comparer.definesChanged()) {
@@ -675,10 +674,10 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
             // Otherwise check for added and modified files
             } else {
                 const QSet<QString> addedFiles = comparer.addedFiles();
-                filesToReindex << addedFiles.toList();
+                filesToReindex.unite(addedFiles);
 
                 const QSet<QString> modifiedFiles = comparer.timeStampModifiedFiles(snapshot());
-                filesToReindex << modifiedFiles.toList();
+                filesToReindex.unite(modifiedFiles);
             }
 
             // Announce and purge the removed files from the snapshot
@@ -691,7 +690,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
 
         // A new project was opened/created, do a full indexing
         } else {
-            filesToReindex << newSourceFiles;
+            filesToReindex.unite(newSourceFiles);
         }
 
         // Update Project/ProjectInfo and File/ProjectPart table
@@ -872,7 +871,7 @@ void CppModelManager::GC()
     emit gcFinished();
 }
 
-void CppModelManager::finishedRefreshingSourceFiles(const QStringList &files)
+void CppModelManager::finishedRefreshingSourceFiles(const QSet<QString> &files)
 {
     emit sourceFilesRefreshed(files);
 }

@@ -76,7 +76,7 @@ public:
     static bool closeEditorWithoutGarbageCollectorInvocation(Core::IEditor *editor);
 
     static bool parseFiles(const QString &filePath);
-    static bool parseFiles(const QStringList &filePaths);
+    static bool parseFiles(const QSet<QString> &filePaths);
 
     static CPlusPlus::Snapshot globalSnapshot();
     static bool garbageCollectGlobalSnapshot();

@@ -103,7 +103,7 @@ public:
         QVERIFY(succeededSoFar());
 
         // Write files
-        QStringList filePaths;
+        QSet<QString> filePaths;
         foreach (const Tests::TestDocument &document, documents) {
             QVERIFY(document.writeToDisk());
             filePaths << document.filePath();
@@ -114,7 +114,7 @@ public:
         const Snapshot snapshot = globalSnapshot();
 
         // Get class for which to generate the hierarchy
-        const Document::Ptr firstDocument = snapshot.document(filePaths.first());
+        const Document::Ptr firstDocument = snapshot.document(documents.first().filePath());
         QVERIFY(firstDocument);
         QVERIFY(firstDocument->diagnosticMessages().isEmpty());
         Class *clazz = FindFirstClassInDocument()(firstDocument);

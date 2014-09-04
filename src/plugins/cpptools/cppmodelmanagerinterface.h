@@ -110,7 +110,7 @@ public:
     virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement = QString()) = 0;
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
 
-    virtual void finishedRefreshingSourceFiles(const QStringList &files) = 0;
+    virtual void finishedRefreshingSourceFiles(const QSet<QString> &files) = 0;
 
     virtual void addModelManagerSupport(ModelManagerSupport *modelManagerSupport) = 0;
     virtual ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const = 0;
@@ -132,7 +132,7 @@ signals:
     void aboutToRemoveFiles(const QStringList &files);
 
     void documentUpdated(CPlusPlus::Document::Ptr doc);
-    void sourceFilesRefreshed(const QStringList &files);
+    void sourceFilesRefreshed(const QSet<QString> &files);
 
     /// \brief Emitted after updateProjectInfo function is called on the model-manager.
     ///
@@ -143,7 +143,7 @@ signals:
 
 public slots:
     // Documented in source file.
-    virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles,
+    virtual QFuture<void> updateSourceFiles(const QSet<QString> &sourceFiles,
         ProgressNotificationMode mode = ReservedProgressNotification) = 0;
 
     virtual void updateModifiedSourceFiles() = 0;

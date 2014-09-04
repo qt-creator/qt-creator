@@ -80,7 +80,7 @@ public:
     Project *createProject(const QString &name);
 
     void resetRefreshedSourceFiles();
-    QStringList waitForRefreshedSourceFiles();
+    QSet<QString> waitForRefreshedSourceFiles();
     void waitForFinishedGc();
 
 signals:
@@ -88,13 +88,13 @@ signals:
     void projectAdded(ProjectExplorer::Project*);
 
 public slots:
-    void sourceFilesRefreshed(const QStringList &files);
+    void sourceFilesRefreshed(const QSet<QString> &files);
     void gcFinished();
 
 private:
     bool m_gcFinished;
     bool m_refreshHappened;
-    QStringList m_lastRefreshedSourceFiles;
+    QSet<QString> m_lastRefreshedSourceFiles;
 };
 
 } // namespace Internal

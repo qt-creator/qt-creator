@@ -139,8 +139,10 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     CppModelManager *modelManager = CppModelManager::instance();
     connect(VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
             modelManager, SLOT(updateModifiedSourceFiles()));
-    connect(DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)),
-            modelManager, SLOT(updateSourceFiles(QStringList)));
+    connect(DocumentManager::instance(), &DocumentManager::filesChangedInternally,
+            [=](const QStringList &files) {
+        modelManager->updateSourceFiles(files.toSet());
+    });
 
     CppLocatorData *locatorData = new CppLocatorData;
     connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),

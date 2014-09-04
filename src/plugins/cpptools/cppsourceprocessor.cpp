@@ -174,8 +174,10 @@ void CppSourceProcessor::addFrameworkPath(const ProjectPart::HeaderPath &framewo
     }
 }
 
-void CppSourceProcessor::setTodo(const QStringList &files)
-{ m_todo = QSet<QString>::fromList(files); }
+void CppSourceProcessor::setTodo(const QSet<QString> &files)
+{
+    m_todo = files;
+}
 
 void CppSourceProcessor::run(const QString &fileName,
                              const QStringList &initialIncludes)

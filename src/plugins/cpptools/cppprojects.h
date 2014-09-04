@@ -38,6 +38,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <QPointer>
+#include <QSet>
 
 namespace CppTools {
 
@@ -148,7 +149,7 @@ public:
     void clearProjectParts();
 
     const ProjectPart::HeaderPaths headerPaths() const;
-    const QStringList sourceFiles() const;
+    const QSet<QString> sourceFiles() const;
     const QByteArray defines() const;
 
 private:
@@ -156,7 +157,7 @@ private:
     QList<ProjectPart::Ptr> m_projectParts;
     // The members below are (re)calculated from the project parts once a part is appended.
     ProjectPart::HeaderPaths m_headerPaths;
-    QStringList m_sourceFiles;
+    QSet<QString> m_sourceFiles;
     QByteArray m_defines;
 };
 

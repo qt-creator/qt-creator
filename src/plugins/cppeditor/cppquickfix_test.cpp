@@ -145,7 +145,7 @@ QuickFixTestCase::QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTe
     }
 
     // Update Code Model
-    QStringList filePaths;
+    QSet<QString> filePaths;
     foreach (const QuickFixTestDocument::Ptr &testFile, m_testFiles)
         filePaths << testFile->filePath();
     QVERIFY(parseFiles(filePaths));

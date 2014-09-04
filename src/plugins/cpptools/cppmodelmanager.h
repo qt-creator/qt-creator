@@ -62,7 +62,7 @@ public:
 
     static CppModelManager *instance();
 
-    virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles,
+    virtual QFuture<void> updateSourceFiles(const QSet<QString> &sourceFiles,
         ProgressNotificationMode mode = ReservedProgressNotification);
     virtual WorkingCopy workingCopy() const;
     virtual QByteArray codeModelConfiguration() const;
@@ -106,7 +106,7 @@ public:
     virtual void findMacroUsages(const CPlusPlus::Macro &macro);
     virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement);
 
-    virtual void finishedRefreshingSourceFiles(const QStringList &files);
+    virtual void finishedRefreshingSourceFiles(const QSet<QString> &files);
 
     virtual void addModelManagerSupport(ModelManagerSupport *modelManagerSupport);
     virtual ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const;
@@ -143,7 +143,7 @@ public:
 
     void enableGarbageCollector(bool enable);
 
-    static QStringList timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
+    static QSet<QString> timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
 
     static CppSourceProcessor *createSourceProcessor();
 

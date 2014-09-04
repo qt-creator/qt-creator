@@ -79,7 +79,7 @@ public:
     {
         QVERIFY(succeededSoFar());
 
-        QStringList filePaths;
+        QSet<QString> filePaths;
         const int sourceListSize = sourceList.size();
         for (int i = 0; i < sourceListSize; ++i) {
             const QByteArray &source = sourceList.at(i);

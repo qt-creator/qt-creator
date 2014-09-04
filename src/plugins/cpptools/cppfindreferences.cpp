@@ -385,7 +385,7 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
 {
     const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
     if (!fileNames.isEmpty()) {
-        m_modelManager->updateSourceFiles(fileNames);
+        m_modelManager->updateSourceFiles(fileNames.toSet());
         Core::SearchResultWindow::instance()->hide();
     }
 }

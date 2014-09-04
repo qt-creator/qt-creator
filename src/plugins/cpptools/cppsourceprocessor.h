@@ -71,7 +71,7 @@ public:
     void setRevision(unsigned revision);
     void setWorkingCopy(const CppTools::WorkingCopy &workingCopy);
     void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
-    void setTodo(const QStringList &files);
+    void setTodo(const QSet<QString> &files);
 
     void run(const QString &fileName, const QStringList &initialIncludes = QStringList());
     void removeFromCache(const QString &fileName);

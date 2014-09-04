@@ -74,7 +74,7 @@ public:
 
     virtual void fileChanged(const QString &fileName)
     {
-        m_modelManager->updateSourceFiles(QStringList(fileName));
+        m_modelManager->updateSourceFiles(QSet<QString>() << fileName);
     }
 
     Snapshot m_snapshot;

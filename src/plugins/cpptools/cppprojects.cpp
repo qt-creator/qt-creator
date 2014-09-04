@@ -183,10 +183,8 @@ void ProjectInfo::appendProjectPart(const ProjectPart::Ptr &part)
     }
 
     // Update source files
-    QSet<QString> srcs = QSet<QString>::fromList(m_sourceFiles);
     foreach (const ProjectFile &file, part->files)
-        srcs.insert(file.path);
-    m_sourceFiles = srcs.toList();
+        m_sourceFiles.insert(file.path);
 
     // Update defines
     if (!m_defines.isEmpty())
@@ -213,7 +211,7 @@ const ProjectPart::HeaderPaths ProjectInfo::headerPaths() const
     return m_headerPaths;
 }
 
-const QStringList ProjectInfo::sourceFiles() const
+const QSet<QString> ProjectInfo::sourceFiles() const
 {
     return m_sourceFiles;
 }

@@ -60,7 +60,7 @@ public:
 
     typedef QPair<QString, Id> RecentFile;
 
-    static QObject *instance();
+    static DocumentManager *instance();
 
     // file pool to monitor
     static void addDocuments(const QList<IDocument *> &documents, bool addWatcher = true);

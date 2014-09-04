@@ -51,10 +51,10 @@ public:
     void waitForSourceFilesRefreshed(const QStringList &files, int timeOut = defaultTimeOut);
 
 private slots:
-    void onSourceFilesRefreshed(const QStringList &files);
+    void onSourceFilesRefreshed(const QSet<QString> &files);
 
 private:
-    QStringList m_refreshedSourceFiles;
+    QSet<QString> m_refreshedSourceFiles;
 };
 
 } // Tests namespace
