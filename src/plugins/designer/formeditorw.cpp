@@ -223,7 +223,7 @@ public:
     Core::EditorToolBar *m_toolBar;
 
     QMap<Core::Command *, QAction *> m_commandToDesignerAction;
-    FormWindowEditorFactory *m_xmlEditorFactory = 0;
+    FormWindowEditorFactory *m_xmlEditorFactory;
 };
 
 static FormEditorData *d = 0;
@@ -245,7 +245,8 @@ FormEditorData::FormEditorData() :
     m_editorWidget(0),
     m_designMode(0),
     m_editorToolBar(0),
-    m_toolBar(0)
+    m_toolBar(0),
+    m_xmlEditorFactory(0)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO;
