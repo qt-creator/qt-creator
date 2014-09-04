@@ -2711,7 +2711,7 @@ void ProjectExplorerPlugin::slotUpdateRunActions()
     QString whyNot;
     const bool state = canRun(project, NormalRunMode, &whyNot);
     d->m_runAction->setEnabled(state);
-    d->m_runAction->setToolTip(cannotRunReason(project, NormalRunMode));
+    d->m_runAction->setToolTip(whyNot);
     d->m_runWithoutDeployAction->setEnabled(state);
 }
 
