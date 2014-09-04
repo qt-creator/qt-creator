@@ -33,12 +33,20 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    for quickVersion in ["1.1", "2.1", "2.2", "Controls 1.0", "Controls 1.1"]:
+    for quickVersion in ["1.1", "2.1", "2.2", "2.3", "Controls 1.0", "Controls 1.1", "Controls 1.2"]:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         projectName = createNewQtQuickUI(workingDir, quickVersion)
+        switchViewTo(ViewConstants.PROJECTS)
+        clickButton(waitForObject(":*Qt Creator.Add Kit_QPushButton"))
+        menuItem = Targets.getStringForTarget(Targets.DESKTOP_531_DEFAULT)
+        if platform.system() == 'Darwin':
+            waitFor("macHackActivateContextMenuItem(menuItem)", 5000)
+        else:
+            activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1' "
+                                           "window=':Qt Creator_Core::Internal::MainWindow'}", menuItem))
         test.log("Running project Qt Quick %s UI" % quickVersion)
-        qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(1, 0, workingDir, projectName, 11223, quickVersion)
+        qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(2, 1, workingDir, projectName, 11223, quickVersion)
         if qmlViewer!=None:
             qmlViewerPath = os.path.dirname(qmlViewer)
             qmlViewer = os.path.basename(qmlViewer)
