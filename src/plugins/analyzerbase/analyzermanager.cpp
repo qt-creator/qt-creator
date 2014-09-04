@@ -419,8 +419,7 @@ bool AnalyzerManagerPrivate::isActionRunnable(AnalyzerAction *action) const
     if (action->startMode() == StartRemote)
         return true;
 
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    return pe->canRun(SessionManager::startupProject(), action->tool()->runMode());
+    return ProjectExplorerPlugin::canRun(SessionManager::startupProject(), action->tool()->runMode(), 0);
 }
 
 void AnalyzerManagerPrivate::startTool()
@@ -572,16 +571,14 @@ void AnalyzerManagerPrivate::saveToolSettings(AnalyzerAction *action)
 
 void AnalyzerManagerPrivate::updateRunActions()
 {
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    Project *project = SessionManager::startupProject();
-
     QString disabledReason;
     if (m_isRunning)
         disabledReason = tr("An analysis is still in progress.");
     else if (!m_currentAction)
         disabledReason = tr("No analyzer tool selected.");
     else
-        disabledReason = pe->cannotRunReason(project, m_currentAction->tool()->runMode());
+        ProjectExplorerPlugin::canRun(SessionManager::startupProject(),
+                                      m_currentAction->tool()->runMode(), &disabledReason);
 
     m_startAction->setEnabled(isActionRunnable(m_currentAction));
     m_startAction->setToolTip(disabledReason);

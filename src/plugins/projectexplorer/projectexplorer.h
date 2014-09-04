@@ -106,8 +106,7 @@ public:
     bool coreAboutToClose();
     QList<QPair<QString, QString> > recentProjects();
 
-    bool canRun(Project *pro, RunMode runMode);
-    QString cannotRunReason(Project *project, RunMode runMode);
+    static bool canRun(Project *pro, RunMode runMode, QString *whyNot = 0);
     void runProject(Project *pro, RunMode, const bool forceSkipDeploy = false);
     void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, RunMode runMode,
                              const bool forceSkipDeploy = false);

@@ -1526,10 +1526,10 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     m_interruptAction->setEnabled(false);
     m_continueAction->setEnabled(false);
     m_exitAction->setEnabled(false);
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    const bool canRun = pe->canRun(project, DebugRunMode);
+    QString whyNot;
+    const bool canRun = ProjectExplorerPlugin::canRun(project, DebugRunMode, &whyNot);
     m_startAction->setEnabled(canRun);
-    m_startAction->setToolTip(canRun ? QString() : pe->cannotRunReason(project, DebugRunMode));
+    m_startAction->setToolTip(whyNot);
     m_debugWithoutDeployAction->setEnabled(canRun);
     setProxyAction(m_visibleStartAction, Core::Id(Constants::DEBUG));
 }
@@ -2278,9 +2278,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_hiddenStopAction->setAction(m_interruptAction);
         m_localsAndExpressionsWindow->setShowLocals(false);
     } else if (state == DebuggerFinished) {
-        ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
         Project *project = SessionManager::startupProject();
-        const bool canRun = pe->canRun(project, DebugRunMode);
+        const bool canRun = ProjectExplorerPlugin::canRun(project, DebugRunMode);
         // We don't want to do anything anymore.
         m_interruptAction->setEnabled(false);
         m_continueAction->setEnabled(false);
@@ -2380,28 +2379,24 @@ void DebuggerPluginPrivate::updateDebugActions()
     if (m_currentEngine->state() != DebuggerNotReady)
         return;
 
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     Project *project = SessionManager::startupProject();
-    const bool canRun = pe->canRun(project, DebugRunMode);
+    QString whyNot;
+    const bool canRun = ProjectExplorerPlugin::canRun(project, DebugRunMode, &whyNot);
     m_startAction->setEnabled(canRun);
-    m_startAction->setToolTip(canRun ? QString() : pe->cannotRunReason(project, DebugRunMode));
+    m_startAction->setToolTip(whyNot);
     m_debugWithoutDeployAction->setEnabled(canRun);
 
     // Step into/next: Start and break at 'main' unless a debugger is running.
     if (m_snapshotHandler->currentIndex() < 0) {
-        const bool canRunAndBreakMain = pe->canRun(project, DebugRunModeWithBreakOnMain);
+        QString toolTip;
+        const bool canRunAndBreakMain
+                = ProjectExplorerPlugin::canRun(project, DebugRunModeWithBreakOnMain, &toolTip);
         m_stepAction->setEnabled(canRunAndBreakMain);
         m_nextAction->setEnabled(canRunAndBreakMain);
-        QString toolTip;
         if (canRunAndBreakMain) {
             QTC_ASSERT(project, return ; );
             toolTip = tr("Start \"%1\" and break at function \"main()\"")
                       .arg(project->displayName());
-        } else {
-            // Do not display long tooltip saying run mode is not supported
-            // for project for projects to which 'break at main' is not applicable.
-            if (!canRun)
-                toolTip = pe->cannotRunReason(project, DebugRunModeWithBreakOnMain);
         }
         m_stepAction->setToolTip(toolTip);
         m_nextAction->setToolTip(toolTip);
