@@ -447,7 +447,8 @@ def qdump_stringHelper(d, data, size, charSize):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", displayType)
-        d.putField("editvalue", d.readMemory(data, size))
+        elided, shown = d.computeLimit(size, 100000)
+        d.putField("editvalue", d.readMemory(data, shown))
 
 
 def qdump__std____1__string(d, value):
