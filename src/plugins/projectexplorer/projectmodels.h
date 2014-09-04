@@ -65,6 +65,9 @@ public:
 
     void reset();
 
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+
     void setStartupProject(ProjectNode *projectNode);
 
     ProjectExplorer::Node *nodeForIndex(const QModelIndex &index) const;

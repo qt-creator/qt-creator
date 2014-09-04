@@ -87,6 +87,8 @@ public:
     {
         setEditTriggers(QAbstractItemView::EditKeyPressed);
         setContextMenuPolicy(Qt::CustomContextMenu);
+        setDragEnabled(true);
+        setDragDropMode(QAbstractItemView::DragOnly);
         m_context = new IContext(this);
         m_context->setContext(Context(ProjectExplorer::Constants::C_PROJECT_TREE));
         m_context->setWidget(this);

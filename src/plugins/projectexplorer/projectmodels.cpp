@@ -38,8 +38,9 @@
 
 #include <QDebug>
 #include <QFileInfo>
-
 #include <QFont>
+#include <QMimeData>
+#include <QUrl>
 
 namespace ProjectExplorer {
 
@@ -334,6 +335,8 @@ Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
             // either folder or file node
             if (node->supportedActions(node).contains(ProjectExplorer::Rename))
                 f = f | Qt::ItemIsEditable;
+            if (qobject_cast<FileNode *>(node))
+                f = f | Qt::ItemIsDragEnabled;
         }
     }
     return f;
@@ -484,6 +487,24 @@ void FlatModel::reset()
     beginResetModel();
     m_childNodes.clear();
     endResetModel();
+}
+
+QStringList FlatModel::mimeTypes() const
+{
+    return QStringList() << QStringLiteral("text/uri-list");
+}
+
+QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
+{
+    QList<QUrl> urls;
+    foreach (const QModelIndex &index, indexes) {
+        Node *node = nodeForIndex(index);
+        if (qobject_cast<FileNode *>(node))
+            urls.append(QUrl::fromLocalFile(node->path()));
+    }
+    auto data = new QMimeData;
+    data->setUrls(urls);
+    return data;
 }
 
 QModelIndex FlatModel::indexForNode(const Node *node_)
