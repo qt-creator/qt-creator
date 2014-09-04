@@ -443,7 +443,7 @@ void KitModel::addKit(Kit *k)
     emit kitStateChanged();
 }
 
-void KitModel::updateKit(Kit *k)
+void KitModel::updateKit(Kit *)
 {
     validateKitNames();
     emit kitStateChanged();
