@@ -31,8 +31,11 @@
 #define RUNEXTENSIONS_H
 
 #include <qrunnable.h>
+#include <qfuture.h>
 #include <qfutureinterface.h>
 #include <qthreadpool.h>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 
@@ -42,7 +45,7 @@ template <typename T,  typename FunctionPointer>
 class StoredInterfaceFunctionCall0 : public QRunnable
 {
 public:
-    StoredInterfaceFunctionCall0(void (fn)(QFutureInterface<T> &))
+    StoredInterfaceFunctionCall0(const FunctionPointer &fn)
     : fn(fn) { }
 
     QFuture<T> start()
@@ -416,6 +419,13 @@ QFuture<T> run(void (Class::*fn)(QFutureInterface<T> &, Arg1, Arg2, Arg3, Arg4, 
 {
     return (new StoredInterfaceMemberFunctionCall5<T, void (Class::*)(QFutureInterface<T> &, Arg1, Arg2, Arg3, Arg4, Arg5), Class, Arg1, Arg2, Arg3, Arg4, Arg5>(fn, object, arg1, arg2, arg3, arg4, arg5))->start();
 }
+
+template <typename T>
+QFuture<T> run(const std::function<void (QFutureInterface<T> &)> &fn)
+{
+    return (new StoredInterfaceFunctionCall0<T, std::function<void (QFutureInterface<T>)>>(fn))->start();
+}
+
 } // namespace QtConcurrent
 
 QT_END_NAMESPACE
