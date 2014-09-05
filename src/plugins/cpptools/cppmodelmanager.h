@@ -122,17 +122,9 @@ public:
     virtual void setIndexingSupport(CppIndexingSupport *indexingSupport);
     virtual CppIndexingSupport *indexingSupport();
 
-    QStringList projectFiles()
-    {
-        ensureUpdated();
-        return m_projectFiles;
-    }
+    QStringList projectFiles();
 
-    ProjectPart::HeaderPaths headerPaths()
-    {
-        ensureUpdated();
-        return m_headerPaths;
-    }
+    ProjectPart::HeaderPaths headerPaths();
 
     // Use this *only* for auto tests
     void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)
@@ -140,11 +132,7 @@ public:
         m_headerPaths = headerPaths;
     }
 
-    QByteArray definedMacros()
-    {
-        ensureUpdated();
-        return m_definedMacros;
-    }
+    QByteArray definedMacros();
 
     void enableGarbageCollector(bool enable);
 

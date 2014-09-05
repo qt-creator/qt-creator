@@ -920,6 +920,24 @@ CppIndexingSupport *CppModelManager::indexingSupport()
     return m_indexingSupporter ? m_indexingSupporter : m_internalIndexingSupport;
 }
 
+QStringList CppModelManager::projectFiles()
+{
+    ensureUpdated();
+    return m_projectFiles;
+}
+
+ProjectPart::HeaderPaths CppModelManager::headerPaths()
+{
+    ensureUpdated();
+    return m_headerPaths;
+}
+
+QByteArray CppModelManager::definedMacros()
+{
+    ensureUpdated();
+    return m_definedMacros;
+}
+
 void CppModelManager::enableGarbageCollector(bool enable)
 {
     m_delayedGcTimer->stop();
