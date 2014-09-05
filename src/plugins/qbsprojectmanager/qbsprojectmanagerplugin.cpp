@@ -398,7 +398,7 @@ void QbsProjectManagerPlugin::buildSubprojectContextMenu()
 
     QStringList toBuild;
     foreach (const qbs::ProductData &data, subProject->qbsProjectData().allProducts())
-        toBuild << data.name();
+        toBuild << QbsProject::uniqueProductName(data);
 
     buildProducts(m_selectedProject, toBuild);
 }
@@ -424,7 +424,7 @@ void QbsProjectManagerPlugin::buildSubproject()
 
     QStringList toBuild;
     foreach (const qbs::ProductData &data, subproject->qbsProjectData().allProducts())
-        toBuild << data.name();
+        toBuild << QbsProject::uniqueProductName(data);
 
     buildProducts(m_editorProject, toBuild);
 }

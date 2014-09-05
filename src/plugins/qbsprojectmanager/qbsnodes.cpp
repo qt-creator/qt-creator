@@ -549,7 +549,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
 // QbsProductNode:
 // --------------------------------------------------------------------
 
-QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
+QbsProductNode::QbsProductNode(const qbs::Project &project, const qbs::ProductData &prd) :
     QbsBaseProjectNode(prd.location().fileName())
 {
     if (m_productIcon.isNull())
@@ -562,7 +562,7 @@ QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
                                                      prd.location().line());
     addFileNodes(QList<ProjectExplorer::FileNode *>() << idx);
 
-    setQbsProductData(prd);
+    setQbsProductData(project, prd);
 }
 
 bool QbsProductNode::isEnabled() const
@@ -622,7 +622,7 @@ bool QbsProductNode::removeFiles(const QStringList &filePaths, QStringList *notR
     QTC_ASSERT(false, return false);
 }
 
-void QbsProductNode::setQbsProductData(const qbs::ProductData prd)
+void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::ProductData prd)
 {
     if (m_qbsProductData == prd)
         return;
@@ -631,7 +631,7 @@ void QbsProductNode::setQbsProductData(const qbs::ProductData prd)
     bool productIsEnabled = prd.isEnabled();
     bool updateExisting = productWasEnabled != productIsEnabled;
 
-    setDisplayName(prd.name());
+    setDisplayName(QbsProject::productDisplayName(project, prd));
     setPath(prd.location().fileName());
     const QString &productPath = QFileInfo(prd.location().fileName()).absolutePath();
 
@@ -685,7 +685,7 @@ QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() c
         QbsRunConfiguration *qbsRc = qobject_cast<QbsRunConfiguration *>(rc);
         if (!qbsRc)
             continue;
-        if (qbsRc->qbsProduct() == qbsProductData().name())
+        if (qbsRc->uniqueProductName() == QbsProject::uniqueProductName(qbsProductData()))
             result << qbsRc;
     }
 
@@ -717,13 +717,7 @@ QbsProjectNode::~QbsProjectNode()
     // do not delete m_project
 }
 
-bool QbsProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
-{
-    QbsProductNode *prd = findProductNode(displayName());
-    return prd ? prd->addFiles(filePaths, notAdded) : false;
-}
-
-void QbsProjectNode::update(const qbs::ProjectData &prjData)
+void QbsProjectNode::update(const qbs::Project &qbsProject, const qbs::ProjectData &prjData)
 {
     QList<ProjectExplorer::ProjectNode *> toAdd;
     QList<ProjectExplorer::ProjectNode *> toRemove = subProjectNodes();
@@ -732,20 +726,20 @@ void QbsProjectNode::update(const qbs::ProjectData &prjData)
         QbsProjectNode *qn = findProjectNode(subData.name());
         if (!qn) {
             QbsProjectNode *subProject = new QbsProjectNode(subData.location().fileName());
-            subProject->update(subData);
+            subProject->update(qbsProject, subData);
             toAdd << subProject;
         } else {
-            qn->update(subData);
+            qn->update(qbsProject, subData);
             toRemove.removeOne(qn);
         }
     }
 
     foreach (const qbs::ProductData &prd, prjData.products()) {
-        QbsProductNode *qn = findProductNode(prd.name());
+        QbsProductNode *qn = findProductNode(QbsProject::uniqueProductName(prd));
         if (!qn) {
-            toAdd << new QbsProductNode(prd);
+            toAdd << new QbsProductNode(qbsProject, prd);
         } else {
-            qn->setQbsProductData(prd);
+            qn->setQbsProductData(qbsProject, prd);
             toRemove.removeOne(qn);
         }
     }
@@ -785,11 +779,11 @@ void QbsProjectNode::ctor()
                  << new ProjectExplorer::FileNode(path(), ProjectExplorer::ProjectFileType, false));
 }
 
-QbsProductNode *QbsProjectNode::findProductNode(const QString &name)
+QbsProductNode *QbsProjectNode::findProductNode(const QString &uniqueName)
 {
     foreach (ProjectExplorer::ProjectNode *n, subProjectNodes()) {
         QbsProductNode *qn = qobject_cast<QbsProductNode *>(n);
-        if (qn && qn->qbsProductData().name() == name)
+        if (qn && QbsProject::uniqueProductName(qn->qbsProductData()) == uniqueName)
             return qn;
     }
     return 0;
@@ -830,7 +824,7 @@ void QbsRootProjectNode::update()
     }
     QbsGroupNode::setupFiles(m_buildSystemFiles, projectBuildSystemFiles, base.toString(), false);
 
-    update(m_project->qbsProjectData());
+    update(m_project->qbsProject(), m_project->qbsProjectData());
 }
 
 static QSet<QString> referencedBuildSystemFiles(const qbs::ProjectData &data)

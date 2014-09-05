@@ -105,6 +105,10 @@ public:
     bool needsSpecialDeployment() const;
     void generateErrors(const qbs::ErrorInfo &e);
 
+    static QString productDisplayName(const qbs::Project &project,
+                                      const qbs::ProductData &product);
+    static QString uniqueProductName(const qbs::ProductData &product);
+
 public slots:
     void invalidate();
     void delayParsing();
@@ -131,8 +135,8 @@ private:
     void updateDocuments(const QSet<QString> &files);
     void updateCppCodeModel(const qbs::ProjectData &prj);
     void updateQmlJsCodeModel(const qbs::ProjectData &prj);
-    void updateApplicationTargets(const qbs::ProjectData &projectData);
-    void updateDeploymentInfo(const qbs::Project &project);
+    void updateApplicationTargets();
+    void updateDeploymentInfo();
     void updateBuildTargetData();
 
     static bool ensureWriteableQbsFile(const QString &file);

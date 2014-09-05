@@ -322,7 +322,7 @@ qbs::BuildJob *QbsProject::build(const qbs::BuildOptions &opts, QStringList prod
         foreach (const QString &productName, productNames) {
             bool found = false;
             foreach (const qbs::ProductData &data, qbsProjectData().allProducts()) {
-                if (data.name() == productName) {
+                if (uniqueProductName(data) == productName) {
                     found = true;
                     products.append(data);
                     break;
@@ -583,6 +583,20 @@ void QbsProject::generateErrors(const qbs::ErrorInfo &e)
 
 }
 
+QString QbsProject::productDisplayName(const qbs::Project &project,
+                                       const qbs::ProductData &product)
+{
+    QString displayName = product.name();
+    if (product.profile() != project.profile())
+        displayName.append(QLatin1String(" [")).append(product.profile()).append(QLatin1Char(']'));
+    return displayName;
+}
+
+QString QbsProject::uniqueProductName(const qbs::ProductData &product)
+{
+    return product.name() + QLatin1Char('.') + product.profile();
+}
+
 void QbsProject::parse(const QVariantMap &config, const Environment &env, const QString &dir)
 {
     prepareForParsing();
@@ -764,14 +778,15 @@ void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData &prj)
     modelManager->updateProjectInfo(projectInfo, this);
 }
 
-void QbsProject::updateApplicationTargets(const qbs::ProjectData &projectData)
+void QbsProject::updateApplicationTargets()
 {
     ProjectExplorer::BuildTargetInfoList applications;
-    foreach (const qbs::ProductData &productData, projectData.allProducts()) {
+    foreach (const qbs::ProductData &productData, m_projectData.allProducts()) {
         if (!productData.isEnabled() || !productData.isRunnable())
             continue;
+        const QString displayName = productDisplayName(m_qbsProject, productData);
         if (productData.targetArtifacts().isEmpty()) { // No build yet.
-            applications.list << ProjectExplorer::BuildTargetInfo(productData.name(),
+            applications.list << ProjectExplorer::BuildTargetInfo(displayName,
                     Utils::FileName(),
                     Utils::FileName::fromString(productData.location().fileName()));
             continue;
@@ -780,7 +795,7 @@ void QbsProject::updateApplicationTargets(const qbs::ProjectData &projectData)
             QTC_ASSERT(ta.isValid(), continue);
             if (!ta.isExecutable())
                 continue;
-            applications.list << ProjectExplorer::BuildTargetInfo(productData.name(),
+            applications.list << ProjectExplorer::BuildTargetInfo(displayName,
                     Utils::FileName::fromString(ta.filePath()),
                     Utils::FileName::fromString(productData.location().fileName()));
         }
@@ -788,14 +803,14 @@ void QbsProject::updateApplicationTargets(const qbs::ProjectData &projectData)
     activeTarget()->setApplicationTargets(applications);
 }
 
-void QbsProject::updateDeploymentInfo(const qbs::Project &project)
+void QbsProject::updateDeploymentInfo()
 {
     ProjectExplorer::DeploymentData deploymentData;
-    if (project.isValid()) {
+    if (m_qbsProject.isValid()) {
         qbs::InstallOptions installOptions;
         installOptions.setInstallRoot(QLatin1String("/"));
-        foreach (const qbs::InstallableFile &f,
-                 project.installableFilesForProject(m_projectData, installOptions)) {
+        foreach (const qbs::InstallableFile &f, m_qbsProject
+                     .installableFilesForProject(m_projectData, installOptions)) {
             deploymentData.addFile(f.sourceFilePath(), f.targetDirectory(), f.isExecutable()
                                    ? ProjectExplorer::DeployableFile::TypeExecutable
                                    : ProjectExplorer::DeployableFile::TypeNormal);
@@ -806,8 +821,8 @@ void QbsProject::updateDeploymentInfo(const qbs::Project &project)
 
 void QbsProject::updateBuildTargetData()
 {
-    updateApplicationTargets(m_projectData);
-    updateDeploymentInfo(m_qbsProject);
+    updateApplicationTargets();
+    updateDeploymentInfo();
     foreach (Target *t, targets())
         t->updateDefaultRunConfigurations();
 }

@@ -89,7 +89,7 @@ public:
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
-    QString qbsProduct() const;
+    QString uniqueProductName() const;
     bool isConsoleApplication() const;
 
 signals:
@@ -120,7 +120,7 @@ private:
 
     void updateTarget();
 
-    QString m_qbsProduct;
+    QString m_uniqueProductName;
     QString m_commandLineArguments;
 
     // Cached startup sub project information

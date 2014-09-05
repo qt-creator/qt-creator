@@ -63,31 +63,47 @@
 
 using namespace ProjectExplorer;
 
-namespace {
+namespace QbsProjectManager {
+namespace Internal {
 
 const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
 const char COMMAND_LINE_ARGUMENTS_KEY[] = "Qbs.RunConfiguration.CommandLineArguments";
 const char USE_TERMINAL_KEY[] = "Qbs.RunConfiguration.UseTerminal";
 const char USER_WORKING_DIRECTORY_KEY[] = "Qbs.RunConfiguration.UserWorkingDirectory";
 
-QString productFromId(Core::Id id)
+static QString rcNameSeparator() { return QLatin1String("---Qbs.RC.NameSeparator---"); }
+
+static Core::Id idFromProduct(const QbsProject *project, const qbs::ProductData &product)
 {
-    return id.suffixAfter(QBS_RC_PREFIX);
+    QString id = QLatin1String(QBS_RC_PREFIX);
+    id.append(QbsProject::uniqueProductName(product)).append(rcNameSeparator())
+            .append(QbsProject::productDisplayName(project->qbsProject(), product));
+    return Core::Id::fromString(id);
 }
 
-const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &name)
+static QString uniqueProductNameFromId(Core::Id id)
+{
+    const QString suffix = id.suffixAfter(QBS_RC_PREFIX);
+    return suffix.left(suffix.indexOf(rcNameSeparator()));
+}
+
+static QString productDisplayNameFromId(Core::Id id)
+{
+    const QString suffix = id.suffixAfter(QBS_RC_PREFIX);
+    const int sepPos = suffix.indexOf(rcNameSeparator());
+    if (sepPos == -1)
+        return suffix;
+    return suffix.mid(sepPos + rcNameSeparator().count());
+}
+
+const qbs::ProductData findProduct(const qbs::ProjectData &pro, const QString &uniqeName)
 {
     foreach (const qbs::ProductData &product, pro.allProducts()) {
-        if (product.name() == name)
+        if (QbsProject::uniqueProductName(product) == uniqeName)
             return product;
     }
     return qbs::ProductData();
 }
-
-} // namespace
-
-namespace QbsProjectManager {
-namespace Internal {
 
 // --------------------------------------------------------------------
 // QbsRunConfiguration:
@@ -95,7 +111,7 @@ namespace Internal {
 
 QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
     LocalApplicationRunConfiguration(parent, id),
-    m_qbsProduct(productFromId(id)),
+    m_uniqueProductName(uniqueProductNameFromId(id)),
     m_runMode(ApplicationLauncher::Gui),
     m_currentInstallStep(0),
     m_currentBuildStepList(0)
@@ -107,7 +123,7 @@ QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
 
 QbsRunConfiguration::QbsRunConfiguration(Target *parent, QbsRunConfiguration *source) :
     LocalApplicationRunConfiguration(parent, source),
-    m_qbsProduct(source->m_qbsProduct),
+    m_uniqueProductName(source->m_uniqueProductName),
     m_commandLineArguments(source->m_commandLineArguments),
     m_runMode(source->m_runMode),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
@@ -217,7 +233,7 @@ void QbsRunConfiguration::installStepToBeRemoved(int pos)
 QString QbsRunConfiguration::executable() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
-    const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_qbsProduct);
+    const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_uniqueProductName);
 
     if (!product.isValid() || !pro->qbsProject().isValid())
         return QString();
@@ -233,7 +249,7 @@ ApplicationLauncher::Mode QbsRunConfiguration::runMode() const
 bool QbsRunConfiguration::isConsoleApplication() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
-    const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_qbsProduct);
+    const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_uniqueProductName);
     foreach (const qbs::TargetArtifact &ta, product.targetArtifacts()) {
         if (ta.isExecutable())
             return !ta.properties().getProperty(QLatin1String("consoleApplication")).toBool();
@@ -300,7 +316,7 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
     QbsProject *project = static_cast<QbsProject *>(target()->project());
     if (project) {
-        const qbs::ProductData product = findProduct(project->qbsProjectData(), m_qbsProduct);
+        const qbs::ProductData product = findProduct(project->qbsProjectData(), m_uniqueProductName);
         if (product.isValid()) {
             qbs::RunEnvironment qbsRunEnv = project->qbsProject().getRunEnvironment(product, installOptions(),
                     env.toProcessEnvironment(), QbsManager::settings());
@@ -318,17 +334,15 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
         env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
 }
 
-QString QbsRunConfiguration::qbsProduct() const
+QString QbsRunConfiguration::uniqueProductName() const
 {
-    return m_qbsProduct;
+    return m_uniqueProductName;
 }
 
 QString QbsRunConfiguration::defaultDisplayName()
 {
-    QString defaultName;
-    if (!m_qbsProduct.isEmpty())
-        defaultName = m_qbsProduct;
-    else
+    QString defaultName = productDisplayNameFromId(id());
+    if (defaultName.isEmpty())
         defaultName = tr("Qbs Run Configuration");
     return defaultName;
 }
@@ -545,7 +559,7 @@ bool QbsRunConfigurationFactory::canCreate(Target *parent, Core::Id id) const
         return false;
 
     QbsProject *project = static_cast<QbsProject *>(parent->project());
-    return findProduct(project->qbsProjectData(), productFromId(id)).isValid();
+    return findProduct(project->qbsProjectData(), uniqueProductNameFromId(id)).isValid();
 }
 
 RunConfiguration *QbsRunConfigurationFactory::doCreate(Target *parent, Core::Id id)
@@ -591,7 +605,7 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(Target *parent,
 
     foreach (const qbs::ProductData &product, project->qbsProjectData().allProducts()) {
         if (product.isRunnable() && product.isEnabled())
-            result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
+            result << idFromProduct(project, product);
     }
 
     return result;
@@ -599,7 +613,7 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(Target *parent,
 
 QString QbsRunConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    return productFromId(id);
+    return productDisplayNameFromId(id);
 }
 
 bool QbsRunConfigurationFactory::canHandle(Target *t) const

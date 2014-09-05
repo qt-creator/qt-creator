@@ -132,7 +132,7 @@ class QbsProductNode : public QbsBaseProjectNode
     Q_OBJECT
 
 public:
-    explicit QbsProductNode(const qbs::ProductData &prd);
+    explicit QbsProductNode(const qbs::Project &project, const qbs::ProductData &prd);
 
     bool isEnabled() const;
     bool showInSimpleTree() const;
@@ -140,7 +140,7 @@ public:
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
 
-    void setQbsProductData(const qbs::ProductData prd);
+    void setQbsProductData(const qbs::Project &project, const qbs::ProductData prd);
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurations() const;
@@ -164,8 +164,6 @@ public:
     explicit QbsProjectNode(const QString &path);
     ~QbsProjectNode();
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
-
     virtual QbsProject *project() const;
     const qbs::Project qbsProject() const;
     const qbs::ProjectData qbsProjectData() const { return m_projectData; }
@@ -173,12 +171,12 @@ public:
     bool showInSimpleTree() const;
 
 protected:
-    void update(const qbs::ProjectData &prjData);
+    void update(const qbs::Project &qbsProject, const qbs::ProjectData &prjData);
 
 private:
     void ctor();
 
-    QbsProductNode *findProductNode(const QString &name);
+    QbsProductNode *findProductNode(const QString &uniqueName);
     QbsProjectNode *findProjectNode(const QString &name);
 
     static QIcon m_projectIcon;
