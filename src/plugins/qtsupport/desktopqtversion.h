@@ -40,7 +40,6 @@ class DesktopQtVersion : public BaseQtVersion
 public:
     DesktopQtVersion();
     DesktopQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
-    ~DesktopQtVersion();
     DesktopQtVersion *clone() const;
 
     QString type() const;

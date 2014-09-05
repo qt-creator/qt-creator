@@ -49,11 +49,6 @@ DesktopQtVersion::DesktopQtVersion(const Utils::FileName &path, bool isAutodetec
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
 
-DesktopQtVersion::~DesktopQtVersion()
-{
-
-}
-
 DesktopQtVersion *DesktopQtVersion::clone() const
 {
     return new DesktopQtVersion(*this);

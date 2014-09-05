@@ -40,7 +40,6 @@ class SimulatorQtVersion : public BaseQtVersion
 public:
     SimulatorQtVersion();
     SimulatorQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
-    ~SimulatorQtVersion();
     SimulatorQtVersion *clone() const;
 
     QString type() const;

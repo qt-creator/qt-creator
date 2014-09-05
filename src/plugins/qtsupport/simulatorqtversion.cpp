@@ -49,11 +49,6 @@ SimulatorQtVersion::SimulatorQtVersion(const Utils::FileName &path, bool isAutod
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
 
-SimulatorQtVersion::~SimulatorQtVersion()
-{
-
-}
-
 SimulatorQtVersion *SimulatorQtVersion::clone() const
 {
     return new SimulatorQtVersion(*this);
