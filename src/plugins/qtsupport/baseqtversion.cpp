@@ -471,7 +471,7 @@ QVariantMap BaseQtVersion::toMap() const
 {
     QVariantMap result;
     result.insert(QLatin1String(Constants::QTVERSIONID), uniqueId());
-    result.insert(QLatin1String(Constants::QTVERSIONNAME), displayName());
+    result.insert(QLatin1String(Constants::QTVERSIONNAME), unexpandedDisplayName());
     result.insert(QLatin1String(QTVERSIONAUTODETECTED), isAutodetected());
     if (isAutodetected())
         result.insert(QLatin1String(QTVERSIONAUTODETECTIONSOURCE), autodetectionSource());
