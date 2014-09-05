@@ -230,6 +230,7 @@ public:
 protected:
     BaseQtVersion();
     BaseQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+    BaseQtVersion(const BaseQtVersion &other);
 
     static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name,
                                  PropertyVariant variant = PropertyVariantGet);

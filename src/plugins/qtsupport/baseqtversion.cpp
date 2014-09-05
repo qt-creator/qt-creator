@@ -159,6 +159,42 @@ BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, 
     ctor(qmakeCommand);
 }
 
+BaseQtVersion::BaseQtVersion(const BaseQtVersion &other) :
+    m_id(other.m_id),
+    m_isAutodetected(other.m_isAutodetected),
+    m_hasQmlDump(other.m_hasQmlDump),
+    m_mkspecUpToDate(other.m_mkspecUpToDate),
+    m_mkspecReadUpToDate(other.m_mkspecReadUpToDate),
+    m_defaultConfigIsDebug(other.m_defaultConfigIsDebug),
+    m_defaultConfigIsDebugAndRelease(other.m_defaultConfigIsDebugAndRelease),
+    m_frameworkBuild(other.m_frameworkBuild),
+    m_versionInfoUpToDate(other.m_versionInfoUpToDate),
+    m_installed(other.m_installed),
+    m_hasExamples(other.m_hasExamples),
+    m_hasDemos(other.m_hasDemos),
+    m_hasDocumentation(other.m_hasDocumentation),
+    m_qmakeIsExecutable(other.m_qmakeIsExecutable),
+    m_hasQtAbis(other.m_hasQtAbis),
+    m_configValues(other.m_configValues),
+    m_qtConfigValues(other.m_qtConfigValues),
+    m_unexpandedDisplayName(other.m_unexpandedDisplayName),
+    m_autodetectionSource(other.m_autodetectionSource),
+    m_sourcePath(other.m_sourcePath),
+    m_mkspec(other.m_mkspec),
+    m_mkspecFullPath(other.m_mkspecFullPath),
+    m_mkspecValues(other.m_mkspecValues),
+    m_versionInfo(other.m_versionInfo),
+    m_qmakeCommand(other.m_qmakeCommand),
+    m_qtVersionString(other.m_qtVersionString),
+    m_uicCommand(other.m_uicCommand),
+    m_designerCommand(other.m_designerCommand),
+    m_linguistCommand(other.m_linguistCommand),
+    m_qmlsceneCommand(other.m_qmlsceneCommand),
+    m_qmlviewerCommand(other.m_qmlviewerCommand),
+    m_qtAbis(other.m_qtAbis),
+    m_expander(0)
+{ }
+
 BaseQtVersion::BaseQtVersion()
     :  m_id(-1), m_isAutodetected(false),
     m_hasQmlDump(false),
