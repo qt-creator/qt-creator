@@ -142,7 +142,7 @@ public:
     QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode, const QString &filePath);
     ~QmakePriFileNode();
 
-    void update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact, ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumalative);
+    void update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact, ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumalative, const QString &buildDir);
 
 
 // ProjectNode interface
@@ -385,7 +385,7 @@ public:
     QString sourceDir() const;
     QString buildDir(QmakeBuildConfiguration *bc = 0) const;
 
-    QString uiDirectory() const;
+    QString uiDirectory(const QString &buildDir) const;
     static QString uiHeaderFile(const QString &uiDir, const QString &formFile);
     QHash<QString, QString> uiFiles() const;
 
@@ -432,17 +432,17 @@ private:
 
     typedef QHash<QmakeVariable, QStringList> QmakeVariablesHash;
 
-    void updateUiFiles();
+    void updateUiFiles(const QString &buildDir);
 
     QStringList fileListForVar(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
                                const QString &varName, const QString &projectDir, const QString &buildDir) const;
-    QString uiDirPath(QtSupport::ProFileReader *reader) const;
-    QString mocDirPath(QtSupport::ProFileReader *reader) const;
-    QStringList includePaths(QtSupport::ProFileReader *reader) const;
+    QString uiDirPath(QtSupport::ProFileReader *reader, const QString &buildDir) const;
+    QString mocDirPath(QtSupport::ProFileReader *reader, const QString &buildDir) const;
+    QStringList includePaths(QtSupport::ProFileReader *reader, const QString &buildDir) const;
     QStringList libDirectories(QtSupport::ProFileReader *reader) const;
     QStringList subDirsPaths(QtSupport::ProFileReader *reader, QStringList *subProjectsNotToDeploy, bool silent) const;
 
-    TargetInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass) const;
+    TargetInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const QString &buildDir) const;
     void setupInstallsList(const QtSupport::ProFileReader *reader);
 
     bool m_isDeployable;

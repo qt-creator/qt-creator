@@ -587,7 +587,9 @@ QSet<Utils::FileName> QmakePriFileNode::recursiveEnumerate(const QString &folder
     return result;
 }
 
-void QmakePriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact, ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumulative)
+void QmakePriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact,
+                              ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumulative,
+                              const QString &buildDir)
 {
     // add project file node
     if (m_fileNodes.isEmpty())
@@ -651,10 +653,10 @@ void QmakePriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReade
 
     QStringList baseVPathsExact;
     if (includeFileExact)
-        baseVPathsExact = baseVPaths(readerExact, projectDir, m_qmakeProFileNode->buildDir());
+        baseVPathsExact = baseVPaths(readerExact, projectDir, buildDir);
     QStringList baseVPathsCumulative;
     if (includeFileCumlative)
-        baseVPathsCumulative = baseVPaths(readerCumulative, projectDir, m_qmakeProFileNode->buildDir());
+        baseVPathsCumulative = baseVPaths(readerCumulative, projectDir, buildDir);
 
     const QVector<QmakeNodeStaticData::FileTypeData> &fileTypes = qmakeNodeStaticData()->fileTypeData;
 
@@ -1848,6 +1850,8 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         }
     }
 
+    QString buildDirectory = buildDir();
+
     SortByPath sortByPath;
     Utils::sort(existingProjectNodes, sortByPath);
     Utils::sort(newProjectFilesExact, sortByPath);
@@ -1921,7 +1925,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             ProFile *fileCumlative = includeFilesCumlative.value((*existingIt)->path());
             if (fileExact || fileCumlative) {
                 QmakePriFileNode *priFileNode = static_cast<QmakePriFileNode *>(*existingIt);
-                priFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative);
+                priFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative, buildDirectory);
                 priFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
             } else {
                 // We always parse exactly, because we later when async parsing don't know whether
@@ -1959,7 +1963,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                 QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, nodeToAdd);
                 qmakePriFileNode->setParentFolderNode(this); // Needed for loop detection
                 qmakePriFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
-                qmakePriFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative);
+                qmakePriFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative, buildDirectory);
                 toAdd << qmakePriFileNode;
             } else {
                 QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd);
@@ -1986,7 +1990,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     if (!toAdd.isEmpty())
         addProjectNodes(toAdd);
 
-    QmakePriFileNode::update(fileForCurrentProjectExact, m_readerExact, fileForCurrentProjectCumlative, m_readerCumulative);
+    QmakePriFileNode::update(fileForCurrentProjectExact, m_readerExact, fileForCurrentProjectCumlative, m_readerCumulative, buildDirectory);
 
     m_validParse = (evalResult == EvalOk);
     if (m_validParse) {
@@ -2025,18 +2029,17 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         }
 
         // update TargetInformation
-        m_qmakeTargetInformation = targetInformation(m_readerExact, readerBuildPass);
+        m_qmakeTargetInformation = targetInformation(m_readerExact, readerBuildPass, buildDirectory);
         m_resolvedMkspecPath = m_readerExact->resolvedMkSpec();
 
         m_subProjectsNotToDeploy = subProjectsNotToDeploy;
         setupInstallsList(readerBuildPass);
 
-        QString buildDirectory = buildDir();
         // update other variables
         QHash<QmakeVariable, QStringList> newVarValues;
 
         newVarValues[DefinesVar] = m_readerExact->values(QLatin1String("DEFINES"));
-        newVarValues[IncludePathVar] = includePaths(m_readerExact);
+        newVarValues[IncludePathVar] = includePaths(m_readerExact, buildDirectory);
         newVarValues[CppFlagsVar] = m_readerExact->values(QLatin1String("QMAKE_CXXFLAGS"));
         newVarValues[CppHeaderVar] = fileListForVar(m_readerExact, m_readerCumulative,
                                                     QLatin1String("HEADERS"), m_projectDir, buildDirectory);
@@ -2046,8 +2049,8 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                                                      QLatin1String("OBJECTIVE_SOURCES"), m_projectDir, buildDirectory);
         newVarValues[ObjCHeaderVar] = fileListForVar(m_readerExact, m_readerCumulative,
                                                      QLatin1String("OBJECTIVE_HEADERS"), m_projectDir, buildDirectory);
-        newVarValues[UiDirVar] = QStringList() << uiDirPath(m_readerExact);
-        newVarValues[MocDirVar] = QStringList() << mocDirPath(m_readerExact);
+        newVarValues[UiDirVar] = QStringList() << uiDirPath(m_readerExact, buildDirectory);
+        newVarValues[MocDirVar] = QStringList() << mocDirPath(m_readerExact, buildDirectory);
         newVarValues[ResourceVar] = fileListForVar(m_readerExact, m_readerCumulative,
                                                    QLatin1String("RESOURCES"), m_projectDir, buildDirectory);
         newVarValues[ExactResourceVar] = fileListForVar(m_readerExact, 0,
@@ -2104,7 +2107,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
     setParseInProgress(false);
 
-    updateUiFiles();
+    updateUiFiles(buildDirectory);
 
     m_project->destroyProFileReader(m_readerExact);
     m_project->destroyProFileReader(m_readerCumulative);
@@ -2136,23 +2139,23 @@ QStringList QmakeProFileNode::fileListForVar(QtSupport::ProFileReader *readerExa
     return result;
 }
 
-QString QmakeProFileNode::uiDirPath(QtSupport::ProFileReader *reader) const
+QString QmakeProFileNode::uiDirPath(QtSupport::ProFileReader *reader, const QString &buildDir) const
 {
     QString path = reader->value(QLatin1String("UI_DIR"));
     if (QFileInfo(path).isRelative())
-        path = QDir::cleanPath(buildDir() + QLatin1Char('/') + path);
+        path = QDir::cleanPath(buildDir + QLatin1Char('/') + path);
     return path;
 }
 
-QString QmakeProFileNode::mocDirPath(QtSupport::ProFileReader *reader) const
+QString QmakeProFileNode::mocDirPath(QtSupport::ProFileReader *reader, const QString &buildDir) const
 {
     QString path = reader->value(QLatin1String("MOC_DIR"));
     if (QFileInfo(path).isRelative())
-        path = QDir::cleanPath(buildDir() + QLatin1Char('/') + path);
+        path = QDir::cleanPath(buildDir + QLatin1Char('/') + path);
     return path;
 }
 
-QStringList QmakeProFileNode::includePaths(QtSupport::ProFileReader *reader) const
+QStringList QmakeProFileNode::includePaths(QtSupport::ProFileReader *reader, const QString &buildDir) const
 {
     QStringList paths;
     foreach (const QString &cxxflags, m_readerExact->values(QLatin1String("QMAKE_CXXFLAGS"))) {
@@ -2165,7 +2168,7 @@ QStringList QmakeProFileNode::includePaths(QtSupport::ProFileReader *reader) con
     // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
     // except if those directories don't exist at the time of parsing
     // thus we add those directories manually (without checking for existence)
-    paths << mocDirPath(reader) << uiDirPath(reader);
+    paths << mocDirPath(reader, buildDir) << uiDirPath(reader, buildDir);
     // qmake always adds "."
     paths << m_projectDir;
     paths.removeDuplicates();
@@ -2236,7 +2239,7 @@ QStringList QmakeProFileNode::subDirsPaths(QtSupport::ProFileReader *reader, QSt
     return subProjectPaths;
 }
 
-TargetInformation QmakeProFileNode::targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass) const
+TargetInformation QmakeProFileNode::targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass, const QString &buildDir) const
 {
     TargetInformation result;
     if (!reader || !readerBuildPass)
@@ -2249,7 +2252,7 @@ TargetInformation QmakeProFileNode::targetInformation(QtSupport::ProFileReader *
     }
 
     // BUILD DIR
-    result.buildDir = buildDir();
+    result.buildDir = buildDir;
 
     if (readerBuildPass->contains(QLatin1String("DESTDIR")))
         result.destDir = readerBuildPass->value(QLatin1String("DESTDIR"));
@@ -2338,12 +2341,12 @@ QString QmakeProFileNode::buildDir(QmakeBuildConfiguration *bc) const
     return QDir::cleanPath(QDir(bc->buildDirectory().toString()).absoluteFilePath(relativeDir));
 }
 
-QString QmakeProFileNode::uiDirectory() const
+QString QmakeProFileNode::uiDirectory(const QString &buildDir) const
 {
     const QmakeVariablesHash::const_iterator it = m_varValues.constFind(UiDirVar);
     if (it != m_varValues.constEnd() && !it.value().isEmpty())
         return it.value().front();
-    return buildDir();
+    return buildDir;
 }
 
 QString QmakeProFileNode::uiHeaderFile(const QString &uiDir, const QString &formFile)
@@ -2355,7 +2358,7 @@ QString QmakeProFileNode::uiHeaderFile(const QString &uiDir, const QString &form
     return QDir::cleanPath(uiHeaderFilePath);
 }
 
-void QmakeProFileNode::updateUiFiles()
+void QmakeProFileNode::updateUiFiles(const QString &buildDir)
 {
     m_uiFiles.clear();
 
@@ -2367,7 +2370,7 @@ void QmakeProFileNode::updateUiFiles()
         const QList<ProjectExplorer::FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
 
         // Find the UiDir, there can only ever be one
-        const  QString uiDir = uiDirectory();
+        const  QString uiDir = uiDirectory(buildDir);
         foreach (const ProjectExplorer::FileNode *uiFile, uiFiles)
             m_uiFiles.insert(uiFile->path(), uiHeaderFile(uiDir, uiFile->path()));
     }

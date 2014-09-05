@@ -976,7 +976,7 @@ QString QmakeProject::generatedUiHeader(const QString &formFile) const
     // the top-level project only.
     if (m_rootProjectNode)
         if (const QmakeProFileNode *pro = proFileNodeOf(m_rootProjectNode, FormType, formFile))
-            return QmakeProFileNode::uiHeaderFile(pro->uiDirectory(), formFile);
+            return QmakeProFileNode::uiHeaderFile(pro->uiDirectory(pro->buildDir()), formFile);
     return QString();
 }
 
