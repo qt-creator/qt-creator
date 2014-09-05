@@ -136,7 +136,10 @@ bool QnxBaseConfiguration::isValid() const
 
 void QnxBaseConfiguration::ctor(const FileName &envScript)
 {
-    QTC_ASSERT(!envScript.isEmpty() && envScript.exists(), return);
+    QTC_ASSERT(!envScript.isEmpty(), return);
+#if !defined(WITH_TESTS)
+    QTC_ASSERT(envScript.exists(), return);
+#endif
     m_envFile = envScript;
     m_qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(m_envFile.toString());
     foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
