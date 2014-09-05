@@ -75,14 +75,12 @@ SOURCES += clangutils.cpp \
 contains(DEFINES, CLANG_INDEXING) {
     HEADERS += \
         $$PWD/clangindexer.h \
-        $$PWD/clangsymbolsearcher.h \
         $$PWD/index.h \
         $$PWD/indexer.h
 #        $$PWD/dependencygraph.h \
 
     SOURCES += \
         $$PWD/clangindexer.cpp \
-        $$PWD/clangsymbolsearcher.cpp \
         $$PWD/index.cpp \
         $$PWD/indexer.cpp
 #        $$PWD/dependencygraph.cpp \

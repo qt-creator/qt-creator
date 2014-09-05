@@ -42,6 +42,7 @@ class Indexer;
 
 namespace Internal {
 
+typedef CppTools::CppModelManager::ProgressNotificationMode ProgressNotificationMode;
 class ClangIndexer;
 class ClangSymbolSearcher;
 
@@ -51,8 +52,11 @@ public:
     ClangIndexingSupport(ClangIndexer *indexer);
     virtual ~ClangIndexingSupport();
 
-    virtual QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
-    virtual CppTools::SymbolSearcher *createSymbolSearcher(CppTools::SymbolSearcher::Parameters parameters, QSet<QString> fileNames);
+    virtual QFuture<void> refreshSourceFiles(
+            const QSet<QString> &sourceFiles,
+            ProgressNotificationMode mode);
+    virtual CppTools::SymbolSearcher *createSymbolSearcher(
+            CppTools::SymbolSearcher::Parameters parameters, QSet<QString> fileNames);
 
 private:
     ClangIndexer *m_indexer;
@@ -68,7 +72,7 @@ public:
 
     CppTools::CppIndexingSupport *indexingSupport();
 
-    QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
+    QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles);
 
     void match(ClangSymbolSearcher *searcher) const;
 

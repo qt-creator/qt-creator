@@ -105,8 +105,6 @@ QtcPlugin {
         files: [
             "clangindexer.cpp",
             "clangindexer.h",
-            "clangsymbolsearcher.cpp",
-            "clangsymbolsearcher.h",
             "index.cpp",
             "index.h",
             "indexer.cpp",

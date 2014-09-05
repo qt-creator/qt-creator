@@ -32,9 +32,7 @@
 #include "index.h"
 #include "cxraii.h"
 #include "sourcelocation.h"
-#include "liveunitsmanager.h"
 #include "utils_p.h"
-#include "clangsymbolsearcher.h"
 #include "pchmanager.h"
 #include "raii/scopedclangoptions.h"
 
@@ -60,19 +58,6 @@
 #include <QThreadPool>
 #include <QDateTime>
 #include <QStringBuilder>
-
-#include <cassert>
-
-//#define DEBUG
-//#define DEBUG_DIAGNOSTICS
-
-#ifdef DEBUG
-    #define BEGIN_PROFILE_SCOPE(ID) { ScopepTimer t(ID);
-    #define END_PROFILE_SCOPE }
-#else
-    #define BEGIN_PROFILE_SCOPE(ID)
-    #define END_PROFILE_SCOPE
-#endif
 
 using namespace Utils;
 using namespace ClangCodeModel;
@@ -172,7 +157,7 @@ public:
     void computeDependencyGraph();
     void analyzeRestoredSymbols();
 
-    void runQuickIndexing(const Unit &unit, const ProjectPart::Ptr &part);
+    void runQuickIndexing(const Unit::Ptr &unit, const ProjectPart::Ptr &part);
     void run();
     void run(const QStringList &fileNames);
     void runCore(const QHash<QString, FileData> &headers,
@@ -389,7 +374,7 @@ protected:
 
         void addInclude(File *f)
         {
-            assert(f);
+//            assert(f);
             m_includes.insert(f->name(), f);
         }
 
@@ -407,7 +392,7 @@ protected:
 
         void addSymbol(Symbol *symbol)
         {
-            assert(symbol);
+//            assert(symbol);
             m_symbols.append(symbol);
         }
 
@@ -656,7 +641,7 @@ private:
 class QuickIndexer: public LibClangIndexer
 {
 public:
-    QuickIndexer(IndexerPrivate *indexer, const Unit &unit, const ProjectPart::Ptr &projectPart)
+    QuickIndexer(IndexerPrivate *indexer, const Unit::Ptr &unit, const ProjectPart::Ptr&projectPart)
         : LibClangIndexer(indexer)
         , m_unit(unit)
         , m_projectPart(projectPart)
@@ -664,19 +649,19 @@ public:
 
     void run()
     {
-        if (isCanceled() || !m_unit.isLoaded()) {
+        if (isCanceled() || !m_unit->isLoaded()) {
             finish();
             return;
         }
 
-        CXIndexAction idxAction = clang_IndexAction_create(m_unit.clangIndex());
+        CXIndexAction idxAction = clang_IndexAction_create(m_unit->clangIndex());
         const unsigned index_opts = CXIndexOpt_SuppressWarnings;
 
 //        qDebug() << "Indexing TU" << m_unit.fileName() << "...";
         /*int result =*/ clang_indexTranslationUnit(idxAction, this,
                                                     &IndexCB, sizeof(IndexCB),
                                                     index_opts,
-                                                    m_unit.clangTranslationUnit());
+                                                    m_unit->clangTranslationUnit());
 
         propagateResults(m_projectPart);
 
@@ -685,7 +670,7 @@ public:
     }
 
 private:
-    Unit m_unit;
+    Unit::Ptr m_unit;
     ProjectPart::Ptr m_projectPart;
 };
 
@@ -839,10 +824,10 @@ void IndexerPrivate::reset()
 
 void IndexerPrivate::synchronize(const QVector<IndexingResult> &results)
 {
-    foreach (IndexingResult result, results) {
+    Q_UNUSED(results);
+#if 0
+    foreach (const IndexingResult &result, results) {
         QMutexLocker locker(&m_mutex);
-
-        result.m_unit.makeUnique();
 
         foreach (const Symbol &symbol, result.m_symbolsInfo) {
             addOrUpdateFileData(symbol.m_location.fileName(),
@@ -850,12 +835,12 @@ void IndexerPrivate::synchronize(const QVector<IndexingResult> &results)
                                 true);
 
             // Make the symbol available in the database.
-            m_index.insertSymbol(symbol, result.m_unit.timeStamp());
+            m_index.insertSymbol(symbol, result.m_unit->timeStamp());
         }
 
         // There might be files which were processed but did not "generate" any indexable symbol,
         // but we still need to make the index aware of them.
-        result.m_processedFiles.insert(result.m_unit.fileName());
+        result.m_processedFiles.insert(result.m_unit->fileName());
         foreach (const QString &fileName, result.m_processedFiles) {
             if (!m_index.containsFile(fileName))
                 m_index.insertFile(fileName, result.m_unit.timeStamp());
@@ -865,6 +850,7 @@ void IndexerPrivate::synchronize(const QVector<IndexingResult> &results)
         if (LiveUnitsManager::instance()->isTracking(result.m_unit.fileName()))
             LiveUnitsManager::instance()->updateUnit(result.m_unit.fileName(), result.m_unit);
     }
+#endif
 }
 
 void IndexerPrivate::finished(LibClangIndexer *indexer)
@@ -1089,11 +1075,11 @@ void IndexerPrivate::analyzeRestoredSymbols()
     }
 }
 
-void IndexerPrivate::runQuickIndexing(const Unit &unit, const CppTools::ProjectPart::Ptr &part)
+void IndexerPrivate::runQuickIndexing(const Unit::Ptr &unit, const CppTools::ProjectPart::Ptr &part)
 {
     QMutexLocker locker(&m_mutex);
 
-    addOrUpdateFileData(unit.fileName(), part, false);
+    addOrUpdateFileData(unit->fileName(), part, false);
 
     QuickIndexer indexer(this, unit, part);
     indexer.run();
@@ -1286,6 +1272,12 @@ void Indexer::match(ClangSymbolSearcher *searcher) const
 void Indexer::runQuickIndexing(Unit::Ptr unit, const CppTools::ProjectPart::Ptr &part)
 {
     m_d->runQuickIndexing(unit, part);
+}
+
+bool Indexer::isTracking(const QString &fileName) const
+{
+    return m_d->isTrackingFile(fileName, IndexerPrivate::ImplementationFile)
+            || m_d->isTrackingFile(fileName, IndexerPrivate::HeaderFile);
 }
 
 #include "indexer.moc"

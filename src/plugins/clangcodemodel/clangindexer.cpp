@@ -28,10 +28,8 @@
 ****************************************************************************/
 
 #include "clangindexer.h"
-#include "clangsymbolsearcher.h"
 #include "clangutils.h"
 #include "indexer.h"
-#include "liveunitsmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -52,14 +50,21 @@ ClangIndexingSupport::~ClangIndexingSupport()
 {
 }
 
-QFuture<void> ClangIndexingSupport::refreshSourceFiles(const QStringList &sourceFiles)
+QFuture<void> ClangIndexingSupport::refreshSourceFiles(
+        const QSet<QString> &sourceFiles,
+        CppTools::CppModelManager::ProgressNotificationMode mode)
 {
+    Q_UNUSED(mode);
+
     return m_indexer->refreshSourceFiles(sourceFiles);
 }
 
 CppTools::SymbolSearcher *ClangIndexingSupport::createSymbolSearcher(CppTools::SymbolSearcher::Parameters parameters, QSet<QString> fileNames)
 {
-    return new ClangSymbolSearcher(m_indexer, parameters, fileNames);
+    Q_UNUSED(parameters);
+    Q_UNUSED(fileNames)
+//    return new ClangSymbolSearcher(m_indexer, parameters, fileNames);
+    return 0;
 }
 
 ClangIndexer::ClangIndexer()
@@ -68,8 +73,8 @@ ClangIndexer::ClangIndexer()
     , m_isLoadingSession(false)
     , m_clangIndexer(new Indexer(this))
 {
-    connect(m_clangIndexer, SIGNAL(indexingStarted(QFuture<void>)),
-            this, SLOT(onIndexingStarted(QFuture<void>)));
+    connect(m_clangIndexer, SIGNAL(indexingStarted(QFuture<void>, Internal::ProgressNotificationMode)),
+            this, SLOT(onIndexingStarted(QFuture<void>, Internal::ProgressNotificationMode)));
 
     QObject *session = ProjectExplorer::SessionManager::instance();
 
@@ -91,19 +96,18 @@ CppTools::CppIndexingSupport *ClangIndexer::indexingSupport()
     return m_indexingSupport.data();
 }
 
-QFuture<void> ClangIndexer::refreshSourceFiles(const QStringList &sourceFiles)
+QFuture<void> ClangIndexer::refreshSourceFiles(const QSet<QString> &sourceFiles)
 {
     typedef CppTools::ProjectPart ProjectPart;
-    CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
-    LiveUnitsManager *lum = LiveUnitsManager::instance();
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
     if (m_clangIndexer->isBusy())
         m_clangIndexer->cancel(true);
 
     foreach (const QString &file, sourceFiles) {
-        if (lum->isTracking(file))
+        if (m_clangIndexer->isTracking(file))
             continue; // we get notified separately about open files.
-        const QList<ProjectPart::Ptr> &parts = mmi->projectPart(file);
+        const QList<ProjectPart::Ptr> &parts = modelManager->projectPart(file);
         if (!parts.isEmpty())
             m_clangIndexer->addFile(file, parts.at(0));
         else
@@ -160,7 +164,8 @@ void ClangIndexer::indexNow(Unit::Ptr unit)
 
 void ClangIndexer::onIndexingStarted(QFuture<void> indexingFuture)
 {
-    Core::ICore::instance()->progressManager()->addTask(indexingFuture,
-                                                        tr("C++ Indexing"),
-                                                        QLatin1String("Key.Temp.Indexing"));
+    Core::ProgressManager::addTask(indexingFuture, QCoreApplication::translate(
+                                       "ClangCodeModel::Internal::ClangIndexer",
+                                       "Parsing C/C++/ObjC Files"),
+                                       "ClangCodeMode.Task.Indexing");
 }

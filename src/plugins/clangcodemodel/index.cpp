@@ -27,7 +27,6 @@
 **
 ****************************************************************************/
 
-#include "clangsymbolsearcher.h"
 #include "index.h"
 
 #include <QStringList>
@@ -257,8 +256,8 @@ QList<Symbol> IndexPrivate::symbols(Symbol::Kind kind) const
 void IndexPrivate::match(ClangSymbolSearcher *searcher) const
 {
     QMutexLocker locker(&m_mutex);
-
-    searcher->search(m_container);
+    Q_UNUSED(searcher);
+//    searcher->search(m_container);
 }
 
 QList<Symbol> IndexPrivate::symbolsFromIterators(const QList<SymbolIt> &symbolList)

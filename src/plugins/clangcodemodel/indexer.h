@@ -87,6 +87,8 @@ public:
 
     void runQuickIndexing(Internal::Unit::Ptr unit, const ProjectPart::Ptr &part);
 
+    bool isTracking(const QString &fileName) const;
+
 signals:
     void indexingStarted(QFuture<void> future);
     void indexingFinished();
