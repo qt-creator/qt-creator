@@ -359,6 +359,8 @@ void CppUseSelectionsUpdater::handleSymbolCaseAsynchronously(const Document::Ptr
 void CppUseSelectionsUpdater::handleSymbolCaseSynchronously(const Document::Ptr document,
                                                             const Snapshot &snapshot)
 {
+    m_document = document;
+
     const Params params = Params(m_editorWidget->textCursor(), document, snapshot);
     const UseSelectionsResult result = findUses(params);
     processSymbolCaseResults(result);
@@ -419,6 +421,9 @@ ExtraSelections CppUseSelectionsUpdater::toExtraSelections(const QList<int> &ref
                                                            TextEditor::TextStyle style) const
 {
     ExtraSelections selections;
+
+    QTC_ASSERT(m_document, return selections);
+
     foreach (int index, references) {
         unsigned line, column;
         TranslationUnit *unit = m_document->translationUnit();
