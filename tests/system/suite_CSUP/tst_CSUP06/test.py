@@ -211,6 +211,7 @@ def main():
             clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
         if current == "builtin":
             makeClangDefaultCodeModel(clangCodeModelPluginAvailable)
+        snooze(1)   # 'Close "main.cpp"' might still be disabled
         # editor must be closed to get the second code model applied on re-opening the file
         invokeMenuItem('File', 'Close "main.cpp"')
 
