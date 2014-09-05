@@ -176,7 +176,7 @@ QVariantMap SceneGraphTimelineModel::details(int index) const
     result.insert(tr("Stage"), tr(StageLabels[ev->stage]));
     result.insert(tr("Duration"), QmlProfilerBaseModel::formatTime(range(index).duration));
     if (ev->glyphCount >= 0)
-        result.insert(tr("Glyph Count"), QString::number(ev->glyphCount));
+        result.insert(tr("Glyphs"), QString::number(ev->glyphCount));
 
     return result;
 }
