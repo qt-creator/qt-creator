@@ -35,6 +35,8 @@
 
 #include <cassert>
 
+Q_DECLARE_METATYPE(QSet<QString>)
+
 using namespace CppTools::Internal;
 
 TestProject::TestProject(const QString &name, QObject *parent)
@@ -42,6 +44,7 @@ TestProject::TestProject(const QString &name, QObject *parent)
 {
     setParent(parent);
     setId(Core::Id::fromString(name));
+    qRegisterMetaType<QSet<QString> >();
 }
 
 TestProject::~TestProject()

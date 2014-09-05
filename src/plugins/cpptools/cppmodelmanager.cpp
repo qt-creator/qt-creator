@@ -60,6 +60,8 @@
 #include <sstream>
 #endif
 
+Q_DECLARE_METATYPE(QSet<QString>)
+
 static const bool DumpProjectInfo = qgetenv("QTC_DUMP_PROJECT_INFO") == "1";
 
 using namespace CppTools;
@@ -219,6 +221,7 @@ CppModelManager::CppModelManager(QObject *parent)
     , m_indexingSupporter(0)
     , m_enableGC(true)
 {
+    qRegisterMetaType<QSet<QString> >();
     connect(this, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
             this, SIGNAL(globalSnapshotChanged()));
     connect(this, SIGNAL(aboutToRemoveFiles(QStringList)),
