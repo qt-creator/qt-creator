@@ -93,8 +93,9 @@ static QString toString(const QVariant &variant, int indentation = 0)
             res += indent + QString::number(counter++) + QLatin1String(":\n") + toString(item, indentation + 1);
         return res;
     }
+    default:
+        return indent + variant.toString();
     }
-    return indent + variant.toString();
 }
 
 int GetOperation::execute() const
