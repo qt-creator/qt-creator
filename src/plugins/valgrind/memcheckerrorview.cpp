@@ -94,7 +94,7 @@ private slots:
 
 private:
     // the constness of this function is a necessary lie because it is called from paint() const.
-    QWidget *createDetailsWidget(const QModelIndex &errorIndex, QWidget *parent) const;
+    QWidget *createDetailsWidget(const QFont &font, const QModelIndex &errorIndex, QWidget *parent) const;
 
     static const int s_itemMargin = 2;
     mutable QPersistentModelIndex m_detailsIndex;
@@ -128,7 +128,7 @@ QSize MemcheckErrorDelegate::sizeHint(const QStyleOptionViewItem &opt, const QMo
     }
 
     if (!m_detailsWidget) {
-        m_detailsWidget = createDetailsWidget(index, view->viewport());
+        m_detailsWidget = createDetailsWidget(opt.font, index, view->viewport());
         QTC_ASSERT(m_detailsWidget->parent() == view->viewport(),
                    m_detailsWidget->setParent(view->viewport()));
         m_detailsIndex = index;
@@ -213,7 +213,7 @@ static QString errorLocation(const QModelIndex &index, const Error &error,
                               link, linkAttr));
 }
 
-QWidget *MemcheckErrorDelegate::createDetailsWidget(const QModelIndex &errorIndex, QWidget *parent) const
+QWidget *MemcheckErrorDelegate::createDetailsWidget(const QFont & font, const QModelIndex &errorIndex, QWidget *parent) const
 {
     QWidget *widget = new QWidget(parent);
     QVBoxLayout *layout = new QVBoxLayout;
@@ -269,7 +269,10 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QModelIndex &errorInde
                 p.setBrush(QPalette::Base, p.alternateBase());
                 frameLabel->setPalette(p);
             }
-            frameLabel->setFont(QFont(QLatin1String("monospace")));
+
+            QFont fixedPitchFont = font;
+            fixedPitchFont.setFixedPitch(true);
+            frameLabel->setFont(fixedPitchFont);
             connect(frameLabel, SIGNAL(linkActivated(QString)), SLOT(openLinkInEditor(QString)));
             // pad frameNr to 2 chars since only 50 frames max are supported by valgrind
             const QString displayText = displayTextTemplate
