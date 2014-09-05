@@ -412,6 +412,7 @@ QWidget *MemcheckTool::createWidgets()
     filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
     filterButton->setText(tr("Error Filter"));
     filterButton->setPopupMode(QToolButton::InstantPopup);
+    filterButton->setProperty("noArrow", true);
 
     m_filterMenu = new QMenu(filterButton);
     foreach (QAction *filterAction, m_errorFilterActions)
