@@ -1,8 +1,7 @@
 QT += core gui network declarative
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += declarative-private core-private widgets-private gui-private script-private
-
 greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += declarative-private core-private widgets-private gui-private script-private
 } else {
     contains (QT_CONFIG, webkit) {
         QT += webkit
@@ -10,6 +9,9 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
+# to support the in Qt5 deprecated but in Qt4 useful QWeakPointer
+# change the QT_DISABLE_DEPRECATED_BEFORE version to Qt4
+greaterThan(QT_MAJOR_VERSION, 4):DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x040900
 
 include (../instances/instances.pri)
 include (instances/instances.pri)
@@ -21,7 +23,6 @@ include (../types/types.pri)
 SOURCES += $$PWD/qmlpuppetmain.cpp
 RESOURCES += $$PWD/../qmlpuppet.qrc
 DEFINES -= QT_NO_CAST_FROM_ASCII
-DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x040900 # For deprecated QWeakPointer use.
 
 unix:!macx:LIBS += -lrt # posix shared memory
 

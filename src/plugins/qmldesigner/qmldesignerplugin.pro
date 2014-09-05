@@ -22,7 +22,6 @@ include(components/importmanager/importmanager.pri)
 include(qmldesignerplugin.pri)
 
 DEFINES -= QT_NO_CAST_FROM_ASCII
-DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x040900 # For deprecated QWeakPointer use.
 
 BUILD_PUPPET_IN_CREATOR_BINPATH = $$(BUILD_PUPPET_IN_CREATOR_BINPATH)
 !isEmpty(BUILD_PUPPET_IN_CREATOR_BINPATH) {

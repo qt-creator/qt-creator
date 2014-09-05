@@ -5,7 +5,6 @@ QtcLibrary {
     name: "QmlEditorWidgets"
 
     cpp.defines: base.concat([
-        "QWEAKPOINTER_ENABLE_ARROW",
         "BUILD_QMLEDITORWIDGETS_LIB"
     ])
     cpp.optimization: "fast"

@@ -128,8 +128,9 @@ InternalNodeAbstractProperty::Pointer InternalNode::parentProperty() const
 }
 void InternalNode::setParentProperty(const InternalNodeAbstractProperty::Pointer &parent)
 {
-    if (m_parentProperty)
-        m_parentProperty->remove(internalPointer());
+    InternalNodeAbstractProperty::Pointer parentProperty = m_parentProperty.toStrongRef();
+    if (parentProperty)
+        parentProperty->remove(internalPointer());
 
     Q_ASSERT(parent && parent->isValid());
     m_parentProperty = parent;
@@ -139,8 +140,9 @@ void InternalNode::setParentProperty(const InternalNodeAbstractProperty::Pointer
 
 void InternalNode::resetParentProperty()
 {
-    if (m_parentProperty)
-        m_parentProperty->remove(internalPointer());
+    InternalNodeAbstractProperty::Pointer parentProperty = m_parentProperty.toStrongRef();
+    if (parentProperty)
+        parentProperty->remove(internalPointer());
 
     m_parentProperty.clear();
 }
