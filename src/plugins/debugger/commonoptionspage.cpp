@@ -230,13 +230,24 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
 GlobalDebuggerOptions CommonOptionsPageWidget::globalOptions() const
 {
     GlobalDebuggerOptions o;
-    o.sourcePathMap = sourcesMappingWidget->sourcePathMap();
+    SourcePathMap allPathMap = sourcesMappingWidget->sourcePathMap();
+    for (auto it = allPathMap.begin(), end = allPathMap.end(); it != end; ++it) {
+        const QString key = it.key();
+        if (key.startsWith(QLatin1Char('(')))
+            o.sourcePathRegExpMap.append(qMakePair(QRegExp(key), it.value()));
+        else
+            o.sourcePathMap.insert(key, it.value());
+    }
     return o;
 }
 
 void CommonOptionsPageWidget::setGlobalOptions(const GlobalDebuggerOptions &go)
 {
-    sourcesMappingWidget->setSourcePathMap(go.sourcePathMap);
+    SourcePathMap allPathMap = go.sourcePathMap;
+    foreach (auto regExpMap, go.sourcePathRegExpMap)
+        allPathMap.insert(regExpMap.first.pattern(), regExpMap.second);
+
+    sourcesMappingWidget->setSourcePathMap(allPathMap);
 }
 
 ///////////////////////////////////////////////////////////////////////

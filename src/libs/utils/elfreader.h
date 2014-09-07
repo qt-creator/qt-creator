@@ -32,11 +32,16 @@
 
 #include "utils_global.h"
 
+#include <qbytearray.h>
 #include <qendian.h>
+#include <qfile.h>
 #include <qvector.h>
 #include <qcoreapplication.h>
+#include <qsharedpointer.h>
 
 namespace Utils {
+
+class ElfMapper;
 
 enum ElfProgramHeaderType
 {
@@ -161,7 +166,7 @@ public:
     enum Result { Ok, NotElf, Corrupt };
 
     ElfData readHeaders();
-    QByteArray readSection(const QByteArray &sectionName);
+    QSharedPointer<ElfMapper> readSection(const QByteArray &sectionName);
     QString errorString() const { return m_errorString; }
     QByteArray readCoreName(bool *isCore);
 
@@ -172,6 +177,19 @@ private:
     QString m_binary;
     QString m_errorString;
     ElfData m_elfData;
+};
+
+class QTCREATOR_UTILS_EXPORT ElfMapper
+{
+public:
+    ElfMapper(const ElfReader *reader);
+    bool map();
+
+public:
+    QFile file;
+    QByteArray raw;
+    union { const char *start; const uchar *ustart; };
+    quint64 fdlen;
 };
 
 } // namespace Utils

@@ -55,7 +55,7 @@ void GlobalDebuggerOptions::toSettings() const
 {
     QSettings *s = Core::ICore::settings();
     s->beginWriteArray(QLatin1String(sourcePathMappingArrayNameC));
-    if (!sourcePathMap.isEmpty()) {
+    if (!sourcePathMap.isEmpty() || !sourcePathRegExpMap.isEmpty()) {
         const QString sourcePathMappingSourceKey = QLatin1String(sourcePathMappingSourceKeyC);
         const QString sourcePathMappingTargetKey = QLatin1String(sourcePathMappingTargetKeyC);
         int i = 0;
@@ -65,6 +65,13 @@ void GlobalDebuggerOptions::toSettings() const
             s->setArrayIndex(i);
             s->setValue(sourcePathMappingSourceKey, it.key());
             s->setValue(sourcePathMappingTargetKey, it.value());
+        }
+        for (auto it = sourcePathRegExpMap.constBegin(), cend = sourcePathRegExpMap.constEnd();
+             it != cend;
+             ++it, ++i) {
+            s->setArrayIndex(i);
+            s->setValue(sourcePathMappingSourceKey, it->first.pattern());
+            s->setValue(sourcePathMappingTargetKey, it->second);
         }
     }
     s->endArray();
@@ -79,8 +86,12 @@ void GlobalDebuggerOptions::fromSettings()
         const QString sourcePathMappingTargetKey = QLatin1String(sourcePathMappingTargetKeyC);
         for (int i = 0; i < count; ++i) {
              s->setArrayIndex(i);
-             sourcePathMap.insert(s->value(sourcePathMappingSourceKey).toString(),
-                                  s->value(sourcePathMappingTargetKey).toString());
+             const QString key = s->value(sourcePathMappingSourceKey).toString();
+             const QString value = s->value(sourcePathMappingTargetKey).toString();
+             if (key.startsWith(QLatin1Char('(')))
+                 sourcePathRegExpMap.append(qMakePair(QRegExp(key), value));
+             else
+                 sourcePathMap.insert(key, value);
         }
     }
     s->endArray();

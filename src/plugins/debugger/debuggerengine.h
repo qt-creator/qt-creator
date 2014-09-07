@@ -382,7 +382,7 @@ protected:
     bool isStateDebugging() const;
     void setStateDebugging(bool on);
 
-    static void checkForReleaseBuild(const DebuggerStartParameters& sp);
+    static void validateExecutable(DebuggerStartParameters *sp);
 
     virtual void setupSlaveInferior();
     virtual void setupSlaveEngine();

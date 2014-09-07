@@ -101,33 +101,23 @@ static void parseProgramHeader(const uchar *s, ElfProgramHeader *sh, const ElfDa
     sh->memsz = getWord(s, context);
 }
 
-class ElfMapper
+ElfMapper::ElfMapper(const ElfReader *reader) : file(reader->m_binary) {}
+
+bool ElfMapper::map()
 {
-public:
-    ElfMapper(const ElfReader *reader) : file(reader->m_binary) {}
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
 
-    bool map()
-    {
-        if (!file.open(QIODevice::ReadOnly))
-            return false;
-
-        fdlen = file.size();
-        ustart = file.map(0, fdlen);
-        if (ustart == 0) {
-            // Try reading the data into memory instead.
-            raw = file.readAll();
-            start = raw.constData();
-            fdlen = raw.size();
-        }
-        return true;
+    fdlen = file.size();
+    ustart = file.map(0, fdlen);
+    if (ustart == 0) {
+        // Try reading the data into memory instead.
+        raw = file.readAll();
+        start = raw.constData();
+        fdlen = raw.size();
     }
-
-public:
-    QFile file;
-    QByteArray raw;
-    union { const char *start; const uchar *ustart; };
-    quint64 fdlen;
-};
+    return true;
+}
 
 ElfReader::ElfReader(const QString &binary)
     : m_binary(binary)
@@ -298,19 +288,22 @@ ElfReader::Result ElfReader::readIt()
     return Ok;
 }
 
-QByteArray ElfReader::readSection(const QByteArray &name)
+QSharedPointer<ElfMapper> ElfReader::readSection(const QByteArray &name)
 {
+    QSharedPointer<ElfMapper> mapper;
     readIt();
     int i = m_elfData.indexOf(name);
     if (i == -1)
-        return QByteArray();
+        return mapper;
 
-    ElfMapper mapper(this);
-    if (!mapper.map())
-        return QByteArray();
+    mapper.reset(new ElfMapper(this));
+    if (!mapper->map())
+        return mapper;
 
     const ElfSectionHeader &section = m_elfData.sectionHeaders.at(i);
-    return QByteArray(mapper.start + section.offset, section.size);
+    mapper->start += section.offset;
+    mapper->fdlen = section.size;
+    return mapper;
 }
 
 static QByteArray cutout(const char *s)

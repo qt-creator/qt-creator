@@ -33,6 +33,7 @@
 #include <QObject>
 #include <QHash>
 #include <QMap>
+#include <QRegExp>
 
 namespace Utils { class SavedAction; }
 
@@ -40,6 +41,7 @@ namespace Debugger {
 namespace Internal {
 
 typedef QMap<QString, QString> SourcePathMap;
+typedef QVector<QPair<QRegExp, QString> > SourcePathRegExpMap;
 
 // Global debugger options that are not stored as saved action.
 class GlobalDebuggerOptions
@@ -48,11 +50,17 @@ public:
     void toSettings() const;
     void fromSettings();
     bool operator==(const GlobalDebuggerOptions &rhs) const
-        { return sourcePathMap == rhs.sourcePathMap; }
+    {
+        return sourcePathMap == rhs.sourcePathMap
+                && sourcePathRegExpMap == rhs.sourcePathRegExpMap;
+    }
     bool operator!=(const GlobalDebuggerOptions &rhs) const
-        { return sourcePathMap != rhs.sourcePathMap; }
+    {
+        return !(*this == rhs);
+    }
 
     SourcePathMap sourcePathMap;
+    SourcePathRegExpMap sourcePathRegExpMap;
 };
 
 class DebuggerSettings : public QObject

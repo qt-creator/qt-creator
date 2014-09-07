@@ -705,7 +705,7 @@ void DebuggerEnginePrivate::doSetupEngine()
 {
     m_engine->showMessage(_("CALL: SETUP ENGINE"));
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << m_engine << state());
-    m_engine->checkForReleaseBuild(m_startParameters);
+    m_engine->validateExecutable(&m_startParameters);
     m_engine->setupEngine();
 }
 
@@ -1749,18 +1749,19 @@ void DebuggerEngine::setStateDebugging(bool on)
     d->m_isStateDebugging = on;
 }
 
-void DebuggerEngine::checkForReleaseBuild(const DebuggerStartParameters &sp)
+void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
 {
-    if (!boolSetting(WarnOnReleaseBuilds) || !(sp.languages & CppLanguage))
+    if (sp->languages == QmlLanguage)
         return;
-    QString binary = sp.executable;
+    QString binary = sp->executable;
     if (binary.isEmpty())
         return;
 
+    const bool warnOnRelease = boolSetting(WarnOnReleaseBuilds);
     QString detailedWarning;
-    switch (sp.toolChainAbi.binaryFormat()) {
+    switch (sp->toolChainAbi.binaryFormat()) {
     case ProjectExplorer::Abi::PEFormat: {
-        if (sp.masterEngineType != CdbEngineType)
+        if (!warnOnRelease || (sp->masterEngineType != CdbEngineType))
             return;
         if (!binary.endsWith(QLatin1String(".exe"), Qt::CaseInsensitive))
             binary.append(QLatin1String(".exe"));
@@ -1822,6 +1823,36 @@ void DebuggerEngine::checkForReleaseBuild(const DebuggerStartParameters &sp)
         // bool hasBuildId = elfData.indexOf(".note.gnu.build-id") >= 0;
         bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
         bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
+        if (hasEmbeddedInfo) {
+            if (QSharedPointer<Utils::ElfMapper> mapper = reader.readSection(".debug_str")) {
+                QSharedPointer<GlobalDebuggerOptions> options = debuggerCore()->globalDebuggerOptions();
+                SourcePathRegExpMap globalRegExpSourceMap = options->sourcePathRegExpMap;
+                const char *str = mapper->start;
+                const char *limit = str + mapper->fdlen;
+                while (str < limit) {
+                    QString string = QString::fromUtf8(str);
+                    auto itExp = globalRegExpSourceMap.begin();
+                    auto itEnd = globalRegExpSourceMap.end();
+                    while (itExp != itEnd) {
+                        QRegExp exp = itExp->first;
+                        int index = exp.indexIn(string);
+                        if (index != -1) {
+                            sp->sourcePathMap.insert(string.left(index) + exp.cap(1), itExp->second);
+                            itExp = globalRegExpSourceMap.erase(itExp);
+                        } else {
+                            ++itExp;
+                        }
+                    }
+                    if (globalRegExpSourceMap.isEmpty())
+                        break;
+
+                    const int len = strlen(str);
+                    if (len == 0)
+                        break;
+                    str += len + 1;
+                }
+            }
+        }
         if (hasEmbeddedInfo || hasLink)
             return;
 
@@ -1834,10 +1865,12 @@ void DebuggerEngine::checkForReleaseBuild(const DebuggerStartParameters &sp)
     default:
         return;
     }
-    showMessageBox(QMessageBox::Information, tr("Warning"),
-                   tr("This does not seem to be a \"Debug\" build.\n"
-                      "Setting breakpoints by file name and line number may fail.")
-                   + QLatin1Char('\n') + detailedWarning);
+    if (warnOnRelease) {
+        showMessageBox(QMessageBox::Information, tr("Warning"),
+                       tr("This does not seem to be a \"Debug\" build.\n"
+                          "Setting breakpoints by file name and line number may fail.")
+                       + QLatin1Char('\n') + detailedWarning);
+    }
 }
 
 } // namespace Debugger

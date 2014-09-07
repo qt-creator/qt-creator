@@ -211,7 +211,13 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
                   "<p>This is useful when using a copy of the source tree "
                   "at a location different from the one "
                   "at which the modules where built, for example, while "
-                  "doing remote debugging.</body></html>"));
+                  "doing remote debugging.</p>"
+                  "<p>If source is specified as a regular expression by starting it with an "
+                  "open parenthesis, Qt Creator matches the paths in the ELF with the "
+                  "regular expression to automatically determine the source path.</p>"
+                  "<p>Example: <b>(/home/.*/Project)/KnownSubDir -> D:\\Project</b> will "
+                  "substitute ELF built by any user to your local project directory.</p>"
+                  "</body></html>"));
     // Top list/left part.
     m_treeView->setRootIsDecorated(false);
     m_treeView->setUniformRowHeights(true);
