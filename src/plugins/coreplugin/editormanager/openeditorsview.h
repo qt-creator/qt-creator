@@ -59,6 +59,8 @@ public:
 
     // QAbstractProxyModel::sibling is broken in Qt 5
     QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
+    // QAbstractProxyModel::supportedDragActions delegation is missing in Qt 5
+    Qt::DropActions supportedDragActions() const;
 
 private slots:
     void sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

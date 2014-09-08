@@ -33,10 +33,13 @@
 #include <coreplugin/idocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QIcon>
+#include <QMimeData>
+#include <QUrl>
 
 namespace Core {
 
@@ -50,9 +53,14 @@ public:
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
     QModelIndex parent(const QModelIndex &/*index*/) const { return QModelIndex(); }
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
+
+    Qt::DropActions supportedDragActions() const;
+    QStringList mimeTypes() const;
 
     void addEntry(DocumentModel::Entry *entry);
     void removeDocument(int idx);
@@ -341,6 +349,16 @@ QModelIndex DocumentModelPrivate::index(int row, int column, const QModelIndex &
     return createIndex(row, column);
 }
 
+Qt::DropActions DocumentModelPrivate::supportedDragActions() const
+{
+    return Qt::MoveAction;
+}
+
+QStringList DocumentModelPrivate::mimeTypes() const
+{
+    return Utils::FileDropSupport::mimeTypesForFilePaths();
+}
+
 DocumentModel::Entry *DocumentModel::entryAtRow(int row)
 {
     int entryIndex = row - 1/*<no document>*/;
@@ -396,6 +414,26 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
         return QVariant();
     }
     return QVariant();
+}
+
+Qt::ItemFlags DocumentModelPrivate::flags(const QModelIndex &index) const
+{
+    const DocumentModel::Entry *e = DocumentModel::entryAtRow(index.row());
+    if (!e || e->fileName().isEmpty())
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    return Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+QMimeData *DocumentModelPrivate::mimeData(const QModelIndexList &indexes) const
+{
+    QStringList filePaths;
+    foreach (const QModelIndex &index, indexes) {
+        const DocumentModel::Entry *e = DocumentModel::entryAtRow(index.row());
+        if (!e || e->fileName().isEmpty())
+            continue;
+        filePaths.append(e->fileName());
+    }
+    return Utils::FileDropSupport::mimeDataForFilePaths(filePaths);
 }
 
 int DocumentModel::rowOfDocument(IDocument *document)

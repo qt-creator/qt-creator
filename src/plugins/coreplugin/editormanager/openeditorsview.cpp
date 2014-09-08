@@ -88,6 +88,8 @@ OpenEditorsWidget::OpenEditorsWidget()
 {
     setWindowTitle(tr("Open Documents"));
     setWindowIcon(QIcon(QLatin1String(Constants::ICON_DIR)));
+    setDragEnabled(true);
+    setDragDropMode(QAbstractItemView::DragOnly);
     setUniformRowHeights(true);
     viewport()->setAttribute(Qt::WA_Hover);
     setItemDelegate((m_delegate = new OpenEditorsDelegate(this)));
@@ -312,6 +314,11 @@ void ProxyModel::setSourceModel(QAbstractItemModel *sm)
 QModelIndex ProxyModel::sibling(int row, int column, const QModelIndex &idx) const
 {
     return QAbstractItemModel::sibling(row, column, idx);
+}
+
+Qt::DropActions ProxyModel::supportedDragActions() const
+{
+    return sourceModel()->supportedDragActions();
 }
 
 void ProxyModel::sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
