@@ -1742,9 +1742,7 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     verticalLayout->addWidget(buttonBox);
 
-#ifndef QT_NO_SHORTCUT
     commentLabel->setBuddy(commentEdit);
-#endif // QT_NO_SHORTCUT
 
     connect(buttonBox, SIGNAL(accepted()), &fileOpDlg, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), &fileOpDlg, SLOT(reject()));

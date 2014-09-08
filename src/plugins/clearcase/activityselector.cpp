@@ -67,9 +67,7 @@ ActivitySelector::ActivitySelector(QWidget *parent) :
     btnAdd->setText(addText);
     hboxLayout->addWidget(btnAdd);
 
-#ifndef QT_NO_SHORTCUT
     lblActivity->setBuddy(m_cmbActivity);
-#endif // QT_NO_SHORTCUT
 
     connect(btnAdd, SIGNAL(clicked()), this, SLOT(newActivity()));
 
