@@ -671,7 +671,8 @@ void CppEditorWidget::updateFunctionDeclDefLinkNow()
     if (noTracking)
         return;
 
-    if (EditorManager::currentEditor()->widget() != this)
+    IEditor *editor = EditorManager::currentEditor();
+    if (!editor || editor->widget() != this)
         return;
 
     const Snapshot semanticSnapshot = d->m_lastSemanticInfo.snapshot;
