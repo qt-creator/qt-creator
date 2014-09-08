@@ -13,6 +13,12 @@ Rectangle {
     onStatusBarChanged: { if (statusBar) { statusBar.parent = statusBarArea } }
     onToolBarChanged: { if (toolBar) { toolBar.parent = toolBarArea } }
 
+    property int maximumWidth: 0
+    property int minimumWidth: 0
+
+    property int maximumHeight: 0
+    property int minimumHeight: 0
+
     Item {
         id: contentArea
         anchors.top: toolBarArea.bottom
