@@ -110,7 +110,6 @@ private:
     QTimer m_timer;
 
     CPlusPlus::Document::Ptr m_document;
-    CPlusPlus::Snapshot m_snapshot;
 
     QScopedPointer<QFutureWatcher<UseSelectionsResult>> m_findUsesWatcher;
     int m_findUsesRevision;

@@ -255,7 +255,9 @@ void CppUseSelectionsUpdater::update(CallType callType)
 {
     CppEditorWidget *cppEditorWidget = qobject_cast<CppEditorWidget *>(m_editorWidget);
     QTC_ASSERT(cppEditorWidget, return);
-    QTC_CHECK(cppEditorWidget->isSemanticInfoValidExceptLocalUses());
+    if (!cppEditorWidget->isSemanticInfoValidExceptLocalUses())
+        return;
+
     const CppTools::SemanticInfo semanticInfo = cppEditorWidget->semanticInfo();
     const Document::Ptr document = semanticInfo.doc;
     const Snapshot snapshot = semanticInfo.snapshot;
@@ -296,7 +298,6 @@ void CppUseSelectionsUpdater::onFindUsesFinished()
 
     m_findUsesWatcher.reset();
     m_document.reset();
-    m_snapshot = Snapshot();
 }
 
 bool CppUseSelectionsUpdater::handleMacroCase(const Document::Ptr document)
@@ -342,7 +343,6 @@ void CppUseSelectionsUpdater::handleSymbolCaseAsynchronously(const Document::Ptr
                                                              const Snapshot &snapshot)
 {
     m_document = document;
-    m_snapshot = snapshot;
 
     if (m_findUsesWatcher)
         m_findUsesWatcher->cancel();
@@ -359,11 +359,14 @@ void CppUseSelectionsUpdater::handleSymbolCaseAsynchronously(const Document::Ptr
 void CppUseSelectionsUpdater::handleSymbolCaseSynchronously(const Document::Ptr document,
                                                             const Snapshot &snapshot)
 {
+    const CPlusPlus::Document::Ptr previousDocument = m_document;
     m_document = document;
 
     const Params params = Params(m_editorWidget->textCursor(), document, snapshot);
     const UseSelectionsResult result = findUses(params);
     processSymbolCaseResults(result);
+
+    m_document = previousDocument;
 }
 
 void CppUseSelectionsUpdater::processSymbolCaseResults(const UseSelectionsResult &result)
