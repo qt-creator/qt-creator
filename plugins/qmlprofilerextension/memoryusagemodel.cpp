@@ -40,9 +40,16 @@ private:
 };
 
 MemoryUsageModel::MemoryUsageModel(QObject *parent)
-    : AbstractTimelineModel(new MemoryUsageModelPrivate(), QLatin1String("Memory Usage"),
+    : AbstractTimelineModel(new MemoryUsageModelPrivate(),
+                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileMemory)),
                             QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, parent)
 {
+}
+
+quint64 MemoryUsageModel::features() const
+{
+    // Will listen to all range events, too, to determine context.
+    return (1 << QmlDebug::ProfileMemory) | QmlDebug::Constants::QML_JS_RANGE_FEATURES;
 }
 
 int MemoryUsageModel::rowCount() const

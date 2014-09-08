@@ -12,14 +12,16 @@ DEFINES += QMLPROFILEREXTENSION_LIBRARY
 SOURCES += qmlprofilerextensionplugin.cpp \
         scenegraphtimelinemodel.cpp \
         pixmapcachemodel.cpp \
-        memoryusagemodel.cpp
+        memoryusagemodel.cpp \
+        inputeventsmodel.cpp
 
 HEADERS += qmlprofilerextensionplugin.h \
         qmlprofilerextension_global.h \
         qmlprofilerextensionconstants.h \
         scenegraphtimelinemodel.h \
         pixmapcachemodel.h \
-        memoryusagemodel.h
+        memoryusagemodel.h \
+        inputeventsmodel.h
 
 OTHER_FILES += \
     QmlProfilerExtension.json

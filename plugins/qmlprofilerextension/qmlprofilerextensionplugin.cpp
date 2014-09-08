@@ -41,6 +41,7 @@
 #include "scenegraphtimelinemodel.h"
 #include "pixmapcachemodel.h"
 #include "memoryusagemodel.h"
+#include "inputeventsmodel.h"
 
 using namespace QmlProfilerExtension::Internal;
 
@@ -74,6 +75,7 @@ bool QmlProfilerExtensionPlugin::initialize(const QStringList &arguments, QStrin
         addAutoReleasedObject(new PixmapCacheModel);
         addAutoReleasedObject(new SceneGraphTimelineModel);
         addAutoReleasedObject(new MemoryUsageModel);
+        addAutoReleasedObject(new InputEventsModel);
     } else {
         qWarning() << "Invalid license, disabling QML Profiler Enterprise features";
     }

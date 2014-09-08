@@ -49,6 +49,7 @@ public:
     };
 
     MemoryUsageModel(QObject *parent = 0);
+    quint64 features() const;
 
     int rowCount() const;
     int rowMaxValue(int rowNumber) const;

@@ -42,6 +42,7 @@ public:
     };
 
     SceneGraphTimelineModel(QObject *parent = 0);
+    quint64 features() const;
 
     int rowCount() const;
 

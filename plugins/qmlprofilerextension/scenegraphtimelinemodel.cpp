@@ -116,9 +116,15 @@ SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::SceneGraphTimelineModel
 }
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
-    : AbstractTimelineModel(new SceneGraphTimelineModelPrivate, tr("Scene Graph"),
+    : AbstractTimelineModel(new SceneGraphTimelineModelPrivate,
+                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileSceneGraph)),
                             QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
 {
+}
+
+quint64 SceneGraphTimelineModel::features() const
+{
+    return 1 << QmlDebug::ProfileSceneGraph;
 }
 
 int SceneGraphTimelineModel::rowCount() const
