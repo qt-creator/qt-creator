@@ -548,8 +548,10 @@ static QList<QStandardItem*> takeWholeRow(const ItemRow &itemRow)
 {
     if (itemRow.idItem->parent())
         return  itemRow.idItem->parent()->takeRow(itemRow.idItem->row());
-    else
+    else if (itemRow.idItem->model())
         return itemRow.idItem->model()->takeRow(itemRow.idItem->row());
+    else
+        return itemRow.toList();
 }
 
 void NavigatorTreeModel::removeSubTree(const ModelNode &node)
