@@ -61,6 +61,8 @@
 #include "invalididexception.h"
 #include "textmodifier.h"
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 /*!
 \defgroup CoreModel
 */
@@ -1823,16 +1825,15 @@ QString Model::pathForImport(const Import &import)
 
 QStringList Model::importPaths() const
 {
+    if (rewriterView())
+        return rewriterView()->importDirectories();
+
     QStringList importPathList;
 
     QString documentDirectoryPath = QFileInfo(fileUrl().toLocalFile()).absolutePath();
 
     if (!documentDirectoryPath.isEmpty())
         importPathList.append(documentDirectoryPath);
-
-    if (textModifier()) {
-        importPathList.append(textModifier()->importPaths());
-    }
 
     return importPathList;
 }

@@ -72,6 +72,9 @@ public:
     const QmlJS::Document *document() const
     { return m_document.data(); }
 
+    const QmlJS::ViewerContext &vContext() const
+    { return m_vContext; }
+
 protected:
     void setActive(bool active);
 
@@ -145,6 +148,7 @@ private:
     QTimer m_setupTimer;
     QSet<ModelNode> m_setupComponentList;
     QSet<ModelNode> m_setupCustomParserList;
+    QmlJS::ViewerContext m_vContext;
 };
 
 class DifferenceHandler

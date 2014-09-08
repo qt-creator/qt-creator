@@ -73,8 +73,6 @@ public:
     virtual void deactivateChangeSignals();
     virtual void reactivateChangeSignals();
 
-    virtual QStringList importPaths() const;
-
     virtual bool renameId(const QString & /* oldId */, const QString & /* newId */) { return false; }
 
 protected:
