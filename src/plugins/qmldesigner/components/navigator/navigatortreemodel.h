@@ -113,7 +113,6 @@ public:
     void addSubTree(const ModelNode &node);
     void removeSubTree(const ModelNode &node);
     void updateItemRow(const ModelNode &node);
-    void updateItemRowOrder(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
     void setId(const QModelIndex &index, const QString &id);
     void setVisible(const QModelIndex &index, bool visible);
