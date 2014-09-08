@@ -75,6 +75,7 @@ public:
     explicit DotRemovalFilter(QObject *parent = 0);
 protected:
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &parent) const;
+    Qt::DropActions supportedDragActions() const;
 };
 
 DotRemovalFilter::DotRemovalFilter(QObject *parent) : QSortFilterProxyModel(parent)
@@ -90,12 +91,18 @@ bool DotRemovalFilter::filterAcceptsRow(int source_row, const QModelIndex &paren
     return fileName != QLatin1String(".");
 }
 
+Qt::DropActions DotRemovalFilter::supportedDragActions() const
+{
+    return sourceModel()->supportedDragActions();
+}
+
 // FolderNavigationModel: Shows path as tooltip.
 class FolderNavigationModel : public QFileSystemModel
 {
 public:
     explicit FolderNavigationModel(QObject *parent = 0);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    Qt::DropActions supportedDragActions() const;
 };
 
 FolderNavigationModel::FolderNavigationModel(QObject *parent) :
@@ -109,6 +116,11 @@ QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
         return QDir::toNativeSeparators(QDir::cleanPath(filePath(index)));
     else
         return QFileSystemModel::data(index, role);
+}
+
+Qt::DropActions FolderNavigationModel::supportedDragActions() const
+{
+    return Qt::MoveAction;
 }
 
 /*!
@@ -141,6 +153,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     m_listView->setModel(m_filterModel);
     m_listView->setFrameStyle(QFrame::NoFrame);
     m_listView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_listView->setDragEnabled(true);
+    m_listView->setDragDropMode(QAbstractItemView::DragOnly);
     setFocusProxy(m_listView);
 
     QVBoxLayout *layout = new QVBoxLayout();
