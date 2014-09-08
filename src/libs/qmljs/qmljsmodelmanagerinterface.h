@@ -285,6 +285,7 @@ private:
     PluginDumper *m_pluginDumper;
 
     QFutureSynchronizer<void> m_synchronizer;
+    bool m_indexerEnabled;
 };
 
 } // namespace QmlJS

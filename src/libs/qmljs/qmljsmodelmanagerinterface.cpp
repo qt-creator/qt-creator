@@ -100,6 +100,7 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
       m_defaultProject(0),
       m_pluginDumper(new PluginDumper(this))
 {
+    m_indexerEnabled = qgetenv("QTC_NO_CODE_INDEXER") != "1";
     m_synchronizer.setCancelOnWait(true);
 
     m_updateCppQmlTypesTimer = new QTimer(this);
@@ -287,6 +288,8 @@ Snapshot ModelManagerInterface::newestSnapshot() const
 void ModelManagerInterface::updateSourceFiles(const QStringList &files,
                                      bool emitDocumentOnDiskChanged)
 {
+    if (!m_indexerEnabled)
+        return;
     refreshSourceFiles(files, emitDocumentOnDiskChanged);
 }
 
@@ -505,7 +508,7 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfo(
 
 void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectExplorer::Project *p)
 {
-    if (! pinfo.isValid() || !p)
+    if (! pinfo.isValid() || !p || !m_indexerEnabled)
         return;
 
     Snapshot snapshot;
@@ -1044,6 +1047,8 @@ QmlLanguageBundles ModelManagerInterface::extendedBundles() const
 
 void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
 {
+    if (!m_indexerEnabled)
+        return;
     PathsAndLanguages pathToScan;
     {
         QMutexLocker l(&m_mutex);
@@ -1076,6 +1081,8 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
 
 void ModelManagerInterface::updateImportPaths()
 {
+    if (!m_indexerEnabled)
+        return;
     PathsAndLanguages allImportPaths;
     QmlLanguageBundles activeBundles;
     QmlLanguageBundles extendedBundles;
