@@ -52,11 +52,12 @@
 #include <QVarLengthArray>
 
 using namespace CPlusPlus;
-using namespace CppEditor;
-using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
 using namespace Utils;
+
+namespace CppEditor {
+namespace Internal {
 
 FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
     : QObject(parent)
@@ -124,7 +125,7 @@ static bool findDeclOrDef(const Document::Ptr &doc, int line, int column,
     return *funcDecl;
 }
 
-static void declDefLinkStartEnd(const CppTools::CppRefactoringFileConstPtr &file,
+static void declDefLinkStartEnd(const CppRefactoringFileConstPtr &file,
                                 DeclarationAST *parent, FunctionDeclaratorAST *funcDecl,
                                 int *start, int *end)
 {
@@ -150,14 +151,14 @@ static DeclaratorIdAST *getDeclaratorId(DeclaratorAST *declarator)
     return 0;
 }
 
-static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<FunctionDeclDefLink> link, CppTools::CppRefactoringChanges changes)
+static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<FunctionDeclDefLink> link, CppRefactoringChanges changes)
 {
     QSharedPointer<FunctionDeclDefLink> noResult;
     const Snapshot &snapshot = changes.snapshot();
 
     // find the matching decl/def symbol
     Symbol *target = 0;
-    CppTools::SymbolFinder finder;
+    SymbolFinder finder;
     if (FunctionDefinitionAST *funcDef = link->sourceDeclaration->asFunctionDefinition()) {
         QList<Declaration *> nameMatch, argumentCountMatch, typeMatch;
         finder.findMatchingDeclaration(LookupContext(link->sourceDocument, snapshot),
@@ -174,7 +175,7 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
     // parse the target file to get the linked decl/def
     const QString targetFileName = QString::fromUtf8(
                 target->fileName(), target->fileNameLength());
-    CppTools::CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(targetFileName);
+    CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(targetFileName);
     if (!targetFile->isValid())
         return noResult;
 
@@ -221,8 +222,8 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
         return;
 
     // find the start/end offsets
-    CppTools::CppRefactoringChanges refactoringChanges(snapshot);
-    CppTools::CppRefactoringFilePtr sourceFile = refactoringChanges.file(doc->fileName());
+    CppRefactoringChanges refactoringChanges(snapshot);
+    CppRefactoringFilePtr sourceFile = refactoringChanges.file(doc->fileName());
     sourceFile->setCppDocument(doc);
     int start, end;
     declDefLinkStartEnd(sourceFile, parent, funcDecl, &start, &end);
@@ -292,14 +293,14 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
     Snapshot snapshot = editor->semanticInfo().snapshot;
 
     // first verify the interesting region of the target file is unchanged
-    CppTools::CppRefactoringChanges refactoringChanges(snapshot);
-    CppTools::CppRefactoringFilePtr newTargetFile = refactoringChanges.file(targetFile->fileName());
+    CppRefactoringChanges refactoringChanges(snapshot);
+    CppRefactoringFilePtr newTargetFile = refactoringChanges.file(targetFile->fileName());
     if (!newTargetFile->isValid())
         return;
     const int targetStart = newTargetFile->position(targetLine, targetColumn);
     const int targetEnd = targetStart + targetInitial.size();
     if (targetInitial == newTargetFile->textOf(targetStart, targetEnd)) {
-        const Utils::ChangeSet changeset = changes(snapshot, targetStart);
+        const ChangeSet changeset = changes(snapshot, targetStart);
         newTargetFile->setChangeSet(changeset);
         if (jumpToMatch) {
             const int jumpTarget = newTargetFile->position(targetFunction->line(), targetFunction->column());
@@ -312,12 +313,11 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
     }
 }
 
-template <class T>
-static QList<TextEditor::RefactorMarker> removeMarkersOfType(const QList<TextEditor::RefactorMarker> &markers)
+static QList<RefactorMarker> removeDeclDefLinkMarkers(const QList<RefactorMarker> &markers)
 {
-    QList<TextEditor::RefactorMarker> result;
-    foreach (const TextEditor::RefactorMarker &marker, markers) {
-        if (!marker.data.canConvert<T>())
+    QList<RefactorMarker> result;
+    foreach (const RefactorMarker &marker, markers) {
+        if (!marker.data.canConvert<FunctionDeclDefLink::Marker>())
             result += marker;
     }
     return result;
@@ -327,8 +327,7 @@ void FunctionDeclDefLink::hideMarker(CppEditorWidget *editor)
 {
     if (!hasMarker)
         return;
-    editor->setRefactorMarkers(
-                removeMarkersOfType<Marker>(editor->refactorMarkers()));
+    editor->setRefactorMarkers(removeDeclDefLinkMarkers(editor->refactorMarkers()));
     hasMarker = false;
 }
 
@@ -337,8 +336,8 @@ void FunctionDeclDefLink::showMarker(CppEditorWidget *editor)
     if (hasMarker)
         return;
 
-    QList<TextEditor::RefactorMarker> markers = removeMarkersOfType<Marker>(editor->refactorMarkers());
-    TextEditor::RefactorMarker marker;
+    QList<RefactorMarker> markers = removeDeclDefLinkMarkers(editor->refactorMarkers());
+    RefactorMarker marker;
 
     // show the marker at the end of the linked area, with a special case
     // to avoid it overlapping with a trailing semicolon
@@ -359,7 +358,7 @@ void FunctionDeclDefLink::showMarker(CppEditorWidget *editor)
 
     Core::Command *quickfixCommand = Core::ActionManager::command(TextEditor::Constants::QUICKFIX_THIS);
     if (quickfixCommand)
-        message = Utils::ProxyAction::stringWithAppendedShortcut(message, quickfixCommand->keySequence());
+        message = ProxyAction::stringWithAppendedShortcut(message, quickfixCommand->keySequence());
 
     marker.tooltip = message;
     marker.data = QVariant::fromValue(Marker());
@@ -531,7 +530,7 @@ static QString ensureCorrectParameterSpacing(const QString &text, bool isFirstPa
     return text;
 }
 
-static unsigned findCommaTokenBetween(const CppTools::CppRefactoringFileConstPtr &file,
+static unsigned findCommaTokenBetween(const CppRefactoringFileConstPtr &file,
                                       ParameterDeclarationAST *left, ParameterDeclarationAST *right)
 {
     unsigned last = left->lastToken() - 1;
@@ -544,9 +543,9 @@ static unsigned findCommaTokenBetween(const CppTools::CppRefactoringFileConstPtr
     return 0;
 }
 
-Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffset)
+ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffset)
 {
-    Utils::ChangeSet changes;
+    ChangeSet changes;
 
     // Everything prefixed with 'new' in this function relates to the state of the 'source'
     // function *after* the user did his changes.
@@ -962,13 +961,16 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
     if (targetOffset != -1) {
         // move all change operations to have the right start offset
         const int moveAmount = targetOffset - targetFile->startOf(targetDeclaration);
-        QList<Utils::ChangeSet::EditOp> ops = changes.operationList();
+        QList<ChangeSet::EditOp> ops = changes.operationList();
         for (int i = 0; i < ops.size(); ++i) {
             ops[i].pos1 += moveAmount;
             ops[i].pos2 += moveAmount;
         }
-        changes = Utils::ChangeSet(ops);
+        changes = ChangeSet(ops);
     }
 
     return changes;
 }
+
+} // namespace Internal
+} // namespace CppEditor
