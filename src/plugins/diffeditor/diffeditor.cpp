@@ -295,7 +295,7 @@ bool DiffEditor::open(QString *errorString,
                                    &ok);
     if (!ok) {
         *errorString = tr("Could not parse patch file \"%1\". "
-                          "The contents is not of unified diff format.")
+                          "The content is not of unified diff format.")
                 .arg(fileName);
         return false;
     }

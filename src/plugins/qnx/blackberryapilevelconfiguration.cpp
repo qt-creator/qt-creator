@@ -291,7 +291,7 @@ bool BlackBerryApiLevelConfiguration::activate()
         if (!m_autoDetectionSource.isEmpty())
             return false;
 
-        QString errorMessage = tr("The following errors occurred while activating target: %1\n").arg(m_targetName);
+        QString errorMessage = tr("The following errors occurred while activating target \"%1\":\n").arg(m_targetName);
         errorMessage.append(validationErrors().join(QLatin1Char('\n')));
         QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Set up BB10 Configuration"),
                              errorMessage, QMessageBox::Ok);
