@@ -74,6 +74,7 @@ public:
     BestNodeSelector(const QString &commonDirectory, const QStringList &files);
     void inspect(AddNewTree *tree);
     AddNewTree *bestChoice() const;
+    bool deploys();
     QString deployingProjects() const;
 private:
     QString m_commonDirectory;
@@ -133,6 +134,11 @@ AddNewTree *BestNodeSelector::bestChoice() const
     return m_bestChoice;
 }
 
+bool BestNodeSelector::deploys()
+{
+    return m_deploys;
+}
+
 QString BestNodeSelector::deployingProjects() const
 {
     if (m_deploys)
@@ -146,9 +152,9 @@ QString BestNodeSelector::deployingProjects() const
 
 static inline AddNewTree *createNoneNode(BestNodeSelector *selector)
 {
-    QString displayName = QCoreApplication::translate("ProjectWizard", "<Implicitly Add>");
-    if (selector->bestChoice())
-        displayName = QCoreApplication::translate("ProjectWizard", "<None>");
+    QString displayName = QCoreApplication::translate("ProjectWizard", "<None>");
+    if (selector->deploys())
+        displayName = QCoreApplication::translate("ProjectWizard", "<Implicitly Add>");
     return new AddNewTree(displayName);
 }
 
