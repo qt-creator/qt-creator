@@ -27,24 +27,13 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYPARSER_H
-#define PROPERTYPARSER_H
+import QtQuick 2.1
+import HelperWidgets 2.0
+import QtQuick.Layouts 1.0
 
-#include <QVariant>
-
-namespace QmlDesigner {
-class MetaInfo;
-
-namespace Internal {
-namespace PropertyParser {
-
-QVariant read(const QString &typeStr, const QString &str, const MetaInfo &metaInfo);
-QVariant read(const QString &typeStr, const QString &str);
-QVariant read(int variantType, const QString &str);
-QVariant variantFromString(const QString &s);
-
-} // namespace PropertyParser
-} // namespace Internal
-} // namespace Designer
-
-#endif // PROPERTYPARSER_H
+ComboBox {
+    backendValue: backendValues.orientation
+    implicitWidth: 180
+    model: [ "Horizontal", "Vertical" ]
+    scope: "Qt"
+}

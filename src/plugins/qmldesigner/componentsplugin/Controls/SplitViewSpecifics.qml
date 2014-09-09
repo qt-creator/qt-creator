@@ -27,24 +27,34 @@
 **
 ****************************************************************************/
 
-#ifndef PROPERTYPARSER_H
-#define PROPERTYPARSER_H
+import QtQuick 2.1
+import HelperWidgets 2.0
+import QtQuick.Layouts 1.0
 
-#include <QVariant>
+Column {
+    anchors.left: parent.left
+    anchors.right: parent.right
 
-namespace QmlDesigner {
-class MetaInfo;
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("Split View")
 
-namespace Internal {
-namespace PropertyParser {
+        SectionLayout {
+            Label {
+                text: qsTr("Orientation")
+                toolTip:  qsTr("This property holds the orientation of the SplitView.")
+            }
 
-QVariant read(const QString &typeStr, const QString &str, const MetaInfo &metaInfo);
-QVariant read(const QString &typeStr, const QString &str);
-QVariant read(int variantType, const QString &str);
-QVariant variantFromString(const QString &s);
+            SecondColumnLayout {
+                OrientationCombobox {
+                }
 
-} // namespace PropertyParser
-} // namespace Internal
-} // namespace Designer
+                ExpandingSpacer {
 
-#endif // PROPERTYPARSER_H
+                }
+            }
+
+        }
+    }
+}
