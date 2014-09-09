@@ -74,6 +74,8 @@ QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager
     modelManager->setProxyCountWeight(d->modelId, 2);
 
     d->acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding << QmlDebug::HandlingSignal << QmlDebug::Javascript;
+
+    modelManager->announceFeatures(d->modelId, QmlDebug::Constants::QML_JS_RANGE_FEATURES);
 }
 
 QmlProfilerEventsModelProxy::~QmlProfilerEventsModelProxy()

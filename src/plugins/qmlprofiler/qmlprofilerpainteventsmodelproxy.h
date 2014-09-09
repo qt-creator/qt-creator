@@ -75,6 +75,7 @@ public:
 
     QVariantList labels() const;
     QVariantMap details(int index) const;
+    quint64 features() const;
 
 private slots:
     bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;

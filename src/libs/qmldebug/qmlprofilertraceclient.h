@@ -50,7 +50,7 @@ class QMLDEBUG_EXPORT QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
     using QObject::event;
 
 public:
-    QmlProfilerTraceClient(QmlDebugConnection *client);
+    QmlProfilerTraceClient(QmlDebugConnection *client, quint64 features);
     ~QmlProfilerTraceClient();
 
     bool isEnabled() const;
@@ -60,6 +60,7 @@ public:
 public slots:
     void clearData();
     void sendRecordingStatus(int engineId = -1);
+    void setFeatures(quint64 features);
 
 signals:
     void complete(qint64 maximumTime);

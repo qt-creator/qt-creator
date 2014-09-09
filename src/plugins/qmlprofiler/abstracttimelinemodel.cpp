@@ -59,6 +59,7 @@ void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManage
     d->modelManager = modelManager;
     connect(d->modelManager->qmlModel(),SIGNAL(changed()),this,SLOT(dataChanged()));
     d->modelId = d->modelManager->registerModelProxy();
+    d->modelManager->announceFeatures(d->modelId, features());
 }
 
 bool AbstractTimelineModel::isEmpty() const

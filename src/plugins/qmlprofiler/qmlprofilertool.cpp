@@ -81,10 +81,12 @@ using namespace Core;
 using namespace Core::Constants;
 using namespace Analyzer;
 using namespace Analyzer::Constants;
-using namespace QmlProfiler::Internal;
 using namespace QmlProfiler::Constants;
 using namespace QmlDebug;
 using namespace ProjectExplorer;
+
+namespace QmlProfiler {
+namespace Internal {
 
 class QmlProfilerTool::QmlProfilerToolPrivate
 {
@@ -96,6 +98,8 @@ public:
     QmlProfilerViewManager *m_viewContainer;
     Utils::FileInProjectFinder m_projectFinder;
     QToolButton *m_recordButton;
+    QMenu *m_featuresMenu;
+
     QToolButton *m_clearButton;
 
     // elapsed time display
@@ -117,6 +121,10 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     d->m_profilerState = 0;
     d->m_viewContainer = 0;
+    d->m_recordButton = 0;
+    d->m_featuresMenu = 0;
+    d->m_clearButton = 0;
+    d->m_timeLabel = 0;
 
     qmlRegisterType<TimelineRenderer>("Monitor", 1, 0,"TimelineRenderer");
 
@@ -132,6 +140,8 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_profilerModelManager = new QmlProfilerModelManager(&d->m_projectFinder, this);
     connect(d->m_profilerModelManager, SIGNAL(stateChanged()), this, SLOT(profilerDataModelStateChanged()));
     connect(d->m_profilerModelManager, SIGNAL(error(QString)), this, SLOT(showErrorDialog(QString)));
+    connect(d->m_profilerModelManager, SIGNAL(availableFeaturesChanged(quint64)),
+            this, SLOT(setAvailableFeatures(quint64)));
 
     d->m_profilerConnections->setModelManager(d->m_profilerModelManager);
     Command *command = 0;
@@ -247,6 +257,13 @@ QWidget *QmlProfilerTool::createWidgets()
 
     connect(d->m_recordButton,SIGNAL(clicked(bool)), this, SLOT(recordingButtonChanged(bool)));
     d->m_recordButton->setChecked(true);
+    d->m_featuresMenu = new QMenu(d->m_recordButton);
+    d->m_recordButton->setMenu(d->m_featuresMenu);
+    d->m_recordButton->setPopupMode(QToolButton::MenuButtonPopup);
+    setAvailableFeatures(d->m_profilerModelManager->availableFeatures());
+    connect(d->m_featuresMenu, SIGNAL(triggered(QAction*)),
+            this, SLOT(toggleRecordingFeature(QAction*)));
+
     setRecording(d->m_profilerState->clientRecording());
     layout->addWidget(d->m_recordButton);
 
@@ -326,6 +343,9 @@ void QmlProfilerTool::setRecording(bool recording)
         } else {
             d->m_recordingTimer.stop();
         }
+        d->m_recordButton->menu()->setEnabled(!recording);
+    } else {
+        d->m_recordButton->menu()->setEnabled(true);
     }
 }
 
@@ -508,6 +528,36 @@ void QmlProfilerTool::clientsDisconnected()
     // If the connection is closed while the app is still running, no special action is needed
 }
 
+template<QmlDebug::ProfileFeature feature>
+void QmlProfilerTool::updateFeaturesMenu(quint64 features)
+{
+    if (features & (1 << feature)) {
+        QAction *action = d->m_featuresMenu->addAction(tr(QmlProfilerModelManager::featureName(
+                                               static_cast<QmlDebug::ProfileFeature>(feature))));
+        action->setCheckable(true);
+        action->setData(static_cast<uint>(feature));
+        action->setChecked(d->m_profilerState->recordingFeatures() & (1 << feature));
+    }
+    updateFeaturesMenu<static_cast<QmlDebug::ProfileFeature>(feature + 1)>(features);
+}
+
+template<>
+void QmlProfilerTool::updateFeaturesMenu<QmlDebug::MaximumProfileFeature>(quint64 features)
+{
+    Q_UNUSED(features);
+    return;
+}
+
+void QmlProfilerTool::setAvailableFeatures(quint64 features)
+{
+    if (features != d->m_profilerState->recordingFeatures())
+        d->m_profilerState->setRecordingFeatures(features); // by default, enable them all.
+    if (d->m_featuresMenu) {
+        d->m_featuresMenu->clear();
+        updateFeaturesMenu<static_cast<QmlDebug::ProfileFeature>(0)>(features);
+    }
+}
+
 void QmlProfilerTool::profilerDataModelStateChanged()
 {
     switch (d->m_profilerModelManager->state()) {
@@ -607,4 +657,21 @@ void QmlProfilerTool::serverRecordingChanged()
     } else {
         d->m_clearButton->setEnabled(true);
     }
+}
+
+void QmlProfilerTool::toggleRecordingFeature(QAction *action)
+{
+    uint feature = action->data().toUInt();
+    if (action->isChecked())
+        d->m_profilerState->setRecordingFeatures(
+                    d->m_profilerState->recordingFeatures() | (1 << feature));
+    else
+        d->m_profilerState->setRecordingFeatures(
+                    d->m_profilerState->recordingFeatures() & (~(1 << feature)));
+
+    // Keep the menu open to allow for more features to be toggled
+    d->m_recordButton->showMenu();
+}
+
+}
 }

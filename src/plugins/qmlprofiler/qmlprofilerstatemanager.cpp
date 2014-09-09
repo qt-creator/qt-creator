@@ -64,6 +64,7 @@ public:
     QmlProfilerStateManager::QmlProfilerState m_currentState;
     bool m_clientRecording;
     bool m_serverRecording;
+    quint64 m_recordingFeatures;
 };
 QmlProfilerStateManager::QmlProfilerStateManager(QObject *parent) :
     QObject(parent),d(new QmlProfilerStateManagerPrivate(this))
@@ -71,6 +72,7 @@ QmlProfilerStateManager::QmlProfilerStateManager(QObject *parent) :
     d->m_currentState = Idle;
     d->m_clientRecording = true;
     d->m_serverRecording = false;
+    d->m_recordingFeatures = 0;
 }
 
 QmlProfilerStateManager::~QmlProfilerStateManager()
@@ -91,6 +93,11 @@ bool QmlProfilerStateManager::clientRecording()
 bool QmlProfilerStateManager::serverRecording()
 {
     return d->m_serverRecording;
+}
+
+quint64 QmlProfilerStateManager::recordingFeatures() const
+{
+    return d->m_recordingFeatures;
 }
 
 QString QmlProfilerStateManager::currentStateAsString()
@@ -170,6 +177,14 @@ void QmlProfilerStateManager::setServerRecording(bool recording)
     if (d->m_serverRecording != recording) {
         d->m_serverRecording = recording;
         emit serverRecordingChanged();
+    }
+}
+
+void QmlProfilerStateManager::setRecordingFeatures(quint64 features)
+{
+    if (d->m_recordingFeatures != features) {
+        d->m_recordingFeatures = features;
+        emit recordingFeaturesChanged(features);
     }
 }
 

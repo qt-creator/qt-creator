@@ -32,6 +32,7 @@
 
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/analyzerruncontrol.h>
+#include "qmldebug/qmlprofilereventtypes.h"
 
 QT_BEGIN_NAMESPACE
 class QMessageBox;
@@ -68,6 +69,7 @@ public slots:
     void clientRecordingChanged();
     void serverRecordingChanged();
     void clientsDisconnected();
+    void setAvailableFeatures(quint64 features);
 
     void recordingButtonChanged(bool recording);
     void setRecording(bool recording);
@@ -84,9 +86,13 @@ private slots:
     void showSaveDialog();
     void showLoadDialog();
 
+    void toggleRecordingFeature(QAction *action);
+
 private:
     void clearDisplay();
     void populateFileFinder(QString projectDirectory = QString(), QString activeSysroot = QString());
+    template<QmlDebug::ProfileFeature feature>
+    void updateFeaturesMenu(quint64 features);
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;

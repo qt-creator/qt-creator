@@ -58,13 +58,18 @@ private:
 };
 
 PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
-    : AbstractTimelineModel(new PaintEventsModelProxyPrivate, tr("Animations"), QmlDebug::Event,
-                            QmlDebug::MaximumRangeType, parent)
+    : AbstractTimelineModel(new PaintEventsModelProxyPrivate,
+                            tr(QmlProfilerModelManager::featureName(QmlDebug::ProfileAnimations)),
+                            QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
 {
     Q_D(PaintEventsModelProxy);
     d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;
 }
 
+quint64 PaintEventsModelProxy::features() const
+{
+    return 1 << QmlDebug::ProfileAnimations;
+}
 
 void PaintEventsModelProxy::clear()
 {

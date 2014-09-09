@@ -44,6 +44,15 @@
 namespace QmlProfiler {
 namespace Internal {
 
+static const QmlDebug::ProfileFeature RangeFeatures[QmlDebug::MaximumRangeType] = {
+    QmlDebug::ProfilePainting,
+    QmlDebug::ProfileCompiling,
+    QmlDebug::ProfileCreating,
+    QmlDebug::ProfileBinding,
+    QmlDebug::ProfileHandlingSignal,
+    QmlDebug::ProfileJavaScript
+};
+
 class RangeTimelineModel::RangeTimelineModelPrivate : public AbstractTimelineModelPrivate
 {
 public:
@@ -68,6 +77,12 @@ RangeTimelineModel::RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *p
     d->seenPaintEvent = false;
     d->expandedRowTypes << -1;
     d->contractedRows = 1;
+}
+
+quint64 RangeTimelineModel::features() const
+{
+    Q_D(const RangeTimelineModel);
+    return 1 << RangeFeatures[d->rangeType];
 }
 
 void RangeTimelineModel::clear()
@@ -222,16 +237,19 @@ int RangeTimelineModel::rowCount() const
         return d->contractedRows;
 }
 
-QString RangeTimelineModel::categoryLabel(int categoryIndex)
+QString RangeTimelineModel::categoryLabel(QmlDebug::RangeType rangeType)
 {
-    switch (categoryIndex) {
-    case 0: return QCoreApplication::translate("MainView", "Painting"); break;
-    case 1: return QCoreApplication::translate("MainView", "Compiling"); break;
-    case 2: return QCoreApplication::translate("MainView", "Creating"); break;
-    case 3: return QCoreApplication::translate("MainView", "Binding"); break;
-    case 4: return QCoreApplication::translate("MainView", "Handling Signal"); break;
-    case 5: return QCoreApplication::translate("MainView", "JavaScript"); break;
-    default: return QString();
+    switch (rangeType) {
+    case QmlDebug::Painting:
+    case QmlDebug::Compiling:
+    case QmlDebug::Creating:
+    case QmlDebug::Binding:
+    case QmlDebug::HandlingSignal:
+    case QmlDebug::Javascript:
+        return QCoreApplication::translate("MainView",
+                QmlProfilerModelManager::featureName(RangeFeatures[rangeType]));
+    default:
+        return QString();
     }
 }
 

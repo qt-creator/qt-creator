@@ -74,6 +74,7 @@ public:
     virtual QVariantMap details(int index) const = 0;
     virtual int row(int index) const = 0;
     virtual void loadData() = 0;
+    virtual quint64 features() const = 0;
 
     // Methods which can optionally be implemented by child models.
     // returned map should contain "file", "line", "column" properties, or be empty

@@ -40,6 +40,7 @@ public:
         ,  inProgressRanges(0)
         , maximumTime(0)
         , recording(false)
+        , features(0)
     {
         ::memset(rangeCount, 0, MaximumRangeType * sizeof(int));
     }
@@ -56,6 +57,7 @@ public:
     int rangeCount[MaximumRangeType];
     qint64 maximumTime;
     bool recording;
+    quint64 features;
 };
 
 } // namespace QmlDebug
@@ -68,16 +70,17 @@ void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
     QByteArray ba;
     QDataStream stream(&ba, QIODevice::WriteOnly);
-    stream << recording;
-    if (engineId != -1)
-        stream << engineId;
+    stream << recording << engineId; // engineId -1 is OK. It means "all of them"
+    if (recording)
+        stream << features;
     q->sendMessage(ba);
 }
 
-QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client)
+QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client, quint64 features)
     : QmlDebugClient(QLatin1String("CanvasFrameRate"), client)
     , d(new QmlProfilerTraceClientPrivate(this, client))
 {
+    d->features = features;
     connect(&d->engineControl, SIGNAL(engineAboutToBeAdded(int,QString)),
             this, SLOT(sendRecordingStatus(int)));
 }
@@ -129,6 +132,11 @@ void QmlProfilerTraceClient::setRecording(bool v)
         sendRecordingStatus();
 
     emit recordingChanged(v);
+}
+
+void QmlProfilerTraceClient::setFeatures(quint64 features)
+{
+    d->features = features;
 }
 
 void QmlProfilerTraceClient::setRecordingFromServer(bool v)

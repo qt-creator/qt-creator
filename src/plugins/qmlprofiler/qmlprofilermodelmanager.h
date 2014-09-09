@@ -127,6 +127,9 @@ public:
     int registerModelProxy();
     void setProxyCountWeight(int proxyId, int weight);
     void modelProxyCountUpdated(int proxyId, qint64 count, qint64 max);
+    void announceFeatures(int proxyId, quint64 features);
+    quint64 availableFeatures();
+    static const char *featureName(QmlDebug::ProfileFeature feature);
 
     qint64 estimatedProfilingTime() const;
 
@@ -137,6 +140,7 @@ signals:
     void dataAvailable();
 
     void requestDetailsForLocation(int eventType, const QmlDebug::QmlEventLocation &location);
+    void availableFeaturesChanged(quint64 features);
 
 public slots:
     void clear();

@@ -72,7 +72,8 @@ public:
 // QML interface
 
     int rowCount() const;
-    static QString categoryLabel(int categoryIndex);
+    static QString categoryLabel(QmlDebug::RangeType categoryIndex);
+    quint64 features() const;
 
     int row(int index) const;
     int eventId(int index) const;

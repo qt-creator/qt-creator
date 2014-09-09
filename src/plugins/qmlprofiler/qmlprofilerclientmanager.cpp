@@ -162,7 +162,8 @@ void QmlProfilerClientManager::enableServices()
     disconnectClientSignals();
     d->profilerState->setServerRecording(false); // false by default (will be set to true when connected)
     delete d->qmlclientplugin.data();
-    d->qmlclientplugin = new QmlProfilerTraceClient(d->connection);
+    d->qmlclientplugin = new QmlProfilerTraceClient(d->connection,
+                                                    d->profilerState->recordingFeatures());
     delete d->v8clientplugin.data();
     d->v8clientplugin = new QV8ProfilerClient(d->connection);
     connectClientSignals();
@@ -191,6 +192,8 @@ void QmlProfilerClientManager::connectClientSignals()
         // fixme: this should be unified for both clients
         connect(d->qmlclientplugin.data(), SIGNAL(recordingChanged(bool)),
                 d->profilerState, SLOT(setServerRecording(bool)));
+        connect(d->profilerState, SIGNAL(recordingFeaturesChanged(quint64)),
+                d->qmlclientplugin.data(), SLOT(setFeatures(quint64)));
     }
     if (d->v8clientplugin) {
         connect(d->v8clientplugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));
@@ -223,6 +226,8 @@ void QmlProfilerClientManager::disconnectClientSignals()
         // fixme: this should be unified for both clients
         disconnect(d->qmlclientplugin.data(), SIGNAL(recordingChanged(bool)),
                    d->profilerState, SLOT(setServerRecording(bool)));
+        disconnect(d->profilerState, SIGNAL(recordingFeaturesChanged(quint64)),
+                   d->qmlclientplugin.data(), SLOT(setFeatures(quint64)));
     }
     if (d->v8clientplugin) {
         disconnect(d->v8clientplugin.data(), SIGNAL(complete()), this, SLOT(v8Complete()));

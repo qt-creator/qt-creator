@@ -40,6 +40,19 @@
 namespace QmlProfiler {
 namespace Internal {
 
+static const char *ProfileFeatureNames[QmlDebug::MaximumProfileFeature] = {
+    QT_TRANSLATE_NOOP("MainView", "JavaScript"),
+    QT_TRANSLATE_NOOP("MainView", "Memory Usage"),
+    QT_TRANSLATE_NOOP("MainView", "Pixmap Cache"),
+    QT_TRANSLATE_NOOP("MainView", "Scene Graph"),
+    QT_TRANSLATE_NOOP("MainView", "Animations"),
+    QT_TRANSLATE_NOOP("MainView", "Painting"),
+    QT_TRANSLATE_NOOP("MainView", "Compiling"),
+    QT_TRANSLATE_NOOP("MainView", "Creating"),
+    QT_TRANSLATE_NOOP("MainView", "Binding"),
+    QT_TRANSLATE_NOOP("MainView", "Handling Signal"),
+    QT_TRANSLATE_NOOP("MainView", "Input Events")
+};
 
 /////////////////////////////////////////////////////////////////////
 QmlProfilerDataState::QmlProfilerDataState(QmlProfilerModelManager *modelManager, QObject *parent)
@@ -163,6 +176,8 @@ public:
 
     QVector <double> partialCounts;
     QVector <int> partialCountWeights;
+    quint64 features;
+
     int totalWeight;
     double progress;
     double previousProgress;
@@ -249,6 +264,25 @@ void QmlProfilerModelManager::modelProxyCountUpdated(int proxyId, qint64 count, 
         d->previousProgress = d->progress;
         emit progressChanged();
     }
+}
+
+void QmlProfilerModelManager::announceFeatures(int proxyId, quint64 features)
+{
+    Q_UNUSED(proxyId); // Will use that later to optimize the event dispatching on loading.
+    if ((features & d->features) != features) {
+        d->features |= features;
+        emit availableFeaturesChanged(d->features);
+    }
+}
+
+quint64 QmlProfilerModelManager::availableFeatures()
+{
+    return d->features;
+}
+
+const char *QmlProfilerModelManager::featureName(QmlDebug::ProfileFeature feature)
+{
+    return ProfileFeatureNames[feature];
 }
 
 qint64 QmlProfilerModelManager::estimatedProfilingTime() const
