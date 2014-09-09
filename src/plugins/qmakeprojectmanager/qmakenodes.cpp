@@ -591,7 +591,8 @@ QSet<Utils::FileName> QmakePriFileNode::recursiveEnumerate(const QString &folder
 
 void QmakePriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact,
                               ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumulative,
-                              const QString &buildDir)
+                              const QString &buildDir,
+                              const QList<QList<VariableAndVPathInformation>> &variableAndVPathInformation)
 {
     // add project file node
     if (m_fileNodes.isEmpty())
@@ -652,27 +653,17 @@ void QmakePriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReade
         m_recursiveEnumerateFiles += recursiveEnumerate(folder);
     }
     QMap<FileType, QSet<Utils::FileName> > foundFiles;
-
-    QStringList baseVPathsExact;
-    if (includeFileExact)
-        baseVPathsExact = baseVPaths(readerExact, projectDir, buildDir);
-    QStringList baseVPathsCumulative;
-    if (includeFileCumlative)
-        baseVPathsCumulative = baseVPaths(readerCumulative, projectDir, buildDir);
-
     const QVector<QmakeNodeStaticData::FileTypeData> &fileTypes = qmakeNodeStaticData()->fileTypeData;
 
     // update files
     QFileInfo tmpFi;
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
-        QStringList qmakeVariables = varNames(type, readerExact);
-
+        const QList<VariableAndVPathInformation> &qmakeVariables = variableAndVPathInformation.at(i);
         QSet<Utils::FileName> newFilePaths;
-        foreach (const QString &qmakeVariable, qmakeVariables) {
+        foreach (const VariableAndVPathInformation &qmakeVariable, qmakeVariables) {
             if (includeFileExact) {
-                QStringList vPathsExact = fullVPaths(baseVPathsExact, readerExact, qmakeVariable, projectDir);
-                QStringList tmp = readerExact->absoluteFileValues(qmakeVariable, projectDir, vPathsExact, includeFileExact);
+                QStringList tmp = readerExact->absoluteFileValues(qmakeVariable.variable, projectDir, qmakeVariable.vPathsExact, includeFileExact);
                 foreach (const QString &t, tmp) {
                     tmpFi.setFile(t);
                     if (tmpFi.isFile())
@@ -680,8 +671,7 @@ void QmakePriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReade
                 }
             }
             if (includeFileCumlative) {
-                QStringList vPathsCumulative = fullVPaths(baseVPathsCumulative, readerCumulative, qmakeVariable, projectDir);
-                QStringList tmp = readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative);
+                QStringList tmp = readerCumulative->absoluteFileValues(qmakeVariable.variable, projectDir, qmakeVariable.vPathsCumulative, includeFileCumlative);
                 foreach (const QString &t, tmp) {
                     tmpFi.setFile(t);
                     if (tmpFi.isFile())
@@ -1853,6 +1843,30 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     }
 
     QString buildDirectory = buildDir();
+    QList<QList<VariableAndVPathInformation>> variableAndVPathInformation;
+    { // Collect information on VPATHS and qmake variables
+        QStringList baseVPathsExact = baseVPaths(m_readerExact, m_projectDir, buildDirectory);
+        QStringList baseVPathsCumulative = baseVPaths(m_readerCumulative, m_projectDir, buildDirectory);
+
+        const QVector<QmakeNodeStaticData::FileTypeData> &fileTypes = qmakeNodeStaticData()->fileTypeData;
+
+        variableAndVPathInformation.reserve(fileTypes.size());
+        for (int i = 0; i < fileTypes.size(); ++i) {
+            FileType type = fileTypes.at(i).type;
+
+            QList<VariableAndVPathInformation> list;
+            QStringList qmakeVariables = varNames(type, m_readerExact);
+            list.reserve(qmakeVariables.size());
+            foreach (const QString &qmakeVariable, qmakeVariables) {
+                VariableAndVPathInformation info;
+                info.variable = qmakeVariable;
+                info.vPathsExact = fullVPaths(baseVPathsExact, m_readerExact, qmakeVariable, m_projectDir);
+                info.vPathsCumulative = fullVPaths(baseVPathsCumulative, m_readerCumulative, qmakeVariable, m_projectDir);
+                list.append(info);
+            }
+            variableAndVPathInformation.append(list);
+        }
+    }
 
     SortByPath sortByPath;
     Utils::sort(existingProjectNodes, sortByPath);
@@ -1927,7 +1941,8 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             ProFile *fileCumlative = includeFilesCumlative.value((*existingIt)->path());
             if (fileExact || fileCumlative) {
                 QmakePriFileNode *priFileNode = static_cast<QmakePriFileNode *>(*existingIt);
-                priFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative, buildDirectory);
+                priFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative,
+                                    buildDirectory, variableAndVPathInformation);
                 priFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
             } else {
                 // We always parse exactly, because we later when async parsing don't know whether
@@ -1965,7 +1980,8 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                 QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, nodeToAdd);
                 qmakePriFileNode->setParentFolderNode(this); // Needed for loop detection
                 qmakePriFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
-                qmakePriFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative, buildDirectory);
+                qmakePriFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative,
+                                         buildDirectory, variableAndVPathInformation);
                 toAdd << qmakePriFileNode;
             } else {
                 QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd);
@@ -1992,7 +2008,8 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     if (!toAdd.isEmpty())
         addProjectNodes(toAdd);
 
-    QmakePriFileNode::update(fileForCurrentProjectExact, m_readerExact, fileForCurrentProjectCumlative, m_readerCumulative, buildDirectory);
+    QmakePriFileNode::update(fileForCurrentProjectExact, m_readerExact, fileForCurrentProjectCumlative, m_readerCumulative,
+                             buildDirectory, variableAndVPathInformation);
 
     m_validParse = (evalResult == EvalOk);
     if (m_validParse) {

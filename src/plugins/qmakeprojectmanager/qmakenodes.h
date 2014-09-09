@@ -131,6 +131,16 @@ using ProjectExplorer::FileType;
 namespace Internal {
 class QmakePriFile;
 struct InternalNode;
+
+
+class VariableAndVPathInformation
+{
+public:
+    QString variable;
+    QStringList vPathsExact;
+    QStringList vPathsCumulative;
+};
+
 }
 
 // Implements ProjectNode for qmake .pri files
@@ -142,7 +152,10 @@ public:
     QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode, const QString &filePath);
     ~QmakePriFileNode();
 
-    void update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact, ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumalative, const QString &buildDir);
+    void update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact,
+                ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumalative,
+                const QString &buildDir,
+                const QList<QList<Internal::VariableAndVPathInformation> > &variableAndVPathInformation);
 
 
 // ProjectNode interface
