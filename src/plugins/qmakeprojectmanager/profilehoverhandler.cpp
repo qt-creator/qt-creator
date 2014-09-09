@@ -45,45 +45,39 @@ using namespace Core;
 namespace QmakeProjectManager {
 namespace Internal {
 
-ProFileHoverHandler::ProFileHoverHandler(QObject *parent)
-  : BaseHoverHandler(parent),
-    m_manualKind(UnknownManual)
+ProFileHoverHandler::ProFileHoverHandler()
+  : m_manualKind(UnknownManual)
 {
     ProFileCompletionAssistProvider *pcap
             = ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>();
     m_keywords = TextEditor::Keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
 }
 
-ProFileHoverHandler::~ProFileHoverHandler()
-{}
-
 bool ProFileHoverHandler::acceptEditor(IEditor *editor)
 {
     return editor->context().contains(Constants::PROFILE_EDITOR_ID);
 }
 
-void ProFileHoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
+void ProFileHoverHandler::identifyMatch(TextEditor::BaseTextEditorWidget *editorWidget, int pos)
 {
     m_docFragment.clear();
     m_manualKind = UnknownManual;
-    if (TextEditor::BaseTextEditorWidget *widget = editor->editorWidget()) {
-        if (!widget->extraSelectionTooltip(pos).isEmpty()) {
-            setToolTip(widget->extraSelectionTooltip(pos));
-        } else {
-            QTextDocument *document = widget->document();
-            QTextBlock block = document->findBlock(pos);
-            identifyQMakeKeyword(block.text(), pos - block.position());
+    if (!editorWidget->extraSelectionTooltip(pos).isEmpty()) {
+        setToolTip(editorWidget->extraSelectionTooltip(pos));
+    } else {
+        QTextDocument *document = editorWidget->document();
+        QTextBlock block = document->findBlock(pos);
+        identifyQMakeKeyword(block.text(), pos - block.position());
 
-            if (m_manualKind != UnknownManual) {
-                QUrl url(QString::fromLatin1("qthelp://com.trolltech.qmake/qdoc/qmake-%1-reference.html#%2")
-                        .arg(manualName()).arg(m_docFragment));
-                setLastHelpItemIdentified(TextEditor::HelpItem(url.toString(),
-                                          m_docFragment, TextEditor::HelpItem::QMakeVariableOfFunction));
-            } else {
-                // General qmake manual will be shown outside any function or variable
-                setLastHelpItemIdentified(TextEditor::HelpItem(QLatin1String("qmake"),
-                                          TextEditor::HelpItem::Unknown));
-            }
+        if (m_manualKind != UnknownManual) {
+            QUrl url(QString::fromLatin1("qthelp://com.trolltech.qmake/qdoc/qmake-%1-reference.html#%2")
+                     .arg(manualName()).arg(m_docFragment));
+            setLastHelpItemIdentified(TextEditor::HelpItem(url.toString(),
+                                                           m_docFragment, TextEditor::HelpItem::QMakeVariableOfFunction));
+        } else {
+            // General qmake manual will be shown outside any function or variable
+            setLastHelpItemIdentified(TextEditor::HelpItem(QLatin1String("qmake"),
+                                                           TextEditor::HelpItem::Unknown));
         }
     }
 }

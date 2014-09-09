@@ -137,7 +137,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     addAutoReleasedObject(new LinguistExternalEditor);
 
     addAutoReleasedObject(new ProFileCompletionAssistProvider);
-    addAutoReleasedObject(new ProFileHoverHandler(this));
+    addAutoReleasedObject(new ProFileHoverHandler);
 
     auto hf = new TextEditor::HighlighterFactory;
     hf->setProductType<ProFileHighlighter>();

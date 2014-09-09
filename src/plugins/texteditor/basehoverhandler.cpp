@@ -40,18 +40,11 @@ using namespace Core;
 
 namespace TextEditor {
 
-static BaseTextEditorWidget *baseTextEditor(BaseTextEditor *editor)
-{
-    if (!editor)
-        return 0;
-    return qobject_cast<BaseTextEditorWidget *>(editor->widget());
-}
-
 BaseHoverHandler::BaseHoverHandler(QObject *parent) : QObject(parent), m_diagnosticTooltip(false)
 {
     // Listen for editor opened events in order to connect to tooltip/helpid requests
-    connect(Core::EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-            this, SLOT(editorOpened(Core::IEditor*)));
+    connect(EditorManager::instance(), &EditorManager::editorOpened,
+            this, &BaseHoverHandler::editorOpened);
 }
 
 BaseHoverHandler::~BaseHoverHandler()
@@ -62,33 +55,27 @@ void BaseHoverHandler::editorOpened(Core::IEditor *editor)
     if (acceptEditor(editor)) {
         BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor);
         if (textEditor) {
-            connect(textEditor, SIGNAL(tooltipRequested(TextEditor::BaseTextEditor*,QPoint,int)),
-                    this, SLOT(showToolTip(TextEditor::BaseTextEditor*,QPoint,int)));
+            connect(textEditor, &BaseTextEditor::tooltipRequested,
+                    this, &BaseHoverHandler::showToolTip);
 
-            connect(textEditor, SIGNAL(contextHelpIdRequested(TextEditor::BaseTextEditor*,int)),
-                    this, SLOT(updateContextHelpId(TextEditor::BaseTextEditor*,int)));
+            connect(textEditor, &BaseTextEditor::contextHelpIdRequested,
+                    this, &BaseHoverHandler::updateContextHelpId);
         }
     }
 }
 
-void BaseHoverHandler::showToolTip(TextEditor::BaseTextEditor *editor, const QPoint &point, int pos)
+void BaseHoverHandler::showToolTip(BaseTextEditor *editor, const QPoint &point, int pos)
 {
-    BaseTextEditorWidget *baseEditor = baseTextEditor(editor);
-    if (!baseEditor)
-        return;
+    BaseTextEditorWidget *editorWidget = editor->editorWidget();
 
     editor->setContextHelpId(QString());
 
     process(editor, pos);
-    operateTooltip(editor, point);
+    operateTooltip(editorWidget, point);
 }
 
-void BaseHoverHandler::updateContextHelpId(TextEditor::BaseTextEditor *editor, int pos)
+void BaseHoverHandler::updateContextHelpId(BaseTextEditor *editor, int pos)
 {
-    BaseTextEditorWidget *baseEditor = baseTextEditor(editor);
-    if (!baseEditor)
-        return;
-
     // If the tooltip is visible and there is a help match, this match is used to update
     // the help id. Otherwise, let the identification process happen.
     if (!Utils::ToolTip::isVisible() || !lastHelpItemIdentified().isValid())
@@ -152,7 +139,7 @@ void BaseHoverHandler::clear()
 void BaseHoverHandler::process(BaseTextEditor *editor, int pos)
 {
     clear();
-    identifyMatch(editor, pos);
+    identifyMatch(editor->editorWidget(), pos);
     decorateToolTip();
 }
 
@@ -171,12 +158,12 @@ void BaseHoverHandler::decorateToolTip()
     }
 }
 
-void BaseHoverHandler::operateTooltip(BaseTextEditor *editor, const QPoint &point)
+void BaseHoverHandler::operateTooltip(BaseTextEditorWidget *editorWidget, const QPoint &point)
 {
     if (m_toolTip.isEmpty())
         Utils::ToolTip::hide();
     else
-        Utils::ToolTip::show(point, Utils::TextContent(m_toolTip), editor->widget());
+        Utils::ToolTip::show(point, Utils::TextContent(m_toolTip), editorWidget);
 }
 
 } // namespace TextEditor

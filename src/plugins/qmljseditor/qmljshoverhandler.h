@@ -52,23 +52,22 @@ class ObjectValue;
 }
 
 namespace QmlJSEditor {
-
 namespace Internal {
 
 class QmlJSEditorWidget;
 
-class HoverHandler : public TextEditor::BaseHoverHandler
+class QmlJSHoverHandler : public TextEditor::BaseHoverHandler
 {
     Q_OBJECT
 public:
-    HoverHandler(QObject *parent = 0);
+    QmlJSHoverHandler(QObject *parent = 0);
 
 private:
     void reset();
 
-    virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::BaseTextEditor *editor, int pos);
-    virtual void operateTooltip(TextEditor::BaseTextEditor *editor, const QPoint &point);
+    bool acceptEditor(Core::IEditor *editor);
+    void identifyMatch(TextEditor::BaseTextEditorWidget *editorWidget, int pos);
+    void operateTooltip(TextEditor::BaseTextEditorWidget *editorWidget, const QPoint &point);
 
     bool matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos);
     bool matchColorItem(const QmlJS::ScopeChain &lookupContext,

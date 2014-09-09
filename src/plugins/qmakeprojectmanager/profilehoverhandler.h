@@ -31,17 +31,10 @@
 #define PROFILEHOVERHANDLER_H
 
 #include <texteditor/basehoverhandler.h>
-#include <texteditor/codeassist/keywordscompletionassist.h>
-
-#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QUrl;
 QT_END_NAMESPACE
-
-namespace Core { class IEditor; }
-
-namespace TextEditor { class BaseTextEditor; }
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -50,15 +43,14 @@ class ProFileHoverHandler : public TextEditor::BaseHoverHandler
 {
     Q_OBJECT
 public:
-    ProFileHoverHandler(QObject *parent = 0);
-    virtual ~ProFileHoverHandler();
+    ProFileHoverHandler();
 
 signals:
     void creatorHelpRequested(const QUrl &url);
 
 private:
     virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::BaseTextEditor *editor, int pos);
+    virtual void identifyMatch(TextEditor::BaseTextEditorWidget *editorWidget, int pos);
     void identifyQMakeKeyword(const QString &text, int pos);
 
     enum ManualKind {

@@ -226,8 +226,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_quickFixAssistProvider = new QmlJSQuickFixAssistProvider;
     addAutoReleasedObject(m_quickFixAssistProvider);
     addAutoReleasedObject(new QmlJSCompletionAssistProvider);
-
-    addAutoReleasedObject(new HoverHandler);
+    addAutoReleasedObject(new QmlJSHoverHandler);
 
     errorMessage->clear();
 

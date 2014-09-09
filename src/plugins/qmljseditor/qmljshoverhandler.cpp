@@ -56,6 +56,7 @@
 
 using namespace Core;
 using namespace QmlJS;
+using namespace TextEditor;
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -91,12 +92,12 @@ namespace {
     }
 }
 
-HoverHandler::HoverHandler(QObject *parent) : BaseHoverHandler(parent), m_modelManager(0)
+QmlJSHoverHandler::QmlJSHoverHandler(QObject *parent) : BaseHoverHandler(parent), m_modelManager(0)
 {
     m_modelManager = QmlJS::ModelManagerInterface::instance();
 }
 
-bool HoverHandler::acceptEditor(IEditor *editor)
+bool QmlJSHoverHandler::acceptEditor(IEditor *editor)
 {
     return editor->context().contains(Constants::C_QMLJSEDITOR_ID);
 }
@@ -147,8 +148,8 @@ static inline QString getModuleName(const ScopeChain &scopeChain, const Document
     return QString();
 }
 
-bool HoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::Ptr &qmlDocument,
-                                  const ObjectValue *value, const QStringList &qName)
+bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::Ptr &qmlDocument,
+                                       const ObjectValue *value, const QStringList &qName)
 {
     QString moduleName = getModuleName(scopeChain, qmlDocument, value);
     QString helpId;
@@ -175,21 +176,19 @@ bool HoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::
             break;
         return false;
     } while (0);
-    setLastHelpItemIdentified(TextEditor::HelpItem(helpId, qName.join(QLatin1Char('.')),
-                                                   TextEditor::HelpItem::QmlComponent));
+    setLastHelpItemIdentified(HelpItem(helpId, qName.join(QLatin1Char('.')), HelpItem::QmlComponent));
     return true;
 }
 
-void HoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
+void QmlJSHoverHandler::identifyMatch(BaseTextEditorWidget *editorWidget, int pos)
 {
     reset();
 
     if (!m_modelManager)
         return;
 
-    QmlJSEditorWidget *qmlEditor = qobject_cast<QmlJSEditorWidget *>(editor->widget());
-    if (!qmlEditor)
-        return;
+    QmlJSEditorWidget *qmlEditor = qobject_cast<QmlJSEditorWidget *>(editorWidget);
+    QTC_ASSERT(qmlEditor, return);
 
     const QmlJSTools::SemanticInfo &semanticInfo = qmlEditor->qmlJsEditorDocument()->semanticInfo();
     if (!semanticInfo.isValid() || qmlEditor->qmlJsEditorDocument()->isSemanticInfoOutdated())
@@ -254,10 +253,10 @@ void HoverHandler::identifyMatch(TextEditor::BaseTextEditor *editor, int pos)
     setQmlHelpItem(scopeChain, qmlDocument, node);
 }
 
-bool HoverHandler::matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos)
+bool QmlJSHoverHandler::matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos)
 {
     foreach (const QTextEdit::ExtraSelection &sel,
-             qmlEditor->extraSelections(TextEditor::BaseTextEditorWidget::CodeWarningsSelection)) {
+             qmlEditor->extraSelections(BaseTextEditorWidget::CodeWarningsSelection)) {
         if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
             setToolTip(sel.format.toolTip());
             return true;
@@ -273,7 +272,7 @@ bool HoverHandler::matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos)
     return false;
 }
 
-bool HoverHandler::matchColorItem(const ScopeChain &scopeChain,
+bool QmlJSHoverHandler::matchColorItem(const ScopeChain &scopeChain,
                                   const Document::Ptr &qmlDocument,
                                   const QList<AST::Node *> &astPath,
                                   unsigned pos)
@@ -331,7 +330,7 @@ bool HoverHandler::matchColorItem(const ScopeChain &scopeChain,
     return false;
 }
 
-void HoverHandler::handleOrdinaryMatch(const ScopeChain &scopeChain, AST::Node *node)
+void QmlJSHoverHandler::handleOrdinaryMatch(const ScopeChain &scopeChain, AST::Node *node)
 {
     if (node && !(AST::cast<AST::StringLiteral *>(node) != 0 ||
                   AST::cast<AST::NumericLiteral *>(node) != 0)) {
@@ -340,7 +339,7 @@ void HoverHandler::handleOrdinaryMatch(const ScopeChain &scopeChain, AST::Node *
     }
 }
 
-void HoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport *node)
+void QmlJSHoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport *node)
 {
     const Imports *imports = scopeChain.context()->imports(scopeChain.document().data());
     if (!imports)
@@ -368,22 +367,22 @@ void HoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport *nod
     }
 }
 
-void HoverHandler::reset()
+void QmlJSHoverHandler::reset()
 {
     m_colorTip = QColor();
 }
 
-void HoverHandler::operateTooltip(TextEditor::BaseTextEditor *editor, const QPoint &point)
+void QmlJSHoverHandler::operateTooltip(BaseTextEditorWidget *editorWidget, const QPoint &point)
 {
     if (toolTip().isEmpty())
         Utils::ToolTip::hide();
     else if (m_colorTip.isValid())
-        Utils::ToolTip::show(point, Utils::ColorContent(m_colorTip), editor->widget());
+        Utils::ToolTip::show(point, Utils::ColorContent(m_colorTip), editorWidget);
     else
-        Utils::ToolTip::show(point, Utils::TextContent(toolTip()), editor->widget());
+        Utils::ToolTip::show(point, Utils::TextContent(toolTip()), editorWidget);
 }
 
-void HoverHandler::prettyPrintTooltip(const QmlJS::Value *value,
+void QmlJSHoverHandler::prettyPrintTooltip(const QmlJS::Value *value,
                                       const QmlJS::ContextPtr &context)
 {
     if (! value)
@@ -451,7 +450,7 @@ static const ObjectValue *isMember(const ScopeChain &scopeChain,
     return owningObject;
 }
 
-bool HoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
+bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
                                   const Document::Ptr &qmlDocument,
                                   AST::Node *node)
 {
@@ -492,8 +491,7 @@ bool HoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
                     helpId.clear();
                 } while (0);
                 if (!helpId.isEmpty()) {
-                    setLastHelpItemIdentified(
-                                TextEditor::HelpItem(helpId, name, TextEditor::HelpItem::QmlProperty));
+                    setLastHelpItemIdentified(HelpItem(helpId, name, HelpItem::QmlProperty));
                     return true;
                 }
             }

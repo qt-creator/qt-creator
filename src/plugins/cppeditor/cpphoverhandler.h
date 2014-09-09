@@ -32,25 +32,18 @@
 
 #include <texteditor/basehoverhandler.h>
 
-#include <QObject>
-
-namespace Core { class IEditor; }
-
-namespace TextEditor { class BaseTextEditor; }
-
 namespace CppEditor {
 namespace Internal {
 
 class CppHoverHandler : public TextEditor::BaseHoverHandler
 {
-    Q_OBJECT
 public:
-    CppHoverHandler(QObject *parent = 0);
+    CppHoverHandler();
     virtual ~CppHoverHandler();
 
 private:
     virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::BaseTextEditor *editor, int pos);
+    virtual void identifyMatch(TextEditor::BaseTextEditorWidget *editorWidget, int pos);
     virtual void decorateToolTip();
 };
 

@@ -32,13 +32,7 @@
 
 #include "texteditor_global.h"
 #include "helpitem.h"
-
-#include <QObject>
-#include <QString>
-
-QT_BEGIN_NAMESPACE
-class QPoint;
-QT_END_NAMESPACE
+#include <texteditor/codeassist/keywordscompletionassist.h>
 
 namespace Core { class IEditor; }
 
@@ -55,11 +49,6 @@ public:
     BaseHoverHandler(QObject *parent = 0);
     ~BaseHoverHandler();
 
-private slots:
-    void editorOpened(Core::IEditor *editor);
-    void showToolTip(TextEditor::BaseTextEditor *editor, const QPoint &point, int pos);
-    void updateContextHelpId(TextEditor::BaseTextEditor *editor, int pos);
-
 protected:
     void setToolTip(const QString &tooltip);
     void appendToolTip(const QString &extension);
@@ -74,13 +63,17 @@ protected:
     const HelpItem &lastHelpItemIdentified() const;
 
 private:
+    void editorOpened(Core::IEditor *editor);
+    void showToolTip(BaseTextEditor *editor, const QPoint &point, int pos);
+    void updateContextHelpId(BaseTextEditor *editor, int pos);
+
     void clear();
     void process(BaseTextEditor *editor, int pos);
 
     virtual bool acceptEditor(Core::IEditor *editor) = 0;
-    virtual void identifyMatch(BaseTextEditor *editor, int pos) = 0;
+    virtual void identifyMatch(BaseTextEditorWidget *editorWidget, int pos) = 0;
     virtual void decorateToolTip();
-    virtual void operateTooltip(BaseTextEditor *editor, const QPoint &point);
+    virtual void operateTooltip(BaseTextEditorWidget *editorWidget, const QPoint &point);
 
     bool m_diagnosticTooltip;
     QString m_toolTip;
