@@ -70,27 +70,8 @@ QT_BEGIN_NAMESPACE
 
 #define fL1S(s) QString::fromLatin1(s)
 
-namespace { // MSVC doesn't seem to know the semantics of "static" ...
-
-static struct {
-    QRegExp reg_variableName;
-} statics;
-
-}
-
-static void initStatics()
-{
-    if (!statics.reg_variableName.isEmpty())
-        return;
-
-    statics.reg_variableName.setPattern(QLatin1String("\\$\\(.*\\)"));
-    statics.reg_variableName.setMinimal(true);
-}
-
 QMakeGlobals::QMakeGlobals()
 {
-    initStatics();
-
     do_cache = true;
 
 #ifdef PROEVALUATOR_DEBUG
@@ -288,11 +269,24 @@ QStringList QMakeGlobals::getPathListEnv(const QString &var) const
 QString QMakeGlobals::expandEnvVars(const QString &str) const
 {
     QString string = str;
-    int rep;
-    QRegExp reg_variableName = statics.reg_variableName; // Copy for thread safety
-    while ((rep = reg_variableName.indexIn(string)) != -1)
-        string.replace(rep, reg_variableName.matchedLength(),
-                       getEnv(string.mid(rep + 2, reg_variableName.matchedLength() - 3)));
+    int startIndex = 0;
+    forever {
+        startIndex = string.indexOf(QLatin1Char('$'), startIndex);
+        if (startIndex < 0)
+            break;
+        if (string.length() < startIndex + 3)
+            break;
+        if (string.at(startIndex + 1) != QLatin1Char('(')) {
+            startIndex++;
+            continue;
+        }
+        int endIndex = string.indexOf(QLatin1Char(')'), startIndex + 2);
+        if (endIndex < 0)
+            break;
+        QString value = getEnv(string.mid(startIndex + 2, endIndex - startIndex - 2));
+        string.replace(startIndex, endIndex - startIndex + 1, value);
+        startIndex += value.length();
+    }
     return string;
 }
 
