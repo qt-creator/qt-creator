@@ -58,6 +58,7 @@ DesignerSettings SettingsPageWidget::settings() const
     designerSettings.designerWarningsInEditor = m_ui.designerWarningsInEditorCheckBox->isChecked();
     designerSettings.showDebugView = m_ui.designerShowDebuggerCheckBox->isChecked();
     designerSettings.enableDebugView = m_ui.designerEnableDebuggerCheckBox->isChecked();
+    designerSettings.useOnlyFallbackPuppet = m_ui.designerDefaultPuppetCheckBox->isChecked();
 
     return designerSettings;
 }
@@ -72,6 +73,7 @@ void SettingsPageWidget::setSettings(const DesignerSettings &designerSettings)
     m_ui.designerWarningsInEditorCheckBox->setChecked(designerSettings.designerWarningsInEditor);
     m_ui.designerShowDebuggerCheckBox->setChecked(designerSettings.showDebugView);
     m_ui.designerEnableDebuggerCheckBox->setChecked(designerSettings.enableDebugView);
+    m_ui.designerDefaultPuppetCheckBox->setChecked(designerSettings.useOnlyFallbackPuppet);
 }
 
 void SettingsPageWidget::debugViewEnabledToggled(bool b)
