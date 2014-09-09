@@ -51,9 +51,7 @@ Canvas {
     onYChanged: requestPaint()
 
     onPaint: {
-        if (context === null)
-            return; // canvas isn't ready
-
+        var context = (timeMarks.context === null) ? getContext("2d") : timeMarks.context;
         context.reset();
         drawBackgroundBars( context, region );
 

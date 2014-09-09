@@ -112,8 +112,7 @@ Canvas {
 
     // ***** slots
     onPaint: {
-        if (context === null)
-            return; // canvas isn't ready
+        var context = (canvas.context === null) ? getContext("2d") : canvas.context;
 
         Plotter.qmlProfilerModelProxy = qmlProfilerModelProxy;
 

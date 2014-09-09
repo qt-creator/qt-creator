@@ -48,8 +48,7 @@ Canvas {
     }
 
     onPaint: {
-        if (context === null)
-            return; // canvas isn't ready
+        var context = (timeDisplay.context === null) ? getContext("2d") : timeDisplay.context;
 
         context.reset();
         context.fillStyle = "white";
