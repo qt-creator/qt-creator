@@ -110,7 +110,7 @@ void DebuggerItem::reinitializeFromFile()
         // or "i686-linux-gnu"
         int pos1 = ba.indexOf(needle);
         if (pos1 != -1) {
-            pos1 += int(sizeof(needle));
+            pos1 += int(strlen(needle));
             int pos2 = ba.indexOf('"', pos1 + 1);
             QByteArray target = ba.mid(pos1, pos2 - pos1);
             int pos3 = target.indexOf("--target=");
