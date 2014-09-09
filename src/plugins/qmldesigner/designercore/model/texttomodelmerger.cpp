@@ -671,6 +671,8 @@ static inline bool smartVeryFuzzyCompare(QVariant value1, QVariant value2)
 
 static inline bool equals(const QVariant &a, const QVariant &b)
 {
+    if (a.canConvert<Enumeration>() && b.canConvert<Enumeration>())
+        return a.value<Enumeration>().toString() == b.value<Enumeration>().toString();
     if (a == b)
         return true;
     if (smartVeryFuzzyCompare(a, b))
