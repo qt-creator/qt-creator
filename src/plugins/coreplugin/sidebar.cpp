@@ -287,7 +287,8 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
         QStringList views = settings->value(viewsKey).toStringList();
         if (views.count()) {
             foreach (const QString &id, views)
-                insertSideBarWidget(d->m_widgets.count(), id);
+                if (availableItemIds().contains(id))
+                    insertSideBarWidget(d->m_widgets.count(), id);
 
         } else {
             insertSideBarWidget(0);
