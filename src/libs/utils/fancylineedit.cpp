@@ -405,8 +405,12 @@ void FancyLineEdit::setTextColor(QWidget *w, const QColor &c)
 
 bool FancyLineEdit::validate(const QString &value, QString *errorMessage) const
 {
-    Q_UNUSED(value);
     Q_UNUSED(errorMessage);
+    if (const QValidator *v = validator()) {
+        QString tmp = value;
+        int pos = cursorPosition();
+        return v->validate(tmp, pos) == QValidator::Acceptable;
+    }
     return true;
 }
 
