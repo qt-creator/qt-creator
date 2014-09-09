@@ -64,7 +64,11 @@ using namespace ProjectExplorer::Constants;
 //////////////////////////////////////
 AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent)
     : BuildConfiguration(parent, Core::Id(AUTOTOOLS_BC_ID))
-{ }
+{
+  // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
+  // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
+  BuildConfiguration::setBuildDirectory(Utils::FileName::fromString(QString::fromLatin1("/<foobar>")));
+}
 
 NamedWidget *AutotoolsBuildConfiguration::createConfigWidget()
 {
