@@ -68,8 +68,6 @@ CppLocalRenaming::CppLocalRenaming(TextEditor::BaseTextEditorWidget *editorWidge
     , m_firstRenameChangeExpected(false)
 {
     forgetRenamingSelection();
-    connect(m_editorWidget->document(), SIGNAL(contentsChange(int,int,int)),
-            this, SLOT(onContentsChangeOfEditorWidgetDocument(int,int,int)));
 }
 
 void CppLocalRenaming::updateSelectionsForVariableUnderCursor(

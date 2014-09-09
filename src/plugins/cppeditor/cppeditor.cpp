@@ -187,6 +187,8 @@ void CppEditorWidget::finalizeInitialization()
                 d->m_lastSemanticInfo.localUses = localUses;
     });
 
+    connect(document(), SIGNAL(contentsChange(int,int,int)),
+            &d->m_localRenaming, SLOT(onContentsChangeOfEditorWidgetDocument(int,int,int)));
     connect(&d->m_localRenaming, &CppLocalRenaming::finished, [this] {
         cppEditorDocument()->semanticRehighlight();
     });
