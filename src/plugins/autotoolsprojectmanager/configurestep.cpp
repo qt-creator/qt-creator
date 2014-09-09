@@ -298,6 +298,6 @@ void ConfigureStepConfigWidget::updateDetails()
     param.setWorkingDirectory(bc->buildDirectory().toString());
     param.setCommand(projectDirRelativeToBuildDir(bc) + QLatin1String("configure"));
     param.setArguments(m_configureStep->additionalArguments());
-    m_summaryText = param.summary(displayName());
+    m_summaryText = param.summaryInWorkdir(displayName());
     emit updateSummary();
 }
