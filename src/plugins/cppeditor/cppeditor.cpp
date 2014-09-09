@@ -58,8 +58,6 @@
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/symbolfinder.h>
 
-#include <projectexplorer/session.h>
-
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/codeassist/assistproposalitem.h>
@@ -172,9 +170,6 @@ void CppEditorWidget::finalizeInitialization()
     connect(d->m_declDefLinkFinder, SIGNAL(foundLink(QSharedPointer<FunctionDeclDefLink>)),
             this, SLOT(onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink>)));
 
-    connect(textDocument(), SIGNAL(filePathChanged(QString,QString)),
-            this, SLOT(onFilePathChanged()));
-
     connect(&d->m_useSelectionsUpdater,
             SIGNAL(selectionsForVariableUnderCursorUpdated(QList<QTextEdit::ExtraSelection>)),
             &d->m_localRenaming,
@@ -196,6 +191,12 @@ void CppEditorWidget::finalizeInitialization()
             this, &CppEditorWidget::processKeyNormally);
     connect(this, SIGNAL(cursorPositionChanged()),
             d->m_cppEditorOutline, SLOT(updateIndex()));
+
+    connect(cppEditorDocument(), &CppEditorDocument::preprocessorSettingsChanged,
+            [this](bool customSettings) {
+        d->m_preprocessorButton->setProperty("highlightWidget", customSettings);
+        d->m_preprocessorButton->update();
+    });
 
     // set up function declaration - definition link
     d->m_updateFunctionDeclDefLinkTimer.setSingleShot(true);
@@ -712,26 +713,6 @@ void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
 
 }
 
-void CppEditorWidget::onFilePathChanged()
-{
-    QTC_ASSERT(d->m_modelManager, return);
-    QByteArray additionalDirectives;
-    const QString &filePath = textDocument()->filePath();
-    if (!filePath.isEmpty()) {
-        const QString &projectFile = ProjectExplorer::SessionManager::value(
-                    QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + filePath).toString();
-        additionalDirectives = ProjectExplorer::SessionManager::value(
-                    projectFile + QLatin1Char(',') + filePath).toString().toUtf8();
-
-        BaseEditorDocumentParser *parser = BaseEditorDocumentParser::get(filePath);
-        QTC_ASSERT(parser, return);
-        parser->setProjectPart(d->m_modelManager->projectPartForProjectFile(projectFile));
-        parser->setEditorDefines(additionalDirectives);
-    }
-    d->m_preprocessorButton->setProperty("highlightWidget", !additionalDirectives.trimmed().isEmpty());
-    d->m_preprocessorButton->update();
-}
-
 void CppEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
 {
     if (!d->m_declDefLink)
@@ -782,15 +763,10 @@ void CppEditorWidget::showPreProcessorWidget()
 
     CppPreProcessorDialog preProcessorDialog(this, textDocument()->filePath(), projectParts);
     if (preProcessorDialog.exec() == QDialog::Accepted) {
-        BaseEditorDocumentParser *parser = BaseEditorDocumentParser::get(fileName);
-        QTC_ASSERT(parser, return);
-        const QString &additionals = preProcessorDialog.additionalPreProcessorDirectives();
-        parser->setProjectPart(preProcessorDialog.projectPart());
-        parser->setEditorDefines(additionals.toUtf8());
-        parser->update(d->m_modelManager->workingCopy());
-
-        d->m_preprocessorButton->setProperty("highlightWidget", !additionals.trimmed().isEmpty());
-        d->m_preprocessorButton->update();
+        cppEditorDocument()->setPreprocessorSettings(
+                    preProcessorDialog.projectPart(),
+                    preProcessorDialog.additionalPreProcessorDirectives().toUtf8());
+        cppEditorDocument()->scheduleProcessDocument();
     }
 }
 

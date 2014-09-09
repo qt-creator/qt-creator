@@ -122,7 +122,6 @@ private slots:
     void abortDeclDefLink();
     void onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link);
 
-    void onFilePathChanged();
     void onCppDocumentUpdated();
 
     void onCodeWarningsUpdated(unsigned revision,

@@ -60,6 +60,9 @@ public:
     void semanticRehighlight();
     CppTools::SemanticInfo recalculateSemanticInfo(); // TODO: Remove me
 
+    void setPreprocessorSettings(const CppTools::ProjectPart::Ptr &projectPart,
+                                 const QByteArray &defines);
+
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
                              const QList<QTextEdit::ExtraSelection> selections);
@@ -69,6 +72,11 @@ signals:
 
     void cppDocumentUpdated(const CPlusPlus::Document::Ptr document);    // TODO: Remove me
     void semanticInfoUpdated(const CppTools::SemanticInfo semanticInfo); // TODO: Remove me
+
+    void preprocessorSettingsChanged(bool customSettings);
+
+public slots:
+    void scheduleProcessDocument();
 
 protected:
     void applyFontSettings();
@@ -81,7 +89,6 @@ private slots:
     void onAboutToReload();
     void onReloadFinished();
 
-    void scheduleProcessDocument();
     void processDocument();
 
 private:
@@ -90,6 +97,7 @@ private:
 
     CppTools::BaseEditorDocumentProcessor *processor();
     void resetProcessor();
+    void updatePreprocessorSettings();
     void releaseResources();
 
 private:

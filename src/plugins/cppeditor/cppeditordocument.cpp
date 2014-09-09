@@ -32,6 +32,7 @@
 #include "cppeditorconstants.h"
 #include "cpphighlighter.h"
 
+#include <cpptools/baseeditordocumentparser.h>
 #include <cpptools/builtineditordocumentprocessor.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppcodemodelsettings.h>
@@ -39,6 +40,8 @@
 #include <cpptools/cppqtstyleindenter.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsplugin.h>
+
+#include <projectexplorer/session.h>
 
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -206,6 +209,7 @@ void CppEditorDocument::onFilePathChanged(const QString &oldPath, const QString 
         m_editorDocumentHandle.reset(new CppEditorDocumentHandle(this));
 
         resetProcessor();
+        updatePreprocessorSettings();
         m_processorRevision = document()->revision();
         processDocument();
     }
@@ -235,6 +239,34 @@ void CppEditorDocument::resetProcessor()
 {
     releaseResources();
     processor(); // creates a new processor
+}
+
+void CppEditorDocument::updatePreprocessorSettings()
+{
+    if (filePath().isEmpty())
+        return;
+
+    const QString prefix = QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX);
+    const QString &projectFile = ProjectExplorer::SessionManager::value(
+                prefix + filePath()).toString();
+    const QString directivesKey = projectFile + QLatin1Char(',') + filePath();
+    const QByteArray additionalDirectives = ProjectExplorer::SessionManager::value(
+                directivesKey).toString().toUtf8();
+
+    setPreprocessorSettings(mm()->projectPartForProjectFile(projectFile), additionalDirectives);
+}
+
+void CppEditorDocument::setPreprocessorSettings(const CppTools::ProjectPart::Ptr &projectPart,
+                                                const QByteArray &defines)
+{
+    CppTools::BaseEditorDocumentParser *parser = processor()->parser();
+    QTC_ASSERT(parser, return);
+    if (parser->projectPart() != projectPart || parser->editorDefines() != defines) {
+        parser->setProjectPart(projectPart);
+        parser->setEditorDefines(defines);
+
+        emit preprocessorSettingsChanged(!defines.trimmed().isEmpty());
+    }
 }
 
 unsigned CppEditorDocument::contentsRevision() const

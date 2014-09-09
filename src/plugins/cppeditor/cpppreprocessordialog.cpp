@@ -95,7 +95,7 @@ int CppPreProcessorDialog::exec()
 
     ProjectExplorer::SessionManager::setValue(
                 QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + m_filePath,
-                m_partAdditions[m_ui->projectComboBox->currentIndex()].projectPart->id());
+                m_partAdditions[m_ui->projectComboBox->currentIndex()].projectPart->projectFile);
 
     foreach (ProjectPartAddition partAddition, m_partAdditions) {
         const QString &previousDirectives = ProjectExplorer::SessionManager::value(
