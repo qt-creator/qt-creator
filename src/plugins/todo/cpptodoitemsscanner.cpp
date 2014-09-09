@@ -33,6 +33,8 @@
 #include <projectexplorer/project.h>
 #include <cplusplus/TranslationUnit.h>
 
+#include <cctype>
+
 namespace Todo {
 namespace Internal {
 
