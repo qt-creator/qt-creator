@@ -1532,7 +1532,8 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
             appendError(errorString, tr("Failed opening project \"%1\": Unknown project type.")
                         .arg(QDir::toNativeSeparators(fileName)));
         }
-        SessionManager::reportProjectLoadingProgress();
+        if (fileNames.size() > 1)
+            SessionManager::reportProjectLoadingProgress();
     }
     updateActions();
 
