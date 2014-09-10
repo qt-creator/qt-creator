@@ -62,7 +62,7 @@ FORMS += docsettingspage.ui \
     generalsettingspage.ui \
     remotehelpfilter.ui
 
-macx:minQtVersion(5, 2, 0) {
+osx {
     DEFINES += QTC_MAC_NATIVE_HELPVIEWER
     QT += macextras
     HEADERS += macwebkithelpviewer.h
