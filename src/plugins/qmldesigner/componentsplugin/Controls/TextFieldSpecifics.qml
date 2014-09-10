@@ -44,7 +44,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip:  qsTr("The text shown on the text field")
+                toolTip:  qsTr("Text shown on the text field.")
             }
 
             SecondColumnLayout {
@@ -58,7 +58,7 @@ Column {
 
             Label {
                 text:  qsTr("Placeholder text")
-                toolTip: qsTr("The placeholder text")
+                toolTip: qsTr("Placeholder text.")
             }
 
             SecondColumnLayout {

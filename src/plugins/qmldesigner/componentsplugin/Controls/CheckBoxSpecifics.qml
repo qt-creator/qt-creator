@@ -44,7 +44,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip:  qsTr("The text shown on the check box")
+                toolTip:  qsTr("Text shown on the check box.")
             }
 
             SecondColumnLayout {
@@ -56,7 +56,7 @@ Column {
 
             Label {
                 text: qsTr("Checked")
-                toolTip: qsTr("The state of the check box")
+                toolTip: qsTr("State of the check box.")
             }
 
             SecondColumnLayout {

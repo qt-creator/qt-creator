@@ -44,7 +44,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip: qsTr("The text label for the radio button")
+                toolTip: qsTr("Text label for the radio button.")
             }
 
             SecondColumnLayout {

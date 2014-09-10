@@ -44,7 +44,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip:  qsTr("The text shown on the button")
+                toolTip:  qsTr("Text displayed on the button.")
             }
 
             SecondColumnLayout {
@@ -56,7 +56,7 @@ Column {
 
             Label {
                 text: qsTr("Checked")
-                toolTip: qsTr("The state of the button")
+                toolTip: qsTr("State of the button.")
             }
 
             SecondColumnLayout {

@@ -58,7 +58,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip:  qsTr("The text shown on the text area")
+                toolTip:  qsTr("Text shown on the text area.")
             }
 
             SecondColumnLayout {
@@ -87,7 +87,7 @@ Column {
 
             Label {
                 text: qsTr("Document margins")
-                toolTip: qsTr("The margins of the text area")
+                toolTip: qsTr("Margins of the text area.")
             }
 
             SectionLayout {
@@ -106,7 +106,7 @@ Column {
 
             Label {
                 text: qsTr("Frame width")
-                toolTip: qsTr("The width of the frame")
+                toolTip: qsTr("Width of the frame.")
             }
 
             SectionLayout {
