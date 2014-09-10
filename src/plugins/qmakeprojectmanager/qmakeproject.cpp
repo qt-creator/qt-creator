@@ -343,6 +343,7 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     m_projectFiles(new QmakeProjectFiles),
     m_qmakeVfs(new QMakeVfs),
     m_qmakeGlobals(0),
+    m_qmakeGlobalsRefCnt(0),
     m_asyncUpdateFutureInterface(0),
     m_pendingEvaluateFuturesCount(0),
     m_asyncUpdateState(NoState),
@@ -376,6 +377,7 @@ QmakeProject::~QmakeProject()
     QmakeProFileNode *root = m_rootProjectNode;
     m_rootProjectNode = 0;
     delete root;
+    Q_ASSERT(m_qmakeGlobalsRefCnt == 0);
 }
 
 void QmakeProject::updateFileList()

@@ -1596,11 +1596,8 @@ QmakeProFileNode::QmakeProFileNode(QmakeProject *project,
 QmakeProFileNode::~QmakeProFileNode()
 {
     m_parseFutureWatcher.waitForFinished();
-    if (m_readerExact) {
-        // Oh we need to clean up
-        applyEvaluate(EvalAbort, true);
-        m_project->decrementPendingEvaluateFutures();
-    }
+    if (m_readerExact)
+        applyAsyncEvaluate();
 }
 
 bool QmakeProFileNode::isParent(QmakeProFileNode *node)
