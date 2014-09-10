@@ -82,46 +82,13 @@ public:
     {
         QSet<Symbol *> visited;
         _binding = binding;
-        // Use a hard limit when trying to resolve typedefs.
-        // TODO: Now that template arguments are resolved, use an 'alreadyResolved' container to
-        // handle recursive typedefs.
+        // Use a hard limit when trying to resolve typedefs. Typedefs in templates can refer to
+        // each other, each time enhancing the template argument and thus making it impossible to
+        // use an "alreadyResolved" container. FIXME: We might overcome this by resolving the
+        // template parameters.
         unsigned maxDepth = 15;
         for (NamedType *namedTy = 0; maxDepth && (namedTy = getNamedType(*type)); --maxDepth) {
-            NamedType *orgNamedTy = namedTy;
-            const Name *name = namedTy->name();
-            if (const QualifiedNameId *qn = name->asQualifiedNameId()) {
-                const Name *name = qn->name();
-                Scope *templateScope = *scope;
-                if (const TemplateNameId *templateNameId = name->asTemplateNameId()) {
-                    const TemplateNameId *resolvedTemplateNameId =
-                            resolveTemplateParameters(templateNameId, templateScope, binding);
-                    const QualifiedNameId *resolvedQualifiedNamedId =
-                            _context.bindings()->control()->qualifiedNameId(qn->base(),
-                                                                            resolvedTemplateNameId);
-                    namedTy = _context.bindings()->control()->namedType(resolvedQualifiedNamedId);
-                }
-            } else if (const TemplateNameId *templateNameId = name->asTemplateNameId()) {
-                Scope *templateScope = *scope;
-                const TemplateNameId *resolvedTemplateNameId =
-                        resolveTemplateParameters(templateNameId, templateScope, binding);
-                namedTy = _context.bindings()->control()->namedType(resolvedTemplateNameId);
-            }
-
-            if (namedTy != orgNamedTy) {
-                if ((*type)->isPointerType()) {
-                    *type = FullySpecifiedType(_context.bindings()->control()->pointerType(
-                                                   FullySpecifiedType(namedTy)));
-                } else if (ReferenceType *referenceType = (*type)->asReferenceType()) {
-                    *type = FullySpecifiedType(_context.bindings()->control()->referenceType(
-                                                   FullySpecifiedType(namedTy),
-                                                   referenceType->isRvalueReference()));
-                } else {
-                    *type = FullySpecifiedType(namedTy);
-                }
-                name = namedTy->name();
-            }
-
-            QList<LookupItem> namedTypeItems = getNamedTypeItems(name, *scope, _binding);
+            QList<LookupItem> namedTypeItems = getNamedTypeItems(namedTy->name(), *scope, _binding);
 
             if (Q_UNLIKELY(debug))
                 qDebug() << "-- we have" << namedTypeItems.size() << "candidates";
@@ -132,25 +99,6 @@ public:
     }
 
 private:
-    const TemplateNameId *resolveTemplateParameters(const TemplateNameId *templateNameId,
-                                                    Scope *templateScope,
-                                                    ClassOrNamespace *binding)
-    {
-        std::vector<FullySpecifiedType> resolvedTemplateArguments;
-        const unsigned templArgumentCount = templateNameId->templateArgumentCount();
-        for (unsigned i = 0; i < templArgumentCount; ++i) {
-            FullySpecifiedType resolvedTemplateArgumentType
-                    = templateNameId->templateArgumentAt(i);
-            resolve(&resolvedTemplateArgumentType, &templateScope, binding);
-            resolvedTemplateArguments.push_back(resolvedTemplateArgumentType);
-        }
-
-        return _context.bindings()->control()->templateNameId(templateNameId->identifier(),
-                                                              templateNameId->isSpecialization(),
-                                                              &resolvedTemplateArguments[0],
-                                                              templArgumentCount);
-    }
-
     NamedType *getNamedType(FullySpecifiedType& type) const
     {
         NamedType *namedTy = type->asNamedType();
