@@ -36,6 +36,8 @@
 #include "qmljsinterpreter.h"
 #include "qmljsutils.h"
 
+#include <utils/qtcassert.h>
+
 #include <QDir>
 
 using namespace QmlJS;
@@ -418,7 +420,9 @@ void TypeDescriptionReader::readParameter(UiObjectDefinition *ast, FakeMetaMetho
 
 QString TypeDescriptionReader::readStringBinding(UiScriptBinding *ast)
 {
-    if (!ast || !ast->statement) {
+    QTC_ASSERT(ast, return QString());
+
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected string after colon."));
         return QString();
     }
@@ -440,7 +444,9 @@ QString TypeDescriptionReader::readStringBinding(UiScriptBinding *ast)
 
 bool TypeDescriptionReader::readBoolBinding(AST::UiScriptBinding *ast)
 {
-    if (!ast || !ast->statement) {
+    QTC_ASSERT(ast, return false);
+
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected boolean after colon."));
         return false;
     }
@@ -463,7 +469,9 @@ bool TypeDescriptionReader::readBoolBinding(AST::UiScriptBinding *ast)
 
 double TypeDescriptionReader::readNumericBinding(AST::UiScriptBinding *ast)
 {
-    if (!ast || !ast->statement) {
+    QTC_ASSERT(ast, return qQNaN());
+
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected numeric literal after colon."));
         return 0;
     }
@@ -522,7 +530,9 @@ int TypeDescriptionReader::readIntBinding(AST::UiScriptBinding *ast)
 
 void TypeDescriptionReader::readExports(UiScriptBinding *ast, FakeMetaObject::Ptr fmo)
 {
-    if (!ast || !ast->statement) {
+    QTC_ASSERT(ast, return);
+
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected array of strings after colon."));
         return;
     }
@@ -566,7 +576,9 @@ void TypeDescriptionReader::readExports(UiScriptBinding *ast, FakeMetaObject::Pt
 
 void TypeDescriptionReader::readMetaObjectRevisions(UiScriptBinding *ast, FakeMetaObject::Ptr fmo)
 {
-    if (!ast || !ast->statement) {
+    QTC_ASSERT(ast, return);
+
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected array of numbers after colon."));
         return;
     }
