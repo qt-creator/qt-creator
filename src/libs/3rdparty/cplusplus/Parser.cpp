@@ -1588,7 +1588,6 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
                                 ast->as_cpp_initializer = initializer;
                                 ast->rparen_token = rparen_token;
                                 *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
-                                postfix_ptr = &(*postfix_ptr)->next;
 
                                 blockErrors(blocked);
                                 return true;
