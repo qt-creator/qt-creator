@@ -1055,6 +1055,11 @@ ProFileGlobals *QmakeProject::qmakeGlobals()
     return m_qmakeGlobals;
 }
 
+QMakeVfs *QmakeProject::qmakeVfs()
+{
+    return m_qmakeVfs;
+}
+
 void QmakeProject::destroyProFileReader(QtSupport::ProFileReader *reader)
 {
     delete reader;

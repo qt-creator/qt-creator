@@ -102,6 +102,8 @@ public:
     /// \internal
     ProFileGlobals *qmakeGlobals();
     /// \internal
+    QMakeVfs *qmakeVfs();
+    /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
 
     /// \internal
