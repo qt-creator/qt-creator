@@ -136,6 +136,26 @@ enum ProfileFeature {
     MaximumProfileFeature
 };
 
+inline ProfileFeature featureFromRangeType(RangeType range)
+{
+    switch (range) {
+        case Painting:
+            return ProfilePainting;
+        case Compiling:
+            return ProfileCompiling;
+        case Creating:
+            return ProfileCreating;
+        case Binding:
+            return ProfileBinding;
+        case HandlingSignal:
+            return ProfileHandlingSignal;
+        case Javascript:
+            return ProfileJavaScript;
+        default:
+            return MaximumProfileFeature;
+    }
+}
+
 namespace Constants {
 const int QML_MIN_LEVEL = 1; // Set to 0 to remove the empty line between models in the timeline
 

@@ -159,26 +159,34 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
 
     qint64 time;
     int messageType;
+    int subtype;
 
     stream >> time >> messageType;
-
-    if (messageType >= MaximumMessage)
-        return;
+    if (!stream.atEnd())
+        stream >> subtype;
+    else
+        subtype = -1;
 
     if (time > (d->maximumTime + GAP_TIME) && 0 == d->inProgressRanges)
         emit gap(time);
 
-    if (messageType == Event) {
-        int event;
-        stream >> event;
-
-        // stop with the first data
-        if (d->recording && event != StartTrace)
-            setRecordingFromServer(false);
-        else if ((!d->recording) && event == StartTrace)
-            setRecordingFromServer(true);
-
-        if (event == EndTrace) {
+    switch (messageType) {
+    case Event: {
+        switch (subtype) {
+        case StartTrace: {
+            if (!d->recording)
+                setRecordingFromServer(true);
+            QList<int> engineIds;
+            while (!stream.atEnd()) {
+                int id;
+                stream >> id;
+                engineIds << id;
+            }
+            emit this->traceStarted(time, engineIds);
+            d->maximumTime = time;
+            break;
+        }
+        case EndTrace: {
             QList<int> engineIds;
             while (!stream.atEnd()) {
                 int id;
@@ -188,7 +196,11 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             emit this->traceFinished(time, engineIds);
             d->maximumTime = time;
             d->maximumTime = qMax(time, d->maximumTime);
-        } else if (event == AnimationFrame) {
+            break;
+        }
+        case AnimationFrame: {
+            if (!(d->features & (1 << ProfileAnimations)))
+                break;
             int frameRate, animationCount;
             int threadId;
             stream >> frameRate >> animationCount;
@@ -196,130 +208,154 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 stream >> threadId;
             else
                 threadId = 0;
+
             emit rangedEvent(Event, MaximumRangeType, AnimationFrame, time, 0, QString(),
-                             QmlDebug::QmlEventLocation(), frameRate, animationCount, threadId,0,0);
+                             QmlDebug::QmlEventLocation(), frameRate, animationCount, threadId,
+                             0, 0);
             d->maximumTime = qMax(time, d->maximumTime);
-        } else if (event == StartTrace) {
-            QList<int> engineIds;
-            while (!stream.atEnd()) {
-                int id;
-                stream >> id;
-                engineIds << id;
-            }
-            emit this->traceStarted(time, engineIds);
-            d->maximumTime = time;
-        } else if (event < MaximumEventType) {
-            emit this->event((EventType)event, time);
-            d->maximumTime = qMax(time, d->maximumTime);
+            break;
         }
-    } else if (messageType == Complete) {
+        case Key:
+        case Mouse:
+            if (!(d->features & (1 << ProfileInputEvents)))
+                break;
+
+            emit this->event((EventType)subtype, time);
+            d->maximumTime = qMax(time, d->maximumTime);
+            break;
+        }
+
+        break;
+    }
+    case Complete:
         emit complete(d->maximumTime);
-    } else if (messageType == SceneGraphFrame) {
-        int sgEventType;
+        break;
+    case SceneGraphFrame: {
+        if (!(d->features & (1 << ProfileSceneGraph)))
+            break;
+
         int count = 0;
         qint64 params[5];
 
-        stream >> sgEventType;
         while (!stream.atEnd()) {
             stream >> params[count++];
         }
         while (count<5)
             params[count++] = 0;
-        emit rangedEvent(SceneGraphFrame, QmlDebug::MaximumRangeType, sgEventType,time, 0,
+        emit rangedEvent(SceneGraphFrame, QmlDebug::MaximumRangeType, subtype,time, 0,
                          QString(), QmlDebug::QmlEventLocation(), params[0], params[1],
                          params[2], params[3], params[4]);
-    } else if (messageType == PixmapCacheEvent) {
-        int pixEvTy, width = 0, height = 0, refcount = 0;
+        break;
+    }
+    case PixmapCacheEvent: {
+        if (!(d->features & (1 << ProfilePixmapCache)))
+            break;
+        int width = 0, height = 0, refcount = 0;
         QString pixUrl;
-        stream >> pixEvTy >> pixUrl;
-        if (pixEvTy == (int)PixmapReferenceCountChanged || pixEvTy == (int)PixmapCacheCountChanged) {
+        stream >> pixUrl;
+        if (subtype == (int)PixmapReferenceCountChanged || subtype == (int)PixmapCacheCountChanged) {
             stream >> refcount;
-        } else if (pixEvTy == (int)PixmapSizeKnown) {
+        } else if (subtype == (int)PixmapSizeKnown) {
             stream >> width >> height;
             refcount = 1;
         }
-        emit rangedEvent(QmlDebug::PixmapCacheEvent, QmlDebug::MaximumRangeType, pixEvTy, time, 0,
+        emit rangedEvent(QmlDebug::PixmapCacheEvent, QmlDebug::MaximumRangeType, subtype, time, 0,
                          QString(), QmlDebug::QmlEventLocation(pixUrl,0,0), width, height,
                          refcount, 0, 0);
         d->maximumTime = qMax(time, d->maximumTime);
-    } else if (messageType == MemoryAllocation) {
-        int type;
+        break;
+    }
+    case MemoryAllocation: {
+        if (!(d->features & (1 << ProfileMemory)))
+            break;
+
         qint64 delta;
-        stream >> type >> delta;
-        emit rangedEvent(QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, type, time, 0,
+        stream >> delta;
+        emit rangedEvent(QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, subtype, time, 0,
                          QString(), QmlDebug::QmlEventLocation(), delta, 0, 0, 0, 0);
         d->maximumTime = qMax(time, d->maximumTime);
-    } else {
-        int range;
-        stream >> range;
-
-        if (range >= MaximumRangeType)
-            return;
-
-        if (messageType == RangeStart) {
-            d->rangeStartTimes[range].push(time);
-            d->inProgressRanges |= (static_cast<qint64>(1) << range);
-            ++d->rangeCount[range];
-
-            // read binding type
-            if ((RangeType)range == Binding) {
-                int bindingType = (int)QmlBinding;
-                if (!stream.atEnd())
-                    stream >> bindingType;
-                d->bindingTypes.push((BindingType)bindingType);
-            }
-
-            // stop with the first data
-            if (d->recording)
-                setRecordingFromServer(false);
-        } else if (messageType == RangeData) {
-            QString data;
-            stream >> data;
-
-            int count = d->rangeCount[range];
-            if (count > 0) {
-                while (d->rangeDatas[range].count() < count)
-                    d->rangeDatas[range].push(QString());
-                d->rangeDatas[range][count-1] = data;
-            }
-
-        } else if (messageType == RangeLocation) {
-            QString fileName;
-            int line;
-            int column = -1;
-            stream >> fileName >> line;
-
-            if (!stream.atEnd())
-                stream >> column;
-
-            if (d->rangeCount[range] > 0)
-                d->rangeLocations[range].push(QmlEventLocation(fileName, line, column));
-        } else {
-            if (d->rangeCount[range] > 0) {
-                --d->rangeCount[range];
-                if (d->inProgressRanges & (static_cast<qint64>(1) << range))
-                    d->inProgressRanges &= ~(static_cast<qint64>(1) << range);
-
-                d->maximumTime = qMax(time, d->maximumTime);
-                QString data = d->rangeDatas[range].count() ? d->rangeDatas[range].pop() : QString();
-                QmlEventLocation location = d->rangeLocations[range].count() ? d->rangeLocations[range].pop() : QmlEventLocation();
-
-                qint64 startTime = d->rangeStartTimes[range].pop();
-                BindingType bindingType = QmlBinding;
-                if ((RangeType)range == Binding)
-                    bindingType = d->bindingTypes.pop();
-                if ((RangeType)range == Painting)
-                    bindingType = QPainterEvent;
-                emit rangedEvent(MaximumMessage, (RangeType)range, bindingType, startTime,
-                                 time - startTime, data, location, 0, 0, 0, 0, 0);
-                if (d->rangeCount[range] == 0) {
-                    int count = d->rangeDatas[range].count() +
-                                d->rangeStartTimes[range].count() +
-                                d->rangeLocations[range].count();
-                    if (count != 0)
-                        qWarning() << "incorrectly nested data";
-                }
-            }
-        }
+        break;
     }
+    case RangeStart: {
+        if (!(d->features & (1 << featureFromRangeType(static_cast<RangeType>(subtype)))))
+            break;
+        d->rangeStartTimes[subtype].push(time);
+        d->inProgressRanges |= (static_cast<qint64>(1) << subtype);
+        ++d->rangeCount[subtype];
+
+        // read binding type
+        if ((RangeType)subtype == Binding) {
+            int bindingType = (int)QmlBinding;
+            if (!stream.atEnd())
+                stream >> bindingType;
+            d->bindingTypes.push((BindingType)bindingType);
+        }
+        break;
+    }
+    case RangeData: {
+        if (!(d->features & (1 << featureFromRangeType(static_cast<RangeType>(subtype)))))
+            break;
+        QString data;
+        stream >> data;
+
+        int count = d->rangeCount[subtype];
+        if (count > 0) {
+            while (d->rangeDatas[subtype].count() < count)
+                d->rangeDatas[subtype].push(QString());
+            d->rangeDatas[subtype][count-1] = data;
+        }
+        break;
+    }
+    case RangeLocation: {
+        if (!(d->features & (1 << featureFromRangeType(static_cast<RangeType>(subtype)))))
+            break;
+        QString fileName;
+        int line;
+        int column = -1;
+        stream >> fileName >> line;
+
+        if (!stream.atEnd())
+            stream >> column;
+
+        if (d->rangeCount[subtype] > 0)
+            d->rangeLocations[subtype].push(QmlEventLocation(fileName, line, column));
+        break;
+    }
+    case RangeEnd: {
+        if (!(d->features & (1 << featureFromRangeType(static_cast<RangeType>(subtype)))))
+            break;
+        if (d->rangeCount[subtype] == 0)
+            break;
+        --d->rangeCount[subtype];
+        if (d->inProgressRanges & (static_cast<qint64>(1) << subtype))
+            d->inProgressRanges &= ~(static_cast<qint64>(1) << subtype);
+
+        d->maximumTime = qMax(time, d->maximumTime);
+        QString data = d->rangeDatas[subtype].count() ? d->rangeDatas[subtype].pop() : QString();
+        QmlEventLocation location = d->rangeLocations[subtype].count() ? d->rangeLocations[subtype].pop() : QmlEventLocation();
+
+        qint64 startTime = d->rangeStartTimes[subtype].pop();
+        BindingType bindingType = QmlBinding;
+        if ((RangeType)subtype == Binding)
+            bindingType = d->bindingTypes.pop();
+        if ((RangeType)subtype == Painting)
+            bindingType = QPainterEvent;
+        emit rangedEvent(MaximumMessage, (RangeType)subtype, bindingType, startTime,
+                         time - startTime, data, location, 0, 0, 0, 0, 0);
+        if (d->rangeCount[subtype] == 0) {
+            int count = d->rangeDatas[subtype].count() +
+                        d->rangeStartTimes[subtype].count() +
+                        d->rangeLocations[subtype].count();
+            if (count != 0)
+                qWarning() << "incorrectly nested data";
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    // stop with the first data
+    if (messageType != Event || subtype != StartTrace)
+        setRecordingFromServer(false);
 }

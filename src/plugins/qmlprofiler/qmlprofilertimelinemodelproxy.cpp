@@ -44,15 +44,6 @@
 namespace QmlProfiler {
 namespace Internal {
 
-static const QmlDebug::ProfileFeature RangeFeatures[QmlDebug::MaximumRangeType] = {
-    QmlDebug::ProfilePainting,
-    QmlDebug::ProfileCompiling,
-    QmlDebug::ProfileCreating,
-    QmlDebug::ProfileBinding,
-    QmlDebug::ProfileHandlingSignal,
-    QmlDebug::ProfileJavaScript
-};
-
 class RangeTimelineModel::RangeTimelineModelPrivate : public AbstractTimelineModelPrivate
 {
 public:
@@ -82,7 +73,7 @@ RangeTimelineModel::RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *p
 quint64 RangeTimelineModel::features() const
 {
     Q_D(const RangeTimelineModel);
-    return 1 << RangeFeatures[d->rangeType];
+    return 1 << QmlDebug::featureFromRangeType(d->rangeType);
 }
 
 void RangeTimelineModel::clear()
@@ -239,18 +230,8 @@ int RangeTimelineModel::rowCount() const
 
 QString RangeTimelineModel::categoryLabel(QmlDebug::RangeType rangeType)
 {
-    switch (rangeType) {
-    case QmlDebug::Painting:
-    case QmlDebug::Compiling:
-    case QmlDebug::Creating:
-    case QmlDebug::Binding:
-    case QmlDebug::HandlingSignal:
-    case QmlDebug::Javascript:
-        return QCoreApplication::translate("MainView",
-                QmlProfilerModelManager::featureName(RangeFeatures[rangeType]));
-    default:
-        return QString();
-    }
+    return QCoreApplication::translate("MainView",
+            QmlProfilerModelManager::featureName(QmlDebug::featureFromRangeType(rangeType)));
 }
 
 int RangeTimelineModel::row(int index) const
