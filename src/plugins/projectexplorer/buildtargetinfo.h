@@ -60,7 +60,8 @@ public:
 
 inline bool operator==(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
 {
-    return ti1.targetName == ti2.targetName;
+    return ti1.targetName == ti2.targetName && ti1.targetFilePath == ti2.targetFilePath
+            && ti1.projectFilePath == ti2.projectFilePath;
 }
 
 inline bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
