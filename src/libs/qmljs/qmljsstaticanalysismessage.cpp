@@ -221,6 +221,8 @@ StaticAnalysisMessages::StaticAnalysisMessages()
             tr("Qt Quick Designer only supports states in the root item."));
     newMsg(WarnAboutQtQuick1InsteadQtQuick2, Warning,
             tr("Using Qt Quick 1 code model instead of Qt Quick 2."));
+    newMsg(ErrUnsupportedRootTypeInVisualDesigner, Error,
+           tr("This type is not supported as a root element by Qt Quick Designer %1."), 1);
 }
 
 } // anonymous namespace

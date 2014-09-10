@@ -97,6 +97,7 @@ enum Type
     WarnReferenceToParentItemNotSupportedByVisualDesigner = 205,
     WarnUndefinedValueForVisualDesigner = 206,
     WarnStatesOnlyInRootItemForVisualDesigner = 207,
+    ErrUnsupportedRootTypeInVisualDesigner = 208,
     ErrUnknownComponent = 300,
     ErrCouldNotResolvePrototypeOf = 301,
     ErrCouldNotResolvePrototype = 302,

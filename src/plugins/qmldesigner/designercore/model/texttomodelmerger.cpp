@@ -902,6 +902,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2);
+            check.enableMessage(StaticAnalysis::ErrUnsupportedRootTypeInVisualDesigner);
             //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
 
             foreach (const StaticAnalysis::Message &message, check()) {
