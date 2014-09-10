@@ -7282,13 +7282,15 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
     editor->d->m_origin = this;
 
     editor->m_widget = widget;
+
+    // Needs to go before setTextDocument as this copies the current settings.
+    if (m_autoCompleterCreator)
+        widget->setAutoCompleter(m_autoCompleterCreator());
+
     widget->setTextDocument(document);
 
     widget->d->m_codeAssistant.configure(widget);
     widget->d->m_commentDefinition.setStyle(m_commentStyle);
-
-    if (m_autoCompleterCreator)
-        widget->setAutoCompleter(m_autoCompleterCreator());
 
     connect(widget, &BaseTextEditorWidget::markRequested, editor,
             [editor](int line, BaseTextEditor::MarkRequestKind kind) {
