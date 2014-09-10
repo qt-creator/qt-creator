@@ -118,13 +118,13 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         SLOT(setEnabled(bool)));
 
     m_copy = new QAction(this);
-    Core::Command *cmd = Core::ActionManager::registerAction(m_copy, Core::Constants::COPY, context);
+    Core::ActionManager::registerAction(m_copy, Core::Constants::COPY, context);
     connect(m_copy, SIGNAL(triggered()), m_viewer, SLOT(copy()));
 
     m_openHelpMode = new QAction(this);
-    cmd = Core::ActionManager::registerAction(m_openHelpMode,
-                                              Help::Constants::CONTEXT_HELP,
-                                              context);
+    Core::Command *cmd = Core::ActionManager::registerAction(m_openHelpMode,
+                                                             Help::Constants::CONTEXT_HELP,
+                                                             context);
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateHelpModeButtonToolTip()));
     connect(m_openHelpMode, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
 
