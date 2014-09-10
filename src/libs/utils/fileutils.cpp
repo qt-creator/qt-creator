@@ -30,6 +30,7 @@
 #include "fileutils.h"
 #include "savefile.h"
 
+#include "algorithm.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
 
@@ -716,6 +717,26 @@ FileDropSupport::FileDropSupport(QWidget *parentWidget)
     QTC_ASSERT(parentWidget, return);
     parentWidget->setAcceptDrops(true);
     parentWidget->installEventFilter(this);
+}
+
+QStringList FileDropSupport::mimeTypesForFilePaths()
+{
+    return QStringList() << QStringLiteral("text/uri-list");
+}
+
+QMimeData *FileDropSupport::mimeDataForFilePaths(const QStringList &filePaths)
+{
+    QList<QUrl> localUrls = Utils::transform(filePaths, [filePaths](const QString &path) {
+        return QUrl::fromLocalFile(path);
+    });
+    auto data = new QMimeData;
+    data->setUrls(localUrls);
+    return data;
+}
+
+QMimeData *FileDropSupport::mimeDataForFilePath(const QString &filePath)
+{
+    return mimeDataForFilePaths(QStringList() << filePath);
 }
 
 bool FileDropSupport::eventFilter(QObject *obj, QEvent *event)

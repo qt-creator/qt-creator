@@ -40,7 +40,6 @@
 #include <QFileInfo>
 #include <QFont>
 #include <QMimeData>
-#include <QUrl>
 
 namespace ProjectExplorer {
 
@@ -491,20 +490,18 @@ void FlatModel::reset()
 
 QStringList FlatModel::mimeTypes() const
 {
-    return QStringList() << QStringLiteral("text/uri-list");
+    return Utils::FileDropSupport::mimeTypesForFilePaths();
 }
 
 QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
 {
-    QList<QUrl> urls;
+    QStringList filePaths;
     foreach (const QModelIndex &index, indexes) {
         Node *node = nodeForIndex(index);
         if (qobject_cast<FileNode *>(node))
-            urls.append(QUrl::fromLocalFile(node->path()));
+            filePaths.append(node->path());
     }
-    auto data = new QMimeData;
-    data->setUrls(urls);
-    return data;
+    return Utils::FileDropSupport::mimeDataForFilePaths(filePaths);
 }
 
 QModelIndex FlatModel::indexForNode(const Node *node_)

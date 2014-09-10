@@ -41,6 +41,7 @@ namespace Utils {class FileName; }
 
 QT_BEGIN_NAMESPACE
 class QFile;
+class QMimeData;
 class QTemporaryFile;
 class QWidget;
 class QTextStream;
@@ -198,6 +199,10 @@ class QTCREATOR_UTILS_EXPORT FileDropSupport : public QObject
     Q_OBJECT
 public:
     FileDropSupport(QWidget *parentWidget);
+
+    static QStringList mimeTypesForFilePaths();
+    static QMimeData *mimeDataForFilePaths(const QStringList &filePaths);
+    static QMimeData *mimeDataForFilePath(const QString &filePath);
 
 signals:
     void filesDropped(const QStringList &files);
