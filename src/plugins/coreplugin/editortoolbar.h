@@ -36,6 +36,12 @@
 
 #include <QIcon>
 
+#include <functional>
+
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
+
 namespace Core {
 class IEditor;
 class IDocument;
@@ -54,6 +60,7 @@ public:
     explicit EditorToolBar(QWidget *parent = 0);
     virtual ~EditorToolBar();
 
+    typedef std::function<void(QMenu*)> MenuProvider;
     enum ToolbarCreationFlags { FlagsNone = 0, FlagsStandalone = 1 };
 
     /**
@@ -68,6 +75,7 @@ public:
     void setCurrentEditor(IEditor *editor);
 
     void setToolbarCreationFlags(ToolbarCreationFlags flags);
+    void setMenuProvider(const MenuProvider &provider);
 
     /**
       * Adds a toolbar to the widget and sets invisible by default.
@@ -93,7 +101,6 @@ signals:
     void splitNewWindowClicked();
     void closeSplitClicked();
     void listSelectionActivated(int row);
-    void listContextMenuRequested(QPoint globalpos);
     void currentDocumentMoved();
 
 protected:
@@ -102,7 +109,6 @@ protected:
 private slots:
     void updateEditorListSelection(Core::IEditor *newSelection);
     void changeActiveEditor(int row);
-    void listContextMenu(QPoint pos);
     void makeEditorWritable();
 
     void checkDocumentStatus();
@@ -110,6 +116,7 @@ private slots:
     void updateActionShortcuts();
 
 private:
+    void fillListContextMenu(QMenu *menu);
     void updateToolBar(QWidget *toolBar);
 
     EditorToolBarPrivate *d;

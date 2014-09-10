@@ -83,8 +83,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
         connect(m_toolBar, SIGNAL(verticalSplitClicked()), this, SLOT(splitVertically()));
         connect(m_toolBar, SIGNAL(splitNewWindowClicked()), this, SLOT(splitNewWindow()));
         connect(m_toolBar, SIGNAL(closeSplitClicked()), this, SLOT(closeSplit()));
-        connect(m_toolBar, &EditorToolBar::listContextMenuRequested,
-                this, &EditorView::showListContextMenu);
+        m_toolBar->setMenuProvider([this](QMenu *menu) { fillListContextMenu(menu); });
         tl->addWidget(m_toolBar);
     }
 
@@ -316,16 +315,14 @@ void EditorView::listSelectionActivated(int index)
     EditorManagerPrivate::activateEditorForEntry(this, DocumentModel::entryAtRow(index));
 }
 
-void EditorView::showListContextMenu(QPoint pos)
+void EditorView::fillListContextMenu(QMenu *menu)
 {
     IEditor *editor = currentEditor();
-    DocumentModel::Entry entry;
-    entry.document = editor ? editor->document() : 0;
-    QMenu menu;
-    EditorManager::addSaveAndCloseEditorActions(&menu, &entry, editor);
-    menu.addSeparator();
-    EditorManager::addNativeDirAndOpenWithActions(&menu, &entry);
-    menu.exec(pos);
+    DocumentModel::Entry *entry = editor ? DocumentModel::entryForDocument(editor->document())
+                                         : 0;
+    EditorManager::addSaveAndCloseEditorActions(menu, entry, editor);
+    menu->addSeparator();
+    EditorManager::addNativeDirAndOpenWithActions(menu, entry);
 }
 
 void EditorView::splitHorizontally()

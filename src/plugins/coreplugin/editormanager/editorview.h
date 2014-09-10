@@ -46,6 +46,7 @@ class QAction;
 class QComboBox;
 class QFrame;
 class QLabel;
+class QMenu;
 class QSplitter;
 class QStackedLayout;
 class QStackedWidget;
@@ -114,7 +115,6 @@ protected:
 private slots:
     void closeCurrentEditor();
     void listSelectionActivated(int index);
-    void showListContextMenu(QPoint pos);
     void splitHorizontally();
     void splitVertically();
     void splitNewWindow();
@@ -125,6 +125,7 @@ private:
     friend class SplitterOrView; // for setParentSplitterOrView
     void setParentSplitterOrView(SplitterOrView *splitterOrView);
 
+    void fillListContextMenu(QMenu *menu);
     void updateNavigatorActions();
     void updateToolBar(IEditor *editor);
     void checkProjectLoaded(IEditor *editor);

@@ -70,6 +70,8 @@ struct EditorToolBarPrivate
     QToolButton *m_closeEditorButton;
     QToolButton *m_lockButton;
     QToolButton *m_dragHandle;
+    QMenu *m_dragHandleMenu;
+    EditorToolBar::MenuProvider m_menuProvider;
     QAction *m_goBackAction;
     QAction *m_goForwardAction;
     QToolButton *m_backButton;
@@ -127,10 +129,11 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_lockButton->setAutoRaise(true);
     d->m_lockButton->setEnabled(false);
 
-    d->m_dragHandle->setCheckable(false);
-    d->m_dragHandle->setChecked(false);
+    d->m_dragHandle->setProperty("noArrow", true);
     d->m_dragHandle->setToolTip(tr("Drag to drag documents between splits"));
     d->m_dragHandle->installEventFilter(this);
+    d->m_dragHandleMenu = new QMenu(d->m_dragHandle);
+    d->m_dragHandle->setMenu(d->m_dragHandleMenu);
 
     connect(d->m_goBackAction, SIGNAL(triggered()), this, SIGNAL(goBackClicked()));
     connect(d->m_goForwardAction, SIGNAL(triggered()), this, SIGNAL(goForwardClicked()));
@@ -194,7 +197,15 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     // a private slot connection
     connect(d->m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
 
-    connect(d->m_editorList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(listContextMenu(QPoint)));
+    connect(d->m_editorList, &QComboBox::customContextMenuRequested, [this](QPoint p) {
+       QMenu menu;
+       fillListContextMenu(&menu);
+       menu.exec(d->m_editorList->mapToGlobal(p));
+    });
+    connect(d->m_dragHandleMenu, &QMenu::aboutToShow, [this]() {
+       d->m_dragHandleMenu->clear();
+       fillListContextMenu(d->m_dragHandleMenu);
+    });
     connect(d->m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
     connect(d->m_closeEditorButton, SIGNAL(clicked()), this, SLOT(closeEditor()), Qt::QueuedConnection);
     connect(d->m_horizontalSplitAction, SIGNAL(triggered()),
@@ -302,6 +313,11 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
     }
 }
 
+void EditorToolBar::setMenuProvider(const EditorToolBar::MenuProvider &provider)
+{
+    d->m_menuProvider = provider;
+}
+
 void EditorToolBar::setCurrentEditor(IEditor *editor)
 {
     IDocument *document = editor ? editor->document() : 0;
@@ -326,19 +342,17 @@ void EditorToolBar::changeActiveEditor(int row)
     EditorManager::activateEditorForEntry(DocumentModel::entryAtRow(row));
 }
 
-void EditorToolBar::listContextMenu(QPoint pos)
+void EditorToolBar::fillListContextMenu(QMenu *menu)
 {
-    if (d->m_isStandalone) {
-        IEditor *editor = EditorManager::currentEditor();
-        DocumentModel::Entry entry;
-        entry.document = editor ? editor->document() : 0;
-        QMenu menu;
-        EditorManager::addSaveAndCloseEditorActions(&menu, &entry, editor);
-        menu.addSeparator();
-        EditorManager::addNativeDirAndOpenWithActions(&menu, &entry);
-        menu.exec(d->m_editorList->mapToGlobal(pos));
+    if (d->m_menuProvider) {
+        d->m_menuProvider(menu);
     } else {
-        emit listContextMenuRequested(d->m_editorList->mapToGlobal(pos));
+        IEditor *editor = EditorManager::currentEditor();
+        DocumentModel::Entry *entry = editor ? DocumentModel::entryForDocument(editor->document())
+                                             : 0;
+        EditorManager::addSaveAndCloseEditorActions(menu, entry, editor);
+        menu->addSeparator();
+        EditorManager::addNativeDirAndOpenWithActions(menu, entry);
     }
 }
 
@@ -422,11 +436,12 @@ bool EditorToolBar::eventFilter(QObject *obj, QEvent *event)
     if (obj == d->m_dragHandle) {
         if (event->type() == QEvent::MouseButtonPress) {
             auto me = static_cast<QMouseEvent *>(event);
-            if (me->buttons() == Qt::LeftButton) {
+            if (me->buttons() == Qt::LeftButton)
                 d->m_dragStartPosition = me->pos();
-                return true;
-            }
-            return Utils::StyledBar::eventFilter(obj, event);
+            return true; // do not pop up menu already on press
+        } else if (event->type() == QEvent::MouseButtonRelease) {
+            d->m_dragHandle->showMenu();
+            return true;
         } else if (event->type() == QEvent::MouseMove) {
             auto me = static_cast<QMouseEvent *>(event);
             if (me->buttons() != Qt::LeftButton)
