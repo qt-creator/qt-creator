@@ -34,7 +34,6 @@
 #include "vcsbaseeditor.h"
 
 #include <texteditor/basetexteditor.h>
-#include <QSharedPointer>
 
 namespace VcsBase {
 
