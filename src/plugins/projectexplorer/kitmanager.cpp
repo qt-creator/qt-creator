@@ -590,7 +590,8 @@ Core::FeatureSet KitInformation::availableFeatures(const Kit *k) const
 
 void KitInformation::notifyAboutUpdate(Kit *k)
 {
-    KitManager::notifyAboutUpdate(k);
+    if (k)
+        k->kitUpdated();
 }
 
 // --------------------------------------------------------------------
