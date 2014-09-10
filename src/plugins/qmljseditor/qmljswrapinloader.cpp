@@ -77,15 +77,16 @@ protected:
     Result result;
 };
 
+template <typename T>
 class Operation: public QmlJSQuickFixOperation
 {
     Q_DECLARE_TR_FUNCTIONS(QmlJSEditor::Internal::Operation)
 
-    UiObjectDefinition *m_objDef;
+    T *m_objDef;
 
 public:
     Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
-              UiObjectDefinition *objDef)
+              T *objDef)
         : QmlJSQuickFixOperation(interface, 0)
         , m_objDef(objDef)
     {
@@ -156,7 +157,7 @@ public:
             changes.insert(afterOpenBrace, innerIdForwarders);
         }
 
-        const int objDefStart = m_objDef->firstSourceLocation().begin();
+        const int objDefStart = m_objDef->qualifiedTypeNameId->firstSourceLocation().begin();
         const int objDefEnd = m_objDef->lastSourceLocation().end();
         changes.insert(objDefStart, comment +
                        QString::fromLatin1("Component {\n"
@@ -188,9 +189,14 @@ void WrapInLoader::match(const QmlJSQuickFixInterface &interface, QuickFixOperat
                 return;
              // check that the node is not the root node
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) {
-                result.append(QuickFixOperation::Ptr(new Operation(interface, objDef)));
+                result.append(QuickFixOperation::Ptr(new Operation<UiObjectDefinition>(interface, objDef)));
                 return;
             }
+        } else if (UiObjectBinding *objBinding = cast<UiObjectBinding *>(node)) {
+            if (!interface->currentFile()->isCursorOn(objBinding->qualifiedTypeNameId))
+                return;
+            result.append(QuickFixOperation::Ptr(new Operation<UiObjectBinding>(interface, objBinding)));
+            return;
         }
     }
 }

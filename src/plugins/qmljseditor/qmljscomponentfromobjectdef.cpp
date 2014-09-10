@@ -60,18 +60,12 @@ namespace {
 
 class Operation: public QmlJSQuickFixOperation
 {
-    UiObjectDefinition *m_objDef;
     QString m_idName, m_componentName;
-
+    SourceLocation m_firstSourceLocation;
+    SourceLocation m_lastSourceLocation;
 public:
-    Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
-              UiObjectDefinition *objDef)
-        : QmlJSQuickFixOperation(interface, 0)
-        , m_objDef(objDef)
+    void init()
     {
-        Q_ASSERT(m_objDef != 0);
-
-        m_idName = idOfObject(m_objDef);
         if (!m_idName.isEmpty()) {
             m_componentName = m_idName;
             m_componentName[0] = m_componentName.at(0).toUpper();
@@ -79,6 +73,26 @@ public:
 
         setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
                                                    "Move Component into Separate File"));
+    }
+
+    Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
+              UiObjectDefinition *objDef)
+        : QmlJSQuickFixOperation(interface, 0),
+          m_idName(idOfObject(objDef)),
+          m_firstSourceLocation(objDef->firstSourceLocation()),
+          m_lastSourceLocation(objDef->lastSourceLocation())
+    {
+        init();
+    }
+
+    Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
+              UiObjectBinding *objDef)
+        : QmlJSQuickFixOperation(interface, 0),
+          m_idName(idOfObject(objDef)),
+          m_firstSourceLocation(objDef->qualifiedTypeNameId->firstSourceLocation()),
+          m_lastSourceLocation(objDef->lastSourceLocation())
+    {
+        init();
     }
 
     virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
@@ -102,8 +116,8 @@ public:
             imports = currentFile->textOf(start, end);
         }
 
-        const int start = currentFile->startOf(m_objDef->firstSourceLocation());
-        const int end = currentFile->startOf(m_objDef->lastSourceLocation());
+        const int start = currentFile->startOf(m_firstSourceLocation);
+        const int end = currentFile->startOf(m_lastSourceLocation);
         const QString txt = imports + currentFile->textOf(start, end)
                 + QLatin1String("}\n");
 
@@ -165,6 +179,11 @@ void ComponentFromObjectDef::match(const QmlJSQuickFixInterface &interface, Quic
                 result.append(QuickFixOperation::Ptr(new Operation(interface, objDef)));
                 return;
             }
+        } else if (UiObjectBinding *objBinding = cast<UiObjectBinding *>(node)) {
+            if (!interface->currentFile()->isCursorOn(objBinding->qualifiedTypeNameId))
+                return;
+            result.append(QuickFixOperation::Ptr(new Operation(interface, objBinding)));
+            return;
         }
     }
 }
