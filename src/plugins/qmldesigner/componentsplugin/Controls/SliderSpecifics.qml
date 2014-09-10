@@ -48,8 +48,8 @@ Section {
             ExpandingSpacer {}
         }
         Label {
-            text: qsTr("Maximum Value")
-            toolTip: qsTr("This property holds the maximum value of the Slider The default value is 1.0.")
+            text: qsTr("Maximum value")
+            toolTip: qsTr(Maximum value of the slider. The default value is 1.0.")
         }
         SecondColumnLayout {
             SpinBox {
@@ -64,8 +64,8 @@ Section {
             }
         }
         Label {
-            text: qsTr("Minimum Value")
-            toolTip: qsTr("This property holds the minimum value of the Slider. The default value is 0.0.")
+            text: qsTr("Minimum value")
+            toolTip: qsTr("Minimum value of the slider. The default value is 0.0.")
         }
         SecondColumnLayout {
             SpinBox {
@@ -81,7 +81,7 @@ Section {
         }
         Label {
             text: qsTr("Orientation")
-            toolTip: qsTr("This property holds the layout orientation of the Slider.")
+            toolTip: qsTr("Layout orientation of the slider.")
         }
         SecondColumnLayout {
             OrientationCombobox {
@@ -91,8 +91,8 @@ Section {
             }
         }
         Label {
-            text: qsTr("Step Size")
-            toolTip: qsTr("This property indicates the Slider step size.")
+            text: qsTr("Step size")
+            toolTip: qsTr("Indicates the slider step size.")
         }
         SecondColumnLayout {
             SpinBox {
@@ -106,8 +106,8 @@ Section {
         }
 
         Label {
-            text: qsTr("Active Focus On Press")
-            toolTip: qsTr("This property indicates whether the Slider should receive active focus when pressed.")
+            text: qsTr("Active focus on press")
+            toolTip: qsTr("Indicates whether the slider should receive active focus when pressed.")
         }
 
         SecondColumnLayout {
@@ -119,8 +119,8 @@ Section {
             ExpandingSpacer {}
         }
         Label {
-            text: qsTr("Tickmarks Enabled")
-            toolTip: qsTr("TIndicates whether the Slider should display tickmarks at step intervals.")
+            text: qsTr("Tick marks enabled")
+            toolTip: qsTr("Indicates whether the slider should display tick marks at step intervals.")
         }
 
         SecondColumnLayout {
@@ -132,8 +132,8 @@ Section {
             ExpandingSpacer {}
         }
         Label {
-            text: qsTr("Update Value While Dragging")
-            toolTip: qsTr("Current value should be updated while the user is moving the Slider handle, or only when the button has been released.")
+            text: qsTr("Update value while dragging")
+            toolTip: qsTr("Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.")
         }
 
         SecondColumnLayout {
