@@ -217,9 +217,8 @@ void Kit::unblockNotification()
     --d->m_nestedBlockingLevel;
     if (d->m_nestedBlockingLevel > 0)
         return;
-
-    kitUpdated();
-    d->m_mustNotify = false;
+    if (d->m_mustNotify)
+        kitUpdated();
 }
 
 Kit *Kit::clone(bool keepName) const
@@ -697,6 +696,7 @@ void Kit::kitUpdated()
     }
     d->m_hasValidityInfo = false;
     KitManager::notifyAboutUpdate(this);
+    d->m_mustNotify = false;
 }
 
 } // namespace ProjectExplorer
