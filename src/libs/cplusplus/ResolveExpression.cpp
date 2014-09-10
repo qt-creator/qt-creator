@@ -598,9 +598,9 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
                         }
                     }
                 }
-                if (!added)
-                    it.remove();
             }
+            if (!added)
+                it.remove();
         }
     }
     return false;
