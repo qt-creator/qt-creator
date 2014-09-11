@@ -148,6 +148,8 @@ unsigned SemanticHighlighter::documentRevision() const
 
 void SemanticHighlighter::updateFormatMapFromFontSettings()
 {
+    QTC_ASSERT(m_baseTextDocument, return);
+
     const TextEditor::FontSettings &fs = m_baseTextDocument->fontSettings();
 
     m_formatMap[TypeUse] = fs.toTextCharFormat(TextEditor::C_TYPE);
