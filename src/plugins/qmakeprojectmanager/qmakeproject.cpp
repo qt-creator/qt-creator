@@ -1413,7 +1413,7 @@ bool QmakeProject::needsConfiguration() const
 void QmakeProject::configureAsExampleProject(const QStringList &platforms)
 {
     QList<const BuildInfo *> infoList;
-    QList<Kit *> kits = ProjectExplorer::KitManager::kits();
+    QList<Kit *> kits = KitManager::kits();
     foreach (Kit *k, kits) {
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
         if (!version)
@@ -1429,7 +1429,7 @@ void QmakeProject::configureAsExampleProject(const QStringList &platforms)
     }
     setup(infoList);
     qDeleteAll(infoList);
-    ProjectExplorerPlugin::instance()->requestProjectModeUpdate(this);
+    ProjectExplorerPlugin::requestProjectModeUpdate(this);
 }
 
 bool QmakeProject::requiresTargetPanel() const

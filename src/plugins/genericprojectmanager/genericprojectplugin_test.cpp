@@ -54,9 +54,6 @@ namespace {
 class ProjectExplorerHelper
 {
 public:
-    static ProjectExplorerPlugin *getInstance()
-    { return ProjectExplorerPlugin::instance(); }
-
     ProjectExplorerHelper()
     {
         QVERIFY(!SessionManager::hasProjects());
@@ -65,13 +62,13 @@ public:
     ~ProjectExplorerHelper()
     {
         foreach (Project *project, m_openProjects)
-            getInstance()->unloadProject(project);
+            ProjectExplorerPlugin::unloadProject(project);
     }
 
     Project *openProject(const QString &projectFile)
     {
         QString error;
-        Project *project = getInstance()->openProject(projectFile, &error);
+        Project *project = ProjectExplorerPlugin::openProject(projectFile, &error);
         if (!error.isEmpty())
             qWarning() << error;
         if (!project)

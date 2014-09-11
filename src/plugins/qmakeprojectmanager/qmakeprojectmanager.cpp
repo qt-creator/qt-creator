@@ -138,7 +138,7 @@ void QmakeManager::addLibrary()
 
 void QmakeManager::addLibraryContextMenu()
 {
-    ProjectExplorer::Node *node = ProjectExplorerPlugin::instance()->currentNode();
+    Node *node = ProjectExplorerPlugin::currentNode();
     if (qobject_cast<QmakeProFileNode *>(node))
         addLibrary(node->path());
 }
@@ -181,7 +181,7 @@ void QmakeManager::runQMakeContextMenu()
 
 void QmakeManager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
 {
-    if (!ProjectExplorerPlugin::instance()->saveModifiedFiles())
+    if (!ProjectExplorerPlugin::saveModifiedFiles())
         return;
     QmakeProject *qmakeProject = qobject_cast<QmakeProject *>(p);
     QTC_ASSERT(qmakeProject, return);
@@ -272,7 +272,7 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
 
     if (isFileBuild)
         bc->setFileNodeBuild(contextFile);
-    if (ProjectExplorerPlugin::instance()->saveModifiedFiles()) {
+    if (ProjectExplorerPlugin::saveModifiedFiles()) {
         const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
         const Core::Id cleanStep = ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
         if (action == BUILD) {

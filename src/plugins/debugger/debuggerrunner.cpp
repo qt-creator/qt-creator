@@ -457,11 +457,11 @@ DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun(const Debugg
     QString errorMessage;
     DebuggerRunControl *rc = doCreate(sp, 0, &errorMessage);
     if (!rc) {
-        ProjectExplorer::ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
+        ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
         return 0;
     }
     debuggerCore()->showMessage(sp.startMessage, 0);
-    ProjectExplorerPlugin::instance()->startRunControl(rc, DebugRunMode);
+    ProjectExplorerPlugin::startRunControl(rc, DebugRunMode);
     return rc;
 }
 

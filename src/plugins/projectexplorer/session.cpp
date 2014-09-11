@@ -860,7 +860,7 @@ void SessionManagerPrivate::restoreProjects(const QStringList &fileList)
     m_failedProjects = fileList;
     if (!fileList.isEmpty()) {
         QString errors;
-        QList<Project *> projects = ProjectExplorerPlugin::instance()->openProjects(fileList, &errors);
+        QList<Project *> projects = ProjectExplorerPlugin::openProjects(fileList, &errors);
         if (!errors.isEmpty())
             QMessageBox::critical(Core::ICore::mainWindow(), SessionManager::tr("Failed to open project"), errors);
         foreach (Project *p, projects)
@@ -1005,12 +1005,12 @@ void SessionManager::projectDisplayNameChanged()
     if (pro) {
         Node *currentNode = 0;
         if (ProjectExplorerPlugin::currentProject() == pro)
-            currentNode = ProjectExplorerPlugin::instance()->currentNode();
+            currentNode = ProjectExplorerPlugin::currentNode();
 
         d->m_sessionNode->projectDisplayNameChanged(pro->rootProjectNode());
 
         if (currentNode)
-            ProjectExplorerPlugin::instance()->setCurrentNode(currentNode);
+            ProjectExplorerPlugin::setCurrentNode(currentNode);
 
         emit m_instance->projectDisplayNameChanged(pro);
     }

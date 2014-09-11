@@ -117,15 +117,14 @@ public:
 class ExampleProjectConfigurator
 {
 public:
-    ExampleProjectConfigurator(const QString &projectFile,
-                               ProjectExplorerPlugin *projectExplorer)
+    ExampleProjectConfigurator(const QString &projectFile)
     {
         const QString projectUserFile = projectFile + _(".user");
         QVERIFY(!QFileInfo(projectUserFile).exists());
 
         // Open project
         QString errorOpeningProject;
-        m_project = projectExplorer->openProject(projectFile, &errorOpeningProject);
+        m_project = ProjectExplorerPlugin::openProject(projectFile, &errorOpeningProject);
         QVERIFY(m_project);
         QVERIFY(errorOpeningProject.isEmpty());
 
@@ -671,8 +670,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     const QString projectFile = testDataDirectory.file(_("testdata_guiproject1.pro"));
 
     // Open project with *.ui file
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    ExampleProjectConfigurator exampleProjectConfigurator(projectFile, pe);
+    ExampleProjectConfigurator exampleProjectConfigurator(projectFile);
     Project *project = exampleProjectConfigurator.project();
 
     // Check working copy.

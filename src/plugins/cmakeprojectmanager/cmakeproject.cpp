@@ -852,7 +852,7 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 
 void CMakeBuildSettingsWidget::runCMake()
 {
-    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
+    if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
         return;
     CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
     CMakeBuildInfo info(m_buildConfiguration);

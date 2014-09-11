@@ -1540,20 +1540,17 @@ void DebuggerPluginPrivate::languagesChanged()
 
 void DebuggerPluginPrivate::debugProject()
 {
-    if (Project *pro = SessionManager::startupProject())
-        ProjectExplorerPlugin::instance()->runProject(pro, DebugRunMode);
+    ProjectExplorerPlugin::runProject(SessionManager::startupProject(), DebugRunMode);
 }
 
 void DebuggerPluginPrivate::debugProjectWithoutDeploy()
 {
-    if (Project *pro = SessionManager::startupProject())
-        ProjectExplorerPlugin::instance()->runProject(pro, DebugRunMode, true);
+    ProjectExplorerPlugin::runProject(SessionManager::startupProject(), DebugRunMode, true);
 }
 
 void DebuggerPluginPrivate::debugProjectBreakMain()
 {
-    if (Project *pro = SessionManager::startupProject())
-        ProjectExplorerPlugin::instance()->runProject(pro, DebugRunModeWithBreakOnMain);
+    ProjectExplorerPlugin::runProject(SessionManager::startupProject(), DebugRunModeWithBreakOnMain);
 }
 
 void DebuggerPluginPrivate::startAndDebugApplication()
@@ -3527,13 +3524,12 @@ void DebuggerPlugin::extensionsInitialized()
 
 void DebuggerPluginPrivate::testLoadProject(const QString &proFile, const TestCallBack &cb)
 {
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    connect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-            this, SLOT(testProjectLoaded(ProjectExplorer::Project*)));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::currentProjectChanged,
+            this, &DebuggerPluginPrivate::testProjectLoaded);
 
     m_testCallbacks.append(cb);
     QString error;
-    if (pe->openProject(proFile, &error)) {
+    if (ProjectExplorerPlugin::openProject(proFile, &error)) {
         // Will end up in callback below due to the connections to
         // signal currentProjectChanged().
         return;
@@ -3563,7 +3559,7 @@ void DebuggerPluginPrivate::testProjectEvaluated()
     qWarning("Project %s loaded", qPrintable(fileName));
     connect(BuildManager::instance(), SIGNAL(buildQueueFinished(bool)),
             SLOT(testProjectBuilt(bool)));
-    ProjectExplorerPlugin::instance()->buildProject(m_testProject);
+    ProjectExplorerPlugin::buildProject(m_testProject);
 }
 
 void DebuggerPluginPrivate::testProjectBuilt(bool success)

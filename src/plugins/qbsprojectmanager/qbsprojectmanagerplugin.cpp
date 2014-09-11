@@ -442,7 +442,7 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
     if (!bc)
         return;
 
-    if (!ProjectExplorerPlugin::instance()->saveModifiedFiles())
+    if (!ProjectExplorerPlugin::saveModifiedFiles())
         return;
 
     bc->setChangedFiles(files);
@@ -476,7 +476,7 @@ void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringLi
     if (!bc)
         return;
 
-    if (!ProjectExplorerPlugin::instance()->saveModifiedFiles())
+    if (!ProjectExplorerPlugin::saveModifiedFiles())
         return;
 
     bc->setChangedFiles(QStringList());

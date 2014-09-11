@@ -165,20 +165,21 @@ void SessionModel::renameSession(const QString &session)
     }
 }
 
-ProjectModel::ProjectModel(ProjectExplorerPlugin *plugin, QObject *parent)
-    : QAbstractListModel(parent), m_plugin(plugin)
+ProjectModel::ProjectModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
-    connect(plugin, SIGNAL(recentProjectsChanged()), SLOT(resetProjects()));
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::recentProjectsChanged,
+            this, &ProjectModel::resetProjects);
 }
 
 int ProjectModel::rowCount(const QModelIndex &) const
 {
-    return m_plugin->recentProjects().count();
+    return ProjectExplorerPlugin::recentProjects().count();
 }
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
-    QPair<QString,QString> data = m_plugin->recentProjects().at(index.row());
+    QPair<QString,QString> data = ProjectExplorerPlugin::recentProjects().at(index.row());
     switch (role) {
     case Qt::DisplayRole:
         return data.second;
@@ -219,7 +220,7 @@ ProjectWelcomePage::ProjectWelcomePage() :
 void ProjectWelcomePage::facilitateQml(QQmlEngine *engine)
 {
     m_sessionModel = new SessionModel(this);
-    m_projectModel = new ProjectModel(ProjectExplorerPlugin::instance(), this);
+    m_projectModel = new ProjectModel(this);
 
     QQmlContext *ctx = engine->rootContext();
     ctx->setContextProperty(QLatin1String("sessionList"), m_sessionModel);
@@ -255,7 +256,7 @@ void ProjectWelcomePage::newProject()
 
 void ProjectWelcomePage::openProject()
 {
-     ProjectExplorerPlugin::instance()->openOpenProjectDialog();
+     ProjectExplorerPlugin::openOpenProjectDialog();
 }
 
 } // namespace Internal

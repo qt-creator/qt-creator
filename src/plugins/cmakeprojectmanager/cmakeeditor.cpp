@@ -85,7 +85,7 @@ void CMakeEditor::finalizeInitialization()
             foreach (Project *p, SessionManager::projects()) {
                 if (CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p)) {
                     if (cmakeProject->isProjectFile(document->filePath())) {
-                        ProjectExplorerPlugin::instance()->buildProject(cmakeProject);
+                        ProjectExplorerPlugin::buildProject(cmakeProject);
                         break;
                     }
                 }

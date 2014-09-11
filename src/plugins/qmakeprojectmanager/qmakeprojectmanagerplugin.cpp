@@ -397,7 +397,7 @@ void QmakeProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
     ProjectExplorer::Project *currentProject = m_projectExplorer->currentProject();
     if (pro == currentProject) {
         updateRunQMakeAction();
-        updateContextActions(m_projectExplorer->currentNode(), pro);
+        updateContextActions(ProjectExplorerPlugin::currentNode(), pro);
         updateBuildFileAction();
     }
 }

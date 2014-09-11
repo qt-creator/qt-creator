@@ -39,7 +39,7 @@ CoreListener::CoreListener()
 
 bool CoreListener::coreAboutToClose()
 {
-    return ProjectExplorerPlugin::instance()->coreAboutToClose();
+    return ProjectExplorerPlugin::coreAboutToClose();
 }
 
 }

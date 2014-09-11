@@ -111,7 +111,6 @@ private:
   */
 ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
         : QWidget(parent),
-          m_explorer(ProjectExplorerPlugin::instance()),
           m_view(0),
           m_model(0),
           m_filterProjectsAction(0),
@@ -282,7 +281,7 @@ void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QStrin
 
 void ProjectTreeWidget::foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &list)
 {
-    Node *n = m_explorer->currentNode();
+    Node *n = ProjectExplorerPlugin::currentNode();
     while (n) {
         if (FolderNode *fn = qobject_cast<FolderNode *>(n)) {
             if (list.contains(fn)) {
@@ -290,7 +289,7 @@ void ProjectTreeWidget::foldersAboutToBeRemoved(FolderNode *, const QList<Folder
                 // Make sure the node we are switching too isn't going to be removed also
                 while (list.contains(pn))
                     pn = pn->parentFolderNode()->projectNode();
-                m_explorer->setCurrentNode(pn);
+                ProjectExplorerPlugin::setCurrentNode(pn);
                 break;
             }
         }
@@ -300,9 +299,9 @@ void ProjectTreeWidget::foldersAboutToBeRemoved(FolderNode *, const QList<Folder
 
 void ProjectTreeWidget::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &list)
 {
-    if (FileNode *fileNode = qobject_cast<FileNode *>(m_explorer->currentNode())) {
+    if (FileNode *fileNode = qobject_cast<FileNode *>(ProjectExplorerPlugin::currentNode())) {
         if (list.contains(fileNode))
-            m_explorer->setCurrentNode(fileNode->projectNode());
+            ProjectExplorerPlugin::setCurrentNode(fileNode->projectNode());
     }
 }
 
@@ -332,13 +331,13 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync, bool syncNow)
     if (debug)
         qDebug() << (m_autoSync ? "Enabling auto synchronization" : "Disabling auto synchronization");
     if (m_autoSync) {
-        connect(m_explorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
-                this, SLOT(setCurrentItem(ProjectExplorer::Node*,ProjectExplorer::Project*)));
+        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::currentNodeChanged,
+                this, &ProjectTreeWidget::setCurrentItem);
         if (syncNow)
-            setCurrentItem(m_explorer->currentNode(), ProjectExplorerPlugin::currentProject());
+            setCurrentItem(ProjectExplorerPlugin::currentNode(), ProjectExplorerPlugin::currentProject());
     } else {
-        disconnect(m_explorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
-                this, SLOT(setCurrentItem(ProjectExplorer::Node*,ProjectExplorer::Project*)));
+        disconnect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::currentNodeChanged,
+                   this, &ProjectTreeWidget::setCurrentItem);
     }
 }
 
@@ -383,7 +382,7 @@ void ProjectTreeWidget::handleCurrentItemChange(const QModelIndex &current)
     // node might be 0. that's okay
     bool autoSync = autoSynchronization();
     setAutoSynchronization(false);
-    m_explorer->setCurrentNode(node);
+    ProjectExplorerPlugin::setCurrentNode(node);
     setAutoSynchronization(autoSync, false);
 }
 
@@ -391,7 +390,7 @@ void ProjectTreeWidget::showContextMenu(const QPoint &pos)
 {
     QModelIndex index = m_view->indexAt(pos);
     Node *node = m_model->nodeForIndex(index);
-    m_explorer->showContextMenu(this, m_view->mapToGlobal(pos), node);
+    ProjectExplorerPlugin::showContextMenu(this, m_view->mapToGlobal(pos), node);
 }
 
 void ProjectTreeWidget::handleProjectAdded(ProjectExplorer::Project *project)
@@ -427,7 +426,7 @@ void ProjectTreeWidget::initView()
     for (int i = 0; i < m_model->rowCount(sessionIndex); ++i)
         m_view->expand(m_model->index(i, 0, sessionIndex));
 
-    setCurrentItem(m_explorer->currentNode(), ProjectExplorerPlugin::currentProject());
+    setCurrentItem(ProjectExplorerPlugin::currentNode(), ProjectExplorerPlugin::currentProject());
 }
 
 void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)

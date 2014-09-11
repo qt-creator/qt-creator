@@ -348,7 +348,7 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
     if (role != Qt::EditRole)
         return false;
 
-    ProjectExplorerPlugin::instance()->renameFile(nodeForIndex(index), value.toString());
+    ProjectExplorerPlugin::renameFile(nodeForIndex(index), value.toString());
     return true;
 }
 

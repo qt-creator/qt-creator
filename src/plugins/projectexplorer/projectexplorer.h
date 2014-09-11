@@ -39,7 +39,6 @@
 
 QT_BEGIN_NAMESPACE
 class QPoint;
-class QMenu;
 class QAction;
 QT_END_NAMESPACE
 
@@ -54,13 +53,9 @@ class RunConfiguration;
 class IRunControlFactory;
 class Project;
 class Node;
-class BuildConfiguration;
 class FolderNode;
-class TaskHub;
 
 namespace Internal { class ProjectExplorerSettings; }
-
-struct ProjectExplorerPluginPrivate;
 
 class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin
     : public ExtensionSystem::IPlugin
@@ -74,20 +69,20 @@ public:
 
     static ProjectExplorerPlugin *instance();
 
-    Project *openProject(const QString &fileName, QString *error);
-    QList<Project *> openProjects(const QStringList &fileNames, QString *error);
+    static Project *openProject(const QString &fileName, QString *error);
+    static QList<Project *> openProjects(const QStringList &fileNames, QString *error);
     Q_SLOT void openProjectWelcomePage(const QString &fileName);
-    void unloadProject(Project *project);
+    static void unloadProject(Project *project);
 
     static Project *currentProject();
-    Node *currentNode() const;
+    static Node *currentNode();
 
-    void setCurrentFile(Project *project, const QString &file);
-    void setCurrentNode(Node *node);
+    static void setCurrentFile(Project *project, const QString &file);
+    static void setCurrentNode(Node *node);
 
-    bool saveModifiedFiles();
+    static bool saveModifiedFiles();
 
-    void showContextMenu(QWidget *view, const QPoint &globalPos, Node *node);
+    static void showContextMenu(QWidget *view, const QPoint &globalPos, Node *node);
 
     //PluginInterface
     bool initialize(const QStringList &arguments, QString *errorMessage);
@@ -97,34 +92,33 @@ public:
     static void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
     static Internal::ProjectExplorerSettings projectExplorerSettings();
 
-    void startRunControl(RunControl *runControl, RunMode runMode);
+    static void startRunControl(RunControl *runControl, RunMode runMode);
     static void showRunErrorMessage(const QString &errorMessage);
 
     // internal public for FlatModel
-    void renameFile(Node *node, const QString &to);
+    static void renameFile(Node *node, const QString &to);
     static QStringList projectFilePatterns();
-    bool coreAboutToClose();
-    QList<QPair<QString, QString> > recentProjects();
+    static bool coreAboutToClose();
+    static QList<QPair<QString, QString> > recentProjects();
 
     static bool canRun(Project *pro, RunMode runMode, QString *whyNot = 0);
-    void runProject(Project *pro, RunMode, const bool forceSkipDeploy = false);
-    void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, RunMode runMode,
+    static void runProject(Project *pro, RunMode, const bool forceSkipDeploy = false);
+    static void runRunConfiguration(RunConfiguration *rc, RunMode runMode,
                              const bool forceSkipDeploy = false);
 
-    void addExistingFiles(ProjectExplorer::FolderNode *projectNode, const QStringList &filePaths);
-    void addExistingFiles(const QStringList &filePaths);
+    static void addExistingFiles(FolderNode *projectNode, const QStringList &filePaths);
+    static void addExistingFiles(const QStringList &filePaths);
 
-    void buildProject(ProjectExplorer::Project *p);
+    static void buildProject(Project *p);
     /// Normally there's no need to call this function.
     /// This function needs to be called, only if the pages that support a project changed.
-    void requestProjectModeUpdate(ProjectExplorer::Project *p);
+    static void requestProjectModeUpdate(Project *p);
 
-    void initiateInlineRenaming();
+    static void initiateInlineRenaming();
 
     static QString displayNameForStepId(Core::Id stepId);
 
     static QString directoryFor(Node *node);
-    static QString pathFor(Node *node);
     static QStringList projectFileGlobs();
 
 signals:
@@ -147,7 +141,7 @@ signals:
     void updateRunActions();
 
 public slots:
-    void openOpenProjectDialog();
+    static void openOpenProjectDialog();
 
 private slots:
     void buildStateChanged(ProjectExplorer::Project * pro);
@@ -220,17 +214,15 @@ private slots:
     void activeTargetChanged();
     void activeRunConfigurationChanged();
 
-    void updateDeployActions();
     void slotUpdateRunActions();
 
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
-    void updateActions();
     void loadCustomWizards();
-    void updateRunWithoutDeployMenu();
 
     void updateWelcomePage();
     void updateExternalFileWarning();
 
+    void updateActions();
     void updateContext();
     void runConfigurationConfigurationFinished();
 
@@ -275,27 +267,6 @@ private slots:
     void testCustomWizardPreprocessor_data();
     void testCustomWizardPreprocessor();
 #endif
-
-private:
-    void deploy(QList<Project *>);
-    int queue(QList<Project *>, QList<Core::Id> stepIds);
-    void updateContextMenuActions();
-    bool parseArguments(const QStringList &arguments, QString *error);
-    void executeRunConfiguration(RunConfiguration *, RunMode mode);
-    bool hasBuildSettings(Project *pro);
-    QPair<bool, QString> buildSettingsEnabledForSession();
-    QPair<bool, QString> buildSettingsEnabled(Project *pro);
-    bool hasDeploySettings(Project *pro);
-
-    void setCurrent(Project *project, QString filePath, Node *node);
-
-    QStringList allFilesWithDependencies(Project *pro);
-    IRunControlFactory *findRunControlFactory(RunConfiguration *config, RunMode mode);
-
-    void addToRecentProjects(const QString &fileName, const QString &displayName);
-
-    static ProjectExplorerPlugin *m_instance;
-    ProjectExplorerPluginPrivate *d;
 };
 
 } // namespace ProjectExplorer

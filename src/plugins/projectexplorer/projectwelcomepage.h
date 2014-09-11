@@ -39,9 +39,6 @@ class QQmlEngine;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-
-class ProjectExplorerPlugin;
-
 namespace Internal {
 
 class SessionModel : public QAbstractListModel
@@ -71,16 +68,13 @@ class ProjectModel : public QAbstractListModel
 public:
     enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole };
 
-    ProjectModel(ProjectExplorerPlugin* plugin, QObject* parent = 0);
+    ProjectModel(QObject *parent = 0);
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
     QHash<int, QByteArray> roleNames() const;
 
 public slots:
     void resetProjects();
-
-private:
-    ProjectExplorerPlugin *m_plugin;
 };
 
 class ProjectWelcomePage : public Utils::IWelcomePage

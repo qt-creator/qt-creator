@@ -118,7 +118,7 @@ void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection) const
     makeStep->setBuildTarget(selection.displayName, true);
 
     // Build
-    ProjectExplorer::ProjectExplorerPlugin::instance()->buildProject(cmakeProject);
+    ProjectExplorerPlugin::buildProject(cmakeProject);
     makeStep->setBuildTargets(oldTargets);
 }
 

@@ -39,7 +39,6 @@ QT_FORWARD_DECLARE_CLASS(QTreeView)
 
 namespace ProjectExplorer {
 
-class ProjectExplorerPlugin;
 class Project;
 class Node;
 class FolderNode;
@@ -92,7 +91,6 @@ private:
     void recursiveLoadExpandData(const QModelIndex &index, const QSet<QString> &data);
     void recursiveSaveExpandData(const QModelIndex &index, QStringList *data);
     static int expandedCount(Node *node);
-    ProjectExplorerPlugin *m_explorer;
     QTreeView *m_view;
     FlatModel *m_model;
     QAction *m_filterProjectsAction;

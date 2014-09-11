@@ -94,7 +94,7 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
     if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
-    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
+    if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
         return;
 
     CMakeBuildConfiguration *bc

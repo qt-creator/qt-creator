@@ -165,7 +165,7 @@ void TargetSetupPageWrapper::cancel()
 void TargetSetupPageWrapper::done()
 {
     m_targetSetupPage->setupProject(m_project);
-    ProjectExplorerPlugin::instance()->requestProjectModeUpdate(m_project);
+    ProjectExplorerPlugin::requestProjectModeUpdate(m_project);
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 }
 

@@ -62,7 +62,10 @@
 #include <QClipboard>
 #include <QApplication>
 
-using namespace ResourceEditor::Internal;
+using namespace ProjectExplorer;
+
+namespace ResourceEditor {
+namespace Internal {
 
 static const char resourcePrefix[] = ":";
 static const char urlPrefix[] = "qrc:";
@@ -242,7 +245,7 @@ void ResourceEditorPlugin::addPrefixContextMenu()
     QString prefix = dialog.prefix();
     if (prefix.isEmpty())
         return;
-    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
+    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectExplorer::ProjectExplorerPlugin::currentNode());
     topLevel->addPrefix(prefix, dialog.lang());
 }
 
@@ -260,7 +263,7 @@ void ResourceEditorPlugin::removePrefixContextMenu()
 
 void ResourceEditorPlugin::renameFileContextMenu()
 {
-    ProjectExplorer::ProjectExplorerPlugin::instance()->initiateInlineRenaming();
+    ProjectExplorerPlugin::initiateInlineRenaming();
 }
 
 void ResourceEditorPlugin::removeFileContextMenu()
@@ -283,35 +286,35 @@ void ResourceEditorPlugin::openEditorContextMenu()
 
 void ResourceEditorPlugin::openTextEditorContextMenu()
 {
-    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
+    ResourceTopLevelNode *topLevel = static_cast<ResourceTopLevelNode *>(ProjectExplorerPlugin::currentNode());
     QString path = topLevel->path();
     Core::EditorManager::openEditor(path, Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
 }
 
 void ResourceEditorPlugin::copyPathContextMenu()
 {
-    ResourceFileNode *node = static_cast<ResourceFileNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
+    ResourceFileNode *node = static_cast<ResourceFileNode *>(ProjectExplorerPlugin::currentNode());
     QApplication::clipboard()->setText(QLatin1String(resourcePrefix) + node->qrcPath());
 }
 
 void ResourceEditorPlugin::copyUrlContextMenu()
 {
-    ResourceFileNode *node = static_cast<ResourceFileNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
+    ResourceFileNode *node = static_cast<ResourceFileNode *>(ProjectExplorerPlugin::currentNode());
     QApplication::clipboard()->setText(QLatin1String(urlPrefix) + node->qrcPath());
 }
 
 void ResourceEditorPlugin::renamePrefixContextMenu()
 {
-    ResourceFolderNode *rfn = static_cast<ResourceFolderNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
+    ResourceFolderNode *node = static_cast<ResourceFolderNode *>(ProjectExplorerPlugin::currentNode());
 
-    PrefixLangDialog dialog(tr("Rename Prefix"), rfn->prefix(), rfn->lang(), Core::ICore::mainWindow());
+    PrefixLangDialog dialog(tr("Rename Prefix"), node->prefix(), node->lang(), Core::ICore::mainWindow());
     if (dialog.exec() != QDialog::Accepted)
         return;
     QString prefix = dialog.prefix();
     if (prefix.isEmpty())
         return;
 
-    rfn->renamePrefix(prefix, dialog.lang());
+    node->renamePrefix(prefix, dialog.lang());
 }
 
 void ResourceEditorPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *)
@@ -376,5 +379,8 @@ ResourceEditorW * ResourceEditorPlugin::currentEditor() const
     QTC_ASSERT(focusEditor, return 0);
     return focusEditor;
 }
+
+} // namespace Internal
+} // namespace ResourceEditor
 
 #include "resourceeditorplugin.moc"
