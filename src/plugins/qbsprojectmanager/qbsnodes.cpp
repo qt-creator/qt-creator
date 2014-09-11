@@ -328,9 +328,13 @@ bool QbsBaseProjectNode::renameFile(const QString &filePath, const QString &newF
 static QList<ProjectExplorer::ProjectAction> supportedNodeActions(ProjectExplorer::Node *node)
 {
     QList<ProjectExplorer::ProjectAction> actions;
-    if (parentQbsProjectNode(node)->project()->isProjectEditable()) {
-        actions << ProjectExplorer::AddNewFile << ProjectExplorer::AddExistingFile
-                << ProjectExplorer::RemoveFile;
+    const QbsProject * const project = parentQbsProjectNode(node)->project();
+    if (!project->isProjectEditable())
+        return actions;
+    actions << ProjectExplorer::AddNewFile << ProjectExplorer::AddExistingFile;
+    if (node->nodeType() == ProjectExplorer::FileNodeType
+            && !project->qbsProject().buildSystemFiles().contains(node->path())) {
+        actions << ProjectExplorer::RemoveFile;
     }
     return actions;
 }
