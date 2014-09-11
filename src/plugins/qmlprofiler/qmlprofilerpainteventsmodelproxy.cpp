@@ -210,7 +210,7 @@ QVariantList PaintEventsModelProxy::labels() const
     Q_D(const PaintEventsModelProxy);
     QVariantList result;
 
-    if (d->maxGuiThreadAnimations > 0) {
+    if (!d->hidden && d->maxGuiThreadAnimations > 0) {
         QVariantMap element;
         element.insert(QLatin1String("displayName"), QVariant(tr("Animations")));
         element.insert(QLatin1String("description"), QVariant(tr("GUI Thread")));
@@ -218,7 +218,7 @@ QVariantList PaintEventsModelProxy::labels() const
         result << element;
     }
 
-    if (d->maxRenderThreadAnimations > 0) {
+    if (!d->hidden && d->maxRenderThreadAnimations > 0) {
         QVariantMap element;
         element.insert(QLatin1String("displayName"), QVariant(tr("Animations")));
         element.insert(QLatin1String("description"), QVariant(tr("Render Thread")));

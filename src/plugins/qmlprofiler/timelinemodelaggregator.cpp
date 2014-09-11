@@ -91,6 +91,7 @@ void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
 {
     d->modelList << m;
     connect(m,SIGNAL(expandedChanged()),this,SIGNAL(expandedChanged()));
+    connect(m,SIGNAL(hiddenChanged()),this,SIGNAL(hiddenChanged()));
     connect(m,SIGNAL(rowHeightChanged()),this,SIGNAL(rowHeightChanged()));
     emit modelsChanged(d->modelList.length(), d->modelList.length());
 }
@@ -152,6 +153,16 @@ bool TimelineModelAggregator::expanded(int modelIndex) const
 void TimelineModelAggregator::setExpanded(int modelIndex, bool expanded)
 {
     d->modelList[modelIndex]->setExpanded(expanded);
+}
+
+bool TimelineModelAggregator::hidden(int modelIndex) const
+{
+    return d->modelList[modelIndex]->hidden();
+}
+
+void TimelineModelAggregator::setHidden(int modelIndex, bool hidden)
+{
+    d->modelList[modelIndex]->setHidden(hidden);
 }
 
 int TimelineModelAggregator::rowCount(int modelIndex) const

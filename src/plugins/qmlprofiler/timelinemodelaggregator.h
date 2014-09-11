@@ -65,6 +65,10 @@ public:
 
     Q_INVOKABLE bool expanded(int modelIndex) const;
     Q_INVOKABLE void setExpanded(int modelIndex, bool expanded);
+
+    Q_INVOKABLE bool hidden(int modelIndex) const;
+    Q_INVOKABLE void setHidden(int modelIndex, bool hidden);
+
     Q_INVOKABLE int rowCount(int modelIndex) const;
     Q_INVOKABLE QString displayName(int modelIndex) const;
     Q_INVOKABLE int rowMinValue(int modelIndex, int row) const;
@@ -98,6 +102,7 @@ signals:
     void dataAvailable();
     void stateChanged();
     void expandedChanged();
+    void hiddenChanged();
     void rowHeightChanged();
     void modelsChanged(int modelIndex1, int modelIndex2);
 

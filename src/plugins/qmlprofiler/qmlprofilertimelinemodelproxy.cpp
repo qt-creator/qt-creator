@@ -246,7 +246,7 @@ QVariantList RangeTimelineModel::labels() const
     Q_D(const RangeTimelineModel);
     QVariantList result;
 
-    if (d->expanded) {
+    if (d->expanded && !d->hidden) {
         const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
                 d->modelManager->qmlModel()->getEventTypes();
         for (int i = 1; i < d->expandedRowCount; i++) { // Ignore the -1 for the first row

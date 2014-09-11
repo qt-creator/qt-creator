@@ -42,6 +42,7 @@ AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
     d->modelId = 0;
     d->modelManager = 0;
     d->expanded = false;
+    d->hidden = false;
     d->displayName = displayName;
     d->message = message;
     d->rangeType = rangeType;
@@ -98,7 +99,7 @@ int AbstractTimelineModel::rowOffset(int rowNumber) const
 void AbstractTimelineModel::setRowHeight(int rowNumber, int height)
 {
     Q_D(AbstractTimelineModel);
-    if (!expanded())
+    if (d->hidden || !d->expanded)
         return;
     if (height < DefaultRowHeight)
         height = DefaultRowHeight;
@@ -120,7 +121,7 @@ int AbstractTimelineModel::height() const
 {
     Q_D(const AbstractTimelineModel);
     int depth = rowCount();
-    if (!expanded() || d->rowOffsets.empty())
+    if (d->hidden || !d->expanded || d->rowOffsets.empty())
         return depth * DefaultRowHeight;
 
     return d->rowOffsets.last() + (depth - d->rowOffsets.size()) * DefaultRowHeight;
@@ -192,6 +193,7 @@ int AbstractTimelineModel::rowMaxValue(int rowNumber) const
 void AbstractTimelineModel::dataChanged()
 {
     Q_D(AbstractTimelineModel);
+    bool wasEmpty = isEmpty();
     switch (d->modelManager->state()) {
     case QmlProfilerDataState::ProcessingData:
         loadData();
@@ -202,6 +204,8 @@ void AbstractTimelineModel::dataChanged()
     default:
         break;
     }
+    if (wasEmpty != isEmpty())
+        emit emptyChanged();
 }
 
 bool AbstractTimelineModel::accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const
@@ -225,6 +229,21 @@ void AbstractTimelineModel::setExpanded(bool expanded)
     }
 }
 
+bool AbstractTimelineModel::hidden() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->hidden;
+}
+
+void AbstractTimelineModel::setHidden(bool hidden)
+{
+    Q_D(AbstractTimelineModel);
+    if (hidden != d->hidden) {
+        d->hidden = hidden;
+        emit hiddenChanged();
+    }
+}
+
 QString AbstractTimelineModel::displayName() const
 {
     Q_D(const AbstractTimelineModel);
@@ -234,6 +253,8 @@ QString AbstractTimelineModel::displayName() const
 int AbstractTimelineModel::rowCount() const
 {
     Q_D(const AbstractTimelineModel);
+    if (d->hidden)
+        return 0;
     if (isEmpty())
         return d->modelManager->isEmpty() ? 1 : 0;
     return d->expanded ? d->expandedRowCount : d->collapsedRowCount;
@@ -244,14 +265,18 @@ void AbstractTimelineModel::clear()
     Q_D(AbstractTimelineModel);
     d->collapsedRowCount = d->expandedRowCount = 1;
     bool wasExpanded = d->expanded;
+    bool wasHidden = d->hidden;
     bool hadRowHeights = !d->rowOffsets.empty();
     d->rowOffsets.clear();
     d->expanded = false;
+    d->hidden = false;
     SortedTimelineModel::clear();
     if (hadRowHeights)
         emit rowHeightChanged();
     if (wasExpanded)
         emit expandedChanged();
+    if (wasHidden)
+        emit hiddenChanged();
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 

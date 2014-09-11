@@ -40,6 +40,7 @@ public:
     QmlProfilerModelManager *modelManager;
     int modelId;
     bool expanded;
+    bool hidden;
     int expandedRowCount;
     int collapsedRowCount;
     QString displayName;

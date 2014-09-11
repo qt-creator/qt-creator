@@ -55,6 +55,7 @@ void TimelineRenderer::setProfilerModelProxy(QObject *profilerModelProxy)
 {
     if (m_profilerModelProxy) {
         disconnect(m_profilerModelProxy, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
+        disconnect(m_profilerModelProxy, SIGNAL(hiddenChanged()), this, SLOT(requestPaint()));
         disconnect(m_profilerModelProxy, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
         disconnect(m_profilerModelProxy, SIGNAL(modelsChanged(int,int)),
                    this, SLOT(swapSelections(int,int)));
@@ -63,6 +64,7 @@ void TimelineRenderer::setProfilerModelProxy(QObject *profilerModelProxy)
 
     if (m_profilerModelProxy) {
         connect(m_profilerModelProxy, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
+        connect(m_profilerModelProxy, SIGNAL(hiddenChanged()), this, SLOT(requestPaint()));
         connect(m_profilerModelProxy, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
         connect(m_profilerModelProxy, SIGNAL(modelsChanged(int,int)),
                 this, SLOT(swapSelections(int,int)));
@@ -141,6 +143,8 @@ void TimelineRenderer::paint(QPainter *p)
     p->setPen(Qt::transparent);
 
     for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
+        if (m_profilerModelProxy->hidden(modelIndex))
+            continue;
         int lastIndex = m_profilerModelProxy->lastIndex(modelIndex, m_endTime);
         if (lastIndex >= 0 && lastIndex < m_profilerModelProxy->count(modelIndex)) {
             int firstIndex = m_profilerModelProxy->firstIndex(modelIndex, m_startTime);

@@ -43,6 +43,9 @@ namespace QmlProfiler {
 class QMLPROFILER_EXPORT AbstractTimelineModel : public SortedTimelineModel
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayName READ displayName CONSTANT)
+    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
+    Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
 
 public:
     class AbstractTimelineModelPrivate;
@@ -63,7 +66,9 @@ public:
     qint64 traceDuration() const;
     bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     bool expanded() const;
+    bool hidden() const;
     void setExpanded(bool expanded);
+    void setHidden(bool hidden);
     QString displayName() const;
     int rowCount() const;
 
@@ -87,7 +92,9 @@ public:
 
 signals:
     void expandedChanged();
+    void hiddenChanged();
     void rowHeightChanged();
+    void emptyChanged();
 
 protected:
     static const int DefaultRowHeight = 30;

@@ -91,6 +91,7 @@ private slots:
     void traceTime();
     void accepted();
     void expand();
+    void hide();
     void displayName();
     void defaultValues();
     void colorByHue();
@@ -262,6 +263,25 @@ void tst_AbstractTimelineModel::expand()
     QCOMPARE(spy.count(), 2);
     dummy.setExpanded(false);
     QVERIFY(!dummy.expanded());
+    QCOMPARE(spy.count(), 2);
+}
+
+void tst_AbstractTimelineModel::hide()
+{
+    DummyModel dummy;
+    QSignalSpy spy(&dummy, SIGNAL(hiddenChanged()));
+    QVERIFY(!dummy.hidden());
+    dummy.setHidden(true);
+    QVERIFY(dummy.hidden());
+    QCOMPARE(spy.count(), 1);
+    dummy.setHidden(true);
+    QVERIFY(dummy.hidden());
+    QCOMPARE(spy.count(), 1);
+    dummy.setHidden(false);
+    QVERIFY(!dummy.hidden());
+    QCOMPARE(spy.count(), 2);
+    dummy.setHidden(false);
+    QVERIFY(!dummy.hidden());
     QCOMPARE(spy.count(), 2);
 }
 
