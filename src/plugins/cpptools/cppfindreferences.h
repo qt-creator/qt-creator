@@ -30,7 +30,6 @@
 #ifndef CPPFINDREFERENCES_H
 #define CPPFINDREFERENCES_H
 
-#include <cplusplus/DependencyTable.h>
 #include <cplusplus/FindUsages.h>
 
 #include <QMutex>
@@ -76,11 +75,6 @@ public:
     void findMacroUses(const CPlusPlus::Macro &macro);
     void renameMacroUses(const CPlusPlus::Macro &macro, const QString &replacement = QString());
 
-    CPlusPlus::DependencyTable updateDependencyTable(CPlusPlus::Snapshot snapshot);
-
-public slots:
-    void flushDependencyTable();
-
 private slots:
     void displayResults(int first, int last);
     void searchFinished();
@@ -97,8 +91,6 @@ private:
                        bool replace);
     void findAll_helper(Core::SearchResult *search, CPlusPlus::Symbol *symbol,
                         const CPlusPlus::LookupContext &context);
-    CPlusPlus::DependencyTable dependencyTable() const;
-    void setDependencyTable(const CPlusPlus::DependencyTable &newTable);
     void createWatcher(const QFuture<CPlusPlus::Usage> &future, Core::SearchResult *search);
     CPlusPlus::Symbol *findSymbol(const CppFindReferencesParameters &parameters,
                     const CPlusPlus::Snapshot &snapshot, CPlusPlus::LookupContext *context);
@@ -106,9 +98,6 @@ private:
 private:
     QPointer<CppModelManagerInterface> m_modelManager;
     QMap<QFutureWatcher<CPlusPlus::Usage> *, QPointer<Core::SearchResult> > m_watchers;
-
-    mutable QMutex m_depsLock;
-    CPlusPlus::DependencyTable m_deps;
 };
 
 } // namespace Internal

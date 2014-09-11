@@ -713,6 +713,7 @@ bool Document::DiagnosticMessage::operator!=(const Document::DiagnosticMessage &
 }
 
 Snapshot::Snapshot()
+    : m_deps(new DependencyTable)
 {
 }
 
@@ -747,8 +748,10 @@ bool Snapshot::contains(const QString &fileName) const
 
 void Snapshot::insert(Document::Ptr doc)
 {
-    if (doc)
+    if (doc) {
         _documents.insert(doc->fileName(), doc);
+        m_deps->files.clear(); // Will trigger re-build when accessed.
+    }
 }
 
 Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
@@ -793,6 +796,18 @@ QSet<QString> Snapshot::allIncludesForDocument(const QString &fileName) const
     QSet<QString> result;
     allIncludesForDocument_helper(fileName, result);
     return result;
+}
+
+QStringList Snapshot::filesDependingOn(const QString &fileName) const
+{
+    updateDependencyTable();
+    return m_deps->filesDependingOn(fileName);
+}
+
+void Snapshot::updateDependencyTable() const
+{
+    if (m_deps->files.isEmpty())
+        m_deps->build(*this);
 }
 
 void Snapshot::allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const

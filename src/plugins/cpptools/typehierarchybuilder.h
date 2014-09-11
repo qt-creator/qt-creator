@@ -33,7 +33,6 @@
 #include "cpptools_global.h"
 #include "cppmodelmanagerinterface.h"
 
-#include <cplusplus/DependencyTable.h>
 #include <cplusplus/Overview.h>
 
 #include <QList>
@@ -78,7 +77,6 @@ private:
     QSet<CPlusPlus::Symbol *> _visited;
     QHash<QString, QSet<QString> > _candidates;
     CPlusPlus::Overview _overview;
-    CPlusPlus::DependencyTable _dependencyTable;
 };
 
 } // CppTools

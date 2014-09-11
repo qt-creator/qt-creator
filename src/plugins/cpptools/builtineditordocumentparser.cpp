@@ -187,7 +187,7 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
                 newSnapshot.insert(i.value());
         }
         m_snapshot = newSnapshot;
-        m_deps.build(m_snapshot);
+        m_snapshot.updateDependencyTable();
 
         emit finished(document(), m_snapshot);
     }
@@ -197,7 +197,6 @@ void BuiltinEditorDocumentParser::releaseResources()
 {
     QMutexLocker locker(&m_mutex);
     m_snapshot = Snapshot();
-    m_deps = DependencyTable();
     m_forceSnapshotInvalidation = true;
 }
 
@@ -237,7 +236,7 @@ void BuiltinEditorDocumentParser::addFileAndDependencies(QSet<QString> *toRemove
 {
     toRemove->insert(fileName);
     if (fileName != filePath()) {
-        QStringList deps = m_deps.filesDependingOn(fileName);
+        QStringList deps = m_snapshot.filesDependingOn(fileName);
         toRemove->unite(QSet<QString>::fromList(deps));
     }
 }

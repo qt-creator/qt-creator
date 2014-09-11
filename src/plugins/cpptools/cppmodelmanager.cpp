@@ -222,10 +222,6 @@ CppModelManager::CppModelManager(QObject *parent)
     , m_enableGC(true)
 {
     qRegisterMetaType<QSet<QString> >();
-    connect(this, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-            this, SIGNAL(globalSnapshotChanged()));
-    connect(this, SIGNAL(aboutToRemoveFiles(QStringList)),
-            this, SIGNAL(globalSnapshotChanged()));
     connect(this, SIGNAL(sourceFilesRefreshed(QSet<QString>)),
             this, SLOT(onSourceFilesRefreshed()));
 
@@ -731,9 +727,7 @@ QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) co
 QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(const QString &fileName) const
 {
     QSet<ProjectPart::Ptr> parts;
-    DependencyTable table;
-    table.build(snapshot());
-    const QStringList deps = table.filesDependingOn(fileName);
+    const QStringList deps = snapshot().filesDependingOn(fileName);
     foreach (const QString &dep, deps)
         parts.unite(QSet<ProjectPart::Ptr>::fromList(m_fileToProjectParts.value(dep)));
 

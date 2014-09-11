@@ -34,6 +34,7 @@
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/PreprocessorClient.h>
+#include <cplusplus/DependencyTable.h>
 
 #include <QSharedPointer>
 #include <QDateTime>
@@ -424,10 +425,13 @@ public:
 
     QSet<QString> allIncludesForDocument(const QString &fileName) const;
 
+    QStringList filesDependingOn(const QString &fileName) const;
+    void updateDependencyTable() const;
+
 private:
     void allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const;
 
-private:
+    mutable QSharedPointer<DependencyTable> m_deps;
     Base _documents;
 };
 

@@ -35,7 +35,6 @@
 #include "cppmodelmanager.h"
 
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/DependencyTable.h>
 #include <utils/qtcoverride.h>
 
 #include <QMutex>
@@ -76,7 +75,6 @@ private:
     QStringList m_precompiledHeaders;
 
     CPlusPlus::Snapshot m_snapshot;
-    CPlusPlus::DependencyTable m_deps;
     bool m_forceSnapshotInvalidation;
     bool m_releaseSourceAndAST;
 };

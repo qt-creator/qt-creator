@@ -29,7 +29,6 @@
 
 #include "typehierarchybuilder.h"
 
-#include <cplusplus/DependencyTable.h>
 #include <cplusplus/FindUsages.h>
 
 using namespace CppTools;
@@ -143,9 +142,7 @@ const QList<TypeHierarchy> &TypeHierarchy::hierarchy() const
 TypeHierarchyBuilder::TypeHierarchyBuilder(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot)
     : _symbol(symbol)
     , _snapshot(snapshot)
-{
-    _dependencyTable.build(_snapshot);
-}
+{}
 
 void TypeHierarchyBuilder::reset()
 {
@@ -201,5 +198,5 @@ QStringList TypeHierarchyBuilder::filesDependingOn(CPlusPlus::Symbol *symbol) co
         return QStringList();
 
     const QString file = QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
-    return QStringList() << file << _dependencyTable.filesDependingOn(file);
+    return QStringList() << file << _snapshot.filesDependingOn(file);
 }

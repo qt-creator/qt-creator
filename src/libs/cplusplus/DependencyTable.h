@@ -44,15 +44,11 @@ class Snapshot;
 
 class CPLUSPLUS_EXPORT DependencyTable
 {
-public:
-    bool isValidFor(const Snapshot &snapshot) const;
-
-    QStringList filesDependingOn(const QString &fileName) const;
-    QHash<QString, QStringList> dependencyTable() const;
-
-    void build(const Snapshot &snapshot);
-
 private:
+    friend class Snapshot;
+    void build(const Snapshot &snapshot);
+    QStringList filesDependingOn(const QString &fileName) const;
+
     QHash<QString, QStringList> includesPerFile;
     QVector<QString> files;
     QHash<QString, int> fileIndex;

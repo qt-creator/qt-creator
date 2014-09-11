@@ -27,7 +27,6 @@
 **
 ****************************************************************************/
 
-#include "DependencyTable.h"
 #include "CppDocument.h"
 
 #include <QDebug>
@@ -51,50 +50,8 @@ QStringList DependencyTable::filesDependingOn(const QString &fileName) const
     return deps;
 }
 
-QHash<QString, QStringList> DependencyTable::dependencyTable() const
-{
-    QHash<QString, QStringList> depMap;
-
-    for (int index = 0; index < files.size(); ++index) {
-        QStringList deps;
-        for (int i = 0; i < files.size(); ++i) {
-            const QBitArray &bits = includeMap.at(i);
-
-            if (bits.testBit(index))
-                deps.append(files.at(i));
-        }
-        depMap[files.at(index)] = deps;
-    }
-
-    return depMap;
-}
-
-bool DependencyTable::isValidFor(const Snapshot &snapshot) const
-{
-    const int documentCount = snapshot.size();
-    if (documentCount != files.size())
-        return false;
-
-    for (Snapshot::const_iterator it = snapshot.begin(); it != snapshot.end(); ++it) {
-        QHash<QString, QStringList>::const_iterator i = includesPerFile.find(it.key());
-        if (i == includesPerFile.end())
-            return false;
-
-        if (i.value() != it.value()->includedFiles())
-            return false;
-    }
-
-    return true;
-}
-
 void DependencyTable::build(const Snapshot &snapshot)
 {
-    includesPerFile.clear();
-    files.clear();
-    fileIndex.clear();
-    includes.clear();
-    includeMap.clear();
-
     const int documentCount = snapshot.size();
     files.resize(documentCount);
     includeMap.resize(documentCount);

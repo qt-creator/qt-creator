@@ -50,7 +50,6 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/CppRewriter.h>
-#include <cplusplus/DependencyTable.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -1579,9 +1578,7 @@ public:
                     fwdHeaders.insert(doc);
             }
 
-            DependencyTable dep;
-            dep.build(fwdHeaders);
-            QStringList candidates = dep.dependencyTable().value(headerFile);
+            QStringList candidates = fwdHeaders.filesDependingOn(headerFile);
 
             const QString className = QString::fromUtf8(k->identifier()->chars());
 
