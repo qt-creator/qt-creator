@@ -56,13 +56,10 @@ namespace TextEditor {
 
 class CodeAssistantPrivate : public QObject
 {
-    Q_OBJECT
-
 public:
     CodeAssistantPrivate(CodeAssistant *assistant);
 
     void configure(BaseTextEditorWidget *editorWidget);
-    void reconfigure();
     bool isConfigured() const;
 
     void invoke(AssistKind kind, IAssistProvider *provider = 0);
@@ -88,10 +85,7 @@ public:
 
     virtual bool eventFilter(QObject *o, QEvent *e);
 
-signals:
-    void finished();
-
-private slots:
+private:
     void finalizeRequest();
     void proposalComputed();
     void processProposalItem(AssistProposalItem *proposalItem);
@@ -102,7 +96,6 @@ private slots:
 private:
     CodeAssistant *q;
     BaseTextEditorWidget *m_editorWidget;
-    CompletionAssistProvider *m_completionProvider;
     QList<QuickFixAssistProvider *> m_quickFixProviders;
     Internal::ProcessorRunner *m_requestRunner;
     IAssistProvider *m_requestProvider;
@@ -126,7 +119,6 @@ static const int AutomaticProposalTimerInterval = 400;
 CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     : q(assistant)
     , m_editorWidget(0)
-    , m_completionProvider(0)
     , m_requestRunner(0)
     , m_requestProvider(0)
     , m_assistKind(TextEditor::Completion)
@@ -156,7 +148,6 @@ void CodeAssistantPrivate::configure(BaseTextEditorWidget *editorWidget)
     // completion and quick-fix provider (getting rid of the list).
 
     m_editorWidget = editorWidget;
-    m_completionProvider = editorWidget->completionAssistProvider();
     m_quickFixProviders = ExtensionSystem::PluginManager::getObjects<QuickFixAssistProvider>();
 
     Core::Id editorId = m_editorWidget->textDocument()->id();
@@ -169,14 +160,6 @@ void CodeAssistantPrivate::configure(BaseTextEditorWidget *editorWidget)
     }
 
     m_editorWidget->installEventFilter(this);
-    connect(m_editorWidget->textDocument(), &BaseTextDocument::mimeTypeChanged,
-            this, &CodeAssistantPrivate::reconfigure);
-}
-
-void CodeAssistantPrivate::reconfigure()
-{
-    if (isConfigured())
-        m_completionProvider = m_editorWidget->completionAssistProvider();
 }
 
 bool CodeAssistantPrivate::isConfigured() const
@@ -236,7 +219,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
     if (!provider) {
         if (kind == Completion)
-            provider = m_completionProvider;
+            provider = m_editorWidget->completionAssistProvider();
         else if (!m_quickFixProviders.isEmpty())
             provider = m_quickFixProviders.at(0);
 
@@ -256,9 +239,12 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
         m_requestProvider = provider;
         m_requestRunner = new ProcessorRunner;
-        connect(m_requestRunner, SIGNAL(finished()), this, SLOT(proposalComputed()));
-        connect(m_requestRunner, SIGNAL(finished()), this, SLOT(finalizeRequest()));
-        connect(m_requestRunner, SIGNAL(finished()), this, SIGNAL(finished()));
+        connect(m_requestRunner, &ProcessorRunner::finished,
+                this, &CodeAssistantPrivate::proposalComputed);
+        connect(m_requestRunner, &ProcessorRunner::finished,
+                this, &CodeAssistantPrivate::finalizeRequest);
+        connect(m_requestRunner, &ProcessorRunner::finished,
+                q, &CodeAssistant::finished);
         assistInterface->prepareForAsyncUse();
         m_requestRunner->setReason(reason);
         m_requestRunner->setProcessor(processor);
@@ -275,7 +261,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 void CodeAssistantPrivate::cancelCurrentRequest()
 {
     m_requestRunner->setDiscardProposal(true);
-    disconnect(m_requestRunner, SIGNAL(finished()), this, SLOT(proposalComputed()));
+    disconnect(m_requestRunner, &ProcessorRunner::finished,
+               this, &CodeAssistantPrivate::proposalComputed);
     invalidateCurrentRequestData();
 }
 
@@ -320,13 +307,14 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
 
     basePosition = m_proposal->basePosition();
     m_proposalWidget = m_proposal->createWidget();
-    connect(m_proposalWidget, SIGNAL(destroyed()), this, SLOT(finalizeProposal()));
-    connect(m_proposalWidget, SIGNAL(prefixExpanded(QString)),
-            this, SLOT(handlePrefixExpansion(QString)));
-    connect(m_proposalWidget, SIGNAL(proposalItemActivated(AssistProposalItem*)),
-            this, SLOT(processProposalItem(AssistProposalItem*)));
-    connect(m_proposalWidget, SIGNAL(explicitlyAborted()),
-            this, SLOT(explicitlyAborted()));
+    connect(m_proposalWidget, &QObject::destroyed,
+            this, &CodeAssistantPrivate::finalizeProposal);
+    connect(m_proposalWidget, &IAssistProposalWidget::prefixExpanded,
+            this, &CodeAssistantPrivate::handlePrefixExpansion);
+    connect(m_proposalWidget, &IAssistProposalWidget::proposalItemActivated,
+            this, &CodeAssistantPrivate::processProposalItem);
+    connect(m_proposalWidget, &IAssistProposalWidget::explicitlyAborted,
+            this, &CodeAssistantPrivate::explicitlyAborted);
     m_proposalWidget->setAssistant(q);
     m_proposalWidget->setReason(reason);
     m_proposalWidget->setKind(m_assistKind);
@@ -337,7 +325,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
         m_proposalWidget->setIsSynchronized(false);
     else
         m_proposalWidget->setIsSynchronized(true);
-    m_proposalWidget->showProposal(m_editorWidget->textDocument()->textAt(
+    m_proposalWidget->showProposal(m_editorWidget->textAt(
                                        basePosition,
                                        m_editorWidget->position() - basePosition));
 }
@@ -392,10 +380,11 @@ void CodeAssistantPrivate::invalidateCurrentRequestData()
 
 CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
 {
-    if (!m_completionProvider)
+    CompletionAssistProvider *completionProvider = m_editorWidget->completionAssistProvider();
+    if (!completionProvider)
         return 0;
 
-    const int length = m_completionProvider->activationCharSequenceLength();
+    const int length = completionProvider->activationCharSequenceLength();
     if (length == 0)
         return 0;
     QString sequence = m_editorWidget->textAt(m_editorWidget->position() - length, length);
@@ -406,7 +395,7 @@ CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
     const int lengthDiff = length - sequence.length();
     for (int j = 0; j < lengthDiff; ++j)
         sequence.prepend(m_null);
-    return m_completionProvider->isActivationCharSequence(sequence) ? m_completionProvider : 0;
+    return completionProvider->isActivationCharSequence(sequence) ? completionProvider : 0;
 }
 
 void CodeAssistantPrivate::notifyChange()
@@ -419,7 +408,7 @@ void CodeAssistantPrivate::notifyChange()
             destroyContext();
         } else {
             m_proposalWidget->updateProposal(
-                m_editorWidget->textDocument()->textAt(m_proposal->basePosition(),
+                m_editorWidget->textAt(m_proposal->basePosition(),
                                      m_editorWidget->position() - m_proposal->basePosition()));
             if (m_proposal->isFragile())
                 startAutomaticProposalTimer();
@@ -440,7 +429,8 @@ void CodeAssistantPrivate::destroyContext()
         cancelCurrentRequest();
     } else if (isDisplayingProposal()) {
         m_proposalWidget->closeProposal();
-        disconnect(m_proposalWidget, SIGNAL(destroyed()), this, SLOT(finalizeProposal()));
+        disconnect(m_proposalWidget, &QObject::destroyed,
+                   this, &CodeAssistantPrivate::finalizeProposal);
         finalizeProposal();
     }
 }
@@ -517,7 +507,6 @@ bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
 // -------------
 CodeAssistant::CodeAssistant() : d(new CodeAssistantPrivate(this))
 {
-    connect(d, SIGNAL(finished()), SIGNAL(finished()));
 }
 
 CodeAssistant::~CodeAssistant()
@@ -555,11 +544,4 @@ void CodeAssistant::invoke(AssistKind kind, IAssistProvider *provider)
     d->invoke(kind, provider);
 }
 
-void CodeAssistant::reconfigure()
-{
-    d->reconfigure();
-}
-
 } // namespace TextEditor
-
-#include "codeassistant.moc"
