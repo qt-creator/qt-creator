@@ -113,7 +113,7 @@ QVariantList MemoryUsageModel::labels() const
     Q_D(const MemoryUsageModel);
     QVariantList result;
 
-    if (d->expanded && !isEmpty()) {
+    if (d->expanded && !d->hidden && !isEmpty()) {
         {
             QVariantMap element;
             element.insert(QLatin1String("description"), QVariant(tr("Memory Allocation")));

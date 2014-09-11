@@ -148,7 +148,7 @@ QVariantList PixmapCacheModel::labels() const
     Q_D(const PixmapCacheModel);
     QVariantList result;
 
-    if (d->expanded && !isEmpty()) {
+    if (d->expanded && !d->hidden && !isEmpty()) {
         {
             // Cache Size
             QVariantMap element;

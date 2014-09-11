@@ -142,7 +142,7 @@ QVariantList SceneGraphTimelineModel::labels() const
     Q_D(const SceneGraphTimelineModel);
     QVariantList result;
 
-    if (d->expanded && !isEmpty()) {
+    if (d->expanded && !d->hidden && !isEmpty()) {
         for (int i = 0; i < MaximumSceneGraphStage; ++i) {
             QVariantMap element;
             element.insert(QLatin1String("displayName"), tr(ThreadLabels[i < MaximumGUIThreadStage ?
