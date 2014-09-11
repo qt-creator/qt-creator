@@ -133,8 +133,8 @@ private:
 
     void prepareForParsing();
     void updateDocuments(const QSet<QString> &files);
-    void updateCppCodeModel(const qbs::ProjectData &prj);
-    void updateQmlJsCodeModel(const qbs::ProjectData &prj);
+    void updateCppCodeModel();
+    void updateQmlJsCodeModel();
     void updateApplicationTargets();
     void updateDeploymentInfo();
     void updateBuildTargetData();

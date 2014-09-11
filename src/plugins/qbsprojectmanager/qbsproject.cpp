@@ -484,12 +484,11 @@ void QbsProject::readQbsData()
 
     m_rootProjectNode->update();
 
-    qbs::Project project = m_rootProjectNode->qbsProject();
-    updateDocuments(project.isValid() ? project.buildSystemFiles() : QSet<QString>() << m_fileName);
+    updateDocuments(m_qbsProject.isValid()
+                    ? m_qbsProject.buildSystemFiles() : QSet<QString>() << m_fileName);
 
-    qbs::ProjectData data = m_rootProjectNode->qbsProjectData();
-    updateCppCodeModel(data);
-    updateQmlJsCodeModel(data);
+    updateCppCodeModel();
+    updateQmlJsCodeModel();
     updateBuildTargetData();
 
     emit fileListChanged();
@@ -654,9 +653,9 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     m_qbsDocuments.unite(toAdd);
 }
 
-void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
+void QbsProject::updateCppCodeModel()
 {
-    if (!prj.isValid())
+    if (!m_projectData.isValid())
         return;
 
     QtSupport::BaseQtVersion *qtVersion =
@@ -683,7 +682,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
     }
 
     QHash<QString, QString> uiFiles;
-    foreach (const qbs::ProductData &prd, prj.allProducts()) {
+    foreach (const qbs::ProductData &prd, m_projectData.allProducts()) {
         foreach (const qbs::GroupData &grp, prd.groups()) {
             const qbs::PropertyMap &props = grp.properties();
 
@@ -764,9 +763,8 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
     m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
 }
 
-void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData &prj)
+void QbsProject::updateQmlJsCodeModel()
 {
-    Q_UNUSED(prj);
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (!modelManager)
         return;
