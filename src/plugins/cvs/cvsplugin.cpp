@@ -447,13 +447,13 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_submitDiffAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = ActionManager::registerAction(m_submitDiffAction , DIFF_SELECTED, cvscommitcontext);
+    ActionManager::registerAction(m_submitDiffAction , DIFF_SELECTED, cvscommitcontext);
 
     m_submitUndoAction = new QAction(tr("&Undo"), this);
-    command = ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, cvscommitcontext);
+    ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, cvscommitcontext);
 
     m_submitRedoAction = new QAction(tr("&Redo"), this);
-    command = ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, cvscommitcontext);
+    ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, cvscommitcontext);
     return true;
 }
 
@@ -522,7 +522,7 @@ CvsSubmitEditor *CvsPlugin::openCVSSubmitEditor(const QString &fileName)
 {
     IEditor *editor = EditorManager::openEditor(fileName, CVSCOMMITEDITOR_ID);
     CvsSubmitEditor *submitEditor = qobject_cast<CvsSubmitEditor*>(editor);
-    QTC_CHECK(submitEditor);
+    QTC_ASSERT(submitEditor, return 0);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCommitFiles(QStringList)));
 
