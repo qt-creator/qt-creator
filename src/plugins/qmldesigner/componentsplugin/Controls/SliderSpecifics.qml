@@ -49,7 +49,7 @@ Section {
         }
         Label {
             text: qsTr("Maximum value")
-            toolTip: qsTr(Maximum value of the slider. The default value is 1.0.")
+            toolTip: qsTr("Maximum value of the slider. The default value is 1.0.")
         }
         SecondColumnLayout {
             SpinBox {
