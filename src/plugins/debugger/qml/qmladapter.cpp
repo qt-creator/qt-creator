@@ -80,7 +80,7 @@ QmlAdapter::~QmlAdapter()
 
 void QmlAdapter::beginConnectionTcp(const QString &address, quint16 port)
 {
-    if (m_engine.isNull() || (m_conn && m_conn->isOpen()))
+    if (m_engine.isNull() || !m_conn || m_conn->isOpen())
         return;
 
     m_conn->connectToHost(address, port);
