@@ -30,11 +30,10 @@
 #ifndef STATESEDITORWIDGET_H
 #define STATESEDITORWIDGET_H
 
-#include <QWidget>
+#include <QQuickWidget>
 #include <QPointer>
 
 QT_BEGIN_NAMESPACE
-class QQuickView;
 class QShortcut;
 QT_END_NAMESPACE
 
@@ -48,7 +47,7 @@ class NodeInstanceView;
 
 namespace Internal { class StatesEditorImageProvider; }
 
-class StatesEditorWidget : public QWidget
+class StatesEditorWidget : public QQuickWidget
 {
     Q_OBJECT
 
@@ -69,7 +68,6 @@ private slots:
     void changeHeight();
 
 private:
-    QPointer<QQuickView> m_quickView;
     QPointer<StatesEditorView> m_statesEditorView;
     Internal::StatesEditorImageProvider *m_imageProvider;
     QShortcut *m_qmlSourceUpdateShortcut;
