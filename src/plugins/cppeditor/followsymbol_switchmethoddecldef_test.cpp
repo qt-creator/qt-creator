@@ -34,6 +34,8 @@
 #include "cppvirtualfunctionassistprovider.h"
 #include "cppvirtualfunctionproposalitem.h"
 
+#include <cpptools/cpptoolstestcase.h>
+
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
@@ -123,16 +125,19 @@ public:
     {
         VirtualFunctionAssistProvider::configure(params);
 
-        IAssistProcessor *processor = createProcessor();
+        const QScopedPointer<IAssistProcessor> processor(createProcessor());
         AssistInterface *assistInterface
                 = m_editorWidget->createAssistInterface(FollowSymbol, ExplicitlyInvoked);
-        IAssistProposal *immediateProposal = processor->immediateProposal(assistInterface);
-        IAssistProposal *finalProposal = processor->perform(assistInterface);
+
+        using CppTools::Tests::IAssistProposalScopedPointer;
+        const IAssistProposalScopedPointer immediateProposal(
+            processor->immediateProposal(assistInterface));
+        const IAssistProposalScopedPointer finalProposal(processor->perform(assistInterface));
 
         VirtualFunctionAssistProvider::clearParams();
 
-        m_immediateItems = itemList(immediateProposal->model());
-        m_finalItems = itemList(finalProposal->model());
+        m_immediateItems = itemList(immediateProposal.d->model());
+        m_finalItems = itemList(finalProposal.d->model());
 
         return false;
     }
