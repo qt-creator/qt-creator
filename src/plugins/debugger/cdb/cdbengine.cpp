@@ -394,11 +394,10 @@ void CdbEngine::init()
     // Create local list of mappings in native separators
     m_sourcePathMappings.clear();
     const QSharedPointer<GlobalDebuggerOptions> globalOptions = debuggerCore()->globalDebuggerOptions();
-    if (!globalOptions->sourcePathMap.isEmpty()) {
-        typedef GlobalDebuggerOptions::SourcePathMap::const_iterator SourcePathMapIterator;
-        m_sourcePathMappings.reserve(globalOptions->sourcePathMap.size());
-        const SourcePathMapIterator cend = globalOptions->sourcePathMap.constEnd();
-        for (SourcePathMapIterator it = globalOptions->sourcePathMap.constBegin(); it != cend; ++it) {
+    SourcePathMap sourcePathMap = globalOptions->sourcePathMap;
+    if (!sourcePathMap.isEmpty()) {
+        m_sourcePathMappings.reserve(sourcePathMap.size());
+        for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend; ++it) {
             m_sourcePathMappings.push_back(SourcePathMapping(QDir::toNativeSeparators(it.key()),
                                                              QDir::toNativeSeparators(it.value())));
         }

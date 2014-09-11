@@ -59,8 +59,9 @@ void GlobalDebuggerOptions::toSettings() const
         const QString sourcePathMappingSourceKey = QLatin1String(sourcePathMappingSourceKeyC);
         const QString sourcePathMappingTargetKey = QLatin1String(sourcePathMappingTargetKeyC);
         int i = 0;
-        const SourcePathMap::const_iterator cend = sourcePathMap.constEnd();
-        for (SourcePathMap::const_iterator it = sourcePathMap.constBegin(); it != cend; ++it, ++i) {
+        for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
+             it != cend;
+             ++it, ++i) {
             s->setArrayIndex(i);
             s->setValue(sourcePathMappingSourceKey, it.key());
             s->setValue(sourcePathMappingTargetKey, it.value());

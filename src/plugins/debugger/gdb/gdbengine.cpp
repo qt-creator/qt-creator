@@ -4106,13 +4106,12 @@ static QString gdbBinary(const DebuggerStartParameters &sp)
     return sp.debuggerCommand;
 }
 
-static GlobalDebuggerOptions::SourcePathMap mergeStartParametersSourcePathMap(
-        const DebuggerStartParameters &sp, const GlobalDebuggerOptions::SourcePathMap &in)
+static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerStartParameters &sp,
+                                                       const SourcePathMap &in)
 {
     // Do not overwrite user settings.
-    GlobalDebuggerOptions::SourcePathMap rc = sp.sourcePathMap;
-    QMap<QString, QString>::const_iterator end = in.end();
-    for (QMap<QString, QString>::const_iterator it = in.begin(); it != end; ++it)
+    SourcePathMap rc = sp.sourcePathMap;
+    for (auto it = in.constBegin(), end = in.constEnd(); it != end; ++it)
         rc.insert(it.key(), it.value());
     return rc;
 }
@@ -4233,9 +4232,6 @@ void GdbEngine::startGdb(const QStringList &args)
     //postCommand("set remotecache on", ConsoleCommand);
     //postCommand("set non-stop on", ConsoleCommand);
 
-    typedef GlobalDebuggerOptions::SourcePathMap SourcePathMap;
-    typedef SourcePathMap::const_iterator SourcePathMapIterator;
-
     showStatusMessage(tr("Setting up inferior..."));
 
     // Addint executable to modules list.
@@ -4253,11 +4249,12 @@ void GdbEngine::startGdb(const QStringList &args)
                 debuggerCore()->globalDebuggerOptions()->sourcePathMap);
     const SourcePathMap completeSourcePathMap =
             mergeStartParametersSourcePathMap(sp, sourcePathMap);
-    const SourcePathMapIterator cend = completeSourcePathMap.constEnd();
-    SourcePathMapIterator it = completeSourcePathMap.constBegin();
-    for ( ; it != cend; ++it)
+    for (auto it = completeSourcePathMap.constBegin(), cend = completeSourcePathMap.constEnd();
+         it != cend;
+         ++it) {
         postCommand("set substitute-path " + it.key().toLocal8Bit()
             + " " + it.value().toLocal8Bit());
+    }
 
     // Spaces just will not work.
     foreach (const QString &src, sp.debugSourceLocation) {

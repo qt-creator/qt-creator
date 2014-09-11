@@ -39,12 +39,12 @@ namespace Utils { class SavedAction; }
 namespace Debugger {
 namespace Internal {
 
+typedef QMap<QString, QString> SourcePathMap;
+
 // Global debugger options that are not stored as saved action.
 class GlobalDebuggerOptions
 {
 public:
-    typedef QMap<QString, QString> SourcePathMap;
-
     void toSettings() const;
     void fromSettings();
     bool operator==(const GlobalDebuggerOptions &rhs) const
