@@ -56,15 +56,15 @@ public:
     KitNode(KitNode *kn, Kit *k) :
         parent(kn), widget(0)
     {
-        if (kn)
-            kn->childNodes.append(this);
-
         widget = KitManager::createConfigWidget(k);
         if (widget) {
             if (k && k->isAutoDetected())
                 widget->makeStickySubWidgetsReadOnly();
             widget->setVisible(false);
         }
+
+        if (kn)
+            kn->childNodes.append(this);
     }
 
     ~KitNode()
