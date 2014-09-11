@@ -191,23 +191,16 @@ Item {
         }
     }
 
-    Image {
-        source: expanded ? "arrow_down.png" : "arrow_right.png"
-        x: parent.width - 12
-        y: 9
-        smooth: false
-        MouseArea {
-            anchors.fill: parent
-            anchors.rightMargin: -10
-            anchors.leftMargin: -10
-            anchors.topMargin: -10
-            anchors.bottomMargin: -10
-            onClicked: {
-                // Don't try to expand empty models.
-                if (expanded || qmlProfilerModelProxy.count(modelIndex) > 0)
-                    qmlProfilerModelProxy.setExpanded(modelIndex, !expanded);
-            }
-        }
+    ToolButton {
+        id: expandButton
+        anchors.verticalCenter: txt.verticalCenter
+        anchors.right: parent.right
+        implicitWidth: 17
+        implicitHeight: txt.height - 1
+        enabled: expanded || trigger(qmlProfilerModelProxy.count(modelIndex)) > 0
+        iconSource: expanded ? "arrow_down.png" : "arrow_right.png"
+        tooltip: qsTr(expanded ? "Collapse category" : "Expand category.")
+        onClicked: qmlProfilerModelProxy.setExpanded(modelIndex, !expanded);
     }
 
     Rectangle {
