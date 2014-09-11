@@ -223,6 +223,8 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
         }
     }
 
+    cursor.endEditBlock();
+
     // adjust selection when commenting out
     if (hasSelection && !doMultiLineStyleUncomment && !doSingleLineStyleUncomment) {
         cursor = edit->textCursor();
@@ -238,6 +240,4 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
         }
         edit->setTextCursor(cursor);
     }
-
-    cursor.endEditBlock();
 }
