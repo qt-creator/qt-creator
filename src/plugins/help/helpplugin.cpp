@@ -566,6 +566,9 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
     if (backend.compare(QLatin1String("native"), Qt::CaseInsensitive) == 0) {
 #ifdef QTC_MAC_NATIVE_HELPVIEWER
         viewer = new MacWebKitHelpViewer(zoom);
+#else
+        qWarning() << "native help viewer is requested, but was not enabled during compilation";
+        viewer = new TextBrowserHelpViewer(zoom);
 #endif
     } else if (backend.compare(QLatin1String("textbrowser"), Qt::CaseInsensitive) == 0) {
         viewer = new TextBrowserHelpViewer(zoom);
