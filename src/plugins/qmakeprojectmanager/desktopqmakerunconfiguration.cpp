@@ -472,7 +472,7 @@ void DesktopQmakeRunConfiguration::setUsingDyldImageSuffix(bool state)
 QString DesktopQmakeRunConfiguration::workingDirectory() const
 {
     EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
-    QTC_ASSERT(aspect, baseWorkingDirectory());
+    QTC_ASSERT(aspect, return baseWorkingDirectory());
     return QDir::cleanPath(aspect->environment().expandVariables(
                 Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
 }
