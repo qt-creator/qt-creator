@@ -688,13 +688,10 @@ int ClangCompletionAssistProcessor::startCompletionHelper()
         m_model->m_completionOperator = T_LPAREN;
     }
 
-    QString expression;
-    int startOfExpression = m_interface->position();
     tc.setPosition(endOfExpression);
 
     if (m_model->m_completionOperator) {
-        expression = expressionUnderCursor(tc);
-        startOfExpression = endOfExpression - expression.length();
+        const QString expression = expressionUnderCursor(tc);
 
         if (m_model->m_completionOperator == T_LPAREN) {
             if (expression.endsWith(QLatin1String("SIGNAL")))
@@ -705,19 +702,13 @@ int ClangCompletionAssistProcessor::startCompletionHelper()
 
             else if (m_interface->position() != endOfOperator) {
                 // We don't want a function completion when the cursor isn't at the opening brace
-                expression.clear();
                 m_model->m_completionOperator = T_EOF_SYMBOL;
                 m_startPosition = startOfName;
-                startOfExpression = m_interface->position();
             }
         }
-    } else if (expression.isEmpty()) {
-        while (startOfExpression > 0 && m_interface->characterAt(startOfExpression).isSpace())
-            --startOfExpression;
     }
 
     int line = 0, column = 0;
-//    Convenience::convertPosition(m_interface->document(), startOfExpression, &line, &column);
     Convenience::convertPosition(m_interface->textDocument(), endOfOperator, &line, &column);
     return startCompletionInternal(fileName, line, column, endOfOperator);
 }
