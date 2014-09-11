@@ -723,7 +723,8 @@ void OutputPaneToggleButton::flash(int count)
 
 void OutputPaneToggleButton::setIconBadgeNumber(int number)
 {
-    m_badgeNumberLabel.setText(number ? QString::number(number) : QString());
+    QString text = (number ? QString::number(number) : QString());
+    m_badgeNumberLabel.setText(text);
     updateGeometry();
 }
 
