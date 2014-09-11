@@ -89,22 +89,22 @@ SetupItem::SetupItem(const QString &desc, QWidget *parent)
 
 void SetupItem::set(Status status, const QString &message, const QString &fixText)
 {
-    const char *icon;
+    QString icon;
     switch (status) {
     case Ok:
-        icon = Qnx::Constants::QNX_OK_ICON;
+        icon = QLatin1String(Qnx::Constants::QNX_OK_ICON);
         break;
     case Info:
-        icon = Core::Constants::ICON_INFO;
+        icon = QLatin1String(Core::Constants::ICON_INFO);
         break;
     case Warning:
-        icon = Core::Constants::ICON_WARNING;
+        icon = QLatin1String(Core::Constants::ICON_WARNING);
         break;
     case Error:
-        icon = Core::Constants::ICON_ERROR;
+        icon = QLatin1String(Core::Constants::ICON_ERROR);
         break;
     }
-    m_icon->setPixmap(QPixmap(QLatin1String(icon)));
+    m_icon->setPixmap(QPixmap(icon));
     m_label->setText(message);
     m_button->setVisible(!fixText.isEmpty());
     m_button->setText(fixText);
