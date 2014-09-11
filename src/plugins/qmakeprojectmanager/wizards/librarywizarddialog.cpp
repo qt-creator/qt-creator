@@ -165,14 +165,16 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     Utils::WizardProgressItem *filesItem = wizardProgress()->item(m_filesPageId);
     filesItem->setTitle(tr("Details"));
 
-    if (m_targetPageId != -1) {
-        targetItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                 << modulesItem << filesItem);
-        targetItem->setNextShownItem(0);
-    } else {
-        introItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                 << modulesItem << filesItem);
-        introItem->setNextShownItem(0);
+    if (targetItem) {
+        if (m_targetPageId != -1) {
+            targetItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                     << modulesItem << filesItem);
+            targetItem->setNextShownItem(0);
+        } else {
+            introItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                    << modulesItem << filesItem);
+            introItem->setNextShownItem(0);
+        }
     }
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));

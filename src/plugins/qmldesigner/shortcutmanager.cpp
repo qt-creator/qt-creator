@@ -212,7 +212,7 @@ void ShortCutManager::updateActions(Core::IEditor* currentEditor)
                                       && document->isModified());
 
     QString quotedName;
-    if (currentEditor)
+    if (currentEditor && document)
         quotedName = '"' + document->displayName() + '"';
 
     m_saveAsAction.setText(tr("Save %1 As...").arg(quotedName));

@@ -67,14 +67,12 @@ public:
 private slots:
     void currentRunConfigurationChanged(int index);
     void aboutToShowAddMenu();
-    void addRunConfiguration();
     void cloneRunConfiguration();
     void removeRunConfiguration();
     void activeRunConfigurationChanged();
     void renameRunConfiguration();
     void currentDeployConfigurationChanged(int index);
     void aboutToShowDeployMenu();
-    void addDeployConfiguration();
     void removeDeployConfiguration();
     void activeDeployConfigurationChanged();
     void renameDeployConfiguration();

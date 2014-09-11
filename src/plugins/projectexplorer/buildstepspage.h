@@ -109,7 +109,6 @@ public:
 
 private slots:
     void updateAddBuildStepMenu();
-    void triggerAddBuildStep();
     void addBuildStep(int pos);
     void updateSummary();
     void updateAdditionalSummary();
@@ -127,7 +126,6 @@ private:
     void addBuildStepWidget(int pos, BuildStep *step);
 
     BuildStepList *m_buildStepList;
-    QHash<QAction *, QPair<Core::Id, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
 
     QList<Internal::BuildStepsWidgetData *> m_buildStepsData;
 

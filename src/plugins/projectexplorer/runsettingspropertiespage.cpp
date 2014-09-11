@@ -250,14 +250,15 @@ void RunSettingsWidget::aboutToShowAddMenu()
         QList<Core::Id> ids = factory->availableCreationIds(m_target);
         foreach (Core::Id id, ids) {
             QAction *action = new QAction(factory->displayNameForId(id), m_addRunMenu);
-            FactoryAndId fai;
-            fai.factory = factory;
-            fai.id = id;
-            QVariant v;
-            v.setValue(fai);
-            action->setData(v);
-            connect(action, SIGNAL(triggered()),
-                    this, SLOT(addRunConfiguration()));
+            connect(action, &QAction::triggered, [factory, id, this]() {
+                RunConfiguration *newRC = factory->create(m_target, id);
+                if (!newRC)
+                    return;
+                QTC_CHECK(newRC->id() == id);
+                m_target->addRunConfiguration(newRC);
+                m_target->setActiveRunConfiguration(newRC);
+                m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+            });
             menuActions.append(action);
         }
     }
@@ -267,21 +268,6 @@ void RunSettingsWidget::aboutToShowAddMenu()
     });
     foreach (QAction *action, menuActions)
         m_addRunMenu->addAction(action);
-}
-
-void RunSettingsWidget::addRunConfiguration()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    if (!act)
-        return;
-    FactoryAndId fai = act->data().value<FactoryAndId>();
-    RunConfiguration *newRC = fai.factory->create(m_target, fai.id);
-    if (!newRC)
-        return;
-    QTC_CHECK(newRC->id() == fai.id);
-    m_target->addRunConfiguration(newRC);
-    m_target->setActiveRunConfiguration(newRC);
-    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::cloneRunConfiguration()
@@ -397,25 +383,19 @@ void RunSettingsWidget::aboutToShowDeployMenu()
             action->setData(QVariant::fromValue(data));
             connect(action, SIGNAL(triggered()),
                     this, SLOT(addDeployConfiguration()));
+            connect(action, &QAction::triggered, [factory, id, this]() {
+                if (!factory->canCreate(m_target, id))
+                    return;
+                DeployConfiguration *newDc = factory->create(m_target, id);
+                if (!newDc)
+                    return;
+                QTC_CHECK(!newDc || newDc->id() == id);
+                m_target->addDeployConfiguration(newDc);
+                m_target->setActiveDeployConfiguration(newDc);
+                m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
+            });
         }
     }
-}
-
-void RunSettingsWidget::addDeployConfiguration()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    if (!act)
-        return;
-    DeployFactoryAndId data = act->data().value<DeployFactoryAndId>();
-    if (!data.factory->canCreate(m_target, data.id))
-        return;
-    DeployConfiguration *newDc = data.factory->create(m_target, data.id);
-    if (!newDc)
-        return;
-    QTC_CHECK(!newDc || newDc->id() == data.id);
-    m_target->addDeployConfiguration(newDc);
-    m_target->setActiveDeployConfiguration(newDc);
-    m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::removeDeployConfiguration()

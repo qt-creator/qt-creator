@@ -301,16 +301,21 @@ void BuildStepListWidget::updateAddBuildStepMenu()
 
     // Ask the user which one to add
     QMenu *menu = m_addButton->menu();
-    m_addBuildStepHash.clear();
     menu->clear();
     if (!map.isEmpty()) {
         QMap<QString, QPair<Core::Id, IBuildStepFactory *> >::const_iterator it, end;
         end = map.constEnd();
         for (it = map.constBegin(); it != end; ++it) {
             QAction *action = menu->addAction(it.key());
-            connect(action, SIGNAL(triggered()),
-                    this, SLOT(triggerAddBuildStep()));
-            m_addBuildStepHash.insert(action, it.value());
+            IBuildStepFactory *factory = it.value().second;
+            Core::Id id = it.value().first;
+
+            connect(action, &QAction::triggered, [id, factory, this]() {
+                BuildStep *newStep = factory->create(m_buildStepList, id);
+                QTC_ASSERT(newStep, return);
+                int pos = m_buildStepList->count();
+                m_buildStepList->insertStep(pos, newStep);
+            });
         }
     }
 }
@@ -339,17 +344,6 @@ void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
             m_downMapper, SLOT(map()));
     connect(s->toolWidget, SIGNAL(removeClicked()),
             m_removeMapper, SLOT(map()));
-}
-
-void BuildStepListWidget::triggerAddBuildStep()
-{
-    if (QAction *action = qobject_cast<QAction *>(sender())) {
-        QPair<Core::Id, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
-        BuildStep *newStep = pair.second->create(m_buildStepList, pair.first);
-        QTC_ASSERT(newStep, return);
-        int pos = m_buildStepList->count();
-        m_buildStepList->insertStep(pos, newStep);
-    }
 }
 
 void BuildStepListWidget::addBuildStep(int pos)

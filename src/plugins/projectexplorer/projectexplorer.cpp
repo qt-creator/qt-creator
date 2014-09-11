@@ -848,19 +848,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // build without dependencies action
     d->m_buildProjectOnlyAction = new QAction(tr("Build Without Dependencies"), this);
-    cmd = ActionManager::registerAction(d->m_buildProjectOnlyAction, Constants::BUILDPROJECTONLY, globalcontext);
+    ActionManager::registerAction(d->m_buildProjectOnlyAction, Constants::BUILDPROJECTONLY, globalcontext);
 
     // rebuild without dependencies action
     d->m_rebuildProjectOnlyAction = new QAction(tr("Rebuild Without Dependencies"), this);
-    cmd = ActionManager::registerAction(d->m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY, globalcontext);
+    ActionManager::registerAction(d->m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY, globalcontext);
 
     // deploy without dependencies action
     d->m_deployProjectOnlyAction = new QAction(tr("Deploy Without Dependencies"), this);
-    cmd = ActionManager::registerAction(d->m_deployProjectOnlyAction, Constants::DEPLOYPROJECTONLY, globalcontext);
+    ActionManager::registerAction(d->m_deployProjectOnlyAction, Constants::DEPLOYPROJECTONLY, globalcontext);
 
     // clean without dependencies action
     d->m_cleanProjectOnlyAction = new QAction(tr("Clean Without Dependencies"), this);
-    cmd = ActionManager::registerAction(d->m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
+    ActionManager::registerAction(d->m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
 
     // deploy action (context menu)
     d->m_deployActionContextMenu = new QAction(tr("Deploy"), this);
