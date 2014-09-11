@@ -118,8 +118,10 @@ private slots:
             }
         }
 
-        if (m_failed)
+        if (m_failed) {
             qWarning("%s", qPrintable(errorMessage));
+            return;
+        }
 
         // update qmldump path for all the project
         QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
