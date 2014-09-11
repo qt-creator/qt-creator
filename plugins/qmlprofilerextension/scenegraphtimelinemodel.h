@@ -44,8 +44,6 @@ public:
     SceneGraphTimelineModel(QObject *parent = 0);
     quint64 features() const;
 
-    int rowCount() const;
-
     int row(int index) const;
     int eventId(int index) const;
     QColor color(int index) const;

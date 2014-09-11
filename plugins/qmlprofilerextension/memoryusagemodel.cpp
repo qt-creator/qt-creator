@@ -52,11 +52,6 @@ quint64 MemoryUsageModel::features() const
     return (1 << QmlDebug::ProfileMemory) | QmlDebug::Constants::QML_JS_RANGE_FEATURES;
 }
 
-int MemoryUsageModel::rowCount() const
-{
-    return isEmpty() ? 1 : 3;
-}
-
 int MemoryUsageModel::rowMaxValue(int rowNumber) const
 {
     Q_D(const MemoryUsageModel);
@@ -263,6 +258,7 @@ void MemoryUsageModel::loadData()
 
 
     computeNesting();
+    d->expandedRowCount = d->collapsedRowCount = 3;
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
 }
 

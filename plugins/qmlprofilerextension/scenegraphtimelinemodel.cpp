@@ -101,19 +101,12 @@ class SceneGraphTimelineModel::SceneGraphTimelineModelPrivate :
         public AbstractTimelineModel::AbstractTimelineModelPrivate
 {
 public:
-    SceneGraphTimelineModelPrivate();
-    int collapsedRowCount;
     void flattenLoads();
 
     QVector<SceneGraphEvent> data;
 private:
     Q_DECLARE_PUBLIC(SceneGraphTimelineModel)
 };
-
-SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::SceneGraphTimelineModelPrivate() :
-    collapsedRowCount(1)
-{
-}
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
     : AbstractTimelineModel(new SceneGraphTimelineModelPrivate,
@@ -125,14 +118,6 @@ SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
 quint64 SceneGraphTimelineModel::features() const
 {
     return 1 << QmlDebug::ProfileSceneGraph;
-}
-
-int SceneGraphTimelineModel::rowCount() const
-{
-    Q_D(const SceneGraphTimelineModel);
-    if (isEmpty())
-        return 1;
-    return expanded() ? (MaximumSceneGraphStage + 1) : d->collapsedRowCount;
 }
 
 int SceneGraphTimelineModel::row(int index) const
@@ -329,6 +314,7 @@ void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::flattenLoads()
 
     // Starting from 0, count is maxIndex+1
     collapsedRowCount++;
+    expandedRowCount = MaximumSceneGraphStage + 1;
 }
 
 void SceneGraphTimelineModel::clear()

@@ -72,7 +72,6 @@ public:
 
     QVector<PixmapCacheEvent> data;
     QVector<Pixmap> pixmaps;
-    int collapsedRowCount;
 
     qint64 maxCacheSize;
 private:
@@ -85,23 +84,12 @@ PixmapCacheModel::PixmapCacheModel(QObject *parent)
                             QmlDebug::PixmapCacheEvent, QmlDebug::MaximumRangeType, parent)
 {
     Q_D(PixmapCacheModel);
-    d->collapsedRowCount = 1;
     d->maxCacheSize = 1;
 }
 
 quint64 PixmapCacheModel::features() const
 {
     return 1 << QmlDebug::ProfilePixmapCache;
-}
-
-int PixmapCacheModel::rowCount() const
-{
-    Q_D(const PixmapCacheModel);
-    if (isEmpty())
-        return 1;
-    if (d->expanded)
-        return d->pixmaps.count() + 2;
-    return d->collapsedRowCount;
 }
 
 int PixmapCacheModel::rowMaxValue(int rowNumber) const
@@ -490,7 +478,6 @@ void PixmapCacheModel::clear()
 {
     Q_D(PixmapCacheModel);
     d->pixmaps.clear();
-    d->collapsedRowCount = 1;
     d->maxCacheSize = 1;
     d->data.clear();
     AbstractTimelineModel::clear();
@@ -548,6 +535,7 @@ void PixmapCacheModel::PixmapCacheModelPrivate::flattenLoads()
 
     // Starting from 0, count is maxIndex+1
     collapsedRowCount++;
+    expandedRowCount = pixmaps.count() + 2;
 }
 
 int PixmapCacheModel::PixmapCacheModelPrivate::updateCacheCount(int lastCacheSizeEvent,
