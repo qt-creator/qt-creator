@@ -80,7 +80,7 @@ void SftpTest::handleConnected()
         m_channel = m_connection->createSftpChannel();
         connect(m_channel.data(), SIGNAL(initialized()), this,
            SLOT(handleChannelInitialized()));
-        connect(m_channel.data(), SIGNAL(initializationFailed(QString)), this,
+        connect(m_channel.data(), SIGNAL(channelError(QString)), this,
             SLOT(handleChannelInitializationFailure(QString)));
         connect(m_channel.data(), SIGNAL(finished(QSsh::SftpJobId,QString)),
             this, SLOT(handleJobFinished(QSsh::SftpJobId,QString)));
