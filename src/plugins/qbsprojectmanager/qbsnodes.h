@@ -105,6 +105,7 @@ public:
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
+    bool renameFile(const QString &filePath, const QString &newFilePath);
     void updateQbsGroupData(const qbs::GroupData &grp, const QString &productPath,
                             bool productWasEnabled, bool productIsEnabled);
 
@@ -140,6 +141,7 @@ public:
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
+    bool renameFile(const QString &filePath, const QString &newFilePath);
 
     void setQbsProductData(const qbs::Project &project, const qbs::ProductData prd);
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }

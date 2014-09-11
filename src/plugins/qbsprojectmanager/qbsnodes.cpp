@@ -336,6 +336,7 @@ static QList<ProjectExplorer::ProjectAction> supportedNodeActions(ProjectExplore
     if (node->nodeType() == ProjectExplorer::FileNodeType
             && !project->qbsProject().buildSystemFiles().contains(node->path())) {
         actions << ProjectExplorer::RemoveFile;
+        actions << ProjectExplorer::Rename;
     }
     return actions;
 }
@@ -415,6 +416,19 @@ bool QbsGroupNode::removeFiles(const QStringList &filePaths, QStringList *notRem
 
     return prjNode->project()->removeFilesFromProduct(this, filePaths, prdNode->qbsProductData(),
                                                       m_qbsGroupData, notRemoved);
+}
+
+bool QbsGroupNode::renameFile(const QString &filePath, const QString &newFilePath)
+{
+    QbsProjectNode * const prjNode = parentQbsProjectNode(this);
+    if (!prjNode || !prjNode->qbsProject().isValid())
+        return false;
+    QbsProductNode * const prdNode = parentQbsProductNode(this);
+    if (!prdNode || !prdNode->qbsProductData().isValid())
+        return false;
+
+    return prjNode->project()->renameFileInProduct(this, filePath, newFilePath,
+                                                   prdNode->qbsProductData(), m_qbsGroupData);
 }
 
 void QbsGroupNode::updateQbsGroupData(const qbs::GroupData &grp, const QString &productPath,
@@ -621,6 +635,17 @@ bool QbsProductNode::removeFiles(const QStringList &filePaths, QStringList *notR
     }
 
     QTC_ASSERT(false, return false);
+}
+
+bool QbsProductNode::renameFile(const QString &filePath, const QString &newFilePath)
+{
+    QbsProjectNode * const prjNode = parentQbsProjectNode(this);
+    if (!prjNode || !prjNode->qbsProject().isValid())
+        return false;
+    const qbs::GroupData grp = findMainQbsGroup(m_qbsProductData);
+    QTC_ASSERT(grp.isValid(), return false);
+    return prjNode->project()->renameFileInProduct(this, filePath, newFilePath, m_qbsProductData,
+                                                   grp);
 }
 
 void QbsProductNode::setQbsProductData(const qbs::Project &project, const qbs::ProductData prd)

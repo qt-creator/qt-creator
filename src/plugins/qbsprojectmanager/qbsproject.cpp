@@ -307,6 +307,37 @@ bool QbsProject::removeFilesFromProduct(QbsBaseProjectNode *node, const QStringL
     return notRemoved->isEmpty();
 }
 
+bool QbsProject::renameFileInProduct(QbsBaseProjectNode *node, const QString &oldPath,
+        const QString &newPath, const qbs::ProductData &productData,
+        const qbs::GroupData &groupData)
+{
+    if (newPath.isEmpty())
+        return false;
+    QStringList dummy;
+    if (!removeFilesFromProduct(node, QStringList() << oldPath, productData, groupData, &dummy))
+        return false;
+    qbs::ProductData newProductData;
+    foreach (const qbs::ProductData &p, m_projectData.allProducts()) {
+        if (uniqueProductName(p) == uniqueProductName(productData)) {
+            newProductData = p;
+            break;
+        }
+    }
+    if (!newProductData.isValid())
+        return false;
+    qbs::GroupData newGroupData;
+    foreach (const qbs::GroupData &g, newProductData.groups()) {
+        if (g.name() == groupData.name()) {
+            newGroupData = g;
+            break;
+        }
+    }
+    if (!newGroupData.isValid())
+        return false;
+
+    return addFilesToProduct(node, QStringList() << newPath, newProductData, newGroupData, &dummy);
+}
+
 void QbsProject::invalidate()
 {
     prepareForParsing();

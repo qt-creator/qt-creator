@@ -78,6 +78,9 @@ public:
     bool removeFilesFromProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
             const qbs::ProductData &productData, const qbs::GroupData &groupData,
             QStringList *notRemoved);
+    bool renameFileInProduct(QbsBaseProjectNode *node, const QString &oldPath,
+            const QString &newPath, const qbs::ProductData &productData,
+            const qbs::GroupData &groupData);
 
     qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products = QStringList());
     qbs::CleanJob *clean(const qbs::CleanOptions &opts);
