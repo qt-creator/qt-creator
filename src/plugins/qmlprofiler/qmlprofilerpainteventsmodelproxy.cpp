@@ -140,20 +140,12 @@ void PaintEventsModelProxy::loadData()
     }
 
     computeNesting();
-
+    d->expandedRowCount = d->collapsedRowCount =
+            (d->maxGuiThreadAnimations == 0 || d->maxRenderThreadAnimations == 0) ? 2 : 3;
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
 }
 
 /////////////////// QML interface
-
-int PaintEventsModelProxy::rowCount() const
-{
-    Q_D(const PaintEventsModelProxy);
-    if (isEmpty())
-        return 1;
-    else
-        return (d->maxGuiThreadAnimations == 0 || d->maxRenderThreadAnimations == 0) ? 2 : 3;
-}
 
 int PaintEventsModelProxy::PaintEventsModelProxyPrivate::rowFromThreadId(
         QmlDebug::AnimationThread threadId) const

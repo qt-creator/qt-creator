@@ -66,7 +66,6 @@ public:
 
     int rowMaxValue(int rowNumber) const;
 
-    int rowCount() const;
     int eventId(int index) const;
     int row(int index) const;
 

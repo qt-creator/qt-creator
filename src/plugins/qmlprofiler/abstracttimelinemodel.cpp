@@ -45,6 +45,8 @@ AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
     d->displayName = displayName;
     d->message = message;
     d->rangeType = rangeType;
+    d->expandedRowCount = 1;
+    d->collapsedRowCount = 1;
 }
 
 AbstractTimelineModel::~AbstractTimelineModel()
@@ -229,9 +231,18 @@ QString AbstractTimelineModel::displayName() const
     return d->displayName;
 }
 
+int AbstractTimelineModel::rowCount() const
+{
+    Q_D(const AbstractTimelineModel);
+    if (isEmpty())
+        return d->modelManager->isEmpty() ? 1 : 0;
+    return d->expanded ? d->expandedRowCount : d->collapsedRowCount;
+}
+
 void AbstractTimelineModel::clear()
 {
     Q_D(AbstractTimelineModel);
+    d->collapsedRowCount = d->expandedRowCount = 1;
     bool wasExpanded = d->expanded;
     bool hadRowHeights = !d->rowOffsets.empty();
     d->rowOffsets.clear();

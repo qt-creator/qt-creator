@@ -65,9 +65,9 @@ public:
     bool expanded() const;
     void setExpanded(bool expanded);
     QString displayName() const;
+    int rowCount() const;
 
     // Methods that have to be implemented by child models
-    virtual int rowCount() const = 0;
     virtual int eventId(int index) const = 0;
     virtual QColor color(int index) const = 0;
     virtual QVariantList labels() const = 0;

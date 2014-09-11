@@ -54,8 +54,6 @@ public:
 
     QVector<QmlRangeEventStartInstance> data;
     QVector<int> expandedRowTypes;
-    int contractedRows;
-    bool seenPaintEvent;
 private:
     Q_DECLARE_PUBLIC(RangeTimelineModel)
 };
@@ -65,9 +63,7 @@ RangeTimelineModel::RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *p
                             QmlDebug::MaximumMessage, rangeType, parent)
 {
     Q_D(RangeTimelineModel);
-    d->seenPaintEvent = false;
     d->expandedRowTypes << -1;
-    d->contractedRows = 1;
 }
 
 quint64 RangeTimelineModel::features() const
@@ -81,8 +77,6 @@ void RangeTimelineModel::clear()
     Q_D(RangeTimelineModel);
     d->expandedRowTypes.clear();
     d->expandedRowTypes << -1;
-    d->contractedRows = 1;
-    d->seenPaintEvent = false;
     d->data.clear();
     AbstractTimelineModel::clear();
 }
@@ -102,8 +96,6 @@ void RangeTimelineModel::loadData()
         const QmlProfilerDataModel::QmlEventTypeData &type = typesList[event.typeIndex];
         if (!accepted(type))
             continue;
-        if (type.rangeType == QmlDebug::Painting)
-            d->seenPaintEvent = true;
 
         // store starttime-based instance
         d->data.insert(insert(event.startTime, event.duration),
@@ -140,7 +132,7 @@ void RangeTimelineModel::RangeTimelineModelPrivate::computeNestingContracted()
     int eventCount = q->count();
 
     int nestingLevels = QmlDebug::Constants::QML_MIN_LEVEL;
-    contractedRows = nestingLevels + 1;
+    collapsedRowCount = nestingLevels + 1;
     QVector<qint64> nestingEndTimes;
     nestingEndTimes.fill(0, nestingLevels + 1);
 
@@ -151,8 +143,8 @@ void RangeTimelineModel::RangeTimelineModelPrivate::computeNestingContracted()
         if (nestingEndTimes[nestingLevels] > st) {
             if (++nestingLevels == nestingEndTimes.size())
                 nestingEndTimes << 0;
-            if (nestingLevels == contractedRows)
-                ++contractedRows;
+            if (nestingLevels == collapsedRowCount)
+                ++collapsedRowCount;
         } else {
             while (nestingLevels > QmlDebug::Constants::QML_MIN_LEVEL &&
                    nestingEndTimes[nestingLevels-1] <= st)
@@ -177,6 +169,7 @@ void RangeTimelineModel::RangeTimelineModelPrivate::computeExpandedLevels()
         }
         data[i].displayRowExpanded = eventRow[eventId];
     }
+    expandedRowCount = expandedRowTypes.size();
 }
 
 void RangeTimelineModel::RangeTimelineModelPrivate::findBindingLoops()
@@ -215,18 +208,6 @@ void RangeTimelineModel::RangeTimelineModelPrivate::findBindingLoops()
 }
 
 /////////////////// QML interface
-
-int RangeTimelineModel::rowCount() const
-{
-    Q_D(const RangeTimelineModel);
-    // special for paint events: show only when empty model or there's actual events
-    if (d->rangeType == QmlDebug::Painting && !d->seenPaintEvent)
-        return 0;
-    if (d->expanded)
-        return d->expandedRowTypes.size();
-    else
-        return d->contractedRows;
-}
 
 QString RangeTimelineModel::categoryLabel(QmlDebug::RangeType rangeType)
 {
@@ -268,8 +249,7 @@ QVariantList RangeTimelineModel::labels() const
     if (d->expanded) {
         const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
                 d->modelManager->qmlModel()->getEventTypes();
-        int eventCount = d->expandedRowTypes.count();
-        for (int i = 1; i < eventCount; i++) { // Ignore the -1 for the first row
+        for (int i = 1; i < d->expandedRowCount; i++) { // Ignore the -1 for the first row
             QVariantMap element;
             int typeId = d->expandedRowTypes[i];
             element.insert(QLatin1String("displayName"), QVariant(types[typeId].displayName));
@@ -332,7 +312,7 @@ int RangeTimelineModel::eventIdForLocation(const QString &filename, int line, in
     // if this is called from v8 view, we don't have the column number, it will be -1
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &types =
             d->modelManager->qmlModel()->getEventTypes();
-    for (int i = 1; i < d->expandedRowTypes.size(); ++i) {
+    for (int i = 1; i < d->expandedRowCount; ++i) {
         int typeId = d->expandedRowTypes[i];
         const QmlProfilerDataModel::QmlEventTypeData &eventData = types[typeId];
         if (eventData.location.filename == filename &&

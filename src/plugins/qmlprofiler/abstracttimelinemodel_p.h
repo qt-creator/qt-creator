@@ -40,6 +40,8 @@ public:
     QmlProfilerModelManager *modelManager;
     int modelId;
     bool expanded;
+    int expandedRowCount;
+    int collapsedRowCount;
     QString displayName;
     QmlDebug::Message message;
     QmlDebug::RangeType rangeType;

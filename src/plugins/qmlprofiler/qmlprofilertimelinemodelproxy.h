@@ -68,10 +68,6 @@ public:
     void loadData();
     void clear();
 
-
-// QML interface
-
-    int rowCount() const;
     static QString categoryLabel(QmlDebug::RangeType categoryIndex);
     quint64 features() const;
 
