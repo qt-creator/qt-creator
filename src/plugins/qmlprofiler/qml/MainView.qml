@@ -250,6 +250,7 @@ Rectangle {
         width: 150
         height: 24
         onZoomControlChanged: zoomSliderToolBar.visible = !zoomSliderToolBar.visible
+        onFilterMenuChanged: filterMenu.visible = !filterMenu.visible
         onJumpToNext: view.selectNext();
         onJumpToPrev: view.selectPrev();
         onRangeSelectChanged: selectionRangeMode = rangeButtonChecked();
@@ -438,13 +439,40 @@ Rectangle {
     }
 
     Rectangle {
+        id: filterMenu
+        color: "#9b9b9b"
+        enabled: buttonsBar.enabled
+        visible: false
+        width: labels.width
+        anchors.left: parent.left
+        anchors.top: buttonsBar.bottom
+        height: qmlProfilerModelProxy.modelCount() * buttonsBar.height
+
+        Repeater {
+            id: filterMenuInner
+            model: qmlProfilerModelProxy.models
+            CheckBox {
+                anchors.left: filterMenu.left
+                anchors.right: filterMenu.right
+                height: buttonsBar.height
+                y: index * height
+                text: qmlProfilerModelProxy.models[index].displayName
+                enabled: !qmlProfilerModelProxy.models[index].empty
+                checked: enabled && !qmlProfilerModelProxy.models[index].hidden
+                onCheckedChanged: qmlProfilerModelProxy.models[index].hidden = !checked
+            }
+        }
+
+    }
+
+    Rectangle {
         id: zoomSliderToolBar
         objectName: "zoomSliderToolBar"
         color: "#9b9b9b"
         enabled: buttonsBar.enabled
         visible: false
         width: labels.width
-        height: 24
+        height: buttonsBar.height
         anchors.left: parent.left
         anchors.top: buttonsBar.bottom
 

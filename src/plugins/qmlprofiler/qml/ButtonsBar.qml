@@ -35,10 +35,12 @@ import QtQuick.Controls.Styles 1.2
 
 ToolBar {
     id: buttons
+    readonly property int buttonWidth: 25
 
     signal jumpToPrev()
     signal jumpToNext()
     signal zoomControlChanged()
+    signal filterMenuChanged()
     signal rangeSelectChanged()
     signal lockChanged()
 
@@ -79,7 +81,7 @@ ToolBar {
             id: jumpToPrevButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            implicitWidth: 30
+            implicitWidth: buttonWidth
 
             iconSource: "qrc:/qmlprofiler/ico_prev.png"
             tooltip: qsTr("Jump to previous event.")
@@ -90,7 +92,7 @@ ToolBar {
             id: jumpToNextButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            implicitWidth: 30
+            implicitWidth: buttonWidth
 
             iconSource: "qrc:/qmlprofiler/ico_next.png"
             tooltip: qsTr("Jump to next event.")
@@ -101,7 +103,7 @@ ToolBar {
             id: zoomControlButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            implicitWidth: 30
+            implicitWidth: buttonWidth
 
             iconSource: "qrc:/qmlprofiler/ico_zoom.png"
             tooltip: qsTr("Show zoom slider.")
@@ -111,10 +113,22 @@ ToolBar {
         }
 
         ToolButton {
+            id: filterButton
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            implicitWidth: buttonWidth
+
+            iconSource: "qrc:/qmlprofiler/ico_filter.png"
+            tooltip: qsTr("Filter Categories")
+            checkable: true
+            onCheckedChanged: buttons.filterMenuChanged()
+        }
+
+        ToolButton {
             id: rangeButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            implicitWidth: 30
+            implicitWidth: buttonWidth
 
             iconSource: checked ? "qrc:/qmlprofiler/ico_rangeselected.png" :
                                   "qrc:/qmlprofiler/ico_rangeselection.png"
@@ -128,7 +142,7 @@ ToolBar {
             id: lockButton
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            implicitWidth: 30
+            implicitWidth: buttonWidth
 
             iconSource: "qrc:/qmlprofiler/ico_selectionmode.png"
             tooltip: qsTr("View event information on mouseover.")

@@ -83,6 +83,7 @@ Item {
         target: qmlProfilerModelProxy.models[modelIndex]
         onExpandedChanged: updateDescriptions()
         onRowHeightChanged: updateDescriptions()
+        onHiddenChanged: updateDescriptions()
     }
 
     Connections {
