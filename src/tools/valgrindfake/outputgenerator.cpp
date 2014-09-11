@@ -108,9 +108,11 @@ void OutputGenerator::produceRuntimeError()
 {
     if (m_crash) {
         std::cerr << "Goodbye, cruel world" << std::endl;
+#ifndef __clang_analyzer__
         int zero = 0; // hide the error at compile-time to avoid a compiler warning
         int i = 1 / zero;
         Q_UNUSED(i);
+#endif
         Q_ASSERT(false);
     } else if (m_garbage) {
         std::cerr << "Writing garbage" << std::endl;
