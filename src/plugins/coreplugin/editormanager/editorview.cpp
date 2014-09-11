@@ -556,7 +556,7 @@ SplitterOrView::SplitterOrView(Core::IEditor *editor)
 
 SplitterOrView::SplitterOrView(EditorView *view)
 {
-    QTC_CHECK(view);
+    Q_ASSERT(view);
     m_layout = new QStackedLayout(this);
     m_layout->setSizeConstraint(QLayout::SetNoConstraint);
     m_view = view;
