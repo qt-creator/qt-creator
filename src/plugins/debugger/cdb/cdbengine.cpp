@@ -1800,7 +1800,7 @@ void CdbEngine::handleMemory(const CdbExtensionCommandPtr &command)
 {
     QTC_ASSERT(command->cookie.canConvert<MemoryViewCookie>(), return);
     const MemoryViewCookie memViewCookie = qvariant_cast<MemoryViewCookie>(command->cookie);
-    if (command->success) {
+    if (command->success && memViewCookie.agent) {
         const QByteArray data = QByteArray::fromBase64(command->reply);
         if (unsigned(data.size()) == memViewCookie.length)
             memViewCookie.agent->addLazyData(memViewCookie.editorToken,
