@@ -2846,7 +2846,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act = m_jumpToLineAction = new QAction(tr("Jump to Line"), this);
     connect(act, SIGNAL(triggered()), SLOT(handleExecJumpToLine()));
 
-    act = m_breakAction = new QAction(tr("Toggle Breakpoint"), this);
+    m_breakAction = new QAction(tr("Toggle Breakpoint"), this);
 
     act = m_watchAction1 = new QAction(tr("Add Expression Evaluator"), this);
     connect(act, SIGNAL(triggered()), SLOT(handleAddToWatchWindow()));
@@ -3136,7 +3136,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = ActionManager::registerAction(m_frameDownAction,
         "Debugger.FrameDown", cppDebuggercontext);
-    cmd = ActionManager::registerAction(m_frameUpAction,
+    ActionManager::registerAction(m_frameUpAction,
         "Debugger.FrameUp", cppDebuggercontext);
 
     cmd = ActionManager::registerAction(action(OperateByInstruction),
