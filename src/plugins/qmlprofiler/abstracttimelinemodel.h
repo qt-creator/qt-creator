@@ -73,7 +73,6 @@ public:
     virtual QVariantList labels() const = 0;
     virtual QVariantMap details(int index) const = 0;
     virtual int row(int index) const = 0;
-    virtual void loadData() = 0;
     virtual quint64 features() const = 0;
 
     // Methods which can optionally be implemented by child models.
@@ -85,7 +84,6 @@ public:
     virtual float relativeHeight(int index) const;
     virtual int rowMinValue(int rowNumber) const;
     virtual int rowMaxValue(int rowNumber) const;
-    virtual void clear();
 
 signals:
     void expandedChanged();
@@ -121,6 +119,9 @@ protected:
                                    QmlDebug::Message message, QmlDebug::RangeType rangeType,
                                    QObject *parent);
     AbstractTimelineModelPrivate *d_ptr;
+
+    virtual void loadData() = 0;
+    virtual void clear();
 
 protected slots:
     void dataChanged();

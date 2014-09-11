@@ -53,6 +53,7 @@ public:
     QVariantMap details(int) const { return QVariantMap(); }
     int row(int) const { return 1; }
     void loadData();
+    void clear() { AbstractTimelineModel::clear(); }
 
 
     // Make some protected methods public

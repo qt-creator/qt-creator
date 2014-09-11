@@ -65,9 +65,6 @@ public:
 
     RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *parent = 0);
 
-    void loadData();
-    void clear();
-
     static QString categoryLabel(QmlDebug::RangeType categoryIndex);
     quint64 features() const;
 
@@ -82,6 +79,10 @@ public:
 
     int eventIdForTypeIndex(int typeIndex) const;
     int eventIdForLocation(const QString &filename, int line, int column) const;
+
+protected:
+    void loadData();
+    void clear();
 
 private:
     class RangeTimelineModelPrivate;

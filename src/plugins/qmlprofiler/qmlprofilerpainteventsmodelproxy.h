@@ -61,9 +61,6 @@ public:
 
     PaintEventsModelProxy(QObject *parent = 0);
 
-    void loadData();
-    void clear();
-
     int rowMaxValue(int rowNumber) const;
 
     int eventId(int index) const;
@@ -76,8 +73,11 @@ public:
     QVariantMap details(int index) const;
     quint64 features() const;
 
-private slots:
     bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
+
+protected:
+    void loadData();
+    void clear();
 
 private:
     class PaintEventsModelProxyPrivate;
