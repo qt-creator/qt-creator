@@ -143,8 +143,10 @@ public:
         return new VirtualFunctionProposal(m_params.cursorPosition, items, m_params.openInNextSplit);
     }
 
-    IAssistProposal *perform(const AssistInterface *) QTC_OVERRIDE
+    IAssistProposal *perform(const AssistInterface *assistInterface) QTC_OVERRIDE
     {
+        delete assistInterface;
+
         QTC_ASSERT(m_params.function, return 0);
         QTC_ASSERT(m_params.staticClass, return 0);
         QTC_ASSERT(!m_params.snapshot.isEmpty(), return 0);
