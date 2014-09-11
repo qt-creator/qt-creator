@@ -785,7 +785,7 @@ void BadgeLabel::paint(QPainter *p, int x, int y, bool isChecked)
     p->restore();
 }
 
-void BadgeLabel::setText(QString &text)
+void BadgeLabel::setText(const QString &text)
 {
     m_text = text;
     calculateSize();

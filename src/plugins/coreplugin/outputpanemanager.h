@@ -143,7 +143,7 @@ class BadgeLabel
 public:
     BadgeLabel();
     void paint(QPainter *p, int x, int y, bool isChecked);
-    void setText(QString &text);
+    void setText(const QString &text);
     QString text() const;
     QSize sizeHint() const;
 
