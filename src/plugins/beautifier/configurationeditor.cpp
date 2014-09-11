@@ -118,7 +118,7 @@ ConfigurationEditor::ConfigurationEditor(QWidget *parent)
 
 void ConfigurationEditor::setSettings(AbstractSettings *settings)
 {
-    QTC_CHECK(settings);
+    QTC_ASSERT(settings, return);
     m_settings = settings;
 
     QStringList keywords = m_settings->options();
