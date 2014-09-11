@@ -63,6 +63,7 @@ public:
     QVariantList labels() const;
     QVariantMap details(int index) const;
 
+protected:
     void loadData();
     void clear();
 

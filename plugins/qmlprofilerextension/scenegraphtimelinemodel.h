@@ -52,6 +52,7 @@ public:
 
     QVariantMap details(int index) const;
 
+protected:
     void loadData();
     void clear();
 
