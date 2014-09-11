@@ -488,6 +488,11 @@ void FlatModel::reset()
     endResetModel();
 }
 
+Qt::DropActions FlatModel::supportedDragActions() const
+{
+    return Qt::MoveAction;
+}
+
 QStringList FlatModel::mimeTypes() const
 {
     return Utils::FileDropSupport::mimeTypesForFilePaths();

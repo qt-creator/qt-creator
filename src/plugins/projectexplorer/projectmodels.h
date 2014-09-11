@@ -65,6 +65,7 @@ public:
 
     void reset();
 
+    Qt::DropActions supportedDragActions() const;
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
 
