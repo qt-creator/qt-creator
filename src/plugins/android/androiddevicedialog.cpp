@@ -414,6 +414,8 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, QWidg
 
     connect(m_ui->createAVDButton, SIGNAL(clicked()),
             this, SLOT(createAvd()));
+    connect(m_ui->deviceView, SIGNAL(doubleClicked(QModelIndex)),
+            this, SLOT(accept()));
 
     connect(&m_futureWatcher, SIGNAL(finished()),
             this, SLOT(avdAdded()));
