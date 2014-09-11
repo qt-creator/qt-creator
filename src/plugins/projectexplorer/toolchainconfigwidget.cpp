@@ -43,10 +43,11 @@ namespace ProjectExplorer {
 ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
     m_toolChain(tc), m_errorLabel(0)
 {
-    QTC_CHECK(tc);
+    Q_ASSERT(tc);
+
     m_nameLineEdit = new QLineEdit(this);
-    m_nameLineEdit->setText(tc->displayName());
     m_mainLayout = new QFormLayout(this);
+    m_nameLineEdit->setText(tc->displayName());
     m_mainLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow); // for the Macs...
     m_mainLayout->addRow(tr("Name:"), m_nameLineEdit);
 
