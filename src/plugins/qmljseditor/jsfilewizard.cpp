@@ -97,9 +97,9 @@ Core::GeneratedFiles JsFileWizard::generateFiles(const QWizard *w,
 {
     const Core::BaseFileWizard *wizard = qobject_cast<const Core::BaseFileWizard *>(w);
     Utils::FileWizardPage *filePage = wizard->find<Utils::FileWizardPage>();
-    QTC_ASSERT(filePage, Core::GeneratedFiles());
+    QTC_ASSERT(filePage, return Core::GeneratedFiles());
     JsFileOptionsPage *optionPage = wizard->find<JsFileOptionsPage>();
-    QTC_ASSERT(optionPage, Core::GeneratedFiles());
+    QTC_ASSERT(optionPage, return Core::GeneratedFiles());
 
 
     const QString path = filePage->path();
