@@ -168,7 +168,6 @@ public:
 
 */
 
-static VariableManager *variableManagerInstance = 0;
 static VariableManagerPrivate *d;
 
 /*!
@@ -177,7 +176,6 @@ static VariableManagerPrivate *d;
 VariableManager::VariableManager()
 {
     d = new VariableManagerPrivate;
-    variableManagerInstance = this;
 
     registerPrefix("Env", QCoreApplication::translate("Core::VariableManager", "Access environment variables."),
                    [](const QString &value)
@@ -189,7 +187,6 @@ VariableManager::VariableManager()
  */
 VariableManager::~VariableManager()
 {
-    variableManagerInstance = 0;
     delete d;
 }
 
