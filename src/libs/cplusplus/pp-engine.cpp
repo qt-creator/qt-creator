@@ -1034,6 +1034,9 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
                 } else {
 
                     argRefs.push_back(MacroArgumentReference(
+                                  m_state.m_bytesOffsetRef + argTks.first().bytesBegin(),
+                                  argTks.last().bytesBegin() + argTks.last().bytes()
+                                    - argTks.first().bytesBegin(),
                                   m_state.m_utf16charsOffsetRef + argTks.first().utf16charsBegin(),
                                   argTks.last().utf16charsBegin() + argTks.last().utf16chars()
                                     - argTks.first().utf16charsBegin()));

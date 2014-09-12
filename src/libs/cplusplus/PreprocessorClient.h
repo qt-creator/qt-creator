@@ -46,13 +46,25 @@ class Macro;
 
 class CPLUSPLUS_EXPORT MacroArgumentReference
 {
+  unsigned _bytesOffset;
+  unsigned _bytesLength;
   unsigned _utf16charsOffset;
   unsigned _utf16charsLength;
 
 public:
-  explicit MacroArgumentReference(unsigned utf16charsOffset = 0, unsigned utf16charsLength = 0)
-    : _utf16charsOffset(utf16charsOffset), _utf16charsLength(utf16charsLength)
+  explicit MacroArgumentReference(unsigned bytesOffset = 0, unsigned bytesLength = 0,
+                                  unsigned utf16charsOffset = 0, unsigned utf16charsLength = 0)
+    : _bytesOffset(bytesOffset)
+    , _bytesLength(bytesLength)
+    , _utf16charsOffset(utf16charsOffset)
+    , _utf16charsLength(utf16charsLength)
   { }
+
+  unsigned bytesOffset() const
+  { return _bytesOffset; }
+
+  unsigned bytesLength() const
+  { return _bytesLength; }
 
   unsigned utf16charsOffset() const
   { return _utf16charsOffset; }

@@ -378,7 +378,9 @@ void Document::addMacroUse(const Macro &macro,
                  beginLine);
 
     foreach (const MacroArgumentReference &actual, actuals) {
-        const Block arg(0, 0, actual.utf16charsOffset(),
+        const Block arg(actual.bytesOffset(),
+                        actual.bytesOffset() + actual.bytesLength(),
+                        actual.utf16charsOffset(),
                         actual.utf16charsOffset() + actual.utf16charsLength());
         use.addArgument(arg);
     }

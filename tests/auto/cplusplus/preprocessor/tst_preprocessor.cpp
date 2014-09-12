@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
+#include "../cplusplus_global.h"
 #include <cplusplus/pp.h>
-
 #include <QtTest>
 #include <QFile>
 #include <QHash>
@@ -149,6 +149,7 @@ public:
         m_expandedMacrosOffset.append(bytesOffset);
         m_macroUsesLine[macro.name()].append(line);
         m_macroArgsCount.append(actuals.size());
+        m_usedMacros.insert(macro.name(), actuals);
     }
 
     virtual void stopExpandingMacro(unsigned /*offset*/, const Macro &/*macro*/) {}
@@ -273,6 +274,9 @@ public:
     const QList<int> macroArgsCount() const
     { return m_macroArgsCount; }
 
+    const QMap<QByteArray, QVector<MacroArgumentReference >> usedMacros() const
+    { return m_usedMacros; }
+
 private:
     Environment *m_env;
     QByteArray *m_output;
@@ -290,6 +294,7 @@ private:
     QHash<QByteArray, QList<unsigned> > m_definitionsResolvedFromLines;
     QSet<QByteArray> m_unresolvedDefines;
     QList<int> m_macroArgsCount;
+    QMap<QByteArray, QVector<MacroArgumentReference >> m_usedMacros;
 };
 
 QT_BEGIN_NAMESPACE
@@ -352,6 +357,8 @@ private slots:
     void defined_usage();
     void empty_macro_args();
     void macro_args_count();
+    void macro_args_offsets();
+    void macro_args_offsets_data();
     void invalid_param_count();
     void objmacro_expanding_as_fnmacro_notification();
     void macro_uses();
@@ -513,6 +520,73 @@ void tst_Preprocessor::macro_args_count()
                           << 1 // bar(i)
             );
 
+}
+
+void tst_Preprocessor::macro_args_offsets()
+{
+    QFETCH(QString, fileName);
+    QFETCH(QByteArray, source);
+    QFETCH(QByteArray, macroName);
+    QFETCH(unsigned, bytesOffset);
+    QFETCH(unsigned, bytesLength);
+    QFETCH(unsigned, utf16charsOffset);
+    QFETCH(unsigned, utf16charsLength);
+
+    Environment env;
+    QByteArray output;
+    MockClient client(&env, &output);
+    Preprocessor preprocess(&client, &env);
+    preprocess.run(fileName, source, true, false);
+
+    QMap<QByteArray, QVector<MacroArgumentReference >> usedMacros = client.usedMacros();
+    QCOMPARE(usedMacros.size(), 1);
+    QVERIFY(usedMacros.contains(macroName));
+    MacroArgumentReference argRef = usedMacros.value(macroName).at(0);
+    QCOMPARE(argRef.bytesOffset(), bytesOffset);
+    QCOMPARE(argRef.bytesLength(), bytesLength);
+    QCOMPARE(argRef.utf16charsOffset(), utf16charsOffset);
+    QCOMPARE(argRef.utf16charsLength(), utf16charsLength);
+
+
+}
+
+void tst_Preprocessor::macro_args_offsets_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<QByteArray>("macroName");
+    QTest::addColumn<unsigned>("bytesOffset");
+    QTest::addColumn<unsigned>("bytesLength");
+    QTest::addColumn<unsigned>("utf16charsOffset");
+    QTest::addColumn<unsigned>("utf16charsLength");
+
+    QString fN = QLatin1String("<stdin>");
+    QByteArray src = QByteArray("#define SQR(a) ( a * a )\n"
+                                "void f(){\n"
+                                "int i = 10;\n"
+                                "int j = SQR(10);\n"
+                                "}");
+    QTest::newRow("ascii_only_before_ref") << fN << src << QByteArray("SQR")
+                                           << 59u << 2u << 59u << 2u;
+    src.replace("int i", "int äöü");
+    QTest::newRow("ascii_with_umlauts_before_ref") << fN << src << QByteArray("SQR")
+                                                   << 64u << 2u << 61u << 2u;
+    src.clear();
+    src.append("#define OUT(format, ...) printf(\"%s %d: \" format, __FILE__, __LINE__)\n"
+               "void f(){\n"
+               "OUT(\"Hei verden!\\n\");\n"
+               "}\n");
+    QTest::newRow("arg_ascii_only") << fN << src << QByteArray("OUT")
+                                    << 84u << 15u << 84u << 15u;
+    src.replace("Hei verden", UC_U00FC);
+    QTest::newRow("arg_ascii_with_unicode_00fc") << fN << src << QByteArray("OUT")
+                                                 << 84u << 7u << 84u << 6u;
+    src.replace(UC_U00FC, UC_U4E8C);
+    QTest::newRow("arg_ascii_with_unicode_4e8c") << fN << src << QByteArray("OUT")
+                                                 << 84u << 8u << 84u << 6u;
+    src.replace(UC_U4E8C, UC_U10302);
+    QTest::newRow("arg_ascii_with_unicode_10302") << fN << src << QByteArray("OUT")
+                                                  << 84u << 9u << 84u << 7u;
 }
 
 void tst_Preprocessor::invalid_param_count()
