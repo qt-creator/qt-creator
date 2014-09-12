@@ -51,9 +51,12 @@ public:
     static QString expandedString(const QString &stringWithVariables);
     static Utils::AbstractMacroExpander *macroExpander();
 
-
+    typedef std::function<QString(QString)> PrefixFunction;
     typedef std::function<QString()> StringFunction;
     typedef std::function<int()> IntFunction;
+
+    static void registerPrefix(const QByteArray &prefix,
+        const QString &description, const PrefixFunction &value);
 
     static void registerVariable(const QByteArray &variable,
         const QString &description, const StringFunction &value);

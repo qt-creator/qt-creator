@@ -58,6 +58,7 @@ class VariableManagerPrivate
 {
 public:
     QHash<QByteArray, VariableManager::StringFunction> m_map;
+    QHash<QByteArray, VariableManager::PrefixFunction> m_prefixMap;
     VMMapExpander m_macroExpander;
     QMap<QByteArray, QString> m_descriptions;
 };
@@ -177,6 +178,10 @@ VariableManager::VariableManager()
 {
     d = new VariableManagerPrivate;
     variableManagerInstance = this;
+
+    registerPrefix("Env", QCoreApplication::translate("Core::VariableManager", "Access environment variables."),
+                   [](const QString &value)
+                   { return QString::fromLocal8Bit(qgetenv(value.toLocal8Bit())); });
 }
 
 /*!
@@ -194,16 +199,25 @@ VariableManager::~VariableManager()
  */
 QString VariableManager::value(const QByteArray &variable, bool *found)
 {
-    if (variable.startsWith("Env:")) {
-        QByteArray ba = qgetenv(variable.data() + 4);
+    StringFunction sf = d->m_map.value(variable);
+    if (sf) {
         if (found)
-            *found = !ba.isNull();
-        return QString::fromLocal8Bit(ba);
+            *found = true;
+        return sf();
+    }
+
+    for (auto it = d->m_prefixMap.constBegin(); it != d->m_prefixMap.constEnd(); ++it) {
+        if (variable.startsWith(it.key())) {
+            PrefixFunction pf = it.value();
+            if (found)
+                *found = true;
+            return pf(QString::fromUtf8(variable.mid(it.key().count())));
+        }
     }
     if (found)
-        *found = d->m_map.contains(variable);
-    StringFunction f = d->m_map.value(variable);
-    return f ? f() : QString();
+        *found = false;
+
+    return QString();
 }
 
 /*!
@@ -232,10 +246,29 @@ Utils::AbstractMacroExpander *VariableManager::macroExpander()
 }
 
 /*!
+ * Makes the given string-valued \a prefix known to the variable manager,
+ * together with a localized \a description.
+ *
+ * The \a value PrefixFunction will be called and gets the full variable name
+ * with the prefix stripped as input.
+ *
+ * \sa registerVariables(), registerIntVariable(), registerFileVariables()
+ */
+void VariableManager::registerPrefix(const QByteArray &prefix, const QString &description,
+                                     const VariableManager::PrefixFunction &value)
+{
+    QByteArray tmp = prefix;
+    if (!tmp.endsWith(':'))
+        tmp.append(':');
+    d->m_descriptions.insert(tmp + "<value>", description);
+    d->m_prefixMap.insert(tmp, value);
+}
+
+/*!
  * Makes the given string-valued \a variable known to the variable manager,
  * together with a localized \a description.
  *
- * \sa registerFileVariables(), registerIntVariable()
+ * \sa registerFileVariables(), registerIntVariable(), registerPrefix()
  */
 void VariableManager::registerVariable(const QByteArray &variable,
     const QString &description, const StringFunction &value)
@@ -248,7 +281,7 @@ void VariableManager::registerVariable(const QByteArray &variable,
  * Makes the given integral-valued \a variable known to the variable manager,
  * together with a localized \a description.
  *
- * \sa registerVariable(), registerFileVariables()
+ * \sa registerVariable(), registerFileVariables(), registerPrefix()
  */
 void VariableManager::registerIntVariable(const QByteArray &variable,
     const QString &description, const VariableManager::IntFunction &value)
@@ -265,6 +298,8 @@ void VariableManager::registerIntVariable(const QByteArray &variable,
  * For example \c{registerFileVariables("CurrentDocument", tr("Current Document"))} registers
  * variables such as \c{CurrentDocument:FilePath} with description
  * "Current Document: Full path including file name."
+ *
+ * \sa registerVariable(), registerIntVariable(), registerPrefix()
  */
 void VariableManager::registerFileVariables(const QByteArray &prefix,
     const QString &heading, const StringFunction &base)
