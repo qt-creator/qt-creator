@@ -181,16 +181,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkTimestampCheckBox">
-       <property name="toolTip">
-        <string>Instead of using the file timestamps that are stored in the build graph, retrieve the timestamps from the file system.</string>
-       </property>
-       <property name="text">
-        <string>Check timestamps</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <spacer name="checkBoxSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>

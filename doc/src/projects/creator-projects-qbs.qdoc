@@ -114,12 +114,6 @@
                         \li Select \gui {Keep going} to continue building when
                             errors occur, if possible.
 
-                        \li Select \gui {Check timestamps} to retrieve the
-                            timestamps from the file system instead of using the
-                            ones stored in the build graph. You only need this
-                            option if you made changes to the build directory
-                            manually, which is not recommended.
-
                     \endlist
 
             \endlist
