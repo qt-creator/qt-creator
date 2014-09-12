@@ -107,6 +107,7 @@ signals:
 private slots:
     void kitChanged();
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
+    void proFileEvaluated();
 
 protected:
     DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, DesktopQmakeRunConfiguration *source);

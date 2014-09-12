@@ -128,18 +128,8 @@ QString DesktopQmakeRunConfiguration::disabledReason() const
 
 void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool success, bool parseInProgress)
 {
-    LocalEnvironmentAspect *aspect = extraAspect<LocalEnvironmentAspect>();
-    QTC_ASSERT(aspect, return);
-
-    if (m_proFilePath != pro->path()) {
-        if (!parseInProgress) {
-            // We depend on all .pro files for the LD_LIBRARY_PATH so we emit a signal for all .pro files
-            // This can be optimized by checking whether LD_LIBRARY_PATH changed
-            aspect->buildEnvironmentHasChanged();
-        }
+    if (m_proFilePath != pro->path())
         return;
-    }
-
     bool enabled = isEnabled();
     QString reason = disabledReason();
     m_parseSuccess = success;
@@ -149,8 +139,19 @@ void DesktopQmakeRunConfiguration::proFileUpdated(QmakeProFileNode *pro, bool su
 
     if (!parseInProgress) {
         emit effectiveTargetInformationChanged();
+        LocalEnvironmentAspect *aspect = extraAspect<LocalEnvironmentAspect>();
+        QTC_ASSERT(aspect, return);
         aspect->buildEnvironmentHasChanged();
     }
+}
+
+void DesktopQmakeRunConfiguration::proFileEvaluated()
+{
+    // We depend on all .pro files for the LD_LIBRARY_PATH so we emit a signal for all .pro files
+    // This can be optimized by checking whether LD_LIBRARY_PATH changed
+    LocalEnvironmentAspect *aspect = extraAspect<LocalEnvironmentAspect>();
+    QTC_ASSERT(aspect, return);
+    aspect->buildEnvironmentHasChanged();
 }
 
 void DesktopQmakeRunConfiguration::ctor()
@@ -163,6 +164,8 @@ void DesktopQmakeRunConfiguration::ctor()
     QmakeProject *project = static_cast<QmakeProject *>(target()->project());
     connect(project, &QmakeProject::proFileUpdated,
             this, &DesktopQmakeRunConfiguration::proFileUpdated);
+    connect(project, &QmakeProject::proFilesEvaluated,
+            this, &DesktopQmakeRunConfiguration::proFileEvaluated);
     connect(target(), &Target::kitChanged,
             this, &DesktopQmakeRunConfiguration::kitChanged);
 }
