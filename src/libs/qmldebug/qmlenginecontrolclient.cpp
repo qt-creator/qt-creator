@@ -38,12 +38,13 @@ QmlEngineControlClient::QmlEngineControlClient(QmlDebugConnection *client)
 }
 
 /*!
- * Block the staring or stopping of the engine with id \a engineId for now. By calling releaseEngine
- * later the block can be lifted again. In the debugged application the engine control server waits
- * until a message is received before continuing. So by not sending a message here we delay the
- * process. Blocks add up. You have to call releaseEngine() as often as you've called blockEngine
- * before. The intention of that is to allow different debug clients to use the same engine control
- * and communicate with their respective counterparts before the QML engine starts or shuts down.
+ * Block the starting or stopping of the engine with id \a engineId for now. By calling
+ * releaseEngine later the block can be lifted again. In the debugged application the engine control
+ * server waits until a message is received before continuing. So by not sending a message here we
+ * delay the process. Blocks add up. You have to call releaseEngine() as often as you've called
+ * blockEngine before. The intention of that is to allow different debug clients to use the same
+ * engine control and communicate with their respective counterparts before the QML engine starts or
+ * shuts down.
  */
 void QmlEngineControlClient::blockEngine(int engineId)
 {
