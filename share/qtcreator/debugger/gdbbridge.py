@@ -544,7 +544,7 @@ class Dumper(DumperBase):
             self.putValue("<not accessible>")
         try:
             if self.currentType.value:
-                typeName = stripClassTag(self.currentType.value)
+                typeName = self.stripClassTag(self.currentType.value)
                 if len(typeName) > 0 and typeName != self.currentChildType:
                     self.put('type="%s",' % typeName) # str(type.unqualified()) ?
 
@@ -583,7 +583,7 @@ class Dumper(DumperBase):
                 arg += a
 
         #warn("CALL: %s -> %s(%s)" % (value, func, arg))
-        typeName = stripClassTag(str(value.type))
+        typeName = self.stripClassTag(str(value.type))
         if typeName.find(":") >= 0:
             typeName = "'" + typeName + "'"
         # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
@@ -604,7 +604,7 @@ class Dumper(DumperBase):
             return None
 
     def makeValue(self, type, init):
-        type = "::" + stripClassTag(str(type));
+        type = "::" + self.stripClassTag(str(type));
         # Avoid malloc symbol clash with QVector.
         gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (type, type))
         gdb.execute("set *$d = {%s}" % init)
@@ -615,7 +615,7 @@ class Dumper(DumperBase):
         return value
 
     def makeExpression(self, value):
-        type = "::" + stripClassTag(str(value.type))
+        type = "::" + self.stripClassTag(str(value.type))
         #warn("  TYPE: %s" % type)
         #exp = "(*(%s*)(&%s))" % (type, value.address)
         exp = "(*(%s*)(%s))" % (type, value.address)
@@ -917,7 +917,7 @@ class Dumper(DumperBase):
                 self.lookupType("unsigned long")), None, -1)
 
     def stripNamespaceFromType(self, typeName):
-        type = stripClassTag(typeName)
+        type = self.stripClassTag(typeName)
         ns = self.qtNamespace()
         if len(ns) > 0 and type.startswith(ns):
             type = type[len(ns):]
@@ -1727,7 +1727,7 @@ class CliDumper(Dumper):
             self.putValue("<not accessible>")
         try:
             if self.currentType.value:
-                typeName = stripClassTag(self.currentType.value)
+                typeName = self.stripClassTag(self.currentType.value)
                 self.put('<%s> = {' % typeName)
 
             if  self.currentValue.value is None:

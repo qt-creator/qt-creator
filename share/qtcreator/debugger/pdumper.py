@@ -78,7 +78,7 @@ def qdebug(options = None,
         def itemFormat(self, item):
             format = self.formats.get(str(cleanAddress(item.value.address)))
             if format is None:
-                format = self.typeformats.get(stripClassTag(str(item.value.type)))
+                format = self.typeformats.get(self.stripClassTag(str(item.value.type)))
             return format
 
         def dumpFrame(self, frame):

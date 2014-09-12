@@ -879,7 +879,7 @@ class Dumper(DumperBase):
         return self.target.FindFirstGlobalVariable(symbolName)
 
     def stripNamespaceFromType(self, typeName):
-        #type = stripClassTag(typeName)
+        #type = self.stripClassTag(typeName)
         type = typeName
         ns = self.qtNamespace()
         if len(ns) > 0 and type.startswith(ns):
