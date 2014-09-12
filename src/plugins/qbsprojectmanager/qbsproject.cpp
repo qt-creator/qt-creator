@@ -190,11 +190,11 @@ static void collectFilesForProject(const qbs::ProjectData &project, QSet<QString
 QStringList QbsProject::files(Project::FilesMode fileMode) const
 {
     Q_UNUSED(fileMode);
-    if (!m_rootProjectNode || !m_rootProjectNode->qbsProjectData().isValid())
+    if (!m_qbsProject.isValid() || isParsing())
         return QStringList();
     QSet<QString> result;
-    collectFilesForProject(m_rootProjectNode->qbsProjectData(), result);
-    result.unite(qbsProject().buildSystemFiles());
+    collectFilesForProject(m_projectData, result);
+    result.unite(m_qbsProject.buildSystemFiles());
     return result.toList();
 }
 
