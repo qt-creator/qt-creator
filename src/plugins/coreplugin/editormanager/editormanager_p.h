@@ -75,6 +75,13 @@ public:
                                Id editorId = Id(),
                                EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
                                bool *newEditor = 0);
+    static IEditor *openEditorAt(EditorView *view,
+                                 const QString &fileName,
+                                 int line,
+                                 int column = 0,
+                                 Id editorId = Id(),
+                                 EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
+                                 bool *newEditor = 0);
     static IEditor *duplicateEditor(IEditor *editor);
     static IEditor *activateEditor(EditorView *view, IEditor *editor,
                                    EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);

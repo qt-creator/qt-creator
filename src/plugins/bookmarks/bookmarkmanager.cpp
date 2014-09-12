@@ -229,6 +229,8 @@ BookmarkView::BookmarkView(BookmarkManager *manager)  :
     setSelectionModel(manager->selectionModel());
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
+    setDragEnabled(true);
+    setDragDropMode(QAbstractItemView::DragOnly);
 
     connect(this, SIGNAL(clicked(QModelIndex)),
             this, SLOT(gotoBookmark(QModelIndex)));
@@ -406,6 +408,35 @@ QVariant BookmarkManager::data(const QModelIndex &index, int role) const
     if (role == Qt::ToolTipRole)
         return QDir::toNativeSeparators(bookMark->fileName());
     return QVariant();
+}
+
+Qt::ItemFlags BookmarkManager::flags(const QModelIndex &index) const
+{
+    if (!index.isValid() || index.column() !=0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
+        return Qt::NoItemFlags;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+}
+
+Qt::DropActions BookmarkManager::supportedDragActions() const
+{
+    return Qt::MoveAction;
+}
+
+QStringList BookmarkManager::mimeTypes() const
+{
+    return FileDropSupport::mimeTypesForFilePaths();
+}
+
+QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
+{
+    auto data = new Utils::FileDropMimeData;
+    foreach (const QModelIndex &index, indexes) {
+        if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
+            continue;
+        Bookmark *bookMark = m_bookmarksList.at(index.row());
+        data->addFile(bookMark->fileName(), bookMark->lineNumber());
+    }
+    return data;
 }
 
 void BookmarkManager::toggleBookmark()

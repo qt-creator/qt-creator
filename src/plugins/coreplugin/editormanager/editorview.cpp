@@ -40,7 +40,6 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -125,8 +124,8 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     auto dropSupport = new Utils::FileDropSupport(this, [this](QDropEvent *event) {
         return event->source() != m_toolBar; // do not accept drops on ourselves
     });
-    connect(dropSupport, SIGNAL(filesDropped(QStringList)),
-            this, SLOT(openDroppedFiles(QStringList)));
+    connect(dropSupport, &Utils::FileDropSupport::filesDropped,
+            this, &EditorView::openDroppedFiles);
 
     updateNavigatorActions();
 }
@@ -350,11 +349,12 @@ void EditorView::closeSplit()
     EditorManagerPrivate::updateActions();
 }
 
-void EditorView::openDroppedFiles(const QStringList &files)
+void EditorView::openDroppedFiles(const QList<Utils::FileDropSupport::FileSpec> &files)
 {
     const int count = files.size();
     for (int i = 0; i < count; ++i) {
-        EditorManagerPrivate::openEditor(this, files.at(i), Id(),
+        const Utils::FileDropSupport::FileSpec spec = files.at(i);
+        EditorManagerPrivate::openEditorAt(this, spec.filePath, spec.line, spec.column, Id(),
                                   i < count - 1 ? EditorManager::DoNotChangeCurrentEditor
                                                   | EditorManager::DoNotMakeVisible
                                                 : EditorManager::NoFlags);

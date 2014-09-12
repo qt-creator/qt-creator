@@ -35,6 +35,7 @@
 #include "dialogs/newdialog.h"
 
 #include <utils/appmainwindow.h>
+#include <utils/fileutils.h>
 
 #include <QMap>
 #include <QColor>
@@ -148,7 +149,7 @@ private slots:
     void updateFocusWidget(QWidget *old, QWidget *now);
     void setSidebarVisible(bool visible);
     void destroyVersionDialog();
-    void openDroppedFiles(const QStringList &files);
+    void openDroppedFiles(const QList<Utils::FileDropSupport::FileSpec> &files);
     void restoreWindowState();
     void newItemDialogFinished();
 

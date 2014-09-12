@@ -500,13 +500,13 @@ QStringList FlatModel::mimeTypes() const
 
 QMimeData *FlatModel::mimeData(const QModelIndexList &indexes) const
 {
-    QStringList filePaths;
+    auto data = new Utils::FileDropMimeData;
     foreach (const QModelIndex &index, indexes) {
         Node *node = nodeForIndex(index);
         if (qobject_cast<FileNode *>(node))
-            filePaths.append(node->path());
+            data->addFile(node->path());
     }
-    return Utils::FileDropSupport::mimeDataForFilePaths(filePaths);
+    return data;
 }
 
 QModelIndex FlatModel::indexForNode(const Node *node_)

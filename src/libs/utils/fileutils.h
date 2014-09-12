@@ -35,6 +35,7 @@
 #include <QCoreApplication>
 #include <QXmlStreamWriter> // Mac.
 #include <QMetaType>
+#include <QMimeData>
 #include <QStringList>
 
 #include <functional>
@@ -48,7 +49,6 @@ class QDir;
 class QDropEvent;
 class QFile;
 class QFileInfo;
-class QMimeData;
 class QTemporaryFile;
 class QTextStream;
 class QWidget;
@@ -202,18 +202,22 @@ class QTCREATOR_UTILS_EXPORT FileDropSupport : public QObject
 {
     Q_OBJECT
 public:
-     // returns true if the event should be accepted
+    struct FileSpec {
+        FileSpec(const QString &path, int r = -1, int c = -1) : filePath(path), line(r), column(c) {}
+        QString filePath;
+        int line;
+        int column;
+    };
+    // returns true if the event should be accepted
     typedef std::function<bool(QDropEvent*)> DropFilterFunction;
 
     FileDropSupport(QWidget *parentWidget, const DropFilterFunction &filterFunction
                     = DropFilterFunction());
 
     static QStringList mimeTypesForFilePaths();
-    static QMimeData *mimeDataForFilePaths(const QStringList &filePaths);
-    static QMimeData *mimeDataForFilePath(const QString &filePath);
 
 signals:
-    void filesDropped(const QStringList &files);
+    void filesDropped(const QList<Utils::FileDropSupport::FileSpec> &files);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -223,8 +227,19 @@ private slots:
 
 private:
     DropFilterFunction m_filterFunction;
-    QStringList m_files;
+    QList<FileSpec> m_files;
 
+};
+
+class QTCREATOR_UTILS_EXPORT FileDropMimeData : public QMimeData
+{
+    Q_OBJECT
+public:
+    void addFile(const QString &filePath, int line = -1, int column = -1);
+    QList<FileDropSupport::FileSpec> files() const;
+
+private:
+    QList<FileDropSupport::FileSpec> m_files;
 };
 
 } // namespace Utils

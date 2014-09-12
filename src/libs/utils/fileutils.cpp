@@ -40,7 +40,6 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMessageBox>
-#include <QMimeData>
 #include <QTimer>
 #include <QUrl>
 
@@ -705,8 +704,16 @@ FileName &FileName::appendString(QChar str)
     return *this;
 }
 
-static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
+static bool isFileDrop(const QMimeData *d, QList<FileDropSupport::FileSpec> *files = 0)
 {
+    // internal drop
+    if (const FileDropMimeData *internalData = qobject_cast<const FileDropMimeData *>(d)) {
+        if (files)
+            *files = internalData->files();
+        return true;
+    }
+
+    // external drop
     if (files)
         files->clear();
     // Extract dropped files from Mime data.
@@ -723,7 +730,7 @@ static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
         if (!fileName.isEmpty()) {
             hasFiles = true;
             if (files)
-                files->push_back(fileName);
+                files->append(FileDropSupport::FileSpec(fileName));
             else
                 break; // No result list, sufficient for checking
         }
@@ -745,27 +752,12 @@ QStringList FileDropSupport::mimeTypesForFilePaths()
     return QStringList() << QStringLiteral("text/uri-list");
 }
 
-QMimeData *FileDropSupport::mimeDataForFilePaths(const QStringList &filePaths)
-{
-    QList<QUrl> localUrls = Utils::transform(filePaths, [filePaths](const QString &path) {
-        return QUrl::fromLocalFile(path);
-    });
-    auto data = new QMimeData;
-    data->setUrls(localUrls);
-    return data;
-}
-
-QMimeData *FileDropSupport::mimeDataForFilePath(const QString &filePath)
-{
-    return mimeDataForFilePaths(QStringList() << filePath);
-}
-
 bool FileDropSupport::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj)
     if (event->type() == QEvent::DragEnter) {
         auto dee = static_cast<QDragEnterEvent *>(event);
-        if (isDesktopFileManagerDrop(dee->mimeData())
+        if (isFileDrop(dee->mimeData())
                 && (!m_filterFunction || m_filterFunction(dee)))
             event->accept();
         else
@@ -776,8 +768,8 @@ bool FileDropSupport::eventFilter(QObject *obj, QEvent *event)
         return true;
     } else if (event->type() == QEvent::Drop) {
         auto de = static_cast<QDropEvent *>(event);
-        QStringList tempFiles;
-        if (isDesktopFileManagerDrop(de->mimeData(), &tempFiles)
+        QList<FileSpec> tempFiles;
+        if (isFileDrop(de->mimeData(), &tempFiles)
                 && (!m_filterFunction || m_filterFunction(de))) {
             event->accept();
             de->acceptProposedAction();
@@ -798,6 +790,21 @@ void FileDropSupport::emitFilesDropped()
     QTC_ASSERT(!m_files.isEmpty(), return);
     emit filesDropped(m_files);
     m_files.clear();
+}
+
+void FileDropMimeData::addFile(const QString &filePath, int line, int column)
+{
+    // standard mime data
+    QList<QUrl> currentUrls = urls();
+    currentUrls.append(QUrl::fromLocalFile(filePath));
+    setUrls(currentUrls);
+    // special mime data
+    m_files.append(FileDropSupport::FileSpec(filePath, line, column));
+}
+
+QList<FileDropSupport::FileSpec> FileDropMimeData::files() const
+{
+    return m_files;
 }
 
 } // namespace Utils

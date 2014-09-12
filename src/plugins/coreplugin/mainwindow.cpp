@@ -73,7 +73,7 @@
 #include <coreplugin/progressmanager/progressmanager_p.h>
 #include <coreplugin/progressmanager/progressview.h>
 #include <coreplugin/settingsdatabase.h>
-#include <utils/fileutils.h>
+#include <utils/algorithm.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -212,8 +212,8 @@ MainWindow::MainWindow() :
     auto dropSupport = new Utils::FileDropSupport(this, [](QDropEvent *event) {
         return event->source() == 0; // only accept drops from the "outside" (e.g. file manager)
     });
-    connect(dropSupport, SIGNAL(filesDropped(QStringList)),
-            this, SLOT(openDroppedFiles(QStringList)));
+    connect(dropSupport, &Utils::FileDropSupport::filesDropped,
+            this, &MainWindow::openDroppedFiles);
 }
 
 void MainWindow::setSidebarVisible(bool visible)
@@ -384,10 +384,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::openDroppedFiles(const QStringList &files)
+void MainWindow::openDroppedFiles(const QList<Utils::FileDropSupport::FileSpec> &files)
 {
     raiseWindow();
-    openFiles(files, ICore::SwitchMode);
+    QStringList filePaths = Utils::transform(files,
+                                             [](const Utils::FileDropSupport::FileSpec &spec) -> QString {
+                                                 return spec.filePath;
+                                             });
+    openFiles(filePaths, ICore::SwitchMode);
 }
 
 IContext *MainWindow::currentContextObject() const

@@ -577,6 +577,19 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     return result;
 }
 
+IEditor *EditorManagerPrivate::openEditorAt(EditorView *view, const QString &fileName, int line,
+                                            int column, Id editorId,
+                                            EditorManager::OpenEditorFlags flags, bool *newEditor)
+{
+    EditorManager::cutForwardNavigationHistory();
+    EditorManager::addCurrentPositionToNavigationHistory();
+    EditorManager::OpenEditorFlags tempFlags = flags | EditorManager::IgnoreNavigationHistory;
+    Core::IEditor *editor = openEditor(view, fileName, editorId, tempFlags, newEditor);
+    if (editor && line != -1)
+        editor->gotoLine(line, column);
+    return editor;
+}
+
 IEditor *EditorManagerPrivate::activateEditorForDocument(EditorView *view, IDocument *document,
                                                          EditorManager::OpenEditorFlags flags)
 {
@@ -2222,14 +2235,8 @@ IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
 IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int column,
                                      Id editorId, OpenEditorFlags flags, bool *newEditor)
 {
-    m_instance->cutForwardNavigationHistory();
-    m_instance->addCurrentPositionToNavigationHistory();
-    OpenEditorFlags tempFlags = flags | IgnoreNavigationHistory;
-    Core::IEditor *editor = Core::EditorManager::openEditor(fileName, editorId,
-            tempFlags, newEditor);
-    if (editor && line != -1)
-        editor->gotoLine(line, column);
-    return editor;
+    return EditorManagerPrivate::openEditorAt(EditorManagerPrivate::currentEditorView(),
+                                              fileName, line, column, editorId, flags, newEditor);
 }
 
 // Extract line number suffix. Return the suffix (e.g. ":132") and truncates the filename accordingly.

@@ -426,14 +426,14 @@ Qt::ItemFlags DocumentModelPrivate::flags(const QModelIndex &index) const
 
 QMimeData *DocumentModelPrivate::mimeData(const QModelIndexList &indexes) const
 {
-    QStringList filePaths;
+    auto data = new Utils::FileDropMimeData;
     foreach (const QModelIndex &index, indexes) {
         const DocumentModel::Entry *e = DocumentModel::entryAtRow(index.row());
         if (!e || e->fileName().isEmpty())
             continue;
-        filePaths.append(e->fileName());
+        data->addFile(e->fileName());
     }
-    return Utils::FileDropSupport::mimeDataForFilePaths(filePaths);
+    return data;
 }
 
 int DocumentModel::rowOfDocument(IDocument *document)
