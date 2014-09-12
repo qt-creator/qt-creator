@@ -24,12 +24,12 @@ if [ -d "$5" ]; then
 fi
 
 qmlpuppetapp="$1/Contents/MacOS/qmlpuppet"
-if [ -d "$qmlpuppetapp" ]; then
+if [ -f "$qmlpuppetapp" ]; then
     qmlpuppetArgument="-executable=$qmlpuppetapp"
 fi
 
 qml2puppetapp="$1/Contents/MacOS/qml2puppet"
-if [ -d "$qml2puppetapp" ]; then
+if [ -f "$qml2puppetapp" ]; then
     qml2puppetArgument="-executable=$qml2puppetapp"
 fi
 
