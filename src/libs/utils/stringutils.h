@@ -71,6 +71,8 @@ public:
     //! \param ret Replacement string on output
     //! \return True if the expando was found
     virtual bool resolveMacro(const QString &name, QString *ret) = 0;
+private:
+    bool expandNestedMacros(const QString &str, int *pos, QString *ret);
 };
 
 QTCREATOR_UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx);

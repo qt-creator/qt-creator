@@ -38,12 +38,20 @@ class TestMacroExpander : public Utils::AbstractMacroExpander
 public:
     virtual bool resolveMacro(const QString &name, QString *ret)
     {
+        if (name == QLatin1String("foo")) {
+            *ret = QLatin1String("a");
+            return true;
+        }
         if (name == QLatin1String("a")) {
             *ret = QLatin1String("hi");
             return true;
         }
-        if (name == QLatin1String("foo")) {
-            *ret = QLatin1String("a");
+        if (name == QLatin1String("hi")) {
+            *ret = QLatin1String("ho");
+            return true;
+        }
+        if (name == QLatin1String("hihi")) {
+            *ret = QLatin1String("bar");
             return true;
         }
         return false;
@@ -116,7 +124,15 @@ void tst_StringUtils::testMacroExpander_data()
         { "%{a}text%{a}", "hitexthi" },
         { "%{foo}%{a}text%{a}", "ahitexthi" },
         { "%{}{a}", "%{a}" },
-        { "%{abc", "%{abc" }
+        { "%{}", "%" },
+        { "test%{}", "test%" },
+        { "%{}test", "%test" },
+        { "%{abc", "%{abc" },
+        { "%{%{a}", "%{hi" },
+        { "%{%{a}}", "ho" },
+        { "%{%{a}}}post", "ho}post" },
+        { "%{hi%{a}}", "bar" },
+        { "%{hi%{%{foo}}}", "bar" },
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)

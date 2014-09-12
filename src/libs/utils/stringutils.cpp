@@ -115,6 +115,40 @@ QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
     return outPath;
 }
 
+bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QString *ret)
+{
+    QString varName;
+    QChar prev;
+    QChar c;
+
+    int i = *pos;
+    int strLen = str.length();
+    varName.reserve(strLen - i);
+    for (; i < strLen; prev = c) {
+        c = str.at(i++);
+        if (c == QLatin1Char('}')) {
+            if (varName.isEmpty()) { // replace "%{}" with "%"
+                *ret = QString(QLatin1Char('%'));
+                *pos = i;
+                return true;
+            }
+            if (resolveMacro(varName, ret)) {
+                *pos = i;
+                return true;
+            }
+            return false;
+        } else if (c == QLatin1Char('{') && prev == QLatin1Char('%')) {
+            if (!expandNestedMacros(str, &i, ret))
+                return false;
+            varName.chop(1);
+            varName += ret;
+        } else {
+            varName += c;
+        }
+    }
+    return false;
+}
+
 int AbstractMacroExpander::findMacro(const QString &str, int *pos, QString *ret)
 {
     forever {
@@ -122,22 +156,13 @@ int AbstractMacroExpander::findMacro(const QString &str, int *pos, QString *ret)
         if (openPos < 0)
             return 0;
         int varPos = openPos + 2;
-        int closePos = str.indexOf(QLatin1Char('}'), varPos);
-        if (closePos < 0)
-            return 0;
-        int varLen = closePos - varPos;
-        if (varLen == 0) { // replace "%{}" with "%"
+        if (expandNestedMacros(str, &varPos, ret)) {
             *pos = openPos;
-            *ret = QString(QLatin1Char('%'));
-            return 3;
-        }
-        if (resolveMacro(str.mid(varPos, varLen), ret)) {
-            *pos = openPos;
-            return varLen + 3;
+            return varPos - openPos;
         }
         // An actual expansion may be nested into a "false" one,
         // so we continue right after the last %{.
-        *pos = varPos;
+        *pos = openPos + 2;
     }
 }
 
