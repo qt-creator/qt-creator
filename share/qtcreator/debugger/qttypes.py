@@ -618,6 +618,7 @@ def qdump__QHash(d, value):
         isCompact = d.isMapCompact(keyType, valueType)
         childType = valueType if isCompact else innerType
         with Children(d, size, maxNumChild=1000, childType=childType):
+            j = 0
             for i in d.childRange():
                 if i == 0:
                     node = hashDataFirstNode(d_ptr, numBuckets)
@@ -631,9 +632,10 @@ def qdump__QHash(d, value):
                             # LLDB can't access directly since it's in anonymous union
                             # for Qt4 optimized int keytype
                             key = it[1]["key"]
-                        d.putMapName(key)
+                        d.putMapName(key, j)
                         d.putItem(it["value"])
                         d.putType(valueType)
+                        j += 1
                     else:
                         d.putItem(it)
 
@@ -1231,7 +1233,7 @@ def _qdump__QObject(d, value):
 
         d.putFields(value)
         # Parent and children.
-        if stripClassTag(str(value.type)) == ns + "QObject":
+        if d.stripClassTag(str(value.type)) == ns + "QObject":
             d.putSubItem("parent", d_ptr["parent"])
             d.putSubItem("children", d_ptr["children"])
 

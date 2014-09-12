@@ -190,18 +190,6 @@ def showException(msg, exType, exValue, exTraceback):
         pass
 
 
-def stripClassTag(typeName):
-    if typeName.startswith("class "):
-        return typeName[6:]
-    if typeName.startswith("struct "):
-        return typeName[7:]
-    if typeName.startswith("const "):
-        return typeName[6:]
-    if typeName.startswith("volatile "):
-        return typeName[9:]
-    return typeName
-
-
 class Children:
     def __init__(self, d, numChild = 1, childType = None, childNumChild = None,
             maxNumChild = None, addrBase = None, addrStep = None):
@@ -215,7 +203,7 @@ class Children:
         if childType is None:
             self.childType = None
         else:
-            self.childType = stripClassTag(str(childType))
+            self.childType = d.stripClassTag(str(childType))
             if not self.d.isCli:
                 self.d.put('childtype="%s",' % self.childType)
             if childNumChild is None:
@@ -271,8 +259,11 @@ class PairedChildrenData:
         self.isCompact = d.isMapCompact(self.keyType, self.valueType)
         self.childType = valueType if self.isCompact else pairType
         ns = d.qtNamespace()
-        self.keyIsQString = str(self.keyType) == ns + "QString"
-        self.keyIsQByteArray = str(self.keyType) == ns + "QByteArray"
+        keyTypeName = d.stripClassTag(str(self.keyType))
+        self.keyIsQString = keyTypeName == ns + "QString"
+        self.keyIsQByteArray = keyTypeName == ns + "QByteArray"
+        self.keyIsStdString = keyTypeName == "std::string" \
+            or keyTypeName.startswith("std::basic_string<char")
 
 class PairedChildren(Children):
     def __init__(self, d, numChild, useKeyAndValue = False,
@@ -367,12 +358,23 @@ class DumperBase:
     def putNewline(self):
         pass
 
+    def stripClassTag(self, typeName):
+        if typeName.startswith("class "):
+            return typeName[6:]
+        if typeName.startswith("struct "):
+            return typeName[7:]
+        if typeName.startswith("const "):
+            return typeName[6:]
+        if typeName.startswith("volatile "):
+            return typeName[9:]
+        return typeName
+
     def stripForFormat(self, typeName):
         if typeName in self.cachedFormats:
             return self.cachedFormats[typeName]
         stripped = ""
         inArray = 0
-        for c in stripClassTag(typeName):
+        for c in self.stripClassTag(typeName):
             if c == '<':
                 break
             if c == ' ':
@@ -503,6 +505,15 @@ class DumperBase:
     def stringData(self, value):
         return self.byteArrayDataHelper(self.extractPointer(value))
 
+    def encodeStdString(self, value, limit = 0):
+        data = value["_M_dataplus"]["_M_p"]
+        sizePtr = data.cast(self.sizetType().pointer())
+        size = int(sizePtr[-3])
+        alloc = int(sizePtr[-2])
+        self.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+        elided, shown = self.computeLimit(size, limit)
+        return self.readMemory(data, shown)
+
     def extractTemplateArgument(self, typename, position):
         level = 0
         skipSpace = False
@@ -589,24 +600,28 @@ class DumperBase:
         return False
 
         #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
-    def putMapName(self, value, index = -1):
+    def putMapName(self, value, index = None):
         ns = self.qtNamespace()
-        if str(value.type) == ns + "QString":
+        typeName = self.stripClassTag(str(value.type))
+        if typeName == ns + "QString":
             self.put('key="%s",' % self.encodeString(value))
             self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
-        elif str(value.type) == ns + "QByteArray":
+        elif typeName == ns + "QByteArray":
             self.put('key="%s",' % self.encodeByteArray(value))
+            self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+        elif typeName == "std::string":
+            self.put('key="%s",' % self.encodeStdString(value))
             self.put('keyencoded="%s",' % Hex2EncodedLatin1)
         else:
             val = str(value.GetValue()) if self.isLldb else str(value)
-            if index == -1:
-                key = 'key="%s",' % val
+            if index is None:
+                key = '%s' % val
             else:
-                key = 'key="[%d] %s",' % (index, val)
+                key = '[%s] %s' % (index, val)
             self.put('key="%s",' % self.hexencode(key))
-            self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+            self.put('keyencoded="%s",' % Hex2EncodedUtf8WithoutQuotes)
 
-    def putPair(self, pair, index = -1):
+    def putPair(self, pair, index = None):
         if self.pairData.useKeyAndValue:
             key = pair["key"]
             value = pair["value"]
@@ -620,12 +635,15 @@ class DumperBase:
             elif self.pairData.keyIsQByteArray:
                 self.put('key="%s",' % self.encodeByteArray(key))
                 self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+            elif self.pairData.keyIsStdString:
+                self.put('key="%s",' % self.encodeStdString(key))
+                self.put('keyencoded="%s",' % Hex2EncodedLatin1)
             else:
                 name = str(key.GetValue()) if self.isLldb else str(key)
                 if index == -1:
                     self.put('name="%s",' % name)
                 else:
-                    self.put('key="[%d] %s",' % (index, name))
+                    self.put('key="[%s] %s",' % (index, name))
             self.putItem(value)
         else:
             self.putEmptyValue()
@@ -959,7 +977,7 @@ class DumperBase:
                     and innerTypeName != "wchar_t":
                 self.putType(innerTypeName)
                 savedCurrentChildType = self.currentChildType
-                self.currentChildType = stripClassTag(innerTypeName)
+                self.currentChildType = self.stripClassTag(innerTypeName)
                 self.putItem(value.dereference())
                 self.currentChildType = savedCurrentChildType
                 #self.putPointerValue(value)
