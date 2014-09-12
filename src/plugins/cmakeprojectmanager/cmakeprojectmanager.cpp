@@ -203,28 +203,3 @@ QString CMakeManager::findCbpFile(const QDir &directory)
     }
     return file;
 }
-
-// This code is duplicated from qtversionmanager
-QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
-{
-    QProcess qmake;
-    qmake.start(qmakePath, QStringList(QLatin1String("--version")));
-    if (!qmake.waitForStarted()) {
-        qWarning("Cannot start '%s': %s", qPrintable(qmakePath), qPrintable(qmake.errorString()));
-        return QString();
-    }
-    if (!qmake.waitForFinished())      {
-        Utils::SynchronousProcess::stopProcess(qmake);
-        qWarning("Timeout running '%s'.", qPrintable(qmakePath));
-        return QString();
-    }
-    QString output = QString::fromLocal8Bit(qmake.readAllStandardOutput());
-    QRegExp regexp(QLatin1String("(QMake version|Qmake version:)[\\s]*([\\d.]*)"));
-    regexp.indexIn(output);
-    if (regexp.cap(2).startsWith(QLatin1String("2."))) {
-        QRegExp regexp2(QLatin1String("Using Qt version[\\s]*([\\d\\.]*)"));
-        regexp2.indexIn(output);
-        return regexp2.cap(1);
-    }
-    return QString();
-}

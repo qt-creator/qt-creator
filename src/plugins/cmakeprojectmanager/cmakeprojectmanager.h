@@ -73,15 +73,12 @@ public:
     bool preferNinja() const;
     static QString findCbpFile(const QDir &);
 
-    static QString findDumperLibrary(const Utils::Environment &env);
 private slots:
     void updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
     void runCMake();
     void runCMakeContextMenu();
 private:
     void runCMake(ProjectExplorer::Project *project);
-    static QString qtVersionForQMake(const QString &qmakePath);
-    static QPair<QString, QString> findQtDir(const Utils::Environment &env);
     CMakeSettingsPage *m_settingsPage;
     QAction *m_runCMakeAction;
     QAction *m_runCMakeActionContextMenu;
