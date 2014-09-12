@@ -31,23 +31,16 @@
 #include "cmakeopenprojectwizard.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
+#include "cmakesettingspage.h"
 
 #include <utils/synchronousprocess.h>
-#include <utils/qtcprocess.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/target.h>
-#include <utils/QtConcurrentTools>
-#include <QtConcurrentRun>
-#include <QCoreApplication>
 #include <QDateTime>
-#include <QDesktopServices>
 
 using namespace CMakeProjectManager::Internal;
 

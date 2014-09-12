@@ -43,6 +43,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <QFuture>
 #include <QXmlStreamReader>
 #include <QPushButton>
 #include <QLineEdit>

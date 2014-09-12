@@ -30,6 +30,7 @@
 #include "cmakefilecompletionassist.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanager.h"
+#include "cmakesettingspage.h"
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 

@@ -37,6 +37,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakelocatorfilter.h"
 #include "cmakefilecompletionassist.h"
+#include "cmakesettingspage.h"
 
 #include <coreplugin/featureprovider.h>
 #include <coreplugin/mimedatabase.h>

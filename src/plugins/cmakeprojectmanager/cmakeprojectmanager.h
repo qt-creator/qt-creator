@@ -31,23 +31,17 @@
 #define CMAKEPROJECTMANAGER_H
 
 #include <projectexplorer/iprojectmanager.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
-#include <coreplugin/icontext.h>
 
-#include <utils/environment.h>
+QT_BEGIN_NAMESPACE
+class QAction;
+class QDir;
+QT_END_NAMESPACE
 
-#include <QAction>
-#include <QCheckBox>
-#include <QDir>
-#include <QFuture>
-#include <QPointer>
-#include <QStringList>
-#include <QVector>
-
-#include "cmakesettingspage.h"
-
-namespace Utils { class QtcProcess; }
+namespace ProjectExplorer { class Node; }
+namespace Utils {
+class Environment;
+class QtcProcess;
+}
 
 namespace CMakeProjectManager {
 namespace Internal {
