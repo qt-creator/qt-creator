@@ -3,7 +3,7 @@ DEFINES += MYPLUGIN_LIBRARY
 SOURCES += testplugin.cpp
 HEADERS += testplugin.h testplugin_global.h
 
-OTHER_FILES += testplugin.json
+DISTFILES += testplugin.json
 
 QTC_LIB_DEPENDS += extensionsystem
 include(../../../../../qtcreator.pri)

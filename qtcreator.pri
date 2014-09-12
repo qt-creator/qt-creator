@@ -144,7 +144,7 @@ qt {
 }
 
 QBSFILE = $$replace(_PRO_FILE_, \\.pro$, .qbs)
-exists($$QBSFILE):OTHER_FILES += $$QBSFILE
+exists($$QBSFILE):DISTFILES += $$QBSFILE
 
 !isEmpty(QTC_PLUGIN_DEPENDS):LIBS *= -L$$IDE_PLUGIN_PATH
 # recursively resolve plugin deps

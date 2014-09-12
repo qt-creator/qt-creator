@@ -52,4 +52,4 @@ equals(TEST, 1) {
 
 RESOURCES += designer.qrc
 
-OTHER_FILES += README.txt
+DISTFILES += README.txt

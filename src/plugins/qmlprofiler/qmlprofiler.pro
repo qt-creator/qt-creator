@@ -70,7 +70,7 @@ HEADERS += \
 RESOURCES += \
     qml/qmlprofiler.qrc
 
-OTHER_FILES += \
+DISTFILES += \
     qml/ButtonsBar.qml \
     qml/Detail.qml \
     qml/CategoryLabel.qml \

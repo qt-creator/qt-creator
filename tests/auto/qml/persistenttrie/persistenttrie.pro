@@ -14,7 +14,7 @@ SOURCES += \
 TEMPLATE = app
 DEFINES += QMLJS_BUILD_DIR
 
-OTHER_FILES += \
+DISTFILES += \
     listAll.data \
     intersect.data \
     merge.data \

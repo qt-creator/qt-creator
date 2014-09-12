@@ -4,7 +4,7 @@ SOURCES += plugin1.cpp
 HEADERS += plugin1.h
 DEFINES += PLUGIN1_LIBRARY
 
-OTHER_FILES = $$PWD/plugin.json
+DISTFILES = $$PWD/plugin.json
 
 QTC_LIB_DEPENDS += extensionsystem
 include(../../../../../../qtcreator.pri)

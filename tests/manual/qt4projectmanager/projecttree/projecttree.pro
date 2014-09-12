@@ -45,4 +45,4 @@ HEADERS += main.h\
 
 FORMS    += widget.ui
 RESOURCES += resource.qrc
-OTHER_FILES += foo.txt
+DISTFILES += foo.txt

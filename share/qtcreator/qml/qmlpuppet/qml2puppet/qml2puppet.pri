@@ -38,7 +38,7 @@ SOURCES +=  $$PWD/qml2puppetmain.cpp
 RESOURCES +=  $$PWD/../qmlpuppet.qrc
 DEFINES -= QT_NO_CAST_FROM_ASCII
 
-OTHER_FILES += Info.plist
+DISTFILES += Info.plist
 
 unix:!osx:LIBS += -lrt # posix shared memory
 

@@ -35,4 +35,4 @@ FORMS += \
     $$PWD/addtabtotabviewdialog.ui
 
 
-OTHER_FILES += $$PWD/components.metainfo
+DISTFILES += $$PWD/components.metainfo

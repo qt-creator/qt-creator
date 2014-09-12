@@ -51,5 +51,5 @@ HEADERS += \
   version.h \
   iphonesimulatorremoteclient/iphonesimulatorremoteclient.h
 
-OTHER_FILES = IOSSIM_LICENSE \
+DISTFILES = IOSSIM_LICENSE \
   Info.plist

@@ -35,7 +35,7 @@ win32 {
     INSTALLS    += target
 }
 
-OTHER_FILES += qtcreator.rc \
+DISTFILES += qtcreator.rc \
     Info.plist.in \
     $$PWD/app_version.h.in
 

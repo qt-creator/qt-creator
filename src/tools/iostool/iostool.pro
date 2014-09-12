@@ -27,4 +27,4 @@ SOURCES += main.cpp \
 HEADERS += \
     iosdevicemanager.h
 
-OTHER_FILES += Info.plist
+DISTFILES += Info.plist

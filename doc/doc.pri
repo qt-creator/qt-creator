@@ -87,7 +87,7 @@ docs_online.depends = html_docs_online dev_html_docs_online
 docs.depends = qch_docs dev_qch_docs
 QMAKE_EXTRA_TARGETS += html_docs dev_html_docs html_docs_online dev_html_docs_online qch_docs dev_qch_docs docs docs_online
 
-OTHER_FILES = $$HELP_DEP_FILES $$DEV_HELP_DEP_FILES
+DISTFILES = $$HELP_DEP_FILES $$DEV_HELP_DEP_FILES
 
 fixnavi.commands = \
     cd $$shell_path($$PWD) && \

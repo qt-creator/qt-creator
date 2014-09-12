@@ -22,5 +22,5 @@ SOURCES += \
     $$PWD/qmldirparser.cpp \
     $$PWD/qmlerror.cpp \
 
-OTHER_FILES += \
+DISTFILES += \
     $$PWD/qmljs.g

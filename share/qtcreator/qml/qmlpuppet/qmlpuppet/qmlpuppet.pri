@@ -26,7 +26,7 @@ DEFINES -= QT_NO_CAST_FROM_ASCII
 
 unix:!macx:LIBS += -lrt # posix shared memory
 
-OTHER_FILES += Info.plist
+DISTFILES += Info.plist
 macx {
     CONFIG -= app_bundle
     QMAKE_LFLAGS += -sectcreate __TEXT __info_plist \"$$PWD/Info.plist\"

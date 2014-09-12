@@ -13,4 +13,4 @@ QMAKE_CLEAN = qtcreator.sh
 target.path  = $$QTC_PREFIX/bin
 INSTALLS    += target
 
-OTHER_FILES = $$PWD/qtcreator.sh
+DISTFILES = $$PWD/qtcreator.sh

@@ -6,4 +6,4 @@ SOURCES += $$PWD/glslkeywords.cpp $$PWD/glslparser.cpp $$PWD/glslparsertable.cpp
     $$PWD/glslastvisitor.cpp $$PWD/glslengine.cpp $$PWD/glslmemorypool.cpp $$PWD/glslastdump.cpp \
     $$PWD/glslsemantic.cpp $$PWD/glsltype.cpp $$PWD/glsltypes.cpp $$PWD/glslsymbol.cpp $$PWD/glslsymbols.cpp
 
-OTHER_FILES = $$PWD/glsl.g
+DISTFILES = $$PWD/glsl.g

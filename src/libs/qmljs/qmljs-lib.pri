@@ -88,7 +88,7 @@ SOURCES += \
 RESOURCES += \
     $$PWD/qmljs.qrc
 
-OTHER_FILES += \
+DISTFILES += \
     $$PWD/parser/qmljs.g
 
 contains(QT, gui) {

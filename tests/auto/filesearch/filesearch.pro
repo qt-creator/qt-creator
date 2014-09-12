@@ -4,6 +4,6 @@ include(../qttest.pri)
 # Input
 SOURCES += tst_filesearch.cpp
 
-OTHER_FILES += testfile.txt
+DISTFILES += testfile.txt
 
 RESOURCES += tst_filesearch.qrc

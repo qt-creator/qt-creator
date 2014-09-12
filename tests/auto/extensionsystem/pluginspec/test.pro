@@ -3,7 +3,7 @@ TARGET = pluginspec
 # Input
 SOURCES += tst_pluginspec.cpp
 
-OTHER_FILES += \
+DISTFILES += \
     $$PWD/testspecs/simplespec.json \
     $$PWD/testspecs/simplespec_experimental.json \
     $$PWD/testspecs/spec1.json \

@@ -99,7 +99,7 @@ equals(TEST, 1) {
         $$PWD/test/completiontesthelper.cpp \
         $$PWD/test/clangcompletion_test.cpp
 
-    OTHER_FILES += \
+    DISTFILES += \
         $$PWD/test/cxx_regression_1.cpp \
         $$PWD/test/cxx_regression_2.cpp \
         $$PWD/test/cxx_regression_3.cpp \

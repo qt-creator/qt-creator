@@ -81,12 +81,12 @@ defineReplace(stripOutDir) {
 PLUGINJSON = $$_PRO_FILE_PWD_/$${TARGET}.json
 PLUGINJSON_IN = $${PLUGINJSON}.in
 exists($$PLUGINJSON_IN) {
-    OTHER_FILES += $$PLUGINJSON_IN
+    DISTFILES += $$PLUGINJSON_IN
     QMAKE_SUBSTITUTES += $$PLUGINJSON_IN
     PLUGINJSON = $$OUT_PWD/$${TARGET}.json
 } else {
     # need to support that for external plugins
-    OTHER_FILES += $$PLUGINJSON
+    DISTFILES += $$PLUGINJSON
 }
 
 osx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/PlugIns/
@@ -104,7 +104,7 @@ linux*:QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
 }
 
 MIMETYPES = $$_PRO_FILE_PWD_/$${TARGET}.mimetypes.xml
-exists($$MIMETYPES):OTHER_FILES += $$MIMETYPES
+exists($$MIMETYPES):DISTFILES += $$MIMETYPES
 
 TARGET = $$qtLibraryName($$TARGET)
 

@@ -4,5 +4,5 @@ include(../shared/shared.pri)
 DEFINES += SRCDIR=\\\"$$PWD\\\"
 
 SOURCES += tst_c99.cpp
-OTHER_FILES += \
+DISTFILES += \
     data/designatedInitializer.1.c
