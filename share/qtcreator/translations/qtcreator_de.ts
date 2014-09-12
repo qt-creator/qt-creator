@@ -10514,6 +10514,18 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>Always save when leaving subcomponent in bread crumb</source>
         <translation>Immer speichern, wenn eine Subkomponente per Breadcrumb Navigation verlassen wird</translation>
     </message>
+    <message>
+        <source>QML Emulation Layer</source>
+        <translation>QML-Emulationsschicht</translation>
+    </message>
+    <message>
+        <source>If you do not select this checkbox, Qt Quick Designer uses the QML emulation layer (QML Puppet) built with the Qt configured in the build and run kit for the project.</source>
+        <translation>Wenn Sie diese Option nicht aktivieren, benutzt Qt Quick Designer die QML-Emulationsschicht (QML Puppet), die mit dem für das Projekt eingestellten Kit erstellt wurde.</translation>
+    </message>
+    <message>
+        <source>Always use the QML emulation layer provided by Qt Creator</source>
+        <translation>Immer die von Qt Creator bereitgestellte QML-Emulationsschicht verwenden</translation>
+    </message>
 </context>
 <context>
     <name>Utils::UnixTools</name>
@@ -15505,10 +15517,6 @@ Qt Creator kann sich nicht anhängen.</translation>
     <message>
         <source>Reset Debugger</source>
         <translation>Debugger zurücksetzen</translation>
-    </message>
-    <message>
-        <source>Shift+Ctrl+R</source>
-        <translation>Shift+Ctrl+R</translation>
     </message>
     <message>
         <source>Ctrl+Shift+O</source>
@@ -28512,6 +28520,10 @@ Entfernt: %4</translation>
         <translation>Zur Steigerung der Ausführungsgeschwindigkeit sollte %1 an Stelle von &apos;var&apos; oder &apos;variant&apos; verwendet werden.</translation>
     </message>
     <message>
+        <source>This type is not supported as a root element by Qt Quick Designer %1.</source>
+        <translation>Dieser Typ wird von Qt Quick Designer %1 nicht als Wurzelelement unterstützt.</translation>
+    </message>
+    <message>
         <source>Do not use &quot;%1&quot; as a constructor.</source>
         <translation>&quot;%1&quot; darf nicht als Konstruktor verwendet werden.</translation>
     </message>
@@ -31331,12 +31343,28 @@ Kurznamen können verwendet werden, sofern sie eindeutig sind.</translation>
         <translation>Qt Quick 2.2</translation>
     </message>
     <message>
+        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of project. Requires Qt 5.3 or newer.</source>
+        <translation>Erstellt ein Qt Quick 2-UI-Projekt mit einer einzigen QML-Datei, die die Hauptansicht enthält. Sie können Qt Quick 2-UI-Projekte mit QML-Scene ohne Erstellung betrachten. Sie benötigen keine Entwicklungsumgebung auf Ihrem Computer, um solche Projekte zu erstellen und auszuführen. Erfordert Qt 5.3 oder neuer.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 2.3</source>
+        <translation>Qt Quick 2.3</translation>
+    </message>
+    <message>
         <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view and uses Qt Quick Controls. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version. Requires Qt 5.2 or newer.</source>
         <translation>Erstellt ein Qt Quick 2-UI-Projekt mit einer einzigen QML-Datei, die die Hauptansicht enthält und Qt Quick Controls verwendet. Sie können Qt Quick 2-UI-Projekte mit QML-Scene ohne Erstellung betrachten. Dieses Projekt erfordert, dass die Qt Quick Controls für die Qt-Version installiert sind. Erfordert Qt 5.2 oder neuer.</translation>
     </message>
     <message>
         <source>Qt Quick Controls 1.1</source>
         <translation>Qt Quick Controls 1.1</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view and uses Qt Quick Controls. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version. Requires Qt 5.3 or newer.</source>
+        <translation>Erstellt ein Qt Quick 2-UI-Projekt mit einer einzigen QML-Datei, die die Hauptansicht enthält und Qt Quick Controls verwendet. Sie können Qt Quick 2-UI-Projekte mit QML-Scene ohne Erstellung betrachten. Dieses Projekt erfordert, dass die Qt Quick Controls für die Qt-Version installiert sind. Erfordert Qt 5.3 oder neuer.</translation>
+    </message>
+    <message>
+        <source>Qt Quick Controls 1.2</source>
+        <translation>Qt Quick Controls 1.2</translation>
     </message>
     <message>
         <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view and uses Qt Quick Controls. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version. Requires Qt 5.1 or newer.</source>
@@ -35189,12 +35217,28 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Qt Quick 2.2</translation>
     </message>
     <message>
+        <source>Creates a deployable Qt Quick 2 application using the QtQuick 2.3 import. Requires Qt 5.3 or newer.</source>
+        <translation>Erstellt eine zum Deployment geeignete Qt Quick 2-Anwendung unter Verwendung des Imports QtQuick 2.3. Erfordert Qt 5.3 oder neuer.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 2.3</source>
+        <translation>Qt Quick 2.3</translation>
+    </message>
+    <message>
         <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls. Requires Qt 5.2 or newer.</source>
         <translation>Erstellt eine zum Deployment geeignete Qt Quick 2-Anwendung unter Verwendung der Qt Quick Controls. Erfordert Qt 5.2 oder neuer.</translation>
     </message>
     <message>
         <source>Qt Quick Controls 1.1</source>
         <translation>Qt Quick Controls 1.1</translation>
+    </message>
+    <message>
+        <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls. Requires Qt 5.3 or newer.</source>
+        <translation>Erstellt eine zum Deployment geeignete Qt Quick 2-Anwendung unter Verwendung der Qt Quick Controls. Erfordert Qt 5.3 oder neuer.</translation>
+    </message>
+    <message>
+        <source>Qt Quick Controls 1.2</source>
+        <translation>Qt Quick Controls 1.2</translation>
     </message>
     <message>
         <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls. Requires Qt 5.1 or newer.</source>
@@ -37290,8 +37334,8 @@ Dieser Assistent führt Sie durch die wesentlichen Schritte, die zum Deployment 
 <context>
     <name>TabViewSpecifics</name>
     <message>
-        <source>TabView</source>
-        <translation>TabView</translation>
+        <source>Tab View</source>
+        <translation>Tab View</translation>
     </message>
     <message>
         <source>Current index</source>
@@ -39146,6 +39190,88 @@ Möchten Sie, dass Qt Creator sie für Ihr Projekt (%1) anlegt?</translation>
     <message>
         <source>Cannot open &apos;%1&apos;.</source>
         <translation>&apos;%1&apos; kann nicht geöffnet werden.</translation>
+    </message>
+</context>
+<context>
+    <name>SliderSpecifics</name>
+    <message>
+        <source>Value</source>
+        <translation>Wert</translation>
+    </message>
+    <message>
+        <source>Current value of the Slider. The default value is 0.0.</source>
+        <translation>Aktueller Wert des Sliders. Die Voreinstellung ist 0,0.</translation>
+    </message>
+    <message>
+        <source>Maximum value</source>
+        <translation>Maximalwert</translation>
+    </message>
+    <message>
+        <source>Maximum value of the slider. The default value is 1.0.</source>
+        <translation>Maximalwert des Sliders. Die Voreinstellung ist 1,0.</translation>
+    </message>
+    <message>
+        <source>Minimum value</source>
+        <translation>Minimalwert</translation>
+    </message>
+    <message>
+        <source>Minimum value of the slider. The default value is 0.0.</source>
+        <translation>Der Minimalwert des Sliders. Die Voreinstellung ist 0,0.</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Ausrichtung</translation>
+    </message>
+    <message>
+        <source>Layout orientation of the slider.</source>
+        <translation>Ausrichtung des Sliders.</translation>
+    </message>
+    <message>
+        <source>Step size</source>
+        <translation>Schrittweite</translation>
+    </message>
+    <message>
+        <source>Indicates the slider step size.</source>
+        <translation>Legt die Größe der Schritte fest.</translation>
+    </message>
+    <message>
+        <source>Active focus on press</source>
+        <translation>Fokussieren durch Betätigen</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should receive active focus when pressed.</source>
+        <translation>Legt fest, ob der Slider durch Betätigen den Fokus erhalten soll.</translation>
+    </message>
+    <message>
+        <source>Tick marks enabled</source>
+        <translation>Skalenmarkierungen aktiviert</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should display tick marks at step intervals.</source>
+        <translation>Legt fest, ob der Slider Skalenmarkierungen an den möglichen Werten anzeigen soll.</translation>
+    </message>
+    <message>
+        <source>Update value while dragging</source>
+        <translation>Wert beim Ziehen aktualisieren</translation>
+    </message>
+    <message>
+        <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
+        <translation>Legt fest, ob der aktuelle Wert aktualisiert werden soll, während der Benutzer den Slider verschiebt, oder nur aktulisiert wird, wenn er losgelassen wird.</translation>
+    </message>
+</context>
+<context>
+    <name>SplitViewSpecifics</name>
+    <message>
+        <source>Split View</source>
+        <translation>Split View</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Ausrichtung</translation>
+    </message>
+    <message>
+        <source>Orientation of the split view.</source>
+        <translation>Ausrichtung des Split View.</translation>
     </message>
 </context>
 </TS>
