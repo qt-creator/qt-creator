@@ -40,14 +40,14 @@ public:
     Literal(const char *chars, unsigned size);
     virtual ~Literal();
 
-    iterator begin() const;
-    iterator end() const;
+    iterator begin() const { return _chars; }
+    iterator end() const { return _chars + _size; }
 
-    char at(unsigned index) const;
-    const char *chars() const;
-    unsigned size() const;
+    char at(unsigned index) const { return _chars[index]; }
+    const char *chars() const { return _chars; }
+    unsigned size() const { return _size; }
 
-    unsigned hashCode() const;
+    unsigned hashCode() const { return _hashCode; }
     static unsigned hashCode(const char *chars, unsigned size);
 
     bool equalTo(const Literal *other) const;
@@ -66,25 +66,33 @@ public:
 class CPLUSPLUS_EXPORT StringLiteral: public Literal
 {
 public:
-    StringLiteral(const char *chars, unsigned size);
-    virtual ~StringLiteral();
+    StringLiteral(const char *chars, unsigned size)
+        : Literal(chars, size)
+    { }
 };
 
 class CPLUSPLUS_EXPORT NumericLiteral: public Literal
 {
 public:
     NumericLiteral(const char *chars, unsigned size);
-    virtual ~NumericLiteral();
 
-    bool isInt() const;
-    bool isFloat() const;
-    bool isDouble() const;
-    bool isLongDouble() const;
-    bool isLong() const;
-    bool isLongLong() const;
+    enum {
+        NumericLiteralIsInt,
+        NumericLiteralIsFloat,
+        NumericLiteralIsDouble,
+        NumericLiteralIsLongDouble,
+        NumericLiteralIsLong,
+        NumericLiteralIsLongLong
+    };
 
-    bool isUnsigned() const;
-    bool isHex() const;
+    bool isInt() const { return f._type == NumericLiteralIsInt; }
+    bool isFloat() const { return f._type == NumericLiteralIsFloat; }
+    bool isDouble() const { return f._type == NumericLiteralIsDouble; }
+    bool isLongDouble() const { return f._type == NumericLiteralIsLongDouble; }
+    bool isLong() const { return f._type == NumericLiteralIsLong; }
+    bool isLongLong() const { return f._type == NumericLiteralIsLongLong; }
+    bool isUnsigned() const { return f._isUnsigned; }
+    bool isHex() const { return f._isHex; }
 
 private:
     struct Flags {
@@ -101,8 +109,9 @@ private:
 class CPLUSPLUS_EXPORT Identifier: public Literal, public Name
 {
 public:
-    Identifier(const char *chars, unsigned size);
-    virtual ~Identifier();
+    Identifier(const char *chars, unsigned size)
+        : Literal(chars, size)
+    { }
 
     virtual const Identifier *identifier() const { return this; }
 
