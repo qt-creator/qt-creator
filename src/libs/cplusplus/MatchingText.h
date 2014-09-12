@@ -26,6 +26,7 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
 #ifndef CPLUSPLUS_MATCHINGTEXT_H
 #define CPLUSPLUS_MATCHINGTEXT_H
 
@@ -42,12 +43,9 @@ public:
     static bool shouldInsertMatchingText(const QTextCursor &tc);
     static bool shouldInsertMatchingText(QChar lookAhead);
 
-    QString insertMatchingBrace(const QTextCursor &tc, const QString &text,
-                                QChar la, int *skippedChars) const;
-    QString insertParagraphSeparator(const QTextCursor &tc) const;
-
-private:
-    bool shouldInsertNewline(const QTextCursor &tc) const;
+    static QString insertMatchingBrace(const QTextCursor &tc, const QString &text,
+                                       QChar la, int *skippedChars);
+    static QString insertParagraphSeparator(const QTextCursor &tc);
 };
 
 } // namespace CPlusPlus

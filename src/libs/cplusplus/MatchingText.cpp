@@ -102,7 +102,7 @@ bool MatchingText::shouldInsertMatchingText(QChar lookAhead)
 }
 
 QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess,
-                                          QChar la, int *skippedChars) const
+                                          QChar la, int *skippedChars)
 {
     QTextCursor tc = cursor;
     QTextDocument *doc = tc.document();
@@ -193,7 +193,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     return result;
 }
 
-bool MatchingText::shouldInsertNewline(const QTextCursor &tc) const
+static bool shouldInsertNewline(const QTextCursor &tc)
 {
     QTextDocument *doc = tc.document();
     int pos = tc.selectionEnd();
@@ -205,17 +205,14 @@ bool MatchingText::shouldInsertNewline(const QTextCursor &tc) const
 
         if (! ch.isSpace())
             break;
-        else if (ch == QChar::ParagraphSeparator)
+        if (ch == QChar::ParagraphSeparator)
             ++newlines;
     }
 
-    if (newlines <= 1 && doc->characterAt(pos) != QLatin1Char('}'))
-        return true;
-
-    return false;
+    return newlines <= 1 && doc->characterAt(pos) != QLatin1Char('}');
 }
 
-QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
+QString MatchingText::insertParagraphSeparator(const QTextCursor &tc)
 {
     BackwardsScanner tk(tc, MAX_NUM_LINES);
     int index = tk.startToken();

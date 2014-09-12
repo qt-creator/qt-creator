@@ -128,13 +128,11 @@ QString CppAutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                                 QChar la,
                                                 int *skippedChars) const
 {
-    MatchingText m;
-    return m.insertMatchingBrace(cursor, text, la, skippedChars);
+    return MatchingText::insertMatchingBrace(cursor, text, la, skippedChars);
 }
 
 QString CppAutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
 {
-    MatchingText m;
-    return m.insertParagraphSeparator(cursor);
+    return MatchingText::insertParagraphSeparator(cursor);
 }
 
