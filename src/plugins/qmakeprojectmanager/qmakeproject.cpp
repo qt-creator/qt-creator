@@ -620,6 +620,7 @@ void QmakeProject::updateCppCodeModel()
         if (!cppPart->files.isEmpty())
             objcppPart->displayName += QLatin1String(" (ObjC++)");
     }
+    pinfo.finish();
 
     // Also update Ui Code Model Support:
     QtSupport::UiCodeModelManager::update(this, uiCodeModelData);

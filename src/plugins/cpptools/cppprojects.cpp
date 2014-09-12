@@ -166,35 +166,36 @@ const QList<ProjectPart::Ptr> ProjectInfo::projectParts() const
 
 void ProjectInfo::appendProjectPart(const ProjectPart::Ptr &part)
 {
-    if (!part)
-        return;
+    if (part)
+        m_projectParts.append(part);
+}
 
-    m_projectParts.append(part);
-
+void ProjectInfo::finish()
+{
     typedef ProjectPart::HeaderPath HeaderPath;
 
-    // Update header paths
-    QSet<HeaderPath> incs = QSet<HeaderPath>::fromList(m_headerPaths);
-    foreach (const HeaderPath &hp, part->headerPaths) {
-        if (!incs.contains(hp)) {
-            incs.insert(hp);
-            m_headerPaths += hp;
+    QSet<HeaderPath> incs;
+    foreach (const ProjectPart::Ptr &part, m_projectParts) {
+        // Update header paths
+        foreach (const HeaderPath &hp, part->headerPaths) {
+            if (!incs.contains(hp)) {
+                incs.insert(hp);
+                m_headerPaths += hp;
+            }
         }
-    }
 
-    // Update source files
-    foreach (const ProjectFile &file, part->files)
-        m_sourceFiles.insert(file.path);
+        // Update source files
+        foreach (const ProjectFile &file, part->files)
+            m_sourceFiles.insert(file.path);
 
-    // Update defines
-    if (!m_defines.isEmpty())
-        m_defines.append('\n');
-    m_defines.append(part->toolchainDefines);
-    m_defines.append(part->projectDefines);
-    if (!part->projectConfigFile.isEmpty()) {
-        m_defines.append('\n');
-        m_defines += ProjectPart::readProjectConfigFile(part);
-        m_defines.append('\n');
+        // Update defines
+        m_defines.append(part->toolchainDefines);
+        m_defines.append(part->projectDefines);
+        if (!part->projectConfigFile.isEmpty()) {
+            m_defines.append('\n');
+            m_defines += ProjectPart::readProjectConfigFile(part);
+            m_defines.append('\n');
+        }
     }
 }
 

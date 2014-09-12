@@ -741,6 +741,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
 
     if (pinfo.projectParts().isEmpty())
         return;
+    pinfo.finish();
 
     QtSupport::UiCodeModelManager::update(this, uiFiles);
 

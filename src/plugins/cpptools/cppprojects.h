@@ -146,6 +146,7 @@ public:
     const QList<ProjectPart::Ptr> projectParts() const;
 
     void appendProjectPart(const ProjectPart::Ptr &part);
+    void finish();
     void clearProjectParts();
 
     const ProjectPart::HeaderPaths headerPaths() const;

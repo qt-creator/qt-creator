@@ -104,6 +104,7 @@ public:
             part->files.append(projectFile);
         }
         projectInfo.appendProjectPart(part);
+        projectInfo.finish();
     }
 
     ModelManagerTestHelper *modelManagerTestHelper;
@@ -227,6 +228,7 @@ void CppToolsPlugin::test_modelmanager_paths_are_clean()
             << HeaderPath(testDataDir.includeDir(false), HeaderPath::IncludePath)
             << HeaderPath(testDataDir.frameworksDir(false), HeaderPath::FrameworkPath);
     pi.appendProjectPart(part);
+    pi.finish();
 
     mm->updateProjectInfo(pi);
 
@@ -265,6 +267,7 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
         _("test_modelmanager_framework_headers.cpp"));
     part->files << ProjectFile(source, ProjectFile::CXXSource);
     pi.appendProjectPart(part);
+    pi.finish();
 
     mm->updateProjectInfo(pi).waitForFinished();
     QCoreApplication::processEvents();
@@ -314,6 +317,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
             << HeaderPath(testDataDir.includeDir(false), HeaderPath::IncludePath);
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
+    pi.finish();
 
     QSet<QString> refreshedFiles = updateProjectInfo(mm, &helper, pi);
     QCOMPARE(refreshedFiles.size(), 1);
@@ -331,6 +335,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     part->projectDefines = QByteArray("#define TEST_DEFINE 1\n");
     pi.clearProjectParts();
     pi.appendProjectPart(part);
+    pi.finish();
 
     refreshedFiles = updateProjectInfo(mm, &helper, pi);
 
@@ -372,6 +377,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
     part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
+    pi.finish();
     mm->updateProjectInfo(pi);
 
     CPlusPlus::Snapshot snapshot;
@@ -391,6 +397,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
         part->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
         part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
         pi.appendProjectPart(part);
+        pi.finish();
 
         refreshedFiles = updateProjectInfo(mm, &helper, pi);
         QCOMPARE(refreshedFiles.size(), 3);
@@ -435,6 +442,7 @@ void CppToolsPlugin::test_modelmanager_refresh_test_for_changes()
     part->qtVersion = ProjectPart::Qt5;
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
+    pi.finish();
 
     // Reindexing triggers a reparsing thread
     helper.resetRefreshedSourceFiles();
@@ -473,6 +481,7 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
     pi.appendProjectPart(part);
+    pi.finish();
 
     CPlusPlus::Snapshot snapshot;
     QSet<QString> refreshedFiles;
@@ -495,6 +504,7 @@ void CppToolsPlugin::test_modelmanager_refresh_added_and_purge_removed()
     newPart->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     newPart->files.append(ProjectFile(testHeader2, ProjectFile::CXXHeader));
     pi.appendProjectPart(newPart);
+    pi.finish();
 
     refreshedFiles = updateProjectInfo(mm, &helper, pi);
 
@@ -529,7 +539,9 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     part->qtVersion = ProjectPart::Qt5;
     foreach (const ProjectFile &file, initialProjectFiles)
         part->files.append(file);
+    pi.clearProjectParts();
     pi.appendProjectPart(part);
+    pi.finish();
 
     Document::Ptr document;
     CPlusPlus::Snapshot snapshot;
@@ -563,6 +575,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
         part->files.append(file);
     pi.clearProjectParts();
     pi.appendProjectPart(part);
+    pi.finish();
 
     refreshedFiles = updateProjectInfo(mm, &helper, pi);
 
@@ -835,6 +848,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     ProjectInfo pi = mm->projectInfo(project);
     pi.appendProjectPart(part1);
     pi.appendProjectPart(part2);
+    pi.finish();
 
     updateProjectInfo(mm, &helper, pi);
     QCOMPARE(mm->snapshot().size(), 4);
@@ -910,6 +924,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     ProjectInfo pi = mm->projectInfo(project);
     pi.appendProjectPart(part1);
     pi.appendProjectPart(part2);
+    pi.finish();
 
     updateProjectInfo(mm, &helper, pi);
     QCOMPARE(mm->snapshot().size(), 4);
@@ -990,6 +1005,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
     ProjectInfo pi = mm->projectInfo(project);
     pi.appendProjectPart(part1);
     pi.appendProjectPart(part2);
+    pi.finish();
 
     updateProjectInfo(mm, &helper, pi);
 

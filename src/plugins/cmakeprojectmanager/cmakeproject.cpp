@@ -350,6 +350,7 @@ bool CMakeProject::parseCMakeLists()
         }
 
         m_codeModelFuture.cancel();
+        pinfo.finish();
         m_codeModelFuture = modelmanager->updateProjectInfo(pinfo);
     }
 
