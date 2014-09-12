@@ -71,7 +71,6 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
 {
     setDisplayName(tr("Qbs Build"));
     setQbsConfiguration(QVariantMap());
-    m_qbsBuildOptions.setForceTimestampCheck(true);
 }
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other) :
