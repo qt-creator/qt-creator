@@ -48,8 +48,8 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
     : m_settingsPage(cmakeSettingsPage)
 {
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
-            this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
+    connect(projectExplorer, &ProjectExplorer::ProjectExplorerPlugin::aboutToShowContextMenu,
+            this, &CMakeManager::updateContextMenu);
 
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
@@ -65,7 +65,9 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
                                                                  Constants::RUNCMAKE, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
-    connect(m_runCMakeAction, SIGNAL(triggered()), this, SLOT(runCMake()));
+    connect(m_runCMakeAction, &QAction::triggered, [this]() {
+        runCMake(ProjectExplorer::ProjectExplorerPlugin::currentProject());
+    });
 
     m_runCMakeActionContextMenu = new QAction(QIcon(), tr("Run CMake"), this);
     command = Core::ActionManager::registerAction(m_runCMakeActionContextMenu,
@@ -73,24 +75,15 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(m_runCMakeActionContextMenu, SIGNAL(triggered()), this, SLOT(runCMakeContextMenu()));
+    connect(m_runCMakeActionContextMenu, &QAction::triggered, [this]() {
+        runCMake(m_contextProject);
+    });
 
 }
 
-void CMakeManager::updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node)
+void CMakeManager::updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *)
 {
-    Q_UNUSED(node);
     m_contextProject = project;
-}
-
-void CMakeManager::runCMake()
-{
-    runCMake(ProjectExplorer::ProjectExplorerPlugin::currentProject());
-}
-
-void CMakeManager::runCMakeContextMenu()
-{
-    runCMake(m_contextProject);
 }
 
 void CMakeManager::runCMake(ProjectExplorer::Project *project)

@@ -73,12 +73,11 @@ public:
     bool preferNinja() const;
     static QString findCbpFile(const QDir &);
 
-private slots:
-    void updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
-    void runCMake();
-    void runCMakeContextMenu();
 private:
+    void updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
     void runCMake(ProjectExplorer::Project *project);
+
+private:
     CMakeSettingsPage *m_settingsPage;
     QAction *m_runCMakeAction;
     QAction *m_runCMakeActionContextMenu;
