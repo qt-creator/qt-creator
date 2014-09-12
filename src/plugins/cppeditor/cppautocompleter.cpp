@@ -39,11 +39,50 @@ using namespace CppEditor;
 using namespace Internal;
 using namespace CPlusPlus;
 
-CppAutoCompleter::CppAutoCompleter()
-{}
+static const Token tokenAtPosition(const QList<Token> &tokens, const unsigned pos)
+{
+    for (int i = tokens.size() - 1; i >= 0; --i) {
+        const Token tk = tokens.at(i);
+        if (pos >= tk.utf16charsBegin() && pos < tk.utf16charsEnd())
+            return tk;
+    }
+    return Token();
+}
 
-CppAutoCompleter::~CppAutoCompleter()
-{}
+static bool isInCommentHelper(const QTextCursor &cursor, Token *retToken = 0)
+{
+    LanguageFeatures features;
+    features.qtEnabled = false;
+    features.qtKeywordsEnabled = false;
+    features.qtMocRunEnabled = false;
+    features.cxx11Enabled = true;
+    features.c99Enabled = true;
+
+    SimpleLexer tokenize;
+    tokenize.setLanguageFeatures(features);
+
+    const int prevState = BackwardsScanner::previousBlockState(cursor.block()) & 0xFF;
+    const QList<Token> tokens = tokenize(cursor.block().text(), prevState);
+
+    const unsigned pos = cursor.selectionEnd() - cursor.block().position();
+
+    if (tokens.isEmpty() || pos < tokens.first().utf16charsBegin())
+        return prevState > 0;
+
+    if (pos >= tokens.last().utf16charsEnd()) {
+        const Token tk = tokens.last();
+        if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
+            return true;
+        return tk.isComment() && (cursor.block().userState() & 0xFF);
+    }
+
+    Token tk = tokenAtPosition(tokens, pos);
+
+    if (retToken)
+        *retToken = tk;
+
+    return tk.isComment();
+}
 
 bool CppAutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
                                                     const QString &textToInsert) const
@@ -99,47 +138,3 @@ QString CppAutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) co
     return m.insertParagraphSeparator(cursor);
 }
 
-bool CppAutoCompleter::isInCommentHelper(const QTextCursor &cursor, Token *retToken) const
-{
-    LanguageFeatures features;
-    features.qtEnabled = false;
-    features.qtKeywordsEnabled = false;
-    features.qtMocRunEnabled = false;
-    features.cxx11Enabled = true;
-    features.c99Enabled = true;
-
-    SimpleLexer tokenize;
-    tokenize.setLanguageFeatures(features);
-
-    const int prevState = BackwardsScanner::previousBlockState(cursor.block()) & 0xFF;
-    const QList<Token> tokens = tokenize(cursor.block().text(), prevState);
-
-    const unsigned pos = cursor.selectionEnd() - cursor.block().position();
-
-    if (tokens.isEmpty() || pos < tokens.first().utf16charsBegin())
-        return prevState > 0;
-
-    if (pos >= tokens.last().utf16charsEnd()) {
-        const Token tk = tokens.last();
-        if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
-            return true;
-        return tk.isComment() && (cursor.block().userState() & 0xFF);
-    }
-
-    Token tk = tokenAtPosition(tokens, pos);
-
-    if (retToken)
-        *retToken = tk;
-
-    return tk.isComment();
-}
-
-const Token CppAutoCompleter::tokenAtPosition(const QList<Token> &tokens, const unsigned pos) const
-{
-    for (int i = tokens.size() - 1; i >= 0; --i) {
-        const Token tk = tokens.at(i);
-        if (pos >= tk.utf16charsBegin() && pos < tk.utf16charsEnd())
-            return tk;
-    }
-    return Token();
-}

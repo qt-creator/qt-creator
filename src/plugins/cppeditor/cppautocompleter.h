@@ -32,16 +32,13 @@
 
 #include <texteditor/autocompleter.h>
 
-#include <cplusplus/Token.h>
-
 namespace CppEditor {
 namespace Internal {
 
 class CppAutoCompleter : public TextEditor::AutoCompleter
 {
 public:
-    CppAutoCompleter();
-    virtual ~CppAutoCompleter();
+    CppAutoCompleter() {}
 
     virtual bool contextAllowsAutoParentheses(const QTextCursor &cursor,
                                               const QString &textToInsert = QString()) const;
@@ -52,10 +49,6 @@ public:
                                         QChar la,
                                         int *skippedChars) const;
     virtual QString insertParagraphSeparator(const QTextCursor &cursor) const;
-
-private:
-    bool isInCommentHelper(const QTextCursor &cursor, CPlusPlus::Token *retToken = 0) const;
-    const CPlusPlus::Token tokenAtPosition(const QList<CPlusPlus::Token> &tokens, const unsigned pos) const;
 };
 
 } // Internal
