@@ -17,6 +17,7 @@ SOURCES += mainwindow.cpp \
     generalsettings.cpp \
     id.cpp \
     icontext.cpp \
+    jsexpander.cpp \
     messagemanager.cpp \
     messageoutputwindow.cpp \
     outputpane.cpp \
@@ -109,6 +110,7 @@ HEADERS += mainwindow.h \
     fancytabwidget.h \
     generalsettings.h \
     id.h \
+    jsexpander.h \
     messagemanager.h \
     messageoutputwindow.h \
     outputpane.h \

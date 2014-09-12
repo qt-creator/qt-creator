@@ -30,6 +30,7 @@
 #include "mainwindow.h"
 #include "icore.h"
 #include "coreconstants.h"
+#include "jsexpander.h"
 #include "toolsettings.h"
 #include "mimetypesettings.h"
 #include "fancytabwidget.h"
@@ -119,6 +120,7 @@ MainWindow::MainWindow() :
     m_externalToolManager(0),
     m_progressManager(new ProgressManagerPrivate),
     m_variableManager(new VariableManager),
+    m_jsExpander(new JsExpander), // must be initialized after the VariableManager
     m_vcsManager(new VcsManager),
     m_statusBarManager(0),
     m_modeManager(0),
@@ -304,6 +306,8 @@ MainWindow::~MainWindow()
     m_helpManager = 0;
     delete m_variableManager;
     m_variableManager = 0;
+    delete m_jsExpander;
+    m_jsExpander = 0;
 }
 
 bool MainWindow::init(QString *errorMessage)

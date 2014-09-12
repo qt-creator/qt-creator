@@ -55,6 +55,7 @@ class DocumentManager;
 class HelpManager;
 class IDocument;
 class IWizardFactory;
+class JsExpander;
 class MessageManager;
 class MimeDatabase;
 class ModeManager;
@@ -172,6 +173,7 @@ private:
     MessageManager *m_messageManager;
     ProgressManagerPrivate *m_progressManager;
     VariableManager *m_variableManager;
+    JsExpander *m_jsExpander;
     VcsManager *m_vcsManager;
     StatusBarManager *m_statusBarManager;
     ModeManager *m_modeManager;

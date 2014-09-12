@@ -68,6 +68,7 @@ QtcPlugin {
             "ioutputpane.cpp", "ioutputpane.h",
             "iversioncontrol.cpp", "iversioncontrol.h",
             "iwizardfactory.cpp", "iwizardfactory.h",
+            "jsexpander.cpp", "jsexpander.h",
             "mainwindow.cpp", "mainwindow.h",
             "manhattanstyle.cpp", "manhattanstyle.h",
             "messagemanager.cpp", "messagemanager.h",
