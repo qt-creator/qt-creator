@@ -48,7 +48,6 @@ for(data_dir, DATA_DIRS) {
     # Info.plist.in are handled below
     for(file, files):!contains(file, ".*/Info\\.plist\\.in$"):!exists($$file/*):FILES += $$file
 }
-OTHER_FILES += $$FILES
 
 # conditionally deployed data
 !isEmpty(copydata) {
@@ -109,7 +108,6 @@ unix {
     DATA_FILES_SRC += externaltools/notepad_win.xml
 }
 for(file, DATA_FILES_SRC):DATA_FILES += $${SRCRESOURCEDIR}$$file
-OTHER_FILES += $$DATA_FILES
 unconditionalCopy2build.input = DATA_FILES
 unconditionalCopy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcResourceDir}
 isEmpty(vcproj):unconditionalCopy2build.variable_out = PRE_TARGETDEPS

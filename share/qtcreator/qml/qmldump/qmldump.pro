@@ -15,7 +15,6 @@ SOURCES += main.cpp \
 
 # generation of Info.plist from Info.plist.in is handled by static.pro
 # compiling this project directly from the Qt Creator source tree does not work
-OTHER_FILES += Info.plist
 macx:QMAKE_INFO_PLIST = Info.plist
 
 HEADERS += \
