@@ -160,10 +160,11 @@ void DesktopQmakeRunConfiguration::ctor()
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     m_forcedGuiMode = (version && version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT));
 
-    connect(target()->project(), SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)),
-            this, SLOT(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)));
-    connect(target(), SIGNAL(kitChanged()),
-            this, SLOT(kitChanged()));
+    QmakeProject *project = static_cast<QmakeProject *>(target()->project());
+    connect(project, &QmakeProject::proFileUpdated,
+            this, &DesktopQmakeRunConfiguration::proFileUpdated);
+    connect(target(), &Target::kitChanged,
+            this, &DesktopQmakeRunConfiguration::kitChanged);
 }
 
 void DesktopQmakeRunConfiguration::kitChanged()
