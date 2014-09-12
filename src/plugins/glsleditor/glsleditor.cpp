@@ -57,8 +57,6 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <qmldesigner/qmldesignerconstants.h>
-
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 #include <utils/uncommentselection.h>
