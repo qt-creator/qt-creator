@@ -30,7 +30,6 @@
 #include "quicktoolbarsettingspage.h"
 #include "qmljseditorconstants.h"
 
-#include <qmldesigner/qmldesignerconstants.h>
 #include <qmljstools/qmljstoolsconstants.h>
 #include <coreplugin/icore.h>
 
@@ -55,23 +54,19 @@ void QuickToolBarSettings::set()
 
 void QuickToolBarSettings::fromSettings(QSettings *settings)
 {
-    settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP));
-    settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP));
+    settings->beginGroup(QLatin1String(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML));
     enableContextPane = settings->value(
-            QLatin1String(QmlDesigner::Constants::QML_CONTEXTPANE_KEY), QVariant(false)).toBool();
+            QLatin1String(QmlJSEditor::Constants::QML_CONTEXTPANE_KEY), QVariant(false)).toBool();
     pinContextPane = settings->value(
-                QLatin1String(QmlDesigner::Constants::QML_CONTEXTPANEPIN_KEY), QVariant(false)).toBool();
-    settings->endGroup();
+                QLatin1String(QmlJSEditor::Constants::QML_CONTEXTPANEPIN_KEY), QVariant(false)).toBool();
     settings->endGroup();
 }
 
 void QuickToolBarSettings::toSettings(QSettings *settings) const
 {
-    settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP));
-    settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP));
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CONTEXTPANE_KEY), enableContextPane);
-    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_CONTEXTPANEPIN_KEY), pinContextPane);
-    settings->endGroup();
+    settings->beginGroup(QLatin1String(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML));
+    settings->setValue(QLatin1String(QmlJSEditor::Constants::QML_CONTEXTPANE_KEY), enableContextPane);
+    settings->setValue(QLatin1String(QmlJSEditor::Constants::QML_CONTEXTPANEPIN_KEY), pinContextPane);
     settings->endGroup();
 }
 

@@ -41,7 +41,6 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/codestyleeditor.h>
 #include <extensionsystem/pluginmanager.h>
-#include <qmldesigner/qmldesignerconstants.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <coreplugin/icore.h>
 

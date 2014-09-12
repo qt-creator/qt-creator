@@ -49,8 +49,6 @@
 #include <qmljs/qmljsreformatter.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
-#include <qmldesigner/qmldesignerconstants.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>

@@ -59,6 +59,9 @@ const char TASK_CATEGORY_QML_ANALYSIS[] = "Task.Category.QmlAnalysis";
 
 const char QML_SNIPPETS_GROUP_ID[] = "QML";
 
+const char QML_CONTEXTPANE_KEY[] = "QmlJSEditor.ContextPaneEnabled";
+const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
+
 } // namespace Constants
 } // namespace QmlJSEditor
 

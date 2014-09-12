@@ -45,7 +45,6 @@
 #include <qmljs/qmljsutils.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
-#include <qmldesigner/qmldesignerconstants.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
