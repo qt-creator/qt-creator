@@ -326,10 +326,3 @@ AssistProposalItem *GenericProposalModel::proposalItem(int index) const
 {
     return m_currentItems.at(index);
 }
-
-QPair<QList<AssistProposalItem *>::iterator,
-      QList<AssistProposalItem *>::iterator>
-GenericProposalModel::currentItems()
-{
-    return qMakePair(m_currentItems.begin(), m_currentItems.end());
-}

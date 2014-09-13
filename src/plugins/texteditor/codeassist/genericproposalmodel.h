@@ -74,8 +74,6 @@ public:
     bool isSortingAllowed() const;
 
 protected:
-    typedef QList<AssistProposalItem *>::iterator ItemIterator;
-    QPair<ItemIterator, ItemIterator> currentItems();
     QList<AssistProposalItem *> m_currentItems;
 
 private:
