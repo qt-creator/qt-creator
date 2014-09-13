@@ -121,10 +121,7 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     if (dialog.result() == QDialog::Rejected || dialog.commitIndex() == -1)
         return;
 
-    if (dialog.commitIndex() > 0)
-        commit += QLatin1Char('~') + QString::number(dialog.commitIndex());
-
-    m_ui->changeNumberEdit->setText(commit);
+    m_ui->changeNumberEdit->setText(dialog.commit());
 }
 
 void ChangeSelectionDialog::chooseWorkingDirectory()
