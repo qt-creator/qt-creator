@@ -50,7 +50,6 @@ class TEXTEDITOR_EXPORT GenericProposalModel : public IAssistProposalModel
 {
 public:
     GenericProposalModel();
-    GenericProposalModel(const QList<AssistProposalItem *> &items);
     ~GenericProposalModel();
 
     void reset() QTC_OVERRIDE;
@@ -77,8 +76,6 @@ protected:
     QList<AssistProposalItem *> m_currentItems;
 
 private:
-    void mapPersistentIds();
-
     QHash<QString, int> m_idByText;
     QList<AssistProposalItem *> m_originalItems;
 };

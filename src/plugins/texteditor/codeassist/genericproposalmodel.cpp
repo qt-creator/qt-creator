@@ -136,13 +136,6 @@ private:
 GenericProposalModel::GenericProposalModel()
 {}
 
-GenericProposalModel::GenericProposalModel(const QList<AssistProposalItem *> &items)
-    : m_currentItems(items)
-    , m_originalItems(items)
-{
-    mapPersistentIds();
-}
-
 GenericProposalModel::~GenericProposalModel()
 {
     qDeleteAll(m_originalItems);
@@ -152,11 +145,6 @@ void GenericProposalModel::loadContent(const QList<AssistProposalItem *> &items)
 {
     m_originalItems = items;
     m_currentItems = items;
-    mapPersistentIds();
-}
-
-void GenericProposalModel::mapPersistentIds()
-{
     for (int i = 0; i < m_originalItems.size(); ++i)
         m_idByText.insert(m_originalItems.at(i)->text(), i);
 }

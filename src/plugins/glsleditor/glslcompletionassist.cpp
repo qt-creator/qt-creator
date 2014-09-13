@@ -427,14 +427,8 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
     }
 
     m_startPosition = pos + 1;
-    return createContentProposal();
-}
 
-IAssistProposal *GlslCompletionAssistProcessor::createContentProposal() const
-{
-    GenericProposalModel *model = new GenericProposalModel(m_completions);
-    IAssistProposal *proposal = new GenericProposal(m_startPosition, model);
-    return proposal;
+    return new GenericProposal(m_startPosition, m_completions);
 }
 
 IAssistProposal *GlslCompletionAssistProcessor::createHintProposal(

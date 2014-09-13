@@ -92,8 +92,6 @@ public:
         if (!interface)
             return 0;
 
-        QScopedPointer<const AssistInterface> assistInterface(interface);
-
         QIcon icon = QIcon::fromTheme(QLatin1String("edit-paste"), QIcon(QLatin1String(Core::Constants::ICON_PASTE))).pixmap(16);
         CircularClipboard * clipboard = CircularClipboard::instance();
         QList<AssistProposalItem *> items;
@@ -106,7 +104,7 @@ public:
             items.append(item);
         }
 
-        return new GenericProposal(interface->position(), new GenericProposalModel(items));
+        return new GenericProposal(interface->position(), items);
     }
 };
 

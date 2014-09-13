@@ -107,8 +107,8 @@ private:
 class VirtualFunctionProposal : public GenericProposal
 {
 public:
-    VirtualFunctionProposal(int cursorPos, GenericProposalModel *model, bool openInSplit)
-        : GenericProposal(cursorPos, model)
+    VirtualFunctionProposal(int cursorPos, const QList<AssistProposalItem *> &items, bool openInSplit)
+        : GenericProposal(cursorPos, items)
         , m_openInSplit(openInSplit)
     {}
 
@@ -140,9 +140,7 @@ public:
         QList<AssistProposalItem *> items;
         items << itemFromFunction(m_params.function);
         items << hintItem;
-        return new VirtualFunctionProposal(m_params.cursorPosition,
-                                           new GenericProposalModel(items),
-                                           m_params.openInNextSplit);
+        return new VirtualFunctionProposal(m_params.cursorPosition, items, m_params.openInNextSplit);
     }
 
     IAssistProposal *perform(const AssistInterface *) QTC_OVERRIDE
@@ -166,9 +164,7 @@ public:
             items << itemFromFunction(func);
         items.first()->setOrder(1000); // Ensure top position for function of static type
 
-        return new VirtualFunctionProposal(m_params.cursorPosition,
-                                           new GenericProposalModel(items),
-                                           m_params.openInNextSplit);
+        return new VirtualFunctionProposal(m_params.cursorPosition, items, m_params.openInNextSplit);
     }
 
 private:

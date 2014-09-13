@@ -37,11 +37,13 @@
 namespace TextEditor {
 
 class GenericProposalModel;
+class AssistProposalItem;
 
 class TEXTEDITOR_EXPORT GenericProposal : public IAssistProposal
 {
 public:
     GenericProposal(int cursorPos, GenericProposalModel *model);
+    GenericProposal(int cursorPos, const QList<AssistProposalItem *> &items);
     ~GenericProposal();
 
     bool isFragile() const QTC_OVERRIDE;

@@ -72,7 +72,7 @@ IAssistProposal *QuickFixAssistProcessor::perform(const AssistInterface *interfa
             item->setOrder(op->priority());
             items.append(item);
         }
-        return new GenericProposal(interface->position(), new GenericProposalModel(items));
+        return new GenericProposal(interface->position(), items);
     }
 
     return 0;

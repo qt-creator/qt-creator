@@ -512,8 +512,7 @@ QmlJSCompletionAssistProcessor::~QmlJSCompletionAssistProcessor()
 IAssistProposal *QmlJSCompletionAssistProcessor::createContentProposal() const
 {
     GenericProposalModel *model = new QmlJSAssistProposalModel(m_completions);
-    IAssistProposal *proposal = new GenericProposal(m_startPosition, model);
-    return proposal;
+    return new GenericProposal(m_startPosition, model);
 }
 
 IAssistProposal *QmlJSCompletionAssistProcessor::createHintProposal(

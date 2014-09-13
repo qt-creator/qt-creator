@@ -107,7 +107,6 @@ public:
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) QTC_OVERRIDE;
 
 private:
-    TextEditor::IAssistProposal *createContentProposal() const;
     TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
     bool acceptsIdleEditor() const;
     void addCompletion(const QString &text, const QIcon &icon, int order = 0);

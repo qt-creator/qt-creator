@@ -915,8 +915,9 @@ class FakeVimAssistProposalModel : public GenericProposalModel
 {
 public:
     FakeVimAssistProposalModel(const QList<AssistProposalItem *> &items)
-        : GenericProposalModel(items)
-    {}
+    {
+        loadContent(items);
+    }
 
     bool supportsPrefixExpansion() const QTC_OVERRIDE
     {

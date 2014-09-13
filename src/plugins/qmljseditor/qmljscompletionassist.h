@@ -66,8 +66,9 @@ class QmlJSAssistProposalModel : public TextEditor::GenericProposalModel
 {
 public:
     QmlJSAssistProposalModel(const QList<TextEditor::AssistProposalItem *> &items)
-        : TextEditor::GenericProposalModel(items)
-    {}
+    {
+        loadContent(items);
+    }
 
     void filter(const QString &prefix) QTC_OVERRIDE;
     void sort(const QString &prefix) QTC_OVERRIDE;

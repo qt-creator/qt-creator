@@ -196,10 +196,10 @@ IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterfac
         IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
         return proposal;
     } else {
-        QList<TextEditor::AssistProposalItem *> items;
+        QList<AssistProposalItem *> items;
         addWordsToProposalList(&items, m_keywords.variables(), m_variableIcon);
         addWordsToProposalList(&items, m_keywords.functions(), m_functionIcon);
-        return new GenericProposal(m_startPosition, new GenericProposalModel(items));
+        return new GenericProposal(m_startPosition, items);
     }
 }
 
