@@ -86,7 +86,7 @@ public:
     bool isNewPlaceHolderAt(int row) { return isNewPlaceHolder(rawMappingAt(row)); }
 
     void addMapping(const QString &source, const QString &target)
-        { addRawMapping(QDir::toNativeSeparators(source), QDir::toNativeSeparators(target)); }
+        { addRawMapping(source, QDir::toNativeSeparators(target)); }
 
     void addNewMappingPlaceHolder()
         { addRawMapping(m_newSourcePlaceHolder, m_newTargetPlaceHolder); }
@@ -176,7 +176,7 @@ void SourcePathMappingModel::setSource(int row, const QString &s)
 {
     QStandardItem *sourceItem = item(row, SourceColumn);
     QTC_ASSERT(sourceItem, return);
-    sourceItem->setText(s.isEmpty() ? m_newSourcePlaceHolder : QDir::toNativeSeparators(s));
+    sourceItem->setText(s.isEmpty() ? m_newSourcePlaceHolder : s);
 }
 
 void SourcePathMappingModel::setTarget(int row, const QString &t)
@@ -285,7 +285,7 @@ QString DebuggerSourcePathMappingWidget::editTargetField() const
 
 void DebuggerSourcePathMappingWidget::setEditFieldMapping(const Mapping &m)
 {
-    m_sourceLineEdit->setText(QDir::toNativeSeparators(m.first));
+    m_sourceLineEdit->setText(m.first);
     m_targetChooser->setPath(m.second);
 }
 
