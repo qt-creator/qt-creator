@@ -136,6 +136,7 @@ QbsProject::~QbsProject()
     delete m_qbsProjectParser;
     if (m_qbsUpdateFutureInterface) {
         m_qbsUpdateFutureInterface->reportCanceled();
+        m_qbsUpdateFutureInterface->reportFinished();
         delete m_qbsUpdateFutureInterface;
         m_qbsUpdateFutureInterface = 0;
     }
