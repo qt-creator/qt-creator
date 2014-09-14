@@ -105,7 +105,7 @@ void BaseEditorDocumentParser::setEditorDefines(const QByteArray &editorDefines)
 
 BaseEditorDocumentParser *BaseEditorDocumentParser::get(const QString &filePath)
 {
-    CppModelManagerInterface *cmmi = CppModelManagerInterface::instance();
+    CppModelManager *cmmi = CppModelManager::instance();
     if (EditorDocumentHandle *editorDocument = cmmi->editorDocument(filePath)) {
         if (BaseEditorDocumentProcessor *processor = editorDocument->processor())
             return processor->parser();
@@ -120,7 +120,7 @@ void BaseEditorDocumentParser::updateProjectPart()
         return;
     }
 
-    CppModelManagerInterface *cmm = CppModelManagerInterface::instance();
+    CppModelManager *cmm = CppModelManager::instance();
     QList<ProjectPart::Ptr> projectParts = cmm->projectPart(m_filePath);
     if (projectParts.isEmpty()) {
         if (m_projectPart)

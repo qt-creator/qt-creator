@@ -53,7 +53,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/uicodemodelsupport.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -326,8 +326,8 @@ bool CMakeProject::parseCMakeLists()
         return true;
     }
 
-    CppTools::CppModelManagerInterface *modelmanager =
-            CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *modelmanager =
+            CppTools::CppModelManager::instance();
     if (modelmanager) {
         CppTools::ProjectInfo pinfo = modelmanager->projectInfo(this);
         pinfo.clearProjectParts();

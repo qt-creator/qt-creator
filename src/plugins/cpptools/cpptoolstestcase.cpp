@@ -39,9 +39,9 @@
 
 static bool closeEditorsWithoutGarbageCollectorInvocation(const QList<Core::IEditor *> &editors)
 {
-    CppTools::CppModelManagerInterface::instance()->enableGarbageCollector(false);
+    CppTools::CppModelManager::instance()->enableGarbageCollector(false);
     const bool closeEditorsSucceeded = Core::EditorManager::closeEditors(editors, false);
-    CppTools::CppModelManagerInterface::instance()->enableGarbageCollector(true);
+    CppTools::CppModelManager::instance()->enableGarbageCollector(true);
     return closeEditorsSucceeded;
 }
 
@@ -79,7 +79,7 @@ bool TestDocument::writeToDisk() const
 }
 
 TestCase::TestCase(bool runGarbageCollector)
-    : m_modelManager(CppModelManagerInterface::instance())
+    : m_modelManager(CppModelManager::instance())
     , m_succeededSoFar(false)
     , m_runGarbageCollector(runGarbageCollector)
 {
@@ -116,18 +116,18 @@ bool TestCase::openBaseTextEditor(const QString &fileName, TextEditor::BaseTextE
 
 CPlusPlus::Snapshot TestCase::globalSnapshot()
 {
-    return CppModelManagerInterface::instance()->snapshot();
+    return CppModelManager::instance()->snapshot();
 }
 
 bool TestCase::garbageCollectGlobalSnapshot()
 {
-    CppModelManagerInterface::instance()->GC();
+    CppModelManager::instance()->GC();
     return globalSnapshot().isEmpty();
 }
 
 bool TestCase::parseFiles(const QSet<QString> &filePaths)
 {
-    CppModelManagerInterface::instance()->updateSourceFiles(filePaths).waitForFinished();
+    CppModelManager::instance()->updateSourceFiles(filePaths).waitForFinished();
     QCoreApplication::processEvents();
     const CPlusPlus::Snapshot snapshot = globalSnapshot();
     if (snapshot.isEmpty()) {

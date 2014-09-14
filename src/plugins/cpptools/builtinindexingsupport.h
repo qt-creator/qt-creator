@@ -31,7 +31,7 @@
 #define BUILTININDEXINGSUPPORT_H
 
 #include "cppindexingsupport.h"
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 
 #include <QFutureSynchronizer>
 
@@ -44,7 +44,7 @@ public:
     ~BuiltinIndexingSupport();
 
     virtual QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
-        CppModelManagerInterface::ProgressNotificationMode mode);
+        CppModelManager::ProgressNotificationMode mode);
     virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
                                                  QSet<QString> fileNames);
 

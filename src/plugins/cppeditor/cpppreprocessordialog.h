@@ -30,7 +30,7 @@
 #ifndef CPPPREPROCESSORDIALOG_H
 #define CPPPREPROCESSORDIALOG_H
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <QDialog>
 

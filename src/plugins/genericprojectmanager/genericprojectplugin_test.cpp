@@ -98,7 +98,7 @@ static ProjectInfo setupProject(const QByteArray &projectFile, const QByteArray 
     // retrieve them for inspection.
     cppHelper.waitForSourceFilesRefreshed(projectFilePath(_(mainFile)));
 
-    CppModelManagerInterface *mm = cppHelper.cppModelManager();
+    CppModelManager *mm = cppHelper.cppModelManager();
     return mm->projectInfo(project);
 }
 

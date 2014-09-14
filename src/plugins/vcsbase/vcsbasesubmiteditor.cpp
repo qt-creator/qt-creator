@@ -39,7 +39,7 @@
 #include "vcsplugin.h"
 
 #include <aggregation/aggregate.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/checkablemessagebox.h>
@@ -438,7 +438,7 @@ void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model, const QString &re
     d->m_widget->setFileModel(model);
 
     QSet<QString> uniqueSymbols;
-    const CPlusPlus::Snapshot cppSnapShot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    const CPlusPlus::Snapshot cppSnapShot = CppTools::CppModelManager::instance()->snapshot();
 
     // Iterate over the files and get interesting symbols
     for (int row = 0; row < model->rowCount(); ++row) {

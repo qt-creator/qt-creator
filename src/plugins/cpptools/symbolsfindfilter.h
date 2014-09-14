@@ -41,9 +41,10 @@
 #include <QRadioButton>
 
 namespace CppTools {
-namespace Internal {
 
 class CppModelManager;
+
+namespace Internal {
 
 class SymbolsFindFilter : public Core::IFindFilter
 {

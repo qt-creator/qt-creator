@@ -33,7 +33,6 @@ HEADERS += \
     cpplocatordata.h \
     cpplocatorfilter.h \
     cppmodelmanager.h \
-    cppmodelmanagerinterface.h \
     cppmodelmanagersupport.h \
     cppmodelmanagersupportinternal.h \
     cpppointerdeclarationformatter.h \
@@ -95,7 +94,6 @@ SOURCES += \
     cpplocatordata.cpp \
     cpplocatorfilter.cpp \
     cppmodelmanager.cpp \
-    cppmodelmanagerinterface.cpp \
     cppmodelmanagersupport.cpp \
     cppmodelmanagersupportinternal.cpp \
     cpppointerdeclarationformatter.cpp \

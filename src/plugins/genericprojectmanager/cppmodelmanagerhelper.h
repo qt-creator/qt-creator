@@ -30,7 +30,7 @@
 #ifndef CPPMODELMANAGERHELPER_H
 #define CPPMODELMANAGERHELPER_H
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <QObject>
 #include <QSignalSpy>
@@ -45,7 +45,7 @@ class CppModelManagerHelper : public QObject
 public:
     explicit CppModelManagerHelper(QObject *parent = 0);
 
-    static CppTools::CppModelManagerInterface *cppModelManager();
+    static CppTools::CppModelManager *cppModelManager();
 
     enum { defaultTimeOut = 30 * 1000 }; // 30 secs
     void waitForSourceFilesRefreshed(const QString &file = QString(), int timeOut = defaultTimeOut);

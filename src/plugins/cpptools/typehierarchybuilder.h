@@ -31,7 +31,7 @@
 #define CPPTOOLS_TYPEHIERARCHYBUILDER_H
 
 #include "cpptools_global.h"
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 
 #include <cplusplus/Overview.h>
 

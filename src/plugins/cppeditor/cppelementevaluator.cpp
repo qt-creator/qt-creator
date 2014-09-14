@@ -63,7 +63,7 @@ static QStringList stripName(const QString &name)
 
 CppElementEvaluator::CppElementEvaluator(TextEditor::BaseTextEditorWidget *editor) :
     m_editor(editor),
-    m_modelManager(CppTools::CppModelManagerInterface::instance()),
+    m_modelManager(CppTools::CppModelManager::instance()),
     m_tc(editor->textCursor()),
     m_lookupBaseClasses(false),
     m_lookupDerivedClasses(false)

@@ -48,11 +48,9 @@
 
 using namespace CppTools::Internal;
 using namespace ProjectExplorer;
+using namespace CppTools;
 
 typedef CPlusPlus::Document Document;
-typedef CppTools::ProjectInfo ProjectInfo;
-typedef CppTools::ProjectPart ProjectPart;
-typedef CppTools::ProjectFile ProjectFile;
 
 Q_DECLARE_METATYPE(QList<ProjectFile>)
 
@@ -679,7 +677,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
 
     // Check working copy.
     // An AbstractEditorSupport object should have been added for the ui_* file.
-    CppModelManagerInterface *mm = CppModelManagerInterface::instance();
+    CppModelManager *mm = CppModelManager::instance();
     WorkingCopy workingCopy = mm->workingCopy();
 
     QCOMPARE(workingCopy.size(), 2); // mm->configurationFileName() and "ui_*.h"

@@ -36,9 +36,10 @@
 namespace Core { class IEditor; }
 
 namespace CppTools {
-namespace Internal {
 
 class CppModelManager;
+
+namespace Internal {
 
 class CppCurrentDocumentFilter : public  Core::ILocatorFilter
 {

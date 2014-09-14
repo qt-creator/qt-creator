@@ -34,7 +34,7 @@
 #include "symbol.h"
 #include "unit.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QString>

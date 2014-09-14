@@ -38,8 +38,6 @@
 namespace CppTools {
 namespace Internal {
 
-class CppModelManager;
-
 class CppLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT

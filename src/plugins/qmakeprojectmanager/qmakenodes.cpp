@@ -53,7 +53,7 @@
 
 #include <resourceeditor/resourcenode.h>
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsconstants.h>
 
 #include <utils/algorithm.h>

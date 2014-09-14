@@ -209,7 +209,7 @@ void index(QFutureInterface<void> &future, const ParseParams params)
 
     sourceProcessor->setTodo(files.toSet());
 
-    const QString conf = CppModelManagerInterface::configurationFileName();
+    const QString conf = CppModelManager::configurationFileName();
     bool processingHeaders = false;
 
     CppModelManager *cmm = CppModelManager::instance();
@@ -354,7 +354,7 @@ BuiltinIndexingSupport::~BuiltinIndexingSupport()
 {}
 
 QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QSet<QString> &sourceFiles,
-    CppModelManagerInterface::ProgressNotificationMode mode)
+    CppModelManager::ProgressNotificationMode mode)
 {
     CppModelManager *mgr = CppModelManager::instance();
 
@@ -379,7 +379,7 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QSet<QString> &so
 
     m_synchronizer.addFuture(result);
 
-    if (mode == CppModelManagerInterface::ForcedProgressNotification || sourceFiles.count() > 1) {
+    if (mode == CppModelManager::ForcedProgressNotification || sourceFiles.count() > 1) {
         Core::ProgressManager::addTask(result, QCoreApplication::translate("CppTools::Internal::BuiltinIndexingSupport", "Parsing C/C++ Files"),
                                                 CppTools::Constants::TASK_INDEX);
     }

@@ -288,7 +288,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cppToolsMenu->addSeparator(globalContext);
     m_reparseExternallyChangedFiles = new QAction(tr("Reparse Externally Changed Files"), this);
     cmd = ActionManager::registerAction(m_reparseExternallyChangedFiles, Constants::UPDATE_CODEMODEL, globalContext);
-    CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance();
     connect(m_reparseExternallyChangedFiles, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);
 

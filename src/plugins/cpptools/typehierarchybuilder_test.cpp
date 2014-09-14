@@ -29,7 +29,7 @@
 
 #include "cpptoolsplugin.h"
 
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
 #include "typehierarchybuilder.h"
 

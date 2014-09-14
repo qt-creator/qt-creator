@@ -67,7 +67,7 @@
 #include <utils/hostosinfo.h>
 
 #include <cplusplus/findcdbbreakpoint.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppworkingcopy.h>
 
 #include <QDir>
@@ -2914,7 +2914,7 @@ void CdbEngine::attemptBreakpointSynchronization()
                     && boolSetting(CdbBreakPointCorrection)) {
                 if (lineCorrection.isNull())
                     lineCorrection.reset(new BreakpointCorrectionContext(debuggerCore()->cppCodeModelSnapshot(),
-                                                                         CppTools::CppModelManagerInterface::instance()->workingCopy()));
+                                                                         CppTools::CppModelManager::instance()->workingCopy()));
                 response.lineNumber = lineCorrection->fixLineNumber(parameters.fileName, parameters.lineNumber);
                 postBuiltinCommand(
                             cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false), 0,

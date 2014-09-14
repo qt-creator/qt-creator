@@ -82,8 +82,8 @@ QStringList Keywords::argsForFunction(const QString &function) const
 // --------------------------
 // KeywordsAssistProposalItem
 // --------------------------
-KeywordsAssistProposalItem::KeywordsAssistProposalItem(Keywords keywords)
-    : m_keywords(keywords)
+KeywordsAssistProposalItem::KeywordsAssistProposalItem(bool isFunction)
+    : m_isFunction(isFunction)
 {
 }
 
@@ -93,9 +93,7 @@ KeywordsAssistProposalItem::~KeywordsAssistProposalItem()
 bool KeywordsAssistProposalItem::prematurelyApplies(const QChar &c) const
 {
     // only '(' in case of a function
-    if (c == QLatin1Char('(') && m_keywords.isFunction(text()))
-        return true;
-    return false;
+    return c == QLatin1Char('(') && m_isFunction;
 }
 
 void KeywordsAssistProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget,
@@ -106,7 +104,7 @@ void KeywordsAssistProposalItem::applyContextualContent(BaseTextEditorWidget *ed
     int replaceLength = editorWidget->position() - basePosition;
     QString toInsert = text();
     int cursorOffset = 0;
-    if (m_keywords.isFunction(toInsert) && settings.m_autoInsertBrackets) {
+    if (m_isFunction && settings.m_autoInsertBrackets) {
         if (settings.m_spaceAfterFunctionName) {
             if (editorWidget->textAt(editorWidget->position(), 2) == QLatin1String(" (")) {
                 cursorOffset = 2;
@@ -263,7 +261,7 @@ void KeywordsCompletionAssistProcessor::addWordsToProposalList(QList<AssistPropo
         return;
 
     for (int i = 0; i < words.count(); ++i) {
-        AssistProposalItem *item = new KeywordsAssistProposalItem(m_keywords);
+        AssistProposalItem *item = new KeywordsAssistProposalItem(m_keywords.isFunction(words.at(i)));
         item->setText(words.at(i));
         item->setIcon(icon);
         items->append(item);

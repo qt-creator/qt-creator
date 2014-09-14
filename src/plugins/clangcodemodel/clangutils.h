@@ -32,7 +32,7 @@
 
 #include "utils.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 namespace ClangCodeModel {
 namespace Utils {

@@ -32,7 +32,7 @@
 
 #include "cpptools_global.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cplusplus/CppDocument.h>
 
 #include <QFile>

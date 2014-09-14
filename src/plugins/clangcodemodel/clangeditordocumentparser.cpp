@@ -32,7 +32,7 @@
 #include "pchinfo.h"
 #include "pchmanager.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojects.h>
 #include <cpptools/cppworkingcopy.h>
 

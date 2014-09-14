@@ -44,9 +44,9 @@ CppModelManagerHelper::CppModelManagerHelper(QObject *parent)
             this, SLOT(onSourceFilesRefreshed(const QSet<QString> &)));
 }
 
-CppModelManagerInterface *CppModelManagerHelper::cppModelManager()
+CppModelManager *CppModelManagerHelper::cppModelManager()
 {
-    return CppModelManagerInterface::instance();
+    return CppModelManager::instance();
 }
 
 void CppModelManagerHelper::waitForSourceFilesRefreshed(const QString &file, int timeOut)

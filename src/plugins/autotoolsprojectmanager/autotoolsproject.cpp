@@ -49,7 +49,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/headerpath.h>
 #include <extensionsystem/pluginmanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <utils/qtcassert.h>
@@ -400,8 +400,8 @@ QList<Node *> AutotoolsProject::nodes(FolderNode *parent) const
 
 void AutotoolsProject::updateCppCodeModel()
 {
-    CppTools::CppModelManagerInterface *modelManager =
-        CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *modelManager =
+        CppTools::CppModelManager::instance();
 
     if (!modelManager)
         return;

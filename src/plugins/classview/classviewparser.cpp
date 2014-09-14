@@ -38,7 +38,7 @@
 #include <cplusplus/Name.h>
 
 // other
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/Icons.h>
 #include <projectexplorer/projectexplorer.h>
@@ -666,7 +666,7 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
 void Parser::resetDataToCurrentState()
 {
     // get latest data
-    CppTools::CppModelManagerInterface *codeModel = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *codeModel = CppTools::CppModelManager::instance();
     if (codeModel)
         resetData(codeModel->snapshot());
 }

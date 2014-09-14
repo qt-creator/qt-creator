@@ -54,8 +54,7 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
 
     bool invalidateSnapshot = false, invalidateConfig = false, editorDefinesChanged_ = false;
 
-    CppModelManager *modelManager
-        = dynamic_cast<CppModelManager *>(CppModelManagerInterface::instance());
+    CppModelManager *modelManager = CppModelManager::instance();
     QByteArray configFile = modelManager->codeModelConfiguration();
     ProjectPart::HeaderPaths headerPaths;
     QStringList precompiledHeaders;
@@ -146,7 +145,7 @@ void BuiltinEditorDocumentParser::update(WorkingCopy workingCopy)
         m_snapshot.remove(filePath());
 
         static const QString editorDefinesFileName
-            = CppModelManagerInterface::editorConfigurationFileName();
+            = CppModelManager::editorConfigurationFileName();
         if (editorDefinesChanged_) {
             m_snapshot.remove(editorDefinesFileName);
             workingCopy.insert(editorDefinesFileName, editorDefines());

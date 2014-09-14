@@ -38,7 +38,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildsteplist.h>
@@ -326,8 +326,8 @@ QStringList GenericProject::processEntries(const QStringList &paths,
 
 void GenericProject::refreshCppCodeModel()
 {
-    CppTools::CppModelManagerInterface *modelManager =
-            CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *modelManager =
+            CppTools::CppModelManager::instance();
 
     if (!modelManager)
         return;

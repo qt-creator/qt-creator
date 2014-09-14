@@ -31,7 +31,7 @@
 #include "cppeditortestcase.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>

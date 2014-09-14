@@ -94,7 +94,7 @@ void TodoItemsProvider::createScanners()
 {
     qRegisterMetaType<QList<TodoItem> >("QList<TodoItem>");
 
-    if (CppTools::CppModelManagerInterface::instance())
+    if (CppTools::CppModelManager::instance())
         m_scanners << new CppTodoItemsScanner(m_settings.keywords, this);
 
     if (QmlJS::ModelManagerInterface::instance())

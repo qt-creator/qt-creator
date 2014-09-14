@@ -142,7 +142,7 @@ void PchManager::onProjectPartsUpdated(ProjectExplorer::Project *project)
     ClangProjectSettings *cps = settingsForProject(project);
     Q_ASSERT(cps);
 
-    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
     const QList<ProjectPart::Ptr> projectParts = mmi->projectInfo(
                 cps->project()).projectParts();
     updatePchInfo(cps, projectParts);
@@ -435,7 +435,7 @@ void PchManager::updateActivePchFiles()
     QMutexLocker locker(&m_mutex);
 
     QSet<ProjectPart::Ptr> activeParts;
-    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
     foreach (const CppTools::ProjectInfo &pi, mmi->projectInfos())
         activeParts.unite(QSet<ProjectPart::Ptr>::fromList(pi.projectParts()));
     QList<ProjectPart::Ptr> partsWithPCHFiles = m_activePchFiles.keys();

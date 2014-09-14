@@ -64,7 +64,7 @@ TextEditor::BaseTextDocument *BaseEditorDocumentProcessor::baseTextDocument() co
 
 BaseEditorDocumentProcessor *BaseEditorDocumentProcessor::get(const QString &filePath)
 {
-    CppModelManagerInterface *cmmi = CppModelManagerInterface::instance();
+    CppModelManager *cmmi = CppModelManager::instance();
     if (EditorDocumentHandle *editorDocument = cmmi->editorDocument(filePath))
         return editorDocument->processor();
     return 0;
@@ -126,7 +126,7 @@ void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
     }
 
     parser->update(workingCopy);
-    CppModelManagerInterface::instance()
+    CppModelManager::instance()
         ->finishedRefreshingSourceFiles(QSet<QString>() << parser->filePath());
 
     future.setProgressValue(1);

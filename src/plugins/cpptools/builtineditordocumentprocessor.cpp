@@ -49,11 +49,6 @@ enum { debug = 0 };
 
 namespace {
 
-CppTools::Internal::CppModelManager *cmm()
-{
-    return CppTools::Internal::CppModelManager::instance();
-}
-
 QFuture<TextEditor::HighlightingResult> runHighlighter(const CPlusPlus::Document::Ptr &doc,
                                                        const CPlusPlus::Snapshot &snapshot,
                                                        QTextDocument *textDocument)
@@ -164,7 +159,7 @@ BuiltinEditorDocumentProcessor::~BuiltinEditorDocumentProcessor()
 
 void BuiltinEditorDocumentProcessor::run()
 {
-    m_parserFuture = QtConcurrent::run(&runParser, parser(), cmm()->workingCopy());
+    m_parserFuture = QtConcurrent::run(&runParser, parser(), CppTools::CppModelManager::instance()->workingCopy());
 }
 
 BaseEditorDocumentParser *BuiltinEditorDocumentProcessor::parser()
@@ -237,7 +232,7 @@ void BuiltinEditorDocumentProcessor::onSemanticInfoUpdated(const SemanticInfo se
 
 SemanticInfo::Source BuiltinEditorDocumentProcessor::createSemanticInfoSource(bool force) const
 {
-    const WorkingCopy workingCopy = cmm()->workingCopy();
+    const WorkingCopy workingCopy = CppTools::CppModelManager::instance()->workingCopy();
     const QString path = filePath();
     return SemanticInfo::Source(path,
                                 workingCopy.source(path),

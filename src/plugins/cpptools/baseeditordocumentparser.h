@@ -30,7 +30,7 @@
 #ifndef BASEEDITORDOCUMENTPARSER_H
 #define BASEEDITORDOCUMENTPARSER_H
 
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 #include "cpptools_global.h"
 
 #include <QObject>

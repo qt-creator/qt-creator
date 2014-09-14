@@ -45,7 +45,7 @@ class LookupItem;
 class LookupContext;
 }
 
-namespace CppTools { class CppModelManagerInterface; }
+namespace CppTools { class CppModelManager; }
 
 namespace CppEditor {
 namespace Internal {
@@ -79,7 +79,7 @@ private:
                                const CPlusPlus::Scope *scope);
 
     TextEditor::BaseTextEditorWidget *m_editor;
-    CppTools::CppModelManagerInterface *m_modelManager;
+    CppTools::CppModelManager *m_modelManager;
     QTextCursor m_tc;
     bool m_lookupBaseClasses;
     bool m_lookupDerivedClasses;

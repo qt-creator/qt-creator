@@ -31,7 +31,7 @@
 #define CPPCOMPLETIONASSIST_H
 
 #include "cppcompletionassistprovider.h"
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
 
 #include <cplusplus/Icons.h>

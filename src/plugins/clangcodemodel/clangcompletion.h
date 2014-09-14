@@ -35,7 +35,7 @@
 #include <cplusplus/Icons.h>
 
 #include <cpptools/cppcompletionassistprovider.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/completionassistprovider.h>

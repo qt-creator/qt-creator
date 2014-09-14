@@ -46,7 +46,7 @@ class CppTools::CppRefactoringChangesData : public TextEditor::RefactoringChange
 public:
     CppRefactoringChangesData(const Snapshot &snapshot)
         : m_snapshot(snapshot)
-        , m_modelManager(Internal::CppModelManager::instance())
+        , m_modelManager(CppModelManager::instance())
         , m_workingCopy(m_modelManager->workingCopy())
     {}
 
@@ -78,7 +78,7 @@ public:
     }
 
     Snapshot m_snapshot;
-    CppModelManagerInterface *m_modelManager;
+    CppModelManager *m_modelManager;
     WorkingCopy m_workingCopy;
 
 };

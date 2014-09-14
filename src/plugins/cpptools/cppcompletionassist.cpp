@@ -32,7 +32,7 @@
 #include "builtineditordocumentparser.h"
 #include "cppdoxygen.h"
 #include "cppmodelmanager.h"
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsreuse.h"
 #include "editordocumenthandle.h"
@@ -422,7 +422,7 @@ AssistInterface *InternalCompletionAssistProvider::createAssistInterface(
 {
     QTC_ASSERT(document, return 0);
 
-    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
+    CppModelManager *modelManager = CppModelManager::instance();
     return new CppTools::Internal::CppCompletionAssistInterface(filePath, document, isObjCEnabled,
                                                                 position, reason,
                                                                 modelManager->workingCopy());
@@ -1383,7 +1383,7 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
         completeNamespace(b);
 
     addKeywords();
-    addMacros(CppModelManagerInterface::configurationFileName(), context.snapshot());
+    addMacros(CppModelManager::configurationFileName(), context.snapshot());
     addMacros(context.thisDocument()->fileName(), context.snapshot());
     addSnippets();
 }

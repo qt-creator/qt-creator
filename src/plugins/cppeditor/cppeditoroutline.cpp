@@ -32,7 +32,7 @@
 #include "cppeditor.h"
 #include "cppeditorplugin.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <cplusplus/OverviewModel.h>
 #include <utils/treeviewcombobox.h>
@@ -189,7 +189,7 @@ QWidget *CppEditorOutline::widget() const
 
 void CppEditorOutline::updateNow()
 {
-    CppTools::CppModelManagerInterface *cmmi = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *cmmi = CppTools::CppModelManager::instance();
     if (!cmmi)
         return;
 

@@ -38,7 +38,7 @@
 #include <cplusplus/ResolveExpression.h>
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/functionutils.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/symbolfinder.h>
@@ -236,7 +236,7 @@ Link findMacroLink(const QByteArray &name, const Document::Ptr &doc)
 {
     if (!name.isEmpty()) {
         if (doc) {
-            const Snapshot snapshot = CppModelManagerInterface::instance()->snapshot();
+            const Snapshot snapshot = CppModelManager::instance()->snapshot();
             QSet<QString> processed;
             return findMacroLink_helper(name, doc, snapshot, &processed);
         }
@@ -597,9 +597,9 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
             return link;    //already on definition!
     } else if (const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1)) {
         const QString fileName = use->macro().fileName();
-        if (fileName == CppModelManagerInterface::editorConfigurationFileName()) {
+        if (fileName == CppModelManager::editorConfigurationFileName()) {
             m_widget->showPreProcessorWidget();
-        } else if (fileName != CppModelManagerInterface::configurationFileName()) {
+        } else if (fileName != CppModelManager::configurationFileName()) {
             const Macro &macro = use->macro();
             link.targetFileName = macro.fileName();
             link.targetLine = macro.line();

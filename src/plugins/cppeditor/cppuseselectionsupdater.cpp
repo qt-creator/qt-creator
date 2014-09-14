@@ -33,7 +33,7 @@
 #include "cppeditor.h"
 
 #include <cpptools/cpplocalsymbols.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/convenience.h>
@@ -204,7 +204,7 @@ QList<int> findReferences(const Params &p)
 
     using CppEditor::Internal::CanonicalSymbol;
     if (Symbol *s = CanonicalSymbol::canonicalSymbol(p.scope, p.expression, typeOfExpression)) {
-        CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
+        CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
         result = mmi->references(s, typeOfExpression.context());
     }
 

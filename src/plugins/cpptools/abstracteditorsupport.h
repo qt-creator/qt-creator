@@ -36,13 +36,13 @@
 #include <QObject>
 
 namespace CppTools {
-class CppModelManagerInterface;
+class CppModelManager;
 
 class CPPTOOLS_EXPORT AbstractEditorSupport : public QObject
 {
     Q_OBJECT
 public:
-    explicit AbstractEditorSupport(CppModelManagerInterface *modelmanager);
+    explicit AbstractEditorSupport(CppModelManager *modelmanager);
     virtual ~AbstractEditorSupport();
 
     /// \returns the contents, encoded as UTF-8
@@ -53,14 +53,14 @@ public:
     unsigned revision() const { return m_revision; }
 
     // TODO: find a better place for common utility functions
-    static QString functionAt(const CppModelManagerInterface *mm,
+    static QString functionAt(const CppModelManager *mm,
                               const QString &fileName,
                               int line, int column);
 
     static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());
 
 private:
-    CppModelManagerInterface *m_modelmanager;
+    CppModelManager *m_modelmanager;
     unsigned m_revision;
 };
 

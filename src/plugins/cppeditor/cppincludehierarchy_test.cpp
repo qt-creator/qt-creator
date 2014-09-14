@@ -32,7 +32,7 @@
 #include "cppincludehierarchymodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <utils/fileutils.h>
 
 #include <QByteArray>

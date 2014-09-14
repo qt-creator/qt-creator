@@ -30,7 +30,7 @@
 #include "cppfindreferences.h"
 
 #include "cpptoolsconstants.h"
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -246,7 +246,7 @@ public:
 
 } // end of anonymous namespace
 
-CppFindReferences::CppFindReferences(CppModelManagerInterface *modelManager)
+CppFindReferences::CppFindReferences(CppModelManager *modelManager)
     : QObject(modelManager),
       m_modelManager(modelManager)
 {
@@ -391,7 +391,7 @@ void CppFindReferences::searchAgain()
 {
     Core::SearchResult *search = qobject_cast<Core::SearchResult *>(sender());
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
-    Snapshot snapshot = CppModelManagerInterface::instance()->snapshot();
+    Snapshot snapshot = CppModelManager::instance()->snapshot();
     search->restart();
     LookupContext context;
     Symbol *symbol = findSymbol(parameters, snapshot, &context);

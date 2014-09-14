@@ -30,26 +30,41 @@
 #ifndef CPPMODELMANAGER_H
 #define CPPMODELMANAGER_H
 
-#include "cppmodelmanagerinterface.h"
+#include "cpptools_global.h"
+
+#include "cppprojects.h"
 
 #include <projectexplorer/project.h>
 #include <texteditor/basetexteditor.h>
 
-#include <QHash>
-#include <QMutex>
-#include <QTimer>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/cppmodelmanagerbase.h>
+
+#include <QFuture>
+#include <QObject>
+#include <QStringList>
 
 namespace Core { class IEditor; }
-namespace TextEditor { class BaseTextEditorWidget; }
+namespace CPlusPlus { class LookupContext; }
+namespace ProjectExplorer { class Project; }
+namespace TextEditor { class BaseTextDocument; }
 
 namespace CppTools {
 
+class AbstractEditorSupport;
+class BaseEditorDocumentProcessor;
+class CppCompletionAssistProvider;
+class EditorDocumentHandle;
+class CppIndexingSupport;
+class ModelManagerSupport;
+class WorkingCopy;
+
 namespace Internal {
-
-class CppFindReferences;
 class CppSourceProcessor;
+class CppModelManagerPrivate;
+}
 
-class CppModelManager : public CppTools::CppModelManagerInterface
+class CPPTOOLS_EXPORT CppModelManager : public CPlusPlus::CppModelManagerBase
 {
     Q_OBJECT
 
@@ -58,74 +73,77 @@ public:
 
 public:
     CppModelManager(QObject *parent = 0);
-    virtual ~CppModelManager();
+    ~CppModelManager();
 
     static CppModelManager *instance();
 
-    virtual QFuture<void> updateSourceFiles(const QSet<QString> &sourceFiles,
-        ProgressNotificationMode mode = ReservedProgressNotification);
-    virtual WorkingCopy workingCopy() const;
-    virtual QByteArray codeModelConfiguration() const;
+     // Documented in source file.
+     enum ProgressNotificationMode {
+        ForcedProgressNotification,
+        ReservedProgressNotification
+    };
 
-    virtual QList<ProjectInfo> projectInfos() const;
-    virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
-    virtual QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo);
+    QFuture<void> updateSourceFiles(const QSet<QString> &sourceFiles,
+        ProgressNotificationMode mode = ReservedProgressNotification);
+    WorkingCopy workingCopy() const;
+    QByteArray codeModelConfiguration() const;
+
+    QList<ProjectInfo> projectInfos() const;
+    ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
+    QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo);
 
     /// \return The project part with the given project file
-    virtual ProjectPart::Ptr projectPartForProjectFile(const QString &projectFile) const;
+    ProjectPart::Ptr projectPartForProjectFile(const QString &projectFile) const;
     /// \return All project parts that mention the given file name as one of the sources/headers.
-    virtual QList<ProjectPart::Ptr> projectPart(const QString &fileName) const;
+    QList<ProjectPart::Ptr> projectPart(const QString &fileName) const;
     /// This is a fall-back function: find all files that includes the file directly or indirectly,
     /// and return its \c ProjectPart list for use with this file.
-    virtual QList<ProjectPart::Ptr> projectPartFromDependencies(const QString &fileName) const;
+    QList<ProjectPart::Ptr> projectPartFromDependencies(const QString &fileName) const;
     /// \return A synthetic \c ProjectPart which consists of all defines/includes/frameworks from
     ///         all loaded projects.
-    virtual ProjectPart::Ptr fallbackProjectPart() const;
+    ProjectPart::Ptr fallbackProjectPart() const;
 
-    virtual CPlusPlus::Snapshot snapshot() const;
-    virtual Document::Ptr document(const QString &fileName) const;
+    CPlusPlus::Snapshot snapshot() const;
+    Document::Ptr document(const QString &fileName) const;
     bool replaceDocument(Document::Ptr newDoc);
 
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
 
-    virtual bool isCppEditor(Core::IEditor *editor) const;
+    bool isCppEditor(Core::IEditor *editor) const;
 
-    virtual void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
-    virtual void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
+    void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
+    void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
 
-    virtual EditorDocumentHandle *editorDocument(const QString &filePath);
-    virtual void registerEditorDocument(EditorDocumentHandle *editorDocument);
-    virtual void unregisterEditorDocument(const QString &filePath);
+    EditorDocumentHandle *editorDocument(const QString &filePath);
+    void registerEditorDocument(EditorDocumentHandle *editorDocument);
+    void unregisterEditorDocument(const QString &filePath);
 
-    virtual QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
-    virtual void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
-                              const QString &replacement = QString());
-    virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
+                      const QString &replacement = QString());
+    void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
-    virtual void findMacroUsages(const CPlusPlus::Macro &macro);
-    virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement);
+    void findMacroUsages(const CPlusPlus::Macro &macro);
+    void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement);
 
-    virtual void finishedRefreshingSourceFiles(const QSet<QString> &files);
+    void finishedRefreshingSourceFiles(const QSet<QString> &files);
 
-    virtual void addModelManagerSupport(ModelManagerSupport *modelManagerSupport);
-    virtual ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const;
-    virtual CppCompletionAssistProvider *completionAssistProvider(const QString &mimeType) const;
-    virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
-                TextEditor::BaseTextDocument *baseTextDocument) const;
+    void addModelManagerSupport(ModelManagerSupport *modelManagerSupport);
+    ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const;
+    CppCompletionAssistProvider *completionAssistProvider(const QString &mimeType) const;
+    BaseEditorDocumentProcessor *editorDocumentProcessor(
+        TextEditor::BaseTextDocument *baseTextDocument) const;
 
-    virtual void setIndexingSupport(CppIndexingSupport *indexingSupport);
-    virtual CppIndexingSupport *indexingSupport();
+    void setIndexingSupport(CppIndexingSupport *indexingSupport);
+    CppIndexingSupport *indexingSupport();
 
     QStringList projectFiles();
 
     ProjectPart::HeaderPaths headerPaths();
 
     // Use this *only* for auto tests
-    void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths)
-    {
-        m_headerPaths = headerPaths;
-    }
+    void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
 
     QByteArray definedMacros();
 
@@ -133,9 +151,24 @@ public:
 
     static QSet<QString> timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
 
-    static CppSourceProcessor *createSourceProcessor();
+    static Internal::CppSourceProcessor *createSourceProcessor();
+    static QString configurationFileName();
+    static QString editorConfigurationFileName();
 
 signals:
+    /// Project data might be locked while this is emitted.
+    void aboutToRemoveFiles(const QStringList &files);
+
+    void documentUpdated(CPlusPlus::Document::Ptr doc);
+    void sourceFilesRefreshed(const QSet<QString> &files);
+
+    /// \brief Emitted after updateProjectInfo function is called on the model-manager.
+    ///
+    /// Other classes can use this to get notified when the \c ProjectExplorer has updated the parts.
+    void projectPartsUpdated(ProjectExplorer::Project *project);
+
+    void globalSnapshotChanged();
+
     void gcFinished(); // Needed for tests.
 
 public slots:
@@ -171,46 +204,9 @@ private:
     void dumpModelManagerConfiguration(const QString &logFileId);
 
 private:
-    static QMutex m_instanceMutex;
-    static CppModelManager *m_instance;
-
-private:
-    // Snapshot
-    mutable QMutex m_snapshotMutex;
-    CPlusPlus::Snapshot m_snapshot;
-
-    // Project integration
-    mutable QMutex m_projectMutex;
-    QMap<ProjectExplorer::Project *, ProjectInfo> m_projectToProjectsInfo;
-    QMap<QString, QList<CppTools::ProjectPart::Ptr> > m_fileToProjectParts;
-    QMap<QString, CppTools::ProjectPart::Ptr> m_projectFileToProjectPart;
-    // The members below are cached/(re)calculated from the projects and/or their project parts
-    bool m_dirty;
-    QStringList m_projectFiles;
-    ProjectPart::HeaderPaths m_headerPaths;
-    QByteArray m_definedMacros;
-
-    // Editor integration
-    mutable QMutex m_cppEditorsMutex;
-    QMap<QString, EditorDocumentHandle *> m_cppEditors;
-    QSet<AbstractEditorSupport *> m_extraEditorSupports;
-
-    // Completion & highlighting
-    QHash<QString, ModelManagerSupport *> m_idTocodeModelSupporter;
-    QScopedPointer<ModelManagerSupport> m_modelManagerSupportFallback;
-
-    // Indexing
-    CppIndexingSupport *m_indexingSupporter;
-    CppIndexingSupport *m_internalIndexingSupport;
-    bool m_indexerEnabled;
-
-    CppFindReferences *m_findReferences;
-
-    bool m_enableGC;
-    QTimer *m_delayedGcTimer;
+    Internal::CppModelManagerPrivate *d;
 };
 
-} // namespace Internal
 } // namespace CppTools
 
 #endif // CPPMODELMANAGER_H

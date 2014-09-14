@@ -32,7 +32,7 @@
 
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppcompletionassistprovider.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppsemanticinfo.h>
 #include <cpptools/editordocumenthandle.h>
 

@@ -36,7 +36,7 @@
 #include <utils/qtcassert.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -269,8 +269,8 @@ void Manager::initialize()
             &d->parser, SLOT(setFlatMode(bool)), Qt::QueuedConnection);
 
     // connect to the cpp model manager for signals about document updates
-    CppTools::CppModelManagerInterface *codeModelManager
-        = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *codeModelManager
+        = CppTools::CppModelManager::instance();
 
     // when code manager signals that document is updated - handle it by ourselves
     connect(codeModelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),

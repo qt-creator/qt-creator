@@ -41,7 +41,7 @@ namespace Internal {
 CppTodoItemsScanner::CppTodoItemsScanner(const KeywordList &keywordList, QObject *parent) :
     TodoItemsScanner(keywordList, parent)
 {
-    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
     connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)), this,
         SLOT(documentUpdated(CPlusPlus::Document::Ptr)), Qt::DirectConnection);
@@ -52,7 +52,7 @@ void CppTodoItemsScanner::keywordListChanged()
     // We need to rescan everything known to the code model
     // TODO: It would be nice to only tokenize the source files, not update the code model entirely.
 
-    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
 
     QSet<QString> filesToBeUpdated;
     foreach (const CppTools::ProjectInfo &info, modelManager->projectInfos())
@@ -63,7 +63,7 @@ void CppTodoItemsScanner::keywordListChanged()
 
 void CppTodoItemsScanner::documentUpdated(CPlusPlus::Document::Ptr doc)
 {
-    CppTools::CppModelManagerInterface *modelManager = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     if (!modelManager->projectPart(doc->fileName()).isEmpty())
         processDocument(doc);
 }

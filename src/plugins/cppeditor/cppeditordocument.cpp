@@ -36,7 +36,7 @@
 #include <cpptools/builtineditordocumentprocessor.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppqtstyleindenter.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsplugin.h>
@@ -50,9 +50,9 @@
 
 namespace {
 
-CppTools::CppModelManagerInterface *mm()
+CppTools::CppModelManager *mm()
 {
-    return CppTools::CppModelManagerInterface::instance();
+    return CppTools::CppModelManager::instance();
 }
 
 } // anonymous namespace

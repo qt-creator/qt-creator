@@ -91,7 +91,7 @@ CppQuickFixAssistInterface::CppQuickFixAssistInterface(CppEditorWidget *editor,
                       editor->textDocument()->filePath(), reason)
     , m_editor(editor)
     , m_semanticInfo(editor->semanticInfo())
-    , m_snapshot(CppTools::CppModelManagerInterface::instance()->snapshot())
+    , m_snapshot(CppTools::CppModelManager::instance()->snapshot())
     , m_currentFile(CppRefactoringChanges::file(editor, m_semanticInfo.doc))
     , m_context(m_semanticInfo.doc, m_snapshot)
 {

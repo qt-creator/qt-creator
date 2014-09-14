@@ -30,14 +30,14 @@
 #include "abstracteditorsupport.h"
 
 #include "cppfilesettingspage.h"
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 #include <cplusplus/Overview.h>
 
 #include <QDebug>
 
 namespace CppTools {
 
-AbstractEditorSupport::AbstractEditorSupport(CppModelManagerInterface *modelmanager) :
+AbstractEditorSupport::AbstractEditorSupport(CppModelManager *modelmanager) :
     m_modelmanager(modelmanager), m_revision(1)
 {
 }
@@ -52,7 +52,7 @@ void AbstractEditorSupport::updateDocument()
     m_modelmanager->updateSourceFiles(QSet<QString>() << fileName());
 }
 
-QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelManager,
+QString AbstractEditorSupport::functionAt(const CppModelManager *modelManager,
                                           const QString &fileName,
                                           int line, int column)
 {

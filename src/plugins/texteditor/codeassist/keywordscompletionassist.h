@@ -59,13 +59,13 @@ private:
 class TEXTEDITOR_EXPORT KeywordsAssistProposalItem : public AssistProposalItem
 {
 public:
-    KeywordsAssistProposalItem(Keywords keywords);
+    KeywordsAssistProposalItem(bool isFunction);
     ~KeywordsAssistProposalItem();
 
     bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
     void applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const QTC_OVERRIDE;
 private:
-    Keywords m_keywords;
+    bool m_isFunction;
 };
 
 class TEXTEDITOR_EXPORT KeywordsFunctionHintModel : public IFunctionHintProposalModel

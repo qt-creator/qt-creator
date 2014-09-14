@@ -50,7 +50,7 @@
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppcompletionassistprovider.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppsemanticinfo.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsplugin.h>
@@ -102,7 +102,7 @@ public:
     CppEditorWidgetPrivate(CppEditorWidget *q);
 
 public:
-    QPointer<CppTools::CppModelManagerInterface> m_modelManager;
+    QPointer<CppTools::CppModelManager> m_modelManager;
 
     CppEditorDocument *m_cppEditorDocument;
     CppEditorOutline *m_cppEditorOutline;
@@ -126,7 +126,7 @@ public:
 };
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
-    : m_modelManager(CppModelManagerInterface::instance())
+    : m_modelManager(CppModelManager::instance())
     , m_cppEditorDocument(qobject_cast<CppEditorDocument *>(q->textDocument()))
     , m_cppEditorOutline(new CppEditorOutline(q))
     , m_cppDocumentationCommentHelper(q)
@@ -302,7 +302,7 @@ void CppEditorWidget::findUsages()
         return;
 
     SemanticInfo info = d->m_lastSemanticInfo;
-    info.snapshot = CppModelManagerInterface::instance()->snapshot();
+    info.snapshot = CppModelManager::instance()->snapshot();
     info.snapshot.insert(info.doc);
 
     if (const Macro *macro = CppTools::findCanonicalMacro(textCursor(), info.doc)) {
@@ -321,7 +321,7 @@ void CppEditorWidget::renameUsages(const QString &replacement)
         return;
 
     SemanticInfo info = d->m_lastSemanticInfo;
-    info.snapshot = CppModelManagerInterface::instance()->snapshot();
+    info.snapshot = CppModelManager::instance()->snapshot();
     info.snapshot.insert(info.doc);
 
     if (const Macro *macro = CppTools::findCanonicalMacro(textCursor(), info.doc)) {
@@ -694,7 +694,7 @@ void CppEditorWidget::updateFunctionDeclDefLinkNow()
     if (!isSemanticInfoValidExceptLocalUses())
         return;
 
-    Snapshot snapshot = CppModelManagerInterface::instance()->snapshot();
+    Snapshot snapshot = CppModelManager::instance()->snapshot();
     snapshot.insert(semanticDoc);
 
     d->m_declDefLinkFinder->startFindLinkAt(textCursor(), semanticDoc, snapshot);

@@ -30,7 +30,7 @@
 #ifndef CPPTOOLSTESTCASE_H
 #define CPPTOOLSTESTCASE_H
 
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 #include "cpptools_global.h"
 
 #include <coreplugin/editormanager/ieditor.h>
@@ -88,7 +88,7 @@ public:
     static bool writeFile(const QString &filePath, const QByteArray &contents);
 
 protected:
-    CppModelManagerInterface *m_modelManager;
+    CppModelManager *m_modelManager;
     bool m_succeededSoFar;
 
 private:

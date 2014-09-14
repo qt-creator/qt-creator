@@ -33,7 +33,7 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <cpptools/builtineditordocumentparser.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
 #include <texteditor/basetexteditor.h>
 
@@ -48,7 +48,7 @@ namespace {
 
 Snapshot globalSnapshot()
 {
-    return CppTools::CppModelManagerInterface::instance()->snapshot();
+    return CppTools::CppModelManager::instance()->snapshot();
 }
 
 } // anonymous namespace

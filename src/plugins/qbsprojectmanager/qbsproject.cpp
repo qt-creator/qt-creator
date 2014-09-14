@@ -45,7 +45,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -648,8 +648,8 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
     QtSupport::BaseQtVersion *qtVersion =
             QtSupport::QtKitInformation::qtVersion(activeTarget()->kit());
 
-    CppTools::CppModelManagerInterface *modelmanager =
-        CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *modelmanager =
+        CppTools::CppModelManager::instance();
 
     if (!modelmanager)
         return;

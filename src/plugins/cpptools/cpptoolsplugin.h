@@ -50,7 +50,6 @@ class CppToolsSettings;
 
 namespace Internal {
 
-class CppModelManager;
 struct CppFileSettings;
 class CppCodeModelSettings;
 

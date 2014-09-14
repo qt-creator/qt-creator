@@ -35,7 +35,7 @@
 #include <texteditor/basetexteditor.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppprojectfile.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
 
@@ -337,7 +337,7 @@ QString cppExpressionAt(TextEditor::BaseTextEditor *editor, int pos,
 
     QTextCursor tc = plaintext->textCursor();
     QString expr = tc.selectedText();
-    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
+    CppModelManager *modelManager = CppModelManager::instance();
     if (expr.isEmpty() && modelManager) {
         QTextDocument *doc = plaintext->document();
         QTC_ASSERT(doc, return QString());
@@ -394,7 +394,7 @@ QString cppFunctionAt(const QString &fileName, int line)
 {
     using namespace CppTools;
     using namespace CPlusPlus;
-    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
+    CppModelManager *modelManager = CppModelManager::instance();
     return AbstractEditorSupport::functionAt(modelManager,
                                              fileName, line, 1);
 }

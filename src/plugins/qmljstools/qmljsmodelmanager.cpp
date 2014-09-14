@@ -35,7 +35,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -209,8 +209,8 @@ ModelManager::~ModelManager()
 
 void ModelManager::delayedInitialization()
 {
-    CppTools::CppModelManagerInterface *cppModelManager =
-            CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *cppModelManager =
+            CppTools::CppModelManager::instance();
     if (cppModelManager) {
         // It's important to have a direct connection here so we can prevent
         // the source and AST of the cpp document being cleaned away.

@@ -33,7 +33,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
@@ -67,7 +67,7 @@ static inline QString formWindowEditorContents(const QObject *editor)
 
 namespace QtSupport {
 
-UiCodeModelSupport::UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+UiCodeModelSupport::UiCodeModelSupport(CppTools::CppModelManager *modelmanager,
                                        ProjectExplorer::Project *project,
                                        const QString &uiFile,
                                        const QString &uiHeaderFile)
@@ -339,7 +339,7 @@ static UiCodeModelSupport *findUiFile(const QList<UiCodeModelSupport *> &range, 
 
 void UiCodeModelManager::update(ProjectExplorer::Project *project, QHash<QString, QString> uiHeaders)
 {
-    CppTools::CppModelManagerInterface *mm = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *mm = CppTools::CppModelManager::instance();
 
     // Find support to add/update:
     QList<UiCodeModelSupport *> oldSupport = m_instance->m_projectUiSupport.value(project);
@@ -391,7 +391,7 @@ void UiCodeModelManager::buildStateHasChanged(Project *project)
 
 void UiCodeModelManager::projectWasRemoved(Project *project)
 {
-    CppTools::CppModelManagerInterface *mm = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *mm = CppTools::CppModelManager::instance();
 
     QList<UiCodeModelSupport *> projectSupport = m_projectUiSupport.value(project);
     foreach (UiCodeModelSupport *const i, projectSupport) {

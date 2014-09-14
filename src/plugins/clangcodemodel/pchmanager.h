@@ -33,7 +33,7 @@
 #include "clangprojectsettings.h"
 #include "pchinfo.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/project.h>
 #include <coreplugin/messagemanager.h>
 

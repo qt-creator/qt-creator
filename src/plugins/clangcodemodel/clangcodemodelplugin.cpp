@@ -67,18 +67,18 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
 
 #ifdef CLANG_INDEXING
     m_indexer.reset(new ClangIndexer);
-    CppTools::CppModelManagerInterface::instance()->setIndexingSupport(m_indexer->indexingSupport());
+    CppTools::CppModelManager::instance()->setIndexingSupport(m_indexer->indexingSupport());
 #endif // CLANG_INDEXING
 
     // wire up the pch manager
     QObject *session = ProjectExplorer::SessionManager::instance();
     connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             pchManager, SLOT(onAboutToRemoveProject(ProjectExplorer::Project*)));
-    connect(CppTools::CppModelManagerInterface::instance(), SIGNAL(projectPartsUpdated(ProjectExplorer::Project*)),
+    connect(CppTools::CppModelManager::instance(), SIGNAL(projectPartsUpdated(ProjectExplorer::Project*)),
             pchManager, SLOT(onProjectPartsUpdated(ProjectExplorer::Project*)));
 
     m_modelManagerSupport.reset(new ModelManagerSupport);
-    CppTools::CppModelManagerInterface::instance()->addModelManagerSupport(
+    CppTools::CppModelManager::instance()->addModelManagerSupport(
                 m_modelManagerSupport.data());
 
     return true;

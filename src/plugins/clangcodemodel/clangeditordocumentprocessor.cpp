@@ -126,7 +126,7 @@ void ClangEditorDocumentProcessor::run()
 {
     // Run clang parser
     const CppTools::WorkingCopy workingCopy
-        = CppTools::CppModelManagerInterface::instance()->workingCopy();
+        = CppTools::CppModelManager::instance()->workingCopy();
 
     disconnect(&m_parserWatcher, &QFutureWatcher<void>::finished,
                this, &ClangEditorDocumentProcessor::onParserFinished);

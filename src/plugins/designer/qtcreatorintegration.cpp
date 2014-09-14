@@ -34,7 +34,7 @@
 #include <widgethost.h>
 #include <designer/cpp/formclasswizardpage.h>
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/insertionpointlocator.h>
@@ -248,7 +248,7 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
 // TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this function
 static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 {
-    if (CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance()) {
+    if (CppTools::CppModelManager *cppModelManager = CppTools::CppModelManager::instance()) {
         const Snapshot snapshot = cppModelManager->snapshot();
         CppTools::SymbolFinder symbolFinder;
         if (Function *fun = symbolFinder.findMatchingDefinition(functionDeclaration, snapshot)) {
@@ -523,7 +523,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const QString uicedName = QLatin1String("ui_") + fi.completeBaseName() + QLatin1String(".h");
 
     // Retrieve code model snapshot restricted to project of ui file or the working copy.
-    Snapshot docTable = CppTools::CppModelManagerInterface::instance()->snapshot();
+    Snapshot docTable = CppTools::CppModelManager::instance()->snapshot();
     Snapshot newDocTable;
     const Project *uiProject = SessionManager::projectForFile(currentUiFile);
     if (uiProject) {
@@ -535,12 +535,12 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         }
     } else {
         const CppTools::WorkingCopy workingCopy =
-                CppTools::CppModelManagerInterface::instance()->workingCopy();
+                CppTools::CppModelManager::instance()->workingCopy();
         QHashIterator<QString, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
         while (it.hasNext()) {
             it.next();
             const QString fileName = it.key();
-            if (fileName != CppTools::CppModelManagerInterface::configurationFileName())
+            if (fileName != CppTools::CppModelManager::configurationFileName())
                 newDocTable.insert(docTable.document(fileName));
         }
     }
@@ -613,7 +613,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     } else {
         // add function declaration to cl
         CppTools::WorkingCopy workingCopy =
-            CppTools::CppModelManagerInterface::instance()->workingCopy();
+            CppTools::CppModelManager::instance()->workingCopy();
         const QString fileName = doc->fileName();
         getParsedDocument(fileName, workingCopy, docTable);
         addDeclaration(docTable, fileName, cl, functionNameWithParameterNames);

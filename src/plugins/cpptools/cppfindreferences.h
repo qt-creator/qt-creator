@@ -46,7 +46,7 @@ class SearchResult;
 } // namespace Core
 
 namespace CppTools {
-class CppModelManagerInterface;
+class CppModelManager;
 
 namespace Internal {
 
@@ -62,7 +62,7 @@ class CppFindReferences: public QObject
     Q_OBJECT
 
 public:
-    CppFindReferences(CppModelManagerInterface *modelManager);
+    CppFindReferences(CppModelManager *modelManager);
     virtual ~CppFindReferences();
 
     QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) const;
@@ -96,7 +96,7 @@ private:
                     const CPlusPlus::Snapshot &snapshot, CPlusPlus::LookupContext *context);
 
 private:
-    QPointer<CppModelManagerInterface> m_modelManager;
+    QPointer<CppModelManager> m_modelManager;
     QMap<QFutureWatcher<CPlusPlus::Usage> *, QPointer<Core::SearchResult> > m_watchers;
 };
 

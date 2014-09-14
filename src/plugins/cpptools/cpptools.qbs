@@ -53,7 +53,6 @@ QtcPlugin {
         "cpplocatordata.cpp", "cpplocatordata.h",
         "cpplocatorfilter.cpp", "cpplocatorfilter.h",
         "cppmodelmanager.cpp", "cppmodelmanager.h",
-        "cppmodelmanagerinterface.cpp", "cppmodelmanagerinterface.h",
         "cppmodelmanagersupport.cpp", "cppmodelmanagersupport.h",
         "cppmodelmanagersupportinternal.cpp", "cppmodelmanagersupportinternal.h",
         "cpppointerdeclarationformatter.cpp", "cpppointerdeclarationformatter.h",

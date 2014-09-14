@@ -31,14 +31,14 @@
 
 #include "analyzerconstants.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <texteditor/basetexteditor.h>
 
 #include <utils/qtcassert.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <QTextCursor>
 
@@ -72,7 +72,7 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
     const int pos = tc.position();
     editor->convertPosition(pos, &line, &column);
 
-    const CPlusPlus::Snapshot &snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    const CPlusPlus::Snapshot &snapshot = CppTools::CppModelManager::instance()->snapshot();
     CPlusPlus::Document::Ptr doc = snapshot.document(editor->document()->filePath());
     QTC_ASSERT(doc, return 0);
 

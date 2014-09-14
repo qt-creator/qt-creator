@@ -30,7 +30,7 @@
 #ifndef CPPCODEMODELINSPECTORDIALOG_H
 #define CPPCODEMODELINSPECTORDIALOG_H
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <cplusplus/CppDocument.h>
 

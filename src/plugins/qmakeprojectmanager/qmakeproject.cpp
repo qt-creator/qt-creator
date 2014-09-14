@@ -45,7 +45,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/documentmanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -458,9 +458,9 @@ bool QmakeProject::equalFileList(const QStringList &a, const QStringList &b)
     QStringList::const_iterator bend = b.constEnd();
 
     while (ait != aend && bit != bend) {
-        if (*ait == CppTools::CppModelManagerInterface::configurationFileName())
+        if (*ait == CppTools::CppModelManager::configurationFileName())
             ++ait;
-        else if (*bit == CppTools::CppModelManagerInterface::configurationFileName())
+        else if (*bit == CppTools::CppModelManager::configurationFileName())
             ++bit;
         else if (*ait == *bit)
             ++ait, ++bit;
@@ -495,8 +495,8 @@ void QmakeProject::updateCppCodeModel()
         k = KitManager::defaultKit();
     qtVersion = QtSupport::QtKitInformation::qtVersion(k);
 
-    CppTools::CppModelManagerInterface *modelmanager =
-        CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *modelmanager =
+        CppTools::CppModelManager::instance();
 
     if (!modelmanager)
         return;
@@ -575,7 +575,7 @@ void QmakeProject::updateCppCodeModel()
             }
             uiCodeModelData.unite(uiData);
 
-            cppPart->files.prepend(ProjectFile(CppTools::CppModelManagerInterface::configurationFileName(),
+            cppPart->files.prepend(ProjectFile(CppTools::CppModelManager::configurationFileName(),
                                             ProjectFile::CXXSource));
             const QStringList cxxflags = pro->variableValue(CppFlagsVar);
             cppPart->evaluateToolchain(ToolChainKitInformation::toolChain(k),

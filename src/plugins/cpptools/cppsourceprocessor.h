@@ -30,7 +30,7 @@
 #ifndef CPPSOURCEPROCESSOR_H
 #define CPPSOURCEPROCESSOR_H
 
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
 
 #include <cplusplus/PreprocessorEnvironment.h>

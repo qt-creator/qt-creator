@@ -43,7 +43,7 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <cpptools/cppdoxygen.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppworkingcopy.h>
 
 #include <texteditor/basetexteditor.h>
@@ -208,7 +208,7 @@ AssistInterface *ClangCompletionAssistProvider::createAssistInterface(
 {
     Q_UNUSED(isObjCEnabled);
 
-    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
+    CppModelManager *modelManager = CppModelManager::instance();
     QList<ProjectPart::Ptr> parts = modelManager->projectPart(filePath);
     if (parts.isEmpty())
         parts += modelManager->fallbackProjectPart();
@@ -558,7 +558,7 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(ClangCompleter::P
 {
     Q_ASSERT(!clangWrapper.isNull());
 
-    CppModelManagerInterface *mmi = CppModelManagerInterface::instance();
+    CppModelManager *mmi = CppModelManager::instance();
     Q_ASSERT(mmi);
     m_unsavedFiles = Utils::createUnsavedFiles(mmi->workingCopy());
 }

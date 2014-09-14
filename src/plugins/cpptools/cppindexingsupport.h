@@ -32,7 +32,7 @@
 
 #include "cpptools_global.h"
 
-#include "cppmodelmanagerinterface.h"
+#include "cppmodelmanager.h"
 
 #include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/find/textfindconstants.h>
@@ -83,7 +83,7 @@ public:
     virtual ~CppIndexingSupport() = 0;
 
     virtual QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
-        CppModelManagerInterface::ProgressNotificationMode mode) = 0;
+        CppModelManager::ProgressNotificationMode mode) = 0;
     virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
                                                  QSet<QString> fileNames) = 0;
 };

@@ -29,7 +29,7 @@
 
 #include "codemodelhelpers.h"
 
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -118,7 +118,7 @@ bool navigateToSlot(const QString &uiFileName,
         *errorMessage = QCoreApplication::translate("Designer", "The generated header of the form \"%1\" could not be found.\nRebuilding the project might help.").arg(uiFileName);
         return false;
     }
-    const CPlusPlus::Snapshot snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    const CPlusPlus::Snapshot snapshot = CppTools::CppModelManager::instance()->snapshot();
     const DocumentPtr generatedHeaderDoc = snapshot.document(generatedHeaderFile);
     if (!generatedHeaderDoc) {
         *errorMessage = QCoreApplication::translate("Designer", "The generated header \"%1\" could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile);

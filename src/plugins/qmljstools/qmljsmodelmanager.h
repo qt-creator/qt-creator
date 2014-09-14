@@ -48,15 +48,8 @@ QT_FORWARD_DECLARE_CLASS(QLocale)
 
 namespace Core { class MimeType; }
 
-namespace CPlusPlus { class CppModelManagerInterface; }
-
-namespace QmlJS { class QrcParser; }
-
 namespace QmlJSTools {
-
 namespace Internal {
-
-class PluginDumper;
 
 class QMLJSTOOLS_EXPORT ModelManager: public QmlJS::ModelManagerInterface
 {

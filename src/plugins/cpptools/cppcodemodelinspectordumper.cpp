@@ -384,7 +384,7 @@ QString Utils::toString(CPlusPlus::Kind kind)
 QString Utils::partsForFile(const QString &fileName)
 {
     const QList<ProjectPart::Ptr> parts
-        = CppModelManagerInterface::instance()->projectPart(fileName);
+        = CppModelManager::instance()->projectPart(fileName);
     QString result;
     foreach (const ProjectPart::Ptr &part, parts)
         result += part->displayName + QLatin1Char(',');

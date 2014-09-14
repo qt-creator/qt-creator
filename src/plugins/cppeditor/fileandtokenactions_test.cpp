@@ -36,7 +36,7 @@
 #include "cppinsertvirtualmethods.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/cppworkingcopy.h>
 #include <projectexplorer/project.h>

@@ -40,7 +40,7 @@
 #include <QSet>
 
 namespace Core { class IEditor; }
-namespace CPlusPlus { class CppModelManagerInterface; }
+namespace CPlusPlus { class CppModelManager; }
 namespace ProjectExplorer { class Project; }
 
 namespace QtSupport {
@@ -52,7 +52,7 @@ class UiCodeModelSupport : public CppTools::AbstractEditorSupport
     Q_OBJECT
 
 public:
-    UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
+    UiCodeModelSupport(CppTools::CppModelManager *modelmanager,
                        ProjectExplorer::Project *project,
                        const QString &sourceFile,
                        const QString &uiHeaderFile);

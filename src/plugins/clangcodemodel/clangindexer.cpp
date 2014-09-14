@@ -35,7 +35,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 
 #include <QDir>
@@ -94,7 +94,7 @@ CppTools::CppIndexingSupport *ClangIndexer::indexingSupport()
 QFuture<void> ClangIndexer::refreshSourceFiles(const QStringList &sourceFiles)
 {
     typedef CppTools::ProjectPart ProjectPart;
-    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
     LiveUnitsManager *lum = LiveUnitsManager::instance();
 
     if (m_clangIndexer->isBusy())
@@ -149,7 +149,7 @@ void ClangIndexer::indexNow(Unit::Ptr unit)
     typedef CppTools::ProjectPart ProjectPart;
 
     QString file = unit->fileName();
-    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
+    CppTools::CppModelManager *mmi = CppTools::CppModelManager::instance();
     const QList<ProjectPart::Ptr> &parts = mmi->projectPart(file);
     ProjectPart::Ptr part;
     if (!parts.isEmpty())
