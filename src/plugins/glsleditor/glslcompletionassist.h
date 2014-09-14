@@ -109,11 +109,9 @@ public:
 private:
     TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
     bool acceptsIdleEditor() const;
-    void addCompletion(const QString &text, const QIcon &icon, int order = 0);
 
     int m_startPosition;
     QScopedPointer<const GlslCompletionAssistInterface> m_interface;
-    QList<TextEditor::AssistProposalItem *> m_completions;
 
     QIcon m_keywordIcon;
     QIcon m_varIcon;

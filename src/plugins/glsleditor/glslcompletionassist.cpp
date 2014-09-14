@@ -242,6 +242,15 @@ GlslCompletionAssistProcessor::GlslCompletionAssistProcessor()
 GlslCompletionAssistProcessor::~GlslCompletionAssistProcessor()
 {}
 
+static AssistProposalItem *createCompletionItem(const QString &text, const QIcon &icon, int order = 0)
+{
+    AssistProposalItem *item = new AssistProposalItem;
+    item->setText(text);
+    item->setIcon(icon);
+    item->setOrder(order);
+    return item;
+}
+
 IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *interface)
 {
     m_interface.reset(static_cast<const GlslCompletionAssistInterface *>(interface));
@@ -259,6 +268,7 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
 
     QList<GLSL::Symbol *> members;
     QStringList specialMembers;
+    QList<TextEditor::AssistProposalItem *> m_completions;
 
     bool functionCall = (ch == QLatin1Char('(') && pos == m_interface->position() - 1);
 
@@ -379,9 +389,9 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
                     0
                 };
                 for (int index = 0; attributeNames[index]; ++index)
-                    addCompletion(QString::fromLatin1(attributeNames[index]), m_attributeIcon);
+                    m_completions << createCompletionItem(QString::fromLatin1(attributeNames[index]), m_attributeIcon);
                 for (int index = 0; uniformNames[index]; ++index)
-                    addCompletion(QString::fromLatin1(uniformNames[index]), m_uniformIcon);
+                    m_completions << createCompletionItem(QString::fromLatin1(uniformNames[index]), m_uniformIcon);
             }
         }
 
@@ -389,7 +399,7 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
             QStringList keywords = GLSL::Lexer::keywords(languageVariant(m_interface->mimeType()));
 //            m_keywordCompletions.clear();
             for (int index = 0; index < keywords.size(); ++index)
-                addCompletion(keywords.at(index), m_keywordIcon);
+                m_completions << createCompletionItem(keywords.at(index), m_keywordIcon);
 //            m_keywordVariant = languageVariant(m_interface->mimeType());
 //        }
 
@@ -421,9 +431,9 @@ IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *i
             icon = m_otherIcon;
         }
         if (specialMembers.contains(s->name()))
-            addCompletion(s->name(), icon, SpecialMemberOrder);
+            m_completions << createCompletionItem(s->name(), icon, SpecialMemberOrder);
         else
-            addCompletion(s->name(), icon);
+            m_completions << createCompletionItem(s->name(), icon);
     }
 
     m_startPosition = pos + 1;
@@ -467,17 +477,6 @@ bool GlslCompletionAssistProcessor::acceptsIdleEditor() const
     }
 
     return isActivationChar(ch);
-}
-
-void GlslCompletionAssistProcessor::addCompletion(const QString &text,
-                                                  const QIcon &icon,
-                                                  int order)
-{
-    AssistProposalItem *item = new AssistProposalItem;
-    item->setText(text);
-    item->setIcon(icon);
-    item->setOrder(order);
-    m_completions.append(item);
 }
 
 // -----------------------------
