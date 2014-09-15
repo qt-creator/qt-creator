@@ -144,6 +144,8 @@ private slots:
 private:
     bool hasSelection() const;
     int checkedFilesCount() const;
+    void wrapDescription();
+    void trimDescription();
 
     SubmitEditorWidgetPrivate *d;
 };

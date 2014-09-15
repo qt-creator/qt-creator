@@ -279,38 +279,46 @@ void SubmitEditorWidget::unregisterActions(QAction *editorUndoAction,  QAction *
 
 // Make sure we have one terminating NL. Do not trim front as leading space might be
 // required for some formattings.
-static inline QString trimMessageText(QString t)
+void SubmitEditorWidget::trimDescription()
 {
-    if (t.isEmpty())
-        return t;
+    if (d->m_description.isEmpty())
+        return;
     // Trim back of string.
-    const int last = t.size() - 1;
+    const int last = d->m_description.size() - 1;
     int lastWordCharacter = last;
-    for ( ; lastWordCharacter >= 0 && t.at(lastWordCharacter).isSpace() ; lastWordCharacter--) ;
+    for ( ; lastWordCharacter >= 0 && d->m_description.at(lastWordCharacter).isSpace() ; lastWordCharacter--) ;
     if (lastWordCharacter != last)
-        t.truncate(lastWordCharacter + 1);
-    t += QLatin1Char('\n');
-    return t;
+        d->m_description.truncate(lastWordCharacter + 1);
+    d->m_description += QLatin1Char('\n');
 }
 
 // Extract the wrapped text from a text edit, which performs
 // the wrapping only optically.
-static QString wrappedText(const QTextEdit *e)
+void SubmitEditorWidget::wrapDescription()
 {
+    if (!lineWrap())
+        return;
     const QChar newLine = QLatin1Char('\n');
-    QString rc;
-    QTextCursor cursor(e->document());
+    QTextEdit e;
+    e.setVisible(false);
+    e.setMinimumWidth(1000);
+    e.setFontPointSize(1.0);
+    e.setLineWrapColumnOrWidth(d->m_ui.description->lineWrapColumnOrWidth());
+    e.setLineWrapMode(d->m_ui.description->lineWrapMode());
+    e.setPlainText(d->m_description);
+    d->m_description.clear();
+    QTextCursor cursor(e.document());
     cursor.movePosition(QTextCursor::Start);
     while (!cursor.atEnd()) {
         const QString block = cursor.block().text();
         if (block.startsWith(QLatin1Char('\t'))) { // Don't wrap
-            rc += block + newLine;
+            d->m_description += block + newLine;
             cursor.movePosition(QTextCursor::EndOfBlock);
         } else {
             forever {
                 cursor.select(QTextCursor::LineUnderCursor);
-                rc += cursor.selectedText();
-                rc += newLine;
+                d->m_description += cursor.selectedText();
+                d->m_description += newLine;
                 cursor.clearSelection();
                 if (cursor.atBlockEnd())
                     break;
@@ -319,7 +327,6 @@ static QString wrappedText(const QTextEdit *e)
         }
         cursor.movePosition(QTextCursor::NextBlock);
     }
-    return rc;
 }
 
 QString SubmitEditorWidget::descriptionText() const
@@ -551,12 +558,12 @@ void SubmitEditorWidget::hideDescription()
 
 void SubmitEditorWidget::descriptionTextChanged()
 {
-    QString rc = trimMessageText(lineWrap() ? wrappedText(d->m_ui.description) :
-                                              d->m_ui.description->toPlainText());
-    // append field entries
+    d->m_description = cleanupDescription(d->m_ui.description->toPlainText());
+    wrapDescription();
+    trimDescription();
     foreach (const SubmitFieldWidget *fw, d->m_fieldWidgets)
-        rc += fw->fieldValues();
-    d->m_description = cleanupDescription(rc);
+        d->m_description += fw->fieldValues();
+    // append field entries
     updateSubmitAction();
 }
 
