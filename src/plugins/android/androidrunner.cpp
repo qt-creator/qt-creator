@@ -73,6 +73,8 @@ AndroidRunner::AndroidRunner(QObject *parent,
                    || server.listen(QHostAddress::LocalHostIPv6),
                    qDebug() << tr("No free ports available on host for QML debugging."));
         m_qmlPort = server.serverPort();
+    } else {
+        m_qmlPort = -1;
     }
     ProjectExplorer::Target *target = runConfig->target();
     m_useLocalQtLibs = AndroidManager::useLocalLibs(target);
