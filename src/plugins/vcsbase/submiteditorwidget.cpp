@@ -310,7 +310,7 @@ static QString wrappedText(const QTextEdit *e)
                 cursor.select(QTextCursor::LineUnderCursor);
                 rc += cursor.selectedText();
                 rc += newLine;
-                cursor.movePosition(QTextCursor::EndOfLine); // Mac needs it
+                cursor.clearSelection();
                 if (cursor.atBlockEnd())
                     break;
                 cursor.movePosition(QTextCursor::NextCharacter);
