@@ -7,6 +7,7 @@ QtcLibrary {
     cpp.defines: base.concat("QMLDEBUG_LIB")
 
     Depends { name: "Qt"; submodules: ["gui", "network"] }
+    Depends { name: "Utils" }
 
     files: [
         "baseenginedebugclient.cpp",
@@ -24,6 +25,8 @@ QtcLibrary {
         "qmldebugclient.cpp",
         "qmldebugclient.h",
         "qmldebugconstants.h",
+        "qmlenginecontrolclient.cpp",
+        "qmlenginecontrolclient.h",
         "qmlenginedebugclient.h",
         "qmloutputparser.cpp",
         "qmloutputparser.h",
