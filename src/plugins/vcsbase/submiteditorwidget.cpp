@@ -157,6 +157,7 @@ struct SubmitEditorWidgetPrivate
     bool m_ignoreChange;
     bool m_descriptionMandatory;
     bool m_updateInProgress;
+    QString m_description;
 
     QActionPushButton *m_submitButton;
 };
@@ -323,12 +324,7 @@ static QString wrappedText(const QTextEdit *e)
 
 QString SubmitEditorWidget::descriptionText() const
 {
-    QString rc = trimMessageText(lineWrap() ? wrappedText(d->m_ui.description) :
-                                              d->m_ui.description->toPlainText());
-    // append field entries
-    foreach (const SubmitFieldWidget *fw, d->m_fieldWidgets)
-        rc += fw->fieldValues();
-    return cleanupDescription(rc);
+    return d->m_description;
 }
 
 void SubmitEditorWidget::setDescriptionText(const QString &text)
@@ -555,6 +551,12 @@ void SubmitEditorWidget::hideDescription()
 
 void SubmitEditorWidget::descriptionTextChanged()
 {
+    QString rc = trimMessageText(lineWrap() ? wrappedText(d->m_ui.description) :
+                                              d->m_ui.description->toPlainText());
+    // append field entries
+    foreach (const SubmitFieldWidget *fw, d->m_fieldWidgets)
+        rc += fw->fieldValues();
+    d->m_description = cleanupDescription(rc);
     updateSubmitAction();
 }
 
@@ -562,7 +564,7 @@ bool SubmitEditorWidget::canSubmit() const
 {
     if (d->m_updateInProgress)
         return false;
-    if (isDescriptionMandatory() && cleanupDescription(descriptionText()).trimmed().isEmpty())
+    if (isDescriptionMandatory() && d->m_description.trimmed().isEmpty())
         return false;
     const unsigned checkedCount = checkedFilesCount();
     return d->m_emptyFileListEnabled || checkedCount > 0;
