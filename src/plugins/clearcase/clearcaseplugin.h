@@ -152,6 +152,7 @@ public:
     QString ccGetPredecessor(const QString &version) const;
     QStringList ccGetActiveVobs() const;
     ViewData ccGetView(const QString &workingDir) const;
+    QString ccGetComment(const QString &workingDir, const QString &fileName) const;
     bool ccFileOp(const QString &workingDir, const QString &title, const QStringList &args,
                   const QString &fileName, const QString &file2 = QString());
     FileStatus vcsStatus(const QString &file) const;

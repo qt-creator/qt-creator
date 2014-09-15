@@ -1244,8 +1244,9 @@ void ClearCasePlugin::startCheckIn(const QString &workingDir, const QStringList 
     // Create a new submit change file containing the submit template
     TempFileSaver saver;
     saver.setAutoRemove(false);
-    // TODO: Retrieve submit template from
-    const QString submitTemplate;
+    QString submitTemplate;
+    if (files.count() == 1)
+        submitTemplate = ccGetComment(workingDir, files.first());
     // Create a submit
     saver.write(submitTemplate.toUtf8());
     if (!saver.finalize()) {
@@ -1990,6 +1991,13 @@ ViewData ClearCasePlugin::ccGetView(const QString &workingDir) const
     }
 
     return res;
+}
+
+QString ClearCasePlugin::ccGetComment(const QString &workingDir, const QString &fileName) const
+{
+    QStringList args(QLatin1String("describe"));
+    args << QLatin1String("-fmt") << QLatin1String("%c") << fileName;
+    return runCleartoolSync(workingDir, args);
 }
 
 void ClearCasePlugin::updateStreamAndView()
