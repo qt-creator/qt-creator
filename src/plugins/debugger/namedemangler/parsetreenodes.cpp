@@ -47,9 +47,17 @@
             (parentNode)->addChild(parseState->popFromStack()); \
     } while (0)
 
+#define PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_THIS(NodeType, parseState) \
+    do { \
+        ParseTreeNode::parseRule<NodeType>(parseState); \
+        DEMANGLER_ASSERT(parseState->stackElementCount() > 0); \
+        DEMANGLER_ASSERT(parseState->stackTop().dynamicCast<NodeType>()); \
+        addChild(parseState->popFromStack()); \
+    } while (0)
+
 
 #define PARSE_RULE_AND_ADD_RESULT_AS_CHILD(nodeType) \
-    PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(nodeType, parseState(), this)
+    PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_THIS(nodeType, parseState())
 #define CHILD_AT(obj, index) obj->childAt(index, QLatin1String(Q_FUNC_INFO), QLatin1String(__FILE__), __LINE__)
 #define MY_CHILD_AT(index) CHILD_AT(this, index)
 #define CHILD_TO_BYTEARRAY(index) MY_CHILD_AT(index)->toByteArray()
