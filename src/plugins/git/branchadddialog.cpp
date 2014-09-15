@@ -51,16 +51,16 @@ public:
     BranchNameValidator(const QStringList &localBranches, QObject *parent = 0) :
         QValidator(parent),
         m_invalidChars(QLatin1String(
-                                   "\\s"          // no whitespace
-                                   "|~"         // no "~"
-                                   "|\\^"       // no "^"
-                                   "|\\["       // no "["
-                                   "|\\.\\."    // no ".."
-                                   "|/\\."      // no slashdot
-                                   "|:"         // no ":"
-                                   "|@\\{"      // no "@{" sequence
-                                   "|\\\\"      // no backslash
-                                   "|//"    // no double slash
+                                   "\\s"     // no whitespace
+                                   "|~"      // no "~"
+                                   "|\\^"    // no "^"
+                                   "|\\["    // no "["
+                                   "|\\.\\." // no ".."
+                                   "|/\\."   // no slashdot
+                                   "|:"      // no ":"
+                                   "|@\\{"   // no "@{" sequence
+                                   "|\\\\"   // no backslash
+                                   "|//"     // no double slash
                                    "|^[/-]"  // no leading slash or dash
                                    )),
         m_localBranches(localBranches)
