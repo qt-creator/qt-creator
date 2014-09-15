@@ -30,7 +30,6 @@ HEADERS += \
     androiddevice.h \
     androidgdbserverkitinformation.h \
     androidanalyzesupport.h \
-    androidrunsupport.h \
     androidmanifesteditorfactory.h \
     androidmanifesteditor.h \
     androidmanifesteditorwidget.h \
@@ -73,7 +72,6 @@ SOURCES += \
     androiddevice.cpp \
     androidgdbserverkitinformation.cpp \
     androidanalyzesupport.cpp \
-    androidrunsupport.cpp \
     androidmanifesteditorfactory.cpp \
     androidmanifesteditor.cpp \
     androidmanifesteditorwidget.cpp \

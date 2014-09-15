@@ -30,7 +30,7 @@
 #ifndef ANDROIDANALYZESUPPORT_H
 #define ANDROIDANALYZESUPPORT_H
 
-#include "androidrunsupport.h"
+#include "androidrunconfiguration.h"
 #include <qmldebug/qmloutputparser.h>
 
 namespace Analyzer { class AnalyzerRunControl; }
@@ -40,28 +40,19 @@ namespace Android {
 class AndroidRunConfiguration;
 
 namespace Internal {
-class AndroidRunner;
 
-class AndroidAnalyzeSupport : public AndroidRunSupport
+class AndroidAnalyzeSupport : public QObject
 {
     Q_OBJECT
 
 public:
-    static ProjectExplorer::RunControl *createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
-                                                                ProjectExplorer::RunMode runMode);
-
     AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
         Analyzer::AnalyzerRunControl *runControl);
 
-private slots:
-    void handleRemoteProcessFinished(const QString &errorMsg);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
-
-    void remoteIsRunning();
+    static ProjectExplorer::RunControl *createAnalyzeRunControl(AndroidRunConfiguration *runConfig,
+                                                                ProjectExplorer::RunMode runMode);
 
 private:
-    Analyzer::AnalyzerRunControl *m_runControl;
     QmlDebug::QmlOutputParser m_outputParser;
     int m_qmlPort;
 };

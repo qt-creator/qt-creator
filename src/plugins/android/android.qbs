@@ -80,8 +80,6 @@ QtcPlugin {
         "androidrunfactories.h",
         "androidrunner.cpp",
         "androidrunner.h",
-        "androidrunsupport.cpp",
-        "androidrunsupport.h",
         "androidsettingspage.cpp",
         "androidsettingspage.h",
         "androidsettingswidget.cpp",

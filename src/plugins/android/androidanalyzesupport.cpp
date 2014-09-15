@@ -75,61 +75,48 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
 
 AndroidAnalyzeSupport::AndroidAnalyzeSupport(AndroidRunConfiguration *runConfig,
     AnalyzerRunControl *runControl)
-    : AndroidRunSupport(runConfig, runControl),
-      m_runControl(0),
+    : QObject(runControl),
       m_qmlPort(0)
 {
-    if (runControl) {
-        m_runControl = runControl;
-        connect(m_runControl, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
-                m_runner, SLOT(start()));
-    }
-    connect(&m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
-            SLOT(remoteIsRunning()));
+    QTC_ASSERT(runControl, return);
 
-    connect(m_runner, &AndroidRunner::remoteProcessStarted,
-           [this](int, int qmlPort) { m_qmlPort = qmlPort; });
+    auto runner = new AndroidRunner(this, runConfig, runControl->runMode());
 
-    connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
-            SLOT(handleRemoteProcessFinished(QString)));
+    connect(runControl, &AnalyzerRunControl::finished,
+        [runner]() { runner->stop(); });
 
-    connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)),
-            SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(m_runner, SIGNAL(remoteOutput(QByteArray)),
-            SLOT(handleRemoteOutput(QByteArray)));
-}
+    connect(runControl, &AnalyzerRunControl::starting,
+        [runner]() { runner->start(); });
 
-void AndroidAnalyzeSupport::handleRemoteProcessFinished(const QString &errorMsg)
-{
-    if (m_runControl)
-        m_runControl->notifyRemoteFinished();
-    AndroidRunSupport::handleRemoteProcessFinished(errorMsg);
-}
+    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
+        [this, runControl](quint16) {
+            runControl->notifyRemoteSetupDone(m_qmlPort);
+        });
 
-void AndroidAnalyzeSupport::handleRemoteOutput(const QByteArray &output)
-{
-    const QString msg = QString::fromUtf8(output);
-    if (m_runControl)
-        m_runControl->logApplicationMessage(msg, Utils::StdOutFormatSameLine);
-    else
-        AndroidRunSupport::handleRemoteOutput(output);
-    m_outputParser.processOutput(msg);
-}
+    connect(runner, &AndroidRunner::remoteProcessStarted,
+        [this](int, int qmlPort) {
+            m_qmlPort = qmlPort;
+        });
 
-void AndroidAnalyzeSupport::handleRemoteErrorOutput(const QByteArray &output)
-{
-    const QString msg = QString::fromUtf8(output);
-    if (m_runControl)
-        m_runControl->logApplicationMessage(msg, Utils::StdErrFormatSameLine);
-    else
-        AndroidRunSupport::handleRemoteErrorOutput(output);
-    m_outputParser.processOutput(msg);
-}
+    connect(runner, &AndroidRunner::remoteProcessFinished,
+        [this, runControl](const QString &errorMsg)  {
+            runControl->notifyRemoteFinished();
+            runControl->appendMessage(errorMsg, Utils::NormalMessageFormat);
+        });
 
-void AndroidAnalyzeSupport::remoteIsRunning()
-{
-    if (m_runControl)
-        m_runControl->notifyRemoteSetupDone(m_qmlPort);
+    connect(runner, &AndroidRunner::remoteErrorOutput,
+        [this, runControl](const QByteArray &output) {
+            const QString msg = QString::fromUtf8(output);
+            runControl->logApplicationMessage(msg, Utils::StdErrFormatSameLine);
+            m_outputParser.processOutput(msg);
+        });
+
+    connect(runner, &AndroidRunner::remoteOutput,
+        [this, runControl](const QByteArray &output) {
+            const QString msg = QString::fromUtf8(output);
+            runControl->logApplicationMessage(msg, Utils::StdOutFormatSameLine);
+            m_outputParser.processOutput(msg);
+        });
 }
 
 } // namespace Internal
