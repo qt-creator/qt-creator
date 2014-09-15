@@ -47,7 +47,6 @@ class DummyModel : public AbstractTimelineModel
 public:
     DummyModel(QString displayName = tr("dummy"), QObject *parent = 0);
     const QmlProfilerModelManager *modelManager() const;
-    int rowCount() const;
     int selectionId(int index) const { return index; }
     QColor color(int) const { return QColor(); }
     QVariantList labels() const { return QVariantList(); }
@@ -98,15 +97,12 @@ const QmlProfilerModelManager *DummyModel::modelManager() const
     return d->modelManager;
 }
 
-int DummyModel::rowCount() const
-{
-    return isEmpty() ? 1 : 2;
-}
-
 void DummyModel::loadData()
 {
+    Q_D(DummyModel);
     for (int i = 0; i < NumItems; ++i)
-        insert(i * ItemSpacing, ItemDuration);
+        insert(i * ItemSpacing, ItemDuration, 0);
+    d->collapsedRowCount = d->expandedRowCount = 2;
 }
 
 void tst_AbstractTimelineModel::modelManager()
@@ -200,6 +196,8 @@ void tst_AbstractTimelineModel::rowOffset()
 void tst_AbstractTimelineModel::height()
 {
     DummyModel dummy;
+    QmlProfilerModelManager manager(0);
+    dummy.setModelManager(&manager);
     QCOMPARE(dummy.height(), DefaultRowHeight);
     dummy.loadData();
     QCOMPARE(dummy.height(), 2 * DefaultRowHeight);
