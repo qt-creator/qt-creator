@@ -64,7 +64,6 @@ public slots:
 signals:
     void remoteServerRunning(const QByteArray &serverChannel, int pid);
     void remoteProcessStarted(int gdbServerPort, int qmlPort);
-    void remoteProcessStarted(int qmlPort);
     void remoteProcessFinished(const QString &errString = QString());
 
     void remoteOutput(const QByteArray &output);

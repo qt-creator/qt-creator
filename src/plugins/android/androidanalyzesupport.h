@@ -54,8 +54,6 @@ public:
         Analyzer::AnalyzerRunControl *runControl);
 
 private slots:
-    void handleRemoteProcessStarted(int qmlPort);
-
     void handleRemoteProcessFinished(const QString &errorMsg);
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);

@@ -184,7 +184,7 @@ void AndroidRunner::checkPID()
             QByteArray serverChannel = QByteArray::number(m_qmlPort);
             emit remoteServerRunning(serverChannel, m_processPID);
         } else if (m_useQmlProfiler) {
-            emit remoteProcessStarted(m_qmlPort);
+            emit remoteProcessStarted(-1, m_qmlPort);
         } else {
             // Start without debugging.
             emit remoteProcessStarted(-1, -1);
