@@ -305,6 +305,16 @@ CheckSymbols::Future CheckSymbols::go(Document::Ptr doc, const LookupContext &co
     return (new CheckSymbols(doc, context, macroUses))->start();
 }
 
+CheckSymbols * CheckSymbols::create(Document::Ptr doc, const LookupContext &context,
+                                    const QList<CheckSymbols::Result> &macroUses)
+{
+    QTC_ASSERT(doc, return NULL);
+    QTC_ASSERT(doc->translationUnit(), return NULL);
+    QTC_ASSERT(doc->translationUnit()->ast(), return NULL);
+
+    return new CheckSymbols(doc, context, macroUses);
+}
+
 CheckSymbols::CheckSymbols(Document::Ptr doc, const LookupContext &context, const QList<CheckSymbols::Result> &macroUses)
     : ASTVisitor(doc->translationUnit()), _doc(doc), _context(context)
     , _lineOfLastUsage(0), _macroUses(macroUses)
@@ -335,10 +345,6 @@ void CheckSymbols::run()
     _potentialStatics = collectTypes.statics();
 
     Utils::sort(_macroUses, sortByLinePredicate);
-    // TODO: Handle concurrent (write) access of diagnostic messages and ensure
-    //       propagation to the editor widget
-//    _doc->clearDiagnosticMessages();
-
     if (!isCanceled()) {
         if (_doc->translationUnit()) {
             accept(_doc->translationUnit()->ast());
@@ -347,15 +353,15 @@ void CheckSymbols::run()
         }
     }
 
+    emit codeWarningsUpdated(_doc, _diagMsgs);
+
     reportFinished();
 }
 
 bool CheckSymbols::warning(unsigned line, unsigned column, const QString &text, unsigned length)
 {
     Document::DiagnosticMessage m(Document::DiagnosticMessage::Warning, _fileName, line, column, text, length);
-    // TODO: Handle concurrent (write) access of diagnostic messages and ensure
-    //       propagation to the editor widget
-//    _doc->addDiagnosticMessage(m);
+    _diagMsgs.append(m);
     return false;
 }
 

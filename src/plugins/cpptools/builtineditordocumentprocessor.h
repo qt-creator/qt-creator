@@ -60,6 +60,8 @@ public:
 private:
     void onParserFinished(CPlusPlus::Document::Ptr document, CPlusPlus::Snapshot snapshot);
     void onSemanticInfoUpdated(const CppTools::SemanticInfo semanticInfo);
+    void onCodeWarningsUpdated(CPlusPlus::Document::Ptr document,
+                               const QList<CPlusPlus::Document::DiagnosticMessage> &codeWarnings);
 
     SemanticInfo::Source createSemanticInfoSource(bool force) const;
 
@@ -68,6 +70,8 @@ private:
     QFuture<void> m_parserFuture;
 
     CPlusPlus::Snapshot m_documentSnapshot;
+    QList<QTextEdit::ExtraSelection> m_codeWarnings;
+    bool m_codeWarningsUpdated;
 
     SemanticInfoUpdater m_semanticInfoUpdater;
     QScopedPointer<SemanticHighlighter> m_semanticHighlighter;

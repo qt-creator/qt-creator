@@ -307,6 +307,8 @@ CppModelManager::CppModelManager(QObject *parent)
             this, SLOT(onCoreAboutToClose()));
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
+    qRegisterMetaType<QList<CPlusPlus::Document::DiagnosticMessage>>(
+                "QList<CPlusPlus::Document::DiagnosticMessage>");
 
     d->m_modelManagerSupportFallback.reset(new ModelManagerSupportInternal);
     CppToolsPlugin::instance()->codeModelSettings()->setDefaultId(
