@@ -1599,9 +1599,11 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
         else
             args << QLatin1String("-c") << comment;
         args << QLatin1String("-query");
-        if (coDialog.isReserved())
+        const bool reserved = coDialog.isReserved();
+        const bool unreserved = !reserved || coDialog.isUnreserved();
+        if (reserved)
             args << QLatin1String("-reserved");
-        if (coDialog.isUnreserved())
+        if (unreserved)
             args << QLatin1String("-unreserved");
         if (coDialog.isPreserveTime())
             args << QLatin1String("-ptime");
