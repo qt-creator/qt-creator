@@ -132,7 +132,7 @@ def qdump__boost__unordered__unordered_set(d, value):
     if d.isExpanded():
         innerType = d.templateArgument(value.type, 0)
         bucketCount = d.extractInt(base + ptrSize)
-        offset = ((innerType.sizeof + ptrSize - 1) / ptrSize) * ptrSize
+        offset = int((innerType.sizeof + ptrSize - 1) / ptrSize) * ptrSize
         with Children(d, size, maxNumChild=10000):
             afterBuckets = d.extractPointer(base + 5 * ptrSize)
             afterBuckets += bucketCount * ptrSize
