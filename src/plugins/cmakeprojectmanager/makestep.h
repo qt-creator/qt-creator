@@ -79,11 +79,8 @@ public:
 
     QVariantMap toMap() const;
 
-public slots:
-    void setUseNinja();
+private:
     void activeBuildConfigurationChanged();
-
-private slots:
     void buildTargetsChanged();
 
 signals:
@@ -116,14 +113,15 @@ private:
     CMakeBuildConfiguration *m_activeConfiguration;
 };
 
-class MakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
+class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
     MakeStepConfigWidget(MakeStep *makeStep);
     virtual QString displayName() const;
     virtual QString summaryText() const;
-private slots:
+
+private:
     void itemChanged(QListWidgetItem*);
     void additionalArgumentsEdited();
     void updateDetails();
