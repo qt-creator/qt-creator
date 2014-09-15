@@ -39,11 +39,12 @@ static const qint64 ItemDuration = 1 << 19;
 static const qint64 ItemSpacing = 1 << 20;
 
 class DummyModelPrivate;
-class DummyModel : public AbstractTimelineModel {
+class DummyModel : public AbstractTimelineModel
+{
     Q_OBJECT
-public:
     Q_DECLARE_PRIVATE(DummyModel)
-
+    friend class tst_AbstractTimelineModel;
+public:
     DummyModel(QString displayName = tr("dummy"), QObject *parent = 0);
     const QmlProfilerModelManager *modelManager() const;
     int rowCount() const;
@@ -52,29 +53,15 @@ public:
     QVariantList labels() const { return QVariantList(); }
     QVariantMap details(int) const { return QVariantMap(); }
     int row(int) const { return 1; }
+    quint64 features() const { return 0; }
+
+protected:
     void loadData();
-    void clear() { AbstractTimelineModel::clear(); }
-
-
-    // Make some protected methods public
-
-    QColor colorByHue(int hue) const
-    {
-        return AbstractTimelineModel::colorByHue(hue);
-    }
-    QColor colorByEventId(int index) const
-    {
-        return AbstractTimelineModel::colorByEventId(index);
-    }
-    QColor colorByFraction(double fraction) const
-    {
-        return AbstractTimelineModel::colorByFraction(fraction);
-    }
 };
 
 
-class DummyModelPrivate : public AbstractTimelineModel::AbstractTimelineModelPrivate {
-public:
+class DummyModelPrivate : public AbstractTimelineModel::AbstractTimelineModelPrivate
+{
     Q_DECLARE_PUBLIC(DummyModel)
 };
 
