@@ -62,6 +62,7 @@ public:
                                    "|\\\\"   // no backslash
                                    "|//"     // no double slash
                                    "|^[/-]"  // no leading slash or dash
+                                   "|\""     // no quotes
                                    )),
         m_localBranches(localBranches)
     {
