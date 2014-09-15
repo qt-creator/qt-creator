@@ -63,7 +63,7 @@ void QmlEngineControlClient::releaseEngine(int engineId)
     EngineState &state = m_blockedEngines[engineId];
     if (--state.blockers == 0) {
         QTC_ASSERT(state.releaseCommand != InvalidCommand, return);
-        sendMessage(state.releaseCommand, engineId);
+        sendCommand(state.releaseCommand, engineId);
         m_blockedEngines.remove(engineId);
     }
 }
@@ -101,12 +101,12 @@ void QmlEngineControlClient::messageReceived(const QByteArray &data)
     }
 
     if (state.blockers == 0 && state.releaseCommand != InvalidCommand) {
-        sendMessage(state.releaseCommand, id);
+        sendCommand(state.releaseCommand, id);
         m_blockedEngines.remove(id);
     }
 }
 
-void QmlEngineControlClient::sendMessage(QmlEngineControlClient::CommandType command, int engineId)
+void QmlEngineControlClient::sendCommand(QmlEngineControlClient::CommandType command, int engineId)
 {
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);

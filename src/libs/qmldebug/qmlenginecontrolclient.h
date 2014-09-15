@@ -65,7 +65,7 @@ signals:
 
 protected:
     void messageReceived(const QByteArray &);
-    void sendMessage(CommandType command, int engineId);
+    void sendCommand(CommandType command, int engineId);
 
     struct EngineState {
         EngineState(CommandType command = InvalidCommand) : releaseCommand(command), blockers(0) {}
