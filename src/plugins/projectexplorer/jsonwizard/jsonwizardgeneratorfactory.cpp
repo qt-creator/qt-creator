@@ -30,6 +30,7 @@
 #include "jsonwizardgeneratorfactory.h"
 
 #include "jsonwizard.h"
+#include "jsonwizardfilegenerator.h"
 
 #include "../projectexplorerconstants.h"
 
@@ -167,6 +168,54 @@ void JsonWizardGeneratorFactory::setTypeIdsSuffixes(const QStringList &suffixes)
 void JsonWizardGeneratorFactory::setTypeIdsSuffix(const QString &suffix)
 {
     setTypeIdsSuffixes(QStringList() << suffix);
+}
+
+// --------------------------------------------------------------------
+// FileGeneratorFactory:
+// --------------------------------------------------------------------
+
+
+FileGeneratorFactory::FileGeneratorFactory()
+{
+    setTypeIdsSuffix(QLatin1String("File"));
+}
+
+JsonWizardGenerator *FileGeneratorFactory::create(Core::Id typeId, const QVariant &data,
+                                                  const QString &path, const QString &platform,
+                                                  const QVariantMap &variables)
+{
+    Q_UNUSED(data);
+    Q_UNUSED(path);
+    Q_UNUSED(platform);
+    Q_UNUSED(variables);
+
+    QTC_ASSERT(canCreate(typeId), return 0);
+
+    auto *gen = new Internal::JsonWizardFileGenerator();
+    QString errorMessage;
+    gen->setup(data, &errorMessage);
+
+    if (!errorMessage.isEmpty()) {
+        qWarning() << "FileGeneratorFactory setup error:" << errorMessage;
+        delete gen;
+        return 0;
+    }
+
+    return gen;
+}
+
+bool FileGeneratorFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+{
+    Q_UNUSED(data);
+    Q_UNUSED(errorMessage);
+
+    QTC_ASSERT(canCreate(typeId), return false);
+
+    QScopedPointer<Internal::JsonWizardFileGenerator> gen(new Internal::JsonWizardFileGenerator());
+    if (!gen->setup(data, errorMessage))
+        return false;
+
+    return true;
 }
 
 } // namespace ProjectExplorer

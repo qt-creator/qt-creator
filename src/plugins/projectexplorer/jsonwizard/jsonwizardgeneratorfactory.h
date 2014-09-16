@@ -89,6 +89,19 @@ private:
     QList<Core::Id> m_typeIds;
 };
 
+class FileGeneratorFactory : public JsonWizardGeneratorFactory
+{
+    Q_OBJECT
+
+public:
+    FileGeneratorFactory();
+
+    JsonWizardGenerator *create(Core::Id typeId, const QVariant &data,
+                                const QString &path, const QString &platform,
+                                const QVariantMap &variables);
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+};
+
 } // namespace ProjectExplorer
 
 #endif // JSONWIZARDGENERATORFACTORY_H

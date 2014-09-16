@@ -35,8 +35,8 @@
 #include "deployablefile.h"
 #include "deployconfiguration.h"
 #include "gcctoolchainfactories.h"
-#include "jsonwizard/jsonwizardexpander.h"
 #include "jsonwizard/jsonwizardfactory.h"
+#include "jsonwizard/jsonwizardgeneratorfactory.h"
 #include "project.h"
 #include "projectexplorersettings.h"
 #include "projectmacroexpander.h"
@@ -438,6 +438,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomProjectWizard>(Core::IWizardFactory::ProjectWizard));
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(Core::IWizardFactory::FileWizard));
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(Core::IWizardFactory::ClassWizard));
+
+    // For JsonWizard:
+    JsonWizardFactory::registerGeneratorFactory(new FileGeneratorFactory);
 
     d->m_proWindow = new ProjectWindow;
     addAutoReleasedObject(d->m_proWindow);
