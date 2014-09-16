@@ -8,7 +8,8 @@ QT += help \
 include(../../qtcreatorplugin.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
 win32-msvc*:QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
-SOURCES += mainwindow.cpp \
+SOURCES += corejsextensions.cpp \
+    mainwindow.cpp \
     editmode.cpp \
     iwizardfactory.cpp \
     tabpositionindicator.cpp \
@@ -102,7 +103,8 @@ SOURCES += mainwindow.cpp \
     patchtool.cpp \
     windowsupport.cpp
 
-HEADERS += mainwindow.h \
+HEADERS += corejsextensions.h \
+    mainwindow.h \
     editmode.h \
     iwizardfactory.h \
     tabpositionindicator.h \

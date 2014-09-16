@@ -566,11 +566,31 @@ FileName FileName::parentDir() const
     return FileName::fromString(parent);
 }
 
-/// Constructs a FileName from \a fileName
-/// \a fileName is not checked for validity.
+/// Constructs a FileName from \a filename
+/// \a filename is not checked for validity.
 FileName FileName::fromString(const QString &filename)
 {
     return FileName(filename);
+}
+
+/// Constructs a FileName from \a fileName. The \a defaultExtension is appended
+/// to \a filename if that does not have an extension already.
+/// \a fileName is not checked for validity.
+FileName FileName::fromString(const QString &filename, const QString &defaultExtension)
+{
+    if (filename.isEmpty() || defaultExtension.isEmpty())
+        return filename;
+
+    QString rc = filename;
+    QFileInfo fi(filename);
+    // Add extension unless user specified something else
+    const QChar dot = QLatin1Char('.');
+    if (!fi.fileName().contains(dot)) {
+        if (!defaultExtension.startsWith(dot))
+            rc += dot;
+        rc += defaultExtension;
+    }
+    return rc;
 }
 
 /// Constructs a FileName from \a fileName

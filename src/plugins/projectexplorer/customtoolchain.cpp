@@ -270,7 +270,8 @@ const QStringList &CustomToolChain::cxx11Flags() const
 
 void CustomToolChain::setMkspecs(const QString &specs)
 {
-    m_mkspecs = Utils::transform(specs.split(QLatin1Char(',')), &FileName::fromString);
+    m_mkspecs = Utils::transform(specs.split(QLatin1Char(',')),
+                                 [](QString fn) { return Utils::FileName::fromString(fn); });
 }
 
 QString CustomToolChain::mkspecs() const

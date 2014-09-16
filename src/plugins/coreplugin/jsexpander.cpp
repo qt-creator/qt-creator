@@ -29,6 +29,7 @@
 
 #include "jsexpander.h"
 
+#include "corejsextensions.h"
 #include "variablemanager.h"
 
 #include <utils/qtcassert.h>
@@ -43,7 +44,11 @@ namespace Internal {
 
 class JsExpanderPrivate {
 public:
+    JsExpanderPrivate() : m_utilsExtension(new UtilsJsExtension) { }
+    ~JsExpanderPrivate() { delete m_utilsExtension; }
+
     QScriptEngine m_engine;
+    UtilsJsExtension *m_utilsExtension;
 };
 
 } // namespace Internal
@@ -98,6 +103,8 @@ JsExpander::JsExpander()
                 return result;
             }
         });
+
+    registerQObjectForJs(QLatin1String("Util"), d->m_utilsExtension);
 }
 
 JsExpander::~JsExpander()
