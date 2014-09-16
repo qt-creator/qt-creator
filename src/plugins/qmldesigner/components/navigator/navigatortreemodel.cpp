@@ -341,28 +341,6 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node)
     updateItemRow(node, itemRowForNode(node));
 }
 
-static void findTargetItem(const NodeListProperty &listProperty,
-                           const ItemRow &currentItemRow,
-                           NavigatorTreeModel *navigatorTreeModel,
-                           int *newRowNumber,
-                           QStandardItem **targetItem)
-{
-    Q_UNUSED(newRowNumber);
-    if (navigatorTreeModel->isInTree(listProperty.parentModelNode())) {
-        ItemRow parentRow = navigatorTreeModel->itemRowForNode(listProperty.parentModelNode());
-        if (parentRow.propertyItems.contains(listProperty.name())) {
-            *targetItem = parentRow.propertyItems.value(listProperty.name());
-        } else  { // default property
-            *targetItem = parentRow.idItem;
-#ifndef DISABLE_VISIBLE_PROPERTIES
-            newRowNumber += visibleProperties(listProperty.parentModelNode()).count();
-#endif
-        }
-    } else {
-        *targetItem = currentItemRow.idItem->parent();
-    }
-}
-
 static void handleWrongId(QStandardItem *item, const ModelNode &modelNode, const QString &errorTitle, const QString &errorMessage, NavigatorTreeModel *treeModel)
 {
     QMessageBox::warning(Core::ICore::dialogParent(), errorTitle,  errorMessage);

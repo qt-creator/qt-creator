@@ -294,7 +294,7 @@ void NavigatorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumb
 
 }
 
-void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
+void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int /*oldIndex*/)
 {
     if (m_treeModel->isInTree(node)) {
         m_treeModel->removeSubTree(listProperty.parentModelNode());
