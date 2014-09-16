@@ -90,44 +90,6 @@ static inline QString wizardDisplayCategory()
     return TextEditorPlugin::tr("General");
 }
 
-// A wizard that quickly creates a scratch buffer
-// based on a temporary file without prompting for a path.
-class ScratchFileWizard : public IWizardFactory
-{
-    Q_OBJECT
-
-public:
-    ScratchFileWizard()
-    {
-        setWizardKind(FileWizard);
-        setDescription(TextEditorPlugin::tr("Creates a scratch buffer using a temporary file."));
-        setDisplayName(TextEditorPlugin::tr("Scratch Buffer"));
-        setId(QLatin1String("Z.ScratchFile"));
-        setCategory(QLatin1String(wizardCategoryC));
-        setDisplayCategory(wizardDisplayCategory());
-        setFlags(IWizardFactory::PlatformIndependent);
-    }
-
-    void runWizard(const QString &, QWidget *, const QString &, const QVariantMap &)
-    { createFile(); }
-
-public Q_SLOTS:
-    virtual void createFile();
-};
-
-void ScratchFileWizard::createFile()
-{
-    QString tempPattern = QDir::tempPath();
-    if (!tempPattern.endsWith(QLatin1Char('/')))
-        tempPattern += QLatin1Char('/');
-    tempPattern += QLatin1String("scratchXXXXXX.txt");
-    QTemporaryFile file(tempPattern);
-    file.setAutoRemove(false);
-    QTC_ASSERT(file.open(), return; );
-    file.close();
-    EditorManager::openEditor(file.fileName());
-}
-
 // ExtensionSystem::PluginInterface
 bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
@@ -148,8 +110,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     // Add text file wizard
     addAutoReleasedObject(wizard);
-    ScratchFileWizard *scratchFile = new ScratchFileWizard;
-    addAutoReleasedObject(scratchFile);
 
     m_settings = new TextEditorSettings(this);
 
@@ -179,11 +139,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
             editor->editorWidget()->invokeAssist(QuickFix);
     });
-
-    // Add shortcut for create a scratch buffer
-    QAction *scratchBufferAction = new QAction(tr("Create Scratch Buffer Using a Temporary File"), this);
-    ActionManager::registerAction(scratchBufferAction, Constants::CREATE_SCRATCH_BUFFER, context);
-    connect(scratchBufferAction, &QAction::triggered, scratchFile, &ScratchFileWizard::createFile);
 
     // Generic highlighter.
     connect(ICore::instance(), &ICore::coreOpened, Manager::instance(), &Manager::registerMimeTypes);
@@ -306,5 +261,3 @@ void TextEditorPlugin::updateCurrentSelection(const QString &text)
 
 } // namespace Internal
 } // namespace TextEditor
-
-#include "texteditorplugin.moc"
