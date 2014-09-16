@@ -44,11 +44,10 @@ namespace Internal {
 
 class JsExpanderPrivate {
 public:
-    JsExpanderPrivate() : m_utilsExtension(new UtilsJsExtension) { }
-    ~JsExpanderPrivate() { delete m_utilsExtension; }
+    ~JsExpanderPrivate() { qDeleteAll(m_registeredObjects); }
 
     QScriptEngine m_engine;
-    UtilsJsExtension *m_utilsExtension;
+    QList<QObject *> m_registeredObjects;
 };
 
 } // namespace Internal
@@ -57,6 +56,7 @@ static Internal::JsExpanderPrivate *d;
 
 void JsExpander::registerQObjectForJs(const QString &name, QObject *obj)
 {
+    d->m_registeredObjects.append(obj);
     QScriptValue jsObj = d->m_engine.newQObject(obj, QScriptEngine::QtOwnership);
     d->m_engine.globalObject().setProperty(name, jsObj);
 }
@@ -104,7 +104,7 @@ JsExpander::JsExpander()
             }
         });
 
-    registerQObjectForJs(QLatin1String("Util"), d->m_utilsExtension);
+    registerQObjectForJs(QLatin1String("Util"), new Internal::UtilsJsExtension);
 }
 
 JsExpander::~JsExpander()
