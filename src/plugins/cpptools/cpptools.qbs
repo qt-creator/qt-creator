@@ -67,6 +67,7 @@ QtcPlugin {
         "cpptools.qrc",
         "cpptools_global.h",
         "cpptoolsconstants.h",
+        "cpptoolsjsextension.cpp", "cpptoolsjsextension.h",
         "cpptoolsplugin.cpp", "cpptoolsplugin.h",
         "cpptoolsreuse.cpp", "cpptoolsreuse.h",
         "cpptoolssettings.cpp", "cpptoolssettings.h",

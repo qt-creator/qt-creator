@@ -38,6 +38,7 @@
 #include "cppmodelmanager.h"
 #include "cpplocatorfilter.h"
 #include "symbolsfindfilter.h"
+#include "cpptoolsjsextension.h"
 #include "cpptoolssettings.h"
 #include "cpptoolsreuse.h"
 #include "cppprojectfile.h"
@@ -48,6 +49,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/jsexpander.h>
 #include <coreplugin/variablemanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -143,6 +145,8 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
             [=](const QStringList &files) {
         modelManager->updateSourceFiles(files.toSet());
     });
+
+    JsExpander::registerQObjectForJs(QLatin1String("Cpp"), new CppToolsJsExtension(this));
 
     CppLocatorData *locatorData = new CppLocatorData;
     connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),

@@ -46,6 +46,7 @@ HEADERS += \
     cppsourceprocessor.h \
     cpptools_global.h \
     cpptoolsconstants.h \
+    cpptoolsjsextension.h \
     cpptoolsplugin.h \
     cpptoolsreuse.h \
     cpptoolssettings.h \
@@ -105,6 +106,7 @@ SOURCES += \
     cppsemanticinfo.cpp \
     cppsemanticinfoupdater.cpp \
     cppsourceprocessor.cpp \
+    cpptoolsjsextension.cpp \
     cpptoolsplugin.cpp \
     cpptoolsreuse.cpp \
     cpptoolssettings.cpp \
