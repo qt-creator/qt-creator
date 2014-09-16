@@ -50,7 +50,8 @@ HEADERS += \
   nsprintf.h \
   nsstringexpandpath.h \
   version.h \
-  dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h
+  dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h \
+  coresimulator/coresimulator.h
 
 OTHER_FILES = IOSSIM_LICENSE \
   Info.plist

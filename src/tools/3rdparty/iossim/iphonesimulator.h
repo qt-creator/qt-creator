@@ -24,6 +24,8 @@
   BOOL alreadyPrintedData;
   BOOL retinaDevice;
   BOOL tallDevice;
+  BOOL is64BitDevice;
+  NSString *deviceTypeId;
 }
 
 - (id)init;
@@ -34,6 +36,7 @@
 - (void)removeStdioFIFO:(NSFileHandle *)fileHandle atPath:(NSString *)path;
 - (void)stop;
 - (void)doExit:(int)errorCode;
-- (NSString*)changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice;
+- (SimDevice*) findDeviceWithFamily:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice is64Bit:(BOOL)is64Bit;
+- (NSString*)changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice is64Bit:(BOOL)is64Bit;
 
 @end
