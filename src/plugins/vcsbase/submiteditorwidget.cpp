@@ -561,9 +561,9 @@ void SubmitEditorWidget::descriptionTextChanged()
     d->m_description = cleanupDescription(d->m_ui.description->toPlainText());
     wrapDescription();
     trimDescription();
+    // append field entries
     foreach (const SubmitFieldWidget *fw, d->m_fieldWidgets)
         d->m_description += fw->fieldValues();
-    // append field entries
     updateSubmitAction();
 }
 
