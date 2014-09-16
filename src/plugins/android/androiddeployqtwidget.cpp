@@ -46,7 +46,8 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
 {
     m_ui->setupUi(this);
 
-    m_ui->uninstallPreviousPackage->setChecked(m_step->uninstallPreviousPackage());
+    m_ui->uninstallPreviousPackage->setChecked(m_step->uninstallPreviousPackage() > AndroidDeployQtStep::Keep);
+    m_ui->uninstallPreviousPackage->setEnabled(m_step->uninstallPreviousPackage() != AndroidDeployQtStep::ForceUnintall);
     connect(m_ui->installMinistroButton, SIGNAL(clicked()), SLOT(installMinistro()));
     connect(m_ui->cleanLibsPushButton, SIGNAL(clicked()), SLOT(cleanLibsOnDevice()));
     connect(m_ui->resetDefaultDevices, SIGNAL(clicked()), SLOT(resetDefaultDevices()));

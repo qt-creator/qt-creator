@@ -70,6 +70,12 @@ class AndroidDeployQtStep : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
     friend class AndroidDeployQtStepFactory;
 public:
+    enum UninstallType {
+        Keep,
+        Uninstall,
+        ForceUnintall
+    };
+public:
     AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc);
 
     bool fromMap(const QVariantMap &map);
@@ -77,7 +83,7 @@ public:
 
     bool runInGuiThread() const;
 
-    bool uninstallPreviousPackage();
+    UninstallType uninstallPreviousPackage();
 
 public slots:
     void setUninstallPreviousPackage(bool uninstall);

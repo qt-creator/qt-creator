@@ -253,6 +253,7 @@ bool AndroidDeployQtStep::init()
                 break;
         }
     } else {
+        m_uninstallPreviousPackageRun = true;
         pp->setCommand(AndroidConfigurations::currentConfig().adbToolPath().toString());
         m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target(), AndroidManager::signPackage(target())
                                                                         ? AndroidQtSupport::ReleaseBuildSigned
@@ -404,7 +405,9 @@ bool AndroidDeployQtStep::runInGuiThread() const
     return true;
 }
 
-bool AndroidDeployQtStep::uninstallPreviousPackage()
+AndroidDeployQtStep::UninstallType AndroidDeployQtStep::uninstallPreviousPackage()
 {
-    return m_uninstallPreviousPackage;
+    if (QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0))
+        return ForceUnintall;
+    return m_uninstallPreviousPackage ? Uninstall : Keep;
 }
