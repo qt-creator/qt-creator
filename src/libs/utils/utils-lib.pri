@@ -62,7 +62,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/buildablehelperlibrary.cpp \
     $$PWD/annotateditemdelegate.cpp \
     $$PWD/fileinprojectfinder.cpp \
-    $$PWD/ipaddresslineedit.cpp \
     $$PWD/statuslabel.cpp \
     $$PWD/outputformatter.cpp \
     $$PWD/flowlayout.cpp \
@@ -150,7 +149,6 @@ HEADERS += \
     $$PWD/buildablehelperlibrary.h \
     $$PWD/annotateditemdelegate.h \
     $$PWD/fileinprojectfinder.h \
-    $$PWD/ipaddresslineedit.h \
     $$PWD/statuslabel.h \
     $$PWD/outputformatter.h \
     $$PWD/outputformat.h \
