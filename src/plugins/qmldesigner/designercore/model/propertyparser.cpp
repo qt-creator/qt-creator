@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "propertyparser.h"
+#include "enumeration.h"
 #include <modelnode.h>
 #include <metainfo.h>
 
@@ -178,6 +179,15 @@ QVector3D vector3DFromString(const QString &s, bool *ok)
     return QVector3D(xCoord, yCoord, zCoord);
 }
 
+QmlDesigner::Enumeration enumerationFromString(const QString &string, bool *ok)
+{
+    QmlDesigner::Enumeration tEnumeration(string);
+    if (ok)
+        *ok = !tEnumeration.scope().isEmpty() && !tEnumeration.name().isEmpty();
+    return tEnumeration;
+}
+
+
 } //namespace
 
 namespace QmlDesigner {
@@ -238,8 +248,12 @@ QVariant read(int variantType, const QString &str)
         value = vector3DFromString(str, &conversionOk);
         break;
     default: {
-        value = QVariant(str);
-        value.convert(static_cast<QVariant::Type>(variantType));
+        if (variantType == QMetaType::type("Enumeration")) {
+            value = QVariant::fromValue<Enumeration>(enumerationFromString(str, &conversionOk));
+        } else {
+            value = QVariant(str);
+            value.convert(static_cast<QVariant::Type>(variantType));
+        }
         break;
         }
     }
@@ -251,7 +265,6 @@ QVariant read(int variantType, const QString &str)
     }
 
     return value;
-    return QVariant();
 }
 
 QVariant variantFromString(const QString &s)
@@ -271,63 +284,6 @@ QVariant variantFromString(const QString &s)
     if (ok) return QVariant::fromValue(v);
 
     return QVariant(s);
-}
-
-QString write(const QVariant &variant)
-{
-    if (!variant.isValid()) {
-        qWarning() << "Trying to serialize invalid QVariant";
-        return QString();
-    }
-    QString value;
-    switch (variant.type()) {
-    case QMetaType::QPoint:
-    {
-        QPoint p = variant.toPoint();
-        value = QString("%1,%2").arg(QString::number(p.x()), QString::number(p.y()));
-        break;
-    }
-    case QMetaType::QPointF:
-    {
-        QPointF p = variant.toPointF();
-        value = QString("%1,%2").arg(QString::number(p.x(), 'f'), QString::number(p.y(), 'f'));
-        break;
-    }
-    case QMetaType::QSize:
-    {
-        QSize s = variant.toSize();
-        value = QString("%1x%2").arg(QString::number(s.width()), QString::number(s.height()));
-        break;
-    }
-    case QMetaType::QSizeF:
-    {
-        QSizeF s = variant.toSizeF();
-        value = QString("%1x%2").arg(QString::number(s.width(), 'f'), QString::number(s.height(), 'f'));
-        break;
-    }
-    case QMetaType::QRect:
-    {
-        QRect r = variant.toRect();
-        value = QString("%1,%2,%3x%4").arg(QString::number(r.x()), QString::number(r.y()),
-                                           QString::number(r.width()), QString::number(r.height()));
-        break;
-    }
-    case QMetaType::QRectF:
-    {
-        QRectF r = variant.toRectF();
-        value = QString("%1,%2,%3x%4").arg(QString::number(r.x(), 'f'), QString::number(r.y(), 'f'),
-                                           QString::number(r.width(), 'f'), QString::number(r.height(), 'f'));
-        break;
-    }
-    default:
-        QVariant strVariant = variant;
-        strVariant.convert(QVariant::String);
-        if (!strVariant.isValid())
-            qWarning() << Q_FUNC_INFO << "cannot serialize type " << QMetaType::typeName(variant.type());
-        value = strVariant.toString();
-    }
-
-    return value;
 }
 
 } // namespace PropertyParser

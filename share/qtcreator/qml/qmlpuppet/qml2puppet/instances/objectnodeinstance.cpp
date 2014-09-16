@@ -475,33 +475,21 @@ PropertyNameList ObjectNodeInstance::ignoredProperties() const
 
 QVariant ObjectNodeInstance::convertEnumToValue(const QVariant &value, const PropertyName &name)
 {
-    int idx = object()->metaObject()->indexOfProperty(name);
-    QMetaProperty metaProperty = object()->metaObject()->property(idx);
+    Q_ASSERT(value.canConvert<Enumeration>());
+    int propertyIndex = object()->metaObject()->indexOfProperty(name);
+    QMetaProperty metaProperty = object()->metaObject()->property(propertyIndex);
 
-    QVariant fixedValue = fixResourcePaths(value);
-
-    if (value.canConvert<Enumeration>()) {
-        Enumeration enumeration = value.value<Enumeration>();
-        if (metaProperty.isValid() && metaProperty.isEnumType()) {
-            fixedValue = metaProperty.enumerator().keyToValue(enumeration.name());
-        } else if (metaProperty.isValid()
-                   && (QLatin1String(metaProperty.typeName()) ==  QLatin1String("int"))) {
-
-            //If the target property is an integer handle an enum as binding
-            QQmlExpression expression(context(), object(), enumeration.toString());
-            fixedValue =  expression.evaluate();
-            if (expression.hasError())
-                qDebug() << "Enum can not be evaluated:" << object() << name << enumeration;
-        } else if (!metaProperty.isValid()) { //In this case this is most likely an attached property
-            QQmlExpression expression(context(), object(), enumeration.toString());
-            fixedValue =  expression.evaluate();
-
-            if (expression.hasError())
-                qDebug() << "Enum can not be evaluated:" << object() << name << enumeration;
-        }
+    QVariant adjustedValue;
+    Enumeration enumeration = value.value<Enumeration>();
+    if (metaProperty.isValid() && metaProperty.isEnumType()) {
+        adjustedValue = metaProperty.enumerator().keyToValue(enumeration.name());
+    } else {
+        QQmlExpression expression(context(), object(), enumeration.toString());
+        adjustedValue =  expression.evaluate();
+        if (expression.hasError())
+            qDebug() << "Enumeration can not be evaluated:" << object() << name << enumeration;
     }
-
-    return fixedValue;
+    return adjustedValue;
 }
 
 void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
@@ -514,8 +502,12 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
     if (!property.isValid())
         return;
 
-    QVariant fixedValue = fixResourcePaths(value);
-    fixedValue = convertEnumToValue(fixedValue, name);
+    QVariant adjustedValue;
+    if (value.canConvert<Enumeration>())
+        adjustedValue = convertEnumToValue(value, name);
+    else
+        adjustedValue = fixResourcePaths(value);
+
 
     QVariant oldValue = property.read();
     if (oldValue.type() == QVariant::Url) {
@@ -529,10 +521,10 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
         QQmlPropertyPrivate::setBinding(property, 0, QQmlPropertyPrivate::BypassInterceptor | QQmlPropertyPrivate::DontRemoveBinding);
     }
 
-    bool isWritten = property.write(convertSpecialCharacter(fixedValue));
+    bool isWritten = property.write(convertSpecialCharacter(adjustedValue));
 
     if (!isWritten)
-        qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << fixedValue;
+        qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << adjustedValue;
 
     QVariant newValue = property.read();
     if (newValue.type() == QVariant::Url) {

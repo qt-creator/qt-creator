@@ -42,8 +42,9 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
     bool parseSuccess;
-    const QSsh::SshConnectionParameters &parameters
+    QSsh::SshConnectionParameters parameters
         = ArgumentsCollector(app.arguments()).collect(parseSuccess);
+    parameters.host = QLatin1String("127.0.0.1");
     if (!parseSuccess)
         return EXIT_FAILURE;
     Tunnel tunnel(parameters);

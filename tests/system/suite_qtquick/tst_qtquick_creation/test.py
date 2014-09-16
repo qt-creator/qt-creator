@@ -34,8 +34,9 @@ def main():
     if not startedWithoutPluginError():
         return
     for targ, qVer in [[Targets.DESKTOP_480_GCC, "1.1"], [Targets.DESKTOP_521_DEFAULT, "2.1"],
-                       [Targets.DESKTOP_521_DEFAULT, "2.2"], [Targets.DESKTOP_521_DEFAULT, "Controls 1.0"],
-                       [Targets.DESKTOP_521_DEFAULT, "Controls 1.1"]]:
+                       [Targets.DESKTOP_521_DEFAULT, "2.2"], [Targets.DESKTOP_531_DEFAULT, "2.3"],
+                       [Targets.DESKTOP_521_DEFAULT, "Controls 1.0"], [Targets.DESKTOP_521_DEFAULT, "Controls 1.1"],
+                       [Targets.DESKTOP_531_DEFAULT, "Controls 1.2"]]:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targ,

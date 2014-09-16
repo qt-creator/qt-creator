@@ -61,8 +61,8 @@ Column {
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.spacing
-                    minimumValue: 0
-                    maximumValue: 2000
+                    minimumValue: -4000
+                    maximumValue: 4000
                     decimals: 0
                 }
 

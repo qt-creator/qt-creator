@@ -296,8 +296,13 @@ void NavigatorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumb
 
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
 {
-    if (m_treeModel->isInTree(node))
-        m_treeModel->updateItemRowOrder(listProperty, node, oldIndex);
+    if (m_treeModel->isInTree(node)) {
+        m_treeModel->removeSubTree(listProperty.parentModelNode());
+
+        if (node.isInHierarchy())
+            m_treeModel->addSubTree(listProperty.parentModelNode());
+
+    }
 }
 
 void NavigatorView::changeToComponent(const QModelIndex &index)

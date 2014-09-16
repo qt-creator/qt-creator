@@ -1562,11 +1562,6 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
     QFileInfo fi(workingDir, fileName);
     QString topLevel = currentState().topLevel();
     QString absPath = fi.absoluteFilePath();
-    const QString relFile = QDir(topLevel).relativeFilePath(absPath);
-
-    const QString file = QDir::toNativeSeparators(relFile);
-    const QString title = QString::fromLatin1("Checkout %1").arg(file);
-    CheckOutDialog coDialog(title, m_viewData.isUcm);
 
     if (!m_settings.disableIndexer &&
             (fi.isWritable() || vcsStatus(absPath).status == FileStatus::Unknown))
@@ -1575,6 +1570,12 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
         QMessageBox::information(0, tr("ClearCase Checkout"), tr("File is already checked out."));
         return true;
     }
+
+    const QString relFile = QDir(topLevel).relativeFilePath(absPath);
+    const QString file = QDir::toNativeSeparators(relFile);
+    const QString title = QString::fromLatin1("Checkout %1").arg(file);
+    CheckOutDialog coDialog(title, m_viewData.isUcm);
+
     // Only snapshot views can have hijacked files
     bool isHijacked = (!m_viewData.isDynamic && (vcsStatus(absPath).status & FileStatus::Hijacked));
     if (!isHijacked)
@@ -1591,9 +1592,11 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
         else
             args << QLatin1String("-c") << comment;
         args << QLatin1String("-query");
-        if (coDialog.isReserved())
+        const bool reserved = coDialog.isReserved();
+        const bool unreserved = !reserved || coDialog.isUnreserved();
+        if (reserved)
             args << QLatin1String("-reserved");
-        if (coDialog.isUnreserved())
+        if (unreserved)
             args << QLatin1String("-unreserved");
         if (coDialog.isPreserveTime())
             args << QLatin1String("-ptime");

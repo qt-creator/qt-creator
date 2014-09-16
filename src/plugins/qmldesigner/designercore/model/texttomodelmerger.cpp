@@ -671,6 +671,8 @@ static inline bool smartVeryFuzzyCompare(QVariant value1, QVariant value2)
 
 static inline bool equals(const QVariant &a, const QVariant &b)
 {
+    if (a.canConvert<Enumeration>() && b.canConvert<Enumeration>())
+        return a.value<Enumeration>().toString() == b.value<Enumeration>().toString();
     if (a == b)
         return true;
     if (smartVeryFuzzyCompare(a, b))
@@ -715,7 +717,7 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
         if (!import->fileName.isEmpty()) {
             const QString strippedFileName = stripQuotes(import->fileName.toString());
             const Import newImport = Import::createFileImport(strippedFileName,
-                                                              version, as, m_rewriterView->textModifier()->importPaths());
+                                                              version, as, m_rewriterView->importDirectories());
 
             if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
@@ -727,7 +729,7 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
             }
 
             const Import newImport =
-                    Import::createLibraryImport(importUri, version, as, m_rewriterView->textModifier()->importPaths());
+                    Import::createLibraryImport(importUri, version, as, m_rewriterView->importDirectories());
 
             if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
@@ -833,9 +835,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 //    qDebug() << "TextToModelMerger::load with data:" << data;
 
     const QUrl url = m_rewriterView->model()->fileUrl();
-    const QStringList importPaths = m_rewriterView->textModifier()->importPaths();
-    setActive(true);
 
+    setActive(true);
 
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
@@ -853,8 +854,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             return false;
         }
         snapshot.insert(doc);
-        QmlJS::ViewerContext vContext = QmlJS::ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, doc, true);
-        ReadingContext ctxt(snapshot, doc, vContext);
+        m_vContext = QmlJS::ModelManagerInterface::instance()->defaultVContext(Dialect::Qml, doc, true);
+        ReadingContext ctxt(snapshot, doc, m_vContext);
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));
         m_document = doc;
@@ -867,7 +868,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         }
 
         setupImports(doc, differenceHandler);
-        setupPossibleImports(snapshot, vContext);
+        setupPossibleImports(snapshot, m_vContext);
 
         if (m_rewriterView->model()->imports().isEmpty()) {
             const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
@@ -901,6 +902,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2);
+            check.enableMessage(StaticAnalysis::ErrUnsupportedRootTypeInVisualDesigner);
             //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
 
             foreach (const StaticAnalysis::Message &message, check()) {

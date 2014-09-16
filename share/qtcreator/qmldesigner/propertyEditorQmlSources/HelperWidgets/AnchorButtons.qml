@@ -57,7 +57,8 @@ ButtonRow {
 
         onClicked:  {
             if (checked) {
-                anchorBackend.verticalCentered = false;
+                if (anchorBackend.bottomAnchored)
+                    anchorBackend.verticalCentered = false;
                 anchorBackend.topAnchored = true;
             } else {
                 anchorBackend.topAnchored = false;
@@ -75,7 +76,8 @@ ButtonRow {
 
         onClicked: {
             if (checked) {
-                anchorBackend.verticalCentered = false;
+                if (anchorBackend.topAnchored)
+                    anchorBackend.verticalCentered = false;
                 anchorBackend.bottomAnchored = true;
             } else {
                 anchorBackend.bottomAnchored = false;
@@ -94,7 +96,8 @@ ButtonRow {
 
         onClicked: {
             if (checked) {
-                anchorBackend.horizontalCentered = false;
+                if (anchorBackend.rightAnchored)
+                    anchorBackend.horizontalCentered = false;
                 anchorBackend.leftAnchored = true;
             } else {
                 anchorBackend.leftAnchored = false;
@@ -112,7 +115,8 @@ ButtonRow {
 
         onClicked: {
             if (checked) {
-                anchorBackend.horizontalCentered = false;
+                if (anchorBackend.leftAnchored)
+                    anchorBackend.horizontalCentered = false;
                 anchorBackend.rightAnchored = true;
             } else {
                 anchorBackend.rightAnchored = false;
@@ -156,8 +160,10 @@ ButtonRow {
 
         onClicked: {
             if (checked) {
-                anchorBackend.topAnchored = false;
-                anchorBackend.bottomAnchored = false;
+                if (anchorBackend.topAnchored && anchorBackend.bottomAnchored) {
+                    anchorBackend.topAnchored = false;
+                    anchorBackend.bottomAnchored = false;
+                }
                 anchorBackend.verticalCentered = true;
             } else {
                 anchorBackend.verticalCentered = false;
@@ -175,8 +181,10 @@ ButtonRow {
 
         onClicked: {
             if (checked) {
-                anchorBackend.leftAnchored = false;
-                anchorBackend.rightAnchored = false;
+                if (anchorBackend.leftAnchored && anchorBackend.rightAnchored) {
+                    anchorBackend.leftAnchored = false;
+                    anchorBackend.rightAnchored = false;
+                }
                 anchorBackend.horizontalCentered = true;
             } else {
                 anchorBackend.horizontalCentered = false;

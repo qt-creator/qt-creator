@@ -525,10 +525,24 @@ public:
     }
 
 };
+
+class UnsupportedRootObjectTypesByVisualDesigner : public QStringList
+{
+public:
+    UnsupportedRootObjectTypesByVisualDesigner()
+    {
+        (*this) << QLatin1String("QtObject") << QLatin1String("ListModel")
+            << QLatin1String("Component") << QLatin1String("Timer")
+            << QLatin1String("Package");
+    }
+
+};
+
 } // end of anonymous namespace
 
 Q_GLOBAL_STATIC(VisualAspectsPropertyBlackList, visualAspectsPropertyBlackList)
 Q_GLOBAL_STATIC(UnsupportedTypesByVisualDesigner, unsupportedTypesByVisualDesigner)
+Q_GLOBAL_STATIC(UnsupportedRootObjectTypesByVisualDesigner, unsupportedRootObjectTypesByVisualDesigner)
 
 Check::Check(Document::Ptr doc, const ContextPtr &context)
     : _doc(doc)
@@ -559,6 +573,7 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     disableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
     disableMessage(WarnUndefinedValueForVisualDesigner);
     disableMessage(WarnStatesOnlyInRootItemForVisualDesigner);
+    disableMessage(ErrUnsupportedRootTypeInVisualDesigner);
 }
 
 Check::~Check()
@@ -728,6 +743,13 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 
     if (m_typeStack.count() > 1 && getRightMostIdentifier(typeId)->name.toString() == QLatin1String("State"))
         addMessage(WarnStatesOnlyInRootItemForVisualDesigner, typeErrorLocation);
+
+    const QString typeName = getRightMostIdentifier(typeId)->name.toString();
+
+    if (m_typeStack.isEmpty()
+            && unsupportedRootObjectTypesByVisualDesigner()->contains(typeName))
+        addMessage(ErrUnsupportedRootTypeInVisualDesigner,
+                   locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()), typeName);
 
     bool typeError = false;
     if (_importsOk) {

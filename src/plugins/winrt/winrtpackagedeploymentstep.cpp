@@ -88,6 +88,8 @@ bool WinRtPackageDeploymentStep::init()
         m_targetFilePath.append(QLatin1String(".exe"));
 
     m_targetDirPath = appTargetFilePath.parentDir().toString();
+    if (!m_targetDirPath.endsWith(QLatin1Char('/')))
+        m_targetDirPath += QLatin1Char('/');
 
     const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!qt)
@@ -98,18 +100,19 @@ bool WinRtPackageDeploymentStep::init()
 
     m_manifestFileName = QStringLiteral("AppxManifest");
 
-    if (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT)
-            && qt->mkspec().toString().contains(QLatin1String("msvc2012"))) {
+    if (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT)) {
         m_createMappingFile = true;
-        m_manifestFileName = QStringLiteral("WMAppManifest");
+        if (qt->mkspec().toString().contains(QLatin1String("msvc2012")))
+            m_manifestFileName = QStringLiteral("WMAppManifest");
     }
 
     if (m_createMappingFile) {
         args += QLatin1String(" -list mapping");
-        m_mappingFileContent = QLatin1String("[Files]\n\"")
-                + QDir::toNativeSeparators(m_targetDirPath)
-                + m_manifestFileName + QLatin1String(".xml\" \"") + m_manifestFileName
-                + QLatin1String(".xml\"\n");
+        m_mappingFileContent = QLatin1String("[Files]\n");
+        if (qt->mkspec().toString().contains(QLatin1String("msvc2012"))) {
+            m_mappingFileContent += QLatin1Char('"') + QDir::toNativeSeparators(m_targetDirPath) + m_manifestFileName
+                    + QLatin1String(".xml\" \"") + m_manifestFileName + QLatin1String(".xml\"\n");
+        }
 
         QDir assetDirectory(m_targetDirPath + QLatin1String("assets"));
         if (assetDirectory.exists()) {
@@ -156,11 +159,12 @@ bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitSt
             installableFilesList.append(QPair<QString, QString>(localFilePath, remoteFilePath));
         }
 
-        // if there are no INSTALLS set we just deploy the files from windeployqt, the manifest
+        // if there are no INSTALLS set we just deploy the files from windeployqt, the manifest (in case of 2012)
         // and the icons referenced in there and the actual build target
         QString baseDir;
         if (targetInstallationPath.isEmpty()) {
-            m_targetFilePath += QLatin1String(".exe");
+            if (!m_targetFilePath.endsWith(QLatin1String(".exe")))
+                m_targetFilePath.append(QLatin1String(".exe"));
             m_mappingFileContent
                     += QLatin1Char('"') + QDir::toNativeSeparators(m_targetFilePath)
                     + QLatin1String("\" \"")
@@ -178,6 +182,28 @@ bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitSt
                 relativeRemotePath = pair.second;
             else
                 relativeRemotePath = QDir(baseDir).relativeFilePath(pair.second);
+
+            if (QDir(relativeRemotePath).isAbsolute() || relativeRemotePath.startsWith(QLatin1String(".."))) {
+                // special case for winphone 8.0 font deployment
+                const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target()->kit());
+                if (!qt)
+                    return false;
+                if (qt->mkspec().toString().contains(QLatin1String("msvc2012"))) {
+                    const QString fileName = relativeRemotePath.mid(relativeRemotePath.lastIndexOf(QLatin1Char('/')) + 1);
+                    if (QFile::exists(m_targetDirPath + QLatin1String("fonts/") + fileName)) {
+                        relativeRemotePath = QLatin1String("fonts/") + fileName;
+                    } else {
+                        // for 3.3?
+                        // raiseWarning(tr("File %1 is outside of the executable's directory. These files cannot be installed.").arg(relativeRemotePath));
+                        continue;
+                    }
+                } else {
+                    // for 3.3?
+                    // raiseWarning(tr("File %1 is outside of the executable's directory. These files cannot be installed.").arg(relativeRemotePath));
+                    continue;
+                }
+            }
+
             m_mappingFileContent += QLatin1Char('"') + QDir::toNativeSeparators(pair.first)
                     + QLatin1String("\" \"") + QDir::toNativeSeparators(relativeRemotePath)
                     + QLatin1String("\"\n");
@@ -267,7 +293,8 @@ bool WinRtPackageDeploymentStep::parseIconsAndExecutableFromManifest(QString man
         icons->append(icon);
     }
 
-    QRegularExpression executablePattern(QStringLiteral("ImagePath=\"([a-zA-Z0-9_-]*\\.exe)\""));
+    const QLatin1String executablePrefix(manifestFileName.contains(QLatin1String("AppxManifest")) ? "Executable=" : "ImagePath=");
+    QRegularExpression executablePattern(executablePrefix + QStringLiteral("\"([a-zA-Z0-9_-]*\\.exe)\""));
     QRegularExpressionMatch match = executablePattern.match(contents);
     if (!match.hasMatch())
         return false;

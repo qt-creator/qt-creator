@@ -41,7 +41,6 @@ namespace PropertyParser {
 QVariant read(const QString &typeStr, const QString &str, const MetaInfo &metaInfo);
 QVariant read(const QString &typeStr, const QString &str);
 QVariant read(int variantType, const QString &str);
-QString write(const QVariant &variant, const MetaInfo &metaInfo);
 QVariant variantFromString(const QString &s);
 
 } // namespace PropertyParser

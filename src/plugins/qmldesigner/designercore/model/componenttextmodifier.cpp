@@ -128,6 +128,3 @@ void ComponentTextModifier::reactivateChangeSignals()
 void ComponentTextModifier::contentsChange(int /*position*/, int /*charsRemoved*/, int /*charsAdded*/)
 {
 }
-
-QStringList ComponentTextModifier::importPaths() const
-{ return m_originalModifier->importPaths(); }

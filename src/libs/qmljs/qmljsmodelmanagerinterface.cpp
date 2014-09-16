@@ -1361,6 +1361,8 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
                         res.maybeAddPath(pAndL.path().toString());
                 }
             }
+            foreach (const QString &path, environmentImportPaths())
+                res.maybeAddPath(path);
             break;
         }
         case Dialect::NoLanguage:
@@ -1385,6 +1387,11 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml
                 || res.language == Dialect::QmlQtQuick1)
             res.maybeAddPath(info.qtQmlPath);
+        if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml
+                || res.language == Dialect::QmlQtQuick1 || res.language == Dialect::QmlQtQuick2) {
+            foreach (const QString &path, environmentImportPaths())
+                res.maybeAddPath(path);
+        }
         break;
     }
     res.flags = ViewerContext::Complete;

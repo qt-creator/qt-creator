@@ -39,7 +39,10 @@
 namespace QSsh {
 namespace Internal {
 
-const quint32 MinMaxPacketSize = 32768;
+// "Payload length" (RFC 4253, 6.1), i.e. minus packet type, channel number
+// and length field for string.
+const quint32 MinMaxPacketSize = 32768 - sizeof(quint32) - sizeof(quint32) - 1;
+
 const quint32 NoChannel = 0xffffffffu;
 
 AbstractSshChannel::AbstractSshChannel(quint32 channelId,
@@ -151,8 +154,7 @@ void AbstractSshChannel::handleOpenSuccess(quint32 remoteChannelId,
 #endif
    m_remoteChannel = remoteChannelId;
    m_remoteWindowSize = remoteWindowSize;
-   m_remoteMaxPacketSize = remoteMaxPacketSize - sizeof(quint32) - sizeof m_remoteChannel - 1;
-        // Original value includes packet type, channel number and length field for string.
+   m_remoteMaxPacketSize = remoteMaxPacketSize;
    setChannelState(SessionEstablished);
    handleOpenSuccessInternal();
 }

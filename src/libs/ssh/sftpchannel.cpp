@@ -302,6 +302,9 @@ void SftpChannelPrivate::handleExitStatus(const SshChannelExitStatus &exitStatus
     qDebug("Remote SFTP service exited with exit code %d", exitStatus.exitStatus);
 #endif
 
+    if (channelState() == CloseRequested || channelState() == Closed)
+        return;
+
     emit channelError(tr("The SFTP server finished unexpectedly with exit code %1.")
                       .arg(exitStatus.exitStatus));
 

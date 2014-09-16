@@ -28,6 +28,8 @@ Fifth - you'll have to make sure that some needed tools are available (no matter
  * wget or curl, capable of HTTPS
 Normally it should be okay to just install them as usual and add their executables' path(s) to the PATH variable.
 
+Sixth - Qt Creator should be built with ClangCodeModel plugin.
+How to do so, see QTCREATOR_REPO/src/plugins/clangcodemodel/README.
 
 Attention! If any of these prerequisites cannot be satisfied the tests will likely fail (or not run at all).
 

@@ -363,33 +363,6 @@ static void findTargetItem(const NodeListProperty &listProperty,
     }
 }
 
-static void moveItemRow(QStandardItem *targetItem ,
-                    int currentRowNumber,
-                    int newRowNumber)
-{
-    if (targetItem && currentRowNumber != newRowNumber) {//### Items without a parent should not exist
-        QList<QStandardItem*> items = targetItem->takeRow(currentRowNumber);
-        targetItem->insertRow(newRowNumber, items);
-    }
-}
-
-/**
-  Updates the sibling position of the item, depending on the position in the model.
-  */
-void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty, const ModelNode &modelNode, int /*oldIndex*/)
-{
-    if (isInTree(modelNode)) {
-        ItemRow currentItemRow = itemRowForNode(modelNode);
-        int currentRowNumber = currentItemRow.idItem->row();
-        int newRowNumber = listProperty.indexOf(modelNode);
-        QStandardItem *targetItem = 0;
-
-        findTargetItem(listProperty, currentItemRow, this, &newRowNumber, &targetItem);
-        moveItemRow(targetItem, currentRowNumber, newRowNumber);
-
-    }
-}
-
 static void handleWrongId(QStandardItem *item, const ModelNode &modelNode, const QString &errorTitle, const QString &errorMessage, NavigatorTreeModel *treeModel)
 {
     QMessageBox::warning(Core::ICore::dialogParent(), errorTitle,  errorMessage);
@@ -551,8 +524,10 @@ static QList<QStandardItem*> takeWholeRow(const ItemRow &itemRow)
 {
     if (itemRow.idItem->parent())
         return  itemRow.idItem->parent()->takeRow(itemRow.idItem->row());
-    else
+    else if (itemRow.idItem->model())
         return itemRow.idItem->model()->takeRow(itemRow.idItem->row());
+    else
+        return itemRow.toList();
 }
 
 void NavigatorTreeModel::removeSubTree(const ModelNode &node)

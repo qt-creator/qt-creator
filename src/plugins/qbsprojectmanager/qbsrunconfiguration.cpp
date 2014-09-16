@@ -302,7 +302,8 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
     if (project) {
         const qbs::ProductData product = findProduct(project->qbsProjectData(), m_qbsProduct);
         if (product.isValid()) {
-            qbs::RunEnvironment qbsRunEnv = project->qbsProject().getRunEnvironment(product, env.toProcessEnvironment(), QbsManager::settings());
+            qbs::RunEnvironment qbsRunEnv = project->qbsProject().getRunEnvironment(product, installOptions(),
+                    env.toProcessEnvironment(), QbsManager::settings());
             QProcessEnvironment procEnv = qbsRunEnv.runEnvironment();
             if (!procEnv.isEmpty()) {
                 env = Utils::Environment();

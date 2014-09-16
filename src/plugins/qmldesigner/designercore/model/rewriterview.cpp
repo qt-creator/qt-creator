@@ -745,6 +745,11 @@ QString RewriterView::pathForImport(const Import &import)
     return QString();
 }
 
+QStringList RewriterView::importDirectories() const
+{
+    return m_textToModelMerger->vContext().paths;
+}
+
 void RewriterView::qmlTextChanged()
 {
     if (inErrorState())
