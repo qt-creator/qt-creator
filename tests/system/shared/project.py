@@ -96,7 +96,7 @@ def __createProjectOrFileSelectType__(category, template, fromWelcome = False, i
         mouseClick(waitForObject(":CreateProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
     else:
         invokeMenuItem("File", "New File or Project...")
-    categoriesView = waitForObject("{type='QTreeView' name='templateCategoryView'}")
+    categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
     if isProject:
         clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
     else:
@@ -212,7 +212,7 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
 # param checks turns tests in the function on if set to True
 def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl = "<None>"):
     template = "Qt Widgets Application"
-    available = __createProjectOrFileSelectType__("  Applications", template)
+    available = __createProjectOrFileSelectType__("  Application", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
     checkedTargets = __selectQtVersionDesktop__(checks, available)
 
@@ -252,7 +252,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
 def createProject_Qt_Console(path, projectName, checks = True):
-    available = __createProjectOrFileSelectType__("  Applications", "Qt Console Application")
+    available = __createProjectOrFileSelectType__("  Application", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
     checkedTargets = __selectQtVersionDesktop__(checks, available)
 
@@ -275,7 +275,7 @@ def createProject_Qt_Console(path, projectName, checks = True):
 def createNewQtQuickApplication(workingDir, projectName = None,
                                 targets=Targets.desktopTargetClasses(), qtQuickVersion="1.1",
                                 fromWelcome=False):
-    available = __createProjectOrFileSelectType__("  Applications", "Qt Quick Application", fromWelcome)
+    available = __createProjectOrFileSelectType__("  Application", "Qt Quick Application", fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     requiredQt = __createProjectHandleQtQuickSelection__(qtQuickVersion)
     __modifyAvailableTargets__(available, requiredQt)
@@ -288,7 +288,7 @@ def createNewQtQuickApplication(workingDir, projectName = None,
     return checkedTargets, projectName
 
 def createNewQtQuickUI(workingDir, qtQuickVersion="1.1"):
-    __createProjectOrFileSelectType__("  Applications", "Qt Quick UI")
+    __createProjectOrFileSelectType__("  Application", "Qt Quick UI")
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
@@ -297,7 +297,7 @@ def createNewQtQuickUI(workingDir, qtQuickVersion="1.1"):
     return projectName
 
 def createNewQmlExtension(workingDir, targets=Targets.DESKTOP_474_GCC, qtQuickVersion=1):
-    available = __createProjectOrFileSelectType__("  Libraries", "Qt Quick %d Extension Plugin"
+    available = __createProjectOrFileSelectType__("  Library", "Qt Quick %d Extension Plugin"
                                                   % qtQuickVersion)
     if workingDir == None:
         workingDir = tempDir()
@@ -351,7 +351,7 @@ def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESK
 
 def createNewCPPLib(projectDir = None, projectName = None, className = None, fromWelcome = False,
                     target = Targets.DESKTOP_474_GCC, isStatic = False, modules = ["QtCore"]):
-    available = __createProjectOrFileSelectType__("  Libraries", "C++ Library", fromWelcome, True)
+    available = __createProjectOrFileSelectType__("  Library", "C++ Library", fromWelcome, True)
     if isStatic:
         libType = LibType.STATIC
     else:
@@ -369,7 +369,7 @@ def createNewCPPLib(projectDir = None, projectName = None, className = None, fro
 
 def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWelcome=False,
                       target=Targets.DESKTOP_474_GCC, baseClass="QGenericPlugin"):
-    available = __createProjectOrFileSelectType__("  Libraries", "C++ Library", fromWelcome, True)
+    available = __createProjectOrFileSelectType__("  Library", "C++ Library", fromWelcome, True)
     if projectDir == None:
         projectDir = tempDir()
     projectName = __createProjectSetNameAndPath__(projectDir, projectName, False, LibType.QT_PLUGIN)

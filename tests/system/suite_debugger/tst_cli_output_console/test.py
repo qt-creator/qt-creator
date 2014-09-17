@@ -54,8 +54,8 @@ def main():
                            '    qDebug() << \"' + outputQDebug + '\";'])
     # Rely on code completion for closing bracket
     invokeMenuItem("File", "Save All")
-    selectFromLocator(project + ".pro")
-    proEditor = waitForObject(":Qt Creator_ProFileEditorWidget")
+    openDocument(project + "." + project + "\\.pro")
+    proEditor = waitForObject(":Qt Creator_TextEditor::BaseTextEditorWidget")
     test.verify("CONFIG   += console" in str(proEditor.plainText), "Verifying that program is configured with console")
 
     availableConfigs = iterateBuildConfigs(len(checkedTargets))

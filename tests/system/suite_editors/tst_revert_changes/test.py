@@ -76,7 +76,7 @@ def __modifyFile__(fileName, modificationFunc):
 
 # add some stuff to pro file
 def __modifyProFile__():
-    proEditorStr = ":Qt Creator_ProFileEditorWidget"
+    proEditorStr = ":Qt Creator_TextEditor::BaseTextEditorWidget"
     addConfig = ["", "CONFIG += thread", "",
                  "lessThan(QT_VER_MAJ, 4) | lessThan(QT_VER_MIN, 7) {",
                  "    error(Qt 4.7 or newer is required but version $$[QT_VERSION] was detected.)",

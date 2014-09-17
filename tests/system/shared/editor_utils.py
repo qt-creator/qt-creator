@@ -276,7 +276,7 @@ def getEditorForFileSuffix(curFile, treeViewSyntax=False):
         elif suffix in qmlEditorSuffixes:
             editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
         elif suffix in proEditorSuffixes:
-            editor = waitForObject(":Qt Creator_ProFileEditorWidget")
+            editor = waitForObject(":Qt Creator_TextEditor::BaseTextEditorWidget")
         elif suffix in glslEditorSuffixes:
             editor = waitForObject("{type='GLSLEditor::Internal::GLSLTextEditorWidget' unnamed='1' "
                                    "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")

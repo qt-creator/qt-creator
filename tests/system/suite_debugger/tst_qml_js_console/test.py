@@ -92,8 +92,8 @@ def testLoggingFeatures():
                 ["warning message", "<undefined>"],
                 ["error message", "<undefined>"])
     filterToolTips = ("Show debug, log, and info messages.",
-                      "Show debug, log, and info messages.' occurrence='2", #"Show warning messages.",
-                      "Show debug, log, and info messages.' occurrence='3", #"Show error messages."
+                      "Show warning messages.",
+                      "Show error messages.",
                       )
 
     for expression, expect, tooltip in zip(expressions, expected, filterToolTips):
