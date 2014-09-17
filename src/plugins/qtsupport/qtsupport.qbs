@@ -6,8 +6,7 @@ import QtcPlugin
 QtcPlugin {
     name: "QtSupport"
 
-    Depends { name: "Qt"; submodules: ["widgets"]; }
-    Depends { name: "Qt.quick" }
+    Depends { name: "Qt"; submodules: ["quick", "widgets", "xml"]; }
     Depends { name: "Aggregation" }
     Depends { name: "QmlJS" }
     Depends { name: "Utils" }
