@@ -305,6 +305,15 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdkPath)
 
         // TODO:
         //environment.insert(QLatin1String("PATH"), QLatin1String("/etc/qnx/bin"));
+    } else if (Utils::HostOsInfo::isMacHost()) {
+        environmentItems.append(Utils::EnvironmentItem(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx")));
+        environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath + QLatin1String("/target/qnx6")));
+        environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_HOST_KEY), sdkPath + QLatin1String("/host/darwin/x86")));
+
+
+        environmentItems.append(Utils::EnvironmentItem(QLatin1String("PATH"), sdkPath + QLatin1String("/host/darwin/x86/usr/bin:/etc/qnx/bin:${PATH}")));
+
+        environmentItems.append(Utils::EnvironmentItem(QLatin1String("LD_LIBRARY_PATH"), sdkPath + QLatin1String("/host/darwin/x86/usr/lib:${LD_LIBRARY_PATH}")));
     } else if (Utils::HostOsInfo::isAnyUnixHost()) {
         environmentItems.append(Utils::EnvironmentItem(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx")));
         environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath + QLatin1String("/target/qnx6")));
