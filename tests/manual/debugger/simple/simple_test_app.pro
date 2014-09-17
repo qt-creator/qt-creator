@@ -10,6 +10,8 @@ QT += network
 QT += script
 QT += xml
 
+CONFIG += c++11
+
 contains(QT_CONFIG, webkit)|!isEmpty(QT.webkit.name) {
     QT += webkit
     greaterThan(QT_MAJOR_VERSION, 4) {
@@ -35,11 +37,6 @@ maemo5 {
     target.path = /opt/usr/lib
     target.path = /opt
     INSTALLS += target
-}
-
-*g++* {
-    DEFINES += USE_CXX11
-    QMAKE_CXXFLAGS += -std=c++0x
 }
 
 exists($$QMAKE_INCDIR_QT/QtCore/private/qobject_p.h):DEFINES += HAS_PRIVATE

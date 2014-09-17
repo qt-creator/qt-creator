@@ -128,12 +128,6 @@
 #define USE_WEBKITLIB 0
 #endif
 
-#if QT_VERSION >= 0x040500
-#define USE_SHARED_POINTER 1
-#else
-#define USE_SHARED_POINTER 0
-#endif
-
 #if QT_VERSION >= 0x050200
 #define USE_TIMEZONE 1
 #else
@@ -142,7 +136,7 @@
 
 void dummyStatement(...) {}
 
-#if USE_CXX11 && defined(__GNUC__) && defined(__STRICT_ANSI__)
+#if defined(__GNUC__) && defined(__STRICT_ANSI__)
 #undef __STRICT_ANSI__ // working around compile error with MinGW
 #endif
 
@@ -161,14 +155,12 @@ void dummyStatement(...) {}
 #include <QString>
 #include <QStringList>
 #include <QSettings>
+#include <QSharedPointer>
 #include <QStack>
 #include <QThread>
 #include <QVariant>
 #include <QVector>
 #include <QUrl>
-#if USE_SHARED_POINTER
-#include <QSharedPointer>
-#endif
 
 #if USE_GUILIB
 #include <QAction>
@@ -182,9 +174,7 @@ void dummyStatement(...) {}
 #include <QStandardItemModel>
 #include <QTextCursor>
 #include <QTextDocument>
-#if USE_TIMEZONE
 #include <QTimeZone>
-#endif
 #endif
 
 #if USE_SCRIPTLIB
@@ -201,10 +191,8 @@ void dummyStatement(...) {}
 #include <QHostAddress>
 #include <QNetworkRequest>
 
-#if USE_CXX11
 #include <array>
 #include <unordered_map>
-#endif
 #include <complex>
 #include <deque>
 #include <iostream>
@@ -729,12 +717,10 @@ namespace qdatetime {
 
     void testQTimeZone()
     {
-#if USE_TIMEZONE
         QTimeZone zz;
         QTimeZone tz("UTC+05:00");
         BREAK_HERE;
         dummyStatement(&zz, &tz);
-#endif
     }
 
     void testQDate()
@@ -2468,7 +2454,6 @@ namespace qset {
 
 namespace qsharedpointer {
 
-    #if USE_SHARED_POINTER
 
     class EmployeeData : public QSharedData
     {
@@ -2563,11 +2548,6 @@ namespace qsharedpointer {
         testQSharedPointer5();
     }
 
-    #else
-
-    void testQSharedPointer() {}
-
-    #endif
 
 } // namespace qsharedpointer
 
@@ -2613,7 +2593,6 @@ namespace stdarray {
 
     void testStdArray()
     {
-        #if USE_CXX11
         std::array<int, 4> a = { { 1, 2, 3, 4} };
         std::array<QString, 4> b = { { "1", "2", "3", "4"} };
         BREAK_HERE;
@@ -2622,7 +2601,6 @@ namespace stdarray {
         // Check a <4 items> std::array<QString, 4u>.
         // Continue.
         dummyStatement(&a, &b);
-        #endif
     }
 
 } // namespace stdcomplex
@@ -2858,7 +2836,6 @@ namespace stdlist {
 
 namespace stdunorderedmap {
 
-#if USE_CXX11
     void testStdUnorderedMapStringFoo()
     {
         // This is not supposed to work with the compiled dumpers.
@@ -3051,11 +3028,9 @@ namespace stdunorderedmap {
         // Continue.
         dummyStatement(&map);
     }
-#endif
 
     void testStdUnorderedMap()
     {
-#if USE_CXX11
         testStdUnorderedMapStringFoo();
         testStdUnorderedMapCharStarFoo();
         testStdUnorderedMapUIntUInt();
@@ -3066,7 +3041,6 @@ namespace stdunorderedmap {
         testStdUnorderedMapStringFloat();
         testStdUnorderedMapIntString();
         testStdUnorderedMapStringPointer();
-#endif
     }
 
 } // namespace stdunorderedmap
@@ -3311,46 +3285,38 @@ namespace stdptr {
 
     void testStdUniquePtrInt()
     {
-        #ifdef USE_CXX11
         std::unique_ptr<int> p(new int(32));
         BREAK_HERE;
         // Check p 32 std::unique_ptr<int, std::default_delete<int> >.
         // Continue.
         dummyStatement(&p);
-        #endif
     }
 
     void testStdUniquePtrFoo()
     {
-        #ifdef USE_CXX11
         std::unique_ptr<Foo> p(new Foo);
         BREAK_HERE;
         // Check p 32 std::unique_ptr<Foo, std::default_delete<Foo> >.
         // Continue.
         dummyStatement(&p);
-        #endif
     }
 
     void testStdSharedPtrInt()
     {
-        #ifdef USE_CXX11
         std::shared_ptr<int> p(new int(32));
         BREAK_HERE;
         // Check p 32 std::shared_ptr<int, std::default_delete<int> >.
         // Continue.
         dummyStatement(&p);
-        #endif
     }
 
     void testStdSharedPtrFoo()
     {
-        #ifdef USE_CXX11
         std::shared_ptr<Foo> p(new Foo);
         BREAK_HERE;
         // Check p 32 std::shared_ptr<Foo, std::default_delete<int> >.
         // Continue.
         dummyStatement(&p);
-        #endif
     }
 
     void testStdPtr()
@@ -3368,7 +3334,6 @@ namespace lambda {
 
     void testLambda()
     {
-#ifdef USE_CXX11
         std::string x;
         auto f = [&] () -> const std::string & {
                 int z = x.size();
@@ -3378,7 +3343,6 @@ namespace lambda {
         auto c = f();
         BREAK_HERE;
         dummyStatement(&x, &f, &c);
-#endif
     }
 
 } // namespace lambda
@@ -5557,7 +5521,6 @@ namespace basic {
 
     void testLongEvaluation1()
     {
-#if USE_TIMEZONE
         QTimeZone tz("UTC+05:00");
         QDateTime time = QDateTime::currentDateTime();
         const int N = 10000;
@@ -5578,7 +5541,6 @@ namespace basic {
         // Continue.
         // Note: This is expected to _not_ take up to a minute.
         dummyStatement(&bigv);
-#endif
     }
 
     void testLongEvaluation2()
