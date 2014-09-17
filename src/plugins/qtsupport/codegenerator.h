@@ -32,6 +32,7 @@
 
 #include "qtsupport_global.h"
 
+#include <QObject>
 #include <QStringList>
 
 namespace QtSupport {
