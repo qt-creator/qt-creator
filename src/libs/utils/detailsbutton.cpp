@@ -138,6 +138,11 @@ void DetailsButton::paintEvent(QPaintEvent *e)
         p.setBrush(QColor(0, 0, 0, 20));
         p.drawRoundedRect(rect().adjusted(1, 1, -1, -1), 1, 1);
     }
+    if (hasFocus()) {
+        QStyleOptionFocusRect option;
+        option.initFrom(this);
+        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &p, this);
+    }
 }
 
 QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
