@@ -40,7 +40,7 @@ def main():
         locale = "LC_ALL=C "
     sorted = getOutputFromCmdline("%ssort %s" % (locale, unsortedFile)).replace("\r", "")
     selectFromFileDialog(unsortedFile)
-    editor = waitForObject("{type='TextEditor::PlainTextEditorWidget' unnamed='1' "
+    editor = waitForObject("{type='TextEditor::BaseTextEditorWidget' unnamed='1' "
                            "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 3000)
     placeCursorToLine(editor, "bbb")
     invokeMenuItem("Edit", "Select All")
