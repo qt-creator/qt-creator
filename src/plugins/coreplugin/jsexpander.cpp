@@ -88,7 +88,7 @@ JsExpander::JsExpander()
         QCoreApplication::translate("Core::JsExpander",
                                     "Evaluate simple Javascript statements.\n"
                                     "The statements may not contain '{' nor '}' characters."),
-        [](QString in) -> QString {
+        [this](QString in) -> QString {
             QString errorMessage;
             QString result = JsExpander::evaluate(in, &errorMessage);
             if (!errorMessage.isEmpty()) {
