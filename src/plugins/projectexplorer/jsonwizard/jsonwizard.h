@@ -72,12 +72,15 @@ public:
 
     Utils::AbstractMacroExpander *expander() const;
 
+    void resetFileList();
     GeneratorFiles fileList();
 
     QVariant value(const QString &n) const;
     void setValue(const QString &key, const QVariant &value);
 
     static bool boolFromVariant(const QVariant &v, Utils::AbstractMacroExpander *expander);
+
+    void removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a);
 
 signals:
     void preGenerateFiles(); // emitted before files are generated.

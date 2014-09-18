@@ -65,6 +65,11 @@ Utils::AbstractMacroExpander *JsonWizard::expander() const
     return m_expander;
 }
 
+void JsonWizard::resetFileList()
+{
+    m_files.clear();
+}
+
 JsonWizard::GeneratorFiles JsonWizard::fileList()
 {
     QString errorMessage;
@@ -128,6 +133,12 @@ bool JsonWizard::boolFromVariant(const QVariant &v, Utils::AbstractMacroExpander
     if (v.type() == QVariant::String)
         return !Utils::expandMacros(v.toString(), expander).isEmpty();
     return v.toBool();
+}
+
+void JsonWizard::removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a)
+{
+    for (int i = 0; i < m_files.count(); ++i)
+        m_files[i].file.setAttributes(m_files.at(i).file.attributes() ^ a);
 }
 
 void JsonWizard::accept()

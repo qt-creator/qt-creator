@@ -243,7 +243,7 @@ static inline AddNewTree *getChoices(const QStringList &generatedFiles,
 // --------------------------------------------------------------------
 
 ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
-    QWizardPage(parent),
+    WizardPage(parent),
     m_ui(new Ui::WizardPage),
     m_model(0),
     m_repositoryExists(false)

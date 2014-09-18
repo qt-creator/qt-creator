@@ -35,7 +35,7 @@
 #include <coreplugin/generatedfile.h>
 #include <coreplugin/iwizardfactory.h>
 
-#include <QWizardPage>
+#include <utils/wizardpage.h>
 
 QT_BEGIN_NAMESPACE
 class QTreeView;
@@ -52,7 +52,7 @@ class AddNewTree;
 namespace Ui { class WizardPage; }
 
 // Documentation inside.
-class ProjectWizardPage : public QWizardPage
+class ProjectWizardPage : public Utils::WizardPage
 {
     Q_OBJECT
 

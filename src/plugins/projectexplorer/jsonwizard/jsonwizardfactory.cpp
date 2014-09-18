@@ -374,7 +374,7 @@ void JsonWizardFactory::runWizard(const QString &path, QWidget *parent, const QS
     for (auto i = variables.constBegin(); i != variables.constEnd(); ++i)
         wizard.setProperty(i.key().toUtf8(), i.value());
 
-    wizard.setValue(QStringLiteral("GivenPath"), path);
+    wizard.setValue(QStringLiteral("InitialPath"), path);
     wizard.setValue(QStringLiteral("Platform"), platform);
 
     QString kindStr = QLatin1String(Core::Constants::WIZARD_KIND_UNKNOWN);
