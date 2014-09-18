@@ -34,6 +34,7 @@
 #include <QHash>
 #include <QMap>
 #include <QRegExp>
+#include <QVector>
 
 namespace Utils { class SavedAction; }
 
