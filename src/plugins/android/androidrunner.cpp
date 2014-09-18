@@ -46,6 +46,59 @@
 #include <QTemporaryFile>
 #include <QTcpServer>
 
+/*
+    This uses explicit handshakes between the application and the
+    gdbserver start and the host side by using the gdbserver socket
+    and two files ("ping" file in the application dir, "pong" file
+    in /data/local/tmp/qt)
+
+    The sequence is as follows:
+
+     host: adb forward debugsocket :5039
+
+     host: adb shell rm pong file
+     host: adb shell am start
+     host: loop until ping file appears
+
+         app start up: launch gdbserver --multi +debug-socket
+         app start up: loop until debug socket appear
+
+             gdbserver: normal start up including opening debug-socket,
+                        not yet attached to any process
+
+         app start up: touch ping file
+         app start up: loop until pong file appears
+
+     host: start gdb
+     host: gdb: set up binary, breakpoints, path etc
+     host: gdb: target extended-remote :5039
+
+             gdbserver: accepts connection from gdb
+
+     host: gdb: attach <application-pid>
+
+             gdbserver: attaches to the application
+                        and stops it
+
+         app start up: stopped now (it is still waiting for
+                       the pong anyway)
+
+     host: gdb: continue
+
+             gdbserver: resumes application
+
+         app start up: resumed (still waiting for the pong)
+
+     host: write pong file
+
+         app start up: java code continues now, the process
+                       is already fully under control
+                       of gdbserver. Breakpoints are set etc,
+                       we are before main.
+         app start up: native code launches
+
+*/
+
 namespace Android {
 namespace Internal {
 
