@@ -31,7 +31,6 @@
 
 #include "resourceeditorw.h"
 #include "resourceeditorconstants.h"
-#include "resourcewizard.h"
 #include "resourceeditorfactory.h"
 #include "resourcenode.h"
 
@@ -127,15 +126,6 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
 
     ResourceEditorFactory *editor = new ResourceEditorFactory(this);
     addAutoReleasedObject(editor);
-
-    ResourceWizard *wizard = new ResourceWizard;
-    wizard->setDescription(tr("Creates a Qt Resource file (.qrc) that you can add to a Qt Widget Project."));
-    wizard->setDisplayName(tr("Qt Resource file"));
-    wizard->setId(QLatin1String("F.Resource"));
-    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
-
-    addAutoReleasedObject(wizard);
 
     errorMessage->clear();
 
