@@ -56,6 +56,7 @@ static Internal::JsExpanderPrivate *d;
 
 void JsExpander::registerQObjectForJs(const QString &name, QObject *obj)
 {
+    obj->setParent(0); // take ownership!
     d->m_registeredObjects.append(obj);
     QScriptValue jsObj = d->m_engine.newQObject(obj, QScriptEngine::QtOwnership);
     d->m_engine.globalObject().setProperty(name, jsObj);

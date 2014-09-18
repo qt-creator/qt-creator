@@ -72,7 +72,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     if (!MimeDatabase::addMimeTypes(QLatin1String(":qtsupport/QtSupport.mimetypes.xml"), errorMessage))
         return false;
 
-    JsExpander::registerQObjectForJs(QLatin1String("QtSupport"), new CodeGenerator(this));
+    JsExpander::registerQObjectForJs(QLatin1String("QtSupport"), new CodeGenerator);
 
     addAutoReleasedObject(new QtVersionManager);
     addAutoReleasedObject(new DesktopQtVersionFactory);

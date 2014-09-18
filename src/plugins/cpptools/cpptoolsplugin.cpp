@@ -146,7 +146,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
         modelManager->updateSourceFiles(files.toSet());
     });
 
-    JsExpander::registerQObjectForJs(QLatin1String("Cpp"), new CppToolsJsExtension(this));
+    JsExpander::registerQObjectForJs(QLatin1String("Cpp"), new CppToolsJsExtension);
 
     CppLocatorData *locatorData = new CppLocatorData;
     connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
