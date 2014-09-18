@@ -669,33 +669,33 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
         if (Symbol *symbol = result.declaration()) {
             Symbol *def = 0;
 
-            // Consider to show a pop-up displaying overrides for the function
-            Function *function = symbol->type()->asFunctionType();
-            VirtualFunctionHelper helper(*typeOfExpression, scope, doc, snapshot, symbolFinder);
+            if (resolveTarget) {
+                // Consider to show a pop-up displaying overrides for the function
+                Function *function = symbol->type()->asFunctionType();
+                VirtualFunctionHelper helper(*typeOfExpression, scope, doc, snapshot, symbolFinder);
 
-            if (helper.canLookupVirtualFunctionOverrides(function)) {
-                VirtualFunctionAssistProvider::Parameters params;
-                params.function = function;
-                params.staticClass = helper.staticClassOfFunctionCallExpression();
-                params.typeOfExpression = typeOfExpression;
-                params.snapshot = snapshot;
-                params.cursorPosition = cursor.position();
-                params.openInNextSplit = inNextSplit;
+                if (helper.canLookupVirtualFunctionOverrides(function)) {
+                    VirtualFunctionAssistProvider::Parameters params;
+                    params.function = function;
+                    params.staticClass = helper.staticClassOfFunctionCallExpression();
+                    params.typeOfExpression = typeOfExpression;
+                    params.snapshot = snapshot;
+                    params.cursorPosition = cursor.position();
+                    params.openInNextSplit = inNextSplit;
 
-                if (m_virtualFunctionAssistProvider->configure(params)) {
-                    m_widget->invokeAssist(TextEditor::FollowSymbol,
-                                           m_virtualFunctionAssistProvider);
-                    m_virtualFunctionAssistProvider->clearParams();
+                    if (m_virtualFunctionAssistProvider->configure(params)) {
+                        m_widget->invokeAssist(TextEditor::FollowSymbol,
+                                               m_virtualFunctionAssistProvider);
+                        m_virtualFunctionAssistProvider->clearParams();
+                    }
+
+                    // Ensure a valid link text, so the symbol name will be underlined on Ctrl+Hover.
+                    Link link;
+                    link.linkTextStart = beginOfToken;
+                    link.linkTextEnd = endOfToken;
+                    return link;
                 }
 
-                // Ensure a valid link text, so the symbol name will be underlined on Ctrl+Hover.
-                Link link;
-                link.linkTextStart = beginOfToken;
-                link.linkTextEnd = endOfToken;
-                return link;
-            }
-
-            if (resolveTarget) {
                 Symbol *lastVisibleSymbol = doc->lastVisibleSymbolAt(line, column);
 
                 def = findDefinition(symbol, snapshot, symbolFinder);
