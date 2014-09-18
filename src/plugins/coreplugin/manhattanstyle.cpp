@@ -503,7 +503,8 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                     highlight.setAlphaF(0.3);
                     painter->setBrush(highlight);
                     painter->setRenderHint(QPainter::Antialiasing);
-                    painter->drawRoundedRect(option->rect.adjusted(2.5, 2.5, -2.5, -2.5), 2, 2);
+                    const QRectF rect = option->rect;
+                    painter->drawRoundedRect(rect.adjusted(2.5, 2.5, -2.5, -2.5), 2, 2);
                 }
            }
         }
