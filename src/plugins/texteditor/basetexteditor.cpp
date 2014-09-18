@@ -310,6 +310,8 @@ public:
     void _q_animateUpdate(int position, QPointF lastPos, QRectF rect);
     void updateCodeFoldingVisible();
 
+    void reconfigure();
+
 public:
     BaseTextEditorWidget *q;
     QToolBar *m_toolBar;
@@ -2707,6 +2709,11 @@ void BaseTextEditorWidgetPrivate::updateCodeFoldingVisible()
         m_codeFoldingVisible = visible;
         slotUpdateExtraAreaWidth();
     }
+}
+
+void BaseTextEditorWidgetPrivate::reconfigure()
+{
+    q->configureMimeType(MimeDatabase::findByFile(m_document->filePath()));
 }
 
 bool BaseTextEditorWidget::codeFoldingVisible() const
@@ -7154,15 +7161,11 @@ void BaseTextEditorWidget::setupAsPlainEditor()
 
     textDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
-    auto reconf = [this]() {
-        MimeType mimeType;
-        if (textDocument())
-            mimeType = MimeDatabase::findByFile(textDocument()->filePath());
-        configureMimeType(mimeType);
-    };
+    connect(textDocument(), &IDocument::filePathChanged,
+            d, &BaseTextEditorWidgetPrivate::reconfigure);
 
-    connect(textDocument(), &IDocument::filePathChanged, reconf);
-    connect(Manager::instance(), &Manager::mimeTypesRegistered, reconf);
+    connect(Manager::instance(), &Manager::mimeTypesRegistered,
+            d, &BaseTextEditorWidgetPrivate::reconfigure);
 
     updateEditorInfoBar(this);
 }
