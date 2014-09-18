@@ -1,0 +1,37 @@
+{
+    "version": 1,
+    "kind": "file",
+    "id": "B.Source",
+    "category": "O.C++",
+    "trDescription": "Creates a C++ source file that you can add to a C++ project.",
+    "trDisplayName": "C++ Source File",
+    "trDisplayCategory": "C++",
+    "icon": "../../global/genericfilewizard.png",
+    "featuresRequired": [ "Plugin.CppEditor" ],
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.cpp",
+                "target": "%{JS: Cpp.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-c++src')}')}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

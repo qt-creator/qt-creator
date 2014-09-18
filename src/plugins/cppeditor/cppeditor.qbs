@@ -33,7 +33,6 @@ QtcPlugin {
         "cppeditoroutline.cpp", "cppeditoroutline.h",
         "cppeditorplugin.cpp", "cppeditorplugin.h",
         "cppelementevaluator.cpp", "cppelementevaluator.h",
-        "cppfilewizard.cpp", "cppfilewizard.h",
         "cppfollowsymbolundercursor.cpp", "cppfollowsymbolundercursor.h",
         "cppfunctiondecldeflink.cpp", "cppfunctiondecldeflink.h",
         "cpphighlighter.cpp", "cpphighlighter.h",

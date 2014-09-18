@@ -15,7 +15,6 @@ HEADERS += \
     cppeditoroutline.h \
     cppeditorplugin.h \
     cppelementevaluator.h \
-    cppfilewizard.h \
     cppfollowsymbolundercursor.h \
     cppfunctiondecldeflink.h \
     cpphighlighter.h \
@@ -48,7 +47,6 @@ SOURCES += \
     cppeditoroutline.cpp \
     cppeditorplugin.cpp \
     cppelementevaluator.cpp \
-    cppfilewizard.cpp \
     cppfollowsymbolundercursor.cpp \
     cppfunctiondecldeflink.cpp \
     cpphighlighter.cpp \

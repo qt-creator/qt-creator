@@ -36,7 +36,6 @@
 #include "cppeditor.h"
 #include "cppeditordocument.h"
 #include "cppeditoroutline.h"
-#include "cppfilewizard.h"
 #include "cpphighlighter.h"
 #include "cpphoverhandler.h"
 #include "cppincludehierarchy.h"
@@ -182,25 +181,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     wizard->setDisplayName(tr("C++ Class"));
     wizard->setId(QLatin1String("A.Class"));
     wizard->setDescription(tr("Creates a C++ header and a source file for a new class that you can add to a C++ project."));
-    addAutoReleasedObject(wizard);
-
-    wizard = new CppFileWizard(Source);
-    wizard->setWizardKind(IWizardFactory::FileWizard);
-    wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY));
-    wizard->setDisplayCategory(trCat);
-    wizard->setDisplayName(tr("C++ Class"));
-    wizard->setDescription(tr("Creates a C++ source file that you can add to a C++ project."));
-    wizard->setDisplayName(tr("C++ Source File"));
-    wizard->setId(QLatin1String("B.Source"));
-    addAutoReleasedObject(wizard);
-
-    wizard = new CppFileWizard(Header);
-    wizard->setWizardKind(IWizardFactory::FileWizard);
-    wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY));
-    wizard->setDisplayCategory(trCat);
-    wizard->setDescription(tr("Creates a C++ header file that you can add to a C++ project."));
-    wizard->setDisplayName(tr("C++ Header File"));
-    wizard->setId(QLatin1String("C.Header"));
     addAutoReleasedObject(wizard);
 
     Context context(Constants::CPPEDITOR_ID);
