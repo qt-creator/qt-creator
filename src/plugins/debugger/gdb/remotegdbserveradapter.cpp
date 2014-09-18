@@ -60,8 +60,6 @@ namespace Internal {
 GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &startParameters)
     : GdbEngine(startParameters)
 {
-    m_isMulti = false;
-    m_targetPid = -1;
     if (Utils::HostOsInfo::isWindowsHost())
         m_gdbProc->setUseCtrlCStub(startParameters.useCtrlCStub); // This is only set for QNX/BlackBerry
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
@@ -152,8 +150,7 @@ void GdbRemoteServerEngine::readUploadStandardError()
 
 void GdbRemoteServerEngine::uploadProcFinished()
 {
-    if (m_uploadProc.exitStatus() == QProcess::NormalExit
-        && m_uploadProc.exitCode() == 0) {
+    if (m_uploadProc.exitStatus() == QProcess::NormalExit && m_uploadProc.exitCode() == 0) {
         startGdb();
     } else {
         RemoteSetupResult result;
@@ -268,8 +265,8 @@ void GdbRemoteServerEngine::callTargetRemote()
 
     if (m_isQnxGdb)
         postCommand("target qnx " + channel, CB(handleTargetQnx));
-    else if (m_isMulti)
-        postCommand("target extended-remote " + m_serverChannel, CB(handleTargetExtendedRemote));
+    else if (startParameters().multiProcess)
+        postCommand("target extended-remote " + channel, CB(handleTargetExtendedRemote));
     else
         postCommand("target remote " + channel, CB(handleTargetRemote), 10);
 }
@@ -306,9 +303,10 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const GdbResponse &respon
             foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
                 postCommand(cmd.toLatin1());
         }
-        if (m_targetPid > 0) { // attach to pid if valid
+        if (startParameters().attachPID > 0) { // attach to pid if valid
             // gdb server will stop the remote application itself.
-            postCommand("attach " + QByteArray::number(m_targetPid), CB(handleTargetExtendedAttach));
+            postCommand("attach " + QByteArray::number(startParameters().attachPID),
+                        CB(handleTargetExtendedAttach));
         } else {
             postCommand("-gdb-set remote exec-file " + startParameters().remoteExecutable.toLatin1(),
                         CB(handleTargetExtendedAttach));
@@ -472,10 +470,11 @@ void GdbRemoteServerEngine::shutdownEngine()
 void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
     (const QByteArray &serverChannel, int inferiorPid)
 {
+    // Currently only used by Android support.
+    startParameters().attachPID = inferiorPid;
+    startParameters().remoteChannel = QString::fromLatin1(serverChannel);
+    startParameters().multiProcess = true;
     showMessage(_("NOTE: REMOTE SERVER RUNNING IN MULTIMODE"));
-    m_isMulti = true;
-    m_targetPid = inferiorPid;
-    m_serverChannel = serverChannel;
     m_startAttempted = true;
     startGdb();
 }
@@ -485,18 +484,12 @@ void GdbRemoteServerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupRes
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     DebuggerEngine::notifyEngineRemoteSetupFinished(result);
 
-    if (!result.success) {
+    if (result.success) {
+        if (!m_startAttempted)
+            startGdb();
+    } else {
         handleAdapterStartFailed(result.reason);
-        return;
     }
-
-    // TODO: Aren't these redundant?
-    m_isMulti = startParameters().multiProcess;
-    m_targetPid = -1;
-    m_serverChannel = startParameters().remoteChannel.toLatin1();
-
-    if (!m_startAttempted)
-        startGdb();
 }
 
 } // namespace Internal
