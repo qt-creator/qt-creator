@@ -30,20 +30,19 @@
 #include "cppmodelmanagerhelper.h"
 
 #include <QCoreApplication>
-#include <QSignalSpy>
 #include <QTest>
 #include <QThread>
 
 using namespace CppTools;
 using namespace GenericProjectManager::Internal::Tests;
 
-CppModelManagerHelper::CppModelManagerHelper(QObject *parent) :
-    QObject(parent)
+CppModelManagerHelper::CppModelManagerHelper(QObject *parent)
+    : QObject(parent)
+    , m_spy(cppModelManager(), SIGNAL(sourceFilesRefreshed(const QSet<QString> &)))
 {
     connect(cppModelManager(), SIGNAL(sourceFilesRefreshed(const QSet<QString> &)),
             this, SLOT(onSourceFilesRefreshed(const QSet<QString> &)));
 }
-
 
 CppModelManagerInterface *CppModelManagerHelper::cppModelManager()
 {
@@ -59,14 +58,13 @@ void CppModelManagerHelper::waitForSourceFilesRefreshed(const QStringList &files
 {
     QTime t;
     t.start();
-    QSignalSpy spy(cppModelManager(), SIGNAL(sourceFilesRefreshed(const QSet<QString> &)));
 
     foreach (const QString &file, files) {
-        while (!m_refreshedSourceFiles.contains(file)) {
-            QVERIFY(spy.wait());
-        }
+        while (!m_refreshedSourceFiles.contains(file))
+            QCoreApplication::processEvents();
         QVERIFY(t.elapsed() <= timeOut);
     }
+    QCOMPARE(m_spy.count(), 1);
 }
 
 void CppModelManagerHelper::onSourceFilesRefreshed(const QSet<QString> &files)

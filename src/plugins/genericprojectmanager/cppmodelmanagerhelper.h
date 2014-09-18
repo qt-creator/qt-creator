@@ -33,6 +33,7 @@
 #include <cpptools/cppmodelmanagerinterface.h>
 
 #include <QObject>
+#include <QSignalSpy>
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -55,6 +56,7 @@ private slots:
 
 private:
     QSet<QString> m_refreshedSourceFiles;
+    QSignalSpy m_spy;
 };
 
 } // Tests namespace
