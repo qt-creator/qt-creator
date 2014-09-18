@@ -112,7 +112,7 @@
 :New.comboBox_QComboBox	{name='comboBox' type='QComboBox' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
-:New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialog' visible='1' windowTitle='New'}
+:New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialog' visible='1' windowTitle?='New*'}
 :Next_QPushButton	{text~='(Next.*|Continue)' type='QPushButton' visible='1'}
 :OpenDocuments_Widget	{type='Core::Internal::OpenEditorsWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Open Documents'}
 :OpenProject_QStyleItem	{clip='false' container=':WelcomePage.scrollView_ScrollView' enabled='true' text='Open Project' type='Button' unnamed='1' visible='true'}
