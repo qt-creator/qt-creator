@@ -163,7 +163,6 @@
 :Qt Creator_Help::Internal::HelpViewer	{type='Help::Internal::QtWebKitHelpWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_HelpSelector_QComboBox	{occurrence='3' type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Issues_Core::Internal::OutputPaneToggleButton	{occurrence='1' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_PythonEditor::EditorWidget	{type='PythonEditor::Internal::EditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QHelpContentWidget	{type='QHelpContentWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QmlJSEditor::Internal::QmlJSOutlineTreeView	{type='QmlJSEditor::Internal::QmlJSOutlineTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -171,7 +170,6 @@
 :Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton	{occurrence='2' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SystemSettings.Details_Utils::DetailsButton	{occurrence='4' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_TextEditor::BaseTextEditorWidget	{type='TextEditor::BaseTextEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_TextEditor::PlainTextEditorWidget	{type='TextEditor::PlainTextEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::NavigationTreeView	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::NavigationTreeView::QExpandingLineEdit	{container=':Qt Creator_Utils::NavigationTreeView' type='QExpandingLineEdit' unnamed='1' visible='1'}
 :Qt Gui Application.Form file:_QLabel	{name='formLabel' text='Form file:' type='QLabel' visible='1' window=':Qt Gui Application_QmakeProjectManager::Internal::GuiAppWizardDialog'}
@@ -223,7 +221,6 @@
 :qt_tabwidget_stackedwidget.Form_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='Help__Internal__GeneralSettingsPage' type='QWidget' visible='1' windowTitle='Form'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='QtSupport__Internal__QtVersionManager' type='QtSupport::Internal::QtOptionsPageWidget' visible='1'}
 :qt_tabwidget_stackedwidget_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QWidget' unnamed='1' visible='1'}
-:scrollArea.Clear system environment_QCheckBox	{container=':Qt Creator.scrollArea_QScrollArea' text='Clear system environment' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Details_Utils::DetailsButton	{text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :scrollArea.Edit build configuration:_QComboBox	{leftWidget=':scrollArea.Edit build configuration:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Edit build configuration:_QLabel	{text='Edit build configuration:' type='QLabel' unnamed='1' visible='1'}
