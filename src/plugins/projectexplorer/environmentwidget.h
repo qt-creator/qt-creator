@@ -33,6 +33,7 @@
 #include "projectexplorer_export.h"
 
 #include <QWidget>
+#include <QTreeView>
 
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 
@@ -42,6 +43,17 @@ class EnvironmentItem;
 }
 
 namespace ProjectExplorer {
+namespace Internal {
+class EnvironmentTreeView : public QTreeView
+{
+public:
+    EnvironmentTreeView(QWidget *parent);
+protected:
+    QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
+    void keyPressEvent(QKeyEvent *event);
+};
+}
+
 class EnvironmentWidgetPrivate;
 
 class PROJECTEXPLORER_EXPORT EnvironmentWidget : public QWidget

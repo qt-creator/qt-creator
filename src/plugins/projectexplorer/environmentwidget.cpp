@@ -42,6 +42,7 @@
 #include <QTreeView>
 #include <QTextDocument> // for Qt::escape
 #include <QVBoxLayout>
+#include <QKeyEvent>
 
 namespace ProjectExplorer {
 
@@ -93,7 +94,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     horizontalLayout->setMargin(0);
-    d->m_environmentView = new QTreeView(this);
+    d->m_environmentView = new Internal::EnvironmentTreeView(this);
     d->m_environmentView->setModel(d->m_model);
     d->m_environmentView->setMinimumHeight(400);
     d->m_environmentView->setRootIsDecorated(false);
@@ -294,5 +295,47 @@ void EnvironmentWidget::invalidateCurrentIndex()
 {
     environmentCurrentIndexChanged(QModelIndex());
 }
+
+Internal::EnvironmentTreeView::EnvironmentTreeView(QWidget *parent)
+    : QTreeView(parent)
+{
+
+}
+
+QModelIndex Internal::EnvironmentTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
+{
+    QModelIndex idx = currentIndex();
+    int column = idx.column();
+    int row = idx.row();
+
+    if (cursorAction == QAbstractItemView::MoveNext) {
+        if (column == 0)
+            return idx.sibling(row, 1);
+        else if (row + 1 < model()->rowCount())
+            return idx.sibling(row + 1, 0);
+        else // On last column in last row
+            return idx;
+    } else if (cursorAction == QAbstractItemView::MovePrevious) {
+        if (column == 1)
+            return idx.sibling(row, 0);
+        else if (row - 1 >= 0)
+            return idx.sibling(row - 1, 1);
+        else // On first column in first row
+            return idx;
+    }
+    return QTreeView::moveCursor(cursorAction, modifiers);
+}
+
+void Internal::EnvironmentTreeView::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+        if (!edit(currentIndex(), EditKeyPressed, event))
+            event->ignore();
+        return;
+    }
+
+    QTreeView::keyPressEvent(event);
+}
+
 
 } // namespace ProjectExplorer
