@@ -149,6 +149,7 @@ def checkSymbolCompletion(editor, isClangCodeModel):
         propShown = waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 2500)
         test.compare(not propShown, symbol in missing,
                      "Proposal widget is (not) shown as expected (%s)" % symbol)
+        found = []
         if propShown:
             proposalListView = waitForObject(':popupFrame_Proposal_QListView')
             found = dumpItems(proposalListView.model())
