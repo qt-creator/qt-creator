@@ -86,7 +86,6 @@ private:
     void init();
 
     QString m_projectFilePath;
-    QString m_gdbPath;
     QString m_arguments;
     mutable QString m_disabledReason;
     QString m_workingDirectory;

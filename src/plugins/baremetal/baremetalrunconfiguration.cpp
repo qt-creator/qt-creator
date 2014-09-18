@@ -52,7 +52,6 @@ const char WorkingDirectoryKey[] = "BareMetal.RunConfig.WorkingDirectory";
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent, BareMetalRunConfiguration *other)
     : RunConfiguration(parent, other),
       m_projectFilePath(other->m_projectFilePath),
-      m_gdbPath(other->m_gdbPath),
       m_arguments(other->m_arguments),
       m_workingDirectory(other->m_workingDirectory)
 {
