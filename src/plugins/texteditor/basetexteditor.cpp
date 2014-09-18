@@ -7157,7 +7157,6 @@ void BaseTextEditorWidget::setupAsPlainEditor()
     setRevisionsVisible(true);
     setMarksVisible(true);
     setLineSeparatorsAllowed(true);
-    setLineSeparatorsAllowed(true);
 
     textDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
