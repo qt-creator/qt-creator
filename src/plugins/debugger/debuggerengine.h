@@ -32,6 +32,7 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
+#include "debuggerstartparameters.h"
 #include "breakpoint.h" // For BreakpointModelId.
 #include "threaddata.h" // For ThreadId.
 #include "coreplugin/variablemanager.h"
@@ -278,8 +279,8 @@ signals:
     /*
      * For "external" clients of a debugger run control that needs to do
      * further setup before the debugger is started (e.g. RemoteLinux).
-     * Afterwards, notifyEngineRemoteSetupDone() or notifyEngineRemoteSetupFailed()
-     * must be called to continue or abort debugging, respectively.
+     * Afterwards, notifyEngineRemoteSetupFinished
+     * must be called to continue or abort debugging.
      * This signal is only emitted if the start parameters indicate that
      * a server start script should be used, but none is given.
      */
@@ -296,8 +297,7 @@ protected:
     virtual void notifyEngineRequestRemoteSetup();
     public:
     virtual void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
-    virtual void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
-    virtual void notifyEngineRemoteSetupFailed(const QString &message);
+    virtual void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
 
     protected:
     virtual void notifyInferiorSetupOk();

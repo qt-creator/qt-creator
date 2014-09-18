@@ -205,23 +205,24 @@ IosDebugSupport::~IosDebugSupport()
 
 void IosDebugSupport::handleServerPorts(int gdbServerPort, int qmlPort)
 {
-    if (gdbServerPort > 0 || (m_runner && !m_runner->cppDebug() && qmlPort > 0)) {
-        m_runControl->engine()->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
-    } else {
-        m_runControl->engine()->notifyEngineRemoteSetupFailed(
-                    tr("Could not get debug server file descriptor."));
-    }
+    RemoteSetupResult result;
+    result.gdbServerPort = gdbServerPort;
+    result.qmlServerPort = qmlPort;
+    result.success = gdbServerPort > 0 || (m_runner && !m_runner->cppDebug() && qmlPort > 0);
+    if (!result.success)
+        result.reason =  tr("Could not get debug server file descriptor.");
+    m_runControl->engine()->notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleGotInferiorPid(Q_PID pid, int qmlPort)
 {
-    if (pid > 0) {
-        //m_runControl->engine()->notifyInferiorPid(pid);
-        m_runControl->engine()->notifyEngineRemoteSetupDone(int(Utils::qPidToPid(pid)), qmlPort);
-    } else {
-        m_runControl->engine()->notifyEngineRemoteSetupFailed(
-                    tr("Got an invalid process id."));
-    }
+    RemoteSetupResult result;
+    result.qmlServerPort = qmlPort;
+    result.inferiorPid = int(Utils::qPidToPid(pid));
+    result.success = pid > 0;
+    if (!result.success)
+        result.reason =  tr("Got an invalid process id.");
+    m_runControl->engine()->notifyEngineRemoteSetupFinished(result);
 }
 
 void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)

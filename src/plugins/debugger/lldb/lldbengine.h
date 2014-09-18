@@ -196,8 +196,7 @@ private:
     void handleUpdateStack(const QByteArray &response);
     void handleUpdateThreads(const QByteArray &response);
 
-    void notifyEngineRemoteSetupDone(int portOrPid, int qmlPort);
-    void notifyEngineRemoteSetupFailed(const QString &reason);
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
 
     void handleChildren(const WatchData &data0, const GdbMi &item,
         QList<WatchData> *list);

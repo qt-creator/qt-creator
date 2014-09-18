@@ -1337,37 +1337,35 @@ DebuggerEngine *createLldbEngine(const DebuggerStartParameters &startParameters)
     return new LldbEngine(startParameters);
 }
 
-void LldbEngine::notifyEngineRemoteSetupDone(int portOrPid, int qmlPort)
+void LldbEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    DebuggerEngine::notifyEngineRemoteSetupDone(portOrPid, qmlPort);
+    DebuggerEngine::notifyEngineRemoteSetupFinished(result);
 
-    if (qmlPort != -1)
-        startParameters().qmlServerPort = qmlPort;
-    if (portOrPid != -1) {
+    if (!result.success) {
+        showMessage(_("ADAPTER START FAILED"));
+        if (!result.reason.isEmpty()) {
+            const QString title = tr("Adapter start failed");
+            Core::ICore::showWarningWithOptions(title, result.reason);
+        }
+        notifyEngineSetupFailed();
+        return;
+    }
+
+    if (result.qmlServerPort != InvalidPort)
+        startParameters().qmlServerPort = result.qmlServerPort;
+    if (result.inferiorPid != InvalidPid) {
         if (startParameters().startMode == AttachExternal) {
-            startParameters().attachPID = portOrPid;
+            startParameters().attachPID = result.inferiorPid;
         } else {
             QString &rc = startParameters().remoteChannel;
             const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
             if (sepIndex != -1)
                 rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
-                           QString::number(portOrPid));
+                           QString::number(result.inferiorPid));
         }
     }
     startLldb();
-}
-
-void LldbEngine::notifyEngineRemoteSetupFailed(const QString &reason)
-{
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    DebuggerEngine::notifyEngineRemoteSetupFailed(reason);
-    showMessage(_("ADAPTER START FAILED"));
-    if (!reason.isEmpty()) {
-        const QString title = tr("Adapter start failed");
-        Core::ICore::showWarningWithOptions(title, reason);
-    }
-    notifyEngineSetupFailed();
 }
 
 ///////////////////////////////////////////////////////////////////////

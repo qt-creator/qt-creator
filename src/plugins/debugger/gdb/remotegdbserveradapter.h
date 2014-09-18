@@ -74,9 +74,8 @@ private:
     Q_SLOT void uploadProcFinished();
     Q_SLOT void callTargetRemote();
 
-    void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
-    void notifyEngineRemoteSetupFailed(const QString &reason);
     void notifyEngineRemoteServerRunning(const QByteArray &serverChannel, int inferiorPid);
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
     void notifyInferiorSetupOk();
 
     void handleSetTargetAsync(const GdbResponse &response);

@@ -218,8 +218,11 @@ void LinuxDeviceDebugSupport::handleAppRunnerFinished(bool success)
         else if (!success)
             d->engine->notifyInferiorIll();
 
-    } else if (state() == StartingRunner){
-        d->engine->notifyEngineRemoteSetupFailed(tr("Debugging failed."));
+    } else if (state() == StartingRunner) {
+        RemoteSetupResult result;
+        result.success = false;
+        result.reason = tr("Debugging failed.");
+        d->engine->notifyEngineRemoteSetupFinished(result);
     }
     reset();
 }
@@ -262,13 +265,22 @@ void LinuxDeviceDebugSupport::handleProgressReport(const QString &progressOutput
 void LinuxDeviceDebugSupport::handleAdapterSetupFailed(const QString &error)
 {
     AbstractRemoteLinuxRunSupport::handleAdapterSetupFailed(error);
-    d->engine->notifyEngineRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
+
+    RemoteSetupResult result;
+    result.success = false;
+    result.reason = tr("Initial setup failed: %1").arg(error);
+    d->engine->notifyEngineRemoteSetupFinished(result);
 }
 
 void LinuxDeviceDebugSupport::handleAdapterSetupDone()
 {
     AbstractRemoteLinuxRunSupport::handleAdapterSetupDone();
-    d->engine->notifyEngineRemoteSetupDone(d->gdbServerPort, d->qmlPort);
+
+    RemoteSetupResult result;
+    result.success = true;
+    result.gdbServerPort = d->gdbServerPort;
+    result.qmlServerPort = d->qmlPort;
+    d->engine->notifyEngineRemoteSetupFinished(result);
 }
 
 void LinuxDeviceDebugSupport::handleRemoteProcessStarted()

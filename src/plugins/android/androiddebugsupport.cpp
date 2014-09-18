@@ -186,7 +186,11 @@ void AndroidDebugSupport::handleRemoteProcessStarted(int gdbServerPort, int qmlP
     disconnect(m_runner, &AndroidRunner::remoteProcessStarted,
                this, &AndroidDebugSupport::handleRemoteProcessStarted);
     QTC_ASSERT(m_engine, return);
-    m_engine->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
+    RemoteSetupResult result;
+    result.success = true;
+    result.gdbServerPort = gdbServerPort;
+    result.qmlServerPort = qmlPort;
+    m_engine->notifyEngineRemoteSetupFinished(result);
 }
 
 } // namespace Internal

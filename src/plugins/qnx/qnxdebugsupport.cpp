@@ -120,8 +120,13 @@ void QnxDebugSupport::startExecution()
 void QnxDebugSupport::handleRemoteProcessStarted()
 {
     QnxAbstractRunSupport::handleRemoteProcessStarted();
-    if (m_engine)
-        m_engine->notifyEngineRemoteSetupDone(m_pdebugPort, m_qmlPort);
+    if (m_engine) {
+        Debugger::RemoteSetupResult result;
+        result.success = true;
+        result.gdbServerPort = m_pdebugPort;
+        result.qmlServerPort = m_qmlPort;
+        m_engine->notifyEngineRemoteSetupFinished(result);
+    }
 }
 
 void QnxDebugSupport::handleRemoteProcessFinished(bool success)
@@ -134,8 +139,10 @@ void QnxDebugSupport::handleRemoteProcessFinished(bool success)
             m_engine->notifyInferiorIll();
 
     } else {
-        const QString errorMsg = tr("The %1 process closed unexpectedly.").arg(executable());
-        m_engine->notifyEngineRemoteSetupFailed(errorMsg);
+        Debugger::RemoteSetupResult result;
+        result.success = false;
+        result.reason = tr("The %1 process closed unexpectedly.").arg(executable());
+        m_engine->notifyEngineRemoteSetupFinished(result);
     }
 }
 
@@ -182,8 +189,12 @@ void QnxDebugSupport::handleError(const QString &error)
         }
     } else if (state() != Inactive) {
         setFinished();
-        if (m_engine)
-            m_engine->notifyEngineRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
+        if (m_engine) {
+            Debugger::RemoteSetupResult result;
+            result.success = false;
+            result.reason = tr("Initial setup failed: %1").arg(error);
+            m_engine->notifyEngineRemoteSetupFinished(result);
+        }
     }
 }
 

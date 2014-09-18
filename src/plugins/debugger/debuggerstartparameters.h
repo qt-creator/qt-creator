@@ -47,6 +47,26 @@ namespace Debugger {
 // Note: This is part of the "soft interface" of the debugger plugin.
 // Do not add anything that needs implementation in a .cpp file.
 
+const int InvalidPort = -1;
+const int InvalidPid = -1;
+
+class DEBUGGER_EXPORT RemoteSetupResult
+{
+public:
+    RemoteSetupResult()
+      : gdbServerPort(InvalidPort),
+        qmlServerPort(InvalidPort),
+        inferiorPid(InvalidPid),
+        success(false)
+    {}
+
+    int gdbServerPort;
+    int qmlServerPort;
+    int inferiorPid;
+    bool success;
+    QString reason;
+};
+
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
 public:
@@ -156,6 +176,7 @@ bool fillParameters(DebuggerStartParameters *sp, const ProjectExplorer::Kit *kit
 } // namespace Internal
 } // namespace Debugger
 
+Q_DECLARE_METATYPE(Debugger::RemoteSetupResult)
 Q_DECLARE_METATYPE(Debugger::DebuggerStartParameters)
 
 #endif // DEBUGGER_DEBUGGERSTARTPARAMETERS_H

@@ -614,29 +614,28 @@ void QmlEngine::stopApplicationLauncher()
     }
 }
 
-void QmlEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
+void QmlEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 {
-    if (qmlPort != -1)
-        startParameters().qmlServerPort = qmlPort;
+    DebuggerEngine::notifyEngineRemoteSetupFinished(result);
 
-    DebuggerEngine::notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
-    notifyEngineSetupOk();
+    if (result.success) {
+        if (result.qmlServerPort != InvalidPort)
+            startParameters().qmlServerPort = result.qmlServerPort;
 
-    // The remote setup can take while especialy with mixed debugging.
-    // Just waiting for 8 seconds is not enough. Increase the timeout
-    // to 60 s
-    // In case we get an output the m_outputParser will start the connection.
-    m_noDebugOutputTimer.setInterval(60000);
-}
+        notifyEngineSetupOk();
 
-void QmlEngine::notifyEngineRemoteSetupFailed(const QString &message)
-{
-    DebuggerEngine::notifyEngineRemoteSetupFailed(message);
-    if (isMasterEngine())
-        QMessageBox::critical(0,tr("Failed to start application"),
-            tr("Application startup failed: %1").arg(message));
-
-    notifyEngineSetupFailed();
+        // The remote setup can take while especialy with mixed debugging.
+        // Just waiting for 8 seconds is not enough. Increase the timeout
+        // to 60 s
+        // In case we get an output the m_outputParser will start the connection.
+        m_noDebugOutputTimer.setInterval(60000);
+    }
+    else {
+        if (isMasterEngine())
+            QMessageBox::critical(Core::ICore::dialogParent(), tr("Failed to start application"),
+                                  tr("Application startup failed: %1").arg(result.reason));
+        notifyEngineSetupFailed();
+    }
 }
 
 void QmlEngine::notifyEngineRemoteServerRunning(const QByteArray &serverChannel, int pid)

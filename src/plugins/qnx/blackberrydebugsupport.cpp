@@ -71,13 +71,21 @@ void BlackBerryDebugSupport::launchRemoteApplication()
 
 void BlackBerryDebugSupport::handleStarted()
 {
-    m_engine->startParameters().attachPID = m_runner->pid();
-    m_engine->notifyEngineRemoteSetupDone(8000, -1);
+    m_engine->startParameters().attachPID = m_runner->pid(); // FIXME: Is that needed?
+    Debugger::RemoteSetupResult result;
+    result.success = true;
+    result.inferiorPid = m_runner->pid();
+    result.gdbServerPort = 8000;
+    result.qmlServerPort = Debugger::InvalidPort;
+    m_engine->notifyEngineRemoteSetupFinished(result);
 }
 
 void BlackBerryDebugSupport::handleStartFailed(const QString &message)
 {
-    m_engine->notifyEngineRemoteSetupFailed(message);
+    Debugger::RemoteSetupResult result;
+    result.success = false;
+    result.reason = message;
+    m_engine->notifyEngineRemoteSetupFinished(result);
 }
 
 void BlackBerryDebugSupport::handleDebuggerStateChanged(Debugger::DebuggerState state)

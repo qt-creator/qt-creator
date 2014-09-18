@@ -60,9 +60,8 @@ public:
     ~QmlEngine();
 
     void notifyInferiorSetupOk();
-    void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
-    void notifyEngineRemoteSetupFailed(const QString &message);
     void notifyEngineRemoteServerRunning(const QByteArray &, int pid);
+    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
 
     bool canDisplayTooltip() const;
 

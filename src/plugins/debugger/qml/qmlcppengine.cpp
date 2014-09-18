@@ -744,22 +744,13 @@ void QmlCppEngine::slaveEngineStateChanged
     }
 }
 
-void QmlCppEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
+void QmlCppEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 {
-    EDEBUG("MASTER REMOTE SETUP DONE");
-    DebuggerEngine::notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
+    EDEBUG("MASTER REMOTE SETUP FINISHED");
+    DebuggerEngine::notifyEngineRemoteSetupFinished(result);
 
-    cppEngine()->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
-    qmlEngine()->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
-}
-
-void QmlCppEngine::notifyEngineRemoteSetupFailed(const QString &message)
-{
-    EDEBUG("MASTER REMOTE SETUP FAILED");
-    DebuggerEngine::notifyEngineRemoteSetupFailed(message);
-
-    cppEngine()->notifyEngineRemoteSetupFailed(message);
-    qmlEngine()->notifyEngineRemoteSetupFailed(message);
+    cppEngine()->notifyEngineRemoteSetupFinished(result);
+    qmlEngine()->notifyEngineRemoteSetupFinished(result);
 }
 
 void QmlCppEngine::showMessage(const QString &msg, int channel, int timeout) const

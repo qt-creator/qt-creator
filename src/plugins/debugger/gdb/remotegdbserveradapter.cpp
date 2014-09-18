@@ -153,10 +153,14 @@ void GdbRemoteServerEngine::readUploadStandardError()
 void GdbRemoteServerEngine::uploadProcFinished()
 {
     if (m_uploadProc.exitStatus() == QProcess::NormalExit
-        && m_uploadProc.exitCode() == 0)
+        && m_uploadProc.exitCode() == 0) {
         startGdb();
-    else
-        notifyEngineRemoteSetupFailed(m_uploadProc.errorString());
+    } else {
+        RemoteSetupResult result;
+        result.success = false;
+        result.reason = m_uploadProc.errorString();
+        notifyEngineRemoteSetupFinished(result);
+    }
 }
 
 void GdbRemoteServerEngine::setupInferior()
@@ -475,24 +479,29 @@ void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
     startGdb();
 }
 
-void GdbRemoteServerEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
+void GdbRemoteServerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    DebuggerEngine::notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
+    DebuggerEngine::notifyEngineRemoteSetupFinished(result);
+
+    if (!result.success) {
+        handleAdapterStartFailed(result.reason);
+        return;
+    }
 
     DebuggerStartParameters &params = isMasterEngine()
             ? startParameters()  : masterEngine()->startParameters();
-    if (gdbServerPort != -1) {
+    if (result.gdbServerPort != -1) {
         QString &rc = params.remoteChannel;
         const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
         if (sepIndex != -1) {
             rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
-                       QString::number(gdbServerPort));
+                       QString::number(result.gdbServerPort));
         }
     }
-    if (qmlPort != -1) {
-        params.qmlServerPort = qmlPort;
-        params.processArgs.replace(_("%qml_port%"), QString::number(qmlPort));
+    if (result.qmlServerPort != -1) {
+        params.qmlServerPort = result.qmlServerPort;
+        params.processArgs.replace(_("%qml_port%"), QString::number(result.qmlServerPort));
     }
 
     // TODO: Aren't these redundant?
@@ -501,13 +510,6 @@ void GdbRemoteServerEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int q
     m_serverChannel = params.remoteChannel.toLatin1();
 
     startGdb();
-}
-
-void GdbRemoteServerEngine::notifyEngineRemoteSetupFailed(const QString &reason)
-{
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    DebuggerEngine::notifyEngineRemoteSetupFailed(reason);
-    handleAdapterStartFailed(reason);
 }
 
 } // namespace Internal

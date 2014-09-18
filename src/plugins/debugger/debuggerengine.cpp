@@ -830,10 +830,8 @@ void DebuggerEngine::notifyEngineRemoteServerRunning(const QByteArray &, int /*p
     showMessage(_("NOTE: REMOTE SERVER RUNNING IN MULTIMODE"));
 }
 
-void DebuggerEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
+void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result)
 {
-    showMessage(_("NOTE: REMOTE SETUP DONE: GDB SERVER PORT: %1  QML PORT %2")
-                .arg(gdbServerPort).arg(qmlPort));
     QTC_ASSERT(state() == EngineSetupRequested
                || state() == EngineSetupFailed
                || state() == DebuggerFinished, qDebug() << this << state());
@@ -842,22 +840,15 @@ void DebuggerEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
                || d->remoteSetupState() == RemoteSetupCancelled,
                qDebug() << this << "remoteSetupState" << d->remoteSetupState());
 
-    if (d->remoteSetupState() == RemoteSetupCancelled)
-        return;
+    if (result.success) {
+        showMessage(_("NOTE: REMOTE SETUP DONE: GDB SERVER PORT: %1  QML PORT %2")
+                    .arg(result.gdbServerPort).arg(result.qmlServerPort));
 
-    d->setRemoteSetupState(RemoteSetupSucceeded);
-}
-
-void DebuggerEngine::notifyEngineRemoteSetupFailed(const QString &message)
-{
-    showMessage(_("NOTE: REMOTE SETUP FAILED: ") + message);
-    QTC_ASSERT(state() == EngineSetupRequested
-               || state() == EngineSetupFailed
-               || state() == DebuggerFinished, qDebug() << this << state());
-
-    QTC_ASSERT(d->remoteSetupState() == RemoteSetupRequested
-               || d->remoteSetupState() == RemoteSetupCancelled,
-               qDebug() << this << "remoteSetupState" << d->remoteSetupState());
+        if (d->remoteSetupState() != RemoteSetupCancelled)
+            d->setRemoteSetupState(RemoteSetupSucceeded);
+    } else {
+        showMessage(_("NOTE: REMOTE SETUP FAILED: ") + result.reason);
+    }
 }
 
 void DebuggerEngine::notifyEngineRunOkAndInferiorRunRequested()
