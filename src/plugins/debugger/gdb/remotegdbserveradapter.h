@@ -91,6 +91,7 @@ private:
 
     QProcess m_uploadProc;
     bool m_isMulti;
+    bool m_startAttempted;
     int m_targetPid;
     QByteArray m_serverChannel;
 };

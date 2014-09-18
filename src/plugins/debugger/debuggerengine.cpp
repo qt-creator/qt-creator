@@ -846,6 +846,21 @@ void DebuggerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &re
 
         if (d->remoteSetupState() != RemoteSetupCancelled)
             d->setRemoteSetupState(RemoteSetupSucceeded);
+
+        if (result.gdbServerPort != InvalidPid) {
+            QString &rc = d->m_startParameters.remoteChannel;
+            const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
+            if (sepIndex != -1) {
+                rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
+                           QString::number(result.gdbServerPort));
+            }
+        }
+
+        if (result.qmlServerPort != InvalidPort) {
+            d->m_startParameters.qmlServerPort = result.qmlServerPort;
+            d->m_startParameters.processArgs.replace(_("%qml_port%"), QString::number(result.qmlServerPort));
+        }
+
     } else {
         showMessage(_("NOTE: REMOTE SETUP FAILED: ") + result.reason);
     }

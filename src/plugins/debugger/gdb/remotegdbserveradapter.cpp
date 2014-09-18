@@ -476,6 +476,7 @@ void GdbRemoteServerEngine::notifyEngineRemoteServerRunning
     m_isMulti = true;
     m_targetPid = inferiorPid;
     m_serverChannel = serverChannel;
+    m_startAttempted = true;
     startGdb();
 }
 
@@ -489,27 +490,13 @@ void GdbRemoteServerEngine::notifyEngineRemoteSetupFinished(const RemoteSetupRes
         return;
     }
 
-    DebuggerStartParameters &params = isMasterEngine()
-            ? startParameters()  : masterEngine()->startParameters();
-    if (result.gdbServerPort != -1) {
-        QString &rc = params.remoteChannel;
-        const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
-        if (sepIndex != -1) {
-            rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
-                       QString::number(result.gdbServerPort));
-        }
-    }
-    if (result.qmlServerPort != -1) {
-        params.qmlServerPort = result.qmlServerPort;
-        params.processArgs.replace(_("%qml_port%"), QString::number(result.qmlServerPort));
-    }
-
     // TODO: Aren't these redundant?
-    m_isMulti = params.multiProcess;
+    m_isMulti = startParameters().multiProcess;
     m_targetPid = -1;
-    m_serverChannel = params.remoteChannel.toLatin1();
+    m_serverChannel = startParameters().remoteChannel.toLatin1();
 
-    startGdb();
+    if (!m_startAttempted)
+        startGdb();
 }
 
 } // namespace Internal

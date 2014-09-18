@@ -1342,7 +1342,9 @@ void LldbEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     DebuggerEngine::notifyEngineRemoteSetupFinished(result);
 
-    if (!result.success) {
+    if (result.success) {
+        startLldb();
+    } else {
         showMessage(_("ADAPTER START FAILED"));
         if (!result.reason.isEmpty()) {
             const QString title = tr("Adapter start failed");
@@ -1351,21 +1353,6 @@ void LldbEngine::notifyEngineRemoteSetupFinished(const RemoteSetupResult &result
         notifyEngineSetupFailed();
         return;
     }
-
-    if (result.qmlServerPort != InvalidPort)
-        startParameters().qmlServerPort = result.qmlServerPort;
-    if (result.inferiorPid != InvalidPid) {
-        if (startParameters().startMode == AttachExternal) {
-            startParameters().attachPID = result.inferiorPid;
-        } else {
-            QString &rc = startParameters().remoteChannel;
-            const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
-            if (sepIndex != -1)
-                rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
-                           QString::number(result.inferiorPid));
-        }
-    }
-    startLldb();
 }
 
 ///////////////////////////////////////////////////////////////////////
