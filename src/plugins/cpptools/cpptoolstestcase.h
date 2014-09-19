@@ -41,8 +41,13 @@ namespace CPlusPlus {
 class Document;
 class Snapshot;
 }
+
 namespace Core { class IEditor; }
-namespace TextEditor { class BaseTextEditor; }
+
+namespace TextEditor {
+class BaseTextEditor;
+class IAssistProposal;
+}
 
 namespace CppTools {
 namespace Tests {
@@ -106,6 +111,17 @@ public:
 private:
     const QString m_filePath;
     bool m_writtenSuccessfully;
+};
+
+// Normally the proposal is deleted by the ProcessorRunner or the
+// GenericProposalWidget, but in tests we usually don't make use of them.
+class CPPTOOLS_EXPORT IAssistProposalScopedPointer
+{
+public:
+    IAssistProposalScopedPointer(TextEditor::IAssistProposal *proposal);
+    ~IAssistProposalScopedPointer();
+
+    QScopedPointer<TextEditor::IAssistProposal> d;
 };
 
 } // namespace Tests

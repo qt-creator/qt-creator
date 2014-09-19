@@ -107,17 +107,18 @@ public:
                                                ExplicitlyInvoked, m_snapshot,
                                                ProjectPart::HeaderPaths());
         CppCompletionAssistProcessor processor;
-        IAssistProposal *proposal = processor.perform(ai);
-        if (!proposal)
+
+        const Tests::IAssistProposalScopedPointer proposal(processor.perform(ai));
+        if (!proposal.d)
             return completions;
-        IAssistProposalModel *model = proposal->model();
+        IAssistProposalModel *model = proposal.d->model();
         if (!model)
             return completions;
         CppAssistProposalModel *listmodel = dynamic_cast<CppAssistProposalModel *>(model);
         if (!listmodel)
             return completions;
 
-        const int pos = proposal->basePosition();
+        const int pos = proposal.d->basePosition();
         const int length = m_position - pos;
         const QString prefix = Convenience::textAt(QTextCursor(m_editorWidget->document()), pos,
                                                    length);

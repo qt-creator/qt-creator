@@ -31,6 +31,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/codeassist/iassistproposal.h>
+#include <texteditor/codeassist/iassistproposalmodel.h>
 
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
@@ -210,6 +212,16 @@ FileWriterAndRemover::~FileWriterAndRemover()
         const QString warning = QLatin1String("Failed to remove file from disk: ") + m_filePath;
         QWARN(qPrintable(warning));
     }
+}
+
+IAssistProposalScopedPointer::IAssistProposalScopedPointer(TextEditor::IAssistProposal *proposal)
+    : d(proposal)
+{}
+
+IAssistProposalScopedPointer::~IAssistProposalScopedPointer()
+{
+    if (d && d->model())
+        delete d->model();
 }
 
 } // namespace Tests

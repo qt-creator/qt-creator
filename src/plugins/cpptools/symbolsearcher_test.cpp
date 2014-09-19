@@ -106,10 +106,10 @@ public:
         m_modelManager->setIndexingSupport(m_indexingSupportToUse);
 
         CppIndexingSupport *indexingSupport = m_modelManager->indexingSupport();
-        SymbolSearcher *symbolSearcher = indexingSupport->createSymbolSearcher(searchParameters,
-            QSet<QString>() << testFile);
+        const QScopedPointer<SymbolSearcher> symbolSearcher(
+            indexingSupport->createSymbolSearcher(searchParameters, QSet<QString>() << testFile));
         QFuture<Core::SearchResultItem> search
-            = QtConcurrent::run(&SymbolSearcher::runSearch, symbolSearcher);
+            = QtConcurrent::run(&SymbolSearcher::runSearch, symbolSearcher.data());
         search.waitForFinished();
         ResultDataList results = ResultData::fromSearchResultList(search.results());
         QCOMPARE(results, expectedResults);
