@@ -35,7 +35,7 @@
 namespace Core {
 namespace Internal {
 
-void CORE_EXPORT runSearch(QFutureInterface<LocatorFilterEntry> &entries,
+void CORE_EXPORT runSearch(QFutureInterface<LocatorFilterEntry> &future,
                               QList<ILocatorFilter *> filters,
                               QString searchText);
 

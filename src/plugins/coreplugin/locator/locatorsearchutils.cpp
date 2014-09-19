@@ -45,19 +45,19 @@ uint qHash(const Core::LocatorFilterEntry &entry)
 
 } // namespace Core
 
-void Core::Internal::runSearch(QFutureInterface<Core::LocatorFilterEntry> &entries,
+void Core::Internal::runSearch(QFutureInterface<Core::LocatorFilterEntry> &future,
                                   QList<ILocatorFilter *> filters, QString searchText)
 {
     QSet<LocatorFilterEntry> alreadyAdded;
     const bool checkDuplicates = (filters.size() > 1);
     foreach (ILocatorFilter *filter, filters) {
-        if (entries.isCanceled())
+        if (future.isCanceled())
             break;
 
-        foreach (const LocatorFilterEntry &entry, filter->matchesFor(entries, searchText)) {
+        foreach (const LocatorFilterEntry &entry, filter->matchesFor(future, searchText)) {
             if (checkDuplicates && alreadyAdded.contains(entry))
                 continue;
-            entries.reportResult(entry);
+            future.reportResult(entry);
             if (checkDuplicates)
                 alreadyAdded.insert(entry);
         }
