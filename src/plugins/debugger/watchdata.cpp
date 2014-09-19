@@ -513,6 +513,16 @@ void WatchData::updateDisplayedType(const GdbMi &item)
 
 // Utilities to decode string data returned by the dumper helpers.
 
+template <class T>
+QString decodeItemHelper(const T &t)
+{
+    return QString::number(t);
+}
+
+QString decodeItemHelper(const double &t)
+{
+    return QString::number(t, 'g', 16);
+}
 
 template <class T>
 void decodeArrayHelper(QList<WatchData> *list, const WatchData &tmplate,
@@ -527,7 +537,7 @@ void decodeArrayHelper(QList<WatchData> *list, const WatchData &tmplate,
         data.sortId = i;
         data.iname += QByteArray::number(i);
         data.name = QString::fromLatin1("[%1]").arg(i);
-        data.value = QString::number(p[i]);
+        data.value = decodeItemHelper(p[i]);
         data.address += i * sizeof(T);
         data.exp = exp + QByteArray::number(data.address, 16);
         data.setAllUnneeded();
