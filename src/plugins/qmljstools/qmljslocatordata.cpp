@@ -35,6 +35,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 
 #include <QFileInfo>
+#include <QMutexLocker>
 
 using namespace QmlJSTools::Internal;
 using namespace QmlJS;
@@ -180,17 +181,20 @@ protected:
 
 QHash<QString, QList<LocatorData::Entry> > LocatorData::entries() const
 {
+    QMutexLocker l(&m_mutex);
     return m_entries;
 }
 
 void LocatorData::onDocumentUpdated(const QmlJS::Document::Ptr &doc)
 {
     QList<Entry> entries = FunctionFinder().run(doc);
+    QMutexLocker l(&m_mutex);
     m_entries.insert(doc->fileName(), entries);
 }
 
 void LocatorData::onAboutToRemoveFiles(const QStringList &files)
 {
+    QMutexLocker l(&m_mutex);
     foreach (const QString &file, files) {
         m_entries.remove(file);
     }

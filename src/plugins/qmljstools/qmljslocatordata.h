@@ -34,6 +34,7 @@
 
 #include <QObject>
 #include <QHash>
+#include <QMutex>
 
 namespace QmlJSTools {
 namespace Internal {
@@ -69,6 +70,7 @@ private slots:
     void onAboutToRemoveFiles(const QStringList &files);
 
 private:
+    mutable QMutex m_mutex;
     QHash<QString, QList<Entry> > m_entries;
 };
 
