@@ -148,8 +148,10 @@ Canvas {
                 newX = canvas.width - rangeMover.rangeWidth;
 
             if (newX < rangeMover.rangeLeft) {
+                // Changing left border will change width, so precompute right border here.
+                var right = newX + rangeMover.rangeWidth;
                 rangeMover.rangeLeft = newX;
-                rangeMover.rangeRight = newX + rangeMover.rangeWidth;
+                rangeMover.rangeRight = right;
             } else if (newX > rangeMover.rangeLeft) {
                 rangeMover.rangeRight = newX + rangeMover.rangeWidth;
                 rangeMover.rangeLeft = newX;
