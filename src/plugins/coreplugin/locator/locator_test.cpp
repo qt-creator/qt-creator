@@ -57,9 +57,6 @@ public:
     }
 
     void refresh(QFutureInterface<void> &) {}
-
-protected:
-    void updateFiles() {}
 };
 
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }

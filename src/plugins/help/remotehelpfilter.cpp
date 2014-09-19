@@ -29,6 +29,7 @@
 
 #include "remotehelpfilter.h"
 
+#include <QMutexLocker>
 #include <QUrl>
 
 namespace Help {
@@ -99,7 +100,7 @@ RemoteHelpFilter::~RemoteHelpFilter()
 QList<Core::LocatorFilterEntry> RemoteHelpFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &pattern)
 {
     QList<Core::LocatorFilterEntry> entries;
-    foreach (const QString &url, m_remoteUrls) {
+    foreach (const QString &url, remoteUrls()) {
         if (future.isCanceled())
             break;
 
@@ -156,6 +157,7 @@ bool RemoteHelpFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     Q_UNUSED(needsRefresh)
     RemoteFilterOptions optionsDialog(this, parent);
     if (optionsDialog.exec() == QDialog::Accepted) {
+        QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
         m_remoteUrls.clear();
         setIncludedByDefault(!optionsDialog.m_ui.limitCheck->isChecked());
         setShortcutString(optionsDialog.m_ui.shortcutEdit->text().trimmed());
@@ -164,6 +166,12 @@ bool RemoteHelpFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
         return true;
     }
     return true;
+}
+
+QStringList RemoteHelpFilter::remoteUrls() const
+{
+    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
+    return m_remoteUrls;
 }
 
     } // namespace Internal

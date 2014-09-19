@@ -100,7 +100,13 @@ public:
     /* String to type to use this filter exclusively. */
     QString shortcutString() const;
 
-    /* List of matches for the given user entry. */
+    /* Called on the main thread before matchesFor is called in a separate thread.
+       Can be used to perform actions that need to be done in the main thread before actually
+       running the search. */
+    virtual void prepareSearch(const QString &entry);
+
+    /* List of matches for the given user entry. This runs in a separate thread, but only
+       a single thread at a time. */
     virtual QList<LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry) = 0;
 
     /* User has selected the given entry that belongs to this filter. */

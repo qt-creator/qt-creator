@@ -56,6 +56,12 @@ LineNumberFilter::LineNumberFilter(QObject *parent)
     setIncludedByDefault(true);
 }
 
+void LineNumberFilter::prepareSearch(const QString &entry)
+{
+    Q_UNUSED(entry)
+    m_hasCurrentEditor = EditorManager::currentEditor() != 0;
+}
+
 QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &, const QString &entry)
 {
     QList<LocatorFilterEntry> value;
@@ -70,7 +76,7 @@ QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Core::Lo
         column = lineAndColumn.at(1).toInt(&ok);
     if (!ok)
         return value;
-    if (EditorManager::currentEditor() && (line > 0 || column > 0)) {
+    if (m_hasCurrentEditor && (line > 0 || column > 0)) {
         LineColumn data;
         data.first = line;
         data.second = column - 1;  // column API is 0-based

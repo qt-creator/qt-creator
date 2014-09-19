@@ -34,6 +34,8 @@
 
 #include <utils/algorithm.h>
 
+#include <QMutexLocker>
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -52,11 +54,14 @@ AllProjectsFilter::AllProjectsFilter() : m_filesUpToDate(false)
 
 void AllProjectsFilter::markFilesAsOutOfDate()
 {
+    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     m_filesUpToDate = false;
 }
 
-void AllProjectsFilter::updateFilesImpl()
+void AllProjectsFilter::prepareSearch(const QString &entry)
 {
+    Q_UNUSED(entry)
+    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     if (m_filesUpToDate)
         return;
     files().clear();
@@ -67,13 +72,8 @@ void AllProjectsFilter::updateFilesImpl()
     m_filesUpToDate = true;
 }
 
-void AllProjectsFilter::updateFiles()
-{
-    QMetaObject::invokeMethod(this, "updateFilesImpl", Qt::BlockingQueuedConnection);
-}
-
 void AllProjectsFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
-    QMetaObject::invokeMethod(this, "markFilesAsOutOfDate", Qt::BlockingQueuedConnection);
+    markFilesAsOutOfDate();
 }

@@ -52,11 +52,12 @@ LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin,
     setConfigurable(false);
 }
 
-QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+void LocatorFiltersFilter::prepareSearch(const QString &entry)
 {
-    QList<LocatorFilterEntry> entries;
+    m_filterShortcutStrings.clear();
+    m_filterDisplayNames.clear();
     if (!entry.isEmpty())
-        return entries;
+        return;
 
     QMap<QString, ILocatorFilter *> uniqueFilters;
     foreach (ILocatorFilter *filter, m_plugin->filters()) {
@@ -65,27 +66,36 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Core
     }
 
     foreach (ILocatorFilter *filter, uniqueFilters) {
-        if (future.isCanceled())
-            break;
         if (!filter->shortcutString().isEmpty() && !filter->isHidden() && filter->isEnabled()) {
-            LocatorFilterEntry filterEntry(this,
-                                    filter->shortcutString(),
-                                    QVariant::fromValue(filter),
-                                    m_icon);
-            filterEntry.extraInfo = filter->displayName();
-            entries.append(filterEntry);
+            m_filterShortcutStrings.append(filter->shortcutString());
+            m_filterDisplayNames.append(filter->displayName());
         }
     }
+}
 
+QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+{
+    Q_UNUSED(entry) // search is already done in the GUI thread in prepareSearch
+    QList<LocatorFilterEntry> entries;
+    for (int i = 0; i < m_filterShortcutStrings.size(); ++i) {
+        if (future.isCanceled())
+            break;
+        LocatorFilterEntry filterEntry(this,
+                                m_filterShortcutStrings.at(i),
+                                m_filterShortcutStrings.at(i),
+                                m_icon);
+        filterEntry.extraInfo = m_filterDisplayNames.at(i);
+        entries.append(filterEntry);
+    }
     return entries;
 }
 
 void LocatorFiltersFilter::accept(LocatorFilterEntry selection) const
 {
-    ILocatorFilter *filter = selection.internalData.value<ILocatorFilter *>();
-    if (filter)
-        m_locatorWidget->show(filter->shortcutString() + QLatin1Char(' '),
-                           filter->shortcutString().length() + 1);
+    const QString shortcutString = selection.internalData.toString();
+    if (!shortcutString.isEmpty())
+        m_locatorWidget->show(shortcutString + QLatin1Char(' '),
+                              shortcutString.length() + 1);
 }
 
 void LocatorFiltersFilter::refresh(QFutureInterface<void> &future)

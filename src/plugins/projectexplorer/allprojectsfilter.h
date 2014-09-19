@@ -32,6 +32,7 @@
 
 #include <coreplugin/locator/basefilefilter.h>
 
+#include <QMutex>
 #include <QFutureInterface>
 
 namespace ProjectExplorer {
@@ -44,16 +45,14 @@ class AllProjectsFilter : public Core::BaseFileFilter
 public:
     AllProjectsFilter();
     void refresh(QFutureInterface<void> &future);
-
-protected:
-    void updateFiles();
+    void prepareSearch(const QString &entry);
 
 private slots:
     void markFilesAsOutOfDate();
-    void updateFilesImpl();
 
 private:
     bool m_filesUpToDate;
+    QMutex m_mutex;
 };
 
 } // namespace Internal

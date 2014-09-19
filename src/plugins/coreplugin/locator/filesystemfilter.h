@@ -49,6 +49,7 @@ class FileSystemFilter : public Core::ILocatorFilter
 
 public:
     explicit FileSystemFilter(LocatorWidget *locatorWidget);
+    void prepareSearch(const QString &entry);
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
     void accept(Core::LocatorFilterEntry selection) const;
     QByteArray saveState() const;
@@ -59,6 +60,7 @@ public:
 private:
     LocatorWidget *m_locatorWidget;
     bool m_includeHidden;
+    QString m_currentDocumentDirectory;
 };
 
 } // namespace Internal

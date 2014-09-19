@@ -53,6 +53,11 @@ QString ILocatorFilter::shortcutString() const
     return m_shortcut;
 }
 
+void ILocatorFilter::prepareSearch(const QString &entry)
+{
+    Q_UNUSED(entry)
+}
+
 void ILocatorFilter::setShortcutString(const QString &shortcut)
 {
     m_shortcut = shortcut;

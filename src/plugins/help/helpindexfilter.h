@@ -46,6 +46,7 @@ public:
     ~HelpIndexFilter();
 
     // ILocatorFilter
+    void prepareSearch(const QString &entry);
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
     void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
@@ -55,6 +56,7 @@ signals:
 
 private:
     QIcon m_icon;
+    QStringList m_keywords;
 };
 
 } // namespace Internal

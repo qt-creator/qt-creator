@@ -46,10 +46,10 @@ public:
     void accept(Core::LocatorFilterEntry selection) const;
 
 protected:
-    // runs in non-UI thread
-    virtual void updateFiles();
+    /* Generates the file names from the list of file paths in m_files. */
     void generateFileNames();
 
+    /* Subclasses should update the file list latest in their prepareSearch method. */
     inline QStringList &files() { return m_files; }
     inline const QStringList &files() const { return m_files; }
 

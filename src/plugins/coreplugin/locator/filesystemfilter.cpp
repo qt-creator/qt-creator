@@ -63,6 +63,18 @@ FileSystemFilter::FileSystemFilter(LocatorWidget *locatorWidget)
     setIncludedByDefault(false);
 }
 
+void FileSystemFilter::prepareSearch(const QString &entry)
+{
+    Q_UNUSED(entry)
+    IDocument *document= EditorManager::currentDocument();
+    if (document && !document->filePath().isEmpty()) {
+        QFileInfo info(document->filePath());
+        m_currentDocumentDirectory = info.absolutePath() + QLatin1Char('/');
+    } else {
+        m_currentDocumentDirectory.clear();
+    }
+}
+
 QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
     QList<LocatorFilterEntry> goodEntries;
@@ -72,15 +84,10 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Core::Lo
     QString directory = entryInfo.path();
     QString filePath = entryInfo.filePath();
     if (entryInfo.isRelative()) {
-        if (filePath.startsWith(QLatin1String("~/"))) {
+        if (filePath.startsWith(QLatin1String("~/")))
             directory.replace(0, 1, QDir::homePath());
-        } else {
-            IDocument *document= EditorManager::currentDocument();
-            if (document && !document->filePath().isEmpty()) {
-                QFileInfo info(document->filePath());
-                directory.prepend(info.absolutePath() + QLatin1Char('/'));
-            }
-        }
+        else if (!m_currentDocumentDirectory.isEmpty())
+            directory.prepend(m_currentDocumentDirectory);
     }
     QDir dirInfo(directory);
     QDir::Filters dirFilter = QDir::Dirs|QDir::Drives|QDir::NoDot;

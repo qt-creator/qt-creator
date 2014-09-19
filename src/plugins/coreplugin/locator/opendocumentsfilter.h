@@ -34,9 +34,10 @@
 
 #include <coreplugin/editormanager/documentmodel.h>
 
-#include <QString>
-#include <QList>
 #include <QFutureInterface>
+#include <QList>
+#include <QMutex>
+#include <QString>
 
 namespace Core {
 namespace Internal {
@@ -55,6 +56,9 @@ public slots:
     void refreshInternally();
 
 private:
+    QList<Core::DocumentModel::Entry> editors() const;
+
+    mutable QMutex m_mutex;
     QList<Core::DocumentModel::Entry> m_editors;
 };
 

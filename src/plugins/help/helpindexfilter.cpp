@@ -59,16 +59,19 @@ HelpIndexFilter::~HelpIndexFilter()
 {
 }
 
+void HelpIndexFilter::prepareSearch(const QString &entry)
+{
+    if (entry.length() < 2)
+        m_keywords = Core::HelpManager::findKeywords(entry, caseSensitivity(entry), 200);
+    else
+        m_keywords = Core::HelpManager::findKeywords(entry, caseSensitivity(entry));
+}
+
 QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
-    QStringList keywords;
-    if (entry.length() < 2)
-        keywords = Core::HelpManager::findKeywords(entry, caseSensitivity(entry), 200);
-    else
-        keywords = Core::HelpManager::findKeywords(entry, caseSensitivity(entry));
-
+    Q_UNUSED(entry) // search is already done in the GUI thread in prepareSearch
     QList<LocatorFilterEntry> entries;
-    foreach (const QString &keyword, keywords) {
+    foreach (const QString &keyword, m_keywords) {
         if (future.isCanceled())
             break;
         entries.append(LocatorFilterEntry(this, keyword, QVariant(), m_icon));

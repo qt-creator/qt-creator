@@ -53,6 +53,7 @@ public:
                          LocatorWidget *locatorWidget);
 
     // ILocatorFilter
+    void prepareSearch(const QString &entry);
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
     void accept(LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
@@ -60,6 +61,8 @@ public:
 private:
     Locator *m_plugin;
     LocatorWidget *m_locatorWidget;
+    QStringList m_filterShortcutStrings;
+    QStringList m_filterDisplayNames;
     QIcon m_icon;
 };
 

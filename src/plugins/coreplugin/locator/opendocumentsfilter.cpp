@@ -34,6 +34,7 @@
 #include <utils/fileutils.h>
 
 #include <QFileInfo>
+#include <QMutexLocker>
 
 using namespace Core;
 using namespace Core;
@@ -67,7 +68,7 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Core:
     if (!regexp.isValid())
         return goodEntries;
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
-    foreach (const DocumentModel::Entry &editorEntry, m_editors) {
+    foreach (const DocumentModel::Entry &editorEntry, editors()) {
         if (future.isCanceled())
             break;
         QString fileName = editorEntry.fileName();
@@ -90,6 +91,7 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Core:
 
 void OpenDocumentsFilter::refreshInternally()
 {
+    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     m_editors.clear();
     foreach (DocumentModel::Entry *e, DocumentModel::entries()) {
         DocumentModel::Entry entry;
@@ -99,6 +101,12 @@ void OpenDocumentsFilter::refreshInternally()
         entry.m_fileName = e->fileName();
         m_editors.append(entry);
     }
+}
+
+QList<DocumentModel::Entry> OpenDocumentsFilter::editors() const
+{
+    QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
+    return m_editors;
 }
 
 void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)

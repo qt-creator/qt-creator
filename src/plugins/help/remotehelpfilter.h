@@ -35,6 +35,7 @@
 #include <coreplugin/locator/ilocatorfilter.h>
 
 #include <QIcon>
+#include <QMutex>
 
 namespace Help {
     namespace Internal {
@@ -54,7 +55,7 @@ public:
     bool restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);
 
-    QStringList remoteUrls() const { return m_remoteUrls; }
+    QStringList remoteUrls() const;
 
 signals:
     void linkActivated(const QUrl &url) const;
@@ -62,6 +63,7 @@ signals:
 private:
     QIcon m_icon;
     QStringList m_remoteUrls;
+    mutable QMutex m_mutex;
 };
 
 class RemoteFilterOptions : public QDialog

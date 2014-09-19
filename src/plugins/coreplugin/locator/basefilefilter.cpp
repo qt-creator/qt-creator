@@ -46,7 +46,6 @@ BaseFileFilter::BaseFileFilter()
 
 QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &origEntry)
 {
-    updateFiles();
     QList<LocatorFilterEntry> betterEntries;
     QList<LocatorFilterEntry> goodEntries;
     QString needle = trimWildcards(QDir::fromNativeSeparators(origEntry));
@@ -119,8 +118,4 @@ void BaseFileFilter::generateFileNames()
         m_fileNames.append(fi.fileName());
     }
     m_forceNewSearchList = true;
-}
-
-void BaseFileFilter::updateFiles()
-{
 }

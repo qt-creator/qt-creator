@@ -491,6 +491,9 @@ void LocatorWidget::updateCompletionList(const QString &text)
 
     QString searchText;
     const QList<ILocatorFilter *> filters = filtersFor(text, searchText);
+
+    foreach (ILocatorFilter *filter, filters)
+        filter->prepareSearch(searchText);
     QFuture<LocatorFilterEntry> future = QtConcurrent::run(runSearch, filters, searchText);
     m_entriesWatcher->setFuture(future);
 }
