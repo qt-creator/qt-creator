@@ -121,10 +121,10 @@ private:
     bool m_openInSplit;
 };
 
-class VirtualFunctionsAssistProcessor : public IAssistProcessor
+class VirtualFunctionAssistProcessor : public IAssistProcessor
 {
 public:
-    VirtualFunctionsAssistProcessor(const VirtualFunctionAssistProvider::Parameters &params)
+    VirtualFunctionAssistProcessor(const VirtualFunctionAssistProvider::Parameters &params)
         : m_params(params)
     {}
 
@@ -219,5 +219,5 @@ bool VirtualFunctionAssistProvider::supportsEditor(Core::Id editorId) const
 
 IAssistProcessor *VirtualFunctionAssistProvider::createProcessor() const
 {
-    return new VirtualFunctionsAssistProcessor(m_params);
+    return new VirtualFunctionAssistProcessor(m_params);
 }
