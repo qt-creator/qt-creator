@@ -608,7 +608,10 @@ public:
                         ++m_functionCount;
                 }
             }
-            if (!itemBase->functions.isEmpty())
+
+            if (itemBase->functions.isEmpty())
+                delete itemBase;
+            else
                 m_factory->classFunctionModel->addClass(itemBase);
         }
         if (m_factory->classFunctionModel->classes.isEmpty() || m_functionCount == 0)
