@@ -52,6 +52,12 @@ QStringList DependencyTable::filesDependingOn(const QString &fileName) const
 
 void DependencyTable::build(const Snapshot &snapshot)
 {
+    includesPerFile.clear();
+    files.clear();
+    fileIndex.clear();
+    includes.clear();
+    includeMap.clear();
+
     const int documentCount = snapshot.size();
     files.resize(documentCount);
     includeMap.resize(documentCount);
