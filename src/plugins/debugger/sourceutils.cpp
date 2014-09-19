@@ -36,6 +36,7 @@
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppprojectfile.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cplusplus/CppDocument.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
 
@@ -48,7 +49,10 @@
 
 enum { debug = 0 };
 
-// Debug helpers for code model. @todo: Move to some CppTools library?
+using namespace CppTools;
+using namespace CPlusPlus;
+using namespace TextEditor;
+
 namespace CPlusPlus {
 
 static void debugCppSymbolRecursion(QTextStream &str, const Overview &o,
@@ -80,7 +84,7 @@ static void debugCppSymbolRecursion(QTextStream &str, const Overview &o,
 QDebug operator<<(QDebug d, const Symbol &s)
 {
     QString output;
-    CPlusPlus::Overview o;
+    Overview o;
     QTextStream str(&output);
     debugCppSymbolRecursion(str, o, s, true, 0);
     d.nospace() << output;
@@ -119,6 +123,7 @@ QDebug operator<<(QDebug d, const Scope &scope)
     d.nospace() << output;
     return d;
 }
+
 } // namespace CPlusPlus
 
 namespace Debugger {
@@ -144,8 +149,8 @@ if (true) {
 
 typedef QHash<QString, int> SeenHash;
 
-static void blockRecursion(const CPlusPlus::Overview &overview,
-                           const CPlusPlus::Scope *scope,
+static void blockRecursion(const Overview &overview,
+                           const Scope *scope,
                            unsigned line,
                            QStringList *uninitializedVariables,
                            SeenHash *seenHash,
@@ -154,7 +159,7 @@ static void blockRecursion(const CPlusPlus::Overview &overview,
     // Go backwards in case someone has identical variables in the same scope.
     // Fixme: loop variables or similar are currently seen in the outer scope
     for (int s = scope->memberCount() - 1; s >= 0; --s){
-        const CPlusPlus::Symbol *symbol = scope->memberAt(s);
+        const Symbol *symbol = scope->memberAt(s);
         if (symbol->isDeclaration()) {
             // Find out about shadowed symbols by bookkeeping
             // the already seen occurrences in a hash.
@@ -171,13 +176,13 @@ static void blockRecursion(const CPlusPlus::Overview &overview,
         }
     }
     // Next block scope.
-    if (const CPlusPlus::Scope *enclosingScope = scope->enclosingBlock())
+    if (const Scope *enclosingScope = scope->enclosingBlock())
         blockRecursion(overview, enclosingScope, line, uninitializedVariables, seenHash, level + 1);
 }
 
 // Inline helper with integer error return codes.
 static inline
-int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
+int getUninitializedVariablesI(const Snapshot &snapshot,
                                const QString &functionName,
                                const QString &file,
                                int line,
@@ -187,26 +192,26 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
     // Find document
     if (snapshot.isEmpty() || functionName.isEmpty() || file.isEmpty() || line < 1)
         return 1;
-    const CPlusPlus::Snapshot::const_iterator docIt = snapshot.find(file);
+    const Snapshot::const_iterator docIt = snapshot.find(file);
     if (docIt == snapshot.end())
         return 2;
-    const CPlusPlus::Document::Ptr doc = docIt.value();
+    const Document::Ptr doc = docIt.value();
     // Look at symbol at line and find its function. Either it is the
     // function itself or some expression/variable.
-    const CPlusPlus::Symbol *symbolAtLine = doc->lastVisibleSymbolAt(line, 0);
+    const Symbol *symbolAtLine = doc->lastVisibleSymbolAt(line, 0);
     if (!symbolAtLine)
         return 4;
     // First figure out the function to do a safety name check
     // and the innermost scope at cursor position
-    const CPlusPlus::Function *function = 0;
-    const CPlusPlus::Scope *innerMostScope = 0;
+    const Function *function = 0;
+    const Scope *innerMostScope = 0;
     if (symbolAtLine->isFunction()) {
         function = symbolAtLine->asFunction();
         if (function->memberCount() == 1) // Skip over function block
-            if (CPlusPlus::Block *block = function->memberAt(0)->asBlock())
+            if (Block *block = function->memberAt(0)->asBlock())
                 innerMostScope = block;
     } else {
-        if (const CPlusPlus::Scope *functionScope = symbolAtLine->enclosingFunction()) {
+        if (const Scope *functionScope = symbolAtLine->enclosingFunction()) {
             function = functionScope->asFunction();
             innerMostScope = symbolAtLine->isBlock() ?
                              symbolAtLine->asBlock() :
@@ -218,7 +223,7 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
     // Compare function names with a bit off fuzz,
     // skipping modules from a CDB symbol "lib!foo" or namespaces
     // that the code model does not show at this point
-    CPlusPlus::Overview overview;
+    Overview overview;
     const QString name = overview.prettyName(function->name());
     if (!functionName.endsWith(name))
         return 11;
@@ -233,7 +238,7 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
     return 0;
 }
 
-bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
+bool getUninitializedVariables(const Snapshot &snapshot,
                                const QString &function,
                                const QString &file,
                                int line,
@@ -253,77 +258,32 @@ bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
     return rc == 0;
 }
 
-//QByteArray gdbQuoteTypes(const QByteArray &type)
-//{
-//    // gdb does not understand sizeof(Core::IDocument*).
-//    // "sizeof('Core::IDocument*')" is also not acceptable,
-//    // it needs to be "sizeof('Core::IDocument'*)"
-//    //
-//    // We never will have a perfect solution here (even if we had a full blown
-//    // C++ parser as we do not have information on what is a type and what is
-//    // a variable name. So "a<b>::c" could either be two comparisons of values
-//    // 'a', 'b' and '::c', or a nested type 'c' in a template 'a<b>'. We
-//    // assume here it is the latter.
-//    //return type;
-
-//    // (*('myns::QPointer<myns::QObject>*'*)0x684060)" is not acceptable
-//    // (*('myns::QPointer<myns::QObject>'**)0x684060)" is acceptable
-//    if (isPointerType(type))
-//        return gdbQuoteTypes(stripPointerType(type)) + '*';
-
-//    QByteArray accu;
-//    QByteArray result;
-//    int templateLevel = 0;
-
-//    const char colon = ':';
-//    const char singleQuote = '\'';
-//    const char lessThan = '<';
-//    const char greaterThan = '>';
-//    for (int i = 0; i != type.size(); ++i) {
-//        const char c = type.at(i);
-//        if (isLetterOrNumber(c) || c == '_' || c == colon || c == ' ') {
-//            accu += c;
-//        } else if (c == lessThan) {
-//            ++templateLevel;
-//            accu += c;
-//        } else if (c == greaterThan) {
-//            --templateLevel;
-//            accu += c;
-//        } else if (templateLevel > 0) {
-//            accu += c;
-//        } else {
-//            if (accu.contains(colon) || accu.contains(lessThan))
-//                result += singleQuote + accu + singleQuote;
-//            else
-//                result += accu;
-//            accu.clear();
-//            result += c;
-//        }
-//    }
-//    if (accu.contains(colon) || accu.contains(lessThan))
-//        result += singleQuote + accu + singleQuote;
-//    else
-//        result += accu;
-//    //qDebug() << "GDB_QUOTING" << type << " TO " << result;
-
-//    return result;
-//}
-
-// Utilities to decode string data returned by the dumper helpers.
-
 
 // Editor tooltip support
-bool isCppEditor(TextEditor::BaseTextEditorWidget *editorWidget)
+bool isCppEditor(BaseTextEditorWidget *editorWidget)
 {
-    const TextEditor::BaseTextDocument *document = editorWidget->textDocument();
-    return CppTools::ProjectFile::classify(document->filePath()) != CppTools::ProjectFile::Unclassified;
+    const BaseTextDocument *document = editorWidget->textDocument();
+    return ProjectFile::classify(document->filePath()) != ProjectFile::Unclassified;
 }
 
+QString cppFunctionAt(const QString &fileName, int line, int column)
+{
+    CppModelManager *modelManager = CppModelManager::instance();
+    if (!modelManager)
+        return QString();
+
+    const Snapshot snapshot = modelManager->snapshot();
+    if (const Document::Ptr document = snapshot.document(fileName))
+        return document->functionAt(line, column);
+
+    return QString();
+}
+
+
 // Return the Cpp expression, and, if desired, the function
-QString cppExpressionAt(TextEditor::BaseTextEditorWidget *editorWidget, int pos,
+QString cppExpressionAt(BaseTextEditorWidget *editorWidget, int pos,
                         int *line, int *column, QString *function /* = 0 */)
 {
-    using namespace CppTools;
     *line = *column = 0;
     if (function)
         function->clear();
@@ -338,7 +298,7 @@ QString cppExpressionAt(TextEditor::BaseTextEditorWidget *editorWidget, int pos,
             tc.movePosition(QTextCursor::EndOfWord);
 
         // Fetch the expression's code.
-        CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
+        ExpressionUnderCursor expressionUnderCursor;
         expr = expressionUnderCursor(tc);
         *column = tc.positionInBlock();
         *line = tc.blockNumber();
@@ -348,8 +308,7 @@ QString cppExpressionAt(TextEditor::BaseTextEditorWidget *editorWidget, int pos,
     }
 
     if (function && !expr.isEmpty())
-        *function = AbstractEditorSupport::functionAt(modelManager,
-                        editorWidget->textDocument()->filePath(), *line, *column);
+        *function = cppFunctionAt(editorWidget->textDocument()->filePath(), *line, *column);
 
     return expr;
 }
@@ -377,15 +336,6 @@ QString fixCppExpression(const QString &expIn)
     }
     exp = exp.mid(pos1, pos2 - pos1);
     return removeObviousSideEffects(exp);
-}
-
-QString cppFunctionAt(const QString &fileName, int line)
-{
-    using namespace CppTools;
-    using namespace CPlusPlus;
-    CppModelManager *modelManager = CppModelManager::instance();
-    return AbstractEditorSupport::functionAt(modelManager,
-                                             fileName, line, 1);
 }
 
 } // namespace Internal

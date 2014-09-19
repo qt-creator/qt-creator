@@ -52,11 +52,6 @@ public:
     void updateDocument();
     unsigned revision() const { return m_revision; }
 
-    // TODO: find a better place for common utility functions
-    static QString functionAt(const CppModelManager *mm,
-                              const QString &fileName,
-                              int line, int column);
-
     static QString licenseTemplate(const QString &file = QString(), const QString &className = QString());
 
 private:

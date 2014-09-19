@@ -52,20 +52,6 @@ void AbstractEditorSupport::updateDocument()
     m_modelmanager->updateSourceFiles(QSet<QString>() << fileName());
 }
 
-QString AbstractEditorSupport::functionAt(const CppModelManager *modelManager,
-                                          const QString &fileName,
-                                          int line, int column)
-{
-    if (!modelManager)
-        return QString();
-
-    const CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-    if (const CPlusPlus::Document::Ptr document = snapshot.document(fileName))
-        return document->functionAt(line, column);
-
-    return QString();
-}
-
 QString AbstractEditorSupport::licenseTemplate(const QString &file, const QString &className)
 {
     return Internal::CppFileSettings::licenseTemplate(file, className);
