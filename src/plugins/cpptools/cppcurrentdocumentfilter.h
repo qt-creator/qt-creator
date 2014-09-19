@@ -56,14 +56,18 @@ public:
 
 private slots:
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
-    void onCurrentEditorChanged(Core::IEditor * currentEditor);
-    void onEditorAboutToClose(Core::IEditor * currentEditor);
+    void onCurrentEditorChanged(Core::IEditor *currentEditor);
+    void onEditorAboutToClose(Core::IEditor *currentEditor);
 
 private:
+    QList<IndexItem::Ptr> itemsOfCurrentDocument();
+
     CppModelManager * m_modelManager;
+    SearchSymbols search;
+
+    mutable QMutex m_mutex;
     QString m_currentFileName;
     QList<IndexItem::Ptr> m_itemsOfCurrentDoc;
-    SearchSymbols search;
 };
 
 } // namespace Internal

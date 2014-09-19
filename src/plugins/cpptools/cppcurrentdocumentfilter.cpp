@@ -71,25 +71,9 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
     if (!regexp.isValid())
         return goodEntries;
     bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
-
-    if (m_currentFileName.isEmpty())
-        return goodEntries;
-
-    if (m_itemsOfCurrentDoc.isEmpty()) {
-        Snapshot snapshot = m_modelManager->snapshot();
-        Document::Ptr thisDocument = snapshot.document(m_currentFileName);
-        if (thisDocument) {
-            IndexItem::Ptr rootNode = search(thisDocument);
-            rootNode->visitAllChildren([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
-                m_itemsOfCurrentDoc.append(info);
-                return IndexItem::Recurse;
-            });
-        }
-    }
-
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
-    foreach (IndexItem::Ptr info, m_itemsOfCurrentDoc) {
+    foreach (IndexItem::Ptr info, itemsOfCurrentDocument()) {
         if (future.isCanceled())
             break;
 
@@ -138,12 +122,14 @@ void CppCurrentDocumentFilter::refresh(QFutureInterface<void> &future)
 
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)
 {
+    QMutexLocker locker(&m_mutex);
     if (m_currentFileName == doc->fileName())
         m_itemsOfCurrentDoc.clear();
 }
 
-void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor * currentEditor)
+void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor *currentEditor)
 {
+    QMutexLocker locker(&m_mutex);
     if (currentEditor)
         m_currentFileName = currentEditor->document()->filePath();
     else
@@ -151,11 +137,35 @@ void CppCurrentDocumentFilter::onCurrentEditorChanged(Core::IEditor * currentEdi
     m_itemsOfCurrentDoc.clear();
 }
 
-void CppCurrentDocumentFilter::onEditorAboutToClose(Core::IEditor * editorAboutToClose)
+void CppCurrentDocumentFilter::onEditorAboutToClose(Core::IEditor *editorAboutToClose)
 {
-    if (!editorAboutToClose) return;
+    if (!editorAboutToClose)
+        return;
+
+    QMutexLocker locker(&m_mutex);
     if (m_currentFileName == editorAboutToClose->document()->filePath()) {
         m_currentFileName.clear();
         m_itemsOfCurrentDoc.clear();
     }
+}
+
+QList<CppTools::IndexItem::Ptr> CppCurrentDocumentFilter::itemsOfCurrentDocument()
+{
+    QMutexLocker locker(&m_mutex);
+
+    if (m_currentFileName.isEmpty())
+        return QList<CppTools::IndexItem::Ptr>();
+
+    if (m_itemsOfCurrentDoc.isEmpty()) {
+        const Snapshot snapshot = m_modelManager->snapshot();
+        if (const Document::Ptr thisDocument = snapshot.document(m_currentFileName)) {
+            IndexItem::Ptr rootNode = search(thisDocument);
+            rootNode->visitAllChildren([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
+                m_itemsOfCurrentDoc.append(info);
+                return IndexItem::Recurse;
+            });
+        }
+    }
+
+    return m_itemsOfCurrentDoc;
 }
