@@ -1338,8 +1338,11 @@ bool DebuggerToolTipManager::tryHandleToolTipOverride(BaseTextEditor *editor, co
     QString raw = cppExpressionAt(editor, context.position, &context.line, &context.column, &context.function);
     context.expression = fixCppExpression(raw);
 
-    if (context.expression.isEmpty())
-        return false;
+    if (context.expression.isEmpty()) {
+        const Utils::WidgetContent widgetContent(new QLabel(tr("No valid expression")), true);
+        Utils::ToolTip::show(context.mousePosition, widgetContent, debuggerCore()->mainWindow());
+        return true;
+    }
 
     // Prefer a filter on an existing local variable if it can be found.
     if (const WatchData *localVariable = engine->watchHandler()->findCppLocalVariable(context.expression)) {
