@@ -469,19 +469,17 @@ bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     int index = indexOf(m_tabWidget->widget(tabIndex));
     QTC_ASSERT(index != -1, return true);
 
-    RunControlTab &tab = m_runControlTabs[index];
-
     if (debug)
-            qDebug() << "OutputPane::closeTab tab " << tabIndex << tab.runControl
-                        << tab.window << tab.asyncClosing;
+        qDebug() << "OutputPane::closeTab tab " << tabIndex << m_runControlTabs[index].runControl
+                        << m_runControlTabs[index].window << m_runControlTabs[index].asyncClosing;
     // Prompt user to stop
-    if (tab.runControl->isRunning()) {
+    if (m_runControlTabs[index].runControl->isRunning()) {
         switch (closeTabMode) {
         case CloseTabNoPrompt:
             break;
         case CloseTabWithPrompt:
             QWidget *tabWidget = m_tabWidget->widget(tabIndex);
-            if (!tab.runControl->promptToStop())
+            if (!m_runControlTabs[index].runControl->promptToStop())
                 return false;
             // The event loop has run, thus the ordering might have changed, a tab might
             // have been closed, so do some strange things...
@@ -489,26 +487,24 @@ bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
             index = indexOf(tabWidget);
             if (tabIndex == -1 || index == -1)
                 return false;
-            tab = m_runControlTabs[index];
             break;
         }
-        if (tab.runControl->isRunning()) { // yes it might have stopped already, then just close
+        if (m_runControlTabs[index].runControl->isRunning()) { // yes it might have stopped already, then just close
             QWidget *tabWidget = m_tabWidget->widget(tabIndex);
-            if (tab.runControl->stop() == RunControl::AsynchronousStop) {
-                tab.asyncClosing = true;
+            if (m_runControlTabs[index].runControl->stop() == RunControl::AsynchronousStop) {
+                m_runControlTabs[index].asyncClosing = true;
                 return false;
             }
             tabIndex = m_tabWidget->indexOf(tabWidget);
             index = indexOf(tabWidget);
             if (tabIndex == -1 || index == -1)
                 return false;
-            tab = m_runControlTabs[index];
         }
     }
 
     m_tabWidget->removeTab(tabIndex);
-    delete tab.runControl;
-    delete tab.window;
+    delete m_runControlTabs[index].runControl;
+    delete m_runControlTabs[index].window;
     m_runControlTabs.removeAt(index);
     updateCloseActions();
     return true;
