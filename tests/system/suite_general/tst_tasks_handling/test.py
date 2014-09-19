@@ -95,21 +95,21 @@ def getBuildIssuesTypeCounts(model):
 
 def main():
     tasksFile, issueTypes = generateMockTasksFile()
-    issuesLabel = ("{text='%d' type='QLabel' unnamed='1' visible='1' "
-                   "window=':Qt Creator_Core::Internal::MainWindow'}" % (sum(issueTypes)))
+    expectedNo = sum(issueTypes)
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
+    ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
+    model = waitForObject(":Qt Creator.Issues_QListView").model()
+    test.verify(model.rowCount() == 0, 'Got an empty issue list to start from.')
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(tasksFile)
     starttime = datetime.utcnow()
-    waitFor("object.exists(issuesLabel)", 10000)
+    waitFor("model.rowCount() == expectedNo", 10000)
     endtime = datetime.utcnow()
     differenceMS = (endtime - starttime).microseconds + (endtime - starttime).seconds * 1000000
     test.verify(differenceMS < 2000000, "Verifying whether loading the tasks "
                 "file took less than 2s. (%dµs)" % differenceMS)
-    ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
-    model = waitForObject(":Qt Creator.Issues_QListView").model()
     others, errors, warnings = getBuildIssuesTypeCounts(model)
     test.compare(issueTypes, [warnings, errors, others],
                  "Verifying whether all expected errors, warnings and other tasks are listed.")
@@ -120,8 +120,8 @@ def main():
     waitFor("model.rowCount() == issueTypes[1]", 2000)
     test.compare(model.rowCount(), issueTypes[1], "Verifying only errors are listed.")
     ensureChecked(warnButton, True)
-    waitFor("model.rowCount() == sum(issueTypes)", 2000)
-    test.compare(model.rowCount(), sum(issueTypes), "Verifying all tasks are listed.")
+    waitFor("model.rowCount() == expectedNo", 2000)
+    test.compare(model.rowCount(), expectedNo, "Verifying all tasks are listed.")
 
     # check filtering by 'My Tasks'
     checkOrUncheckMyTasks()
@@ -129,8 +129,8 @@ def main():
     test.compare(model.rowCount(), 0,
                  "Verifying whether unchecking 'My Tasks' hides all tasks from tasks file.")
     checkOrUncheckMyTasks()
-    waitFor("model.rowCount() == sum(issueTypes)", 2000)
-    test.compare(model.rowCount(), sum(issueTypes),
+    waitFor("model.rowCount() == expectedNo", 2000)
+    test.compare(model.rowCount(), expectedNo,
                  "Verifying whether checking 'My Tasks' displays all tasks from tasks file.")
 
     # check filtering by 'My Tasks' and 'Show Warnings'
@@ -145,8 +145,8 @@ def main():
     test.compare(model.rowCount(), 0,
                  "Verifying whether enabling 'Show Warnings' still displays nothing.")
     checkOrUncheckMyTasks()
-    waitFor("model.rowCount() == sum(issueTypes)", 2000)
-    test.compare(model.rowCount(), sum(issueTypes),
+    waitFor("model.rowCount() == expectedNo", 2000)
+    test.compare(model.rowCount(), expectedNo,
                  "Verifying whether checking 'My Tasks' displays all again.")
     ensureChecked(warnButton, False)
     waitFor("model.rowCount() == issueTypes[1]", 2000)
