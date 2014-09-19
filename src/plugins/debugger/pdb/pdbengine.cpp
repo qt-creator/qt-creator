@@ -452,33 +452,21 @@ static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
 
-bool PdbEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor,
+bool PdbEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget,
     const DebuggerToolTipContext &ctx)
 {
-    Q_UNUSED(editor)
-
     if (state() != InferiorStopOk) {
         //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
         return false;
     }
     // Check mime type and get expression (borrowing some C++ - functions)
-    const QString javaPythonMimeType =
-        QLatin1String("application/javascript");
-    if (!editor->document() || editor->document()->mimeType() != javaPythonMimeType)
+    const QString javaPythonMimeType = QLatin1String("application/javascript");
+    if (editorWidget->textDocument()->mimeType() != javaPythonMimeType)
         return false;
 
     int line;
     int column;
-    QString exp = cppExpressionAt(editor, ctx.position, &line, &column);
-
-/*
-    if (m_toolTipCache.contains(exp)) {
-        const WatchData & data = m_toolTipCache[exp];
-        q->watchHandler()->removeChildren(data.iname);
-        insertData(data);
-        return;
-    }
-*/
+    QString exp = cppExpressionAt(editorWidget, ctx.position, &line, &column);
 
     QToolTip::hideText();
     if (exp.isEmpty() || exp.startsWith(QLatin1Char('#')))  {

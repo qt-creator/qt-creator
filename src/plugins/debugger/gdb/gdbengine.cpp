@@ -3650,7 +3650,7 @@ void GdbEngine::resetLocation()
     DebuggerEngine::resetLocation();
 }
 
-bool GdbEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor,
+bool GdbEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *editor,
     const DebuggerToolTipContext &context)
 {
     if (state() != InferiorStopOk || !isCppEditor(editor)) {

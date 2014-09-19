@@ -88,7 +88,7 @@ public:
 
 signals:
     void tooltipRequested(const QPoint &mousePos,
-        TextEditor::BaseTextEditor *editor, int cursorPos);
+        TextEditor::BaseTextEditorWidget *editorWidget, int cursorPos);
     void aboutToNotifyInferiorSetupOk();
 
 private slots:
@@ -127,7 +127,7 @@ private:
     void shutdownInferior();
     void shutdownEngine();
 
-    bool setToolTipExpression(TextEditor::BaseTextEditor *editor,
+    bool setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget,
         const DebuggerToolTipContext &);
 
     void continueInferior();

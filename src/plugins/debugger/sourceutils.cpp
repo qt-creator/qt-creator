@@ -313,17 +313,14 @@ bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
 
 
 // Editor tooltip support
-bool isCppEditor(Core::IEditor *editor)
+bool isCppEditor(TextEditor::BaseTextEditorWidget *editorWidget)
 {
-    const Core::IDocument *document= editor->document();
-    if (!document)
-        return false;
-
+    const TextEditor::BaseTextDocument *document = editorWidget->textDocument();
     return CppTools::ProjectFile::classify(document->filePath()) != CppTools::ProjectFile::Unclassified;
 }
 
 // Return the Cpp expression, and, if desired, the function
-QString cppExpressionAt(TextEditor::BaseTextEditor *editor, int pos,
+QString cppExpressionAt(TextEditor::BaseTextEditorWidget *editorWidget, int pos,
                         int *line, int *column, QString *function /* = 0 */)
 {
     using namespace CppTools;
@@ -331,18 +328,12 @@ QString cppExpressionAt(TextEditor::BaseTextEditor *editor, int pos,
     if (function)
         function->clear();
 
-    const QPlainTextEdit *plaintext = qobject_cast<QPlainTextEdit*>(editor->widget());
-    if (!plaintext)
-        return QString();
-
-    QTextCursor tc = plaintext->textCursor();
+    QTextCursor tc = editorWidget->textCursor();
     QString expr = tc.selectedText();
     CppModelManager *modelManager = CppModelManager::instance();
     if (expr.isEmpty() && modelManager) {
-        QTextDocument *doc = plaintext->document();
-        QTC_ASSERT(doc, return QString());
         tc.setPosition(pos);
-        const QChar ch = doc->characterAt(pos);
+        const QChar ch = editorWidget->characterAt(pos);
         if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
             tc.movePosition(QTextCursor::EndOfWord);
 
@@ -357,10 +348,8 @@ QString cppExpressionAt(TextEditor::BaseTextEditor *editor, int pos,
     }
 
     if (function && !expr.isEmpty())
-        if (const Core::IDocument *document= editor->document())
-            if (modelManager)
-                *function = AbstractEditorSupport::functionAt(modelManager,
-                    document->filePath(), *line, *column);
+        *function = AbstractEditorSupport::functionAt(modelManager,
+                        editorWidget->textDocument()->filePath(), *line, *column);
 
     return expr;
 }

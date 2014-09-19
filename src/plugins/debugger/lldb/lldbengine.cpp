@@ -837,9 +837,9 @@ void LldbEngine::resetLocation()
     DebuggerEngine::resetLocation();
 }
 
-bool LldbEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor, const DebuggerToolTipContext &context)
+bool LldbEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget, const DebuggerToolTipContext &context)
 {
-    if (state() != InferiorStopOk || !isCppEditor(editor)) {
+    if (state() != InferiorStopOk || !isCppEditor(editorWidget)) {
         //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
         // " OR NOT A CPPEDITOR";
         return false;

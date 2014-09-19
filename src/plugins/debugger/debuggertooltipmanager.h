@@ -41,7 +41,7 @@ class QDebug;
 QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
-namespace TextEditor { class BaseTextEditor; }
+namespace TextEditor { class BaseTextEditor; class BaseTextEditorWidget; }
 
 namespace Debugger {
 class DebuggerEngine;
@@ -136,7 +136,7 @@ private slots:
             const QPoint &point, int pos, bool *handled);
 
 private:
-    bool tryHandleToolTipOverride(TextEditor::BaseTextEditor *editor,
+    bool tryHandleToolTipOverride(TextEditor::BaseTextEditorWidget *editorWidget,
             const QPoint &point, int pos);
 };
 

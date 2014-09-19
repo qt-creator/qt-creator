@@ -1105,7 +1105,7 @@ public slots:
             exp = tc.selectedText();
         } else {
             int line, column;
-            exp = cppExpressionAt(textEditor, tc.position(), &line, &column);
+            exp = cppExpressionAt(textEditor->editorWidget(), tc.position(), &line, &column);
         }
         if (currentEngine()->hasCapability(WatchComplexExpressionsCapability))
             exp = removeObviousSideEffects(exp);

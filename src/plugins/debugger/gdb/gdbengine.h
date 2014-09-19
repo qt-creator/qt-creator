@@ -407,7 +407,7 @@ protected:
     //
     // Watch specific stuff
     //
-    virtual bool setToolTipExpression(TextEditor::BaseTextEditor *editor,
+    virtual bool setToolTipExpression(TextEditor::BaseTextEditorWidget *editor,
         const DebuggerToolTipContext &);
     virtual void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);

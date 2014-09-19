@@ -489,7 +489,7 @@ public:
     QList<QPointer<DebuggerToolTipWidget> > m_tooltips;
     bool m_debugModeActive;
     QPoint m_lastToolTipPoint;
-    Core::IEditor *m_lastToolTipEditor;
+    BaseTextEditorWidget *m_lastToolTipEditor;
 };
 
 static DebuggerToolTipManagerData *d = 0;
@@ -1304,15 +1304,15 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested
     QTC_ASSERT(editor, return);
 
     const int movedDistance = (point - d->m_lastToolTipPoint).manhattanLength();
-    if (d->m_lastToolTipEditor == editor && movedDistance < 25) {
+    if (d->m_lastToolTipEditor == editor->editorWidget() && movedDistance < 25) {
         *handled = true;
         return;
     }
 
-    *handled = tryHandleToolTipOverride(editor, point, pos);
+    *handled = tryHandleToolTipOverride(editor->editorWidget(), point, pos);
 
     if (*handled) {
-        d->m_lastToolTipEditor = editor;
+        d->m_lastToolTipEditor = editor->editorWidget();
         d->m_lastToolTipPoint = point;
     } else {
         d->m_lastToolTipEditor = 0;
@@ -1320,7 +1320,7 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested
     }
 }
 
-bool DebuggerToolTipManager::tryHandleToolTipOverride(BaseTextEditor *editor, const QPoint &point, int pos)
+bool DebuggerToolTipManager::tryHandleToolTipOverride(BaseTextEditorWidget *editorWidget, const QPoint &point, int pos)
 {
     if (!boolSetting(UseToolTipsInMainEditor))
         return false;
@@ -1331,11 +1331,11 @@ bool DebuggerToolTipManager::tryHandleToolTipOverride(BaseTextEditor *editor, co
 
     DebuggerToolTipContext context;
     context.engineType = engine->objectName();
-    context.fileName = editor->document()->filePath();
+    context.fileName = editorWidget->textDocument()->filePath();
     context.position = pos;
     context.mousePosition = point;
-    editor->convertPosition(pos, &context.line, &context.column);
-    QString raw = cppExpressionAt(editor, context.position, &context.line, &context.column, &context.function);
+    editorWidget->convertPosition(pos, &context.line, &context.column);
+    QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column, &context.function);
     context.expression = fixCppExpression(raw);
 
     if (context.expression.isEmpty()) {
@@ -1356,7 +1356,7 @@ bool DebuggerToolTipManager::tryHandleToolTipOverride(BaseTextEditor *editor, co
 
     context.iname = "tooltip." + context.expression.toLatin1().toHex();
 
-    if (engine->setToolTipExpression(editor, context))
+    if (engine->setToolTipExpression(editorWidget, context))
         return true;
 
     // Other tooltip, close all in case mouse never entered the tooltip

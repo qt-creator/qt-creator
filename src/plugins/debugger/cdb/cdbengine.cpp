@@ -447,19 +447,19 @@ void CdbEngine::syncVerboseLog(bool verboseLog)
     postCommand(m_verboseLog ? QByteArray("!sym noisy") : QByteArray("!sym quiet"), 0);
 }
 
-bool CdbEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor,
+bool CdbEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget,
                                      const DebuggerToolTipContext &contextIn)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO;
     // Need a stopped debuggee and a cpp file in a valid frame
-    if (state() != InferiorStopOk || !isCppEditor(editor) || stackHandler()->currentIndex() < 0)
+    if (state() != InferiorStopOk || !isCppEditor(editorWidget) || stackHandler()->currentIndex() < 0)
         return false;
     // Determine expression and function
     int line;
     int column;
     DebuggerToolTipContext context = contextIn;
-    QString exp = fixCppExpression(cppExpressionAt(editor, context.position, &line, &column, &context.function));
+    QString exp = fixCppExpression(cppExpressionAt(editorWidget, context.position, &line, &column, &context.function));
     // Are we in the current stack frame
     if (context.function.isEmpty() || exp.isEmpty() || context.function != stackHandler()->currentFrame().function)
         return false;

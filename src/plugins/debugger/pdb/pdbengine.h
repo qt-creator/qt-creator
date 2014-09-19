@@ -75,7 +75,7 @@ private:
     void shutdownInferior();
     void shutdownEngine();
 
-    bool setToolTipExpression(TextEditor::BaseTextEditor *editor,
+    bool setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget,
         const DebuggerToolTipContext &);
 
     void continueInferior();

@@ -983,12 +983,12 @@ void QmlEngine::requestModuleSymbols(const QString &moduleName)
 //
 //////////////////////////////////////////////////////////////////////
 
-bool QmlEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor,
+bool QmlEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget,
     const DebuggerToolTipContext &ctx)
 {
     // This is processed by QML inspector, which has dependencies to
     // the qml js editor. Makes life easier.
-    emit tooltipRequested(ctx.mousePosition, editor, ctx.position);
+    emit tooltipRequested(ctx.mousePosition, editorWidget, ctx.position);
     return true;
 }
 

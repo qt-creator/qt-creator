@@ -89,14 +89,15 @@ bool QmlCppEngine::canDisplayTooltip() const
     return m_cppEngine->canDisplayTooltip() || m_qmlEngine->canDisplayTooltip();
 }
 
-bool QmlCppEngine::setToolTipExpression(TextEditor::BaseTextEditor *editor, const DebuggerToolTipContext &ctx)
+bool QmlCppEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget, const DebuggerToolTipContext &ctx)
 {
-    QTC_ASSERT(editor, return false);
+    QTC_ASSERT(editorWidget, return false);
     bool success = false;
-    if (editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID)
-        success = m_cppEngine->setToolTipExpression(editor, ctx);
-    else if (editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
-        success = m_qmlEngine->setToolTipExpression(editor, ctx);
+    Core::Id id = editorWidget->textDocument()->id();
+    if (id == CppEditor::Constants::CPPEDITOR_ID)
+        success = m_cppEngine->setToolTipExpression(editorWidget, ctx);
+    else if (id == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
+        success = m_qmlEngine->setToolTipExpression(editorWidget, ctx);
     return success;
 }
 
