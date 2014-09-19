@@ -293,8 +293,11 @@ QSet<QString> QtKitInformation::availablePlatforms(const Kit *k) const
 {
     QSet<QString> result;
     BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    if (version)
-        result.insert(version->platformName());
+    if (version) {
+        QString platform = version->platformName();
+        if (!platform.isEmpty())
+            result.insert(version->platformName());
+    }
     return result;
 }
 
