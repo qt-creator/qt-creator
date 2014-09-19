@@ -50,7 +50,6 @@
 namespace TextEditor {
 
 class BaseTextDocument;
-class CodeAssistant;
 
 namespace Internal {
 class TextEditorOverlay;

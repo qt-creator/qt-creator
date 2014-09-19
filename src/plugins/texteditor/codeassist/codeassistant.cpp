@@ -50,24 +50,7 @@
 #include <QScopedPointer>
 #include <QTimer>
 
-using namespace TextEditor;
-using namespace Internal;
-
-namespace {
-
-template <class T>
-void filterEditorSpecificProviders(QList<T *> *providers, Core::Id editorId)
-{
-    typename QList<T *>::iterator it = providers->begin();
-    while (it != providers->end()) {
-        if ((*it)->supportsEditor(editorId))
-            ++it;
-        else
-            it = providers->erase(it);
-    }
-}
-
-} // Anonymous
+using namespace TextEditor::Internal;
 
 namespace TextEditor {
 
@@ -77,7 +60,6 @@ class CodeAssistantPrivate : public QObject
 
 public:
     CodeAssistantPrivate(CodeAssistant *assistant);
-    virtual ~CodeAssistantPrivate();
 
     void configure(BaseTextEditorWidget *editorWidget);
     void reconfigure();
@@ -100,6 +82,9 @@ public:
 
     void stopAutomaticProposalTimer();
     void startAutomaticProposalTimer();
+    void automaticProposalTimeout();
+    void clearAbortedPosition();
+    void updateCompletionSettings(const TextEditor::CompletionSettings &settings);
 
     virtual bool eventFilter(QObject *o, QEvent *e);
 
@@ -112,13 +97,10 @@ private slots:
     void processProposalItem(AssistProposalItem *proposalItem);
     void handlePrefixExpansion(const QString &newPrefix);
     void finalizeProposal();
-    void automaticProposalTimeout();
-    void updateCompletionSettings(const TextEditor::CompletionSettings &settings);
     void explicitlyAborted();
-    void clearAbortedPosition();
 
 private:
-    CodeAssistant *m_q;
+    CodeAssistant *q;
     BaseTextEditorWidget *m_editorWidget;
     CompletionAssistProvider *m_completionProvider;
     QList<QuickFixAssistProvider *> m_quickFixProviders;
@@ -134,8 +116,6 @@ private:
     static const QChar m_null;
 };
 
-} // TextEditor
-
 // --------------------
 // CodeAssistantPrivate
 // --------------------
@@ -144,7 +124,7 @@ const QChar CodeAssistantPrivate::m_null;
 static const int AutomaticProposalTimerInterval = 400;
 
 CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
-    : m_q(assistant)
+    : q(assistant)
     , m_editorWidget(0)
     , m_completionProvider(0)
     , m_requestRunner(0)
@@ -157,18 +137,15 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
 {
     m_automaticProposalTimer.setSingleShot(true);
     m_automaticProposalTimer.setInterval(AutomaticProposalTimerInterval);
-    connect(&m_automaticProposalTimer, SIGNAL(timeout()), this, SLOT(automaticProposalTimeout()));
 
-    connect(TextEditorSettings::instance(),
-            SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
-            this,
-            SLOT(updateCompletionSettings(TextEditor::CompletionSettings)));
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(clearAbortedPosition()));
-}
+    connect(&m_automaticProposalTimer, &QTimer::timeout,
+            this, &CodeAssistantPrivate::automaticProposalTimeout);
 
-CodeAssistantPrivate::~CodeAssistantPrivate()
-{
+    connect(TextEditorSettings::instance(), &TextEditorSettings::completionSettingsChanged,
+            this, &CodeAssistantPrivate::updateCompletionSettings);
+
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, &CodeAssistantPrivate::clearAbortedPosition);
 }
 
 void CodeAssistantPrivate::configure(BaseTextEditorWidget *editorWidget)
@@ -180,13 +157,20 @@ void CodeAssistantPrivate::configure(BaseTextEditorWidget *editorWidget)
 
     m_editorWidget = editorWidget;
     m_completionProvider = editorWidget->completionAssistProvider();
-    m_quickFixProviders =
-        ExtensionSystem::PluginManager::getObjects<QuickFixAssistProvider>();
-    filterEditorSpecificProviders(&m_quickFixProviders, m_editorWidget->textDocument()->id());
+    m_quickFixProviders = ExtensionSystem::PluginManager::getObjects<QuickFixAssistProvider>();
+
+    Core::Id editorId = m_editorWidget->textDocument()->id();
+    auto it = m_quickFixProviders.begin();
+    while (it != m_quickFixProviders.end()) {
+        if ((*it)->supportsEditor(editorId))
+            ++it;
+        else
+            it = m_quickFixProviders.erase(it);
+    }
 
     m_editorWidget->installEventFilter(this);
-    connect(m_editorWidget->textDocument(),SIGNAL(mimeTypeChanged()),
-            m_q, SLOT(reconfigure()));
+    connect(m_editorWidget->textDocument(), &BaseTextDocument::mimeTypeChanged,
+            this, &CodeAssistantPrivate::reconfigure);
 }
 
 void CodeAssistantPrivate::reconfigure()
@@ -209,8 +193,7 @@ void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
 
     if (isDisplayingProposal() && m_assistKind == kind && !m_proposal->isFragile()) {
         m_proposalWidget->setReason(ExplicitlyInvoked);
-        m_proposalWidget->updateProposal(
-                    m_editorWidget->textDocument()->textAt(
+        m_proposalWidget->updateProposal(m_editorWidget->textAt(
                         m_proposal->basePosition(),
                         m_editorWidget->position() - m_proposal->basePosition()));
     } else {
@@ -344,7 +327,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
             this, SLOT(processProposalItem(AssistProposalItem*)));
     connect(m_proposalWidget, SIGNAL(explicitlyAborted()),
             this, SLOT(explicitlyAborted()));
-    m_proposalWidget->setAssistant(m_q);
+    m_proposalWidget->setAssistant(q);
     m_proposalWidget->setReason(reason);
     m_proposalWidget->setKind(m_assistKind);
     m_proposalWidget->setUnderlyingWidget(m_editorWidget);
@@ -415,8 +398,7 @@ CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
     const int length = m_completionProvider->activationCharSequenceLength();
     if (length == 0)
         return 0;
-    QString sequence = m_editorWidget->textDocument()->textAt(m_editorWidget->position() - length,
-                                                            length);
+    QString sequence = m_editorWidget->textAt(m_editorWidget->position() - length, length);
     // In pretty much all cases the sequence will have the appropriate length. Only in the
     // case of typing the very first characters in the document for providers that request a
     // length greater than 1 (currently only C++, which specifies 3), the sequence needs to
@@ -577,5 +559,7 @@ void CodeAssistant::reconfigure()
 {
     d->reconfigure();
 }
+
+} // namespace TextEditor
 
 #include "codeassistant.moc"
