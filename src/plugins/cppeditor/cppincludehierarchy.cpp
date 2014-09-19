@@ -110,6 +110,7 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget() :
     m_includeHierarchyInfoLabel->setAlignment(Qt::AlignCenter);
     m_includeHierarchyInfoLabel->setAutoFillBackground(true);
     m_includeHierarchyInfoLabel->setBackgroundRole(QPalette::Base);
+    m_includeHierarchyInfoLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
