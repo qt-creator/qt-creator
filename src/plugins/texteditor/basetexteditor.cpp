@@ -2964,7 +2964,7 @@ void BaseTextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
 {
     const QPoint toolTipPoint = q->toolTipPosition(c);
     bool handled = false;
-    emit q->tooltipOverrideRequested(toolTipPoint, c.position(), &handled);
+    emit q->tooltipOverrideRequested(q, toolTipPoint, c.position(), &handled);
     if (!handled)
         emit q->tooltipRequested(toolTipPoint, c.position());
 }
@@ -7303,11 +7303,6 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
     connect(widget, &BaseTextEditorWidget::markContextMenuRequested, editor,
             [editor](int line, QMenu *menu) {
                 editor->markContextMenuRequested(editor, line, menu);
-            });
-
-    connect(widget, &BaseTextEditorWidget::tooltipOverrideRequested, editor,
-            [editor](const QPoint &globalPos, int position, bool *handled) {
-                editor->tooltipOverrideRequested(editor, globalPos, position, handled);
             });
 
     connect(widget, &BaseTextEditorWidget::tooltipRequested, editor,

@@ -132,7 +132,7 @@ private slots:
     static void slotUpdateVisibleToolTips();
     void slotDebuggerStateChanged(Debugger::DebuggerState);
     void slotEditorOpened(Core::IEditor *);
-    void slotTooltipOverrideRequested(TextEditor::BaseTextEditor *editor,
+    void slotTooltipOverrideRequested(TextEditor::BaseTextEditorWidget *editorWidget,
             const QPoint &point, int pos, bool *handled);
 
 private:

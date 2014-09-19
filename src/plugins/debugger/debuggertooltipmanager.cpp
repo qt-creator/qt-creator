@@ -1252,7 +1252,7 @@ void DebuggerToolTipManager::slotEditorOpened(IEditor *e)
         BaseTextEditorWidget *widget = textEditor->editorWidget();
         connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
                 this, &DebuggerToolTipManager::slotUpdateVisibleToolTips);
-        connect(textEditor, &BaseTextEditor::tooltipOverrideRequested,
+        connect(widget, &BaseTextEditorWidget::tooltipOverrideRequested,
                 this, &DebuggerToolTipManager::slotTooltipOverrideRequested);
     }
 }
@@ -1298,21 +1298,21 @@ void DebuggerToolTipManager::leavingDebugMode()
 }
 
 void DebuggerToolTipManager::slotTooltipOverrideRequested
-    (BaseTextEditor *editor, const QPoint &point, int pos, bool *handled)
+    (BaseTextEditorWidget *editorWidget, const QPoint &point, int pos, bool *handled)
 {
     QTC_ASSERT(handled, return);
-    QTC_ASSERT(editor, return);
+    QTC_ASSERT(editorWidget, return);
 
     const int movedDistance = (point - d->m_lastToolTipPoint).manhattanLength();
-    if (d->m_lastToolTipEditor == editor->editorWidget() && movedDistance < 25) {
+    if (d->m_lastToolTipEditor == editorWidget && movedDistance < 25) {
         *handled = true;
         return;
     }
 
-    *handled = tryHandleToolTipOverride(editor->editorWidget(), point, pos);
+    *handled = tryHandleToolTipOverride(editorWidget, point, pos);
 
     if (*handled) {
-        d->m_lastToolTipEditor = editor->editorWidget();
+        d->m_lastToolTipEditor = editorWidget;
         d->m_lastToolTipPoint = point;
     } else {
         d->m_lastToolTipEditor = 0;

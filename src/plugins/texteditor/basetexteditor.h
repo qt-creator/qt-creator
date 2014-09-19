@@ -196,7 +196,6 @@ public:
 signals:
     void markRequested(TextEditor::BaseTextEditor *editor, int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
     void markContextMenuRequested(TextEditor::BaseTextEditor *editor, int line, QMenu *menu);
-    void tooltipOverrideRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int position);
     void markTooltipRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int line);
     void contextHelpIdRequested(TextEditor::BaseTextEditor *editor, int position);
@@ -595,7 +594,8 @@ protected:
 signals:
     void markRequested(int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
     void markContextMenuRequested(int line, QMenu *menu);
-    void tooltipOverrideRequested(const QPoint &globalPos, int position, bool *handled);
+    void tooltipOverrideRequested(TextEditor::BaseTextEditorWidget *editorWidget,
+        const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(const QPoint &globalPos, int position);
     void markTooltipRequested(const QPoint &globalPos, int line);
     void activateEditor();
