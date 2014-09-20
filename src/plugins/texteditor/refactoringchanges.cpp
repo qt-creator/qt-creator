@@ -43,7 +43,7 @@
 #include <QDebug>
 #include <QApplication>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 RefactoringChanges::RefactoringChanges()
     : m_data(new RefactoringChangesData)
@@ -56,10 +56,10 @@ RefactoringChanges::RefactoringChanges(RefactoringChangesData *data)
 RefactoringChanges::~RefactoringChanges()
 {}
 
-QList<QPair<QTextCursor, QTextCursor > > RefactoringChanges::rangesToSelections(QTextDocument *document,
-                                                                                const QList<Range> &ranges)
+RefactoringSelections RefactoringChanges::rangesToSelections(QTextDocument *document,
+                                                             const QList<Range> &ranges)
 {
-    QList<QPair<QTextCursor, QTextCursor> > selections;
+    RefactoringSelections selections;
 
     foreach (const Range &range, ranges) {
         QTextCursor start(document);
@@ -179,7 +179,7 @@ RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<R
 {
     QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(fileName);
     if (!editors.isEmpty())
-        m_editor = qobject_cast<TextEditor::BaseTextEditorWidget *>(editors.first()->widget());
+        m_editor = qobject_cast<BaseTextEditorWidget *>(editors.first()->widget());
 }
 
 RefactoringFile::~RefactoringFile()
@@ -351,10 +351,10 @@ void RefactoringFile::apply()
                 c.beginEditBlock();
 
             // build indent selections now, applying the changeset will change locations
-            const QList<QPair<QTextCursor, QTextCursor> > &indentSelections =
+            const RefactoringSelections &indentSelections =
                     RefactoringChanges::rangesToSelections(doc, m_indentRanges);
             m_indentRanges.clear();
-            const QList<QPair<QTextCursor, QTextCursor> > &reindentSelections =
+            const RefactoringSelections &reindentSelections =
                     RefactoringChanges::rangesToSelections(doc, m_reindentRanges);
             m_reindentRanges.clear();
 
@@ -385,7 +385,7 @@ void RefactoringFile::apply()
 void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const QTextCursor &,
                                                                           const QString &,
                                                                           const BaseTextDocument *) const,
-                                       const QList<QPair<QTextCursor, QTextCursor> > &ranges)
+                                       const RefactoringSelections &ranges)
 {
     typedef QPair<QTextCursor, QTextCursor> CursorPair;
 
@@ -419,3 +419,5 @@ void RefactoringChangesData::reindentSelection(const QTextCursor &, const QStrin
 void RefactoringChangesData::fileChanged(const QString &)
 {
 }
+
+} // namespace TextEditor

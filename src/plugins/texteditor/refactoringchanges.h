@@ -50,6 +50,7 @@ class RefactoringChanges;
 class RefactoringFile;
 class RefactoringChangesData;
 typedef QSharedPointer<RefactoringFile> RefactoringFilePtr;
+typedef QVector<QPair<QTextCursor, QTextCursor> > RefactoringSelections;
 
 // ### listen to the m_editor::destroyed signal?
 class TEXTEDITOR_EXPORT RefactoringFile
@@ -99,7 +100,7 @@ protected:
     void indentOrReindent(void (RefactoringChangesData::*mf)(const QTextCursor &,
                                                              const QString &,
                                                              const BaseTextDocument *) const,
-                          const QList<QPair<QTextCursor, QTextCursor> > &ranges);
+                          const RefactoringSelections &ranges);
 
 protected:
     QString m_fileName;
@@ -140,9 +141,7 @@ protected:
     explicit RefactoringChanges(RefactoringChangesData *data);
 
     static BaseTextEditorWidget *openEditor(const QString &fileName, bool activate, int line, int column);
-
-    static QList<QPair<QTextCursor, QTextCursor> > rangesToSelections(QTextDocument *document,
-                                                                      const QList<Range> &ranges);
+    static RefactoringSelections rangesToSelections(QTextDocument *document, const QList<Range> &ranges);
 
 protected:
     QSharedPointer<RefactoringChangesData> m_data;
