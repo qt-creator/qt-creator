@@ -126,10 +126,6 @@ public:
     Utils::FileName gdbPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
 
     Utils::FileName keytoolPath() const;
-    Utils::FileName jarsignerPath() const;
-    Utils::FileName zipalignPath() const;
-    Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
-    Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
 
     class CreateAvdInfo
     {

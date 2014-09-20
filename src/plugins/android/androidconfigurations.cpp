@@ -413,16 +413,6 @@ FileName AndroidConfig::toolPath(Abi::Architecture architecture, const QString &
             .arg(toolsPrefix(architecture)));
 }
 
-FileName AndroidConfig::stripPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
-{
-    return toolPath(architecture, ndkToolChainVersion).appendString(QLatin1String("-strip" QTC_HOST_EXE_SUFFIX));
-}
-
-FileName AndroidConfig::readelfPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
-{
-    return toolPath(architecture, ndkToolChainVersion).appendString(QLatin1String("-readelf" QTC_HOST_EXE_SUFFIX));
-}
-
 FileName AndroidConfig::gccPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
 {
     return toolPath(architecture, ndkToolChainVersion).appendString(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
@@ -444,17 +434,6 @@ FileName AndroidConfig::openJDKBinPath() const
 FileName AndroidConfig::keytoolPath() const
 {
     return openJDKBinPath().appendPath(keytoolName);
-}
-
-FileName AndroidConfig::jarsignerPath() const
-{
-    return openJDKBinPath().appendPath(jarsignerName);
-}
-
-FileName AndroidConfig::zipalignPath() const
-{
-    FileName path = m_sdkLocation;
-    return path.appendPath(QLatin1String("tools/zipalign" QTC_HOST_EXE_SUFFIX));
 }
 
 QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
