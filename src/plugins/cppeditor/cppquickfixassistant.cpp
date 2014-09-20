@@ -85,7 +85,7 @@ const IAssistProvider *CppQuickFixAssistProcessor::provider() const
 // --------------------------
 // CppQuickFixAssistInterface
 // --------------------------
-CppQuickFixAssistInterface::CppQuickFixAssistInterface(CppEditorWidget *editor,
+CppQuickFixInterface::CppQuickFixInterface(CppEditorWidget *editor,
                                                        TextEditor::AssistReason reason)
     : AssistInterface(editor->document(), editor->position(),
                       editor->textDocument()->filePath(), reason)
@@ -102,42 +102,42 @@ CppQuickFixAssistInterface::CppQuickFixAssistInterface(CppEditorWidget *editor,
     m_path = astPath(editor->textCursor());
 }
 
-const QList<AST *> &CppQuickFixAssistInterface::path() const
+const QList<AST *> &CppQuickFixInterface::path() const
 {
     return m_path;
 }
 
-Snapshot CppQuickFixAssistInterface::snapshot() const
+Snapshot CppQuickFixInterface::snapshot() const
 {
     return m_snapshot;
 }
 
-SemanticInfo CppQuickFixAssistInterface::semanticInfo() const
+SemanticInfo CppQuickFixInterface::semanticInfo() const
 {
     return m_semanticInfo;
 }
 
-const LookupContext &CppQuickFixAssistInterface::context() const
+const LookupContext &CppQuickFixInterface::context() const
 {
     return m_context;
 }
 
-CppEditorWidget *CppQuickFixAssistInterface::editor() const
+CppEditorWidget *CppQuickFixInterface::editor() const
 {
     return m_editor;
 }
 
-CppRefactoringFilePtr CppQuickFixAssistInterface::currentFile() const
+CppRefactoringFilePtr CppQuickFixInterface::currentFile() const
 {
     return m_currentFile;
 }
 
-bool CppQuickFixAssistInterface::isCursorOn(unsigned tokenIndex) const
+bool CppQuickFixInterface::isCursorOn(unsigned tokenIndex) const
 {
     return currentFile()->isCursorOn(tokenIndex);
 }
 
-bool CppQuickFixAssistInterface::isCursorOn(const CPlusPlus::AST *ast) const
+bool CppQuickFixInterface::isCursorOn(const CPlusPlus::AST *ast) const
 {
     return currentFile()->isCursorOn(ast);
 }

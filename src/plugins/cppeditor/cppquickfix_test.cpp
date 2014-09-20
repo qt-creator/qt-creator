@@ -245,7 +245,7 @@ private:
 QSharedPointer<TextEditor::QuickFixOperation> QuickFixTestCase::getFix(
         CppQuickFixFactory *factory, CppEditorWidget *editorWidget, int resultIndex)
 {
-    CppQuickFixInterface qfi(new CppQuickFixAssistInterface(editorWidget, ExplicitlyInvoked));
+    CppQuickFixInterface qfi(editorWidget, ExplicitlyInvoked);
     TextEditor::QuickFixOperations results;
     factory->match(qfi, results);
     return results.isEmpty() ? QuickFixOperation::Ptr() : results.at(resultIndex);

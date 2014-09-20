@@ -462,9 +462,9 @@ void RunAllQuickFixesTokenAction::run(CppEditorWidget *editorWidget)
         = ExtensionSystem::PluginManager::getObjects<CppQuickFixFactory>();
     QVERIFY(!quickFixFactories.isEmpty());
 
-    CppQuickFixInterface qfi(new CppQuickFixAssistInterface(editorWidget, ExplicitlyInvoked));
+    CppQuickFixInterface qfi(editorWidget, ExplicitlyInvoked);
     // This guard is important since the Quick Fixes expect to get a non-empty path().
-    if (qfi->path().isEmpty())
+    if (qfi.path().isEmpty())
         return;
 
     foreach (CppQuickFixFactory *quickFixFactory, quickFixFactories) {

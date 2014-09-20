@@ -608,7 +608,7 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
         }
     } else if (kind == QuickFix) {
         if (isSemanticInfoValid())
-            return new CppQuickFixAssistInterface(const_cast<CppEditorWidget *>(this), reason);
+            return new CppQuickFixInterface(const_cast<CppEditorWidget *>(this), reason);
     } else {
         return TextEditorWidget::createAssistInterface(kind, reason);
     }

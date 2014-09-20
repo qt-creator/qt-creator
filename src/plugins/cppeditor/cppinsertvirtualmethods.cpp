@@ -433,7 +433,7 @@ private:
 class InsertVirtualMethodsOp : public CppQuickFixOperation
 {
 public:
-    InsertVirtualMethodsOp(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
+    InsertVirtualMethodsOp(const CppQuickFixInterface &interface,
                            InsertVirtualMethodsDialog *factory)
         : CppQuickFixOperation(interface, 0)
         , m_factory(factory)
@@ -447,14 +447,14 @@ public:
         setDescription(QCoreApplication::translate(
                            "CppEditor::QuickFix", "Insert Virtual Functions of Base Classes"));
 
-        const QList<AST *> &path = interface->path();
+        const QList<AST *> &path = interface.path();
         const int pathSize = path.size();
         if (pathSize < 2)
             return;
 
         // Determine if cursor is on a class or a base class
         if (SimpleNameAST *nameAST = path.at(pathSize - 1)->asSimpleName()) {
-            if (!interface->isCursorOn(nameAST))
+            if (!interface.isCursorOn(nameAST))
                 return;
 
             if (!(m_classAST = path.at(pathSize - 2)->asClassSpecifier())) { // normal class
@@ -473,7 +473,7 @@ public:
             return;
 
         // Determine insert positions
-        const int endOfClassAST = interface->currentFile()->endOf(m_classAST);
+        const int endOfClassAST = interface.currentFile()->endOf(m_classAST);
         m_insertPosDecl = endOfClassAST - 1; // Skip last "}"
         m_insertPosOutside = endOfClassAST + 1; // Step over ";"
 
@@ -481,7 +481,7 @@ public:
         QList<const Class *> baseClasses;
         QQueue<ClassOrNamespace *> baseClassQueue;
         QSet<ClassOrNamespace *> visitedBaseClasses;
-        if (ClassOrNamespace *clazz = interface->context().lookupType(m_classAST->symbol))
+        if (ClassOrNamespace *clazz = interface.context().lookupType(m_classAST->symbol))
             baseClassQueue.enqueue(clazz);
         while (!baseClassQueue.isEmpty()) {
             ClassOrNamespace *clazz = baseClassQueue.dequeue();
@@ -491,7 +491,7 @@ public:
                 foreach (Symbol *symbol, baseClass->symbols()) {
                     Class *base = symbol->asClass();
                     if (base
-                            && (clazz = interface->context().lookupType(symbol))
+                            && (clazz = interface.context().lookupType(symbol))
                             && !visitedBaseClasses.contains(clazz)
                             && !baseClasses.contains(base)) {
                         baseClasses.prepend(base);
@@ -516,7 +516,7 @@ public:
 
                     const Function *firstVirtual = 0;
                     const bool isVirtual = FunctionUtils::isVirtualFunction(
-                                func, interface->context(), &firstVirtual);
+                                func, interface.context(), &firstVirtual);
                     if (!isVirtual)
                         continue;
 
@@ -618,7 +618,7 @@ public:
             return;
 
         bool isHeaderFile = false;
-        m_cppFileName = correspondingHeaderOrSource(interface->fileName(), &isHeaderFile);
+        m_cppFileName = correspondingHeaderOrSource(interface.fileName(), &isHeaderFile);
         m_factory->setHasImplementationFile(isHeaderFile && !m_cppFileName.isEmpty());
 
         m_valid = true;
@@ -683,17 +683,17 @@ public:
         printer.showReturnTypes = true;
         printer.showArgumentNames = true;
         Utils::ChangeSet headerChangeSet;
-        const CppRefactoringChanges refactoring(assistInterface()->snapshot());
-        const QString filename = assistInterface()->currentFile()->fileName();
+        const CppRefactoringChanges refactoring(snapshot());
+        const QString filename = currentFile()->fileName();
         const CppRefactoringFilePtr headerFile = refactoring.file(filename);
-        const LookupContext targetContext(headerFile->cppDocument(), assistInterface()->snapshot());
+        const LookupContext targetContext(headerFile->cppDocument(), snapshot());
 
         const Class *targetClass = m_classAST->symbol;
         ClassOrNamespace *targetCoN = targetContext.lookupType(targetClass->enclosingScope());
         if (!targetCoN)
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames useMinimalNames(targetCoN);
-        Control *control = assistInterface()->context().bindings()->control().data();
+        Control *control = context().bindings()->control().data();
         foreach (ClassItem *classItem, m_factory->classFunctionModel->classes) {
             if (classItem->checkState() == Qt::Unchecked)
                 continue;
@@ -716,7 +716,7 @@ public:
                 // Construct declaration
                 // setup rewriting to get minimally qualified names
                 SubstitutionEnvironment env;
-                env.setContext(assistInterface()->context());
+                env.setContext(context());
                 env.switchScope(classItem->klass->enclosingScope());
                 env.enter(&useMinimalNames);
 
@@ -776,7 +776,7 @@ public:
             unsigned line, column;
             implementationDoc->translationUnit()->getPosition(insertPos, &line, &column);
             Scope *targetScope = implementationDoc->scopeAt(line, column);
-            const LookupContext targetContext(implementationDoc, assistInterface()->snapshot());
+            const LookupContext targetContext(implementationDoc, snapshot());
             ClassOrNamespace *targetCoN = targetContext.lookupType(targetScope);
             if (!targetCoN)
                 targetCoN = targetContext.globalNamespace();
@@ -789,11 +789,11 @@ public:
 
                 // setup rewriting to get minimally qualified names
                 SubstitutionEnvironment env;
-                env.setContext(assistInterface()->context());
+                env.setContext(context());
                 env.switchScope(decl->enclosingScope());
                 UseMinimalNames q(targetCoN);
                 env.enter(&q);
-                Control *control = assistInterface()->context().bindings()->control().data();
+                Control *control = context().bindings()->control().data();
 
                 // rewrite the function type and name + create definition
                 const FullySpecifiedType type = rewriteType(decl->type(), &env, control);
@@ -1084,7 +1084,8 @@ InsertVirtualMethods::~InsertVirtualMethods()
     m_dialog->deleteLater();
 }
 
-void InsertVirtualMethods::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+void InsertVirtualMethods::match(const CppQuickFixInterface &interface,
+                                 QuickFixOperations &result)
 {
     InsertVirtualMethodsOp *op = new InsertVirtualMethodsOp(interface, m_dialog);
     if (op->isValid())

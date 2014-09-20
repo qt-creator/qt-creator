@@ -40,32 +40,17 @@ using namespace TextEditor;
 using namespace CPlusPlus;
 
 CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixInterface &interface, int priority)
-    : QuickFixOperation(priority)
-    , m_interface(interface)
+    : QuickFixOperation(priority), CppQuickFixInterface(interface)
 {}
 
 CppQuickFixOperation::~CppQuickFixOperation()
 {}
 
-Snapshot CppQuickFixOperation::snapshot() const
-{
-    return m_interface->snapshot();
-}
-
-const CppQuickFixAssistInterface *CppQuickFixOperation::assistInterface() const
-{
-    return m_interface.data();
-}
-
-QString CppQuickFixOperation::fileName() const
-{
-    return m_interface->fileName();
-}
 
 void CppQuickFixFactory::matchingOperations(const QuickFixInterface &interface, QuickFixOperations &result)
 {
-    CppQuickFixInterface cppInterface = interface.staticCast<const CppQuickFixAssistInterface>();
+    auto cppInterface = interface.staticCast<const CppQuickFixInterface>();
     if (cppInterface->path().isEmpty())
         return;
-    match(cppInterface, result);
+    match(*cppInterface, result);
 }

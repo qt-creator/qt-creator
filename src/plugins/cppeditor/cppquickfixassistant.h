@@ -48,10 +48,10 @@ namespace Internal {
 
 class CppEditorWidget;
 
-class CppQuickFixAssistInterface : public TextEditor::AssistInterface
+class CppQuickFixInterface : public TextEditor::AssistInterface
 {
 public:
-    CppQuickFixAssistInterface(CppEditorWidget *editor, TextEditor::AssistReason reason);
+    CppQuickFixInterface(CppEditorWidget *editor, TextEditor::AssistReason reason);
 
     const QList<CPlusPlus::AST *> &path() const;
     CPlusPlus::Snapshot snapshot() const;

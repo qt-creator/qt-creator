@@ -33,27 +33,20 @@
 #include "cppeditor_global.h"
 
 #include <texteditor/quickfix.h>
+#include <cppquickfixassistant.h>
 
 namespace CPlusPlus { class Snapshot; }
 
 namespace CppEditor {
-namespace Internal { class CppQuickFixAssistInterface; }
+namespace Internal { class CppQuickFixInterface; }
 
-typedef QSharedPointer<const Internal::CppQuickFixAssistInterface> CppQuickFixInterface;
-
-class CPPEDITOR_EXPORT CppQuickFixOperation: public TextEditor::QuickFixOperation
+class CPPEDITOR_EXPORT CppQuickFixOperation
+    : public TextEditor::QuickFixOperation,
+      public Internal::CppQuickFixInterface
 {
 public:
     explicit CppQuickFixOperation(const CppQuickFixInterface &interface, int priority = -1);
     ~CppQuickFixOperation();
-
-protected:
-    QString fileName() const;
-    CPlusPlus::Snapshot snapshot() const;
-    const Internal::CppQuickFixAssistInterface *assistInterface() const;
-
-private:
-    CppQuickFixInterface m_interface;
 };
 
 class CPPEDITOR_EXPORT CppQuickFixFactory: public TextEditor::QuickFixFactory
@@ -70,7 +63,7 @@ public:
         Implement this function to match and create the appropriate
         CppQuickFixOperation objects.
      */
-    virtual void match(const CppQuickFixInterface &interface,
+    virtual void match(const Internal::CppQuickFixInterface &interface,
         TextEditor::QuickFixOperations &result) = 0;
 };
 
