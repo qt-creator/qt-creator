@@ -1843,21 +1843,21 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
             if (QSharedPointer<Utils::ElfMapper> mapper = reader.readSection(".debug_str")) {
                 const char *str = mapper->start;
                 const char *limit = str + mapper->fdlen;
+                bool found = false;
                 while (str < limit) {
-                    QString string = QString::fromUtf8(str);
-                    auto itExp = globalRegExpSourceMap.begin();
-                    auto itEnd = globalRegExpSourceMap.end();
-                    while (itExp != itEnd) {
+                    const QString string = QString::fromUtf8(str);
+                    for (auto itExp = globalRegExpSourceMap.begin(), itEnd = globalRegExpSourceMap.end();
+                         itExp != itEnd;
+                         ++itExp) {
                         QRegExp exp = itExp->first;
                         int index = exp.indexIn(string);
                         if (index != -1) {
                             sp->sourcePathMap.insert(string.left(index) + exp.cap(1), itExp->second);
-                            itExp = globalRegExpSourceMap.erase(itExp);
-                        } else {
-                            ++itExp;
+                            found = true;
+                            break;
                         }
                     }
-                    if (globalRegExpSourceMap.isEmpty())
+                    if (found)
                         break;
 
                     const int len = strlen(str);
