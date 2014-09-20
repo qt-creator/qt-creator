@@ -609,7 +609,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
             roDialog.setShowFailWarning(true, DocumentManager::tr(
                                             "Could not save the files.",
                                             "error message"));
-            if (roDialog.exec() == Core::Internal::ReadOnlyFilesDialog::RO_Cancel) {
+            if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel) {
                 if (cancelled)
                     (*cancelled) = true;
                 if (failedToSave)

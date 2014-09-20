@@ -43,6 +43,9 @@
 #include <QDebug>
 #include <QApplication>
 
+using namespace Core;
+using namespace Utils;
+
 namespace TextEditor {
 
 RefactoringChanges::RefactoringChanges()
@@ -93,8 +96,8 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
     cursor.endEditBlock();
 
     // Write the file to disk:
-    Utils::TextFileFormat format;
-    format.codec = Core::EditorManager::defaultTextCodec();
+    TextFileFormat format;
+    format.codec = EditorManager::defaultTextCodec();
     QString error;
     bool saveOk = format.writeFile(fileName, document->toPlainText(), &error);
     delete document;
@@ -121,15 +124,14 @@ bool RefactoringChanges::removeFile(const QString &fileName) const
 
 BaseTextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bool activate, int line, int column)
 {
-    Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::IgnoreNavigationHistory;
+    EditorManager::OpenEditorFlags flags = EditorManager::IgnoreNavigationHistory;
     if (!activate)
-        flags |= Core::EditorManager::DoNotChangeCurrentEditor;
+        flags |= EditorManager::DoNotChangeCurrentEditor;
     if (line != -1) {
         // openEditorAt uses a 1-based line and a 0-based column!
         column -= 1;
     }
-    Core::IEditor *editor = Core::EditorManager::openEditorAt(
-                fileName, line, column, Core::Id(), flags);
+    IEditor *editor = EditorManager::openEditorAt(fileName, line, column, Id(), flags);
 
     if (editor)
         return qobject_cast<BaseTextEditorWidget *>(editor->widget());
@@ -177,7 +179,7 @@ RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<R
     , m_editorCursorPosition(-1)
     , m_appliedOnce(false)
 {
-    QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(fileName);
+    QList<IEditor *> editors = DocumentModel::editorsForFilePath(fileName);
     if (!editors.isEmpty())
         m_editor = qobject_cast<BaseTextEditorWidget *>(editors.first()->widget());
 }
@@ -207,12 +209,12 @@ QTextDocument *RefactoringFile::mutableDocument() const
         QString fileContents;
         if (!m_fileName.isEmpty()) {
             QString error;
-            QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
-            Utils::TextFileFormat::ReadResult result = Utils::TextFileFormat::readFile(
+            QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
+            TextFileFormat::ReadResult result = TextFileFormat::readFile(
                         m_fileName, defaultCodec,
                         &fileContents, &m_textFileFormat,
                         &error);
-            if (result != Utils::TextFileFormat::ReadSuccess) {
+            if (result != TextFileFormat::ReadSuccess) {
                 qWarning() << "Could not read " << m_fileName << ". Error: " << error;
                 m_textFileFormat.codec = 0;
             }
@@ -285,7 +287,7 @@ QString RefactoringFile::textOf(const Range &range) const
     return textOf(range.start, range.end);
 }
 
-void RefactoringFile::setChangeSet(const Utils::ChangeSet &changeSet)
+void RefactoringFile::setChangeSet(const ChangeSet &changeSet)
 {
     if (m_fileName.isEmpty())
         return;
@@ -321,11 +323,11 @@ void RefactoringFile::apply()
     // test file permissions
     if (!QFileInfo(fileName()).isWritable()) {
         const QString &path = fileName();
-        Core::Internal::ReadOnlyFilesDialog roDialog(path, Core::ICore::mainWindow());
+        ReadOnlyFilesDialog roDialog(path, ICore::mainWindow());
         const QString &failDetailText = QApplication::translate("RefactoringFile::apply",
                                                                 "Refactoring cannot be applied.");
         roDialog.setShowFailWarning(true, failDetailText);
-        if (roDialog.exec() == Core::Internal::ReadOnlyFilesDialog::RO_Cancel)
+        if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel)
             return;
     }
 

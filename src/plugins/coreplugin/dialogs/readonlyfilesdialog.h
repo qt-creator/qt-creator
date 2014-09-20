@@ -33,21 +33,12 @@
 #include <coreplugin/core_global.h>
 
 #include <QDialog>
-#include <QHash>
-
-QT_BEGIN_NAMESPACE
-class QButtonGroup;
-class QTreeWidgetItem;
-class QRadioButton;
-QT_END_NAMESPACE
 
 namespace Core {
-class IVersionControl;
+
 class IDocument;
 
-namespace Internal {
-
-namespace Ui { class ReadOnlyFilesDialog; }
+namespace Internal { class ReadOnlyFilesDialogPrivate; }
 
 class CORE_EXPORT ReadOnlyFilesDialog : public QDialog
 {
@@ -89,21 +80,10 @@ public:
     int exec();
 
 private:
-    void initDialog(const QStringList &fileNames);
-    void promptFailWarning(const QStringList &files, ReadOnlyResult type) const;
-    QRadioButton *createRadioButtonForItem(QTreeWidgetItem *item, QButtonGroup *group,
-                              ReadOnlyFilesDialog::ReadOnlyFilesTreeColumn type);
-
-private slots:
-    void setAll(int index);
-    void updateSelectAll();
-
-private:
-    class ReadOnlyFilesDialogPrivate *d;
-    Ui::ReadOnlyFilesDialog *ui;
+    friend class Internal::ReadOnlyFilesDialogPrivate;
+    Internal::ReadOnlyFilesDialogPrivate *d;
 };
 
-} // namespace Internal
 } // namespace Core
 
 #endif // READONLYFILESDIALOG_H

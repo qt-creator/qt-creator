@@ -71,6 +71,8 @@
 #include <QMessageBox>
 #include <utils/QtConcurrentTools>
 
+using namespace Core;
+
 // Static cached data in struct QmakeNodeStaticData providing information and icons
 // for file types and the project. Do some magic via qAddPostRoutine()
 // to make sure the icons do not outlive QApplication, triggering warnings on X11.
@@ -1072,9 +1074,9 @@ ProjectExplorer::FolderNode::AddNewInformation QmakePriFileNode::addNewInformati
 
 bool QmakePriFileNode::priFileWritable(const QString &path)
 {
-    Core::Internal::ReadOnlyFilesDialog roDialog(path, Core::ICore::mainWindow());
+    ReadOnlyFilesDialog roDialog(path, ICore::mainWindow());
     roDialog.setShowFailWarning(true);
-    return roDialog.exec() != Core::Internal::ReadOnlyFilesDialog::RO_Cancel;
+    return roDialog.exec() != ReadOnlyFilesDialog::RO_Cancel;
 }
 
 bool QmakePriFileNode::saveModifiedEditors()
