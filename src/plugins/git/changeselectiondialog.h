@@ -85,6 +85,7 @@ private slots:
 
 private:
     void enableButtons(bool b);
+    void terminateProcess();
 
     Ui::ChangeSelectionDialog *m_ui;
 

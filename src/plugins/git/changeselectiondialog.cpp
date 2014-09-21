@@ -94,8 +94,8 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
 
 ChangeSelectionDialog::~ChangeSelectionDialog()
 {
+    terminateProcess();
     delete m_ui;
-    delete m_process;
 }
 
 QString ChangeSelectionDialog::change() const
@@ -197,6 +197,16 @@ void ChangeSelectionDialog::enableButtons(bool b)
     m_ui->checkoutButton->setEnabled(b);
 }
 
+void ChangeSelectionDialog::terminateProcess()
+{
+    if (!m_process)
+        return;
+    m_process->kill();
+    m_process->waitForFinished();
+    delete m_process;
+    m_process = 0;
+}
+
 void ChangeSelectionDialog::recalculateCompletion()
 {
     const QString workingDir = workingDirectory();
@@ -219,12 +229,7 @@ void ChangeSelectionDialog::recalculateCompletion()
 
 void ChangeSelectionDialog::recalculateDetails()
 {
-    if (m_process) {
-        m_process->kill();
-        m_process->waitForFinished();
-        delete m_process;
-        m_process = 0;
-    }
+    terminateProcess();
     enableButtons(false);
 
     const QString workingDir = workingDirectory();
