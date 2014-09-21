@@ -171,7 +171,6 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_cherryPickButton = addActionButton(tr("Cherry &Pick"), SLOT(slotFetchCherryPick()));
     m_checkoutButton = addActionButton(tr("&Checkout"), SLOT(slotFetchCheckout()));
     m_refreshButton = addActionButton(tr("&Refresh"), SLOT(slotRefresh()));
-    m_refreshButton->setDefault(true);
 
     connect(m_model, SIGNAL(refreshStateChanged(bool)),
             m_refreshButton, SLOT(setDisabled(bool)));
@@ -194,6 +193,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
 
     resize(QSize(950, 600));
     m_treeView->setFocus();
+    m_refreshButton->setDefault(true);
 }
 
 QString GerritDialog::repositoryPath() const
