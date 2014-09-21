@@ -1830,9 +1830,17 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
         bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
         bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
         if (hasEmbeddedInfo) {
+            QSharedPointer<GlobalDebuggerOptions> options = debuggerCore()->globalDebuggerOptions();
+            SourcePathRegExpMap globalRegExpSourceMap;
+            globalRegExpSourceMap.reserve(options->sourcePathRegExpMap.size());
+            foreach (auto entry, options->sourcePathRegExpMap) {
+                const QString expanded = VariableManager::expandedString(entry.second);
+                if (!expanded.isEmpty())
+                    globalRegExpSourceMap.push_back(qMakePair(entry.first, expanded));
+            }
+            if (globalRegExpSourceMap.isEmpty())
+                return;
             if (QSharedPointer<Utils::ElfMapper> mapper = reader.readSection(".debug_str")) {
-                QSharedPointer<GlobalDebuggerOptions> options = debuggerCore()->globalDebuggerOptions();
-                SourcePathRegExpMap globalRegExpSourceMap = options->sourcePathRegExpMap;
                 const char *str = mapper->start;
                 const char *limit = str + mapper->fdlen;
                 while (str < limit) {
