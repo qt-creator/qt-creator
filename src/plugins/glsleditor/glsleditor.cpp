@@ -337,7 +337,7 @@ GlslEditorFactory::GlslEditorFactory()
     addMimeType(Constants::GLSL_MIMETYPE_VERT_ES);
     addMimeType(Constants::GLSL_MIMETYPE_FRAG_ES);
 
-    setDocumentCreator([]() { return new BaseTextDocument(Constants::C_GLSLEDITOR_ID); });
+    setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
     setEditorWidgetCreator([]() { return new GlslEditorWidget; });
     setIndenterCreator([]() { return new GlslIndenter; });
     setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });

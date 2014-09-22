@@ -42,7 +42,7 @@
 namespace DiffEditor {
 
 DiffEditorDocument::DiffEditorDocument() :
-    Core::TextDocument(),
+    Core::BaseTextDocument(),
     m_controller(new DiffEditorController(this))
 {
     setId(Constants::DIFF_EDITOR_ID);

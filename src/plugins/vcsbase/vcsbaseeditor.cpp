@@ -1205,7 +1205,7 @@ const VcsBaseEditorParameters *VcsBaseEditor::findType(const VcsBaseEditorParame
 static QTextCodec *findFileCodec(const QString &source)
 {
     Core::IDocument *document = Core::DocumentModel::documentForFilePath(source);
-    if (Core::TextDocument *textDocument = qobject_cast<Core::TextDocument *>(document))
+    if (Core::BaseTextDocument *textDocument = qobject_cast<Core::BaseTextDocument *>(document))
         return const_cast<QTextCodec *>(textDocument->codec());
     return 0;
 }

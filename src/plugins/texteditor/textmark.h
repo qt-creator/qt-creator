@@ -44,7 +44,7 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class BaseTextEditor;
-class BaseTextDocument;
+class TextDocument;
 
 namespace Internal { class TextMarkRegistry; }
 
@@ -87,14 +87,14 @@ public:
     double widthFactor() const;
     void setWidthFactor(double factor);
 
-    BaseTextDocument *baseTextDocument() const;
-    void setBaseTextDocument(BaseTextDocument *baseTextDocument);
+    TextDocument *baseTextDocument() const;
+    void setBaseTextDocument(TextDocument *baseTextDocument);
 
 private:
     Q_DISABLE_COPY(TextMark)
     friend class Internal::TextMarkRegistry;
 
-    BaseTextDocument *m_baseTextDocument;
+    TextDocument *m_baseTextDocument;
     QString m_fileName;
     int m_lineNumber;
     Priority m_priority;

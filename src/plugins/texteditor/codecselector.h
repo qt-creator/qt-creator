@@ -39,7 +39,7 @@ namespace Utils { class ListWidget; }
 
 namespace TextEditor {
 
-class BaseTextDocument;
+class TextDocument;
 
 namespace Internal {
 
@@ -49,7 +49,7 @@ class CodecSelector : public QDialog
 
 public:
 
-    CodecSelector(QWidget *parent, BaseTextDocument *doc);
+    CodecSelector(QWidget *parent, TextDocument *doc);
     ~CodecSelector();
 
     QTextCodec *selectedCodec() const;

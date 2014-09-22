@@ -47,7 +47,7 @@
 namespace Core { class IEditor; }
 namespace CPlusPlus { class LookupContext; }
 namespace ProjectExplorer { class Project; }
-namespace TextEditor { class BaseTextDocument; }
+namespace TextEditor { class TextDocument; }
 
 namespace CppTools {
 
@@ -133,7 +133,7 @@ public:
     ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const;
     CppCompletionAssistProvider *completionAssistProvider(const QString &mimeType) const;
     BaseEditorDocumentProcessor *editorDocumentProcessor(
-        TextEditor::BaseTextDocument *baseTextDocument) const;
+        TextEditor::TextDocument *baseTextDocument) const;
 
     void setIndexingSupport(CppIndexingSupport *indexingSupport);
     CppIndexingSupport *indexingSupport();

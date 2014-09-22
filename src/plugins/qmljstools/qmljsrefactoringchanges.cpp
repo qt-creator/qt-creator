@@ -51,7 +51,7 @@ public:
 
     virtual void indentSelection(const QTextCursor &selection,
                                  const QString &fileName,
-                                 const TextEditor::BaseTextDocument *textDocument) const
+                                 const TextEditor::TextDocument *textDocument) const
     {
         // ### shares code with QmlJSTextEditor::indent
         QTextDocument *doc = selection.document();
@@ -75,7 +75,7 @@ public:
 
     virtual void reindentSelection(const QTextCursor &selection,
                                    const QString &fileName,
-                                   const TextEditor::BaseTextDocument *textDocument) const
+                                   const TextEditor::TextDocument *textDocument) const
     {
         const TextEditor::TabSettings &tabSettings =
             ProjectExplorer::actualTabSettings(fileName, textDocument);

@@ -262,7 +262,7 @@ bool getUninitializedVariables(const Snapshot &snapshot,
 // Editor tooltip support
 bool isCppEditor(BaseTextEditorWidget *editorWidget)
 {
-    const BaseTextDocument *document = editorWidget->textDocument();
+    const TextDocument *document = editorWidget->textDocument();
     return ProjectFile::classify(document->filePath()) != ProjectFile::Unclassified;
 }
 

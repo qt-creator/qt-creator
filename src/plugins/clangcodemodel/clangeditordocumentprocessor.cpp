@@ -90,7 +90,7 @@ QList<TextEditor::BlockRange> toTextEditorBlocks(
 
 namespace ClangCodeModel {
 
-ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::BaseTextDocument *document)
+ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document)
     , m_parser(document->filePath())
     , m_parserRevision(0)

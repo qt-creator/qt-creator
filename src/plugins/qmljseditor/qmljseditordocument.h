@@ -45,7 +45,7 @@ class QmlJSEditorDocumentPrivate;
 class QmlOutlineModel;
 } // Internal
 
-class QMLJSEDITOR_EXPORT QmlJSEditorDocument : public TextEditor::BaseTextDocument
+class QMLJSEDITOR_EXPORT QmlJSEditorDocument : public TextEditor::TextDocument
 {
     Q_OBJECT
 public:

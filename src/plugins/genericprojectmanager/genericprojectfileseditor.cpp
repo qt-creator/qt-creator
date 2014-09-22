@@ -53,7 +53,7 @@ ProjectFilesFactory::ProjectFilesFactory()
     addMimeType(Constants::INCLUDES_MIMETYPE);
     addMimeType(Constants::CONFIG_MIMETYPE);
 
-    setDocumentCreator([]() { return new BaseTextDocument(Constants::FILES_EDITOR_ID); });
+    setDocumentCreator([]() { return new TextDocument(Constants::FILES_EDITOR_ID); });
     setEditorActionHandlers(TextEditorActionHandler::None);
 }
 

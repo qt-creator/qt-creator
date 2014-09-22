@@ -57,7 +57,7 @@ QString ModelManagerSupportInternal::displayName() const
 }
 
 BaseEditorDocumentProcessor *ModelManagerSupportInternal::editorDocumentProcessor(
-        TextEditor::BaseTextDocument *baseTextDocument)
+        TextEditor::TextDocument *baseTextDocument)
 {
     return new BuiltinEditorDocumentProcessor(baseTextDocument);
 }

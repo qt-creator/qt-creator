@@ -49,7 +49,7 @@ void BaseTextEditModifier::indent(int offset, int length)
 
     if (TextEditor::BaseTextEditorWidget *baseTextEditorWidget = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())) {
 
-        TextEditor::BaseTextDocument *baseTextEditorDocument = baseTextEditorWidget->textDocument();
+        TextEditor::TextDocument *baseTextEditorDocument = baseTextEditorWidget->textDocument();
         QTextDocument *textDocument = baseTextEditorWidget->document();
 
         int startLine = -1;

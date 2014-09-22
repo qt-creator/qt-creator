@@ -405,7 +405,7 @@ void EditorConfiguration::editorsClosed(const QList<Core::IEditor*> &closedEdito
 }
 
 TabSettings actualTabSettings(const QString &fileName,
-                              const BaseTextDocument *baseTextdocument)
+                              const TextDocument *baseTextdocument)
 {
     if (baseTextdocument)
         return baseTextdocument->tabSettings();

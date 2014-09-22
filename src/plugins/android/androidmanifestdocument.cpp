@@ -50,7 +50,7 @@ AndroidManifestDocument::AndroidManifestDocument(AndroidManifestEditorWidget *ed
 bool AndroidManifestDocument::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     m_editorWidget->preSave();
-    return BaseTextDocument::save(errorString, fileName, autoSave);
+    return TextDocument::save(errorString, fileName, autoSave);
 }
 
 QString AndroidManifestDocument::defaultPath() const
@@ -67,7 +67,7 @@ QString AndroidManifestDocument::suggestedFileName() const
 
 bool AndroidManifestDocument::isModified() const
 {
-    return BaseTextDocument::isModified() ||  m_editorWidget->isModified();
+    return TextDocument::isModified() ||  m_editorWidget->isModified();
 }
 
 bool AndroidManifestDocument::isSaveAsAllowed() const

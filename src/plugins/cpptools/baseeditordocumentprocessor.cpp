@@ -47,7 +47,7 @@ namespace CppTools {
 */
 
 BaseEditorDocumentProcessor::BaseEditorDocumentProcessor(
-        TextEditor::BaseTextDocument *document)
+        TextEditor::TextDocument *document)
     : m_baseTextDocument(document)
 {
     QTC_CHECK(document);
@@ -57,7 +57,7 @@ BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor()
 {
 }
 
-TextEditor::BaseTextDocument *BaseEditorDocumentProcessor::baseTextDocument() const
+TextEditor::TextDocument *BaseEditorDocumentProcessor::baseTextDocument() const
 {
     return m_baseTextDocument;
 }

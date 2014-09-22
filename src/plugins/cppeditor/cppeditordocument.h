@@ -44,7 +44,7 @@
 namespace CppEditor {
 namespace Internal {
 
-class CppEditorDocument : public TextEditor::BaseTextDocument
+class CppEditorDocument : public TextEditor::TextDocument
 {
     Q_OBJECT
 

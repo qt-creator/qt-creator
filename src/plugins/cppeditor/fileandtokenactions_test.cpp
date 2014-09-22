@@ -104,7 +104,7 @@ public:
     static void escape();
 
     /// Undoing changes
-    static void undoChangesInDocument(BaseTextDocument *editorDocument);
+    static void undoChangesInDocument(TextDocument *editorDocument);
     static void undoChangesInAllEditorWidgets();
 
     /// Execute actions for the current cursor position of editorWidget.
@@ -255,7 +255,7 @@ void TestActionsTestCase::escape()
         QTest::keyClick(w, Qt::Key_Escape);
 }
 
-void TestActionsTestCase::undoChangesInDocument(BaseTextDocument *editorDocument)
+void TestActionsTestCase::undoChangesInDocument(TextDocument *editorDocument)
 {
     QTextDocument * const document = editorDocument->document();
     QVERIFY(document);
@@ -266,7 +266,7 @@ void TestActionsTestCase::undoChangesInDocument(BaseTextDocument *editorDocument
 void TestActionsTestCase::undoChangesInAllEditorWidgets()
 {
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
-        BaseTextDocument *baseTextDocument = qobject_cast<BaseTextDocument *>(document);
+        TextDocument *baseTextDocument = qobject_cast<TextDocument *>(document);
         undoChangesInDocument(baseTextDocument);
     }
 }

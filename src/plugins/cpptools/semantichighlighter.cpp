@@ -42,14 +42,14 @@ using TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd;
 
 namespace CppTools {
 
-SemanticHighlighter::SemanticHighlighter(TextEditor::BaseTextDocument *baseTextDocument)
+SemanticHighlighter::SemanticHighlighter(TextEditor::TextDocument *baseTextDocument)
     : QObject(baseTextDocument)
     , m_baseTextDocument(baseTextDocument)
     , m_revision(0)
 {
     QTC_CHECK(m_baseTextDocument);
 
-    connect(baseTextDocument, &TextEditor::BaseTextDocument::fontSettingsChanged,
+    connect(baseTextDocument, &TextEditor::TextDocument::fontSettingsChanged,
             this, &SemanticHighlighter::onDocumentFontSettingsChanged);
 
     updateFormatMapFromFontSettings();

@@ -70,10 +70,10 @@ using namespace Core;
 
 namespace TextEditor {
 
-class BaseTextDocumentPrivate
+class TextDocumentPrivate
 {
 public:
-    BaseTextDocumentPrivate() :
+    TextDocumentPrivate() :
         m_fontSettingsNeedsApply(false),
         m_highlighter(0),
         m_indenter(new Indenter),
@@ -105,7 +105,7 @@ public:
     TextMarks m_marksCache; // Marks not owned
 };
 
-QTextCursor BaseTextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor, bool doIndent)
+QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor, bool doIndent)
 {
     QTextCursor cursor = textCursor;
     cursor.beginEditBlock();
@@ -157,7 +157,7 @@ QTextCursor BaseTextDocumentPrivate::indentOrUnindent(const QTextCursor &textCur
     return cursor;
 }
 
-void BaseTextDocumentPrivate::resetRevisions()
+void TextDocumentPrivate::resetRevisions()
 {
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
@@ -167,7 +167,7 @@ void BaseTextDocumentPrivate::resetRevisions()
         block.setRevision(documentLayout->lastSaveRevision);
 }
 
-void BaseTextDocumentPrivate::updateRevisions()
+void TextDocumentPrivate::updateRevisions()
 {
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
@@ -190,8 +190,8 @@ void BaseTextDocumentPrivate::updateRevisions()
 //
 ///////////////////////////////////////////////////////////////////////
 
-BaseTextDocument::BaseTextDocument(Id id)
-    : d(new BaseTextDocumentPrivate)
+TextDocument::TextDocument(Id id)
+    : d(new TextDocumentPrivate)
 {
     QObject::connect(&d->m_document, &QTextDocument::modificationChanged, [this](bool modified) {
         // we only want to update the block revisions when going back to the saved version,
@@ -201,7 +201,7 @@ BaseTextDocument::BaseTextDocument(Id id)
         emit changed();
     });
 
-    QObject::connect(&d->m_document, &QTextDocument::contentsChanged, this, &BaseTextDocument::contentsChanged);
+    QObject::connect(&d->m_document, &QTextDocument::contentsChanged, this, &TextDocument::contentsChanged);
 
     // set new document layout
     QTextOption opt = d->m_document.defaultTextOption();
@@ -216,16 +216,16 @@ BaseTextDocument::BaseTextDocument(Id id)
         setId(id);
 }
 
-BaseTextDocument::~BaseTextDocument()
+TextDocument::~TextDocument()
 {
     delete d;
 }
 
-QMap<QString, QString> BaseTextDocument::openedTextDocumentContents()
+QMap<QString, QString> TextDocument::openedTextDocumentContents()
 {
     QMap<QString, QString> workingCopy;
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
-        BaseTextDocument *textEditorDocument = qobject_cast<BaseTextDocument *>(document);
+        TextDocument *textEditorDocument = qobject_cast<TextDocument *>(document);
         if (!textEditorDocument)
             continue;
         QString fileName = textEditorDocument->filePath();
@@ -234,11 +234,11 @@ QMap<QString, QString> BaseTextDocument::openedTextDocumentContents()
     return workingCopy;
 }
 
-QMap<QString, QTextCodec *> BaseTextDocument::openedTextDocumentEncodings()
+QMap<QString, QTextCodec *> TextDocument::openedTextDocumentEncodings()
 {
     QMap<QString, QTextCodec *> workingCopy;
     foreach (IDocument *document, DocumentModel::openedDocuments()) {
-        BaseTextDocument *textEditorDocument = qobject_cast<BaseTextDocument *>(document);
+        TextDocument *textEditorDocument = qobject_cast<TextDocument *>(document);
         if (!textEditorDocument)
             continue;
         QString fileName = textEditorDocument->filePath();
@@ -247,42 +247,42 @@ QMap<QString, QTextCodec *> BaseTextDocument::openedTextDocumentEncodings()
     return workingCopy;
 }
 
-QString BaseTextDocument::plainText() const
+QString TextDocument::plainText() const
 {
     return document()->toPlainText();
 }
 
-QString BaseTextDocument::textAt(int pos, int length) const
+QString TextDocument::textAt(int pos, int length) const
 {
     return Convenience::textAt(QTextCursor(document()), pos, length);
 }
 
-QChar BaseTextDocument::characterAt(int pos) const
+QChar TextDocument::characterAt(int pos) const
 {
     return document()->characterAt(pos);
 }
 
-void BaseTextDocument::setTypingSettings(const TypingSettings &typingSettings)
+void TextDocument::setTypingSettings(const TypingSettings &typingSettings)
 {
     d->m_typingSettings = typingSettings;
 }
 
-void BaseTextDocument::setStorageSettings(const StorageSettings &storageSettings)
+void TextDocument::setStorageSettings(const StorageSettings &storageSettings)
 {
     d->m_storageSettings = storageSettings;
 }
 
-const TypingSettings &BaseTextDocument::typingSettings() const
+const TypingSettings &TextDocument::typingSettings() const
 {
     return d->m_typingSettings;
 }
 
-const StorageSettings &BaseTextDocument::storageSettings() const
+const StorageSettings &TextDocument::storageSettings() const
 {
     return d->m_storageSettings;
 }
 
-void BaseTextDocument::setTabSettings(const TabSettings &tabSettings)
+void TextDocument::setTabSettings(const TabSettings &tabSettings)
 {
     if (tabSettings == d->m_tabSettings)
         return;
@@ -294,12 +294,12 @@ void BaseTextDocument::setTabSettings(const TabSettings &tabSettings)
     emit tabSettingsChanged();
 }
 
-const TabSettings &BaseTextDocument::tabSettings() const
+const TabSettings &TextDocument::tabSettings() const
 {
     return d->m_tabSettings;
 }
 
-void BaseTextDocument::setFontSettings(const FontSettings &fontSettings)
+void TextDocument::setFontSettings(const FontSettings &fontSettings)
 {
     if (fontSettings == d->m_fontSettings)
         return;
@@ -308,13 +308,13 @@ void BaseTextDocument::setFontSettings(const FontSettings &fontSettings)
     emit fontSettingsChanged();
 }
 
-void BaseTextDocument::triggerPendingUpdates()
+void TextDocument::triggerPendingUpdates()
 {
     if (d->m_fontSettingsNeedsApply)
         applyFontSettings();
 }
 
-void BaseTextDocument::applyFontSettings()
+void TextDocument::applyFontSettings()
 {
     d->m_fontSettingsNeedsApply = false;
     if (d->m_highlighter) {
@@ -323,42 +323,42 @@ void BaseTextDocument::applyFontSettings()
     }
 }
 
-const FontSettings &BaseTextDocument::fontSettings() const
+const FontSettings &TextDocument::fontSettings() const
 {
     return d->m_fontSettings;
 }
 
-void BaseTextDocument::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)
+void TextDocument::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)
 {
     d->m_extraEncodingSettings = extraEncodingSettings;
 }
 
-void BaseTextDocument::autoIndent(const QTextCursor &cursor, QChar typedChar)
+void TextDocument::autoIndent(const QTextCursor &cursor, QChar typedChar)
 {
     d->m_indenter->indent(&d->m_document, cursor, typedChar, d->m_tabSettings);
 }
 
-void BaseTextDocument::autoReindent(const QTextCursor &cursor)
+void TextDocument::autoReindent(const QTextCursor &cursor)
 {
     d->m_indenter->reindent(&d->m_document, cursor, d->m_tabSettings);
 }
 
-QTextCursor BaseTextDocument::indent(const QTextCursor &cursor)
+QTextCursor TextDocument::indent(const QTextCursor &cursor)
 {
     return d->indentOrUnindent(cursor, true);
 }
 
-QTextCursor BaseTextDocument::unindent(const QTextCursor &cursor)
+QTextCursor TextDocument::unindent(const QTextCursor &cursor)
 {
     return d->indentOrUnindent(cursor, false);
 }
 
-const ExtraEncodingSettings &BaseTextDocument::extraEncodingSettings() const
+const ExtraEncodingSettings &TextDocument::extraEncodingSettings() const
 {
     return d->m_extraEncodingSettings;
 }
 
-void BaseTextDocument::setIndenter(Indenter *indenter)
+void TextDocument::setIndenter(Indenter *indenter)
 {
     // clear out existing code formatter data
     for (QTextBlock it = document()->begin(); it.isValid(); it = it.next()) {
@@ -369,42 +369,42 @@ void BaseTextDocument::setIndenter(Indenter *indenter)
     d->m_indenter.reset(indenter);
 }
 
-Indenter *BaseTextDocument::indenter() const
+Indenter *TextDocument::indenter() const
 {
     return d->m_indenter.data();
 }
 
-bool BaseTextDocument::isSaveAsAllowed() const
+bool TextDocument::isSaveAsAllowed() const
 {
     return true;
 }
 
-QString BaseTextDocument::defaultPath() const
+QString TextDocument::defaultPath() const
 {
     return d->m_defaultPath;
 }
 
-QString BaseTextDocument::suggestedFileName() const
+QString TextDocument::suggestedFileName() const
 {
     return d->m_suggestedFileName;
 }
 
-void BaseTextDocument::setDefaultPath(const QString &defaultPath)
+void TextDocument::setDefaultPath(const QString &defaultPath)
 {
     d->m_defaultPath = defaultPath;
 }
 
-void BaseTextDocument::setSuggestedFileName(const QString &suggestedFileName)
+void TextDocument::setSuggestedFileName(const QString &suggestedFileName)
 {
     d->m_suggestedFileName = suggestedFileName;
 }
 
-QTextDocument *BaseTextDocument::document() const
+QTextDocument *TextDocument::document() const
 {
     return &d->m_document;
 }
 
-SyntaxHighlighter *BaseTextDocument::syntaxHighlighter() const
+SyntaxHighlighter *TextDocument::syntaxHighlighter() const
 {
     return d->m_highlighter;
 }
@@ -416,7 +416,7 @@ SyntaxHighlighter *BaseTextDocument::syntaxHighlighter() const
  * If \a autoSave is true, the cursor will be restored and some signals suppressed
  * and we do not clean up the text file (cleanWhitespace(), ensureFinalNewLine()).
  */
-bool BaseTextDocument::save(QString *errorString, const QString &saveFileName, bool autoSave)
+bool TextDocument::save(QString *errorString, const QString &saveFileName, bool autoSave)
 {
     QTextCursor cursor(&d->m_document);
 
@@ -501,17 +501,17 @@ bool BaseTextDocument::save(QString *errorString, const QString &saveFileName, b
     return true;
 }
 
-bool BaseTextDocument::setContents(const QByteArray &contents)
+bool TextDocument::setContents(const QByteArray &contents)
 {
     return setPlainText(QString::fromUtf8(contents));
 }
 
-bool BaseTextDocument::shouldAutoSave() const
+bool TextDocument::shouldAutoSave() const
 {
     return d->m_autoSaveRevision != d->m_document.revision();
 }
 
-void BaseTextDocument::setFilePath(const QString &newName)
+void TextDocument::setFilePath(const QString &newName)
 {
     if (newName == filePath())
         return;
@@ -519,19 +519,19 @@ void BaseTextDocument::setFilePath(const QString &newName)
     IDocument::setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
 }
 
-bool BaseTextDocument::isFileReadOnly() const
+bool TextDocument::isFileReadOnly() const
 {
     if (filePath().isEmpty()) //have no corresponding file, so editing is ok
         return false;
     return d->m_fileIsReadOnly;
 }
 
-bool BaseTextDocument::isModified() const
+bool TextDocument::isModified() const
 {
     return d->m_document.isModified();
 }
 
-void BaseTextDocument::checkPermissions()
+void TextDocument::checkPermissions()
 {
     bool previousReadOnly = d->m_fileIsReadOnly;
     if (!filePath().isEmpty()) {
@@ -544,7 +544,7 @@ void BaseTextDocument::checkPermissions()
         emit changed();
 }
 
-bool BaseTextDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
+bool TextDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     QStringList content;
 
@@ -591,14 +591,14 @@ bool BaseTextDocument::open(QString *errorString, const QString &fileName, const
            || readResult == Utils::TextFileFormat::ReadEncodingError;
 }
 
-bool BaseTextDocument::reload(QString *errorString, QTextCodec *codec)
+bool TextDocument::reload(QString *errorString, QTextCodec *codec)
 {
     QTC_ASSERT(codec, return false);
     setCodec(codec);
     return reload(errorString);
 }
 
-bool BaseTextDocument::reload(QString *errorString)
+bool TextDocument::reload(QString *errorString)
 {
     emit aboutToReload();
     BaseTextDocumentLayout *documentLayout =
@@ -615,7 +615,7 @@ bool BaseTextDocument::reload(QString *errorString)
     return success;
 }
 
-bool BaseTextDocument::setPlainText(const QString &text)
+bool TextDocument::setPlainText(const QString &text)
 {
     if (text.size() > EditorManager::maxTextFileSize()) {
         document()->setPlainText(BaseTextEditorWidget::msgTextTooLarge(text.size()));
@@ -629,7 +629,7 @@ bool BaseTextDocument::setPlainText(const QString &text)
     return true;
 }
 
-bool BaseTextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+bool TextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore)
         return true;
@@ -641,7 +641,7 @@ bool BaseTextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType 
     }
 }
 
-void BaseTextDocument::setSyntaxHighlighter(SyntaxHighlighter *highlighter)
+void TextDocument::setSyntaxHighlighter(SyntaxHighlighter *highlighter)
 {
     if (d->m_highlighter)
         delete d->m_highlighter;
@@ -650,7 +650,7 @@ void BaseTextDocument::setSyntaxHighlighter(SyntaxHighlighter *highlighter)
     d->m_highlighter->setDocument(&d->m_document);
 }
 
-void BaseTextDocument::cleanWhitespace(const QTextCursor &cursor)
+void TextDocument::cleanWhitespace(const QTextCursor &cursor)
 {
     bool hasSelection = cursor.hasSelection();
     QTextCursor copyCursor = cursor;
@@ -662,7 +662,7 @@ void BaseTextDocument::cleanWhitespace(const QTextCursor &cursor)
     copyCursor.endEditBlock();
 }
 
-void BaseTextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument)
+void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument)
 {
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document.documentLayout());
     Q_ASSERT(cursor.visualNavigation() == false);
@@ -697,7 +697,7 @@ void BaseTextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentatio
     }
 }
 
-void BaseTextDocument::ensureFinalNewLine(QTextCursor& cursor)
+void TextDocument::ensureFinalNewLine(QTextCursor& cursor)
 {
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     bool emptyFile = !cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
@@ -709,12 +709,12 @@ void BaseTextDocument::ensureFinalNewLine(QTextCursor& cursor)
     }
 }
 
-TextMarks BaseTextDocument::marks() const
+TextMarks TextDocument::marks() const
 {
     return d->m_marksCache;
 }
 
-bool BaseTextDocument::addMark(TextMark *mark)
+bool TextDocument::addMark(TextMark *mark)
 {
     if (mark->baseTextDocument())
         return false;
@@ -748,7 +748,7 @@ bool BaseTextDocument::addMark(TextMark *mark)
     return false;
 }
 
-TextMarks BaseTextDocument::marksAt(int line) const
+TextMarks TextDocument::marksAt(int line) const
 {
     QTC_ASSERT(line >= 1, return TextMarks());
     int blockNumber = line - 1;
@@ -761,7 +761,7 @@ TextMarks BaseTextDocument::marksAt(int line) const
     return TextMarks();
 }
 
-void BaseTextDocument::removeMarkFromMarksCache(TextMark *mark)
+void TextDocument::removeMarkFromMarksCache(TextMark *mark)
 {
     auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
@@ -801,7 +801,7 @@ void BaseTextDocument::removeMarkFromMarksCache(TextMark *mark)
     }
 }
 
-void BaseTextDocument::removeMark(TextMark *mark)
+void TextDocument::removeMark(TextMark *mark)
 {
     QTextBlock block = d->m_document.findBlockByNumber(mark->lineNumber() - 1);
     if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
@@ -813,7 +813,7 @@ void BaseTextDocument::removeMark(TextMark *mark)
     mark->setBaseTextDocument(0);
 }
 
-void BaseTextDocument::updateMark(TextMark *mark)
+void TextDocument::updateMark(TextMark *mark)
 {
     Q_UNUSED(mark)
     auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document.documentLayout());
@@ -821,7 +821,7 @@ void BaseTextDocument::updateMark(TextMark *mark)
     documentLayout->requestUpdate();
 }
 
-void BaseTextDocument::moveMark(TextMark *mark, int previousLine)
+void TextDocument::moveMark(TextMark *mark, int previousLine)
 {
     QTextBlock block = d->m_document.findBlockByNumber(previousLine - 1);
     if (TextBlockUserData *data = BaseTextDocumentLayout::testUserData(block)) {

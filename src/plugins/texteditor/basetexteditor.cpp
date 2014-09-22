@@ -251,7 +251,7 @@ public:
     void updateCannotDecodeInfo();
     void collectToCircularClipboard();
 
-    void ctor(const QSharedPointer<BaseTextDocument> &doc);
+    void ctor(const QSharedPointer<TextDocument> &doc);
     void handleHomeKey(bool anchor);
     void handleBackspaceKey();
     void moveLineUpDown(bool up);
@@ -324,7 +324,7 @@ public:
     bool m_contentsChanged;
     bool m_lastCursorChangeWasInteresting;
 
-    QSharedPointer<BaseTextDocument> m_document;
+    QSharedPointer<TextDocument> m_document;
     QByteArray m_tempState;
     QByteArray m_tempNavigationState;
 
@@ -590,12 +590,12 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     d = new BaseTextEditorWidgetPrivate(this);
 }
 
-void BaseTextEditorWidget::setTextDocument(const QSharedPointer<BaseTextDocument> &doc)
+void BaseTextEditorWidget::setTextDocument(const QSharedPointer<TextDocument> &doc)
 {
     d->ctor(doc);
 }
 
-void BaseTextEditorWidgetPrivate::ctor(const QSharedPointer<BaseTextDocument> &doc)
+void BaseTextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
 {
     q->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
@@ -889,7 +889,7 @@ int BaseTextEditorWidgetPrivate::visualIndent(const QTextBlock &block) const
 
 void BaseTextEditorWidget::selectEncoding()
 {
-    BaseTextDocument *doc = d->m_document.data();
+    TextDocument *doc = d->m_document.data();
     CodecSelector codecSelector(this, doc);
 
     switch (codecSelector.exec()) {
@@ -999,7 +999,7 @@ void BaseTextEditorWidgetPrivate::foldLicenseHeader()
     }
 }
 
-BaseTextDocument *BaseTextEditorWidget::textDocument() const
+TextDocument *BaseTextEditorWidget::textDocument() const
 {
     return d->m_document.data();
 }
@@ -2844,16 +2844,16 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals()
     QObject::connect(doc, &QTextDocument::contentsChange,
                      this, &BaseTextEditorWidgetPrivate::editorContentsChange);
 
-    QObject::connect(m_document.data(), &BaseTextDocument::aboutToReload,
+    QObject::connect(m_document.data(), &TextDocument::aboutToReload,
                      this, &BaseTextEditorWidgetPrivate::documentAboutToBeReloaded);
 
-    QObject::connect(m_document.data(), &BaseTextDocument::reloadFinished,
+    QObject::connect(m_document.data(), &TextDocument::reloadFinished,
                      this, &BaseTextEditorWidgetPrivate::documentReloadFinished);
 
-    QObject::connect(m_document.data(), &BaseTextDocument::tabSettingsChanged,
+    QObject::connect(m_document.data(), &TextDocument::tabSettingsChanged,
                      this, &BaseTextEditorWidgetPrivate::updateTabStops);
 
-    QObject::connect(m_document.data(), &BaseTextDocument::fontSettingsChanged,
+    QObject::connect(m_document.data(), &TextDocument::fontSettingsChanged,
                      this, &BaseTextEditorWidgetPrivate::applyFontSettingsDelayed);
 
     slotUpdateExtraAreaWidth();
@@ -2862,7 +2862,7 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals()
 
     // Connect to settings change signals
     connect(settings, &TextEditorSettings::fontSettingsChanged,
-            m_document.data(), &BaseTextDocument::setFontSettings);
+            m_document.data(), &TextDocument::setFontSettings);
     connect(settings, &TextEditorSettings::typingSettingsChanged,
             q, &BaseTextEditorWidget::setTypingSettings);
     connect(settings, &TextEditorSettings::storageSettingsChanged,
@@ -6531,7 +6531,7 @@ QColor BaseTextEditorWidget::replacementPenColor(int blockNumber) const
 
 void BaseTextEditorWidget::setupFallBackEditor(Id id)
 {
-    BaseTextDocumentPtr doc(new BaseTextDocument(id));
+    BaseTextDocumentPtr doc(new TextDocument(id));
     doc->setFontSettings(TextEditorSettings::fontSettings());
     setTextDocument(doc);
 }
@@ -6553,7 +6553,7 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
     if (a && a->isEnabled())
         menu->addAction(a);
 
-    BaseTextDocument *doc = textDocument();
+    TextDocument *doc = textDocument();
     if (doc->codec()->name() == QByteArray("UTF-8") && doc->supportsUtf8Bom()) {
         a = ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
         if (a && a->isEnabled()) {
@@ -6578,7 +6578,7 @@ BaseTextEditor::~BaseTextEditor()
     delete d;
 }
 
-BaseTextDocument *BaseTextEditor::textDocument() const
+TextDocument *BaseTextEditor::textDocument() const
 {
     BaseTextEditorWidget *widget = editorWidget();
     QTC_CHECK(!widget->d->m_document.isNull());
@@ -6782,18 +6782,18 @@ void BaseTextBlockSelection::clear()
 }
 
 // returns a cursor which always has the complete selection
-QTextCursor BaseTextBlockSelection::selection(const BaseTextDocument *baseTextDocument) const
+QTextCursor BaseTextBlockSelection::selection(const TextDocument *baseTextDocument) const
 {
     return cursor(baseTextDocument, true);
 }
 
 // returns a cursor which always has the correct position and anchor
-QTextCursor BaseTextBlockSelection::cursor(const BaseTextDocument *baseTextDocument) const
+QTextCursor BaseTextBlockSelection::cursor(const TextDocument *baseTextDocument) const
 {
     return cursor(baseTextDocument, false);
 }
 
-QTextCursor BaseTextBlockSelection::cursor(const BaseTextDocument *baseTextDocument,
+QTextCursor BaseTextBlockSelection::cursor(const TextDocument *baseTextDocument,
                                            bool fullSelection) const
 {
     if (!baseTextDocument)

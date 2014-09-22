@@ -1876,8 +1876,8 @@ void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
         // Context(FAKEVIM_CONTEXT));
         resetCommandBuffer();
         foreach (IEditor *editor, m_editorToHandler.keys()) {
-            if (BaseTextDocument *textDocument =
-                    qobject_cast<BaseTextDocument *>(editor->document())) {
+            if (TextDocument *textDocument =
+                    qobject_cast<TextDocument *>(editor->document())) {
                 m_editorToHandler[editor]->restoreWidget(textDocument->tabSettings().m_tabSize);
             }
         }

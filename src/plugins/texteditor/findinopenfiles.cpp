@@ -65,7 +65,7 @@ Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
     Q_UNUSED(nameFilters)
     Q_UNUSED(additionalParameters)
     QMap<QString, QTextCodec *> openEditorEncodings
-            = BaseTextDocument::openedTextDocumentEncodings();
+            = TextDocument::openedTextDocumentEncodings();
     QStringList fileNames;
     QList<QTextCodec *> codecs;
     foreach (Core::DocumentModel::Entry *entry,

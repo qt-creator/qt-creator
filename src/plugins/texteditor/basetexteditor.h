@@ -138,7 +138,7 @@ public:
     static BaseTextEditor *currentTextEditor();
 
     BaseTextEditorWidget *editorWidget() const;
-    BaseTextDocument *textDocument() const;
+    TextDocument *textDocument() const;
 
     // Some convenience text access
     QTextDocument *qdocument() const;
@@ -217,7 +217,7 @@ public:
     ~BaseTextEditorWidget();
 
     void setTextDocument(const BaseTextDocumentPtr &doc);
-    BaseTextDocument *textDocument() const;
+    TextDocument *textDocument() const;
     BaseTextDocumentPtr textDocumentPtr() const;
 
     // IEditor
@@ -625,7 +625,7 @@ public:
     BaseTextEditorFactory(QObject *parent = 0);
 
     typedef std::function<BaseTextEditor *()> EditorCreator;
-    typedef std::function<BaseTextDocument *()> DocumentCreator;
+    typedef std::function<TextDocument *()> DocumentCreator;
     typedef std::function<BaseTextEditorWidget *()> EditorWidgetCreator;
     typedef std::function<SyntaxHighlighter *()> SyntaxHighLighterCreator;
     typedef std::function<Indenter *()> IndenterCreator;

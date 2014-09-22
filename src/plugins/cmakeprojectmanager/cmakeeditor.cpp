@@ -71,7 +71,7 @@ CMakeEditor::CMakeEditor()
 void CMakeEditor::finalizeInitialization()
 {
     connect(document(), &IDocument::changed, [this]() {
-        BaseTextDocument *document = textDocument();
+        TextDocument *document = textDocument();
         if (!document->isModified())
             return;
         InfoBar *infoBar = document->infoBar();
@@ -240,7 +240,7 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 // CMakeDocument
 //
 
-class CMakeDocument : public BaseTextDocument
+class CMakeDocument : public TextDocument
 {
 public:
     CMakeDocument();

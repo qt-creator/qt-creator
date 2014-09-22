@@ -66,7 +66,7 @@ public:
 // JavaDocument
 //
 
-class JavaDocument : public TextEditor::BaseTextDocument
+class JavaDocument : public TextEditor::TextDocument
 {
 public:
     JavaDocument();

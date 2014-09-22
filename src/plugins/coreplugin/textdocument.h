@@ -36,16 +36,17 @@
 
 namespace Core {
 
-namespace Internal { class TextDocumentPrivate; }
+namespace Internal { class BaseTextDocumentPrivate; }
 
-class CORE_EXPORT TextDocument : public IDocument
+class CORE_EXPORT BaseTextDocument : public IDocument
 {
     Q_OBJECT
+
 public:
     typedef Utils::TextFileFormat::ReadResult ReadResult;
 
-    explicit TextDocument(QObject *parent = 0);
-    virtual ~TextDocument();
+    explicit BaseTextDocument(QObject *parent = 0);
+    virtual ~BaseTextDocument();
 
     Utils::TextFileFormat format() const;
     const QTextCodec *codec() const;
@@ -63,7 +64,7 @@ public:
     bool write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const;
 
 private:
-    Internal::TextDocumentPrivate *d;
+    Internal::BaseTextDocumentPrivate *d;
 };
 
 } // namespace Core

@@ -62,7 +62,7 @@ public:
 } // namespace TextEditor
 
 
-CodecSelector::CodecSelector(QWidget *parent, BaseTextDocument *doc)
+CodecSelector::CodecSelector(QWidget *parent, TextDocument *doc)
     : QDialog(parent)
 {
     m_hasDecodingError = doc->hasDecodingError();

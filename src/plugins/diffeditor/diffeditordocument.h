@@ -38,7 +38,7 @@ namespace DiffEditor {
 
 class DiffEditorController;
 
-class DIFFEDITOR_EXPORT DiffEditorDocument : public Core::TextDocument
+class DIFFEDITOR_EXPORT DiffEditorDocument : public Core::BaseTextDocument
 {
     Q_OBJECT
 public:

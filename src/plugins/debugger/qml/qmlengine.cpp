@@ -1325,8 +1325,8 @@ void QmlEngine::updateScriptSource(const QString &fileName, int lineOffset, int 
 
 void QmlEngine::updateDocument(Core::IDocument *document, const QTextDocument *textDocument)
 {
-    TextEditor::BaseTextDocument *baseTextDocument
-            = qobject_cast<TextEditor::BaseTextDocument *>(document);
+    TextEditor::TextDocument *baseTextDocument
+            = qobject_cast<TextEditor::TextDocument *>(document);
     if (!baseTextDocument)
         return;
 

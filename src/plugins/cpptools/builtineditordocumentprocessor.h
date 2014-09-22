@@ -45,7 +45,7 @@ class CPPTOOLS_EXPORT BuiltinEditorDocumentProcessor : public BaseEditorDocument
     BuiltinEditorDocumentProcessor();
 
 public:
-    BuiltinEditorDocumentProcessor(TextEditor::BaseTextDocument *document,
+    BuiltinEditorDocumentProcessor(TextEditor::TextDocument *document,
                                    bool enableSemanticHighlighter = true);
     ~BuiltinEditorDocumentProcessor();
 

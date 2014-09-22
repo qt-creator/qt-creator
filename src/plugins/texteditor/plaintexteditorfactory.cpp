@@ -61,7 +61,7 @@ PlainTextEditorFactory::PlainTextEditorFactory()
     setDisplayName(qApp->translate("OpenWith::Editors", Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
     addMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
-    setDocumentCreator([]() { return new BaseTextDocument(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); });
+    setDocumentCreator([]() { return new TextDocument(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID); });
     setEditorWidgetCreator([]() { return new PlainTextEditorWidget; });
     setIndenterCreator([]() { return new NormalIndenter; });
 

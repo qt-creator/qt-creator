@@ -591,7 +591,7 @@ TextMarks BaseTextDocumentLayout::documentClosing()
     return marks;
 }
 
-void BaseTextDocumentLayout::documentReloaded(TextMarks marks, BaseTextDocument *baseTextDocument)
+void BaseTextDocumentLayout::documentReloaded(TextMarks marks, TextDocument *baseTextDocument)
 {
     foreach (TextMark *mark, marks) {
         int blockNumber = mark->lineNumber() - 1;

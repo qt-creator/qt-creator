@@ -43,7 +43,7 @@ namespace Internal {
 
 class ResourceHandler;
 
-class FormWindowFile : public TextEditor::BaseTextDocument
+class FormWindowFile : public TextEditor::TextDocument
 {
     Q_OBJECT
 

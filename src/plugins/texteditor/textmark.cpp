@@ -171,12 +171,12 @@ void TextMark::dragToLine(int lineNumber)
     Q_UNUSED(lineNumber);
 }
 
-BaseTextDocument *TextMark::baseTextDocument() const
+TextDocument *TextMark::baseTextDocument() const
 {
     return m_baseTextDocument;
 }
 
-void TextMark::setBaseTextDocument(BaseTextDocument *baseTextDocument)
+void TextMark::setBaseTextDocument(TextDocument *baseTextDocument)
 {
     m_baseTextDocument = baseTextDocument;
 }
@@ -197,7 +197,7 @@ TextMarkRegistry::TextMarkRegistry(QObject *parent)
 void TextMarkRegistry::add(TextMark *mark)
 {
     m_marks[FileName::fromString(mark->fileName())].insert(mark);
-    auto document = qobject_cast<BaseTextDocument*>(DocumentModel::documentForFilePath(mark->fileName()));
+    auto document = qobject_cast<TextDocument*>(DocumentModel::documentForFilePath(mark->fileName()));
     if (!document)
         return;
     document->addMark(mark);
@@ -210,7 +210,7 @@ bool TextMarkRegistry::remove(TextMark *mark)
 
 void TextMarkRegistry::editorOpened(Core::IEditor *editor)
 {
-    auto document = qobject_cast<BaseTextDocument *>(editor ? editor->document() : 0);
+    auto document = qobject_cast<TextDocument *>(editor ? editor->document() : 0);
     if (!document)
         return;
     if (!m_marks.contains(FileName::fromString(document->filePath())))
@@ -223,7 +223,7 @@ void TextMarkRegistry::editorOpened(Core::IEditor *editor)
 void TextMarkRegistry::documentRenamed(IDocument *document, const
                                            QString &oldName, const QString &newName)
 {
-    BaseTextDocument *baseTextDocument = qobject_cast<BaseTextDocument *>(document);
+    TextDocument *baseTextDocument = qobject_cast<TextDocument *>(document);
     if (!document)
         return;
     FileName oldFileName = FileName::fromString(oldName);

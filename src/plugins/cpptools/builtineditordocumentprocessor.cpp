@@ -123,7 +123,7 @@ QList<TextEditor::BlockRange> toTextEditorBlocks(
 namespace CppTools {
 
 BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(
-        TextEditor::BaseTextDocument *document,
+        TextEditor::TextDocument *document,
         bool enableSemanticHighlighter)
     : BaseEditorDocumentProcessor(document)
     , m_parser(document->filePath())

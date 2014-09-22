@@ -49,7 +49,7 @@
 
 namespace TextEditor {
 
-class BaseTextDocument;
+class TextDocument;
 
 namespace Internal {
 class TextEditorOverlay;
@@ -64,8 +64,8 @@ public:
     BaseTextBlockSelection(const BaseTextBlockSelection &other);
 
     void clear();
-    QTextCursor selection(const BaseTextDocument *baseTextDocument) const;
-    QTextCursor cursor(const BaseTextDocument *baseTextDocument) const;
+    QTextCursor selection(const TextDocument *baseTextDocument) const;
+    QTextCursor cursor(const TextDocument *baseTextDocument) const;
     void fromPostition(int positionBlock, int positionColumn, int anchorBlock, int anchorColumn);
     bool hasSelection() { return !(positionBlock == anchorBlock && positionColumn == anchorColumn); }
 
@@ -85,7 +85,7 @@ public:
     int anchorColumn;
 
 private:
-    QTextCursor cursor(const BaseTextDocument *baseTextDocument, bool fullSelection) const;
+    QTextCursor cursor(const TextDocument *baseTextDocument, bool fullSelection) const;
 };
 
 //================BaseTextEditorPrivate==============

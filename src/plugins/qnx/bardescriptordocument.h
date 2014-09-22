@@ -55,7 +55,7 @@ public:
 
 typedef QList<BarDescriptorAsset> BarDescriptorAssetList;
 
-class BarDescriptorDocument : public Core::TextDocument
+class BarDescriptorDocument : public Core::BaseTextDocument
 {
     Q_OBJECT
 

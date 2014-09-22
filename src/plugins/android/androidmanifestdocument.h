@@ -37,7 +37,7 @@ namespace Internal {
 
 class AndroidManifestEditorWidget;
 
-class AndroidManifestDocument : public TextEditor::BaseTextDocument
+class AndroidManifestDocument : public TextEditor::TextDocument
 {
 public:
     explicit AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget);

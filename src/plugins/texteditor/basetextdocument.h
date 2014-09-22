@@ -48,25 +48,25 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class BaseTextDocumentPrivate;
 class ExtraEncodingSettings;
 class FontSettings;
 class Indenter;
 class StorageSettings;
 class SyntaxHighlighter;
 class TabSettings;
+class TextDocumentPrivate;
 class TextMark;
 class TypingSettings;
 
 typedef QList<TextMark *> TextMarks;
 
-class TEXTEDITOR_EXPORT BaseTextDocument : public Core::TextDocument
+class TEXTEDITOR_EXPORT TextDocument : public Core::BaseTextDocument
 {
     Q_OBJECT
 
 public:
-    explicit BaseTextDocument(Core::Id id = Core::Id());
-    virtual ~BaseTextDocument();
+    explicit TextDocument(Core::Id id = Core::Id());
+    virtual ~TextDocument();
 
     static QMap<QString, QString> openedTextDocumentContents();
     static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
@@ -98,7 +98,7 @@ public:
     void removeMark(TextMark *mark);
     void updateMark(TextMark *mark);
     void moveMark(TextMark *mark, int previousLine);
-    void removeMarkFromMarksCache(TextEditor::TextMark *mark);
+    void removeMarkFromMarksCache(TextMark *mark);
 
     // IDocument implementation.
     bool save(QString *errorString, const QString &fileName, bool autoSave);
@@ -146,10 +146,10 @@ private:
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);
     void ensureFinalNewLine(QTextCursor &cursor);
 
-    BaseTextDocumentPrivate *d;
+    TextDocumentPrivate *d;
 };
 
-typedef QSharedPointer<BaseTextDocument> BaseTextDocumentPtr;
+typedef QSharedPointer<TextDocument> BaseTextDocumentPtr;
 
 } // namespace TextEditor
 

@@ -67,7 +67,7 @@ public:
     typedef std::function<QFuture<TextEditor::HighlightingResult> ()> HighlightingRunner;
 
 public:
-    explicit SemanticHighlighter(TextEditor::BaseTextDocument *baseTextDocument);
+    explicit SemanticHighlighter(TextEditor::TextDocument *baseTextDocument);
     ~SemanticHighlighter();
 
     void setHighlightingRunner(HighlightingRunner highlightingRunner);
@@ -88,7 +88,7 @@ private:
     void updateFormatMapFromFontSettings();
 
 private:
-    TextEditor::BaseTextDocument *m_baseTextDocument;
+    TextEditor::TextDocument *m_baseTextDocument;
 
     unsigned m_revision;
     QScopedPointer<QFutureWatcher<TextEditor::HighlightingResult>> m_watcher;

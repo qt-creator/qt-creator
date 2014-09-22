@@ -162,7 +162,7 @@ void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 // ProFileDocument
 //
 
-class ProFileDocument : public BaseTextDocument
+class ProFileDocument : public TextDocument
 {
 public:
     ProFileDocument();

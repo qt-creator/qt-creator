@@ -50,7 +50,7 @@ public:
 
     virtual CppTools::CppCompletionAssistProvider *completionAssistProvider();
     virtual CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(
-                TextEditor::BaseTextDocument *baseTextDocument);
+                TextEditor::TextDocument *baseTextDocument);
 
 private:
     QScopedPointer<CppTools::CppCompletionAssistProvider> m_completionAssistProvider;

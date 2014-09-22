@@ -166,7 +166,7 @@ void CppEditorDocument::applyFontSettings()
             b = b.next();
         }
     }
-    BaseTextDocument::applyFontSettings(); // rehighlights and updates additional formats
+    TextDocument::applyFontSettings(); // rehighlights and updates additional formats
 }
 
 void CppEditorDocument::invalidateFormatterCache()

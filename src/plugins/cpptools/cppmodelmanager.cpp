@@ -952,7 +952,7 @@ CppCompletionAssistProvider *CppModelManager::completionAssistProvider(const QSt
 }
 
 BaseEditorDocumentProcessor *CppModelManager::editorDocumentProcessor(
-        TextEditor::BaseTextDocument *baseTextDocument) const
+        TextEditor::TextDocument *baseTextDocument) const
 {
     QTC_ASSERT(baseTextDocument, return 0);
     ModelManagerSupport *cms = modelManagerSupportForMimeType(baseTextDocument->mimeType());

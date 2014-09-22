@@ -100,7 +100,7 @@ public:
     DisassemblerLines contentsAtCurrentLocation() const;
 
 public:
-    QPointer<BaseTextDocument> document;
+    QPointer<TextDocument> document;
     Location location;
     QPointer<DebuggerEngine> engine;
     TextMark locationMark;
@@ -291,7 +291,7 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
             widget->setReadOnly(true);
             widget->setRequestMarkEnabled(true);
         }
-        d->document = qobject_cast<BaseTextDocument *>(editor->document());
+        d->document = qobject_cast<TextDocument *>(editor->document());
         QTC_ASSERT(d->document, return);
         d->document->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
         d->document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);

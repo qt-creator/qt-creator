@@ -706,7 +706,7 @@ void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
     d->m_declDefLink = link;
     IDocument *targetDocument = DocumentModel::documentForFilePath( d->m_declDefLink->targetFile->fileName());
     if (textDocument() != targetDocument) {
-        if (auto textDocument = qobject_cast<BaseTextDocument *>(targetDocument))
+        if (auto textDocument = qobject_cast<TextDocument *>(targetDocument))
             connect(textDocument, SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
     }
@@ -741,7 +741,7 @@ void CppEditorWidget::abortDeclDefLink()
 
     IDocument *targetDocument = DocumentModel::documentForFilePath(d->m_declDefLink->targetFile->fileName());
     if (textDocument() != targetDocument) {
-        if (auto textDocument = qobject_cast<BaseTextDocument *>(targetDocument))
+        if (auto textDocument = qobject_cast<TextDocument *>(targetDocument))
             disconnect(textDocument, SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
     }

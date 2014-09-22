@@ -46,7 +46,7 @@ class ClangEditorDocumentProcessor : public CppTools::BaseEditorDocumentProcesso
     Q_OBJECT
 
 public:
-    ClangEditorDocumentProcessor(TextEditor::BaseTextDocument *document);
+    ClangEditorDocumentProcessor(TextEditor::TextDocument *document);
     ~ClangEditorDocumentProcessor();
 
     // BaseEditorDocumentProcessor interface

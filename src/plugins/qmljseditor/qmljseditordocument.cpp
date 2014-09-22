@@ -574,7 +574,7 @@ void QmlJSEditorDocument::setDiagnosticRanges(const QVector<QTextLayout::FormatR
 
 void QmlJSEditorDocument::applyFontSettings()
 {
-    BaseTextDocument::applyFontSettings();
+    TextDocument::applyFontSettings();
     d->m_semanticHighlighter->updateFontSettings(fontSettings());
     if (!isSemanticInfoOutdated()) {
         d->m_semanticHighlightingNecessary = false;
@@ -584,7 +584,7 @@ void QmlJSEditorDocument::applyFontSettings()
 
 void QmlJSEditorDocument::triggerPendingUpdates()
 {
-    BaseTextDocument::triggerPendingUpdates(); // calls applyFontSettings if necessary
+    TextDocument::triggerPendingUpdates(); // calls applyFontSettings if necessary
     // might still need to rehighlight if font settings did not change
     if (d->m_semanticHighlightingNecessary && !isSemanticInfoOutdated()) {
         d->m_semanticHighlightingNecessary = false;

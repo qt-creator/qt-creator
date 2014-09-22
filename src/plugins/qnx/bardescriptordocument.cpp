@@ -46,7 +46,7 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 BarDescriptorDocument::BarDescriptorDocument(QObject *parent)
-    : Core::TextDocument(parent)
+    : Core::BaseTextDocument(parent)
 {
     setId(Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID);
     setMimeType(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));

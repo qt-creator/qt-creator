@@ -43,7 +43,7 @@ class Id;
 namespace TextEditor {
 class BaseTextEditor;
 class BaseTextEditorWidget;
-class BaseTextDocument;
+class TextDocument;
 class TabSettings;
 class ICodeStylePreferences;
 class TypingSettings;
@@ -121,7 +121,7 @@ private:
 // the file belongs to and return the project settings. If the file doesn't belong to any
 // project return the global settings.
 PROJECTEXPLORER_EXPORT TextEditor::TabSettings actualTabSettings(
-    const QString &fileName, const TextEditor::BaseTextDocument *baseTextDocument);
+    const QString &fileName, const TextEditor::TextDocument *baseTextDocument);
 
 } // ProjectExplorer
 

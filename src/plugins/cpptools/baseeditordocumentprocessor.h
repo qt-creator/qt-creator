@@ -49,10 +49,10 @@ class CPPTOOLS_EXPORT BaseEditorDocumentProcessor : public QObject
     BaseEditorDocumentProcessor();
 
 public:
-    BaseEditorDocumentProcessor(TextEditor::BaseTextDocument *document);
+    BaseEditorDocumentProcessor(TextEditor::TextDocument *document);
     virtual ~BaseEditorDocumentProcessor();
 
-    TextEditor::BaseTextDocument *baseTextDocument() const;
+    TextEditor::TextDocument *baseTextDocument() const;
 
     // Function interface to implement
     virtual void run() = 0;
@@ -90,7 +90,7 @@ protected:
     QTextDocument *textDocument() const { return m_baseTextDocument->document(); }
 
 private:
-    TextEditor::BaseTextDocument *m_baseTextDocument;
+    TextEditor::TextDocument *m_baseTextDocument;
 };
 
 } // namespace CppTools

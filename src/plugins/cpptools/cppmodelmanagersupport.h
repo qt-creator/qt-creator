@@ -34,7 +34,7 @@
 
 #include <QString>
 
-namespace TextEditor { class BaseTextDocument; }
+namespace TextEditor { class TextDocument; }
 
 namespace CppTools {
 
@@ -51,7 +51,7 @@ public:
 
     virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
     virtual BaseEditorDocumentProcessor *editorDocumentProcessor(
-                TextEditor::BaseTextDocument *baseTextDocument) = 0;
+                TextEditor::TextDocument *baseTextDocument) = 0;
 };
 
 } // CppTools namespace

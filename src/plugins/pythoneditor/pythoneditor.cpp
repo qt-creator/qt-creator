@@ -74,7 +74,7 @@ PythonEditorFactory::PythonEditorFactory()
                        | TextEditorActionHandler::UnCommentSelection
                        | TextEditorActionHandler::UnCollapseAll);
 
-    setDocumentCreator([]() { return new BaseTextDocument(Constants::C_PYTHONEDITOR_ID); });
+    setDocumentCreator([]() { return new TextDocument(Constants::C_PYTHONEDITOR_ID); });
     setEditorWidgetCreator([]() { return new PythonEditorWidget; });
     setIndenterCreator([]() { return new PythonIndenter; });
     setSyntaxHighlighterCreator([]() { return new PythonHighlighter; });
