@@ -33,7 +33,7 @@
 #include "gccparser.h"
 #include "task.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace ProjectExplorer {
 
@@ -46,11 +46,11 @@ public:
     void stdError(const QString &line);
 
 private:
-    QRegExp m_commandRegExp;
-    QRegExp m_inLineRegExp;
-    QRegExp m_messageRegExp;
-    QRegExp m_summaryRegExp;
-    QRegExp m_codesignRegExp;
+    QRegularExpression m_commandRegExp;
+    QRegularExpression m_inLineRegExp;
+    QRegularExpression m_messageRegExp;
+    QRegularExpression m_summaryRegExp;
+    QRegularExpression m_codesignRegExp;
     bool m_expectSnippet;
 };
 

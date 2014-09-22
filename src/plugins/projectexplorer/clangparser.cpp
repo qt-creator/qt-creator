@@ -47,7 +47,7 @@ static const char * const FILE_PATTERN = "(<command line>|([A-Za-z]:)?[^:]+\\.[^
 
 ClangParser::ClangParser() :
     m_commandRegExp(QLatin1String("^clang(\\+\\+)?: +(fatal +)?(warning|error|note): (.*)$")),
-    m_inLineRegExp(QLatin1String("^In (.*) included from (.*):(\\d+):$")),
+    m_inLineRegExp(QLatin1String("^In (.*?) included from (.*?):(\\d+):$")),
     m_messageRegExp(QLatin1Char('^') + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$")),
     m_summaryRegExp(QLatin1String("^\\d+ (warnings?|errors?)( and \\d (warnings?|errors?))? generated.$")),
     m_codesignRegExp(QLatin1String("^Code ?Sign error: (.*)$")),
@@ -61,16 +61,18 @@ ClangParser::ClangParser() :
 void ClangParser::stdError(const QString &line)
 {
     const QString lne = rightTrimmed(line);
-    if (m_summaryRegExp.indexIn(lne) > -1) {
+    QRegularExpressionMatch match = m_summaryRegExp.match(lne);
+    if (match.hasMatch()) {
         doFlush();
         m_expectSnippet = false;
         return;
     }
 
-    if (m_commandRegExp.indexIn(lne) > -1) {
+    match = m_commandRegExp.match(lne);
+    if (match.hasMatch()) {
         m_expectSnippet = true;
-        Task task(taskType(m_commandRegExp.cap(3)),
-                  m_commandRegExp.cap(4),
+        Task task(taskType(match.captured(3)),
+                  match.captured(4),
                   Utils::FileName(), /* filename */
                   -1, /* line */
                   Constants::TASK_CATEGORY_COMPILE);
@@ -78,35 +80,38 @@ void ClangParser::stdError(const QString &line)
         return;
     }
 
-    if (m_inLineRegExp.indexIn(lne) > -1) {
+    match = m_inLineRegExp.match(lne);
+    if (match.hasMatch()) {
         m_expectSnippet = true;
         newTask(Task(Task::Unknown,
                      lne.trimmed(),
-                     Utils::FileName::fromUserInput(m_inLineRegExp.cap(2)), /* filename */
-                     m_inLineRegExp.cap(3).toInt(), /* line */
+                     Utils::FileName::fromUserInput(match.captured(2)), /* filename */
+                     match.captured(3).toInt(), /* line */
                      Constants::TASK_CATEGORY_COMPILE));
         return;
     }
 
-    if (m_messageRegExp.indexIn(lne) > -1) {
+    match = m_messageRegExp.match(lne);
+    if (match.hasMatch()) {
         m_expectSnippet = true;
         bool ok = false;
-        int lineNo = m_messageRegExp.cap(4).toInt(&ok);
+        int lineNo = match.captured(4).toInt(&ok);
         if (!ok)
-            lineNo = m_messageRegExp.cap(5).toInt(&ok);
-        Task task(taskType(m_messageRegExp.cap(7)),
-                  m_messageRegExp.cap(8),
-                  Utils::FileName::fromUserInput(m_messageRegExp.cap(1)), /* filename */
+            lineNo = match.captured(5).toInt(&ok);
+        Task task(taskType(match.captured(7)),
+                  match.captured(8),
+                  Utils::FileName::fromUserInput(match.captured(1)), /* filename */
                   lineNo,
                   Core::Id(Constants::TASK_CATEGORY_COMPILE));
         newTask(task);
         return;
     }
 
-    if (m_codesignRegExp.indexIn(lne) > -1) {
+    match = m_codesignRegExp.match(lne);
+    if (match.hasMatch()) {
         m_expectSnippet = true;
         Task task(Task::Error,
-                  m_codesignRegExp.cap(1),
+                  match.captured(1),
                   Utils::FileName(),
                   -1,
                   Core::Id(Constants::TASK_CATEGORY_COMPILE));
