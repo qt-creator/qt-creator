@@ -305,6 +305,7 @@ void SubmitEditorWidget::wrapDescription()
     e.setFontPointSize(1.0);
     e.setLineWrapColumnOrWidth(d->m_ui.description->lineWrapColumnOrWidth());
     e.setLineWrapMode(d->m_ui.description->lineWrapMode());
+    e.setWordWrapMode(d->m_ui.description->wordWrapMode());
     e.setPlainText(d->m_description);
     d->m_description.clear();
     QTextCursor cursor(e.document());
