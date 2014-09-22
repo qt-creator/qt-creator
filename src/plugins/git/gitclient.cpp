@@ -3038,7 +3038,8 @@ bool GitClient::executeAndHandleConflicts(const QString &workingDirectory,
     // Disable UNIX terminals to suppress SSH prompting.
     const unsigned flags = VcsBasePlugin::SshPasswordPrompt
             | VcsBasePlugin::ShowStdOutInLogWindow
-            | VcsBasePlugin::ExpectRepoChanges;
+            | VcsBasePlugin::ExpectRepoChanges
+            | VcsBasePlugin::ShowSuccessMessage;
     const SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
     ConflictHandler conflictHandler(0, workingDirectory, abortCommand);
     // Notify about changed files or abort the rebase.
