@@ -68,7 +68,6 @@ MsvcParser::MsvcParser()
     m_compileRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN)
                                + QLatin1String("(Command line |fatal )?(warning|error) (")
                                + QLatin1String(ERROR_PATTERN) + QLatin1String(".*)$"));
-    m_compileRegExp.setMinimal(true);
     QTC_CHECK(m_compileRegExp.isValid());
     m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        (?:(could be |or )\\s*')?(.*)\\((\\d+)\\) : (.*)$"));
     QTC_CHECK(m_additionalInfoRegExp.isValid());
@@ -76,8 +75,8 @@ MsvcParser::MsvcParser()
 
 void MsvcParser::stdOutput(const QString &line)
 {
-    int infoPos = m_additionalInfoRegExp.indexIn(line);
-    if (line.startsWith(QLatin1String("        ")) && infoPos < 0) {
+    QRegularExpressionMatch match = m_additionalInfoRegExp.match(line);
+    if (line.startsWith(QLatin1String("        ")) && !match.hasMatch()) {
         if (m_lastTask.isNull())
             return;
 
@@ -121,14 +120,14 @@ void MsvcParser::stdOutput(const QString &line)
                           Constants::TASK_CATEGORY_COMPILE);
         return;
     }
-    if (infoPos > -1) {
-        QString description = m_additionalInfoRegExp.cap(1)
-                + m_additionalInfoRegExp.cap(4).trimmed();
-        if (!m_additionalInfoRegExp.cap(1).isEmpty())
+    if (match.hasMatch()) {
+        QString description = match.captured(1)
+                + match.captured(4).trimmed();
+        if (!match.captured(1).isEmpty())
             description.chop(1); // Remove trailing quote
         m_lastTask = Task(Task::Unknown, description,
-                          Utils::FileName::fromUserInput(m_additionalInfoRegExp.cap(2)), /* fileName */
-                          m_additionalInfoRegExp.cap(3).toInt(), /* linenumber */
+                          Utils::FileName::fromUserInput(match.captured(2)), /* fileName */
+                          match.captured(3).toInt(), /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
         return;
     }
@@ -155,15 +154,16 @@ bool MsvcParser::processCompileLine(const QString &line)
 {
     doFlush();
 
-    if (m_compileRegExp.indexIn(line) > -1) {
-        QPair<Utils::FileName, int> position = parseFileName( m_compileRegExp.cap(1));
+    QRegularExpressionMatch match = m_compileRegExp.match(line);
+    if (match.hasMatch()) {
+        QPair<Utils::FileName, int> position = parseFileName(match.captured(1));
         Task::TaskType type = Task::Unknown;
-        const QString category = m_compileRegExp.cap(3);
+        const QString category = match.captured(3);
         if (category == QLatin1String("warning"))
             type = Task::Warning;
         else if (category == QLatin1String("error"))
             type = Task::Error;
-        m_lastTask = Task(type, m_compileRegExp.cap(4).trimmed() /* description */,
+        m_lastTask = Task(type, match.captured(4).trimmed() /* description */,
                           position.first, position.second,
                           Constants::TASK_CATEGORY_COMPILE);
         return true;

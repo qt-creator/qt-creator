@@ -33,7 +33,7 @@
 #include "ioutputparser.h"
 #include "task.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 
 namespace ProjectExplorer {
@@ -52,8 +52,8 @@ private:
     void doFlush();
     bool processCompileLine(const QString &line);
 
-    QRegExp m_compileRegExp;
-    QRegExp m_additionalInfoRegExp;
+    QRegularExpression m_compileRegExp;
+    QRegularExpression m_additionalInfoRegExp;
 
     Task m_lastTask;
 };
