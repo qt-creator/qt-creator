@@ -382,6 +382,13 @@ def qdump__std__set__QNX(d, value):
                     if node['_Right'] != parent:
                         node = parent
 
+def qdump__std____1__set(d, value):
+    base3 = d.addressOf(value["__tree_"]["__pair3_"])
+    size = d.extractInt(base3)
+    d.check(0 <= size and size <= 100*1000*1000)
+    d.putItemCount(size)
+    d.putNumChild(0)
+
 def qdump__std__stack(d, value):
     d.putItem(value["c"])
     d.putType(str(value.type))
