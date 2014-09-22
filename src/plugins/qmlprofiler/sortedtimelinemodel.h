@@ -61,10 +61,6 @@ public:
         inline qint64 timestamp() const {return end;}
     };
 
-    SortedTimelineModel(QObject *parent = 0) : QObject(parent) {}
-
-    void clear();
-
     inline int count() const { return ranges.count(); }
 
     qint64 duration(int index) const { return ranges[index].duration; }
@@ -75,31 +71,6 @@ public:
     inline qint64 firstStartTime() const { return ranges.first().start; }
 
     inline const Range &range(int index) const { return ranges[index]; }
-
-    inline int insert(qint64 startTime, qint64 duration, int typeId)
-    {
-        /* Doing insert-sort here is preferable as most of the time the times will actually be
-         * presorted in the right way. So usually this will just result in appending. */
-        int index = insertSorted(ranges, Range(startTime, duration, typeId));
-        if (index < ranges.size() - 1)
-            incrementStartIndices(index);
-        insertSorted(endTimes, RangeEnd(index, startTime + duration));
-        return index;
-    }
-
-    inline int insertStart(qint64 startTime, int typeId)
-    {
-        int index = insertSorted(ranges, Range(startTime, 0, typeId));
-        if (index < ranges.size() - 1)
-            incrementStartIndices(index);
-        return index;
-    }
-
-    inline void insertEnd(int index, qint64 duration)
-    {
-        ranges[index].duration = duration;
-        insertSorted(endTimes, RangeEnd(index, ranges[index].start + duration));
-    }
 
     inline int firstIndex(qint64 startTime) const
     {
@@ -137,6 +108,36 @@ public:
     }
 
 protected:
+
+    SortedTimelineModel(QObject *parent = 0) : QObject(parent) {}
+
+    void clear();
+
+    inline int insert(qint64 startTime, qint64 duration, int typeId)
+    {
+        /* Doing insert-sort here is preferable as most of the time the times will actually be
+         * presorted in the right way. So usually this will just result in appending. */
+        int index = insertSorted(ranges, Range(startTime, duration, typeId));
+        if (index < ranges.size() - 1)
+            incrementStartIndices(index);
+        insertSorted(endTimes, RangeEnd(index, startTime + duration));
+        return index;
+    }
+
+    inline int insertStart(qint64 startTime, int typeId)
+    {
+        int index = insertSorted(ranges, Range(startTime, 0, typeId));
+        if (index < ranges.size() - 1)
+            incrementStartIndices(index);
+        return index;
+    }
+
+    inline void insertEnd(int index, qint64 duration)
+    {
+        ranges[index].duration = duration;
+        insertSorted(endTimes, RangeEnd(index, ranges[index].start + duration));
+    }
+
     void computeNesting();
 
     void incrementStartIndices(int index)
