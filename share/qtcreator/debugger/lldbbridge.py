@@ -665,10 +665,11 @@ class Dumper(DumperBase):
         self.report('state="%s",msg="%s",exe="%s"' % (state, error, self.executable_))
 
     def runEngine(self, _):
+        self.prepare()
         s = threading.Thread(target=self.loop, args=[])
         s.start()
 
-    def loop(self):
+    def prepare(self):
         error = lldb.SBError()
         listener = self.debugger.GetListener()
 
@@ -710,7 +711,9 @@ class Dumper(DumperBase):
             self.report('pid="%s"' % self.process.GetProcessID())
             self.reportState("enginerunandinferiorrunok")
 
+    def loop(self):
         event = lldb.SBEvent()
+        listener = self.debugger.GetListener()
         while True:
             if listener.WaitForEvent(10000000, event):
                 self.handleEvent(event)
