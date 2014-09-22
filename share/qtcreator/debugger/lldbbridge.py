@@ -368,12 +368,12 @@ class Dumper(DumperBase):
     def callHelper(self, value, func, args):
         # args is a tuple.
         arg = ','.join(args)
-        #warn("CALL: %s -> %s(%s)" % (value, func, arg))
+        #self.warn("CALL: %s -> %s(%s)" % (value, func, arg))
         type = value.type.name
         exp = "((%s*)%s)->%s(%s)" % (type, value.address, func, arg)
-        #warn("CALL: %s" % exp)
+        #self.warn("CALL: %s" % exp)
         result = value.CreateValueFromExpression('', exp)
-        #warn("  -> %s" % result)
+        #self.warn("  -> %s" % result)
         return result
 
     def makeValue(self, type, *args):
@@ -381,9 +381,9 @@ class Dumper(DumperBase):
         frame = thread.GetFrameAtIndex(0)
         inner = ','.join(args)
         value = frame.EvaluateExpression(type + '{' + inner + '}')
-        #warn("  TYPE: %s" % value.type)
-        #warn("  ADDR: 0x%x" % value.address)
-        #warn("  VALUE: %s" % value)
+        #self.warn("  TYPE: %s" % value.type)
+        #self.warn("  ADDR: 0x%x" % value.address)
+        #self.warn("  VALUE: %s" % value)
         return value
 
     def parseAndEvaluate(self, expr):
@@ -550,7 +550,7 @@ class Dumper(DumperBase):
         return self.isKnownMovableType(self.stripNamespaceFromType(type.GetName()))
 
     def putNumChild(self, numchild):
-        #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
+        #self.warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
         #if numchild != self.currentChildNumChild:
         self.put('numchild="%s",' % numchild)
 
@@ -610,13 +610,13 @@ class Dumper(DumperBase):
         return re.sub('\\bconst\\b', '', name).replace(' ', '')
 
     def lookupType(self, name):
-        #warn("LOOKUP TYPE NAME: %s" % name)
+        #self.warn("LOOKUP TYPE NAME: %s" % name)
         if name.endswith('*'):
             typeobj = self.lookupType(name[:-1].strip())
             return typeobj.GetPointerType() if type.IsValid() else None
         typeobj = self.target.FindFirstType(name)
-        #warn("LOOKUP RESULT: %s" % typeobj.name)
-        #warn("LOOKUP VALID: %s" % typeobj.IsValid())
+        #self.warn("LOOKUP RESULT: %s" % typeobj.name)
+        #self.warn("LOOKUP VALID: %s" % typeobj.IsValid())
         if typeobj.IsValid():
             return typeobj
         try:
@@ -1029,7 +1029,7 @@ class Dumper(DumperBase):
                     self.putQObjectGuts(value, staticMetaObject)
 
     def warn(self, msg):
-        self.put('{name="%s",value="",type=""},' % msg)
+        self.put('{name="%s",value="",type="",numchild="0"},' % msg)
 
     def putFields(self, value):
         # Suppress printing of 'name' field for arrays.
