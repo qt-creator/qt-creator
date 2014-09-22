@@ -313,8 +313,8 @@ CppModelManager::CppModelManager(QObject *parent)
 
 CppModelManager::~CppModelManager()
 {
-    delete d;
     delete d->m_internalIndexingSupport;
+    delete d;
 }
 
 Snapshot CppModelManager::snapshot() const
