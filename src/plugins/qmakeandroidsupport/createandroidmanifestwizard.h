@@ -29,6 +29,7 @@
 #ifndef CREATEANDROIDMANIFESTWIZARD_H
 #define CREATEANDROIDMANIFESTWIZARD_H
 
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/wizard.h>
 
@@ -92,18 +93,28 @@ public:
     QmakeProjectManager::QmakeProFileNode *node() const;
     void setNode(QmakeProjectManager::QmakeProFileNode *node);
 
-    QString sourceFolder() const;
-    QString sourceFileName() const;
-
     void accept();
+    bool copyGradle();
 
 public slots:
     void setDirectory(const QString &directory);
+    void setCopyGradle(bool copy);
+
 private:
+    enum CopyState {
+        Ask,
+        OverwriteAll,
+        SkipAll
+    };
+    bool copy(const QFileInfo &src, const QFileInfo &dst, QStringList *addedFiles);
+
     void createAndroidManifestFile();
+    void createAndroidTemplateFiles();
     ProjectExplorer::Target *m_target;
     QmakeProjectManager::QmakeProFileNode *m_node;
     QString m_directory;
+    CopyState m_copyState;
+    bool m_copyGradle;
 };
 
 } //namespace QmakeAndroidSupport

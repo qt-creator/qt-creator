@@ -162,6 +162,7 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->AntLocationPathChooser->setPromptDialogTitle(tr("Select ant Script"));
     m_ui->AntLocationPathChooser->setInitialBrowsePathBackup(dir);
     m_ui->AntLocationPathChooser->setPromptDialogFilter(filter);
+    m_ui->UseGradleCheckBox->setChecked(m_androidConfig.useGrandle());
 
     m_ui->OpenJDKLocationPathChooser->setFileName(m_androidConfig.openJDKLocation());
     m_ui->OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
@@ -575,6 +576,11 @@ void AndroidSettingsWidget::dataPartitionSizeEditingFinished()
 void AndroidSettingsWidget::createKitToggled()
 {
     m_androidConfig.setAutomaticKitCreation(m_ui->CreateKitCheckBox->isChecked());
+}
+
+void AndroidSettingsWidget::useGradleToggled()
+{
+    m_androidConfig.setUseGradle(m_ui->UseGradleCheckBox->isChecked());
 }
 
 void AndroidSettingsWidget::checkGdbFinished()

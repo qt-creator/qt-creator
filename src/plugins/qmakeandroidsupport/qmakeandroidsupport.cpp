@@ -88,26 +88,6 @@ QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer
     }
     apps.sort();
     return apps;
-
-}
-
-Utils::FileName QmakeAndroidSupport::apkPath(ProjectExplorer::Target *target, AndroidQtSupport::BuildType buildType) const
-{
-    QString packageName = QLatin1String("QtApp");
-    QString buildTypeName;
-    if (buildType == DebugBuild)
-        buildTypeName = QLatin1String("debug");
-    else if (buildType == ReleaseBuildUnsigned)
-        buildTypeName =QLatin1String("release-unsigned");
-    else
-        buildTypeName = QLatin1String("release");
-
-    return target->activeBuildConfiguration()->buildDirectory()
-            .appendPath(QLatin1String(Android::Constants::ANDROID_BUILDDIRECTORY))
-            .appendPath(QLatin1String("bin"))
-            .appendPath(QString::fromLatin1("%1-%2.apk")
-                        .arg(packageName)
-                        .arg(buildTypeName));
 }
 
 Utils::FileName QmakeAndroidSupport::androiddeployqtPath(ProjectExplorer::Target *target) const

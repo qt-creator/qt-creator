@@ -84,6 +84,7 @@ namespace {
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
+    const QLatin1String UseGradleKey("UseGradle");
     const QLatin1String MakeExtraSearchDirectory("MakeExtraSearchDirectory");
     const QLatin1String DefaultDevice("DefaultDevice");
     const QLatin1String PartitionSizeKey("PartitionSize");
@@ -181,6 +182,7 @@ void AndroidConfig::load(const QSettings &settings)
     m_sdkLocation = FileName::fromString(settings.value(SDKLocationKey).toString());
     m_ndkLocation = FileName::fromString(settings.value(NDKLocationKey).toString());
     m_antLocation = FileName::fromString(settings.value(AntLocationKey).toString());
+    m_useGradle = settings.value(UseGradleKey, true).toBool();
     m_openJDKLocation = FileName::fromString(settings.value(OpenJDKLocationKey).toString());
     m_keystoreLocation = FileName::fromString(settings.value(KeystoreLocationKey).toString());
     m_toolchainHost = settings.value(ToolchainHostKey).toString();
@@ -214,7 +216,8 @@ void AndroidConfig::load(const QSettings &settings)
 }
 
 AndroidConfig::AndroidConfig()
-    : m_availableSdkPlatformsUpToDate(false),
+    : m_useGradle(true),
+      m_availableSdkPlatformsUpToDate(false),
       m_NdkInformationUpToDate(false)
 {
 
@@ -230,6 +233,7 @@ void AndroidConfig::save(QSettings &settings) const
     settings.setValue(SDKLocationKey, m_sdkLocation.toString());
     settings.setValue(NDKLocationKey, m_ndkLocation.toString());
     settings.setValue(AntLocationKey, m_antLocation.toString());
+    settings.setValue(UseGradleKey, m_useGradle);
     settings.setValue(OpenJDKLocationKey, m_openJDKLocation.toString());
     settings.setValue(KeystoreLocationKey, m_keystoreLocation.toString());
     settings.setValue(PartitionSizeKey, m_partitionSize);
@@ -910,6 +914,16 @@ bool AndroidConfig::automaticKitCreation() const
 void AndroidConfig::setAutomaticKitCreation(bool b)
 {
     m_automaticKitCreation = b;
+}
+
+bool AndroidConfig::useGrandle() const
+{
+    return m_useGradle;
+}
+
+void AndroidConfig::setUseGradle(bool b)
+{
+    m_useGradle = b;
 }
 
 ///////////////////////////////////

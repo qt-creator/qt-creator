@@ -30,6 +30,7 @@
 #include "androidpackageinstallationstep.h"
 
 #include <android/androidconstants.h>
+#include <android/androidmanager.h>
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
@@ -85,7 +86,14 @@ bool AndroidPackageInstallationStep::init()
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
-    m_androidDirToClean = dirPath;
+    m_androidDirsToClean.clear();
+    // don't remove gradle's cache, it takes ages to rebuild it.
+    if (!QFile::exists(dirPath + QLatin1String("/build.xml")) && Android::AndroidManager::useGradle(target())) {
+        m_androidDirsToClean << dirPath + QLatin1String("/assets");
+        m_androidDirsToClean << dirPath + QLatin1String("/libs");
+    } else {
+        m_androidDirsToClean << dirPath;
+    }
 
     return AbstractProcessStep::init();
 }
@@ -93,14 +101,16 @@ bool AndroidPackageInstallationStep::init()
 void AndroidPackageInstallationStep::run(QFutureInterface<bool> &fi)
 {
     QString error;
-    Utils::FileName androidDir = Utils::FileName::fromString(m_androidDirToClean);
-    if (!m_androidDirToClean.isEmpty()&& androidDir.toFileInfo().exists()) {
-        emit addOutput(tr("Removing directory %1").arg(m_androidDirToClean), MessageOutput);
-        if (!Utils::FileUtils::removeRecursively(androidDir, &error)) {
-            emit addOutput(error, ErrorOutput);
-            fi.reportResult(false);
-            emit finished();
-            return;
+    foreach (const QString &dir, m_androidDirsToClean) {
+        Utils::FileName androidDir = Utils::FileName::fromString(dir);
+        if (!dir.isEmpty() && androidDir.toFileInfo().exists()) {
+            emit addOutput(tr("Removing directory %1").arg(dir), MessageOutput);
+            if (!Utils::FileUtils::removeRecursively(androidDir, &error)) {
+                emit addOutput(error, ErrorOutput);
+                fi.reportResult(false);
+                emit finished();
+                return;
+            }
         }
     }
     AbstractProcessStep::run(fi);

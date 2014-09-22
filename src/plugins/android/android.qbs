@@ -67,6 +67,7 @@ QtcPlugin {
         "androidplugin.h",
         "androidpotentialkit.cpp",
         "androidpotentialkit.h",
+        "androidqtsupport.cpp",
         "androidqtsupport.h",
         "androidqtversion.cpp",
         "androidqtversion.h",

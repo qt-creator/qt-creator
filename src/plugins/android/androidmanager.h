@@ -96,6 +96,8 @@ public:
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
     static bool checkForQt51Files(Utils::FileName fileName);
     static AndroidQtSupport *androidQtSupport(ProjectExplorer::Target *target);
+    static bool useGradle(ProjectExplorer::Target *target);
+    static bool updateGradleProperties(ProjectExplorer::Target *target);
 };
 
 } // namespace Android

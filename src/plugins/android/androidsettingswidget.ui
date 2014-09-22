@@ -30,7 +30,7 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
+   <item row="11" column="1">
     <widget class="Utils::PathChooser" name="AntLocationPathChooser" native="true"/>
    </item>
    <item row="1" column="1">
@@ -108,7 +108,7 @@
    <item row="0" column="1">
     <widget class="Utils::PathChooser" name="OpenJDKLocationPathChooser" native="true"/>
    </item>
-   <item row="10" column="2">
+   <item row="11" column="2">
     <widget class="QToolButton" name="downloadAntToolButton">
      <property name="toolTip">
       <string>Download Ant</string>
@@ -119,7 +119,7 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="11" column="0">
     <widget class="QLabel" name="AntLocationLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -157,7 +157,7 @@
      </property>
     </widget>
    </item>
-   <item row="11" column="0" colspan="2">
+   <item row="12" column="0" colspan="2">
     <widget class="QFrame" name="AVDManagerFrame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -452,6 +452,19 @@
      </item>
     </layout>
    </item>
+   <item row="10" column="1">
+    <widget class="QCheckBox" name="UseGradleCheckBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Use Gradle instead of Ant</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -474,8 +487,8 @@
    <slot>ndkLocationEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>420</x>
-     <y>49</y>
+     <x>605</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -490,8 +503,8 @@
    <slot>sdkLocationEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>420</x>
-     <y>17</y>
+     <x>605</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -506,8 +519,8 @@
    <slot>antLocationEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>420</x>
-     <y>113</y>
+     <x>605</x>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -522,8 +535,8 @@
    <slot>openJDKLocationEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>420</x>
-     <y>49</y>
+     <x>605</x>
+     <y>31</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -538,8 +551,8 @@
    <slot>addAVD()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>693</x>
-     <y>199</y>
+     <x>793</x>
+     <y>394</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -554,8 +567,8 @@
    <slot>removeAVD()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>693</x>
-     <y>230</y>
+     <x>793</x>
+     <y>427</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -570,8 +583,8 @@
    <slot>startAVD()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>693</x>
-     <y>261</y>
+     <x>793</x>
+     <y>460</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -586,8 +599,8 @@
    <slot>avdActivated(QModelIndex)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>309</x>
-     <y>260</y>
+     <x>328</x>
+     <y>605</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -602,8 +615,8 @@
    <slot>avdActivated(QModelIndex)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>309</x>
-     <y>260</y>
+     <x>328</x>
+     <y>605</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -618,8 +631,8 @@
    <slot>dataPartitionSizeEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>543</x>
-     <y>153</y>
+     <x>614</x>
+     <y>360</y>
     </hint>
     <hint type="destinationlabel">
      <x>352</x>
@@ -634,8 +647,8 @@
    <slot>manageAVD()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>568</x>
-     <y>268</y>
+     <x>792</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
      <x>339</x>
@@ -650,8 +663,8 @@
    <slot>createKitToggled()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>358</x>
-     <y>99</y>
+     <x>543</x>
+     <y>228</y>
     </hint>
     <hint type="destinationlabel">
      <x>339</x>
@@ -666,8 +679,8 @@
    <slot>openSDKDownloadUrl()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
+     <x>830</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>20</x>
@@ -682,8 +695,8 @@
    <slot>openNDKDownloadUrl()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
+     <x>830</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
      <x>20</x>
@@ -698,8 +711,8 @@
    <slot>openAntDownloadUrl()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
+     <x>830</x>
+     <y>313</y>
     </hint>
     <hint type="destinationlabel">
      <x>20</x>
@@ -714,12 +727,28 @@
    <slot>openOpenJDKDownloadUrl()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
+     <x>830</x>
+     <y>29</y>
     </hint>
     <hint type="destinationlabel">
      <x>20</x>
      <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>UseGradleCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AndroidSettingsWidget</receiver>
+   <slot>useGradleToggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>395</x>
+     <y>238</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>324</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>

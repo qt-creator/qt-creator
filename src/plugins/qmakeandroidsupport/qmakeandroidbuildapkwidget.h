@@ -62,7 +62,7 @@ public:
 private slots:
     void updateInputFileUi();
     void inputFileComboBoxIndexChanged();
-    void createManifestButton();
+    void createAndroidTemplatesButton();
     void addAndroidExtraLib();
     void removeAndroidExtraLib();
     void checkEnableRemoveButton();

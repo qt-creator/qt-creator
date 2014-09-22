@@ -100,11 +100,12 @@ private:
     FileName(const QString &string);
 };
 
+
 class QTCREATOR_UTILS_EXPORT FileUtils {
 public:
     static bool removeRecursively(const FileName &filePath, QString *error = 0);
     static bool copyRecursively(const FileName &srcFilePath, const FileName &tgtFilePath,
-                                QString *error = 0);
+                                QString *error = 0, const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = std::function<bool (QFileInfo, QFileInfo, QString *)>());
     static bool isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp);
     static FileName resolveSymlinks(const FileName &path);
     static QString shortNativePath(const FileName &path);

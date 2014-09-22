@@ -29,9 +29,9 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="createAndroidManifestButton">
+         <widget class="QPushButton" name="createAndroidTemplatesButton">
           <property name="text">
-           <string>Create AndroidManifest.xml</string>
+           <string>Create Templates</string>
           </property>
          </widget>
         </item>

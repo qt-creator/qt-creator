@@ -139,18 +139,20 @@ bool FileUtils::removeRecursively(const FileName &filePath, QString *error)
   Returns whether the operation succeeded.
 */
 bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgtFilePath,
-                                QString *error)
+                                QString *error, const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper)
 {
     QFileInfo srcFileInfo = srcFilePath.toFileInfo();
     if (srcFileInfo.isDir()) {
-        QDir targetDir(tgtFilePath.toString());
-        targetDir.cdUp();
-        if (!targetDir.mkdir(tgtFilePath.toFileInfo().fileName())) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to create directory \"%1\".")
-                        .arg(tgtFilePath.toUserOutput());
+        if (!tgtFilePath.toFileInfo().exists()) {
+            QDir targetDir(tgtFilePath.toString());
+            targetDir.cdUp();
+            if (!targetDir.mkdir(tgtFilePath.toFileInfo().fileName())) {
+                if (error) {
+                    *error = QCoreApplication::translate("Utils::FileUtils", "Failed to create directory \"%1\".")
+                            .arg(tgtFilePath.toUserOutput());
+                }
+                return false;
             }
-            return false;
         }
         QDir sourceDir(srcFilePath.toString());
         QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot
@@ -160,16 +162,21 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
             newSrcFilePath.appendPath(fileName);
             FileName newTgtFilePath = tgtFilePath;
             newTgtFilePath.appendPath(fileName);
-            if (!copyRecursively(newSrcFilePath, newTgtFilePath, error))
+            if (!copyRecursively(newSrcFilePath, newTgtFilePath, error, copyHelper))
                 return false;
         }
     } else {
-        if (!QFile::copy(srcFilePath.toString(), tgtFilePath.toString())) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Could not copy file \"%1\" to \"%2\".")
-                        .arg(srcFilePath.toUserOutput(), tgtFilePath.toUserOutput());
+        if (copyHelper) {
+            if (!copyHelper(srcFileInfo, tgtFilePath.toFileInfo(), error))
+                return false;
+        } else {
+            if (!QFile::copy(srcFilePath.toString(), tgtFilePath.toString())) {
+                if (error) {
+                    *error = QCoreApplication::translate("Utils::FileUtils", "Could not copy file \"%1\" to \"%2\".")
+                            .arg(srcFilePath.toUserOutput(), tgtFilePath.toUserOutput());
+                }
+                return false;
             }
-            return false;
         }
     }
     return true;

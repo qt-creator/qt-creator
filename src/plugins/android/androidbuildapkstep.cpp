@@ -59,18 +59,22 @@ const QLatin1String DeployActionKey("Qt4ProjectManager.AndroidDeployQtStep.Deplo
 const QLatin1String KeystoreLocationKey("KeystoreLocation");
 const QLatin1String BuildTargetSdkKey("BuildTargetSdk");
 const QLatin1String VerboseOutputKey("VerboseOutput");
+const QLatin1String UseGradleKey("UseGradle");
 
 AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent, const Core::Id id)
     : ProjectExplorer::AbstractProcessStep(parent, id),
       m_deployAction(BundleLibrariesDeployment),
       m_signPackage(false),
       m_verbose(false),
+      m_useGradle(false),
       m_openPackageLocation(false),
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk()))
 {
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (version && version->qtVersion() >=  QtSupport::QtVersionNumber(5, 4, 0))
+    if (version && version->qtVersion() >=  QtSupport::QtVersionNumber(5, 4, 0)) {
         m_deployAction = DebugDeployment;
+        m_useGradle = AndroidConfigurations::currentConfig().useGrandle();
+    }
     //: AndroidBuildApkStep default display name
     setDefaultDisplayName(tr("Build Android APK"));
 }
@@ -81,6 +85,7 @@ AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
       m_deployAction(other->deployAction()),
       m_signPackage(other->signPackage()),
       m_verbose(other->m_verbose),
+      m_useGradle(other->m_useGradle),
       m_openPackageLocation(other->m_openPackageLocation),
       m_buildTargetSdk(other->m_buildTargetSdk)
 {
@@ -88,6 +93,8 @@ AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent,
     if (version->qtVersion() <  QtSupport::QtVersionNumber(5, 4, 0)) {
         if (m_deployAction == DebugDeployment)
             m_deployAction = BundleLibrariesDeployment;
+        if (m_useGradle)
+            m_useGradle = false;
     }
 }
 
@@ -123,8 +130,7 @@ bool AndroidBuildApkStep::init()
     setOutputParser(parser);
 
     m_openPackageLocationForRun = m_openPackageLocation;
-    m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target(), m_signPackage ? AndroidQtSupport::ReleaseBuildSigned
-                                                                : AndroidQtSupport::DebugBuild).toString();
+    m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target()).toString();
 
     bool result = AbstractProcessStep::init();
     if (!result)
@@ -169,6 +175,7 @@ bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
     if (m_buildTargetSdk.isEmpty())
         m_buildTargetSdk = AndroidConfig::apiLevelNameFor(AndroidConfigurations::currentConfig().highestAndroidSdk());
     m_verbose = map.value(VerboseOutputKey).toBool();
+    m_useGradle = map.value(UseGradleKey).toBool();
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
@@ -179,6 +186,7 @@ QVariantMap AndroidBuildApkStep::toMap() const
     map.insert(KeystoreLocationKey, m_keystorePath.toString());
     map.insert(BuildTargetSdkKey, m_buildTargetSdk);
     map.insert(VerboseOutputKey, m_verbose);
+    map.insert(UseGradleKey, m_useGradle);
     return map;
 }
 
@@ -195,6 +203,8 @@ QString AndroidBuildApkStep::buildTargetSdk() const
 void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 {
     m_buildTargetSdk = sdk;
+    if (m_useGradle)
+        AndroidManager::updateGradleProperties(target());
 }
 
 AndroidBuildApkStep::AndroidDeployAction AndroidBuildApkStep::deployAction() const
@@ -252,6 +262,18 @@ void AndroidBuildApkStep::setOpenPackageLocation(bool open)
 void AndroidBuildApkStep::setVerboseOutput(bool verbose)
 {
     m_verbose = verbose;
+}
+
+bool AndroidBuildApkStep::useGradle() const
+{
+    return m_useGradle;
+}
+
+void AndroidBuildApkStep::setUseGradle(bool b)
+{
+    m_useGradle = b;
+    if (m_useGradle)
+        AndroidManager::updateGradleProperties(target());
 }
 
 bool AndroidBuildApkStep::runInGuiThread() const

@@ -52,7 +52,7 @@ public:
 private:
     AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc,
         AndroidPackageInstallationStep *other);
-    QString m_androidDirToClean;
+    QStringList m_androidDirsToClean;
     static const Core::Id Id;
 };
 

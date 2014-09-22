@@ -92,8 +92,8 @@ QmakeAndroidBuildApkWidget::QmakeAndroidBuildApkWidget(QmakeAndroidBuildApkStep 
     connect(m_ui->inputFileComboBox, SIGNAL(currentIndexChanged(int)),
             SLOT(inputFileComboBoxIndexChanged()));
 
-    connect(m_ui->createAndroidManifestButton, SIGNAL(clicked()),
-            SLOT(createManifestButton()));
+    connect(m_ui->createAndroidTemplatesButton, SIGNAL(clicked()),
+            SLOT(createAndroidTemplatesButton()));
 
     connect(m_ui->addAndroidExtraLibButton, SIGNAL(clicked()),
             SLOT(addAndroidExtraLib()));
@@ -149,7 +149,7 @@ void QmakeAndroidBuildApkWidget::inputFileComboBoxIndexChanged()
     m_step->setProFilePathForInputFile(proFilePath);
 }
 
-void QmakeAndroidBuildApkWidget::createManifestButton()
+void QmakeAndroidBuildApkWidget::createAndroidTemplatesButton()
 {
     CreateAndroidManifestWizard wizard(m_step->target());
     wizard.exec();

@@ -91,6 +91,7 @@ private slots:
     void dataPartitionSizeEditingFinished();
     void manageAVD();
     void createKitToggled();
+    void useGradleToggled();
 
     void checkGdbFinished();
     void showGdbWarningDialog();

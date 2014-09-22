@@ -27,29 +27,41 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKEANDROIDSUPPORT_H
-#define QMAKEANDROIDSUPPORT_H
+#include "androidbuildapkstep.h"
+#include "androidconstants.h"
+#include "androidglobal.h"
+#include "androidqtsupport.h"
 
-#include <android/androidqtsupport.h>
+#include <projectexplorer/target.h>
 
-namespace QmakeAndroidSupport {
-namespace Internal {
-
-class QmakeAndroidSupport : public Android::AndroidQtSupport
+Utils::FileName Android::AndroidQtSupport::apkPath(ProjectExplorer::Target *target) const
 {
-    Q_OBJECT
+    if (!target)
+        return Utils::FileName();
 
-public:
-    bool canHandle(const ProjectExplorer::Target *target) const;
-    QStringList soLibSearchPath(const ProjectExplorer::Target *target) const;
-    QStringList projectTargetApplications(const ProjectExplorer::Target *target) const;
-    Utils::FileName androiddeployqtPath(ProjectExplorer::Target *target) const;
-    Utils::FileName androiddeployJsonPath(ProjectExplorer::Target *target) const;
+    AndroidBuildApkStep *buildApkStep
+        = Android::AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
 
-    void resetBuild(const ProjectExplorer::Target *target);
-};
+    if (!buildApkStep)
+        return Utils::FileName();
 
-} // namespace Internal
-} // namespace QmakeProjectManager
-
-#endif // QMAKEANDROIDSUPPORT_H
+    QString apkPath;
+    if (buildApkStep->useGradle())
+        apkPath = QLatin1String("/build/outputs/apk/android-build-");
+    else
+        apkPath = QLatin1String("/bin/QtApp-");
+    if (buildApkStep->buildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Release) {
+        apkPath += QLatin1String("release-");
+        if (!buildApkStep->signPackage())
+            apkPath += QLatin1String("un");
+        apkPath += QLatin1String("signed.apk");
+    } else {
+        apkPath += QLatin1String("debug");
+        if (buildApkStep->signPackage())
+            apkPath += QLatin1String("-signed");
+        apkPath += QLatin1String(".apk");
+    }
+    return target->activeBuildConfiguration()->buildDirectory()
+            .appendPath(QLatin1String(Android::Constants::ANDROID_BUILDDIRECTORY))
+            .appendPath(apkPath);
+}

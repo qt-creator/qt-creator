@@ -72,13 +72,19 @@ public:
 
     bool openPackageLocation() const;
     void setOpenPackageLocation(bool open);
+
     bool verboseOutput() const;
     void setVerboseOutput(bool verbose);
+
+    bool useGradle() const;
+    void setUseGradle(bool b);
 
     bool runInGuiThread() const;
 
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
+
+    virtual Utils::FileName androidPackageSourceDir() const = 0;
 public slots:
     void setDeployAction(AndroidDeployAction deploy);
 
@@ -95,12 +101,12 @@ protected:
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     bool immutable() const { return true; }
     void processFinished(int exitCode, QProcess::ExitStatus status);
-    virtual Utils::FileName androidPackageSourceDir() const = 0;
 
 protected:
     AndroidDeployAction m_deployAction;
     bool m_signPackage;
     bool m_verbose;
+    bool m_useGradle;
     bool m_openPackageLocation;
     bool m_openPackageLocationForRun;
     QString m_buildTargetSdk;

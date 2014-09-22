@@ -165,6 +165,8 @@ void AndroidDeployQtStep::ctor()
 
 bool AndroidDeployQtStep::init()
 {
+    m_androiddeployqtArgs.clear();
+
     if (AndroidManager::checkForQt51Files(project()->projectDirectory()))
         emit addOutput(tr("Found old folder \"android\" in source directory. Qt 5.2 does not use that folder by default."), ErrorOutput);
 
@@ -252,12 +254,12 @@ bool AndroidDeployQtStep::init()
                 Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("bundled"));
                 break;
         }
+        if (androidBuildApkStep->useGradle())
+            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--gradle"));
     } else {
         m_uninstallPreviousPackageRun = true;
         pp->setCommand(AndroidConfigurations::currentConfig().adbToolPath().toString());
-        m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target(), AndroidManager::signPackage(target())
-                                                                        ? AndroidQtSupport::ReleaseBuildSigned
-                                                                        : AndroidQtSupport::DebugBuild).toString();
+        m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target()).toString();
         pp->setWorkingDirectory(bc->buildDirectory().toString());
     }
     pp->setMacroExpander(bc->macroExpander());

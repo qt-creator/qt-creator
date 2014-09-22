@@ -115,6 +115,9 @@ public:
     bool automaticKitCreation() const;
     void setAutomaticKitCreation(bool b);
 
+    bool useGrandle() const;
+    void setUseGradle(bool b);
+
     Utils::FileName adbToolPath() const;
     Utils::FileName androidToolPath() const;
     Utils::Environment androidToolEnvironment() const;
@@ -179,6 +182,7 @@ private:
     QStringList m_makeExtraSearchDirectories;
     unsigned m_partitionSize;
     bool m_automaticKitCreation;
+    bool m_useGradle;
 
     //caches
     mutable bool m_availableSdkPlatformsUpToDate;

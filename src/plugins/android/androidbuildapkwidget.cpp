@@ -91,6 +91,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     m_ui->signingDebugWarningLabel->hide();
     signPackageCheckBoxToggled(m_step->signPackage());
 
+    m_ui->useGradleCheckBox->setChecked(m_step->useGradle());
     m_ui->verboseOutputCheckBox->setChecked(m_step->verboseOutput());
     m_ui->openPackageLocationCheckBox->setChecked(m_step->openPackageLocation());
 
@@ -105,6 +106,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     connect(m_ui->temporaryQtOption, SIGNAL(clicked()), SLOT(updateDebugDeploySigningWarning()));
     connect(m_ui->bundleQtOption, SIGNAL(clicked()), SLOT(updateDebugDeploySigningWarning()));
 
+    connect(m_ui->useGradleCheckBox, SIGNAL(toggled(bool)),
+            this, SLOT(useGradleCheckBoxToggled(bool)));
     connect(m_ui->openPackageLocationCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(openPackageLocationCheckBoxToggled(bool)));
     connect(m_ui->verboseOutputCheckBox, SIGNAL(toggled(bool)),
@@ -128,7 +131,9 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     updateSigningWarning();
     updateDebugDeploySigningWarning();
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(step->target()->kit());
-    m_ui->temporaryQtOption->setVisible(qt->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0));
+    bool qt54 = qt->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
+    m_ui->temporaryQtOption->setVisible(qt54);
+    m_ui->useGradleCheckBox->setVisible(qt54);
 }
 
 AndroidBuildApkWidget::~AndroidBuildApkWidget()
@@ -254,3 +259,7 @@ void AndroidBuildApkWidget::updateDebugDeploySigningWarning()
     }
 }
 
+void AndroidBuildApkWidget::useGradleCheckBoxToggled(bool checked)
+{
+    m_step->setUseGradle(checked);
+}

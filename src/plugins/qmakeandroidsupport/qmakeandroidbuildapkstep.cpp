@@ -223,8 +223,6 @@ bool QmakeAndroidBuildApkStep::init()
               << outputDir
               << QLatin1String("--deployment")
               << deploymentMethod
-              << QLatin1String("--ant")
-              << AndroidConfigurations::currentConfig().antToolPath().toString()
               << QLatin1String("--android-platform")
               << AndroidManager::buildTargetSDK(target())
               << QLatin1String("--jdk")
@@ -232,6 +230,12 @@ bool QmakeAndroidBuildApkStep::init()
 
     if (m_verbose)
         arguments << QLatin1String("--verbose");
+
+    if (m_useGradle)
+        arguments << QLatin1String("--gradle");
+    else
+        arguments << QLatin1String("--ant")
+                  << AndroidConfigurations::currentConfig().antToolPath().toString();
 
     if (buildConfiguration()->buildType() == ProjectExplorer::BuildConfiguration::Release)
         arguments << QLatin1String("--release");
