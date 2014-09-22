@@ -41,8 +41,8 @@ using namespace ProjectExplorer;
 
 namespace {
     // optional full path, make executable name, optional exe extension, optional number in square brackets, colon space
-    const char * const MAKEEXEC_PATTERN("^(.*[/\\\\])?(mingw(32|64)-|g)?make(.exe)?(\\[\\d+\\])?:\\s");
-    const char * const MAKEFILE_PATTERN("^((.*[/\\\\])?[Mm]akefile(\\.[a-zA-Z]+)?):(\\d+):\\s");
+    const char * const MAKEEXEC_PATTERN("^(.*?[/\\\\])?(mingw(32|64)-|g)?make(.exe)?(\\[\\d+\\])?:\\s");
+    const char * const MAKEFILE_PATTERN("^((.*?[/\\\\])?[Mm]akefile(\\.[a-zA-Z]+)?):(\\d+):\\s");
 }
 
 GnuMakeParser::GnuMakeParser() :
@@ -52,13 +52,10 @@ GnuMakeParser::GnuMakeParser() :
     setObjectName(QLatin1String("GnuMakeParser"));
     m_makeDir.setPattern(QLatin1String(MAKEEXEC_PATTERN) +
                          QLatin1String("(\\w+) directory .(.+).$"));
-    m_makeDir.setMinimal(true);
     QTC_CHECK(m_makeDir.isValid());
     m_makeLine.setPattern(QLatin1String(MAKEEXEC_PATTERN) + QLatin1String("(.*)$"));
-    m_makeLine.setMinimal(true);
     QTC_CHECK(m_makeLine.isValid());
     m_errorInMakefile.setPattern(QLatin1String(MAKEFILE_PATTERN) + QLatin1String("(.*)$"));
-    m_errorInMakefile.setMinimal(true);
     QTC_CHECK(m_errorInMakefile.isValid());
 }
 
@@ -77,11 +74,12 @@ void GnuMakeParser::stdOutput(const QString &line)
 {
     const QString lne = rightTrimmed(line);
 
-    if (m_makeDir.indexIn(lne) > -1) {
-        if (m_makeDir.cap(6) == QLatin1String("Leaving"))
-            removeDirectory(m_makeDir.cap(7));
+    QRegularExpressionMatch match = m_makeDir.match(lne);
+    if (match.hasMatch()) {
+        if (match.captured(6) == QLatin1String("Leaving"))
+            removeDirectory(match.captured(7));
         else
-            addDirectory(m_makeDir.cap(7));
+            addDirectory(match.captured(7));
         return;
     }
 
@@ -120,20 +118,22 @@ void GnuMakeParser::stdError(const QString &line)
 {
     const QString lne = rightTrimmed(line);
 
-    if (m_errorInMakefile.indexIn(lne) > -1) {
-        Result res = parseDescription(m_errorInMakefile.cap(5));
+    QRegularExpressionMatch match = m_errorInMakefile.match(lne);
+    if (match.hasMatch()) {
+        Result res = parseDescription(match.captured(5));
         if (res.isFatal)
             ++m_fatalErrorCount;
         if (!m_suppressIssues) {
             taskAdded(Task(res.type, res.description,
-                           Utils::FileName::fromUserInput(m_errorInMakefile.cap(1)) /* filename */,
-                           m_errorInMakefile.cap(4).toInt(), /* line */
+                           Utils::FileName::fromUserInput(match.captured(1)) /* filename */,
+                           match.captured(4).toInt(), /* line */
                            Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
         }
         return;
     }
-    if (m_makeLine.indexIn(lne) > -1) {
-        Result res = parseDescription(m_makeLine.cap(6));
+    match = m_makeLine.match(lne);
+    if (match.hasMatch()) {
+        Result res = parseDescription(match.captured(6));
         if (res.isFatal)
             ++m_fatalErrorCount;
         if (!m_suppressIssues) {

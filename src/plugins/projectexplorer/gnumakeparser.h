@@ -32,7 +32,7 @@
 
 #include "ioutputparser.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStringList>
 
 namespace ProjectExplorer {
@@ -60,10 +60,10 @@ private:
     void addDirectory(const QString &dir);
     void removeDirectory(const QString &dir);
 
-    QRegExp m_makeDir;
-    QRegExp m_makeLine;
-    QRegExp m_threeStarError;
-    QRegExp m_errorInMakefile;
+    QRegularExpression m_makeDir;
+    QRegularExpression m_makeLine;
+    QRegularExpression m_threeStarError;
+    QRegularExpression m_errorInMakefile;
 
     QStringList m_directories;
 
