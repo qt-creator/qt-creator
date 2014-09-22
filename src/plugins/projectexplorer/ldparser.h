@@ -32,7 +32,7 @@
 
 #include "ioutputparser.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace ProjectExplorer {
 
@@ -45,8 +45,8 @@ public:
     void stdError(const QString &line);
 
 private:
-    QRegExp m_regExpLinker;
-    QRegExp m_regExpGccNames;
+    QRegularExpression m_regExpLinker;
+    QRegularExpression m_regExpGccNames;
 };
 
 } // namespace ProjectExplorer
