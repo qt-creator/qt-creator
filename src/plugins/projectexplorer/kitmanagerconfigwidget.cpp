@@ -39,8 +39,8 @@
 #include <utils/stringutils.h>
 
 #include <QAction>
-#include <QRegExp>
-#include <QRegExpValidator>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
@@ -81,9 +81,9 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     QLabel *label = createLabel(tr("File system name:"), toolTip);
     m_layout->addWidget(label, 1, LabelColumn, alignment);
     m_fileSystemFriendlyNameLineEdit->setToolTip(toolTip);
-    QRegExp fileSystemFriendlyNameRegexp(QLatin1String("^[A-Za-z0-9_-]*$"));
+    QRegularExpression fileSystemFriendlyNameRegexp(QLatin1String("^[A-Za-z0-9_-]*$"));
     Q_ASSERT(fileSystemFriendlyNameRegexp.isValid());
-    m_fileSystemFriendlyNameLineEdit->setValidator(new QRegExpValidator(fileSystemFriendlyNameRegexp, m_fileSystemFriendlyNameLineEdit));
+    m_fileSystemFriendlyNameLineEdit->setValidator(new QRegularExpressionValidator(fileSystemFriendlyNameRegexp, m_fileSystemFriendlyNameLineEdit));
     m_layout->addWidget(m_fileSystemFriendlyNameLineEdit, 1, WidgetColumn);
     connect(m_fileSystemFriendlyNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(setFileSystemFriendlyName()));
 
