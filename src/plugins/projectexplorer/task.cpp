@@ -37,17 +37,16 @@
 namespace ProjectExplorer
 {
 
-static QString taskTypeIcon(Task::TaskType t)
+static QIcon taskTypeIcon(Task::TaskType t)
 {
-    switch (t) {
-    case Task::Warning:
-        return QLatin1String(Core::Constants::ICON_WARNING);
-    case Task::Error:
-        return QLatin1String(Core::Constants::ICON_ERROR);
-    case Task::Unknown:
-        break;
-    }
-    return QString();
+    static QIcon icons[3] = { QIcon(),
+                              QIcon(QLatin1String(Core::Constants::ICON_ERROR)),
+                              QIcon(QLatin1String(Core::Constants::ICON_WARNING)) };
+
+    if (t < 0 || t > 2)
+        t = Task::Unknown;
+
+    return icons[t];
 }
 
 unsigned int Task::s_nextId = 1;
@@ -66,7 +65,7 @@ Task::Task(TaskType type_, const QString &description_,
            const Utils::FileName &iconFile) :
     taskId(s_nextId), type(type_), description(description_),
     file(file_), line(line_), movedLine(line_), category(category_),
-    icon(iconFile.isEmpty() ? taskTypeIcon(type_) : iconFile.toString())
+    icon(iconFile.isEmpty() ? taskTypeIcon(type_) : QIcon(iconFile.toString()))
 {
     ++s_nextId;
 }
