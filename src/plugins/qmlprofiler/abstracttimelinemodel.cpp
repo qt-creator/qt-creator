@@ -70,6 +70,12 @@ bool AbstractTimelineModel::isEmpty() const
     return count() == 0;
 }
 
+int AbstractTimelineModel::modelId() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->modelId;
+}
+
 int AbstractTimelineModel::rowHeight(int rowNumber) const
 {
     Q_D(const AbstractTimelineModel);

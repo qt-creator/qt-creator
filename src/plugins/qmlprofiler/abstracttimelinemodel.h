@@ -54,6 +54,7 @@ public:
     // Trivial methods implemented by the abstract model itself
     void setModelManager(QmlProfilerModelManager *modelManager);
     bool isEmpty() const;
+    int modelId() const;
 
     // Methods are directly passed on to the private model and relying on its virtual methods.
     int rowHeight(int rowNumber) const;
