@@ -64,7 +64,7 @@ typedef QList<RefactorMarker> RefactorMarkers;
 namespace Internal {
     class BaseTextEditorWidgetPrivate;
     class TextEditorOverlay;
-    typedef QString (QString::*TransformationMethod)() const;
+    typedef QString (TransformationMethod)(const QString &);
 }
 
 class ITextMarkable;

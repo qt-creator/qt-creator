@@ -116,6 +116,16 @@
 using namespace Core;
 using namespace Utils;
 
+static QString QString_toUpper(const QString &str)
+{
+    return str.toUpper();
+}
+
+static QString QString_toLower(const QString &str)
+{
+    return str.toLower();
+}
+
 namespace TextEditor {
 namespace Internal {
 
@@ -1008,12 +1018,12 @@ void BaseTextEditorWidget::moveLineDown()
 
 void BaseTextEditorWidget::uppercaseSelection()
 {
-    transformSelection(&QString::toUpper);
+    transformSelection(&QString_toUpper);
 }
 
 void BaseTextEditorWidget::lowercaseSelection()
 {
-    transformSelection(&QString::toLower);
+    transformSelection(&QString_toLower);
 }
 
 void BaseTextEditorWidget::indent()
@@ -6555,7 +6565,7 @@ void BaseTextEditorWidget::transformSelection(TransformationMethod method)
     }
 
     QString text = cursor.selectedText();
-    QString transformedText = (text.*method)();
+    QString transformedText = method(text);
 
     if (transformedText == text) {
         // if the transformation does not do anything to the selection, do no create an undo step
@@ -6600,7 +6610,7 @@ void BaseTextEditorWidget::transformBlockSelection(TransformationMethod method)
         if (startPos < endPos) {
             cursor.setPosition(startPos);
             cursor.setPosition(endPos, QTextCursor::KeepAnchor);
-            const QString &transformedText = (d->m_document->textAt(startPos, endPos - startPos).*method)();
+            const QString &transformedText = method(d->m_document->textAt(startPos, endPos - startPos));
             if (transformedText != cursor.selectedText())
                 cursor.insertText(transformedText);
         }
