@@ -34,7 +34,7 @@
 
 #include <projectexplorer/task.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace ProjectExplorer {
 
@@ -55,9 +55,9 @@ protected:
     void amendDescription(const QString &desc, bool monospaced);
 
 private:
-    QRegExp m_regExp;
-    QRegExp m_regExpIncluded;
-    QRegExp m_regExpGccNames;
+    QRegularExpression m_regExp;
+    QRegularExpression m_regExpIncluded;
+    QRegularExpression m_regExpGccNames;
 
     Task m_currentTask;
 };

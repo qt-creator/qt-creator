@@ -40,19 +40,17 @@ using namespace ProjectExplorer;
 
 // opt. drive letter + filename: (2 brackets)
 static const char FILE_PATTERN[] = "(<command[ -]line>|([A-Za-z]:)?[^:]+):";
-static const char COMMAND_PATTERN[] = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9\\.]+)?(\\.exe)?: ";
+static const char COMMAND_PATTERN[] = "^(.*?[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9\\.]+)?(\\.exe)?: ";
 
 GccParser::GccParser()
 {
     setObjectName(QLatin1String("GCCParser"));
     m_regExp.setPattern(QLatin1Char('^') + QLatin1String(FILE_PATTERN)
                         + QLatin1String("(\\d+):(\\d+:)?\\s+((fatal |#)?(warning|error|note):?\\s)?([^\\s].+)$"));
-    m_regExp.setMinimal(true);
     QTC_CHECK(m_regExp.isValid());
 
     m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + QLatin1String(FILE_PATTERN)
                                 + QLatin1String("(\\d+)(:\\d+)?[,:]?$"));
-    m_regExpIncluded.setMinimal(true);
     QTC_CHECK(m_regExpIncluded.isValid());
 
     // optional path with trailing slash
@@ -61,7 +59,6 @@ GccParser::GccParser()
     // optional trailing version number
     // optional .exe postfix
     m_regExpGccNames.setPattern(QLatin1String(COMMAND_PATTERN));
-    m_regExpGccNames.setMinimal(true);
     QTC_CHECK(m_regExpGccNames.isValid());
 
     appendOutputParser(new LdParser);
@@ -87,8 +84,12 @@ void GccParser::stdError(const QString &line)
                      -1 /* linenumber */,
                      Constants::TASK_CATEGORY_COMPILE));
         return;
-    } else if (m_regExpGccNames.indexIn(lne) > -1) {
-        QString description = lne.mid(m_regExpGccNames.matchedLength());
+    }
+
+    QRegularExpressionMatch match = m_regExpGccNames.match(lne);
+
+    if (match.hasMatch()) {
+        QString description = lne.mid(match.capturedLength());
         Task::TaskType type = Task::Error;
         if (description.startsWith(QLatin1String("warning: "))) {
             type = Task::Warning;
@@ -100,30 +101,36 @@ void GccParser::stdError(const QString &line)
                   -1, /* line */ Constants::TASK_CATEGORY_COMPILE);
         newTask(task);
         return;
-    } else if (m_regExp.indexIn(lne) > -1) {
-        Utils::FileName filename = Utils::FileName::fromUserInput(m_regExp.cap(1));
-        int lineno = m_regExp.cap(3).toInt();
+    }
+
+    match = m_regExp.match(lne);
+    if (match.hasMatch()) {
+        Utils::FileName filename = Utils::FileName::fromUserInput(match.captured(1));
+        int lineno = match.captured(3).toInt();
         Task::TaskType type = Task::Unknown;
-        QString description = m_regExp.cap(8);
-        if (m_regExp.cap(7) == QLatin1String("warning"))
+        QString description = match.captured(8);
+        if (match.captured(7) == QLatin1String("warning"))
             type = Task::Warning;
-        else if (m_regExp.cap(7) == QLatin1String("error") ||
+        else if (match.captured(7) == QLatin1String("error") ||
                  description.startsWith(QLatin1String("undefined reference to")) ||
                  description.startsWith(QLatin1String("multiple definition of")))
             type = Task::Error;
         // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
         // We want those to show how the warning was triggered
-        if (m_regExp.cap(5).startsWith(QLatin1Char('#')))
-            description = m_regExp.cap(5) + description;
+        if (match.captured(5).startsWith(QLatin1Char('#')))
+            description = match.captured(5) + description;
 
         Task task(type, description, filename, lineno, Constants::TASK_CATEGORY_COMPILE);
         newTask(task);
         return;
-    } else if (m_regExpIncluded.indexIn(lne) > -1) {
+    }
+
+    match = m_regExpIncluded.match(lne);
+    if (match.hasMatch()) {
         newTask(Task(Task::Unknown,
                      lne.trimmed() /* description */,
-                     Utils::FileName::fromUserInput(m_regExpIncluded.cap(1)) /* filename */,
-                     m_regExpIncluded.cap(3).toInt() /* linenumber */,
+                     Utils::FileName::fromUserInput(match.captured(1)) /* filename */,
+                     match.captured(3).toInt() /* linenumber */,
                      Constants::TASK_CATEGORY_COMPILE));
         return;
     } else if (lne.startsWith(QLatin1Char(' '))) {
