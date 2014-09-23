@@ -58,11 +58,8 @@ public:
         m_selections = selections;
     }
 
-protected:
-    virtual void paintEvent(QPaintEvent *e);
-
 private:
-    void paintSelections(QPaintEvent *e);
+    void innerPaintEvent(QPaintEvent *e);
     void paintSelections(QPainter &painter,
                          const QList<DiffSelection> &selections,
                          const QTextBlock &block,

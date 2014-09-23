@@ -46,13 +46,7 @@ SelectableTextEditorWidget::~SelectableTextEditorWidget()
 {
 }
 
-void SelectableTextEditorWidget::paintEvent(QPaintEvent *e)
-{
-    paintSelections(e);
-    BaseTextEditorWidget::paintEvent(e);
-}
-
-void SelectableTextEditorWidget::paintSelections(QPaintEvent *e)
+void SelectableTextEditorWidget::innerPaintEvent(QPaintEvent *e)
 {
     QPainter painter(viewport());
 

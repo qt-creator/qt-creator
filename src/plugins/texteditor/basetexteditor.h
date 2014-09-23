@@ -495,6 +495,7 @@ protected:
     bool viewportEvent(QEvent *event);
     void resizeEvent(QResizeEvent *);
     void paintEvent(QPaintEvent *);
+    virtual void innerPaintEvent(QPaintEvent *) {}
     void timerEvent(QTimerEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);

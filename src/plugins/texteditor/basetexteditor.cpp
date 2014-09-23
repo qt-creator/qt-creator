@@ -3435,6 +3435,27 @@ static QTextLayout::FormatRange createBlockCursorCharFormatRange(int pos, const 
 
 void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
 {
+    // draw backgrond to the right of the wrap column before everything else
+    qreal lineX = 0;
+    QPointF offset(contentOffset());
+    QRect viewportRect = viewport()->rect();
+    QRect er = e->rect();
+
+    const FontSettings &fs = textDocument()->fontSettings();
+    const QTextCharFormat &searchScopeFormat = fs.toTextCharFormat(C_SEARCH_SCOPE);
+    const QTextCharFormat &ifdefedOutFormat = fs.toTextCharFormat(C_DISABLED_CODE);
+
+    if (d->m_visibleWrapColumn > 0) {
+        QPainter painter(viewport());
+        // Don't use QFontMetricsF::averageCharWidth here, due to it returning
+        // a fractional size even when this is not supported by the platform.
+        lineX = QFontMetricsF(font()).width(QLatin1Char('x')) * d->m_visibleWrapColumn + offset.x() + 4;
+        if (lineX < viewportRect.width())
+            painter.fillRect(QRectF(lineX, er.top(), viewportRect.width() - lineX, er.height()),
+                             ifdefedOutFormat.background());
+    }
+
+    innerPaintEvent(e);
     /*
       Here comes an almost verbatim copy of
       QPlainTextEdit::paintEvent() so we can adjust the extra
@@ -3446,21 +3467,12 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
     QTextDocument *doc = document();
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
-    const FontSettings &fs = textDocument()->fontSettings();
-    const QTextCharFormat &searchScopeFormat = fs.toTextCharFormat(C_SEARCH_SCOPE);
-    const QTextCharFormat &ifdefedOutFormat = fs.toTextCharFormat(C_DISABLED_CODE);
 
-    QPointF offset(contentOffset());
     QTextBlock textCursorBlock = textCursor().block();
 
     bool hasMainSelection = textCursor().hasSelection();
     bool suppressSyntaxInIfdefedOutBlock = (ifdefedOutFormat.foreground()
                                            != palette().foreground());
-
-    QRect er = e->rect();
-    QRect viewportRect = viewport()->rect();
-
-    qreal lineX = 0;
 
     // Set a brush origin so that the WaveUnderline knows where the wave started
     painter.setBrushOrigin(offset);
@@ -3607,15 +3619,8 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
 
     // draw wrap column after ifdefed out blocks
     if (d->m_visibleWrapColumn > 0) {
-        // Don't use QFontMetricsF::averageCharWidth here, due to it returning
-        // a fractional size even when this is not supported by the platform.
-        lineX = QFontMetricsF(font()).width(QLatin1Char('x')) * d->m_visibleWrapColumn + offset.x() + 4;
-
         if (lineX < viewportRect.width()) {
             const QBrush background = ifdefedOutFormat.background();
-            painter.fillRect(QRectF(lineX, er.top(), viewportRect.width() - lineX, er.height()),
-                             background);
-
             const QColor col = (palette().base().color().value() > 128) ? Qt::black : Qt::white;
             const QPen pen = painter.pen();
             painter.setPen(blendColors(background.isOpaque() ? background.color() : palette().base().color(),
