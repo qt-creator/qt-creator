@@ -114,7 +114,7 @@ public:
     CppLocalRenaming m_localRenaming;
 
     CppTools::SemanticInfo m_lastSemanticInfo;
-    QList<QuickFixOperation::Ptr> m_quickFixes;
+    QuickFixOperations m_quickFixes;
 
     CppUseSelectionsUpdater m_useSelectionsUpdater;
 
@@ -474,8 +474,7 @@ bool CppEditorWidget::event(QEvent *e)
 
 void CppEditorWidget::performQuickFix(int index)
 {
-    QuickFixOperation::Ptr op = d->m_quickFixes.at(index);
-    op->perform();
+    d->m_quickFixes.at(index)->perform();
 }
 
 void CppEditorWidget::processKeyNormally(QKeyEvent *e)

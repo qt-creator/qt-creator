@@ -81,7 +81,7 @@ class SplitInitializerOp: public QmlJSQuickFixFactory
         }
 
         if (objectInitializer)
-            result.append(TextEditor::QuickFixOperation::Ptr(new Operation(interface, objectInitializer)));
+            result.append(new Operation(interface, objectInitializer));
     }
 
     class Operation: public QmlJSQuickFixOperation
@@ -139,7 +139,7 @@ public:
 
         foreach (const StaticAnalysis::Message &message, messages) {
             if (interface->currentFile()->isCursorOn(message.location)) {
-                result.append(QuickFixOperation::Ptr(new Operation(interface, message)));
+                result.append(new Operation(interface, message));
                 return;
             }
         }

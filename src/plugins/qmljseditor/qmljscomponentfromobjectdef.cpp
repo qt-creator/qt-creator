@@ -176,13 +176,13 @@ void ComponentFromObjectDef::match(const QmlJSQuickFixInterface &interface, Quic
                 return;
              // check that the node is not the root node
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) {
-                result.append(QuickFixOperation::Ptr(new Operation(interface, objDef)));
+                result.append(new Operation(interface, objDef));
                 return;
             }
         } else if (UiObjectBinding *objBinding = cast<UiObjectBinding *>(node)) {
             if (!interface->currentFile()->isCursorOn(objBinding->qualifiedTypeNameId))
                 return;
-            result.append(QuickFixOperation::Ptr(new Operation(interface, objBinding)));
+            result.append(new Operation(interface, objBinding));
             return;
         }
     }

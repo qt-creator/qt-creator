@@ -665,8 +665,7 @@ void QmlJSEditorWidget::showContextPane()
 
 void QmlJSEditorWidget::performQuickFix(int index)
 {
-    QuickFixOperation::Ptr op = m_quickFixes.at(index);
-    op->perform();
+    m_quickFixes.at(index)->perform();
 }
 
 void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)

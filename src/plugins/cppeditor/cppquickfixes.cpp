@@ -395,8 +395,7 @@ void InverseLogicalComparison::match(const CppQuickFixInterface &interface,
         return;
     }
 
-    result.append(CppQuickFixOperation::Ptr(
-        new InverseLogicalComparisonOp(interface, index, binary, invertToken)));
+    result.append(new InverseLogicalComparisonOp(interface, index, binary, invertToken));
 }
 
 namespace {
@@ -486,8 +485,7 @@ void FlipLogicalOperands::match(const CppQuickFixInterface &interface, QuickFixO
         replacement = QLatin1String(tok.spell());
     }
 
-    result.append(QuickFixOperation::Ptr(
-        new FlipLogicalOperandsOp(interface, index, binary, replacement)));
+    result.append(new FlipLogicalOperandsOp(interface, index, binary, replacement));
 }
 
 namespace {
@@ -666,15 +664,13 @@ void SplitSimpleDeclaration::match(const CppQuickFixInterface &interface,
 
                 if (cursorPosition >= startOfDeclSpecifier && cursorPosition <= endOfDeclSpecifier) {
                     // the AST node under cursor is a specifier.
-                    result.append(QuickFixOperation::Ptr(
-                        new SplitSimpleDeclarationOp(interface, index, declaration)));
+                    result.append(new SplitSimpleDeclarationOp(interface, index, declaration));
                     return;
                 }
 
                 if (core_declarator && interface->isCursorOn(core_declarator)) {
                     // got a core-declarator under the text cursor.
-                    result.append(QuickFixOperation::Ptr(
-                        new SplitSimpleDeclarationOp(interface, index, declaration)));
+                    result.append(new SplitSimpleDeclarationOp(interface, index, declaration));
                     return;
                 }
             }
@@ -729,8 +725,7 @@ void AddBracesToIf::match(const CppQuickFixInterface &interface, QuickFixOperati
     IfStatementAST *ifStatement = path.at(index)->asIfStatement();
     if (ifStatement && interface->isCursorOn(ifStatement->if_token) && ifStatement->statement
         && !ifStatement->statement->asCompoundStatement()) {
-        result.append(QuickFixOperation::Ptr(
-            new AddBracesToIfOp(interface, index, ifStatement->statement)));
+        result.append(new AddBracesToIfOp(interface, index, ifStatement->statement));
         return;
     }
 
@@ -741,8 +736,7 @@ void AddBracesToIf::match(const CppQuickFixInterface &interface, QuickFixOperati
         if (ifStatement && ifStatement->statement
             && interface->isCursorOn(ifStatement->statement)
             && !ifStatement->statement->asCompoundStatement()) {
-            result.append(QuickFixOperation::Ptr(
-                new AddBracesToIfOp(interface, index, ifStatement->statement)));
+            result.append(new AddBracesToIfOp(interface, index, ifStatement->statement));
             return;
         }
     }
@@ -1030,8 +1024,7 @@ void SplitIfStatement::match(const CppQuickFixInterface &interface, QuickFixOper
         }
 
         if (interface->isCursorOn(condition->binary_op_token)) {
-            result.append(QuickFixOperation::Ptr(
-                new SplitIfStatementOp(interface, index, pattern, condition)));
+            result.append(new SplitIfStatementOp(interface, index, pattern, condition));
             return;
         }
     }
@@ -1172,8 +1165,6 @@ private:
 
 void WrapStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
-    typedef CppQuickFixOperation::Ptr OperationPtr;
-
     Type type = TypeNone;
     QByteArray enclosingFunction;
     const QList<AST *> &path = interface->path();
@@ -1190,16 +1181,15 @@ void WrapStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOpe
     if (type == TypeChar) {
         unsigned actions = EncloseInQLatin1CharAction;
         QString description = msgQtStringLiteralDescription(replacement(actions));
-        result << OperationPtr(new WrapStringLiteralOp(interface, priority, actions,
-                                                             description, literal));
+        result.append(new WrapStringLiteralOp(interface, priority, actions, description, literal));
         if (NumericLiteralAST *charLiteral = literal->asNumericLiteral()) {
             const QByteArray contents(file->tokenAt(charLiteral->literal_token).identifier->chars());
             if (!charToStringEscapeSequences(contents).isEmpty()) {
                 actions = DoubleQuoteAction | ConvertEscapeSequencesToStringAction;
                 description = QApplication::translate("CppTools::QuickFix",
                               "Convert to String Literal");
-                result << OperationPtr(new WrapStringLiteralOp(interface, priority, actions,
-                                                                     description, literal));
+                result.append(new WrapStringLiteralOp(interface, priority, actions,
+                                                      description, literal));
             }
         }
     } else {
@@ -1213,24 +1203,21 @@ void WrapStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOpe
                           | ConvertEscapeSequencesToCharAction | objectiveCActions;
                 QString description = QApplication::translate("CppTools::QuickFix",
                                       "Convert to Character Literal and Enclose in QLatin1Char(...)");
-                result << OperationPtr(new WrapStringLiteralOp(interface, priority, actions,
-                                                               description, literal));
+                result.append(new WrapStringLiteralOp(interface, priority, actions,
+                                                      description, literal));
                 actions &= ~EncloseInQLatin1CharAction;
                 description = QApplication::translate("CppTools::QuickFix",
                               "Convert to Character Literal");
-                result << OperationPtr(new WrapStringLiteralOp(interface, priority, actions,
-                                                               description, literal));
+                result.append(new WrapStringLiteralOp(interface, priority, actions,
+                                                      description, literal));
             }
         }
         actions = EncloseInQLatin1StringAction | objectiveCActions;
-        result << OperationPtr(
-            new WrapStringLiteralOp(interface, priority, actions,
-                msgQtStringLiteralDescription(replacement(actions), 4),
-                    literal));
+        result.append(new WrapStringLiteralOp(interface, priority, actions,
+                          msgQtStringLiteralDescription(replacement(actions), 4), literal));
         actions = EncloseInQStringLiteralAction | objectiveCActions;
-        result << OperationPtr(
-            new WrapStringLiteralOp(interface, priority, actions,
-                msgQtStringLiteralDescription(replacement(actions), 5), literal));
+        result.append(new WrapStringLiteralOp(interface, priority, actions,
+                          msgQtStringLiteralDescription(replacement(actions), 5), literal));
     }
 }
 
@@ -1315,10 +1302,9 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
                     Symbol *s = r.declaration();
                     if (s->type()->isFunctionType()) {
                         // no context required for tr
-                        result.append(QuickFixOperation::Ptr(
-                            new WrapStringLiteralOp(interface, path.size() - 1,
-                                                          WrapStringLiteral::TranslateTrAction,
-                                                          description, literal)));
+                        result.append(new WrapStringLiteralOp(interface, path.size() - 1,
+                                                              WrapStringLiteral::TranslateTrAction,
+                                                              description, literal));
                         return;
                     }
                 }
@@ -1334,19 +1320,17 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
             // ... or global if none available!
             if (trContext.isEmpty())
                 trContext = QLatin1String("GLOBAL");
-            result.append(QuickFixOperation::Ptr(
-                new WrapStringLiteralOp(interface, path.size() - 1,
-                                              WrapStringLiteral::TranslateQCoreApplicationAction,
-                                              description, literal, trContext)));
+            result.append(new WrapStringLiteralOp(interface, path.size() - 1,
+                                                  WrapStringLiteral::TranslateQCoreApplicationAction,
+                                                  description, literal, trContext));
             return;
         }
     }
 
     // We need to use Q_TRANSLATE_NOOP
-    result.append(QuickFixOperation::Ptr(
-        new WrapStringLiteralOp(interface, path.size() - 1,
-                                      WrapStringLiteral::TranslateNoopAction,
-                                      description, literal, trContext)));
+    result.append(new WrapStringLiteralOp(interface, path.size() - 1,
+                                          WrapStringLiteral::TranslateNoopAction,
+                                          description, literal, trContext));
 }
 
 namespace {
@@ -1409,9 +1393,8 @@ void ConvertCStringToNSString::match(const CppQuickFixInterface &interface,
     if (!isQtStringLiteral(enclosingFunction))
         qlatin1Call = 0;
 
-    result.append(QuickFixOperation::Ptr(
-        new ConvertCStringToNSStringOp(interface, path.size() - 1, literal->asStringLiteral(),
-            qlatin1Call)));
+    result.append(new ConvertCStringToNSStringOp(interface, path.size() - 1, literal->asStringLiteral(),
+                      qlatin1Call));
 }
 
 namespace {
@@ -1495,8 +1478,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
         */
         QString replacement;
         replacement.sprintf("0x%lX", value);
-        QuickFixOperation::Ptr op(
-            new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement));
+        auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
         op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Hexadecimal"));
         op->setPriority(priority);
         result.append(op);
@@ -1514,8 +1496,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
             */
             QString replacement;
             replacement.sprintf("0%lo", value);
-            QuickFixOperation::Ptr op(
-                new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement));
+            auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
             op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Octal"));
             op->setPriority(priority);
             result.append(op);
@@ -1534,8 +1515,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
             */
             QString replacement;
             replacement.sprintf("%lu", value);
-            QuickFixOperation::Ptr op(
-                new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement));
+            auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
             op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Decimal"));
             op->setPriority(priority);
             result.append(op);
@@ -1647,15 +1627,13 @@ void AddIncludeForForwardDeclaration::match(const CppQuickFixInterface &interfac
         if (NamedTypeSpecifierAST *namedTy = ast->asNamedTypeSpecifier()) {
             if (Symbol *fwdClass = AddIncludeForForwardDeclarationOp::checkName(interface,
                                                                                 namedTy->name)) {
-                result.append(QuickFixOperation::Ptr(
-                    new AddIncludeForForwardDeclarationOp(interface, index, fwdClass)));
+                result.append(new AddIncludeForForwardDeclarationOp(interface, index, fwdClass));
                 return;
             }
         } else if (ElaboratedTypeSpecifierAST *eTy = ast->asElaboratedTypeSpecifier()) {
             if (Symbol *fwdClass = AddIncludeForForwardDeclarationOp::checkName(interface,
                                                                                 eTy->name)) {
-                result.append(QuickFixOperation::Ptr(
-                    new AddIncludeForForwardDeclarationOp(interface, index, fwdClass)));
+                result.append(new AddIncludeForForwardDeclarationOp(interface, index, fwdClass));
                 return;
             }
         }
@@ -1752,8 +1730,7 @@ void AddLocalDeclaration::match(const CppQuickFixInterface &interface, QuickFixO
                     }
 
                     if (!decl) {
-                        result.append(QuickFixOperation::Ptr(
-                            new AddLocalDeclarationOp(interface, index, binary, nameAST)));
+                        result.append(new AddLocalDeclarationOp(interface, index, binary, nameAST));
                         return;
                     }
                 }
@@ -1829,8 +1806,7 @@ void ConvertToCamelCase::match(const CppQuickFixInterface &interface, QuickFixOp
         return;
     for (int i = 1; i < newName.length() - 1; ++i) {
         if (ConvertToCamelCaseOp::isConvertibleUnderscore(newName, i)) {
-            result.append(QuickFixOperation::Ptr(
-                new ConvertToCamelCaseOp(interface, path.size() - 1, newName)));
+            result.append(new ConvertToCamelCaseOp(interface, path.size() - 1, newName));
             return;
         }
     }
@@ -1948,10 +1924,8 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
             }
         }
 
-        if (!shortestInclude.isEmpty()) {
-            result += CppQuickFixOperation::Ptr(
-                new AddIncludeForUndefinedIdentifierOp(interface, 0, shortestInclude));
-        }
+        if (!shortestInclude.isEmpty())
+            result.append(new AddIncludeForUndefinedIdentifierOp(interface, 0, shortestInclude));
     }
 
     const bool isProbablyAQtClass = className.size() > 2
@@ -1964,8 +1938,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     // for QSomething, propose a <QSomething> include -- if such a class was in the locator
     if (classExists) {
         const QString include = QLatin1Char('<') + className + QLatin1Char('>');
-        result += CppQuickFixOperation::Ptr(
-                    new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
+        result.append(new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
 
     // otherwise, check for a header file with the same name in the Qt include paths
     } else {
@@ -1977,8 +1950,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
             const QFileInfo fileInfo(headerPathCandidate);
             if (fileInfo.exists() && fileInfo.isFile()) {
                 const QString include = QLatin1Char('<') + className + QLatin1Char('>');
-                result += CppQuickFixOperation::Ptr(
-                            new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
+                result.append(new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
                 break;
             }
         }
@@ -2061,13 +2033,11 @@ void RearrangeParamDeclarationList::match(const CppQuickFixInterface &interface,
         return;
 
     if (prevParamListNode)
-        result.append(CppQuickFixOperation::Ptr(
-            new RearrangeParamDeclarationListOp(interface, paramListNode->value,
-                prevParamListNode->value, RearrangeParamDeclarationListOp::TargetPrevious)));
+        result.append(new RearrangeParamDeclarationListOp(interface, paramListNode->value,
+                          prevParamListNode->value, RearrangeParamDeclarationListOp::TargetPrevious));
     if (paramListNode->next)
-        result.append(CppQuickFixOperation::Ptr(
-            new RearrangeParamDeclarationListOp(interface, paramListNode->value,
-                paramListNode->next->value, RearrangeParamDeclarationListOp::TargetNext)));
+        result.append(new RearrangeParamDeclarationListOp(interface, paramListNode->value,
+                          paramListNode->next->value, RearrangeParamDeclarationListOp::TargetNext));
 }
 
 namespace {
@@ -2184,18 +2154,15 @@ void ReformatPointerDeclaration::match(const CppQuickFixInterface &interface,
         // ctrl-a and there is an empty line in the end, then the cursor is not on
         // any AST and therefore no quick fix will be triggered.
         change = formatter.format(file->cppDocument()->translationUnit()->ast());
-        if (!change.isEmpty()) {
-            result.append(QuickFixOperation::Ptr(
-                new ReformatPointerDeclarationOp(interface, change)));
-        }
+        if (!change.isEmpty())
+            result.append(new ReformatPointerDeclarationOp(interface, change));
     } else {
         const QList<AST *> suitableASTs
             = ReformatPointerDeclarationASTPathResultsFilter().filter(path);
         foreach (AST *ast, suitableASTs) {
             change = formatter.format(ast);
             if (!change.isEmpty()) {
-                result.append(QuickFixOperation::Ptr(
-                    new ReformatPointerDeclarationOp(interface, change)));
+                result.append(new ReformatPointerDeclarationOp(interface, change));
                 return;
             }
         }
@@ -2363,7 +2330,8 @@ void CompleteSwitchCaseStatement::match(const CppQuickFixInterface &interface,
                 foreach (const QString &usedValue, usedValues)
                     values.removeAll(usedValue);
                 if (!values.isEmpty())
-                    result.append(CppQuickFixOperation::Ptr(new CompleteSwitchCaseStatementOp(interface, depth, compoundStatement, values)));
+                    result.append(new CompleteSwitchCaseStatementOp(interface, depth,
+                                                                    compoundStatement, values));
                 return;
             }
 
@@ -2441,12 +2409,10 @@ public:
         , m_matchingClass(matchingClass)
         , m_decl(decl)
     {}
-    TextEditor::QuickFixOperation::Ptr
-    operator()(InsertionPointLocator::AccessSpec xsSpec, int priority)
+
+    QuickFixOperation *operator()(InsertionPointLocator::AccessSpec xsSpec, int priority)
     {
-        return TextEditor::QuickFixOperation::Ptr(
-            new InsertDeclOperation(m_interface, m_fileName, m_matchingClass, xsSpec, m_decl,
-                                    priority));
+        return new InsertDeclOperation(m_interface, m_fileName, m_matchingClass, xsSpec, m_decl, priority);
     }
 
 private:
@@ -2721,7 +2687,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                     }
 
                                     if (op)
-                                        result.append(CppQuickFixOperation::Ptr(op));
+                                        result.append(op);
                                     break;
                                 }
                             }
@@ -2731,10 +2697,10 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
 
                             // Insert Position: Outside Class
                             if (!isFreeFunction) {
-                                op = new InsertDefOperation(interface, decl, declAST,
-                                                            InsertionLocation(), DefPosOutsideClass,
-                                                            interface->fileName());
-                                result.append(CppQuickFixOperation::Ptr(op));
+                                result.append(new InsertDefOperation(interface, decl, declAST,
+                                                                     InsertionLocation(),
+                                                                     DefPosOutsideClass,
+                                                                     interface->fileName()));
                             }
 
                             // Insert Position: Inside Class
@@ -2745,10 +2711,9 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                             const InsertionLocation loc
                                     = InsertionLocation(interface->fileName(), QString(), QString(),
                                                         line, column);
-                            op = new InsertDefOperation(interface, decl, declAST, loc,
-                                                        DefPosInsideClass, QString(),
-                                                        isFreeFunction);
-                            result.append(CppQuickFixOperation::Ptr(op));
+                            result.append(new InsertDefOperation(interface, decl, declAST, loc,
+                                                                 DefPosInsideClass, QString(),
+                                                                 isFreeFunction));
 
                             return;
                         }
@@ -3049,7 +3014,7 @@ void GenerateGetterSetter::match(const CppQuickFixInterface &interface, QuickFix
 {
     GenerateGetterSetterOperation *op = new GenerateGetterSetterOperation(interface);
     if (op->isValid())
-        result.append(CppQuickFixOperation::Ptr(op));
+        result.append(op);
     else
         delete op;
 }
@@ -3575,12 +3540,12 @@ void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOpera
     // The current implementation doesn't try to be too smart since it preserves the original form
     // of the declarations. This might be or not the desired effect. An improvement would be to
     // let the user somehow customize the function interface.
-    result.append(CppQuickFixOperation::Ptr(new ExtractFunctionOperation(interface,
-                                                     analyser.m_extractionStart,
-                                                     analyser.m_extractionEnd,
-                                                     refFuncDef,
-                                                     funcReturn,
-                                                     relevantDecls)));
+    result.append(new ExtractFunctionOperation(interface,
+                                               analyser.m_extractionStart,
+                                               analyser.m_extractionEnd,
+                                               refFuncDef,
+                                               funcReturn,
+                                               relevantDecls));
 }
 
 namespace {
@@ -3900,9 +3865,7 @@ void ExtractLiteralAsParameter::match(const CppQuickFixInterface &interface,
     }
 
     const int priority = path.size() - 1;
-    QuickFixOperation::Ptr op(
-                new ExtractLiteralAsParameterOp(interface, priority, literal, function));
-    result.append(op);
+    result.append(new ExtractLiteralAsParameterOp(interface, priority, literal, function));
 }
 
 namespace {
@@ -4197,10 +4160,8 @@ void ConvertFromAndToPointer::match(const CppQuickFixInterface &interface,
     }
 
     const int priority = path.size() - 1;
-    QuickFixOperation::Ptr op(
-            new ConvertFromAndToPointerOp(interface, priority, mode, simpleDeclaration, declarator,
-                                          identifier, symbol));
-    result.append(op);
+    result.append(new ConvertFromAndToPointerOp(interface, priority, mode, simpleDeclaration,
+                                                declarator, identifier, symbol));
 }
 
 namespace {
@@ -4379,9 +4340,9 @@ void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface,
     if (getterName.isEmpty() && setterName.isEmpty() && signalName.isEmpty())
         return;
 
-    result.append(QuickFixOperation::Ptr(
-        new InsertQtPropertyMembersOp(interface, path.size() - 1, qtPropertyDeclaration, c,
-            generateFlags, getterName, setterName, signalName, storageName)));
+    result.append(new InsertQtPropertyMembersOp(interface, path.size() - 1, qtPropertyDeclaration, c,
+                                                generateFlags, getterName, setterName,
+                                                signalName, storageName));
 }
 
 namespace {
@@ -4420,9 +4381,9 @@ void ApplyDeclDefLinkChanges::match(const CppQuickFixInterface &interface,
     if (!link || !link->isMarkerVisible())
         return;
 
-    QSharedPointer<ApplyDeclDefLinkOperation> op(new ApplyDeclDefLinkOperation(interface, link));
+    auto op = new ApplyDeclDefLinkOperation(interface, link);
     op->setDescription(FunctionDeclDefLink::tr("Apply Function Signature Changes"));
-    result += op;
+    result.append(op);
 }
 
 namespace {
@@ -4589,16 +4550,14 @@ void MoveFuncDefOutside::match(const CppQuickFixInterface &interface, QuickFixOp
     const QString cppFileName = correspondingHeaderOrSource(interface->fileName(), &isHeaderFile);
 
     if (isHeaderFile && !cppFileName.isEmpty())
-        result.append(CppQuickFixOperation::Ptr(
-                          new MoveFuncDefOutsideOp(interface, ((moveOutsideMemberDefinition) ?
+        result.append(new MoveFuncDefOutsideOp(interface, ((moveOutsideMemberDefinition) ?
                                                    MoveFuncDefOutsideOp::MoveOutsideMemberToCppFile
                                                    : MoveFuncDefOutsideOp::MoveToCppFile),
-                                                   funcAST, cppFileName)));
+                                                   funcAST, cppFileName));
 
     if (classAST)
-        result.append(CppQuickFixOperation::Ptr(
-                          new MoveFuncDefOutsideOp(interface, MoveFuncDefOutsideOp::MoveOutside,
-                                                   funcAST, QLatin1String(""))));
+        result.append(new MoveFuncDefOutsideOp(interface, MoveFuncDefOutsideOp::MoveOutside,
+                                               funcAST, QLatin1String("")));
 
     return;
 }
@@ -4766,11 +4725,11 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
     }
 
     if (!declFileName.isEmpty() && !declText.isEmpty())
-        result.append(QuickFixOperation::Ptr(new MoveFuncDefToDeclOp(interface,
-                                                                     interface->fileName(),
-                                                                     declFileName,
-                                                                     funcAST, declText,
-                                                                     declRange)));
+        result.append(new MoveFuncDefToDeclOp(interface,
+                                              interface->fileName(),
+                                              declFileName,
+                                              funcAST, declText,
+                                              declRange));
 }
 
 namespace {
@@ -4977,9 +4936,7 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
 
             const Name *name = visibleNameAST->name;
             const int insertPos = interface->currentFile()->startOf(outerAST);
-            result.append(CppQuickFixOperation::Ptr(
-                              new AssignToLocalVariableOperation(interface, insertPos, outerAST,
-                                                                 name)));
+            result.append(new AssignToLocalVariableOperation(interface, insertPos, outerAST, name));
             return;
         }
     }
@@ -5160,11 +5117,9 @@ void OptimizeForLoop::match(const CppQuickFixInterface &interface, QuickFixOpera
     }
 
     if (optimizePostcrement || optimizeCondition) {
-        OptimizeForLoopOperation *op
-                = new OptimizeForLoopOperation(interface, forAst, optimizePostcrement,
-                                               (optimizeCondition) ? conditionExpression : 0,
-                                               conditionType);
-        result.append(QuickFixOperation::Ptr(op));
+        result.append(new OptimizeForLoopOperation(interface, forAst, optimizePostcrement,
+                                                   (optimizeCondition) ? conditionExpression : 0,
+                                                   conditionType));
     }
 }
 
@@ -5328,17 +5283,11 @@ void EscapeStringLiteral::match(const CppQuickFixInterface &interface, QuickFixO
         }
     }
 
-    if (canEscape) {
-        QuickFixOperation::Ptr op(
-                    new EscapeStringLiteralOperation(interface, literal, true));
-        result.append(op);
-    }
+    if (canEscape)
+        result.append(new EscapeStringLiteralOperation(interface, literal, true));
 
-    if (canUnescape) {
-        QuickFixOperation::Ptr op(
-                    new EscapeStringLiteralOperation(interface, literal, false));
-        result.append(op);
-    }
+    if (canUnescape)
+        result.append(new EscapeStringLiteralOperation(interface, literal, false));
 }
 
 } // namespace Internal

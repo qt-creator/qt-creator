@@ -90,7 +90,13 @@ private:
     QString _description;
 };
 
-typedef QList<QuickFixOperation::Ptr> QuickFixOperations;
+class TEXTEDITOR_EXPORT QuickFixOperations : public QList<QuickFixOperation::Ptr>
+{
+public:
+    using QList<QuickFixOperation::Ptr>::append;
+    void append(QuickFixOperation *op) { append(QuickFixOperation::Ptr(op)); }
+};
+
 typedef QSharedPointer<const AssistInterface> QuickFixInterface;
 
 /*!

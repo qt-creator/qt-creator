@@ -234,8 +234,7 @@ public:
 
     void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result)
     {
-        result += CppQuickFixOperation::Ptr(
-            new AddIncludeForUndefinedIdentifierOp(cppQuickFixInterface, 0, m_include));
+        result.append(new AddIncludeForUndefinedIdentifierOp(cppQuickFixInterface, 0, m_include));
     }
 
 private:

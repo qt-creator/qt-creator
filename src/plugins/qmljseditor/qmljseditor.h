@@ -129,7 +129,7 @@ private:
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
 
-    QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
+    TextEditor::QuickFixOperations m_quickFixes;
 
     QmlJS::IContextPane *m_contextPane;
     int m_oldCursorPosition;

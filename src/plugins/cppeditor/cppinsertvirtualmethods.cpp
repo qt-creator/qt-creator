@@ -1088,7 +1088,7 @@ void InsertVirtualMethods::match(const CppQuickFixInterface &interface, QuickFix
 {
     InsertVirtualMethodsOp *op = new InsertVirtualMethodsOp(interface, m_dialog);
     if (op->isValid())
-        result.append(QuickFixOperation::Ptr(op));
+        result.append(op);
     else
         delete op;
 }
