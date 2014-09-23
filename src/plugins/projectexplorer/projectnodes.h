@@ -162,7 +162,8 @@ private:
 class PROJECTEXPLORER_EXPORT FolderNode : public Node {
     Q_OBJECT
 public:
-    explicit FolderNode(const QString &folderPath, NodeType nodeType = FolderNodeType);
+    explicit FolderNode(const QString &folderPath, NodeType nodeType = FolderNodeType,
+                        const QString &displayName = QString());
     virtual ~FolderNode();
 
     QString displayName() const;

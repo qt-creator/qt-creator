@@ -527,14 +527,15 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
                 break;
             }
             if (!fn) {
-                fn = new FolderNode(c->path());
+                fn = new FolderNode(c->path(), ProjectExplorer::FolderNodeType,
+                                    displayNameFromPath(c->path(), baseDir));
                 root->addFolderNodes(QList<FolderNode *>() << fn);
             } else {
                 foldersToRemove.removeOne(fn);
                 if (updateExisting)
                     fn->emitNodeUpdated();
+                fn->setDisplayName(displayNameFromPath(c->path(), baseDir));
             }
-            fn->setDisplayName(displayNameFromPath(c->path(), baseDir));
 
             setupFolder(fn, c, c->path(), updateExisting);
         }
@@ -811,9 +812,9 @@ QbsProjectNode *QbsProjectNode::findProjectNode(const QString &name)
 QbsRootProjectNode::QbsRootProjectNode(QbsProject *project) :
     QbsProjectNode(project->projectFilePath().toString()),
     m_project(project),
-    m_buildSystemFiles(new ProjectExplorer::FolderNode(project->projectDirectory().toString()))
+    m_buildSystemFiles(new ProjectExplorer::FolderNode(project->projectDirectory().toString(),
+                                                       ProjectExplorer::FolderNodeType, tr("Qbs files")))
 {
-    m_buildSystemFiles->setDisplayName(tr("Qbs files"));
     addFolderNodes(QList<FolderNode *>() << m_buildSystemFiles);
 }
 

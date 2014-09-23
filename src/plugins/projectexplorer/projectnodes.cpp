@@ -247,10 +247,12 @@ bool FileNode::isGenerated() const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-FolderNode::FolderNode(const QString &folderPath, NodeType nodeType)  :
+FolderNode::FolderNode(const QString &folderPath, NodeType nodeType, const QString &displayName)  :
     Node(nodeType, folderPath),
-    m_displayName(QDir::toNativeSeparators(folderPath))
+    m_displayName(displayName)
 {
+    if (m_displayName.isEmpty())
+        m_displayName = QDir::toNativeSeparators(folderPath);
 }
 
 FolderNode::~FolderNode()
