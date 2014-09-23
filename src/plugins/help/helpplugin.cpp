@@ -107,11 +107,15 @@ static const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
 
 using namespace Core;
 
-static QToolButton *toolButton(QAction *action)
+static QToolButton *toolButton(Core::Command *cmd, QAction *action)
 {
     QToolButton *button = new QToolButton;
     button->setDefaultAction(action);
     button->setPopupMode(QToolButton::DelayedPopup);
+    action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
+    QObject::connect(cmd, &Core::Command::keySequenceChanged, action, [cmd, action]() {
+        action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
+    });
     return button;
 }
 
@@ -189,38 +193,52 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(HelpManager::instance(), SIGNAL(setupFinished()), this,
             SLOT(unregisterOldQtCreatorDocumentation()));
 
+    auto helpButtonBar = new Utils::StyledBar;
+    auto helpButtonLayout = new QHBoxLayout(helpButtonBar);
+    helpButtonLayout->setMargin(0);
+    helpButtonLayout->setSpacing(0);
+
     m_splitter = new MiniSplitter;
+    Command *cmd;
     m_centralWidget = new Help::Internal::CentralWidget();
     connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
         SLOT(updateSideBarSource(QUrl)));
     // Add Home, Previous and Next actions (used in the toolbar)
     QAction *action = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")),
         tr("Home"), this);
-    ActionManager::registerAction(action, "Help.Home", globalcontext);
+    cmd = ActionManager::registerAction(action, "Help.Home", globalcontext);
     connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(home()));
+    helpButtonLayout->addWidget(toolButton(cmd, action));
 
-    action = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
+    QAction *back = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
         tr("Previous Page"), this);
-    Command *cmd = ActionManager::registerAction(action, "Help.Previous", modecontext);
+    cmd = ActionManager::registerAction(back, "Help.Previous", modecontext);
     cmd->setDefaultKeySequence(QKeySequence::Back);
-    action->setEnabled(m_centralWidget->isBackwardAvailable());
-    connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(backward()));
-    connect(m_centralWidget, SIGNAL(backwardAvailable(bool)), action,
+    back->setEnabled(m_centralWidget->isBackwardAvailable());
+    connect(back, SIGNAL(triggered()), m_centralWidget, SLOT(backward()));
+    connect(m_centralWidget, SIGNAL(backwardAvailable(bool)), back,
         SLOT(setEnabled(bool)));
+    helpButtonLayout->addWidget(toolButton(cmd, back));
 
-    action = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")), tr("Next Page"), this);
-    cmd = ActionManager::registerAction(action, "Help.Next", modecontext);
+    QAction *next = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")), tr("Next Page"), this);
+    cmd = ActionManager::registerAction(next, "Help.Next", modecontext);
     cmd->setDefaultKeySequence(QKeySequence::Forward);
-    action->setEnabled(m_centralWidget->isForwardAvailable());
-    connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(forward()));
-    connect(m_centralWidget, SIGNAL(forwardAvailable(bool)), action,
+    next->setEnabled(m_centralWidget->isForwardAvailable());
+    connect(next, SIGNAL(triggered()), m_centralWidget, SLOT(forward()));
+    connect(m_centralWidget, SIGNAL(forwardAvailable(bool)), next,
         SLOT(setEnabled(bool)));
+    helpButtonLayout->addWidget(toolButton(cmd, next));
+    helpButtonLayout->addWidget(new Utils::StyledSeparator(helpButtonBar));
+
+    setupNavigationMenus(back, next, helpButtonBar);
 
     action = new QAction(QIcon(QLatin1String(IMAGEPATH "bookmark.png")),
         tr("Add Bookmark"), this);
     cmd = ActionManager::registerAction(action, "Help.AddBookmark", modecontext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     connect(action, SIGNAL(triggered()), this, SLOT(addBookmark()));
+    helpButtonLayout->addWidget(toolButton(cmd, action));
+    helpButtonLayout->addWidget(new Utils::StyledSeparator(helpButtonBar));
 
     // Add Contents, Index, and Context menu items
     action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")),
@@ -301,8 +319,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     QHBoxLayout *toolBarLayout = new QHBoxLayout(toolBarWidget);
     toolBarLayout->setMargin(0);
     toolBarLayout->setSpacing(0);
-    toolBarLayout->addWidget(m_externalHelpBar = createIconToolBar(true));
-    toolBarLayout->addWidget(m_internalHelpBar = createIconToolBar(false));
+    toolBarLayout->addWidget(helpButtonBar);
     toolBarLayout->addWidget(createWidgetToolBar());
 
     QWidget *mainWidget = new QWidget;
@@ -336,7 +353,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     m_mode = new HelpMode;
     m_mode->setWidget(m_splitter);
-    m_internalHelpBar->setVisible(true);
     addAutoReleasedObject(m_mode);
 
     return true;
@@ -862,56 +878,6 @@ Utils::StyledBar *HelpPlugin::createWidgetToolBar()
     layout->addWidget(m_filterComboBox);
     layout->addStretch();
     layout->addWidget(m_closeButton);
-
-    return toolBar;
-}
-
-Utils::StyledBar *HelpPlugin::createIconToolBar(bool external)
-{
-    Utils::StyledBar *toolBar = new Utils::StyledBar;
-    toolBar->setVisible(false);
-
-    QAction *home, *back, *next, *bookmark;
-    if (external) {
-        home = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")),
-            tr("Home"), toolBar);
-        connect(home, SIGNAL(triggered()), m_centralWidget, SLOT(home()));
-
-        back = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
-            tr("Previous Page"), toolBar);
-        back->setEnabled(m_centralWidget->isBackwardAvailable());
-        connect(back, SIGNAL(triggered()), m_centralWidget, SLOT(backward()));
-        connect(m_centralWidget, SIGNAL(backwardAvailable(bool)), back,
-            SLOT(setEnabled(bool)));
-
-        next = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")),
-            tr("Next Page"), toolBar);
-        next->setEnabled(m_centralWidget->isForwardAvailable());
-        connect(next, SIGNAL(triggered()), m_centralWidget, SLOT(forward()));
-        connect(m_centralWidget, SIGNAL(forwardAvailable(bool)), next,
-            SLOT(setEnabled(bool)));
-
-        bookmark = new QAction(QIcon(QLatin1String(IMAGEPATH "bookmark.png")),
-            tr("Add Bookmark"), toolBar);
-        connect(bookmark, SIGNAL(triggered()), this, SLOT(addBookmark()));
-    } else {
-        home = Core::ActionManager::command("Help.Home")->action();
-        back = Core::ActionManager::command("Help.Previous")->action();
-        next = Core::ActionManager::command("Help.Next")->action();
-        bookmark = Core::ActionManager::command("Help.AddBookmark")->action();
-    }
-
-    setupNavigationMenus(back, next, toolBar);
-
-    QHBoxLayout *layout = new QHBoxLayout(toolBar);
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    layout->addWidget(toolButton(home));
-    layout->addWidget(toolButton(back));
-    layout->addWidget(toolButton(next));
-    layout->addWidget(new Utils::StyledSeparator(toolBar));
-    layout->addWidget(toolButton(bookmark));
-    layout->addWidget(new Utils::StyledSeparator(toolBar));
 
     return toolBar;
 }

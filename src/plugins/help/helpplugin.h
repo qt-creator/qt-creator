@@ -128,7 +128,6 @@ private:
     void resetFilter();
     void activateHelpMode();
     Utils::StyledBar *createWidgetToolBar();
-    Utils::StyledBar *createIconToolBar(bool external);
     bool canShowHelpSideBySide() const;
     HelpViewer *viewerForHelpViewerLocation(Core::HelpManager::HelpViewerLocation location);
     HelpViewer *viewerForContextHelp();
@@ -173,8 +172,6 @@ private:
 
     QMenu *m_backMenu;
     QMenu *m_nextMenu;
-    Utils::StyledBar *m_internalHelpBar;
-    Utils::StyledBar *m_externalHelpBar;
 
     bool m_isSidebarVisible;
     QAction *m_toggleSideBarAction;
