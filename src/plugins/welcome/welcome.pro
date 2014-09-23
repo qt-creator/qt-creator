@@ -6,6 +6,8 @@ QT += quick
     DEFINES += USE_QUICK_WIDGET
 }
 
+QML_IMPORT_PATH=../../../share/qtcreator/welcomescreen
+
 include(../../qtcreatorplugin.pri)
 
 HEADERS += welcomeplugin.h
