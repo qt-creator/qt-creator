@@ -32,7 +32,7 @@
 
 #include "textfindconstants.h"
 
-#include <extensionsystem/iplugin.h>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QStringListModel;

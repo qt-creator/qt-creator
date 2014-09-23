@@ -35,11 +35,11 @@
 #include "executefilter.h"
 #include "locatorconstants.h"
 
-#include <extensionsystem/iplugin.h>
 #include <coreplugin/actionmanager/command.h>
 
-#include <QTimer>
 #include <QFutureWatcher>
+#include <QObject>
+#include <QTimer>
 
 namespace Core {
 namespace Internal {
