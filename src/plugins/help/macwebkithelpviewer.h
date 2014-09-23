@@ -64,7 +64,7 @@ public:
     MacWebKitHelpWidget(MacWebKitHelpViewer *parent);
     ~MacWebKitHelpWidget();
 
-    void setOpenInNewWindowActionVisible(bool visible);
+    void setOpenInNewPageActionVisible(bool visible);
 
     WebView *webView() const;
 
@@ -103,7 +103,7 @@ public:
     bool isBackwardAvailable() const;
     void addBackHistoryItems(QMenu *backMenu);
     void addForwardHistoryItems(QMenu *forwardMenu);
-    void setOpenInNewWindowActionVisible(bool visible);
+    void setOpenInNewPageActionVisible(bool visible);
 
     bool findText(const QString &text, Core::FindFlags flags,
         bool incremental, bool fromSearch, bool *wrapped = 0);

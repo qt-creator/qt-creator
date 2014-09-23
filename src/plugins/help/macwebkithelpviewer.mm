@@ -257,7 +257,7 @@ static void ensureProtocolHandler()
     QWidget *widget;
 }
 
-@property (assign) BOOL openInNewWindowActionVisible;
+@property (assign) BOOL openInNewPageActionVisible;
 
 - (id)initWithWidget:(QWidget *)theWidget;
 - (void)webView:(WebView *)sender makeFirstResponder:(NSResponder *)responder;
@@ -274,7 +274,7 @@ static void ensureProtocolHandler()
     self = [super init];
     if (self) {
         widget = theWidget;
-        self.openInNewWindowActionVisible = YES;
+        self.openInNewPageActionVisible = YES;
     }
     return self;
 }
@@ -312,8 +312,10 @@ static void ensureProtocolHandler()
             break;
         case WebMenuItemTagOpenLinkInNewWindow:
         case WebMenuItemTagOpenImageInNewWindow:
-            if (self.openInNewWindowActionVisible)
+            if (self.openInNewPageActionVisible) {
+                item.title = QCoreApplication::translate("HelpViewer", "Open Link as New Page").toNSString();
                 [ret addObject:item];
+            }
         default:
             break;
         }
@@ -417,9 +419,9 @@ MacWebKitHelpWidget::~MacWebKitHelpWidget()
     delete d;
 }
 
-void MacWebKitHelpWidget::setOpenInNewWindowActionVisible(bool visible)
+void MacWebKitHelpWidget::setOpenInNewPageActionVisible(bool visible)
 {
-    d->m_uiDelegate.openInNewWindowActionVisible = visible;
+    d->m_uiDelegate.openInNewPageActionVisible = visible;
 }
 
 WebView *MacWebKitHelpWidget::webView() const
@@ -588,9 +590,9 @@ void MacWebKitHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
     }
 }
 
-void MacWebKitHelpViewer::setOpenInNewWindowActionVisible(bool visible)
+void MacWebKitHelpViewer::setOpenInNewPageActionVisible(bool visible)
 {
-    m_widget->setOpenInNewWindowActionVisible(visible);
+    m_widget->setOpenInNewPageActionVisible(visible);
 }
 
 DOMRange *MacWebKitHelpViewer::findText(NSString *text, bool forward, bool caseSensitive, DOMNode *startNode, int startOffset)

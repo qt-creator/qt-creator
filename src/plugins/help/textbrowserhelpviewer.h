@@ -67,7 +67,7 @@ public:
     bool isBackwardAvailable() const;
     void addBackHistoryItems(QMenu *backMenu);
     void addForwardHistoryItems(QMenu *forwardMenu);
-    void setOpenInNewWindowActionVisible(bool visible);
+    void setOpenInNewPageActionVisible(bool visible);
 
     bool findText(const QString &text, Core::FindFlags flags,
                   bool incremental, bool fromSearch, bool *wrapped = 0);
@@ -120,7 +120,7 @@ public:
     int zoomCount;
     bool forceFont;
     QString lastAnchor;
-    bool showOpenInNewWindowAction;
+    bool m_openInNewPageActionVisible;
     TextBrowserHelpViewer *m_parent;
 };
 

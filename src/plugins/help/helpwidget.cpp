@@ -156,7 +156,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
             QString(), toolBar);
         connect(close, SIGNAL(triggered()), this, SIGNAL(closeButtonClicked()));
         layout->addWidget(toolButton(close));
-        m_viewer->setOpenInNewWindowActionVisible(false);
+        m_viewer->setOpenInNewPageActionVisible(false);
     } else if (style == ExternalWindow) {
         static int windowId = 0;
         Core::ICore::registerWindow(this,
@@ -165,7 +165,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
         connect(m_viewer, SIGNAL(titleChanged()), this, SLOT(updateWindowTitle()));
         updateWindowTitle();
-        m_viewer->setOpenInNewWindowActionVisible(false);
+        m_viewer->setOpenInNewPageActionVisible(false);
     }
 }
 

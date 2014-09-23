@@ -295,6 +295,11 @@ void QtWebKitHelpWidget::scaleDown()
     setZoomFactor(qMax(qreal(0.0), zoomFactor() - qreal(0.1)));
 }
 
+void QtWebKitHelpWidget::setOpenInNewPageActionVisible(bool visible)
+{
+    m_openInNewPageActionVisible = visible;
+}
+
 // -- public slots
 
 void QtWebKitHelpWidget::copy()
@@ -343,6 +348,15 @@ void QtWebKitHelpWidget::mouseReleaseEvent(QMouseEvent *event)
         return;
 
     QWebView::mouseReleaseEvent(event);
+}
+
+void QtWebKitHelpWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    QAction *newPageAction = pageAction(QWebPage::OpenLinkInNewWindow);
+    newPageAction->setText(QCoreApplication::translate("HelpViewer", "Open Link as New Page"));
+    QMenu *menu = page()->createStandardContextMenu();
+    menu->exec(event->globalPos());
+    delete menu;
 }
 
 // -- private slots
@@ -541,9 +555,9 @@ void QtWebKitHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
     }
 }
 
-void QtWebKitHelpViewer::setOpenInNewWindowActionVisible(bool visible)
+void QtWebKitHelpViewer::setOpenInNewPageActionVisible(bool visible)
 {
-    m_webView->pageAction(QWebPage::OpenLinkInNewWindow)->setVisible(visible);
+    m_webView->setOpenInNewPageActionVisible(visible);
 }
 
 bool QtWebKitHelpViewer::findText(const QString &text, Core::FindFlags flags,

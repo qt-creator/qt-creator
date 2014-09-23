@@ -177,9 +177,9 @@ void TextBrowserHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
     }
 }
 
-void TextBrowserHelpViewer::setOpenInNewWindowActionVisible(bool visible)
+void TextBrowserHelpViewer::setOpenInNewPageActionVisible(bool visible)
 {
-    m_textBrowser->showOpenInNewWindowAction = visible;
+    m_textBrowser->m_openInNewPageActionVisible = visible;
 }
 
 bool TextBrowserHelpViewer::findText(const QString &text, Core::FindFlags flags,
@@ -287,7 +287,7 @@ TextBrowserHelpWidget::TextBrowserHelpWidget(int zoom, TextBrowserHelpViewer *pa
     , zoomCount(zoom)
     , forceFont(false)
     , lastAnchor(QString())
-    , showOpenInNewWindowAction(true)
+    , m_openInNewPageActionVisible(true)
     , m_parent(parent)
 {
     installEventFilter(this);
@@ -368,8 +368,9 @@ void TextBrowserHelpWidget::contextMenuEvent(QContextMenuEvent *event)
         if (link.isRelative())
             link = source().resolved(link);
         menu.addAction(tr("Open Link"), this, SLOT(openLink()));
-        if (showOpenInNewWindowAction)
-            menu.addAction(tr("Open Link as New Page"), this, SLOT(openLinkInNewPage()));
+        if (m_openInNewPageActionVisible)
+            menu.addAction(QCoreApplication::translate("HelpViewer", "Open Link as New Page"),
+                           this, SLOT(openLinkInNewPage()));
 
         if (!link.isEmpty() && link.isValid())
             copyAnchorAction = menu.addAction(tr("Copy Link"));

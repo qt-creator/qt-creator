@@ -69,7 +69,7 @@ public:
     bool isBackwardAvailable() const;
     void addBackHistoryItems(QMenu *backMenu);
     void addForwardHistoryItems(QMenu *forwardMenu);
-    void setOpenInNewWindowActionVisible(bool visible);
+    void setOpenInNewPageActionVisible(bool visible);
 
     bool findText(const QString &text, Core::FindFlags flags,
         bool incremental, bool fromSearch, bool *wrapped = 0);
@@ -108,6 +108,8 @@ public:
     void scaleUp();
     void scaleDown();
 
+    void setOpenInNewPageActionVisible(bool visible);
+
 public slots:
     void copy();
 
@@ -120,6 +122,7 @@ protected:
     void wheelEvent(QWheelEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
 
 private slots:
     void actionChanged();
@@ -129,6 +132,7 @@ private:
     bool eventFilter(QObject *obj, QEvent *event);
 
     QtWebKitHelpViewer *m_parent;
+    bool m_openInNewPageActionVisible;
 };
 
 class HelpPage : public QWebPage

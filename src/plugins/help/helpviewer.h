@@ -69,7 +69,7 @@ public:
     virtual bool isBackwardAvailable() const = 0;
     virtual void addBackHistoryItems(QMenu *backMenu) = 0;
     virtual void addForwardHistoryItems(QMenu *forwardMenu) = 0;
-    virtual void setOpenInNewWindowActionVisible(bool visible) = 0;
+    virtual void setOpenInNewPageActionVisible(bool visible) = 0;
 
     virtual bool findText(const QString &text, Core::FindFlags flags,
         bool incremental, bool fromSearch, bool *wrapped = 0) = 0;
