@@ -212,7 +212,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     QAction *back = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
         tr("Previous Page"), this);
-    cmd = ActionManager::registerAction(back, "Help.Previous", modecontext);
+    cmd = ActionManager::registerAction(back, Constants::HELP_PREVIOUS, modecontext);
     cmd->setDefaultKeySequence(QKeySequence::Back);
     back->setEnabled(m_centralWidget->isBackwardAvailable());
     connect(back, SIGNAL(triggered()), m_centralWidget, SLOT(backward()));
@@ -221,7 +221,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     helpButtonLayout->addWidget(toolButton(cmd, back));
 
     QAction *next = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")), tr("Next Page"), this);
-    cmd = ActionManager::registerAction(next, "Help.Next", modecontext);
+    cmd = ActionManager::registerAction(next, Constants::HELP_NEXT, modecontext);
     cmd->setDefaultKeySequence(QKeySequence::Forward);
     next->setEnabled(m_centralWidget->isForwardAvailable());
     connect(next, SIGNAL(triggered()), m_centralWidget, SLOT(forward()));

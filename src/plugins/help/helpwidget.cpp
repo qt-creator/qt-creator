@@ -46,11 +46,17 @@
 #include <QMenu>
 #include <QToolButton>
 
-static QToolButton *toolButton(QAction *action)
+static QToolButton *toolButton(QAction *action, Core::Command *cmd = 0)
 {
     QToolButton *button = new QToolButton;
     button->setDefaultAction(action);
     button->setPopupMode(QToolButton::DelayedPopup);
+    if (cmd) {
+        action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
+        QObject::connect(cmd, &Core::Command::keySequenceChanged, action, [cmd, action]() {
+            action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
+        });
+    }
     return button;
 }
 
@@ -65,29 +71,34 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     m_style(style)
 {
     Utils::StyledBar *toolBar = new Utils::StyledBar();
-
-    m_switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
-    connect(m_switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
-    updateHelpModeButtonToolTip();
-
-    QAction *back = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
-        tr("Back"), toolBar);
-    m_backMenu = new QMenu(toolBar);
-    connect(m_backMenu, SIGNAL(aboutToShow()), this, SLOT(updateBackMenu()));
-    back->setMenu(m_backMenu);
-    QAction *forward = new QAction(QIcon(QLatin1String(":/help/images/next.png")),
-        tr("Forward"), toolBar);
-    m_forwardMenu = new QMenu(toolBar);
-    connect(m_forwardMenu, SIGNAL(aboutToShow()), this, SLOT(updateForwardMenu()));
-    forward->setMenu(m_forwardMenu);
-
     QHBoxLayout *layout = new QHBoxLayout(toolBar);
     layout->setSpacing(0);
     layout->setMargin(0);
+    Core::Command *cmd;
 
-    layout->addWidget(toolButton(m_switchToHelp));
-    layout->addWidget(toolButton(back));
-    layout->addWidget(toolButton(forward));
+    m_switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
+    cmd = Core::ActionManager::registerAction(m_switchToHelp, Constants::CONTEXT_HELP, context);
+    connect(m_switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
+    layout->addWidget(toolButton(m_switchToHelp, cmd));
+
+    m_backAction = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
+        tr("Back"), toolBar);
+    m_backMenu = new QMenu(toolBar);
+    connect(m_backMenu, SIGNAL(aboutToShow()), this, SLOT(updateBackMenu()));
+    m_backAction->setMenu(m_backMenu);
+    cmd = Core::ActionManager::registerAction(m_backAction, Constants::HELP_PREVIOUS, context);
+    cmd->setDefaultKeySequence(QKeySequence::Back);
+    layout->addWidget(toolButton(m_backAction, cmd));
+
+    m_forwardAction = new QAction(QIcon(QLatin1String(":/help/images/next.png")),
+        tr("Forward"), toolBar);
+    m_forwardMenu = new QMenu(toolBar);
+    connect(m_forwardMenu, SIGNAL(aboutToShow()), this, SLOT(updateForwardMenu()));
+    m_forwardAction->setMenu(m_forwardMenu);
+    cmd = Core::ActionManager::registerAction(m_forwardAction, Constants::HELP_NEXT, context);
+    cmd->setDefaultKeySequence(QKeySequence::Forward);
+    layout->addWidget(toolButton(m_forwardAction, cmd));
+
     layout->addStretch();
 
     m_viewer = HelpPlugin::createHelpViewer(qreal(0.0));
@@ -107,26 +118,19 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     m_context->setWidget(m_viewer);
     Core::ICore::addContextObject(m_context);
 
-    back->setEnabled(m_viewer->isBackwardAvailable());
-    connect(back, SIGNAL(triggered()), m_viewer, SLOT(backward()));
-    connect(m_viewer, SIGNAL(backwardAvailable(bool)), back,
+    m_backAction->setEnabled(m_viewer->isBackwardAvailable());
+    connect(m_backAction, SIGNAL(triggered()), m_viewer, SLOT(backward()));
+    connect(m_viewer, SIGNAL(backwardAvailable(bool)), m_backAction,
         SLOT(setEnabled(bool)));
 
-    forward->setEnabled(m_viewer->isForwardAvailable());
-    connect(forward, SIGNAL(triggered()), m_viewer, SLOT(forward()));
-    connect(m_viewer, SIGNAL(forwardAvailable(bool)), forward,
+    m_forwardAction->setEnabled(m_viewer->isForwardAvailable());
+    connect(m_forwardAction, SIGNAL(triggered()), m_viewer, SLOT(forward()));
+    connect(m_viewer, SIGNAL(forwardAvailable(bool)), m_forwardAction,
         SLOT(setEnabled(bool)));
 
     m_copy = new QAction(this);
     Core::ActionManager::registerAction(m_copy, Core::Constants::COPY, context);
     connect(m_copy, SIGNAL(triggered()), m_viewer, SLOT(copy()));
-
-    m_openHelpMode = new QAction(this);
-    Core::Command *cmd = Core::ActionManager::registerAction(m_openHelpMode,
-                                                             Help::Constants::CONTEXT_HELP,
-                                                             context);
-    connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateHelpModeButtonToolTip()));
-    connect(m_openHelpMode, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
 
     Core::ActionContainer *advancedMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
     QTC_CHECK(advancedMenu);
@@ -173,7 +177,9 @@ HelpWidget::~HelpWidget()
 {
     Core::ICore::removeContextObject(m_context);
     Core::ActionManager::unregisterAction(m_copy, Core::Constants::COPY);
-    Core::ActionManager::unregisterAction(m_openHelpMode, Help::Constants::CONTEXT_HELP);
+    Core::ActionManager::unregisterAction(m_switchToHelp, Constants::CONTEXT_HELP);
+    Core::ActionManager::unregisterAction(m_forwardAction, Constants::HELP_NEXT);
+    Core::ActionManager::unregisterAction(m_backAction, Constants::HELP_PREVIOUS);
     if (m_scaleUp)
         Core::ActionManager::unregisterAction(m_scaleUp, TextEditor::Constants::INCREASE_FONT_SIZE);
     if (m_scaleDown)
@@ -218,13 +224,6 @@ void HelpWidget::helpModeButtonClicked()
     emit openHelpMode(m_viewer->source());
     if (m_style == ExternalWindow)
         close();
-}
-
-void HelpWidget::updateHelpModeButtonToolTip()
-{
-    Core::Command *cmd = Core::ActionManager::command(Constants::CONTEXT_HELP);
-    QTC_ASSERT(cmd, return);
-    m_switchToHelp->setToolTip(cmd->stringWithAppendedShortcut(m_switchToHelp->text()));
 }
 
 } // Internal
