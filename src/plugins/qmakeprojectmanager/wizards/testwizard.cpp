@@ -108,9 +108,9 @@ static QString generateTestCode(const TestWizardParameters &testParams,
         writeVoidMemberDeclaration(str, indent, QLatin1String(cleanupTestCaseC));
     }
     const QString dataSlot = testParams.testSlot + QLatin1String("_data");
-    writeVoidMemberDeclaration(str, indent, testParams.testSlot);
     if (testParams.useDataSet)
         writeVoidMemberDeclaration(str, indent, dataSlot);
+    writeVoidMemberDeclaration(str, indent, testParams.testSlot);
     str << "};\n\n";
     // Code: Constructor
     str << testParams.className << "::" << testParams.className << "()\n{\n}\n\n";
@@ -118,6 +118,13 @@ static QString generateTestCode(const TestWizardParameters &testParams,
     if (testParams.initializationCode) {
         writeVoidMemberBody(str, testParams.className, QLatin1String(initTestCaseC));
         writeVoidMemberBody(str, testParams.className, QLatin1String(cleanupTestCaseC));
+    }
+    // test data generation slot
+    if (testParams.useDataSet) {
+        writeVoidMemberBody(str, testParams.className, dataSlot, false);
+        str << indent << "QTest::addColumn<" << testDataTypeC << ">(\"data\");\n"
+            << indent << "QTest::newRow(\"0\") << " << testDataTypeC << "();\n"
+            << closeFunctionC;
     }
     // Test slot with data or dummy
     writeVoidMemberBody(str, testParams.className, testParams.testSlot, false);
@@ -132,13 +139,6 @@ static QString generateTestCode(const TestWizardParameters &testParams,
         break;
     }
     str << closeFunctionC;
-    // test data generation slot
-    if (testParams.useDataSet) {
-        writeVoidMemberBody(str, testParams.className, dataSlot, false);
-        str << indent << "QTest::addColumn<" << testDataTypeC << ">(\"data\");\n"
-            << indent << "QTest::newRow(\"0\") << " << testDataTypeC << "();\n"
-            << closeFunctionC;
-    }
     // Main & moc include
     str << (testParams.requiresQApplication ? "QTEST_MAIN" : "QTEST_APPLESS_MAIN")
         << '(' << testParams.className << ")\n\n"
