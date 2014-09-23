@@ -74,45 +74,44 @@ static const QString helpFormat = _(
     "\n\tShould be:\n" \
     LINE_START "%4" LINE_END);
 
+static QByteArray textWithCursor(const QByteArray &text, int position)
+{
+    return (position == -1) ? text : (text.left(position) + X + text.mid(position));
+}
+
+static QByteArray textWithCursor(const QByteArray &text, const QTextBlock &block, int column)
+{
+    const int pos = block.position() + qMin(column, qMax(0, block.length() - 2));
+    return text.left(pos) + X + text.mid(pos);
+}
+
 // Compare document contents with a expectedText.
 // Also check cursor position if the expectedText contains | chracter.
-#define COMPARE(beforeText, beforePosition, afterText, afterPosition, expectedText, cmd) \
-    do { \
-        QByteArray before(beforeText); \
-        QByteArray actual(afterText); \
-        QByteArray expected = expectedText; \
-        data.oldPosition = beforePosition; \
-        data.oldText = before; \
-        if (expected.contains(X)) {\
-            before = textWithCursor(before, beforePosition); \
-            actual = textWithCursor(actual, afterPosition); \
-        } \
-        QString help = helpFormat \
-            .arg(_(cmd)) \
-            .arg(_(before.replace('\n', LINE_END LINE_START))) \
-            .arg(_(actual.replace('\n', LINE_END LINE_START))) \
-            .arg(_(expected.replace('\n', LINE_END LINE_START))); \
-        QVERIFY2(actual == expected, help.toLatin1().constData()); \
-    } while (false)
 
 // Send keys and check if the expected result is same as document contents.
 // Escape is always prepended to keys so that previous command is cancelled.
-#define KEYS(keys, expected) \
+#define KEYS(keys, expectedText) \
     do { \
         QByteArray beforeText(data.text()); \
         int beforePosition = data.position(); \
         data.doKeys("<ESC>"); \
         data.doKeys(keys); \
-        COMPARE(beforeText, beforePosition, data.text(), data.position(), (expected), (keys)); \
+        QByteArray actual(data.text()); \
+        QByteArray expected = expectedText; \
+        QByteArray desc = data.fixup(_(keys), beforeText, actual, expected, beforePosition); \
+        QVERIFY2(actual == expected, desc.constData()); \
     } while (false)
 
 // Run Ex command and check if the expected result is same as document contents.
-#define COMMAND(cmd, expected) \
+#define COMMAND(cmd, expectedText) \
     do { \
         QByteArray beforeText(data.text()); \
         int beforePosition = data.position(); \
         data.doCommand(cmd); \
-        COMPARE(beforeText, beforePosition, data.text(), data.position(), (expected), (":" cmd)); \
+        QByteArray actual(data.text()); \
+        QByteArray expected = expectedText; \
+        QByteArray desc = data.fixup(_(":" cmd), beforeText, actual, expected, beforePosition); \
+        QVERIFY2(actual == expected, desc.constData()); \
     } while (false)
 
 // Test undo, redo and repeat of last single command. This doesn't test cursor position.
@@ -139,17 +138,6 @@ static const QString helpFormat = _(
 
 using namespace FakeVim::Internal;
 using namespace TextEditor;
-
-static QByteArray textWithCursor(const QByteArray &text, int position)
-{
-    return (position == -1) ? text : (text.left(position) + X + text.mid(position));
-}
-
-static QByteArray textWithCursor(const QByteArray &text, const QTextBlock &block, int column)
-{
-    const int pos = block.position() + qMin(column, qMax(0, block.length() - 2));
-    return text.left(pos) + X + text.mid(pos);
-}
 
 const QByteArray testLines =
   /* 0         1         2         3        4 */
@@ -202,6 +190,23 @@ struct FakeVimPlugin::TestData
     BaseTextEditorWidget *editor() const { return qobject_cast<BaseTextEditorWidget *>(edit); }
 
     QTextCursor cursor() const { return editor()->textCursor(); }
+
+    QByteArray fixup(const QString &cmd, QByteArray &before,
+                     QByteArray &actual, QByteArray &expected,
+                     int beforePosition)
+    {
+        oldPosition = beforePosition;
+        oldText = before;
+        if (expected.contains(X)) {
+            before = textWithCursor(before, beforePosition);
+            actual = textWithCursor(actual, position());
+        }
+        return helpFormat
+                .arg(cmd)
+                .arg(QString::fromLatin1(before.replace('\n', LINE_END LINE_START)))
+                .arg(QString::fromLatin1(actual.replace('\n', LINE_END LINE_START)))
+                .arg(QString::fromLatin1(expected.replace('\n', LINE_END LINE_START))).toLatin1();
+    }
 
     int position() const
     {
