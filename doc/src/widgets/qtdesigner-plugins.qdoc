@@ -66,15 +66,15 @@
 
     \section2 Configuring Qt Designer Plugins on OS X
 
-    On the Mac, a GUI application must be built and run from a bundle. A bundle
+    On OS X, a GUI application must be built and run from a bundle. A bundle
     is a directory structure that appears as a single entity when viewed in the
     Finder. A bundle for an application typcially contains the executable and
     all the resources it needs.
 
     \QC uses its own set of Qt Libraries located in the bundle, and therefore,
     you need to configure the \QD plugins that you want to use with \QC.
-    Fore more information about how to deploy applications to Mac OS, see
-    \l{Qt for Mac OS X - Deployment}.
+    Fore more information about how to deploy applications to OS X, see
+    \l{Qt for OS X - Deployment}.
 
     The following example illustrates how to configure version 5.2.1 of the
     \l{http://qwt.sourceforge.net/}{Qwt - Qt Widgets for Technical Applications}

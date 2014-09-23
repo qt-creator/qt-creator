@@ -479,12 +479,18 @@ QList<ILocatorFilter *> LocatorWidget::filtersFor(const QString &text, QString &
 void LocatorWidget::updateCompletionList(const QString &text)
 {
     m_updateRequested = true;
+    if (m_entriesWatcher->future().isRunning()) {
+        // Cancel the old future. We may not just block the UI thread to wait for the search to
+        // actually cancel, so try again when the finshed signal of the watcher ends up in
+        // updateEntries() (which will call updateCompletionList again with the
+        // requestedCompletionText)
+        m_requestedCompletionText = text;
+        m_entriesWatcher->future().cancel();
+        return;
+    }
+
     QString searchText;
     const QList<ILocatorFilter *> filters = filtersFor(text, searchText);
-
-    // cancel the old future
-    m_entriesWatcher->future().cancel();
-
     QFuture<LocatorFilterEntry> future = QtConcurrent::run(runSearch, filters, searchText);
     m_entriesWatcher->setFuture(future);
 }
@@ -493,8 +499,9 @@ void LocatorWidget::updateEntries()
 {
     m_updateRequested = false;
     if (m_entriesWatcher->future().isCanceled()) {
-        // reset to usable state
-        m_acceptRequested = false;
+        const QString text = m_requestedCompletionText;
+        m_requestedCompletionText.clear();
+        updateCompletionList(text);
         return;
     }
 

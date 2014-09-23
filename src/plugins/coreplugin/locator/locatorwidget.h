@@ -94,6 +94,7 @@ private:
     QTimer *m_showPopupTimer;
     QFutureWatcher<LocatorFilterEntry> *m_entriesWatcher;
     QMap<Core::Id, QAction *> m_filterActionMap;
+    QString m_requestedCompletionText;
     bool m_updateRequested;
     bool m_acceptRequested;
     bool m_possibleToolTipRequest;

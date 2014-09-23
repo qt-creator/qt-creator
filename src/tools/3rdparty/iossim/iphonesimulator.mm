@@ -18,15 +18,30 @@ NSString *simulatorPrefrencesName = @"com.apple.iphonesimulator";
 NSString *deviceProperty = @"SimulateDevice";
 NSString *deviceIphoneRetina3_5Inch = @"iPhone Retina (3.5-inch)";
 NSString *deviceIphoneRetina4_0Inch = @"iPhone Retina (4-inch)";
+NSString *deviceIphoneRetina4_0Inch_64bit = @"iPhone Retina (4-inch 64-bit)";
 NSString *deviceIphone = @"iPhone";
 NSString *deviceIpad = @"iPad";
 NSString *deviceIpadRetina = @"iPad Retina";
+NSString *deviceIpadRetina_64bit = @"iPad Retina (64-bit)";
+
+NSString* deviceTypeIdIphone4s = @"com.apple.CoreSimulator.SimDeviceType.iPhone-4s";
+NSString* deviceTypeIdIphone5 = @"com.apple.CoreSimulator.SimDeviceType.iPhone-5";
+NSString* deviceTypeIdIphone5s = @"com.apple.CoreSimulator.SimDeviceType.iPhone-5s";
+NSString* deviceTypeIdIpad2 = @"com.apple.CoreSimulator.SimDeviceType.iPad-2";
+NSString* deviceTypeIdIpadRetina = @"com.apple.CoreSimulator.SimDeviceType.iPad-Retina";
+NSString* deviceTypeIdIpadAir = @"com.apple.CoreSimulator.SimDeviceType.iPad-Air";
+NSString* deviceTypeIdResizableIphone = @"com.apple.CoreSimulator.SimDeviceType.Resizable-iPhone";
+NSString* deviceTypeIdResizeableIpad = @"com.apple.CoreSimulator.SimDeviceType.Resizable-iPad";
 
 // The path within the developer dir of the private Simulator frameworks.
-NSString* const kSimulatorFrameworkRelativePath = @"Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTiPhoneSimulatorRemoteClient.framework";
+NSString* const kSimulatorFrameworkRelativePathLegacy = @"Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTiPhoneSimulatorRemoteClient.framework";
+NSString* const kSimulatorFrameworkRelativePath = @"../SharedFrameworks/DVTiPhoneSimulatorRemoteClient.framework";
 NSString* const kDVTFoundationRelativePath = @"../SharedFrameworks/DVTFoundation.framework";
 NSString* const kDevToolsFoundationRelativePath = @"../OtherFrameworks/DevToolsFoundation.framework";
 //NSString* const kSimulatorRelativePath = @"Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app";
+NSString* const kCoreSimulatorRelativePath = @"Library/PrivateFrameworks/CoreSimulator.framework";
+
+static pid_t gDebuggerProcessId;
 
 static const char *gDevDir = 0;
 
@@ -88,6 +103,14 @@ static const char *gDevDir = 0;
         nsprintf(@"Unable to devToolsFoundationPath. Error: ");
         return ;
     }
+    NSString* coreSimulatorPath = [developerDir stringByAppendingPathComponent:kCoreSimulatorRelativePath];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:coreSimulatorPath]) {
+        NSBundle* coreSimulatorBundle = [NSBundle bundleWithPath:coreSimulatorPath];
+        if (![coreSimulatorBundle load]){
+            nsprintf(@"Unable to coreSimulatorPath. Error: ");
+            return ;
+        }
+    }
     // Prime DVTPlatform.
     NSError* error;
     Class DVTPlatformClass = [self FindClassByName:@"DVTPlatform"];
@@ -95,7 +118,10 @@ static const char *gDevDir = 0;
         nsprintf(@"Unable to loadAllPlatformsReturningError. Error: %@",[error localizedDescription]);
         return ;
     }
-    NSString* simBundlePath = [developerDir stringByAppendingPathComponent:kSimulatorFrameworkRelativePath];
+    NSString* simBundlePath = [developerDir stringByAppendingPathComponent:kSimulatorFrameworkRelativePathLegacy];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:simBundlePath]){
+        simBundlePath = [developerDir stringByAppendingPathComponent:kSimulatorFrameworkRelativePath];
+    }
     NSBundle* simBundle = [NSBundle bundleWithPath:simBundlePath];
     if (![simBundle load]){
         nsprintf(@"Unable to load simulator framework. Error: %@",[error localizedDescription]);
@@ -115,20 +141,20 @@ NSString* FindDeveloperDir() {
     NSString* developerDir = [env objectForKey:@"DEVELOPER_DIR"];
     if ([developerDir length] > 0)
         return developerDir;
-    
+
     // Go look for it via xcode-select.
     NSTask* xcodeSelectTask = [[[NSTask alloc] init] autorelease];
     [xcodeSelectTask setLaunchPath:@"/usr/bin/xcode-select"];
     [xcodeSelectTask setArguments:[NSArray arrayWithObject:@"-print-path"]];
-    
+
     NSPipe* outputPipe = [NSPipe pipe];
     [xcodeSelectTask setStandardOutput:outputPipe];
     NSFileHandle* outputFile = [outputPipe fileHandleForReading];
-    
+
     [xcodeSelectTask launch];
     NSData* outputData = [outputFile readDataToEndOfFile];
     [xcodeSelectTask terminate];
-    
+
     NSString* output =
     [[[NSString alloc] initWithData:outputData
                            encoding:NSUTF8StringEncoding] autorelease];
@@ -143,6 +169,7 @@ NSString* FindDeveloperDir() {
   fprintf(stdout, "\n");
   fprintf(stdout, "Commands:\n");
   fprintf(stdout, "  showsdks                        List the available iOS SDK versions\n");
+  fprintf(stdout, "  showdevicetypes                 List the available device types (Xcode6+)\n");
   fprintf(stdout, "  launch &lt;application path&gt;       Launch the application at the specified path on the iOS Simulator\n");
   fprintf(stdout, "  start                           Launch iOS Simulator without an app\n");
   fprintf(stdout, "\n");
@@ -156,9 +183,11 @@ NSString* FindDeveloperDir() {
   fprintf(stdout, "  --debug                         Attach LLDB to the application on startup\n");
   fprintf(stdout, "  --use-gdb                       Use GDB instead of LLDB. (Requires --debug)\n");
   fprintf(stdout, "  --sdk &lt;sdkversion&gt;              The iOS SDK version to run the application on (defaults to the latest)\n");
+  fprintf(stdout, "  --devicetypeid <device type>    The id of the device type that should be simulated (Xcode6+)\n");
   fprintf(stdout, "  --family &lt;device family&gt;        The device type that should be simulated (defaults to `iphone')\n");
   fprintf(stdout, "  --retina                        Start a retina device\n");
   fprintf(stdout, "  --tall                          In combination with --retina flag, start the tall version of the retina device (e.g. iPhone 5 (4-inch))\n");
+  fprintf(stdout, "  --64bit                         In combination with --retina flag and the --tall flag, start the 64bit version of the tall retina device (e.g. iPhone 5S (4-inch 64bit))\n");
   fprintf(stdout, "  --uuid &lt;uuid&gt;                   A UUID identifying the session (is that correct?)\n");
   fprintf(stdout, "  --env &lt;environment file path&gt;   A plist file containing environment key-value pairs that should be set\n");
   fprintf(stdout, "  --setenv NAME=VALUE             Set an environment variable\n");
@@ -187,6 +216,18 @@ NSString* FindDeveloperDir() {
   return EXIT_SUCCESS;
 }
 
+- (int) showDeviceTypes {
+    Class simDeviceSet = NSClassFromString(@"SimDeviceSet");
+    if (simDeviceSet) {
+        SimDeviceSet* deviceSet = [simDeviceSet defaultSet];
+        NSArray* devices = [deviceSet availableDevices];
+        for (SimDevice* device in devices) {
+            nsfprintf(stderr, @"%@", device.deviceType.identifier);
+        }
+    }
+
+    return EXIT_SUCCESS;
+}
 
 - (void)session:(DTiPhoneSimulatorSession *)session didEndWithError:(NSError *)error {
   if (verbose) {
@@ -210,6 +251,14 @@ NSString* FindDeveloperDir() {
   [self doExit:EXIT_SUCCESS];
 }
 
+static void IgnoreSignal(int /*arg*/) {
+}
+
+static void ChildSignal(int /*arg*/) {
+  int status;
+  waitpid(gDebuggerProcessId, &status, 0);
+  exit(EXIT_SUCCESS);
+}
 
 - (void)session:(DTiPhoneSimulatorSession *)session didStart:(BOOL)started withError:(NSError *)error {
   if (startOnly && session) {
@@ -242,6 +291,9 @@ NSString* FindDeveloperDir() {
             [self doExit:EXIT_FAILURE];
             return;
         }
+        gDebuggerProcessId = child_pid;
+        signal(SIGINT, IgnoreSignal);
+        signal(SIGCHLD, ChildSignal);
       }
     if (verbose) {
       msgprintf(@"Session started");
@@ -400,9 +452,15 @@ NSString* FindDeveloperDir() {
       [config setSimulatedDeviceFamily:[NSNumber numberWithInt:1]];
     }
   }
-    
-  NSString* devicePropertyValue = [self changeDeviceType:family retina:retinaDevice isTallDevice:tallDevice];
-  [config setSimulatedDeviceInfoName:devicePropertyValue];
+
+  if ([config respondsToSelector:@selector(setDevice:)]) {
+    // Xcode6+
+    config.device = [self findDeviceWithFamily:family retina:retinaDevice isTallDevice:tallDevice is64Bit:is64BitDevice];
+  } else {
+    // Xcode5 or older
+    NSString* devicePropertyValue = [self changeDeviceType:family retina:retinaDevice isTallDevice:tallDevice is64Bit:is64BitDevice];
+    [config setSimulatedDeviceInfoName:devicePropertyValue];
+  }
 
   /* Start the session */
   session = [[[[self FindClassByName:@"DTiPhoneSimulatorSession"] alloc] init] autorelease];
@@ -420,18 +478,70 @@ NSString* FindDeveloperDir() {
   return EXIT_SUCCESS;
 }
 
-- (NSString*) changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice {
+- (SimDevice*) findDeviceWithFamily:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice is64Bit:(BOOL)is64Bit {
+    NSString* devTypeId = self->deviceTypeId;
+
+    if (!devTypeId) {
+        devTypeId = deviceTypeIdIphone5;
+        if (retina) {
+            if ([family isEqualToString:@"ipad"]) {
+                if (is64Bit) {
+                    devTypeId = deviceTypeIdIpadAir;
+                } else {
+                    devTypeId = deviceTypeIdIpadRetina;
+                }
+            } else {
+                if (isTallDevice) {
+                    if (is64Bit) {
+                        devTypeId = deviceTypeIdIphone5s;
+                    } else {
+                        devTypeId = deviceTypeIdIphone5;
+                    }
+                } else {
+                    devTypeId = deviceTypeIdIphone4s;
+                }
+            }
+        } else {
+            if ([family isEqualToString:@"ipad"]) {
+                devTypeId = deviceTypeIdIpad2;
+            } else {
+                devTypeId = deviceTypeIdIphone4s;
+            }
+        }
+    }
+
+    SimDeviceSet* deviceSet = [[self FindClassByName:@"SimDeviceSet"] defaultSet];
+    NSArray* devices = [deviceSet availableDevices];
+    for (SimDevice* device in devices) {
+        SimDeviceType* type = device.deviceType;
+        if ([type.identifier isEqualToString:devTypeId]) {
+            return device;
+        }
+    }
+    // Default to whatever is the first device
+    return [devices count] > 0 ? [devices objectAtIndex:0] : nil;
+}
+
+- (NSString*) changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice is64Bit:(BOOL)is64Bit {
   NSString *devicePropertyValue;
   if (retina) {
     if (verbose) {
       msgprintf(@"using retina");
     }
     if ([family isEqualToString:@"ipad"]) {
-      devicePropertyValue = deviceIpadRetina;
+        if (is64Bit) {
+            devicePropertyValue = deviceIpadRetina_64bit;
+        } else {
+            devicePropertyValue = deviceIpadRetina;
+        }
     }
     else {
         if (isTallDevice) {
-            devicePropertyValue = deviceIphoneRetina4_0Inch;
+            if (is64Bit) {
+                devicePropertyValue = deviceIphoneRetina4_0Inch_64bit;
+            } else {
+                devicePropertyValue = deviceIphoneRetina4_0Inch;
+            }
         } else {
             devicePropertyValue = deviceIphoneRetina3_5Inch;
         }
@@ -461,9 +571,11 @@ NSString* FindDeveloperDir() {
 
   retinaDevice = NO;
   tallDevice = NO;
+  is64BitDevice = NO;
   exitOnStartup = NO;
   alreadyPrintedData = NO;
   startOnly = strcmp(argv[1], "start") == 0;
+  deviceTypeId = nil;
 
   nsprintf(@"<query_result>");
   for (int i = 0; i < argc; ++i) {
@@ -494,6 +606,9 @@ NSString* FindDeveloperDir() {
   if (strcmp(argv[1], "showsdks") == 0) {
 	[self LoadSimulatorFramework:developerDir];
     exit([self showSDKs]);
+  } else if (strcmp(argv[1], "showdevicetypes") == 0) {
+    [self LoadSimulatorFramework:developerDir];
+     exit([self showDeviceTypes]);
   } else if (strcmp(argv[1], "launch") == 0 || startOnly) {
     if (strcmp(argv[1], "launch") == 0 && argc < 3) {
       msgprintf(@"Missing application path argument");
@@ -570,6 +685,9 @@ NSString* FindDeveloperDir() {
       } else if (strcmp(argv[i], "--uuid") == 0) {
         i++;
         uuid = [NSString stringWithUTF8String:argv[i]];
+      } else if (strcmp(argv[i], "--devicetypeid") == 0) {
+          i++;
+          deviceTypeId = [NSString stringWithUTF8String:argv[i]];
       } else if (strcmp(argv[i], "--setenv") == 0) {
         i++;
         NSArray *parts = [[NSString stringWithUTF8String:argv[i]] componentsSeparatedByString:@"="];
@@ -599,6 +717,8 @@ NSString* FindDeveloperDir() {
           retinaDevice = YES;
       } else if (strcmp(argv[i], "--tall") == 0) {
           tallDevice = YES;
+      } else if (strcmp(argv[i], "--64bit") == 0) {
+          is64BitDevice = YES;
       } else if (strcmp(argv[i], "--args") == 0) {
         i++;
         break;

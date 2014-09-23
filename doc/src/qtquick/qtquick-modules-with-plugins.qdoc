@@ -84,4 +84,20 @@
     However, this automatic dumping is a fallback mechanism with many points of
     failure and you cannot rely upon it.
 
+    \section1 Running QML Modules in Qt Quick Designer
+
+    \QMLD uses a QML emulation layer (also called QML Puppet) to render and
+    preview images and to collect data. To be able to render custom types
+    correctly from QML modules, the emulation layer must be built with the same
+    Qt version as the QML modules.
+
+    By default, the emulation layer is provided by \QC and built with the same
+    Qt version as \QC. Therefore, your QML modules will mostly not work out of
+    the box.
+
+    To use an emulation layer that is built with the Qt
+    configured in the build and run kit for the project, deselect the
+    \gui {Always use the QML emulation layer provided by Qt Creator} check box.
+    \QC builds the emulation layer when you select the \gui Design mode.
+
 */

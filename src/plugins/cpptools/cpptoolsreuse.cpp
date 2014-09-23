@@ -117,7 +117,7 @@ bool isOwnershipRAIIType(CPlusPlus::Symbol *symbol, const LookupContext &context
 
 bool isValidAsciiIdentifierChar(const QChar &ch)
 {
-    return ch.isLetterOrNumber() || ch == QLatin1Char(' ');
+    return ch.isLetterOrNumber() || ch == QLatin1Char('_');
 }
 
 bool isValidFirstIdentifierChar(const QChar &ch)
