@@ -161,6 +161,7 @@ QVariantList PixmapCacheModel::labels() const
         for (int i=0; i < d->pixmaps.count(); i++) {
             // Loading
             QVariantMap element;
+            element.insert(QLatin1String("displayName"), d->pixmaps[i].url);
             element.insert(QLatin1String("description"),
                            QVariant(getFilenameOnly(d->pixmaps[i].url)));
 
