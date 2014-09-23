@@ -131,16 +131,6 @@
 using namespace Core;
 using namespace Utils;
 
-static QString QString_toUpper(const QString &str)
-{
-    return str.toUpper();
-}
-
-static QString QString_toLower(const QString &str)
-{
-    return str.toLower();
-}
-
 namespace TextEditor {
 namespace Internal {
 
