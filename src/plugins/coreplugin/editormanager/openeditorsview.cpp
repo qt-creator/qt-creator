@@ -37,48 +37,9 @@
 
 #include <QApplication>
 #include <QMenu>
-#include <QPainter>
-#include <QStyle>
-#include <QHeaderView>
-#include <QKeyEvent>
 
 using namespace Core;
 using namespace Core::Internal;
-
-
-OpenEditorsDelegate::OpenEditorsDelegate(QObject *parent)
- : QStyledItemDelegate(parent)
-{
-}
-
-void OpenEditorsDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-           const QModelIndex &index) const
-{
-    if (option.state & QStyle::State_MouseOver) {
-        if ((QApplication::mouseButtons() & Qt::LeftButton) == 0)
-            pressedIndex = QModelIndex();
-        QBrush brush = option.palette.alternateBase();
-        if (index == pressedIndex)
-            brush = option.palette.dark();
-        painter->fillRect(option.rect, brush);
-    }
-
-
-    QStyledItemDelegate::paint(painter, option, index);
-
-    if (index.column() == 1 && option.state & QStyle::State_MouseOver) {
-        const QIcon icon(QLatin1String((option.state & QStyle::State_Selected) ?
-                                       Constants::ICON_CLOSE_BUTTON : Constants::ICON_DARK_CLOSE_BUTTON));
-
-        QRect iconRect(option.rect.right() - option.rect.height(),
-                       option.rect.top(),
-                       option.rect.height(),
-                       option.rect.height());
-
-        icon.paint(painter, iconRect, Qt::AlignRight | Qt::AlignVCenter);
-    }
-
-}
 
 ////
 // OpenEditorsWidget
@@ -90,37 +51,22 @@ OpenEditorsWidget::OpenEditorsWidget()
     setWindowIcon(QIcon(QLatin1String(Constants::ICON_DIR)));
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::DragOnly);
-    setUniformRowHeights(true);
-    viewport()->setAttribute(Qt::WA_Hover);
-    setItemDelegate((m_delegate = new OpenEditorsDelegate(this)));
-    header()->hide();
-    setIndentation(0);
-    setTextElideMode(Qt::ElideMiddle);
-    setFrameStyle(QFrame::NoFrame);
-    setAttribute(Qt::WA_MacShowFocusRect, false);
+
     m_model = new ProxyModel(this);
     m_model->setSourceModel(DocumentModel::model());
     setModel(m_model);
-    setSelectionMode(QAbstractItemView::SingleSelection);
-    setSelectionBehavior(QAbstractItemView::SelectRows);
-    setActivationMode(Utils::SingleClickActivation);
-    header()->setStretchLastSection(false);
-    header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    header()->setSectionResizeMode(1, QHeaderView::Fixed);
-    header()->resizeSection(1, 16);
+
     setContextMenuPolicy(Qt::CustomContextMenu);
-    installEventFilter(this);
-    viewport()->installEventFilter(this);
 
-    connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(updateCurrentItem(Core::IEditor*)));
-    connect(this, SIGNAL(activated(QModelIndex)),
-            this, SLOT(handleActivated(QModelIndex)));
-    connect(this, SIGNAL(pressed(QModelIndex)),
-            this, SLOT(handlePressed(QModelIndex)));
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &OpenEditorsWidget::updateCurrentItem);
+    connect(this, &OpenDocumentsTreeView::activated,
+            this, &OpenEditorsWidget::handleActivated);
+    connect(this, &OpenDocumentsTreeView::closeActivated,
+            this, &OpenEditorsWidget::closeDocument);
 
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(contextMenuRequested(QPoint)));
+    connect(this, &OpenDocumentsTreeView::customContextMenuRequested,
+            this, &OpenEditorsWidget::contextMenuRequested);
 }
 
 OpenEditorsWidget::~OpenEditorsWidget()
@@ -141,43 +87,12 @@ void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
     scrollTo(currentIndex());
 }
 
-bool OpenEditorsWidget::eventFilter(QObject *obj, QEvent *event)
-{
-    if (obj == this && event->type() == QEvent::KeyPress
-            && currentIndex().isValid()) {
-        QKeyEvent *ke = static_cast<QKeyEvent*>(event);
-        if ((ke->key() == Qt::Key_Delete
-                   || ke->key() == Qt::Key_Backspace)
-                && ke->modifiers() == 0) {
-            closeEditor(currentIndex());
-        }
-    } else if (obj == viewport()
-             && event->type() == QEvent::MouseButtonRelease) {
-        QMouseEvent * me = static_cast<QMouseEvent*>(event);
-        if (me->button() == Qt::MiddleButton
-                && me->modifiers() == Qt::NoModifier) {
-            QModelIndex index = indexAt(me->pos());
-            if (index.isValid()) {
-                closeEditor(index);
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-void OpenEditorsWidget::handlePressed(const QModelIndex &index)
-{
-    if (index.column() == 1)
-        m_delegate->pressedIndex = index;
-}
-
 void OpenEditorsWidget::handleActivated(const QModelIndex &index)
 {
     if (index.column() == 0) {
         activateEditor(index);
     } else if (index.column() == 1) { // the funky close button
-        closeEditor(index);
+        closeDocument(index);
 
         // work around a bug in itemviews where the delegate wouldn't get the QStyle::State_MouseOver
         QPoint cursorPos = QCursor::pos();
@@ -194,7 +109,7 @@ void OpenEditorsWidget::activateEditor(const QModelIndex &index)
                 DocumentModel::entryAtRow(m_model->mapToSource(index).row()));
 }
 
-void OpenEditorsWidget::closeEditor(const QModelIndex &index)
+void OpenEditorsWidget::closeDocument(const QModelIndex &index)
 {
     EditorManager::closeDocument(
                 DocumentModel::entryAtRow(m_model->mapToSource(index).row()));

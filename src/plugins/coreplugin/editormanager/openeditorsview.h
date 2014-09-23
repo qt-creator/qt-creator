@@ -30,12 +30,10 @@
 #ifndef OPENEDITORSVIEW_H
 #define OPENEDITORSVIEW_H
 
-#include <utils/itemviews.h>
 #include <coreplugin/inavigationwidgetfactory.h>
+#include <coreplugin/opendocumentstreeview.h>
 
 #include <QAbstractProxyModel>
-#include <QStyledItemDelegate>
-#include <QTreeView>
 
 namespace Core {
 class IEditor;
@@ -70,18 +68,7 @@ private slots:
     void sourceRowsAboutToBeInserted(const QModelIndex &parent, int start, int end);
 };
 
-class OpenEditorsDelegate : public QStyledItemDelegate
-{
-public:
-    explicit OpenEditorsDelegate(QObject *parent = 0);
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
-
-    mutable QModelIndex pressedIndex;
-};
-
-class OpenEditorsWidget : public Utils::TreeView
+class OpenEditorsWidget : public OpenDocumentsTreeView
 {
     Q_OBJECT
 
@@ -89,20 +76,15 @@ public:
     OpenEditorsWidget();
     ~OpenEditorsWidget();
 
-    bool eventFilter(QObject *obj, QEvent *event);
-
 private slots:
     void handleActivated(const QModelIndex &);
-    void handlePressed(const QModelIndex &);
     void updateCurrentItem(Core::IEditor*);
     void contextMenuRequested(QPoint pos);
 
 private:
     void activateEditor(const QModelIndex &index);
-    void closeEditor(const QModelIndex &index);
-    using QAbstractItemView::closeEditor;
+    void closeDocument(const QModelIndex &index);
 
-    OpenEditorsDelegate *m_delegate;
     ProxyModel *m_model;
 };
 

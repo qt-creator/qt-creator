@@ -34,84 +34,33 @@
 
 #include <coreplugin/coreconstants.h>
 
+#include <QAbstractItemModel>
 #include <QApplication>
-#include <QPainter>
-
-#include <QHeaderView>
-#include <QKeyEvent>
-#include <QMouseEvent>
 #include <QMenu>
 
 using namespace Help::Internal;
 
-// -- OpenPagesDelegate
-
-OpenPagesDelegate::OpenPagesDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
-{
-}
-
-void OpenPagesDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-           const QModelIndex &index) const
-{
-    if (option.state & QStyle::State_MouseOver) {
-        if ((QApplication::mouseButtons() & Qt::LeftButton) == 0)
-            pressedIndex = QModelIndex();
-        QBrush brush = option.palette.alternateBase();
-        if (index == pressedIndex)
-            brush = option.palette.dark();
-        painter->fillRect(option.rect, brush);
-    }
-
-
-    QStyledItemDelegate::paint(painter, option, index);
-
-    if (index.column() == 1 && index.model()->rowCount() > 1
-        && option.state & QStyle::State_MouseOver) {
-        const QIcon icon(QLatin1String((option.state & QStyle::State_Selected) ?
-                                       Core::Constants::ICON_CLOSE_BUTTON : Core::Constants::ICON_DARK_CLOSE_BUTTON));
-
-        const QRect iconRect(option.rect.right() - option.rect.height(),
-            option.rect.top(), option.rect.height(), option.rect.height());
-
-        icon.paint(painter, iconRect, Qt::AlignRight | Qt::AlignVCenter);
-    }
-
-}
-
 // -- OpenPagesWidget
 
-OpenPagesWidget::OpenPagesWidget(OpenPagesModel *model, QWidget *parent)
-    : QTreeView(parent)
+OpenPagesWidget::OpenPagesWidget(OpenPagesModel *sourceModel, QWidget *parent)
+    : OpenDocumentsTreeView(parent)
     , m_allowContextMenu(true)
 {
-    setModel(model);
-    setIndentation(0);
-    setItemDelegate((m_delegate = new OpenPagesDelegate(this)));
+    setModel(sourceModel);
 
-    setTextElideMode(Qt::ElideMiddle);
-    setAttribute(Qt::WA_MacShowFocusRect, false);
-
-    viewport()->setAttribute(Qt::WA_Hover);
-    setSelectionBehavior(QAbstractItemView::SelectRows);
-    setSelectionMode(QAbstractItemView::SingleSelection);
-
-    header()->hide();
-    header()->setStretchLastSection(false);
-    header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    header()->setSectionResizeMode(1, QHeaderView::Fixed);
-    header()->resizeSection(1, 18);
-
-    installEventFilter(this);
-    setUniformRowHeights(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
+    updateCloseButtonVisibility();
 
-    connect(this, SIGNAL(clicked(QModelIndex)), this,
-        SLOT(handleClicked(QModelIndex)));
-    connect(this, SIGNAL(pressed(QModelIndex)), this,
-        SLOT(handlePressed(QModelIndex)));
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)), this,
-        SLOT(contextMenuRequested(QPoint)));
+    connect(this, &OpenDocumentsTreeView::activated,
+            this, &OpenPagesWidget::handleActivated);
+    connect(this, &OpenDocumentsTreeView::closeActivated,
+            this, &OpenPagesWidget::handleCloseActivated);
+    connect(this, &OpenDocumentsTreeView::customContextMenuRequested,
+            this, &OpenPagesWidget::contextMenuRequested);
+    connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)),
+            this, SLOT(updateCloseButtonVisibility()));
+    connect(model(), SIGNAL(rowsRemoved(QModelIndex,int,int)),
+            this, SLOT(updateCloseButtonVisibility()));
 }
 
 OpenPagesWidget::~OpenPagesWidget()
@@ -160,47 +109,29 @@ void OpenPagesWidget::contextMenuRequested(QPoint pos)
         emit closePagesExcept(index);
 }
 
-void OpenPagesWidget::handlePressed(const QModelIndex &index)
+void OpenPagesWidget::handleActivated(const QModelIndex &index)
 {
-    if (index.column() == 0)
+    if (index.column() == 0) {
         emit setCurrentPage(index);
-
-    if (index.column() == 1)
-        m_delegate->pressedIndex = index;
-}
-
-void OpenPagesWidget::handleClicked(const QModelIndex &index)
-{
-    // implemented here to handle the funky close button and to  work around a
-    // bug in item views where the delegate wouldn't get the QStyle::State_MouseOver
-    if (index.column() == 1) {
+    } else if (index.column() == 1) { // the funky close button
         if (model()->rowCount() > 1)
             emit closePage(index);
 
+        // work around a bug in itemviews where the delegate wouldn't get the QStyle::State_MouseOver
         QWidget *vp = viewport();
         const QPoint &cursorPos = QCursor::pos();
-        QMouseEvent e(QEvent::MouseMove, vp->mapFromGlobal(cursorPos), cursorPos,
-            Qt::NoButton, 0, 0);
+        QMouseEvent e(QEvent::MouseMove, vp->mapFromGlobal(cursorPos), cursorPos, Qt::NoButton, 0, 0);
         QCoreApplication::sendEvent(vp, &e);
     }
 }
 
-// -- private
-
-bool OpenPagesWidget::eventFilter(QObject *obj, QEvent *event)
+void OpenPagesWidget::handleCloseActivated(const QModelIndex &index)
 {
-    if (obj == this && event->type() == QEvent::KeyPress) {
-        if (currentIndex().isValid()) {
-            QKeyEvent *ke = static_cast<QKeyEvent*>(event);
-            const int key = ke->key();
-            if ((key == Qt::Key_Return || key == Qt::Key_Enter || key == Qt::Key_Space)
-                && ke->modifiers() == 0) {
-                emit setCurrentPage(currentIndex());
-            } else if ((key == Qt::Key_Delete || key == Qt::Key_Backspace)
-                && ke->modifiers() == 0 && model()->rowCount() > 1) {
-                emit closePage(currentIndex());
-            }
-        }
-    }
-    return QWidget::eventFilter(obj, event);
+    if (model()->rowCount() > 1)
+        emit closePage(index);
+}
+
+void OpenPagesWidget::updateCloseButtonVisibility()
+{
+    setCloseButtonVisible(model() && model()->rowCount() > 1);
 }

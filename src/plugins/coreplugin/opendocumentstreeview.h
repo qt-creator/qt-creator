@@ -27,44 +27,35 @@
 **
 ****************************************************************************/
 
-#ifndef OPENPAGESWIDGET_H
-#define OPENPAGESWIDGET_H
+#ifndef OPENDOCUMENTSTREEVIEW_H
+#define OPENDOCUMENTSTREEVIEW_H
 
-#include <coreplugin/opendocumentstreeview.h>
+#include "core_global.h"
 
-namespace Help {
-namespace Internal {
+#include <utils/itemviews.h>
 
-class OpenPagesModel;
+namespace Core {
+namespace Internal { class OpenDocumentsDelegate; }
 
-class OpenPagesWidget : public Core::OpenDocumentsTreeView
+class CORE_EXPORT OpenDocumentsTreeView : public Utils::TreeView
 {
     Q_OBJECT
-
 public:
-    explicit OpenPagesWidget(OpenPagesModel *model, QWidget *parent = 0);
-    ~OpenPagesWidget();
+    explicit OpenDocumentsTreeView(QWidget *parent = 0);
 
-    void selectCurrentPage();
-    void allowContextMenu(bool ok);
+    void setModel(QAbstractItemModel *model);
+    void setCloseButtonVisible(bool visible);
 
 signals:
-    void setCurrentPage(const QModelIndex &index);
+    void closeActivated(const QModelIndex &index);
 
-    void closePage(const QModelIndex &index);
-    void closePagesExcept(const QModelIndex &index);
-
-private slots:
-    void contextMenuRequested(QPoint pos);
-    void handleActivated(const QModelIndex &index);
-    void handleCloseActivated(const QModelIndex &index);
-    void updateCloseButtonVisibility();
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 
 private:
-    bool m_allowContextMenu;
+    Internal::OpenDocumentsDelegate *m_delegate;
 };
 
-    } // namespace Internal
-} // namespace Help
+} // namespace Core
 
-#endif // OPENPAGESWIDGET_H
+#endif // OPENDOCUMENTSTREEVIEW_H

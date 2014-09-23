@@ -82,6 +82,7 @@ QtcPlugin {
             "modemanager.cpp", "modemanager.h",
             "navigationsubwidget.cpp", "navigationsubwidget.h",
             "navigationwidget.cpp", "navigationwidget.h",
+            "opendocumentstreeview.cpp", "opendocumentstreeview.h",
             "outputpane.cpp", "outputpane.h",
             "outputpanemanager.cpp", "outputpanemanager.h",
             "outputwindow.cpp", "outputwindow.h",

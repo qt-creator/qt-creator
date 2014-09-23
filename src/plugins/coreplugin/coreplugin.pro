@@ -101,7 +101,8 @@ SOURCES += corejsextensions.cpp \
     icorelistener.cpp \
     ioutputpane.cpp \
     patchtool.cpp \
-    windowsupport.cpp
+    windowsupport.cpp \
+    opendocumentstreeview.cpp
 
 HEADERS += corejsextensions.h \
     mainwindow.h \
@@ -206,7 +207,8 @@ HEADERS += corejsextensions.h \
     removefiledialog.h \
     dialogs/addtovcsdialog.h \
     patchtool.h \
-    windowsupport.h
+    windowsupport.h \
+    opendocumentstreeview.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
