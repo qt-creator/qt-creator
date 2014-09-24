@@ -1156,9 +1156,6 @@ void SideBySideDiffEditorWidget::showDiff()
 void SideBySideDiffEditorWidget::setFontSettings(
         const TextEditor::FontSettings &fontSettings)
 {
-    m_leftEditor->textDocument()->setFontSettings(fontSettings);
-    m_rightEditor->textDocument()->setFontSettings(fontSettings);
-
     m_spanLineFormat  = fontSettings.toTextCharFormat(C_LINE_NUMBER);
     m_fileLineFormat  = fontSettings.toTextCharFormat(C_DIFF_FILE_LINE);
     m_chunkLineFormat = fontSettings.toTextCharFormat(C_DIFF_CONTEXT_LINE);
@@ -1166,9 +1163,6 @@ void SideBySideDiffEditorWidget::setFontSettings(
     m_leftCharFormat  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_CHAR);
     m_rightLineFormat = fontSettings.toTextCharFormat(C_DIFF_DEST_LINE);
     m_rightCharFormat = fontSettings.toTextCharFormat(C_DIFF_DEST_CHAR);
-
-    m_leftEditor->update();
-    m_rightEditor->update();
 }
 
 void SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested(

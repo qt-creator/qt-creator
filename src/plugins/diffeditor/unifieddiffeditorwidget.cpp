@@ -186,16 +186,12 @@ void UnifiedDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
 void UnifiedDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)
 {
-    textDocument()->setFontSettings(fontSettings);
-
     m_fileLineFormat  = fontSettings.toTextCharFormat(C_DIFF_FILE_LINE);
     m_chunkLineFormat = fontSettings.toTextCharFormat(C_DIFF_CONTEXT_LINE);
     m_leftLineFormat  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_LINE);
     m_leftCharFormat  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_CHAR);
     m_rightLineFormat = fontSettings.toTextCharFormat(C_DIFF_DEST_LINE);
     m_rightCharFormat = fontSettings.toTextCharFormat(C_DIFF_DEST_CHAR);
-
-    update();
 }
 
 void UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor()
