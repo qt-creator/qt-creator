@@ -32,7 +32,6 @@
 
 #include "iassistprovider.h"
 
-#include <utils/qtcoverride.h>
 
 namespace TextEditor {
 
@@ -44,7 +43,7 @@ public:
     CompletionAssistProvider();
     ~CompletionAssistProvider();
 
-    bool isAsynchronous() const QTC_OVERRIDE;
+    bool isAsynchronous() const Q_DECL_OVERRIDE;
     virtual int activationCharSequenceLength() const;
     virtual bool isActivationCharSequence(const QString &sequence) const;
     virtual bool isContinuationChar(const QChar &c) const;

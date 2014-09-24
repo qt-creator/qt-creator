@@ -34,7 +34,6 @@
 
 #include <texteditor/basetexteditor.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QScopedPointer>
 
@@ -81,15 +80,15 @@ public:
 
     TextEditor::AssistInterface *createAssistInterface(
             TextEditor::AssistKind kind,
-            TextEditor::AssistReason reason) const QTC_OVERRIDE;
+            TextEditor::AssistReason reason) const Q_DECL_OVERRIDE;
 
     FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
-    TextEditor::CompletionAssistProvider *completionAssistProvider() const QTC_OVERRIDE;
+    TextEditor::CompletionAssistProvider *completionAssistProvider() const Q_DECL_OVERRIDE;
 
 public slots:
-    void paste() QTC_OVERRIDE;
-    void cut() QTC_OVERRIDE;
-    void selectAll() QTC_OVERRIDE;
+    void paste() Q_DECL_OVERRIDE;
+    void cut() Q_DECL_OVERRIDE;
+    void selectAll() Q_DECL_OVERRIDE;
 
     void switchDeclarationDefinition(bool inNextSplit);
     void showPreProcessorWidget();
@@ -99,22 +98,22 @@ public slots:
     void renameUsages(const QString &replacement = QString());
 
 protected:
-    bool event(QEvent *e) QTC_OVERRIDE;
-    void contextMenuEvent(QContextMenuEvent *) QTC_OVERRIDE;
-    void keyPressEvent(QKeyEvent *e) QTC_OVERRIDE;
+    bool event(QEvent *e) Q_DECL_OVERRIDE;
+    void contextMenuEvent(QContextMenuEvent *) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
 
-    void applyFontSettings() QTC_OVERRIDE;
+    void applyFontSettings() Q_DECL_OVERRIDE;
 
-    bool openLink(const Link &link, bool inNextSplit) QTC_OVERRIDE
+    bool openLink(const Link &link, bool inNextSplit) Q_DECL_OVERRIDE
     { return openCppEditorAt(link, inNextSplit); }
 
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
-                    bool inNextSplit = false) QTC_OVERRIDE;
+                    bool inNextSplit = false) Q_DECL_OVERRIDE;
 
-    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) QTC_OVERRIDE;
+    void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) Q_DECL_OVERRIDE;
 
 protected slots:
-    void slotCodeStyleSettingsChanged(const QVariant &) QTC_OVERRIDE;
+    void slotCodeStyleSettingsChanged(const QVariant &) Q_DECL_OVERRIDE;
 
 private slots:
     void updateFunctionDeclDefLink();
@@ -138,8 +137,8 @@ private slots:
     void processKeyNormally(QKeyEvent *e);
 
 private:
-    void finalizeInitialization() QTC_OVERRIDE;
-    void finalizeInitializationAfterDuplication(BaseTextEditorWidget *other) QTC_OVERRIDE;
+    void finalizeInitialization() Q_DECL_OVERRIDE;
+    void finalizeInitializationAfterDuplication(BaseTextEditorWidget *other) Q_DECL_OVERRIDE;
 
     static bool openCppEditorAt(const Link &, bool inNextSplit = false);
 

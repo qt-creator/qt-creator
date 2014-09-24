@@ -33,7 +33,6 @@
 #include "../beautifierabstracttool.h"
 #include "../command.h"
 
-#include <utils/qtcoverride.h>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 
@@ -53,9 +52,9 @@ class ClangFormat : public BeautifierAbstractTool
 public:
     explicit ClangFormat(BeautifierPlugin *parent = 0);
     virtual ~ClangFormat();
-    bool initialize() QTC_OVERRIDE;
-    void updateActions(Core::IEditor *editor) QTC_OVERRIDE;
-    QList<QObject *> autoReleaseObjects() QTC_OVERRIDE;
+    bool initialize() Q_DECL_OVERRIDE;
+    void updateActions(Core::IEditor *editor) Q_DECL_OVERRIDE;
+    QList<QObject *> autoReleaseObjects() Q_DECL_OVERRIDE;
 
 private slots:
     void formatFile();

@@ -32,7 +32,6 @@
 
 #include "iassistproposalwidget.h"
 
-#include <utils/qtcoverride.h>
 
 namespace TextEditor {
 
@@ -46,20 +45,20 @@ public:
     FunctionHintProposalWidget();
     ~FunctionHintProposalWidget();
 
-    void setAssistant(CodeAssistant *assistant) QTC_OVERRIDE;
-    void setReason(AssistReason reason) QTC_OVERRIDE;
-    void setKind(AssistKind kind) QTC_OVERRIDE;
-    void setUnderlyingWidget(const QWidget *underlyingWidget) QTC_OVERRIDE;
-    void setModel(IAssistProposalModel *model) QTC_OVERRIDE;
-    void setDisplayRect(const QRect &rect) QTC_OVERRIDE;
-    void setIsSynchronized(bool isSync) QTC_OVERRIDE;
+    void setAssistant(CodeAssistant *assistant) Q_DECL_OVERRIDE;
+    void setReason(AssistReason reason) Q_DECL_OVERRIDE;
+    void setKind(AssistKind kind) Q_DECL_OVERRIDE;
+    void setUnderlyingWidget(const QWidget *underlyingWidget) Q_DECL_OVERRIDE;
+    void setModel(IAssistProposalModel *model) Q_DECL_OVERRIDE;
+    void setDisplayRect(const QRect &rect) Q_DECL_OVERRIDE;
+    void setIsSynchronized(bool isSync) Q_DECL_OVERRIDE;
 
-    void showProposal(const QString &prefix) QTC_OVERRIDE;
-    void updateProposal(const QString &prefix) QTC_OVERRIDE;
-    void closeProposal() QTC_OVERRIDE;
+    void showProposal(const QString &prefix) Q_DECL_OVERRIDE;
+    void updateProposal(const QString &prefix) Q_DECL_OVERRIDE;
+    void closeProposal() Q_DECL_OVERRIDE;
 
 protected:
-    bool eventFilter(QObject *o, QEvent *e) QTC_OVERRIDE;
+    bool eventFilter(QObject *o, QEvent *e) Q_DECL_OVERRIDE;
 
 private slots:
     void nextPage();

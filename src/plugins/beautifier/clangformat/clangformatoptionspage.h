@@ -31,7 +31,6 @@
 #define BEAUTIFIER_CLANGFORMATOPTIONSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/qtcoverride.h>
 
 #include <QPointer>
 #include <QWidget>
@@ -65,9 +64,9 @@ class ClangFormatOptionsPage : public Core::IOptionsPage
 
 public:
     explicit ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent = 0);
-    QWidget *widget() QTC_OVERRIDE;
-    void apply() QTC_OVERRIDE;
-    void finish() QTC_OVERRIDE;
+    QWidget *widget() Q_DECL_OVERRIDE;
+    void apply() Q_DECL_OVERRIDE;
+    void finish() Q_DECL_OVERRIDE;
 
 private:
     QPointer<ClangFormatOptionsPageWidget> m_widget;

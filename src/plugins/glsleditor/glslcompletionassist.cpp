@@ -47,7 +47,6 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 
 #include <utils/faketooltip.h>
-#include <utils/qtcoverride.h>
 
 #include <QIcon>
 #include <QPainter>
@@ -177,10 +176,10 @@ public:
         , m_currentArg(-1)
     {}
 
-    void reset() QTC_OVERRIDE {}
-    int size() const QTC_OVERRIDE { return m_items.size(); }
-    QString text(int index) const QTC_OVERRIDE;
-    int activeArgument(const QString &prefix) const QTC_OVERRIDE;
+    void reset() Q_DECL_OVERRIDE {}
+    int size() const Q_DECL_OVERRIDE { return m_items.size(); }
+    QString text(int index) const Q_DECL_OVERRIDE;
+    int activeArgument(const QString &prefix) const Q_DECL_OVERRIDE;
 
 private:
     QVector<GLSL::Function *> m_items;

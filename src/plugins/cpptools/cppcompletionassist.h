@@ -44,7 +44,6 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippetassistcollector.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QStringList>
 #include <QVariant>
@@ -73,8 +72,8 @@ public:
         m_typeOfExpression->setExpandTemplates(true);
     }
 
-    bool isSortable(const QString &prefix) const QTC_OVERRIDE;
-    TextEditor::AssistProposalItem *proposalItem(int index) const QTC_OVERRIDE;
+    bool isSortable(const QString &prefix) const Q_DECL_OVERRIDE;
+    TextEditor::AssistProposalItem *proposalItem(int index) const Q_DECL_OVERRIDE;
 
     unsigned m_completionOperator;
     bool m_replaceDotForArrow;
@@ -86,14 +85,14 @@ class InternalCompletionAssistProvider : public CppCompletionAssistProvider
     Q_OBJECT
 
 public:
-    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
 
     TextEditor::AssistInterface *createAssistInterface(
             const QString &filePath,
             QTextDocument *document,
             bool isObjCEnabled,
             int position,
-            TextEditor::AssistReason reason) const QTC_OVERRIDE;
+            TextEditor::AssistReason reason) const Q_DECL_OVERRIDE;
 };
 
 class CppCompletionAssistProcessor : public TextEditor::IAssistProcessor
@@ -102,7 +101,7 @@ public:
     CppCompletionAssistProcessor();
     ~CppCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) QTC_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) Q_DECL_OVERRIDE;
 
 private:
     TextEditor::IAssistProposal *createContentProposal();

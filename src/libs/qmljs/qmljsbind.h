@@ -32,7 +32,6 @@
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsvalueowner.h>
-#include <utils/qtcoverride.h>
 
 #include <QHash>
 #include <QCoreApplication>
@@ -69,21 +68,21 @@ protected:
 
     void accept(AST::Node *node);
 
-    bool visit(AST::UiProgram *ast) QTC_OVERRIDE;
-    bool visit(AST::Program *ast) QTC_OVERRIDE;
+    bool visit(AST::UiProgram *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::Program *ast) Q_DECL_OVERRIDE;
 
     // Ui
-    bool visit(AST::UiImport *ast) QTC_OVERRIDE;
-    bool visit(AST::UiPublicMember *ast) QTC_OVERRIDE;
-    bool visit(AST::UiObjectDefinition *ast) QTC_OVERRIDE;
-    bool visit(AST::UiObjectBinding *ast) QTC_OVERRIDE;
-    bool visit(AST::UiScriptBinding *ast) QTC_OVERRIDE;
-    bool visit(AST::UiArrayBinding *ast) QTC_OVERRIDE;
+    bool visit(AST::UiImport *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::UiPublicMember *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::UiObjectDefinition *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::UiObjectBinding *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::UiScriptBinding *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::UiArrayBinding *ast) Q_DECL_OVERRIDE;
 
     // QML/JS
-    bool visit(AST::FunctionDeclaration *ast) QTC_OVERRIDE;
-    bool visit(AST::FunctionExpression *ast) QTC_OVERRIDE;
-    bool visit(AST::VariableDeclaration *ast) QTC_OVERRIDE;
+    bool visit(AST::FunctionDeclaration *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::FunctionExpression *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::VariableDeclaration *ast) Q_DECL_OVERRIDE;
 
     ObjectValue *switchObjectValue(ObjectValue *newObjectValue);
     ObjectValue *bindObject(AST::UiQualifiedId *qualifiedTypeNameId, AST::UiObjectInitializer *initializer);

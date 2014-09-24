@@ -39,7 +39,6 @@
 #include <texteditor/snippets/snippetassistcollector.h>
 #include <texteditor/codeassist/assistinterface.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QStringList>
 #include <QScopedPointer>
@@ -56,9 +55,9 @@ class QmlJSCompletionAssistInterface;
 class QmlJSAssistProposalItem : public TextEditor::AssistProposalItem
 {
 public:
-    bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
+    bool prematurelyApplies(const QChar &c) const Q_DECL_OVERRIDE;
     void applyContextualContent(TextEditor::BaseTextEditorWidget *editorWidget,
-                                int basePosition) const QTC_OVERRIDE;
+                                int basePosition) const Q_DECL_OVERRIDE;
 };
 
 
@@ -70,9 +69,9 @@ public:
         loadContent(items);
     }
 
-    void filter(const QString &prefix) QTC_OVERRIDE;
-    void sort(const QString &prefix) QTC_OVERRIDE;
-    bool keepPerfectMatch(TextEditor::AssistReason reason) const QTC_OVERRIDE;
+    void filter(const QString &prefix) Q_DECL_OVERRIDE;
+    void sort(const QString &prefix) Q_DECL_OVERRIDE;
+    bool keepPerfectMatch(TextEditor::AssistReason reason) const Q_DECL_OVERRIDE;
 };
 
 
@@ -81,12 +80,12 @@ class QmlJSCompletionAssistProvider : public TextEditor::CompletionAssistProvide
     Q_OBJECT
 
 public:
-    bool supportsEditor(Core::Id editorId) const QTC_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
 
-    int activationCharSequenceLength() const QTC_OVERRIDE;
-    bool isActivationCharSequence(const QString &sequence) const QTC_OVERRIDE;
-    bool isContinuationChar(const QChar &c) const QTC_OVERRIDE;
+    int activationCharSequenceLength() const Q_DECL_OVERRIDE;
+    bool isActivationCharSequence(const QString &sequence) const Q_DECL_OVERRIDE;
+    bool isContinuationChar(const QChar &c) const Q_DECL_OVERRIDE;
 };
 
 
@@ -96,7 +95,7 @@ public:
     QmlJSCompletionAssistProcessor();
     ~QmlJSCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) QTC_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) Q_DECL_OVERRIDE;
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;

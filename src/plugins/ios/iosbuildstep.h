@@ -30,7 +30,6 @@
 #define IOSBUILDSTEP_H
 
 #include <projectexplorer/abstractprocessstep.h>
-#include <utils/qtcoverride.h>
 
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;
@@ -54,11 +53,11 @@ public:
     IosBuildStep(ProjectExplorer::BuildStepList *parent);
     ~IosBuildStep();
 
-    bool init() QTC_OVERRIDE;
-    void run(QFutureInterface<bool> &fi) QTC_OVERRIDE;
+    bool init() Q_DECL_OVERRIDE;
+    void run(QFutureInterface<bool> &fi) Q_DECL_OVERRIDE;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() QTC_OVERRIDE;
-    bool immutable() const QTC_OVERRIDE;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() Q_DECL_OVERRIDE;
+    bool immutable() const Q_DECL_OVERRIDE;
     void setBaseArguments(const QStringList &args);
     void setExtraArguments(const QStringList &extraArgs);
     QStringList baseArguments() const;
@@ -69,11 +68,11 @@ public:
     void setClean(bool clean);
     bool isClean() const;
 
-    QVariantMap toMap() const QTC_OVERRIDE;
+    QVariantMap toMap() const Q_DECL_OVERRIDE;
 protected:
     IosBuildStep(ProjectExplorer::BuildStepList *parent, IosBuildStep *bs);
     IosBuildStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
-    bool fromMap(const QVariantMap &map) QTC_OVERRIDE;
+    bool fromMap(const QVariantMap &map) Q_DECL_OVERRIDE;
 
 private:
     void ctor();
@@ -92,8 +91,8 @@ class IosBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     IosBuildStepConfigWidget(IosBuildStep *buildStep);
     ~IosBuildStepConfigWidget();
-    QString displayName() const QTC_OVERRIDE;
-    QString summaryText() const QTC_OVERRIDE;
+    QString displayName() const Q_DECL_OVERRIDE;
+    QString summaryText() const Q_DECL_OVERRIDE;
 
 private slots:
     void buildArgumentsChanged();
@@ -114,18 +113,18 @@ class IosBuildStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit IosBuildStepFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const QTC_OVERRIDE;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) QTC_OVERRIDE;
+    bool canCreate(ProjectExplorer::BuildStepList *parent, Core::Id id) const Q_DECL_OVERRIDE;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) Q_DECL_OVERRIDE;
     bool canClone(ProjectExplorer::BuildStepList *parent,
-                  ProjectExplorer::BuildStep *source) const QTC_OVERRIDE;
+                  ProjectExplorer::BuildStep *source) const Q_DECL_OVERRIDE;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *source) QTC_OVERRIDE;
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const QTC_OVERRIDE;
+                                      ProjectExplorer::BuildStep *source) Q_DECL_OVERRIDE;
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const Q_DECL_OVERRIDE;
     ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent,
-                                        const QVariantMap &map) QTC_OVERRIDE;
+                                        const QVariantMap &map) Q_DECL_OVERRIDE;
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const QTC_OVERRIDE;
-    QString displayNameForId(Core::Id id) const QTC_OVERRIDE;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const Q_DECL_OVERRIDE;
+    QString displayNameForId(Core::Id id) const Q_DECL_OVERRIDE;
 };
 
 } // namespace Internal

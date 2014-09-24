@@ -32,7 +32,6 @@
 
 #include "../abstractsettings.h"
 
-#include <utils/qtcoverride.h>
 
 namespace Beautifier {
 namespace Internal {
@@ -55,8 +54,8 @@ public:
     QString customStyle() const;
     void setCustomStyle(const QString &customStyle);
 
-    QString documentationFilePath() const QTC_OVERRIDE;
-    void createDocumentationFile() const QTC_OVERRIDE;
+    QString documentationFilePath() const Q_DECL_OVERRIDE;
+    void createDocumentationFile() const Q_DECL_OVERRIDE;
 };
 
 } // namespace Uncrustify

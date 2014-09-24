@@ -32,7 +32,6 @@
 
 #include "../abstractsettings.h"
 
-#include <utils/qtcoverride.h>
 
 namespace Beautifier {
 namespace Internal {
@@ -45,9 +44,9 @@ class ClangFormatSettings : public AbstractSettings
 public:
     explicit ClangFormatSettings();
 
-    QString documentationFilePath() const QTC_OVERRIDE;
-    void createDocumentationFile() const QTC_OVERRIDE;
-    QStringList completerWords() QTC_OVERRIDE;
+    QString documentationFilePath() const Q_DECL_OVERRIDE;
+    void createDocumentationFile() const Q_DECL_OVERRIDE;
+    QStringList completerWords() Q_DECL_OVERRIDE;
 
     bool usePredefinedStyle() const;
     void setUsePredefinedStyle(bool usePredefinedStyle);

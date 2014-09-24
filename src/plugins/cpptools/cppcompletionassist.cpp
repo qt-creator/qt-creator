@@ -49,7 +49,6 @@
 #include <texteditor/completionsettings.h>
 
 #include <utils/qtcassert.h>
-#include <utils/qtcoverride.h>
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/CppRewriter.h>
@@ -90,8 +89,8 @@ public:
     CppAssistProposalItem() :
         m_isOverloaded(false) {}
 
-    bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
-    void applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const QTC_OVERRIDE;
+    bool prematurelyApplies(const QChar &c) const Q_DECL_OVERRIDE;
+    void applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const Q_DECL_OVERRIDE;
 
     bool isOverloaded() const { return m_isOverloaded; }
     void markAsOverloaded() { m_isOverloaded = true; }
@@ -350,10 +349,10 @@ public:
         , m_typeOfExpression(typeOfExp)
     {}
 
-    void reset() QTC_OVERRIDE {}
-    int size() const QTC_OVERRIDE { return m_functionSymbols.size(); }
-    QString text(int index) const QTC_OVERRIDE;
-    int activeArgument(const QString &prefix) const QTC_OVERRIDE;
+    void reset() Q_DECL_OVERRIDE {}
+    int size() const Q_DECL_OVERRIDE { return m_functionSymbols.size(); }
+    QString text(int index) const Q_DECL_OVERRIDE;
+    int activeArgument(const QString &prefix) const Q_DECL_OVERRIDE;
 
 private:
     QList<Function *> m_functionSymbols;
@@ -439,8 +438,8 @@ public:
         , m_replaceDotForArrow(static_cast<CppAssistProposalModel *>(model)->m_replaceDotForArrow)
     {}
 
-    bool isCorrective() const QTC_OVERRIDE { return m_replaceDotForArrow; }
-    void makeCorrection(BaseTextEditorWidget *editorWidget) QTC_OVERRIDE;
+    bool isCorrective() const Q_DECL_OVERRIDE { return m_replaceDotForArrow; }
+    void makeCorrection(BaseTextEditorWidget *editorWidget) Q_DECL_OVERRIDE;
 
 private:
     bool m_replaceDotForArrow;

@@ -35,7 +35,6 @@
 
 #include <cpptools/baseeditordocumentparser.h>
 
-#include <utils/qtcoverride.h>
 
 namespace CppTools { class WorkingCopy; }
 
@@ -51,7 +50,7 @@ public:
 public:
     ClangEditorDocumentParser(const QString &filePath);
 
-    void update(CppTools::WorkingCopy workingCopy) QTC_OVERRIDE;
+    void update(CppTools::WorkingCopy workingCopy) Q_DECL_OVERRIDE;
 
     QList<Diagnostic> diagnostics() const;
     QList<SemanticMarker::Range> ifdefedOutBlocks() const;

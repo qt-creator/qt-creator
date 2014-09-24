@@ -32,7 +32,6 @@
 #include "cpplocalsymbols.h"
 
 #include <utils/qtcassert.h>
-#include <utils/qtcoverride.h>
 #include <utils/runextensions.h>
 
 #include <cplusplus/Control.h>

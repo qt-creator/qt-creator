@@ -38,7 +38,6 @@
 #include <texteditor/codeassist/quickfixassistprovider.h>
 #include <texteditor/codeassist/quickfixassistprocessor.h>
 
-#include <utils/qtcoverride.h>
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -64,7 +63,7 @@ public:
     QmlJSQuickFixProcessor(const TextEditor::IAssistProvider *provider);
     ~QmlJSQuickFixProcessor();
 
-    const TextEditor::IAssistProvider *provider() const QTC_OVERRIDE;
+    const TextEditor::IAssistProvider *provider() const Q_DECL_OVERRIDE;
 
 private:
     const TextEditor::IAssistProvider *m_provider;
@@ -77,11 +76,11 @@ public:
     QmlJSQuickFixAssistProvider();
     ~QmlJSQuickFixAssistProvider();
 
-    bool isAsynchronous() const QTC_OVERRIDE;
-    bool supportsEditor(Core::Id editorId) const QTC_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
+    bool isAsynchronous() const Q_DECL_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
 
-    QList<TextEditor::QuickFixFactory *> quickFixFactories() const QTC_OVERRIDE;
+    QList<TextEditor::QuickFixFactory *> quickFixFactories() const Q_DECL_OVERRIDE;
 };
 
 } // Internal

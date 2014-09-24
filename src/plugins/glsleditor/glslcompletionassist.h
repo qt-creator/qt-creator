@@ -37,7 +37,6 @@
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QIcon>
 #include <QScopedPointer>
@@ -91,11 +90,11 @@ class GlslCompletionAssistProvider : public TextEditor::CompletionAssistProvider
     Q_OBJECT
 
 public:
-    bool supportsEditor(Core::Id editorId) const QTC_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
 
-    int activationCharSequenceLength() const QTC_OVERRIDE;
-    bool isActivationCharSequence(const QString &sequence) const QTC_OVERRIDE;
+    int activationCharSequenceLength() const Q_DECL_OVERRIDE;
+    bool isActivationCharSequence(const QString &sequence) const Q_DECL_OVERRIDE;
 };
 
 class GlslCompletionAssistProcessor : public TextEditor::IAssistProcessor
@@ -104,7 +103,7 @@ public:
     GlslCompletionAssistProcessor();
     ~GlslCompletionAssistProcessor();
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) QTC_OVERRIDE;
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) Q_DECL_OVERRIDE;
 
 private:
     TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);

@@ -32,7 +32,6 @@
 
 #include <texteditor/codeassist/completionassistprovider.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QStringList>
 
@@ -47,8 +46,8 @@ public:
     void init();
     ~ProFileCompletionAssistProvider();
 
-    bool supportsEditor(Core::Id editorId) const QTC_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
     QStringList variables() const;
     QStringList functions() const;
 private:

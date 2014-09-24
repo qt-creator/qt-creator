@@ -34,7 +34,6 @@
 #include "qmljsdialect.h"
 
 #include <languageutils/componentversion.h>
-#include <utils/qtcoverride.h>
 
 #include <QObject>
 #include <QString>

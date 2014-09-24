@@ -32,7 +32,6 @@
 
 #include "iassistprocessor.h"
 
-#include <utils/qtcoverride.h>
 
 namespace TextEditor {
 
@@ -44,7 +43,7 @@ public:
 
     virtual const IAssistProvider *provider() const = 0;
 
-    IAssistProposal *perform(const AssistInterface *interface) QTC_OVERRIDE;
+    IAssistProposal *perform(const AssistInterface *interface) Q_DECL_OVERRIDE;
 };
 
 } // TextEditor

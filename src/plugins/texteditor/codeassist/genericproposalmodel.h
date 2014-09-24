@@ -35,7 +35,6 @@
 
 #include <texteditor/texteditor_global.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QHash>
 #include <QIcon>
@@ -52,9 +51,9 @@ public:
     GenericProposalModel();
     ~GenericProposalModel();
 
-    void reset() QTC_OVERRIDE;
-    int size() const QTC_OVERRIDE;
-    QString text(int index) const QTC_OVERRIDE;
+    void reset() Q_DECL_OVERRIDE;
+    int size() const Q_DECL_OVERRIDE;
+    QString text(int index) const Q_DECL_OVERRIDE;
 
     virtual QIcon icon(int index) const;
     virtual QString detail(int index) const;

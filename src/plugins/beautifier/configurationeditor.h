@@ -30,7 +30,6 @@
 #ifndef BEAUTIFIER_CONFIGURATIONEDITOR_H
 #define BEAUTIFIER_CONFIGURATIONEDITOR_H
 
-#include <utils/qtcoverride.h>
 
 #include <QPlainTextEdit>
 #include <QRegExp>
@@ -61,7 +60,7 @@ public:
     void setCommentExpression(const QRegExp &rx);
 
 protected:
-    void highlightBlock(const QString &text) QTC_OVERRIDE;
+    void highlightBlock(const QString &text) Q_DECL_OVERRIDE;
 
 private:
     QRegExp m_expressionKeyword;
@@ -80,8 +79,8 @@ public:
     void setCommentExpression(const QRegExp &rx);
 
 protected:
-    bool eventFilter(QObject *object, QEvent *event) QTC_OVERRIDE;
-    void keyPressEvent(QKeyEvent *event) QTC_OVERRIDE;
+    bool eventFilter(QObject *object, QEvent *event) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
     void insertCompleterText(const QString &text);

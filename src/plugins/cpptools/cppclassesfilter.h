@@ -34,7 +34,6 @@
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
 
-#include <utils/qtcoverride.h>
 
 namespace CppTools {
 
@@ -48,8 +47,8 @@ public:
     ~CppClassesFilter();
 
 protected:
-    IndexItem::ItemType matchTypes() const QTC_OVERRIDE { return IndexItem::Class; }
-    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) QTC_OVERRIDE;
+    IndexItem::ItemType matchTypes() const Q_DECL_OVERRIDE { return IndexItem::Class; }
+    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) Q_DECL_OVERRIDE;
 };
 
 } // namespace CppTools

@@ -176,7 +176,6 @@ HEADERS += \
     $$PWD/tooltip/reuse.h \
     $$PWD/tooltip/effects.h \
     $$PWD/unixutils.h \
-    $$PWD/qtcoverride.h \
     $$PWD/ansiescapecodehandler.h \
     $$PWD/execmenu.h \
     $$PWD/completinglineedit.h \

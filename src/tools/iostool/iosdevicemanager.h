@@ -43,9 +43,9 @@
 #include <qglobal.h>
 
 #ifdef Q_DECL_OVERRIDE
-#define QTC_OVERRIDE Q_DECL_OVERRIDE
+#define Q_DECL_OVERRIDE Q_DECL_OVERRIDE
 #else
-#define QTC_OVERRIDE
+#define Q_DECL_OVERRIDE
 #endif
 
 namespace Ios {

@@ -36,7 +36,6 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <qtsupport/baseqtversion.h>
-#include <utils/qtcoverride.h>
 
 #include <QFutureInterface>
 #include <QProcess>
@@ -68,10 +67,10 @@ public:
 
     ~IosDeployStep();
 
-    bool fromMap(const QVariantMap &map) QTC_OVERRIDE;
-    QVariantMap toMap() const QTC_OVERRIDE;
+    bool fromMap(const QVariantMap &map) Q_DECL_OVERRIDE;
+    QVariantMap toMap() const Q_DECL_OVERRIDE;
 
-    void run(QFutureInterface<bool> &fi) QTC_OVERRIDE;
+    void run(QFutureInterface<bool> &fi) Q_DECL_OVERRIDE;
     void cleanup();
     void cancel();
 signals:
@@ -90,10 +89,10 @@ private slots:
 private:
     IosDeployStep(ProjectExplorer::BuildStepList *bc,
         IosDeployStep *other);
-    bool init() QTC_OVERRIDE;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() QTC_OVERRIDE;
-    bool immutable() const QTC_OVERRIDE { return true; }
-    bool runInGuiThread() const QTC_OVERRIDE { return true; }
+    bool init() Q_DECL_OVERRIDE;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() Q_DECL_OVERRIDE;
+    bool immutable() const Q_DECL_OVERRIDE { return true; }
+    bool runInGuiThread() const Q_DECL_OVERRIDE { return true; }
     ProjectExplorer::IDevice::ConstPtr device() const;
     IosDevice::ConstPtr iosdevice() const;
     IosSimulator::ConstPtr iossimulator() const;

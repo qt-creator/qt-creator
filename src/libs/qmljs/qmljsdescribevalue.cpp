@@ -187,7 +187,7 @@ public:
         return true;
     }
 
-    bool processProperty(const QString &name, const Value *value, const PropertyInfo &pInfo) QTC_OVERRIDE
+    bool processProperty(const QString &name, const Value *value, const PropertyInfo &pInfo) Q_DECL_OVERRIDE
     {
         d.dumpNewline();
         d.dump(name);
@@ -200,19 +200,19 @@ public:
         d.closeContext("");
         return true;
     }
-    bool processEnumerator(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processEnumerator(const QString &name, const Value *value) Q_DECL_OVERRIDE
     {
         return dump(name, value);
     }
-    bool processSignal(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processSignal(const QString &name, const Value *value) Q_DECL_OVERRIDE
     {
         return dump(name, value);
     }
-    bool processSlot(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processSlot(const QString &name, const Value *value) Q_DECL_OVERRIDE
     {
         return dump(name, value);
     }
-    bool processGeneratedSlot(const QString &name, const Value *value) QTC_OVERRIDE
+    bool processGeneratedSlot(const QString &name, const Value *value) Q_DECL_OVERRIDE
     {
         return dump(name, value);
     }

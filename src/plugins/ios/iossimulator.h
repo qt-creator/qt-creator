@@ -31,7 +31,6 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/fileutils.h>
-#include <utils/qtcoverride.h>
 
 #include <QSharedPointer>
 
@@ -46,20 +45,20 @@ class IosSimulator : public ProjectExplorer::IDevice
 public:
     typedef QSharedPointer<const IosSimulator> ConstPtr;
     typedef QSharedPointer<IosSimulator> Ptr;
-    ProjectExplorer::IDevice::DeviceInfo deviceInformation() const QTC_OVERRIDE;
+    ProjectExplorer::IDevice::DeviceInfo deviceInformation() const Q_DECL_OVERRIDE;
 
-    QString displayType() const QTC_OVERRIDE;
-    ProjectExplorer::IDeviceWidget *createWidget() QTC_OVERRIDE;
-    QList<Core::Id> actionIds() const QTC_OVERRIDE;
-    QString displayNameForActionId(Core::Id actionId) const QTC_OVERRIDE;
-    void executeAction(Core::Id actionId, QWidget *parent = 0) QTC_OVERRIDE;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const QTC_OVERRIDE;
-    void fromMap(const QVariantMap &map) QTC_OVERRIDE;
-    QVariantMap toMap() const QTC_OVERRIDE;
+    QString displayType() const Q_DECL_OVERRIDE;
+    ProjectExplorer::IDeviceWidget *createWidget() Q_DECL_OVERRIDE;
+    QList<Core::Id> actionIds() const Q_DECL_OVERRIDE;
+    QString displayNameForActionId(Core::Id actionId) const Q_DECL_OVERRIDE;
+    void executeAction(Core::Id actionId, QWidget *parent = 0) Q_DECL_OVERRIDE;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const Q_DECL_OVERRIDE;
+    void fromMap(const QVariantMap &map) Q_DECL_OVERRIDE;
+    QVariantMap toMap() const Q_DECL_OVERRIDE;
     quint16 nextPort() const;
-    bool canAutoDetectPorts() const QTC_OVERRIDE;
+    bool canAutoDetectPorts() const Q_DECL_OVERRIDE;
 
-    ProjectExplorer::IDevice::Ptr clone() const QTC_OVERRIDE;
+    ProjectExplorer::IDevice::Ptr clone() const Q_DECL_OVERRIDE;
 
 protected:
     friend class IosSimulatorFactory;

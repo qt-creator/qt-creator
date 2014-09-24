@@ -76,7 +76,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcoverride.h>
 #include <utils/savedaction.h>
 #include <utils/stylehelper.h>
 
@@ -888,18 +887,18 @@ public:
         : m_provider(const_cast<FakeVimCompletionAssistProvider *>(provider))
     {}
 
-    bool implicitlyApplies() const QTC_OVERRIDE
+    bool implicitlyApplies() const Q_DECL_OVERRIDE
     {
         return false;
     }
 
-    bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE
+    bool prematurelyApplies(const QChar &c) const Q_DECL_OVERRIDE
     {
         m_provider->appendNeedle(c);
         return text() == m_provider->needle();
     }
 
-    void applyContextualContent(BaseTextEditorWidget *, int) const QTC_OVERRIDE
+    void applyContextualContent(BaseTextEditorWidget *, int) const Q_DECL_OVERRIDE
     {
         QTC_ASSERT(m_provider->handler(), return);
         m_provider->handler()->handleReplay(text().mid(m_provider->needle().size()));
@@ -919,7 +918,7 @@ public:
         loadContent(items);
     }
 
-    bool supportsPrefixExpansion() const QTC_OVERRIDE
+    bool supportsPrefixExpansion() const Q_DECL_OVERRIDE
     {
         return false;
     }
@@ -932,7 +931,7 @@ public:
         : m_provider(static_cast<const FakeVimCompletionAssistProvider *>(provider))
     {}
 
-    IAssistProposal *perform(const AssistInterface *interface) QTC_OVERRIDE
+    IAssistProposal *perform(const AssistInterface *interface) Q_DECL_OVERRIDE
     {
         const QString &needle = m_provider->needle();
 

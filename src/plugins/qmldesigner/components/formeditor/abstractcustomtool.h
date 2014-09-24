@@ -39,7 +39,7 @@ class QMLDESIGNERCORE_EXPORT AbstractCustomTool : public QmlDesigner::AbstractFo
 public:
     AbstractCustomTool();
 
-    void selectedItemsChanged(const QList<FormEditorItem *> &itemList) QTC_OVERRIDE;
+    void selectedItemsChanged(const QList<FormEditorItem *> &itemList) Q_DECL_OVERRIDE;
 
     virtual QString name() const = 0;
 

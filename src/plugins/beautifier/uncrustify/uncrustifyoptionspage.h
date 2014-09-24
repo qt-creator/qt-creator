@@ -31,7 +31,6 @@
 #define BEAUTIFIER_UNCRUSTIFYOPTIONSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/qtcoverride.h>
 
 #include <QPointer>
 #include <QWidget>
@@ -65,9 +64,9 @@ class UncrustifyOptionsPage : public Core::IOptionsPage
 
 public:
     explicit UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent = 0);
-    QWidget *widget() QTC_OVERRIDE;
-    void apply() QTC_OVERRIDE;
-    void finish() QTC_OVERRIDE;
+    QWidget *widget() Q_DECL_OVERRIDE;
+    void apply() Q_DECL_OVERRIDE;
+    void finish() Q_DECL_OVERRIDE;
 
 private:
     QPointer<UncrustifyOptionsPageWidget> m_widget;

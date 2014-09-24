@@ -30,7 +30,6 @@
 #define IOSQTVERSION_H
 
 #include <qtsupport/baseqtversion.h>
-#include <utils/qtcoverride.h>
 
 #include <QCoreApplication>
 
@@ -46,20 +45,20 @@ public:
     IosQtVersion(const Utils::FileName &path, bool isAutodetected = false,
                  const QString &autodetectionSource = QString());
 
-    IosQtVersion *clone() const QTC_OVERRIDE;
-    QString type() const QTC_OVERRIDE;
-    bool isValid() const QTC_OVERRIDE;
-    QString invalidReason() const QTC_OVERRIDE;
+    IosQtVersion *clone() const Q_DECL_OVERRIDE;
+    QString type() const Q_DECL_OVERRIDE;
+    bool isValid() const Q_DECL_OVERRIDE;
+    QString invalidReason() const Q_DECL_OVERRIDE;
 
-    QList<ProjectExplorer::Abi> detectQtAbis() const QTC_OVERRIDE;
+    QList<ProjectExplorer::Abi> detectQtAbis() const Q_DECL_OVERRIDE;
 
-    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const QTC_OVERRIDE;
+    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const Q_DECL_OVERRIDE;
 
-    Core::FeatureSet availableFeatures() const QTC_OVERRIDE;
-    QString platformName() const QTC_OVERRIDE;
-    QString platformDisplayName() const QTC_OVERRIDE;
+    Core::FeatureSet availableFeatures() const Q_DECL_OVERRIDE;
+    QString platformName() const Q_DECL_OVERRIDE;
+    QString platformDisplayName() const Q_DECL_OVERRIDE;
 
-    QString description() const QTC_OVERRIDE;
+    QString description() const Q_DECL_OVERRIDE;
 };
 
 } // namespace Internal

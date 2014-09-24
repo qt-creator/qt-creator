@@ -34,7 +34,6 @@
 
 #include <texteditor/texteditor_global.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QString>
 

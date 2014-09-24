@@ -33,7 +33,6 @@
 #include "qmljs_global.h"
 #include "parser/qmljsastvisitor_p.h"
 #include "qmljsdocument.h"
-#include <utils/qtcoverride.h>
 
 namespace QmlJS {
 
@@ -49,13 +48,13 @@ protected:
 
     using Visitor::visit;
 
-    bool preVisit(AST::Node *node) QTC_OVERRIDE;
-    bool visit(AST::UiPublicMember *node) QTC_OVERRIDE;
-    bool visit(AST::UiScriptBinding *node) QTC_OVERRIDE;
-    bool visit(AST::UiObjectDefinition *node) QTC_OVERRIDE;
-    bool visit(AST::UiObjectBinding *node) QTC_OVERRIDE;
-    bool visit(AST::FunctionDeclaration *node) QTC_OVERRIDE;
-    bool visit(AST::FunctionExpression *node) QTC_OVERRIDE;
+    bool preVisit(AST::Node *node) Q_DECL_OVERRIDE;
+    bool visit(AST::UiPublicMember *node) Q_DECL_OVERRIDE;
+    bool visit(AST::UiScriptBinding *node) Q_DECL_OVERRIDE;
+    bool visit(AST::UiObjectDefinition *node) Q_DECL_OVERRIDE;
+    bool visit(AST::UiObjectBinding *node) Q_DECL_OVERRIDE;
+    bool visit(AST::FunctionDeclaration *node) Q_DECL_OVERRIDE;
+    bool visit(AST::FunctionExpression *node) Q_DECL_OVERRIDE;
 
 private:
     bool containsOffset(AST::SourceLocation start, AST::SourceLocation end);

@@ -49,7 +49,7 @@ public:
     { }
 
 public /*slots*/:
-    void actionTriggered(bool) QTC_OVERRIDE
+    void actionTriggered(bool) Q_DECL_OVERRIDE
     {
         DocumentManager::goIntoComponent(m_selectionContext.targetNode());
     }

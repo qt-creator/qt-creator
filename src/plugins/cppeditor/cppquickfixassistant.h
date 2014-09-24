@@ -37,7 +37,6 @@
 
 #include <cplusplus/LookupContext.h>
 
-#include <utils/qtcoverride.h>
 
 namespace CppTools {
 class CppRefactoringFile;
@@ -79,7 +78,7 @@ class CppQuickFixAssistProcessor : public TextEditor::QuickFixAssistProcessor
 public:
     CppQuickFixAssistProcessor(const TextEditor::IAssistProvider *provider);
 
-    const TextEditor::IAssistProvider *provider() const QTC_OVERRIDE;
+    const TextEditor::IAssistProvider *provider() const Q_DECL_OVERRIDE;
 
 private:
     const TextEditor::IAssistProvider *m_provider;
@@ -88,11 +87,11 @@ private:
 class CppQuickFixAssistProvider : public TextEditor::QuickFixAssistProvider
 {
 public:
-    bool isAsynchronous() const QTC_OVERRIDE;
-    bool supportsEditor(Core::Id editorId) const QTC_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
+    bool isAsynchronous() const Q_DECL_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
 
-    QList<TextEditor::QuickFixFactory *> quickFixFactories() const QTC_OVERRIDE;
+    QList<TextEditor::QuickFixFactory *> quickFixFactories() const Q_DECL_OVERRIDE;
 };
 
 } // Internal

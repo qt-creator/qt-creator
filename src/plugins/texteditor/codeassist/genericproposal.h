@@ -32,7 +32,6 @@
 
 #include "iassistproposal.h"
 
-#include <utils/qtcoverride.h>
 
 namespace TextEditor {
 
@@ -46,12 +45,12 @@ public:
     GenericProposal(int cursorPos, const QList<AssistProposalItem *> &items);
     ~GenericProposal();
 
-    bool isFragile() const QTC_OVERRIDE;
-    int basePosition() const QTC_OVERRIDE;
-    bool isCorrective() const QTC_OVERRIDE;
-    void makeCorrection(BaseTextEditorWidget *editorWidget) QTC_OVERRIDE;
-    IAssistProposalModel *model() const QTC_OVERRIDE;
-    IAssistProposalWidget *createWidget() const QTC_OVERRIDE;
+    bool isFragile() const Q_DECL_OVERRIDE;
+    int basePosition() const Q_DECL_OVERRIDE;
+    bool isCorrective() const Q_DECL_OVERRIDE;
+    void makeCorrection(BaseTextEditorWidget *editorWidget) Q_DECL_OVERRIDE;
+    IAssistProposalModel *model() const Q_DECL_OVERRIDE;
+    IAssistProposalWidget *createWidget() const Q_DECL_OVERRIDE;
 
 protected:
     void moveBasePosition(int length);

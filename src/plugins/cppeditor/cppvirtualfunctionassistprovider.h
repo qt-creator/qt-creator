@@ -36,7 +36,6 @@
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TypeOfExpression.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QSharedPointer>
 #include <QTextCursor>
@@ -64,9 +63,9 @@ public:
     Parameters params() const { return m_params; }
     void clearParams() { m_params = Parameters(); }
 
-    bool isAsynchronous() const QTC_OVERRIDE;
-    bool supportsEditor(Core::Id editorId) const QTC_OVERRIDE;
-    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
+    bool isAsynchronous() const Q_DECL_OVERRIDE;
+    bool supportsEditor(Core::Id editorId) const Q_DECL_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
 
 private:
     Parameters m_params;

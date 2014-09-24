@@ -39,7 +39,6 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -63,7 +62,7 @@ public:
         setText(text);
     }
 
-    void apply(BaseTextEditorWidget *editorWidget, int /*basePosition*/) const QTC_OVERRIDE
+    void apply(BaseTextEditorWidget *editorWidget, int /*basePosition*/) const Q_DECL_OVERRIDE
     {
 
         //Move to last in circular clipboard
@@ -87,7 +86,7 @@ private:
 class ClipboardAssistProcessor: public IAssistProcessor
 {
 public:
-    IAssistProposal *perform(const AssistInterface *interface) QTC_OVERRIDE
+    IAssistProposal *perform(const AssistInterface *interface) Q_DECL_OVERRIDE
     {
         if (!interface)
             return 0;

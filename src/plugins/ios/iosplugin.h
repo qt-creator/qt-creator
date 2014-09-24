@@ -30,7 +30,6 @@
 #define IOSPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
-#include <utils/qtcoverride.h>
 
 namespace Ios {
 
@@ -42,8 +41,8 @@ class IosPlugin : public ExtensionSystem::IPlugin
 public:
     IosPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) QTC_OVERRIDE;
-    void extensionsInitialized() QTC_OVERRIDE;
+    bool initialize(const QStringList &arguments, QString *errorMessage) Q_DECL_OVERRIDE;
+    void extensionsInitialized() Q_DECL_OVERRIDE;
 private slots:
     void kitsRestored();
 };

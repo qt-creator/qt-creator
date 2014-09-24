@@ -37,7 +37,6 @@
 #include <qmljs/qmljsstaticanalysismessage.h>
 
 #include <utils/json.h>
-#include <utils/qtcoverride.h>
 
 #include <QStack>
 #include <QList>
@@ -54,16 +53,16 @@ public:
     QList<StaticAnalysis::Message> operator()(Utils::JsonSchema *schema);
 
 private:
-    bool preVisit(AST::Node *) QTC_OVERRIDE;
-    void postVisit(AST::Node *) QTC_OVERRIDE;
+    bool preVisit(AST::Node *) Q_DECL_OVERRIDE;
+    void postVisit(AST::Node *) Q_DECL_OVERRIDE;
 
-    bool visit(AST::ObjectLiteral *ast) QTC_OVERRIDE;
-    bool visit(AST::ArrayLiteral *ast) QTC_OVERRIDE;
-    bool visit(AST::NullExpression *ast) QTC_OVERRIDE;
-    bool visit(AST::TrueLiteral *ast) QTC_OVERRIDE;
-    bool visit(AST::FalseLiteral *ast) QTC_OVERRIDE;
-    bool visit(AST::NumericLiteral *ast) QTC_OVERRIDE;
-    bool visit(AST::StringLiteral *ast) QTC_OVERRIDE;
+    bool visit(AST::ObjectLiteral *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::ArrayLiteral *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::NullExpression *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::TrueLiteral *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::FalseLiteral *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::NumericLiteral *ast) Q_DECL_OVERRIDE;
+    bool visit(AST::StringLiteral *ast) Q_DECL_OVERRIDE;
 
     struct AnalysisData
     {

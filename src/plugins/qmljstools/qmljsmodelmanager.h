@@ -37,7 +37,6 @@
 #include <qmljs/qmljsconstants.h>
 
 #include <cplusplus/CppDocument.h>
-#include <utils/qtcoverride.h>
 
 #include <QFuture>
 #include <QFutureSynchronizer>
@@ -61,11 +60,11 @@ public:
 
     void delayedInitialization();
 protected:
-    QHash<QString, QmlJS::Dialect> languageForSuffix() const QTC_OVERRIDE;
-    void writeMessageInternal(const QString &msg) const QTC_OVERRIDE;
-    WorkingCopy workingCopyInternal() const QTC_OVERRIDE;
-    void addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const QTC_OVERRIDE;
-    ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const QTC_OVERRIDE;
+    QHash<QString, QmlJS::Dialect> languageForSuffix() const Q_DECL_OVERRIDE;
+    void writeMessageInternal(const QString &msg) const Q_DECL_OVERRIDE;
+    WorkingCopy workingCopyInternal() const Q_DECL_OVERRIDE;
+    void addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const Q_DECL_OVERRIDE;
+    ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const Q_DECL_OVERRIDE;
 private slots:
     void updateDefaultProjectInfo();
 private:

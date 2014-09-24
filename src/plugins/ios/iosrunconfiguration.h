@@ -34,7 +34,6 @@
 
 #include <projectexplorer/runconfiguration.h>
 #include <utils/fileutils.h>
-#include <utils/qtcoverride.h>
 
 namespace QmakeProjectManager {
 class QmakeProFileNode;
@@ -65,8 +64,8 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     IosRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path);
 
-    QWidget *createConfigurationWidget() QTC_OVERRIDE;
-    Utils::OutputFormatter *createOutputFormatter() const QTC_OVERRIDE;
+    QWidget *createConfigurationWidget() Q_DECL_OVERRIDE;
+    Utils::OutputFormatter *createOutputFormatter() const Q_DECL_OVERRIDE;
     IosDeployStep *deployStep() const;
 
     QStringList commandLineArguments();
@@ -79,8 +78,8 @@ public:
     IosDeviceType::Enum deviceType() const;
     void setDeviceType(IosDeviceType::Enum deviceType);
 
-    bool fromMap(const QVariantMap &map) QTC_OVERRIDE;
-    QVariantMap toMap() const QTC_OVERRIDE;
+    bool fromMap(const QVariantMap &map) Q_DECL_OVERRIDE;
+    QVariantMap toMap() const Q_DECL_OVERRIDE;
 
 protected:
     IosRunConfiguration(ProjectExplorer::Target *parent, IosRunConfiguration *source);

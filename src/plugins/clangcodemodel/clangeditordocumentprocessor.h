@@ -36,7 +36,6 @@
 #include <cpptools/builtineditordocumentprocessor.h>
 #include <cpptools/semantichighlighter.h>
 
-#include <utils/qtcoverride.h>
 
 #include <QFutureWatcher>
 
@@ -51,11 +50,11 @@ public:
     ~ClangEditorDocumentProcessor();
 
     // BaseEditorDocumentProcessor interface
-    void run() QTC_OVERRIDE;
-    void semanticRehighlight(bool force) QTC_OVERRIDE;
-    CppTools::SemanticInfo recalculateSemanticInfo() QTC_OVERRIDE;
-    CppTools::BaseEditorDocumentParser *parser() QTC_OVERRIDE;
-    bool isParserRunning() const QTC_OVERRIDE;
+    void run() Q_DECL_OVERRIDE;
+    void semanticRehighlight(bool force) Q_DECL_OVERRIDE;
+    CppTools::SemanticInfo recalculateSemanticInfo() Q_DECL_OVERRIDE;
+    CppTools::BaseEditorDocumentParser *parser() Q_DECL_OVERRIDE;
+    bool isParserRunning() const Q_DECL_OVERRIDE;
 
 private slots:
     void onParserFinished();

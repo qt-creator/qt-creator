@@ -30,7 +30,6 @@
 #define IOSDEPLOYCONFIGURATION_H
 
 #include <projectexplorer/deployconfiguration.h>
-#include <utils/qtcoverride.h>
 
 namespace Ios {
 namespace Internal {
@@ -59,22 +58,22 @@ class IosDeployConfigurationFactory : public ProjectExplorer::DeployConfiguratio
 public:
     explicit IosDeployConfigurationFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const QTC_OVERRIDE;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id) QTC_OVERRIDE;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const QTC_OVERRIDE;
+    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const Q_DECL_OVERRIDE;
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id) Q_DECL_OVERRIDE;
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const Q_DECL_OVERRIDE;
     ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent,
-                                                  const QVariantMap &map) QTC_OVERRIDE;
+                                                  const QVariantMap &map) Q_DECL_OVERRIDE;
     bool canClone(ProjectExplorer::Target *parent,
-                  ProjectExplorer::DeployConfiguration *source) const QTC_OVERRIDE;
+                  ProjectExplorer::DeployConfiguration *source) const Q_DECL_OVERRIDE;
     ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
-                                                ProjectExplorer::DeployConfiguration *source) QTC_OVERRIDE;
+                                                ProjectExplorer::DeployConfiguration *source) Q_DECL_OVERRIDE;
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const QTC_OVERRIDE;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const Q_DECL_OVERRIDE;
     // used to translate the ids to names to display to the user
-    QString displayNameForId(Core::Id id) const QTC_OVERRIDE;
+    QString displayNameForId(Core::Id id) const Q_DECL_OVERRIDE;
 
 private:
-    bool canHandle(ProjectExplorer::Target *parent) const QTC_OVERRIDE;
+    bool canHandle(ProjectExplorer::Target *parent) const Q_DECL_OVERRIDE;
 };
 
 } // namespace Internal
