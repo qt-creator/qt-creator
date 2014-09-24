@@ -35,6 +35,7 @@
 #include "modelmanagertesthelper.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/fileutils.h>
 #include <coreplugin/testdatadir.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -44,6 +45,7 @@
 
 #include <QDebug>
 #include <QFileInfo>
+#include <QTemporaryDir>
 #include <QtTest>
 
 using namespace CppTools::Internal;
@@ -1036,4 +1038,49 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
         Document::Ptr doc = mm->document(main1File);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
     }
+}
+
+void CppToolsPlugin::test_modelmanager_renameIncludes()
+{
+    struct ModelManagerGCHelper {
+        ~ModelManagerGCHelper() { CppModelManager::instance()->GC(); }
+    } GCHelper;
+
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+
+    const QDir workingDir(tmpDir.path());
+    const QStringList fileNames = QStringList() << _("foo.h") << _("foo.cpp") << _("main.cpp");
+    const QString oldHeader(workingDir.filePath(_("foo.h")));
+    const QString newHeader(workingDir.filePath(_("bar.h")));
+    CppModelManager *modelManager = CppModelManager::instance();
+    const MyTestDataDir testDir(_("testdata_project1"));
+
+    // Copy test files to a temporary directory
+    QSet<QString> sourceFiles;
+    foreach (const QString &fileName, fileNames) {
+        const QString &file = workingDir.filePath(fileName);
+        QVERIFY(QFile::copy(testDir.file(fileName), file));
+        // Saving source file names for the model manager update,
+        // so we can update just the relevant files.
+        if (ProjectFile::classify(file) == ProjectFile::CXXSource)
+            sourceFiles.insert(file);
+    }
+
+    // Update the c++ model manager and check for the old includes
+    modelManager->updateSourceFiles(sourceFiles).waitForFinished();
+    QCoreApplication::processEvents();
+    CPlusPlus::Snapshot snapshot = modelManager->snapshot();
+    foreach (const QString &sourceFile, sourceFiles)
+        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << oldHeader);
+
+    // Renaming the header
+    QVERIFY(Core::FileUtils::renameFile(oldHeader, newHeader));
+
+    // Update the c++ model manager again and check for the new includes
+    modelManager->updateSourceFiles(sourceFiles).waitForFinished();
+    QCoreApplication::processEvents();
+    snapshot = modelManager->snapshot();
+    foreach (const QString &sourceFile, sourceFiles)
+        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << newHeader);
 }

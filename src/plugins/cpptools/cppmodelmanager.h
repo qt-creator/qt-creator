@@ -179,6 +179,7 @@ private slots:
     // This should be executed in the GUI thread.
     void onAboutToLoadSession();
     void onAboutToUnloadSession();
+    void renameIncludes(const QString &oldFileName, const QString &newFileName);
     void onProjectAdded(ProjectExplorer::Project *project);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onSourceFilesRefreshed() const;

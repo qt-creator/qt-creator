@@ -400,6 +400,7 @@ public:
 
     typedef Base::const_iterator iterator;
     typedef Base::const_iterator const_iterator;
+    typedef QPair<Document::Ptr, unsigned> IncludeLocation;
 
     int size() const; // ### remove
     bool isEmpty() const;
@@ -424,6 +425,7 @@ public:
                                      const QString &fileName) const;
 
     QSet<QString> allIncludesForDocument(const QString &fileName) const;
+    QList<IncludeLocation> includeLocationsOfDocument(const QString &fileName) const;
 
     QStringList filesDependingOn(const QString &fileName) const;
     void updateDependencyTable() const;

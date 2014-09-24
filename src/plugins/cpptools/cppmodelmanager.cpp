@@ -36,11 +36,13 @@
 #include "cppfindreferences.h"
 #include "cppindexingsupport.h"
 #include "cppmodelmanagersupportinternal.h"
+#include "cpprefactoringchanges.h"
 #include "cppsourceprocessor.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
 #include "editordocumenthandle.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -297,6 +299,8 @@ CppModelManager::CppModelManager(QObject *parent)
             this, SLOT(onAboutToLoadSession()));
     connect(sessionManager, SIGNAL(aboutToUnloadSession(QString)),
             this, SLOT(onAboutToUnloadSession()));
+    connect(Core::DocumentManager::instance(), &Core::DocumentManager::allDocumentsRenamed,
+            this, &CppModelManager::renameIncludes);
 
     connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
             this, SLOT(onCoreAboutToClose()));
@@ -860,6 +864,35 @@ void CppModelManager::onAboutToUnloadSession()
         recalculateFileToProjectParts();
         d->m_dirty = true;
     } while (0);
+}
+
+void CppModelManager::renameIncludes(const QString &oldFileName, const QString &newFileName)
+{
+    if (oldFileName.isEmpty() || newFileName.isEmpty())
+        return;
+
+    const QFileInfo oldFileInfo(oldFileName);
+    const QFileInfo newFileInfo(newFileName);
+
+    // We just want to handle renamings so return when the file was actually moved.
+    if (oldFileInfo.absoluteDir() != newFileInfo.absoluteDir())
+        return;
+
+    const TextEditor::RefactoringChanges changes;
+
+    foreach (Snapshot::IncludeLocation loc, snapshot().includeLocationsOfDocument(oldFileName)) {
+        TextEditor::RefactoringFilePtr file = changes.file(loc.first->fileName());
+        const QTextBlock &block = file->document()->findBlockByLineNumber(loc.second - 1);
+        const int replaceStart = block.text().indexOf(oldFileInfo.fileName());
+        if (replaceStart > -1) {
+            Utils::ChangeSet changeSet;
+            changeSet.replace(block.position() + replaceStart,
+                              block.position() + replaceStart + oldFileInfo.fileName().length(),
+                              newFileInfo.fileName());
+            file->setChangeSet(changeSet);
+            file->apply();
+        }
+    }
 }
 
 void CppModelManager::onCoreAboutToClose()

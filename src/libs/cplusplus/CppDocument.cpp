@@ -798,6 +798,19 @@ QSet<QString> Snapshot::allIncludesForDocument(const QString &fileName) const
     return result;
 }
 
+QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(const QString &fileName) const
+{
+    QList<IncludeLocation> result;
+    for (const_iterator cit = begin(), citEnd = end(); cit != citEnd; ++cit) {
+        const Document::Ptr doc = cit.value();
+        foreach (const Document::Include &includeFile, doc->resolvedIncludes()) {
+            if (includeFile.resolvedFileName() == fileName)
+                result.append(qMakePair(doc, includeFile.line()));
+        }
+    }
+    return result;
+}
+
 QStringList Snapshot::filesDependingOn(const QString &fileName) const
 {
     updateDependencyTable();
