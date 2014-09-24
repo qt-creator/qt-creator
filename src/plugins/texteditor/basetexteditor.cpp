@@ -5862,7 +5862,8 @@ void BaseTextEditorWidget::cut()
 
 void BaseTextEditorWidget::selectAll()
 {
-    d->disableBlockSelection();
+    if (d->m_inBlockSelectionMode)
+        d->disableBlockSelection();
     QPlainTextEdit::selectAll();
 }
 
