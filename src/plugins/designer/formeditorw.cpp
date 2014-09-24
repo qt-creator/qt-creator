@@ -406,7 +406,7 @@ void FormEditorData::fullInit()
     });
 
     // Nest toolbar and editor widget
-    m_editorWidget = new EditorWidget(m_instance);
+    m_editorWidget = new EditorWidget;
     QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String(settingsGroupC));
     m_editorWidget->restoreSettings(settings);

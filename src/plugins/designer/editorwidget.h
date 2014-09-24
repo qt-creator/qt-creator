@@ -49,7 +49,6 @@ namespace Internal {
 
 class EditorData;
 class FormEditorStack;
-class FormEditorW;
 
 // Design mode main view.
 class EditorWidget : public Utils::FancyMainWindow
@@ -57,7 +56,7 @@ class EditorWidget : public Utils::FancyMainWindow
     Q_OBJECT
 
 public:
-    explicit EditorWidget(FormEditorW *fe, QWidget *parent = 0);
+    explicit EditorWidget(QWidget *parent = 0);
 
     QDockWidget* const* designerDockWidgets() const;
 

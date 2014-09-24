@@ -43,7 +43,7 @@ namespace Internal {
 
 // ---------- EditorWidget
 
-EditorWidget::EditorWidget(FormEditorW *few, QWidget *parent) :
+EditorWidget::EditorWidget(QWidget *parent) :
     Utils::FancyMainWindow(parent),
     m_stack(new FormEditorStack)
 {
@@ -54,7 +54,7 @@ EditorWidget::EditorWidget(FormEditorW *few, QWidget *parent) :
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    QWidget * const*subs = few->designerSubWindows();
+    QWidget * const*subs = FormEditorW::designerSubWindows();
     for (int i = 0; i < DesignerSubWindowCount; i++) {
         QWidget *subWindow = subs[i];
         subWindow->setWindowTitle(subs[i]->windowTitle());
