@@ -30,26 +30,38 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startCreatorTryingClang()
     if not startedWithoutPluginError():
         return
     createProject_Qt_Console(tempDir(), "SquishProject")
-    selectFromLocator("main.cpp")
-    cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+    models = iterateAvailableCodeModels()
+    for current in models:
+        if current != models[0]:
+            selectCodeModel(current)
+        test.log("Testing code model: %s" % current)
+        selectFromLocator("main.cpp")
+        cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
 
-    for record in testData.dataset("usages.tsv"):
-        include = testData.field(record, "include")
-        if include:
-            placeCursorToLine(cppwindow, "#include <QCoreApplication>")
-            typeLines(cppwindow, ("", "#include " + include))
-        placeCursorToLine(cppwindow, "return a.exec();")
-        typeLines(cppwindow, ("<Up>", testData.field(record, "declaration")))
-        type(cppwindow, testData.field(record, "usage"))
-        snooze(1) # maybe find something better
-        type(cppwindow, testData.field(record, "operator"))
-        waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
-        test.compare(str(lineUnderCursor(cppwindow)).strip(), testData.field(record, "expected"))
-        invokeMenuItem("File", 'Revert "main.cpp" to Saved')
-        clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+        for record in testData.dataset("usages.tsv"):
+            include = testData.field(record, "include")
+            if include:
+                placeCursorToLine(cppwindow, "#include <QCoreApplication>")
+                typeLines(cppwindow, ("", "#include " + include))
+            placeCursorToLine(cppwindow, "return a.exec();")
+            typeLines(cppwindow, ("<Up>", testData.field(record, "declaration")))
+            type(cppwindow, testData.field(record, "usage"))
+            snooze(1) # maybe find something better
+            type(cppwindow, testData.field(record, "operator"))
+            waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
+            found = str(lineUnderCursor(cppwindow)).strip()
+            exp = testData.field(record, "expected")
+            if current == "Clang" and exp[-2:] == "->":
+                test.xcompare(found, exp) # QTCREATORBUG-11581
+            else:
+                test.compare(found, exp)
+            invokeMenuItem("File", 'Revert "main.cpp" to Saved')
+            clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+        snooze(1)
+        invokeMenuItem("File", "Close All")
 
     invokeMenuItem("File", "Exit")
