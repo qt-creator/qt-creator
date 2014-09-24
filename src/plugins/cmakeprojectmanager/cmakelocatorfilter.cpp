@@ -64,11 +64,9 @@ CMakeLocatorFilter::~CMakeLocatorFilter()
 
 }
 
-QList<Core::LocatorFilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+void CMakeLocatorFilter::prepareSearch(const QString &entry)
 {
-    Q_UNUSED(future)
-    QList<Core::LocatorFilterEntry> result;
-
+    m_result.clear();
     foreach (Project *p, SessionManager::projects()) {
         CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
         if (cmakeProject) {
@@ -76,13 +74,18 @@ QList<Core::LocatorFilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<
                 if (ct.title.contains(entry)) {
                     Core::LocatorFilterEntry entry(this, ct.title, cmakeProject->projectFilePath().toString());
                     entry.extraInfo = FileUtils::shortNativePath(cmakeProject->projectFilePath());
-                    result.append(entry);
+                    m_result.append(entry);
                 }
             }
         }
     }
+}
 
-    return result;
+QList<Core::LocatorFilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+{
+    Q_UNUSED(future)
+    Q_UNUSED(entry)
+    return m_result;
 }
 
 void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection) const

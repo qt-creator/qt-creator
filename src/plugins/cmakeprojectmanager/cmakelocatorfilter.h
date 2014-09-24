@@ -45,12 +45,16 @@ public:
     CMakeLocatorFilter();
     ~CMakeLocatorFilter();
 
+    void prepareSearch(const QString &entry);
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
     void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 private slots:
     void slotProjectListUpdated();
+private:
+    QList<Core::LocatorFilterEntry> m_result;
+
 };
 
 } // namespace Internal
