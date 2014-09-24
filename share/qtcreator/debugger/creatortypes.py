@@ -71,6 +71,12 @@ def qdump__CPlusPlus__Identifier(d, value):
     d.putSimpleCharArray(value["_chars"], value["_size"])
     d.putPlainChildren(value)
 
+def qdump__CPlusPlus__Symbol(d, value):
+    name = d.downcast(value["_name"])
+    d.putItem(name)
+    d.putBetterType(value.type)
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__IntegerType(d, value):
     d.putValue(value["_kind"])
     d.putPlainChildren(value)
