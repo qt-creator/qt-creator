@@ -380,7 +380,8 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
     if (attributes.hasAttribute(QLatin1String("totalTime")))
         d->v8MeasuredTime = attributes.value(QLatin1String("totalTime")).toString().toDouble();
 
-    while (!stream.atEnd() && !stream.hasError()) {
+    bool finishedReading = false;
+    while (!stream.atEnd() && !stream.hasError() && !finishedReading) {
         QXmlStreamReader::TokenType token = stream.readNext();
         const QStringRef elementName = stream.name();
         switch (token) {
@@ -456,6 +457,7 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
         }
         case QXmlStreamReader::EndElement : {
             if (elementName == QLatin1String("v8profile")) {
+                finishedReading = true;
                 // done reading the v8 profile data
                 break;
             }
