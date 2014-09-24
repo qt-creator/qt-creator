@@ -610,33 +610,50 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices() const
 
     AndroidDeviceInfo dev;
     for (int i = 0; i < avds.size(); i++) {
-        QString line = QLatin1String(avds[i]);
+        QString line = QLatin1String(avds.at(i));
         if (!line.contains(QLatin1String("Name:")))
             continue;
 
-        dev.serialNumber = line.mid(line.indexOf(QLatin1Char(':')) + 2).trimmed();
+        int index = line.indexOf(QLatin1Char(':')) + 2;
+        if (index >= line.size())
+            break;
+        dev.serialNumber = line.mid(index).trimmed();
+        dev.sdk = -1;
+        dev.cpuAbi.clear();
         ++i;
         for (; i < avds.size(); ++i) {
             line = QLatin1String(avds[i]);
             if (line.contains(QLatin1String("---------")))
                 break;
             if (line.contains(QLatin1String("Target:"))) {
-                QString tmp = line.mid(line.lastIndexOf(QLatin1Char(' '))).remove(QLatin1Char(')')).trimmed();
+                int lastIndex = line.lastIndexOf(QLatin1Char(' '));
+                if (lastIndex == -1) // skip line
+                    break;
+                QString tmp = line.mid(lastIndex).remove(QLatin1Char(')')).trimmed();
                 if (tmp == QLatin1String("L")) // HACK for android-L preview
                     dev.sdk = 20;
                 else
                     dev.sdk = tmp.toInt();
             }
-            if (line.contains(QLatin1String("Tag/ABI:")))
-                dev.cpuAbi = QStringList() << line.mid(line.lastIndexOf(QLatin1Char('/')) +1);
-            else if (line.contains(QLatin1String("ABI:")))
-                dev.cpuAbi = QStringList() << line.mid(line.lastIndexOf(QLatin1Char(' '))).trimmed();
+            if (line.contains(QLatin1String("Tag/ABI:"))) {
+                int lastIndex = line.lastIndexOf(QLatin1Char('/')) + 1;
+                if (lastIndex >= line.size())
+                    break;
+                dev.cpuAbi = QStringList() << line.mid(lastIndex);
+            } else if (line.contains(QLatin1String("ABI:"))) {
+                int lastIndex = line.lastIndexOf(QLatin1Char(' ')) + 1;
+                if (lastIndex >= line.size())
+                    break;
+                dev.cpuAbi = QStringList() << line.mid(lastIndex).trimmed();
+            }
         }
         // armeabi-v7a devices can also run armeabi code
         if (dev.cpuAbi == QStringList(QLatin1String("armeabi-v7a")))
             dev.cpuAbi << QLatin1String("armeabi");
         dev.state = AndroidDeviceInfo::OkState;
         dev.type = AndroidDeviceInfo::Emulator;
+        if (dev.cpuAbi.isEmpty() || dev.sdk == -1)
+            continue;
         devices.push_back(dev);
     }
     Utils::sort(devices, androidDevicesLessThan);
