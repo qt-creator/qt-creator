@@ -34,8 +34,8 @@
 
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppsemanticinfo.h>
+#include <cpptools/cpptoolstestcase.h>
 #include <texteditor/semantichighlighter.h>
-#include <utils/fileutils.h>
 
 #include <QDebug>
 #include <QDir>
@@ -116,28 +116,15 @@ public:
     {
         // Write source to temprorary file
         const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
-        Document::Ptr document = Document::create(filePath);
-        Utils::FileSaver documentSaver(document->fileName());
-        documentSaver.write(source);
-        documentSaver.finalize();
+        CppTools::Tests::TestCase::writeFile(filePath, source);
 
-        // Preprocess source
-        Environment env;
-        Preprocessor preprocess(0, &env);
-        preprocess.setKeepComments(true);
-        const QByteArray preprocessedSource = preprocess.run(filePath, source);
-
-        document->setUtf8Source(preprocessedSource);
-        QVERIFY(document->parse());
-        document->check();
-        QVERIFY(document->diagnosticMessages().isEmpty());
+        // Processs source
+        const Document::Ptr document = createDocument(filePath, source);
         Snapshot snapshot;
         snapshot.insert(document);
 
         // Collect symbols
-        LookupContext context(document, snapshot);
-        CheckSymbols::Future future = CheckSymbols::go(document, context, expectedUsesMacros);
-        future.waitForFinished();
+        CheckSymbols::Future future = runCheckSymbols(document, snapshot, expectedUsesMacros);
 
         const int resultCount = future.resultCount();
         UseList actualUses;
@@ -160,6 +147,34 @@ public:
             QVERIFY(expectedUse.isValid());
             QCOMPARE(actualUse, expectedUse);
         }
+    }
+
+    static CheckSymbols::Future runCheckSymbols(const Document::Ptr &document,
+                                                const Snapshot &snapshot,
+                                                const UseList &expectedUsesMacros = UseList())
+    {
+        LookupContext context(document, snapshot);
+        CheckSymbols::Future future = CheckSymbols::go(document, context, expectedUsesMacros);
+        future.waitForFinished();
+        return future;
+    }
+
+    static Document::Ptr createDocument(const QString &filePath, const QByteArray &source)
+    {
+        Environment env;
+        Preprocessor preprocess(0, &env);
+        preprocess.setKeepComments(true);
+        const QByteArray preprocessedSource = preprocess.run(filePath, source);
+
+        Document::Ptr document = Document::create(filePath);
+        document->setUtf8Source(preprocessedSource);
+        if (!document->parse())
+            return Document::Ptr();
+        document->check();
+        if (!document->diagnosticMessages().isEmpty())
+            return Document::Ptr();
+
+        return document;
     }
 };
 
