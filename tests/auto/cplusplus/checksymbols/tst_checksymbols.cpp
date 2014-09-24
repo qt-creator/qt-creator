@@ -191,6 +191,8 @@ private slots:
 
     void test_checksymbols_macroUses();
     void test_checksymbols_macroUses_data();
+
+    void test_checksymbols_infiniteLoop();
 };
 
 void tst_CheckSymbols::test_checksymbols()
@@ -1749,6 +1751,50 @@ void tst_CheckSymbols::test_checksymbols_macroUses_data()
         << (UseList()
             << Use(1, 9, 3, Highlighting::MacroUse)
             << Use(2, 11, 3, Highlighting::MacroUse));
+}
+
+void tst_CheckSymbols::test_checksymbols_infiniteLoop()
+{
+    const QByteArray source1 =
+        "#include \"file2.h\"\n"
+        "\n"
+        "template<class _Elem, class _Traits>\n"
+        "class basic_ios {\n"
+        "        typedef basic_ostream<_Elem, _Traits> _Myos;\n"
+        "};\n"
+        "\n"
+        "template<class _Elem, class _Traits>\n"
+        "class basic_ostream {\n"
+        "        typedef basic_ostream<_Elem, _Traits> _Myt;\n"
+        "        typedef ostreambuf_iterator<_Elem, _Traits> _Iter;\n"
+        "};\n"
+        ;
+    const QString filePath1 = QDir::tempPath() + QLatin1String("/file1.h");
+    CppTools::Tests::TestCase::writeFile(filePath1, source1);
+
+    const QByteArray source2 =
+        "template<class _Elem, class _Traits>\n"
+        "class basic_streambuf {\n"
+        "        typedef basic_streambuf<_Elem, _Traits> _Myt;\n"
+        "};\n"
+        "\n"
+        "template<class _Elem, class _Traits>\n"
+        "class ostreambuf_iterator {\n"
+        "    typedef _Traits traits_type;\n"
+        "        typedef basic_streambuf<_Elem, _Traits> streambuf_type;\n"
+        "        typedef basic_ostream<_Elem, _Traits> ostream_type;\n"
+        "};\n"
+        ;
+    const QString filePath2 = QDir::tempPath() + QLatin1String("/file2.h");
+    CppTools::Tests::TestCase::writeFile(filePath2, source2);
+
+    const Document::Ptr document1 = TestCase::createDocument(filePath1, source1);
+    document1->addIncludeFile(Document::Include("file2.h", filePath2, 1, Client::IncludeLocal));
+    Snapshot snapshot;
+    snapshot.insert(document1);
+    snapshot.insert(TestCase::createDocument(filePath2, source2));
+
+    TestCase::runCheckSymbols(document1, snapshot);
 }
 
 QTEST_APPLESS_MAIN(tst_CheckSymbols)

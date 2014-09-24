@@ -92,7 +92,10 @@ static bool isNestedInstantiationEnclosingTemplate(
         ClassOrNamespace *nestedClassOrNamespaceInstantiation,
         ClassOrNamespace *enclosingTemplateClassInstantiation)
 {
-    while (enclosingTemplateClassInstantiation) {
+    QList<ClassOrNamespace *> processed;
+    while (enclosingTemplateClassInstantiation
+           && !processed.contains(enclosingTemplateClassInstantiation)) {
+        processed.append(enclosingTemplateClassInstantiation);
         if (enclosingTemplateClassInstantiation == nestedClassOrNamespaceInstantiation)
             return false;
         enclosingTemplateClassInstantiation = enclosingTemplateClassInstantiation->parent();
