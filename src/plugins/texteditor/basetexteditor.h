@@ -378,7 +378,7 @@ public:
     virtual void unCommentSelection();
 
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
-    void setMarginSettings(const TextEditor::MarginSettings &);
+    virtual void setMarginSettings(const TextEditor::MarginSettings &);
     void setBehaviorSettings(const TextEditor::BehaviorSettings &);
     void setTypingSettings(const TextEditor::TypingSettings &);
     void setStorageSettings(const TextEditor::StorageSettings &);

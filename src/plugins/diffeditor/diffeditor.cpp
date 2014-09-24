@@ -41,6 +41,7 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/displaysettings.h>
+#include <texteditor/marginsettings.h>
 
 #include <QStackedWidget>
 #include <QToolButton>
@@ -79,12 +80,12 @@ public:
 signals:
     void expandBranchesRequested();
 
-public slots:
-    void setDisplaySettings(const DisplaySettings &ds);
-
 protected:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
+
+    void setDisplaySettings(const DisplaySettings &ds);
+    void setMarginSettings(const MarginSettings &ms);
 
     bool findContentsUnderCursor(const QTextCursor &cursor);
     void highlightCurrentContents();
@@ -126,6 +127,12 @@ void DescriptionEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     DisplaySettings settings = displaySettings();
     settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
     BaseTextEditorWidget::setDisplaySettings(settings);
+}
+
+void DescriptionEditorWidget::setMarginSettings(const MarginSettings &ms)
+{
+    Q_UNUSED(ms);
+    BaseTextEditorWidget::setMarginSettings(MarginSettings());
 }
 
 void DescriptionEditorWidget::mouseMoveEvent(QMouseEvent *e)
@@ -227,17 +234,6 @@ DiffEditor::DiffEditor(const QSharedPointer<DiffEditorDocument> &doc)
 
     connect(m_descriptionWidget, SIGNAL(expandBranchesRequested()),
             m_document->controller(), SLOT(expandBranchesRequested()));
-    connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
-            m_descriptionWidget, &BaseTextEditorWidget::setDisplaySettings);
-    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            m_descriptionWidget->textDocument(), &BaseTextDocument::setFontSettings);
-
-    m_descriptionWidget->setDisplaySettings(
-                TextEditorSettings::displaySettings());
-    m_descriptionWidget->setCodeStyle(
-                TextEditorSettings::codeStyle());
-    m_descriptionWidget->textDocument()->setFontSettings(
-                TextEditorSettings::fontSettings());
 
     m_controller = m_document->controller();
     m_guiController = new DiffEditorGuiController(m_controller, this);
