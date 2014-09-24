@@ -60,8 +60,10 @@ const char C_HELP_SIDEBAR[] = "Help Sidebar";
 const char C_HELP_EXTERNAL[] = "Help.ExternalWindow";
 
 const char CONTEXT_HELP[] = "Help.Context";
+const char HELP_HOME[] = "Help.Home";
 const char HELP_PREVIOUS[] = "Help.Previous";
 const char HELP_NEXT[] = "Help.Next";
+const char HELP_BOOKMARK[] = "Help.AddBookmark";
 
 } // Constants
 } // Help

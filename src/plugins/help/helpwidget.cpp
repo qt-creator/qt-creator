@@ -29,9 +29,11 @@
 
 #include "helpwidget.h"
 
+#include "bookmarkmanager.h"
 #include "helpconstants.h"
 #include "helpplugin.h"
 #include "helpviewer.h"
+#include "localhelpmanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -81,6 +83,12 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     connect(m_switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
     layout->addWidget(toolButton(m_switchToHelp, cmd));
 
+    m_homeAction = new QAction(QIcon(QLatin1String(":/help/images/home.png")),
+        tr("Home"), this);
+    cmd = Core::ActionManager::registerAction(m_homeAction, Constants::HELP_HOME, context);
+    connect(m_homeAction, &QAction::triggered, this, &HelpWidget::goHome);
+    layout->addWidget(toolButton(m_homeAction, cmd));
+
     m_backAction = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
         tr("Back"), toolBar);
     m_backMenu = new QMenu(toolBar);
@@ -98,6 +106,14 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     cmd = Core::ActionManager::registerAction(m_forwardAction, Constants::HELP_NEXT, context);
     cmd->setDefaultKeySequence(QKeySequence::Forward);
     layout->addWidget(toolButton(m_forwardAction, cmd));
+
+    m_addBookmarkAction = new QAction(QIcon(QLatin1String(":/help/images/bookmark.png")),
+        tr("Add Bookmark"), this);
+    cmd = Core::ActionManager::registerAction(m_addBookmarkAction, Constants::HELP_BOOKMARK, context);
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
+    connect(m_addBookmarkAction, &QAction::triggered, this, &HelpWidget::addBookmark);
+    layout->addWidget(new Utils::StyledSeparator(toolBar));
+    layout->addWidget(toolButton(m_addBookmarkAction, cmd));
 
     layout->addStretch();
 
@@ -178,8 +194,10 @@ HelpWidget::~HelpWidget()
     Core::ICore::removeContextObject(m_context);
     Core::ActionManager::unregisterAction(m_copy, Core::Constants::COPY);
     Core::ActionManager::unregisterAction(m_switchToHelp, Constants::CONTEXT_HELP);
+    Core::ActionManager::unregisterAction(m_homeAction, Constants::HELP_HOME);
     Core::ActionManager::unregisterAction(m_forwardAction, Constants::HELP_NEXT);
     Core::ActionManager::unregisterAction(m_backAction, Constants::HELP_PREVIOUS);
+    Core::ActionManager::unregisterAction(m_addBookmarkAction, Constants::HELP_BOOKMARK);
     if (m_scaleUp)
         Core::ActionManager::unregisterAction(m_scaleUp, TextEditor::Constants::INCREASE_FONT_SIZE);
     if (m_scaleDown)
@@ -224,6 +242,25 @@ void HelpWidget::helpModeButtonClicked()
     emit openHelpMode(m_viewer->source());
     if (m_style == ExternalWindow)
         close();
+}
+
+void HelpWidget::goHome()
+{
+    if (HelpViewer *viewer = currentViewer())
+        viewer->home();
+}
+
+void HelpWidget::addBookmark()
+{
+    HelpViewer *viewer = currentViewer();
+    QTC_ASSERT(viewer, return);
+
+    const QString &url = viewer->source().toString();
+    if (url.isEmpty() || url == Help::Constants::AboutBlank)
+        return;
+
+    BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
+    manager->showBookmarkDialog(this, viewer->title(), url);
 }
 
 } // Internal

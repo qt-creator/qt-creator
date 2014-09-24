@@ -72,14 +72,18 @@ private slots:
     void updateForwardMenu();
     void updateWindowTitle();
     void helpModeButtonClicked();
+    void goHome();
+    void addBookmark();
 
 private:
     Core::IContext *m_context;
     QAction *m_switchToHelp;
+    QAction *m_homeAction;
     QMenu *m_backMenu;
     QMenu *m_forwardMenu;
     QAction *m_backAction;
     QAction *m_forwardAction;
+    QAction *m_addBookmarkAction;
     QAction *m_scaleUp;
     QAction *m_scaleDown;
     QAction *m_resetScale;

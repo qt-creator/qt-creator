@@ -206,7 +206,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     // Add Home, Previous and Next actions (used in the toolbar)
     QAction *action = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")),
         tr("Home"), this);
-    cmd = ActionManager::registerAction(action, "Help.Home", globalcontext);
+    cmd = ActionManager::registerAction(action, Constants::HELP_HOME, globalcontext);
     connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(home()));
     helpButtonLayout->addWidget(toolButton(cmd, action));
 
@@ -234,7 +234,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     action = new QAction(QIcon(QLatin1String(IMAGEPATH "bookmark.png")),
         tr("Add Bookmark"), this);
-    cmd = ActionManager::registerAction(action, "Help.AddBookmark", modecontext);
+    cmd = ActionManager::registerAction(action, Constants::HELP_BOOKMARK, modecontext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     connect(action, SIGNAL(triggered()), this, SLOT(addBookmark()));
     helpButtonLayout->addWidget(toolButton(cmd, action));
