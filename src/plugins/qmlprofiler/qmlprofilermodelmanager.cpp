@@ -383,6 +383,7 @@ void QmlProfilerModelManager::save(const QString &filename)
     writer.setTraceTime(traceTime()->startTime(), traceTime()->endTime(), traceTime()->duration());
     writer.setV8DataModel(d->v8Model);
     writer.setQmlEvents(d->model->getEventTypes(), d->model->getEvents());
+    writer.setNotes(d->model->getEventNotes());
     writer.save(&file);
 }
 

@@ -170,6 +170,11 @@ bool QmlProfilerFileReader::load(QIODevice *device)
                  break;
              }
 
+             if (elementName == _("noteData")) {
+                 loadNoteData(stream);
+                 break;
+             }
+
              if (elementName == _("v8profile")) {
                  if (m_v8Model)
                      m_v8Model->load(stream);
@@ -187,6 +192,7 @@ bool QmlProfilerFileReader::load(QIODevice *device)
          return false;
      } else {
          m_qmlModel->setData(m_qmlEvents, m_ranges);
+         m_qmlModel->setNoteData(m_notes);
          return true;
      }
 }
@@ -377,6 +383,41 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
     }
 }
 
+void QmlProfilerFileReader::loadNoteData(QXmlStreamReader &stream)
+{
+    QmlProfilerDataModel::QmlEventNoteData currentNote;
+    while (!stream.atEnd() && !stream.hasError()) {
+        QXmlStreamReader::TokenType token = stream.readNext();
+        const QStringRef elementName = stream.name();
+
+        switch (token) {
+        case QXmlStreamReader::StartElement: {
+            if (elementName == _("note")) {
+                QXmlStreamAttributes attrs = stream.attributes();
+                currentNote.startTime = attrs.value(_("startTime")).toString().toLongLong();
+                currentNote.duration = attrs.value(_("duration")).toString().toLongLong();
+                currentNote.typeIndex = attrs.value(_("eventIndex")).toString().toInt();
+            }
+            break;
+        }
+        case QXmlStreamReader::Characters: {
+            currentNote.text = stream.text().toString();
+            break;
+        }
+        case QXmlStreamReader::EndElement: {
+            if (elementName == _("note")) {
+                m_notes.append(currentNote);
+            } else if (elementName == _("noteData")) {
+                return;
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    }
+}
+
 QmlProfilerFileWriter::QmlProfilerFileWriter(QObject *parent) :
     QObject(parent),
     m_startTime(0),
@@ -403,6 +444,11 @@ void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerDataModel::Qml
 {
     m_qmlEvents = types;
     m_ranges = events;
+}
+
+void QmlProfilerFileWriter::setNotes(const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes)
+{
+    m_notes = notes;
 }
 
 void QmlProfilerFileWriter::save(QIODevice *device)
@@ -504,6 +550,18 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         stream.writeEndElement();
     }
     stream.writeEndElement(); // profilerDataModel
+
+    stream.writeStartElement(_("noteData"));
+    for (int noteIndex = 0; noteIndex < m_notes.size(); ++noteIndex) {
+        const QmlProfilerDataModel::QmlEventNoteData &notes = m_notes[noteIndex];
+        stream.writeStartElement(_("note"));
+        stream.writeAttribute(_("startTime"), QString::number(notes.startTime));
+        stream.writeAttribute(_("duration"), QString::number(notes.duration));
+        stream.writeAttribute(_("eventIndex"), QString::number(notes.typeIndex));
+        stream.writeCharacters(notes.text);
+        stream.writeEndElement(); // note
+    }
+    stream.writeEndElement(); // noteData
 
     m_v8Model->save(stream);
 

@@ -69,11 +69,13 @@ signals:
 private:
     void loadEventData(QXmlStreamReader &reader);
     void loadProfilerDataModel(QXmlStreamReader &reader);
+    void loadNoteData(QXmlStreamReader &reader);
 
     QV8ProfilerDataModel *m_v8Model;
     QmlProfilerDataModel *m_qmlModel;
     QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
     QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
+    QVector<QmlProfilerDataModel::QmlEventNoteData> m_notes;
 };
 
 
@@ -88,17 +90,18 @@ public:
     void setV8DataModel(QV8ProfilerDataModel *dataModel);
     void setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
                       const QVector<QmlProfilerDataModel::QmlEventData> &events);
+    void setNotes(const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes);
 
     void save(QIODevice *device);
 
 private:
     void calculateMeasuredTime();
 
-
     qint64 m_startTime, m_endTime, m_measuredTime;
     QV8ProfilerDataModel *m_v8Model;
     QVector<QmlProfilerDataModel::QmlEventTypeData> m_qmlEvents;
     QVector<QmlProfilerDataModel::QmlEventData> m_ranges;
+    QVector<QmlProfilerDataModel::QmlEventNoteData> m_notes;
 };
 
 
