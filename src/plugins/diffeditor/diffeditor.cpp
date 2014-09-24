@@ -138,7 +138,7 @@ void DescriptionEditorWidget::setMarginSettings(const MarginSettings &ms)
 void DescriptionEditorWidget::mouseMoveEvent(QMouseEvent *e)
 {
     if (e->buttons()) {
-        TextEditor::BaseTextEditorWidget::mouseMoveEvent(e);
+        BaseTextEditorWidget::mouseMoveEvent(e);
         return;
     }
 
@@ -153,7 +153,7 @@ void DescriptionEditorWidget::mouseMoveEvent(QMouseEvent *e)
         cursorShape = Qt::IBeamCursor;
     }
 
-    TextEditor::BaseTextEditorWidget::mouseMoveEvent(e);
+    BaseTextEditorWidget::mouseMoveEvent(e);
     viewport()->setCursor(cursorShape);
 }
 
@@ -168,7 +168,7 @@ void DescriptionEditorWidget::mouseReleaseEvent(QMouseEvent *e)
         }
     }
 
-    TextEditor::BaseTextEditorWidget::mouseReleaseEvent(e);
+    BaseTextEditorWidget::mouseReleaseEvent(e);
 }
 
 bool DescriptionEditorWidget::findContentsUnderCursor(const QTextCursor &cursor)
