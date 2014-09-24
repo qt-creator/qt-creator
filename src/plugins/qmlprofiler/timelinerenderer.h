@@ -172,6 +172,8 @@ private:
     void drawItemsToPainter(QPainter *p, int modelIndex, int fromIndex, int toIndex);
     void drawSelectionBoxes(QPainter *p, int modelIndex, int fromIndex, int toIndex);
     void drawBindingLoopMarkers(QPainter *p, int modelIndex, int fromIndex, int toIndex);
+    void drawNotes(QPainter *p);
+
     int modelFromPosition(int y);
     int rowFromPosition(int y);
 

@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "timelinerenderer.h"
+#include "notesmodel.h"
 
 #include <QQmlContext>
 #include <QQmlProperty>
@@ -60,6 +61,7 @@ void TimelineRenderer::setProfilerModelProxy(QObject *profilerModelProxy)
         disconnect(m_profilerModelProxy, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
         disconnect(m_profilerModelProxy, SIGNAL(modelsChanged(int,int)),
                    this, SLOT(swapSelections(int,int)));
+        disconnect(m_profilerModelProxy, SIGNAL(notesChanged()), this, SLOT(requestPaint()));
     }
     m_profilerModelProxy = qobject_cast<TimelineModelAggregator *>(profilerModelProxy);
 
@@ -69,6 +71,8 @@ void TimelineRenderer::setProfilerModelProxy(QObject *profilerModelProxy)
         connect(m_profilerModelProxy, SIGNAL(rowHeightChanged()), this, SLOT(requestPaint()));
         connect(m_profilerModelProxy, SIGNAL(modelsChanged(int,int)),
                 this, SLOT(swapSelections(int,int)));
+        connect(m_profilerModelProxy, SIGNAL(notesChanged(int,int,int)),
+                this, SLOT(requestPaint()));
     }
     emit profilerModelProxyChanged(m_profilerModelProxy);
 }
@@ -161,6 +165,7 @@ void TimelineRenderer::paint(QPainter *p)
             }
         }
     }
+    drawNotes(p);
     m_lastStartTime = m_startTime;
     m_lastEndTime = m_endTime;
 
@@ -309,6 +314,52 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
         }
     }
     p->restore();
+}
+
+void TimelineRenderer::drawNotes(QPainter *p)
+{
+    static const QColor shadowBrush("grey");
+    static const QColor markerBrush("orange");
+    static const int annotationWidth = 4;
+    static const int annotationHeight1 = 16;
+    static const int annotationHeight2 = 4;
+    static const int annotationSpace = 4;
+    static const int shadowOffset = 2;
+
+    NotesModel *notes = m_profilerModelProxy->notes();
+    for (int i = 0; i < notes->count(); ++i) {
+        int managerIndex = notes->timelineModel(i);
+        if (managerIndex == -1)
+            continue;
+        int modelIndex = m_profilerModelProxy->modelIndexFromManagerIndex(managerIndex);
+        int eventIndex = notes->timelineIndex(i);
+        int row = m_profilerModelProxy->row(modelIndex, eventIndex);
+        int rowHeight = m_profilerModelProxy->rowHeight(modelIndex, row);
+        int currentY = m_profilerModelProxy->rowOffset(modelIndex, row) - y();
+        for (int mi = 0; mi < modelIndex; mi++)
+            currentY += m_profilerModelProxy->model(mi)->height();
+        if (currentY + rowHeight < 0 || height() < currentY)
+            continue;
+        int currentX;
+        int itemWidth;
+        getItemXExtent(modelIndex, eventIndex, currentX, itemWidth);
+
+        // shadow
+        int annoX = currentX + (itemWidth - annotationWidth) / 2;
+        int annoY = currentY + rowHeight / 2 -
+                (annotationHeight1 + annotationHeight2 + annotationSpace) / 2;
+
+        p->setBrush(shadowBrush);
+        p->drawRect(annoX, annoY + shadowOffset, annotationWidth, annotationHeight1);
+        p->drawRect(annoX, annoY + annotationHeight1 + annotationSpace + shadowOffset,
+                annotationWidth, annotationHeight2);
+
+        // marker
+        p->setBrush(markerBrush);
+        p->drawRect(annoX, annoY, annotationWidth, annotationHeight1);
+        p->drawRect(annoX, annoY + annotationHeight1 + annotationSpace,
+                annotationWidth, annotationHeight2);
+    }
 }
 
 int TimelineRenderer::rowFromPosition(int y)
