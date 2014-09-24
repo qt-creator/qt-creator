@@ -277,7 +277,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
     case RangeStart: {
-        if (!(d->features & (1 << featureFromRangeType(static_cast<RangeType>(subtype)))))
+        if (!(d->features & (1ULL << featureFromRangeType(static_cast<RangeType>(subtype)))))
             break;
         d->rangeStartTimes[subtype].push(time);
         d->inProgressRanges |= (static_cast<qint64>(1) << subtype);
@@ -293,7 +293,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
     case RangeData: {
-        if (!(d->features & (1 << featureFromRangeType(static_cast<RangeType>(subtype)))))
+        if (!(d->features & (1ULL << featureFromRangeType(static_cast<RangeType>(subtype)))))
             break;
         QString data;
         stream >> data;
@@ -307,7 +307,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
     case RangeLocation: {
-        if (!(d->features & (1 << featureFromRangeType(static_cast<RangeType>(subtype)))))
+        if (!(d->features & (1ULL << featureFromRangeType(static_cast<RangeType>(subtype)))))
             break;
         QString fileName;
         int line;
@@ -322,7 +322,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         break;
     }
     case RangeEnd: {
-        if (!(d->features & (1 << featureFromRangeType(static_cast<RangeType>(subtype)))))
+        if (!(d->features & (1ULL << featureFromRangeType(static_cast<RangeType>(subtype)))))
             break;
         if (d->rangeCount[subtype] == 0)
             break;

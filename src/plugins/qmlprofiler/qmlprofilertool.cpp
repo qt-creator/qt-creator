@@ -531,12 +531,12 @@ void QmlProfilerTool::clientsDisconnected()
 template<QmlDebug::ProfileFeature feature>
 void QmlProfilerTool::updateFeaturesMenu(quint64 features)
 {
-    if (features & (1 << feature)) {
+    if (features & (1ULL << (feature))) {
         QAction *action = d->m_featuresMenu->addAction(tr(QmlProfilerModelManager::featureName(
                                                static_cast<QmlDebug::ProfileFeature>(feature))));
         action->setCheckable(true);
         action->setData(static_cast<uint>(feature));
-        action->setChecked(d->m_profilerState->recordingFeatures() & (1 << feature));
+        action->setChecked(d->m_profilerState->recordingFeatures() & (1ULL << (feature)));
     }
     updateFeaturesMenu<static_cast<QmlDebug::ProfileFeature>(feature + 1)>(features);
 }
@@ -664,10 +664,10 @@ void QmlProfilerTool::toggleRecordingFeature(QAction *action)
     uint feature = action->data().toUInt();
     if (action->isChecked())
         d->m_profilerState->setRecordingFeatures(
-                    d->m_profilerState->recordingFeatures() | (1 << feature));
+                    d->m_profilerState->recordingFeatures() | (1ULL << feature));
     else
         d->m_profilerState->setRecordingFeatures(
-                    d->m_profilerState->recordingFeatures() & (~(1 << feature)));
+                    d->m_profilerState->recordingFeatures() & (~(1ULL << feature)));
 
     // Keep the menu open to allow for more features to be toggled
     d->m_recordButton->showMenu();

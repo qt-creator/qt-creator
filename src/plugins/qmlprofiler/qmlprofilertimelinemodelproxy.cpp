@@ -69,7 +69,7 @@ RangeTimelineModel::RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *p
 quint64 RangeTimelineModel::features() const
 {
     Q_D(const RangeTimelineModel);
-    return 1 << QmlDebug::featureFromRangeType(d->rangeType);
+    return 1ULL << QmlDebug::featureFromRangeType(d->rangeType);
 }
 
 void RangeTimelineModel::clear()
