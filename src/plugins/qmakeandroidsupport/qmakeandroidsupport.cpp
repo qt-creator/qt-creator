@@ -58,14 +58,20 @@ bool QmakeAndroidSupport::canHandle(const ProjectExplorer::Target *target) const
 QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *target) const
 {
     QStringList res;
-    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration*>(target->activeBuildConfiguration());
     QmakeProject *project = qobject_cast<QmakeProject*>(target->project());
     Q_ASSERT(project);
     if (!project)
         return res;
 
     foreach (QmakeProFileNode *node, project->allProFiles()) {
-        res  << node->buildDir(bc);
+        TargetInformation info = node->targetInformation();
+        res << info.buildDir;
+        QString destDir = info.destDir;
+        if (!destDir.isEmpty()) {
+            if (QFileInfo(destDir).isRelative())
+                destDir = QDir::cleanPath(info.buildDir + QLatin1Char('/') + destDir);
+            res << destDir;
+        }
     }
 
     return res;
