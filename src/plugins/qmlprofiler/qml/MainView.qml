@@ -107,7 +107,7 @@ Rectangle {
         flick.contentWidth = 0;
         view.clearData();
         view.startTime = view.endTime = 0;
-        hideRangeDetails();
+        rangeDetails.hide();
         selectionRangeMode = false;
         buttonsBar.updateRangeButton(selectionRangeMode);
         zoomControl.setRange(0,0);
@@ -149,16 +149,6 @@ Rectangle {
                 totalRowOffset + qmlProfilerModelProxy.rowHeight(modelIndex, row) < flick.contentY)
             flick.contentY = Math.min(flick.contentHeight - flick.height,
                                       Math.max(0, totalRowOffset - flick.height / 2));
-    }
-
-    function hideRangeDetails() {
-        rangeDetails.visible = false;
-        rangeDetails.duration = "";
-        rangeDetails.label = "";
-        rangeDetails.file = "";
-        rangeDetails.line = -1;
-        rangeDetails.column = 0;
-        rangeDetails.isBindingLoop = false;
     }
 
     function selectBySelectionId(modelIndex, selectionId)
@@ -368,10 +358,7 @@ Rectangle {
             onSelectionChanged: {
                 if (selectedItem !== -1) {
                     // display details
-                    rangeDetails.showInfo(qmlProfilerModelProxy.details(selectedModel,
-                                                                        selectedItem));
-                    rangeDetails.setLocation(qmlProfilerModelProxy.location(selectedModel,
-                                                                            selectedItem));
+                    rangeDetails.showInfo(selectedModel, selectedItem);
 
                     // center view (horizontally)
                     recenterOnItem(selectedModel, selectedItem);
@@ -388,7 +375,7 @@ Rectangle {
                         lockItemSelection = false;
                     }
                 } else {
-                    root.hideRangeDetails();
+                    rangeDetails.hide();
                 }
             }
 

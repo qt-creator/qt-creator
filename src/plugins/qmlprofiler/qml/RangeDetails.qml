@@ -42,6 +42,9 @@ Item {
     property int column
     property bool isBindingLoop
 
+    property int selectedModel: -1
+    property int selectedItem: -1
+
     property bool locked: view.selectionLocked
 
     width: col.width + 25
@@ -50,6 +53,19 @@ Item {
     visible: false
     x: 200
     y: 25
+
+    function hide() {
+        noteEdit.focus = false;
+        visible = false;
+        selectedModel = selectedItem = -1;
+        noteEdit.text = "";
+        duration = "";
+        label = "";
+        file = "";
+        line = -1;
+        column = 0;
+        isBindingLoop = false;
+    }
 
     // keep inside view
     Connections {
@@ -62,7 +78,13 @@ Item {
         id: eventInfo
     }
 
-    function showInfo(eventData) {
+    function showInfo(model, item) {
+        // make sure we don't accidentally save the old text for the new event
+        noteEdit.focus = false;
+
+        selectedModel = model;
+        selectedItem = item;
+        var eventData = qmlProfilerModelProxy.details(selectedModel, selectedItem)
         eventInfo.clear();
         for (var k in eventData) {
             if (k === "displayName") {
@@ -73,9 +95,8 @@ Item {
             }
         }
         rangeDetails.visible = true;
-    }
 
-    function setLocation(location) {
+        var location = qmlProfilerModelProxy.location(selectedModel, selectedItem)
         if (location.hasOwnProperty("file")) { // not empty
             file = location.file;
             line = location.line;
@@ -86,6 +107,9 @@ Item {
             line = 0;
             column = -1;
         }
+
+        noteEdit.focus = false;
+        noteEdit.text = qmlProfilerModelProxy.noteText(selectedModel, selectedItem);
     }
 
     function fitInView() {
@@ -160,7 +184,7 @@ Item {
     Rectangle {
         color: "white"
         width: parent.width
-        height: col.height + 10
+        height: 10 + col.height + (noteEdit.visible ? (noteEdit.height + 5) : 0)
         y: 20
         border.width: 1
         border.color: "#a0a0a0"
@@ -181,6 +205,40 @@ Item {
                 }
             }
         }
+
+
+        TextEdit {
+            id: noteEdit
+            x: 10
+            anchors.topMargin: 5
+            anchors.bottomMargin: 5
+            anchors.top: col.bottom
+
+            visible: text.length > 0 || focus
+            width: col.width
+            wrapMode: Text.Wrap
+            color: "orange"
+            font.italic: true
+            renderType: Text.NativeRendering
+            selectByMouse: true
+            onTextChanged: saveTimer.restart()
+            onFocusChanged: {
+                if (!focus && selectedModel != -1 && selectedItem != -1) {
+                    saveTimer.stop();
+                    qmlProfilerModelProxy.setNoteText(selectedModel, selectedItem, text);
+                }
+            }
+
+            Timer {
+                id: saveTimer
+                onTriggered: {
+                    if (selectedModel != -1 && selectedItem != -1)
+                        qmlProfilerModelProxy.setNoteText(selectedModel, selectedItem,
+                                                          noteEdit.text);
+                }
+                interval: 1000
+            }
+        }
     }
 
     MouseArea {
@@ -193,6 +251,20 @@ Item {
         onClicked: {
             root.gotoSourceLocation(file, line, column);
             root.recenterOnItem(view.selectedModel, view.selectedItem);
+        }
+    }
+
+    Image {
+        id: editIcon
+        source: "ico_edit.png"
+        anchors.top: closeIcon.top
+        anchors.right: lockIcon.left
+        anchors.rightMargin: 4
+        width: 8
+        height: 12
+        MouseArea {
+            anchors.fill: parent
+            onClicked: noteEdit.focus = true
         }
     }
 
@@ -223,7 +295,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                root.hideRangeDetails();
+                rangeDetails.hide();
                 view.selectFromEventIndex(view.selectedModel, -1);
             }
         }

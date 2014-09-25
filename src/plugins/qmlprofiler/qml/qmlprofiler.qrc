@@ -11,6 +11,7 @@
         <file>recordOn.png</file>
         <file>lock_closed.png</file>
         <file>lock_open.png</file>
+        <file>ico_edit.png</file>
         <file>TimeMarks.qml</file>
         <file>Overview.qml</file>
         <file>Overview.js</file>
