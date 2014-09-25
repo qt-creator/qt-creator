@@ -3827,5 +3827,70 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_notTriggeringForIn
     QuickFixTestCase(testFiles, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectOutOfClass()
+{
+    QByteArray prefix =
+        "class QObject {};\n"
+        "class TestClass : public QObject\n"
+        "{\n"
+        "public:\n"
+        "    void setProp(int) {}\n"
+        "    void sigFoo(int) {}\n"
+        "};\n"
+        "\n"
+        "int foo()\n"
+        "{\n";
+
+    QByteArray suffix = "\n}\n";
+
+    QByteArray original = prefix
+          + "    TestClass obj;\n"
+            "    conne@ct(&obj, SIGNAL(sigFoo(int)), &obj, SLOT(setProp(int)));"
+          + suffix;
+
+    QByteArray expected = prefix
+          + "    TestClass obj;\n"
+            "    connect(&obj, &TestClass::sigFoo, &obj, &TestClass::setProp);"
+          + suffix;
+
+    QList<QuickFixTestDocument::Ptr> testFiles;
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    ConvertQt4Connect factory;
+    QuickFixTestCase(testFiles, &factory);
+}
+
+void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass()
+{
+    QByteArray prefix =
+        "class QObject {};\n"
+        "class TestClass : public QObject\n"
+        "{\n"
+        "public:\n"
+        "    void setProp(int) {}\n"
+        "    void sigFoo(int) {}\n"
+        "    void setupSignals();\n"
+        "};\n"
+        "\n"
+        "int TestClass::setupSignals()\n"
+        "{\n";
+
+    QByteArray suffix = "\n}\n";
+
+    QByteArray original = prefix
+          + "   conne@ct(this, SIGNAL(sigFoo(int)), this, SLOT(setProp(int)));"
+          + suffix;
+
+    QByteArray expected = prefix
+          + "   connect(this, &TestClass::sigFoo, this, &TestClass::setProp);"
+          + suffix;
+
+    QList<QuickFixTestDocument::Ptr> testFiles;
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    ConvertQt4Connect factory;
+    QuickFixTestCase(testFiles, &factory);
+}
+
 } // namespace Internal
 } // namespace CppEditor

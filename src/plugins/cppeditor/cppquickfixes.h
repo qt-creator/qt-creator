@@ -489,6 +489,15 @@ public:
 };
 
 /*!
+  Converts a Qt 4 QObject::connect() to Qt 5 style.
+ */
+class ConvertQt4Connect : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
  Applies function signature changes
  */
 class ApplyDeclDefLinkChanges: public CppQuickFixFactory

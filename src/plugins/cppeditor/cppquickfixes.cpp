@@ -51,6 +51,7 @@
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/TypeOfExpression.h>
+#include <cplusplus/TypePrettyPrinter.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -105,6 +106,7 @@ void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
 
     plugIn->addAutoReleasedObject(new CompleteSwitchCaseStatement);
     plugIn->addAutoReleasedObject(new InsertQtPropertyMembers);
+    plugIn->addAutoReleasedObject(new ConvertQt4Connect);
 
     plugIn->addAutoReleasedObject(new ApplyDeclDefLinkChanges);
     plugIn->addAutoReleasedObject(new ConvertFromAndToPointer);
@@ -5282,6 +5284,224 @@ void EscapeStringLiteral::match(const CppQuickFixInterface &interface, QuickFixO
 
     if (canUnescape)
         result.append(new EscapeStringLiteralOperation(interface, literal, false));
+}
+
+
+namespace {
+
+class ConvertQt4ConnectOperation: public CppQuickFixOperation
+{
+public:
+    ConvertQt4ConnectOperation(const CppQuickFixInterface &interface, const ChangeSet &changes)
+        : CppQuickFixOperation(interface, 1), m_changes(changes)
+    {
+        setDescription(QApplication::translate("CppTools::QuickFix",
+                                               "Convert connect() to Qt 5 Style"));
+    }
+
+private:
+    void perform()
+    {
+        CppRefactoringChanges refactoring(snapshot());
+        CppRefactoringFilePtr currentFile = refactoring.file(fileName());
+        currentFile->setChangeSet(m_changes);
+        currentFile->apply();
+    }
+
+    const ChangeSet m_changes;
+};
+
+Symbol *skipForwardDeclarations(const QList<Symbol *> &symbols)
+{
+    foreach (Symbol *symbol, symbols) {
+        if (!symbol->type()->isForwardClassDeclarationType())
+            return symbol;
+    }
+
+    return 0;
+}
+
+Class *senderOrReceiverClass(const CppQuickFixInterface &interface,
+                             const CppRefactoringFilePtr &file,
+                             const ExpressionAST *objectPointerAST)
+{
+    const LookupContext &context = interface.context();
+    Scope *scope = file->scopeAt(objectPointerAST->firstToken());
+
+    TypeOfExpression toe;
+    toe.init(interface.semanticInfo().doc, interface.snapshot(), context.bindings());
+    const QList<LookupItem> objectPointerExpressions = toe(file->textOf(objectPointerAST).toUtf8(),
+                                                           scope, TypeOfExpression::Preprocess);
+    QTC_ASSERT(objectPointerExpressions.size() == 1, return 0);
+
+    Type *objectPointerTypeBase = objectPointerExpressions.first().type().type();
+    QTC_ASSERT(objectPointerTypeBase, return 0);
+
+    PointerType *objectPointerType = objectPointerTypeBase->asPointerType();
+    QTC_ASSERT(objectPointerType, return 0);
+
+    Type *objectTypeBase = objectPointerType->elementType().type(); // Dereference
+    QTC_ASSERT(objectTypeBase, return 0);
+
+    NamedType *objectType = objectTypeBase->asNamedType();
+    QTC_ASSERT(objectType, return 0);
+
+    ClassOrNamespace *objectClassCON = context.lookupType(objectType->name(), scope);
+    QTC_ASSERT(objectClassCON, return 0);
+    QTC_ASSERT(!objectClassCON->symbols().isEmpty(), return 0);
+
+    Symbol *objectClassSymbol = skipForwardDeclarations(objectClassCON->symbols());
+    QTC_ASSERT(objectClassSymbol, return 0);
+
+    return objectClassSymbol->asClass();
+}
+
+bool findConnectReplacement(const CppQuickFixInterface &interface,
+                            const ExpressionAST *objectPointerAST,
+                            const QtMethodAST *methodAST,
+                            const CppRefactoringFilePtr &file,
+                            QString *replacement)
+{
+    // Get name of method
+    if (!methodAST->declarator || !methodAST->declarator->core_declarator)
+        return false;
+
+    DeclaratorIdAST *methodDeclIdAST = methodAST->declarator->core_declarator->asDeclaratorId();
+    if (!methodDeclIdAST)
+        return false;
+
+    NameAST *methodNameAST = methodDeclIdAST->name;
+    if (!methodNameAST)
+        return false;
+
+    // Lookup object pointer type
+    Class *objectClass = senderOrReceiverClass(interface, file, objectPointerAST);
+    QTC_ASSERT(objectClass, return false);
+
+    // Look up member function in call, including base class members.
+    const LookupContext &context = interface.context();
+    const QList<LookupItem> methodResults = context.lookup(methodNameAST->name, objectClass);
+    if (methodResults.isEmpty())
+        return false; // Maybe mis-spelled signal/slot name
+
+    Scope *baseClassScope = methodResults.at(0).scope(); // FIXME: Handle overloads
+    QTC_ASSERT(baseClassScope, return false);
+
+    Class *classOfMethod = baseClassScope->asClass(); // Declaration point of signal/slot
+    QTC_ASSERT(classOfMethod, return false);
+
+    Symbol *method = methodResults.at(0).declaration();
+    QTC_ASSERT(method, return false);
+
+    // Minimize qualification
+    Scope *scope = file->scopeAt(objectPointerAST->firstToken());
+    Control *control = context.bindings()->control().data();
+    ClassOrNamespace *functionCON = context.lookupParent(scope);
+    const Name *shortName = LookupContext::minimalName(method, functionCON, control);
+    if (!shortName->asQualifiedNameId())
+        shortName = control->qualifiedNameId(classOfMethod->name(), shortName);
+
+    const Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+    *replacement = QLatin1Char('&') + oo.prettyName(shortName);
+    return true;
+}
+
+bool onConnectCall(AST *ast, const ExpressionListAST **arguments)
+{
+    if (!ast)
+        return false;
+
+    CallAST *call = ast->asCall();
+    if (!call)
+        return false;
+
+    if (!call->base_expression)
+        return false;
+
+    const IdExpressionAST *idExpr = call->base_expression->asIdExpression();
+    if (!idExpr)
+        return false;
+
+    const ExpressionListAST *args = call->expression_list;
+    if (!arguments)
+        return false;
+
+    const Identifier *id = idExpr->name->name->identifier();
+    if (!id)
+        return false;
+
+    const QByteArray name(id->chars(), id->size());
+    if (name != "connect")
+        return false;
+
+    if (arguments)
+        *arguments = args;
+    return true;
+}
+
+// Might modify arg* output arguments even if false is returned.
+bool collectConnectArguments(const ExpressionListAST *arguments,
+                             const ExpressionAST **arg1, const QtMethodAST **arg2,
+                             const ExpressionAST **arg3, const QtMethodAST **arg4)
+{
+    if (!arguments || !arg1 || !arg2 || !arg3 || !arg4)
+        return false;
+
+    *arg1 = arguments->value;
+    arguments = arguments->next;
+    if (!arg1 || !arguments)
+        return false;
+
+    *arg2 = arguments->value->asQtMethod();
+    arguments = arguments->next;
+    if (!*arg2 || !arguments)
+        return false;
+
+    *arg3 = arguments->value;
+    arguments = arguments->next;
+    if (!*arg3 || !arguments)
+        return false;
+
+    *arg4 = arguments->value->asQtMethod();
+    if (!*arg4)
+        return false;
+
+    return true;
+}
+
+} // anonynomous namespace
+
+void ConvertQt4Connect::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+{
+    const QList<AST *> &path = interface.path();
+
+    for (int i = path.size(); --i >= 0; ) {
+        const ExpressionListAST *arguments;
+        if (!onConnectCall(path.at(i), &arguments))
+            continue;
+
+        const ExpressionAST *arg1, *arg3;
+        const QtMethodAST *arg2, *arg4;
+        if (!collectConnectArguments(arguments, &arg1, &arg2, &arg3, &arg4))
+            continue;
+
+        const CppRefactoringFilePtr file = interface.currentFile();
+
+        QString newSignal;
+        if (!findConnectReplacement(interface, arg1, arg2, file, &newSignal))
+            continue;
+
+        QString newMethod;
+        if (!findConnectReplacement(interface, arg3, arg4, file, &newMethod))
+            continue;
+
+        ChangeSet changes;
+        changes.replace(file->startOf(arg2), file->endOf(arg2), newSignal);
+        changes.replace(file->startOf(arg4), file->endOf(arg4), newMethod);
+
+        result.append(new ConvertQt4ConnectOperation(interface, changes));
+        return;
+    }
 }
 
 } // namespace Internal
