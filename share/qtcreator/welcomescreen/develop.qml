@@ -29,24 +29,65 @@
 
 import QtQuick 2.1
 import widgets 1.0
+import QtQuick.Controls 1.2 as Controls
 
-Rectangle {
+
+Controls.ScrollView {
     id: rectangle1
-    width: parent.width
-    height: Math.max(sessions.height, recentProjects.height)
+
 
     Item {
         id: canvas
 
-        x: 12
-        y: 0
+        implicitWidth: childrenRect.width + 200
+        implicitHeight: childrenRect.height
 
-        anchors.bottomMargin: 0
-        anchors.fill: parent
-        anchors.topMargin: 0
+        Button {
+            y: screenDependHeightDistance
+            text: qsTr("New Project")
+            anchors.left: sessionsTitle.left
+            onClicked: projectWelcomePage.newProject();
+            iconSource: "widgets/images/new.png"
+
+        }
+
+        Button {
+            y: screenDependHeightDistance
+            text: qsTr("Open Project")
+            anchors.left: recentProjectsTitle.left
+            onClicked: projectWelcomePage.openProject();
+            iconSource: "widgets/images/open.png"
+        }
+
+        NativeText {
+            id: sessionsTitle
+
+            x: 32
+            y: screenDependHeightDistance + 77
+
+            color: "#535353"
+            text: qsTr("Sessions")
+            font.pixelSize: 16
+            font.family: "Helvetica"
+            font.bold: true
+        }
+
+        NativeText {
+            id: recentProjectsTitle
+            x: 406
+
+            y: screenDependHeightDistance + 77
+            color: "#535353"
+            text: qsTr("Recent Projects")
+            anchors.left: sessionsTitle.right
+            anchors.leftMargin: 280
+            font.bold: true
+            font.family: "Helvetica"
+            font.pixelSize: 16
+        }
 
         RecentProjects {
-            x: 428
+            x: screenDependLeftMargin
 
             id: recentProjects
 
@@ -61,38 +102,11 @@ Rectangle {
             model: projectList
         }
 
-        NativeText {
-            id: sessionsTitle
-
-            x: 32
-            y: 128
-
-            color: "#535353"
-            text: qsTr("Sessions")
-            font.pixelSize: 16
-            font.family: "Helvetica"
-            font.bold: true
-        }
-
-        NativeText {
-            id: recentProjectsTitle
-            x: 406
-
-            y: 128
-            color: "#535353"
-            text: qsTr("Recent Projects")
-            anchors.left: sessionsTitle.right
-            anchors.leftMargin: 280
-            font.bold: true
-            font.family: "Helvetica"
-            font.pixelSize: 16
-        }
-
         Item {
             id: actions
             x: pageCaption.x + pageCaption.textOffset
 
-            y: 295
+            y: screenDependHeightDistance + 244
             width: 140
             height: 70
 
@@ -100,22 +114,6 @@ Rectangle {
             anchors.top: sessions.bottom
         }
 
-        Button {
-            y: 51
-            text: qsTr("New Project")
-            anchors.left: sessionsTitle.left
-            onClicked: projectWelcomePage.newProject();
-            iconSource: "widgets/images/new.png"
-
-        }
-
-        Button {
-            y: 51
-            text: qsTr("Open Project")
-            anchors.left: recentProjectsTitle.left
-            onClicked: projectWelcomePage.openProject();
-            iconSource: "widgets/images/open.png"
-        }
 
         Sessions {
             id: sessions

@@ -33,25 +33,19 @@ Item {
     id: pageLoader
 
     property alias model: repeater.model
+    property int currentIndex: 0
 
-    height: repeater.height
 
     Repeater {
         id: repeater
-        height: itemAt(tab.currentIndex).height
+        anchors.fill: parent
+
         Loader {
             id: loader
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: item.height
-            property bool active: index === tab.currentIndex
-            property bool wasActive
-            onActiveChanged: {
-                if (active)
-                    wasActive = true;
-            }
-            visible:  active
-            source: wasActive ? pageLocation : ""
+            anchors.fill: parent
+
+            property bool isCurrentIndex: index === pageLoader.currentIndex
+            source: isCurrentIndex ? pageLocation : ""
         }
     }
 }

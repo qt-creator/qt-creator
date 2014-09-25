@@ -30,33 +30,33 @@
 import QtQuick 2.1
 import widgets 1.0
 
-Rectangle {
-    id: rectangle1
-    width: 1024
-    height: grid.contentHeight + 100
+Item {
 
-    CustomizedGridView {
-        id: grid
-        anchors.rightMargin: 38
-        anchors.bottomMargin: 60
-        anchors.leftMargin: 38
-        anchors.topMargin: 82
-        anchors.fill: parent
-
-        model: tutorialsModel
-    }
+    anchors.fill: parent
 
     SearchBar {
         id: searchBar
 
-        y: 52
+        y: screenDependHeightDistance
 
         anchors.right: parent.right
-        anchors.rightMargin: 60
+        anchors.rightMargin: 20
         anchors.left: parent.left
-        anchors.leftMargin: 60
+        anchors.leftMargin: 30
 
         placeholderText: qsTr("Search in Tutorials...")
         onTextChanged: tutorialsModel.parseSearchString(text)
+    }
+
+    CustomizedGridView {
+        id: grid
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: searchBar.bottom
+        anchors.bottom: parent.bottom
+        anchors.topMargin: screenDependHeightDistance
+
+        model: tutorialsModel
     }
 }

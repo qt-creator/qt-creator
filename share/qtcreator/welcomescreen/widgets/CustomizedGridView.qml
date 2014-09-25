@@ -30,22 +30,23 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 
-GridView {
-    x: Math.max((width - (cellWidth * columns)) / 2, 0);
-    id: gridView
-    interactive: false
-    cellHeight: 240
-    cellWidth: 216
-    property int columns:  Math.max(Math.floor(width / cellWidth), 1)
+ScrollView {
 
-    delegate: Loader {
-        property int delegateOffset: cellHeight * Math.floor(index / columns) + 100
-        property bool isVisible: delegateOffset > scrollView.flickableItem.contentY - cellHeight
-                                 && delegateOffset < scrollView.flickableItem.contentY + scrollView.flickableItem.height
-        onIsVisibleChanged: active = true
-        visible: isVisible
-        active: false
-        sourceComponent: Delegate {
+    property alias model: gridView.model
+
+    GridView {
+        id: gridView
+
+        anchors.fill: parent
+
+        anchors.leftMargin: 20
+        anchors.rightMargin: 20
+
+        interactive: false
+        cellHeight: 240
+        cellWidth: 216
+
+        delegate: Delegate {
             id: delegate
 
             property bool isHelpImage: model.imageUrl.search(/qthelp/)  != -1

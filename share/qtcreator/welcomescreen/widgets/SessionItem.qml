@@ -33,11 +33,12 @@ Item {
     x: 5
     id: delegate
     property bool expanded: false
-    height: column.height
+    height: columns.height
+    width: columns.width
     property alias name: text.text
 
     Column {
-        id: column
+        id: columns
         spacing: 4
 
         Row {

@@ -29,49 +29,42 @@
 
 import QtQuick 2.1
 import widgets 1.0
-import QtQuick.Controls 1.0
 
-ScrollView {
-    id: scrollView
+Item  {
+    id: root
 
     property var fonts: CustomFonts {}
     property var colors: CustomColors { }
 
-    flickableItem.pixelAligned: true
+    property int screenDependHeightDistance: Math.min(50, Math.max(16, height / 30))
+
+    SideBar {
+        id: sideBar
+        model: pagesModel
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+    }
 
     Rectangle {
-        width: Math.max(920, scrollView.flickableItem.width - 30)
-        height: Math.max(loader.height, scrollView.flickableItem.height);
+        id: splitter
+        color: "#737373"
+        width: 1
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
 
-        id: root
+        anchors.left: sideBar.right
 
-        SideBar {
-            id: sideBar
-            model: pagesModel
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
+    }
 
-        }
+    PageLoader {
+        id: loader
 
-        Rectangle {
-            color: "#737373"
-            width: 1
-            height: parent.height
+        model: pagesModel
+        currentIndex: sideBar.currentIndex
 
-            anchors.right: sideBar.right
-        }
-
-        QtObject {
-            id: tab
-            property int currentIndex: sideBar.currentIndex
-        }
-
-        PageLoader {
-            id: loader
-            model: pagesModel
-            anchors.left: sideBar.right
-            anchors.right: parent.right
-        }
-
+        anchors.top: parent.top
+        anchors.left: splitter.right
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
     }
 }

@@ -32,19 +32,20 @@ import QtQuick.Window 2.1
 import QtQuick.Layouts 1.0
 
 ColumnLayout {
+    id: root
+
     spacing: 0
 
     property alias currentIndex: tabs.currentIndex
-
     property alias model: tabs.model
 
-    id: root
-
     Item {
+        id: modeArea
+
         z: 1
-        width: tabs.width + 16 * 2
-        height: tabs.height + 51 * 2
         Layout.fillWidth: true
+        Layout.preferredWidth: tabs.width + 16 * 2
+        Layout.preferredHeight: tabs.height + screenDependHeightDistance * 2
 
         Image {
             fillMode: Image.Tile
@@ -55,7 +56,10 @@ ColumnLayout {
         Tabs {
             anchors.verticalCenter: parent.verticalCenter
             x: 16
+            width: Math.max(modeArea.width - 16 * 2, implicitWidth)
+
             id: tabs
+            spacing: Math.round((screenDependHeightDistance / count) + 10)
         }
 
         Rectangle {
@@ -66,6 +70,7 @@ ColumnLayout {
             anchors.bottomMargin: 0
             height: 1
         }
+
         Rectangle {
             color: "#737373"
             anchors.left: parent.left
@@ -75,6 +80,7 @@ ColumnLayout {
             height: 1
             opacity: 0.6
         }
+
         Rectangle {
             color: "#737373"
             anchors.left: parent.left
@@ -88,62 +94,59 @@ ColumnLayout {
 
     Rectangle {
         color: "#ebebeb"
+
         Layout.fillWidth: true
-        Layout.minimumHeight: 320
+        Layout.preferredWidth: innerColumn.width + 20
         Layout.fillHeight: true
-        Layout.minimumWidth: innerColumn.width
 
         ColumnLayout {
             id: innerColumn
-            spacing: 14
+
             x: 12
 
+            spacing: 4
+
+            property int spacerHeight: screenDependHeightDistance - 14
+
             Item {
-                height: 24
-                width: parent.width
+                Layout.preferredHeight: innerColumn.spacerHeight
             }
 
             NativeText {
                 text: qsTr("New to Qt?")
                 font.pixelSize: 18
-                font.bold: false
+            }
+
+            NativeText {
+                id: gettingStartedText
+
+                Layout.preferredWidth: innerColumn.width
+
+                text: qsTr("Learn how to develop your own applications and explore Qt Creator.")
+                font.pixelSize: 12
+                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             }
 
             Item {
-                NativeText {
-                    id: gettingStartedText
-                    anchors.fill: parent
-                    anchors.rightMargin: 24
-                    text: qsTr("Learn how to develop your own applications and explore Qt Creator.")
-                    font.pixelSize: 12
-                    wrapMode: Text.WordWrap
-                }
-                height: gettingStartedText.implicitHeight
-                implicitWidth: parent.width
+                Layout.preferredHeight: innerColumn.spacerHeight
+            }
+
+            Button {
+                id: gettingStartedButton
+
+                x: 4
+
+                text: qsTr("Get Started Now")
+                onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/index.html")
             }
 
             Item {
-                height: 24
-                width: parent.width
-            }
-
-            Item {
-                width: gettingStartedButton.width + 28
-                Button {
-                    x: 4
-                    id: gettingStartedButton
-                    text: qsTr("Get Started Now")
-                    onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/index.html")
-                }
-            }
-
-            Item {
-                height: 18
-                width: parent.width
+                Layout.preferredHeight: innerColumn.spacerHeight
             }
 
             ColumnLayout {
                 spacing: 16
+
                 IconAndLink {
                     iconSource: "images/icons/qt_account.png"
                     title: qsTr("Qt Account")
@@ -171,6 +174,5 @@ ColumnLayout {
                 }
             }
         }
-
     }
 }

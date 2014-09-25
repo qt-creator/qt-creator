@@ -30,35 +30,9 @@
 import QtQuick 2.1
 import widgets 1.0
 
-Rectangle {
-    id: rectangle1
-    width: 1024
-    height: grid.contentHeight + 100
+Item {
 
-    CustomizedGridView {
-        id: grid
-        y: 82
-        height: grid.contentHeight
-        anchors.rightMargin: 38
-        anchors.leftMargin: 38
-        anchors.left: parent.left
-        anchors.right: parent.right
-        model: examplesModel
-    }
-
-    SearchBar {
-        id: searchBar
-
-        y: 52
-
-        anchors.left: comboBox.right
-        anchors.rightMargin: 52
-        anchors.right: parent.right
-        anchors.leftMargin: 18
-
-        placeholderText: qsTr("Search in Examples...")
-        onTextChanged: examplesModel.parseSearchString(text)
-    }
+    anchors.fill: parent
 
     ComboBox {
         id: comboBox
@@ -66,7 +40,7 @@ Rectangle {
         anchors.verticalCenter: searchBar.verticalCenter
 
         width: 200
-        anchors.leftMargin: 46
+        anchors.leftMargin: 30
         anchors.left: parent.left
         model: exampleSetModel
         textRole: "text"
@@ -89,4 +63,28 @@ Rectangle {
         }
     }
 
+    SearchBar {
+        id: searchBar
+
+        y: screenDependHeightDistance
+        anchors.left: comboBox.right
+        anchors.leftMargin: 18
+        anchors.rightMargin: 20
+        anchors.right: parent.right
+
+        placeholderText: qsTr("Search in Examples...")
+        onTextChanged: examplesModel.parseSearchString(text)
+    }
+
+    CustomizedGridView {
+        id: grid
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: searchBar.bottom
+        anchors.bottom: parent.bottom
+        anchors.topMargin: screenDependHeightDistance
+
+        model: examplesModel
+    }
 }

@@ -34,8 +34,7 @@ import QtQuick.Layouts 1.1
 ColumnLayout {
     id: customTab
     property alias model: repeater.model
-    spacing: 16
-
+    property int count: repeater.count
     signal itemChanged
     property int currentIndex: -1
 

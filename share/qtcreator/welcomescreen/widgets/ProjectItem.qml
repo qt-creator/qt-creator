@@ -31,11 +31,12 @@ import QtQuick 2.1
 
 Item {
     id: projectItem
-    width: projectList.width
+    width: childrenRect.width
     height: 32
 
     Rectangle {
         anchors.fill: parent
+        anchors.margins: -4
         color: "#f9f9f9"
         opacity: projectNameText.hovered ? 1 : 0
     }
@@ -55,8 +56,7 @@ Item {
         y: 2
         anchors.left: parent.left
         anchors.leftMargin: 7 + 12
-        anchors.right: parent.right
-        anchors.rightMargin: 4
+
         onClicked: projectWelcomePage.requestProject(filePath)
     }
 
@@ -64,12 +64,10 @@ Item {
         id: pathText
         y: 18
         color: "#6b6b6b"
-        anchors.right: parent.right
-        anchors.rightMargin: 12
+
         anchors.left: parent.left
         anchors.leftMargin: 7 + 12
         font: fonts.smallPath
-        elide: Text.ElideRight
         MouseArea {
             anchors.fill: parent
             hoverEnabled: true
