@@ -44,7 +44,6 @@ namespace QmlDesigner {
 Qt4NodeInstanceServer::Qt4NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient)
     : NodeInstanceServer(nodeInstanceClient)
 {
-    addImportString("import QtQuick 1.0\n");
 }
 
 Qt4NodeInstanceServer::~Qt4NodeInstanceServer()
@@ -70,7 +69,7 @@ QDeclarativeEngine *Qt4NodeInstanceServer::engine() const
     return 0;
 }
 
-void Qt4NodeInstanceServer::initializeView(const QVector<AddImportContainer> &/*importVector*/)
+void Qt4NodeInstanceServer::initializeView()
 {
     Q_ASSERT(!declarativeView());
 

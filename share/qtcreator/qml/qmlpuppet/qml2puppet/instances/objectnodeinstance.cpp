@@ -958,7 +958,7 @@ void tweakObjects(QObject *object)
     }
 }
 
-QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QStringList &imports, QQmlContext *context)
+QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)
 {
     ComponentCompleteDisabler disableComponentComplete;
 
@@ -966,16 +966,8 @@ QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, cons
 
     QQmlComponent *component = new QQmlComponent(context->engine());
 
-    QByteArray importArray;
-
-    foreach (const QString &import, imports) {
-        importArray.append(import.toUtf8());
-    }
-
     QByteArray data(nodeSource.toUtf8());
-
-    data.prepend(importArray);
-
+    data.prepend(importCode);
     component->setData(data, context->baseUrl().resolved(QUrl("createComponent.qml")));
 
     QObject *object = component;
@@ -1062,7 +1054,7 @@ QObject *ObjectNodeInstance::createComponent(const QUrl &componentUrl, QQmlConte
     return object;
 }
 
-QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QStringList &imports, QQmlContext *context)
+QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)
 {
     ComponentCompleteDisabler disableComponentComplete;
 
@@ -1070,15 +1062,8 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
 
     QQmlComponent component(context->engine());
 
-    QByteArray importArray;
-    foreach (const QString &import, imports) {
-        importArray.append(import.toUtf8());
-    }
-
     QByteArray data(nodeSource.toUtf8());
-
-    data.prepend(importArray);
-
+    data.prepend(importCode);
     component.setData(data, context->baseUrl().resolved(QUrl("createCustomParserObject.qml")));
 
     QObject *object = component.beginCreate(context);

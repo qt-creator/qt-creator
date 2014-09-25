@@ -44,7 +44,6 @@ Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeIn
     : NodeInstanceServer(nodeInstanceClient),
       m_designerSupport(new DesignerSupport)
 {
-    addImportString("import QtQuick 2.0\n");
     DesignerSupport::activateDesignerMode();
 }
 
@@ -60,7 +59,7 @@ QQuickView *Qt5NodeInstanceServer::quickView() const
     return m_quickView.data();
 }
 
-void Qt5NodeInstanceServer::initializeView(const QVector<AddImportContainer> &/*importVector*/)
+void Qt5NodeInstanceServer::initializeView()
 {
     Q_ASSERT(!quickView());
 

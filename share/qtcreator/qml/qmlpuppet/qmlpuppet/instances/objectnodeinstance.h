@@ -72,9 +72,9 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
     static QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QDeclarativeContext *context);
-    static QObject *createCustomParserObject(const QString &nodeSource, const QStringList &imports, QDeclarativeContext *context);
+    static QObject *createCustomParserObject(const QString &nodeSource, const QByteArray &importCode, QDeclarativeContext *context);
     static QObject *createComponent(const QString &componentPath, QDeclarativeContext *context);
-    static QObject *createComponentWrap(const QString &nodeSource, const QStringList &imports, QDeclarativeContext *context);
+    static QObject *createComponentWrap(const QString &nodeSource, const QByteArray &importCode, QDeclarativeContext *context);
 
     void setInstanceId(qint32 id);
     qint32 instanceId() const;

@@ -873,20 +873,12 @@ void tweakObjects(QObject *object)
     }
 }
 
-QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QStringList &imports, QDeclarativeContext *context)
+QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QByteArray &importCode, QDeclarativeContext *context)
 {
     QDeclarativeComponent *component = new QDeclarativeComponent(context->engine());
 
-    QByteArray importArray;
-
-    foreach (const QString &import, imports) {
-        importArray.append(import.toUtf8());
-    }
-
     QByteArray data(nodeSource.toUtf8());
-
-    data.prepend(importArray);
-
+    data.prepend(importCode);
     component->setData(data, context->baseUrl().resolved(QUrl("createComponent.qml")));
 
     QObject *object = component;
@@ -946,19 +938,12 @@ QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QDecl
     return object;
 }
 
-QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QStringList &imports, QDeclarativeContext *context)
+QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QByteArray &importCode, QDeclarativeContext *context)
 {
     QDeclarativeComponent component(context->engine());
 
-    QByteArray importArray;
-    foreach(const QString &import, imports) {
-        importArray.append(import.toUtf8());
-    }
-
     QByteArray data(nodeSource.toUtf8());
-
-    data.prepend(importArray);
-
+    data.prepend(importCode);
     component.setData(data, context->baseUrl().resolved(QUrl("createCustomParserObject.qml")));
 
     QObject *object = component.beginCreate(context);

@@ -43,6 +43,7 @@
 #include <private/qabstractanimation_p.h>
 #include <QMutableVectorIterator>
 #include <QtDebug>
+#include <QDeclarativeView>
 
 #include "servernodeinstance.h"
 #include "objectnodeinstance.h"
@@ -77,6 +78,26 @@
 
 #include "dummycontextobject.h"
 
+namespace {
+    bool testImportStatements(const QStringList &importStatementList, bool enableErrorOutput = false) {
+        static const QUrl localEmptyUrl(QUrl::fromLocalFile(""));
+        QDeclarativeView testView;
+        QDeclarativeComponent testImportComponent(testView.engine(), &testView);
+
+        QByteArray testComponentCode = QStringList(importStatementList).join("\n").toUtf8();
+
+        testImportComponent.setData(testComponentCode.append("\nItem {}\n"), localEmptyUrl);
+        testImportComponent.create();
+
+        if (testImportComponent.errors().isEmpty()) {
+            return true;
+        } else {
+            if (enableErrorOutput)
+                qWarning() << "found not working imports: " << testImportComponent.errorString();
+            return false;
+        }
+    }
+}
 
 namespace QmlDesigner {
 
@@ -224,7 +245,7 @@ void NodeInstanceServer::stopRenderTimer()
 
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    initializeView(command.imports());
+    initializeView();
     QUnifiedTimer::instance()->setSlowdownFactor(0.00001);
     QUnifiedTimer::instance()->setSlowModeEnabled(true);
 
@@ -350,6 +371,7 @@ void NodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &/*c
 
 void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector)
 {
+    QSet<QString> importStatementSet;
     foreach (const AddImportContainer &container, containerVector) {
         QString importStatement = QString("import ");
 
@@ -364,28 +386,54 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
         if (!container.alias().isEmpty())
             importStatement += " as " + container.alias();
 
-        importStatement.append('\n');
-
-        if (!m_importList.contains(importStatement))
-            m_importList.append(importStatement);
+        importStatementSet.insert(importStatement);
     }
 
     delete m_importComponent.data();
     delete m_importComponentObject.data();
+    QStringList importStatementList(importStatementSet.toList());
+    QStringList workingImportStatementList;
+
+    // check possible import statements combinations
+    bool enableErrorOutput(true);
+
+    // maybe it just works
+    if (testImportStatements(importStatementList)) {
+        workingImportStatementList = importStatementList;
+    } else {
+        QString firstWorkingImportStatement; //usually this will be "import QtQuick x.x"
+        QStringList otherImportStatements;
+        foreach (const QString &importStatement, importStatementList) {
+            if (testImportStatements(QStringList(importStatement)))
+                firstWorkingImportStatement = importStatement;
+            else
+                otherImportStatements.append(importStatement);
+        }
+
+        // find the bad imports from otherImportStatements
+        foreach (const QString &importStatement, otherImportStatements) {
+            if (testImportStatements(QStringList(firstWorkingImportStatement) << importStatement, enableErrorOutput))
+                workingImportStatementList.append(importStatement);
+        }
+        workingImportStatementList.prepend(firstWorkingImportStatement);
+    }
+
+    setupOnlyWorkingImports(workingImportStatementList);
+}
+
+void NodeInstanceServer::setupOnlyWorkingImports(const QStringList &workingImportStatementList)
+{
+    QByteArray componentCode = workingImportStatementList.join("\n").toUtf8();
+    m_importCode = componentCode;
 
     m_importComponent = new QDeclarativeComponent(engine(), 0);
-    QString componentString;
-    foreach (const QString &importStatement, m_importList)
-        componentString += QString("%1").arg(importStatement);
 
-    componentString += QString("Item {}\n");
-
-    m_importComponent->setData(componentString.toUtf8(), fileUrl());
+    m_importComponent->setData(componentCode.append("\nItem {}\n"), fileUrl());
     m_importComponentObject = m_importComponent->create();
-
-    if (!m_importComponent->errorString().isEmpty())
-        qDebug() << "QmlDesigner.NodeInstances: import wrong: " << m_importComponent->errorString();
+    Q_ASSERT(m_importComponent && m_importComponentObject);
+    Q_ASSERT_X(m_importComponent->errors().isEmpty(), __FUNCTION__, m_importComponent->errorString().toLatin1());
 }
+
 
 void NodeInstanceServer::setupFileUrl(const QUrl &fileUrl)
 {
@@ -1014,14 +1062,9 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
     return ValuesChangedCommand(valueVector);
 }
 
-QStringList NodeInstanceServer::imports() const
+QByteArray NodeInstanceServer::importCode() const
 {
-    return m_importList;
-}
-
-void NodeInstanceServer::addImportString(const QString &import)
-{
-    m_importList.append(import);
+    return m_importCode;
 }
 
 QObject *NodeInstanceServer::dummyContextObject() const

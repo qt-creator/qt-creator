@@ -56,7 +56,7 @@ public:
     void removeProperties(const RemovePropertiesCommand &command);
 
 protected:
-    void initializeView(const QVector<AddImportContainer> &importVector);
+    void initializeView();
     void resizeCanvasSizeToRootItemSize();
     void resetAllItems();
     bool nonInstanceChildIsDirty(QGraphicsObject *graphicsObject) const;

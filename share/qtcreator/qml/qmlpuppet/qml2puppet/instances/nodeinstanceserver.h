@@ -120,7 +120,7 @@ public:
 
     void notifyPropertyChange(qint32 instanceid, const PropertyName &propertyName);
 
-    QStringList imports() const;
+    QByteArray importCode() const;
     QObject *dummyContextObject() const;
 
     virtual QQmlView *declarativeView() const = 0;
@@ -136,7 +136,6 @@ public slots:
 protected:
     QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container);
     void reparentInstances(const QVector<ReparentContainer> &containerVector);
-    void addImportString(const QString &import);
 
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter();
     void resetInstanceProperty(const PropertyAbstractContainer &propertyContainer);
@@ -170,7 +169,7 @@ protected:
     int renderTimerInterval() const;
     void setSlowRenderTimerInterval(int timerInterval);
 
-    virtual void initializeView(const QVector<AddImportContainer> &importVector) = 0;
+    virtual void initializeView() = 0;
     virtual QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command) = 0;
     void loadDummyDataFiles(const QString& directory);
     void loadDummyDataContext(const QString& directory);
@@ -203,6 +202,7 @@ protected:
     virtual void resizeCanvasSizeToRootItemSize() = 0;
 
 private:
+    void setupOnlyWorkingImports(const QStringList &workingImportStatementList);
     ServerNodeInstance m_rootNodeInstance;
     ServerNodeInstance m_activeStateInstance;
     QHash<qint32, ServerNodeInstance> m_idInstanceHash;
@@ -219,7 +219,7 @@ private:
     bool m_slowRenderTimer;
     int m_slowRenderTimerInterval;
     QVector<InstancePropertyPair> m_changedPropertyList;
-    QStringList m_importList;
+    QByteArray m_importCode;
     QPointer<QObject> m_dummyContextObject;
     QPointer<QQmlComponent> m_importComponent;
     QPointer<QObject> m_importComponentObject;

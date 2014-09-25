@@ -48,7 +48,7 @@ Qt4PreviewNodeInstanceServer::Qt4PreviewNodeInstanceServer(NodeInstanceClientInt
 
 void Qt4PreviewNodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    initializeView(command.imports());
+    initializeView();
     setupScene(command);
 
     startRenderTimer();

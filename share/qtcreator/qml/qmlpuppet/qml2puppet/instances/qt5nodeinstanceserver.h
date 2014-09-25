@@ -60,7 +60,7 @@ public:
     void reparentInstances(const ReparentInstancesCommand &command) Q_DECL_OVERRIDE;
 
 protected:
-    void initializeView(const QVector<AddImportContainer> &importVector) Q_DECL_OVERRIDE;
+    void initializeView() Q_DECL_OVERRIDE;
     void resizeCanvasSizeToRootItemSize() Q_DECL_OVERRIDE;
     void resetAllItems();
     QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;

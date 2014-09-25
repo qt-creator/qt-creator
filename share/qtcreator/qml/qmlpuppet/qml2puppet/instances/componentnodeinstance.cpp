@@ -68,15 +68,8 @@ bool ComponentNodeInstance::hasContent() const
 
 void ComponentNodeInstance::setNodeSource(const QString &source)
 {
-    QByteArray importArray;
-    foreach (const QString &import, nodeInstanceServer()->imports()) {
-        importArray.append(import.toUtf8());
-    }
-
-    QByteArray data(source.toUtf8());
-
-    data.prepend(importArray);
-    data.append("\n");
+    QByteArray data(source.toUtf8() + "\n");
+    data.prepend(nodeInstanceServer()->importCode());
 
     component()->setData(data, QUrl(nodeInstanceServer()->fileUrl().toString() +
                                     QLatin1Char('_')+ id()));
