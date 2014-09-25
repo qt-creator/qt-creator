@@ -3454,7 +3454,6 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                              ifdefedOutFormat.background());
     }
 
-    innerPaintEvent(e);
     /*
       Here comes an almost verbatim copy of
       QPlainTextEdit::paintEvent() so we can adjust the extra
@@ -3902,8 +3901,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
             }
 
 
-
-            layout->draw(&painter, offset, selections, er);
+            paintBlock(&painter, block, offset, selections, er);
 
             if ((drawCursor && !drawCursorAsBlock)
                     || (editable && context.cursorPosition < -1 && !layout->preeditAreaText().isEmpty())) {
@@ -4111,6 +4109,15 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                                 visibleCollapsedBlockOffset,
                                 er);
     }
+}
+
+void BaseTextEditorWidget::paintBlock(QPainter *painter,
+                                      const QTextBlock &block,
+                                      const QPointF &offset,
+                                      const QVector<QTextLayout::FormatRange> &selections,
+                                      const QRect &clipRect) const
+{
+    block.layout()->draw(painter, offset, selections, clipRect);
 }
 
 int BaseTextEditorWidget::visibleFoldedBlockNumber() const

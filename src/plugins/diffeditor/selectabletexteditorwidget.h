@@ -54,21 +54,19 @@ class DIFFEDITOR_EXPORT SelectableTextEditorWidget
 public:
     SelectableTextEditorWidget(Core::Id id, QWidget *parent = 0);
     ~SelectableTextEditorWidget();
-    void setSelections(const QMap<int, QList<DiffSelection> > &selections) {
-        m_selections = selections;
-    }
+    void setSelections(const QMap<int, QList<DiffSelection> > &selections);
 
 private:
-    void innerPaintEvent(QPaintEvent *e);
-    void paintSelections(QPainter &painter,
-                         const QList<DiffSelection> &selections,
-                         const QTextBlock &block,
-                         int top);
+    void paintBlock(QPainter *painter,
+                    const QTextBlock &block,
+                    const QPointF &offset,
+                    const QVector<QTextLayout::FormatRange> &selections,
+                    const QRect &clipRect) const;
 
     // block number, list of ranges
     // DiffSelection.start - can be -1 (continues from the previous line)
     // DiffSelection.end - can be -1 (spans to the end of line, even after the last character in line)
-    QMap<int, QList<DiffSelection> > m_selections;
+    QMap<int, QList<DiffSelection> > m_diffSelections;
 };
 
 } // namespace DiffEditor

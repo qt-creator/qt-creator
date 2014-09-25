@@ -495,7 +495,11 @@ protected:
     bool viewportEvent(QEvent *event);
     void resizeEvent(QResizeEvent *);
     void paintEvent(QPaintEvent *);
-    virtual void innerPaintEvent(QPaintEvent *) {}
+    virtual void paintBlock(QPainter *painter,
+                            const QTextBlock &block,
+                            const QPointF &offset,
+                            const QVector<QTextLayout::FormatRange> &selections,
+                            const QRect &clipRect) const;
     void timerEvent(QTimerEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);

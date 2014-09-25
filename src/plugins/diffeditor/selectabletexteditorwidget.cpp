@@ -46,75 +46,116 @@ SelectableTextEditorWidget::~SelectableTextEditorWidget()
 {
 }
 
-void SelectableTextEditorWidget::innerPaintEvent(QPaintEvent *e)
+static QList<DiffSelection> subtractSelection(
+        const DiffSelection &minuendSelection,
+        const DiffSelection &subtrahendSelection)
 {
-    QPainter painter(viewport());
+    // tha case that whole minuend is before the whole subtrahend
+    if (minuendSelection.end >= 0 && minuendSelection.end <= subtrahendSelection.start)
+        return QList<DiffSelection>() << minuendSelection;
 
-    QPointF offset = contentOffset();
-    QTextBlock firstBlock = firstVisibleBlock();
-    QTextBlock currentBlock = firstBlock;
+    // the case that whole subtrahend is before the whole minuend
+    if (subtrahendSelection.end >= 0 && subtrahendSelection.end <= minuendSelection.start)
+        return QList<DiffSelection>() << minuendSelection;
 
-    while (currentBlock.isValid()) {
-        if (currentBlock.isVisible()) {
-            qreal top = blockBoundingGeometry(currentBlock).translated(offset).top();
-            qreal bottom = top + blockBoundingRect(currentBlock).height();
+    bool makeMinuendSubtrahendStart = false;
+    bool makeSubtrahendMinuendEnd = false;
 
-            if (top > e->rect().bottom())
-                break;
+    if (minuendSelection.start < subtrahendSelection.start)
+        makeMinuendSubtrahendStart = true;
+    if (subtrahendSelection.end >= 0 && (subtrahendSelection.end < minuendSelection.end || minuendSelection.end < 0))
+        makeSubtrahendMinuendEnd = true;
 
-            if (bottom >= e->rect().top()) {
-                const int blockNumber = currentBlock.blockNumber();
+    QList<DiffSelection> diffList;
+    if (makeMinuendSubtrahendStart)
+        diffList << DiffSelection(minuendSelection.start, subtrahendSelection.start, minuendSelection.format);
+    if (makeSubtrahendMinuendEnd)
+        diffList << DiffSelection(subtrahendSelection.end, minuendSelection.end, minuendSelection.format);
 
-                paintSelections(painter, m_selections.value(blockNumber),
-                                currentBlock, top);
+    return diffList;
+}
+
+void SelectableTextEditorWidget::setSelections(const QMap<int, QList<DiffSelection> > &selections)
+{
+    m_diffSelections.clear();
+    QMapIterator<int, QList<DiffSelection> > itBlock(selections);
+    while (itBlock.hasNext()) {
+        itBlock.next();
+
+        const QList<DiffSelection> diffSelections = itBlock.value();
+        QList<DiffSelection> workingList;
+        for (int i = 0; i < diffSelections.count(); i++) {
+            const DiffSelection &diffSelection = diffSelections.at(i);
+
+            if (diffSelection.start == -1 && diffSelection.end == 0)
+                continue;
+
+            if (diffSelection.start == diffSelection.end && diffSelection.start >= 0)
+                continue;
+
+            int j = 0;
+            while (j < workingList.count()) {
+                const DiffSelection existingSelection = workingList.takeAt(j);
+                const QList<DiffSelection> newSelection = subtractSelection(existingSelection, diffSelection);
+                for (int k = 0; k < newSelection.count(); k++)
+                    workingList.insert(j + k, newSelection.at(k));
+                j += newSelection.count();
+            }
+            workingList.append(diffSelection);
+        }
+        const int blockNumber = itBlock.key();
+        QVector<QTextLayout::FormatRange> selList;
+        for (int i = 0; i < workingList.count(); i++) {
+            const DiffSelection &diffSelection = workingList.at(i);
+            if (diffSelection.format) {
+                QTextLayout::FormatRange formatRange;
+                formatRange.start = diffSelection.start;
+                if (formatRange.start < 0)
+                    formatRange.start = 0;
+                formatRange.length = diffSelection.end < 0
+                        ? INT_MAX
+                        : diffSelection.end - diffSelection.start;
+                formatRange.format = *diffSelection.format;
+                if (diffSelection.end < 0)
+                    formatRange.format.setProperty(QTextFormat::FullWidthSelection, true);
+                selList.append(formatRange);
             }
         }
-        currentBlock = currentBlock.next();
+        m_diffSelections.insert(blockNumber, workingList);
     }
 }
 
-void SelectableTextEditorWidget::paintSelections(QPainter &painter,
-                                           const QList<DiffSelection> &selections,
-                                           const QTextBlock &block,
-                                           int top)
+void SelectableTextEditorWidget::paintBlock(QPainter *painter,
+                                            const QTextBlock &block,
+                                            const QPointF &offset,
+                                            const QVector<QTextLayout::FormatRange> &selections,
+                                            const QRect &clipRect) const
 {
-    QPointF offset = contentOffset();
-    painter.save();
+    const int blockNumber = block.blockNumber();
+    QList<DiffSelection> diffs = m_diffSelections.value(blockNumber);
 
-    QTextLayout *layout = block.layout();
-    QTextLine textLine = layout->lineAt(0);
-    QRectF lineRect = textLine.naturalTextRect().translated(offset.x(), top);
-    QRect clipRect = contentsRect();
-    painter.setClipRect(clipRect);
-    for (int i = 0; i < selections.count(); i++) {
-        const DiffSelection &selection = selections.at(i);
+    QVector<QTextLayout::FormatRange> newSelections;
+    for (int i = 0; i < diffs.count(); i++) {
+        const DiffSelection &diffSelection = diffs.at(i);
+        if (diffSelection.format) {
+            QTextLayout::FormatRange formatRange;
+            formatRange.start = qMax(0, diffSelection.start);
+            const int end = diffSelection.end < 0
+                    ? block.text().count() + 1
+                    : qMin(block.text().count(), diffSelection.end);
 
-        if (!selection.format)
-            continue;
-        if (selection.start == -1 && selection.end == 0)
-            continue;
-        if (selection.start == selection.end && selection.start >= 0)
-            continue;
-
-        painter.save();
-        const QBrush &brush = selection.format->background();
-        painter.setPen(brush.color());
-        painter.setBrush(brush);
-
-        const int x1 = selection.start <= 0
-                ? -1
-                : textLine.cursorToX(selection.start) + offset.x();
-        const int x2 = selection.end < 0
-                ? clipRect.right()
-                : textLine.cursorToX(selection.end) + offset.x();
-        painter.drawRect(QRectF(QPointF(x1, lineRect.top()),
-                                QPointF(x2, lineRect.bottom())));
-
-        painter.restore();
+            formatRange.length = end - formatRange.start;
+            formatRange.format = *diffSelection.format;
+            if (diffSelection.end < 0)
+                formatRange.format.setProperty(QTextFormat::FullWidthSelection, true);
+            newSelections.append(formatRange);
+        }
     }
-    painter.restore();
-}
+    newSelections += selections;
 
+    BaseTextEditorWidget::paintBlock(painter, block, offset, newSelections, clipRect);
+
+}
 
 } // namespace DiffEditor
 
