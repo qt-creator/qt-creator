@@ -39,14 +39,7 @@
 #include <unistd.h>
 #include <string.h>
 
-// avoid utils dependency
 #include <qglobal.h>
-
-#ifdef Q_DECL_OVERRIDE
-#define Q_DECL_OVERRIDE Q_DECL_OVERRIDE
-#else
-#define Q_DECL_OVERRIDE
-#endif
 
 namespace Ios {
 namespace Internal {
