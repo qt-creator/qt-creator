@@ -1,0 +1,81 @@
+/****************************************************************************
+**
+** Copyright (C) 2014 Digia Plc
+** All rights reserved.
+** For any questions to Digia, please use contact form at http://qt.digia.com <http://qt.digia.com/>
+**
+** This file is part of the Qt Enterprise LicenseChecker Add-on.
+**
+** Licensees holding valid Qt Enterprise licenses may use this file in
+** accordance with the Qt Enterprise License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.
+**
+** If you have questions regarding the use of this file, please use
+** contact form at http://qt.digia.com <http://qt.digia.com/>
+**
+****************************************************************************/
+
+#ifndef CLANGSTATICANALYZERRUNCONTROL_H
+#define CLANGSTATICANALYZERRUNCONTROL_H
+
+#include <analyzerbase/analyzerruncontrol.h>
+#include <cpptools/cppprojects.h>
+
+#include <QFutureInterface>
+#include <QStringList>
+
+namespace ClangStaticAnalyzer {
+namespace Internal {
+
+class ClangStaticAnalyzerRunner;
+class Diagnostic;
+
+class ClangStaticAnalyzerRunControl : public Analyzer::AnalyzerRunControl
+{
+    Q_OBJECT
+
+public:
+    struct FileConfiguration {
+        FileConfiguration(const QString &filePath, const CppTools::ProjectPart::Ptr &projectPart)
+            : filePath(filePath)
+            , projectPart(projectPart) {}
+
+        QString filePath;
+        CppTools::ProjectPart::Ptr projectPart;
+    };
+
+public:
+    explicit ClangStaticAnalyzerRunControl(const Analyzer::AnalyzerStartParameters &startParams,
+                                           ProjectExplorer::RunConfiguration *runConfiguration);
+
+    bool startEngine();
+    void stopEngine();
+
+signals:
+    void newDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
+
+private:
+    void analyzeNextFile();
+    ClangStaticAnalyzerRunner *createRunner();
+
+    void onRunnerFinishedWithSuccess(const QString &logFilePath);
+    void onRunnerFinishedWithFailure(const QString &errorMessage, const QString &errorDetails);
+    void handleFinished();
+
+    void onProgressCanceled();
+    void updateProgressValue();
+
+private:
+    QString m_clangExecutable;
+    QString m_clangLogFileDir;
+    QFutureInterface<void> m_progress;
+    QList<FileConfiguration> m_filesToProcess;
+    int m_initialFilesToProcessSize;
+    int m_runningProcesses;
+};
+
+} // namespace Internal
+} // namespace ClangStaticAnalyzer
+
+#endif // CLANGSTATICANALYZERRUNCONTROL_H
