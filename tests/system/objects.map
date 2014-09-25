@@ -47,6 +47,8 @@
 :Cannot Open Project.Show Details..._QPushButton	{text='Show Details...' type='QPushButton' unnamed='1' visible='1' window=':Cannot Open Project_QMessageBox'}
 :Cannot Open Project_QMessageBox	{text?='Failed to open project in *' type='QMessageBox' unnamed='1' visible='1'}
 :Cannot Open Project_QTextEdit	{type='QTextEdit' unnamed='1' visible='1' window=':Cannot Open Project_QMessageBox'}
+:Close Debugging Session.Yes_QPushButton	{text='Yes' type='QPushButton' unnamed='1' visible='1' window=':Close Debugging Session_Utils::CheckableMessageBox'}
+:Close Debugging Session_Utils::CheckableMessageBox	{type='Utils::CheckableMessageBox' unnamed='1' visible='1' windowTitle='Close Debugging Session'}
 :CodePaster__Internal__PasteSelectDialog.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :CodePaster__Internal__PasteSelectDialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget	{name='listWidget' type='QListWidget' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
