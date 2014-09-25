@@ -37,7 +37,11 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QComboBox;
+class QFont;
 class QMenu;
+class QPrinter;
+class QStackedWidget;
 QT_END_NAMESPACE
 
 namespace Help {
@@ -50,6 +54,7 @@ class HelpWidget : public QWidget
     Q_OBJECT
 public:
     enum WidgetStyle {
+        ModeWidget,
         SideBarWidget,
         ExternalWindow
     };
@@ -58,6 +63,21 @@ public:
     ~HelpWidget();
 
     HelpViewer *currentViewer() const;
+    void setCurrentViewer(HelpViewer *viewer);
+    int currentIndex() const;
+    void addViewer(HelpViewer *viewer, bool highlightSearchTerms = false);
+    void removeViewerAt(int index);
+
+    void setViewerFont(const QFont &font);
+
+    // so central widget can save the state
+    int viewerCount() const;
+    HelpViewer *viewerAt(int index) const;
+
+public slots:
+    void setSource(const QUrl &url);
+    void setSourceFromSearch(const QUrl &url);
+    void updateCloseButton();
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -66,17 +86,29 @@ signals:
     void openHelpMode(const QUrl &url);
     void closeButtonClicked();
     void aboutToClose();
+    void sourceChanged(const QUrl &url);
+    void filterActivated(const QString &name);
 
 private slots:
     void updateBackMenu();
     void updateForwardMenu();
     void updateWindowTitle();
     void helpModeButtonClicked();
-    void goHome();
-    void addBookmark();
 
 private:
+    void goHome();
+    void addBookmark();
+    void copy();
+    void forward();
+    void backward();
+    void scaleUp();
+    void scaleDown();
+    void resetScale();
+    void print(HelpViewer *viewer);
+    void highlightSearchTerms();
+
     Core::IContext *m_context;
+    WidgetStyle m_style;
     QAction *m_switchToHelp;
     QAction *m_homeAction;
     QMenu *m_backMenu;
@@ -84,13 +116,16 @@ private:
     QAction *m_backAction;
     QAction *m_forwardAction;
     QAction *m_addBookmarkAction;
+    QComboBox *m_filterComboBox;
+    QAction *m_closeAction;
     QAction *m_scaleUp;
     QAction *m_scaleDown;
     QAction *m_resetScale;
+    QAction *m_printAction;
     QAction *m_copy;
 
-    HelpViewer *m_viewer;
-    WidgetStyle m_style;
+    QStackedWidget *m_viewerStack;
+    QPrinter *m_printer;
 };
 
 } // Internal

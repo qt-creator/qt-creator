@@ -110,7 +110,7 @@ QWidget *GeneralSettingsPage::widget()
         connect(m_ui->blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
         connect(m_ui->defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
 
-        HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
+        HelpViewer *viewer = CentralWidget::instance()->currentViewer();
         if (!viewer)
             m_ui->currentPageButton->setEnabled(false);
 
@@ -197,7 +197,7 @@ void GeneralSettingsPage::apply()
 
 void GeneralSettingsPage::setCurrentPage()
 {
-    HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
+    HelpViewer *viewer = CentralWidget::instance()->currentViewer();
     if (viewer)
         m_ui->homePageLineEdit->setText(viewer->source().toString());
 }

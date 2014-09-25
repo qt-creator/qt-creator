@@ -30,10 +30,11 @@
 #ifndef LOCALHELPMANAGER_H
 #define LOCALHELPMANAGER_H
 
+#include <QMetaType>
 #include <QMutex>
 #include <QObject>
 #include <QUrl>
-#include <QMetaType>
+#include <QStandardItemModel>
 
 QT_FORWARD_DECLARE_CLASS(QHelpEngine)
 
@@ -70,9 +71,21 @@ public:
     static QByteArray loadErrorMessage(const QUrl &url, const QString &errorString);
     Q_INVOKABLE static Help::Internal::LocalHelpManager::HelpData helpData(const QUrl &url);
 
+    static QAbstractItemModel *filterModel();
+    static void setFilterIndex(int index);
+
+    static void updateFilterModel();
+
+signals:
+    void filterIndexChanged(int index);
+
 private:
     bool m_guiNeedsSetup;
     bool m_needsCollectionFile;
+
+    static QStandardItemModel *m_filterModel;
+    static QString m_currentFilter;
+    static int m_currentFilterIndex;
 
     static QMutex m_guiMutex;
     static QHelpEngine *m_guiEngine;

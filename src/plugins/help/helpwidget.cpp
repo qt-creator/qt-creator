@@ -34,18 +34,26 @@
 #include "helpplugin.h"
 #include "helpviewer.h"
 #include "localhelpmanager.h"
+#include "openpagesmanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/helpmanager.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 
 #include <QHBoxLayout>
+#include <QHelpEngine>
+#include <QHelpSearchEngine>
+#include <QHelpSearchQuery>
 #include <QMenu>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QStackedWidget>
 #include <QToolButton>
 
 static QToolButton *toolButton(QAction *action, Core::Command *cmd = 0)
@@ -67,10 +75,14 @@ namespace Internal {
 
 HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent) :
     QWidget(parent),
+    m_style(style),
+    m_switchToHelp(0),
+    m_filterComboBox(0),
+    m_closeAction(0),
     m_scaleUp(0),
     m_scaleDown(0),
     m_resetScale(0),
-    m_style(style)
+    m_printer(0)
 {
     Utils::StyledBar *toolBar = new Utils::StyledBar();
     QHBoxLayout *layout = new QHBoxLayout(toolBar);
@@ -78,10 +90,12 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     layout->setMargin(0);
     Core::Command *cmd;
 
-    m_switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
-    cmd = Core::ActionManager::registerAction(m_switchToHelp, Constants::CONTEXT_HELP, context);
-    connect(m_switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
-    layout->addWidget(toolButton(m_switchToHelp, cmd));
+    if (style != ModeWidget) {
+        m_switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
+        cmd = Core::ActionManager::registerAction(m_switchToHelp, Constants::CONTEXT_HELP, context);
+        connect(m_switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
+        layout->addWidget(toolButton(m_switchToHelp, cmd));
+    }
 
     m_homeAction = new QAction(QIcon(QLatin1String(":/help/images/home.png")),
         tr("Home"), this);
@@ -91,6 +105,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
     m_backAction = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
         tr("Back"), toolBar);
+    connect(m_backAction, &QAction::triggered, this, &HelpWidget::backward);
     m_backMenu = new QMenu(toolBar);
     connect(m_backMenu, SIGNAL(aboutToShow()), this, SLOT(updateBackMenu()));
     m_backAction->setMenu(m_backMenu);
@@ -100,6 +115,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
     m_forwardAction = new QAction(QIcon(QLatin1String(":/help/images/next.png")),
         tr("Forward"), toolBar);
+    connect(m_forwardAction, &QAction::triggered, this, &HelpWidget::forward);
     m_forwardMenu = new QMenu(toolBar);
     connect(m_forwardMenu, SIGNAL(aboutToShow()), this, SLOT(updateForwardMenu()));
     m_forwardAction->setMenu(m_forwardMenu);
@@ -115,38 +131,45 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     layout->addWidget(new Utils::StyledSeparator(toolBar));
     layout->addWidget(toolButton(m_addBookmarkAction, cmd));
 
+    if (style == ModeWidget) {
+        layout->addWidget(new Utils::StyledSeparator(toolBar));
+        layout->addWidget(OpenPagesManager::instance().openPagesComboBox(), 10);
+        m_filterComboBox = new QComboBox;
+        m_filterComboBox->setMinimumContentsLength(15);
+        m_filterComboBox->setModel(LocalHelpManager::filterModel());
+        layout->addWidget(m_filterComboBox);
+        connect(m_filterComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+                LocalHelpManager::instance(), &LocalHelpManager::setFilterIndex);
+        connect(LocalHelpManager::instance(), &LocalHelpManager::filterIndexChanged,
+                m_filterComboBox, &QComboBox::setCurrentIndex);
+    }
+
     layout->addStretch();
 
-    m_viewer = HelpPlugin::createHelpViewer(qreal(0.0));
+    m_viewerStack = new QStackedWidget;
 
     QVBoxLayout *vLayout = new QVBoxLayout(this);
     vLayout->setMargin(0);
     vLayout->setSpacing(0);
     vLayout->addWidget(toolBar);
-    vLayout->addWidget(m_viewer);
+    vLayout->addWidget(m_viewerStack);
     Core::FindToolBarPlaceHolder *fth = new Core::FindToolBarPlaceHolder(this);
     vLayout->addWidget(fth);
 
-    setFocusProxy(m_viewer);
+    setFocusProxy(m_viewerStack);
 
     m_context = new Core::IContext(this);
     m_context->setContext(context);
-    m_context->setWidget(m_viewer);
+    m_context->setWidget(m_viewerStack);
     Core::ICore::addContextObject(m_context);
 
-    m_backAction->setEnabled(m_viewer->isBackwardAvailable());
-    connect(m_backAction, SIGNAL(triggered()), m_viewer, SLOT(backward()));
-    connect(m_viewer, SIGNAL(backwardAvailable(bool)), m_backAction,
-        SLOT(setEnabled(bool)));
-
-    m_forwardAction->setEnabled(m_viewer->isForwardAvailable());
-    connect(m_forwardAction, SIGNAL(triggered()), m_viewer, SLOT(forward()));
-    connect(m_viewer, SIGNAL(forwardAvailable(bool)), m_forwardAction,
-        SLOT(setEnabled(bool)));
+    m_printAction = new QAction(this);
+    Core::ActionManager::registerAction(m_printAction, Core::Constants::PRINT, context);
+    connect(m_printAction, &QAction::triggered, this, [this]() { print(currentViewer()); });
 
     m_copy = new QAction(this);
     Core::ActionManager::registerAction(m_copy, Core::Constants::COPY, context);
-    connect(m_copy, SIGNAL(triggered()), m_viewer, SLOT(copy()));
+    connect(m_copy, &QAction::triggered, this, &HelpWidget::copy);
 
     Core::ActionContainer *advancedMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
     QTC_CHECK(advancedMenu);
@@ -155,37 +178,44 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         m_scaleUp = new QAction(tr("Increase Font Size"), this);
         cmd = Core::ActionManager::registerAction(m_scaleUp, TextEditor::Constants::INCREASE_FONT_SIZE,
                                                   context);
-        connect(m_scaleUp, SIGNAL(triggered()), m_viewer, SLOT(scaleUp()));
+        connect(m_scaleUp, &QAction::triggered, this, &HelpWidget::scaleUp);
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
 
         m_scaleDown = new QAction(tr("Decrease Font Size"), this);
         cmd = Core::ActionManager::registerAction(m_scaleDown, TextEditor::Constants::DECREASE_FONT_SIZE,
                                                   context);
-        connect(m_scaleDown, SIGNAL(triggered()), m_viewer, SLOT(scaleDown()));
+        connect(m_scaleDown, &QAction::triggered, this, &HelpWidget::scaleDown);
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
 
         m_resetScale = new QAction(tr("Reset Font Size"), this);
         cmd = Core::ActionManager::registerAction(m_resetScale, TextEditor::Constants::RESET_FONT_SIZE,
                                                   context);
-        connect(m_resetScale, SIGNAL(triggered()), m_viewer, SLOT(resetScale()));
+        connect(m_resetScale, &QAction::triggered, this, &HelpWidget::resetScale);
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
 
-    if (style == SideBarWidget) {
-        QAction *close = new QAction(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)),
+    if (style == ModeWidget) {
+        m_closeAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)),
             QString(), toolBar);
-        connect(close, SIGNAL(triggered()), this, SIGNAL(closeButtonClicked()));
-        layout->addWidget(toolButton(close));
-        m_viewer->setOpenInNewPageActionVisible(false);
+        connect(m_closeAction, SIGNAL(triggered()), this, SIGNAL(closeButtonClicked()));
+        layout->addWidget(toolButton(m_closeAction));
+    } else if (style == SideBarWidget) {
+        m_closeAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)),
+            QString(), toolBar);
+        connect(m_closeAction, SIGNAL(triggered()), this, SIGNAL(closeButtonClicked()));
+        layout->addWidget(toolButton(m_closeAction));
     } else if (style == ExternalWindow) {
         static int windowId = 0;
         Core::ICore::registerWindow(this,
                                     Core::Context(Core::Id("Help.Window.").withSuffix(++windowId)));
         setAttribute(Qt::WA_DeleteOnClose);
         setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
-        connect(m_viewer, SIGNAL(titleChanged()), this, SLOT(updateWindowTitle()));
-        updateWindowTitle();
-        m_viewer->setOpenInNewPageActionVisible(false);
+    }
+
+    if (style != ModeWidget) {
+        HelpViewer *viewer = HelpPlugin::createHelpViewer(qreal(0.0));
+        addViewer(viewer);
+        setCurrentViewer(viewer);
     }
 }
 
@@ -193,7 +223,8 @@ HelpWidget::~HelpWidget()
 {
     Core::ICore::removeContextObject(m_context);
     Core::ActionManager::unregisterAction(m_copy, Core::Constants::COPY);
-    Core::ActionManager::unregisterAction(m_switchToHelp, Constants::CONTEXT_HELP);
+    if (m_switchToHelp)
+        Core::ActionManager::unregisterAction(m_switchToHelp, Constants::CONTEXT_HELP);
     Core::ActionManager::unregisterAction(m_homeAction, Constants::HELP_HOME);
     Core::ActionManager::unregisterAction(m_forwardAction, Constants::HELP_NEXT);
     Core::ActionManager::unregisterAction(m_backAction, Constants::HELP_PREVIOUS);
@@ -208,7 +239,100 @@ HelpWidget::~HelpWidget()
 
 HelpViewer *HelpWidget::currentViewer() const
 {
-    return m_viewer;
+    return qobject_cast<HelpViewer *>(m_viewerStack->currentWidget());
+}
+
+void HelpWidget::setCurrentViewer(HelpViewer *viewer)
+{
+    m_viewerStack->setCurrentWidget(viewer);
+    m_backAction->setEnabled(viewer->isBackwardAvailable());
+    m_forwardAction->setEnabled(viewer->isForwardAvailable());
+    if (m_style == ExternalWindow)
+        updateWindowTitle();
+    emit sourceChanged(viewer->source());
+}
+
+int HelpWidget::currentIndex() const
+{
+    return m_viewerStack->currentIndex();
+}
+
+void HelpWidget::addViewer(HelpViewer *viewer, bool highlightSearchTerms)
+{
+    m_viewerStack->addWidget(viewer);
+    viewer->setFocus(Qt::OtherFocusReason);
+    if (m_style == SideBarWidget || m_style == ExternalWindow)
+        viewer->setOpenInNewPageActionVisible(false);
+    connect(viewer, &HelpViewer::sourceChanged, this, [viewer, this](const QUrl &url) {
+        if (currentViewer() == viewer)
+            emit sourceChanged(url);
+    });
+    connect(viewer, &HelpViewer::forwardAvailable, this, [viewer, this](bool available) {
+        if (currentViewer() == viewer)
+            m_forwardAction->setEnabled(available);
+    });
+    connect(viewer, &HelpViewer::backwardAvailable, this, [viewer, this](bool available) {
+        if (currentViewer() == viewer)
+            m_backAction->setEnabled(available);
+    });
+    connect(viewer, &HelpViewer::printRequested, this, [viewer, this]() {
+        print(viewer);
+    });
+    if (m_style == ExternalWindow)
+        connect(viewer, SIGNAL(titleChanged()), this, SLOT(updateWindowTitle()));
+
+    if (highlightSearchTerms)
+        connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
+
+    updateCloseButton();
+}
+
+void HelpWidget::removeViewerAt(int index)
+{
+    QWidget *viewerWidget = m_viewerStack->widget(index);
+    QTC_ASSERT(viewerWidget, return);
+    m_viewerStack->removeWidget(viewerWidget);
+    // do not delete, that is done in the model
+    // delete viewerWidget;
+    if (m_viewerStack->currentWidget())
+        setCurrentViewer(qobject_cast<HelpViewer *>(m_viewerStack->currentWidget()));
+    updateCloseButton();
+}
+
+void HelpWidget::setViewerFont(const QFont &font)
+{
+    for (int i = 0; i < m_viewerStack->count(); ++i) {
+        HelpViewer *viewer = qobject_cast<HelpViewer *>(m_viewerStack->widget(i));
+        QTC_ASSERT(viewer, continue);
+        viewer->setFont(font);
+    }
+}
+
+int HelpWidget::viewerCount() const
+{
+    return m_viewerStack->count();
+}
+
+HelpViewer *HelpWidget::viewerAt(int index) const
+{
+    return qobject_cast<HelpViewer *>(m_viewerStack->widget(index));
+}
+
+void HelpWidget::setSource(const QUrl &url)
+{
+    HelpViewer* viewer = currentViewer();
+    QTC_ASSERT(viewer, return);
+    viewer->setSource(url);
+    viewer->setFocus(Qt::OtherFocusReason);
+}
+
+void HelpWidget::setSourceFromSearch(const QUrl &url)
+{
+    HelpViewer* viewer = currentViewer();
+    QTC_ASSERT(viewer, return);
+    connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
+    viewer->setSource(url);
+    viewer->setFocus(Qt::OtherFocusReason);
 }
 
 void HelpWidget::closeEvent(QCloseEvent *)
@@ -219,18 +343,21 @@ void HelpWidget::closeEvent(QCloseEvent *)
 void HelpWidget::updateBackMenu()
 {
     m_backMenu->clear();
-    m_viewer->addBackHistoryItems(m_backMenu);
+    QTC_ASSERT(currentViewer(), return);
+    currentViewer()->addBackHistoryItems(m_backMenu);
 }
 
 void HelpWidget::updateForwardMenu()
 {
     m_forwardMenu->clear();
-    m_viewer->addForwardHistoryItems(m_forwardMenu);
+    QTC_ASSERT(currentViewer(), return);
+    currentViewer()->addForwardHistoryItems(m_forwardMenu);
 }
 
 void HelpWidget::updateWindowTitle()
 {
-    const QString pageTitle = m_viewer->title();
+    QTC_ASSERT(currentViewer(), return);
+    const QString pageTitle = currentViewer()->title();
     if (pageTitle.isEmpty())
         setWindowTitle(tr("Help"));
     else
@@ -239,9 +366,19 @@ void HelpWidget::updateWindowTitle()
 
 void HelpWidget::helpModeButtonClicked()
 {
-    emit openHelpMode(m_viewer->source());
+    QTC_ASSERT(currentViewer(), return);
+    emit openHelpMode(currentViewer()->source());
     if (m_style == ExternalWindow)
         close();
+}
+
+void HelpWidget::updateCloseButton()
+{
+    if (m_style == ModeWidget) {
+        const bool closeOnReturn = Core::HelpManager::customValue(QLatin1String("ReturnOnClose"),
+            false).toBool();
+        m_closeAction->setEnabled(closeOnReturn || m_viewerStack->count() > 1);
+    }
 }
 
 void HelpWidget::goHome()
@@ -261,6 +398,85 @@ void HelpWidget::addBookmark()
 
     BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
     manager->showBookmarkDialog(this, viewer->title(), url);
+}
+
+void HelpWidget::copy()
+{
+    QTC_ASSERT(currentViewer(), return);
+    currentViewer()->copy();
+}
+
+void HelpWidget::forward()
+{
+    QTC_ASSERT(currentViewer(), return);
+    currentViewer()->forward();
+}
+
+void HelpWidget::backward()
+{
+    QTC_ASSERT(currentViewer(), return);
+    currentViewer()->backward();
+}
+
+void HelpWidget::scaleUp()
+{
+    QTC_ASSERT(currentViewer(), return);
+    currentViewer()->scaleUp();
+}
+
+void HelpWidget::scaleDown()
+{
+    QTC_ASSERT(currentViewer(), return);
+    currentViewer()->scaleDown();
+}
+
+void HelpWidget::resetScale()
+{
+    QTC_ASSERT(currentViewer(), return);
+    currentViewer()->resetScale();
+}
+
+void HelpWidget::print(HelpViewer *viewer)
+{
+    QTC_ASSERT(viewer, return);
+    if (!m_printer)
+        m_printer = new QPrinter(QPrinter::HighResolution);
+    QPrintDialog dlg(m_printer, this);
+    dlg.setWindowTitle(tr("Print Documentation"));
+    if (!viewer->selectedText().isEmpty())
+        dlg.addEnabledOption(QAbstractPrintDialog::PrintSelection);
+    dlg.addEnabledOption(QAbstractPrintDialog::PrintPageRange);
+    dlg.addEnabledOption(QAbstractPrintDialog::PrintCollateCopies);
+
+    if (dlg.exec() == QDialog::Accepted)
+        viewer->print(m_printer);
+}
+
+void HelpWidget::highlightSearchTerms()
+{
+    if (HelpViewer *viewer = qobject_cast<HelpViewer *>(sender())) {
+        QHelpSearchEngine *searchEngine =
+            LocalHelpManager::helpEngine().searchEngine();
+        QList<QHelpSearchQuery> queryList = searchEngine->query();
+
+        QStringList terms;
+        foreach (const QHelpSearchQuery &query, queryList) {
+            switch (query.fieldName) {
+                default: break;
+                case QHelpSearchQuery::ALL: {
+                case QHelpSearchQuery::PHRASE:
+                case QHelpSearchQuery::DEFAULT:
+                case QHelpSearchQuery::ATLEAST:
+                    foreach (QString term, query.wordList)
+                        terms.append(term.remove(QLatin1Char('"')));
+                }
+            }
+        }
+
+        foreach (const QString& term, terms)
+            viewer->findText(term, 0, false, true);
+        disconnect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
+    }
 }
 
 } // Internal

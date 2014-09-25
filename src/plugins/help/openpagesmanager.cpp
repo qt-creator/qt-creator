@@ -173,7 +173,7 @@ void OpenPagesManager::setupInitialPages()
         m_model->addPage(homePage);
 
     for (int i = 0; i < m_model->rowCount(); ++i)
-        CentralWidget::instance()->addPage(m_model->pageAt(i));
+        CentralWidget::instance()->addViewer(m_model->pageAt(i));
 
     emit pagesChanged();
     setCurrentPage((initialPage >= m_model->rowCount())
@@ -202,7 +202,7 @@ HelpViewer *OpenPagesManager::createPage(const QUrl &url, bool fromSearch)
 
     const int index = m_model->rowCount() - 1;
     HelpViewer * const page = m_model->pageAt(index);
-    CentralWidget::instance()->addPage(page, fromSearch);
+    CentralWidget::instance()->addViewer(page, fromSearch);
 
     emit pagesChanged();
     setCurrentPage(index);
@@ -212,7 +212,7 @@ HelpViewer *OpenPagesManager::createPage(const QUrl &url, bool fromSearch)
 
 void OpenPagesManager::setCurrentPage(int index)
 {
-    CentralWidget::instance()->setCurrentPage(m_model->pageAt(index));
+    CentralWidget::instance()->setCurrentViewer(m_model->pageAt(index));
 
     m_comboBox->setCurrentIndex(index);
     if (m_openPagesWidget)
@@ -294,7 +294,7 @@ void OpenPagesManager::removePage(int index)
     Q_ASSERT(m_model->rowCount() > 1);
 
     m_model->removePage(index);
-    CentralWidget::instance()->removePage(index);
+    CentralWidget::instance()->removeViewerAt(index);
 
     emit pagesChanged();
     if (m_openPagesWidget)

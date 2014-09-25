@@ -31,22 +31,11 @@
 
 #include "helpviewer.h"
 #include "localhelpmanager.h"
+#include "topicchooser.h"
 
-#include <topicchooser.h>
-
-#include <QEvent>
-#include <QTimer>
-
-#include <QKeyEvent>
-#include <QLayout>
-#include <QPageSetupDialog>
-#include <QPrinter>
-#include <QPrintDialog>
-#include <QPrintPreviewDialog>
-#include <QStackedWidget>
+#include <utils/qtcassert.h>
 
 #include <QHelpEngine>
-#include <QHelpSearchEngine>
 
 using namespace Help::Internal;
 
@@ -54,29 +43,19 @@ CentralWidget *gStaticCentralWidget = 0;
 
 // -- CentralWidget
 
-CentralWidget::CentralWidget(QWidget *parent)
-    : QWidget(parent)
-    , printer(0)
-    , m_stackedWidget(0)
+CentralWidget::CentralWidget(const Core::Context &context, QWidget *parent)
+    : HelpWidget(context, HelpWidget::ModeWidget, parent)
 {
-    Q_ASSERT(!gStaticCentralWidget);
+    QTC_CHECK(!gStaticCentralWidget);
     gStaticCentralWidget = this;
-
-    QVBoxLayout *vboxLayout = new QVBoxLayout(this);
-    vboxLayout->setMargin(0);
-    m_stackedWidget = new QStackedWidget(this);
-    vboxLayout->addWidget(m_stackedWidget);
 }
 
 CentralWidget::~CentralWidget()
 {
-#ifndef QT_NO_PRINTER
-    delete printer;
-#endif
-
+    // TODO: this shouldn't be done here
     QString zoomFactors;
     QString currentPages;
-    for (int i = 0; i < m_stackedWidget->count(); ++i) {
+    for (int i = 0; i < viewerCount(); ++i) {
         const HelpViewer * const viewer = viewerAt(i);
         const QUrl &source = viewer->source();
         if (source.isValid()) {
@@ -97,271 +76,10 @@ CentralWidget *CentralWidget::instance()
     return gStaticCentralWidget;
 }
 
-bool CentralWidget::isForwardAvailable() const
-{
-    const HelpViewer* viewer = currentHelpViewer();
-    if (viewer)
-        return viewer->isForwardAvailable();
-
-    return false;
-}
-
-bool CentralWidget::isBackwardAvailable() const
-{
-    const HelpViewer* viewer = currentHelpViewer();
-    if (viewer)
-        return viewer->isBackwardAvailable();
-
-    return false;
-}
-
-HelpViewer* CentralWidget::viewerAt(int index) const
-{
-    return qobject_cast<HelpViewer*> (m_stackedWidget->widget(index));
-}
-
-HelpViewer* CentralWidget::currentHelpViewer() const
-{
-    return qobject_cast<HelpViewer*> (m_stackedWidget->currentWidget());
-}
-
-void CentralWidget::addPage(HelpViewer *page, bool fromSearch)
-{
-    page->installEventFilter(this);
-    page->setFocus(Qt::OtherFocusReason);
-    connectSignals(page);
-    m_stackedWidget->addWidget(page);
-    if (fromSearch) {
-        connect(currentHelpViewer(), SIGNAL(loadFinished()), this,
-            SLOT(highlightSearchTerms()));
-     }
-}
-
-void CentralWidget::removePage(int index)
-{
-    m_stackedWidget->removeWidget(m_stackedWidget->widget(index));
-}
-
-int CentralWidget::currentIndex() const
-{
-    return  m_stackedWidget->currentIndex();
-}
-
-void CentralWidget::setCurrentPage(HelpViewer *page)
-{
-    m_stackedWidget->setCurrentWidget(page);
-}
-
-bool CentralWidget::find(const QString &txt, Core::FindFlags flags,
-    bool incremental, bool *wrapped)
-{
-    return currentHelpViewer()->findText(txt, flags, incremental, false, wrapped);
-}
-
-// -- public slots
-
-void CentralWidget::copy()
-{
-    if (HelpViewer* viewer = currentHelpViewer())
-        viewer->copy();
-}
-
-void CentralWidget::home()
-{
-    if (HelpViewer* viewer = currentHelpViewer())
-        viewer->home();
-}
-
-void CentralWidget::zoomIn()
-{
-    HelpViewer* viewer = currentHelpViewer();
-    if (viewer)
-        viewer->scaleUp();
-}
-
-void CentralWidget::zoomOut()
-{
-    HelpViewer* viewer = currentHelpViewer();
-    if (viewer)
-        viewer->scaleDown();
-}
-
-void CentralWidget::resetZoom()
-{
-    HelpViewer* viewer = currentHelpViewer();
-    if (viewer)
-        viewer->resetScale();
-}
-
-void CentralWidget::forward()
-{
-    if (HelpViewer* viewer = currentHelpViewer())
-        viewer->forward();
-}
-
-void CentralWidget::backward()
-{
-    if (HelpViewer* viewer = currentHelpViewer())
-        viewer->backward();
-}
-
-void CentralWidget::print()
-{
-#ifndef QT_NO_PRINTER
-    if (HelpViewer* viewer = currentHelpViewer()) {
-        initPrinter();
-
-        QPrintDialog dlg(printer, this);
-        dlg.setWindowTitle(tr("Print Document"));
-        if (!viewer->selectedText().isEmpty())
-            dlg.addEnabledOption(QAbstractPrintDialog::PrintSelection);
-        dlg.addEnabledOption(QAbstractPrintDialog::PrintPageRange);
-        dlg.addEnabledOption(QAbstractPrintDialog::PrintCollateCopies);
-
-        if (dlg.exec() == QDialog::Accepted)
-            viewer->print(printer);
-    }
-#endif
-}
-
-void CentralWidget::pageSetup()
-{
-#ifndef QT_NO_PRINTER
-    initPrinter();
-    QPageSetupDialog dlg(printer);
-    dlg.exec();
-#endif
-}
-
-void CentralWidget::printPreview()
-{
-#ifndef QT_NO_PRINTER
-    initPrinter();
-    QPrintPreviewDialog preview(printer, this);
-    connect(&preview, SIGNAL(paintRequested(QPrinter*)),
-        SLOT(printPreview(QPrinter*)));
-    preview.exec();
-#endif
-}
-
-void CentralWidget::setSource(const QUrl &url)
-{
-    if (HelpViewer* viewer = currentHelpViewer()) {
-        viewer->setSource(url);
-        viewer->setFocus(Qt::OtherFocusReason);
-    }
-}
-
-void CentralWidget::setSourceFromSearch(const QUrl &url)
-{
-    if (HelpViewer* viewer = currentHelpViewer()) {
-        connect(viewer, SIGNAL(loadFinished()), this,
-            SLOT(highlightSearchTerms()));
-        viewer->setSource(url);
-        viewer->setFocus(Qt::OtherFocusReason);
-    }
-}
-
 void CentralWidget::showTopicChooser(const QMap<QString, QUrl> &links,
     const QString &keyword)
 {
     TopicChooser tc(this, keyword, links);
     if (tc.exec() == QDialog::Accepted)
         setSource(tc.link());
-}
-
-// -- protected
-
-void CentralWidget::focusInEvent(QFocusEvent * /* event */)
-{
-    // If we have a current help viewer then this is the 'focus proxy',
-    // otherwise it's the central widget. This is needed, so an embedding
-    // program can just set the focus to the central widget and it does
-    // The Right Thing(TM)
-    QObject *receiver = m_stackedWidget;
-    if (HelpViewer *viewer = currentHelpViewer())
-        receiver = viewer;
-    QTimer::singleShot(1, receiver, SLOT(setFocus()));
-}
-
-// -- private slots
-
-void CentralWidget::highlightSearchTerms()
-{
-    if (HelpViewer *viewer = currentHelpViewer()) {
-        QHelpSearchEngine *searchEngine =
-            LocalHelpManager::helpEngine().searchEngine();
-        QList<QHelpSearchQuery> queryList = searchEngine->query();
-
-        QStringList terms;
-        foreach (const QHelpSearchQuery &query, queryList) {
-            switch (query.fieldName) {
-                default: break;
-                case QHelpSearchQuery::ALL: {
-                case QHelpSearchQuery::PHRASE:
-                case QHelpSearchQuery::DEFAULT:
-                case QHelpSearchQuery::ATLEAST:
-                    foreach (QString term, query.wordList)
-                        terms.append(term.remove(QLatin1Char('"')));
-                }
-            }
-        }
-
-        foreach (const QString& term, terms)
-            viewer->findText(term, 0, false, true);
-        disconnect(viewer, SIGNAL(loadFinished()), this,
-            SLOT(highlightSearchTerms()));
-    }
-}
-
-void CentralWidget::printPreview(QPrinter *p)
-{
-#ifndef QT_NO_PRINTER
-    HelpViewer *viewer = currentHelpViewer();
-    if (viewer)
-        viewer->print(p);
-#else
-    Q_UNUSED(p)
-#endif
-}
-
-void CentralWidget::handleSourceChanged(const QUrl &url)
-{
-    if (sender() == currentHelpViewer())
-        emit sourceChanged(url);
-}
-
-// -- private
-
-void CentralWidget::initPrinter()
-{
-#ifndef QT_NO_PRINTER
-    if (!printer)
-        printer = new QPrinter(QPrinter::HighResolution);
-#endif
-}
-
-void CentralWidget::connectSignals(HelpViewer *page)
-{
-    connect(page, SIGNAL(sourceChanged(QUrl)), this, SLOT(handleSourceChanged(QUrl)));
-    connect(page, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
-    connect(page, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
-    connect(page, SIGNAL(printRequested()), this, SLOT(print()));
-}
-
-bool CentralWidget::eventFilter(QObject *object, QEvent *e)
-{
-    if (e->type() != QEvent::KeyPress)
-        return QWidget::eventFilter(object, e);
-
-    HelpViewer *viewer = currentHelpViewer();
-    QKeyEvent *keyEvent = static_cast<QKeyEvent*> (e);
-    if (viewer == object && keyEvent->key() == Qt::Key_Backspace) {
-        if (viewer->isBackwardAvailable()) {
-            // this helps in case there is an html <input> field
-            if (!viewer->hasFocus())
-                viewer->backward();
-        }
-    }
-    return QWidget::eventFilter(object, e);
 }

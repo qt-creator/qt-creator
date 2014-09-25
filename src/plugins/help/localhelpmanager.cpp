@@ -35,6 +35,7 @@
 
 #include <app/app_version.h>
 #include <coreplugin/helpmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QMutexLocker>
 
@@ -50,6 +51,10 @@ QHelpEngine* LocalHelpManager::m_guiEngine = 0;
 QMutex LocalHelpManager::m_bkmarkMutex;
 BookmarkManager* LocalHelpManager::m_bookmarkManager = 0;
 
+QStandardItemModel *LocalHelpManager::m_filterModel = 0;
+QString LocalHelpManager::m_currentFilter = QString();
+int LocalHelpManager::m_currentFilterIndex = -1;
+
 LocalHelpManager::LocalHelpManager(QObject *parent)
     : QObject(parent)
     , m_guiNeedsSetup(true)
@@ -57,6 +62,7 @@ LocalHelpManager::LocalHelpManager(QObject *parent)
 {
     m_instance = this;
     qRegisterMetaType<Help::Internal::LocalHelpManager::HelpData>("Help::Internal::LocalHelpManager::HelpData");
+    m_filterModel = new QStandardItemModel(this);
 }
 
 LocalHelpManager::~LocalHelpManager()
@@ -226,4 +232,48 @@ LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url)
         data.mimeType = QLatin1String("text/html");
     }
     return data;
+}
+
+QAbstractItemModel *LocalHelpManager::filterModel()
+{
+    return m_filterModel;
+}
+
+void LocalHelpManager::setFilterIndex(int index)
+{
+    if (index == m_currentFilterIndex)
+        return;
+    m_currentFilterIndex = index;
+    QStandardItem *item = m_filterModel->item(index);
+    if (!item) {
+        helpEngine().setCurrentFilter(QString());
+        return;
+    }
+    helpEngine().setCurrentFilter(item->text());
+    emit m_instance->filterIndexChanged(m_currentFilterIndex);
+}
+
+void LocalHelpManager::updateFilterModel()
+{
+    const QHelpEngine &engine = helpEngine();
+    if (m_currentFilter.isEmpty())
+        m_currentFilter = engine.currentFilter();
+    m_filterModel->clear();
+    m_currentFilterIndex = -1;
+    int count = 0;
+    const QStringList &filters = engine.customFilters();
+    foreach (const QString &filterString, filters) {
+        m_filterModel->appendRow(new QStandardItem(filterString));
+        if (filterString == m_currentFilter)
+            m_currentFilterIndex = count;
+        count++;
+    }
+
+    if (filters.size() < 1)
+        return;
+    if (m_currentFilterIndex < 0) {
+        m_currentFilterIndex = 0;
+        m_currentFilter = filters.at(0);
+    }
+    emit m_instance->filterIndexChanged(m_currentFilterIndex);
 }

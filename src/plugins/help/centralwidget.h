@@ -30,90 +30,32 @@
 #ifndef CENTRALWIDGET_H
 #define CENTRALWIDGET_H
 
+#include "helpwidget.h"
+
 #include <coreplugin/find/ifindsupport.h>
 
-#include <QWidget>
-
-QT_FORWARD_DECLARE_CLASS(QEvent)
-QT_FORWARD_DECLARE_CLASS(QAction)
-QT_FORWARD_DECLARE_CLASS(QStackedWidget)
-QT_FORWARD_DECLARE_CLASS(QFocusEvent)
-QT_FORWARD_DECLARE_CLASS(QPrinter)
-
 namespace Help {
-    namespace Internal {
+namespace Internal {
 
 class HelpViewer;
 class PrintHelper;
 
-class CentralWidget : public QWidget
+class CentralWidget : public HelpWidget
 {
     Q_OBJECT
 
 public:
-    CentralWidget(QWidget *parent = 0);
+    CentralWidget(const Core::Context &context, QWidget *parent = 0);
     ~CentralWidget();
 
     static CentralWidget *instance();
 
-    bool isForwardAvailable() const;
-    bool isBackwardAvailable() const;
-
-    HelpViewer *viewerAt(int index) const;
-    HelpViewer *currentHelpViewer() const;
-
-    void addPage(HelpViewer *page, bool fromSearch = false);
-    void removePage(int index);
-
-    int currentIndex() const;
-    void setCurrentPage(HelpViewer *page);
-
-    bool find(const QString &txt, Core::FindFlags findFlags,
-        bool incremental, bool *wrapped = 0);
-
 public slots:
-    void copy();
-    void home();
-
-    void zoomIn();
-    void zoomOut();
-    void resetZoom();
-
-    void forward();
-    void backward();
-
-    void print();
-    void pageSetup();
-    void printPreview();
-
-    void setSource(const QUrl &url);
-    void setSourceFromSearch(const QUrl &url);
     void showTopicChooser(const QMap<QString, QUrl> &links, const QString &key);
 
-protected:
-    void focusInEvent(QFocusEvent *event);
-
-signals:
-    void sourceChanged(const QUrl &url);
-    void forwardAvailable(bool available);
-    void backwardAvailable(bool available);
-
-private slots:
-    void highlightSearchTerms();
-    void printPreview(QPrinter *printer);
-    void handleSourceChanged(const QUrl &url);
-
-private:
-    void initPrinter();
-    void connectSignals(HelpViewer *page);
-    bool eventFilter(QObject *object, QEvent *e);
-
-private:
-    QPrinter *printer;
-    QStackedWidget *m_stackedWidget;
 };
 
-    } // namespace Internal
+} // namespace Internal
 } // namespace Help
 
 #endif  // CENTRALWIDGET_H

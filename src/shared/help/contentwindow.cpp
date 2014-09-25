@@ -162,7 +162,7 @@ void ContentWindow::itemClicked(const QModelIndex &index)
     if (contentModel) {
         if (QHelpContentItem *itm = contentModel->contentItemAt(index)) {
             const QUrl &url = itm->url();
-            if (url != CentralWidget::instance()->currentHelpViewer()->source())
+            if (url != CentralWidget::instance()->currentViewer()->source())
                 emit linkActivated(itm->url());
         }
     }

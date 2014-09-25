@@ -41,7 +41,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QComboBox;
 class QMenu;
 class QToolButton;
 class QUrl;
@@ -96,10 +95,6 @@ private slots:
     void activateOpenPages();
     void activateBookmarks();
 
-    void addBookmark();
-    void updateFilterComboBox();
-    void filterDocumentation(const QString &customFilter);
-
     void saveExternalWindowSettings();
     void switchToHelpMode(const QUrl &source);
     void slotHideRightPane();
@@ -110,14 +105,11 @@ private slots:
 
     void fontChanged();
 
-    void updateCloseButton();
     void setupHelpEngineIfNeeded();
 
     void highlightSearchTermsInContextHelp();
     void handleHelpRequest(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
 
-    void slotAboutToShowBackMenu();
-    void slotAboutToShowNextMenu();
     void slotOpenSupportPage();
     void slotReportBug();
 
@@ -127,7 +119,6 @@ private:
     void setupUi();
     void resetFilter();
     void activateHelpMode();
-    Utils::StyledBar *createWidgetToolBar();
     bool canShowHelpSideBySide() const;
     HelpViewer *viewerForHelpViewerLocation(Core::HelpManager::HelpViewerLocation location);
     HelpViewer *viewerForContextHelp();
@@ -137,7 +128,6 @@ private:
 
     void doSetupIfNeeded();
     Core::HelpManager::HelpViewerLocation contextHelpOption() const;
-    void setupNavigationMenus(QAction *back, QAction *next, QWidget *parent);
 
 private:
     HelpMode *m_mode;
@@ -155,7 +145,6 @@ private:
     GeneralSettingsPage *m_generalSettingsPage;
     SearchTaskHandler *m_searchTaskHandler;
 
-    QComboBox *m_filterComboBox;
     Core::SideBar *m_sideBar;
 
     bool m_firstModeChange;
@@ -163,15 +152,10 @@ private:
     OpenPagesManager *m_openPagesManager;
     Core::MiniSplitter *m_splitter;
 
-    QToolButton *m_closeButton;
-
     QString m_contextHelpHighlightId;
 
     QPointer<HelpWidget> m_externalWindow;
     QRect m_externalWindowState;
-
-    QMenu *m_backMenu;
-    QMenu *m_nextMenu;
 
     bool m_isSidebarVisible;
     QAction *m_toggleSideBarAction;
