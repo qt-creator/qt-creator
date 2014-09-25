@@ -29,28 +29,6 @@
 
 source("../../shared/qtcreator.py")
 
-def makeClangDefaultCodeModel(pluginAvailable):
-    invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "C++")
-    clickItem(":Options_QListView", "C++", 14, 15, 0, Qt.LeftButton)
-    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Code Model")
-    expectedObjNames = ['cChooser', 'cppChooser', 'objcChooser', 'objcppChooser', 'hChooser']
-    for exp in expectedObjNames:
-        test.verify(checkIfObjectExists("{type='QComboBox' name='%s' visible='1'}" % exp),
-                    "Verifying whether combobox '%s' exists." % exp)
-        combo = findObject("{type='QComboBox' name='%s' visible='1'}" % exp)
-        if test.verify(combo.enabled == pluginAvailable, "Verifying whether combobox is enabled."):
-            if test.compare(combo.currentText, "Qt Creator Built-in",
-                            "Verifying whether default is Qt Creator's builtin code model"):
-                items = dumpItems(combo.model())
-                if (pluginAvailable and
-                    test.verify("Clang" in items,
-                                "Verifying whether clang code model can be chosen.")):
-                    selectFromCombo(combo, "Clang")
-    test.verify(verifyChecked("{name='ignorePCHCheckBox' type='QCheckBox' visible='1'}"),
-                "Verifying whether 'Ignore pre-compiled headers' is checked by default.")
-    clickButton(waitForObject(":Options.OK_QPushButton"))
-
 def moveDownToNextNonEmptyLine(editor):
     currentLine = "" # there's no do-while in python - so use empty line which fails
     while not currentLine:
@@ -176,30 +154,22 @@ def main():
     examplePath = os.path.join(srcPath, "creator", "tests", "manual", "cplusplus-tools")
     if not neededFilePresent(os.path.join(examplePath, "cplusplus-tools.pro")):
         return
-    try:
-        # start Qt Creator with enabled ClangCodeModel plugin (without modifying settings)
-        startApplication("qtcreator -load ClangCodeModel" + SettingsPath)
-        errorMsg = "{type='QMessageBox' unnamed='1' visible='1' windowTitle='Qt Creator'}"
-        errorOK = "{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}" % errorMsg
-        if waitFor("object.exists(errorOK)", 5000):
-            clickButton(errorOK) # Error message
-            clickButton(errorOK) # Help message
-            raise Exception("ClangCodeModel not found.")
-        clangCodeModelPluginAvailable = True
-        models = ["builtin", "clang"]
-    except:
-        # ClangCodeModel plugin has not been built - start without it
-        test.warning("ClangCodeModel plugin not available - performing test without.")
-        startApplication("qtcreator" + SettingsPath)
-        clangCodeModelPluginAvailable = False
-        models = ["builtin"]
+    clangLoaded = startCreatorTryingClang()
     if not startedWithoutPluginError():
         return
 
     templateDir = prepareTemplate(examplePath)
     examplePath = os.path.join(templateDir, "cplusplus-tools.pro")
     openQmakeProject(examplePath, Targets.DESKTOP_531_DEFAULT)
+    models = iterateAvailableCodeModels()
+    test.compare(len(models), 1 + clangLoaded, "Verifying number of available code models")
+    test.compare("Qt Creator Built-in", models[0],
+                 "Verifying whether default is Qt Creator's builtin code model")
+    test.compare("Clang" in models, clangLoaded,
+                 "Verifying whether clang code model can be chosen.")
     for current in models:
+        if current != models[0]:
+            selectCodeModel(current)
         test.log("Testing code model: %s" % current)
         if not openDocument("cplusplus-tools.Sources.main\\.cpp"):
             earlyExit("Failed to open main.cpp.")
@@ -207,11 +177,9 @@ def main():
         editor = getEditorForFileSuffix("main.cpp")
         if editor:
             checkIncludeCompletion(editor)
-            checkSymbolCompletion(editor, current != "builtin")
+            checkSymbolCompletion(editor, current == "Clang")
             invokeMenuItem('File', 'Revert "main.cpp" to Saved')
             clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
-        if current == "builtin":
-            makeClangDefaultCodeModel(clangCodeModelPluginAvailable)
         snooze(1)   # 'Close "main.cpp"' might still be disabled
         # editor must be closed to get the second code model applied on re-opening the file
         invokeMenuItem('File', 'Close "main.cpp"')
