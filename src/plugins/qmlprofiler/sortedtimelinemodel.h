@@ -86,7 +86,7 @@ public:
         // in the "endtime" list, find the first event that ends after startTime
         if (endTimes.isEmpty())
             return -1;
-        if (endTimes.count() == 1 || endTimes.first().end >= startTime)
+        if (endTimes.count() == 1 || endTimes.first().end > startTime)
             return endTimes.first().startIndex;
         if (endTimes.last().end <= startTime)
             return -1;
@@ -101,7 +101,7 @@ public:
             return -1;
         if (ranges.count() == 1)
             return 0;
-        if (ranges.last().start <= endTime)
+        if (ranges.last().start < endTime)
             return ranges.count() - 1;
 
         return lowerBound(ranges, endTime);
