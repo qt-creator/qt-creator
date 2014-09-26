@@ -33,6 +33,7 @@
 #include "qmlprofilertimelinemodelproxy.h"
 #include "qmlprofilerpainteventsmodelproxy.h"
 #include "qmlprofilerplugin.h"
+#include "notesmodel.h"
 
 #include <QStringList>
 #include <QVariant>
@@ -47,6 +48,9 @@ public:
     ~TimelineModelAggregatorPrivate() {}
 
     TimelineModelAggregator *q;
+
+    // mapping of modelId assigned by manager to index in our list
+    QList <int> modelManagerIndexMapping;
 
     QList <AbstractTimelineModel *> modelList;
     QmlProfilerModelManager *modelManager;
@@ -93,15 +97,21 @@ void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelMana
 
     // Connect this last so that it's executed after the models have updated their data.
     connect(modelManager->qmlModel(),SIGNAL(changed()),this,SIGNAL(stateChanged()));
+    connect(modelManager->notesModel(), SIGNAL(changed(int,int,int)),
+            this, SIGNAL(notesChanged(int,int,int)));
 }
 
 void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
 {
+    while (d->modelManagerIndexMapping.size() <= m->modelId())
+        d->modelManagerIndexMapping.append(-1);
+    d->modelManagerIndexMapping[m->modelId()] = d->modelList.size();
     d->modelList << m;
     connect(m,SIGNAL(expandedChanged()),this,SIGNAL(expandedChanged()));
     connect(m,SIGNAL(hiddenChanged()),this,SIGNAL(hiddenChanged()));
     connect(m,SIGNAL(rowHeightChanged()),this,SIGNAL(rowHeightChanged()));
     connect(m,SIGNAL(heightChanged()),this,SIGNAL(heightChanged()));
+    d->modelManager->notesModel()->addTimelineModel(m);
     emit modelsChanged(d->modelList.length(), d->modelList.length());
 }
 
@@ -116,6 +126,16 @@ QVariantList TimelineModelAggregator::models() const
     foreach (AbstractTimelineModel *model, d->modelList)
         ret << QVariant::fromValue(model);
     return ret;
+}
+
+int TimelineModelAggregator::modelIndexFromManagerIndex(int modelManagerIndex) const
+{
+    return d->modelManagerIndexMapping[modelManagerIndex];
+}
+
+NotesModel *TimelineModelAggregator::notes() const
+{
+    return d->modelManager->notesModel();
 }
 
 int TimelineModelAggregator::count(int modelIndex) const
@@ -282,8 +302,72 @@ int TimelineModelAggregator::selectionIdForLocation(int modelIndex, const QStrin
 
 void TimelineModelAggregator::swapModels(int modelIndex1, int modelIndex2)
 {
-    qSwap(d->modelList[modelIndex1], d->modelList[modelIndex2]);
+    AbstractTimelineModel *&model1 = d->modelList[modelIndex1];
+    AbstractTimelineModel *&model2 = d->modelList[modelIndex2];
+    std::swap(d->modelManagerIndexMapping[model1->modelId()],
+              d->modelManagerIndexMapping[model2->modelId()]);
+    std::swap(model1, model2);
     emit modelsChanged(modelIndex1, modelIndex2);
+}
+
+QString TimelineModelAggregator::noteText(int noteId) const
+{
+    return d->modelManager->notesModel()->text(noteId);
+}
+
+QString TimelineModelAggregator::noteText(int modelIndex, int index) const
+{
+    int managerId = d->modelList[modelIndex]->modelId();
+    int noteId = d->modelManager->notesModel()->get(managerId, index);
+    return noteId != -1 ? noteText(noteId) : QString();
+}
+
+void TimelineModelAggregator::setNoteText(int noteId, const QString &text)
+{
+    if (text.length() > 0) {
+        notes()->update(noteId, text);
+    } else {
+        notes()->remove(noteId);
+    }
+}
+
+void TimelineModelAggregator::setNoteText(int modelIndex, int index, const QString &text)
+{
+    int managerId = d->modelList[modelIndex]->modelId();
+    NotesModel *notesModel = notes();
+    int noteId = notesModel->get(managerId, index);
+    if (noteId == -1) {
+        if (text.length() > 0)
+            notesModel->add(managerId, index, text);
+    } else {
+        setNoteText(noteId, text);
+    }
+}
+
+int TimelineModelAggregator::noteTimelineModel(int noteIndex) const
+{
+    return d->modelManagerIndexMapping[notes()->timelineModel(noteIndex)];
+}
+
+int TimelineModelAggregator::noteTimelineIndex(int noteIndex) const
+{
+    return notes()->timelineIndex(noteIndex);
+}
+
+QVariantList TimelineModelAggregator::notesByTimelineModel(int modelIndex) const
+{
+    int managerId = d->modelList[modelIndex]->modelId();
+    return notes()->byTimelineModel(managerId);
+}
+
+QVariantList TimelineModelAggregator::notesByTypeId(int typeId) const
+{
+    return notes()->byTypeId(typeId);
+}
+
+int TimelineModelAggregator::noteCount() const
+{
+    return notes()->count();
 }
 
 void TimelineModelAggregator::dataChanged()

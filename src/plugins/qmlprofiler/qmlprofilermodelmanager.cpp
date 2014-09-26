@@ -32,6 +32,7 @@
 #include "qmlprofilerdatamodel.h"
 #include "qv8profilerdatamodel.h"
 #include "qmlprofilertracefile.h"
+#include "notesmodel.h"
 
 #include <utils/qtcassert.h>
 
@@ -172,6 +173,8 @@ public:
 
     QmlProfilerDataModel *model;
     QV8ProfilerDataModel *v8Model;
+    NotesModel *notesModel;
+
     QmlProfilerDataState *dataState;
     QmlProfilerTraceTime *traceTime;
 
@@ -197,6 +200,8 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     d->v8Model = new QV8ProfilerDataModel(finder, this);
     d->dataState = new QmlProfilerDataState(this, this);
     d->traceTime = new QmlProfilerTraceTime(this);
+    d->notesModel = new NotesModel(this);
+    d->notesModel->setModelManager(this);
 }
 
 QmlProfilerModelManager::~QmlProfilerModelManager()
@@ -217,6 +222,11 @@ QmlProfilerDataModel *QmlProfilerModelManager::qmlModel() const
 QV8ProfilerDataModel *QmlProfilerModelManager::v8Model() const
 {
     return d->v8Model;
+}
+
+NotesModel *QmlProfilerModelManager::notesModel() const
+{
+    return d->notesModel;
 }
 
 bool QmlProfilerModelManager::isEmpty() const
@@ -328,6 +338,8 @@ void QmlProfilerModelManager::complete()
 {
     switch (state()) {
     case QmlProfilerDataState::ProcessingData:
+        // Load notes after the timeline models have been initialized.
+        d->notesModel->loadData();
         setState(QmlProfilerDataState::Done);
         emit dataAvailable();
         break;
@@ -367,6 +379,7 @@ void QmlProfilerModelManager::save(const QString &filename)
 
     QmlProfilerFileWriter writer;
 
+    d->notesModel->saveData();
     writer.setTraceTime(traceTime()->startTime(), traceTime()->endTime(), traceTime()->duration());
     writer.setV8DataModel(d->v8Model);
     writer.setQmlEvents(d->model->getEventTypes(), d->model->getEvents());

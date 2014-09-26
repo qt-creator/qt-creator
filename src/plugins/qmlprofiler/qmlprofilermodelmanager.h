@@ -43,6 +43,7 @@ namespace QmlProfiler {
 class QmlProfilerModelManager;
 class QmlProfilerDataModel;
 class QV8ProfilerDataModel;
+class NotesModel;
 
 namespace Internal {
 
@@ -120,6 +121,7 @@ public:
     QmlProfilerTraceTime *traceTime() const;
     QmlProfilerDataModel *qmlModel() const;
     QV8ProfilerDataModel *v8Model() const;
+    NotesModel *notesModel() const;
 
     bool isEmpty() const;
     int count() const;

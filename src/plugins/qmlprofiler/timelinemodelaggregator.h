@@ -51,7 +51,9 @@ public:
     void addModel(AbstractTimelineModel *m);
     const AbstractTimelineModel *model(int modelIndex) const;
     QVariantList models() const;
+    int modelIndexFromManagerIndex(int modelManagerIndex) const;
 
+    Q_INVOKABLE NotesModel *notes() const;
     Q_INVOKABLE int count(int modelIndex) const;
     void clear();
     Q_INVOKABLE int modelCount() const;
@@ -102,6 +104,15 @@ public:
                                        int column) const;
 
     Q_INVOKABLE void swapModels(int modelIndex1, int modelIndex2);
+    Q_INVOKABLE QString noteText(int noteId) const;
+    Q_INVOKABLE QString noteText(int modelIndex, int index) const;
+    Q_INVOKABLE void setNoteText(int noteId, const QString &text);
+    Q_INVOKABLE void setNoteText(int modelIndex, int index, const QString &text);
+    Q_INVOKABLE int noteTimelineModel(int noteIndex) const;
+    Q_INVOKABLE int noteTimelineIndex(int noteIndex) const;
+    Q_INVOKABLE QVariantList notesByTimelineModel(int modelIndex) const;
+    Q_INVOKABLE QVariantList notesByTypeId(int typeId) const;
+    Q_INVOKABLE int noteCount() const;
 
 signals:
     void dataAvailable();
@@ -109,6 +120,7 @@ signals:
     void expandedChanged();
     void hiddenChanged();
     void rowHeightChanged();
+    void notesChanged(int typeId, int modelIndex, int eventIndex);
     void modelsChanged(int modelIndex1, int modelIndex2);
     void heightChanged();
 

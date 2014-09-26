@@ -60,11 +60,20 @@ public:
         qint64 numericData5;
     };
 
+    struct QmlEventNoteData {
+        int typeIndex;
+        qint64 startTime;
+        qint64 duration;
+        QString text;
+    };
+
     explicit QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent = 0);
 
     const QVector<QmlEventData> &getEvents() const;
     const QVector<QmlEventTypeData> &getEventTypes() const;
+    const QVector<QmlEventNoteData> &getEventNotes() const;
     void setData(const QVector<QmlEventTypeData> &types, const QVector<QmlEventData> &events);
+    void setNoteData(const QVector<QmlEventNoteData> &notes);
 
     int count() const;
     virtual void clear();

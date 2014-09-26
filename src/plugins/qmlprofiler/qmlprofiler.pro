@@ -31,7 +31,8 @@ SOURCES += \
     qmlprofilerpainteventsmodelproxy.cpp \
     sortedtimelinemodel.cpp \
     qmlprofilerbasemodel.cpp \
-    qmlprofilerdatamodel.cpp
+    qmlprofilerdatamodel.cpp \
+    notesmodel.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -65,7 +66,8 @@ HEADERS += \
     qmlprofilerbasemodel.h \
     abstracttimelinemodel_p.h \
     qmlprofilerdatamodel.h \
-    qmlprofilerbasemodel_p.h
+    qmlprofilerbasemodel_p.h \
+    notesmodel.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc

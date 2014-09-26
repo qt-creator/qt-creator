@@ -31,6 +31,7 @@
 #include "qmlprofilerdatamodel.h"
 #include "qmlprofilerbasemodel_p.h"
 #include "qmlprofilermodelmanager.h"
+#include "notesmodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
 #include <QUrl>
@@ -46,6 +47,7 @@ public:
     QmlProfilerDataModelPrivate(QmlProfilerDataModel *qq) : QmlProfilerBaseModelPrivate(qq) {}
     QVector<QmlEventTypeData> eventTypes;
     QVector<QmlEventData> eventList;
+    QVector<QmlEventNoteData> eventNotes;
     QHash<QmlEventTypeData, int> eventTypeIds;
 private:
     Q_DECLARE_PUBLIC(QmlProfilerDataModel)
@@ -127,6 +129,12 @@ const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerDataModel::get
     return d->eventTypes;
 }
 
+const QVector<QmlProfilerDataModel::QmlEventNoteData> &QmlProfilerDataModel::getEventNotes() const
+{
+    Q_D(const QmlProfilerDataModel);
+    return d->eventNotes;
+}
+
 void QmlProfilerDataModel::setData(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
                                    const QVector<QmlProfilerDataModel::QmlEventData> &events)
 {
@@ -137,6 +145,12 @@ void QmlProfilerDataModel::setData(const QVector<QmlProfilerDataModel::QmlEventT
         d->eventTypeIds[types[id]] = id;
     // Half the work is done. complete() will do the rest.
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 2);
+}
+
+void QmlProfilerDataModel::setNoteData(const QVector<QmlProfilerDataModel::QmlEventNoteData> &notes)
+{
+    Q_D(QmlProfilerDataModel);
+    d->eventNotes = notes;
 }
 
 int QmlProfilerDataModel::count() const
@@ -151,6 +165,7 @@ void QmlProfilerDataModel::clear()
     d->eventList.clear();
     d->eventTypes.clear();
     d->eventTypeIds.clear();
+    d->eventNotes.clear();
     // This call emits changed(). Don't emit it again here.
     QmlProfilerBaseModel::clear();
 }
