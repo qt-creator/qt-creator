@@ -105,8 +105,7 @@ public:
         IgnoreNavigationHistory = 2,
         DoNotMakeVisible = 4,
         CanContainLineNumber = 8,
-        OpenInOtherSplit = 16,
-        NoNewSplits = 32
+        OpenInOtherSplit = 16
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 

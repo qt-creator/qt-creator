@@ -2221,12 +2221,8 @@ EditorManager::ExternalEditorList
 IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
-    if (flags & EditorManager::OpenInOtherSplit) {
-        if (flags & EditorManager::NoNewSplits)
-            EditorManagerPrivate::gotoNextSplit();
-        else
-            EditorManager::gotoOtherSplit();
-    }
+    if (flags & EditorManager::OpenInOtherSplit)
+        EditorManager::gotoOtherSplit();
 
     return EditorManagerPrivate::openEditor(EditorManagerPrivate::currentEditorView(),
                                             fileName, editorId, flags, newEditor);
@@ -2235,6 +2231,9 @@ IEditor *EditorManager::openEditor(const QString &fileName, Id editorId,
 IEditor *EditorManager::openEditorAt(const QString &fileName, int line, int column,
                                      Id editorId, OpenEditorFlags flags, bool *newEditor)
 {
+    if (flags & EditorManager::OpenInOtherSplit)
+        EditorManager::gotoOtherSplit();
+
     return EditorManagerPrivate::openEditorAt(EditorManagerPrivate::currentEditorView(),
                                               fileName, line, column, editorId, flags, newEditor);
 }
@@ -2297,12 +2296,8 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << editorId.name() << titlePattern << contents;
 
-    if (flags & EditorManager::OpenInOtherSplit) {
-        if (flags & EditorManager::NoNewSplits)
-            EditorManagerPrivate::gotoNextSplit();
-        else
+    if (flags & EditorManager::OpenInOtherSplit)
             EditorManager::gotoOtherSplit();
-    }
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 

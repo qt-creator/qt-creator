@@ -104,9 +104,6 @@ protected:
 
     void applyFontSettings() Q_DECL_OVERRIDE;
 
-    bool openLink(const Link &link, bool inNextSplit) Q_DECL_OVERRIDE
-    { return openCppEditorAt(link, inNextSplit); }
-
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
                     bool inNextSplit = false) Q_DECL_OVERRIDE;
 
@@ -139,8 +136,6 @@ private slots:
 private:
     void finalizeInitialization() Q_DECL_OVERRIDE;
     void finalizeInitializationAfterDuplication(BaseTextEditorWidget *other) Q_DECL_OVERRIDE;
-
-    static bool openCppEditorAt(const Link &, bool inNextSplit = false);
 
     unsigned documentRevision() const;
 

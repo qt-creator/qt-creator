@@ -5334,16 +5334,18 @@ bool BaseTextEditorWidget::openLink(const Link &link, bool inNextSplit)
     if (!link.hasValidTarget())
         return false;
 
-    if (inNextSplit) {
-        EditorManager::gotoOtherSplit();
-    } else if (textDocument()->filePath() == link.targetFileName) {
+    if (!inNextSplit && textDocument()->filePath() == link.targetFileName) {
         EditorManager::addCurrentPositionToNavigationHistory();
         gotoLine(link.targetLine, link.targetColumn);
         setFocus();
         return true;
     }
+    EditorManager::OpenEditorFlags flags;
+    if (inNextSplit)
+        flags |= EditorManager::OpenInOtherSplit;
 
-    return EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn);
+    return EditorManager::openEditorAt(link.targetFileName, link.targetLine, link.targetColumn,
+                                       Id(), flags);
 }
 
 void BaseTextEditorWidgetPrivate::updateLink(QMouseEvent *e)

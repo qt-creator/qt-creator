@@ -417,7 +417,7 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 
     // Open Editor at link position
     if (symbolLink.hasValidTarget())
-        openCppEditorAt(symbolLink, inNextSplit != alwaysOpenLinksInNextSplit());
+        openLink(symbolLink, inNextSplit != alwaysOpenLinksInNextSplit());
 }
 
 CppEditorWidget::Link CppEditorWidget::findLinkAt(const QTextCursor &cursor, bool resolveTarget,
@@ -574,21 +574,6 @@ CppEditorWidget::Link CppEditorWidget::linkToSymbol(CPlusPlus::Symbol *symbol)
         column = 0;
 
     return Link(filename, line, column);
-}
-
-bool CppEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
-{
-    if (!link.hasValidTarget())
-        return false;
-
-    EditorManager::OpenEditorFlags flags;
-    if (inNextSplit)
-        flags |= EditorManager::OpenInOtherSplit;
-    return EditorManager::openEditorAt(link.targetFileName,
-                                       link.targetLine,
-                                       link.targetColumn,
-                                       Constants::CPPEDITOR_ID,
-                                       flags);
 }
 
 void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
