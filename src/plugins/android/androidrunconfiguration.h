@@ -50,10 +50,6 @@ public:
 
 protected:
     AndroidRunConfiguration(ProjectExplorer::Target *parent, AndroidRunConfiguration *source);
-    QString defaultDisplayName();
-
-private:
-    void init();
 };
 
 } // namespace Android

@@ -55,6 +55,7 @@ protected:
 
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
+    QString defaultDisplayName();
 
 private slots:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);

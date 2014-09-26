@@ -48,6 +48,13 @@ using QmakeProjectManager::QmakeProject;
 namespace QmakeAndroidSupport {
 namespace Internal {
 
+static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";
+
+static QString pathFromId(const Core::Id id)
+{
+    return id.suffixAfter(ANDROID_RC_ID_PREFIX);
+}
+
 QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *parent, Core::Id id, const QString &path)
     : AndroidRunConfiguration(parent, id)
     , m_proFilePath(path)
@@ -69,6 +76,7 @@ QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *parent, Qmake
 
 void QmakeAndroidRunConfiguration::init()
 {
+    setDefaultDisplayName(defaultDisplayName());
     connect(target()->project(), SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)),
             this, SLOT(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)));
 }
@@ -95,6 +103,11 @@ QVariantMap QmakeAndroidRunConfiguration::toMap() const
     QVariantMap map(RunConfiguration::toMap());
     map.insert(PRO_FILE_KEY, projectDir.relativeFilePath(m_proFilePath));
     return map;
+}
+
+QString QmakeAndroidRunConfiguration::defaultDisplayName()
+{
+    return QFileInfo(pathFromId(id())).completeBaseName();
 }
 
 bool QmakeAndroidRunConfiguration::isEnabled() const

@@ -46,18 +46,11 @@ namespace Android {
 AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, Core::Id id)
     : RunConfiguration(parent, id)
 {
-    init();
 }
 
 AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, AndroidRunConfiguration *source)
     : RunConfiguration(parent, source)
 {
-    init();
-}
-
-void AndroidRunConfiguration::init()
-{
-    setDefaultDisplayName(defaultDisplayName());
 }
 
 QWidget *AndroidRunConfiguration::createConfigurationWidget()
@@ -68,11 +61,6 @@ QWidget *AndroidRunConfiguration::createConfigurationWidget()
 Utils::OutputFormatter *AndroidRunConfiguration::createOutputFormatter() const
 {
     return new QtSupport::QtOutputFormatter(target()->project());
-}
-
-QString AndroidRunConfiguration::defaultDisplayName()
-{
-    return tr("Run on Android device");
 }
 
 const QString AndroidRunConfiguration::remoteChannel() const
