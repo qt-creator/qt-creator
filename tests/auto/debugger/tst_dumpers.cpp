@@ -215,6 +215,13 @@ struct LldbVersion : VersionBase
     {}
 };
 
+struct BoostVersion : VersionBase
+{
+    BoostVersion(int minimum = 0, int maximum = INT_MAX)
+        : VersionBase(minimum, maximum)
+    {}
+};
+
 static QByteArray noValue = "\001";
 
 static QString toHex(const QString &str)
@@ -593,6 +600,9 @@ struct DataBase
     mutable LldbVersion neededLldbVersion;
     mutable QtVersion neededQtVersion;       // HEX! 0x50300
     mutable GccVersion neededGccVersion;     // DEC. 40702
+    mutable BoostVersion neededBoostVersion; //  ((BOOST_VERSION >> 20) & 0xF) << "."
+                                             // << ((BOOST_VERSION >> 8) & 0xFFF) << "."
+                                             //  << (BOOST_VERSION & 0xFF)
 };
 
 class Data : public DataBase
@@ -638,6 +648,12 @@ public:
     const Data &operator+(const LldbVersion &lldbVersion) const
     {
         neededLldbVersion = lldbVersion;
+        return *this;
+    }
+
+    const Data &operator+(const BoostVersion &boostVersion) const
+    {
+        neededBoostVersion = boostVersion;
         return *this;
     }
 
@@ -5049,6 +5065,8 @@ GdbEngine
                     "s2.insert(\"def\");\n")
 
                + BoostProfile()
+               + BoostVersion((1u<<20) + (42u<<8)) // FIXME: Not checked
+               + GdbVersion(70600) // Crude replacement instead
 
                + Check("s1", "<2 items>", "boost::unordered::unordered_set<int>")
                + Check("s1.0", "[0]", "22", "int")
