@@ -21,6 +21,7 @@ TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/qtcreator_,.ts)
 
 MIME_TR_H = $$OUT_PWD/mime_tr.h
 CUSTOMWIZARD_TR_H = $$OUT_PWD/customwizard_tr.h
+JSONWIZARD_TR_H = $$OUT_PWD/jsonwizard_tr.h
 QMLWIZARD_TR_H = $$OUT_PWD/qmlwizard_tr.h
 QTQUICKWIZARD_TR_H = $$OUT_PWD/qtquickwizard_tr.h
 EXTERNALTOOLS_TR_H = $$OUT_PWD/externaltools_tr.h
@@ -45,7 +46,8 @@ extract.commands += \
     $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq $$escape_expand(\\n\\t) \
     $$XMLPATTERNS -output $$QMLWIZARD_TR_H -param files=$$QMLWIZARD_FILES $$PWD/extract-qmlwizards.xq $$escape_expand(\\n\\t) \
     $$XMLPATTERNS -output $$QTQUICKWIZARD_TR_H -param files=$$QTQUICKWIZARD_FILES $$PWD/extract-qtquickwizards.xq $$escape_expand(\\n\\t) \
-    $$XMLPATTERNS -output $$EXTERNALTOOLS_TR_H -param files=$$EXTERNALTOOLS_FILES $$PWD/extract-externaltools.xq
+    $$XMLPATTERNS -output $$EXTERNALTOOLS_TR_H -param files=$$EXTERNALTOOLS_FILES $$PWD/extract-externaltools.xq $$escape_expand(\\n\\t) \
+    $(QMAKE) -o Makefile.jsonwizard JSONWIZARD_TR_H=\"$$JSONWIZARD_TR_H\" TOP_LEVEL=\"$$IDE_SOURCE_TREE/share/qtcreator/templates/wizards\" $$PWD/jsonwizard_tr.pro
 QMAKE_EXTRA_TARGETS += extract
 
 plugin_sources = $$files($$IDE_SOURCE_TREE/src/plugins/*)
@@ -64,7 +66,7 @@ files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
 for(file, files) {
     lang = $$replace(file, .*_([^/]*)\\.ts, \\1)
     v = ts-$${lang}.commands
-    $$v = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$QMLWIZARD_TR_H $$QTQUICKWIZARD_TR_H $$EXTERNALTOOLS_TR_H -ts $$file
+    $$v = cd $$wd && $$LUPDATE $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$JSONWIZARD_TR_H $$QMLWIZARD_TR_H $$QTQUICKWIZARD_TR_H $$EXTERNALTOOLS_TR_H -ts $$file
     v = ts-$${lang}.depends
     $$v = extract
     QMAKE_EXTRA_TARGETS += ts-$$lang
