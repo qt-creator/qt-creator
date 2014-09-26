@@ -849,6 +849,8 @@ void QmakeProject::decrementPendingEvaluateFutures()
             updateFileList();
             updateCodeModels();
             updateBuildSystemData();
+            if (activeTarget())
+                activeTarget()->updateDefaultDeployConfigurations();
             updateRunConfigurations();
             emit proFilesEvaluated();
             if (debug)
