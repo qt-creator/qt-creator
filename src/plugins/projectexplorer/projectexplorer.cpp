@@ -1100,7 +1100,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_setStartupProjectAction, SIGNAL(triggered()), this, SLOT(setStartupProject()));
 
     connect(this, SIGNAL(updateRunActions()), this, SLOT(slotUpdateRunActions()));
-    connect(this, SIGNAL(settingsChanged()), this, SLOT(updateRunWithoutDeployMenu()));
+    connect(this, &ProjectExplorerPlugin::settingsChanged()),
+            dd, ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu;
 
     QObject *buildManager = new BuildManager(this, dd->m_cancelBuildAction);
     connect(buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
