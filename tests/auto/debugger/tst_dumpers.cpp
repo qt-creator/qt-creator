@@ -599,10 +599,8 @@ struct DataBase
     mutable GdbVersion neededGdbVersion;     // DEC. 70600
     mutable LldbVersion neededLldbVersion;
     mutable QtVersion neededQtVersion;       // HEX! 0x50300
-    mutable GccVersion neededGccVersion;     // DEC. 40702
-    mutable BoostVersion neededBoostVersion; //  ((BOOST_VERSION >> 20) & 0xF) << "."
-                                             // << ((BOOST_VERSION >> 8) & 0xFFF) << "."
-                                             //  << (BOOST_VERSION & 0xFF)
+    mutable GccVersion neededGccVersion;     // DEC. 40702  for 4.7.2
+    mutable BoostVersion neededBoostVersion; // DEC. 105400 for 1.54.0
 };
 
 class Data : public DataBase
@@ -5054,6 +5052,7 @@ GdbEngine
 
     QTest::newRow("BoostUnorderedSet")
             << Data("#include <boost/unordered_set.hpp>\n"
+                    "#include <boost/version.hpp>\n"
                     "#include <string>\n",
 
                     "boost::unordered_set<int> s1;\n"
@@ -5065,7 +5064,7 @@ GdbEngine
                     "s2.insert(\"def\");\n")
 
                + BoostProfile()
-               + BoostVersion((1u<<20) + (42u<<8)) // FIXME: Not checked
+               + BoostVersion(1 * 100000 + 54 * 100) // FIXME: Not checked
                + GdbVersion(70600) // Crude replacement instead
 
                + Check("s1", "<2 items>", "boost::unordered::unordered_set<int>")
