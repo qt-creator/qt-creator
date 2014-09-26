@@ -91,7 +91,39 @@ function drawBindingLoops(canvas, ctxt) {
             }
         }
     }
+}
 
+function drawNotes(canvas, ctxt)
+{
+    if ((!qmlProfilerModelProxy) || qmlProfilerModelProxy.noteCount() === 0)
+        return;
+
+    var spacing = canvas.width / qmlProfilerModelProxy.traceDuration();
+    // divide canvas height in 7 parts: margin, 3*line, space, dot, margin
+    var vertSpace = (canvas.height - canvas.bump) / 7;
+
+    ctxt.strokeStyle = "orange";
+    ctxt.lineWidth = 2;
+    for (var i = 0; i < qmlProfilerModelProxy.noteCount(); ++i) {
+        var timelineModel = qmlProfilerModelProxy.noteTimelineModel(i);
+        var timelineIndex = qmlProfilerModelProxy.noteTimelineIndex(i);
+        if (timelineIndex === -1)
+            continue;
+        var traceStart = qmlProfilerModelProxy.traceStartTime();
+        var traceEnd = qmlProfilerModelProxy.traceEndTime();
+        var start = Math.max(qmlProfilerModelProxy.startTime(timelineModel, timelineIndex),
+                             traceStart);
+        var end = Math.min(qmlProfilerModelProxy.endTime(timelineModel, timelineIndex),
+                           traceEnd);
+        var annoX = Math.round(((start + end) / 2 - traceStart) * spacing);
+
+        ctxt.moveTo(annoX, canvas.bump + vertSpace)
+        ctxt.lineTo(annoX, canvas.bump + vertSpace * 4)
+        ctxt.stroke();
+        ctxt.moveTo(annoX, canvas.bump + vertSpace * 5);
+        ctxt.lineTo(annoX, canvas.bump + vertSpace * 6);
+        ctxt.stroke();
+    }
 }
 
 function drawTimeBar(canvas, ctxt)

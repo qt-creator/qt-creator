@@ -107,6 +107,7 @@ Canvas {
             offset = -1;
             requestPaint();
         }
+        onNotesChanged: notes.doPaint = true;
     }
 
     Timer {
@@ -137,7 +138,28 @@ Canvas {
             Plotter.drawBindingLoops(canvas, context);
             ++offset;
         } else {
+            notes.doPaint = true;
             offset = -1;
+        }
+    }
+
+    Canvas {
+        property alias bump: canvas.bump
+        property bool doPaint: false
+        onDoPaintChanged: {
+            if (doPaint)
+                requestPaint();
+        }
+
+        id: notes
+        anchors.fill: parent
+        onPaint: {
+            if (doPaint) {
+                var context = (notes.context === null) ? getContext("2d") : notes.context;
+                context.reset();
+                Plotter.drawNotes(notes, context);
+                doPaint = false;
+            }
         }
     }
 
