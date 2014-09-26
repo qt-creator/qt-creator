@@ -2949,6 +2949,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
 
     ActionContainer *runMenu = ActionManager::actionContainer(Constants::RUNMENUCONTEXTMENU);
     runMenu->menu()->clear();
+    runMenu->menu()->menuAction()->setVisible(false);
 
     if (dd->m_currentNode && dd->m_currentNode->projectNode()) {
         QList<ProjectExplorer::ProjectAction> actions =
@@ -2963,6 +2964,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
                     dd->m_runActionContextMenu->setVisible(true);
                     dd->m_runActionContextMenu->setData(QVariant::fromValue(runConfigs.first()));
                 } else if (runConfigs.count() > 1) {
+                    runMenu->menu()->menuAction()->setVisible(true);
                     foreach (RunConfiguration *rc, runConfigs) {
                         QAction *act = new QAction(runMenu->menu());
                         act->setData(QVariant::fromValue(rc));
