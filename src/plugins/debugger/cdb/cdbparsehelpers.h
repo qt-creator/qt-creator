@@ -75,10 +75,6 @@ QByteArray cdbClearBreakpointCommand(const BreakpointModelId &id);
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
 void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r, QString *expression = 0);
 
-// Convert a CDB integer value: '00000000`0012a290' -> '12a290', '0n10' ->'10'
-QByteArray fixCdbIntegerValue(QByteArray t, bool stripLeadingZeros = false, int *basePtr = 0);
-// Convert a CDB integer value into quint64 or int64
-QVariant cdbIntegerValue(const QByteArray &t);
 // Write memory (f ...).
 QByteArray cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);
 

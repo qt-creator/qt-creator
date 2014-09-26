@@ -254,46 +254,6 @@ QByteArray cdbClearBreakpointCommand(const BreakpointModelId &id)
     return "bc " + QByteArray::number(firstBreakPoint) + '-' + QByteArray::number(lastBreakPoint);
 }
 
-// Fix a CDB integer value: '00000000`0012a290' -> '12a290', '0n10' ->'10'
-QByteArray fixCdbIntegerValue(QByteArray t, bool stripLeadingZeros, int *basePtr /* = 0 */)
-{
-    if (t.isEmpty())
-        return t;
-    int base = 16;
-    // Prefixes
-    if (t.startsWith("0x")) {
-        t.remove(0, 2);
-    } else if (t.startsWith("0n")) {
-        base = 10;
-        t.remove(0, 2);
-    }
-    if (base == 16 && t.size() >= 9 && t.at(8) == '`')
-        t.remove(8, 1);
-    if (stripLeadingZeros) { // Strip all but last '0'
-        const int last = t.size() - 1;
-        int pos = 0;
-        for ( ; pos < last && t.at(pos) == '0'; pos++) ;
-        if (pos)
-            t.remove(0, pos);
-    }
-    if (basePtr)
-        *basePtr = base;
-    return t;
-}
-
-// Convert a CDB integer value: '00000000`0012a290' -> '12a290', '0n10' ->'10'
-QVariant cdbIntegerValue(const QByteArray &t)
-{
-    int base;
-    const QByteArray fixed = fixCdbIntegerValue(t, false, &base);
-    bool ok;
-    const QVariant converted = base == 16 ?
-                               fixed.toULongLong(&ok, base) :
-                               fixed.toLongLong(&ok, base);
-    QTC_ASSERT(ok, return QVariant());
-    return converted;
-}
-
 // Helper to retrieve an int child from GDBMI
 static inline bool gdbmiChildToInt(const GdbMi &parent, const char *childName, int *target)
 {
