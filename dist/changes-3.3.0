@@ -1,0 +1,74 @@
+Qt Creator version 3.3 contains bug fixes and new features.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline origin/3.2..origin/3.3
+
+General
+   * Dropped Qt 4 compatibility in Qt Creator's own code base.
+     Require Qt 5.3 as minimum, to take advantage of Qt 5 features.
+     Handling of Qt 4 based projects is of course still supported.
+   * Created new wizard engine to add new script based wizards
+     without the need for recompilation
+   * Improved high DPI support
+
+Editing
+   * Implemented dragging of edited documents between views
+
+Help
+
+Managing and Building Projects
+
+QMake Projects
+
+CMake Projects
+
+Qbs Projects
+
+Generic Projects
+
+Debugging
+
+QML Profiler
+   * Added JavaScript heap profiler
+   * Improved scenegraph profiler
+
+Analyzer
+
+C++ Support
+
+QML Support
+
+Qt Quick Designer
+   * Added support for a workflow where .qml code is split into
+     "UI-only" and "logic" parts
+   * Added support for TabView QtQuick Control
+   * Extended anchoring options
+
+Diff Viewer
+
+Version Control Systems
+
+FakeVim
+
+Beautifier
+
+Platform Specific
+
+Windows
+
+OS X
+
+Android
+   * Added Gradle build system support
+
+Remote Linux
+
+QNX
+
+BareMetal
+
+Credits for these changes go to:
