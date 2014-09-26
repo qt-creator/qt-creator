@@ -346,10 +346,11 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     m_qmakeGlobalsRefCnt(0),
     m_asyncUpdateFutureInterface(0),
     m_pendingEvaluateFuturesCount(0),
-    m_asyncUpdateState(NoState),
+    m_asyncUpdateState(Base),
     m_cancelEvaluate(false),
     m_centralizedFolderWatcher(0),
-    m_activeTarget(0)
+    m_activeTarget(0),
+    m_checkForTemplateUpdate(true)
 {
     setId(Constants::QMAKEPROJECT_ID);
     setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
@@ -357,7 +358,7 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     setRequiredKitMatcher(QtSupport::QtKitInformation::qtVersionMatcher());
 
     m_asyncUpdateTimer.setSingleShot(true);
-    m_asyncUpdateTimer.setInterval(3000);
+    m_asyncUpdateTimer.setInterval(0); // will be increased after first parse
     connect(&m_asyncUpdateTimer, SIGNAL(timeout()), this, SLOT(asyncUpdate()));
 
     connect(BuildManager::instance(), SIGNAL(buildQueueFinished(bool)),
@@ -412,17 +413,9 @@ bool QmakeProject::fromMap(const QVariantMap &map)
     m_rootProjectNode = new QmakeProFileNode(this, m_fileInfo->filePath(), this);
     m_rootProjectNode->registerWatcher(m_nodesWatcher);
 
-    update();
-    updateFileList();
-    // This might be incorrect, need a full update
-    updateCodeModels();
-
     // We have the profile nodes now, so we know the runconfigs!
     connect(m_nodesWatcher, SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)),
             this, SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)));
-
-    // Now we emit update once :)
-    m_rootProjectNode->emitProFileUpdatedRecursive();
 
     // On active buildconfiguration changes, reevaluate the .pro files
     m_activeTarget = activeTarget();
@@ -433,17 +426,8 @@ bool QmakeProject::fromMap(const QVariantMap &map)
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged()));
 
-    // // Update boiler plate code for subprojects.
-    QtQuickApp qtQuickApp;
-
-    foreach (QmakeProFileNode *node, applicationProFiles(QmakeProject::ExactAndCumulativeParse)) {
-        const QString path = node->path();
-
-        foreach (TemplateInfo info, QtQuickApp::templateInfos()) {
-            qtQuickApp.setTemplateInfo(info);
-            updateBoilerPlateCodeFiles(&qtQuickApp, path);
-        }
-    }
+    scheduleAsyncUpdate();
+    m_asyncUpdateTimer.setInterval(3000);
     return true;
 }
 
@@ -674,26 +658,6 @@ void QmakeProject::updateQmlJSCodeModel()
     modelManager->updateProjectInfo(projectInfo, this);
 }
 
-///*!
-//  Updates complete project
-//  */
-void QmakeProject::update()
-{
-    if (debug)
-        qDebug()<<"Doing sync update";
-    m_rootProjectNode->update();
-
-    if (debug)
-        qDebug()<<"State is now Base";
-    m_asyncUpdateState = Base;
-    enableActiveQmakeBuildConfiguration(activeTarget(), true);
-    updateBuildSystemData();
-    if (activeTarget())
-        activeTarget()->updateDefaultDeployConfigurations();
-    updateRunConfigurations();
-    emit proFilesEvaluated();
-}
-
 void QmakeProject::updateRunConfigurations()
 {
     if (activeTarget())
@@ -707,7 +671,6 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFileNode *node)
 
     if (debug)
         qDebug()<<"schduleAsyncUpdate (node)"<<node->path();
-    Q_ASSERT(m_asyncUpdateState != NoState);
 
     if (m_cancelEvaluate) {
         if (debug)
@@ -779,7 +742,6 @@ void QmakeProject::scheduleAsyncUpdate()
     if (m_asyncUpdateState == ShuttingDown)
         return;
 
-    Q_ASSERT(m_asyncUpdateState != NoState);
     if (m_cancelEvaluate) { // we are in progress of canceling
                             // and will start the evaluation after that
         if (debug)
@@ -858,6 +820,22 @@ void QmakeProject::decrementPendingEvaluateFutures()
             if (debug)
                 qDebug()<<"  Setting state to Base";
         }
+
+        if (m_checkForTemplateUpdate) {
+            // Update boiler plate code for subprojects.
+            QtQuickApp qtQuickApp;
+
+            foreach (QmakeProFileNode *node, applicationProFiles(QmakeProject::ExactAndCumulativeParse)) {
+                const QString path = node->path();
+
+                foreach (TemplateInfo info, QtQuickApp::templateInfos()) {
+                    qtQuickApp.setTemplateInfo(info);
+                    updateBoilerPlateCodeFiles(&qtQuickApp, path);
+                }
+            }
+            m_checkForTemplateUpdate = false;
+        }
+
     }
 }
 
@@ -1210,9 +1188,8 @@ void QmakeProject::notifyChanged(const QString &name)
         findProFile(name, rootQmakeProjectNode(), list);
         foreach (QmakeProFileNode *node, list) {
             QtSupport::ProFileCacheManager::instance()->discardFile(name);
-            node->update();
+            node->scheduleUpdate();
         }
-        updateFileList();
     }
 }
 

@@ -149,7 +149,6 @@ signals:
 
 public slots:
     void scheduleAsyncUpdate();
-    void update();
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -203,7 +202,7 @@ private:
     QTimer m_asyncUpdateTimer;
     QFutureInterface<void> *m_asyncUpdateFutureInterface;
     int m_pendingEvaluateFuturesCount;
-    enum AsyncUpdateState { NoState, Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
+    enum AsyncUpdateState { Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState m_asyncUpdateState;
     bool m_cancelEvaluate;
     QList<QmakeProFileNode *> m_partialEvaluate;
@@ -213,6 +212,7 @@ private:
     Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher;
 
     ProjectExplorer::Target *m_activeTarget;
+    bool m_checkForTemplateUpdate; // initialized to true, set to false after first parse
 
     friend class Internal::QmakeProjectFile;
     friend class Internal::QmakeProjectConfigWidget;

@@ -416,7 +416,6 @@ public:
     bool isDeployable() const;
     QString resolvedMkspecPath() const;
 
-    void update();
     void scheduleUpdate();
 
     bool validParse() const;
@@ -442,7 +441,7 @@ private:
     Internal::EvalInput evalInput() const;
 
     static Internal::EvalResult *evaluate(const Internal::EvalInput &input);
-    void applyEvaluate(Internal::EvalResult *parseResult, bool async);
+    void applyEvaluate(Internal::EvalResult *parseResult);
 
     void asyncEvaluate(QFutureInterface<Internal::EvalResult *> &fi, Internal::EvalInput input);
 

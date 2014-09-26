@@ -1750,14 +1750,6 @@ EvalInput QmakeProFileNode::evalInput() const
     return input;
 }
 
-void QmakeProFileNode::update()
-{
-    setParseInProgressRecursive(true);
-    setupReader();
-    EvalResult *evalResult = evaluate(evalInput());
-    applyEvaluate(evalResult, false);
-}
-
 void QmakeProFileNode::setupReader()
 {
     Q_ASSERT(!m_readerExact);
@@ -2005,7 +1997,7 @@ void QmakeProFileNode::asyncEvaluate(QFutureInterface<EvalResult *> &fi, EvalInp
 
 void QmakeProFileNode::applyAsyncEvaluate()
 {
-    applyEvaluate(m_parseFutureWatcher.result(), true);
+    applyEvaluate(m_parseFutureWatcher.result());
     m_project->decrementPendingEvaluateFutures();
 }
 
@@ -2014,7 +2006,7 @@ bool sortByNodes(Node *a, Node *b)
     return a->path() < b->path();
 }
 
-void QmakeProFileNode::applyEvaluate(EvalResult *evalResult, bool async)
+void QmakeProFileNode::applyEvaluate(EvalResult *evalResult)
 {
     QScopedPointer<EvalResult> result(evalResult);
     if (!m_readerExact)
@@ -2175,10 +2167,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult, bool async)
                 // So to compare that later parse with the sync one
                 QmakeProFileNode *proFileNode = static_cast<QmakeProFileNode *>(*existingIt);
                 proFileNode->setIncludedInExactParse(result->exactSubdirs.contains(proFileNode->path()) && includedInExactParse());
-                if (async)
-                    proFileNode->asyncUpdate();
-                else
-                    proFileNode->update();
+                proFileNode->asyncUpdate();
             }
             ++existingIt;
             // newCumalativeIt and newExactIt are already incremented
@@ -2211,10 +2200,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult *evalResult, bool async)
                 QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd);
                 qmakeProFileNode->setParentFolderNode(this); // Needed for loop detection
                 qmakeProFileNode->setIncludedInExactParse(result->exactSubdirs.contains(qmakeProFileNode->path()) && includedInExactParse());
-                if (async)
-                    qmakeProFileNode->asyncUpdate();
-                else
-                    qmakeProFileNode->update();
+                qmakeProFileNode->asyncUpdate();
                 toAdd << qmakeProFileNode;
             }
         }
