@@ -138,7 +138,7 @@ signals:
                                    const QString &change, int line);
 };
 
-class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::BaseTextEditorWidget
+class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_PROPERTY(QString source READ source WRITE setSource)
     Q_PROPERTY(QString workingDirectory READ workingDirectory WRITE setWorkingDirectory)

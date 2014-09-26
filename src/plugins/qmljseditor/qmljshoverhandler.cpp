@@ -180,7 +180,7 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
     return true;
 }
 
-void QmlJSHoverHandler::identifyMatch(BaseTextEditorWidget *editorWidget, int pos)
+void QmlJSHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
 {
     reset();
 
@@ -256,7 +256,7 @@ void QmlJSHoverHandler::identifyMatch(BaseTextEditorWidget *editorWidget, int po
 bool QmlJSHoverHandler::matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos)
 {
     foreach (const QTextEdit::ExtraSelection &sel,
-             qmlEditor->extraSelections(BaseTextEditorWidget::CodeWarningsSelection)) {
+             qmlEditor->extraSelections(TextEditorWidget::CodeWarningsSelection)) {
         if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
             setToolTip(sel.format.toolTip());
             return true;
@@ -372,7 +372,7 @@ void QmlJSHoverHandler::reset()
     m_colorTip = QColor();
 }
 
-void QmlJSHoverHandler::operateTooltip(BaseTextEditorWidget *editorWidget, const QPoint &point)
+void QmlJSHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     if (toolTip().isEmpty())
         Utils::ToolTip::hide();

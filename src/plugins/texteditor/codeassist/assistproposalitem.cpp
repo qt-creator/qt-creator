@@ -132,7 +132,7 @@ bool AssistProposalItem::prematurelyApplies(const QChar &c) const
     return false;
 }
 
-void AssistProposalItem::apply(BaseTextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::apply(TextEditorWidget *editorWidget, int basePosition) const
 {
     if (data().canConvert<QString>())
         applySnippet(editorWidget, basePosition);
@@ -142,21 +142,21 @@ void AssistProposalItem::apply(BaseTextEditorWidget *editorWidget, int basePosit
         applyContextualContent(editorWidget, basePosition);
 }
 
-void AssistProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const
 {
     const int currentPosition = editorWidget->position();
     editorWidget->setCursorPosition(basePosition);
     editorWidget->replace(currentPosition - basePosition, text());
 }
 
-void AssistProposalItem::applySnippet(BaseTextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::applySnippet(TextEditorWidget *editorWidget, int basePosition) const
 {
     QTextCursor tc = editorWidget->textCursor();
     tc.setPosition(basePosition, QTextCursor::KeepAnchor);
     editorWidget->insertCodeSnippet(tc, data().toString());
 }
 
-void AssistProposalItem::applyQuickFix(BaseTextEditorWidget *editorWidget, int basePosition) const
+void AssistProposalItem::applyQuickFix(TextEditorWidget *editorWidget, int basePosition) const
 {
     Q_UNUSED(editorWidget)
     Q_UNUSED(basePosition)

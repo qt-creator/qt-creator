@@ -260,7 +260,7 @@ bool getUninitializedVariables(const Snapshot &snapshot,
 
 
 // Editor tooltip support
-bool isCppEditor(BaseTextEditorWidget *editorWidget)
+bool isCppEditor(TextEditorWidget *editorWidget)
 {
     const TextDocument *document = editorWidget->textDocument();
     return ProjectFile::classify(document->filePath()) != ProjectFile::Unclassified;
@@ -281,7 +281,7 @@ QString cppFunctionAt(const QString &fileName, int line, int column)
 
 
 // Return the Cpp expression, and, if desired, the function
-QString cppExpressionAt(BaseTextEditorWidget *editorWidget, int pos,
+QString cppExpressionAt(TextEditorWidget *editorWidget, int pos,
                         int *line, int *column, QString *function /* = 0 */)
 {
     *line = *column = 0;

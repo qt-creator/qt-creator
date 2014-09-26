@@ -118,7 +118,7 @@ void SourceAgent::setContent(const QString &filePath, const QString &content)
         QTC_ASSERT(d->editor, return);
         d->editor->document()->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
 
-        BaseTextEditorWidget *baseTextEdit = d->editor->editorWidget();
+        TextEditorWidget *baseTextEdit = d->editor->editorWidget();
         if (baseTextEdit)
             baseTextEdit->setRequestMarkEnabled(true);
     } else {

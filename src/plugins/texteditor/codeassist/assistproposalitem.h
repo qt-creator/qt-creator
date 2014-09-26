@@ -39,7 +39,7 @@
 
 namespace TextEditor {
 
-class BaseTextEditorWidget;
+class TextEditorWidget;
 
 class TEXTEDITOR_EXPORT AssistProposalItem
 {
@@ -50,7 +50,7 @@ public:
     virtual QString text() const;
     virtual bool implicitlyApplies() const;
     virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void apply(BaseTextEditorWidget *editorWidget, int basePosition) const;
+    virtual void apply(TextEditorWidget *editorWidget, int basePosition) const;
 
     void setIcon(const QIcon &icon);
     const QIcon &icon() const;
@@ -66,9 +66,9 @@ public:
     int order() const;
     void setOrder(int order);
 
-    virtual void applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const;
-    virtual void applySnippet(BaseTextEditorWidget *editorWidget, int basePosition) const;
-    virtual void applyQuickFix(BaseTextEditorWidget *editorWidget, int basePosition) const;
+    virtual void applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const;
+    virtual void applySnippet(TextEditorWidget *editorWidget, int basePosition) const;
+    virtual void applyQuickFix(TextEditorWidget *editorWidget, int basePosition) const;
 
 private:
     QIcon m_icon;

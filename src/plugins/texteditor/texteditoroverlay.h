@@ -40,7 +40,7 @@ QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace TextEditor {
 class NameMangler;
-class BaseTextEditorWidget;
+class TextEditorWidget;
 
 namespace Internal {
 
@@ -60,7 +60,7 @@ class TextEditorOverlay : public QObject
 {
     Q_OBJECT
 public:
-    TextEditorOverlay(BaseTextEditorWidget *editor);
+    TextEditorOverlay(TextEditorWidget *editor);
 
     QRect rect() const;
     void paint(QPainter *painter, const QRect &clip);
@@ -119,7 +119,7 @@ private:
     int m_borderWidth;
     int m_dropShadowWidth;
     int m_firstSelectionOriginalBegin;
-    BaseTextEditorWidget *m_editor;
+    TextEditorWidget *m_editor;
     QWidget *m_viewport;
     QList<OverlaySelection> m_selections;
     QVector<QList<int> > m_equivalentSelections;

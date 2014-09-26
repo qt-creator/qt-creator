@@ -59,7 +59,7 @@ class FindReferences;
 
 namespace Internal {
 
-class QmlJSEditorWidget : public TextEditor::BaseTextEditorWidget
+class QmlJSEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
 
@@ -106,7 +106,7 @@ protected:
     void scrollContentsBy(int dx, int dy);
     void applyFontSettings();
     void createToolBar();
-    TextEditor::BaseTextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
+    TextEditor::TextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
                                                       bool resolveTarget = true,
                                                       bool inNextSplit = false);
     QString foldReplacementText(const QTextBlock &block) const;
@@ -148,7 +148,7 @@ public:
     bool isDesignModePreferred() const;
 };
 
-class QmlJSEditorFactory : public TextEditor::BaseTextEditorFactory
+class QmlJSEditorFactory : public TextEditor::TextEditorFactory
 {
     Q_OBJECT
 

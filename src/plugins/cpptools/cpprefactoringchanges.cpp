@@ -93,7 +93,7 @@ CppRefactoringChangesData *CppRefactoringChanges::data() const
     return static_cast<CppRefactoringChangesData *>(m_data.data());
 }
 
-CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::BaseTextEditorWidget *editor, const Document::Ptr &document)
+CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::TextEditorWidget *editor, const Document::Ptr &document)
 {
     CppRefactoringFilePtr result(new CppRefactoringFile(editor));
     result->setCppDocument(document);
@@ -133,7 +133,7 @@ CppRefactoringFile::CppRefactoringFile(QTextDocument *document, const QString &f
     : RefactoringFile(document, fileName)
 { }
 
-CppRefactoringFile::CppRefactoringFile(TextEditor::BaseTextEditorWidget *editor)
+CppRefactoringFile::CppRefactoringFile(TextEditor::TextEditorWidget *editor)
     : RefactoringFile(editor)
 { }
 

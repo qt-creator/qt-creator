@@ -45,7 +45,7 @@ namespace QmlDesigner {
 class QMLDESIGNERCORE_EXPORT BaseTextEditModifier: public PlainTextEditModifier
 {
 public:
-    BaseTextEditModifier(TextEditor::BaseTextEditorWidget *textEdit);
+    BaseTextEditModifier(TextEditor::TextEditorWidget *textEdit);
 
     virtual void indent(int offset, int length);
 

@@ -73,14 +73,14 @@ typedef QList<RefactorMarker> RefactorMarkers;
 
 namespace Internal {
     class BaseTextEditorPrivate;
-    class BaseTextEditorWidgetPrivate;
+    class TextEditorWidgetPrivate;
     class TextEditorOverlay;
 }
 
 class AutoCompleter;
 class BaseTextEditor;
-class BaseTextEditorFactory;
-class BaseTextEditorWidget;
+class TextEditorFactory;
+class TextEditorWidget;
 class PlainTextEditorFactory;
 
 class BehaviorSettings;
@@ -137,7 +137,7 @@ public:
 
     static BaseTextEditor *currentTextEditor();
 
-    BaseTextEditorWidget *editorWidget() const;
+    TextEditorWidget *editorWidget() const;
     TextDocument *textDocument() const;
 
     // Some convenience text access
@@ -201,24 +201,24 @@ signals:
     void contextHelpIdRequested(TextEditor::BaseTextEditor *editor, int position);
 
 private:
-    friend class BaseTextEditorFactory;
+    friend class TextEditorFactory;
     Internal::BaseTextEditorPrivate *d;
 };
 
 
-class TEXTEDITOR_EXPORT BaseTextEditorWidget : public QPlainTextEdit
+class TEXTEDITOR_EXPORT TextEditorWidget : public QPlainTextEdit
 {
     Q_OBJECT
     Q_PROPERTY(int verticalBlockSelectionFirstColumn READ verticalBlockSelectionFirstColumn)
     Q_PROPERTY(int verticalBlockSelectionLastColumn READ verticalBlockSelectionLastColumn)
 
 public:
-    BaseTextEditorWidget(QWidget *parent = 0);
-    ~BaseTextEditorWidget();
+    TextEditorWidget(QWidget *parent = 0);
+    ~TextEditorWidget();
 
-    void setTextDocument(const BaseTextDocumentPtr &doc);
+    void setTextDocument(const TextDocumentPtr &doc);
     TextDocument *textDocument() const;
-    BaseTextDocumentPtr textDocumentPtr() const;
+    TextDocumentPtr textDocumentPtr() const;
 
     // IEditor
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
@@ -529,7 +529,7 @@ protected:
 
     void showDefaultContextMenu(QContextMenuEvent *e, Core::Id menuContextId);
     virtual void finalizeInitialization() {}
-    virtual void finalizeInitializationAfterDuplication(BaseTextEditorWidget *) {}
+    virtual void finalizeInitializationAfterDuplication(TextEditorWidget *) {}
 
 public:
     struct Link
@@ -598,7 +598,7 @@ protected:
 signals:
     void markRequested(int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
     void markContextMenuRequested(int line, QMenu *menu);
-    void tooltipOverrideRequested(TextEditor::BaseTextEditorWidget *editorWidget,
+    void tooltipOverrideRequested(TextEditor::TextEditorWidget *editorWidget,
         const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(const QPoint &globalPos, int position);
     void markTooltipRequested(const QPoint &globalPos, int line);
@@ -612,24 +612,24 @@ protected slots:
     void doFoo();
 
 private:
-    Internal::BaseTextEditorWidgetPrivate *d;
+    Internal::TextEditorWidgetPrivate *d;
     friend class BaseTextEditor;
-    friend class BaseTextEditorFactory;
-    friend class Internal::BaseTextEditorWidgetPrivate;
+    friend class TextEditorFactory;
+    friend class Internal::TextEditorWidgetPrivate;
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;
 };
 
-class TEXTEDITOR_EXPORT BaseTextEditorFactory : public Core::IEditorFactory
+class TEXTEDITOR_EXPORT TextEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 
 public:
-    BaseTextEditorFactory(QObject *parent = 0);
+    TextEditorFactory(QObject *parent = 0);
 
     typedef std::function<BaseTextEditor *()> EditorCreator;
     typedef std::function<TextDocument *()> DocumentCreator;
-    typedef std::function<BaseTextEditorWidget *()> EditorWidgetCreator;
+    typedef std::function<TextEditorWidget *()> EditorWidgetCreator;
     typedef std::function<SyntaxHighlighter *()> SyntaxHighLighterCreator;
     typedef std::function<Indenter *()> IndenterCreator;
     typedef std::function<AutoCompleter *()> AutoCompleterCreator;
@@ -654,7 +654,7 @@ private:
     friend class BaseTextEditor;
     friend class PlainTextEditorFactory;
 
-    BaseTextEditor *createEditorHelper(const BaseTextDocumentPtr &doc);
+    BaseTextEditor *createEditorHelper(const TextDocumentPtr &doc);
     BaseTextEditor *duplicateTextEditor(BaseTextEditor *);
 
     DocumentCreator m_documentCreator;
@@ -669,6 +669,6 @@ private:
 
 } // namespace TextEditor
 
-Q_DECLARE_METATYPE(TextEditor::BaseTextEditorWidget::Link)
+Q_DECLARE_METATYPE(TextEditor::TextEditorWidget::Link)
 
 #endif // TEXTEDITOR_H

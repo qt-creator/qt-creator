@@ -50,8 +50,7 @@
 #include <QStandardItem>
 #include <QVBoxLayout>
 
-using namespace CppEditor;
-using namespace CppEditor::Internal;
+using namespace TextEditor;
 using namespace Utils;
 
 namespace CppEditor {
@@ -163,8 +162,7 @@ void CppIncludeHierarchyWidget::perform()
 
 void CppIncludeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
-    const TextEditor::BaseTextEditorWidget::Link link
-            = index.data(LinkRole).value<TextEditor::BaseTextEditorWidget::Link>();
+    const TextEditorWidget::Link link = index.data(LinkRole).value<TextEditorWidget::Link>();
     if (link.hasValidTarget())
         Core::EditorManager::openEditorAt(link.targetFileName,
                                           link.targetLine,

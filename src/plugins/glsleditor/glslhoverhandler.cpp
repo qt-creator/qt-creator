@@ -53,7 +53,7 @@ bool GlslHoverHandler::acceptEditor(IEditor *editor)
     return editor->context().contains(Constants::C_GLSLEDITOR_ID);
 }
 
-void GlslHoverHandler::identifyMatch(TextEditor::BaseTextEditorWidget *editorWidget, int pos)
+void GlslHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos)
 {
     if (!editorWidget->extraSelectionTooltip(pos).isEmpty())
         setToolTip(editorWidget->extraSelectionTooltip(pos));

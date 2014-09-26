@@ -35,7 +35,7 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
-class ProFileEditorFactory : public TextEditor::BaseTextEditorFactory
+class ProFileEditorFactory : public TextEditor::TextEditorFactory
 {
     Q_OBJECT
 

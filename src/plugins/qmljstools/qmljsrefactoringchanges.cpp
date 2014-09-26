@@ -105,7 +105,7 @@ QmlJSRefactoringFilePtr QmlJSRefactoringChanges::file(const QString &fileName) c
 }
 
 QmlJSRefactoringFilePtr QmlJSRefactoringChanges::file(
-        TextEditor::BaseTextEditorWidget *editor, const Document::Ptr &document)
+        TextEditor::TextEditorWidget *editor, const Document::Ptr &document)
 {
     return QmlJSRefactoringFilePtr(new QmlJSRefactoringFile(editor, document));
 }
@@ -128,7 +128,7 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(const QString &fileName, const QShare
         m_fileName.clear();
 }
 
-QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::BaseTextEditorWidget *editor, QmlJS::Document::Ptr document)
+QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, QmlJS::Document::Ptr document)
     : RefactoringFile(editor)
     , m_qmljsDocument(document)
 {

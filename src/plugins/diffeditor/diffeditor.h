@@ -43,7 +43,7 @@ class QToolButton;
 class QStackedWidget;
 QT_END_NAMESPACE
 
-namespace TextEditor { class BaseTextEditorWidget; }
+namespace TextEditor { class TextEditorWidget; }
 
 namespace DiffEditor {
 
@@ -94,7 +94,7 @@ private:
     void writeCurrentDiffEditorSetting(QWidget *currentEditor);
 
     QSharedPointer<DiffEditorDocument> m_document;
-    TextEditor::BaseTextEditorWidget *m_descriptionWidget;
+    TextEditor::TextEditorWidget *m_descriptionWidget;
     QStackedWidget *m_stackedWidget;
     SideBySideDiffEditorWidget *m_sideBySideEditor;
     UnifiedDiffEditorWidget *m_unifiedEditor;

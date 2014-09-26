@@ -46,7 +46,7 @@ public:
         : TextEditorActionHandler(parent, Constants::ANDROID_MANIFEST_EDITOR_CONTEXT)
     {}
 private:
-    TextEditor::BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const
+    TextEditor::TextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const
     {
         AndroidManifestEditor *androidManifestEditor = static_cast<AndroidManifestEditor *>(editor);
         return androidManifestEditor->textEditor();

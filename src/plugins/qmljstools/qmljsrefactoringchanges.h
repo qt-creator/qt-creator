@@ -62,7 +62,7 @@ public:
 
 protected:
     QmlJSRefactoringFile(const QString &fileName, const QSharedPointer<TextEditor::RefactoringChangesData> &data);
-    QmlJSRefactoringFile(TextEditor::BaseTextEditorWidget *editor, QmlJS::Document::Ptr document);
+    QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, QmlJS::Document::Ptr document);
 
     QmlJSRefactoringChangesData *data() const;
     virtual void fileChanged();
@@ -79,7 +79,7 @@ public:
     QmlJSRefactoringChanges(QmlJS::ModelManagerInterface *modelManager,
                             const QmlJS::Snapshot &snapshot);
 
-    static QmlJSRefactoringFilePtr file(TextEditor::BaseTextEditorWidget *editor,
+    static QmlJSRefactoringFilePtr file(TextEditor::TextEditorWidget *editor,
                                         const QmlJS::Document::Ptr &document);
     QmlJSRefactoringFilePtr file(const QString &fileName) const;
 

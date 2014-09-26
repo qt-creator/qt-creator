@@ -59,7 +59,7 @@ class CodeAssistantPrivate : public QObject
 public:
     CodeAssistantPrivate(CodeAssistant *assistant);
 
-    void configure(BaseTextEditorWidget *editorWidget);
+    void configure(TextEditorWidget *editorWidget);
     bool isConfigured() const;
 
     void invoke(AssistKind kind, IAssistProvider *provider = 0);
@@ -95,7 +95,7 @@ private:
 
 private:
     CodeAssistant *q;
-    BaseTextEditorWidget *m_editorWidget;
+    TextEditorWidget *m_editorWidget;
     QList<QuickFixAssistProvider *> m_quickFixProviders;
     Internal::ProcessorRunner *m_requestRunner;
     IAssistProvider *m_requestProvider;
@@ -140,7 +140,7 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
             this, &CodeAssistantPrivate::clearAbortedPosition);
 }
 
-void CodeAssistantPrivate::configure(BaseTextEditorWidget *editorWidget)
+void CodeAssistantPrivate::configure(TextEditorWidget *editorWidget)
 {
     // @TODO: There's a list of providers but currently only the first one is used. Perhaps we
     // should implement a truly mechanism to support multiple providers for an editor (either
@@ -514,7 +514,7 @@ CodeAssistant::~CodeAssistant()
     delete d;
 }
 
-void CodeAssistant::configure(BaseTextEditorWidget *editorWidget)
+void CodeAssistant::configure(TextEditorWidget *editorWidget)
 {
     d->configure(editorWidget);
 }

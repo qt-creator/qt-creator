@@ -100,7 +100,7 @@ private:
     QmlJS::Document::Ptr m_previousDoc;
     QmlJS::Document::Ptr m_initialDoc; //the document that was loaded by the server
 
-    QList<QPointer<TextEditor::BaseTextEditorWidget> > m_editors;
+    QList<QPointer<TextEditor::TextEditorWidget> > m_editors;
 
     bool m_applyChangesToQmlInspector;
     QmlJS::Document::Ptr m_docWithUnappliedChanges;

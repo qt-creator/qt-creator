@@ -75,7 +75,7 @@ enum { QUICKFIX_INTERVAL = 20 };
 
 //////////////////////////// CppEditorFactory /////////////////////////////
 
-class CppEditorFactory : public BaseTextEditorFactory
+class CppEditorFactory : public TextEditorFactory
 {
 public:
     CppEditorFactory()

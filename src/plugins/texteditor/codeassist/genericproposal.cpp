@@ -63,7 +63,7 @@ bool GenericProposal::isCorrective() const
     return false;
 }
 
-void GenericProposal::makeCorrection(BaseTextEditorWidget *)
+void GenericProposal::makeCorrection(TextEditorWidget *)
 {}
 
 IAssistProposalModel *GenericProposal::model() const

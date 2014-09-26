@@ -487,7 +487,7 @@ void QmlJSEditorWidget::setSelectedElements()
 
 void QmlJSEditorWidget::applyFontSettings()
 {
-    BaseTextEditorWidget::applyFontSettings();
+    TextEditorWidget::applyFontSettings();
     if (!m_qmlJsEditorDocument->isSemanticInfoOutdated())
         updateUses();
 }
@@ -553,10 +553,10 @@ void QmlJSEditorWidget::createToolBar()
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
             &m_updateOutlineIndexTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
 
-    insertExtraToolBarWidget(BaseTextEditorWidget::Left, m_outlineCombo);
+    insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
 }
 
-BaseTextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
+TextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
                                                              bool /*resolveTarget*/,
                                                              bool /*inNextSplit*/)
 {
@@ -573,7 +573,7 @@ BaseTextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &curs
         // if it's a file import, link to the file
         foreach (const ImportInfo &import, semanticInfo.document->bind()->imports()) {
             if (import.ast() == importAst && import.type() == ImportType::File) {
-                BaseTextEditorWidget::Link link(import.path());
+                TextEditorWidget::Link link(import.path());
                 link.linkTextStart = importAst->firstSourceLocation().begin();
                 link.linkTextEnd = importAst->lastSourceLocation().end();
                 return link;
@@ -585,7 +585,7 @@ BaseTextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &curs
     // string literals that could refer to a file link to them
     if (StringLiteral *literal = cast<StringLiteral *>(node)) {
         const QString &text = literal->value.toString();
-        BaseTextEditorWidget::Link link;
+        TextEditorWidget::Link link;
         link.linkTextStart = literal->literalToken.begin();
         link.linkTextEnd = literal->literalToken.end();
         if (semanticInfo.snapshot.document(text)) {
@@ -611,7 +611,7 @@ BaseTextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &curs
     if (! (value && value->getSourceLocation(&fileName, &line, &column)))
         return Link();
 
-    BaseTextEditorWidget::Link link;
+    TextEditorWidget::Link link;
     link.targetFileName = fileName;
     link.targetLine = line;
     link.targetColumn = column - 1; // adjust the column
@@ -738,7 +738,7 @@ bool QmlJSEditorWidget::event(QEvent *e)
         break;
     }
 
-    return BaseTextEditorWidget::event(e);
+    return TextEditorWidget::event(e);
 }
 
 
@@ -748,7 +748,7 @@ void QmlJSEditorWidget::wheelEvent(QWheelEvent *event)
     if (m_contextPane && m_contextPane->widget()->isVisible())
         visible = true;
 
-    BaseTextEditorWidget::wheelEvent(event);
+    TextEditorWidget::wheelEvent(event);
 
     if (visible)
         m_contextPane->apply(this, m_qmlJsEditorDocument->semanticInfo().document, 0,
@@ -758,13 +758,13 @@ void QmlJSEditorWidget::wheelEvent(QWheelEvent *event)
 
 void QmlJSEditorWidget::resizeEvent(QResizeEvent *event)
 {
-    BaseTextEditorWidget::resizeEvent(event);
+    TextEditorWidget::resizeEvent(event);
     hideContextPane();
 }
 
  void QmlJSEditorWidget::scrollContentsBy(int dx, int dy)
  {
-     BaseTextEditorWidget::scrollContentsBy(dx, dy);
+     TextEditorWidget::scrollContentsBy(dx, dy);
      hideContextPane();
  }
 
@@ -858,7 +858,7 @@ QString QmlJSEditorWidget::foldReplacementText(const QTextBlock &block) const
             return QLatin1String("id: ") + objectId + QLatin1String("...");
     }
 
-    return TextEditor::BaseTextEditorWidget::foldReplacementText(block);
+    return TextEditor::TextEditorWidget::foldReplacementText(block);
 }
 
 

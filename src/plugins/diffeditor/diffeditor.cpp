@@ -70,7 +70,7 @@ namespace DiffEditor {
 
 namespace Internal {
 
-class DescriptionEditorWidget : public BaseTextEditorWidget
+class DescriptionEditorWidget : public TextEditorWidget
 {
     Q_OBJECT
 public:
@@ -96,7 +96,7 @@ private:
 };
 
 DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(parent)
+    : TextEditorWidget(parent)
 {
     setupFallBackEditor("DiffEditor.DescriptionEditor");
 
@@ -107,7 +107,7 @@ DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
     settings.m_displayFoldingMarkers = false;
     settings.m_markTextChanges = false;
     settings.m_highlightBlocks = false;
-    BaseTextEditorWidget::setDisplaySettings(settings);
+    TextEditorWidget::setDisplaySettings(settings);
 
     setCodeFoldingSupported(true);
     setFrameStyle(QFrame::NoFrame);
@@ -117,7 +117,7 @@ DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
 
 QSize DescriptionEditorWidget::sizeHint() const
 {
-    QSize size = BaseTextEditorWidget::sizeHint();
+    QSize size = TextEditorWidget::sizeHint();
     size.setHeight(size.height() / 5);
     return size;
 }
@@ -126,19 +126,19 @@ void DescriptionEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 {
     DisplaySettings settings = displaySettings();
     settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
-    BaseTextEditorWidget::setDisplaySettings(settings);
+    TextEditorWidget::setDisplaySettings(settings);
 }
 
 void DescriptionEditorWidget::setMarginSettings(const MarginSettings &ms)
 {
     Q_UNUSED(ms);
-    BaseTextEditorWidget::setMarginSettings(MarginSettings());
+    TextEditorWidget::setMarginSettings(MarginSettings());
 }
 
 void DescriptionEditorWidget::mouseMoveEvent(QMouseEvent *e)
 {
     if (e->buttons()) {
-        BaseTextEditorWidget::mouseMoveEvent(e);
+        TextEditorWidget::mouseMoveEvent(e);
         return;
     }
 
@@ -153,7 +153,7 @@ void DescriptionEditorWidget::mouseMoveEvent(QMouseEvent *e)
         cursorShape = Qt::IBeamCursor;
     }
 
-    BaseTextEditorWidget::mouseMoveEvent(e);
+    TextEditorWidget::mouseMoveEvent(e);
     viewport()->setCursor(cursorShape);
 }
 
@@ -168,7 +168,7 @@ void DescriptionEditorWidget::mouseReleaseEvent(QMouseEvent *e)
         }
     }
 
-    BaseTextEditorWidget::mouseReleaseEvent(e);
+    TextEditorWidget::mouseReleaseEvent(e);
 }
 
 bool DescriptionEditorWidget::findContentsUnderCursor(const QTextCursor &cursor)
@@ -183,7 +183,7 @@ void DescriptionEditorWidget::highlightCurrentContents()
     sel.cursor = m_currentCursor;
     sel.cursor.select(QTextCursor::LineUnderCursor);
     sel.format.setFontUnderline(true);
-    setExtraSelections(BaseTextEditorWidget::OtherSelection,
+    setExtraSelections(TextEditorWidget::OtherSelection,
                        QList<QTextEdit::ExtraSelection>() << sel);
 
 }

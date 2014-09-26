@@ -263,7 +263,7 @@ public:
     {}
 
     virtual bool isCorrective() const { return m_replaceDotForArrow; }
-    virtual void makeCorrection(BaseTextEditorWidget *editorWidget)
+    virtual void makeCorrection(TextEditorWidget *editorWidget)
     {
         editorWidget->setCursorPosition(basePosition() - 1);
         editorWidget->replace(1, QLatin1String("->"));
@@ -351,7 +351,7 @@ public:
     ClangAssistProposalItem() {}
 
     virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void applyContextualContent(TextEditor::BaseTextEditorWidget *editorWidget,
+    virtual void applyContextualContent(TextEditor::TextEditorWidget *editorWidget,
                                         int basePosition) const;
 
     void keepCompletionOperator(unsigned compOp) { m_completionOperator = compOp; }
@@ -410,7 +410,7 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
     return ok;
 }
 
-void ClangAssistProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget,
+void ClangAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget,
                                                      int basePosition) const
 {
     const CodeCompletionResult ccr = originalItem();

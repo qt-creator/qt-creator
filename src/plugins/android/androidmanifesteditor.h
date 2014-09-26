@@ -54,7 +54,7 @@ public:
     QWidget *toolBar();
     AndroidManifestEditorWidget *widget() const;
     Core::IDocument *document();
-    TextEditor::BaseTextEditorWidget *textEditor() const;
+    TextEditor::TextEditorWidget *textEditor() const;
 
     int currentLine() const;
     int currentColumn() const;

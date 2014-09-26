@@ -57,7 +57,7 @@ bool CppHoverHandler::acceptEditor(IEditor *editor)
     return editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID;
 }
 
-void CppHoverHandler::identifyMatch(BaseTextEditorWidget *editorWidget, int pos)
+void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
 {
     if (!editorWidget->extraSelectionTooltip(pos).isEmpty()) {
         setToolTip(editorWidget->extraSelectionTooltip(pos));

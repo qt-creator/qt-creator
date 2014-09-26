@@ -128,7 +128,7 @@ public:
     void clearAll(const QString &message);
     void clearAllData();
     QTextBlock firstVisibleBlock() const {
-        return BaseTextEditorWidget::firstVisibleBlock();
+        return TextEditorWidget::firstVisibleBlock();
     }
 //    void setDocuments(const QList<QPair<DiffFileInfo, QString> > &documents);
 
@@ -294,7 +294,7 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
     settings.m_highlightBlocks = false;
     SelectableTextEditorWidget::setDisplaySettings(settings);
 
-    connect(this, &BaseTextEditorWidget::tooltipRequested, [this](const QPoint &point, int position) {
+    connect(this, &TextEditorWidget::tooltipRequested, [this](const QPoint &point, int position) {
         int block = document()->findBlock(position).blockNumber();
         auto it = m_fileInfo.constFind(block);
         if (it != m_fileInfo.constEnd())
@@ -479,7 +479,7 @@ void SideDiffEditorWidget::clearAll(const QString &message)
     setBlockSelection(false);
     clear();
     clearAllData();
-    setExtraSelections(BaseTextEditorWidget::OtherSelection,
+    setExtraSelections(TextEditorWidget::OtherSelection,
                        QList<QTextEdit::ExtraSelection>());
     setPlainText(message);
 //    m_highlighter->setDocuments(QList<QPair<DiffFileInfo, QString> >());

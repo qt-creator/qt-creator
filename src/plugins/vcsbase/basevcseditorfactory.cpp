@@ -72,7 +72,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
         return document;
     });
 
-    setEditorWidgetCreator([=]() -> BaseTextEditorWidget* {
+    setEditorWidgetCreator([=]() -> TextEditorWidget* {
         auto widget = qobject_cast<VcsBaseEditorWidget *>(editorWidgetCreator());
         widget->setDescribeSlot(describeReceiver, describeSlot);
         widget->setParameters(parameters);

@@ -57,7 +57,7 @@ public:
     CppEditor();
 };
 
-class CppEditorWidget : public TextEditor::BaseTextEditorWidget
+class CppEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
 
@@ -135,7 +135,7 @@ private slots:
 
 private:
     void finalizeInitialization() Q_DECL_OVERRIDE;
-    void finalizeInitializationAfterDuplication(BaseTextEditorWidget *other) Q_DECL_OVERRIDE;
+    void finalizeInitializationAfterDuplication(TextEditorWidget *other) Q_DECL_OVERRIDE;
 
     unsigned documentRevision() const;
 

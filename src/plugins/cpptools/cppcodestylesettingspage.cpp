@@ -220,7 +220,7 @@ namespace CppTools {
 
 namespace Internal {
 
-static void applyRefactorings(QTextDocument *textDocument, TextEditor::BaseTextEditorWidget *editor,
+static void applyRefactorings(QTextDocument *textDocument, TextEditor::TextEditorWidget *editor,
                               const CppCodeStyleSettings &settings)
 {
     // Preprocess source

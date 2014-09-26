@@ -58,7 +58,7 @@ bool ProFileHoverHandler::acceptEditor(IEditor *editor)
     return editor->context().contains(Constants::PROFILE_EDITOR_ID);
 }
 
-void ProFileHoverHandler::identifyMatch(TextEditor::BaseTextEditorWidget *editorWidget, int pos)
+void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos)
 {
     m_docFragment.clear();
     m_manualKind = UnknownManual;

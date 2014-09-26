@@ -39,13 +39,13 @@ namespace Internal {
 class VirtualFunctionProposalItem: public TextEditor::AssistProposalItem
 {
 public:
-    VirtualFunctionProposalItem(const TextEditor::BaseTextEditorWidget::Link &link,
+    VirtualFunctionProposalItem(const TextEditor::TextEditorWidget::Link &link,
                                 bool openInSplit = true);
-    void apply(TextEditor::BaseTextEditorWidget * /* editorWidget */, int /* basePosition */) const;
-    TextEditor::BaseTextEditorWidget::Link link() const { return m_link; } // Exposed for tests
+    void apply(TextEditor::TextEditorWidget * /* editorWidget */, int /* basePosition */) const;
+    TextEditor::TextEditorWidget::Link link() const { return m_link; } // Exposed for tests
 
 private:
-    TextEditor::BaseTextEditorWidget::Link m_link;
+    TextEditor::TextEditorWidget::Link m_link;
     bool m_openInSplit;
 };
 

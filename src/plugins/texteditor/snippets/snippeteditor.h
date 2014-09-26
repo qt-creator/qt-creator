@@ -35,7 +35,7 @@
 
 namespace TextEditor {
 
-class TEXTEDITOR_EXPORT SnippetEditorWidget : public BaseTextEditorWidget
+class TEXTEDITOR_EXPORT SnippetEditorWidget : public TextEditorWidget
 {
     Q_OBJECT
 

@@ -109,7 +109,7 @@ protected:
 //  GlslEditorWidget
 //
 
-class GlslEditorWidget : public BaseTextEditorWidget
+class GlslEditorWidget : public TextEditorWidget
 {
 public:
     GlslEditorWidget();
@@ -167,7 +167,7 @@ GlslEditorWidget::GlslEditorWidget()
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
 
-    insertExtraToolBarWidget(BaseTextEditorWidget::Left, m_outlineCombo);
+    insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
 
 //    if (m_modelManager) {
 //        m_semanticHighlighter->setModelManager(m_modelManager);
@@ -319,7 +319,7 @@ AssistInterface *GlslEditorWidget::createAssistInterface(
                                                  reason,
                                                  textDocument()->mimeType(),
                                                  m_glslDocument);
-    return BaseTextEditorWidget::createAssistInterface(kind, reason);
+    return TextEditorWidget::createAssistInterface(kind, reason);
 }
 
 

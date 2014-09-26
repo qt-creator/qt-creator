@@ -391,8 +391,8 @@ void QmlLiveTextPreview::associateEditor(Core::IEditor *editor)
                    QLatin1String("QmlJSEditor::Internal::QmlJSEditorWidget"),
                    return);
 
-        BaseTextEditorWidget *editWidget
-                = qobject_cast<BaseTextEditorWidget*>(editor->widget());
+        TextEditorWidget *editWidget
+                = qobject_cast<TextEditorWidget*>(editor->widget());
         QTC_ASSERT(editWidget, return);
 
         if (!m_editors.contains(editWidget)) {
@@ -412,8 +412,8 @@ void QmlLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
     using namespace TextEditor;
     if (oldEditor && oldEditor->document()->id()
             == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        BaseTextEditorWidget *editWidget
-                = qobject_cast<BaseTextEditorWidget*>(oldEditor->widget());
+        TextEditorWidget *editWidget
+                = qobject_cast<TextEditorWidget*>(oldEditor->widget());
         QTC_ASSERT(editWidget, return);
 
         if (m_editors.contains(editWidget)) {
@@ -712,7 +712,7 @@ void QmlLiveTextPreview::showSyncWarning(
     // will be shown in case the user changes and saves the file multiple times.
     removeOutofSyncInfo();
 
-    foreach (TextEditor::BaseTextEditorWidget *editor, m_editors) {
+    foreach (TextEditor::TextEditorWidget *editor, m_editors) {
         if (editor) {
             Core::InfoBar *infoBar = editor->textDocument()->infoBar();
             Core::InfoBarEntry info(Core::Id(INFO_OUT_OF_SYNC), errorMessage);
@@ -729,7 +729,7 @@ void QmlLiveTextPreview::showSyncWarning(
 
 void QmlLiveTextPreview::removeOutofSyncInfo()
 {
-    foreach (TextEditor::BaseTextEditorWidget *editor, m_editors) {
+    foreach (TextEditor::TextEditorWidget *editor, m_editors) {
         if (editor) {
             Core::InfoBar *infoBar = editor->textDocument()->infoBar();
             infoBar->removeInfo(Core::Id(INFO_OUT_OF_SYNC));

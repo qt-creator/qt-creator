@@ -36,7 +36,7 @@
 namespace DiffEditor {
 
 SelectableTextEditorWidget::SelectableTextEditorWidget(Core::Id id, QWidget *parent)
-    : BaseTextEditorWidget(parent)
+    : TextEditorWidget(parent)
 {
     setFrameStyle(QFrame::NoFrame);
     setupFallBackEditor(id);
@@ -153,8 +153,7 @@ void SelectableTextEditorWidget::paintBlock(QPainter *painter,
     }
     newSelections += selections;
 
-    BaseTextEditorWidget::paintBlock(painter, block, offset, newSelections, clipRect);
-
+    TextEditorWidget::paintBlock(painter, block, offset, newSelections, clipRect);
 }
 
 } // namespace DiffEditor

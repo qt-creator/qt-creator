@@ -35,7 +35,7 @@
 namespace GenericProjectManager {
 namespace Internal {
 
-class ProjectFilesFactory : public TextEditor::BaseTextEditorFactory
+class ProjectFilesFactory : public TextEditor::TextEditorFactory
 {
 public:
     ProjectFilesFactory();

@@ -35,7 +35,7 @@
 namespace PythonEditor {
 namespace Internal {
 
-class PythonEditorFactory : public TextEditor::BaseTextEditorFactory
+class PythonEditorFactory : public TextEditor::TextEditorFactory
 {
     Q_OBJECT
 

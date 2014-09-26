@@ -983,7 +983,7 @@ void QmlEngine::requestModuleSymbols(const QString &moduleName)
 //
 //////////////////////////////////////////////////////////////////////
 
-bool QmlEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget,
+bool QmlEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
     const DebuggerToolTipContext &ctx)
 {
     // This is processed by QML inspector, which has dependencies to

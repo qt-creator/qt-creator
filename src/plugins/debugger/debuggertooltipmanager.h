@@ -41,7 +41,7 @@ class QDebug;
 QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
-namespace TextEditor { class BaseTextEditor; class BaseTextEditorWidget; }
+namespace TextEditor { class BaseTextEditor; class TextEditorWidget; }
 
 namespace Debugger {
 class DebuggerEngine;
@@ -132,11 +132,11 @@ private slots:
     static void slotUpdateVisibleToolTips();
     void slotDebuggerStateChanged(Debugger::DebuggerState);
     void slotEditorOpened(Core::IEditor *);
-    void slotTooltipOverrideRequested(TextEditor::BaseTextEditorWidget *editorWidget,
+    void slotTooltipOverrideRequested(TextEditor::TextEditorWidget *editorWidget,
             const QPoint &point, int pos, bool *handled);
 
 private:
-    bool tryHandleToolTipOverride(TextEditor::BaseTextEditorWidget *editorWidget,
+    bool tryHandleToolTipOverride(TextEditor::TextEditorWidget *editorWidget,
             const QPoint &point, int pos);
 };
 

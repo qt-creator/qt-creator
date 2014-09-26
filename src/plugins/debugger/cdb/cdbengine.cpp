@@ -447,7 +447,7 @@ void CdbEngine::syncVerboseLog(bool verboseLog)
     postCommand(m_verboseLog ? QByteArray("!sym noisy") : QByteArray("!sym quiet"), 0);
 }
 
-bool CdbEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget,
+bool CdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
                                      const DebuggerToolTipContext &contextIn)
 {
     if (debug)

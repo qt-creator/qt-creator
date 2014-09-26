@@ -54,7 +54,7 @@ using namespace CppEditor;
 using namespace CppEditor::Internal;
 using namespace TextEditor;
 
-typedef BaseTextEditorWidget::Link Link;
+typedef TextEditorWidget::Link Link;
 
 namespace {
 
@@ -424,7 +424,7 @@ static int skipMatchingParentheses(const QList<Token> &tokens, int idx, int init
     return j;
 }
 
-BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &cursor,
+TextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &cursor,
     bool resolveTarget, const Snapshot &theSnapshot, const Document::Ptr &documentFromSemanticInfo,
     SymbolFinder *symbolFinder, bool inNextSplit)
 {

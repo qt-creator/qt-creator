@@ -34,7 +34,7 @@
 
 #include <QTextEdit>
 
-namespace TextEditor { class BaseTextEditorWidget; }
+namespace TextEditor { class TextEditorWidget; }
 
 namespace CppEditor {
 namespace Internal {
@@ -45,7 +45,7 @@ class CppLocalRenaming : public QObject
     Q_DISABLE_COPY(CppLocalRenaming)
 
 public:
-    explicit CppLocalRenaming(TextEditor::BaseTextEditorWidget *editorWidget);
+    explicit CppLocalRenaming(TextEditor::TextEditorWidget *editorWidget);
 
     bool start();
     bool isActive() const;
@@ -95,7 +95,7 @@ private:
     QTextCharFormat textCharFormat(TextEditor::TextStyle category) const;
 
 private:
-    TextEditor::BaseTextEditorWidget *m_editorWidget;
+    TextEditor::TextEditorWidget *m_editorWidget;
 
     QList<QTextEdit::ExtraSelection> m_selections;
     int m_renameSelectionIndex;

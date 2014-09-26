@@ -42,7 +42,7 @@ class Id;
 
 namespace TextEditor {
 class BaseTextEditor;
-class BaseTextEditorWidget;
+class TextEditorWidget;
 class TextDocument;
 class TabSettings;
 class ICodeStylePreferences;
@@ -112,7 +112,7 @@ private slots:
     void slotAboutToRemoveProject(ProjectExplorer::Project *project);
     void editorsClosed(const QList<Core::IEditor*> &closedEditors);
 private:
-    void switchSettings(TextEditor::BaseTextEditorWidget *baseTextEditor) const;
+    void switchSettings(TextEditor::TextEditorWidget *baseTextEditor) const;
 
     EditorConfigurationPrivate *d;
 };

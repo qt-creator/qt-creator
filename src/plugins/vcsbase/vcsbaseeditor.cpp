@@ -553,7 +553,7 @@ public:
     // Can be used for diff and log. Combo created on first call.
     QComboBox *entriesComboBox();
 
-    BaseTextEditorWidget *q;
+    TextEditorWidget *q;
     const VcsBaseEditorParameters *m_parameters;
 
     QString m_workingDirectory;
@@ -615,7 +615,7 @@ QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_entriesComboBox->setSizePolicy(policy);
 
-    q->insertExtraToolBarWidget(BaseTextEditorWidget::Left, m_entriesComboBox);
+    q->insertExtraToolBarWidget(TextEditorWidget::Left, m_entriesComboBox);
     return m_entriesComboBox;
 }
 
@@ -978,7 +978,7 @@ void VcsBaseEditorWidget::mouseMoveEvent(QMouseEvent *e)
 {
     if (e->buttons()) {
         d->m_mouseDragging = true;
-        BaseTextEditorWidget::mouseMoveEvent(e);
+        TextEditorWidget::mouseMoveEvent(e);
         return;
     }
 
@@ -999,7 +999,7 @@ void VcsBaseEditorWidget::mouseMoveEvent(QMouseEvent *e)
             cursorShape = Qt::IBeamCursor;
         }
     }
-    BaseTextEditorWidget::mouseMoveEvent(e);
+    TextEditorWidget::mouseMoveEvent(e);
 
     if (overrideCursor)
         viewport()->setCursor(cursorShape);
@@ -1020,7 +1020,7 @@ void VcsBaseEditorWidget::mouseReleaseEvent(QMouseEvent *e)
             }
         }
     }
-    BaseTextEditorWidget::mouseReleaseEvent(e);
+    TextEditorWidget::mouseReleaseEvent(e);
 }
 
 void VcsBaseEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
@@ -1029,7 +1029,7 @@ void VcsBaseEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
         QTextCursor cursor = cursorForPosition(e->pos());
         jumpToChangeFromDiff(cursor);
     }
-    BaseTextEditorWidget::mouseDoubleClickEvent(e);
+    TextEditorWidget::mouseDoubleClickEvent(e);
 }
 
 void VcsBaseEditorWidget::keyPressEvent(QKeyEvent *e)
@@ -1039,7 +1039,7 @@ void VcsBaseEditorWidget::keyPressEvent(QKeyEvent *e)
         jumpToChangeFromDiff(textCursor());
         return;
     }
-    BaseTextEditorWidget::keyPressEvent(e);
+    TextEditorWidget::keyPressEvent(e);
 }
 
 void VcsBaseEditorWidget::slotActivateAnnotation()
@@ -1339,7 +1339,7 @@ bool VcsBaseEditorWidget::setConfigurationWidget(VcsBaseEditorParameterWidget *w
         return false;
 
     d->m_configurationWidget = w;
-    insertExtraToolBarWidget(BaseTextEditorWidget::Right, w);
+    insertExtraToolBarWidget(TextEditorWidget::Right, w);
 
     return true;
 }

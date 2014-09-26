@@ -623,7 +623,7 @@ Core::IEditor *AndroidManifestEditorWidget::editor() const
     return m_editor;
 }
 
-TextEditor::BaseTextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() const
+TextEditor::TextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() const
 {
     return m_textEditorWidget;
 }
@@ -1425,9 +1425,9 @@ int PermissionsModel::rowCount(const QModelIndex &parent) const
 
 
 AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent)
-    : TextEditor::BaseTextEditorWidget(parent)
+    : TextEditor::TextEditorWidget(parent)
 {
-    setTextDocument(TextEditor::BaseTextDocumentPtr(new AndroidManifestDocument(parent)));
+    setTextDocument(TextEditor::TextDocumentPtr(new AndroidManifestDocument(parent)));
     setupAsPlainEditor();
     textDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
 }

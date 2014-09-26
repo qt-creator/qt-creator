@@ -232,8 +232,7 @@ void CppTypeHierarchyWidget::clearTypeHierarchy()
 
 void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
 {
-    const TextEditor::BaseTextEditorWidget::Link link
-            = index.data(LinkRole).value<TextEditor::BaseTextEditorWidget::Link>();
+    auto link = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
     if (link.hasValidTarget())
         Core::EditorManager::openEditorAt(link.targetFileName,
                                           link.targetLine,

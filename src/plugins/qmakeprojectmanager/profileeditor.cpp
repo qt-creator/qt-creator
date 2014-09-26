@@ -51,7 +51,7 @@ using namespace TextEditor;
 namespace QmakeProjectManager {
 namespace Internal {
 
-class ProFileEditorWidget : public BaseTextEditorWidget
+class ProFileEditorWidget : public TextEditorWidget
 {
 public:
     ProFileEditorWidget()

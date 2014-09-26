@@ -55,13 +55,13 @@ namespace Internal {
 class TextEditorOverlay;
 class ClipboardAssistProvider;
 
-class TEXTEDITOR_EXPORT BaseTextBlockSelection
+class TEXTEDITOR_EXPORT TextBlockSelection
 {
 public:
-    BaseTextBlockSelection()
+    TextBlockSelection()
         : positionBlock(0), positionColumn(0)
         , anchorBlock(0) , anchorColumn(0){}
-    BaseTextBlockSelection(const BaseTextBlockSelection &other);
+    TextBlockSelection(const TextBlockSelection &other);
 
     void clear();
     QTextCursor selection(const TextDocument *baseTextDocument) const;
@@ -88,21 +88,22 @@ private:
     QTextCursor cursor(const TextDocument *baseTextDocument, bool fullSelection) const;
 };
 
-//================BaseTextEditorPrivate==============
+//
+// TextEditorPrivate
+//
 
-struct BaseTextEditorPrivateHighlightBlocks
+struct TextEditorPrivateHighlightBlocks
 {
     QList<int> open;
     QList<int> close;
     QList<int> visualIndent;
     inline int count() const { return visualIndent.size(); }
     inline bool isEmpty() const { return open.isEmpty() || close.isEmpty() || visualIndent.isEmpty(); }
-    inline bool operator==(const BaseTextEditorPrivateHighlightBlocks &o) const {
+    inline bool operator==(const TextEditorPrivateHighlightBlocks &o) const {
         return (open == o.open && close == o.close && visualIndent == o.visualIndent);
     }
-    inline bool operator!=(const BaseTextEditorPrivateHighlightBlocks &o) const { return !(*this == o); }
+    inline bool operator!=(const TextEditorPrivateHighlightBlocks &o) const { return !(*this == o); }
 };
-
 
 } // namespace Internal
 } // namespace TextEditor

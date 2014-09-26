@@ -252,7 +252,7 @@ void CppEditorOutline::gotoSymbolInEditor()
     if (!symbol)
         return;
 
-    const TextEditor::BaseTextEditorWidget::Link &link = CppEditorWidget::linkToSymbol(symbol);
+    const TextEditor::TextEditorWidget::Link &link = CppEditorWidget::linkToSymbol(symbol);
     if (!link.hasValidTarget())
         return;
 

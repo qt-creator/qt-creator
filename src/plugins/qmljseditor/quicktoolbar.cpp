@@ -115,7 +115,7 @@ QuickToolBar::~QuickToolBar()
     m_widget = 0;
 }
 
-void QuickToolBar::apply(TextEditor::BaseTextEditorWidget *editorWidget, Document::Ptr document, const ScopeChain *scopeChain, AST::Node *node, bool update, bool force)
+void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::Ptr document, const ScopeChain *scopeChain, AST::Node *node, bool update, bool force)
 {
     if (!QuickToolBarSettings::get().enableContextPane && !force && !update) {
         contextWidget()->hide();
@@ -245,7 +245,7 @@ void QuickToolBar::apply(TextEditor::BaseTextEditorWidget *editorWidget, Documen
 
 }
 
-bool QuickToolBar::isAvailable(TextEditor::BaseTextEditorWidget *, Document::Ptr document, AST::Node *node)
+bool QuickToolBar::isAvailable(TextEditor::TextEditorWidget *, Document::Ptr document, AST::Node *node)
 {
     if (document.isNull())
         return false;

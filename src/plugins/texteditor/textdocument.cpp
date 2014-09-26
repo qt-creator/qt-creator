@@ -421,7 +421,7 @@ bool TextDocument::save(QString *errorString, const QString &saveFileName, bool 
     QTextCursor cursor(&d->m_document);
 
     // When autosaving, we don't want to modify the document/location under the user's fingers.
-    BaseTextEditorWidget *editorWidget = 0;
+    TextEditorWidget *editorWidget = 0;
     int savedPosition = 0;
     int savedAnchor = 0;
     int savedVScrollBarValue = 0;
@@ -618,7 +618,7 @@ bool TextDocument::reload(QString *errorString)
 bool TextDocument::setPlainText(const QString &text)
 {
     if (text.size() > EditorManager::maxTextFileSize()) {
-        document()->setPlainText(BaseTextEditorWidget::msgTextTooLarge(text.size()));
+        document()->setPlainText(TextEditorWidget::msgTextTooLarge(text.size()));
         d->resetRevisions();
         document()->setModified(false);
         return false;

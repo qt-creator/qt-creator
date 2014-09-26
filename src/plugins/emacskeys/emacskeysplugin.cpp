@@ -173,7 +173,7 @@ void EmacsKeysPlugin::currentEditorChanged(Core::IEditor *editor)
     }
     m_currentState = m_stateMap[m_currentEditorWidget];
     m_currentBaseTextEditorWidget =
-        qobject_cast<TextEditor::BaseTextEditorWidget*>(editor->widget());
+        qobject_cast<TextEditor::TextEditorWidget*>(editor->widget());
 }
 
 void EmacsKeysPlugin::gotoFileStart()         { genericGoto(QTextCursor::Start); }

@@ -236,7 +236,7 @@ namespace CppEditor {
 namespace Internal {
 
 CppDocumentationCommentHelper::CppDocumentationCommentHelper(
-        TextEditor::BaseTextEditorWidget *editorWidget)
+        TextEditor::TextEditorWidget *editorWidget)
     : m_editorWidget(editorWidget)
     , m_settings(CppToolsSettings::instance()->commentsSettings())
 {

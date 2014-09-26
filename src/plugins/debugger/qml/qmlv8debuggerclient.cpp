@@ -1785,7 +1785,7 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
     errorFormat.setUnderlineColor(Qt::red);
 
     foreach (IEditor *editor, editors) {
-        TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
+        TextEditor::TextEditorWidget *ed = qobject_cast<TextEditor::TextEditorWidget *>(editor->widget());
         if (!ed)
             continue;
 
@@ -1806,7 +1806,7 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
         sel.format.setToolTip(errorMessage);
 
         selections.append(sel);
-        ed->setExtraSelections(TextEditor::BaseTextEditorWidget::DebuggerExceptionSelection, selections);
+        ed->setExtraSelections(TextEditor::TextEditorWidget::DebuggerExceptionSelection, selections);
 
         QString message = QString(_("%1: %2: %3")).arg(filePath).arg(lineNumber)
                 .arg(errorMessage);
@@ -1819,11 +1819,11 @@ void QmlV8DebuggerClient::clearExceptionSelection()
     QList<QTextEdit::ExtraSelection> selections;
 
     foreach (IEditor *editor, DocumentModel::editorsForOpenedDocuments()) {
-        TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
+        TextEditor::TextEditorWidget *ed = qobject_cast<TextEditor::TextEditorWidget *>(editor->widget());
         if (!ed)
             continue;
 
-        ed->setExtraSelections(TextEditor::BaseTextEditorWidget::DebuggerExceptionSelection, selections);
+        ed->setExtraSelections(TextEditor::TextEditorWidget::DebuggerExceptionSelection, selections);
     }
 
 }

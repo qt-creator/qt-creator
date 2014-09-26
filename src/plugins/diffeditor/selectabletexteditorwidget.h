@@ -48,7 +48,7 @@ public:
 };
 
 class DIFFEDITOR_EXPORT SelectableTextEditorWidget
-        : public TextEditor::BaseTextEditorWidget
+        : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
 public:

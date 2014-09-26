@@ -219,11 +219,11 @@ void CppEditorWidget::finalizeInitialization()
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updatePreprocessorButtonTooltip()));
     updatePreprocessorButtonTooltip();
     connect(d->m_preprocessorButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
-    insertExtraToolBarWidget(BaseTextEditorWidget::Left, d->m_preprocessorButton);
-    insertExtraToolBarWidget(BaseTextEditorWidget::Left, d->m_cppEditorOutline->widget());
+    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
+    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
 }
 
-void CppEditorWidget::finalizeInitializationAfterDuplication(BaseTextEditorWidget *other)
+void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *other)
 {
     QTC_ASSERT(other, return);
     CppEditorWidget *cppEditorWidget = qobject_cast<CppEditorWidget *>(other);
@@ -256,7 +256,7 @@ void CppEditorWidget::paste()
     if (d->m_localRenaming.handlePaste())
         return;
 
-    BaseTextEditorWidget::paste();
+    TextEditorWidget::paste();
 }
 
 void CppEditorWidget::cut()
@@ -264,7 +264,7 @@ void CppEditorWidget::cut()
     if (d->m_localRenaming.handleCut())
         return;
 
-    BaseTextEditorWidget::cut();
+    TextEditorWidget::cut();
 }
 
 void CppEditorWidget::selectAll()
@@ -272,7 +272,7 @@ void CppEditorWidget::selectAll()
     if (d->m_localRenaming.handleSelectAll())
         return;
 
-    BaseTextEditorWidget::selectAll();
+    TextEditorWidget::selectAll();
 }
 
 void CppEditorWidget::onCppDocumentUpdated()
@@ -285,7 +285,7 @@ void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,
 {
     if (revision != documentRevision())
         return;
-    setExtraSelections(BaseTextEditorWidget::CodeWarningsSelection, selections);
+    setExtraSelections(TextEditorWidget::CodeWarningsSelection, selections);
 }
 
 void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
@@ -469,7 +469,7 @@ bool CppEditorWidget::event(QEvent *e)
         break;
     }
 
-    return BaseTextEditorWidget::event(e);
+    return TextEditorWidget::event(e);
 }
 
 void CppEditorWidget::performQuickFix(int index)
@@ -479,7 +479,7 @@ void CppEditorWidget::performQuickFix(int index)
 
 void CppEditorWidget::processKeyNormally(QKeyEvent *e)
 {
-    BaseTextEditorWidget::keyPressEvent(e);
+    TextEditorWidget::keyPressEvent(e);
 }
 
 void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
@@ -541,13 +541,13 @@ void CppEditorWidget::keyPressEvent(QKeyEvent *e)
     if (d->m_cppDocumentationCommentHelper.handleKeyPressEvent(e))
         return;
 
-    BaseTextEditorWidget::keyPressEvent(e);
+    TextEditorWidget::keyPressEvent(e);
 }
 
 void CppEditorWidget::applyFontSettings()
 {
     // This also makes the document apply font settings
-    BaseTextEditorWidget::applyFontSettings();
+    TextEditorWidget::applyFontSettings();
 }
 
 void CppEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
@@ -610,7 +610,7 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
         if (isSemanticInfoValid())
             return new CppQuickFixAssistInterface(const_cast<CppEditorWidget *>(this), reason);
     } else {
-        return BaseTextEditorWidget::createAssistInterface(kind, reason);
+        return TextEditorWidget::createAssistInterface(kind, reason);
     }
     return 0;
 }

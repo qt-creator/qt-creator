@@ -123,7 +123,7 @@ SelectionList UseSelectionsTestCase::toSelectionList(
 QList<QTextEdit::ExtraSelection> UseSelectionsTestCase::getExtraSelections() const
 {
     return m_editorWidget->extraSelections(
-        TextEditor::BaseTextEditorWidget::CodeSemanticsSelection);
+        TextEditor::TextEditorWidget::CodeSemanticsSelection);
 }
 
 SelectionList UseSelectionsTestCase::waitForUseSelections(bool *hasTimedOut) const

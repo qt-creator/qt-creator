@@ -108,7 +108,7 @@ private:
     void abortDebugger();
     void resetLocation();
 
-    bool setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget,
+    bool setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
         const DebuggerToolTipContext &);
 
     void continueInferior();

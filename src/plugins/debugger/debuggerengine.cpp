@@ -1365,7 +1365,7 @@ DebuggerRunControl *DebuggerEngine::runControl() const
     return d->runControl();
 }
 
-bool DebuggerEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *,
+bool DebuggerEngine::setToolTipExpression(TextEditor::TextEditorWidget *,
     const DebuggerToolTipContext &)
 {
     return false;

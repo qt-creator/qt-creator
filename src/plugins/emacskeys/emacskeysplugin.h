@@ -43,7 +43,7 @@ class Id;
 class IEditor;
 }
 namespace TextEditor {
-class BaseTextEditorWidget;
+class TextEditorWidget;
 }
 
 namespace EmacsKeys {
@@ -102,7 +102,7 @@ private:
     QHash<QPlainTextEdit*, EmacsKeysState*> m_stateMap;
     QPlainTextEdit *m_currentEditorWidget;
     EmacsKeysState *m_currentState;
-    TextEditor::BaseTextEditorWidget *m_currentBaseTextEditorWidget;
+    TextEditor::TextEditorWidget *m_currentBaseTextEditorWidget;
 };
 
 } // namespace Internal

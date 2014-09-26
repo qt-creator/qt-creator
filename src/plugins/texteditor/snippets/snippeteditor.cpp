@@ -47,7 +47,7 @@ namespace TextEditor {
 
 
 SnippetEditorWidget::SnippetEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(parent)
+    : TextEditorWidget(parent)
 {
     setupFallBackEditor(TextEditor::Constants::SNIPPET_EDITOR_ID);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
@@ -62,7 +62,7 @@ void SnippetEditorWidget::focusOutEvent(QFocusEvent *event)
         document()->setModified(false);
         emit snippetContentChanged();
     }
-    BaseTextEditorWidget::focusOutEvent(event);
+    TextEditorWidget::focusOutEvent(event);
 }
 
 } // namespace

@@ -79,7 +79,7 @@ public:
         m_editor = EditorManager::openEditor(fileName);
         QVERIFY(m_editor);
         closeEditorAtEndOfTestCase(m_editor);
-        m_editorWidget = qobject_cast<TextEditor::BaseTextEditorWidget *>(m_editor->widget());
+        m_editorWidget = qobject_cast<TextEditor::TextEditorWidget *>(m_editor->widget());
         QVERIFY(m_editorWidget);
 
         m_textDocument = m_editorWidget->document();
@@ -149,7 +149,7 @@ private:
     QByteArray m_source;
     int m_position;
     Snapshot m_snapshot;
-    BaseTextEditorWidget *m_editorWidget;
+    TextEditorWidget *m_editorWidget;
     QTextDocument *m_textDocument;
     IEditor *m_editor;
 };

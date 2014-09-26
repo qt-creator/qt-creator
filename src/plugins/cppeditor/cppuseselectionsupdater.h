@@ -44,7 +44,7 @@ class QTextCharFormat;
 class QTextCursor;
 QT_END_NAMESPACE
 
-namespace TextEditor { class BaseTextEditorWidget; }
+namespace TextEditor { class TextEditorWidget; }
 
 namespace CppEditor {
 namespace Internal {
@@ -66,7 +66,7 @@ class CppUseSelectionsUpdater : public QObject
     Q_DISABLE_COPY(CppUseSelectionsUpdater)
 
 public:
-    explicit CppUseSelectionsUpdater(TextEditor::BaseTextEditorWidget *editorWidget);
+    explicit CppUseSelectionsUpdater(TextEditor::TextEditorWidget *editorWidget);
 
     enum CallType { Synchronous, Asynchronous };
 
@@ -105,7 +105,7 @@ private:
     QTextDocument *textDocument() const;
 
 private:
-    TextEditor::BaseTextEditorWidget *m_editorWidget;
+    TextEditor::TextEditorWidget *m_editorWidget;
 
     QTimer m_timer;
 

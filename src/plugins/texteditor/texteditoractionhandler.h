@@ -39,7 +39,7 @@
 namespace Core { class IEditor; }
 
 namespace TextEditor {
-class BaseTextEditorWidget;
+class TextEditorWidget;
 
 namespace Internal { class TextEditorActionHandlerPrivate; }
 
@@ -63,7 +63,7 @@ public:
     ~TextEditorActionHandler();
 
 protected:
-    virtual BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const;
+    virtual TextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const;
 
 private:
     friend class Internal::TextEditorActionHandlerPrivate;

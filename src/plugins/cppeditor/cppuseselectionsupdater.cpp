@@ -232,7 +232,7 @@ CppEditor::Internal::UseSelectionsResult findUses(const Params p)
 namespace CppEditor {
 namespace Internal {
 
-CppUseSelectionsUpdater::CppUseSelectionsUpdater(TextEditor::BaseTextEditorWidget *editorWidget)
+CppUseSelectionsUpdater::CppUseSelectionsUpdater(TextEditor::TextEditorWidget *editorWidget)
     : m_editorWidget(editorWidget)
     , m_findUsesRevision(-1)
 {
@@ -460,18 +460,18 @@ QTextDocument *CppUseSelectionsUpdater::textDocument() const
 ExtraSelections CppUseSelectionsUpdater::currentUseSelections() const
 {
     return m_editorWidget->extraSelections(
-        TextEditor::BaseTextEditorWidget::CodeSemanticsSelection);
+        TextEditor::TextEditorWidget::CodeSemanticsSelection);
 }
 
 void CppUseSelectionsUpdater::updateUseSelections(const ExtraSelections &selections)
 {
-    m_editorWidget->setExtraSelections(TextEditor::BaseTextEditorWidget::CodeSemanticsSelection,
+    m_editorWidget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection,
                                        selections);
 }
 
 void CppUseSelectionsUpdater::updateUnusedSelections(const ExtraSelections &selections)
 {
-    m_editorWidget->setExtraSelections(TextEditor::BaseTextEditorWidget::UnusedSymbolSelection,
+    m_editorWidget->setExtraSelections(TextEditor::TextEditorWidget::UnusedSymbolSelection,
                                        selections);
 }
 

@@ -79,7 +79,7 @@ private:
     QStringList m_permissions;
 };
 
-class AndroidManifestTextEditorWidget : public TextEditor::BaseTextEditorWidget
+class AndroidManifestTextEditorWidget : public TextEditor::TextEditorWidget
 {
 public:
     explicit AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent);
@@ -106,7 +106,7 @@ public:
     void preSave();
 
     Core::IEditor *editor() const;
-    TextEditor::BaseTextEditorWidget *textEditorWidget() const;
+    TextEditor::TextEditorWidget *textEditorWidget() const;
 
 public slots:
     void setDirty(bool dirty = true);
@@ -190,7 +190,7 @@ private:
     QComboBox *m_permissionsComboBox;
 
     QTimer m_timerParseCheck;
-    TextEditor::BaseTextEditorWidget *m_textEditorWidget;
+    TextEditor::TextEditorWidget *m_textEditorWidget;
     QStackedWidget *m_stackedWidget;
     AndroidManifestEditor *m_editor;
 };

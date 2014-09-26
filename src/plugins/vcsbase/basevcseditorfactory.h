@@ -37,7 +37,7 @@
 
 namespace VcsBase {
 
-class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::BaseTextEditorFactory
+class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::TextEditorFactory
 {
     Q_OBJECT
 

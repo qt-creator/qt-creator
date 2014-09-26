@@ -56,7 +56,7 @@ class CppElement;
 class CppElementEvaluator
 {
 public:
-    explicit CppElementEvaluator(TextEditor::BaseTextEditorWidget *editor);
+    explicit CppElementEvaluator(TextEditor::TextEditorWidget *editor);
 
     void setTextCursor(const QTextCursor &tc);
     void setLookupBaseClasses(const bool lookup);
@@ -78,7 +78,7 @@ private:
                                const CPlusPlus::LookupContext &lookupContext,
                                const CPlusPlus::Scope *scope);
 
-    TextEditor::BaseTextEditorWidget *m_editor;
+    TextEditor::TextEditorWidget *m_editor;
     CppTools::CppModelManager *m_modelManager;
     QTextCursor m_tc;
     bool m_lookupBaseClasses;
@@ -99,7 +99,7 @@ public:
     TextEditor::HelpItem::Category helpCategory;
     QStringList helpIdCandidates;
     QString helpMark;
-    TextEditor::BaseTextEditorWidget::Link link;
+    TextEditor::TextEditorWidget::Link link;
     QString tooltip;
 };
 

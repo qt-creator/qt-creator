@@ -62,7 +62,7 @@ public:
         setText(text);
     }
 
-    void apply(BaseTextEditorWidget *editorWidget, int /*basePosition*/) const Q_DECL_OVERRIDE
+    void apply(TextEditorWidget *editorWidget, int /*basePosition*/) const Q_DECL_OVERRIDE
     {
 
         //Move to last in circular clipboard
@@ -73,7 +73,7 @@ public:
 
         //Copy the selected item
         QApplication::clipboard()->setMimeData(
-                    BaseTextEditorWidget::duplicateMimeData(m_mimeData.data()));
+                    TextEditorWidget::duplicateMimeData(m_mimeData.data()));
 
         //Paste
         editorWidget->paste();

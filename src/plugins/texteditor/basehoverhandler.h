@@ -39,7 +39,7 @@ namespace Core { class IEditor; }
 namespace TextEditor {
 
 class BaseTextEditor;
-class BaseTextEditorWidget;
+class TextEditorWidget;
 
 class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
 {
@@ -71,9 +71,9 @@ private:
     void process(BaseTextEditor *editor, int pos);
 
     virtual bool acceptEditor(Core::IEditor *editor) = 0;
-    virtual void identifyMatch(BaseTextEditorWidget *editorWidget, int pos) = 0;
+    virtual void identifyMatch(TextEditorWidget *editorWidget, int pos) = 0;
     virtual void decorateToolTip();
-    virtual void operateTooltip(BaseTextEditorWidget *editorWidget, const QPoint &point);
+    virtual void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point);
 
     bool m_diagnosticTooltip;
     QString m_toolTip;

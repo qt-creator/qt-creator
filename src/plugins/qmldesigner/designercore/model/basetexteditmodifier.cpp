@@ -37,7 +37,7 @@
 
 using namespace QmlDesigner;
 
-BaseTextEditModifier::BaseTextEditModifier(TextEditor::BaseTextEditorWidget *textEdit):
+BaseTextEditModifier::BaseTextEditModifier(TextEditor::TextEditorWidget *textEdit):
         PlainTextEditModifier(textEdit)
 {
 }
@@ -47,7 +47,7 @@ void BaseTextEditModifier::indent(int offset, int length)
     if (length == 0 || offset < 0 || offset + length >= text().length())
         return;
 
-    if (TextEditor::BaseTextEditorWidget *baseTextEditorWidget = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())) {
+    if (TextEditor::TextEditorWidget *baseTextEditorWidget = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
 
         TextEditor::TextDocument *baseTextEditorDocument = baseTextEditorWidget->textDocument();
         QTextDocument *textDocument = baseTextEditorWidget->document();
@@ -81,7 +81,7 @@ void BaseTextEditModifier::indent(int offset, int length)
 
 int BaseTextEditModifier::indentDepth() const
 {
-    if (TextEditor::BaseTextEditorWidget *bte = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit()))
+    if (TextEditor::TextEditorWidget *bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit()))
         return bte->textDocument()->tabSettings().m_indentSize;
     else
         return 0;
@@ -89,7 +89,7 @@ int BaseTextEditModifier::indentDepth() const
 
 bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
 {
-    if (TextEditor::BaseTextEditorWidget *bte = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())) {
+    if (TextEditor::TextEditorWidget *bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
         if (QmlJSEditor::QmlJSEditorDocument *document
                 = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument())) {
             Utils::ChangeSet changeSet;

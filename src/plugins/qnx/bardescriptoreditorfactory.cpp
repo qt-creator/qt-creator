@@ -50,7 +50,7 @@ public:
     {
     }
 protected:
-    TextEditor::BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const
+    TextEditor::TextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const
     {
         BarDescriptorEditorWidget *w = qobject_cast<BarDescriptorEditorWidget *>(editor->widget());
         return w ? w->sourceWidget() : 0;

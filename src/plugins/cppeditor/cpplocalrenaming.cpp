@@ -61,7 +61,7 @@ void modifyCursorSelection(QTextCursor &cursor, int position, int anchor)
 namespace CppEditor {
 namespace Internal {
 
-CppLocalRenaming::CppLocalRenaming(TextEditor::BaseTextEditorWidget *editorWidget)
+CppLocalRenaming::CppLocalRenaming(TextEditor::TextEditorWidget *editorWidget)
     : m_editorWidget(editorWidget)
     , m_modifyingSelections(false)
     , m_renameSelectionChanged(false)
@@ -97,7 +97,7 @@ bool CppLocalRenaming::handlePaste()
         return false;
 
     startRenameChange();
-    m_editorWidget->BaseTextEditorWidget::paste();
+    m_editorWidget->TextEditorWidget::paste();
     finishRenameChange();
     return true;
 }
@@ -108,7 +108,7 @@ bool CppLocalRenaming::handleCut()
         return false;
 
     startRenameChange();
-    m_editorWidget->BaseTextEditorWidget::paste();
+    m_editorWidget->TextEditorWidget::paste();
     finishRenameChange();
     return true;
 }
@@ -289,7 +289,7 @@ void CppLocalRenaming::startRenameChange()
 
 void CppLocalRenaming::updateEditorWidgetWithSelections()
 {
-    m_editorWidget->setExtraSelections(TextEditor::BaseTextEditorWidget::CodeSemanticsSelection,
+    m_editorWidget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection,
                                        m_selections);
 }
 

@@ -61,7 +61,7 @@ static QStringList stripName(const QString &name)
     return all;
 }
 
-CppElementEvaluator::CppElementEvaluator(TextEditor::BaseTextEditorWidget *editor) :
+CppElementEvaluator::CppElementEvaluator(TextEditor::TextEditorWidget *editor) :
     m_editor(editor),
     m_modelManager(CppTools::CppModelManager::instance()),
     m_tc(editor->textCursor()),
@@ -122,7 +122,7 @@ void CppElementEvaluator::execute()
 void CppElementEvaluator::checkDiagnosticMessage(int pos)
 {
     foreach (const QTextEdit::ExtraSelection &sel,
-             m_editor->extraSelections(TextEditor::BaseTextEditorWidget::CodeWarningsSelection)) {
+             m_editor->extraSelections(TextEditor::TextEditorWidget::CodeWarningsSelection)) {
         if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
             m_diagnosis = sel.format.toolTip();
             break;
@@ -264,7 +264,7 @@ CppInclude::CppInclude(const Document::Include &includeFile) :
     helpCategory = TextEditor::HelpItem::Brief;
     helpIdCandidates = QStringList(fileName);
     helpMark = fileName;
-    link = TextEditor::BaseTextEditorWidget::Link(path);
+    link = TextEditor::TextEditorWidget::Link(path);
     tooltip = path;
 }
 
@@ -275,7 +275,7 @@ CppMacro::CppMacro(const Macro &macro)
     const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
     helpIdCandidates = QStringList(macroName);
     helpMark = macroName;
-    link = TextEditor::BaseTextEditorWidget::Link(macro.fileName(), macro.line());
+    link = TextEditor::TextEditorWidget::Link(macro.fileName(), macro.line());
     tooltip = macro.toStringWithLineBreaks();
 }
 

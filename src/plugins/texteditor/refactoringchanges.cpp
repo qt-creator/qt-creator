@@ -122,7 +122,7 @@ bool RefactoringChanges::removeFile(const QString &fileName) const
     return true;
 }
 
-BaseTextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bool activate, int line, int column)
+TextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bool activate, int line, int column)
 {
     EditorManager::OpenEditorFlags flags = EditorManager::IgnoreNavigationHistory;
     if (!activate)
@@ -134,12 +134,12 @@ BaseTextEditorWidget *RefactoringChanges::openEditor(const QString &fileName, bo
     IEditor *editor = EditorManager::openEditorAt(fileName, line, column, Id(), flags);
 
     if (editor)
-        return qobject_cast<BaseTextEditorWidget *>(editor->widget());
+        return qobject_cast<TextEditorWidget *>(editor->widget());
     else
         return 0;
 }
 
-RefactoringFilePtr RefactoringChanges::file(BaseTextEditorWidget *editor)
+RefactoringFilePtr RefactoringChanges::file(TextEditorWidget *editor)
 {
     return RefactoringFilePtr(new RefactoringFile(editor));
 }
@@ -159,7 +159,7 @@ RefactoringFile::RefactoringFile(QTextDocument *document, const QString &fileNam
     , m_appliedOnce(false)
 { }
 
-RefactoringFile::RefactoringFile(BaseTextEditorWidget *editor)
+RefactoringFile::RefactoringFile(TextEditorWidget *editor)
     : m_fileName(editor->textDocument()->filePath())
     , m_document(0)
     , m_editor(editor)
@@ -181,7 +181,7 @@ RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<R
 {
     QList<IEditor *> editors = DocumentModel::editorsForFilePath(fileName);
     if (!editors.isEmpty())
-        m_editor = qobject_cast<BaseTextEditorWidget *>(editors.first()->widget());
+        m_editor = qobject_cast<TextEditorWidget *>(editors.first()->widget());
 }
 
 RefactoringFile::~RefactoringFile()
@@ -242,7 +242,7 @@ QString RefactoringFile::fileName() const
     return m_fileName;
 }
 
-BaseTextEditorWidget *RefactoringFile::editor() const
+TextEditorWidget *RefactoringFile::editor() const
 {
     return m_editor;
 }

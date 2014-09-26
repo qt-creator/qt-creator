@@ -66,7 +66,7 @@ void BaseHoverHandler::editorOpened(Core::IEditor *editor)
 
 void BaseHoverHandler::showToolTip(BaseTextEditor *editor, const QPoint &point, int pos)
 {
-    BaseTextEditorWidget *editorWidget = editor->editorWidget();
+    TextEditorWidget *editorWidget = editor->editorWidget();
 
     editor->setContextHelpId(QString());
 
@@ -158,7 +158,7 @@ void BaseHoverHandler::decorateToolTip()
     }
 }
 
-void BaseHoverHandler::operateTooltip(BaseTextEditorWidget *editorWidget, const QPoint &point)
+void BaseHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     if (m_toolTip.isEmpty())
         Utils::ToolTip::hide();

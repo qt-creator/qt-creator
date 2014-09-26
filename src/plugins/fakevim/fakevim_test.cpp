@@ -187,7 +187,7 @@ struct FakeVimPlugin::TestData
     int oldPosition;
     QByteArray oldText;
 
-    BaseTextEditorWidget *editor() const { return qobject_cast<BaseTextEditorWidget *>(edit); }
+    TextEditorWidget *editor() const { return qobject_cast<TextEditorWidget *>(edit); }
 
     QTextCursor cursor() const { return editor()->textCursor(); }
 

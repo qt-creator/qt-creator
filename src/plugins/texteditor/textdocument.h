@@ -149,7 +149,7 @@ private:
     TextDocumentPrivate *d;
 };
 
-typedef QSharedPointer<TextDocument> BaseTextDocumentPtr;
+typedef QSharedPointer<TextDocument> TextDocumentPtr;
 
 } // namespace TextEditor
 

@@ -50,7 +50,7 @@ public:
 
 private:
     virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::BaseTextEditorWidget *editorWidget, int pos);
+    virtual void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos);
     virtual void decorateToolTip();
 };
 

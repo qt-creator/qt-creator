@@ -89,7 +89,7 @@ bool QmlCppEngine::canDisplayTooltip() const
     return m_cppEngine->canDisplayTooltip() || m_qmlEngine->canDisplayTooltip();
 }
 
-bool QmlCppEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget, const DebuggerToolTipContext &ctx)
+bool QmlCppEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget, const DebuggerToolTipContext &ctx)
 {
     QTC_ASSERT(editorWidget, return false);
     bool success = false;

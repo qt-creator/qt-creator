@@ -36,7 +36,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QKeyEvent)
 
-namespace TextEditor { class BaseTextEditorWidget; }
+namespace TextEditor { class TextEditorWidget; }
 
 namespace CppEditor {
 namespace Internal {
@@ -47,7 +47,7 @@ class CppDocumentationCommentHelper : public QObject
     Q_DISABLE_COPY(CppDocumentationCommentHelper)
 
 public:
-    explicit CppDocumentationCommentHelper(TextEditor::BaseTextEditorWidget *editorWidget);
+    explicit CppDocumentationCommentHelper(TextEditor::TextEditorWidget *editorWidget);
     bool handleKeyPressEvent(QKeyEvent *e) const;
 
 private slots:
@@ -56,7 +56,7 @@ private slots:
 private:
     CppDocumentationCommentHelper();
 
-    TextEditor::BaseTextEditorWidget *m_editorWidget;
+    TextEditor::TextEditorWidget *m_editorWidget;
     CppTools::CommentsSettings m_settings;
 };
 

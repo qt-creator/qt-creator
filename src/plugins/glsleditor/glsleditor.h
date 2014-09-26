@@ -37,7 +37,7 @@ namespace Internal {
 
 int languageVariant(const QString &mimeType);
 
-class GlslEditorFactory : public TextEditor::BaseTextEditorFactory
+class GlslEditorFactory : public TextEditor::TextEditorFactory
 {
     Q_OBJECT
 

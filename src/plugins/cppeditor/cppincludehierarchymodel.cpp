@@ -149,7 +149,7 @@ QVariant CppIncludeHierarchyModel::data(const QModelIndex &index, int role) cons
         return Core::FileIconProvider::icon(QFileInfo(item->filePath()));
     case LinkRole: {
         QVariant itemLink;
-        TextEditor::BaseTextEditorWidget::Link link(item->filePath(), item->line());
+        TextEditor::TextEditorWidget::Link link(item->filePath(), item->line());
         itemLink.setValue(link);
         return itemLink;
     }

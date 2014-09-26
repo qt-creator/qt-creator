@@ -40,7 +40,7 @@ namespace Core { class IEditor; }
 
 namespace ProjectExplorer { class PanelsWidget; }
 
-namespace TextEditor { class BaseTextEditorWidget; }
+namespace TextEditor { class TextEditorWidget; }
 
 namespace Qnx {
 namespace Internal {
@@ -61,7 +61,7 @@ class BarDescriptorEditorWidget : public QStackedWidget
 public:
     explicit BarDescriptorEditorWidget(BarDescriptorEditor *editor, QWidget *parent = 0);
 
-    TextEditor::BaseTextEditorWidget *sourceWidget() const;
+    TextEditor::TextEditorWidget *sourceWidget() const;
 
     void setFilePath(const QString &filePath);
 
@@ -94,7 +94,7 @@ private:
 
     BarDescriptorEditorAssetsWidget *m_assetsWidget;
 
-    TextEditor::BaseTextEditorWidget *m_xmlSourceWidget;
+    TextEditor::TextEditorWidget *m_xmlSourceWidget;
 };
 
 

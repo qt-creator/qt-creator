@@ -140,7 +140,7 @@ QString CMakeEditor::contextHelpId() const
 // CMakeEditorWidget
 //
 
-class CMakeEditorWidget : public BaseTextEditorWidget
+class CMakeEditorWidget : public TextEditorWidget
 {
 public:
     CMakeEditorWidget();

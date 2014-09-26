@@ -46,7 +46,7 @@ public:
     ~QmlCppEngine();
 
     bool canDisplayTooltip() const;
-    bool setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget,
+    bool setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
         const DebuggerToolTipContext &);
     void updateWatchData(const WatchData &data,
         const WatchUpdateFlags &flags);

@@ -48,7 +48,7 @@ namespace Internal {
 //  PythonEditorWidget
 //
 
-class PythonEditorWidget : public BaseTextEditorWidget
+class PythonEditorWidget : public TextEditorWidget
 {
 public:
     PythonEditorWidget()

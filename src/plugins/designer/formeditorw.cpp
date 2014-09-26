@@ -112,7 +112,7 @@ namespace Internal {
   * switch to design mode.
   * Internally manages a FormWindowEditor and uses the plain text
   * editable embedded in it.  */
-class DesignerXmlEditorWidget : public TextEditor::BaseTextEditorWidget
+class DesignerXmlEditorWidget : public TextEditor::TextEditorWidget
 {
 public:
     DesignerXmlEditorWidget() {}
@@ -124,7 +124,7 @@ public:
     }
 };
 
-class FormWindowEditorFactory : public TextEditor::BaseTextEditorFactory
+class FormWindowEditorFactory : public TextEditor::TextEditorFactory
 {
 public:
     FormWindowEditorFactory()

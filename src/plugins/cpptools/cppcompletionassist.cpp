@@ -90,7 +90,7 @@ public:
         m_isOverloaded(false) {}
 
     bool prematurelyApplies(const QChar &c) const Q_DECL_OVERRIDE;
-    void applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const Q_DECL_OVERRIDE;
+    void applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const Q_DECL_OVERRIDE;
 
     bool isOverloaded() const { return m_isOverloaded; }
     void markAsOverloaded() { m_isOverloaded = true; }
@@ -161,7 +161,7 @@ bool CppAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
     return false;
 }
 
-static bool isDereferenced(BaseTextEditorWidget *editorWidget, int basePosition)
+static bool isDereferenced(TextEditorWidget *editorWidget, int basePosition)
 {
     QTextCursor cursor = editorWidget->textCursor();
     cursor.setPosition(basePosition);
@@ -181,7 +181,7 @@ static bool isDereferenced(BaseTextEditorWidget *editorWidget, int basePosition)
     return false;
 }
 
-void CppAssistProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget, int basePosition) const
+void CppAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const
 {
     Symbol *symbol = 0;
 
@@ -439,13 +439,13 @@ public:
     {}
 
     bool isCorrective() const Q_DECL_OVERRIDE { return m_replaceDotForArrow; }
-    void makeCorrection(BaseTextEditorWidget *editorWidget) Q_DECL_OVERRIDE;
+    void makeCorrection(TextEditorWidget *editorWidget) Q_DECL_OVERRIDE;
 
 private:
     bool m_replaceDotForArrow;
 };
 
-void CppAssistProposal::makeCorrection(BaseTextEditorWidget *editorWidget)
+void CppAssistProposal::makeCorrection(TextEditorWidget *editorWidget)
 {
     const int oldPosition = editorWidget->position();
     editorWidget->setCursorPosition(basePosition() - 1);

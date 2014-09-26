@@ -240,7 +240,7 @@ class RelativeNumbersColumn : public QWidget
     Q_OBJECT
 
 public:
-    RelativeNumbersColumn(BaseTextEditorWidget *baseTextEditor)
+    RelativeNumbersColumn(TextEditorWidget *baseTextEditor)
         : QWidget(baseTextEditor)
         , m_currentPos(0)
         , m_lineSpacing(0)
@@ -352,7 +352,7 @@ private slots:
 private:
     int m_currentPos;
     int m_lineSpacing;
-    BaseTextEditorWidget *m_editor;
+    TextEditorWidget *m_editor;
     QTimer m_timerUpdate;
 };
 
@@ -845,7 +845,7 @@ public:
         if (!m_handler)
             return;
 
-        BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(handler->widget());
+        TextEditorWidget *editor = qobject_cast<TextEditorWidget *>(handler->widget());
         if (!editor)
             return;
 
@@ -898,7 +898,7 @@ public:
         return text() == m_provider->needle();
     }
 
-    void applyContextualContent(BaseTextEditorWidget *, int) const Q_DECL_OVERRIDE
+    void applyContextualContent(TextEditorWidget *, int) const Q_DECL_OVERRIDE
     {
         QTC_ASSERT(m_provider->handler(), return);
         m_provider->handler()->handleReplay(text().mid(m_provider->needle().size()));
@@ -1281,7 +1281,7 @@ void FakeVimPluginPrivate::userActionTriggered()
 
 void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
 {
-    if (BaseTextEditorWidget *textEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
+    if (TextEditorWidget *textEditor = qobject_cast<TextEditorWidget *>(editor->widget())) {
         RelativeNumbersColumn *relativeNumbers = new RelativeNumbersColumn(textEditor);
         connect(theFakeVimSetting(ConfigRelativeNumber), SIGNAL(valueChanged(QVariant)),
                 relativeNumbers, SLOT(deleteLater()));
@@ -1574,7 +1574,7 @@ void FakeVimPluginPrivate::foldToggle(int depth)
 void FakeVimPluginPrivate::foldAll(bool fold)
 {
     IEditor *ieditor = EditorManager::currentEditor();
-    BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(ieditor->widget());
+    TextEditorWidget *editor = qobject_cast<TextEditorWidget *>(ieditor->widget());
     QTC_ASSERT(editor != 0, return);
 
     QTextDocument *doc = editor->document();
@@ -1597,7 +1597,7 @@ void FakeVimPluginPrivate::fold(int depth, bool fold)
     IEditor *ieditor = EditorManager::currentEditor();
     FakeVimHandler *handler = m_editorToHandler.value(ieditor, 0);
     QTC_ASSERT(handler != 0, return);
-    BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(ieditor->widget());
+    TextEditorWidget *editor = qobject_cast<TextEditorWidget *>(ieditor->widget());
     QTC_ASSERT(editor != 0, return);
 
     QTextDocument *doc = editor->document();
@@ -1887,7 +1887,7 @@ void FakeVimPluginPrivate::triggerCompletions()
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
         return;
-    if (BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
+    if (TextEditorWidget *editor = qobject_cast<TextEditorWidget *>(handler->widget()))
         editor->invokeAssist(Completion, m_wordProvider);
 //        CompletionSupport::instance()->complete(editor->editor(), TextCompletion, false);
 }
@@ -1903,7 +1903,7 @@ void FakeVimPluginPrivate::disableBlockSelection()
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
         return;
-    if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
+    if (TextEditorWidget *bt = qobject_cast<TextEditorWidget *>(handler->widget()))
         bt->setBlockSelection(false);
 }
 
@@ -1912,7 +1912,7 @@ void FakeVimPluginPrivate::setBlockSelection(const QTextCursor &cursor)
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
         return;
-    if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
+    if (TextEditorWidget *bt = qobject_cast<TextEditorWidget *>(handler->widget()))
         bt->setBlockSelection(cursor);
 }
 
@@ -1921,7 +1921,7 @@ void FakeVimPluginPrivate::blockSelection(QTextCursor *cursor)
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
         return;
-    if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
+    if (TextEditorWidget *bt = qobject_cast<TextEditorWidget *>(handler->widget()))
         if (cursor)
             *cursor = bt->blockSelection();
 }
@@ -1931,7 +1931,7 @@ void FakeVimPluginPrivate::hasBlockSelection(bool *on)
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
         return;
-    if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
+    if (TextEditorWidget *bt = qobject_cast<TextEditorWidget *>(handler->widget()))
         *on = bt->hasBlockSelection();
 }
 
@@ -1948,7 +1948,7 @@ void FakeVimPluginPrivate::checkForElectricCharacter(bool *result, QChar c)
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
         return;
-    if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
+    if (TextEditorWidget *bt = qobject_cast<TextEditorWidget *>(handler->widget()))
         *result = bt->textDocument()->indenter()->isElectricCharacter(c);
 }
 
@@ -2120,7 +2120,7 @@ void FakeVimPluginPrivate::indentRegion(int beginBlock, int endBlock,
     if (!handler)
         return;
 
-    BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget());
+    TextEditorWidget *bt = qobject_cast<TextEditorWidget *>(handler->widget());
     if (!bt)
         return;
 
@@ -2183,8 +2183,8 @@ void FakeVimPluginPrivate::showExtraInformation(const QString &text)
 void FakeVimPluginPrivate::changeSelection(const QList<QTextEdit::ExtraSelection> &selection)
 {
     if (FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender()))
-        if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
-            bt->setExtraSelections(BaseTextEditorWidget::FakeVimSelection, selection);
+        if (TextEditorWidget *bt = qobject_cast<TextEditorWidget *>(handler->widget()))
+            bt->setExtraSelections(TextEditorWidget::FakeVimSelection, selection);
 }
 
 void FakeVimPluginPrivate::highlightMatches(const QString &needle)

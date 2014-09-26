@@ -52,7 +52,7 @@ namespace Internal {
 // JavaEditorWidget
 //
 
-class JavaEditorWidget : public TextEditor::BaseTextEditorWidget
+class JavaEditorWidget : public TextEditor::TextEditorWidget
 {
 public:
     JavaEditorWidget()

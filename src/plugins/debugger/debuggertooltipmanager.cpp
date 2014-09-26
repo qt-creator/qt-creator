@@ -489,7 +489,7 @@ public:
     QList<QPointer<DebuggerToolTipWidget> > m_tooltips;
     bool m_debugModeActive;
     QPoint m_lastToolTipPoint;
-    BaseTextEditorWidget *m_lastToolTipEditor;
+    TextEditorWidget *m_lastToolTipEditor;
 };
 
 static DebuggerToolTipManagerData *d = 0;
@@ -532,7 +532,7 @@ public slots:
     }
 
     void copy();
-    void positionShow(const BaseTextEditorWidget *editorWidget);
+    void positionShow(const TextEditorWidget *editorWidget);
     void pin();
 
 public:
@@ -746,7 +746,7 @@ void DebuggerToolTipWidget::copy()
     clipboard->setText(clipboardText, QClipboard::Clipboard);
 }
 
-void DebuggerToolTipWidget::positionShow(const BaseTextEditorWidget *editorWidget)
+void DebuggerToolTipWidget::positionShow(const TextEditorWidget *editorWidget)
 {
     // Figure out new position of tooltip using the text edit.
     // If the line changed too much, close this tip.
@@ -1249,10 +1249,10 @@ void DebuggerToolTipManager::slotEditorOpened(IEditor *e)
 {
     // Move tooltip along when scrolled.
     if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(e)) {
-        BaseTextEditorWidget *widget = textEditor->editorWidget();
+        TextEditorWidget *widget = textEditor->editorWidget();
         connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
                 this, &DebuggerToolTipManager::slotUpdateVisibleToolTips);
-        connect(widget, &BaseTextEditorWidget::tooltipOverrideRequested,
+        connect(widget, &TextEditorWidget::tooltipOverrideRequested,
                 this, &DebuggerToolTipManager::slotTooltipOverrideRequested);
     }
 }
@@ -1298,7 +1298,7 @@ void DebuggerToolTipManager::leavingDebugMode()
 }
 
 void DebuggerToolTipManager::slotTooltipOverrideRequested
-    (BaseTextEditorWidget *editorWidget, const QPoint &point, int pos, bool *handled)
+    (TextEditorWidget *editorWidget, const QPoint &point, int pos, bool *handled)
 {
     QTC_ASSERT(handled, return);
     QTC_ASSERT(editorWidget, return);
@@ -1320,7 +1320,7 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested
     }
 }
 
-bool DebuggerToolTipManager::tryHandleToolTipOverride(BaseTextEditorWidget *editorWidget, const QPoint &point, int pos)
+bool DebuggerToolTipManager::tryHandleToolTipOverride(TextEditorWidget *editorWidget, const QPoint &point, int pos)
 {
     if (!boolSetting(UseToolTipsInMainEditor))
         return false;

@@ -254,7 +254,7 @@ void EditorConfiguration::fromMap(const QVariantMap &map)
 
 void EditorConfiguration::configureEditor(BaseTextEditor *textEditor) const
 {
-    BaseTextEditorWidget *widget = textEditor->editorWidget();
+    TextEditorWidget *widget = textEditor->editorWidget();
     if (widget)
         widget->setCodeStyle(codeStyle(widget->languageSettingsId()));
     if (!d->m_useGlobal) {
@@ -267,7 +267,7 @@ void EditorConfiguration::configureEditor(BaseTextEditor *textEditor) const
 
 void EditorConfiguration::deconfigureEditor(BaseTextEditor *textEditor) const
 {
-    BaseTextEditorWidget *widget = textEditor->editorWidget();
+    TextEditorWidget *widget = textEditor->editorWidget();
     if (widget)
         widget->setCodeStyle(TextEditorSettings::codeStyle(widget->languageSettingsId()));
 
@@ -282,7 +282,7 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal
                     ? TextEditorSettings::codeStyle() : 0);
     foreach (Core::IEditor *editor, Core::DocumentModel::editorsForOpenedDocuments()) {
-        if (BaseTextEditorWidget *widget = qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
+        if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
             Project *project = SessionManager::projectForFile(editor->document()->filePath());
             if (project && project->editorConfiguration() == this)
                 switchSettings(widget);
@@ -291,7 +291,7 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
 }
 
 static void switchSettings_helper(const QObject *newSender, const QObject *oldSender,
-                                  BaseTextEditorWidget *widget)
+                                  TextEditorWidget *widget)
 {
     QObject::disconnect(oldSender, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)),
                         widget, SLOT(setMarginSettings(TextEditor::MarginSettings)));
@@ -316,7 +316,7 @@ static void switchSettings_helper(const QObject *newSender, const QObject *oldSe
                      widget, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
 }
 
-void EditorConfiguration::switchSettings(BaseTextEditorWidget *widget) const
+void EditorConfiguration::switchSettings(TextEditorWidget *widget) const
 {
     if (d->m_useGlobal) {
         widget->setMarginSettings(TextEditorSettings::marginSettings());

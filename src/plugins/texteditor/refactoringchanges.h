@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 class TextDocument;
-class BaseTextEditorWidget;
+class TextEditorWidget;
 class RefactoringChanges;
 class RefactoringFile;
 class RefactoringChangesData;
@@ -68,7 +68,7 @@ public:
     // mustn't use the cursor to change the document
     const QTextCursor cursor() const;
     QString fileName() const;
-    BaseTextEditorWidget *editor() const;
+    TextEditorWidget *editor() const;
 
     // converts 1-based line and column into 0-based source offset
     int position(unsigned line, unsigned column) const;
@@ -90,7 +90,7 @@ protected:
     // this constructor, because it can't be used to apply changes
     RefactoringFile(QTextDocument *document, const QString &fileName);
 
-    RefactoringFile(BaseTextEditorWidget *editor);
+    RefactoringFile(TextEditorWidget *editor);
     RefactoringFile(const QString &fileName, const QSharedPointer<RefactoringChangesData> &data);
 
     QTextDocument *mutableDocument() const;
@@ -107,7 +107,7 @@ protected:
     QSharedPointer<RefactoringChangesData> m_data;
     mutable Utils::TextFileFormat m_textFileFormat;
     mutable QTextDocument *m_document;
-    BaseTextEditorWidget *m_editor;
+    TextEditorWidget *m_editor;
     Utils::ChangeSet m_changes;
     QList<Range> m_indentRanges;
     QList<Range> m_reindentRanges;
@@ -132,7 +132,7 @@ public:
     RefactoringChanges();
     virtual ~RefactoringChanges();
 
-    static RefactoringFilePtr file(BaseTextEditorWidget *editor);
+    static RefactoringFilePtr file(TextEditorWidget *editor);
     RefactoringFilePtr file(const QString &fileName) const;
     bool createFile(const QString &fileName, const QString &contents, bool reindent = true, bool openEditor = true) const;
     bool removeFile(const QString &fileName) const;
@@ -140,7 +140,7 @@ public:
 protected:
     explicit RefactoringChanges(RefactoringChangesData *data);
 
-    static BaseTextEditorWidget *openEditor(const QString &fileName, bool activate, int line, int column);
+    static TextEditorWidget *openEditor(const QString &fileName, bool activate, int line, int column);
     static RefactoringSelections rangesToSelections(QTextDocument *document, const QList<Range> &ranges);
 
 protected:

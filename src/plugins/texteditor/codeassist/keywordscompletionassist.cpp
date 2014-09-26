@@ -96,7 +96,7 @@ bool KeywordsAssistProposalItem::prematurelyApplies(const QChar &c) const
     return c == QLatin1Char('(') && m_isFunction;
 }
 
-void KeywordsAssistProposalItem::applyContextualContent(BaseTextEditorWidget *editorWidget,
+void KeywordsAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget,
                                                         int basePosition) const
 {
     const CompletionSettings &settings = TextEditorSettings::completionSettings();

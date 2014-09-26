@@ -131,7 +131,7 @@ void Internal::TextEditorPlugin::testBlockSelectionTransformation()
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, input.toLatin1());
     QVERIFY(editor);
     if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
-        BaseTextEditorWidget *editorWidget = textEditor->editorWidget();
+        TextEditorWidget *editorWidget = textEditor->editorWidget();
         editorWidget->setBlockSelection(selection.positionBlock,
                                         selection.positionColumn,
                                         selection.anchorBlock,
@@ -354,7 +354,7 @@ void Internal::TextEditorPlugin::testBlockSelectionInsert()
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, text);
     QVERIFY(editor);
     if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
-        BaseTextEditorWidget *editorWidget = textEditor->editorWidget();
+        TextEditorWidget *editorWidget = textEditor->editorWidget();
         editorWidget->setBlockSelection(selection.positionBlock,
                                         selection.positionColumn,
                                         selection.anchorBlock,
@@ -432,7 +432,7 @@ void Internal::TextEditorPlugin::testBlockSelectionRemove()
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, text);
     QVERIFY(editor);
     if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
-        BaseTextEditorWidget *editorWidget = textEditor->editorWidget();
+        TextEditorWidget *editorWidget = textEditor->editorWidget();
         editorWidget->setBlockSelection(selection.positionBlock,
                                         selection.positionColumn,
                                         selection.anchorBlock,
@@ -487,7 +487,7 @@ void Internal::TextEditorPlugin::testBlockSelectionCopy()
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, 0, text);
     QVERIFY(editor);
     if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor*>(editor)) {
-        BaseTextEditorWidget *editorWidget = textEditor->editorWidget();
+        TextEditorWidget *editorWidget = textEditor->editorWidget();
         editorWidget->setBlockSelection(selection.positionBlock,
                                         selection.positionColumn,
                                         selection.anchorBlock,

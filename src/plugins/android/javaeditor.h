@@ -35,7 +35,7 @@
 namespace Android {
 namespace Internal {
 
-class JavaEditorFactory : public TextEditor::BaseTextEditorFactory
+class JavaEditorFactory : public TextEditor::TextEditorFactory
 {
     Q_OBJECT
 

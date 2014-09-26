@@ -50,7 +50,7 @@ signals:
 
 private:
     virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::BaseTextEditorWidget *editorWidget, int pos);
+    virtual void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos);
     void identifyQMakeKeyword(const QString &text, int pos);
 
     enum ManualKind {

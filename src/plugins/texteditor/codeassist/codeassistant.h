@@ -40,7 +40,7 @@ namespace TextEditor {
 
 class CodeAssistantPrivate;
 class IAssistProvider;
-class BaseTextEditorWidget;
+class TextEditorWidget;
 
 class CodeAssistant : public QObject
 {
@@ -50,7 +50,7 @@ public:
     CodeAssistant();
     ~CodeAssistant();
 
-    void configure(BaseTextEditorWidget *editorWidget);
+    void configure(TextEditorWidget *editorWidget);
 
     void process();
     void notifyChange();

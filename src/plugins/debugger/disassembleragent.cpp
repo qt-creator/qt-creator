@@ -239,7 +239,7 @@ void DisassemblerAgentPrivate::configureMimeType()
     MimeType mtype = MimeDatabase::findByType(mimeType);
     if (mtype) {
         foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
-            if (BaseTextEditorWidget *widget = qobject_cast<BaseTextEditorWidget *>(editor->widget()))
+            if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget()))
                 widget->configureMimeType(mtype);
     } else {
         qWarning("Assembler mimetype '%s' not found.", qPrintable(mimeType));
@@ -287,7 +287,7 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                 &titlePattern);
         QTC_ASSERT(editor, return);
-        if (BaseTextEditorWidget *widget = qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
+        if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
             widget->setReadOnly(true);
             widget->setRequestMarkEnabled(true);
         }

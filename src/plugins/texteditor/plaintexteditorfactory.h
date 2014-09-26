@@ -34,7 +34,7 @@
 
 namespace TextEditor {
 
-class TEXTEDITOR_EXPORT PlainTextEditorFactory : public TextEditor::BaseTextEditorFactory
+class TEXTEDITOR_EXPORT PlainTextEditorFactory : public TextEditor::TextEditorFactory
 {
     Q_OBJECT
 

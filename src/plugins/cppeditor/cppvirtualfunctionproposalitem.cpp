@@ -34,12 +34,12 @@
 using namespace CppEditor::Internal;
 
 VirtualFunctionProposalItem::VirtualFunctionProposalItem(
-        const TextEditor::BaseTextEditorWidget::Link &link, bool openInSplit)
+        const TextEditor::TextEditorWidget::Link &link, bool openInSplit)
     : m_link(link), m_openInSplit(openInSplit)
 {
 }
 
-void VirtualFunctionProposalItem::apply(TextEditor::BaseTextEditorWidget *, int) const
+void VirtualFunctionProposalItem::apply(TextEditor::TextEditorWidget *, int) const
 {
     if (!m_link.hasValidTarget())
         return;

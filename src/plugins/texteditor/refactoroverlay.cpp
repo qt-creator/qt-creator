@@ -37,7 +37,7 @@
 
 namespace TextEditor {
 
-RefactorOverlay::RefactorOverlay(TextEditor::BaseTextEditorWidget *editor) :
+RefactorOverlay::RefactorOverlay(TextEditor::TextEditorWidget *editor) :
     QObject(editor),
     m_editor(editor),
     m_maxWidth(0),

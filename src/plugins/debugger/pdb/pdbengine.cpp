@@ -452,7 +452,7 @@ static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
 
-bool PdbEngine::setToolTipExpression(TextEditor::BaseTextEditorWidget *editorWidget,
+bool PdbEngine::setToolTipExpression(TextEditor::TextEditorWidget *editorWidget,
     const DebuggerToolTipContext &ctx)
 {
     if (state() != InferiorStopOk) {

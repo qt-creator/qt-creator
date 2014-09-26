@@ -39,7 +39,7 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-TextEditorOverlay::TextEditorOverlay(BaseTextEditorWidget *editor) :
+TextEditorOverlay::TextEditorOverlay(TextEditorWidget *editor) :
     QObject(editor),
     m_visible(false),
     m_alpha(true),

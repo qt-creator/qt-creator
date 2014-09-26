@@ -237,7 +237,7 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
     connect(edit, SIGNAL(modificationChanged(bool)),
             this, SIGNAL(dirtyStateChanged(bool)));
 
-    m_documentTextModifier.reset(new BaseTextEditModifier(dynamic_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())));
+    m_documentTextModifier.reset(new BaseTextEditModifier(dynamic_cast<TextEditor::TextEditorWidget*>(plainTextEdit())));
     m_documentModel->setTextModifier(m_documentTextModifier.data());
 
     m_inFileComponentTextModifier.reset();

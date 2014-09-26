@@ -49,7 +49,7 @@ class VirtualFunctionAssistProvider;
 class FollowSymbolUnderCursor
 {
 public:
-    typedef TextEditor::BaseTextEditorWidget::Link Link;
+    typedef TextEditor::TextEditorWidget::Link Link;
 
     FollowSymbolUnderCursor(CppEditorWidget *widget);
     ~FollowSymbolUnderCursor();

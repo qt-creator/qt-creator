@@ -44,7 +44,7 @@ class EnvironmentItemsWidgetPrivate
 public:
     QList<Utils::EnvironmentItem> cleanUp(
             const QList<Utils::EnvironmentItem> &items) const;
-    TextEditor::BaseTextEditorWidget *m_editor;
+    TextEditor::TextEditorWidget *m_editor;
 };
 
 QList<Utils::EnvironmentItem> EnvironmentItemsWidgetPrivate::cleanUp(

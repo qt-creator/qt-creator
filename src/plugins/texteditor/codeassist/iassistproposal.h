@@ -36,7 +36,7 @@ namespace TextEditor {
 
 class IAssistProposalModel;
 class IAssistProposalWidget;
-class BaseTextEditorWidget;
+class TextEditorWidget;
 
 class TEXTEDITOR_EXPORT IAssistProposal
 {
@@ -47,7 +47,7 @@ public:
     virtual bool isFragile() const = 0;
     virtual int basePosition() const = 0;
     virtual bool isCorrective() const = 0;
-    virtual void makeCorrection(BaseTextEditorWidget *editorWidget) = 0;
+    virtual void makeCorrection(TextEditorWidget *editorWidget) = 0;
     virtual IAssistProposalModel *model() const = 0;
     virtual IAssistProposalWidget *createWidget() const = 0;
 };
