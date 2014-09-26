@@ -41,7 +41,7 @@
 #include <cpptools/symbolfinder.h>
 #include <cplusplus/Overview.h>
 #include <coreplugin/icore.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>

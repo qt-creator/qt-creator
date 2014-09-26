@@ -36,7 +36,7 @@
 #include <cpptools/cppsemanticinfo.h>
 #include <cpptools/editordocumenthandle.h>
 
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 
 #include <QMutex>
 #include <QTimer>

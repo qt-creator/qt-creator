@@ -30,7 +30,7 @@
 #ifndef GLSLEDITOR_H
 #define GLSLEDITOR_H
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace GlslEditor {
 namespace Internal {

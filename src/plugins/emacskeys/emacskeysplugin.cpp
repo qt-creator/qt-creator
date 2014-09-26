@@ -39,7 +39,7 @@
 #include <coreplugin/coreconstants.h>
 #include <utils/qtcassert.h>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QAction>
 #include <QPlainTextEdit>

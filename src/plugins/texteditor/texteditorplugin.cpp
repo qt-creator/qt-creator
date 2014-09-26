@@ -29,7 +29,7 @@
 
 #include "texteditorplugin.h"
 
-#include "basetexteditor.h"
+#include "texteditor.h"
 #include "findincurrentfile.h"
 #include "findinfiles.h"
 #include "findinopenfiles.h"

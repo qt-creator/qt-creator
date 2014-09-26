@@ -33,7 +33,7 @@
 #include "cppelementevaluator.h"
 
 #include <coreplugin/helpmanager.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
 

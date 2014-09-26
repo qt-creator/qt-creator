@@ -30,7 +30,7 @@
 #ifndef ANDROIDMANIFESTEDITORWIDGET_H
 #define ANDROIDMANIFESTEDITORWIDGET_H
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QAbstractListModel>
 #include <QStackedWidget>

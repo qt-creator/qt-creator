@@ -30,7 +30,7 @@
 #include "cpptoolstestcase.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/iassistproposalmodel.h>
 

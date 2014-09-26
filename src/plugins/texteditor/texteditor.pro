@@ -6,8 +6,8 @@ include(../../qtcreatorplugin.pri)
 SOURCES += texteditorplugin.cpp \
     textfilewizard.cpp \
     plaintexteditorfactory.cpp \
-    basetextdocument.cpp \
-    basetexteditor.cpp \
+    textdocument.cpp \
+    texteditor.cpp \
     behaviorsettings.cpp \
     behaviorsettingspage.cpp \
     texteditoractionhandler.cpp \
@@ -29,7 +29,7 @@ SOURCES += texteditorplugin.cpp \
     colorschemeedit.cpp \
     texteditoroverlay.cpp \
     texteditoroptionspage.cpp \
-    basetextdocumentlayout.cpp \
+    textdocumentlayout.cpp \
     completionsettings.cpp \
     normalindenter.cpp \
     indenter.cpp \
@@ -106,11 +106,11 @@ SOURCES += texteditorplugin.cpp \
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
     plaintexteditorfactory.h \
-    basetexteditor_p.h \
-    basetextdocument.h \
+    texteditor_p.h \
+    textdocument.h \
     behaviorsettings.h \
     behaviorsettingspage.h \
-    basetexteditor.h \
+    texteditor.h \
     texteditoractionhandler.h \
     fontsettingspage.h \
     texteditorconstants.h \
@@ -131,7 +131,7 @@ HEADERS += texteditorplugin.h \
     colorschemeedit.h \
     texteditoroverlay.h \
     texteditoroptionspage.h \
-    basetextdocumentlayout.h \
+    textdocumentlayout.h \
     completionsettings.h \
     normalindenter.h \
     indenter.h \
@@ -229,6 +229,6 @@ FORMS += \
 RESOURCES += texteditor.qrc
 
 equals(TEST, 1) {
-SOURCES += basetexteditor_test.cpp
+SOURCES += texteditor_test.cpp
 }
 

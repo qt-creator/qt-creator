@@ -42,7 +42,7 @@
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
 #include <texteditor/syntaxhighlighter.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/fontsettings.h>
 #include <utils/algorithm.h>

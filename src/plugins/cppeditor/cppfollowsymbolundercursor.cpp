@@ -42,7 +42,7 @@
 #include <cpptools/functionutils.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/symbolfinder.h>
-#include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/textdocumentlayout.h>
 #include <utils/qtcassert.h>
 
 #include <QList>

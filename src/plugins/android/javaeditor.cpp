@@ -33,8 +33,8 @@
 #include "androidconstants.h"
 #include "javacompletionassistprovider.h"
 
-#include <texteditor/basetextdocument.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <utils/uncommentselection.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 

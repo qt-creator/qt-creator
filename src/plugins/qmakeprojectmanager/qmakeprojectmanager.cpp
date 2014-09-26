@@ -45,7 +45,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QDir>
 #include <QFileInfo>

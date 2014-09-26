@@ -30,7 +30,7 @@
 #ifndef FORMWINDOWFILE_H
 #define FORMWINDOWFILE_H
 
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 
 #include <QPointer>
 

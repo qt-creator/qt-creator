@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "basehoverhandler.h"
-#include "basetexteditor.h"
+#include "texteditor.h"
 
 #include <coreplugin/icore.h>
 #include <utils/tooltip/tooltip.h>

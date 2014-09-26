@@ -31,7 +31,7 @@
 #include "macroevent.h"
 #include "macro.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <coreplugin/icore.h>

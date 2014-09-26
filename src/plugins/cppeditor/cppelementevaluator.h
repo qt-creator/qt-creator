@@ -31,7 +31,7 @@
 #define CPPELEMENTEVALUATOR_H
 
 #include <cpptools/symbolfinder.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/helpitem.h>
 
 #include <QString>

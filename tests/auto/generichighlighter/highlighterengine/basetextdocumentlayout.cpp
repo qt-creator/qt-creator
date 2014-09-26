@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "basetextdocumentlayout.h"
+#include "textdocumentlayout.h"
 
 TextBlockUserData *BaseTextDocumentLayout::userData(const QTextBlock &block)
 {

@@ -29,7 +29,7 @@
 
 #include "diffhighlighter.h"
 
-#include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/textdocumentlayout.h>
 
 #include <utils/qtcassert.h>
 
@@ -210,9 +210,9 @@ void DiffHighlighter::highlightBlock(const QString &text)
 
     // codefolding:
     TextEditor::TextBlockUserData *data =
-            TextEditor::BaseTextDocumentLayout::userData(currentBlock());
+            TextEditor::TextDocumentLayout::userData(currentBlock());
     QTC_ASSERT(data, return; );
-    if (!TextEditor::BaseTextDocumentLayout::testUserData(currentBlock().previous()))
+    if (!TextEditor::TextDocumentLayout::testUserData(currentBlock().previous()))
         d->m_foldingState = Internal::StartOfFile;
 
     switch (d->m_foldingState) {
@@ -221,29 +221,29 @@ void DiffHighlighter::highlightBlock(const QString &text)
         switch (format) {
         case Internal::DiffFileFormat:
             d->m_foldingState = Internal::File;
-            TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), BASE_LEVEL);
+            TextEditor::TextDocumentLayout::setFoldingIndent(currentBlock(), BASE_LEVEL);
             break;
         case Internal::DiffLocationFormat:
             d->m_foldingState = Internal::Location;
-            TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
+            TextEditor::TextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
             break;
         default:
             d->m_foldingState = Internal::Header;
-            TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), BASE_LEVEL);
+            TextEditor::TextDocumentLayout::setFoldingIndent(currentBlock(), BASE_LEVEL);
             break;
         }
         break;
     case Internal::File:
         switch (format) {
         case Internal::DiffFileFormat:
-            TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
+            TextEditor::TextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
             break;
         case Internal::DiffLocationFormat:
             d->m_foldingState = Internal::Location;
-            TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
+            TextEditor::TextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
             break;
         default:
-            TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
+            TextEditor::TextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
             break;
         }
         break;
@@ -251,13 +251,13 @@ void DiffHighlighter::highlightBlock(const QString &text)
         switch (format) {
         case Internal::DiffFileFormat:
             d->m_foldingState = Internal::File;
-            TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), BASE_LEVEL);
+            TextEditor::TextDocumentLayout::setFoldingIndent(currentBlock(), BASE_LEVEL);
             break;
         case Internal::DiffLocationFormat:
-            TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
+            TextEditor::TextDocumentLayout::setFoldingIndent(currentBlock(), FILE_LEVEL);
             break;
         default:
-            TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), LOCATION_LEVEL);
+            TextEditor::TextDocumentLayout::setFoldingIndent(currentBlock(), LOCATION_LEVEL);
             break;
         }
         break;

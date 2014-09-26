@@ -38,7 +38,7 @@
 #include <cplusplus/Symbol.h>
 #include <cplusplus/TypeOfExpression.h>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>

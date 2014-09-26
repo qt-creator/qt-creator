@@ -34,7 +34,7 @@
 #include "cppsemanticinfo.h"
 #include "cpptools_global.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
 

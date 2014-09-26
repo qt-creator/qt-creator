@@ -30,7 +30,7 @@
 #ifndef QMLLIVETEXTPREVIEW_H
 #define QMLLIVETEXTPREVIEW_H
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <qmljs/qmljsdocument.h>
 
 namespace Core { class IEditor; }

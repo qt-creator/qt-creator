@@ -56,8 +56,8 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <texteditor/basetextdocumentlayout.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/textdocumentlayout.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/typingsettings.h>
@@ -1568,7 +1568,7 @@ void FakeVimPluginPrivate::foldToggle(int depth)
     QTC_ASSERT(handler != 0, return);
 
     QTextBlock block = handler->textCursor().block();
-    fold(depth, !BaseTextDocumentLayout::isFolded(block));
+    fold(depth, !TextDocumentLayout::isFolded(block));
 }
 
 void FakeVimPluginPrivate::foldAll(bool fold)
@@ -1578,13 +1578,13 @@ void FakeVimPluginPrivate::foldAll(bool fold)
     QTC_ASSERT(editor != 0, return);
 
     QTextDocument *doc = editor->document();
-    BaseTextDocumentLayout *documentLayout =
-            qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout =
+            qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout != 0, return);
 
     QTextBlock block = editor->document()->firstBlock();
     while (block.isValid()) {
-        BaseTextDocumentLayout::doFoldOrUnfold(block, !fold);
+        TextDocumentLayout::doFoldOrUnfold(block, !fold);
         block = block.next();
     }
 
@@ -1601,25 +1601,25 @@ void FakeVimPluginPrivate::fold(int depth, bool fold)
     QTC_ASSERT(editor != 0, return);
 
     QTextDocument *doc = editor->document();
-    BaseTextDocumentLayout *documentLayout =
-            qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout =
+            qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout != 0, return);
 
     QTextBlock block = handler->textCursor().block();
-    int indent = BaseTextDocumentLayout::foldingIndent(block);
+    int indent = TextDocumentLayout::foldingIndent(block);
     if (fold) {
-        if (BaseTextDocumentLayout::isFolded(block)) {
-            while (block.isValid() && (BaseTextDocumentLayout::foldingIndent(block) >= indent
+        if (TextDocumentLayout::isFolded(block)) {
+            while (block.isValid() && (TextDocumentLayout::foldingIndent(block) >= indent
                 || !block.isVisible())) {
                 block = block.previous();
             }
         }
-        if (BaseTextDocumentLayout::canFold(block))
+        if (TextDocumentLayout::canFold(block))
             ++indent;
         while (depth != 0 && block.isValid()) {
-            const int indent2 = BaseTextDocumentLayout::foldingIndent(block);
-            if (BaseTextDocumentLayout::canFold(block) && indent2 < indent) {
-                BaseTextDocumentLayout::doFoldOrUnfold(block, false);
+            const int indent2 = TextDocumentLayout::foldingIndent(block);
+            if (TextDocumentLayout::canFold(block) && indent2 < indent) {
+                TextDocumentLayout::doFoldOrUnfold(block, false);
                 if (depth > 0)
                     --depth;
                 indent = indent2;
@@ -1627,21 +1627,21 @@ void FakeVimPluginPrivate::fold(int depth, bool fold)
             block = block.previous();
         }
     } else {
-        if (BaseTextDocumentLayout::isFolded(block)) {
+        if (TextDocumentLayout::isFolded(block)) {
             if (depth < 0) {
                 // recursively open fold
                 while (depth < 0 && block.isValid()
-                    && BaseTextDocumentLayout::foldingIndent(block) >= indent) {
-                    if (BaseTextDocumentLayout::canFold(block)) {
-                        BaseTextDocumentLayout::doFoldOrUnfold(block, true);
+                    && TextDocumentLayout::foldingIndent(block) >= indent) {
+                    if (TextDocumentLayout::canFold(block)) {
+                        TextDocumentLayout::doFoldOrUnfold(block, true);
                         if (depth > 0)
                             --depth;
                     }
                     block = block.next();
                 }
             } else {
-                if (BaseTextDocumentLayout::canFold(block)) {
-                    BaseTextDocumentLayout::doFoldOrUnfold(block, true);
+                if (TextDocumentLayout::canFold(block)) {
+                    TextDocumentLayout::doFoldOrUnfold(block, true);
                     if (depth > 0)
                         --depth;
                 }
@@ -1667,10 +1667,10 @@ void FakeVimPluginPrivate::foldGoTo(int count, bool current)
         int repeat = count;
         block = block.next();
         QTextBlock prevBlock = block;
-        int indent = BaseTextDocumentLayout::foldingIndent(block);
+        int indent = TextDocumentLayout::foldingIndent(block);
         block = block.next();
         while (block.isValid()) {
-            int newIndent = BaseTextDocumentLayout::foldingIndent(block);
+            int newIndent = TextDocumentLayout::foldingIndent(block);
             if (current ? indent > newIndent : indent < newIndent) {
                 if (prevBlock.isVisible()) {
                     pos = prevBlock.position();
@@ -1687,10 +1687,10 @@ void FakeVimPluginPrivate::foldGoTo(int count, bool current)
         }
     } else if (count < 0) {
         int repeat = -count;
-        int indent = BaseTextDocumentLayout::foldingIndent(block);
+        int indent = TextDocumentLayout::foldingIndent(block);
         block = block.previous();
         while (block.isValid()) {
-            int newIndent = BaseTextDocumentLayout::foldingIndent(block);
+            int newIndent = TextDocumentLayout::foldingIndent(block);
             if (current ? indent > newIndent : indent < newIndent) {
                 while (block.isValid() && !block.isVisible())
                     block = block.previous();
@@ -1876,10 +1876,8 @@ void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
         // Context(FAKEVIM_CONTEXT));
         resetCommandBuffer();
         foreach (IEditor *editor, m_editorToHandler.keys()) {
-            if (TextDocument *textDocument =
-                    qobject_cast<TextDocument *>(editor->document())) {
+            if (TextDocument *textDocument = qobject_cast<TextDocument *>(editor->document()))
                 m_editorToHandler[editor]->restoreWidget(textDocument->tabSettings().m_tabSize);
-            }
         }
     }
 }

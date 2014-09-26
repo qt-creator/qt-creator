@@ -31,7 +31,7 @@
 #define SELECTABLETEXTEDITORWIDGET_H
 
 #include "diffeditor_global.h"
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace DiffEditor {
 

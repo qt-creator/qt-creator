@@ -32,7 +32,7 @@
 #define CPPFOLLOWSYMBOLUNDERCURSOR_H
 
 #include <cplusplus/CppDocument.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;

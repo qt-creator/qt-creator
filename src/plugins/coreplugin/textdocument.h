@@ -36,7 +36,7 @@
 
 namespace Core {
 
-namespace Internal { class BaseTextDocumentPrivate; }
+namespace Internal { class TextDocumentPrivate; }
 
 class CORE_EXPORT BaseTextDocument : public IDocument
 {
@@ -64,7 +64,7 @@ public:
     bool write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const;
 
 private:
-    Internal::BaseTextDocumentPrivate *d;
+    Internal::TextDocumentPrivate *d;
 };
 
 } // namespace Core

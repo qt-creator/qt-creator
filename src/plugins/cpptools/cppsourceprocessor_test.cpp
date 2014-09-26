@@ -36,7 +36,7 @@
 #include "cpptoolstestcase.h"
 #include "editordocumenthandle.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>

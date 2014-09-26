@@ -35,7 +35,7 @@
 
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/qtcassert.h>
 

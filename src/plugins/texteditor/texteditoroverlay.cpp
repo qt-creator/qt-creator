@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "texteditoroverlay.h"
-#include "basetexteditor.h"
+#include "texteditor.h"
 #include "snippets/snippet.h"
 
 #include <QDebug>

@@ -98,7 +98,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 

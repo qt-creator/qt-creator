@@ -36,7 +36,7 @@
 #include "fakevimhandler.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QtTest>
 #include <QTextEdit>

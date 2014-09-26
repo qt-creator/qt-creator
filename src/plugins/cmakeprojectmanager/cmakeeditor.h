@@ -30,8 +30,8 @@
 #ifndef CMAKEEDITOR_H
 #define CMAKEEDITOR_H
 
-#include <texteditor/basetextdocument.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 
 namespace CMakeProjectManager {
 namespace Internal {

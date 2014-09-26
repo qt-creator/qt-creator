@@ -34,7 +34,7 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljstools/qmljssemanticinfo.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 
 #include <QTextLayout>
 

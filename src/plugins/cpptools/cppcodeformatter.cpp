@@ -29,7 +29,7 @@
 
 #include "cppcodeformatter.h"
 
-#include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/textdocumentlayout.h>
 #include <cplusplus/Lexer.h>
 
 #include <utils/qtcassert.h>
@@ -1090,7 +1090,7 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
         *endedJoined = tokenize.endedJoined();
 
     const int lexerState = tokenize.state();
-    BaseTextDocumentLayout::setLexerState(block, lexerState);
+    TextDocumentLayout::setLexerState(block, lexerState);
     return lexerState;
 }
 
@@ -1143,7 +1143,7 @@ void QtStyleCodeFormatter::setCodeStyleSettings(const CppCodeStyleSettings &sett
 
 void QtStyleCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &data) const
 {
-    TextBlockUserData *userData = BaseTextDocumentLayout::userData(*block);
+    TextBlockUserData *userData = TextDocumentLayout::userData(*block);
     CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
     if (!cppData) {
         cppData = new CppCodeFormatterData;
@@ -1154,7 +1154,7 @@ void QtStyleCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &dat
 
 bool QtStyleCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *data) const
 {
-    TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block);
+    TextBlockUserData *userData = TextDocumentLayout::testUserData(block);
     if (!userData)
         return false;
     CppCodeFormatterData *cppData = static_cast<CppCodeFormatterData *>(userData->codeFormatterData());
@@ -1167,12 +1167,12 @@ bool QtStyleCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *dat
 
 void QtStyleCodeFormatter::saveLexerState(QTextBlock *block, int state) const
 {
-    BaseTextDocumentLayout::setLexerState(*block, state);
+    TextDocumentLayout::setLexerState(*block, state);
 }
 
 int QtStyleCodeFormatter::loadLexerState(const QTextBlock &block) const
 {
-    return BaseTextDocumentLayout::lexerState(block);
+    return TextDocumentLayout::lexerState(block);
 }
 
 void QtStyleCodeFormatter::addContinuationIndent(int *paddingDepth) const

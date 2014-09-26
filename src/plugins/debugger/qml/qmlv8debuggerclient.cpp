@@ -39,7 +39,7 @@
 #include <debugger/debuggeractions.h>
 
 #include <utils/qtcassert.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <qmljs/consolemanagerinterface.h>
 

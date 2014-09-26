@@ -46,7 +46,7 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppworkingcopy.h>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/convenience.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/assistproposalitem.h>

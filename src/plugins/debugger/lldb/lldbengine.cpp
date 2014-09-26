@@ -54,7 +54,7 @@
 #include <utils/savedaction.h>
 #include <utils/qtcprocess.h>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 

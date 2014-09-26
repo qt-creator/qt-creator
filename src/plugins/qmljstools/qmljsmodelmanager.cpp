@@ -48,7 +48,7 @@
 #include <qtsupport/qmldumptool.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>

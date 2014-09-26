@@ -47,8 +47,8 @@
 #include <projectexplorer/propertiespanel.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
-#include <texteditor/basetextdocument.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/normalindenter.h>
 #include <utils/qtcassert.h>

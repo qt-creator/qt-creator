@@ -32,7 +32,7 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppprojectfile.h>
 #include <cpptools/cppmodelmanager.h>

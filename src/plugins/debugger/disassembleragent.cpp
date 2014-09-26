@@ -42,8 +42,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
-#include <texteditor/basetextdocument.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
 
@@ -117,7 +117,7 @@ DisassemblerAgentPrivate::DisassemblerAgentPrivate()
     resetLocationScheduled(false)
 {
     locationMark.setIcon(debuggerCore()->locationMarkIcon());
-    locationMark.setPriority(TextEditor::TextMark::HighPriority);
+    locationMark.setPriority(TextMark::HighPriority);
 }
 
 DisassemblerAgentPrivate::~DisassemblerAgentPrivate()

@@ -30,7 +30,7 @@
 #ifndef PROFILEEDITOR_H
 #define PROFILEEDITOR_H
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace QmakeProjectManager {
 namespace Internal {

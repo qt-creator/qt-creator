@@ -29,7 +29,7 @@
 
 #include "snippeteditor.h"
 
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>

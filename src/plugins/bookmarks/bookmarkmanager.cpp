@@ -39,7 +39,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/tooltip/tipcontents.h>
 #include <utils/qtcassert.h>

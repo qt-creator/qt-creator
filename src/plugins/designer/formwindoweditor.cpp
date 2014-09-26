@@ -33,7 +33,7 @@
 #include "resourcehandler.h"
 
 #include <coreplugin/coreconstants.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/qtcassert.h>
 

@@ -67,7 +67,7 @@
 #include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/taskhub.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

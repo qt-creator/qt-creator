@@ -39,7 +39,7 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/tabsettings.h>
 #include <utils/linecolumnlabel.h>
 #include <utils/qtcassert.h>

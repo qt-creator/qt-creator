@@ -32,7 +32,7 @@
 
 #include "cppfunctiondecldeflink.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 
 #include <QScopedPointer>

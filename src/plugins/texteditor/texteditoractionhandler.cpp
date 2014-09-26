@@ -29,7 +29,7 @@
 
 #include "texteditoractionhandler.h"
 
-#include "basetexteditor.h"
+#include "texteditor.h"
 #include "displaysettings.h"
 #include "linenumberfilter.h"
 #include "texteditorconstants.h"

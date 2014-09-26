@@ -53,8 +53,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <texteditor/basetextdocument.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>

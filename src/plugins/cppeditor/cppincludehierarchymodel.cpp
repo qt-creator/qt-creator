@@ -35,7 +35,7 @@
 #include <cpptools/builtineditordocumentparser.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
 

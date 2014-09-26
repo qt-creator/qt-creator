@@ -32,7 +32,7 @@
 
 #include "texteditor_global.h"
 
-#include "basetexteditor.h"
+#include "texteditor.h"
 #include "textmark.h"
 
 #include <QTextBlockUserData>
@@ -148,13 +148,13 @@ private:
 };
 
 
-class TEXTEDITOR_EXPORT BaseTextDocumentLayout : public QPlainTextDocumentLayout
+class TEXTEDITOR_EXPORT TextDocumentLayout : public QPlainTextDocumentLayout
 {
     Q_OBJECT
 
 public:
-    BaseTextDocumentLayout(QTextDocument *doc);
-    ~BaseTextDocumentLayout();
+    TextDocumentLayout(QTextDocument *doc);
+    ~TextDocumentLayout();
 
     static void setParentheses(const QTextBlock &block, const Parentheses &parentheses);
     static void clearParentheses(const QTextBlock &block) { setParentheses(block, Parentheses());}
@@ -182,13 +182,13 @@ public:
     public:
         FoldValidator();
 
-        void setup(BaseTextDocumentLayout *layout);
+        void setup(TextDocumentLayout *layout);
         void reset();
         void process(QTextBlock block);
         void finalize();
 
     private:
-        BaseTextDocumentLayout *m_layout;
+        TextDocumentLayout *m_layout;
         bool m_requestDocUpdate;
         int m_insideFold;
     };

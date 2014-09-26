@@ -32,7 +32,7 @@
 #include "analyzerconstants.h"
 
 #include <cpptools/cppmodelmanager.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
 

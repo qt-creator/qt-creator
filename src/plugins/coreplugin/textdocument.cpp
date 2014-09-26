@@ -48,10 +48,10 @@ enum { debug = 0 };
 namespace Core {
 
 namespace Internal {
-class BaseTextDocumentPrivate
+class TextDocumentPrivate
 {
 public:
-    BaseTextDocumentPrivate() : m_readResult(Utils::TextFileFormat::ReadSuccess) {}
+    TextDocumentPrivate() : m_readResult(Utils::TextFileFormat::ReadSuccess) {}
 
     Utils::TextFileFormat m_format;
     Utils::TextFileFormat::ReadResult m_readResult;
@@ -61,7 +61,7 @@ public:
 } // namespace Internal
 
 BaseTextDocument::BaseTextDocument(QObject *parent) :
-    IDocument(parent), d(new Internal::BaseTextDocumentPrivate)
+    IDocument(parent), d(new Internal::TextDocumentPrivate)
 {
     setCodec(Core::EditorManager::defaultTextCodec());
 }

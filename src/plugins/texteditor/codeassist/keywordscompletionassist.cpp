@@ -35,7 +35,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace TextEditor {
 

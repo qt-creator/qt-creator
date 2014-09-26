@@ -40,7 +40,7 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsoutputwindow.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 
 #include <QFileInfo>
 #include <QRegExp>

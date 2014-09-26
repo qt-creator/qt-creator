@@ -47,7 +47,7 @@ CreatorCodeFormatter::CreatorCodeFormatter(const TextEditor::TabSettings &tabSet
 
 void CreatorCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &data) const
 {
-    TextBlockUserData *userData = BaseTextDocumentLayout::userData(*block);
+    TextBlockUserData *userData = TextDocumentLayout::userData(*block);
     QmlJSCodeFormatterData *cppData = static_cast<QmlJSCodeFormatterData *>(userData->codeFormatterData());
     if (!cppData) {
         cppData = new QmlJSCodeFormatterData;
@@ -58,7 +58,7 @@ void CreatorCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &dat
 
 bool CreatorCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *data) const
 {
-    TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block);
+    TextBlockUserData *userData = TextDocumentLayout::testUserData(block);
     if (!userData)
         return false;
     QmlJSCodeFormatterData *cppData = static_cast<QmlJSCodeFormatterData *>(userData->codeFormatterData());
@@ -71,10 +71,10 @@ bool CreatorCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *dat
 
 void CreatorCodeFormatter::saveLexerState(QTextBlock *block, int state) const
 {
-    BaseTextDocumentLayout::setLexerState(*block, state);
+    TextDocumentLayout::setLexerState(*block, state);
 }
 
 int CreatorCodeFormatter::loadLexerState(const QTextBlock &block) const
 {
-    return BaseTextDocumentLayout::lexerState(block);
+    return TextDocumentLayout::lexerState(block);
 }

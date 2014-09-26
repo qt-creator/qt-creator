@@ -34,7 +34,7 @@
 #include "projectexplorer.h"
 #include "editorconfiguration.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <utils/filesearch.h>
 #include <utils/algorithm.h>
 

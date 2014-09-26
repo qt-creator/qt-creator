@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "selectabletexteditorwidget.h"
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 
 #include <QPainter>
 #include <QTextBlock>

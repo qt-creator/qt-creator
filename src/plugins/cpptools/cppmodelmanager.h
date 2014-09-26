@@ -35,7 +35,7 @@
 #include "cppprojects.h"
 
 #include <projectexplorer/project.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/cppmodelmanagerbase.h>

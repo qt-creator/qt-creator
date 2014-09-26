@@ -37,7 +37,7 @@
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/find/ifindsupport.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/refactoringchanges.h>
 #include <utils/stylehelper.h>
 #include <utils/qtcassert.h>

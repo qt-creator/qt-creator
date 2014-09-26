@@ -36,8 +36,8 @@
 
 #include <cpptools/cppcompletionassist.h>
 
-#include <texteditor/basetextdocument.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 

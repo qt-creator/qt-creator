@@ -33,7 +33,7 @@
 #include "context.h"
 
 // Yes, this is correct. These are found somewhere else when building the autotest.
-#include <basetextdocumentlayout.h>
+#include <textdocumentlayout.h>
 #include <syntaxhighlighter.h>
 
 #include <QString>

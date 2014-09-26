@@ -33,7 +33,7 @@
 #include "vcsbase_global.h"
 #include "vcsbaseeditor.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace VcsBase {
 

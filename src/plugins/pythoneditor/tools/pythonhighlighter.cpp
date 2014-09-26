@@ -40,7 +40,7 @@
 #include "pythonhighlighter.h"
 #include "lexical/pythonscanner.h"
 
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 
 namespace PythonEditor {

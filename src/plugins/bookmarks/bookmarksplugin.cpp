@@ -40,7 +40,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <QtPlugin>

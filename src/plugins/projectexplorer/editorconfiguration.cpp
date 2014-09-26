@@ -37,7 +37,7 @@
 #include <coreplugin/id.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/typingsettings.h>

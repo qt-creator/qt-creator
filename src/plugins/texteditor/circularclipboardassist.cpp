@@ -34,7 +34,7 @@
 #include "codeassist/assistproposalitem.h"
 #include "codeassist/genericproposalmodel.h"
 #include "codeassist/genericproposal.h"
-#include "basetexteditor.h"
+#include "texteditor.h"
 #include "circularclipboard.h"
 
 #include <coreplugin/coreconstants.h>

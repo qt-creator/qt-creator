@@ -30,7 +30,7 @@
 #ifndef JAVAEDITOR_H
 #define JAVAEDITOR_H
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace Android {
 namespace Internal {

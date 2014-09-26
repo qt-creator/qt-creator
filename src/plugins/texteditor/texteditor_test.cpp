@@ -37,7 +37,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 
-#include "basetexteditor.h"
+#include "texteditor.h"
 #include "texteditorplugin.h"
 
 using namespace TextEditor;

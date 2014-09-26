@@ -45,9 +45,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <diffeditor/differ.h>
-#include <texteditor/basetextdocument.h>
-#include <texteditor/basetextdocumentlayout.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/fileutils.h>
 #include <utils/QtConcurrentTools>
@@ -288,7 +288,7 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
         if (const TextBlockUserData *userdata = static_cast<TextBlockUserData *>(block.userData())) {
             if (userdata->folded()) {
                 foldedBlocks << block.blockNumber();
-                BaseTextDocumentLayout::doFoldOrUnfold(block, true);
+                TextDocumentLayout::doFoldOrUnfold(block, true);
             }
         }
         block = block.next();
@@ -386,7 +386,7 @@ void BeautifierPlugin::formatCurrentFileContinue(QObject *watcher)
     for (int i = 0; i < total; ++i) {
         QTextBlock block = doc->findBlockByNumber(qMax(0, foldedBlocks.at(i)));
         if (block.isValid())
-            BaseTextDocumentLayout::doFoldOrUnfold(block, false);
+            TextDocumentLayout::doFoldOrUnfold(block, false);
     }
 
     textEditor->document()->setModified(true);

@@ -47,7 +47,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QAction>
 #include <QMenu>

@@ -38,7 +38,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/minisplitter.h>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/marginsettings.h>

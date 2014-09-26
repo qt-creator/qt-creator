@@ -33,7 +33,7 @@
 #include "cppsemanticinfo.h"
 #include "cpptools_global.h"
 
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/semantichighlighter.h>
 
 #include <QFutureWatcher>

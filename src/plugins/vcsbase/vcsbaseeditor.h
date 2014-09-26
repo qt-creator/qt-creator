@@ -32,7 +32,7 @@
 
 #include "vcsbase_global.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QSet>
 

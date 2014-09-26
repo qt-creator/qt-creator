@@ -31,7 +31,7 @@
 #define SNIPPETEDITOR_H
 
 #include <texteditor/texteditor_global.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace TextEditor {
 

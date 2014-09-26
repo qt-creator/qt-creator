@@ -32,7 +32,7 @@
 
 #include <QTextBlockUserData>
 
-// Replaces the "real" basetextdocumentlayout.h file.
+// Replaces the "real" textdocumentlayout.h file.
 
 struct CodeFormatterData {};
 

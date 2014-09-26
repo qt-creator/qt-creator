@@ -27,28 +27,27 @@
 **
 ****************************************************************************/
 
-#include "basetexteditor.h"
-#include "basetexteditor_p.h"
+#include "texteditor.h"
+#include "texteditor_p.h"
 
-#include "basetextdocument.h"
-#include "basetextdocumentlayout.h"
-#include "behaviorsettings.h"
-#include "codecselector.h"
-#include "completionsettings.h"
-#include "snippets/snippet.h"
-#include "tabsettings.h"
-#include "typingsettings.h"
-#include "icodestylepreferences.h"
-#include "syntaxhighlighter.h"
-#include "indenter.h"
 #include "autocompleter.h"
-#include "convenience.h"
-#include "texteditorsettings.h"
-#include "texteditoroverlay.h"
+#include "behaviorsettings.h"
 #include "circularclipboard.h"
 #include "circularclipboardassist.h"
+#include "codecselector.h"
+#include "completionsettings.h"
+#include "convenience.h"
 #include "highlighterutils.h"
-#include "basetexteditor.h"
+#include "icodestylepreferences.h"
+#include "indenter.h"
+#include "snippets/snippet.h"
+#include "syntaxhighlighter.h"
+#include "tabsettings.h"
+#include "textdocument.h"
+#include "textdocumentlayout.h"
+#include "texteditoroverlay.h"
+#include "texteditorsettings.h"
+#include "typingsettings.h"
 
 #include <texteditor/codeassist/codeassistant.h>
 #include <texteditor/codeassist/assistinterface.h>
@@ -979,14 +978,14 @@ bool BaseTextEditorWidget::open(QString *errorString, const QString &fileName, c
 void BaseTextEditorWidgetPrivate::foldLicenseHeader()
 {
     QTextDocument *doc = q->document();
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
     QTextBlock block = doc->firstBlock();
     while (block.isValid() && block.isVisible()) {
         QString text = block.text();
-        if (BaseTextDocumentLayout::canFold(block) && block.next().isVisible()) {
+        if (TextDocumentLayout::canFold(block) && block.next().isVisible()) {
             if (text.trimmed().startsWith(QLatin1String("/*"))) {
-                BaseTextDocumentLayout::doFoldOrUnfold(block, false);
+                TextDocumentLayout::doFoldOrUnfold(block, false);
                 moveCursorVisible();
                 documentLayout->requestUpdate();
                 documentLayout->emitDocumentSizeChanged();
@@ -1016,7 +1015,7 @@ void BaseTextEditorWidgetPrivate::editorContentsChange(int position, int charsRe
 
     m_contentsChanged = true;
     QTextDocument *doc = q->document();
-    BaseTextDocumentLayout *documentLayout = static_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout = static_cast<TextDocumentLayout*>(doc->documentLayout());
     const QTextBlock posBlock = doc->findBlock(position);
 
     // Keep the line numbers and the block information for the text marks updated
@@ -2605,13 +2604,13 @@ bool BaseTextEditorWidget::restoreState(const QByteArray &state)
         foreach (int blockNumber, collapsedBlocks) {
             QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
             if (block.isValid()) {
-                BaseTextDocumentLayout::doFoldOrUnfold(block, false);
+                TextDocumentLayout::doFoldOrUnfold(block, false);
                 layoutChanged = true;
             }
         }
         if (layoutChanged) {
-            BaseTextDocumentLayout *documentLayout =
-                    qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+            TextDocumentLayout *documentLayout =
+                    qobject_cast<TextDocumentLayout*>(doc->documentLayout());
             QTC_ASSERT(documentLayout, return false);
             documentLayout->requestUpdate();
             documentLayout->emitDocumentSizeChanged();
@@ -2829,13 +2828,13 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals()
     q->QPlainTextEdit::setDocument(doc);
     q->setCursorWidth(2); // Applies to the document layout
 
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_CHECK(documentLayout);
 
     QObject::connect(documentLayout, &QPlainTextDocumentLayout::updateBlock,
                      this, &BaseTextEditorWidgetPrivate::slotUpdateBlockNotify);
 
-    QObject::connect(documentLayout, &BaseTextDocumentLayout::updateExtraArea,
+    QObject::connect(documentLayout, &TextDocumentLayout::updateExtraArea,
                      m_extraArea, static_cast<void (QWidget::*)()>(&QWidget::update));
 
     QObject::connect(q, &BaseTextEditorWidget::requestBlockUpdate,
@@ -3465,7 +3464,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
 
     QPainter painter(viewport());
     QTextDocument *doc = document();
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
 
     QTextBlock textCursorBlock = textCursor().block();
@@ -3595,7 +3594,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
             QRectF r = blockBoundingRect(blockIDO).translated(offsetIDO);
 
             if (r.bottom() >= er.top() && r.top() <= er.bottom()) {
-                if (BaseTextDocumentLayout::ifdefedOut(blockIDO)) {
+                if (TextDocumentLayout::ifdefedOut(blockIDO)) {
                     QRectF rr = r;
                     rr.setRight(viewportRect.width() - offset.x());
                     if (lineX > 0)
@@ -3723,7 +3722,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
             QTextLayout *layout = block.layout();
 
             QTextOption option = layout->textOption();
-            if (suppressSyntaxInIfdefedOutBlock && BaseTextDocumentLayout::ifdefedOut(block)) {
+            if (suppressSyntaxInIfdefedOutBlock && TextDocumentLayout::ifdefedOut(block)) {
                 option.setFlags(option.flags() | QTextOption::SuppressColors);
                 painter.setPen(ifdefedOutFormat.foreground().color());
             } else {
@@ -4040,7 +4039,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 painter.setRenderHint(QPainter::Antialiasing, false);
                 painter.translate(-.5, -.5);
 
-                if (TextBlockUserData *nextBlockUserData = BaseTextDocumentLayout::testUserData(nextBlock)) {
+                if (TextBlockUserData *nextBlockUserData = TextDocumentLayout::testUserData(nextBlock)) {
                     if (nextBlockUserData->foldingStartIncluded())
                         replacement.prepend(nextBlock.text().trimmed().left(1));
                 }
@@ -4049,7 +4048,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 if (!block.isValid())
                     block = doc->lastBlock();
 
-                if (TextBlockUserData *blockUserData = BaseTextDocumentLayout::testUserData(block)) {
+                if (TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(block)) {
                     if (blockUserData->foldingEndIncluded()) {
                         QString right = block.text().trimmed();
                         if (right.endsWith(QLatin1Char(';'))) {
@@ -4181,7 +4180,7 @@ QWidget *BaseTextEditorWidget::extraArea() const
 
 int BaseTextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 {
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(document()->documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
     if (!documentLayout)
         return 0;
 
@@ -4264,7 +4263,7 @@ static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool e
 void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
 {
     QTextDocument *doc = document();
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
 
     int selStart = textCursor().selectionStart();
@@ -4365,10 +4364,10 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
 //                    }
                 }
 
-                TextBlockUserData *nextBlockUserData = BaseTextDocumentLayout::testUserData(nextBlock);
+                TextBlockUserData *nextBlockUserData = TextDocumentLayout::testUserData(nextBlock);
 
                 bool drawBox = nextBlockUserData
-                               && BaseTextDocumentLayout::foldingIndent(block) < nextBlockUserData->foldingIndent();
+                               && TextDocumentLayout::foldingIndent(block) < nextBlockUserData->foldingIndent();
 
 
 
@@ -5086,16 +5085,16 @@ void BaseTextEditorWidget::ensureCursorVisible()
 {
     QTextBlock block = textCursor().block();
     if (!block.isVisible()) {
-        BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(document()->documentLayout());
+        TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
         QTC_ASSERT(documentLayout, return);
 
         // Open all parent folds of current line.
-        int indent = BaseTextDocumentLayout::foldingIndent(block);
+        int indent = TextDocumentLayout::foldingIndent(block);
         block = block.previous();
         while (block.isValid()) {
-            const int indent2 = BaseTextDocumentLayout::foldingIndent(block);
-            if (BaseTextDocumentLayout::canFold(block) && indent2 < indent) {
-                BaseTextDocumentLayout::doFoldOrUnfold(block, /* unfold = */ true);
+            const int indent2 = TextDocumentLayout::foldingIndent(block);
+            if (TextDocumentLayout::canFold(block) && indent2 < indent) {
+                TextDocumentLayout::doFoldOrUnfold(block, /* unfold = */ true);
                 if (block.isVisible())
                     break;
                 indent = indent2;
@@ -5111,10 +5110,10 @@ void BaseTextEditorWidget::ensureCursorVisible()
 
 void BaseTextEditorWidgetPrivate::toggleBlockVisible(const QTextBlock &block)
 {
-    auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(q->document()->documentLayout());
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(q->document()->documentLayout());
     QTC_ASSERT(documentLayout, return);
 
-    BaseTextDocumentLayout::doFoldOrUnfold(block, BaseTextDocumentLayout::isFolded(block));
+    TextDocumentLayout::doFoldOrUnfold(block, TextDocumentLayout::isFolded(block));
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
 }
@@ -5636,23 +5635,23 @@ void BaseTextEditorWidgetPrivate::_q_highlightBlocks()
         block = q->document()->findBlockByNumber(extraAreaHighlightFoldedBlockNumber);
         if (block.isValid()
             && block.next().isValid()
-            && BaseTextDocumentLayout::foldingIndent(block.next())
-            > BaseTextDocumentLayout::foldingIndent(block))
+            && TextDocumentLayout::foldingIndent(block.next())
+            > TextDocumentLayout::foldingIndent(block))
             block = block.next();
     }
 
     QTextBlock closeBlock = block;
     while (block.isValid()) {
-        int foldingIndent = BaseTextDocumentLayout::foldingIndent(block);
+        int foldingIndent = TextDocumentLayout::foldingIndent(block);
 
-        while (block.previous().isValid() && BaseTextDocumentLayout::foldingIndent(block) >= foldingIndent)
+        while (block.previous().isValid() && TextDocumentLayout::foldingIndent(block) >= foldingIndent)
             block = block.previous();
-        int nextIndent = BaseTextDocumentLayout::foldingIndent(block);
+        int nextIndent = TextDocumentLayout::foldingIndent(block);
         if (nextIndent == foldingIndent)
             break;
         highlightBlocksInfo.open.prepend(block.blockNumber());
         while (closeBlock.next().isValid()
-            && BaseTextDocumentLayout::foldingIndent(closeBlock.next()) >= foldingIndent )
+            && TextDocumentLayout::foldingIndent(closeBlock.next()) >= foldingIndent )
             closeBlock = closeBlock.next();
         highlightBlocksInfo.close.append(closeBlock.blockNumber());
         int indent = qMin(visualIndent(block), visualIndent(closeBlock));
@@ -5850,7 +5849,7 @@ QString BaseTextEditorWidget::extraSelectionTooltip(int pos) const
 void BaseTextEditorWidget::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
 {
     QTextDocument *doc = document();
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
 
     bool needUpdate = false;
@@ -5866,18 +5865,18 @@ void BaseTextEditorWidget::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
             const BlockRange &range = blocks.at(rangeNumber);
             if (block.position() >= range.first()
                     && ((block.position() + block.length() - 1) <= range.last() || !range.last()))
-                set = BaseTextDocumentLayout::setIfdefedOut(block);
+                set = TextDocumentLayout::setIfdefedOut(block);
             else
-                cleared = BaseTextDocumentLayout::clearIfdefedOut(block);
+                cleared = TextDocumentLayout::clearIfdefedOut(block);
             if (block.contains(range.last()))
                 ++rangeNumber;
         } else {
-            cleared = BaseTextDocumentLayout::clearIfdefedOut(block);
+            cleared = TextDocumentLayout::clearIfdefedOut(block);
         }
 
         if (cleared || set) {
             needUpdate = true;
-            int delta = BaseTextDocumentLayout::braceDepthDelta(block);
+            int delta = TextDocumentLayout::braceDepthDelta(block);
             if (cleared)
                 braceDepthDelta += delta;
             else if (set)
@@ -5885,8 +5884,8 @@ void BaseTextEditorWidget::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
         }
 
         if (braceDepthDelta) {
-            BaseTextDocumentLayout::changeBraceDepth(block,braceDepthDelta);
-            BaseTextDocumentLayout::changeFoldingIndent(block, braceDepthDelta); // ### C++ only, refactor!
+            TextDocumentLayout::changeBraceDepth(block,braceDepthDelta);
+            TextDocumentLayout::changeFoldingIndent(block, braceDepthDelta); // ### C++ only, refactor!
         }
 
         block = block.next();
@@ -6166,17 +6165,17 @@ void BaseTextEditorWidget::setExtraEncodingSettings(const ExtraEncodingSettings 
 void BaseTextEditorWidget::fold()
 {
     QTextDocument *doc = document();
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
     QTextBlock block = textCursor().block();
-    if (!(BaseTextDocumentLayout::canFold(block) && block.next().isVisible())) {
+    if (!(TextDocumentLayout::canFold(block) && block.next().isVisible())) {
         // find the closest previous block which can fold
-        int indent = BaseTextDocumentLayout::foldingIndent(block);
-        while (block.isValid() && (BaseTextDocumentLayout::foldingIndent(block) >= indent || !block.isVisible()))
+        int indent = TextDocumentLayout::foldingIndent(block);
+        while (block.isValid() && (TextDocumentLayout::foldingIndent(block) >= indent || !block.isVisible()))
             block = block.previous();
     }
     if (block.isValid()) {
-        BaseTextDocumentLayout::doFoldOrUnfold(block, false);
+        TextDocumentLayout::doFoldOrUnfold(block, false);
         d->moveCursorVisible();
         documentLayout->requestUpdate();
         documentLayout->emitDocumentSizeChanged();
@@ -6186,12 +6185,12 @@ void BaseTextEditorWidget::fold()
 void BaseTextEditorWidget::unfold()
 {
     QTextDocument *doc = document();
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
     QTextBlock block = textCursor().block();
     while (block.isValid() && !block.isVisible())
         block = block.previous();
-    BaseTextDocumentLayout::doFoldOrUnfold(block, true);
+    TextDocumentLayout::doFoldOrUnfold(block, true);
     d->moveCursorVisible();
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
@@ -6200,13 +6199,13 @@ void BaseTextEditorWidget::unfold()
 void BaseTextEditorWidget::unfoldAll()
 {
     QTextDocument *doc = document();
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
 
     QTextBlock block = doc->firstBlock();
     bool makeVisible = true;
     while (block.isValid()) {
-        if (block.isVisible() && BaseTextDocumentLayout::canFold(block) && block.next().isVisible()) {
+        if (block.isVisible() && TextDocumentLayout::canFold(block) && block.next().isVisible()) {
             makeVisible = false;
             break;
         }
@@ -6216,8 +6215,8 @@ void BaseTextEditorWidget::unfoldAll()
     block = doc->firstBlock();
 
     while (block.isValid()) {
-        if (BaseTextDocumentLayout::canFold(block))
-            BaseTextDocumentLayout::doFoldOrUnfold(block, makeVisible);
+        if (TextDocumentLayout::canFold(block))
+            TextDocumentLayout::doFoldOrUnfold(block, makeVisible);
         block = block.next();
     }
 
@@ -7341,4 +7340,4 @@ BaseTextEditor *BaseTextEditorFactory::createEditorHelper(const BaseTextDocument
 
 } // namespace TextEditor
 
-#include "basetexteditor.moc"
+#include "texteditor.moc"

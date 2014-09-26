@@ -30,7 +30,7 @@
 #ifndef CPPVIRTUALFUNCTIONPROPOSALITEM_H
 #define CPPVIRTUALFUNCTIONPROPOSALITEM_H
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 
 namespace CppEditor {

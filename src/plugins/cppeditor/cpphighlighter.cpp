@@ -32,7 +32,7 @@
 
 #include <cpptools/cppdoxygen.h>
 #include <cpptools/cpptoolsreuse.h>
-#include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/textdocumentlayout.h>
 
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/Lexer.h>
@@ -89,7 +89,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     initialLexerState &= ~0x80; // discard newline expected bit
     int foldingIndent = initialBraceDepth;
-    if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(currentBlock())) {
+    if (TextBlockUserData *userData = TextDocumentLayout::testUserData(currentBlock())) {
         userData->setFoldingIndent(0);
         userData->setFoldingStartIncluded(false);
         userData->setFoldingEndIncluded(false);
@@ -97,7 +97,7 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     if (tokens.isEmpty()) {
         setCurrentBlockState((braceDepth << 8) | lexerState);
-        BaseTextDocumentLayout::clearParentheses(currentBlock());
+        TextDocumentLayout::clearParentheses(currentBlock());
         if (text.length())  {// the empty line can still contain whitespace
             if (initialLexerState == T_COMMENT)
                 highlightLine(text, 0, text.length(), formatForCategory(CppCommentFormat));
@@ -106,7 +106,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             else
                 setFormat(0, text.length(), formatForCategory(CppVisualWhitespace));
         }
-        BaseTextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
+        TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
         return;
     }
 
@@ -144,7 +144,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 // as if it were inside the folding block
                 if (tk.utf16charsBegin() == firstNonSpace) {
                     ++foldingIndent;
-                    BaseTextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
+                    TextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
                 }
             }
         } else if (tk.is(T_RPAREN) || tk.is(T_RBRACE) || tk.is(T_RBRACKET)) {
@@ -155,7 +155,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 if (braceDepth < foldingIndent) {
                     // unless we are at the end of the block, we reduce the folding indent
                     if (i == tokens.size()-1 || tokens.at(i+1).is(T_SEMICOLON))
-                        BaseTextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
+                        TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
                     else
                         foldingIndent = qMin(braceDepth, foldingIndent);
                 }
@@ -207,7 +207,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 --braceDepth;
                 // unless we are at the end of the block, we reduce the folding indent
                 if (i == tokens.size()-1)
-                    BaseTextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
+                    TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
                 else
                     foldingIndent = qMin(braceDepth, foldingIndent);
                 const int tokenEnd = tk.utf16charsBegin() + tk.utf16chars() - 1;
@@ -248,17 +248,17 @@ void CppHighlighter::highlightBlock(const QString &text)
         }
     }
 
-    BaseTextDocumentLayout::setParentheses(currentBlock(), parentheses);
+    TextDocumentLayout::setParentheses(currentBlock(), parentheses);
 
     // if the block is ifdefed out, we only store the parentheses, but
 
     // do not adjust the brace depth.
-    if (BaseTextDocumentLayout::ifdefedOut(currentBlock())) {
+    if (TextDocumentLayout::ifdefedOut(currentBlock())) {
         braceDepth = initialBraceDepth;
         foldingIndent = initialBraceDepth;
     }
 
-    BaseTextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
+    TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
 
     // optimization: if only the brace depth changes, we adjust subsequent blocks
     // to have QSyntaxHighlighter stop the rehighlighting
@@ -267,13 +267,13 @@ void CppHighlighter::highlightBlock(const QString &text)
         int oldState = currentState & 0xff;
         int oldBraceDepth = currentState >> 8;
         if (oldState == tokenize.state() && oldBraceDepth != braceDepth) {
-            BaseTextDocumentLayout::FoldValidator foldValidor;
-            foldValidor.setup(qobject_cast<BaseTextDocumentLayout *>(document()->documentLayout()));
+            TextDocumentLayout::FoldValidator foldValidor;
+            foldValidor.setup(qobject_cast<TextDocumentLayout *>(document()->documentLayout()));
             int delta = braceDepth - oldBraceDepth;
             QTextBlock block = currentBlock().next();
             while (block.isValid() && block.userState() != -1) {
-                BaseTextDocumentLayout::changeBraceDepth(block, delta);
-                BaseTextDocumentLayout::changeFoldingIndent(block, delta);
+                TextDocumentLayout::changeBraceDepth(block, delta);
+                TextDocumentLayout::changeFoldingIndent(block, delta);
                 foldValidor.process(block);
                 block = block.next();
             }

@@ -57,7 +57,7 @@
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <extensionsystem/iplugin.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>

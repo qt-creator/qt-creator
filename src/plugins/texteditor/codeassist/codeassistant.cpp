@@ -37,7 +37,7 @@
 #include "assistproposalitem.h"
 #include "runner.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 #include <coreplugin/editormanager/editormanager.h>

@@ -34,7 +34,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <extensionsystem/pluginmanager.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <utils/htmldocextractor.h>
 
 #include <QTextBlock>

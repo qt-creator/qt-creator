@@ -30,7 +30,7 @@
 #ifndef ANDROIDMANIFESTDOCUMENT_H
 #define ANDROIDMANIFESTDOCUMENT_H
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace Android {
 namespace Internal {

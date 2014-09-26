@@ -30,7 +30,7 @@
 #ifndef GENERICPROJECTFILESEDITOR_H
 #define GENERICPROJECTFILESEDITOR_H
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace GenericProjectManager {
 namespace Internal {

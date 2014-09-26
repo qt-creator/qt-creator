@@ -30,7 +30,7 @@
 #ifndef PLAINTEXTEDITORFACTORY_H
 #define PLAINTEXTEDITORFACTORY_H
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace TextEditor {
 

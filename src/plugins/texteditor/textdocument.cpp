@@ -27,10 +27,8 @@
 **
 ****************************************************************************/
 
-#include "basetextdocument.h"
+#include "textdocument.h"
 
-#include "basetextdocumentlayout.h"
-#include "basetexteditor.h"
 #include "convenience.h"
 #include "extraencodingsettings.h"
 #include "fontsettings.h"
@@ -38,6 +36,8 @@
 #include "storagesettings.h"
 #include "syntaxhighlighter.h"
 #include "tabsettings.h"
+#include "textdocumentlayout.h"
+#include "texteditor.h"
 #include "texteditorconstants.h"
 #include "typingsettings.h"
 #include <texteditor/generichighlighter/highlighter.h>
@@ -159,7 +159,7 @@ QTextCursor TextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor,
 
 void TextDocumentPrivate::resetRevisions()
 {
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document.documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
     documentLayout->lastSaveRevision = m_document.revision();
 
@@ -169,7 +169,7 @@ void TextDocumentPrivate::resetRevisions()
 
 void TextDocumentPrivate::updateRevisions()
 {
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document.documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
     int oldLastSaveRevision = documentLayout->lastSaveRevision;
     documentLayout->lastSaveRevision = m_document.revision();
@@ -210,7 +210,7 @@ TextDocument::TextDocument(Id id)
             | QTextOption::AddSpaceForLineAndParagraphSeparators
             );
     d->m_document.setDefaultTextOption(opt);
-    d->m_document.setDocumentLayout(new BaseTextDocumentLayout(&d->m_document));
+    d->m_document.setDocumentLayout(new TextDocumentLayout(&d->m_document));
 
     if (id.isValid())
         setId(id);
@@ -362,7 +362,7 @@ void TextDocument::setIndenter(Indenter *indenter)
 {
     // clear out existing code formatter data
     for (QTextBlock it = document()->begin(); it.isValid(); it = it.next()) {
-        TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(it);
+        TextBlockUserData *userData = TextDocumentLayout::testUserData(it);
         if (userData)
             userData->setCodeFormatterData(0);
     }
@@ -579,8 +579,8 @@ bool TextDocument::open(QString *errorString, const QString &fileName, const QSt
             d->m_document.setUndoRedoEnabled(true);
             interface.reportFinished();
         }
-        BaseTextDocumentLayout *documentLayout =
-            qobject_cast<BaseTextDocumentLayout*>(d->m_document.documentLayout());
+        TextDocumentLayout *documentLayout =
+            qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
         QTC_ASSERT(documentLayout, return true);
         documentLayout->lastSaveRevision = d->m_autoSaveRevision = d->m_document.revision();
         d->updateRevisions();
@@ -601,8 +601,8 @@ bool TextDocument::reload(QString *errorString, QTextCodec *codec)
 bool TextDocument::reload(QString *errorString)
 {
     emit aboutToReload();
-    BaseTextDocumentLayout *documentLayout =
-        qobject_cast<BaseTextDocumentLayout*>(d->m_document.documentLayout());
+    TextDocumentLayout *documentLayout =
+        qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     TextMarks marks;
     if (documentLayout)
         marks = documentLayout->documentClosing(); // removes text marks non-permanently
@@ -664,7 +664,7 @@ void TextDocument::cleanWhitespace(const QTextCursor &cursor)
 
 void TextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument)
 {
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document.documentLayout());
+    TextDocumentLayout *documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     Q_ASSERT(cursor.visualNavigation() == false);
 
     QTextBlock block = d->m_document.findBlock(cursor.selectionStart());
@@ -720,12 +720,12 @@ bool TextDocument::addMark(TextMark *mark)
         return false;
     QTC_ASSERT(mark->lineNumber() >= 1, return false);
     int blockNumber = mark->lineNumber() - 1;
-    auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document.documentLayout());
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     QTC_ASSERT(documentLayout, return false);
     QTextBlock block = d->m_document.findBlockByNumber(blockNumber);
 
     if (block.isValid()) {
-        TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
+        TextBlockUserData *userData = TextDocumentLayout::userData(block);
         userData->addMark(mark);
         d->m_marksCache.append(mark);
         mark->updateLineNumber(blockNumber + 1);
@@ -755,7 +755,7 @@ TextMarks TextDocument::marksAt(int line) const
     QTextBlock block = d->m_document.findBlockByNumber(blockNumber);
 
     if (block.isValid()) {
-        if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block))
+        if (TextBlockUserData *userData = TextDocumentLayout::testUserData(block))
             return userData->marks();
     }
     return TextMarks();
@@ -763,7 +763,7 @@ TextMarks TextDocument::marksAt(int line) const
 
 void TextDocument::removeMarkFromMarksCache(TextMark *mark)
 {
-    auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document.documentLayout());
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
     d->m_marksCache.removeAll(mark);
 
@@ -816,7 +816,7 @@ void TextDocument::removeMark(TextMark *mark)
 void TextDocument::updateMark(TextMark *mark)
 {
     Q_UNUSED(mark)
-    auto documentLayout = qobject_cast<BaseTextDocumentLayout*>(d->m_document.documentLayout());
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
     documentLayout->requestUpdate();
 }
@@ -824,7 +824,7 @@ void TextDocument::updateMark(TextMark *mark)
 void TextDocument::moveMark(TextMark *mark, int previousLine)
 {
     QTextBlock block = d->m_document.findBlockByNumber(previousLine - 1);
-    if (TextBlockUserData *data = BaseTextDocumentLayout::testUserData(block)) {
+    if (TextBlockUserData *data = TextDocumentLayout::testUserData(block)) {
         if (!data->removeMark(mark))
             qDebug() << "Could not find mark" << mark << "on line" << previousLine;
     }

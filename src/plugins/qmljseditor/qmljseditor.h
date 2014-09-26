@@ -34,7 +34,7 @@
 
 #include <qmljs/qmljsscanner.h>
 #include <qmljstools/qmljssemanticinfo.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/quickfix.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/uncommentselection.h>

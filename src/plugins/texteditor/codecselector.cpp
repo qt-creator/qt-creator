@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "codecselector.h"
-#include "basetextdocument.h"
+#include "textdocument.h"
 
 #include <utils/algorithm.h>
 #include <utils/itemviews.h>

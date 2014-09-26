@@ -34,7 +34,7 @@
 #include "debuggercore.h"
 #include "stackhandler.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 
 #include <cppeditor/cppeditorconstants.h>

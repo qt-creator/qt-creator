@@ -48,7 +48,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 

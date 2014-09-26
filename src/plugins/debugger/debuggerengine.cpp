@@ -57,7 +57,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>

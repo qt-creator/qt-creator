@@ -30,7 +30,7 @@
 #ifndef BASETEXTEDITOR_P_H
 #define BASETEXTEDITOR_P_H
 
-#include "basetexteditor.h"
+#include "texteditor.h"
 #include "behaviorsettings.h"
 #include "displaysettings.h"
 #include "marginsettings.h"

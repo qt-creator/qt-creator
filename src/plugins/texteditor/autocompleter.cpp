@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "autocompleter.h"
-#include "basetextdocumentlayout.h"
+#include "textdocumentlayout.h"
 #include "tabsettings.h"
 
 #include <QDebug>
@@ -89,8 +89,8 @@ void AutoCompleter::countBrackets(QTextCursor cursor,
     cursor.setPosition(from);
     QTextBlock block = cursor.block();
     while (block.isValid() && block.position() < end) {
-        TextEditor::Parentheses parenList = TextEditor::BaseTextDocumentLayout::parentheses(block);
-        if (!parenList.isEmpty() && !TextEditor::BaseTextDocumentLayout::ifdefedOut(block)) {
+        TextEditor::Parentheses parenList = TextEditor::TextDocumentLayout::parentheses(block);
+        if (!parenList.isEmpty() && !TextEditor::TextDocumentLayout::ifdefedOut(block)) {
             for (int i = 0; i < parenList.count(); ++i) {
                 TextEditor::Parenthesis paren = parenList.at(i);
                 int position = block.position() + paren.pos;
@@ -273,7 +273,7 @@ int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
     // verify that we indeed do have an extra opening brace in the document
     QTextBlock block = cursor.block();
     const QString textFromCusror = block.text().mid(cursor.positionInBlock()).trimmed();
-    int braceDepth = BaseTextDocumentLayout::braceDepth(doc->lastBlock());
+    int braceDepth = TextDocumentLayout::braceDepth(doc->lastBlock());
 
     if (braceDepth <= 0 && (textFromCusror.isEmpty() || textFromCusror.at(0) != QLatin1Char('}')))
         return 0; // braces are all balanced or worse, no need to do anything and separator inserted not between '{' and '}'

@@ -33,7 +33,7 @@
 
 #include <cpptools/cpptoolssettings.h>
 #include <cpptools/doxygengenerator.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QDebug>
 #include <QKeyEvent>

@@ -34,7 +34,7 @@
 
 #include <qmljs/qmljsscanner.h>
 
-#include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>
 
 namespace QmlJSEditor {

@@ -43,8 +43,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
-#include <texteditor/basetextdocument.h>
-#include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -1109,7 +1109,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     const QChar deletionIndicator = QLatin1Char('-');
     // find nearest change hunk
     QTextBlock block = cursor.block();
-    if (BaseTextDocumentLayout::foldingIndent(block) <= 1)
+    if (TextDocumentLayout::foldingIndent(block) <= 1)
         /* We are in a diff header, do not jump anywhere. DiffHighlighter sets the foldingIndent for us. */
         return;
     for ( ; block.isValid() ; block = block.previous()) {
@@ -1148,7 +1148,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     QTC_ASSERT(hasDiff(), return rc);
     // Search back for start of chunk.
     QTextBlock block = cursor.block();
-    if (block.isValid() && BaseTextDocumentLayout::foldingIndent(block) <= 1)
+    if (block.isValid() && TextDocumentLayout::foldingIndent(block) <= 1)
         /* We are in a diff header, not in a chunk! DiffHighlighter sets the foldingIndent for us. */
         return rc;
 

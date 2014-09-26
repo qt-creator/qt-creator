@@ -34,7 +34,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QAbstractItemModel>
 #include <QMultiMap>

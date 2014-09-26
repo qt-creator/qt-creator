@@ -30,7 +30,7 @@
 #ifndef PYTHONEDITOR_EDITOR_H
 #define PYTHONEDITOR_EDITOR_H
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 namespace PythonEditor {
 namespace Internal {

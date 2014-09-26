@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "syntaxhighlighter.h"
-#include "basetextdocument.h"
-#include "basetextdocumentlayout.h"
+#include "textdocument.h"
+#include "textdocumentlayout.h"
 #include "texteditorsettings.h"
 #include "fontsettings.h"
 
@@ -79,7 +79,7 @@ public:
     QTextBlock currentBlock;
     bool rehighlightPending;
     bool inReformatBlocks;
-    BaseTextDocumentLayout::FoldValidator foldValidator;
+    TextDocumentLayout::FoldValidator foldValidator;
     QVector<QTextCharFormat> formats;
     QVector<TextEditor::TextStyle> formatCategories;
 };
@@ -327,7 +327,7 @@ void SyntaxHighlighter::setDocument(QTextDocument *doc)
                 this, SLOT(_q_reformatBlocks(int,int,int)));
         d->rehighlightPending = true;
         QTimer::singleShot(0, this, SLOT(_q_delayedRehighlight()));
-        d->foldValidator.setup(qobject_cast<BaseTextDocumentLayout *>(doc->documentLayout()));
+        d->foldValidator.setup(qobject_cast<TextDocumentLayout *>(doc->documentLayout()));
     }
 }
 

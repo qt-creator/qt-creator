@@ -71,7 +71,7 @@ CMakeEditor::CMakeEditor()
 void CMakeEditor::finalizeInitialization()
 {
     connect(document(), &IDocument::changed, [this]() {
-        TextDocument *document = textDocument();
+        BaseTextDocument *document = textDocument();
         if (!document->isModified())
             return;
         InfoBar *infoBar = document->infoBar();

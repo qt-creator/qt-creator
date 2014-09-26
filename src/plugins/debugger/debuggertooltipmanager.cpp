@@ -40,7 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/documentmodel.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/tooltip/tooltip.h>
 #include <utils/tooltip/tipcontents.h>

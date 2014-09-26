@@ -29,7 +29,7 @@
 
 #include "assistproposalitem.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/quickfix.h>
 
 #include <QTextCursor>

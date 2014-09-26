@@ -69,7 +69,7 @@ public:
 HighlighterCodeFormatterData *formatterData(const QTextBlock &block)
 {
     HighlighterCodeFormatterData *data = 0;
-    if (TextBlockUserData *userData = BaseTextDocumentLayout::userData(block)) {
+    if (TextBlockUserData *userData = TextDocumentLayout::userData(block)) {
         data = static_cast<HighlighterCodeFormatterData *>(userData->codeFormatterData());
         if (!data) {
             data = new HighlighterCodeFormatterData;
@@ -564,7 +564,7 @@ int Highlighter::computeState(const int observableState) const
 void Highlighter::applyRegionBasedFolding() const
 {
     int folding = 0;
-    TextBlockUserData *currentBlockUserData = BaseTextDocumentLayout::userData(currentBlock());
+    TextBlockUserData *currentBlockUserData = TextDocumentLayout::userData(currentBlock());
     HighlighterCodeFormatterData *data = formatterData(currentBlock());
     HighlighterCodeFormatterData *previousData = formatterData(currentBlock().previous());
     if (previousData) {
@@ -574,7 +574,7 @@ void Highlighter::applyRegionBasedFolding() const
             if (data->m_foldingIndentDelta > 0)
                 currentBlockUserData->setFoldingStartIncluded(true);
             else
-                BaseTextDocumentLayout::userData(currentBlock().previous())->setFoldingEndIncluded(false);
+                TextDocumentLayout::userData(currentBlock().previous())->setFoldingEndIncluded(false);
             data->m_foldingIndentDelta = 0;
         }
     }
@@ -584,7 +584,7 @@ void Highlighter::applyRegionBasedFolding() const
 
 void Highlighter::applyIndentationBasedFolding(const QString &text) const
 {
-    TextBlockUserData *data = BaseTextDocumentLayout::userData(currentBlock());
+    TextBlockUserData *data = TextDocumentLayout::userData(currentBlock());
     data->setFoldingEndIncluded(true);
 
     // If this line is empty, check its neighbours. They all might be part of the same block.

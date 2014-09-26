@@ -33,7 +33,7 @@
 #include "qmljsindenter.h"
 
 #include <qmljs/parser/qmljsast_p.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/tabsettings.h>
 #include <projectexplorer/editorconfiguration.h>
 

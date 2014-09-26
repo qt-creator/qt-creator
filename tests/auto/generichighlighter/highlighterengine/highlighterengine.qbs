@@ -31,7 +31,7 @@ QtcAutotest {
     Group {
         name: "Drop-in sources for the plugin"
         files: [
-            "basetextdocumentlayout.h", "basetextdocumentlayout.cpp",
+            "textdocumentlayout.h", "textdocumentlayout.cpp",
             "syntaxhighlighter.h", "syntaxhighlighter.cpp",
             "tabsettings.h"
         ]

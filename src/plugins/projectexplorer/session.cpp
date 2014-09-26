@@ -42,7 +42,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/modemanager.h>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/stylehelper.h>

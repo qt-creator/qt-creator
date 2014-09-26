@@ -50,7 +50,7 @@
 #include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QtPlugin>
 #include <QDebug>

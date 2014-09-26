@@ -55,7 +55,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/taskhub.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/synchronousprocess.h>
 #include <utils/qtcprocess.h>

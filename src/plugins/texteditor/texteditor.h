@@ -30,7 +30,7 @@
 #ifndef BASETEXTEDITOR_H
 #define BASETEXTEDITOR_H
 
-#include "basetextdocument.h"
+#include "textdocument.h"
 #include "codeassist/assistenums.h"
 #include "texteditor_global.h"
 

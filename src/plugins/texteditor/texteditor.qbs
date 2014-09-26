@@ -21,13 +21,6 @@ QtcPlugin {
         "basefilefind_p.h",
         "basehoverhandler.cpp",
         "basehoverhandler.h",
-        "basetextdocument.cpp",
-        "basetextdocument.h",
-        "basetextdocumentlayout.cpp",
-        "basetextdocumentlayout.h",
-        "basetexteditor.cpp",
-        "basetexteditor.h",
-        "basetexteditor_p.h",
         "behaviorsettings.cpp",
         "behaviorsettings.h",
         "behaviorsettingspage.cpp",
@@ -119,8 +112,15 @@ QtcPlugin {
         "tabsettingswidget.cpp",
         "tabsettingswidget.h",
         "tabsettingswidget.ui",
+        "textdocument.cpp",
+        "textdocument.h",
+        "textdocumentlayout.cpp",
+        "textdocumentlayout.h",
+        "texteditor.cpp",
+        "texteditor.h",
         "texteditor.qrc",
         "texteditor_global.h",
+        "texteditor_p.h",
         "texteditoractionhandler.cpp",
         "texteditoractionhandler.h",
         "texteditorconstants.cpp",
@@ -261,7 +261,7 @@ QtcPlugin {
         name: "Tests"
         condition: project.testsEnabled
         files: [
-            "basetexteditor_test.cpp",
+            "texteditor_test.cpp",
         ]
     }
 }

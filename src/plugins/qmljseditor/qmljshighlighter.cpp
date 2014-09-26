@@ -289,7 +289,7 @@ int QmlJSHighlighter::onBlockStart()
     m_braceDepth = 0;
     m_foldingIndent = 0;
     m_inMultilineComment = false;
-    if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(currentBlock())) {
+    if (TextBlockUserData *userData = TextDocumentLayout::testUserData(currentBlock())) {
         userData->setFoldingIndent(0);
         userData->setFoldingStartIncluded(false);
         userData->setFoldingEndIncluded(false);
@@ -310,8 +310,8 @@ int QmlJSHighlighter::onBlockStart()
 void QmlJSHighlighter::onBlockEnd(int state)
 {
     setCurrentBlockState((m_braceDepth << 8) | state);
-    BaseTextDocumentLayout::setParentheses(currentBlock(), m_currentBlockParentheses);
-    BaseTextDocumentLayout::setFoldingIndent(currentBlock(), m_foldingIndent);
+    TextDocumentLayout::setParentheses(currentBlock(), m_currentBlockParentheses);
+    TextDocumentLayout::setFoldingIndent(currentBlock(), m_foldingIndent);
 }
 
 void QmlJSHighlighter::onOpeningParenthesis(QChar parenthesis, int pos, bool atStart)
@@ -321,7 +321,7 @@ void QmlJSHighlighter::onOpeningParenthesis(QChar parenthesis, int pos, bool atS
         // if a folding block opens at the beginning of a line, treat the entire line
         // as if it were inside the folding block
         if (atStart)
-            BaseTextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
+            TextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
     }
     m_currentBlockParentheses.push_back(Parenthesis(Parenthesis::Opened, parenthesis, pos));
 }
@@ -331,7 +331,7 @@ void QmlJSHighlighter::onClosingParenthesis(QChar parenthesis, int pos, bool atE
     if (parenthesis == QLatin1Char('}') || parenthesis == QLatin1Char(']') || parenthesis == QLatin1Char('-')) {
         --m_braceDepth;
         if (atEnd)
-            BaseTextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
+            TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
         else
             m_foldingIndent = qMin(m_braceDepth, m_foldingIndent); // folding indent is the minimum brace depth of a block
     }

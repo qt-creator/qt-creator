@@ -35,7 +35,7 @@
 #include <cpptools/cpplocalsymbols.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/convenience.h>
 #include <texteditor/fontsettings.h>
 

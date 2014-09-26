@@ -34,7 +34,7 @@
 #include "androidmanifesteditorwidget.h"
 
 #include <coreplugin/editormanager/ieditor.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 QT_BEGIN_NAMESPACE
 class QToolBar;

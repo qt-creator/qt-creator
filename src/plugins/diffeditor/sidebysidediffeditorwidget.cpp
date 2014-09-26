@@ -44,11 +44,11 @@
 #include <QTextCodec>
 #include <QMessageBox>
 
-#include <texteditor/basetexteditor.h>
-#include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/highlighterfactory.h>
 #include <texteditor/syntaxhighlighter.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
@@ -363,7 +363,7 @@ bool SideDiffEditorWidget::selectionVisible(int blockNumber) const
 bool SideDiffEditorWidget::replacementVisible(int blockNumber) const
 {
     return isChunkLine(blockNumber) || (isFileLine(blockNumber)
-           && TextEditor::BaseTextDocumentLayout::isFolded(
+           && TextEditor::TextDocumentLayout::isFolded(
                                             document()->findBlockByNumber(blockNumber)));
 }
 
@@ -531,7 +531,7 @@ void SideDiffEditorWidget::paintSeparator(QPainter &painter,
     const int replacementTextWidth = fontMetrics().width(replacementText) + 24;
     int x = replacementTextWidth + offset.x();
     if (x < document()->documentMargin()
-            || !TextEditor::BaseTextDocumentLayout::isFolded(block)) {
+            || !TextEditor::TextDocumentLayout::isFolded(block)) {
         x = document()->documentMargin();
     }
     const QString elidedText = fontMetrics().elidedText(text,

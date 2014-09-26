@@ -28,9 +28,9 @@
 ****************************************************************************/
 
 #include "textmark.h"
-#include "basetextdocument.h"
+#include "textdocument.h"
 #include "textmarkregistry.h"
-#include "basetexteditor.h"
+#include "texteditor.h"
 #include "texteditorplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>

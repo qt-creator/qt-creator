@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "refactoringchanges.h"
-#include "basetexteditor.h"
+#include "texteditor.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>

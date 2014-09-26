@@ -29,7 +29,7 @@
 
 #include "texteditorsettings.h"
 
-#include "basetexteditor.h"
+#include "texteditor.h"
 #include "behaviorsettings.h"
 #include "behaviorsettingspage.h"
 #include "completionsettings.h"

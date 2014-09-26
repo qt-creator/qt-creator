@@ -41,7 +41,7 @@
 #include <cpptools/cppworkingcopy.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <texteditor/basetextdocument.h>
+#include <texteditor/textdocument.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <cplusplus/CppDocument.h>

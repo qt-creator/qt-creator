@@ -45,7 +45,7 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsqrcparser.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/helpitem.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/tooltip/tipcontents.h>

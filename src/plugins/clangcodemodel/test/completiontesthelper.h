@@ -36,7 +36,7 @@
 
 #include <QObject>
 #include <QTextDocument>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 #include <cplusplus/CppDocument.h>
 
 namespace TextEditor { class IAssistProposal; }

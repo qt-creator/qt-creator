@@ -34,7 +34,7 @@
 #include "qmldesignercorelib_global.h"
 #include "plaintexteditmodifier.h"
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditor.h>
 
 #include <QStringList>
 

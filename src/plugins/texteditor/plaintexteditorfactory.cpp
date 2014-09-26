@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "plaintexteditorfactory.h"
-#include "basetexteditor.h"
-#include "basetextdocument.h"
+#include "texteditor.h"
+#include "textdocument.h"
 #include "normalindenter.h"
 #include "texteditoractionhandler.h"
 #include "texteditorconstants.h"

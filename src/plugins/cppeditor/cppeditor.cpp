@@ -58,8 +58,8 @@
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/symbolfinder.h>
 
-#include <texteditor/basetextdocument.h>
-#include <texteditor/basetextdocumentlayout.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -706,7 +706,7 @@ void CppEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
     d->m_declDefLink = link;
     IDocument *targetDocument = DocumentModel::documentForFilePath( d->m_declDefLink->targetFile->fileName());
     if (textDocument() != targetDocument) {
-        if (auto textDocument = qobject_cast<TextDocument *>(targetDocument))
+        if (auto textDocument = qobject_cast<BaseTextDocument *>(targetDocument))
             connect(textDocument, SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
     }
@@ -741,7 +741,7 @@ void CppEditorWidget::abortDeclDefLink()
 
     IDocument *targetDocument = DocumentModel::documentForFilePath(d->m_declDefLink->targetFile->fileName());
     if (textDocument() != targetDocument) {
-        if (auto textDocument = qobject_cast<TextDocument *>(targetDocument))
+        if (auto textDocument = qobject_cast<BaseTextDocument *>(targetDocument))
             disconnect(textDocument, SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
     }
