@@ -58,11 +58,9 @@ namespace QmlProfiler {
 namespace Internal {
 
 struct Colors {
-    Colors () {
-        this->bindingLoopBackground = QColor("orange").lighter();
-    }
-
-    QColor bindingLoopBackground;
+    Colors () : noteBackground(QColor("orange")), defaultBackground(QColor("white")) {}
+    QColor noteBackground;
+    QColor defaultBackground;
 };
 
 struct RootEventType : public QmlProfilerDataModel::QmlEventTypeData {
@@ -408,6 +406,7 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
 
     d->modelProxy = modelProxy;
     connect(d->modelProxy,SIGNAL(dataAvailable()), this, SLOT(buildModel()));
+    connect(d->modelProxy,SIGNAL(notesAvailable(int)), this, SLOT(updateNotes(int)));
     d->m_firstNumericColumn = 0;
     d->m_preventSelectBounce = false;
     d->m_showExtendedStatistics = false;
@@ -573,10 +572,41 @@ void QmlProfilerEventsMainView::buildModel()
     collapseAll();
 }
 
+void QmlProfilerEventsMainView::updateNotes(int typeIndex)
+{
+    const QHash<int, QmlProfilerEventsModelProxy::QmlEventStats> &eventList =
+            d->modelProxy->getData();
+    const QHash<int, QString> &noteList = d->modelProxy->getNotes();
+    QStandardItem *parentItem = d->m_model->invisibleRootItem();
+
+    for (int rowIndex = 0; rowIndex < parentItem->rowCount(); ++rowIndex) {
+        int rowType = parentItem->child(rowIndex, 0)->data(TypeIdRole).toInt();
+        if (rowType != typeIndex && typeIndex != -1)
+            continue;
+        const QmlProfilerEventsModelProxy::QmlEventStats &stats = eventList[rowType];
+
+        for (int columnIndex = 0; columnIndex < parentItem->columnCount(); ++columnIndex) {
+            QStandardItem *item = parentItem->child(rowIndex, columnIndex);
+            QHash<int, QString>::ConstIterator it = noteList.find(rowType);
+            if (it != noteList.end()) {
+                item->setBackground(colors()->noteBackground);
+                item->setToolTip(it.value());
+            } else if (stats.isBindingLoop) {
+                item->setBackground(colors()->noteBackground);
+                item->setToolTip(tr("Binding loop detected."));
+            } else if (!item->toolTip().isEmpty()){
+                item->setBackground(colors()->defaultBackground);
+                item->setToolTip(QString());
+            }
+        }
+    }
+}
+
 void QmlProfilerEventsMainView::parseModelProxy()
 {
     const QHash<int, QmlProfilerEventsModelProxy::QmlEventStats> &eventList = d->modelProxy->getData();
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &typeList = d->modelProxy->getTypes();
+
 
     QHash<int, QmlProfilerEventsModelProxy::QmlEventStats>::ConstIterator it;
     for (it = eventList.constBegin(); it != eventList.constEnd(); ++it) {
@@ -663,13 +693,6 @@ void QmlProfilerEventsMainView::parseModelProxy()
             newRow.at(0)->setData(QVariant(event.location.filename),FilenameRole);
             newRow.at(0)->setData(QVariant(event.location.line),LineRole);
             newRow.at(0)->setData(QVariant(event.location.column),ColumnRole);
-
-            if (stats.isBindingLoop) {
-                foreach (QStandardItem *item, newRow) {
-                    item->setBackground(colors()->bindingLoopBackground);
-                    item->setToolTip(tr("Binding loop detected."));
-                }
-            }
 
             // append
             parentItem->appendRow(newRow);
@@ -925,7 +948,7 @@ void QmlProfilerEventRelativesView::rebuildTree(
 
         if (event.isBindingLoop) {
             foreach (QStandardItem *item, newRow) {
-                item->setBackground(colors()->bindingLoopBackground);
+                item->setBackground(colors()->noteBackground);
                 item->setToolTip(tr("Part of binding loop."));
             }
         }

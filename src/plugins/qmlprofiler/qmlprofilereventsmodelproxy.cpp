@@ -62,6 +62,7 @@ public:
 
     QList<QmlDebug::RangeType> acceptedTypes;
     QSet<int> eventsInBindingLoop;
+    QHash<int, QString> notes;
 };
 
 QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager *modelManager, QObject *parent)
@@ -69,6 +70,8 @@ QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager
 {
     d->modelManager = modelManager;
     connect(modelManager->qmlModel(), SIGNAL(changed()), this, SLOT(dataChanged()));
+    connect(modelManager->notesModel(), SIGNAL(changed(int,int,int)),
+            this, SLOT(notesChanged(int)));
     d->modelId = modelManager->registerModelProxy();
 
     // We're iterating twice in loadData.
@@ -107,11 +110,17 @@ const QVector<QmlProfilerDataModel::QmlEventTypeData> &QmlProfilerEventsModelPro
     return d->modelManager->qmlModel()->getEventTypes();
 }
 
+const QHash<int, QString> &QmlProfilerEventsModelProxy::getNotes() const
+{
+    return d->notes;
+}
+
 void QmlProfilerEventsModelProxy::clear()
 {
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
     d->data.clear();
     d->eventsInBindingLoop.clear();
+    d->notes.clear();
 }
 
 void QmlProfilerEventsModelProxy::limitToRange(qint64 rangeStart, qint64 rangeEnd)
@@ -125,6 +134,38 @@ void QmlProfilerEventsModelProxy::dataChanged()
         loadData();
     else if (d->modelManager->state() == QmlProfilerDataState::ClearingData)
         clear();
+}
+
+void QmlProfilerEventsModelProxy::notesChanged(int typeIndex)
+{
+    const NotesModel *notesModel = d->modelManager->notesModel();
+    if (typeIndex == -1) {
+        d->notes.clear();
+        for (int noteId = 0; noteId < notesModel->count(); ++noteId) {
+            int noteType = notesModel->typeId(noteId);
+            if (noteType != -1) {
+                QString &note = d->notes[noteType];
+                if (note.isEmpty()) {
+                    note = notesModel->text(noteId);
+                } else {
+                    note.append(QStringLiteral("\n")).append(notesModel->text(noteId));
+                }
+            }
+        }
+    } else {
+        d->notes.remove(typeIndex);
+        QVariantList changedNotes = notesModel->byTypeId(typeIndex);
+        if (!changedNotes.isEmpty()) {
+            QStringList newNotes;
+            for (QVariantList::ConstIterator it = changedNotes.begin(); it !=  changedNotes.end();
+                 ++it) {
+                newNotes << notesModel->text(it->toInt());
+            }
+            d->notes[typeIndex] = newNotes.join(QStringLiteral("\n"));
+        }
+    }
+
+    emit notesAvailable(typeIndex);
 }
 
 const QSet<int> &QmlProfilerEventsModelProxy::eventsInBindingLoop() const

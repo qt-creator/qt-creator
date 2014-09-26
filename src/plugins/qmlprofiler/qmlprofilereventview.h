@@ -139,6 +139,7 @@ public slots:
     void selectType(int typeIndex);
     void selectByLocation(const QString &filename, int line, int column);
     void buildModel();
+    void updateNotes(int typeIndex);
 
 private slots:
     void profilerDataModelStateChanged();

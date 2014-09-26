@@ -33,6 +33,7 @@
 #define QMLPROFILEREVENTSMODELPROXY_H
 
 #include "qmlprofilerdatamodel.h"
+#include "notesmodel.h"
 #include <QObject>
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <qmldebug/qmlprofilereventlocation.h>
@@ -71,6 +72,8 @@ public:
 
     const QHash<int, QmlEventStats> &getData() const;
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &getTypes() const;
+    const QHash<int, QString> &getNotes() const;
+
     int count() const;
     void clear();
 
@@ -78,6 +81,7 @@ public:
 
 signals:
     void dataAvailable();
+    void notesAvailable(int typeIndex);
 
 private:
     void loadData(qint64 rangeStart = -1, qint64 rangeEnd = -1);
@@ -86,6 +90,7 @@ private:
 
 private slots:
     void dataChanged();
+    void notesChanged(int typeIndex);
 
 private:
     class QmlProfilerEventsModelProxyPrivate;
@@ -116,7 +121,9 @@ public:
     void clear();
 
     const QmlEventRelativesMap &getData(int typeId) const;
+    QVariantList getNotes(int typeId) const;
     const QVector<QmlProfilerDataModel::QmlEventTypeData> &getTypes() const;
+
 
 protected:
     virtual void loadData() = 0;
