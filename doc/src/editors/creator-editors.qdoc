@@ -2109,6 +2109,10 @@
     This operation is limited to work only within function scope.
     Also, the coding style for pointers and references is not respected yet.
             \li Stack Variable
+    \row
+        \li Convert connect() to Qt 5 Style
+        \li Converts a Qt 4 \c QObject::connect() to Qt 5 style.
+        \li \c QObject::connect() (Qt 4 style)
     \endtable
 
    \section2 Refactoring QML Code
