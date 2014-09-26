@@ -1277,6 +1277,8 @@ void ProjectExplorerPlugin::updateRunWithoutDeployMenu()
 
 ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
 {
+    disconnect(ModeManager::instance(), &ModeManager::currentModeChanged,
+               this, &ProjectExplorerPlugin::currentModeChanged);
     d->m_proWindow->aboutToShutdown(); // disconnect from session
     SessionManager::closeAllProjects();
     d->m_projectsMode = 0;
@@ -1673,9 +1675,8 @@ void ProjectExplorerPlugin::restoreSession()
         SessionManager::loadSession(d->m_sessionToRestoreAtStartup);
 
     // update welcome page
-    connect(ModeManager::instance(),
-            SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
-            SLOT(currentModeChanged(Core::IMode*,Core::IMode*)));
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+               this, &ProjectExplorerPlugin::currentModeChanged);
 #if HAS_WELCOME_PAGE
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
     connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(openProjectWelcomePage(QString)));
