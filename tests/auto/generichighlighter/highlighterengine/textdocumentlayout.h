@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTDOCUMENTLAYOUT_H
-#define BASETEXTDOCUMENTLAYOUT_H
+#ifndef TEXTDOCUMENTLAYOUT_H
+#define TEXTDOCUMENTLAYOUT_H
 
 #include <QTextBlockUserData>
 
@@ -49,6 +49,6 @@ struct TextBlockUserData : QTextBlockUserData
     CodeFormatterData *m_data;
 };
 
-namespace BaseTextDocumentLayout { TextBlockUserData *userData(const QTextBlock &block); }
+namespace TextDocumentLayout { TextBlockUserData *userData(const QTextBlock &block); }
 
-#endif // BASETEXTDOCUMENTLAYOUT_H
+#endif // TEXTDOCUMENTLAYOUT_H

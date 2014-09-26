@@ -29,7 +29,7 @@
 
 #include "textdocumentlayout.h"
 
-TextBlockUserData *BaseTextDocumentLayout::userData(const QTextBlock &block)
+TextBlockUserData *TextDocumentLayout::userData(const QTextBlock &block)
 {
     TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
     if (!data && block.isValid())
