@@ -194,6 +194,48 @@ Item {
     }
 
     ToolButton {
+        id: notesButton
+        anchors.verticalCenter: txt.verticalCenter
+        anchors.right: expandButton.left
+        implicitWidth: 17
+        implicitHeight: txt.height - 1
+        property var eventIds: []
+        property var texts: []
+        property int currentNote: -1
+        Connections {
+            target: qmlProfilerModelProxy
+            onModelsChanged: notesButton.updateNotes()
+            onNotesChanged: {
+                if (arguments[1] === -1 || arguments[1] === modelIndex)
+                    notesButton.updateNotes();
+            }
+        }
+
+        function updateNotes() {
+            var notes = qmlProfilerModelProxy.notesByTimelineModel(modelIndex);
+            var newTexts = [];
+            var newEventIds = [];
+            for (var i in notes) {
+                newTexts.push(qmlProfilerModelProxy.noteText(notes[i]))
+                newEventIds.push(qmlProfilerModelProxy.noteTimelineIndex(notes[i]));
+            }
+
+            // Bindings are only triggered when assigning the whole array.
+            eventIds = newEventIds;
+            texts = newTexts;
+        }
+
+        visible: eventIds.length > 0
+        iconSource: "ico_note.png"
+        tooltip: texts.join("\n");
+        onClicked: {
+            if (++currentNote >= eventIds.length)
+                currentNote = 0;
+            view.selectFromEventIndex(modelIndex, eventIds[currentNote]);
+        }
+    }
+
+    ToolButton {
         id: expandButton
         anchors.verticalCenter: txt.verticalCenter
         anchors.right: parent.right
