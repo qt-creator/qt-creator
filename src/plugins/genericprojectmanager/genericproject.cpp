@@ -174,8 +174,8 @@ bool GenericProject::addFiles(const QStringList &filePaths)
     QSet<QString> includes = projectIncludePaths().toSet();
     QSet<QString> toAdd;
 
-    foreach (const QString &filePaths, filePaths) {
-        QString directory = QFileInfo(filePaths).absolutePath();
+    foreach (const QString &filePath, filePaths) {
+        QString directory = QFileInfo(filePath).absolutePath();
         if (!includes.contains(directory)
                 && !toAdd.contains(directory))
             toAdd << directory;
