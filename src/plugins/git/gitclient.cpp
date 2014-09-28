@@ -243,6 +243,8 @@ void GitDiffHandler::slotShowDescriptionReceived(const QString &description)
 
     postCollectTextualDiffOutputUsingShowCommand(QStringList()
               << QLatin1String("--format=format:") // omit header, already generated
+              << QLatin1String("-M")
+              << QLatin1String("-C")
               << QLatin1String(noColorOption)
               << QLatin1String(decorateOption)
               << m_id);
