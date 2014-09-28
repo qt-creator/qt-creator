@@ -123,12 +123,16 @@ void IosConfigurations::updateAutomaticKitList()
             if (p.compilerPath == toolchain->compilerCommand()
                     && p.backendFlags == toolchain->platformCodeGenFlags()) {
                 found = true;
-                if (p.architecture == QLatin1String("i386")
-                        && toolchain->targetAbi().wordWidth() != 32) {
+                if ((p.architecture == QLatin1String("i386")
+                        && toolchain->targetAbi().wordWidth() != 32) ||
+                        (p.architecture == QLatin1String("x86_64")
+                        && toolchain->targetAbi().wordWidth() != 64)) {
                         qCDebug(kitSetupLog) << "resetting api of " << toolchain->displayName();
                     toolchain->setTargetAbi(Abi(Abi::X86Architecture,
                                                 Abi::MacOS, Abi::GenericMacFlavor,
-                                                Abi::MachOFormat, 32));
+                                                Abi::MachOFormat,
+                                                p.architecture.endsWith(QLatin1String("64"))
+                                                    ? 64 : 32));
                 }
                 platformToolchainMap[p.name] = toolchain;
                 qCDebug(kitSetupLog) << p.name << " -> " << toolchain->displayName();
@@ -172,10 +176,13 @@ void IosConfigurations::updateAutomaticKitList()
             toolchain->setPlatformCodeGenFlags(p.backendFlags);
             toolchain->setPlatformLinkerFlags(p.backendFlags);
             toolchain->resetToolChain(p.compilerPath);
-            if (p.architecture == QLatin1String("i386")) {
+            if (p.architecture == QLatin1String("i386")
+                    || p.architecture == QLatin1String("x86_64")) {
                 qCDebug(kitSetupLog) << "setting toolchain Abi for " << toolchain->displayName();
                 toolchain->setTargetAbi(Abi(Abi::X86Architecture,Abi::MacOS, Abi::GenericMacFlavor,
-                                            Abi::MachOFormat, 32));
+                                            Abi::MachOFormat,
+                                            p.architecture.endsWith(QLatin1String("64"))
+                                                ? 64 : 32));
             }
             qCDebug(kitSetupLog) << "adding toolchain " << p.name;
             ToolChainManager::registerToolChain(toolchain);

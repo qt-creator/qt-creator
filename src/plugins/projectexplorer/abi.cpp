@@ -101,6 +101,8 @@ static Abi macAbiForCpu(quint32 type) {
         return Abi(Abi::PowerPCArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
     case 12: // CPU_TYPE_ARM
         return Abi(Abi::ArmArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 32);
+    case 0x01000000 + 12: // CPU_TYPE_ARM64
+        return Abi(Abi::ArmArchitecture, Abi::MacOS, Abi::GenericMacFlavor, Abi::MachOFormat, 64);
     default:
         return Abi();
     }
@@ -469,7 +471,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             arch = Abi::X86Architecture;
         } else if (p.startsWith(QLatin1String("arm"))) {
             arch = Abi::ArmArchitecture;
-            width = 32;
+            width = p.contains(QLatin1String("64")) ? 64 : 32;
         } else if (p.startsWith(QLatin1String("mips"))) {
             arch = Abi::MipsArchitecture;
             width = p.contains(QLatin1String("64")) ? 64 : 32;
