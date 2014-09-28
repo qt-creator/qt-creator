@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTEDITOR_H
-#define BASETEXTEDITOR_H
+#ifndef TEXTEDITOR_H
+#define TEXTEDITOR_H
 
 #include "textdocument.h"
 #include "codeassist/assistenums.h"
@@ -672,4 +672,4 @@ private:
 
 Q_DECLARE_METATYPE(TextEditor::BaseTextEditorWidget::Link)
 
-#endif // BASETEXTEDITOR_H
+#endif // TEXTEDITOR_H

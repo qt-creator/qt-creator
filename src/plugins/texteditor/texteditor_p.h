@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTEDITOR_P_H
-#define BASETEXTEDITOR_P_H
+#ifndef TEXTEDITOR_P_H
+#define TEXTEDITOR_P_H
 
 #include "texteditor.h"
 #include "behaviorsettings.h"
@@ -107,4 +107,4 @@ struct BaseTextEditorPrivateHighlightBlocks
 } // namespace Internal
 } // namespace TextEditor
 
-#endif // BASETEXTEDITOR_P_H
+#endif // TEXTEDITOR_P_H
