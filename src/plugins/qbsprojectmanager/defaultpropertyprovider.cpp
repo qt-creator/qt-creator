@@ -33,17 +33,25 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
 
 #include <tools/hostosinfo.h>
+
+#include <ios/iosconstants.h>
+#include <qnx/qnxconstants.h>
+#include <winrt/winrtconstants.h>
 
 #include <QDir>
 #include <QFileInfo>
 
 namespace QbsProjectManager {
 using namespace Constants;
+using namespace ProjectExplorer::Constants;
+using namespace Ios::Constants;
+using namespace Qnx::Constants;
+using namespace WinRt::Internal::Constants;
 
 static QString extractToolchainPrefix(QString *compilerName)
 {
@@ -55,6 +63,80 @@ static QString extractToolchainPrefix(QString *compilerName)
         compilerName->remove(0, idx);
     }
     return prefix;
+}
+
+static QStringList targetOSList(const ProjectExplorer::Abi &abi, const ProjectExplorer::Kit *k)
+{
+    const Core::Id device = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
+    QStringList os;
+    switch (abi.os()) {
+    case ProjectExplorer::Abi::WindowsOS:
+        if (device == WINRT_DEVICE_TYPE_LOCAL ||
+                device == WINRT_DEVICE_TYPE_PHONE ||
+                device == WINRT_DEVICE_TYPE_EMULATOR) {
+            os << QLatin1String("winrt");
+        } else if (abi.osFlavor() == ProjectExplorer::Abi::WindowsCEFlavor) {
+            os << QLatin1String("windowsce");
+        }
+        os << QLatin1String("windows");
+        break;
+    case ProjectExplorer::Abi::MacOS:
+        if (device == DESKTOP_DEVICE_TYPE)
+            os << QLatin1String("osx");
+        else if (device == IOS_DEVICE_TYPE)
+            os << QLatin1String("ios");
+        else if (device == IOS_SIMULATOR_TYPE)
+            os << QLatin1String("ios-simulator") << QLatin1String("ios");
+        os << QLatin1String("darwin") << QLatin1String("bsd") << QLatin1String("unix");
+        break;
+    case ProjectExplorer::Abi::LinuxOS:
+        if (abi.osFlavor() == ProjectExplorer::Abi::AndroidLinuxFlavor)
+            os << QLatin1String("android");
+        os << QLatin1String("linux") << QLatin1String("unix");
+        break;
+    case ProjectExplorer::Abi::BsdOS:
+        switch (abi.osFlavor()) {
+        case ProjectExplorer::Abi::FreeBsdFlavor:
+            os << QLatin1String("freebsd");
+            break;
+        case ProjectExplorer::Abi::NetBsdFlavor:
+            os << QLatin1String("netbsd");
+            break;
+        case ProjectExplorer::Abi::OpenBsdFlavor:
+            os << QLatin1String("openbsd");
+            break;
+        default:
+            break;
+        }
+        os << QLatin1String("bsd") << QLatin1String("unix");
+        break;
+    case ProjectExplorer::Abi::UnixOS:
+        if (device == QNX_BB_OS_TYPE)
+            os << QLatin1String("blackberry") << QLatin1String("qnx");
+        else if (device == QNX_QNX_OS_TYPE)
+            os << QLatin1String("qnx");
+        else if (abi.osFlavor() == ProjectExplorer::Abi::SolarisUnixFlavor)
+            os << QLatin1String("solaris");
+        os << QLatin1String("unix");
+        break;
+    default:
+        break;
+    }
+    return os;
+}
+
+static QStringList toolchainList(const ProjectExplorer::ToolChain *tc)
+{
+    QStringList list;
+    if (tc->type() == QLatin1String("clang"))
+        list << QLatin1String("clang") << QLatin1String("llvm") << QLatin1String("gcc");
+    else if (tc->type() == QLatin1String("gcc"))
+        list << QLatin1String("gcc"); // TODO: Detect llvm-gcc
+    else if (tc->type() == QLatin1String("mingw"))
+        list << QLatin1String("mingw") << QLatin1String("gcc");
+    else if (tc->type() == QLatin1String("msvc"))
+        list << QLatin1String("msvc");
+    return list;
 }
 
 QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, const QVariantMap &defaultData) const
@@ -70,7 +152,6 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
     if (!tc)
         return data;
 
-    // FIXME/CLARIFY: How to pass the sysroot?
     ProjectExplorer::Abi targetAbi = tc->targetAbi();
     if (targetAbi.architecture() != ProjectExplorer::Abi::UnknownArchitecture) {
         QString architecture = ProjectExplorer::Abi::toString(targetAbi.architecture());
@@ -96,71 +177,21 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
                     qbs::Internal::HostOsInfo::canonicalArchitecture(architecture));
     }
 
-    switch (targetAbi.os()) {
-    case ProjectExplorer::Abi::WindowsOS:
-        data.insert(QLatin1String(QBS_TARGETOS), QLatin1String("windows"));
-        data.insert(QLatin1String(QBS_TOOLCHAIN),
-                    targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor
-                    ? QStringList() << QLatin1String("mingw") << QLatin1String("gcc")
-                    : QStringList() << QLatin1String("msvc"));
-        break;
-    case ProjectExplorer::Abi::MacOS: {
-        const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // from Ios::Constants (include header?)
-        const char IOS_SIMULATOR_TYPE[] = "Ios.Simulator.Type";
-
-        const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitInformation::qtVersion(k);
-        QStringList targetOS;
-        targetOS << QLatin1String("darwin") << QLatin1String("bsd4")
-                 << QLatin1String("bsd") << QLatin1String("unix");
-        if (qt && qt->type() == QLatin1String(IOSQT)) {
-            targetOS.insert(0, QLatin1String("ios"));
-            if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k) == IOS_SIMULATOR_TYPE)
-                targetOS.insert(0, QLatin1String("ios-simulator"));
-        } else {
-            targetOS.insert(0, QLatin1String("osx"));
-        }
+    QStringList targetOS = targetOSList(targetAbi, k);
+    if (!targetOS.isEmpty())
         data.insert(QLatin1String(QBS_TARGETOS), targetOS);
 
-        if (tc->type() != QLatin1String("clang")) {
-            data.insert(QLatin1String(QBS_TOOLCHAIN), QLatin1String("gcc"));
-        } else {
-            data.insert(QLatin1String(QBS_TOOLCHAIN),
-                        QStringList() << QLatin1String("clang")
-                        << QLatin1String("llvm")
-                        << QLatin1String("gcc"));
-        }
+    QStringList toolchain = toolchainList(tc);
+    if (!toolchain.isEmpty())
+        data.insert(QLatin1String(QBS_TOOLCHAIN), toolchain);
 
+    if (targetAbi.os() == ProjectExplorer::Abi::MacOS) {
         // Set Xcode SDK name and version - required by Qbs if a sysroot is present
         // Ideally this would be done in a better way...
         QRegExp re(QLatin1String("(MacOSX|iPhoneOS|iPhoneSimulator)([0-9]+\\.[0-9]+)\\.sdk"));
         if (re.exactMatch(QDir(sysroot).dirName())) {
             data.insert(QLatin1String(CPP_XCODESDKNAME), QString(re.cap(1).toLower() + re.cap(2)));
             data.insert(QLatin1String(CPP_XCODESDKVERSION), re.cap(2));
-        }
-        break;
-    }
-    case ProjectExplorer::Abi::LinuxOS:
-        data.insert(QLatin1String(QBS_TARGETOS), QStringList() << QLatin1String("linux")
-                    << QLatin1String("unix"));
-        if (tc->type() != QLatin1String("clang")) {
-            data.insert(QLatin1String(QBS_TOOLCHAIN), QLatin1String("gcc"));
-        } else {
-            data.insert(QLatin1String(QBS_TOOLCHAIN),
-                        QStringList() << QLatin1String("clang")
-                        << QLatin1String("llvm")
-                        << QLatin1String("gcc"));
-        }
-        break;
-    default:
-        // TODO: Factor out toolchain type setting.
-        data.insert(QLatin1String(QBS_TARGETOS), QStringList() << QLatin1String("unix"));
-        if (tc->type() != QLatin1String("clang")) {
-            data.insert(QLatin1String(QBS_TOOLCHAIN), QLatin1String("gcc"));
-        } else {
-            data.insert(QLatin1String(QBS_TOOLCHAIN),
-                        QStringList() << QLatin1String("clang")
-                        << QLatin1String("llvm")
-                        << QLatin1String("gcc"));
         }
     }
 
