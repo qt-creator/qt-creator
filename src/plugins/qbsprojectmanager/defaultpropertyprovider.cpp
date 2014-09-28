@@ -46,6 +46,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QSettings>
 
 namespace QbsProjectManager {
 using namespace Constants;
@@ -188,10 +189,18 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
     if (targetAbi.os() == ProjectExplorer::Abi::MacOS) {
         // Set Xcode SDK name and version - required by Qbs if a sysroot is present
         // Ideally this would be done in a better way...
-        QRegExp re(QLatin1String("(MacOSX|iPhoneOS|iPhoneSimulator)([0-9]+\\.[0-9]+)\\.sdk"));
-        if (re.exactMatch(QDir(sysroot).dirName())) {
-            data.insert(QLatin1String(CPP_XCODESDKNAME), QString(re.cap(1).toLower() + re.cap(2)));
-            data.insert(QLatin1String(CPP_XCODESDKVERSION), re.cap(2));
+        const QRegExp sdkNameRe(QLatin1String("(macosx|iphoneos|iphonesimulator)([0-9]+\\.[0-9]+)"));
+        const QRegExp sdkVersionRe(QLatin1String("([0-9]+\\.[0-9]+)"));
+        QDir sysrootdir(sysroot);
+        const QSettings sdkSettings(sysrootdir.absoluteFilePath(QLatin1String("SDKSettings.plist")), QSettings::NativeFormat);
+        const QString sdkName(sdkSettings.value(QLatin1String("CanonicalName")).toString());
+        const QString sdkVersion(sdkSettings.value(QLatin1String("Version")).toString());
+        if (sdkNameRe.exactMatch(sdkName) && sdkVersionRe.exactMatch(sdkVersion)) {
+            for (int i = 3; i > 0; --i)
+                sysrootdir.cdUp();
+            data.insert(QLatin1String(CPP_PLATFORMPATH), sysrootdir.absolutePath());
+            data.insert(QLatin1String(CPP_XCODESDKNAME), sdkName);
+            data.insert(QLatin1String(CPP_XCODESDKVERSION), sdkVersion);
         }
     }
 

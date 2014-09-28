@@ -46,6 +46,7 @@ const char CPP_COMPILERNAME[] = "cpp.compilerName";
 const char CPP_LINKERNAME[] = "cpp.linkerName";
 const char CPP_PLATFORMCFLAGS[] = "cpp.platformCFlags";
 const char CPP_PLATFORMCXXFLAGS[] = "cpp.platformCxxFlags";
+const char CPP_PLATFORMPATH[] = "cpp.platformPath";
 const char CPP_XCODESDKNAME[] = "cpp.xcodeSdkName";
 const char CPP_XCODESDKVERSION[] = "cpp.xcodeSdkVersion";
 
