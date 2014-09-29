@@ -99,7 +99,10 @@ Canvas {
         target: qmlProfilerModelProxy
         onDataAvailable: {
             dataReady = true;
-            increment = Math.ceil(qmlProfilerModelProxy.count() / eventsPerPass);
+            increment = 0;
+            for (var i = 0; i < qmlProfilerModelProxy.modelCount(); ++i)
+                increment += qmlProfilerModelProxy.count(i);
+            increment = Math.ceil(increment / eventsPerPass);
             offset = -1;
             requestPaint();
         }

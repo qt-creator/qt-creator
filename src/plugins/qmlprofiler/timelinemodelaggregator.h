@@ -51,7 +51,7 @@ public:
     const AbstractTimelineModel *model(int modelIndex) const;
     QVariantList models() const;
 
-    Q_INVOKABLE int count(int modelIndex = -1) const;
+    Q_INVOKABLE int count(int modelIndex) const;
     void clear();
     Q_INVOKABLE int modelCount() const;
 
@@ -59,7 +59,7 @@ public:
     Q_INVOKABLE qint64 traceEndTime() const;
     Q_INVOKABLE qint64 traceDuration() const;
 
-    bool isEmpty() const;
+    Q_INVOKABLE bool isEmpty() const;
 
     Q_INVOKABLE int rowHeight(int modelIndex, int row) const;
     Q_INVOKABLE void setRowHeight(int modelIndex, int row, int height);

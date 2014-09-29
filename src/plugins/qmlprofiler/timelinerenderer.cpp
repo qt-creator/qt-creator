@@ -408,7 +408,7 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
     int eventFrom = m_profilerModelProxy->firstIndex(modelIndex, startTime);
     int eventTo = m_profilerModelProxy->lastIndex(modelIndex, endTime);
     if (eventFrom == -1 ||
-            eventTo < eventFrom || eventTo >= m_profilerModelProxy->count()) {
+            eventTo < eventFrom || eventTo >= m_profilerModelProxy->count(modelIndex)) {
         m_currentSelection.eventIndex = -1;
         return;
     }
@@ -464,7 +464,7 @@ void TimelineRenderer::clearData()
 int TimelineRenderer::getYPosition(int modelIndex, int index) const
 {
     Q_ASSERT(m_profilerModelProxy);
-    if (index >= m_profilerModelProxy->count())
+    if (index >= m_profilerModelProxy->count(modelIndex))
         return 0;
 
     int modelRowStart = 0;
@@ -477,7 +477,7 @@ int TimelineRenderer::getYPosition(int modelIndex, int index) const
 
 void TimelineRenderer::selectNext()
 {
-    if (m_profilerModelProxy->count() == 0)
+    if (m_profilerModelProxy->isEmpty())
         return;
 
     qint64 searchTime = m_startTime;
@@ -533,7 +533,7 @@ void TimelineRenderer::selectNext()
 
 void TimelineRenderer::selectPrev()
 {
-    if (m_profilerModelProxy->count() == 0)
+    if (m_profilerModelProxy->isEmpty())
         return;
 
     qint64 searchTime = m_endTime;

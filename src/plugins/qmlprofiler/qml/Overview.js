@@ -41,7 +41,7 @@ function drawGraph(canvas, ctxt)
 //draw the actual data to be graphed
 function drawData(canvas, ctxt)
 {
-    if ((!qmlProfilerModelProxy) || qmlProfilerModelProxy.count() === 0)
+    if ((!qmlProfilerModelProxy) || qmlProfilerModelProxy.isEmpty())
         return;
 
     var spacing = canvas.width / qmlProfilerModelProxy.traceDuration();

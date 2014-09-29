@@ -122,15 +122,7 @@ QVariantList TimelineModelAggregator::models() const
 
 int TimelineModelAggregator::count(int modelIndex) const
 {
-    if (modelIndex == -1) {
-        int totalCount = 0;
-        foreach (const AbstractTimelineModel *modelProxy, d->modelList)
-            totalCount += modelProxy->count();
-
-        return totalCount;
-    } else {
-        return d->modelList[modelIndex]->count();
-    }
+    return d->modelList[modelIndex]->count();
 }
 
 bool TimelineModelAggregator::isEmpty() const
