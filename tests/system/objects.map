@@ -47,6 +47,8 @@
 :Cannot Open Project.Show Details..._QPushButton	{text='Show Details...' type='QPushButton' unnamed='1' visible='1' window=':Cannot Open Project_QMessageBox'}
 :Cannot Open Project_QMessageBox	{text?='Failed to open project in *' type='QMessageBox' unnamed='1' visible='1'}
 :Cannot Open Project_QTextEdit	{type='QTextEdit' unnamed='1' visible='1' window=':Cannot Open Project_QMessageBox'}
+:Close Debugging Session.Yes_QPushButton	{text='Yes' type='QPushButton' unnamed='1' visible='1' window=':Close Debugging Session_Utils::CheckableMessageBox'}
+:Close Debugging Session_Utils::CheckableMessageBox	{type='Utils::CheckableMessageBox' unnamed='1' visible='1' windowTitle='Close Debugging Session'}
 :CodePaster__Internal__PasteSelectDialog.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :CodePaster__Internal__PasteSelectDialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget	{name='listWidget' type='QListWidget' visible='1' window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}
@@ -188,6 +190,7 @@
 :RunSettingsEnvironmentDetails_Utils::DetailsButton	{leftWidget=':RunSettingsUseBuildEnvironment_QLabel' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :RunSettingsUseBuildEnvironment_QLabel	{text~='Us(e|ing) <b>Build Environment</b>' type='QLabel' unnamed='1' visible='1'}
 :Save Changes.Always save files before build_QCheckBox	{name='saveBeforeBuildCheckBox' text='Always save files before build' type='QCheckBox' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
+:Save Changes.Do not Save_QPushButton	{text='Do not Save' type='QPushButton' unnamed='1' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
 :Save Changes.Save All_QPushButton	{text='Save All' type='QPushButton' unnamed='1' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
 :Save Changes_Core::Internal::SaveItemsDialog	{name='Core__Internal__SaveItemsDialog' type='Core::Internal::SaveItemsDialog' visible='1' windowTitle='Save Changes'}
 :Select signal.signalList_QTreeWidget	{container=':Go to slot.Select signal_QGroupBox' name='signalList' type='QTreeWidget' visible='1'}

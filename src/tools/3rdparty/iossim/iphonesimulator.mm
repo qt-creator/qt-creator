@@ -261,16 +261,25 @@ static void ChildSignal(int /*arg*/) {
 }
 
 - (void)session:(DTiPhoneSimulatorSession *)session didStart:(BOOL)started withError:(NSError *)error {
+  if (started) {
+    // bring to front...
+    [NSTask launchedTaskWithLaunchPath:@"/usr/bin/osascript"
+        arguments:[NSArray arrayWithObjects:
+            @"-e", @"tell application \"System Events\"",
+            @"-e", @"  set listOfProcesses to (name of every process where background only is false)",
+            @"-e", @"end tell",
+            @"-e", @"repeat with processName in listOfProcesses",
+            @"-e", @"  if processName starts with \"iOS Simulator\" or processName starts with \"iPhone Simulator\" then",
+            @"-e", @"    tell application processName to activate",
+            @"-e", @"  end if",
+            @"-e", @"end repeat", nil]];
+  }
   if (startOnly && session) {
-      [NSTask launchedTaskWithLaunchPath:@"/usr/bin/osascript"
-            arguments:[NSArray arrayWithObjects:@"-e", @"tell application \"iPhone Simulator\"  to activate", nil]];
       msgprintf(@"Simulator started (no session)");
       [self doExit:EXIT_SUCCESS];
       return;
   }
   if (started) {
-      [NSTask launchedTaskWithLaunchPath:@"/usr/bin/osascript"
-          arguments:[NSArray arrayWithObjects:@"-e", @"tell application \"iPhone Simulator\"  to activate", nil]];
       int pid  = [session simulatedApplicationPID];
       if (shouldStartDebugger) {
         char*args[4] = { NULL, NULL, (char*)[[[NSNumber numberWithInt:pid] description] UTF8String], NULL };

@@ -30,6 +30,7 @@
 #include "addimportcontainer.h"
 
 #include <QDebug>
+#include <QDataStream>
 
 namespace QmlDesigner {
 

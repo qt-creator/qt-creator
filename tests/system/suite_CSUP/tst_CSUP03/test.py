@@ -64,7 +64,7 @@ def constructExpectedCode(original, codeLines, funcSuffix):
     return "\n".join(tmp) + "\n"
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startCreatorTryingClang()
     if not startedWithoutPluginError():
         return
     projectName = createNewNonQtProject()
@@ -82,38 +82,45 @@ def main():
             "while with braces" : ["", "int dummy = 0;", "while (dummy < 10) {", "++dummy;"],
             "do while" : ["", "int dummy = 0;", "do", "++dummy;", "while (dummy < 10);"]
             }
-    editor = getEditorForFileSuffix("main.cpp")
-    if not editor:
-        test.fatal("Failed to get an editor - leaving test.")
-        invokeMenuItem("File", "Exit")
-        return
+    models = iterateAvailableCodeModels()
+    for current in models:
+        if current != models[0]:
+            selectCodeModel(current)
+        test.log("Testing code model: %s" % current)
+        openDocument("untitled.Sources.main\\.cpp")
+        editor = getEditorForFileSuffix("main.cpp")
+        if not editor:
+            test.fatal("Failed to get an editor - leaving test.")
+            invokeMenuItem("File", "Exit")
+            return
 
-    originalContent = str(editor.plainText)
-    for case, codeLines in code.items():
-        funcSuffix = case.title().replace(" ", "")
-        test.log("Testing: Extract Function for '%s'" % case)
-        if not placeCursorToLine(editor, "{"):
-            continue
-        typeLines(editor, codeLines)
-        if not placeCursorToLine(editor, codeLines[2]):
+        originalContent = str(editor.plainText)
+        for case, codeLines in code.items():
+            funcSuffix = case.title().replace(" ", "")
+            test.log("Testing: Extract Function for '%s'" % case)
+            if not placeCursorToLine(editor, "{"):
+                continue
+            typeLines(editor, codeLines)
+            if not placeCursorToLine(editor, codeLines[2]):
+                revertMainCpp()
+                continue
+            type(editor, home)
+            markText(editor, "Right", 2)
+            snooze(1) # avoid timing issue with the parser
+            invokeContextMenuItem(editor, 'Refactor', 'Extract Function')
+            funcEdit = waitForObject("{buddy={text='Enter function name' type='QLabel' unnamed='1' "
+                                     "visible='1' window=%s} type='QLineEdit' unnamed='1' visible='1'}"
+                                     % inputDialog)
+            replaceEditorContent(funcEdit, "myFunc%s" % funcSuffix)
+            clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}"
+                                      % inputDialog))
+            waitFor("'void myFunc%s' in str(editor.plainText)" % funcSuffix, 2500)
+            # verify the change
+            modifiedCode = str(editor.plainText)
+            expectedCode = constructExpectedCode(originalContent, codeLines, funcSuffix)
+            test.compare(modifiedCode, expectedCode, "Verifying whether code matches expected.")
+            # reverting to initial state of main.cpp
             revertMainCpp()
-            continue
-        type(editor, home)
-        markText(editor, "Right", 2)
-        snooze(1) # avoid timing issue with the parser
-        invokeContextMenuItem(editor, 'Refactor', 'Extract Function')
-        funcEdit = waitForObject("{buddy={text='Enter function name' type='QLabel' unnamed='1' "
-                                 "visible='1' window=%s} type='QLineEdit' unnamed='1' visible='1'}"
-                                 % inputDialog)
-        replaceEditorContent(funcEdit, "myFunc%s" % funcSuffix)
-        clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}"
-                                  % inputDialog))
-        waitFor("'void myFunc%s' in str(editor.plainText)" % funcSuffix, 2500)
-        # verify the change
-        modifiedCode = str(editor.plainText)
-        expectedCode = constructExpectedCode(originalContent, codeLines, funcSuffix)
-        test.compare(modifiedCode, expectedCode, "Verifying whether code matches expected.")
-        # reverting to initial state of main.cpp
-        revertMainCpp()
+        invokeMenuItem('File', 'Close All')
 
     invokeMenuItem('File', 'Exit')

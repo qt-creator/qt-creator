@@ -84,6 +84,10 @@ def main():
                 ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
                 clickButton(waitForObject("{type='CloseButton' unnamed='1' visible='1' "
                                           "window=':Qt Creator_Core::Internal::MainWindow'}"))
+                try:
+                    clickButton(waitForObject(":Close Debugging Session.Yes_QPushButton", 2000))
+                except:
+                    pass
                 if platform.system() == 'Darwin' and JIRA.isBugStillOpen(11595):
                     try:
                         expectedBreakpointsOrder.remove({os.path.join(workingDir, projectName, "main.cpp"):10})

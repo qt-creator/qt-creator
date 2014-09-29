@@ -792,13 +792,37 @@ void PerforcePlugin::filelog(const QString &workingDir, const QString &fileName,
 
 void PerforcePlugin::updateActions(VcsBasePlugin::ActionState as)
 {
-    if (!enableMenuAction(as, m_menuAction)) {
-        m_commandLocator->setEnabled(false);
+    const bool menuActionEnabled = enableMenuAction(as, m_menuAction);
+    const bool enableActions = currentState().hasTopLevel() && menuActionEnabled;
+    m_commandLocator->setEnabled(enableActions);
+    m_logRepositoryAction->setEnabled(enableActions);
+    m_editAction->setEnabled(enableActions);
+    m_addAction->setEnabled(enableActions);
+    m_deleteAction->setEnabled(enableActions);
+    m_openedAction->setEnabled(enableActions);
+    m_revertFileAction->setEnabled(enableActions);
+    m_diffFileAction->setEnabled(enableActions);
+    m_diffProjectAction->setEnabled(enableActions);
+    m_updateProjectAction->setEnabled(enableActions);
+    m_revertProjectAction->setEnabled(enableActions);
+    m_revertUnchangedAction->setEnabled(enableActions);
+    m_diffAllAction->setEnabled(enableActions);
+    m_submitProjectAction->setEnabled(enableActions);
+    m_pendingAction->setEnabled(enableActions);
+    m_describeAction->setEnabled(enableActions);
+    m_annotateCurrentAction->setEnabled(enableActions);
+    m_annotateAction->setEnabled(enableActions);
+    m_filelogCurrentAction->setEnabled(enableActions);
+    m_filelogAction->setEnabled(enableActions);
+    m_logProjectAction->setEnabled(enableActions);
+    m_logRepositoryAction->setEnabled(enableActions);
+    m_submitCurrentLogAction->setEnabled(enableActions);
+    m_updateAllAction->setEnabled(enableActions);
+    m_diffSelectedFiles->setEnabled(enableActions);
+    m_undoAction->setEnabled(enableActions);
+    m_redoAction->setEnabled(enableActions);
+    if (!menuActionEnabled)
         return;
-    }
-    const bool hasTopLevel = currentState().hasTopLevel();
-    m_commandLocator->setEnabled(hasTopLevel);
-    m_logRepositoryAction->setEnabled(hasTopLevel);
 
     const QString fileName = currentState().currentFileName();
     m_editAction->setParameter(fileName);
@@ -816,14 +840,6 @@ void PerforcePlugin::updateActions(VcsBasePlugin::ActionState as)
     m_submitProjectAction->setParameter(projectName);
     m_revertProjectAction->setParameter(projectName);
     m_revertUnchangedAction->setParameter(projectName);
-
-    m_diffAllAction->setEnabled(true);
-    m_openedAction->setEnabled(true);
-    m_describeAction->setEnabled(true);
-    m_annotateAction->setEnabled(true);
-    m_filelogAction->setEnabled(true);
-    m_pendingAction->setEnabled(true);
-    m_updateAllAction->setEnabled(true);
 }
 
 bool PerforcePlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */)

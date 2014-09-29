@@ -1344,6 +1344,8 @@ void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
 
 ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
 {
+    disconnect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
+               this, SLOT(currentModeChanged(Core::IMode*,Core::IMode*)));
     dd->m_proWindow->aboutToShutdown(); // disconnect from session
     SessionManager::closeAllProjects();
     dd->m_projectsMode = 0;
@@ -1730,9 +1732,8 @@ void ProjectExplorerPlugin::restoreSession()
         SessionManager::loadSession(dd->m_sessionToRestoreAtStartup);
 
     // update welcome page
-    connect(ModeManager::instance(),
-            SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
-            SLOT(currentModeChanged(Core::IMode*,Core::IMode*)));
+    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
+            this, SLOT(currentModeChanged(Core::IMode*,Core::IMode*)));
     connect(dd->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
     connect(dd->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(openProjectWelcomePage(QString)));
     dd->m_arguments = arguments;

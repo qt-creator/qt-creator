@@ -37,6 +37,7 @@
 #include <QStack>
 #include <QList>
 #include <QVector>
+#include <QMetaObject>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
