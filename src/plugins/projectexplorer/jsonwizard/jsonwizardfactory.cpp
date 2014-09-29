@@ -84,11 +84,6 @@ static const char PAGE_INDEX_KEY[] = "index";
 static const char OPTIONS_KEY[] = "options";
 static const char PLATFORM_INDEPENDENT_KEY[] = "platformIndependent";
 
-QList<Utils::FileName> JsonWizardFactory::m_searchPaths
-    = QList<Utils::FileName>()
-        << Utils::FileName::fromString(Core::ICore::userResourcePath() + QLatin1Char('/') + QLatin1String(WIZARD_PATH))
-        << Utils::FileName::fromString(Core::ICore::resourcePath() + QLatin1Char('/') + QLatin1String(WIZARD_PATH));
-
 int JsonWizardFactory::m_verbose = 0;
 
 // Return locale language attribute "de_UTF8" -> "de", empty string for "C"
@@ -210,7 +205,7 @@ QList<JsonWizardFactory *> JsonWizardFactory::createWizardFactories()
     const QString wizardFileName = QLatin1String(WIZARD_FILE);
 
     QList <JsonWizardFactory *> result;
-    foreach (const Utils::FileName &path, m_searchPaths) {
+    foreach (const Utils::FileName &path, searchPaths()) {
         if (path.isEmpty())
             continue;
 
@@ -321,9 +316,19 @@ JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &dat
     return factory;
 }
 
+QList<Utils::FileName> &JsonWizardFactory::searchPaths()
+{
+    static QList<Utils::FileName> m_searchPaths = QList<Utils::FileName>()
+            << Utils::FileName::fromString(Core::ICore::userResourcePath() + QLatin1Char('/') +
+                                           QLatin1String(WIZARD_PATH))
+            << Utils::FileName::fromString(Core::ICore::resourcePath() + QLatin1Char('/') +
+                                           QLatin1String(WIZARD_PATH));
+    return m_searchPaths;
+}
+
 void JsonWizardFactory::addWizardPath(const Utils::FileName &path)
 {
-    m_searchPaths.append(path);
+    searchPaths().append(path);
 }
 
 void JsonWizardFactory::setVerbose(int level)

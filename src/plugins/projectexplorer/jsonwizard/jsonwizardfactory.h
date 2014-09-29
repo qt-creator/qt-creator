@@ -95,6 +95,7 @@ private:
     static QList<JsonWizardFactory *> createWizardFactories();
     static JsonWizardFactory *createWizardFactory(const QVariantMap &data, const QDir &baseDir,
                                                   QString *errorMessage);
+    static QList<Utils::FileName> &searchPaths();
 
     static void setVerbose(int level);
     static int verbose();
@@ -110,7 +111,6 @@ private:
 
     Core::FeatureSet m_preferredFeatures;
 
-    static QList<Utils::FileName> m_searchPaths;
     static int m_verbose;
 
     friend class ProjectExplorerPlugin;
