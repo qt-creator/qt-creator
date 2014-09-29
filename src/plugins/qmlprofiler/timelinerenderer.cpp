@@ -585,20 +585,23 @@ void TimelineRenderer::selectPrev()
 
 int TimelineRenderer::nextItemFromSelectionId(int modelIndex, int selectionId) const
 {
+    int modelCount = m_profilerModelProxy->count(modelIndex);
+    if (modelCount == 0)
+        return -1;
+
     int ndx = -1;
-    if (m_selectedItem == -1)
+    if (m_selectedItem == -1 || modelIndex != m_selectedModel)
         ndx = m_profilerModelProxy->firstIndexNoParents(modelIndex, m_startTime);
     else
         ndx = m_selectedItem + 1;
-    if (ndx < 0)
-        return -1;
-    if (ndx >= m_profilerModelProxy->count(modelIndex))
+
+    if (ndx < 0 || ndx >= modelCount)
         ndx = 0;
     int startIndex = ndx;
     do {
         if (m_profilerModelProxy->selectionId(modelIndex, ndx) == selectionId)
             return ndx;
-        ndx = (ndx + 1) % m_profilerModelProxy->count(modelIndex);
+        ndx = (ndx + 1) % modelCount;
     } while (ndx != startIndex);
     return -1;
 }
@@ -606,7 +609,7 @@ int TimelineRenderer::nextItemFromSelectionId(int modelIndex, int selectionId) c
 int TimelineRenderer::prevItemFromSelectionId(int modelIndex, int selectionId) const
 {
     int ndx = -1;
-    if (m_selectedItem == -1)
+    if (m_selectedItem == -1 || modelIndex != m_selectedModel)
         ndx = m_profilerModelProxy->firstIndexNoParents(modelIndex, m_startTime);
     else
         ndx = m_selectedItem - 1;
