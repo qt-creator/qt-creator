@@ -741,7 +741,7 @@ static QList<ChunkData> readChunks(const QString &patch,
             chunkData.rightStartingLineNumber = rightStartingPos - 1;
             chunkData.contextInfo = contextInfo;
             chunkDataList.append(chunkData);
-        } while ((pos = chunkRegExp.indexIn(patch, pos)) != -1);
+        } while ((pos = chunkRegExp.indexIn(patch, pos, QRegExp::CaretAtOffset)) != -1);
 
         if (endOfLastChunk > 0) {
             const QString lines = patch.mid(endOfLastChunk);
@@ -1037,8 +1037,8 @@ static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace,
 
     QList<FileData> fileDataList;
 
-    const int simpleGitPos = simpleGitRegExp.indexIn(patch, 0);
-    const int similarityPos = similarityRegExp.indexIn(patch, 0);
+    int simpleGitPos = simpleGitRegExp.indexIn(patch);
+    int similarityPos = similarityRegExp.indexIn(patch);
 
     bool simpleGitMatched = false;
     int pos = -1;
@@ -1104,8 +1104,8 @@ static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace,
                     break; // either copy or rename, otherwise broken
             }
 
-            const int simpleGitPos = simpleGitRegExp.indexIn(patch, pos);
-            const int similarityPos = similarityRegExp.indexIn(patch, pos);
+            simpleGitPos = simpleGitRegExp.indexIn(patch, pos, QRegExp::CaretAtOffset);
+            similarityPos = similarityRegExp.indexIn(patch, pos, QRegExp::CaretAtOffset);
 
             simpleGitMatched = false;
             pos = -1;

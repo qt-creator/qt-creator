@@ -820,6 +820,56 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
 
     QTest::newRow("Blank line followed by No newline") << patch
                                 << fileDataList5;
+
+    //////////////
+
+    // Based on 953cdb97
+    patch = _("diff --git a/src/plugins/texteditor/basetextdocument.h b/src/plugins/texteditor/textdocument.h\n"
+              "similarity index 100%\n"
+              "rename from src/plugins/texteditor/basetextdocument.h\n"
+              "rename to src/plugins/texteditor/textdocument.h\n"
+              "diff --git a/src/plugins/texteditor/basetextdocumentlayout.cpp b/src/plugins/texteditor/textdocumentlayout.cpp\n"
+              "similarity index 79%\n"
+              "rename from src/plugins/texteditor/basetextdocumentlayout.cpp\n"
+              "rename to src/plugins/texteditor/textdocumentlayout.cpp\n"
+              "index 0121933..01cc3a0 100644\n"
+              "--- a/src/plugins/texteditor/basetextdocumentlayout.cpp\n"
+              "+++ b/src/plugins/texteditor/textdocumentlayout.cpp\n"
+              "@@ -2,5 +2,5 @@ void func()\n"
+              " A\n"
+              " B\n"
+              "-C\n"
+              "+Z\n"
+              " D\n"
+              " \n"
+              );
+
+    fileData1 = FileData();
+    fileData1.leftFileInfo = DiffFileInfo(_("src/plugins/texteditor/basetextdocument.h"));
+    fileData1.rightFileInfo = DiffFileInfo(_("src/plugins/texteditor/textdocument.h"));
+    fileData1.fileOperation = FileData::RenameFile;
+    fileData2 = FileData();
+    fileData2.leftFileInfo = DiffFileInfo(_("src/plugins/texteditor/basetextdocumentlayout.cpp"), _("0121933"));
+    fileData2.rightFileInfo = DiffFileInfo(_("src/plugins/texteditor/textdocumentlayout.cpp"), _("01cc3a0"));
+    fileData2.fileOperation = FileData::RenameFile;
+    chunkData2.leftStartingLineNumber = 1;
+    chunkData2.rightStartingLineNumber = 1;
+    rows2.clear();
+    rows2 << RowData(_("A"));
+    rows2 << RowData(_("B"));
+    rows2 << RowData(_("C"), _("Z"));
+    rows2 << RowData(_("D"));
+    rows2 << RowData(_(""));
+    chunkData2.rows = rows2;
+    fileData2.chunks.clear();
+    fileData2.chunks << chunkData2;
+
+    QList<FileData> fileDataList6;
+    fileDataList6 << fileData1 << fileData2;
+
+    QTest::newRow("Multiple renames") << patch
+                                      << fileDataList6;
+
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
