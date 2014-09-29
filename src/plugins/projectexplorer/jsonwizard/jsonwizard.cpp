@@ -143,7 +143,6 @@ void JsonWizard::removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a)
 
 void JsonWizard::accept()
 {
-
     Utils::Wizard::accept();
 
     QString errorMessage;

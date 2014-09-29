@@ -31,8 +31,10 @@
 
 #include "jsonwizard.h"
 #include "../addnewmodel.h"
+#include "../project.h"
 #include "../projectexplorerconstants.h"
 #include "../projectnodes.h"
+#include "../session.h"
 
 #include <coreplugin/coreconstants.h>
 
@@ -79,7 +81,10 @@ static IWizardFactory::WizardKind wizardKind(JsonWizard *wiz)
 
 JsonSummaryPage::JsonSummaryPage(QWidget *parent) :
     Internal::ProjectWizardPage(parent)
-{ }
+{
+    connect(this, &Internal::ProjectWizardPage::projectNodeChanged,
+            this, &JsonSummaryPage::projectNodeHasChanged);
+}
 
 void JsonSummaryPage::initializePage()
 {
@@ -172,6 +177,19 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
         }
     }
     return;
+}
+
+void JsonSummaryPage::projectNodeHasChanged()
+{
+    updateProjectData(currentNode());
+}
+
+void JsonSummaryPage::updateProjectData(FolderNode *node)
+{
+    Project *project = SessionManager::projectForNode(node);
+
+    wizard()->setProperty("SelectedProject", QVariant::fromValue(project));
+    wizard()->setProperty("SelectedFolderNode", QVariant::fromValue(node));
 }
 
 } // namespace ProjectExplorer

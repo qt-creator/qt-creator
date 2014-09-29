@@ -32,25 +32,96 @@
 #include "jsonwizard.h"
 #include "jsonwizardfilegenerator.h"
 
+#include "../editorconfiguration.h"
+#include "../project.h"
 #include "../projectexplorerconstants.h"
 
 #include <coreplugin/dialogs/promptoverwritedialog.h>
+#include <coreplugin/mimedatabase.h>
+#include <texteditor/icodestylepreferences.h>
+#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/indenter.h>
+#include <texteditor/normalindenter.h>
+#include <texteditor/storagesettings.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QDebug>
 #include <QStringList>
+#include <QTextCursor>
+#include <QTextDocument>
+
+using namespace Core;
+using namespace TextEditor;
 
 namespace ProjectExplorer {
 
 // --------------------------------------------------------------------
+// Helpers:
+// --------------------------------------------------------------------
+
+static ICodeStylePreferences *codeStylePreferences(Project *project, Id languageId)
+{
+    if (!languageId.isValid())
+        return 0;
+
+    if (project)
+        return project->editorConfiguration()->codeStyle(languageId);
+
+    return TextEditorSettings::codeStyle(languageId);
+}
+
+// --------------------------------------------------------------------
 // JsonWizardGenerator:
 // --------------------------------------------------------------------
+
+bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
+{
+    Q_UNUSED(errorMessage);
+
+    if (file->isBinary() || file->contents().isEmpty())
+        return true; // nothing to do
+
+    MimeType mt = MimeDatabase::findByFile(QFileInfo(file->path()));
+    Id languageId = TextEditorSettings::languageId(mt.type());
+
+    if (!languageId.isValid())
+        return true; // don't modify files like *.ui, *.pro
+
+    Project *baseProject = qobject_cast<Project *>(wizard->property("SelectedProject").value<QObject *>());
+    ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
+
+    Indenter *indenter = 0;
+    if (factory)
+        indenter = factory->createIndenter();
+    if (!indenter)
+        indenter = new NormalIndenter();
+
+    ICodeStylePreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
+    indenter->setCodeStylePreferences(codeStylePrefs);
+    QTextDocument doc(file->contents());
+    QTextCursor cursor(&doc);
+    cursor.select(QTextCursor::Document);
+    indenter->indent(&doc, cursor, QChar::Null, codeStylePrefs->currentTabSettings());
+    delete indenter;
+    if (TextEditorSettings::storageSettings().m_cleanWhitespace) {
+        QTextBlock block = doc.firstBlock();
+        while (block.isValid()) {
+            codeStylePrefs->currentTabSettings().removeTrailingWhitespace(cursor, block);
+            block = block.next();
+        }
+    }
+    file->setContents(doc.toPlainText());
+
+    return true;
+}
 
 JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(JsonWizard::GeneratorFiles *files,
                                                                              QString *errorMessage)

@@ -30,7 +30,6 @@
 #include "jsonwizardfilegenerator.h"
 
 #include "../customwizard/customwizardpreprocessor.h"
-#include "../project.h"
 #include "../projectexplorer.h"
 #include "jsonwizard.h"
 #include "jsonwizardfactory.h"
@@ -156,15 +155,6 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::AbstractMacroExpan
     }
 
     return result;
-}
-
-bool JsonWizardFileGenerator::formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
-{
-    Q_UNUSED(wizard);
-    Q_UNUSED(file);
-    Q_UNUSED(errorMessage);
-    // TODO: Implement me!
-    return true;
 }
 
 bool JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)

@@ -494,6 +494,7 @@ void ProjectWizardPage::slotProjectChanged(int index)
 {
     setProjectToolTip(index >= 0 && index < m_projectToolTips.size() ?
                       m_projectToolTips.at(index) : QString());
+    emit projectNodeChanged();
 }
 
 void ProjectWizardPage::slotManageVcs()

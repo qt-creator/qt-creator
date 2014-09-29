@@ -51,7 +51,7 @@ public:
     virtual Core::GeneratedFiles fileList(Utils::AbstractMacroExpander *expander,
                                           const QString &baseDir, const QString &projectDir,
                                           QString *errorMessage) = 0;
-    virtual bool formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) = 0;
+    virtual bool formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
     virtual bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) = 0;
     virtual bool postWrite(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) = 0;
 

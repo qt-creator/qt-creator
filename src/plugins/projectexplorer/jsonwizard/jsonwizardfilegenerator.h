@@ -47,7 +47,6 @@ public:
                                   const QString &wizardDir, const QString &projectDir,
                                   QString *errorMessage);
 
-    bool formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
     bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
     bool postWrite(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
 

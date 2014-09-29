@@ -76,6 +76,9 @@ public:
                                Core::IWizardFactory::WizardKind kind,
                                ProjectExplorer::ProjectAction action);
 
+signals:
+    void projectNodeChanged();
+
 public slots:
     void initializeVersionControls();
 

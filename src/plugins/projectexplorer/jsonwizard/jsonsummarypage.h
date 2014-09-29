@@ -37,6 +37,8 @@
 
 namespace ProjectExplorer {
 
+class FolderNode;
+
 // Documentation inside.
 class JsonSummaryPage : public Internal::ProjectWizardPage
 {
@@ -51,6 +53,10 @@ public:
 public slots:
     void triggerCommit(const JsonWizard::GeneratorFiles &files);
     void addToProject(const JsonWizard::GeneratorFiles &files);
+    void projectNodeHasChanged();
+
+private:
+    void updateProjectData(FolderNode *node);
 };
 
 } // namespace ProjectExplorer
