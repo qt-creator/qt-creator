@@ -161,7 +161,19 @@ Rectangle {
         // which tracks only events from the basic model
         if (!lockItemSelection) {
             lockItemSelection = true;
-            var itemIndex = view.nextItemFromSelectionId(modelIndex, selectionId);
+            var itemIndex = -1;
+            var notes = qmlProfilerModelProxy.notesByTypeId(selectionId);
+            if (notes.length !== 0) {
+                itemIndex = qmlProfilerModelProxy.noteTimelineIndex(notes[0]);
+                // for some models typeId != selectionId. In that case we cannot select the noted
+                // events. This is purely theoretical as their data doesn't show up in the events
+                // view so that we cannot receive a selection event for them.
+                if (qmlProfilerModelProxy.typeId(modelIndex, itemIndex) !== selectionId)
+                    itemIndex = -1;
+            }
+
+            if (itemIndex === -1)
+                itemIndex = view.nextItemFromSelectionId(modelIndex, selectionId);
             // select an item, lock to it, and recenter if necessary
             view.selectFromEventIndex(modelIndex, itemIndex); // triggers recentering
             if (itemIndex !== -1)
