@@ -86,8 +86,11 @@ bool sortNodes(Node *n1, Node *n2)
             int result = caseFriendlyCompare(project1->displayName(), project2->displayName());
             if (result != 0)
                 return result < 0;
-            else
-                return project1 < project2; // sort by pointer value
+
+            result = caseFriendlyCompare(project1->path(), project2->path());
+            if (result != 0)
+                return result < 0;
+            return project1 < project2; // sort by pointer value
         } else {
            return true; // project is before folder & file
        }
