@@ -82,6 +82,11 @@ QVariant QmlJSOutlineFilterModel::data(const QModelIndex &index, int role) const
     return QSortFilterProxyModel::data(index, role);
 }
 
+Qt::DropActions QmlJSOutlineFilterModel::supportedDragActions() const
+{
+    return sourceModel()->supportedDragActions();
+}
+
 bool QmlJSOutlineFilterModel::filterBindings() const
 {
     return m_filterBindings;

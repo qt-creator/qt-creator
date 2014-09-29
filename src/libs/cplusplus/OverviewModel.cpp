@@ -34,6 +34,7 @@
 #include <cplusplus/Scope.h>
 #include <cplusplus/Literals.h>
 #include <cplusplus/Symbols.h>
+#include <utils/fileutils.h>
 
 using namespace CPlusPlus;
 
@@ -242,3 +243,35 @@ void OverviewModel::rebuild(Document::Ptr doc)
     _cppDocument = doc;
     endResetModel();
 }
+
+Qt::ItemFlags OverviewModel::flags(const QModelIndex &index) const
+{
+    Q_UNUSED(index)
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+}
+
+Qt::DropActions OverviewModel::supportedDragActions() const
+{
+    return Qt::MoveAction;
+}
+
+QStringList OverviewModel::mimeTypes() const
+{
+    return Utils::FileDropSupport::mimeTypesForFilePaths();
+}
+
+QMimeData *OverviewModel::mimeData(const QModelIndexList &indexes) const
+{
+    auto mimeData = new Utils::FileDropMimeData;
+    foreach (const QModelIndex &index, indexes) {
+        const QVariant fileName = data(index, FileNameRole);
+        if (!fileName.canConvert<QString>())
+            continue;
+        const QVariant lineNumber = data(index, LineNumberRole);
+        if (!fileName.canConvert<unsigned>())
+            continue;
+        mimeData->addFile(fileName.toString(), lineNumber.value<unsigned>());
+    }
+    return mimeData;
+}
+

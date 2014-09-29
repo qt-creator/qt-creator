@@ -60,6 +60,7 @@ public:
     // QSortFilterProxyModel
     bool filterAcceptsRow(int sourceRow,
                           const QModelIndex &sourceParent) const;
+    Qt::DropActions supportedDragActions() const;
 private:
     CPlusPlus::OverviewModel *m_sourceModel;
 };

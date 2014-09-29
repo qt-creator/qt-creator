@@ -61,6 +61,11 @@ public:
     Document::Ptr document() const;
     Symbol *symbolFromIndex(const QModelIndex &index) const;
 
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::DropActions supportedDragActions() const;
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+
 public Q_SLOTS:
     void rebuild(CPlusPlus::Document::Ptr doc);
 

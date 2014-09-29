@@ -37,6 +37,7 @@
 #include <qmljs/qmljsrewriter.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <coreplugin/icore.h>
@@ -52,6 +53,8 @@ using namespace QmlJSTools;
 enum {
     debug = false
 };
+
+static const char INTERNAL_MIMETYPE[] = "application/x-qtcreator-qmloutlinemodel";
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -312,7 +315,8 @@ QmlOutlineModel::QmlOutlineModel(QmlJSEditorDocument *document) :
 QStringList QmlOutlineModel::mimeTypes() const
 {
     QStringList types;
-    types << QLatin1String("application/x-qtcreator-qmloutlinemodel");
+    types << QLatin1String(INTERNAL_MIMETYPE);
+    types << Utils::FileDropSupport::mimeTypesForFilePaths();
     return types;
 }
 
@@ -321,15 +325,18 @@ QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.count() <= 0)
         return 0;
-    QStringList types = mimeTypes();
-    QMimeData *data = new QMimeData();
-    QString format = types.at(0);
+    auto data = new Utils::FileDropMimeData;
+    data->setOverrideFileDropAction(Qt::CopyAction);
     QByteArray encoded;
     QDataStream stream(&encoded, QIODevice::WriteOnly);
     stream << indexes.size();
 
     for (int i = 0; i < indexes.size(); ++i) {
         QModelIndex index = indexes.at(i);
+
+        AST::SourceLocation location = sourceLocation(index);
+        data->addFile(m_editorDocument->filePath(), location.startLine,
+                      location.startColumn - 1 /*editors have 0-based column*/);
 
         QList<int> rowPath;
         for (QModelIndex i = index; i.isValid(); i = i.parent()) {
@@ -338,7 +345,7 @@ QMimeData *QmlOutlineModel::mimeData(const QModelIndexList &indexes) const
 
         stream << rowPath;
     }
-    data->setData(format, encoded);
+    data->setData(QLatin1String(INTERNAL_MIMETYPE), encoded);
     return data;
 }
 
@@ -410,8 +417,8 @@ Qt::ItemFlags QmlOutlineModel::flags(const QModelIndex &index) const
 
 Qt::DropActions QmlOutlineModel::supportedDragActions() const
 {
-    // TODO: Maybe add a Copy Action?
-    return Qt::MoveAction;
+    // copy action used for dragging onto editor splits
+    return Qt::MoveAction | Qt::CopyAction;
 }
 
 
@@ -915,7 +922,7 @@ QString QmlOutlineModel::asString(AST::UiQualifiedId *id)
 
 AST::SourceLocation QmlOutlineModel::getLocation(AST::UiObjectMember *objMember) {
     AST::SourceLocation location;
-    location.offset = objMember->firstSourceLocation().offset;
+    location = objMember->firstSourceLocation();
     location.length = objMember->lastSourceLocation().offset
             - objMember->firstSourceLocation().offset
             + objMember->lastSourceLocation().length;
@@ -924,7 +931,7 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::UiObjectMember *objMember)
 
 AST::SourceLocation QmlOutlineModel::getLocation(AST::ExpressionNode *exprNode) {
     AST::SourceLocation location;
-    location.offset = exprNode->firstSourceLocation().offset;
+    location = exprNode->firstSourceLocation();
     location.length = exprNode->lastSourceLocation().offset
             - exprNode->firstSourceLocation().offset
             + exprNode->lastSourceLocation().length;
@@ -941,7 +948,7 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyAssignmentList *pr
 
 AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyNameAndValue *propertyNode) {
     AST::SourceLocation location;
-    location.offset = propertyNode->name->propertyNameToken.offset;
+    location = propertyNode->name->propertyNameToken;
     location.length = propertyNode->value->lastSourceLocation().end() - location.offset;
 
     return location;
@@ -949,7 +956,7 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyNameAndValue *prop
 
 AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyGetterSetter *propertyNode) {
     AST::SourceLocation location;
-    location.offset = propertyNode->name->propertyNameToken.offset;
+    location = propertyNode->name->propertyNameToken;
     location.length = propertyNode->rbraceToken.end() - location.offset;
 
     return location;

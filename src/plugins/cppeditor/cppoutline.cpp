@@ -51,6 +51,8 @@ CppOutlineTreeView::CppOutlineTreeView(QWidget *parent) :
     Utils::NavigationTreeView(parent)
 {
     setExpandsOnDoubleClick(false);
+    setDragEnabled(true);
+    setDragDropMode(QAbstractItemView::DragOnly);
 }
 
 void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
@@ -88,6 +90,11 @@ bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
         return false;
 
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
+}
+
+Qt::DropActions CppOutlineFilterModel::supportedDragActions() const
+{
+    return sourceModel()->supportedDragActions();
 }
 
 

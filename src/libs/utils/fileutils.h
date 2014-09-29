@@ -236,11 +236,19 @@ class QTCREATOR_UTILS_EXPORT FileDropMimeData : public QMimeData
 {
     Q_OBJECT
 public:
+    FileDropMimeData();
+
+    void setOverrideFileDropAction(Qt::DropAction action);
+    Qt::DropAction overrideFileDropAction() const;
+    bool isOverridingFileDropAction() const;
+
     void addFile(const QString &filePath, int line = -1, int column = -1);
     QList<FileDropSupport::FileSpec> files() const;
 
 private:
     QList<FileDropSupport::FileSpec> m_files;
+    Qt::DropAction m_overrideDropAction;
+    bool m_isOverridingDropAction;
 };
 
 } // namespace Utils

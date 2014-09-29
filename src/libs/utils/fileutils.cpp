@@ -778,12 +778,22 @@ bool FileDropSupport::eventFilter(QObject *obj, QEvent *event)
         QList<FileSpec> tempFiles;
         if (isFileDrop(de->mimeData(), &tempFiles)
                 && (!m_filterFunction || m_filterFunction(de))) {
+            const FileDropMimeData *fileDropMimeData = qobject_cast<const FileDropMimeData *>(de->mimeData());
             event->accept();
-            de->acceptProposedAction();
+            if (fileDropMimeData && fileDropMimeData->isOverridingFileDropAction())
+                de->setDropAction(fileDropMimeData->overrideFileDropAction());
+            else
+                de->acceptProposedAction();
             bool needToScheduleEmit = m_files.isEmpty();
             m_files.append(tempFiles);
-            if (needToScheduleEmit) // otherwise we already have a timer pending
-                QTimer::singleShot(0, this, SLOT(emitFilesDropped()));
+            if (needToScheduleEmit) { // otherwise we already have a timer pending
+                // Delay the actual drop, to avoid conflict between
+                // actions that happen when opening files, and actions that the item views do
+                // after the drag operation.
+                // If we do not do this, e.g. dragging from Outline view crashes if the editor and
+                // the selected item changes
+                QTimer::singleShot(100, this, SLOT(emitFilesDropped()));
+            }
         } else {
             event->ignore();
         }
@@ -797,6 +807,34 @@ void FileDropSupport::emitFilesDropped()
     QTC_ASSERT(!m_files.isEmpty(), return);
     emit filesDropped(m_files);
     m_files.clear();
+}
+
+/*!
+    Sets the drop action to effectively use, instead of the "proposed" drop action from the
+    drop event. This can be useful when supporting move drags within an item view, but not
+    "moving" an item from the item view into a split.
+ */
+FileDropMimeData::FileDropMimeData()
+    : m_overrideDropAction(Qt::IgnoreAction),
+      m_isOverridingDropAction(false)
+{
+
+}
+
+void FileDropMimeData::setOverrideFileDropAction(Qt::DropAction action)
+{
+    m_isOverridingDropAction = true;
+    m_overrideDropAction = action;
+}
+
+Qt::DropAction FileDropMimeData::overrideFileDropAction() const
+{
+    return m_overrideDropAction;
+}
+
+bool FileDropMimeData::isOverridingFileDropAction() const
+{
+    return m_isOverridingDropAction;
 }
 
 void FileDropMimeData::addFile(const QString &filePath, int line, int column)
