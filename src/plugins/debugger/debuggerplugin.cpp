@@ -2570,6 +2570,7 @@ void DebuggerPluginPrivate::createNewDock(QWidget *widget)
 {
     QDockWidget *dockWidget =
         m_mainWindow->createDockWidget(CppLanguage, widget);
+    dockWidget->setWindowTitle(widget->windowTitle());
     dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
     dockWidget->show();
 }

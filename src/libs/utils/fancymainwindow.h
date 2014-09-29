@@ -40,7 +40,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class FancyMainWindowPrivate;
+struct FancyMainWindowPrivate;
 
 class QTCREATOR_UTILS_EXPORT FancyMainWindow : public QMainWindow
 {
@@ -63,26 +63,32 @@ public:
     void restoreSettings(const QHash<QString, QVariant> &settings);
 
     // Additional context menu actions
-    QAction *menuSeparator() const;
+    QAction *menuSeparator1() const;
+    QAction *autoHideTitleBarsAction() const;
+    QAction *menuSeparator2() const;
     QAction *resetLayoutAction() const;
-
-    // Overwritten to add locked/reset.
     void addDockActionsToMenu(QMenu *menu);
 
     QDockWidget *toolBarDockWidget() const;
     void setToolBarDockWidget(QDockWidget *dock);
 
-    void setDockActionsVisible(bool v);
+    bool titleBarsAlwaysVisible() const;
 
 signals:
     // Emitted by resetLayoutAction(). Connect to a slot
     // restoring the default layout.
     void resetLayout();
 
+public slots:
+    void setDockActionsVisible(bool v);
+
 protected:
     void hideEvent(QHideEvent *event);
     void showEvent(QShowEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
+
+private slots:
+    void onDockActionTriggered();
 
 private:
     void handleVisibilityChanged(bool visible);

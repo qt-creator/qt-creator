@@ -290,8 +290,16 @@ void AnalyzerManagerPrivate::delayedInit()
     // Populate Windows->Views menu with standard actions.
     Context analyzerContext(C_ANALYZEMODE);
     ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Id(M_WINDOW_VIEWS));
-    Command *cmd = Core::ActionManager::registerAction(m_mainWindow->menuSeparator(),
+    Command *cmd = Core::ActionManager::registerAction(m_mainWindow->menuSeparator1(),
         "Analyzer.Views.Separator1", analyzerContext);
+    cmd->setAttribute(Command::CA_Hide);
+    viewsMenu->addAction(cmd, G_DEFAULT_THREE);
+    cmd = Core::ActionManager::registerAction(m_mainWindow->autoHideTitleBarsAction(),
+        "Analyzer.Views.AutoHideTitleBars", analyzerContext);
+    cmd->setAttribute(Command::CA_Hide);
+    viewsMenu->addAction(cmd, G_DEFAULT_THREE);
+    cmd = Core::ActionManager::registerAction(m_mainWindow->menuSeparator2(),
+        "Analyzer.Views.Separator2", analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, G_DEFAULT_THREE);
     cmd = Core::ActionManager::registerAction(m_mainWindow->resetLayoutAction(),

@@ -31,12 +31,11 @@
 
 #include "qtcassert.h"
 
+#include <QAbstractButton>
 #include <QApplication>
 #include <QContextMenuEvent>
-#include <QDebug>
 #include <QDockWidget>
 #include <QHBoxLayout>
-#include <QIcon>
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
@@ -46,11 +45,49 @@
 #include <QTimer>
 #include <QToolButton>
 
-static const char stateKeyC[] = "State";
+static const char AutoHideTitleBarsKey[] = "AutoHideTitleBars";
+static const char StateKey[] = "State";
+
 static const int settingsVersion = 2;
 static const char dockWidgetActiveState[] = "DockWidgetActiveState";
 
 namespace Utils {
+
+class TitleBarWidget;
+
+struct FancyMainWindowPrivate
+{
+    FancyMainWindowPrivate(FancyMainWindow *parent);
+
+    FancyMainWindow *q;
+
+    bool m_handleDockVisibilityChanges;
+    QAction m_menuSeparator1;
+    QAction m_menuSeparator2;
+    QAction m_resetLayoutAction;
+    QDockWidget *m_toolBarDockWidget;
+    QAction m_autoHideTitleBars;
+};
+
+class DockWidget : public QDockWidget
+{
+public:
+    DockWidget(QWidget *inner, FancyMainWindow *parent);
+
+    bool eventFilter(QObject *, QEvent *event);
+    void enterEvent(QEvent *event);
+    void leaveEvent(QEvent *event);
+    void handleMouseTimeout();
+    void handleToplevelChanged(bool floating);
+
+    FancyMainWindow *q;
+
+private:
+    QPoint m_startPos;
+    QWidget *m_inner;
+    TitleBarWidget *m_titleBar;
+    QTimer m_timer;
+};
 
 // Stolen from QDockWidgetTitleButton
 class DockWidgetTitleButton : public QAbstractButton
@@ -80,13 +117,15 @@ public:
 
     void enterEvent(QEvent *event)
     {
-        if (isEnabled()) update();
+        if (isEnabled())
+            update();
         QAbstractButton::enterEvent(event);
     }
 
     void leaveEvent(QEvent *event)
     {
-        if (isEnabled()) update();
+        if (isEnabled())
+            update();
         QAbstractButton::leaveEvent(event);
     }
 
@@ -110,11 +149,10 @@ void DockWidgetTitleButton::paintEvent(QPaintEvent *)
     style()->drawComplexControl(QStyle::CC_ToolButton, &opt, &p, this);
 }
 
-
 class TitleBarWidget : public QWidget
 {
 public:
-    TitleBarWidget(QDockWidget *parent, const QStyleOptionDockWidget &opt)
+    TitleBarWidget(DockWidget *parent, const QStyleOptionDockWidget &opt)
       : QWidget(parent), q(parent), m_active(true)
     {
         m_titleLabel = new QLabel(this);
@@ -150,6 +188,14 @@ public:
         layout->addWidget(m_floatButton);
         layout->addWidget(m_closeButton);
         setLayout(layout);
+
+        setProperty("managed_titlebar", 1);
+    }
+
+    void enterEvent(QEvent *event)
+    {
+        setActive(true);
+        QWidget::enterEvent(event);
     }
 
     void leaveEvent(QEvent *event)
@@ -161,128 +207,127 @@ public:
 
     void setActive(bool on)
     {
-        if (m_active == on)
-            return;
         m_active = on;
-        m_titleLabel->setVisible(on);
-        m_floatButton->setVisible(on);
-        m_closeButton->setVisible(on);
-        update();
+        updateChildren();
+    }
+
+    void updateChildren()
+    {
+        bool clickable = isClickable();
+        m_titleLabel->setVisible(clickable);
+        m_floatButton->setVisible(clickable);
+        m_closeButton->setVisible(clickable);
+    }
+
+    bool isClickable() const
+    {
+        return m_active || q->q->titleBarsAlwaysVisible();
     }
 
     QSize sizeHint() const
     {
         ensurePolished();
-        return m_active ? m_maximumActiveSize : m_maximumInactiveSize;
+        return isClickable() ? m_maximumActiveSize : m_maximumInactiveSize;
     }
 
     QSize minimumSizeHint() const
     {
         ensurePolished();
-        return m_active ? m_minimumActiveSize : m_minimumInactiveSize;
+        return isClickable() ? m_minimumActiveSize : m_minimumInactiveSize;
     }
 
-public:
-    QDockWidget *q;
+private:
+    DockWidget *q;
     bool m_active;
     QSize m_minimumActiveSize;
     QSize m_maximumActiveSize;
     QSize m_minimumInactiveSize;
     QSize m_maximumInactiveSize;
 
+public:
     QLabel *m_titleLabel;
     DockWidgetTitleButton *m_floatButton;
     DockWidgetTitleButton *m_closeButton;
 };
 
-
-class DockWidget : public QDockWidget
+DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent)
+    : QDockWidget(parent), q(parent), m_inner(inner)
 {
-public:
-    DockWidget(QWidget *inner, QWidget *parent)
-        : QDockWidget(parent), m_inner(inner)
-    {
-        setWidget(inner);
-        setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable);
-        setObjectName(inner->objectName() + QLatin1String("DockWidget"));
-        setWindowTitle(inner->windowTitle());
-        setMouseTracking(true);
+    setWidget(inner);
+    setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable);
+    setObjectName(inner->objectName() + QLatin1String("DockWidget"));
+    setWindowTitle(inner->windowTitle());
+    setMouseTracking(true);
 
-        QStyleOptionDockWidget opt;
-        initStyleOption(&opt);
-        m_titleBar = new TitleBarWidget(this, opt);
-        m_titleBar->m_titleLabel->setText(inner->windowTitle());
-        setTitleBarWidget(m_titleBar);
+    QStyleOptionDockWidget opt;
+    initStyleOption(&opt);
+    m_titleBar = new TitleBarWidget(this, opt);
+    m_titleBar->m_titleLabel->setText(inner->windowTitle());
+    setTitleBarWidget(m_titleBar);
 
-        m_timer.setSingleShot(true);
-        m_timer.setInterval(500);
+    m_timer.setSingleShot(true);
+    m_timer.setInterval(500);
 
-        connect(&m_timer, &QTimer::timeout, this, &DockWidget::handleMouseTimeout);
+    connect(&m_timer, &QTimer::timeout, this, &DockWidget::handleMouseTimeout);
 
-        connect(this, &QDockWidget::topLevelChanged, this, &DockWidget::handleToplevelChanged);
+    connect(this, &QDockWidget::topLevelChanged, this, &DockWidget::handleToplevelChanged);
 
-        connect(toggleViewAction(), &QAction::triggered,
-                [this]() {
-                    if (isVisible())
-                        raise();
-                });
+    connect(toggleViewAction(), &QAction::triggered,
+            [this]() {
+                if (isVisible())
+                    raise();
+            });
 
-        auto origFloatButton = findChild<QAbstractButton *>(QLatin1String("qt_dockwidget_floatbutton"));
-        connect(m_titleBar->m_floatButton, &QAbstractButton::clicked,
-                origFloatButton, &QAbstractButton::clicked);
+    auto origFloatButton = findChild<QAbstractButton *>(QLatin1String("qt_dockwidget_floatbutton"));
+    connect(m_titleBar->m_floatButton, &QAbstractButton::clicked,
+            origFloatButton, &QAbstractButton::clicked);
 
-        auto origCloseButton = findChild<QAbstractButton *>(QLatin1String("qt_dockwidget_closebutton"));
-        connect(m_titleBar->m_closeButton, &QAbstractButton::clicked,
-                origCloseButton, &QAbstractButton::clicked);
-    }
+    auto origCloseButton = findChild<QAbstractButton *>(QLatin1String("qt_dockwidget_closebutton"));
+    connect(m_titleBar->m_closeButton, &QAbstractButton::clicked,
+            origCloseButton, &QAbstractButton::clicked);
+}
 
-    bool eventFilter(QObject *, QEvent *event)
-    {
-        if (event->type() == QEvent::MouseMove) {
-            QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            int y = me->pos().y();
-            int x = me->pos().x();
-            int h = m_titleBar->m_floatButton->height();
-            if (!isFloating() && 0 <= x && x < m_inner->width() && 0 <= y && y <= h) {
-                m_timer.start();
-                m_startPos = mapToGlobal(me->pos());
-            }
-        }
-        return false;
-    }
-
-    void enterEvent(QEvent *event)
-    {
-        QApplication::instance()->installEventFilter(this);
-        QDockWidget::enterEvent(event);
-    }
-
-    void leaveEvent(QEvent *event)
-    {
-        QApplication::instance()->removeEventFilter(this);
-        QDockWidget::leaveEvent(event);
-    }
-
-    void handleMouseTimeout()
-    {
-        QPoint dist = m_startPos - QCursor::pos();
-        if (!isFloating() && dist.manhattanLength() < 4) {
-            m_titleBar->setActive(true);
+bool DockWidget::eventFilter(QObject *, QEvent *event)
+{
+    if (event->type() == QEvent::MouseMove && !q->titleBarsAlwaysVisible()) {
+        QMouseEvent *me = static_cast<QMouseEvent *>(event);
+        int y = me->pos().y();
+        int x = me->pos().x();
+        int h = m_titleBar->m_floatButton->height();
+        if (!isFloating() && 0 <= x && x < m_inner->width() && 0 <= y && y <= h) {
+            m_timer.start();
+            m_startPos = mapToGlobal(me->pos());
         }
     }
+    return false;
+}
 
-    void handleToplevelChanged(bool floating)
-    {
-        if (!floating)
-            m_titleBar->setActive(false);
-    }
+void DockWidget::enterEvent(QEvent *event)
+{
+    QApplication::instance()->installEventFilter(this);
+    QDockWidget::enterEvent(event);
+}
 
-private:
-    QPoint m_startPos;
-    QWidget *m_inner;
-    TitleBarWidget *m_titleBar;
-    QTimer m_timer;
-};
+void DockWidget::leaveEvent(QEvent *event)
+{
+    QApplication::instance()->removeEventFilter(this);
+    QDockWidget::leaveEvent(event);
+}
+
+void DockWidget::handleMouseTimeout()
+{
+    QPoint dist = m_startPos - QCursor::pos();
+    if (!isFloating() && dist.manhattanLength() < 4)
+        m_titleBar->setActive(true);
+}
+
+void DockWidget::handleToplevelChanged(bool floating)
+{
+    if (!floating)
+        m_titleBar->setActive(false);
+}
+
+
 
 /*! \class Utils::FancyMainWindow
 
@@ -294,29 +339,31 @@ private:
     in a Window-menu.
 */
 
-class FancyMainWindowPrivate
-{
-public:
-    FancyMainWindowPrivate();
-
-    bool m_handleDockVisibilityChanges;
-
-    QAction m_menuSeparator;
-    QAction m_resetLayoutAction;
-    QDockWidget *m_toolBarDockWidget;
-};
-
-FancyMainWindowPrivate::FancyMainWindowPrivate() :
+FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *parent) :
+    q(parent),
     m_handleDockVisibilityChanges(true),
-    m_menuSeparator(0),
+    m_menuSeparator1(0),
+    m_menuSeparator2(0),
     m_resetLayoutAction(FancyMainWindow::tr("Reset to Default Layout"), 0),
-    m_toolBarDockWidget(0)
+    m_toolBarDockWidget(0),
+    m_autoHideTitleBars(FancyMainWindow::tr("Automatically Hide View Title Bars"), 0)
 {
-    m_menuSeparator.setSeparator(true);
+    m_menuSeparator1.setSeparator(true);
+    m_menuSeparator2.setSeparator(true);
+
+    m_autoHideTitleBars.setCheckable(true);
+    m_autoHideTitleBars.setChecked(true);
+
+    QObject::connect(&m_autoHideTitleBars, &QAction::toggled, q, [this](bool) {
+        foreach (QDockWidget *dock, q->dockWidgets()) {
+            if (auto titleBar = dynamic_cast<TitleBarWidget *>(dock->titleBarWidget()))
+                titleBar->updateChildren();
+        }
+    });
 }
 
 FancyMainWindow::FancyMainWindow(QWidget *parent) :
-    QMainWindow(parent), d(new FancyMainWindowPrivate)
+    QMainWindow(parent), d(new FancyMainWindowPrivate(this))
 {
     connect(&d->m_resetLayoutAction, &QAction::triggered,
             this, &FancyMainWindow::resetLayout);
@@ -341,10 +388,22 @@ QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget)
                 dockWidget->setProperty(dockWidgetActiveState, visible);
         });
 
+    connect(dockWidget->toggleViewAction(), &QAction::triggered,
+            this, &FancyMainWindow::onDockActionTriggered,
+            Qt::QueuedConnection);
 
     dockWidget->setProperty(dockWidgetActiveState, true);
 
     return dockWidget;
+}
+
+void FancyMainWindow::onDockActionTriggered()
+{
+    QDockWidget *dw = qobject_cast<QDockWidget *>(sender()->parent());
+    if (dw) {
+        if (dw->isVisible())
+            dw->raise();
+    }
 }
 
 void FancyMainWindow::setTrackingEnabled(bool enabled)
@@ -412,7 +471,9 @@ void FancyMainWindow::restoreSettings(const QSettings *settings)
 QHash<QString, QVariant> FancyMainWindow::saveSettings() const
 {
     QHash<QString, QVariant> settings;
-    settings.insert(QLatin1String(stateKeyC), saveState(settingsVersion));
+    settings.insert(QLatin1String(StateKey), saveState(settingsVersion));
+    settings.insert(QLatin1String(AutoHideTitleBarsKey),
+        d->m_autoHideTitleBars.isChecked());
     foreach (QDockWidget *dockWidget, dockWidgets()) {
         settings.insert(dockWidget->objectName(),
                 dockWidget->property(dockWidgetActiveState));
@@ -422,9 +483,11 @@ QHash<QString, QVariant> FancyMainWindow::saveSettings() const
 
 void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
 {
-    QByteArray ba = settings.value(QLatin1String(stateKeyC), QByteArray()).toByteArray();
+    QByteArray ba = settings.value(QLatin1String(StateKey), QByteArray()).toByteArray();
     if (!ba.isEmpty())
         restoreState(ba, settingsVersion);
+    bool on = settings.value(QLatin1String(AutoHideTitleBarsKey), true).toBool();
+    d->m_autoHideTitleBars.setChecked(on);
     foreach (QDockWidget *widget, dockWidgets()) {
         widget->setProperty(dockWidgetActiveState,
             settings.value(widget->objectName(), false));
@@ -434,6 +497,11 @@ void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
 QList<QDockWidget *> FancyMainWindow::dockWidgets() const
 {
     return findChildren<QDockWidget *>();
+}
+
+bool FancyMainWindow::titleBarsAlwaysVisible() const
+{
+    return d->m_autoHideTitleBars.isChecked();
 }
 
 static bool actionLessThan(const QAction *action1, const QAction *action2)
@@ -457,13 +525,25 @@ void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
     qSort(actions.begin(), actions.end(), actionLessThan);
     foreach (QAction *action, actions)
         menu->addAction(action);
-    menu->addAction(&d->m_menuSeparator);
+    menu->addAction(&d->m_menuSeparator1);
+    menu->addAction(&d->m_autoHideTitleBars);
+    menu->addAction(&d->m_menuSeparator2);
     menu->addAction(&d->m_resetLayoutAction);
 }
 
-QAction *FancyMainWindow::menuSeparator() const
+QAction *FancyMainWindow::menuSeparator1() const
 {
-    return &d->m_menuSeparator;
+    return &d->m_menuSeparator1;
+}
+
+QAction *FancyMainWindow::autoHideTitleBarsAction() const
+{
+    return &d->m_autoHideTitleBars;
+}
+
+QAction *FancyMainWindow::menuSeparator2() const
+{
+    return &d->m_menuSeparator2;
 }
 
 QAction *FancyMainWindow::resetLayoutAction() const
@@ -475,7 +555,9 @@ void FancyMainWindow::setDockActionsVisible(bool v)
 {
     foreach (const QDockWidget *dockWidget, dockWidgets())
         dockWidget->toggleViewAction()->setVisible(v);
-    d->m_menuSeparator.setVisible(v);
+    d->m_autoHideTitleBars.setVisible(v);
+    d->m_menuSeparator1.setVisible(v);
+    d->m_menuSeparator2.setVisible(v);
     d->m_resetLayoutAction.setVisible(v);
 }
 
