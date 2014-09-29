@@ -312,7 +312,7 @@ void QmlProfilerEventsWidget::copyRowToClipboard() const
     d->m_eventTree->copyRowToClipboard();
 }
 
-void QmlProfilerEventsWidget::updateSelectedEvent(int typeIndex) const
+void QmlProfilerEventsWidget::selectByTypeId(int typeIndex) const
 {
     if (d->m_eventTree->selectedTypeId() != typeIndex)
         d->m_eventTree->selectType(typeIndex);

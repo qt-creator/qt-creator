@@ -296,9 +296,12 @@ void QmlProfilerTraceView::selectBySourceLocation(const QString &filename, int l
 void QmlProfilerTraceView::updateCursorPosition()
 {
     QQuickItem *rootObject = d->m_mainView->rootObject();
-    emit gotoSourceLocation(rootObject->property("fileName").toString(),
-                            rootObject->property("lineNumber").toInt(),
-                            rootObject->property("columnNumber").toInt());
+    QString file = rootObject->property("fileName").toString();
+    if (!file.isEmpty())
+        emit gotoSourceLocation(file, rootObject->property("lineNumber").toInt(),
+                                rootObject->property("columnNumber").toInt());
+
+    emit typeSelected(rootObject->property("typeId").toInt());
 }
 
 ////////////////////////////////////////////////////////

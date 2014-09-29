@@ -228,6 +228,11 @@ int TimelineModelAggregator::selectionId(int modelIndex, int index) const
     return d->modelList[modelIndex]->selectionId(index);
 }
 
+int TimelineModelAggregator::typeId(int modelIndex, int index) const
+{
+    return d->modelList[modelIndex]->typeId(index);
+}
+
 int TimelineModelAggregator::bindingLoopDest(int modelIndex,int index) const
 {
     return d->modelList[modelIndex]->bindingLoopDest(index);

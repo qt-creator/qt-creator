@@ -85,6 +85,7 @@ public:
     Q_INVOKABLE qint64 startTime(int modelIndex, int index) const;
     Q_INVOKABLE qint64 endTime(int modelIndex, int index) const;
     Q_INVOKABLE int selectionId(int modelIndex, int index) const;
+    Q_INVOKABLE int typeId(int modelIndex, int index) const;
     Q_INVOKABLE int bindingLoopDest(int modelIndex, int index) const;
     Q_INVOKABLE QColor color(int modelIndex, int index) const;
     Q_INVOKABLE float relativeHeight(int modelIndex, int index) const;

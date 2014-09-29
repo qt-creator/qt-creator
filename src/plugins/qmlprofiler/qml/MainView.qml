@@ -45,6 +45,7 @@ Rectangle {
     property string fileName: ""
     property int lineNumber: -1
     property int columnNumber: 0
+    property int typeId: -1
 
     property bool selectionRangeMode: false
 
@@ -96,7 +97,6 @@ Rectangle {
             root.fileName = file;
             root.lineNumber = line;
             root.columnNumber = column;
-            root.updateCursorPosition();
         }
     }
 
@@ -374,6 +374,9 @@ Rectangle {
                                                                            view.selectedItem);
                         gotoSourceLocation(eventLocation.file, eventLocation.line,
                                            eventLocation.column);
+                        root.typeId = qmlProfilerModelProxy.typeId(view.selectedModel,
+                                                                   view.selectedItem);
+                        root.updateCursorPosition();
                         lockItemSelection = false;
                     }
                 } else {
@@ -385,6 +388,8 @@ Rectangle {
                 var location = qmlProfilerModelProxy.location(modelIndex, pressedItem);
                 if (location.hasOwnProperty("file")) // not empty
                     root.gotoSourceLocation(location.file, location.line, location.column);
+                root.typeId = qmlProfilerModelProxy.typeId(modelIndex, pressedItem);
+                root.updateCursorPosition();
             }
 
          // hack to pass mouse events to the other mousearea if enabled

@@ -66,6 +66,7 @@ public:
     qint64 duration(int index) const { return ranges[index].duration; }
     qint64 startTime(int index) const { return ranges[index].start; }
     qint64 endTime(int index) const { return ranges[index].start + ranges[index].duration; }
+    int typeId(int index) const { return ranges[index].typeId; }
 
     inline qint64 lastEndTime() const { return endTimes.last().end; }
     inline qint64 firstStartTime() const { return ranges.first().start; }

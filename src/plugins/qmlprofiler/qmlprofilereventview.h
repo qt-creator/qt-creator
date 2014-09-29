@@ -89,7 +89,7 @@ signals:
     void resized();
 
 public slots:
-    void updateSelectedEvent(int typeIndex) const;
+    void selectByTypeId(int typeIndex) const;
     void selectBySourceLocation(const QString &filename, int line, int column);
 
 private slots:
