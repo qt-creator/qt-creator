@@ -659,11 +659,11 @@ static QString quoteUnprintable(const QString &str)
             int u = c.unicode();
             if (c.isPrint())
                 encoded += c;
-            else if (u == 10)
+            else if (u == '\r')
                 encoded += QLatin1String("\\r");
-            else if (u == 9)
+            else if (u == '\t')
                 encoded += QLatin1String("\\t");
-            else if (u == 13)
+            else if (u == '\n')
                 encoded += QLatin1String("\\n");
             else
                 encoded += QString::fromLatin1("\\%1")
