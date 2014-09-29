@@ -141,6 +141,13 @@ Rectangle {
             recenter((qmlProfilerModelProxy.startTime(modelIndex, itemIndex) +
                       qmlProfilerModelProxy.endTime(modelIndex, itemIndex)) / 2);
         }
+        var row = qmlProfilerModelProxy.row(modelIndex, itemIndex);
+        var totalRowOffset = qmlProfilerModelProxy.modelOffset(modelIndex) +
+                qmlProfilerModelProxy.rowOffset(modelIndex, row);
+        if (totalRowOffset > flick.contentY + flick.height ||
+                totalRowOffset + qmlProfilerModelProxy.rowHeight(modelIndex, row) < flick.contentY)
+            flick.contentY = Math.min(flick.contentHeight - flick.height,
+                                      Math.max(0, totalRowOffset - flick.height / 2));
     }
 
     function hideRangeDetails() {

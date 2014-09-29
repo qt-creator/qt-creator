@@ -61,6 +61,7 @@ public:
 
     Q_INVOKABLE bool isEmpty() const;
 
+    Q_INVOKABLE int modelOffset(int modelIndex) const;
     Q_INVOKABLE int rowHeight(int modelIndex, int row) const;
     Q_INVOKABLE void setRowHeight(int modelIndex, int row, int height);
     Q_INVOKABLE int rowOffset(int modelIndex, int row) const;

@@ -65,10 +65,7 @@ TimelineModelAggregator::~TimelineModelAggregator()
 
 int TimelineModelAggregator::height() const
 {
-    int ret = 0;
-    for (int i = 0; i < d->modelList.length(); ++i)
-        ret += d->modelList[i]->height();
-    return ret;
+    return modelOffset(d->modelList.length());
 }
 
 void TimelineModelAggregator::setModelManager(QmlProfilerModelManager *modelManager)
@@ -131,6 +128,14 @@ bool TimelineModelAggregator::isEmpty() const
         if (!modelProxy->isEmpty())
             return false;
     return true;
+}
+
+int TimelineModelAggregator::modelOffset(int modelIndex) const
+{
+    int ret = 0;
+    for (int i = 0; i < modelIndex; ++i)
+        ret += d->modelList[i]->height();
+    return ret;
 }
 
 int TimelineModelAggregator::rowHeight(int modelIndex, int row) const
