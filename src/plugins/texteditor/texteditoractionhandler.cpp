@@ -354,7 +354,7 @@ void TextEditorActionHandlerPrivate::createActions()
             SLOT(openLinkUnderCursor()), true, tr("Jump To File Under Cursor"),
             QKeySequence(Qt::Key_F2));
     m_jumpToFileInNextSplitAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT,
-            SLOT(openLinkUnderCursorInNextSplit()), true,
+            SLOT(openLinkUnderCursorInNextSplit()), true, tr("Jump to File Under Cursor in Next Split"),
             QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")));
 
     m_viewPageUpAction = registerAction(VIEW_PAGE_UP,
