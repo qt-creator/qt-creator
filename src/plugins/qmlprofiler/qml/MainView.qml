@@ -155,7 +155,7 @@ Rectangle {
 
     function selectBySelectionId(modelIndex, selectionId)
     {
-        if (selectionId === -1 || (modelIndex === view.selectedModel &&
+        if (selectionId === -1 || (modelIndex === view.selectedModel && view.selectedItem !== -1 &&
                 selectionId === qmlProfilerModelProxy.selectionId(modelIndex, view.selectedItem)))
             return;
 
