@@ -299,10 +299,10 @@ void HelpPlugin::setupUi()
     indexWindow->setWindowTitle(tr(SB_INDEX));
     m_indexItem = new SideBarItem(indexWindow, QLatin1String(SB_INDEX));
 
-    connect(indexWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
-        SLOT(setSource(QUrl)));
-    connect(indexWindow, SIGNAL(linksActivated(QMap<QString,QUrl>,QString)),
-        m_centralWidget, SLOT(showTopicChooser(QMap<QString,QUrl>,QString)));
+    connect(indexWindow, &IndexWindow::linkActivated,
+            m_centralWidget, &CentralWidget::open);
+    connect(indexWindow, &IndexWindow::linksActivated,
+        m_centralWidget, &CentralWidget::showTopicChooser);
 
     QMap<QString, Command*> shortcutMap;
     QAction *action = new QAction(tr("Activate Index in Help mode"), m_splitter);

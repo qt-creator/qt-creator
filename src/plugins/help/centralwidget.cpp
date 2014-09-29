@@ -31,6 +31,7 @@
 
 #include "helpviewer.h"
 #include "localhelpmanager.h"
+#include "openpagesmanager.h"
 #include "topicchooser.h"
 
 #include <utils/qtcassert.h>
@@ -76,10 +77,18 @@ CentralWidget *CentralWidget::instance()
     return gStaticCentralWidget;
 }
 
+void CentralWidget::open(const QUrl &url, bool newPage)
+{
+    if (newPage)
+        OpenPagesManager::instance().createPage(url);
+    else
+        setSource(url);
+}
+
 void CentralWidget::showTopicChooser(const QMap<QString, QUrl> &links,
-    const QString &keyword)
+    const QString &keyword, bool newPage)
 {
     TopicChooser tc(this, keyword, links);
     if (tc.exec() == QDialog::Accepted)
-        setSource(tc.link());
+        open(tc.link(), newPage);
 }

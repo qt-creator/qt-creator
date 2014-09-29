@@ -30,15 +30,57 @@
 #ifndef INDEXWINDOW_H
 #define INDEXWINDOW_H
 
+#include <QAbstractProxyModel>
+#include <QList>
 #include <QUrl>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QHelpIndexWidget;
+class QHelpIndexModel;
 class QModelIndex;
 QT_END_NAMESPACE
 
-namespace Utils { class FancyLineEdit; }
+namespace Utils {
+class FancyLineEdit;
+class NavigationTreeView;
+}
+
+namespace Help {
+namespace Internal {
+
+class IndexFilterModel : public QAbstractProxyModel
+{
+    Q_OBJECT
+
+public:
+    IndexFilterModel(QObject *parent);
+
+    QModelIndex filter(const QString &filter, const QString &wildcard);
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+    Qt::DropActions supportedDragActions() const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+    void setSourceModel(QAbstractItemModel *sm);
+
+    // QAbstractProxyModel::sibling is broken in Qt 5
+    QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
+
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+private slots:
+    void sourceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void sourceRowsRemoved(const QModelIndex &parent, int start, int end);
+    void sourceRowsInserted(const QModelIndex &parent, int start, int end);
+    void sourceModelReset();
+
+private:
+    QString m_filter;
+    QString m_wildcard;
+    QList<int> m_toSource;
+};
 
 class IndexWindow : public QWidget
 {
@@ -48,25 +90,24 @@ public:
     IndexWindow();
     ~IndexWindow();
 
-    void setSearchLineEditText(const QString &text);
-    QString searchLineEditText() const;
-
 signals:
-    void linkActivated(const QUrl &link);
+    void linkActivated(const QUrl &link, bool newPage);
     void linksActivated(const QMap<QString, QUrl> &links,
-        const QString &keyword);
+        const QString &keyword, bool newPage);
 
-private slots:
+private:
     void filterIndices(const QString &filter);
     void enableSearchLineEdit();
     void disableSearchLineEdit();
-
-private:
     bool eventFilter(QObject *obj, QEvent *e);
-    void open(QHelpIndexWidget* indexWidget, const QModelIndex &index);
+    void open(const QModelIndex &index, bool newPage = false);
 
     Utils::FancyLineEdit *m_searchLineEdit;
-    QHelpIndexWidget *m_indexWidget;
+    Utils::NavigationTreeView *m_indexWidget;
+    IndexFilterModel *m_filteredIndexModel;
 };
+
+} // Internal
+} // Help
 
 #endif // INDEXWINDOW_H
