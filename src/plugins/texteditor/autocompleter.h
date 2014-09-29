@@ -72,6 +72,9 @@ public:
     // Returns true if the cursor is inside a comment.
     virtual bool isInComment(const QTextCursor &cursor) const;
 
+    // Returns true if the cursor is inside a string.
+    virtual bool isInString(const QTextCursor &cursor) const;
+
     virtual QString insertMatchingBrace(const QTextCursor &cursor, const
                                         QString &text,
                                         QChar la,

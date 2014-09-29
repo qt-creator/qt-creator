@@ -70,6 +70,7 @@ public:
     bool m_surroundingAutoBrackets;
     bool m_partiallyComplete;
     bool m_spaceAfterFunctionName;
+    bool m_autoSplitStrings;
 };
 
 inline bool operator==(const CompletionSettings &t1, const CompletionSettings &t2) { return t1.equals(t2); }

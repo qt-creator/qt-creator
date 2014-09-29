@@ -39,6 +39,7 @@ static const char autoInsertBracesKey[] = "AutoInsertBraces";
 static const char surroundingAutoBracketsKey[] = "SurroundingAutoBrackets";
 static const char partiallyCompleteKey[] = "PartiallyComplete";
 static const char spaceAfterFunctionNameKey[] = "SpaceAfterFunctionName";
+static const char autoSplitStringsKey[] = "AutoSplitStrings";
 
 using namespace TextEditor;
 
@@ -49,6 +50,7 @@ CompletionSettings::CompletionSettings()
     , m_surroundingAutoBrackets(true)
     , m_partiallyComplete(true)
     , m_spaceAfterFunctionName(false)
+    , m_autoSplitStrings(true)
 {
 }
 
@@ -65,6 +67,7 @@ void CompletionSettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(surroundingAutoBracketsKey), m_surroundingAutoBrackets);
     s->setValue(QLatin1String(partiallyCompleteKey), m_partiallyComplete);
     s->setValue(QLatin1String(spaceAfterFunctionNameKey), m_spaceAfterFunctionName);
+    s->setValue(QLatin1String(autoSplitStringsKey), m_autoSplitStrings);
     s->endGroup();
 }
 
@@ -83,6 +86,7 @@ void CompletionSettings::fromSettings(const QString &category, const QSettings *
     m_surroundingAutoBrackets = s->value(group + QLatin1String(surroundingAutoBracketsKey), m_surroundingAutoBrackets).toBool();
     m_partiallyComplete = s->value(group + QLatin1String(partiallyCompleteKey), m_partiallyComplete).toBool();
     m_spaceAfterFunctionName = s->value(group + QLatin1String(spaceAfterFunctionNameKey), m_spaceAfterFunctionName).toBool();
+    m_autoSplitStrings = s->value(group + QLatin1String(autoSplitStringsKey), m_autoSplitStrings).toBool();
 }
 
 bool CompletionSettings::equals(const CompletionSettings &cs) const
@@ -93,5 +97,6 @@ bool CompletionSettings::equals(const CompletionSettings &cs) const
         && m_surroundingAutoBrackets == cs.m_surroundingAutoBrackets
         && m_partiallyComplete == cs.m_partiallyComplete
         && m_spaceAfterFunctionName == cs.m_spaceAfterFunctionName
+        && m_autoSplitStrings == cs.m_autoSplitStrings
         ;
 }

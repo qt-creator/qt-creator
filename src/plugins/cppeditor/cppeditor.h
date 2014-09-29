@@ -101,6 +101,7 @@ protected:
     bool event(QEvent *e) Q_DECL_OVERRIDE;
     void contextMenuEvent(QContextMenuEvent *) Q_DECL_OVERRIDE;
     void keyPressEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
+    bool handleStringSplitting(QKeyEvent *e) const;
 
     void applyFontSettings() Q_DECL_OVERRIDE;
 

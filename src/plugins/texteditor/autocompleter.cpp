@@ -332,6 +332,12 @@ bool AutoCompleter::isInComment(const QTextCursor &cursor) const
     return false;
 }
 
+bool AutoCompleter::isInString(const QTextCursor &cursor) const
+{
+    Q_UNUSED(cursor);
+    return false;
+}
+
 QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                            const QString &text,
                                            QChar la,

@@ -99,6 +99,7 @@ QWidget *CompletionSettingsPage::widget()
         m_page->surroundSelectedText->setChecked(settings.m_surroundingAutoBrackets);
         m_page->partiallyComplete->setChecked(settings.m_partiallyComplete);
         m_page->spaceAfterFunctionName->setChecked(settings.m_spaceAfterFunctionName);
+        m_page->autoSplitStrings->setChecked(settings.m_autoSplitStrings);
         m_page->enableDoxygenCheckBox->setChecked(m_commentsSettings.m_enableDoxygen);
         m_page->generateBriefCheckBox->setChecked(m_commentsSettings.m_generateBrief);
         m_page->leadingAsterisksCheckBox->setChecked(m_commentsSettings.m_leadingAsterisks);
@@ -118,6 +119,7 @@ void CompletionSettingsPage::apply()
     settings.m_surroundingAutoBrackets = m_page->surroundSelectedText->isChecked();
     settings.m_partiallyComplete = m_page->partiallyComplete->isChecked();
     settings.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
+    settings.m_autoSplitStrings = m_page->autoSplitStrings->isChecked();
 
     TextEditor::TextEditorSettings::setCompletionSettings(settings);
 

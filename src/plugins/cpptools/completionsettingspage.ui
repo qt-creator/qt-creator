@@ -17,6 +17,72 @@
       <string>Behavior</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="4" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="surroundSelectedText">
+          <property name="toolTip">
+           <string>When typing a matching character and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</string>
+          </property>
+          <property name="text">
+           <string>Surround &amp;text selections</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="2" colspan="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>70</width>
+          <height>24</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="completionTriggerLabel">
+        <property name="text">
+         <string>Activate completion:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>24</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="caseSensitivityLabel">
         <property name="text">
@@ -52,23 +118,10 @@
         </item>
        </widget>
       </item>
-      <item row="0" column="2" colspan="2">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>70</width>
-          <height>24</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="completionTriggerLabel">
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="autoSplitStrings">
         <property name="text">
-         <string>Activate completion:</string>
+         <string>Automatically split strings</string>
         </property>
        </widget>
       </item>
@@ -90,19 +143,6 @@
          </property>
         </item>
        </widget>
-      </item>
-      <item row="1" column="3">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>24</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item row="2" column="0">
        <widget class="QCheckBox" name="partiallyComplete">
@@ -130,40 +170,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>30</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="surroundSelectedText">
-          <property name="toolTip">
-           <string>When typing a matching character and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</string>
-          </property>
-          <property name="text">
-           <string>Surround &amp;text selections</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="5" column="0" colspan="2">
+      <item row="5" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <spacer name="horizontalSpacer_4">

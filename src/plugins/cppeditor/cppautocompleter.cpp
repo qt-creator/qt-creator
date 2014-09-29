@@ -85,6 +85,37 @@ static bool isInCommentHelper(const QTextCursor &cursor, Token *retToken = 0)
     return tk.isComment();
 }
 
+static bool isInStringHelper(const QTextCursor &cursor, Token *retToken = 0)
+{
+    LanguageFeatures features;
+    features.qtEnabled = false;
+    features.qtKeywordsEnabled = false;
+    features.qtMocRunEnabled = false;
+    features.cxx11Enabled = true;
+    features.c99Enabled = true;
+
+    SimpleLexer tokenize;
+    tokenize.setLanguageFeatures(features);
+
+    const int prevState = BackwardsScanner::previousBlockState(cursor.block()) & 0xFF;
+    const QList<Token> tokens = tokenize(cursor.block().text(), prevState);
+
+    const unsigned pos = cursor.selectionEnd() - cursor.block().position();
+
+    if (tokens.isEmpty() || pos < tokens.first().utf16charsBegin())
+        return prevState > 0;
+
+    if (pos >= tokens.last().utf16charsEnd()) {
+        const Token tk = tokens.last();
+        return tk.isStringLiteral() && prevState > 0;
+    }
+
+    Token tk = tokenAtPosition(tokens, pos);
+    if (retToken)
+        *retToken = tk;
+    return tk.isStringLiteral();
+}
+
 bool CppAutoCompleter::contextAllowsAutoParentheses(const QTextCursor &cursor,
                                                     const QString &textToInsert) const
 {
@@ -122,6 +153,11 @@ bool CppAutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor
 bool CppAutoCompleter::isInComment(const QTextCursor &cursor) const
 {
     return isInCommentHelper(cursor);
+}
+
+bool CppAutoCompleter::isInString(const QTextCursor &cursor) const
+{
+    return isInStringHelper(cursor);
 }
 
 QString CppAutoCompleter::insertMatchingBrace(const QTextCursor &cursor,

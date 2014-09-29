@@ -59,8 +59,10 @@
 #include <cpptools/cppworkingcopy.h>
 #include <cpptools/symbolfinder.h>
 
+#include <texteditor/completionsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
+#include <texteditor/texteditorsettings.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -536,10 +538,45 @@ void CppEditorWidget::keyPressEvent(QKeyEvent *e)
     if (d->m_localRenaming.handleKeyPressEvent(e))
         return;
 
+    if (handleStringSplitting(e))
+        return;
+
     if (d->m_cppDocumentationCommentHelper.handleKeyPressEvent(e))
         return;
 
     TextEditorWidget::keyPressEvent(e);
+}
+
+bool CppEditorWidget::handleStringSplitting(QKeyEvent *e) const
+{
+    if (!TextEditorSettings::completionSettings().m_autoSplitStrings)
+        return false;
+
+    if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) {
+        QTextCursor cursor = textCursor();
+
+        if (autoCompleter()->isInString(cursor)) {
+            cursor.beginEditBlock();
+            if (cursor.positionInBlock() > 0
+                    && cursor.block().text().at(cursor.positionInBlock() - 1) == QLatin1Char('\\')) {
+                // Already escaped: simply go back to line, but do not indent.
+                cursor.insertText(QLatin1String("\n"));
+            } else if (e->modifiers() & Qt::ShiftModifier) {
+                // With 'shift' modifier, escape the end of line character
+                // and start at beginning of next line.
+                cursor.insertText(QLatin1String("\\\n"));
+            } else {
+                // End the current string, and start a new one on the line, properly indented.
+                cursor.insertText(QLatin1String("\"\n\""));
+                textDocument()->autoIndent(cursor);
+            }
+            cursor.endEditBlock();
+            e->accept();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void CppEditorWidget::applyFontSettings()
