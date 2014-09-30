@@ -31,9 +31,9 @@
 #define CPPQUICKFIX_H
 
 #include "cppeditor_global.h"
+#include "cppquickfixassistant.h"
 
 #include <texteditor/quickfix.h>
-#include <cppquickfixassistant.h>
 
 namespace CPlusPlus { class Snapshot; }
 
