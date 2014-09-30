@@ -73,17 +73,6 @@ private:
     QList<CPlusPlus::AST *> m_path;
 };
 
-class CppQuickFixAssistProcessor : public TextEditor::QuickFixAssistProcessor
-{
-public:
-    CppQuickFixAssistProcessor(const TextEditor::IAssistProvider *provider);
-
-    const TextEditor::IAssistProvider *provider() const Q_DECL_OVERRIDE;
-
-private:
-    const TextEditor::IAssistProvider *m_provider;
-};
-
 class CppQuickFixAssistProvider : public TextEditor::QuickFixAssistProvider
 {
 public:

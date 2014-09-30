@@ -57,19 +57,6 @@ private:
 };
 
 
-class QmlJSQuickFixProcessor : public TextEditor::QuickFixAssistProcessor
-{
-public:
-    QmlJSQuickFixProcessor(const TextEditor::IAssistProvider *provider);
-    ~QmlJSQuickFixProcessor();
-
-    const TextEditor::IAssistProvider *provider() const Q_DECL_OVERRIDE;
-
-private:
-    const TextEditor::IAssistProvider *m_provider;
-};
-
-
 class QmlJSQuickFixAssistProvider : public TextEditor::QuickFixAssistProvider
 {
 public:

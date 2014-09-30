@@ -67,21 +67,6 @@ QmlJSRefactoringFilePtr QmlJSQuickFixAssistInterface::currentFile() const
     return m_currentFile;
 }
 
-// ----------------------
-// QmlJSQuickFixProcessor
-// ----------------------
-QmlJSQuickFixProcessor::QmlJSQuickFixProcessor(const TextEditor::IAssistProvider *provider)
-    : m_provider(provider)
-{}
-
-QmlJSQuickFixProcessor::~QmlJSQuickFixProcessor()
-{}
-
-const IAssistProvider *QmlJSQuickFixProcessor::provider() const
-{
-    return m_provider;
-}
-
 // ---------------------------
 // QmlJSQuickFixAssistProvider
 // ---------------------------
@@ -103,7 +88,7 @@ bool QmlJSQuickFixAssistProvider::supportsEditor(Core::Id editorId) const
 
 IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor() const
 {
-    return new QmlJSQuickFixProcessor(this);
+    return new QuickFixAssistProcessor(this);
 }
 
 QList<QuickFixFactory *> QmlJSQuickFixAssistProvider::quickFixFactories() const

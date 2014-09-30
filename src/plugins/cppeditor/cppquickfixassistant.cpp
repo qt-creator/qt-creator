@@ -59,7 +59,7 @@ bool CppQuickFixAssistProvider::supportsEditor(Core::Id editorId) const
 
 IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
 {
-    return new CppQuickFixAssistProcessor(this);
+    return new QuickFixAssistProcessor(this);
 }
 
 QList<TextEditor::QuickFixFactory *> CppQuickFixAssistProvider::quickFixFactories() const
@@ -68,18 +68,6 @@ QList<TextEditor::QuickFixFactory *> CppQuickFixAssistProvider::quickFixFactorie
     foreach (CppQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<CppQuickFixFactory>())
         results.append(f);
     return results;
-}
-
-// --------------------------
-// CppQuickFixAssistProcessor
-// --------------------------
-CppQuickFixAssistProcessor::CppQuickFixAssistProcessor(const IAssistProvider *provider)
-    : m_provider(provider)
-{}
-
-const IAssistProvider *CppQuickFixAssistProcessor::provider() const
-{
-    return m_provider;
 }
 
 // --------------------------

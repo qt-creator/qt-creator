@@ -37,11 +37,10 @@
 // @TODO: Move...
 #include <texteditor/quickfix.h>
 
-#include <QDebug>
-
 namespace TextEditor {
 
-QuickFixAssistProcessor::QuickFixAssistProcessor()
+QuickFixAssistProcessor::QuickFixAssistProcessor(const QuickFixAssistProvider *provider)
+    : m_provider(provider)
 {}
 
 QuickFixAssistProcessor::~QuickFixAssistProcessor()
@@ -56,9 +55,7 @@ IAssistProposal *QuickFixAssistProcessor::perform(const AssistInterface *interfa
 
     QuickFixOperations quickFixes;
 
-    const QuickFixAssistProvider *quickFixProvider =
-            static_cast<const QuickFixAssistProvider *>(provider());
-    foreach (QuickFixFactory *factory, quickFixProvider->quickFixFactories())
+    foreach (QuickFixFactory *factory, m_provider->quickFixFactories())
         factory->matchingOperations(assistInterface, quickFixes);
 
     if (!quickFixes.isEmpty()) {
