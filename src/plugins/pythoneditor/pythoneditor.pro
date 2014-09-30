@@ -10,7 +10,6 @@ HEADERS += \
     pythoneditorplugin.h \
     pythoneditor.h \
     pythoneditorconstants.h \
-    wizard/pythonfilewizard.h \
     wizard/pythonclasswizard.h \
     wizard/pythonclassnamepage.h \
     wizard/pythonclasswizarddialog.h \
@@ -24,7 +23,6 @@ HEADERS += \
 SOURCES += \
     pythoneditorplugin.cpp \
     pythoneditor.cpp \
-    wizard/pythonfilewizard.cpp \
     wizard/pythonclasswizarddialog.cpp \
     wizard/pythonclasswizard.cpp \
     wizard/pythonclassnamepage.cpp \

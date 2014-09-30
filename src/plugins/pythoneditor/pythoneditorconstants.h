@@ -46,16 +46,6 @@ const char C_PY_WIZARD_CATEGORY[] = "U.Python";
 const char C_PY_EXTENSION[] = ".py";
 const char C_PY_DISPLAY_CATEGORY[] = "Python";
 
-    // source
-const char C_PY_SOURCE_WIZARD_ID[] = "P.PySource";
-const char C_PY_SOURCE_CONTENT[] =
-        "#!/usr/bin/env python\n"
-        "# -*- coding: utf-8 -*-\n"
-        "\n";
-const char EN_PY_SOURCE_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("PythonEditor::FileWizard", "Python source file");
-const char EN_PY_SOURCE_DESCRIPTION[] =
-        QT_TRANSLATE_NOOP("PythonEditor::FileWizard", "Creates an empty Python script with UTF-8 charset");
-
     // class
 const char C_PY_CLASS_WIZARD_ID[] = "P.PyClass";
 const char EN_PY_CLASS_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("PythonEditor::ClassWizard", "Python class");

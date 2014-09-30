@@ -42,7 +42,6 @@ QtcPlugin {
             "pythonclassnamepage.cpp", "pythonclassnamepage.h",
             "pythonclasswizard.h", "pythonclasswizard.cpp",
             "pythonclasswizarddialog.h", "pythonclasswizarddialog.cpp",
-            "pythonfilewizard.h", "pythonfilewizard.cpp",
             "pythonsourcegenerator.h", "pythonsourcegenerator.cpp"
         ]
     }

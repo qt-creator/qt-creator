@@ -30,7 +30,6 @@
 #include "pythoneditorplugin.h"
 #include "pythoneditor.h"
 #include "pythoneditorconstants.h"
-#include "wizard/pythonfilewizard.h"
 #include "wizard/pythonclasswizard.h"
 #include "tools/pythonhighlighter.h"
 
@@ -224,7 +223,6 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, C_PY_MIMETYPE);
 
     // Add Python files and classes creation dialogs
-    addAutoReleasedObject(new FileWizard);
     addAutoReleasedObject(new ClassWizard);
 
     auto hf = new TextEditor::HighlighterFactory;
