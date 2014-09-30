@@ -12,6 +12,7 @@ QtcLibrary {
     cpp.optimization: "fast"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Utils" }
 
     Group {
         name: "ThirdPartyCPlusPlus"
