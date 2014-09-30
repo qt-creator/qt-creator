@@ -26787,6 +26787,18 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Always save when leaving subcomponent in bread crumb</source>
         <translation>Всегда сохранять в навигационной цепочке при выходе из субкомпонента</translation>
     </message>
+    <message>
+        <source>QML Emulation Layer</source>
+        <translation>Слой эмуляции QML</translation>
+    </message>
+    <message>
+        <source>If you do not select this checkbox, Qt Quick Designer uses the QML emulation layer (QML Puppet) built with the Qt configured in the build and run kit for the project.</source>
+        <translation>Если опция отключена, то Qt Quick Designer будет использовать слой эмуляции QML (QML Puppet) поставляемый с выбранным в проекте профилем Qt.</translation>
+    </message>
+    <message>
+        <source>Always use the QML emulation layer provided by Qt Creator</source>
+        <translation>Всегда использовать слой эмуляции QML предоставляемый Qt Creator</translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::InvalidArgumentException</name>
@@ -27646,6 +27658,10 @@ Please build the qmldump application on the Qt version options page.</source>
     <message>
         <source>Use %1 instead of &apos;var&apos; or &apos;variant&apos; to improve performance.</source>
         <translation>Используйте %1 вместо «var» и «variant» для увеличения производительности.</translation>
+    </message>
+    <message>
+        <source>This type is not supported as a root element by Qt Quick Designer %1.</source>
+        <translation>Этот тип не поддерживается в качестве корневого элемента в Qt Quick Designer %1.</translation>
     </message>
     <message>
         <source>Do not use &quot;%1&quot; as a constructor.</source>
@@ -33438,6 +33454,88 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
+    <name>SliderSpecifics</name>
+    <message>
+        <source>Value</source>
+        <translation>Значение</translation>
+    </message>
+    <message>
+        <source>Current value of the Slider. The default value is 0.0.</source>
+        <translation>Текущее значение ползунка. По умолчанию: 0.0.</translation>
+    </message>
+    <message>
+        <source>Maximum value</source>
+        <translation>Максимальное значение</translation>
+    </message>
+    <message>
+        <source>Maximum value of the slider. The default value is 1.0.</source>
+        <translation>Максимальное значение ползунка. По умолчанию: 1.0.</translation>
+    </message>
+    <message>
+        <source>Minimum value</source>
+        <translation>Минимальное значение</translation>
+    </message>
+    <message>
+        <source>Minimum value of the slider. The default value is 0.0.</source>
+        <translation>Минимальное значение ползунка. По умолчанию: 0.0.</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Ориентация</translation>
+    </message>
+    <message>
+        <source>Layout orientation of the slider.</source>
+        <translation>Ориентация размещения ползунка.</translation>
+    </message>
+    <message>
+        <source>Step size</source>
+        <translation>Размер шага</translation>
+    </message>
+    <message>
+        <source>Indicates the slider step size.</source>
+        <translation>Задаёт размер шага ползунка.</translation>
+    </message>
+    <message>
+        <source>Active focus on press</source>
+        <translation>Фокус активации при нажатии</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should receive active focus when pressed.</source>
+        <translation>Показывает, принимает ли ползунок фокус при нажатии.</translation>
+    </message>
+    <message>
+        <source>Tick marks enabled</source>
+        <translation>Отображать шкалу</translation>
+    </message>
+    <message>
+        <source>Indicates whether the slider should display tick marks at step intervals.</source>
+        <translation>Показывает, отображается ли шкала шагов на ползунке.</translation>
+    </message>
+    <message>
+        <source>Update value while dragging</source>
+        <translation>Обновлять значение при перетаскивании</translation>
+    </message>
+    <message>
+        <source>Determines whether the current value should be updated while the user is moving the slider handle, or only when the button has been released.</source>
+        <translation>Определяет, обновляется ли текущее значение ползунка во время перемещения пользователем, или только при отпускании кнопки.</translation>
+    </message>
+</context>
+<context>
+    <name>SplitViewSpecifics</name>
+    <message>
+        <source>Split View</source>
+        <translation>Разделяемый обзор</translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation>Ориентация</translation>
+    </message>
+    <message>
+        <source>Orientation of the split view.</source>
+        <translation>Ориентация обзора.</translation>
+    </message>
+</context>
+<context>
     <name>SshConnection</name>
     <message>
         <source>Server and client capabilities don&apos;t match. Client list was: %1.
@@ -35244,6 +35342,10 @@ Influences the indentation of continuation lines.
     <message>
         <source>Jump To File Under Cursor</source>
         <translation>Перейти к файлу под курсором</translation>
+    </message>
+    <message>
+        <source>Jump to File Under Cursor in Next Split</source>
+        <translation>Перейти к файлу под курсором в следующей панели</translation>
     </message>
     <message>
         <source>Move the View a Page Up and Keep the Cursor Position</source>
