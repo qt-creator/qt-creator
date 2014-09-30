@@ -672,6 +672,14 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
                      static_cast<void (QWidget::*)()>(&QWidget::update));
 
     m_moveLineUndoHack = false;
+
+    updateCannotDecodeInfo();
+
+    connect(m_fileEncodingLabel, &LineColumnLabel::clicked,
+            q, &TextEditorWidget::selectEncoding);
+    connect(m_document->document(), &QTextDocument::modificationChanged,
+            q, &TextEditorWidget::updateTextCodecLabel);
+    q->updateTextCodecLabel();
 }
 
 TextEditorWidget::~TextEditorWidget()
@@ -963,13 +971,7 @@ bool TextEditorWidget::open(QString *errorString, const QString &fileName, const
     if (d->m_document->open(errorString, fileName, realFileName)) {
         moveCursor(QTextCursor::Start);
         d->updateCannotDecodeInfo();
-        if (d->m_fileEncodingLabel) {
-            connect(d->m_fileEncodingLabel, &LineColumnLabel::clicked,
-                    this, &TextEditorWidget::selectEncoding, Qt::UniqueConnection);
-            connect(d->m_document->document(), &QTextDocument::modificationChanged,
-                    this, &TextEditorWidget::updateTextCodecLabel, Qt::UniqueConnection);
-            updateTextCodecLabel();
-        }
+        updateTextCodecLabel();
         return true;
     }
     return false;
