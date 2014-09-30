@@ -2448,28 +2448,28 @@ void TextEditorWidget::gotoLine(int line, int column, bool centerLine)
     d->saveCurrentCursorPositionForNavigation();
 }
 
-int TextEditorWidget::position(BaseTextEditor::PositionOperation posOp, int at) const
+int TextEditorWidget::position(TextPositionOperation posOp, int at) const
 {
     QTextCursor tc = textCursor();
 
     if (at != -1)
         tc.setPosition(at);
 
-    if (posOp == BaseTextEditor::Current)
+    if (posOp == CurrentPosition)
         return tc.position();
 
     switch (posOp) {
-    case BaseTextEditor::EndOfLine:
+    case EndOfLinePosition:
         tc.movePosition(QTextCursor::EndOfLine);
         return tc.position();
-    case BaseTextEditor::StartOfLine:
+    case StartOfLinePosition:
         tc.movePosition(QTextCursor::StartOfLine);
         return tc.position();
-    case BaseTextEditor::Anchor:
+    case AnchorPosition:
         if (tc.hasSelection())
             return tc.anchor();
         break;
-    case BaseTextEditor::EndOfDoc:
+    case EndOfDocPosition:
         tc.movePosition(QTextCursor::End);
         return tc.position();
     default:
@@ -5087,11 +5087,11 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
                 }
             }
             int line = n + 1;
-            BaseTextEditor::MarkRequestKind kind;
+            TextMarkRequestKind kind;
             if (QApplication::keyboardModifiers() & Qt::ShiftModifier)
-                kind = BaseTextEditor::BookmarkRequest;
+                kind = BookmarkRequest;
             else
-                kind = BaseTextEditor::BreakpointRequest;
+                kind = BreakpointRequest;
 
             emit markRequested(this, line, kind);
         }
@@ -5224,8 +5224,8 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
         cursorWithinSnippet = snippetCheckCursor(snippetCursor);
     }
 
-    const TextEditor::TabSettings &tabSettings = m_document->tabSettings();
-    const TextEditor::TypingSettings &typingSettings = m_document->typingSettings();
+    const TabSettings &tabSettings = m_document->tabSettings();
+    const TypingSettings &typingSettings = m_document->typingSettings();
 
     if (typingSettings.m_autoIndent && m_autoCompleter->autoBackspace(cursor))
         return;
@@ -6154,7 +6154,7 @@ void TextEditorWidget::setMarginSettings(const MarginSettings &ms)
     extraArea()->update();
 }
 
-void TextEditorWidget::setBehaviorSettings(const TextEditor::BehaviorSettings &bs)
+void TextEditorWidget::setBehaviorSettings(const BehaviorSettings &bs)
 {
     d->m_behaviorSettings = bs;
 }
@@ -6169,7 +6169,7 @@ void TextEditorWidget::setStorageSettings(const StorageSettings &storageSettings
     d->m_document->setStorageSettings(storageSettings);
 }
 
-void TextEditorWidget::setCompletionSettings(const TextEditor::CompletionSettings &completionSettings)
+void TextEditorWidget::setCompletionSettings(const CompletionSettings &completionSettings)
 {
     d->m_autoCompleter->setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
     d->m_autoCompleter->setSurroundWithEnabled(completionSettings.m_autoInsertBrackets
@@ -6588,7 +6588,7 @@ void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 BaseTextEditor::BaseTextEditor()
     : d(new BaseTextEditorPrivate)
 {
-    addContext(TextEditor::Constants::C_TEXTEDITOR);
+    addContext(Constants::C_TEXTEDITOR);
 }
 
 BaseTextEditor::~BaseTextEditor()
@@ -6660,7 +6660,7 @@ int BaseTextEditor::rowCount() const
     return editorWidget()->rowCount();
 }
 
-int BaseTextEditor::position(BaseTextEditor::PositionOperation posOp, int at) const
+int BaseTextEditor::position(TextPositionOperation posOp, int at) const
 {
     return editorWidget()->position(posOp, at);
 }
@@ -7067,7 +7067,7 @@ bool BaseTextEditor::open(QString *errorString, const QString &fileName, const Q
 {
     if (!editorWidget()->open(errorString, fileName, realFileName))
         return false;
-    textDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
+    textDocument()->setMimeType(MimeDatabase::findByFile(QFileInfo(fileName)).type());
     return true;
 }
 
@@ -7187,7 +7187,7 @@ void TextEditorWidget::setupAsPlainEditor()
     setMarksVisible(true);
     setLineSeparatorsAllowed(true);
 
-    textDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
+    textDocument()->setMimeType(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
     connect(textDocument(), &IDocument::filePathChanged,
             d, &TextEditorWidgetPrivate::reconfigure);
@@ -7258,8 +7258,8 @@ void TextEditorFactory::setSyntaxHighlighterCreator(const SyntaxHighLighterCreat
 void TextEditorFactory::setGenericSyntaxHighlighter(const QString &mimeType)
 {
     m_syntaxHighlighterCreator = [this, mimeType]() -> SyntaxHighlighter * {
-        Highlighter *highlighter = new TextEditor::Highlighter();
-        setMimeTypeForHighlighter(highlighter, Core::MimeDatabase::findByType(mimeType));
+        Highlighter *highlighter = new Highlighter;
+        setMimeTypeForHighlighter(highlighter, MimeDatabase::findByType(mimeType));
         return highlighter;
     };
 }

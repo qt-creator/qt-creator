@@ -112,29 +112,31 @@ private:
     int _last;
 };
 
+enum TextPositionOperation
+{
+    CurrentPosition = 1,
+    EndOfLinePosition = 2,
+    StartOfLinePosition = 3,
+    AnchorPosition = 4,
+    EndOfDocPosition = 5
+};
+
+enum TextMarkRequestKind
+{
+    BreakpointRequest,
+    BookmarkRequest,
+    TaskMarkRequest
+};
+
 class TEXTEDITOR_EXPORT BaseTextEditor : public Core::IEditor
 {
     Q_OBJECT
 
 public:
-    enum PositionOperation {
-        Current = 1,
-        EndOfLine = 2,
-        StartOfLine = 3,
-        Anchor = 4,
-        EndOfDoc = 5
-    };
-
     BaseTextEditor();
     ~BaseTextEditor();
 
     virtual void finalizeInitialization() {}
-
-    enum MarkRequestKind {
-        BreakpointRequest,
-        BookmarkRequest,
-        TaskMarkRequest
-    };
 
     static BaseTextEditor *currentTextEditor();
 
@@ -174,7 +176,7 @@ public:
     int rowCount() const;
 
     /*! Returns the position at \a posOp in characters from the beginning of the document */
-    virtual int position(PositionOperation posOp = Current, int at = -1) const;
+    virtual int position(TextPositionOperation posOp = CurrentPosition, int at = -1) const;
 
     /*! Converts the \a pos in characters from beginning of document to \a line and \a column */
     virtual void convertPosition(int pos, int *line, int *column) const;
@@ -220,7 +222,7 @@ public:
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     void gotoLine(int line, int column = 0, bool centerLine = true);
-    int position(BaseTextEditor::PositionOperation posOp = BaseTextEditor::Current,
+    int position(TextPositionOperation posOp = CurrentPosition,
          int at = -1) const;
     void convertPosition(int pos, int *line, int *column) const;
     using QPlainTextEdit::cursorRect;
@@ -592,7 +594,7 @@ protected:
 
 signals:
     void markRequested(TextEditor::TextEditorWidget *widget,
-        int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
+        int line, TextEditor::TextMarkRequestKind kind);
     void markContextMenuRequested(TextEditor::TextEditorWidget *widget,
         int line, QMenu *menu);
     void tooltipOverrideRequested(TextEditor::TextEditorWidget *widget,

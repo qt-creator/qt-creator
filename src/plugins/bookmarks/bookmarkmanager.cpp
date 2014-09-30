@@ -849,9 +849,9 @@ void BookmarkManager::loadBookmarks()
 }
 
 void BookmarkManager::handleBookmarkRequest(TextEditorWidget *widget, int line,
-                                            BaseTextEditor::MarkRequestKind kind)
+                                            TextMarkRequestKind kind)
 {
-    if (kind == BaseTextEditor::BookmarkRequest && widget->textDocument())
+    if (kind == BookmarkRequest && widget->textDocument())
         toggleBookmark(widget->textDocument()->filePath(), line);
 }
 

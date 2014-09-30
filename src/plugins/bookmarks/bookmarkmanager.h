@@ -94,7 +94,7 @@ public:
     };
 
     void handleBookmarkRequest(TextEditor::TextEditorWidget *widget, int line,
-                               TextEditor::BaseTextEditor::MarkRequestKind kind);
+                               TextEditor::TextMarkRequestKind kind);
 
     void handleBookmarkTooltipRequest(TextEditor::TextEditorWidget *widget,
                                       const QPoint &pos, int line);

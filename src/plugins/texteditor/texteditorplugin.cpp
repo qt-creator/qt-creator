@@ -211,18 +211,18 @@ void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 {
     if (auto window = SearchResultWindow::instance()) {
         window->setTextEditorFont(QFont(settings.family(), settings.fontSize() * settings.fontZoom() / 100),
-                                  settings.formatFor(TextEditor::C_TEXT).foreground(),
-                                  settings.formatFor(TextEditor::C_TEXT).background(),
-                                  settings.formatFor(TextEditor::C_SEARCH_RESULT).foreground(),
-                                  settings.formatFor(TextEditor::C_SEARCH_RESULT).background());
+                                  settings.formatFor(C_TEXT).foreground(),
+                                  settings.formatFor(C_TEXT).background(),
+                                  settings.formatFor(C_SEARCH_RESULT).foreground(),
+                                  settings.formatFor(C_SEARCH_RESULT).background());
     }
 }
 
 void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
-    if (BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor())) {
+    if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
         const int pos = editor->position();
-        int anchor = editor->position(BaseTextEditor::Anchor);
+        int anchor = editor->position(AnchorPosition);
         if (anchor < 0) // no selection
             anchor = pos;
         int selectionLength = pos - anchor;

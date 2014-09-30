@@ -235,12 +235,11 @@ AssistInterface *ClangCompletionAssistProvider::createAssistInterface(
 // ------------------------
 // ClangAssistProposalModel
 // ------------------------
-class ClangAssistProposalModel : public TextEditor::GenericProposalModel
+class ClangAssistProposalModel : public GenericProposalModel
 {
 public:
     ClangAssistProposalModel()
-        : TextEditor::GenericProposalModel()
-        , m_sortable(false)
+        : m_sortable(false)
         , m_completionOperator(T_EOF_SYMBOL)
         , m_replaceDotForArrow(false)
     {}
@@ -254,11 +253,11 @@ public:
 // -------------------
 // ClangAssistProposal
 // -------------------
-class ClangAssistProposal : public TextEditor::GenericProposal
+class ClangAssistProposal : public GenericProposal
 {
 public:
-    ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModel *model)
-        : TextEditor::GenericProposal(cursorPos, model)
+    ClangAssistProposal(int cursorPos, GenericProposalModel *model)
+        : GenericProposal(cursorPos, model)
         , m_replaceDotForArrow(static_cast<ClangAssistProposalModel *>(model)->m_replaceDotForArrow)
     {}
 
@@ -277,7 +276,7 @@ private:
 // ----------------------
 // ClangFunctionHintModel
 // ----------------------
-class ClangFunctionHintModel : public TextEditor::IFunctionHintProposalModel
+class ClangFunctionHintModel : public IFunctionHintProposalModel
 {
 public:
     ClangFunctionHintModel(const QList<CodeCompletionResult> functionSymbols)
@@ -345,13 +344,13 @@ int ClangFunctionHintModel::activeArgument(const QString &prefix) const
     return argnr;
 }
 
-class ClangAssistProposalItem : public TextEditor::AssistProposalItem
+class ClangAssistProposalItem : public AssistProposalItem
 {
 public:
     ClangAssistProposalItem() {}
 
     virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void applyContextualContent(TextEditor::TextEditorWidget *editorWidget,
+    virtual void applyContextualContent(TextEditorWidget *editorWidget,
                                         int basePosition) const;
 
     void keepCompletionOperator(unsigned compOp) { m_completionOperator = compOp; }
@@ -508,7 +507,7 @@ void ClangAssistProposalItem::applyContextualContent(TextEditorWidget *editorWid
     }
 
     // Avoid inserting characters that are already there
-    const int endsPosition = editorWidget->position(TextEditor::BaseTextEditor::EndOfLine);
+    const int endsPosition = editorWidget->position(EndOfLinePosition);
     const QString existingText = editorWidget->textAt(editorWidget->position(), endsPosition - editorWidget->position());
     int existLength = 0;
     if (!existingText.isEmpty()) {

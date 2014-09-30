@@ -836,7 +836,7 @@ public slots:
     void updateBreakMenuItem(Core::IEditor *editor);
     void setBusyCursor(bool busy);
     void requestMark(TextEditor::TextEditorWidget *widget, int lineNumber,
-                     TextEditor::BaseTextEditor::MarkRequestKind kind);
+                     TextEditor::TextMarkRequestKind kind);
     void requestContextMenu(TextEditor::TextEditorWidget *widget,
                             int lineNumber, QMenu *menu);
 
@@ -2039,9 +2039,9 @@ void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address,
 }
 
 void DebuggerPluginPrivate::requestMark(TextEditorWidget *widget, int lineNumber,
-                                        BaseTextEditor::MarkRequestKind kind)
+                                        TextMarkRequestKind kind)
 {
-    if (kind != BaseTextEditor::BreakpointRequest)
+    if (kind != BreakpointRequest)
         return;
 
     TextDocument *document = widget->textDocument();
