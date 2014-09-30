@@ -97,6 +97,8 @@ public:
                               | TextEditorActionHandler::UnCollapseAll
                               | TextEditorActionHandler::FollowSymbolUnderCursor);
 
+        addHoverHandler(new CppHoverHandler);
+
         if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
             FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_cpp.png", Constants::CPP_SOURCE_MIMETYPE);
             FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_c.png", Constants::C_SOURCE_MIMETYPE);
@@ -153,7 +155,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
         return false;
 
     addAutoReleasedObject(new CppEditorFactory);
-    addAutoReleasedObject(new CppHoverHandler);
     addAutoReleasedObject(new CppOutlineWidgetFactory);
     addAutoReleasedObject(new CppTypeHierarchyFactory);
     addAutoReleasedObject(new CppIncludeHierarchyFactory);

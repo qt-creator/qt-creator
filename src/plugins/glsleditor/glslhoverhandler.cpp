@@ -29,29 +29,9 @@
 
 #include "glslhoverhandler.h"
 #include "glsleditor.h"
-#include "glsleditorconstants.h"
-
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/helpmanager.h>
-#include <extensionsystem/pluginmanager.h>
-#include <texteditor/texteditor.h>
-
-using namespace Core;
 
 namespace GlslEditor {
 namespace Internal {
-
-GlslHoverHandler::GlslHoverHandler(QObject *parent) : BaseHoverHandler(parent)
-{}
-
-GlslHoverHandler::~GlslHoverHandler()
-{}
-
-bool GlslHoverHandler::acceptEditor(IEditor *editor)
-{
-    return editor->context().contains(Constants::C_GLSLEDITOR_ID);
-}
 
 void GlslHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos)
 {

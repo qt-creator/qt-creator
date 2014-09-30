@@ -33,7 +33,6 @@
 #include "glsleditorconstants.h"
 #include "glslfilewizard.h"
 #include "glslhighlighter.h"
-#include "glslhoverhandler.h"
 
 #include <glsl/glslengine.h>
 #include <glsl/glslparser.h>
@@ -128,7 +127,6 @@ bool GlslEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     if (!MimeDatabase::addMimeTypes(QLatin1String(":/glsleditor/GLSLEditor.mimetypes.xml"), errorMessage))
         return false;
 
-    addAutoReleasedObject(new GlslHoverHandler(this));
     addAutoReleasedObject(new GlslEditorFactory);
     addAutoReleasedObject(new GlslCompletionAssistProvider);
 

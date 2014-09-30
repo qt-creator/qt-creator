@@ -31,6 +31,7 @@
 
 #include "profilecompletionassist.h"
 #include "profilehighlighter.h"
+#include "profilehoverhandler.h"
 #include "qmakeprojectmanager.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagerconstants.h"
@@ -214,6 +215,8 @@ ProFileEditorFactory::ProFileEditorFactory()
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
                 | TextEditorActionHandler::JumpToFileUnderCursor);
+
+    addHoverHandler(new ProFileHoverHandler);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pro");
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pri");

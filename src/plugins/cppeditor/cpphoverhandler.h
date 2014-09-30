@@ -39,10 +39,8 @@ class CppHoverHandler : public TextEditor::BaseHoverHandler
 {
 public:
     CppHoverHandler();
-    virtual ~CppHoverHandler();
 
 private:
-    virtual bool acceptEditor(Core::IEditor *editor);
     virtual void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos);
     virtual void decorateToolTip();
 };

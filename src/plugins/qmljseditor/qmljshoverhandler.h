@@ -39,10 +39,6 @@ QT_BEGIN_NAMESPACE
 template <class> class QList;
 QT_END_NAMESPACE
 
-namespace Core { class IEditor; }
-
-namespace TextEditor { class BaseTextEditor; }
-
 namespace QmlJS {
 class ScopeChain;
 class Context;
@@ -59,13 +55,13 @@ class QmlJSEditorWidget;
 class QmlJSHoverHandler : public TextEditor::BaseHoverHandler
 {
     Q_OBJECT
+
 public:
-    QmlJSHoverHandler(QObject *parent = 0);
+    QmlJSHoverHandler();
 
 private:
     void reset();
 
-    bool acceptEditor(Core::IEditor *editor);
     void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos);
     void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point);
 

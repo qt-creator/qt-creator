@@ -31,6 +31,7 @@
 #include "texteditor_p.h"
 
 #include "autocompleter.h"
+#include "basehoverhandler.h"
 #include "behaviorsettings.h"
 #include "circularclipboard.h"
 #include "circularclipboardassist.h"
@@ -355,6 +356,7 @@ public:
     void snippetTabOrBacktab(bool forward);
 
     RefactorOverlay *m_refactorOverlay;
+    QString m_contextHelpId;
 
     QBasicTimer foldedBlockTimer;
     int visibleFoldedBlockNumber;
@@ -420,6 +422,7 @@ public:
 
     CodeAssistant m_codeAssistant;
     bool m_assistRelevantContentAdded;
+    QList<BaseHoverHandler *> m_hoverHandlers; // Not owned
 
     QPointer<TextEditorAnimator> m_animator;
     int m_cursorBlockNumber;
@@ -2965,8 +2968,13 @@ void TextEditorWidgetPrivate::processTooltipRequest(const QTextCursor &c)
     const QPoint toolTipPoint = q->toolTipPosition(c);
     bool handled = false;
     emit q->tooltipOverrideRequested(q, toolTipPoint, c.position(), &handled);
-    if (!handled)
-        emit q->tooltipRequested(toolTipPoint, c.position());
+    if (handled)
+        return;
+    if (!m_hoverHandlers.isEmpty()) {
+        m_hoverHandlers.first()->showToolTip(q, toolTipPoint, c.position());
+        return;
+    }
+    emit q->tooltipRequested(toolTipPoint, c.position());
 }
 
 bool TextEditorWidget::viewportEvent(QEvent *event)
@@ -6737,7 +6745,7 @@ void TextEditorWidgetPrivate::updateCursorPosition()
                                    .arg(q->textDocument()->tabSettings().columnAt(block.text(),
                                                                                    column)+1),
                                    tr("Line: 9999, Col: 999"));
-    q->clearContentsHelpId();
+    m_contextHelpId.clear();
 
     if (!block.isVisible())
         q->ensureCursorVisible();
@@ -6745,10 +6753,25 @@ void TextEditorWidgetPrivate::updateCursorPosition()
 
 QString BaseTextEditor::contextHelpId() const
 {
-    if (m_contextHelpId.isEmpty())
-        emit const_cast<BaseTextEditor*>(this)->contextHelpIdRequested(const_cast<BaseTextEditor*>(this),
-                                                                       editorWidget()->textCursor().position());
-    return m_contextHelpId;
+    return editorWidget()->contextHelpId();
+}
+
+void BaseTextEditor::setContextHelpId(const QString &id)
+{
+    IEditor::setContextHelpId(id);
+    editorWidget()->setContextHelpId(id);
+}
+
+QString TextEditorWidget::contextHelpId()
+{
+    if (d->m_contextHelpId.isEmpty() && !d->m_hoverHandlers.isEmpty())
+        d->m_contextHelpId = d->m_hoverHandlers.first()->contextHelpId(this, textCursor().position());
+    return d->m_contextHelpId;
+}
+
+void TextEditorWidget::setContextHelpId(const QString &id)
+{
+    d->m_contextHelpId = id;
 }
 
 RefactorMarkers TextEditorWidget::refactorMarkers() const
@@ -7209,6 +7232,11 @@ TextEditorFactory::TextEditorFactory(QObject *parent)
     m_duplicatedSupported = true;
 }
 
+TextEditorFactory::~TextEditorFactory()
+{
+    qDeleteAll(m_hoverHandlers);
+}
+
 void TextEditorFactory::setDocumentCreator(const DocumentCreator &creator)
 {
     m_documentCreator = creator;
@@ -7256,6 +7284,11 @@ void TextEditorFactory::setEditorActionHandlers(Id contextId, uint optionalActio
 void TextEditorFactory::setEditorActionHandlers(uint optionalActions)
 {
     new TextEditorActionHandler(this, id(), optionalActions);
+}
+
+void TextEditorFactory::addHoverHandler(BaseHoverHandler *handler)
+{
+    m_hoverHandlers.append(handler);
 }
 
 void TextEditorFactory::setCommentStyle(CommentDefinition::Style style)
@@ -7306,6 +7339,7 @@ BaseTextEditor *TextEditorFactory::createEditorHelper(const TextDocumentPtr &doc
         widget->setAutoCompleter(m_autoCompleterCreator());
 
     widget->setTextDocument(document);
+    widget->d->m_hoverHandlers = m_hoverHandlers;
 
     widget->d->m_codeAssistant.configure(widget);
     widget->d->m_commentDefinition.setStyle(m_commentStyle);
@@ -7320,11 +7354,6 @@ BaseTextEditor *TextEditorFactory::createEditorHelper(const TextDocumentPtr &doc
                 editor->markContextMenuRequested(editor, line, menu);
             });
 
-    connect(widget, &TextEditorWidget::tooltipRequested, editor,
-            [editor](const QPoint &globalPos, int position) {
-                editor->tooltipRequested(editor, globalPos, position);
-            });
-
     connect(widget, &TextEditorWidget::markTooltipRequested, editor,
             [editor](const QPoint &globalPos, int line) {
                 editor->markTooltipRequested(editor, globalPos, line);
@@ -7332,9 +7361,6 @@ BaseTextEditor *TextEditorFactory::createEditorHelper(const TextDocumentPtr &doc
 
     connect(widget, &TextEditorWidget::activateEditor,
             [editor]() { Core::EditorManager::activateEditor(editor); });
-
-    connect(widget, &TextEditorWidget::clearContentsHelpId,
-            [editor]() { editor->setContextHelpId(QString()); });
 
     widget->finalizeInitialization();
     editor->finalizeInitialization();

@@ -35,6 +35,7 @@
 #include "qmljseditordocument.h"
 #include "qmljseditorplugin.h"
 #include "qmljsfindreferences.h"
+#include "qmljshoverhandler.h"
 #include "qmljsquickfixassist.h"
 #include "qmloutlinemodel.h"
 
@@ -900,6 +901,8 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     setEditorCreator([]() { return new QmlJSEditor; });
     setAutoCompleterCreator([]() { return new AutoCompleter; });
     setCommentStyle(Utils::CommentDefinition::CppStyle);
+
+    addHoverHandler(new QmlJSHoverHandler);
 
     setEditorActionHandlers(TextEditorActionHandler::Format
         | TextEditorActionHandler::UnCommentSelection

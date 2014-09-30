@@ -53,11 +53,6 @@ ProFileHoverHandler::ProFileHoverHandler()
     m_keywords = TextEditor::Keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
 }
 
-bool ProFileHoverHandler::acceptEditor(IEditor *editor)
-{
-    return editor->context().contains(Constants::PROFILE_EDITOR_ID);
-}
-
 void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos)
 {
     m_docFragment.clear();

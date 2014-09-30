@@ -32,7 +32,6 @@
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
-#include "qmljshoverhandler.h"
 #include "qmlfilewizard.h"
 #include "jsfilewizard.h"
 #include "qmljsoutline.h"
@@ -224,7 +223,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_quickFixAssistProvider = new QmlJSQuickFixAssistProvider;
     addAutoReleasedObject(m_quickFixAssistProvider);
     addAutoReleasedObject(new QmlJSCompletionAssistProvider);
-    addAutoReleasedObject(new QmlJSHoverHandler);
 
     errorMessage->clear();
 

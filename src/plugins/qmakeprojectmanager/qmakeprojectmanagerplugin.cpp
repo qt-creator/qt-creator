@@ -44,7 +44,6 @@
 #include "wizards/subdirsprojectwizard.h"
 #include "wizards/qtquickappwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
-#include "profilehoverhandler.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeproject.h"
 #include "externaleditors.h"
@@ -111,7 +110,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     ProjectExplorer::KitManager::registerKitInformation(new QmakeKitInformation);
 
-    addAutoReleasedObject(new ProFileEditorFactory);
     addAutoReleasedObject(new EmptyProjectWizard);
     addAutoReleasedObject(new SubdirsProjectWizard);
     addAutoReleasedObject(new GuiAppWizard);
@@ -137,7 +135,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     addAutoReleasedObject(new LinguistExternalEditor);
 
     addAutoReleasedObject(new ProFileCompletionAssistProvider);
-    addAutoReleasedObject(new ProFileHoverHandler);
+    addAutoReleasedObject(new ProFileEditorFactory);
 
     auto hf = new TextEditor::HighlighterFactory;
     hf->setProductType<ProFileHighlighter>();

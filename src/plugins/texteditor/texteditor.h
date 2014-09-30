@@ -61,6 +61,7 @@ namespace Core { class MimeType; }
 
 namespace TextEditor {
 
+class BaseHoverHandler;
 class TabSettings;
 class RefactorOverlay;
 struct RefactorMarker;
@@ -160,6 +161,7 @@ public:
     QWidget *toolBar();
 
     QString contextHelpId() const; // from IContext
+    void setContextHelpId(const QString &id);
 
     int currentLine() const;
     int currentColumn() const;
@@ -196,9 +198,7 @@ public:
 signals:
     void markRequested(TextEditor::BaseTextEditor *editor, int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
     void markContextMenuRequested(TextEditor::BaseTextEditor *editor, int line, QMenu *menu);
-    void tooltipRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int position);
     void markTooltipRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int line);
-    void contextHelpIdRequested(TextEditor::BaseTextEditor *editor, int position);
 
 private:
     friend class TextEditorFactory;
@@ -569,6 +569,9 @@ public:
     QChar characterAt(int pos) const;
     QString textAt(int from, int to) const;
 
+    QString contextHelpId();
+    void setContextHelpId(const QString &id);
+
 protected:
     /*!
        Reimplement this function to enable code navigation.
@@ -603,7 +606,6 @@ signals:
     void tooltipRequested(const QPoint &globalPos, int position);
     void markTooltipRequested(const QPoint &globalPos, int line);
     void activateEditor();
-    void clearContentsHelpId();
 
 protected slots:
     virtual void slotCursorPositionChanged(); // Used in VcsBase
@@ -626,6 +628,7 @@ class TEXTEDITOR_EXPORT TextEditorFactory : public Core::IEditorFactory
 
 public:
     TextEditorFactory(QObject *parent = 0);
+    ~TextEditorFactory();
 
     typedef std::function<BaseTextEditor *()> EditorCreator;
     typedef std::function<TextDocument *()> DocumentCreator;
@@ -644,6 +647,8 @@ public:
 
     void setEditorActionHandlers(Core::Id contextId, uint optionalActions);
     void setEditorActionHandlers(uint optionalActions);
+
+    void addHoverHandler(BaseHoverHandler *handler);
 
     void setCommentStyle(Utils::CommentDefinition::Style style);
     void setDuplicatedSupported(bool on);
@@ -664,6 +669,7 @@ private:
     IndenterCreator m_indenterCreator;
     SyntaxHighLighterCreator m_syntaxHighlighterCreator;
     Utils::CommentDefinition::Style m_commentStyle;
+    QList<BaseHoverHandler *> m_hoverHandlers; // owned
     bool m_duplicatedSupported;
 };
 

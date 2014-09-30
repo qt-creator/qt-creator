@@ -49,14 +49,6 @@ namespace Internal {
 CppHoverHandler::CppHoverHandler()
 {}
 
-CppHoverHandler::~CppHoverHandler()
-{}
-
-bool CppHoverHandler::acceptEditor(IEditor *editor)
-{
-    return editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID;
-}
-
 void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos)
 {
     if (!editorWidget->extraSelectionTooltip(pos).isEmpty()) {

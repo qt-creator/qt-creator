@@ -46,8 +46,11 @@ class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
     Q_OBJECT
 
 public:
-    BaseHoverHandler(QObject *parent = 0);
+    BaseHoverHandler();
     ~BaseHoverHandler();
+
+    QString contextHelpId(TextEditorWidget *widget, int pos);
+    void showToolTip(TextEditorWidget *widget, const QPoint &point, int pos);
 
 protected:
     void setToolTip(const QString &tooltip);
@@ -63,14 +66,9 @@ protected:
     const HelpItem &lastHelpItemIdentified() const;
 
 private:
-    void editorOpened(Core::IEditor *editor);
-    void showToolTip(BaseTextEditor *editor, const QPoint &point, int pos);
-    void updateContextHelpId(BaseTextEditor *editor, int pos);
-
     void clear();
-    void process(BaseTextEditor *editor, int pos);
+    void process(TextEditorWidget *widget, int pos);
 
-    virtual bool acceptEditor(Core::IEditor *editor) = 0;
     virtual void identifyMatch(TextEditorWidget *editorWidget, int pos) = 0;
     virtual void decorateToolTip();
     virtual void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point);

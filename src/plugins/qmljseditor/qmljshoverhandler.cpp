@@ -92,14 +92,9 @@ namespace {
     }
 }
 
-QmlJSHoverHandler::QmlJSHoverHandler(QObject *parent) : BaseHoverHandler(parent), m_modelManager(0)
+QmlJSHoverHandler::QmlJSHoverHandler() : m_modelManager(0)
 {
     m_modelManager = QmlJS::ModelManagerInterface::instance();
-}
-
-bool QmlJSHoverHandler::acceptEditor(IEditor *editor)
-{
-    return editor->context().contains(Constants::C_QMLJSEDITOR_ID);
 }
 
 static inline QString getModuleName(const ScopeChain &scopeChain, const Document::Ptr &qmlDocument,

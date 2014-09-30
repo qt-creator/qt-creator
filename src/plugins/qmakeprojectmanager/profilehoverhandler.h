@@ -42,6 +42,7 @@ namespace Internal {
 class ProFileHoverHandler : public TextEditor::BaseHoverHandler
 {
     Q_OBJECT
+
 public:
     ProFileHoverHandler();
 
@@ -49,8 +50,7 @@ signals:
     void creatorHelpRequested(const QUrl &url);
 
 private:
-    virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos);
+    void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos);
     void identifyQMakeKeyword(const QString &text, int pos);
 
     enum ManualKind {

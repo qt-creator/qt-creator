@@ -32,24 +32,15 @@
 
 #include <texteditor/basehoverhandler.h>
 
-#include <QObject>
-
-namespace Core { class IEditor; }
-
-namespace TextEditor { class BaseTextEditor; }
-
 namespace GlslEditor {
 namespace Internal {
 
 class GlslHoverHandler : public TextEditor::BaseHoverHandler
 {
-    Q_OBJECT
 public:
-    GlslHoverHandler(QObject *parent = 0);
-    virtual ~GlslHoverHandler();
+    GlslHoverHandler() {}
 
 private:
-    virtual bool acceptEditor(Core::IEditor *editor);
     virtual void identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos);
     virtual void decorateToolTip();
 };
