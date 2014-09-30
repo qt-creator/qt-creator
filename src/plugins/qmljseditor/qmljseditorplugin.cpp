@@ -58,7 +58,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/textfilewizard.h>
 #include <texteditor/highlighterfactory.h>
 #include <utils/qtcassert.h>
 #include <utils/json.h>

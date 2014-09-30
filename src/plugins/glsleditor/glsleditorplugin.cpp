@@ -51,7 +51,6 @@
 
 #include <texteditor/highlighterfactory.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/textfilewizard.h>
 
 #include <utils/qtcassert.h>
 

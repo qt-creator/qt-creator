@@ -41,7 +41,6 @@
 #include "snippets/plaintextsnippetprovider.h"
 #include "texteditoractionhandler.h"
 #include "texteditorsettings.h"
-#include "textfilewizard.h"
 #include "textmarkregistry.h"
 
 #include <coreplugin/icore.h>
@@ -83,13 +82,6 @@ TextEditorPlugin::~TextEditorPlugin()
     m_instance = 0;
 }
 
-static const char wizardCategoryC[] = "U.General";
-
-static inline QString wizardDisplayCategory()
-{
-    return TextEditorPlugin::tr("General");
-}
-
 // ExtensionSystem::PluginInterface
 bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
@@ -97,19 +89,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     if (!MimeDatabase::addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
         return false;
-
-    TextFileWizard *wizard = new TextFileWizard(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT),
-                                                QLatin1String("text$"));
-    wizard->setWizardKind(IWizardFactory::FileWizard);
-    wizard->setDescription(tr("Creates a text file. The default file extension is <tt>.txt</tt>. "
-                                       "You can specify a different extension as part of the filename."));
-    wizard->setDisplayName(tr("Text File"));
-    wizard->setCategory(QLatin1String(wizardCategoryC));
-    wizard->setDisplayCategory(wizardDisplayCategory());
-    wizard->setFlags(IWizardFactory::PlatformIndependent);
-
-    // Add text file wizard
-    addAutoReleasedObject(wizard);
 
     m_settings = new TextEditorSettings(this);
 

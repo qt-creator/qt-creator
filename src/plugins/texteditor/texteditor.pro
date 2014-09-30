@@ -4,7 +4,6 @@ CONFIG += exceptions
 CONFIG += include_source_dir # For the highlighter autotest.
 include(../../qtcreatorplugin.pri)
 SOURCES += texteditorplugin.cpp \
-    textfilewizard.cpp \
     plaintexteditorfactory.cpp \
     textdocument.cpp \
     texteditor.cpp \
@@ -104,7 +103,6 @@ SOURCES += texteditorplugin.cpp \
     marginsettings.cpp
 
 HEADERS += texteditorplugin.h \
-    textfilewizard.h \
     plaintexteditorfactory.h \
     texteditor_p.h \
     textdocument.h \

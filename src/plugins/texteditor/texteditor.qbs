@@ -133,8 +133,6 @@ QtcPlugin {
         "texteditorplugin.h",
         "texteditorsettings.cpp",
         "texteditorsettings.h",
-        "textfilewizard.cpp",
-        "textfilewizard.h",
         "textmark.cpp",
         "textmark.h",
         "textmarkregistry.h",

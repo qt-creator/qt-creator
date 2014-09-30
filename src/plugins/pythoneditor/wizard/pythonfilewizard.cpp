@@ -35,7 +35,6 @@
 #include "../pythoneditorconstants.h"
 
 #include <coreplugin/basefilewizard.h>
-#include <texteditor/textfilewizard.h>
 
 #include <utils/filewizardpage.h>
 #include <utils/qtcassert.h>
