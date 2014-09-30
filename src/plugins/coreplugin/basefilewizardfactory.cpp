@@ -491,47 +491,6 @@ QString BaseFileWizardFactory::preferredSuffix(const QString &mimeType)
     \sa Core::Internal::WizardEventLoop
 */
 
-/*!
-    \fn Core::GeneratedFiles Core::StandardFileWizard::generateFilesFromPath(const QString &path,
-                                                                             const QString &name,
-                                                                             QString *errorMessage) const = 0
-    Creates the files with the \a name under the \a path.
-*/
-
-/*!
-    Creates a Utils::FileWizardDialog.
-*/
-
-BaseFileWizard *StandardFileWizardFactory::create(QWidget *parent, const WizardDialogParameters &parameters) const
-{
-    BaseFileWizard *wizard = new BaseFileWizard(parent);
-    wizard->setWindowTitle(tr("New %1").arg(displayName()));
-
-    Utils::FileWizardPage *page = new Utils::FileWizardPage;
-    if (parameters.flags().testFlag(WizardDialogParameters::ForceCapitalLetterForFileName))
-        page->setForceFirstCapitalLetterForFileName(true);
-    page->setPath(parameters.defaultPath());
-    wizard->addPage(page);
-
-    foreach (QWizardPage *p, parameters.extensionPages())
-        wizard->addPage(p);
-    return wizard;
-}
-
-/*!
-    Retrieves \a path and \a fileName and calls \c generateFilesFromPath().
-*/
-
-GeneratedFiles StandardFileWizardFactory::generateFiles(const QWizard *w,
-                                                 QString *errorMessage) const
-{
-    const Utils::Wizard *wizard = qobject_cast<const Utils::Wizard *>(w);
-    Utils::FileWizardPage *page = wizard->find<Utils::FileWizardPage>();
-    QTC_ASSERT(page, return GeneratedFiles());
-
-    return generateFilesFromPath(page->path(), page->fileName(), errorMessage);
-}
-
 } // namespace Core
 
 #include "basefilewizardfactory.moc"

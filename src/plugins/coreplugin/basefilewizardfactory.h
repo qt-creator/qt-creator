@@ -133,17 +133,6 @@ protected:
     static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = 0);
 };
 
-class CORE_EXPORT StandardFileWizardFactory : public BaseFileWizardFactory
-{
-    Q_OBJECT
-
-protected:
-    BaseFileWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const;
-    GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
-    virtual GeneratedFiles generateFilesFromPath(const QString &path, const QString &name,
-                                                 QString *errorMessage) const = 0;
-};
-
 } // namespace Core
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::GeneratedFile::Attributes)

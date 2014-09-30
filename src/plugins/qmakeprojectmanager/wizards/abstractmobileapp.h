@@ -35,7 +35,7 @@
 #include <QPair>
 
 #ifndef CREATORLESSTEST
-#include <coreplugin/basefilewizardfactory.h>
+#  include <coreplugin/generatedfile.h>
 #endif // CREATORLESSTEST
 
 QT_FORWARD_DECLARE_CLASS(QTextStream)

@@ -33,10 +33,6 @@
 #include <designer/formtemplatewizardpage.h>
 #include <qtsupport/codegenerator.h>
 
-#include <coreplugin/basefilewizardfactory.h>
-
-#include <QDebug>
-
 enum { FormPageId, ClassPageId };
 
 namespace Designer {

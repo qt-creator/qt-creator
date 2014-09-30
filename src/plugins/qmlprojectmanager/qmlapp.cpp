@@ -29,13 +29,11 @@
 
 #include "qmlapp.h"
 
-
 #include <coreplugin/basefilewizardfactory.h>
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QDebug>
 #include <QDir>
 #include <QTextStream>
 

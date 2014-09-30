@@ -31,8 +31,6 @@
 #include "basecheckoutwizardfactory.h"
 #include "checkoutprogresswizardpage.h"
 
-#include <coreplugin/basefilewizardfactory.h>
-
 #include <utils/qtcassert.h>
 
 #include <QPushButton>

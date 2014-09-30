@@ -30,12 +30,10 @@
 #include "formwizarddialog.h"
 #include "formtemplatewizardpage.h"
 
-#include <coreplugin/basefilewizardfactory.h>
 #include <qtsupport/codegenerator.h>
 
 #include <utils/filewizardpage.h>
 
-#include <QDebug>
 #include <QAbstractButton>
 
 // Make sure there is a gap before the extension pages

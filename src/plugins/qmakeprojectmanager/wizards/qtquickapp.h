@@ -32,6 +32,8 @@
 
 #include "abstractmobileapp.h"
 
+#include <QStringList>
+
 namespace QmakeProjectManager {
 namespace Internal {
 

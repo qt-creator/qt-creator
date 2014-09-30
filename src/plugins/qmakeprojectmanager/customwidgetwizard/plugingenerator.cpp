@@ -30,11 +30,10 @@
 #include "plugingenerator.h"
 #include "pluginoptions.h"
 
-#include <coreplugin/basefilewizardfactory.h>
+#include <coreplugin/generatedfile.h>
+#include <cpptools/abstracteditorsupport.h>
 
 #include <utils/fileutils.h>
-
-#include <cpptools/abstracteditorsupport.h>
 
 #include <QFileInfo>
 #include <QDir>
