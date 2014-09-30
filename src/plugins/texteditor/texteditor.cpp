@@ -4928,7 +4928,7 @@ void TextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
     if (d->m_marksVisible) {
         QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
         QMenu * contextMenu = new QMenu(this);
-        emit markContextMenuRequested(cursor.blockNumber() + 1, contextMenu);
+        emit markContextMenuRequested(this, cursor.blockNumber() + 1, contextMenu);
         if (!contextMenu->isEmpty())
             contextMenu->exec(e->globalPos());
         delete contextMenu;
@@ -4976,7 +4976,7 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
         if (inMarkArea) {
             //Find line by cursor position
             int line = cursor.blockNumber() + 1;
-            emit markTooltipRequested(mapToGlobal(e->pos()), line);
+            emit markTooltipRequested(this, mapToGlobal(e->pos()), line);
         }
 
         if (e->buttons() & Qt::LeftButton && !d->m_markDragStart.isNull()) {
@@ -5094,7 +5094,7 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             else
                 kind = BaseTextEditor::BreakpointRequest;
 
-            emit markRequested(line, kind);
+            emit markRequested(this, line, kind);
         }
     }
 }
@@ -7345,21 +7345,6 @@ BaseTextEditor *TextEditorFactory::createEditorHelper(const TextDocumentPtr &doc
 
     widget->d->m_codeAssistant.configure(widget);
     widget->d->m_commentDefinition.setStyle(m_commentStyle);
-
-    connect(widget, &TextEditorWidget::markRequested, editor,
-            [editor](int line, BaseTextEditor::MarkRequestKind kind) {
-                editor->markRequested(editor, line, kind);
-            });
-
-    connect(widget, &TextEditorWidget::markContextMenuRequested, editor,
-            [editor](int line, QMenu *menu) {
-                editor->markContextMenuRequested(editor, line, menu);
-            });
-
-    connect(widget, &TextEditorWidget::markTooltipRequested, editor,
-            [editor](const QPoint &globalPos, int line) {
-                editor->markTooltipRequested(editor, globalPos, line);
-            });
 
     connect(widget, &TextEditorWidget::activateEditor,
             [editor]() { Core::EditorManager::activateEditor(editor); });

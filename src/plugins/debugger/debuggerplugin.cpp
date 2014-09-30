@@ -665,7 +665,7 @@ static bool currentTextEditorPosition(ContextData *data)
     BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
     if (!textEditor)
         return false;
-    const IDocument *document = textEditor->document();
+    const TextDocument *document = textEditor->textDocument();
     QTC_ASSERT(document, return false);
     data->fileName = document->filePath();
     if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
@@ -835,11 +835,10 @@ public slots:
     void editorOpened(Core::IEditor *editor);
     void updateBreakMenuItem(Core::IEditor *editor);
     void setBusyCursor(bool busy);
-    void requestMark(TextEditor::BaseTextEditor *editor,
-                     int lineNumber,
+    void requestMark(TextEditor::TextEditorWidget *widget, int lineNumber,
                      TextEditor::BaseTextEditor::MarkRequestKind kind);
-    void requestContextMenu(TextEditor::BaseTextEditor *editor,
-        int lineNumber, QMenu *menu);
+    void requestContextMenu(TextEditor::TextEditorWidget *widget,
+                            int lineNumber, QMenu *menu);
 
     void activatePreviousMode();
     void activateDebugMode();
@@ -1851,15 +1850,13 @@ void DebuggerPluginPrivate::runScheduled()
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
 {
-    BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor);
-    if (!textEditor)
-        return;
-    connect(textEditor,
-        SIGNAL(markRequested(TextEditor::BaseTextEditor*,int,TextEditor::BaseTextEditor::MarkRequestKind)),
-        SLOT(requestMark(TextEditor::BaseTextEditor*,int,TextEditor::BaseTextEditor::MarkRequestKind)));
-    connect(textEditor,
-        SIGNAL(markContextMenuRequested(TextEditor::BaseTextEditor*,int,QMenu*)),
-        SLOT(requestContextMenu(TextEditor::BaseTextEditor*,int,QMenu*)));
+    if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+        connect(widget, &TextEditorWidget::markRequested,
+                this, &DebuggerPluginPrivate::requestMark);
+
+        connect(widget, &TextEditorWidget::markContextMenuRequested,
+                this, &DebuggerPluginPrivate::requestContextMenu);
+    }
 }
 
 void DebuggerPluginPrivate::updateBreakMenuItem(IEditor *editor)
@@ -1868,7 +1865,7 @@ void DebuggerPluginPrivate::updateBreakMenuItem(IEditor *editor)
     m_breakAction->setEnabled(textEditor != 0);
 }
 
-void DebuggerPluginPrivate::requestContextMenu(BaseTextEditor *editor,
+void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     int lineNumber, QMenu *menu)
 {
     BreakpointMenuContextData args;
@@ -1876,7 +1873,7 @@ void DebuggerPluginPrivate::requestContextMenu(BaseTextEditor *editor,
     bool contextUsable = true;
 
     BreakpointModelId id = BreakpointModelId();
-    TextDocument *document = editor->textDocument();
+    TextDocument *document = widget->textDocument();
     args.fileName = document->filePath();
     if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
         QString line = document->plainText()
@@ -2041,22 +2038,20 @@ void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address,
     }
 }
 
-void DebuggerPluginPrivate::requestMark(BaseTextEditor *editor,
-                                        int lineNumber,
+void DebuggerPluginPrivate::requestMark(TextEditorWidget *widget, int lineNumber,
                                         BaseTextEditor::MarkRequestKind kind)
 {
     if (kind != BaseTextEditor::BreakpointRequest)
         return;
 
-    if (IDocument *document = editor->document()) {
-        if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
-            QString line = editor->textDocument()->plainText()
+    TextDocument *document = widget->textDocument();
+    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
+        QString line = document->plainText()
                 .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
-            quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
-            toggleBreakpointByAddress(address);
-        } else {
-            toggleBreakpointByFileAndLine(document->filePath(), lineNumber);
-        }
+        quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
+        toggleBreakpointByAddress(address);
+    } else {
+        toggleBreakpointByFileAndLine(document->filePath(), lineNumber);
     }
 }
 

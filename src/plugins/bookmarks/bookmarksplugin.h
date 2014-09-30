@@ -42,7 +42,7 @@ QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
 
-namespace TextEditor { class BaseTextEditor; }
+namespace TextEditor { class TextEditorWidget; }
 
 namespace Bookmarks {
 namespace Internal {
@@ -67,12 +67,13 @@ public slots:
 private slots:
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
-    void requestContextMenu(TextEditor::BaseTextEditor *editor,
-        int lineNumber, QMenu *menu);
     void bookmarkMarginActionTriggered();
     void editBookmarkActionTriggered();
 
 private:
+    void requestContextMenu(TextEditor::TextEditorWidget *widget,
+                            int lineNumber, QMenu *menu);
+
     BookmarkManager *m_bookmarkManager;
 
     QAction *m_toggleAction;

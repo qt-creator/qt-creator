@@ -195,11 +195,6 @@ public:
     /*! Selects text between current cursor position and \a toPos. */
     virtual void select(int toPos);
 
-signals:
-    void markRequested(TextEditor::BaseTextEditor *editor, int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
-    void markContextMenuRequested(TextEditor::BaseTextEditor *editor, int line, QMenu *menu);
-    void markTooltipRequested(TextEditor::BaseTextEditor *editor, const QPoint &globalPos, int line);
-
 private:
     friend class TextEditorFactory;
     Internal::BaseTextEditorPrivate *d;
@@ -599,12 +594,15 @@ protected:
 
 
 signals:
-    void markRequested(int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
-    void markContextMenuRequested(int line, QMenu *menu);
-    void tooltipOverrideRequested(TextEditor::TextEditorWidget *editorWidget,
+    void markRequested(TextEditor::TextEditorWidget *widget,
+        int line, TextEditor::BaseTextEditor::MarkRequestKind kind);
+    void markContextMenuRequested(TextEditor::TextEditorWidget *widget,
+        int line, QMenu *menu);
+    void tooltipOverrideRequested(TextEditor::TextEditorWidget *widget,
         const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(const QPoint &globalPos, int position);
-    void markTooltipRequested(const QPoint &globalPos, int line);
+    void markTooltipRequested(TextEditor::TextEditorWidget *widget,
+        const QPoint &globalPos, int line);
     void activateEditor();
 
 protected slots:

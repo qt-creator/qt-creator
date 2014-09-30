@@ -152,40 +152,35 @@ void BookmarksPlugin::updateActions(int state)
 
 void BookmarksPlugin::editorOpened(Core::IEditor *editor)
 {
-    if (qobject_cast<BaseTextEditor *>(editor)) {
-        connect(editor, SIGNAL(markContextMenuRequested(TextEditor::BaseTextEditor*,int,QMenu*)),
-                this, SLOT(requestContextMenu(TextEditor::BaseTextEditor*,int,QMenu*)));
+    if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+        connect(widget, &TextEditorWidget::markRequested,
+                m_bookmarkManager, &BookmarkManager::handleBookmarkRequest);
 
-        connect(editor,
-                SIGNAL(markRequested(TextEditor::BaseTextEditor*,int,
-                                     TextEditor::BaseTextEditor::MarkRequestKind)),
-                m_bookmarkManager,
-                SLOT(handleBookmarkRequest(TextEditor::BaseTextEditor*,int,
-                                           TextEditor::BaseTextEditor::MarkRequestKind)));
-        connect(editor,
-                SIGNAL(markTooltipRequested(TextEditor::BaseTextEditor*,QPoint,int)),
-                m_bookmarkManager,
-                SLOT(handleBookmarkTooltipRequest(TextEditor::BaseTextEditor*,QPoint,int)));
+        connect(widget, &TextEditorWidget::markTooltipRequested,
+                m_bookmarkManager, &BookmarkManager::handleBookmarkTooltipRequest);
+
+        connect(widget, &TextEditorWidget::markContextMenuRequested,
+                this, &BookmarksPlugin::requestContextMenu);
     }
 }
 
 void BookmarksPlugin::editorAboutToClose(Core::IEditor *editor)
 {
-    if (qobject_cast<BaseTextEditor *>(editor)) {
-        disconnect(editor, SIGNAL(markContextMenuRequested(TextEditor::BaseTextEditor*,int,QMenu*)),
-                this, SLOT(requestContextMenu(TextEditor::BaseTextEditor*,int,QMenu*)));
+    if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+        connect(widget, &TextEditorWidget::markContextMenuRequested,
+                this, &BookmarksPlugin::requestContextMenu);
     }
 }
 
-void BookmarksPlugin::requestContextMenu(TextEditor::BaseTextEditor *editor,
+void BookmarksPlugin::requestContextMenu(TextEditorWidget *widget,
     int lineNumber, QMenu *menu)
 {
     // Don't set bookmarks in disassembler views.
-    if (editor->document()->property("DisassemblerView").toBool())
+    if (widget->textDocument()->property("DisassemblerView").toBool())
         return;
 
     m_bookmarkMarginActionLineNumber = lineNumber;
-    m_bookmarkMarginActionFileName = editor->document()->filePath();
+    m_bookmarkMarginActionFileName = widget->textDocument()->filePath();
 
     menu->addAction(m_bookmarkMarginAction);
     if (m_bookmarkManager->hasBookmarkInPosition(m_bookmarkMarginActionFileName, m_bookmarkMarginActionLineNumber))

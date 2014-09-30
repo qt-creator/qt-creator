@@ -93,6 +93,12 @@ public:
         Note = Qt::UserRole + 4
     };
 
+    void handleBookmarkRequest(TextEditor::TextEditorWidget *widget, int line,
+                               TextEditor::BaseTextEditor::MarkRequestKind kind);
+
+    void handleBookmarkTooltipRequest(TextEditor::TextEditorWidget *widget,
+                                      const QPoint &pos, int line);
+
 public slots:
     void toggleBookmark();
     void toggleBookmark(const QString &fileName, int lineNumber);
@@ -113,12 +119,6 @@ signals:
 private slots:
     void updateActionStatus();
     void loadBookmarks();
-    void handleBookmarkRequest(TextEditor::BaseTextEditor * textEditor,
-                               int line,
-                               TextEditor::BaseTextEditor::MarkRequestKind kind);
-    void handleBookmarkTooltipRequest(TextEditor::BaseTextEditor *textEditor,
-                                      const QPoint &pos,
-                                      int line);
 
 private:
     void documentPrevNext(bool next);
@@ -128,7 +128,7 @@ private:
     void addBookmark(const QString &s);
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
-    void operateTooltip(TextEditor::BaseTextEditor *textEditor, const QPoint &pos, Bookmark *mark);
+    void operateTooltip(TextEditor::TextEditorWidget *widget, const QPoint &pos, Bookmark *mark);
 
     typedef QMultiMap<QString, Bookmark *> FileNameBookmarksMap;
     typedef QMap<QString, FileNameBookmarksMap *> DirectoryFileBookmarksMap;

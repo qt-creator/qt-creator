@@ -826,7 +826,7 @@ void BookmarkManager::saveBookmarks()
     SessionManager::setValue(QLatin1String("Bookmarks"), list);
 }
 
-void BookmarkManager::operateTooltip(BaseTextEditor *textEditor, const QPoint &pos, Bookmark *mark)
+void BookmarkManager::operateTooltip(TextEditorWidget *widget, const QPoint &pos, Bookmark *mark)
 {
     if (!mark)
         return;
@@ -834,7 +834,7 @@ void BookmarkManager::operateTooltip(BaseTextEditor *textEditor, const QPoint &p
     if (mark->note().isEmpty())
         ToolTip::hide();
     else
-        ToolTip::show(pos, TextContent(mark->note()), textEditor->widget());
+        ToolTip::show(pos, TextContent(mark->note()), widget);
 }
 
 /* Loads the bookmarks from the session settings. */
@@ -848,20 +848,19 @@ void BookmarkManager::loadBookmarks()
     updateActionStatus();
 }
 
-void BookmarkManager::handleBookmarkRequest(BaseTextEditor *textEditor,
-                                            int line,
+void BookmarkManager::handleBookmarkRequest(TextEditorWidget *widget, int line,
                                             BaseTextEditor::MarkRequestKind kind)
 {
-    if (kind == BaseTextEditor::BookmarkRequest && textEditor->document())
-        toggleBookmark(textEditor->document()->filePath(), line);
+    if (kind == BaseTextEditor::BookmarkRequest && widget->textDocument())
+        toggleBookmark(widget->textDocument()->filePath(), line);
 }
 
-void BookmarkManager::handleBookmarkTooltipRequest(BaseTextEditor *textEditor, const QPoint &pos,
-                                            int line)
+void BookmarkManager::handleBookmarkTooltipRequest(TextEditorWidget *widget,
+                                                   const QPoint &pos, int line)
 {
-    if (textEditor->document()) {
-        Bookmark *mark = findBookmark(textEditor->document()->filePath(), line);
-        operateTooltip(textEditor, pos, mark);
+    if (widget->textDocument()) {
+        Bookmark *mark = findBookmark(widget->textDocument()->filePath(), line);
+        operateTooltip(widget, pos, mark);
     }
 }
 

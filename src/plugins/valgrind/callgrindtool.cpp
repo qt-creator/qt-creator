@@ -92,6 +92,7 @@
 using namespace Analyzer;
 using namespace Core;
 using namespace Valgrind::Callgrind;
+using namespace TextEditor;
 using namespace ProjectExplorer;
 
 namespace Valgrind {
@@ -167,7 +168,7 @@ public slots:
     void engineFinished();
 
     void editorOpened(Core::IEditor *);
-    void requestContextMenu(TextEditor::BaseTextEditor *editor, int line, QMenu *menu);
+    void requestContextMenu(TextEditorWidget *widget, int line, QMenu *menu);
 
 public:
     CallgrindTool *q;
@@ -864,21 +865,18 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
 
 void CallgrindToolPrivate::editorOpened(IEditor *editor)
 {
-    TextEditor::BaseTextEditor *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-    if (!textEditor)
-        return;
-
-    connect(textEditor,
-        SIGNAL(markContextMenuRequested(TextEditor::BaseTextEditor*,int,QMenu*)),
-        SLOT(requestContextMenu(TextEditor::BaseTextEditor*,int,QMenu*)));
+    if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+        connect(widget, &TextEditorWidget::markContextMenuRequested,
+                this, &CallgrindToolPrivate::requestContextMenu);
+    }
 }
 
-void CallgrindToolPrivate::requestContextMenu(TextEditor::BaseTextEditor *editor, int line, QMenu *menu)
+void CallgrindToolPrivate::requestContextMenu(TextEditorWidget *widget, int line, QMenu *menu)
 {
     // find callgrind text mark that corresponds to this editor's file and line number
     const Function *func = 0;
     foreach (CallgrindTextMark *textMark, m_textMarks) {
-        if (textMark->fileName() == editor->document()->filePath() && textMark->lineNumber() == line) {
+        if (textMark->fileName() == widget->textDocument()->filePath() && textMark->lineNumber() == line) {
             func = textMark->function();
             break;
         }
