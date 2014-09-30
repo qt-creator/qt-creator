@@ -45,9 +45,6 @@ const char TASK_SEARCH[] = "QmlJSEditor.TaskSearch";
 const char SETTINGS_CATEGORY_QML[] = "J.QtQuick";
 const char SETTINGS_TR_CATEGORY_QML[] = QT_TRANSLATE_NOOP("QmlJSEditor", "Qt Quick");
 
-const char WIZARD_QML1FILE[] = "Q.Qml.1";
-const char WIZARD_QML2FILE[] = "Q.Qml.2";
-
 const char FIND_USAGES[] = "QmlJSEditor.FindUsages";
 const char RENAME_USAGES[] = "QmlJSEditor.RenameUsages";
 const char RUN_SEMANTIC_SCAN[] = "QmlJSEditor.RunSemanticScan";

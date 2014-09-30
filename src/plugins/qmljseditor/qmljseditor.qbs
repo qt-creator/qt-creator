@@ -22,8 +22,6 @@ QtcPlugin {
         "jsfilewizard.h",
         "qmlexpressionundercursor.cpp",
         "qmlexpressionundercursor.h",
-        "qmlfilewizard.cpp",
-        "qmlfilewizard.h",
         "qmljsautocompleter.cpp",
         "qmljsautocompleter.h",
         "qmljscompletionassist.cpp",

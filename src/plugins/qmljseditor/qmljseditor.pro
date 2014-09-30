@@ -10,7 +10,6 @@ HEADERS += \
     qmljseditorconstants.h \
     qmljseditorplugin.h \
     qmlexpressionundercursor.h \
-    qmlfilewizard.h \
     qmljshighlighter.h \
     qmljshoverhandler.h \
     qmljspreviewrunner.h \
@@ -40,7 +39,6 @@ SOURCES += \
     qmljseditor.cpp \
     qmljseditorplugin.cpp \
     qmlexpressionundercursor.cpp \
-    qmlfilewizard.cpp \
     qmljshighlighter.cpp \
     qmljshoverhandler.cpp \
     qmljspreviewrunner.cpp \
