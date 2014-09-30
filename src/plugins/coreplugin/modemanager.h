@@ -52,7 +52,7 @@ class CORE_EXPORT ModeManager : public QObject
     Q_OBJECT
 
 public:
-    static ModeManager *instance();
+    static QObject *instance();
 
     static IMode *currentMode();
     static IMode *mode(Id id);

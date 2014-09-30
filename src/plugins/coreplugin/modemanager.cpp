@@ -320,7 +320,7 @@ bool ModeManager::isModeSelectorVisible()
     return d->m_modeSelectorVisible;
 }
 
-ModeManager *ModeManager::instance()
+QObject *ModeManager::instance()
 {
     return m_instance;
 }
