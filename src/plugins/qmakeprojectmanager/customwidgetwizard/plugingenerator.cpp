@@ -56,7 +56,7 @@ struct ProjectContents {
 };
 
 // Create a binary icon file
-static inline Core::GeneratedFile  generateIconFile(const QString &source, const QString &target, QString *errorMessage)
+static inline Core::GeneratedFile generateIconFile(const QString &source, const QString &target, QString *errorMessage)
 {
     // Read out source
     Utils::FileReader reader;
