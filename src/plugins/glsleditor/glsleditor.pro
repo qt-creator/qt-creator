@@ -7,7 +7,6 @@ HEADERS += \
 glsleditor.h \
 glsleditorconstants.h \
 glsleditorplugin.h \
-glslfilewizard.h \
 glslhighlighter.h \
 glslautocompleter.h \
 glslindenter.h \
@@ -17,7 +16,6 @@ glslcompletionassist.h
 SOURCES += \
 glsleditor.cpp \
 glsleditorplugin.cpp \
-glslfilewizard.cpp \
 glslhighlighter.cpp \
 glslautocompleter.cpp \
 glslindenter.cpp \
