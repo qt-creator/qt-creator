@@ -100,8 +100,6 @@ QtcPlugin {
         "javacompletionassistprovider.h",
         "javaeditor.cpp",
         "javaeditor.h",
-        "javafilewizard.cpp",
-        "javafilewizard.h",
         "javaindenter.cpp",
         "javaindenter.h",
         "javaparser.cpp",

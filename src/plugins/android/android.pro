@@ -44,7 +44,6 @@ HEADERS += \
     javaindenter.h \
     javaautocompleter.h \
     javacompletionassistprovider.h \
-    javafilewizard.h \
     avddialog.h \
     android_global.h \
     androidbuildapkstep.h \
@@ -86,7 +85,6 @@ SOURCES += \
     javaindenter.cpp \
     javaautocompleter.cpp \
     javacompletionassistprovider.cpp \
-    javafilewizard.cpp \
     avddialog.cpp \
     androidbuildapkstep.cpp \
     androidbuildapkwidget.cpp \
