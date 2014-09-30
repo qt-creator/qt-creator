@@ -220,25 +220,22 @@ QString BeautifierPlugin::format(const QString &text, const Command &command,
 
 void BeautifierPlugin::formatCurrentFile(const Command &command)
 {
-    QPlainTextEdit *textEditor = 0;
-    QString filePath;
-    if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
-        textEditor = editor->editorWidget();
-        filePath = editor->document()->filePath();
-    }
-    if (!textEditor)
+    TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
+    if (!widget)
         return;
 
-    const QString sourceData = textEditor->toPlainText();
+    const QString sourceData = widget->toPlainText();
     if (sourceData.isEmpty())
         return;
 
     QFutureWatcher<FormatTask> *watcher = new QFutureWatcher<FormatTask>;
-    connect(textEditor->document(), SIGNAL(contentsChanged()), watcher, SLOT(cancel()));
+    connect(widget->textDocument(), &TextDocument::contentsChanged,
+            watcher, &QFutureWatcher<FormatTask>::cancel);
     connect(watcher, SIGNAL(finished()), m_asyncFormatMapper, SLOT(map()));
     m_asyncFormatMapper->setMapping(watcher, watcher);
+    const QString filePath = widget->textDocument()->filePath();
     watcher->setFuture(QtConcurrent::run(&BeautifierPlugin::formatAsync, this,
-                                         FormatTask(textEditor, filePath, sourceData, command)));
+                                         FormatTask(widget, filePath, sourceData, command)));
 }
 
 void BeautifierPlugin::formatAsync(QFutureInterface<FormatTask> &future, FormatTask task)

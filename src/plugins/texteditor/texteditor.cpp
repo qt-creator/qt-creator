@@ -1018,6 +1018,12 @@ TextDocumentPtr TextEditorWidget::textDocumentPtr() const
     return d->m_document;
 }
 
+TextEditorWidget *TextEditorWidget::currentTextEditorWidget()
+{
+    BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
+    return editor ? editor->editorWidget() : 0;
+}
+
 void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemoved, int charsAdded)
 {
     if (m_animator)
@@ -6702,11 +6708,6 @@ void BaseTextEditor::convertPosition(int pos, int *line, int *column) const
     editorWidget()->convertPosition(pos, line, column);
 }
 
-QRect BaseTextEditor::cursorRect(int pos) const
-{
-    return editorWidget()->cursorRect(pos);
-}
-
 QString BaseTextEditor::selectedText() const
 {
     return editorWidget()->selectedText();
@@ -7122,11 +7123,6 @@ TextEditorWidget *BaseTextEditor::editorWidget() const
 {
     QTC_ASSERT(qobject_cast<TextEditorWidget *>(m_widget.data()), return 0);
     return static_cast<TextEditorWidget *>(m_widget.data());
-}
-
-QTextDocument *BaseTextEditor::qdocument() const
-{
-    return textDocument()->document();
 }
 
 void BaseTextEditor::setTextCursor(const QTextCursor &cursor)

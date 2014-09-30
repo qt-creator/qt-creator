@@ -147,7 +147,6 @@ public:
     TextDocument *textDocument() const;
 
     // Some convenience text access
-    QTextDocument *qdocument() const;
     void setTextCursor(const QTextCursor &cursor);
     QTextCursor textCursor() const;
     QChar characterAt(int pos) const;
@@ -183,9 +182,6 @@ public:
 
     /*! Converts the \a pos in characters from beginning of document to \a line and \a column */
     virtual void convertPosition(int pos, int *line, int *column) const;
-
-    /*! Returns the cursor rectangle in pixels at \a pos, or current position if \a pos = -1 */
-    virtual QRect cursorRect(int pos = -1) const;
 
     virtual QString selectedText() const;
 
@@ -573,6 +569,8 @@ public:
 
     QString contextHelpId();
     void setContextHelpId(const QString &id);
+
+    static TextEditorWidget *currentTextEditorWidget();
 
 protected:
     /*!

@@ -114,7 +114,7 @@ public:
         cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, cursorPosition);
         editor->setTextCursor(cursor);
 
-        QTextDocument *qtextDocument = editor->qdocument();
+        QTextDocument *qtextDocument = editor->textDocument()->document();
         CppRefactoringFilePtr cppRefactoringFile
             = CppRefactoringChanges::file(editor->editorWidget(), document);
 

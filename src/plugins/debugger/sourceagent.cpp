@@ -44,12 +44,12 @@
 
 #include <QDebug>
 #include <QFileInfo>
-
 #include <QTextBlock>
 
 #include <limits.h>
 
 using namespace Core;
+using namespace TextEditor;
 
 namespace Debugger {
 namespace Internal {
@@ -61,9 +61,9 @@ public:
     ~SourceAgentPrivate();
 
 public:
-    QPointer<TextEditor::BaseTextEditor> editor;
+    QPointer<BaseTextEditor> editor;
     QPointer<DebuggerEngine> engine;
-    TextEditor::TextMark *locationMark;
+    TextMark *locationMark;
     QString path;
     QString producer;
 };
@@ -73,7 +73,6 @@ SourceAgentPrivate::SourceAgentPrivate()
   , locationMark(0)
   , producer(QLatin1String("remote"))
 {
-
 }
 
 SourceAgentPrivate::~SourceAgentPrivate()
@@ -104,9 +103,6 @@ void SourceAgent::setSourceProducerName(const QString &name)
 void SourceAgent::setContent(const QString &filePath, const QString &content)
 {
     QTC_ASSERT(d, return);
-    using namespace Core;
-    using namespace TextEditor;
-
     d->path = filePath;
 
     if (!d->editor) {
@@ -143,9 +139,11 @@ void SourceAgent::updateLocationMarker()
     d->locationMark = 0;
     if (d->engine->stackHandler()->currentFrame().file == d->path) {
         int lineNumber = d->engine->stackHandler()->currentFrame().line;
-        d->locationMark = new TextEditor::TextMark(QString(), lineNumber);
-        d->locationMark->setIcon(Internal::locationMarkIcon());
-        d->locationMark->setPriority(TextEditor::TextMark::HighPriority);
+
+        d->locationMark = new TextMark(QString(), lineNumber);
+        d->locationMark->setIcon(locationMarkIcon());
+        d->locationMark->setPriority(TextMark::HighPriority);
+
         d->editor->textDocument()->addMark(d->locationMark);
         QTextCursor tc = d->editor->textCursor();
         QTextBlock block = tc.document()->findBlockByNumber(lineNumber - 1);
