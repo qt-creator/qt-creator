@@ -49,7 +49,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <texteditor/highlighterfactory.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/qtcassert.h>
@@ -154,16 +153,6 @@ bool GlslEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_FRAG);
     FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_VERT_ES);
     FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_FRAG_ES);
-
-    auto hf = new HighlighterFactory;
-    hf->setProductType<GlslHighlighter>();
-    hf->setId(Constants::C_GLSLEDITOR_ID);
-    hf->addMimeType(Constants::GLSL_MIMETYPE);
-    hf->addMimeType(Constants::GLSL_MIMETYPE_VERT);
-    hf->addMimeType(Constants::GLSL_MIMETYPE_FRAG);
-    hf->addMimeType(Constants::GLSL_MIMETYPE_VERT_ES);
-    hf->addMimeType(Constants::GLSL_MIMETYPE_FRAG_ES);
-    addAutoReleasedObject(hf);
 
     return true;
 }

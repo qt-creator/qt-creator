@@ -64,7 +64,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/highlighterfactory.h>
 #include <utils/hostosinfo.h>
 #include <utils/parameteraction.h>
 
@@ -136,14 +135,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     addAutoReleasedObject(new ProFileCompletionAssistProvider);
     addAutoReleasedObject(new ProFileEditorFactory);
-
-    auto hf = new TextEditor::HighlighterFactory;
-    hf->setProductType<ProFileHighlighter>();
-    hf->setId(QmakeProjectManager::Constants::PROFILE_EDITOR_ID);
-    hf->addMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
-    hf->addMimeType(QmakeProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
-    hf->addMimeType(QmakeProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
-    addAutoReleasedObject(hf);
 
     //menus
     Core::ActionContainer *mbuild =

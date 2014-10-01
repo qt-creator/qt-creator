@@ -46,7 +46,6 @@
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/highlighterfactory.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>

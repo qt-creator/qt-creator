@@ -58,7 +58,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/highlighterfactory.h>
 #include <utils/qtcassert.h>
 #include <utils/json.h>
 
@@ -107,17 +106,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 {
     m_modelManager = QmlJS::ModelManagerInterface::instance();
     addAutoReleasedObject(new QmlJSSnippetProvider);
-
-    auto hf = new TextEditor::HighlighterFactory;
-    hf->setProductType<QmlJSHighlighter>();
-    hf->setId(Constants::C_QMLJSEDITOR_ID);
-    hf->addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
-    hf->addMimeType(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
-    hf->addMimeType(QmlJSTools::Constants::QBS_MIMETYPE);
-    hf->addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
-    hf->addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
-    hf->addMimeType(QmlJSTools::Constants::JSON_MIMETYPE);
-    addAutoReleasedObject(hf);
 
     // QML task updating manager
     m_qmlTaskManager = new QmlTaskManager;
