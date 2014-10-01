@@ -33,8 +33,10 @@
 #include "helpconstants.h"
 #include "helpplugin.h"
 #include "helpviewer.h"
+#include "indexwindow.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
+#include "topicchooser.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -42,6 +44,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/minisplitter.h>
+#include <coreplugin/sidebar.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -56,19 +60,7 @@
 #include <QStackedWidget>
 #include <QToolButton>
 
-static QToolButton *toolButton(QAction *action, Core::Command *cmd = 0)
-{
-    QToolButton *button = new QToolButton;
-    button->setDefaultAction(action);
-    button->setPopupMode(QToolButton::DelayedPopup);
-    if (cmd) {
-        action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
-        QObject::connect(cmd, &Core::Command::keySequenceChanged, action, [cmd, action]() {
-            action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
-        });
-    }
-    return button;
-}
+static const char kSideBarSettingsKey[] = "HelpWindowSideBar";
 
 namespace Help {
 namespace Internal {
@@ -76,79 +68,35 @@ namespace Internal {
 HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent) :
     QWidget(parent),
     m_style(style),
+    m_toggleSideBarAction(0),
     m_switchToHelp(0),
     m_filterComboBox(0),
     m_closeAction(0),
     m_scaleUp(0),
     m_scaleDown(0),
     m_resetScale(0),
-    m_printer(0)
+    m_printer(0),
+    m_sideBar(0),
+    m_indexAction(0)
 {
+    m_viewerStack = new QStackedWidget;
+
+    auto hLayout = new QHBoxLayout(this);
+    hLayout->setMargin(0);
+    hLayout->setSpacing(0);
+
+    m_sideBarSplitter = new Core::MiniSplitter(this);
+    m_sideBarSplitter->setOpaqueResize(false);
+    hLayout->addWidget(m_sideBarSplitter);
+
     Utils::StyledBar *toolBar = new Utils::StyledBar();
     QHBoxLayout *layout = new QHBoxLayout(toolBar);
     layout->setSpacing(0);
     layout->setMargin(0);
-    Core::Command *cmd;
 
-    if (style != ModeWidget) {
-        m_switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
-        cmd = Core::ActionManager::registerAction(m_switchToHelp, Constants::CONTEXT_HELP, context);
-        connect(m_switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
-        layout->addWidget(toolButton(m_switchToHelp, cmd));
-    }
-
-    m_homeAction = new QAction(QIcon(QLatin1String(":/help/images/home.png")),
-        tr("Home"), this);
-    cmd = Core::ActionManager::registerAction(m_homeAction, Constants::HELP_HOME, context);
-    connect(m_homeAction, &QAction::triggered, this, &HelpWidget::goHome);
-    layout->addWidget(toolButton(m_homeAction, cmd));
-
-    m_backAction = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
-        tr("Back"), toolBar);
-    connect(m_backAction, &QAction::triggered, this, &HelpWidget::backward);
-    m_backMenu = new QMenu(toolBar);
-    connect(m_backMenu, SIGNAL(aboutToShow()), this, SLOT(updateBackMenu()));
-    m_backAction->setMenu(m_backMenu);
-    cmd = Core::ActionManager::registerAction(m_backAction, Constants::HELP_PREVIOUS, context);
-    cmd->setDefaultKeySequence(QKeySequence::Back);
-    layout->addWidget(toolButton(m_backAction, cmd));
-
-    m_forwardAction = new QAction(QIcon(QLatin1String(":/help/images/next.png")),
-        tr("Forward"), toolBar);
-    connect(m_forwardAction, &QAction::triggered, this, &HelpWidget::forward);
-    m_forwardMenu = new QMenu(toolBar);
-    connect(m_forwardMenu, SIGNAL(aboutToShow()), this, SLOT(updateForwardMenu()));
-    m_forwardAction->setMenu(m_forwardMenu);
-    cmd = Core::ActionManager::registerAction(m_forwardAction, Constants::HELP_NEXT, context);
-    cmd->setDefaultKeySequence(QKeySequence::Forward);
-    layout->addWidget(toolButton(m_forwardAction, cmd));
-
-    m_addBookmarkAction = new QAction(QIcon(QLatin1String(":/help/images/bookmark.png")),
-        tr("Add Bookmark"), this);
-    cmd = Core::ActionManager::registerAction(m_addBookmarkAction, Constants::HELP_BOOKMARK, context);
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
-    connect(m_addBookmarkAction, &QAction::triggered, this, &HelpWidget::addBookmark);
-    layout->addWidget(new Utils::StyledSeparator(toolBar));
-    layout->addWidget(toolButton(m_addBookmarkAction, cmd));
-
-    if (style == ModeWidget) {
-        layout->addWidget(new Utils::StyledSeparator(toolBar));
-        layout->addWidget(OpenPagesManager::instance().openPagesComboBox(), 10);
-        m_filterComboBox = new QComboBox;
-        m_filterComboBox->setMinimumContentsLength(15);
-        m_filterComboBox->setModel(LocalHelpManager::filterModel());
-        layout->addWidget(m_filterComboBox);
-        connect(m_filterComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
-                LocalHelpManager::instance(), &LocalHelpManager::setFilterIndex);
-        connect(LocalHelpManager::instance(), &LocalHelpManager::filterIndexChanged,
-                m_filterComboBox, &QComboBox::setCurrentIndex);
-    }
-
-    layout->addStretch();
-
-    m_viewerStack = new QStackedWidget;
-
-    QVBoxLayout *vLayout = new QVBoxLayout(this);
+    auto rightSide = new QWidget(this);
+    m_sideBarSplitter->insertWidget(1, rightSide);
+    QVBoxLayout *vLayout = new QVBoxLayout(rightSide);
     vLayout->setMargin(0);
     vLayout->setSpacing(0);
     vLayout->addWidget(toolBar);
@@ -160,8 +108,102 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
     m_context = new Core::IContext(this);
     m_context->setContext(context);
-    m_context->setWidget(m_viewerStack);
+    m_context->setWidget(m_sideBarSplitter);
     Core::ICore::addContextObject(m_context);
+
+    Core::Command *cmd;
+    QToolButton *button;
+
+    if (style == ExternalWindow) {
+        static int windowId = 0;
+        Core::ICore::registerWindow(this,
+                                    Core::Context(Core::Id("Help.Window.").withSuffix(++windowId)));
+        setAttribute(Qt::WA_DeleteOnClose);
+        setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
+
+        m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_TOGGLE_SIDEBAR)),
+                                            tr(Core::Constants::TR_SHOW_SIDEBAR), toolBar);
+        m_toggleSideBarAction->setCheckable(true);
+        m_toggleSideBarAction->setChecked(false);
+        cmd = Core::ActionManager::registerAction(m_toggleSideBarAction,
+                                                  Core::Constants::TOGGLE_SIDEBAR, context);
+        connect(m_toggleSideBarAction, &QAction::toggled, m_toggleSideBarAction,
+                [this](bool checked) {
+                    m_toggleSideBarAction->setText(checked ? tr(Core::Constants::TR_HIDE_SIDEBAR)
+                                                           : tr(Core::Constants::TR_SHOW_SIDEBAR));
+                });
+        addSideBar();
+        connect(m_toggleSideBarAction, &QAction::triggered, m_sideBar, &Core::SideBar::setVisible);
+        connect(m_sideBar, &Core::SideBar::sideBarClosed, m_toggleSideBarAction, [this]() {
+            m_toggleSideBarAction->setChecked(false);
+        });
+        layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_toggleSideBarAction, cmd));
+    }
+
+    if (style != ModeWidget) {
+        m_switchToHelp = new QAction(tr("Go to Help Mode"), toolBar);
+        cmd = Core::ActionManager::registerAction(m_switchToHelp, Constants::CONTEXT_HELP, context);
+        connect(m_switchToHelp, SIGNAL(triggered()), this, SLOT(helpModeButtonClicked()));
+        layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_switchToHelp, cmd));
+    }
+
+    m_homeAction = new QAction(QIcon(QLatin1String(":/help/images/home.png")),
+        tr("Home"), this);
+    cmd = Core::ActionManager::registerAction(m_homeAction, Constants::HELP_HOME, context);
+    connect(m_homeAction, &QAction::triggered, this, &HelpWidget::goHome);
+    layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_homeAction, cmd));
+
+    m_backAction = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
+        tr("Back"), toolBar);
+    connect(m_backAction, &QAction::triggered, this, &HelpWidget::backward);
+    m_backMenu = new QMenu(toolBar);
+    connect(m_backMenu, SIGNAL(aboutToShow()), this, SLOT(updateBackMenu()));
+    m_backAction->setMenu(m_backMenu);
+    cmd = Core::ActionManager::registerAction(m_backAction, Constants::HELP_PREVIOUS, context);
+    cmd->setDefaultKeySequence(QKeySequence::Back);
+    button = Core::Command::toolButtonWithAppendedShortcut(m_backAction, cmd);
+    button->setPopupMode(QToolButton::DelayedPopup);
+    layout->addWidget(button);
+
+    m_forwardAction = new QAction(QIcon(QLatin1String(":/help/images/next.png")),
+        tr("Forward"), toolBar);
+    connect(m_forwardAction, &QAction::triggered, this, &HelpWidget::forward);
+    m_forwardMenu = new QMenu(toolBar);
+    connect(m_forwardMenu, SIGNAL(aboutToShow()), this, SLOT(updateForwardMenu()));
+    m_forwardAction->setMenu(m_forwardMenu);
+    cmd = Core::ActionManager::registerAction(m_forwardAction, Constants::HELP_NEXT, context);
+    cmd->setDefaultKeySequence(QKeySequence::Forward);
+    button = Core::Command::toolButtonWithAppendedShortcut(m_forwardAction, cmd);
+    button->setPopupMode(QToolButton::DelayedPopup);
+    layout->addWidget(button);
+
+    m_addBookmarkAction = new QAction(QIcon(QLatin1String(":/help/images/bookmark.png")),
+        tr("Add Bookmark"), this);
+    cmd = Core::ActionManager::registerAction(m_addBookmarkAction, Constants::HELP_BOOKMARK, context);
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
+    connect(m_addBookmarkAction, &QAction::triggered, this, &HelpWidget::addBookmark);
+    layout->addWidget(new Utils::StyledSeparator(toolBar));
+    layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_addBookmarkAction, cmd));
+
+    if (style == ModeWidget) {
+        layout->addWidget(new Utils::StyledSeparator(toolBar));
+        layout->addWidget(OpenPagesManager::instance().openPagesComboBox(), 10);
+    } else {
+        layout->addWidget(new QLabel(), 10);
+    }
+    if (style != SideBarWidget) {
+        m_filterComboBox = new QComboBox;
+        m_filterComboBox->setMinimumContentsLength(15);
+        m_filterComboBox->setModel(LocalHelpManager::filterModel());
+        m_filterComboBox->setCurrentIndex(LocalHelpManager::filterIndex());
+        layout->addWidget(m_filterComboBox);
+        connect(m_filterComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+                LocalHelpManager::instance(), &LocalHelpManager::setFilterIndex);
+        connect(LocalHelpManager::instance(), &LocalHelpManager::filterIndexChanged,
+                m_filterComboBox, &QComboBox::setCurrentIndex);
+    }
+
+    layout->addStretch();
 
     m_printAction = new QAction(this);
     Core::ActionManager::registerAction(m_printAction, Core::Constants::PRINT, context);
@@ -194,22 +236,13 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
 
-    if (style == ModeWidget) {
+    if (style != ExternalWindow) {
         m_closeAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)),
             QString(), toolBar);
         connect(m_closeAction, SIGNAL(triggered()), this, SIGNAL(closeButtonClicked()));
-        layout->addWidget(toolButton(m_closeAction));
-    } else if (style == SideBarWidget) {
-        m_closeAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)),
-            QString(), toolBar);
-        connect(m_closeAction, SIGNAL(triggered()), this, SIGNAL(closeButtonClicked()));
-        layout->addWidget(toolButton(m_closeAction));
-    } else if (style == ExternalWindow) {
-        static int windowId = 0;
-        Core::ICore::registerWindow(this,
-                                    Core::Context(Core::Id("Help.Window.").withSuffix(++windowId)));
-        setAttribute(Qt::WA_DeleteOnClose);
-        setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
+        button = new QToolButton;
+        button->setDefaultAction(m_closeAction);
+        layout->addWidget(button);
     }
 
     if (style != ModeWidget) {
@@ -221,9 +254,15 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
 HelpWidget::~HelpWidget()
 {
+    if (m_sideBar) {
+        m_sideBar->saveSettings(Core::ICore::settings(), QLatin1String(kSideBarSettingsKey));
+        Core::ActionManager::unregisterAction(m_indexAction, Constants::HELP_INDEX);
+    }
     Core::ICore::removeContextObject(m_context);
     Core::ActionManager::unregisterAction(m_copy, Core::Constants::COPY);
     Core::ActionManager::unregisterAction(m_printAction, Core::Constants::PRINT);
+    if (m_toggleSideBarAction)
+        Core::ActionManager::unregisterAction(m_toggleSideBarAction, Core::Constants::TOGGLE_SIDEBAR);
     if (m_switchToHelp)
         Core::ActionManager::unregisterAction(m_switchToHelp, Constants::CONTEXT_HELP);
     Core::ActionManager::unregisterAction(m_homeAction, Constants::HELP_HOME);
@@ -236,6 +275,43 @@ HelpWidget::~HelpWidget()
         Core::ActionManager::unregisterAction(m_scaleDown, TextEditor::Constants::DECREASE_FONT_SIZE);
     if (m_resetScale)
         Core::ActionManager::unregisterAction(m_resetScale, TextEditor::Constants::RESET_FONT_SIZE);
+}
+
+void HelpWidget::addSideBar()
+{
+    QMap<QString, Core::Command *> shortcutMap;
+    Core::Command *cmd;
+
+    auto indexWindow = new IndexWindow();
+    auto indexItem = new Core::SideBarItem(indexWindow, QLatin1String(Constants::SB_INDEX));
+    indexWindow->setOpenInNewPageActionVisible(false);
+    indexWindow->setWindowTitle(tr(Constants::SB_INDEX));
+    connect(indexWindow, &IndexWindow::linkActivated,
+            this, &HelpWidget::open);
+    connect(indexWindow, &IndexWindow::linksActivated,
+        this, &HelpWidget::showTopicChooser);
+    m_indexAction = new QAction(tr("Activate Help Index"), this);
+    cmd = Core::ActionManager::registerAction(m_indexAction, Constants::HELP_INDEX, m_context->context());
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I")
+                                                                  : tr("Ctrl+Shift+I")));
+    shortcutMap.insert(QLatin1String(Constants::SB_INDEX), cmd);
+
+    QList<Core::SideBarItem *> itemList;
+    itemList << indexItem;
+    m_sideBar = new Core::SideBar(itemList, QList<Core::SideBarItem *>() << indexItem);
+    m_sideBar->setShortcutMap(shortcutMap);
+    m_sideBar->setCloseWhenEmpty(true);
+    m_sideBarSplitter->insertWidget(0, m_sideBar);
+    m_sideBarSplitter->setStretchFactor(0, 0);
+    m_sideBarSplitter->setStretchFactor(1, 1);
+    m_sideBar->setVisible(false);
+    m_sideBar->readSettings(Core::ICore::settings(), QLatin1String(kSideBarSettingsKey));
+    m_sideBarSplitter->setSizes(QList<int>() << m_sideBar->size().width() << 300);
+    m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(this));
+
+    connect(m_indexAction, &QAction::triggered, m_sideBar, [this, indexItem]() {
+        m_sideBar->activateItem(indexItem);
+    });
 }
 
 HelpViewer *HelpWidget::currentViewer() const
@@ -317,6 +393,22 @@ int HelpWidget::viewerCount() const
 HelpViewer *HelpWidget::viewerAt(int index) const
 {
     return qobject_cast<HelpViewer *>(m_viewerStack->widget(index));
+}
+
+void HelpWidget::open(const QUrl &url, bool newPage)
+{
+    if (newPage)
+        OpenPagesManager::instance().createPage(url);
+    else
+        setSource(url);
+}
+
+void HelpWidget::showTopicChooser(const QMap<QString, QUrl> &links,
+    const QString &keyword, bool newPage)
+{
+    TopicChooser tc(this, keyword, links);
+    if (tc.exec() == QDialog::Accepted)
+        open(tc.link(), newPage);
 }
 
 void HelpWidget::setSource(const QUrl &url)

@@ -64,6 +64,13 @@ const char HELP_HOME[] = "Help.Home";
 const char HELP_PREVIOUS[] = "Help.Previous";
 const char HELP_NEXT[] = "Help.Next";
 const char HELP_BOOKMARK[] = "Help.AddBookmark";
+const char HELP_INDEX[] = "Help.Index";
+
+static const char SB_INDEX[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Index");
+static const char SB_CONTENTS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Contents");
+static const char SB_BOOKMARKS[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Bookmarks");
+
+static const char SB_OPENPAGES[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Open Pages");
 
 } // Constants
 } // Help

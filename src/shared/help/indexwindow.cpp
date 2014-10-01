@@ -57,6 +57,7 @@ using namespace Help::Internal;
 IndexWindow::IndexWindow()
     : m_searchLineEdit(0)
     , m_indexWidget(0)
+    , m_isOpenInNewPageActionVisible(true)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
@@ -110,6 +111,11 @@ IndexWindow::~IndexWindow()
 {
 }
 
+void IndexWindow::setOpenInNewPageActionVisible(bool visible)
+{
+    m_isOpenInNewPageActionVisible = visible;
+}
+
 void IndexWindow::filterIndices(const QString &filter)
 {
     QModelIndex bestMatch;
@@ -154,13 +160,15 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
         if (idx.isValid()) {
             QMenu menu;
             QAction *curTab = menu.addAction(tr("Open Link"));
-            QAction *newTab = menu.addAction(tr("Open Link as New Page"));
+            QAction *newTab = 0;
+            if (m_isOpenInNewPageActionVisible)
+                newTab = menu.addAction(tr("Open Link as New Page"));
             menu.move(m_indexWidget->mapToGlobal(ctxtEvent->pos()));
 
             QAction *action = menu.exec();
             if (curTab == action)
                 open(idx);
-            else if (newTab == action)
+            else if (newTab && newTab == action)
                 open(idx, true/*newPage*/);
         }
     } else if (m_indexWidget && obj == m_indexWidget->viewport()

@@ -220,9 +220,9 @@ void NavigationWidget::updateToggleText()
     d->m_toggleSideBarAction->setEnabled(haveData && NavigationWidgetPlaceHolder::m_current);
 
     if (isShown())
-        d->m_toggleSideBarAction->setToolTip(tr("Hide Sidebar"));
+        d->m_toggleSideBarAction->setToolTip(tr(Constants::TR_HIDE_SIDEBAR));
     else
-        d->m_toggleSideBarAction->setToolTip(tr("Show Sidebar"));
+        d->m_toggleSideBarAction->setToolTip(tr(Constants::TR_SHOW_SIDEBAR));
 }
 
 void NavigationWidget::placeHolderChanged(NavigationWidgetPlaceHolder *holder)

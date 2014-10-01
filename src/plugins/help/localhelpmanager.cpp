@@ -253,6 +253,11 @@ void LocalHelpManager::setFilterIndex(int index)
     emit m_instance->filterIndexChanged(m_currentFilterIndex);
 }
 
+int LocalHelpManager::filterIndex()
+{
+    return m_currentFilterIndex;
+}
+
 void LocalHelpManager::updateFilterModel()
 {
     const QHelpEngine &engine = helpEngine();

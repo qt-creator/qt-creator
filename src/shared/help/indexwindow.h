@@ -90,6 +90,8 @@ public:
     IndexWindow();
     ~IndexWindow();
 
+    void setOpenInNewPageActionVisible(bool visible);
+
 signals:
     void linkActivated(const QUrl &link, bool newPage);
     void linksActivated(const QMap<QString, QUrl> &links,
@@ -105,6 +107,7 @@ private:
     Utils::FancyLineEdit *m_searchLineEdit;
     Utils::NavigationTreeView *m_indexWidget;
     IndexFilterModel *m_filteredIndexModel;
+    bool m_isOpenInNewPageActionVisible;
 };
 
 } // Internal

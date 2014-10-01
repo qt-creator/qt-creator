@@ -37,8 +37,9 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QShortcut;
 class QKeySequence;
+class QShortcut;
+class QToolButton;
 QT_END_NAMESPACE
 
 
@@ -87,6 +88,7 @@ public:
 
     virtual void setKeySequence(const QKeySequence &key) = 0;
     virtual QString stringWithAppendedShortcut(const QString &str) const = 0;
+    static QToolButton *toolButtonWithAppendedShortcut(QAction *action, Command *cmd);
 
     virtual bool isScriptable() const = 0;
     virtual bool isScriptable(const Context &) const = 0;

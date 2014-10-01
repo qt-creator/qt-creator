@@ -44,6 +44,11 @@ class QPrinter;
 class QStackedWidget;
 QT_END_NAMESPACE
 
+namespace Core {
+class MiniSplitter;
+class SideBar;
+}
+
 namespace Help {
 namespace Internal {
 
@@ -73,6 +78,10 @@ public:
     // so central widget can save the state
     int viewerCount() const;
     HelpViewer *viewerAt(int index) const;
+
+    void open(const QUrl &url, bool newPage = false);
+    void showTopicChooser(const QMap<QString, QUrl> &links, const QString &key,
+                          bool newPage = false);
 
 public slots:
     void setSource(const QUrl &url);
@@ -106,9 +115,11 @@ private:
     void resetScale();
     void print(HelpViewer *viewer);
     void highlightSearchTerms();
+    void addSideBar();
 
     Core::IContext *m_context;
     WidgetStyle m_style;
+    QAction *m_toggleSideBarAction;
     QAction *m_switchToHelp;
     QAction *m_homeAction;
     QMenu *m_backMenu;
@@ -126,6 +137,10 @@ private:
 
     QStackedWidget *m_viewerStack;
     QPrinter *m_printer;
+
+    Core::MiniSplitter *m_sideBarSplitter;
+    Core::SideBar *m_sideBar;
+    QAction *m_indexAction;
 };
 
 } // Internal

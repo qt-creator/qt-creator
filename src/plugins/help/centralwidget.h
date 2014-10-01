@@ -49,13 +49,6 @@ public:
     ~CentralWidget();
 
     static CentralWidget *instance();
-
-    void open(const QUrl &url, bool newPage = false);
-
-public slots:
-    void showTopicChooser(const QMap<QString, QUrl> &links, const QString &key,
-                          bool newPage = false);
-
 };
 
 } // namespace Internal

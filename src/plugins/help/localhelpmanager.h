@@ -73,6 +73,7 @@ public:
 
     static QAbstractItemModel *filterModel();
     static void setFilterIndex(int index);
+    static int filterIndex();
 
     static void updateFilterModel();
 

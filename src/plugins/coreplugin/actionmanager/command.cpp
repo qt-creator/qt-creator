@@ -34,11 +34,11 @@
 
 #include <utils/hostosinfo.h>
 
-#include <QDebug>
-#include <QTextStream>
-
 #include <QAction>
 #include <QShortcut>
+#include <QToolButton>
+#include <QTextStream>
+
 
 /*!
     \class Core::Command
@@ -424,4 +424,21 @@ void Action::removeAttribute(CommandAttribute attr)
 bool Action::hasAttribute(Command::CommandAttribute attr) const
 {
     return (m_attributes & attr);
+}
+
+
+QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Command *cmd)
+{
+    QToolButton *button = new QToolButton;
+    button->setDefaultAction(action);
+    if (cmd) {
+        action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
+        QObject::connect(cmd, &Core::Command::keySequenceChanged, action, [cmd, action]() {
+            action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
+        });
+        QObject::connect(action, &QAction::changed, cmd, [cmd, action]() {
+            action->setToolTip(cmd->stringWithAppendedShortcut(action->text()));
+        });
+    }
+    return button;
 }

@@ -147,7 +147,7 @@ private:
 
     Core::SideBar *m_sideBar;
 
-    bool m_firstModeChange;
+    bool m_setupNeeded;
     LocalHelpManager *m_helpManager;
     OpenPagesManager *m_openPagesManager;
     Core::MiniSplitter *m_splitter;
