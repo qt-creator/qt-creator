@@ -5323,15 +5323,21 @@ Symbol *skipForwardDeclarations(const QList<Symbol *> &symbols)
 
 Class *senderOrReceiverClass(const CppQuickFixInterface &interface,
                              const CppRefactoringFilePtr &file,
-                             const ExpressionAST *objectPointerAST)
+                             const ExpressionAST *objectPointerAST,
+                             Scope *objectPointerScope)
 {
     const LookupContext &context = interface.context();
-    Scope *scope = file->scopeAt(objectPointerAST->firstToken());
+
+    QByteArray objectPointerExpression;
+    if (objectPointerAST)
+        objectPointerExpression = file->textOf(objectPointerAST).toUtf8();
+    else
+        objectPointerExpression = "this";
 
     TypeOfExpression toe;
     toe.init(interface.semanticInfo().doc, interface.snapshot(), context.bindings());
-    const QList<LookupItem> objectPointerExpressions = toe(file->textOf(objectPointerAST).toUtf8(),
-                                                           scope, TypeOfExpression::Preprocess);
+    const QList<LookupItem> objectPointerExpressions = toe(objectPointerExpression,
+                                                           objectPointerScope, TypeOfExpression::Preprocess);
     QTC_ASSERT(objectPointerExpressions.size() == 1, return 0);
 
     Type *objectPointerTypeBase = objectPointerExpressions.first().type().type();
@@ -5346,7 +5352,7 @@ Class *senderOrReceiverClass(const CppQuickFixInterface &interface,
     NamedType *objectType = objectTypeBase->asNamedType();
     QTC_ASSERT(objectType, return 0);
 
-    ClassOrNamespace *objectClassCON = context.lookupType(objectType->name(), scope);
+    ClassOrNamespace *objectClassCON = context.lookupType(objectType->name(), objectPointerScope);
     QTC_ASSERT(objectClassCON, return 0);
     QTC_ASSERT(!objectClassCON->symbols().isEmpty(), return 0);
 
@@ -5375,7 +5381,8 @@ bool findConnectReplacement(const CppQuickFixInterface &interface,
         return false;
 
     // Lookup object pointer type
-    Class *objectClass = senderOrReceiverClass(interface, file, objectPointerAST);
+    Scope *scope = file->scopeAt(methodAST->firstToken());
+    Class *objectClass = senderOrReceiverClass(interface, file, objectPointerAST, scope);
     QTC_ASSERT(objectClass, return false);
 
     // Look up member function in call, including base class members.
@@ -5394,7 +5401,6 @@ bool findConnectReplacement(const CppQuickFixInterface &interface,
     QTC_ASSERT(method, return false);
 
     // Minimize qualification
-    Scope *scope = file->scopeAt(objectPointerAST->firstToken());
     Control *control = context.bindings()->control().data();
     ClassOrNamespace *functionCON = context.lookupParent(scope);
     const Name *shortName = LookupContext::minimalName(method, functionCON, control);
@@ -5458,8 +5464,18 @@ bool collectConnectArguments(const ExpressionListAST *arguments,
         return false;
 
     *arg3 = arguments->value;
+    if (!*arg3)
+        return false;
+
+    // Take care of three-arg version, with 'this' receiver.
+    if (QtMethodAST *receiverMethod = arguments->value->asQtMethod()) {
+        *arg3 = 0; // Means 'this'
+        *arg4 = receiverMethod;
+        return true;
+    }
+
     arguments = arguments->next;
-    if (!*arg3 || !arguments)
+    if (!arguments)
         return false;
 
     *arg4 = arguments->value->asQtMethod();
@@ -5497,6 +5513,8 @@ void ConvertQt4Connect::match(const CppQuickFixInterface &interface, QuickFixOpe
 
         ChangeSet changes;
         changes.replace(file->startOf(arg2), file->endOf(arg2), newSignal);
+        if (!arg3)
+            newMethod.prepend(QLatin1String("this, "));
         changes.replace(file->startOf(arg4), file->endOf(arg4), newMethod);
 
         result.append(new ConvertQt4ConnectOperation(interface, changes));

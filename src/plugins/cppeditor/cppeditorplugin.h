@@ -124,6 +124,7 @@ private slots:
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp();
 
     void test_quickfix_ConvertQt4Connect_connectOutOfClass();
+    void test_quickfix_ConvertQt4Connect_connectWithinClass_data();
     void test_quickfix_ConvertQt4Connect_connectWithinClass();
 
     void test_quickfix_InsertDefFromDecl_afterClass();

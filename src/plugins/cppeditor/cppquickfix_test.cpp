@@ -3860,8 +3860,25 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectOutOfClass()
     QuickFixTestCase(testFiles, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass_data()
+{
+    QTest::addColumn<QByteArray>("original");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("case1")
+            << QByteArray("conne@ct(this, SIGNAL(sigFoo(int)), this, SLOT(setProp(int)));")
+            << QByteArray("connect(this, &TestClass::sigFoo, this, &TestClass::setProp);");
+
+    QTest::newRow("case2")
+            << QByteArray("conne@ct(this, SIGNAL(sigFoo(int)), SLOT(setProp(int)));")
+            << QByteArray("connect(this, &TestClass::sigFoo, this, &TestClass::setProp);");
+}
+
 void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass()
 {
+    QFETCH(QByteArray, original);
+    QFETCH(QByteArray, expected);
+
     QByteArray prefix =
         "class QObject {};\n"
         "class TestClass : public QObject\n"
@@ -3877,16 +3894,10 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass()
 
     QByteArray suffix = "\n}\n";
 
-    QByteArray original = prefix
-          + "   conne@ct(this, SIGNAL(sigFoo(int)), this, SLOT(setProp(int)));"
-          + suffix;
-
-    QByteArray expected = prefix
-          + "   connect(this, &TestClass::sigFoo, this, &TestClass::setProp);"
-          + suffix;
-
     QList<QuickFixTestDocument::Ptr> testFiles;
-    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+    testFiles << QuickFixTestDocument::create("file.cpp",
+                                              prefix + original + suffix,
+                                              prefix + expected + suffix);
 
     ConvertQt4Connect factory;
     QuickFixTestCase(testFiles, &factory);
