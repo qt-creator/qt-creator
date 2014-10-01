@@ -12,13 +12,13 @@ a written agreement between you and Digia.
 GNU Lesser General Public License Usage
 
 Alternatively, this plugin may be used under the terms of the GNU Lesser
-General Public License version 2.1 as published by the Free Software
+General Public License version 2.1 or version 3 as published by the Free Software
 Foundation.  Please review the following information to
-ensure the GNU Lesser General Public License version 2.1 requirements
-will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
+ensure the GNU Lesser General Public License requirements
+will be met: https://www.gnu.org/licenses/lgpl.html and http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <category>Qt Quick</category>
     <description>Visual Designer for QML files.</description>
-    <url>http://www.qt-project.org</url>
+    <url>http://www.qt.io</url>
     $$dependencyList
    <argumentList>
       <argument name=\"-capture-puppet-stream\" parameter=\"capture file\">Captures the Qml Puppet stream</argument>

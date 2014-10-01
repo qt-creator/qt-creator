@@ -23,7 +23,8 @@ sub canIgnoreNoCopyright {
         $file =~ /\.qrc$/ or
         $file =~ /\.txt$/i or
         $file =~ /\/README[^\/]*$/i or
-        $file =~ /\/LICENSE.LGPL$/i or
+        $file =~ /\/LICENSE.LGPLv21$/i or
+        $file =~ /\/LICENSE.LGPLv3$/i or
         $file =~ /\.ui$/i or
         $file =~ /\.xml$/ or
         $file =~ /\.css$/ or
