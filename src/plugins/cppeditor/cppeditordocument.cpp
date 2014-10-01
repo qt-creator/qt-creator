@@ -123,7 +123,7 @@ bool CppEditorDocument::isObjCEnabled() const
     return m_isObjCEnabled;
 }
 
-CppTools::CppCompletionAssistProvider *CppEditorDocument::completionAssistProvider() const
+TextEditor::CompletionAssistProvider *CppEditorDocument::completionAssistProvider() const
 {
     return m_completionAssistProvider;
 }

@@ -76,6 +76,7 @@ public:
     TextDocumentPrivate() :
         m_fontSettingsNeedsApply(false),
         m_highlighter(0),
+        m_completionAssistProvider(0),
         m_indenter(new Indenter),
         m_fileIsReadOnly(false),
         m_autoSaveRevision(-1)
@@ -97,6 +98,7 @@ public:
     bool m_fontSettingsNeedsApply; // for applying font settings delayed till an editor becomes visible
     QTextDocument m_document;
     SyntaxHighlighter *m_highlighter;
+    CompletionAssistProvider *m_completionAssistProvider;
     QScopedPointer<Indenter> m_indenter;
 
     bool m_fileIsReadOnly;
@@ -312,6 +314,16 @@ void TextDocument::triggerPendingUpdates()
 {
     if (d->m_fontSettingsNeedsApply)
         applyFontSettings();
+}
+
+void TextDocument::setCompletionAssistProvider(CompletionAssistProvider *provider)
+{
+    d->m_completionAssistProvider = provider;
+}
+
+CompletionAssistProvider *TextDocument::completionAssistProvider() const
+{
+    return d->m_completionAssistProvider;
 }
 
 void TextDocument::applyFontSettings()

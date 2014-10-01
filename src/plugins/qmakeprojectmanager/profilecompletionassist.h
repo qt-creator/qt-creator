@@ -32,7 +32,6 @@
 
 #include <texteditor/codeassist/completionassistprovider.h>
 
-
 #include <QStringList>
 
 namespace QmakeProjectManager {
@@ -41,6 +40,7 @@ namespace Internal {
 class ProFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
     Q_OBJECT
+
 public:
     ProFileCompletionAssistProvider();
     void init();
@@ -50,6 +50,7 @@ public:
     TextEditor::IAssistProcessor *createProcessor() const Q_DECL_OVERRIDE;
     QStringList variables() const;
     QStringList functions() const;
+
 private:
     QStringList m_variables;
     QStringList m_functions;

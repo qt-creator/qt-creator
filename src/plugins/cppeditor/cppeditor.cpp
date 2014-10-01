@@ -598,7 +598,8 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
 AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistReason reason) const
 {
     if (kind == Completion) {
-        if (CppCompletionAssistProvider *cap = cppEditorDocument()->completionAssistProvider()) {
+        if (CppCompletionAssistProvider *cap =
+                qobject_cast<CppCompletionAssistProvider *>(cppEditorDocument()->completionAssistProvider())) {
             return cap->createAssistInterface(
                             textDocument()->filePath(),
                             document(),
@@ -709,13 +710,6 @@ void CppEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
 FollowSymbolUnderCursor *CppEditorWidget::followSymbolUnderCursorDelegate()
 {
     return d->m_followSymbolUnderCursor.data();
-}
-
-CompletionAssistProvider *CppEditorWidget::completionAssistProvider() const
-{
-    auto document = qobject_cast<CppEditorDocument *>(textDocument());
-    QTC_ASSERT(document, return 0);
-    return document->completionAssistProvider();
 }
 
 void CppEditorWidget::abortDeclDefLink()

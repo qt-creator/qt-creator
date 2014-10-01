@@ -40,7 +40,6 @@
 #include "qmltaskmanager.h"
 #include "quicktoolbar.h"
 #include "quicktoolbarsettingspage.h"
-#include "qmljscompletionassist.h"
 #include "qmljsquickfixassist.h"
 
 #include <qmljs/qmljsicons.h>
@@ -209,7 +208,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     m_quickFixAssistProvider = new QmlJSQuickFixAssistProvider;
     addAutoReleasedObject(m_quickFixAssistProvider);
-    addAutoReleasedObject(new QmlJSCompletionAssistProvider);
 
     errorMessage->clear();
 

@@ -48,6 +48,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
+class CompletionAssistProvider;
 class ExtraEncodingSettings;
 class FontSettings;
 class Indenter;
@@ -129,6 +130,9 @@ public:
     void cleanWhitespace(const QTextCursor &cursor);
 
     virtual void triggerPendingUpdates();
+
+    void setCompletionAssistProvider(CompletionAssistProvider *provider);
+    virtual CompletionAssistProvider *completionAssistProvider() const;
 
 public slots:
     void setTabSettings(const TextEditor::TabSettings &tabSettings);

@@ -115,7 +115,6 @@ QmlJSEditorWidget::QmlJSEditorWidget()
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
-    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>());
 }
 
 void QmlJSEditorWidget::finalizeInitialization()
@@ -903,6 +902,7 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     setCommentStyle(Utils::CommentDefinition::CppStyle);
 
     addHoverHandler(new QmlJSHoverHandler);
+    setCompletionAssistProvider(new QmlJSCompletionAssistProvider);
 
     setEditorActionHandlers(TextEditorActionHandler::Format
         | TextEditorActionHandler::UnCommentSelection

@@ -34,23 +34,17 @@
 
 #include <QTextDocument>
 
-using namespace QmakeProjectManager::Internal;
+using namespace TextEditor;
 
+namespace QmakeProjectManager {
+namespace Internal {
 
-ProFileHighlighter::ProFileHighlighter(QTextDocument *document) :
-    TextEditor::SyntaxHighlighter(document)
+ProFileHighlighter::ProFileHighlighter(const Keywords &keywords)
+    : m_keywords(keywords)
 {
-    ProFileCompletionAssistProvider *pcap
-            = ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>();
-    m_keywords = TextEditor::Keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
-
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty()) {
-        categories << TextEditor::C_TYPE
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_COMMENT
-                   << TextEditor::C_VISUAL_WHITESPACE;
-    }
+    static QVector<TextStyle> categories;
+    if (categories.isEmpty())
+        categories << C_TYPE << C_KEYWORD << C_COMMENT << C_VISUAL_WHITESPACE;
     setTextFormatCategories(categories);
 }
 
@@ -97,3 +91,6 @@ void ProFileHighlighter::highlightBlock(const QString &text)
 
     applyFormatToSpaces(text, formatForCategory(ProfileVisualWhitespaceFormat));
 }
+
+} // namespace Internal
+} // namespace QmakeProjectManager

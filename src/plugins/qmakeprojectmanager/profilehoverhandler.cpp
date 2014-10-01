@@ -32,8 +32,6 @@
 #include "qmakeprojectmanagerconstants.h"
 
 #include <coreplugin/helpmanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditor.h>
 #include <utils/htmldocextractor.h>
 
@@ -45,12 +43,9 @@ using namespace Core;
 namespace QmakeProjectManager {
 namespace Internal {
 
-ProFileHoverHandler::ProFileHoverHandler()
-  : m_manualKind(UnknownManual)
+ProFileHoverHandler::ProFileHoverHandler(const TextEditor::Keywords &keywords)
+  : m_manualKind(UnknownManual), m_keywords(keywords)
 {
-    ProFileCompletionAssistProvider *pcap
-            = ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>();
-    m_keywords = TextEditor::Keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
 }
 
 void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos)

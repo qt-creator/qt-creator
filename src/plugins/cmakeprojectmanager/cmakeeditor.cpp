@@ -154,7 +154,6 @@ private:
 CMakeEditorWidget::CMakeEditorWidget()
 {
     setCodeFoldingSupported(true);
-    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>());
 }
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
@@ -271,7 +270,7 @@ QString CMakeDocument::suggestedFileName() const
 // CMakeEditorFactory
 //
 
-CMakeEditorFactory::CMakeEditorFactory()
+CMakeEditorFactory::CMakeEditorFactory(CMakeSettingsPage *settingsPage)
 {
     setId(Constants::CMAKE_EDITOR_ID);
     setDisplayName(tr(Constants::CMAKE_EDITOR_DISPLAY_NAME));
@@ -283,6 +282,8 @@ CMakeEditorFactory::CMakeEditorFactory()
     setDocumentCreator([]() { return new CMakeDocument; });
     setGenericSyntaxHighlighter(QLatin1String(Constants::CMAKEMIMETYPE));
     setCommentStyle(Utils::CommentDefinition::HashStyle);
+
+    setCompletionAssistProvider(new CMakeFileCompletionAssistProvider(settingsPage));
 
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
             | TextEditorActionHandler::JumpToFileUnderCursor);

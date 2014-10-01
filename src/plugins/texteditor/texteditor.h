@@ -467,11 +467,8 @@ public:
 
     Q_INVOKABLE void inSnippetMode(bool *active); // Used by FakeVim.
 
-    void setCompletionAssistProvider(CompletionAssistProvider *provider);
-    virtual CompletionAssistProvider *completionAssistProvider() const;
-
 signals:
-    void assistFinished();
+    void assistFinished(); // Used in tests.
     void readOnlyChanged();
 
     void requestFontZoom(int zoom);
@@ -647,6 +644,7 @@ public:
     void setEditorActionHandlers(uint optionalActions);
 
     void addHoverHandler(BaseHoverHandler *handler);
+    void setCompletionAssistProvider(CompletionAssistProvider *provider);
 
     void setCommentStyle(Utils::CommentDefinition::Style style);
     void setDuplicatedSupported(bool on);
@@ -668,6 +666,7 @@ private:
     SyntaxHighLighterCreator m_syntaxHighlighterCreator;
     Utils::CommentDefinition::Style m_commentStyle;
     QList<BaseHoverHandler *> m_hoverHandlers; // owned
+    CompletionAssistProvider * m_completionAssistProvider; // owned
     bool m_duplicatedSupported;
 };
 

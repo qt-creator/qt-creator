@@ -55,7 +55,7 @@ public:
     ~CppEditorDocument();
 
     bool isObjCEnabled() const;
-    CppTools::CppCompletionAssistProvider *completionAssistProvider() const;
+    TextEditor::CompletionAssistProvider *completionAssistProvider() const;
 
     void semanticRehighlight();
     CppTools::SemanticInfo recalculateSemanticInfo(); // TODO: Remove me

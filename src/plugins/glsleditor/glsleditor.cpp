@@ -134,7 +134,6 @@ private:
 
 GlslEditorWidget::GlslEditorWidget()
 {
-    setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<GlslCompletionAssistProvider>());
     setAutoCompleter(new GlslCompleter);
     m_outlineCombo = 0;
     setParenthesesMatchingEnabled(true);
@@ -343,6 +342,7 @@ GlslEditorFactory::GlslEditorFactory()
     setIndenterCreator([]() { return new GlslIndenter; });
     setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
     setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCompletionAssistProvider(new GlslCompletionAssistProvider);
 
     setEditorActionHandlers(TextEditorActionHandler::Format
                           | TextEditorActionHandler::UnCommentSelection

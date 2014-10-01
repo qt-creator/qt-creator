@@ -57,7 +57,6 @@ class ProFileEditorWidget : public TextEditorWidget
 public:
     ProFileEditorWidget()
     {
-        setCompletionAssistProvider(ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>());
     }
 
 protected:
@@ -179,7 +178,6 @@ ProFileDocument::ProFileDocument()
 {
     setId(Constants::PROFILE_EDITOR_ID);
     setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
-    setSyntaxHighlighter(new ProFileHighlighter);
 }
 
 QString ProFileDocument::defaultPath() const
@@ -212,11 +210,16 @@ ProFileEditorFactory::ProFileEditorFactory()
     setDocumentCreator([]() { return new ProFileDocument; });
     setEditorWidgetCreator([]() { return new ProFileEditorWidget; });
 
+    ProFileCompletionAssistProvider *pcap = new ProFileCompletionAssistProvider;
+    setCompletionAssistProvider(pcap);
+
     setCommentStyle(Utils::CommentDefinition::HashStyle);
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
                 | TextEditorActionHandler::JumpToFileUnderCursor);
 
-    addHoverHandler(new ProFileHoverHandler);
+    Keywords keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
+    addHoverHandler(new ProFileHoverHandler(keywords));
+    setSyntaxHighlighterCreator([keywords]() { return new ProFileHighlighter(keywords); });
 
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pro");
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pri");

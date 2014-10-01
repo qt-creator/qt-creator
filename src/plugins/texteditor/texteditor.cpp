@@ -50,8 +50,9 @@
 #include "texteditorsettings.h"
 #include "typingsettings.h"
 
-#include <texteditor/codeassist/codeassistant.h>
 #include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/codeassistant.h>
+#include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/generichighlighter/context.h>
 #include <texteditor/generichighlighter/highlightdefinition.h>
 #include <texteditor/generichighlighter/highlighter.h>
@@ -437,7 +438,6 @@ public:
 
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
-    CompletionAssistProvider *m_completionAssistProvider;
 };
 
 TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
@@ -489,8 +489,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_markDragging(false),
     m_clipboardAssistProvider(new Internal::ClipboardAssistProvider),
     m_isMissingSyntaxDefinition(false),
-    m_autoCompleter(new AutoCompleter),
-    m_completionAssistProvider(0)
+    m_autoCompleter(new AutoCompleter)
 {
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(q);
@@ -6731,11 +6730,6 @@ void BaseTextEditor::select(int toPos)
     editorWidget()->setTextCursor(tc);
 }
 
-CompletionAssistProvider *TextEditorWidget::completionAssistProvider() const
-{
-    return d->m_completionAssistProvider;
-}
-
 void TextEditorWidgetPrivate::updateCursorPosition()
 {
     const QTextCursor cursor = q->textCursor();
@@ -7048,11 +7042,6 @@ void TextEditorWidget::inSnippetMode(bool *active)
     *active = d->m_snippetOverlay->isVisible();
 }
 
-void TextEditorWidget::setCompletionAssistProvider(CompletionAssistProvider *provider)
-{
-    d->m_completionAssistProvider = provider;
-}
-
 void TextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
 {
     bool previousMode = overwriteMode();
@@ -7232,11 +7221,13 @@ TextEditorFactory::TextEditorFactory(QObject *parent)
     m_widgetCreator = []() { return new TextEditorWidget; };
     m_commentStyle = CommentDefinition::NoStyle;
     m_duplicatedSupported = true;
+    m_completionAssistProvider = 0;
 }
 
 TextEditorFactory::~TextEditorFactory()
 {
     qDeleteAll(m_hoverHandlers);
+    delete m_completionAssistProvider;
 }
 
 void TextEditorFactory::setDocumentCreator(const DocumentCreator &creator)
@@ -7293,6 +7284,11 @@ void TextEditorFactory::addHoverHandler(BaseHoverHandler *handler)
     m_hoverHandlers.append(handler);
 }
 
+void TextEditorFactory::setCompletionAssistProvider(CompletionAssistProvider *provider)
+{
+    m_completionAssistProvider = provider;
+}
+
 void TextEditorFactory::setCommentStyle(CommentDefinition::Style style)
 {
     m_commentStyle = style;
@@ -7317,11 +7313,10 @@ IEditor *TextEditorFactory::createEditor()
     if (m_indenterCreator)
         doc->setIndenter(m_indenterCreator());
 
-    if (m_syntaxHighlighterCreator) {
-        SyntaxHighlighter *highlighter = m_syntaxHighlighterCreator();
-        highlighter->setParent(doc.data());
-        doc->setSyntaxHighlighter(highlighter);
-    }
+    if (m_syntaxHighlighterCreator)
+        doc->setSyntaxHighlighter(m_syntaxHighlighterCreator());
+
+    doc->setCompletionAssistProvider(m_completionAssistProvider);
 
     return createEditorHelper(doc);
 }

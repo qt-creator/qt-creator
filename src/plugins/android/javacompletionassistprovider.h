@@ -40,6 +40,7 @@ namespace Internal {
 class JavaCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
     Q_OBJECT
+
 public:
     JavaCompletionAssistProvider();
     ~JavaCompletionAssistProvider();
@@ -53,8 +54,7 @@ private:
     mutable QStringList m_keywords;
 };
 
-}
-}
-
+} // namespace Internal
+} // namespace Android
 
 #endif // JAVACOMPLETIONASSISTPROVIDER_H

@@ -83,7 +83,6 @@ public:
             TextEditor::AssistReason reason) const Q_DECL_OVERRIDE;
 
     FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
-    TextEditor::CompletionAssistProvider *completionAssistProvider() const Q_DECL_OVERRIDE;
 
 public slots:
     void paste() Q_DECL_OVERRIDE;

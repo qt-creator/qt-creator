@@ -47,7 +47,6 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeproject.h"
 #include "externaleditors.h"
-#include "profilecompletionassist.h"
 #include "qmakekitinformation.h"
 #include "profilehighlighter.h"
 
@@ -133,7 +132,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
         addAutoReleasedObject(new DesignerExternalEditor);
     addAutoReleasedObject(new LinguistExternalEditor);
 
-    addAutoReleasedObject(new ProFileCompletionAssistProvider);
     addAutoReleasedObject(new ProFileEditorFactory);
 
     //menus

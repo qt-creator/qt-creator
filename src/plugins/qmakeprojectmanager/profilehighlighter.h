@@ -38,7 +38,6 @@ namespace Internal {
 
 class ProFileHighlighter : public TextEditor::SyntaxHighlighter
 {
-    Q_OBJECT
 public:
     enum ProfileFormats {
         ProfileVariableFormat,
@@ -48,11 +47,11 @@ public:
         NumProfileFormats
     };
 
-    ProFileHighlighter(QTextDocument *document = 0);
+    explicit ProFileHighlighter(const TextEditor::Keywords &keywords);
     void highlightBlock(const QString &text);
 
 private:
-    TextEditor::Keywords m_keywords;
+    const TextEditor::Keywords m_keywords;
 };
 
 } // namespace Internal

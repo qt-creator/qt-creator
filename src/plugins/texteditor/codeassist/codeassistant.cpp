@@ -219,7 +219,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
     if (!provider) {
         if (kind == Completion)
-            provider = m_editorWidget->completionAssistProvider();
+            provider = m_editorWidget->textDocument()->completionAssistProvider();
         else if (!m_quickFixProviders.isEmpty())
             provider = m_quickFixProviders.at(0);
 
@@ -380,7 +380,7 @@ void CodeAssistantPrivate::invalidateCurrentRequestData()
 
 CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
 {
-    CompletionAssistProvider *completionProvider = m_editorWidget->completionAssistProvider();
+    CompletionAssistProvider *completionProvider = m_editorWidget->textDocument()->completionAssistProvider();
     if (!completionProvider)
         return 0;
 

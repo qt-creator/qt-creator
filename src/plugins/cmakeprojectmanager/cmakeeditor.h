@@ -37,6 +37,7 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeEditorWidget;
+class CMakeSettingsPage;
 
 class CMakeEditor : public TextEditor::BaseTextEditor
 {
@@ -56,7 +57,7 @@ class CMakeEditorFactory : public TextEditor::TextEditorFactory
     Q_OBJECT
 
 public:
-    CMakeEditorFactory();
+    CMakeEditorFactory(CMakeSettingsPage *settingsPage);
 };
 
 } // namespace Internal

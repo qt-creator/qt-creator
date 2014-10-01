@@ -31,6 +31,7 @@
 #define PROFILEHOVERHANDLER_H
 
 #include <texteditor/basehoverhandler.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 
 QT_BEGIN_NAMESPACE
 class QUrl;
@@ -44,7 +45,7 @@ class ProFileHoverHandler : public TextEditor::BaseHoverHandler
     Q_OBJECT
 
 public:
-    ProFileHoverHandler();
+    explicit ProFileHoverHandler(const TextEditor::Keywords &keywords);
 
 signals:
     void creatorHelpRequested(const QUrl &url);
@@ -65,7 +66,7 @@ private:
 
     QString m_docFragment;
     ManualKind m_manualKind;
-    TextEditor::Keywords m_keywords;
+    const TextEditor::Keywords m_keywords;
 };
 
 } // namespace Internal

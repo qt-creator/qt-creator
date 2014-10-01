@@ -60,14 +60,14 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 {
     if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":cmakeproject/CMakeProjectManager.mimetypes.xml"), errorMessage))
         return false;
+
     CMakeSettingsPage *cmp = new CMakeSettingsPage();
     addAutoReleasedObject(cmp);
     addAutoReleasedObject(new CMakeManager(cmp));
     addAutoReleasedObject(new MakeStepFactory);
     addAutoReleasedObject(new CMakeRunConfigurationFactory);
     addAutoReleasedObject(new CMakeBuildConfigurationFactory);
-
-    addAutoReleasedObject(new CMakeEditorFactory);
+    addAutoReleasedObject(new CMakeEditorFactory(cmp));
     addAutoReleasedObject(new CMakeLocatorFilter);
     addAutoReleasedObject(new CMakeFileCompletionAssistProvider(cmp));
 
