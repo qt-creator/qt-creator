@@ -1659,16 +1659,11 @@ QString QmakeProject::executableFor(const QmakeProFileNode *node)
             break;
         }
         // else fall through
-    case ProjectExplorer::Abi::WindowsOS:
-    case ProjectExplorer::Abi::LinuxOS:
-    case ProjectExplorer::Abi::BsdOS:
-    case ProjectExplorer::Abi::UnixOS: {
+    default: {
         QString extension = node->singleVariableValue(TargetExtVar);
         target = ti.target + extension;
         break;
     }
-    default:
-        return QString();
     }
     return QDir(destDirFor(ti)).absoluteFilePath(target);
 }
