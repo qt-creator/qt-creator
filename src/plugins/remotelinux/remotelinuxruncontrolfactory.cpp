@@ -127,6 +127,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
     case NoRunMode:
     case CallgrindRunMode:
     case MemcheckRunMode:
+    case ClangStaticAnalyzerMode:
         QTC_ASSERT(false, return 0);
     }
 

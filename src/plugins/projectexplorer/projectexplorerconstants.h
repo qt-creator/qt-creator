@@ -275,7 +275,8 @@ enum RunMode {
     DebugRunModeWithBreakOnMain,
     QmlProfilerRunMode,
     CallgrindRunMode,
-    MemcheckRunMode
+    MemcheckRunMode,
+    ClangStaticAnalyzerMode
 };
 
 } // namespace ProjectExplorer
