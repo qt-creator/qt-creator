@@ -1945,6 +1945,7 @@ void GdbEngine::notifyAdapterShutdownOk()
     m_commandsDoneCallback = 0;
     switch (m_gdbProc->state()) {
     case QProcess::Running:
+        postCommand("monitor exit");
         postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
         break;
     case QProcess::NotRunning:

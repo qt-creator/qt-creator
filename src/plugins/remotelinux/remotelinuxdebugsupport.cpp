@@ -182,7 +182,6 @@ void LinuxDeviceDebugSupport::startExecution()
         if (command.isEmpty())
             command = QLatin1String("gdbserver");
         args.clear();
-        args.append(QString::fromLatin1("--once"));
         args.append(QString::fromLatin1("--multi"));
         args.append(QString::fromLatin1(":%1").arg(d->gdbServerPort));
     }
