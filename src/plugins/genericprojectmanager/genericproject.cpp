@@ -93,6 +93,23 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
 
     m_rootNode = new GenericProjectNode(this, m_creatorIDocument);
 
+    FileNode *projectFilesNode = new FileNode(m_filesFileName,
+                                              ProjectFileType,
+                                              /* generated = */ false);
+
+    FileNode *projectIncludesNode = new FileNode(m_includesFileName,
+                                                 ProjectFileType,
+                                                 /* generated = */ false);
+
+    FileNode *projectConfigNode = new FileNode(m_configFileName,
+                                               ProjectFileType,
+                                               /* generated = */ false);
+
+    m_rootNode->addFileNodes(QList<FileNode *>()
+                             << projectFilesNode
+                             << projectIncludesNode
+                             << projectConfigNode);
+
     m_manager->registerProject(this);
 }
 

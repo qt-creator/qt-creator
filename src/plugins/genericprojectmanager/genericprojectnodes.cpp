@@ -86,26 +86,6 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
     typedef QHash<QString, QStringList> FilesInPathHash;
     typedef FilesInPathHash::ConstIterator FilesInPathHashConstIt;
 
-    if (oldFileList.isEmpty()) {
-        // Only do this once
-        FileNode *projectFilesNode = new FileNode(m_project->filesFileName(),
-                                                  ProjectFileType,
-                                                  /* generated = */ false);
-
-        FileNode *projectIncludesNode = new FileNode(m_project->includesFileName(),
-                                                     ProjectFileType,
-                                                     /* generated = */ false);
-
-        FileNode *projectConfigNode = new FileNode(m_project->configFileName(),
-                                                   ProjectFileType,
-                                                   /* generated = */ false);
-
-        addFileNodes(QList<FileNode *>()
-                     << projectFilesNode
-                     << projectIncludesNode
-                     << projectConfigNode);
-    }
-
     // Do those separately
     oldFileList.remove(m_project->filesFileName());
     oldFileList.remove(m_project->includesFileName());
