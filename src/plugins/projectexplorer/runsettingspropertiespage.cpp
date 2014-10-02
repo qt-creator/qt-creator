@@ -381,8 +381,6 @@ void RunSettingsWidget::aboutToShowDeployMenu()
             QAction *action = m_addDeployMenu->addAction(factory->displayNameForId(id));
             DeployFactoryAndId data = { factory, id };
             action->setData(QVariant::fromValue(data));
-            connect(action, SIGNAL(triggered()),
-                    this, SLOT(addDeployConfiguration()));
             connect(action, &QAction::triggered, [factory, id, this]() {
                 if (!factory->canCreate(m_target, id))
                     return;
