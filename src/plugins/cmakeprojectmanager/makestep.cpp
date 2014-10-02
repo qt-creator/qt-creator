@@ -48,6 +48,7 @@
 #include <coreplugin/find/itemviewfind.h>
 
 #include <utils/qtcprocess.h>
+#include <utils/pathchooser.h>
 
 #include <QFormLayout>
 #include <QGroupBox>
@@ -64,6 +65,7 @@ const char MS_ID[] = "CMakeProjectManager.MakeStep";
 const char CLEAN_KEY[] = "CMakeProjectManager.MakeStep.Clean";
 const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
 const char ADDITIONAL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
+const char MAKE_COMMAND_KEY[] = "CMakeProjectManager.MakeStep.MakeCommand";
 }
 
 MakeStep::MakeStep(BuildStepList *bsl) :
@@ -82,7 +84,8 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_clean(bs->m_clean),
     m_buildTargets(bs->m_buildTargets),
-    m_additionalArguments(bs->m_additionalArguments)
+    m_additionalArguments(bs->m_additionalArguments),
+    m_makeCmd(bs->m_makeCmd)
 {
     ctor();
 }
@@ -159,6 +162,7 @@ QVariantMap MakeStep::toMap() const
     map.insert(QLatin1String(CLEAN_KEY), m_clean);
     map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
     map.insert(QLatin1String(ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
+    map.insert(QLatin1String(MAKE_COMMAND_KEY), m_makeCmd);
     return map;
 }
 
@@ -167,6 +171,7 @@ bool MakeStep::fromMap(const QVariantMap &map)
     m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
     m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
     m_additionalArguments = map.value(QLatin1String(ADDITIONAL_ARGUMENTS_KEY)).toString();
+    m_makeCmd = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
 
     return BuildStep::fromMap(map);
 }
@@ -304,6 +309,8 @@ void MakeStep::setAdditionalArguments(const QString &list)
 
 QString MakeStep::makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const
 {
+    if (!m_makeCmd.isEmpty())
+        return m_makeCmd;
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
     if (!bc)
         bc = targetsActiveBuildConfiguration();
@@ -314,6 +321,16 @@ QString MakeStep::makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Envir
         return tc->makeCommand(env);
 
     return QLatin1String("make");
+}
+
+void MakeStep::setUserMakeCommand(const QString &make)
+{
+    m_makeCmd = make;
+}
+
+QString MakeStep::userMakeCommand() const
+{
+    return m_makeCmd;
 }
 
 //
@@ -327,6 +344,14 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     fl->setMargin(0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
+
+    m_makePathChooser = new Utils::PathChooser(this);
+    m_makePathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_makePathChooser->setBaseDirectory(Utils::PathChooser::homePath());
+    m_makePathChooser->setHistoryCompleter(QLatin1String("PE.MakeCommand.History"));
+    m_makePathChooser->setPath(m_makeStep->userMakeCommand());
+
+    fl->addRow(tr("Override command:"), m_makePathChooser);
 
     m_additionalArguments = new QLineEdit(this);
     fl->addRow(tr("Additional arguments:"), m_additionalArguments);
@@ -356,6 +381,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     updateDetails();
 
+    connect(m_makePathChooser, &Utils::PathChooser::changed, this, &MakeStepConfigWidget::makeEdited);
     connect(m_additionalArguments, &QLineEdit::textEdited, this, &MakeStepConfigWidget::additionalArgumentsEdited);
     connect(m_buildTargetsList, &QListWidget::itemChanged, this, &MakeStepConfigWidget::itemChanged);
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
@@ -365,6 +391,12 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(m_makeStep, &MakeStep::targetsToBuildChanged, this, &MakeStepConfigWidget::selectedBuildTargetsChanged);
     connect(pro, &CMakeProject::environmentChanged, this, &MakeStepConfigWidget::updateDetails);
     connect(m_makeStep, &MakeStep::makeCommandChanged, this, &MakeStepConfigWidget::updateDetails);
+}
+
+void MakeStepConfigWidget::makeEdited()
+{
+    m_makeStep->setUserMakeCommand(m_makePathChooser->rawPath());
+    updateDetails();
 }
 
 void MakeStepConfigWidget::additionalArgumentsEdited()

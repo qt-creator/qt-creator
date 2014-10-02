@@ -38,6 +38,8 @@ class QListWidget;
 class QListWidgetItem;
 QT_END_NAMESPACE
 
+namespace Utils { class PathChooser; }
+
 namespace ProjectExplorer { class ToolChain; }
 
 namespace CMakeProjectManager {
@@ -79,6 +81,8 @@ public:
 
     QVariantMap toMap() const;
 
+    void setUserMakeCommand(const QString &make);
+    QString userMakeCommand() const;
 private:
     void activeBuildConfigurationChanged();
     void buildTargetsChanged();
@@ -111,6 +115,7 @@ private:
     QString m_additionalArguments;
     bool m_useNinja;
     CMakeBuildConfiguration *m_activeConfiguration;
+    QString m_makeCmd;
 };
 
 class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
@@ -123,6 +128,7 @@ public:
 
 private:
     void itemChanged(QListWidgetItem*);
+    void makeEdited();
     void additionalArgumentsEdited();
     void updateDetails();
     void buildTargetsChanged();
@@ -130,6 +136,7 @@ private:
 
 private:
     MakeStep *m_makeStep;
+    Utils::PathChooser *m_makePathChooser;
     QListWidget *m_buildTargetsList;
     QLineEdit *m_additionalArguments;
     QString m_summaryText;
