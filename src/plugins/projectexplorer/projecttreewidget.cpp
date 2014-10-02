@@ -121,13 +121,6 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     Project *pro = SessionManager::startupProject();
     if (pro)
         m_model->setStartupProject(pro->rootProjectNode());
-    NodesWatcher *watcher = new NodesWatcher(this);
-    SessionManager::sessionNode()->registerWatcher(watcher);
-
-    connect(watcher, SIGNAL(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)),
-            this, SLOT(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)));
-    connect(watcher, SIGNAL(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)),
-            this, SLOT(filesAboutToBeRemoved(FolderNode*,QList<FileNode*>)));
 
     m_view = new ProjectTreeView;
     m_view->setModel(m_model);
@@ -276,32 +269,6 @@ void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QStrin
         int count = m_model->rowCount(index);
         for (int i = 0; i < count; ++i)
             recursiveSaveExpandData(index.child(i, 0), data);
-    }
-}
-
-void ProjectTreeWidget::foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &list)
-{
-    Node *n = ProjectExplorerPlugin::currentNode();
-    while (n) {
-        if (FolderNode *fn = qobject_cast<FolderNode *>(n)) {
-            if (list.contains(fn)) {
-                ProjectNode *pn = n->projectNode();
-                // Make sure the node we are switching too isn't going to be removed also
-                while (list.contains(pn))
-                    pn = pn->parentFolderNode()->projectNode();
-                ProjectExplorerPlugin::setCurrentNode(pn);
-                break;
-            }
-        }
-        n = n->parentFolderNode();
-    }
-}
-
-void ProjectTreeWidget::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &list)
-{
-    if (FileNode *fileNode = qobject_cast<FileNode *>(ProjectExplorerPlugin::currentNode())) {
-        if (list.contains(fileNode))
-            ProjectExplorerPlugin::setCurrentNode(fileNode->projectNode());
     }
 }
 

@@ -80,9 +80,6 @@ private slots:
     void startupProjectChanged(ProjectExplorer::Project *project);
     void initView();
 
-    void foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &);
-    void filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &);
-
     void loadExpandData();
     void saveExpandData();
     void disableAutoExpand();

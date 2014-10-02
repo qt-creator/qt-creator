@@ -446,6 +446,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(sessionManager, SIGNAL(sessionLoaded(QString)),
             this, SLOT(updateWelcomePage()));
 
+    NodesWatcher *watcher = new NodesWatcher(this);
+    SessionManager::sessionNode()->registerWatcher(watcher);
+
+    connect(watcher, &NodesWatcher::foldersAboutToBeRemoved,
+            this, &ProjectExplorerPlugin::foldersAboutToBeRemoved);
+    connect(watcher, &NodesWatcher::filesAboutToBeRemoved,
+            this, &ProjectExplorerPlugin::filesAboutToBeRemoved);
+
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomProjectWizard>(Core::IWizardFactory::ProjectWizard));
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(Core::IWizardFactory::FileWizard));
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(Core::IWizardFactory::ClassWizard));
@@ -2887,6 +2895,32 @@ void ProjectExplorerPlugin::invalidateProject(Project *project)
 
     disconnect(project, SIGNAL(fileListChanged()), this, SIGNAL(fileListChanged()));
     updateActions();
+}
+
+void ProjectExplorerPlugin::foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &list)
+{
+    Node *n = ProjectExplorerPlugin::currentNode();
+    while (n) {
+        if (FolderNode *fn = qobject_cast<FolderNode *>(n)) {
+            if (list.contains(fn)) {
+                ProjectNode *pn = n->projectNode();
+                // Make sure the node we are switching too isn't going to be removed also
+                while (list.contains(pn))
+                    pn = pn->parentFolderNode()->projectNode();
+                ProjectExplorerPlugin::setCurrentNode(pn);
+                break;
+            }
+        }
+        n = n->parentFolderNode();
+    }
+}
+
+void ProjectExplorerPlugin::filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &list)
+{
+    if (FileNode *fileNode = qobject_cast<FileNode *>(ProjectExplorerPlugin::currentNode())) {
+        if (list.contains(fileNode))
+            ProjectExplorerPlugin::setCurrentNode(fileNode->projectNode());
+    }
 }
 
 void ProjectExplorerPluginPrivate::updateContextMenuActions()

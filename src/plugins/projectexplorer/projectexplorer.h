@@ -54,6 +54,7 @@ class IRunControlFactory;
 class Project;
 class Node;
 class FolderNode;
+class FileNode;
 
 namespace Internal { class ProjectExplorerSettings; }
 
@@ -201,7 +202,10 @@ private slots:
     void updateUnloadProjectMenu();
     void openTerminalHere();
 
+    // for keeping current node / current project up to date
     void invalidateProject(ProjectExplorer::Project *project);
+    void foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &);
+    void filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &);
 
     void setCurrentFile(const QString &filePath);
 
