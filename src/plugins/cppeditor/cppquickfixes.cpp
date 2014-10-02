@@ -5412,7 +5412,7 @@ bool findConnectReplacement(const CppQuickFixInterface &interface,
     return true;
 }
 
-bool onConnectCall(AST *ast, const ExpressionListAST **arguments)
+bool onConnectOrDisconnectCall(AST *ast, const ExpressionListAST **arguments)
 {
     if (!ast)
         return false;
@@ -5437,7 +5437,7 @@ bool onConnectCall(AST *ast, const ExpressionListAST **arguments)
         return false;
 
     const QByteArray name(id->chars(), id->size());
-    if (name != "connect")
+    if (name != "connect" && name != "disconnect")
         return false;
 
     if (arguments)
@@ -5493,7 +5493,7 @@ void ConvertQt4Connect::match(const CppQuickFixInterface &interface, QuickFixOpe
 
     for (int i = path.size(); --i >= 0; ) {
         const ExpressionListAST *arguments;
-        if (!onConnectCall(path.at(i), &arguments))
+        if (!onConnectOrDisconnectCall(path.at(i), &arguments))
             continue;
 
         const ExpressionAST *arg1, *arg3;

@@ -3865,11 +3865,15 @@ void CppEditorPlugin::test_quickfix_ConvertQt4Connect_connectWithinClass_data()
     QTest::addColumn<QByteArray>("original");
     QTest::addColumn<QByteArray>("expected");
 
-    QTest::newRow("case1")
+    QTest::newRow("four-args-connect")
             << QByteArray("conne@ct(this, SIGNAL(sigFoo(int)), this, SLOT(setProp(int)));")
             << QByteArray("connect(this, &TestClass::sigFoo, this, &TestClass::setProp);");
 
-    QTest::newRow("case2")
+    QTest::newRow("four-args-disconnect")
+            << QByteArray("disconne@ct(this, SIGNAL(sigFoo(int)), this, SLOT(setProp(int)));")
+            << QByteArray("disconnect(this, &TestClass::sigFoo, this, &TestClass::setProp);");
+
+    QTest::newRow("three-args-connect")
             << QByteArray("conne@ct(this, SIGNAL(sigFoo(int)), SLOT(setProp(int)));")
             << QByteArray("connect(this, &TestClass::sigFoo, this, &TestClass::setProp);");
 }
