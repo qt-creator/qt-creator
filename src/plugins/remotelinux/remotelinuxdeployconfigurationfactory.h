@@ -41,7 +41,7 @@ class RemoteLinuxDeployConfigurationFactory : public ProjectExplorer::DeployConf
 public:
     explicit RemoteLinuxDeployConfigurationFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *target) const;
     QString displayNameForId(Core::Id id) const;
     bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const;
     ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id);

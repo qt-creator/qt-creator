@@ -55,18 +55,17 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory(QOb
     : DeployConfigurationFactory(parent)
 { setObjectName(QLatin1String("RemoteLinuxDeployConfiguration"));}
 
-QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *target) const
 {
     QList<Core::Id> ids;
-    if (!parent->project()->supportsKit(parent->kit()))
+    if (!target->project()->supportsKit(target->kit()))
         return ids;
-    ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainKitInformation::toolChain(parent->kit());
-    if (!tc || tc->targetAbi().os() != ProjectExplorer::Abi::LinuxOS)
+
+    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(target->kit());
+    if (deviceType != RemoteLinux::Constants::GenericLinuxOsType)
         return ids;
-    const Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
-    if (devType == Constants::GenericLinuxOsType)
-        ids << genericDeployConfigurationId();
+
+    ids << genericDeployConfigurationId();
     return ids;
 }
 
