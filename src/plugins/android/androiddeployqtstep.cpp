@@ -156,7 +156,7 @@ AndroidDeployQtStep::AndroidDeployQtStep(ProjectExplorer::BuildStepList *parent,
 
 void AndroidDeployQtStep::ctor()
 {
-    m_uninstallPreviousPackage = false;
+    m_uninstallPreviousPackage = QtSupport::QtKitInformation::qtVersion(target()->kit())->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0);
     m_uninstallPreviousPackageTemp = false;
     m_uninstallPreviousPackageRun = false;
 
@@ -387,7 +387,7 @@ bool AndroidDeployQtStep::processSucceeded(int exitCode, QProcess::ExitStatus st
 
 bool AndroidDeployQtStep::fromMap(const QVariantMap &map)
 {
-    m_uninstallPreviousPackage = map.value(UninstallPreviousPackageKey, false).toBool();
+    m_uninstallPreviousPackage = map.value(UninstallPreviousPackageKey, m_uninstallPreviousPackage).toBool();
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
