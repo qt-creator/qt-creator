@@ -165,8 +165,6 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
     MyTestDataDir testDirectory(QLatin1String("testdata_basic"));
     const QString testFile = testDirectory.file(QLatin1String("file1.cpp"));
 
-    QScopedPointer<CppIndexingSupport> builtinIndexingSupport(new BuiltinIndexingSupport);
-
     SymbolSearcher::Parameters searchParameters;
 
     // Check All Symbol Types
