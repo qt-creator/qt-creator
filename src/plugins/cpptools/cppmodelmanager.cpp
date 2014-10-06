@@ -995,8 +995,12 @@ BaseEditorDocumentProcessor *CppModelManager::editorDocumentProcessor(
 
 void CppModelManager::setIndexingSupport(CppIndexingSupport *indexingSupport)
 {
-    if (indexingSupport)
-        d->m_indexingSupporter = indexingSupport;
+    if (indexingSupport) {
+        if (dynamic_cast<BuiltinIndexingSupport *>(indexingSupport))
+            d->m_indexingSupporter = 0;
+        else
+            d->m_indexingSupporter = indexingSupport;
+    }
 }
 
 CppIndexingSupport *CppModelManager::indexingSupport()
