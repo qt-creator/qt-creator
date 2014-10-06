@@ -356,6 +356,8 @@ static QString variableValue(const char *variable)
             projectFilePath = doc->filePath();
         if (BuildConfiguration *buildConfiguration = activeBuildConfiguration())
             buildConfigurationName = buildConfiguration->displayName();
+        if (project->activeTarget())
+            kit = project->activeTarget()->kit();
     }
     ProjectMacroExpander expander(projectFilePath, projectName, kit, buildConfigurationName);
     QString result;
