@@ -1045,6 +1045,7 @@ void CppToolsPlugin::test_modelmanager_renameIncludes()
     struct ModelManagerGCHelper {
         ~ModelManagerGCHelper() { CppModelManager::instance()->GC(); }
     } GCHelper;
+    Q_UNUSED(GCHelper); // do not warn about being unused
 
     QTemporaryDir tmpDir;
     QVERIFY(tmpDir.isValid());
