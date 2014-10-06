@@ -5807,8 +5807,6 @@
 "FileUtils autotest"	"3"
 "fileutils.qbs:4"	"4"
 "tst_fileutils.cpp"	"4"
-"Valgrind autotests"	"2"
-"valgrind.qbs"	"3"
 "Translations"	"0"
 "translations.qbs:3"	"1"
 "qtcreator_cs.ts"	"1"
