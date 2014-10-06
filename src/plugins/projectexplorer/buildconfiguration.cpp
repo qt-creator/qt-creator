@@ -35,10 +35,12 @@
 #include "target.h"
 #include "project.h"
 #include "kit.h"
+#include "projectmacroexpander.h"
 
 #include <coreplugin/variablemanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <extensionsystem/pluginmanager.h>
+#include <coreplugin/idocument.h>
 
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -55,10 +57,16 @@ static const char BUILDDIRECTORY_KEY[] = "ProjectExplorer.BuildConfiguration.Bui
 namespace ProjectExplorer {
 namespace Internal {
 
-class BuildConfigMacroExpander : public Utils::AbstractMacroExpander
+class BuildConfigMacroExpander : public ProjectMacroExpander
 {
 public:
-    explicit BuildConfigMacroExpander(const BuildConfiguration *bc) : m_bc(bc) {}
+    explicit BuildConfigMacroExpander(const BuildConfiguration *bc)
+        : ProjectMacroExpander(bc->target()->project()->document()->filePath(),
+                               bc->target()->project()->displayName(),
+                               bc->target()->kit(),
+                               bc->displayName()),
+          m_bc(bc)
+    {}
     virtual bool resolveMacro(const QString &name, QString *ret);
 private:
     const BuildConfiguration *m_bc;
@@ -66,6 +74,7 @@ private:
 
 bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
+    // legacy variables
     if (name == QLatin1String("sourceDir")) {
         *ret = m_bc->target()->project()->projectDirectory().toUserOutput();
         return true;
@@ -74,9 +83,8 @@ bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
         *ret = m_bc->buildDirectory().toUserOutput();
         return true;
     }
-    bool found;
-    *ret = Core::VariableManager::value(name.toUtf8(), &found);
-    return found;
+
+    return ProjectMacroExpander::resolveMacro(name, ret);
 }
 } // namespace Internal
 
