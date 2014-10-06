@@ -1091,13 +1091,11 @@ static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace,
                 lastRightFileName = fileName;
                 lastOperation = FileData::ChangeFile;
             } else {
-                const QString leftFileName = similarityRegExp.cap(1);
-                const QString rightFileName = similarityRegExp.cap(2);
+                lastLeftFileName = similarityRegExp.cap(1);
+                lastRightFileName = similarityRegExp.cap(2);
                 const QString operation = similarityRegExp.cap(3);
                 pos += similarityRegExp.matchedLength();
                 endOfLastHeader = pos;
-                lastLeftFileName = leftFileName;
-                lastRightFileName = rightFileName;
                 if (operation == QLatin1String("copy"))
                     lastOperation = FileData::CopyFile;
                 else if (operation == QLatin1String("rename"))
