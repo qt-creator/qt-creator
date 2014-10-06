@@ -1037,20 +1037,26 @@ static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace,
 
     QList<FileData> fileDataList;
 
-    int simpleGitPos = simpleGitRegExp.indexIn(patch);
-    int similarityPos = similarityRegExp.indexIn(patch);
-
-    bool simpleGitMatched = false;
-    int pos = -1;
-    if (simpleGitPos < 0) {
-        pos = similarityPos;
-    } else if (similarityPos < 0) {
-        pos = simpleGitPos;
-        simpleGitMatched = true;
-    } else {
+    bool simpleGitMatched;
+    int pos = 0;
+    auto calculateGitMatchAndPosition = [&]() {
+        const int simpleGitPos = simpleGitRegExp.indexIn(patch, pos, QRegExp::CaretAtOffset);
+        const int similarityPos = similarityRegExp.indexIn(patch, pos, QRegExp::CaretAtOffset);
+        if (simpleGitPos < 0) {
+            pos = similarityPos;
+            simpleGitMatched = false;
+            return;
+        } else if (similarityPos < 0) {
+            pos = simpleGitPos;
+            simpleGitMatched = true;
+            return;
+        }
         pos = qMin(simpleGitPos, similarityPos);
         simpleGitMatched = (pos == simpleGitPos);
-    }
+    };
+
+    // Set both pos and simpleGitMatched according to the first match:
+    calculateGitMatchAndPosition();
 
     if (pos >= 0) { // git style patch
         readOk = true;
@@ -1104,20 +1110,8 @@ static QList<FileData> readGitPatch(const QString &patch, bool ignoreWhitespace,
                     break; // either copy or rename, otherwise broken
             }
 
-            simpleGitPos = simpleGitRegExp.indexIn(patch, pos, QRegExp::CaretAtOffset);
-            similarityPos = similarityRegExp.indexIn(patch, pos, QRegExp::CaretAtOffset);
-
-            simpleGitMatched = false;
-            pos = -1;
-            if (simpleGitPos < 0) {
-                pos = similarityPos;
-            } else if (similarityPos < 0) {
-                pos = simpleGitPos;
-                simpleGitMatched = true;
-            } else {
-                pos = qMin(simpleGitPos, similarityPos);
-                simpleGitMatched = (pos == simpleGitPos);
-            }
+            // give both pos and simpleGitMatched a new value for the next match
+            calculateGitMatchAndPosition();
         } while (pos != -1);
 
         if (endOfLastHeader > 0 && readOk) {
