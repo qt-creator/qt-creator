@@ -398,7 +398,7 @@ void MakeStepConfigWidget::selectedBuildTargetsChanged()
 {
     disconnect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     for (int y = 0; y < m_buildTargetsList->count(); ++y) {
-        QListWidgetItem *item = m_buildTargetsList->itemAt(0, y);
+        QListWidgetItem *item = m_buildTargetsList->item(y);
         item->setCheckState(m_makeStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
     connect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
