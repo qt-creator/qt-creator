@@ -811,8 +811,12 @@ QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(const QStri
 {
     QSet<ProjectPart::Ptr> parts;
     const QStringList deps = snapshot().filesDependingOn(fileName);
-    foreach (const QString &dep, deps)
-        parts.unite(QSet<ProjectPart::Ptr>::fromList(d->m_fileToProjectParts.value(dep)));
+
+    {
+        QMutexLocker locker(&d->m_projectMutex);
+        foreach (const QString &dep, deps)
+            parts.unite(QSet<ProjectPart::Ptr>::fromList(d->m_fileToProjectParts.value(dep)));
+    }
 
     return parts.values();
 }
