@@ -433,7 +433,7 @@ public:
 private:
     void allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const;
 
-    mutable QSharedPointer<DependencyTable> m_deps;
+    mutable DependencyTable m_deps;
     Base _documents;
 };
 
