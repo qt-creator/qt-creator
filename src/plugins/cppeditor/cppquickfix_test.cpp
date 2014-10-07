@@ -2208,7 +2208,7 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef()
 }
 
 /// Check: Add include if there is already an include
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onSimpleName()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2242,13 +2242,52 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
     testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
                                       + "/afile.cpp", original, expected);
 
+    AddIncludeForUndefinedIdentifier factory;
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
+}
+
+/// Check: Cursor is on a qualified name (1)
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onNameOfQualifiedName()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "namespace N { class Foo {}; }\n";
+    expected = original;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                              + "/afile.h", original, expected);
+
+    // Source File
+    original =
+        "#include \"header.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    N::Fo@o foo;\n"
+        "}\n"
+        ;
+    expected =
+        "#include \"afile.h\"\n"
+        "#include \"header.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    N::Foo foo;\n"
+        "}\n"
+        ;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                              + "/afile.cpp", original, expected);
+
     // Do not use the test factory, at least once we want to go through the "full stack".
     AddIncludeForUndefinedIdentifier factory;
     QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
 /// Check: Ignore *.moc includes
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_ignoremoc()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2273,7 +2312,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc()
 }
 
 /// Check: Insert include at top for a sorted group
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingTop()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2299,7 +2338,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop(
 }
 
 /// Check: Insert include in the middle for a sorted group
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingMiddle()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingMiddle()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2325,7 +2364,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingMidd
 }
 
 /// Check: Insert include at bottom for a sorted group
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingBottom()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingBottom()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2351,7 +2390,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingBott
 }
 
 /// Check: For an unsorted group the new include is appended
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_appendToUnsorted()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_appendToUnsorted()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2377,7 +2416,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_appendToUns
 }
 
 /// Check: Insert a local include at front if there are only global includes
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_firstLocalIncludeAtFront()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_firstLocalIncludeAtFront()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2404,7 +2443,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_firstLocalI
 }
 
 /// Check: Insert a global include at back if there are only local includes
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_firstGlobalIncludeAtBack()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_firstGlobalIncludeAtBack()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2433,7 +2472,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_firstGlobal
 }
 
 /// Check: Prefer group with longest matching prefix
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_preferGroupWithLongerMatchingPrefix()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_preferGroupWithLongerMatchingPrefix()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2463,7 +2502,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_preferGroup
 }
 
 /// Check: Create a new include group if there are only include groups with a different include dir
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_newGroupIfOnlyDifferentIncludeDirs()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_newGroupIfOnlyDifferentIncludeDirs()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2490,7 +2529,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_newGroupIfO
 }
 
 /// Check: Include group with mixed include dirs, sorted --> insert properly
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsSorted()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedDirsSorted()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2518,7 +2557,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsSo
 }
 
 /// Check: Include group with mixed include dirs, unsorted --> append
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsUnsorted()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedDirsUnsorted()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2546,7 +2585,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsUn
 }
 
 /// Check: Include group with mixed include types
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes1()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes1()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2572,7 +2611,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
 }
 
 /// Check: Include group with mixed include types
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes2()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes2()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2598,7 +2637,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
 }
 
 /// Check: Include group with mixed include types
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes3()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes3()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2624,7 +2663,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
 }
 
 /// Check: Include group with mixed include types
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedIncludeTypes4()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes4()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2650,7 +2689,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
 }
 
 /// Check: Insert very first include
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noinclude()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_noinclude()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2673,7 +2712,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noinclude()
 }
 
 /// Check: Insert very first include if there is a c++ style comment on top
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCppStyleCommentOnTop()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_veryFirstIncludeCppStyleCommentOnTop()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2702,7 +2741,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIn
 }
 
 /// Check: Insert very first include if there is a c style comment on top
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIncludeCStyleCommentOnTop()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_veryFirstIncludeCStyleCommentOnTop()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
@@ -2736,7 +2775,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIn
 
 /// Check: If a "Qt Class" was not found by the locator, check the header files in the Qt
 /// include paths
-void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_checkQSomethingInQtIncludePaths()
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_checkQSomethingInQtIncludePaths()
 {
     QList<QuickFixTestDocument::Ptr> testFiles;
 
