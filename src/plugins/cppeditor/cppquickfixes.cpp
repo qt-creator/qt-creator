@@ -1910,6 +1910,10 @@ NameAST *nameUnderCursor(const QList<AST *> &path)
         AST * const ast = path.at(i);
         if (SimpleNameAST *simpleName = ast->asSimpleName()) {
             nameAst = simpleName;
+        } else if (TemplateIdAST *templateId = ast->asTemplateId()) {
+            nameAst = templateId;
+        } else if (nameAst && ast->asNamedTypeSpecifier()) {
+            break; // Stop at "Foo" for "N::Bar<@Foo>"
         } else if (QualifiedNameAST *qualifiedName = ast->asQualifiedName()) {
             nameAst = qualifiedName;
             break;
@@ -1937,15 +1941,28 @@ bool canLookup(const CppQuickFixInterface &interface, const NameAST *nameAst)
     return !existingResults.isEmpty();
 }
 
-QString unqualifiedName(const Name *name)
+QString templateNameAsString(const TemplateNameId *templateName)
+{
+    const Identifier *id = templateName->identifier();
+    return QString::fromUtf8(id->chars(), id->size());
+}
+
+// For templates, simply the name is returned, without '<...>'.
+QString unqualifiedNameForLocator(const Name *name)
 {
     QTC_ASSERT(name, return QString());
 
     const Overview oo;
-    if (const QualifiedNameId *qualifiedName = name->asQualifiedNameId())
-        return oo.prettyName(qualifiedName->name());
-    else
+    if (const QualifiedNameId *qualifiedName = name->asQualifiedNameId()) {
+        const Name *name = qualifiedName->name();
+        if (const TemplateNameId *templateName = name->asTemplateNameId())
+            return templateNameAsString(templateName);
         return oo.prettyName(name);
+    } else if (const TemplateNameId *templateName = name->asTemplateNameId()) {
+        return templateNameAsString(templateName);
+    } else {
+        return oo.prettyName(name);
+    }
 }
 
 } // anonymous namespace
@@ -1964,7 +1981,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     if (canLookup(interface, nameAst))
         return; // There are results, so include isn't needed
 
-    const QString className = unqualifiedName(nameAst->name);
+    const QString className = unqualifiedNameForLocator(nameAst->name);
     if (className.isEmpty())
         return;
 
