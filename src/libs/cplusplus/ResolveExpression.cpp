@@ -200,6 +200,36 @@ private:
     ClassOrNamespace *_binding;
 };
 
+static int evaluateFunctionArgument(const FullySpecifiedType &actualTy,
+                                    const FullySpecifiedType &formalTy)
+{
+    int score = 0;
+    if (actualTy.type()->match(formalTy.type())) {
+        ++score;
+        if (actualTy.isConst() == formalTy.isConst())
+            ++score;
+    } else if (actualTy.simplified().type()->match(formalTy.simplified().type())) {
+        ++score;
+        if (actualTy.simplified().isConst() == formalTy.simplified().isConst())
+            ++score;
+    } else {
+        PointerType *actualAsPointer = actualTy.type()->asPointerType();
+        PointerType *formalAsPointer = formalTy.type()->asPointerType();
+
+        if (actualAsPointer && formalAsPointer) {
+            FullySpecifiedType actualElementType = actualAsPointer->elementType();
+            FullySpecifiedType formalElementType = formalAsPointer->elementType();
+            if (actualElementType.type()->match(formalElementType.type())) {
+                ++score;
+                if (actualElementType.isConst() == formalElementType.isConst())
+                    ++score;
+            }
+        }
+    }
+
+    return score;
+}
+
 } // end of anonymous namespace
 
 /////////////////////////////////////////////////////////////////////
@@ -771,15 +801,6 @@ bool ResolveExpression::maybeValidPrototype(Function *funTy, unsigned actualArgu
     return funTy->maybeValidPrototype(actualArgumentCount);
 }
 
-bool ResolveExpression::implicitConversion(const FullySpecifiedType &sourceTy, const FullySpecifiedType &targetTy) const
-{
-    if (sourceTy.match(targetTy))
-        return true;
-    else if (sourceTy.simplified().match(targetTy.simplified()))
-        return true;
-    return false;
-}
-
 bool ResolveExpression::visit(CallAST *ast)
 {
     const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
@@ -820,11 +841,13 @@ bool ResolveExpression::visit(CallAST *ast)
                             continue;
 
                         actualTy = actual.first().type();
-                    } else
+                    } else {
                         actualTy = formalTy;
+                        score += 2;
+                        continue;
+                    }
 
-                    if (implicitConversion(actualTy, formalTy))
-                        ++score;
+                    score += evaluateFunctionArgument(actualTy, formalTy);
                 }
 
                 sortedResults.insert(LookupMap::value_type(-score, base));

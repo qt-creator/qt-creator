@@ -77,7 +77,6 @@ protected:
     void addResults(const QList<LookupItem> &items);
 
     static bool maybeValidPrototype(Function *funTy, unsigned actualArgumentCount);
-    bool implicitConversion(const FullySpecifiedType &sourceTy, const FullySpecifiedType &targetTy) const;
 
     using ASTVisitor::visit;
 
