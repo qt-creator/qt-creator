@@ -1970,10 +1970,6 @@ QString unqualifiedNameForLocator(const Name *name)
 void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interface,
                                              QuickFixOperations &result)
 {
-    CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::getObject<CppClassesFilter>();
-    if (!classesFilter)
-        return;
-
     const NameAST *nameAst = nameUnderCursor(interface.path());
     if (!nameAst)
         return;
@@ -1989,20 +1985,24 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     const ProjectPart::HeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
 
     // Find an include file through the locator
-    QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
-    QList<Core::LocatorFilterEntry> matches = classesFilter->matchesFor(dummyInterface, className);
     bool classFoundInLocator = false;
-    foreach (const Core::LocatorFilterEntry &entry, matches) {
-        IndexItem::Ptr info = entry.internalData.value<IndexItem::Ptr>();
-        if (info->symbolName() != className)
-            continue;
-        classFoundInLocator = true;
+    QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
+    if (CppClassesFilter *classesFilter
+            = ExtensionSystem::PluginManager::getObject<CppClassesFilter>()) {
+        const QList<Core::LocatorFilterEntry> matches
+                = classesFilter->matchesFor(dummyInterface, className);
+        foreach (const Core::LocatorFilterEntry &entry, matches) {
+            IndexItem::Ptr info = entry.internalData.value<IndexItem::Ptr>();
+            if (info->symbolName() != className)
+                continue;
+            classFoundInLocator = true;
 
-        // Find the shortest way to include fileName given the includePaths
-        const QString include = findShortestInclude(currentDocumentFilePath, info->fileName(),
-                                                    headerPaths);
-        if (!include.isEmpty())
-            result.append(new AddIncludeForUndefinedIdentifierOp(interface, 0, include));
+            // Find the shortest way to include fileName given the includePaths
+            const QString include = findShortestInclude(currentDocumentFilePath, info->fileName(),
+                                                        headerPaths);
+            if (!include.isEmpty())
+                result.append(new AddIncludeForUndefinedIdentifierOp(interface, 0, include));
+        }
     }
 
     // If e.g. QString was found in "<qstring.h>" propose an extra prioritized entry "<QString>".
