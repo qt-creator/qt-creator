@@ -73,7 +73,7 @@ public:
                                      const Macro &,
                                      const QVector<MacroArgumentReference> &);
     virtual void stopExpandingMacro(unsigned, const Macro &) {}
-    virtual void markAsIncludeGuard(const QByteArray &) {}
+    virtual void markAsIncludeGuard(const QByteArray &macroName);
 
     virtual void startSkippingBlocks(unsigned) {}
     virtual void stopSkippingBlocks(unsigned) {}

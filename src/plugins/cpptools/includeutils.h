@@ -90,7 +90,7 @@ public:
     enum IncludeStyle { LocalBeforeGlobal, GlobalBeforeLocal, AutoDetect };
 
     LineForNewIncludeDirective(const QTextDocument *textDocument,
-                               QList<Include> includes,
+                               const CPlusPlus::Document::Ptr cppDocument,
                                MocIncludeMode mocIncludeMode = IgnoreMocIncludes,
                                IncludeStyle includeStyle = AutoDetect);
 
@@ -100,10 +100,13 @@ public:
                    unsigned *newLinesToAppend = 0);
 
 private:
+    int findInsertLineForVeryFirstInclude(unsigned *newLinesToPrepend, unsigned *newLinesToAppend);
     QList<IncludeGroup> getGroupsByIncludeType(const QList<IncludeGroup> &groups,
                                                IncludeType includeType);
 
     const QTextDocument *m_textDocument;
+    const CPlusPlus::Document::Ptr m_cppDocument;
+
     IncludeStyle m_includeStyle;
     QList<Include> m_includes;
 };

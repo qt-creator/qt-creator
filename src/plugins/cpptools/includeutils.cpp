@@ -35,6 +35,7 @@
 #include <cplusplus/PreprocessorEnvironment.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QDir>
@@ -80,15 +81,57 @@ QString includeDir(const QString &include)
     return dirPrefix;
 }
 
+int lineAfterFirstComment(const QTextDocument *textDocument)
+{
+    int insertLine = -1;
+
+    QTextBlock block = textDocument->firstBlock();
+    while (block.isValid()) {
+        const QString trimmedText = block.text().trimmed();
+
+        // Only skip the first comment!
+        if (trimmedText.startsWith(QLatin1String("/*"))) {
+            do {
+                const int pos = block.text().indexOf(QLatin1String("*/"));
+                if (pos > -1) {
+                    insertLine = block.blockNumber() + 2;
+                    break;
+                }
+                block = block.next();
+            } while (block.isValid());
+            break;
+        } else if (trimmedText.startsWith(QLatin1String("//"))) {
+            block = block.next();
+            while (block.isValid()) {
+                if (!block.text().trimmed().startsWith(QLatin1String("//"))) {
+                    insertLine = block.blockNumber() + 1;
+                    break;
+                }
+                block = block.next();
+            }
+            break;
+        }
+
+        if (!trimmedText.isEmpty())
+            break;
+        block = block.next();
+    }
+
+    return insertLine;
+}
+
 } // anonymous namespace
 
 LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *textDocument,
-                                                       QList<Document::Include> includes,
+                                                       const Document::Ptr cppDocument,
                                                        MocIncludeMode mocIncludeMode,
                                                        IncludeStyle includeStyle)
     : m_textDocument(textDocument)
+    , m_cppDocument(cppDocument)
     , m_includeStyle(includeStyle)
 {
+    const QList<Document::Include> includes = cppDocument->resolvedIncludes();
+
     // Ignore *.moc includes if requested
     if (mocIncludeMode == IgnoreMocIncludes) {
         foreach (const Document::Include &include, includes) {
@@ -129,6 +172,43 @@ LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *text
     }
 }
 
+int LineForNewIncludeDirective::findInsertLineForVeryFirstInclude(unsigned *newLinesToPrepend,
+                                                                  unsigned *newLinesToAppend)
+{
+    int insertLine = 1;
+
+    // If there is an include guard, insert right after that one
+    const QByteArray includeGuardMacroName = m_cppDocument->includeGuardMacroName();
+    if (!includeGuardMacroName.isEmpty()) {
+        const QList<Macro> definedMacros = m_cppDocument->definedMacros();
+        foreach (const Macro &definedMacro, definedMacros) {
+            if (definedMacro.name() == includeGuardMacroName) {
+                if (newLinesToPrepend)
+                    *newLinesToPrepend = 1;
+                if (newLinesToAppend)
+                    *newLinesToAppend += 1;
+                insertLine = definedMacro.line() + 1;
+            }
+        }
+        QTC_CHECK(insertLine != 1);
+    } else {
+        // Otherwise, if there is a comment, insert right after it
+        insertLine = lineAfterFirstComment(m_textDocument);
+        if (insertLine != -1) {
+            if (newLinesToPrepend)
+                *newLinesToPrepend = 1;
+
+        // Otherwise, insert at top of file
+        } else {
+            if (newLinesToAppend)
+                *newLinesToAppend += 1;
+            insertLine = 1;
+        }
+    }
+
+    return insertLine;
+}
+
 int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
                                            unsigned *newLinesToPrepend,
                                            unsigned *newLinesToAppend)
@@ -144,51 +224,8 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
                                                         : Client::IncludeGlobal;
 
     // Handle no includes
-    if (m_includes.empty()) {
-        unsigned insertLine = 0;
-
-        QTextBlock block = m_textDocument->firstBlock();
-        while (block.isValid()) {
-            const QString trimmedText = block.text().trimmed();
-
-            // Only skip the first comment!
-            if (trimmedText.startsWith(QLatin1String("/*"))) {
-                do {
-                    const int pos = block.text().indexOf(QLatin1String("*/"));
-                    if (pos > -1) {
-                        insertLine = block.blockNumber() + 2;
-                        break;
-                    }
-                    block = block.next();
-                } while (block.isValid());
-                break;
-            } else if (trimmedText.startsWith(QLatin1String("//"))) {
-                block = block.next();
-                while (block.isValid()) {
-                    if (!block.text().trimmed().startsWith(QLatin1String("//"))) {
-                        insertLine = block.blockNumber() + 1;
-                        break;
-                    }
-                    block = block.next();
-                }
-                break;
-            }
-
-            if (!trimmedText.isEmpty())
-                break;
-            block = block.next();
-        }
-
-        if (insertLine == 0) {
-            if (newLinesToAppend)
-                *newLinesToAppend += 1;
-            insertLine = 1;
-        } else {
-            if (newLinesToPrepend)
-                *newLinesToPrepend = 1;
-        }
-        return insertLine;
-    }
+    if (m_includes.empty())
+        return findInsertLineForVeryFirstInclude(newLinesToPrepend, newLinesToAppend);
 
     typedef QList<IncludeGroup> IncludeGroups;
 

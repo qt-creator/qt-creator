@@ -169,6 +169,7 @@ private slots:
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes3();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_mixedIncludeTypes4();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_noinclude();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_onlyIncludeGuard();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_veryFirstIncludeCppStyleCommentOnTop();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_veryFirstIncludeCStyleCommentOnTop();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_checkQSomethingInQtIncludePaths();

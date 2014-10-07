@@ -151,3 +151,11 @@ void FastPreprocessor::startExpandingMacro(unsigned bytesOffset, unsigned utf16c
                              utf16charsOffset, macro.nameToQString().size(),
                              line, actuals);
 }
+
+void FastPreprocessor::markAsIncludeGuard(const QByteArray &macroName)
+{
+    if (!_currentDoc)
+        return;
+
+    _currentDoc->setIncludeGuardMacroName(macroName);
+}

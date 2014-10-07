@@ -2828,6 +2828,36 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_n
     QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
+/// Check: Insert very first include after include guard
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_onlyIncludeGuard()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    original =
+        "#ifndef FOO_H\n"
+        "#define FOO_H\n"
+        "void @f();\n"
+        "#endif\n"
+        ;
+    expected =
+        "#ifndef FOO_H\n"
+        "#define FOO_H\n"
+        "\n"
+        "#include \"file.h\"\n"
+        "\n"
+        "void f();\n"
+        "#endif\n"
+        ;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
+
+    AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
+}
+
 /// Check: Insert very first include if there is a c++ style comment on top
 void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_veryFirstIncludeCppStyleCommentOnTop()
 {

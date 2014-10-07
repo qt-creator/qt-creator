@@ -259,11 +259,12 @@ Namespace *isNamespaceFunction(const LookupContext &context, Function *function)
 }
 
 // Given include is e.g. "afile.h" or <afile.h> (quotes/angle brackets included!).
-void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr file)
+void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr file,
+                               const CPlusPlus::Document::Ptr &cppDocument)
 {
     // Find optimal position
     using namespace IncludeUtils;
-    LineForNewIncludeDirective finder(file->document(), file->cppDocument()->resolvedIncludes(),
+    LineForNewIncludeDirective finder(file->document(), cppDocument,
                                       LineForNewIncludeDirective::IgnoreMocIncludes,
                                       LineForNewIncludeDirective::AutoDetect);
     unsigned newLinesToPrepend = 0;
@@ -1583,7 +1584,7 @@ public:
                 best = headerFile;
 
             const QString include = QString::fromLatin1("<%1>").arg(QFileInfo(best).fileName());
-            insertNewIncludeDirective(include, currentFile);
+            insertNewIncludeDirective(include, currentFile, semanticInfo().doc);
         }
     }
 
@@ -1826,7 +1827,7 @@ void AddIncludeForUndefinedIdentifierOp::perform()
     CppRefactoringChanges refactoring(snapshot());
     CppRefactoringFilePtr file = refactoring.file(fileName());
 
-    insertNewIncludeDirective(m_include, file);
+    insertNewIncludeDirective(m_include, file, semanticInfo().doc);
 }
 
 namespace {
