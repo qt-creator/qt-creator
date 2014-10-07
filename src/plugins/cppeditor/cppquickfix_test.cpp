@@ -2286,6 +2286,45 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onNameOfQua
     QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
 }
 
+void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_onBaseOfQualifiedName()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "namespace N { class Foo {}; }\n";
+    expected = original;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8() + "/afile.h",
+                                      original, expected);
+
+    // Source File
+    original =
+        "#include \"header.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    @N::Foo foo;\n"
+        "}\n"
+        ;
+    expected =
+        "#include \"afile.h\"\n"
+        "#include \"header.h\"\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    N::Foo foo;\n"
+        "}\n"
+        ;
+    testFiles << QuickFixTestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/afile.cpp", original, expected);
+
+    // Do not use the test factory, at least once we want to go through the "full stack".
+    AddIncludeForUndefinedIdentifier factory;
+    QuickFixTestCase::run(testFiles, &factory, TestIncludePaths::globalIncludePath());
+}
+
 /// Check: Ignore *.moc includes
 void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_inserting_ignoremoc()
 {

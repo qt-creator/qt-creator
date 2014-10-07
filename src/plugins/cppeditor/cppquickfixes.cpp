@@ -1900,6 +1900,54 @@ ProjectPart::HeaderPaths relevantHeaderPaths(const QString &filePath)
     return headerPaths;
 }
 
+NameAST *nameUnderCursor(const QList<AST *> &path)
+{
+    if (path.isEmpty())
+        return 0;
+
+    NameAST *nameAst = 0;
+    for (int i = path.size() - 1; i >= 0; --i) {
+        AST * const ast = path.at(i);
+        if (SimpleNameAST *simpleName = ast->asSimpleName()) {
+            nameAst = simpleName;
+        } else if (QualifiedNameAST *qualifiedName = ast->asQualifiedName()) {
+            nameAst = qualifiedName;
+            break;
+        }
+    }
+
+    return nameAst;
+}
+
+bool canLookup(const CppQuickFixInterface &interface, const NameAST *nameAst)
+{
+    QTC_ASSERT(nameAst, return false);
+
+    // Find the enclosing scope
+    unsigned line, column;
+    const Document::Ptr &doc = interface.semanticInfo().doc;
+    doc->translationUnit()->getTokenStartPosition(nameAst->firstToken(), &line, &column);
+    Scope *scope = doc->scopeAt(line, column);
+    if (!scope)
+        return false;
+
+    // Check if the name resolves to something
+    const Name *name = nameAst->name;
+    const QList<LookupItem> existingResults = interface.context().lookup(name, scope);
+    return !existingResults.isEmpty();
+}
+
+QString unqualifiedName(const Name *name)
+{
+    QTC_ASSERT(name, return QString());
+
+    const Overview oo;
+    if (const QualifiedNameId *qualifiedName = name->asQualifiedNameId())
+        return oo.prettyName(qualifiedName->name());
+    else
+        return oo.prettyName(name);
+}
+
 } // anonymous namespace
 
 void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interface,
@@ -1909,50 +1957,21 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     if (!classesFilter)
         return;
 
-    const QList<AST *> &path = interface.path();
-
-    if (path.isEmpty())
+    const NameAST *nameAst = nameUnderCursor(interface.path());
+    if (!nameAst)
         return;
 
-    // find the largest enclosing Name
-    const NameAST *enclosingName = 0;
-    const SimpleNameAST *innermostName = 0;
-    for (int i = path.size() - 1; i >= 0; --i) {
-        if (NameAST *nameAst = path.at(i)->asName()) {
-            enclosingName = nameAst;
-            if (!innermostName) {
-                innermostName = nameAst->asSimpleName();
-                if (!innermostName)
-                    return;
-            }
-        } else {
-            break;
-        }
-    }
-    if (!enclosingName || !enclosingName->name)
-        return;
+    if (canLookup(interface, nameAst))
+        return; // There are results, so include isn't needed
 
-    // find the enclosing scope
-    unsigned line, column;
-    const Document::Ptr &doc = interface.semanticInfo().doc;
-    doc->translationUnit()->getTokenStartPosition(enclosingName->firstToken(), &line, &column);
-    Scope *scope = doc->scopeAt(line, column);
-    if (!scope)
-        return;
-
-    // check if the name resolves to something
-    QList<LookupItem> existingResults = interface.context().lookup(enclosingName->name, scope);
-    if (!existingResults.isEmpty())
-        return;
-
-    const QString &className = Overview().prettyName(innermostName->name);
+    const QString className = unqualifiedName(nameAst->name);
     if (className.isEmpty())
         return;
 
-    // find the include paths
-    const ProjectPart::HeaderPaths headerPaths = relevantHeaderPaths(doc->fileName());
+    const QString currentDocumentFilePath = interface.semanticInfo().doc->fileName();
+    const ProjectPart::HeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
 
-    // find a include file through the locator
+    // Find an include file through the locator
     QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
     QList<Core::LocatorFilterEntry> matches = classesFilter->matchesFor(dummyInterface, className);
     bool classFoundInLocator = false;
@@ -1962,8 +1981,9 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
             continue;
         classFoundInLocator = true;
 
-        // find the shortest way to include fileName given the includePaths
-        const QString include = findShortestInclude(doc->fileName(), info->fileName(), headerPaths);
+        // Find the shortest way to include fileName given the includePaths
+        const QString include = findShortestInclude(currentDocumentFilePath, info->fileName(),
+                                                    headerPaths);
         if (!include.isEmpty())
             result.append(new AddIncludeForUndefinedIdentifierOp(interface, 0, include));
     }
