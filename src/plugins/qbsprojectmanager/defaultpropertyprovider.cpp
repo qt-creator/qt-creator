@@ -37,7 +37,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
 
-#include <tools/hostosinfo.h>
+#include <qbs.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -90,8 +90,7 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
                 }
             }
 
-            data.insert(QLatin1String(QBS_ARCHITECTURE),
-                        qbs::Internal::HostOsInfo::canonicalArchitecture(architecture));
+            data.insert(QLatin1String(QBS_ARCHITECTURE), qbs::canonicalArchitecture(architecture));
         }
 
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
