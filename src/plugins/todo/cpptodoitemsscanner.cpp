@@ -96,9 +96,9 @@ void CppTodoItemsScanner::processDocument(CPlusPlus::Document::Ptr doc)
 
             const char *start = source.constData() + from;
             const char *end = source.constData() + to;
-            while (start != end && std::isspace(*start))
+            while (start != end && std::isspace((unsigned char)*start))
                 ++start;
-            while (start != end && std::isspace(*end))
+            while (start != end && std::isspace((unsigned char)*end))
                 --end;
             const int length = end - start + 1;
             if (length > 0) {
