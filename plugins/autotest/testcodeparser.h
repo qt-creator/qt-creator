@@ -38,7 +38,7 @@ class TestCodeParser : public QObject
 {
     Q_OBJECT
 public:
-    explicit TestCodeParser(/*QObject*/TestTreeModel *parent = 0);
+    explicit TestCodeParser(TestTreeModel *parent = 0);
 
 signals:
 

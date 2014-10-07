@@ -16,12 +16,10 @@
 **
 ****************************************************************************/
 
-#ifndef TESTTREEVIEW_H
-#define TESTTREEVIEW_H
+#ifndef TESTRESULTSPANE_H
+#define TESTRESULTSPANE_H
 
-#include <coreplugin/inavigationwidgetfactory.h>
-
-#include <utils/navigationtreeview.h>
+#include <coreplugin/ioutputpane.h>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -32,35 +30,40 @@ namespace Core {
 class IContext;
 }
 
+namespace Utils {
+class ListView;
+}
+
 namespace Autotest {
 namespace Internal {
 
-class TestTreeModel;
+class TestResult;
+class TestResultModel;
 
-class TestTreeView : public Utils::NavigationTreeView
+class TestResultsPane : public Core::IOutputPane
 {
     Q_OBJECT
-
 public:
-    TestTreeView(QWidget *parent = 0);
+    virtual ~TestResultsPane();
+    static TestResultsPane *instance();
 
-    void selectAll();
-    void deselectAll();
+    void addTestResult(const TestResult &result);
 
-private:
-    void selectOrDeselectAll(const Qt::CheckState checkState);
-    Core::IContext *m_context;
-};
-
-
-class TestTreeViewWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit TestTreeViewWidget(QWidget *parent = 0);
-    void contextMenuEvent(QContextMenuEvent *event);
-    QList<QToolButton *> createToolButtons();
+    // IOutputPane interface
+    QWidget *outputWidget(QWidget *parent);
+    QList<QWidget *> toolBarWidgets() const;
+    QString displayName() const;
+    int priorityInStatusBar() const;
+    void clearContents();
+    void visibilityChanged(bool);
+    void setFocus();
+    bool hasFocus() const;
+    bool canFocus() const;
+    bool canNavigate() const;
+    bool canNext() const;
+    bool canPrevious() const;
+    void goToNext();
+    void goToPrev();
 
 signals:
 
@@ -70,29 +73,19 @@ private slots:
     void onItemActivated(const QModelIndex &index);
     void onRunAllTriggered();
     void onRunSelectedTriggered();
-    void onSortClicked();
 
 private:
-    TestTreeModel *m_model;
-    TestTreeView *m_view;
-    QToolButton *m_sort;
-    bool m_sortAlphabetically;
+    explicit TestResultsPane(QObject *parent = 0);
+    void createToolButtons();
 
-};
-
-class TestViewFactory : public Core::INavigationWidgetFactory
-{
-    Q_OBJECT
-
-public:
-    TestViewFactory();
-
-private:
-    Core::NavigationView createWidget();
-
+    Utils::ListView *m_listView;
+    TestResultModel *m_model;
+    Core::IContext *m_context;
+    QToolButton *m_runAll;
+    QToolButton *m_runSelected;
 };
 
 } // namespace Internal
 } // namespace Autotest
 
-#endif // TESTTREEVIEW_H
+#endif // TESTRESULTSPANE_H

@@ -18,8 +18,10 @@
 
 #include "autotestplugin.h"
 #include "autotestconstants.h"
+#include "testrunner.h"
 #include "testtreeview.h"
 #include "testtreemodel.h"
+#include "testresultspane.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -48,6 +50,8 @@ AutotestPlugin::~AutotestPlugin()
     // Delete members
     TestTreeModel *model = TestTreeModel::instance();
     delete model;
+    TestRunner *runner = TestRunner::instance();
+    delete runner;
 }
 
 bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -74,6 +78,7 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
     addAutoReleasedObject(new TestViewFactory);
+    addAutoReleasedObject(TestResultsPane::instance());
 
     return true;
 }

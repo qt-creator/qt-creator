@@ -5,5 +5,16 @@
         <file>images/expand.png</file>
         <file>images/collapse.png</file>
         <file>images/sort.png</file>
+        <file>images/leafsort.png</file>
+        <file>images/debug.png</file>
+        <file>images/fail.png</file>
+        <file>images/fatal.png</file>
+        <file>images/pass.png</file>
+        <file>images/skip.png</file>
+        <file>images/warn.png</file>
+        <file>images/xfail.png</file>
+        <file>images/xpass.png</file>
+        <file>images/run.png</file>
+        <file>images/runselected.png</file>
     </qresource>
 </RCC>

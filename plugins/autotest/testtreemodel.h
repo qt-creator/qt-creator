@@ -19,6 +19,8 @@
 #ifndef TESTTREEMODEL_H
 #define TESTTREEMODEL_H
 
+#include "testconfiguration.h"
+
 #include <cplusplus/CppDocument.h>
 
 #include <QAbstractItemModel>
@@ -56,6 +58,8 @@ public:
 
     TestCodeParser *parser() const { return m_parser; }
     bool hasTests() const;
+    QList<TestConfiguration *> getAllTestCases() const;
+    QList<TestConfiguration *> getSelectedTests() const;
 
 signals:
 

@@ -50,8 +50,7 @@ void TestCodeParser::updateTestTree()
     TestTreeItem *autoTestRootItem = static_cast<TestTreeItem *>(autoTestRootIndex.internalPointer());
     autoTestRootItem->removeChildren();
     m_model->endResetModel();
-    ProjectExplorer::SessionManager *session = static_cast<ProjectExplorer::SessionManager *>(
-                ProjectExplorer::SessionManager::instance());
+    ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
     if (!session || !session->hasProjects())
         return;
 
@@ -196,10 +195,10 @@ void TestCodeParser::checkDocumentForTestCode(CPlusPlus::Document::Ptr doc)
                         m_cppDocMap.insert(file, new TestInfo(tc, privSlots.keys(),
                                                               doc->revision(),
                                                               doc->editorRevision()));
+                        delete info;
                         break;
                     }
                 }
-                delete info;
                 delete ttItem;
             } else {
                 m_model->beginInsertRows(autoTestRootIndex, autoTestRootItem->childCount(), autoTestRootItem->childCount());

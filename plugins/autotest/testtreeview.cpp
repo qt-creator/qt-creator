@@ -18,11 +18,14 @@
 
 #include "autotestconstants.h"
 #include "testcodeparser.h"
+#include "testrunner.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 #include "testtreeview.h"
 
 #include <coreplugin/icore.h>
+
+#include <coreplugin/find/itemviewfind.h>
 
 #include <cpptools/cppmodelmanager.h>
 
@@ -48,12 +51,11 @@ TestTreeViewWidget::TestTreeViewWidget(QWidget *parent) :
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addWidget(m_view);
+    layout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_view));
     setLayout(layout);
 
     TestCodeParser *parser = m_model->parser();
-    ProjectExplorer::SessionManager *sm = static_cast<ProjectExplorer::SessionManager *>(
-                ProjectExplorer::SessionManager::instance());
+    ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
     connect(sm, &ProjectExplorer::SessionManager::startupProjectChanged,
             parser, &TestCodeParser::updateTestTree);
 
@@ -78,6 +80,8 @@ void TestTreeViewWidget::contextMenuEvent(QContextMenuEvent *event)
     // TODO remove?
     QAction *rescan = new QAction(tr("Rescan"), &menu);
 
+    connect(runAll, &QAction::triggered, this, &TestTreeViewWidget::onRunAllTriggered);
+    connect(runSelected, &QAction::triggered, this, &TestTreeViewWidget::onRunSelectedTriggered);
     connect(selectAll, &QAction::triggered, m_view, &TestTreeView::selectAll);
     connect(deselectAll, &QAction::triggered, m_view, &TestTreeView::deselectAll);
     connect(rescan, &QAction::triggered,
@@ -103,11 +107,10 @@ QList<QToolButton *> TestTreeViewWidget::createToolButtons()
 {
     QList<QToolButton *> list;
 
+    m_sortAlphabetically = true;
     m_sort = new QToolButton(this);
-    m_sort->setIcon((QIcon(QLatin1String(":/images/sort.png"))));
-    m_sort->setToolTip(tr("Sort Alphabetically (not implemented yet)")); // TODO
-    m_sort->setCheckable(true);
-    m_sort->setChecked(true);
+    m_sort->setIcon((QIcon(QLatin1String(":/images/leafsort.png"))));
+    m_sort->setToolTip(tr("Sort Naturally (not implemented yet)"));
 
     QToolButton *expand = new QToolButton(this);
     expand->setIcon(QIcon(QLatin1String(":/images/expand.png")));
@@ -119,7 +122,7 @@ QList<QToolButton *> TestTreeViewWidget::createToolButtons()
 
     connect(expand, &QToolButton::clicked, m_view, &TestTreeView::expandAll);
     connect(collapse, &QToolButton::clicked, m_view, &TestTreeView::collapseAll);
-//    connect(m_sort, &QToolButton::toggled, m_view, &TestTreeView::onSortToggled); // TODO
+    connect(m_sort, &QToolButton::clicked, this, &TestTreeViewWidget::onSortClicked);
 
     list << m_sort << expand << collapse;
     return list;
@@ -136,6 +139,33 @@ void TestTreeViewWidget::onItemActivated(const QModelIndex &index)
     }
 }
 
+void TestTreeViewWidget::onRunAllTriggered()
+{
+    TestRunner *runner = TestRunner::instance();
+    runner->setSelectedTests(m_model->getAllTestCases());
+    runner->runTests();
+}
+
+void TestTreeViewWidget::onRunSelectedTriggered()
+{
+    TestRunner *runner = TestRunner::instance();
+    runner->setSelectedTests(m_model->getSelectedTests());
+    runner->runTests();
+}
+
+void TestTreeViewWidget::onSortClicked()
+{
+    if (m_sortAlphabetically) {
+        m_sort->setIcon((QIcon(QLatin1String(":/images/sort.png"))));
+        m_sort->setToolTip(tr("Sort Alphabetically"));
+    } else {
+        m_sort->setIcon((QIcon(QLatin1String(":/images/leafsort.png"))));
+        m_sort->setToolTip(tr("Sort Naturally (not implemented yet)"));
+    }
+    // TODO trigger the sorting change..
+    m_sortAlphabetically = !m_sortAlphabetically;
+}
+
 TestViewFactory::TestViewFactory()
 {
     setDisplayName(tr("Tests"));
@@ -145,10 +175,10 @@ TestViewFactory::TestViewFactory()
 
 Core::NavigationView TestViewFactory::createWidget()
 {
-    TestTreeViewWidget *treeView = new TestTreeViewWidget;
+    TestTreeViewWidget *treeViewWidget = new TestTreeViewWidget;
     Core::NavigationView view;
-    view.widget = treeView;
-    view.dockToolBarWidgets = treeView->createToolButtons();
+    view.widget = treeViewWidget;
+    view.dockToolBarWidgets = treeViewWidget->createToolButtons();
     return view;
 }
 

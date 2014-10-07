@@ -30,6 +30,7 @@ public:
     explicit TestInfo(const QString &className, const QStringList &functions = QStringList(),
                       unsigned revision = 0, unsigned editorRevision = 0);
 
+    ~TestInfo();
     const QString testClass() const { return m_className; }
     void setTestClass(const QString &className) { m_className = className; }
     const QStringList testFunctions() const { return m_functions; }

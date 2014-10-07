@@ -15,7 +15,13 @@ SOURCES += \
     testvisitor.cpp \
     testinfo.cpp \
     testcodeparser.cpp \
-    autotestplugin.cpp
+    autotestplugin.cpp \
+    testrunner.cpp \
+    testconfiguration.cpp \
+    testresult.cpp \
+    testresultspane.cpp \
+    testresultmodel.cpp \
+    testresultdelegate.cpp
 
 HEADERS += \
     testtreeview.h \
@@ -26,7 +32,13 @@ HEADERS += \
     testcodeparser.h \
     autotestplugin.h \
     autotest_global.h \
-    autotestconstants.h
+    autotestconstants.h \
+    testrunner.h \
+    testconfiguration.h \
+    testresult.h \
+    testresultspane.h \
+    testresultmodel.h \
+    testresultdelegate.h
 
 RESOURCES += \
     autotest.qrc

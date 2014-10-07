@@ -30,5 +30,10 @@ TestInfo::TestInfo(const QString &className, const QStringList &functions, unsig
 {
 }
 
+TestInfo::~TestInfo()
+{
+    m_functions.clear();
+}
+
 } // namespace Internal
 } // namespace Autotest

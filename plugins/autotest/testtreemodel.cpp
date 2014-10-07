@@ -24,6 +24,16 @@
 
 #include <QIcon>
 
+#include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
+
+#include <cpptools/cppmodelmanager.h>
+
 namespace Autotest {
 namespace Internal {
 
@@ -115,6 +125,16 @@ int TestTreeModel::columnCount(const QModelIndex &) const
     return 1;
 }
 
+static QIcon testTreeIcon(TestTreeItem::Type type)
+{
+    static QIcon icons[3] = {
+        QIcon(),
+        QIcon(QLatin1String(":/images/class.png")),
+        QIcon(QLatin1String(":/images/func.png"))
+    };
+    return icons[type];
+}
+
 QVariant TestTreeModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
@@ -138,15 +158,7 @@ QVariant TestTreeModel::data(const QModelIndex &index, int role) const
     case Qt::ToolTipRole:
         return item->filePath();
     case Qt::DecorationRole:
-        switch(item->type()) {
-        case TestTreeItem::TEST_CLASS:
-            return QIcon(QLatin1String(":/images/class.png"));
-        case TestTreeItem::TEST_FUNCTION:
-            return QIcon(QLatin1String(":/images/func.png"));
-        case TestTreeItem::ROOT:
-        default:
-            return QVariant();
-        }
+        return testTreeIcon(item->type());
     case Qt::CheckStateRole:
         if (item->type() == TestTreeItem::ROOT)
             return QVariant();
@@ -232,6 +244,110 @@ bool TestTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 bool TestTreeModel::hasTests() const
 {
     return m_autoTestRootItem->childCount() > 0 /*|| m_quickTestRootItem->childCount() > 0*/;
+}
+
+static void addProjectInformation(TestConfiguration *config, const QString &filePath)
+{
+    QString targetFile;
+    QString targetName;
+    QString workDir;
+    QString proFile;
+    Utils::Environment env;
+    ProjectExplorer::Project *project = 0;
+    CppTools::CppModelManager *cppMM = CppTools::CppModelManager::instance();
+    QList<CppTools::ProjectPart::Ptr> projParts = cppMM->projectPart(filePath);
+    if (!projParts.empty()) {
+        proFile = projParts.at(0)->projectFile;
+        project = projParts.at(0)->project; // necessary to grab this here? or should this be the current active startup project anyway?
+    }
+    if (project) {
+        ProjectExplorer::Target *target = project->activeTarget();
+        ProjectExplorer::BuildTargetInfoList appTargets = target->applicationTargets();
+        foreach (ProjectExplorer::BuildTargetInfo bti, appTargets.list) {
+            if (bti.isValid() && bti.projectFilePath.toString() == proFile) {
+                targetFile = bti.targetFilePath.toString();
+                targetName = bti.targetName;
+                break;
+            }
+        }
+
+        QList<ProjectExplorer::RunConfiguration *> rcs = target->runConfigurations();
+        foreach (ProjectExplorer::RunConfiguration *rc, rcs) {
+            if (ProjectExplorer::LocalApplicationRunConfiguration *localRunConfiguration
+                    = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(rc)) {
+                if (localRunConfiguration->executable() == targetFile) {
+                    workDir = localRunConfiguration->workingDirectory();
+                    QList<ProjectExplorer::IRunConfigurationAspect *> aspects
+                            = localRunConfiguration->extraAspects();
+                    foreach (ProjectExplorer::IRunConfigurationAspect *aspect, aspects) {
+                        if (ProjectExplorer::EnvironmentAspect *asp
+                                = qobject_cast<ProjectExplorer::EnvironmentAspect *>(aspect)) {
+                            env = asp->environment();
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    config->setTargetFile(targetFile);
+    config->setTargetName(targetName);
+    config->setWorkingDirectory(workDir);
+    config->setProFile(proFile);
+    config->setEnvironment(env);
+    config->setProject(project);
+}
+
+QList<TestConfiguration *> TestTreeModel::getAllTestCases() const
+{
+    QList<TestConfiguration *> result;
+
+    int count = m_autoTestRootItem->childCount();
+    for (int row = 0; row < count; ++row) {
+        TestTreeItem *child = m_autoTestRootItem->child(row);
+
+        TestConfiguration *tc = new TestConfiguration(child->name(), QStringList());
+        addProjectInformation(tc, child->filePath());
+        result << tc;
+    }
+    return result;
+}
+
+QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
+{
+    QList<TestConfiguration *> result;
+    TestConfiguration *tc;
+
+    int count = m_autoTestRootItem->childCount();
+    for (int row = 0; row < count; ++row) {
+        TestTreeItem *child = m_autoTestRootItem->child(row);
+
+        switch (child->checked()) {
+        case Qt::Unchecked:
+            continue;
+        case Qt::Checked:
+            tc = new TestConfiguration(child->name(), QStringList());
+            addProjectInformation(tc, child->filePath());
+            result << tc;
+            continue;
+        case Qt::PartiallyChecked:
+        default:
+            QString childName = child->name();
+            int grandChildCount = child->childCount();
+            QStringList testCases;
+            for (int grandChildRow = 0; grandChildRow < grandChildCount; ++grandChildRow) {
+                const TestTreeItem *grandChild = child->child(grandChildRow);
+                if (grandChild->checked() == Qt::Checked)
+                    testCases << grandChild->name();
+            }
+
+            tc = new TestConfiguration(childName, testCases);
+            addProjectInformation(tc, child->filePath());
+            result << tc;
+        }
+    }
+    return result;
 }
 
 void TestTreeModel::modifyAutoTestSubtree(int row, TestTreeItem *newItem)
