@@ -603,8 +603,8 @@ void TextDocumentLayout::documentReloaded(TextMarks marks, TextDocument *baseTex
             mark->updateBlock(block);
         } else {
             baseTextDocument->removeMarkFromMarksCache(mark);
-            mark->removedFromEditor();
             mark->setBaseTextDocument(0);
+            mark->removedFromEditor();
         }
     }
     requestUpdate();
