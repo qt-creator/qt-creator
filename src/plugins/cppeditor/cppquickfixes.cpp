@@ -1829,6 +1829,79 @@ void AddIncludeForUndefinedIdentifierOp::perform()
     insertNewIncludeDirective(m_include, file);
 }
 
+namespace {
+
+QString findShortestInclude(const QString currentDocumentFilePath,
+                            const QString candidateFilePath,
+                            const ProjectPart::HeaderPaths &headerPaths)
+{
+    QString result;
+
+    const QFileInfo fileInfo(candidateFilePath);
+
+    if (fileInfo.path() == QFileInfo(currentDocumentFilePath).path()) {
+        result = QLatin1Char('"') + fileInfo.fileName() + QLatin1Char('"');
+    } else {
+        foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+            if (!candidateFilePath.startsWith(headerPath.path))
+                continue;
+            QString relativePath = candidateFilePath.mid(headerPath.path.size());
+            if (!relativePath.isEmpty() && relativePath.at(0) == QLatin1Char('/'))
+                relativePath = relativePath.mid(1);
+            if (result.isEmpty() || relativePath.size() + 2 < result.size())
+                result = QLatin1Char('<') + relativePath + QLatin1Char('>');
+        }
+    }
+
+    return result;
+}
+
+QString findIncludeForQtClass(const QString &className,
+                              const ProjectPart::HeaderPaths &headerPaths,
+                              bool classFoundInLocator)
+{
+    QString result;
+
+    // for QSomething, propose a <QSomething> include -- if such a class was in the locator
+    if (classFoundInLocator) {
+        result = QLatin1Char('<') + className + QLatin1Char('>');
+
+    // otherwise, check for a header file with the same name in the Qt include paths
+    } else {
+        foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
+            if (!headerPath.path.contains(QLatin1String("/Qt"))) // "QtCore", "QtGui" etc...
+                continue;
+
+            const QString headerPathCandidate = headerPath.path + QLatin1Char('/') + className;
+            const QFileInfo fileInfo(headerPathCandidate);
+            if (fileInfo.exists() && fileInfo.isFile()) {
+                result = QLatin1Char('<') + className + QLatin1Char('>');
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+ProjectPart::HeaderPaths relevantHeaderPaths(const QString &filePath)
+{
+    ProjectPart::HeaderPaths headerPaths;
+
+    CppModelManager *modelManager = CppModelManager::instance();
+    const QList<ProjectPart::Ptr> projectParts = modelManager->projectPart(filePath);
+    if (projectParts.isEmpty()) { // Not part of any project, better use all include paths than none
+        headerPaths += modelManager->headerPaths();
+    } else {
+        foreach (const ProjectPart::Ptr &part, projectParts)
+            headerPaths += part->headerPaths;
+    }
+
+    return headerPaths;
+}
+
+} // anonymous namespace
+
 void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interface,
                                              QuickFixOperations &result)
 {
@@ -1877,84 +1950,29 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
         return;
 
     // find the include paths
-    ProjectPart::HeaderPaths headerPaths;
-    CppModelManager *modelManager = CppModelManager::instance();
-    QList<ProjectInfo> projectInfos = modelManager->projectInfos();
-    bool inProject = false;
-    foreach (const ProjectInfo &info, projectInfos) {
-        foreach (ProjectPart::Ptr part, info.projectParts()) {
-            foreach (const ProjectFile &file, part->files) {
-                if (file.path == doc->fileName()) {
-                    inProject = true;
-                    headerPaths += part->headerPaths;
-                }
-            }
-        }
-    }
-    if (!inProject) {
-        // better use all include paths than none
-        headerPaths = modelManager->headerPaths();
-    }
+    const ProjectPart::HeaderPaths headerPaths = relevantHeaderPaths(doc->fileName());
 
     // find a include file through the locator
     QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
     QList<Core::LocatorFilterEntry> matches = classesFilter->matchesFor(dummyInterface, className);
-    bool classExists = false;
+    bool classFoundInLocator = false;
     foreach (const Core::LocatorFilterEntry &entry, matches) {
         IndexItem::Ptr info = entry.internalData.value<IndexItem::Ptr>();
         if (info->symbolName() != className)
             continue;
-        classExists = true;
-        const QString &fileName = info->fileName();
-        const QFileInfo fileInfo(fileName);
+        classFoundInLocator = true;
 
         // find the shortest way to include fileName given the includePaths
-        QString shortestInclude;
-
-        if (fileInfo.path() == QFileInfo(doc->fileName()).path()) {
-            shortestInclude = QLatin1Char('"') + fileInfo.fileName() + QLatin1Char('"');
-        } else {
-            foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
-                if (!fileName.startsWith(headerPath.path))
-                    continue;
-                QString relativePath = fileName.mid(headerPath.path.size());
-                if (!relativePath.isEmpty() && relativePath.at(0) == QLatin1Char('/'))
-                    relativePath = relativePath.mid(1);
-                if (shortestInclude.isEmpty() || relativePath.size() + 2 < shortestInclude.size())
-                    shortestInclude = QLatin1Char('<') + relativePath + QLatin1Char('>');
-            }
-        }
-
-        if (!shortestInclude.isEmpty())
-            result.append(new AddIncludeForUndefinedIdentifierOp(interface, 0, shortestInclude));
+        const QString include = findShortestInclude(doc->fileName(), info->fileName(), headerPaths);
+        if (!include.isEmpty())
+            result.append(new AddIncludeForUndefinedIdentifierOp(interface, 0, include));
     }
 
-    const bool isProbablyAQtClass = className.size() > 2
-            && className.at(0) == QLatin1Char('Q')
-            && className.at(1).isUpper();
-
-    if (!isProbablyAQtClass)
-        return;
-
-    // for QSomething, propose a <QSomething> include -- if such a class was in the locator
-    if (classExists) {
-        const QString include = QLatin1Char('<') + className + QLatin1Char('>');
-        result.append(new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
-
-    // otherwise, check for a header file with the same name in the Qt include paths
-    } else {
-        foreach (const ProjectPart::HeaderPath &headerPath, headerPaths) {
-            if (!headerPath.path.contains(QLatin1String("/Qt"))) // "QtCore", "QtGui" etc...
-                continue;
-
-            const QString headerPathCandidate = headerPath.path + QLatin1Char('/') + className;
-            const QFileInfo fileInfo(headerPathCandidate);
-            if (fileInfo.exists() && fileInfo.isFile()) {
-                const QString include = QLatin1Char('<') + className + QLatin1Char('>');
-                result.append(new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
-                break;
-            }
-        }
+    // If e.g. QString was found in "<qstring.h>" propose an extra prioritized entry "<QString>".
+    if (className.size() > 2 && className.at(0) == QLatin1Char('Q') && className.at(1).isUpper()) {
+        const QString include = findIncludeForQtClass(className, headerPaths, classFoundInLocator);
+        if (!include.isEmpty())
+            result.append(new AddIncludeForUndefinedIdentifierOp(interface, 1, include));
     }
 }
 
