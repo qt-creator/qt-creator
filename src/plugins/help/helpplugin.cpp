@@ -118,8 +118,7 @@ HelpPlugin::HelpPlugin()
     m_sideBar(0),
     m_firstModeChange(true),
     m_helpManager(0),
-    m_openPagesManager(0),
-    m_isSidebarVisible(true)
+    m_openPagesManager(0)
 {
 }
 
@@ -269,13 +268,8 @@ void HelpPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
 {
-    if (m_sideBar) {
-        QSettings *settings = ICore::settings();
-        m_sideBar->saveSettings(settings, QLatin1String("HelpSideBar"));
-        // keep a boolean value to avoid to modify the sidebar class, at least some qml stuff
-        // depends on the always visible property of the sidebar...
-        settings->setValue(QLatin1String("HelpSideBar/") + QLatin1String("Visible"), m_isSidebarVisible);
-    }
+    if (m_sideBar)
+        m_sideBar->saveSettings(ICore::settings(), QLatin1String("HelpSideBar"));
 
     return SynchronousShutdown;
 }
@@ -383,7 +377,7 @@ void HelpPlugin::setupUi()
     m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_TOGGLE_SIDEBAR)),
         tr("Show Sidebar"), this);
     m_toggleSideBarAction->setCheckable(true);
-    m_toggleSideBarAction->setChecked(m_isSidebarVisible);
+    m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(m_splitter));
     connect(m_toggleSideBarAction, SIGNAL(triggered(bool)), this, SLOT(setSideBarVisible(bool)));
     cmd = ActionManager::registerAction(m_toggleSideBarAction, Core::Constants::TOGGLE_SIDEBAR, modecontext);
 }
@@ -778,9 +772,9 @@ void HelpPlugin::slotReportBug()
 
 void  HelpPlugin::onSideBarVisibilityChanged()
 {
-    m_isSidebarVisible = m_sideBar->isVisible();
-    m_toggleSideBarAction->setChecked(m_isSidebarVisible);
-    m_toggleSideBarAction->setToolTip(m_isSidebarVisible ? tr("Hide Sidebar") : tr("Show Sidebar"));
+    bool visible = m_sideBar->isVisibleTo(m_splitter);
+    m_toggleSideBarAction->setChecked(visible);
+    m_toggleSideBarAction->setToolTip(visible ? tr("Hide Sidebar") : tr("Show Sidebar"));
 }
 
 void HelpPlugin::doSetupIfNeeded()

@@ -157,7 +157,6 @@ private:
     QPointer<HelpWidget> m_externalWindow;
     QRect m_externalWindowState;
 
-    bool m_isSidebarVisible;
     QAction *m_toggleSideBarAction;
 };
 

@@ -265,7 +265,8 @@ void SideBar::saveSettings(QSettings *settings, const QString &name)
     }
 
     settings->setValue(prefix + QLatin1String("Views"), views);
-    settings->setValue(prefix + QLatin1String("Visible"), true);
+    settings->setValue(prefix + QLatin1String("Visible"),
+                       parentWidget() ? isVisibleTo(parentWidget()) : true);
     settings->setValue(prefix + QLatin1String("VerticalPosition"), saveState());
     settings->setValue(prefix + QLatin1String("Width"), width());
 }
