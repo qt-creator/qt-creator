@@ -34,6 +34,7 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/kitinformation.h>
 
+#include <baremetal/baremetalconstants.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <qnx/qnxconstants.h>
 
@@ -126,6 +127,7 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
         return results;
     Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
     if (deviceType !=  ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
+            && deviceType != BareMetal::Constants::BareMetalOsType
             && deviceType != RemoteLinux::Constants::GenericLinuxOsType
             && deviceType != Qnx::Constants::QNX_QNX_OS_TYPE
             && deviceType != Qnx::Constants::QNX_BB_OS_TYPE)
