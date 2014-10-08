@@ -50,10 +50,12 @@ public:
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode,
                            bool blockErrors = false,
-                           bool qtMocRun = false)
+                           bool qtMocRun = false,
+                           bool cxx11Enabled = false)
     {
         const StringLiteral *fileId = control.stringLiteral("<stdin>");
         LanguageFeatures features;
+        features.cxx11Enabled = cxx11Enabled;
         features.objCEnabled = true;
         features.qtEnabled = qtMocRun;
         features.qtKeywordsEnabled = qtMocRun;
@@ -79,8 +81,8 @@ public:
     TranslationUnit *parseExpression(const QByteArray &source)
     { return parse(source, TranslationUnit::ParseExpression); }
 
-    TranslationUnit *parseStatement(const QByteArray &source)
-    { return parse(source, TranslationUnit::ParseStatement); }
+    TranslationUnit *parseStatement(const QByteArray &source, bool cxx11Enabled = false)
+    { return parse(source, TranslationUnit::ParseStatement, false, false, cxx11Enabled); }
 
     class Diagnostic: public DiagnosticClient {
     public:
@@ -191,6 +193,8 @@ private slots:
     // Qt "keywords"
     void q_enum_1();
 
+    void declarationWithNewStatement();
+    void declarationWithNewStatement_data();
     void incomplete_ast();
     void unnamed_class();
     void unnamed_class_data();
@@ -1746,6 +1750,26 @@ void tst_AST::q_enum_1()
     SimpleNameAST *e = qtEnum->enumerator_list->value->asSimpleName();
     QVERIFY(e);
     QCOMPARE(unit->spell(e->identifier_token), "e");
+}
+
+void tst_AST::declarationWithNewStatement()
+{
+    QFETCH(QByteArray, source);
+
+    QSharedPointer<TranslationUnit> unit(parseStatement(source, true));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+    QVERIFY(ast->asDeclarationStatement());
+}
+
+void tst_AST::declarationWithNewStatement_data()
+{
+    QTest::addColumn<QByteArray>("source");
+
+    typedef QByteArray _;
+    QTest::newRow("withoutParentheses") << _("Foo *foo = new Foo;");
+    QTest::newRow("withParentheses") << _("Foo *foo = new Foo();");
+    QTest::newRow("withParenthesesAndOneArgument") << _("Foo *foo = new Foo(1);");
 }
 
 void tst_AST::incomplete_ast()

@@ -172,16 +172,20 @@ public:
     ASTCache() {}
 
     void insert(ASTKind astKind, unsigned tokenIndexBeforeParsing,
-                AST *resultingAST, unsigned resultingTokenIndex)
+                AST *resultingAST, unsigned resultingTokenIndex, bool resultingReturnValue)
     {
         const auto key = std::make_pair(astKind, tokenIndexBeforeParsing);
-        const auto value = std::make_pair(resultingAST, resultingTokenIndex);
-        const auto keyValue = std::make_pair(key, value);
+
+        ParseFunctionResult result;
+        result.resultingAST = resultingAST;
+        result.resultingTokenIndex = resultingTokenIndex;
+        result.returnValue = resultingReturnValue;
+        const auto keyValue = std::make_pair(key, result);
         _cache.insert(keyValue);
     }
 
     AST *find(ASTKind astKind, unsigned tokenIndex,
-              unsigned *resultingTokenIndex, bool *foundInCache) const
+              unsigned *resultingTokenIndex, bool *foundInCache, bool *returnValue) const
     {
         const auto key = std::make_pair(astKind, tokenIndex);
         const auto it = _cache.find(key);
@@ -190,8 +194,9 @@ public:
             return 0;
         } else {
             *foundInCache = true;
-            *resultingTokenIndex = it->second.second;
-            return it->second.first;
+            *resultingTokenIndex = it->second.resultingTokenIndex;
+            *returnValue = it->second.returnValue;
+            return it->second.resultingAST;
         }
     }
 
@@ -206,9 +211,14 @@ private:
         { return std::hash<int>()(key.first) ^ std::hash<unsigned>()(key.second); }
     };
 
+    struct ParseFunctionResult {
+        AST *resultingAST;
+        unsigned resultingTokenIndex;
+        bool returnValue;
+    };
+
     typedef std::pair<int, unsigned> ASTKindAndTokenIndex;
-    typedef std::pair<AST *, unsigned> ASTAndTokenIndex;
-    std::unordered_map<ASTKindAndTokenIndex, ASTAndTokenIndex, KeyHasher> _cache;
+    std::unordered_map<ASTKindAndTokenIndex, ParseFunctionResult, KeyHasher> _cache;
 };
 
 #ifndef CPLUSPLUS_NO_DEBUG_RULE
@@ -227,18 +237,20 @@ inline void debugPrintCheckCache(bool goodCase)
 inline void debugPrintCheckCache(bool) {}
 #endif
 
-#define CHECK_CACHE(ASTKind, ASTType, returnValueInBadCase) \
+#define CHECK_CACHE(ASTKind, ASTType) \
     do { \
         bool foundInCache; \
-        unsigned newTokenIndex;  \
-        if (AST *ast = _astCache->find(ASTKind, cursor(), &newTokenIndex, &foundInCache)) { \
+        unsigned newTokenIndex; \
+        bool returnValue; \
+        if (AST *ast = _astCache->find(ASTKind, cursor(), \
+                                       &newTokenIndex, &foundInCache, &returnValue)) { \
             debugPrintCheckCache(true); \
             node = (ASTType *) ast; \
             _tokenIndex = newTokenIndex; \
-            return true; \
+            return returnValue; \
         } else if (foundInCache) { \
             debugPrintCheckCache(false); \
-            return returnValueInBadCase; \
+            return returnValue; \
         } \
     } while (0)
 
@@ -1931,7 +1943,7 @@ bool Parser::parseTypeParameter(DeclarationAST *&node)
 bool Parser::parseTypeId(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
-    CHECK_CACHE(ASTCache::TypeId, ExpressionAST, false);
+    CHECK_CACHE(ASTCache::TypeId, ExpressionAST);
 
     SpecifierListAST *type_specifier = 0;
     if (parseTypeSpecifier(type_specifier)) {
@@ -1949,7 +1961,7 @@ bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&nod
     DEBUG_THIS_RULE();
     if (LA() == T_RPAREN)
         return true; // nothing to do
-    CHECK_CACHE(ASTCache::ParameterDeclarationClause, ParameterDeclarationClauseAST, true);
+    CHECK_CACHE(ASTCache::ParameterDeclarationClause, ParameterDeclarationClauseAST);
     const unsigned initialCursor = cursor();
 
     ParameterDeclarationListAST *parameter_declarations = 0;
@@ -1975,8 +1987,9 @@ bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&nod
         node = ast;
     }
 
-    _astCache->insert(ASTCache::ParameterDeclarationClause, initialCursor, node, cursor());
-    return true;
+    const bool result = true;
+    _astCache->insert(ASTCache::ParameterDeclarationClause, initialCursor, node, cursor(), result);
+    return result;
 }
 
 bool Parser::parseParameterDeclarationList(ParameterDeclarationListAST *&node)
@@ -2911,12 +2924,12 @@ bool Parser::parseTypeIdList(ExpressionListAST *&node)
 bool Parser::parseExpressionList(ExpressionListAST *&node)
 {
     DEBUG_THIS_RULE();
-    CHECK_CACHE(ASTCache::ExpressionList, ExpressionListAST, false);
+    CHECK_CACHE(ASTCache::ExpressionList, ExpressionListAST);
     unsigned initialCursor = cursor();
 
     if (_languageFeatures.cxx11Enabled) {
-        bool result = parseInitializerList0x(node);
-        _astCache->insert(ASTCache::ExpressionList, initialCursor, (AST *) node, cursor());
+        const bool result = parseInitializerList0x(node);
+        _astCache->insert(ASTCache::ExpressionList, initialCursor, (AST *) node, cursor(), result);
         return result;
     }
 
@@ -2935,12 +2948,14 @@ bool Parser::parseExpressionList(ExpressionListAST *&node)
                 expression_list_ptr = &(*expression_list_ptr)->next;
             }
         }
-        _astCache->insert(ASTCache::ExpressionList, initialCursor, (AST *) node, cursor());
-        return true;
+        const bool result = true;
+        _astCache->insert(ASTCache::ExpressionList, initialCursor, (AST *) node, cursor(), result);
+        return result;
     }
 
-    _astCache->insert(ASTCache::ExpressionList, initialCursor, 0, cursor());
-    return false;
+    const bool result = false;
+    _astCache->insert(ASTCache::ExpressionList, initialCursor, 0, cursor(), result);
+    return result;
 }
 
 bool Parser::parseBaseSpecifier(BaseSpecifierListAST *&node)
@@ -5427,7 +5442,7 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
         }
 
 parse_as_unary_expression:
-        _astCache->insert(ASTCache::TypeId, initialCursor, 0, cursor());
+        _astCache->insert(ASTCache::TypeId, initialCursor, 0, cursor(), false);
         rewind(lparen_token);
     }
 
@@ -5528,7 +5543,7 @@ bool Parser::parseConstantExpression(ExpressionAST *&node)
 bool Parser::parseExpression(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
-    CHECK_CACHE(ASTCache::Expression, ExpressionAST, false);
+    CHECK_CACHE(ASTCache::Expression, ExpressionAST);
     unsigned initialCursor = cursor();
 
     if (_expressionDepth > MAX_EXPRESSION_DEPTH)
@@ -5538,7 +5553,7 @@ bool Parser::parseExpression(ExpressionAST *&node)
     bool success = parseCommaExpression(node);
     --_expressionDepth;
 
-    _astCache->insert(ASTCache::Expression, initialCursor, node, cursor());
+    _astCache->insert(ASTCache::Expression, initialCursor, node, cursor(), success);
     return success;
 }
 
