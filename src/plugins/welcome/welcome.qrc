@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/welcome">
+        <file>images/mode_welcome.png</file>
+        <file>images/mode_welcome@2x.png</file>
+    </qresource>
+</RCC>

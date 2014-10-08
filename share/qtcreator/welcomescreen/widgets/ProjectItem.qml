@@ -45,17 +45,18 @@ Item {
     property alias projectPath: pathText.text
 
     Image {
+        id: icon
         source: "images/project.png"
         anchors.verticalCenter: projectNameText.verticalCenter
-        width: 12
-        height: 12
+        width: 16
+        height: 16
     }
 
     LinkedText {
         id: projectNameText
         y: 2
         anchors.left: parent.left
-        anchors.leftMargin: 7 + 12
+        anchors.leftMargin: 5 + icon.width
 
         onClicked: projectWelcomePage.requestProject(filePath)
     }
@@ -66,7 +67,7 @@ Item {
         color: "#6b6b6b"
 
         anchors.left: parent.left
-        anchors.leftMargin: 7 + 12
+        anchors.leftMargin: projectNameText.anchors.leftMargin
         font: fonts.smallPath
         MouseArea {
             anchors.fill: parent

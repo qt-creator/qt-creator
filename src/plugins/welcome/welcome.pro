@@ -15,3 +15,6 @@ HEADERS += welcomeplugin.h
 SOURCES += welcomeplugin.cpp
 
 DEFINES += WELCOME_LIBRARY
+
+RESOURCES += \
+    welcome.qrc
