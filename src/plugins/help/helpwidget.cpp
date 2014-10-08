@@ -223,6 +223,7 @@ HelpWidget::~HelpWidget()
 {
     Core::ICore::removeContextObject(m_context);
     Core::ActionManager::unregisterAction(m_copy, Core::Constants::COPY);
+    Core::ActionManager::unregisterAction(m_printAction, Core::Constants::PRINT);
     if (m_switchToHelp)
         Core::ActionManager::unregisterAction(m_switchToHelp, Constants::CONTEXT_HELP);
     Core::ActionManager::unregisterAction(m_homeAction, Constants::HELP_HOME);
