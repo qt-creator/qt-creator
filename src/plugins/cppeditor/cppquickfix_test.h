@@ -82,7 +82,7 @@ public:
     ~QuickFixTestCase();
 
     static void run(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
-                    CppQuickFixFactory *factory, const QString &incPath);
+                    CppQuickFixFactory *factory, const QString &incPath, int resultIndex = 0);
 private:
     QSharedPointer<TextEditor::QuickFixOperation> getFix(CppQuickFixFactory *factory,
                                                          CppEditorWidget *editorWidget,

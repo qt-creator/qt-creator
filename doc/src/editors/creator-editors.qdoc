@@ -1828,10 +1828,6 @@
             \li  String literal
 
         \row
-            \li  #include Header File
-            \li  Adds the matching #include statement for a forward-declared class or struct
-            \li  Forward-declared class or struct
-        \row
             \li  Add Definition in ...
             \li  Inserts a definition stub for a function declaration either in the header file
             (inside or outside the class) or in the implementation file. For free functions, inserts
@@ -1957,9 +1953,9 @@
                 icon appears:
                 \inlineimage qml-toolbar-indicator.png
         \row
-            \li Add #include for undeclared identifier
+            \li Add #include for undeclared or forward declared identifier
             \li Adds an #include directive to the current file to make the
-                declaration of a symbol available.
+                definition of a symbol available.
             \li Undeclared identifier
         \row
             \li Reformat Pointers or References

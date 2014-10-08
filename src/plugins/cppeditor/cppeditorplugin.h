@@ -156,6 +156,9 @@ private slots:
     void test_quickfix_AddIncludeForUndefinedIdentifier_onBaseOfQualifiedName();
     void test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateName();
     void test_quickfix_AddIncludeForUndefinedIdentifier_onTemplateNameInsideArguments();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_withForwardDeclaration();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_withForwardDeclaration2();
+    void test_quickfix_AddIncludeForUndefinedIdentifier_withForwardHeader();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_ignoremoc();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingTop();
     void test_quickfix_AddIncludeForUndefinedIdentifier_inserting_sortingMiddle();

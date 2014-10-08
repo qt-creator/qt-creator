@@ -62,7 +62,7 @@ namespace Internal {
 void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
 
 /*!
-  Adds an include for an undefined identifier.
+  Adds an include for an undefined identifier or only forward declared identifier.
 
   Activates on: the undefined identifier
 */
@@ -82,17 +82,6 @@ public:
 
 private:
     QString m_include;
-};
-
-/*!
-  Can be triggered on a class forward declaration to add the matching #include.
-
-  Activates on: the name of a forward-declared class or struct
-*/
-class AddIncludeForForwardDeclaration: public CppQuickFixFactory
-{
-public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
 };
 
 /*!
