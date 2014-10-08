@@ -32,7 +32,7 @@ source("../../shared/qtcreator.py")
 def main():
     global testFolder
     cppEditorStr = ":Qt Creator_CppEditor::Internal::CPPEditorWidget"
-    proEditorStr = ":Qt Creator_TextEditor::BaseTextEditorWidget"
+    proEditorStr = ":Qt Creator_TextEditor::TextEditorWidget"
     testFolder = prepareTemplate(os.path.abspath(os.path.join(os.getcwd(), "..", "shared",
                                                           "simplePlainCPP")))
     if testFolder == None:

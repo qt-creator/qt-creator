@@ -722,7 +722,7 @@ def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False, addTo
         test.fatal("File must have a name - got None.")
         return
     __createProjectOrFileSelectType__("  C++", template, isProject=False)
-    window = "{type='Core::BaseFileWizard' unnamed='1' visible='1'}"
+    window = "{type='ProjectExplorer::JsonWizard' unnamed='1' visible='1'}"
     basePath = str(waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
                                  "window=%s}" % window).text)
     lineEdit = waitForObject("{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' "

@@ -34,7 +34,8 @@ def createFile(folder, filename):
     replaceEditorContent(waitForObject("{name='nameLineEdit' visible='1' "
                                        "type='Utils::FileNameValidatingLineEdit'}"), filename)
     replaceEditorContent(waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
-                                       "window=':New Text File_Core::BaseFileWizard'}"), folder)
+                                       "window={type='ProjectExplorer::JsonWizard' unnamed='1' "
+                                       "visible='1'}}"), folder)
     clickButton(waitForObject(":Next_QPushButton"))
     __createProjectHandleLastPage__()
 
@@ -172,6 +173,9 @@ def main():
     for current in filesToTest:
         createFile(folder, current)
         editor = getEditorForFileSuffix(current)
+        if editor == None:
+            earlyExit("Something's really wrong! (did the UI change?)")
+            return
         expectHint = hasSuffix(current, patterns)
         mssg = "Verifying whether hint for missing highlight definition is present. (expected: %s)"
         try:

@@ -152,7 +152,7 @@ def main():
     clickButton(waitForObject(":Next_QPushButton"))
     readmeName += ".txt"
     __createProjectHandleLastPage__([readmeName], "Git", "<None>")
-    replaceEditorContent(waitForObject(":Qt Creator_TextEditor::BaseTextEditorWidget"),
+    replaceEditorContent(waitForObject(":Qt Creator_TextEditor::TextEditorWidget"),
                          "Some important advice in the README")
     invokeMenuItem("File", "Save All")
     commitsInProject = list(commitMessages) # deep copy

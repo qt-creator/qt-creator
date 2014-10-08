@@ -276,11 +276,11 @@ def getEditorForFileSuffix(curFile, treeViewSyntax=False):
         elif suffix in qmlEditorSuffixes:
             editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
         elif suffix in proEditorSuffixes or suffix in glslEditorSuffixes or suffix in pytEditorSuffixes:
-            editor = waitForObject(":Qt Creator_TextEditor::BaseTextEditorWidget")
+            editor = waitForObject(":Qt Creator_TextEditor::TextEditorWidget")
         else:
-            test.log("Trying BaseTextEditorWidget (file suffix: %s)" % suffix)
+            test.log("Trying TextEditorWidget (file suffix: %s)" % suffix)
             try:
-                editor = waitForObject(":Qt Creator_TextEditor::BaseTextEditorWidget", 3000)
+                editor = waitForObject(":Qt Creator_TextEditor::TextEditorWidget", 3000)
             except:
                 test.fatal("Unsupported file suffix for file '%s'" % curFile)
                 editor = None
