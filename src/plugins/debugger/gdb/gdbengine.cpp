@@ -1899,6 +1899,7 @@ void GdbEngine::shutdownInferior()
     m_commandsToRunOnTemporaryBreak.clear();
     switch (startParameters().closeMode) {
         case KillAtClose:
+        case KillAndExitMonitorAtClose:
             postCommand("kill", NeedsStop | LosesChild, CB(handleInferiorShutdown));
             return;
         case DetachAtClose:
@@ -1944,7 +1945,8 @@ void GdbEngine::notifyAdapterShutdownOk()
     m_commandsDoneCallback = 0;
     switch (m_gdbProc->state()) {
     case QProcess::Running:
-        postCommand("monitor exit");
+        if (startParameters().closeMode == KillAndExitMonitorAtClose)
+            postCommand("monitor exit");
         postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
         break;
     case QProcess::NotRunning:

@@ -129,6 +129,7 @@ enum DebuggerStartMode
 enum DebuggerCloseMode
 {
     KillAtClose,
+    KillAndExitMonitorAtClose,
     DetachAtClose
 };
 
