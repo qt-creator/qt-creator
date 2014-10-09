@@ -35,6 +35,15 @@
 namespace ProjectExplorer {
 namespace Internal {
 
+class FieldPageFactory : public JsonWizardPageFactory
+{
+public:
+    FieldPageFactory();
+
+    Utils::WizardPage *create(JsonWizard *wizard, Core::Id typeId, const QVariant &data);
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+};
+
 class FilePageFactory : public JsonWizardPageFactory
 {
 public:

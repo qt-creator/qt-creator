@@ -1,4 +1,5 @@
-HEADERS += $$PWD/jsonfilepage.h \
+HEADERS += $$PWD/jsonfieldpage.h \
+    $$PWD/jsonfilepage.h \
     $$PWD/jsonsummarypage.h \
     $$PWD/jsonwizard.h \
     $$PWD/jsonwizardexpander.h \
@@ -8,7 +9,8 @@ HEADERS += $$PWD/jsonfilepage.h \
     $$PWD/jsonwizardpagefactory.h \
     $$PWD/jsonwizardpagefactory_p.h
 
-SOURCES += $$PWD/jsonfilepage.cpp \
+SOURCES += $$PWD/jsonfieldpage.cpp \
+    $$PWD/jsonfilepage.cpp \
     $$PWD/jsonsummarypage.cpp \
     $$PWD/jsonwizard.cpp \
     $$PWD/jsonwizardexpander.cpp \

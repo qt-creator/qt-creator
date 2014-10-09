@@ -29,8 +29,10 @@
 
 #include "jsonwizardpagefactory_p.h"
 
+#include "jsonfieldpage.h"
 #include "jsonfilepage.h"
 #include "jsonsummarypage.h"
+#include "jsonwizardfactory.h"
 
 #include <utils/qtcassert.h>
 #include <utils/wizardpage.h>
@@ -40,6 +42,53 @@
 
 namespace ProjectExplorer {
 namespace Internal {
+
+// --------------------------------------------------------------------
+// FieldPageFactory:
+// --------------------------------------------------------------------
+
+FieldPageFactory::FieldPageFactory()
+{
+    setTypeIdsSuffix(QLatin1String("Fields"));
+}
+
+Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
+{
+    Q_UNUSED(wizard);
+
+    QTC_ASSERT(canCreate(typeId), return 0);
+
+    JsonFieldPage *page = new JsonFieldPage(wizard->expander());
+
+    if (!page->setup(data)) {
+        delete page;
+        return 0;
+    }
+
+    return page;
+}
+
+bool FieldPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+{
+    QTC_ASSERT(canCreate(typeId), return false);
+
+    QList<QVariant> list = JsonWizardFactory::objectOrList(data, errorMessage);
+    if (list.isEmpty()) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                    "When parsing fields of page '%1': %2")
+                .arg(typeId.toString()).arg(*errorMessage);
+        return false;
+    }
+
+    foreach (const QVariant &v, list) {
+        JsonFieldPage::Field *field = JsonFieldPage::Field::parse(v, errorMessage);
+        if (!field)
+            return false;
+        delete field;
+    }
+
+    return true;
+}
 
 // --------------------------------------------------------------------
 // FilePageFactory:

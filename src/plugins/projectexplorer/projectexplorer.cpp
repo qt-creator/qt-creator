@@ -460,6 +460,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(Core::IWizardFactory::ClassWizard));
 
     // For JsonWizard:
+    JsonWizardFactory::registerPageFactory(new FieldPageFactory);
     JsonWizardFactory::registerPageFactory(new FilePageFactory);
     JsonWizardFactory::registerPageFactory(new SummaryPageFactory);
 
