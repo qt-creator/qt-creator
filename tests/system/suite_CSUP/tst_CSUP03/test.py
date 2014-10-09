@@ -122,6 +122,7 @@ def main():
             test.compare(modifiedCode, expectedCode, "Verifying whether code matches expected.")
             # reverting to initial state of main.cpp
             revertMainCpp()
+        snooze(1)   # "Close All" might be disabled
         invokeMenuItem('File', 'Close All')
 
     invokeMenuItem('File', 'Exit')
