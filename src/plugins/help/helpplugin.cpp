@@ -325,7 +325,7 @@ void HelpPlugin::setupUi()
      shortcutMap.insert(searchItem->id(), cmd);
 
     BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
-    BookmarkWidget *bookmarkWidget = new BookmarkWidget(manager, 0, false);
+    BookmarkWidget *bookmarkWidget = new BookmarkWidget(manager);
     bookmarkWidget->setWindowTitle(tr(Constants::SB_BOOKMARKS));
     auto bookmarkItem = new SideBarItem(bookmarkWidget, QLatin1String(Constants::HELP_BOOKMARKS));
     connect(bookmarkWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,

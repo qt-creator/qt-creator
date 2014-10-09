@@ -297,7 +297,7 @@ void HelpWidget::addSideBar()
                                                                   : tr("Ctrl+Shift+I")));
     shortcutMap.insert(QLatin1String(Constants::HELP_INDEX), cmd);
 
-    auto bookmarkWidget = new BookmarkWidget(&LocalHelpManager::bookmarkManager(), 0, false);
+    auto bookmarkWidget = new BookmarkWidget(&LocalHelpManager::bookmarkManager());
     bookmarkWidget->setWindowTitle(tr(Constants::SB_BOOKMARKS));
     bookmarkWidget->setOpenInNewPageActionVisible(false);
     auto bookmarkItem = new Core::SideBarItem(bookmarkWidget,

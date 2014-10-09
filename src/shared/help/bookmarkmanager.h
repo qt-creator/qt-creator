@@ -32,6 +32,8 @@
 
 #include "ui_bookmarkdialog.h"
 
+#include <utils/navigationtreeview.h>
+
 #include <QUrl>
 #include <QObject>
 #include <QString>
@@ -92,15 +94,15 @@ private:
     QSortFilterProxyModel *proxyModel;
 };
 
-class TreeView : public QTreeView
+class TreeView : public Utils::NavigationTreeView
 {
     Q_OBJECT
 
 public:
-    TreeView(QWidget* parent = 0) : QTreeView(parent) {}
+    TreeView(QWidget* parent = 0) : Utils::NavigationTreeView(parent) {}
     void subclassKeyPressEvent(QKeyEvent* event)
     {
-        QTreeView::keyPressEvent(event);
+        Utils::NavigationTreeView::keyPressEvent(event);
     }
 };
 
@@ -109,8 +111,7 @@ class BookmarkWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit BookmarkWidget(BookmarkManager *manager, QWidget *parent = 0,
-                            bool showButtons = true);
+    explicit BookmarkWidget(BookmarkManager *manager, QWidget *parent = 0);
     ~BookmarkWidget();
 
     void setOpenInNewPageActionVisible(bool visible);
@@ -128,7 +129,7 @@ private slots:
     void customContextMenuRequested(const QPoint &point);
 
 private:
-    void setup(bool showButtons);
+    void setup();
     void expandItems();
     bool eventFilter(QObject *object, QEvent *event);
 
@@ -136,8 +137,6 @@ private:
     QRegExp regExp;
     TreeView *treeView;
     Utils::FancyLineEdit *searchField;
-    QToolButton *addButton;
-    QToolButton *removeButton;
     BookmarkManager *bookmarkManager;
     QSortFilterProxyModel* filterBookmarkModel;
     bool m_isOpenInNewPageActionVisible;

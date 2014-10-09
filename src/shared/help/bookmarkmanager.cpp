@@ -296,15 +296,12 @@ bool BookmarkDialog::eventFilter(QObject *object, QEvent *e)
 // #pragma mark -- BookmarkWidget
 
 
-BookmarkWidget::BookmarkWidget(BookmarkManager *manager, QWidget *parent,
-        bool showButtons)
+BookmarkWidget::BookmarkWidget(BookmarkManager *manager, QWidget *parent)
     : QWidget(parent)
-    , addButton(0)
-    , removeButton(0)
     , bookmarkManager(manager)
     , m_isOpenInNewPageActionVisible(true)
 {
-    setup(showButtons);
+    setup();
     installEventFilter(this);
 }
 
@@ -336,12 +333,6 @@ void BookmarkWidget::filterChanged()
         regExp.setPattern(QLatin1String(""));
         filterBookmarkModel->setSourceModel(bookmarkManager->treeBookmarkModel());
     }
-
-    if (addButton)
-        addButton->setEnabled(searchBookmarks);
-
-    if (removeButton)
-        removeButton->setEnabled(searchBookmarks);
 
     filterBookmarkModel->setFilterRegExp(regExp);
 
@@ -422,7 +413,7 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
     }
 }
 
-void BookmarkWidget::setup(bool showButtons)
+void BookmarkWidget::setup()
 {
     regExp.setPatternSyntax(QRegExp::FixedString);
     regExp.setCaseSensitivity(Qt::CaseInsensitive);
@@ -449,39 +440,7 @@ void BookmarkWidget::setup(bool showButtons)
         SLOT(filterChanged()));
 
     treeView = new TreeView(this);
-    treeView->setFrameStyle(QFrame::NoFrame);
     vlayout->addWidget(treeView);
-
-#ifdef Q_OS_MAC
-#   define SYSTEM "mac"
-#else
-#   define SYSTEM "win"
-#endif
-
-    if (showButtons) {
-        QLayout *hlayout = new QHBoxLayout();
-        vlayout->addItem(hlayout);
-
-        hlayout->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding));
-
-        addButton = new QToolButton(this);
-        addButton->setText(tr("Add"));
-        addButton->setIcon(QIcon(QLatin1String(":/trolltech/assistant/images/"
-            SYSTEM "/addtab.png")));
-        addButton->setAutoRaise(true);
-        addButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-        hlayout->addWidget(addButton);
-        connect(addButton, SIGNAL(clicked()), this, SIGNAL(addBookmark()));
-
-        removeButton = new QToolButton(this);
-        removeButton->setText(tr("Remove"));
-        removeButton->setIcon(QIcon(QLatin1String(":/trolltech/assistant/images/"
-            SYSTEM "/closetab.png")));
-        removeButton->setAutoRaise(true);
-        removeButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-        hlayout->addWidget(removeButton);
-        connect(removeButton, SIGNAL(clicked()), this, SLOT(removeClicked()));
-    }
 
     filterBookmarkModel = new QSortFilterProxyModel(this);
     treeView->setModel(filterBookmarkModel);
@@ -490,7 +449,6 @@ void BookmarkWidget::setup(bool showButtons)
     treeView->setAcceptDrops(true);
     treeView->setAutoExpandDelay(1000);
     treeView->setDropIndicatorShown(true);
-    treeView->header()->setVisible(false);
     treeView->viewport()->installEventFilter(this);
     treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -545,13 +503,13 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
 
             switch (ke->key()) {
                 default: break;
-                case Qt::Key_Up: {
-                case Qt::Key_Down:
+                case Qt::Key_Up:
+                case Qt::Key_Down: {
                     treeView->subclassKeyPressEvent(ke);
                 }   break;
 
-                case Qt::Key_Enter: {
-                case Qt::Key_Return:
+                case Qt::Key_Enter:
+                case Qt::Key_Return: {
                     index = treeView->selectionModel()->currentIndex();
                     if (index.isValid()) {
                         QString data = index.data(Qt::UserRole + 10).toString();
