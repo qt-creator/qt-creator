@@ -257,6 +257,7 @@ HelpWidget::~HelpWidget()
     if (m_sideBar) {
         m_sideBar->saveSettings(Core::ICore::settings(), QLatin1String(kSideBarSettingsKey));
         Core::ActionManager::unregisterAction(m_indexAction, Constants::HELP_INDEX);
+        Core::ActionManager::unregisterAction(m_bookmarkAction, Constants::HELP_BOOKMARKS);
     }
     Core::ICore::removeContextObject(m_context);
     Core::ActionManager::unregisterAction(m_copy, Core::Constants::COPY);
@@ -296,8 +297,21 @@ void HelpWidget::addSideBar()
                                                                   : tr("Ctrl+Shift+I")));
     shortcutMap.insert(QLatin1String(Constants::HELP_INDEX), cmd);
 
+    auto bookmarkWidget = new BookmarkWidget(&LocalHelpManager::bookmarkManager(), 0, false);
+    bookmarkWidget->setWindowTitle(tr(Constants::SB_BOOKMARKS));
+    bookmarkWidget->setOpenInNewPageActionVisible(false);
+    auto bookmarkItem = new Core::SideBarItem(bookmarkWidget,
+                                              QLatin1String(Constants::HELP_BOOKMARKS));
+    connect(bookmarkWidget, &BookmarkWidget::linkActivated, this, &HelpWidget::setSource);
+    m_bookmarkAction = new QAction(tr("Activate Help Bookmarks View"), this);
+    cmd = Core::ActionManager::registerAction(m_bookmarkAction, Constants::HELP_BOOKMARKS,
+                                              m_context->context());
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+B")
+                                                                  : tr("Ctrl+Shift+B")));
+    shortcutMap.insert(QLatin1String(Constants::HELP_BOOKMARKS), cmd);
+
     QList<Core::SideBarItem *> itemList;
-    itemList << indexItem;
+    itemList << indexItem << bookmarkItem;
     m_sideBar = new Core::SideBar(itemList, QList<Core::SideBarItem *>() << indexItem);
     m_sideBar->setShortcutMap(shortcutMap);
     m_sideBar->setCloseWhenEmpty(true);
@@ -311,6 +325,9 @@ void HelpWidget::addSideBar()
 
     connect(m_indexAction, &QAction::triggered, m_sideBar, [this]() {
         m_sideBar->activateItem(QLatin1String(Constants::HELP_INDEX));
+    });
+    connect(m_bookmarkAction, &QAction::triggered, m_sideBar, [this]() {
+        m_sideBar->activateItem(QLatin1String(Constants::HELP_BOOKMARKS));
     });
 }
 

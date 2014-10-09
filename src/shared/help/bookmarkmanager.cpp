@@ -302,6 +302,7 @@ BookmarkWidget::BookmarkWidget(BookmarkManager *manager, QWidget *parent,
     , addButton(0)
     , removeButton(0)
     , bookmarkManager(manager)
+    , m_isOpenInNewPageActionVisible(true)
 {
     setup(showButtons);
     installEventFilter(this);
@@ -309,6 +310,11 @@ BookmarkWidget::BookmarkWidget(BookmarkManager *manager, QWidget *parent,
 
 BookmarkWidget::~BookmarkWidget()
 {
+}
+
+void BookmarkWidget::setOpenInNewPageActionVisible(bool visible)
+{
+    m_isOpenInNewPageActionVisible = visible;
 }
 
 void BookmarkWidget::removeClicked()
@@ -384,7 +390,8 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
         renameItem = menu.addAction(tr("Rename Folder"));
     } else {
         showItem = menu.addAction(tr("Show Bookmark"));
-        showItemNewTab = menu.addAction(tr("Show Bookmark as New Page"));
+        if (m_isOpenInNewPageActionVisible)
+            showItemNewTab = menu.addAction(tr("Show Bookmark as New Page"));
         if (searchField->text().isEmpty()) {
             menu.addSeparator();
             removeItem = menu.addAction(tr("Delete Bookmark"));

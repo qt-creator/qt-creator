@@ -141,6 +141,7 @@ private:
     Core::MiniSplitter *m_sideBarSplitter;
     Core::SideBar *m_sideBar;
     QAction *m_indexAction;
+    QAction *m_bookmarkAction;
 };
 
 } // Internal

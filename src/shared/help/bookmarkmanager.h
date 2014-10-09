@@ -113,6 +113,8 @@ public:
                             bool showButtons = true);
     ~BookmarkWidget();
 
+    void setOpenInNewPageActionVisible(bool visible);
+
 signals:
     void addBookmark();
     void linkActivated(const QUrl &url);
@@ -138,6 +140,7 @@ private:
     QToolButton *removeButton;
     BookmarkManager *bookmarkManager;
     QSortFilterProxyModel* filterBookmarkModel;
+    bool m_isOpenInNewPageActionVisible;
 };
 
 class BookmarkModel : public QStandardItemModel
