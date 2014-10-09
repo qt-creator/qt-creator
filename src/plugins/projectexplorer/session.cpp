@@ -157,7 +157,7 @@ SessionManager::~SessionManager()
     delete d;
 }
 
-QObject *SessionManager::instance()
+SessionManager *SessionManager::instance()
 {
    return m_instance;
 }

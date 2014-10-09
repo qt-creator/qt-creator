@@ -64,7 +64,7 @@ public:
     explicit SessionManager(QObject *parent = 0);
     ~SessionManager();
 
-    static QObject *instance();
+    static SessionManager *instance();
 
     // higher level session management
     static QString activeSession();
