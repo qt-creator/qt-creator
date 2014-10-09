@@ -38,7 +38,7 @@ using namespace GenericProjectManager::Internal::Tests;
 
 CppModelManagerHelper::CppModelManagerHelper(QObject *parent)
     : QObject(parent)
-    , m_spy(cppModelManager(), &CppModelManager::sourceFilesRefreshed)
+    , m_spy(cppModelManager(), SIGNAL(sourceFilesRefreshed(const QSet<QString> &)))
 {
     connect(cppModelManager(), &CppModelManager::sourceFilesRefreshed,
             this, &CppModelManagerHelper::onSourceFilesRefreshed);
