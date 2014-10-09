@@ -134,12 +134,6 @@ private:
     CentralWidget *m_centralWidget;
     HelpWidget *m_rightPaneSideBarWidget;
 
-    Core::SideBarItem *m_contentItem;
-    Core::SideBarItem *m_indexItem;
-    Core::SideBarItem *m_searchItem;
-    Core::SideBarItem *m_bookmarkItem;
-    Core::SideBarItem *m_openPagesItem;
-
     DocSettingsPage *m_docSettingsPage;
     FilterSettingsPage *m_filterSettingsPage;
     GeneralSettingsPage *m_generalSettingsPage;

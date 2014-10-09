@@ -60,7 +60,7 @@
 #include <QStackedWidget>
 #include <QToolButton>
 
-static const char kSideBarSettingsKey[] = "HelpWindowSideBar";
+static const char kSideBarSettingsKey[] = "Help/WindowSideBar";
 
 namespace Help {
 namespace Internal {
@@ -179,7 +179,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
     m_addBookmarkAction = new QAction(QIcon(QLatin1String(":/help/images/bookmark.png")),
         tr("Add Bookmark"), this);
-    cmd = Core::ActionManager::registerAction(m_addBookmarkAction, Constants::HELP_BOOKMARK, context);
+    cmd = Core::ActionManager::registerAction(m_addBookmarkAction, Constants::HELP_ADDBOOKMARK, context);
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     connect(m_addBookmarkAction, &QAction::triggered, this, &HelpWidget::addBookmark);
     layout->addWidget(new Utils::StyledSeparator(toolBar));
@@ -268,7 +268,7 @@ HelpWidget::~HelpWidget()
     Core::ActionManager::unregisterAction(m_homeAction, Constants::HELP_HOME);
     Core::ActionManager::unregisterAction(m_forwardAction, Constants::HELP_NEXT);
     Core::ActionManager::unregisterAction(m_backAction, Constants::HELP_PREVIOUS);
-    Core::ActionManager::unregisterAction(m_addBookmarkAction, Constants::HELP_BOOKMARK);
+    Core::ActionManager::unregisterAction(m_addBookmarkAction, Constants::HELP_ADDBOOKMARK);
     if (m_scaleUp)
         Core::ActionManager::unregisterAction(m_scaleUp, TextEditor::Constants::INCREASE_FONT_SIZE);
     if (m_scaleDown)
@@ -283,18 +283,18 @@ void HelpWidget::addSideBar()
     Core::Command *cmd;
 
     auto indexWindow = new IndexWindow();
-    auto indexItem = new Core::SideBarItem(indexWindow, QLatin1String(Constants::SB_INDEX));
+    auto indexItem = new Core::SideBarItem(indexWindow, QLatin1String(Constants::HELP_INDEX));
     indexWindow->setOpenInNewPageActionVisible(false);
     indexWindow->setWindowTitle(tr(Constants::SB_INDEX));
     connect(indexWindow, &IndexWindow::linkActivated,
             this, &HelpWidget::open);
     connect(indexWindow, &IndexWindow::linksActivated,
         this, &HelpWidget::showTopicChooser);
-    m_indexAction = new QAction(tr("Activate Help Index"), this);
+    m_indexAction = new QAction(tr("Activate Help Index View"), this);
     cmd = Core::ActionManager::registerAction(m_indexAction, Constants::HELP_INDEX, m_context->context());
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I")
                                                                   : tr("Ctrl+Shift+I")));
-    shortcutMap.insert(QLatin1String(Constants::SB_INDEX), cmd);
+    shortcutMap.insert(QLatin1String(Constants::HELP_INDEX), cmd);
 
     QList<Core::SideBarItem *> itemList;
     itemList << indexItem;
@@ -309,8 +309,8 @@ void HelpWidget::addSideBar()
     m_sideBarSplitter->setSizes(QList<int>() << m_sideBar->size().width() << 300);
     m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(this));
 
-    connect(m_indexAction, &QAction::triggered, m_sideBar, [this, indexItem]() {
-        m_sideBar->activateItem(indexItem);
+    connect(m_indexAction, &QAction::triggered, m_sideBar, [this]() {
+        m_sideBar->activateItem(QLatin1String(Constants::HELP_INDEX));
     });
 }
 

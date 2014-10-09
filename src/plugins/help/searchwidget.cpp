@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "searchwidget.h"
+#include "helpconstants.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
@@ -50,8 +51,6 @@
 #include <QStringList>
 #include <QTextBrowser>
 #include <QToolButton>
-
-static const char SB_SEARCH[] = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Search");
 
 using namespace Help::Internal;
 
@@ -271,9 +270,9 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 // #pragma mark -- SearchSideBarItem
 
 SearchSideBarItem::SearchSideBarItem()
-    : SideBarItem(new SearchWidget, QLatin1String(SB_SEARCH))
+    : SideBarItem(new SearchWidget, QLatin1String(Constants::HELP_SEARCH))
 {
-    widget()->setWindowTitle(tr(SB_SEARCH));
+    widget()->setWindowTitle(tr(Constants::SB_SEARCH));
     connect(widget(), SIGNAL(linkActivated(QUrl)), this, SIGNAL(linkActivated(QUrl)));
 }
 

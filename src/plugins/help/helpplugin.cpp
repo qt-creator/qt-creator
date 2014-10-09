@@ -96,6 +96,7 @@
 using namespace Help::Internal;
 
 static const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
+static const char kHelpModeSideBarKey[] = "Help/ModeSideBar";
 
 #define IMAGEPATH ":/help/images/"
 
@@ -105,10 +106,6 @@ HelpPlugin::HelpPlugin()
     : m_mode(0),
     m_centralWidget(0),
     m_rightPaneSideBarWidget(0),
-    m_contentItem(0),
-    m_indexItem(0),
-    m_searchItem(0),
-    m_bookmarkItem(0),
     m_sideBar(0),
     m_setupNeeded(true),
     m_helpManager(0),
@@ -185,7 +182,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     // Add Contents, Index, and Context menu items
     action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")),
         tr(Constants::SB_CONTENTS), this);
-    cmd = ActionManager::registerAction(action, "Help.Contents", globalcontext);
+    cmd = ActionManager::registerAction(action, Constants::HELP_CONTENTS, globalcontext);
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
 
@@ -263,7 +260,7 @@ void HelpPlugin::extensionsInitialized()
 ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
 {
     if (m_sideBar)
-        m_sideBar->saveSettings(ICore::settings(), QLatin1String("HelpSideBar"));
+        m_sideBar->saveSettings(ICore::settings(), QLatin1String(kHelpModeSideBarKey));
 
     return SynchronousShutdown;
 }
@@ -291,7 +288,7 @@ void HelpPlugin::setupUi()
 
     IndexWindow *indexWindow = new IndexWindow();
     indexWindow->setWindowTitle(tr(Constants::SB_INDEX));
-    m_indexItem = new SideBarItem(indexWindow, QLatin1String(Constants::SB_INDEX));
+    auto indexItem = new SideBarItem(indexWindow, QLatin1String(Constants::HELP_INDEX));
 
     connect(indexWindow, &IndexWindow::linkActivated,
             m_centralWidget, &HelpWidget::open);
@@ -299,64 +296,64 @@ void HelpPlugin::setupUi()
         m_centralWidget, &HelpWidget::showTopicChooser);
 
     QMap<QString, Command*> shortcutMap;
-    QAction *action = new QAction(tr("Activate Help Index"), m_splitter);
+    QAction *action = new QAction(tr("Activate Help Index View"), m_splitter);
     Command *cmd = ActionManager::registerAction(action, Constants::HELP_INDEX, modecontext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+I") : tr("Ctrl+Shift+I")));
     connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
-    shortcutMap.insert(QLatin1String(Constants::SB_INDEX), cmd);
+    shortcutMap.insert(QLatin1String(Constants::HELP_INDEX), cmd);
 
     ContentWindow *contentWindow = new ContentWindow();
     contentWindow->setWindowTitle(tr(Constants::SB_CONTENTS));
-    m_contentItem = new SideBarItem(contentWindow, QLatin1String(Constants::SB_CONTENTS));
+    auto contentItem = new SideBarItem(contentWindow, QLatin1String(Constants::HELP_CONTENTS));
     connect(contentWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
 
-    action = new QAction(tr("Activate Contents in Help mode"), m_splitter);
-    cmd = ActionManager::registerAction(action, "Help.ContentsShortcut", modecontext);
+    action = new QAction(tr("Activate Help Contents View"), m_splitter);
+    cmd = ActionManager::registerAction(action, Constants::HELP_CONTENTS, modecontext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+Shift+C") : tr("Ctrl+Shift+C")));
     connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
-    shortcutMap.insert(QLatin1String(Constants::SB_CONTENTS), cmd);
+    shortcutMap.insert(QLatin1String(Constants::HELP_CONTENTS), cmd);
 
-    m_searchItem = new SearchSideBarItem;
-    connect(m_searchItem, SIGNAL(linkActivated(QUrl)), m_centralWidget,
+    auto searchItem = new SearchSideBarItem;
+    connect(searchItem, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSourceFromSearch(QUrl)));
 
-     action = new QAction(tr("Activate Search in Help mode"), m_splitter);
-     cmd = ActionManager::registerAction(action, "Help.SearchShortcut", modecontext);
+     action = new QAction(tr("Activate Help Search View"), m_splitter);
+     cmd = ActionManager::registerAction(action, Constants::HELP_SEARCH, modecontext);
      cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+/") : tr("Ctrl+Shift+/")));
      connect(action, SIGNAL(triggered()), this, SLOT(activateSearch()));
-     shortcutMap.insert(m_searchItem->id(), cmd);
+     shortcutMap.insert(searchItem->id(), cmd);
 
     BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
     BookmarkWidget *bookmarkWidget = new BookmarkWidget(manager, 0, false);
     bookmarkWidget->setWindowTitle(tr(Constants::SB_BOOKMARKS));
-    m_bookmarkItem = new SideBarItem(bookmarkWidget, QLatin1String(Constants::SB_BOOKMARKS));
+    auto bookmarkItem = new SideBarItem(bookmarkWidget, QLatin1String(Constants::HELP_BOOKMARKS));
     connect(bookmarkWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
     connect(bookmarkWidget, SIGNAL(createPage(QUrl,bool)), &OpenPagesManager::instance(),
             SLOT(createPage(QUrl,bool)));
 
-     action = new QAction(tr("Activate Bookmarks in Help mode"), m_splitter);
-     cmd = ActionManager::registerAction(action, "Help.BookmarkShortcut", modecontext);
+     action = new QAction(tr("Activate Help Bookmarks View"), m_splitter);
+     cmd = ActionManager::registerAction(action, Constants::HELP_BOOKMARKS, modecontext);
      cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+B") : tr("Ctrl+Shift+B")));
      connect(action, SIGNAL(triggered()), this, SLOT(activateBookmarks()));
-     shortcutMap.insert(QLatin1String(Constants::SB_BOOKMARKS), cmd);
+     shortcutMap.insert(QLatin1String(Constants::HELP_BOOKMARKS), cmd);
 
     QWidget *openPagesWidget = OpenPagesManager::instance().openPagesWidget();
     openPagesWidget->setWindowTitle(tr(Constants::SB_OPENPAGES));
-    m_openPagesItem = new SideBarItem(openPagesWidget, QLatin1String(Constants::SB_OPENPAGES));
+    auto openPagesItem = new SideBarItem(openPagesWidget, QLatin1String(Constants::HELP_OPENPAGES));
 
-    action = new QAction(tr("Activate Open Pages in Help mode"), m_splitter);
-    cmd = ActionManager::registerAction(action, "Help.PagesShortcut", modecontext);
+    action = new QAction(tr("Activate Open Help Pages View"), m_splitter);
+    cmd = ActionManager::registerAction(action, Constants::HELP_OPENPAGES, modecontext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+O") : tr("Ctrl+Shift+O")));
     connect(action, SIGNAL(triggered()), this, SLOT(activateOpenPages()));
-    shortcutMap.insert(QLatin1String(Constants::SB_OPENPAGES), cmd);
+    shortcutMap.insert(QLatin1String(Constants::HELP_OPENPAGES), cmd);
 
     QList<SideBarItem*> itemList;
-    itemList << m_contentItem << m_indexItem << m_searchItem << m_bookmarkItem
-        << m_openPagesItem;
+    itemList << contentItem << indexItem << searchItem << bookmarkItem
+        << openPagesItem;
     m_sideBar = new SideBar(itemList, QList<SideBarItem*>()
-        << m_contentItem << m_openPagesItem);
+        << contentItem << openPagesItem);
     m_sideBar->setCloseWhenEmpty(true);
     m_sideBar->setShortcutMap(shortcutMap);
     connect(m_sideBar, SIGNAL(sideBarClosed()), this, SLOT(onSideBarVisibilityChanged()));
@@ -365,7 +362,7 @@ void HelpPlugin::setupUi()
     m_splitter->insertWidget(0, m_sideBar);
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
-    m_sideBar->readSettings(ICore::settings(), QLatin1String("HelpSideBar"));
+    m_sideBar->readSettings(ICore::settings(), QLatin1String(kHelpModeSideBarKey));
     m_splitter->setSizes(QList<int>() << m_sideBar->size().width() << 300);
 
     m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Core::Constants::ICON_TOGGLE_SIDEBAR)),
@@ -691,31 +688,31 @@ void HelpPlugin::showContextHelp()
 void HelpPlugin::activateIndex()
 {
     activateHelpMode();
-    m_sideBar->activateItem(m_indexItem);
+    m_sideBar->activateItem(QLatin1String(Constants::HELP_INDEX));
 }
 
 void HelpPlugin::activateContents()
 {
     activateHelpMode();
-    m_sideBar->activateItem(m_contentItem);
+    m_sideBar->activateItem(QLatin1String(Constants::HELP_CONTENTS));
 }
 
 void HelpPlugin::activateSearch()
 {
     activateHelpMode();
-    m_sideBar->activateItem(m_searchItem);
+    m_sideBar->activateItem(QLatin1String(Constants::HELP_SEARCH));
 }
 
 void HelpPlugin::activateOpenPages()
 {
     activateHelpMode();
-    m_sideBar->activateItem(m_openPagesItem);
+    m_sideBar->activateItem(QLatin1String(Constants::HELP_OPENPAGES));
 }
 
 void HelpPlugin::activateBookmarks()
 {
     activateHelpMode();
-    m_sideBar->activateItem(m_bookmarkItem);
+    m_sideBar->activateItem(QLatin1String(Constants::HELP_BOOKMARKS));
 }
 
 void HelpPlugin::highlightSearchTermsInContextHelp()

@@ -199,8 +199,11 @@ void SideBarWidget::setCurrentIndex(int)
     emit currentWidgetChanged();
 }
 
-Core::Command *SideBarWidget::command(const QString &id) const
+Core::Command *SideBarWidget::command(const QString &title) const
 {
+    const QString id = m_sideBar->idForTitle(title);
+    if (id.isEmpty())
+        return 0;
     const QMap<QString, Core::Command*> shortcutMap = m_sideBar->shortcutMap();
     QMap<QString, Core::Command*>::const_iterator r = shortcutMap.find(id);
     if (r != shortcutMap.end())

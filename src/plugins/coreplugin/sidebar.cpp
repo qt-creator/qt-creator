@@ -32,6 +32,7 @@
 
 #include "actionmanager/command.h"
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QSettings>
 #include <QPointer>
@@ -294,7 +295,8 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
         } else {
             insertSideBarWidget(0);
         }
-    } else {
+    }
+    if (d->m_widgets.size() == 0) {
         foreach (const QString &id, d->m_defaultVisible)
             insertSideBarWidget(d->m_widgets.count(), id);
     }
@@ -315,25 +317,12 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
     }
 }
 
-void SideBar::activateItem(SideBarItem *item)
+void SideBar::activateItem(const QString &id)
 {
-    typedef QMap<QString, QPointer<SideBarItem> >::const_iterator Iterator;
-
-    QString id;
-    const Iterator cend = d->m_itemMap.constEnd();
-    for (Iterator it = d->m_itemMap.constBegin(); it != cend ; ++it) {
-        if (it.value().data() == item) {
-            id = it.key();
-            break;
-        }
-    }
-
-    if (id.isEmpty())
-        return;
-
+    QTC_ASSERT(d->m_itemMap.contains(id), return);
     for (int i = 0; i < d->m_widgets.count(); ++i) {
         if (d->m_widgets.at(i)->currentItemId() == id) {
-            item->widget()->setFocus();
+            d->m_itemMap.value(id)->widget()->setFocus();
             return;
         }
     }
@@ -341,7 +330,7 @@ void SideBar::activateItem(SideBarItem *item)
     Internal::SideBarWidget *widget = d->m_widgets.first();
     widget->setCurrentItem(id);
     updateWidgets();
-    item->widget()->setFocus();
+    d->m_itemMap.value(id)->widget()->setFocus();
 }
 
 void SideBar::setShortcutMap(const QMap<QString, Core::Command*> &shortcutMap)

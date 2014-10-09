@@ -98,7 +98,7 @@ public:
     QStringList unavailableItemIds() const;
     void makeItemAvailable(SideBarItem *item);
     void setUnavailableItemIds(const QStringList &itemTitles);
-    QString idForTitle(const QString &itemId) const;
+    QString idForTitle(const QString &title) const;
 
     SideBarItem *item(const QString &title);
 
@@ -108,7 +108,7 @@ public:
     void saveSettings(QSettings *settings, const QString &name);
     void readSettings(QSettings *settings, const QString &name);
     void closeAllWidgets();
-    void activateItem(SideBarItem *item);
+    void activateItem(const QString &id);
 
     void setShortcutMap(const QMap<QString, Core::Command *> &shortcutMap);
     QMap<QString, Core::Command *> shortcutMap() const;

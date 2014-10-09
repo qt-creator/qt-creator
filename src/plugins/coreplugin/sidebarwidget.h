@@ -61,7 +61,7 @@ public:
     void updateAvailableItems();
     void removeCurrentItem();
 
-    Core::Command *command(const QString &id) const;
+    Core::Command *command(const QString &title) const;
 
 signals:
     void splitMe();
