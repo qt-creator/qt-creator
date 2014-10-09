@@ -1042,14 +1042,13 @@ QObject *ObjectNodeInstance::createComponent(const QUrl &componentUrl, QQmlConte
     QObject *object = component.beginCreate(context);
     tweakObjects(object);
     component.completeCreate();
+    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
     if (component.isError()) {
         qWarning() << "Error in:" << Q_FUNC_INFO << componentUrl;
         foreach (const QQmlError &error, component.errors())
             qWarning() << error;
     }
-    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
-
     return object;
 }
 
