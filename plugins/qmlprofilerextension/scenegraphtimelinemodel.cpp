@@ -30,31 +30,31 @@ namespace Internal {
 using namespace QmlProfiler;
 
 static const char *ThreadLabels[] = {
-    "GUI Thread",
-    "Render Thread",
-    "Render Thread Details"
+    QT_TRANSLATE_NOOP("MainView", "GUI Thread"),
+    QT_TRANSLATE_NOOP("MainView", "Render Thread"),
+    QT_TRANSLATE_NOOP("MainView", "Render Thread Details")
 };
 
 static const char *StageLabels[] = {
-    "Polish",
-    "Wait",
-    "GUI Thread Sync",
-    "Animations",
-    "Render Thread Sync",
-    "Render",
-    "Swap",
-    "Render Preprocess",
-    "Render Update",
-    "Render Bind",
-    "Render Render",
-    "Material Compile",
-    "Glyph Render",
-    "Glyph Upload",
-    "Texture Bind",
-    "Texture Convert",
-    "Texture Swizzle",
-    "Texture Upload",
-    "Texture Mipmap"
+    QT_TRANSLATE_NOOP("MainView", "Polish"),
+    QT_TRANSLATE_NOOP("MainView", "Wait"),
+    QT_TRANSLATE_NOOP("MainView", "GUI Thread Sync"),
+    QT_TRANSLATE_NOOP("MainView", "Animations"),
+    QT_TRANSLATE_NOOP("MainView", "Render Thread Sync"),
+    QT_TRANSLATE_NOOP("MainView", "Render"),
+    QT_TRANSLATE_NOOP("MainView", "Swap"),
+    QT_TRANSLATE_NOOP("MainView", "Render Preprocess"),
+    QT_TRANSLATE_NOOP("MainView", "Render Update"),
+    QT_TRANSLATE_NOOP("MainView", "Render Bind"),
+    QT_TRANSLATE_NOOP("MainView", "Render Render"),
+    QT_TRANSLATE_NOOP("MainView", "Material Compile"),
+    QT_TRANSLATE_NOOP("MainView", "Glyph Render"),
+    QT_TRANSLATE_NOOP("MainView", "Glyph Upload"),
+    QT_TRANSLATE_NOOP("MainView", "Texture Bind"),
+    QT_TRANSLATE_NOOP("MainView", "Texture Convert"),
+    QT_TRANSLATE_NOOP("MainView", "Texture Swizzle"),
+    QT_TRANSLATE_NOOP("MainView", "Texture Upload"),
+    QT_TRANSLATE_NOOP("MainView", "Texture Mipmap")
 };
 
 enum SceneGraphCategoryType {
