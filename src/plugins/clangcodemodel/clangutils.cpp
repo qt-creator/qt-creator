@@ -108,7 +108,35 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fil
     return createClangOptions(pPart, fileKind);
 }
 
-static QStringList buildDefines(const QByteArray &defines, bool toolchainDefines)
+QStringList createHeaderPathOptions(const QList<ProjectPart::HeaderPath> &headerPaths)
+{
+    typedef ProjectPart::HeaderPath HeaderPath;
+
+    QStringList result;
+
+    foreach (const HeaderPath &headerPath , headerPaths) {
+        if (headerPath.path.isEmpty() || isBlacklisted(headerPath.path))
+            continue;
+
+        QString prefix;
+        switch (headerPath.type) {
+        case HeaderPath::FrameworkPath:
+            prefix = QLatin1String("-F");
+            break;
+        default: // This shouldn't happen, but let's be nice..:
+            // intentional fall-through:
+        case HeaderPath::IncludePath:
+            prefix = QLatin1String("-I");
+            break;
+        }
+
+        result.append(prefix + headerPath.path);
+    }
+
+    return result;
+}
+
+QStringList createDefineOptions(const QByteArray &defines, bool toolchainDefines)
 {
     QStringList result;
 
@@ -146,6 +174,15 @@ static QStringList buildDefines(const QByteArray &defines, bool toolchainDefines
             result.append(arg);
     }
 
+    return result;
+}
+
+QStringList definesAndHeaderPathsOptions(const ProjectPart::Ptr &pPart)
+{
+    QStringList result;
+    result << createDefineOptions(pPart->toolchainDefines, false);
+    result << createDefineOptions(pPart->projectDefines, false);
+    result << createHeaderPathOptions(pPart->headerPaths);
     return result;
 }
 
@@ -194,28 +231,9 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
     if (!pPart->projectConfigFile.isEmpty())
         result << QLatin1String("-include") << pPart->projectConfigFile;
 
-    result << buildDefines(pPart->toolchainDefines, false);
-    result << buildDefines(pPart->projectDefines, false);
-
-    typedef ProjectPart::HeaderPath HeaderPath;
-    foreach (const HeaderPath &headerPath , pPart->headerPaths) {
-        if (headerPath.path.isEmpty() || isBlacklisted(headerPath.path))
-            continue;
-
-        QString prefix;
-        switch (headerPath.type) {
-        case HeaderPath::FrameworkPath:
-            prefix = QLatin1String("-F");
-            break;
-        default: // This shouldn't happen, but let's be nice..:
-            // intentional fall-through:
-        case HeaderPath::IncludePath:
-            prefix = QLatin1String("-I");
-            break;
-        }
-
-        result.append(prefix + headerPath.path);
-    }
+    result << createDefineOptions(pPart->toolchainDefines, false);
+    result << createDefineOptions(pPart->projectDefines, false);
+    result << createHeaderPathOptions(pPart->headerPaths);
 
 #if 0
     qDebug() << "--- m_args:";

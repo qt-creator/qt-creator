@@ -31,6 +31,7 @@
 #ifndef CPPTOOLS_CLANGUTILS_H
 #define CPPTOOLS_CLANGUTILS_H
 
+#include "clang_global.h"
 #include "utils.h"
 
 #include <cpptools/cppmodelmanager.h>
@@ -45,6 +46,9 @@ QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, const QS
 QStringList clangNonProjectFileOptions(CppTools::ProjectFile::Kind kind);
 QStringList createPCHInclusionOptions(const QStringList &pchFiles);
 QStringList createPCHInclusionOptions(const QString &pchFile);
+
+QStringList CLANG_EXPORT createHeaderPathOptions(const QList<CppTools::ProjectPart::HeaderPath> &headerPaths);
+QStringList CLANG_EXPORT createDefineOptions(const QByteArray &defines, bool toolchainDefines);
 
 QStringList clangLanguageOption(CppTools::ProjectFile::Kind fileKind, bool objcExt);
 QStringList clangOptionsForLanguage(CppTools::ProjectPart::QtVersion qtVersion,
