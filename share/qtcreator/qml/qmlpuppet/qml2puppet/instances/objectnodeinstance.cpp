@@ -1105,9 +1105,9 @@ static bool isCrashingType(QQmlType *type)
     return false;
 }
 
-static QObject *createDummyWindow(QQmlContext *context)
+static QObject *createDummyWindow(QQmlEngine *engine)
 {
-    QQmlComponent component(context->engine(), QUrl(QStringLiteral("qrc:/qtquickplugin/mockfiles/Window.qml")));
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/qtquickplugin/mockfiles/Window.qml")));
     return component.create();
 }
 
@@ -1145,7 +1145,7 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
 
         if (isWindow(object)) {
             delete object;
-            object = createDummyWindow(context);
+            object = createDummyWindow(context->engine());
         }
 
     }
