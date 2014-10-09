@@ -1049,16 +1049,6 @@ def qdump__QMultiMap(d, value):
     qdump__QMap(d, value)
 
 
-def extractCString(table, offset):
-    result = ""
-    while True:
-        d = table[offset]
-        if d == 0:
-            break
-        result += "%c" % d
-        offset += 1
-    return result
-
 def qdump__QMetaObjectPrivate(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
