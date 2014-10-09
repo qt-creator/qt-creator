@@ -51,10 +51,9 @@ public:
     void waitForSourceFilesRefreshed(const QString &file = QString(), int timeOut = defaultTimeOut);
     void waitForSourceFilesRefreshed(const QStringList &files, int timeOut = defaultTimeOut);
 
-private slots:
+private:
     void onSourceFilesRefreshed(const QSet<QString> &files);
 
-private:
     QSet<QString> m_refreshedSourceFiles;
     QSignalSpy m_spy;
 };
