@@ -33,7 +33,6 @@
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
-#include "jsfilewizard.h"
 #include "qmljsoutline.h"
 #include "qmljspreviewrunner.h"
 #include "qmljssnippetprovider.h"
@@ -123,15 +122,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     Core::Context context(Constants::C_QMLJSEDITOR_ID);
 
     addAutoReleasedObject(new QmlJSEditorFactory);
-
-    IWizardFactory *wizard = new JsFileWizard;
-    wizard->setWizardKind(Core::IWizardFactory::FileWizard);
-    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizard->setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
-    wizard->setDescription(tr("Creates a JavaScript file."));
-    wizard->setDisplayName(tr("JS File"));
-    wizard->setId(QLatin1String("Z.Js"));
-    addAutoReleasedObject(wizard);
 
     Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(Constants::M_CONTEXT);
     Core::ActionContainer *qmlToolsMenu = Core::ActionManager::actionContainer(Core::Id(QmlJSTools::Constants::M_TOOLS_QMLJS));

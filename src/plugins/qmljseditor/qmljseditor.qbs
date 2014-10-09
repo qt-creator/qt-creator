@@ -18,8 +18,6 @@ QtcPlugin {
     Depends { name: "QmlJSTools" }
 
     files: [
-        "jsfilewizard.cpp",
-        "jsfilewizard.h",
         "qmlexpressionundercursor.cpp",
         "qmlexpressionundercursor.h",
         "qmljsautocompleter.cpp",
