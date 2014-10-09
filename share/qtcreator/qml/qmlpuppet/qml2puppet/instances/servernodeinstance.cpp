@@ -250,8 +250,6 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
 
     instance.internalInstance()->initialize(instance.m_nodeInstance);
 
-    //QObject::connect(instance.internalObject(), SIGNAL(destroyed(QObject*)), nodeInstanceView, SLOT(removeIdFromContext(QObject*)));
-
     return instance;
 }
 
