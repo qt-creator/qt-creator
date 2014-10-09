@@ -696,19 +696,21 @@ class DumperBase:
         self.check(count >= minimum)
         self.check(count < 1000000)
 
-    def findFirstZero(self, p, maximum):
-        for i in xrange(maximum):
-            if int(p.dereference()) == 0:
-                return 0, i
-            p = p + 1
-        # Real end is unknown.
-        return -1, maximum
+    def readToFirstZero(self, p, tsize, maximum):
+        code = (None, "b", "H", None, "I")[tsize]
+        base = toInteger(p)
+        blob = self.extractBlob(base, maximum).toBytes()
+        for i in xrange(0, maximum / tsize):
+            t = struct.unpack_from(code, blob, i)[0]
+            if t == 0:
+                return 0, i, self.hexencode(blob[:i])
 
-    def encodeCArray(self, p, innerType, limit):
-        t = self.lookupType(innerType)
-        p = p.cast(t.pointer())
-        elided, shown = self.findFirstZero(p, limit)
-        return elided, self.readMemory(p, shown * t.sizeof)
+        # Real end is unknown.
+        return -1, maximum, self.hexencode(blob[:maximum])
+
+    def encodeCArray(self, p, tsize, limit):
+        elided, shown, blob = self.readToFirstZero(p, tsize, limit)
+        return elided, blob
 
     def putItemCount(self, count, maximum = 1000000000):
         # This needs to override the default value, so don't use 'put' directly.
@@ -851,13 +853,11 @@ class DumperBase:
         return True
 
     def putSimpleCharArray(self, base, size = None):
-        t = self.lookupType("char")
-        p = base.cast(t.pointer())
         if size is None:
-            elided, shown = self.findFirstZero(p, self.displayStringLimit)
+            elided, shown, data = self.readToFirstZero(base, 1, self.displayStringLimit)
         else:
             elided, shown = self.computeLimit(int(size), self.displayStringLimit)
-        data = self.readMemory(p, shown)
+            data = self.readMemory(p, shown)
         self.putValue(data, Hex2EncodedLatin1, elided=elided)
 
     def putDisplay(self, format, value = None, cmd = None):
@@ -903,7 +903,7 @@ class DumperBase:
         if format == None and innerTypeName == "char":
             # Use Latin1 as default for char *.
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, "unsigned char", self.displayStringLimit)
+            (elided, data) = self.encodeCArray(value, 1, self.displayStringLimit)
             self.putValue(data, Hex2EncodedLatin1, elided=elided)
             self.putNumChild(0)
             return
@@ -923,7 +923,7 @@ class DumperBase:
             # Explicitly requested Latin1 formatting.
             limit = self.displayStringLimit if format == Latin1StringFormat else 1000000
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, "unsigned char", limit)
+            (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedLatin1, elided=elided)
             self.putNumChild(0)
             self.putDisplay((StopDisplay if format == Latin1StringFormat else DisplayLatin1String), data)
@@ -933,7 +933,7 @@ class DumperBase:
             # Explicitly requested UTF-8 formatting.
             limit = self.displayStringLimit if format == Utf8StringFormat else 1000000
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, "unsigned char", limit)
+            (elided, data) = self.encodeCArray(value, 1, limit)
             self.putValue(data, Hex2EncodedUtf8, elided=elided)
             self.putNumChild(0)
             self.putDisplay((StopDisplay if format == Utf8StringFormat else DisplayUtf8String), data)
@@ -942,7 +942,7 @@ class DumperBase:
         if format == Local8BitStringFormat:
             # Explicitly requested local 8 bit formatting.
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, "unsigned char", self.displayStringLimit)
+            (elided, data) = self.encodeCArray(value, 1, self.displayStringLimit)
             self.putValue(data, Hex2EncodedLocal8Bit, elided=elided)
             self.putNumChild(0)
             return
@@ -950,7 +950,7 @@ class DumperBase:
         if format == Utf16StringFormat:
             # Explicitly requested UTF-16 formatting.
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, "unsigned short", self.displayStringLimit)
+            (elided, data) = self.encodeCArray(value, 2, self.displayStringLimit)
             self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
             self.putNumChild(0)
             return
@@ -958,7 +958,7 @@ class DumperBase:
         if format == Ucs4StringFormat:
             # Explicitly requested UCS-4 formatting.
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, "unsigned int", self.displayStringLimit)
+            (elided, data) = self.encodeCArray(value, 4, self.displayStringLimit)
             self.putValue(data, Hex8EncodedLittleEndian, elided=elided)
             self.putNumChild(0)
             return
