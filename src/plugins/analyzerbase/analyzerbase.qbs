@@ -29,6 +29,8 @@ QtcPlugin {
         "analyzerstartparameters.h",
         "analyzerutils.cpp",
         "analyzerutils.h",
+        "detailederrorview.cpp",
+        "detailederrorview.h",
         "ianalyzertool.cpp",
         "ianalyzertool.h",
         "startremotedialog.cpp",

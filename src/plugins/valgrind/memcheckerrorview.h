@@ -32,6 +32,8 @@
 #ifndef MEMCHECKERRORVIEW_H
 #define MEMCHECKERRORVIEW_H
 
+#include <analyzerbase/detailederrorview.h>
+
 #include <QListView>
 
 namespace Valgrind {
@@ -39,7 +41,7 @@ namespace Internal {
 
 class ValgrindBaseSettings;
 
-class MemcheckErrorView : public QListView
+class MemcheckErrorView : public Analyzer::DetailedErrorView
 {
     Q_OBJECT
 
@@ -47,34 +49,18 @@ public:
     MemcheckErrorView(QWidget *parent = 0);
     ~MemcheckErrorView();
 
-    // Reimplemented to connect delegate to connection model after it has
-    // been set by superclass implementation.
-    void setModel(QAbstractItemModel *model);
-
     void setDefaultSuppressionFile(const QString &suppFile);
     QString defaultSuppressionFile() const;
     ValgrindBaseSettings *settings() const { return m_settings; }
 
-    void updateGeometries();
-
 public slots:
     void settingsChanged(ValgrindBaseSettings *settings);
-    void goNext();
-    void goBack();
-
-signals:
-    void resized();
 
 private slots:
-    void resizeEvent(QResizeEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
     void suppressError();
-    void setCurrentRow(int row);
 
 private:
-    int rowCount() const;
-    int currentRow() const;
-
     QAction *m_copyAction;
     QAction *m_suppressAction;
     QString m_defaultSuppFile;

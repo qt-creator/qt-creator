@@ -392,7 +392,7 @@ QWidget *MemcheckTool::createWidgets()
     action->setDisabled(true);
     action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PREV)));
     action->setToolTip(tr("Go to previous leak."));
-    connect(action, SIGNAL(triggered(bool)), m_errorView, SLOT(goBack()));
+    connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goBack);
     button = new QToolButton;
     button->setDefaultAction(action);
     layout->addWidget(button);
@@ -403,7 +403,7 @@ QWidget *MemcheckTool::createWidgets()
     action->setDisabled(true);
     action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_NEXT)));
     action->setToolTip(tr("Go to next leak."));
-    connect(action, SIGNAL(triggered(bool)), m_errorView, SLOT(goNext()));
+    connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goNext);
     button = new QToolButton;
     button->setDefaultAction(action);
     layout->addWidget(button);

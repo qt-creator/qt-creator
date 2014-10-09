@@ -70,81 +70,21 @@ using namespace Valgrind::XmlProtocol;
 namespace Valgrind {
 namespace Internal {
 
-class MemcheckErrorDelegate : public QStyledItemDelegate
+class MemcheckErrorDelegate : public Analyzer::DetailedErrorDelegate
 {
     Q_OBJECT
 
 public:
-    /// This delegate can only work on one view at a time, parent. parent will also be the parent
-    /// in the QObject parent-child system.
     explicit MemcheckErrorDelegate(QListView *parent);
 
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
-
-public slots:
-    void currentChanged(const QModelIndex &now, const QModelIndex &previous);
-    void viewResized();
-    void layoutChanged();
     void copy();
 
-private slots:
-    void verticalScrolled();
-    void openLinkInEditor(const QString &link);
+    SummaryLineInfo summaryInfo(const QModelIndex &index) const;
 
 private:
-    // the constness of this function is a necessary lie because it is called from paint() const.
-    QWidget *createDetailsWidget(const QFont &font, const QModelIndex &errorIndex, QWidget *parent) const;
-
-    static const int s_itemMargin = 2;
-    mutable QPersistentModelIndex m_detailsIndex;
-    mutable QWidget *m_detailsWidget;
-    mutable int m_detailsWidgetHeight;
+    QWidget *createDetailsWidget(const QFont &font, const QModelIndex &errorIndex,
+                                 QWidget *parent) const;
 };
-
-MemcheckErrorDelegate::MemcheckErrorDelegate(QListView *parent)
-    : QStyledItemDelegate(parent),
-      m_detailsWidget(0)
-{
-    connect(parent->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            SLOT(verticalScrolled()));
-}
-
-QSize MemcheckErrorDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const
-{
-    const QListView *view = qobject_cast<const QListView *>(parent());
-    const int viewportWidth = view->viewport()->width();
-    const bool isSelected = view->selectionModel()->currentIndex() == index;
-    const int dy = 2 * s_itemMargin;
-
-    if (!isSelected) {
-        QFontMetrics fm(opt.font);
-        return QSize(viewportWidth, fm.height() + dy);
-    }
-
-    if (m_detailsWidget && m_detailsIndex != index) {
-        m_detailsWidget->deleteLater();
-        m_detailsWidget = 0;
-    }
-
-    if (!m_detailsWidget) {
-        m_detailsWidget = createDetailsWidget(opt.font, index, view->viewport());
-        QTC_ASSERT(m_detailsWidget->parent() == view->viewport(),
-                   m_detailsWidget->setParent(view->viewport()));
-        m_detailsIndex = index;
-    } else {
-        QTC_ASSERT(m_detailsIndex == index, /**/);
-    }
-    const int widthExcludingMargins = viewportWidth - 2 * s_itemMargin;
-    m_detailsWidget->setFixedWidth(widthExcludingMargins);
-
-    m_detailsWidgetHeight = m_detailsWidget->heightForWidth(widthExcludingMargins);
-    // HACK: it's a bug in QLabel(?) that we have to force the widget to have the size it said
-    //       it would have.
-    m_detailsWidget->setFixedHeight(m_detailsWidgetHeight);
-    return QSize(viewportWidth, dy + m_detailsWidget->heightForWidth(widthExcludingMargins));
-}
 
 static QString makeFrameName(const Frame &frame, const QString &relativeTo,
                              bool link = true, const QString &linkAttr = QString())
@@ -239,7 +179,8 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QFont & font, const QM
     errorLabel->setText(QString::fromLatin1("%1&nbsp;&nbsp;<span %4>%2</span>")
                             .arg(error.what(), errorLocation(errorIndex, error, true, linkStyle),
                                  linkStyle));
-    connect(errorLabel, SIGNAL(linkActivated(QString)), SLOT(openLinkInEditor(QString)));
+    connect(errorLabel, &QLabel::linkActivated,
+            this, &MemcheckErrorDelegate::openLinkInEditor);
     layout->addWidget(errorLabel);
 
     const QVector<Stack> stacks = error.stacks();
@@ -274,7 +215,8 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QFont & font, const QM
             QFont fixedPitchFont = font;
             fixedPitchFont.setFixedPitch(true);
             frameLabel->setFont(fixedPitchFont);
-            connect(frameLabel, SIGNAL(linkActivated(QString)), SLOT(openLinkInEditor(QString)));
+            connect(frameLabel, &QLabel::linkActivated,
+                    this, &MemcheckErrorDelegate::openLinkInEditor);
             // pad frameNr to 2 chars since only 50 frames max are supported by valgrind
             const QString displayText = displayTextTemplate
                                             .arg(frameNr++, 2).arg(frameName);
@@ -295,117 +237,19 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QFont & font, const QM
     return widget;
 }
 
-void MemcheckErrorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &basicOption,
-                                  const QModelIndex &index) const
+MemcheckErrorDelegate::MemcheckErrorDelegate(QListView *parent)
+    : Analyzer::DetailedErrorDelegate(parent)
 {
-    QStyleOptionViewItemV4 opt(basicOption);
-    initStyleOption(&opt, index);
+}
 
-    const QListView *const view = qobject_cast<const QListView *>(parent());
-    const bool isSelected = view->selectionModel()->currentIndex() == index;
-
-    QFontMetrics fm(opt.font);
-    QPoint pos = opt.rect.topLeft();
-
-    painter->save();
-
-    const QColor bgColor = isSelected ? opt.palette.highlight().color() : opt.palette.background().color();
-    painter->setBrush(bgColor);
-
-    // clear background
-    painter->setPen(Qt::NoPen);
-    painter->drawRect(opt.rect);
-
-    pos.rx() += s_itemMargin;
-    pos.ry() += s_itemMargin;
-
+Analyzer::DetailedErrorDelegate::SummaryLineInfo MemcheckErrorDelegate::summaryInfo(
+        const QModelIndex &index) const
+{
     const Error error = index.data(ErrorListModel::ErrorRole).value<Error>();
-
-    if (isSelected) {
-        // only show detailed widget and let it handle everything
-        QTC_ASSERT(m_detailsIndex == index, /**/);
-        QTC_ASSERT(m_detailsWidget, return); // should have been set in sizeHint()
-        m_detailsWidget->move(pos);
-        // when scrolling quickly, the widget can get stuck in a visible part of the scroll area
-        // even though it should not be visible. therefore we hide it every time the scroll value
-        // changes and un-hide it when the item with details widget is paint()ed, i.e. visible.
-        m_detailsWidget->show();
-
-        const int viewportWidth = view->viewport()->width();
-        const int widthExcludingMargins = viewportWidth - 2 * s_itemMargin;
-        QTC_ASSERT(m_detailsWidget->width() == widthExcludingMargins, /**/);
-        QTC_ASSERT(m_detailsWidgetHeight == m_detailsWidget->height(), /**/);
-    } else {
-        // the reference coordinate for text drawing is the text baseline; move it inside the view rect.
-        pos.ry() += fm.ascent();
-
-        const QColor textColor = opt.palette.text().color();
-        painter->setPen(textColor);
-        // draw only text + location
-        const QString what = error.what();
-        painter->drawText(pos, what);
-
-        const QString name = errorLocation(index, error);
-        const int whatWidth = QFontMetrics(opt.font).width(what);
-        const int space = 10;
-        const int widthLeft = opt.rect.width() - (pos.x() + whatWidth + space + s_itemMargin);
-        if (widthLeft > 0) {
-            QFont monospace = opt.font;
-            monospace.setFamily(QLatin1String("monospace"));
-            QFontMetrics metrics(monospace);
-            QColor nameColor = textColor;
-            nameColor.setAlphaF(0.7);
-
-            painter->setFont(monospace);
-            painter->setPen(nameColor);
-
-            QPoint namePos = pos;
-            namePos.rx() += whatWidth + space;
-            painter->drawText(namePos, metrics.elidedText(name, Qt::ElideLeft, widthLeft));
-        }
-    }
-
-    // Separator lines (like Issues pane)
-    painter->setPen(QColor::fromRgb(150,150,150));
-    painter->drawLine(0, opt.rect.bottom(), opt.rect.right(), opt.rect.bottom());
-
-    painter->restore();
-}
-
-void MemcheckErrorDelegate::currentChanged(const QModelIndex &now, const QModelIndex &previous)
-{
-    if (m_detailsWidget) {
-        m_detailsWidget->deleteLater();
-        m_detailsWidget = 0;
-    }
-
-    m_detailsIndex = QModelIndex();
-    if (now.isValid())
-        emit sizeHintChanged(now);
-    if (previous.isValid())
-        emit sizeHintChanged(previous);
-}
-
-void MemcheckErrorDelegate::layoutChanged()
-{
-    if (m_detailsWidget) {
-        m_detailsWidget->deleteLater();
-        m_detailsWidget = 0;
-        m_detailsIndex = QModelIndex();
-    }
-}
-
-void MemcheckErrorDelegate::viewResized()
-{
-    const QListView *view = qobject_cast<const QListView *>(parent());
-    if (m_detailsWidget)
-        emit sizeHintChanged(view->selectionModel()->currentIndex());
-}
-
-void MemcheckErrorDelegate::verticalScrolled()
-{
-    if (m_detailsWidget)
-        m_detailsWidget->hide();
+    SummaryLineInfo info;
+    info.errorText = error.what();
+    info.errorLocation = errorLocation(index, error);
+    return info;
 }
 
 void MemcheckErrorDelegate::copy()
@@ -434,28 +278,19 @@ void MemcheckErrorDelegate::copy()
     QApplication::clipboard()->setText(content);
 }
 
-void MemcheckErrorDelegate::openLinkInEditor(const QString &link)
-{
-    const int pathStart = int(sizeof("file://")) - 1;
-    const int pathEnd = link.lastIndexOf(QLatin1Char(':'));
-    const QString path = link.mid(pathStart, pathEnd - pathStart);
-    const int line = link.mid(pathEnd + 1).toInt(0);
-    Core::EditorManager::openEditorAt(path, qMax(line, 0));
-}
-
 MemcheckErrorView::MemcheckErrorView(QWidget *parent)
-    : QListView(parent),
+    : Analyzer::DetailedErrorView(parent),
       m_settings(0)
 {
-    setItemDelegate(new MemcheckErrorDelegate(this));
-    connect(this, SIGNAL(resized()), itemDelegate(), SLOT(viewResized()));
+    MemcheckErrorDelegate *delegate = new MemcheckErrorDelegate(this);
+    setItemDelegate(delegate);
 
     m_copyAction = new QAction(this);
     m_copyAction->setText(tr("Copy Selection"));
     m_copyAction->setIcon(QIcon(QLatin1String(Core::Constants::ICON_COPY)));
     m_copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
     m_copyAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    connect(m_copyAction, SIGNAL(triggered()), itemDelegate(), SLOT(copy()));
+    connect(m_copyAction, &QAction::triggered, delegate, &MemcheckErrorDelegate::copy);
     addAction(m_copyAction);
 
     m_suppressAction = new QAction(this);
@@ -463,29 +298,12 @@ MemcheckErrorView::MemcheckErrorView(QWidget *parent)
     m_suppressAction->setIcon(QIcon(QLatin1String(":/qmldesigner/images/eye_crossed.png")));
     m_suppressAction->setShortcut(QKeySequence(Qt::Key_Delete));
     m_suppressAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    connect(m_suppressAction, SIGNAL(triggered()), this, SLOT(suppressError()));
+    connect(m_suppressAction, &QAction::triggered, this, &MemcheckErrorView::suppressError);
     addAction(m_suppressAction);
 }
 
 MemcheckErrorView::~MemcheckErrorView()
 {
-    itemDelegate()->deleteLater();
-}
-
-void MemcheckErrorView::setModel(QAbstractItemModel *model)
-{
-    QListView::setModel(model);
-    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            itemDelegate(), SLOT(currentChanged(QModelIndex,QModelIndex)));
-
-    connect(model, SIGNAL(layoutChanged()),
-            itemDelegate(), SLOT(layoutChanged()));
-}
-
-void MemcheckErrorView::resizeEvent(QResizeEvent *e)
-{
-    emit resized();
-    QListView::resizeEvent(e);
 }
 
 void MemcheckErrorView::setDefaultSuppressionFile(const QString &suppFile)
@@ -496,19 +314,6 @@ void MemcheckErrorView::setDefaultSuppressionFile(const QString &suppFile)
 QString MemcheckErrorView::defaultSuppressionFile() const
 {
     return m_defaultSuppFile;
-}
-
-void MemcheckErrorView::updateGeometries()
-{
-    if (model()) {
-        QModelIndex index = model()->index(0, modelColumn(), rootIndex());
-        QStyleOptionViewItem option = viewOptions();
-        // delegate for row / column
-        QSize step = itemDelegate()->sizeHint(option, index);
-        horizontalScrollBar()->setSingleStep(step.width() + spacing());
-        verticalScrollBar()->setSingleStep(step.height() + spacing());
-    }
-    QListView::updateGeometries();
 }
 
 // slot, can (for now) be invoked either when the settings were modified *or* when the active
@@ -543,38 +348,6 @@ void MemcheckErrorView::contextMenuEvent(QContextMenuEvent *e)
 void MemcheckErrorView::suppressError()
 {
     SuppressionDialog::maybeShow(this);
-}
-
-void MemcheckErrorView::goNext()
-{
-    QTC_ASSERT(rowCount(), return);
-    setCurrentRow((currentRow() + 1) % rowCount());
-}
-
-void MemcheckErrorView::goBack()
-{
-    QTC_ASSERT(rowCount(), return);
-    const int prevRow = currentRow() - 1;
-    setCurrentRow(prevRow >= 0 ? prevRow : rowCount() - 1);
-}
-
-int MemcheckErrorView::rowCount() const
-{
-    return model() ? model()->rowCount() : 0;
-}
-
-int MemcheckErrorView::currentRow() const
-{
-    const QModelIndex index = selectionModel()->currentIndex();
-    return index.row();
-}
-
-void MemcheckErrorView::setCurrentRow(int row)
-{
-    const QModelIndex index = model()->index(row, 0);
-    selectionModel()->setCurrentIndex(index,
-            QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    scrollTo(index);
 }
 
 } // namespace Internal
