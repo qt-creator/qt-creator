@@ -973,6 +973,12 @@ QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, cons
     QQmlEngine::setContextForObject(object, context);
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
+    if (component->isError()) {
+        qWarning() << "Error in:" << Q_FUNC_INFO << component->url().toString();
+        foreach (const QQmlError &error, component->errors())
+            qWarning() << error;
+        qWarning() << "file data:\n" << data;
+    }
     return object;
 }
 
@@ -1018,7 +1024,7 @@ QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlC
     if (component.isError()) {
         qDebug() << componentPath;
         foreach (const QQmlError &error, component.errors())
-            qDebug() << error;
+            qWarning() << error;
     }
 
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
@@ -1038,11 +1044,10 @@ QObject *ObjectNodeInstance::createComponent(const QUrl &componentUrl, QQmlConte
     component.completeCreate();
 
     if (component.isError()) {
-        qDebug() << componentUrl;
+        qWarning() << "Error in:" << Q_FUNC_INFO << componentUrl;
         foreach (const QQmlError &error, component.errors())
-            qDebug() << error;
+            qWarning() << error;
     }
-
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
     return object;
@@ -1063,6 +1068,12 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
     component.completeCreate();
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
+    if (component.isError()) {
+        qWarning() << "Error in:" << Q_FUNC_INFO << component.url().toString();
+        foreach (const QQmlError &error, component.errors())
+            qWarning() << error;
+        qWarning() << "file data:\n" << data;
+    }
     return object;
 }
 

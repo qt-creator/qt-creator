@@ -77,7 +77,7 @@ void ComponentNodeInstance::setNodeSource(const QString &source)
 
     if (component()->isError()) {
         foreach (const QQmlError &error, component()->errors())
-            qDebug() << error;
+            qWarning() << error;
     }
 
 }

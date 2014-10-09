@@ -480,7 +480,7 @@ void NodeInstanceServer::setupDefaultDummyData()
     }
 
     if (m_dummyContextObject) {
-        qWarning() << "Loaded default dummy context object.";
+        qDebug() << "Loaded default dummy context object.";
         m_dummyContextObject->setParent(this);
     }
 
@@ -1134,7 +1134,7 @@ void NodeInstanceServer::loadDummyDataFile(const QFileInfo& qmlFileInfo)
     QVariant oldDummyDataObject = rootContext()->contextProperty(qmlFileInfo.completeBaseName());
 
     if (dummyData) {
-        qWarning() << "Loaded dummy data:" << qmlFileInfo.filePath();
+        qDebug() << "Loaded dummy data:" << qmlFileInfo.filePath();
         rootContext()->setContextProperty(qmlFileInfo.completeBaseName(), dummyData);
         dummyData->setParent(this);
         m_dummyObjectList.append(DummyPair(qmlFileInfo.completeBaseName(), dummyData));

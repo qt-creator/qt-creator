@@ -950,6 +950,12 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
     tweakObjects(object);
     component.completeCreate();
 
+    if (component.isError()) {
+        qDebug() << component.url().toString();
+        foreach (const QDeclarativeError &error, component.errors())
+            qWarning() << error;
+    }
+
     QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
 
     return object;
