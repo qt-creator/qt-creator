@@ -84,7 +84,7 @@ private:
 
     ObjectNodeInstanceWeakPointer m_nodeInstance;
     PropertyName m_prefix;
-    QPointer<QQmlContext>  m_context;
+    QPointer<QQmlContext> m_context;
     QQmlOpenMetaObjectType *m_type;
     QScopedPointer<MetaPropertyData> m_data;
     //QAbstractDynamicMetaObject *m_parent;

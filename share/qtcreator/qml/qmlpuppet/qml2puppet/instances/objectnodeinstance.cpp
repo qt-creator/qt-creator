@@ -961,7 +961,6 @@ void tweakObjects(QObject *object)
 QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)
 {
     ComponentCompleteDisabler disableComponentComplete;
-
     Q_UNUSED(disableComponentComplete)
 
     QQmlComponent *component = new QQmlComponent(context->engine());
@@ -969,17 +968,13 @@ QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, cons
     QByteArray data(nodeSource.toUtf8());
     data.prepend(importCode);
     component->setData(data, context->baseUrl().resolved(QUrl("createComponent.qml")));
-
     QObject *object = component;
     tweakObjects(object);
-
     QQmlEngine::setContextForObject(object, context);
-
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
     return object;
 }
-
 
 //The component might also be shipped with Creator.
 //To avoid trouble with import "." we use the component shipped with Creator.
@@ -1034,12 +1029,11 @@ QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlC
 QObject *ObjectNodeInstance::createComponent(const QUrl &componentUrl, QQmlContext *context)
 {
     ComponentCompleteDisabler disableComponentComplete;
-
     Q_UNUSED(disableComponentComplete)
 
     QQmlComponent component(context->engine(), componentUrl);
-    QObject *object = component.beginCreate(context);
 
+    QObject *object = component.beginCreate(context);
     tweakObjects(object);
     component.completeCreate();
 
@@ -1057,7 +1051,6 @@ QObject *ObjectNodeInstance::createComponent(const QUrl &componentUrl, QQmlConte
 QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QByteArray &importCode, QQmlContext *context)
 {
     ComponentCompleteDisabler disableComponentComplete;
-
     Q_UNUSED(disableComponentComplete)
 
     QQmlComponent component(context->engine());
@@ -1065,11 +1058,9 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
     QByteArray data(nodeSource.toUtf8());
     data.prepend(importCode);
     component.setData(data, context->baseUrl().resolved(QUrl("createCustomParserObject.qml")));
-
     QObject *object = component.beginCreate(context);
     tweakObjects(object);
     component.completeCreate();
-
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
     return object;

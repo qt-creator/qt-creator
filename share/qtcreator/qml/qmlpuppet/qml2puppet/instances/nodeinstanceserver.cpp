@@ -120,7 +120,7 @@ NodeInstanceServer::~NodeInstanceServer()
 {
 }
 
-QList<ServerNodeInstance>  NodeInstanceServer::createInstances(const QVector<InstanceContainer> &containerVector)
+QList<ServerNodeInstance> NodeInstanceServer::createInstances(const QVector<InstanceContainer> &containerVector)
 {
     Q_ASSERT(declarativeView() || quickView());
     QList<ServerNodeInstance> instanceList;
@@ -487,7 +487,7 @@ void NodeInstanceServer::setupDefaultDummyData()
     refreshBindings();
 }
 
-QList<ServerNodeInstance>  NodeInstanceServer::setupInstances(const CreateSceneCommand &command)
+QList<ServerNodeInstance> NodeInstanceServer::setupInstances(const CreateSceneCommand &command)
 {
     QList<ServerNodeInstance> instanceList = createInstances(command.instances());
 
