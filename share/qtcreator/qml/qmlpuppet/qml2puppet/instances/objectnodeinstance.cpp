@@ -1158,7 +1158,7 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
 
     tweakObjects(object);
 
-    if (object)
+    if (object && QQmlEngine::contextForObject(object) == 0)
         QQmlEngine::setContextForObject(object, context);
 
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
