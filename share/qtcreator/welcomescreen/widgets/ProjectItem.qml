@@ -31,60 +31,51 @@ import QtQuick 2.1
 
 Item {
     id: projectItem
-    width: childrenRect.width
-    height: 32
+    width: row.width + 8
+    height: text.height
 
     Rectangle {
         anchors.fill: parent
-        anchors.margins: -4
         color: "#f9f9f9"
-        opacity: projectNameText.hovered ? 1 : 0
+        visible: mouseArea.containsMouse
     }
 
     property alias projectName: projectNameText.text
     property alias projectPath: pathText.text
 
-    Image {
-        id: icon
-        source: "images/project.png"
-        anchors.verticalCenter: projectNameText.verticalCenter
-        width: 16
-        height: 16
+    Row {
+        id: row
+        spacing: 5
+
+        Image {
+            y: 3
+            source: "images/project.png"
+        }
+
+        Column {
+            id: text
+
+            LinkedText {
+                id: projectNameText
+                height: 20
+                font.underline: mouseArea.containsMouse
+                font.pixelSize: fonts.linkFont.pixelSize
+                enlargeMouseArea: false
+            }
+            NativeText {
+                id: pathText
+                height: 20
+                color: "#6b6b6b"
+                font: fonts.smallPath
+            }
+        }
     }
 
-    LinkedText {
-        id: projectNameText
-        y: 2
-        anchors.left: parent.left
-        anchors.leftMargin: 5 + icon.width
-
-        onClicked: projectWelcomePage.requestProject(filePath)
-    }
-
-    NativeText {
-        id: pathText
-        y: 18
-        color: "#6b6b6b"
-
-        anchors.left: parent.left
-        anchors.leftMargin: projectNameText.anchors.leftMargin
-        font: fonts.smallPath
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
-            onEntered: {
-                toolTip.show();
-            }
-            onExited: {
-                toolTip.hide()
-            }
-
-        }
-        ToolTip {
-            x: 10
-            y: 20
-            id: toolTip
-            text: pathText.text
-        }
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+        onClicked: projectWelcomePage.requestProject(filePath);
     }
 }

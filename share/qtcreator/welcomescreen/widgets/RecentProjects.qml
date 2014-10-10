@@ -45,7 +45,6 @@ Rectangle {
 
     Column {
         id: column
-        spacing: 6
 
         Repeater {
             id: repeater
