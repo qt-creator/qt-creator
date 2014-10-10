@@ -32,8 +32,9 @@
 #include "debuggeritemmanager.h"
 #include "debuggerkitconfigwidget.h"
 
-#include "projectexplorer/toolchain.h"
-#include "projectexplorer/projectexplorerconstants.h"
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/kitinformationmacroexpander.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -297,6 +298,20 @@ QList<Task> DebuggerKitInformation::validateDebugger(const Kit *k)
 KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
 {
     return new Internal::DebuggerKitConfigWidget(k, this);
+}
+
+AbstractMacroExpander *DebuggerKitInformation::createMacroExpander(const Kit *k) const
+{
+    return new MacroExpander([k, this](const QString &name, QString *ret) -> bool {
+        const DebuggerItem *item = DebuggerKitInformation::debugger(k);
+
+        if (name == QLatin1String("Debugger:engineType")) {
+            *ret = item ? item->engineTypeName()  : tr("none");
+            return true;
+        }
+
+        return false;
+    });
 }
 
 KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) const

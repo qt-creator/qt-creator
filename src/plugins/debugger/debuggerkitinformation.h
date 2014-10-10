@@ -62,6 +62,7 @@ public:
     static bool isValidDebugger(const ProjectExplorer::Kit *k);
 
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
+    Utils::AbstractMacroExpander *createMacroExpander(const ProjectExplorer::Kit *k) const;
 
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
 
