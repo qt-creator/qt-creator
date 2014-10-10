@@ -305,8 +305,7 @@ void HelpPlugin::setupUi()
     ContentWindow *contentWindow = new ContentWindow();
     contentWindow->setWindowTitle(tr(Constants::SB_CONTENTS));
     auto contentItem = new SideBarItem(contentWindow, QLatin1String(Constants::HELP_CONTENTS));
-    connect(contentWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
-        SLOT(setSource(QUrl)));
+    connect(contentWindow, &ContentWindow::linkActivated, m_centralWidget, &HelpWidget::open);
 
     action = new QAction(tr("Activate Help Contents View"), m_splitter);
     cmd = ActionManager::registerAction(action, Constants::HELP_CONTENTS, modecontext);

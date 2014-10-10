@@ -37,9 +37,13 @@
 QT_BEGIN_NAMESPACE
 
 class QHelpContentItem;
-class QHelpContentWidget;
+class QHelpContentModel;
 
 QT_END_NAMESPACE
+
+namespace Utils {
+class NavigationTreeView;
+}
 
 class ContentWindow : public QWidget
 {
@@ -49,21 +53,18 @@ public:
     ContentWindow();
     ~ContentWindow();
 
-    bool syncToContent(const QUrl &url);
-    void expandToDepth(int depth);
-
 signals:
-    void linkActivated(const QUrl &link);
-
-private slots:
-    void showContextMenu(const QPoint &pos);
-    void expandTOC();
-    void itemClicked(const QModelIndex &index);
+    void linkActivated(const QUrl &link, bool newPage);
 
 private:
+    void showContextMenu(const QPoint &pos);
+    void expandTOC();
+    void itemActivated(const QModelIndex &index);
+    void expandToDepth(int depth);
     bool eventFilter(QObject *o, QEvent *e);
 
-    QHelpContentWidget *m_contentWidget;
+    Utils::NavigationTreeView *m_contentWidget;
+    QHelpContentModel *m_contentModel;
     int m_expandDepth;
 };
 

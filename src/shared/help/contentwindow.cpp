@@ -34,12 +34,14 @@
 #include <localhelpmanager.h>
 #include <openpagesmanager.h>
 
+#include <utils/navigationtreeview.h>
+
 #include <QLayout>
 #include <QFocusEvent>
 #include <QMenu>
 
 #include <QHelpEngine>
-#include <QHelpContentWidget>
+#include <QHelpContentModel>
 
 using namespace Help::Internal;
 
@@ -47,7 +49,10 @@ ContentWindow::ContentWindow()
     : m_contentWidget(0)
     , m_expandDepth(-2)
 {
-    m_contentWidget = (&LocalHelpManager::helpEngine())->contentWidget();
+    m_contentModel = (&LocalHelpManager::helpEngine())->contentModel();
+    m_contentWidget = new Utils::NavigationTreeView;
+    m_contentWidget->setModel(m_contentModel);
+    m_contentWidget->setActivationMode(Utils::SingleClickActivation);
     m_contentWidget->installEventFilter(this);
     m_contentWidget->viewport()->installEventFilter(this);
     m_contentWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -57,29 +62,17 @@ ContentWindow::ContentWindow()
     layout->setMargin(0);
     layout->addWidget(m_contentWidget);
 
-    connect(m_contentWidget, SIGNAL(customContextMenuRequested(QPoint)), this,
-        SLOT(showContextMenu(QPoint)));
-    connect(m_contentWidget, SIGNAL(linkActivated(QUrl)), this,
-        SIGNAL(linkActivated(QUrl)));
+    connect(m_contentWidget, &QWidget::customContextMenuRequested,
+            this, &ContentWindow::showContextMenu);
+    connect(m_contentWidget, &QTreeView::activated,
+            this, &ContentWindow::itemActivated);
 
-    QHelpContentModel *contentModel =
-        qobject_cast<QHelpContentModel*>(m_contentWidget->model());
-    connect(contentModel, SIGNAL(contentsCreated()), this, SLOT(expandTOC()));
-
-    m_contentWidget->setFrameStyle(QFrame::NoFrame);
+    connect(m_contentModel, &QHelpContentModel::contentsCreated,
+            this, &ContentWindow::expandTOC);
 }
 
 ContentWindow::~ContentWindow()
 {
-}
-
-bool ContentWindow::syncToContent(const QUrl& url)
-{
-    QModelIndex idx = m_contentWidget->indexOf(url);
-    if (!idx.isValid())
-        return false;
-    m_contentWidget->setCurrentIndex(idx);
-    return true;
 }
 
 void ContentWindow::expandTOC()
@@ -105,7 +98,7 @@ bool ContentWindow::eventFilter(QObject *o, QEvent *e)
         && e->type() == QEvent::MouseButtonRelease) {
         QMouseEvent *me = static_cast<QMouseEvent*>(e);
         QItemSelectionModel *sm = m_contentWidget->selectionModel();
-        if (!me || !sm)
+        if (!sm)
             return QWidget::eventFilter(o, e);
 
         Qt::MouseButtons button = me->button();
@@ -113,16 +106,10 @@ bool ContentWindow::eventFilter(QObject *o, QEvent *e)
 
         if (index.isValid() && sm->isSelected(index)) {
             if ((button == Qt::LeftButton && (me->modifiers() & Qt::ControlModifier))
-                || (button == Qt::MidButton)) {
-                QHelpContentModel *contentModel =
-                    qobject_cast<QHelpContentModel*>(m_contentWidget->model());
-                if (contentModel) {
-                    QHelpContentItem *itm = contentModel->contentItemAt(index);
-                    if (itm && HelpViewer::canOpenPage(itm->url().path()))
-                        OpenPagesManager::instance().createPage(itm->url());
-                }
-            } else if (button == Qt::LeftButton) {
-                itemClicked(index);
+                    || (button == Qt::MidButton)) {
+                QHelpContentItem *itm = m_contentModel->contentItemAt(index);
+                if (itm)
+                    emit linkActivated(itm->url(), true/*newPage*/);
             }
         }
     }
@@ -149,21 +136,13 @@ void ContentWindow::showContextMenu(const QPoint &pos)
 
     QAction *action = menu.exec();
     if (curTab == action)
-        emit linkActivated(itm->url());
+        emit linkActivated(itm->url(), false/*newPage*/);
     else if (newTab == action)
-        OpenPagesManager::instance().createPage(itm->url());
+        emit linkActivated(itm->url(), true/*newPage*/);
 }
 
-void ContentWindow::itemClicked(const QModelIndex &index)
+void ContentWindow::itemActivated(const QModelIndex &index)
 {
-    QHelpContentModel *contentModel =
-        qobject_cast<QHelpContentModel*>(m_contentWidget->model());
-
-    if (contentModel) {
-        if (QHelpContentItem *itm = contentModel->contentItemAt(index)) {
-            const QUrl &url = itm->url();
-            if (url != CentralWidget::instance()->currentViewer()->source())
-                emit linkActivated(itm->url());
-        }
-    }
+    if (QHelpContentItem *itm = m_contentModel->contentItemAt(index))
+        emit linkActivated(itm->url(), false/*newPage*/);
 }
