@@ -92,4 +92,56 @@ Column {
 
         }
     }
+
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("Color")
+
+        ColorEditor {
+            caption: qsTr("Color")
+            backendValue: backendValues.color
+            supportGradient: true
+        }
+
+    }
+
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: "Rectangle"
+
+        SectionLayout {
+            rows: 2
+            Label {
+                text: qsTr("Visible")
+            }
+            SecondColumnLayout {
+                CheckBox {
+                    backendValue: backendValues.visible
+                    Layout.preferredWidth: 80
+                }
+                ExpandingSpacer {
+
+                }
+            }
+            Label {
+                text: qsTr("Opacity")
+            }
+            SecondColumnLayout {
+                SpinBox {
+                    backendValue: backendValues.opacity
+                    hasSlider: true
+                    Layout.preferredWidth: 80
+                    minimumValue: 0
+                    maximumValue: 1
+                    stepSize: 0.1
+                    decimals: 2
+                }
+                ExpandingSpacer {
+
+                }
+            }
+        }
+    }
 }
