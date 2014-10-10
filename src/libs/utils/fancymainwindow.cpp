@@ -221,7 +221,7 @@ public:
 
     bool isClickable() const
     {
-        return m_active || q->q->titleBarsAlwaysVisible();
+        return m_active || !q->q->autoHideTitleBars();
     }
 
     QSize sizeHint() const
@@ -289,7 +289,7 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent)
 
 bool DockWidget::eventFilter(QObject *, QEvent *event)
 {
-    if (event->type() == QEvent::MouseMove && !q->titleBarsAlwaysVisible()) {
+    if (event->type() == QEvent::MouseMove && q->autoHideTitleBars()) {
         QMouseEvent *me = static_cast<QMouseEvent *>(event);
         int y = me->pos().y();
         int x = me->pos().x();
@@ -499,7 +499,7 @@ QList<QDockWidget *> FancyMainWindow::dockWidgets() const
     return findChildren<QDockWidget *>();
 }
 
-bool FancyMainWindow::titleBarsAlwaysVisible() const
+bool FancyMainWindow::autoHideTitleBars() const
 {
     return d->m_autoHideTitleBars.isChecked();
 }

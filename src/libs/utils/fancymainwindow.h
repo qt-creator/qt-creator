@@ -72,7 +72,7 @@ public:
     QDockWidget *toolBarDockWidget() const;
     void setToolBarDockWidget(QDockWidget *dock);
 
-    bool titleBarsAlwaysVisible() const;
+    bool autoHideTitleBars() const;
 
 signals:
     // Emitted by resetLayoutAction(). Connect to a slot
