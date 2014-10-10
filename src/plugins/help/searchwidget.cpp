@@ -104,7 +104,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         vLayout->setMargin(0);
         vLayout->setSpacing(0);
 
-        searchEngine = (&LocalHelpManager::helpEngine())->searchEngine();
+        searchEngine = new QHelpSearchEngine(&LocalHelpManager::helpEngine(), this);
 
         Utils::StyledBar *toolbar = new Utils::StyledBar(this);
         toolbar->setSingleRow(false);
@@ -129,8 +129,10 @@ void SearchWidget::showEvent(QShowEvent *event)
         setFocusProxy(queryWidget);
 
         connect(queryWidget, SIGNAL(search()), this, SLOT(search()));
-        connect(resultWidget, SIGNAL(requestShowLink(QUrl)), this,
-            SIGNAL(linkActivated(QUrl)));
+        connect(resultWidget, &QHelpSearchResultWidget::requestShowLink, this,
+                [this](const QUrl &url) {
+                    emit linkActivated(url, false/*newPage*/);
+                });
 
         connect(searchEngine, SIGNAL(searchingStarted()), this,
             SLOT(searchingStarted()));
@@ -224,7 +226,7 @@ bool SearchWidget::eventFilter(QObject *o, QEvent *e)
             bool controlPressed = me->modifiers() & Qt::ControlModifier;
             if ((me->button() == Qt::LeftButton && controlPressed)
                 || (me->button() == Qt::MidButton)) {
-                    OpenPagesManager::instance().createPageFromSearch(link);
+                    emit linkActivated(link, true/*newPage*/);
             }
         }
     }
@@ -261,9 +263,9 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 
     QAction *usedAction = menu.exec(mapToGlobal(contextMenuEvent->pos()));
     if (usedAction == openLink)
-        emit linkActivated(link);
+        emit linkActivated(link, false/*newPage*/);
     else if (usedAction == openLinkInNewTab)
-        OpenPagesManager::instance().createPageFromSearch(link);
+        emit linkActivated(link, true/*newPage*/);
     else if (usedAction == copyAnchorAction)
         QApplication::clipboard()->setText(link.toString());
 }
@@ -274,7 +276,7 @@ SearchSideBarItem::SearchSideBarItem()
     : SideBarItem(new SearchWidget, QLatin1String(Constants::HELP_SEARCH))
 {
     widget()->setWindowTitle(tr(Constants::SB_SEARCH));
-    connect(widget(), SIGNAL(linkActivated(QUrl)), this, SIGNAL(linkActivated(QUrl)));
+    connect(widget(), SIGNAL(linkActivated(QUrl,bool)), this, SIGNAL(linkActivated(QUrl,bool)));
 }
 
 QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()

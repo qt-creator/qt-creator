@@ -315,8 +315,8 @@ void HelpPlugin::setupUi()
     shortcutMap.insert(QLatin1String(Constants::HELP_CONTENTS), cmd);
 
     auto searchItem = new SearchSideBarItem;
-    connect(searchItem, SIGNAL(linkActivated(QUrl)), m_centralWidget,
-        SLOT(setSourceFromSearch(QUrl)));
+    connect(searchItem, &SearchSideBarItem::linkActivated,
+            m_centralWidget, &HelpWidget::openFromSearch);
 
      action = new QAction(tr("Activate Help Search View"), m_splitter);
      cmd = ActionManager::registerAction(action, Constants::HELP_SEARCH, modecontext);

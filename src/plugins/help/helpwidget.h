@@ -81,12 +81,12 @@ public:
     HelpViewer *viewerAt(int index) const;
 
     void open(const QUrl &url, bool newPage = false);
+    void openFromSearch(const QUrl &url, bool newPage = false);
     void showTopicChooser(const QMap<QString, QUrl> &links, const QString &key,
                           bool newPage = false);
 
 public slots:
     void setSource(const QUrl &url);
-    void setSourceFromSearch(const QUrl &url);
     void updateCloseButton();
 
 protected:

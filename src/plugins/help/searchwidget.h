@@ -57,7 +57,7 @@ public:
     QList<QToolButton *> createToolBarWidgets();
 
 signals:
-    void linkActivated(const QUrl &url);
+    void linkActivated(const QUrl &url, bool newPage);
 };
 
 class SearchWidget : public QWidget
@@ -73,7 +73,7 @@ public:
     void resetZoom();
 
 signals:
-    void linkActivated(const QUrl &link);
+    void linkActivated(const QUrl &link, bool newPage);
 
 protected:
     void showEvent(QShowEvent *event);

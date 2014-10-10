@@ -453,13 +453,17 @@ void HelpWidget::setSource(const QUrl &url)
     viewer->setFocus(Qt::OtherFocusReason);
 }
 
-void HelpWidget::setSourceFromSearch(const QUrl &url)
+void HelpWidget::openFromSearch(const QUrl &url, bool newPage)
 {
-    HelpViewer* viewer = currentViewer();
-    QTC_ASSERT(viewer, return);
-    connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
-    viewer->setSource(url);
-    viewer->setFocus(Qt::OtherFocusReason);
+    if (newPage)
+        OpenPagesManager::instance().createPageFromSearch(url);
+    else {
+        HelpViewer* viewer = currentViewer();
+        QTC_ASSERT(viewer, return);
+        connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
+        viewer->setSource(url);
+        viewer->setFocus(Qt::OtherFocusReason);
+    }
 }
 
 void HelpWidget::closeEvent(QCloseEvent *)
