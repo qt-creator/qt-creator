@@ -40,8 +40,6 @@ QtcPlugin {
             "formtemplatewizardpage.cpp", "formtemplatewizardpage.h",
             "formwindoweditor.cpp", "formwindoweditor.h",
             "formwindowfile.cpp", "formwindowfile.h",
-            "formwizard.cpp", "formwizard.h",
-            "formwizarddialog.cpp", "formwizarddialog.h",
             "qtcreatorintegration.cpp", "qtcreatorintegration.h",
             "qtdesignerformclasscodegenerator.cpp", "qtdesignerformclasscodegenerator.h",
             "resourcehandler.cpp", "resourcehandler.h",
