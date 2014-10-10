@@ -46,8 +46,7 @@
 #include <QUuid>
 
 using namespace Core;
-
-namespace {
+using namespace Utils;
 
 const char ID_KEY[] = "PE.Profile.Id";
 const char DISPLAYNAME_KEY[] = "PE.Profile.Name";
@@ -60,18 +59,16 @@ const char ICON_KEY[] = "PE.Profile.Icon";
 const char MUTABLE_INFO_KEY[] = "PE.Profile.MutableInfo";
 const char STICKY_INFO_KEY[] = "PE.Profile.StickyInfo";
 
-} // namespace
-
 namespace ProjectExplorer {
 
 // --------------------------------------------------------------------
 // KitMacroExpander:
 // --------------------------------------------------------------------
 
-class KitMacroExpander : public Utils::AbstractMacroExpander
+class KitMacroExpander : public AbstractMacroExpander
 {
 public:
-    KitMacroExpander(const QList<Utils::AbstractMacroExpander *> &children) :
+    KitMacroExpander(const QList<AbstractMacroExpander *> &children) :
         m_childExpanders(children)
     { }
     ~KitMacroExpander() { qDeleteAll(m_childExpanders); }
@@ -79,12 +76,12 @@ public:
     bool resolveMacro(const QString &name, QString *ret);
 
 private:
-    QList<Utils::AbstractMacroExpander *> m_childExpanders;
+    QList<AbstractMacroExpander *> m_childExpanders;
 };
 
 bool KitMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
-    foreach (Utils::AbstractMacroExpander *expander, m_childExpanders) {
+    foreach (AbstractMacroExpander *expander, m_childExpanders) {
         if (expander->resolveMacro(name, ret))
             return true;
     }
@@ -115,11 +112,11 @@ public:
             m_id = Id::fromString(QUuid::createUuid().toString());
 
         m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
-        m_iconPath = Utils::FileName::fromLatin1(":///DESKTOP///");
+        m_iconPath = FileName::fromLatin1(":///DESKTOP///");
 
-        QList<Utils::AbstractMacroExpander *> expanders;
+        QList<AbstractMacroExpander *> expanders;
         foreach (const KitInformation *ki, KitManager::kitInformation()) {
-            Utils::AbstractMacroExpander *tmp = ki->createMacroExpander(k);
+            AbstractMacroExpander *tmp = ki->createMacroExpander(k);
             if (tmp)
                 expanders.append(tmp);
         }
@@ -142,12 +139,12 @@ public:
     bool m_hasValidityInfo;
     bool m_mustNotify;
     QIcon m_icon;
-    Utils::FileName m_iconPath;
+    FileName m_iconPath;
 
     QHash<Core::Id, QVariant> m_data;
     QSet<Core::Id> m_sticky;
     QSet<Core::Id> m_mutable;
-    Utils::AbstractMacroExpander *m_macroExpander;
+    AbstractMacroExpander *m_macroExpander;
 };
 
 } // namespace Internal
@@ -183,8 +180,8 @@ Kit::Kit(const QVariantMap &data) :
     d->m_displayName = data.value(QLatin1String(DISPLAYNAME_KEY),
                                   d->m_displayName).toString();
     d->m_fileSystemFriendlyName = data.value(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY)).toString();
-    d->m_iconPath = Utils::FileName::fromString(data.value(QLatin1String(ICON_KEY),
-                                                           d->m_iconPath.toString()).toString());
+    d->m_iconPath = FileName::fromString(data.value(QLatin1String(ICON_KEY),
+                                                    d->m_iconPath.toString()).toString());
     d->m_icon = icon(d->m_iconPath);
 
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
@@ -371,14 +368,14 @@ QString Kit::fileSystemFriendlyName() const
 {
     QString name = customFileSystemFriendlyName();
     if (name.isEmpty())
-        name = Utils::FileUtils::qmakeFriendlyName(displayName());
+        name = FileUtils::qmakeFriendlyName(displayName());
     foreach (Kit *i, KitManager::kits()) {
         if (i == this)
             continue;
-        if (name == Utils::FileUtils::qmakeFriendlyName(i->displayName())) {
+        if (name == FileUtils::qmakeFriendlyName(i->displayName())) {
             // append part of the kit id: That should be unique enough;-)
             // Leading { will be turned into _ which should be fine.
-            name = Utils::FileUtils::qmakeFriendlyName(name + QLatin1Char('_') + (id().toString().left(7)));
+            name = FileUtils::qmakeFriendlyName(name + QLatin1Char('_') + (id().toString().left(7)));
             break;
         }
     }
@@ -410,11 +407,11 @@ QIcon Kit::icon() const
     return d->m_icon;
 }
 
-QIcon Kit::icon(const Utils::FileName &path)
+QIcon Kit::icon(const FileName &path)
 {
     if (path.isEmpty())
         return QIcon();
-    if (path == Utils::FileName::fromLatin1(":///DESKTOP///"))
+    if (path == FileName::fromLatin1(":///DESKTOP///"))
         return qApp->style()->standardIcon(QStyle::SP_ComputerIcon);
 
     QFileInfo fi(path.toString());
@@ -423,12 +420,12 @@ QIcon Kit::icon(const Utils::FileName &path)
     return QIcon();
 }
 
-Utils::FileName Kit::iconPath() const
+FileName Kit::iconPath() const
 {
     return d->m_iconPath;
 }
 
-void Kit::setIconPath(const Utils::FileName &path)
+void Kit::setIconPath(const FileName &path)
 {
     if (d->m_iconPath == path)
         return;
@@ -538,7 +535,7 @@ QVariantMap Kit::toMap() const
     return data;
 }
 
-void Kit::addToEnvironment(Utils::Environment &env) const
+void Kit::addToEnvironment(Environment &env) const
 {
     QList<KitInformation *> infoList = KitManager::kitInformation();
     foreach (KitInformation *ki, infoList)
@@ -682,7 +679,7 @@ bool Kit::hasFeatures(const FeatureSet &features) const
     return availableFeatures().contains(features);
 }
 
-Utils::AbstractMacroExpander *Kit::macroExpander() const
+AbstractMacroExpander *Kit::macroExpander() const
 {
     QTC_CHECK(d->m_macroExpander);
     return d->m_macroExpander;
