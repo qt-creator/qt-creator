@@ -80,14 +80,13 @@
 #include "dummycontextobject.h"
 
 namespace {
-    bool testImportStatements(const QStringList &importStatementList, bool enableErrorOutput = false) {
-        static const QUrl localEmptyUrl(QUrl::fromLocalFile(""));
+    bool testImportStatements(const QStringList &importStatementList, const QUrl &url, bool enableErrorOutput = false) {
         QQmlEngine engine;
         QQmlComponent testImportComponent(&engine);
 
         QByteArray testComponentCode = QStringList(importStatementList).join("\n").toUtf8();
 
-        testImportComponent.setData(testComponentCode.append("\nItem {}\n"), localEmptyUrl);
+        testImportComponent.setData(testComponentCode.append("\nItem {}\n"), url);
         testImportComponent.create();
 
         if (testImportComponent.errors().isEmpty()) {
@@ -399,13 +398,13 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
     bool enableErrorOutput(true);
 
     // maybe it just works
-    if (testImportStatements(importStatementList)) {
+    if (testImportStatements(importStatementList, fileUrl())) {
         workingImportStatementList = importStatementList;
     } else {
         QString firstWorkingImportStatement; //usually this will be "import QtQuick x.x"
         QStringList otherImportStatements;
         foreach (const QString &importStatement, importStatementList) {
-            if (testImportStatements(QStringList(importStatement)))
+            if (testImportStatements(QStringList(importStatement), fileUrl()))
                 firstWorkingImportStatement = importStatement;
             else
                 otherImportStatements.append(importStatement);
@@ -413,8 +412,10 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
 
         // find the bad imports from otherImportStatements
         foreach (const QString &importStatement, otherImportStatements) {
-            if (testImportStatements(QStringList(firstWorkingImportStatement) << importStatement, enableErrorOutput))
+            if (testImportStatements(QStringList(firstWorkingImportStatement) <<
+                importStatement, fileUrl(), enableErrorOutput)) {
                 workingImportStatementList.append(importStatement);
+            }
         }
         workingImportStatementList.prepend(firstWorkingImportStatement);
     }
@@ -424,7 +425,7 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
 
 void NodeInstanceServer::setupOnlyWorkingImports(const QStringList &workingImportStatementList)
 {
-    QByteArray componentCode = workingImportStatementList.join("\n").toUtf8();
+    QByteArray componentCode = workingImportStatementList.join("\n").toUtf8().append("\n");
     m_importCode = componentCode;
 
     m_importComponent = new QQmlComponent(engine(), quickView());
@@ -461,7 +462,8 @@ void NodeInstanceServer::setupDummyData(const QUrl &fileUrl)
 void NodeInstanceServer::setupDefaultDummyData()
 {
     QQmlComponent component(engine());
-    QByteArray defaultContextObjectArray("import QmlDesigner 1.0\n"
+    QByteArray defaultContextObjectArray("import QtQml 2.0\n"
+                                         "import QmlDesigner 1.0\n"
                                          "DummyContextObject {\n"
                                          "    parent: QtObject {\n"
                                          "        property real width: 360\n"
