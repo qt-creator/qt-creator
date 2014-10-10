@@ -449,7 +449,7 @@ class DumperBase:
                 data = data & 0xffffffff
             else:
                 data = data & 0xffffffffffffffff
-        else:
+        elif self.qtVersion() >= 0x040000:
             # Data:
             # - QBasicAtomicInt ref;
             # - int alloc, size;
@@ -458,6 +458,15 @@ class DumperBase:
             alloc = self.extractInt(addr + 4)
             size = self.extractInt(addr + 8)
             data = self.extractPointer(addr + 8 + self.ptrSize())
+        else:
+            # Data:
+            # - QShared count;
+            # - QChar *unicode
+            # - char *ascii
+            # - uint len: 30
+            size = self.extractInt(addr + 3 * self.ptrSize()) & 0x3ffffff
+            alloc = size  # pretend.
+            data = self.extractPointer(addr + self.ptrSize())
         return data, size, alloc
 
     # addr is the begin of a QByteArrayData structure

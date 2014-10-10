@@ -1501,8 +1501,16 @@ class Dumper(DumperBase):
             pass
 
         try:
-            # Seemingly needed with Debian's GDB 7.4.1
+            # Last fall backs.
             s = gdb.execute("ptype QByteArray", to_string=True)
+            if s.find("QMemArray") >= 0:
+                # Qt 3.
+                self.qtNamespaceToReport = ""
+                self.qtNamespace = lambda: ""
+                self.qtVersion = lambda: 0x30308
+                self.fallbackQtVersion = 0x30308
+                return ""
+            # Seemingly needed with Debian's GDB 7.4.1
             ns = s[s.find("class")+6:s.find("QByteArray")]
             if len(ns):
                 self.qtNamespaceToReport = ns
