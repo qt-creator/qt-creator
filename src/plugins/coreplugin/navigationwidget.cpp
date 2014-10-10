@@ -184,7 +184,7 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
     foreach (INavigationWidgetFactory *factory, factories) {
         const Id id = factory->id();
 
-        QAction *action= new QAction(tr("Activate %1 Pane").arg(factory->displayName()), this);
+        QAction *action = new QAction(tr("Activate %1 View").arg(factory->displayName()), this);
         connect(action, SIGNAL(triggered()), this, SLOT(activateSubWidget()));
         d->m_actionMap.insert(action, id);
 

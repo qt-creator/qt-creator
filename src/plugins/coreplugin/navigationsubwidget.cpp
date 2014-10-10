@@ -199,7 +199,7 @@ bool CommandComboBox::event(QEvent *e)
     if (e->type() == QEvent::ToolTip) {
         const QString text = currentText();
         if (const Core::Command *cmd = command(text)) {
-            const QString tooltip = tr("Activate %1 Pane").arg(text);
+            const QString tooltip = tr("Activate %1 View").arg(text);
             setToolTip(cmd->stringWithAppendedShortcut(tooltip));
         } else {
             setToolTip(text);
