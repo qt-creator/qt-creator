@@ -30,6 +30,7 @@
 #include "helpwidget.h"
 
 #include "bookmarkmanager.h"
+#include "contentwindow.h"
 #include "helpconstants.h"
 #include "helpplugin.h"
 #include "helpviewer.h"
@@ -256,6 +257,7 @@ HelpWidget::~HelpWidget()
 {
     if (m_sideBar) {
         m_sideBar->saveSettings(Core::ICore::settings(), QLatin1String(kSideBarSettingsKey));
+        Core::ActionManager::unregisterAction(m_contentsAction, Constants::HELP_CONTENTS);
         Core::ActionManager::unregisterAction(m_indexAction, Constants::HELP_INDEX);
         Core::ActionManager::unregisterAction(m_bookmarkAction, Constants::HELP_BOOKMARKS);
     }
@@ -282,6 +284,18 @@ void HelpWidget::addSideBar()
 {
     QMap<QString, Core::Command *> shortcutMap;
     Core::Command *cmd;
+
+    auto contentWindow = new ContentWindow;
+    auto contentItem = new Core::SideBarItem(contentWindow, QLatin1String(Constants::HELP_CONTENTS));
+    contentWindow->setOpenInNewPageActionVisible(false);
+    contentWindow->setWindowTitle(tr(Constants::SB_CONTENTS));
+    connect(contentWindow, &ContentWindow::linkActivated,
+            this, &HelpWidget::open);
+    m_contentsAction = new QAction(tr("Activate Help Contents View"), this);
+    cmd = Core::ActionManager::registerAction(m_contentsAction, Constants::HELP_CONTENTS, m_context->context());
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+C")
+                                                                  : tr("Ctrl+Shift+C")));
+    shortcutMap.insert(QLatin1String(Constants::HELP_CONTENTS), cmd);
 
     auto indexWindow = new IndexWindow();
     auto indexItem = new Core::SideBarItem(indexWindow, QLatin1String(Constants::HELP_INDEX));
@@ -311,14 +325,16 @@ void HelpWidget::addSideBar()
     shortcutMap.insert(QLatin1String(Constants::HELP_BOOKMARKS), cmd);
 
     QList<Core::SideBarItem *> itemList;
-    itemList << indexItem << bookmarkItem;
-    m_sideBar = new Core::SideBar(itemList, QList<Core::SideBarItem *>() << indexItem);
+    itemList << contentItem << indexItem << bookmarkItem;
+    m_sideBar = new Core::SideBar(itemList,
+                                  QList<Core::SideBarItem *>() << contentItem << indexItem);
     m_sideBar->setShortcutMap(shortcutMap);
     m_sideBar->setCloseWhenEmpty(true);
     m_sideBarSplitter->insertWidget(0, m_sideBar);
     m_sideBarSplitter->setStretchFactor(0, 0);
     m_sideBarSplitter->setStretchFactor(1, 1);
     m_sideBar->setVisible(false);
+    m_sideBar->resize(250, size().height());
     m_sideBar->readSettings(Core::ICore::settings(), QLatin1String(kSideBarSettingsKey));
     m_sideBarSplitter->setSizes(QList<int>() << m_sideBar->size().width() << 300);
     m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(this));

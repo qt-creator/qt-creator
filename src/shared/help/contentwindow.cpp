@@ -48,6 +48,7 @@ using namespace Help::Internal;
 ContentWindow::ContentWindow()
     : m_contentWidget(0)
     , m_expandDepth(-2)
+    , m_isOpenInNewPageActionVisible(true)
 {
     m_contentModel = (&LocalHelpManager::helpEngine())->contentModel();
     m_contentWidget = new Utils::NavigationTreeView;
@@ -75,6 +76,11 @@ ContentWindow::~ContentWindow()
 {
 }
 
+void ContentWindow::setOpenInNewPageActionVisible(bool visible)
+{
+    m_isOpenInNewPageActionVisible = visible;
+}
+
 void ContentWindow::expandTOC()
 {
     if (m_expandDepth > -2) {
@@ -94,7 +100,7 @@ void ContentWindow::expandToDepth(int depth)
 
 bool ContentWindow::eventFilter(QObject *o, QEvent *e)
 {
-    if (m_contentWidget && o == m_contentWidget->viewport()
+    if (m_isOpenInNewPageActionVisible && m_contentWidget && o == m_contentWidget->viewport()
         && e->type() == QEvent::MouseButtonRelease) {
         QMouseEvent *me = static_cast<QMouseEvent*>(e);
         QItemSelectionModel *sm = m_contentWidget->selectionModel();
@@ -128,16 +134,14 @@ void ContentWindow::showContextMenu(const QPoint &pos)
 
     QMenu menu;
     QAction *curTab = menu.addAction(tr("Open Link"));
-    QAction *newTab = menu.addAction(tr("Open Link as New Page"));
-    if (!HelpViewer::canOpenPage(itm->url().path()))
-        newTab->setEnabled(false);
+    QAction *newTab = 0;
+    if (m_isOpenInNewPageActionVisible)
+        newTab = menu.addAction(tr("Open Link as New Page"));
 
-    menu.move(m_contentWidget->mapToGlobal(pos));
-
-    QAction *action = menu.exec();
+    QAction *action = menu.exec(m_contentWidget->mapToGlobal(pos));
     if (curTab == action)
         emit linkActivated(itm->url(), false/*newPage*/);
-    else if (newTab == action)
+    else if (newTab && newTab == action)
         emit linkActivated(itm->url(), true/*newPage*/);
 }
 

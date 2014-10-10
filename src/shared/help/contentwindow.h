@@ -53,6 +53,8 @@ public:
     ContentWindow();
     ~ContentWindow();
 
+    void setOpenInNewPageActionVisible(bool visible);
+
 signals:
     void linkActivated(const QUrl &link, bool newPage);
 
@@ -66,6 +68,7 @@ private:
     Utils::NavigationTreeView *m_contentWidget;
     QHelpContentModel *m_contentModel;
     int m_expandDepth;
+    bool m_isOpenInNewPageActionVisible;
 };
 
 #endif // CONTENTWINDOW_H
