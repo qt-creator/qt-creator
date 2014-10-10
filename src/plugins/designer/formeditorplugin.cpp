@@ -31,6 +31,7 @@
 #include "formeditorplugin.h"
 #include "formeditorfactory.h"
 #include "formeditorw.h"
+#include "formtemplatewizardpage.h"
 #include "formwindoweditor.h"
 #include "formwizard.h"
 
@@ -49,6 +50,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -84,6 +86,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
     initializeTemplates();
 
+    ProjectExplorer::JsonWizardFactory::registerPageFactory(new Internal::FormPageFactory);
     addAutoReleasedObject(new FormEditorFactory);
     addAutoReleasedObject(new SettingsPageProvider);
     addAutoReleasedObject(new QtDesignerFormClassCodeGenerator);
