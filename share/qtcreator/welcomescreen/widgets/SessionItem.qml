@@ -40,17 +40,16 @@ Item {
 
     Column {
         id: columns
-        spacing: 4
 
         Row {
             id: row1
-            height: text.height + 8
+            height: text.height
 
             spacing: 7
 
             Image {
                 source: "images/sessions.png"
-                anchors.verticalCenter: projectNameText.verticalCenter
+                anchors.verticalCenter: text.verticalCenter
                 width: 16
                 height: 16
             }
@@ -58,11 +57,10 @@ Item {
             LinkedText {
                 id: text
 
-                onClicked: {
-                    projectWelcomePage.requestSession(sessionName);
-                }
+                onClicked: projectWelcomePage.requestSession(sessionName);
 
                 width: delegate.ListView.view.width - 80
+                height: 28
                 elide: Text.ElideRight
 
                 enlargeMouseArea: false
@@ -71,50 +69,42 @@ Item {
                     z: -4
                     color: "#f9f9f9"
                     anchors.fill: parent
-                    anchors.rightMargin: - delegate.ListView.view.width + text.width + 32
-                    anchors.topMargin: -4
-                    anchors.bottomMargin: -4
-                    opacity: iArea.hovered || text.hovered || area2.hovered ? 1: 0.1
-                    MouseArea {
-                        acceptedButtons: Qt.RightButton
-                        id: area2
-                        hoverEnabled: true
-                        anchors.fill: parent
-                        property bool hovered: false
-                        onEntered: {
-                            area2.hovered = true
-                        }
-                        onExited: {
-                            area2.hovered = false
-                        }
-                        onClicked: {
-                            delegate.expanded = !delegate.expanded;
-                            delegate.ListView.view.positionViewAtIndex(index, ListView.Contain);
-                            area2.hovered = false
-                        }
+                    visible: iArea.containsMouse || text.hovered
+                    anchors.topMargin: 1
+                    anchors.bottomMargin: 1
+                    anchors.leftMargin: -row1.spacing / 2
+                }
+            }
+        }
+        Rectangle {
+            z: -1
+            property int margin: 6
+            id: details
+            height: expanded ? innerColumn.height + margin * 2 : 0
+            width: delegate.ListView.view.width - 8 - margin * 2
+            color: "#f1f1f1"
+            radius: 4
+            clip: true
+            visible: false
+
+            Behavior on height {
+                SequentialAnimation {
+                    ScriptAction {
+                        script: if (expanded) details.visible = true;
+                    }
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.InOutQuad
+                    }
+                    ScriptAction {
+                        script: if (!expanded) details.visible = false;
                     }
                 }
             }
 
-        }
-        Item {
-            z: -1
-            property int margin: 6
-            height: expanded ? innerColumn.height + margin * 2 : 0
-            width: delegate.ListView.view.width - 8 - margin * 2
-            opacity: delegate.expanded ? 1 : 0
-            visible: delegate.expanded
-
-            Behavior on height {
-                ParallelAnimation {
-                    PropertyAnimation { duration:  160 ; easing.type: Easing.OutCubic }
-                }
-            }
-
             Column {
-                y: -4
                 x: parent.margin + 8
-                //y: parent.margin
+                y: parent.margin
                 id: innerColumn
                 spacing: 12
                 width: parent.width - 16
@@ -173,8 +163,9 @@ Item {
                 }
 
                 Flow {
-                    x: 6
-                    width: parent.width -12
+                    x: parent.margin
+                    width: parent.width - 2 * parent.margin
+                    height: 18
                     spacing: 4
 
                     Image { source: "images/icons/clone.png" }
@@ -185,10 +176,10 @@ Item {
                         }
                     }
 
-                    Text {
+                    Item {
                         visible: !defaultSession
                         width: 16;
-                        text: " ";
+                        height: 10;
                     }
                     Image {
                         visible: !defaultSession
@@ -202,10 +193,10 @@ Item {
                         }
                     }
 
-                    Text {
+                    Item {
                         visible: y === 0 && !defaultSession
                         width: 16;
-                        text: " ";
+                        height: 10;
                     }
                     Image {
                         visible: !defaultSession
@@ -218,40 +209,30 @@ Item {
                             root.model.deleteSession(sessionName);
                         }
                     }
-
                 }
             }
-            Rectangle {
-                color: "#f1f1f1"
-                radius: 4
-                anchors.fill: parent
-                anchors.topMargin: -8
-                anchors.bottomMargin: -2
-                anchors.leftMargin: 6
-                anchors.rightMargin: 6
-                z: -1
-            }
-
         }
     }
 
     Item {
         x: delegate.ListView.view.width - 65
         width: 38
-        height: 20
+        height: text.height
         Item {
             id: collapseButton
-            opacity: text.hovered || area2.hovered || iArea.hovered || delegate.expanded ? 1 : 0
+            visible: text.hovered || iArea.containsMouse || delegate.expanded
 
-            property color color: iArea.hovered ? "#E9E9E9" : "#f1f1f1"
+            property color color: iArea.containsMouse ? "#E9E9E9" : "#f1f1f1"
 
             anchors.fill: parent
             Image {
                 x: 4
+                y: 7
                 source: "images/info.png"
             }
             Image {
                 x: 20
+                y: 7
                 source: delegate.expanded ? "images/arrow_up.png" : "images/arrow_down.png"
             }
             Rectangle {
@@ -259,11 +240,8 @@ Item {
                 z: -1
                 radius: 6
                 anchors.fill: parent
-                anchors.topMargin: -3
-                anchors.bottomMargin: 6
-                anchors.leftMargin: -1
-                anchors.rightMargin: -1
-                visible: iArea.hovered || delegate.expanded
+                anchors.topMargin: 1
+                anchors.bottomMargin: 1
             }
 
             Rectangle {
@@ -271,31 +249,18 @@ Item {
                 z: -1
                 anchors.fill: parent
                 anchors.topMargin: 6
-                anchors.bottomMargin: delegate.expanded ? -2 : 2
-                anchors.leftMargin: -1
-                anchors.rightMargin: -1
-                visible: iArea.hovered || delegate.expanded
+                visible: details.visible
             }
         }
 
         MouseArea {
             id: iArea
-            anchors.margins: -2
             anchors.fill: parent
             hoverEnabled: true
-            property bool hovered: false
-
             onClicked: {
                 delegate.expanded = !delegate.expanded;
                 delegate.ListView.view.positionViewAtIndex(index, ListView.Contain);
             }
-            onEntered: {
-                iArea.hovered = true
-            }
-            onExited: {
-                iArea.hovered = false
-            }
         }
-
     }
 }

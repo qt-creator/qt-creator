@@ -44,7 +44,6 @@ Item {
         anchors.fill: parent
         anchors.topMargin: topMargin
         snapMode: ListView.SnapToItem
-        spacing: 4
         clip: true
         interactive: false
 
