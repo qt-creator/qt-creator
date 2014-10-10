@@ -200,13 +200,15 @@ void DetailedErrorDelegate::onVerticalScroll()
         m_detailsWidget->hide();
 }
 
+// Expects "file://some/path[:line[:column]]" - the line/column part is optional
 void DetailedErrorDelegate::openLinkInEditor(const QString &link)
 {
-    const int pathStart = int(sizeof("file://")) - 1;
-    const int pathEnd = link.lastIndexOf(QLatin1Char(':'));
-    const QString path = link.mid(pathStart, pathEnd - pathStart);
-    const int line = link.mid(pathEnd + 1).toInt(0);
-    Core::EditorManager::openEditorAt(path, qMax(line, 0));
+    const QString pathLineColumn = link.mid(int(sizeof("file://")) - 1);
+    const QChar separator = QLatin1Char(':');
+    const QString path = pathLineColumn.section(separator, 0, 0);
+    const int line = pathLineColumn.section(separator, 1, 1).toInt();
+    const int column = pathLineColumn.section(separator, 2, 2).toInt();
+    Core::EditorManager::openEditorAt(path, qMax(line, 0), qMax(column, 0));
 }
 
 DetailedErrorView::DetailedErrorView(QWidget *parent)
