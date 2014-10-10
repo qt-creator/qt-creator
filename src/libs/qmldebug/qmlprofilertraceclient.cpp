@@ -220,7 +220,8 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             if (!(d->features & (1 << ProfileInputEvents)))
                 break;
 
-            emit this->event((EventType)subtype, time);
+            emit this->rangedEvent(Event, MaximumRangeType, subtype, time, 0, QString(),
+                                   QmlDebug::QmlEventLocation(), 0, 0, 0, 0, 0);
             d->maximumTime = qMax(time, d->maximumTime);
             break;
         }
