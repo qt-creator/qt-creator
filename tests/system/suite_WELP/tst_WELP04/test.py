@@ -38,7 +38,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    getStarted = getQmlItem("Button", ":WelcomePage.scrollView_ScrollView", False,
+    getStarted = getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView", False,
                             "text='Get Started Now' id='gettingStartedButton'")
     if not test.verify(checkIfObjectExists(getStarted),
                        "Verifying: Qt Creator displays Welcome Page with Get Started Now button."):
@@ -46,20 +46,22 @@ def main():
         invokeMenuItem("File", "Exit")
         return
     # select "Tutorials"
-    mouseClick(waitForObject(getQmlItem("Button", ":WelcomePage.scrollView_ScrollView", False,
-                                        "text='Tutorials'")), 5, 5, 0, Qt.LeftButton)
-    searchTut = getQmlItem("TextField", ":WelcomePage.scrollView_ScrollView", False,
+    mouseClick(waitForObject(getQmlItem("Button", ":WelcomePageStyledBar.WelcomePage_QQuickView",
+                                        False, "text='Tutorials'")), 5, 5, 0, Qt.LeftButton)
+    searchTut = getQmlItem("TextField", ":WelcomePageStyledBar.WelcomePage_QQuickView", False,
                            "placeholderText='Search in Tutorials...' id='lineEdit'")
     mouseClick(waitForObject(searchTut), 5, 5, 0, Qt.LeftButton)
     replaceEditorContent(waitForObject(searchTut), "qwerty")
-    test.verify(checkIfObjectExists(getQmlItem("Text", ":WelcomePage.scrollView_ScrollView", False,
-                                               "text='Tutorials'")) and
-                checkIfObjectExists(getQmlItem("Delegate", ":WelcomePage.scrollView_ScrollView",
+    test.verify(checkIfObjectExists(getQmlItem("Text",
+                                               ":WelcomePageStyledBar.WelcomePage_QQuickView",
+                                               False, "text='Tutorials'")) and
+                checkIfObjectExists(getQmlItem("Delegate",
+                                               ":WelcomePageStyledBar.WelcomePage_QQuickView",
                                                False, "id='delegate' radius='0' caption~='.*'"),
                                     False),
                 "Verifying: 'Tutorials' topic is opened and nothing is shown.")
     replaceEditorContent(waitForObject(searchTut), "building and running an example application")
-    bldRunExmpl = getQmlItem("Delegate", ":WelcomePage.scrollView_ScrollView", False,
+    bldRunExmpl = getQmlItem("Delegate", ":WelcomePageStyledBar.WelcomePage_QQuickView", False,
                              "caption='Building and Running an Example Application' "
                              "id='delegate' radius='0'")
     test.verify(checkIfObjectExists(bldRunExmpl), "Verifying: Expected Text tutorial is shown.")
@@ -72,7 +74,8 @@ def main():
     sendEvent("QCloseEvent", waitForObject(":Help Widget_Help::Internal::HelpWidget"))
     # check a demonstration video link
     replaceEditorContent(waitForObject(searchTut), "embedded linux")
-    test.verify(checkIfObjectExists(getQmlItem("Delegate", ":WelcomePage.scrollView_ScrollView",
+    test.verify(checkIfObjectExists(getQmlItem("Delegate",
+                                               ":WelcomePageStyledBar.WelcomePage_QQuickView",
                                                False, "id='delegate' radius='0' caption="
                                                "'Developing Embedded Linux Applications with Qt'")),
                 "Verifying: Link to the expected demonstration video exists.")

@@ -111,16 +111,16 @@ def createAndSwitchToSession(toSession):
 
 def checkWelcomePage(sessionName, isCurrent=False):
     switchViewTo(ViewConstants.WELCOME)
-    mouseClick(waitForObject("{container=':WelcomePage.scrollView_ScrollView' text='Projects' "
+    mouseClick(waitForObject("{container=':WelcomePageStyledBar.WelcomePage_QQuickView' text='Projects' "
                              "type='Button' unnamed='1' visible='true'}"), 5, 5, Qt.LeftButton)
-    waitForObject("{container=':WelcomePage.scrollView_ScrollView' id='sessionsTitle' "
+    waitForObject("{container=':WelcomePageStyledBar.WelcomePage_QQuickView' id='sessionsTitle' "
                   "text='Sessions' type='Text' unnamed='1' visible='true'}")
     if isCurrent:
         sessions = ["default", "%s (current session)" % sessionName]
     else:
         sessions = ["default (current session)", sessionName]
     for sessionName in sessions:
-        test.verify(object.exists("{container=':WelcomePage.scrollView_ScrollView' "
+        test.verify(object.exists("{container=':WelcomePageStyledBar.WelcomePage_QQuickView' "
                                   "enabled='true' type='LinkedText' "
                                   "unnamed='1' visible='true' text='%s'}" % sessionName),
                                   "Verifying session '%s' exists." % sessionName)
