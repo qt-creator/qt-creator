@@ -32,6 +32,8 @@
 
 #include "utils_global.h"
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QStringList;
 QT_END_NAMESPACE
@@ -73,6 +75,19 @@ public:
     virtual bool resolveMacro(const QString &name, QString *ret) = 0;
 private:
     bool expandNestedMacros(const QString &str, int *pos, QString *ret);
+};
+
+class QTCREATOR_UTILS_EXPORT MacroExpander : public AbstractMacroExpander
+{
+public:
+    typedef std::function<bool(const QString &name, QString *ret)> Resolver;
+
+    explicit MacroExpander(const Resolver &resolver) : m_resolver(resolver) {}
+
+    bool resolveMacro(const QString &name, QString *ret) { return m_resolver(name, ret); }
+
+private:
+    Resolver m_resolver;
 };
 
 QTCREATOR_UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx);
