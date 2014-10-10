@@ -62,7 +62,7 @@ public:
 
     Utils::AbstractMacroExpander *createMacroExpander(const ProjectExplorer::Kit *k) const;
 
-    static Utils::AbstractMacroExpander *createMacroExpander(const BaseQtVersion *v);
+    static bool resolveQtMacro(const BaseQtVersion *version, const QString &name, QString *ret);
 
     static Core::Id id();
     static int qtVersionId(const ProjectExplorer::Kit *k);

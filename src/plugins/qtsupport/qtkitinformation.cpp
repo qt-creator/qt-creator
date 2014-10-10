@@ -40,12 +40,37 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QtSupport {
-
 namespace Internal {
 
-static bool resolveQtMacro(const BaseQtVersion *version, const QString &name, QString *ret)
+class QtKitInformationMacroExpander : public ProjectExplorer::KitInformationMacroExpander
+{
+public:
+    QtKitInformationMacroExpander(const ProjectExplorer::Kit *k) :
+        ProjectExplorer::KitInformationMacroExpander(k)
+    { }
+
+    bool resolveMacro(const QString &name, QString *ret)
+    {
+        return QtKitInformation::resolveQtMacro(QtKitInformation::qtVersion(kit()), name, ret);
+    }
+};
+
+} // namespace Internal
+
+QtKitInformation::QtKitInformation()
+{
+    setObjectName(QLatin1String("QtKitInformation"));
+    setId(QtKitInformation::id());
+    setPriority(26000);
+
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
+            this, SLOT(kitsWereLoaded()));
+}
+
+bool QtKitInformation::resolveQtMacro(const BaseQtVersion *version, const QString &name, QString *ret)
 {
     const QString noInfo = QCoreApplication::translate("QtSupport::QtKitInformation", "none");
 
@@ -63,50 +88,6 @@ static bool resolveQtMacro(const BaseQtVersion *version, const QString &name, QS
         return true;
     }
     return false;
-}
-
-class QtVersionMacroExpander : public Utils::AbstractMacroExpander
-{
-public:
-    QtVersionMacroExpander(const BaseQtVersion *v) :
-        qtVersion(v)
-    { }
-
-    bool resolveMacro(const QString &name, QString *ret)
-    {
-        if (name == QLatin1String("Qt:name"))
-            return false;
-        return resolveQtMacro(qtVersion, name, ret);
-    }
-
-private:
-    const BaseQtVersion *qtVersion;
-};
-
-
-class QtKitInformationMacroExpander : public ProjectExplorer::KitInformationMacroExpander
-{
-public:
-    QtKitInformationMacroExpander(const ProjectExplorer::Kit *k) :
-        ProjectExplorer::KitInformationMacroExpander(k)
-    { }
-
-    bool resolveMacro(const QString &name, QString *ret)
-    {
-        return resolveQtMacro(QtKitInformation::qtVersion(kit()), name, ret);
-    }
-};
-
-} // namespace Internal
-
-QtKitInformation::QtKitInformation()
-{
-    setObjectName(QLatin1String("QtKitInformation"));
-    setId(QtKitInformation::id());
-    setPriority(26000);
-
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
-            this, SLOT(kitsWereLoaded()));
 }
 
 QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
@@ -188,11 +169,6 @@ ProjectExplorer::IOutputParser *QtKitInformation::createOutputParser(const Proje
 Utils::AbstractMacroExpander *QtKitInformation::createMacroExpander(const ProjectExplorer::Kit *k) const
 {
     return new Internal::QtKitInformationMacroExpander(k);
-}
-
-Utils::AbstractMacroExpander *QtKitInformation::createMacroExpander(const BaseQtVersion *v)
-{
-    return new Internal::QtVersionMacroExpander(v);
 }
 
 Core::Id QtKitInformation::id()

@@ -895,7 +895,11 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 
 AbstractMacroExpander *BaseQtVersion::createMacroExpander() const
 {
-    return QtKitInformation::createMacroExpander(this);
+    return new MacroExpander([this](const QString &name, QString *ret) -> bool {
+        if (name == QLatin1String("Qt:name"))
+            return false;
+        return QtKitInformation::resolveQtMacro(this, name, ret);
+    });
 }
 
 FileName BaseQtVersion::mkspec() const
