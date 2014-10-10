@@ -260,7 +260,7 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 
     QAction *usedAction = menu.exec(mapToGlobal(contextMenuEvent->pos()));
     if (usedAction == openLink)
-        browser->selectAll();
+        emit linkActivated(link);
     else if (usedAction == openLinkInNewTab)
         OpenPagesManager::instance().createPageFromSearch(link);
     else if (usedAction == copyAnchorAction)
