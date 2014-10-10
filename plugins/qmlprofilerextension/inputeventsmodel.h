@@ -30,17 +30,19 @@ class InputEventsModel : public QmlProfiler::AbstractTimelineModel
     class InputEventsModelPrivate;
     Q_DECLARE_PRIVATE(InputEventsModel)
 
+protected:
+    bool accepted(const QmlProfiler::QmlProfilerDataModel::QmlEventTypeData &event) const;
+
 public:
     InputEventsModel(QObject *parent = 0);
     quint64 features() const;
 
-    int rowCount() const {return 0;}
-    int selectionId(int) const {return -1;}
-    QColor color(int) const {return QColor();}
-    QVariantList labels() const {return QVariantList();}
-    QVariantMap details(int) const {return QVariantMap();}
-    int row(int) const {return -1;}
-    void loadData() {}
+    int selectionId(int index) const;
+    QColor color(int index) const;
+    QVariantList labels() const;
+    QVariantMap details(int index) const;
+    int row(int index) const;
+    void loadData();
 };
 
 }
