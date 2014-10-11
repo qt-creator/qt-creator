@@ -647,7 +647,6 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             pal.setBrush(QPalette::ButtonText, dis ? Qt::gray : Qt::black);
             item.palette = pal;
             QCommonStyle::drawControl(element, &item, painter, widget);
-            QRect r = option->rect;
 
             if (act) {
                 // Fill|
@@ -659,6 +658,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
                 // Outline
                 painter->setPen(QPen(highlightOutline, 0));
+                const QRect r = option->rect;
                 painter->drawLine(QPoint(r.left(), r.top() + 1), QPoint(r.left(), r.bottom()));
                 painter->drawLine(QPoint(r.right(), r.top() + 1), QPoint(r.right(), r.bottom()));
                 painter->drawLine(QPoint(r.left() + 1, r.top()), QPoint(r.right() - 1, r.top()));
