@@ -189,6 +189,9 @@ QHash<QString,QmlJS::Dialect> ModelManager::languageForSuffix() const
         MimeType qmlProjectSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
         foreach (const QString &suffix, qmlProjectSourceTy.suffixes())
             res[suffix] = Dialect::QmlProject;
+        MimeType qmlUiSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QMLUI_MIMETYPE));
+        foreach (const QString &suffix, qmlUiSourceTy.suffixes())
+            res[suffix] = Dialect::QmlQtQuick2Ui;
         MimeType jsonSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JSON_MIMETYPE));
         foreach (const QString &suffix, jsonSourceTy.suffixes())
             res[suffix] = Dialect::Json;

@@ -38,6 +38,7 @@ bool Dialect::isQmlLikeLanguage() const
     case Dialect::Qml:
     case Dialect::QmlQtQuick1:
     case Dialect::QmlQtQuick2:
+    case Dialect::QmlQtQuick2Ui:
     case Dialect::QmlQbs:
     case Dialect::QmlProject:
     case Dialect::QmlTypeInfo:
@@ -56,6 +57,7 @@ bool Dialect::isFullySupportedLanguage() const
     case Dialect::Qml:
     case Dialect::QmlQtQuick1:
     case Dialect::QmlQtQuick2:
+    case Dialect::QmlQtQuick2Ui:
         return true;
     case Dialect::NoLanguage:
     case Dialect::AnyLanguage:
@@ -73,6 +75,7 @@ bool Dialect::isQmlLikeOrJsLanguage() const
     case Dialect::Qml:
     case Dialect::QmlQtQuick1:
     case Dialect::QmlQtQuick2:
+    case Dialect::QmlQtQuick2Ui:
     case Dialect::QmlQbs:
     case Dialect::QmlProject:
     case Dialect::QmlTypeInfo:
@@ -97,6 +100,8 @@ QString Dialect::toString() const
         return QLatin1String("QmlQtQuick1");
     case Dialect::QmlQtQuick2:
         return QLatin1String("QmlQtQuick2");
+    case Dialect::QmlQtQuick2Ui:
+        return QLatin1String("QmlQtQuick2Ui");
     case Dialect::NoLanguage:
         return QLatin1String("NoLanguage");
     case Dialect::AnyLanguage:
@@ -178,6 +183,9 @@ bool Dialect::restrictLanguage(const Dialect &l2)
     }
     if (i2 && !i1)
         return true;
+    qDebug() << toString() << "restrictTo" << l2.toString() << "failed";
+    qDebug() << ll1 << ll2;
+    qDebug() << i1 << i2;
     QList<Dialect> qmlLangs = Dialect(Qml).companionLanguages();
     if (qmlLangs.contains(*this) && qmlLangs.contains(l2))
         *this = Dialect::Qml;
@@ -199,16 +207,22 @@ QList<Dialect> Dialect::companionLanguages() const
         langs << Dialect::JavaScript;
         break;
     case Dialect::Qml:
-        langs << Dialect::QmlQtQuick1 << Dialect::QmlQtQuick2 << Dialect::JavaScript;
+        langs << Dialect::QmlQtQuick1 << Dialect::QmlQtQuick2 << Dialect::QmlQtQuick2Ui
+              << Dialect::JavaScript;
         break;
     case Dialect::QmlQtQuick1:
-    case Dialect::QmlQtQuick2:
         langs << Dialect::Qml << Dialect::JavaScript;
+        break;
+    case Dialect::QmlQtQuick2:
+    case Dialect::QmlQtQuick2Ui:
+        langs.clear();
+        langs << Dialect::QmlQtQuick2 << Dialect::QmlQtQuick2Ui << Dialect::Qml
+              << Dialect::JavaScript;
         break;
     case Dialect::AnyLanguage:
         langs << Dialect::JavaScript << Dialect::Json << Dialect::QmlProject << Dialect:: QmlQbs
               << Dialect::QmlTypeInfo << Dialect::QmlQtQuick1 << Dialect::QmlQtQuick2
-              << Dialect::Qml;
+              << Dialect::QmlQtQuick2Ui << Dialect::Qml;
         break;
     case Dialect::NoLanguage:
         return QList<Dialect>(); // return at least itself?

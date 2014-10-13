@@ -78,6 +78,8 @@ QMLJS_EXPORT Q_LOGGING_CATEGORY(qmljsLog, "qtc.qmljs.common")
 
 static ModelManagerInterface *g_instance = 0;
 
+const char qtQuickUISuffix[] = "ui.qml";
+
 static QStringList environmentImportPaths()
 {
     QStringList paths;
@@ -148,6 +150,7 @@ static QHash<QString, Dialect> defaultLanguageMapping()
     res[QLatin1String("qmlproject")] = Dialect::QmlProject;
     res[QLatin1String("json")] = Dialect::Json;
     res[QLatin1String("qbs")] = Dialect::QmlQbs;
+    res[QLatin1String(qtQuickUISuffix)] = Dialect::QmlQtQuick2Ui;
     return res;
 }
 
@@ -159,7 +162,16 @@ Dialect ModelManagerInterface::guessLanguageOfFile(const QString &fileName)
     else
         lMapping = defaultLanguageMapping();
     const QFileInfo info(fileName);
-    const QString fileSuffix = info.suffix();
+    QString fileSuffix = info.suffix();
+
+    /*
+     * I was reluctant to use complete suffix in all cases, because it is a huge
+     * change in behaivour. But in case of .qml this should be safe.
+     */
+
+    if (fileSuffix == QLatin1String("qml"))
+        fileSuffix = info.completeSuffix();
+
     return lMapping.value(fileSuffix, Dialect::NoLanguage);
 }
 
@@ -856,6 +868,8 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
         if (language == Dialect::Qml
                 && (mainLanguage == Dialect::QmlQtQuick1 || mainLanguage == Dialect::QmlQtQuick2))
             language = mainLanguage;
+        if (language == Dialect::Qml && mainLanguage == Dialect::QmlQtQuick2Ui)
+            language = Dialect::QmlQtQuick2;
         QString contents;
         int documentRevision = 0;
 
@@ -1314,7 +1328,8 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
             && ((vCtx.language == Dialect::AnyLanguage && doc->language() != Dialect::NoLanguage)
                 || (vCtx.language == Dialect::Qml
                     && (doc->language() == Dialect::QmlQtQuick1
-                        || doc->language() == Dialect::QmlQtQuick2))))
+                        || doc->language() == Dialect::QmlQtQuick2
+                        || doc->language() == Dialect::QmlQtQuick2Ui))))
         res.language = doc->language();
     ProjectInfo info;
     if (!doc.isNull())
@@ -1344,8 +1359,9 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
             res.maybeAddPath(info.qtImportsPath);
             // fallthrough
         case Dialect::QmlQtQuick2:
+        case Dialect::QmlQtQuick2Ui:
         {
-            if (res.language == Dialect::QmlQtQuick2)
+            if (res.language == Dialect::QmlQtQuick2 || res.language == Dialect::QmlQtQuick2Ui)
                 res.maybeAddPath(info.qtQmlPath);
             QList<ProjectInfo> allProjects;
             {
@@ -1382,13 +1398,14 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         foreach (const QString &path, defaultVCtx.paths)
             res.maybeAddPath(path);
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml
-                || res.language == Dialect::QmlQtQuick2)
+                || res.language == Dialect::QmlQtQuick2 || res.language == Dialect::QmlQtQuick2Ui)
             res.maybeAddPath(info.qtImportsPath);
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml
                 || res.language == Dialect::QmlQtQuick1)
             res.maybeAddPath(info.qtQmlPath);
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml
-                || res.language == Dialect::QmlQtQuick1 || res.language == Dialect::QmlQtQuick2) {
+                || res.language == Dialect::QmlQtQuick1 || res.language == Dialect::QmlQtQuick2
+                || res.language == Dialect::QmlQtQuick2Ui) {
             foreach (const QString &path, environmentImportPaths())
                 res.maybeAddPath(path);
         }
@@ -1406,7 +1423,8 @@ ViewerContext ModelManagerInterface::defaultVContext(Dialect language,
         if (language == Dialect::AnyLanguage && doc->language() != Dialect::NoLanguage)
             language = doc->language();
         else if (language == Dialect::Qml &&
-                 (doc->language() == Dialect::QmlQtQuick1 || doc->language() == Dialect::QmlQtQuick2))
+                 (doc->language() == Dialect::QmlQtQuick1 || doc->language() == Dialect::QmlQtQuick2
+                  || doc->language() == Dialect::QmlQtQuick2Ui))
             language = doc->language();
     }
     ViewerContext defaultCtx;

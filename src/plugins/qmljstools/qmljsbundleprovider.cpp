@@ -127,6 +127,7 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
         QmlBundle b2(defaultQt5QtQuick2Bundle());
         bundles.mergeBundleForLanguage(Dialect::Qml, b2);
         bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2, b2);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2Ui, b2);
         return;
     }
     QString qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
@@ -181,6 +182,7 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
         qtQuick2Bundle.replaceVars(myReplacements);
         bundles.mergeBundleForLanguage(Dialect::Qml, qtQuick2Bundle);
         bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2, qtQuick2Bundle);
+        bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2Ui, qtQuick2Bundle);
     }
 }
 

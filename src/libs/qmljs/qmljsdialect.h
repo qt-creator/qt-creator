@@ -51,7 +51,8 @@ public:
         QmlQbs = 6,
         QmlProject = 7,
         QmlTypeInfo = 8,
-        AnyLanguage = 9,
+        QmlQtQuick2Ui = 9,
+        AnyLanguage = 10,
     };
     Dialect(Enum dialect = NoLanguage)
         : m_dialect(dialect)

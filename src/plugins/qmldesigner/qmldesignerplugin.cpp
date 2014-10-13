@@ -366,6 +366,7 @@ static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
         if (!document.isNull())
             return document->language() == QmlJS::Dialect::QmlQtQuick1
                     || document->language() == QmlJS::Dialect::QmlQtQuick2
+                    || document->language() == QmlJS::Dialect::QmlQtQuick2Ui
                     || document->language() == QmlJS::Dialect::Qml;
     }
 

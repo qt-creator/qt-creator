@@ -1390,12 +1390,20 @@ void Check::warnAboutUnnecessarySuppressions()
 
 bool Check::isQtQuick2() const
 {
-    foreach (const Import &import, _imports->all()) {
-        if (import.info.name() == QLatin1String("QtQuick")
-                && import.info.version().majorVersion() == 2)
-            return true;
+    if (_doc->language() == Dialect::Qml) {
+        foreach (const Import &import, _imports->all()) {
+            if (import.info.name() == QLatin1String("QtQuick")
+                    && import.info.version().majorVersion() == 2)
+                return true;
+        }
+        return false;
     }
-    return false;
+    return _doc->language() == Dialect::QmlQtQuick2 || _doc->language() == Dialect::QmlQtQuick2Ui;
+}
+
+bool Check::isQtQuick2Ui() const
+{
+    return _doc->language() == Dialect::QmlQtQuick2Ui;
 }
 
 bool Check::visit(NewExpression *ast)

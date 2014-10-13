@@ -118,6 +118,7 @@ private:
     void warnAboutUnnecessarySuppressions();
 
     bool isQtQuick2() const;
+    bool isQtQuick2Ui() const;
 
     AST::Node *parent(int distance = 0);
 
