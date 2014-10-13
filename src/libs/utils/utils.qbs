@@ -105,6 +105,8 @@ QtcLibrary {
         "linecolumnlabel.cpp",
         "linecolumnlabel.h",
         "listutils.h",
+        "macroexpander.cpp",
+        "macroexpander.h",
         "multitask.h",
         "navigationtreeview.cpp",
         "navigationtreeview.h",

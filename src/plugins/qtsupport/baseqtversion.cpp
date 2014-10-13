@@ -47,9 +47,9 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
-#include <utils/stringutils.h>
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
 #include <utils/algorithm.h>

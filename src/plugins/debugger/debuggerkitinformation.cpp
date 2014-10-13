@@ -37,6 +37,7 @@
 #include <projectexplorer/kitinformationmacroexpander.h>
 
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>

@@ -90,7 +90,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/winutils.cpp \
     $$PWD/itemviews.cpp \
     $$PWD/treeviewcombobox.cpp \
-    $$PWD/proxycredentialsdialog.cpp
+    $$PWD/proxycredentialsdialog.cpp \
+    $$PWD/macroexpander.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -185,7 +186,8 @@ HEADERS += \
     $$PWD/scopedswap.h \
     $$PWD/algorithm.h \
     $$PWD/QtConcurrentTools \
-    $$PWD/proxycredentialsdialog.h
+    $$PWD/proxycredentialsdialog.h \
+    $$PWD/macroexpander.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
