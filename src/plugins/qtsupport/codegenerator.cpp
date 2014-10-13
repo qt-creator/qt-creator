@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/codegeneration.h>
+#include <utils/qtcassert.h>
 
 #include <QDomDocument>
 #include <QSettings>
@@ -179,6 +180,14 @@ bool CodeGenerator::uiData(const QString &uiXml, QString *formBaseClass, QString
         }
     }
     return false;
+}
+
+QString CodeGenerator::uiClassName(const QString &uiXml)
+{
+    QString base;
+    QString klass;
+    QTC_ASSERT(uiData(uiXml, &base, &klass), return QString());
+    return klass;
 }
 
 QString CodeGenerator::qtIncludes(const QStringList &qt4, const QStringList &qt5)

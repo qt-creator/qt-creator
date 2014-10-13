@@ -51,6 +51,8 @@ public:
     // Low level method to get everything at the same time:
     static bool uiData(const QString &uiXml, QString *formBaseClass, QString *uiClassName);
 
+    Q_INVOKABLE static QString uiClassName(const QString &uiXml);
+
     // Generic Qt:
     Q_INVOKABLE static QString qtIncludes(const QStringList &qt4, const QStringList &qt5);
 };
