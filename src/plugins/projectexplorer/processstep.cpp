@@ -68,7 +68,7 @@ void ProcessStep::ctor()
     //: Default ProcessStep display name
     setDefaultDisplayName(tr("Custom Process Step"));
     if (m_workingDirectory.isEmpty())
-        m_workingDirectory = QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR);
+        m_workingDirectory = QLatin1String(Constants::DEFAULT_WORKING_DIR);
 }
 
 ProcessStep::~ProcessStep()
@@ -136,9 +136,9 @@ void ProcessStep::setWorkingDirectory(const QString &workingDirectory)
 {
     if (workingDirectory.isEmpty())
         if (target()->activeBuildConfiguration())
-            m_workingDirectory = QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR);
+            m_workingDirectory = QLatin1String(Constants::DEFAULT_WORKING_DIR);
         else
-            m_workingDirectory = QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR_ALTERNATE);
+            m_workingDirectory = QLatin1String(Constants::DEFAULT_WORKING_DIR_ALTERNATE);
     else
         m_workingDirectory = workingDirectory;
 }

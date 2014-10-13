@@ -90,7 +90,7 @@ JsonWizard::GeneratorFiles JsonWizard::fileList()
             if (!errorMessage.isEmpty())
                 break;
             list.append(Utils::transform(tmp, [&gen](const Core::GeneratedFile &f)
-                                              { return ProjectExplorer::JsonWizard::GeneratorFile(f, gen); }));
+                                              { return JsonWizard::GeneratorFile(f, gen); }));
         }
 
         if (errorMessage.isEmpty())

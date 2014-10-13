@@ -109,19 +109,19 @@ static Abi findAbiOfMsvc(MsvcToolChain::Type type, MsvcToolChain::Platform platf
 
     switch (platform)
     {
-    case ProjectExplorer::Internal::MsvcToolChain::x86:
+    case MsvcToolChain::x86:
         wordWidth = 32;
         break;
-    case ProjectExplorer::Internal::MsvcToolChain::ia64:
-    case ProjectExplorer::Internal::MsvcToolChain::x86_ia64:
+    case MsvcToolChain::ia64:
+    case MsvcToolChain::x86_ia64:
         arch = Abi::ItaniumArchitecture;
         break;
-    case ProjectExplorer::Internal::MsvcToolChain::amd64:
-    case ProjectExplorer::Internal::MsvcToolChain::x86_amd64:
+    case MsvcToolChain::amd64:
+    case MsvcToolChain::x86_amd64:
         break;
-    case ProjectExplorer::Internal::MsvcToolChain::arm:
-    case ProjectExplorer::Internal::MsvcToolChain::x86_arm:
-    case ProjectExplorer::Internal::MsvcToolChain::amd64_arm:
+    case MsvcToolChain::arm:
+    case MsvcToolChain::x86_arm:
+    case MsvcToolChain::amd64_arm:
         arch = Abi::ArmArchitecture;
         wordWidth = 32;
         break;
@@ -383,18 +383,18 @@ QString MsvcToolChain::typeDisplayName() const
 QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
 {
     switch (m_abi.osFlavor()) {
-    case ProjectExplorer::Abi::WindowsMsvc2005Flavor:
+    case Abi::WindowsMsvc2005Flavor:
         return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2005");
-    case ProjectExplorer::Abi::WindowsMsvc2008Flavor:
+    case Abi::WindowsMsvc2008Flavor:
         return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2008");
-    case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
+    case Abi::WindowsMsvc2010Flavor:
         return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2010");
-    case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
+    case Abi::WindowsMsvc2012Flavor:
         QList<Utils::FileName>()
             << Utils::FileName::fromLatin1("win32-msvc2012")
             << Utils::FileName::fromLatin1("win32-msvc2010");
         break;
-    case ProjectExplorer::Abi::WindowsMsvc2013Flavor:
+    case Abi::WindowsMsvc2013Flavor:
         QList<Utils::FileName>()
             << Utils::FileName::fromLatin1("win32-msvc2013")
             << Utils::FileName::fromLatin1("win32-msvc2012")

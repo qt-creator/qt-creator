@@ -516,7 +516,7 @@ void TargetSettingsPanelWidget::showTargetToolTip(const QPoint &globalPos, int t
     QToolTip::showText(globalPos, target->kit()->toHtml());
 }
 
-void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
+void TargetSettingsPanelWidget::targetAdded(Target *target)
 {
     Q_ASSERT(m_project == target->project());
     Q_ASSERT(m_selector);
@@ -536,7 +536,7 @@ void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
     updateTargetButtons();
 }
 
-void TargetSettingsPanelWidget::removedTarget(ProjectExplorer::Target *target)
+void TargetSettingsPanelWidget::removedTarget(Target *target)
 {
     Q_ASSERT(m_project == target->project());
     Q_ASSERT(m_selector);
@@ -551,7 +551,7 @@ void TargetSettingsPanelWidget::removedTarget(ProjectExplorer::Target *target)
     updateTargetButtons();
 }
 
-void TargetSettingsPanelWidget::activeTargetChanged(ProjectExplorer::Target *target)
+void TargetSettingsPanelWidget::activeTargetChanged(Target *target)
 {
     Q_ASSERT(m_selector);
 
@@ -644,8 +644,7 @@ void TargetSettingsPanelWidget::openTargetPreferences()
 {
     int targetIndex = m_selector->currentIndex();
     if (targetIndex >= 0 && targetIndex < m_targets.size()) {
-        KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<ProjectExplorer::KitOptionsPage>();
-        if (page)
+        if (KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>())
             page->showKit(m_targets.at(targetIndex)->kit());
     }
     ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,

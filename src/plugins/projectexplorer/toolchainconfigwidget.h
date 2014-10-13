@@ -54,9 +54,9 @@ class PROJECTEXPLORER_EXPORT ToolChainConfigWidget : public QWidget
     Q_OBJECT
 
 public:
-    ToolChainConfigWidget(ProjectExplorer::ToolChain *);
+    ToolChainConfigWidget(ToolChain *);
 
-    ProjectExplorer::ToolChain *toolChain() const;
+    ToolChain *toolChain() const;
 
     void apply();
     void discard();

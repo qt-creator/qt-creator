@@ -65,7 +65,7 @@ RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfi
 LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *rc, RunMode mode)
     : RunControl(rc, mode), m_running(false)
 {
-    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
+    setIcon(QLatin1String(Constants::ICON_RUN_SMALL));
     EnvironmentAspect *environment = rc->extraAspect<EnvironmentAspect>();
     Utils::Environment env;
     if (environment)

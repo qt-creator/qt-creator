@@ -189,7 +189,7 @@ public:
         return 0;
     }
 
-    virtual ProjectExplorer::Abi abi() const;
+    virtual Abi abi() const;
 
     void addExtraAspects();
     void addExtraAspect(IRunConfigurationAspect *aspect);

@@ -160,7 +160,7 @@ QModelIndex BuildConfigurationModel::indexFor(BuildConfiguration *rc)
     return index(idx, 0);
 }
 
-void BuildConfigurationModel::addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+void BuildConfigurationModel::addedBuildConfiguration(BuildConfiguration *bc)
 {
     // Find the right place to insert
     BuildConfigurationComparer compare;
@@ -179,7 +179,7 @@ void BuildConfigurationModel::addedBuildConfiguration(ProjectExplorer::BuildConf
             this, SLOT(displayNameChanged()));
 }
 
-void BuildConfigurationModel::removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+void BuildConfigurationModel::removedBuildConfiguration(BuildConfiguration *bc)
 {
     int i = m_buildConfigurations.indexOf(bc);
     beginRemoveRows(QModelIndex(), i, i);

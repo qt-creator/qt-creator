@@ -224,8 +224,7 @@ void TargetSetupWidget::targetCheckBoxToggled(bool b)
 
 void TargetSetupWidget::manageKit()
 {
-    ProjectExplorer::KitOptionsPage *page =
-            ExtensionSystem::PluginManager::getObject<ProjectExplorer::KitOptionsPage>();
+    KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>();
     if (!page || !m_kit)
         return;
 

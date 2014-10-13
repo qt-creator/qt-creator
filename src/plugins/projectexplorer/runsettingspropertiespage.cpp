@@ -67,7 +67,7 @@ struct FactoryAndId
 class DeployFactoryAndId
 {
 public:
-    ProjectExplorer::DeployConfigurationFactory *factory;
+    DeployConfigurationFactory *factory;
     Core::Id id;
 };
 
@@ -535,7 +535,7 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
 void RunSettingsWidget::addRunControlWidgets()
 {
     foreach (IRunConfigurationAspect *aspect, m_runConfiguration->extraAspects()) {
-        ProjectExplorer::RunConfigWidget *rcw = aspect->createConfigurationWidget();
+        RunConfigWidget *rcw = aspect->createConfigurationWidget();
         if (rcw)
             addSubWidget(rcw);
     }

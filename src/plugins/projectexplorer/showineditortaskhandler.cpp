@@ -36,9 +36,10 @@
 #include <QAction>
 #include <QFileInfo>
 
-using namespace ProjectExplorer::Internal;
+namespace ProjectExplorer {
+namespace Internal {
 
-bool ShowInEditorTaskHandler::canHandle(const ProjectExplorer::Task &task) const
+bool ShowInEditorTaskHandler::canHandle(const Task &task) const
 {
     if (task.file.isEmpty())
         return false;
@@ -46,7 +47,7 @@ bool ShowInEditorTaskHandler::canHandle(const ProjectExplorer::Task &task) const
     return fi.exists() && fi.isFile() && fi.isReadable();
 }
 
-void ShowInEditorTaskHandler::handle(const ProjectExplorer::Task &task)
+void ShowInEditorTaskHandler::handle(const Task &task)
 {
     QFileInfo fi(task.file.toFileInfo());
     Core::EditorManager::openEditorAt(fi.filePath(), task.movedLine);
@@ -60,3 +61,6 @@ QAction *ShowInEditorTaskHandler::createAction(QObject *parent) const
     showAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     return showAction;
 }
+
+} // namespace Internal
+} // namespace ProjectExplorer

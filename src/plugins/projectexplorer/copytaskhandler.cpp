@@ -39,7 +39,7 @@
 
 using namespace ProjectExplorer::Internal;
 
-void CopyTaskHandler::handle(const ProjectExplorer::Task &task)
+void CopyTaskHandler::handle(const Task &task)
 {
     QString type;
     switch (task.type) {

@@ -122,7 +122,7 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
     }
 
     // We assume that we hold the deploy list
-    Q_ASSERT(m_stepList && m_stepList->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    Q_ASSERT(m_stepList && m_stepList->id() == Constants::BUILDSTEPS_DEPLOY);
 
     return true;
 }

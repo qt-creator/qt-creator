@@ -187,12 +187,12 @@ void IOutputParser::stdError(const QString &line)
         m_parser->stdError(line);
 }
 
-void IOutputParser::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
+void IOutputParser::outputAdded(const QString &string, BuildStep::OutputFormat format)
 {
     emit addOutput(string, format);
 }
 
-void IOutputParser::taskAdded(const ProjectExplorer::Task &task)
+void IOutputParser::taskAdded(const Task &task)
 {
     emit addTask(task);
 }

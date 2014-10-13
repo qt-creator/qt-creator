@@ -67,7 +67,7 @@ public:
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);
-    void appendText(const QString &text, ProjectExplorer::BuildStep::OutputFormat format);
+    void appendText(const QString &text, BuildStep::OutputFormat format);
     bool canFocus() const;
     bool hasFocus() const;
     void setFocus();

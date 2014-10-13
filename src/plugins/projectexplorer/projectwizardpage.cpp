@@ -167,8 +167,8 @@ static inline AddNewTree *buildAddProjectTree(ProjectNode *root, const QString &
             children.append(child);
     }
 
-    const QList<ProjectExplorer::ProjectAction> &list = root->supportedActions(root);
-    if (list.contains(ProjectExplorer::AddSubProject) && !list.contains(ProjectExplorer::InheritedFromParent)) {
+    const QList<ProjectAction> &list = root->supportedActions(root);
+    if (list.contains(AddSubProject) && !list.contains(InheritedFromParent)) {
         if (projectPath.isEmpty() || root->canAddSubProject(projectPath)) {
             FolderNode::AddNewInformation info = root->addNewInformation(QStringList() << projectPath, contextNode);
             AddNewTree *item = new AddNewTree(root, children, info);
@@ -203,8 +203,8 @@ static inline AddNewTree *buildAddFilesTree(FolderNode *root, const QStringList 
             children.append(child);
     }
 
-    const QList<ProjectExplorer::ProjectAction> &list = root->supportedActions(root);
-    if (list.contains(ProjectExplorer::AddNewFile) && !list.contains(ProjectExplorer::InheritedFromParent)) {
+    const QList<ProjectAction> &list = root->supportedActions(root);
+    if (list.contains(AddNewFile) && !list.contains(InheritedFromParent)) {
         FolderNode::AddNewInformation info = root->addNewInformation(files, contextNode);
         AddNewTree *item = new AddNewTree(root, children, info);
         selector->inspect(item);
@@ -416,7 +416,7 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const QStringList &
     AddNewModel *model = new AddNewModel(tree);
     setModel(model);
     setBestNode(selector.bestChoice());
-    setAddingSubProject(action == ProjectExplorer::AddSubProject);
+    setAddingSubProject(action == AddSubProject);
 }
 
 void ProjectWizardPage::setNoneLabel(const QString &label)

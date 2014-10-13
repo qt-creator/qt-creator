@@ -133,7 +133,7 @@ void OutputParserTester::appendOutputParser(IOutputParser *parser)
     IOutputParser::appendOutputParser(parser);
 }
 
-void OutputParserTester::outputAdded(const QString &line, ProjectExplorer::BuildStep::OutputFormat format)
+void OutputParserTester::outputAdded(const QString &line, BuildStep::OutputFormat format)
 {
     Q_UNUSED(format);
     if (!m_receivedOutput.isEmpty())
@@ -141,7 +141,7 @@ void OutputParserTester::outputAdded(const QString &line, ProjectExplorer::Build
     m_receivedOutput.append(line);
 }
 
-void OutputParserTester::taskAdded(const ProjectExplorer::Task &task)
+void OutputParserTester::taskAdded(const Task &task)
 {
     m_receivedTasks.append(task);
 }

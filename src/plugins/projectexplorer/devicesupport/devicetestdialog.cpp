@@ -51,7 +51,7 @@ public:
     bool finished;
 };
 
-DeviceTestDialog::DeviceTestDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration,
+DeviceTestDialog::DeviceTestDialog(const IDevice::ConstPtr &deviceConfiguration,
                                    QWidget *parent)
     : QDialog(parent), d(new DeviceTestDialogPrivate(deviceConfiguration->createDeviceTester()))
 {
@@ -87,12 +87,12 @@ void DeviceTestDialog::handleErrorMessage(const QString &message)
     addText(message, QLatin1String("red"), false);
 }
 
-void DeviceTestDialog::handleTestFinished(ProjectExplorer::DeviceTester::TestResult result)
+void DeviceTestDialog::handleTestFinished(DeviceTester::TestResult result)
 {
     d->finished = true;
     d->ui.buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
 
-    if (result == ProjectExplorer::DeviceTester::TestSuccess)
+    if (result == DeviceTester::TestSuccess)
         addText(tr("Device test finished successfully."), QLatin1String("blue"), true);
     else
         addText(tr("Device test failed."), QLatin1String("red"), true);

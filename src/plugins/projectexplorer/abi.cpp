@@ -307,26 +307,26 @@ Abi::Abi(const Architecture &a, const OS &o,
     m_architecture(a), m_os(o), m_osFlavor(of), m_binaryFormat(f), m_wordWidth(w)
 {
     switch (m_os) {
-    case ProjectExplorer::Abi::UnknownOS:
+    case Abi::UnknownOS:
         m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::LinuxOS:
+    case Abi::LinuxOS:
         if (m_osFlavor < GenericLinuxFlavor || m_osFlavor > AndroidLinuxFlavor)
             m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::BsdOS:
+    case Abi::BsdOS:
         if (m_osFlavor < FreeBsdFlavor || m_osFlavor > OpenBsdFlavor)
             m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::MacOS:
+    case Abi::MacOS:
         if (m_osFlavor < GenericMacFlavor || m_osFlavor > GenericMacFlavor)
             m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::UnixOS:
+    case Abi::UnixOS:
         if (m_osFlavor < GenericUnixFlavor || m_osFlavor > SolarisUnixFlavor)
             m_osFlavor = UnknownFlavor;
         break;
-    case ProjectExplorer::Abi::WindowsOS:
+    case Abi::WindowsOS:
         if (m_osFlavor < WindowsMsvc2005Flavor || m_osFlavor > WindowsCEFlavor)
             m_osFlavor = UnknownFlavor;
         break;
@@ -628,37 +628,37 @@ QString Abi::toString(const OS &o)
 QString Abi::toString(const OSFlavor &of)
 {
     switch (of) {
-    case ProjectExplorer::Abi::GenericLinuxFlavor:
+    case Abi::GenericLinuxFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::AndroidLinuxFlavor:
+    case Abi::AndroidLinuxFlavor:
         return QLatin1String("android");
-    case ProjectExplorer::Abi::FreeBsdFlavor:
+    case Abi::FreeBsdFlavor:
         return QLatin1String("freebsd");
-    case ProjectExplorer::Abi::NetBsdFlavor:
+    case Abi::NetBsdFlavor:
         return QLatin1String("netbsd");
-    case ProjectExplorer::Abi::OpenBsdFlavor:
+    case Abi::OpenBsdFlavor:
         return QLatin1String("openbsd");
-    case ProjectExplorer::Abi::GenericMacFlavor:
+    case Abi::GenericMacFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::GenericUnixFlavor:
+    case Abi::GenericUnixFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::SolarisUnixFlavor:
+    case Abi::SolarisUnixFlavor:
         return QLatin1String("solaris");
-    case ProjectExplorer::Abi::WindowsMsvc2005Flavor:
+    case Abi::WindowsMsvc2005Flavor:
         return QLatin1String("msvc2005");
-    case ProjectExplorer::Abi::WindowsMsvc2008Flavor:
+    case Abi::WindowsMsvc2008Flavor:
         return QLatin1String("msvc2008");
-    case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
+    case Abi::WindowsMsvc2010Flavor:
         return QLatin1String("msvc2010");
-    case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
+    case Abi::WindowsMsvc2012Flavor:
         return QLatin1String("msvc2012");
-    case ProjectExplorer::Abi::WindowsMsvc2013Flavor:
+    case Abi::WindowsMsvc2013Flavor:
         return QLatin1String("msvc2013");
-    case ProjectExplorer::Abi::WindowsMSysFlavor:
+    case Abi::WindowsMSysFlavor:
         return QLatin1String("msys");
-    case ProjectExplorer::Abi::WindowsCEFlavor:
+    case Abi::WindowsCEFlavor:
         return QLatin1String("ce");
-    case ProjectExplorer::Abi::UnknownFlavor: // fall through!
+    case Abi::UnknownFlavor: // fall through!
     default:
         return QLatin1String("unknown");
     }

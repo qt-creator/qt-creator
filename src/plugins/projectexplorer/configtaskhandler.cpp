@@ -47,13 +47,13 @@ ConfigTaskHandler::ConfigTaskHandler(const Task &pattern, Core::Id group, Core::
     m_targetPage(page)
 { }
 
-bool ConfigTaskHandler::canHandle(const ProjectExplorer::Task &task) const
+bool ConfigTaskHandler::canHandle(const Task &task) const
 {
     return task.description == m_pattern.description
             && task.category == m_pattern.category;
 }
 
-void ConfigTaskHandler::handle(const ProjectExplorer::Task &task)
+void ConfigTaskHandler::handle(const Task &task)
 {
     Q_UNUSED(task);
     Core::ICore::showOptionsDialog(m_targetGroup, m_targetPage);

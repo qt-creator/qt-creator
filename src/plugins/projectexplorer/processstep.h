@@ -56,7 +56,7 @@ public:
     virtual BuildStep *clone(BuildStepList *parent, BuildStep *product);
 };
 
-class ProcessStep : public ProjectExplorer::AbstractProcessStep
+class ProcessStep : public AbstractProcessStep
 {
     Q_OBJECT
     friend class ProcessStepFactory;

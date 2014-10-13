@@ -77,7 +77,7 @@ Task Task::compilerMissingTask()
                                             "Qt Creator needs a compiler set up to build. "
                                             "Configure a compiler in the kit options."),
                 Utils::FileName(), -1,
-                ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+                Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
 
 Task Task::buildConfigurationMissingTask()
@@ -87,7 +87,7 @@ Task Task::buildConfigurationMissingTask()
                                             "Qt Creator needs a build configuration set up to build. "
                                             "Configure a build configuration in the project settings."),
                 Utils::FileName(), -1,
-                ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+                Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
 
 void Task::addMark(TextEditor::TextMark *mark)
@@ -125,13 +125,13 @@ bool operator==(const Task &t1, const Task &t2)
 bool operator<(const Task &a, const Task &b)
 {
     if (a.type != b.type) {
-        if (a.type == ProjectExplorer::Task::Error)
+        if (a.type == Task::Error)
             return true;
-        if (b.type == ProjectExplorer::Task::Error)
+        if (b.type == Task::Error)
             return false;
-        if (a.type == ProjectExplorer::Task::Warning)
+        if (a.type == Task::Warning)
             return true;
-        if (b.type == ProjectExplorer::Task::Warning)
+        if (b.type == Task::Warning)
             return false;
         // Can't happen
         return true;

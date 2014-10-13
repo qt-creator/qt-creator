@@ -250,7 +250,7 @@ public:
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
 
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurations() const;
+    virtual QList<RunConfiguration *> runConfigurations() const;
 
 
     QList<NodesWatcher*> watchers() const;
@@ -422,8 +422,8 @@ void compareSortedLists(T1 oldList, T2 newList, T1 &removedList, T2 &addedList, 
 template <class T1, class T3>
 T1 subtractSortedList(T1 list1, T1 list2, T3 sorter)
 {
-    Q_ASSERT(ProjectExplorer::isSorted(list1, sorter));
-    Q_ASSERT(ProjectExplorer::isSorted(list2, sorter));
+    Q_ASSERT(isSorted(list1, sorter));
+    Q_ASSERT(isSorted(list2, sorter));
 
     typename T1::const_iterator list1It, list1End;
     typename T1::const_iterator list2It, list2End;

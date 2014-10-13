@@ -35,7 +35,8 @@
 
 #include <QAction>
 
-using namespace ProjectExplorer::Internal;
+namespace ProjectExplorer {
+namespace Internal {
 
 ShowOutputTaskHandler::ShowOutputTaskHandler(CompileOutputWindow *window) :
     m_window(window)
@@ -43,12 +44,12 @@ ShowOutputTaskHandler::ShowOutputTaskHandler(CompileOutputWindow *window) :
     Q_ASSERT(m_window);
 }
 
-bool ShowOutputTaskHandler::canHandle(const ProjectExplorer::Task &task) const
+bool ShowOutputTaskHandler::canHandle(const Task &task) const
 {
     return m_window->knowsPositionOf(task);
 }
 
-void ShowOutputTaskHandler::handle(const ProjectExplorer::Task &task)
+void ShowOutputTaskHandler::handle(const Task &task)
 {
     Q_ASSERT(canHandle(task));
     // popup first as this does move the visible area!
@@ -64,3 +65,6 @@ QAction *ShowOutputTaskHandler::createAction(QObject *parent) const
     outputAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     return outputAction;
 }
+
+} // namespace Internal
+} // namespace ProjectExplorer

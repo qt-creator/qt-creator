@@ -157,7 +157,7 @@ void ProjectWindow::projectDisplayNameChanged(Project *project)
     m_ignoreChange = false;
 }
 
-void ProjectWindow::registerProject(ProjectExplorer::Project *project)
+void ProjectWindow::registerProject(Project *project)
 {
     if (m_cache.isRegistered(project))
         return;
@@ -172,7 +172,7 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
             this, SLOT(removedTarget(ProjectExplorer::Target*)));
 }
 
-bool ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
+bool ProjectWindow::deregisterProject(Project *project)
 {
     int index = m_cache.indexForProject(project);
     if (index == -1)
@@ -188,7 +188,7 @@ bool ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
     return true;
 }
 
-void ProjectWindow::startupProjectChanged(ProjectExplorer::Project *p)
+void ProjectWindow::startupProjectChanged(Project *p)
 {
     int index = m_cache.indexForProject(p);
     if (index != -1)

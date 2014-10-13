@@ -469,7 +469,7 @@ void KitManager::deleteKit(Kit *k)
     delete k;
 }
 
-void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
+void KitManager::notifyAboutUpdate(Kit *k)
 {
     if (!k || !isLoaded())
         return;
@@ -480,7 +480,7 @@ void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
         emit m_instance->unmanagedKitUpdated(k);
 }
 
-bool KitManager::registerKit(ProjectExplorer::Kit *k)
+bool KitManager::registerKit(Kit *k)
 {
     QTC_ASSERT(isLoaded(), return false);
 

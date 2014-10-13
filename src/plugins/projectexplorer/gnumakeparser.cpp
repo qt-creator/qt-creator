@@ -258,7 +258,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
                                    "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
                                    "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
                                    "../../scriptbug/main.cpp:22: instantiated from here\n")
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString()
             << QStringList();
 
@@ -362,7 +362,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here")
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here\n")
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString()
             << QStringList();
     QTest::newRow("Full path make exe")

@@ -73,7 +73,7 @@ void LinuxIccParser::stdError(const QString &line)
             type = Task::Error;
         else if (category == QLatin1String("warning"))
             type = Task::Warning;
-        m_temporary = ProjectExplorer::Task(type, m_firstLine.cap(6).trimmed(),
+        m_temporary = Task(type, m_firstLine.cap(6).trimmed(),
                                             Utils::FileName::fromUserInput(m_firstLine.cap(1)),
                                             m_firstLine.cap(2).toInt(),
                                             Constants::TASK_CATEGORY_COMPILE);
@@ -134,12 +134,12 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext\n") << QString()
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("Sometext\n")
-            << QList<ProjectExplorer::Task>()
+            << QList<Task>()
             << QString();
 
     QTest::newRow("undeclared function")
@@ -149,7 +149,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                                    "\n")
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("\n")
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error,
                         QLatin1String("identifier \"f\" is undefined\nf(0);"),
                         Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 13,
@@ -163,7 +163,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                                    "\n")
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("\n")
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Error,
                         QLatin1String("function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible\nb.privatefunc();"),
                         Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 53,
@@ -177,7 +177,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                                    "\n")
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("\n")
-            << (QList<ProjectExplorer::Task>()
+            << (QList<Task>()
                 << Task(Task::Warning,
                         QLatin1String("use of \"=\" where \"==\" may have been intended\nwhile (a = true)"),
                         Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 41,

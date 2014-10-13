@@ -34,9 +34,10 @@
 
 #include <QAction>
 
-using namespace ProjectExplorer::Internal;
+namespace ProjectExplorer {
+namespace Internal {
 
-void RemoveTaskHandler::handle(const ProjectExplorer::Task &task)
+void RemoveTaskHandler::handle(const Task &task)
 {
     TaskHub::removeTask(task);
 }
@@ -49,3 +50,6 @@ QAction *RemoveTaskHandler::createAction(QObject *parent) const
     removeAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     return removeAction;
 }
+
+} // namespace Internal
+} // namespace ProjectExplorer

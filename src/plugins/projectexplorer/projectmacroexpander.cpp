@@ -46,42 +46,42 @@ bool ProjectMacroExpander::resolveProjectMacro(const QString &name, QString *ret
 {
     QString result;
     bool found = false;
-    if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTPROJECT_NAME)) {
+    if (name == QLatin1String(Constants::VAR_CURRENTPROJECT_NAME)) {
         if (!m_projectName.isEmpty()) {
             result = m_projectName;
             found = true;
         }
-    } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_NAME)) {
+    } else if (m_kit && name == QLatin1String(Constants::VAR_CURRENTKIT_NAME)) {
         result = m_kit->displayName();
         found = true;
-    } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_FILESYSTEMNAME)) {
+    } else if (m_kit && name == QLatin1String(Constants::VAR_CURRENTKIT_FILESYSTEMNAME)) {
         result = m_kit->fileSystemFriendlyName();
         found = true;
-    } else if (m_kit && name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTKIT_ID)) {
+    } else if (m_kit && name == QLatin1String(Constants::VAR_CURRENTKIT_ID)) {
         result = m_kit->id().toString();
         found = true;
-    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTBUILD_NAME)) {
+    } else if (name == QLatin1String(Constants::VAR_CURRENTBUILD_NAME)) {
         result = m_bcName;
         found = true;
-    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTDEVICE_HOSTADDRESS)) {
+    } else if (name == QLatin1String(Constants::VAR_CURRENTDEVICE_HOSTADDRESS)) {
         const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
         if (device) {
             result = device->sshParameters().host;
             found = true;
         }
-    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTDEVICE_SSHPORT)) {
+    } else if (name == QLatin1String(Constants::VAR_CURRENTDEVICE_SSHPORT)) {
         const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
         if (device) {
             result = QString::number(device->sshParameters().port);
             found = true;
         }
-    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTDEVICE_USERNAME)) {
+    } else if (name == QLatin1String(Constants::VAR_CURRENTDEVICE_USERNAME)) {
         const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
         if (device) {
             result = device->sshParameters().userName;
             found = true;
         }
-    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE)) {
+    } else if (name == QLatin1String(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE)) {
         const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
         if (device) {
             result = device->sshParameters().privateKeyFile;

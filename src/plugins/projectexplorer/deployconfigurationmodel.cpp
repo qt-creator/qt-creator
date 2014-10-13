@@ -158,7 +158,7 @@ QModelIndex DeployConfigurationModel::indexFor(DeployConfiguration *rc)
     return index(idx, 0);
 }
 
-void DeployConfigurationModel::addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+void DeployConfigurationModel::addedDeployConfiguration(DeployConfiguration *dc)
 {
     // Find the right place to insert
     DeployConfigurationComparer compare;
@@ -176,7 +176,7 @@ void DeployConfigurationModel::addedDeployConfiguration(ProjectExplorer::DeployC
             this, SLOT(displayNameChanged()));
 }
 
-void DeployConfigurationModel::removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+void DeployConfigurationModel::removedDeployConfiguration(DeployConfiguration *dc)
 {
     int i = m_deployConfigurations.indexOf(dc);
     if (i < 0)

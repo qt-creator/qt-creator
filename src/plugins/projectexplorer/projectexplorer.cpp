@@ -269,7 +269,7 @@ public:
 
     QString m_lastOpenDirectory;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
-    QList<QPair<RunConfiguration *, ProjectExplorer::RunMode>> m_delayedRunConfigurationForRun;
+    QList<QPair<RunConfiguration *, RunMode>> m_delayedRunConfigurationForRun;
     bool m_shouldHaveRunConfiguration;
     RunMode m_runMode;
     QString m_projectFilterString;
@@ -695,12 +695,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // Default open action
     dd->m_openFileAction = new QAction(tr("Open File"), this);
-    cmd = ActionManager::registerAction(dd->m_openFileAction, ProjectExplorer::Constants::OPENFILE,
+    cmd = ActionManager::registerAction(dd->m_openFileAction, Constants::OPENFILE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
 
     dd->m_searchOnFileSystem = new QAction(FileUtils::msgFindInDirectory(), this);
-    cmd = ActionManager::registerAction(dd->m_searchOnFileSystem, ProjectExplorer::Constants::SEARCHONFILESYSTEM, projecTreeContext);
+    cmd = ActionManager::registerAction(dd->m_searchOnFileSystem, Constants::SEARCHONFILESYSTEM, projecTreeContext);
 
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_CONFIG);
@@ -708,19 +708,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
     dd->m_showInGraphicalShell = new QAction(FileUtils::msgGraphicalShellAction(), this);
-    cmd = ActionManager::registerAction(dd->m_showInGraphicalShell, ProjectExplorer::Constants::SHOWINGRAPHICALSHELL,
+    cmd = ActionManager::registerAction(dd->m_showInGraphicalShell, Constants::SHOWINGRAPHICALSHELL,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
 
     dd->m_openTerminalHere = new QAction(FileUtils::msgTerminalAction(), this);
-    cmd = ActionManager::registerAction(dd->m_openTerminalHere, ProjectExplorer::Constants::OPENTERMIANLHERE,
+    cmd = ActionManager::registerAction(dd->m_openTerminalHere, Constants::OPENTERMIANLHERE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
 
     // Open With menu
-    mfileContextMenu->addMenu(openWith, ProjectExplorer::Constants::G_FILE_OPEN);
+    mfileContextMenu->addMenu(openWith, Constants::G_FILE_OPEN);
 
     // recent projects menu
     ActionContainer *mrecent =
@@ -905,7 +905,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // add new file action
     dd->m_addNewFileAction = new QAction(tr("Add New..."), this);
-    cmd = ActionManager::registerAction(dd->m_addNewFileAction, ProjectExplorer::Constants::ADDNEWFILE,
+    cmd = ActionManager::registerAction(dd->m_addNewFileAction, Constants::ADDNEWFILE,
                        projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -913,7 +913,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // add existing file action
     dd->m_addExistingFilesAction = new QAction(tr("Add Existing Files..."), this);
-    cmd = ActionManager::registerAction(dd->m_addExistingFilesAction, ProjectExplorer::Constants::ADDEXISTINGFILES,
+    cmd = ActionManager::registerAction(dd->m_addExistingFilesAction, Constants::ADDEXISTINGFILES,
                        projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -922,7 +922,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // add existing directory action
     dd->m_addExistingDirectoryAction = new QAction(tr("Add Existing Directory..."), this);
     cmd = Core::ActionManager::registerAction(dd->m_addExistingDirectoryAction,
-                                              ProjectExplorer::Constants::ADDEXISTINGDIRECTORY,
+                                              Constants::ADDEXISTINGDIRECTORY,
                                               projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -930,7 +930,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // new subproject action
     dd->m_addNewSubprojectAction = new QAction(tr("New Subproject..."), this);
-    cmd = ActionManager::registerAction(dd->m_addNewSubprojectAction, ProjectExplorer::Constants::ADDNEWSUBPROJECT,
+    cmd = ActionManager::registerAction(dd->m_addNewSubprojectAction, Constants::ADDNEWSUBPROJECT,
                        projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -945,27 +945,27 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // remove file action
     dd->m_removeFileAction = new QAction(tr("Remove File..."), this);
-    cmd = ActionManager::registerAction(dd->m_removeFileAction, ProjectExplorer::Constants::REMOVEFILE,
+    cmd = ActionManager::registerAction(dd->m_removeFileAction, Constants::REMOVEFILE,
                        projecTreeContext);
     cmd->setDefaultKeySequence(QKeySequence::Delete);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     //: Remove project from parent profile (Project explorer view); will not physically delete any files.
     dd->m_removeProjectAction = new QAction(tr("Remove Project..."), this);
-    cmd = ActionManager::registerAction(dd->m_removeProjectAction, ProjectExplorer::Constants::REMOVEPROJECT,
+    cmd = ActionManager::registerAction(dd->m_removeProjectAction, Constants::REMOVEPROJECT,
                        projecTreeContext);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
 
     // delete file action
     dd->m_deleteFileAction = new QAction(tr("Delete File..."), this);
-    cmd = ActionManager::registerAction(dd->m_deleteFileAction, ProjectExplorer::Constants::DELETEFILE,
+    cmd = ActionManager::registerAction(dd->m_deleteFileAction, Constants::DELETEFILE,
                              projecTreeContext);
     cmd->setDefaultKeySequence(QKeySequence::Delete);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // renamefile action
     dd->m_renameFileAction = new QAction(tr("Rename..."), this);
-    cmd = ActionManager::registerAction(dd->m_renameFileAction, ProjectExplorer::Constants::RENAMEFILE,
+    cmd = ActionManager::registerAction(dd->m_renameFileAction, Constants::RENAMEFILE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
     // Not yet used by anyone, so hide for now
@@ -977,7 +977,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_setStartupProjectAction = new Utils::ParameterAction(tr("Set as Active Project"),
                                                               tr("Set \"%1\" as Active Project"),
                                                               Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = ActionManager::registerAction(dd->m_setStartupProjectAction, ProjectExplorer::Constants::SETSTARTUP,
+    cmd = ActionManager::registerAction(dd->m_setStartupProjectAction, Constants::SETSTARTUP,
                              projecTreeContext);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_setStartupProjectAction->text());
@@ -1012,7 +1012,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectSelectorActionMenu->setEnabled(false);
     dd->m_projectSelectorActionMenu->setText(tr("Open Build and Run Kit Selector..."));
     connect(dd->m_projectSelectorActionMenu, SIGNAL(triggered()), dd->m_targetSelector, SLOT(toggleVisible()));
-    cmd = ActionManager::registerAction(dd->m_projectSelectorActionMenu, ProjectExplorer::Constants::SELECTTARGET,
+    cmd = ActionManager::registerAction(dd->m_projectSelectorActionMenu, Constants::SELECTTARGET,
                        globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
@@ -1020,7 +1020,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectSelectorActionQuick->setEnabled(false);
     dd->m_projectSelectorActionQuick->setText(tr("Quick Switch Kit Selector"));
     connect(dd->m_projectSelectorActionQuick, SIGNAL(triggered()), dd->m_targetSelector, SLOT(nextOrShow()));
-    cmd = ActionManager::registerAction(dd->m_projectSelectorActionQuick, ProjectExplorer::Constants::SELECTTARGETQUICK, globalcontext);
+    cmd = ActionManager::registerAction(dd->m_projectSelectorActionQuick, Constants::SELECTTARGETQUICK, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+T")));
 
     connect(ICore::instance(), SIGNAL(saveSettingsRequested()),
@@ -1344,7 +1344,7 @@ void ProjectExplorerPlugin::loadCustomWizards()
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        foreach (IWizardFactory *cpw, ProjectExplorer::CustomWizard::createWizards())
+        foreach (IWizardFactory *cpw, CustomWizard::createWizards())
             addAutoReleasedObject(cpw);
         foreach (IWizardFactory *cpw, JsonWizardFactory::createWizardFactories())
             addAutoReleasedObject(cpw);
@@ -1576,7 +1576,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
 
     if (!openedPro.isEmpty()) {
         if (switchToProjectsMode)
-            ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
+            ModeManager::activateMode(Constants::MODE_SESSION);
         else
             ModeManager::activateMode(Core::Constants::MODE_EDIT);
         ModeManager::setFocusToCurrentMode();
@@ -1632,7 +1632,7 @@ void ProjectExplorerPlugin::updateWelcomePage()
 
 void ProjectExplorerPlugin::currentModeChanged(IMode *mode, IMode *oldMode)
 {
-    if (oldMode && oldMode->id() == ProjectExplorer::Constants::MODE_SESSION)
+    if (oldMode && oldMode->id() == Constants::MODE_SESSION)
         ICore::saveSettings();
     if (mode && mode->id() == Core::Constants::MODE_WELCOME)
         updateWelcomePage();
@@ -1981,7 +1981,7 @@ void ProjectExplorerPluginPrivate::updateContext()
 void ProjectExplorerPlugin::runConfigurationConfigurationFinished()
 {
     RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
-    ProjectExplorer::RunMode runMode = ProjectExplorer::NoRunMode;
+    RunMode runMode = NoRunMode;
     for (int i = 0; i < dd->m_delayedRunConfigurationForRun.size(); ++i) {
         if (dd->m_delayedRunConfigurationForRun.at(i).first == rc) {
             runMode = dd->m_delayedRunConfigurationForRun.at(i).second;
@@ -1989,7 +1989,7 @@ void ProjectExplorerPlugin::runConfigurationConfigurationFinished()
             break;
         }
     }
-    if (runMode != ProjectExplorer::NoRunMode && rc->isConfigured())
+    if (runMode != NoRunMode && rc->isConfigured())
         dd->executeRunConfiguration(rc, runMode);
 }
 
@@ -1998,7 +1998,7 @@ static QString pathOrDirectoryFor(Node *node, bool dir)
     QString path = node->path();
     QString location;
     FolderNode *folder = qobject_cast<FolderNode *>(node);
-    if (node->nodeType() == ProjectExplorer::VirtualFolderNodeType && folder) {
+    if (node->nodeType() == VirtualFolderNodeType && folder) {
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
         if (!folder->fileNodes().isEmpty() || folder->subFolderNodes().isEmpty()) {
@@ -2564,7 +2564,7 @@ void ProjectExplorerPlugin::runControlFinished()
     emit updateRunActions();
 }
 
-void ProjectExplorerPlugin::projectAdded(ProjectExplorer::Project *pro)
+void ProjectExplorerPlugin::projectAdded(Project *pro)
 {
     if (dd->m_projectsMode)
         dd->m_projectsMode->setEnabled(true);
@@ -2573,7 +2573,7 @@ void ProjectExplorerPlugin::projectAdded(ProjectExplorer::Project *pro)
             this, SLOT(updateActions()));
 }
 
-void ProjectExplorerPlugin::projectRemoved(ProjectExplorer::Project * pro)
+void ProjectExplorerPlugin::projectRemoved(Project * pro)
 {
     if (dd->m_projectsMode)
         dd->m_projectsMode->setEnabled(SessionManager::hasProjects());
@@ -2952,8 +2952,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     runMenu->menu()->menuAction()->setVisible(false);
 
     if (dd->m_currentNode && dd->m_currentNode->projectNode()) {
-        QList<ProjectExplorer::ProjectAction> actions =
-                dd->m_currentNode->supportedActions(dd->m_currentNode);
+        QList<ProjectAction> actions = dd->m_currentNode->supportedActions(dd->m_currentNode);
 
         if (ProjectNode *pn = qobject_cast<ProjectNode *>(dd->m_currentNode)) {
             if (pn == dd->m_currentProject->rootProjectNode()) {
@@ -2978,44 +2977,44 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
         }
         if (qobject_cast<FolderNode*>(dd->m_currentNode)) {
             // Also handles ProjectNode
-            dd->m_addNewFileAction->setEnabled(actions.contains(ProjectExplorer::AddNewFile)
+            dd->m_addNewFileAction->setEnabled(actions.contains(AddNewFile)
                                               && !ICore::isNewItemDialogRunning());
             dd->m_addNewSubprojectAction->setEnabled(dd->m_currentNode->nodeType() == ProjectNodeType
-                                                    && actions.contains(ProjectExplorer::AddSubProject)
+                                                    && actions.contains(AddSubProject)
                                                     && !ICore::isNewItemDialogRunning());
             dd->m_removeProjectAction->setEnabled(dd->m_currentNode->nodeType() == ProjectNodeType
-                                                    && actions.contains(ProjectExplorer::RemoveSubProject));
-            dd->m_addExistingFilesAction->setEnabled(actions.contains(ProjectExplorer::AddExistingFile));
-            dd->m_addExistingDirectoryAction->setEnabled(actions.contains(ProjectExplorer::AddExistingDirectory));
-            dd->m_renameFileAction->setEnabled(actions.contains(ProjectExplorer::Rename));
+                                                    && actions.contains(RemoveSubProject));
+            dd->m_addExistingFilesAction->setEnabled(actions.contains(AddExistingFile));
+            dd->m_addExistingDirectoryAction->setEnabled(actions.contains(AddExistingDirectory));
+            dd->m_renameFileAction->setEnabled(actions.contains(Rename));
         } else if (qobject_cast<FileNode*>(dd->m_currentNode)) {
             // Enable and show remove / delete in magic ways:
             // If both are disabled show Remove
             // If both are enabled show both (can't happen atm)
             // If only removeFile is enabled only show it
             // If only deleteFile is enable only show it
-            bool enableRemove = actions.contains(ProjectExplorer::RemoveFile);
+            bool enableRemove = actions.contains(RemoveFile);
             dd->m_removeFileAction->setEnabled(enableRemove);
-            bool enableDelete = actions.contains(ProjectExplorer::EraseFile);
+            bool enableDelete = actions.contains(EraseFile);
             dd->m_deleteFileAction->setEnabled(enableDelete);
             dd->m_deleteFileAction->setVisible(enableDelete);
 
             dd->m_removeFileAction->setVisible(!enableDelete || enableRemove);
-            dd->m_renameFileAction->setEnabled(actions.contains(ProjectExplorer::Rename));
+            dd->m_renameFileAction->setEnabled(actions.contains(Rename));
         }
 
-        if (actions.contains(ProjectExplorer::HidePathActions)) {
+        if (actions.contains(HidePathActions)) {
             dd->m_openTerminalHere->setVisible(false);
             dd->m_showInGraphicalShell->setVisible(false);
             dd->m_searchOnFileSystem->setVisible(false);
         }
 
-        if (actions.contains(ProjectExplorer::HideFileActions)) {
+        if (actions.contains(HideFileActions)) {
             dd->m_deleteFileAction->setVisible(false);
             dd->m_removeFileAction->setVisible(false);
         }
 
-        if (actions.contains(ProjectExplorer::HideFolderActions)) {
+        if (actions.contains(HideFolderActions)) {
             dd->m_addNewFileAction->setVisible(false);
             dd->m_addNewSubprojectAction->setVisible(false);
             dd->m_removeProjectAction->setVisible(false);
@@ -3049,7 +3048,7 @@ void ProjectExplorerPlugin::addNewSubproject()
 
     if (dd->m_currentNode->nodeType() == ProjectNodeType
             && dd->m_currentNode->supportedActions(
-                dd->m_currentNode).contains(ProjectExplorer::AddSubProject)) {
+                dd->m_currentNode).contains(AddSubProject)) {
         QVariantMap map;
         map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(dd->m_currentNode));
         if (dd->m_currentProject) {

@@ -457,7 +457,7 @@ QString SessionManagerPrivate::windowTitleAddition(const QString &filePath)
     if (SessionManager::isDefaultSession(d->m_sessionName)) {
         if (filePath.isEmpty()) {
             // use single project's name if there is only one loaded.
-            const QList<ProjectExplorer::Project *> projects = ProjectExplorer::SessionManager::projects();
+            const QList<Project *> projects = SessionManager::projects();
             if (projects.size() == 1)
                 return projects.first()->displayName();
             return QString();

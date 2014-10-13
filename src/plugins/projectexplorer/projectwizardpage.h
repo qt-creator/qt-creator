@@ -72,9 +72,9 @@ public:
 
     bool runVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage);
 
-    void initializeProjectTree(ProjectExplorer::Node *context, const QStringList &paths,
+    void initializeProjectTree(Node *context, const QStringList &paths,
                                Core::IWizardFactory::WizardKind kind,
-                               ProjectExplorer::ProjectAction action);
+                               ProjectAction action);
 
 signals:
     void projectNodeChanged();

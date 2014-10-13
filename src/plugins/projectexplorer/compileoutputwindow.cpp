@@ -182,7 +182,7 @@ static QColor mix_colors(const QColor &a, const QColor &b)
                   (a.blue() + 2* b.blue()) / 3, (a.alpha() + 2 * b.alpha()) / 3);
 }
 
-void CompileOutputWindow::appendText(const QString &text, ProjectExplorer::BuildStep::OutputFormat format)
+void CompileOutputWindow::appendText(const QString &text, BuildStep::OutputFormat format)
 {
     QPalette p = m_outputWindow->palette();
     QTextCharFormat textFormat;

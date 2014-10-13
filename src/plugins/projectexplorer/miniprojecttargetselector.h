@@ -85,7 +85,7 @@ private slots:
     void setProject(int index);
 private:
     QListWidgetItem *itemForProject(Project *project);
-    QString fullName(ProjectExplorer::Project *project);
+    QString fullName(Project *project);
     bool m_ignoreIndexChange;
 };
 
@@ -118,8 +118,8 @@ signals:
 public:
     void setProjectConfigurations(const QList<ProjectConfiguration *> &list, ProjectConfiguration *active);
     void setActiveProjectConfiguration(ProjectConfiguration *active);
-    void addProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
-    void removeProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void addProjectConfiguration(ProjectConfiguration *pc);
+    void removeProjectConfiguration(ProjectConfiguration *pc);
 private slots:
     void rowChanged(int index);
     void displayNameChanged();
@@ -171,14 +171,14 @@ private slots:
     void updateActionAndSummary();
     void switchToProjectsMode();
 private:
-    void addedTarget(ProjectExplorer::Target *target);
-    void removedTarget(ProjectExplorer::Target *target);
-    void addedBuildConfiguration(ProjectExplorer::BuildConfiguration* bc);
-    void removedBuildConfiguration(ProjectExplorer::BuildConfiguration* bc);
-    void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
-    void removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
-    void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
-    void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void addedTarget(Target *target);
+    void removedTarget(Target *target);
+    void addedBuildConfiguration(BuildConfiguration* bc);
+    void removedBuildConfiguration(BuildConfiguration* bc);
+    void addedDeployConfiguration(DeployConfiguration *dc);
+    void removedDeployConfiguration(DeployConfiguration *dc);
+    void addedRunConfiguration(RunConfiguration *rc);
+    void removedRunConfiguration(RunConfiguration *rc);
 
     void updateProjectListVisible();
     void updateTargetListVisible();

@@ -388,7 +388,7 @@ void EditorConfiguration::setWrapColumn(int column)
     }
 }
 
-void EditorConfiguration::slotAboutToRemoveProject(ProjectExplorer::Project *project)
+void EditorConfiguration::slotAboutToRemoveProject(Project *project)
 {
     if (project->editorConfiguration() != this)
         return;

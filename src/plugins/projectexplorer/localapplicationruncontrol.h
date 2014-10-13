@@ -62,10 +62,10 @@ private slots:
     void processExited(int exitCode, QProcess::ExitStatus status);
     void slotAppendMessage(const QString &err, Utils::OutputFormat isError);
 private:
-    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
+    ApplicationLauncher m_applicationLauncher;
     QString m_executable;
     QString m_commandLineArguments;
-    ProjectExplorer::ApplicationLauncher::Mode m_runMode;
+    ApplicationLauncher::Mode m_runMode;
     ProcessHandle m_applicationProcessHandle;
     bool m_running;
 };

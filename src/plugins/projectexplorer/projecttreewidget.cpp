@@ -71,7 +71,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
         QStyleOptionViewItem opt = option;
-        if (!index.data(ProjectExplorer::Project::EnabledRole).toBool())
+        if (!index.data(Project::EnabledRole).toBool())
             opt.state &= ~QStyle::State_Enabled;
         QStyledItemDelegate::paint(painter, opt, index);
     }
@@ -360,7 +360,7 @@ void ProjectTreeWidget::showContextMenu(const QPoint &pos)
     ProjectExplorerPlugin::showContextMenu(this, m_view->mapToGlobal(pos), node);
 }
 
-void ProjectTreeWidget::handleProjectAdded(ProjectExplorer::Project *project)
+void ProjectTreeWidget::handleProjectAdded(Project *project)
 {
     Node *node = project->rootProjectNode();
     QModelIndex idx = m_model->indexForNode(node);
@@ -369,7 +369,7 @@ void ProjectTreeWidget::handleProjectAdded(ProjectExplorer::Project *project)
     m_view->setCurrentIndex(idx);
 }
 
-void ProjectTreeWidget::startupProjectChanged(ProjectExplorer::Project *project)
+void ProjectTreeWidget::startupProjectChanged(Project *project)
 {
     if (project) {
         ProjectNode *node = project->rootProjectNode();

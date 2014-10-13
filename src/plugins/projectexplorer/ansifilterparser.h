@@ -34,7 +34,7 @@
 
 namespace ProjectExplorer {
 
-class AnsiFilterParser : public ProjectExplorer::IOutputParser
+class AnsiFilterParser : public IOutputParser
 {
     Q_OBJECT
 

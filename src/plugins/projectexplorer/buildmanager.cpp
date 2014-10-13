@@ -340,7 +340,7 @@ void BuildManager::showBuildResults()
     //toggleTaskWindow();
 }
 
-void BuildManager::addToTaskWindow(const ProjectExplorer::Task &task)
+void BuildManager::addToTaskWindow(const Task &task)
 {
     d->m_outputWindow->registerPositionOf(task);
     // Distribute to all others

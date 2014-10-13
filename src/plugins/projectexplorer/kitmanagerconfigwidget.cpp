@@ -197,7 +197,7 @@ QString KitManagerConfigWidget::validityMessage() const
     return m_modifiedKit->toHtml(tmp);
 }
 
-void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *widget)
+void KitManagerConfigWidget::addConfigWidget(KitConfigWidget *widget)
 {
     QTC_ASSERT(widget, return);
     QTC_ASSERT(!m_widgets.contains(widget), return);

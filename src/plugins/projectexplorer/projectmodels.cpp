@@ -308,11 +308,11 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             result = font;
             break;
         }
-        case ProjectExplorer::Project::FilePathRole: {
+        case Project::FilePathRole: {
             result = node->path();
             break;
         }
-        case ProjectExplorer::Project::EnabledRole: {
+        case Project::EnabledRole: {
             result = node->isEnabled();
             break;
         }
@@ -335,7 +335,7 @@ Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
             return 0; // no flags for session node...
         if (!qobject_cast<ProjectNode *>(node)) {
             // either folder or file node
-            if (node->supportedActions(node).contains(ProjectExplorer::Rename))
+            if (node->supportedActions(node).contains(Rename))
                 f = f | Qt::ItemIsEditable;
             if (qobject_cast<FileNode *>(node))
                 f = f | Qt::ItemIsDragEnabled;
@@ -784,7 +784,7 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
     }
 }
 
-void FlatModel::aboutToShowInSimpleTreeChanged(ProjectExplorer::FolderNode* node)
+void FlatModel::aboutToShowInSimpleTreeChanged(FolderNode* node)
 {
     if (!m_filterProjects)
         return;
@@ -799,7 +799,7 @@ void FlatModel::aboutToShowInSimpleTreeChanged(ProjectExplorer::FolderNode* node
             m_childNodes.remove(fn);
 }
 
-void FlatModel::showInSimpleTreeChanged(ProjectExplorer::FolderNode *node)
+void FlatModel::showInSimpleTreeChanged(FolderNode *node)
 {
     if (!m_filterProjects)
         return;

@@ -48,8 +48,8 @@ public:
     ~CustomParserConfigDialog();
 
     void setExampleSettings();
-    void setSettings(const ProjectExplorer::CustomParserSettings &settings);
-    ProjectExplorer::CustomParserSettings settings() const;
+    void setSettings(const CustomParserSettings &settings);
+    CustomParserSettings settings() const;
     void setErrorPattern(const QString &errorPattern);
     QString errorPattern() const;
     void setFileNameCap(int fileNameCap);

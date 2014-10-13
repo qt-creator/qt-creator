@@ -116,17 +116,17 @@ AbstractProcessStep::~AbstractProcessStep()
      Derived classes need to call this function.
 */
 
-void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser)
+void AbstractProcessStep::setOutputParser(IOutputParser *parser)
 {
     delete m_outputParserChain;
     m_outputParserChain = new AnsiFilterParser;
     m_outputParserChain->appendOutputParser(parser);
 
     if (m_outputParserChain) {
-        connect(m_outputParserChain, SIGNAL(addOutput(QString,ProjectExplorer::BuildStep::OutputFormat)),
-                this, SLOT(outputAdded(QString,ProjectExplorer::BuildStep::OutputFormat)));
-        connect(m_outputParserChain, SIGNAL(addTask(ProjectExplorer::Task)),
-                this, SLOT(taskAdded(ProjectExplorer::Task)));
+        connect(m_outputParserChain, &IOutputParser::addOutput,
+                this, &AbstractProcessStep::outputAdded);
+        connect(m_outputParserChain, &IOutputParser::addTask,
+                this, &AbstractProcessStep::taskAdded);
     }
 }
 
@@ -134,7 +134,7 @@ void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser
     Appends the given output parser to the existing chain of parsers.
 */
 
-void AbstractProcessStep::appendOutputParser(ProjectExplorer::IOutputParser *parser)
+void AbstractProcessStep::appendOutputParser(IOutputParser *parser)
 {
     if (!parser)
         return;
@@ -144,7 +144,7 @@ void AbstractProcessStep::appendOutputParser(ProjectExplorer::IOutputParser *par
     return;
 }
 
-ProjectExplorer::IOutputParser *AbstractProcessStep::outputParser() const
+IOutputParser *AbstractProcessStep::outputParser() const
 {
     return m_outputParserChain;
 }
@@ -382,7 +382,7 @@ void AbstractProcessStep::checkForCancel()
     }
 }
 
-void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
+void AbstractProcessStep::taskAdded(const Task &task)
 {
     // Do not bother to report issues if we do not care about the results of
     // the buildstep anyway:
@@ -407,7 +407,7 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
 
         QList<QFileInfo> possibleFiles;
         QString fileName = QFileInfo(filePath).fileName();
-        foreach (const QString &file, project()->files(ProjectExplorer::Project::AllFiles)) {
+        foreach (const QString &file, project()->files(Project::AllFiles)) {
             QFileInfo candidate(file);
             if (candidate.fileName() == fileName)
                 possibleFiles << candidate;
@@ -437,7 +437,7 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
     emit addTask(editable);
 }
 
-void AbstractProcessStep::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
+void AbstractProcessStep::outputAdded(const QString &string, BuildStep::OutputFormat format)
 {
     emit addOutput(string, format, BuildStep::DontAppendNewline);
 }

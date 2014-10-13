@@ -120,7 +120,7 @@ void ProjectImporter::removeProject(Kit *k, const QString &path)
     bool oldIsUpdating = setIsUpdating(true);
 
     if (projects.isEmpty())
-        ProjectExplorer::KitManager::deregisterKit(k);
+        KitManager::deregisterKit(k);
     else
         k->setValueSilently(TEMPORARY_OF_PROJECTS, projects);
 

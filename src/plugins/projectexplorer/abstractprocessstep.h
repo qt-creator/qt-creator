@@ -62,9 +62,9 @@ public:
     bool ignoreReturnValue();
     void setIgnoreReturnValue(bool b);
 
-    void setOutputParser(ProjectExplorer::IOutputParser *parser);
-    void appendOutputParser(ProjectExplorer::IOutputParser *parser);
-    ProjectExplorer::IOutputParser *outputParser() const;
+    void setOutputParser(IOutputParser *parser);
+    void appendOutputParser(IOutputParser *parser);
+    IOutputParser *outputParser() const;
 
     void emitFaultyConfigurationMessage();
 
@@ -89,9 +89,9 @@ private slots:
 
     void cleanUp();
 
-    void taskAdded(const ProjectExplorer::Task &task);
+    void taskAdded(const Task &task);
 
-    void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
+    void outputAdded(const QString &string, BuildStep::OutputFormat format);
 
 private:
     QTimer *m_timer;
@@ -99,7 +99,7 @@ private:
     ProcessParameters m_param;
     bool m_ignoreReturnValue;
     Utils::QtcProcess *m_process;
-    ProjectExplorer::IOutputParser *m_outputParserChain;
+    IOutputParser *m_outputParserChain;
     bool m_killProcess;
     bool m_skipFlush;
 };

@@ -44,7 +44,7 @@ class PROJECTEXPLORER_EXPORT DeviceCheckBuildStep : public BuildStep
     Q_OBJECT
 public:
     DeviceCheckBuildStep(BuildStepList *bsl, Core::Id id);
-    DeviceCheckBuildStep(ProjectExplorer::BuildStepList *bsl, DeviceCheckBuildStep *bs);
+    DeviceCheckBuildStep(BuildStepList *bsl, DeviceCheckBuildStep *bs);
 
     bool init();
 

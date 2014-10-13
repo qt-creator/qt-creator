@@ -71,7 +71,7 @@ public:
 
     void setStartupProject(ProjectNode *projectNode);
 
-    ProjectExplorer::Node *nodeForIndex(const QModelIndex &index) const;
+    Node *nodeForIndex(const QModelIndex &index) const;
     QModelIndex indexForNode(const Node *node);
 
     bool projectFilterEnabled();

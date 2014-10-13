@@ -59,7 +59,7 @@ public:
     Utils::FileName buildDirectory() const;
     Utils::FileName rawBuildDirectory() const;
 
-    virtual ProjectExplorer::NamedWidget *createConfigWidget() = 0;
+    virtual NamedWidget *createConfigWidget() = 0;
     virtual QList<NamedWidget *> createSubConfigWidgets();
 
     // Maybe the BuildConfiguration is not the best place for the environment

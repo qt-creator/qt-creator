@@ -91,7 +91,7 @@ void XcodebuildParser::stdError(const QString &line)
                                               "Xcodebuild failed."),
                   Utils::FileName(), /* filename */
                   -1, /* line */
-                  ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+                  Constants::TASK_CATEGORY_COMPILE);
         taskAdded(task);
         return;
     }
@@ -213,14 +213,14 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
                                    "unknownErr")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
-                << ProjectExplorer::Task(
+            << (QList<Task>()
+                << Task(
                     Task::Error,
                     QCoreApplication::translate("ProjectExplorer::XcodebuildParser",
                                                 "Xcodebuild failed."),
                     Utils::FileName(), /* filename */
                     -1, /* line */
-                    ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                    Constants::TASK_CATEGORY_COMPILE))
             << QString()
             << XcodebuildParser::UnknownXcodebuildState;
     QTest::newRow("switch out->unknown")
@@ -230,14 +230,14 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
                                    "unknownErr")
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("outErr\n")
-            << (QList<ProjectExplorer::Task>()
-                << ProjectExplorer::Task(
+            << (QList<Task>()
+                << Task(
                     Task::Error,
                     QCoreApplication::translate("ProjectExplorer::XcodebuildParser",
                                                 "Xcodebuild failed."),
                     Utils::FileName(), /* filename */
                     -1, /* line */
-                    ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                    Constants::TASK_CATEGORY_COMPILE))
             << QString()
             << XcodebuildParser::UnknownXcodebuildState;
 }

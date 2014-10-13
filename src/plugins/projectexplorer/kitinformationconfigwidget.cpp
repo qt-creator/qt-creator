@@ -190,13 +190,13 @@ QWidget *ToolChainInformationConfigWidget::buttonWidget() const
     return m_manageButton;
 }
 
-void ToolChainInformationConfigWidget::toolChainAdded(ProjectExplorer::ToolChain *tc)
+void ToolChainInformationConfigWidget::toolChainAdded(ToolChain *tc)
 {
     m_comboBox->addItem(tc->displayName(), tc->id());
     updateComboBox();
 }
 
-void ToolChainInformationConfigWidget::toolChainRemoved(ProjectExplorer::ToolChain *tc)
+void ToolChainInformationConfigWidget::toolChainRemoved(ToolChain *tc)
 {
     const int pos = indexOf(tc);
     if (pos < 0)
@@ -204,7 +204,7 @@ void ToolChainInformationConfigWidget::toolChainRemoved(ProjectExplorer::ToolCha
     m_comboBox->removeItem(pos);
     updateComboBox();
 }
-void ToolChainInformationConfigWidget::toolChainUpdated(ProjectExplorer::ToolChain *tc)
+void ToolChainInformationConfigWidget::toolChainUpdated(ToolChain *tc)
 {
     const int pos = indexOf(tc);
     if (pos < 0)

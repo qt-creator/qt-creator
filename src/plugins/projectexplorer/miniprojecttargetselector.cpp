@@ -249,7 +249,7 @@ QListWidgetItem *ProjectListWidget::itemForProject(Project *project)
     return 0;
 }
 
-QString ProjectListWidget::fullName(ProjectExplorer::Project *project)
+QString ProjectListWidget::fullName(Project *project)
 {
     return tr("%1 (%2)").arg(project->displayName(), project->projectFilePath().toUserOutput());
 }
@@ -425,7 +425,7 @@ void GenericListWidget::setActiveProjectConfiguration(ProjectConfiguration *acti
     setCurrentItem(item);
 }
 
-void GenericListWidget::addProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc)
+void GenericListWidget::addProjectConfiguration(ProjectConfiguration *pc)
 {
     m_ignoreIndexChange = true;
     QListWidgetItem *lwi = new QListWidgetItem();
@@ -453,7 +453,7 @@ void GenericListWidget::addProjectConfiguration(ProjectExplorer::ProjectConfigur
     m_ignoreIndexChange = false;
 }
 
-void GenericListWidget::removeProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc)
+void GenericListWidget::removeProjectConfiguration(ProjectConfiguration *pc)
 {
     m_ignoreIndexChange = true;
     disconnect(pc, SIGNAL(displayNameChanged()),
@@ -940,27 +940,27 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
     move(moveTo);
 }
 
-void MiniProjectTargetSelector::setActiveTarget(ProjectExplorer::ProjectConfiguration *pc)
+void MiniProjectTargetSelector::setActiveTarget(ProjectConfiguration *pc)
 {
     m_project->setActiveTarget(static_cast<Target *>(pc));
 }
 
-void MiniProjectTargetSelector::setActiveBuildConfiguration(ProjectExplorer::ProjectConfiguration *pc)
+void MiniProjectTargetSelector::setActiveBuildConfiguration(ProjectConfiguration *pc)
 {
     m_target->setActiveBuildConfiguration(static_cast<BuildConfiguration *>(pc));
 }
 
-void MiniProjectTargetSelector::setActiveDeployConfiguration(ProjectExplorer::ProjectConfiguration *pc)
+void MiniProjectTargetSelector::setActiveDeployConfiguration(ProjectConfiguration *pc)
 {
     m_target->setActiveDeployConfiguration(static_cast<DeployConfiguration *>(pc));
 }
 
-void MiniProjectTargetSelector::setActiveRunConfiguration(ProjectExplorer::ProjectConfiguration *pc)
+void MiniProjectTargetSelector::setActiveRunConfiguration(ProjectConfiguration *pc)
 {
     m_target->setActiveRunConfiguration(static_cast<RunConfiguration *>(pc));
 }
 
-void MiniProjectTargetSelector::projectAdded(ProjectExplorer::Project *project)
+void MiniProjectTargetSelector::projectAdded(Project *project)
 {
     connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
             this, SLOT(slotAddedTarget(ProjectExplorer::Target*)));
@@ -978,7 +978,7 @@ void MiniProjectTargetSelector::projectAdded(ProjectExplorer::Project *project)
     updateRunListVisible();
 }
 
-void MiniProjectTargetSelector::projectRemoved(ProjectExplorer::Project *project)
+void MiniProjectTargetSelector::projectRemoved(Project *project)
 {
     disconnect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
                this, SLOT(slotAddedTarget(ProjectExplorer::Target*)));
@@ -996,7 +996,7 @@ void MiniProjectTargetSelector::projectRemoved(ProjectExplorer::Project *project
     updateRunListVisible();
 }
 
-void MiniProjectTargetSelector::addedTarget(ProjectExplorer::Target *target)
+void MiniProjectTargetSelector::addedTarget(Target *target)
 {
     connect(target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(slotAddedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
@@ -1024,7 +1024,7 @@ void MiniProjectTargetSelector::addedTarget(ProjectExplorer::Target *target)
         addedRunConfiguration(rc);
 }
 
-void MiniProjectTargetSelector::slotAddedTarget(ProjectExplorer::Target *target)
+void MiniProjectTargetSelector::slotAddedTarget(Target *target)
 {
     addedTarget(target);
     updateTargetListVisible();
@@ -1033,7 +1033,7 @@ void MiniProjectTargetSelector::slotAddedTarget(ProjectExplorer::Target *target)
     updateRunListVisible();
 }
 
-void MiniProjectTargetSelector::removedTarget(ProjectExplorer::Target *target)
+void MiniProjectTargetSelector::removedTarget(Target *target)
 {
     disconnect(target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
                this, SLOT(slotAddedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
@@ -1061,7 +1061,7 @@ void MiniProjectTargetSelector::removedTarget(ProjectExplorer::Target *target)
         removedRunConfiguration(rc);
 }
 
-void MiniProjectTargetSelector::slotRemovedTarget(ProjectExplorer::Target *target)
+void MiniProjectTargetSelector::slotRemovedTarget(Target *target)
 {
     removedTarget(target);
 
@@ -1072,78 +1072,78 @@ void MiniProjectTargetSelector::slotRemovedTarget(ProjectExplorer::Target *targe
 }
 
 
-void MiniProjectTargetSelector::addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+void MiniProjectTargetSelector::addedBuildConfiguration(BuildConfiguration *bc)
 {
     if (bc->target() == m_target)
         m_listWidgets[BUILD]->addProjectConfiguration(bc);
 }
 
-void MiniProjectTargetSelector::slotAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+void MiniProjectTargetSelector::slotAddedBuildConfiguration(BuildConfiguration *bc)
 {
     if (bc->target() == m_target)
         m_listWidgets[BUILD]->addProjectConfiguration(bc);
     updateBuildListVisible();
 }
 
-void MiniProjectTargetSelector::removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+void MiniProjectTargetSelector::removedBuildConfiguration(BuildConfiguration *bc)
 {
     if (bc->target() == m_target)
         m_listWidgets[BUILD]->removeProjectConfiguration(bc);
 }
 
-void MiniProjectTargetSelector::slotRemovedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+void MiniProjectTargetSelector::slotRemovedBuildConfiguration(BuildConfiguration *bc)
 {
     if (bc->target() == m_target)
         m_listWidgets[BUILD]->removeProjectConfiguration(bc);
     updateBuildListVisible();
 }
 
-void MiniProjectTargetSelector::addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+void MiniProjectTargetSelector::addedDeployConfiguration(DeployConfiguration *dc)
 {
     if (dc->target() == m_target)
         m_listWidgets[DEPLOY]->addProjectConfiguration(dc);
 }
 
-void MiniProjectTargetSelector::slotAddedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+void MiniProjectTargetSelector::slotAddedDeployConfiguration(DeployConfiguration *dc)
 {
     if (dc->target() == m_target)
         m_listWidgets[DEPLOY]->addProjectConfiguration(dc);
     updateDeployListVisible();
 }
 
-void MiniProjectTargetSelector::removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+void MiniProjectTargetSelector::removedDeployConfiguration(DeployConfiguration *dc)
 {
     if (dc->target() == m_target)
         m_listWidgets[DEPLOY]->removeProjectConfiguration(dc);
 }
 
-void MiniProjectTargetSelector::slotRemovedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+void MiniProjectTargetSelector::slotRemovedDeployConfiguration(DeployConfiguration *dc)
 {
     if (dc->target() == m_target)
         m_listWidgets[DEPLOY]->removeProjectConfiguration(dc);
     updateDeployListVisible();
 }
 
-void MiniProjectTargetSelector::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+void MiniProjectTargetSelector::addedRunConfiguration(RunConfiguration *rc)
 {
     if (rc->target() == m_target)
         m_listWidgets[RUN]->addProjectConfiguration(rc);
 }
 
-void MiniProjectTargetSelector::slotAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+void MiniProjectTargetSelector::slotAddedRunConfiguration(RunConfiguration *rc)
 {
     if (rc->target() == m_target)
         m_listWidgets[RUN]->addProjectConfiguration(rc);
     updateRunListVisible();
 }
 
-void MiniProjectTargetSelector::removedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+void MiniProjectTargetSelector::removedRunConfiguration(RunConfiguration *rc)
 {
     if (rc->target() == m_target)
         m_listWidgets[RUN]->removeProjectConfiguration(rc);
 }
 
-void MiniProjectTargetSelector::slotRemovedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+void MiniProjectTargetSelector::slotRemovedRunConfiguration(RunConfiguration *rc)
 {
     if (rc->target() == m_target)
         m_listWidgets[RUN]->removeProjectConfiguration(rc);
@@ -1217,7 +1217,7 @@ void MiniProjectTargetSelector::updateRunListVisible()
     updateSummary();
 }
 
-void MiniProjectTargetSelector::changeStartupProject(ProjectExplorer::Project *project)
+void MiniProjectTargetSelector::changeStartupProject(Project *project)
 {
     if (m_project) {
         disconnect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
@@ -1244,7 +1244,7 @@ void MiniProjectTargetSelector::changeStartupProject(ProjectExplorer::Project *p
     updateActionAndSummary();
 }
 
-void MiniProjectTargetSelector::activeTargetChanged(ProjectExplorer::Target *target)
+void MiniProjectTargetSelector::activeTargetChanged(Target *target)
 {
     if (m_target) {
         disconnect(m_target, SIGNAL(displayNameChanged()),
@@ -1336,7 +1336,7 @@ void MiniProjectTargetSelector::kitChanged(Kit *k)
         updateActionAndSummary();
 }
 
-void MiniProjectTargetSelector::activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc)
+void MiniProjectTargetSelector::activeBuildConfigurationChanged(BuildConfiguration *bc)
 {
     if (m_buildConfiguration)
         disconnect(m_buildConfiguration, SIGNAL(displayNameChanged()),
@@ -1349,7 +1349,7 @@ void MiniProjectTargetSelector::activeBuildConfigurationChanged(ProjectExplorer:
     updateActionAndSummary();
 }
 
-void MiniProjectTargetSelector::activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc)
+void MiniProjectTargetSelector::activeDeployConfigurationChanged(DeployConfiguration *dc)
 {
     if (m_deployConfiguration)
         disconnect(m_deployConfiguration, SIGNAL(displayNameChanged()),
@@ -1362,7 +1362,7 @@ void MiniProjectTargetSelector::activeDeployConfigurationChanged(ProjectExplorer
     updateActionAndSummary();
 }
 
-void MiniProjectTargetSelector::activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc)
+void MiniProjectTargetSelector::activeRunConfigurationChanged(RunConfiguration *rc)
 {
     if (m_runConfiguration)
         disconnect(m_runConfiguration, SIGNAL(displayNameChanged()),

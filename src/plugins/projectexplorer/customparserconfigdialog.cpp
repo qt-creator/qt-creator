@@ -66,7 +66,7 @@ void CustomParserConfigDialog::setExampleSettings()
     ui->errorMessage->setText(QLatin1String("#error /home/user/src/test.c:891: Unknown identifier `test`"));
 }
 
-void CustomParserConfigDialog::setSettings(const ProjectExplorer::CustomParserSettings &settings)
+void CustomParserConfigDialog::setSettings(const CustomParserSettings &settings)
 {
     if (settings.errorPattern.isEmpty()) {
         setExampleSettings();
@@ -79,9 +79,9 @@ void CustomParserConfigDialog::setSettings(const ProjectExplorer::CustomParserSe
     setMessageCap(settings.messageCap);
 }
 
-ProjectExplorer::CustomParserSettings CustomParserConfigDialog::settings() const
+CustomParserSettings CustomParserConfigDialog::settings() const
 {
-    ProjectExplorer::CustomParserSettings result;
+    CustomParserSettings result;
     result.errorPattern = errorPattern();
     result.fileNameCap = fileNameCap();
     result.lineNumberCap = lineNumberCap();

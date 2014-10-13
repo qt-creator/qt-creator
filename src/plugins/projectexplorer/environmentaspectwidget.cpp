@@ -85,7 +85,7 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
     if (additionalWidget)
         baseLayout->addWidget(additionalWidget);
 
-    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
+    m_environmentWidget = new EnvironmentWidget(this, baseEnvironmentWidget);
     m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(baseDisplayName);
     m_environmentWidget->setUserChanges(m_aspect->userEnvironmentChanges());

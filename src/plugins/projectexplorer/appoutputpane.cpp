@@ -150,7 +150,7 @@ AppOutputPane::AppOutputPane() :
     setObjectName(QLatin1String("AppOutputPane")); // Used in valgrind engine
 
     // Rerun
-    m_reRunButton->setIcon(QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL)));
+    m_reRunButton->setIcon(QIcon(QLatin1String(Constants::ICON_RUN_SMALL)));
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
@@ -177,7 +177,7 @@ AppOutputPane::AppOutputPane() :
     // Attach
     m_attachButton->setToolTip(msgAttachDebuggerTooltip());
     m_attachButton->setEnabled(false);
-    m_attachButton->setIcon(QIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL)));
+    m_attachButton->setIcon(QIcon(QLatin1String(Constants::ICON_DEBUG_SMALL)));
     m_attachButton->setAutoRaise(true);
 
     connect(m_attachButton, SIGNAL(clicked()),
@@ -430,7 +430,7 @@ void AppOutputPane::attachToRunControl()
 {
     const int index = currentIndex();
     QTC_ASSERT(index != -1, return);
-    ProjectExplorer::RunControl *rc = m_runControlTabs.at(index).runControl;
+    RunControl *rc = m_runControlTabs.at(index).runControl;
     QTC_ASSERT(rc->isRunning(), return);
     ExtensionSystem::Invoker<void>(debuggerCore(), "attachExternalApplication", rc);
 }
@@ -546,7 +546,7 @@ void AppOutputPane::enableButtons(const RunControl *rc /* = 0 */, bool isRunning
         }
     } else {
         m_reRunButton->setEnabled(false);
-        m_reRunButton->setIcon(QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL)));
+        m_reRunButton->setIcon(QIcon(QLatin1String(Constants::ICON_RUN_SMALL)));
         m_attachButton->setEnabled(false);
         m_attachButton->setToolTip(msgAttachDebuggerTooltip());
         m_stopAction->setEnabled(false);
@@ -591,7 +591,7 @@ void AppOutputPane::slotRunControlStarted()
 
 void AppOutputPane::slotRunControlFinished()
 {
-    ProjectExplorer::RunControl *rc = qobject_cast<RunControl *>(sender());
+    RunControl *rc = qobject_cast<RunControl *>(sender());
     QMetaObject::invokeMethod(this, "slotRunControlFinished2", Qt::QueuedConnection,
                               Q_ARG(ProjectExplorer::RunControl *, rc));
     rc->outputFormatter()->flush();

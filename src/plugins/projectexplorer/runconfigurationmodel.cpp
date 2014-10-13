@@ -158,7 +158,7 @@ QModelIndex RunConfigurationModel::indexFor(RunConfiguration *rc)
     return index(idx, 0);
 }
 
-void RunConfigurationModel::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+void RunConfigurationModel::addedRunConfiguration(RunConfiguration *rc)
 {
     // Find the right place to insert
     RunConfigurationComparer compare;
@@ -177,7 +177,7 @@ void RunConfigurationModel::addedRunConfiguration(ProjectExplorer::RunConfigurat
             this, SLOT(displayNameChanged()));
 }
 
-void RunConfigurationModel::removedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+void RunConfigurationModel::removedRunConfiguration(RunConfiguration *rc)
 {
     int i = m_runConfigurations.indexOf(rc);
     if (i < 0)

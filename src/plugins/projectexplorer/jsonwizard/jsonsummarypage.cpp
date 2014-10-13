@@ -111,10 +111,10 @@ void JsonSummaryPage::initializePage()
         filePaths << f.file.path();
     }
 
-    Node *contextNode = wiz->value(QLatin1String(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE))
+    Node *contextNode = wiz->value(QLatin1String(Constants::PREFERRED_PROJECT_NODE))
             .value<Node *>();
     initializeProjectTree(contextNode, filePaths, kind,
-                          isProject ? ProjectExplorer::AddSubProject : ProjectExplorer::AddNewFile);
+                          isProject ? AddSubProject : AddNewFile);
 
     initializeVersionControls();
 }

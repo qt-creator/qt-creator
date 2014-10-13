@@ -56,8 +56,8 @@ public:
     ~BuildSettingsWidget();
 
     void clearWidgets();
-    void addSubWidget(ProjectExplorer::NamedWidget *widget);
-    QList<ProjectExplorer::NamedWidget *> subWidgets() const;
+    void addSubWidget(NamedWidget *widget);
+    QList<NamedWidget *> subWidgets() const;
 
 private slots:
     void updateBuildSettings();

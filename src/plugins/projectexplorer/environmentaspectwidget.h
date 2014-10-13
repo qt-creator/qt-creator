@@ -76,7 +76,7 @@ private:
     QWidget *m_additionalWidget;
     QComboBox *m_baseEnvironmentComboBox;
     Utils::DetailsWidget *m_detailsContainer;
-    ProjectExplorer::EnvironmentWidget *m_environmentWidget;
+    EnvironmentWidget *m_environmentWidget;
 };
 
 } // namespace ProjectExplorer

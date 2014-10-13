@@ -49,7 +49,6 @@ namespace ProjectExplorer {
 
 class DeviceManagerModel;
 class ToolChain;
-class EnvironmentWidget;
 
 namespace Internal {
 

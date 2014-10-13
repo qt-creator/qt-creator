@@ -62,11 +62,11 @@ public:
     bool isValid() const;
     bool hasWarning() const;
     QString validityMessage() const;
-    void addConfigWidget(ProjectExplorer::KitConfigWidget *widget);
+    void addConfigWidget(KitConfigWidget *widget);
     void makeStickySubWidgetsReadOnly();
 
     Kit *workingCopy() const;
-    bool configures(ProjectExplorer::Kit *k) const;
+    bool configures(Kit *k) const;
     void setIsDefaultKit(bool d);
     bool isDefaultKit() const;
     void removeKit();

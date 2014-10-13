@@ -730,7 +730,7 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
         int height = 0;
         description.replace(QLatin1Char('\n'), QChar::LineSeparator);
         QTextLayout tl(description);
-        tl.setAdditionalFormats(index.data(TaskModel::Task_t).value<ProjectExplorer::Task>().formats);
+        tl.setAdditionalFormats(index.data(TaskModel::Task_t).value<Task>().formats);
         tl.beginLayout();
         while (true) {
             QTextLine line = tl.createLine();
@@ -830,7 +830,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         int height = 0;
         description.replace(QLatin1Char('\n'), QChar::LineSeparator);
         QTextLayout tl(description);
-        tl.setAdditionalFormats(index.data(TaskModel::Task_t).value<ProjectExplorer::Task>().formats);
+        tl.setAdditionalFormats(index.data(TaskModel::Task_t).value<Task>().formats);
         tl.beginLayout();
         while (true) {
             QTextLine line = tl.createLine();

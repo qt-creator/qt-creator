@@ -95,7 +95,7 @@ public:
     virtual QString displayNamePostfix(const Kit *k) const;
 
     virtual QSet<QString> availablePlatforms(const Kit *k) const;
-    virtual QString displayNameForPlatform(const ProjectExplorer::Kit *k, const QString &platform) const;
+    virtual QString displayNameForPlatform(const Kit *k, const QString &platform) const;
     virtual Core::FeatureSet availableFeatures(const Kit *k) const;
 
     virtual Utils::AbstractMacroExpander *createMacroExpander(const Kit *k) const
@@ -144,12 +144,12 @@ public:
 
     static void deleteKit(Kit *k);
 
-    static bool registerKit(ProjectExplorer::Kit *k);
-    static void deregisterKit(ProjectExplorer::Kit *k);
-    static void setDefaultKit(ProjectExplorer::Kit *k);
+    static bool registerKit(Kit *k);
+    static void deregisterKit(Kit *k);
+    static void setDefaultKit(Kit *k);
 
-    static void registerKitInformation(ProjectExplorer::KitInformation *ki);
-    static void deregisterKitInformation(ProjectExplorer::KitInformation *ki);
+    static void registerKitInformation(KitInformation *ki);
+    static void deregisterKitInformation(KitInformation *ki);
 
     static QSet<QString> availablePlatforms();
     static QString displayNameForPlatform(const QString &platform);
@@ -188,7 +188,7 @@ private:
     };
     KitList restoreKits(const Utils::FileName &fileName);
 
-    static void notifyAboutUpdate(ProjectExplorer::Kit *k);
+    static void notifyAboutUpdate(Kit *k);
     void addKit(Kit *k);
 
     friend class ProjectExplorerPlugin; // for constructor

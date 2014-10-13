@@ -152,7 +152,7 @@ void BuildConfiguration::setBuildDirectory(const Utils::FileName &dir)
 
 QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
 {
-    return QList<NamedWidget *>() << new ProjectExplorer::BuildEnvironmentWidget(this);
+    return QList<NamedWidget *>() << new BuildEnvironmentWidget(this);
 }
 
 Utils::AbstractMacroExpander *BuildConfiguration::macroExpander()
@@ -218,8 +218,8 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     }
 
     // We currently assume there to be at least a clean and build list!
-    QTC_CHECK(knownStepLists().contains(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)));
-    QTC_CHECK(knownStepLists().contains(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
+    QTC_CHECK(knownStepLists().contains(Core::Id(Constants::BUILDSTEPS_BUILD)));
+    QTC_CHECK(knownStepLists().contains(Core::Id(Constants::BUILDSTEPS_CLEAN)));
 
     return ProjectConfiguration::fromMap(map);
 }

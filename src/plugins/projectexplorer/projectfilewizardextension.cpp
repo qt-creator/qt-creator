@@ -134,12 +134,12 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
     m_context->page->setFiles(fileNames);
 
     QStringList filePaths;
-    ProjectExplorer::ProjectAction projectAction;
+    ProjectAction projectAction;
     if (m_context->wizard->kind()== IWizardFactory::ProjectWizard) {
-        projectAction = ProjectExplorer::AddSubProject;
+        projectAction = AddSubProject;
         filePaths << generatedProjectFilePath(files);
     } else {
-        projectAction = ProjectExplorer::AddNewFile;
+        projectAction = AddNewFile;
         filePaths = Utils::transform(files, &GeneratedFile::path);
     }
 
