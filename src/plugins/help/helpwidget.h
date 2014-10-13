@@ -84,6 +84,7 @@ public:
     void openFromSearch(const QUrl &url, bool newPage = false);
     void showTopicChooser(const QMap<QString, QUrl> &links, const QString &key,
                           bool newPage = false);
+    void activateSideBarItem(const QString &id);
 
 public slots:
     void setSource(const QUrl &url);
@@ -117,6 +118,7 @@ private:
     void print(HelpViewer *viewer);
     void highlightSearchTerms();
     void addSideBar();
+    QString sideBarSettingsKey() const;
 
     Core::IContext *m_context;
     WidgetStyle m_style;
@@ -145,6 +147,7 @@ private:
     QAction *m_indexAction;
     QAction *m_bookmarkAction;
     QAction *m_searchAction;
+    QAction *m_openPagesAction;
 };
 
 } // Internal

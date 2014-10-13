@@ -92,14 +92,10 @@ private slots:
     void showContextHelp();
     void activateIndex();
     void activateContents();
-    void activateSearch();
-    void activateOpenPages();
-    void activateBookmarks();
 
     void saveExternalWindowSettings();
     void switchToHelpMode(const QUrl &source);
     void slotHideRightPane();
-    void setSideBarVisible(bool visible);
 
     void updateSideBarSource();
     void updateSideBarSource(const QUrl &newUrl);
@@ -114,10 +110,7 @@ private slots:
     void slotOpenSupportPage();
     void slotReportBug();
 
-    void onSideBarVisibilityChanged();
-
 private:
-    void setupUi();
     void resetFilter();
     void activateHelpMode();
     bool canShowHelpSideBySide() const;
@@ -140,19 +133,14 @@ private:
     GeneralSettingsPage *m_generalSettingsPage;
     SearchTaskHandler *m_searchTaskHandler;
 
-    Core::SideBar *m_sideBar;
-
     bool m_setupNeeded;
     LocalHelpManager *m_helpManager;
     OpenPagesManager *m_openPagesManager;
-    Core::MiniSplitter *m_splitter;
 
     QString m_contextHelpHighlightId;
 
     QPointer<HelpWidget> m_externalWindow;
     QRect m_externalWindowState;
-
-    QAction *m_toggleSideBarAction;
 };
 
 } // namespace Internal
