@@ -48,7 +48,7 @@ fi
 
 # The svg element IDs of images to export. They correspond to the
 # path and base name of each image in the Qt Creator sources.
-ids=$(sed -n 's,^[[:space:]]*id="\(src/[^"]*\)".*$,\1,p' qtcreatoricons.svg)
+ids=$(sed -n 's,^[[:space:]]*id="\(\(src\|share\)/[^"]*\)".*$,\1,p' qtcreatoricons.svg)
 
 # The shell mode of Inkscape is used to execute several export commands
 # with one launch of Inkscape. The commands are first all written into a
