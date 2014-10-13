@@ -60,6 +60,7 @@ Item {
                 height: 20
                 font.underline: mouseArea.containsMouse
                 font.pixelSize: fonts.linkFont.pixelSize
+                font.family: fonts.linkFont.family
                 enlargeMouseArea: false
             }
             NativeText {
