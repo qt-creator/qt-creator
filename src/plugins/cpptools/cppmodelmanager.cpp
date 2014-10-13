@@ -456,7 +456,7 @@ void CppModelManager::removeExtraEditorSupport(AbstractEditorSupport *editorSupp
     d->m_extraEditorSupports.remove(editorSupport);
 }
 
-EditorDocumentHandle *CppModelManager::editorDocument(const QString &filePath)
+EditorDocumentHandle *CppModelManager::editorDocument(const QString &filePath) const
 {
     QTC_ASSERT(!filePath.isEmpty(), return 0);
 
@@ -697,6 +697,24 @@ void CppModelManager::recalculateFileToProjectParts()
     }
 }
 
+void CppModelManager::updateVisibleEditorDocuments() const
+{
+    QSet<QString> visibleDocumentsInEditMode;
+    foreach (Core::IEditor *editor, Core::EditorManager::visibleEditors()) {
+        if (const Core::IDocument *document = editor->document()) {
+            const QString filePath = document->filePath();
+            QTC_ASSERT(!filePath.isEmpty(), continue);
+            visibleDocumentsInEditMode.insert(filePath);
+        }
+    }
+
+    // Re-process these documents
+    foreach (const QString &filePath, visibleDocumentsInEditMode) {
+        if (EditorDocumentHandle *editor = editorDocument(filePath))
+            editor->processor()->run();
+    }
+}
+
 QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectInfo)
 {
     if (!newProjectInfo.isValid())
@@ -767,6 +785,12 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
         GC();
 
     emit projectPartsUpdated(newProjectInfo.project().data());
+
+    // Ideally, we would update all the editor documents that depend on the 'filesToReindex'.
+    // However, on e.g. a session restore first the editor documents are created and then the
+    // project updates come in. That is, there are no reasonable dependency tables based on
+    // resolved includes that we could rely on.
+    updateVisibleEditorDocuments();
 
     // Trigger reindexing
     return updateSourceFiles(filesToReindex, ForcedProgressNotification);

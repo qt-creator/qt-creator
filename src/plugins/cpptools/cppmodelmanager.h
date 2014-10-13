@@ -115,7 +115,7 @@ public:
     void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
     void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
 
-    EditorDocumentHandle *editorDocument(const QString &filePath);
+    EditorDocumentHandle *editorDocument(const QString &filePath) const;
     void registerEditorDocument(EditorDocumentHandle *editorDocument);
     void unregisterEditorDocument(const QString &filePath);
 
@@ -189,6 +189,7 @@ private slots:
 private:
     void delayedGC();
     void recalculateFileToProjectParts();
+    void updateVisibleEditorDocuments() const;
 
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
