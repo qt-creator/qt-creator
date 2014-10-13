@@ -2076,6 +2076,11 @@ UiQualifiedId *QmlPrototypeReference::qmlTypeName() const
     return m_qmlTypeName;
 }
 
+const Document *QmlPrototypeReference::document() const
+{
+    return m_doc;
+}
+
 const Value *QmlPrototypeReference::value(ReferenceContext *referenceContext) const
 {
     return referenceContext->context()->lookupType(m_doc, m_qmlTypeName);

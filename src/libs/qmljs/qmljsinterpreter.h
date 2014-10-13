@@ -872,6 +872,7 @@ public:
     const QmlPrototypeReference *asQmlPrototypeReference() const Q_DECL_OVERRIDE;
 
     AST::UiQualifiedId *qmlTypeName() const;
+    const Document *document() const;
 
 private:
     const Value *value(ReferenceContext *referenceContext) const Q_DECL_OVERRIDE;
