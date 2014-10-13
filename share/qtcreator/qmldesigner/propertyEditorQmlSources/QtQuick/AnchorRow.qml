@@ -112,7 +112,6 @@ RowLayout {
 
             ButtonRow {
                 id: buttonRow
-                opacity: 0
 
                 property variant relativeTarget: anchorBackend.relativeAnchorTargetTop
 
