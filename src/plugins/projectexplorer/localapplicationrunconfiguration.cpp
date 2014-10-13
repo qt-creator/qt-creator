@@ -32,8 +32,9 @@
 
 #include "buildconfiguration.h"
 
+#include <utils/macroexpander.h>
 #include <utils/stringutils.h>
-#include <coreplugin/variablemanager.h>
+
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 
@@ -58,7 +59,7 @@ bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret)
         return true;
     }
     bool found;
-    *ret = Core::globalMacroExpander()->value(name.toUtf8(), &found);
+    *ret = Utils::globalMacroExpander()->value(name.toUtf8(), &found);
     return found;
 }
 } // namespace Internal

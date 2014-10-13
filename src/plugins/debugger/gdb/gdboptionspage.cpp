@@ -72,8 +72,6 @@ public:
 GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     : QWidget(parent)
 {
-    (void) new VariableChooser(this);
-
     auto groupBoxGeneral = new QGroupBox(this);
     groupBoxGeneral->setTitle(GdbOptionsPage::tr("General"));
 
@@ -233,10 +231,11 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "Matching regular expression: "));
     */
 
-    VariableChooser::addVariableSupport(textEditCustomDumperCommands);
-    VariableChooser::addVariableSupport(textEditPostAttachCommands);
-    VariableChooser::addVariableSupport(textEditStartupCommands);
-    VariableChooser::addVariableSupport(pathChooserExtraDumperFile->lineEdit());
+    auto chooser = new VariableChooser(this);
+    chooser->addSupportedWidget(textEditCustomDumperCommands);
+    chooser->addSupportedWidget(textEditPostAttachCommands);
+    chooser->addSupportedWidget(textEditStartupCommands);
+    chooser->addSupportedWidget(pathChooserExtraDumperFile->lineEdit());
 
     auto formLayout = new QFormLayout(groupBoxGeneral);
     formLayout->addRow(labelGdbWatchdogTimeout, spinBoxGdbWatchdogTimeout);

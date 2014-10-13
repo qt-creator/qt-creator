@@ -33,13 +33,13 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/fancylineedit.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/variablechooser.h>
-#include <coreplugin/variablemanager.h>
 
 #include <QTextStream>
 #include <QMimeData>
@@ -410,10 +410,11 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->toolTree->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(handleCurrentChanged(QModelIndex,QModelIndex)));
 
-    Core::VariableChooser::addVariableSupport(ui->executable->lineEdit());
-    Core::VariableChooser::addVariableSupport(ui->arguments);
-    Core::VariableChooser::addVariableSupport(ui->workingDirectory->lineEdit());
-    Core::VariableChooser::addVariableSupport(ui->inputText);
+    auto chooser = new VariableChooser(this);
+    chooser->addSupportedWidget(ui->executable->lineEdit());
+    chooser->addSupportedWidget(ui->arguments);
+    chooser->addSupportedWidget(ui->workingDirectory->lineEdit());
+    chooser->addSupportedWidget(ui->inputText);
 
     connect(ui->description, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
     connect(ui->executable, SIGNAL(editingFinished()), this, SLOT(updateCurrentItem()));
@@ -441,7 +442,6 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
 
     showInfoForItem(QModelIndex());
 
-    new VariableChooser(this);
 }
 
 ExternalToolConfig::~ExternalToolConfig()
@@ -595,5 +595,5 @@ void ExternalToolConfig::addCategory()
 void ExternalToolConfig::updateEffectiveArguments()
 {
     ui->arguments->setToolTip(Utils::QtcProcess::expandMacros(ui->arguments->text(),
-            globalMacroExpander()));
+            Utils::globalMacroExpander()));
 }

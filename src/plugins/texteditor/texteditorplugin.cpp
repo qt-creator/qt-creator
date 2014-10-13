@@ -45,11 +45,11 @@
 #include "textmarkregistry.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/variablemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/macroexpander.h>
 
 #include <QtPlugin>
 #include <QAction>
@@ -147,7 +147,7 @@ void TextEditorPlugin::extensionsInitialized()
     addAutoReleasedObject(new FindInCurrentFile);
     addAutoReleasedObject(new FindInOpenFiles);
 
-    Utils::MacroExpander *expander = globalMacroExpander();
+    Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
     expander->registerVariable(kCurrentDocumentSelection,
         tr("Selected text within the current document."),

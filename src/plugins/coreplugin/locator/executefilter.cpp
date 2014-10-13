@@ -32,7 +32,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/variablemanager.h>
+#include <utils/macroexpander.h>
 
 #include <QMessageBox>
 
@@ -91,9 +91,9 @@ void ExecuteFilter::accept(LocatorFilterEntry selection) const
         p->m_commandHistory.prepend(value);
 
     bool found;
-    QString workingDirectory = globalMacroExpander()->value("CurrentDocument:Path", &found);
+    QString workingDirectory = Utils::globalMacroExpander()->value("CurrentDocument:Path", &found);
     if (!found || workingDirectory.isEmpty())
-        workingDirectory = globalMacroExpander()->value("CurrentProject:Path", &found);
+        workingDirectory = Utils::globalMacroExpander()->value("CurrentProject:Path", &found);
 
     ExecuteData d;
     d.workingDirectory = workingDirectory;

@@ -70,12 +70,17 @@ public:
     QList<QByteArray> variables();
     QString variableDescription(const QByteArray &variable);
 
+    QString displayName() const;
+    void setDisplayName(const QString &displayName);
+
 private:
     MacroExpander(const MacroExpander &) Q_DECL_EQ_DELETE;
     void operator=(const MacroExpander &) Q_DECL_EQ_DELETE;
 
     Internal::MacroExpanderPrivate *d;
 };
+
+QTCREATOR_UTILS_EXPORT MacroExpander *globalMacroExpander();
 
 } // namespace Utils
 

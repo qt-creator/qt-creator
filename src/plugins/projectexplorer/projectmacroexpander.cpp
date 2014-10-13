@@ -33,7 +33,7 @@
 #include "kitinformation.h"
 #include "projectexplorerconstants.h"
 
-#include <coreplugin/variablemanager.h>
+#include <utils/macroexpander.h>
 #include <ssh/sshconnection.h>
 
 using namespace ProjectExplorer;
@@ -99,7 +99,7 @@ bool ProjectMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
     bool found = resolveProjectMacro(name, ret);
     if (!found) {
-        QString result = Core::globalMacroExpander()->value(name.toUtf8(), &found);
+        QString result = Utils::globalMacroExpander()->value(name.toUtf8(), &found);
         if (ret)
             *ret = result;
     }

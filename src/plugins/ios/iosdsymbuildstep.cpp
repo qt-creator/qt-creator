@@ -45,7 +45,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtparser.h>
-#include <coreplugin/variablemanager.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

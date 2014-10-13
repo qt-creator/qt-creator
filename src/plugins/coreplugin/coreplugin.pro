@@ -53,7 +53,6 @@ SOURCES += corejsextensions.cpp \
     progressmanager/futureprogress.cpp \
     statusbarwidget.cpp \
     coreplugin.cpp \
-    variablemanager.cpp \
     modemanager.cpp \
     basefilewizard.cpp \
     basefilewizardfactory.cpp \
@@ -165,7 +164,6 @@ HEADERS += corejsextensions.h \
     core_global.h \
     statusbarwidget.h \
     coreplugin.h \
-    variablemanager.h \
     modemanager.h \
     basefilewizard.h \
     basefilewizardfactory.h \

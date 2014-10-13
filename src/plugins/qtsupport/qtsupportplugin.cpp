@@ -46,12 +46,12 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/variablemanager.h>
 #include <coreplugin/jsexpander.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
-
+#include <utils/macroexpander.h>
 
 #include <QtPlugin>
 
@@ -114,7 +114,7 @@ static QString qmakeProperty(const char *propertyName)
 
 void QtSupportPlugin::extensionsInitialized()
 {
-    Utils::MacroExpander *expander = globalMacroExpander();
+    Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
     expander->registerVariable(kHostBins,
         tr("Full path to the host bin directory of the current project's Qt version."),

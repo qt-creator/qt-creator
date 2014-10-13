@@ -38,7 +38,6 @@
 #include "kit.h"
 #include "projectmacroexpander.h"
 
-#include <coreplugin/variablemanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/idocument.h>

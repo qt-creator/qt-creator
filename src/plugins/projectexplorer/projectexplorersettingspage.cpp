@@ -48,8 +48,6 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-    new Core::VariableChooser(this);
-    Core::VariableChooser::addVariableSupport(m_ui.buildDirectoryEdit);
     setJomVisible(Utils::HostOsInfo::isWindowsHost());
     m_ui.directoryButtonGroup->setId(m_ui.currentDirectoryRadioButton, UseCurrentDirectory);
     m_ui.directoryButtonGroup->setId(m_ui.directoryRadioButton, UseProjectDirectory);
@@ -58,6 +56,9 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
             this, SLOT(slotDirectoryButtonGroupChanged()));
     connect(m_ui.resetButton, SIGNAL(clicked()), this, SLOT(resetDefaultBuildDirectory()));
     connect(m_ui.buildDirectoryEdit, SIGNAL(textChanged(QString)), this, SLOT(updateResetButton()));
+
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_ui.buildDirectoryEdit);
 }
 
 void ProjectExplorerSettingsWidget::setJomVisible(bool v)

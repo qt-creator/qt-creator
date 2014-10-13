@@ -33,7 +33,6 @@
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/actioncontainer.h"
 #include "coreconstants.h"
-#include "variablemanager.h"
 
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
@@ -41,8 +40,10 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <utils/qtcassert.h>
+
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
@@ -54,6 +55,7 @@
 
 #include <QDebug>
 
+using namespace Utils;
 using namespace Core;
 using namespace Core::Internal;
 

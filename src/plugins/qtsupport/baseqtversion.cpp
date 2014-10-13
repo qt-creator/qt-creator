@@ -250,6 +250,9 @@ void BaseQtVersion::setupExpander()
 //    m_expander.registerVariable("Qt:name",
 //        QCoreApplication::translate("QtSupport::QtKitInformation", "The display name of the current Qt version."),
 //        [this]() { return displayName(); });
+
+    m_expander.setDisplayName(
+        QCoreApplication::translate("QtSupport::QtKitInformation", "Qt version"));
 }
 
 BaseQtVersion::~BaseQtVersion()
@@ -606,7 +609,8 @@ void BaseQtVersion::setAutoDetectionSource(const QString &autodetectionSource)
 
 QString BaseQtVersion::displayName() const
 {
-    return Utils::expandMacros(m_unexpandedDisplayName, &m_expander);
+    QString ret = Utils::expandMacros(m_unexpandedDisplayName, &m_expander);
+    return Utils::expandMacros(ret, Utils::globalMacroExpander());
 }
 
 QString BaseQtVersion::unexpandedDisplayName() const

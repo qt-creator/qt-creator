@@ -60,9 +60,10 @@
 
 #include <texteditor/texteditor.h>
 
-#include <utils/savedaction.h>
-#include <utils/qtcassert.h>
 #include <utils/fileinprojectfinder.h>
+#include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <qmljs/consolemanagerinterface.h>
 
@@ -178,7 +179,7 @@ public:
         connect(action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
                 SLOT(reloadDisassembly()));
 
-        globalMacroExpander()->registerFileVariables(PrefixDebugExecutable,
+        Utils::globalMacroExpander()->registerFileVariables(PrefixDebugExecutable,
             tr("Debugged executable"),
             [this]() { return m_startParameters.executable; });
     }
@@ -1835,7 +1836,7 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
             SourcePathRegExpMap globalRegExpSourceMap;
             globalRegExpSourceMap.reserve(options->sourcePathRegExpMap.size());
             foreach (auto entry, options->sourcePathRegExpMap) {
-                const QString expanded = globalMacroExpander()->expandedString(entry.second);
+                const QString expanded = Utils::globalMacroExpander()->expandedString(entry.second);
                 if (!expanded.isEmpty())
                     globalRegExpSourceMap.push_back(qMakePair(entry.first, expanded));
             }

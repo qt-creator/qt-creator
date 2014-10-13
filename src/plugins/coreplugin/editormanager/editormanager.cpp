@@ -59,7 +59,6 @@
 #include <coreplugin/outputpanemanager.h>
 #include <coreplugin/rightpane.h>
 #include <coreplugin/settingsdatabase.h>
-#include <coreplugin/variablemanager.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -67,6 +66,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QClipboard>
@@ -86,6 +86,8 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSplitter>
+
+using namespace Utils;
 
 enum { debugEditorManager=0 };
 

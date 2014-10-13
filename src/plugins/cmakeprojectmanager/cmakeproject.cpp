@@ -64,7 +64,6 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/variablemanager.h>
 
 #include <QDebug>
 #include <QDir>

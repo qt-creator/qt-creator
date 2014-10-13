@@ -41,6 +41,7 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/variablechooser.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/hostosinfo.h>
@@ -192,6 +193,14 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
 
     connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
             this, SLOT(toolChainsUpdated()));
+
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_versionUi->nameEdit, "Qt:name");
+    chooser->addMacroExpanderProvider(
+        [this]() -> Utils::MacroExpander * {
+            BaseQtVersion *version = currentVersion();
+            return version ? version->macroExpander() : 0;
+        });
 }
 
 int QtOptionsPageWidget::currentIndex() const

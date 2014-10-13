@@ -45,7 +45,6 @@
 #include "outputpanemanager.h"
 #include "plugindialog.h"
 #include "vcsmanager.h"
-#include "variablemanager.h"
 #include "versiondialog.h"
 #include "statusbarmanager.h"
 #include "id.h"

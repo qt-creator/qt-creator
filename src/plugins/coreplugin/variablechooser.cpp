@@ -29,67 +29,36 @@
 ****************************************************************************/
 
 #include "variablechooser.h"
-#include "variablemanager.h"
 #include "coreconstants.h"
 
 #include <utils/fancylineedit.h> // IconButton
+#include <utils/macroexpander.h>
+#include <utils/treemodel.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QAbstractItemModel>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
-#include <QListWidget>
 #include <QListWidgetItem>
 #include <QPlainTextEdit>
 #include <QPointer>
 #include <QTextEdit>
 #include <QTimer>
+#include <QTreeView>
 #include <QVBoxLayout>
+#include <QVector>
+
+using namespace Utils;
 
 namespace Core {
 namespace Internal {
 
-/*!
- * \internal
- */
 class VariableChooserPrivate : public QObject
 {
-    Q_OBJECT
-
 public:
-    VariableChooserPrivate(VariableChooser *parent)
-      : q(parent),
-        m_defaultDescription(tr("Select a variable to insert.")),
-        m_lineEdit(0),
-        m_textEdit(0),
-        m_plainTextEdit(0)
-    {
-        m_variableList = new QListWidget(q);
-        m_variableList->setAttribute(Qt::WA_MacSmallSize);
-        m_variableList->setAttribute(Qt::WA_MacShowFocusRect, false);
-        foreach (const QByteArray &variable, globalMacroExpander()->variables())
-            m_variableList->addItem(QString::fromLatin1(variable));
-
-        m_variableDescription = new QLabel(q);
-        m_variableDescription->setText(m_defaultDescription);
-        m_variableDescription->setMinimumSize(QSize(0, 60));
-        m_variableDescription->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-        m_variableDescription->setWordWrap(true);
-        m_variableDescription->setAttribute(Qt::WA_MacSmallSize);
-
-        QVBoxLayout *verticalLayout = new QVBoxLayout(q);
-        verticalLayout->setContentsMargins(3, 3, 3, 12);
-        verticalLayout->addWidget(m_variableList);
-        verticalLayout->addWidget(m_variableDescription);
-
-        connect(m_variableList, SIGNAL(currentTextChanged(QString)),
-            this, SLOT(updateDescription(QString)));
-        connect(m_variableList, SIGNAL(itemActivated(QListWidgetItem*)),
-            this, SLOT(handleItemActivated(QListWidgetItem*)));
-        connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)),
-            this, SLOT(updateCurrentEditor(QWidget*,QWidget*)));
-        updateCurrentEditor(0, qApp->focusWidget());
-    }
+    VariableChooserPrivate(VariableChooser *parent);
 
     void createIconButton()
     {
@@ -97,29 +66,139 @@ public:
         m_iconButton->setPixmap(QPixmap(QLatin1String(":/core/images/replace.png")));
         m_iconButton->setToolTip(tr("Insert variable"));
         m_iconButton->hide();
-        connect(m_iconButton, SIGNAL(clicked()), this, SLOT(updatePositionAndShow()));
+        connect(m_iconButton.data(), static_cast<void(QAbstractButton::*)(bool)>(&QAbstractButton::clicked),
+                this, &VariableChooserPrivate::updatePositionAndShow);
     }
 
-public slots:
-    void updateDescription(const QString &variable);
+    void updateDescription(const QModelIndex &index);
     void updateCurrentEditor(QWidget *old, QWidget *widget);
-    void handleItemActivated(QListWidgetItem *item);
+    void handleItemActivated(const QModelIndex &index);
     void insertVariable(const QString &variable);
-    void updatePositionAndShow();
+    void updatePositionAndShow(bool);
 
-public:
     QWidget *currentWidget();
 
+public:
     VariableChooser *q;
-    QString m_defaultDescription;
+    TreeModel m_model;
+
     QPointer<QLineEdit> m_lineEdit;
     QPointer<QTextEdit> m_textEdit;
     QPointer<QPlainTextEdit> m_plainTextEdit;
     QPointer<Utils::IconButton> m_iconButton;
 
-    QListWidget *m_variableList;
+    QTreeView *m_variableTree;
     QLabel *m_variableDescription;
+    QString m_defaultDescription;
+    QByteArray m_currentVariableName; // Prevent recursive insertion of currently expanded item
 };
+
+class VariableItem : public TreeItem
+{
+public:
+    VariableItem()
+    {}
+
+    QVariant data(int column, int role) const
+    {
+        if (role == Qt::DisplayRole || role == Qt::EditRole) {
+            if (column == 0)
+                return m_display;
+        }
+        if (role == Qt::ToolTipRole)
+            return m_description;
+
+        return QVariant();
+    }
+
+public:
+    QString m_display;
+    QString m_description;
+};
+
+class VariableGroupItem : public TreeItem
+{
+public:
+    VariableGroupItem(VariableChooserPrivate *chooser)
+        : m_chooser(chooser), m_expander(0)
+    {
+        setLazy(true);
+    }
+
+    bool ensureExpander() const
+    {
+        if (!m_expander)
+            m_expander = m_provider();
+        return m_expander != 0;
+    }
+
+    QVariant data(int column, int role) const
+    {
+        if (role == Qt::DisplayRole || role == Qt::EditRole) {
+            if (column == 0 && ensureExpander())
+                return m_expander->displayName();
+        }
+        return QVariant();
+    }
+
+    void populate()
+    {
+        if (ensureExpander()) {
+            foreach (const QByteArray &variable, m_expander->variables()) {
+                auto item = new VariableItem;
+                item->m_display = QString::fromLatin1(variable);
+                item->m_description = m_expander->variableDescription(variable);
+                if (variable == m_chooser->m_currentVariableName)
+                    item->setFlags(Qt::ItemIsSelectable); // not ItemIsEnabled
+                appendChild(item);
+            }
+        }
+    }
+
+public:
+    VariableChooserPrivate *m_chooser; // Not owned.
+    MacroExpanderProvider m_provider;
+    mutable MacroExpander *m_expander; // Not owned.
+    QString m_displayName;
+};
+
+VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
+    : q(parent),
+      m_lineEdit(0),
+      m_textEdit(0),
+      m_plainTextEdit(0)
+{
+    m_defaultDescription = VariableChooser::tr("Select a variable to insert.");
+
+    m_variableTree = new QTreeView(q);
+    m_variableTree->setAttribute(Qt::WA_MacSmallSize);
+    m_variableTree->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_variableTree->setModel(&m_model);
+    m_variableTree->header()->hide();
+    m_variableTree->header()->setStretchLastSection(true);
+
+    m_variableDescription = new QLabel(q);
+    m_variableDescription->setText(m_defaultDescription);
+    m_variableDescription->setMinimumSize(QSize(0, 60));
+    m_variableDescription->setAlignment(Qt::AlignLeft|Qt::AlignTop);
+    m_variableDescription->setWordWrap(true);
+    m_variableDescription->setAttribute(Qt::WA_MacSmallSize);
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout(q);
+    verticalLayout->setContentsMargins(3, 3, 3, 12);
+    verticalLayout->addWidget(m_variableTree);
+    verticalLayout->addWidget(m_variableDescription);
+
+    //        connect(m_variableList, &QTreeView::currentChanged,
+    //            this, &VariableChooserPrivate::updateDescription);
+    connect(m_variableTree, &QTreeView::clicked,
+            this, &VariableChooserPrivate::updateDescription);
+    connect(m_variableTree, &QTreeView::activated,
+            this, &VariableChooserPrivate::handleItemActivated);
+    connect(qobject_cast<QApplication *>(qApp), &QApplication::focusChanged,
+            this, &VariableChooserPrivate::updateCurrentEditor);
+    updateCurrentEditor(0, qApp->focusWidget());
+}
 
 } // namespace Internal
 
@@ -140,8 +219,7 @@ using namespace Internal;
  *
  * The variable chooser monitors focus changes of all children of its parent widget.
  * When a text control gets focus, the variable chooser checks if it has variable support set,
- * either through the addVariableSupport() function or by manually setting the
- * custom kVariableSupportProperty on the control. If the control supports variables,
+ * either through the addVariableSupport() function. If the control supports variables,
  * a tool button which opens the variable chooser is shown in it while it has focus.
  *
  * Supported text controls are QLineEdit, QTextEdit and QPlainTextEdit.
@@ -159,13 +237,15 @@ using namespace Internal;
  */
 
 /*!
+ * \internal
  * \variable VariableChooser::kVariableSupportProperty
  * Property name that is checked for deciding if a widget supports \QC variables.
  * Can be manually set with
  * \c{textcontrol->setProperty(VariableChooser::kVariableSupportProperty, true)}
  * \sa addVariableSupport()
  */
-const char VariableChooser::kVariableSupportProperty[] = "QtCreator.VariableSupport";
+const char kVariableSupportProperty[] = "QtCreator.VariableSupport";
+const char kVariableNameProperty[] = "QtCreator.VariableName";
 
 /*!
  * Creates a variable chooser that tracks all children of \a parent for variable support.
@@ -179,7 +259,8 @@ VariableChooser::VariableChooser(QWidget *parent) :
     setWindowTitle(tr("Variables"));
     setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
     setFocusPolicy(Qt::StrongFocus);
-    setFocusProxy(d->m_variableList);
+    setFocusProxy(d->m_variableTree);
+    addMacroExpanderProvider([]() { return globalMacroExpander(); });
 }
 
 /*!
@@ -191,26 +272,30 @@ VariableChooser::~VariableChooser()
     delete d;
 }
 
+void VariableChooser::addMacroExpanderProvider(const MacroExpanderProvider &provider)
+{
+    auto *item = new VariableGroupItem(d);
+    item->m_provider = provider;
+    d->m_model.rootItem()->prependChild(item);
+}
+
 /*!
  * Marks the control as supporting variables.
  * \sa kVariableSupportProperty
  */
-void VariableChooser::addVariableSupport(QWidget *textcontrol)
+void VariableChooser::addSupportedWidget(QWidget *textcontrol, const QByteArray &ownName)
 {
     QTC_ASSERT(textcontrol, return);
-    textcontrol->setProperty(kVariableSupportProperty, true);
+    textcontrol->setProperty(kVariableSupportProperty, QVariant::fromValue<QWidget *>(this));
+    textcontrol->setProperty(kVariableNameProperty, ownName);
 }
 
 /*!
  * \internal
  */
-void VariableChooserPrivate::updateDescription(const QString &variable)
+void VariableChooserPrivate::updateDescription(const QModelIndex &index)
 {
-    if (variable.isNull())
-        m_variableDescription->setText(m_defaultDescription);
-    else
-        m_variableDescription->setText(globalMacroExpander()->variableDescription(variable.toUtf8())
-            + QLatin1String("<p>") + tr("Current Value: %1").arg(globalMacroExpander()->value(variable.toUtf8())));
+    m_variableDescription->setText(m_model.data(index, Qt::ToolTipRole).toString());
 }
 
 /*!
@@ -236,15 +321,16 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
     }
     if (!handle)
         return;
+
     widget->installEventFilter(this); // for intercepting escape key presses
     QLineEdit *previousLineEdit = m_lineEdit;
     QWidget *previousWidget = currentWidget();
     m_lineEdit = 0;
     m_textEdit = 0;
     m_plainTextEdit = 0;
-    QVariant variablesSupportProperty = widget->property(VariableChooser::kVariableSupportProperty);
-    bool supportsVariables = (variablesSupportProperty.isValid()
-                              ? variablesSupportProperty.toBool() : false);
+    QWidget *chooser = widget->property(kVariableSupportProperty).value<QWidget *>();
+    m_currentVariableName = widget->property(kVariableNameProperty).value<QByteArray>();
+    bool supportsVariables = chooser == q;
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget))
         m_lineEdit = (supportsVariables ? lineEdit : 0);
     else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(widget))
@@ -283,7 +369,7 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
 /*!
  * \internal
  */
-void VariableChooserPrivate::updatePositionAndShow()
+void VariableChooserPrivate::updatePositionAndShow(bool)
 {
     if (QWidget *w = q->parentWidget()) {
         QPoint parentCenter = w->mapToGlobal(w->geometry().center());
@@ -309,10 +395,9 @@ QWidget *VariableChooserPrivate::currentWidget()
 /*!
  * \internal
  */
-void VariableChooserPrivate::handleItemActivated(QListWidgetItem *item)
+void VariableChooserPrivate::handleItemActivated(const QModelIndex &index)
 {
-    if (item)
-        insertVariable(item->text());
+    insertVariable(m_model.data(index, Qt::DisplayRole).toString());
 }
 
 /*!
@@ -320,7 +405,7 @@ void VariableChooserPrivate::handleItemActivated(QListWidgetItem *item)
  */
 void VariableChooserPrivate::insertVariable(const QString &variable)
 {
-    const QString &text = QLatin1String("%{") + variable + QLatin1Char('}');
+    const QString text = QLatin1String("%{") + variable + QLatin1Char('}');
     if (m_lineEdit) {
         m_lineEdit->insert(text);
         m_lineEdit->activateWindow();
@@ -367,5 +452,3 @@ bool VariableChooser::eventFilter(QObject *, QEvent *event)
 }
 
 } // namespace Internal
-
-#include "variablechooser.moc"

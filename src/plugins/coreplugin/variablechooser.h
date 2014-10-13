@@ -35,9 +35,15 @@
 
 #include <QWidget>
 
+#include <functional>
+
+namespace Utils { class MacroExpander; }
+
 namespace Core {
 
 namespace Internal { class VariableChooserPrivate; }
+
+typedef std::function<Utils::MacroExpander *()> MacroExpanderProvider;
 
 class CORE_EXPORT VariableChooser : public QWidget
 {
@@ -47,8 +53,8 @@ public:
     explicit VariableChooser(QWidget *parent = 0);
     ~VariableChooser();
 
-    static const char kVariableSupportProperty[];
-    static void addVariableSupport(QWidget *textcontrol);
+    void addMacroExpanderProvider(const MacroExpanderProvider &provider);
+    void addSupportedWidget(QWidget *textcontrol, const QByteArray &ownName = QByteArray());
 
 protected:
     void keyPressEvent(QKeyEvent *ke);

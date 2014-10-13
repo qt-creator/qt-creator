@@ -117,12 +117,13 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/variablemanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/removefiledialog.h>
 #include <texteditor/findinfiles.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
@@ -1135,7 +1136,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     updateWelcomePage();
 
-    Utils::MacroExpander *expander = globalMacroExpander();
+    Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
         tr("Current project's main file"),
         [this]() -> QString {

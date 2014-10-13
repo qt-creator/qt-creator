@@ -51,12 +51,12 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
-#include <coreplugin/variablemanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QtPlugin>
@@ -191,7 +191,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     mcpptools->addAction(command);
     connect(openInNextSplitAction, SIGNAL(triggered()), this, SLOT(switchHeaderSourceInNextSplit()));
 
-    Utils::MacroExpander *expander = globalMacroExpander();
+    Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerVariable("Cpp:LicenseTemplate",
                                tr("The license template."),
                                [this]() { return CppToolsPlugin::licenseTemplate(); });

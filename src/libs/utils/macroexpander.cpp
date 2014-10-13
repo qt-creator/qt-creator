@@ -49,6 +49,7 @@ public:
     QHash<QByteArray, MacroExpander::StringFunction> m_map;
     QHash<QByteArray, MacroExpander::PrefixFunction> m_prefixMap;
     QMap<QByteArray, QString> m_descriptions;
+    QString m_displayName;
 };
 
 } // Internal
@@ -318,6 +319,39 @@ QList<QByteArray> MacroExpander::variables()
 QString MacroExpander::variableDescription(const QByteArray &variable)
 {
     return d->m_descriptions.value(variable);
+}
+
+QString MacroExpander::displayName() const
+{
+    return d->m_displayName;
+}
+
+void MacroExpander::setDisplayName(const QString &displayName)
+{
+    d->m_displayName = displayName;
+}
+
+
+class GlobalMacroExpander : public MacroExpander
+{
+    Q_DECLARE_TR_FUNCTIONS(Utils::MacroExpander)
+
+public:
+    GlobalMacroExpander()
+    {
+        setDisplayName(tr("Global variables"));
+        registerPrefix("Env", tr("Access environment variables."),
+           [](const QString &value) { return QString::fromLocal8Bit(qgetenv(value.toLocal8Bit())); });
+    }
+};
+
+/*!
+ * Returns the expander for globally registered variables.
+ */
+MacroExpander *globalMacroExpander()
+{
+    static GlobalMacroExpander theGlobalExpander;
+    return &theGlobalExpander;
 }
 
 } // namespace Utils

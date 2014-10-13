@@ -39,10 +39,12 @@
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/mimedatabase.h>
-#include <coreplugin/variablemanager.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+
+#include <utils/macroexpander.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -87,7 +89,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             this, SLOT(slotSettingsChanged()));
     slotSettingsChanged();
 
-    Utils::MacroExpander *expander = globalMacroExpander();
+    Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerVariable(Constants::VAR_VCS_NAME,
         tr("Name of the version control system in use by the current project."),
         []() -> QString {

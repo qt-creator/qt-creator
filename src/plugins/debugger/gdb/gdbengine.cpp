@@ -69,8 +69,10 @@
 #include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/texteditor.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/savedaction.h>

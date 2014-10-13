@@ -146,6 +146,9 @@ bool QtKitInformation::resolveMacro(const ProjectExplorer::Kit *kit, const QStri
         }
     }
 
+    if (Utils::globalMacroExpander()->resolveMacro(name, ret))
+        return true;
+
     return false;
 }
 

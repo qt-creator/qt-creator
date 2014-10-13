@@ -897,7 +897,7 @@ QModelIndex WatchModel::parent(const QModelIndex &idx) const
     if (!grandparent)
         return QModelIndex();
 
-    const WatchItems &uncles = grandparent->children;
+    const auto &uncles = grandparent->children;
     for (int i = 0, n = uncles.size(); i < n; ++i)
         if (uncles.at(i) == parent)
             return createIndex(i, 0, (void*) parent);

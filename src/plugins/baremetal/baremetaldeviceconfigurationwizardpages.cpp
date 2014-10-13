@@ -88,9 +88,9 @@ BareMetalDeviceConfigurationWizardSetupPage::BareMetalDeviceConfigurationWizardS
     connect(m_gdbResetCommandsTextEdit, SIGNAL(textChanged()), SIGNAL(completeChanged()));
     connect(m_gdbInitCommandsPlainTextEdit, SIGNAL(textChanged()), SIGNAL(completeChanged()));
 
-    VariableChooser::addVariableSupport(m_gdbResetCommandsTextEdit);
-    VariableChooser::addVariableSupport(m_gdbInitCommandsPlainTextEdit);
-    (void)new VariableChooser(this);
+    auto chooser = new VariableChooser(this);
+    chooser->addSupportedWidget(m_gdbResetCommandsTextEdit);
+    chooser->addSupportedWidget(m_gdbInitCommandsPlainTextEdit);
 }
 
 void BareMetalDeviceConfigurationWizardSetupPage::initializePage()

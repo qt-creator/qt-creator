@@ -209,7 +209,6 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     m_sourceLineEdit(new QLineEdit(this)),
     m_targetChooser(new PathChooser(this))
 {
-    (void)new Core::VariableChooser(this);
     setTitle(tr("Source Paths Mapping"));
     setToolTip(tr("<html><head/><body><p>Mappings of source file folders to "
                   "be used in the debugger can be entered here.</p>"
@@ -275,7 +274,9 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     editTargetLabel->setBuddy(m_targetChooser);
     m_targetChooser->setToolTip(targetToolTip);
     editLayout->addRow(editTargetLabel, m_targetChooser);
-    Core::VariableChooser::addVariableSupport(m_targetChooser->lineEdit());
+
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_targetChooser->lineEdit());
 
     // Main layout
     QVBoxLayout *mainLayout = new QVBoxLayout;

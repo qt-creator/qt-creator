@@ -79,9 +79,9 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
     formLayout->addRow(tr("Init commands:"), m_gdbInitCommandsTextEdit);
     formLayout->addRow(tr("Reset commands:"), m_gdbResetCommandsTextEdit);
 
-    VariableChooser::addVariableSupport(m_gdbResetCommandsTextEdit);
-    VariableChooser::addVariableSupport(m_gdbInitCommandsTextEdit);
-    (void)new VariableChooser(this);
+    auto chooser = new VariableChooser(this);
+    chooser->addSupportedWidget(m_gdbResetCommandsTextEdit);
+    chooser->addSupportedWidget(m_gdbInitCommandsTextEdit);
 
     connect(m_gdbHostLineEdit, SIGNAL(editingFinished()), SLOT(hostnameChanged()));
     connect(m_gdbPortSpinBox, SIGNAL(valueChanged(int)), SLOT(portChanged()));

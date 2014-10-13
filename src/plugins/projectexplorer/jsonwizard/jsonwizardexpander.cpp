@@ -32,8 +32,7 @@
 
 #include "jsonwizard.h"
 
-#include <coreplugin/variablemanager.h>
-
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QVariant>
@@ -59,7 +58,7 @@ bool JsonWizardExpander::resolveMacro(const QString &name, QString *ret)
         return true;
     }
 
-    return Core::globalMacroExpander()->resolveMacro(name, ret);
+    return Utils::globalMacroExpander()->resolveMacro(name, ret);
 }
 
 } // namespace Internal
