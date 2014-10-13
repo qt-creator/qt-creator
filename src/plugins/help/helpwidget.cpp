@@ -378,6 +378,9 @@ void HelpWidget::addSideBar()
     m_sideBar->readSettings(Core::ICore::settings(), sideBarSettingsKey());
     m_sideBarSplitter->setSizes(QList<int>() << m_sideBar->size().width() << 300);
 
+    connect(m_contentsAction, &QAction::triggered, m_sideBar, [this]() {
+        m_sideBar->activateItem(QLatin1String(Constants::HELP_CONTENTS));
+    });
     connect(m_indexAction, &QAction::triggered, m_sideBar, [this]() {
         m_sideBar->activateItem(QLatin1String(Constants::HELP_INDEX));
     });
