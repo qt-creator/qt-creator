@@ -2178,6 +2178,12 @@ def qdump__QVector(d, value):
     d.putItemCount(size)
     d.putPlotData(data, size, d.templateArgument(value.type, 0))
 
+def qdump__QVarLengthArray(d, value):
+    data = d.extractPointer(value["ptr"])
+    size = int(value["s"])
+    d.check(0 <= size)
+    d.putItemCount(size)
+    d.putPlotData(data, size, d.templateArgument(value.type, 0))
 
 def qdump__QWeakPointer(d, value):
     d_ptr = value["d"]
