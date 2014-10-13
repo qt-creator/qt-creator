@@ -43,6 +43,7 @@ class JsonFilePage : public Utils::FileWizardPage
 public:
     JsonFilePage(QWidget *parent = 0);
 
+    void initializePage();
     bool validatePage();
 };
 

@@ -102,11 +102,11 @@ FilePageFactory::FilePageFactory()
 
 Utils::WizardPage *FilePageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
 {
+    Q_UNUSED(wizard);
     Q_UNUSED(data);
     QTC_ASSERT(canCreate(typeId), return 0);
 
     JsonFilePage *page = new JsonFilePage;
-    page->setPath(wizard->value(QStringLiteral("InitialPath")).toString());
     return page;
 }
 
