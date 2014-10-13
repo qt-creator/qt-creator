@@ -144,6 +144,7 @@ private:
     QAction *m_contentsAction;
     QAction *m_indexAction;
     QAction *m_bookmarkAction;
+    QAction *m_searchAction;
 };
 
 } // Internal

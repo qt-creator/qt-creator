@@ -38,6 +38,7 @@
 #include "indexwindow.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
+#include "searchwidget.h"
 #include "topicchooser.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -261,6 +262,7 @@ HelpWidget::~HelpWidget()
         Core::ActionManager::unregisterAction(m_contentsAction, Constants::HELP_CONTENTS);
         Core::ActionManager::unregisterAction(m_indexAction, Constants::HELP_INDEX);
         Core::ActionManager::unregisterAction(m_bookmarkAction, Constants::HELP_BOOKMARKS);
+        Core::ActionManager::unregisterAction(m_searchAction, Constants::HELP_SEARCH);
     }
     Core::ICore::removeContextObject(m_context);
     Core::ActionManager::unregisterAction(m_copy, Core::Constants::COPY);
@@ -325,8 +327,17 @@ void HelpWidget::addSideBar()
                                                                   : tr("Ctrl+Shift+B")));
     shortcutMap.insert(QLatin1String(Constants::HELP_BOOKMARKS), cmd);
 
+    auto searchItem = new SearchSideBarItem;
+    connect(searchItem, &SearchSideBarItem::linkActivated, this, &HelpWidget::openFromSearch);
+    m_searchAction = new QAction(tr("Activate Help Search View"), this);
+    cmd = Core::ActionManager::registerAction(m_searchAction, Constants::HELP_SEARCH,
+                                              m_context->context());
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+/")
+                                                                  : tr("Ctrl+Shift+/")));
+    shortcutMap.insert(QLatin1String(Constants::HELP_SEARCH), cmd);
+
     QList<Core::SideBarItem *> itemList;
-    itemList << contentItem << indexItem << bookmarkItem;
+    itemList << contentItem << indexItem << bookmarkItem << searchItem;
     m_sideBar = new Core::SideBar(itemList,
                                   QList<Core::SideBarItem *>() << contentItem << indexItem);
     m_sideBar->setShortcutMap(shortcutMap);
@@ -345,6 +356,9 @@ void HelpWidget::addSideBar()
     });
     connect(m_bookmarkAction, &QAction::triggered, m_sideBar, [this]() {
         m_sideBar->activateItem(QLatin1String(Constants::HELP_BOOKMARKS));
+    });
+    connect(m_searchAction, &QAction::triggered, m_sideBar, [this]() {
+        m_sideBar->activateItem(QLatin1String(Constants::HELP_SEARCH));
     });
 }
 
