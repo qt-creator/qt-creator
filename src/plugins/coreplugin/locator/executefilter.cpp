@@ -91,9 +91,9 @@ void ExecuteFilter::accept(LocatorFilterEntry selection) const
         p->m_commandHistory.prepend(value);
 
     bool found;
-    QString workingDirectory = Core::VariableManager::value("CurrentDocument:Path", &found);
+    QString workingDirectory = globalMacroExpander()->value("CurrentDocument:Path", &found);
     if (!found || workingDirectory.isEmpty())
-        workingDirectory = Core::VariableManager::value("CurrentProject:Path", &found);
+        workingDirectory = globalMacroExpander()->value("CurrentProject:Path", &found);
 
     ExecuteData d;
     d.workingDirectory = workingDirectory;

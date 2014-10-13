@@ -87,7 +87,8 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             this, SLOT(slotSettingsChanged()));
     slotSettingsChanged();
 
-    VariableManager::registerVariable(Constants::VAR_VCS_NAME,
+    Utils::MacroExpander *expander = globalMacroExpander();
+    expander->registerVariable(Constants::VAR_VCS_NAME,
         tr("Name of the version control system in use by the current project."),
         []() -> QString {
             IVersionControl *vc = 0;
@@ -96,7 +97,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             return vc ? vc->displayName() : QString();
         });
 
-    VariableManager::registerVariable(Constants::VAR_VCS_TOPIC,
+    expander->registerVariable(Constants::VAR_VCS_TOPIC,
         tr("The current version control topic (branch or tag) identification of the current project."),
         []() -> QString {
             IVersionControl *vc = 0;
@@ -106,7 +107,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             return vc ? vc->vcsTopic(topLevel) : QString();
         });
 
-    VariableManager::registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
+    expander->registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
         tr("The top level path to the repository the current project is in."),
         []() -> QString {
             if (Project *project = ProjectExplorerPlugin::currentProject())

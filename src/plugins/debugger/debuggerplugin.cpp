@@ -3334,7 +3334,7 @@ bool boolSetting(int code)
 QString stringSetting(int code)
 {
     QString raw = theDebuggerCore->m_debuggerSettings->item(code)->value().toString();
-    return VariableManager::expandedString(raw);
+    return globalMacroExpander()->expandedString(raw);
 }
 
 QStringList stringListSetting(int code)

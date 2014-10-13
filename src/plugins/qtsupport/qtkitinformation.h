@@ -38,6 +38,8 @@
 #include <coreplugin/featureprovider.h>
 #include <projectexplorer/kitinformation.h>
 
+namespace Utils { class MacroExpander; }
+
 namespace QtSupport {
 
 class QTSUPPORT_EXPORT QtKitInformation : public ProjectExplorer::KitInformation
@@ -61,9 +63,7 @@ public:
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
     ProjectExplorer::IOutputParser *createOutputParser(const ProjectExplorer::Kit *k) const;
 
-    Utils::AbstractMacroExpander *createMacroExpander(const ProjectExplorer::Kit *k) const;
-
-    static bool resolveQtMacro(const BaseQtVersion *version, const QString &name, QString *ret);
+    bool resolveMacro(const ProjectExplorer::Kit *kit, const QString &name, QString *ret) const;
 
     static Core::Id id();
     static int qtVersionId(const ProjectExplorer::Kit *k);

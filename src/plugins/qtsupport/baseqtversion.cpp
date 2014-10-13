@@ -192,9 +192,10 @@ BaseQtVersion::BaseQtVersion(const BaseQtVersion &other) :
     m_linguistCommand(other.m_linguistCommand),
     m_qmlsceneCommand(other.m_qmlsceneCommand),
     m_qmlviewerCommand(other.m_qmlviewerCommand),
-    m_qtAbis(other.m_qtAbis),
-    m_expander(0)
-{ }
+    m_qtAbis(other.m_qtAbis)
+{
+    setupExpander();
+}
 
 BaseQtVersion::BaseQtVersion()
     :  m_id(-1), m_isAutodetected(false),
@@ -228,12 +229,31 @@ void BaseQtVersion::ctor(const FileName &qmakePath)
     m_hasQtAbis = false;
     m_qtVersionString.clear();
     m_sourcePath.clear();
-    m_expander = 0;
+    setupExpander();
+}
+
+void BaseQtVersion::setupExpander()
+{
+    m_expander.registerVariable("Qt:version",
+        QCoreApplication::translate("QtSupport::QtKitInformation", "The version string of the current Qt version."),
+        [this]() { return qtVersionString(); });
+
+    m_expander.registerVariable("Qt:type",
+        QCoreApplication::translate("QtSupport::QtKitInformation", "The type of the current Qt version."),
+        [this]() { return type(); });
+
+    m_expander.registerVariable("Qt:mkspec",
+        QCoreApplication::translate("QtSupport::QtKitInformation", "The mkspec of the current Qt version."),
+        [this]() { return mkspec().toUserOutput(); });
+
+//    FIXME: Re-enable once we can detect expansion loops.
+//    m_expander.registerVariable("Qt:name",
+//        QCoreApplication::translate("QtSupport::QtKitInformation", "The display name of the current Qt version."),
+//        [this]() { return displayName(); });
 }
 
 BaseQtVersion::~BaseQtVersion()
 {
-    delete m_expander;
 }
 
 QString BaseQtVersion::defaultUnexpandedDisplayName(const FileName &qmakePath, bool fromPath)
@@ -586,7 +606,7 @@ void BaseQtVersion::setAutoDetectionSource(const QString &autodetectionSource)
 
 QString BaseQtVersion::displayName() const
 {
-    return Utils::expandMacros(unexpandedDisplayName(), macroExpander());
+    return Utils::expandMacros(m_unexpandedDisplayName, &m_expander);
 }
 
 QString BaseQtVersion::unexpandedDisplayName() const
@@ -894,15 +914,6 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
     m_mkspecValues.insert(ns, evaluator->value(ns));
 }
 
-AbstractMacroExpander *BaseQtVersion::createMacroExpander() const
-{
-    return new MacroExpander([this](const QString &name, QString *ret) -> bool {
-        if (name == QLatin1String("Qt:name"))
-            return false;
-        return QtKitInformation::resolveQtMacro(this, name, ret);
-    });
-}
-
 FileName BaseQtVersion::mkspec() const
 {
     updateMkspec();
@@ -1112,11 +1123,9 @@ QStringList BaseQtVersion::qtConfigValues() const
     return m_qtConfigValues;
 }
 
-AbstractMacroExpander *BaseQtVersion::macroExpander() const
+MacroExpander *BaseQtVersion::macroExpander() const
 {
-    if (!m_expander)
-        m_expander = createMacroExpander();
-    return m_expander;
+    return &m_expander;
 }
 
 QList<HeaderPath> BaseQtVersion::systemHeaderPathes(const Kit *k) const

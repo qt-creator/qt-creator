@@ -191,12 +191,13 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     mcpptools->addAction(command);
     connect(openInNextSplitAction, SIGNAL(triggered()), this, SLOT(switchHeaderSourceInNextSplit()));
 
-    Core::VariableManager::registerVariable("Cpp:LicenseTemplate",
-                                            tr("The license template."),
-                                            [this]() { return CppToolsPlugin::licenseTemplate(); });
-    Core::VariableManager::registerFileVariables("Cpp:LicenseTemplatePath",
-                                                 tr("The configured path to the license template"),
-                                                 [this]() { return CppToolsPlugin::licenseTemplatePath().toString(); });
+    Utils::MacroExpander *expander = globalMacroExpander();
+    expander->registerVariable("Cpp:LicenseTemplate",
+                               tr("The license template."),
+                               [this]() { return CppToolsPlugin::licenseTemplate(); });
+    expander->registerFileVariables("Cpp:LicenseTemplatePath",
+                                    tr("The configured path to the license template"),
+                                    [this]() { return CppToolsPlugin::licenseTemplatePath().toString(); });
 
     return true;
 }

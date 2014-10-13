@@ -483,20 +483,20 @@ void EditorManagerPrivate::init()
     d->m_openEditorsFactory = new OpenEditorsViewFactory();
     ExtensionSystem::PluginManager::addObject(d->m_openEditorsFactory);
 
-    VariableManager::registerFileVariables(kCurrentDocumentPrefix, tr("Current document"),
+    globalMacroExpander()->registerFileVariables(kCurrentDocumentPrefix, tr("Current document"),
         []() -> QString {
             IDocument *document = EditorManager::currentDocument();
             return document ? document->filePath() : QString();
         });
 
-    VariableManager::registerIntVariable(kCurrentDocumentXPos,
+    globalMacroExpander()->registerIntVariable(kCurrentDocumentXPos,
         tr("X-coordinate of the current editor's upper left corner, relative to screen."),
         []() -> int {
             IEditor *editor = EditorManager::currentEditor();
             return editor ? editor->widget()->mapToGlobal(QPoint(0, 0)).x() : 0;
         });
 
-    VariableManager::registerIntVariable(kCurrentDocumentYPos,
+    globalMacroExpander()->registerIntVariable(kCurrentDocumentYPos,
         tr("Y-coordinate of the current editor's upper left corner, relative to screen."),
         []() -> int {
             IEditor *editor = EditorManager::currentEditor();

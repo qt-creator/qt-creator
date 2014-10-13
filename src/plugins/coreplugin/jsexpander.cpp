@@ -90,7 +90,7 @@ QString JsExpander::evaluate(const QString &expression, QString *errorMessage)
 JsExpander::JsExpander()
 {
     d = new Internal::JsExpanderPrivate;
-    VariableManager::registerPrefix("JS",
+    globalMacroExpander()->registerPrefix("JS",
         QCoreApplication::translate("Core::JsExpander",
                                     "Evaluate simple Javascript statements.\n"
                                     "The statements may not contain '{' nor '}' characters."),

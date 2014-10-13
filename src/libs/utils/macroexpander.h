@@ -37,17 +37,44 @@
 
 namespace Utils {
 
+namespace Internal { class MacroExpanderPrivate; }
+
 class QTCREATOR_UTILS_EXPORT MacroExpander : public AbstractMacroExpander
 {
 public:
-    typedef std::function<bool(const QString &name, QString *ret)> Resolver;
-
-    explicit MacroExpander(const Resolver &resolver);
+    explicit MacroExpander();
+    ~MacroExpander();
 
     bool resolveMacro(const QString &name, QString *ret);
 
+    QString value(const QByteArray &variable, bool *found = 0);
+
+    QString expandedString(const QString &stringWithVariables);
+
+    typedef std::function<QString(QString)> PrefixFunction;
+    typedef std::function<QString()> StringFunction;
+    typedef std::function<int()> IntFunction;
+
+    void registerPrefix(const QByteArray &prefix,
+        const QString &description, const PrefixFunction &value);
+
+    void registerVariable(const QByteArray &variable,
+        const QString &description, const StringFunction &value);
+
+    void registerIntVariable(const QByteArray &variable,
+        const QString &description, const IntFunction &value);
+
+    void registerFileVariables(const QByteArray &prefix,
+        const QString &heading, const StringFunction &value);
+
+    QList<QByteArray> variables();
+    QString variableDescription(const QByteArray &variable);
+
 private:
-    Resolver m_resolver;
+    MacroExpander(const MacroExpander &) Q_DECL_EQ_DELETE;
+    void operator=(const MacroExpander &) Q_DECL_EQ_DELETE;
+
+    Internal::MacroExpanderPrivate *d;
 };
 
 } // namespace Utils

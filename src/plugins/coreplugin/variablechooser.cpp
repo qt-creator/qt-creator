@@ -67,7 +67,7 @@ public:
         m_variableList = new QListWidget(q);
         m_variableList->setAttribute(Qt::WA_MacSmallSize);
         m_variableList->setAttribute(Qt::WA_MacShowFocusRect, false);
-        foreach (const QByteArray &variable, VariableManager::variables())
+        foreach (const QByteArray &variable, globalMacroExpander()->variables())
             m_variableList->addItem(QString::fromLatin1(variable));
 
         m_variableDescription = new QLabel(q);
@@ -209,8 +209,8 @@ void VariableChooserPrivate::updateDescription(const QString &variable)
     if (variable.isNull())
         m_variableDescription->setText(m_defaultDescription);
     else
-        m_variableDescription->setText(VariableManager::variableDescription(variable.toUtf8())
-            + QLatin1String("<p>") + tr("Current Value: %1").arg(VariableManager::value(variable.toUtf8())));
+        m_variableDescription->setText(globalMacroExpander()->variableDescription(variable.toUtf8())
+            + QLatin1String("<p>") + tr("Current Value: %1").arg(globalMacroExpander()->value(variable.toUtf8())));
 }
 
 /*!

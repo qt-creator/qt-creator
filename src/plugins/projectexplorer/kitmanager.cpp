@@ -589,6 +589,14 @@ Core::FeatureSet KitInformation::availableFeatures(const Kit *k) const
     return Core::FeatureSet();
 }
 
+bool KitInformation::resolveMacro(const Kit *kit, const QString &name, QString *ret) const
+{
+    Q_UNUSED(kit);
+    Q_UNUSED(name);
+    Q_UNUSED(ret);
+    return false;
+}
+
 void KitInformation::notifyAboutUpdate(Kit *k)
 {
     if (k)

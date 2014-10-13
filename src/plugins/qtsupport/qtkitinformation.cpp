@@ -38,28 +38,13 @@
 #include <projectexplorer/kitinformationmacroexpander.h>
 
 #include <utils/buildablehelperlibrary.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QtSupport {
-namespace Internal {
-
-class QtKitInformationMacroExpander : public ProjectExplorer::KitInformationMacroExpander
-{
-public:
-    QtKitInformationMacroExpander(const ProjectExplorer::Kit *k) :
-        ProjectExplorer::KitInformationMacroExpander(k)
-    { }
-
-    bool resolveMacro(const QString &name, QString *ret)
-    {
-        return QtKitInformation::resolveQtMacro(QtKitInformation::qtVersion(kit()), name, ret);
-    }
-};
-
-} // namespace Internal
 
 QtKitInformation::QtKitInformation()
 {
@@ -69,26 +54,6 @@ QtKitInformation::QtKitInformation()
 
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
             this, SLOT(kitsWereLoaded()));
-}
-
-bool QtKitInformation::resolveQtMacro(const BaseQtVersion *version, const QString &name, QString *ret)
-{
-    const QString noInfo = QCoreApplication::translate("QtSupport::QtKitInformation", "none");
-
-    if (name == QLatin1String("Qt:version")) {
-        *ret = version ? version->qtVersionString() : noInfo;
-        return true;
-    } else if (name == QLatin1String("Qt:name")) {
-        *ret = version ? version->displayName()  : noInfo;
-        return true;
-    } else if (name == QLatin1String("Qt:type")) {
-        *ret = version ? version->type() : noInfo;
-        return true;
-    } else if (name == QLatin1String("Qt:mkspec")) {
-        *ret = version ? version->mkspec().toUserOutput() : noInfo;
-        return true;
-    }
-    return false;
 }
 
 QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
@@ -167,9 +132,21 @@ ProjectExplorer::IOutputParser *QtKitInformation::createOutputParser(const Proje
     return 0;
 }
 
-Utils::AbstractMacroExpander *QtKitInformation::createMacroExpander(const ProjectExplorer::Kit *k) const
+bool QtKitInformation::resolveMacro(const ProjectExplorer::Kit *kit, const QString &name, QString *ret) const
 {
-    return new Internal::QtKitInformationMacroExpander(k);
+    if (BaseQtVersion *version = qtVersion(kit)) {
+        MacroExpander *expander = version->macroExpander();
+        if (expander->resolveMacro(name, ret))
+            return true;
+
+        // FIXME: Handle in version expander once we can detect loops.
+        if (name == QLatin1String("Qt:name")) {
+            *ret = version->displayName();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 Core::Id QtKitInformation::id()

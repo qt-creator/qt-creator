@@ -99,8 +99,7 @@ public:
     virtual QString displayNameForPlatform(const Kit *k, const QString &platform) const;
     virtual Core::FeatureSet availableFeatures(const Kit *k) const;
 
-    virtual Utils::AbstractMacroExpander *createMacroExpander(const Kit *k) const
-    { Q_UNUSED(k); return 0; }
+    virtual bool resolveMacro(const Kit *kit, const QString &name, QString *ret) const;
 
 protected:
     void setId(Core::Id id) { m_id = id; }

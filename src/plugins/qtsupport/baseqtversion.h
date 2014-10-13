@@ -34,17 +34,14 @@
 #include "qtsupport_global.h"
 
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
 
 #include <projectexplorer/abi.h>
 
 #include <QStringList>
 #include <QVariantMap>
 
-namespace Utils {
-class Environment;
-class AbstractMacroExpander;
-} // namespace Utils
-
+namespace Utils { class Environment; }
 namespace Core { class FeatureSet; }
 
 namespace ProjectExplorer {
@@ -226,7 +223,7 @@ public:
     QStringList configValues() const;
     QStringList qtConfigValues() const;
 
-    Utils::AbstractMacroExpander *macroExpander() const; // owned by the Qt version
+    Utils::MacroExpander *macroExpander() const; // owned by the Qt version
 
 protected:
     BaseQtVersion();
@@ -246,14 +243,11 @@ protected:
     void ensureMkSpecParsed() const;
     virtual void parseMkSpec(ProFileEvaluator *) const;
 
-    // Create the macro expander. This pointer will be cached by the Qt version (which will take
-    // ownership).
-    virtual Utils::AbstractMacroExpander *createMacroExpander() const;
-
 private:
     void setAutoDetectionSource(const QString &autodetectionSource);
     static int getUniqueId();
     void ctor(const Utils::FileName &qmakePath);
+    void setupExpander();
     void updateSourcePath() const;
     void updateVersionInfo() const;
     enum Binaries { QmlViewer, QmlScene, Designer, Linguist, Uic };
@@ -303,7 +297,7 @@ private:
 
     mutable QList<ProjectExplorer::Abi> m_qtAbis;
 
-    mutable Utils::AbstractMacroExpander *m_expander;
+    mutable Utils::MacroExpander m_expander;
 };
 }
 

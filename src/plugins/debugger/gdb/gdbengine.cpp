@@ -4402,7 +4402,7 @@ void GdbEngine::abortDebugger()
 void GdbEngine::resetInferior()
 {
     if (!startParameters().commandsForReset.isEmpty()) {
-        QByteArray substitutedCommands = VariableManager::expandedString(
+        QByteArray substitutedCommands = globalMacroExpander()->expandedString(
                     QString::fromLatin1(startParameters().commandsForReset)).toLatin1();
         foreach (QByteArray command, substitutedCommands.split('\n')) {
             command = command.trimmed();
@@ -4453,7 +4453,7 @@ void GdbEngine::handleInferiorPrepared()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     if (!sp.commandsAfterConnect.isEmpty()) {
-        QByteArray substitutedCommands = VariableManager::expandedString(QString::fromLatin1(sp.commandsAfterConnect)).toLatin1();
+        QByteArray substitutedCommands = globalMacroExpander()->expandedString(QString::fromLatin1(sp.commandsAfterConnect)).toLatin1();
         foreach (QByteArray command, substitutedCommands.split('\n')) {
             postCommand(command);
         }

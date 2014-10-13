@@ -36,8 +36,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 
 #include <QApplication>
 #include <QFileInfo>
@@ -66,28 +66,23 @@ namespace ProjectExplorer {
 // KitMacroExpander:
 // --------------------------------------------------------------------
 
-class KitMacroExpander : public AbstractMacroExpander
+class KitMacroExpander : public MacroExpander
 {
 public:
-    KitMacroExpander(const QList<AbstractMacroExpander *> &children) :
-        m_childExpanders(children)
-    { }
-    ~KitMacroExpander() { qDeleteAll(m_childExpanders); }
+    KitMacroExpander(Kit *kit) : m_kit(kit) {}
 
-    bool resolveMacro(const QString &name, QString *ret);
+    bool resolveMacro(const QString &name, QString *ret)
+    {
+        foreach (KitInformation *ki, KitManager::kitInformation())
+            if (ki->resolveMacro(m_kit, name, ret))
+                return true;
+
+        return false;
+    }
 
 private:
-    QList<AbstractMacroExpander *> m_childExpanders;
+    Kit *m_kit;
 };
-
-bool KitMacroExpander::resolveMacro(const QString &name, QString *ret)
-{
-    foreach (AbstractMacroExpander *expander, m_childExpanders) {
-        if (expander->resolveMacro(name, ret))
-            return true;
-    }
-    return false;
-}
 
 // -------------------------------------------------------------------------
 // KitPrivate
@@ -107,26 +102,14 @@ public:
         m_hasWarning(false),
         m_hasValidityInfo(false),
         m_mustNotify(false),
-        m_macroExpander(0)
+        m_macroExpander(k)
     {
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
 
         m_unexpandedDisplayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
         m_iconPath = FileName::fromLatin1(":///DESKTOP///");
-
-        QList<AbstractMacroExpander *> expanders;
-        foreach (const KitInformation *ki, KitManager::kitInformation()) {
-            AbstractMacroExpander *tmp = ki->createMacroExpander(k);
-            if (tmp)
-                expanders.append(tmp);
-        }
-
-        m_macroExpander = new KitMacroExpander(expanders);
     }
-
-    ~KitPrivate()
-    { delete m_macroExpander; }
 
     QString m_unexpandedDisplayName;
     QString m_fileSystemFriendlyName;
@@ -145,7 +128,7 @@ public:
     QHash<Core::Id, QVariant> m_data;
     QSet<Core::Id> m_sticky;
     QSet<Core::Id> m_mutable;
-    AbstractMacroExpander *m_macroExpander;
+    KitMacroExpander m_macroExpander;
 };
 
 } // namespace Internal
@@ -317,7 +300,7 @@ QString Kit::unexpandedDisplayName() const
 
 QString Kit::displayName() const
 {
-    return Utils::expandMacros(unexpandedDisplayName(), macroExpander());
+    return Utils::expandMacros(d->m_unexpandedDisplayName, &d->m_macroExpander);
 }
 
 static QString candidateName(const QString &name, const QString &postfix)
@@ -682,8 +665,7 @@ bool Kit::hasFeatures(const FeatureSet &features) const
 
 AbstractMacroExpander *Kit::macroExpander() const
 {
-    QTC_CHECK(d->m_macroExpander);
-    return d->m_macroExpander;
+    return &d->m_macroExpander;
 }
 
 void Kit::kitUpdated()

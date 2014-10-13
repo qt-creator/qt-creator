@@ -178,7 +178,7 @@ public:
         connect(action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
                 SLOT(reloadDisassembly()));
 
-        VariableManager::registerFileVariables(PrefixDebugExecutable,
+        globalMacroExpander()->registerFileVariables(PrefixDebugExecutable,
             tr("Debugged executable"),
             [this]() { return m_startParameters.executable; });
     }
@@ -1835,7 +1835,7 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
             SourcePathRegExpMap globalRegExpSourceMap;
             globalRegExpSourceMap.reserve(options->sourcePathRegExpMap.size());
             foreach (auto entry, options->sourcePathRegExpMap) {
-                const QString expanded = VariableManager::expandedString(entry.second);
+                const QString expanded = globalMacroExpander()->expandedString(entry.second);
                 if (!expanded.isEmpty())
                     globalRegExpSourceMap.push_back(qMakePair(entry.first, expanded));
             }

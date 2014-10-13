@@ -147,7 +147,9 @@ void TextEditorPlugin::extensionsInitialized()
     addAutoReleasedObject(new FindInCurrentFile);
     addAutoReleasedObject(new FindInOpenFiles);
 
-    VariableManager::registerVariable(kCurrentDocumentSelection,
+    Utils::MacroExpander *expander = globalMacroExpander();
+
+    expander->registerVariable(kCurrentDocumentSelection,
         tr("Selected text within the current document."),
         []() -> QString {
             QString value;
@@ -158,35 +160,35 @@ void TextEditorPlugin::extensionsInitialized()
             return value;
         });
 
-    VariableManager::registerIntVariable(kCurrentDocumentRow,
+    expander->registerIntVariable(kCurrentDocumentRow,
         tr("Line number of the text cursor position in current document (starts with 1)."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->currentLine() : 0;
         });
 
-    VariableManager::registerIntVariable(kCurrentDocumentColumn,
+    expander->registerIntVariable(kCurrentDocumentColumn,
         tr("Column number of the text cursor position in current document (starts with 0)."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->currentColumn() : 0;
         });
 
-    VariableManager::registerIntVariable(kCurrentDocumentRowCount,
+    expander->registerIntVariable(kCurrentDocumentRowCount,
         tr("Number of lines visible in current document."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->rowCount() : 0;
         });
 
-    VariableManager::registerIntVariable(kCurrentDocumentColumnCount,
+    expander->registerIntVariable(kCurrentDocumentColumnCount,
         tr("Number of columns visible in current document."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
             return editor ? editor->columnCount() : 0;
         });
 
-    VariableManager::registerIntVariable(kCurrentDocumentFontSize,
+    expander->registerIntVariable(kCurrentDocumentFontSize,
         tr("Current document's font size in points."),
         []() -> int {
             BaseTextEditor *editor = BaseTextEditor::currentTextEditor();

@@ -33,50 +33,11 @@
 
 #include "core_global.h"
 
-#include <functional>
-
-#include <QFileInfo>
-#include <QString>
-
-namespace Utils { class AbstractMacroExpander; }
+#include <utils/macroexpander.h>
 
 namespace Core {
 
-namespace Internal { class MainWindow; }
-
-class CORE_EXPORT VariableManager
-{
-public:
-    static QString value(const QByteArray &variable, bool *found = 0);
-
-    static QString expandedString(const QString &stringWithVariables);
-    static Utils::AbstractMacroExpander *macroExpander();
-
-    typedef std::function<QString(QString)> PrefixFunction;
-    typedef std::function<QString()> StringFunction;
-    typedef std::function<int()> IntFunction;
-
-    static void registerPrefix(const QByteArray &prefix,
-        const QString &description, const PrefixFunction &value);
-
-    static void registerVariable(const QByteArray &variable,
-        const QString &description, const StringFunction &value);
-
-    static void registerIntVariable(const QByteArray &variable,
-        const QString &description, const IntFunction &value);
-
-    static void registerFileVariables(const QByteArray &prefix,
-        const QString &heading, const StringFunction &value);
-
-    static QList<QByteArray> variables();
-    static QString variableDescription(const QByteArray &variable);
-
-private:
-    VariableManager();
-    ~VariableManager();
-
-    friend class Core::Internal::MainWindow;
-};
+CORE_EXPORT Utils::MacroExpander *globalMacroExpander();
 
 } // namespace Core
 

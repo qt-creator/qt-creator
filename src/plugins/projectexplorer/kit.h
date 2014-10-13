@@ -129,9 +129,8 @@ public:
     Core::FeatureSet availableFeatures() const;
     bool hasFeatures(const Core::FeatureSet &features) const;
 
-    Utils::AbstractMacroExpander *macroExpander() const;
-
 private:
+    Utils::AbstractMacroExpander *macroExpander() const;
     void setSdkProvided(bool sdkProvided);
 
     ~Kit();

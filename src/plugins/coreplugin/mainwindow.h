@@ -65,7 +65,6 @@ class ProgressManager;
 class NavigationWidget;
 class RightPaneWidget;
 class SettingsDatabase;
-class VariableManager;
 class VcsManager;
 
 namespace Internal {
@@ -174,7 +173,6 @@ private:
     ExternalToolManager *m_externalToolManager;
     MessageManager *m_messageManager;
     ProgressManagerPrivate *m_progressManager;
-    VariableManager *m_variableManager;
     JsExpander *m_jsExpander;
     VcsManager *m_vcsManager;
     StatusBarManager *m_statusBarManager;

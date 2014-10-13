@@ -59,7 +59,7 @@ bool JsonWizardExpander::resolveMacro(const QString &name, QString *ret)
         return true;
     }
 
-    return Core::VariableManager::macroExpander()->resolveMacro(name, ret);
+    return Core::globalMacroExpander()->resolveMacro(name, ret);
 }
 
 } // namespace Internal

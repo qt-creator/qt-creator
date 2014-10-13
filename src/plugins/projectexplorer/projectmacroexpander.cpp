@@ -99,7 +99,7 @@ bool ProjectMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
     bool found = resolveProjectMacro(name, ret);
     if (!found) {
-        QString result = Core::VariableManager::value(name.toUtf8(), &found);
+        QString result = Core::globalMacroExpander()->value(name.toUtf8(), &found);
         if (ret)
             *ret = result;
     }

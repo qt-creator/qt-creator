@@ -120,8 +120,7 @@ MainWindow::MainWindow() :
     m_editorManager(0),
     m_externalToolManager(0),
     m_progressManager(new ProgressManagerPrivate),
-    m_variableManager(new VariableManager),
-    m_jsExpander(new JsExpander), // must be initialized after the VariableManager
+    m_jsExpander(new JsExpander),
     m_vcsManager(new VcsManager),
     m_statusBarManager(0),
     m_modeManager(0),
@@ -305,8 +304,6 @@ MainWindow::~MainWindow()
 
     delete m_helpManager;
     m_helpManager = 0;
-    delete m_variableManager;
-    m_variableManager = 0;
     delete m_jsExpander;
     m_jsExpander = 0;
 }

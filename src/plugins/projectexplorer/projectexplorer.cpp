@@ -1135,7 +1135,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     updateWelcomePage();
 
-    VariableManager::registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
+    Utils::MacroExpander *expander = globalMacroExpander();
+    expander->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
         tr("Current project's main file"),
         [this]() -> QString {
             QString projectFilePath;
@@ -1145,51 +1146,51 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             return projectFilePath;
         });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTPROJECT_BUILDPATH,
+    expander->registerVariable(Constants::VAR_CURRENTPROJECT_BUILDPATH,
         tr("Full build path of the current project's active build configuration."),
         []() -> QString {
             BuildConfiguration *bc = activeBuildConfiguration();
             return bc ? bc->buildDirectory().toUserOutput() : QString();
         });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
+    expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
         tr("The current project's name."),
         []() { return variableValue(Constants::VAR_CURRENTPROJECT_NAME); });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTKIT_NAME,
+    expander->registerVariable(Constants::VAR_CURRENTKIT_NAME,
         tr("The currently active kit's name."),
         []() { return variableValue(Constants::VAR_CURRENTKIT_NAME); });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
+    expander->registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
         tr("The currently active kit's name in a filesystem friendly version."),
         []() { return variableValue(Constants::VAR_CURRENTKIT_FILESYSTEMNAME); });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTKIT_ID,
+    expander->registerVariable(Constants::VAR_CURRENTKIT_ID,
         tr("The currently active kit's id."),
         []() { return variableValue(Constants::VAR_CURRENTKIT_ID); });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_HOSTADDRESS,
+    expander->registerVariable(Constants::VAR_CURRENTDEVICE_HOSTADDRESS,
         tr("The host address of the device in the currently active kit."),
         []() { return variableValue(Constants::VAR_CURRENTDEVICE_HOSTADDRESS); });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_SSHPORT,
+    expander->registerVariable(Constants::VAR_CURRENTDEVICE_SSHPORT,
         tr("The SSH port of the device in the currently active kit."),
         []() { return variableValue(Constants::VAR_CURRENTDEVICE_SSHPORT); });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_USERNAME,
+    expander->registerVariable(Constants::VAR_CURRENTDEVICE_USERNAME,
         tr("The username with which to log into the device in the currently active kit."),
         []() { return variableValue(Constants::VAR_CURRENTDEVICE_USERNAME); });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE,
+    expander->registerVariable(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE,
         tr("The private key file with which to authenticate when logging into the device "
            "in the currently active kit."),
         []() { return variableValue(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE); });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_NAME,
+    expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME,
         tr("The currently active build configuration's name."),
         []() { return variableValue(Constants::VAR_CURRENTBUILD_NAME); });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
+    expander->registerVariable(Constants::VAR_CURRENTBUILD_TYPE,
         tr("The currently active build configuration's type."),
         [&]() -> QString {
             if (BuildConfiguration *bc = activeBuildConfiguration()) {
@@ -1202,11 +1203,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             return tr("unknown");
         });
 
-    VariableManager::registerFileVariables(Constants::VAR_CURRENTSESSION_PREFIX,
+    expander->registerFileVariables(Constants::VAR_CURRENTSESSION_PREFIX,
         tr("File where current session is saved."),
         []() { return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString(); });
 
-    VariableManager::registerVariable(Constants::VAR_CURRENTSESSION_NAME,
+    expander->registerVariable(Constants::VAR_CURRENTSESSION_NAME,
         tr("Name of current session."),
         []() { return SessionManager::activeSession(); });
 

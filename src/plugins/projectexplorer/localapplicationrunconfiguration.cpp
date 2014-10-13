@@ -40,7 +40,6 @@
 #include <QDir>
 
 namespace ProjectExplorer {
-
 namespace Internal {
 
 class FallBackMacroExpander : public Utils::AbstractMacroExpander
@@ -59,7 +58,7 @@ bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret)
         return true;
     }
     bool found;
-    *ret = Core::VariableManager::value(name.toUtf8(), &found);
+    *ret = Core::globalMacroExpander()->value(name.toUtf8(), &found);
     return found;
 }
 } // namespace Internal

@@ -114,11 +114,13 @@ static QString qmakeProperty(const char *propertyName)
 
 void QtSupportPlugin::extensionsInitialized()
 {
-    VariableManager::registerVariable(kHostBins,
+    Utils::MacroExpander *expander = globalMacroExpander();
+
+    expander->registerVariable(kHostBins,
         tr("Full path to the host bin directory of the current project's Qt version."),
         []() { return qmakeProperty("QT_HOST_BINS"); });
 
-    VariableManager::registerVariable(kInstallBins,
+    expander->registerVariable(kInstallBins,
         tr("Full path to the target bin directory of the current project's Qt version."
            " You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)),
         []() { return qmakeProperty("QT_INSTALL_BINS"); });
