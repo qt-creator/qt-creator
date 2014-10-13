@@ -197,6 +197,8 @@ private:
 
 private:
     static const int OutOfScreenMargin = 3; // margin to make sure the rectangles stay invisible
+    static const int MinimumItemWidth = 3;
+
     inline void getItemXExtent(int modelIndex, int i, int &currentX, int &itemWidth);
     void resetCurrentSelection();
 
