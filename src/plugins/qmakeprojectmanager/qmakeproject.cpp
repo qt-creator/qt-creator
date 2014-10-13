@@ -427,7 +427,6 @@ bool QmakeProject::fromMap(const QVariantMap &map)
             this, SLOT(activeTargetWasChanged()));
 
     scheduleAsyncUpdate();
-    m_asyncUpdateTimer.setInterval(3000);
     return true;
 }
 
@@ -846,6 +845,7 @@ bool QmakeProject::wasEvaluateCanceled()
 
 void QmakeProject::asyncUpdate()
 {
+    m_asyncUpdateTimer.setInterval(3000);
     if (debug)
         qDebug()<<"async update, timer expired, doing now";
 
