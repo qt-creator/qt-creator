@@ -222,7 +222,7 @@ def __handleColorTips__(colTip, expectedColor, alternativeColor):
     if cmp.alpha() != 255 or alternativeColor and alt.alpha() != 255:
         test.warning("Cannot handle transparent colors - cancelling this verification")
         return
-    dPM = QPixmap.grabWidget(colTip, 1, 1, colTip.width-2, colTip.height-2)
+    dPM = colTip.grab(QRect(1, 1, colTip.width - 2, colTip.height - 2))
     img = dPM.toImage()
     rgb = img.pixel(1, 1)
     rgb = QColor(rgb)
