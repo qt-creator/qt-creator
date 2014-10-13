@@ -693,40 +693,55 @@ bool SymbolGroupNode::notifyIndexesMoved(ULONG index, bool inserted, ULONG offse
     return true;
 }
 
-// Fix names: fix complicated template base names
-static inline void fixName(std::string *name)
+static inline void fixNameAndIname(unsigned &unnamedId, unsigned &templateId,
+                                   std::string &iname, std::string &name)
 {
-    // Long template base classes 'std::tree_base<Key....>' -> 'std::tree<>'
-    // for nice display
-    const std::string::size_type templatePos = name->find('<');
-    if (templatePos != std::string::npos) {
-        name->erase(templatePos + 1, name->size() - templatePos - 1);
-        name->push_back('>');
+    if (name.empty() || name == "__formal") {
+        const std::string number = toString(unnamedId++);
+        name = "<unnamed "  + number + '>';
+        iname = "unnamed#" + number;
+    } else {
+        // Fix names: fix complicated template base names
+        // Long template base classes 'std::tree_base<Key....>' -> 'std::tree<>'
+        // for nice display
+        std::string::size_type templatePos = name.find('<');
+        if (templatePos != std::string::npos) {
+            name.erase(templatePos + 1, name.size() - templatePos - 1);
+            name.push_back('>');
+        }
+
+        // Fix array iname "[0]" -> "0" for sorting to work correctly
+        if (!iname.empty() && iname.at(0) == '[') {
+            const std::string::size_type last = iname.size() - 1;
+            if (iname.at(last) == ']') {
+                iname.erase(last, 1);
+                iname.erase(0, 1);
+                return;
+            }
+        }
+        // Fix inames: arrays and long, complicated template base names
+        // Long template base classes 'std::tree_base<Key....' -> 'tree@t1',
+        // usable as identifier and command line parameter
+        templatePos = iname.find('<');
+        if (templatePos != std::string::npos) {
+            iname.erase(templatePos, iname.size() - templatePos);
+            if (iname.compare(0, 5, "std::") == 0)
+                iname.erase(0, 5);
+            iname.append("@t");
+            iname.append(toString(templateId++));
+        }
     }
 }
 
-// Fix inames: arrays and long, complicated template base names
-static inline void fixIname(unsigned &id, std::string *iname)
+static inline void addShadowCount(const StringVector::size_type count,
+                                  std::string &iname, std::string &name)
 {
-    // Fix array iname "[0]" -> "0" for sorting to work correctly
-    if (!iname->empty() && iname->at(0) == '[') {
-        const std::string::size_type last = iname->size() - 1;
-        if (iname->at(last) == ']') {
-            iname->erase(last, 1);
-            iname->erase(0, 1);
-            return;
-        }
-    }
-    // Long template base classes 'std::tree_base<Key....' -> 'tree@t1',
-    // usable as identifier and command line parameter
-    const std::string::size_type templatePos = iname->find('<');
-    if (templatePos != std::string::npos) {
-        iname->erase(templatePos, iname->size() - templatePos);
-        if (iname->compare(0, 5, "std::") == 0)
-            iname->erase(0, 5);
-        iname->append("@t");
-        iname->append(toString(id++));
-    }
+    const std::string number = toString(count);
+    name += " <shadowed ";
+    name += number;
+    name += '>';
+    iname += '#';
+    iname += number;
 }
 
 // Fix up names and inames
@@ -744,27 +759,33 @@ static inline void fixNames(bool isTopLevel, StringVector *names, StringVector *
        if (true)
           int x = 5; (2)  // Occurrence (2), should be reported as name="x"/iname="x"
       \endcode */
-    StringVector::iterator nameIt = names->begin();
-    const StringVector::iterator namesEnd = names->end();
-    for (StringVector::iterator iNameIt = inames->begin(); nameIt != namesEnd ; ++nameIt, ++iNameIt) {
-        std::string &name = *nameIt;
-        std::string &iname = *iNameIt;
-        if (name.empty() || name == "__formal") {
-            const std::string number = toString(unnamedId++);
-            name = "<unnamed "  + number + '>';
-            iname = "unnamed#" + number;
-        } else {
-            fixName(&name);
-            fixIname(templateId, &iname);
+
+    const ExtensionContext::CdbVersion cdbVersion = ExtensionContext::instance().cdbVersion();
+    const bool reverseOrder = cdbVersion.major == 6 && cdbVersion.minor < 10;
+    if (reverseOrder) {
+        StringVector::reverse_iterator nameIt = names->rbegin();
+        const StringVector::reverse_iterator namesEnd = names->rend();
+        StringVector::reverse_iterator iNameIt = inames->rbegin();
+        for (; nameIt != namesEnd ; ++nameIt, ++iNameIt) {
+            std::string &name = *nameIt;
+            std::string &iname = *iNameIt;
+            fixNameAndIname(unnamedId, templateId, iname, name);
+            if (isTopLevel) {
+                if (const StringVector::size_type count = std::count(nameIt + 1, namesEnd, name))
+                    addShadowCount(count, iname, name);
+            }
         }
-        if (isTopLevel) {
-            if (const StringVector::size_type shadowCount = std::count(nameIt + 1, namesEnd, name)) {
-                const std::string number = toString(shadowCount);
-                name += " <shadowed ";
-                name += number;
-                name += '>';
-                iname += '#';
-                iname += number;
+    } else {
+        StringVector::iterator nameIt = names->begin();
+        const StringVector::iterator namesEnd = names->end();
+        StringVector::iterator iNameIt = inames->begin();
+        for (; nameIt != namesEnd ; ++nameIt, ++iNameIt) {
+            std::string &name = *nameIt;
+            std::string &iname = *iNameIt;
+            fixNameAndIname(unnamedId, templateId, iname, name);
+            if (isTopLevel) {
+                if (const StringVector::size_type count = std::count(nameIt + 1, namesEnd, name))
+                    addShadowCount(count, iname, name);
             }
         }
     }
