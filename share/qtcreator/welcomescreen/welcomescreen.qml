@@ -35,7 +35,6 @@ Item  {
     id: root
 
     property var fonts: CustomFonts {}
-    property var colors: CustomColors { }
 
     property int screenDependHeightDistance: Math.min(50, Math.max(16, height / 30))
 
@@ -48,7 +47,7 @@ Item  {
 
     Rectangle {
         id: splitter
-        color: "#737373"
+        color: creatorTheme.dividerColor; // divider between left and right pane
         width: 1
         anchors.top: parent.top
         anchors.bottom: parent.bottom

@@ -4,6 +4,10 @@
         <file>images/qml.png</file>
         <file>images/qt_project.png</file>
         <file>images/qt_qrc.png</file>
+        <file>images/dark_forms.png</file>
+        <file>images/dark_qml.png</file>
+        <file>images/dark_qt_project.png</file>
+        <file>images/dark_qt_qrc.png</file>
         <file>QtSupport.mimetypes.xml</file>
     </qresource>
 </RCC>

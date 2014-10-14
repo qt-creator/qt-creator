@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Thorben Kroeger <thorbenkroeger@gmail.com>.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -28,11 +28,51 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+#ifndef THEMESETTINGSITEMDELEGATE_H
+#define THEMESETTINGSITEMDELEGATE_H
 
-QtObject {
-    property color linkColor: "#328930"
-    //property color linkColor: "#70b332"
-    //property color strongForegroundColor: "#58595b"
-    property color strongForegroundColor: "#328930"
-}
+#include "themecolors.h"
+#include "colorvariable.h"
+
+#include <QStyledItemDelegate>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+QT_END_NAMESPACE
+
+namespace Core {
+namespace Internal {
+namespace ThemeEditor {
+
+class ThemeSettingsItemDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+    enum Action {
+        Action_NoAction,
+        Action_ChooseNamedColor,
+        Action_MakeUnnamed,
+        Action_CreateNew
+    };
+
+public:
+    ThemeSettingsItemDelegate(QObject *parent);
+
+    QWidget *createEditor( QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const Q_DECL_OVERRIDE;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const Q_DECL_OVERRIDE;
+
+    void popupMenu();
+
+private:
+    QWidget *createColorEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+    mutable QMap<int, QPair<Action, ColorVariable::Ptr> > m_actions;
+    mutable QComboBox *m_comboBox;
+};
+
+} // namespace ThemeEditor
+} // namespace Internal
+} // namespace Core
+
+#endif // THEMESETTINGSITEMDELEGATE_H

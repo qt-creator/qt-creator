@@ -76,6 +76,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/theme/theme.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -101,6 +102,7 @@ static const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
 #define IMAGEPATH ":/help/images/"
 
 using namespace Core;
+using namespace Utils;
 
 HelpPlugin::HelpPlugin()
     : m_mode(0),
@@ -565,8 +567,13 @@ void HelpPlugin::showContextHelp()
             // No link found or no context object
             viewer->setSource(QUrl(Help::Constants::AboutBlank));
             viewer->setHtml(tr("<html><head><title>No Documentation</title>"
-                "</head><body><br/><center><b>%1</b><br/>No documentation "
-                "available.</center></body></html>").arg(idFromContext));
+                "</head><body><br/><center>"
+                "<font color=\"%1\"><b>%2</b></font><br/>"
+                "<font color=\"%3\">No documentation available.</font>"
+                "</center></body></html>")
+                .arg(creatorTheme()->color(Theme::TextColorNormal).name())
+                .arg(idFromContext)
+                .arg(creatorTheme()->color(Theme::TextColorNormal).name()));
         } else {
             const QUrl &oldSource = viewer->source();
             if (source != oldSource) {

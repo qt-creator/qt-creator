@@ -31,6 +31,7 @@
 #include "detailswidget.h"
 #include "detailsbutton.h"
 #include "hostosinfo.h"
+#include "theme/theme.h"
 
 #include <QGridLayout>
 #include <QLabel>
@@ -148,21 +149,22 @@ QPixmap DetailsWidget::createBackground(const QSize &size, int topHeight, QWidge
     if (HostOsInfo::isMacHost())
         p.fillRect(fullRect, qApp->palette().window().color());
     else
-        p.fillRect(fullRect, QColor(255, 255, 255, 40));
+        p.fillRect(fullRect, creatorTheme()->color(Theme::DetailsWidgetBackgroundColor));
 
-    QLinearGradient lg(topRect.topLeft(), topRect.bottomLeft());
-    lg.setColorAt(0, QColor(255, 255, 255, 130));
-    lg.setColorAt(1, QColor(255, 255, 255, 0));
-    p.fillRect(topRect, lg);
-    p.setRenderHint(QPainter::Antialiasing, true);
-    p.translate(0.5, 0.5);
-    p.setPen(QColor(0, 0, 0, 40));
-    p.setBrush(Qt::NoBrush);
-    p.drawRoundedRect(fullRect.adjusted(0, 0, -1, -1), 2, 2);
-    p.setBrush(Qt::NoBrush);
-    p.setPen(QColor(255,255,255,140));
-    p.drawRoundedRect(fullRect.adjusted(1, 1, -2, -2), 2, 2);
-    p.setPen(QPen(widget->palette().color(QPalette::Mid)));
+    if (creatorTheme()->widgetStyle () == Theme::StyleDefault) {
+        QLinearGradient lg(topRect.topLeft(), topRect.bottomLeft());
+        lg.setStops(creatorTheme()->gradient(Theme::DetailsWidgetHeaderGradient));
+        p.fillRect(topRect, lg);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        p.translate(0.5, 0.5);
+        p.setPen(QColor(0, 0, 0, 40));
+        p.setBrush(Qt::NoBrush);
+        p.drawRoundedRect(fullRect.adjusted(0, 0, -1, -1), 2, 2);
+        p.setBrush(Qt::NoBrush);
+        p.setPen(QColor(255,255,255,140));
+        p.drawRoundedRect(fullRect.adjusted(1, 1, -2, -2), 2, 2);
+        p.setPen(QPen(widget->palette().color(QPalette::Mid)));
+    }
 
     return pixmap;
 }

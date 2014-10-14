@@ -285,6 +285,30 @@ QtcPlugin {
         ]
     }
 
+    Group {
+        name: "ThemeEditor"
+        prefix: "themeeditor/"
+        files: [
+            "colorrole.cpp",
+            "colorrole.h",
+            "colorvariable.cpp",
+            "colorvariable.h",
+            "sectionedtablemodel.cpp",
+            "sectionedtablemodel.h",
+            "themecolors.cpp",
+            "themecolors.h",
+            "themecolorstableview.cpp",
+            "themecolorstableview.h",
+            "themeeditorwidget.cpp",
+            "themeeditorwidget.h",
+            "themeeditorwidget.ui",
+            "themesettingsitemdelegate.cpp",
+            "themesettingsitemdelegate.h",
+            "themesettingstablemodel.cpp",
+            "themesettingstablemodel.h",
+        ]
+    }
+
     Export {
         Depends { name: "Aggregation" }
         Depends { name: "Utils" }

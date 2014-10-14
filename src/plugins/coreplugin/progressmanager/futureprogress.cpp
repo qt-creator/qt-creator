@@ -32,6 +32,7 @@
 #include "progressbar.h"
 
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QCoreApplication>
 #include <QFutureWatcher>
@@ -47,6 +48,8 @@
 
 const int notificationTimeout = 8000;
 const int shortNotificationTimeout = 1000;
+
+using namespace Utils;
 
 namespace Core {
 
@@ -295,8 +298,12 @@ void FutureProgress::mousePressEvent(QMouseEvent *event)
 void FutureProgress::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QLinearGradient grad = Utils::StyleHelper::statusBarGradient(rect());
-    p.fillRect(rect(), grad);
+    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+        p.fillRect(rect(), creatorTheme()->color(Theme::FutureProgressBackgroundColor));
+    } else {
+      QLinearGradient grad = Utils::StyleHelper::statusBarGradient(rect());
+        p.fillRect(rect(), grad);
+    }
 }
 
 /*!

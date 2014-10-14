@@ -73,8 +73,6 @@ protected:
     QTextCharFormat charFormat(OutputFormat format) const;
     void append(QTextCursor &cursor, const QString &text, const QTextCharFormat &format);
 
-    static QColor mixColors(const QColor &a, const QColor &b);
-
 private:
     QPlainTextEdit *m_plainTextEdit;
     QTextCharFormat *m_formats;

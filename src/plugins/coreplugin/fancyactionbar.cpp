@@ -36,6 +36,7 @@
 #include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/tooltip/tipcontents.h>
+#include <utils/theme/theme.h>
 
 #include <QPainter>
 #include <QVBoxLayout>
@@ -145,30 +146,41 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     if (!Utils::HostOsInfo::isMacHost() // Mac UIs usually don't hover
             && m_fader > 0 && isEnabled() && !isDown() && !isChecked()) {
         painter.save();
-        int fader = int(40 * m_fader);
-        QLinearGradient grad(rect().topLeft(), rect().topRight());
-        grad.setColorAt(0, Qt::transparent);
-        grad.setColorAt(0.5, QColor(255, 255, 255, fader));
-        grad.setColorAt(1, Qt::transparent);
-        painter.fillRect(rect(), grad);
-        painter.setPen(QPen(grad, 1.0));
-        painter.drawLine(rect().topLeft(), rect().topRight());
-        painter.drawLine(rect().bottomLeft(), rect().bottomRight());
+        const QColor hoverColor = creatorTheme()->color(Theme::FancyToolButtonHoverColor);
+        QColor fadedHoverColor = hoverColor;
+        fadedHoverColor.setAlpha(int(m_fader * hoverColor.alpha()));
+        if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+            QLinearGradient grad(rect().topLeft(), rect().topRight());
+            grad.setColorAt(0, Qt::transparent);
+            grad.setColorAt(0.5, fadedHoverColor);
+            grad.setColorAt(1, Qt::transparent);
+            painter.fillRect(rect(), grad);
+            painter.setPen(QPen(grad, 1.0));
+            painter.drawLine(rect().topLeft(), rect().topRight());
+            painter.drawLine(rect().bottomLeft(), rect().bottomRight());
+        } else {
+            painter.fillRect(rect(), fadedHoverColor);
+        }
         painter.restore();
     } else if (isDown() || isChecked()) {
         painter.save();
-        QLinearGradient grad(rect().topLeft(), rect().topRight());
-        grad.setColorAt(0, Qt::transparent);
-        grad.setColorAt(0.5, QColor(0, 0, 0, 50));
-        grad.setColorAt(1, Qt::transparent);
-        painter.fillRect(rect(), grad);
-        painter.setPen(QPen(grad, 1.0));
-        painter.drawLine(rect().topLeft(), rect().topRight());
-        painter.drawLine(rect().topLeft(), rect().topRight());
-        painter.drawLine(rect().topLeft() + QPoint(0,1), rect().topRight() + QPoint(0,1));
-        painter.drawLine(rect().bottomLeft(), rect().bottomRight());
-        painter.drawLine(rect().bottomLeft(), rect().bottomRight());
-        painter.drawLine(rect().topLeft() - QPoint(0,1), rect().topRight() - QPoint(0,1));
+        const QColor selectedColor = creatorTheme()->color(Theme::FancyToolButtonSelectedColor);
+        if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+            QLinearGradient grad(rect().topLeft(), rect().topRight());
+            grad.setColorAt(0, Qt::transparent);
+            grad.setColorAt(0.5, selectedColor);
+            grad.setColorAt(1, Qt::transparent);
+            painter.fillRect(rect(), grad);
+            painter.setPen(QPen(grad, 1.0));
+            painter.drawLine(rect().topLeft(), rect().topRight());
+            painter.drawLine(rect().topLeft(), rect().topRight());
+            painter.drawLine(rect().topLeft() + QPoint(0,1), rect().topRight() + QPoint(0,1));
+            painter.drawLine(rect().bottomLeft(), rect().bottomRight());
+            painter.drawLine(rect().bottomLeft(), rect().bottomRight());
+            painter.drawLine(rect().topLeft() - QPoint(0,1), rect().topRight() - QPoint(0,1));
+        } else {
+            painter.fillRect(rect(), selectedColor);
+        }
         painter.restore();
     }
 
@@ -261,7 +273,13 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
 void FancyActionBar::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    Q_UNUSED(event)
+
+    if (creatorTheme()->widgetStyle () == Theme::StyleFlat) {
+        // this paints the background of the bottom portion of the
+        // left tab bar
+        painter.fillRect(event->rect(), creatorTheme()->color(Theme::FancyTabBarBackgroundColor));
+    }
+
     QColor light = Utils::StyleHelper::sidebarHighlight();
     QColor dark = Utils::StyleHelper::sidebarShadow();
     painter.setPen(dark);

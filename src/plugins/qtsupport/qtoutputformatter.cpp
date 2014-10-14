@@ -32,6 +32,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
+#include <utils/theme/theme.h>
 
 #include <QPlainTextEdit>
 #include <QTextCursor>
@@ -39,6 +40,7 @@
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
+using namespace Utils;
 
 // "file" or "qrc", colon, optional '//', '/' and further characters
 #define QML_URL_REGEXP \
@@ -181,8 +183,7 @@ void QtOutputFormatter::appendLine(QTextCursor &cursor, const LinkResult &lr,
     cursor.insertText(line.left(lr.start), normalFormat);
 
     QTextCharFormat linkFormat = normalFormat;
-    const QColor textColor = plainTextEdit()->palette().color(QPalette::Text);
-    linkFormat.setForeground(mixColors(textColor, QColor(Qt::blue)));
+    linkFormat.setForeground(creatorTheme()->color(Theme::QtOutputFormatter_LinkTextColor));
     linkFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
     linkFormat.setAnchor(true);
     linkFormat.setAnchorHref(lr.href);

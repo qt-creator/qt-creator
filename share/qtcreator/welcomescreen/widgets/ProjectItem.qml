@@ -35,9 +35,9 @@ Item {
     width: row.width + 8
     height: text.height
 
-    Rectangle {
+    Rectangle { // background shown on hover over project item
         anchors.fill: parent
-        color: "#f9f9f9"
+        color: creatorTheme.projectItem_BackgroundColorHover
         visible: mouseArea.containsMouse
     }
 
@@ -67,7 +67,7 @@ Item {
             NativeText {
                 id: pathText
                 height: 20
-                color: "#6b6b6b"
+                color: creatorTheme.projectItem_TextColorFilepath
                 font: fonts.smallPath
             }
         }

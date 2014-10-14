@@ -32,6 +32,7 @@
 #include "ui_doubletabwidget.h"
 
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QRect>
 #include <QPainter>
@@ -42,6 +43,7 @@
 #include <QDebug>
 
 using namespace ProjectExplorer::Internal;
+using namespace Utils;
 
 static const int MIN_LEFT_MARGIN = 50;
 static const int MARGIN = 12;
@@ -53,35 +55,45 @@ static const int OVERFLOW_DROPDOWN_WIDTH = Utils::StyleHelper::navigationWidgetH
 static void drawFirstLevelSeparator(QPainter *painter, QPoint top, QPoint bottom)
 {
     QLinearGradient grad(top, bottom);
-    grad.setColorAt(0, QColor(255, 255, 255, 20));
-    grad.setColorAt(0.4, QColor(255, 255, 255, 60));
-    grad.setColorAt(0.7, QColor(255, 255, 255, 50));
-    grad.setColorAt(1, QColor(255, 255, 255, 40));
-    painter->setPen(QPen(grad, 0));
-    painter->drawLine(top, bottom);
-    grad.setColorAt(0, QColor(0, 0, 0, 30));
-    grad.setColorAt(0.4, QColor(0, 0, 0, 70));
-    grad.setColorAt(0.7, QColor(0, 0, 0, 70));
-    grad.setColorAt(1, QColor(0, 0, 0, 40));
-    painter->setPen(QPen(grad, 0));
-    painter->drawLine(top - QPoint(1,0), bottom - QPoint(1,0));
+    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        grad.setColorAt(0, QColor(255, 0, 255, 20));
+        grad.setColorAt(0.4, QColor(255, 0, 255, 60));
+        grad.setColorAt(0.7, QColor(255, 0, 255, 50));
+        grad.setColorAt(1, QColor(255, 0, 255, 40));
+        painter->setPen(QPen(grad, 0));
+        painter->drawLine(top, bottom);
+        grad.setColorAt(0, QColor(0, 0, 0, 30));
+        grad.setColorAt(0.4, QColor(0, 0, 0, 70));
+        grad.setColorAt(0.7, QColor(0, 0, 0, 70));
+        grad.setColorAt(1, QColor(0, 0, 0, 40));
+        painter->setPen(QPen(grad, 0));
+        painter->drawLine(top - QPoint(1,0), bottom - QPoint(1,0));
+    } else {
+        painter->setPen(QPen(creatorTheme()->color(Theme::DoubleTabWidget1stSeparatorColor), 0));
+        painter->drawLine(top, bottom);
+    }
 }
 
 static void drawSecondLevelSeparator(QPainter *painter, QPoint top, QPoint bottom)
 {
     QLinearGradient grad(top, bottom);
-    grad.setColorAt(0, QColor(255, 255, 255, 0));
-    grad.setColorAt(0.4, QColor(255, 255, 255, 100));
-    grad.setColorAt(0.7, QColor(255, 255, 255, 100));
-    grad.setColorAt(1, QColor(255, 255, 255, 0));
-    painter->setPen(QPen(grad, 0));
-    painter->drawLine(top, bottom);
-    grad.setColorAt(0, QColor(0, 0, 0, 0));
-    grad.setColorAt(0.4, QColor(0, 0, 0, 100));
-    grad.setColorAt(0.7, QColor(0, 0, 0, 100));
-    grad.setColorAt(1, QColor(0, 0, 0, 0));
-    painter->setPen(QPen(grad, 0));
-    painter->drawLine(top - QPoint(1,0), bottom - QPoint(1,0));
+    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        grad.setColorAt(0, QColor(255, 255, 255, 20));
+        grad.setColorAt(0.4, QColor(255, 255, 255, 60));
+        grad.setColorAt(0.7, QColor(255, 255, 255, 50));
+        grad.setColorAt(1, QColor(255, 255, 255, 40));
+        painter->setPen(QPen(grad, 0));
+        painter->drawLine(top, bottom);
+        grad.setColorAt(0, QColor(0, 0, 0, 0));
+        grad.setColorAt(0.4, QColor(0, 0, 0, 100));
+        grad.setColorAt(0.7, QColor(0, 0, 0, 100));
+        grad.setColorAt(1, QColor(0, 0, 0, 0));
+        painter->setPen(QPen(grad, 0));
+        painter->drawLine(top - QPoint(1,0), bottom - QPoint(1,0));
+    } else {
+        painter->setPen(QPen(creatorTheme()->color(Theme::DoubleTabWidget2ndSeparatorColor), 0));
+        painter->drawLine(top, bottom);
+    }
 }
 
 DoubleTabWidget::DoubleTabWidget(QWidget *parent) :
@@ -352,16 +364,18 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
     // draw top level tab bar
     r.setHeight(Utils::StyleHelper::navigationWidgetHeight());
 
-    QPoint offset = window()->mapToGlobal(QPoint(0, 0)) - mapToGlobal(r.topLeft());
-    QRect gradientSpan = QRect(offset, window()->size());
-    Utils::StyleHelper::horizontalGradient(&painter, gradientSpan, r);
-
-    painter.setPen(Utils::StyleHelper::borderColor());
-
-    QColor lighter(255, 255, 255, 40);
-    painter.drawLine(r.bottomLeft(), r.bottomRight());
-    painter.setPen(lighter);
-    painter.drawLine(r.topLeft(), r.topRight());
+    if (creatorTheme()->widgetStyle () == Theme::StyleDefault) {
+        QPoint offset = window()->mapToGlobal(QPoint(0, 0)) - mapToGlobal(r.topLeft());
+        QRect gradientSpan = QRect(offset, window()->size());
+        Utils::StyleHelper::horizontalGradient(&painter, gradientSpan, r);
+        painter.setPen(Utils::StyleHelper::borderColor());
+        QColor lighter(255, 255, 255, 40);
+        painter.drawLine(r.bottomLeft(), r.bottomRight());
+        painter.setPen(lighter);
+        painter.drawLine(r.topLeft(), r.topRight());
+    } else {
+        painter.fillRect(r, creatorTheme()->color(Theme::DoubleTabWidget1stEmptyAreaBackgroundColor));
+    }
 
     QFontMetrics fm(font());
     int baseline = (r.height() + fm.ascent()) / 2 - 1;
@@ -373,17 +387,23 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
     }
 
     QLinearGradient grad(QPoint(0, 0), QPoint(0, r.height() + OTHER_HEIGHT - 1));
-    grad.setColorAt(0, QColor(247, 247, 247));
-    grad.setColorAt(1, QColor(205, 205, 205));
+    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+        grad.setColorAt(0, creatorTheme()->color(Theme::DoubleTabWidget1stTabBackgroundColor));
+    } else {
+        grad.setColorAt(0, QColor(247, 247, 247));
+        grad.setColorAt(1, QColor(205, 205, 205));
+    }
 
     // draw background of second bar
     painter.fillRect(QRect(0, r.height(), r.width(), OTHER_HEIGHT), grad);
-    painter.setPen(QColor(0x505050));
-    painter.drawLine(0, r.height() + OTHER_HEIGHT,
-                     r.width(), r.height() + OTHER_HEIGHT);
-    painter.setPen(Qt::white);
-    painter.drawLine(0, r.height(),
-                     r.width(), r.height());
+    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        painter.setPen(QColor(0x505050));
+        painter.drawLine(0, r.height() + OTHER_HEIGHT,
+                         r.width(), r.height() + OTHER_HEIGHT);
+        painter.setPen(Qt::white);
+        painter.drawLine(0, r.height(),
+                         r.width(), r.height());
+    }
 
     // top level tabs
     int x = m_title.isEmpty() ? 0 :
@@ -464,26 +484,28 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
                                    r.height() + 1),
                              grad);
 
-            if (actualIndex != 0) {
+            if (actualIndex != 0 && creatorTheme()->widgetStyle() == Theme::StyleDefault) {
                 painter.setPen(QColor(255, 255, 255, 170));
                 painter.drawLine(x, 0, x, r.height());
             }
             x += MARGIN;
-            painter.setPen(Qt::black);
+            painter.setPen(creatorTheme()->color(Theme::DoubleTabWidget1stTabActiveTextColor));
             painter.drawText(x, baseline, tab.displayName());
             x += nameWidth.at(actualIndex);
             x += MARGIN;
-            painter.setPen(Utils::StyleHelper::borderColor());
-            painter.drawLine(x, 0, x, r.height() - 1);
-            painter.setPen(QColor(0, 0, 0, 20));
-            painter.drawLine(x + 1, 0, x + 1, r.height() - 1);
-            painter.setPen(QColor(255, 255, 255, 170));
-            painter.drawLine(x - 1, 0, x - 1, r.height());
+            if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+                painter.setPen(Utils::StyleHelper::borderColor());
+                painter.drawLine(x, 0, x, r.height() - 1);
+                painter.setPen(QColor(0, 0, 0, 20));
+                painter.drawLine(x + 1, 0, x + 1, r.height() - 1);
+                painter.setPen(QColor(255, 255, 255, 170));
+                painter.drawLine(x - 1, 0, x - 1, r.height());
+            }
         } else {
-            if (i == 0)
+            if (i == 0 && creatorTheme()->widgetStyle() == Theme::StyleDefault)
                 drawFirstLevelSeparator(&painter, QPoint(x, 0), QPoint(x, r.height()-1));
             x += MARGIN;
-            painter.setPen(Utils::StyleHelper::panelTextColor());
+            painter.setPen(creatorTheme()->color(Theme::DoubleTabWidget1stTabInactiveTextColor));
             painter.drawText(x + 1, baseline, tab.displayName());
             x += nameWidth.at(actualIndex);
             x += MARGIN;
@@ -512,14 +534,20 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
             x += MARGIN;
             int textWidth = fm.width(subTabs.at(i));
             if (currentTab.currentSubTab == i) {
-                painter.setPen(Qt::white);
-                painter.drawPixmap(x, y, m_left);
-                painter.drawPixmap(QRect(x + SELECTION_IMAGE_WIDTH, y,
-                                         textWidth, imageHeight),
-                                   m_mid, QRect(0, 0, m_mid.width(), m_mid.height()));
-                painter.drawPixmap(x + SELECTION_IMAGE_WIDTH + textWidth, y, m_right);
+                if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+                    painter.drawPixmap(x, y, m_left);
+                    painter.drawPixmap(QRect(x + SELECTION_IMAGE_WIDTH, y,
+                                             textWidth, imageHeight),
+                                       m_mid, QRect(0, 0, m_mid.width(), m_mid.height()));
+                    painter.drawPixmap(x + SELECTION_IMAGE_WIDTH + textWidth, y, m_right);
+                } else {
+                    painter.setBrush(creatorTheme()->color(Theme::DoubleTabWidget2ndTabBackgroundColor));
+                    painter.setPen(Qt::NoPen);
+                    painter.drawRoundedRect(QRect(x,y,2*SELECTION_IMAGE_WIDTH+textWidth, m_mid.height()), 5,5);
+                }
+                painter.setPen(creatorTheme()->color(Theme::DoubleTabWidget2ndTabActiveTextColor));
             } else {
-                painter.setPen(Qt::black);
+                painter.setPen(creatorTheme()->color(Theme::DoubleTabWidget2ndTabInactiveTextColor));
             }
             x += SELECTION_IMAGE_WIDTH;
             painter.drawText(x, y + (imageHeight + fm.ascent()) / 2. - 1,

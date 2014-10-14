@@ -36,6 +36,7 @@
 #include <QLabel>
 
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 #include <utils/qtcassert.h>
 
 namespace {
@@ -53,6 +54,7 @@ const int PANEL_LEFT_MARGIN = 70;
 /// \brief The OnePixelBlackLine class
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace {
 class OnePixelBlackLine : public QWidget
@@ -69,8 +71,7 @@ public:
     {
         Q_UNUSED(e);
         QPainter p(this);
-        QColor fillColor = Utils::StyleHelper::mergedColors(
-                    palette().button().color(), Qt::black, 80);
+        QColor fillColor = creatorTheme()->color(Theme::PanelsWidgetSeparatorLineColor);
         p.fillRect(contentsRect(), fillColor);
     }
 };
@@ -88,16 +89,19 @@ void RootWidget::paintEvent(QPaintEvent *e)
 {
     QWidget::paintEvent(e);
 
-    QPainter painter(this);
-    QColor light = Utils::StyleHelper::mergedColors(
-                palette().button().color(), Qt::white, 30);
-    QColor dark = Utils::StyleHelper::mergedColors(
-                palette().button().color(), Qt::black, 85);
+    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        // draw separator line to the right of the settings panel
+        QPainter painter(this);
+        QColor light = Utils::StyleHelper::mergedColors(
+                    palette().button().color(), Qt::white, 30);
+        QColor dark = Utils::StyleHelper::mergedColors(
+                    palette().button().color(), Qt::black, 85);
 
-    painter.setPen(light);
-    painter.drawLine(rect().topRight(), rect().bottomRight());
-    painter.setPen(dark);
-    painter.drawLine(rect().topRight() - QPoint(1,0), rect().bottomRight() - QPoint(1,0));
+        painter.setPen(light);
+        painter.drawLine(rect().topRight(), rect().bottomRight());
+        painter.setPen(dark);
+        painter.drawLine(rect().topRight() - QPoint(1,0), rect().bottomRight() - QPoint(1,0));
+    }
 }
 }
 
@@ -176,6 +180,7 @@ void PanelsWidget::addPropertiesPanel(PropertiesPanel *panel)
     nameLabel->setText(panel->displayName());
     QPalette palette = nameLabel->palette();
     for (int i = QPalette::Active; i < QPalette::NColorGroups; ++i ) {
+        // FIXME: theming
         QColor foregroundColor = palette.color(QPalette::ColorGroup(i), QPalette::Foreground);
         foregroundColor.setAlpha(110);
         palette.setBrush(QPalette::ColorGroup(i), QPalette::Foreground, foregroundColor);

@@ -205,6 +205,19 @@ QtcLibrary {
     ]
 
     Group {
+        name: "Theme"
+        prefix: "theme/"
+        files: [
+            "theme.cpp",
+            "theme.h",
+            "theme_p.cpp",
+            "theme_p.h",
+            "welcometheme.cpp",
+            "welcometheme.h",
+        ]
+    }
+
+    Group {
         name: "Tooltip"
         prefix: "tooltip/"
         files: [

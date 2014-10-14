@@ -28,10 +28,11 @@
 **
 ****************************************************************************/
 
+#include "ansiescapecodehandler.h"
 #include "outputformatter.h"
+#include "theme/theme.h"
 
 #include <QPlainTextEdit>
-#include <utils/ansiescapecodehandler.h>
 
 using namespace Utils;
 
@@ -110,12 +111,6 @@ void OutputFormatter::clearLastLine()
     cursor.removeSelectedText();
 }
 
-QColor OutputFormatter::mixColors(const QColor &a, const QColor &b)
-{
-    return QColor((a.red() + 2 * b.red()) / 3, (a.green() + 2 * b.green()) / 3,
-                  (a.blue() + 2* b.blue()) / 3, (a.alpha() + 2 * b.alpha()) / 3);
-}
-
 void OutputFormatter::initFormats()
 {
     if (!plainTextEdit())
@@ -127,26 +122,28 @@ void OutputFormatter::initFormats()
 
     m_formats = new QTextCharFormat[NumberOfFormats];
 
+    Theme *theme = creatorTheme();
+
     // NormalMessageFormat
     m_formats[NormalMessageFormat].setFont(boldFont);
-    m_formats[NormalMessageFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::blue)));
+    m_formats[NormalMessageFormat].setForeground(theme->color(Theme::OutputFormatter_NormalMessageTextColor));
 
     // ErrorMessageFormat
     m_formats[ErrorMessageFormat].setFont(boldFont);
-    m_formats[ErrorMessageFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::red)));
+    m_formats[ErrorMessageFormat].setForeground(theme->color(Theme::OutputFormatter_ErrorMessageTextColor));
 
     // StdOutFormat
     m_formats[StdOutFormat].setFont(m_font);
-    m_formats[StdOutFormat].setForeground(p.color(QPalette::Text));
+    m_formats[StdOutFormat].setForeground(theme->color(Theme::OutputFormatter_StdOutTextColor));
     m_formats[StdOutFormatSameLine] = m_formats[StdOutFormat];
 
     // StdErrFormat
     m_formats[StdErrFormat].setFont(m_font);
-    m_formats[StdErrFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::red)));
+    m_formats[StdErrFormat].setForeground(theme->color(Theme::OutputFormatter_StdErrTextColor));
     m_formats[StdErrFormatSameLine] = m_formats[StdErrFormat];
 
     m_formats[DebugFormat].setFont(m_font);
-    m_formats[DebugFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::magenta)));
+    m_formats[DebugFormat].setForeground(theme->color(Theme::OutputFormatter_DebugTextColor));
 }
 
 void OutputFormatter::handleLink(const QString &href)

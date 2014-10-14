@@ -66,7 +66,7 @@ Controls.ScrollView {
             x: 32
             y: screenDependHeightDistance + 77
 
-            color: "#535353"
+            color: creatorTheme.textColorHeading
             text: qsTr("Sessions")
             font.pixelSize: 16
             font.family: "Helvetica"
@@ -78,7 +78,7 @@ Controls.ScrollView {
             x: 406
 
             y: screenDependHeightDistance + 77
-            color: "#535353"
+            color: creatorTheme.textColorHeading
             text: qsTr("Recent Projects")
             anchors.left: sessionsTitle.right
             anchors.leftMargin: 280

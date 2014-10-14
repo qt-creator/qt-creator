@@ -43,6 +43,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QEvent>
@@ -62,6 +63,7 @@ static const char kDetailsPinned[] = "DetailsPinned";
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Utils;
 
 /*!
     \mainclass
@@ -703,6 +705,11 @@ ToggleButton::ToggleButton(QWidget *parent)
     : QToolButton(parent)
 {
     setToolButtonStyle(Qt::ToolButtonIconOnly);
+    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+        QPalette p = palette();
+        p.setBrush(QPalette::Base, creatorTheme()->color(Theme::ToggleButtonBackgroundColor));
+        setPalette(p);
+    }
 }
 
 QSize ToggleButton::sizeHint() const

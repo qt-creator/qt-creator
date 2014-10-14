@@ -37,9 +37,9 @@ Rectangle {
 
     width: 930
     height: 27
-    color: "#ffffff"
+    color: creatorTheme.backgroundColorNormal
     radius: 6
-    border.color: "#cccccc"
+    border.color: "#cccccc" // FIXME: make themable
 
     property alias placeholderText: lineEdit.placeholderText
     property alias text: lineEdit.text
@@ -56,6 +56,8 @@ Rectangle {
         font.pixelSize: 14
         placeholderText:  qsTr("Search...")
         style: TextFieldStyle {
+            placeholderTextColor: creatorTheme.textColorNormal
+            textColor: creatorTheme.textColorNormal
             background: Item {
             }
         }

@@ -34,7 +34,11 @@
 
 #include <utils/algorithm.h>
 
+#include <utils/theme/theme.h>
+
 #include <QIcon>
+
+using namespace Utils;
 
 namespace Todo {
 namespace Internal {
@@ -83,6 +87,10 @@ QVariant TodoItemsModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::BackgroundColorRole)
         return item.color;
+    if (role == Qt::TextColorRole)
+        return creatorTheme()->color(Theme::TodoItemTextColor);
+    if (role == Qt::ForegroundRole)
+        return creatorTheme()->color(Theme::TodoItemTextColor);
 
     switch (index.column()) {
 

@@ -16,6 +16,7 @@ SOURCES += corejsextensions.cpp \
     fancyactionbar.cpp \
     fancytabwidget.cpp \
     generalsettings.cpp \
+    themesettings.cpp \
     id.cpp \
     icontext.cpp \
     jsexpander.cpp \
@@ -101,7 +102,15 @@ SOURCES += corejsextensions.cpp \
     ioutputpane.cpp \
     patchtool.cpp \
     windowsupport.cpp \
-    opendocumentstreeview.cpp
+    opendocumentstreeview.cpp \
+    themeeditor/themecolors.cpp \
+    themeeditor/themecolorstableview.cpp \
+    themeeditor/colorvariable.cpp \
+    themeeditor/themeeditorwidget.cpp \
+    themeeditor/colorrole.cpp \
+    themeeditor/themesettingstablemodel.cpp \
+    themeeditor/sectionedtablemodel.cpp \
+    themeeditor/themesettingsitemdelegate.cpp
 
 HEADERS += corejsextensions.h \
     mainwindow.h \
@@ -111,6 +120,7 @@ HEADERS += corejsextensions.h \
     fancyactionbar.h \
     fancytabwidget.h \
     generalsettings.h \
+    themesettings.h \
     id.h \
     jsexpander.h \
     messagemanager.h \
@@ -206,18 +216,28 @@ HEADERS += corejsextensions.h \
     dialogs/addtovcsdialog.h \
     patchtool.h \
     windowsupport.h \
-    opendocumentstreeview.h
+    opendocumentstreeview.h \
+    themeeditor/themecolors.h \
+    themeeditor/themecolorstableview.h \
+    themeeditor/colorvariable.h \
+    themeeditor/themeeditorwidget.h \
+    themeeditor/colorrole.h \
+    themeeditor/themesettingstablemodel.h \
+    themeeditor/sectionedtablemodel.h \
+    themeeditor/themesettingsitemdelegate.h \
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
     dialogs/readonlyfilesdialog.ui \
     dialogs/openwithdialog.ui \
     generalsettings.ui \
+    themesettings.ui \
     dialogs/externaltoolconfig.ui \
     mimetypesettingspage.ui \
     mimetypemagicdialog.ui \
     removefiledialog.ui \
-   dialogs/addtovcsdialog.ui
+    dialogs/addtovcsdialog.ui \
+    themeeditor/themeeditorwidget.ui
 
 RESOURCES += core.qrc \
     fancyactionbar.qrc

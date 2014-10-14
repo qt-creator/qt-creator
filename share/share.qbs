@@ -21,6 +21,7 @@ Product {
             "snippets",
             "styles",
             "templates",
+            "themes",
             "welcomescreen"
         ]
     }

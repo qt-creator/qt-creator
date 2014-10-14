@@ -92,7 +92,10 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/treemodel.cpp \
     $$PWD/treeviewcombobox.cpp \
     $$PWD/proxycredentialsdialog.cpp \
-    $$PWD/macroexpander.cpp
+    $$PWD/macroexpander.cpp \
+    $$PWD/theme/theme.cpp \
+    $$PWD/theme/theme_p.cpp \
+    $$PWD/theme/welcometheme.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -189,7 +192,10 @@ HEADERS += \
     $$PWD/algorithm.h \
     $$PWD/QtConcurrentTools \
     $$PWD/proxycredentialsdialog.h \
-    $$PWD/macroexpander.h
+    $$PWD/macroexpander.h \
+    $$PWD/theme/theme.h \
+    $$PWD/theme/theme_p.h \
+    $$PWD/theme/welcometheme.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

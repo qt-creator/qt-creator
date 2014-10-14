@@ -31,6 +31,7 @@
 #include "progressbar.h"
 
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QPropertyAnimation>
 #include <QPainter>
@@ -40,6 +41,7 @@
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Utils;
 
 static const int PROGRESSBAR_HEIGHT = 13;
 static const int CANCELBUTTON_WIDTH = 16;
@@ -277,7 +279,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
         p.setPen(QColor(0, 0, 0, 120));
         p.drawText(textRect, alignment | Qt::AlignBottom, elidedtitle);
         p.translate(0, -1);
-        p.setPen(Utils::StyleHelper::panelTextColor());
+        p.setPen(creatorTheme()->color(Theme::ProgressBarTitleColor));
         p.drawText(textRect, alignment | Qt::AlignBottom, elidedtitle);
         p.translate(0, 1);
     }
@@ -287,23 +289,23 @@ void ProgressBar::paintEvent(QPaintEvent *)
     // draw outer rect
     const QRect rect(INDENT - 1, titleHeight + separatorHeight + (m_titleVisible ? 4 : 3),
                      size().width() - 2 * INDENT + 1, m_progressHeight);
-    Utils::StyleHelper::drawCornerImage(bar, &p, rect, 3, 3, 3, 3);
+
+    if (creatorTheme()->flag(Theme::DrawProgressBarSunken))
+        Utils::StyleHelper::drawCornerImage(bar, &p, rect, 3, 3, 3, 3);
 
     // draw inner rect
-    QColor c = Utils::StyleHelper::panelTextColor();
-    c.setAlpha(180);
+    QColor c = creatorTheme()->color(Theme::ProgressBarColorNormal);
     p.setPen(Qt::NoPen);
 
     QRectF inner = rect.adjusted(2, 2, -2, -2);
     inner.adjust(0, 0, qRound((percent - 1) * inner.width()), 0);
     if (m_error) {
-        QColor red(255, 60, 0, 210);
-        c = red;
+        c = creatorTheme()->color(Theme::ProgressBarColorError);
         // avoid too small red bar
         if (inner.width() < 10)
             inner.adjust(0, 0, 10 - inner.width(), 0);
     } else if (m_finished) {
-        c = QColor(90, 170, 60);
+        c = creatorTheme()->color(Theme::ProgressBarColorFinished);
     }
 
     // Draw line and shadow after the gradient fill
@@ -311,13 +313,18 @@ void ProgressBar::paintEvent(QPaintEvent *)
         p.fillRect(QRect(inner.right(), inner.top(), 2, inner.height()), QColor(0, 0, 0, 20));
         p.fillRect(QRect(inner.right(), inner.top(), 1, inner.height()), QColor(0, 0, 0, 60));
     }
-    QLinearGradient grad(inner.topLeft(), inner.bottomLeft());
-    grad.setColorAt(0, c.lighter(130));
-    grad.setColorAt(0.4, c.lighter(106));
-    grad.setColorAt(0.41, c.darker(106));
-    grad.setColorAt(1, c.darker(130));
     p.setPen(Qt::NoPen);
-    p.setBrush(grad);
+    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+        //draw the progress bar
+        p.setBrush (c);
+    } else {
+        QLinearGradient grad(inner.topLeft(), inner.bottomLeft());
+        grad.setColorAt(0, c.lighter(130));
+        grad.setColorAt(0.4, c.lighter(106));
+        grad.setColorAt(0.41, c.darker(106));
+        grad.setColorAt(1, c.darker(130));
+        p.setBrush(grad);
+    }
     p.drawRect(inner);
     p.setBrush(Qt::NoBrush);
     p.setPen(QPen(QColor(0, 0, 0, 30), 1));

@@ -37,6 +37,7 @@
 #include <utils/algorithm.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -89,6 +90,7 @@ static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
+using namespace Utils;
 
 static bool projectLesserThan(Project *p1, Project *p2)
 {
@@ -133,17 +135,21 @@ void TargetSelectorDelegate::paint(QPainter *painter,
         selectionGradient.load(QLatin1String(":/projectexplorer/images/targetpanel_gradient.png"));
 
     if (option.state & QStyle::State_Selected) {
-        QColor color =(option.state & QStyle::State_HasFocus) ?
-                      option.palette.highlight().color() :
-                      option.palette.dark().color();
-        painter->fillRect(option.rect, color.darker(140));
-        Utils::StyleHelper::drawCornerImage(selectionGradient, painter, option.rect.adjusted(0, 0, 0, -1), 5, 5, 5, 5);
-        painter->setPen(QColor(255, 255, 255, 60));
-        painter->drawLine(option.rect.topLeft(), option.rect.topRight());
-        painter->setPen(QColor(255, 255, 255, 30));
-        painter->drawLine(option.rect.bottomLeft() - QPoint(0,1), option.rect.bottomRight() -  QPoint(0,1));
-        painter->setPen(QColor(0, 0, 0, 80));
-        painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
+        if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+            painter->fillRect(option.rect, creatorTheme()->color(Theme::BackgroundColorSelected));
+        } else {
+            QColor color =(option.state & QStyle::State_HasFocus) ?
+                          option.palette.highlight().color() :
+                          option.palette.dark().color();
+            painter->fillRect(option.rect, color.darker(140));
+            Utils::StyleHelper::drawCornerImage(selectionGradient, painter, option.rect.adjusted(0, 0, 0, -1), 5, 5, 5, 5);
+            painter->setPen(QColor(255, 255, 255, 60));
+            painter->drawLine(option.rect.topLeft(), option.rect.topRight());
+            painter->setPen(QColor(255, 255, 255, 30));
+            painter->drawLine(option.rect.bottomLeft() - QPoint(0,1), option.rect.bottomRight() -  QPoint(0,1));
+            painter->setPen(QColor(0, 0, 0, 80));
+            painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
+        }
     }
 
     QFontMetrics fm(option.font);
@@ -640,7 +646,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_hideOnRelease(false)
 {
     QPalette p;
-    p.setColor(QPalette::Text, QColor(255, 255, 255, 160));
+    p.setColor(QPalette::Text, creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
     setPalette(p);
     setProperty("panelwidget", true);
     setContentsMargins(QMargins(0, 1, 1, 8));
@@ -654,7 +660,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_summaryLabel = new QLabel(this);
     m_summaryLabel->setMargin(3);
     m_summaryLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    m_summaryLabel->setStyleSheet(QString::fromLatin1("background: #464646;"));
+    m_summaryLabel->setStyleSheet(QString::fromLatin1("background: %1;")
+        .arg(creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name()));
     m_summaryLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     m_summaryLabel->setTextInteractionFlags(m_summaryLabel->textInteractionFlags() | Qt::LinksAccessibleByMouse);
 
@@ -1575,15 +1582,18 @@ void MiniProjectTargetSelector::updateSummary()
 void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    painter.setBrush(QBrush(QColor(160, 160, 160, 255)));
+    painter.setBrush(creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor));
     painter.drawRect(rect());
-    painter.setPen(Utils::StyleHelper::borderColor());
+    painter.setPen(creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor));
+    // draw border on top and right
     painter.drawLine(rect().topLeft(), rect().topRight());
     painter.drawLine(rect().topRight(), rect().bottomRight());
-
-    QRect bottomRect(0, rect().height() - 8, rect().width(), 8);
-    static QImage image(QLatin1String(":/projectexplorer/images/targetpanel_bottom.png"));
-    Utils::StyleHelper::drawCornerImage(image, &painter, bottomRect, 1, 1, 1, 1);
+    if (creatorTheme()->flag(Theme::DrawTargetSelectorBottom)) {
+        // draw thicker border on the bottom
+        QRect bottomRect(0, rect().height() - 8, rect().width(), 8);
+        static QImage image(QLatin1String(":/projectexplorer/images/targetpanel_bottom.png"));
+        Utils::StyleHelper::drawCornerImage(image, &painter, bottomRect, 1, 1, 1, 1);
+    }
 }
 
 void MiniProjectTargetSelector::switchToProjectsMode()

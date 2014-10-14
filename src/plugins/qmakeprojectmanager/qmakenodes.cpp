@@ -60,6 +60,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/stringutils.h>
+#include <utils/theme/theme.h>
 #include <proparser/prowriter.h>
 #include <proparser/qmakevfs.h>
 
@@ -73,6 +74,7 @@
 #include <utils/QtConcurrentTools>
 
 using namespace Core;
+using namespace Utils;
 
 // Static cached data in struct QmakeNodeStaticData providing information and icons
 // for file types and the project. Do some magic via qAddPostRoutine()
@@ -150,7 +152,10 @@ QmakeNodeStaticData::QmakeNodeStaticData()
     const QSize desiredSize = QSize(16, 16);
 
     for (unsigned i = 0 ; i < count; ++i) {
-        const QIcon overlayIcon = QIcon(QLatin1String(fileTypeDataStorage[i].icon));
+        QIcon overlayIcon;
+        QString iconFile = QString::fromLatin1(fileTypeDataStorage[i].icon);
+        iconFile = creatorTheme()->imageFile(iconFile);
+        overlayIcon = QIcon(iconFile);
         const QPixmap folderPixmap =
                 Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
                                                     overlayIcon, desiredSize);
@@ -161,7 +166,8 @@ QmakeNodeStaticData::QmakeNodeStaticData()
                                                                desc, folderIcon));
     }
     // Project icon
-    const QIcon projectBaseIcon(QLatin1String(":/qtsupport/images/qt_project.png"));
+    const QLatin1String fname(":/qtsupport/images/qt_project.png");
+    const QIcon projectBaseIcon(creatorTheme()->imageFile(fname));
     const QPixmap projectPixmap = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
                                                                       projectBaseIcon,
                                                                       desiredSize);

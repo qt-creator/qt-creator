@@ -42,6 +42,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QDebug>
 
@@ -56,7 +57,7 @@
 
 using namespace Core;
 using namespace Core::Internal;
-
+using namespace Utils;
 
 // ================EditorView====================
 
@@ -244,11 +245,17 @@ void EditorView::paintEvent(QPaintEvent *)
 
     // Discreet indication where an editor would be if there is none
     QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(palette().color(QPalette::Background).darker(107));
-    const int r = 3;
-    painter.drawRoundedRect(m_container->geometry().adjusted(r , r, -r, -r), r * 2, r * 2);
+
+    QRect rect = m_container->geometry();
+    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(creatorTheme()->color(Theme::EditorPlaceholderColor));
+        const int r = 3;
+        painter.drawRoundedRect(rect.adjusted(r , r, -r, -r), r * 2, r * 2);
+    } else {
+        painter.fillRect(rect, creatorTheme()->color(Theme::EditorPlaceholderColor));
+    }
 }
 
 void EditorView::mousePressEvent(QMouseEvent *e)

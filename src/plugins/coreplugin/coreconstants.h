@@ -101,6 +101,7 @@ const char OPTIONS[]               = "QtCreator.Options";
 const char TOGGLE_SIDEBAR[]        = "QtCreator.ToggleSidebar";
 const char TOGGLE_MODE_SELECTOR[]  = "QtCreator.ToggleModeSelector";
 const char TOGGLE_FULLSCREEN[]     = "QtCreator.ToggleFullScreen";
+const char THEMEOPTIONS[]          = "QtCreator.ThemeOptions";
 
 const char TR_SHOW_SIDEBAR[]       = QT_TRANSLATE_NOOP("Core", "Show Sidebar");
 const char TR_HIDE_SIDEBAR[]       = QT_TRANSLATE_NOOP("Core", "Hide Sidebar");
@@ -240,6 +241,8 @@ const char SETTINGS_ID_TOOLS[] = "C.ExternalTools";
 const char SETTINGS_ID_MIMETYPES[] = "D.MimeTypes";
 
 const char SETTINGS_DEFAULTTEXTENCODING[] = "General/DefaultFileEncoding";
+
+const char SETTINGS_THEME[] = "Core/CreatorTheme";
 
 const char ALL_FILES_FILTER[]      = QT_TRANSLATE_NOOP("Core", "All Files (*)");
 

@@ -29,8 +29,8 @@
 ****************************************************************************/
 
 #include "detailsbutton.h"
-
-#include <utils/hostosinfo.h>
+#include "hostosinfo.h"
+#include "theme/theme.h"
 
 #include <QGraphicsOpacityEffect>
 #include <QGuiApplication>
@@ -122,8 +122,15 @@ void DetailsButton::paintEvent(QPaintEvent *e)
     QPainter p(this);
 
     // draw hover animation
-    if (!HostOsInfo::isMacHost() && !isDown() && m_fader > 0)
-        p.fillRect(rect().adjusted(1, 1, -2, -2), QColor(255, 255, 255, int(m_fader*180)));
+    if (!HostOsInfo::isMacHost() && !isDown() && m_fader > 0) {
+        QColor c = creatorTheme()->color(Theme::DetailsButtonBackgroundColorHover);
+        c.setAlpha (int(m_fader * c.alpha()));
+
+        QRect r = rect();
+        if (creatorTheme()->widgetStyle() == Theme::StyleDefault)
+            r.adjust(1, 1, -2, -2);
+        p.fillRect(r, c);
+    }
 
     if (isChecked()) {
         if (m_checkedPixmap.isNull() || m_checkedPixmap.size() / m_checkedPixmap.devicePixelRatio() != contentsRect().size())
@@ -148,10 +155,6 @@ void DetailsButton::paintEvent(QPaintEvent *e)
 
 QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
 {
-    QLinearGradient lg;
-    lg.setCoordinateMode(QGradient::ObjectBoundingMode);
-    lg.setFinalStop(0, 1);
-
     const qreal pixelRatio = devicePixelRatio();
     QPixmap pixmap(size * pixelRatio);
     pixmap.setDevicePixelRatio(pixelRatio);
@@ -159,22 +162,29 @@ QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
     QPainter p(&pixmap);
     p.setRenderHint(QPainter::Antialiasing, true);
     p.translate(0.5, 0.5);
-    p.setPen(Qt::NoPen);
-    if (!checked) {
-        lg.setColorAt(0, QColor(0, 0, 0, 10));
-        lg.setColorAt(1, QColor(0, 0, 0, 16));
-    } else {
-        lg.setColorAt(0, QColor(255, 255, 255, 0));
-        lg.setColorAt(1, QColor(255, 255, 255, 50));
-    }
 
-    p.setBrush(lg);
-    p.setPen(QColor(255,255,255,140));
-    p.drawRoundedRect(1, 1, size.width()-3, size.height()-3, 1, 1);
-    p.setPen(QPen(QColor(0, 0, 0, 40)));
-    p.drawLine(0, 1, 0, size.height() - 2);
-    if (checked)
-        p.drawLine(1, size.height() - 1, size.width() - 1, size.height() - 1);
+    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        QLinearGradient lg;
+        lg.setCoordinateMode(QGradient::ObjectBoundingMode);
+        lg.setFinalStop(0, 1);
+        if (!checked) {
+            lg.setColorAt(0, QColor(0, 0, 0, 10));
+            lg.setColorAt(1, QColor(0, 0, 0, 16));
+        } else {
+            lg.setColorAt(0, QColor(255, 255, 255, 0));
+            lg.setColorAt(1, QColor(255, 255, 255, 50));
+        }
+        p.setBrush(lg);
+        p.setPen(QColor(255,255,255,140));
+        p.drawRoundedRect(1, 1, size.width()-3, size.height()-3, 1, 1);
+        p.setPen(QPen(QColor(0, 0, 0, 40)));
+        p.drawLine(0, 1, 0, size.height() - 2);
+        if (checked)
+            p.drawLine(1, size.height() - 1, size.width() - 1, size.height() - 1);
+    } else {
+        p.setPen(Qt::NoPen);
+        p.drawRoundedRect(0, 0, size.width(), size.height(), 1, 1);
+    }
 
     p.setPen(palette().color(QPalette::Text));
 

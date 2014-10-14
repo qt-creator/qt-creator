@@ -37,6 +37,7 @@
 #include "fancytabwidget.h"
 #include "documentmanager.h"
 #include "generalsettings.h"
+#include "themesettings.h"
 #include "helpmanager.h"
 #include "idocumentfactory.h"
 #include "messagemanager.h"
@@ -78,6 +79,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 #include <utils/stringutils.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -130,6 +132,7 @@ MainWindow::MainWindow() :
     m_rightPaneWidget(0),
     m_versionDialog(0),
     m_generalSettings(new GeneralSettings),
+    m_themeSettings(new ThemeSettings),
     m_shortcutSettings(new ShortcutSettings),
     m_toolSettings(new ToolSettings),
     m_mimeTypeSettings(new MimeTypeSettings),
@@ -252,6 +255,7 @@ MainWindow::~MainWindow()
 
     ExtensionSystem::PluginManager::removeObject(m_shortcutSettings);
     ExtensionSystem::PluginManager::removeObject(m_generalSettings);
+    ExtensionSystem::PluginManager::removeObject(m_themeSettings);
     ExtensionSystem::PluginManager::removeObject(m_toolSettings);
     ExtensionSystem::PluginManager::removeObject(m_mimeTypeSettings);
     ExtensionSystem::PluginManager::removeObject(m_systemEditor);
@@ -263,6 +267,8 @@ MainWindow::~MainWindow()
     m_shortcutSettings = 0;
     delete m_generalSettings;
     m_generalSettings = 0;
+    delete m_themeSettings;
+    m_themeSettings = 0;
     delete m_toolSettings;
     m_toolSettings = 0;
     delete m_mimeTypeSettings;
@@ -320,6 +326,7 @@ bool MainWindow::init(QString *errorMessage)
     m_progressManager->init(); // needs the status bar manager
 
     ExtensionSystem::PluginManager::addObject(m_generalSettings);
+    ExtensionSystem::PluginManager::addObject(m_themeSettings);
     ExtensionSystem::PluginManager::addObject(m_shortcutSettings);
     ExtensionSystem::PluginManager::addObject(m_toolSettings);
     ExtensionSystem::PluginManager::addObject(m_mimeTypeSettings);
@@ -628,6 +635,7 @@ void MainWindow::registerDefaultActions()
     // Options Action
     mtools->appendGroup(Constants::G_TOOLS_OPTIONS);
     mtools->addSeparator(globalContext, Constants::G_TOOLS_OPTIONS);
+
     m_optionsAction = new QAction(tr("&Options..."), this);
     cmd = ActionManager::registerAction(m_optionsAction, Constants::OPTIONS, globalContext);
     if (UseMacShortcuts) {

@@ -33,7 +33,8 @@ import QtQuick 2.1
 NativeText {
     id: root
     height: 16
-    color: active ? "#f0f0f0" : colors.linkColor
+    color: active ? creatorTheme.link_TextColorActive
+                  : creatorTheme.link_TextColorNormal
     verticalAlignment: Text.AlignVCenter
 
     font: fonts.linkFont
@@ -53,7 +54,7 @@ NativeText {
     property bool enlargeMouseArea: true
 
     Rectangle {
-        color: "#909090"
+        color: "#909090" // FIXME: theming: Where is this ever visible?
         radius: 6
         opacity: root.active
         z: -1
@@ -65,7 +66,7 @@ NativeText {
     }
 
     Rectangle {
-        color: "#909090"
+        color: "#909090" // FIXME: theming: Where is this ever visible?
         opacity: root.active
         z: -1
         anchors.rightMargin: -6

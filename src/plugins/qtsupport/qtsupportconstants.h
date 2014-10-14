@@ -100,6 +100,7 @@ const char IOS_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "iOS");
 const char QML_WIZARD_ICON[] = ":/qmlproject/images/qml_wizard.png";
 
 const char ICON_QT_PROJECT[] = ":/qtsupport/images/qt_project.png";
+const char DARK_ICON_QT_PROJECT[] = ":/qtsupport/images/dark_qt_project.png";
 
 } // namepsace Constants
 } // namepsace QtSupport

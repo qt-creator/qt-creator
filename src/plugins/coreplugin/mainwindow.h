@@ -72,6 +72,7 @@ namespace Internal {
 class ActionManagerPrivate;
 class FancyTabWidget;
 class GeneralSettings;
+class ThemeSettings;
 class ProgressManagerPrivate;
 class ShortcutSettings;
 class ToolSettings;
@@ -191,6 +192,7 @@ private:
     QMap<QWidget *, IContext *> m_contextWidgets;
 
     GeneralSettings *m_generalSettings;
+    ThemeSettings *m_themeSettings;
     ShortcutSettings *m_shortcutSettings;
     ToolSettings *m_toolSettings;
     MimeTypeSettings *m_mimeTypeSettings;
@@ -206,6 +208,7 @@ private:
     QAction *m_optionsAction;
     QAction *m_toggleSideBarAction;
     QAction *m_toggleModeSelectorAction;
+    QAction *m_themeAction;
 
     QToolButton *m_toggleSideBarButton;
     QColor m_overrideColor;

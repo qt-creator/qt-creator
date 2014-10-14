@@ -42,6 +42,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -49,6 +50,7 @@
 #include <QTextBlock>
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -222,9 +224,9 @@ ProFileEditorFactory::ProFileEditorFactory()
     addHoverHandler(new ProFileHoverHandler(keywords));
     setSyntaxHighlighterCreator([keywords]() { return new ProFileHighlighter(keywords); });
 
-    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pro");
-    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pri");
-    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "prf");
+    Core::FileIconProvider::registerIconOverlayForSuffix(creatorTheme()->iconOverlay(Theme::ProMimetype).toLatin1().data(), "pro");
+    Core::FileIconProvider::registerIconOverlayForSuffix(creatorTheme()->iconOverlay(Theme::PriMimetype).toLatin1().data(), "pri");
+    Core::FileIconProvider::registerIconOverlayForSuffix(creatorTheme()->iconOverlay(Theme::PrfMimetype).toLatin1().data(), "prf");
 }
 
 } // namespace Internal

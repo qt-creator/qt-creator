@@ -59,11 +59,14 @@
 
 #include <utils/hostosinfo.h>
 
+#include <utils/theme/theme.h>
+
 #include <QCoreApplication>
 #include <QStringList>
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor {
 namespace Internal {
@@ -103,9 +106,9 @@ public:
         addHoverHandler(new CppHoverHandler);
 
         if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
-            FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_cpp.png", Constants::CPP_SOURCE_MIMETYPE);
-            FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_c.png", Constants::C_SOURCE_MIMETYPE);
-            FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_h.png", Constants::CPP_HEADER_MIMETYPE);
+            FileIconProvider::registerIconOverlayForMimeType(creatorTheme()->iconOverlay(Theme::CppSourceMimetype).toLatin1().data(), Constants::CPP_SOURCE_MIMETYPE);
+            FileIconProvider::registerIconOverlayForMimeType(creatorTheme()->iconOverlay(Theme::CSourceMimetype).toLatin1().data(),   Constants::C_SOURCE_MIMETYPE);
+            FileIconProvider::registerIconOverlayForMimeType(creatorTheme()->iconOverlay(Theme::CppHeaderMimetype).toLatin1().data(), Constants::CPP_HEADER_MIMETYPE);
         }
     }
 };

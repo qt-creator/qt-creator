@@ -61,61 +61,60 @@ Button {
                 Rectangle {
                     anchors.fill: parent
                     antialiasing: true
-                    radius: 3
+                    radius: (creatorTheme.widgetStyle === 'flat') ? 0 : 3
 
                     visible: !(button.pressed || button.checked)
 
                     gradient: Gradient {
                         GradientStop {
                             position: 0
-                            color: "#f9f9f9"
+                            color: (theme==='dark') ? "#232323" : "#f9f9f9"
                         }
 
                         GradientStop {
                             position: 0.49
-                            color: "#f9f9f9"
+                            color: (theme === 'dark') ? "#232323" : "#f9f9f9"
                         }
 
                         GradientStop {
                             position: 0.5
-                            color: "#eeeeee"
+                            color: (theme === 'dark') ? "#232323" : "#eeeeee"
                         }
 
                         GradientStop {
                             position: 1
-                            color: "#eeeeee"
+                            color: (theme === 'dark') ? "#232323" : "#eeeeee"
                         }
                     }
-                    border.color: "#737373"
-
+                    border.color: creatorTheme.button_BorderColor
                 }
 
                 Rectangle {
                     anchors.fill: parent
                     antialiasing: true
-                    radius: 3
+                    radius: (creatorTheme.widgetStyle === 'flat') ? 0 : 3
 
                     visible: button.pressed || button.checked
 
                     gradient: Gradient {
                         GradientStop {
                             position: 0.00;
-                            color: "#4c4c4c";
+                            color: (theme === "dark") ? "#151515" : "#4c4c4c"
                         }
                         GradientStop {
                             position: 0.49;
-                            color: "#4c4c4c";
+                            color: (theme === "dark") ? "#151515" : "#4c4c4c"
                         }
                         GradientStop {
                             position: 0.50;
-                            color: "#424242";
+                            color: (theme === "dark") ? "#151515" : "#424242"
                         }
                         GradientStop {
                             position: 1.00;
-                            color: "#424242";
+                            color: (theme === "dark") ? "#151515" : "#424242"
                         }
                     }
-                    border.color: "#333333"
+                    border.color: creatorTheme.button_BorderColor
 
                 }
             }
@@ -124,7 +123,9 @@ Button {
                     renderType: Text.NativeRendering
                     verticalAlignment: Text.AlignVCenter
                     text: button.text
-                    color:  button.pressed || button.checked ? "lightGray" : "black"
+                    color: button.pressed || button.checked
+                             ? creatorTheme.button_TextColorPressed
+                             : creatorTheme.button_TextColorNormal
                     font.pixelSize: 15
                     font.bold: false
                     smooth: true

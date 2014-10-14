@@ -49,6 +49,7 @@
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QDebug>
 
@@ -64,6 +65,8 @@
 #include <QStackedWidget>
 #include <QToolButton>
 #include <QTimeLine>
+
+using namespace Utils;
 
 namespace Core {
 namespace Internal {
@@ -675,24 +678,44 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
     styleOption.initFrom(this);
     const bool hovered = !Utils::HostOsInfo::isMacHost() && (styleOption.state & QStyle::State_MouseOver);
 
-    QImage const* image = 0;
-    if (isDown())
-        image = &panelButtonPressed;
-    else if (isChecked())
-        image = hovered ? &panelButtonCheckedHover : &panelButtonChecked;
-    else
-        image = hovered ? &panelButtonHover : &panelButton;
-    if (image)
-        Utils::StyleHelper::drawCornerImage(*image, &p, rect(), numberAreaWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
+    const QImage *image = 0;
+    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        if (isDown())
+            image = &panelButtonPressed;
+        else if (isChecked())
+            image = hovered ? &panelButtonCheckedHover : &panelButtonChecked;
+        else
+            image = hovered ? &panelButtonHover : &panelButton;
+        if (image)
+            Utils::StyleHelper::drawCornerImage(*image, &p, rect(), numberAreaWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
+    } else {
+        QColor c;
+        if (isChecked()) {
+            c = creatorTheme()->color(hovered ? Theme::BackgroundColorHover
+                                              : Theme::BackgroundColorSelected);
+        } else if (isDown()) {
+            c = creatorTheme()->color(Theme::BackgroundColorSelected);
+        } else {
+            c = creatorTheme()->color(hovered ? Theme::BackgroundColorHover
+                                              : Theme::BackgroundColorDark);
+        }
+        p.fillRect(rect(), c);
+    }
 
     if (m_flashTimer->state() == QTimeLine::Running)
-        p.fillRect(rect().adjusted(numberAreaWidth, 1, -1, -1), QBrush(QColor(255, 0, 0, m_flashTimer->currentFrame())));
+    {
+        QColor c = creatorTheme()->color(Theme::OutputPaneButtonFlashColor);
+        c.setAlpha (m_flashTimer->currentFrame());
+        QRect r = (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+                  ? rect() : rect().adjusted(numberAreaWidth, 1, -1, -1);
+        p.fillRect(r, c);
+    }
 
     p.setFont(font());
-    p.setPen(Qt::white);
+    p.setPen(creatorTheme()->color(Theme::OutputPaneToggleButtonTextColorChecked));
     p.drawText((numberAreaWidth - numberWidth) / 2, baseLine, m_number);
     if (!isChecked())
-        p.setPen(Qt::black);
+        p.setPen(creatorTheme()->color(Theme::OutputPaneToggleButtonTextColorUnchecked));
     int leftPart = numberAreaWidth + buttonBorderWidth;
     int labelWidth = 0;
     if (!m_badgeNumberLabel.text().isEmpty()) {
@@ -751,8 +774,10 @@ QSize OutputPaneManageButton::sizeHint() const
 void OutputPaneManageButton::paintEvent(QPaintEvent*)
 {
     QPainter p(this);
-    static const QImage button(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_manage_button.png")));
-    Utils::StyleHelper::drawCornerImage(button, &p, rect(), buttonBorderWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
+    if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
+        static const QImage button(Utils::StyleHelper::dpiSpecificImageFile(QStringLiteral(":/core/images/panel_manage_button.png")));
+        Utils::StyleHelper::drawCornerImage(button, &p, rect(), buttonBorderWidth, buttonBorderWidth, buttonBorderWidth, buttonBorderWidth);
+    }
     QStyle *s = style();
     QStyleOption arrowOpt;
     arrowOpt.initFrom(this);
@@ -775,13 +800,15 @@ void BadgeLabel::paint(QPainter *p, int x, int y, bool isChecked)
     const QRectF rect(QRect(QPoint(x, y), m_size));
     p->save();
 
-    p->setBrush(isChecked ? QColor(0xe0, 0xe0, 0xe0) : Qt::darkGray);
+    p->setBrush(creatorTheme()->color(isChecked? Theme::BadgeLabelBackgroundColorChecked
+                                               : Theme::BadgeLabelBackgroundColorUnchecked));
     p->setPen(Qt::NoPen);
     p->setRenderHint(QPainter::Antialiasing, true);
     p->drawRoundedRect(rect, m_padding, m_padding, Qt::AbsoluteSize);
 
     p->setFont(m_font);
-    p->setPen(isChecked ? QColor(0x60, 0x60, 0x60) : Qt::white);
+    p->setPen(creatorTheme()->color(isChecked ? Theme::BadgeLabelTextColorChecked
+                                              : Theme::BadgeLabelTextColorUnchecked));
     p->drawText(rect, Qt::AlignCenter, m_text);
 
     p->restore();

@@ -23,6 +23,11 @@
             \"Description\" : \"Override selected UI color\"
         },
         {
+            \"Name\" : \"-theme\",
+            \"Parameter\" : \"default|dark\",
+            \"Description\" : \"Choose a built-in theme or pass a .creatortheme file\"
+        },
+        {
             \"Name\" : \"-presentationMode\",
             \"Description\" : \"Enable presentation mode with pop-ups for key combos\"
         }

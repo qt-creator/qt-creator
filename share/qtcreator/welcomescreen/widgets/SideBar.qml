@@ -48,10 +48,24 @@ ColumnLayout {
         Layout.preferredWidth: tabs.width + 16 * 2
         Layout.preferredHeight: tabs.height + screenDependHeightDistance * 2
 
-        Image {
-            fillMode: Image.Tile
-            source: "images/background.png"
+        Component {
+            id: imageBackground
+            Image {
+                fillMode: Image.Tile
+                source: "images/background.png"
+                anchors.fill: parent
+            }
+        }
+        Component {
+            id: flatBackground
+            Rectangle {
+                color: creatorTheme.sideBar_BackgroundColor
+            }
+        }
+        Loader {
+            id: topLeftLoader
             anchors.fill: parent
+            sourceComponent: creatorTheme.widgetStyle === 'flat' ? flatBackground : imageBackground;
         }
 
         Tabs {
@@ -64,7 +78,7 @@ ColumnLayout {
         }
 
         Rectangle {
-            color: "#737373"
+            color: creatorTheme.widgetStyle === 'flat' ? creatorTheme.sideBar_BackgroundColor : creatorTheme.dividerColor
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
@@ -73,7 +87,7 @@ ColumnLayout {
         }
 
         Rectangle {
-            color: "#737373"
+            color: creatorTheme.widgetStyle === 'flat' ? creatorTheme.sideBar_BackgroundColor : creatorTheme.dividerColor
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
@@ -83,7 +97,7 @@ ColumnLayout {
         }
 
         Rectangle {
-            color: "#737373"
+            color: creatorTheme.widgetStyle === 'flat' ? creatorTheme.sideBar_BackgroundColor : creatorTheme.dividerColor
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
@@ -94,7 +108,7 @@ ColumnLayout {
     }
 
     Rectangle {
-        color: "#ebebeb"
+        color: creatorTheme.sideBar_BackgroundColor
 
         Layout.fillWidth: true
         Layout.preferredWidth: innerColumn.width + 20
@@ -115,6 +129,7 @@ ColumnLayout {
 
             NativeText {
                 text: qsTr("New to Qt?")
+                color: creatorTheme.textColorNormal
                 font.pixelSize: 18
             }
 
@@ -124,6 +139,7 @@ ColumnLayout {
                 Layout.preferredWidth: innerColumn.width
 
                 text: qsTr("Learn how to develop your own applications and explore Qt Creator.")
+                color: creatorTheme.textColorNormal
                 font.pixelSize: 12
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             }

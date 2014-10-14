@@ -44,6 +44,9 @@
 #include <utils/styledbar.h>
 #include <utils/iwelcomepage.h>
 
+#include <utils/theme/theme.h>
+#include <utils/theme/welcometheme.h>
+
 #include <QVBoxLayout>
 #include <QMessageBox>
 
@@ -86,6 +89,8 @@ public:
 //    bool eventFilter(QObject *, QEvent *);
 
 public slots:
+    void onThemeChanged();
+
     void setActivePlugin(int pos)
     {
         if (m_activePlugin != pos) {
@@ -108,11 +113,13 @@ private:
     QuickContainer *m_welcomePage;
     QList<QObject*> m_pluginList;
     int m_activePlugin;
+    WelcomeTheme *m_welcomeTheme;
 };
 
 // ---  WelcomeMode
 WelcomeMode::WelcomeMode() :
-    m_activePlugin(0)
+    m_activePlugin(0),
+    m_welcomeTheme(new WelcomeTheme(this))
 {
     setDisplayName(tr("Welcome"));
     setIcon(QIcon(QLatin1String(":/welcome/images/mode_welcome.png")));
@@ -128,6 +135,7 @@ WelcomeMode::WelcomeMode() :
     layout->setSpacing(0);
 
     m_welcomePage = new QuickContainer();
+    onThemeChanged(); //initialize background color
     m_welcomePage->setResizeMode(QuickContainer::SizeRootObjectToView);
 
     m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
@@ -152,6 +160,12 @@ WelcomeMode::WelcomeMode() :
     connect(PluginManager::instance(), SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
 
     setWidget(m_modeWidget);
+}
+
+void WelcomeMode::onThemeChanged()
+{
+    m_welcomePage->setColor(creatorTheme()->color(Theme::BackgroundColorNormal));
+    m_welcomeTheme->notifyThemeChanged();
 }
 
 WelcomeMode::~WelcomeMode()
@@ -242,6 +256,15 @@ void WelcomeMode::initPlugins()
     }
 
     ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
+
+    connect(creatorTheme(), &Theme::changed, this, &WelcomeMode::onThemeChanged);
+    ctx->setContextProperty(QLatin1String("creatorTheme"), m_welcomeTheme);
+
+    // FIXME: pass theme class to QML somehow
+    if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
+        ctx->setContextProperty(QLatin1String("theme"), QLatin1String("dark"));
+    else
+        ctx->setContextProperty(QLatin1String("theme"), QLatin1String("default"));
 
     QString path = resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
 

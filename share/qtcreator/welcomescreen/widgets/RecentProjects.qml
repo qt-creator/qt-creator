@@ -34,6 +34,7 @@ import QtQuick.Controls 1.0
 Rectangle {
     id: projectList
     height: column.height + 200
+    color: creatorTheme.backgroundColorNormal
 
     property alias model: repeater.model
 //    Behavior on verticalScrollBar.opacity  {

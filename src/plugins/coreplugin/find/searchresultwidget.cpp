@@ -39,6 +39,7 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/coreplugin.h>
+#include <utils/theme/theme.h>
 
 #include <QDir>
 #include <QFrame>
@@ -51,6 +52,8 @@
 
 static const int SEARCHRESULT_WARNING_LIMIT = 200000;
 static const char SIZE_WARNING_ID[] = "sizeWarningLabel";
+
+using namespace Utils;
 
 namespace Core {
 namespace Internal {
@@ -93,11 +96,13 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
 
     QFrame *topWidget = new QFrame;
     QPalette pal;
-    pal.setColor(QPalette::Window, QColor(255, 255, 225));
-    pal.setColor(QPalette::WindowText, Qt::black);
+    pal.setColor(QPalette::Window,     creatorTheme()->color(Theme::SearchResultWidgetBackgroundColor));
+    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::SearchResultWidgetTextColor));
     topWidget->setPalette(pal);
-    topWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
-    topWidget->setLineWidth(1);
+    if (creatorTheme()->flag(Theme::DrawSearchResultWidgetFrame)) {
+        topWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
+        topWidget->setLineWidth(1);
+    }
     topWidget->setAutoFillBackground(true);
     QHBoxLayout *topLayout = new QHBoxLayout(topWidget);
     topLayout->setMargin(2);
@@ -105,10 +110,12 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     layout->addWidget(topWidget);
 
     m_messageWidget = new QFrame;
-    pal.setColor(QPalette::WindowText, Qt::red);
+    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::CanceledSearchTextColor));
     m_messageWidget->setPalette(pal);
-    m_messageWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
-    m_messageWidget->setLineWidth(1);
+    if (creatorTheme()->flag(Theme::DrawSearchResultWidgetFrame)) {
+        m_messageWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
+        m_messageWidget->setLineWidth(1);
+    }
     m_messageWidget->setAutoFillBackground(true);
     QHBoxLayout *messageLayout = new QHBoxLayout(m_messageWidget);
     messageLayout->setMargin(2);

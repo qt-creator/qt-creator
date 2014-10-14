@@ -32,6 +32,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 #include <utils/styledbar.h>
+#include <utils/theme/theme.h>
 
 #include <QDebug>
 
@@ -47,6 +48,7 @@
 
 using namespace Core;
 using namespace Internal;
+using namespace Utils;
 
 const int FancyTabBar::m_rounding = 22;
 const int FancyTabBar::m_textPadding = 4;
@@ -115,8 +117,12 @@ QSize FancyTabBar::tabSizeHint(bool minimum) const
 
 void FancyTabBar::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event)
     QPainter p(this);
+    if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+        // draw background of upper part of left tab widget
+        // (Welcome, ... Help)
+        p.fillRect (event->rect(), creatorTheme()->color(Theme::FancyTabBarBackgroundColor));
+    }
 
     for (int i = 0; i < count(); ++i)
         if (i != currentIndex())
@@ -245,29 +251,35 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     bool enabled = isTabEnabled(tabIndex);
 
     if (selected) {
-        //background
-        painter->save();
-        QLinearGradient grad(rect.topLeft(), rect.topRight());
-        grad.setColorAt(0, QColor(255, 255, 255, 140));
-        grad.setColorAt(1, QColor(255, 255, 255, 210));
-        painter->fillRect(rect.adjusted(0, 0, 0, -1), grad);
-        painter->restore();
+        if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+          // background color of a fancy tab that is active
+          painter->fillRect(rect.adjusted(0, 0, 0, -1),
+                            creatorTheme()->color(Theme::BackgroundColorSelected));
+        } else {
+            //background
+            painter->save();
+            QLinearGradient grad(rect.topLeft(), rect.topRight());
+            grad.setColorAt(0, QColor(255, 255, 255, 140));
+            grad.setColorAt(1, QColor(255, 255, 255, 210));
+            painter->fillRect(rect.adjusted(0, 0, 0, -1), grad);
+            painter->restore();
 
-        //shadows
-        painter->setPen(QColor(0, 0, 0, 110));
-        painter->drawLine(rect.topLeft() + QPoint(1,-1), rect.topRight() - QPoint(0,1));
-        painter->drawLine(rect.bottomLeft(), rect.bottomRight());
-        painter->setPen(QColor(0, 0, 0, 40));
-        painter->drawLine(rect.topLeft(), rect.bottomLeft());
+            //shadows
+            painter->setPen(QColor(0, 0, 0, 110));
+            painter->drawLine(rect.topLeft() + QPoint(1,-1), rect.topRight() - QPoint(0,1));
+            painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+            painter->setPen(QColor(0, 0, 0, 40));
+            painter->drawLine(rect.topLeft(), rect.bottomLeft());
 
-        //highlights
-        painter->setPen(QColor(255, 255, 255, 50));
-        painter->drawLine(rect.topLeft() + QPoint(0, -2), rect.topRight() - QPoint(0,2));
-        painter->drawLine(rect.bottomLeft() + QPoint(0, 1), rect.bottomRight() + QPoint(0,1));
-        painter->setPen(QColor(255, 255, 255, 40));
-        painter->drawLine(rect.topLeft() + QPoint(0, 0), rect.topRight());
-        painter->drawLine(rect.topRight() + QPoint(0, 1), rect.bottomRight() - QPoint(0, 1));
-        painter->drawLine(rect.bottomLeft() + QPoint(0,-1), rect.bottomRight()-QPoint(0,1));
+            //highlights
+            painter->setPen(QColor(255, 255, 255, 50));
+            painter->drawLine(rect.topLeft() + QPoint(0, -2), rect.topRight() - QPoint(0,2));
+            painter->drawLine(rect.bottomLeft() + QPoint(0, 1), rect.bottomRight() + QPoint(0,1));
+            painter->setPen(QColor(255, 255, 255, 40));
+            painter->drawLine(rect.topLeft() + QPoint(0, 0), rect.topRight());
+            painter->drawLine(rect.topRight() + QPoint(0, 1), rect.bottomRight() - QPoint(0, 1));
+            painter->drawLine(rect.bottomLeft() + QPoint(0,-1), rect.bottomRight()-QPoint(0,1));
+        }
     }
 
     QString tabText(this->tabText(tabIndex));
@@ -281,23 +293,24 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     painter->setFont(boldFont);
     painter->setPen(selected ? QColor(255, 255, 255, 160) : QColor(0, 0, 0, 110));
     const int textFlags = Qt::AlignCenter | (drawIcon ? Qt::AlignBottom : Qt::AlignVCenter) | Qt::TextWordWrap;
-    if (enabled) {
-        painter->drawText(tabTextRect, textFlags, tabText);
-        painter->setPen(selected ? QColor(60, 60, 60) : Utils::StyleHelper::panelTextColor());
-    } else {
-        painter->setPen(selected ? Utils::StyleHelper::panelTextColor() : QColor(255, 255, 255, 120));
-    }
+
     if (!Utils::HostOsInfo::isMacHost() && !selected && enabled) {
         painter->save();
         int fader = int(m_tabs[tabIndex]->fader());
-        QLinearGradient grad(rect.topLeft(), rect.topRight());
-        grad.setColorAt(0, Qt::transparent);
-        grad.setColorAt(0.5, QColor(255, 255, 255, fader));
-        grad.setColorAt(1, Qt::transparent);
-        painter->fillRect(rect, grad);
-        painter->setPen(QPen(grad, 1.0));
-        painter->drawLine(rect.topLeft(), rect.topRight());
-        painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+        if (creatorTheme()->widgetStyle() == Theme::StyleFlat) {
+            QColor c = creatorTheme()->color(Theme::BackgroundColorHover);
+            c.setAlpha(int(255 * fader/40.0)); // FIXME: hardcoded end value 40
+            painter->fillRect(rect, c);
+        } else {
+            QLinearGradient grad(rect.topLeft(), rect.topRight());
+            grad.setColorAt(0, Qt::transparent);
+            grad.setColorAt(0.5, QColor(255, 255, 255, fader));
+            grad.setColorAt(1, Qt::transparent);
+            painter->fillRect(rect, grad);
+            painter->setPen(QPen(grad, 1.0));
+            painter->drawLine(rect.topLeft(), rect.topRight());
+            painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+        }
         painter->restore();
     }
 
@@ -310,8 +323,19 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         Utils::StyleHelper::drawIconWithShadow(tabIcon(tabIndex), tabIconRect, painter, enabled ? QIcon::Normal : QIcon::Disabled);
     }
 
+    painter->setOpacity(1.0); //FIXME: was 0.7 before?
+    if (enabled) {
+        painter->setPen(selected
+          ? creatorTheme()->color(Theme::FancyTabWidgetEnabledSelectedTextColor)
+          : creatorTheme()->color(Theme::FancyTabWidgetEnabledUnselectedTextColor));
+    } else {
+        painter->setPen(selected
+          ? creatorTheme()->color(Theme::FancyTabWidgetDisabledSelectedTextColor)
+          : creatorTheme()->color(Theme::FancyTabWidgetDisabledUnselectedTextColor));
+    }
     painter->translate(0, -1);
     painter->drawText(tabTextRect, textFlags, tabText);
+
     painter->restore();
 }
 

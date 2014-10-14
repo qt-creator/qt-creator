@@ -2509,7 +2509,13 @@ bool TextEditorWidget::event(QEvent *e)
         e->ignore(); // we are a really nice citizen
         d->m_maybeFakeTooltipEvent = false;
         return true;
-        break;
+    case QEvent::ApplicationPaletteChange: {
+        // slight hack: ignore palette changes
+        // at this point the palette has changed already,
+        // so undo it by re-setting the palette:
+        applyFontSettings();
+        return true;
+    }
     default:
         break;
     }

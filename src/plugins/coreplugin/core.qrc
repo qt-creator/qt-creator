@@ -26,6 +26,8 @@
         <file>images/locked@2x.png</file>
         <file>images/magnifier.png</file>
         <file>images/magnifier@2x.png</file>
+        <file>images/dark_magnifier.png</file>
+        <file>images/dark_magnifier@2x.png</file>
         <file>images/minus.png</file>
         <file>images/next.png</file>
         <file>images/panel_button.png</file>
@@ -103,5 +105,7 @@
         <file>images/warning@2x.png</file>
         <file>images/info.png</file>
         <file>images/info@2x.png</file>
+        <file>images/dark_fileicon.png</file>
+        <file>images/dark_foldericon.png</file>
     </qresource>
 </RCC>

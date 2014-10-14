@@ -28,6 +28,7 @@ DATA_DIRS = \
     examplebrowser \
     snippets \
     templates \
+    themes \
     designer \
     schemes \
     styles \

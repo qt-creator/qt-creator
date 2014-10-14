@@ -42,23 +42,30 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/locator/locator.h>
+#include <coreplugin/coreconstants.h>
 
 #include <utils/macroexpander.h>
 #include <utils/savefile.h>
+#include <utils/stringutils.h>
+#include <utils/theme/theme.h>
 
 #include <QtPlugin>
 #include <QDebug>
 #include <QDateTime>
+#include <QDir>
 
 using namespace Core;
 using namespace Core::Internal;
+using namespace Utils;
 
-CorePlugin::CorePlugin() : m_editMode(0), m_designMode(0)
+CorePlugin::CorePlugin()
+  : m_mainWindow(0)
+  , m_editMode(0)
+  , m_designMode(0)
+  , m_findPlugin(0)
+  , m_locator(0)
 {
     qRegisterMetaType<Core::Id>();
-    m_mainWindow = new MainWindow;
-    m_findPlugin = new FindPlugin;
-    m_locator = new Locator;
 }
 
 CorePlugin::~CorePlugin()
@@ -84,15 +91,55 @@ CorePlugin::~CorePlugin()
 
 void CorePlugin::parseArguments(const QStringList &arguments)
 {
+    QString themeName = QLatin1String("default");
+    QColor overrideColor;
+    bool overrideTheme = false;
+
     for (int i = 0; i < arguments.size(); ++i) {
         if (arguments.at(i) == QLatin1String("-color")) {
             const QString colorcode(arguments.at(i + 1));
-            m_mainWindow->setOverrideColor(QColor(colorcode));
+            overrideColor = QColor(colorcode);
             i++; // skip the argument
         }
         if (arguments.at(i) == QLatin1String("-presentationMode"))
             ActionManager::setPresentationModeEnabled(true);
+        if (arguments.at(i) == QLatin1String("-theme")) {
+            overrideTheme = true;
+            themeName = arguments.at(i + 1);
+            i++;
+        }
     }
+
+    QSettings *settings = Core::ICore::settings();
+    QString themeURI = settings->value(QLatin1String(Core::Constants::SETTINGS_THEME)).toString();
+
+    if (!QFileInfo::exists(themeURI) || overrideTheme) {
+        const QString builtInTheme = QStringLiteral("%1/themes/%2.creatortheme")
+            .arg(ICore::resourcePath()).arg(themeName);
+        if (QFile::exists(builtInTheme)) {
+            themeURI = builtInTheme;
+        } else if (themeName.endsWith(QLatin1String(".creatortheme"))) {
+            themeURI = themeName;
+        } else { // TODO: Fallback to default theme
+            qCritical("%s", qPrintable(QCoreApplication::translate("Application", "No valid theme '%1'")
+                                       .arg(themeName)));
+        }
+    }
+
+    QSettings themeSettings(themeURI, QSettings::IniFormat);
+    Theme *theme = new Theme(qApp);
+    theme->readSettings(themeSettings);
+    setCreatorTheme(theme);
+    qApp->setPalette(creatorTheme()->palette(qApp->palette()));
+
+    // defer creation of these widgets until here,
+    // because they need a valid theme set
+    m_mainWindow = new MainWindow;
+    m_findPlugin = new FindPlugin;
+    m_locator = new Locator;
+
+    if (overrideColor.isValid())
+        m_mainWindow->setOverrideColor(overrideColor);
 }
 
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)

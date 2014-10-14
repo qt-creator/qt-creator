@@ -44,7 +44,7 @@ Row {
     LinkedText {
         text: title
         font.pixelSize: 11
-        color: "black"
+        color: creatorTheme.textColorNormal // 'Qt Account' .. 'User Guide' on lower left
         onClicked: {
             if (openUrl)
                 gettingStarted.openUrl(openUrl);
