@@ -59,6 +59,12 @@ public:
     void enableMessage(StaticAnalysis::Type type);
     void disableMessage(StaticAnalysis::Type type);
 
+    void enableQmlDesignerChecks();
+    void disableQmlDesignerChecks();
+
+    void enableQmlDesignerUiFileChecks();
+    void disableQmlDesignerUiFileChecks();
+
 protected:
     bool preVisit(AST::Node *ast) Q_DECL_OVERRIDE;
     void postVisit(AST::Node *ast) Q_DECL_OVERRIDE;

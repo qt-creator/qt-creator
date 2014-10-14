@@ -56,6 +56,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/modemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -109,6 +110,7 @@ QmlJSEditorWidget::QmlJSEditorWidget()
 {
     m_outlineCombo = 0;
     m_contextPane = 0;
+    m_firstSementicInfo = true;
     m_findReferences = new FindReferences(this);
 
     setParenthesesMatchingEnabled(true);
@@ -788,6 +790,16 @@ void QmlJSEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
         }
     }
 
+    if (m_firstSementicInfo) {
+        m_firstSementicInfo = false;
+        if (semanticInfo.document->language() == Dialect::QmlQtQuick2Ui) {
+            Core::InfoBarEntry info(Core::Id(Constants::QML_UI_FILE_WARNING),
+                                    tr("This file should only be edited in <b>Design</b> mode."));
+            info.setCustomButtonInfo(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
+            textDocument()->infoBar()->addInfo(info);
+        }
+    }
+
     updateUses();
 }
 
@@ -873,9 +885,16 @@ QmlJSEditor::QmlJSEditor()
 
 bool QmlJSEditor::isDesignModePreferred() const
 {
+
+    bool alwaysPreferDesignMode = false;
+    // always prefer design mode for .ui.qml files
+    if (textDocument() && textDocument()->mimeType() == QLatin1String(QmlJSTools::Constants::QMLUI_MIMETYPE))
+        alwaysPreferDesignMode = true;
+
     // stay in design mode if we are there
     IMode *mode = ModeManager::currentMode();
-    return mode && mode->id() == Core::Constants::MODE_DESIGN;
+    return alwaysPreferDesignMode
+            || (mode && mode->id() == Core::Constants::MODE_DESIGN);
 }
 
 

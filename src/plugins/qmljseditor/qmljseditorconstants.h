@@ -59,6 +59,8 @@ const char QML_SNIPPETS_GROUP_ID[] = "QML";
 const char QML_CONTEXTPANE_KEY[] = "QmlJSEditor.ContextPaneEnabled";
 const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
 
+const char QML_UI_FILE_WARNING[] = "QmlJSEditor.QmlUiFileWarning";
+
 } // namespace Constants
 } // namespace QmlJSEditor
 

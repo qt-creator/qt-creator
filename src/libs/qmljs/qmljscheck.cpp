@@ -568,12 +568,13 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     disableMessage(HintBinaryOperatorSpacing);
     disableMessage(HintOneStatementPerLine);
     disableMessage(HintExtraParentheses);
-    disableMessage(WarnImperativeCodeNotEditableInVisualDesigner);
-    disableMessage(WarnUnsupportedTypeInVisualDesigner);
-    disableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
-    disableMessage(WarnUndefinedValueForVisualDesigner);
-    disableMessage(WarnStatesOnlyInRootItemForVisualDesigner);
-    disableMessage(ErrUnsupportedRootTypeInVisualDesigner);
+
+    if (isQtQuick2Ui()) {
+        enableQmlDesignerChecks();
+    } else {
+        disableQmlDesignerChecks();
+        disableQmlDesignerUiFileChecks();
+    }
 }
 
 Check::~Check()
@@ -599,6 +600,37 @@ void Check::enableMessage(Type type)
 void Check::disableMessage(Type type)
 {
     _enabledMessages.remove(type);
+}
+
+void Check::enableQmlDesignerChecks()
+{
+    enableMessage(StaticAnalysis::WarnImperativeCodeNotEditableInVisualDesigner);
+    enableMessage(StaticAnalysis::WarnUnsupportedTypeInVisualDesigner);
+    enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
+    enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
+    enableMessage(StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2);
+    enableMessage(StaticAnalysis::ErrUnsupportedRootTypeInVisualDesigner);
+    //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
+}
+
+void Check::disableQmlDesignerChecks()
+{
+    disableMessage(WarnImperativeCodeNotEditableInVisualDesigner);
+    disableMessage(WarnUnsupportedTypeInVisualDesigner);
+    disableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
+    disableMessage(WarnUndefinedValueForVisualDesigner);
+    disableMessage(WarnStatesOnlyInRootItemForVisualDesigner);
+    disableMessage(ErrUnsupportedRootTypeInVisualDesigner);
+}
+
+void Check::enableQmlDesignerUiFileChecks()
+{
+
+}
+
+void Check::disableQmlDesignerUiFileChecks()
+{
+
 }
 
 bool Check::preVisit(Node *ast)
