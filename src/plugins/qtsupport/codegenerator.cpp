@@ -171,12 +171,10 @@ bool CodeGenerator::uiData(const QString &uiXml, QString *formBaseClass, QString
         if (reader.readNext() == QXmlStreamReader::StartElement) {
             if (reader.name() == QLatin1String("class")) {
                 *uiClassName = reader.readElementText();
-            } else {
-                if (reader.name() == QLatin1String("widget")) {
-                    const QXmlStreamAttributes attrs = reader.attributes();
-                    *formBaseClass = attrs.value(QLatin1String("class")).toString();
-                    return !uiClassName->isEmpty() && !formBaseClass->isEmpty();
-                }
+            } else if (reader.name() == QLatin1String("widget")) {
+                const QXmlStreamAttributes attrs = reader.attributes();
+                *formBaseClass = attrs.value(QLatin1String("class")).toString();
+                return !uiClassName->isEmpty() && !formBaseClass->isEmpty();
             }
         }
     }
