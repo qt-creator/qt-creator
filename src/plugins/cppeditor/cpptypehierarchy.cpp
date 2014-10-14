@@ -133,6 +133,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     m_inspectedClass->setMargin(5);
     m_model = new QStandardItemModel(this);
     m_treeView = new NavigationTreeView(this);
+    m_treeView->setActivationMode(Utils::SingleClickActivation);
     m_delegate = new AnnotatedItemDelegate(this);
     m_delegate->setDelimiter(QLatin1String(" "));
     m_delegate->setAnnotationRole(AnnotationRole);
@@ -140,7 +141,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_treeView->setItemDelegate(m_delegate);
     m_treeView->setRootIsDecorated(false);
-    connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
+    connect(m_treeView, &QTreeView::activated, this, &CppTypeHierarchyWidget::onItemActivated);
 
     m_noTypeHierarchyAvailableLabel = new QLabel(tr("No type hierarchy available"), this);
     m_noTypeHierarchyAvailableLabel->setAlignment(Qt::AlignCenter);
@@ -231,7 +232,7 @@ void CppTypeHierarchyWidget::clearTypeHierarchy()
     m_model->clear();
 }
 
-void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
+void CppTypeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
     auto link = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
     if (link.hasValidTarget())

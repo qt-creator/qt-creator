@@ -71,9 +71,6 @@ public:
 public slots:
     void perform();
 
-private slots:
-    void onItemClicked(const QModelIndex &index);
-
 private:
     typedef QList<CppClass> CppClass::*HierarchyMember;
     void buildHierarchy(const CppClass &cppClass, QStandardItem *parent,
@@ -81,6 +78,7 @@ private:
     void showNoTypeHierarchyLabel();
     void showTypeHierarchy();
     void clearTypeHierarchy();
+    void onItemActivated(const QModelIndex &index);
 
     CppEditorWidget *m_cppEditor;
     Utils::NavigationTreeView *m_treeView;
