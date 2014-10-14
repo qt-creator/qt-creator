@@ -129,6 +129,17 @@ public:
     bool stateNotification() const { return m_stateNotification; }
     void setStateNotification(bool s) { m_stateNotification = s; }
 
+    struct CdbVersion
+    {
+        CdbVersion() : major(0), minor(0), patch(0) {}
+        int major;
+        int minor;
+        int patch;
+        void clear () { major = minor = patch = 0; }
+    };
+
+    CdbVersion cdbVersion();
+
 private:
     bool isInitialized() const;
 

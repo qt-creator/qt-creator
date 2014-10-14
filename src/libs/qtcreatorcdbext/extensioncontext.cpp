@@ -265,6 +265,41 @@ ULONG64 ExtensionContext::jsExecutionContext(ExtensionCommandContext &exc,
     return result;
 }
 
+ExtensionContext::CdbVersion ExtensionContext::cdbVersion()
+{
+    static CdbVersion version;
+    static bool first = true;
+    if (!first)
+        return version;
+    first = false;
+    startRecordingOutput();
+    const HRESULT hr = m_control->OutputVersionInformation(DEBUG_OUTCTL_ALL_CLIENTS);
+    if (FAILED(hr)) {
+        stopRecordingOutput();
+        return version;
+    }
+    const std::wstring &output = stopRecordingOutput();
+    const std::wstring &versionOutput = L"Microsoft (R) Windows Debugger Version";
+    auto majorPos = output.find(versionOutput);
+    if (majorPos == std::wstring::npos)
+        return version;
+    majorPos += versionOutput.length();
+    std::wstring::size_type minorPos;
+    std::wstring::size_type patchPos;
+    try {
+        version.major = std::stoi(output.substr(majorPos), &minorPos);
+        minorPos += majorPos + 1;
+        version.minor = std::stoi(output.substr(minorPos), &patchPos);
+        patchPos += minorPos + 1;
+        version.patch = std::stoi(output.substr(patchPos));
+    }
+    catch (...)
+    {
+        version.clear();
+    }
+    return version;
+}
+
 // Complete stop parameters with common parameters and report
 static inline ExtensionContext::StopReasonMap
     completeStopReasons(CIDebugClient *client, ExtensionContext::StopReasonMap stopReasons, ULONG ex)
