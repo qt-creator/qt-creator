@@ -56,9 +56,32 @@ static QString processTextFileContents(Utils::AbstractMacroExpander *expander,
     if (input.isEmpty())
         return input;
 
-    QString result;
-    if (!customWizardPreprocess(Utils::expandMacros(input, expander), &result, errorMessage))
+    QString tmp;
+    if (!customWizardPreprocess(Utils::expandMacros(input, expander), &tmp, errorMessage))
         return QString();
+
+    // Expand \n, \t and handle line continuation:
+    QString result;
+    result.reserve(tmp.count());
+    bool isEscaped = false;
+    for (int i = 0; i < tmp.count(); ++i) {
+        const QChar c = tmp.at(i);
+
+        if (isEscaped) {
+            if (c == QLatin1Char('n'))
+                result.append(QLatin1Char('\n'));
+            else if (c == QLatin1Char('t'))
+                result.append(QLatin1Char('\t'));
+            else if (c != QLatin1Char('\n'))
+                result.append(c);
+            isEscaped = false;
+        } else {
+            if (c == QLatin1Char('\\'))
+                isEscaped = true;
+            else
+                result.append(c);
+        }
+    }
     return result;
 }
 
