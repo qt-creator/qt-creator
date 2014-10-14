@@ -61,6 +61,7 @@ bool CppQtStyleIndenter::isElectricCharacter(const QChar &ch) const
     case '#':
     case '<':
     case '>':
+    case ';':
         return true;
     }
     return false;
@@ -69,6 +70,8 @@ bool CppQtStyleIndenter::isElectricCharacter(const QChar &ch) const
 static bool isElectricInLine(const QChar ch, const QString &text)
 {
     switch (ch.toLatin1()) {
+    case ';':
+        return text.contains(QLatin1String("break"));
     case ':':
         // switch cases and access declarations should be reindented
         if (text.contains(QLatin1String("case"))
