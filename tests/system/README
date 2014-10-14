@@ -2,11 +2,10 @@ Prerequisites - general information
 -----------------------------------
 Squish tests inside this folder have several prerequisites to get them running.
 
-First - and most important - you have to own a valid Squish license.
-Currently it's recommended to use Squish 5.1.0 - but 4.2.3 should be capable of running all tests.
+First - and most important - you have to own a valid Squish license. Currently it's recommended to use Squish 5.1.1.
 For Squish on Mac it's necessary to change the used Python version to 2.6 inside the <SQUISHDIR>/etc/paths.ini
 
-Second - some of the test suites/test cases expect an installed QtSDK in its default location.
+Second - some of the test suites/test cases expect an installed Qt 4 SDK in its default location.
 On Linux/Mac this is ~/QtSDK, and on Windows this is C:\QtSDK.
 After installing the QtSDK you should use the package manager of the QtSDK (SDKMaintenanceTool) to add some more packages.
 You'll need at least Desktop Qt versions 4.7.4, 4.8.0, Harmattan stuff (except QEmu), Maemo Toolchain, Qt Examples, Simulator, Documentation files.
@@ -61,7 +60,7 @@ Using the internal test data fallback
 
     * inside the shared_data folder a "standard" mapping file is located (qt_squish_mapping.tsv)
     * this file defines currently some Squish versions that are available for usage
-    * all of the Squish versions mentioned in there should exist inside QTSDK/src/creator-test-data (see the file for naming the Squish versions) - of course this depends on the OS you're testing on
+    * all of the Squish versions mentioned in there should exist inside QtSDK/src/creator-test-data (see the file for naming the Squish versions) - of course this depends on the OS you're testing on
 
 Attention! This file will be updated with more columns (and rows) for making it possible to also test Debug builds or 64bit builds. So, even the path entries currently listed could change when this feature is implemented.
 

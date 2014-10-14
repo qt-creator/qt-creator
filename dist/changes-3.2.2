@@ -1,0 +1,42 @@
+Qt Creator version 3.2.2 is a bugfix release.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v3.2.1..v3.2.2
+
+Editing
+   * Fixed crash with Toggle Comment Selection (QTCREATORBUG-12987)
+   * Fixed that Select All set the cursor to top of document
+     (QTCREATORBUG-12860)
+
+Help
+   * Fixed crash with help index locator filter
+
+Managing and Building Projects
+   * Fixed that closing Qt Creator while Projects mode is active lost all
+     session data (QTCREATORBUG-13098)
+
+CMake Projects
+   * Fixed crash when selecting make target (QTCREATORBUG-13129)
+
+Generic Projects
+   * Fixed that include paths were not updated when files are added
+     (QTCREATORBUG-12873)
+
+Version Control Systems
+   * ClearCase
+      * Fixed that reserved checkout was performed even when unchecking the checkbox
+        (QTCREATORBUG-12847)
+
+Platform Specific
+
+OS X
+   * Fixed issues with Xcode 6
+   * Fixed that Ctrl+P when editing collided with Perforce version control shortcuts
+     even when not using Perforce (QTCREATORBUG-13092)
+
+iOS
+   * Fixed issues with Xcode 6
