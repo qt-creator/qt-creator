@@ -527,6 +527,21 @@ public:
 
 };
 
+class UnsupportedTypesByQmlUi : public QStringList
+{
+public:
+    UnsupportedTypesByQmlUi()
+    {
+        (*this) << UnsupportedTypesByVisualDesigner()
+                << QLatin1String("Binding") << QLatin1String("ShaderEffect")
+                << QLatin1String("ShaderEffectSource") << QLatin1String("Canvas")
+                << QLatin1String("Component") << QLatin1String("Loader") << QLatin1String("Transition")
+                << QLatin1String("PropertyAnimation") << QLatin1String("SequentialAnimation")
+                << QLatin1String("ParallelAnimation") << QLatin1String("NumberAnimation");
+    }
+
+};
+
 class UnsupportedRootObjectTypesByVisualDesigner : public QStringList
 {
 public:
@@ -539,11 +554,24 @@ public:
 
 };
 
+class UnsupportedRootObjectTypesByQmlUi : public QStringList
+{
+public:
+    UnsupportedRootObjectTypesByQmlUi()
+    {
+        (*this) << UnsupportedRootObjectTypesByVisualDesigner()
+                << QLatin1String("Window") << QLatin1String("ApplicationWindow");
+    }
+
+};
+
 } // end of anonymous namespace
 
 Q_GLOBAL_STATIC(VisualAspectsPropertyBlackList, visualAspectsPropertyBlackList)
 Q_GLOBAL_STATIC(UnsupportedTypesByVisualDesigner, unsupportedTypesByVisualDesigner)
 Q_GLOBAL_STATIC(UnsupportedRootObjectTypesByVisualDesigner, unsupportedRootObjectTypesByVisualDesigner)
+Q_GLOBAL_STATIC(UnsupportedRootObjectTypesByQmlUi, unsupportedRootObjectTypesByQmlUi)
+Q_GLOBAL_STATIC(UnsupportedTypesByQmlUi, unsupportedTypesByQmlUi)
 
 Check::Check(Document::Ptr doc, const ContextPtr &context)
     : _doc(doc)
@@ -626,12 +654,20 @@ void Check::disableQmlDesignerChecks()
 
 void Check::enableQmlDesignerUiFileChecks()
 {
-
+    enableMessage(ErrUnsupportedRootTypeInQmlUi);
+    enableMessage(ErrUnsupportedTypeInQmlUi);
+    enableMessage(ErrFunctionsNotSupportedInQmlUi);
+    enableMessage(ErrBlocksNotSupportedInQmlUi);
+    enableMessage(ErrBehavioursNotSupportedInQmlUi);
 }
 
 void Check::disableQmlDesignerUiFileChecks()
 {
-
+    disableMessage(ErrUnsupportedRootTypeInQmlUi);
+    disableMessage(ErrUnsupportedTypeInQmlUi);
+    disableMessage(ErrFunctionsNotSupportedInQmlUi);
+    disableMessage(ErrBlocksNotSupportedInQmlUi);
+    disableMessage(ErrBehavioursNotSupportedInQmlUi);
 }
 
 bool Check::preVisit(Node *ast)
@@ -700,8 +736,11 @@ bool Check::visit(UiObjectDefinition *ast)
 bool Check::visit(UiObjectBinding *ast)
 {
     checkScopeObjectMember(ast->qualifiedId);
-    if (!ast->hasOnToken)
+    if (!ast->hasOnToken) {
         checkProperty(ast->qualifiedId);
+    } else {
+        addMessage(ErrBehavioursNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+    }
 
     visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);
     return false;
@@ -744,6 +783,11 @@ static bool checkTypeForDesignerSupport(UiQualifiedId *typeId)
     return unsupportedTypesByVisualDesigner()->contains(getRightMostIdentifier(typeId)->name.toString());
 }
 
+static bool checkTypeForQmlUiSupport(UiQualifiedId *typeId)
+{
+    return unsupportedTypesByQmlUi()->contains(getRightMostIdentifier(typeId)->name.toString());
+}
+
 static bool checkTopLevelBindingForParentReference(ExpressionStatement *expStmt, const QString &source)
 {
     if (!expStmt)
@@ -771,17 +815,25 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 
     const SourceLocation typeErrorLocation = fullLocationForQualifiedId(typeId);
 
+    const QString typeName = getRightMostIdentifier(typeId)->name.toString();
+
     if (checkTypeForDesignerSupport(typeId))
-        addMessage(WarnUnsupportedTypeInVisualDesigner, typeErrorLocation);
+        addMessage(WarnUnsupportedTypeInVisualDesigner, typeErrorLocation, typeName);
+
+    if (checkTypeForQmlUiSupport(typeId))
+        addMessage(ErrUnsupportedTypeInQmlUi, typeErrorLocation, typeName);
 
     if (m_typeStack.count() > 1 && getRightMostIdentifier(typeId)->name.toString() == QLatin1String("State"))
         addMessage(WarnStatesOnlyInRootItemForVisualDesigner, typeErrorLocation);
 
-    const QString typeName = getRightMostIdentifier(typeId)->name.toString();
-
     if (m_typeStack.isEmpty()
             && unsupportedRootObjectTypesByVisualDesigner()->contains(typeName))
         addMessage(ErrUnsupportedRootTypeInVisualDesigner,
+                   locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()), typeName);
+
+    if (m_typeStack.isEmpty()
+            && unsupportedRootObjectTypesByQmlUi()->contains(typeName))
+        addMessage(ErrUnsupportedRootTypeInQmlUi,
                    locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()), typeName);
 
     bool typeError = false;
@@ -1033,15 +1085,18 @@ bool Check::visit(FunctionDeclaration *ast)
 
 bool Check::visit(FunctionExpression *ast)
 {
+    SourceLocation locfunc = ast->functionToken;
+    SourceLocation loclparen = ast->lparenToken;
+
     if (ast->name.isEmpty()) {
-        SourceLocation locfunc = ast->functionToken;
-        SourceLocation loclparen = ast->lparenToken;
         if (locfunc.isValid() && loclparen.isValid()
                 && (locfunc.startLine != loclparen.startLine
                     || locfunc.end() + 1 != loclparen.begin())) {
             addMessage(HintAnonymousFunctionSpacing, locationFromRange(locfunc, loclparen));
         }
     }
+
+    addMessage(ErrFunctionsNotSupportedInQmlUi, locationFromRange(locfunc, loclparen));
 
     DeclarationsCheck bodyCheck;
     addMessages(bodyCheck(ast));
@@ -1142,6 +1197,8 @@ bool Check::visit(BinaryExpression *ast)
 
 bool Check::visit(Block *ast)
 {
+    addMessage(ErrBlocksNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+
     if (Node *p = parent()) {
         if (!cast<UiScriptBinding *>(p)
                 && !cast<UiPublicMember *>(p)
@@ -1483,6 +1540,8 @@ bool Check::visit(CallExpression *ast)
     // check for capitalized function name being called
     SourceLocation location;
     const QString name = functionName(ast->base, &location);
+
+    addMessage(ErrFunctionsNotSupportedInQmlUi, location);
     if (!name.isEmpty() && name.at(0).isUpper()
             && name != QLatin1String("String")
             && name != QLatin1String("Boolean")

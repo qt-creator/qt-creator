@@ -212,7 +212,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnImperativeCodeNotEditableInVisualDesigner, Warning,
             tr("Imperative code is not supported in the Qt Quick Designer."));
     newMsg(WarnUnsupportedTypeInVisualDesigner, Warning,
-            tr("This type is not supported in the Qt Quick Designer."));
+            tr("This type (%1) is not supported in the Qt Quick Designer."), 1);
     newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Warning,
             tr("Reference to parent item cannot be resolved correctly by the Qt Quick Designer."));
     newMsg(WarnUndefinedValueForVisualDesigner, Warning,
@@ -223,7 +223,17 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnAboutQtQuick1InsteadQtQuick2, Warning,
             tr("Using Qt Quick 1 code model instead of Qt Quick 2."));
     newMsg(ErrUnsupportedRootTypeInVisualDesigner, Error,
-           tr("This type is not supported as a root element by Qt Quick Designer %1."), 1);
+           tr("This type (%1) is not supported as a root element by Qt Quick Designer."), 1);
+    newMsg(ErrUnsupportedRootTypeInQmlUi, Error,
+           tr("This type (%1) is not supported as a root element of a Qt Quick ui file."), 1);
+    newMsg(ErrUnsupportedTypeInQmlUi, Error,
+            tr("This type (%1) is not supported in a Qt Quick ui file."), 1);
+    newMsg(ErrFunctionsNotSupportedInQmlUi, Error,
+            tr("Functions are not supported in a Qt Quick ui file."));
+    newMsg(ErrBlocksNotSupportedInQmlUi, Error,
+            tr("Java Script blocks are not supported in a Qt Quick ui file."));
+    newMsg(ErrBehavioursNotSupportedInQmlUi, Error,
+            tr("Behaviours are not supported in a Qt Quick ui file."));
 }
 
 } // anonymous namespace
