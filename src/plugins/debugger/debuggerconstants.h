@@ -123,10 +123,7 @@ enum DebuggerStartMode
     AttachCore,            // Attach to a core file
     AttachToRemoteServer,  // Attach to a running gdbserver
     AttachToRemoteProcess, // Attach to a running remote process
-    LoadRemoteCore,    // Load a remote core file
-    StartRemoteProcess,    // Start and attach to a remote process
-    StartRemoteGdb,        // Start gdb itself remotely
-    StartRemoteEngine      // Start ipc guest engine on other machine
+    StartRemoteProcess     // Start and attach to a remote process
 };
 
 enum DebuggerCloseMode

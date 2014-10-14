@@ -1851,10 +1851,6 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
         if (fi.isReadable())
             cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
     }
-    if (startMode() == StartRemoteGdb) {
-        cleanFilePath.replace(0, startParameters().remoteMountPoint.length(),
-            startParameters().localMountDir);
-    }
 
     if (!boolSetting(AutoEnrichParameters))
         return cleanFilePath;

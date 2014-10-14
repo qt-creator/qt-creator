@@ -53,11 +53,8 @@ AttachCrashedExternal,  \
 AttachCore, \
 AttachToRemoteServer, \
 AttachToRemoteProcess, \
-LoadRemoteCore, \
 StartRemoteProcess, \
-StartRemoteGdb,  \
-StartRemoteEngine \
-    = range(0, 12)
+    = range(0, 9)
 
 
 # Known special formats. Keep in sync with DisplayFormat in watchhandler.h

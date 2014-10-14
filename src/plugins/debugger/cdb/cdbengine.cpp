@@ -292,14 +292,7 @@ int indexOfCommand(const QList<CommandPtrType> &l, int token)
 
 static inline bool validMode(DebuggerStartMode sm)
 {
-    switch (sm) {
-    case NoStartMode:
-    case StartRemoteGdb:
-        return false;
-    default:
-        break;
-    }
-    return true;
+    return sm != NoStartMode;
 }
 
 // Accessed by RunControlFactory

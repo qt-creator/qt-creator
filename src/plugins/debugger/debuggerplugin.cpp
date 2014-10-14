@@ -867,7 +867,6 @@ public slots:
     void continueOnAttach(Debugger::DebuggerState state);
     void attachExternalApplication(ProjectExplorer::RunControl *rc);
     void attachToQmlPort();
-    void startRemoteEngine();
     void runScheduled();
     void attachCore();
 
@@ -1809,29 +1808,6 @@ void DebuggerPluginPrivate::attachToQmlPort()
             !projects.isEmpty() ? projects.first()->projectDirectory().toString() : QString();
     sp.projectSourceFiles = sourceFiles;
     sp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-    DebuggerRunControlFactory::createAndScheduleRun(sp);
-}
-
-void DebuggerPluginPrivate::startRemoteEngine()
-{
-    DebuggerStartParameters sp;
-    StartRemoteEngineDialog dlg(ICore::mainWindow());
-    if (dlg.exec() != QDialog::Accepted)
-        return;
-
-    sp.connParams.host = dlg.host();
-    sp.connParams.userName = dlg.username();
-    sp.connParams.password = dlg.password();
-
-    sp.connParams.timeout = 5;
-    sp.connParams.authenticationType
-            = QSsh::SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
-    sp.connParams.port = 22;
-    sp.connParams.options = QSsh::SshIgnoreDefaultProxy;
-
-    sp.executable = dlg.inferiorPath();
-    sp.serverStartScript = dlg.enginePath();
-    sp.startMode = StartRemoteEngine;
     DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
