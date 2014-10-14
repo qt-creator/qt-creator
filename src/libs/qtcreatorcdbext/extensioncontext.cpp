@@ -448,14 +448,14 @@ bool ExtensionContext::call(const std::string &functionCall,
     HRESULT hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, call.c_str(), DEBUG_EXECUTE_ECHO);
     if (FAILED(hr)) {
         *errorMessage = msgDebugEngineComFailed("Execute", hr);
-        return 0;
+        return false;
     }
     // Execute in current thread. TODO: This must not crash, else we are in an inconsistent state
     // (need to call 'gh', etc.)
     hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, goCommandForCall(callFlags), DEBUG_EXECUTE_ECHO);
     if (FAILED(hr)) {
         *errorMessage = msgDebugEngineComFailed("Execute", hr);
-        return 0;
+        return false;
     }
     // Wait until finished
     startRecordingOutput();
