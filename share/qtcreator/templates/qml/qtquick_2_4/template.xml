@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<template openeditor="main.qml" priority="BV"
-    featuresRequired="QtSupport.Wizards.FeatureQtQuickProject, QtSupport.Wizards.FeatureQtQuick.2.4">
-    <displayname>Qt Quick 2.4</displayname>
-    <description>Creates a Qt Quick 2 UI project with a single QML file that contains the main view. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of project. Requires Qt 5.4 or newer.</description>
+<template openeditor="main.qml" priority="AX"
+    featuresRequired="QtSupport.Wizards.FeatureQtQuickProject, QtSupport.Wizards.FeatureQtQuick.Controls.1.3 QtSupport.Wizards.FeatureQtQuick.UiFiles">
+    <displayname>Qt Quick Controls using .ui.qml files</displayname>
+    <description>Creates a Qt Quick 2 UI project that contains a ui file and uses Qt Quick Controls. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version. Requires Qt 5.4 or newer.</description>
 </template>
