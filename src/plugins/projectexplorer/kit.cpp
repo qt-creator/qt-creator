@@ -112,7 +112,7 @@ public:
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
 
-        m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
+        m_unexpandedDisplayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
         m_iconPath = FileName::fromLatin1(":///DESKTOP///");
 
         QList<AbstractMacroExpander *> expanders;
@@ -128,7 +128,7 @@ public:
     ~KitPrivate()
     { delete m_macroExpander; }
 
-    QString m_displayName;
+    QString m_unexpandedDisplayName;
     QString m_fileSystemFriendlyName;
     QString m_autoDetectionSource;
     Id m_id;
@@ -178,8 +178,8 @@ Kit::Kit(const QVariantMap &data) :
     else
         d->m_sdkProvided = d->m_autodetected;
 
-    d->m_displayName = data.value(QLatin1String(DISPLAYNAME_KEY),
-                                  d->m_displayName).toString();
+    d->m_unexpandedDisplayName = data.value(QLatin1String(DISPLAYNAME_KEY),
+                                            d->m_unexpandedDisplayName).toString();
     d->m_fileSystemFriendlyName = data.value(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY)).toString();
     d->m_iconPath = FileName::fromString(data.value(QLatin1String(ICON_KEY),
                                                     d->m_iconPath.toString()).toString());
@@ -223,10 +223,10 @@ Kit *Kit::clone(bool keepName) const
 {
     Kit *k = new Kit;
     if (keepName)
-        k->d->m_displayName = d->m_displayName;
+        k->d->m_unexpandedDisplayName = d->m_unexpandedDisplayName;
     else
-        k->d->m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Clone of %1")
-                .arg(d->m_displayName);
+        k->d->m_unexpandedDisplayName = QCoreApplication::translate("ProjectExplorer::Kit", "Clone of %1")
+                .arg(d->m_unexpandedDisplayName);
     k->d->m_autodetected = false;
     k->d->m_data = d->m_data;
     // Do not clone m_fileSystemFriendlyName, needs to be unique
@@ -246,7 +246,7 @@ void Kit::copyFrom(const Kit *k)
     d->m_icon = k->d->m_icon;
     d->m_autodetected = k->d->m_autodetected;
     d->m_autoDetectionSource = k->d->m_autoDetectionSource;
-    d->m_displayName = k->d->m_displayName;
+    d->m_unexpandedDisplayName = k->d->m_unexpandedDisplayName;
     d->m_fileSystemFriendlyName = k->d->m_fileSystemFriendlyName;
     d->m_mustNotify = true;
     d->m_sticky = k->d->m_sticky;
@@ -312,7 +312,7 @@ void Kit::setup()
 
 QString Kit::unexpandedDisplayName() const
 {
-    return d->m_displayName;
+    return d->m_unexpandedDisplayName;
 }
 
 QString Kit::displayName() const
@@ -333,10 +333,10 @@ static QString candidateName(const QString &name, const QString &postfix)
 
 void Kit::setUnexpandedDisplayName(const QString &name)
 {
-    if (d->m_displayName == name)
+    if (d->m_unexpandedDisplayName == name)
         return;
 
-    d->m_displayName = name;
+    d->m_unexpandedDisplayName = name;
     kitUpdated();
 }
 
@@ -496,7 +496,7 @@ bool Kit::isEqual(const Kit *other) const
 {
     return isDataEqual(other)
             && d->m_iconPath == other->d->m_iconPath
-            && d->m_displayName == other->d->m_displayName
+            && d->m_unexpandedDisplayName == other->d->m_unexpandedDisplayName
             && d->m_fileSystemFriendlyName == other->d->m_fileSystemFriendlyName
             && d->m_mutable == other->d->m_mutable;
 
@@ -508,7 +508,7 @@ QVariantMap Kit::toMap() const
 
     QVariantMap data;
     data.insert(QLatin1String(ID_KEY), QString::fromLatin1(d->m_id.name()));
-    data.insert(QLatin1String(DISPLAYNAME_KEY), d->m_displayName);
+    data.insert(QLatin1String(DISPLAYNAME_KEY), d->m_unexpandedDisplayName);
     data.insert(QLatin1String(AUTODETECTED_KEY), d->m_autodetected);
     if (!d->m_fileSystemFriendlyName.isEmpty())
         data.insert(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY), d->m_fileSystemFriendlyName);
