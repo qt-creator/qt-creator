@@ -252,9 +252,11 @@ void MemoryUsageModel::loadData()
     }
 
     if (currentJSHeapIndex != -1)
-        insertEnd(currentJSHeapIndex, traceEndTime() - range(currentJSHeapIndex).start - 1);
+        insertEnd(currentJSHeapIndex, d->modelManager->traceTime()->endTime() -
+                  range(currentJSHeapIndex).start - 1);
     if (currentUsageIndex != -1)
-        insertEnd(currentUsageIndex, traceEndTime() - range(currentUsageIndex).start - 1);
+        insertEnd(currentUsageIndex, d->modelManager->traceTime()->endTime() -
+                  range(currentUsageIndex).start - 1);
 
 
     computeNesting();

@@ -416,8 +416,8 @@ void PixmapCacheModel::loadData()
             // If the pixmap loading wasn't started, start it at traceStartTime()
             if (state.loadState == Initial) {
                 newEvent.pixmapEventType = PixmapLoadingStarted;
-                state.started = insert(traceStartTime(), startTime - traceStartTime(),
-                                       event.typeIndex);
+                state.started = insert(d->modelManager->traceTime()->startTime(), startTime -
+                                       d->modelManager->traceTime()->startTime(), event.typeIndex);
                 d->data.insert(state.started, newEvent);
 
                 // All other indices are wrong now as we've prepended. Fix them ...
@@ -466,7 +466,8 @@ void PixmapCacheModel::loadData()
     }
 
     if (lastCacheSizeEvent != -1)
-        insertEnd(lastCacheSizeEvent, traceEndTime() - range(lastCacheSizeEvent).start);
+        insertEnd(lastCacheSizeEvent, d->modelManager->traceTime()->endTime() -
+                  range(lastCacheSizeEvent).start);
 
     d->resizeUnfinishedLoads();
 
@@ -504,7 +505,7 @@ void PixmapCacheModel::PixmapCacheModelPrivate::resizeUnfinishedLoads()
     for (int i = 0; i < q->count(); i++) {
         if (data[i].pixmapEventType == PixmapCacheModel::PixmapLoadingStarted &&
                 q->range(i).duration == 0) {
-            q->insertEnd(i, q->traceEndTime() - q->range(i).start);
+            q->insertEnd(i, modelManager->traceTime()->endTime() - q->range(i).start);
         }
     }
 }
