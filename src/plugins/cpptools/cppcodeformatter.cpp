@@ -81,7 +81,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         m_tokenIndex = 1;
     }
 
-    for (; m_tokenIndex < m_tokens.size(); ) {
+    while (m_tokenIndex < m_tokens.size()) {
         m_currentToken = tokenAt(m_tokenIndex);
         const int kind = m_currentToken.kind();
 
@@ -460,7 +460,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (kind != T_CASE && kind != T_DEFAULT && tryStatement())
                 break;
             switch (kind) {
-            case T_RBRACE:      leave(); continue;
+            case T_RBRACE:
             case T_DEFAULT:
             case T_CASE:        leave(); continue;
             } break;
@@ -1601,8 +1601,6 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
             } else if (type == case_cont) {
                 *indentDepth = state(i).savedIndentDepth;
                 break;
-            } else if (type == topmost_intro) {
-                break;
             }
         }
         break;
@@ -1668,6 +1666,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
             if (m_styleSettings.indentControlFlowRelativeToSwitchLabels)
                 *indentDepth += m_tabSettings.m_indentSize;
         }
+        break;
     }
     // ensure padding and indent are >= 0
     *indentDepth = qMax(0, *indentDepth);
