@@ -38,6 +38,7 @@
 #include <QApplication>
 #include <QClipboard>
 
+using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 void CopyTaskHandler::handle(const Task &task)
