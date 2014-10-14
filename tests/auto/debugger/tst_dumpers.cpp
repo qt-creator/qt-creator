@@ -3481,6 +3481,86 @@ void tst_Dumpers::dumper_data()
                + Check("v6.1.0", "[0]", "2", "int")
                + Check("v6.1.1", "[1]", "3", "int");
 
+    QTest::newRow("QVarLengthArray")
+            << Data("#include <QVarLengthArray>\n" + fooData,
+
+                    "QVarLengthArray<int> v1(10000);\n"
+                    "for (int i = 0; i != v1.size(); ++i)\n"
+                    "     v1[i] = i * i;\n\n"
+                    "unused(&v1);\n\n"
+
+                    "QVarLengthArray<Foo> v2;\n"
+                    "v2.append(1);\n"
+                    "v2.append(2);\n"
+                    "unused(&v2);\n\n"
+
+                    "typedef QVarLengthArray<Foo> FooVector;\n"
+                    "FooVector v3;\n"
+                    "v3.append(1);\n"
+                    "v3.append(2);\n"
+                    "unused(&v3);\n\n"
+
+                    "QVarLengthArray<Foo *> v4;\n"
+                    "v4.append(new Foo(1));\n"
+                    "v4.append(0);\n"
+                    "v4.append(new Foo(5));\n"
+                    "unused(&v4);\n\n"
+
+                    "QVarLengthArray<bool> v5;\n"
+                    "v5.append(true);\n"
+                    "v5.append(false);\n"
+                    "unused(&v5);\n\n"
+
+                    "QVarLengthArray<QList<int> > v6;\n"
+                    "v6.append(QList<int>() << 1);\n"
+                    "v6.append(QList<int>() << 2 << 3);\n"
+                    "QVarLengthArray<QList<int> > *pv = &v6;\n"
+                    "unused(&v6, &pv);\n\n")
+
+               + CoreProfile()
+
+               + BigArrayProfile()
+
+               + Check("v1", "<10000 items>", "@QVarLengthArray<int, 256>")
+               + Check("v1.0", "[0]", "0", "int")
+               + Check("v1.8999", "[8999]", "80982001", "int")
+
+               + Check("v2", "<2 items>", "@QVarLengthArray<Foo, 256>")
+               + Check("v2.0", "[0]", "", "Foo")
+               + Check("v2.0.a", "1", "int")
+               + Check("v2.1", "[1]", "", "Foo")
+               + Check("v2.1.a", "2", "int")
+
+               + Check("v3", "<2 items>", "FooVector")
+               + Check("v3.0", "[0]", "", "Foo")
+               + Check("v3.0.a", "1", "int")
+               + Check("v3.1", "[1]", "", "Foo")
+               + Check("v3.1.a", "2", "int")
+
+               + Check("v4", "<3 items>", "@QVarLengthArray<Foo*, 256>")
+               + CheckType("v4.0", "[0]", "Foo")
+               + Check("v4.0.a", "1", "int")
+               + Check("v4.1", "[1]", "0x0", "Foo *")
+               + CheckType("v4.2", "[2]", "Foo")
+               + Check("v4.2.a", "5", "int")
+
+               + Check("v5", "<2 items>", "@QVarLengthArray<bool, 256>")
+               + Check("v5.0", "[0]", "1", "bool")
+               + Check("v5.1", "[1]", "0", "bool")
+
+               + CheckType("pv", "@QVarLengthArray<@QList<int>, 256>")
+               + Check("pv.0", "[0]", "<1 items>", "@QList<int>")
+               + Check("pv.0.0", "[0]", "1", "int")
+               + Check("pv.1", "[1]", "<2 items>", "@QList<int>")
+               + Check("pv.1.0", "[0]", "2", "int")
+               + Check("pv.1.1", "[1]", "3", "int")
+               + Check("v6", "<2 items>", "@QVarLengthArray<@QList<int>, 256>")
+               + Check("v6.0", "[0]", "<1 items>", "@QList<int>")
+               + Check("v6.0.0", "[0]", "1", "int")
+               + Check("v6.1", "[1]", "<2 items>", "@QList<int>")
+               + Check("v6.1.0", "[0]", "2", "int")
+               + Check("v6.1.1", "[1]", "3", "int");
+
 
     QTest::newRow("QXmlAttributes")
             << Data("#include <QXmlAttributes>\n",
