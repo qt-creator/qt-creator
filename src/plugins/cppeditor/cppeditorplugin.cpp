@@ -91,6 +91,9 @@ public:
         setEditorCreator([]() { return new CppEditor; });
         setAutoCompleterCreator([]() { return new CppAutoCompleter; });
         setCommentStyle(Utils::CommentDefinition::CppStyle);
+        setCodeFoldingSupported(true);
+        setMarksVisible(true);
+        setParenthesesMatchingEnabled(true);
 
         setEditorActionHandlers(TextEditorActionHandler::Format
                               | TextEditorActionHandler::UnCommentSelection

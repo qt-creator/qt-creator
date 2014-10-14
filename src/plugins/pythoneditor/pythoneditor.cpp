@@ -45,26 +45,6 @@ using namespace TextEditor;
 namespace PythonEditor {
 namespace Internal {
 
-//
-//  PythonEditorWidget
-//
-
-class PythonEditorWidget : public TextEditorWidget
-{
-public:
-    PythonEditorWidget()
-    {
-        setParenthesesMatchingEnabled(true);
-        setMarksVisible(true);
-        setCodeFoldingSupported(true);
-    }
-};
-
-
-//
-//  PythonEditorFactory
-//
-
 PythonEditorFactory::PythonEditorFactory()
 {
     setId(Constants::C_PYTHONEDITOR_ID);
@@ -76,10 +56,12 @@ PythonEditorFactory::PythonEditorFactory()
                        | TextEditorActionHandler::UnCollapseAll);
 
     setDocumentCreator([]() { return new TextDocument(Constants::C_PYTHONEDITOR_ID); });
-    setEditorWidgetCreator([]() { return new PythonEditorWidget; });
     setIndenterCreator([]() { return new PythonIndenter; });
     setSyntaxHighlighterCreator([]() { return new PythonHighlighter; });
     setCommentStyle(Utils::CommentDefinition::HashStyle);
+    setParenthesesMatchingEnabled(true);
+    setMarksVisible(true);
+    setCodeFoldingSupported(true);
 }
 
 } // namespace Internal

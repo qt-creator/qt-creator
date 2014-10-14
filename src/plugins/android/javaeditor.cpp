@@ -98,6 +98,7 @@ JavaEditorFactory::JavaEditorFactory()
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection);
     setCompletionAssistProvider(new JavaCompletionAssistProvider);
+    setMarksVisible(true);
 }
 
 } // namespace Internal

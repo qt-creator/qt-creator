@@ -74,9 +74,10 @@ class CompletionAssistProvider;
 typedef QList<RefactorMarker> RefactorMarkers;
 
 namespace Internal {
-    class BaseTextEditorPrivate;
-    class TextEditorWidgetPrivate;
-    class TextEditorOverlay;
+class BaseTextEditorPrivate;
+class TextEditorFactoryPrivate;
+class TextEditorWidgetPrivate;
+class TextEditorOverlay;
 }
 
 class AutoCompleter;
@@ -200,6 +201,7 @@ public:
 
 private:
     friend class TextEditorFactory;
+    friend class Internal::TextEditorFactoryPrivate;
     Internal::BaseTextEditorPrivate *d;
 };
 
@@ -615,6 +617,7 @@ private:
     Internal::TextEditorWidgetPrivate *d;
     friend class BaseTextEditor;
     friend class TextEditorFactory;
+    friend class Internal::TextEditorFactoryPrivate;
     friend class Internal::TextEditorWidgetPrivate;
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;
@@ -651,26 +654,16 @@ public:
 
     void setCommentStyle(Utils::CommentDefinition::Style style);
     void setDuplicatedSupported(bool on);
+    void setMarksVisible(bool on);
+    void setParenthesesMatchingEnabled(bool on);
+    void setCodeFoldingSupported(bool on);
 
     Core::IEditor *createEditor();
 
 private:
     friend class BaseTextEditor;
     friend class PlainTextEditorFactory;
-
-    BaseTextEditor *createEditorHelper(const TextDocumentPtr &doc);
-    BaseTextEditor *duplicateTextEditor(BaseTextEditor *);
-
-    DocumentCreator m_documentCreator;
-    EditorWidgetCreator m_widgetCreator;
-    EditorCreator m_editorCreator;
-    AutoCompleterCreator m_autoCompleterCreator;
-    IndenterCreator m_indenterCreator;
-    SyntaxHighLighterCreator m_syntaxHighlighterCreator;
-    Utils::CommentDefinition::Style m_commentStyle;
-    QList<BaseHoverHandler *> m_hoverHandlers; // owned
-    CompletionAssistProvider * m_completionAssistProvider; // owned
-    bool m_duplicatedSupported;
+    Internal::TextEditorFactoryPrivate *d;
 };
 
 } // namespace TextEditor

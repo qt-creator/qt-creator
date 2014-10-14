@@ -144,18 +144,13 @@ QString CMakeEditor::contextHelpId() const
 class CMakeEditorWidget : public TextEditorWidget
 {
 public:
-    CMakeEditorWidget();
+    CMakeEditorWidget() {}
 
 private:
     bool save(const QString &fileName = QString());
     Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false);
     void contextMenuEvent(QContextMenuEvent *e);
 };
-
-CMakeEditorWidget::CMakeEditorWidget()
-{
-    setCodeFoldingSupported(true);
-}
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
@@ -283,6 +278,7 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeSettingsPage *settingsPage)
     setDocumentCreator([]() { return new CMakeDocument; });
     setGenericSyntaxHighlighter(QLatin1String(Constants::CMAKEMIMETYPE));
     setCommentStyle(Utils::CommentDefinition::HashStyle);
+    setCodeFoldingSupported(true);
 
     setCompletionAssistProvider(new CMakeFileCompletionAssistProvider(settingsPage));
 

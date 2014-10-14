@@ -137,9 +137,6 @@ GlslEditorWidget::GlslEditorWidget()
 {
     setAutoCompleter(new GlslCompleter);
     m_outlineCombo = 0;
-    setParenthesesMatchingEnabled(true);
-    setMarksVisible(true);
-    setCodeFoldingSupported(true);
 
     m_updateDocumentTimer.setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
     m_updateDocumentTimer.setSingleShot(true);
@@ -344,6 +341,9 @@ GlslEditorFactory::GlslEditorFactory()
     setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
     setCommentStyle(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(new GlslCompletionAssistProvider);
+    setParenthesesMatchingEnabled(true);
+    setMarksVisible(true);
+    setCodeFoldingSupported(true);
 
     setEditorActionHandlers(TextEditorActionHandler::Format
                           | TextEditorActionHandler::UnCommentSelection

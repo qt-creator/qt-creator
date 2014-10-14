@@ -114,9 +114,6 @@ QmlJSEditorWidget::QmlJSEditorWidget()
     m_firstSementicInfo = true;
     m_findReferences = new FindReferences(this);
 
-    setParenthesesMatchingEnabled(true);
-    setMarksVisible(true);
-    setCodeFoldingSupported(true);
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 }
 
@@ -920,6 +917,9 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     setEditorCreator([]() { return new QmlJSEditor; });
     setAutoCompleterCreator([]() { return new AutoCompleter; });
     setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setParenthesesMatchingEnabled(true);
+    setMarksVisible(true);
+    setCodeFoldingSupported(true);
 
     addHoverHandler(new QmlJSHoverHandler);
     setCompletionAssistProvider(new QmlJSCompletionAssistProvider);

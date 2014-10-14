@@ -232,7 +232,7 @@ class BaseTextEditorPrivate
 public:
     BaseTextEditorPrivate() {}
 
-    QPointer<TextEditorFactory> m_origin;
+    TextEditorFactoryPrivate *m_origin;
 };
 
 class TextEditorWidgetPrivate : public QObject
@@ -7199,66 +7199,93 @@ void TextEditorWidget::setupAsPlainEditor()
     updateEditorInfoBar(this);
 }
 
-IEditor *BaseTextEditor::duplicate()
-{
-    // Use new standard setup if that's available.
-    if (d->m_origin)
-        return d->m_origin->duplicateTextEditor(this);
-
-    // If neither is sufficient, you need to implement 'YourEditor::duplicate'.
-    QTC_CHECK(false);
-    return 0;
-}
-
-
 //
 // BaseTextEditorFactory
 //
 
-TextEditorFactory::TextEditorFactory(QObject *parent)
-    : IEditorFactory(parent)
+namespace Internal {
+
+class TextEditorFactoryPrivate
 {
-    m_editorCreator = []() { return new BaseTextEditor; };
-    m_widgetCreator = []() { return new TextEditorWidget; };
-    m_commentStyle = CommentDefinition::NoStyle;
-    m_duplicatedSupported = true;
-    m_completionAssistProvider = 0;
-}
+public:
+    TextEditorFactoryPrivate(TextEditorFactory *parent) :
+        q(parent),
+        m_widgetCreator([]() { return new TextEditorWidget; }),
+        m_editorCreator([]() { return new BaseTextEditor; }),
+        m_commentStyle(CommentDefinition::NoStyle),
+        m_completionAssistProvider(0),
+        m_duplicatedSupported(true),
+        m_codeFoldingSupported(false),
+        m_paranthesesMatchinEnabled(false),
+        m_marksVisible(false)
+    {}
+
+    BaseTextEditor *duplicateTextEditor(BaseTextEditor *other)
+    {
+        BaseTextEditor *editor = createEditorHelper(other->editorWidget()->textDocumentPtr());
+        editor->editorWidget()->finalizeInitializationAfterDuplication(other->editorWidget());
+        return editor;
+    }
+
+    BaseTextEditor *createEditorHelper(const TextDocumentPtr &doc);
+
+    TextEditorFactory *q;
+    TextEditorFactory::DocumentCreator m_documentCreator;
+    TextEditorFactory::EditorWidgetCreator m_widgetCreator;
+    TextEditorFactory::EditorCreator m_editorCreator;
+    TextEditorFactory::AutoCompleterCreator m_autoCompleterCreator;
+    TextEditorFactory::IndenterCreator m_indenterCreator;
+    TextEditorFactory::SyntaxHighLighterCreator m_syntaxHighlighterCreator;
+    Utils::CommentDefinition::Style m_commentStyle;
+    QList<BaseHoverHandler *> m_hoverHandlers; // owned
+    CompletionAssistProvider * m_completionAssistProvider; // owned
+    bool m_duplicatedSupported;
+    bool m_codeFoldingSupported;
+    bool m_paranthesesMatchinEnabled;
+    bool m_marksVisible;
+};
+
+} /// namespace Internal
+
+TextEditorFactory::TextEditorFactory(QObject *parent)
+    : IEditorFactory(parent), d(new TextEditorFactoryPrivate(this))
+{}
 
 TextEditorFactory::~TextEditorFactory()
 {
-    qDeleteAll(m_hoverHandlers);
-    delete m_completionAssistProvider;
+    qDeleteAll(d->m_hoverHandlers);
+    delete d->m_completionAssistProvider;
+    delete d;
 }
 
 void TextEditorFactory::setDocumentCreator(const DocumentCreator &creator)
 {
-    m_documentCreator = creator;
+    d->m_documentCreator = creator;
 }
 
 void TextEditorFactory::setEditorWidgetCreator(const EditorWidgetCreator &creator)
 {
-    m_widgetCreator = creator;
+    d->m_widgetCreator = creator;
 }
 
 void TextEditorFactory::setEditorCreator(const EditorCreator &creator)
 {
-    m_editorCreator = creator;
+    d->m_editorCreator = creator;
 }
 
 void TextEditorFactory::setIndenterCreator(const IndenterCreator &creator)
 {
-    m_indenterCreator = creator;
+    d->m_indenterCreator = creator;
 }
 
 void TextEditorFactory::setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator)
 {
-    m_syntaxHighlighterCreator = creator;
+    d->m_syntaxHighlighterCreator = creator;
 }
 
 void TextEditorFactory::setGenericSyntaxHighlighter(const QString &mimeType)
 {
-    m_syntaxHighlighterCreator = [this, mimeType]() -> SyntaxHighlighter * {
+    d->m_syntaxHighlighterCreator = [this, mimeType]() -> SyntaxHighlighter * {
         Highlighter *highlighter = new Highlighter;
         setMimeTypeForHighlighter(highlighter, MimeDatabase::findByType(mimeType));
         return highlighter;
@@ -7267,7 +7294,7 @@ void TextEditorFactory::setGenericSyntaxHighlighter(const QString &mimeType)
 
 void TextEditorFactory::setAutoCompleterCreator(const AutoCompleterCreator &creator)
 {
-    m_autoCompleterCreator = creator;
+    d->m_autoCompleterCreator = creator;
 }
 
 void TextEditorFactory::setEditorActionHandlers(Id contextId, uint optionalActions)
@@ -7282,52 +7309,64 @@ void TextEditorFactory::setEditorActionHandlers(uint optionalActions)
 
 void TextEditorFactory::addHoverHandler(BaseHoverHandler *handler)
 {
-    m_hoverHandlers.append(handler);
+    d->m_hoverHandlers.append(handler);
 }
 
 void TextEditorFactory::setCompletionAssistProvider(CompletionAssistProvider *provider)
 {
-    m_completionAssistProvider = provider;
+    d->m_completionAssistProvider = provider;
 }
 
 void TextEditorFactory::setCommentStyle(CommentDefinition::Style style)
 {
-    m_commentStyle = style;
+    d->m_commentStyle = style;
 }
 
 void TextEditorFactory::setDuplicatedSupported(bool on)
 {
-    m_duplicatedSupported = on;
+    d->m_duplicatedSupported = on;
 }
 
-BaseTextEditor *TextEditorFactory::duplicateTextEditor(BaseTextEditor *other)
+void TextEditorFactory::setMarksVisible(bool on)
 {
-    BaseTextEditor *editor = createEditorHelper(other->editorWidget()->textDocumentPtr());
-    editor->editorWidget()->finalizeInitializationAfterDuplication(other->editorWidget());
-    return editor;
+    d->m_marksVisible = on;
+}
+
+void TextEditorFactory::setCodeFoldingSupported(bool on)
+{
+    d->m_codeFoldingSupported = on;
+}
+
+void TextEditorFactory::setParenthesesMatchingEnabled(bool on)
+{
+    d->m_paranthesesMatchinEnabled = on;
 }
 
 IEditor *TextEditorFactory::createEditor()
 {
-    TextDocumentPtr doc(m_documentCreator());
+    TextDocumentPtr doc(d->m_documentCreator());
 
-    if (m_indenterCreator)
-        doc->setIndenter(m_indenterCreator());
+    if (d->m_indenterCreator)
+        doc->setIndenter(d->m_indenterCreator());
 
-    if (m_syntaxHighlighterCreator)
-        doc->setSyntaxHighlighter(m_syntaxHighlighterCreator());
+    if (d->m_syntaxHighlighterCreator)
+        doc->setSyntaxHighlighter(d->m_syntaxHighlighterCreator());
 
-    doc->setCompletionAssistProvider(m_completionAssistProvider);
+    doc->setCompletionAssistProvider(d->m_completionAssistProvider);
 
-    return createEditorHelper(doc);
+    return d->createEditorHelper(doc);
 }
 
-BaseTextEditor *TextEditorFactory::createEditorHelper(const TextDocumentPtr &document)
+BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentPtr &document)
 {
     TextEditorWidget *widget = m_widgetCreator();
+    widget->setMarksVisible(m_marksVisible);
+    widget->setParenthesesMatchingEnabled(m_paranthesesMatchinEnabled);
+    widget->setCodeFoldingSupported(m_codeFoldingSupported);
+
     BaseTextEditor *editor = m_editorCreator();
     editor->setDuplicateSupported(m_duplicatedSupported);
-    editor->addContext(id());
+    editor->addContext(q->id());
     editor->d->m_origin = this;
 
     editor->m_widget = widget;
@@ -7342,13 +7381,13 @@ BaseTextEditor *TextEditorFactory::createEditorHelper(const TextDocumentPtr &doc
     widget->d->m_codeAssistant.configure(widget);
     widget->d->m_commentDefinition.setStyle(m_commentStyle);
 
-    connect(widget, &TextEditorWidget::activateEditor,
-            [editor]() { Core::EditorManager::activateEditor(editor); });
+    QObject::connect(widget, &TextEditorWidget::activateEditor,
+                     [editor]() { Core::EditorManager::activateEditor(editor); });
 
     widget->finalizeInitialization();
     editor->finalizeInitialization();
 
-    connect(widget->d->m_cursorPositionLabel, &LineColumnLabel::clicked, [editor] {
+    QObject::connect(widget->d->m_cursorPositionLabel, &LineColumnLabel::clicked, [editor] {
         EditorManager::activateEditor(editor, EditorManager::IgnoreNavigationHistory);
         if (Core::Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
             if (QAction *act = cmd->action())
@@ -7357,6 +7396,18 @@ BaseTextEditor *TextEditorFactory::createEditorHelper(const TextDocumentPtr &doc
     });
     return editor;
 }
+
+IEditor *BaseTextEditor::duplicate()
+{
+    // Use new standard setup if that's available.
+    if (d->m_origin)
+        return d->m_origin->duplicateTextEditor(this);
+
+    // If neither is sufficient, you need to implement 'YourEditor::duplicate'.
+    QTC_CHECK(false);
+    return 0;
+}
+
 
 } // namespace TextEditor
 
