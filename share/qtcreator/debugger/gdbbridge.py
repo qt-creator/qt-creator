@@ -12,18 +12,26 @@ import os
 import os.path
 import sys
 import struct
+import types
 
+import importlib
 
 def warn(message):
     print("XXX: %s\n" % message.encode("latin1"))
 
 from dumper import *
-from qttypes import *
-from stdtypes import *
-from misctypes import *
-from boosttypes import *
-from creatortypes import *
-from personaltypes import *
+
+dumpermodules = [
+    "qttypes",
+    "stdtypes",
+    "misctypes",
+    "boosttypes",
+    "creatortypes",
+    "personaltypes",
+]
+
+for mod in dumpermodules:
+    importlib.import_module(mod)
 
 
 #######################################################################
@@ -1372,11 +1380,13 @@ class Dumper(DumperBase):
         self.qqEditable = {}
         self.typeCache = {}
 
-        # It's __main__ from gui, gdbbridge from test. Brush over it...
-        for modname in ['__main__', 'gdbbridge']:
-            dic = sys.modules[modname].__dict__
+        for mod in dumpermodules:
+            m = importlib.import_module(mod)
+            dic = m.__dict__
             for name in dic.keys():
-                self.registerDumper(name, dic[name])
+                item = dic[name]
+                self.registerDumper(name, item)
+
 
     def reportDumpers(self):
         result = "dumpers=["
@@ -1847,6 +1857,19 @@ def threadnames(arg):
     return theDumper.threadnames(int(arg))
 
 registerCommand("threadnames", threadnames)
+
+#######################################################################
+#
+# Reload Command
+#
+#######################################################################
+
+def reloadDumper(arg):
+    for mod in dumpermodules:
+        importlib.reload(sys.modules[mod])
+    bbsetup()
+
+registerCommand("reload", reloadDumper)
 
 #######################################################################
 #

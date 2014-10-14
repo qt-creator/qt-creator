@@ -774,6 +774,12 @@ void QmlCppEngine::resetLocation()
     DebuggerEngine::resetLocation();
 }
 
+void QmlCppEngine::reloadDebuggingHelpers()
+{
+    if (m_cppEngine)
+        m_cppEngine->reloadDebuggingHelpers();
+}
+
 DebuggerEngine *QmlCppEngine::cppEngine() const
 {
     return m_cppEngine;

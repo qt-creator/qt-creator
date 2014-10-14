@@ -97,6 +97,7 @@ public:
 
 protected:
     void detachDebugger();
+    void reloadDebuggingHelpers();
     void executeStep();
     void executeStepOut();
     void executeNext();

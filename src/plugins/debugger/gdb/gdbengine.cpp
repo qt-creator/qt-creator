@@ -4315,7 +4315,7 @@ void GdbEngine::loadInitScript()
 
 void GdbEngine::reloadDebuggingHelpers()
 {
-    postCommand("bbsetup");
+    postCommand("reload");
 }
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)
