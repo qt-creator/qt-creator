@@ -39,6 +39,8 @@ namespace QtSupport {
 
 class QTSUPPORT_EXPORT CodeGenerator : public QObject
 {
+    Q_OBJECT
+
 public:
     CodeGenerator(QObject *parent = 0) : QObject(parent) { }
 
