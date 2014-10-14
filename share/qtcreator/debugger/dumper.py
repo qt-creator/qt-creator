@@ -855,7 +855,7 @@ class DumperBase:
             elided, shown, data = self.readToFirstZero(base, 1, self.displayStringLimit)
         else:
             elided, shown = self.computeLimit(int(size), self.displayStringLimit)
-            data = self.readMemory(p, shown)
+            data = self.readMemory(base, shown)
         self.putValue(data, Hex2EncodedLatin1, elided=elided)
 
     def putDisplay(self, format, value = None, cmd = None):
