@@ -88,7 +88,7 @@ def main():
     clickItemVerifyHelpCombo(gettingStartedText, expectedText, testDetails)
     textUrls = {'Online Community':'http://qt-project.org/forums',
                 'Blogs':'http://planet.qt-project.org',
-                'Qt Account':'https://login.qt.digia.com/qtaccount',
+                'Qt Account':'https://account.qt.io',
                 'Qt Cloud Services':'https://developer.qtcloudservices.com',
                 'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'
                 }

@@ -150,12 +150,12 @@ ColumnLayout {
                 IconAndLink {
                     iconSource: "images/icons/qt_account.png"
                     title: qsTr("Qt Account")
-                    openUrl: "https://login.qt.digia.com/qtaccount?utm_source=qtcreator31"
+                    openUrl: "https://account.qt.io?utm_source=qtcreator32"
                 }
                 IconAndLink {
                     iconSource: "images/icons/qt_cloud.png"
                     title: qsTr("Qt Cloud Services")
-                    openUrl: "https://developer.qtcloudservices.com?utm_source=qtcreator31"
+                    openUrl: "https://developer.qtcloudservices.com?utm_source=qtcreator32"
                 }
                 IconAndLink {
                     iconSource: "images/icons/onlineCommunity.png"
