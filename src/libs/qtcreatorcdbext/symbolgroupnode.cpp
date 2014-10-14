@@ -776,7 +776,6 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
                                       const SymbolGroup::SymbolParameterVector &vec)
 {
     static char buf[BufSize];
-    ULONG obtainedSize;
 
     const bool isTopLevel = index == DEBUG_ANY_ID;
     if (isTopLevel) {
@@ -798,7 +797,7 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
     for (VectorIndexType pos = startIndex - parameterOffset; pos < size ; ++pos) {
         if (vec.at(pos).ParentSymbol == index) {
             const VectorIndexType symbolGroupIndex = pos + parameterOffset;
-            if (FAILED(m_symbolGroup->debugSymbolGroup()->GetSymbolName(ULONG(symbolGroupIndex), buf, BufSize, &obtainedSize)))
+            if (FAILED(m_symbolGroup->debugSymbolGroup()->GetSymbolName(ULONG(symbolGroupIndex), buf, BufSize, NULL)))
                 buf[0] = '\0';
             names.push_back(std::string(buf));
         }
