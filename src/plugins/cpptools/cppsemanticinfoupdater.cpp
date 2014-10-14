@@ -148,7 +148,8 @@ bool SemanticInfoUpdaterPrivate::reuseCurrentSemanticInfo(const SemanticInfo::So
             && currentSemanticInfo.doc
             && currentSemanticInfo.doc->translationUnit()->ast()
             && currentSemanticInfo.doc->fileName() == source.fileName
-            && !currentSemanticInfo.snapshot.isEmpty()) {
+            && !currentSemanticInfo.snapshot.isEmpty()
+            && currentSemanticInfo.snapshot == source.snapshot) {
         SemanticInfo newSemanticInfo;
         newSemanticInfo.revision = source.revision;
         newSemanticInfo.snapshot = source.snapshot;

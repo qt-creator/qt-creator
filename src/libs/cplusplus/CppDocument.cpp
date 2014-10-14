@@ -825,6 +825,11 @@ void Snapshot::updateDependencyTable() const
         m_deps.build(*this);
 }
 
+bool Snapshot::operator==(const Snapshot &other) const
+{
+    return _documents == other._documents;
+}
+
 void Snapshot::allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const
 {
     if (Document::Ptr doc = document(fileName)) {

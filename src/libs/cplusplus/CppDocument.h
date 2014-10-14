@@ -431,6 +431,8 @@ public:
     QStringList filesDependingOn(const QString &fileName) const;
     void updateDependencyTable() const;
 
+    bool operator==(const Snapshot &other) const;
+
 private:
     void allIncludesForDocument_helper(const QString &fileName, QSet<QString> &result) const;
 
