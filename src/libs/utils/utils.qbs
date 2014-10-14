@@ -176,6 +176,8 @@ QtcLibrary {
         "textfieldcombobox.h",
         "textfileformat.cpp",
         "textfileformat.h",
+        "treemodel.cpp",
+        "treemodel.h",
         "treeviewcombobox.cpp",
         "treeviewcombobox.h",
         "headerviewstretcher.cpp",

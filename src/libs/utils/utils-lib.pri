@@ -89,6 +89,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/completinglineedit.cpp \
     $$PWD/winutils.cpp \
     $$PWD/itemviews.cpp \
+    $$PWD/treemodel.cpp \
     $$PWD/treeviewcombobox.cpp \
     $$PWD/proxycredentialsdialog.cpp \
     $$PWD/macroexpander.cpp
@@ -182,6 +183,7 @@ HEADERS += \
     $$PWD/completinglineedit.h \
     $$PWD/winutils.h \
     $$PWD/itemviews.h \
+    $$PWD/treemodel.h \
     $$PWD/treeviewcombobox.h \
     $$PWD/scopedswap.h \
     $$PWD/algorithm.h \
