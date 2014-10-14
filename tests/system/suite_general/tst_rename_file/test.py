@@ -73,6 +73,8 @@ def main():
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
                        previous, filename)
             previous = filename
+            # QTCREATORBUG-13176 does update the navigator async
+            progressBarWait()
     invokeMenuItem("File", "Exit")
 
 def renameFile(projectDir, proFile, branch, oldname, newname):
