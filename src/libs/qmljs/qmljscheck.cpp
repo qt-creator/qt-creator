@@ -1541,7 +1541,10 @@ bool Check::visit(CallExpression *ast)
     SourceLocation location;
     const QString name = functionName(ast->base, &location);
 
-    addMessage(ErrFunctionsNotSupportedInQmlUi, location);
+    //We have to allow the qsTr function for translation.
+    if (name != QLatin1String("qsTr"))
+        addMessage(ErrFunctionsNotSupportedInQmlUi, location);
+
     if (!name.isEmpty() && name.at(0).isUpper()
             && name != QLatin1String("String")
             && name != QLatin1String("Boolean")
