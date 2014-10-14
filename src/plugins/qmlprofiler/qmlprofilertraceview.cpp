@@ -40,6 +40,7 @@
 
 // Communication with the other views (limit events to range)
 #include "qmlprofilerviewmanager.h"
+#include "timelinezoomcontrol.h"
 
 #include <utils/styledbar.h>
 
@@ -60,89 +61,6 @@ using namespace QmlDebug;
 
 namespace QmlProfiler {
 namespace Internal {
-
-/////////////////////////////////////////////////////////
-ZoomControl::ZoomControl(const QmlProfilerTraceTime *traceTime, QObject *parent) :
-    QObject(parent), m_startTime(traceTime->startTime()), m_endTime(traceTime->endTime()),
-    m_windowStart(traceTime->startTime()), m_windowEnd(traceTime->endTime()),
-    m_traceTime(traceTime), m_windowLocked(false)
-{
-    connect(traceTime, SIGNAL(startTimeChanged(qint64)), this, SLOT(rebuildWindow()));
-    connect(traceTime, SIGNAL(endTimeChanged(qint64)), this, SLOT(rebuildWindow()));
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(moveWindow()));
-}
-
-void ZoomControl::setRange(qint64 startTime, qint64 endTime)
-{
-    if (m_startTime != startTime || m_endTime != endTime) {
-        m_timer.stop();
-        m_startTime = startTime;
-        m_endTime = endTime;
-        rebuildWindow();
-        emit rangeChanged();
-    }
-}
-
-void ZoomControl::rebuildWindow()
-{
-    qint64 minDuration = 1; // qMax needs equal data types, so literal 1 won't do
-    qint64 shownDuration = qMax(duration(), minDuration);
-
-    qint64 oldWindowStart = m_windowStart;
-    qint64 oldWindowEnd = m_windowEnd;
-    if (m_traceTime->duration() / shownDuration < MAX_ZOOM_FACTOR) {
-        m_windowStart = m_traceTime->startTime();
-        m_windowEnd = m_traceTime->endTime();
-    } else if (windowLength() / shownDuration > MAX_ZOOM_FACTOR ||
-               windowLength() / shownDuration * 2 < MAX_ZOOM_FACTOR) {
-        qint64 keep = shownDuration * MAX_ZOOM_FACTOR / 2 - shownDuration;
-        m_windowStart = m_startTime - keep;
-        if (m_windowStart < m_traceTime->startTime()) {
-            keep += m_traceTime->startTime() - m_windowStart;
-            m_windowStart = m_traceTime->startTime();
-        }
-
-        m_windowEnd = m_endTime + keep;
-        if (m_windowEnd > m_traceTime->endTime()) {
-            m_windowStart = qMax(m_traceTime->startTime(),
-                                 m_windowStart - m_windowEnd - m_traceTime->endTime());
-            m_windowEnd = m_traceTime->endTime();
-        }
-    } else {
-        m_timer.start(500);
-    }
-    if (oldWindowStart != m_windowStart || oldWindowEnd != m_windowEnd)
-        emit windowChanged();
-}
-
-void ZoomControl::moveWindow()
-{
-    if (m_windowLocked)
-        return;
-    m_timer.stop();
-
-    qint64 offset = (m_endTime - m_windowEnd + m_startTime - m_windowStart) / 2;
-    if (offset == 0 || (offset < 0 && m_windowStart == m_traceTime->startTime()) ||
-            (offset > 0 && m_windowEnd == m_traceTime->endTime())) {
-        return;
-    } else if (offset > duration()) {
-        offset = (offset + duration()) / 2;
-    } else if (offset < -duration()) {
-        offset = (offset - duration()) / 2;
-    }
-    m_windowStart += offset;
-    if (m_windowStart < m_traceTime->startTime()) {
-        m_windowEnd += m_traceTime->startTime() - m_windowStart;
-        m_windowStart = m_traceTime->startTime();
-    }
-    m_windowEnd += offset;
-    if (m_windowEnd > m_traceTime->endTime()) {
-        m_windowStart -= m_windowEnd - m_traceTime->endTime();
-        m_windowEnd = m_traceTime->endTime();
-    }
-    emit windowChanged();
-    m_timer.start(100);
-}
 
 /////////////////////////////////////////////////////////
 class QmlProfilerTraceView::QmlProfilerTraceViewPrivate
@@ -167,7 +85,7 @@ public:
     TimelineModelAggregator *m_modelProxy;
 
 
-    ZoomControl *m_zoomControl;
+    TimelineZoomControl *m_zoomControl;
 };
 
 QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState)
@@ -175,8 +93,9 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
 {
     setObjectName(QLatin1String("QML Profiler"));
 
-    d->m_zoomControl = new ZoomControl(modelManager->traceTime(), this);
-    connect(d->m_zoomControl, SIGNAL(rangeChanged()), this, SLOT(updateRange()));
+    d->m_zoomControl = new TimelineZoomControl(this);
+    connect(modelManager->traceTime(), &QmlProfilerTraceTime::timeChanged,
+            d->m_zoomControl, &TimelineZoomControl::setTrace);
 
     QVBoxLayout *groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0, 0, 0, 0);
@@ -306,20 +225,6 @@ void QmlProfilerTraceView::updateCursorPosition()
 }
 
 ////////////////////////////////////////////////////////
-// Zoom control
-void QmlProfilerTraceView::updateRange()
-{
-    if (!d->m_modelManager)
-        return;
-    qreal duration = d->m_zoomControl->endTime() - d->m_zoomControl->startTime();
-    if (duration <= 0)
-        return;
-    if (d->m_modelManager->traceTime()->duration() <= 0)
-        return;
-    QMetaObject::invokeMethod(d->m_mainView->rootObject()->findChild<QObject*>(QLatin1String("zoomSliderToolBar")), "updateZoomLevel");
-}
-
-////////////////////////////////////////////////////////
 void QmlProfilerTraceView::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
@@ -374,9 +279,8 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
 
     if (selectedAction) {
         if (selectedAction == viewAllAction) {
-            d->m_zoomControl->setRange(
-                        d->m_modelManager->traceTime()->startTime(),
-                        d->m_modelManager->traceTime()->endTime());
+            d->m_zoomControl->setRange(d->m_zoomControl->traceStart(),
+                                       d->m_zoomControl->traceEnd());
         }
         if (selectedAction == getLocalStatsAction) {
             d->m_viewContainer->getStatisticsInRange(

@@ -121,10 +121,12 @@ const QVector<QmlProfilerDataModel::QmlEventNoteData> &QmlProfilerDataModel::get
     return d->eventNotes;
 }
 
-void QmlProfilerDataModel::setData(const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
+void QmlProfilerDataModel::setData(qint64 traceStart, qint64 traceEnd,
+                                   const QVector<QmlProfilerDataModel::QmlEventTypeData> &types,
                                    const QVector<QmlProfilerDataModel::QmlEventData> &events)
 {
     Q_D(QmlProfilerDataModel);
+    d->modelManager->traceTime()->setTime(traceStart, traceEnd);
     d->eventList = events;
     d->eventTypes = types;
     for (int id = 0; id < types.count(); ++id)
@@ -260,7 +262,7 @@ void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::Rang
     d->eventList.append(eventData);
 
     d->modelManager->modelProxyCountUpdated(d->modelId, startTime,
-                                            d->modelManager->estimatedProfilingTime() * 2);
+                                            d->modelManager->traceTime()->duration() * 2);
 }
 
 qint64 QmlProfilerDataModel::lastTimeMark() const

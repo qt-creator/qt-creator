@@ -141,6 +141,8 @@ bool QmlProfilerFileReader::load(QIODevice *device)
     QXmlStreamReader stream(device);
 
     bool validVersion = true;
+    qint64 traceStart = -1;
+    qint64 traceEnd = -1;
 
     while (validVersion && !stream.atEnd() && !stream.hasError()) {
          QXmlStreamReader::TokenType token = stream.readNext();
@@ -155,9 +157,9 @@ bool QmlProfilerFileReader::load(QIODevice *device)
                  else
                      validVersion = false;
                  if (attributes.hasAttribute(_("traceStart")))
-                     emit traceStartTime(attributes.value(_("traceStart")).toString().toLongLong());
+                     traceStart = attributes.value(_("traceStart")).toString().toLongLong();
                  if (attributes.hasAttribute(_("traceEnd")))
-                     emit traceEndTime(attributes.value(_("traceEnd")).toString().toLongLong());
+                     traceEnd = attributes.value(_("traceEnd")).toString().toLongLong();
              }
 
              if (elementName == _("eventData")) {
@@ -191,7 +193,7 @@ bool QmlProfilerFileReader::load(QIODevice *device)
          emit error(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
          return false;
      } else {
-         m_qmlModel->setData(m_qmlEvents, m_ranges);
+         m_qmlModel->setData(traceStart, qMax(traceStart, traceEnd), m_qmlEvents, m_ranges);
          m_qmlModel->setNoteData(m_notes);
          return true;
      }

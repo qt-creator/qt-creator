@@ -61,9 +61,6 @@ public:
     bool load(QIODevice *device);
 
 signals:
-    void traceStartTime(qint64 traceStartTime);
-    void traceEndTime(qint64 traceStartTime);
-
     void error(const QString &error);
 
 private:

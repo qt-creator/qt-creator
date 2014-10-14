@@ -36,16 +36,9 @@ Canvas {
     objectName: "TimeDisplay"
     contextType: "2d"
 
-    property real startTime : 0
-    property real endTime : 0
-
     Connections {
         target: zoomControl
-        onRangeChanged: {
-            startTime = zoomControl.startTime();
-            endTime = zoomControl.endTime();
-            requestPaint();
-        }
+        onRangeChanged: requestPaint();
     }
 
     onPaint: {
@@ -55,7 +48,7 @@ Canvas {
         context.fillStyle = "white";
         context.fillRect(0, 0, width, height);
 
-        var totalTime = Math.max(1, endTime - startTime);
+        var totalTime = Math.max(1, zoomControl.rangeDuration);
         var spacing = width / totalTime;
 
         var initialBlockLength = 120;
@@ -64,8 +57,8 @@ Canvas {
         var pixelsPerSection = pixelsPerBlock / 5;
         var blockCount = width / pixelsPerBlock;
 
-        var realStartTime = Math.floor(startTime/timePerBlock) * timePerBlock;
-        var startPos = (startTime - realStartTime) * spacing;
+        var realStartTime = Math.floor(zoomControl.rangeStart / timePerBlock) * timePerBlock;
+        var startPos = (zoomControl.rangeStart - realStartTime) * spacing;
 
         var timePerPixel = timePerBlock/pixelsPerBlock;
 
@@ -98,7 +91,6 @@ Canvas {
 
     function clear()
     {
-        startTime = endTime = 0;
         requestPaint();
     }
 
@@ -106,16 +98,15 @@ Canvas {
     {
         var round = 1;
         var barrier = 1;
-        var range = endTime - startTime;
         var units = ["μs", "ms", "s"];
 
         for (var i = 0; i < units.length; ++i) {
             barrier *= 1000;
-            if (range < barrier)
+            if (zoomControl.rangeDuration < barrier)
                 round *= 1000;
-            else if (range < barrier * 10)
+            else if (zoomControl.rangeDuration < barrier * 10)
                 round *= 100;
-            else if (range < barrier * 100)
+            else if (zoomControl.rangeDuration < barrier * 100)
                 round *= 10;
             if (t < barrier * 1000)
                 return Math.floor(t / (barrier / round)) / round + units[i];

@@ -44,9 +44,9 @@
 using namespace QmlProfiler::Internal;
 
 TimelineRenderer::TimelineRenderer(QQuickPaintedItem *parent) :
-    QQuickPaintedItem(parent), m_startTime(0), m_endTime(0), m_spacing(0), m_spacedDuration(0),
-    m_lastStartTime(0), m_lastEndTime(0), m_profilerModelProxy(0), m_selectedItem(-1),
-    m_selectedModel(-1), m_selectionLocked(true), m_startDragArea(-1), m_endDragArea(-1)
+    QQuickPaintedItem(parent), m_spacing(0), m_spacedDuration(0), m_profilerModelProxy(0),
+    m_zoomer(0), m_selectedItem(-1), m_selectedModel(-1), m_selectionLocked(true),
+    m_startDragArea(-1), m_endDragArea(-1)
 {
     resetCurrentSelection();
     setAcceptedMouseButtons(Qt::LeftButton);
@@ -75,6 +75,20 @@ void TimelineRenderer::setProfilerModelProxy(QObject *profilerModelProxy)
                 this, SLOT(requestPaint()));
     }
     emit profilerModelProxyChanged(m_profilerModelProxy);
+}
+
+void TimelineRenderer::setZoomer(QObject *zoomControl)
+{
+    TimelineZoomControl *zoomer = qobject_cast<TimelineZoomControl *>(zoomControl);
+    if (zoomer != m_zoomer) {
+        if (m_zoomer != 0)
+            disconnect(m_zoomer, SIGNAL(rangeChanged(qint64,qint64)), this, SLOT(requestPaint()));
+        m_zoomer = zoomer;
+        if (m_zoomer != 0)
+            connect(m_zoomer, SIGNAL(rangeChanged(qint64,qint64)), this, SLOT(requestPaint()));
+        emit zoomerChanged(zoomer);
+        update();
+    }
 }
 
 void TimelineRenderer::componentComplete()
@@ -111,7 +125,7 @@ void TimelineRenderer::swapSelections(int modelIndex1, int modelIndex2)
 
 inline void TimelineRenderer::getItemXExtent(int modelIndex, int i, int &currentX, int &itemWidth)
 {
-    qint64 start = m_profilerModelProxy->startTime(modelIndex, i) - m_startTime;
+    qint64 start = m_profilerModelProxy->startTime(modelIndex, i) - m_zoomer->rangeStart();
 
     // avoid integer overflows by using floating point for width calculations. m_spacing is qreal,
     // too, so for some intermediate calculations we have to use floats anyway.
@@ -148,21 +162,20 @@ void TimelineRenderer::resetCurrentSelection()
 
 void TimelineRenderer::paint(QPainter *p)
 {
-    qint64 windowDuration = m_endTime - m_startTime;
-    if (windowDuration <= 0)
+    if (m_zoomer->rangeDuration() <= 0)
         return;
 
-    m_spacing = qreal(width()) / windowDuration;
-    m_spacedDuration = (m_endTime - m_startTime) * m_spacing + 2 * OutOfScreenMargin;
+    m_spacing = width() / m_zoomer->rangeDuration();
+    m_spacedDuration = width() + 2 * OutOfScreenMargin;
 
     p->setPen(Qt::transparent);
 
     for (int modelIndex = 0; modelIndex < m_profilerModelProxy->modelCount(); modelIndex++) {
         if (m_profilerModelProxy->hidden(modelIndex))
             continue;
-        int lastIndex = m_profilerModelProxy->lastIndex(modelIndex, m_endTime);
+        int lastIndex = m_profilerModelProxy->lastIndex(modelIndex, m_zoomer->rangeEnd());
         if (lastIndex >= 0 && lastIndex < m_profilerModelProxy->count(modelIndex)) {
-            int firstIndex = m_profilerModelProxy->firstIndex(modelIndex, m_startTime);
+            int firstIndex = m_profilerModelProxy->firstIndex(modelIndex, m_zoomer->rangeStart());
             if (firstIndex >= 0) {
                 drawItemsToPainter(p, modelIndex, firstIndex, lastIndex);
                 if (m_selectedModel == modelIndex)
@@ -172,9 +185,6 @@ void TimelineRenderer::paint(QPainter *p)
         }
     }
     drawNotes(p);
-    m_lastStartTime = m_startTime;
-    m_lastEndTime = m_endTime;
-
 }
 
 void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromIndex, int toIndex)
@@ -472,12 +482,13 @@ void TimelineRenderer::manageClicked()
 
 void TimelineRenderer::manageHovered(int mouseX, int mouseY)
 {
-    if (m_endTime - m_startTime <=0 || m_lastEndTime - m_lastStartTime <= 0)
+    qint64 duration = m_zoomer->rangeDuration();
+    if (duration <= 0)
         return;
 
     // Make the "selected" area 3 pixels wide by adding/subtracting 1 to catch very narrow events.
-    qint64 startTime = (mouseX - 1) * (m_endTime - m_startTime) / width() + m_startTime;
-    qint64 endTime = (mouseX + 1) * (m_endTime - m_startTime) / width() + m_startTime;
+    qint64 startTime = (mouseX - 1) * duration / width() + m_zoomer->rangeStart();
+    qint64 endTime = (mouseX + 1) * duration / width() + m_zoomer->rangeStart();
     int row = rowFromPosition(mouseY + y());
     int modelIndex = modelFromPosition(mouseY + y());
 
@@ -532,13 +543,9 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
 
 void TimelineRenderer::clearData()
 {
-    m_lastStartTime = 0;
-    m_lastEndTime = 0;
     m_spacing = 0;
     m_spacedDuration = 0;
     resetCurrentSelection();
-    setStartTime(0);
-    setEndTime(0);
     setSelectedItem(-1);
     setSelectedModel(-1);
     setSelectionLocked(true);
@@ -565,7 +572,7 @@ void TimelineRenderer::selectNext()
     if (m_profilerModelProxy->isEmpty())
         return;
 
-    qint64 searchTime = m_startTime;
+    qint64 searchTime = m_zoomer->rangeStart();
     if (m_selectedItem != -1)
         searchTime = m_profilerModelProxy->startTime(m_selectedModel, m_selectedItem);
 
@@ -586,7 +593,7 @@ void TimelineRenderer::selectNext()
     }
 
     int candidateModelIndex = -1;
-    qint64 candidateStartTime = m_profilerModelProxy->traceEndTime();
+    qint64 candidateStartTime = m_zoomer->traceEnd();
     for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
         if (itemIndexes[i] == -1)
             continue;
@@ -603,7 +610,7 @@ void TimelineRenderer::selectNext()
     } else {
         // find the first index of them all (todo: the modelproxy should do this)
         itemIndex = -1;
-        candidateStartTime = m_profilerModelProxy->traceEndTime();
+        candidateStartTime = m_zoomer->traceEnd();
         for (int i = 0; i < m_profilerModelProxy->modelCount(); i++)
             if (m_profilerModelProxy->count(i) > 0 &&
                     m_profilerModelProxy->startTime(i,0) < candidateStartTime) {
@@ -621,7 +628,7 @@ void TimelineRenderer::selectPrev()
     if (m_profilerModelProxy->isEmpty())
         return;
 
-    qint64 searchTime = m_endTime;
+    qint64 searchTime = m_zoomer->rangeEnd();
     if (m_selectedItem != -1)
         searchTime = m_profilerModelProxy->startTime(m_selectedModel, m_selectedItem);
 
@@ -637,7 +644,7 @@ void TimelineRenderer::selectPrev()
     }
 
     int candidateModelIndex = -1;
-    qint64 candidateStartTime = m_profilerModelProxy->traceStartTime();
+    qint64 candidateStartTime = m_zoomer->traceStart();
     for (int i = 0; i < m_profilerModelProxy->modelCount(); i++) {
         if (itemIndexes[i] == -1
                 || itemIndexes[i] >= m_profilerModelProxy->count(i))
@@ -655,7 +662,7 @@ void TimelineRenderer::selectPrev()
     } else {
         // find the last index of them all (todo: the modelproxy should do this)
         candidateModelIndex = 0;
-        candidateStartTime = m_profilerModelProxy->traceStartTime();
+        candidateStartTime = m_zoomer->traceStart();
         for (int i = 0; i < m_profilerModelProxy->modelCount(); i++)
             if (m_profilerModelProxy->count(i) > 0 &&
                     m_profilerModelProxy->startTime(i,m_profilerModelProxy->count(i)-1) > candidateStartTime) {
@@ -676,7 +683,7 @@ int TimelineRenderer::nextItemFromSelectionId(int modelIndex, int selectionId) c
 
     int ndx = -1;
     if (m_selectedItem == -1 || modelIndex != m_selectedModel)
-        ndx = m_profilerModelProxy->firstIndexNoParents(modelIndex, m_startTime);
+        ndx = m_profilerModelProxy->firstIndexNoParents(modelIndex, m_zoomer->rangeStart());
     else
         ndx = m_selectedItem + 1;
 
@@ -695,7 +702,7 @@ int TimelineRenderer::prevItemFromSelectionId(int modelIndex, int selectionId) c
 {
     int ndx = -1;
     if (m_selectedItem == -1 || modelIndex != m_selectedModel)
-        ndx = m_profilerModelProxy->firstIndexNoParents(modelIndex, m_startTime);
+        ndx = m_profilerModelProxy->firstIndexNoParents(modelIndex, m_zoomer->rangeStart());
     else
         ndx = m_selectedItem - 1;
     if (ndx < 0)

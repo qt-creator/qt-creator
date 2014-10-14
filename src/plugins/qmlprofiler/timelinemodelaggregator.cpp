@@ -381,20 +381,5 @@ int TimelineModelAggregator::modelCount() const
     return d->modelList.count();
 }
 
-qint64 TimelineModelAggregator::traceStartTime() const
-{
-    return d->modelManager->traceTime()->startTime();
-}
-
-qint64 TimelineModelAggregator::traceEndTime() const
-{
-    return d->modelManager->traceTime()->endTime();
-}
-
-qint64 TimelineModelAggregator::traceDuration() const
-{
-    return d->modelManager->traceTime()->duration();
-}
-
 } // namespace Internal
 } // namespace QmlProfiler

@@ -42,12 +42,11 @@ Canvas {
     property int offset: -1
     readonly property int bump: 10;
     readonly property int blockHeight: (height - bump) / qmlProfilerModelProxy.models.length;
+    readonly property double spacing: width / zoomControl.traceDuration
 
     // ***** properties
     height: 50
     property bool dataReady: false
-    property double startTime : 0
-    property double endTime : 0
     property bool recursionGuard: false
 
     onWidthChanged: offset = -1
@@ -64,10 +63,11 @@ Canvas {
     function updateRange() {
         if (recursionGuard)
             return;
-        var newStartTime = Math.round(rangeMover.rangeLeft * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
-        var newEndTime = Math.round(rangeMover.rangeRight * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
-        if (startTime !== newStartTime || endTime !== newEndTime)
-            zoomControl.setRange(newStartTime, Math.max(newEndTime, newStartTime + 500));
+        var newStartTime = Math.round(rangeMover.rangeLeft * zoomControl.traceDuration / width) +
+                zoomControl.traceStart;
+        var newEndTime = Math.max(Math.round(rangeMover.rangeRight * zoomControl.traceDuration /
+                width) + zoomControl.traceStart, newStartTime + 500);
+        zoomControl.setRange(newStartTime, newEndTime);
     }
 
     function clamp(val, min, max) {
@@ -78,21 +78,18 @@ Canvas {
     Connections {
         target: zoomControl
         onRangeChanged: {
-            if (qmlProfilerModelProxy) {
-                recursionGuard = true;
-                startTime = clamp(zoomControl.startTime(), qmlProfilerModelProxy.traceStartTime(), qmlProfilerModelProxy.traceEndTime());
-                endTime = clamp(zoomControl.endTime(), startTime, qmlProfilerModelProxy.traceEndTime());
-                var newRangeX = (startTime - qmlProfilerModelProxy.traceStartTime()) * width / qmlProfilerModelProxy.traceDuration();
-                var newWidth = (endTime - startTime) * width / qmlProfilerModelProxy.traceDuration();
-                var widthChanged = Math.abs(newWidth - rangeMover.rangeWidth) > 1;
-                var leftChanged = Math.abs(newRangeX - rangeMover.rangeLeft) > 1;
-                if (leftChanged)
-                    rangeMover.rangeLeft = newRangeX;
+            recursionGuard = true;
+            var newRangeX = (zoomControl.rangeStart - zoomControl.traceStart) * width /
+                    zoomControl.traceDuration;
+            var newWidth = zoomControl.rangeDuration * width / zoomControl.traceDuration;
+            var widthChanged = Math.abs(newWidth - rangeMover.rangeWidth) > 1;
+            var leftChanged = Math.abs(newRangeX - rangeMover.rangeLeft) > 1;
+            if (leftChanged)
+                rangeMover.rangeLeft = newRangeX;
 
-                if (leftChanged || widthChanged)
-                    rangeMover.rangeRight = newRangeX + newWidth;
-                recursionGuard = false;
-            }
+            if (leftChanged || widthChanged)
+                rangeMover.rangeRight = newRangeX + newWidth;
+            recursionGuard = false;
         }
     }
 
@@ -123,6 +120,7 @@ Canvas {
         var context = (canvas.context === null) ? getContext("2d") : canvas.context;
 
         Plotter.qmlProfilerModelProxy = qmlProfilerModelProxy;
+        Plotter.zoomControl = zoomControl;
 
         if (offset < 0) {
             context.reset();

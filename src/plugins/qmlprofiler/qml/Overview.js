@@ -31,6 +31,7 @@
 .pragma library
 
 var qmlProfilerModelProxy = 0;
+var zoomControl = 0;
 
 //draw background of the graph
 function drawGraph(canvas, ctxt)
@@ -42,19 +43,17 @@ function drawGraph(canvas, ctxt)
 //draw the actual data to be graphed
 function drawData(canvas, ctxt)
 {
-    if ((!qmlProfilerModelProxy) || qmlProfilerModelProxy.isEmpty())
+    if (!zoomControl || !qmlProfilerModelProxy || qmlProfilerModelProxy.isEmpty())
         return;
-
-    var spacing = canvas.width / qmlProfilerModelProxy.traceDuration();
 
     for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
         for (var ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
              ii += canvas.increment) {
 
-            var xx = (qmlProfilerModelProxy.startTime(modelIndex,ii) -
-                      qmlProfilerModelProxy.traceStartTime()) * spacing;
+            var xx = (qmlProfilerModelProxy.startTime(modelIndex,ii) - zoomControl.traceStart) *
+                     canvas.spacing;
 
-            var eventWidth = qmlProfilerModelProxy.duration(modelIndex,ii) * spacing;
+            var eventWidth = qmlProfilerModelProxy.duration(modelIndex,ii) * canvas.spacing;
 
             if (eventWidth < 1)
                 eventWidth = 1;
@@ -75,14 +74,13 @@ function drawBindingLoops(canvas, ctxt) {
     ctxt.strokeStyle = "orange";
     ctxt.lineWidth = 2;
     var radius = 1;
-    var spacing = canvas.width / qmlProfilerModelProxy.traceDuration();
     for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
         for (var ii = canvas.offset - canvas.increment; ii < qmlProfilerModelProxy.count(modelIndex);
              ii += canvas.increment) {
             if (qmlProfilerModelProxy.bindingLoopDest(modelIndex,ii) >= 0) {
                 var xcenter = Math.round(qmlProfilerModelProxy.startTime(modelIndex,ii) +
                                          qmlProfilerModelProxy.duration(modelIndex,ii) -
-                                         qmlProfilerModelProxy.traceStartTime()) * spacing;
+                                         zoomControl.traceStart) * canvas.spacing;
                 var ycenter = Math.round(canvas.bump + canvas.blockHeight * modelIndex +
                                          canvas.blockHeight / 2);
                 ctxt.beginPath();
@@ -95,10 +93,10 @@ function drawBindingLoops(canvas, ctxt) {
 
 function drawNotes(canvas, ctxt)
 {
-    if ((!qmlProfilerModelProxy) || qmlProfilerModelProxy.noteCount() === 0)
+    if (!zoomControl || !qmlProfilerModelProxy || qmlProfilerModelProxy.noteCount() === 0)
         return;
 
-    var spacing = canvas.width / qmlProfilerModelProxy.traceDuration();
+    var spacing = canvas.width / zoomControl.traceDuration;
     // divide canvas height in 7 parts: margin, 3*line, space, dot, margin
     var vertSpace = (canvas.height - canvas.bump) / 7;
 
@@ -109,13 +107,11 @@ function drawNotes(canvas, ctxt)
         var timelineIndex = qmlProfilerModelProxy.noteTimelineIndex(i);
         if (timelineIndex === -1)
             continue;
-        var traceStart = qmlProfilerModelProxy.traceStartTime();
-        var traceEnd = qmlProfilerModelProxy.traceEndTime();
         var start = Math.max(qmlProfilerModelProxy.startTime(timelineModel, timelineIndex),
-                             traceStart);
+                             zoomControl.traceStart);
         var end = Math.min(qmlProfilerModelProxy.endTime(timelineModel, timelineIndex),
-                           traceEnd);
-        var annoX = Math.round(((start + end) / 2 - traceStart) * spacing);
+                           zoomControl.traceStart);
+        var annoX = Math.round(((start + end) / 2 - zoomControl.traceStart) * spacing);
 
         ctxt.moveTo(annoX, canvas.bump + vertSpace)
         ctxt.lineTo(annoX, canvas.bump + vertSpace * 4)
@@ -128,26 +124,21 @@ function drawNotes(canvas, ctxt)
 
 function drawTimeBar(canvas, ctxt)
 {
-    if (!qmlProfilerModelProxy)
+    if (!zoomControl)
         return;
 
     var width = canvas.width;
     var height = 10;
-    var startTime = qmlProfilerModelProxy.traceStartTime();
-    var endTime = qmlProfilerModelProxy.traceEndTime();
-
-    var totalTime = qmlProfilerModelProxy.traceDuration();
-    var spacing = width / totalTime;
 
     var initialBlockLength = 120;
-    var timePerBlock = Math.pow(2, Math.floor( Math.log( totalTime / width *
+    var timePerBlock = Math.pow(2, Math.floor( Math.log( zoomControl.traceDuration / width *
                        initialBlockLength ) / Math.LN2 ) );
-    var pixelsPerBlock = timePerBlock * spacing;
+    var pixelsPerBlock = timePerBlock * canvas.spacing;
     var pixelsPerSection = pixelsPerBlock / 5;
     var blockCount = width / pixelsPerBlock;
 
-    var realStartTime = Math.floor(startTime/timePerBlock) * timePerBlock;
-    var realStartPos = (startTime-realStartTime) * spacing;
+    var realStartTime = Math.floor(zoomControl.traceStart / timePerBlock) * timePerBlock;
+    var realStartPos = (zoomControl.traceStart - realStartTime) * canvas.spacing;
 
     var timePerPixel = timePerBlock/pixelsPerBlock;
 

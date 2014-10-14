@@ -52,6 +52,7 @@ QtcPlugin {
             "sortedtimelinemodel.h", "sortedtimelinemodel.cpp",
             "timelinemodelaggregator.cpp", "timelinemodelaggregator.h",
             "timelinerenderer.cpp", "timelinerenderer.h",
+            "timelinezoomcontrol.cpp", "timelinezoomcontrol.h"
         ]
     }
 

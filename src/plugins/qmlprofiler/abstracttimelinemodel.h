@@ -64,9 +64,6 @@ public:
     void setRowHeight(int rowNumber, int height);
     int height() const;
 
-    qint64 traceStartTime() const;
-    qint64 traceEndTime() const;
-    qint64 traceDuration() const;
     bool accepted(const QmlProfilerDataModel::QmlEventTypeData &event) const;
     bool expanded() const;
     bool hidden() const;

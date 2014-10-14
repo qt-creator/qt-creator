@@ -138,24 +138,6 @@ int AbstractTimelineModel::height() const
     return d->rowOffsets.last() + (depth - d->rowOffsets.size()) * DefaultRowHeight;
 }
 
-qint64 AbstractTimelineModel::traceStartTime() const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->modelManager->traceTime()->startTime();
-}
-
-qint64 AbstractTimelineModel::traceEndTime() const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->modelManager->traceTime()->endTime();
-}
-
-qint64 AbstractTimelineModel::traceDuration() const
-{
-    Q_D(const AbstractTimelineModel);
-    return d->modelManager->traceTime()->duration();
-}
-
 QVariantMap AbstractTimelineModel::location(int index) const
 {
     Q_UNUSED(index);

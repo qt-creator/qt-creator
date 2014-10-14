@@ -46,43 +46,6 @@ namespace Internal {
 class QmlProfilerStateManager;
 class QmlProfilerViewManager;
 
-// centralized zoom control
-class ZoomControl : public QObject {
-    Q_OBJECT
-public:
-    static const qint64 MAX_ZOOM_FACTOR = 1 << 12;
-
-    ZoomControl(const QmlProfilerTraceTime *traceTime, QObject *parent = 0);
-    ~ZoomControl(){}
-
-    Q_INVOKABLE void setRange(qint64 startTime, qint64 endTime);
-    Q_INVOKABLE qint64 startTime() const { return m_startTime; }
-    Q_INVOKABLE qint64 endTime() const { return m_endTime; }
-    Q_INVOKABLE qint64 duration() const { return m_endTime - m_startTime; }
-
-    Q_INVOKABLE qint64 windowStart() const { return m_windowStart; }
-    Q_INVOKABLE qint64 windowEnd() const { return m_windowEnd; }
-    Q_INVOKABLE qint64 windowLength() const { return m_windowEnd - m_windowStart; }
-    void setWindowLocked(bool lock) { m_windowLocked = lock; }
-
-signals:
-    void rangeChanged();
-    void windowChanged();
-
-private slots:
-    void rebuildWindow();
-    void moveWindow();
-
-private:
-    qint64 m_startTime;
-    qint64 m_endTime;
-    qint64 m_windowStart;
-    qint64 m_windowEnd;
-
-    const QmlProfilerTraceTime *m_traceTime;
-    QTimer m_timer;
-    bool m_windowLocked;
-};
 
 class QmlProfilerTraceView : public QWidget
 {
@@ -106,9 +69,6 @@ public slots:
 
 private slots:
     void updateCursorPosition();
-
-    void updateRange();
-
     void profilerDataModelStateChanged();
 
 protected:

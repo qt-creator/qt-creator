@@ -58,10 +58,6 @@ public:
     void clear();
     Q_INVOKABLE int modelCount() const;
 
-    Q_INVOKABLE qint64 traceStartTime() const;
-    Q_INVOKABLE qint64 traceEndTime() const;
-    Q_INVOKABLE qint64 traceDuration() const;
-
     Q_INVOKABLE bool isEmpty() const;
 
     Q_INVOKABLE int modelOffset(int modelIndex) const;

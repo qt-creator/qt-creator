@@ -32,7 +32,8 @@ SOURCES += \
     sortedtimelinemodel.cpp \
     qmlprofilerbasemodel.cpp \
     qmlprofilerdatamodel.cpp \
-    notesmodel.cpp
+    notesmodel.cpp \
+    timelinezoomcontrol.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -67,7 +68,8 @@ HEADERS += \
     abstracttimelinemodel_p.h \
     qmlprofilerdatamodel.h \
     qmlprofilerbasemodel_p.h \
-    notesmodel.h
+    notesmodel.h \
+    timelinezoomcontrol.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc

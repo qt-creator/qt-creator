@@ -39,7 +39,7 @@ RangeMover {
     property string endTimeString: detailedPrintTime(startTime+duration)
     property string durationString: detailedPrintTime(duration)
 
-    property double startTime: rangeLeft * viewTimePerPixel + zoomControl.windowStart()
+    property double startTime: rangeLeft * viewTimePerPixel + zoomControl.windowStart
     property double duration: Math.max(rangeWidth * viewTimePerPixel, 500)
     property double viewTimePerPixel: 1
     property double creationReference : 0
@@ -49,7 +49,7 @@ RangeMover {
         target: zoomControl
         onRangeChanged: {
             var oldTimePerPixel = selectionRange.viewTimePerPixel;
-            selectionRange.viewTimePerPixel = Math.abs(zoomControl.endTime() - zoomControl.startTime()) / view.intWidth;
+            selectionRange.viewTimePerPixel = zoomControl.rangeDuration / view.intWidth;
             if (creationState === 3 && oldTimePerPixel != selectionRange.viewTimePerPixel) {
                 var newWidth = rangeWidth * oldTimePerPixel / viewTimePerPixel;
                 rangeLeft = rangeLeft * oldTimePerPixel / viewTimePerPixel;

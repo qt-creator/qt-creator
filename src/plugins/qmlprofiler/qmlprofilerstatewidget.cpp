@@ -31,7 +31,6 @@
 #include "qmlprofilerstatewidget.h"
 
 #include <QPainter>
-
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QProgressBar>

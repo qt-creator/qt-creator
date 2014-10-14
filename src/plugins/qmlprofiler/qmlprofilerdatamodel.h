@@ -72,7 +72,8 @@ public:
     const QVector<QmlEventData> &getEvents() const;
     const QVector<QmlEventTypeData> &getEventTypes() const;
     const QVector<QmlEventNoteData> &getEventNotes() const;
-    void setData(const QVector<QmlEventTypeData> &types, const QVector<QmlEventData> &events);
+    void setData(qint64 traceStart, qint64 traceEnd, const QVector<QmlEventTypeData> &types,
+                 const QVector<QmlEventData> &events);
     void setNoteData(const QVector<QmlEventNoteData> &notes);
 
     int count() const;

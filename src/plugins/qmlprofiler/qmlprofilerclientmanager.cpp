@@ -219,9 +219,9 @@ void QmlProfilerClientManager::disconnectClientSignals()
                    SLOT(addQmlEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
                                     qint64,qint64,qint64,qint64,qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
-                d->modelManager->traceTime(), SLOT(setEndTime(qint64)));
+                   d->modelManager->traceTime(), SLOT(increaseEndTime(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),
-                d->modelManager->traceTime(), SLOT(setStartTime(qint64)));
+                   d->modelManager->traceTime(), SLOT(decreaseStartTime(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                    d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
         // fixme: this should be unified for both clients
@@ -339,8 +339,7 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
 
 void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
 {
-    if (maximumTime > d->modelManager->traceTime()->endTime())
-        d->modelManager->traceTime()->setEndTime(maximumTime);
+    d->modelManager->traceTime()->increaseEndTime(maximumTime);
     d->qmlDataReady = true;
     if (!d->v8clientplugin ||
             d->v8clientplugin.data()->state() != QmlDebug::QmlDebugClient::Enabled ||

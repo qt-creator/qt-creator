@@ -128,36 +128,33 @@ qint64 QmlProfilerTraceTime::duration() const
 
 void QmlProfilerTraceTime::clear()
 {
-    setStartTime(-1);
-    setEndTime(-1);
+    setTime(-1, -1);
 }
 
-void QmlProfilerTraceTime::setStartTime(qint64 time)
+void QmlProfilerTraceTime::setTime(qint64 startTime, qint64 endTime)
 {
-    if (time != m_startTime) {
-        m_startTime = time;
-        emit startTimeChanged(time);
-    }
-}
-
-void QmlProfilerTraceTime::setEndTime(qint64 time)
-{
-    if (time != m_endTime) {
-        m_endTime = time;
-        emit endTimeChanged(time);
+    Q_ASSERT(startTime <= endTime);
+    if (startTime != m_startTime || endTime != m_endTime) {
+        m_startTime = startTime;
+        m_endTime = endTime;
+        emit timeChanged(startTime, endTime);
     }
 }
 
 void QmlProfilerTraceTime::decreaseStartTime(qint64 time)
 {
-    if (m_startTime > time)
-        setStartTime(time);
+    if (m_startTime > time) {
+        m_startTime = time;
+        emit timeChanged(time, m_endTime);
+    }
 }
 
 void QmlProfilerTraceTime::increaseEndTime(qint64 time)
 {
-    if (m_endTime < time)
-        setEndTime(time);
+    if (m_endTime < time) {
+        m_endTime = time;
+        emit timeChanged(m_startTime, time);
+    }
 }
 
 
@@ -186,7 +183,6 @@ public:
     int totalWeight;
     double progress;
     double previousProgress;
-    qint64 estimatedTime;
 
     // file to load
     QString fileName;
@@ -298,14 +294,9 @@ const char *QmlProfilerModelManager::featureName(QmlDebug::ProfileFeature featur
     return ProfileFeatureNames[feature];
 }
 
-qint64 QmlProfilerModelManager::estimatedProfilingTime() const
-{
-    return d->estimatedTime;
-}
-
 void QmlProfilerModelManager::newTimeEstimation(qint64 estimation)
 {
-    d->estimatedTime = estimation;
+    d->traceTime->increaseEndTime(d->traceTime->startTime() + estimation);
 }
 
 void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
@@ -323,7 +314,7 @@ void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
 {
     // If trace start time was not explicitly set, use the first event
     if (d->traceTime->startTime() == -1)
-        d->traceTime->setStartTime(startTime);
+        d->traceTime->setTime(startTime, startTime + d->traceTime->duration());
 
     QTC_ASSERT(state() == QmlProfilerDataState::AcquiringData, /**/);
     d->model->addQmlEvent(message, rangeType, detailType, startTime, length, data, location,
@@ -346,9 +337,8 @@ void QmlProfilerModelManager::complete()
         emit dataAvailable();
         break;
     case QmlProfilerDataState::AcquiringData:
-        // If trace end time was not explicitly set, use the last event
-        if (d->traceTime->endTime() == 0)
-            d->traceTime->setEndTime(d->model->lastTimeMark());
+        // Make sure the trace fits into the time span.
+        d->traceTime->increaseEndTime(d->model->lastTimeMark());
         setState(QmlProfilerDataState::ProcessingData);
         d->model->complete();
         d->v8Model->complete();
@@ -418,8 +408,6 @@ void QmlProfilerModelManager::load()
 
     QmlProfilerFileReader reader;
     connect(&reader, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
-    connect(&reader, SIGNAL(traceStartTime(qint64)), traceTime(), SLOT(setStartTime(qint64)));
-    connect(&reader, SIGNAL(traceEndTime(qint64)), traceTime(), SLOT(setEndTime(qint64)));
     reader.setV8DataModel(d->v8Model);
     reader.setQmlDataModel(d->model);
     reader.load(&file);

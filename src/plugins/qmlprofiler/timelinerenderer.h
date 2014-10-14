@@ -34,6 +34,7 @@
 #include <QQuickPaintedItem>
 #include <QJSValue>
 #include "qmlprofilertimelinemodelproxy.h"
+#include "timelinezoomcontrol.h"
 #include "timelinemodelaggregator.h"
 
 namespace QmlProfiler {
@@ -42,9 +43,8 @@ namespace Internal {
 class TimelineRenderer : public QQuickPaintedItem
 {
     Q_OBJECT
-    Q_PROPERTY(qint64 startTime READ startTime WRITE setStartTime NOTIFY startTimeChanged)
-    Q_PROPERTY(qint64 endTime READ endTime WRITE setEndTime NOTIFY endTimeChanged)
     Q_PROPERTY(QObject *profilerModelProxy READ profilerModelProxy WRITE setProfilerModelProxy NOTIFY profilerModelProxyChanged)
+    Q_PROPERTY(QObject *zoomer READ zoomer WRITE setZoomer NOTIFY zoomerChanged)
     Q_PROPERTY(bool selectionLocked READ selectionLocked WRITE setSelectionLocked NOTIFY selectionLockedChanged)
     Q_PROPERTY(int selectedItem READ selectedItem NOTIFY selectedItemChanged)
     Q_PROPERTY(int selectedModel READ selectedModel NOTIFY selectedModelChanged)
@@ -53,16 +53,6 @@ class TimelineRenderer : public QQuickPaintedItem
 
 public:
     explicit TimelineRenderer(QQuickPaintedItem *parent = 0);
-
-    qint64 startTime() const
-    {
-        return m_startTime;
-    }
-
-    qint64 endTime() const
-    {
-        return m_endTime;
-    }
 
     bool selectionLocked() const
     {
@@ -92,6 +82,9 @@ public:
     TimelineModelAggregator *profilerModelProxy() const { return m_profilerModelProxy; }
     void setProfilerModelProxy(QObject *profilerModelProxy);
 
+    TimelineZoomControl *zoomer() const { return m_zoomer; }
+    void setZoomer(QObject *zoomer);
+
     Q_INVOKABLE int getYPosition(int modelIndex, int index) const;
 
     Q_INVOKABLE void selectNext();
@@ -103,9 +96,8 @@ public:
     Q_INVOKABLE void selectPrevFromSelectionId(int modelIndex, int selectionId);
 
 signals:
-    void startTimeChanged(qint64 arg);
-    void endTimeChanged(qint64 arg);
     void profilerModelProxyChanged(TimelineModelAggregator *list);
+    void zoomerChanged(TimelineZoomControl *zoomer);
     void selectionLockedChanged(bool locked);
     void selectedItemChanged(int itemIndex);
     void selectedModelChanged(int modelIndex);
@@ -118,22 +110,6 @@ public slots:
     void clearData();
     void requestPaint();
     void swapSelections(int modelIndex1, int modelIndex2);
-
-    void setStartTime(qint64 arg)
-    {
-        if (m_startTime != arg) {
-            m_startTime = arg;
-            emit startTimeChanged(arg);
-        }
-    }
-
-    void setEndTime(qint64 arg)
-    {
-        if (m_endTime != arg) {
-            m_endTime = arg;
-            emit endTimeChanged(arg);
-        }
-    }
 
     void setSelectionLocked(bool locked)
     {
@@ -205,15 +181,11 @@ private:
     inline void getItemXExtent(int modelIndex, int i, int &currentX, int &itemWidth);
     void resetCurrentSelection();
 
-    qint64 m_startTime;
-    qint64 m_endTime;
     qreal m_spacing;
     qreal m_spacedDuration;
 
-    qint64 m_lastStartTime;
-    qint64 m_lastEndTime;
-
     TimelineModelAggregator *m_profilerModelProxy;
+    TimelineZoomControl *m_zoomer;
 
     struct {
         qint64 startTime;

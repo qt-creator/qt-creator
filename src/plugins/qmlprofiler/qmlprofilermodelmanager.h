@@ -76,7 +76,7 @@ private:
     friend class QmlProfiler::QmlProfilerModelManager;
 };
 
-class QmlProfilerTraceTime : public QObject
+class QMLPROFILER_EXPORT QmlProfilerTraceTime : public QObject
 {
     Q_OBJECT
 public:
@@ -88,14 +88,12 @@ public:
     qint64 duration() const;
 
 signals:
-    void startTimeChanged(qint64);
-    void endTimeChanged(qint64);
+    void timeChanged(qint64,qint64);
 
 public slots:
     void clear();
-    void setStartTime(qint64 time);
-    void setEndTime(qint64 time);
 
+    void setTime(qint64 startTime, qint64 endTime);
     void decreaseStartTime(qint64 time);
     void increaseEndTime(qint64 time);
 
@@ -133,8 +131,6 @@ public:
     void announceFeatures(int proxyId, quint64 features);
     quint64 availableFeatures();
     static const char *featureName(QmlDebug::ProfileFeature feature);
-
-    qint64 estimatedProfilingTime() const;
 
 signals:
     void error(const QString &error);
