@@ -10,7 +10,7 @@
                   \"\",
                   \"GNU Lesser General Public License Usage\",
                   \"\",
-                  \"Alternatively, this plugin may be used under the terms of the GNU Lesser General Public License version 2.1 as published by the Free Software Foundation.  Please review the following information to ensure the GNU Lesser General Public License version 2.1 requirements will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\"
+                  \"Alternatively, this plugin may be used under the terms of the GNU Lesser General Public License version 2.1 or version 3 as published by the Free Software Foundation.  Please review the following information to ensure the GNU Lesser General Public License requirements will be met: https://www.gnu.org/licenses/lgpl.html and http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\"
     ],
     \"Category\" : \"Code Analyzer\",
     \"Description\" : \"Code Analyzer Base Plugin.\",
