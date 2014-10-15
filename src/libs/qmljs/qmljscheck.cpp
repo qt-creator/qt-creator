@@ -599,7 +599,7 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     disableMessage(HintExtraParentheses);
 
     if (isQtQuick2Ui()) {
-        enableQmlDesignerChecks();
+        disableQmlDesignerChecks();
     } else {
         disableQmlDesignerChecks();
         disableQmlDesignerUiFileChecks();
@@ -633,12 +633,11 @@ void Check::disableMessage(Type type)
 
 void Check::enableQmlDesignerChecks()
 {
-    enableMessage(StaticAnalysis::WarnImperativeCodeNotEditableInVisualDesigner);
-    enableMessage(StaticAnalysis::WarnUnsupportedTypeInVisualDesigner);
-    enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
-    enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
-    enableMessage(StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2);
-    enableMessage(StaticAnalysis::ErrUnsupportedRootTypeInVisualDesigner);
+    enableMessage(WarnImperativeCodeNotEditableInVisualDesigner);
+    enableMessage(WarnUnsupportedTypeInVisualDesigner);
+    enableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
+    enableMessage(WarnAboutQtQuick1InsteadQtQuick2);
+    enableMessage(ErrUnsupportedRootTypeInVisualDesigner);
     //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
 }
 
@@ -659,6 +658,8 @@ void Check::enableQmlDesignerUiFileChecks()
     enableMessage(ErrFunctionsNotSupportedInQmlUi);
     enableMessage(ErrBlocksNotSupportedInQmlUi);
     enableMessage(ErrBehavioursNotSupportedInQmlUi);
+    enableMessage(ErrStatesOnlyInRootItemInQmlUi);
+    enableMessage(ErrReferenceToParentItemNotSupportedInQmlUi);
 }
 
 void Check::disableQmlDesignerUiFileChecks()
@@ -668,6 +669,8 @@ void Check::disableQmlDesignerUiFileChecks()
     disableMessage(ErrFunctionsNotSupportedInQmlUi);
     disableMessage(ErrBlocksNotSupportedInQmlUi);
     disableMessage(ErrBehavioursNotSupportedInQmlUi);
+    disableMessage(ErrStatesOnlyInRootItemInQmlUi);
+    disableMessage(ErrReferenceToParentItemNotSupportedInQmlUi);
 }
 
 bool Check::preVisit(Node *ast)
@@ -823,8 +826,10 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     if (checkTypeForQmlUiSupport(typeId))
         addMessage(ErrUnsupportedTypeInQmlUi, typeErrorLocation, typeName);
 
-    if (m_typeStack.count() > 1 && getRightMostIdentifier(typeId)->name.toString() == QLatin1String("State"))
+    if (m_typeStack.count() > 1 && getRightMostIdentifier(typeId)->name.toString() == QLatin1String("State")) {
         addMessage(WarnStatesOnlyInRootItemForVisualDesigner, typeErrorLocation);
+        addMessage(ErrStatesOnlyInRootItemInQmlUi, typeErrorLocation);
+    }
 
     if (m_typeStack.isEmpty()
             && unsupportedRootObjectTypesByVisualDesigner()->contains(typeName))
@@ -928,6 +933,8 @@ bool Check::visit(UiScriptBinding *ast)
             && visualAspectsPropertyBlackList()->contains(ast->qualifiedId->name.toString())
             && checkTopLevelBindingForParentReference(cast<ExpressionStatement *>(ast->statement), _doc->source())) {
         addMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner,
+                   locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+        addMessage(ErrReferenceToParentItemNotSupportedInQmlUi,
                    locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
     }
 

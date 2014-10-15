@@ -234,6 +234,10 @@ StaticAnalysisMessages::StaticAnalysisMessages()
             tr("Java Script blocks are not supported in a Qt Quick ui file."));
     newMsg(ErrBehavioursNotSupportedInQmlUi, Error,
             tr("Behaviours are not supported in a Qt Quick ui file."));
+    newMsg(ErrStatesOnlyInRootItemInQmlUi, Error,
+            tr("States are only supported in the root item in a Qt Quick ui file."));
+    newMsg(ErrReferenceToParentItemNotSupportedInQmlUi, Error,
+            tr("Referencing the parent of the root item is not supported in a Qt Quick ui file."));
 }
 
 } // anonymous namespace

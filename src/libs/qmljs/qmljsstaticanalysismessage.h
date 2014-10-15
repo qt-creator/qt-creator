@@ -104,6 +104,8 @@ enum Type
     ErrFunctionsNotSupportedInQmlUi = 222,
     ErrBlocksNotSupportedInQmlUi = 223,
     ErrBehavioursNotSupportedInQmlUi = 224,
+    ErrStatesOnlyInRootItemInQmlUi = 225,
+    ErrReferenceToParentItemNotSupportedInQmlUi = 226,
     ErrUnknownComponent = 300,
     ErrCouldNotResolvePrototypeOf = 301,
     ErrCouldNotResolvePrototype = 302,
