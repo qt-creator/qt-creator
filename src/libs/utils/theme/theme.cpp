@@ -30,7 +30,7 @@
 
 #include "theme.h"
 #include "theme_p.h"
-#include "qtcassert.h"
+#include "../qtcassert.h"
 
 #include <QApplication>
 #include <QFileInfo>
