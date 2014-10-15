@@ -183,7 +183,6 @@
             surpassing a certain size, the memory manager will allocate those
             separately. Those two modes of operation are shown as events of
             different colors.
-
             The second row displays the actual usage of the allocated memory.
             This is the amount of JavaScript heap the application has actually
             requested.
@@ -202,7 +201,6 @@
         \li \gui Animations
         \li Displays the amount of animations that are active and the frame
             rate that they are running at.
-
             Information about render thread animations is displayed for
             applications that are built with Qt 5.3 or later. Render thread
             animations are shown in a separate row then.
@@ -225,7 +223,6 @@
             elements. The second stage represents the completion callbacks. Not
             all elements trigger completion callbacks, though. The stages are
             shown as separate events in the timeline.
-
             For Qt Quick 2 applications compiled with versions of Qt before
             5.2.1 only the creation of top-level elements is shown, as single
             events.
