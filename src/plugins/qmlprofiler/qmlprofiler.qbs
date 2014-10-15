@@ -26,6 +26,8 @@ QtcPlugin {
             "abstractqmlprofilerrunner.h",
             "abstracttimelinemodel.h", "abstracttimelinemodel_p.h", "abstracttimelinemodel.cpp",
             "localqmlprofilerrunner.cpp", "localqmlprofilerrunner.h",
+            "notesmodel.cpp",
+            "notesmodel.h",
             "qmlprofiler_global.h",
             "qmlprofilerattachdialog.cpp", "qmlprofilerattachdialog.h",
             "qmlprofilerbasemodel.cpp", "qmlprofilerbasemodel.h", "qmlprofilerbasemodel_p.h",
