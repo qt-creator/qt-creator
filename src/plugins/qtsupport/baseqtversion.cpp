@@ -1501,6 +1501,35 @@ bool BaseQtVersion::isQmlDebuggingSupported(QString *reason) const
     return true;
 }
 
+bool BaseQtVersion::isQtQuickCompilerSupported(Kit *k, QString *reason)
+{
+    QTC_ASSERT(k, return false);
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    if (!version) {
+        if (reason)
+            *reason = QCoreApplication::translate("BaseQtVersion", "No Qt version.");
+        return false;
+    }
+    return version->isQtQuickCompilerSupported(reason);
+}
+
+bool BaseQtVersion::isQtQuickCompilerSupported(QString *reason) const
+{
+    if (!isValid()) {
+        if (reason)
+            *reason = QCoreApplication::translate("BaseQtVersion", "Invalid Qt version.");
+        return false;
+    }
+
+    if (qtVersion() < QtVersionNumber(5, 3, 0)) {
+        if (reason)
+            *reason = QCoreApplication::translate("BaseQtVersion", "Requires Qt 5.3.0 or newer.");
+        return false;
+    }
+
+    return true;
+}
+
 void BaseQtVersion::buildDebuggingHelper(Kit *k, int tools)
 {
     BaseQtVersion *version = QtKitInformation::qtVersion(k);

@@ -112,12 +112,15 @@ public:
     void setUserArguments(const QString &arguments);
     bool linkQmlDebuggingLibrary() const;
     void setLinkQmlDebuggingLibrary(bool enable);
+    bool useQtQuickCompiler() const;
+    void setUseQtQuickCompiler(bool enable);
 
     QVariantMap toMap() const;
 
 signals:
     void userArgumentsChanged();
     void linkQmlDebuggingLibraryChanged();
+    void useQtQuickCompilerChanged();
 
 protected:
     QMakeStep(ProjectExplorer::BuildStepList *parent, QMakeStep *source);
@@ -135,6 +138,7 @@ private:
     bool m_needToRunQMake; // set in init(), read in run()
     QString m_userArgs;
     QmlLibraryLink m_linkQmlDebuggingLibrary;
+    bool m_useQtQuickCompiler;
     bool m_scriptTemplate;
 };
 
@@ -154,11 +158,13 @@ private slots:
     void qmakeBuildConfigChanged();
     void userArgumentsChanged();
     void linkQmlDebuggingLibraryChanged();
+    void useQtQuickCompilerChanged();
 
     // slots for dealing with user changes in our UI
     void qmakeArgumentsLineEdited();
     void buildConfigurationSelected();
     void linkQmlDebuggingLibraryChecked(bool checked);
+    void useQtQuickCompilerChecked(bool checked);
 
 private slots:
     void recompileMessageBoxFinished(int button);
@@ -166,7 +172,9 @@ private slots:
 private:
     void updateSummaryLabel();
     void updateQmlDebuggingOption();
+    void updateQtQuickCompilerOption();
     void updateEffectiveQMakeCall();
+    void askForRebuild();
 
     void setSummaryText(const QString &);
 

@@ -184,6 +184,8 @@ public:
 
     static bool isQmlDebuggingSupported(ProjectExplorer::Kit *k, QString *reason = 0);
     bool isQmlDebuggingSupported(QString *reason = 0) const;
+    static bool isQtQuickCompilerSupported(ProjectExplorer::Kit *k, QString *reason = 0);
+    bool isQtQuickCompilerSupported(QString *reason = 0) const;
     static void buildDebuggingHelper(ProjectExplorer::Kit *k, int tools);
     void buildDebuggingHelper(ProjectExplorer::ToolChain *tc, int tools);
 
