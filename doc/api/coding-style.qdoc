@@ -569,6 +569,70 @@
         \code
         namespace MyPlugin { class MyClass; }
         \endcode
+
+        \li Do not use using-directives in header files.
+
+        \li Do not rely on using-directives when defining classes and
+        functions, instead define it in a properly named declarative region.
+
+        \li Do not rely on using-directives when accessing global functions.
+
+        \li In other cases, you are encouraged to use using-directives,
+        as they help you avoid cluttering the code. Prefer putting all
+        using-directives near the top of the file, after all includes.
+
+        \code
+        [in foo.cpp]
+        ...
+        #include "foos.h"
+        ...
+        #include <utils/filename.h>
+        ...
+        using namespace Utils;
+
+        namespace Foo {
+        namespace Internal {
+
+        void SomeThing::bar()
+        {
+            FileName f;              // or Utils::FileName f
+            ...
+        }
+        ...
+        } // namespace Internal      // or only // Internal
+        } // namespace Foo           // or only // Foo
+
+        -NOT-
+
+        [in foo.h]
+        ...
+        using namespace Utils;       // Wrong: no using-directives in headers
+
+        class SomeThing
+        {
+            ...
+        };
+
+        -NOT-
+
+        [in foo.cpp]
+        ...
+        using namespace Utils;
+
+        #include "bar.h"             // Wrong: #include after using-directive
+
+        -NOT-
+
+        [in foo.cpp]
+        ...
+        using namepace Foo;
+
+        void SomeThing::bar()        // Wrong if Something is in namespace Foo
+        {
+            ...
+        }
+        \endcode
+
     \endlist
 
     \section1 Patterns and Practices
