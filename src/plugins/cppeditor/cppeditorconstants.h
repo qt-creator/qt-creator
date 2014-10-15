@@ -57,9 +57,6 @@ const char C_HEADER_MIMETYPE[] = "text/x-chdr";
 const char CPP_SOURCE_MIMETYPE[] = "text/x-c++src";
 const char CPP_HEADER_MIMETYPE[] = "text/x-c++hdr";
 
-const char WIZARD_CATEGORY[] = "O.C++";
-const char WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("CppEditor", "C++");
-
 const char CPP_SNIPPETS_GROUP_ID[] = "C++";
 
 const char CPP_PREPROCESSOR_PROJECT_PREFIX[] = "CppPreprocessorProject-";

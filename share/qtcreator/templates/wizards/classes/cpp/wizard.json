@@ -1,0 +1,191 @@
+{
+    "version": 1,
+    "kind": "class",
+    "id": "A.Class",
+    "category": "O.C++",
+    "trDescription": "Creates a C++ header and a source file for a new class that you can add to a C++ project.",
+    "trDisplayName": "C++ Class",
+    "trDisplayCategory": "C++",
+    "icon": "../../global/genericfilewizard.png",
+    "featuresRequired": [ "Plugin.CppEditor" ],
+
+    "options":
+    [
+        { "key": "TargetPath", "value": "%{Path}" },
+        { "key": "HdrPath", "value": "%{Path}/%{HdrFileName}" },
+        { "key": "SrcPath", "value": "%{Path}/%{SrcFileName}" },
+        { "key": "CN", "value": "%{JS: Cpp.className('%{Class}')}" },
+        { "key": "Base", "value": "%{JS: ( '%{BaseCB}' === '' ) ? '%{BaseEdit}' : '%{BaseCB}'}" },
+        { "key": "isQObject", "value": "%{JS: ('%{Base}' === 'QObject' || '%{Base}' === 'QWidget' || '%{Base}' === 'QMainWindow' || '%{Base}' === 'QDeclarativeItem' || '%{Base}' === 'QQuickItem' ) ? 'yes' : ''}" },
+        { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" },
+        { "key": "SharedDataInit", "value": "%{JS: ('%{IncludeQSharedData}') ? 'data(new %{CN}Data)' : '' }" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Define Class",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "Class",
+                    "trDisplayName": "Class name:",
+                    "mandatory": true,
+                    "type": "LineEdit"
+                },
+                {
+                    "name": "BaseCB",
+                    "trDisplayName": "Base class:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "items": [ { "trKey": "<Custom>", "value": "" },
+                                   "QObject", "QWidget", "QMainWindow", "QDeclarativeItem", "QQuickItem" ]
+                    }
+                },
+                {
+                    "name": "BaseEdit",
+                    "type": "LineEdit",
+                    "enabled": "%{JS: ( '%{BaseCB}' === '' ) ? 'yes' : ''}",
+                    "mandatory": false,
+                    "data":
+                    {
+                        "trText": "%{BaseCB}",
+                        "trDisabledText": "%{BaseCB}"
+                    }
+                },
+
+                {
+                    "name": "Sp1",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "IncludeQObject",
+                    "trDisplayName": "Include QObject",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "QObject",
+                        "uncheckedValue": "",
+                        "checked": "%{JS: ('%{BaseCB}' === 'QObject' ) ? 'yes' : ''}"
+                    }
+                },
+                {
+                    "name": "IncludeQWidget",
+                    "trDisplayName": "Include QWidget",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "QWidget",
+                        "uncheckedValue": "",
+                        "checked": "%{JS: ('%{BaseCB}' === 'QWidget') ? 'yes' : ''}"
+                    }
+                },
+                {
+                    "name": "IncludeQMainWindow",
+                    "trDisplayName": "Include QMainWindow",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "QMainWindow",
+                        "uncheckedValue": "",
+                        "checked": "%{JS: ('%{BaseCB}' === 'QMainWindow') ? 'yes' : ''}"
+                    }
+                },
+                {
+                    "name": "IncludeQDeclarativeItem",
+                    "trDisplayName": "Include QDeclarativeItem - Qt Quick 1",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "QDeclarativeItem",
+                        "uncheckedValue": "",
+                        "checked": "%{JS: ('%{BaseCB}' === 'QDeclarativeItem') ? 'yes' : ''}"
+                    }
+                },
+                {
+                    "name": "IncludeQQuickItem",
+                    "trDisplayName": "Include QQuickItem - Qt Quick 2",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "QQuickItem",
+                        "uncheckedValue": "",
+                        "checked": "%{JS: ('%{BaseCB}' === 'QQuickItem') ? 'yes' : ''}"
+                    }
+                },
+                {
+                    "name": "IncludeQSharedData",
+                    "trDisplayName": "Include QSharedData",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "QSharedData",
+                        "uncheckedValue": "",
+                        "checked": false
+                    }
+                },
+                {
+                    "name": "Sp2",
+                    "type": "Spacer",
+                    "data": { "size": 12 }
+                },
+
+                {
+                    "name": "HdrFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Header file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" }
+                },
+                {
+                    "name": "SrcFileName",
+                    "type": "LineEdit",
+                    "trDisplayName": "Source file:",
+                    "mandatory": true,
+                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++src')}')}" }
+                },
+                {
+                    "name": "Path",
+                    "type": "PathChooser",
+                    "trDisplayName": "Path:",
+                    "mandatory": true,
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "file.h",
+                    "target": "%{HdrPath}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "file.cpp",
+                    "target": "%{SrcPath}",
+                    "openInEditor": true
+                }
+            ]
+        }
+    ]
+}

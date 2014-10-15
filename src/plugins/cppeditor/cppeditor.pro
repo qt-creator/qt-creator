@@ -4,7 +4,6 @@ include(../../qtcreatorplugin.pri)
 HEADERS += \
     cppautocompleter.h \
     cppcanonicalsymbol.h \
-    cppclasswizard.h \
     cppcodemodelinspectordialog.h \
     cppdocumentationcommenthelper.h \
     cppeditor.h \
@@ -39,7 +38,6 @@ HEADERS += \
 SOURCES += \
     cppautocompleter.cpp \
     cppcanonicalsymbol.cpp \
-    cppclasswizard.cpp \
     cppcodemodelinspectordialog.cpp \
     cppdocumentationcommenthelper.cpp \
     cppeditor.cpp \

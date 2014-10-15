@@ -309,10 +309,9 @@ bool JsonFieldPage::LineEditField::validate(Utils::AbstractMacroExpander *expand
     Q_UNUSED(message);
     QLineEdit *w = static_cast<QLineEdit *>(m_widget);
 
-    if (!m_isModified)
+    if (!m_isModified) {
         w->setText(Utils::expandMacros(m_defaultText, expander));
-
-    if (!w->isEnabled() && !m_disabledText.isNull() && m_currentText.isNull()) {
+    } else if (!w->isEnabled() && !m_disabledText.isNull() && m_currentText.isNull()) {
         m_currentText = w->text();
         w->setText(Utils::expandMacros(m_disabledText, expander));
     } else if (w->isEnabled() && !m_currentText.isNull()) {

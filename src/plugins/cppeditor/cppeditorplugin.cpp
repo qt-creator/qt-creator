@@ -31,7 +31,6 @@
 #include "cppeditorplugin.h"
 
 #include "cppautocompleter.h"
-#include "cppclasswizard.h"
 #include "cppcodemodelinspectordialog.h"
 #include "cppeditorconstants.h"
 #include "cppeditor.h"
@@ -169,17 +168,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     m_quickFixProvider = new CppQuickFixAssistProvider;
     addAutoReleasedObject(m_quickFixProvider);
     registerQuickFixes(this);
-
-    QString trCat = QCoreApplication::translate(Constants::WIZARD_CATEGORY, Constants::WIZARD_TR_CATEGORY);
-
-    IWizardFactory *wizard = new CppClassWizard;
-    wizard->setWizardKind(IWizardFactory::ClassWizard);
-    wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY));
-    wizard->setDisplayCategory(trCat);
-    wizard->setDisplayName(tr("C++ Class"));
-    wizard->setId(QLatin1String("A.Class"));
-    wizard->setDescription(tr("Creates a C++ header and a source file for a new class that you can add to a C++ project."));
-    addAutoReleasedObject(wizard);
 
     Context context(Constants::CPPEDITOR_ID);
 
