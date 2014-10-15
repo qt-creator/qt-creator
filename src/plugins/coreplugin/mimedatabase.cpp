@@ -584,7 +584,7 @@ public:
 MimeTypeData::MimeTypeData()
     // RE to match a suffix glob pattern: "*.ext" (and not sth like "Makefile" or
     // "*.log[1-9]"
-    : suffixPattern(QLatin1String("^\\*\\.[\\w+]+$"))
+    : suffixPattern(QLatin1String("^\\*(?:\\.[\\w+]+)+$"))
 {
     QTC_CHECK(suffixPattern.isValid());
 }
