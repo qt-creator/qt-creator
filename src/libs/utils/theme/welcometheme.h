@@ -64,7 +64,8 @@ public:
     DECLARE_COLOR_PROPERTY(projectItem_TextColorFilepath)
     DECLARE_COLOR_PROPERTY(projectItem_BackgroundColorHover)
     DECLARE_COLOR_PROPERTY(sessionItem_BackgroundColorNormal)
-    DECLARE_COLOR_PROPERTY(sessionItemExpanded_BackgroundColor)
+    DECLARE_COLOR_PROPERTY(sessionItemExpanded_BackgroundColorNormal)
+    DECLARE_COLOR_PROPERTY(sessionItemExpanded_BackgroundColorHover)
     DECLARE_COLOR_PROPERTY(sessionItem_BackgroundColorHover)
 
     Q_PROPERTY(QGradient button_GradientNormal READ  button_GradientNormal  NOTIFY themeChanged)

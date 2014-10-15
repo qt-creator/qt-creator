@@ -149,7 +149,8 @@ public:
 
         Welcome_SessionItem_BackgroundColorNormal,
         Welcome_SessionItem_BackgroundColorHover,
-        Welcome_SessionItemExpanded_BackgroundColor
+        Welcome_SessionItemExpanded_BackgroundColorNormal,
+        Welcome_SessionItemExpanded_BackgroundColorHover
     };
 
     enum GradientRole {

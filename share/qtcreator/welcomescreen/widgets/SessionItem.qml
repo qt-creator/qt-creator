@@ -68,9 +68,7 @@ Item {
                 Rectangle {
                     z: -4
                     // background of session item
-                    color: (iArea.hovered || text.hovered || area2.hovered)
-                           ? creatorTheme.sessionItem_BackgroundColorHover
-                           : creatorTheme.sessionItem_BackgroundColorNormal
+                    color: creatorTheme.sessionItem_BackgroundColorHover
                     anchors.fill: parent
                     visible: iArea.containsMouse || text.hovered
                     anchors.topMargin: 1
@@ -226,8 +224,8 @@ Item {
             id: collapseButton
             visible: text.hovered || iArea.containsMouse || delegate.expanded
 
-            property color color: iArea.containsMouse ? creatorTheme.sessionItem_BackgroundColorHover
-                                                      : creatorTheme.sessionItemExpanded_BackgroundColor
+            property color color: iArea.containsMouse ? creatorTheme.sessionItemExpanded_BackgroundColorHover
+                                                      : creatorTheme.sessionItemExpanded_BackgroundColorNormal
 
             anchors.fill: parent
             Image {
