@@ -448,6 +448,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // For JsonWizard:
     JsonWizardFactory::registerPageFactory(new FieldPageFactory);
     JsonWizardFactory::registerPageFactory(new FilePageFactory);
+    JsonWizardFactory::registerPageFactory(new ProjectPageFactory);
     JsonWizardFactory::registerPageFactory(new SummaryPageFactory);
 
     JsonWizardFactory::registerGeneratorFactory(new FileGeneratorFactory);

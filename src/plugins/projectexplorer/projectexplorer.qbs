@@ -171,6 +171,7 @@ QtcPlugin {
         files: [
             "jsonfieldpage.cpp", "jsonfieldpage.h",
             "jsonfilepage.cpp", "jsonfilepage.h",
+            "jsonprojectpage.cpp", "jsonprojectpage.h",
             "jsonsummarypage.cpp", "jsonsummarypage.h",
             "jsonwizard.cpp", "jsonwizard.h",
             "jsonwizardfactory.cpp", "jsonwizardfactory.h",

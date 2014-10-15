@@ -32,6 +32,7 @@
 
 #include "jsonfieldpage.h"
 #include "jsonfilepage.h"
+#include "jsonprojectpage.h"
 #include "jsonsummarypage.h"
 #include "jsonwizardfactory.h"
 
@@ -120,6 +121,34 @@ bool FilePageFactory::validateData(Core::Id typeId, const QVariant &data, QStrin
     }
 
     return true;
+}
+
+// --------------------------------------------------------------------
+// ProjectPageFactory:
+// --------------------------------------------------------------------
+
+ProjectPageFactory::ProjectPageFactory()
+{
+    setTypeIdsSuffix(QLatin1String("Project"));
+}
+
+Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
+{
+    Q_UNUSED(data);
+    QTC_ASSERT(canCreate(typeId), return 0);
+
+    JsonProjectPage *page = new JsonProjectPage;
+    page->setPath(wizard->value(QStringLiteral("GivenPath")).toString());
+
+    return page;
+}
+
+bool ProjectPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
+{
+    Q_UNUSED(errorMessage);
+
+    QTC_ASSERT(canCreate(typeId), return false);
+    return data.isNull();
 }
 
 // --------------------------------------------------------------------

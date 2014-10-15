@@ -54,6 +54,15 @@ public:
     bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
 };
 
+class ProjectPageFactory : public JsonWizardPageFactory
+{
+public:
+    ProjectPageFactory();
+
+    Utils::WizardPage *create(JsonWizard *wizard, Core::Id typeId, const QVariant &data);
+    bool validateData(Core::Id typeId, const QVariant &data, QString *errorMessage);
+};
+
 class SummaryPageFactory : public JsonWizardPageFactory
 {
 public:
