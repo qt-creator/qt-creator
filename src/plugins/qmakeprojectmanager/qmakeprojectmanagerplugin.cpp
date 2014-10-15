@@ -41,7 +41,6 @@
 #include "wizards/guiappwizard.h"
 #include "wizards/librarywizard.h"
 #include "wizards/testwizard.h"
-#include "wizards/emptyprojectwizard.h"
 #include "wizards/subdirsprojectwizard.h"
 #include "wizards/qtquickappwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
@@ -109,7 +108,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     ProjectExplorer::KitManager::registerKitInformation(new QmakeKitInformation);
 
-    addAutoReleasedObject(new EmptyProjectWizard);
     addAutoReleasedObject(new SubdirsProjectWizard);
     addAutoReleasedObject(new GuiAppWizard);
     addAutoReleasedObject(new ConsoleAppWizard);

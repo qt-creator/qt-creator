@@ -91,8 +91,6 @@ QtcPlugin {
             "abstractmobileappwizard.cpp", "abstractmobileappwizard.h",
             "consoleappwizard.cpp", "consoleappwizard.h",
             "consoleappwizarddialog.cpp", "consoleappwizarddialog.h",
-            "emptyprojectwizard.cpp", "emptyprojectwizard.h",
-            "emptyprojectwizarddialog.cpp", "emptyprojectwizarddialog.h",
             "filespage.cpp", "filespage.h",
             "guiappwizard.cpp", "guiappwizard.h",
             "guiappwizarddialog.cpp", "guiappwizarddialog.h",

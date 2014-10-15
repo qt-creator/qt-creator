@@ -25,8 +25,6 @@ HEADERS += \
     wizards/librarywizard.h \
     wizards/librarywizarddialog.h \
     wizards/guiappwizarddialog.h \
-    wizards/emptyprojectwizard.h \
-    wizards/emptyprojectwizarddialog.h \
     wizards/testwizard.h \
     wizards/testwizarddialog.h \
     wizards/testwizardpage.h \
@@ -75,8 +73,6 @@ SOURCES += \
     wizards/librarywizard.cpp \
     wizards/librarywizarddialog.cpp \
     wizards/guiappwizarddialog.cpp \
-    wizards/emptyprojectwizard.cpp \
-    wizards/emptyprojectwizarddialog.cpp \
     wizards/testwizard.cpp \
     wizards/testwizarddialog.cpp \
     wizards/testwizardpage.cpp \
