@@ -78,8 +78,7 @@ JsonWizard::GeneratorFiles JsonWizard::fileList()
 
     QString targetPath = value(QLatin1String("TargetPath")).toString();
     if (targetPath.isEmpty()) {
-        errorMessage = tr("Could not determine target path. \"TargetPath\", \"Path\", or "
-                          "\"ProjectName\" were not set on any page.");
+        errorMessage = tr("Could not determine target path. \"TargetPath\" was not set on any page.");
         return list;
     }
 
