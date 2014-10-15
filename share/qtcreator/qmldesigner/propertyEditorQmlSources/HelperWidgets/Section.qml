@@ -121,7 +121,7 @@ Item {
             name: "Collapsed"
             PropertyChanges {
                 target: section
-                height: header.height
+                implicitHeight: header.height
             }
             PropertyChanges {
                 target: row
