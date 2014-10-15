@@ -8518,21 +8518,6 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         return false;
     }
 
-    if (ev->type() == QEvent::InputMethod && ob == d->editor()) {
-        // This handles simple dead keys. The sequence of events is
-        // KeyRelease-InputMethod-KeyRelease  for dead keys instead of
-        // KeyPress-KeyRelease as for simple keys. As vi acts on key presses,
-        // we have to act on the InputMethod event.
-        // FIXME: A first approximation working for e.g. ^ on a German keyboard
-        QInputMethodEvent *imev = static_cast<QInputMethodEvent *>(ev);
-        KEY_DEBUG("INPUTMETHOD" << imev->commitString() << imev->preeditString());
-        QString commitString = imev->commitString();
-        int key = commitString.size() == 1 ? commitString.at(0).unicode() : 0;
-        QKeyEvent kev(QEvent::KeyPress, key, Qt::KeyboardModifiers(), commitString);
-        EventResult res = d->handleEvent(&kev);
-        return res == EventHandled || res == EventCancelled;
-    }
-
     if (ev->type() == QEvent::KeyPress &&
         (ob == d->editor()
          || (Private::g.mode == ExMode || Private::g.subsubmode == SearchSubSubMode))) {
