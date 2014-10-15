@@ -26,6 +26,10 @@
   BOOL tallDevice;
   BOOL is64BitDevice;
   NSString *deviceTypeId;
+  NSString *m_stderrPath;
+  NSString *m_stdoutPath;
+  NSString *dataPath;
+  int xcodeVersionInt;
 }
 
 - (id)init;

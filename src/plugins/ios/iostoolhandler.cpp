@@ -215,9 +215,16 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(IosDeviceType::Enum devType,
         if (k.startsWith(QLatin1String("DYLD_")))
             env.remove(k);
     QStringList frameworkPaths;
-    QString xcPath = IosConfigurations::developerPath().appendPath(QLatin1String("../OtherFrameworks")).toFileInfo().canonicalFilePath();
-    if (!xcPath.isEmpty())
-        frameworkPaths << xcPath;
+    Utils::FileName xcPath = IosConfigurations::developerPath();
+    QString privateFPath = xcPath.appendPath(QLatin1String("Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks")).toFileInfo().canonicalFilePath();
+    if (!privateFPath.isEmpty())
+        frameworkPaths << privateFPath;
+    QString otherFPath = xcPath.appendPath(QLatin1String("../OtherFrameworks")).toFileInfo().canonicalFilePath();
+    if (!otherFPath.isEmpty())
+        frameworkPaths << otherFPath;
+    QString sharedFPath = xcPath.appendPath(QLatin1String("../SharedFrameworks")).toFileInfo().canonicalFilePath();
+    if (!sharedFPath.isEmpty())
+        frameworkPaths << sharedFPath;
     frameworkPaths << QLatin1String("/System/Library/Frameworks")
                    << QLatin1String("/System/Library/PrivateFrameworks");
     env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"), frameworkPaths.join(QLatin1Char(':')));

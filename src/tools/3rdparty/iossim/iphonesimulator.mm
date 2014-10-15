@@ -27,6 +27,8 @@ NSString *deviceIpadRetina_64bit = @"iPad Retina (64-bit)";
 NSString* deviceTypeIdIphone4s = @"com.apple.CoreSimulator.SimDeviceType.iPhone-4s";
 NSString* deviceTypeIdIphone5 = @"com.apple.CoreSimulator.SimDeviceType.iPhone-5";
 NSString* deviceTypeIdIphone5s = @"com.apple.CoreSimulator.SimDeviceType.iPhone-5s";
+NSString* deviceTypeIdIphone6 = @"com.apple.CoreSimulator.SimDeviceType.iPhone-6";
+NSString* deviceTypeIdIphone6Plus = @"com.apple.CoreSimulator.SimDeviceType.iPhone-6-Plus";
 NSString* deviceTypeIdIpad2 = @"com.apple.CoreSimulator.SimDeviceType.iPad-2";
 NSString* deviceTypeIdIpadRetina = @"com.apple.CoreSimulator.SimDeviceType.iPad-Retina";
 NSString* deviceTypeIdIpadAir = @"com.apple.CoreSimulator.SimDeviceType.iPad-Air";
@@ -41,12 +43,15 @@ NSString* const kDevToolsFoundationRelativePath = @"../OtherFrameworks/DevToolsF
 //NSString* const kSimulatorRelativePath = @"Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app";
 NSString* const kCoreSimulatorRelativePath = @"Library/PrivateFrameworks/CoreSimulator.framework";
 
-static pid_t gDebuggerProcessId;
+static pid_t gDebuggerProcessId = 0;
 
 static const char *gDevDir = 0;
 
 @interface DVTPlatform : NSObject
-+ (BOOL)loadAllPlatformsReturningError:(id*)arg1;
+
++ (BOOL)loadAllPlatformsReturningError:(NSError **)error;
++ (id)platformForIdentifier:(NSString *)identifier;
+
 @end
 
 /**
@@ -56,6 +61,12 @@ static const char *gDevDir = 0;
 
 - (id)init {
     self = [super init];
+    deviceTypeId = 0;
+    m_stderrPath = 0;
+    m_stdoutPath = 0;
+    dataPath = 0;
+    xcodeVersionInt = 0;
+
     mySession = nil;
     return self;
 }
@@ -66,6 +77,13 @@ static const char *gDevDir = 0;
 }
 
 - (void)doExit:(int)errorCode {
+    if (stderrFileHandle != nil) {
+      [self removeStdioFIFO:stderrFileHandle atPath:m_stderrPath];
+    }
+
+    if (stdoutFileHandle != nil) {
+      [self removeStdioFIFO:stdoutFileHandle atPath:m_stdoutPath];
+    }
     nsprintf(@"<exit code=\"%d\"/>", errorCode);
     nsprintf(@"</query_result>");
     fflush(stdout);
@@ -100,23 +118,16 @@ static const char *gDevDir = 0;
     NSBundle* devToolsFoundationBundle =
     [NSBundle bundleWithPath:devToolsFoundationPath];
     if (![devToolsFoundationBundle load]){
-        nsprintf(@"Unable to devToolsFoundationPath. Error: ");
+        nsprintf(@"Unable to devToolsFoundationPath.");
         return ;
     }
     NSString* coreSimulatorPath = [developerDir stringByAppendingPathComponent:kCoreSimulatorRelativePath];
     if ([[NSFileManager defaultManager] fileExistsAtPath:coreSimulatorPath]) {
         NSBundle* coreSimulatorBundle = [NSBundle bundleWithPath:coreSimulatorPath];
         if (![coreSimulatorBundle load]){
-            nsprintf(@"Unable to coreSimulatorPath. Error: ");
+            nsprintf(@"Unable to coreSimulatorPath.");
             return ;
         }
-    }
-    // Prime DVTPlatform.
-    NSError* error;
-    Class DVTPlatformClass = [self FindClassByName:@"DVTPlatform"];
-    if (![DVTPlatformClass loadAllPlatformsReturningError:&error]) {
-        nsprintf(@"Unable to loadAllPlatformsReturningError. Error: %@",[error localizedDescription]);
-        return ;
     }
     NSString* simBundlePath = [developerDir stringByAppendingPathComponent:kSimulatorFrameworkRelativePathLegacy];
     if (![[NSFileManager defaultManager] fileExistsAtPath:simBundlePath]){
@@ -124,10 +135,55 @@ static const char *gDevDir = 0;
     }
     NSBundle* simBundle = [NSBundle bundleWithPath:simBundlePath];
     if (![simBundle load]){
-        nsprintf(@"Unable to load simulator framework. Error: %@",[error localizedDescription]);
+        nsprintf(@"Unable to load simulator framework.");
         return ;
     }
+    NSError* error = 0;
+    // Prime DVTPlatform.
+    Class DVTPlatformClass = [self FindClassByName:@"DVTPlatform"];
+    if (![DVTPlatformClass loadAllPlatformsReturningError:&error]) {
+        nsprintf(@"Unable to loadAllPlatformsReturningError. Error: %@",[error localizedDescription]);
+        return ;
+    }
+    Class systemRootClass = [self FindClassByName:@"DTiPhoneSimulatorSystemRoot"];
+    // The following will fail if DVTPlatform hasn't loaded all platforms.
+    NSAssert(systemRootClass && [systemRootClass knownRoots] != nil,
+             @"DVTPlatform hasn't been initialized yet.");
+    // DTiPhoneSimulatorRemoteClient will make this same call, so let's assert
+    // that it's working.
+    NSAssert([DVTPlatformClass platformForIdentifier:@"com.apple.platform.iphonesimulator"] != nil,
+             @"DVTPlatform hasn't been initialized yet.");
     return ;
+}
+
+NSString* GetXcodeVersion() {
+    // Go look for it via xcodebuild.
+    NSTask* xcodeBuildTask = [[[NSTask alloc] init] autorelease];
+    [xcodeBuildTask setLaunchPath:@"/usr/bin/xcodebuild"];
+    [xcodeBuildTask setArguments:[NSArray arrayWithObject:@"-version"]];
+
+    NSPipe* outputPipe = [NSPipe pipe];
+    [xcodeBuildTask setStandardOutput:outputPipe];
+    NSFileHandle* outputFile = [outputPipe fileHandleForReading];
+
+    [xcodeBuildTask launch];
+    NSData* outputData = [outputFile readDataToEndOfFile];
+    [xcodeBuildTask terminate];
+
+    NSString* output =
+    [[[NSString alloc] initWithData:outputData
+                           encoding:NSUTF8StringEncoding] autorelease];
+    output = [output stringByTrimmingCharactersInSet:
+              [NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if ([output length] == 0) {
+        output = nil;
+    } else {
+        NSArray* parts = [output componentsSeparatedByCharactersInSet: [NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        if ([parts count] >= 2) {
+            return parts[1];
+        }
+    }
+    return output;
 }
 
 
@@ -139,8 +195,9 @@ NSString* FindDeveloperDir() {
     // Check the env first.
     NSDictionary* env = [[NSProcessInfo processInfo] environment];
     NSString* developerDir = [env objectForKey:@"DEVELOPER_DIR"];
-    if ([developerDir length] > 0)
+    if ([developerDir length] > 0) {
         return developerDir;
+    }
 
     // Go look for it via xcode-select.
     NSTask* xcodeSelectTask = [[[NSTask alloc] init] autorelease];
@@ -160,10 +217,12 @@ NSString* FindDeveloperDir() {
                            encoding:NSUTF8StringEncoding] autorelease];
     output = [output stringByTrimmingCharactersInSet:
               [NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    if ([output length] == 0)
+    if ([output length] == 0) {
         output = nil;
+    }
     return output;
 }
+
 - (void) printUsage {
   fprintf(stdout, "<msg>Usage: ios-sim &lt;command&gt; &lt;options&gt; [--args ...]\n");
   fprintf(stdout, "\n");
@@ -182,12 +241,6 @@ NSString* FindDeveloperDir() {
   fprintf(stdout, "  --wait-for-debugger             Wait for debugger to attach\n");
   fprintf(stdout, "  --debug                         Attach LLDB to the application on startup\n");
   fprintf(stdout, "  --use-gdb                       Use GDB instead of LLDB. (Requires --debug)\n");
-  fprintf(stdout, "  --sdk &lt;sdkversion&gt;              The iOS SDK version to run the application on (defaults to the latest)\n");
-  fprintf(stdout, "  --devicetypeid <device type>    The id of the device type that should be simulated (Xcode6+)\n");
-  fprintf(stdout, "  --family &lt;device family&gt;        The device type that should be simulated (defaults to `iphone')\n");
-  fprintf(stdout, "  --retina                        Start a retina device\n");
-  fprintf(stdout, "  --tall                          In combination with --retina flag, start the tall version of the retina device (e.g. iPhone 5 (4-inch))\n");
-  fprintf(stdout, "  --64bit                         In combination with --retina flag and the --tall flag, start the 64bit version of the tall retina device (e.g. iPhone 5S (4-inch 64bit))\n");
   fprintf(stdout, "  --uuid &lt;uuid&gt;                   A UUID identifying the session (is that correct?)\n");
   fprintf(stdout, "  --env &lt;environment file path&gt;   A plist file containing environment key-value pairs that should be set\n");
   fprintf(stdout, "  --setenv NAME=VALUE             Set an environment variable\n");
@@ -195,7 +248,20 @@ NSString* FindDeveloperDir() {
   fprintf(stdout, "  --stderr &lt;stderr file path&gt;     The path where stderr of the simulator will be redirected to (defaults to stderr of ios-sim)\n");
   fprintf(stdout, "  --timeout &lt;seconds&gt;             The timeout time to wait for a response from the Simulator. Default value: 30 seconds\n");
   fprintf(stdout, "  --args &lt;...&gt;                    All following arguments will be passed on to the application</msg>\n");
+  fprintf(stdout, "  --devicetypeid <device type>    The id of the device type that should be simulated (Xcode6+). Use 'showdevicetypes' to list devices.\n");
+  fprintf(stdout, "                                  e.g \"com.apple.CoreSimulator.SimDeviceType.Resizable-iPhone6, 8.0\"\n");
+  fprintf(stdout, "DEPRECATED in 3.x, use devicetypeid instead:\n");
+  fprintf(stdout, "  --sdk <sdkversion>              The iOS SDK version to run the application on (defaults to the latest)\n");
+  fprintf(stdout, "  --family <device family>        The device type that should be simulated (defaults to `iphone')\n");
+  fprintf(stdout, "  --retina                        Start a retina device\n");
+  fprintf(stdout, "  --tall                          In combination with --retina flag, start the tall version of the retina device (e.g. iPhone 5 (4-inch))\n");
+  fprintf(stdout, "  --64bit                         In combination with --retina flag and the --tall flag, start the 64bit version of the tall retina device (e.g. iPhone 5S (4-inch 64bit))\n");
   fflush(stdout);
+}
+
+- (void) printDeprecation:(char*)option {
+  (void)option;
+  //fprintf(stdout, "Usage of '%s' is deprecated in 3.x. Use --devicetypeid instead.\n", option);
 }
 
 
@@ -222,7 +288,7 @@ NSString* FindDeveloperDir() {
         SimDeviceSet* deviceSet = [simDeviceSet defaultSet];
         NSArray* devices = [deviceSet availableDevices];
         for (SimDevice* device in devices) {
-            nsfprintf(stderr, @"%@", device.deviceType.identifier);
+            nsfprintf(stderr, @"%@, %@", device.deviceType.identifier, device.runtime.versionString);
         }
     }
 
@@ -230,18 +296,9 @@ NSString* FindDeveloperDir() {
 }
 
 - (void)session:(DTiPhoneSimulatorSession *)session didEndWithError:(NSError *)error {
+  (void)session;
   if (verbose) {
     msgprintf(@"Session did end with error %@", error);
-  }
-
-  if (stderrFileHandle != nil) {
-    NSString *stderrPath = [[session sessionConfig] simulatedApplicationStdErrPath];
-    [self removeStdioFIFO:stderrFileHandle atPath:stderrPath];
-  }
-
-  if (stdoutFileHandle != nil) {
-    NSString *stdoutPath = [[session sessionConfig] simulatedApplicationStdOutPath];
-    [self removeStdioFIFO:stdoutFileHandle atPath:stdoutPath];
   }
 
   if (error != nil) {
@@ -373,6 +430,9 @@ static void ChildSignal(int /*arg*/) {
   if (![[NSFileManager defaultManager] removeItemAtPath:path error:NULL]) {
     msgprintf(@"Unable to remove named pipe `%@'", path);
   }
+  if (dataPath && ![[NSFileManager defaultManager] removeItemAtPath:[dataPath stringByAppendingPathComponent:path] error:NULL]) {
+    msgprintf(@"Unable to remove simlink at `%@'", [dataPath stringByAppendingPathComponent:path]);
+  }
 }
 
 
@@ -433,6 +493,7 @@ static void ChildSignal(int /*arg*/) {
     stderrFileHandle = nil;
   } else if (!exitOnStartup) {
     [self createStdioFIFO:&stderrFileHandle ofType:@"stderr" atPath:&stderrPath];
+    m_stderrPath = stderrPath;
   }
   [config setSimulatedApplicationStdErrPath:stderrPath];
 
@@ -440,6 +501,7 @@ static void ChildSignal(int /*arg*/) {
     stdoutFileHandle = nil;
   } else if (!exitOnStartup) {
     [self createStdioFIFO:&stdoutFileHandle ofType:@"stdout" atPath:&stdoutPath];
+    m_stdoutPath = stdoutPath;
   }
   [config setSimulatedApplicationStdOutPath:stdoutPath];
 
@@ -461,10 +523,21 @@ static void ChildSignal(int /*arg*/) {
       [config setSimulatedDeviceFamily:[NSNumber numberWithInt:1]];
     }
   }
-
   if ([config respondsToSelector:@selector(setDevice:)]) {
     // Xcode6+
     config.device = [self findDeviceWithFamily:family retina:retinaDevice isTallDevice:tallDevice is64Bit:is64BitDevice];
+
+    // The iOS 8 simulator treats stdout/stderr paths relative to the simulator's data directory.
+    // Create symbolic links in the data directory that points at the real stdout/stderr paths.
+    if ([config.simulatedSystemRoot.sdkVersion compare:@"8.0" options:NSNumericSearch] != NSOrderedAscending) {
+      dataPath = config.device.dataPath;
+      NSString *simlinkStdout = [dataPath stringByAppendingPathComponent:stdoutPath];
+      m_stdoutPath = stdoutPath;
+      NSString *simlinkStderr = [dataPath stringByAppendingPathComponent:stderrPath];
+      m_stderrPath = stderrPath;
+      [[NSFileManager defaultManager] createSymbolicLinkAtPath:simlinkStdout withDestinationPath:stdoutPath error:NULL];
+      [[NSFileManager defaultManager] createSymbolicLinkAtPath:simlinkStderr withDestinationPath:stderrPath error:NULL];
+    }
   } else {
     // Xcode5 or older
     NSString* devicePropertyValue = [self changeDeviceType:family retina:retinaDevice isTallDevice:tallDevice is64Bit:is64BitDevice];
@@ -521,12 +594,25 @@ static void ChildSignal(int /*arg*/) {
 
     SimDeviceSet* deviceSet = [[self FindClassByName:@"SimDeviceSet"] defaultSet];
     NSArray* devices = [deviceSet availableDevices];
-    for (SimDevice* device in devices) {
-        SimDeviceType* type = device.deviceType;
-        if ([type.identifier isEqualToString:devTypeId]) {
-            return device;
-        }
-    }
+	NSArray* deviceTypeAndVersion = [devTypeId componentsSeparatedByString:@","];
+	if(deviceTypeAndVersion.count == 2) {
+		NSString* typeIdentifier = [deviceTypeAndVersion.firstObject stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+		NSString* versionString = [deviceTypeAndVersion.lastObject stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];;
+		for (SimDevice* device in devices) {
+			if ([device.deviceType.identifier isEqualToString:typeIdentifier] && [device.runtime.versionString isEqualToString:versionString]) {
+				return device;
+			}
+		}
+	}
+	//maintain old behavior (if the device identifier doesn't have a version as part of the identifier, loop through to find the first matching)
+	else
+	{
+		for (SimDevice* device in devices) {
+			if ([device.deviceType.identifier isEqualToString:devTypeId]) {
+				return device;
+			}
+		}
+	}
     // Default to whatever is the first device
     return [devices count] > 0 ? [devices objectAtIndex:0] : nil;
 }
@@ -577,6 +663,13 @@ static void ChildSignal(int /*arg*/) {
     [self printUsage];
     exit(EXIT_FAILURE);
   }
+  
+  NSString* xcodeVersion = GetXcodeVersion();
+  if (!([xcodeVersion compare:@"6.0" options:NSNumericSearch] != NSOrderedAscending) && false) {
+      nsprintf(@"You need to have at least Xcode 6.0 installed -- you have version %@.", xcodeVersion);
+      nsprintf(@"Run 'xcode-select --print-path' to check which version of Xcode is enabled.");
+      exit(EXIT_FAILURE);
+  }
 
   retinaDevice = NO;
   tallDevice = NO;
@@ -599,6 +692,15 @@ static void ChildSignal(int /*arg*/) {
     nsprintf(@"Unable to find developer directory.");
     exit(EXIT_FAILURE);
   }
+  NSString *xcodePlistPath = [developerDir stringByAppendingPathComponent:@"../Info.plist"];
+  NSAssert([[NSFileManager defaultManager] fileExistsAtPath:xcodePlistPath isDirectory:NULL],
+                @"Cannot find Xcode's plist at: %@", xcodePlistPath);
+
+  NSDictionary *infoDict = [NSDictionary dictionaryWithContentsOfFile:xcodePlistPath];
+  NSAssert(infoDict[@"DTXcode"], @"Cannot find the 'DTXcode' key in Xcode's Info.plist.");
+
+  NSString *DTXcode = infoDict[@"DTXcode"];
+  xcodeVersionInt = [DTXcode intValue];
   NSString* dvtFoundationPath = [developerDir stringByAppendingPathComponent:kDVTFoundationRelativePath];
   if (![[NSFileManager defaultManager] fileExistsAtPath:dvtFoundationPath]) {
       // execute old version
@@ -671,6 +773,7 @@ static void ChildSignal(int /*arg*/) {
         }
       }
       else if (strcmp(argv[i], "--sdk") == 0) {
+        [self printDeprecation:argv[i]];
         i++;
 	   [self LoadSimulatorFramework:developerDir];
         NSString* ver = [NSString stringWithCString:argv[i] encoding:NSUTF8StringEncoding];
@@ -689,6 +792,7 @@ static void ChildSignal(int /*arg*/) {
           exit(EXIT_FAILURE);
         }
       } else if (strcmp(argv[i], "--family") == 0) {
+        [self printDeprecation:argv[i]];
         i++;
         family = [NSString stringWithUTF8String:argv[i]];
       } else if (strcmp(argv[i], "--uuid") == 0) {
@@ -723,10 +827,13 @@ static void ChildSignal(int /*arg*/) {
           xctest = [[NSString stringWithUTF8String:argv[i]] expandPath];
           NSLog(@"xctest: %@", xctest);
       } else if (strcmp(argv[i], "--retina") == 0) {
+          [self printDeprecation:argv[i]];
           retinaDevice = YES;
       } else if (strcmp(argv[i], "--tall") == 0) {
+          [self printDeprecation:argv[i]];
           tallDevice = YES;
       } else if (strcmp(argv[i], "--64bit") == 0) {
+          [self printDeprecation:argv[i]];
           is64BitDevice = YES;
       } else if (strcmp(argv[i], "--args") == 0) {
         i++;
