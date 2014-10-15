@@ -70,6 +70,7 @@
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/find/basetextfind.h>
 #include <utils/linecolumnlabel.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -89,6 +90,7 @@
 #include <QPainter>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QDrag>
 #include <QScrollBar>
 #include <QShortcut>
 #include <QStyle>
@@ -7203,6 +7205,55 @@ void TextEditorWidget::setupAsPlainEditor()
             d, &TextEditorWidgetPrivate::reconfigure);
 
     updateEditorInfoBar(this);
+}
+
+//
+// TextEditorLinkLabel
+//
+TextEditorLinkLabel::TextEditorLinkLabel(QWidget *parent)
+    : QLabel(parent)
+{
+}
+
+void TextEditorLinkLabel::setLink(TextEditorWidget::Link link)
+{
+    m_link = link;
+}
+
+TextEditorWidget::Link TextEditorLinkLabel::link() const
+{
+    return m_link;
+}
+
+void TextEditorLinkLabel::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+        m_dragStartPosition = event->pos();
+}
+
+void TextEditorLinkLabel::mouseMoveEvent(QMouseEvent *event)
+{
+    if (!(event->buttons() & Qt::LeftButton))
+        return;
+    if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance())
+        return;
+
+    auto data = new Utils::FileDropMimeData;
+    data->addFile(m_link.targetFileName, m_link.targetLine, m_link.targetColumn);
+    auto drag = new QDrag(this);
+    drag->setMimeData(data);
+    drag->exec(Qt::MoveAction);
+}
+
+void TextEditorLinkLabel::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event)
+    if (!m_link.hasValidTarget())
+        return;
+
+    Core::EditorManager::openEditorAt(m_link.targetFileName,
+                                      m_link.targetLine,
+                                      m_link.targetColumn);
 }
 
 //

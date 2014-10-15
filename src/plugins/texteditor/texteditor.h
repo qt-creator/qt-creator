@@ -45,6 +45,7 @@
 
 #include <utils/uncommentselection.h>
 
+#include <QLabel>
 #include <QPlainTextEdit>
 #include <functional>
 
@@ -621,6 +622,24 @@ private:
     friend class Internal::TextEditorWidgetPrivate;
     friend class Internal::TextEditorOverlay;
     friend class RefactorOverlay;
+};
+
+class TEXTEDITOR_EXPORT TextEditorLinkLabel : public QLabel
+{
+public:
+    TextEditorLinkLabel(QWidget *parent = 0);
+
+    void setLink(TextEditorWidget::Link link);
+    TextEditorWidget::Link link() const;
+
+protected:
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+
+private:
+    QPoint m_dragStartPosition;
+    TextEditorWidget::Link m_link;
 };
 
 class TEXTEDITOR_EXPORT TextEditorFactory : public Core::IEditorFactory
