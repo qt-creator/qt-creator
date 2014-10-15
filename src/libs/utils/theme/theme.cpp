@@ -63,13 +63,6 @@ Theme::~Theme()
     delete d;
 }
 
-void Theme::drawIndicatorBranch(QPainter *painter, const QRect &rect, QStyle::State state) const
-{
-    Q_UNUSED(painter);
-    Q_UNUSED(rect);
-    Q_UNUSED(state);
-}
-
 Theme::WidgetStyle Theme::widgetStyle() const
 {
     return d->widgetStyle;
@@ -85,48 +78,15 @@ QColor Theme::color(Theme::ColorRole role) const
     return d->colors[role].first;
 }
 
+QString Theme::imageFile(Theme::ImageFile imageFile, const QString &fallBack) const
+{
+    const QString &file = d->imageFiles.at(imageFile);
+    return file.isEmpty() ? fallBack : file;
+}
+
 QGradientStops Theme::gradient(Theme::GradientRole role) const
 {
     return d->gradientStops[role];
-}
-
-QString Theme::iconOverlay(Theme::MimeType mimetype) const
-{
-    return d->iconOverlays[mimetype];
-}
-
-QString Theme::dpiSpecificImageFile(const QString &fileName) const
-{
-    return dpiSpecificImageFile(fileName, QLatin1String(""));
-}
-
-QString Theme::dpiSpecificImageFile(const QString &fileName, const QString &themePrefix) const
-{
-    // See QIcon::addFile()
-    const QFileInfo fi(fileName);
-
-    bool at2x = (qApp->devicePixelRatio() > 1.0);
-
-    const QString at2xFileName = fi.path() + QStringLiteral("/")
-        + fi.completeBaseName() + QStringLiteral("@2x.") + fi.suffix();
-    const QString themedAt2xFileName = fi.path() + QStringLiteral("/") + themePrefix
-        + fi.completeBaseName() + QStringLiteral("@2x.") + fi.suffix();
-    const QString themedFileName = fi.path() + QStringLiteral("/")  + themePrefix
-        + fi.completeBaseName() + QStringLiteral(".")    + fi.suffix();
-
-    if (at2x) {
-        if (QFile::exists(themedAt2xFileName))
-            return themedAt2xFileName;
-        else if (QFile::exists(themedFileName))
-            return themedFileName;
-        else if (QFile::exists(at2xFileName))
-            return at2xFileName;
-        return fileName;
-    } else {
-        if (QFile::exists(themedFileName))
-            return themedFileName;
-        return fileName;
-    }
 }
 
 QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
@@ -141,11 +101,6 @@ QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
         return qMakePair(Qt::black, QString());
     }
     return qMakePair(QColor::fromRgba(rgba), QString());
-}
-
-QString Theme::imageFile(const QString &fileName) const
-{
-    return fileName;
 }
 
 QString Theme::fileName() const
@@ -203,6 +158,17 @@ void Theme::writeSettings(const QString &filename) const
         settings.endGroup();
     }
     {
+        settings.beginGroup(QLatin1String("ImageFiles"));
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("ImageFile"));
+        for (int i = 0, total = e.keyCount(); i < total; ++i) {
+            const QString key = QLatin1String(e.key(i));
+            const QString &var = d->imageFiles.at(i);
+            if (!var.isEmpty())
+                settings.setValue(key, var);
+        }
+        settings.endGroup();
+    }
+    {
         settings.beginGroup(QLatin1String("Gradients"));
         const QMetaEnum e = m.enumerator(m.indexOfEnumerator("GradientRole"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
@@ -217,15 +183,6 @@ void Theme::writeSettings(const QString &filename) const
                 ++k;
             }
             settings.endArray();
-        }
-        settings.endGroup();
-    }
-    {
-        settings.beginGroup(QLatin1String("IconOverlay"));
-        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("MimeType"));
-        for (int i = 0, total = e.keyCount(); i < total; ++i) {
-            const QString key = QLatin1String(e.key(i));
-            settings.setValue(key, iconOverlay(static_cast<Theme::MimeType>(i)));
         }
         settings.endGroup();
     }
@@ -281,6 +238,15 @@ void Theme::readSettings(QSettings &settings)
         settings.endGroup();
     }
     {
+        settings.beginGroup(QLatin1String("ImageFiles"));
+        QMetaEnum e = m.enumerator(m.indexOfEnumerator("ImageFile"));
+        for (int i = 0, total = e.keyCount(); i < total; ++i) {
+            const QString key = QLatin1String(e.key(i));
+            d->imageFiles[i] = settings.value(key).toString();
+        }
+        settings.endGroup();
+    }
+    {
         settings.beginGroup(QLatin1String("Gradients"));
         QMetaEnum e = m.enumerator(m.indexOfEnumerator("GradientRole"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
@@ -301,16 +267,6 @@ void Theme::readSettings(QSettings &settings)
         settings.endGroup();
     }
     {
-        settings.beginGroup(QLatin1String("IconOverlay"));
-        QMetaEnum e = m.enumerator(m.indexOfEnumerator("MimeType"));
-        for (int i = 0, total = e.keyCount(); i < total; ++i) {
-            const QString key = QLatin1String(e.key(i));
-            QTC_ASSERT(settings.contains(key), return);;
-            d->iconOverlays[i] = settings.value(key).toString();
-        }
-        settings.endGroup();
-    }
-    {
         settings.beginGroup(QLatin1String("Flags"));
         QMetaEnum e = m.enumerator(m.indexOfEnumerator("Flag"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
@@ -320,14 +276,6 @@ void Theme::readSettings(QSettings &settings)
         }
         settings.endGroup();
     }
-}
-
-QIcon Theme::standardIcon(QStyle::StandardPixmap standardPixmap, const QStyleOption *opt, const QWidget *widget) const
-{
-    Q_UNUSED(standardPixmap);
-    Q_UNUSED(opt);
-    Q_UNUSED(widget);
-    return QIcon();
 }
 
 QPalette Theme::palette(const QPalette &base) const

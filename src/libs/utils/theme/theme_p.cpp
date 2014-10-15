@@ -39,8 +39,8 @@ ThemePrivate::ThemePrivate()
 {
     const QMetaObject &m = Theme::staticMetaObject;
     colors.resize        (m.enumerator(m.indexOfEnumerator("ColorRole")).keyCount());
+    imageFiles.resize    (m.enumerator(m.indexOfEnumerator("ImageFile")).keyCount());
     gradientStops.resize (m.enumerator(m.indexOfEnumerator("GradientRole")).keyCount());
-    iconOverlays.resize  (m.enumerator(m.indexOfEnumerator("MimeType")).keyCount());
     flags.resize         (m.enumerator(m.indexOfEnumerator("Flag")).keyCount());
 }
 

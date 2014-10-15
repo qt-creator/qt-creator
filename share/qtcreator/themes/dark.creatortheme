@@ -113,18 +113,15 @@ DetailsWidgetHeaderGradient\1\color=0
 DetailsWidgetHeaderGradient\1\pos=1
 DetailsWidgetHeaderGradient\size=1
 
-[IconOverlay]
-CSourceMimetype=:/cppeditor/images/dark_qt_c.png
-CppHeaderMimetype=:/cppeditor/images/dark_qt_h.png
-CppSourceMimetype=:/cppeditor/images/dark_qt_cpp.png
-PrfMimetype=:/qtsupport/images/dark_qt_project.png
-PriMimetype=:/qtsupport/images/dark_qt_project.png
-ProMimetype=:/qtsupport/images/dark_qt_project.png
-
-#TODO: needs to be ported to new ini format!
-[StandardIcons]
-SP_FileIcon=:/core/images/dark_fileicon.png
-SP_DirIcon=:/core/images/dark_foldericon.png
+[ImageFiles]
+IconOverlayCSource=:/cppeditor/images/dark_qt_c.png
+IconOverlayCppHeader=:/cppeditor/images/dark_qt_h.png
+IconOverlayCppSource=:/cppeditor/images/dark_qt_cpp.png
+IconOverlayPrf=:/qtsupport/images/dark_qt_project.png
+IconOverlayPri=:/qtsupport/images/dark_qt_project.png
+IconOverlayPro=:/qtsupport/images/dark_qt_project.png
+StandardPixmapFileIcon=:/core/images/dark_fileicon.png
+StandardPixmapDirIcon=:/core/images/dark_foldericon.png
 
 [Style]
 WidgetStyle=StyleFlat

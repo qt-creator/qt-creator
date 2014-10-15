@@ -314,12 +314,17 @@ void ManhattanStyle::polish(QPalette &pal)
     QProxyStyle::polish(pal);
 }
 
-QIcon ManhattanStyle::standardIcon(StandardPixmap standardPixmap, const QStyleOption *opt, const QWidget *widget) const
+QIcon ManhattanStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const
 {
-    QIcon ico = creatorTheme()->standardIcon(standardPixmap, opt, widget);
-    if (!ico.isNull())
-        return ico;
-    return QProxyStyle::standardIcon(standardPixmap, opt, widget);
+    QIcon icon;
+    switch (standardIcon) {
+    case QStyle::SP_TitleBarCloseButton:
+    case QStyle::SP_ToolBarHorizontalExtensionButton:
+        return QIcon(standardPixmap(standardIcon, option, widget));
+    default:
+        icon = baseStyle()->standardIcon(standardIcon, option, widget);
+    }
+    return icon;
 }
 
 QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
@@ -376,13 +381,8 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
 void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                                    QPainter *painter, const QWidget *widget) const
 {
-    if (!panelWidget(widget)) {
-        if (creatorTheme()->flag(Theme::DrawIndicatorBranch) && element == PE_IndicatorBranch) {
-            creatorTheme()->drawIndicatorBranch(painter, option->rect, option->state);
-            return;
-        }
+    if (!panelWidget(widget))
         return QProxyStyle::drawPrimitive(element, option, painter, widget);
-    }
 
     bool animating = (option->state & State_Animating);
     int state = option->state;

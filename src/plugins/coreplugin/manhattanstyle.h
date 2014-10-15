@@ -56,7 +56,6 @@ public:
 
     SubControl hitTestComplexControl(ComplexControl control, const QStyleOptionComplex *option, const QPoint &pos, const QWidget *widget = 0) const;
     QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt, const QWidget *widget = 0) const;
-    QIcon standardIcon(StandardPixmap standardPixmap, const QStyleOption *opt, const QWidget *widget = 0) const;
     int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const;
     QRect itemRect(QPainter *p, const QRect &r, int flags, bool enabled, const QPixmap *pixmap, const QString &text, int len = -1) const;
     QPixmap generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap, const QStyleOption *opt) const;
@@ -71,6 +70,9 @@ public:
 
     void unpolish(QWidget *widget);
     void unpolish(QApplication *app);
+
+protected slots:
+    QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const;
 
 private:
     void drawButtonSeparator(QPainter *painter, const QRect &rect, bool reverse) const;

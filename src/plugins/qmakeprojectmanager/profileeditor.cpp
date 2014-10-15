@@ -224,9 +224,13 @@ ProFileEditorFactory::ProFileEditorFactory()
     addHoverHandler(new ProFileHoverHandler(keywords));
     setSyntaxHighlighterCreator([keywords]() { return new ProFileHighlighter(keywords); });
 
-    Core::FileIconProvider::registerIconOverlayForSuffix(creatorTheme()->iconOverlay(Theme::ProMimetype).toLatin1().data(), "pro");
-    Core::FileIconProvider::registerIconOverlayForSuffix(creatorTheme()->iconOverlay(Theme::PriMimetype).toLatin1().data(), "pri");
-    Core::FileIconProvider::registerIconOverlayForSuffix(creatorTheme()->iconOverlay(Theme::PrfMimetype).toLatin1().data(), "prf");
+    const QString defaultOverlay = QLatin1String(QtSupport::Constants::ICON_QT_PROJECT);
+    Core::FileIconProvider::registerIconOverlayForSuffix(
+                creatorTheme()->imageFile(Theme::IconOverlayPro, defaultOverlay).toLatin1().data(), "pro");
+    Core::FileIconProvider::registerIconOverlayForSuffix(
+                creatorTheme()->imageFile(Theme::IconOverlayPri, defaultOverlay).toLatin1().data(), "pri");
+    Core::FileIconProvider::registerIconOverlayForSuffix(
+                creatorTheme()->imageFile(Theme::IconOverlayPrf, defaultOverlay).toLatin1().data(), "prf");
 }
 
 } // namespace Internal

@@ -105,9 +105,15 @@ public:
         addHoverHandler(new CppHoverHandler);
 
         if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
-            FileIconProvider::registerIconOverlayForMimeType(creatorTheme()->iconOverlay(Theme::CppSourceMimetype).toLatin1().data(), Constants::CPP_SOURCE_MIMETYPE);
-            FileIconProvider::registerIconOverlayForMimeType(creatorTheme()->iconOverlay(Theme::CSourceMimetype).toLatin1().data(),   Constants::C_SOURCE_MIMETYPE);
-            FileIconProvider::registerIconOverlayForMimeType(creatorTheme()->iconOverlay(Theme::CppHeaderMimetype).toLatin1().data(), Constants::CPP_HEADER_MIMETYPE);
+            FileIconProvider::registerIconOverlayForMimeType(
+                        QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppSource, QLatin1String(":/cppeditor/images/qt_cpp.png"))),
+                        Constants::CPP_SOURCE_MIMETYPE);
+            FileIconProvider::registerIconOverlayForMimeType(
+                        QIcon(creatorTheme()->imageFile(Theme::IconOverlayCSource, QLatin1String(":/cppeditor/images/qt_c.png"))),
+                        Constants::C_SOURCE_MIMETYPE);
+            FileIconProvider::registerIconOverlayForMimeType(
+                        QIcon(creatorTheme()->imageFile(Theme::IconOverlayCppHeader, QLatin1String(":/cppeditor/images/qt_h.png"))),
+                        Constants::CPP_HEADER_MIMETYPE);
         }
     }
 };

@@ -47,6 +47,7 @@ class QTCREATOR_UTILS_EXPORT Theme : public QObject
     Q_OBJECT
 
     Q_ENUMS(ColorRole)
+    Q_ENUMS(ImageFile)
     Q_ENUMS(GradientRole)
     Q_ENUMS(MimeType)
     Q_ENUMS(Flag)
@@ -159,13 +160,22 @@ public:
         Welcome_Button_GradientPressed
     };
 
-    enum MimeType {
-        CppSourceMimetype,
-        CSourceMimetype,
-        CppHeaderMimetype,
-        ProMimetype,
-        PriMimetype,
-        PrfMimetype
+    enum ImageFile {
+        ProjectExplorerHeader,
+        ProjectExplorerSource,
+        ProjectExplorerForm,
+        ProjectExplorerResource,
+        ProjectExplorerQML,
+        ProjectExplorerOtherFiles,
+        ProjectFileIcon,
+        IconOverlayCSource,
+        IconOverlayCppHeader,
+        IconOverlayCppSource,
+        IconOverlayPri,
+        IconOverlayPrf,
+        IconOverlayPro,
+        StandardPixmapFileIcon,
+        StandardPixmapDirIcon
     };
 
     enum Flag {
@@ -185,13 +195,9 @@ public:
     WidgetStyle widgetStyle() const;
     bool flag(Flag f) const;
     QColor color(ColorRole role) const;
+    QString imageFile(ImageFile imageFile, const QString &fallBack) const;
     QGradientStops gradient(GradientRole role) const;
-    QString iconOverlay(MimeType mimetype) const;
     QPalette palette(const QPalette &base) const;
-    QString dpiSpecificImageFile(const QString &fileName) const;
-    void drawIndicatorBranch(QPainter *painter, const QRect &rect, QStyle::State state) const;
-    QIcon standardIcon(QStyle::StandardPixmap standardPixmap, const QStyleOption *opt, const QWidget *widget) const;
-    QString imageFile(const QString &fileName) const;
 
     QString fileName() const;
     void setName(const QString &name);
@@ -202,9 +208,6 @@ public:
 
 signals:
     void changed();
-
-protected:
-    QString dpiSpecificImageFile(const QString &fileName, const QString &themePrefix) const;
 
 private:
     QPair<QColor, QString> readNamedColor(const QString &color) const;
