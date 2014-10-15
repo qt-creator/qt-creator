@@ -36,8 +36,9 @@
 #include "projectimporter.h"
 #include "kitinformation.h"
 
+#include <utils/wizardpage.h>
+
 #include <QString>
-#include <QWizardPage>
 #include <QMap>
 
 QT_FORWARD_DECLARE_CLASS(QSpacerItem)
@@ -57,7 +58,7 @@ class TargetSetupWidget;
 } // namespace Internal
 
 /// \internal
-class PROJECTEXPLORER_EXPORT TargetSetupPage : public QWizardPage
+class PROJECTEXPLORER_EXPORT TargetSetupPage : public Utils::WizardPage
 {
     Q_OBJECT
 
