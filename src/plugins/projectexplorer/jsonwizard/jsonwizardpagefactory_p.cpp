@@ -134,11 +134,11 @@ ProjectPageFactory::ProjectPageFactory()
 
 Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
 {
+    Q_UNUSED(wizard);
     Q_UNUSED(data);
     QTC_ASSERT(canCreate(typeId), return 0);
 
     JsonProjectPage *page = new JsonProjectPage;
-    page->setPath(wizard->value(QStringLiteral("GivenPath")).toString());
 
     return page;
 }
@@ -148,7 +148,13 @@ bool ProjectPageFactory::validateData(Core::Id typeId, const QVariant &data, QSt
     Q_UNUSED(errorMessage);
 
     QTC_ASSERT(canCreate(typeId), return false);
-    return data.isNull();
+    if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
+        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                    "\"data\" for a \"Project\" page needs to be unset or an empty object.");
+        return false;
+    }
+
+    return true;
 }
 
 // --------------------------------------------------------------------
