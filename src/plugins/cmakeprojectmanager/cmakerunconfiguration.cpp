@@ -123,7 +123,7 @@ QString CMakeRunConfiguration::workingDirectory() const
     EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
     QTC_ASSERT(aspect, return QString());
     return QDir::cleanPath(aspect->environment().expandVariables(
-                Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
+                macroExpander()->expand(baseWorkingDirectory())));
 }
 
 QString CMakeRunConfiguration::baseWorkingDirectory() const

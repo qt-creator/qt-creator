@@ -49,7 +49,8 @@ public:
 
     QString value(const QByteArray &variable, bool *found = 0);
 
-    QString expandedString(const QString &stringWithVariables);
+    QString expand(const QString &stringWithVariables);
+    QByteArray expand(const QByteArray &stringWithVariables);
 
     typedef std::function<QString(QString)> PrefixFunction;
     typedef std::function<QString()> StringFunction;

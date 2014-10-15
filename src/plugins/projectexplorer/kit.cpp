@@ -300,7 +300,7 @@ QString Kit::unexpandedDisplayName() const
 
 QString Kit::displayName() const
 {
-    return Utils::expandMacros(d->m_unexpandedDisplayName, &d->m_macroExpander);
+    return d->m_macroExpander.expand(d->m_unexpandedDisplayName);
 }
 
 static QString candidateName(const QString &name, const QString &postfix)

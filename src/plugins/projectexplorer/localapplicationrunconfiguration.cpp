@@ -33,7 +33,6 @@
 #include "buildconfiguration.h"
 
 #include <utils/macroexpander.h>
-#include <utils/stringutils.h>
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
@@ -43,7 +42,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class FallBackMacroExpander : public Utils::AbstractMacroExpander
+class FallBackMacroExpander : public Utils::MacroExpander
 {
 public:
     explicit FallBackMacroExpander(const Target *target) : m_target(target) {}
@@ -58,9 +57,7 @@ bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret)
         *ret = m_target->project()->projectDirectory().toUserOutput();
         return true;
     }
-    bool found;
-    *ret = Utils::globalMacroExpander()->value(name.toUtf8(), &found);
-    return found;
+    return false;
 }
 } // namespace Internal
 
@@ -84,7 +81,7 @@ void LocalApplicationRunConfiguration::addToBaseEnvironment(Utils::Environment &
     Q_UNUSED(env);
 }
 
-Utils::AbstractMacroExpander *LocalApplicationRunConfiguration::macroExpander() const
+Utils::MacroExpander *LocalApplicationRunConfiguration::macroExpander() const
 {
     if (BuildConfiguration *bc = activeBuildConfiguration())
         return bc->macroExpander();

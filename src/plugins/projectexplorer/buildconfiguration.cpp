@@ -43,7 +43,7 @@
 #include <coreplugin/idocument.h>
 
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
+#include <utils/macroexpander.h>
 #include <utils/algorithm.h>
 
 #include <QDebug>
@@ -155,7 +155,7 @@ QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
     return QList<NamedWidget *>() << new BuildEnvironmentWidget(this);
 }
 
-Utils::AbstractMacroExpander *BuildConfiguration::macroExpander()
+Utils::MacroExpander *BuildConfiguration::macroExpander()
 {
     if (!m_macroExpander)
         m_macroExpander = new Internal::BuildConfigMacroExpander(this);

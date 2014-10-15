@@ -37,7 +37,7 @@
 
 #include <utils/wizard.h>
 
-namespace Utils { class AbstractMacroExpander; }
+namespace Utils { class MacroExpander; }
 
 namespace ProjectExplorer {
 
@@ -71,7 +71,7 @@ public:
 
     void addGenerator(JsonWizardGenerator *gen);
 
-    Utils::AbstractMacroExpander *expander() const;
+    Utils::MacroExpander *expander() const;
 
     void resetFileList();
     GeneratorFiles fileList();
@@ -79,7 +79,7 @@ public:
     QVariant value(const QString &n) const;
     void setValue(const QString &key, const QVariant &value);
 
-    static bool boolFromVariant(const QVariant &v, Utils::AbstractMacroExpander *expander);
+    static bool boolFromVariant(const QVariant &v, Utils::MacroExpander *expander);
 
     void removeAttributeFromAllFiles(Core::GeneratedFile::Attribute a);
 

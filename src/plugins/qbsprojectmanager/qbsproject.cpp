@@ -372,7 +372,7 @@ Utils::FileName QbsProject::defaultBuildDirectory(const QString &projectFilePath
     const QString projectName = QFileInfo(projectFilePath).completeBaseName();
     ProjectExplorer::ProjectMacroExpander expander(projectFilePath, projectName, k, bcName);
     QString projectDir = projectDirectory(Utils::FileName::fromString(projectFilePath)).toString();
-    QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
+    QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
     return Utils::FileName::fromString(Utils::FileUtils::resolvePath(projectDir, buildPath));
 }
 

@@ -61,7 +61,7 @@ void JsonWizard::addGenerator(JsonWizardGenerator *gen)
     m_generators.append(gen);
 }
 
-Utils::AbstractMacroExpander *JsonWizard::expander() const
+Utils::MacroExpander *JsonWizard::expander() const
 {
     return m_expander;
 }
@@ -114,7 +114,7 @@ QVariant JsonWizard::value(const QString &n) const
     QVariant v = property(n.toUtf8());
     if (v.isValid()) {
         if (v.type() == QVariant::String)
-            return Utils::expandMacros(v.toString(), m_expander);
+            return m_expander->expand(v.toString());
         else
             return v;
     }
@@ -128,10 +128,10 @@ void JsonWizard::setValue(const QString &key, const QVariant &value)
     setProperty(key.toUtf8(), value);
 }
 
-bool JsonWizard::boolFromVariant(const QVariant &v, Utils::AbstractMacroExpander *expander)
+bool JsonWizard::boolFromVariant(const QVariant &v, Utils::MacroExpander *expander)
 {
     if (v.type() == QVariant::String)
-        return !Utils::expandMacros(v.toString(), expander).isEmpty();
+        return !expander->expand(v.toString()).isEmpty();
     return v.toBool();
 }
 

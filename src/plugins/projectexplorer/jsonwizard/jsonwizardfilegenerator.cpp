@@ -39,7 +39,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
+#include <utils/macroexpander.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -48,7 +48,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-static QString processTextFileContents(Utils::AbstractMacroExpander *expander,
+static QString processTextFileContents(Utils::MacroExpander *expander,
                                        const QString &input, QString *errorMessage)
 {
     errorMessage->clear();
@@ -57,7 +57,7 @@ static QString processTextFileContents(Utils::AbstractMacroExpander *expander,
         return input;
 
     QString tmp;
-    if (!customWizardPreprocess(Utils::expandMacros(input, expander), &tmp, errorMessage))
+    if (!customWizardPreprocess(expander->expand(input), &tmp, errorMessage))
         return QString();
 
     // Expand \n, \t and handle line continuation:
@@ -124,7 +124,7 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
     return true;
 }
 
-Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::AbstractMacroExpander *expander,
+Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *expander,
                                                        const QString &wizardDir, const QString &projectDir,
                                                        QString *errorMessage)
 {
@@ -140,7 +140,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::AbstractMacroExpan
             continue;
 
         // Read contents of source file
-        const QString src = wizard.absoluteFilePath(Utils::expandMacros(f.source, expander));
+        const QString src = wizard.absoluteFilePath(expander->expand(f.source));
         const QFile::OpenMode openMode
                 = JsonWizard::boolFromVariant(f.isBinary, expander)
                 ? QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
@@ -151,7 +151,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::AbstractMacroExpan
 
         // Generate file information:
         Core::GeneratedFile gf;
-        gf.setPath(project.absoluteFilePath(Utils::expandMacros(f.target, expander)));
+        gf.setPath(project.absoluteFilePath(expander->expand(f.target)));
 
         if (JsonWizard::boolFromVariant(f.isBinary, expander)) {
             gf.setBinary(true);

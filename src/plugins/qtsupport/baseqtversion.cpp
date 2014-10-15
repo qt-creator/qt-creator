@@ -609,8 +609,7 @@ void BaseQtVersion::setAutoDetectionSource(const QString &autodetectionSource)
 
 QString BaseQtVersion::displayName() const
 {
-    QString ret = Utils::expandMacros(m_unexpandedDisplayName, &m_expander);
-    return Utils::expandMacros(ret, Utils::globalMacroExpander());
+    return m_expander.expand(m_unexpandedDisplayName);
 }
 
 QString BaseQtVersion::unexpandedDisplayName() const

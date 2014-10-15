@@ -53,15 +53,16 @@
 #include <QVariantMap>
 #include <QVBoxLayout>
 
-static const char NAME_KEY[] = "name";
-static const char DISPLAY_NAME_KEY[] = "trDisplayName";
-static const char MANDATORY_KEY[] = "mandatory";
-static const char VISIBLE_KEY[] = "visible";
-static const char ENABLED_KEY[] = "enabled";
-static const char SPAN_KEY[] = "span";
-static const char TYPE_KEY[] = "type";
-static const char DATA_KEY[] = "data";
+using namespace Utils;
 
+const char NAME_KEY[] = "name";
+const char DISPLAY_NAME_KEY[] = "trDisplayName";
+const char MANDATORY_KEY[] = "mandatory";
+const char VISIBLE_KEY[] = "visible";
+const char ENABLED_KEY[] = "enabled";
+const char SPAN_KEY[] = "span";
+const char TYPE_KEY[] = "type";
+const char DATA_KEY[] = "data";
 
 namespace ProjectExplorer {
 
@@ -158,13 +159,13 @@ void JsonFieldPage::Field::createWidget(JsonFieldPage *page)
     setup(page, name);
 }
 
-void JsonFieldPage::Field::adjustState(Utils::AbstractMacroExpander *expander)
+void JsonFieldPage::Field::adjustState(MacroExpander *expander)
 {
     setVisible(JsonWizard::boolFromVariant(m_visibleExpression, expander));
     setEnabled(JsonWizard::boolFromVariant(m_enabledExpression, expander));
 }
 
-void JsonFieldPage::Field::initialize(Utils::AbstractMacroExpander *expander)
+void JsonFieldPage::Field::initialize(MacroExpander *expander)
 {
     adjustState(expander);
     initializeData(expander);
@@ -326,16 +327,16 @@ void JsonFieldPage::LineEditField::setup(JsonFieldPage *page, const QString &nam
     connect(w, &QLineEdit::textChanged, page, [page](QString) { page->completeChanged(); });
 }
 
-bool JsonFieldPage::LineEditField::validate(Utils::AbstractMacroExpander *expander, QString *message)
+bool JsonFieldPage::LineEditField::validate(MacroExpander *expander, QString *message)
 {
     Q_UNUSED(message);
     QLineEdit *w = static_cast<QLineEdit *>(m_widget);
 
     if (!m_isModified) {
-        w->setText(Utils::expandMacros(m_defaultText, expander));
+        w->setText(expander->expand(m_defaultText));
     } else if (!w->isEnabled() && !m_disabledText.isNull() && m_currentText.isNull()) {
         m_currentText = w->text();
-        w->setText(Utils::expandMacros(m_disabledText, expander));
+        w->setText(expander->expand(m_disabledText));
     } else if (w->isEnabled() && !m_currentText.isNull()) {
         w->setText(m_currentText);
         m_currentText.clear();
@@ -345,14 +346,14 @@ bool JsonFieldPage::LineEditField::validate(Utils::AbstractMacroExpander *expand
     return !w->text().isEmpty();
 }
 
-void JsonFieldPage::LineEditField::initializeData(Utils::AbstractMacroExpander *expander)
+void JsonFieldPage::LineEditField::initializeData(MacroExpander *expander)
 {
     QTC_ASSERT(m_widget, return);
 
     m_isModified = false;
 
     QLineEdit *w = static_cast<QLineEdit *>(m_widget);
-    w->setText(Utils::expandMacros(m_defaultText, expander));
+    w->setText(expander->expand(m_defaultText));
     w->setPlaceholderText(m_placeholderText);
 }
 
@@ -403,7 +404,7 @@ void JsonFieldPage::TextEditField::setup(JsonFieldPage *page, const QString &nam
     connect(w, &QTextEdit::textChanged, page, &QWizardPage::completeChanged);
 }
 
-bool JsonFieldPage::TextEditField::validate(Utils::AbstractMacroExpander *expander, QString *message)
+bool JsonFieldPage::TextEditField::validate(MacroExpander *expander, QString *message)
 {
     Q_UNUSED(expander);
     Q_UNUSED(message);
@@ -412,7 +413,7 @@ bool JsonFieldPage::TextEditField::validate(Utils::AbstractMacroExpander *expand
 
     if (!w->isEnabled() && !m_disabledText.isNull() && m_currentText.isNull()) {
         m_currentText = w->toHtml();
-        w->setPlainText(Utils::expandMacros(m_disabledText, expander));
+        w->setPlainText(expander->expand(m_disabledText));
     } else if (w->isEnabled() && !m_currentText.isNull()) {
         w->setText(m_currentText);
         m_currentText.clear();
@@ -421,10 +422,10 @@ bool JsonFieldPage::TextEditField::validate(Utils::AbstractMacroExpander *expand
     return !w->toPlainText().isEmpty();
 }
 
-void JsonFieldPage::TextEditField::initializeData(Utils::AbstractMacroExpander *expander)
+void JsonFieldPage::TextEditField::initializeData(MacroExpander *expander)
 {
     QTextEdit *w = static_cast<QTextEdit *>(m_widget);
-    w->setPlainText(Utils::expandMacros(m_defaultText, expander));
+    w->setPlainText(expander->expand(m_defaultText));
 }
 
 // --------------------------------------------------------------------
@@ -432,7 +433,7 @@ void JsonFieldPage::TextEditField::initializeData(Utils::AbstractMacroExpander *
 // --------------------------------------------------------------------
 
 JsonFieldPage::PathChooserField::PathChooserField() :
-    m_kind(Utils::PathChooser::ExistingDirectory)
+    m_kind(PathChooser::ExistingDirectory)
 { }
 
 bool JsonFieldPage::PathChooserField::parseData(const QVariant &data, QString *errorMessage)
@@ -453,19 +454,19 @@ bool JsonFieldPage::PathChooserField::parseData(const QVariant &data, QString *e
 
     QString kindStr = tmp.value(QLatin1String("kind"), QLatin1String("existingDirectory")).toString();
     if (kindStr == QLatin1String("existingDirectory")) {
-        m_kind = Utils::PathChooser::ExistingDirectory;
+        m_kind = PathChooser::ExistingDirectory;
     } else if (kindStr == QLatin1String("directory")) {
-        m_kind = Utils::PathChooser::Directory;
+        m_kind = PathChooser::Directory;
     } else if (kindStr == QLatin1String("file")) {
-        m_kind = Utils::PathChooser::File;
+        m_kind = PathChooser::File;
     } else if (kindStr == QLatin1String("saveFile")) {
-        m_kind = Utils::PathChooser::SaveFile;
+        m_kind = PathChooser::SaveFile;
     } else if (kindStr == QLatin1String("existingCommand")) {
-        m_kind = Utils::PathChooser::ExistingCommand;
+        m_kind = PathChooser::ExistingCommand;
     } else if (kindStr == QLatin1String("command")) {
-        m_kind = Utils::PathChooser::Command;
+        m_kind = PathChooser::Command;
     } else if (kindStr == QLatin1String("any")) {
-        m_kind = Utils::PathChooser::Any;
+        m_kind = PathChooser::Any;
     } else {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "kind '%1' is not one of the supported 'existingDirectory', "
@@ -482,41 +483,41 @@ QWidget *JsonFieldPage::PathChooserField::widget(const QString &displayName)
 {
     Q_UNUSED(displayName);
     QTC_ASSERT(!m_widget, return m_widget);
-    m_widget = new Utils::PathChooser;
+    m_widget = new PathChooser;
     return m_widget;
 }
 
 void JsonFieldPage::PathChooserField::setEnabled(bool e)
 {
     QTC_ASSERT(m_widget, return);
-    Utils::PathChooser *w = static_cast<Utils::PathChooser *>(m_widget);
+    PathChooser *w = static_cast<PathChooser *>(m_widget);
     w->setReadOnly(!e);
 }
 
 void JsonFieldPage::PathChooserField::setup(JsonFieldPage *page, const QString &name)
 {
-    Utils::PathChooser *w = static_cast<Utils::PathChooser *>(m_widget);
+    PathChooser *w = static_cast<PathChooser *>(m_widget);
     page->registerFieldWithName(name, w, "path", SIGNAL(changed(QString)));
-    connect(w, &Utils::PathChooser::changed, page, [page](QString) { page->completeChanged(); });
+    connect(w, &PathChooser::changed, page, [page](QString) { page->completeChanged(); });
 }
 
-bool JsonFieldPage::PathChooserField::validate(Utils::AbstractMacroExpander *expander, QString *message)
+bool JsonFieldPage::PathChooserField::validate(MacroExpander *expander, QString *message)
 {
     Q_UNUSED(expander);
     Q_UNUSED(message);
-    Utils::PathChooser *w = static_cast<Utils::PathChooser *>(m_widget);
+    PathChooser *w = static_cast<PathChooser *>(m_widget);
     return w->isValid();
 }
 
-void JsonFieldPage::PathChooserField::initializeData(Utils::AbstractMacroExpander *expander)
+void JsonFieldPage::PathChooserField::initializeData(MacroExpander *expander)
 {
     QTC_ASSERT(m_widget, return);
-    Utils::PathChooser *w = static_cast<Utils::PathChooser *>(m_widget);
-    w->setBaseDirectory(Utils::expandMacros(m_basePath, expander));
+    PathChooser *w = static_cast<PathChooser *>(m_widget);
+    w->setBaseDirectory(expander->expand(m_basePath));
     w->setExpectedKind(m_kind);
 
     if (m_currentPath.isNull())
-        w->setPath(Utils::expandMacros(m_path, expander));
+        w->setPath(expander->expand(m_path));
     else
         w->setPath(m_currentPath);
 }
@@ -559,35 +560,35 @@ bool JsonFieldPage::CheckBoxField::parseData(const QVariant &data, QString *erro
 QWidget *JsonFieldPage::CheckBoxField::widget(const QString &displayName)
 {
     QTC_ASSERT(!m_widget, return m_widget);
-    Utils::TextFieldCheckBox *w = new Utils::TextFieldCheckBox(displayName);
+    TextFieldCheckBox *w = new TextFieldCheckBox(displayName);
     m_widget = w;
     return m_widget;
 }
 
 void JsonFieldPage::CheckBoxField::setup(JsonFieldPage *page, const QString &name)
 {
-    Utils::TextFieldCheckBox *w = static_cast<Utils::TextFieldCheckBox *>(m_widget);
-    connect(w, &Utils::TextFieldCheckBox::clicked, [this]() { m_isModified = true; });
+    TextFieldCheckBox *w = static_cast<TextFieldCheckBox *>(m_widget);
+    connect(w, &TextFieldCheckBox::clicked, [this]() { m_isModified = true; });
     page->registerFieldWithName(name, w, "text", SIGNAL(textChanged(QString)));
 }
 
-bool JsonFieldPage::CheckBoxField::validate(Utils::AbstractMacroExpander *expander, QString *message)
+bool JsonFieldPage::CheckBoxField::validate(MacroExpander *expander, QString *message)
 {
     Q_UNUSED(message);
     if (!m_isModified) {
-        Utils::TextFieldCheckBox *w = static_cast<Utils::TextFieldCheckBox *>(m_widget);
+        TextFieldCheckBox *w = static_cast<TextFieldCheckBox *>(m_widget);
         w->setChecked(JsonWizard::boolFromVariant(m_checkedExpression, expander));
     }
     return true;
 }
 
-void JsonFieldPage::CheckBoxField::initializeData(Utils::AbstractMacroExpander *expander)
+void JsonFieldPage::CheckBoxField::initializeData(MacroExpander *expander)
 {
     QTC_ASSERT(m_widget, return);
 
-    Utils::TextFieldCheckBox *w = static_cast<Utils::TextFieldCheckBox *>(m_widget);
-    w->setTrueText(Utils::expandMacros(m_checkedValue, expander));
-    w->setFalseText(Utils::expandMacros(m_uncheckedValue, expander));
+    TextFieldCheckBox *w = static_cast<TextFieldCheckBox *>(m_widget);
+    w->setTrueText(expander->expand(m_checkedValue));
+    w->setFalseText(expander->expand(m_uncheckedValue));
 
     w->setChecked(JsonWizard::boolFromVariant(m_checkedExpression, expander));
 }
@@ -675,23 +676,23 @@ QWidget *JsonFieldPage::ComboBoxField::widget(const QString &displayName)
 {
     Q_UNUSED(displayName);
     QTC_ASSERT(!m_widget, return m_widget);
-    m_widget = new Utils::TextFieldComboBox;
+    m_widget = new TextFieldComboBox;
     return m_widget;
 }
 
 void JsonFieldPage::ComboBoxField::setup(JsonFieldPage *page, const QString &name)
 {
-    Utils::TextFieldComboBox *w = static_cast<Utils::TextFieldComboBox *>(m_widget);
+    TextFieldComboBox *w = static_cast<TextFieldComboBox *>(m_widget);
     page->registerFieldWithName(name, w, "text", SIGNAL(text4Changed(QString)));
-    connect(w, &Utils::TextFieldComboBox::text4Changed, page, [page](QString) { page->completeChanged(); });
+    connect(w, &TextFieldComboBox::text4Changed, page, [page](QString) { page->completeChanged(); });
 }
 
-bool JsonFieldPage::ComboBoxField::validate(Utils::AbstractMacroExpander *expander, QString *message)
+bool JsonFieldPage::ComboBoxField::validate(MacroExpander *expander, QString *message)
 {
     Q_UNUSED(expander);
     Q_UNUSED(message);
 
-    Utils::TextFieldComboBox *w = static_cast<Utils::TextFieldComboBox *>(m_widget);
+    TextFieldComboBox *w = static_cast<TextFieldComboBox *>(m_widget);
     if (!w->isEnabled() && m_disabledIndex >= 0 && m_savedIndex < 0) {
         m_savedIndex = w->currentIndex();
         w->setCurrentIndex(m_disabledIndex);
@@ -703,15 +704,15 @@ bool JsonFieldPage::ComboBoxField::validate(Utils::AbstractMacroExpander *expand
     return true;
 }
 
-void JsonFieldPage::ComboBoxField::initializeData(Utils::AbstractMacroExpander *expander)
+void JsonFieldPage::ComboBoxField::initializeData(MacroExpander *expander)
 {
-    Utils::TextFieldComboBox *w = static_cast<Utils::TextFieldComboBox *>(m_widget);
+    TextFieldComboBox *w = static_cast<TextFieldComboBox *>(m_widget);
     QStringList tmpItems
             = Utils::transform(m_itemList,
-                               [expander](const QString &i) { return Utils::expandMacros(i, expander); });
+                               [expander](const QString &i) { return expander->expand(i); });
     QStringList tmpData
             = Utils::transform(m_itemDataList,
-                               [expander](const QString &i) { return Utils::expandMacros(i, expander); });
+                               [expander](const QString &i) { return expander->expand(i); });
     w->setItems(tmpItems, tmpData);
     w->setInsertPolicy(QComboBox::NoInsert);
 
@@ -725,8 +726,8 @@ void JsonFieldPage::ComboBoxField::initializeData(Utils::AbstractMacroExpander *
 // JsonFieldPage:
 // --------------------------------------------------------------------
 
-JsonFieldPage::JsonFieldPage(Utils::AbstractMacroExpander *expander, QWidget *parent) :
-    Utils::WizardPage(parent),
+JsonFieldPage::JsonFieldPage(MacroExpander *expander, QWidget *parent) :
+    WizardPage(parent),
     m_formLayout(new QFormLayout),
     m_errorLabel(new QLabel),
     m_expander(expander)
@@ -812,7 +813,7 @@ void JsonFieldPage::clearError() const
     m_errorLabel->setVisible(false);
 }
 
-Utils::AbstractMacroExpander *JsonFieldPage::expander()
+MacroExpander *JsonFieldPage::expander()
 {
     return m_expander;
 }

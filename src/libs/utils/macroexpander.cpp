@@ -221,9 +221,17 @@ QString MacroExpander::value(const QByteArray &variable, bool *found)
  * \sa MacroExpander
  * \sa macroExpander()
  */
-QString MacroExpander::expandedString(const QString &stringWithVariables)
+QString MacroExpander::expand(const QString &stringWithVariables)
 {
-    return Utils::expandMacros(stringWithVariables, this);
+    QString res = Utils::expandMacros(stringWithVariables, this);
+    if (this != globalMacroExpander())
+        res = Utils::expandMacros(res, this);
+    return res;
+}
+
+QByteArray MacroExpander::expand(const QByteArray &stringWithVariables)
+{
+    return expand(QString::fromLatin1(stringWithVariables)).toLatin1();
 }
 
 /*!

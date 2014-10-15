@@ -45,7 +45,7 @@ class QTextEdit;
 QT_END_NAMESPACE
 
 namespace Utils {
-class AbstractMacroExpander;
+class MacroExpander;
 class TextFieldCheckBox;
 class TextFieldComboBox;
 } // namespace Utils
@@ -67,15 +67,15 @@ public:
         static Field *parse(const QVariant &input, QString *errorMessage);
         void createWidget(JsonFieldPage *page);
 
-        void adjustState(Utils::AbstractMacroExpander *expander);
+        void adjustState(Utils::MacroExpander *expander);
         virtual void setEnabled(bool e) { m_widget->setEnabled(e); }
         void setVisible(bool v) { m_widget->setVisible(v); }
 
-        virtual bool validate(Utils::AbstractMacroExpander *expander, QString *message)
+        virtual bool validate(Utils::MacroExpander *expander, QString *message)
         { Q_UNUSED(expander); Q_UNUSED(message); return true; }
 
-        void initialize(Utils::AbstractMacroExpander *expander);
-        virtual void cleanup(Utils::AbstractMacroExpander *expander) {  Q_UNUSED(expander); }
+        void initialize(Utils::MacroExpander *expander);
+        virtual void cleanup(Utils::MacroExpander *expander) {  Q_UNUSED(expander); }
 
         virtual bool suppressName() const { return false; }
 
@@ -89,7 +89,7 @@ public:
         QVariant m_enabledExpression;
 
         virtual bool parseData(const QVariant &data, QString *errorMessage) = 0;
-        virtual void initializeData(Utils::AbstractMacroExpander *expander) { Q_UNUSED(expander); }
+        virtual void initializeData(Utils::MacroExpander *expander) { Q_UNUSED(expander); }
         virtual QWidget *widget(const QString &displayName) = 0;
         virtual void setup(JsonFieldPage *page, const QString &name)
         { Q_UNUSED(page); Q_UNUSED(name); }
@@ -136,8 +136,8 @@ public:
 
         void setup(JsonFieldPage *page, const QString &name);
 
-        bool validate(Utils::AbstractMacroExpander *expander, QString *message);
-        void initializeData(Utils::AbstractMacroExpander *expander);
+        bool validate(Utils::MacroExpander *expander, QString *message);
+        void initializeData(Utils::MacroExpander *expander);
 
         QString m_placeholderText;
         QString m_defaultText;
@@ -159,8 +159,8 @@ public:
 
         void setup(JsonFieldPage *page, const QString &name);
 
-        bool validate(Utils::AbstractMacroExpander *expander, QString *message);
-        void initializeData(Utils::AbstractMacroExpander *expander);
+        bool validate(Utils::MacroExpander *expander, QString *message);
+        void initializeData(Utils::MacroExpander *expander);
 
         QString m_defaultText;
         bool m_acceptRichText;
@@ -182,8 +182,8 @@ public:
 
         void setup(JsonFieldPage *page, const QString &name);
 
-        bool validate(Utils::AbstractMacroExpander *expander, QString *message);
-        void initializeData(Utils::AbstractMacroExpander *expander);
+        bool validate(Utils::MacroExpander *expander, QString *message);
+        void initializeData(Utils::MacroExpander *expander);
 
         QString m_path;
         QString m_basePath;
@@ -206,8 +206,8 @@ public:
 
         void setup(JsonFieldPage *page, const QString &name);
 
-        bool validate(Utils::AbstractMacroExpander *expander, QString *message);
-        void initializeData(Utils::AbstractMacroExpander *expander);
+        bool validate(Utils::MacroExpander *expander, QString *message);
+        void initializeData(Utils::MacroExpander *expander);
 
         QString m_checkedValue;
         QString m_uncheckedValue;
@@ -228,8 +228,8 @@ public:
 
         void setup(JsonFieldPage *page, const QString &name);
 
-        bool validate(Utils::AbstractMacroExpander *expander, QString *message);
-        void initializeData(Utils::AbstractMacroExpander *expander);
+        bool validate(Utils::MacroExpander *expander, QString *message);
+        void initializeData(Utils::MacroExpander *expander);
 
         QStringList m_itemList;
         QStringList m_itemDataList;
@@ -240,7 +240,7 @@ public:
         int m_currentIndex;
     };
 
-    JsonFieldPage(Utils::AbstractMacroExpander *expander, QWidget *parent = 0);
+    JsonFieldPage(Utils::MacroExpander *expander, QWidget *parent = 0);
     ~JsonFieldPage();
 
     bool setup(const QVariant &data);
@@ -254,7 +254,7 @@ public:
     void showError(const QString &m) const;
     void clearError() const;
 
-    Utils::AbstractMacroExpander *expander();
+    Utils::MacroExpander *expander();
 
 private:
     QFormLayout *m_formLayout;
@@ -262,7 +262,7 @@ private:
 
     QList<Field *> m_fields;
 
-    Utils::AbstractMacroExpander *m_expander;
+    Utils::MacroExpander *m_expander;
 };
 
 } // namespace ProjectExplorer

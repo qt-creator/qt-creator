@@ -1836,7 +1836,7 @@ void DebuggerEngine::validateExecutable(DebuggerStartParameters *sp)
             SourcePathRegExpMap globalRegExpSourceMap;
             globalRegExpSourceMap.reserve(options->sourcePathRegExpMap.size());
             foreach (auto entry, options->sourcePathRegExpMap) {
-                const QString expanded = Utils::globalMacroExpander()->expandedString(entry.second);
+                const QString expanded = Utils::globalMacroExpander()->expand(entry.second);
                 if (!expanded.isEmpty())
                     globalRegExpSourceMap.push_back(qMakePair(entry.first, expanded));
             }

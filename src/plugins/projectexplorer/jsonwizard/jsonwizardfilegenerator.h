@@ -44,7 +44,7 @@ class JsonWizardFileGenerator : public JsonWizardGenerator
 public:
     bool setup(const QVariant &data, QString *errorMessage);
 
-    Core::GeneratedFiles fileList(Utils::AbstractMacroExpander *expander,
+    Core::GeneratedFiles fileList(Utils::MacroExpander *expander,
                                   const QString &wizardDir, const QString &projectDir,
                                   QString *errorMessage);
 

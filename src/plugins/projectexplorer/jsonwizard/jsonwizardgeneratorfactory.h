@@ -40,7 +40,7 @@
 #include <QList>
 #include <QObject>
 
-namespace Utils { class AbstractMacroExpander; }
+namespace Utils { class MacroExpander; }
 
 namespace ProjectExplorer {
 
@@ -49,7 +49,7 @@ class JsonWizardGenerator
 public:
     virtual ~JsonWizardGenerator() { }
 
-    virtual Core::GeneratedFiles fileList(Utils::AbstractMacroExpander *expander,
+    virtual Core::GeneratedFiles fileList(Utils::MacroExpander *expander,
                                           const QString &baseDir, const QString &projectDir,
                                           QString *errorMessage) = 0;
     virtual bool formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);

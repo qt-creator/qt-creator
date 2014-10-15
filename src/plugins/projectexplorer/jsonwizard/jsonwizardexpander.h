@@ -31,9 +31,7 @@
 #ifndef JSONWIZARDEXPANDER_H
 #define JSONWIZARDEXPANDER_H
 
-#include <utils/stringutils.h>
-
-#include <QString>
+#include <utils/macroexpander.h>
 
 namespace ProjectExplorer {
 
@@ -42,7 +40,7 @@ class JsonWizard;
 namespace Internal {
 
 // Documentation inside.
-class JsonWizardExpander : public Utils::AbstractMacroExpander
+class JsonWizardExpander : public Utils::MacroExpander
 {
 public:
     explicit JsonWizardExpander(JsonWizard *wizard);
