@@ -110,8 +110,6 @@ public:
     CppEditorDocument *m_cppEditorDocument;
     CppEditorOutline *m_cppEditorOutline;
 
-    CppDocumentationCommentHelper m_cppDocumentationCommentHelper;
-
     QTimer m_updateFunctionDeclDefLinkTimer;
 
     CppLocalRenaming m_localRenaming;
@@ -132,7 +130,6 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     : m_modelManager(CppModelManager::instance())
     , m_cppEditorDocument(qobject_cast<CppEditorDocument *>(q->textDocument()))
     , m_cppEditorOutline(new CppEditorOutline(q))
-    , m_cppDocumentationCommentHelper(q)
     , m_localRenaming(q)
     , m_useSelectionsUpdater(q)
     , m_declDefLinkFinder(new FunctionDeclDefLinkFinder(q))
@@ -541,8 +538,12 @@ void CppEditorWidget::keyPressEvent(QKeyEvent *e)
     if (handleStringSplitting(e))
         return;
 
-    if (d->m_cppDocumentationCommentHelper.handleKeyPressEvent(e))
-        return;
+    if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) {
+        if (trySplitComment(this)) {
+            e->accept();
+            return;
+        }
+    }
 
     TextEditorWidget::keyPressEvent(e);
 }

@@ -31,35 +31,14 @@
 #ifndef CPPDOCUMENTATIONCOMMENTHELPER_H
 #define CPPDOCUMENTATIONCOMMENTHELPER_H
 
-#include <QObject>
-
-#include <cpptools/commentssettings.h>
-
-QT_FORWARD_DECLARE_CLASS(QKeyEvent)
+#include <cppeditor_global.h>
 
 namespace TextEditor { class TextEditorWidget; }
 
 namespace CppEditor {
 namespace Internal {
 
-class CppDocumentationCommentHelper : public QObject
-{
-    Q_OBJECT
-    Q_DISABLE_COPY(CppDocumentationCommentHelper)
-
-public:
-    explicit CppDocumentationCommentHelper(TextEditor::TextEditorWidget *editorWidget);
-    bool handleKeyPressEvent(QKeyEvent *e) const;
-
-private slots:
-    void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
-
-private:
-    CppDocumentationCommentHelper();
-
-    TextEditor::TextEditorWidget *m_editorWidget;
-    CppTools::CommentsSettings m_settings;
-};
+bool trySplitComment(TextEditor::TextEditorWidget *editorWidget);
 
 } // namespace Internal
 } // namespace CppEditor
