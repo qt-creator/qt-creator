@@ -87,19 +87,13 @@
 #include <QAbstractTableModel>
 #include <QDebug>
 #include <QFile>
-#include <QFileDialog>
-#include <QtPlugin>
-#include <QObject>
-#include <QPainter>
-#include <QPointer>
-#include <QSettings>
-#include <QScrollBar>
-#include <QStackedWidget>
-#include <QTextStream>
-
 #include <QItemDelegate>
+#include <QPainter>
 #include <QPlainTextEdit>
-#include <QShortcut>
+#include <QPointer>
+#include <QScrollBar>
+#include <QSettings>
+#include <QStackedWidget>
 #include <QStandardPaths>
 #include <QTextBlock>
 #include <QTextCursor>

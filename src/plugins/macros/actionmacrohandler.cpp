@@ -43,10 +43,7 @@
 
 #include <QAction>
 #include <QEvent>
-#include <QObject>
-#include <QShortcut>
 #include <QSignalMapper>
-#include <QStringList>
 
 using namespace Core;
 

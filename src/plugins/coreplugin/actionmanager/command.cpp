@@ -36,7 +36,6 @@
 #include <utils/hostosinfo.h>
 
 #include <QAction>
-#include <QShortcut>
 #include <QToolButton>
 #include <QTextStream>
 
@@ -151,12 +150,6 @@
     tool tip (in addition to the tool tip of the active action)
     and gets disabled/hidden when there is
     no active action for the current context.
-*/
-
-/*!
-    \fn QShortcut *Command::shortcut() const
-    Returns the shortcut for this Command.
-    If the Command represents an action, it returns null.
 */
 
 /*!

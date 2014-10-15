@@ -42,10 +42,8 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
 
-#include <QWidget>
 #include <QKeyEvent>
 #include <QApplication>
-#include <QShortcut>
 
 using namespace Macros;
 using namespace Macros::Internal;

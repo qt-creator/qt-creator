@@ -39,7 +39,6 @@
 QT_BEGIN_NAMESPACE
 class QAction;
 class QKeySequence;
-class QShortcut;
 class QToolButton;
 QT_END_NAMESPACE
 

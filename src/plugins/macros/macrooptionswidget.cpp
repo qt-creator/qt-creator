@@ -42,16 +42,8 @@
 
 #include <QDir>
 #include <QFileInfo>
-
-#include <QShortcut>
-#include <QButtonGroup>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
-#include <QCheckBox>
-#include <QGroupBox>
-#include <QHeaderView>
-#include <QRegExpValidator>
-#include <QLineEdit>
 
 namespace {
     int NAME_ROLE = Qt::UserRole;
