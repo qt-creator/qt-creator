@@ -43,6 +43,7 @@
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/locator/locator.h>
 
+#include <utils/macroexpander.h>
 #include <utils/savefile.h>
 
 #include <QtPlugin>
@@ -112,6 +113,24 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_findPlugin->initialize(arguments, errorMessage);
     m_locator->initialize(this, arguments, errorMessage);
+
+    Utils::MacroExpander *expander = Utils::globalMacroExpander();
+    expander->registerVariable("CurrentDate:ISO", tr("The current date (ISO)."),
+                               []() { return QDate::currentDate().toString(Qt::ISODate); });
+    expander->registerVariable("CurrentTime:ISO", tr("The current time (ISO)."),
+                               []() { return QTime::currentTime().toString(Qt::ISODate); });
+    expander->registerVariable("CurrentDate:RFC", tr("The current date (RFC2822)."),
+                               []() { return QDate::currentDate().toString(Qt::RFC2822Date); });
+    expander->registerVariable("CurrentTime:RFC", tr("The current time (RFC2822)."),
+                               []() { return QTime::currentTime().toString(Qt::RFC2822Date); });
+    expander->registerVariable("CurrentDate:Locale", tr("The current date (Locale)."),
+                               []() { return QDate::currentDate().toString(Qt::DefaultLocaleShortDate); });
+    expander->registerVariable("CurrentTime:Locale", tr("The current time (Locale)."),
+                               []() { return QTime::currentTime().toString(Qt::DefaultLocaleShortDate); });
+    expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)"),
+                             [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
+    expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)"),
+                             [](const QString &fmt) { return QTime::currentTime().toString(fmt); });
 
     return success;
 }
