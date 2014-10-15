@@ -46,46 +46,45 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QAction>
 #include <QCoreApplication>
+#include <QDateTime>
+#include <QDebug>
+#include <QDir>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <QDir>
-#include <QDateTime>
-#include <QAction>
-
-#include <QDebug>
 
 using namespace Utils;
-using namespace Core;
 using namespace Core::Internal;
 
-namespace {
-    const char kExternalTool[] = "externaltool";
-    const char kId[] = "id";
-    const char kDescription[] = "description";
-    const char kDisplayName[] = "displayname";
-    const char kCategory[] = "category";
-    const char kOrder[] = "order";
-    const char kExecutable[] = "executable";
-    const char kPath[] = "path";
-    const char kArguments[] = "arguments";
-    const char kInput[] = "input";
-    const char kWorkingDirectory[] = "workingdirectory";
+namespace Core {
+namespace Internal {
 
-    const char kXmlLang[] = "xml:lang";
-    const char kOutput[] = "output";
-    const char kError[] = "error";
-    const char kOutputShowInPane[] = "showinpane";
-    const char kOutputReplaceSelection[] = "replaceselection";
-    const char kOutputIgnore[] = "ignore";
-    const char kModifiesDocument[] = "modifiesdocument";
-    const char kYes[] = "yes";
-    const char kNo[] = "no";
-    const char kTrue[] = "true";
-    const char kFalse[] = "false";
+const char kExternalTool[] = "externaltool";
+const char kId[] = "id";
+const char kDescription[] = "description";
+const char kDisplayName[] = "displayname";
+const char kCategory[] = "category";
+const char kOrder[] = "order";
+const char kExecutable[] = "executable";
+const char kPath[] = "path";
+const char kArguments[] = "arguments";
+const char kInput[] = "input";
+const char kWorkingDirectory[] = "workingdirectory";
 
-    const char kSpecialUncategorizedSetting[] = "SpecialEmptyCategoryForUncategorizedTools";
-}
+const char kXmlLang[] = "xml:lang";
+const char kOutput[] = "output";
+const char kError[] = "error";
+const char kOutputShowInPane[] = "showinpane";
+const char kOutputReplaceSelection[] = "replaceselection";
+const char kOutputIgnore[] = "ignore";
+const char kModifiesDocument[] = "modifiesdocument";
+const char kYes[] = "yes";
+const char kNo[] = "no";
+const char kTrue[] = "true";
+const char kFalse[] = "false";
+
+const char kSpecialUncategorizedSetting[] = "SpecialEmptyCategoryForUncategorizedTools";
 
 // #pragma mark -- ExternalTool
 
@@ -438,7 +437,7 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
 ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *errorMessage, const QString &locale)
 {
     QString absFileName = QFileInfo(fileName).absoluteFilePath();
-    Utils::FileReader reader;
+    FileReader reader;
     if (!reader.fetch(absFileName, errorMessage))
         return 0;
     ExternalTool *tool = ExternalTool::createFromXml(reader.data(), errorMessage, locale);
@@ -465,7 +464,7 @@ bool ExternalTool::save(QString *errorMessage) const
 {
     if (m_fileName.isEmpty())
         return false;
-    Utils::FileSaver saver(m_fileName);
+    FileSaver saver(m_fileName);
     if (!saver.hasError()) {
         QXmlStreamWriter out(saver.file());
         out.setAutoFormatting(true);
@@ -553,14 +552,13 @@ bool ExternalToolRunner::resolve()
     m_resolvedArguments.clear();
     m_resolvedWorkingDirectory.clear();
 
-    Utils::MacroExpander *expander = globalMacroExpander();
+    MacroExpander *expander = globalMacroExpander();
     { // executable
         QStringList expandedExecutables; /* for error message */
         foreach (const QString &executable, m_tool->executables()) {
             QString expanded = expander->expandedString(executable);
             expandedExecutables << expanded;
-            m_resolvedExecutable =
-                    Utils::Environment::systemEnvironment().searchInPath(expanded);
+            m_resolvedExecutable = Environment::systemEnvironment().searchInPath(expanded);
             if (!m_resolvedExecutable.isEmpty())
                 break;
         }
@@ -578,7 +576,7 @@ bool ExternalToolRunner::resolve()
         }
     }
     { // arguments
-        m_resolvedArguments = Utils::QtcProcess::expandMacros(m_tool->arguments(), expander);
+        m_resolvedArguments = QtcProcess::expandMacros(m_tool->arguments(), expander);
     }
     { // input
         m_resolvedInput = expander->expandedString(m_tool->input());
@@ -605,7 +603,7 @@ void ExternalToolRunner::run()
             DocumentManager::expectFileChange(m_expectedFileName);
         }
     }
-    m_process = new Utils::QtcProcess(this);
+    m_process = new QtcProcess(this);
     connect(m_process, SIGNAL(started()), this, SLOT(started()));
     connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished(int,QProcess::ExitStatus)));
     connect(m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
@@ -673,6 +671,8 @@ void ExternalToolRunner::readStandardError()
     else if (m_tool->errorHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(output);
 }
+
+} // namespace Internal
 
 // ExternalToolManager
 
@@ -966,3 +966,5 @@ void ExternalToolManager::emitReplaceSelectionRequested(const QString &output)
 {
     emit m_instance->replaceSelectionRequested(output);
 }
+
+} // namespace Core
