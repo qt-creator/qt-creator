@@ -194,6 +194,14 @@ bool JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::Generate
 bool JsonWizardFileGenerator::postWrite(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
 {
     Q_UNUSED(wizard);
+    Q_UNUSED(file);
+    Q_UNUSED(errorMessage);
+    return true;
+}
+
+bool JsonWizardFileGenerator::allDone(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
+{
+    Q_UNUSED(wizard);
     if (file->attributes() & Core::GeneratedFile::OpenProjectAttribute) {
         Project *project = ProjectExplorerPlugin::instance()->openProject(file->path(), errorMessage);
         if (!project) {

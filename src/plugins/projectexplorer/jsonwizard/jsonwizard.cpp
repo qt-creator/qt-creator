@@ -181,6 +181,13 @@ void JsonWizard::accept()
         return;
     }
     emit filesReady(m_files);
+    if (!JsonWizardGenerator::allDone(this, &list, &errorMessage)) {
+        if (!errorMessage.isEmpty())
+            QMessageBox::warning(this, tr("Failed to Open Files"), errorMessage);
+        return;
+    }
+
+    emit allDone(m_files);
 }
 
 } // namespace ProjectExplorer

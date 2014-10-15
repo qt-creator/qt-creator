@@ -91,6 +91,7 @@ signals:
     void preWriteFiles(const JsonWizard::GeneratorFiles &files); // emitted before files are written to disk.
     void postProcessFiles(const JsonWizard::GeneratorFiles &files); // emitted before files are post-processed.
     void filesReady(const JsonWizard::GeneratorFiles &files); // emitted just after files are in final state on disk.
+    void allDone(const JsonWizard::GeneratorFiles &files); // emitted just after the wizard is done with the files. They are ready to be opened.
 
 public slots:
     void accept();

@@ -55,6 +55,7 @@ public:
     virtual bool formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
     virtual bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) = 0;
     virtual bool postWrite(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) = 0;
+    virtual bool allDone(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) = 0;
 
     virtual bool canKeepExistingFiles() const { return true; }
 
@@ -64,6 +65,7 @@ public:
     static bool formatFiles(const JsonWizard *wizard, QList<JsonWizard::GeneratorFile> *files, QString *errorMessage);
     static bool writeFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage);
     static bool postWrite(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage);
+    static bool allDone(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage);
 };
 
 class JsonWizardGeneratorFactory : public QObject
