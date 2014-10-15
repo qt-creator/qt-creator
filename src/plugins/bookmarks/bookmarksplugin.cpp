@@ -50,8 +50,11 @@
 #include <QMenu>
 
 using namespace Bookmarks::Constants;
-using namespace Bookmarks::Internal;
+using namespace Core;
 using namespace TextEditor;
+
+namespace Bookmarks {
+namespace Internal {
 
 BookmarksPlugin::BookmarksPlugin()
     : m_bookmarkManager(0),
@@ -59,77 +62,82 @@ BookmarksPlugin::BookmarksPlugin()
 {
 }
 
-void BookmarksPlugin::extensionsInitialized()
-{
-}
-
 bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
-    Core::Context textcontext(TextEditor::Constants::C_TEXTEDITOR);
-    Core::Context globalcontext(Core::Constants::C_GLOBAL);
+    Context textcontext(TextEditor::Constants::C_TEXTEDITOR);
+    Context globalcontext(Core::Constants::C_GLOBAL);
 
-    Core::ActionContainer *mtools = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    Core::ActionContainer *mbm = Core::ActionManager::createMenu(Core::Id(BOOKMARKS_MENU));
+    ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *mbm = ActionManager::createMenu(Id(BOOKMARKS_MENU));
     mbm->menu()->setTitle(tr("&Bookmarks"));
     mtools->addMenu(mbm);
 
     //Toggle
     m_toggleAction = new QAction(tr("Toggle Bookmark"), this);
-    Core::Command *cmd =
-        Core::ActionManager::registerAction(m_toggleAction, BOOKMARKS_TOGGLE_ACTION, textcontext);
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
+    Command *cmd = ActionManager::registerAction(m_toggleAction, BOOKMARKS_TOGGLE_ACTION, textcontext);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     mbm->addAction(cmd);
 
     mbm->addSeparator(textcontext);
 
     //Previous
     m_prevAction = new QAction(tr("Previous Bookmark"), this);
-    cmd = Core::ActionManager::registerAction(m_prevAction, BOOKMARKS_PREV_ACTION, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+,") : tr("Ctrl+,")));
+    cmd = ActionManager::registerAction(m_prevAction, BOOKMARKS_PREV_ACTION, globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+,") : tr("Ctrl+,")));
     mbm->addAction(cmd);
 
     //Next
     m_nextAction = new QAction(tr("Next Bookmark"), this);
-    cmd = Core::ActionManager::registerAction(m_nextAction, BOOKMARKS_NEXT_ACTION, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+.") : tr("Ctrl+.")));
+    cmd = ActionManager::registerAction(m_nextAction, BOOKMARKS_NEXT_ACTION, globalcontext);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+.") : tr("Ctrl+.")));
     mbm->addAction(cmd);
 
     mbm->addSeparator(globalcontext);
 
     //Previous Doc
     m_docPrevAction = new QAction(tr("Previous Bookmark in Document"), this);
-    cmd = Core::ActionManager::registerAction(m_docPrevAction, BOOKMARKS_PREVDOC_ACTION, globalcontext);
+    cmd = ActionManager::registerAction(m_docPrevAction, BOOKMARKS_PREVDOC_ACTION, globalcontext);
     mbm->addAction(cmd);
 
     //Next Doc
     m_docNextAction = new QAction(tr("Next Bookmark in Document"), this);
-    cmd = Core::ActionManager::registerAction(m_docNextAction, BOOKMARKS_NEXTDOC_ACTION, globalcontext);
+    cmd = ActionManager::registerAction(m_docNextAction, BOOKMARKS_NEXTDOC_ACTION, globalcontext);
     mbm->addAction(cmd);
 
     m_editBookmarkAction = new QAction(tr("Edit Bookmark"), this);
 
     m_bookmarkManager = new BookmarkManager;
 
-    connect(m_toggleAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(toggleBookmark()));
-    connect(m_prevAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(prev()));
-    connect(m_nextAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(next()));
-    connect(m_docPrevAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(prevInDocument()));
-    connect(m_docNextAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(nextInDocument()));
-    connect(m_editBookmarkAction, SIGNAL(triggered()), this, SLOT(editBookmarkActionTriggered()));
-    connect(m_bookmarkManager, SIGNAL(updateActions(int)), this, SLOT(updateActions(int)));
+    connect(m_toggleAction, &QAction::triggered, [this]() {
+        if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
+            m_bookmarkManager->toggleBookmark(editor->document()->filePath(), editor->currentLine());
+    });
+
+    connect(m_prevAction, &QAction::triggered, m_bookmarkManager, &BookmarkManager::prev);
+    connect(m_nextAction, &QAction::triggered, m_bookmarkManager, &BookmarkManager::next);
+    connect(m_docPrevAction, &QAction::triggered, m_bookmarkManager, &BookmarkManager::prevInDocument);
+    connect(m_docNextAction, &QAction::triggered, m_bookmarkManager, &BookmarkManager::nextInDocument);
+
+    connect(m_editBookmarkAction, &QAction::triggered, [this]() {
+            m_bookmarkManager->editByFileAndLine(m_bookmarkMarginActionFileName, m_bookmarkMarginActionLineNumber);
+    });
+
+    connect(m_bookmarkManager, &BookmarkManager::updateActions, this, &BookmarksPlugin::updateActions);
     updateActions(m_bookmarkManager->state());
     addAutoReleasedObject(new BookmarkViewFactory(m_bookmarkManager));
 
     m_bookmarkMarginAction = new QAction(this);
     m_bookmarkMarginAction->setText(tr("Toggle Bookmark"));
-    connect(m_bookmarkMarginAction, SIGNAL(triggered()),
-        this, SLOT(bookmarkMarginActionTriggered()));
+    connect(m_bookmarkMarginAction, &QAction::triggered, [this]() {
+            m_bookmarkManager->toggleBookmark(m_bookmarkMarginActionFileName,
+                                              m_bookmarkMarginActionLineNumber);
+    });
 
     // EditorManager
-    connect(Core::EditorManager::instance(), SIGNAL(editorAboutToClose(Core::IEditor*)),
-        this, SLOT(editorAboutToClose(Core::IEditor*)));
-    connect(Core::EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-        this, SLOT(editorOpened(Core::IEditor*)));
+    connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
+        this, &BookmarksPlugin::editorAboutToClose);
+    connect(EditorManager::instance(), &EditorManager::editorOpened,
+        this, &BookmarksPlugin::editorOpened);
 
     return true;
 }
@@ -151,7 +159,7 @@ void BookmarksPlugin::updateActions(int state)
     m_docNextAction->setEnabled(hasdocbm);
 }
 
-void BookmarksPlugin::editorOpened(Core::IEditor *editor)
+void BookmarksPlugin::editorOpened(IEditor *editor)
 {
     if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
         connect(widget, &TextEditorWidget::markRequested,
@@ -165,7 +173,7 @@ void BookmarksPlugin::editorOpened(Core::IEditor *editor)
     }
 }
 
-void BookmarksPlugin::editorAboutToClose(Core::IEditor *editor)
+void BookmarksPlugin::editorAboutToClose(IEditor *editor)
 {
     if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
         connect(widget, &TextEditorWidget::markContextMenuRequested,
@@ -188,13 +196,5 @@ void BookmarksPlugin::requestContextMenu(TextEditorWidget *widget,
         menu->addAction(m_editBookmarkAction);
 }
 
-void BookmarksPlugin::bookmarkMarginActionTriggered()
-{
-    m_bookmarkManager->toggleBookmark(m_bookmarkMarginActionFileName,
-                                      m_bookmarkMarginActionLineNumber);
-}
-
-void BookmarksPlugin::editBookmarkActionTriggered()
-{
-    m_bookmarkManager->edit(m_bookmarkMarginActionFileName, m_bookmarkMarginActionLineNumber);
-}
+} // namespace Internal
+} // namespace Bookmarks

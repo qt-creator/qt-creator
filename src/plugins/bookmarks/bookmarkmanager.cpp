@@ -233,10 +233,8 @@ BookmarkView::BookmarkView(BookmarkManager *manager)  :
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::DragOnly);
 
-    connect(this, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(gotoBookmark(QModelIndex)));
-    connect(this, SIGNAL(activated(QModelIndex)),
-            this, SLOT(gotoBookmark(QModelIndex)));
+    connect(this, &QAbstractItemView::clicked, this, &BookmarkView::gotoBookmark);
+    connect(this, &QAbstractItemView::activated, this, &BookmarkView::gotoBookmark);
 }
 
 BookmarkView::~BookmarkView()
@@ -266,16 +264,11 @@ void BookmarkView::contextMenuEvent(QContextMenuEvent *event)
     if (model()->rowCount() == 0)
         removeAll->setEnabled(false);
 
-    connect(moveUp, SIGNAL(triggered()),
-            m_manager, SLOT(moveUp()));
-    connect(moveDown, SIGNAL(triggered()),
-            m_manager, SLOT(moveDown()));
-    connect(remove, SIGNAL(triggered()),
-            this, SLOT(removeFromContextMenu()));
-    connect(removeAll, SIGNAL(triggered()),
-            this, SLOT(removeAll()));
-    connect(edit, SIGNAL(triggered()),
-            m_manager, SLOT(edit()));
+    connect(moveUp, &QAction::triggered, m_manager, &BookmarkManager::moveUp);
+    connect(moveDown, &QAction::triggered, m_manager, &BookmarkManager::moveDown);
+    connect(remove, &QAction::triggered, this, &BookmarkView::removeFromContextMenu);
+    connect(removeAll, &QAction::triggered, this, &BookmarkView::removeAll);
+    connect(edit, &QAction::triggered, m_manager, &BookmarkManager::edit);
 
     menu.exec(mapToGlobal(event->pos()));
 }
@@ -332,11 +325,11 @@ BookmarkManager::BookmarkManager() :
     m_bookmarkIcon(QLatin1String(":/bookmarks/images/bookmark.png")),
     m_selectionModel(new QItemSelectionModel(this, this))
 {
-    connect(Core::ICore::instance(), SIGNAL(contextChanged(QList<Core::IContext*>,Core::Context)),
-            this, SLOT(updateActionStatus()));
+    connect(Core::ICore::instance(), &ICore::contextChanged,
+            this, &BookmarkManager::updateActionStatus);
 
-    connect(SessionManager::instance(), SIGNAL(sessionLoaded(QString)),
-            this, SLOT(loadBookmarks()));
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+            this, &BookmarkManager::loadBookmarks);
 
     updateActionStatus();
 }
@@ -440,7 +433,7 @@ QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
     return data;
 }
 
-void BookmarkManager::toggleBookmark()
+void BookmarkManager::toggleBookmark(bool)
 {
     BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
     if (!editor)
@@ -706,7 +699,7 @@ void BookmarkManager::moveDown()
     saveBookmarks();
 }
 
-void BookmarkManager::edit(const QString &fileName, int lineNumber)
+void BookmarkManager::editByFileAndLine(const QString &fileName, int lineNumber)
 {
     Bookmark *b = findBookmark(fileName, lineNumber);
     QModelIndex current = selectionModel()->currentIndex();
@@ -731,8 +724,8 @@ void BookmarkManager::edit()
     lineNumberSpinbox->setValue(b->lineNumber());
     lineNumberSpinbox->setMaximumWidth(100);
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    connect(buttonBox, SIGNAL(accepted()), &dlg, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), &dlg, SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
     layout->addRow(tr("Note text:"), noteEdit);
     layout->addRow(tr("Line number:"), lineNumberSpinbox);
     layout->addWidget(buttonBox);

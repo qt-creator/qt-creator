@@ -100,8 +100,7 @@ public:
     void handleBookmarkTooltipRequest(TextEditor::TextEditorWidget *widget,
                                       const QPoint &pos, int line);
 
-public slots:
-    void toggleBookmark();
+    void toggleBookmark(bool);
     void toggleBookmark(const QString &fileName, int lineNumber);
     void nextInDocument();
     void prevInDocument();
@@ -110,18 +109,17 @@ public slots:
     void moveUp();
     void moveDown();
     void edit();
-    void edit(const QString &fileName, int lineNumber);
+    void editByFileAndLine(const QString &fileName, int lineNumber);
     bool gotoBookmark(Bookmark *bookmark);
 
 signals:
     void updateActions(int state);
     void currentIndexChanged(const QModelIndex &);
 
-private slots:
+private:
     void updateActionStatus();
     void loadBookmarks();
 
-private:
     void documentPrevNext(bool next);
 
     Bookmark *findBookmark(const QString &filePath, int lineNumber);

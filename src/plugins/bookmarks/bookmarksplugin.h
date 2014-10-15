@@ -60,18 +60,13 @@ public:
     ~BookmarksPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-
-public slots:
-    void updateActions(int stateMask);
-
-private slots:
-    void editorOpened(Core::IEditor *editor);
-    void editorAboutToClose(Core::IEditor *editor);
-    void bookmarkMarginActionTriggered();
-    void editBookmarkActionTriggered();
+    void extensionsInitialized() {}
 
 private:
+    void updateActions(int stateMask);
+    void editorOpened(Core::IEditor *editor);
+    void editorAboutToClose(Core::IEditor *editor);
+
     void requestContextMenu(TextEditor::TextEditorWidget *widget,
                             int lineNumber, QMenu *menu);
 
