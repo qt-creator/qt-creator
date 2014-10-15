@@ -191,6 +191,13 @@
         \li Yes
 
     \row
+        \li \gui {Input Events}
+        \li Displays mouse and keyboard events.
+        \li Qt 4.7.4
+        \li Qt Quick 1 or Qt Quick 2
+        \li Yes
+
+    \row
         \li \gui Painting
         \li Displays the time spent painting the scene for each frame.
         \li Qt 4.7.4
