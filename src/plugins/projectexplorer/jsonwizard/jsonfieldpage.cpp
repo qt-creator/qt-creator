@@ -40,7 +40,7 @@
 #include <utils/textfieldcombobox.h>
 
 #include <QCheckBox>
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDebug>
 #include <QFormLayout>
 #include <QLabel>
@@ -215,7 +215,7 @@ QWidget *JsonFieldPage::LabelField::widget(const QString &displayName)
 // --------------------------------------------------------------------
 
 JsonFieldPage::SpacerField::SpacerField() :
-    m_factor(2)
+    m_factor(1)
 { }
 
 bool JsonFieldPage::SpacerField::parseData(const QVariant &data, QString *errorMessage)
@@ -232,11 +232,11 @@ bool JsonFieldPage::SpacerField::parseData(const QVariant &data, QString *errorM
     QVariantMap tmp = data.toMap();
 
     bool ok;
-    m_factor = tmp.value(QLatin1String("factor"), 2).toInt(&ok);
+    m_factor = tmp.value(QLatin1String("factor"), 1).toInt(&ok);
 
     if (!ok) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "'size' was not an integer value.");
+                                                    "'factor' is no integer value.");
         return false;
     }
 
@@ -248,8 +248,8 @@ QWidget *JsonFieldPage::SpacerField::widget(const QString &displayName)
     Q_UNUSED(displayName);
     QTC_ASSERT(!m_widget, return m_widget);
 
-    int size = m_widget->style()->layoutSpacing(QSizePolicy::DefaultType, QSizePolicy::DefaultType,
-                                                Qt::Vertical) * m_factor;
+    int size = qApp->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing) * m_factor;
+
     m_widget = new QWidget();
     m_widget->setMinimumSize(size, size);
     m_widget->setMaximumSize(size, size);
