@@ -45,7 +45,11 @@ class QLabel;
 QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
-namespace TextEditor { class BaseTextEditor; }
+
+namespace TextEditor {
+class BaseTextEditor;
+class TextEditorLinkLabel;
+}
 
 namespace Utils {
 class AnnotatedItemDelegate;
@@ -58,7 +62,6 @@ namespace Internal {
 class CppEditor;
 class CppEditorWidget;
 class CppInclude;
-class CppIncludeLabel;
 class CppIncludeHierarchyModel;
 class CppIncludeHierarchyTreeView;
 
@@ -84,7 +87,7 @@ private:
     CppIncludeHierarchyTreeView *m_treeView;
     CppIncludeHierarchyModel *m_model;
     Utils::AnnotatedItemDelegate *m_delegate;
-    CppIncludeLabel *m_inspectedFile;
+    TextEditor::TextEditorLinkLabel *m_inspectedFile;
     QLabel *m_includeHierarchyInfoLabel;
     TextEditor::BaseTextEditor *m_editor;
 };
