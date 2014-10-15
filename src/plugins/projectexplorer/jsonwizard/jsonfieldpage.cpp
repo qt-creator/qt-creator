@@ -46,6 +46,8 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QTextEdit>
 #include <QVariant>
 #include <QVariantMap>
@@ -263,8 +265,13 @@ QWidget *JsonFieldPage::SpacerField::widget(const QString &displayName)
 // --------------------------------------------------------------------
 
 JsonFieldPage::LineEditField::LineEditField() :
-    m_isModified(false)
+    m_validatorRegExp(0), m_isModified(false)
 { }
+
+JsonFieldPage::LineEditField::~LineEditField()
+{
+    delete m_validatorRegExp;
+}
 
 bool JsonFieldPage::LineEditField::parseData(const QVariant &data, QString *errorMessage)
 {
@@ -282,6 +289,18 @@ bool JsonFieldPage::LineEditField::parseData(const QVariant &data, QString *erro
     m_defaultText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trText")).toString());
     m_disabledText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trDisabledText")).toString());
     m_placeholderText = JsonWizardFactory::localizedString(tmp.value(QLatin1String("trPlaceholder")).toString());
+    QString pattern = tmp.value(QLatin1String("validator")).toString();
+    if (!pattern.isEmpty()) {
+        m_validatorRegExp = new QRegularExpression(pattern);
+        if (!m_validatorRegExp->isValid()) {
+            *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
+                                                        "Invalid regular expression \"%1\" in \"validator\".")
+                    .arg(pattern);
+            delete m_validatorRegExp;
+            m_validatorRegExp = 0;
+            return false;
+        }
+    }
 
     return true;
 }
@@ -292,6 +311,9 @@ QWidget *JsonFieldPage::LineEditField::widget(const QString &displayName)
     QTC_ASSERT(!m_widget, return m_widget);
     QLineEdit *w = new QLineEdit;
     connect(w, &QLineEdit::textEdited, [this](){ m_isModified = true; });
+
+    if (m_validatorRegExp)
+        w->setValidator(new QRegularExpressionValidator(*m_validatorRegExp, w));
 
     m_widget = w;
     return m_widget;

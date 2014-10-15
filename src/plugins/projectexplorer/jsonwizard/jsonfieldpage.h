@@ -40,6 +40,7 @@ QT_BEGIN_NAMESPACE
 class QFormLayout;
 class QLabel;
 class QLineEdit;
+class QRegularExpression;
 class QTextEdit;
 QT_END_NAMESPACE
 
@@ -127,6 +128,7 @@ public:
     {
     public:
         LineEditField();
+        ~LineEditField();
 
     private:
         bool parseData(const QVariant &data, QString *errorMessage);
@@ -140,6 +142,7 @@ public:
         QString m_placeholderText;
         QString m_defaultText;
         QString m_disabledText;
+        QRegularExpression *m_validatorRegExp;
 
         bool m_isModified;
         mutable QString m_currentText;
