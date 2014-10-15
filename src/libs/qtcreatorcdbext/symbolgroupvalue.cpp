@@ -1499,24 +1499,27 @@ QtStringAddressData readQtStringAddressData(const SymbolGroupValue &dV,
                                            int qtMajorVersion)
 {
     QtStringAddressData result;
-    const SymbolGroupValue sizeV = dV["size"];
-    const SymbolGroupValue allocV = dV["alloc"];
+    const SymbolGroupValue adV = qtMajorVersion < 5 ? dV : dV["QArrayData"];
+    if (!adV)
+        return QtStringAddressData();
+    const SymbolGroupValue sizeV = adV["size"];
+    const SymbolGroupValue allocV = adV["alloc"];
     if (!sizeV || !allocV)
         return QtStringAddressData();
     result.size = sizeV.intValue();
     result.allocated = allocV.intValue();
     if (qtMajorVersion < 5) {
         // Qt 4: Simple 'data' pointer.
-        result.address = dV["data"].pointerValue();
+        result.address = adV["data"].pointerValue();
     } else {
         // Qt 5: Memory pool after the data element.
-        const SymbolGroupValue offsetV = dV["offset"];
+        const SymbolGroupValue offsetV = adV["offset"];
         if (!offsetV)
             return QtStringAddressData();
         // Take the address for QTypeArrayData of QByteArray, else
         // pointer value of D-pointer.
-        const ULONG64 baseAddress = SymbolGroupValue::isPointerType(dV.type()) ?
-                                    dV.pointerValue() : dV.address();
+        const ULONG64 baseAddress = SymbolGroupValue::isPointerType(adV.type()) ?
+                                    adV.pointerValue() : adV.address();
         result.address = baseAddress + offsetV.intValue();
     }
     return result;
@@ -1586,10 +1589,7 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str,
     wchar_t *memory;
     unsigned fullSize;
     unsigned size;
-    const SymbolGroupValue typeArrayV = dV[unsigned(0)];
-    if (!typeArrayV)
-        return false;
-    if (!readQt5StringData(typeArrayV, qtInfo.version, true, position,
+    if (!readQt5StringData(dV, qtInfo.version, true, position,
                            std::min(length, ExtensionContext::instance().parameters().maxStringLength),
                            &fullSize, &size, &memory))
         return false;
@@ -1702,10 +1702,7 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str,
     char *memory;
     unsigned fullSize;
     unsigned size;
-    const SymbolGroupValue typeArrayV = dV[unsigned(0)];
-    if (!typeArrayV)
-        return false;
-    if (!readQt5StringData(typeArrayV, qtInfo.version, false, 0, 10240, &fullSize, &size, &memory))
+    if (!readQt5StringData(dV, qtInfo.version, false, 0, 10240, &fullSize, &size, &memory))
         return false;
     if (size) {
         // Emulate CDB's behavior of replacing unprintable characters
@@ -2918,15 +2915,9 @@ static inline std::vector<AbstractSymbolGroupNode *>
 
     unsigned size = 0;
     ULONG64 address = 0;
-    if (QtInfo::get(ctx).version > 4) {
-        const SymbolGroupValue adV = dV["QArrayData"];
-        const QtStringAddressData data = readQtStringAddressData(adV, 5);
-        size = data.size;
-        address = data.address;
-    } else {
-        size = dV["size"].intValue();
-        address = dV["data"].pointerValue();
-    }
+    const QtStringAddressData data = readQtStringAddressData(dV, QtInfo::get(ctx).version);
+    size = data.size;
+    address = data.address;
 
     if (size <= 0 || !address)
         return rc;
@@ -3092,8 +3083,13 @@ static int assignQStringI(SymbolGroupNode  *n, const char *className,
         return 11;
     // Correct size unless we re-allocated
     if (!needRealloc) {
-        const SymbolGroupValue size = d["size"];
-        if (!size || !size.node()->assign(toString(data.stringLength)))
+        const SymbolGroupValue dV = qtInfo.version < 5 ? d : d["QArrayData"];
+        if (!dV)
+            return 14;
+        const SymbolGroupValue size = dV["size"];
+        if (!size)
+            return 16;
+        if (!size.node()->assign(toString(data.stringLength)))
             return 17;
     }
     return 0;
