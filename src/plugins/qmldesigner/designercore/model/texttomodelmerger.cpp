@@ -68,7 +68,8 @@ static inline QStringList supportedVersionsList()
     QStringList list;
     list << QStringLiteral("1.0") << QStringLiteral("1.1")
          << QStringLiteral("2.0") << QStringLiteral("2.1")
-         << QStringLiteral("2.2") << QStringLiteral("2.3");
+         << QStringLiteral("2.2") << QStringLiteral("2.3")
+         << QStringLiteral("2.4");
     return list;
 }
 
@@ -842,7 +843,13 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->qmljsSnapshot();
         const QString fileName = url.toLocalFile();
-        Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QStringLiteral("<internal>") : fileName, Dialect::Qml);
+
+        Dialect dialect = ModelManagerInterface::guessLanguageOfFile(fileName);
+        if (dialect == Dialect::AnyLanguage
+                || dialect == Dialect::NoLanguage)
+            dialect = Dialect::Qml;
+
+        Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QStringLiteral("<internal>") : fileName, dialect);
         doc->setSource(data);
         doc->parseQml();
 

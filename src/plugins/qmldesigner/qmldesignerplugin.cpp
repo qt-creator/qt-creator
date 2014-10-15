@@ -37,6 +37,8 @@
 
 #include <qmljseditor/qmljseditorconstants.h>
 
+#include <qmljstools/qmljstoolsconstants.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
@@ -154,7 +156,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 void QmlDesignerPlugin::extensionsInitialized()
 {
     QStringList mimeTypes;
-    mimeTypes.append("application/x-qml");
+    mimeTypes.append(QmlJSTools::Constants::QML_MIMETYPE);
+    mimeTypes.append(QmlJSTools::Constants::QMLUI_MIMETYPE);
 
     Core::DesignMode::instance()->registerDesignWidget(data->mainWidget, mimeTypes, data->context->context());
     connect(Core::DesignMode::instance(),
