@@ -54,7 +54,8 @@ static const char *StageLabels[] = {
     QT_TRANSLATE_NOOP("MainView", "Texture Convert"),
     QT_TRANSLATE_NOOP("MainView", "Texture Swizzle"),
     QT_TRANSLATE_NOOP("MainView", "Texture Upload"),
-    QT_TRANSLATE_NOOP("MainView", "Texture Mipmap")
+    QT_TRANSLATE_NOOP("MainView", "Texture Mipmap"),
+    QT_TRANSLATE_NOOP("MainView", "Texture Delete")
 };
 
 enum SceneGraphCategoryType {
@@ -96,6 +97,7 @@ enum SceneGraphStage {
     TextureSwizzle,
     TextureUpload,
     TextureMipmap,
+    TextureDeletion,
     MaximumTextureStage,
 
     MaximumSceneGraphStage = MaximumTextureStage
@@ -244,6 +246,11 @@ void SceneGraphTimelineModel::loadData()
             startTime += d->insert(startTime, event.numericData3, event.typeIndex, TextureSwizzle);
             startTime += d->insert(startTime, event.numericData4, event.typeIndex, TextureUpload);
             d->insert(startTime, event.numericData5, event.typeIndex, TextureMipmap);
+            break;
+        }
+        case QmlDebug::SceneGraphTextureDeletion: {
+            d->insert(event.startTime - event.numericData1, event.numericData1, event.typeIndex,
+                      TextureDeletion);
             break;
         }
         case QmlDebug::SceneGraphPolishAndSync: {
