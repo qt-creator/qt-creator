@@ -84,6 +84,7 @@ public:
     virtual void runEngine();
     virtual void shutdownInferior();
     virtual void shutdownEngine();
+    virtual void abortDebugger();
     virtual void detachDebugger();
     virtual void updateWatchData(const WatchData &data,
                                  const WatchUpdateFlags & flags = WatchUpdateFlags());

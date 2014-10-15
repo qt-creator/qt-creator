@@ -954,6 +954,19 @@ void CdbEngine::shutdownEngine()
     interruptInferior();
 }
 
+void CdbEngine::abortDebugger()
+{
+    if (targetState() == DebuggerFinished) {
+        // We already tried. Try harder.
+        showMessage(QLatin1String("ABORTING DEBUGGER. SECOND TIME."));
+        m_process.kill();
+    } else {
+        // Be friendly the first time. This will change targetState().
+        showMessage(QLatin1String("ABORTING DEBUGGER. FIRST TIME."));
+        quitDebugger();
+    }
+}
+
 void CdbEngine::processFinished()
 {
     if (debug)
