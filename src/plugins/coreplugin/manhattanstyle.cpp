@@ -745,7 +745,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                     painter->setPen(QColor(0, 0, 0, 70));
                     painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
                 }
-                if (!option->state & State_Enabled)
+                if (!(option->state & State_Enabled))
                     painter->setOpacity(0.8);
                 painter->setPen(creatorTheme()->color(Theme::ComboBoxTextColor));
                 painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
