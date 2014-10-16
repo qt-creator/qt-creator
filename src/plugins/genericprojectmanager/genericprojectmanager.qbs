@@ -37,8 +37,6 @@ QtcPlugin {
         "genericprojectplugin.h",
         "genericprojectwizard.cpp",
         "genericprojectwizard.h",
-        "pkgconfigtool.cpp",
-        "pkgconfigtool.h",
     ]
 
     Group {
