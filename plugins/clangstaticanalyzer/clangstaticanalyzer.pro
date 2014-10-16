@@ -1,7 +1,6 @@
 TARGET = ClangStaticAnalyzer
 TEMPLATE = lib
 
-PROVIDER = Digia
 include(../../qtcreatorplugin.pri)
 include(clangstaticanalyzer_dependencies.pri)
 
