@@ -130,7 +130,6 @@ void CorePlugin::parseArguments(const QStringList &arguments)
     Theme *theme = new Theme(qApp);
     theme->readSettings(themeSettings);
     setCreatorTheme(theme);
-    qApp->setPalette(creatorTheme()->palette(qApp->palette()));
 
     // defer creation of these widgets until here,
     // because they need a valid theme set
