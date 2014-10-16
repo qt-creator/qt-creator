@@ -40,7 +40,7 @@ def main():
     if not startedWithoutPluginError():
         return
 
-    openQmakeProject(pathSpeedcrunch)
+    openQmakeProject(pathSpeedcrunch, Targets.DESKTOP_480_GCC)
     # Wait for parsing to complete
     progressBarWait(30000)
     openQmakeProject(pathCreator)
