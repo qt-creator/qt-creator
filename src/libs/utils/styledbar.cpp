@@ -71,7 +71,7 @@ void StyledBar::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
     QPainter painter(this);
-    QStyleOption option;
+    QStyleOptionToolBar option;
     option.rect = rect();
     option.state = QStyle::State_Horizontal;
     style()->drawControl(QStyle::CE_ToolBar, &option, &painter, this);
