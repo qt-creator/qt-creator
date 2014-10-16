@@ -129,7 +129,7 @@ class PROJECTEXPLORER_EXPORT KitManager : public QObject
     Q_OBJECT
 
 public:
-    static QObject *instance();
+    static KitManager *instance();
     ~KitManager();
 
     static QList<Kit *> kits();
