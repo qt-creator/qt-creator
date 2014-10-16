@@ -54,6 +54,7 @@
 #include <QDir>
 #include <QFile>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QTextStream>
 #include <QStringList>
 #include <QTimer>
@@ -397,17 +398,67 @@ static void saveQtVersions()
     m_writer->save(data, Core::ICore::mainWindow());
 }
 
+// Executes qtchooser with arguments in a process and returns its output
+static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringList &arguments)
+{
+    QProcess p;
+    p.start(qtchooser, arguments);
+    p.waitForFinished();
+    const bool success = p.exitCode() == 0;
+    return success ? p.readAllStandardOutput().split('\n') : QList<QByteArray>();
+}
+
+// Asks qtchooser for the qmake path of a given version
+static QString qmakePath(const QString &qtchooser, const QString &version)
+{
+    QList<QByteArray> outputs = runQtChooser(qtchooser, QStringList()
+                                             << QStringLiteral("-qt=%1").arg(version)
+                                             << QStringLiteral("-print-env"));
+    foreach (const QByteArray &output, outputs) {
+        if (output.startsWith("QTTOOLDIR=\"")) {
+            QByteArray withoutVarName = output.mid(11); // remove QTTOOLDIR="
+            withoutVarName.chop(1); // remove trailing quote
+            return QStandardPaths::findExecutable(QStringLiteral("qmake"), QStringList()
+                                                  << QString::fromLocal8Bit(withoutVarName));
+        }
+    }
+    return QString();
+}
+
+static FileNameList gatherQmakePathsFromQtChooser()
+{
+    const QString qtchooser = QStandardPaths::findExecutable(QStringLiteral("qtchooser"));
+    if (qtchooser.isEmpty())
+        return FileNameList();
+
+    QList<QByteArray> versions = runQtChooser(qtchooser, QStringList() << QStringLiteral("-l"));
+    QSet<FileName> foundQMakes;
+    foreach (const QByteArray &version, versions) {
+        FileName possibleQMake = FileName::fromString(
+                    qmakePath(qtchooser, QString::fromLocal8Bit(version)));
+        if (!possibleQMake.isEmpty())
+            foundQMakes << possibleQMake;
+    }
+    return foundQMakes.toList();
+}
+
 static void findSystemQt()
 {
+    FileNameList systemQMakes;
     FileName systemQMakePath = BuildableHelperLibrary::findSystemQt(Environment::systemEnvironment());
-    if (systemQMakePath.isNull())
-        return;
+    if (!systemQMakePath.isEmpty())
+        systemQMakes << systemQMakePath;
 
-    BaseQtVersion *version
-            = QtVersionFactory::createQtVersionFromQMakePath(systemQMakePath, false, QLatin1String("PATH"));
-    if (version) {
-        version->setUnexpandedDisplayName(BaseQtVersion::defaultUnexpandedDisplayName(systemQMakePath, true));
-        m_versions.insert(version->uniqueId(), version);
+    systemQMakes.append(gatherQmakePathsFromQtChooser());
+    systemQMakes.removeDuplicates();
+
+    foreach (const FileName &qmakePath, systemQMakes) {
+        BaseQtVersion *version
+                = QtVersionFactory::createQtVersionFromQMakePath(qmakePath, false, QLatin1String("PATH"));
+        if (version) {
+            version->setUnexpandedDisplayName(BaseQtVersion::defaultUnexpandedDisplayName(qmakePath, true));
+            m_versions.insert(version->uniqueId(), version);
+        }
     }
 }
 
