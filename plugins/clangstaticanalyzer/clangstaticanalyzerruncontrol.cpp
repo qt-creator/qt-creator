@@ -31,6 +31,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cppprojects.h>
 #include <cpptools/cppprojectfile.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -146,8 +147,8 @@ void ClangStaticAnalyzerRunControl::stopEngine()
 QStringList createDefinesAndIncludesOptions(const ProjectPart::Ptr projectPart)
 {
     QStringList result;
-    result += ClangCodeModel::Utils::createDefineOptions(projectPart->projectDefines, false);
-    result += ClangCodeModel::Utils::createHeaderPathOptions(projectPart->headerPaths);
+    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->projectDefines);
+    result += CppTools::CompilerOptionsBuilder::createHeaderPathOptions(projectPart->headerPaths);
     result += QLatin1String("-fPIC"); // TODO: Remove?
     return result;
 }
