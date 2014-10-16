@@ -58,7 +58,9 @@ Theme *creatorTheme()
 
 void setCreatorTheme(Theme *theme)
 {
-    // TODO: memory management of theme object
+    if (m_creatorTheme == theme)
+        return;
+    delete m_creatorTheme;
     m_creatorTheme = theme;
 }
 

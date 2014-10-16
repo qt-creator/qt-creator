@@ -87,6 +87,7 @@ CorePlugin::~CorePlugin()
     }
 
     delete m_mainWindow;
+    setCreatorTheme(0);
 }
 
 void CorePlugin::parseArguments(const QStringList &arguments)
