@@ -41,6 +41,8 @@
 #include <QPointer>
 #include <QSet>
 
+#include <functional>
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT ProjectPart
@@ -189,6 +191,22 @@ private:
     ProjectPart::Ptr m_templatePart;
     ProjectInfo &m_pInfo;
     QStringList m_cFlags, m_cxxFlags;
+};
+
+class CPPTOOLS_EXPORT CompilerOptionsBuilder
+{
+public:
+    typedef std::function<bool (const QString &)> IsBlackListed;
+    static QStringList createHeaderPathOptions(const ProjectPart::HeaderPaths &headerPaths,
+                                               IsBlackListed isBlackListed = IsBlackListed());
+
+    static QStringList createDefineOptions(const QByteArray &defines,
+                                           bool toolchainDefines = false);
+
+    static QStringList createLanguageOption(ProjectFile::Kind fileKind, bool objcExt);
+    static QStringList createOptionsForLanguage(ProjectPart::LanguageVersion languageVersion,
+                                                ProjectPart::LanguageExtensions languageExtensions,
+                                                bool checkForBorlandExtensions = true);
 };
 
 } // namespace CppTools

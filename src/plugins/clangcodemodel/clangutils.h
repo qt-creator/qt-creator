@@ -41,19 +41,11 @@ namespace Utils {
 
 ClangCodeModel::Internal::UnsavedFiles createUnsavedFiles(CppTools::WorkingCopy workingCopy);
 
-QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, CppTools::ProjectFile::Kind fileKind);
-QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, const QString &fileName = QString());
-QStringList clangNonProjectFileOptions(CppTools::ProjectFile::Kind kind);
-QStringList createPCHInclusionOptions(const QStringList &pchFiles);
+QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
+                               CppTools::ProjectFile::Kind fileKind);
+QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart,
+                               const QString &fileName = QString());
 QStringList createPCHInclusionOptions(const QString &pchFile);
-
-QStringList CLANG_EXPORT createHeaderPathOptions(const QList<CppTools::ProjectPart::HeaderPath> &headerPaths);
-QStringList CLANG_EXPORT createDefineOptions(const QByteArray &defines, bool toolchainDefines);
-
-QStringList clangLanguageOption(CppTools::ProjectFile::Kind fileKind, bool objcExt);
-QStringList clangOptionsForLanguage(CppTools::ProjectPart::QtVersion qtVersion,
-                                     CppTools::ProjectPart::LanguageVersion languageVersion,
-                                     CppTools::ProjectPart::LanguageExtensions languageExtensions);
 
 } // namespace Utils
 } // namespace Clang
