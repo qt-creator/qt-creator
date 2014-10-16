@@ -42,11 +42,10 @@
 
         \li \l{Setting Up a Qbs Project}
 
-            Qt Build Suite (Qbs) is a new build tool for Qt. It is an all-in-one
+            Qt Build Suite (Qbs) is an all-in-one build
             tool that generates a build graph from a high-level project
             description (like qmake or CMake do) and executes the commands in
-            the low-level build graph (like make does). Qbs is still
-            experimental, but you can use it to build \QC, for example.
+            the low-level build graph (like make does).
 
         \li \l{Setting Up an Autotools Project}
 
