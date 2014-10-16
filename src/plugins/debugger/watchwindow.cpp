@@ -90,8 +90,8 @@ const char CurrentIndex[] = "CurrentIndex";
 class WatchDelegate : public QItemDelegate
 {
 public:
-    explicit WatchDelegate(WatchTreeView *parent)
-        : QItemDelegate(parent), m_watchWindow(parent)
+    explicit WatchDelegate(QObject *parent)
+        : QItemDelegate(parent)
     {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
@@ -141,7 +141,7 @@ public:
             return;
         WatchHandler *handler = currentEngine()->watchHandler();
         handler->removeData(index.data(LocalsINameRole).toByteArray());
-        m_watchWindow->watchExpression(value);
+        handler->watchExpression(value);
     }
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
@@ -149,9 +149,6 @@ public:
     {
         editor->setGeometry(option.rect);
     }
-
-private:
-    WatchTreeView *m_watchWindow;
 };
 
 // Watch model query helpers.
