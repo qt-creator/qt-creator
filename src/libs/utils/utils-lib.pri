@@ -94,7 +94,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/proxycredentialsdialog.cpp \
     $$PWD/macroexpander.cpp \
     $$PWD/theme/theme.cpp \
-    $$PWD/theme/theme_p.cpp \
     $$PWD/theme/welcometheme.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp

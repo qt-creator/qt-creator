@@ -210,7 +210,6 @@ QtcLibrary {
         files: [
             "theme.cpp",
             "theme.h",
-            "theme_p.cpp",
             "theme_p.h",
             "welcometheme.cpp",
             "welcometheme.h",
