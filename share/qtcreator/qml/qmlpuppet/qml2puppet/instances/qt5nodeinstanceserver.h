@@ -34,10 +34,10 @@
 #include <QtGlobal>
 
 #include "nodeinstanceserver.h"
+#include "designersupport.h"
 
 QT_BEGIN_NAMESPACE
 class QQuickItem;
-class DesignerSupport;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -54,7 +54,7 @@ public:
     QQmlEngine *engine() const Q_DECL_OVERRIDE;
     void refreshBindings() Q_DECL_OVERRIDE;
 
-    DesignerSupport *designerSupport() const;
+    DesignerSupport *designerSupport();
 
     void createScene(const CreateSceneCommand &command) Q_DECL_OVERRIDE;
     void clearScene(const ClearSceneCommand &command) Q_DECL_OVERRIDE;
@@ -69,7 +69,7 @@ protected:
 
 private:
     QPointer<QQuickView> m_quickView;
-    DesignerSupport *m_designerSupport;
+    DesignerSupport m_designerSupport;
 };
 
 } // QmlDesigner
