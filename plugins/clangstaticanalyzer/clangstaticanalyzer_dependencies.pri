@@ -4,6 +4,5 @@ QTC_LIB_DEPENDS += \
     utils
 QTC_PLUGIN_DEPENDS += \
     analyzerbase \
-    clangcodemodel \
     cpptools \
     licensechecker
