@@ -39,7 +39,6 @@
 namespace Debugger {
 class DebuggerEngine;
 class DebuggerRunControl;
-class DebuggerStartParameters;
 
 namespace Internal { class DebuggerRunControlFactory; }
 
@@ -60,7 +59,6 @@ public:
 
     void startFailed();
     void debuggingFinished();
-    ProjectExplorer::RunConfiguration *runConfiguration() const;
     DebuggerEngine *engine();
 
     void showMessage(const QString &msg, int channel);
@@ -76,7 +74,6 @@ private:
     DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration, DebuggerEngine *engine);
 
     DebuggerEngine *m_engine;
-    const QPointer<ProjectExplorer::RunConfiguration> m_runConfiguration;
     bool m_running;
 };
 

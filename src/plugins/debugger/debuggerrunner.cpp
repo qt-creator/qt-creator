@@ -102,7 +102,6 @@ static const char *engineTypeName(DebuggerEngineType et)
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration, DebuggerEngine *engine)
     : RunControl(runConfiguration, DebugRunMode),
       m_engine(engine),
-      m_runConfiguration(runConfiguration),
       m_running(false)
 {
     setIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
@@ -246,12 +245,6 @@ DebuggerEngine *DebuggerRunControl::engine()
     QTC_CHECK(m_engine);
     return m_engine;
 }
-
-RunConfiguration *DebuggerRunControl::runConfiguration() const
-{
-    return m_runConfiguration.data();
-}
-
 
 ////////////////////////////////////////////////////////////////////////
 //
