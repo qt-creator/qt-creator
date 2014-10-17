@@ -1777,7 +1777,7 @@ static QStringList mergeList(const QStringList &listA, const QStringList &listB)
     auto ait = listA.constBegin();
     auto aend = listA.constEnd();
     auto bit = listB.constBegin();
-    auto bend = listB.constBegin();
+    auto bend = listB.constEnd();
     while (ait != aend && bit != bend) {
         const QString &a = *ait;
         const QString &b = *bit;
