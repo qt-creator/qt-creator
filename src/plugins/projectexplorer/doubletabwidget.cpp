@@ -31,6 +31,7 @@
 #include "doubletabwidget.h"
 #include "ui_doubletabwidget.h"
 
+#include <utils/fileutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
@@ -563,10 +564,12 @@ bool DoubleTabWidget::event(QEvent *event)
     if (event->type() == QEvent::ToolTip) {
         QHelpEvent *helpevent = static_cast<QHelpEvent*>(event);
         QPair<HitArea, int> hit = convertPosToTab(helpevent->pos());
-        if (hit.first == HITTAB && m_tabs.at(m_currentTabIndices.at(hit.second)).nameIsUnique)
-            QToolTip::showText(helpevent->globalPos(), m_tabs.at(m_currentTabIndices.at(hit.second)).fullName, this);
-        else
+        if (hit.first == HITTAB && m_tabs.at(m_currentTabIndices.at(hit.second)).nameIsUnique) {
+            const QString &fileName = m_tabs.at(m_currentTabIndices.at(hit.second)).fullName;
+            QToolTip::showText(helpevent->globalPos(), FileName::fromString(fileName).toUserOutput(), this);
+        } else {
             QToolTip::showText(helpevent->globalPos(), QString(), this);
+        }
     }
     return QWidget::event(event);
 }
