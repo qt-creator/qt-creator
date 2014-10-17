@@ -36,18 +36,12 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace Utils { class Environment; }
-
 namespace Debugger {
 class DebuggerEngine;
 class DebuggerRunControl;
 class DebuggerStartParameters;
 
-namespace Internal {
-class DebuggerRunControlPrivate;
-class DebuggerRunControlFactory;
-} // namespace Internal
-
+namespace Internal { class DebuggerRunControlFactory; }
 
 class DEBUGGER_EXPORT DebuggerRunControl
     : public ProjectExplorer::RunControl
@@ -55,8 +49,6 @@ class DEBUGGER_EXPORT DebuggerRunControl
     Q_OBJECT
 
 public:
-    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
-                       const DebuggerStartParameters &sp);
     ~DebuggerRunControl();
 
     // ProjectExplorer::RunControl
@@ -80,8 +72,12 @@ private slots:
     void handleFinished();
 
 private:
-    //friend class Internal::DebuggerRunControlFactory;
-    Internal::DebuggerRunControlPrivate *d;
+    friend class Internal::DebuggerRunControlFactory;
+    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration, DebuggerEngine *engine);
+
+    DebuggerEngine *m_engine;
+    const QPointer<ProjectExplorer::RunConfiguration> m_runConfiguration;
+    bool m_running;
 };
 
 } // namespace Debugger

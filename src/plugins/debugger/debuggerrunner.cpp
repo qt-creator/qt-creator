@@ -74,6 +74,8 @@ DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp, QString *error);
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &sp);
 
+} // namespace Internal
+
 static const char *engineTypeName(DebuggerEngineType et)
 {
     switch (et) {
@@ -97,85 +99,50 @@ static const char *engineTypeName(DebuggerEngineType et)
     return "No engine";
 }
 
-////////////////////////////////////////////////////////////////////////
-//
-// DebuggerRunControlPrivate
-//
-////////////////////////////////////////////////////////////////////////
-
-class DebuggerRunControlPrivate
-{
-public:
-    explicit DebuggerRunControlPrivate(RunConfiguration *runConfiguration);
-
-public:
-    DebuggerEngine *m_engine;
-    const QPointer<RunConfiguration> m_myRunConfiguration;
-    bool m_running;
-};
-
-DebuggerRunControlPrivate::DebuggerRunControlPrivate(RunConfiguration *runConfiguration)
-    : m_engine(0)
-    , m_myRunConfiguration(runConfiguration)
-    , m_running(false)
-{
-}
-
-} // namespace Internal
-
-DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
-                                       const DebuggerStartParameters &sp)
+DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration, DebuggerEngine *engine)
     : RunControl(runConfiguration, DebugRunMode),
-      d(new DebuggerRunControlPrivate(runConfiguration))
+      m_engine(engine),
+      m_runConfiguration(runConfiguration),
+      m_running(false)
 {
     setIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
-
-    connect(this, SIGNAL(finished()), SLOT(handleFinished()));
-    // Create the engine. Could arguably be moved to the factory, but
-    // we still have a derived S60DebugControl. Should rarely fail, though.
-    QString errorMessage;
-    d->m_engine = DebuggerRunControlFactory::createEngine(sp.masterEngineType, sp, &errorMessage);
-
-    if (!d->m_engine) {
-        debuggingFinished();
-        Core::ICore::showWarningWithOptions(DebuggerRunControl::tr("Debugger"), errorMessage);
-    }
+    connect(this, &RunControl::finished, this, &DebuggerRunControl::handleFinished);
 }
 
 DebuggerRunControl::~DebuggerRunControl()
 {
     disconnect();
-    if (DebuggerEngine *engine = d->m_engine) {
-        d->m_engine = 0;
+    if (m_engine) {
+        DebuggerEngine *engine = m_engine;
+        m_engine = 0;
         engine->disconnect();
         delete engine;
     }
-    delete d;
 }
 
 QString DebuggerRunControl::displayName() const
 {
-    QTC_ASSERT(d->m_engine, return QString());
-    return d->m_engine->startParameters().displayName;
+    QTC_ASSERT(m_engine, return QString());
+    return m_engine->startParameters().displayName;
 }
 
 void DebuggerRunControl::start()
 {
-    QTC_ASSERT(d->m_engine, return);
+    QTC_ASSERT(m_engine, return);
     // User canceled input dialog asking for executable when working on library project.
-    if (d->m_engine->startParameters().startMode == StartInternal
-        && d->m_engine->startParameters().executable.isEmpty()) {
+    if (m_engine->startParameters().startMode == StartInternal
+        && m_engine->startParameters().executable.isEmpty()) {
         appendMessage(tr("No executable specified.") + QLatin1Char('\n'), ErrorMessageFormat);
         emit started();
         emit finished();
         return;
     }
 
-    if (d->m_engine->startParameters().startMode == StartInternal) {
+    if (m_engine->startParameters().startMode == StartInternal) {
         QStringList unhandledIds;
         foreach (const BreakpointModelId &id, breakHandler()->allBreakpointIds()) {
-            if (d->m_engine->breakHandler()->breakpointData(id).enabled
-                    && !d->m_engine->acceptsBreakpoint(id))
+            if (m_engine->breakHandler()->breakpointData(id).enabled
+                    && !m_engine->acceptsBreakpoint(id))
                 unhandledIds.append(id.toString());
         }
         if (!unhandledIds.isEmpty()) {
@@ -197,33 +164,33 @@ void DebuggerRunControl::start()
         }
     }
 
-    debuggerCore()->runControlStarted(d->m_engine);
+    debuggerCore()->runControlStarted(m_engine);
 
     // We might get a synchronous startFailed() notification on Windows,
     // when launching the process fails. Emit a proper finished() sequence.
     emit started();
-    d->m_running = true;
+    m_running = true;
 
-    d->m_engine->startDebugger(this);
+    m_engine->startDebugger(this);
 
-    if (d->m_running)
+    if (m_running)
         appendMessage(tr("Debugging starts") + QLatin1Char('\n'), NormalMessageFormat);
 }
 
 void DebuggerRunControl::startFailed()
 {
     appendMessage(tr("Debugging has failed") + QLatin1Char('\n'), NormalMessageFormat);
-    d->m_running = false;
+    m_running = false;
     emit finished();
-    d->m_engine->handleStartFailed();
+    m_engine->handleStartFailed();
 }
 
 void DebuggerRunControl::handleFinished()
 {
     appendMessage(tr("Debugging has finished") + QLatin1Char('\n'), NormalMessageFormat);
-    if (d->m_engine)
-        d->m_engine->handleFinished();
-    debuggerCore()->runControlFinished(d->m_engine);
+    if (m_engine)
+        m_engine->handleFinished();
+    debuggerCore()->runControlFinished(m_engine);
 }
 
 void DebuggerRunControl::showMessage(const QString &msg, int channel)
@@ -258,31 +225,31 @@ bool DebuggerRunControl::promptToStop(bool *optionalPrompt) const
 
 RunControl::StopResult DebuggerRunControl::stop()
 {
-    QTC_ASSERT(d->m_engine, return StoppedSynchronously);
-    d->m_engine->quitDebugger();
+    QTC_ASSERT(m_engine, return StoppedSynchronously);
+    m_engine->quitDebugger();
     return AsynchronousStop;
 }
 
 void DebuggerRunControl::debuggingFinished()
 {
-    d->m_running = false;
+    m_running = false;
     emit finished();
 }
 
 bool DebuggerRunControl::isRunning() const
 {
-    return d->m_running;
+    return m_running;
 }
 
 DebuggerEngine *DebuggerRunControl::engine()
 {
-    QTC_CHECK(d->m_engine);
-    return d->m_engine;
+    QTC_CHECK(m_engine);
+    return m_engine;
 }
 
 RunConfiguration *DebuggerRunControl::runConfiguration() const
 {
-    return d->m_myRunConfiguration.data();
+    return m_runConfiguration.data();
 }
 
 
@@ -445,7 +412,15 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
     if (!fixupEngineTypes(sp, rc, errorMessage))
         return 0;
 
-    return new DebuggerRunControl(rc, sp);
+    QString error;
+    DebuggerEngine *engine = createEngine(sp.masterEngineType, sp, &error);
+    if (!engine) {
+        Core::ICore::showWarningWithOptions(DebuggerRunControl::tr("Debugger"), error);
+        if (errorMessage)
+            *errorMessage = error;
+        return 0;
+    }
+    return new DebuggerRunControl(rc, engine);
 }
 
 IRunConfigurationAspect *DebuggerRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
