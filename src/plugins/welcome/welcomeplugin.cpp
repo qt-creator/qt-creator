@@ -84,8 +84,6 @@ public:
     void initPlugins();
     int activePlugin() const { return m_activePlugin; }
 
-    Q_SCRIPTABLE QString platform() const;
-
 //    bool eventFilter(QObject *, QEvent *);
 
 public slots:
@@ -271,17 +269,6 @@ void WelcomeMode::initPlugins()
     // finally, load the root page
     m_welcomePage->setSource(
             QUrl::fromLocalFile(path));
-}
-
-QString WelcomeMode::platform() const
-{
-    switch (HostOsInfo::hostOs()) {
-    case OsTypeWindows: return QLatin1String("windows");
-    case OsTypeMac: return QLatin1String("mac");
-    case OsTypeLinux: return QLatin1String("linux");
-    case OsTypeOtherUnix: return QLatin1String("unix");
-    default: return QLatin1String("other");
-    }
 }
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)
