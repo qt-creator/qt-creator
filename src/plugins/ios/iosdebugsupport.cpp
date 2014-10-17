@@ -230,9 +230,9 @@ void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
 {
     if (m_runControl) {
         if (!cleanEnd)
-            m_runControl->showMessage(tr("Run ended with error."), AppStuff);
+            m_runControl->appendMessage(tr("Run ended with error."), Utils::DebugFormat);
         else
-            m_runControl->showMessage(tr("Run ended."), AppStuff);
+            m_runControl->appendMessage(tr("Run ended."), Utils::DebugFormat);
         m_runControl->engine()->abortDebugger();
     }
 }
@@ -243,7 +243,7 @@ void IosDebugSupport::handleRemoteOutput(const QString &output)
         if (m_runControl->engine())
             m_runControl->engine()->showMessage(output, AppOutput);
         else
-            m_runControl->showMessage(output, AppOutput);
+            m_runControl->appendMessage(output, Utils::StdOutFormatSameLine);
     }
 }
 
@@ -253,7 +253,7 @@ void IosDebugSupport::handleRemoteErrorOutput(const QString &output)
         if (m_runControl->engine())
             m_runControl->engine()->showMessage(output, AppError);
         else
-            m_runControl->showMessage(output, AppError);
+            m_runControl->appendMessage(output, Utils::StdErrFormatSameLine);
     }
 }
 

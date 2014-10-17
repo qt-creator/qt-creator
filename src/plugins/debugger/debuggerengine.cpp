@@ -315,7 +315,6 @@ public:
     bool m_isStateDebugging;
 
     Utils::FileInProjectFinder m_fileFinder;
-
 };
 
 
@@ -495,10 +494,21 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
         consoleManager->printToConsolePane(QmlJS::ConsoleItem::UndefinedType, msg);
 
     debuggerCore()->showMessage(msg, channel, timeout);
-    if (d->m_runControl)
-        d->m_runControl->showMessage(msg, channel);
-    else
+    if (d->m_runControl) {
+        switch (channel) {
+            case AppOutput:
+                d->m_runControl->appendMessage(msg, Utils::StdOutFormatSameLine);
+                break;
+            case AppError:
+                d->m_runControl->appendMessage(msg, Utils::StdErrFormatSameLine);
+                break;
+            case AppStuff:
+                d->m_runControl->appendMessage(msg, Utils::DebugFormat);
+                break;
+        }
+    } else {
         qWarning("Warning: %s (no active run control)", qPrintable(msg));
+    }
 }
 
 void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)

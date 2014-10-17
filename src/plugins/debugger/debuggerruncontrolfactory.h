@@ -31,6 +31,8 @@
 #ifndef DEBUGGERRUNCONTROLFACTORY_H
 #define DEBUGGERRUNCONTROLFACTORY_H
 
+#include "debuggerconstants.h"
+
 #include <projectexplorer/runconfiguration.h>
 
 namespace Debugger {

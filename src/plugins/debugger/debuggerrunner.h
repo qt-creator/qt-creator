@@ -32,7 +32,6 @@
 #define DEBUGGERRUNNER_H
 
 #include "debugger_global.h"
-#include "debuggerconstants.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -60,8 +59,6 @@ public:
     void startFailed();
     void debuggingFinished();
     DebuggerEngine *engine();
-
-    void showMessage(const QString &msg, int channel);
 
 signals:
     void engineRequestSetup();

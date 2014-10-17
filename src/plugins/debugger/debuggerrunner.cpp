@@ -192,21 +192,6 @@ void DebuggerRunControl::handleFinished()
     debuggerCore()->runControlFinished(m_engine);
 }
 
-void DebuggerRunControl::showMessage(const QString &msg, int channel)
-{
-    switch (channel) {
-        case AppOutput:
-            appendMessage(msg, StdOutFormatSameLine);
-            break;
-        case AppError:
-            appendMessage(msg, StdErrFormatSameLine);
-            break;
-        case AppStuff:
-            appendMessage(msg, DebugFormat);
-            break;
-    }
-}
-
 bool DebuggerRunControl::promptToStop(bool *optionalPrompt) const
 {
     QTC_ASSERT(isRunning(), return true);

@@ -166,7 +166,7 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
     connect(m_runner, &AndroidRunner::remoteProcessFinished,
         [this](const QString &errorMsg) {
             QTC_ASSERT(m_runControl, return);
-            m_runControl->showMessage(errorMsg, AppStuff);
+            m_runControl->appendMessage(errorMsg, Utils::DebugFormat);
         });
 
     connect(m_runner, &AndroidRunner::remoteErrorOutput,
