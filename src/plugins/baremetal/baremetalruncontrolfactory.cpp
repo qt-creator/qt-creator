@@ -33,7 +33,7 @@
 #include "baremetalrunconfiguration.h"
 #include "baremetaldevice.h"
 
-#include <debugger/debuggerplugin.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
 #include <projectexplorer/buildsteplist.h>
@@ -143,7 +143,7 @@ RunControl *BareMetalRunControlFactory::create(RunConfiguration *runConfiguratio
                 .arg(sp.executable);
         return 0;
     }
-    return DebuggerPlugin::createDebugger(sp,runConfiguration,errorMessage);
+    return DebuggerRunControlFactory::doCreate(sp, runConfiguration, errorMessage);
 }
 
 } // namespace Internal

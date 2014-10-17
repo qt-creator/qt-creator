@@ -32,12 +32,12 @@
 #include "baseqmldebuggerclient.h"
 #include "qmlinspectoragent.h"
 
-#include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggermainwindow.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
+#include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerstringutils.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/localsandexpressionswindow.h>
@@ -47,6 +47,7 @@
 #include <debugger/stackhandler.h>
 #include <debugger/watchhandler.h>
 #include <debugger/sourcefileshandler.h>
+
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -62,11 +63,9 @@
 
 #include <QDebug>
 #include <QDir>
-
+#include <QDockWidget>
 #include <QMessageBox>
 #include <QPlainTextEdit>
-
-#include <QDockWidget>
 
 #define DEBUG_QML 1
 #if DEBUG_QML

@@ -36,10 +36,9 @@
 #include "androidqtsupport.h"
 
 #include <debugger/debuggerengine.h>
-#include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -121,7 +120,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     }
 
     DebuggerRunControl * const debuggerRunControl
-        = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
+        = DebuggerRunControlFactory::doCreate(params, runConfig, errorMessage);
     new AndroidDebugSupport(runConfig, debuggerRunControl);
     return debuggerRunControl;
 }

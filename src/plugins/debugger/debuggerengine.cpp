@@ -33,7 +33,7 @@
 #include "debuggerinternalconstants.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "debuggerrunner.h"
+#include "debuggerruncontrol.h"
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
 #include "debuggertooltipmanager.h"

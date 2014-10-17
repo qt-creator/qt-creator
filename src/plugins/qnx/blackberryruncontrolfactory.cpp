@@ -42,7 +42,7 @@
 
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerkitinformation.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/project.h>
@@ -161,7 +161,7 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
         return runControl;
     }
     Debugger::DebuggerRunControl * const runControl =
-            Debugger::DebuggerPlugin::createDebugger(startParameters(rc), runConfiguration, errorMessage);
+            Debugger::DebuggerRunControlFactory::doCreate(startParameters(rc), runConfiguration, errorMessage);
     if (!runControl)
         return 0;
 

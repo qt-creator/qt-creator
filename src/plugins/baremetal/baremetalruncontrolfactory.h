@@ -35,7 +35,6 @@
 
 #include <projectexplorer/runconfiguration.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerrunner.h>
 
 namespace BareMetal {
 namespace Internal {

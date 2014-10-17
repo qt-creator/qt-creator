@@ -28,9 +28,10 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGERRUNCONTROLFACTORY_H
-#define DEBUGGERRUNCONTROLFACTORY_H
+#ifndef DEBUGGERRUNCONTROL_H
+#define DEBUGGERRUNCONTROL_H
 
+#include "debugger_global.h"
 #include "debuggerconstants.h"
 
 #include <projectexplorer/runconfiguration.h>
@@ -38,12 +39,42 @@
 namespace Debugger {
 
 class DebuggerEngine;
-class DebuggerRunControl;
 class DebuggerStartParameters;
 
-namespace Internal {
+class DEBUGGER_EXPORT DebuggerRunControl
+    : public ProjectExplorer::RunControl
+{
+    Q_OBJECT
 
-class DebuggerRunControlFactory
+public:
+    ~DebuggerRunControl();
+
+    // ProjectExplorer::RunControl
+    void start();
+    bool promptToStop(bool *prompt = 0) const;
+    StopResult stop(); // Called from SnapshotWindow.
+    bool isRunning() const;
+    QString displayName() const;
+
+    void startFailed();
+    void debuggingFinished();
+    DebuggerEngine *engine();
+
+signals:
+    void engineRequestSetup();
+
+private slots:
+    void handleFinished();
+
+private:
+    friend class DebuggerRunControlFactory;
+    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfiguration, DebuggerEngine *engine);
+
+    DebuggerEngine *m_engine;
+    bool m_running;
+};
+
+class DEBUGGER_EXPORT DebuggerRunControlFactory
     : public ProjectExplorer::IRunControlFactory
 {
 public:
@@ -71,7 +102,6 @@ public:
             ProjectExplorer::RunConfiguration *rc);
 };
 
-} // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGERRUNCONTROLFACTORY_H
+#endif // DEBUGGERRUNCONTROL_H

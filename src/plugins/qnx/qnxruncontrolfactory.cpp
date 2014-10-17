@@ -41,8 +41,7 @@
 #include "qnxdeviceconfiguration.h"
 
 #include <debugger/debuggerengine.h>
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
@@ -181,7 +180,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
         return new QnxRunControl(rc);
     case DebugRunMode: {
         const DebuggerStartParameters params = createDebuggerStartParameters(rc);
-        DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc, errorMessage);
+        DebuggerRunControl * const runControl = DebuggerRunControlFactory::doCreate(params, rc, errorMessage);
         if (!runControl)
             return 0;
 

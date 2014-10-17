@@ -37,7 +37,7 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/toolchain.h>
@@ -171,7 +171,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     }
 
     DebuggerRunControl * const debuggerRunControl
-        = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
+        = DebuggerRunControlFactory::doCreate(params, runConfig, errorMessage);
     if (debuggerRunControl)
         new IosDebugSupport(runConfig, debuggerRunControl, cppDebug, qmlDebug);
     return debuggerRunControl;

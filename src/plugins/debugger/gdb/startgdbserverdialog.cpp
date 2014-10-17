@@ -33,7 +33,7 @@
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerruncontrolfactory.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 
 #include <coreplugin/icore.h>

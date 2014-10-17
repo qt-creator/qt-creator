@@ -39,9 +39,8 @@
 #include "debuggerengine.h"
 #include "debuggeritemmanager.h"
 #include "debuggermainwindow.h"
-#include "debuggerrunner.h"
 #include "debuggerrunconfigurationaspect.h"
-#include "debuggerruncontrolfactory.h"
+#include "debuggerruncontrol.h"
 #include "debuggerstringutils.h"
 #include "debuggeroptionspage.h"
 #include "debuggerkitinformation.h"
@@ -3480,12 +3479,6 @@ QObject *DebuggerPlugin::remoteCommand(const QStringList &options,
 {
     theDebuggerCore->remoteCommand(options, list);
     return 0;
-}
-
-DebuggerRunControl *DebuggerPlugin::createDebugger
-    (const DebuggerStartParameters &sp, RunConfiguration *rc, QString *errorMessage)
-{
-    return DebuggerRunControlFactory::doCreate(sp, rc, errorMessage);
 }
 
 void DebuggerPlugin::extensionsInitialized()

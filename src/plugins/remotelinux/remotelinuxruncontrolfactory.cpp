@@ -36,8 +36,7 @@
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxruncontrol.h"
 
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/analyzermanager.h>
@@ -108,7 +107,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
         if (mode == ProjectExplorer::DebugRunModeWithBreakOnMain)
             params.breakOnMain = true;
         DebuggerRunControl * const runControl
-                = DebuggerPlugin::createDebugger(params, rc, errorMessage);
+                = DebuggerRunControlFactory::doCreate(params, rc, errorMessage);
         if (!runControl)
             return 0;
         LinuxDeviceDebugSupport * const debugSupport =

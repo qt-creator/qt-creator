@@ -39,7 +39,7 @@
 
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerinternalconstants.h>
-#include <debugger/debuggerruncontrolfactory.h>
+#include <debugger/debuggerruncontrol.h>
 #include <debugger/disassemblerlines.h>
 
 #include <debugger/debuggeractions.h>

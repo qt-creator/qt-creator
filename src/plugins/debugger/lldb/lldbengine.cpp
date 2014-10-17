@@ -35,7 +35,6 @@
 #include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggermainwindow.h>
-#include <debugger/debuggerplugin.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerstringutils.h>

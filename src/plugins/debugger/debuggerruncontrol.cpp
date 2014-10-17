@@ -28,8 +28,7 @@
 **
 ****************************************************************************/
 
-#include "debuggerrunner.h"
-#include "debuggerruncontrolfactory.h"
+#include "debuggerruncontrol.h"
 
 #include "debuggeractions.h"
 #include "debuggercore.h"
