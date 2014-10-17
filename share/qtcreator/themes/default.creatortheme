@@ -107,13 +107,5 @@ DetailsWidgetHeaderGradient\1\color=ffffff
 DetailsWidgetHeaderGradient\1\pos=1
 DetailsWidgetHeaderGradient\size=1
 
-[IconOverlay]
-CSourceMimetype=:/cppeditor/images/qt_c.png
-CppHeaderMimetype=:/cppeditor/images/qt_h.png
-CppSourceMimetype=:/cppeditor/images/qt_cpp.png
-PrfMimetype=:/qtsupport/images/qt_project.png
-PriMimetype=:/qtsupport/images/qt_project.png
-ProMimetype=:/qtsupport/images/qt_project.png
-
 [Style]
 WidgetStyle=StyleDefault
