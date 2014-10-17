@@ -110,6 +110,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
     m_treeView->setRootIsDecorated(false);
     m_treeView->setDragEnabled(true);
     m_treeView->setDragDropMode(QAbstractItemView::DragOnly);
+    m_treeView->setDefaultDropAction(Qt::MoveAction);
     connect(m_treeView, &QTreeView::activated, this, &CppTypeHierarchyWidget::onItemActivated);
 
     m_noTypeHierarchyAvailableLabel = new QLabel(tr("No type hierarchy available"), this);
