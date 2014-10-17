@@ -71,12 +71,12 @@
             "typeId": "File",
             "data": [
                 {
-                    "source": "file.qml",
+                    "source": "file.qml.tpl",
                     "target": "%{TargetPath}/%{QmlFile}",
                     "openInEditor": true
                 },
                 {
-                    "source": "fileForm.ui.qml",
+                    "source": "fileForm.ui.qml.tpl",
                     "target": "%{TargetPath}/%{UiFile}",
                     "openInEditor": true
                 }
