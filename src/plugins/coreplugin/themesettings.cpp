@@ -455,7 +455,7 @@ void ThemeSettings::finish()
 {
     delete d->m_widget;
     if (!d->m_ui) // page was never shown
-        return
+        return;
     delete d->m_ui;
     d->m_ui = 0;
 }
