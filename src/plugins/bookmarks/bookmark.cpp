@@ -37,8 +37,8 @@
 
 using namespace Bookmarks::Internal;
 
-Bookmark::Bookmark(const QString& fileName, int lineNumber, BookmarkManager *manager) :
-    TextMark(fileName, lineNumber),
+Bookmark::Bookmark(int lineNumber, BookmarkManager *manager) :
+    TextMark(QString(), lineNumber),
     m_manager(manager)
 {
     setPriority(TextEditor::TextMark::NormalPriority);

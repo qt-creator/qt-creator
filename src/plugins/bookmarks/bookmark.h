@@ -41,7 +41,7 @@ class BookmarkManager;
 class Bookmark : public TextEditor::TextMark
 {
 public:
-    Bookmark(const QString &fileName, int lineNumber, BookmarkManager *manager);
+    Bookmark(int lineNumber, BookmarkManager *manager);
 
     void updateLineNumber(int lineNumber);
     void move(int line);
