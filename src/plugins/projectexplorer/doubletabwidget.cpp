@@ -56,10 +56,10 @@ static void drawFirstLevelSeparator(QPainter *painter, QPoint top, QPoint bottom
 {
     QLinearGradient grad(top, bottom);
     if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
-        grad.setColorAt(0, QColor(255, 0, 255, 20));
-        grad.setColorAt(0.4, QColor(255, 0, 255, 60));
-        grad.setColorAt(0.7, QColor(255, 0, 255, 50));
-        grad.setColorAt(1, QColor(255, 0, 255, 40));
+        grad.setColorAt(0, QColor(255, 255, 255, 20));
+        grad.setColorAt(0.4, QColor(255, 255, 255, 60));
+        grad.setColorAt(0.7, QColor(255, 255, 255, 50));
+        grad.setColorAt(1, QColor(255, 255, 255, 40));
         painter->setPen(QPen(grad, 0));
         painter->drawLine(top, bottom);
         grad.setColorAt(0, QColor(0, 0, 0, 30));
@@ -78,10 +78,10 @@ static void drawSecondLevelSeparator(QPainter *painter, QPoint top, QPoint botto
 {
     QLinearGradient grad(top, bottom);
     if (creatorTheme()->widgetStyle() == Theme::StyleDefault) {
-        grad.setColorAt(0, QColor(255, 255, 255, 20));
-        grad.setColorAt(0.4, QColor(255, 255, 255, 60));
-        grad.setColorAt(0.7, QColor(255, 255, 255, 50));
-        grad.setColorAt(1, QColor(255, 255, 255, 40));
+        grad.setColorAt(0, QColor(255, 255, 255, 0));
+        grad.setColorAt(0.4, QColor(255, 255, 255, 100));
+        grad.setColorAt(0.7, QColor(255, 255, 255, 100));
+        grad.setColorAt(1, QColor(255, 255, 255, 0));
         painter->setPen(QPen(grad, 0));
         painter->drawLine(top, bottom);
         grad.setColorAt(0, QColor(0, 0, 0, 0));
