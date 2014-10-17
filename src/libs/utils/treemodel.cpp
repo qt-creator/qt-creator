@@ -186,7 +186,7 @@ int TreeModel::columnCount(const QModelIndex &idx) const
 {
     checkIndex(idx);
     if (!idx.isValid())
-        return m_root->rowCount();
+        return m_root->columnCount();
     if (idx.column() > 0)
         return 0;
     return itemFromIndex(idx)->columnCount();
