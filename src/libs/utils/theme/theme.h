@@ -49,7 +49,6 @@ class QTCREATOR_UTILS_EXPORT Theme : public QObject
     Q_ENUMS(ColorRole)
     Q_ENUMS(ImageFile)
     Q_ENUMS(GradientRole)
-    Q_ENUMS(MimeType)
     Q_ENUMS(Flag)
     Q_ENUMS(WidgetStyle)
 
