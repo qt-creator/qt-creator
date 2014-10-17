@@ -200,11 +200,11 @@ void ThemeSettingsTableModel::initFrom(Theme *theme)
     const QMetaObject &metaObject = Theme::staticMetaObject;
     // Colors
     {
-        QMetaEnum e = metaObject.enumerator(metaObject.indexOfEnumerator("ColorRole"));
+        QMetaEnum e = metaObject.enumerator(metaObject.indexOfEnumerator("Color"));
         QMap<QString, ColorVariable::Ptr> varLookup;
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
-            QPair<QColor, QString> c = theme->d->colors[static_cast<Theme::ColorRole>(i)];
+            QPair<QColor, QString> c = theme->d->colors[static_cast<Theme::Color>(i)];
             if (c.second.isEmpty()) {
                 ColorVariable::Ptr v = colors()->createVariable(c.first);
                 colors()->createRole(key, v);
@@ -243,7 +243,7 @@ void ThemeSettingsTableModel::toTheme(Theme *t) const
     ThemePrivate *theme = t->d;
     // Colors
     {
-        QMetaEnum e = Theme::staticMetaObject.enumerator(Theme::staticMetaObject.indexOfEnumerator("ColorRole"));
+        QMetaEnum e = Theme::staticMetaObject.enumerator(Theme::staticMetaObject.indexOfEnumerator("Color"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             ColorRole::Ptr role = colors()->colorRole(i);
             ColorVariable::Ptr var = role->colorVariable();

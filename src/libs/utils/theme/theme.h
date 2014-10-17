@@ -46,9 +46,9 @@ class QTCREATOR_UTILS_EXPORT Theme : public QObject
 {
     Q_OBJECT
 
-    Q_ENUMS(ColorRole)
+    Q_ENUMS(Color)
     Q_ENUMS(ImageFile)
-    Q_ENUMS(GradientRole)
+    Q_ENUMS(Gradient)
     Q_ENUMS(Flag)
     Q_ENUMS(WidgetStyle)
 
@@ -56,7 +56,7 @@ public:
     Theme(QObject *parent = 0);
     ~Theme();
 
-    enum ColorRole {
+    enum Color {
         BackgroundColorAlternate,
         BackgroundColorDark,
         BackgroundColorHover,
@@ -153,7 +153,7 @@ public:
         Welcome_SessionItemExpanded_BackgroundColorHover
     };
 
-    enum GradientRole {
+    enum Gradient {
         DetailsWidgetHeaderGradient,
         Welcome_Button_GradientNormal,
         Welcome_Button_GradientPressed
@@ -193,9 +193,9 @@ public:
 
     WidgetStyle widgetStyle() const;
     bool flag(Flag f) const;
-    QColor color(ColorRole role) const;
+    QColor color(Color role) const;
     QString imageFile(ImageFile imageFile, const QString &fallBack) const;
-    QGradientStops gradient(GradientRole role) const;
+    QGradientStops gradient(Gradient role) const;
     QPalette palette(const QPalette &base) const;
 
     QString fileName() const;

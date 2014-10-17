@@ -45,9 +45,9 @@ ThemePrivate::ThemePrivate()
     : widgetStyle(Theme::StyleDefault)
 {
     const QMetaObject &m = Theme::staticMetaObject;
-    colors.resize        (m.enumerator(m.indexOfEnumerator("ColorRole")).keyCount());
+    colors.resize        (m.enumerator(m.indexOfEnumerator("Color")).keyCount());
     imageFiles.resize    (m.enumerator(m.indexOfEnumerator("ImageFile")).keyCount());
-    gradientStops.resize (m.enumerator(m.indexOfEnumerator("GradientRole")).keyCount());
+    gradients.resize     (m.enumerator(m.indexOfEnumerator("Gradient")).keyCount());
     flags.resize         (m.enumerator(m.indexOfEnumerator("Flag")).keyCount());
 }
 
@@ -83,7 +83,7 @@ bool Theme::flag(Theme::Flag f) const
     return d->flags[f];
 }
 
-QColor Theme::color(Theme::ColorRole role) const
+QColor Theme::color(Theme::Color role) const
 {
     return d->colors[role].first;
 }
@@ -94,9 +94,9 @@ QString Theme::imageFile(Theme::ImageFile imageFile, const QString &fallBack) co
     return file.isEmpty() ? fallBack : file;
 }
 
-QGradientStops Theme::gradient(Theme::GradientRole role) const
+QGradientStops Theme::gradient(Theme::Gradient role) const
 {
-    return d->gradientStops[role];
+    return d->gradients[role];
 }
 
 QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
@@ -128,7 +128,7 @@ QVariantHash Theme::values() const
     QVariantHash result;
     const QMetaObject &m = *metaObject();
     {
-        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("ColorRole"));
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
             const QPair<QColor, QString> &var = d->colors.at(i);
@@ -182,7 +182,7 @@ void Theme::writeSettings(const QString &filename) const
     }
     {
         settings.beginGroup(QLatin1String("Colors"));
-        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("ColorRole"));
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
             const QPair<QColor, QString> var = d->colors[i];
@@ -206,10 +206,10 @@ void Theme::writeSettings(const QString &filename) const
     }
     {
         settings.beginGroup(QLatin1String("Gradients"));
-        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("GradientRole"));
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Gradient"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
-            QGradientStops stops = gradient(static_cast<Theme::GradientRole>(i));
+            QGradientStops stops = gradient(static_cast<Theme::Gradient>(i));
             settings.beginWriteArray(key);
             int k = 0;
             foreach (const QGradientStop stop, stops) {
@@ -265,7 +265,7 @@ void Theme::readSettings(QSettings &settings)
     }
     {
         settings.beginGroup(QLatin1String("Colors"));
-        QMetaEnum e = m.enumerator(m.indexOfEnumerator("ColorRole"));
+        QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
             QTC_ASSERT(settings.contains(key), return);;
@@ -284,7 +284,7 @@ void Theme::readSettings(QSettings &settings)
     }
     {
         settings.beginGroup(QLatin1String("Gradients"));
-        QMetaEnum e = m.enumerator(m.indexOfEnumerator("GradientRole"));
+        QMetaEnum e = m.enumerator(m.indexOfEnumerator("Gradient"));
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
             QGradientStops stops;
@@ -298,7 +298,7 @@ void Theme::readSettings(QSettings &settings)
                 stops.append(qMakePair(pos, c));
             }
             settings.endArray();
-            d->gradientStops[i] = stops;
+            d->gradients[i] = stops;
         }
         settings.endGroup();
     }
