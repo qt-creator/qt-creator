@@ -362,7 +362,9 @@ HelpViewer *HelpPlugin::externalHelpViewer()
         QSettings *settings = Core::ICore::settings();
         m_externalWindowState = settings->value(QLatin1String(kExternalWindowStateKey)).toRect();
     }
-    if (!m_externalWindowState.isNull())
+    if (m_externalWindowState.isNull())
+        m_externalWindow->resize(650, 700);
+    else
         m_externalWindow->setGeometry(m_externalWindowState);
     m_externalWindow->show();
     m_externalWindow->setFocus();

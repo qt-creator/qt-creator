@@ -373,7 +373,8 @@ void HelpWidget::addSideBar()
     m_sideBarSplitter->insertWidget(0, m_sideBar);
     m_sideBarSplitter->setStretchFactor(0, 0);
     m_sideBarSplitter->setStretchFactor(1, 1);
-    m_sideBar->setVisible(false);
+    if (m_style != ModeWidget)
+        m_sideBar->setVisible(false);
     m_sideBar->resize(250, size().height());
     m_sideBar->readSettings(Core::ICore::settings(), sideBarSettingsKey());
     m_sideBarSplitter->setSizes(QList<int>() << m_sideBar->size().width() << 300);
