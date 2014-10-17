@@ -316,6 +316,10 @@ void ParserTreeItem::convertTo(QStandardItem *item) const
             // icon
             add->setIcon(ptr->icon());
 
+            // draggable
+            if (!ptr->symbolLocations().isEmpty())
+                add->setFlags(add->flags() | Qt::ItemIsDragEnabled);
+
             // locations
             add->setData(Utils::locationsToRole(ptr->symbolLocations()),
                          Constants::SymbolLocationsRole);
