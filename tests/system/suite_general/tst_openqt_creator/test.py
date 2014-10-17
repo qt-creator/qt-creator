@@ -43,7 +43,7 @@ def main():
     openQmakeProject(pathSpeedcrunch, Targets.DESKTOP_480_GCC)
     # Wait for parsing to complete
     progressBarWait(30000)
-    openQmakeProject(pathCreator)
+    openQmakeProject(pathCreator, Targets.DESKTOP_531_DEFAULT)
     # Wait for parsing to complete
     progressBarWait(300000)
 
