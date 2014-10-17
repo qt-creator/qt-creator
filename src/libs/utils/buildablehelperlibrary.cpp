@@ -134,15 +134,11 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool
 
 QStringList BuildableHelperLibrary::possibleQMakeCommands()
 {
-    // On windows no one has renamed qmake, right?
-    if (HostOsInfo::isWindowsHost())
-        return QStringList(QLatin1String("qmake.exe"));
-
-    // On unix some distributions renamed qmake to avoid clashes
-    QStringList result;
-    result << QLatin1String("qmake") << QLatin1String("qmake-qt4") << QLatin1String("qmake4")
-           << QLatin1String("qmake-qt5") << QLatin1String("qmake5") ;
-    return result;
+    // On Windows it is always "qmake.exe"
+    // On Unix some distributions renamed qmake with a postfix to avoid clashes
+    // On OS X, Qt 4 binary packages also has renamed qmake. There are also symbolic links that are
+    // named "qmake", but the file dialog always checks against resolved links (native Cocoa issue)
+    return QStringList(QLatin1String("qmake*"));
 }
 
 // Copy helper source files to a target directory, replacing older files.
