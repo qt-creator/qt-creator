@@ -45,12 +45,12 @@
 #include <utils/iwelcomepage.h>
 
 #include <utils/theme/theme.h>
-#include <utils/theme/welcometheme.h>
 
 #include <QVBoxLayout>
 #include <QMessageBox>
 
 #include <QDir>
+#include <QQmlPropertyMap>
 
 #ifdef USE_QUICK_WIDGET
     #include <QtQuickWidgets/QQuickWidget>
@@ -111,13 +111,12 @@ private:
     QuickContainer *m_welcomePage;
     QList<QObject*> m_pluginList;
     int m_activePlugin;
-    WelcomeTheme *m_welcomeTheme;
+    QQmlPropertyMap m_themeProperties;
 };
 
 // ---  WelcomeMode
-WelcomeMode::WelcomeMode() :
-    m_activePlugin(0),
-    m_welcomeTheme(new WelcomeTheme(this))
+WelcomeMode::WelcomeMode()
+    : m_activePlugin(0)
 {
     setDisplayName(tr("Welcome"));
     setIcon(QIcon(QLatin1String(":/welcome/images/mode_welcome.png")));
@@ -163,7 +162,10 @@ WelcomeMode::WelcomeMode() :
 void WelcomeMode::onThemeChanged()
 {
     m_welcomePage->setColor(creatorTheme()->color(Theme::BackgroundColorNormal));
-    m_welcomeTheme->notifyThemeChanged();
+    const QVariantHash creatorTheme = Utils::creatorTheme()->values();
+    QVariantHash::const_iterator it;
+    for (it = creatorTheme.constBegin(); it != creatorTheme.constEnd(); ++it)
+        m_themeProperties.insert(it.key(), it.value());
 }
 
 WelcomeMode::~WelcomeMode()
@@ -255,14 +257,9 @@ void WelcomeMode::initPlugins()
 
     ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
 
+    onThemeChanged();
     connect(creatorTheme(), &Theme::changed, this, &WelcomeMode::onThemeChanged);
-    ctx->setContextProperty(QLatin1String("creatorTheme"), m_welcomeTheme);
-
-    // FIXME: pass theme class to QML somehow
-    if (creatorTheme()->widgetStyle() == Theme::StyleFlat)
-        ctx->setContextProperty(QLatin1String("theme"), QLatin1String("dark"));
-    else
-        ctx->setContextProperty(QLatin1String("theme"), QLatin1String("default"));
+    ctx->setContextProperty(QLatin1String("creatorTheme"), &m_themeProperties);
 
     QString path = resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
 

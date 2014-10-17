@@ -123,6 +123,32 @@ void Theme::setName(const QString &name)
     d->name = name;
 }
 
+QVariantHash Theme::values() const
+{
+    QVariantHash result;
+    const QMetaObject &m = *metaObject();
+    {
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("ColorRole"));
+        for (int i = 0, total = e.keyCount(); i < total; ++i) {
+            const QString key = QLatin1String(e.key(i));
+            const QPair<QColor, QString> &var = d->colors.at(i);
+            result.insert(key, var.first);
+        }
+    }
+    {
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Flag"));
+        for (int i = 0, total = e.keyCount(); i < total; ++i) {
+            const QString key = QLatin1String(e.key(i));
+            result.insert(key, flag(static_cast<Theme::Flag>(i)));
+        }
+    }
+    {
+        const QMetaEnum e = m.enumerator(m.indexOfEnumerator("WidgetStyle"));
+        result.insert(QLatin1String("WidgetStyle"), QLatin1String(e.valueToKey(widgetStyle())));
+    }
+    return result;
+}
+
 static QColor readColor(const QString &color)
 {
     bool ok = true;

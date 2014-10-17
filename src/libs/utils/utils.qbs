@@ -211,8 +211,6 @@ QtcLibrary {
             "theme.cpp",
             "theme.h",
             "theme_p.h",
-            "welcometheme.cpp",
-            "welcometheme.h",
         ]
     }
 

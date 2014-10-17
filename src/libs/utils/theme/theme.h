@@ -201,6 +201,8 @@ public:
     QString fileName() const;
     void setName(const QString &name);
 
+    QVariantHash values() const;
+
     void writeSettings(const QString &filename) const;
     void readSettings(QSettings &settings);
     ThemePrivate *d;
