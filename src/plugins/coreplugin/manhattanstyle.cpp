@@ -245,8 +245,8 @@ void ManhattanStyle::unpolish(QApplication *app)
 
 QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
 {
-    Q_UNUSED(lightColored);
-    QColor color = creatorTheme()->color(Theme::PanelTextColor);
+    QColor color = creatorTheme()->color(lightColored ? Theme::PanelTextColorDark
+                                                      : Theme::PanelTextColorLight);
     QPalette pal = oldPalette;
     pal.setBrush(QPalette::All, QPalette::WindowText, color);
     pal.setBrush(QPalette::All, QPalette::ButtonText, color);
