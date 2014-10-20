@@ -1038,6 +1038,7 @@ void GdbEngine::commandTimeout()
             showMessage(_("KILLING DEBUGGER AS REQUESTED BY USER"));
             // This is an undefined state, so we just pull the emergency brake.
             m_gdbProc->kill();
+            notifyEngineShutdownFailed();
         } else {
             showMessage(_("CONTINUE DEBUGGER AS REQUESTED BY USER"));
         }
@@ -1973,6 +1974,7 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
         qDebug() << (_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
         showMessage(_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
         m_gdbProc->kill();
+        notifyEngineShutdownFailed();
     }
 }
 
