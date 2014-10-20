@@ -444,8 +444,13 @@ void HelpPlugin::updateSideBarSource()
 
 void HelpPlugin::updateSideBarSource(const QUrl &newUrl)
 {
-    if (m_rightPaneSideBarWidget)
-        m_rightPaneSideBarWidget->currentViewer()->setSource(newUrl);
+    if (m_rightPaneSideBarWidget) {
+        // This is called when setSource on the central widget is called.
+        // Avoid nested setSource calls (even of different help viewers) by scheduling the
+        // sidebar viewer update on the event loop (QTCREATORBUG-12742)
+        QMetaObject::invokeMethod(m_rightPaneSideBarWidget->currentViewer(), "setSource",
+                                  Qt::QueuedConnection, Q_ARG(QUrl, newUrl));
+    }
 }
 
 void HelpPlugin::fontChanged()
