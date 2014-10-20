@@ -177,6 +177,7 @@ private:
                                 ProjectExplorer::DeploymentData &deploymentData);
     void collectLibraryData(const QmakeProFileNode *node,
             ProjectExplorer::DeploymentData &deploymentData);
+    bool matchesKit(const ProjectExplorer::Kit *kit);
 
     QmakeManager *m_manager;
     QmakeProFileNode *m_rootProjectNode;

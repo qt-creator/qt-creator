@@ -1450,6 +1450,10 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &ver
 
 FileName BaseQtVersion::sourcePath(const QHash<QString, QString> &versionInfo)
 {
+    const QString qt5Source = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX/src");
+    if (!qt5Source.isEmpty())
+        return Utils::FileName::fromString(qt5Source);
+
     const QString installData = qmakeProperty(versionInfo, "QT_INSTALL_PREFIX");
     QString sourcePath = installData;
     QFile qmakeCache(installData + QLatin1String("/.qmake.cache"));
@@ -1469,6 +1473,18 @@ FileName BaseQtVersion::sourcePath(const QHash<QString, QString> &versionInfo)
         }
     }
     return FileName::fromUserInput(sourcePath);
+}
+
+bool BaseQtVersion::isInSourceDirectory(const Utils::FileName &filePath)
+{
+    const Utils::FileName &source = sourcePath();
+    if (source.isEmpty())
+        return false;
+    QDir dir = QDir(source.toString());
+    if (dir.dirName() == QLatin1String("qtbase"))
+        dir.cdUp();
+
+    return filePath.isChildOf(dir);
 }
 
 bool BaseQtVersion::isQmlDebuggingSupported(Kit *k, QString *reason)

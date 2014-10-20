@@ -57,6 +57,7 @@
 #include <proparser/qmakevfs.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtversionmanager.h>
 #include <qtsupport/uicodemodelsupport.h>
 #include <resourceeditor/resourcenode.h>
 
@@ -362,6 +363,10 @@ QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
 
     connect(BuildManager::instance(), SIGNAL(buildQueueFinished(bool)),
             SLOT(buildFinished(bool)));
+
+    setPreferredKitMatcher(KitMatcher([this](const Kit *kit) -> bool {
+                               return matchesKit(kit);
+                           }));
 }
 
 QmakeProject::~QmakeProject()
@@ -1603,6 +1608,21 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
     default:
         break;
     }
+}
+
+bool QmakeProject::matchesKit(const Kit *kit)
+{
+    QList<QtSupport::BaseQtVersion *> parentQts;
+    Utils::FileName filePath = projectFilePath();
+    foreach (QtSupport::BaseQtVersion *version, QtSupport::QtVersionManager::validVersions()) {
+        if (version->isInSourceDirectory(filePath))
+            parentQts.append(version);
+    }
+
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+    if (!parentQts.isEmpty())
+        return parentQts.contains(version);
+    return true;
 }
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)

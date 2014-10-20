@@ -648,8 +648,22 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     // Leave info->buildDirectory unset;
     info->kitId = k->id();
     info->supportsShadowBuild = (version && version->supportsShadowBuilds());
-    info->buildDirectory
-            = defaultBuildDirectory(info->supportsShadowBuild, projectPath, k, suffix);
+
+    // check if this project is in the source directory:
+    Utils::FileName projectFilePath = Utils::FileName::fromString(projectPath);
+    if (version->isInSourceDirectory(projectFilePath)) {
+        // assemble build directory
+        QString projectDirectory = projectFilePath.toFileInfo().absolutePath();
+        QDir qtSourceDir = QDir(version->sourcePath().toString());
+        QString relativeProjectPath = qtSourceDir.relativeFilePath(projectDirectory);
+        QString qtBuildDir = version->versionInfo().value(QStringLiteral("QT_INSTALL_PREFIX"));
+        QString absoluteBuildPath = QDir::cleanPath(qtBuildDir + QLatin1Char('/') + relativeProjectPath);
+
+        info->buildDirectory = Utils::FileName::fromString(absoluteBuildPath);
+    } else {
+        info->buildDirectory
+                = defaultBuildDirectory(info->supportsShadowBuild, projectPath, k, suffix);
+    }
     info->type = type;
     return info;
 }
@@ -682,7 +696,6 @@ QList<BuildInfo *> QmakeBuildConfigurationFactory::availableSetups(const Kit *k,
     QList<ProjectExplorer::BuildInfo *> result;
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Debug);
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Release);
-
     return result;
 }
 
