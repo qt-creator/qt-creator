@@ -1,5 +1,6 @@
 [General]
 ThemeName=default
+PreferredStyles=
 
 [Palette]
 brightText = ffffffff

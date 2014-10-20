@@ -1,5 +1,6 @@
 [General]
 ThemeName=dark
+PreferredStyles=Fusion
 
 [Palette]
 shadowBackground=ff232323

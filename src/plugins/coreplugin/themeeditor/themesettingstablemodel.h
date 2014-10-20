@@ -78,6 +78,7 @@ public:
     void toTheme(Utils::Theme *theme) const;
 
     QString m_name;
+    QStringList m_preferredStyles;
 
 public:
     ThemeColors::Ptr m_colors;

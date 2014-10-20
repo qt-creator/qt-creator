@@ -30,6 +30,7 @@
 
 #include "theme.h"
 #include "theme_p.h"
+#include "../algorithm.h"
 #include "../qtcassert.h"
 
 #include <QApplication>
@@ -78,6 +79,11 @@ Theme::~Theme()
 Theme::WidgetStyle Theme::widgetStyle() const
 {
     return d->widgetStyle;
+}
+
+QStringList Theme::preferredStyles() const
+{
+    return d->preferredStyles;
 }
 
 bool Theme::flag(Theme::Flag f) const
@@ -171,6 +177,7 @@ void Theme::writeSettings(const QString &filename) const
     const QMetaObject &m = *metaObject();
     {
         settings.setValue(QLatin1String("ThemeName"), d->name);
+        settings.setValue(QLatin1String("PreferredStyles"), d->preferredStyles);
     }
     {
         settings.beginGroup(QLatin1String("Palette"));
@@ -249,6 +256,7 @@ void Theme::readSettings(QSettings &settings)
 
     {
         d->name = settings.value(QLatin1String("ThemeName"), QLatin1String("unnamed")).toString();
+        d->preferredStyles = settings.value(QLatin1String("PreferredStyles")).toStringList();
     }
     {
         settings.beginGroup(QLatin1String("Palette"));

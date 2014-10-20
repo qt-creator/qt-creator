@@ -166,7 +166,18 @@ MainWindow::MainWindow() :
             && baseName == QLatin1String("windows")) {
         baseName = QLatin1String("fusion");
     }
-    qApp->setStyle(new ManhattanStyle(baseName));
+
+    // if the user has specified as base style in the theme settings,
+    // prefer that
+    const QStringList available = QStyleFactory::keys();
+    foreach (const QString &s, Utils::creatorTheme()->preferredStyles()) {
+        if (available.contains(s, Qt::CaseInsensitive)) {
+            baseName = s;
+            break;
+        }
+    }
+
+    QApplication::setStyle(new ManhattanStyle(baseName));
 
     setDockNestingEnabled(true);
 
