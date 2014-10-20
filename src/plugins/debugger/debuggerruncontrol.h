@@ -36,6 +36,8 @@
 
 #include <projectexplorer/runconfiguration.h>
 
+namespace ProjectExplorer { class Kit;  }
+
 namespace Debugger {
 
 class DebuggerEngine;
@@ -92,6 +94,12 @@ public:
     static DebuggerEngine *createEngine(DebuggerEngineType et,
         const DebuggerStartParameters &sp,
         QString *errorMessage);
+
+    static bool fillParametersFromKit(DebuggerStartParameters *sp,
+         const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
+
+    static bool fillParametersFromLocalRunConfiguration(DebuggerStartParameters *sp,
+         const ProjectExplorer::RunConfiguration *rc, QString *errorMessage = 0);
 
     static DebuggerRunControl *createAndScheduleRun(const DebuggerStartParameters &sp);
 

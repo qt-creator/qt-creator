@@ -170,11 +170,6 @@ public:
     int testCase;
 };
 
-namespace Internal {
-
-bool fillParameters(DebuggerStartParameters *sp, const ProjectExplorer::Kit *kit, QString *errorMessage = 0);
-
-} // namespace Internal
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::RemoteSetupResult)

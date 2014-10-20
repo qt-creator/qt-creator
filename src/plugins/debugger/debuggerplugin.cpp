@@ -544,14 +544,6 @@ static QWidget *addSearch(BaseTreeView *treeView, const QString &title,
     return widget;
 }
 
-static QString executableForPid(qint64 pid)
-{
-    foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses())
-        if (p.pid == pid)
-            return p.exe;
-    return QString();
-}
-
 static std::function<bool(const Kit *)> cdbMatcher(char wordWidth = 0)
 {
     return [wordWidth](const Kit *k) -> bool {
@@ -576,88 +568,6 @@ static Kit *findUniversalCdbKit()
             return cdb64Kit;
     }
     return KitManager::find(cdbMatcher());
-}
-
-bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorMessage /* = 0 */)
-{
-    if (!kit) {
-        // This code can only be reached when starting via the command line
-        // (-debug pid or executable) or attaching from runconfiguration
-        // without specifying a kit. Try to find a kit via ABI.
-        QList<Abi> abis;
-        if (sp->toolChainAbi.isValid()) {
-            abis.push_back(sp->toolChainAbi);
-        } else {
-            // Try via executable.
-            if (sp->executable.isEmpty()
-                && (sp->startMode == AttachExternal || sp->startMode == AttachCrashedExternal)) {
-                sp->executable = executableForPid(sp->attachPID);
-            }
-            if (!sp->executable.isEmpty())
-                abis = Abi::abisOfBinary(Utils::FileName::fromString(sp->executable));
-        }
-        if (!abis.isEmpty()) {
-            // Try exact abis.
-            kit = KitManager::find(std::function<bool (const Kit *)>([abis](const Kit *k) -> bool {
-                if (const ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
-                    return abis.contains(tc->targetAbi())
-                           && DebuggerKitInformation::isValidDebugger(k);
-                }
-                return false;
-            }));
-            if (!kit) {
-                // Or something compatible.
-                kit = KitManager::find(std::function<bool (const Kit *)>([abis](const Kit *k) -> bool {
-                    if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
-                        foreach (const Abi &a, abis)
-                            if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k))
-                                return true;
-                    return false;
-                }));
-            }
-        }
-        if (!kit)
-            kit = KitManager::defaultKit();
-    }
-
-    // Verify that debugger and profile are valid
-    if (!kit) {
-        sp->startMode = NoStartMode;
-        if (errorMessage)
-            *errorMessage = DebuggerKitInformation::tr("No kit found.");
-        return false;
-    }
-    // validate debugger if C++ debugging is enabled
-    if (sp->languages & CppLanguage) {
-        const QList<Task> tasks = DebuggerKitInformation::validateDebugger(kit);
-        if (!tasks.isEmpty()) {
-            sp->startMode = NoStartMode;
-            if (errorMessage) {
-                foreach (const Task &t, tasks) {
-                    if (errorMessage->isEmpty())
-                        errorMessage->append(QLatin1Char('\n'));
-                    errorMessage->append(t.description);
-                }
-            }
-            return false;
-        }
-    }
-    sp->cppEngineType = DebuggerKitInformation::engineType(kit);
-    sp->sysRoot = SysRootKitInformation::sysRoot(kit).toString();
-    sp->debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
-
-    ToolChain *tc = ToolChainKitInformation::toolChain(kit);
-    if (tc)
-        sp->toolChainAbi = tc->targetAbi();
-
-    sp->device = DeviceKitInformation::device(kit);
-    if (sp->device) {
-        sp->connParams = sp->device->sshParameters();
-        // Could have been set from command line.
-        if (sp->remoteChannel.isEmpty())
-            sp->remoteChannel = sp->connParams.host + QLatin1Char(':') + QString::number(sp->connParams.port);
-    }
-    return true;
 }
 
 static bool currentTextEditorPosition(ContextData *data)
@@ -1401,7 +1311,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 }
             }
         }
-        if (!fillParameters(&sp, kit, errorMessage))
+        if (!DebuggerRunControlFactory::fillParametersFromKit(&sp, kit, errorMessage))
             return false;
         if (sp.startMode == StartExternal) {
             sp.displayName = tr("Executable file \"%1\"").arg(sp.executable);
@@ -1422,7 +1332,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
-        if (!fillParameters(&sp, findUniversalCdbKit(), errorMessage))
+        if (!DebuggerRunControlFactory::fillParametersFromKit(&sp, findUniversalCdbKit(), errorMessage))
             return false;
         sp.startMode = AttachCrashedExternal;
         sp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
@@ -1581,9 +1491,10 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue("LastExternalStartScript", dlg.overrideStartScript());
     setConfigValue("LastForceLocalCoreFile", dlg.forcesLocalCoreFile());
 
-    DebuggerStartParameters sp;
     QString display = dlg.useLocalCoreFile() ? dlg.localCoreFile() : dlg.remoteCoreFile();
-    QTC_ASSERT(fillParameters(&sp, dlg.kit()), return);
+    DebuggerStartParameters sp;
+    bool res = DebuggerRunControlFactory::fillParametersFromKit(&sp, dlg.kit());
+    QTC_ASSERT(res, return);
     sp.masterEngineType = DebuggerKitInformation::engineType(dlg.kit());
     sp.executable = dlg.localExecutableFile();
     sp.coreFile = dlg.localCoreFile();
@@ -1599,7 +1510,9 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     const QByteArray connectionKey = "CdbRemoteConnection";
     DebuggerStartParameters sp;
     Kit *kit = findUniversalCdbKit();
-    QTC_ASSERT(kit && fillParameters(&sp, kit), return);
+    QTC_ASSERT(kit, return);
+    bool res = DebuggerRunControlFactory::fillParametersFromKit(&sp, kit);
+    QTC_ASSERT(res, return);
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
     StartRemoteCdbDialog dlg(ICore::dialogParent());
@@ -1731,7 +1644,8 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     }
 
     DebuggerStartParameters sp;
-    QTC_ASSERT(fillParameters(&sp, kit), return 0);
+    bool res = DebuggerRunControlFactory::fillParametersFromKit(&sp, kit);
+    QTC_ASSERT(res, return 0);
     sp.attachPID = process.pid;
     sp.displayName = tr("Process %1").arg(process.pid);
     sp.executable = process.exe;
@@ -1752,7 +1666,8 @@ void DebuggerPluginPrivate::attachExternalApplication(RunControl *rc)
     if (const RunConfiguration *runConfiguration = rc->runConfiguration())
         if (const Target *target = runConfiguration->target())
             kit = target->kit();
-    QTC_ASSERT(fillParameters(&sp, kit), return);
+    bool res = DebuggerRunControlFactory::fillParametersFromKit(&sp, kit);
+    QTC_ASSERT(res, return);
     DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
@@ -1775,7 +1690,9 @@ void DebuggerPluginPrivate::attachToQmlPort()
         return;
 
     Kit *kit = dlg.kit();
-    QTC_ASSERT(kit && fillParameters(&sp, kit), return);
+    QTC_ASSERT(kit, return);
+    bool res = DebuggerRunControlFactory::fillParametersFromKit(&sp, kit);
+    QTC_ASSERT(res, return);
     setConfigValue("LastQmlServerPort", dlg.port());
     setConfigValue("LastProfile", kit->id().toSetting());
 
