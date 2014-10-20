@@ -71,4 +71,7 @@ QNX
 
 BareMetal
 
+Tools:
+   * Removed unused zeroconf wrapper
+
 Credits for these changes go to:
