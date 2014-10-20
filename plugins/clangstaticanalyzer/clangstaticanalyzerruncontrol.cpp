@@ -43,7 +43,7 @@
 using namespace CppTools;
 using namespace ProjectExplorer;
 
-static Q_LOGGING_CATEGORY(LOG, "qt.clangstaticanalyzer.runcontrol")
+static Q_LOGGING_CATEGORY(LOG, "qtc.clangstaticanalyzer.runcontrol")
 
 namespace ClangStaticAnalyzer {
 namespace Internal {

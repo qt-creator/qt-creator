@@ -26,7 +26,7 @@
 #include <QLoggingCategory>
 #include <QTemporaryFile>
 
-static Q_LOGGING_CATEGORY(LOG, "qt.clangstaticanalyzer.runner")
+static Q_LOGGING_CATEGORY(LOG, "qtc.clangstaticanalyzer.runner")
 
 static QString generalProcessError()
 {
