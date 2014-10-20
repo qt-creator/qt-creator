@@ -834,6 +834,14 @@ class DumperBase:
             return "0x%x" % toInteger(addr)
         except:
             warn("CANNOT CONVERT TYPE: %s" % type(addr))
+            try:
+                warn("ADDR: %s" % addr)
+            except:
+                pass
+            try:
+                warn("TYPE: %s" % addr.type)
+            except:
+                pass
             return str(addr)
 
     def tryPutArrayContents(self, base, n, innerType):
