@@ -203,11 +203,13 @@ void DetailedErrorDelegate::onVerticalScroll()
 // Expects "file://some/path[:line[:column]]" - the line/column part is optional
 void DetailedErrorDelegate::openLinkInEditor(const QString &link)
 {
-    const QString pathLineColumn = link.mid(int(sizeof("file://")) - 1);
+    const QString linkWithoutPrefix = link.mid(strlen("file://"));
     const QChar separator = QLatin1Char(':');
-    const QString path = pathLineColumn.section(separator, 0, 0);
-    const int line = pathLineColumn.section(separator, 1, 1).toInt();
-    const int column = pathLineColumn.section(separator, 2, 2).toInt();
+    const int lineColon = linkWithoutPrefix.indexOf(separator, /*after drive letter + colon =*/ 2);
+    const QString path = linkWithoutPrefix.left(lineColon);
+    const QString lineColumn = linkWithoutPrefix.mid(lineColon + 1);
+    const int line = lineColumn.section(separator, 0, 0).toInt();
+    const int column = lineColumn.section(separator, 1, 1).toInt();
     Core::EditorManager::openEditorAt(path, qMax(line, 0), qMax(column, 0));
 }
 
