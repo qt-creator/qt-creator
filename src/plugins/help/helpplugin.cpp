@@ -179,12 +179,12 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     // Add Contents, Index, and Context menu items
     action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")),
         tr(Constants::SB_CONTENTS), this);
-    cmd = ActionManager::registerAction(action, Constants::HELP_CONTENTS, globalcontext);
+    cmd = ActionManager::registerAction(action, "Help.ContentsMenu", globalcontext);
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
 
     action = new QAction(tr(Constants::SB_INDEX), this);
-    cmd = ActionManager::registerAction(action, "Help.Index", globalcontext);
+    cmd = ActionManager::registerAction(action, "Help.IndexMenu", globalcontext);
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
 
