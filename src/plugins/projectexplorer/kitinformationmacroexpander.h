@@ -33,7 +33,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/stringutils.h>
+#include <utils/macroexpander.h>
 
 namespace ProjectExplorer {
 
@@ -43,7 +43,7 @@ class Kit;
 // KitInformationMacroExpander:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT KitInformationMacroExpander : public Utils::AbstractMacroExpander
+class PROJECTEXPLORER_EXPORT KitInformationMacroExpander : public Utils::MacroExpander
 {
 public:
     KitInformationMacroExpander(const Kit *k);

@@ -43,7 +43,7 @@ ProjectMacroExpander::ProjectMacroExpander(const QString &projectFilePath, const
     : m_projectFile(projectFilePath), m_projectName(projectName), m_kit(k), m_bcName(bcName)
 { }
 
-bool ProjectMacroExpander::resolveProjectMacro(const QString &name, QString *ret)
+bool ProjectMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
     QString result;
     bool found = false;
@@ -91,17 +91,5 @@ bool ProjectMacroExpander::resolveProjectMacro(const QString &name, QString *ret
     }
     if (ret)
         *ret = result;
-    return found;
-}
-
-// Try to resolve using local information, otherwise fall back to global variables.
-bool ProjectMacroExpander::resolveMacro(const QString &name, QString *ret)
-{
-    bool found = resolveProjectMacro(name, ret);
-    if (!found) {
-        QString result = Utils::globalMacroExpander()->value(name.toUtf8(), &found);
-        if (ret)
-            *ret = result;
-    }
     return found;
 }

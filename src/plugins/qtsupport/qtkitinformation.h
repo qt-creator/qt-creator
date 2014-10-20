@@ -62,8 +62,7 @@ public:
 
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
     ProjectExplorer::IOutputParser *createOutputParser(const ProjectExplorer::Kit *k) const;
-
-    bool resolveMacro(const ProjectExplorer::Kit *kit, const QString &name, QString *ret) const;
+    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
 
     static Core::Id id();
     static int qtVersionId(const ProjectExplorer::Kit *k);

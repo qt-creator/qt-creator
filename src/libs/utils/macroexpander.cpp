@@ -30,6 +30,8 @@
 
 #include "macroexpander.h"
 
+#include "algorithm.h"
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFileInfo>
@@ -46,10 +48,15 @@ const char kFileBaseNamePostfix[] = ":FileBaseName";
 class MacroExpanderPrivate
 {
 public:
+    MacroExpanderPrivate() : m_accumulating(false) {}
+
     QHash<QByteArray, MacroExpander::StringFunction> m_map;
     QHash<QByteArray, MacroExpander::PrefixFunction> m_prefixMap;
     QMap<QByteArray, QString> m_descriptions;
     QString m_displayName;
+    QVector<MacroExpanderProvider> m_subProviders;
+    QVector<MacroExpander *> m_subExpanders; // Not owned
+    bool m_accumulating;
 };
 
 } // Internal
@@ -184,7 +191,18 @@ bool MacroExpander::resolveMacro(const QString &name, QString *ret)
 {
     bool found;
     *ret = value(name.toUtf8(), &found);
-    return found;
+    if (found)
+        return true;
+
+    found = Utils::anyOf(d->m_subProviders, [name, ret] (const MacroExpanderProvider &p) -> bool {
+        MacroExpander *expander = p ? p() : 0;
+        return expander && expander->resolveMacro(name, ret);
+    });
+
+    if (found)
+        return true;
+
+    return this == globalMacroExpander() ? false : globalMacroExpander()->resolveMacro(name, ret);
 }
 
 /*!
@@ -223,9 +241,8 @@ QString MacroExpander::value(const QByteArray &variable, bool *found)
  */
 QString MacroExpander::expand(const QString &stringWithVariables)
 {
-    QString res = Utils::expandMacros(stringWithVariables, this);
-    if (this != globalMacroExpander())
-        res = Utils::expandMacros(res, this);
+    QString res = stringWithVariables;
+    Utils::expandMacros(&res, this);
     return res;
 }
 
@@ -329,6 +346,17 @@ QString MacroExpander::variableDescription(const QByteArray &variable)
     return d->m_descriptions.value(variable);
 }
 
+MacroExpanders MacroExpander::subExpanders() const
+{
+    MacroExpanders expanders;
+    foreach (const MacroExpanderProvider &provider, d->m_subProviders)
+        if (provider)
+            if (MacroExpander *expander = provider())
+                expanders.append(expander);
+
+    return expanders;
+}
+
 QString MacroExpander::displayName() const
 {
     return d->m_displayName;
@@ -339,6 +367,20 @@ void MacroExpander::setDisplayName(const QString &displayName)
     d->m_displayName = displayName;
 }
 
+void MacroExpander::registerSubProvider(const MacroExpanderProvider &provider)
+{
+    d->m_subProviders.append(provider);
+}
+
+bool MacroExpander::isAccumulating() const
+{
+    return d->m_accumulating;
+}
+
+void MacroExpander::setAccumulating(bool on)
+{
+    d->m_accumulating = on;
+}
 
 class GlobalMacroExpander : public MacroExpander
 {

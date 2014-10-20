@@ -132,24 +132,19 @@ ProjectExplorer::IOutputParser *QtKitInformation::createOutputParser(const Proje
     return 0;
 }
 
-bool QtKitInformation::resolveMacro(const ProjectExplorer::Kit *kit, const QString &name, QString *ret) const
+void QtKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
-    if (BaseQtVersion *version = qtVersion(kit)) {
-        MacroExpander *expander = version->macroExpander();
-        if (expander->resolveMacro(name, ret))
-            return true;
+    expander->registerSubProvider(
+                [this, kit]() -> MacroExpander * {
+                    BaseQtVersion *version = qtVersion(kit);
+                    return version ? version->macroExpander() : 0;
+                });
 
-        // FIXME: Handle in version expander once we can detect loops.
-        if (name == QLatin1String("Qt:name")) {
-            *ret = version->displayName();
-            return true;
-        }
-    }
-
-    if (Utils::globalMacroExpander()->resolveMacro(name, ret))
-        return true;
-
-    return false;
+    expander->registerVariable("Qt:name", tr("Name of Qt Version"),
+                [this, kit]() -> QString {
+                   BaseQtVersion *version = qtVersion(kit);
+                   return version ? version->displayName() : tr("unknown");
+                });
 }
 
 Core::Id QtKitInformation::id()

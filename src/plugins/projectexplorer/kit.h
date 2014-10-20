@@ -40,8 +40,8 @@
 #include <QVariant>
 
 namespace Utils {
-class AbstractMacroExpander;
 class Environment;
+class MacroExpander;
 } // namespace Utils
 
 namespace ProjectExplorer {
@@ -128,9 +128,9 @@ public:
     QString displayNameForPlatform(const QString &platform) const;
     Core::FeatureSet availableFeatures() const;
     bool hasFeatures(const Core::FeatureSet &features) const;
+    Utils::MacroExpander *macroExpander() const;
 
 private:
-    Utils::AbstractMacroExpander *macroExpander() const;
     void setSdkProvided(bool sdkProvided);
 
     ~Kit();

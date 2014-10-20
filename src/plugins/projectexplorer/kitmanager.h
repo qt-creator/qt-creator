@@ -42,9 +42,9 @@
 #include <functional>
 
 namespace Utils {
-class AbstractMacroExpander;
-class FileName;
 class Environment;
+class FileName;
+class MacroExpander;
 }
 
 namespace ProjectExplorer {
@@ -99,7 +99,7 @@ public:
     virtual QString displayNameForPlatform(const Kit *k, const QString &platform) const;
     virtual Core::FeatureSet availableFeatures(const Kit *k) const;
 
-    virtual bool resolveMacro(const Kit *kit, const QString &name, QString *ret) const;
+    virtual void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
 
 protected:
     void setId(Core::Id id) { m_id = id; }

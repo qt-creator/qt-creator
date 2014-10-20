@@ -35,9 +35,11 @@
 #include "kitmanager.h"
 #include "task.h"
 
+#include <coreplugin/variablechooser.h>
+
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
+#include <utils/macroexpander.h>
 
 #include <QAction>
 #include <QRegularExpression>
@@ -118,6 +120,10 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
             this, &KitManagerConfigWidget::workingCopyWasUpdated);
     connect(km, &KitManager::kitUpdated,
             this, &KitManagerConfigWidget::kitWasUpdated);
+
+    auto chooser = new Core::VariableChooser(this);
+    chooser->addSupportedWidget(m_nameEdit);
+    chooser->addMacroExpanderProvider([this]() { return m_modifiedKit->macroExpander(); });
 }
 
 KitManagerConfigWidget::~KitManagerConfigWidget()

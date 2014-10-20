@@ -363,7 +363,7 @@ static QString variableValue(const char *variable)
     }
     ProjectMacroExpander expander(projectFilePath, projectName, kit, buildConfigurationName);
     QString result;
-    expander.resolveProjectMacro(QString::fromUtf8(variable), &result);
+    expander.resolveMacro(QString::fromUtf8(variable), &result);
     return result;
 }
 

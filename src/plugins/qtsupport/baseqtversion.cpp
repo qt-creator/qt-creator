@@ -234,6 +234,9 @@ void BaseQtVersion::ctor(const FileName &qmakePath)
 
 void BaseQtVersion::setupExpander()
 {
+    m_expander.setDisplayName(
+        QCoreApplication::translate("QtSupport::QtKitInformation", "Qt version"));
+
     m_expander.registerVariable("Qt:version",
         QCoreApplication::translate("QtSupport::QtKitInformation", "The version string of the current Qt version."),
         [this]() { return qtVersionString(); });
@@ -250,9 +253,6 @@ void BaseQtVersion::setupExpander()
 //    m_expander.registerVariable("Qt:name",
 //        QCoreApplication::translate("QtSupport::QtKitInformation", "The display name of the current Qt version."),
 //        [this]() { return displayName(); });
-
-    m_expander.setDisplayName(
-        QCoreApplication::translate("QtSupport::QtKitInformation", "Qt version"));
 }
 
 BaseQtVersion::~BaseQtVersion()

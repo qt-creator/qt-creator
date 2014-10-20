@@ -35,12 +35,22 @@
 
 #include <functional>
 
+#include <QList>
+#include <QVector>
+#include <QCoreApplication>
+
 namespace Utils {
 
 namespace Internal { class MacroExpanderPrivate; }
 
+class MacroExpander;
+typedef std::function<MacroExpander *()> MacroExpanderProvider;
+typedef QVector<MacroExpander *> MacroExpanders;
+
 class QTCREATOR_UTILS_EXPORT MacroExpander : public AbstractMacroExpander
 {
+    Q_DECLARE_TR_FUNCTIONS("MacroExpander")
+
 public:
     explicit MacroExpander();
     ~MacroExpander();
@@ -71,8 +81,15 @@ public:
     QList<QByteArray> variables();
     QString variableDescription(const QByteArray &variable);
 
+    MacroExpanders subExpanders() const;
+
     QString displayName() const;
     void setDisplayName(const QString &displayName);
+
+    void registerSubProvider(const MacroExpanderProvider &provider);
+
+    bool isAccumulating() const;
+    void setAccumulating(bool on);
 
 private:
     MacroExpander(const MacroExpander &) Q_DECL_EQ_DELETE;

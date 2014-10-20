@@ -585,12 +585,10 @@ FeatureSet KitInformation::availableFeatures(const Kit *k) const
     return FeatureSet();
 }
 
-bool KitInformation::resolveMacro(const Kit *kit, const QString &name, QString *ret) const
+void KitInformation::addToMacroExpander(Kit *k, MacroExpander *expander) const
 {
-    Q_UNUSED(kit);
-    Q_UNUSED(name);
-    Q_UNUSED(ret);
-    return false;
+    Q_UNUSED(k);
+    Q_UNUSED(expander);
 }
 
 void KitInformation::notifyAboutUpdate(Kit *k)

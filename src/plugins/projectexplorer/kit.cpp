@@ -61,6 +61,7 @@ const char MUTABLE_INFO_KEY[] = "PE.Profile.MutableInfo";
 const char STICKY_INFO_KEY[] = "PE.Profile.StickyInfo";
 
 namespace ProjectExplorer {
+namespace Internal {
 
 // --------------------------------------------------------------------
 // KitMacroExpander:
@@ -69,26 +70,20 @@ namespace ProjectExplorer {
 class KitMacroExpander : public MacroExpander
 {
 public:
-    KitMacroExpander(Kit *kit) : m_kit(kit) {}
-
-    bool resolveMacro(const QString &name, QString *ret)
+    explicit KitMacroExpander(Kit *kit)
     {
+        setDisplayName(QCoreApplication::translate("ProjectExplorer::Kit", "Kit"));
+        setAccumulating(true);
+
         foreach (KitInformation *ki, KitManager::kitInformation())
-            if (ki->resolveMacro(m_kit, name, ret))
-                return true;
-
-        return false;
+            ki->addToMacroExpander(kit, this);
     }
-
-private:
-    Kit *m_kit;
 };
 
 // -------------------------------------------------------------------------
 // KitPrivate
 // -------------------------------------------------------------------------
 
-namespace Internal {
 
 class KitPrivate
 {
@@ -663,7 +658,7 @@ bool Kit::hasFeatures(const FeatureSet &features) const
     return availableFeatures().contains(features);
 }
 
-AbstractMacroExpander *Kit::macroExpander() const
+MacroExpander *Kit::macroExpander() const
 {
     return &d->m_macroExpander;
 }
