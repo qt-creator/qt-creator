@@ -184,7 +184,8 @@ public:
         DrawProgressBarSunken,
         DrawIndicatorBranch,
         ComboBoxDrawTextShadow,
-        DerivePaletteFromTheme
+        DerivePaletteFromTheme,
+        ApplyThemePaletteGlobally
     };
 
     enum WidgetStyle {

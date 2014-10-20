@@ -108,6 +108,7 @@ DrawIndicatorBranch=true
 DrawProgressBarSunken=false
 DrawSearchResultWidgetFrame=false
 DrawTargetSelectorBottom=false
+ApplyThemePaletteGlobally=true
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=0

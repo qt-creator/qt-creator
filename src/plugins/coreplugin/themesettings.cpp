@@ -434,6 +434,8 @@ void ThemeSettings::apply()
 
     {
         d->m_ui->editor->model()->toTheme(creatorTheme());
+        if (creatorTheme()->flag(Theme::ApplyThemePaletteGlobally))
+            QApplication::setPalette(creatorTheme()->palette(QApplication::palette()));
         foreach (QWidget *w, QApplication::topLevelWidgets())
             w->update();
     }
