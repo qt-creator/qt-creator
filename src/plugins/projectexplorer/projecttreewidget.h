@@ -35,6 +35,7 @@
 
 #include <QWidget>
 #include <QModelIndex>
+#include <QSet>
 
 QT_FORWARD_DECLARE_CLASS(QTreeView)
 
@@ -86,9 +87,12 @@ private slots:
     void disableAutoExpand();
 
 private:
-    void recursiveLoadExpandData(const QModelIndex &index, const QSet<QString> &data);
+    void recursiveLoadExpandData(const QModelIndex &index, QSet<QString> &data);
     void recursiveSaveExpandData(const QModelIndex &index, QStringList *data);
     static int expandedCount(Node *node);
+    void rowsInserted(const QModelIndex &parent, int, int);
+
+    QSet<QString> m_toExpand;
     QTreeView *m_view;
     FlatModel *m_model;
     QAction *m_filterProjectsAction;

@@ -208,6 +208,15 @@ int ProjectTreeWidget::expandedCount(Node *node)
     return count;
 }
 
+void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int, int)
+{
+    const QString &path = m_model->nodeForIndex(parent)->path();
+    if (m_toExpand.contains(path)) {
+        m_view->expand(parent);
+        m_toExpand.remove(path);
+    }
+}
+
 Node *ProjectTreeWidget::nodeForFile(const QString &fileName, Project *project)
 {
     Node *bestNode = 0;
@@ -240,14 +249,19 @@ void ProjectTreeWidget::disableAutoExpand()
 void ProjectTreeWidget::loadExpandData()
 {
     m_autoExpand = true;
-    QStringList data = SessionManager::value(QLatin1String("ProjectTree.ExpandData")).toStringList();
-    recursiveLoadExpandData(m_view->rootIndex(), data.toSet());
+    QSet<QString> data = SessionManager::value(QLatin1String("ProjectTree.ExpandData")).toStringList().toSet();
+    recursiveLoadExpandData(m_view->rootIndex(), data);
+
+    // store remaning nodes to expand
+    m_toExpand = data;
 }
 
-void ProjectTreeWidget::recursiveLoadExpandData(const QModelIndex &index, const QSet<QString> &data)
+void ProjectTreeWidget::recursiveLoadExpandData(const QModelIndex &index, QSet<QString> &data)
 {
-    if (data.contains(m_model->nodeForIndex(index)->path())) {
+    const QString &path = m_model->nodeForIndex(index)->path();
+    if (data.contains(path)) {
         m_view->expand(index);
+        data.remove(path);
         int count = m_model->rowCount(index);
         for (int i = 0; i < count; ++i)
             recursiveLoadExpandData(index.child(i, 0), data);
@@ -265,7 +279,9 @@ void ProjectTreeWidget::saveExpandData()
 void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QStringList *data)
 {
     Q_ASSERT(data);
-    if (m_view->isExpanded(index)) {
+    if (m_view->isExpanded(index) || index == m_view->rootIndex()) {
+        // Note: We store the path of the node, which isn't unique for e.g. .pri files
+        // but works for most nodes
         data->append(m_model->nodeForIndex(index)->path());
         int count = m_model->rowCount(index);
         for (int i = 0; i < count; ++i)
@@ -368,6 +384,9 @@ void ProjectTreeWidget::handleProjectAdded(Project *project)
     if (m_autoExpand) // disabled while session restoring
         m_view->setExpanded(idx, true);
     m_view->setCurrentIndex(idx);
+
+    connect(m_model, &FlatModel::rowsInserted,
+            this, &ProjectTreeWidget::rowsInserted);
 }
 
 void ProjectTreeWidget::startupProjectChanged(Project *project)
