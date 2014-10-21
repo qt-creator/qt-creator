@@ -934,7 +934,7 @@ void CppModelManager::GC()
     if (!d->m_enableGC)
         return;
 
-    // Collect files of CppEditorSupport and AbstractEditorSupport.
+    // Collect files of opened editors and editor supports (e.g. ui code model)
     QStringList filesInEditorSupports;
     foreach (const EditorDocumentHandle *cppEditor, cppEditors())
         filesInEditorSupports << cppEditor->filePath();
