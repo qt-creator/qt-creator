@@ -29,7 +29,7 @@
 <language
     name="CMake"
     version="1.30"
-    kateversion="2.4"
+    kateversion="3.4"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
     style="CMake"

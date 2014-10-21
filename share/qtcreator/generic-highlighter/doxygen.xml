@@ -29,7 +29,7 @@
  -->
 
 <language name="Doxygen"
-          version="1.35"
+          version="1.38"
           kateversion="2.4"
           section="Markup"
           extensions="*.dox;*.doxygen"
@@ -53,15 +53,19 @@
       <item> \date </item>             <item> @date </item>
       <item> \deprecated </item>       <item> @deprecated </item>
       <item> \details </item>          <item> @details </item>
+      <item> \docbookonly </item>      <item> @docbookonly </item>
       <item> \else </item>             <item> @else </item>
       <item> \endcond </item>          <item> @endcond </item>
+      <item> \enddocbookonly </item>   <item> @enddocbookonly </item>
       <item> \endhtmlonly </item>      <item> @endhtmlonly </item>
       <item> \endif </item>            <item> @endif </item>
-      <item> \enditernal </item>       <item> @enditernal </item>
+      <item> \endinternal </item>      <item> @endinternal </item>
       <item> \endlatexonly </item>     <item> @endlatexonly </item>
       <item> \endlink </item>          <item> @endlink </item>
       <item> \endmanonly </item>       <item> @endmanonly </item>
+      <item> \endparblock </item>      <item> @endparblock </item>
       <item> \endrtfonly </item>       <item> @endrtfonly </item>
+      <item> \endsecreflist </item>    <item> @endsecreflist </item>
       <item> \endxmlonly </item>       <item> @endxmlonly </item>
       <item> \f[ </item>               <item> @f[ </item>
       <item> \f] </item>               <item> @f] </item>
@@ -78,6 +82,7 @@
       <item> \n </item>                <item> @n </item>
       <item> \nosubgrouping </item>    <item> @nosubgrouping </item>
       <item> \only </item>             <item> @only </item>
+      <item> \parblock </item>         <item> @parblock </item>
       <item> \post </item>             <item> @post </item>
       <item> \pre </item>              <item> @pre </item>
       <item> \private </item>          <item> @pivate </item>
@@ -86,16 +91,20 @@
       <item> \protectedsection </item> <item> @protectedsection </item>
       <item> \public </item>           <item> @public </item>
       <item> \publicsection </item>    <item> @publicsection </item>
+      <item> \pure </item>             <item> @pure </item>
+      <item> \remark </item>           <item> @remark </item>
       <item> \remarks </item>          <item> @remarks </item>
       <item> \return </item>           <item> @return </item>
       <item> \returns </item>          <item> @returns </item>
       <item> \result </item>           <item> @result </item>
       <item> \rtfonly </item>          <item> @rtfonly </item>
       <item> \sa </item>               <item> @sa </item>
+      <item> \secreflist </item>       <item> @secreflist </item>
       <item> \see </item>              <item> @see </item>
       <item> \short </item>            <item> @short </item>
       <item> \showinitializer </item>  <item> @showinitializer </item>
       <item> \since </item>            <item> @since </item>
+      <item> \static </item>           <item> @static </item>
       <item> \tableofcontents </item>  <item> @tableofcontents </item>
       <item> \test </item>             <item> @test </item>
       <item> \version </item>          <item> @version </item>
@@ -112,6 +121,9 @@
       <item> \@ </item>                <item> @@ </item>
       <item> \\ </item>                <item> @\ </item>
       <item> \~ </item>                <item> @~ </item>
+      <item> \. </item>                <item> @. </item>
+      <item> \-- </item>               <item> @-- </item>
+      <item> \--- </item>              <item> @--- </item>
     </list>
 
     <list name="TagWord">
@@ -119,6 +131,7 @@
       <item> \anchor </item>           <item> @anchor </item>
       <item> \b </item>                <item> @b </item>
       <item> \c </item>                <item> @c </item>
+      <item> \cite </item>             <item> @cite </item>
       <item> \cond </item>             <item> @cond </item>
       <item> \copybrief </item>        <item> @copybrief </item>
       <item> \copydetails </item>      <item> @copydetails </item>
@@ -136,11 +149,13 @@
       <item> \extends </item>          <item> @extends </item>
       <item> \file </item>             <item> @file </item>
       <item> \htmlinclude </item>      <item> @htmlinclude </item>
+      <item> \idlexcept </item>        <item> @idlexcept </item>
       <item> \if </item>               <item> @if </item>
       <item> \ifnot </item>            <item> @ifnot </item>
       <item> \implements </item>       <item> @implements </item>
       <item> \include </item>          <item> @include </item>
       <item> \includelineno </item>    <item> @includelineno </item>
+      <item> \latexinclude </item>     <item> @latexinclude </item>
       <item> \link </item>             <item> @link </item>
       <item> \memberof </item>         <item> @memberof </item>
       <item> \namespace </item>        <item> @namespace </item>
@@ -176,6 +191,7 @@
       <item> \addtogroup </item>       <item> @addtogroup </item>
       <item> \category </item>         <item> @category </item>
       <item> \class </item>            <item> @class </item>
+      <item> \diafile </item>          <item> @diafile </item>
       <item> \dotfile </item>          <item> @dotfile </item>
       <item> \defgroup </item>         <item> @defgroup </item>
       <item> \interface </item>        <item> @interface </item>
@@ -209,6 +225,7 @@
       <item> \typedef </item>          <item> @typedef </item>
       <item> \until </item>            <item> @until </item>
       <item> \var </item>              <item> @var </item>
+      <item> \vhdlflow </item>         <item> @vhdlflow </item>
     </list>
     <list name="Note">
       <item> \note </item>             <item> @note </item>
@@ -276,7 +293,7 @@
         <keyword attribute="Tags" context="ML_TagWordWord" String="TagWordWord" />
         <keyword attribute="Tags" context="ML_TagString" String="TagString" />
         <keyword attribute="Tags" context="ML_TagWordString" String="TagWordString" />
-        <RegExpr attribute="Custom Tags" context="#stay" String="[@\\][^@\\ \t]+" />
+        <RegExpr attribute="Custom Tags" context="#stay" String="[@\\]([^@\\ \t\*]|\*(?!/))+" />
         <DetectIdentifier />
         <RegExpr attribute="Tags" context="#stay" String="\\(&lt;|&gt;)" />
         <Detect2Chars attribute="Comment" context="#stay" char="&lt;" char1="&lt;" />
@@ -467,31 +484,31 @@
 
   </contexts>
     <itemDatas>
-      <itemData name="Normal Text"              defStyleNum="dsNormal" />
-      <itemData name="Tags"                     defStyleNum="dsKeyword" />
-      <itemData name="Custom Tags"              defStyleNum="dsKeyword" />
-      <itemData name="Word"                     defStyleNum="dsIdentifier" />
-      <itemData name="HTML Tag"                 defStyleNum="dsKeyword" />
-      <itemData name="Entities"                 defStyleNum="dsOthers" />
-      <itemData name="Description"              defStyleNum="dsString" />
-      <itemData name="Comment"                  defStyleNum="dsComment" />
-      <itemData name="Region"                   defStyleNum="dsRegionMarker" />
-      <itemData name="Identifier"               defStyleNum="dsIdentifier" />
-      <itemData name="HTML Comment"             defStyleNum="dsComment" />
-      <itemData name="Types"                    defStyleNum="dsDataType" />
-      <itemData name="Code"                     defStyleNum="dsComment" />
-      <itemData name="Dot Graph"                defStyleNum="dsComment" />
-      <itemData name="Formulas"                 defStyleNum="dsComment" />
-      <itemData name="Message Sequence Chart"   defStyleNum="dsComment" />
-      <itemData name="Verbatim"                 defStyleNum="dsComment" />
-      <itemData name="Note"                     defStyleNum="dsKeyword" />
-      <itemData name="Warning"                  defStyleNum="dsKeyword" />
-      <itemData name="Attention"                defStyleNum="dsKeyword" />
-      <itemData name="Todo"                     defStyleNum="dsKeyword" />
+      <itemData name="Normal Text"  defStyleNum="dsNormal" />
+      <itemData name="Tags"         defStyleNum="dsKeyword" color="#ca60ca" bold="1" italic="0" />
+      <itemData name="Custom Tags"  defStyleNum="dsNormal"  color="#458C61" bold="1" italic="0" />
+      <itemData name="Word"         defStyleNum="dsKeyword" color="#0095ff" bold="1" italic="0" />
+      <itemData name="HTML Tag"     defStyleNum="dsKeyword" color="#000000" bold="1" italic="0" />
+      <itemData name="Entities"     defStyleNum="dsOthers" color="#4086C0" bold="1" italic="1" />
+      <itemData name="Description"  defStyleNum="dsString"  color="#ff0000" />
+      <itemData name="Comment"      defStyleNum="dsComment" />
+      <itemData name="Region"       defStyleNum="dsRegionMarker" />
+      <itemData name="Identifier"   defStyleNum="dsOthers" />
+      <itemData name="HTML Comment" defStyleNum="dsComment" />
+      <itemData name="Types"        defStyleNum="dsDataType" />
+      <itemData name="Code"         defStyleNum="dsComment" />
+      <itemData name="Dot Graph"    defStyleNum="dsComment" color="#00A000" selColor="#ffffff" italic="1" />
+      <itemData name="Formulas"     defStyleNum="dsComment" color="#00A000" selColor="#ffffff" italic="1" />
+      <itemData name="Message Sequence Chart" defStyleNum="dsComment" color="#00A000" selColor="#ffffff" italic="1" />
+      <itemData name="Verbatim"     defStyleNum="dsComment" />
+      <itemData name="Note"         defStyleNum="dsKeyword" color="#81ca2d" selColor="#81ca2d" bold="1" italic="0" />
+      <itemData name="Warning"      defStyleNum="dsKeyword" color="#ca9219" selColor="#ca9219" bold="1" italic="0" />
+      <itemData name="Attention"    defStyleNum="dsKeyword" color="#e85848" selColor="#e85848" bold="1" italic="0" />
+      <itemData name="Todo"         defStyleNum="dsKeyword" color="#ca60ca" selColor="#ffffff" bold="1" italic="0" />
     </itemDatas>
   </highlighting>
   <general>
-    <keywords casesensitive="0" weakDeliminator="\$~" />
+    <keywords casesensitive="1" weakDeliminator="\$~" />
   </general>
 </language>
 <!-- kate: indent-width 2; -->

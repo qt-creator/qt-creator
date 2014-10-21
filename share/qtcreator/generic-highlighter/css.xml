@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE language SYSTEM "language.dtd">
+<!DOCTYPE language SYSTEM "language.dtd"
+[
+  <!-- http://www.w3.org/TR/CSS21/syndata.html#tokenization -->
+  <!ENTITY nmstart "[_a-zA-Z]|(\\[0-9a-fA-F]{1,6})|(\\[^\n\r\f0-9a-fA-F])">
+  <!ENTITY nmchar  "[_a-zA-Z0-9-]|(\\[0-9a-fA-F]{1,6})|(\\[^\n\r\f0-9a-fA-F])">
+]>
 
 <!--
 
@@ -18,7 +23,7 @@ Changelog:
 
 -->
 
-<language name="CSS" version="2.08" kateversion="2.4" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="CSS" version="2.09" kateversion="3.4" section="Markup" extensions="*.css" indenter="cstyle" mimetype="text/css" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 	<highlighting>
 		<list name="properties">
@@ -718,7 +723,7 @@ Changelog:
 				<DetectChar attribute="Property" context="RuleSet" char="{" beginRegion="ruleset" />
 				<!--parse selectors-->
 				<DetectChar attribute="Selector Attr" context="SelAttr" char="[" />
-				<RegExpr attribute="Selector Id" context="#stay" String="#([a-zA-Z0-9\-_]|[\x80-\xFF]|\\[0-9A-Fa-f]{1,6})*" />
+				<RegExpr attribute="Selector Id" context="#stay" String="#(-)?(&nmstart;)(&nmchar;)*" />
 				<RegExpr attribute="Selector Class" context="#stay" String="\.([a-zA-Z0-9\-_]|[\x80-\xFF]|\\[0-9A-Fa-f]{1,6})*" />
 				<RegExpr attribute="Selector Pseudo" context="#stay" String=":lang\([\w_-]+\)" />
 				<DetectChar attribute="Selector Pseudo" context="SelPseudo" char=":" />
@@ -792,6 +797,7 @@ Changelog:
                         
                         <context attribute="Media" lineEndContext="#stay" name="MQEV">
                         <!-- this should be seperate for different features, for now it is all the same -->
+                            <DetectSpaces/>
                             <RegExpr attribute="Value" context="#pop" String="[1-9][0-9.]*\s*/\s*[1-9][0-9.]*" />
                             <RegExpr attribute="Value" context="#pop" String="[0-9.]+(em|ex|ch|rem|vw|vh|vm|px|in|cm|mm|pt|pc|deg|rad|grad|turn|ms|s|Hz|kHz|dpi|dpcm)\b" />
                             <RegExpr attribute="Value" context="#pop" String="[0-9.]+[%]?" />

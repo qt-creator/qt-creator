@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="Valgrind Suppression" section="Other" extensions="*.supp;" mimetype="" version="1.0" kateversion="2.0" author="Milian Wolff (mail@milianw.de)" license="LGPL">
+<language name="Valgrind Suppression" section="Other" extensions="*.supp;" mimetype="" version="1.0" kateversion="2.4" author="Milian Wolff (mail@milianw.de)" license="LGPL">
 <highlighting>
 <contexts>
   <context name="File" attribute="Normal Text" lineEndContext="#stay">
