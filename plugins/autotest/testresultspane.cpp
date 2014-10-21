@@ -22,12 +22,14 @@
 #include "testrunner.h"
 #include "testtreemodel.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 
 #include <texteditor/texteditor.h>
 
 #include <utils/itemviews.h>
 
+#include <QDebug>
 #include <QToolButton>
 
 namespace Autotest {
@@ -39,7 +41,9 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 {
     m_listView = new Utils::ListView;
     m_model = new TestResultModel(this);
-    m_listView->setModel(m_model);
+    m_filterModel = new TestResultFilterModel(m_model, this);
+    m_filterModel->setDynamicSortFilter(true);
+    m_listView->setModel(m_filterModel);
     TestResultDelegate *trd = new TestResultDelegate(this);
     m_listView->setItemDelegate(trd);
 
@@ -61,6 +65,17 @@ void TestResultsPane::createToolButtons()
     m_runSelected->setIcon(QIcon(QLatin1String(":/images/runselected.png")));
     m_runSelected->setToolTip(tr("Run Selected Tests"));
     connect(m_runSelected, &QToolButton::clicked, this, &TestResultsPane::onRunSelectedTriggered);
+
+    m_filterButton = new QToolButton(m_listView);
+    m_filterButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
+    m_filterButton->setToolTip(tr("Filter Test Results"));
+    m_filterButton->setProperty("noArrow", true);
+    m_filterButton->setAutoRaise(true);
+    m_filterButton->setPopupMode(QToolButton::InstantPopup);
+    m_filterMenu = new QMenu(m_filterButton);
+    initializeFilterMenu();
+    connect(m_filterMenu, &QMenu::triggered, this, &TestResultsPane::filterMenuTriggered);
+    m_filterButton->setMenu(m_filterMenu);
 }
 
 static TestResultsPane *m_instance = 0;
@@ -99,7 +114,7 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
-    return QList<QWidget *>() << m_runAll << m_runSelected; // add filter as well
+    return QList<QWidget *>() << m_runAll << m_runSelected << m_filterButton;
 }
 
 QString TestResultsPane::displayName() const
@@ -114,7 +129,7 @@ int TestResultsPane::priorityInStatusBar() const
 
 void TestResultsPane::clearContents()
 {
-    m_model->clearTestResults();
+    m_filterModel->clearTestResults();
     navigateStateChanged();
 }
 
@@ -143,12 +158,12 @@ bool TestResultsPane::canNavigate() const
 
 bool TestResultsPane::canNext() const
 {
-    return m_model->hasResults();
+    return m_filterModel->hasResults();
 }
 
 bool TestResultsPane::canPrevious() const
 {
-    return m_model->hasResults();
+    return m_filterModel->hasResults();
 }
 
 void TestResultsPane::goToNext()
@@ -159,11 +174,11 @@ void TestResultsPane::goToNext()
     QModelIndex currentIndex = m_listView->currentIndex();
     if (currentIndex.isValid()) {
         int row = currentIndex.row() + 1;
-        if (row == m_model->rowCount(QModelIndex()))
+        if (row == m_filterModel->rowCount(QModelIndex()))
             row = 0;
-        currentIndex = m_model->index(row, 0, QModelIndex());
+        currentIndex = m_filterModel->index(row, 0, QModelIndex());
     } else {
-        currentIndex = m_model->index(0, 0, QModelIndex());
+        currentIndex = m_filterModel->index(0, 0, QModelIndex());
     }
     m_listView->setCurrentIndex(currentIndex);
     onItemActivated(currentIndex);
@@ -178,10 +193,10 @@ void TestResultsPane::goToPrev()
     if (currentIndex.isValid()) {
         int row = currentIndex.row() - 1;
         if (row < 0)
-            row = m_model->rowCount(QModelIndex()) - 1;
-        currentIndex = m_model->index(row, 0, QModelIndex());
+            row = m_filterModel->rowCount(QModelIndex()) - 1;
+        currentIndex = m_filterModel->index(row, 0, QModelIndex());
     } else {
-        currentIndex = m_model->index(m_model->rowCount(QModelIndex()) - 1, 0, QModelIndex());
+        currentIndex = m_filterModel->index(m_filterModel->rowCount(QModelIndex()) - 1, 0, QModelIndex());
     }
     m_listView->setCurrentIndex(currentIndex);
     onItemActivated(currentIndex);
@@ -192,7 +207,7 @@ void TestResultsPane::onItemActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    TestResult tr = m_model->testResult(index);
+    TestResult tr = m_filterModel->testResult(index);
     if (!tr.fileName().isEmpty())
         Core::EditorManager::openEditorAt(tr.fileName(), tr.line(), 0);
 }
@@ -209,7 +224,34 @@ void TestResultsPane::onRunSelectedTriggered()
     TestRunner *runner = TestRunner::instance();
     runner->setSelectedTests(TestTreeModel::instance()->getSelectedTests());
     runner->runTests();
+}
 
+void TestResultsPane::initializeFilterMenu()
+{
+    QMap<ResultType, QString> textAndType;
+    textAndType.clear();
+    textAndType.insert(ResultType::PASS, QLatin1String("Pass"));
+    textAndType.insert(ResultType::FAIL, QLatin1String("Fail"));
+    textAndType.insert(ResultType::EXPECTED_FAIL, QLatin1String("Expected Fail"));
+    textAndType.insert(ResultType::UNEXPECTED_PASS, QLatin1String("Unexpected Pass"));
+    textAndType.insert(ResultType::SKIP, QLatin1String("Skip"));
+    textAndType.insert(ResultType::MESSAGE_DEBUG, QLatin1String("Debug Messages"));
+    textAndType.insert(ResultType::MESSAGE_WARN, QLatin1String("Warning Messages"));
+    textAndType.insert(ResultType::MESSAGE_INTERNAL, QLatin1String("Internal Messages"));
+    foreach (ResultType result, textAndType.keys()) {
+        QAction *action = new QAction(m_filterMenu);
+        action->setText(textAndType.value(result));
+        action->setCheckable(true);
+        action->setChecked(true);
+        action->setData(result);
+        m_filterMenu->addAction(action);
+    }
+}
+
+void TestResultsPane::filterMenuTriggered(QAction *action)
+{
+    m_filterModel->toggleTestResultType(static_cast<ResultType>(action->data().value<int>()));
+    navigateStateChanged();
 }
 
 } // namespace Internal

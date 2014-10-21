@@ -22,7 +22,9 @@
 #include <coreplugin/ioutputpane.h>
 
 QT_BEGIN_NAMESPACE
+class QAction;
 class QModelIndex;
+class QMenu;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -39,6 +41,7 @@ namespace Internal {
 
 class TestResult;
 class TestResultModel;
+class TestResultFilterModel;
 
 class TestResultsPane : public Core::IOutputPane
 {
@@ -73,6 +76,8 @@ private slots:
     void onItemActivated(const QModelIndex &index);
     void onRunAllTriggered();
     void onRunSelectedTriggered();
+    void initializeFilterMenu();
+    void filterMenuTriggered(QAction *action);
 
 private:
     explicit TestResultsPane(QObject *parent = 0);
@@ -80,9 +85,12 @@ private:
 
     Utils::ListView *m_listView;
     TestResultModel *m_model;
+    TestResultFilterModel *m_filterModel;
     Core::IContext *m_context;
     QToolButton *m_runAll;
     QToolButton *m_runSelected;
+    QToolButton *m_filterButton;
+    QMenu *m_filterMenu;
 };
 
 } // namespace Internal

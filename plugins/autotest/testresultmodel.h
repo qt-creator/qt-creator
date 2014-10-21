@@ -22,7 +22,9 @@
 #include "testresult.h"
 
 #include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
 #include <QFont>
+#include <QSet>
 
 namespace Autotest {
 namespace Internal {
@@ -48,6 +50,9 @@ public:
     int maxWidthOfFileName(const QFont &font);
     int maxWidthOfLineNumber(const QFont &font);
 
+    void enableAllResultTypes();
+    void toggleTestResultType(ResultType type);
+
 signals:
 
 public slots:
@@ -58,6 +63,26 @@ private:
     int m_maxWidthOfFileName;
     int m_lastMaxWidthIndex;
     QFont m_measurementFont;
+};
+
+class TestResultFilterModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    TestResultFilterModel(TestResultModel *sourceModel, QObject *parent = 0);
+
+    void enableAllResultTypes();
+    void toggleTestResultType(ResultType type);
+    void clearTestResults();
+    bool hasResults();
+    TestResult testResult(const QModelIndex &index) const;
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
+private:
+    TestResultModel *m_sourceModel;
+    QSet<ResultType> m_enabled;
 };
 
 } // namespace Internal

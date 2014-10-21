@@ -20,9 +20,7 @@
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
-#include <texteditor/texteditor.h>
-
-#include <QIcon>
+#include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/environmentaspect.h>
@@ -32,7 +30,11 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
-#include <cpptools/cppmodelmanager.h>
+#include <texteditor/texteditor.h>
+
+#include <utils/fileutils.h>
+
+#include <QIcon>
 
 namespace Autotest {
 namespace Internal {
@@ -276,16 +278,11 @@ static void addProjectInformation(TestConfiguration *config, const QString &file
             if (ProjectExplorer::LocalApplicationRunConfiguration *localRunConfiguration
                     = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(rc)) {
                 if (localRunConfiguration->executable() == targetFile) {
-                    workDir = localRunConfiguration->workingDirectory();
-                    QList<ProjectExplorer::IRunConfigurationAspect *> aspects
-                            = localRunConfiguration->extraAspects();
-                    foreach (ProjectExplorer::IRunConfigurationAspect *aspect, aspects) {
-                        if (ProjectExplorer::EnvironmentAspect *asp
-                                = qobject_cast<ProjectExplorer::EnvironmentAspect *>(aspect)) {
-                            env = asp->environment();
-                            break;
-                        }
-                    }
+                    workDir = Utils::FileUtils::normalizePathName(
+                                localRunConfiguration->workingDirectory());
+                    ProjectExplorer::EnvironmentAspect *envAsp
+                            = localRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
+                    env = envAsp->environment();
                     break;
                 }
             }

@@ -64,9 +64,10 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     painter->drawRect(opt.rect);
 
     painter->setPen(foreground);
-    TestResultModel *resultModel = static_cast<TestResultModel *>(view->model());
+    TestResultFilterModel *resultFilterModel = static_cast<TestResultFilterModel *>(view->model());
+    TestResultModel *resultModel = static_cast<TestResultModel *>(resultFilterModel->sourceModel());
     LayoutPositions positions(opt, resultModel);
-    TestResult testResult = resultModel->testResult(index);
+    TestResult testResult = resultModel->testResult(resultFilterModel->mapToSource(index));
     ResultType type = testResult.result();
 
     QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
@@ -176,13 +177,14 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
     QFontMetrics fm(opt.font);
     int fontHeight = fm.height();
-    TestResultModel *resultModel = static_cast<TestResultModel *>(view->model());
+    TestResultFilterModel *resultFilterModel = static_cast<TestResultFilterModel *>(view->model());
+    TestResultModel *resultModel = static_cast<TestResultModel *>(resultFilterModel->sourceModel());
     LayoutPositions positions(opt, resultModel);
     QSize s;
     s.setWidth(opt.rect.width());
 
     if (selected) {
-        TestResult testResult = resultModel->testResult(index);
+        TestResult testResult = resultModel->testResult(resultFilterModel->mapToSource(index));
 
         QString output;
         switch (testResult.result()) {

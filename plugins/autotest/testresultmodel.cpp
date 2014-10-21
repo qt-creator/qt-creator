@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QFontMetrics>
 #include <QIcon>
+#include <QSortFilterProxyModel>
 
 namespace Autotest {
 namespace Internal {
@@ -70,7 +71,7 @@ static QIcon testResultIcon(ResultType result) {
         QIcon(QLatin1String(":/images/debug.png")),
         QIcon(QLatin1String(":/images/warn.png")),
         QIcon(QLatin1String(":/images/fatal.png")),
-    };
+    }; // provide an icon for unknown??
 
     if (result < 0 || result >= MESSAGE_INTERNAL)
         return QIcon();
@@ -116,6 +117,9 @@ void TestResultModel::clearTestResults()
         return;
     beginRemoveRows(QModelIndex(), 0, m_testResults.size() - 1);
     m_testResults.clear();
+    m_lastMaxWidthIndex = 0;
+    m_maxWidthOfFileName = 0;
+    m_widthOfLineNumber = 0;
     endRemoveRows();
 }
 
@@ -157,6 +161,58 @@ int TestResultModel::maxWidthOfLineNumber(const QFont &font)
         m_widthOfLineNumber = fm.width(QLatin1String("88888"));
     }
     return m_widthOfLineNumber;
+}
+
+/********************************** Filter Model **********************************/
+
+TestResultFilterModel::TestResultFilterModel(TestResultModel *sourceModel, QObject *parent)
+    : QSortFilterProxyModel(parent),
+      m_sourceModel(sourceModel)
+{
+    setSourceModel(sourceModel);
+    enableAllResultTypes();
+}
+
+void TestResultFilterModel::enableAllResultTypes()
+{
+    m_enabled << ResultType::PASS << ResultType::FAIL << ResultType::EXPECTED_FAIL
+              << ResultType::UNEXPECTED_PASS << ResultType::SKIP << ResultType::MESSAGE_DEBUG
+              << ResultType::MESSAGE_WARN << ResultType::MESSAGE_INTERNAL
+              << ResultType::MESSAGE_FATAL << ResultType::UNKNOWN;
+    invalidateFilter();
+}
+
+void TestResultFilterModel::toggleTestResultType(ResultType type)
+{
+    if (m_enabled.contains(type)) {
+        m_enabled.remove(type);
+    } else {
+        m_enabled.insert(type);
+    }
+    invalidateFilter();
+}
+
+void TestResultFilterModel::clearTestResults()
+{
+    m_sourceModel->clearTestResults();
+}
+
+bool TestResultFilterModel::hasResults()
+{
+    return rowCount(QModelIndex());
+}
+
+TestResult TestResultFilterModel::testResult(const QModelIndex &index) const
+{
+    return m_sourceModel->testResult(mapToSource(index));
+}
+
+bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+{
+    QModelIndex index = m_sourceModel->index(sourceRow, 0, sourceParent);
+    if (!index.isValid())
+        return false;
+    return m_enabled.contains(m_sourceModel->testResult(index).result());
 }
 
 } // namespace Internal

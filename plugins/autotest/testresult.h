@@ -76,4 +76,6 @@ bool operator==(const TestResult &t1, const TestResult &t2);
 } // namespace Internal
 } // namespace Autotest
 
+Q_DECLARE_METATYPE(Autotest::Internal::ResultType)
+
 #endif // TESTRESULT_H
