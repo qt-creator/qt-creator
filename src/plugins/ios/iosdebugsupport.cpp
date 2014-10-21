@@ -189,8 +189,8 @@ IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
 
     connect(m_runner, SIGNAL(gotServerPorts(int,int)),
         SLOT(handleServerPorts(int,int)));
-    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID, int)),
-        SLOT(handleGotInferiorPid(Q_PID, int)));
+    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID,int)),
+        SLOT(handleGotInferiorPid(Q_PID,int)));
     connect(m_runner, SIGNAL(finished(bool)),
         SLOT(handleRemoteProcessFinished(bool)));
 

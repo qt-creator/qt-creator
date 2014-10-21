@@ -153,8 +153,8 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
         BlackBerryApplicationRunner *runner = new BlackBerryApplicationRunner(launchFlags, rc, runControl);
 
         connect(runner, SIGNAL(finished()), runControl, SLOT(notifyRemoteFinished()));
-        connect(runner, SIGNAL(output(QString, Utils::OutputFormat)),
-                runControl, SLOT(logApplicationMessage(QString, Utils::OutputFormat)));
+        connect(runner, SIGNAL(output(QString,Utils::OutputFormat)),
+                runControl, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
         connect(runControl, SIGNAL(starting(const Analyzer::AnalyzerRunControl*)),
                 runner, SLOT(start()));
         connect(runControl, SIGNAL(finished()), runner, SLOT(stop()));

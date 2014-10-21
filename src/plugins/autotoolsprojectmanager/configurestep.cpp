@@ -275,7 +275,7 @@ ConfigureStepConfigWidget::ConfigureStepConfigWidget(ConfigureStep *configureSte
             configureStep, SLOT(setAdditionalArguments(QString)));
     connect(configureStep, SIGNAL(additionalArgumentsChanged(QString)),
             this, SLOT(updateDetails()));
-    connect(configureStep, SIGNAL(buildDirectoryChanged(void)),
+    connect(configureStep, SIGNAL(buildDirectoryChanged()),
             this, SLOT(updateDetails()));
 }
 
