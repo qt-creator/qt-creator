@@ -2138,6 +2138,7 @@ public:
             , highlightsCleared(false)
             , findPending(false)
             , returnToMode(CommandMode)
+            , isRecording(false)
             , currentRegister(0)
             , lastExecutedRegister(0)
         {
@@ -2206,8 +2207,9 @@ public:
         // Return to insert/replace mode after single command (<C-O>).
         Mode returnToMode;
 
-        // Currently recorded macro (not recording if null string).
-        QString recording;
+        // Currently recorded macro
+        bool isRecording;
+        QString recorded;
         int currentRegister;
         int lastExecutedRegister;
     } g;
@@ -3527,8 +3529,8 @@ void FakeVimHandler::Private::updateMiniBuffer()
             msg = _("-- (replace) --");
     }
 
-    if (!g.recording.isNull() && msg.startsWith(_("--")))
-        msg.append(_("recording"));
+    if (g.isRecording && msg.startsWith(_("--")))
+        msg.append(QLatin1Char(' ' ) + _("Recording"));
 
     emit q->commandBufferChanged(msg, cursorPos, anchorPos, messageLevel, q);
 
@@ -4341,14 +4343,14 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setDotCommand(_("%1p"), count());
         finishMovement();
     } else if (input.is('q')) {
-        if (g.recording.isNull()) {
+        if (g.isRecording) {
+            // Stop recording.
+            stopRecording();
+        } else {
             // Recording shouldn't work in mapping or while executing register.
             handled = g.mapStates.empty();
             if (handled)
                 g.submode = MacroRecordSubMode;
-        } else {
-            // Stop recording.
-            stopRecording();
         }
     } else if (input.is('r')) {
         g.submode = ReplaceSubMode;
@@ -5127,7 +5129,8 @@ bool FakeVimHandler::Private::startRecording(const Input &input)
     QChar reg = input.asChar();
     if (reg == QLatin1Char('"') || reg.isLetterOrNumber()) {
         g.currentRegister = reg.unicode();
-        g.recording = QLatin1String("");
+        g.isRecording = true;
+        g.recorded.clear();
         return true;
     }
 
@@ -5136,17 +5139,18 @@ bool FakeVimHandler::Private::startRecording(const Input &input)
 
 void FakeVimHandler::Private::record(const Input &input)
 {
-    if ( !g.recording.isNull() )
-        g.recording.append(input.toString());
+    if (g.isRecording)
+        g.recorded.append(input.toString());
 }
 
 void FakeVimHandler::Private::stopRecording()
 {
     // Remove q from end (stop recording command).
-    g.recording.remove(g.recording.size() - 1, 1);
-    setRegister(g.currentRegister, g.recording, g.rangemode);
+    g.isRecording = false;
+    g.recorded.chop(1);
+    setRegister(g.currentRegister, g.recorded, g.rangemode);
     g.currentRegister = 0;
-    g.recording = QString();
+    g.recorded.clear();
 }
 
 bool FakeVimHandler::Private::executeRegister(int reg)
