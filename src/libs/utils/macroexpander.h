@@ -47,20 +47,22 @@ class MacroExpander;
 typedef std::function<MacroExpander *()> MacroExpanderProvider;
 typedef QVector<MacroExpander *> MacroExpanders;
 
-class QTCREATOR_UTILS_EXPORT MacroExpander : public AbstractMacroExpander
+class QTCREATOR_UTILS_EXPORT MacroExpander
 {
     Q_DECLARE_TR_FUNCTIONS("MacroExpander")
 
 public:
     explicit MacroExpander();
-    ~MacroExpander();
+    virtual ~MacroExpander();
 
-    bool resolveMacro(const QString &name, QString *ret);
+    virtual bool resolveMacro(const QString &name, QString *ret) const;
 
-    QString value(const QByteArray &variable, bool *found = 0);
+    QString value(const QByteArray &variable, bool *found = 0) const;
 
-    QString expand(const QString &stringWithVariables);
-    QByteArray expand(const QByteArray &stringWithVariables);
+    QString expand(const QString &stringWithVariables) const;
+    QByteArray expand(const QByteArray &stringWithVariables) const;
+
+    QString expandProcessArgs(const QString &argsWithVariables) const;
 
     typedef std::function<QString(QString)> PrefixFunction;
     typedef std::function<QString()> StringFunction;
@@ -78,10 +80,11 @@ public:
     void registerFileVariables(const QByteArray &prefix,
         const QString &heading, const StringFunction &value);
 
-    QList<QByteArray> variables();
-    QString variableDescription(const QByteArray &variable);
+    QList<QByteArray> variables() const;
+    QString variableDescription(const QByteArray &variable) const;
 
     MacroExpanders subExpanders() const;
+    AbstractMacroExpander *abstractExpander() const;
 
     QString displayName() const;
     void setDisplayName(const QString &displayName);
@@ -95,6 +98,7 @@ private:
     MacroExpander(const MacroExpander &) Q_DECL_EQ_DELETE;
     void operator=(const MacroExpander &) Q_DECL_EQ_DELETE;
 
+    friend class Internal::MacroExpanderPrivate;
     Internal::MacroExpanderPrivate *d;
 };
 

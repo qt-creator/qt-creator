@@ -50,7 +50,7 @@ JsonWizardExpander::JsonWizardExpander(JsonWizard *wizard) :
     QTC_CHECK(m_wizard);
 }
 
-bool JsonWizardExpander::resolveMacro(const QString &name, QString *ret)
+bool JsonWizardExpander::resolveMacro(const QString &name, QString *ret) const
 {
     QVariant v = m_wizard->value(name);
     if (v.isValid()) {

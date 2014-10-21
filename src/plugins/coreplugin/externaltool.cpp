@@ -576,7 +576,7 @@ bool ExternalToolRunner::resolve()
         }
     }
 
-    m_resolvedArguments = QtcProcess::expandMacros(m_tool->arguments(), expander);
+    m_resolvedArguments = expander->expandProcessArgs(m_tool->arguments());
     m_resolvedInput = expander->expand(m_tool->input());
     m_resolvedWorkingDirectory = expander->expand(m_tool->workingDirectory());
 

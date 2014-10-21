@@ -496,7 +496,7 @@ QString DesktopQmakeRunConfiguration::baseWorkingDirectory() const
 
 QString DesktopQmakeRunConfiguration::commandLineArguments() const
 {
-    return QtcProcess::expandMacros(m_commandLineArguments, macroExpander());
+    return macroExpander()->expandProcessArgs(m_commandLineArguments);
 }
 
 QString DesktopQmakeRunConfiguration::rawCommandLineArguments() const

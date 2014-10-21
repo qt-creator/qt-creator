@@ -46,12 +46,12 @@ class FallBackMacroExpander : public Utils::MacroExpander
 {
 public:
     explicit FallBackMacroExpander(const Target *target) : m_target(target) {}
-    virtual bool resolveMacro(const QString &name, QString *ret);
+    virtual bool resolveMacro(const QString &name, QString *ret) const;
 private:
     const Target *m_target;
 };
 
-bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret)
+bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret) const
 {
     if (name == QLatin1String("sourceDir")) {
         *ret = m_target->project()->projectDirectory().toUserOutput();

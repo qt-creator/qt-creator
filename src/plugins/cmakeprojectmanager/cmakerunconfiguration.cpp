@@ -135,7 +135,7 @@ QString CMakeRunConfiguration::baseWorkingDirectory() const
 
 QString CMakeRunConfiguration::commandLineArguments() const
 {
-    return Utils::QtcProcess::expandMacros(m_arguments, macroExpander());
+    return macroExpander()->expandProcessArgs(m_arguments);
 }
 
 QString CMakeRunConfiguration::title() const

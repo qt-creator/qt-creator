@@ -43,7 +43,7 @@ ProjectMacroExpander::ProjectMacroExpander(const QString &projectFilePath, const
     : m_projectFile(projectFilePath), m_projectName(projectName), m_kit(k), m_bcName(bcName)
 { }
 
-bool ProjectMacroExpander::resolveMacro(const QString &name, QString *ret)
+bool ProjectMacroExpander::resolveMacro(const QString &name, QString *ret) const
 {
     QString result;
     bool found = false;

@@ -251,7 +251,7 @@ QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
 
 QString CustomExecutableRunConfiguration::commandLineArguments() const
 {
-    return Utils::QtcProcess::expandMacros(m_cmdArguments, macroExpander());
+    return macroExpander()->expandProcessArgs(m_cmdArguments);
 }
 
 QString CustomExecutableRunConfiguration::rawCommandLineArguments() const

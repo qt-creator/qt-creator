@@ -45,7 +45,7 @@ class JsonWizardExpander : public Utils::MacroExpander
 public:
     explicit JsonWizardExpander(JsonWizard *wizard);
 
-    bool resolveMacro(const QString &name, QString *ret);
+    bool resolveMacro(const QString &name, QString *ret) const;
 
 public:
     JsonWizard *m_wizard;

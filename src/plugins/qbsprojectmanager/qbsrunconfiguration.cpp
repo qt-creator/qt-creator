@@ -282,7 +282,7 @@ QString QbsRunConfiguration::baseWorkingDirectory() const
 
 QString QbsRunConfiguration::commandLineArguments() const
 {
-    return Utils::QtcProcess::expandMacros(m_commandLineArguments, macroExpander());
+    return macroExpander()->expandProcessArgs(m_commandLineArguments);
 }
 
 QString QbsRunConfiguration::rawCommandLineArguments() const

@@ -67,12 +67,12 @@ public:
                                bc->displayName()),
           m_bc(bc)
     {}
-    virtual bool resolveMacro(const QString &name, QString *ret);
+    virtual bool resolveMacro(const QString &name, QString *ret) const;
 private:
     const BuildConfiguration *m_bc;
 };
 
-bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
+bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret) const
 {
     // legacy variables
     if (name == QLatin1String("sourceDir")) {
