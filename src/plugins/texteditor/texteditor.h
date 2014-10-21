@@ -357,6 +357,8 @@ public:
     };
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
     QList<QTextEdit::ExtraSelection> extraSelections(ExtraSelectionKind kind) const;
+    void setExtraSelections(Core::Id kind, const QList<QTextEdit::ExtraSelection> &selections);
+    QList<QTextEdit::ExtraSelection> extraSelections(Core::Id kind) const;
     QString extraSelectionTooltip(int pos) const;
 
     RefactorMarkers refactorMarkers() const;
