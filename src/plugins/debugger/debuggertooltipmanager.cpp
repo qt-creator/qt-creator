@@ -473,11 +473,12 @@ private:
 };
 
 class DebuggerToolTipWidget;
+
 class DebuggerToolTipManagerData
 {
 public:
     DebuggerToolTipManagerData()
-        : m_debugModeActive(false), m_lastToolTipPoint(-1, -1), m_lastToolTipEditor(0)
+        : m_debugModeActive(false)
     {}
 
     void purgeClosedToolTips()
@@ -489,8 +490,6 @@ public:
 
     QList<QPointer<DebuggerToolTipWidget> > m_tooltips;
     bool m_debugModeActive;
-    QPoint m_lastToolTipPoint;
-    TextEditorWidget *m_lastToolTipEditor;
 };
 
 static DebuggerToolTipManagerData *d = 0;
@@ -1293,8 +1292,6 @@ void DebuggerToolTipManager::leavingDebugMode()
             }
         }
         EditorManager::instance()->disconnect(this);
-        d->m_lastToolTipEditor = 0;
-        d->m_lastToolTipPoint = QPoint(-1, -1);
     }
 }
 
@@ -1303,32 +1300,14 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested
 {
     QTC_ASSERT(handled, return);
     QTC_ASSERT(editorWidget, return);
+    *handled = false;
 
-    const int movedDistance = (point - d->m_lastToolTipPoint).manhattanLength();
-    if (d->m_lastToolTipEditor == editorWidget && movedDistance < 25) {
-        *handled = true;
-        return;
-    }
-
-    *handled = tryHandleToolTipOverride(editorWidget, point, pos);
-
-    if (*handled) {
-        d->m_lastToolTipEditor = editorWidget;
-        d->m_lastToolTipPoint = point;
-    } else {
-        d->m_lastToolTipEditor = 0;
-        d->m_lastToolTipPoint = QPoint(-1, -1);
-    }
-}
-
-bool DebuggerToolTipManager::tryHandleToolTipOverride(TextEditorWidget *editorWidget, const QPoint &point, int pos)
-{
     if (!boolSetting(UseToolTipsInMainEditor))
-        return false;
+        return;
 
     DebuggerEngine *engine = currentEngine();
     if (!engine || !engine->canDisplayTooltip())
-        return false;
+        return;
 
     DebuggerToolTipContext context;
     context.engineType = engine->objectName();
@@ -1342,7 +1321,8 @@ bool DebuggerToolTipManager::tryHandleToolTipOverride(TextEditorWidget *editorWi
     if (context.expression.isEmpty()) {
         const Utils::WidgetContent widgetContent(new QLabel(tr("No valid expression")), true);
         Utils::ToolTip::show(context.mousePosition, widgetContent, debuggerCore()->mainWindow());
-        return true;
+        *handled = true;
+        return;
     }
 
     // Prefer a filter on an existing local variable if it can be found.
@@ -1352,17 +1332,16 @@ bool DebuggerToolTipManager::tryHandleToolTipOverride(TextEditorWidget *editorWi
             context.expression = localVariable->name;
         context.iname = localVariable->iname;
         showToolTip(context, engine);
-        return true;
+        *handled = true;
+        return;
     }
 
     context.iname = "tooltip." + context.expression.toLatin1().toHex();
 
-    if (engine->setToolTipExpression(editorWidget, context))
-        return true;
+    *handled = engine->setToolTipExpression(editorWidget, context);
 
     // Other tooltip, close all in case mouse never entered the tooltip
     // and no leave was triggered.
-    return false;
 }
 
 

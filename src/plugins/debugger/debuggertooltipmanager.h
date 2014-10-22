@@ -135,10 +135,6 @@ private slots:
     void slotEditorOpened(Core::IEditor *);
     void slotTooltipOverrideRequested(TextEditor::TextEditorWidget *editorWidget,
             const QPoint &point, int pos, bool *handled);
-
-private:
-    bool tryHandleToolTipOverride(TextEditor::TextEditorWidget *editorWidget,
-            const QPoint &point, int pos);
 };
 
 } // namespace Internal
