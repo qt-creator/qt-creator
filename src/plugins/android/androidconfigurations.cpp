@@ -109,7 +109,7 @@ namespace {
 
     bool androidDevicesLessThan(const AndroidDeviceInfo &dev1, const AndroidDeviceInfo &dev2)
     {
-        if (dev1.serialNumber.contains(QLatin1String("????")) == dev2.serialNumber.contains(QLatin1String("????")))
+        if (dev1.serialNumber.contains(QLatin1String("????")) != dev2.serialNumber.contains(QLatin1String("????")))
             return !dev1.serialNumber.contains(QLatin1String("????"));
         if (dev1.type != dev2.type)
             return dev1.type == AndroidDeviceInfo::Hardware;
