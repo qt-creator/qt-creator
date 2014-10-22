@@ -789,7 +789,7 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *synchronizeAction =
         new QAction(tr("Synchronize Breakpoints"), &menu);
-    synchronizeAction->setEnabled(debuggerCore()->hasSnapshots());
+    synchronizeAction->setEnabled(Internal::hasSnapshots());
 
     bool enabled = selectedIds.isEmpty() || handler->isEnabled(selectedIds.at(0));
 

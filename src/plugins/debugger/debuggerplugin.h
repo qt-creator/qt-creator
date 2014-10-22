@@ -34,6 +34,8 @@
 #include "debugger_global.h"
 #include <extensionsystem/iplugin.h>
 
+namespace ProjectExplorer { class RunControl; }
+
 namespace Debugger {
 namespace Internal {
 
@@ -52,6 +54,7 @@ private:
     QObject *remoteCommand(const QStringList &options, const QStringList &arguments);
     ShutdownFlag aboutToShutdown();
     void extensionsInitialized();
+    Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
 
 #ifdef WITH_TESTS
 private slots:

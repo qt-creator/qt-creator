@@ -83,7 +83,7 @@ namespace Internal {
 
 static QTreeView *inspectorTreeView()
 {
-    return DebuggerCore::inspectorView();
+    return Internal::inspectorView();
 }
 
 class ASTWalker : public Visitor

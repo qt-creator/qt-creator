@@ -3049,7 +3049,7 @@ void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
         }
         file.close();
         file.remove();
-        debuggerCore()->showModuleSymbols(modulePath, symbols);
+        Internal::showModuleSymbols(modulePath, symbols);
     } else {
         showMessageBox(QMessageBox::Critical, tr("Cannot Read Symbols"),
             tr("Cannot read symbols for module \"%1\".").arg(fileName));
@@ -3097,7 +3097,7 @@ void GdbEngine::handleShowModuleSections(const GdbResponse &response)
             }
         }
         if (!sections.isEmpty())
-            debuggerCore()->showModuleSections(moduleName, sections);
+            Internal::showModuleSections(moduleName, sections);
     }
 }
 
@@ -3555,7 +3555,7 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
 
 void GdbEngine::reloadRegisters()
 {
-    if (!debuggerCore()->isDockVisible(_(DOCKWIDGET_REGISTER)))
+    if (!Internal::isDockVisible(_(DOCKWIDGET_REGISTER)))
         return;
 
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
@@ -4250,7 +4250,7 @@ void GdbEngine::startGdb(const QStringList &args)
     //showMessage(_("Assuming Qt is installed at %1").arg(qtInstallPath));
     const SourcePathMap sourcePathMap =
         DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp,
-                debuggerCore()->globalDebuggerOptions()->sourcePathMap);
+                Internal::globalDebuggerOptions()->sourcePathMap);
     const SourcePathMap completeSourcePathMap =
             mergeStartParametersSourcePathMap(sp, sourcePathMap);
     for (auto it = completeSourcePathMap.constBegin(), cend = completeSourcePathMap.constEnd();
@@ -4586,7 +4586,7 @@ void GdbEngine::createFullBacktrace()
 void GdbEngine::handleCreateFullBacktrace(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
-        debuggerCore()->openTextEditor(_("Backtrace $"),
+        Internal::openTextEditor(_("Backtrace $"),
             _(response.consoleStreamOutput + response.logStreamOutput));
     }
 }

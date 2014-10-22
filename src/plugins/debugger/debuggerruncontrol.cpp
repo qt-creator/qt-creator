@@ -153,7 +153,7 @@ void DebuggerRunControl::start()
                                        "Affected are breakpoints %1")
                     .arg(unhandledIds.join(QLatin1String(", ")));
 
-            debuggerCore()->showMessage(warningMessage, LogWarning);
+            Internal::showMessage(warningMessage, LogWarning);
 
             static bool checked = true;
             if (checked)
@@ -165,7 +165,7 @@ void DebuggerRunControl::start()
         }
     }
 
-    debuggerCore()->runControlStarted(m_engine);
+    Internal::runControlStarted(m_engine);
 
     // We might get a synchronous startFailed() notification on Windows,
     // when launching the process fails. Emit a proper finished() sequence.
@@ -191,7 +191,7 @@ void DebuggerRunControl::handleFinished()
     appendMessage(tr("Debugging has finished") + QLatin1Char('\n'), NormalMessageFormat);
     if (m_engine)
         m_engine->handleFinished();
-    debuggerCore()->runControlFinished(m_engine);
+    Internal::runControlFinished(m_engine);
 }
 
 bool DebuggerRunControl::promptToStop(bool *optionalPrompt) const
@@ -422,7 +422,7 @@ DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun(const Debugg
         ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
         return 0;
     }
-    debuggerCore()->showMessage(sp.startMessage, 0);
+    Internal::showMessage(sp.startMessage, 0);
     ProjectExplorerPlugin::startRunControl(rc, DebugRunMode);
     return rc;
 }

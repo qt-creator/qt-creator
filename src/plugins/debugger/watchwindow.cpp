@@ -956,7 +956,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         copyToClipboard(mi1.data().toString());
     } else if (act == &actShowInEditor) {
         QString contents = handler->editorContents();
-        debuggerCore()->openTextEditor(tr("Locals & Expressions"), contents);
+        Internal::openTextEditor(tr("Locals & Expressions"), contents);
     } else if (act == &actCloseEditorToolTips) {
         DebuggerToolTipManager::closeAllToolTips();
     }

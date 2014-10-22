@@ -439,7 +439,7 @@ void PdbEngine::handleListSymbols(const PdbResponse &response)
         symbol.name = _(item["name"].data());
         symbols.append(symbol);
     }
-    debuggerCore()->showModuleSymbols(moduleName, symbols);
+    Internal::showModuleSymbols(moduleName, symbols);
 }
 
 //////////////////////////////////////////////////////////////////////

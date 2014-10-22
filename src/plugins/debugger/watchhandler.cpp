@@ -150,7 +150,7 @@ class SeparatedView : public QTabWidget
     Q_OBJECT
 
 public:
-    SeparatedView() : QTabWidget(debuggerCore()->mainWindow())
+    SeparatedView() : QTabWidget(Internal::mainWindow())
     {
         setTabsClosable(true);
         connect(this, SIGNAL(tabCloseRequested(int)), SLOT(closeTab(int)));
@@ -1902,7 +1902,7 @@ void WatchHandler::updateWatchersWindow()
         return;
     previousShowWatch = showWatch;
     previousShowReturn = showReturn;
-    debuggerCore()->updateWatchersWindow(showWatch, showReturn);
+    Internal::updateWatchersWindow(showWatch, showReturn);
 }
 
 QStringList WatchHandler::watchedExpressions()

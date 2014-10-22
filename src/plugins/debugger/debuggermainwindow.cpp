@@ -102,7 +102,7 @@ public slots:
     void updateUiForCurrentRunConfiguration();
     void updateActiveLanguages();
     void updateDockWidgetSettings();
-    void openMemoryEditor() { debuggerCore()->openMemoryEditor(); }
+    void openMemoryEditor() { Internal::openMemoryEditor(); }
 
 public:
     DebuggerMainWindow *q;
@@ -231,10 +231,8 @@ void DebuggerMainWindowPrivate::updateActiveLanguages()
             newLanguages |= QmlLanguage;
     }
 
-    if (newLanguages != m_activeDebugLanguages) {
+    if (newLanguages != m_activeDebugLanguages)
         m_activeDebugLanguages = newLanguages;
-        debuggerCore()->languagesChanged();
-    }
 
     if (m_changingUI || !m_inDebugMode)
         return;

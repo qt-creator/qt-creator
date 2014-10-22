@@ -387,7 +387,7 @@ void CdbEngine::init()
 
     // Create local list of mappings in native separators
     m_sourcePathMappings.clear();
-    const QSharedPointer<GlobalDebuggerOptions> globalOptions = debuggerCore()->globalDebuggerOptions();
+    const QSharedPointer<GlobalDebuggerOptions> globalOptions = Internal::globalDebuggerOptions();
     SourcePathMap sourcePathMap = globalOptions->sourcePathMap;
     if (!sourcePathMap.isEmpty()) {
         m_sourcePathMappings.reserve(sourcePathMap.size());
@@ -583,7 +583,7 @@ void CdbEngine::createFullBacktrace()
 
 void CdbEngine::handleCreateFullBackTrace(const CdbEngine::CdbBuiltinCommandPtr &cmd)
 {
-    debuggerCore()->openTextEditor(QLatin1String("Backtrace $"), QLatin1String(cmd->joinedReply()));
+    Internal::openTextEditor(QLatin1String("Backtrace $"), QLatin1String(cmd->joinedReply()));
 }
 
 void CdbEngine::setupEngine()
@@ -1529,7 +1529,7 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
     // variables in case of errors in uninitializedVariables().
     if (boolSetting(UseCodeModel)) {
         QStringList uninitializedVariables;
-        getUninitializedVariables(debuggerCore()->cppCodeModelSnapshot(),
+        getUninitializedVariables(Internal::cppCodeModelSnapshot(),
                                   frame.function, frame.file, frame.line, &uninitializedVariables);
         if (!uninitializedVariables.isEmpty()) {
             str << blankSeparator << "-u \"";
@@ -2296,9 +2296,9 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         // Fire off remaining commands asynchronously
         if (!m_pendingBreakpointMap.isEmpty() && !m_pendingSubBreakpointMap.isEmpty())
             postCommandSequence(CommandListBreakPoints);
-        if (debuggerCore()->isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
+        if (Internal::isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
             postCommandSequence(CommandListRegisters);
-        if (debuggerCore()->isDockVisible(QLatin1String(DOCKWIDGET_MODULES)))
+        if (Internal::isDockVisible(QLatin1String(DOCKWIDGET_MODULES)))
             postCommandSequence(CommandListModules);
     }
     // After the sequence has been sent off and CDB is pondering the commands,
@@ -2920,7 +2920,7 @@ void CdbEngine::attemptBreakpointSynchronization()
                     && parameters.type == BreakpointByFileAndLine
                     && boolSetting(CdbBreakPointCorrection)) {
                 if (lineCorrection.isNull())
-                    lineCorrection.reset(new BreakpointCorrectionContext(debuggerCore()->cppCodeModelSnapshot(),
+                    lineCorrection.reset(new BreakpointCorrectionContext(Internal::cppCodeModelSnapshot(),
                                                                          CppTools::CppModelManager::instance()->workingCopy()));
                 response.lineNumber = lineCorrection->fixLineNumber(parameters.fileName, parameters.lineNumber);
                 postBuiltinCommand(

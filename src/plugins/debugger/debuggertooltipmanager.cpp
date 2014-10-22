@@ -1115,7 +1115,7 @@ void DebuggerToolTipManager::showToolTip
     tw->acquireEngine();
 
     const Utils::WidgetContent widgetContent(tw, true);
-    Utils::ToolTip::show(context.mousePosition, widgetContent, debuggerCore()->mainWindow());
+    Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
 }
 
 bool DebuggerToolTipManager::eventFilter(QObject *o, QEvent *e)
@@ -1320,7 +1320,7 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested
 
     if (context.expression.isEmpty()) {
         const Utils::WidgetContent widgetContent(new QLabel(tr("No valid expression")), true);
-        Utils::ToolTip::show(context.mousePosition, widgetContent, debuggerCore()->mainWindow());
+        Utils::ToolTip::show(context.mousePosition, widgetContent, Internal::mainWindow());
         *handled = true;
         return;
     }
