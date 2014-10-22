@@ -35,7 +35,6 @@
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/kitinformationmacroexpander.h>
 
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>

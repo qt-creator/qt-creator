@@ -35,8 +35,6 @@
 #include "qtversionmanager.h"
 #include "qtparser.h"
 
-#include <projectexplorer/kitinformationmacroexpander.h>
-
 #include <utils/buildablehelperlibrary.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
