@@ -31,7 +31,6 @@
 #include "pythoneditorplugin.h"
 #include "pythoneditor.h"
 #include "pythoneditorconstants.h"
-#include "wizard/pythonclasswizard.h"
 #include "tools/pythonhighlighter.h"
 
 #include <coreplugin/icore.h>
@@ -221,9 +220,6 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     const QIcon icon = QIcon::fromTheme(QLatin1String(C_PY_MIME_ICON));
     if (!icon.isNull())
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, C_PY_MIMETYPE);
-
-    // Add Python files and classes creation dialogs
-    addAutoReleasedObject(new ClassWizard);
 
     return true;
 }

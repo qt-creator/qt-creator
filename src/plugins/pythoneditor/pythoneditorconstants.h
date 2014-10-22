@@ -41,25 +41,6 @@ const char C_EDITOR_DISPLAY_NAME[] =
         QT_TRANSLATE_NOOP("OpenWith::Editors", "Python Editor");
 
 /*******************************************************************************
- * File creation wizard
- ******************************************************************************/
-const char C_PY_WIZARD_CATEGORY[] = "U.Python";
-const char C_PY_EXTENSION[] = ".py";
-const char C_PY_DISPLAY_CATEGORY[] = "Python";
-
-    // class
-const char C_PY_CLASS_WIZARD_ID[] = "P.PyClass";
-const char EN_PY_CLASS_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("PythonEditor::ClassWizard", "Python class");
-const char EN_PY_CLASS_DESCRIPTION[] =
-        QT_TRANSLATE_NOOP("PythonEditor::ClassWizard", "Creates new Python class");
-
-    // For future: boost binding
-const char C_PY_CPPMODULE_WIZARD_ID[] = "F.PyCppModule";
-const char EN_PY_CPPMODULE_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("PythonEditor::ClassWizard", "C++ module for Python");
-const char EN_PY_CPPMODULE_DESCRIPTION[] =
-        QT_TRANSLATE_NOOP("PythonEditor::ClassWizard", "Creates C++/Boost file with bindings for Python");
-
-/*******************************************************************************
  * MIME type
  ******************************************************************************/
 const char C_PY_MIMETYPE[] = "text/x-python";
