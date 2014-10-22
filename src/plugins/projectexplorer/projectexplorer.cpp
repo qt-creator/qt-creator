@@ -1144,7 +1144,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
         tr("The current project's name."),
-        []() -> QString {
+        [this]() -> QString {
             Project *project = ProjectExplorerPlugin::currentProject();
             return project ? project->displayName() : QString();
         });
