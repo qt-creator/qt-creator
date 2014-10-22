@@ -110,6 +110,8 @@ const char CMD_ID_COMMIT_CURRENT[]     = "CVS.CommitCurrent";
 const char CMD_ID_FILELOG_CURRENT[]    = "CVS.FilelogCurrent";
 const char CMD_ID_ANNOTATE_CURRENT[]   = "CVS.AnnotateCurrent";
 const char CMD_ID_STATUS[]             = "CVS.Status";
+const char CMD_ID_UPDATE_DIRECTORY[]   = "CVS.UpdateDirectory";
+const char CMD_ID_COMMIT_DIRECTORY[]   = "CVS.CommitDirectory";
 const char CMD_ID_UPDATE[]             = "CVS.Update";
 const char CMD_ID_PROJECTLOG[]         = "CVS.ProjectLog";
 const char CMD_ID_PROJECTCOMMIT[]      = "CVS.ProjectCommit";
@@ -184,6 +186,8 @@ CvsPlugin::CvsPlugin() :
     m_statusProjectAction(0),
     m_updateProjectAction(0),
     m_commitProjectAction(0),
+    m_updateDirectoryAction(0),
+    m_commitDirectoryAction(0),
     m_diffRepositoryAction(0),
     m_updateRepositoryAction(0),
     m_statusRepositoryAction(0),
@@ -401,6 +405,23 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     cvsMenu->addSeparator(globalcontext);
 
+    m_updateDirectoryAction = new ParameterAction(tr("Update Directory"), tr("Update Directory \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = Core::ActionManager::registerAction(m_updateDirectoryAction, CMD_ID_UPDATE_DIRECTORY, globalcontext);
+    command->setAttribute(Command::CA_UpdateText);
+    connect(m_updateDirectoryAction, SIGNAL(triggered()), this, SLOT(updateDirectory()));
+    cvsMenu->addAction(command);
+    m_commandLocator->appendCommand(command);
+
+    m_commitDirectoryAction = new ParameterAction(tr("Commit Directory"), tr("Commit Directory \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = Core::ActionManager::registerAction(m_commitDirectoryAction,
+        CMD_ID_COMMIT_DIRECTORY, globalcontext);
+    command->setAttribute(Command::CA_UpdateText);
+    connect(m_commitDirectoryAction, SIGNAL(triggered()), this, SLOT(startCommitDirectory()));
+    cvsMenu->addAction(command);
+    m_commandLocator->appendCommand(command);
+
+    cvsMenu->addSeparator(globalcontext);
+
     m_diffRepositoryAction = new QAction(tr("Diff Repository"), this);
     command = ActionManager::registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, globalcontext);
     connect(m_diffRepositoryAction, SIGNAL(triggered()), this, SLOT(diffRepository()));
@@ -558,6 +579,13 @@ void CvsPlugin::updateActions(VcsBasePlugin::ActionState as)
     m_logProjectAction->setParameter(currentProjectName);
     m_commitProjectAction->setParameter(currentProjectName);
 
+    // TODO: Find a more elegant way to shorten the path
+    QString currentDirectoryName = QDir::toNativeSeparators(currentState().currentFileDirectory());
+    if (currentDirectoryName.size() > 15)
+        currentDirectoryName.replace(0, currentDirectoryName.size() - 15, QLatin1String("..."));
+    m_updateDirectoryAction->setParameter(currentDirectoryName);
+    m_commitDirectoryAction->setParameter(currentDirectoryName);
+
     m_diffRepositoryAction->setEnabled(hasTopLevel);
     m_statusRepositoryAction->setEnabled(hasTopLevel);
     m_updateRepositoryAction->setEnabled(hasTopLevel);
@@ -647,7 +675,17 @@ void CvsPlugin::startCommitCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    startCommit(state.currentFileTopLevel(), state.relativeCurrentFile());
+    /* The following has the same effect as
+       startCommit(state.currentFileTopLevel(), state.relativeCurrentFile()),
+       but is faster when the project has multiple directory levels */
+    startCommit(state.currentFileDirectory(), state.currentFileName());
+}
+
+void CvsPlugin::startCommitDirectory()
+{
+    const VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return);
+    startCommit(state.currentFileDirectory());
 }
 
 void CvsPlugin::startCommitAll()
@@ -777,6 +815,13 @@ void CvsPlugin::filelog(const QString &workingDir,
         if (enableAnnotationContextMenu)
             VcsBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
     }
+}
+
+void CvsPlugin::updateDirectory()
+{
+    const VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return);
+    update(state.currentFileDirectory(), QString());
 }
 
 void CvsPlugin::updateProject()

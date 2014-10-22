@@ -106,11 +106,13 @@ private slots:
     void diffCurrentFile();
     void revertAll();
     void startCommitAll();
+    void startCommitDirectory();
     void startCommitCurrentFile();
     void filelogCurrentFile();
     void annotateCurrentFile();
     void projectStatus();
     void slotDescribe(const QString &source, const QString &changeNr);
+    void updateDirectory();
     void updateProject();
     void submitCurrentLog();
     void diffCommitFiles(const QStringList &);
@@ -190,6 +192,8 @@ private:
     Utils::ParameterAction *m_statusProjectAction;
     Utils::ParameterAction *m_updateProjectAction;
     Utils::ParameterAction *m_commitProjectAction;
+    Utils::ParameterAction *m_updateDirectoryAction;
+    Utils::ParameterAction *m_commitDirectoryAction;
     QAction *m_diffRepositoryAction;
     QAction *m_updateRepositoryAction;
     QAction *m_statusRepositoryAction;
