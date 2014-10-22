@@ -105,6 +105,9 @@ public:
 
     QWidget *currentWidget();
 
+    int buttonMargin() const;
+    void updateButtonGeometry();
+
 public:
     VariableChooser *q;
     TreeModel m_model;
@@ -380,10 +383,27 @@ void VariableChooserPrivate::updateDescription(const QModelIndex &index)
 /*!
  * \internal
  */
+int VariableChooserPrivate::buttonMargin() const
+{
+    int margin = m_iconButton->pixmap().width() + 8;
+    if (q->style()->inherits("OxygenStyle"))
+        margin = qMax(24, margin);
+
+    return margin;
+}
+
+void VariableChooserPrivate::updateButtonGeometry()
+{
+    QWidget *current = currentWidget();
+    int margin = buttonMargin();
+    m_iconButton->setGeometry(current->rect().adjusted(
+                                  current->width() - (margin + 4), 0,
+                                  0, -qMax(0, current->height() - (margin + 4))));
+}
+
 void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
 {
-    if (old)
-        old->removeEventFilter(this);
+    Q_UNUSED(old);
     if (!widget) // we might loose focus, but then keep the previous state
         return;
     // prevent children of the chooser itself, and limit to children of chooser's parent
@@ -401,7 +421,6 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
     if (!handle)
         return;
 
-    widget->installEventFilter(this); // for intercepting escape key presses
     QLineEdit *previousLineEdit = m_lineEdit;
     QWidget *previousWidget = currentWidget();
     m_lineEdit = 0;
@@ -416,11 +435,11 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
         m_textEdit = (supportsVariables ? textEdit : 0);
     else if (QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
         m_plainTextEdit = (supportsVariables ? plainTextEdit : 0);
-    if (!(m_lineEdit || m_textEdit || m_plainTextEdit))
-        q->hide();
 
     QWidget *current = currentWidget();
     if (current != previousWidget) {
+        if (previousWidget)
+            previousWidget->removeEventFilter(q);
         if (previousLineEdit)
             previousLineEdit->setTextMargins(0, 0, 0, 0);
         if (m_iconButton) {
@@ -428,18 +447,17 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
             m_iconButton->setParent(0);
         }
         if (current) {
+            current->installEventFilter(q); // escape key handling and geometry changes
             if (!m_iconButton)
                 createIconButton();
-            int margin = m_iconButton->pixmap().width() + 8;
-            if (q->style()->inherits("OxygenStyle"))
-                margin = qMax(24, margin);
+            int margin = buttonMargin();
             if (m_lineEdit)
                 m_lineEdit->setTextMargins(0, 0, margin, 0);
             m_iconButton->setParent(current);
-            m_iconButton->setGeometry(current->rect().adjusted(
-                                          current->width() - (margin + 4), 0,
-                                          0, -qMax(0, current->height() - (margin + 4))));
+            updateButtonGeometry();
             m_iconButton->show();
+        } else {
+            q->hide();
         }
     }
 }
@@ -523,11 +541,15 @@ void VariableChooser::keyPressEvent(QKeyEvent *ev)
 /*!
  * \internal
  */
-bool VariableChooser::eventFilter(QObject *, QEvent *event)
+bool VariableChooser::eventFilter(QObject *obj, QEvent *event)
 {
+    if (obj != d->currentWidget())
+        return false;
     if (event->type() == QEvent::KeyPress && isVisible()) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         return handleEscapePressed(ke, this);
+    } else if (event->type() == QEvent::Resize) {
+        d->updateButtonGeometry();
     }
     return false;
 }
