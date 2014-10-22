@@ -54,7 +54,8 @@ using namespace TextEditor;
 namespace VcsBase {
 
 VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
-                                   const EditorWidgetCreator &editorWidgetCreator,
+                                   // Force copy, see QTCREATORBUG-13218
+                                   const EditorWidgetCreator editorWidgetCreator,
                                    QObject *describeReceiver, const char *describeSlot)
 {
     setProperty("VcsEditorFactoryName", QByteArray(parameters->id));
@@ -66,14 +67,14 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
     setEditorActionHandlers(TextEditorActionHandler::None);
     setDuplicatedSupported(false);
 
-    setDocumentCreator([=]() -> TextDocument* {
+    setDocumentCreator([this, parameters]() -> TextDocument* {
         auto document = new TextDocument(parameters->id);
  //  if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
         document->setMimeType(QLatin1String(parameters->mimeType));
         return document;
     });
 
-    setEditorWidgetCreator([=]() -> TextEditorWidget* {
+    setEditorWidgetCreator([this, parameters, editorWidgetCreator, describeReceiver, describeSlot]() -> TextEditorWidget* {
         auto widget = qobject_cast<VcsBaseEditorWidget *>(editorWidgetCreator());
         widget->setDescribeSlot(describeReceiver, describeSlot);
         widget->setParameters(parameters);
