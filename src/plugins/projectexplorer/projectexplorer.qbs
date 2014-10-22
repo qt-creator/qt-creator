@@ -174,7 +174,6 @@ QtcPlugin {
             "jsonfilepage.cpp", "jsonfilepage.h",
             "jsonsummarypage.cpp", "jsonsummarypage.h",
             "jsonwizard.cpp", "jsonwizard.h",
-            "jsonwizardexpander.cpp", "jsonwizardexpander.h",
             "jsonwizardfactory.cpp", "jsonwizardfactory.h",
             "jsonwizardfilegenerator.cpp", "jsonwizardfilegenerator.h",
             "jsonwizardgeneratorfactory.cpp", "jsonwizardgeneratorfactory.h",

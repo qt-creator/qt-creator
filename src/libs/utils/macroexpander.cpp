@@ -66,6 +66,13 @@ public:
         if (found)
             return true;
 
+        found = Utils::anyOf(m_extraResolvers, [name, ret] (const MacroExpander::ResolverFunction &resolver) {
+            return resolver(name, ret);
+        });
+
+        if (found)
+            return true;
+
         return this == globalMacroExpander()->d ? false : globalMacroExpander()->d->resolveMacro(name, ret);
     }
 
@@ -94,6 +101,7 @@ public:
 
     QHash<QByteArray, MacroExpander::StringFunction> m_map;
     QHash<QByteArray, MacroExpander::PrefixFunction> m_prefixMap;
+    QVector<MacroExpander::ResolverFunction> m_extraResolvers;
     QMap<QByteArray, QString> m_descriptions;
     QString m_displayName;
     QVector<MacroExpanderProvider> m_subProviders;
@@ -341,6 +349,11 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
     registerVariable(prefix + kFileBaseNamePostfix,
          QCoreApplication::translate("Utils::MacroExpander", "%1: File base name without path and suffix.").arg(heading),
          [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).baseName(); });
+}
+
+void MacroExpander::registerExtraResolver(const MacroExpander::ResolverFunction &value)
+{
+    d->m_extraResolvers.append(value);
 }
 
 /*!

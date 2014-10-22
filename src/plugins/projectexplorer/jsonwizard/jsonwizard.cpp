@@ -30,7 +30,6 @@
 
 #include "jsonwizard.h"
 
-#include "jsonwizardexpander.h"
 #include "jsonwizardgeneratorfactory.h"
 
 #include <utils/algorithm.h>
@@ -43,14 +42,19 @@
 namespace ProjectExplorer {
 
 JsonWizard::JsonWizard(QWidget *parent) :
-    Utils::Wizard(parent),
-    m_expander(new Internal::JsonWizardExpander(this))
-{ }
+    Utils::Wizard(parent)
+{
+    m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {
+        QVariant v = value(name);
+        if (v.isValid())
+            *ret = v.toString();
+        return v.isValid();
+    });
+}
 
 JsonWizard::~JsonWizard()
 {
     qDeleteAll(m_generators);
-    delete m_expander;
 }
 
 void JsonWizard::addGenerator(JsonWizardGenerator *gen)
@@ -61,9 +65,9 @@ void JsonWizard::addGenerator(JsonWizardGenerator *gen)
     m_generators.append(gen);
 }
 
-Utils::MacroExpander *JsonWizard::expander() const
+Utils::MacroExpander *JsonWizard::expander()
 {
-    return m_expander;
+    return &m_expander;
 }
 
 void JsonWizard::resetFileList()
@@ -85,7 +89,7 @@ JsonWizard::GeneratorFiles JsonWizard::fileList()
     if (m_files.isEmpty()) {
         emit preGenerateFiles();
         foreach (JsonWizardGenerator *gen, m_generators) {
-            Core::GeneratedFiles tmp = gen->fileList(m_expander, value(QStringLiteral("WizardDir")).toString(),
+            Core::GeneratedFiles tmp = gen->fileList(&m_expander, value(QStringLiteral("WizardDir")).toString(),
                                                      targetPath, &errorMessage);
             if (!errorMessage.isEmpty())
                 break;
@@ -114,7 +118,7 @@ QVariant JsonWizard::value(const QString &n) const
     QVariant v = property(n.toUtf8());
     if (v.isValid()) {
         if (v.type() == QVariant::String)
-            return m_expander->expand(v.toString());
+            return m_expander.expand(v.toString());
         else
             return v;
     }

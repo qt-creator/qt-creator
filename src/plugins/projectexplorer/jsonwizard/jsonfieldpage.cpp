@@ -31,7 +31,6 @@
 #include "jsonfieldpage.h"
 
 #include "jsonwizard.h"
-#include "jsonwizardexpander.h"
 #include "jsonwizardfactory.h"
 
 #include <utils/algorithm.h>

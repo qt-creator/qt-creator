@@ -57,7 +57,7 @@ public:
 
     virtual bool resolveMacro(const QString &name, QString *ret) const;
 
-    QString value(const QByteArray &variable, bool *found = 0) const;
+    virtual QString value(const QByteArray &variable, bool *found = 0) const;
 
     QString expand(const QString &stringWithVariables) const;
     QByteArray expand(const QByteArray &stringWithVariables) const;
@@ -65,6 +65,7 @@ public:
     QString expandProcessArgs(const QString &argsWithVariables) const;
 
     typedef std::function<QString(QString)> PrefixFunction;
+    typedef std::function<bool(QString, QString *)> ResolverFunction;
     typedef std::function<QString()> StringFunction;
     typedef std::function<int()> IntFunction;
 
@@ -79,6 +80,8 @@ public:
 
     void registerFileVariables(const QByteArray &prefix,
         const QString &heading, const StringFunction &value);
+
+    void registerExtraResolver(const ResolverFunction &value);
 
     QList<QByteArray> variables() const;
     QString variableDescription(const QByteArray &variable) const;

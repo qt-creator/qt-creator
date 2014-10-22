@@ -36,12 +36,9 @@
 #include <coreplugin/generatedfile.h>
 
 #include <utils/wizard.h>
-
-namespace Utils { class MacroExpander; }
+#include <utils/macroexpander.h>
 
 namespace ProjectExplorer {
-
-namespace Internal { class JsonWizardExpander; }
 
 class JsonWizardGenerator;
 
@@ -71,7 +68,7 @@ public:
 
     void addGenerator(JsonWizardGenerator *gen);
 
-    Utils::MacroExpander *expander() const;
+    Utils::MacroExpander *expander();
 
     void resetFileList();
     GeneratorFiles fileList();
@@ -100,7 +97,7 @@ private:
     QList<JsonWizardGenerator *> m_generators;
 
     GeneratorFiles m_files;
-    Internal::JsonWizardExpander *m_expander;
+    Utils::MacroExpander m_expander;
 };
 
 } // namespace ProjectExplorer
