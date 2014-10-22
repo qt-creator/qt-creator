@@ -389,6 +389,7 @@ private slots:
     void empty_trailing_lines();
     void empty_trailing_lines_data();
     void undef();
+    void concat();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -1866,6 +1867,32 @@ void tst_Preprocessor::undef()
     QVERIFY(macros.contains("FOO2"));
     QCOMPARE(client.macroUsesLine()["FOO"], (QList<unsigned>() << 3U));
     QVERIFY(client.macroUsesLine()["BAR"].isEmpty());
+}
+
+void tst_Preprocessor::concat()
+{
+    Environment env;
+    Preprocessor preprocess(0, &env);
+    QByteArray input =
+            "#define concat(x,y) x ## y\n"
+            "#define xconcat(x, y) concat(x, y)\n"
+            "#define FOO 42\n"
+            "int var = xconcat(0x, FOO);\n";
+    QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
+    const QByteArray output = _(
+        "# 1 \"<stdin>\"\n"
+        "\n"
+        "\n"
+        "\n"
+        "int var =\n"
+        "# expansion begin 87,7 ~1\n"
+        "0x42\n"
+        "# expansion end\n"
+        "# 4 \"<stdin>\"\n"
+        "                          ;\n"
+    );
+    QEXPECT_FAIL(0, "QTCREATORBUG-13219", Abort);
+    QCOMPARE(prep.constData(), output.constData());
 }
 
 void tst_Preprocessor::compare_input_output(bool keepComments)
