@@ -45,7 +45,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/documentmanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/buildmanager.h>
@@ -55,7 +54,6 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectmacroexpander.h>
 #include <proparser/qmakevfs.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtkitinformation.h>
@@ -1440,23 +1438,6 @@ QString QmakeProject::disabledReasonForRunConfiguration(const QString &proFilePa
 
     return tr("The .pro file \"%1\" could not be parsed.")
             .arg(QFileInfo(proFilePath).fileName());
-}
-
-QString QmakeProject::shadowBuildDirectory(const QString &proFilePath, const Kit *k, const QString &suffix)
-{
-    if (proFilePath.isEmpty())
-        return QString();
-    QFileInfo info(proFilePath);
-
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-    if (version && !version->supportsShadowBuilds())
-        return info.absolutePath();
-
-    const QString projectName = QFileInfo(proFilePath).completeBaseName();
-    ProjectExplorer::ProjectMacroExpander expander(proFilePath, projectName, k, suffix);
-    QString projectDir = projectDirectory(Utils::FileName::fromString(proFilePath)).toString();
-    QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
-    return Utils::FileUtils::resolvePath(projectDir, buildPath);
 }
 
 QString QmakeProject::buildNameFor(const Kit *k)

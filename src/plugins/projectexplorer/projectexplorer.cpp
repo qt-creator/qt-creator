@@ -41,7 +41,6 @@
 #include "jsonwizard/jsonwizardpagefactory_p.h"
 #include "project.h"
 #include "projectexplorersettings.h"
-#include "projectmacroexpander.h"
 #include "removetaskhandler.h"
 #include "unconfiguredprojectpanel.h"
 #include "kitfeatureprovider.h"

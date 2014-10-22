@@ -132,9 +132,6 @@ public:
     /// \internal
     QString disabledReasonForRunConfiguration(const QString &proFilePath);
 
-    /// suffix should be unique
-    static QString shadowBuildDirectory(const QString &profilePath, const ProjectExplorer::Kit *k,
-                                 const QString &suffix);
     /// used by the default implementation of shadowBuildDirectory
     static QString buildNameFor(const ProjectExplorer::Kit *k);
 

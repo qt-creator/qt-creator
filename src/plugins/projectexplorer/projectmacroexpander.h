@@ -41,7 +41,7 @@ class Kit;
 class PROJECTEXPLORER_EXPORT ProjectMacroExpander : public Utils::MacroExpander
 {
 public:
-    ProjectMacroExpander(const QString &projectFilePath, const QString &projectName, const Kit *k, const QString &bcName);
+    ProjectMacroExpander(const QString &projectName, const Kit *k, const QString &bcName);
     bool resolveMacro(const QString &name, QString *ret) const;
 
 private:

@@ -38,9 +38,9 @@
 
 using namespace ProjectExplorer;
 
-ProjectMacroExpander::ProjectMacroExpander(const QString &projectFilePath, const QString &projectName,
-                                 const Kit *k, const QString &bcName)
-    : m_projectFile(projectFilePath), m_projectName(projectName), m_kit(k), m_bcName(bcName)
+ProjectMacroExpander::ProjectMacroExpander(const QString &projectName,
+                                           const Kit *k, const QString &bcName)
+    : m_projectName(projectName), m_kit(k), m_bcName(bcName)
 { }
 
 bool ProjectMacroExpander::resolveMacro(const QString &name, QString *ret) const

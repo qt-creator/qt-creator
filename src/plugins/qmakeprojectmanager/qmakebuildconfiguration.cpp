@@ -39,23 +39,33 @@
 #include "qmakestep.h"
 #include "makestep.h"
 
-#include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
-#include <limits>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
-#include <QDebug>
+#include <utils/qtcprocess.h>
+#include <utils/qtcassert.h>
 #include <android/androidmanager.h>
 
+#include <QDebug>
 #include <QInputDialog>
+
+#include <limits>
+
+using namespace ProjectExplorer;
+using namespace QtSupport;
+using namespace Utils;
+using namespace QmakeProjectManager::Internal;
 
 namespace QmakeProjectManager {
 
@@ -63,20 +73,32 @@ namespace QmakeProjectManager {
 // Helpers:
 // --------------------------------------------------------------------
 
+QString QmakeBuildConfiguration::shadowBuildDirectory(const QString &proFilePath, const Kit *k, const QString &suffix)
+{
+    if (proFilePath.isEmpty())
+        return QString();
+    QFileInfo info(proFilePath);
+
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
+    if (version && !version->supportsShadowBuilds())
+        return info.absolutePath();
+
+    const QString projectName = QFileInfo(proFilePath).completeBaseName();
+    ProjectMacroExpander expander(projectName, k, suffix);
+    QString projectDir = Project::projectDirectory(FileName::fromString(proFilePath)).toString();
+    QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
+    return FileUtils::resolvePath(projectDir, buildPath);
+}
+
 static Utils::FileName defaultBuildDirectory(bool supportsShadowBuild,
                                              const QString &projectPath,
                                              const ProjectExplorer::Kit *k,
                                              const QString &suffix)
 {
     if (supportsShadowBuild)
-        return Utils::FileName::fromString(QmakeProject::shadowBuildDirectory(projectPath, k, suffix));
+        return Utils::FileName::fromString(QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k, suffix));
     return ProjectExplorer::Project::projectDirectory(Utils::FileName::fromString(projectPath));
 }
-
-using namespace Internal;
-using namespace ProjectExplorer;
-using namespace QtSupport;
-using namespace Utils;
 
 const char QMAKE_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
 const char USE_SHADOW_BUILD_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild";
@@ -201,8 +223,8 @@ NamedWidget *QmakeBuildConfiguration::createConfigWidget()
 QString QmakeBuildConfiguration::defaultShadowBuildDirectory() const
 {
     // todo displayName isn't ideal
-    return QmakeProject::shadowBuildDirectory(target()->project()->projectFilePath().toString(),
-                                              target()->kit(), displayName());
+    return shadowBuildDirectory(target()->project()->projectFilePath().toString(),
+                                target()->kit(), displayName());
 }
 
 bool QmakeBuildConfiguration::supportsShadowBuilds()

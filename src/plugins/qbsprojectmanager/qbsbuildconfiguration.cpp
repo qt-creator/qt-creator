@@ -37,6 +37,7 @@
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <utils/qtcassert.h>
@@ -44,6 +45,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -275,6 +277,16 @@ int QbsBuildConfigurationFactory::priority(const Kit *k, const QString &projectP
             .matchesType(QLatin1String(Constants::MIME_TYPE))) ? 0 : -1;
 }
 
+static Utils::FileName defaultBuildDirectory(const QString &projectFilePath, const Kit *k,
+                                             const QString &bcName)
+{
+    const QString projectName = QFileInfo(projectFilePath).completeBaseName();
+    ProjectMacroExpander expander(projectName, k, bcName);
+    QString projectDir = Project::projectDirectory(Utils::FileName::fromString(projectFilePath)).toString();
+    QString buildPath = expander.expand(Core::DocumentManager::buildDirectory());
+    return Utils::FileName::fromString(Utils::FileUtils::resolvePath(projectDir, buildPath));
+}
+
 QList<BuildInfo *> QbsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<BuildInfo *> result;
@@ -282,13 +294,13 @@ QList<BuildInfo *> QbsBuildConfigurationFactory::availableSetups(const Kit *k, c
     BuildInfo *info = createBuildInfo(k, BuildConfiguration::Debug);
     //: The name of the debug build configuration created by default for a qbs project.
     info->displayName = tr("Debug");
-    info->buildDirectory = QbsProject::defaultBuildDirectory(projectPath, k, info->displayName);
+    info->buildDirectory = defaultBuildDirectory(projectPath, k, info->displayName);
     result << info;
 
     info = createBuildInfo(k, BuildConfiguration::Release);
     //: The name of the release build configuration created by default for a qbs project.
     info->displayName = tr("Release");
-    info->buildDirectory = QbsProject::defaultBuildDirectory(projectPath, k, info->displayName);
+    info->buildDirectory = defaultBuildDirectory(projectPath, k, info->displayName);
     result << info;
 
     return result;
@@ -310,8 +322,8 @@ BuildConfiguration *QbsBuildConfigurationFactory::create(Target *parent, const B
 
     Utils::FileName buildDir = info->buildDirectory;
     if (buildDir.isEmpty())
-        buildDir = QbsProject::defaultBuildDirectory(parent->project()->projectDirectory().toString(),
-                                                     parent->kit(), info->displayName);
+        buildDir = defaultBuildDirectory(parent->project()->projectDirectory().toString(),
+                                         parent->kit(), info->displayName);
 
     BuildConfiguration *bc
             = QbsBuildConfiguration::setup(parent, info->displayName, info->displayName,

@@ -36,9 +36,9 @@
 #include "target.h"
 #include "project.h"
 #include "kit.h"
-#include "projectmacroexpander.h"
 
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/projectmacroexpander.h>
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/idocument.h>
 
@@ -55,38 +55,6 @@ static const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfigu
 static const char BUILDDIRECTORY_KEY[] = "ProjectExplorer.BuildConfiguration.BuildDirectory";
 
 namespace ProjectExplorer {
-namespace Internal {
-
-class BuildConfigMacroExpander : public ProjectMacroExpander
-{
-public:
-    explicit BuildConfigMacroExpander(const BuildConfiguration *bc)
-        : ProjectMacroExpander(bc->target()->project()->document()->filePath(),
-                               bc->target()->project()->displayName(),
-                               bc->target()->kit(),
-                               bc->displayName()),
-          m_bc(bc)
-    {}
-    virtual bool resolveMacro(const QString &name, QString *ret) const;
-private:
-    const BuildConfiguration *m_bc;
-};
-
-bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret) const
-{
-    // legacy variables
-    if (name == QLatin1String("sourceDir")) {
-        *ret = m_bc->target()->project()->projectDirectory().toUserOutput();
-        return true;
-    }
-    if (name == QLatin1String("buildDir")) {
-        *ret = m_bc->buildDirectory().toUserOutput();
-        return true;
-    }
-
-    return ProjectMacroExpander::resolveMacro(name, ret);
-}
-} // namespace Internal
 
 BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
     ProjectConfiguration(target, id),
@@ -157,8 +125,21 @@ QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
 
 Utils::MacroExpander *BuildConfiguration::macroExpander()
 {
-    if (!m_macroExpander)
-        m_macroExpander = new Internal::BuildConfigMacroExpander(this);
+    if (!m_macroExpander) {
+        m_macroExpander = new ProjectMacroExpander(target()->project()->displayName(),
+                                                   target()->kit(), displayName());
+
+        m_macroExpander->registerSubProvider(
+            [this]() { return target()->kit()->macroExpander(); });
+
+        // Legacy support.
+        m_macroExpander->registerVariable("sourceDir", tr("Source directory"),
+            [this]() { return target()->project()->projectDirectory().toUserOutput(); });
+
+        m_macroExpander->registerVariable("buildDir", tr("Build directory"),
+            [this]() { return buildDirectory().toUserOutput(); });
+    }
+
     return m_macroExpander;
 }
 

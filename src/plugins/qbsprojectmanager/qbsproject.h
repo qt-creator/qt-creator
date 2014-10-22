@@ -99,10 +99,6 @@ public:
 
     void registerQbsProjectParser(QbsProjectParser *p);
 
-    static Utils::FileName defaultBuildDirectory(const QString &projectFilePath,
-                                                 const ProjectExplorer::Kit *k,
-                                                 const QString &bcName);
-
     qbs::Project qbsProject() const;
     qbs::ProjectData qbsProjectData() const;
 
