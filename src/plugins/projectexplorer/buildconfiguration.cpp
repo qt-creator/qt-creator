@@ -58,8 +58,7 @@ namespace ProjectExplorer {
 
 BuildConfiguration::BuildConfiguration(Target *target, Core::Id id) :
     ProjectConfiguration(target, id),
-    m_clearSystemEnvironment(false),
-    m_macroExpander(0)
+    m_clearSystemEnvironment(false)
 {
     Q_ASSERT(target);
     BuildStepList *bsl = new BuildStepList(this, Core::Id(Constants::BUILDSTEPS_BUILD));
@@ -82,7 +81,6 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     ProjectConfiguration(target, source),
     m_clearSystemEnvironment(source->m_clearSystemEnvironment),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
-    m_macroExpander(0),
     m_buildDirectory(source->m_buildDirectory)
 {
     Q_ASSERT(target);
@@ -96,9 +94,31 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
             this, SLOT(handleKitUpdate()));
 }
 
+void BuildConfiguration::setupMacroExpander()
+{
+    Utils::MacroExpander *expander = macroExpander();
+
+    expander->registerSubProvider(
+            [this] { return target()->kit()->macroExpander(); });
+
+    // Legacy support.
+    expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
+            QCoreApplication::translate("ProjectExplorer", "Name of current project"),
+            [this] { return target()->project()->displayName(); });
+
+    expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME,
+            QCoreApplication::translate("ProjectExplorer", "Name of current build"),
+            [this] { return displayName(); });
+
+    expander->registerVariable("sourceDir", tr("Source directory"),
+            [this] { return target()->project()->projectDirectory().toUserOutput(); });
+
+    expander->registerVariable("buildDir", tr("Build directory"),
+            [this] { return buildDirectory().toUserOutput(); });
+}
+
 BuildConfiguration::~BuildConfiguration()
 {
-    delete m_macroExpander;
 }
 
 Utils::FileName BuildConfiguration::buildDirectory() const
@@ -121,26 +141,6 @@ void BuildConfiguration::setBuildDirectory(const Utils::FileName &dir)
 QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
 {
     return QList<NamedWidget *>() << new BuildEnvironmentWidget(this);
-}
-
-Utils::MacroExpander *BuildConfiguration::macroExpander()
-{
-    if (!m_macroExpander) {
-        m_macroExpander = new ProjectMacroExpander(target()->project()->displayName(),
-                                                   target()->kit(), displayName());
-
-        m_macroExpander->registerSubProvider(
-            [this]() { return target()->kit()->macroExpander(); });
-
-        // Legacy support.
-        m_macroExpander->registerVariable("sourceDir", tr("Source directory"),
-            [this]() { return target()->project()->projectDirectory().toUserOutput(); });
-
-        m_macroExpander->registerVariable("buildDir", tr("Build directory"),
-            [this]() { return buildDirectory().toUserOutput(); });
-    }
-
-    return m_macroExpander;
 }
 
 QList<Core::Id> BuildConfiguration::knownStepLists() const

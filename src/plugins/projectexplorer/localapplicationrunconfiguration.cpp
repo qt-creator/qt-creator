@@ -40,40 +40,21 @@
 #include <QDir>
 
 namespace ProjectExplorer {
-namespace Internal {
-
-class FallBackMacroExpander : public Utils::MacroExpander
-{
-public:
-    explicit FallBackMacroExpander(const Target *target) : m_target(target) {}
-    virtual bool resolveMacro(const QString &name, QString *ret) const;
-private:
-    const Target *m_target;
-};
-
-bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret) const
-{
-    if (name == QLatin1String("sourceDir")) {
-        *ret = m_target->project()->projectDirectory().toUserOutput();
-        return true;
-    }
-    return false;
-}
-} // namespace Internal
-
-/// LocalApplicationRunConfiguration
 
 LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, Core::Id id) :
-    RunConfiguration(target, id), m_macroExpander(0)
-{ }
+    RunConfiguration(target, id)
+{
+    setupMacroExpander();
+}
 
 LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc) :
-    RunConfiguration(target, rc), m_macroExpander(0)
-{ }
+    RunConfiguration(target, rc)
+{
+    setupMacroExpander();
+}
 
 LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
 {
-    delete m_macroExpander;
 }
 
 void LocalApplicationRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
@@ -81,13 +62,17 @@ void LocalApplicationRunConfiguration::addToBaseEnvironment(Utils::Environment &
     Q_UNUSED(env);
 }
 
-Utils::MacroExpander *LocalApplicationRunConfiguration::macroExpander() const
+void LocalApplicationRunConfiguration::setupMacroExpander()
 {
-    if (BuildConfiguration *bc = activeBuildConfiguration())
-        return bc->macroExpander();
-    if (!m_macroExpander)
-        m_macroExpander = new Internal::FallBackMacroExpander(target());
-    return m_macroExpander;
+    // Legacy
+    macroExpander()->registerSubProvider([this]() -> Utils::MacroExpander * {
+        if (BuildConfiguration *bc = activeBuildConfiguration())
+            return bc->macroExpander();
+        return 0;
+    });
+
+    macroExpander()->registerVariable("sourceDir", tr("Project source directory"),
+            [this] { return target()->project()->projectDirectory().toUserOutput(); });
 }
 
 } // namespace ProjectExplorer

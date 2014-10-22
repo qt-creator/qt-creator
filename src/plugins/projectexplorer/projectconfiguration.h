@@ -34,6 +34,7 @@
 #include "projectexplorer_export.h"
 
 #include <coreplugin/id.h>
+#include <utils/macroexpander.h>
 
 #include <QObject>
 #include <QString>
@@ -64,6 +65,9 @@ public:
     // Note: Make sure subclasses call the superclasses' toMap() function!
     virtual QVariantMap toMap() const;
 
+    Utils::MacroExpander *macroExpander() { return &m_macroExpander; }
+    const Utils::MacroExpander *macroExpander() const { return &m_macroExpander; }
+
 signals:
     void displayNameChanged();
 
@@ -75,6 +79,7 @@ private:
     Core::Id m_id;
     QString m_displayName;
     QString m_defaultDisplayName;
+    Utils::MacroExpander m_macroExpander;
 };
 
 // helper functions:
