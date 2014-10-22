@@ -72,7 +72,6 @@ class KitMacroExpander : public MacroExpander
 public:
     explicit KitMacroExpander(Kit *kit)
     {
-        setDisplayName(QCoreApplication::translate("ProjectExplorer::Kit", "Kit"));
         setAccumulating(true);
 
         foreach (KitInformation *ki, KitManager::kitInformation())
@@ -87,6 +86,8 @@ public:
 
 class KitPrivate
 {
+    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Kit)
+
 public:
     KitPrivate(Id id, Kit *k) :
         m_id(id),
@@ -104,6 +105,12 @@ public:
 
         m_unexpandedDisplayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
         m_iconPath = FileName::fromLatin1(":///DESKTOP///");
+
+        m_macroExpander.setDisplayName(tr("Kit"));
+        m_macroExpander.registerVariable("Kit:id", tr("Kit ID"),
+            [this]() { return m_id.toString(); });
+        m_macroExpander.registerVariable("Kit:fileSystemName", tr("Kit filesystem-friendly name"),
+            [this]() { return m_fileSystemFriendlyName; });
     }
 
     QString m_unexpandedDisplayName;
