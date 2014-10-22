@@ -63,22 +63,6 @@ const char STICKY_INFO_KEY[] = "PE.Profile.StickyInfo";
 namespace ProjectExplorer {
 namespace Internal {
 
-// --------------------------------------------------------------------
-// KitMacroExpander:
-// --------------------------------------------------------------------
-
-class KitMacroExpander : public MacroExpander
-{
-public:
-    explicit KitMacroExpander(Kit *kit)
-    {
-        setAccumulating(true);
-
-        foreach (KitInformation *ki, KitManager::kitInformation())
-            ki->addToMacroExpander(kit, this);
-    }
-};
-
 // -------------------------------------------------------------------------
 // KitPrivate
 // -------------------------------------------------------------------------
@@ -89,7 +73,7 @@ class KitPrivate
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Kit)
 
 public:
-    KitPrivate(Id id, Kit *k) :
+    KitPrivate(Id id, Kit *kit) :
         m_id(id),
         m_nestedBlockingLevel(0),
         m_autodetected(false),
@@ -97,8 +81,7 @@ public:
         m_isValid(true),
         m_hasWarning(false),
         m_hasValidityInfo(false),
-        m_mustNotify(false),
-        m_macroExpander(k)
+        m_mustNotify(false)
     {
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
@@ -107,10 +90,13 @@ public:
         m_iconPath = FileName::fromLatin1(":///DESKTOP///");
 
         m_macroExpander.setDisplayName(tr("Kit"));
+        m_macroExpander.setAccumulating(true);
         m_macroExpander.registerVariable("Kit:Id", tr("Kit ID"),
             [this]() { return m_id.toString(); });
         m_macroExpander.registerVariable("Kit:FileSystemName", tr("Kit filesystem-friendly name"),
             [this]() { return m_fileSystemFriendlyName; });
+        foreach (KitInformation *ki, KitManager::kitInformation())
+            ki->addToMacroExpander(kit, &m_macroExpander);
     }
 
     QString m_unexpandedDisplayName;
@@ -130,7 +116,7 @@ public:
     QHash<Core::Id, QVariant> m_data;
     QSet<Core::Id> m_sticky;
     QSet<Core::Id> m_mutable;
-    KitMacroExpander m_macroExpander;
+    MacroExpander m_macroExpander;
 };
 
 } // namespace Internal
