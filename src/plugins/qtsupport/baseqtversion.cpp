@@ -237,20 +237,20 @@ void BaseQtVersion::setupExpander()
     m_expander.setDisplayName(
         QCoreApplication::translate("QtSupport::QtKitInformation", "Qt version"));
 
-    m_expander.registerVariable("Qt:version",
+    m_expander.registerVariable("Qt:Version",
         QCoreApplication::translate("QtSupport::QtKitInformation", "The version string of the current Qt version."),
         [this]() { return qtVersionString(); });
 
-    m_expander.registerVariable("Qt:type",
+    m_expander.registerVariable("Qt:Type",
         QCoreApplication::translate("QtSupport::QtKitInformation", "The type of the current Qt version."),
         [this]() { return type(); });
 
-    m_expander.registerVariable("Qt:mkspec",
+    m_expander.registerVariable("Qt:Mkspec",
         QCoreApplication::translate("QtSupport::QtKitInformation", "The mkspec of the current Qt version."),
         [this]() { return mkspec().toUserOutput(); });
 
 //    FIXME: Re-enable once we can detect expansion loops.
-//    m_expander.registerVariable("Qt:name",
+//    m_expander.registerVariable("Qt:Name",
 //        QCoreApplication::translate("QtSupport::QtKitInformation", "The display name of the current Qt version."),
 //        [this]() { return displayName(); });
 }

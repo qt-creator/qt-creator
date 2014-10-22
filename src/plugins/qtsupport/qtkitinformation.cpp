@@ -140,7 +140,7 @@ void QtKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) con
                     return version ? version->macroExpander() : 0;
                 });
 
-    expander->registerVariable("Qt:name", tr("Name of Qt Version"),
+    expander->registerVariable("Qt:Name", tr("Name of Qt Version"),
                 [this, kit]() -> QString {
                    BaseQtVersion *version = qtVersion(kit);
                    return version ? version->displayName() : tr("unknown");

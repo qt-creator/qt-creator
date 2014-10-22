@@ -107,9 +107,9 @@ public:
         m_iconPath = FileName::fromLatin1(":///DESKTOP///");
 
         m_macroExpander.setDisplayName(tr("Kit"));
-        m_macroExpander.registerVariable("Kit:id", tr("Kit ID"),
+        m_macroExpander.registerVariable("Kit:Id", tr("Kit ID"),
             [this]() { return m_id.toString(); });
-        m_macroExpander.registerVariable("Kit:fileSystemName", tr("Kit filesystem-friendly name"),
+        m_macroExpander.registerVariable("Kit:FileSystemName", tr("Kit filesystem-friendly name"),
             [this]() { return m_fileSystemFriendlyName; });
     }
 
