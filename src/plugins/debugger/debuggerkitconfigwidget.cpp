@@ -81,19 +81,21 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInfo
         m_comboBox->addItem(item.displayName(), item.id());
 
     refresh();
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentDebuggerChanged(int)));
+    connect(m_comboBox, &QComboBox::currentIndexChanged,
+            this, &DebuggerKitConfigWidget::currentDebuggerChanged);
 
     m_manageButton = new QPushButton(KitConfigWidget::msgManage());
     m_manageButton->setContentsMargins(0, 0, 0, 0);
-    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageDebuggers()));
+    connect(m_manageButton, &QAbstractButton::clicked,
+            this, &DebuggerKitConfigWidget::manageDebuggers);
 
-    QObject *manager = DebuggerItemManager::instance();
-    connect(manager, SIGNAL(debuggerAdded(QVariant)),
-            this, SLOT(onDebuggerAdded(QVariant)));
-    connect(manager, SIGNAL(debuggerUpdated(QVariant)),
-            this, SLOT(onDebuggerUpdated(QVariant)));
-    connect(manager, SIGNAL(debuggerRemoved(QVariant)),
-            this, SLOT(onDebuggerRemoved(QVariant)));
+    DebuggerItemManager *manager = DebuggerItemManager::instance();
+    connect(manager, &DebuggerItemManager::debuggerAdded,
+            this, &DebuggerKitConfigWidget::onDebuggerAdded);
+    connect(manager, &DebuggerItemManager::debuggerUpdated,
+            this, &DebuggerKitConfigWidget::onDebuggerUpdated);
+    connect(manager, &DebuggerItemManager::debuggerRemoved,
+            this, &DebuggerKitConfigWidget::onDebuggerRemoved);
 }
 
 DebuggerKitConfigWidget::~DebuggerKitConfigWidget()
