@@ -35,6 +35,7 @@
 #include "helpviewer.h"
 
 #include <app/app_version.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <utils/qtcassert.h>
 
@@ -55,6 +56,8 @@ BookmarkManager* LocalHelpManager::m_bookmarkManager = 0;
 QStandardItemModel *LocalHelpManager::m_filterModel = 0;
 QString LocalHelpManager::m_currentFilter = QString();
 int LocalHelpManager::m_currentFilterIndex = -1;
+
+static char kHelpHomePageKey[] = "Help/HomePage";
 
 LocalHelpManager::LocalHelpManager(QObject *parent)
     : QObject(parent)
@@ -81,6 +84,25 @@ LocalHelpManager::~LocalHelpManager()
 LocalHelpManager *LocalHelpManager::instance()
 {
     return m_instance;
+}
+
+QString LocalHelpManager::defaultHomePage()
+{
+    static const QString url = QString::fromLatin1("qthelp://org.qt-project.qtcreator."
+        "%1%2%3/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
+        .arg(IDE_VERSION_RELEASE);
+    return url;
+}
+
+QString LocalHelpManager::homePage()
+{
+    return Core::ICore::settings()->value(QLatin1String(kHelpHomePageKey),
+                                          defaultHomePage()).toString();
+}
+
+void LocalHelpManager::setHomePage(const QString &page)
+{
+    Core::ICore::settings()->setValue(QLatin1String(kHelpHomePageKey), page);
 }
 
 void LocalHelpManager::setupGuiHelpEngine()
@@ -120,10 +142,6 @@ BookmarkManager& LocalHelpManager::bookmarkManager()
         if (!m_bookmarkManager) {
             m_bookmarkManager = new BookmarkManager;
             m_bookmarkManager->setupBookmarkModels();
-            const QString &url = QString::fromLatin1("qthelp://org.qt-project.qtcreator."
-                "%1%2%3/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
-                .arg(IDE_VERSION_RELEASE);
-            helpEngine().setCustomValue(QLatin1String("DefaultHomePage"), url);
         }
     }
     return *m_bookmarkManager;
