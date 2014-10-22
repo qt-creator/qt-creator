@@ -33,7 +33,6 @@
 
 #include "projectexplorer_export.h"
 #include <utils/macroexpander.h>
-#include <QFileInfo>
 
 namespace ProjectExplorer {
 class Kit;
@@ -41,14 +40,7 @@ class Kit;
 class PROJECTEXPLORER_EXPORT ProjectMacroExpander : public Utils::MacroExpander
 {
 public:
-    ProjectMacroExpander(const QString &projectName, const Kit *k, const QString &bcName);
-    bool resolveMacro(const QString &name, QString *ret) const;
-
-private:
-    QFileInfo m_projectFile;
-    QString m_projectName;
-    const Kit *m_kit;
-    QString m_bcName;
+    ProjectMacroExpander(const QString &projectName, const Kit *kit, const QString &bcName);
 };
 
 } // namespace ProjectExplorer

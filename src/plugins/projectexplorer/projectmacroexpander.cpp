@@ -30,66 +30,22 @@
 
 #include "projectmacroexpander.h"
 #include "kit.h"
-#include "kitinformation.h"
 #include "projectexplorerconstants.h"
 
-#include <utils/macroexpander.h>
-#include <ssh/sshconnection.h>
-
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
 ProjectMacroExpander::ProjectMacroExpander(const QString &projectName,
-                                           const Kit *k, const QString &bcName)
-    : m_projectName(projectName), m_kit(k), m_bcName(bcName)
-{ }
-
-bool ProjectMacroExpander::resolveMacro(const QString &name, QString *ret) const
+                                           const Kit *kit, const QString &bcName)
 {
-    QString result;
-    bool found = false;
-    if (name == QLatin1String(Constants::VAR_CURRENTPROJECT_NAME)) {
-        if (!m_projectName.isEmpty()) {
-            result = m_projectName;
-            found = true;
-        }
-    } else if (m_kit && name == QLatin1String(Constants::VAR_CURRENTKIT_NAME)) {
-        result = m_kit->displayName();
-        found = true;
-    } else if (m_kit && name == QLatin1String(Constants::VAR_CURRENTKIT_FILESYSTEMNAME)) {
-        result = m_kit->fileSystemFriendlyName();
-        found = true;
-    } else if (m_kit && name == QLatin1String(Constants::VAR_CURRENTKIT_ID)) {
-        result = m_kit->id().toString();
-        found = true;
-    } else if (name == QLatin1String(Constants::VAR_CURRENTBUILD_NAME)) {
-        result = m_bcName;
-        found = true;
-    } else if (name == QLatin1String(Constants::VAR_CURRENTDEVICE_HOSTADDRESS)) {
-        const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
-        if (device) {
-            result = device->sshParameters().host;
-            found = true;
-        }
-    } else if (name == QLatin1String(Constants::VAR_CURRENTDEVICE_SSHPORT)) {
-        const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
-        if (device) {
-            result = QString::number(device->sshParameters().port);
-            found = true;
-        }
-    } else if (name == QLatin1String(Constants::VAR_CURRENTDEVICE_USERNAME)) {
-        const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
-        if (device) {
-            result = device->sshParameters().userName;
-            found = true;
-        }
-    } else if (name == QLatin1String(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE)) {
-        const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
-        if (device) {
-            result = device->sshParameters().privateKeyFile;
-            found = true;
-        }
-    }
-    if (ret)
-        *ret = result;
-    return found;
+    registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
+                     QCoreApplication::translate("ProjectExplorer", "Name of current project"),
+                     [projectName] { return projectName; });
+
+    registerVariable(Constants::VAR_CURRENTBUILD_NAME,
+                     QCoreApplication::translate("ProjectExplorer", "Name of current build"),
+                     [bcName] { return bcName; });
+
+    registerSubProvider([kit] { return kit->macroExpander(); });
 }
+
+} // namespace ProjectExplorer
