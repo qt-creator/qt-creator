@@ -72,6 +72,10 @@ public:
     void zoomOut();
     void resetZoom();
 
+
+public slots:
+    void reindexDocumentation();
+
 signals:
     void linkActivated(const QUrl &link, bool newPage);
 
