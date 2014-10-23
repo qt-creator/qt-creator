@@ -36,12 +36,15 @@ class ClangStaticAnalyzerRunControl : public Analyzer::AnalyzerRunControl
     Q_OBJECT
 
 public:
-    struct FileConfiguration {
-        FileConfiguration(const QString &filePath, const CppTools::ProjectPart::Ptr &projectPart)
-            : filePath(filePath)
+    struct SourceFileConfiguration {
+        SourceFileConfiguration(const CppTools::ProjectFile &projectFile,
+                                const CppTools::ProjectPart::Ptr &projectPart)
+            : file(projectFile)
             , projectPart(projectPart) {}
 
-        QString filePath;
+        QStringList createClangOptions() const;
+
+        CppTools::ProjectFile file;
         CppTools::ProjectPart::Ptr projectPart;
     };
 
@@ -70,7 +73,7 @@ private:
     QString m_clangExecutable;
     QString m_clangLogFileDir;
     QFutureInterface<void> m_progress;
-    QList<FileConfiguration> m_filesToProcess;
+    QList<SourceFileConfiguration> m_filesToProcess;
     int m_initialFilesToProcessSize;
     int m_runningProcesses;
 };

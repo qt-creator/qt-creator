@@ -57,15 +57,15 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(
 {
 }
 
-static QList<ClangStaticAnalyzerRunControl::FileConfiguration> calculateFilesToProcess(
+static QList<ClangStaticAnalyzerRunControl::SourceFileConfiguration> calculateFilesToProcess(
             Project *project)
 {
-    typedef ClangStaticAnalyzerRunControl::FileConfiguration ProjectFileConfiguration;
-    QTC_ASSERT(project, return QList<ProjectFileConfiguration>());
+    typedef ClangStaticAnalyzerRunControl::SourceFileConfiguration SourceFileConfiguration;
+    QTC_ASSERT(project, return QList<SourceFileConfiguration>());
     ProjectInfo projectInfo = CppModelManager::instance()->projectInfo(project);
-    QTC_ASSERT(projectInfo, return QList<ProjectFileConfiguration>());
+    QTC_ASSERT(projectInfo, return QList<SourceFileConfiguration>());
 
-    QList<ProjectFileConfiguration> files;
+    QList<SourceFileConfiguration> files;
     const QList<ProjectPart::Ptr> projectParts = projectInfo.projectParts();
     foreach (const ProjectPart::Ptr &projectPart, projectParts) {
         foreach (const ProjectFile &file, projectPart->files) {
@@ -73,7 +73,7 @@ static QList<ClangStaticAnalyzerRunControl::FileConfiguration> calculateFilesToP
                 continue;
             QTC_CHECK(file.kind != ProjectFile::Unclassified);
             if (ProjectFile::isSource(file.kind))
-                files << ProjectFileConfiguration(file.path, projectPart);
+                files << SourceFileConfiguration(file, projectPart);
         }
     }
 
@@ -111,10 +111,10 @@ bool ClangStaticAnalyzerRunControl::startEngine()
     m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
-    const QList<FileConfiguration> filesToProcess = calculateFilesToProcess(currentProject);
+    const QList<SourceFileConfiguration> filesToProcess = calculateFilesToProcess(currentProject);
     qCDebug(LOG()) << "Files to process:";
-    foreach (const FileConfiguration &fileConfig, filesToProcess) {
-        qCDebug(LOG()) << fileConfig.filePath + QLatin1String(" [")
+    foreach (const SourceFileConfiguration &fileConfig, filesToProcess) {
+        qCDebug(LOG()) << fileConfig.file.path + QLatin1String(" [")
                           + fileConfig.projectPart->projectFile + QLatin1Char(']');
     }
     m_filesToProcess = filesToProcess;
@@ -144,15 +144,6 @@ void ClangStaticAnalyzerRunControl::stopEngine()
     m_filesToProcess.clear();
 }
 
-QStringList createDefinesAndIncludesOptions(const ProjectPart::Ptr projectPart)
-{
-    QStringList result;
-    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->projectDefines);
-    result += CppTools::CompilerOptionsBuilder::createHeaderPathOptions(projectPart->headerPaths);
-    result += QLatin1String("-fPIC"); // TODO: Remove?
-    return result;
-}
-
 void ClangStaticAnalyzerRunControl::analyzeNextFile()
 {
     if (m_progress.isFinished())
@@ -167,14 +158,13 @@ void ClangStaticAnalyzerRunControl::analyzeNextFile()
         return;
     }
 
-    const FileConfiguration config = m_filesToProcess.takeFirst();
-    const QString filePath = config.filePath;
-    const QStringList definesAndIncludesOptions
-            = createDefinesAndIncludesOptions(config.projectPart);
+    const SourceFileConfiguration config = m_filesToProcess.takeFirst();
+    const QString filePath = config.file.path;
+    const QStringList options = config.createClangOptions();
 
     ClangStaticAnalyzerRunner *runner = createRunner();
     qCDebug(LOG) << "analyzeNextFile:" << filePath;
-    QTC_ASSERT(runner->run(filePath, definesAndIncludesOptions), return);
+    QTC_ASSERT(runner->run(filePath, options), return);
     ++m_runningProcesses;
 }
 
@@ -230,6 +220,27 @@ void ClangStaticAnalyzerRunControl::onProgressCanceled()
 void ClangStaticAnalyzerRunControl::updateProgressValue()
 {
     m_progress.setProgressValue(m_initialFilesToProcessSize - m_filesToProcess.size());
+}
+
+QStringList ClangStaticAnalyzerRunControl::SourceFileConfiguration::createClangOptions() const
+{
+    QStringList result;
+
+    if (file.path.endsWith(QLatin1String("cppmodelmanager.cpp"))) {
+        qDebug() << "here";
+    }
+
+    const bool objcExt = projectPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
+    result += CppTools::CompilerOptionsBuilder::createLanguageOption(file.kind, objcExt);
+    result += CppTools::CompilerOptionsBuilder::createOptionsForLanguage(
+                                                    projectPart->languageVersion,
+                                                    projectPart->languageExtensions);
+    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->toolchainDefines);
+    result += CppTools::CompilerOptionsBuilder::createDefineOptions(projectPart->projectDefines);
+    result += CppTools::CompilerOptionsBuilder::createHeaderPathOptions(projectPart->headerPaths);
+    result += QLatin1String("-fPIC"); // TODO: Remove?
+
+    return result;
 }
 
 } // namespace Internal

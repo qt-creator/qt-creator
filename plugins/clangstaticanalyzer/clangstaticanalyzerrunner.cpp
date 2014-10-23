@@ -40,14 +40,14 @@ static QString finishedDueToCrash()
 
 static QStringList constructCommandLineArguments(const QString &filePath,
                                                  const QString &logFile,
-                                                 const QStringList &definesAndIncludes)
+                                                 const QStringList &options)
 {
     QStringList arguments = QStringList()
         << QLatin1String("--analyze")
         << QLatin1String("-o")
         << logFile
         ;
-    arguments += definesAndIncludes;
+    arguments += options;
     arguments << filePath;
     return arguments;
 }
@@ -88,16 +88,18 @@ ClangStaticAnalyzerRunner::~ClangStaticAnalyzerRunner()
         m_process.kill();
 }
 
-bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &definesAndIncludes)
+bool ClangStaticAnalyzerRunner::run(const QString &filePath, const QStringList &compilerOptions)
 {
     QTC_ASSERT(!m_clangExecutable.isEmpty(), return false);
+    QTC_CHECK(!compilerOptions.contains(QLatin1String("-o")));
+    QTC_CHECK(!compilerOptions.contains(filePath));
 
     m_processOutput.clear();
 
     m_logFile = createLogFile(filePath);
     QTC_ASSERT(!m_logFile.isEmpty(), return false);
     const QStringList arguments = constructCommandLineArguments(filePath, m_logFile,
-                                                                definesAndIncludes);
+                                                                compilerOptions);
     m_commandLine = m_clangExecutable + QLatin1Char(' ') + arguments.join(QLatin1Char(' '));
 
     qCDebug(LOG) << "Starting" << m_commandLine;
