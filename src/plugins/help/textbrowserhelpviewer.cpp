@@ -287,7 +287,6 @@ TextBrowserHelpWidget::TextBrowserHelpWidget(int zoom, TextBrowserHelpViewer *pa
     : QTextBrowser(parent)
     , zoomCount(zoom)
     , forceFont(false)
-    , lastAnchor(QString())
     , m_openInNewPageActionVisible(true)
     , m_parent(parent)
 {
@@ -302,30 +301,29 @@ QVariant TextBrowserHelpWidget::loadResource(int type, const QUrl &name)
     return QByteArray();
 }
 
-bool TextBrowserHelpWidget::hasAnchorAt(const QPoint &pos)
+QString TextBrowserHelpWidget::linkAt(const QPoint &pos)
 {
-    lastAnchor = anchorAt(pos);
-    if (lastAnchor.isEmpty())
-        return false;
+    QString anchor = anchorAt(pos);
+    if (anchor.isEmpty())
+        return QString();
 
-    lastAnchor = source().resolved(lastAnchor).toString();
-    if (lastAnchor.at(0) == QLatin1Char('#')) {
+    anchor = source().resolved(anchor).toString();
+    if (anchor.at(0) == QLatin1Char('#')) {
         QString src = source().toString();
         int hsh = src.indexOf(QLatin1Char('#'));
-        lastAnchor = (hsh >= 0 ? src.left(hsh) : src) + lastAnchor;
+        anchor = (hsh >= 0 ? src.left(hsh) : src) + anchor;
     }
-    return true;
+    return anchor;
 }
 
-void TextBrowserHelpWidget::openLink(bool newPage)
+void TextBrowserHelpWidget::openLink(const QUrl &url, bool newPage)
 {
-    if (lastAnchor.isEmpty())
+    if (url.isEmpty() || !url.isValid())
         return;
     if (newPage)
-        OpenPagesManager::instance().createPage(lastAnchor);
+        OpenPagesManager::instance().createPage(url);
     else
-        CentralWidget::instance()->setSource(lastAnchor);
-    lastAnchor.clear();
+        CentralWidget::instance()->setSource(url);
 }
 
 void TextBrowserHelpWidget::scaleUp()
@@ -348,33 +346,25 @@ void TextBrowserHelpWidget::scaleDown()
     }
 }
 
-void TextBrowserHelpWidget::openLink()
-{
-    openLink(false);
-}
-
-void TextBrowserHelpWidget::openLinkInNewPage()
-{
-    openLink(true);
-}
-
 void TextBrowserHelpWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(QLatin1String(""), 0);
 
-    QUrl link;
     QAction *copyAnchorAction = 0;
-    if (hasAnchorAt(event->pos())) {
-        link = anchorAt(event->pos());
-        if (link.isRelative())
-            link = source().resolved(link);
-        menu.addAction(tr("Open Link"), this, SLOT(openLink()));
-        if (m_openInNewPageActionVisible)
-            menu.addAction(QCoreApplication::translate("HelpViewer", "Open Link as New Page"),
-                           this, SLOT(openLinkInNewPage()));
-
-        if (!link.isEmpty() && link.isValid())
-            copyAnchorAction = menu.addAction(tr("Copy Link"));
+    const QUrl link(linkAt(event->pos()));
+    if (!link.isEmpty() && link.isValid()) {
+        QAction *action = menu.addAction(tr("Open Link"));
+        connect(action, &QAction::triggered, this, [this, link]() {
+            openLink(link, false/*newPage*/);
+        });
+        if (m_openInNewPageActionVisible) {
+            action = menu.addAction(QCoreApplication::translate("HelpViewer",
+                                                                "Open Link as New Page"));
+            connect(action, &QAction::triggered, this, [this, link]() {
+                openLink(link, true/*newPage*/);
+            });
+        }
+        copyAnchorAction = menu.addAction(tr("Copy Link"));
     } else if (!textCursor().selectedText().isEmpty()) {
         menu.addAction(tr("Copy"), this, SLOT(copy()));
     } else {
@@ -426,9 +416,9 @@ void TextBrowserHelpWidget::mouseReleaseEvent(QMouseEvent *e)
         return;
 
     bool controlPressed = e->modifiers() & Qt::ControlModifier;
-    if ((controlPressed && hasAnchorAt(e->pos())) ||
-        (e->button() == Qt::MidButton && hasAnchorAt(e->pos()))) {
-        openLinkInNewPage();
+    const QString link = linkAt(e->pos());
+    if ((controlPressed || e->button() == Qt::MidButton) && link.isEmpty()) {
+        openLink(link, true/*newPage*/);
         return;
     }
 
