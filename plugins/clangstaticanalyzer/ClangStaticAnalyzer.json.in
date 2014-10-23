@@ -2,6 +2,7 @@
     \"Name\" : \"ClangStaticAnalyzer\",
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"Experimental\" : true,
     \"Vendor\" : \"Digia Plc\",
     \"Copyright\" : \"(C) 2014 Digia Plc\",
     \"License\" : [ \"Commercial Usage\",
