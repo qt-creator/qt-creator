@@ -109,6 +109,7 @@ private:
     bool m_hasUniqueName;
     QPixmap m_background;
     QList<QAction *> m_actions;
+    QString m_displayName;
 };
 
 } // namespace Internal

@@ -141,7 +141,7 @@ KitManagerConfigWidget::~KitManagerConfigWidget()
 
 QString KitManagerConfigWidget::displayName() const
 {
-    return m_modifiedKit->displayName();
+    return m_displayName;
 }
 
 void KitManagerConfigWidget::apply()
@@ -175,6 +175,7 @@ void KitManagerConfigWidget::discard()
     }
     m_iconButton->setIcon(m_modifiedKit->icon());
     m_nameEdit->setText(m_modifiedKit->unexpandedDisplayName());
+    m_displayName = m_modifiedKit->displayName();
     m_fileSystemFriendlyNameLineEdit->setText(m_modifiedKit->customFileSystemFriendlyName());
     emit dirty();
 }
@@ -316,6 +317,7 @@ void KitManagerConfigWidget::setDisplayName()
     int pos = m_nameEdit->cursorPosition();
     m_modifiedKit->setUnexpandedDisplayName(m_nameEdit->text());
     m_nameEdit->setCursorPosition(pos);
+    m_displayName = m_modifiedKit->displayName();
 }
 
 void KitManagerConfigWidget::setFileSystemFriendlyName()
@@ -339,6 +341,8 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
 
     if (k->unexpandedDisplayName() != m_nameEdit->text())
         m_nameEdit->setText(k->unexpandedDisplayName());
+
+    m_displayName = k->displayName();
 
     m_fileSystemFriendlyNameLineEdit->setText(k->customFileSystemFriendlyName());
     m_iconButton->setIcon(k->icon());
