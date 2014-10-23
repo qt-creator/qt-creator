@@ -278,29 +278,10 @@ bool DiffEditor::open(QString *errorString,
 {
     Q_UNUSED(realFileName)
 
-    if (!m_controller)
+    if (!m_document)
         return false;
 
-    QString patch;
-    if (m_document->read(fileName, &patch, errorString) != Utils::TextFileFormat::ReadSuccess)
-        return false;
-
-    bool ok = false;
-    QList<FileData> fileDataList
-            = DiffUtils::readPatch(patch,
-                                   m_controller->isIgnoreWhitespace(),
-                                   &ok);
-    if (!ok) {
-        *errorString = tr("Could not parse patch file \"%1\". "
-                          "The content is not of unified diff format.")
-                .arg(fileName);
-        return false;
-    }
-
-    const QFileInfo fi(fileName);
-    m_document->setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
-    m_controller->setDiffFiles(fileDataList, fi.absolutePath());
-    return true;
+    return m_document->open(errorString, fileName);
 }
 
 Core::IDocument *DiffEditor::document()

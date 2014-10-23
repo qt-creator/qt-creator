@@ -55,8 +55,8 @@ public:
     bool isModified() const { return false; }
     bool isSaveAsAllowed() const { return true; }
     bool save(QString *errorString, const QString &fileName, bool autoSave);
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
+    bool open(QString *errorString, const QString &fileName);
 
 private:
     DiffEditorController *m_controller;

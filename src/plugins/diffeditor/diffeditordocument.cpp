@@ -68,9 +68,6 @@ bool DiffEditorDocument::setContents(const QByteArray &contents)
 
 QString DiffEditorDocument::defaultPath() const
 {
-    if (!m_controller)
-        return QString();
-
     return m_controller->workingDirectory();
 }
 
@@ -78,9 +75,6 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
 {
     Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
-
-    if (!m_controller)
-        return false;
 
     const QString contents = DiffUtils::makePatch(m_controller->diffFiles());
 
@@ -90,24 +84,43 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
         return false;
 
     const QFileInfo fi(fileName);
+    setTemporary(false);
     setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
     setDisplayName(QString());
     return true;
 }
 
-Core::IDocument::ReloadBehavior DiffEditorDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    Q_UNUSED(state)
-    Q_UNUSED(type)
-    return BehaviorSilent;
-}
-
 bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
-    Q_UNUSED(errorString)
-    Q_UNUSED(flag)
     Q_UNUSED(type)
-    return false;
+    if (flag == FlagIgnore)
+        return true;
+    return open(errorString, filePath());
+}
+
+bool DiffEditorDocument::open(QString *errorString, const QString &fileName)
+{
+    QString patch;
+    if (read(fileName, &patch, errorString) != Utils::TextFileFormat::ReadSuccess)
+        return false;
+
+    bool ok = false;
+    QList<FileData> fileDataList
+            = DiffUtils::readPatch(patch,
+                                   m_controller->isIgnoreWhitespace(),
+                                   &ok);
+    if (!ok) {
+        *errorString = tr("Could not parse patch file \"%1\". "
+                          "The content is not of unified diff format.")
+                .arg(fileName);
+        return false;
+    }
+
+    const QFileInfo fi(fileName);
+    setTemporary(false);
+    setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
+    m_controller->setDiffFiles(fileDataList, fi.absolutePath());
+    return true;
 }
 
 } // namespace DiffEditor
