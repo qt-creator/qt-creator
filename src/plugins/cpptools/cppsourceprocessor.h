@@ -65,9 +65,6 @@ public:
     CppSourceProcessor(const CPlusPlus::Snapshot &snapshot, DocumentCallback documentFinished);
     ~CppSourceProcessor();
 
-    void setDumpFileNameWhileParsing(bool onoff)
-    { m_dumpFileNameWhileParsing = onoff; }
-
     void setRevision(unsigned revision);
     void setWorkingCopy(const CppTools::WorkingCopy &workingCopy);
     void setHeaderPaths(const ProjectPart::HeaderPaths &headerPaths);
@@ -117,7 +114,6 @@ private:
     CPlusPlus::Snapshot m_snapshot;
     CPlusPlus::Snapshot m_globalSnapshot;
     DocumentCallback m_documentFinished;
-    bool m_dumpFileNameWhileParsing;
     CPlusPlus::Environment m_env;
     CPlusPlus::Preprocessor m_preprocess;
     ProjectPart::HeaderPaths m_headerPaths;

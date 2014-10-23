@@ -35,11 +35,13 @@
 
 #include <utils/qtcassert.h>
 
-enum { debug = 0 };
+#include <QLoggingCategory>
 
 using namespace CPlusPlus;
 using TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats;
 using TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd;
+
+static Q_LOGGING_CATEGORY(log, "qtc.cpptools.semantichighlighter")
 
 namespace CppTools {
 
@@ -74,8 +76,7 @@ void SemanticHighlighter::run()
 {
     QTC_ASSERT(m_highlightingRunner, return);
 
-    if (debug)
-        qDebug() << "SemanticHighlighter: run()";
+    qCDebug(log) << "SemanticHighlighter: run()";
 
     if (m_watcher) {
         disconnectWatcher();
@@ -101,8 +102,7 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
     else if (!m_watcher || m_watcher->isCanceled())
         return; // aborted
 
-    if (debug)
-        qDebug() << "SemanticHighlighter: onHighlighterResultAvailable()" << from << to;
+    qCDebug(log) << "onHighlighterResultAvailable()" << from << to;
 
     TextEditor::SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
     QTC_ASSERT(highlighter, return);
@@ -116,8 +116,7 @@ void SemanticHighlighter::onHighlighterFinished()
         TextEditor::SyntaxHighlighter *highlighter = m_baseTextDocument->syntaxHighlighter();
         QTC_CHECK(highlighter);
         if (highlighter) {
-            if (debug)
-                qDebug() << "SemanticHighlighter: onHighlighterFinished() - clearing formats";
+            qCDebug(log) << "onHighlighterFinished() - clearing formats";
             clearExtraAdditionalFormatsUntilEnd(highlighter, m_watcher->future());
         }
     }

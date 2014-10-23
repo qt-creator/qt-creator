@@ -46,13 +46,15 @@
 #include <utils/QtConcurrentTools>
 #include <utils/qtcassert.h>
 
-enum { debug = 0 };
+#include <QLoggingCategory>
+
+static Q_LOGGING_CATEGORY(log, "qtc.cpptools.builtineditordocumentprocessor")
 
 namespace {
 
-CppTools::CheckSymbols * createHighlighter(const CPlusPlus::Document::Ptr &doc,
-                                           const CPlusPlus::Snapshot &snapshot,
-                                           QTextDocument *textDocument)
+CppTools::CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
+                                          const CPlusPlus::Snapshot &snapshot,
+                                          QTextDocument *textDocument)
 {
     QTC_ASSERT(doc, return 0);
     QTC_ASSERT(doc->translationUnit(), return 0);
@@ -201,10 +203,7 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
     if (document->editorRevision() != revision())
         return; // outdated content, wait for a new document to be parsed
 
-    if (debug) {
-        qDebug() << "BuiltinEditorDocumentProcessor: document parsed" << document->fileName()
-                 << document->editorRevision();
-    }
+    qCDebug(log) << "document parsed" << document->fileName() << document->editorRevision();
 
     // Emit ifdefed out blocks
     const auto ifdefoutBlocks = toTextEditorBlocks(document->skippedBlocks());
@@ -224,10 +223,8 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
 
 void BuiltinEditorDocumentProcessor::onSemanticInfoUpdated(const SemanticInfo semanticInfo)
 {
-    if (debug) {
-        qDebug() << "BuiltinEditorDocumentProcessor: semantic info updated"
+    qCDebug(log) << "semantic info updated"
                  << semanticInfo.doc->fileName() << semanticInfo.revision << semanticInfo.complete;
-    }
 
     emit semanticInfoUpdated(semanticInfo);
 

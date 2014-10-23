@@ -52,7 +52,6 @@
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-static const bool DumpFileNameWhileParsing = qgetenv("QTC_DUMP_FILENAME_WHILE_PARSING") == "1";
 static const bool FindErrorsIndexing = qgetenv("QTC_FIND_ERRORS_INDEXING") == "1";
 
 namespace {
@@ -60,12 +59,8 @@ namespace {
 class ParseParams
 {
 public:
-    ParseParams()
-        : dumpFileNameWhileParsing(DumpFileNameWhileParsing)
-        , revision(0)
-    {}
+    ParseParams() : revision(0) {}
 
-    int dumpFileNameWhileParsing;
     int revision;
     ProjectPart::HeaderPaths headerPaths;
     WorkingCopy workingCopy;
@@ -192,11 +187,9 @@ void indexFindErrors(QFutureInterface<void> &future, const ParseParams params)
 void index(QFutureInterface<void> &future, const ParseParams params)
 {
     QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
-    sourceProcessor->setDumpFileNameWhileParsing(params.dumpFileNameWhileParsing);
     sourceProcessor->setRevision(params.revision);
     sourceProcessor->setHeaderPaths(params.headerPaths);
     sourceProcessor->setWorkingCopy(params.workingCopy);
-
 
     QStringList sources;
     QStringList headers;
