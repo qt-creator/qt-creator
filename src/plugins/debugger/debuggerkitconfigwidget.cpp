@@ -81,7 +81,7 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInfo
         m_comboBox->addItem(item.displayName(), item.id());
 
     refresh();
-    connect(m_comboBox, &QComboBox::currentIndexChanged,
+    connect(m_comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &DebuggerKitConfigWidget::currentDebuggerChanged);
 
     m_manageButton = new QPushButton(KitConfigWidget::msgManage());
