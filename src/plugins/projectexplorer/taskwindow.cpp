@@ -183,9 +183,7 @@ TaskView::TaskView(QWidget *parent)
 }
 
 TaskView::~TaskView()
-{
-
-}
+{ }
 
 void TaskView::resizeEvent(QResizeEvent *e)
 {
@@ -209,7 +207,6 @@ public:
     QToolButton *m_filterWarningsButton;
     QToolButton *m_categoriesButton;
     QMenu *m_categoriesMenu;
-    int m_badgeCount;
     QList<QAction *> m_actions;
 };
 
@@ -246,7 +243,6 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     d->m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     d->m_taskWindowContext = new Internal::TaskWindowContext(d->m_listview);
-    d->m_badgeCount = 0;
 
     Core::ICore::addContextObject(d->m_taskWindowContext);
 
@@ -300,6 +296,13 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
             this, SLOT(showTask(uint)));
     connect(hub, SIGNAL(openTask(uint)),
             this, SLOT(openTask(uint)));
+
+    connect(d->m_filter, &TaskFilterModel::rowsRemoved,
+            [this]() { emit setBadgeNumber(d->m_filter->rowCount()); });
+    connect(d->m_filter, &TaskFilterModel::rowsInserted,
+            [this]() { emit setBadgeNumber(d->m_filter->rowCount()); });
+    connect(d->m_filter, &TaskFilterModel::modelReset,
+            [this]() { emit setBadgeNumber(d->m_filter->rowCount()); });
 }
 
 TaskWindow::~TaskWindow()
@@ -364,24 +367,11 @@ QWidget *TaskWindow::outputWidget(QWidget *)
 
 void TaskWindow::clearTasks(Core::Id categoryId)
 {
-    if (categoryId.uniqueIdentifier() != 0 && !d->m_filter->filteredCategories().contains(categoryId)) {
-        if (d->m_filter->filterIncludesErrors())
-            d->m_badgeCount -= d->m_model->errorTaskCount(categoryId);
-        if (d->m_filter->filterIncludesWarnings())
-            d->m_badgeCount -= d->m_model->warningTaskCount(categoryId);
-        if (d->m_filter->filterIncludesUnknowns())
-            d->m_badgeCount -= d->m_model->unknownTaskCount(categoryId);
-    } else {
-        d->m_badgeCount = 0;
-    }
-
     d->m_model->clearTasks(categoryId);
 
     emit tasksChanged();
     emit tasksCleared();
     navigateStateChanged();
-
-    setBadgeNumber(d->m_badgeCount);
 }
 
 void TaskWindow::setCategoryVisibility(Core::Id categoryId, bool visible)
@@ -397,17 +387,6 @@ void TaskWindow::setCategoryVisibility(Core::Id categoryId, bool visible)
         categories.append(categoryId);
 
     d->m_filter->setFilteredCategories(categories);
-
-    int count = 0;
-    if (d->m_filter->filterIncludesErrors())
-        count += d->m_model->errorTaskCount(categoryId);
-    if (d->m_filter->filterIncludesWarnings())
-        count += d->m_model->warningTaskCount(categoryId);
-    if (visible)
-        d->m_badgeCount += count;
-    else
-        d->m_badgeCount -= count;
-    setBadgeNumber(d->m_badgeCount);
 }
 
 void TaskWindow::currentChanged(const QModelIndex &index)
@@ -443,18 +422,8 @@ void TaskWindow::addTask(const Task &task)
     navigateStateChanged();
 
     if (task.type == Task::Error && d->m_filter->filterIncludesErrors()
-            && !d->m_filter->filteredCategories().contains(task.category)) {
+            && !d->m_filter->filteredCategories().contains(task.category))
         flash();
-        setBadgeNumber(++d->m_badgeCount);
-    }
-    if (task.type == Task::Warning && d->m_filter->filterIncludesWarnings()
-            && !d->m_filter->filteredCategories().contains(task.category)) {
-        setBadgeNumber(++d->m_badgeCount);
-    }
-    if (task.type == Task::Unknown && d->m_filter->filterIncludesUnknowns()
-            && !d->m_filter->filteredCategories().contains(task.category)) {
-        setBadgeNumber(++d->m_badgeCount);
-    }
 }
 
 void TaskWindow::removeTask(const Task &task)
@@ -463,19 +432,6 @@ void TaskWindow::removeTask(const Task &task)
 
     emit tasksChanged();
     navigateStateChanged();
-
-    if (task.type == Task::Error && d->m_filter->filterIncludesErrors()
-            && !d->m_filter->filteredCategories().contains(task.category)) {
-        setBadgeNumber(--d->m_badgeCount);
-    }
-    if (task.type == Task::Warning && d->m_filter->filterIncludesWarnings()
-            && !d->m_filter->filteredCategories().contains(task.category)) {
-        setBadgeNumber(--d->m_badgeCount);
-    }
-    if (task.type == Task::Unknown && d->m_filter->filterIncludesUnknowns()
-            && !d->m_filter->filteredCategories().contains(task.category)) {
-        setBadgeNumber(--d->m_badgeCount);
-    }
 }
 
 void TaskWindow::updatedTaskFileName(unsigned int id, const QString &fileName)
@@ -545,8 +501,6 @@ void TaskWindow::setShowWarnings(bool show)
 {
     d->m_filter->setFilterIncludesWarnings(show);
     d->m_filter->setFilterIncludesUnknowns(show); // "Unknowns" are often associated with warnings
-    d->m_badgeCount = d->m_filter->rowCount();
-    setBadgeNumber(d->m_badgeCount);
 }
 
 void TaskWindow::updateCategoriesMenu()
