@@ -99,7 +99,7 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
     m_autoRoot = new KitNode(m_root);
     m_manualRoot = new KitNode(m_root);
 
-    foreach (Kit *k, KitManager::kits())
+    foreach (Kit *k, KitManager::sortedKits())
         addKit(k);
 
     changeDefaultKit();

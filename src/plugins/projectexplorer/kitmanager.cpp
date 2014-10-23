@@ -77,36 +77,6 @@ public:
     KitManagerPrivate();
     ~KitManagerPrivate();
 
-    void insertKit(Kit *k)
-    {
-        // Keep list of kits sorted by displayname:
-        int i =0;
-        for (; i < m_kitList.count(); ++i)
-            if (m_kitList.at(i)->displayName() > k->displayName())
-                break;
-        m_kitList.insert(i, k);
-    }
-
-    void moveKit(int pos)
-    {
-        if (pos < 0 || pos >= m_kitList.count())
-            return;
-
-        Kit *current = m_kitList.at(pos);
-        int prev = pos - 1;
-        int next = pos + 1;
-
-        if (prev >= 0
-                && m_kitList.at(prev)->displayName() > current->displayName()) {
-            std::swap(m_kitList[prev], m_kitList[pos]);
-            moveKit(prev);
-        } else if (next < m_kitList.count()
-                   && m_kitList.at(next)->displayName() < current->displayName()) {
-            std::swap(m_kitList[pos], m_kitList[next]);
-            moveKit(next);
-        }
-    }
-
     Kit *m_defaultKit;
     bool m_initialized;
     QList<KitInformation *> m_informationList;
@@ -415,6 +385,21 @@ QList<Kit *> KitManager::kits()
     return d->m_kitList;
 }
 
+QList<Kit *> KitManager::sortedKits()
+{
+    // This method was added to delay the sorting of kits as long as possible.
+    // Since the displayName can contain variables it can be costly (e.g. involve
+    // calling executables to find version information, etc.) to call that
+    // method!
+    // Avoid lots of potentially expensive calls to Kit::displayName():
+    QList<QPair<QString, Kit *> > sortList
+            = Utils::transform(d->m_kitList, [](Kit *k) { return qMakePair(k->displayName(), k); });
+    Utils::sort(sortList, [](const QPair<QString, Kit *> &a, const QPair<QString, Kit *> &b) {
+        return a.first < b.first;
+    });
+    return Utils::transform(sortList, [](const QPair<QString, Kit *> &a) { return a.second; });
+}
+
 QList<Kit *> KitManager::matchingKits(const KitMatcher &matcher)
 {
     QList<Kit *> result;
@@ -545,7 +530,7 @@ void KitManager::addKit(Kit *k)
         }
     }
 
-    d->insertKit(k);
+    d->m_kitList.append(k);
 }
 
 void KitInformation::addToEnvironment(const Kit *k, Environment &env) const

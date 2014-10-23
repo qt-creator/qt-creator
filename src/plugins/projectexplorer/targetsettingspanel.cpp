@@ -611,11 +611,7 @@ void TargetSettingsPanelWidget::updateTargetButtons()
             this, SLOT(duplicateActionTriggered(QAction*)));
     connect(removeAction, SIGNAL(triggered()), this, SLOT(removeTarget()));
 
-    QList<Kit *> kits = KitManager::kits();
-    Utils::sort(kits, [](const Kit *a, const Kit *b) {
-        return a->displayName() < b->displayName();
-    });
-    foreach (Kit *k, kits) {
+    foreach (Kit *k, KitManager::sortedKits()) {
         if (m_project->target(k))
             continue;
         createAction(k, m_addMenu);

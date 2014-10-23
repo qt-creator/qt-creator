@@ -133,6 +133,7 @@ public:
     ~KitManager();
 
     static QList<Kit *> kits();
+    static QList<Kit *> sortedKits(); // Use kits() whenever possible as that is cheaper!
     static QList<Kit *> matchingKits(const KitMatcher &matcher);
     static Kit *find(Core::Id id);
     static Kit *find(const KitMatcher &matcher);
