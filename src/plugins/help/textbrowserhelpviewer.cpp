@@ -323,7 +323,7 @@ void TextBrowserHelpWidget::openLink(const QUrl &url, bool newPage)
     if (newPage)
         OpenPagesManager::instance().createPage(url);
     else
-        CentralWidget::instance()->setSource(url);
+        setSource(url);
 }
 
 void TextBrowserHelpWidget::scaleUp()

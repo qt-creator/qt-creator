@@ -162,7 +162,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(HelpManager::instance(), SIGNAL(helpRequested(QUrl,Core::HelpManager::HelpViewerLocation)),
             this, SLOT(handleHelpRequest(QUrl,Core::HelpManager::HelpViewerLocation)));
     connect(m_searchTaskHandler, SIGNAL(search(QUrl)), this,
-            SLOT(switchToHelpMode(QUrl)));
+            SLOT(showLinkInHelpMode(QUrl)));
 
     connect(m_filterSettingsPage, SIGNAL(filtersChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
@@ -223,15 +223,17 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
             SLOT(gotoNextPage()));
     }
 
-    HelpIndexFilter *helpIndexFilter = new HelpIndexFilter();
+    auto helpIndexFilter = new HelpIndexFilter();
     addAutoReleasedObject(helpIndexFilter);
-    connect(helpIndexFilter, SIGNAL(linkActivated(QUrl)), this,
-        SLOT(switchToHelpMode(QUrl)));
+    connect(helpIndexFilter, &HelpIndexFilter::linkActivated,
+            this, &HelpPlugin::showLinkInHelpMode);
+    connect(helpIndexFilter, &HelpIndexFilter::linksActivated,
+            this, &HelpPlugin::showLinksInHelpMode);
 
     RemoteHelpFilter *remoteHelpFilter = new RemoteHelpFilter();
     addAutoReleasedObject(remoteHelpFilter);
     connect(remoteHelpFilter, SIGNAL(linkActivated(QUrl)), this,
-        SLOT(switchToHelpMode(QUrl)));
+        SLOT(showLinkInHelpMode(QUrl)));
 
     QDesktopServices::setUrlHandler(QLatin1String("qthelp"), this, "handleHelpRequest");
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
@@ -330,7 +332,7 @@ HelpWidget *HelpPlugin::createHelpWidget(const Context &context, HelpWidget::Wid
     connect(widget->currentViewer(), SIGNAL(loadFinished()),
             this, SLOT(highlightSearchTermsInContextHelp()));
     connect(widget, SIGNAL(openHelpMode(QUrl)),
-            this, SLOT(switchToHelpMode(QUrl)));
+            this, SLOT(showLinkInHelpMode(QUrl)));
     connect(widget, SIGNAL(closeButtonClicked()),
             this, SLOT(slotHideRightPane()));
     connect(widget, SIGNAL(aboutToClose()),
@@ -410,12 +412,19 @@ void HelpPlugin::activateHelpMode()
     ModeManager::activateMode(Id(Constants::ID_MODE_HELP));
 }
 
-void HelpPlugin::switchToHelpMode(const QUrl &source)
+void HelpPlugin::showLinkInHelpMode(const QUrl &source)
 {
     activateHelpMode();
     Core::ICore::raiseWindow(m_mode->widget());
     m_centralWidget->setSource(source);
     m_centralWidget->setFocus();
+}
+
+void HelpPlugin::showLinksInHelpMode(const QMap<QString, QUrl> &links, const QString &key)
+{
+    activateHelpMode();
+    Core::ICore::raiseWindow(m_mode->widget());
+    m_centralWidget->showTopicChooser(links, key);
 }
 
 void HelpPlugin::slotHideRightPane()
@@ -463,7 +472,7 @@ void HelpPlugin::fontChanged()
                                        : m_rightPaneSideBarWidget->currentViewer()->viewerFont();
 
     m_rightPaneSideBarWidget->setViewerFont(font);
-    CentralWidget::instance()->setViewerFont(font);
+    m_centralWidget->setViewerFont(font);
 }
 
 void HelpPlugin::setupHelpEngineIfNeeded()
@@ -646,7 +655,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url, Core::HelpManager::HelpViewe
 
 void HelpPlugin::slotOpenSupportPage()
 {
-    switchToHelpMode(QUrl(QLatin1String("qthelp://org.qt-project.qtcreator/doc/technical-support.html")));
+    showLinkInHelpMode(QUrl(QLatin1String("qthelp://org.qt-project.qtcreator/doc/technical-support.html")));
 }
 
 void HelpPlugin::slotReportBug()
