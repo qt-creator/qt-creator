@@ -48,7 +48,7 @@ namespace ProjectExplorer {
 JsonKitsPage::JsonKitsPage(QWidget *parent) : TargetSetupPage(parent)
 { }
 
-void ProjectExplorer::JsonKitsPage::initializePage()
+void JsonKitsPage::initializePage()
 {
     JsonWizard *wiz = qobject_cast<JsonWizard *>(wizard());
     QTC_ASSERT(wiz, return);
@@ -58,7 +58,7 @@ void ProjectExplorer::JsonKitsPage::initializePage()
     const QString platform = wiz->value(QLatin1String("Platform")).toString();
     const Core::FeatureSet preferred = Core::FeatureSet::fromStringList(wiz->value(QLatin1String("PreferredFeatures")).toStringList());
     const Core::FeatureSet required = Core::FeatureSet::fromStringList(wiz->value(QLatin1String("RequiredFeatures")).toStringList());
-    const QString path = Utils::expandMacros(m_projectFilePath, wiz->expander());
+    const QString path = wiz->expander()->expand(m_projectFilePath);
 
     setProjectPath(path);
 
