@@ -29,6 +29,8 @@
 ****************************************************************************/
 
 #include "unit.h"
+
+#include "clangutils.h"
 #include "unsavedfiledata.h"
 #include "utils_p.h"
 
@@ -47,8 +49,6 @@ static QBasicAtomicInt unitDataCount = Q_BASIC_ATOMIC_INITIALIZER(0);
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 
-static const int DisplayDiagnostics = (qgetenv("QTC_CLANG_VERBOSE") == "1") ? 1 : 0;
-
 Unit::Unit()
     : m_index(0)
     , m_tu(0)
@@ -56,7 +56,7 @@ Unit::Unit()
 {}
 
 Unit::Unit(const QString &fileName)
-    : m_index(clang_createIndex(/*excludeDeclsFromPCH*/ 1, DisplayDiagnostics))
+    : m_index(clang_createIndex(/*excludeDeclsFromPCH*/ 1, Utils::verboseRunLog().isDebugEnabled()))
     , m_tu(0)
     , m_fileName(fileName.toUtf8())
     , m_managementOptions(0)

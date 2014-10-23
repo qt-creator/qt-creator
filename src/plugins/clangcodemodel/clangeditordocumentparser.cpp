@@ -40,7 +40,9 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-static const bool DebugTiming = qgetenv("QTC_CLANG_VERBOSE") == "1";
+#include <QLoggingCategory>
+
+static Q_LOGGING_CATEGORY(log, "qtc.clangcodemodel.clangeditordocumentparser")
 
 namespace {
 
@@ -91,20 +93,16 @@ void ClangEditorDocumentParser::update(CppTools::WorkingCopy workingCopy)
     updateProjectPart();
     const QStringList options = createOptions(filePath(), projectPart());
 
-    QTime t;
-    if (DebugTiming) {
-        qDebug("*** Reparse options (cmd line equivalent): %s",
-               commandLine(options, filePath()).toUtf8().constData());
-        t.start();
-    }
+    qCDebug(log, "Reparse options (cmd line equivalent): %s",
+           commandLine(options, filePath()).toUtf8().constData());
+    QTime t; t.start();
 
     m_marker->setFileName(filePath());
     m_marker->setCompilationOptions(options);
     const Internal::UnsavedFiles unsavedFiles = Utils::createUnsavedFiles(workingCopy);
     m_marker->reparse(unsavedFiles);
 
-    if (DebugTiming)
-        qDebug() << "*** Reparse took" << t.elapsed() << "ms.";
+    qCDebug(log) << "Reparse took" << t.elapsed() << "ms.";
 }
 
 QList<Diagnostic> ClangEditorDocumentParser::diagnostics() const

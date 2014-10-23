@@ -36,8 +36,12 @@
 
 #include <cpptools/cppmodelmanager.h>
 
+#include <QLoggingCategory>
+
 namespace ClangCodeModel {
 namespace Utils {
+
+Q_DECLARE_LOGGING_CATEGORY(verboseRunLog)
 
 ClangCodeModel::Internal::UnsavedFiles createUnsavedFiles(CppTools::WorkingCopy workingCopy);
 

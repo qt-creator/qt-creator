@@ -61,10 +61,9 @@
 
 #include <QCoreApplication>
 #include <QDirIterator>
+#include <QLoggingCategory>
 #include <QTextCursor>
 #include <QTextDocument>
-
-static const bool DebugTiming = qgetenv("QTC_CLANG_VERBOSE") == "1";
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
@@ -73,6 +72,7 @@ using namespace CppTools;
 using namespace TextEditor;
 
 static const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
+static Q_LOGGING_CATEGORY(log, "qtc.clangcodemodel.completion")
 
 namespace {
 
@@ -170,17 +170,13 @@ static QList<CodeCompletionResult> unfilteredCompletion(const ClangCompletionAss
     if (!modifiedInput.isEmpty())
         unsavedFiles.insert(fileName, modifiedInput);
 
-    QTime t;
-    if (DebugTiming) {
-        qDebug() << "Here we go with ClangCompletionAssistProcessor....";
-        t.start();
-    }
+    qCDebug(log) << "Starting completion...";
+    QTime t; t.start();
 
     QList<CodeCompletionResult> result = wrapper->codeCompleteAt(line, column + 1, unsavedFiles);
     ::Utils::sort(result);
 
-    if (DebugTiming)
-        qDebug() << "... Completion done in" << t.elapsed() << "ms, with" << result.count() << "items.";
+    qCDebug(log) << "Completion done in" << t.elapsed() << "ms, with" << result.count() << "items.";
 
     return result;
 }
@@ -977,8 +973,7 @@ int ClangCompletionAssistProcessor::startCompletionInternal(const QString fileNa
         int l = line, c = column;
         Convenience::convertPosition(m_interface->textDocument(), nameStart, &l, &c);
 
-        if (DebugTiming)
-            qDebug()<<"complete constructor or function @" << line<<":"<<column << "->"<<l<<":"<<c;
+        qCDebug(log)<<"complete constructor or function @" << line<<":"<<column << "->"<<l<<":"<<c;
 
         const QList<CodeCompletionResult> completions = unfilteredCompletion(
                     m_interface.data(), fileName, l, c, QByteArray(), signalCompletion || slotCompletion);

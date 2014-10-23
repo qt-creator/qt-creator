@@ -42,7 +42,9 @@
 #include <utils/qtcassert.h>
 #include <utils/QtConcurrentTools>
 
-static const bool DebugTiming = qgetenv("QTC_CLANG_VERBOSE") == "1";
+#include <QLoggingCategory>
+
+static Q_LOGGING_CATEGORY(log, "qtc.clangcodemodel.clangeditordocumentprocessor")
 
 namespace {
 
@@ -55,8 +57,7 @@ QList<CppToolsDiagnostic> toCppToolsDiagnostics(
 
     QList<CppToolsDiagnostic> converted;
     foreach (const ClangCodeModel::Diagnostic &d, diagnostics) {
-        if (DebugTiming)
-            qDebug() << d.severityAsString() << d.location() << d.spelling();
+        qCDebug(log) << "diagnostic" << d.severityAsString() << d.location() << d.spelling();
 
         if (d.location().fileName() != filePath)
             continue;

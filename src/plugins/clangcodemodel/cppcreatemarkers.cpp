@@ -35,16 +35,17 @@
 #include <utils/runextensions.h>
 
 #include <QCoreApplication>
+#include <QLoggingCategory>
 #include <QMutexLocker>
 #include <QThreadPool>
 
 #include <QDebug>
 
-static const bool DebugTiming = qgetenv("QTC_CLANG_VERBOSE") == "1";
-
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 using namespace CppTools;
+
+static Q_LOGGING_CATEGORY(log, "qtc.clangcodemodel.createmarkers")
 
 CreateMarkers *CreateMarkers::create(SemanticMarker::Ptr semanticMarker,
                                      const QString &fileName,
@@ -79,11 +80,9 @@ void CreateMarkers::run()
     if (isCanceled())
         return;
 
-    QTime t;
-    if (DebugTiming) {
-        qDebug() << "*** Highlighting from" << m_firstLine << "to" << m_lastLine << "of" << m_fileName;
-        t.start();
-    }
+    qCDebug(log) << "Creating markers from" << m_firstLine << "to" << m_lastLine
+                 << "of" << m_fileName;
+    QTime t; t.start();
 
     m_usages.clear();
 
@@ -105,10 +104,7 @@ void CreateMarkers::run()
     flush();
     reportFinished();
 
-    if (DebugTiming) {
-        qDebug() << "*** Highlighting took" << t.elapsed() << "ms in total.";
-        t.restart();
-    }
+    qCDebug(log) << "Creating markers took" << t.elapsed() << "ms in total.";
 }
 
 void CreateMarkers::addUse(const SourceMarker &marker)
