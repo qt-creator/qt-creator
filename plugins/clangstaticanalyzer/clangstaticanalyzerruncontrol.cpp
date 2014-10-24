@@ -230,10 +230,6 @@ QStringList ClangStaticAnalyzerRunControl::SourceFileConfiguration::createClangO
 {
     QStringList result;
 
-    if (file.path.endsWith(QLatin1String("cppmodelmanager.cpp"))) {
-        qDebug() << "here";
-    }
-
     const bool objcExt = projectPart->languageExtensions & ProjectPart::ObjectiveCExtensions;
     result += CppTools::CompilerOptionsBuilder::createLanguageOption(file.kind, objcExt);
     result += CppTools::CompilerOptionsBuilder::createOptionsForLanguage(
