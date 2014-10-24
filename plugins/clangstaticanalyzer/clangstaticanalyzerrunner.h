@@ -40,7 +40,9 @@ public:
                               QObject *parent = 0);
     ~ClangStaticAnalyzerRunner();
 
-    // compilerOptions is expected to contain everything except: -o filePath
+    // compilerOptions is expected to contain everything except:
+    //   (1) filePath, that is the file to analyze
+    //   (2) -o output-file
     bool run(const QString &filePath, const QStringList &compilerOptions = QStringList());
 
 signals:
